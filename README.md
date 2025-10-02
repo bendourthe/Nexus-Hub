@@ -9,11 +9,32 @@ ai_templates/
 ├── system_prompts/              # System prompts for AI-assisted coding
 │   ├── autonomous_agents/       # Prompts for autonomous coding agents
 │   │   └── claude_code/python/  # Claude-specific autonomous coding
-│   ├── coding_assistants/       # Prompts for interactive coding assistants  
+│   │       ├── CLAUDE_comprehensive_35k.md    # Full system prompt (~35k tokens)
+│   │       └── CLAUDE_condensed_20k.md        # Optimized prompt (~20k tokens)
+│   ├── coding_assistants/       # Prompts for interactive coding assistants
 │   │   └── python/              # General interactive coding assistance
+│   │       ├── GLOBAL_comprehensive_35k.md    # Full system prompt (~35k tokens)
+│   │       └── GLOBAL_condensed_15k.md        # Optimized prompt (~15k tokens)
 │   └── README.md                # Platform setup instructions
 ├── code_review/                 # Templates for comprehensive code reviews
+│   ├── python/                  # Python code review templates
+│   │   ├── README.md            # 6-phase review protocol
+│   │   ├── phase1_context.md    # Context gathering
+│   │   ├── phase2_code_quality.md    # Quality assessment
+│   │   ├── phase3_security.md   # Security review
+│   │   ├── phase4_performance.md     # Performance analysis
+│   │   ├── phase5_testing.md    # Test coverage review
+│   │   └── phase6_final.md      # Final report generation
+│   └── README.md                # Code review overview
 ├── test_development/            # Templates for comprehensive test development
+│   ├── python/                  # Python test development templates
+│   │   ├── README.md            # 5-phase test protocol
+│   │   ├── phase1_structure.md  # Test infrastructure
+│   │   ├── phase2_test_cases.md # Test case development
+│   │   ├── phase3_mocks_fixtures.md  # Mocking & fixtures
+│   │   ├── phase4_performance.md     # Performance testing
+│   │   └── phase5_maintenance_cicd.md # CI/CD integration
+│   └── README.md                # Test development overview
 ├── .github/
 │   └── copilot-instructions.md  # GitHub Copilot configuration for this repo
 └── README.md                    # This file
@@ -50,16 +71,24 @@ This repository provides standardized templates for three critical aspects of AI
 4. **Follow setup instructions**: See `system_prompts/README.md` for platform-specific configuration
 
 ### For Code Reviews
-1. **Select review type**: Choose appropriate template from `code_review/` directory
-2. **Customize criteria**: Adapt evaluation criteria to your project's specific requirements
-3. **Integrate with workflow**: Incorporate templates into your review process
-4. **Train reviewers**: Use templates to ensure consistent review quality across team
+1. **Choose review depth**: 
+   - Quick (30 min): Phases 1-2 for basic quality assessment
+   - Standard (1-2 hours): Phases 1-4 for thorough review
+   - Comprehensive (3+ hours): All 6 phases for complete analysis
+2. **Navigate to template**: `code_review/python/README.md` for complete protocol
+3. **Copy phase prompts**: Each phase has copy-paste ready prompts for AI assistants
+4. **Review systematically**: Follow sequential phases for comprehensive coverage
+5. **Generate report**: Phase 6 consolidates findings into actionable recommendations
 
 ### For Test Development
-1. **Choose testing approach**: Select from unit, integration, performance, or comprehensive test templates
-2. **Adapt to project**: Customize test structures and patterns for your specific technology stack
-3. **Implement automation**: Use templates to establish automated testing pipelines
-4. **Monitor quality**: Apply template metrics to track and improve test effectiveness
+1. **Choose implementation approach**:
+   - Quick (2 hours): Phases 1, 2 (core tests), and 5 (basic CI)
+   - Standard (7-10 hours): Phases 1-4 for production-ready tests
+   - Comprehensive (10-13 hours): All 5 phases for enterprise-grade testing
+2. **Navigate to template**: `test_development/python/README.md` for complete protocol
+3. **Follow phase sequence**: Each phase builds on previous infrastructure
+4. **Use copy-paste prompts**: Detailed implementation prompts with code examples
+5. **Integrate with CI/CD**: Phase 5 provides GitHub Actions and Jenkins configurations
 
 ## 🛠 Template Categories
 
@@ -76,16 +105,45 @@ This repository provides standardized templates for three critical aspects of AI
   - Quick development and prototyping focus
 
 ### Code Review Templates
-- **Security-focused reviews**: Templates emphasizing security vulnerabilities and best practices
-- **Performance reviews**: Templates for evaluating code efficiency and optimization
-- **Architecture reviews**: Templates for assessing system design and component integration
-- **Quality assurance**: Templates for general code quality, maintainability, and standards compliance
+
+#### Python Code Review (6-Phase Methodology)
+- **Phase 1: Context Gathering** - Project understanding, architecture analysis, dependency review
+- **Phase 2: Code Quality** - Style compliance, design patterns, error handling, documentation
+- **Phase 3: Security Review** - Vulnerability assessment, input validation, authentication, encryption
+- **Phase 4: Performance** - Algorithm efficiency, resource management, scalability analysis
+- **Phase 5: Testing** - Test coverage, quality assessment, edge cases, integration tests
+- **Phase 6: Final Report** - Comprehensive findings, prioritized recommendations, action items
+
+**Time Investment**: 30 minutes (quick) to 3+ hours (comprehensive)
+
+**Features**:
+- Copy-paste ready prompts for AI-assisted reviews
+- Comprehensive checklists (150+ evaluation points)
+- Severity-based issue classification (Critical/High/Medium/Low)
+- Security-focused analysis (OWASP Top 10, injection attacks, auth vulnerabilities)
+- Performance profiling recommendations
+- Actionable remediation guidance
 
 ### Test Development Templates
-- **Unit testing frameworks**: Comprehensive structures for isolated component testing
-- **Integration testing**: Templates for multi-component and system-level testing
-- **Performance testing**: Load testing, stress testing, and performance validation templates
-- **Test automation**: CI/CD integration and automated test execution frameworks
+
+#### Python Test Development (5-Phase Methodology)
+- **Phase 1: Test Structure** - Infrastructure setup, master runner, utilities, configuration (1-2 hours)
+- **Phase 2: Test Cases** - Functional, edge cases, error handling, integration, performance (2-4 hours)
+- **Phase 3: Mocks & Fixtures** - Database mocking, API mocking, test data, isolation (1-2 hours)
+- **Phase 4: Performance Testing** - Response time, throughput, load, stress, memory profiling (2-4 hours)
+- **Phase 5: CI/CD Integration** - GitHub Actions, Jenkins, flaky test detection, quality gates (1-2 hours)
+
+**Time Investment**: 7-13 hours for complete implementation, 2 hours for quick setup
+
+**Features**:
+- Copy-paste ready implementation prompts
+- TestResultAggregator and PerformanceTimer utilities
+- Exact output formatting (100-char separators, box-drawing tables)
+- Mock patterns for databases, APIs, file systems
+- Performance testing with percentile analysis (p95, p99)
+- Concurrent load testing (ThreadPoolExecutor)
+- CI/CD workflow templates (GitHub Actions, Jenkins)
+- Flaky test detection and resolution strategies
 
 ## 📈 Benefits
 
