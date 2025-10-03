@@ -6,16 +6,16 @@ This repository contains standardized system prompts (also known as Rules or Ins
 
 ```
 ai_prompts/
-├── autonomous_agents/          # Prompts for autonomous coding agents
+├── autonomous_agents/                          # Prompts for autonomous coding agents
 │   └── claude_code/
 │       └── python/
-│           ├── CLAUDE_comprehensive_35k.md    # Full-featured prompt (~35k tokens)
-│           └── CLAUDE_condensed_20k.md       # Streamlined version (~20k tokens)
-├── coding_assistants/          # Prompts for coding assistants
+│           ├── CLAUDE_comprehensive_35k.md     # Full-featured prompt (~35k tokens)
+│           └── CLAUDE_condensed_20k.md         # Streamlined version (~20k tokens)
+├── coding_assistants/                          # Prompts for coding assistants
 │   └── python/
-│       ├── GLOBAL_comprehensive_35k.md       # Full-featured prompt (~35k tokens)
-│       └── GLOBAL_condensed_15k.md          # Lightweight version (~15k tokens)
-└── README.md                   # This file
+│       ├── GLOBAL_comprehensive_35k.md         # Full-featured prompt (~35k tokens)
+│       └── GLOBAL_condensed_15k.md             # Lightweight version (~15k tokens)
+└── README.md                                   # This file
 ```
 
 ## 🎯 Purpose
