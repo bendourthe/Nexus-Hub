@@ -44,8 +44,9 @@ Having standardized and version-controlled prompts helps ensure that your organi
 ### Cursor
 
 1. **Global Settings**:
-   - Open Cursor Settings (`Ctrl+,` or `Cmd+,`)
-   - Navigate to "Cursor Tab" → "General" → "System Message"
+   - Go to File > Preferences > Cursor Settings
+   - Click on "Rules & Memories" tab on the left panel
+   - Click on "User Rules"
    - Paste content from `coding_assistants/python/GLOBAL_comprehensive_35k.md`
 
 2. **Project-Specific**:
@@ -54,10 +55,12 @@ Having standardized and version-controlled prompts helps ensure that your organi
 
 ### Windsurf
 
-1. **Workspace Configuration**:
-   - Open Windsurf settings
-   - Navigate to AI Assistant settings
-   - Add the system prompt from `coding_assistants/python/GLOBAL_comprehensive_35k.md`
+1. **Global Rules Setup**:
+   - Open Cascade chat on the right side of the interface
+   - Click the Customizations icon in the top right corner of Cascade
+   - Navigate to Customizations > Rules
+   - Click "Edit global_windsurf.md"
+   - Paste content from `coding_assistants/python/GLOBAL_comprehensive_35k.md`
 
 2. **Per-Session Setup**:
    - Start a new coding session

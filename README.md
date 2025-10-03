@@ -6,38 +6,39 @@ This repository contains comprehensive templates and standardized prompts to enh
 
 ```
 ai_templates/
-├── system_prompts/              # System prompts for AI-assisted coding
-│   ├── autonomous_agents/       # Prompts for autonomous coding agents
-│   │   └── claude_code/python/  # Claude-specific autonomous coding
-│   │       ├── CLAUDE_comprehensive_35k.md    # Full system prompt (~35k tokens)
-│   │       └── CLAUDE_condensed_20k.md        # Optimized prompt (~20k tokens)
-│   ├── coding_assistants/       # Prompts for interactive coding assistants
-│   │   └── python/              # General interactive coding assistance
-│   │       ├── GLOBAL_comprehensive_35k.md    # Full system prompt (~35k tokens)
-│   │       └── GLOBAL_condensed_15k.md        # Optimized prompt (~15k tokens)
-│   └── README.md                # Platform setup instructions
-├── code_review/                 # Templates for comprehensive code reviews
-│   ├── python/                  # Python code review templates
-│   │   ├── README.md            # 6-phase review protocol
-│   │   ├── phase1_context.md    # Context gathering
-│   │   ├── phase2_code_quality.md    # Quality assessment
-│   │   ├── phase3_security.md   # Security review
-│   │   ├── phase4_performance.md     # Performance analysis
-│   │   ├── phase5_testing.md    # Test coverage review
-│   │   └── phase6_final.md      # Final report generation
-│   └── README.md                # Code review overview
-├── test_development/            # Templates for comprehensive test development
-│   ├── python/                  # Python test development templates
-│   │   ├── README.md            # 5-phase test protocol
-│   │   ├── phase1_structure.md  # Test infrastructure
-│   │   ├── phase2_test_cases.md # Test case development
-│   │   ├── phase3_mocks_fixtures.md  # Mocking & fixtures
-│   │   ├── phase4_performance.md     # Performance testing
-│   │   └── phase5_maintenance_cicd.md # CI/CD integration
-│   └── README.md                # Test development overview
+├── system_prompts/                             # System prompts for AI-assisted coding
+│   ├── autonomous_agents/                      # Prompts for autonomous coding agents
+│   │   └── claude_code/                        # Claude-specific autonomous coding
+│   │       └── python/                         # Python language prompts
+│   │           ├── CLAUDE_comprehensive_35k.md # Full system prompt (~35k tokens)
+│   │           └── CLAUDE_condensed_20k.md     # Optimized prompt (~20k tokens)
+│   ├── coding_assistants/                      # Prompts for interactive coding assistants
+│   │   └── python/                             # General interactive coding assistance
+│   │       ├── GLOBAL_comprehensive_35k.md     # Full system prompt (~35k tokens)
+│   │       └── GLOBAL_condensed_15k.md         # Optimized prompt (~15k tokens)
+│   └── README.md                               # Platform setup instructions
+├── code_review/                                # Templates for comprehensive code reviews
+│   ├── python/                                 # Python code review templates
+│   │   ├── README.md                           # 6-phase review protocol
+│   │   ├── phase1_context.md                   # Context gathering
+│   │   ├── phase2_code_quality.md              # Quality assessment
+│   │   ├── phase3_security.md                  # Security review
+│   │   ├── phase4_performance.md               # Performance analysis
+│   │   ├── phase5_testing.md                   # Test coverage review
+│   │   └── phase6_final.md                     # Final report generation
+│   └── README.md                               # Code review overview
+├── test_development/                           # Templates for comprehensive test development
+│   ├── python/                                 # Python test development templates
+│   │   ├── README.md                           # 5-phase test protocol
+│   │   ├── phase1_structure.md                 # Test infrastructure
+│   │   ├── phase2_test_cases.md                # Test case development
+│   │   ├── phase3_mocks_fixtures.md            # Mocking & fixtures
+│   │   ├── phase4_performance.md               # Performance testing
+│   │   └── phase5_maintenance_cicd.md          # CI/CD integration
+│   └── README.md                               # Test development overview
 ├── .github/
-│   └── copilot-instructions.md  # GitHub Copilot configuration for this repo
-└── README.md                    # This file
+│   └── copilot-instructions.md                 # GitHub Copilot configuration for this repo
+└── README.md                                   # This file
 ```
 
 ## 🎯 Purpose
@@ -64,13 +65,22 @@ This repository provides standardized templates for three critical aspects of AI
 
 ## 🚀 Getting Started
 
-### For System Prompts
-1. **Choose your AI platform**: GitHub Copilot, Cursor, Windsurf, Claude Code, etc.
-2. **Select appropriate prompt**: Navigate to `system_prompts/` and choose platform-specific variant
-3. **Choose version**: Comprehensive (~35k tokens) for complex projects, condensed (15k-20k tokens) for efficiency
-4. **Follow setup instructions**: See `system_prompts/README.md` for platform-specific configuration
+### For [System Prompts](system_prompts/)
+1. **Choose platform tier**: 
+   - `autonomous_agents/` for Claude Code and Codex CLI
+   - `coding_assistants/` for GitHub Copilot, Cursor, and Windsurf
+2. **Select platform and coding language**: Navigate to appropriate language folder (currently `python/`)
+3. **Choose version**: 
+   - Comprehensive (~35k tokens) for complex projects
+   - Condensed (15k-20k tokens) for efficiency and speed
+4. **Configure your AI platform**:
+   - **GitHub Copilot**: Create `.github/copilot-instructions.md` in your workspace and replace content with condensed or comprehensive template.
+   - **Cursor**: Go to File > Preferences > Cursor Settings > Rules & Memories (tab on the left panel) > User Rules, then paste content of condensed or comprehensive template.
+   - **Windsurf**: Open Cascade chat on the right > Customizations icon (top right corner) > Customizations > Rules > Edit global_windsurf.md, then paste content of condensed or comprehensive template.
+   - **Claude Code**: Create `CLAUDE.md` in your workspace root and replace content with condensed or comprehensive template.
+5. **Follow setup instructions**: See `system_prompts/README.md` for detailed platform-specific configuration
 
-### For Code Reviews
+### For [Code Reviews](code_review/)
 1. **Choose review depth**: 
    - Quick (30 min): Phases 1-2 for basic quality assessment
    - Standard (1-2 hours): Phases 1-4 for thorough review
@@ -80,7 +90,7 @@ This repository provides standardized templates for three critical aspects of AI
 4. **Review systematically**: Follow sequential phases for comprehensive coverage
 5. **Generate report**: Phase 6 consolidates findings into actionable recommendations
 
-### For Test Development
+### For [Test Development](test_development/)
 1. **Choose implementation approach**:
    - Quick (2 hours): Phases 1, 2 (core tests), and 5 (basic CI)
    - Standard (7-10 hours): Phases 1-4 for production-ready tests
