@@ -36,6 +36,15 @@ ai_templates/
 │   │   ├── phase4_performance.md               # Performance testing
 │   │   └── phase5_maintenance_cicd.md          # CI/CD integration
 │   └── README.md                               # Test development overview
+├── documentation/                              # Templates for comprehensive documentation
+│   ├── python/                                 # Python documentation templates
+│   │   ├── README.md                           # 5-phase documentation protocol
+│   │   ├── phase1_docstrings.md                # Docstrings & code documentation
+│   │   ├── phase2_comments.md                  # Strategic code comments
+│   │   ├── phase3_user_docs.md                 # User-facing documentation
+│   │   ├── phase4_technical_docs.md            # Technical documentation
+│   │   └── phase5_api_docs.md                  # API reference documentation
+│   └── README.md                               # Documentation overview
 ├── .github/
 │   └── copilot-instructions.md                 # GitHub Copilot configuration for this repo
 └── README.md                                   # This file
@@ -43,7 +52,7 @@ ai_templates/
 
 ## 🎯 Purpose
 
-This repository provides standardized templates for three critical aspects of AI-enhanced software development:
+This repository provides standardized templates for four critical aspects of AI-enhanced software development:
 
 ### System Prompts for AI-Assisted Coding
 - **Autonomous agents**: For independent coding agents like Claude Code
@@ -62,6 +71,12 @@ This repository provides standardized templates for three critical aspects of AI
 - **Test automation**: Templates for automated test generation and execution
 - **Quality metrics**: Standardized approaches to test coverage and effectiveness
 - **Performance testing**: Templates for load, stress, and performance validation
+
+### Documentation Templates
+- **Code-level documentation**: Docstrings and strategic comments following organizational standards
+- **User documentation**: README files, user guides, how-to sections, and about pages
+- **Technical documentation**: Architecture, design decisions, and codebase walkthroughs
+- **API documentation**: Complete reference documentation for public interfaces
 
 ## 🚀 Getting Started
 
@@ -99,6 +114,16 @@ This repository provides standardized templates for three critical aspects of AI
 3. **Follow phase sequence**: Each phase builds on previous infrastructure
 4. **Use copy-paste prompts**: Detailed implementation prompts with code examples
 5. **Integrate with CI/CD**: Phase 5 provides GitHub Actions and Jenkins configurations
+
+### For [Documentation](documentation/)
+1. **Choose documentation scope**:
+   - Quick (2 hours): Phases 1 (docstrings), 3 (basic README), 4 (architecture overview)
+   - Standard (7-10 hours): Phases 1-4 for comprehensive documentation
+   - Complete (10-13 hours): All 5 phases for professional documentation
+2. **Navigate to template**: `documentation/python/README.md` for complete protocol
+3. **Follow phase sequence**: Docstrings → Comments → User Docs → Technical Docs → API Reference
+4. **Use copy-paste prompts**: Detailed prompts with examples and templates
+5. **Maintain documentation**: Keep docs current with code changes
 
 ## 🛠 Template Categories
 
@@ -154,6 +179,26 @@ This repository provides standardized templates for three critical aspects of AI
 - Concurrent load testing (ThreadPoolExecutor)
 - CI/CD workflow templates (GitHub Actions, Jenkins)
 - Flaky test detection and resolution strategies
+
+### Documentation Templates
+
+#### Python Documentation (5-Phase Methodology)
+- **Phase 1: Docstrings** - Comprehensive docstrings for functions, classes, modules (1-2 hours)
+- **Phase 2: Comments** - Strategic comments explaining logic, decisions, non-obvious behavior (1-2 hours)
+- **Phase 3: User Documentation** - README, user guides, how-to sections, CHANGELOG, DEVLOG (2-3 hours)
+- **Phase 4: Technical Documentation** - Architecture, design decisions, codebase walkthroughs (2-4 hours)
+- **Phase 5: API Reference** - Complete API documentation with examples and specifications (1-2 hours)
+
+**Time Investment**: 7-13 hours for complete documentation, 2 hours for essential docs
+
+**Features**:
+- Copy-paste ready prompts for each phase
+- Simple vs. complex docstring templates
+- Comment guidelines (no inline, explain "why" not "what")
+- README, CHANGELOG, DEVLOG structures
+- Architecture documentation with diagrams
+- Complete API reference format
+- Usage examples and code samples
 
 ## 📈 Benefits
 
@@ -219,6 +264,7 @@ Current templates focus on Python. To extend to other languages:
 ### Recent Updates (October 2025)
 - ✅ **Python Code Review Templates**: Complete 6-phase methodology with 150+ evaluation points
 - ✅ **Python Test Development Templates**: Complete 5-phase methodology with CI/CD integration
+- ✅ **Python Documentation Templates**: Complete 5-phase methodology for comprehensive documentation
 - ✅ **System Prompts**: Comprehensive and condensed versions for autonomous agents and coding assistants
 - 🔄 **Language Expansion**: JavaScript, TypeScript, Java, C# templates (planned)
 - 🔄 **Additional Review Types**: API design reviews, database schema reviews (planned)
