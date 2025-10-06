@@ -14,13 +14,14 @@ A systematic approach to developing robust, maintainable test suites for Python 
 6. [Phase 3: Mock & Fixture Management](#phase-3-mock--fixture-management)
 7. [Phase 4: Performance & Load Testing](#phase-4-performance--load-testing)
 8. [Phase 5: Test Maintenance & CI/CD Integration](#phase-5-test-maintenance--cicd-integration)
-9. [Quick Reference](#quick-reference)
+9. [Phase 6: Code Coverage Analysis & Improvement](#phase-6-code-coverage-analysis--improvement)
+10. [Quick Reference](#quick-reference)
 
 ---
 
 ## Overview
 
-This protocol provides a structured, five-phase approach to developing comprehensive test suites for Python applications. Each phase builds upon the previous, ensuring complete test coverage from infrastructure setup through CI/CD integration.
+This protocol provides a structured, six-phase approach to developing comprehensive test suites for Python applications. Each phase builds upon the previous, ensuring complete test coverage from infrastructure setup through code coverage analysis.
 
 ### What This Protocol Covers
 
@@ -29,6 +30,7 @@ This protocol provides a structured, five-phase approach to developing comprehen
 - **Isolation**: Mocking strategies and fixture management
 - **Performance**: Load testing, stress testing, and resource monitoring
 - **Maintenance**: CI/CD integration, flakiness detection, and continuous improvement
+- **Coverage Analysis**: Code coverage measurement, gap identification, and quality enforcement
 
 ### Target Audience
 
@@ -72,8 +74,9 @@ This protocol implements testing standards defined in organizational coding guid
 3. **Phase 3** (1-2 hours): Implement mocking and fixture management
 4. **Phase 4** (2-3 hours): Add performance and load tests
 5. **Phase 5** (1-2 hours): Integrate with CI/CD and establish maintenance
+6. **Phase 6** (1-2 hours): Analyze code coverage and add targeted tests
 
-**Total Time Investment**: 7-13 hours for complete implementation
+**Total Time Investment**: 8-15 hours for complete implementation
 
 ### For Existing Test Suites
 
@@ -91,8 +94,9 @@ This protocol implements testing standards defined in organizational coding guid
 1. Phase 1: Basic infrastructure (30 min)
 2. Phase 2: Core functionality tests only (1 hour)
 3. Phase 5: Simple CI integration (30 min)
+4. Phase 6: Basic coverage report (15 min)
 
-**Total Time**: ~2 hours for basic coverage
+**Total Time**: ~2.25 hours for basic coverage
 
 ---
 
@@ -652,6 +656,70 @@ jobs:
 
 ---
 
+## Phase 6: Code Coverage Analysis & Improvement
+
+### Objective
+
+Measure, analyze, and improve test coverage to ensure comprehensive testing across your codebase.
+
+### Key Activities
+
+1. **Install Coverage Tools**
+   - Install coverage.py and pytest-cov
+   - Configure coverage in .coveragerc or pyproject.toml
+
+2. **Generate Coverage Reports**
+   - Run tests with coverage measurement
+   - Generate terminal, HTML, XML, and JSON reports
+   - Analyze line and branch coverage
+
+3. **Identify Coverage Gaps**
+   - Find untested code paths and functions
+   - Locate missing branch coverage
+   - Prioritize gaps by criticality
+
+4. **Add Targeted Tests**
+   - Test uncovered branches and error paths
+   - Cover edge cases and boundary conditions
+   - Focus on high-risk, low-coverage areas
+
+5. **Set Coverage Standards**
+   - Define minimum coverage thresholds (80%+ overall)
+   - Establish module-specific requirements
+   - Use pragmas for legitimate exclusions
+
+6. **Integrate with CI/CD**
+   - Enforce coverage thresholds in pipelines
+   - Generate coverage badges and reports
+   - Track coverage trends over time
+
+### Deliverables
+
+- Coverage configuration files
+- Comprehensive coverage reports (80%+ coverage)
+- Coverage gap analysis and recommendations
+- Targeted tests addressing critical gaps
+- CI/CD coverage enforcement workflows
+- Coverage badges and trend tracking
+
+### Success Criteria
+
+- ✅ Coverage tools configured and running
+- ✅ Initial coverage report generated and analyzed
+- ✅ Critical gaps identified and prioritized
+- ✅ Coverage meets or exceeds 80% threshold (or documented plan)
+- ✅ CI/CD enforces coverage standards
+- ✅ Coverage metrics visible in README
+
+### Time Investment
+
+**1-2 hours** for initial setup and analysis
+**2-4 hours** for comprehensive improvement to 80%+ coverage
+
+[🔗 View detailed Phase 6 template](phase6_coverage.md)
+
+---
+
 ## Quick Reference
 
 ### Test Execution Commands
@@ -764,15 +832,16 @@ mock_service.method.assert_called_once()
 
 ## Summary
 
-This comprehensive protocol provides everything needed to build robust, maintainable test suites that align with organizational standards. By following the five phases sequentially, you'll establish:
+This comprehensive protocol provides everything needed to build robust, maintainable test suites that align with organizational standards. By following the six phases sequentially, you'll establish:
 
 1. **Solid Foundation** (Phase 1): Infrastructure that supports all testing activities
 2. **Complete Coverage** (Phase 2): Tests for functionality, edges, errors, and integration
 3. **True Isolation** (Phase 3): Mocking and fixtures for repeatable testing
 4. **Performance Validation** (Phase 4): Load, stress, and resource usage testing
 5. **Sustainable Quality** (Phase 5): CI/CD integration and maintenance practices
+6. **Quality Assurance** (Phase 6): Code coverage analysis and continuous improvement
 
-**Total Investment**: 7-13 hours for complete implementation
+**Total Investment**: 8-15 hours for complete implementation
 
 **Long-term Value**: Reduced bugs, faster debugging, confident refactoring, automated quality assurance
 

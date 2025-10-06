@@ -1,4 +1,8 @@
-# Python Documentation - Comprehensive Protocol
+# Python Docu4. [Phase 3: User Documentation](#phase-3-user-documentation)
+5. [Phase 4: Technical Documentation](#phase-4-technical-documentation)
+6. [Phase 5: API & Reference Documentation](#phase-5-api--reference-documentation)
+7. [Phase 6: SBOM Generation](#phase-6-sbom-generation)
+8. [Quick Reference](#quick-reference)ation - Comprehensive Protocol
 
 A systematic approach to generating complete, professional documentation for Python applications following organizational standards.
 
@@ -20,7 +24,7 @@ A systematic approach to generating complete, professional documentation for Pyt
 
 ## Overview
 
-This protocol provides a structured, five-phase approach to creating comprehensive documentation for Python applications. Each phase addresses a specific documentation need, from code-level docstrings through complete technical documentation.
+This protocol provides a structured, six-phase approach to creating comprehensive documentation for Python applications. Each phase addresses a specific documentation need, from code-level docstrings through SBOM generation.
 
 ### What This Protocol Covers
 
@@ -29,6 +33,7 @@ This protocol provides a structured, five-phase approach to creating comprehensi
 - **User Documentation**: README files, user guides, how-to sections, about pages
 - **Technical Documentation**: Architecture, design decisions, codebase walkthroughs
 - **API Documentation**: Reference documentation for public interfaces
+- **SBOM**: Software Bill of Materials for security, compliance, and supply chain management
 
 ### Target Audience
 
@@ -72,8 +77,9 @@ This protocol implements documentation standards defined in organizational codin
 3. **Phase 3** (2-3 hours): Create user-facing documentation (README, guides)
 4. **Phase 4** (2-4 hours): Generate technical documentation for developers
 5. **Phase 5** (1-2 hours): Build API reference documentation
+6. **Phase 6** (1-2 hours): Generate SBOM and dependency documentation
 
-**Total Time Investment**: 7-13 hours for complete documentation
+**Total Time Investment**: 8-15 hours for complete documentation
 
 ### For Existing Projects
 
@@ -577,6 +583,78 @@ results = batch_process(large_dataset, batch_size=50)
 
 ---
 
+## Phase 6: SBOM Generation
+
+### Objective
+Generate comprehensive Software Bill of Materials (SBOM) and dependency documentation for security, compliance, and supply chain management.
+
+### Key Deliverables
+
+**SBOM Files:**
+- CycloneDX format (JSON/XML)
+- SPDX format (optional)
+- Machine-readable for automated processing
+
+**Documentation:**
+- Complete SBOM documentation (docs/SBOM.md)
+- Third-party attribution notices
+- License analysis and compliance
+- Vulnerability scanning results
+- Dependency provenance tracking
+
+**Automation:**
+- SBOM generation scripts
+- Vulnerability monitoring setup
+- Automated dependency updates (Dependabot)
+- CI/CD integration
+
+**SBOM Content:**
+```markdown
+# Software Bill of Materials
+
+## Summary Statistics
+- Total Components: [X] packages
+- Direct Dependencies: [Y] packages
+- Transitive Dependencies: [Z] packages
+- Unique Licenses: [N] licenses
+- Known Vulnerabilities: [M] issues
+
+## Direct Dependencies
+| Package | Version | License | Purpose |
+|---------|---------|---------|----------|
+| pandas | >=1.5.0 | BSD-3 | Data analysis |
+| requests | >=2.28.0 | Apache-2.0 | HTTP client |
+
+## Security Analysis
+- Vulnerability scanning configured
+- Known CVEs documented
+- Remediation plans included
+
+## Compliance
+- NTIA minimum elements met
+- EU Cyber Resilience Act compliant
+- Export control classification
+```
+
+[🔗 View detailed Phase 6 template](phase6_sbom.md)
+
+### Expected Time
+- **Analysis**: 30 minutes
+- **Generation**: 30-60 minutes
+- **Documentation**: 30 minutes
+- **Total**: 1-2 hours
+
+### Success Criteria
+- ✅ SBOM files generated (CycloneDX/SPDX)
+- ✅ All dependencies cataloged
+- ✅ All licenses documented
+- ✅ Vulnerability scanning configured
+- ✅ Attribution notices complete
+- ✅ Compliance requirements met
+- ✅ Automation configured
+
+---
+
 ## Quick Reference
 
 ### Documentation Commands
@@ -683,17 +761,18 @@ def function_name(
 
 ## Summary
 
-This comprehensive protocol provides everything needed to create professional, complete documentation that aligns with organizational standards. By following the five phases sequentially, you'll establish:
+This comprehensive protocol provides everything needed to create professional, complete documentation that aligns with organizational standards. By following the six phases sequentially, you'll establish:
 
 1. **Code-Level Documentation** (Phase 1): Comprehensive docstrings for all code elements
 2. **Strategic Comments** (Phase 2): Explaining complex logic and important decisions
 3. **User-Facing Docs** (Phase 3): README, guides, how-tos for end users
 4. **Technical Documentation** (Phase 4): Architecture, design, and codebase explanations
 5. **API Reference** (Phase 5): Complete reference documentation for developers
+6. **SBOM & Dependencies** (Phase 6): Security, compliance, and supply chain documentation
 
-**Total Investment**: 7-13 hours for complete documentation
+**Total Investment**: 8-15 hours for complete documentation
 
-**Long-term Value**: Easier onboarding, reduced support burden, better collaboration, professional presentation
+**Long-term Value**: Easier onboarding, reduced support burden, better collaboration, professional presentation, regulatory compliance, improved security posture
 
 ---
 

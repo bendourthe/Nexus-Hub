@@ -12,9 +12,9 @@ This directory contains structured templates for creating all types of documenta
 
 ### Python Documentation
 - **Location**: `python/`
-- **Phases**: 5 comprehensive phases
-- **Coverage**: Docstrings, comments, user docs, technical docs, API reference
-- **Time**: 7-13 hours for complete implementation
+- **Phases**: 6 comprehensive phases
+- **Coverage**: Docstrings, comments, user docs, technical docs, API reference, SBOM
+- **Time**: 8-15 hours for complete implementation
 
 ## Purpose
 
@@ -41,6 +41,7 @@ Each language directory contains:
 - **phase3_*.md**: User-facing documentation (README, guides)
 - **phase4_*.md**: Technical documentation (architecture, design)
 - **phase5_*.md**: API reference documentation
+- **phase6_*.md**: SBOM generation and dependency documentation
 
 ## Documentation Philosophy
 
@@ -76,6 +77,13 @@ Each language directory contains:
 - Return value documentation
 - Code examples
 
+**SBOM Documentation**:
+- Software Bill of Materials (CycloneDX/SPDX)
+- Dependency inventory and licenses
+- Vulnerability scanning and tracking
+- Supply chain security
+- Compliance documentation (NTIA, EU CRA)
+
 ## Benefits
 
 ### For Developers
@@ -100,14 +108,15 @@ Each language directory contains:
 
 ### For New Projects
 
-Follow all 5 phases sequentially:
+Follow all 6 phases sequentially:
 1. **Phase 1** (1-2 hours): Docstrings for all code
 2. **Phase 2** (1-2 hours): Strategic comments
 3. **Phase 3** (2-3 hours): User documentation
 4. **Phase 4** (2-4 hours): Technical documentation
 5. **Phase 5** (1-2 hours): API reference
+6. **Phase 6** (1-2 hours): SBOM and dependency documentation
 
-**Total**: 7-13 hours for complete documentation
+**Total**: 8-15 hours for complete documentation
 
 ### For Existing Projects
 
@@ -215,6 +224,12 @@ To contribute new language templates:
 - Contribute language templates
 
 ## Version History
+
+### v1.1.0 (October 2025)
+- Added Phase 6: SBOM generation and dependency documentation
+- CycloneDX and SPDX format support
+- Vulnerability scanning integration
+- Compliance documentation (NTIA, EU CRA)
 
 ### v1.0.0 (October 2024)
 - Initial release

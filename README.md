@@ -29,12 +29,13 @@ ai_templates/
 │   └── README.md                               # Code review overview
 ├── test_development/                           # Templates for comprehensive test development
 │   ├── python/                                 # Python test development templates
-│   │   ├── README.md                           # 5-phase test protocol
+│   │   ├── README.md                           # 6-phase test protocol
 │   │   ├── phase1_structure.md                 # Test infrastructure
 │   │   ├── phase2_test_cases.md                # Test case development
 │   │   ├── phase3_mocks_fixtures.md            # Mocking & fixtures
 │   │   ├── phase4_performance.md               # Performance testing
-│   │   └── phase5_maintenance_cicd.md          # CI/CD integration
+│   │   ├── phase5_maintenance_cicd.md          # CI/CD integration
+│   │   └── phase6_coverage.md                  # Code coverage analysis
 │   └── README.md                               # Test development overview
 ├── documentation/                              # Templates for comprehensive documentation
 │   ├── python/                                 # Python documentation templates
@@ -43,7 +44,8 @@ ai_templates/
 │   │   ├── phase2_comments.md                  # Strategic code comments
 │   │   ├── phase3_user_docs.md                 # User-facing documentation
 │   │   ├── phase4_technical_docs.md            # Technical documentation
-│   │   └── phase5_api_docs.md                  # API reference documentation
+│   │   ├── phase5_api_docs.md                  # API reference documentation
+│   │   └── phase6_sbom.md                      # SBOM & dependency documentation
 │   └── README.md                               # Documentation overview
 ├── .github/
 │   └── copilot-instructions.md                 # GitHub Copilot configuration for this repo
@@ -77,6 +79,7 @@ This repository provides standardized templates for four critical aspects of AI-
 - **User documentation**: README files, user guides, how-to sections, and about pages
 - **Technical documentation**: Architecture, design decisions, and codebase walkthroughs
 - **API documentation**: Complete reference documentation for public interfaces
+- **SBOM documentation**: Software Bill of Materials for security, compliance, and supply chain management
 
 ## 🚀 Getting Started
 
@@ -107,23 +110,25 @@ This repository provides standardized templates for four critical aspects of AI-
 
 ### For [Test Development](test_development/)
 1. **Choose implementation approach**:
-   - Quick (2 hours): Phases 1, 2 (core tests), and 5 (basic CI)
-   - Standard (7-10 hours): Phases 1-4 for production-ready tests
-   - Comprehensive (10-13 hours): All 5 phases for enterprise-grade testing
+   - Quick (2.25 hours): Phases 1, 2 (core tests), 5 (basic CI), 6 (basic coverage)
+   - Standard (8-11 hours): Phases 1-5 for production-ready tests with CI/CD
+   - Comprehensive (11-15 hours): All 6 phases for enterprise-grade testing with coverage
 2. **Navigate to template**: `test_development/python/README.md` for complete protocol
 3. **Follow phase sequence**: Each phase builds on previous infrastructure
 4. **Use copy-paste prompts**: Detailed implementation prompts with code examples
-5. **Integrate with CI/CD**: Phase 5 provides GitHub Actions and Jenkins configurations
+5. **Analyze coverage**: Phase 6 measures and improves test coverage to 80%+
+6. **Integrate with CI/CD**: Phase 5 provides GitHub Actions and Jenkins configurations
 
 ### For [Documentation](documentation/)
 1. **Choose documentation scope**:
    - Quick (2 hours): Phases 1 (docstrings), 3 (basic README), 4 (architecture overview)
    - Standard (7-10 hours): Phases 1-4 for comprehensive documentation
-   - Complete (10-13 hours): All 5 phases for professional documentation
+   - Complete (11-15 hours): All 6 phases for professional documentation with SBOM
 2. **Navigate to template**: `documentation/python/README.md` for complete protocol
-3. **Follow phase sequence**: Docstrings → Comments → User Docs → Technical Docs → API Reference
+3. **Follow phase sequence**: Docstrings → Comments → User Docs → Technical Docs → API Reference → SBOM
 4. **Use copy-paste prompts**: Detailed prompts with examples and templates
-5. **Maintain documentation**: Keep docs current with code changes
+5. **Generate SBOM**: Phase 6 creates Software Bill of Materials for security and compliance
+6. **Maintain documentation**: Keep docs current with code changes
 
 ## 🛠 Template Categories
 
@@ -161,14 +166,15 @@ This repository provides standardized templates for four critical aspects of AI-
 
 ### Test Development Templates
 
-#### Python Test Development (5-Phase Methodology)
+#### Python Test Development (6-Phase Methodology)
 - **Phase 1: Test Structure** - Infrastructure setup, master runner, utilities, configuration (1-2 hours)
 - **Phase 2: Test Cases** - Functional, edge cases, error handling, integration, performance (2-4 hours)
 - **Phase 3: Mocks & Fixtures** - Database mocking, API mocking, test data, isolation (1-2 hours)
 - **Phase 4: Performance Testing** - Response time, throughput, load, stress, memory profiling (2-4 hours)
 - **Phase 5: CI/CD Integration** - GitHub Actions, Jenkins, flaky test detection, quality gates (1-2 hours)
+- **Phase 6: Code Coverage** - Coverage analysis, gap identification, targeted tests, enforcement (1-2 hours)
 
-**Time Investment**: 7-13 hours for complete implementation, 2 hours for quick setup
+**Time Investment**: 8-15 hours for complete implementation, 2.25 hours for quick setup
 
 **Features**:
 - Copy-paste ready implementation prompts
@@ -178,18 +184,22 @@ This repository provides standardized templates for four critical aspects of AI-
 - Performance testing with percentile analysis (p95, p99)
 - Concurrent load testing (ThreadPoolExecutor)
 - CI/CD workflow templates (GitHub Actions, Jenkins)
+- Code coverage analysis with coverage.py
+- Coverage gap identification and targeted testing
+- Coverage threshold enforcement (80%+ standards)
 - Flaky test detection and resolution strategies
 
 ### Documentation Templates
 
-#### Python Documentation (5-Phase Methodology)
+#### Python Documentation (6-Phase Methodology)
 - **Phase 1: Docstrings** - Comprehensive docstrings for functions, classes, modules (1-2 hours)
 - **Phase 2: Comments** - Strategic comments explaining logic, decisions, non-obvious behavior (1-2 hours)
 - **Phase 3: User Documentation** - README, user guides, how-to sections, CHANGELOG, DEVLOG (2-3 hours)
 - **Phase 4: Technical Documentation** - Architecture, design decisions, codebase walkthroughs (2-4 hours)
 - **Phase 5: API Reference** - Complete API documentation with examples and specifications (1-2 hours)
+- **Phase 6: SBOM Generation** - Software Bill of Materials, dependency documentation, security (1-2 hours)
 
-**Time Investment**: 7-13 hours for complete documentation, 2 hours for essential docs
+**Time Investment**: 8-15 hours for complete documentation, 2 hours for essential docs
 
 **Features**:
 - Copy-paste ready prompts for each phase
@@ -198,6 +208,9 @@ This repository provides standardized templates for four critical aspects of AI-
 - README, CHANGELOG, DEVLOG structures
 - Architecture documentation with diagrams
 - Complete API reference format
+- CycloneDX/SPDX SBOM generation
+- Vulnerability scanning and license tracking
+- Compliance documentation (NTIA, EU CRA)
 - Usage examples and code samples
 
 ## 📈 Benefits
@@ -263,8 +276,9 @@ Current templates focus on Python. To extend to other languages:
 
 ### Recent Updates (October 2025)
 - ✅ **Python Code Review Templates**: Complete 6-phase methodology with 150+ evaluation points
-- ✅ **Python Test Development Templates**: Complete 5-phase methodology with CI/CD integration
-- ✅ **Python Documentation Templates**: Complete 5-phase methodology for comprehensive documentation
+- ✅ **Python Test Development Templates**: Complete 6-phase methodology with coverage analysis
+- ✅ **Python Documentation Templates**: Complete 6-phase methodology including SBOM generation
+- ✅ **SBOM Generation**: Phase 6 added for security, compliance, and supply chain management
 - ✅ **System Prompts**: Comprehensive and condensed versions for autonomous agents and coding assistants
 - 🔄 **Language Expansion**: JavaScript, TypeScript, Java, C# templates (planned)
 - 🔄 **Additional Review Types**: API design reviews, database schema reviews (planned)
