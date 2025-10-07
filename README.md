@@ -42,7 +42,7 @@ This repository contains comprehensive templates and standardized prompts to enh
 
 This repository provides standardized templates for four critical aspects of AI-enhanced software development:
 
-### [System Prompts for AI-Assisted Coding](system-prompts/)
+### [System Prompts for AI-Assisted Coding](system_prompts/)
 - **Autonomous agents**: For independent coding agents like Claude Code
 - **Interactive assistants**: For collaborative coding with GitHub Copilot, Cursor, Windsurf
 - **Platform-specific optimization**: Tailored prompts for different AI platforms
