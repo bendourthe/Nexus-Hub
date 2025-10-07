@@ -40,46 +40,14 @@ This repository contains comprehensive templates and standardized prompts to enh
 
 ## 📁 Repository Structure
 
-```
-ai_templates/
-├── system_prompts/                             # System prompts for AI-assisted coding
-│   ├── autonomous_agents/                      # Prompts for autonomous coding agents
-│   │   └── claude_code/                        # Claude-specific autonomous coding
-│   │       └── python/                         # Python language prompts
-│   │           ├── CLAUDE_comprehensive_35k.md # Full system prompt (~35k tokens)
-│   │           └── CLAUDE_condensed_20k.md     # Optimized prompt (~20k tokens)
-│   ├── coding_assistants/                      # Prompts for interactive coding assistants
-│   │   └── python/                             # General interactive coding assistance
-│   │       ├── GLOBAL_comprehensive_35k.md     # Full system prompt (~35k tokens)
-│   │       └── GLOBAL_condensed_15k.md         # Optimized prompt (~15k tokens)
-│   └── README.md                               # Platform setup instructions
-├── code_review/                                # Templates for comprehensive code reviews
-│   ├── context_analysis/
-│   ├── code_quality/
-│   ├── security_review/
-│   ├── performance_review/
-│   ├── testing_review/
-│   ├── final_report/
-│   └── README.md
-├── test_development                            # Templates for comprehensive test development
-│   ├── test_structure/
-│   ├── test_cases/
-│   ├── mocks_fixtures/
-│   ├── performance_testing/
-│   ├── maintenance_cicd/
-│   ├── code_coverage/
-│   └── README.md
-├── documentation/                              # Templates for comprehensive documentation
-│   ├── docstrings/
-│   ├── comments/
-│   ├── user_docs/
-│   ├── technical_docs/
-│   ├── api_docs/
-│   ├── sbom/
-│   └── README.md
-├── CHANGELOG.md                                # Version history and release notes
-└── README.md                                   # This file
-```
+### Quick Navigation
+- [System Prompts](#system-prompts-for-ai-assisted-coding) - AI coding agent configurations
+- [Code Review](#code-review-templates) - Comprehensive review methodology
+- [Test Development](#test-development-templates) - Complete testing frameworks
+- [Documentation](#documentation-templates) - Professional documentation system
+- [Changelog](CHANGELOG.md) - Version history
+
+---
 
 ## 🎯 Purpose
 
@@ -151,17 +119,17 @@ This repository provides standardized templates for four critical aspects of AI-
 
 2. **Select review phase**:
 
-   - [Phase 1: Context Analysis](code_review/context_analysis/python_context_analysis.md) - Project understanding
+   - [Context Analysis](code_review/context_analysis/) - Project understanding
 
-   - [Phase 2: Code Quality](code_review/code_quality/python_code_quality.md) - Style and maintainability
+   - [Code Quality](code_review/code_quality/) - Style and maintainability
 
-   - [Phase 3: Security](code_review/security_review/python_security_review.md) - Vulnerability assessment
+   - [Security](code_review/security_review/) - Vulnerability assessment
 
-   - [Phase 4: Performance](code_review/performance_review/python_performance_review.md) - Optimization opportunities
+   - [Performance](code_review/performance_review/) - Optimization opportunities
 
-   - [Phase 5: Testing](code_review/testing_review/python_testing_review.md) - Test coverage and quality
+   - [Testing](code_review/testing_review/) - Test coverage and quality
 
-   - [Phase 6: Final Report](code_review/final_report/python_final_report.md) - Consolidated findings
+   - [Final Report](code_review/final_report/) - Consolidated findings
 
 3. **Copy phase prompts**: Each phase has copy-paste ready prompts for AI assistants
 
@@ -179,17 +147,17 @@ This repository provides standardized templates for four critical aspects of AI-
 
 2. **Select test phase**:
 
-   - [Phase 1: Test Structure](test_development/test_structure/python_test_structure.md) - Infrastructure setup
+   - [Test Structure](test_development/test_structure/) - Infrastructure setup
 
-   - [Phase 2: Test Cases](test_development/test_cases/python_test_cases.md) - Comprehensive test development
+   - [Test Cases](test_development/test_cases/) - Comprehensive test development
 
-   - [Phase 3: Mocks & Fixtures](test_development/mocks_fixtures/python_mocks_fixtures.md) - Test isolation
+   - [Mocks & Fixtures](test_development/mocks_fixtures/) - Test isolation
 
-   - [Phase 4: Performance Testing](test_development/performance_testing/python_performance_testing.md) - Load and stress tests
+   - [Performance Testing](test_development/performance_testing/) - Load and stress tests
 
-   - [Phase 5: Maintenance & CI/CD](test_development/maintenance_cicd/python_maintenance_cicd.md) - Automation and quality gates
+   - [Maintenance & CI/CD](test_development/maintenance_cicd/) - Automation and quality gates
 
-   - [Phase 6: Code Coverage](test_development/code_coverage/python_code_coverage.md) - Coverage analysis (80%+ target)
+   - [Code Coverage](test_development/code_coverage/) - Coverage analysis (80%+ target)
 
 3. **Follow phase sequence**: Each phase builds on previous infrastructure
 
@@ -200,26 +168,24 @@ This repository provides standardized templates for four critical aspects of AI-
 1. **Choose documentation scope**:
 
    - Quick (2 hours): [Phase 1](documentation/docstrings/) (docstrings), [3](documentation/user_docs/) (README), [4](documentation/technical_docs/) (architecture)
-   
+
    - Standard (7-10 hours): Phases [1](documentation/docstrings/)-[4](documentation/technical_docs/) for comprehensive docs
-   
+
    - Complete (11-15 hours): All 6 phases for professional documentation with SBOM
-   
+
 2. **Select documentation phase**:
 
-   - [Phase 1: Docstrings](documentation/docstrings/python_docstrings.md) - Code-level documentation
+   - [Docstrings](documentation/docstrings/) - Code-level documentation
    
-   - [Phase 2: Comments](documentation/comments/python_comments.md) - Strategic code comments
+   - [Comments](documentation/comments/) - Strategic code comments
    
-   - [Phase 3: User Docs](documentation/user_docs/python_user_docs.md) - README, guides, and tutorials
+   - [User Docs](documentation/user_docs/) - README, guides, and tutorials
    
-   - [Phase 4: Technical Docs](documentation/technical_docs/python_technical_docs.md) - Architecture and design
+   - [Technical Docs](documentation/technical_docs/) - Architecture and design
    
-   - [Phase 5: API Docs](documentation/api_docs/python_api_docs.md) - Complete API reference
+   - [API Docs](documentation/api_docs/) - Complete API reference
    
-   - [Phase 6: SBOM](documentation/sbom/python_sbom.md) - Software Bill of Materials and compliance
-   
-3. **Follow phase sequence**: Docstrings → Comments → User Docs → Technical Docs → API Reference → SBOM
+   - [SBOM](documentation/sbom/) - Software Bill of Materials and compliance3. **Follow phase sequence**: Docstrings → Comments → User Docs → Technical Docs → API Reference → SBOM
 
 4. **Use copy-paste prompts**: Detailed prompts with examples and templates
 
@@ -240,12 +206,12 @@ This repository provides standardized templates for four critical aspects of AI-
 ### Code Review Templates
 
 #### Python Code Review (6-Phase Methodology)
-- **Phase 1: Context Gathering** - Project understanding, architecture analysis, dependency review
-- **Phase 2: Code Quality** - Style compliance, design patterns, error handling, documentation
-- **Phase 3: Security Review** - Vulnerability assessment, input validation, authentication, encryption
-- **Phase 4: Performance** - Algorithm efficiency, resource management, scalability analysis
-- **Phase 5: Testing** - Test coverage, quality assessment, edge cases, integration tests
-- **Phase 6: Final Report** - Comprehensive findings, prioritized recommendations, action items
+- **Context Gathering** - Project understanding, architecture analysis, dependency review
+- **Code Quality** - Style compliance, design patterns, error handling, documentation
+- **Security Review** - Vulnerability assessment, input validation, authentication, encryption
+- **Performance** - Algorithm efficiency, resource management, scalability analysis
+- **Testing** - Test coverage, quality assessment, edge cases, integration tests
+- **Final Report** - Comprehensive findings, prioritized recommendations, action items
 
 **Time Investment**: 30 minutes (quick) to 3+ hours (comprehensive)
 

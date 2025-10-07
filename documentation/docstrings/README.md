@@ -1,4 +1,4 @@
-# Phase 1: Docstrings & Code Documentation
+# Docstrings & Code Documentation
 
 ## 📋 Overview
 

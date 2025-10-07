@@ -1,4 +1,4 @@
-# Phase 6: SBOM & Dependency Documentation
+# SBOM & Dependency Documentation
 
 ## 📋 Overview
 
