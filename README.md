@@ -53,68 +53,30 @@ ai_templates/
 │   │       ├── GLOBAL_comprehensive_35k.md     # Full system prompt (~35k tokens)
 │   │       └── GLOBAL_condensed_15k.md         # Optimized prompt (~15k tokens)
 │   └── README.md                               # Platform setup instructions
-├── [code_review/](code_review/)                 # Templates for comprehensive code reviews
-│   ├── [context_analysis/](code_review/context_analysis/)
-│   │   ├── README.md
-│   │   └── [python_context_analysis.md](code_review/context_analysis/python_context_analysis.md)
-│   ├── [code_quality/](code_review/code_quality/)
-│   │   ├── README.md
-│   │   └── [python_code_quality.md](code_review/code_quality/python_code_quality.md)
-│   ├── [security_review/](code_review/security_review/)
-│   │   ├── README.md
-│   │   └── [python_security_review.md](code_review/security_review/python_security_review.md)
-│   ├── [performance_review/](code_review/performance_review/)
-│   │   ├── README.md
-│   │   └── [python_performance_review.md](code_review/performance_review/python_performance_review.md)
-│   ├── [testing_review/](code_review/testing_review/)
-│   │   ├── README.md
-│   │   └── [python_testing_review.md](code_review/testing_review/python_testing_review.md)
-│   ├── [final_report/](code_review/final_report/)
-│   │   ├── README.md
-│   │   └── [python_final_report.md](code_review/final_report/python_final_report.md)
+├── code_review/                                # Templates for comprehensive code reviews
+│   ├── context_analysis/
+│   ├── code_quality/
+│   ├── security_review/
+│   ├── performance_review/
+│   ├── testing_review/
+│   ├── final_report/
 │   └── README.md
-├── [test_development/](test_development/)     # Templates for comprehensive test development
-│   ├── [test_structure/](test_development/test_structure/)
-│   │   ├── README.md
-│   │   └── [python_test_structure.md](test_development/test_structure/python_test_structure.md)
-│   ├── [test_cases/](test_development/test_cases/)
-│   │   ├── README.md
-│   │   └── [python_test_cases.md](test_development/test_cases/python_test_cases.md)
-│   ├── [mocks_fixtures/](test_development/mocks_fixtures/)
-│   │   ├── README.md
-│   │   └── [python_mocks_fixtures.md](test_development/mocks_fixtures/python_mocks_fixtures.md)
-│   ├── [performance_testing/](test_development/performance_testing/)
-│   │   ├── README.md
-│   │   └── [python_performance_testing.md](test_development/performance_testing/python_performance_testing.md)
-│   ├── [maintenance_cicd/](test_development/maintenance_cicd/)
-│   │   ├── README.md
-│   │   └── [python_maintenance_cicd.md](test_development/maintenance_cicd/python_maintenance_cicd.md)
-│   ├── [code_coverage/](test_development/code_coverage/)
-│   │   ├── README.md
-│   │   └── [python_code_coverage.md](test_development/code_coverage/python_code_coverage.md)
+├── test_development                            # Templates for comprehensive test development
+│   ├── test_structure/
+│   ├── test_cases/
+│   ├── mocks_fixtures/
+│   ├── performance_testing/
+│   ├── maintenance_cicd/
+│   ├── code_coverage/
 │   └── README.md
-├── [documentation/](documentation/)            # Templates for comprehensive documentation
-│   ├── [docstrings/](documentation/docstrings/)
-│   │   ├── README.md
-│   │   └── [python_docstrings.md](documentation/docstrings/python_docstrings.md)
-│   ├── [comments/](documentation/comments/)
-│   │   ├── README.md
-│   │   └── [python_comments.md](documentation/comments/python_comments.md)
-│   ├── [user_docs/](documentation/user_docs/)
-│   │   ├── README.md
-│   │   └── [python_user_docs.md](documentation/user_docs/python_user_docs.md)
-│   ├── [technical_docs/](documentation/technical_docs/)
-│   │   ├── README.md
-│   │   └── [python_technical_docs.md](documentation/technical_docs/python_technical_docs.md)
-│   ├── [api_docs/](documentation/api_docs/)
-│   │   ├── README.md
-│   │   └── [python_api_docs.md](documentation/api_docs/python_api_docs.md)
-│   ├── [sbom/](documentation/sbom/)
-│   │   ├── README.md
-│   │   └── [python_sbom.md](documentation/sbom/python_sbom.md)
+├── documentation/                              # Templates for comprehensive documentation
+│   ├── docstrings/
+│   ├── comments/
+│   ├── user_docs/
+│   ├── technical_docs/
+│   ├── api_docs/
+│   ├── sbom/
 │   └── README.md
-├── .github/
-│   └── copilot-instructions.md                 # GitHub Copilot configuration for this repo
 ├── CHANGELOG.md                                # Version history and release notes
 └── README.md                                   # This file
 ```
@@ -152,62 +114,113 @@ This repository provides standardized templates for four critical aspects of AI-
 
 ### For [System Prompts](system_prompts/)
 1. **Choose platform tier**: 
+
    - `autonomous_agents/` for Claude Code and Codex CLI
+
    - `coding_assistants/` for GitHub Copilot, Cursor, and Windsurf
+
 2. **Select platform and coding language**: Navigate to appropriate language folder (currently `python/`)
+
 3. **Choose version**: 
+
    - Comprehensive (~35k tokens) for complex projects
+
    - Condensed (15k-20k tokens) for efficiency and speed
+
 4. **Configure your AI platform**:
+
    - **GitHub Copilot**: Create `.github/copilot-instructions.md` in your workspace and replace content with condensed or comprehensive template.
+
    - **Cursor**: Go to File > Preferences > Cursor Settings > Rules & Memories (tab on the left panel) > User Rules, then paste content of condensed or comprehensive template.
+
    - **Windsurf**: Open Cascade chat on the right > Customizations icon (top right corner) > Customizations > Rules > Edit global_windsurf.md, then paste content of condensed or comprehensive template.
+
    - **Claude Code**: Create `CLAUDE.md` in your workspace root and replace content with condensed or comprehensive template.
+
 5. **Follow setup instructions**: See `system_prompts/README.md` for detailed platform-specific configuration
 
 ### For [Code Reviews](code_review/)
+
 1. **Choose review depth**: 
+
    - Quick (30 min): [Phase 1](code_review/context_analysis/) + [Phase 2](code_review/code_quality/) for basic assessment
+
    - Standard (1-2 hours): Phases [1](code_review/context_analysis/)-[4](code_review/performance_review/) for thorough review
+
    - Comprehensive (3+ hours): All 6 phases for complete analysis
+
 2. **Select review phase**:
+
    - [Phase 1: Context Analysis](code_review/context_analysis/python_context_analysis.md) - Project understanding
+
    - [Phase 2: Code Quality](code_review/code_quality/python_code_quality.md) - Style and maintainability
+
    - [Phase 3: Security](code_review/security_review/python_security_review.md) - Vulnerability assessment
+
    - [Phase 4: Performance](code_review/performance_review/python_performance_review.md) - Optimization opportunities
+
    - [Phase 5: Testing](code_review/testing_review/python_testing_review.md) - Test coverage and quality
+
    - [Phase 6: Final Report](code_review/final_report/python_final_report.md) - Consolidated findings
+
 3. **Copy phase prompts**: Each phase has copy-paste ready prompts for AI assistants
+
 4. **Review systematically**: Follow sequential phases for comprehensive coverage
 
 ### For [Test Development](test_development/)
+
 1. **Choose implementation approach**:
+
    - Quick (2.25 hours): [Phase 1](test_development/test_structure/), [2](test_development/test_cases/) (core), [5](test_development/maintenance_cicd/), [6](test_development/code_coverage/) (basic)
+
    - Standard (8-11 hours): Phases [1](test_development/test_structure/)-[5](test_development/maintenance_cicd/) for production-ready tests
+
    - Comprehensive (11-15 hours): All 6 phases for enterprise-grade testing
+
 2. **Select test phase**:
+
    - [Phase 1: Test Structure](test_development/test_structure/python_test_structure.md) - Infrastructure setup
+
    - [Phase 2: Test Cases](test_development/test_cases/python_test_cases.md) - Comprehensive test development
+
    - [Phase 3: Mocks & Fixtures](test_development/mocks_fixtures/python_mocks_fixtures.md) - Test isolation
+
    - [Phase 4: Performance Testing](test_development/performance_testing/python_performance_testing.md) - Load and stress tests
+
    - [Phase 5: Maintenance & CI/CD](test_development/maintenance_cicd/python_maintenance_cicd.md) - Automation and quality gates
+
    - [Phase 6: Code Coverage](test_development/code_coverage/python_code_coverage.md) - Coverage analysis (80%+ target)
+
 3. **Follow phase sequence**: Each phase builds on previous infrastructure
+
 4. **Use copy-paste prompts**: Detailed implementation prompts with code examples
 
 ### For [Documentation](documentation/)
+
 1. **Choose documentation scope**:
+
    - Quick (2 hours): [Phase 1](documentation/docstrings/) (docstrings), [3](documentation/user_docs/) (README), [4](documentation/technical_docs/) (architecture)
+   
    - Standard (7-10 hours): Phases [1](documentation/docstrings/)-[4](documentation/technical_docs/) for comprehensive docs
+   
    - Complete (11-15 hours): All 6 phases for professional documentation with SBOM
+   
 2. **Select documentation phase**:
+
    - [Phase 1: Docstrings](documentation/docstrings/python_docstrings.md) - Code-level documentation
+   
    - [Phase 2: Comments](documentation/comments/python_comments.md) - Strategic code comments
+   
    - [Phase 3: User Docs](documentation/user_docs/python_user_docs.md) - README, guides, and tutorials
+   
    - [Phase 4: Technical Docs](documentation/technical_docs/python_technical_docs.md) - Architecture and design
+   
    - [Phase 5: API Docs](documentation/api_docs/python_api_docs.md) - Complete API reference
+   
    - [Phase 6: SBOM](documentation/sbom/python_sbom.md) - Software Bill of Materials and compliance
+   
 3. **Follow phase sequence**: Docstrings → Comments → User Docs → Technical Docs → API Reference → SBOM
+
 4. **Use copy-paste prompts**: Detailed prompts with examples and templates
 
 ## 🛠 Template Categories
