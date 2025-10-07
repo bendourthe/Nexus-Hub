@@ -73,7 +73,7 @@ Mix and match phases when you need targeted insight (e.g., security-only deep di
 - Identify high-risk areas that deserve extra scrutiny.
 - Capture review assumptions and planned checkpoints.
 
-**Use this prompt:** [Python context analysis](context_analysis/python_context_analysis.md)
+*Python project:** [Context analysis prompt template](context_analysis/python_context_analysis.md)
 
 ### Phase 2 – Code quality
 **Objective:** Evaluate readability, maintainability, and adherence to standards.
@@ -82,7 +82,7 @@ Mix and match phases when you need targeted insight (e.g., security-only deep di
 - Highlight complexity hotspots and refactoring opportunities.
 - Record strengths alongside improvement ideas.
 
-**Use this prompt:** [Python code quality review](code_quality/python_code_quality.md)
+**Python project:** [Code quality review prompt template](code_quality/python_code_quality.md)
 
 ### Phase 3 – Security review
 **Objective:** Surface vulnerabilities, insecure defaults, and threat models.
@@ -91,7 +91,7 @@ Mix and match phases when you need targeted insight (e.g., security-only deep di
 - Assess dependency risk (packages, versions, SBOM items).
 - Provide severity-labelled findings with mitigation guidance.
 
-**Use this prompt:** [Python security review](security_review/python_security_review.md)
+**Python project:** [Security review promtp template](security_review/python_security_review.md)
 
 ### Phase 4 – Performance review
 **Objective:** Measure efficiency and headroom for growth.
@@ -100,7 +100,7 @@ Mix and match phases when you need targeted insight (e.g., security-only deep di
 - Evaluate caching, concurrency, and scalability strategies.
 - Recommend profiling experiments or production safeguards.
 
-**Use this prompt:** [Python performance review](performance_review/python_performance_review.md)
+**Python project:** [Performance review prompt template](performance_review/python_performance_review.md)
 
 ### Phase 5 – Testing review
 **Objective:** Assess test depth, reliability, and automation coverage.
@@ -109,7 +109,7 @@ Mix and match phases when you need targeted insight (e.g., security-only deep di
 - Confirm edge cases, error handling, fixtures, and mocks.
 - Outline coverage gaps with prioritized remediation steps.
 
-**Use this prompt:** [Python testing review](testing_review/python_testing_review.md)
+**Python project:** [Testing review prompt template](testing_review/python_testing_review.md)
 
 ### Phase 6 – Final report
 **Objective:** Summarize review outcomes and chart the remediation roadmap.
@@ -118,7 +118,7 @@ Mix and match phases when you need targeted insight (e.g., security-only deep di
 - Consolidate findings by severity and owning team.
 - Propose follow-up actions with estimated effort.
 
-**Use this prompt:** [Python final report](final_report/python_final_report.md)
+**Python project:** [Final report prompt template](final_report/python_final_report.md)
 
 ---
 

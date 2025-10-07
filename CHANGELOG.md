@@ -18,6 +18,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.1.2] - 2025-10-07
+
+### Changed
+- Refreshed `code_review/README.md` with quick navigation, depth-based review modes, and prompt deep links.
+- Condensed `documentation/README.md` into a six-phase handbook featuring compliance and maintenance guidance.
+- Modernized `test_development/README.md` with build paths, tooling summaries, and CI/CD quality gates.
+
+---
+
 ## [0.1.0] - 2025-10-07
 
 ### Added
@@ -160,9 +169,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 | Version | Date       | Description                                      |
 |---------|------------|--------------------------------------------------|
+| 0.1.2   | 2025-10-07 | README refinements across review, docs, and tests |
 | 0.1.0   | 2025-10-07 | Initial release with complete Python templates   |
 
 ---
 
-[Unreleased]: https://github.com/yourusername/ai_templates/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/yourusername/ai_templates/compare/v0.1.2...HEAD
+[0.1.2]: https://github.com/yourusername/ai_templates/releases/tag/v0.1.2
 [0.1.0]: https://github.com/yourusername/ai_templates/releases/tag/v0.1.0

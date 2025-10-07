@@ -54,37 +54,37 @@ Design a complete narrative for your project—from inline docstrings to complia
 - Apply consistent style (Google, NumPy, or Sphinx) across modules.
 - Document parameters, return values, raises, and usage examples.
 - Flag TODOs for missing context so downstream docs stay honest.
-- **Prompt:** [Python docstrings](docstrings/python_docstrings.md)
+- **Python project:** [Docstrings generation prompt template](docstrings/python_docstrings.md)
 
 ### Phase 2 – Strategic comments
 - Capture intent, design decisions, and performance notes—never restate the code.
 - Mark risks (`TODO`, `FIXME`, `NOTE`) with owners and due dates.
 - Keep comments brief; link to design docs when context spans multiple files.
-- **Prompt:** [Python comments](comments/python_comments.md)
+- **Python project:** [Comments generation prompt template](comments/python_comments.md)
 
 ### Phase 3 – User documentation
 - Refresh the project README, quick-start, and FAQ with current workflows.
 - Add task-oriented guides and troubleshooting steps for support teams.
 - Provide upgrade notes when breaking changes land.
-- **Prompt:** [Python user docs](user_docs/python_user_docs.md)
+- **Python project:** [User documentations generation prompt template](user_docs/python_user_docs.md)
 
 ### Phase 4 – Technical documentation
 - Map architecture, data flows, and component responsibilities.
 - Record key decisions, alternatives considered, and trade-offs.
 - Include deployment, rollback, and operational runbook guidance.
-- **Prompt:** [Python technical docs](technical_docs/python_technical_docs.md)
+- **Python project:** [Technical documentations generation prompt template](technical_docs/python_technical_docs.md)
 
 ### Phase 5 – API documentation
 - List every public endpoint, payload schema, success/failure codes, and auth requirements.
 - Supply runnable request/response examples and SDK snippets.
 - Note rate limits, versioning strategy, and deprecation timelines.
-- **Prompt:** [Python API docs](api_docs/python_api_docs.md)
+- **Python project:** [API documentations generation prompt template](api_docs/python_api_docs.md)
 
 ### Phase 6 – SBOM & compliance
 - Generate CycloneDX or SPDX manifests with tooling noted in the prompt.
 - Track license obligations, vulnerabilities, and remediation owners.
 - Summarize NTIA/EU CRA checkpoints, including attestation artifacts.
-- **Prompt:** [Python SBOM](sbom/python_sbom.md)
+- **Python project:** [SBOM generation prompt template](sbom/python_sbom.md)
 
 ---
 

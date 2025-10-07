@@ -54,37 +54,37 @@ Stand up reliable, automated test suites with clear prompts for every phase—fr
 - Lay out `/tests`, shared utilities, and configuration files (pytest.ini, run_all_tests.py).
 - Provide base classes, assertion helpers, and test discovery hooks.
 - Ensure repeatable local runs with environment setup notes.
-- **Prompt:** [Python test structure](test_structure/python_test_structure.md)
+- **Python project:** [Test structure prompt template](test_structure/python_test_structure.md)
 
 ### Phase 2 – Test cases
 - Cover happy paths, edge cases, and error handling using Arrange-Act-Assert.
 - Add integration checks for service boundaries and regression tests for fixed bugs.
 - Tag slow or flaky suites so CI pipelines can segment runs.
-- **Prompt:** [Python test cases](test_cases/python_test_cases.md)
+- **Python project:** [Test cases prompt template](test_cases/python_test_cases.md)
 
 ### Phase 3 – Mocks & fixtures
 - Create fixtures for databases, APIs, and filesystem interactions with automatic teardown.
 - Use factories/builders for deterministic test data.
 - Centralize monkeypatching/mocking patterns to keep tests declarative.
-- **Prompt:** [Python mocks & fixtures](mocks_fixtures/python_mocks_fixtures.md)
+- **Python project:** [Mocks & fixtures prompt template](mocks_fixtures/python_mocks_fixtures.md)
 
 ### Phase 4 – Performance testing
 - Define target latency, throughput, and resource budgets before executing.
 - Generate load/stress scenarios plus benchmark harnesses with percentile reporting.
 - Record baselines and compare future runs automatically.
-- **Prompt:** [Python performance testing](performance_testing/python_performance_testing.md)
+- **Python project:** [Performance testing prompt template](performance_testing/python_performance_testing.md)
 
 ### Phase 5 – Maintenance & CI/CD
 - Wire suites into CI/CD (GitHub Actions, Jenkins, etc.) with parallelism and caching.
 - Capture flaky test telemetry, quarantine failures, and escalate owners.
 - Publish structured reports (HTML, JUnit XML, coverage badges) for visibility.
-- **Prompt:** [Python maintenance & CI/CD](maintenance_cicd/python_maintenance_cicd.md)
+- **Python project:** [Maintenance & CI/CD prompt template](maintenance_cicd/python_maintenance_cicd.md)
 
 ### Phase 6 – Code coverage
 - Measure line/branch coverage and map gaps to missing scenarios.
 - Enforce thresholds (80%+ recommended) with pre-commit hooks or CI fails.
 - Prioritize risk-based backlogs to raise coverage without busywork.
-- **Prompt:** [Python code coverage](code_coverage/python_code_coverage.md)
+- **Python project:** [Code coverage prompt template](code_coverage/python_code_coverage.md)
 
 ---
 

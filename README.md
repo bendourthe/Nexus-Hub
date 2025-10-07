@@ -1,21 +1,19 @@
 # AI Development Templates
 
-**Version 0.1.0** | Released October 7, 2025
+**Version 0.1.2** | Released October 7, 2025
 
 This repository contains comprehensive templates and standardized prompts to enhance AI-assisted software development across multiple domains. These templates ensure consistent, high-quality outputs while maintaining organizational software development standards.
 
 ---
 
-## 🎉 What's New in Version 0.1.0
+## 🎉 What's New in Version 0.1.2
 
-**Initial Release** - Complete Python template suite with phase-based organization!
+**README Refinement Release** – streamlined guidance across section roadmaps and prompt directories.
 
-### 🚀 Major Features
-- **18 Comprehensive Templates** across Code Review (6), Test Development (6), and Documentation (6)
-- **Phase-Based Organization** with individual directories for each phase
-- **Fully Clickable Navigation** - Direct links to every template from any README
-- **22 README Files** providing guidance at repository, section, and phase levels
-- **System Prompts** for GitHub Copilot, Cursor, Windsurf, and Claude Code
+### ✨ Highlights
+- **Code Review README** rebuilt with quick navigation, depth-based pathways, and prompt deep links.
+- **Documentation README** condensed into a six-phase playbook featuring compliance and maintenance checklists.
+- **Test Development README** modernized with build paths, toolkit summaries, and CI/CD quality gates.
 
 ### 📋 Template Coverage
 - **Code Review**: Context analysis, code quality, security, performance, testing, and final reporting
@@ -229,7 +227,7 @@ Current templates focus on Python. To extend to other languages:
 
 ## 📌 Version Information
 
-**Current Version**: 0.1.0  
+**Current Version**: 0.1.2  
 **Release Date**: October 7, 2025  
 **Template Coverage**: Python (Complete - 18 phases)  
 **Next Planned**: JavaScript/TypeScript templates
@@ -238,7 +236,7 @@ Current templates focus on Python. To extend to other languages:
 
 ---
 
-*AI Development Templates v0.1.0 - Empowering developers with structured, AI-assisted workflows*
+*AI Development Templates v0.1.2 - Empowering developers with structured, AI-assisted workflows*
 
 *Last Updated: October 2025*
 *Repository maintained by Benjamin Dourthe (benjamin@adonamed.com)*
