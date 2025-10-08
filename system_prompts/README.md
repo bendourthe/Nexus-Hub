@@ -15,6 +15,7 @@ ai_prompts/
 │   └── python/
 │       ├── GLOBAL_comprehensive_35k.md         # Full-featured prompt (~35k tokens)
 │       └── GLOBAL_condensed_15k.md             # Lightweight version (~15k tokens)
+├── GLOBAL_generalized_system_prompt_15k.md     # General-purpose assistants (non-coding, ~15k tokens)
 └── README.md                                   # This file
 ```
 
@@ -28,6 +29,11 @@ Having standardized and version-controlled prompts helps ensure that your organi
 - **Improves team collaboration** with shared coding standards
 
 ## 🤖 Platform Setup Instructions
+
+### Generalized AI Assistants (Multimodal / Non-Coding)
+- Use `GLOBAL_generalized_system_prompt_15k.md` when you need consistent guidance for task-oriented assistants that are not tied to software development or a specific programming language.
+- Paste the instructions into the assistant's system prompt area (e.g., "Custom Instructions," "Rules," or "Profile" fields) before starting a session.
+- Combine with domain-specific briefs on a per-project basis for best results.
 
 ### GitHub Copilot
 
@@ -116,6 +122,7 @@ Having standardized and version-controlled prompts helps ensure that your organi
 - **Best for**: Quick development, prototyping, smaller projects
 - **Features**: Essential guidelines, core best practices, streamlined workflow
 - **Use when**: Token efficiency is important or working within limits
+- **General-purpose option**: `GLOBAL_generalized_system_prompt_15k.md` delivers broad guidance for assistants that are not dedicated to coding tasks.
 
 ## 🚀 Getting Started
 

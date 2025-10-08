@@ -94,12 +94,12 @@ Navigate to appropriate language folder (currently `python/`)
 ### [Code Reviews](code_review/)
 
 #### Review Selection:
-- [Context Analysis](code_review/context_analysis/) ------------> Project understanding
-- [Code Quality](code_review/code_quality/) --------------------> Style and maintainability
-- [Security](code_review/security_review/) ---------------------> Vulnerability assessment
-- [Performance](code_review/performance_review/) ---------------> Optimization opportunities
-- [Testing](code_review/testing_review/) -----------------------> Test coverage and quality
-- [Final Report](code_review/final_report/) --------------------> Consolidated findings
+- [Context Analysis](code_review/context_analysis/) ------------ > Project understanding
+- [Code Quality](code_review/code_quality/) -------------------- > Style and maintainability
+- [Security](code_review/security_review/) --------------------- > Vulnerability assessment
+- [Performance](code_review/performance_review/) --------------- > Optimization opportunities
+- [Testing](code_review/testing_review/) ----------------------- > Test coverage and quality
+- [Final Report](code_review/final_report/) -------------------- > Consolidated findings
 
 #### Prompt Execution
 Each code review type has copy-paste ready prompts for AI assistants.
@@ -110,12 +110,12 @@ Run each code review prompt template one at a time for comprehensive coverage.
 ### [Test Development](test_development/)
 
 #### Test Selection
-- [Test Structure](test_development/test_structure/) -----------> Infrastructure setup
-- [Test Cases](test_development/test_cases/) -------------------> Comprehensive test development
-- [Mocks & Fixtures](test_development/mocks_fixtures/) ---------> Test isolation
-- [Performance Testing](test_development/performance_testing/) -> Load and stress tests
-- [Maintenance & CI/CD](test_development/maintenance_cicd/) ----> Automation and quality gates
-- [Code Coverage](test_development/code_coverage/) -------------> Coverage analysis (80%+ target)
+- [Test Structure](test_development/test_structure/) ----------- > Infrastructure setup
+- [Test Cases](test_development/test_cases/) ------------------- > Comprehensive test development
+- [Mocks & Fixtures](test_development/mocks_fixtures/) --------- > Test isolation
+- [Performance Testing](test_development/performance_testing/) - > Load and stress tests
+- [Maintenance & CI/CD](test_development/maintenance_cicd/) ---- > Automation and quality gates
+- [Code Coverage](test_development/code_coverage/) ------------- > Coverage analysis (80%+ target)
 
 #### Prompt Execution
 Each test type has copy-paste ready prompts for AI assistants.
@@ -126,12 +126,12 @@ Run each test prompt template one at a time for comprehensive coverage.
 ### [Documentation](documentation/)
 
 #### Documentation Selection
-   - [Docstrings](documentation/docstrings/) -------------------> Code-level documentation
-   - [Comments](documentation/comments/) -----------------------> Strategic code comments
-   - [User Docs](documentation/user_docs/) ---------------------> README, guides, and tutorials
-   - [Technical Docs](documentation/technical_docs/) -----------> Architecture and design
-   - [API Docs](documentation/api_docs/) -----------------------> Complete API reference
-   - [SBOM](documentation/sbom/) -------------------------------> Software Bill of Materials and compliance3.
+   - [Docstrings](documentation/docstrings/) ------------------- > Code-level documentation
+   - [Comments](documentation/comments/) ----------------------- > Strategic code comments
+   - [User Docs](documentation/user_docs/) --------------------- > README, guides, and tutorials
+   - [Technical Docs](documentation/technical_docs/) ----------- > Architecture and design
+   - [API Docs](documentation/api_docs/) ----------------------- > Complete API reference
+   - [SBOM](documentation/sbom/) ------------------------------- > Software Bill of Materials and compliance3.
 
 #### Prompt Execution
 Each documentation type has copy-paste ready prompts for AI assistants.
