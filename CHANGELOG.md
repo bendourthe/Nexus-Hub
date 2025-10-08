@@ -10,11 +10,72 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Planned
-- JavaScript/TypeScript templates for all sections
-- Java templates for enterprise applications
-- C#/.NET templates
-- Go templates for microservices
 - Rust templates for systems programming
+- Additional template enhancements based on community feedback
+- Interactive template selection tool
+
+---
+
+## [0.2.0] - 2025-10-08
+
+### Added
+- **Multi-Language Support Across All Sections** (6 additional languages)
+  - JavaScript/TypeScript templates for web and Node.js development
+  - Java templates for enterprise and Spring Boot applications
+  - C# templates for .NET and ASP.NET Core
+  - Go templates for microservices and cloud-native applications
+  - C templates for embedded systems and firmware development
+  - C++ templates for performance-critical and embedded systems
+
+- **Code Cleanup Templates** (7 files total)
+  - JavaScript: ESLint, Prettier, ES6+ modernization
+  - Java: Maven/Gradle, lambdas/streams, code smells
+  - C#: ReSharper, modern C# features, nullable types
+  - Go: gofmt, idiomatic patterns, staticcheck
+  - C: Memory leaks, MISRA-C compliance, embedded focus
+  - C++: Smart pointers, modern C++ (C++11-20), clang-tidy
+
+- **Code Review Templates** (42 files: 6 languages × 6 phases + 6 READMEs)
+  - Context Analysis for all languages
+  - Code Quality with language-specific linters and standards
+  - Security Review with OWASP, language-specific vulnerabilities
+  - Performance Review with profiling tools for each language
+  - Testing Review with framework-specific guidance
+  - Final Report templates
+
+- **Documentation Templates** (42 files: 6 languages × 6 phases + 6 READMEs)
+  - Docstrings: JSDoc, JavaDoc, XML docs, godoc, Doxygen
+  - Comments: Language-specific commenting conventions
+  - User Docs: README structures for each ecosystem
+  - Technical Docs: Architecture and ADRs
+  - API Docs: OpenAPI, Swagger, gRPC documentation
+  - SBOM: Language-specific dependency scanning and compliance
+
+- **Test Development Templates** (42 files: 6 languages × 6 phases + 6 READMEs)
+  - Test Structure: Jest/Mocha, JUnit, xUnit/NUnit, testing package, Unity/CUnit, GoogleTest/Catch2
+  - Test Cases: Framework-specific patterns
+  - Mocks & Fixtures: Mockito, Moq, testify, CMock, GMock
+  - Performance Testing: k6, JMH, BenchmarkDotNet, go test -bench
+  - CI/CD: GitHub Actions configurations for each language
+  - Coverage: Istanbul, JaCoCo, Coverlet, go test -cover, gcov/lcov
+
+- **System Prompts** (48 files: 6 languages × 2 categories × 2 versions)
+  - Autonomous agent prompts for Claude Code
+  - Coding assistant prompts for general AI assistants
+  - Comprehensive (~35k tokens) and condensed (15-20k tokens) versions
+  - Language-specific standards and best practices
+
+### Changed
+- Updated all section READMEs with multi-language support information
+- Enhanced main README with language coverage overview
+- Reorganized template navigation for better discoverability
+
+### Technical Details
+- **Total New Files**: ~180+ comprehensive markdown templates
+- **Languages Supported**: 7 (Python, JavaScript, Java, C#, Go, C, C++)
+- **Template Categories**: 5 (System Prompts, Code Cleanup, Code Review, Documentation, Test Development)
+- **Comprehensive Coverage**: Each language has templates for all applicable phases
+- **Tool Integration**: Language-specific linters, formatters, test frameworks, profilers, coverage tools
 
 ---
 
@@ -209,13 +270,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 | Version | Date       | Description                                      |
 |---------|------------|--------------------------------------------------|
+| 0.2.0   | 2025-10-08 | Multi-language support (7 languages total, 180+ new templates) |
 | 0.1.4   | 2025-10-08 | Complete templates for code review, documentation, and test development |
 | 0.1.2   | 2025-10-07 | README refinements across review, docs, and tests |
 | 0.1.0   | 2025-10-07 | Initial release with complete Python templates   |
 
 ---
 
-[Unreleased]: https://github.com/yourusername/ai_templates/compare/v0.1.4...HEAD
+[Unreleased]: https://github.com/yourusername/ai_templates/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/yourusername/ai_templates/releases/tag/v0.2.0
 [0.1.4]: https://github.com/yourusername/ai_templates/releases/tag/v0.1.4
 [0.1.2]: https://github.com/yourusername/ai_templates/releases/tag/v0.1.2
 [0.1.0]: https://github.com/yourusername/ai_templates/releases/tag/v0.1.0

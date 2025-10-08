@@ -14,7 +14,22 @@ This section targets the detection and removal of dead code, duplication, and dr
 
 ## 📂 Available Templates
 
-- **[Python Codebase Cleanup](python_cleanup.md)**: Comprehensive prompt covering dead code detection and removal, duplication analysis, refactoring prioritization, and validation steps.
+### General Purpose Languages
+
+| Language | Template | Key Focus Areas |
+|----------|----------|-----------------|
+| **Python** | [python_cleanup.md](python_cleanup.md) | Unused imports/functions, empty lines, debug statements, import organization, code simplification |
+| **JavaScript/TypeScript** | [javascript_cleanup.md](javascript_cleanup.md) | Unused imports/exports, console.log statements, ES6+ modernization, TypeScript types, npm dependencies |
+| **Java** | [java_cleanup.md](java_cleanup.md) | Unused imports/methods, System.out debugging, code smells, lambdas/streams, Maven/Gradle cleanup |
+| **C#** | [csharp_cleanup.md](csharp_cleanup.md) | Unused usings, Console statements, modern C# features, nullable types, NuGet packages, ReSharper patterns |
+| **Go** | [go_cleanup.md](go_cleanup.md) | Unused imports, fmt.Println debugging, idiomatic patterns, go vet/staticcheck findings, module cleanup |
+
+### Systems Programming Languages
+
+| Language | Template | Key Focus Areas |
+|----------|----------|-----------------|
+| **C** | [c_cleanup.md](c_cleanup.md) | Unused includes, memory leaks, buffer overflows, embedded systems patterns, MISRA-C/CERT-C compliance |
+| **C++** | [cpp_cleanup.md](cpp_cleanup.md) | Unused includes, smart pointers, RAII, modern C++ features (C++11/14/17/20), static analysis, sanitizers |
 
 
 ## ✅ Success Criteria

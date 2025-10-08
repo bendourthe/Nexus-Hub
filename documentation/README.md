@@ -15,12 +15,29 @@ This section provides comprehensive documentation templates that enable systemat
 
 ## 📂 Available Templates
 
-- **[Docstrings](docstrings/python_docstrings.md)**: Comprehensive docstring generation for modules, classes, and functions
-- **[Comments](comments/python_comments.md)**: Strategic inline and block comment guidance
-- **[User Documentation](user_docs/python_user_docs.md)**: README, user guides, and how-to documentation
-- **[Technical Documentation](technical_docs/python_technical_docs.md)**: Architecture, design decisions, and codebase walkthroughs
-- **[API Documentation](api_docs/python_api_docs.md)**: Complete API reference with examples
-- **[SBOM Generation](sbom/python_sbom.md)**: Software Bill of Materials for compliance (NTIA, EU CRA)
+### Supported Languages
+
+Templates are available for the following languages:
+- **Python** - General-purpose, data science, web development
+- **JavaScript/TypeScript** - Web, Node.js, React, Angular, Vue
+- **Java** - Enterprise, Spring Boot, Android
+- **C#** - .NET, ASP.NET Core, Unity
+- **Go** - Microservices, cloud-native
+- **C** - Embedded systems, firmware, RTOS
+- **C++** - Performance-critical, embedded, modern C++
+
+### Documentation Phases
+
+Each language has templates for all 6 documentation phases:
+
+| Phase | Focus Areas | Available Languages |
+|-------|-------------|---------------------|
+| **[Docstrings](docstrings/)** | Code-level documentation (JSDoc, JavaDoc, XML docs, godoc, Doxygen) | Python, JavaScript, Java, C#, Go, C, C++ |
+| **[Comments](comments/)** | Strategic commenting guidelines (explain "why" not "what") | Python, JavaScript, Java, C#, Go, C, C++ |
+| **[User Documentation](user_docs/)** | README, installation guides, quick starts, tutorials | Python, JavaScript, Java, C#, Go, C, C++ |
+| **[Technical Documentation](technical_docs/)** | Architecture, ADRs, design decisions, codebase walkthroughs | Python, JavaScript, Java, C#, Go, C, C++ |
+| **[API Documentation](api_docs/)** | Complete API reference with examples (OpenAPI, gRPC) | Python, JavaScript, Java, C#, Go, C, C++ |
+| **[SBOM Generation](sbom/)** | Software Bill of Materials for compliance (NTIA, EU CRA) | Python, JavaScript, Java, C#, Go, C, C++ |
 
 ## ✅ Success Criteria
 

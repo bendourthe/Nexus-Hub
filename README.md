@@ -1,35 +1,44 @@
 # AI Development Templates
 
-**Version 0.1.4** | Released October 8, 2025
+**Version 0.2.0** | Released October 8, 2025
 
-This repository contains comprehensive templates and standardized prompts to enhance AI-assisted software development across multiple domains. These templates ensure consistent, high-quality outputs while maintaining organizational software development standards.
+This repository contains comprehensive templates and standardized prompts to enhance AI-assisted software development across multiple domains and programming languages. These templates ensure consistent, high-quality outputs while maintaining organizational software development standards.
 
 ---
 
-## 🎉 What's New in Version 0.1.4
+## 🎉 What's New in Version 0.2.0
 
-**Complete Template Release** – 39 comprehensive markdown templates across code review, documentation, and test development.
+**Multi-Language Expansion** – 180+ comprehensive templates now supporting 7 programming languages across all sections.
 
 ### ✨ Highlights
-- **Code Review Templates**: 6 complete phases with 13 files (Context, Quality, Security, Performance, Testing, Final Report)
-- **Documentation Templates**: 6 complete phases with 13 files (Docstrings, Comments, User Docs, Technical Docs, API Docs, SBOM)
-- **Test Development Templates**: 6 complete phases with 13 files (Structure, Cases, Mocks/Fixtures, Performance, CI/CD, Coverage)
+- **7 Languages Supported**: Python, JavaScript/TypeScript, Java, C#, Go, C (embedded), C++ (modern)
+- **180+ New Templates**: Complete coverage across code cleanup, code review, documentation, test development, and system prompts
+- **Unified Structure**: Consistent template format across all languages for easy navigation
+- **Language-Specific Tools**: Tailored recommendations for each ecosystem (linters, formatters, test frameworks, profilers)
 
-### 📋 Template Coverage
-- **Code Review**: Context analysis, code quality, security (OWASP Top 10), performance profiling, testing review, and consolidated reporting
-- **Test Development**: Infrastructure setup, comprehensive test cases (unit/integration/e2e), mocking strategies, performance testing (Locust), CI/CD automation, 80%+ coverage
-- **Documentation**: Docstrings (Google/NumPy/Sphinx), strategic comments, user guides, technical docs (ADRs), API reference (OpenAPI), SBOM (NTIA/EU CRA)
+### 📋 Multi-Language Template Coverage
 
-### ⏱️ Time Investment
-- **Code Review**: 1-16 hours (depending on depth)
-- **Test Development**: 8-15 hours (complete implementation)
-- **Documentation**: 8-15 hours (including SBOM)
+**Code Cleanup** (7 languages):
+- Dead code removal, import cleanup, modernization patterns for each language
+
+**Code Review** (42 files: 6 languages × 6 phases):
+- Context analysis, code quality, security (OWASP), performance profiling, testing review, final report
+
+**Documentation** (42 files: 6 languages × 6 phases):
+- Docstrings (JSDoc, JavaDoc, XML, godoc, Doxygen), comments, user docs, technical docs, API docs, SBOM
+
+**Test Development** (42 files: 6 languages × 6 phases):
+- Test structure, test cases, mocks/fixtures, performance testing, CI/CD, coverage (80%+ target)
+
+**System Prompts** (48 files: 6 languages × 2 categories × 2 versions):
+- Autonomous agents (Claude Code) and coding assistants (GitHub Copilot, Cursor, Windsurf)
+- Comprehensive (~35k) and condensed (15-20k tokens) versions
 
 ### 🎯 Key Benefits
-- **39 copy-paste ready prompt templates** for AI assistants
-- **Multi-phase approach** with detailed checklists and success criteria
-- **Tool integration**: pytest, coverage.py, bandit, safety, pip-audit, locust, GitHub Actions
-- **Security and compliance**: OWASP Top 10, SBOM generation (NTIA, EU CRA)
+- **220+ copy-paste ready prompt templates** across 7 languages
+- **Polyglot team support**: Consistent quality across different tech stacks
+- **Comprehensive tool integration**: Language-specific linters, formatters, test frameworks, profilers
+- **Security and compliance**: OWASP Top 10, SBOM generation (NTIA, EU CRA) for all languages
 - **Quality standards**: 80%+ test coverage, performance profiling, comprehensive code review
 
 [📖 View Complete Changelog](CHANGELOG.md)
@@ -246,17 +255,18 @@ Current templates focus on Python. To extend to other languages:
 
 ## 📌 Version Information
 
-**Current Version**: 0.1.4
+**Current Version**: 0.2.0
 **Release Date**: October 8, 2025
-**Template Coverage**: Python (Complete - 39 comprehensive templates across 18 phases)
-**Total Files**: 39 markdown files with 25,000+ lines of documentation
-**Next Planned**: JavaScript/TypeScript templates
+**Languages Supported**: 7 (Python, JavaScript/TypeScript, Java, C#, Go, C, C++)
+**Total Templates**: 220+ comprehensive markdown files
+**Template Categories**: System Prompts, Code Cleanup, Code Review, Documentation, Test Development
+**Next Planned**: Rust templates, interactive template selector
 
 [View Changelog](CHANGELOG.md) | [View Releases](../../releases)
 
 ---
 
-*AI Development Templates v0.1.4 - Empowering developers with structured, AI-assisted workflows*
+*AI Development Templates v0.2.0 - Empowering polyglot development teams with structured, AI-assisted workflows*
 
 *Last Updated: October 2025*
 *Repository maintained by Benjamin Dourthe (benjamin@adonamed.com)*

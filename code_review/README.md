@@ -15,12 +15,29 @@ This section provides comprehensive code review templates that enable systematic
 
 ## 📂 Available Templates
 
-- **[Context Analysis](context_analysis/python_context_analysis.md)**: Project understanding, architecture mapping, dependency analysis, and codebase structure evaluation
-- **[Code Quality](code_quality/python_code_quality.md)**: Style compliance, maintainability metrics, complexity analysis, and best practices adherence
-- **[Security Review](security_review/python_security_review.md)**: Vulnerability scanning, dependency audit, secrets detection, and compliance verification
-- **[Performance Review](performance_review/python_performance_review.md)**: Profiling, bottleneck identification, resource usage analysis, and optimization recommendations
-- **[Testing Review](testing_review/python_testing_review.md)**: Test coverage analysis, test quality evaluation, and testing strategy assessment
-- **[Final Report](final_report/python_final_report.md)**: Consolidated findings with prioritized action items and risk assessment
+### Supported Languages
+
+Templates are available for the following languages:
+- **Python** - General-purpose, data science, web development
+- **JavaScript/TypeScript** - Web, Node.js, React, Angular, Vue
+- **Java** - Enterprise, Spring Boot, Android
+- **C#** - .NET, ASP.NET Core, Unity
+- **Go** - Microservices, cloud-native
+- **C** - Embedded systems, firmware, RTOS
+- **C++** - Performance-critical, embedded, modern C++
+
+### Review Phases
+
+Each language has templates for all 6 review phases:
+
+| Phase | Focus Areas | Available Languages |
+|-------|-------------|---------------------|
+| **[Context Analysis](context_analysis/)** | Project understanding, architecture mapping, dependency analysis | Python, JavaScript, Java, C#, Go, C, C++ |
+| **[Code Quality](code_quality/)** | Style compliance, maintainability metrics, complexity analysis | Python, JavaScript, Java, C#, Go, C, C++ |
+| **[Security Review](security_review/)** | Vulnerability scanning, OWASP Top 10, secrets detection | Python, JavaScript, Java, C#, Go, C, C++ |
+| **[Performance Review](performance_review/)** | Profiling, bottleneck identification, optimization | Python, JavaScript, Java, C#, Go, C, C++ |
+| **[Testing Review](testing_review/)** | Test coverage analysis, test quality evaluation | Python, JavaScript, Java, C#, Go, C, C++ |
+| **[Final Report](final_report/)** | Consolidated findings with prioritized action items | Python, JavaScript, Java, C#, Go, C, C++ |
 
 ## ✅ Success Criteria
 

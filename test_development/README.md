@@ -15,12 +15,29 @@ This section provides comprehensive test development templates that enable syste
 
 ## 📂 Available Templates
 
-- **[Test Structure](test_structure/python_test_structure.md)**: Test infrastructure setup, framework configuration, and organization
-- **[Test Cases](test_cases/python_test_cases.md)**: Comprehensive test case development for unit, integration, and e2e tests
-- **[Mocks & Fixtures](mocks_fixtures/python_mocks_fixtures.md)**: Test isolation through mocking and fixture management
-- **[Performance Testing](performance_testing/python_performance_testing.md)**: Load testing, stress testing, and performance benchmarking
-- **[Maintenance & CI/CD](maintenance_cicd/python_maintenance_cicd.md)**: Test automation, CI/CD integration, and quality gates
-- **[Code Coverage](code_coverage/python_code_coverage.md)**: Coverage analysis, gap identification, and improvement strategies (80%+ target)
+### Supported Languages
+
+Templates are available for the following languages:
+- **Python** - pytest, unittest, coverage.py
+- **JavaScript/TypeScript** - Jest, Mocha, Cypress, Playwright
+- **Java** - JUnit 5, Mockito, JaCoCo
+- **C#** - xUnit, NUnit, Moq, Coverlet
+- **Go** - testing package, testify, go test
+- **C** - Unity, CUnit, gcov (embedded focus)
+- **C++** - GoogleTest, Catch2, llvm-cov
+
+### Testing Phases
+
+Each language has templates for all 6 testing phases:
+
+| Phase | Focus Areas | Available Languages |
+|-------|-------------|---------------------|
+| **[Test Structure](test_structure/)** | Framework setup, directory organization, configuration | Python, JavaScript, Java, C#, Go, C, C++ |
+| **[Test Cases](test_cases/)** | Unit/integration/e2e tests, AAA pattern, parametrized tests | Python, JavaScript, Java, C#, Go, C, C++ |
+| **[Mocks & Fixtures](mocks_fixtures/)** | Test isolation, mocking strategies, test data factories | Python, JavaScript, Java, C#, Go, C, C++ |
+| **[Performance Testing](performance_testing/)** | Load testing, stress testing, benchmarking | Python, JavaScript, Java, C#, Go, C, C++ |
+| **[Maintenance & CI/CD](maintenance_cicd/)** | Test automation, quality gates, CI/CD integration | Python, JavaScript, Java, C#, Go, C, C++ |
+| **[Code Coverage](code_coverage/)** | Coverage analysis, gap identification, 80%+ target | Python, JavaScript, Java, C#, Go, C, C++ |
 
 ## ✅ Success Criteria
 
