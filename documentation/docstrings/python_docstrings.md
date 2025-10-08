@@ -1,4 +1,4 @@
-# Phase 1: Docstrings & Code Documentation
+# Docstrings & Code Documentation
 
 Generate comprehensive docstrings for all functions, classes, and modules following organizational templates.
 
@@ -6,33 +6,24 @@ Generate comprehensive docstrings for all functions, classes, and modules follow
 
 ## Overview
 
-This phase focuses on creating complete docstring documentation for your Python codebase. Docstrings are the foundation of code documentation, providing inline documentation that's accessible through Python's help system and documentation generators.
-
-### Time Estimate
-- **Analysis**: 30 minutes
-- **Generation**: 1-2 hours
-- **Review**: 30 minutes
-- **Total**: 1-2 hours
+This review focuses on creating complete docstring documentation for your Python codebase. Docstrings are the foundation of code documentation, providing inline documentation that's accessible through Python's help system and documentation generators.
 
 ---
 
-## Copy-Paste Prompt
+## Prompt Template
 
-```
+Use the structured prompt below with your coding assistant:
+
+~~~markdown
+
 Please help me generate comprehensive docstrings for my Python project following organizational standards.
-
 **Project Context:**
 - Project name: [YOUR_PROJECT_NAME]
 - Source code location: src/
 - Current documentation status: [None / Partial / Needs update]
-
 **Documentation Requirements:**
-
 ### 1. Module-Level Docstrings
-
 For each module file, add a comprehensive module docstring:
-
-```python
 """
 [Module name and purpose].
 
@@ -46,15 +37,13 @@ Key Components:
     - [Component 3]: [Brief description]
 
 Example Usage:
-    ```python
     from [module] import [component]
     result = [component].method()
-    ```
 
 Authors:
     - Benjamin Dourthe (benjamin@adonamed.com)
 """
-```
+~~~
 
 **Apply to all modules in:**
 - src/core/*.py
@@ -443,7 +432,6 @@ Please generate docstrings for:
 - [ ] Author attribution included
 
 Complete and pause. Confirm all docstrings are accurate before proceeding to Phase 2.
-```
 
 ---
 

@@ -2,7 +2,7 @@
 
 ## 📋 Overview
 
-This phase focuses on identifying security vulnerabilities, assessing authentication and authorization mechanisms, and evaluating data protection measures.
+This review focuses on identifying security vulnerabilities, assessing authentication and authorization mechanisms, and evaluating data protection measures.
 
 ## 🎯 Objectives
 

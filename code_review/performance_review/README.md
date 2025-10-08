@@ -2,7 +2,7 @@
 
 ## 📋 Overview
 
-This phase evaluates code performance, identifies bottlenecks, analyzes resource usage, and provides optimization recommendations.
+This review evaluates code performance, identifies bottlenecks, analyzes resource usage, and provides optimization recommendations.
 
 ## 🎯 Objectives
 

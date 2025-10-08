@@ -2,7 +2,7 @@
 
 ## 📋 Overview
 
-This phase creates technical documentation for developers including architecture diagrams, design decisions, codebase walkthroughs, and deployment guides.
+This review creates technical documentation for developers including architecture diagrams, design decisions, codebase walkthroughs, and deployment guides.
 
 ## 🎯 Objectives
 

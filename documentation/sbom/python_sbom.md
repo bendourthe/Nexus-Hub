@@ -1,4 +1,4 @@
-# Phase 6: SBOM Generation & Dependency Documentation
+# SBOM Generation & Dependency Documentation
 
 Generate comprehensive Software Bill of Materials (SBOM) and dependency documentation for security, compliance, and supply chain management.
 
@@ -6,39 +6,28 @@ Generate comprehensive Software Bill of Materials (SBOM) and dependency document
 
 ## Overview
 
-This phase focuses on creating detailed Software Bill of Materials (SBOM) documentation that catalogs all software components, dependencies, licenses, and security information. SBOMs are increasingly required for regulatory compliance, security auditing, and supply chain risk management.
-
-### Time Estimate
-- **Dependency Analysis**: 30 minutes
-- **SBOM Generation**: 30-60 minutes
-- **Documentation**: 30 minutes
-- **Total**: 1-2 hours
+This guide focuses on creating detailed Software Bill of Materials (SBOM) documentation that catalogs all software components, dependencies, licenses, and security information. SBOMs are increasingly required for regulatory compliance, security auditing, and supply chain risk management.
 
 ---
 
-## Copy-Paste Prompt
+## Prompt Template
 
-```
+Use the structured prompt below with your coding assistant:
+
+~~~markdown
+
 Please help me generate comprehensive SBOM (Software Bill of Materials) and dependency documentation for my Python project.
-
 **Project Context:**
 - Project name: [YOUR_PROJECT_NAME]
 - Version: [X.Y.Z]
 - Package manager: [pip / poetry / conda]
 - Deployment target: [Production / Open Source / Enterprise]
 - Compliance requirements: [NIST / EU Cyber Resilience Act / NTIA / etc.]
-
 ---
-
 ## SBOM Requirements
-
 ### 1. Generate SBOM Files
-
 Create SBOM files in multiple standard formats:
-
 #### CycloneDX Format (Recommended)
-
-```bash
 # Install CycloneDX generator
 pip install cyclonedx-bom
 
@@ -47,19 +36,17 @@ cyclonedx-py -o sbom.json -F json
 
 # Generate SBOM in XML format
 cyclonedx-py -o sbom.xml -F xml
-```
 
 **Generated file location**: `sbom.json` or `sbom.xml` in project root
 
 #### SPDX Format
 
-```bash
 # Install SPDX tools
 pip install spdx-tools
 
 # Generate SPDX SBOM
 # Manual generation or use tools like syft
-```
+~~~
 
 #### Syft (Multi-format)
 
@@ -281,7 +268,6 @@ snyk test
 └── pydantic (>=2.0.0)
     ├── typing-extensions (>=4.6.1)
     └── pydantic-core (==2.x.x)
-```
 
 ### Generate Full Dependency Tree
 

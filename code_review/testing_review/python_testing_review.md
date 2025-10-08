@@ -1,4 +1,4 @@
-# Phase 5: Testing & Quality Assurance Review
+# Testing & Quality Assurance Review
 
 ## Objective
 Evaluate test coverage, test quality, and overall testing strategy to ensure robust quality assurance.
@@ -53,9 +53,11 @@ Evaluate test coverage, test quality, and overall testing strategy to ensure rob
 - [ ] Tests updated with code changes
 - [ ] Deprecated tests removed
 
-## Detailed Review Prompt
+## Prompt Template
 
-```
+Use the structured prompt below with your coding assistant:
+
+~~~markdown
 Please perform a comprehensive testing and quality assurance review:
 
 **Test Structure Assessment:**
@@ -251,7 +253,7 @@ Provide a testing assessment report with:
 - Recommended test improvements
 - Test execution time analysis
 - Overall testing maturity assessment
-```
+~~~
 
 ## Expected Outcomes
 
@@ -416,4 +418,4 @@ def test_02_edge_cases(self) -> None:
 ```
 
 ## Next Steps
-After completing this phase, proceed to Phase 6: Final Review & Recommendations.
+After completing this review, proceed to the Final Review & Recommendations..

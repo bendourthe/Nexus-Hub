@@ -1,4 +1,4 @@
-# Phase 4: Performance & Scalability Review
+# Performance & Scalability Review
 
 ## Objective
 Evaluate code efficiency, identify performance bottlenecks, and assess scalability considerations.
@@ -55,9 +55,11 @@ Evaluate code efficiency, identify performance bottlenecks, and assess scalabili
 - [ ] Metrics collection implemented
 - [ ] Performance benchmarks defined
 
-## Detailed Review Prompt
+## Prompt Template
 
-```
+Use the structured prompt below with your coding assistant:
+
+~~~markdown
 Please perform a comprehensive performance and scalability review:
 
 **Algorithm Efficiency Analysis:**
@@ -232,7 +234,7 @@ Provide a performance assessment report with:
 - Specific code locations with metrics (if available)
 - Recommended profiling areas
 - Overall performance rating (Excellent/Good/Needs Optimization/Poor)
-```
+~~~
 
 ## Expected Outcomes
 
@@ -342,4 +344,4 @@ message = "User %s processed in %.2f s" % (user_id, elapsed)
 ```
 
 ## Next Steps
-After completing this phase, proceed to Phase 5: Testing & Quality Assurance Review.
+After completing this review, proceed to the Testing & Quality Assurance Review..

@@ -2,7 +2,7 @@
 
 ## 📋 Overview
 
-This phase focuses on developing comprehensive test cases covering functionality, edge cases, error handling, and integration scenarios.
+This review focuses on developing comprehensive test cases covering functionality, edge cases, error handling, and integration scenarios.
 
 ## 🎯 Objectives
 

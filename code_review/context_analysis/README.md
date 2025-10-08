@@ -2,7 +2,7 @@
 
 ## 📋 Overview
 
-This phase focuses on gathering comprehensive context about the codebase, understanding its purpose, architecture, and identifying areas requiring detailed review.
+This review focuses on gathering comprehensive context about the codebase, understanding its purpose, architecture, and identifying areas requiring detailed review.
 
 ## 🎯 Objectives
 

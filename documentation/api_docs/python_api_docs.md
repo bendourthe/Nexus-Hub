@@ -1,4 +1,4 @@
-# Phase 5: API & Reference Documentation
+# API & Reference Documentation
 
 Build comprehensive API reference documentation for all public interfaces.
 
@@ -6,36 +6,26 @@ Build comprehensive API reference documentation for all public interfaces.
 
 ## Overview
 
-This phase focuses on creating complete API reference documentation that developers can use to understand and integrate with your codebase. This includes detailed specifications for all public classes, methods, functions, and their parameters.
-
-### Time Estimate
-- **API Analysis**: 30 minutes
-- **Documentation Generation**: 1-2 hours
-- **Examples and Testing**: 30 minutes
-- **Total**: 1-2 hours
+This review focuses on creating complete API reference documentation that developers can use to understand and integrate with your codebase. This includes detailed specifications for all public classes, methods, functions, and their parameters.
 
 ---
 
-## Copy-Paste Prompt
+## Prompt Template
 
-```
+Use the structured prompt below with your coding assistant:
+
+~~~markdown
+
 Please help me create comprehensive API reference documentation for my Python project.
-
 **Project Context:**
 - Project name: [YOUR_PROJECT_NAME]
 - Package name: [package_name]
 - API type: [Library / REST API / CLI / Mixed]
 - Public modules: [List main public modules]
-
 ---
-
 ## API Reference Structure
-
 ### 1. API Overview (docs/api/README.md)
-
 Create main API documentation index:
-
-```markdown
 # API Reference
 
 Complete reference documentation for [Project Name] APIs.
@@ -52,9 +42,7 @@ Complete reference documentation for [Project Name] APIs.
 ## Quick Start
 
 ### Installation
-```bash
 pip install [package-name]
-```
 
 ### Basic Usage
 ```python
@@ -132,7 +120,7 @@ pip install [package-name][api]     # API server dependencies
 - **Documentation**: [https://docs.example.com](https://docs.example.com)
 - **Issues**: [https://github.com/user/project/issues](https://github.com/user/project/issues)
 - **Discussions**: [https://github.com/user/project/discussions](https://github.com/user/project/discussions)
-```
+~~~
 
 ---
 
@@ -896,7 +884,6 @@ Please create:
 - [ ] Cross-references working
 
 Complete and confirm API documentation is comprehensive and accurate.
-```
 
 ---
 

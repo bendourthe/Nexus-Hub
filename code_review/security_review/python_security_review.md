@@ -1,4 +1,4 @@
-# Phase 3: Security & Error Handling Review
+# Security & Error Handling Review
 
 ## Objective
 Identify security vulnerabilities, assess error handling robustness, and verify safe coding practices.
@@ -53,9 +53,11 @@ Identify security vulnerabilities, assess error handling robustness, and verify 
 - [ ] Context managers used for resources
 - [ ] No unbounded resource consumption
 
-## Detailed Review Prompt
+## Prompt Template
 
-```
+Use the structured prompt below with your coding assistant:
+
+~~~markdown
 Please perform a comprehensive security and error handling review:
 
 **Input Validation Assessment:**
@@ -194,7 +196,7 @@ Provide a security assessment report with:
 - Specific code locations for each finding
 - Remediation suggestions with code examples
 - Overall security rating (Secure/Needs Attention/Vulnerable)
-```
+~~~
 
 ## Expected Outcomes
 
@@ -294,4 +296,4 @@ def read_file_safely(file_path: Path) -> List[str]:
 ```
 
 ## Next Steps
-After completing this phase, proceed to Phase 4: Performance & Scalability Review.
+After completing this review, proceed to the Performance & Scalability Review..

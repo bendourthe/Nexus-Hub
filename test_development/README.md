@@ -6,9 +6,9 @@ Stand up reliable, automated test suites with clear prompts for every phase—fr
 
 ## Quick navigation
 - [Start here](#start-here)
-- [Phase overview](#phase-overview)
+- [Review overview](#phase-overview)
 - [Build paths](#build-paths)
-- [Phase details](#phase-details)
+- [Review details](#phase-details)
 - [Toolkit & automations](#toolkit--automations)
 - [Sustaining quality](#sustaining-quality)
 - [Support](#support)
@@ -25,7 +25,7 @@ Stand up reliable, automated test suites with clear prompts for every phase—fr
 
 ---
 
-## Phase overview
+## Review overview
 | Phase | Focus | Primary outcome | Prompt |
 | --- | --- | --- | --- |
 | 1 | Test structure | Project-ready folders, runners, and utilities | [Python](test_structure/python_test_structure.md) |
@@ -48,39 +48,39 @@ Stand up reliable, automated test suites with clear prompts for every phase—fr
 
 ---
 
-## Phase details
+## Review details
 
-### Phase 1 – Test structure
+### Test structure
 - Lay out `/tests`, shared utilities, and configuration files (pytest.ini, run_all_tests.py).
 - Provide base classes, assertion helpers, and test discovery hooks.
 - Ensure repeatable local runs with environment setup notes.
 - **Python project:** [Test structure prompt template](test_structure/python_test_structure.md)
 
-### Phase 2 – Test cases
+### Test cases
 - Cover happy paths, edge cases, and error handling using Arrange-Act-Assert.
 - Add integration checks for service boundaries and regression tests for fixed bugs.
 - Tag slow or flaky suites so CI pipelines can segment runs.
 - **Python project:** [Test cases prompt template](test_cases/python_test_cases.md)
 
-### Phase 3 – Mocks & fixtures
+### Mocks & fixtures
 - Create fixtures for databases, APIs, and filesystem interactions with automatic teardown.
 - Use factories/builders for deterministic test data.
 - Centralize monkeypatching/mocking patterns to keep tests declarative.
 - **Python project:** [Mocks & fixtures prompt template](mocks_fixtures/python_mocks_fixtures.md)
 
-### Phase 4 – Performance testing
+### Performance testing
 - Define target latency, throughput, and resource budgets before executing.
 - Generate load/stress scenarios plus benchmark harnesses with percentile reporting.
 - Record baselines and compare future runs automatically.
 - **Python project:** [Performance testing prompt template](performance_testing/python_performance_testing.md)
 
-### Phase 5 – Maintenance & CI/CD
+### Maintenance & CI/CD
 - Wire suites into CI/CD (GitHub Actions, Jenkins, etc.) with parallelism and caching.
 - Capture flaky test telemetry, quarantine failures, and escalate owners.
 - Publish structured reports (HTML, JUnit XML, coverage badges) for visibility.
 - **Python project:** [Maintenance & CI/CD prompt template](maintenance_cicd/python_maintenance_cicd.md)
 
-### Phase 6 – Code coverage
+### Code coverage
 - Measure line/branch coverage and map gaps to missing scenarios.
 - Enforce thresholds (80%+ recommended) with pre-commit hooks or CI fails.
 - Prioritize risk-based backlogs to raise coverage without busywork.

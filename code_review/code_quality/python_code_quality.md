@@ -1,4 +1,4 @@
-# Phase 2: Code Quality & Standards Review
+# Code Quality & Standards Review
 
 ## Objective
 Evaluate code quality, adherence to style guidelines, and implementation of best practices.
@@ -65,9 +65,11 @@ Evaluate code quality, adherence to style guidelines, and implementation of best
 - [ ] Classes have descriptive docstrings
 - [ ] Module-level docstrings present
 
-## Detailed Review Prompt
+## Prompt Template
 
-```
+Use the structured prompt below with your coding assistant:
+
+~~~markdown
 Please perform a comprehensive code quality and standards review:
 
 **Import Organization Analysis:**
@@ -161,7 +163,7 @@ Provide a structured report with:
 - Function design concerns with refactoring suggestions
 - Documentation gaps with priority levels
 - Overall code quality score (Excellent/Good/Needs Improvement/Poor)
-```
+~~~
 
 ## Expected Outcomes
 
@@ -234,4 +236,4 @@ result = binary_search(sorted_list, target)
 ```
 
 ## Next Steps
-After completing this phase, proceed to Phase 3: Security & Error Handling Review.
+After completing this review, proceed to the Security & Error Handling Review..

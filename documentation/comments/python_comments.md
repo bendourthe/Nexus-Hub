@@ -1,4 +1,4 @@
-# Phase 2: Code Comments & Inline Documentation
+# Code Comments & Inline Documentation
 
 Add strategic code comments that explain reasoning, non-obvious logic, and important decisions.
 
@@ -6,53 +6,39 @@ Add strategic code comments that explain reasoning, non-obvious logic, and impor
 
 ## Overview
 
-This phase focuses on adding high-value comments that explain the "why" behind code decisions, complex algorithms, performance optimizations, and non-obvious behavior. Following organizational standards, comments should be placed above code blocks (never inline) and focus on reasoning rather than describing what code does.
-
-### Time Estimate
-- **Analysis**: 30-60 minutes
-- **Comment Writing**: 30-60 minutes
-- **Review**: 15-30 minutes
-- **Total**: 1-2 hours
+This review focuses on adding high-value comments that explain the "why" behind code decisions, complex algorithms, performance optimizations, and non-obvious behavior. Following organizational standards, comments should be placed above code blocks (never inline) and focus on reasoning rather than describing what code does.
 
 ---
 
-## Copy-Paste Prompt
+## Prompt Template
 
-```
+Use the structured prompt below with your coding assistant:
+
+~~~markdown
+
 Please help me add strategic code comments to my Python project following organizational standards.
-
 **Project Context:**
 - Project name: [YOUR_PROJECT_NAME]
 - Source code location: src/
 - Current comment status: [None / Sparse / Needs improvement]
-
 **Comment Standards:**
-
 ### Critical Rules
 1. **No inline comments**: Comments must be on separate lines above code
 2. **Explain "why" not "what"**: Focus on reasoning and decisions, not obvious operations
 3. **No meta-commentary**: No editing history, revision notes, or TODO markers in production code
 4. **Above code blocks**: Comments should precede the code they explain
 5. **Descriptive focus**: Explain logic, algorithms, performance, security considerations
-
 ---
-
 ## Comment Categories
-
 ### 1. Algorithm and Logic Explanations
-
 Add comments explaining complex algorithms, non-obvious logic, and implementation approaches:
-
 **Pattern:**
-```python
 # [Why this algorithm/approach was chosen]
 # [Key characteristics or complexity]
 # [Important constraints or considerations]
 [code implementation]
-```
 
 **Examples:**
-```python
 # Use binary search for O(log n) performance on sorted data
 # This is critical for large datasets (>10k items)
 result = binary_search(sorted_list, target)
@@ -69,7 +55,7 @@ result = fibonacci_dp(n, memo)
 # Apply Knuth-Morris-Pratt algorithm for O(n+m) string matching
 # Simple substring search would be O(n*m) for large texts
 matches = kmp_search(text, pattern)
-```
+~~~
 
 **Apply to:**
 - Complex algorithms
@@ -443,7 +429,6 @@ Please add strategic comments to:
 - [ ] Business rules documented
 
 Complete and pause. Confirm comments add value and follow standards before proceeding to Phase 3.
-```
 
 ---
 

@@ -1,4 +1,4 @@
-# Phase 3: User Documentation
+# User Documentation
 
 Create comprehensive user-facing documentation including README, user guides, how-to sections, and about pages.
 
@@ -6,37 +6,27 @@ Create comprehensive user-facing documentation including README, user guides, ho
 
 ## Overview
 
-This phase focuses on creating documentation for end users and developers who will use your application. This includes project overviews, installation instructions, usage guides, and troubleshooting help.
-
-### Time Estimate
-- **README Creation**: 1-2 hours
-- **User Guide**: 30-60 minutes
-- **How-To Sections**: 30-60 minutes
-- **Total**: 2-3 hours
+This review focuses on creating documentation for end users and developers who will use your application. This includes project overviews, installation instructions, usage guides, and troubleshooting help.
 
 ---
 
-## Copy-Paste Prompt
+## Prompt Template
 
-```
+Use the structured prompt below with your coding assistant:
+
+~~~markdown
+
 Please help me create comprehensive user-facing documentation for my Python project.
-
 **Project Context:**
 - Project name: [YOUR_PROJECT_NAME]
 - Version: [X.Y.Z]
 - Purpose: [Brief description]
 - Target users: [End users / Developers / Both]
 - Current documentation: [None / Basic README / Needs expansion]
-
 ---
-
 ## Documentation Components
-
 ### 1. README.md (Main Project Documentation)
-
 Create a comprehensive README.md with the following structure:
-
-```markdown
 # [Project Name] - v[X.Y.Z]
 
 ## What's New in v[X.Y.Z]
@@ -69,9 +59,7 @@ Before installing, ensure you have:
 ### Installation Steps
 
 #### Option 1: From PyPI (Recommended)
-```bash
 pip install [project-name]
-```
 
 #### Option 2: From Source
 ```bash
@@ -429,7 +417,7 @@ See [AUTHORS.md](AUTHORS.md) for full contributor list.
 
 *Last Updated: [Date]*
 *For questions or support: [contact information]*
-```
+~~~
 
 ---
 
@@ -785,7 +773,6 @@ Please create:
 - [ ] User guide comprehensive
 
 Complete and pause. Confirm documentation is accurate and complete before proceeding to Phase 4.
-```
 
 ---
 

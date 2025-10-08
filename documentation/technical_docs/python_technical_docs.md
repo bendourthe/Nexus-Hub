@@ -1,4 +1,4 @@
-# Phase 4: Technical Documentation
+# Technical Documentation
 
 Generate detailed technical documentation explaining architecture, design decisions, and codebase structure for developers.
 
@@ -6,36 +6,26 @@ Generate detailed technical documentation explaining architecture, design decisi
 
 ## Overview
 
-This phase focuses on creating comprehensive technical documentation for developers who will maintain, extend, or integrate with your codebase. This documentation explains the "how" and "why" behind architectural and implementation decisions.
-
-### Time Estimate
-- **Architecture Analysis**: 1-2 hours
-- **Documentation Writing**: 1-2 hours
-- **Diagram Creation**: 30 minutes
-- **Total**: 2-4 hours
+This review focuses on creating comprehensive technical documentation for developers who will maintain, extend, or integrate with your codebase. This documentation explains the "how" and "why" behind architectural and implementation decisions.
 
 ---
 
-## Copy-Paste Prompt
+## Prompt Template
 
-```
+Use the structured prompt below with your coding assistant:
+
+~~~markdown
+
 Please help me create comprehensive technical documentation for my Python project.
-
 **Project Context:**
 - Project name: [YOUR_PROJECT_NAME]
 - Architecture type: [Monolithic / Microservices / Layered / etc.]
 - Primary languages/frameworks: [Python + frameworks]
 - Deployment target: [Local / Cloud / Container / etc.]
-
 ---
-
 ## Documentation Components
-
 ### 1. Architecture Overview (docs/architecture.md)
-
 Create comprehensive architecture documentation:
-
-```markdown
 # Technical Architecture
 
 ## System Overview
@@ -45,7 +35,6 @@ their relationships, and data flow. 3-5 sentences explaining the big picture.]
 
 ### Architecture Diagram
 
-```
 ┌─────────────────────────────────────────────────────────────┐
 │                        Application Layer                     │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐      │
@@ -71,7 +60,6 @@ their relationships, and data flow. 3-5 sentences explaining the big picture.]
 │  │   Database   │  │  File System │  │  External API│       │
 │  └──────────────┘  └──────────────┘  └──────────────┘       │
 └───────────────────────────────────────────────────────────────┘
-```
 
 ## Core Components
 
@@ -92,7 +80,6 @@ their relationships, and data flow. 3-5 sentences explaining the big picture.]
 - External: [Third-party libraries used]
 
 **Interface**:
-```python
 # Public API
 class ComponentClass:
     def primary_method(self, param: Type) -> ReturnType:
@@ -100,7 +87,7 @@ class ComponentClass:
     
     def secondary_method(self, param: Type) -> ReturnType:
         """Secondary functionality."""
-```
+~~~
 
 ### Component 2: [Name]
 [Similar detailed breakdown]

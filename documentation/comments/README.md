@@ -2,7 +2,7 @@
 
 ## 📋 Overview
 
-This phase implements strategic code comments that explain complex logic, design decisions, and non-obvious behavior without cluttering code.
+This review implements strategic code comments that explain complex logic, design decisions, and non-obvious behavior without cluttering code.
 
 ## 🎯 Objectives
 

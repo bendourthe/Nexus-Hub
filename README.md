@@ -1,6 +1,6 @@
 # AI Development Templates
 
-**Version 0.1.2** | Released October 7, 2025
+**Version 0.1.3** | Released October 8, 2025
 
 This repository contains comprehensive templates and standardized prompts to enhance AI-assisted software development across multiple domains. These templates ensure consistent, high-quality outputs while maintaining organizational software development standards.
 
@@ -16,7 +16,7 @@ This repository contains comprehensive templates and standardized prompts to enh
 - **Test Development README** modernized with build paths, toolkit summaries, and CI/CD quality gates.
 
 ### 📋 Template Coverage
-- **Code Review**: Context analysis, code quality, security, performance, testing, and final reporting
+- **Code Review**: Context analysis, code quality, code cleanup, security, performance, testing, and final reporting
 - **Test Development**: Infrastructure, test cases, mocking, performance testing, CI/CD, and coverage (80%+ target)
 - **Documentation**: Docstrings, comments, user guides, technical docs, API reference, and SBOM generation
 
@@ -98,6 +98,7 @@ Navigate to appropriate language folder (currently `python/`)
 | --- | --- |
 | [Context Analysis](code_review/context_analysis/) | Project understanding |
 | [Code Quality](code_review/code_quality/) | Style and maintainability |
+| [Code Cleanup](code_review/code_cleanup/) | Dead code and duplication removal |
 | [Security](code_review/security_review/) | Vulnerability assessment |
 | [Performance](code_review/performance_review/) | Optimization opportunities |
 | [Testing](code_review/testing_review/) | Test coverage and quality |

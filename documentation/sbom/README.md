@@ -2,7 +2,7 @@
 
 ## 📋 Overview
 
-This phase generates Software Bill of Materials (SBOM), documents dependencies, conducts vulnerability scanning, and ensures compliance with security standards.
+This review generates Software Bill of Materials (SBOM), documents dependencies, conducts vulnerability scanning, and ensures compliance with security standards.
 
 ## 🎯 Objectives
 

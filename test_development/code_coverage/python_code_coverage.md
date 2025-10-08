@@ -1,4 +1,4 @@
-# Phase 6: Code Coverage Analysis & Improvement
+# Code Coverage Analysis & Improvement
 
 Systematic assessment and optimization of test coverage to ensure comprehensive testing across your codebase.
 
@@ -6,7 +6,7 @@ Systematic assessment and optimization of test coverage to ensure comprehensive 
 
 ## 📋 Overview
 
-This phase focuses on measuring, analyzing, and improving code coverage to identify untested code paths, ensure critical functionality is covered, and establish coverage standards for ongoing development.
+This review focuses on measuring, analyzing, and improving code coverage to identify untested code paths, ensure critical functionality is covered, and establish coverage standards for ongoing development.
 
 ### Objectives
 
@@ -981,43 +981,35 @@ coverage-badge -o coverage.svg -f
 
 ---
 
-## 🎓 Copy-Paste Prompts
+## Prompt Template
+
+Use the structured prompt below with your coding assistant:
+
+~~~markdown
 
 ### Prompt 1: Initial Coverage Setup
-
-```
 Set up code coverage analysis for my Python project using coverage.py:
-
 1. Create coverage configuration in pyproject.toml with:
    - Source directory: src/
    - Branch coverage enabled
    - 80% minimum threshold
    - Exclude: tests/, __init__.py, venv/
    - Exclude lines: pragma: no cover, abstractmethod, TYPE_CHECKING, if __name__
-
 2. Create coverage gap analysis script (tests/coverage_gap_analysis.py) that:
    - Loads coverage.json data
    - Identifies files below 70% coverage
    - Lists missing/partial branch coverage
    - Generates formatted report
-
 3. Add coverage commands to tests/run_all_tests.py or create separate script
-
 4. Generate initial coverage report and identify top 5 gaps
-
 Project structure:
 [Provide your project structure]
-
 Follow organizational standards for:
 - No inline comments
 - Explain "why" not "what"
 - Complete docstrings
 - Type hints
-```
-
 ### Prompt 2: Targeted Test Addition
-
-```
 Add tests to improve coverage for [specific module/function]:
 
 Current coverage: [X]%
@@ -1041,11 +1033,9 @@ Current test file:
 
 Module to test:
 [Paste module code or signature]
-```
 
 ### Prompt 3: CI/CD Coverage Integration
 
-```
 Integrate code coverage into CI/CD pipeline:
 
 Platform: [GitHub Actions / GitLab CI / Jenkins]
@@ -1066,7 +1056,7 @@ Project uses:
 - Python [version]
 - Test framework: [pytest / unittest]
 - Dependencies: [list key dependencies]
-```
+~~~
 
 ### Prompt 4: Coverage Trend Tracking
 
@@ -1145,4 +1135,4 @@ Follow organizational standards with complete docstrings and type hints.
 
 ---
 
-*This phase completes the test development protocol by ensuring your test suite provides comprehensive coverage and maintains quality over time.*
+*This review completes the test development protocol by ensuring your test suite provides comprehensive coverage and maintains quality over time.*

@@ -1,4 +1,4 @@
-# Phase 1: Context & Architecture Review
+# Context & Architecture Review
 
 ## Objective
 Understand the project structure, architecture decisions, and overall design before diving into code-level details.
@@ -58,9 +58,11 @@ Understand the project structure, architecture decisions, and overall design bef
 - [ ] Version in `README.md` matches other files
 - [ ] Semantic versioning correctly applied
 
-## Detailed Review Prompt
+## Prompt Template
 
-```
+Use the structured prompt below with your coding assistant:
+
+~~~markdown
 Please perform a comprehensive context and architecture review of this Python project:
 
 **Project Structure Analysis:**
@@ -109,7 +111,7 @@ Provide a structured report covering:
 - Version consistency verification
 - Architecture strengths and concerns
 - Recommended improvements with priority levels
-```
+~~~
 
 ## Expected Outcomes
 
@@ -128,4 +130,4 @@ Provide a structured report covering:
 - Outdated requirements.txt
 
 ## Next Steps
-After completing this phase, proceed to Phase 2: Code Quality & Standards Review.
+After completing this review, proceed to the Code Quality & Standards Review..
