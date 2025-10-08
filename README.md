@@ -1,24 +1,24 @@
 # AI Development Templates
 
-**Version 0.1.3** | Released October 8, 2025
+**Version 0.1.4** | Released October 8, 2025
 
 This repository contains comprehensive templates and standardized prompts to enhance AI-assisted software development across multiple domains. These templates ensure consistent, high-quality outputs while maintaining organizational software development standards.
 
 ---
 
-## 🎉 What's New in Version 0.1.2
+## 🎉 What's New in Version 0.1.4
 
-**README Refinement Release** – streamlined guidance across section roadmaps and prompt directories.
+**Complete Template Release** – 39 comprehensive markdown templates across code review, documentation, and test development.
 
 ### ✨ Highlights
-- **Code Review README** rebuilt with quick navigation, depth-based pathways, and prompt deep links.
-- **Documentation README** condensed into a six-phase playbook featuring compliance and maintenance checklists.
-- **Test Development README** modernized with build paths, toolkit summaries, and CI/CD quality gates.
+- **Code Review Templates**: 6 complete phases with 13 files (Context, Quality, Security, Performance, Testing, Final Report)
+- **Documentation Templates**: 6 complete phases with 13 files (Docstrings, Comments, User Docs, Technical Docs, API Docs, SBOM)
+- **Test Development Templates**: 6 complete phases with 13 files (Structure, Cases, Mocks/Fixtures, Performance, CI/CD, Coverage)
 
 ### 📋 Template Coverage
-- **Code Review**: Context analysis, code quality, code cleanup, security, performance, testing, and final reporting
-- **Test Development**: Infrastructure, test cases, mocking, performance testing, CI/CD, and coverage (80%+ target)
-- **Documentation**: Docstrings, comments, user guides, technical docs, API reference, and SBOM generation
+- **Code Review**: Context analysis, code quality, security (OWASP Top 10), performance profiling, testing review, and consolidated reporting
+- **Test Development**: Infrastructure setup, comprehensive test cases (unit/integration/e2e), mocking strategies, performance testing (Locust), CI/CD automation, 80%+ coverage
+- **Documentation**: Docstrings (Google/NumPy/Sphinx), strategic comments, user guides, technical docs (ADRs), API reference (OpenAPI), SBOM (NTIA/EU CRA)
 
 ### ⏱️ Time Investment
 - **Code Review**: 1-16 hours (depending on depth)
@@ -26,11 +26,11 @@ This repository contains comprehensive templates and standardized prompts to enh
 - **Documentation**: 8-15 hours (including SBOM)
 
 ### 🎯 Key Benefits
-- Copy-paste ready prompts for AI assistants
-- Organizational standards integration
-- CI/CD workflow templates
-- Security and compliance focus (SBOM, NTIA, EU CRA)
-- Educational approach with "why" explanations
+- **39 copy-paste ready prompt templates** for AI assistants
+- **Multi-phase approach** with detailed checklists and success criteria
+- **Tool integration**: pytest, coverage.py, bandit, safety, pip-audit, locust, GitHub Actions
+- **Security and compliance**: OWASP Top 10, SBOM generation (NTIA, EU CRA)
+- **Quality standards**: 80%+ test coverage, performance profiling, comprehensive code review
 
 [📖 View Complete Changelog](CHANGELOG.md)
 
@@ -45,6 +45,12 @@ This repository provides standardized templates for four critical aspects of AI-
 - **Interactive assistants**: For collaborative coding with GitHub Copilot, Cursor, Windsurf
 - **Platform-specific optimization**: Tailored prompts for different AI platforms
 - **Token-optimized versions**: Comprehensive vs condensed variants
+
+### [Code Cleanup Templates](code_cleanup/)
+- **Structured cleanup processes**: Comprehensive deep codebase review and evaluation 
+- **Quality assurance standards**: Consistent cleanup process across projects
+- **Security and performance focus**: Templates emphasizing critical non-functional requirements
+- **Educational feedback**: Templates that help developers learn from resulting cleanup report
 
 ### [Code Review Templates](code_review/)
 - **Structured review processes**: Comprehensive checklists and evaluation criteria
@@ -91,6 +97,13 @@ Navigate to appropriate language folder (currently `python/`)
 
 **For more details, follow setup instructions**: See `system_prompts/README.md` for detailed platform-specific configuration.
 
+### [Code Cleanup](code_cleanup/)
+
+#### Review Selection
+| Phase | Focus |
+| --- | --- |
+| [Code Cleanup](code_cleanup/) | Dead code and duplication removal |
+
 ### [Code Reviews](code_review/)
 
 #### Review Selection
@@ -98,7 +111,6 @@ Navigate to appropriate language folder (currently `python/`)
 | --- | --- |
 | [Context Analysis](code_review/context_analysis/) | Project understanding |
 | [Code Quality](code_review/code_quality/) | Style and maintainability |
-| [Code Cleanup](code_review/code_cleanup/) | Dead code and duplication removal |
 | [Security](code_review/security_review/) | Vulnerability assessment |
 | [Performance](code_review/performance_review/) | Optimization opportunities |
 | [Testing](code_review/testing_review/) | Test coverage and quality |
@@ -234,16 +246,17 @@ Current templates focus on Python. To extend to other languages:
 
 ## 📌 Version Information
 
-**Current Version**: 0.1.2  
-**Release Date**: October 7, 2025  
-**Template Coverage**: Python (Complete - 18 phases)  
+**Current Version**: 0.1.4
+**Release Date**: October 8, 2025
+**Template Coverage**: Python (Complete - 39 comprehensive templates across 18 phases)
+**Total Files**: 39 markdown files with 25,000+ lines of documentation
 **Next Planned**: JavaScript/TypeScript templates
 
 [View Changelog](CHANGELOG.md) | [View Releases](../../releases)
 
 ---
 
-*AI Development Templates v0.1.2 - Empowering developers with structured, AI-assisted workflows*
+*AI Development Templates v0.1.4 - Empowering developers with structured, AI-assisted workflows*
 
 *Last Updated: October 2025*
 *Repository maintained by Benjamin Dourthe (benjamin@adonamed.com)*

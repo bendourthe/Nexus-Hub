@@ -1,39 +1,65 @@
-# Code Coverage Analysis & Improvement
+# Code Coverage Analysis
 
-## 📋 Overview
+## Purpose
+Measure, analyze, and improve test coverage to ensure comprehensive testing of the codebase. This includes line, branch, and function coverage measurement, gap identification, coverage reporting, and strategies for systematic improvement.
 
-This review measures test coverage, identifies gaps, and implements targeted tests to achieve comprehensive code coverage standards.
+## What This Review Covers
 
-## 🎯 Objectives
+### Coverage Measurement
+- Line coverage (statement execution)
+- Branch coverage (conditional paths)
+- Function coverage (function execution)
+- Missing coverage identification
+- Coverage trends over time
 
-- Measure line and branch coverage
-- Generate coverage reports
-- Identify coverage gaps
-- Add targeted tests for uncovered code
-- Set coverage thresholds (80%+)
-- Integrate coverage into CI/CD
-- Track coverage trends
+### Coverage Tools
+- coverage.py for measurement
+- pytest-cov integration
+- HTML coverage reports
+- XML coverage for CI/CD
+- Coverage badges and dashboards
 
-## 📂 Available Templates
+### Coverage Analysis
+- Critical path coverage
+- Edge case coverage
+- Error handling coverage
+- Coverage gap prioritization
+- Untested code identification
 
-### Python
-- **[Python Code Coverage](python_code_coverage.md)** - Comprehensive template for coverage.py setup, coverage analysis, gap identification, targeted testing, threshold enforcement, and CI/CD integration
+### Coverage Improvement
+- Systematic gap closure
+- Target setting (80%+ goal)
+- Coverage thresholds in CI/CD
+- Coverage regression prevention
+- Balanced coverage strategy
 
-## ⏱️ Time Investment
+## When to Use This Template
+- Establishing coverage baselines
+- Identifying untested code
+- Setting coverage goals
+- Improving test completeness
+- Integrating coverage into CI/CD
+- Preventing coverage regression
 
-**1-2 hours** for initial coverage analysis
-**2-4 hours** for comprehensive improvement to 80%+ coverage
+## Related Templates
+- **Test Cases**: Filling coverage gaps
+- **Test Structure**: Organizing coverage
+- **CI/CD Integration**: Enforcing thresholds
+- **Code Quality**: Quality metrics
 
-## ✅ Success Criteria
+## Expected Outcomes
+- Comprehensive coverage measurement
+- Identified coverage gaps
+- Coverage improvement plan
+- Automated coverage reporting
+- Coverage thresholds enforced
+- Sustainable coverage practices
 
-- [ ] Coverage tools configured
-- [ ] Coverage reports generated
-- [ ] Critical gaps identified
-- [ ] Coverage meets 80%+ threshold
-- [ ] CI/CD enforces coverage standards
-- [ ] Coverage badges added to README
-- [ ] Coverage trends tracked
-
----
-
-[← Back to Test Development](../README.md)
+## Quick Start
+Use `python_code_coverage.md` with your AI assistant to:
+1. Set up coverage measurement infrastructure
+2. Analyze current coverage and identify gaps
+3. Establish coverage goals and thresholds
+4. Implement strategies to improve coverage
+5. Integrate coverage into CI/CD pipeline
+6. Create coverage reports and dashboards

@@ -1,37 +1,41 @@
-# Strategic Code Comments
+# Strategic Comments
 
 ## 📋 Overview
 
-This review implements strategic code comments that explain complex logic, design decisions, and non-obvious behavior without cluttering code.
+This template guides the addition of strategic, high-value comments that explain "why" rather than "what". It helps identify where comments add genuine value versus where self-documenting code is sufficient.
 
-## 🎯 Objectives
+## 🎯 Objective
 
-- Add algorithm explanation comments
-- Document performance optimizations
-- Explain security considerations
-- Clarify business logic decisions
-- Document workarounds and edge cases
-- Follow "why not what" principle
-- Avoid inline comments
+Add meaningful comments that explain business logic, design decisions, non-obvious implementations, and workarounds, while avoiding redundant commentary that clutters code without adding insight.
 
-## 📂 Available Templates
+## 📂 Template
 
-### Python
-- **[Python Comments](python_comments.md)** - Comprehensive template for strategic commenting including algorithm explanations, performance notes, security considerations, and anti-patterns to avoid
+- **[Python Comments](python_comments.md)**: Strategic comment guidance and best practices
 
-## ⏱️ Time Investment
+## ✅ Key Areas Covered
 
-**1-2 hours** for strategic comment documentation
+- **When to Comment**: Identifying code that genuinely needs explanation
+- **Block Comments**: Documenting complex algorithms and logic flows
+- **Inline Comments**: Clarifying non-obvious code decisions
+- **TODO/FIXME/HACK Conventions**: Tracking technical debt
+- **What NOT to Comment**: Avoiding redundant and obvious comments
+- **Refactoring vs Commenting**: When code should be improved instead
 
-## ✅ Success Criteria
+## 🚀 Quick Start
 
-- [ ] Complex algorithms explained
-- [ ] Performance decisions documented
-- [ ] Security considerations noted
-- [ ] Business logic clarified
-- [ ] Workarounds documented
-- [ ] No inline comments used
-- [ ] Comments explain "why" not "what"
+1. Review the strategic commenting guidelines in `python_comments.md`
+2. Identify complex business logic, non-obvious implementations, and workarounds
+3. Request strategic comment additions using the comprehensive prompt
+4. Review comments to ensure they explain "why" not "what"
+
+## 📊 Success Criteria
+
+- [ ] Complex algorithms explained with block comments
+- [ ] Non-obvious code decisions clarified with inline comments
+- [ ] Business logic rationale documented
+- [ ] Workarounds and technical debt tracked with TODO/FIXME/HACK
+- [ ] No redundant comments explaining obvious code
+- [ ] Self-documenting code preferred over excessive comments
 
 ---
 

@@ -1,471 +1,552 @@
-# Docstrings & Code Documentation
+# Python Docstring Generation
 
-Generate comprehensive docstrings for all functions, classes, and modules following organizational templates.
+## Objective
+Generate comprehensive, standards-compliant docstrings for all public interfaces (modules, classes, functions) that clearly document purpose, parameters, return values, exceptions, and provide usage examples.
 
----
+## Implementation Checklist
 
-## Overview
+### Module-Level Documentation
+- [ ] Module purpose and scope clearly explained
+- [ ] Key classes and functions listed
+- [ ] Dependencies and requirements noted
+- [ ] Usage examples provided for module imports
+- [ ] Author information included
 
-This review focuses on creating complete docstring documentation for your Python codebase. Docstrings are the foundation of code documentation, providing inline documentation that's accessible through Python's help system and documentation generators.
+### Class Documentation
+- [ ] Class purpose and responsibility documented
+- [ ] All public attributes described with types
+- [ ] Constructor parameters documented
+- [ ] Class-level examples provided
+- [ ] Inheritance relationships explained
 
----
+### Function/Method Documentation
+- [ ] Function purpose clearly stated
+- [ ] All parameters documented with types and descriptions
+- [ ] Return values documented with types
+- [ ] Exceptions raised documented
+- [ ] Side effects and state changes noted
+- [ ] Usage examples for complex functions
+
+### Type Hints Integration
+- [ ] Docstrings complement (not duplicate) type hints
+- [ ] Complex types explained in docstrings
+- [ ] Type constraints and validation documented
+- [ ] Generic type usage clarified
+
+### Documentation Style
+- [ ] Consistent style throughout codebase (Google/NumPy/Sphinx)
+- [ ] Formatting conventions followed
+- [ ] Code examples properly formatted
+- [ ] Cross-references to related functions/classes
 
 ## Prompt Template
 
 Use the structured prompt below with your coding assistant:
 
 ~~~markdown
+# Python Docstring Generation Request
 
-Please help me generate comprehensive docstrings for my Python project following organizational standards.
-**Project Context:**
-- Project name: [YOUR_PROJECT_NAME]
-- Source code location: src/
-- Current documentation status: [None / Partial / Needs update]
-**Documentation Requirements:**
-### 1. Module-Level Docstrings
-For each module file, add a comprehensive module docstring:
+Please generate comprehensive docstrings for this Python project following this protocol:
+
+## Phase 1: Analysis & Style Selection
+
+1. **Analyze Existing Code**
+   - Inventory all modules, classes, and public functions
+   - Identify existing docstring patterns and style
+   - Note any special documentation requirements
+
+2. **Determine Docstring Style**
+   Please use the following docstring style: [Google/NumPy/Sphinx/reStructuredText]
+
+   If not specified, use **Google style** (most readable and widely adopted).
+
+3. **Review Type Hints**
+   - Check existing type annotations
+   - Ensure docstrings complement (not duplicate) type hints
+   - Document complex types requiring additional explanation
+
+## Phase 2: Module-Level Docstrings
+
+For each module, create comprehensive docstrings including:
+
+### Module Docstring Template
+```python
 """
-[Module name and purpose].
+[One-line summary of module purpose]
 
-[Detailed description of module's functionality and role
-in the application. 2-3 sentences explaining what this
-module does and why it exists.]
+[Detailed description of module functionality, scope, and use cases.
+Include key concepts, main responsibilities, and intended usage.]
 
-Key Components:
-    - [Component 1]: [Brief description]
-    - [Component 2]: [Brief description]
-    - [Component 3]: [Brief description]
+Typical usage example:
 
-Example Usage:
-    from [module] import [component]
-    result = [component].method()
+    from package.module import MainClass
+
+    instance = MainClass(param1, param2)
+    result = instance.process()
+
+Key Classes:
+    - ClassName1: [Brief description]
+    - ClassName2: [Brief description]
+
+Key Functions:
+    - function_name1: [Brief description]
+    - function_name2: [Brief description]
+
+Dependencies:
+    - numpy>=1.20.0: [Why it's needed]
+    - requests: [What it's used for]
 
 Authors:
-    - Benjamin Dourthe (benjamin@adonamed.com)
+    - [Name] ([email])
+
+Version:
+    [version number]
+
+License:
+    [license information]
 """
-~~~
+```
 
-**Apply to all modules in:**
-- src/core/*.py
-- src/utils/*.py
-- src/[other directories]/*.py
+## Phase 3: Class Docstrings
 
----
+For each class, document:
 
-### 2. Class Docstrings
-
-For each class, add comprehensive documentation:
-
+### Class Docstring Template (Google Style)
 ```python
-class ClassName:
+class ExampleClass:
     """
-    [Brief one-line description].
-    
-    [Detailed description explaining the class's purpose,
-    responsibilities, and usage patterns. 2-4 sentences.]
-    
+    [One-line summary of class purpose]
+
+    [Detailed description of class responsibility, behavior, and usage.
+    Explain what problems this class solves and how it fits into the
+    overall architecture.]
+
     Attributes:
-        attribute1: [Description of attribute1]
-        attribute2: [Description of attribute2]
-        attribute3: [Description of attribute3]
-    
+        attribute_name (type): Description of what this attribute represents
+            and how it's used. Can span multiple lines if needed.
+        another_attr (Optional[str]): Description including default behavior.
+
     Example:
-        ```python
-        obj = ClassName(param1, param2)
-        result = obj.method()
-        ```
-    
-    Authors:
-        - Benjamin Dourthe (benjamin@adonamed.com)
+        Basic usage example showing common patterns:
+
+            >>> obj = ExampleClass(param1="value")
+            >>> result = obj.process()
+            >>> print(result)
+            'processed_value'
+
+    Note:
+        Important information about usage, limitations, or behavior.
+
+    Warning:
+        Critical warnings about misuse or edge cases.
     """
 ```
 
-**Document all classes including:**
-- Main functionality classes
-- Utility classes
-- Exception classes
-- Data classes
-
----
-
-### 3. Simple Function Docstrings
-
-For simple functions (< 5 lines, straightforward logic):
-
+### Alternative: NumPy Style
 ```python
-def function_name(param: Type) -> ReturnType:
-    """Brief one-line description of what function does."""
-```
-
-**Examples:**
-```python
-def calculate_total(items: List[float]) -> float:
-    """Calculate total including tax."""
-
-def format_timestamp(dt: datetime) -> str:
-    """Format datetime as ISO 8601 string."""
-
-def is_valid_email(email: str) -> bool:
-    """Check if email address format is valid."""
-```
-
-**Apply to:**
-- Simple utility functions
-- Straightforward transformations
-- Basic calculations
-- Format conversions
-
----
-
-### 4. Complex Function Docstrings
-
-For complex functions (> 5 lines, multiple parameters, exceptions):
-
-```python
-def function_name(
-    param1: Type1,
-    param2: Type2,
-    param3: Optional[Type3] = None
-) -> ReturnType:
+class ExampleClass:
     """
-    [Detailed description of function purpose and behavior.
-    Explain what the function does, why it exists, and any
-    important details about its operation.]
+    [One-line summary]
 
-    Parameters:
-        - param1: [Description of param1 and its role]
-        - param2: [Description of param2 and its role]
-        - param3: [Description of param3, including default behavior]
+    [Detailed description]
+
+    Parameters
+    ----------
+    param1 : str
+        Description of param1
+    param2 : int, optional
+        Description of param2 (default is 0)
+
+    Attributes
+    ----------
+    attr1 : list
+        Description of attr1
+
+    Examples
+    --------
+    >>> obj = ExampleClass("test", 42)
+    >>> obj.process()
+    'result'
+
+    See Also
+    --------
+    RelatedClass : Related functionality
+    """
+```
+
+## Phase 4: Function/Method Docstrings
+
+For each function and method, document:
+
+### Function Docstring Template (Google Style)
+```python
+def complex_function(param1: str, param2: int, param3: Optional[List[str]] = None) -> Dict[str, Any]:
+    """
+    [One-line summary of what function does]
+
+    [Detailed description of function behavior, algorithm, and usage.
+    Explain the problem it solves and any important implementation details.]
+
+    Args:
+        param1 (str): Description of param1. Include constraints, expected
+            format, or valid values. Can span multiple lines.
+        param2 (int): Description of param2. Explain what the parameter
+            controls or represents.
+        param3 (Optional[List[str]], optional): Description of optional param.
+            Defaults to None. Explain behavior when None vs when provided.
 
     Returns:
-        - [Description of return value, structure, and meaning]
+        Dict[str, Any]: Description of return value structure. For complex
+            returns, document the dictionary keys and their meanings:
+            {
+                'status': str - Success/failure status
+                'data': Any - The processed result
+                'metadata': dict - Additional information
+            }
 
     Raises:
-        - ExceptionType1: [When and why this exception occurs]
-        - ExceptionType2: [When and why this exception occurs]
+        ValueError: When param1 is empty or invalid format.
+        TypeError: When param2 is not an integer.
+        CustomException: When [specific condition] occurs.
 
     Example:
-        ```python
-        result = function_name(value1, value2)
-        # result contains [description]
-        ```
+        Basic usage:
 
-    Authors:
-        - Benjamin Dourthe (benjamin@adonamed.com)
+            >>> result = complex_function("input", 42)
+            >>> print(result['status'])
+            'success'
+
+        Advanced usage with optional parameter:
+
+            >>> items = ["a", "b", "c"]
+            >>> result = complex_function("input", 42, items)
+            >>> result['data']
+            ['processed_a', 'processed_b', 'processed_c']
+
+    Note:
+        This function modifies [state/global variable/etc] as a side effect.
+        Consider [alternative approach] for [use case].
+
+    See Also:
+        related_function: Similar functionality with different approach
+        AnotherClass.method: Used internally by this function
     """
 ```
 
-**Full Example:**
+### Simple Function Template
 ```python
-def process_user_data(
-    records: List[Dict[str, Any]], 
-    validation_rules: Dict[str, Any],
-    strict_mode: bool = True
-) -> List[Dict[str, Any]]:
-    """
-    Process and validate user data records according to specified rules.
-    
-    This function performs comprehensive validation, transformation, and
-    sanitization of user data records. In strict mode, any validation
-    failure raises an exception. In non-strict mode, invalid records
-    are logged and skipped.
+def simple_function(value: int) -> int:
+    """Multiply value by 2 and return result.
 
-    Parameters:
-        - records: List of user data dictionaries to process
-        - validation_rules: Dictionary defining validation criteria for each field
-        - strict_mode: If True, raise exception on validation failure (default: True)
+    Args:
+        value: The integer to multiply.
 
     Returns:
-        - List of validated and processed user data dictionaries
-
-    Raises:
-        - ValueError: If validation_rules format is invalid
-        - ValidationError: If strict_mode=True and validation fails
-        - DataProcessingError: If data transformation fails
-
-    Example:
-        ```python
-        rules = {'email': 'email_format', 'age': 'positive_integer'}
-        processed = process_user_data(raw_records, rules, strict_mode=True)
-        ```
-
-    Authors:
-        - Benjamin Dourthe (benjamin@adonamed.com)
+        The value multiplied by 2.
     """
 ```
 
-**Apply to:**
-- Business logic functions
-- Data processing functions
-- API integration functions
-- Complex algorithms
+## Phase 5: Special Cases
 
----
-
-### 5. Method Docstrings
-
-For class methods, follow the same patterns as functions but consider context:
-
-**Simple Methods:**
-```python
-def get_value(self) -> Any:
-    """Return current value."""
-```
-
-**Complex Methods:**
-```python
-def process_batch(
-    self,
-    items: List[Any],
-    callback: Optional[Callable] = None
-) -> Dict[str, Any]:
-    """
-    Process a batch of items with optional callback.
-    
-    This method processes items in batches for efficiency,
-    applying transformations and validations defined in the
-    instance configuration.
-
-    Parameters:
-        - items: List of items to process
-        - callback: Optional callback invoked after each item (default: None)
-
-    Returns:
-        - Dictionary containing processing results:
-          - 'processed': Number of successfully processed items
-          - 'failed': Number of failed items
-          - 'errors': List of error messages
-
-    Raises:
-        - ValueError: If items list is empty
-        - ProcessingError: If batch processing fails
-
-    Example:
-        ```python
-        processor = DataProcessor(config)
-        results = processor.process_batch(items, callback=log_progress)
-        print(f"Processed: {results['processed']}")
-        ```
-    """
-```
-
----
-
-### 6. Property Docstrings
-
-For properties, document both getter and setter:
-
+### Property Docstrings
 ```python
 @property
-def value(self) -> Any:
-    """Current value of the property."""
-    return self._value
+def computed_value(self) -> float:
+    """The computed value based on internal state.
 
-@value.setter
-def value(self, new_value: Any) -> None:
+    This property calculates [description] using [method].
+    Computed lazily and cached for performance.
+
+    Returns:
+        The computed float value.
+
+    Note:
+        Accessing this property triggers [side effect if any].
     """
-    Set new value with validation.
-    
-    Raises:
-        - ValueError: If new_value is invalid
-    """
-    if not self._validate(new_value):
-        raise ValueError("Invalid value")
-    self._value = new_value
 ```
 
----
-
-### 7. Special Method Docstrings
-
-Document special methods (dunder methods):
-
+### Async Function Docstrings
 ```python
-def __init__(self, config: Dict[str, Any]):
-    """
-    Initialize processor with configuration.
-    
-    Parameters:
-        - config: Configuration dictionary with settings
-    
+async def async_operation(url: str) -> Dict:
+    """Asynchronously fetch and process data from URL.
+
+    This coroutine performs [description] by [method].
+
+    Args:
+        url: The endpoint URL to fetch from.
+
+    Returns:
+        Dict containing the processed response data.
+
     Raises:
-        - ValueError: If config is missing required keys
-    """
+        aiohttp.ClientError: If network request fails.
+        asyncio.TimeoutError: If operation exceeds timeout.
 
-def __str__(self) -> str:
-    """Return string representation for display."""
-
-def __repr__(self) -> str:
-    """Return detailed string representation for debugging."""
-
-def __enter__(self):
-    """Enter context manager, establish resources."""
-
-def __exit__(self, exc_type, exc_val, exc_tb):
-    """Exit context manager, cleanup resources."""
-```
-
----
-
-### 8. Exception Class Docstrings
-
-Document custom exceptions:
-
-```python
-class ValidationError(Exception):
-    """
-    Raised when data validation fails.
-    
-    This exception is raised during data validation when input
-    data does not meet required criteria or format specifications.
-    
-    Attributes:
-        message: Error message describing validation failure
-        errors: List of specific validation errors
-        field: Name of field that failed validation (if applicable)
-    
     Example:
-        ```python
-        raise ValidationError(
-            "Validation failed",
-            errors=['Invalid email format'],
-            field='email'
-        )
-        ```
+        >>> result = await async_operation("https://api.example.com/data")
+        >>> print(result['status'])
     """
-    
-    def __init__(
-        self,
-        message: str,
-        errors: Optional[List[str]] = None,
-        field: Optional[str] = None
-    ):
-        """
-        Initialize validation error.
-        
-        Parameters:
-            - message: Error message
-            - errors: List of specific errors (optional)
-            - field: Field name that failed (optional)
-        """
-        super().__init__(message)
-        self.errors = errors or []
-        self.field = field
 ```
 
+### Generator/Iterator Docstrings
+```python
+def data_generator(start: int, end: int) -> Iterator[int]:
+    """Generate sequence of integers from start to end.
+
+    Args:
+        start: First integer in sequence.
+        end: Last integer in sequence (inclusive).
+
+    Yields:
+        int: Next integer in the sequence.
+
+    Example:
+        >>> for num in data_generator(1, 5):
+        ...     print(num)
+        1
+        2
+        3
+        4
+        5
+    """
+```
+
+### Decorator Docstrings
+```python
+def retry_on_failure(max_attempts: int = 3):
+    """Decorator that retries function on failure.
+
+    Wraps function to automatically retry up to max_attempts times
+    if an exception is raised.
+
+    Args:
+        max_attempts: Maximum number of retry attempts.
+
+    Returns:
+        Decorated function with retry logic.
+
+    Example:
+        >>> @retry_on_failure(max_attempts=5)
+        ... def unstable_function():
+        ...     # Function that might fail
+        ...     pass
+    """
+```
+
+## Phase 6: Docstring Quality Checks
+
+Verify each docstring meets these criteria:
+
+### Completeness
+- [ ] Purpose clearly stated
+- [ ] All parameters documented
+- [ ] Return value documented
+- [ ] Exceptions documented
+- [ ] Examples provided for non-trivial functions
+
+### Clarity
+- [ ] Uses clear, concise language
+- [ ] Avoids jargon or explains technical terms
+- [ ] Follows consistent tense (present tense for descriptions)
+- [ ] No redundant information with type hints
+
+### Examples
+- [ ] Examples are runnable (use >>> doctest format when possible)
+- [ ] Examples cover common use cases
+- [ ] Complex functions have multiple examples
+- [ ] Examples demonstrate edge cases or important patterns
+
+### Formatting
+- [ ] Consistent style throughout codebase
+- [ ] Proper indentation and line breaks
+- [ ] Code blocks properly formatted
+- [ ] Cross-references use proper syntax
+
+## Phase 7: Documentation Generation
+
+After docstrings are complete:
+
+1. **Generate API Documentation**
+   ```bash
+   # Using Sphinx
+   sphinx-apidoc -o docs/api src/
+   sphinx-build -b html docs/ docs/_build/
+
+   # Using pdoc
+   pdoc --html --output-dir docs/ src/
+
+   # Using pydoc
+   pydoc -w module_name
+   ```
+
+2. **Verify Docstring Coverage**
+   ```bash
+   # Check docstring coverage
+   interrogate -v src/
+
+   # Generate coverage report
+   interrogate --generate-badge docs/
+   ```
+
+3. **Run Doctests**
+   ```bash
+   # Test examples in docstrings
+   python -m doctest src/module.py -v
+
+   # Or using pytest
+   pytest --doctest-modules src/
+   ```
+
+## Output Format
+
+Please provide docstrings in this format:
+
+### File-by-File Report
+```markdown
+## Module: src/package/module.py
+
+### Module Docstring
+[Generated module docstring]
+
+### Class: ClassName
+[Generated class docstring]
+
+### Function: function_name
+[Generated function docstring]
+
 ---
+```
 
-## Guidelines
+### Summary Report
+```markdown
+## Docstring Generation Summary
 
-### Docstring Style
-- Use triple double quotes: `"""`
-- First line should be brief summary (< 80 chars)
-- Blank line after summary for multi-line docstrings
-- Use active voice: "Calculate total" not "Calculates total"
-- Be specific and descriptive
+**Files Processed**: [count]
+**Modules Documented**: [count]
+**Classes Documented**: [count]
+**Functions Documented**: [count]
+**Properties Documented**: [count]
 
-### When to Use Simple vs Complex Templates
+**Docstring Style**: [Google/NumPy/Sphinx]
+**Type Hint Integration**: [Complete/Partial/None]
+**Examples Added**: [count]
 
-**Simple Template:**
-- Function/method < 5 lines
-- Single purpose, obvious behavior
-- No exceptions raised
-- 0-2 simple parameters
-- Straightforward return value
+**Coverage Metrics**:
+- Module coverage: [X%]
+- Class coverage: [X%]
+- Function coverage: [X%]
+- Overall coverage: [X%]
 
-**Complex Template:**
-- Function/method > 5 lines
-- Multiple parameters
-- Raises exceptions
-- Complex return values
-- Non-obvious behavior
-- Business logic or algorithms
+**Quality Checks**:
+- [ ] All public interfaces documented
+- [ ] Consistent style throughout
+- [ ] Examples provided where appropriate
+- [ ] Type hints complemented (not duplicated)
+- [ ] Doctests pass successfully
+```
 
-### Parameter Documentation
-- Describe purpose and role, not just type
-- Note default values and their meaning
-- Explain constraints or valid ranges
-- Mention if parameter is modified
+## Docstring Style Guide Reference
 
-### Return Value Documentation
-- Describe structure and meaning
-- Explain what values mean in context
-- Note possible variations (None, empty, etc.)
+### Google Style (Recommended)
+- Most readable and widely adopted
+- Clear section headers (Args, Returns, Raises, etc.)
+- Simple, clean formatting
+- Good for both humans and documentation generators
 
-### Exception Documentation
-- List all exceptions that can be raised
-- Explain conditions that trigger each
-- Include exceptions from called functions if relevant
+### NumPy Style
+- Popular in scientific computing
+- More structured with underlines
+- Better for complex mathematical functions
+- Standard in NumPy, SciPy, pandas ecosystems
 
-### Examples in Docstrings
-- Include for non-obvious usage
-- Show typical use case
-- Keep examples concise
-- Use realistic variable names
+### Sphinx/reStructuredText Style
+- Native to Sphinx documentation generator
+- More verbose with directives
+- Powerful cross-referencing capabilities
+- Standard for large documentation projects
 
----
+## Best Practices
 
-## Deliverables
+1. **Write for Humans First**
+   - Docstrings are primarily for developers, not just tools
+   - Use clear, natural language
+   - Explain concepts, don't just describe syntax
 
-Please generate docstrings for:
+2. **Complement Type Hints**
+   - Don't repeat type information from hints
+   - Explain constraints, validation, or complex type usage
+   - Document expected formats or patterns
 
-1. **All module files** with module-level docstrings
-2. **All classes** with comprehensive class docstrings
-3. **All public functions** with appropriate template (simple or complex)
-4. **All public methods** with appropriate template
-5. **All properties** with getter/setter documentation
-6. **All custom exceptions** with detailed documentation
+3. **Provide Context**
+   - Explain why, not just what
+   - Link to related functions/classes
+   - Note performance considerations or side effects
 
-**Output Format:**
-- Provide updated code with docstrings added
-- Group by file for easy integration
-- Highlight any functions needing clarification
-- Note any ambiguous behaviors requiring developer input
+4. **Keep Examples Simple**
+   - Start with basic usage
+   - Add complex examples only if needed
+   - Make examples copy-paste runnable
 
-**Quality Checks:**
-- [ ] All public APIs documented
-- [ ] Complex functions use full template
-- [ ] Parameters described clearly
-- [ ] Return values explained
-- [ ] Exceptions listed
-- [ ] Examples provided where helpful
-- [ ] Author attribution included
+5. **Maintain Consistency**
+   - Use same style throughout project
+   - Follow team conventions
+   - Update docstrings when code changes
 
-Complete and pause. Confirm all docstrings are accurate before proceeding to Phase 2.
+## Tools & Validation
 
----
+```yaml
+# Recommended tools for docstring quality
+tools:
+  - interrogate: # Docstring coverage measurement
+      threshold: 95
 
-## Success Criteria
+  - pydocstyle: # Docstring style checker
+      convention: google  # or numpy, pep257
 
-- ✅ All modules have comprehensive docstrings
-- ✅ All classes documented with attributes
-- ✅ Simple functions use brief template
-- ✅ Complex functions use detailed template
-- ✅ All parameters and returns described
-- ✅ All exceptions documented
-- ✅ Examples included for complex functions
-- ✅ Author attribution present
+  - darglint: # Docstring/signature agreement
+      strictness: full
 
----
+  - sphinx: # Documentation generation
+      extensions:
+        - sphinx.ext.autodoc
+        - sphinx.ext.napoleon  # Google/NumPy style support
+        - sphinx.ext.doctest
+```
 
-## Common Issues
+## Common Mistakes to Avoid
 
-### Issue: Docstring too verbose
-**Solution**: Focus on essential information. Save detailed explanations for technical docs.
+1. **Don't duplicate type hints in prose**
+   - Bad: `param1 (str): param1 is a string that...`
+   - Good: `param1: The identifier used to...`
 
-### Issue: Unclear parameter descriptions
-**Solution**: Describe purpose and role, not just type. Explain what parameter controls or represents.
+2. **Don't use imperative mood**
+   - Bad: `Calculate the sum...`
+   - Good: `Calculates the sum...` or `The sum of...`
 
-### Issue: Missing exception documentation
-**Solution**: Review function body for all `raise` statements and called functions.
+3. **Don't omit important details**
+   - Document side effects
+   - Explain non-obvious behavior
+   - Note performance implications
 
-### Issue: No usage examples
-**Solution**: Add examples for functions with non-obvious usage or complex parameters.
+4. **Don't write overly verbose docstrings**
+   - Be concise but complete
+   - Avoid redundant phrases
+   - Get to the point quickly
 
----
+5. **Don't forget to update docstrings**
+   - Keep in sync with code changes
+   - Update examples when behavior changes
+   - Remove obsolete information
+~~~
 
-## Next Steps
+## Output Format Specifications
 
-After completing Phase 1, proceed to:
-- **Phase 2**: Add strategic code comments explaining logic and decisions
-- **Phase 3**: Create user-facing documentation (README, guides)
+The generated docstrings should:
+- Follow the selected style guide consistently (Google/NumPy/Sphinx)
+- Include all required sections based on function complexity
+- Provide runnable examples using doctest format where appropriate
+- Complement existing type hints without redundancy
+- Use clear, concise language suitable for the target audience
+- Include proper cross-references to related functionality
+- Pass style checkers (pydocstyle, darglint)
+- Generate properly formatted API documentation (Sphinx, pdoc)

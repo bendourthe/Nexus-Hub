@@ -1,943 +1,1226 @@
-# API & Reference Documentation
+# Python API Documentation
 
-Build comprehensive API reference documentation for all public interfaces.
+## Objective
+Create complete, accurate API documentation that enables developers to quickly understand and successfully integrate with your API, including authentication flows, request formats, response structures, and error handling.
 
----
+## Implementation Checklist
 
-## Overview
+### Endpoint Documentation
+- [ ] All endpoints documented with methods and paths
+- [ ] Request parameters clearly specified (path, query, body)
+- [ ] Response schemas documented with examples
+- [ ] Status codes and their meanings explained
+- [ ] Content types specified
 
-This review focuses on creating complete API reference documentation that developers can use to understand and integrate with your codebase. This includes detailed specifications for all public classes, methods, functions, and their parameters.
+### Authentication
+- [ ] Authentication methods documented
+- [ ] Token/key acquisition process explained
+- [ ] Authentication headers specified
+- [ ] Token refresh mechanism documented
+- [ ] Permission levels explained
 
----
+### Request/Response
+- [ ] Request body schemas with examples
+- [ ] Required vs optional fields marked
+- [ ] Data types and formats specified
+- [ ] Response body schemas with examples
+- [ ] Nested objects properly documented
+
+### Error Handling
+- [ ] All error codes documented
+- [ ] Error response format specified
+- [ ] Error messages and meanings explained
+- [ ] Troubleshooting guidance provided
+- [ ] Common error scenarios covered
+
+### Examples
+- [ ] Working code examples provided
+- [ ] Multiple programming languages (if applicable)
+- [ ] Complete request/response cycles shown
+- [ ] Authentication examples included
+- [ ] Edge cases demonstrated
+
+### Best Practices
+- [ ] Rate limits documented
+- [ ] Pagination explained
+- [ ] Filtering and sorting documented
+- [ ] Versioning strategy explained
+- [ ] Deprecation policy stated
 
 ## Prompt Template
 
 Use the structured prompt below with your coding assistant:
 
 ~~~markdown
+# Python API Documentation Request
 
-Please help me create comprehensive API reference documentation for my Python project.
-**Project Context:**
-- Project name: [YOUR_PROJECT_NAME]
-- Package name: [package_name]
-- API type: [Library / REST API / CLI / Mixed]
-- Public modules: [List main public modules]
----
-## API Reference Structure
-### 1. API Overview (docs/api/README.md)
-Create main API documentation index:
-# API Reference
+Please create comprehensive API documentation for this Python project following this protocol:
 
-Complete reference documentation for [Project Name] APIs.
+## Phase 1: API Inventory & Analysis
 
-## Table of Contents
+1. **Discover All Endpoints**
+   - List all routes/endpoints in the application
+   - Identify HTTP methods for each endpoint
+   - Group endpoints by resource/functionality
+   - Note which endpoints require authentication
 
-1. [Quick Start](#quick-start)
-2. [Core Modules](#core-modules)
-3. [Data Models](#data-models)
-4. [Exceptions](#exceptions)
-5. [Utilities](#utilities)
-6. [Examples](#examples)
+2. **Analyze Request/Response Patterns**
+   - Document request body schemas
+   - Document response body schemas
+   - Identify common patterns across endpoints
+   - Note error response formats
 
-## Quick Start
+3. **Authentication & Authorization**
+   - Document authentication methods used
+   - Identify authorization requirements per endpoint
+   - Document token/session management
 
-### Installation
-pip install [package-name]
+## Phase 2: OpenAPI/Swagger Specification
 
-### Basic Usage
-```python
-from [package] import [MainClass]
+Generate OpenAPI 3.0 specification:
 
-# Initialize
-instance = [MainClass](config)
+```yaml
+openapi: 3.0.3
+info:
+  title: [Project Name] API
+  description: |
+    [Comprehensive description of what the API does]
 
-# Use
-result = instance.method(parameters)
+    ## Base URLs
+    - Production: https://api.example.com/v1
+    - Staging: https://staging-api.example.com/v1
+    - Development: http://localhost:8000/api/v1
+
+    ## Authentication
+    This API uses [Bearer token/API Key/OAuth 2.0] authentication.
+    Include your token in the `Authorization` header:
+    ```
+    Authorization: Bearer YOUR_TOKEN_HERE
+    ```
+
+    ## Rate Limiting
+    - Free tier: 1000 requests/hour
+    - Pro tier: 10000 requests/hour
+    - Enterprise: Unlimited
+
+    ## Versioning
+    This API uses URL versioning (e.g., `/v1/`, `/v2/`).
+    Current version: v1
+
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: api@example.com
+    url: https://example.com/support
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.example.com/v1
+    description: Production server
+  - url: https://staging-api.example.com/v1
+    description: Staging server
+
+tags:
+  - name: Users
+    description: User management operations
+  - name: Authentication
+    description: Authentication and authorization
+
+security:
+  - BearerAuth: []
+
+paths:
+  /users:
+    get:
+      summary: List users
+      description: |
+        Retrieve a paginated list of users.
+
+        **Permissions Required**: `read:users`
+
+        **Rate Limit**: 100 requests per minute
+      tags:
+        - Users
+      parameters:
+        - name: page
+          in: query
+          description: Page number (1-indexed)
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: page_size
+          in: query
+          description: Number of items per page
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: sort
+          in: query
+          description: Sort field and direction (e.g., "created_at:desc")
+          required: false
+          schema:
+            type: string
+            enum: [created_at:asc, created_at:desc, name:asc, name:desc]
+            default: created_at:desc
+        - name: filter[email]
+          in: query
+          description: Filter by email (partial match)
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+                  links:
+                    $ref: '#/components/schemas/PaginationLinks'
+              examples:
+                success:
+                  summary: Successful user list response
+                  value:
+                    data:
+                      - id: "123e4567-e89b-12d3-a456-426614174000"
+                        email: "user@example.com"
+                        name: "John Doe"
+                        is_active: true
+                        created_at: "2024-01-15T10:30:00Z"
+                      - id: "123e4567-e89b-12d3-a456-426614174001"
+                        email: "jane@example.com"
+                        name: "Jane Smith"
+                        is_active: true
+                        created_at: "2024-01-14T09:20:00Z"
+                    meta:
+                      page: 1
+                      page_size: 20
+                      total_items: 42
+                      total_pages: 3
+                    links:
+                      first: "/users?page=1"
+                      last: "/users?page=3"
+                      next: "/users?page=2"
+                      prev: null
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      summary: Create user
+      description: |
+        Create a new user account.
+
+        **Permissions Required**: `write:users`
+
+        **Rate Limit**: 10 requests per minute
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+            examples:
+              basic:
+                summary: Basic user creation
+                value:
+                  email: "newuser@example.com"
+                  name: "New User"
+                  password: "securePassword123!"
+              with_metadata:
+                summary: User with optional metadata
+                value:
+                  email: "newuser@example.com"
+                  name: "New User"
+                  password: "securePassword123!"
+                  metadata:
+                    department: "Engineering"
+                    role: "Developer"
+      responses:
+        '201':
+          description: User created successfully
+          headers:
+            Location:
+              description: URL of the created user
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+              example:
+                id: "123e4567-e89b-12d3-a456-426614174002"
+                email: "newuser@example.com"
+                name: "New User"
+                is_active: true
+                created_at: "2024-01-16T14:30:00Z"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: User already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: "USER_EXISTS"
+                  message: "A user with this email already exists"
+                  details:
+                    email: "newuser@example.com"
+
+  /users/{user_id}:
+    get:
+      summary: Get user by ID
+      description: Retrieve detailed information about a specific user
+      tags:
+        - Users
+      parameters:
+        - name: user_id
+          in: path
+          description: User ID (UUID)
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    patch:
+      summary: Update user
+      description: Update specific fields of a user
+      tags:
+        - Users
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdate'
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      summary: Delete user
+      description: |
+        Delete a user account. This action is irreversible.
+
+        **Permissions Required**: `delete:users`
+      tags:
+        - Users
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: User deleted successfully
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        JWT token obtained from the `/auth/token` endpoint.
+        Include in the `Authorization` header as: `Bearer YOUR_TOKEN`
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique user identifier
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        email:
+          type: string
+          format: email
+          description: User's email address
+          example: "user@example.com"
+        name:
+          type: string
+          description: User's full name
+          minLength: 1
+          maxLength: 100
+          example: "John Doe"
+        is_active:
+          type: boolean
+          description: Whether the user account is active
+          example: true
+        created_at:
+          type: string
+          format: date-time
+          description: Account creation timestamp (ISO 8601)
+          example: "2024-01-15T10:30:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp (ISO 8601)
+          example: "2024-01-15T10:30:00Z"
+      required:
+        - id
+        - email
+        - name
+        - is_active
+        - created_at
+
+    UserCreate:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          description: User's email address (must be unique)
+          example: "newuser@example.com"
+        name:
+          type: string
+          description: User's full name
+          minLength: 1
+          maxLength: 100
+          example: "New User"
+        password:
+          type: string
+          format: password
+          description: User's password (min 8 chars, must include uppercase, lowercase, number)
+          minLength: 8
+          example: "SecurePass123!"
+        metadata:
+          type: object
+          description: Optional metadata about the user
+          additionalProperties: true
+      required:
+        - email
+        - name
+        - password
+
+    UserUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        is_active:
+          type: boolean
+      description: All fields are optional. Only provided fields will be updated.
+
+    PaginationMeta:
+      type: object
+      properties:
+        page:
+          type: integer
+          description: Current page number
+          example: 1
+        page_size:
+          type: integer
+          description: Number of items per page
+          example: 20
+        total_items:
+          type: integer
+          description: Total number of items
+          example: 42
+        total_pages:
+          type: integer
+          description: Total number of pages
+          example: 3
+      required:
+        - page
+        - page_size
+        - total_items
+        - total_pages
+
+    PaginationLinks:
+      type: object
+      properties:
+        first:
+          type: string
+          format: uri
+          description: Link to first page
+          example: "/users?page=1"
+        last:
+          type: string
+          format: uri
+          description: Link to last page
+          example: "/users?page=3"
+        next:
+          type: string
+          format: uri
+          nullable: true
+          description: Link to next page (null if on last page)
+          example: "/users?page=2"
+        prev:
+          type: string
+          format: uri
+          nullable: true
+          description: Link to previous page (null if on first page)
+          example: null
+      required:
+        - first
+        - last
+        - next
+        - prev
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              description: Machine-readable error code
+              example: "VALIDATION_ERROR"
+            message:
+              type: string
+              description: Human-readable error message
+              example: "Invalid request data"
+            details:
+              type: object
+              description: Additional error details
+              additionalProperties: true
+              example:
+                email: ["Must be a valid email address"]
+          required:
+            - code
+            - message
+
+  responses:
+    BadRequest:
+      description: Bad request - invalid input
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              code: "VALIDATION_ERROR"
+              message: "Invalid request data"
+              details:
+                email: ["Must be a valid email address"]
+                name: ["Required field"]
+
+    Unauthorized:
+      description: Unauthorized - missing or invalid authentication
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              code: "UNAUTHORIZED"
+              message: "Authentication required"
+
+    Forbidden:
+      description: Forbidden - insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              code: "FORBIDDEN"
+              message: "You don't have permission to perform this action"
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              code: "NOT_FOUND"
+              message: "The requested resource was not found"
+
+    RateLimitExceeded:
+      description: Rate limit exceeded
+      headers:
+        X-RateLimit-Limit:
+          description: Request limit per time window
+          schema:
+            type: integer
+            example: 1000
+        X-RateLimit-Remaining:
+          description: Remaining requests in current window
+          schema:
+            type: integer
+            example: 0
+        X-RateLimit-Reset:
+          description: Time when rate limit resets (Unix timestamp)
+          schema:
+            type: integer
+            example: 1705410000
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              code: "RATE_LIMIT_EXCEEDED"
+              message: "Too many requests. Please try again later."
+              details:
+                retry_after: 3600
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              code: "INTERNAL_ERROR"
+              message: "An unexpected error occurred. Please try again later."
 ```
 
-## Core Modules
+## Phase 3: Authentication Documentation
 
-### [package].core
-Core functionality and main processing classes.
-
-**Classes**:
-- [`MainProcessor`](core.md#mainprocessor) - Primary processing class
-- [`DataValidator`](core.md#datavalidator) - Data validation
-- [`Transformer`](core.md#transformer) - Data transformation
-
-**Functions**:
-- [`process_batch()`](core.md#process_batch) - Batch processing utility
-
-### [package].models
-Data models and schemas.
-
-**Classes**:
-- [`InputModel`](models.md#inputmodel) - Input data model
-- [`OutputModel`](models.md#outputmodel) - Output data model
-- [`ConfigModel`](models.md#configmodel) - Configuration model
-
-### [package].utils
-Utility functions and helpers.
-
-**Functions**:
-- [`format_timestamp()`](utils.md#format_timestamp) - Timestamp formatting
-- [`validate_email()`](utils.md#validate_email) - Email validation
-- [`parse_config()`](utils.md#parse_config) - Configuration parsing
-
-## Installation Options
-
-### From PyPI
-```bash
-pip install [package-name]
-```
-
-### From Source
-```bash
-git clone [repo-url]
-cd [project]
-pip install -e .
-```
-
-### With Optional Dependencies
-```bash
-# Full installation
-pip install [package-name][all]
-
-# Specific extras
-pip install [package-name][dev]     # Development tools
-pip install [package-name][docs]    # Documentation tools
-pip install [package-name][api]     # API server dependencies
-```
-
-## Version Information
-
-**Current Version**: [X.Y.Z]
-**Requires**: Python 3.9+
-**License**: [License Type]
-
-## Support
-
-- **Documentation**: [https://docs.example.com](https://docs.example.com)
-- **Issues**: [https://github.com/user/project/issues](https://github.com/user/project/issues)
-- **Discussions**: [https://github.com/user/project/discussions](https://github.com/user/project/discussions)
-~~~
-
----
-
-### 2. Core Module Reference (docs/api/core.md)
-
-Document core module with complete API specifications:
+Document authentication in detail:
 
 ```markdown
-# Core Module API Reference
+# Authentication
 
-`[package].core` - Core functionality and main processing classes.
+## Overview
 
----
+This API uses JWT (JSON Web Token) bearer authentication. Include your token in the `Authorization` header for all protected endpoints.
 
-## Classes
+## Obtaining a Token
 
-### MainProcessor
+### Request
+```http
+POST /auth/token HTTP/1.1
+Host: api.example.com
+Content-Type: application/json
 
-Primary data processing class that orchestrates validation, transformation, and output generation.
-
-#### Constructor
-
-```python
-MainProcessor(
-    config: Optional[Dict[str, Any]] = None,
-    validator: Optional[ValidatorBase] = None,
-    transformer: Optional[TransformerBase] = None
-)
-```
-
-**Parameters**:
-- `config` (dict, optional): Configuration dictionary with processing options
-  - `batch_size` (int): Number of items per batch (default: 100)
-  - `timeout` (int): Processing timeout in seconds (default: 30)
-  - `strict_mode` (bool): Enable strict validation (default: True)
-- `validator` (ValidatorBase, optional): Custom validator instance (default: DefaultValidator)
-- `transformer` (TransformerBase, optional): Custom transformer instance (default: DefaultTransformer)
-
-**Raises**:
-- `ValueError`: If config contains invalid values
-- `TypeError`: If validator/transformer don't implement required interface
-
-**Example**:
-```python
-from mypackage.core import MainProcessor
-
-# Basic initialization
-processor = MainProcessor()
-
-# With custom configuration
-processor = MainProcessor(config={
-    'batch_size': 50,
-    'timeout': 60,
-    'strict_mode': False
-})
-
-# With custom validator
-from mypackage.validators import CustomValidator
-processor = MainProcessor(validator=CustomValidator())
-```
-
----
-
-#### Methods
-
-##### process()
-
-Process input data through validation, transformation, and business logic pipeline.
-
-```python
-process(
-    data: Union[List[Dict], pd.DataFrame],
-    callback: Optional[Callable[[float], None]] = None
-) -> ProcessingResult
-```
-
-**Parameters**:
-- `data` (List[Dict] or DataFrame): Input data to process
-  - If list: Each dict must contain required fields
-  - If DataFrame: Must have required columns
-- `callback` (callable, optional): Progress callback function
-  - Receives float (0.0 to 1.0) indicating progress
-  - Called periodically during processing
-
-**Returns**:
-- `ProcessingResult`: Object containing:
-  - `results` (List[Dict]): Processed data records
-  - `success_count` (int): Number of successfully processed items
-  - `failure_count` (int): Number of failed items
-  - `errors` (List[str]): Error messages for failed items
-  - `duration` (float): Processing duration in seconds
-
-**Raises**:
-- `ValidationError`: If input data fails validation
-- `ProcessingError`: If processing logic fails
-- `TimeoutError`: If processing exceeds configured timeout
-
-**Example**:
-```python
-# Basic usage
-result = processor.process(input_data)
-print(f"Processed: {result.success_count} items")
-
-# With progress callback
-def progress_callback(progress):
-    print(f"Progress: {progress * 100:.1f}%")
-
-result = processor.process(input_data, callback=progress_callback)
-
-# Error handling
-try:
-    result = processor.process(input_data)
-except ValidationError as e:
-    print(f"Validation failed: {e}")
-except ProcessingError as e:
-    print(f"Processing failed: {e}")
-```
-
-**Performance Notes**:
-- Processing is done in batches for efficiency
-- Memory usage is O(batch_size), not O(n)
-- Typical throughput: ~1000 items/second
-
-**Thread Safety**: This method is thread-safe when using different processor instances
-
----
-
-##### validate()
-
-Validate input data without processing.
-
-```python
-validate(data: Union[List[Dict], pd.DataFrame]) -> ValidationResult
-```
-
-**Parameters**:
-- `data`: Data to validate (same format as `process()`)
-
-**Returns**:
-- `ValidationResult`: Object containing:
-  - `is_valid` (bool): Overall validation status
-  - `errors` (List[str]): Validation error messages
-  - `warnings` (List[str]): Non-critical warnings
-
-**Example**:
-```python
-validation = processor.validate(input_data)
-if validation.is_valid:
-    result = processor.process(input_data)
-else:
-    print(f"Validation failed: {validation.errors}")
-```
-
----
-
-##### transform()
-
-Transform data without full processing pipeline.
-
-```python
-transform(
-    data: Union[List[Dict], pd.DataFrame],
-    transformations: Optional[List[str]] = None
-) -> TransformResult
-```
-
-**Parameters**:
-- `data`: Data to transform
-- `transformations`: List of transformation names to apply (default: all)
-
-**Returns**:
-- `TransformResult`: Transformed data
-
-**Example**:
-```python
-# Apply all transformations
-transformed = processor.transform(input_data)
-
-# Apply specific transformations
-transformed = processor.transform(
-    input_data,
-    transformations=['normalize', 'enrich']
-)
-```
-
----
-
-#### Properties
-
-##### config
-
-Current processor configuration.
-
-```python
-@property
-def config(self) -> Dict[str, Any]
-```
-
-**Returns**: Dictionary with current configuration
-
-**Example**:
-```python
-current_config = processor.config
-print(f"Batch size: {current_config['batch_size']}")
-```
-
----
-
-##### is_ready
-
-Check if processor is ready for processing.
-
-```python
-@property
-def is_ready(self) -> bool
-```
-
-**Returns**: True if processor is configured and ready
-
----
-
-#### Context Manager Support
-
-MainProcessor can be used as a context manager for automatic resource cleanup:
-
-```python
-with MainProcessor(config) as processor:
-    result = processor.process(data)
-# Resources automatically cleaned up
-```
-
----
-
-### DataValidator
-
-Data validation class for schema and business rule validation.
-
-#### Constructor
-
-```python
-DataValidator(
-    schema: Optional[Dict[str, Any]] = None,
-    strict: bool = True
-)
-```
-
-**Parameters**:
-- `schema`: JSON schema or Pydantic model for validation
-- `strict`: Enable strict validation mode
-
-**Example**:
-```python
-from mypackage.core import DataValidator
-
-# With JSON schema
-schema = {
-    "type": "object",
-    "properties": {
-        "id": {"type": "string"},
-        "value": {"type": "number", "minimum": 0}
-    },
-    "required": ["id", "value"]
+{
+  "email": "user@example.com",
+  "password": "your_password"
 }
-validator = DataValidator(schema=schema)
-
-# With Pydantic model
-from pydantic import BaseModel
-
-class MyModel(BaseModel):
-    id: str
-    value: float
-
-validator = DataValidator(schema=MyModel)
 ```
 
----
-
-#### Methods
-
-##### validate()
-
-Validate data against schema and business rules.
-
-```python
-validate(data: Any) -> ValidationResult
+### Response
+```json
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIs...",
+  "token_type": "bearer",
+  "expires_in": 3600,
+  "refresh_token": "eyJhbGciOiJIUzI1NiIs..."
+}
 ```
 
-**Parameters**:
-- `data`: Data to validate
+## Using the Token
 
-**Returns**:
-- `ValidationResult`: Validation results
+Include the token in the `Authorization` header:
 
-**Raises**:
-- `SchemaValidationError`: If schema validation fails in strict mode
-
-**Example**:
-```python
-result = validator.validate(input_data)
-if not result.is_valid:
-    for error in result.errors:
-        print(f"Error: {error}")
+```http
+GET /users/me HTTP/1.1
+Host: api.example.com
+Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
 ```
 
----
-
-## Functions
-
-### process_batch()
-
-Utility function for batch processing without creating processor instance.
-
+### Python Example
 ```python
-process_batch(
-    data: List[Dict],
-    batch_size: int = 100,
-    config: Optional[Dict] = None
-) -> ProcessingResult
-```
+import requests
 
-**Parameters**:
-- `data`: List of data dictionaries to process
-- `batch_size`: Items per batch (default: 100)
-- `config`: Processing configuration (optional)
-
-**Returns**:
-- `ProcessingResult`: Processing results
-
-**Example**:
-```python
-from mypackage.core import process_batch
-
-result = process_batch(
-    data=input_data,
-    batch_size=50,
-    config={'strict_mode': False}
+# Obtain token
+auth_response = requests.post(
+    "https://api.example.com/auth/token",
+    json={"email": "user@example.com", "password": "your_password"}
 )
+token = auth_response.json()["access_token"]
+
+# Use token in requests
+headers = {"Authorization": f"Bearer {token}"}
+response = requests.get("https://api.example.com/users/me", headers=headers)
 ```
 
----
+## Token Refresh
 
-### create_processor()
+Tokens expire after 1 hour. Use the refresh token to obtain a new access token:
 
-Factory function for creating configured processor instances.
+```http
+POST /auth/refresh HTTP/1.1
+Host: api.example.com
+Content-Type: application/json
 
-```python
-create_processor(
-    preset: str = "default",
-    **kwargs
-) -> MainProcessor
+{
+  "refresh_token": "eyJhbGciOiJIUzI1NiIs..."
+}
 ```
 
-**Parameters**:
-- `preset`: Configuration preset name
-  - `"default"`: Standard processing
-  - `"fast"`: Optimized for speed
-  - `"strict"`: Maximum validation
-- `**kwargs`: Additional configuration overrides
+## Token Revocation
 
-**Returns**:
-- `MainProcessor`: Configured processor instance
+Revoke a token (logout):
 
-**Example**:
-```python
-from mypackage.core import create_processor
-
-# Use preset
-processor = create_processor(preset="fast")
-
-# Preset with overrides
-processor = create_processor(
-    preset="strict",
-    batch_size=200
-)
+```http
+POST /auth/revoke HTTP/1.1
+Host: api.example.com
+Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
 ```
 
----
+## Permissions
 
-## Exceptions
+Each endpoint requires specific permissions. User roles determine available permissions:
 
-### ProcessingError
-
-Base exception for processing errors.
-
-```python
-class ProcessingError(Exception):
-    """Base exception for processing errors."""
+| Role | Permissions |
+|------|-------------|
+| Admin | `read:*`, `write:*`, `delete:*` (all permissions) |
+| User | `read:users`, `write:own_profile`, `read:public_data` |
+| Guest | `read:public_data` |
 ```
 
-**Attributes**:
-- `message` (str): Error message
-- `details` (Dict): Additional error details
+## Phase 4: Code Examples
 
-**Example**:
-```python
-try:
-    result = processor.process(data)
-except ProcessingError as e:
-    print(f"Error: {e.message}")
-    print(f"Details: {e.details}")
-```
+Provide working code examples:
 
-### ValidationError
+```markdown
+# Code Examples
 
-Exception raised when validation fails.
+## Python (requests)
 
 ```python
-class ValidationError(ProcessingError):
-    """Validation failure exception."""
-```
+import requests
+from typing import Dict, List, Optional
 
-**Attributes**:
-- `errors` (List[str]): List of validation errors
-- `field` (str, optional): Field that failed validation
+class APIClient:
+    """Client for the Example API."""
 
----
+    def __init__(self, base_url: str, email: str, password: str):
+        self.base_url = base_url
+        self.token = None
+        self._authenticate(email, password)
 
-## Type Definitions
-
-### ProcessingResult
-
-```python
-from typing import TypedDict, List
-
-class ProcessingResult(TypedDict):
-    results: List[Dict]
-    success_count: int
-    failure_count: int
-    errors: List[str]
-    duration: float
-```
-
-### ValidationResult
-
-```python
-class ValidationResult(TypedDict):
-    is_valid: bool
-    errors: List[str]
-    warnings: List[str]
-```
-
----
-
-## Usage Examples
-
-### Example 1: Basic Processing
-
-```python
-from mypackage.core import MainProcessor
-
-# Create processor
-processor = MainProcessor(config={
-    'batch_size': 100,
-    'timeout': 30
-})
-
-# Process data
-data = [
-    {'id': '1', 'value': 100.0},
-    {'id': '2', 'value': 200.0}
-]
-
-result = processor.process(data)
-
-# Handle results
-print(f"Success: {result.success_count}")
-print(f"Failed: {result.failure_count}")
-print(f"Duration: {result.duration:.2f}s")
-```
-
-### Example 2: Validation Before Processing
-
-```python
-# Validate first
-validation = processor.validate(data)
-
-if validation.is_valid:
-    result = processor.process(data)
-else:
-    print("Validation errors:")
-    for error in validation.errors:
-        print(f"  - {error}")
-```
-
-### Example 3: Custom Validator
-
-```python
-from mypackage.core import MainProcessor, ValidatorBase
-
-class CustomValidator(ValidatorBase):
-    def validate(self, data):
-        # Custom validation logic
-        return ValidationResult(
-            is_valid=True,
-            errors=[],
-            warnings=[]
+    def _authenticate(self, email: str, password: str):
+        """Obtain authentication token."""
+        response = requests.post(
+            f"{self.base_url}/auth/token",
+            json={"email": email, "password": password}
         )
+        response.raise_for_status()
+        self.token = response.json()["access_token"]
 
-processor = MainProcessor(validator=CustomValidator())
-result = processor.process(data)
+    def _headers(self) -> Dict[str, str]:
+        """Get headers with authentication."""
+        return {
+            "Authorization": f"Bearer {self.token}",
+            "Content-Type": "application/json"
+        }
+
+    def list_users(
+        self,
+        page: int = 1,
+        page_size: int = 20,
+        sort: Optional[str] = None,
+        email_filter: Optional[str] = None
+    ) -> Dict:
+        """List users with pagination and filtering."""
+        params = {
+            "page": page,
+            "page_size": page_size
+        }
+        if sort:
+            params["sort"] = sort
+        if email_filter:
+            params["filter[email]"] = email_filter
+
+        response = requests.get(
+            f"{self.base_url}/users",
+            headers=self._headers(),
+            params=params
+        )
+        response.raise_for_status()
+        return response.json()
+
+    def create_user(self, email: str, name: str, password: str) -> Dict:
+        """Create a new user."""
+        response = requests.post(
+            f"{self.base_url}/users",
+            headers=self._headers(),
+            json={
+                "email": email,
+                "name": name,
+                "password": password
+            }
+        )
+        response.raise_for_status()
+        return response.json()
+
+    def get_user(self, user_id: str) -> Dict:
+        """Get user by ID."""
+        response = requests.get(
+            f"{self.base_url}/users/{user_id}",
+            headers=self._headers()
+        )
+        response.raise_for_status()
+        return response.json()
+
+# Usage
+client = APIClient(
+    base_url="https://api.example.com/v1",
+    email="admin@example.com",
+    password="admin_password"
+)
+
+# List users
+users = client.list_users(page=1, page_size=10)
+for user in users["data"]:
+    print(f"{user['name']} <{user['email']}>")
+
+# Create user
+new_user = client.create_user(
+    email="newuser@example.com",
+    name="New User",
+    password="SecurePass123!"
+)
+print(f"Created user: {new_user['id']}")
 ```
 
-### Example 4: Progress Tracking
+## Python (httpx async)
+
+```python
+import httpx
+import asyncio
+from typing import Dict, List, Optional
+
+class AsyncAPIClient:
+    """Async client for the Example API."""
+
+    def __init__(self, base_url: str):
+        self.base_url = base_url
+        self.token = None
+        self.client = httpx.AsyncClient(timeout=30.0)
+
+    async def authenticate(self, email: str, password: str):
+        """Obtain authentication token."""
+        response = await self.client.post(
+            f"{self.base_url}/auth/token",
+            json={"email": email, "password": password}
+        )
+        response.raise_for_status()
+        self.token = response.json()["access_token"]
+
+    def _headers(self) -> Dict[str, str]:
+        """Get headers with authentication."""
+        return {
+            "Authorization": f"Bearer {self.token}",
+            "Content-Type": "application/json"
+        }
+
+    async def list_users(self, page: int = 1) -> Dict:
+        """List users."""
+        response = await self.client.get(
+            f"{self.base_url}/users",
+            headers=self._headers(),
+            params={"page": page}
+        )
+        response.raise_for_status()
+        return response.json()
+
+    async def close(self):
+        """Close the client."""
+        await self.client.aclose()
+
+# Usage
+async def main():
+    client = AsyncAPIClient("https://api.example.com/v1")
+    try:
+        await client.authenticate("admin@example.com", "password")
+        users = await client.list_users()
+        print(f"Found {len(users['data'])} users")
+    finally:
+        await client.close()
+
+asyncio.run(main())
+```
+
+## cURL Examples
+
+```bash
+# Obtain token
+curl -X POST https://api.example.com/v1/auth/token \
+  -H "Content-Type: application/json" \
+  -d '{"email":"user@example.com","password":"your_password"}'
+
+# Save token
+TOKEN="eyJhbGciOiJIUzI1NiIs..."
+
+# List users
+curl -X GET "https://api.example.com/v1/users?page=1&page_size=20" \
+  -H "Authorization: Bearer $TOKEN"
+
+# Create user
+curl -X POST https://api.example.com/v1/users \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "newuser@example.com",
+    "name": "New User",
+    "password": "SecurePass123!"
+  }'
+
+# Get specific user
+curl -X GET https://api.example.com/v1/users/123e4567-e89b-12d3-a456-426614174000 \
+  -H "Authorization: Bearer $TOKEN"
+
+# Update user
+curl -X PATCH https://api.example.com/v1/users/123e4567-e89b-12d3-a456-426614174000 \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Updated Name"}'
+
+# Delete user
+curl -X DELETE https://api.example.com/v1/users/123e4567-e89b-12d3-a456-426614174000 \
+  -H "Authorization: Bearer $TOKEN"
+```
+```
+
+## Phase 5: Error Handling & Best Practices
+
+```markdown
+# Error Handling
+
+## Error Response Format
+
+All errors follow a consistent format:
+
+```json
+{
+  "error": {
+    "code": "ERROR_CODE",
+    "message": "Human-readable error message",
+    "details": {
+      "field": ["Specific error about field"]
+    }
+  }
+}
+```
+
+## HTTP Status Codes
+
+| Code | Meaning | When It Occurs |
+|------|---------|----------------|
+| 200 | OK | Successful GET, PATCH request |
+| 201 | Created | Successful POST request |
+| 204 | No Content | Successful DELETE request |
+| 400 | Bad Request | Invalid request data |
+| 401 | Unauthorized | Missing or invalid authentication |
+| 403 | Forbidden | Insufficient permissions |
+| 404 | Not Found | Resource doesn't exist |
+| 409 | Conflict | Resource already exists |
+| 422 | Unprocessable Entity | Validation error |
+| 429 | Too Many Requests | Rate limit exceeded |
+| 500 | Internal Server Error | Server error |
+
+## Common Error Codes
+
+### Authentication Errors
+- `UNAUTHORIZED`: Missing or invalid token
+- `TOKEN_EXPIRED`: Token has expired, refresh needed
+- `INVALID_CREDENTIALS`: Wrong email/password
+
+### Validation Errors
+- `VALIDATION_ERROR`: Request data failed validation
+- `REQUIRED_FIELD`: Required field missing
+- `INVALID_FORMAT`: Field has invalid format
+
+### Resource Errors
+- `NOT_FOUND`: Requested resource doesn't exist
+- `ALREADY_EXISTS`: Resource with identifier already exists
+- `CONFLICT`: Operation conflicts with current state
+
+### Rate Limiting
+- `RATE_LIMIT_EXCEEDED`: Too many requests
+
+## Handling Errors in Code
+
+```python
+import requests
+from requests.exceptions import HTTPError
+
+def safe_api_call():
+    """Example of proper error handling."""
+    try:
+        response = requests.get(
+            "https://api.example.com/v1/users/invalid-id",
+            headers={"Authorization": f"Bearer {token}"}
+        )
+        response.raise_for_status()
+        return response.json()
+
+    except HTTPError as e:
+        status_code = e.response.status_code
+        error_data = e.response.json()
+        error_code = error_data.get("error", {}).get("code")
+
+        if status_code == 401:
+            print("Authentication failed - refresh token")
+        elif status_code == 404:
+            print("Resource not found")
+        elif status_code == 429:
+            retry_after = error_data.get("error", {}).get("details", {}).get("retry_after")
+            print(f"Rate limited - retry after {retry_after} seconds")
+        else:
+            print(f"Error {error_code}: {error_data}")
+
+        raise
+```
+
+# Best Practices
+
+## Rate Limiting
+
+- **Free tier**: 1000 requests/hour
+- **Pro tier**: 10000 requests/hour
+- **Enterprise**: Custom limits
+
+Check rate limit headers in responses:
+```
+X-RateLimit-Limit: 1000
+X-RateLimit-Remaining: 995
+X-RateLimit-Reset: 1705410000
+```
+
+### Handling Rate Limits
 
 ```python
 import time
 
-def progress_handler(progress):
-    # Update progress bar or logging
-    bar_length = 50
-    filled = int(bar_length * progress)
-    bar = '=' * filled + '-' * (bar_length - filled)
-    print(f'\r[{bar}] {progress*100:.1f}%', end='', flush=True)
+def make_request_with_retry(url, headers):
+    """Make request with automatic retry on rate limit."""
+    while True:
+        response = requests.get(url, headers=headers)
 
-result = processor.process(large_dataset, callback=progress_handler)
-print()  # New line after progress
+        if response.status_code == 429:
+            retry_after = int(response.headers.get("X-RateLimit-Reset", 0))
+            current_time = int(time.time())
+            wait_time = max(retry_after - current_time, 60)
+            print(f"Rate limited - waiting {wait_time} seconds")
+            time.sleep(wait_time)
+            continue
+
+        response.raise_for_status()
+        return response.json()
 ```
 
-### Example 5: Error Handling
+## Pagination
+
+Always use pagination for list endpoints:
 
 ```python
-from mypackage.core import MainProcessor, ValidationError, ProcessingError
+def get_all_users(client):
+    """Fetch all users using pagination."""
+    all_users = []
+    page = 1
 
-processor = MainProcessor()
+    while True:
+        response = client.list_users(page=page, page_size=100)
+        all_users.extend(response["data"])
 
-try:
-    result = processor.process(data)
-    print(f"Processed {result.success_count} items")
-    
-except ValidationError as e:
-    print(f"Validation failed: {e.message}")
-    for error in e.errors:
-        print(f"  - {error}")
-        
-except ProcessingError as e:
-    print(f"Processing failed: {e.message}")
-    print(f"Details: {e.details}")
-    
-except TimeoutError:
-    print("Processing timeout exceeded")
-    
-except Exception as e:
-    print(f"Unexpected error: {e}")
+        # Check if there are more pages
+        if not response["links"]["next"]:
+            break
+
+        page += 1
+
+    return all_users
+```
+
+## Filtering and Sorting
+
+Use query parameters for filtering:
+
+```python
+# Filter by email
+users = client.list_users(email_filter="@example.com")
+
+# Sort by creation date
+users = client.list_users(sort="created_at:desc")
+
+# Combine filters
+users = client.list_users(
+    email_filter="@example.com",
+    sort="created_at:desc",
+    page_size=50
+)
+```
+
+## Idempotency
+
+Use idempotency keys for safe retries:
+
+```python
+import uuid
+
+idempotency_key = str(uuid.uuid4())
+
+response = requests.post(
+    "https://api.example.com/v1/users",
+    headers={
+        "Authorization": f"Bearer {token}",
+        "Idempotency-Key": idempotency_key
+    },
+    json=user_data
+)
+```
 ```
 
 ---
 
-## Performance Guidelines
+## Output Format
 
-### Optimization Tips
+Please provide API documentation in these formats:
 
-1. **Batch Size**: Adjust based on data size
-   - Small data (<1000): batch_size=100
-   - Medium data (1000-100k): batch_size=1000
-   - Large data (>100k): batch_size=10000
+### 1. OpenAPI/Swagger Specification
+- Complete openapi.yaml file
+- All endpoints, schemas, and examples
+- Can be imported into Swagger UI, Postman, etc.
 
-2. **Memory**: Monitor memory with large datasets
-   - Use streaming for very large files
-   - Process in chunks if memory limited
+### 2. Human-Readable Documentation
+- Markdown files organized by resource
+- Clear examples and explanations
+- Suitable for publishing to docs site
 
-3. **Parallelization**: For CPU-bound operations
-   ```python
-   from concurrent.futures import ThreadPoolExecutor
-   
-   with ThreadPoolExecutor(max_workers=4) as executor:
-       futures = [executor.submit(processor.process, chunk) 
-                  for chunk in chunks]
-   ```
+### 3. Code Examples
+- Working examples in Python (and other languages if applicable)
+- Complete client implementations
+- Error handling demonstrations
 
-### Benchmarks
-
-Typical performance on modern hardware (4-core CPU, 16GB RAM):
-
-| Operation | Items | Time | Throughput |
-|-----------|-------|------|------------|
-| Validation | 10,000 | ~0.5s | 20,000/s |
-| Processing | 10,000 | ~10s | 1,000/s |
-| Transform | 10,000 | ~5s | 2,000/s |
-
----
-
-*API Reference Version: [X.Y.Z]*
-*Last Updated: [Date]*
-```
-
----
-
-### 3. Models Reference (docs/api/models.md)
-
-Document all data models:
+### Summary Report
 
 ```markdown
-# Models API Reference
+## API Documentation Summary
 
-`[package].models` - Data models and schemas.
+**API Version**: [version]
+**Total Endpoints**: [count]
+**Authentication Method**: [Bearer/OAuth/API Key]
 
----
+**Endpoints Documented**:
+- GET endpoints: [count]
+- POST endpoints: [count]
+- PATCH/PUT endpoints: [count]
+- DELETE endpoints: [count]
 
-## Data Models
+**Schemas Documented**: [count]
+**Error Codes Documented**: [count]
+**Code Examples**: [count]
 
-### InputModel
+**Documentation Formats**:
+- [ ] OpenAPI 3.0 specification
+- [ ] Markdown documentation
+- [ ] Python code examples
+- [ ] cURL examples
+- [ ] Interactive API explorer (Swagger UI)
 
-Input data model for processing requests.
-
-```python
-from pydantic import BaseModel, Field
-from typing import Optional, Dict
-from datetime import datetime
-
-class InputModel(BaseModel):
-    """
-    Input data record model.
-    
-    Represents a single data record for processing.
-    """
-    
-    id: str = Field(..., description="Unique record identifier")
-    value: float = Field(..., gt=0, description="Positive numeric value")
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
-    metadata: Optional[Dict] = Field(default_factory=dict)
-    
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "id": "rec_123",
-                "value": 100.50,
-                "timestamp": "2024-10-06T10:00:00Z",
-                "metadata": {"source": "api"}
-            }
-        }
+**Quality Checks**:
+- [ ] All endpoints documented
+- [ ] Request/response schemas complete
+- [ ] Authentication fully explained
+- [ ] Error handling comprehensive
+- [ ] Code examples tested and working
+- [ ] Rate limits documented
+- [ ] Best practices included
 ```
-
-**Fields**:
-- `id`: Unique identifier for record
-- `value`: Numeric value (must be positive)
-- `timestamp`: When record was created
-- `metadata`: Additional key-value data
-
-**Validation Rules**:
-- `id` must be non-empty string
-- `value` must be > 0
-- `timestamp` must be valid datetime
-- `metadata` must be dictionary if provided
-
-**Example Usage**:
-```python
-from mypackage.models import InputModel
-
-# Create instance
-record = InputModel(
-    id="rec_001",
-    value=150.75,
-    metadata={"category": "A"}
-)
-
-# From dictionary
-data = {"id": "rec_002", "value": 200.0}
-record = InputModel(**data)
-
-# Validation
-try:
-    record = InputModel(id="test", value=-10)  # Fails: negative value
-except ValidationError as e:
-    print(e)
-```
-
----
-
-### OutputModel
-
-Output data model for processing results.
-
-```python
-class OutputModel(BaseModel):
-    """Processed data output model."""
-    
-    input_id: str
-    result: float
-    status: str = Field(..., pattern="^(success|error|partial)$")
-    processed_at: datetime
-    errors: Optional[List[str]] = None
-```
-
-**Example**:
-```python
-output = OutputModel(
-    input_id="rec_001",
-    result=150.75,
-    status="success",
-    processed_at=datetime.utcnow()
-)
-```
-
----
-
-## Enumerations
-
-### ProcessingStatus
-
-```python
-from enum import Enum
-
-class ProcessingStatus(str, Enum):
-    """Processing status values."""
-    
-    SUCCESS = "success"
-    ERROR = "error"
-    PARTIAL = "partial"
-    PENDING = "pending"
-```
-
-**Usage**:
-```python
-from mypackage.models import ProcessingStatus
-
-status = ProcessingStatus.SUCCESS
-if status == ProcessingStatus.SUCCESS:
-    print("Processing completed")
-```
-
----
-
-*For complete model reference, see source code documentation.*
-```
-
----
-
-## Deliverables
-
-Please create:
-
-1. **docs/api/README.md** - API overview and index
-2. **docs/api/core.md** - Core module complete reference
-3. **docs/api/models.md** - Data models reference
-4. **docs/api/utils.md** - Utilities reference
-5. **docs/api/exceptions.md** - Exceptions reference
-
-**For Each Public Class:**
-- Complete constructor documentation
-- All public methods documented
-- Parameters fully specified with types
-- Return values described
-- Exceptions listed
-- Usage examples provided
-- Performance notes where relevant
-
-**For Each Public Function:**
-- Purpose and behavior explained
-- All parameters documented
-- Return value specified
-- Exceptions listed
-- Code examples provided
-
-**Quality Checks:**
-- [ ] All public APIs documented
-- [ ] Parameters have types and descriptions
-- [ ] Return values explained
-- [ ] Examples provided and tested
-- [ ] Exceptions documented
-- [ ] Performance notes included where relevant
-- [ ] Cross-references working
-
-Complete and confirm API documentation is comprehensive and accurate.
-
----
-
-## Success Criteria
-
-- ✅ All public classes documented
-- ✅ All public methods documented
-- ✅ All public functions documented
-- ✅ Parameters fully specified
-- ✅ Return values described
-- ✅ Exceptions listed
-- ✅ Usage examples provided
-- ✅ Type annotations documented
-- ✅ Performance notes included
 
 ---
 
 ## Tools for API Documentation
 
-### Sphinx
-```bash
-# Install Sphinx
-pip install sphinx sphinx-rtd-theme
+### Generate from Code (FastAPI Example)
 
-# Generate documentation
-sphinx-apidoc -o docs/api src/
-sphinx-build -b html docs/ docs/_build
+```python
+from fastapi import FastAPI
+from fastapi.openapi.utils import get_openapi
+
+app = FastAPI()
+
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+    openapi_schema = get_openapi(
+        title="My API",
+        version="1.0.0",
+        description="API description",
+        routes=app.routes,
+    )
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
+
+app.openapi = custom_openapi
+
+# Access at /docs (Swagger UI) or /redoc (ReDoc)
 ```
 
-### pdoc
-```bash
-# Install pdoc
-pip install pdoc3
+### Documentation Hosting Options
 
-# Generate documentation
-pdoc --html --output-dir docs/ src/
-```
-
-### MkDocs
-```bash
-# Install MkDocs
-pip install mkdocs mkdocs-material
-
-# Serve documentation
-mkdocs serve
-```
+- **Swagger UI**: Interactive API explorer
+- **ReDoc**: Beautiful API documentation
+- **ReadTheDocs**: Comprehensive documentation hosting
+- **GitHub Pages**: Free hosting for static docs
+- **MkDocs**: Static site generator for docs
 
 ---
+~~~
 
-## Next Steps
+## Output Format Specifications
 
-After completing Phase 5:
-- Review all documentation for accuracy
-- Test all code examples
-- Publish documentation to hosting platform
-- Set up documentation versioning
-- Establish documentation maintenance process
+The API documentation should:
+- Follow OpenAPI 3.0 specification standards
+- Include complete request/response examples
+- Provide working code examples in multiple languages
+- Document all error scenarios comprehensively
+- Explain authentication and authorization clearly
+- Include rate limiting and best practices
+- Be interactive (Swagger UI) or easily testable
+- Keep examples up-to-date with API changes

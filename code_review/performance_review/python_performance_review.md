@@ -1,347 +1,472 @@
-# Performance & Scalability Review
+# Python Performance Review
 
 ## Objective
-Evaluate code efficiency, identify performance bottlenecks, and assess scalability considerations.
+Systematically identify performance bottlenecks, inefficient algorithms, and resource usage issues. Provide data-driven optimization recommendations to improve application speed, scalability, and resource efficiency.
 
 ## Review Checklist
 
+### Performance Profiling
+- [ ] CPU profiling completed (cProfile, py-spy)
+- [ ] Memory profiling performed (memory_profiler, tracemalloc)
+- [ ] I/O operations analyzed
+- [ ] Hot paths and bottlenecks identified
+- [ ] Function-level timing measurements captured
+
 ### Algorithm Efficiency
-- [ ] Appropriate data structures chosen
-- [ ] Time complexity considered and documented
-- [ ] Space complexity optimized
-- [ ] No unnecessary nested loops
-- [ ] Efficient searching and sorting algorithms
-- [ ] Caching implemented where beneficial
+- [ ] Time complexity evaluated (O(n), O(n²), etc.)
+- [ ] Space complexity assessed
+- [ ] Inefficient loops identified (nested, redundant)
+- [ ] Algorithmic improvements documented
+- [ ] Data structure choices reviewed
+
+### Database Performance
+- [ ] Query execution times measured
+- [ ] N+1 query problems identified
+- [ ] Missing indexes detected
+- [ ] Query optimization opportunities documented
+- [ ] Connection pooling evaluated
 
 ### Memory Management
-- [ ] No memory leaks
-- [ ] Large data processed in chunks/streaming
-- [ ] Unnecessary object creation avoided
-- [ ] Generator expressions used where appropriate
-- [ ] Memory-intensive operations optimized
+- [ ] Memory leaks detected
+- [ ] Large object allocations identified
+- [ ] Memory growth patterns analyzed
+- [ ] Caching strategies reviewed
+- [ ] Garbage collection behavior assessed
 
-### Database Operations
-- [ ] Queries optimized (proper indexing considered)
-- [ ] N+1 query problems avoided
-- [ ] Batch operations used for multiple records
-- [ ] Connection pooling implemented
-- [ ] Query results limited appropriately
-- [ ] Unnecessary queries eliminated
-
-### I/O Operations
-- [ ] File I/O performed efficiently
-- [ ] Unnecessary file reads/writes avoided
-- [ ] Buffering used appropriately
-- [ ] Async I/O considered for concurrent operations
-- [ ] Network calls minimized and batched
+### I/O & Network
+- [ ] File I/O operations profiled
+- [ ] Network call latency measured
+- [ ] Synchronous vs asynchronous patterns evaluated
+- [ ] Batching opportunities identified
+- [ ] Connection reuse assessed
 
 ### Concurrency & Parallelism
-- [ ] Thread safety considered where needed
-- [ ] Appropriate use of threading vs multiprocessing
-- [ ] Race conditions prevented
-- [ ] Deadlocks prevented
-- [ ] Concurrent operations properly synchronized
-
-### Scalability Considerations
-- [ ] Code handles growing data volumes
-- [ ] No hardcoded limits that don't scale
-- [ ] Resource usage bounded
-- [ ] Horizontal scaling possible
-- [ ] Performance degradation documented
-
-### Profiling & Monitoring
-- [ ] Performance-critical sections identified
-- [ ] Logging doesn't impact performance
-- [ ] Metrics collection implemented
-- [ ] Performance benchmarks defined
+- [ ] Threading/multiprocessing opportunities identified
+- [ ] Async/await usage evaluated
+- [ ] GIL (Global Interpreter Lock) impact assessed
+- [ ] Race conditions checked
+- [ ] Resource contention identified
 
 ## Prompt Template
 
 Use the structured prompt below with your coding assistant:
 
 ~~~markdown
-Please perform a comprehensive performance and scalability review:
+# Python Performance Review
 
-**Algorithm Efficiency Analysis:**
-1. Review data structure choices:
-   - Lists vs Sets vs Dicts for lookups
-   - Appropriate use of collections (deque, defaultdict, Counter)
-   - Efficient algorithms for searching and sorting
+Please perform a comprehensive performance review of this Python application following this protocol:
 
-2. Analyze time complexity:
+## Phase 1: Performance Profiling Setup
+
+1. **CPU Profiling**
    ```python
-   # Good: O(1) lookup with set
-   valid_ids = set([1, 2, 3, 4, 5])
-   if user_id in valid_ids:
-       process(user_id)
-   
-   # Bad: O(n) lookup with list
-   valid_ids = [1, 2, 3, 4, 5]
-   if user_id in valid_ids:
-       process(user_id)
-   
-   # Good: O(n) with dict comprehension
-   result = {k: v for k, v in items.items() if condition(v)}
-   
-   # Bad: O(n²) with nested loops when unnecessary
-   result = {}
-   for k, v in items.items():
-       for other_k in items.keys():
-           if k == other_k and condition(v):
-               result[k] = v
+   # Profile with cProfile
+   python -m cProfile -o profile.stats main.py
+
+   # Analyze results
+   python -c "import pstats; p = pstats.Stats('profile.stats'); p.sort_stats('cumulative'); p.print_stats(20)"
+
+   # Or use py-spy for production profiling (no code changes)
+   py-spy record -o profile.svg -- python main.py
    ```
 
-3. Identify caching opportunities:
-   - Expensive computations repeated
-   - API calls that could be cached
-   - Database queries that could be cached
-   - Consider @functools.lru_cache or custom caching
-
-**Memory Management Assessment:**
-1. Check for memory leaks:
-   - Circular references
-   - Unclosed file handles or connections
-   - Growing caches without eviction
-   - Large objects kept in memory unnecessarily
-
-2. Review memory-intensive operations:
+2. **Memory Profiling**
    ```python
-   # Good: Generator for large datasets
-   def process_large_file(file_path):
-       with open(file_path) as f:
-           for line in f:
-               yield process_line(line)
-   
-   # Bad: Loading entire file into memory
-   def process_large_file(file_path):
-       with open(file_path) as f:
-           lines = f.readlines()
-           return [process_line(line) for line in lines]
-   
-   # Good: Generator expression
-   total = sum(x**2 for x in range(10000000))
-   
-   # Bad: List comprehension for large dataset
-   total = sum([x**2 for x in range(10000000)])
+   # Line-by-line memory usage
+   # Add @profile decorator to functions of interest
+   from memory_profiler import profile
+
+   @profile
+   def my_function():
+       # function code
+       pass
+
+   # Run with:
+   python -m memory_profiler main.py
+
+   # Or use tracemalloc (built-in, Python 3.4+)
+   import tracemalloc
+   tracemalloc.start()
+   # ... code to profile ...
+   snapshot = tracemalloc.take_snapshot()
+   top_stats = snapshot.statistics('lineno')
+   for stat in top_stats[:10]:
+       print(stat)
    ```
 
-3. Check for unnecessary object creation:
-   - String concatenation in loops (use join)
-   - Repeated instantiation of same objects
-   - Deep copying when shallow copy suffices
-
-**Database Operations Review:**
-1. Query optimization:
-   - Check for N+1 query problems
-   - Verify proper use of SELECT fields (avoid SELECT *)
-   - Look for missing indexes
-   - Check for unnecessary JOINs
-   - Verify LIMIT clauses on large result sets
-
-2. Batch operations:
+3. **I/O Profiling**
    ```python
-   # Good: Bulk insert
-   db.bulk_insert(records)
-   
-   # Bad: Individual inserts in loop
-   for record in records:
-       db.insert(record)
+   # Monitor I/O operations
+   # Use pyinstrument for async/I/O heavy code
+   from pyinstrument import Profiler
+   profiler = Profiler()
+   profiler.start()
+   # ... code to profile ...
+   profiler.stop()
+   profiler.print()
    ```
 
-3. Connection management:
-   - Connection pooling used
-   - Connections properly closed
-   - Transaction management appropriate
+## Phase 2: Bottleneck Identification
 
-**I/O Operations Assessment:**
-1. File operations:
-   - Large files processed in chunks
-   - Buffering used appropriately
-   - Unnecessary file operations eliminated
-   - Temporary files cleaned up
+1. **Analyze Profiling Results**
+   - Identify functions consuming >5% of total time
+   - Find functions called excessive times
+   - Locate memory-intensive operations
+   - Identify I/O bound operations
 
-2. Network operations:
-   - Requests batched where possible
-   - Timeouts configured
-   - Retry logic with exponential backoff
-   - Connection reuse implemented
+2. **Hot Path Analysis**
+   - Map critical execution paths
+   - Measure end-to-end latency
+   - Identify slowest endpoints/operations
+   - Document user-facing performance impacts
 
-3. Async opportunities:
+3. **Resource Usage Patterns**
+   - CPU utilization during typical operations
+   - Memory growth patterns over time
+   - Network bandwidth usage
+   - Disk I/O patterns
+
+## Phase 3: Algorithm Efficiency Review
+
+1. **Time Complexity Analysis**
+   - Review loops and nested iterations
+   - Identify O(n²) or worse algorithms
+   - Check for redundant computations
+   - Assess search and sort operations
+
+2. **Common Performance Anti-Patterns**
    ```python
-   # Consider async for I/O-bound operations
+   # Inefficient patterns to search for:
+
+   # 1. Growing list in loop (O(n) per append can be O(n²) total)
+   result = []
+   for item in large_list:
+       result = result + [item]  # BAD: creates new list each time
+   # Better: result.append(item)
+
+   # 2. Repeated string concatenation (O(n²))
+   text = ""
+   for word in words:
+       text += word  # BAD: strings are immutable
+   # Better: "".join(words)
+
+   # 3. Linear search in loop (O(n²))
+   for item in list1:
+       if item in list2:  # BAD: O(n) search
+           # do something
+   # Better: convert list2 to set for O(1) lookup
+
+   # 4. Recalculating same value repeatedly
+   for i in range(len(data)):
+       result = expensive_calculation(param)  # BAD: if param doesn't change
+       process(data[i], result)
+   # Better: calculate once before loop
+
+   # 5. Reading file multiple times
+   for item in items:
+       with open('config.txt') as f:  # BAD: reopening file
+           config = f.read()
+   # Better: read file once before loop
+
+   # 6. Database queries in loop (N+1 problem)
+   for user_id in user_ids:
+       user = User.query.get(user_id)  # BAD: N queries
+   # Better: User.query.filter(User.id.in_(user_ids)).all()
+   ```
+
+3. **Data Structure Optimization**
+   - Evaluate list vs set vs dict usage
+   - Check for appropriate container choices
+   - Review sorting strategies
+   - Assess caching data structures
+
+## Phase 4: Database Performance Analysis
+
+1. **Query Performance Testing**
+   ```python
+   # Enable SQL query logging
+   import logging
+   logging.basicConfig()
+   logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
+
+   # Or use flask-sqlalchemy query debugging
+   app.config['SQLALCHEMY_ECHO'] = True
+   ```
+
+2. **N+1 Query Detection**
+   ```python
+   # Bad: N+1 queries
+   posts = Post.query.all()  # 1 query
+   for post in posts:
+       author = post.author  # N queries (one per post)
+
+   # Good: Eager loading
+   posts = Post.query.options(joinedload(Post.author)).all()  # 1 or 2 queries
+   ```
+
+3. **Index Analysis**
+   - Review query execution plans
+   - Identify missing indexes on filtered/joined columns
+   - Check for unused indexes
+   - Assess index selectivity
+
+4. **Query Optimization**
+   - Simplify complex queries
+   - Reduce data fetched (select specific columns)
+   - Optimize JOIN operations
+   - Evaluate pagination strategies
+
+## Phase 5: Memory Management Review
+
+1. **Memory Leak Detection**
+   ```python
+   # Check for common leak patterns:
+   # - Growing global caches without eviction
+   # - Event handlers not removed
+   # - Circular references (usually handled by GC)
+   # - Large objects in closures
+
+   # Monitor memory growth
+   import tracemalloc
+   tracemalloc.start()
+
+   # ... run application ...
+
+   snapshot = tracemalloc.take_snapshot()
+   top_stats = snapshot.statistics('lineno')
+   print("[ Top 10 memory consuming lines ]")
+   for stat in top_stats[:10]:
+       print(stat)
+   ```
+
+2. **Large Object Analysis**
+   - Identify large data structures in memory
+   - Review object lifecycle and cleanup
+   - Assess when objects can be released
+   - Check for unnecessary data retention
+
+3. **Caching Strategy Review**
+   - Evaluate cache hit rates
+   - Check for cache invalidation logic
+   - Assess memory limits for caches
+   - Review cache eviction policies
+
+## Phase 6: I/O & Concurrency Optimization
+
+1. **I/O Operation Analysis**
+   ```python
+   # Identify synchronous I/O bottlenecks
+   # Look for patterns like:
+   - Multiple sequential file reads
+   - Synchronous API calls in loops
+   - Blocking database calls
+   - Lack of connection pooling
+   ```
+
+2. **Async Opportunities**
+   ```python
+   # Evaluate async/await usage
+   # Good candidates for async:
+   - Multiple independent API calls
+   - I/O bound operations
+   - Database queries (with async driver)
+   - File operations
+
+   # Example: Sequential vs Concurrent
+   # Bad: Sequential (slow)
+   result1 = fetch_api_1()
+   result2 = fetch_api_2()
+   result3 = fetch_api_3()
+
+   # Good: Concurrent (fast)
    import asyncio
-   
-   async def fetch_multiple_urls(urls):
-       async with aiohttp.ClientSession() as session:
-           tasks = [fetch_url(session, url) for url in urls]
-           return await asyncio.gather(*tasks)
+   results = await asyncio.gather(
+       fetch_api_1(),
+       fetch_api_2(),
+       fetch_api_3()
+   )
    ```
 
-**Concurrency Review:**
-1. Thread safety assessment:
-   - Shared state properly protected
-   - Race conditions identified
-   - Deadlock potential evaluated
-   - Lock contention minimized
+3. **Concurrency Review**
+   - Assess threading vs multiprocessing suitability
+   - Evaluate async/await implementation
+   - Check for race conditions and locks
+   - Review connection pool configurations
 
-2. Parallelism evaluation:
+## Phase 7: Python-Specific Optimizations
+
+1. **Built-in Performance Features**
    ```python
-   # Threading for I/O-bound
-   from concurrent.futures import ThreadPoolExecutor
-   
-   with ThreadPoolExecutor(max_workers=8) as executor:
-       results = executor.map(io_bound_task, items)
-   
-   # Multiprocessing for CPU-bound
-   from concurrent.futures import ProcessPoolExecutor
-   
-   with ProcessPoolExecutor(max_workers=4) as executor:
-       results = executor.map(cpu_bound_task, items)
+   # Check usage of:
+   - List comprehensions vs loops
+   - Generator expressions for large datasets
+   - Built-in functions (sum, max, min vs manual loops)
+   - collections module (deque, Counter, defaultdict)
+   - functools.lru_cache for memoization
    ```
 
-**Scalability Assessment:**
-1. Data volume handling:
-   - Code handles 10x, 100x, 1000x current data
-   - No hardcoded array sizes or limits
-   - Memory usage bounded or streaming
+2. **Common Python Optimizations**
+   ```python
+   # Prefer:
+   # 1. List comprehension
+   squares = [x**2 for x in range(100)]
+   # over:
+   squares = []
+   for x in range(100):
+       squares.append(x**2)
 
-2. Load handling:
-   - Concurrent user support evaluated
-   - Resource exhaustion prevented
-   - Graceful degradation under load
+   # 2. Generator for large data
+   def process_large_file(filename):
+       for line in open(filename):  # Generator
+           yield process(line)
+   # vs loading entire file into memory
 
-3. Horizontal scaling:
-   - Stateless design where appropriate
-   - Distributed caching considered
-   - Database sharding potential
+   # 3. Using built-ins
+   total = sum(values)
+   # vs:
+   total = 0
+   for v in values:
+       total += v
 
-**Performance Hotspots:**
-Identify and document:
-- Most frequently called functions
-- Functions with highest execution time
-- Memory-intensive operations
-- Database query bottlenecks
-- Network I/O bottlenecks
+   # 4. Dictionary lookup
+   value = lookup_dict.get(key, default)
+   # vs:
+   if key in lookup_dict:
+       value = lookup_dict[key]
+   else:
+       value = default
+   ```
 
-**Deliverables:**
-Provide a performance assessment report with:
-- Critical performance issues (requires immediate optimization)
-- High-impact optimization opportunities
-- Algorithm efficiency improvements
-- Memory optimization suggestions
-- Database query optimizations
-- Scalability concerns and recommendations
-- Specific code locations with metrics (if available)
-- Recommended profiling areas
-- Overall performance rating (Excellent/Good/Needs Optimization/Poor)
+## Output Format
+
+Please provide a comprehensive performance report with the following structure:
+
+### Executive Summary
+- **Overall Performance**: [Excellent/Good/Fair/Poor]
+- **Critical Bottlenecks**: [count and brief description]
+- **Performance Impact**: [High/Medium/Low user-facing impact]
+- **Optimization Potential**: [percentage improvement possible]
+- **Recommended Investment**: [estimated hours for major improvements]
+
+### Performance Profile Overview
+**Top 10 Time-Consuming Functions**:
+| Function | File | Time | % Total | Calls | Time/Call | Category |
+|----------|------|------|---------|-------|-----------|----------|
+| [name] | [path] | [seconds] | [%] | [count] | [ms] | [CPU/I/O/DB] |
+
+**Top 10 Memory-Consuming Operations**:
+| Operation | File:Line | Memory | % Total | Description |
+|-----------|-----------|--------|---------|-------------|
+| [desc] | [location] | [MB] | [%] | [details] |
+
+### Critical Performance Issues (Priority 1)
+| Issue | Location | Impact | Current | Target | Optimization |
+|-------|----------|--------|---------|--------|--------------|
+| [description] | [file:line] | [High] | [metric] | [goal] | [strategy] |
+
+### High-Impact Optimizations (Priority 2)
+[List of optimizations with significant performance gains]
+
+### Algorithm Inefficiencies
+**O(n²) or Worse Algorithms Detected**:
+| Function | Location | Complexity | Current Performance | Optimized Approach |
+|----------|----------|------------|---------------------|-------------------|
+| [name] | [file:line] | [O(n²)] | [metric] | [suggested algorithm] |
+
+### Database Performance
+**Slow Queries** (>100ms):
+| Query | Execution Time | Frequency | Issue | Optimization |
+|-------|----------------|-----------|-------|--------------|
+| [query] | [ms] | [calls/sec] | [N+1/missing index/etc] | [solution] |
+
+**Missing Indexes**:
+| Table | Column(s) | Query Pattern | Impact |
+|-------|-----------|---------------|--------|
+| [table] | [cols] | [WHERE/JOIN] | [High/Med/Low] |
+
+### Memory Analysis
+- **Peak Memory Usage**: [MB]
+- **Memory Leaks Detected**: [Yes/No - locations if yes]
+- **Large Objects**: [list of large allocations]
+- **Cache Efficiency**: [hit rate %]
+
+### I/O & Network Performance
+- **File I/O Operations**: [count and total time]
+- **Network Calls**: [count, total time, average latency]
+- **Blocking Operations**: [count and locations]
+- **Async Opportunities**: [list of candidates]
+
+### Concurrency Assessment
+- **Current Concurrency Model**: [threading/multiprocessing/async/none]
+- **CPU Utilization**: [percentage during load]
+- **GIL Impact**: [High/Medium/Low]
+- **Parallelization Opportunities**: [specific candidates]
+
+### Python-Specific Findings
+- **Sub-optimal Patterns**: [list with alternatives]
+- **Built-in Replacements**: [manual code that could use built-ins]
+- **Generator Opportunities**: [large list operations]
+- **Caching Candidates**: [expensive repeated computations]
+
+### Optimization Recommendations
+
+**Quick Wins** (< 1 day effort, high impact):
+1. **[Optimization]**
+   - **Location**: [file:line]
+   - **Current**: [metric]
+   - **Expected Improvement**: [metric/percentage]
+   - **Implementation**: [specific steps]
+
+**Medium-term** (1-3 days effort):
+[List of optimizations requiring moderate refactoring]
+
+**Strategic** (> 3 days, architectural changes):
+[List of major performance initiatives]
+
+### Load Testing Recommendations
+```python
+# Suggested load testing scenarios
+1. Normal load: X requests/sec for Y minutes
+2. Peak load: X*3 requests/sec for Y minutes
+3. Stress test: Gradually increase to failure point
+4. Soak test: Normal load for 24 hours
+
+# Tools: locust, pytest-benchmark, ab (Apache Bench)
+```
+
+### Monitoring Recommendations
+```python
+# Implement performance monitoring
+- Response time tracking (p50, p95, p99)
+- Database query performance monitoring
+- Memory usage alerts
+- Error rate tracking
+- Custom business metric tracking
+
+# Tools: Prometheus, DataDog, New Relic, Sentry
+```
+
+### Benchmark Results
+**Before Optimization**:
+- [Operation]: [time/throughput]
+
+**After Optimization** (projected):
+- [Operation]: [time/throughput]
+
+**Improvement**: [percentage] faster / [X]x throughput
+
+### Next Steps
+- [ ] Implement quick win optimizations
+- [ ] Set up performance benchmarking suite
+- [ ] Configure production performance monitoring
+- [ ] Plan load testing before deployment
+- [ ] Schedule performance review sprint
+- [ ] Document performance SLAs/targets
+
+## Notes
+- Optimize based on profiling data, not assumptions
+- Focus on user-facing performance improvements first
+- Measure before and after optimization
+- Consider scalability alongside raw performance
+- Balance performance with code maintainability
 ~~~
-
-## Expected Outcomes
-
-### Pass Criteria
-- No critical performance bottlenecks
-- Appropriate algorithms and data structures used
-- Efficient database queries
-- Reasonable memory usage
-- Code scales to expected data volumes
-- Concurrency properly handled
-
-### Critical Issues to Flag
-- O(n²) or worse algorithms where better exists
-- Memory leaks
-- N+1 query problems
-- Unbounded resource consumption
-- Thread safety violations in concurrent code
-- Complete file loading for large files
-
-### High-Priority Optimizations
-- Inefficient loops and iterations
-- Missing caching for expensive operations
-- Suboptimal data structures
-- Inefficient database queries
-- Missing batch operations
-- Synchronous I/O that could be async
-
-## Performance Patterns Reference
-
-### Efficient Caching
-```python
-from functools import lru_cache
-import time
-
-@lru_cache(maxsize=128)
-def expensive_computation(n: int) -> int:
-    """Cache results of expensive computation."""
-    time.sleep(1)  # Simulate expensive operation
-    return n * n
-
-# Use binary search for O(log n) performance on sorted data
-# This is critical for large datasets (>10k items)
-result = binary_search(sorted_list, target)
-```
-
-### Memory-Efficient Processing
-```python
-def process_large_dataset(file_path: str):
-    """Process large dataset without loading into memory."""
-    with open(file_path) as f:
-        for line in f:
-            # Process one line at a time
-            yield process_line(line)
-
-# Generator expression for memory efficiency
-total = sum(x**2 for x in range(10_000_000))
-```
-
-### Efficient Database Operations
-```python
-# Batch operations
-def bulk_insert_users(users: List[Dict]):
-    """Insert multiple users efficiently."""
-    db.bulk_insert('users', users)
-
-# Select only needed fields
-def get_user_names():
-    """Retrieve only necessary fields."""
-    return db.query("SELECT id, name FROM users")
-
-# Use pagination for large result sets
-def get_paginated_results(page: int = 1, size: int = 100):
-    """Retrieve results in pages."""
-    offset = (page - 1) * size
-    return db.query(f"SELECT * FROM items LIMIT {size} OFFSET {offset}")
-```
-
-### Parallel Processing
-```python
-from concurrent.futures import ThreadPoolExecutor
-import time
-
-# Use thread pool for I/O-bound operations
-# Testing showed 4x performance improvement with 8 threads
-def process_urls_parallel(urls: List[str]):
-    """Process multiple URLs concurrently."""
-    with ThreadPoolExecutor(max_workers=8) as executor:
-        results = list(executor.map(fetch_url, urls))
-    return results
-```
-
-### Efficient String Operations
-```python
-# Good: Join for string concatenation
-result = ''.join(items)
-
-# Bad: String concatenation in loop
-result = ''
-for item in items:
-    result += item
-
-# Good: Use f-strings for formatting
-message = f"User {user_id} processed in {elapsed:.2f}s"
-
-# Avoid: Old-style formatting
-message = "User %s processed in %.2f s" % (user_id, elapsed)
-```
-
-## Next Steps
-After completing this review, proceed to the Testing & Quality Assurance Review..

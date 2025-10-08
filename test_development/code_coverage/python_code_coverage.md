@@ -1,1138 +1,828 @@
-# Code Coverage Analysis & Improvement
-
-Systematic assessment and optimization of test coverage to ensure comprehensive testing across your codebase.
-
----
-
-## 📋 Overview
-
-This review focuses on measuring, analyzing, and improving code coverage to identify untested code paths, ensure critical functionality is covered, and establish coverage standards for ongoing development.
-
-### Objectives
-
-- **Measure Coverage**: Generate comprehensive coverage reports for your test suite
-- **Identify Gaps**: Find untested code paths, branches, and edge cases
-- **Prioritize Tests**: Focus on critical functionality and high-risk areas
-- **Set Standards**: Establish coverage thresholds and quality gates
-- **Continuous Monitoring**: Integrate coverage into CI/CD pipelines
-- **Improve Quality**: Add targeted tests to reach coverage goals
-
-### Deliverables
-
-- Coverage configuration files (`.coveragerc`, `pyproject.toml`)
-- Comprehensive coverage reports (terminal, HTML, XML, JSON)
-- Coverage gap analysis and recommendations
-- Targeted tests addressing coverage gaps
-- CI/CD coverage enforcement workflows
-- Coverage badges and documentation
-
-### Time Investment
-
-**1-2 hours** for initial coverage analysis and gap identification
-**2-4 hours** for comprehensive coverage improvement to 80%+ coverage
-**30 minutes** for CI/CD integration and automation
-
----
-
-## 🎯 Phase Workflow
-
-### Step 1: Install Coverage Tools
-
-```powershell
-# Install coverage.py
-python -m pip install coverage[toml]
-
-# Install additional tools (optional)
-python -m pip install pytest-cov       # pytest integration
-python -m pip install diff-cover       # diff coverage for PRs
-python -m pip install coverage-badge   # generate coverage badges
-```
-
-### Step 2: Configure Coverage
-
-Create `.coveragerc` or add to `pyproject.toml`:
-
-**Option A: .coveragerc File**
-```ini
-[run]
-# Measure coverage for these source files
-source = src/
-
-# Run tests in parallel (if supported)
-parallel = True
-
-# Include branch coverage (not just line coverage)
-branch = True
-
-# Omit files from coverage
-omit =
-    */tests/*
-    */test_*.py
-    */__init__.py
-    */migrations/*
-    */venv/*
-    */.venv/*
-    */site-packages/*
-
-[report]
-# Fail if coverage is below threshold
-fail_under = 80.0
-
-# Show missing line numbers
-show_missing = True
-
-# Skip covered files in report
-skip_covered = False
-
-# Skip empty files
-skip_empty = True
-
-# Precision for coverage percentage
-precision = 2
-
-# Sort report by coverage percentage
-sort = Cover
-
-# Exclude lines from coverage
-exclude_lines =
-    # Standard pragmas
-    pragma: no cover
-    
-    # Defensive programming
-    raise AssertionError
-    raise NotImplementedError
-    
-    # Abstract methods
-    @abstractmethod
-    
-    # Type checking blocks
-    if TYPE_CHECKING:
-    if typing.TYPE_CHECKING:
-    
-    # Debug code
-    if __name__ == .__main__.:
-    
-    # Platform-specific code
-    if sys.platform
-    
-    # Deprecated code
-    @deprecated
-    warnings.warn
-
-[html]
-# HTML report directory
-directory = htmlcov
-
-# Title for HTML report
-title = Test Coverage Report
-
-[xml]
-# XML report for CI/CD tools
-output = coverage.xml
-
-[json]
-# JSON report for programmatic access
-output = coverage.json
-show_contexts = True
-```
-
-**Option B: pyproject.toml Configuration**
-```toml
-[tool.coverage.run]
-source = ["src"]
-branch = true
-parallel = true
-omit = [
-    "*/tests/*",
-    "*/__init__.py",
-    "*/.venv/*",
-]
-
-[tool.coverage.report]
-fail_under = 80.0
-show_missing = true
-skip_covered = false
-skip_empty = true
-precision = 2
-sort = "Cover"
-exclude_lines = [
-    "pragma: no cover",
-    "raise AssertionError",
-    "raise NotImplementedError",
-    "@abstractmethod",
-    "if TYPE_CHECKING:",
-    "if __name__ == .__main__.:",
-]
-
-[tool.coverage.html]
-directory = "htmlcov"
-title = "Test Coverage Report"
-
-[tool.coverage.xml]
-output = "coverage.xml"
-
-[tool.coverage.json]
-output = "coverage.json"
-show_contexts = true
-```
-
-### Step 3: Run Coverage Analysis
-
-```powershell
-# Run tests with coverage
-python -m coverage run -m pytest tests/
-
-# Or using run_all_tests.py
-python -m coverage run tests/run_all_tests.py
-
-# Generate terminal report
-python -m coverage report
-
-# Generate detailed HTML report
-python -m coverage html
-
-# Generate XML report (for CI/CD)
-python -m coverage xml
-
-# Generate JSON report (for programmatic access)
-python -m coverage json
-
-# Open HTML report in browser
-start htmlcov/index.html  # Windows
-```
-
-### Step 4: Analyze Coverage Reports
-
-**Terminal Report Analysis:**
-```
-Name                        Stmts   Miss Branch BrPart  Cover   Missing
--------------------------------------------------------------------------
-src/__init__.py                 0      0      0      0   100%
-src/main.py                    45      5     12      2    85%   23-27, 45
-src/core/processor.py          120     15     30      5    85%   67-75, 102-110
-src/core/database.py            85      2     18      1    96%   145-146
-src/core/utils.py               52      0     12      0   100%
-src/gui/components.py           95     25     20      8    68%   Multiple ranges
--------------------------------------------------------------------------
-TOTAL                          397     47     92     16    85%
-```
-
-**Key Metrics:**
-- **Stmts**: Total executable statements
-- **Miss**: Statements not executed during tests
-- **Branch**: Total branch points (if/else, loops)
-- **BrPart**: Partially covered branches (one path tested, not both)
-- **Cover**: Overall coverage percentage
-- **Missing**: Line numbers of uncovered code
-
-**HTML Report Features:**
-- Line-by-line highlighting (green = covered, red = uncovered, yellow = partial)
-- Branch coverage visualization
-- File-by-file navigation
-- Sortable columns
-- Search functionality
-
-### Step 5: Identify Coverage Gaps
-
-**Critical Areas to Analyze:**
-
-1. **Low Coverage Modules** (<70% coverage)
-   - Identify files with insufficient testing
-   - Prioritize based on criticality and complexity
-
-2. **Missing Branch Coverage**
-   - Find if/else statements with only one path tested
-   - Locate error handling not covered by tests
-   - Identify edge cases in conditionals
-
-3. **Untested Functions**
-   - List functions with 0% coverage
-   - Assess if functions are actually used (dead code?)
-   - Prioritize public API functions
-
-4. **Partial Coverage Patterns**
-   - Exception handling blocks
-   - Input validation logic
-   - Boundary conditions
-   - Cleanup/teardown code
-
-**Generate Coverage Gap Report:**
-```python
-"""
-Script to analyze coverage and generate gap report.
-
-Authors:
-    - Benjamin Dourthe (benjamin@adonamed.com)
-"""
-import json
-import sys
-from pathlib import Path
-from typing import Dict, List, Tuple
-
-def load_coverage_data(json_path: str = "coverage.json") -> Dict:
-    """Load coverage data from JSON report."""
-    with open(json_path, 'r') as f:
-        return json.load(f)
-
-def identify_low_coverage_files(
-    coverage_data: Dict, 
-    threshold: float = 70.0
-) -> List[Tuple[str, float]]:
-    """Identify files below coverage threshold."""
-    low_coverage = []
-    files = coverage_data.get('files', {})
-    
-    for filepath, data in files.items():
-        summary = data.get('summary', {})
-        coverage = summary.get('percent_covered', 0)
-        
-        if coverage < threshold:
-            low_coverage.append((filepath, coverage))
-    
-    return sorted(low_coverage, key=lambda x: x[1])
-
-def identify_missing_branches(coverage_data: Dict) -> List[Tuple[str, int, str]]:
-    """Identify partially covered branches."""
-    missing_branches = []
-    files = coverage_data.get('files', {})
-    
-    for filepath, data in files.items():
-        for line_num, contexts in data.get('missing_lines', {}).items():
-            missing_branches.append((
-                filepath, 
-                int(line_num), 
-                'Missing line coverage'
-            ))
-        
-        for line_num, branches in data.get('executed_branches', {}).items():
-            if len(branches) < 2:  # Partial branch coverage
-                missing_branches.append((
-                    filepath, 
-                    int(line_num), 
-                    'Partial branch coverage'
-                ))
-    
-    return sorted(missing_branches, key=lambda x: (x[0], x[1]))
-
-def generate_gap_report(coverage_json: str = "coverage.json") -> None:
-    """Generate comprehensive coverage gap report."""
-    coverage_data = load_coverage_data(coverage_json)
-    
-    print("=" * 100)
-    print("                          CODE COVERAGE GAP ANALYSIS")
-    print("─" * 100)
-    
-    # Overall statistics
-    totals = coverage_data.get('totals', {})
-    print(f"\nOverall Coverage: {totals.get('percent_covered', 0):.2f}%")
-    print(f"Total Statements: {totals.get('num_statements', 0)}")
-    print(f"Missing Statements: {totals.get('missing_lines', 0)}")
-    print(f"Total Branches: {totals.get('num_branches', 0)}")
-    print(f"Partial Branches: {totals.get('num_partial_branches', 0)}")
-    
-    # Low coverage files
-    print("\n" + "─" * 100)
-    print("LOW COVERAGE FILES (<70%)")
-    print("─" * 100)
-    
-    low_coverage = identify_low_coverage_files(coverage_data, 70.0)
-    if low_coverage:
-        for filepath, coverage in low_coverage:
-            print(f"  {filepath:<60} {coverage:>6.2f}%")
-    else:
-        print("  ✅ No files below 70% coverage threshold")
-    
-    # Missing branches
-    print("\n" + "─" * 100)
-    print("MISSING/PARTIAL BRANCH COVERAGE")
-    print("─" * 100)
-    
-    missing_branches = identify_missing_branches(coverage_data)
-    if missing_branches:
-        current_file = None
-        for filepath, line_num, issue in missing_branches[:20]:  # Top 20
-            if filepath != current_file:
-                print(f"\n  {filepath}:")
-                current_file = filepath
-            print(f"    Line {line_num}: {issue}")
-        
-        if len(missing_branches) > 20:
-            print(f"\n  ... and {len(missing_branches) - 20} more issues")
-    else:
-        print("  ✅ Full branch coverage achieved")
-    
-    print("\n" + "=" * 100)
-
-if __name__ == '__main__':
-    generate_gap_report()
-```
-
-**Usage:**
-```powershell
-# Generate JSON coverage report
-python -m coverage json
-
-# Run gap analysis
-python tests/coverage_gap_analysis.py
-```
-
-### Step 6: Add Targeted Tests
-
-**Strategy for Improving Coverage:**
-
-1. **Prioritize by Risk and Criticality**
-   - Core business logic: Must have 90%+ coverage
-   - Data processing: 85%+ coverage
-   - Error handling: 80%+ coverage
-   - UI/presentation: 70%+ coverage acceptable
-
-2. **Focus on Uncovered Branches**
-   ```python
-   # Example: Testing both branches of conditional
-   def test_validation_success(self):
-       """Test validation with valid input."""
-       result = validator.validate(valid_data)
-       self.assertTrue(result.is_valid)
-   
-   def test_validation_failure(self):
-       """Test validation with invalid input."""
-       result = validator.validate(invalid_data)
-       self.assertFalse(result.is_valid)
-       self.assertIn("error", result.messages)
-   ```
-
-3. **Test Exception Paths**
-   ```python
-   def test_error_handling_network_failure(self):
-       """Test behavior when network request fails."""
-       mock_client = Mock()
-       mock_client.request.side_effect = NetworkError("Connection timeout")
-       
-       with self.assertRaises(ServiceUnavailableError):
-           service.fetch_data(mock_client)
-   
-   def test_error_handling_invalid_response(self):
-       """Test behavior when API returns invalid data."""
-       mock_client = Mock()
-       mock_client.request.return_value = {"invalid": "format"}
-       
-       with self.assertRaises(ValidationError):
-           service.fetch_data(mock_client)
-   ```
-
-4. **Cover Edge Cases**
-   ```python
-   def test_edge_cases(self):
-       """Test boundary conditions and edge cases."""
-       edge_cases = [
-           (None, "null input"),
-           ([], "empty list"),
-           ([None], "list with null"),
-           ("", "empty string"),
-           (0, "zero value"),
-           (-1, "negative value"),
-           (sys.maxsize, "max integer"),
-           (float('inf'), "infinity"),
-           (float('nan'), "not a number"),
-       ]
-       
-       for input_value, description in edge_cases:
-           with self.subTest(case=description):
-               # Test each edge case
-               result = processor.handle(input_value)
-               self.assertIsNotNone(result, f"Failed on {description}")
-   ```
-
-5. **Test Private Methods (Selectively)**
-   ```python
-   # Only test private methods with complex logic
-   def test_private_complex_calculation(self):
-       """Test internal calculation logic."""
-       processor = DataProcessor()
-       # Access private method for testing complex logic
-       result = processor._calculate_weighted_average([1, 2, 3], [0.5, 0.3, 0.2])
-       self.assertAlmostEqual(result, 1.7, places=2)
-   ```
-
-### Step 7: Exclude Legitimate Gaps
-
-**When to Use Coverage Pragmas:**
-
-```python
-# Defensive programming - should never happen
-def process_data(data: Optional[Dict]) -> Dict:
-    """Process data with type safety."""
-    if data is None:  # pragma: no cover
-        raise AssertionError("Unexpected None - should be caught earlier")
-    return transform(data)
-
-# Abstract methods - tested in implementations
-from abc import ABC, abstractmethod
-
-class DataProcessor(ABC):
-    @abstractmethod  # pragma: no cover
-    def process(self, data: Any) -> Any:
-        """Process data - implemented by subclasses."""
-        pass
-
-# Platform-specific code
-import sys
-
-if sys.platform == 'win32':  # pragma: no cover
-    # Windows-specific code
-    pass
-elif sys.platform == 'darwin':  # pragma: no cover
-    # macOS-specific code
-    pass
-else:  # pragma: no cover
-    # Linux/other platforms
-    pass
-
-# Debug/development code
-def debug_info(data: Dict) -> None:  # pragma: no cover
-    """Print debug information - development only."""
-    import pprint
-    pprint.pprint(data)
-
-# Type checking blocks
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:  # pragma: no cover
-    from .types import ComplexType
-
-# Deprecated code paths
-import warnings
-
-def old_function():  # pragma: no cover
-    """Deprecated function kept for backwards compatibility."""
-    warnings.warn("Use new_function instead", DeprecationWarning)
-    return legacy_logic()
-```
-
-**Best Practices:**
-- Use `pragma: no cover` sparingly and with good reason
-- Document why coverage is excluded
-- Review pragmas during code reviews
-- Revisit pragmas periodically to ensure they're still valid
-
-### Step 8: Set Coverage Thresholds
-
-**Recommended Thresholds:**
-
-```python
-# test_config.py
-COVERAGE_THRESHOLDS = {
-    # Overall project threshold
-    'overall': 80.0,
-    
-    # By module type
-    'core': 90.0,           # Critical business logic
-    'api': 85.0,            # API endpoints
-    'database': 85.0,       # Data access layer
-    'utils': 80.0,          # Utility functions
-    'gui': 70.0,            # UI components (acceptable lower)
-    'scripts': 60.0,        # One-off scripts (acceptable lower)
-    
-    # By coverage type
-    'line_coverage': 80.0,
-    'branch_coverage': 75.0,
-}
-
-def check_coverage_thresholds(coverage_data: Dict) -> bool:
-    """
-    Validate coverage meets minimum thresholds.
-    
-    Returns:
-        True if all thresholds met, False otherwise
-    """
-    overall_coverage = coverage_data['totals']['percent_covered']
-    
-    if overall_coverage < COVERAGE_THRESHOLDS['overall']:
-        print(f"❌ Overall coverage {overall_coverage:.2f}% below threshold {COVERAGE_THRESHOLDS['overall']}%")
-        return False
-    
-    # Check individual modules
-    files = coverage_data.get('files', {})
-    failures = []
-    
-    for filepath, data in files.items():
-        module_type = determine_module_type(filepath)
-        threshold = COVERAGE_THRESHOLDS.get(module_type, COVERAGE_THRESHOLDS['overall'])
-        coverage = data['summary']['percent_covered']
-        
-        if coverage < threshold:
-            failures.append(f"{filepath}: {coverage:.2f}% < {threshold}%")
-    
-    if failures:
-        print("❌ Coverage threshold failures:")
-        for failure in failures:
-            print(f"  - {failure}")
-        return False
-    
-    print(f"✅ All coverage thresholds met ({overall_coverage:.2f}%)")
-    return True
-
-def determine_module_type(filepath: str) -> str:
-    """Determine module type from filepath."""
-    if 'core' in filepath:
-        return 'core'
-    elif 'api' in filepath:
-        return 'api'
-    elif 'database' in filepath or 'db' in filepath:
-        return 'database'
-    elif 'utils' in filepath:
-        return 'utils'
-    elif 'gui' in filepath or 'ui' in filepath:
-        return 'gui'
-    elif 'scripts' in filepath:
-        return 'scripts'
-    return 'overall'
-```
-
-### Step 9: Integrate with CI/CD
-
-**GitHub Actions Workflow:**
-
-```yaml
-# .github/workflows/coverage.yml
-name: Code Coverage
-
-on:
-  push:
-    branches: [ main, develop ]
-  pull_request:
-    branches: [ main, develop ]
-
-jobs:
-  coverage:
-    runs-on: ubuntu-latest
-    
-    steps:
-    - uses: actions/checkout@v3
-    
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.9'
-    
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -e .[dev]
-        pip install coverage[toml] pytest-cov
-    
-    - name: Run tests with coverage
-      run: |
-        coverage run -m pytest tests/
-        coverage report
-        coverage xml
-        coverage html
-    
-    - name: Check coverage threshold
-      run: |
-        coverage report --fail-under=80
-    
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
-      with:
-        files: ./coverage.xml
-        flags: unittests
-        name: codecov-umbrella
-        fail_ci_if_error: true
-    
-    - name: Archive coverage HTML report
-      uses: actions/upload-artifact@v3
-      with:
-        name: coverage-report
-        path: htmlcov/
-    
-    - name: Comment coverage on PR
-      if: github.event_name == 'pull_request'
-      uses: py-cov-action/python-coverage-comment-action@v3
-      with:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-```
-
-**Jenkins Pipeline:**
-
-```groovy
-// Jenkinsfile
-pipeline {
-    agent any
-    
-    stages {
-        stage('Setup') {
-            steps {
-                sh 'python -m venv .venv'
-                sh '.venv/bin/pip install -e .[dev]'
-                sh '.venv/bin/pip install coverage[toml]'
-            }
-        }
-        
-        stage('Test with Coverage') {
-            steps {
-                sh '.venv/bin/coverage run -m pytest tests/'
-                sh '.venv/bin/coverage report'
-                sh '.venv/bin/coverage xml'
-                sh '.venv/bin/coverage html'
-            }
-        }
-        
-        stage('Coverage Check') {
-            steps {
-                script {
-                    def result = sh(
-                        script: '.venv/bin/coverage report --fail-under=80',
-                        returnStatus: true
-                    )
-                    if (result != 0) {
-                        error('Coverage below 80% threshold')
-                    }
-                }
-            }
-        }
-        
-        stage('Publish Reports') {
-            steps {
-                publishHTML([
-                    reportDir: 'htmlcov',
-                    reportFiles: 'index.html',
-                    reportName: 'Coverage Report'
-                ])
-                
-                cobertura coberturaReportFile: 'coverage.xml'
-            }
-        }
-    }
-    
-    post {
-        always {
-            archiveArtifacts artifacts: 'coverage.xml,htmlcov/**', allowEmptyArchive: true
-        }
-    }
-}
-```
-
-**GitLab CI:**
-
-```yaml
-# .gitlab-ci.yml
-coverage:
-  stage: test
-  image: python:3.9
-  script:
-    - pip install -e .[dev]
-    - pip install coverage[toml]
-    - coverage run -m pytest tests/
-    - coverage report
-    - coverage xml
-    - coverage html
-  coverage: '/TOTAL.+ ([0-9]{1,3}%)/'
-  artifacts:
-    reports:
-      coverage_report:
-        coverage_format: cobertura
-        path: coverage.xml
-    paths:
-      - htmlcov/
-    expire_in: 30 days
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-    - if: '$CI_COMMIT_BRANCH == "main"'
-```
-
-### Step 10: Monitor Coverage Over Time
-
-**Coverage Trend Tracking:**
-
-```python
-"""
-Track coverage trends over time.
-
-Authors:
-    - Benjamin Dourthe (benjamin@adonamed.com)
-"""
-import json
-import sqlite3
-from datetime import datetime
-from pathlib import Path
-from typing import Dict, List
-
-class CoverageTracker:
-    """Track and analyze coverage trends."""
-    
-    def __init__(self, db_path: str = "coverage_history.db"):
-        """Initialize coverage tracker with database."""
-        self.db_path = db_path
-        self._init_database()
-    
-    def _init_database(self) -> None:
-        """Create database schema."""
-        conn = sqlite3.connect(self.db_path)
-        cursor = conn.cursor()
-        
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS coverage_history (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                timestamp TEXT NOT NULL,
-                commit_hash TEXT,
-                branch TEXT,
-                overall_coverage REAL NOT NULL,
-                line_coverage REAL NOT NULL,
-                branch_coverage REAL NOT NULL,
-                num_statements INTEGER NOT NULL,
-                num_missing INTEGER NOT NULL,
-                num_branches INTEGER NOT NULL,
-                num_partial_branches INTEGER NOT NULL
-            )
-        """)
-        
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS file_coverage (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                history_id INTEGER NOT NULL,
-                filepath TEXT NOT NULL,
-                coverage REAL NOT NULL,
-                statements INTEGER NOT NULL,
-                missing INTEGER NOT NULL,
-                FOREIGN KEY (history_id) REFERENCES coverage_history(id)
-            )
-        """)
-        
-        conn.commit()
-        conn.close()
-    
-    def record_coverage(
-        self, 
-        coverage_json: str = "coverage.json",
-        commit_hash: str = None,
-        branch: str = None
-    ) -> None:
-        """Record coverage data point."""
-        with open(coverage_json, 'r') as f:
-            data = json.load(f)
-        
-        totals = data['totals']
-        timestamp = datetime.now().isoformat()
-        
-        conn = sqlite3.connect(self.db_path)
-        cursor = conn.cursor()
-        
-        cursor.execute("""
-            INSERT INTO coverage_history (
-                timestamp, commit_hash, branch,
-                overall_coverage, line_coverage, branch_coverage,
-                num_statements, num_missing, 
-                num_branches, num_partial_branches
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, (
-            timestamp, commit_hash, branch,
-            totals['percent_covered'],
-            totals.get('percent_covered_display', totals['percent_covered']),
-            totals.get('covered_branches', 0) / max(totals.get('num_branches', 1), 1) * 100,
-            totals['num_statements'],
-            totals['missing_lines'],
-            totals['num_branches'],
-            totals['num_partial_branches']
-        ))
-        
-        history_id = cursor.lastrowid
-        
-        # Record per-file coverage
-        for filepath, file_data in data['files'].items():
-            summary = file_data['summary']
-            cursor.execute("""
-                INSERT INTO file_coverage (
-                    history_id, filepath, coverage, statements, missing
-                ) VALUES (?, ?, ?, ?, ?)
-            """, (
-                history_id,
-                filepath,
-                summary['percent_covered'],
-                summary['num_statements'],
-                summary['missing_lines']
-            ))
-        
-        conn.commit()
-        conn.close()
-        
-        print(f"✅ Coverage recorded: {totals['percent_covered']:.2f}%")
-    
-    def generate_trend_report(self, days: int = 30) -> None:
-        """Generate coverage trend report."""
-        conn = sqlite3.connect(self.db_path)
-        cursor = conn.cursor()
-        
-        cursor.execute("""
-            SELECT timestamp, overall_coverage, line_coverage, branch_coverage
-            FROM coverage_history
-            WHERE datetime(timestamp) >= datetime('now', ? || ' days')
-            ORDER BY timestamp
-        """, (f'-{days}',))
-        
-        rows = cursor.fetchall()
-        conn.close()
-        
-        if not rows:
-            print("No coverage data available")
-            return
-        
-        print("=" * 100)
-        print(f"                    COVERAGE TREND REPORT (Last {days} Days)")
-        print("─" * 100)
-        
-        print(f"\n{'Date':<20} {'Overall':<10} {'Line':<10} {'Branch':<10} {'Trend'}")
-        print("─" * 100)
-        
-        prev_coverage = None
-        for timestamp, overall, line, branch in rows:
-            date = timestamp.split('T')[0]
-            
-            trend = ""
-            if prev_coverage:
-                diff = overall - prev_coverage
-                if diff > 0:
-                    trend = f"↑ +{diff:.2f}%"
-                elif diff < 0:
-                    trend = f"↓ {diff:.2f}%"
-                else:
-                    trend = "→"
-            
-            print(f"{date:<20} {overall:>6.2f}%    {line:>6.2f}%    {branch:>6.2f}%    {trend}")
-            prev_coverage = overall
-        
-        # Calculate statistics
-        coverages = [row[1] for row in rows]
-        avg = sum(coverages) / len(coverages)
-        min_cov = min(coverages)
-        max_cov = max(coverages)
-        
-        print("─" * 100)
-        print(f"Average: {avg:.2f}%  |  Min: {min_cov:.2f}%  |  Max: {max_cov:.2f}%")
-        print("=" * 100)
-
-# Usage
-tracker = CoverageTracker()
-tracker.record_coverage(commit_hash="abc123", branch="main")
-tracker.generate_trend_report(days=30)
-```
-
-### Step 11: Generate Coverage Badge
-
-**Create Coverage Badge for README:**
-
-```powershell
-# Install coverage-badge
-python -m pip install coverage-badge
-
-# Generate badge
-coverage-badge -o coverage.svg
-
-# Or with custom colors
-coverage-badge -o coverage.svg -f
-```
-
-**Add to README.md:**
-```markdown
-![Coverage](coverage.svg)
-
-# Or with dynamic badge from Codecov/Coveralls
-![codecov](https://codecov.io/gh/username/repo/branch/main/graph/badge.svg)
-```
-
----
-
-## 📊 Coverage Quality Standards
-
-### Coverage Targets
-
-**By Project Phase:**
-- **Initial Development**: 60%+ (focus on core functionality)
-- **Beta/Testing**: 75%+ (expand to edge cases)
-- **Production**: 80%+ (comprehensive coverage)
-- **Critical Systems**: 90%+ (financial, healthcare, security)
-
-**By Code Category:**
-- **Business Logic**: 90%+ required
-- **API Endpoints**: 85%+ required
-- **Data Processing**: 85%+ required
-- **Utilities**: 80%+ required
-- **UI Components**: 70%+ acceptable
-- **Scripts/Tools**: 60%+ acceptable
-
-### Coverage Types
-
-1. **Line Coverage**: Percentage of code lines executed
-2. **Branch Coverage**: Percentage of decision branches tested (both true/false)
-3. **Function Coverage**: Percentage of functions called
-4. **Statement Coverage**: Percentage of statements executed
-
-**Best Practice**: Branch coverage is more meaningful than line coverage alone.
-
-### Quality Metrics
-
-**Beyond Coverage Percentage:**
-
-- **Test quality**: Do tests actually validate behavior?
-- **Edge case coverage**: Are boundary conditions tested?
-- **Error path coverage**: Are exceptions and errors handled?
-- **Integration coverage**: Are component interactions tested?
-- **Mutation testing**: Would tests catch introduced bugs?
-
----
+# Python Code Coverage Analysis
+
+## Objective
+Implement comprehensive code coverage measurement, analyze coverage gaps, establish coverage goals, create systematic improvement strategies, integrate coverage into CI/CD, and maintain high-quality test coverage (80%+ target).
+
+## Implementation Checklist
+
+### Coverage Setup
+- [ ] Coverage.py installed and configured
+- [ ] pytest-cov integration enabled
+- [ ] Coverage configuration file created
+- [ ] HTML report generation configured
+- [ ] CI/CD coverage reporting set up
+
+### Coverage Analysis
+- [ ] Current coverage baseline measured
+- [ ] Coverage gaps identified and prioritized
+- [ ] Critical paths coverage verified
+- [ ] Edge cases coverage assessed
+- [ ] Untested code documented
+
+### Coverage Goals
+- [ ] Target coverage defined (80%+ recommended)
+- [ ] Coverage thresholds set by module
+- [ ] Critical path coverage requirements established
+- [ ] Coverage improvement plan created
+- [ ] Timeline for improvements defined
+
+### Coverage Integration
+- [ ] Coverage gates in CI/CD configured
+- [ ] Coverage reports automated
+- [ ] Coverage trends tracked
+- [ ] Coverage regression prevention enabled
+- [ ] Team coverage standards documented
 
 ## Prompt Template
 
 Use the structured prompt below with your coding assistant:
 
 ~~~markdown
+# Python Code Coverage Implementation
 
-### Prompt 1: Initial Coverage Setup
-Set up code coverage analysis for my Python project using coverage.py:
-1. Create coverage configuration in pyproject.toml with:
-   - Source directory: src/
-   - Branch coverage enabled
-   - 80% minimum threshold
-   - Exclude: tests/, __init__.py, venv/
-   - Exclude lines: pragma: no cover, abstractmethod, TYPE_CHECKING, if __name__
-2. Create coverage gap analysis script (tests/coverage_gap_analysis.py) that:
-   - Loads coverage.json data
-   - Identifies files below 70% coverage
-   - Lists missing/partial branch coverage
-   - Generates formatted report
-3. Add coverage commands to tests/run_all_tests.py or create separate script
-4. Generate initial coverage report and identify top 5 gaps
-Project structure:
-[Provide your project structure]
-Follow organizational standards for:
-- No inline comments
-- Explain "why" not "what"
-- Complete docstrings
-- Type hints
-### Prompt 2: Targeted Test Addition
-Add tests to improve coverage for [specific module/function]:
+Please implement comprehensive code coverage measurement and improvement for this Python project following this protocol:
 
-Current coverage: [X]%
-Target coverage: [Y]%
+## Phase 1: Coverage Setup and Configuration
 
-Focus areas identified:
-1. [Uncovered function/branch]
-2. [Missing error handling]
-3. [Edge cases not tested]
+### Install Coverage Tools
 
-Requirements:
-- Follow existing test suite structure (test_01, test_02 pattern)
-- Use TestResultAggregator and PerformanceTimer
-- Include timeout decorator
-- Test both success and failure paths
-- Cover edge cases: None, empty, invalid input
-- Comprehensive docstrings
+```bash
+pip install coverage pytest-cov
+```
 
-Current test file:
-[Paste existing test file or structure]
+### Configure Coverage
 
-Module to test:
-[Paste module code or signature]
+**Create `.coveragerc` or add to `pyproject.toml`**:
 
-### Prompt 3: CI/CD Coverage Integration
+**.coveragerc**:
+```ini
+[run]
+# Source packages to measure
+source = src
 
-Integrate code coverage into CI/CD pipeline:
+# Files to omit from coverage
+omit =
+    */tests/*
+    */test_*.py
+    */__init__.py
+    */setup.py
+    */conftest.py
+    */.venv/*
+    */venv/*
 
-Platform: [GitHub Actions / GitLab CI / Jenkins]
+# Enable branch coverage
+branch = True
 
-Requirements:
-1. Run tests with coverage on every PR and main branch push
-2. Generate coverage reports (terminal, XML, HTML)
-3. Enforce 80% minimum coverage threshold
-4. Upload coverage to Codecov/Coveralls
-5. Post coverage summary as PR comment
-6. Archive HTML report as artifact
-7. Fail build if coverage drops below threshold
+# Parallel mode for pytest-xdist
+parallel = True
 
-Current workflow file:
-[Paste existing workflow if any]
+[report]
+# Precision for coverage percentage
+precision = 2
 
-Project uses:
-- Python [version]
-- Test framework: [pytest / unittest]
-- Dependencies: [list key dependencies]
+# Show lines that weren't executed
+show_missing = True
+
+# Skip files with 100% coverage (optional)
+skip_covered = False
+
+# Skip empty files
+skip_empty = True
+
+# Fail if coverage below threshold
+fail_under = 80
+
+# Sort by coverage percentage
+sort = Cover
+
+# Ignore specific lines
+exclude_lines =
+    # Standard pragma
+    pragma: no cover
+
+    # Don't complain about missing debug code
+    def __repr__
+    def __str__
+
+    # Don't complain if tests don't hit defensive assertion code
+    raise AssertionError
+    raise NotImplementedError
+
+    # Don't complain if non-runnable code isn't run
+    if __name__ == .__main__.:
+
+    # Don't complain about abstract methods
+    @(abc\.)?abstractmethod
+
+    # Don't complain about type checking blocks
+    if TYPE_CHECKING:
+
+    # Don't complain about ellipsis in protocols
+    \.\.\.
+
+[html]
+# Directory for HTML report
+directory = htmlcov
+
+# Title for HTML report
+title = Code Coverage Report
+
+[xml]
+# Output file for XML report (for CI/CD)
+output = coverage.xml
+
+[paths]
+# Map paths for coverage combining
+source =
+    src/
+    */site-packages/
+```
+
+**Alternative: pyproject.toml configuration**:
+```toml
+[tool.coverage.run]
+source = ["src"]
+branch = true
+omit = [
+    "*/tests/*",
+    "*/test_*.py",
+    "*/__init__.py",
+]
+
+[tool.coverage.report]
+precision = 2
+show_missing = true
+skip_covered = false
+fail_under = 80
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "@abstractmethod",
+    "if TYPE_CHECKING:",
+]
+
+[tool.coverage.html]
+directory = "htmlcov"
+
+[tool.coverage.xml]
+output = "coverage.xml"
+```
+
+### Integrate with pytest
+
+**Add to pytest.ini or pyproject.toml**:
+```ini
+[pytest]
+addopts =
+    --cov=src
+    --cov-report=html
+    --cov-report=term-missing
+    --cov-report=xml
+    --cov-branch
+    --cov-fail-under=80
+```
+
+## Phase 2: Measure Current Coverage
+
+### Run Coverage Analysis
+
+```bash
+# Run tests with coverage
+pytest --cov=src --cov-report=html --cov-report=term-missing
+
+# Generate coverage report
+coverage report
+
+# Generate HTML report
+coverage html
+
+# View HTML report
+open htmlcov/index.html  # macOS
+xdg-open htmlcov/index.html  # Linux
+start htmlcov/index.html  # Windows
+```
+
+### Analyze Coverage Report
+
+**Terminal output example**:
+```
+Name                      Stmts   Miss Branch BrPart  Cover   Missing
+---------------------------------------------------------------------
+src/__init__.py               2      0      0      0   100%
+src/core/auth.py             45      8     16      3    78%   23-25, 45-48, 67
+src/core/database.py         67     12     22      5    79%   89-95, 112-115
+src/core/utils.py            34      2      8      1    92%   45, 67
+src/services/user.py         89     25     30      8    67%   45-67, 89-102
+---------------------------------------------------------------------
+TOTAL                       237     47     76     17    76%
+```
+
+### Identify Coverage Gaps
+
+**Create coverage gap analysis**:
+
+```python
+# scripts/analyze_coverage.py
+"""Analyze coverage gaps and prioritize improvements."""
+import json
+import sys
+from pathlib import Path
+
+def analyze_coverage_gaps():
+    """Analyze coverage.json and identify critical gaps."""
+    coverage_file = Path("coverage.json")
+
+    if not coverage_file.exists():
+        print("Run: coverage json to generate coverage.json")
+        return
+
+    data = json.loads(coverage_file.read_text())
+
+    gaps = []
+    for file_path, file_data in data['files'].items():
+        coverage = file_data['summary']['percent_covered']
+        missing_lines = file_data['missing_lines']
+
+        if coverage < 80:
+            gaps.append({
+                'file': file_path,
+                'coverage': coverage,
+                'missing_lines': len(missing_lines),
+                'priority': 'high' if coverage < 50 else 'medium'
+            })
+
+    # Sort by coverage (lowest first)
+    gaps.sort(key=lambda x: x['coverage'])
+
+    print("\n" + "="*70)
+    print("Coverage Gap Analysis")
+    print("="*70)
+
+    print("\nFiles Below 80% Coverage:\n")
+    print(f"{'File':<40} {'Coverage':<12} {'Missing':<10} {'Priority'}")
+    print("-"*70)
+
+    for gap in gaps:
+        print(f"{gap['file']:<40} {gap['coverage']:>6.1f}% {gap['missing_lines']:>7} {gap['priority']:>10}")
+
+    print(f"\nTotal files needing improvement: {len(gaps)}")
+
+if __name__ == '__main__':
+    analyze_coverage_gaps()
+```
+
+Run analysis:
+```bash
+# Generate JSON coverage data
+coverage json
+
+# Analyze gaps
+python scripts/analyze_coverage.py
+```
+
+## Phase 3: Prioritize Coverage Improvements
+
+### Coverage Improvement Matrix
+
+| Priority | Criteria | Action |
+|----------|----------|--------|
+| **Critical** | Core business logic <50% coverage | Immediate test creation |
+| **High** | Public APIs <70% coverage | Test in current sprint |
+| **Medium** | Utilities <80% coverage | Test in next sprint |
+| **Low** | Internal helpers <80% coverage | Test when modified |
+
+### Identify Critical Paths
+
+```python
+# scripts/identify_critical_paths.py
+"""Identify critical code paths requiring coverage."""
+import ast
+from pathlib import Path
+
+class CriticalPathAnalyzer(ast.NodeVisitor):
+    """Analyze code to identify critical paths."""
+
+    def __init__(self):
+        self.critical_functions = []
+
+    def visit_FunctionDef(self, node):
+        """Identify critical functions."""
+        # Public functions
+        if not node.name.startswith('_'):
+            self.critical_functions.append({
+                'name': node.name,
+                'line': node.lineno,
+                'reason': 'Public API'
+            })
+
+        # Functions with error handling
+        has_try = any(isinstance(n, ast.Try) for n in ast.walk(node))
+        if has_try:
+            self.critical_functions.append({
+                'name': node.name,
+                'line': node.lineno,
+                'reason': 'Error handling'
+            })
+
+        # Functions with external calls
+        has_external = any(
+            isinstance(n, ast.Call) and
+            isinstance(n.func, ast.Attribute) and
+            n.func.attr in ['get', 'post', 'query', 'execute']
+            for n in ast.walk(node)
+        )
+        if has_external:
+            self.critical_functions.append({
+                'name': node.name,
+                'line': node.lineno,
+                'reason': 'External dependency'
+            })
+
+        self.generic_visit(node)
+
+def analyze_file(file_path):
+    """Analyze a Python file for critical paths."""
+    code = Path(file_path).read_text()
+    tree = ast.parse(code)
+
+    analyzer = CriticalPathAnalyzer()
+    analyzer.visit(tree)
+
+    return analyzer.critical_functions
+
+# Usage
+for py_file in Path('src').rglob('*.py'):
+    critical = analyze_file(py_file)
+    if critical:
+        print(f"\n{py_file}:")
+        for func in critical:
+            print(f"  Line {func['line']}: {func['name']} ({func['reason']})")
+```
+
+## Phase 4: Systematic Coverage Improvement
+
+### Strategy 1: Fill Happy Path Coverage
+
+```python
+"""
+Add tests for basic functionality of uncovered code.
+
+Focus on main execution paths first.
+"""
+
+# Uncovered function
+def calculate_discount(price, customer_type):
+    if customer_type == "premium":
+        return price * 0.20
+    elif customer_type == "regular":
+        return price * 0.10
+    else:
+        return 0
+
+# Add basic coverage tests
+def test_calculate_discount_premium():
+    """Test premium customer discount."""
+    discount = calculate_discount(100, "premium")
+    assert discount == 20
+
+def test_calculate_discount_regular():
+    """Test regular customer discount."""
+    discount = calculate_discount(100, "regular")
+    assert discount == 10
+
+def test_calculate_discount_other():
+    """Test other customer types."""
+    discount = calculate_discount(100, "guest")
+    assert discount == 0
+```
+
+### Strategy 2: Cover Edge Cases
+
+```python
+"""Add tests for boundary conditions and edge cases."""
+
+def test_calculate_discount_zero_price():
+    """Test discount with zero price."""
+    discount = calculate_discount(0, "premium")
+    assert discount == 0
+
+def test_calculate_discount_negative_price():
+    """Test discount with negative price."""
+    discount = calculate_discount(-100, "premium")
+    assert discount == -20  # Or should raise ValueError?
+
+def test_calculate_discount_large_price():
+    """Test discount with very large price."""
+    discount = calculate_discount(1_000_000, "premium")
+    assert discount == 200_000
+
+def test_calculate_discount_empty_customer_type():
+    """Test discount with empty customer type."""
+    discount = calculate_discount(100, "")
+    assert discount == 0
+
+def test_calculate_discount_none_customer_type():
+    """Test discount with None customer type."""
+    discount = calculate_discount(100, None)
+    assert discount == 0
+```
+
+### Strategy 3: Cover Error Paths
+
+```python
+"""Add tests for error handling and exceptional conditions."""
+
+# Function with error handling
+def load_user_data(user_id):
+    try:
+        data = database.query(f"SELECT * FROM users WHERE id={user_id}")
+        if not data:
+            raise ValueError("User not found")
+        return parse_user(data)
+    except DatabaseError as e:
+        logger.error(f"Database error: {e}")
+        raise
+    except ValueError as e:
+        logger.warning(f"Invalid user: {e}")
+        return None
+
+# Tests covering error paths
+def test_load_user_data_database_error(mock_database):
+    """Test handling of database error."""
+    mock_database.query.side_effect = DatabaseError("Connection failed")
+
+    with pytest.raises(DatabaseError):
+        load_user_data(123)
+
+def test_load_user_data_user_not_found(mock_database):
+    """Test handling of missing user."""
+    mock_database.query.return_value = None
+
+    result = load_user_data(999)
+
+    assert result is None
+
+def test_load_user_data_parse_error(mock_database):
+    """Test handling of parse error."""
+    mock_database.query.return_value = {"invalid": "data"}
+
+    with pytest.raises(ValueError):
+        load_user_data(123)
+```
+
+### Strategy 4: Cover Branch Conditions
+
+```python
+"""Ensure all branches of conditional logic are tested."""
+
+def get_shipping_cost(weight, destination, express=False):
+    base_cost = weight * 2.5
+
+    if destination == "international":
+        base_cost *= 3
+    elif destination == "remote":
+        base_cost *= 1.5
+
+    if express:
+        base_cost *= 2
+
+    return base_cost
+
+# Tests covering all branches
+def test_shipping_domestic_standard():
+    """Test domestic standard shipping."""
+    cost = get_shipping_cost(10, "domestic", express=False)
+    assert cost == 25.0
+
+def test_shipping_domestic_express():
+    """Test domestic express shipping."""
+    cost = get_shipping_cost(10, "domestic", express=True)
+    assert cost == 50.0
+
+def test_shipping_international_standard():
+    """Test international standard shipping."""
+    cost = get_shipping_cost(10, "international", express=False)
+    assert cost == 75.0
+
+def test_shipping_international_express():
+    """Test international express shipping."""
+    cost = get_shipping_cost(10, "international", express=True)
+    assert cost == 150.0
+
+def test_shipping_remote_standard():
+    """Test remote standard shipping."""
+    cost = get_shipping_cost(10, "remote", express=False)
+    assert cost == 37.5
+
+def test_shipping_remote_express():
+    """Test remote express shipping."""
+    cost = get_shipping_cost(10, "remote", express=True)
+    assert cost == 75.0
+```
+
+## Phase 5: Coverage Reporting and Tracking
+
+### Generate Comprehensive Reports
+
+```bash
+# Generate all report types
+pytest --cov=src \
+    --cov-report=html \
+    --cov-report=xml \
+    --cov-report=term-missing \
+    --cov-report=json
+
+# Reports generated:
+# - htmlcov/index.html (browsable HTML)
+# - coverage.xml (for CI/CD)
+# - coverage.json (for analysis)
+# - Terminal output (quick view)
+```
+
+### Coverage Badge
+
+```bash
+# Install coverage-badge
+pip install coverage-badge
+
+# Generate badge
+coverage-badge -o coverage.svg -f
+
+# Add to README.md
+# ![Coverage](coverage.svg)
+```
+
+### Track Coverage Over Time
+
+```python
+# scripts/track_coverage.py
+"""Track coverage metrics over time."""
+import json
+from datetime import datetime
+from pathlib import Path
+
+def record_coverage():
+    """Record current coverage to history."""
+    coverage_file = Path("coverage.json")
+    history_file = Path("coverage_history.json")
+
+    if not coverage_file.exists():
+        print("No coverage.json found")
+        return
+
+    coverage_data = json.loads(coverage_file.read_text())
+    total_coverage = coverage_data['totals']['percent_covered']
+
+    # Load history
+    history = []
+    if history_file.exists():
+        history = json.loads(history_file.read_text())
+
+    # Add current record
+    history.append({
+        'date': datetime.now().isoformat(),
+        'coverage': total_coverage,
+        'statements': coverage_data['totals']['num_statements'],
+        'missing': coverage_data['totals']['missing_lines']
+    })
+
+    # Save history
+    history_file.write_text(json.dumps(history, indent=2))
+
+    print(f"Coverage recorded: {total_coverage:.1f}%")
+
+if __name__ == '__main__':
+    record_coverage()
+```
+
+### Coverage Diff for PRs
+
+```python
+# scripts/coverage_diff.py
+"""Show coverage changes in pull request."""
+import json
+import sys
+from pathlib import Path
+
+def coverage_diff(base_coverage_file, current_coverage_file):
+    """Compare coverage between base and current."""
+    base = json.loads(Path(base_coverage_file).read_text())
+    current = json.loads(Path(current_coverage_file).read_text())
+
+    base_total = base['totals']['percent_covered']
+    current_total = current['totals']['percent_covered']
+    diff = current_total - base_total
+
+    print(f"\n{'='*70}")
+    print("Coverage Diff")
+    print(f"{'='*70}")
+    print(f"Base coverage:    {base_total:.2f}%")
+    print(f"Current coverage: {current_total:.2f}%")
+    print(f"Difference:       {diff:+.2f}%")
+
+    # File-level changes
+    print(f"\n{'='*70}")
+    print("Coverage Changes by File")
+    print(f"{'='*70}")
+
+    changes = []
+    for file_path in current['files']:
+        if file_path in base['files']:
+            base_cov = base['files'][file_path]['summary']['percent_covered']
+            current_cov = current['files'][file_path]['summary']['percent_covered']
+            file_diff = current_cov - base_cov
+
+            if abs(file_diff) > 0.1:  # Show changes > 0.1%
+                changes.append({
+                    'file': file_path,
+                    'diff': file_diff,
+                    'current': current_cov
+                })
+
+    if changes:
+        changes.sort(key=lambda x: x['diff'])
+        for change in changes:
+            symbol = "📈" if change['diff'] > 0 else "📉"
+            print(f"{symbol} {change['file']}: {change['diff']:+.1f}% (now {change['current']:.1f}%)")
+    else:
+        print("No significant coverage changes")
+
+    # Exit with error if coverage decreased
+    if diff < -0.5:
+        print(f"\n❌ Coverage decreased by {abs(diff):.2f}%")
+        sys.exit(1)
+    elif diff < 0:
+        print(f"\n⚠️  Coverage decreased slightly by {abs(diff):.2f}%")
+    else:
+        print(f"\n✅ Coverage maintained or improved")
+
+if __name__ == '__main__':
+    if len(sys.argv) < 3:
+        print("Usage: python coverage_diff.py <base_coverage.json> <current_coverage.json>")
+        sys.exit(1)
+
+    coverage_diff(sys.argv[1], sys.argv[2])
+```
+
+## Phase 6: Coverage in CI/CD
+
+### GitHub Actions Coverage Integration
+
+```yaml
+# .github/workflows/coverage.yml
+name: Coverage
+
+on: [push, pull_request]
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pytest pytest-cov
+
+      - name: Run tests with coverage
+        run: |
+          pytest --cov=src --cov-report=xml --cov-report=term
+
+      - name: Check coverage threshold
+        run: |
+          coverage report --fail-under=80
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage.xml
+          fail_ci_if_error: true
+
+      - name: Generate coverage badge
+        if: github.ref == 'refs/heads/main'
+        run: |
+          pip install coverage-badge
+          coverage-badge -o coverage.svg -f
+
+      - name: Commit badge
+        if: github.ref == 'refs/heads/main'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add coverage.svg
+          git diff --quiet && git diff --staged --quiet || git commit -m "Update coverage badge"
+          git push
+```
+
+### Coverage Regression Prevention
+
+```yaml
+# Add to existing workflow
+- name: Check for coverage regression
+  run: |
+    # Download base coverage from main branch
+    git fetch origin main
+    git show origin/main:coverage.json > base_coverage.json
+
+    # Compare with current
+    python scripts/coverage_diff.py base_coverage.json coverage.json
+```
+
+## Output Format
+
+Please provide a comprehensive coverage analysis with the following structure:
+
+### Coverage Summary
+- **Overall Coverage**: [percentage]
+- **Line Coverage**: [percentage]
+- **Branch Coverage**: [percentage]
+- **Function Coverage**: [percentage]
+- **Total Statements**: [count]
+- **Missing Lines**: [count]
+
+### Coverage by Module
+| Module | Coverage | Missing | Priority |
+|--------|----------|---------|----------|
+| src/core/auth.py | 78% | 12 lines | High |
+| src/services/user.py | 67% | 25 lines | Critical |
+| src/utils/helpers.py | 92% | 3 lines | Low |
+
+### Critical Coverage Gaps
+1. **src/services/user.py** (67% coverage)
+   - **Missing**: Error handling paths (lines 45-67)
+   - **Priority**: Critical - core business logic
+   - **Action**: Add tests for error scenarios
+
+2. **src/core/auth.py** (78% coverage)
+   - **Missing**: Edge cases (lines 23-25, 45-48)
+   - **Priority**: High - security-critical
+   - **Action**: Add boundary condition tests
+
+### Coverage Improvement Plan
+**Sprint 1** (Target: 75% → 80%):
+- [ ] Add error handling tests for user service
+- [ ] Cover authentication edge cases
+- [ ] Test database connection failures
+
+**Sprint 2** (Target: 80% → 85%):
+- [ ] Add branch coverage for conditionals
+- [ ] Test input validation thoroughly
+- [ ] Cover integration scenarios
+
+**Sprint 3** (Target: 85% → 90%):
+- [ ] Add performance edge cases
+- [ ] Cover concurrent operations
+- [ ] Test all error messages
+
+### Coverage Reports Generated
+- **HTML Report**: `htmlcov/index.html`
+- **XML Report**: `coverage.xml` (for CI/CD)
+- **JSON Report**: `coverage.json` (for analysis)
+- **Badge**: `coverage.svg` (for README)
+
+### Coverage Thresholds
+- **Minimum Overall**: 80%
+- **Critical Modules**: 90%
+- **New Code**: 100%
+- **CI/CD Gate**: Fail if <80%
+
+### Best Practices Implemented
+- [ ] Coverage measured on every test run
+- [ ] HTML reports for detailed analysis
+- [ ] Coverage tracked over time
+- [ ] Regression prevention in CI/CD
+- [ ] Critical paths prioritized
+- [ ] Team coverage goals established
+
+### Next Steps
+- [ ] Fix identified coverage gaps
+- [ ] Set up coverage dashboard
+- [ ] Schedule coverage review meetings
+- [ ] Document coverage standards
+- [ ] Integrate coverage diff in PRs
+- [ ] Track coverage trends monthly
 ~~~
 
-### Prompt 4: Coverage Trend Tracking
+## Output Format
 
-```
-Create coverage trend tracking system:
+The AI assistant should deliver:
 
-1. SQLite database schema for:
-   - Coverage history (timestamp, commit, branch, percentages)
-   - Per-file coverage tracking
-
-2. CoverageTracker class with methods:
-   - record_coverage(coverage_json, commit_hash, branch)
-   - generate_trend_report(days)
-   - identify_coverage_regressions()
-   - export_trends_csv()
-
-3. Integration with CI/CD to record coverage after each run
-
-4. Weekly report showing:
-   - Coverage trends (last 30 days)
-   - Files with declining coverage
-   - Overall trajectory
-
-Follow organizational standards with complete docstrings and type hints.
-```
-
----
-
-## ✅ Success Criteria
-
-### Phase Complete When:
-
-- [ ] Coverage tools installed and configured
-- [ ] Coverage configuration file created (.coveragerc or pyproject.toml)
-- [ ] Initial coverage report generated (80%+ or documented gaps)
-- [ ] Coverage gap analysis completed
-- [ ] Targeted tests added for critical uncovered code
-- [ ] Coverage thresholds defined and documented
-- [ ] CI/CD integration configured with coverage enforcement
-- [ ] Coverage badge added to README
-- [ ] Coverage trend tracking established (optional)
-- [ ] Team educated on coverage standards
-
-### Quality Indicators:
-
-- **Comprehensive**: Both line and branch coverage measured
-- **Actionable**: Gap analysis identifies specific improvements
-- **Automated**: Coverage runs on every commit/PR
-- **Enforced**: CI/CD fails on coverage regressions
-- **Visible**: Coverage metrics easily accessible
-- **Maintained**: Regular review of coverage trends
-
----
-
-## 📚 Additional Resources
-
-### Coverage Tools
-
-- **coverage.py**: https://coverage.readthedocs.io/
-- **pytest-cov**: https://pytest-cov.readthedocs.io/
-- **Codecov**: https://codecov.io/
-- **Coveralls**: https://coveralls.io/
-
-### Best Practices
-
-- **Google Testing Blog**: https://testing.googleblog.com/
-- **Martin Fowler on Test Coverage**: https://martinfowler.com/bliki/TestCoverage.html
-- **Python Testing Guide**: https://docs.python-guide.org/writing/tests/
-
-### Advanced Topics
-
-- **Mutation Testing**: Testing test quality with mutmut or pytest-mutate
-- **Differential Coverage**: Coverage for changed lines only (diff-cover)
-- **Coverage Visualization**: SonarQube, Code Climate
-- **Property-Based Testing**: Hypothesis for comprehensive input coverage
-
----
-
-*This review completes the test development protocol by ensuring your test suite provides comprehensive coverage and maintains quality over time.*
+1. **Complete coverage configuration** (`.coveragerc` or `pyproject.toml`)
+2. **Current coverage analysis** with gaps identified
+3. **Prioritized improvement plan** with specific actions
+4. **Test implementations** to fill critical gaps
+5. **Coverage reporting infrastructure** (HTML, XML, JSON, badges)
+6. **CI/CD integration** with coverage gates
+7. **Coverage tracking scripts** for trends
+8. **Coverage diff tools** for PR reviews
+9. **Team documentation** on coverage standards

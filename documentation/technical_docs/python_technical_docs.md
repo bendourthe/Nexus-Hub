@@ -1,923 +1,987 @@
-# Technical Documentation
+# Python Technical Documentation
 
-Generate detailed technical documentation explaining architecture, design decisions, and codebase structure for developers.
+## Objective
+Create comprehensive technical documentation that captures architecture decisions, system design, data flows, integration points, and development workflows for developers and technical stakeholders.
 
----
+## Implementation Checklist
 
-## Overview
+### Architecture Documentation
+- [ ] System architecture overview with diagrams
+- [ ] Component responsibilities clearly defined
+- [ ] Technology stack documented with rationale
+- [ ] Architectural patterns explained
+- [ ] Scalability and performance considerations
+- [ ] Security architecture documented
 
-This review focuses on creating comprehensive technical documentation for developers who will maintain, extend, or integrate with your codebase. This documentation explains the "how" and "why" behind architectural and implementation decisions.
+### Design Decisions
+- [ ] Key technical decisions documented with rationale
+- [ ] Alternative approaches considered
+- [ ] Trade-offs and constraints explained
+- [ ] Decision timeline and context
+- [ ] Impact assessment of decisions
 
----
+### Module Organization
+- [ ] Directory structure explained
+- [ ] Module dependencies mapped
+- [ ] Public vs private interfaces defined
+- [ ] Import structure documented
+- [ ] Code organization principles
+
+### Data Flow
+- [ ] Data flow diagrams created
+- [ ] State management documented
+- [ ] Event flows explained
+- [ ] Data transformation pipelines
+- [ ] Error propagation paths
+
+### Integration Points
+- [ ] External API integrations documented
+- [ ] Database schemas and migrations
+- [ ] Message queue/event systems
+- [ ] Third-party service dependencies
+- [ ] Authentication/authorization flows
+
+### Development Workflow
+- [ ] Development environment setup
+- [ ] Build and deployment process
+- [ ] Testing strategy
+- [ ] CI/CD pipeline documentation
+- [ ] Release process
 
 ## Prompt Template
 
 Use the structured prompt below with your coding assistant:
 
 ~~~markdown
+# Python Technical Documentation Request
 
-Please help me create comprehensive technical documentation for my Python project.
-**Project Context:**
-- Project name: [YOUR_PROJECT_NAME]
-- Architecture type: [Monolithic / Microservices / Layered / etc.]
-- Primary languages/frameworks: [Python + frameworks]
-- Deployment target: [Local / Cloud / Container / etc.]
----
-## Documentation Components
-### 1. Architecture Overview (docs/architecture.md)
-Create comprehensive architecture documentation:
-# Technical Architecture
+Please create comprehensive technical documentation for this Python project following this protocol:
 
-## System Overview
+## Phase 1: Architecture Analysis
 
-[High-level description of the system architecture, including major components,
-their relationships, and data flow. 3-5 sentences explaining the big picture.]
+1. **System Architecture Overview**
 
-### Architecture Diagram
+   Document the high-level architecture:
 
-┌─────────────────────────────────────────────────────────────┐
-│                        Application Layer                     │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐      │
-│  │   Web API    │  │     CLI      │  │   GUI        │      │
-│  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘      │
-│         │                  │                  │              │
-└─────────┼──────────────────┼──────────────────┼──────────────┘
-          │                  │                  │
-┌─────────┴──────────────────┴──────────────────┴──────────────┐
-│                      Business Logic Layer                     │
-│  ┌──────────────────────────────────────────────────────┐    │
-│  │              Core Processing Engine                   │    │
-│  │   ┌──────────┐  ┌──────────┐  ┌──────────────┐      │    │
-│  │   │Validator │  │Transformer│  │   Aggregator │      │    │
-│  │   └──────────┘  └──────────┘  └──────────────┘      │    │
-│  └──────────────────────────────────────────────────────┘    │
-│                            │                                  │
-└────────────────────────────┼──────────────────────────────────┘
-                             │
-┌────────────────────────────┼──────────────────────────────────┐
-│                     Data Access Layer                         │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐       │
-│  │   Database   │  │  File System │  │  External API│       │
-│  └──────────────┘  └──────────────┘  └──────────────┘       │
-└───────────────────────────────────────────────────────────────┘
+   ```markdown
+   # System Architecture
 
-## Core Components
+   ## Overview
 
-### Component 1: [Name]
-**Location**: `src/[module]/[file].py`
-**Purpose**: [What this component does and why it exists]
-**Responsibilities**:
-- [Responsibility 1]
-- [Responsibility 2]
-- [Responsibility 3]
+   [Project Name] is built as a [monolith/microservice/library/framework] that [high-level purpose].
 
-**Key Classes**:
-- `ClassName1`: [Purpose and role]
-- `ClassName2`: [Purpose and role]
+   ## Architecture Style
 
-**Dependencies**:
-- Internal: [Other modules it depends on]
-- External: [Third-party libraries used]
+   - **Pattern**: [MVC/Layered/Hexagonal/Event-Driven/etc.]
+   - **Deployment**: [Single instance/distributed/serverless/etc.]
+   - **State Management**: [Stateless/stateful/hybrid]
+   - **Communication**: [Synchronous/asynchronous/hybrid]
 
-**Interface**:
-# Public API
-class ComponentClass:
-    def primary_method(self, param: Type) -> ReturnType:
-        """Primary functionality."""
-    
-    def secondary_method(self, param: Type) -> ReturnType:
-        """Secondary functionality."""
-~~~
+   ## Key Architectural Decisions
 
-### Component 2: [Name]
-[Similar detailed breakdown]
+   ### Decision 1: [Technology/Pattern Choice]
+   - **Context**: [What problem needed solving]
+   - **Decision**: [What was chosen]
+   - **Rationale**: [Why this approach]
+   - **Consequences**: [Benefits and trade-offs]
+   - **Alternatives Considered**: [What else was evaluated]
 
-## Data Flow
+   ### Decision 2: [Another Key Decision]
+   [Same structure]
 
-### Flow 1: [Primary Workflow]
+   ## Component Diagram
+
+   ```
+   ┌─────────────────────────────────────────────────────┐
+   │                   Application                       │
+   ├─────────────────────────────────────────────────────┤
+   │                                                     │
+   │  ┌─────────────┐    ┌──────────────┐              │
+   │  │   API Layer │◄───┤ Auth Service │              │
+   │  └──────┬──────┘    └──────────────┘              │
+   │         │                                           │
+   │         ▼                                           │
+   │  ┌─────────────┐                                   │
+   │  │ Core Logic  │                                   │
+   │  └──────┬──────┘                                   │
+   │         │                                           │
+   │         ▼                                           │
+   │  ┌─────────────┐    ┌──────────────┐              │
+   │  │ Data Layer  │◄───┤ Cache Service│              │
+   │  └──────┬──────┘    └──────────────┘              │
+   │         │                                           │
+   └─────────┼───────────────────────────────────────────┘
+             ▼
+      ┌─────────────┐
+      │  Database   │
+      └─────────────┘
+   ```
+
+   ## Technology Stack
+
+   | Layer | Technology | Version | Rationale |
+   |-------|-----------|---------|-----------|
+   | Runtime | Python | 3.11+ | Modern features, performance |
+   | Web Framework | FastAPI | 0.100+ | Async support, type hints |
+   | Database | PostgreSQL | 15+ | ACID, JSON support |
+   | Cache | Redis | 7+ | Fast in-memory storage |
+   | Task Queue | Celery | 5+ | Distributed task processing |
+   | Testing | pytest | 7+ | Rich plugin ecosystem |
+
+   ## Scalability Considerations
+
+   - **Horizontal Scaling**: [How the system scales horizontally]
+   - **Vertical Scaling**: [Limits and considerations]
+   - **Bottlenecks**: [Known bottlenecks and mitigation]
+   - **Performance Targets**: [SLAs and performance goals]
+
+   ## Security Architecture
+
+   - **Authentication**: [Method and implementation]
+   - **Authorization**: [RBAC/ABAC approach]
+   - **Data Protection**: [Encryption, PII handling]
+   - **Network Security**: [TLS, firewall rules, etc.]
+   - **Secrets Management**: [How secrets are stored/accessed]
+   ```
+
+2. **Design Decisions Documentation**
+
+   Create an Architecture Decision Record (ADR) for each major decision:
+
+   ```markdown
+   # Architecture Decision Records
+
+   ## ADR-001: [Decision Title]
+
+   **Status**: [Proposed/Accepted/Deprecated/Superseded]
+   **Date**: [YYYY-MM-DD]
+   **Deciders**: [Names/roles]
+   **Technical Story**: [Issue/ticket number]
+
+   ### Context
+
+   [Describe the problem or situation requiring a decision.
+   Include technical, business, and organizational context.]
+
+   ### Decision
+
+   [State the decision clearly and concisely]
+
+   ### Rationale
+
+   **Why this approach was chosen**:
+   - [Reason 1]
+   - [Reason 2]
+   - [Reason 3]
+
+   **Alternatives Considered**:
+
+   #### Alternative 1: [Name]
+   - **Pros**: [Benefits]
+   - **Cons**: [Drawbacks]
+   - **Why Rejected**: [Reason]
+
+   #### Alternative 2: [Name]
+   - **Pros**: [Benefits]
+   - **Cons**: [Drawbacks]
+   - **Why Rejected**: [Reason]
+
+   ### Consequences
+
+   **Positive**:
+   - [Benefit 1]
+   - [Benefit 2]
+
+   **Negative**:
+   - [Trade-off 1]
+   - [Trade-off 2]
+
+   **Risks**:
+   - [Risk 1 and mitigation]
+   - [Risk 2 and mitigation]
+
+   ### Implementation Notes
+
+   [Technical details about implementation]
+
+   ### References
+
+   - [Link to relevant documentation]
+   - [Link to discussion thread]
+   - [Related ADRs]
+
+   ---
+
+   ## ADR-002: [Next Decision]
+   [Same structure]
+   ```
+
+## Phase 2: Module Organization
+
+Document the codebase structure:
+
+```markdown
+# Module Organization
+
+## Directory Structure
 
 ```
-Input → Validation → Transformation → Processing → Storage → Output
-  │          │             │              │           │         │
-  │          └─[Error]─────┴──[Error]─────┴──[Error]─┘         │
-  │                                                              │
-  └──────────────────────[Success Result]───────────────────────┘
-```
-
-**Step-by-Step**:
-1. **Input Validation** (`src/validators.py`)
-   - Validates data format and schema
-   - Raises `ValidationError` on failure
-   - Returns normalized data structure
-
-2. **Data Transformation** (`src/transformers.py`)
-   - Applies business rules
-   - Converts formats
-   - Enriches data with metadata
-
-3. **Core Processing** (`src/processor.py`)
-   - Main business logic execution
-   - Handles errors gracefully
-   - Logs operations
-
-4. **Storage** (`src/storage.py`)
-   - Persists results
-   - Maintains transaction integrity
-   - Handles rollback on errors
-
-5. **Output Generation** (`src/output.py`)
-   - Formats results
-   - Generates reports
-   - Returns to caller
-
-### Flow 2: [Secondary Workflow]
-[Detailed flow description]
-
-## Design Patterns
-
-### Pattern 1: [Pattern Name]
-**Usage**: [Where implemented]
-**Rationale**: [Why this pattern]
-**Implementation**:
-```python
-# Code example showing pattern implementation
-class Example:
-    def __init__(self):
-        # Pattern-specific structure
-        pass
-```
-
-**Benefits**:
-- [Benefit 1]
-- [Benefit 2]
-
-**Trade-offs**:
-- [Trade-off consideration]
-
-### Pattern 2: [Pattern Name]
-[Similar detailed explanation]
-
-## Module Structure
-
-```
-project_name/
+project/
 ├── src/
-│   ├── core/                    # Core business logic
+│   ├── __init__.py
+│   ├── main.py                 # Application entry point
+│   │
+│   ├── api/                    # API layer (REST/GraphQL)
 │   │   ├── __init__.py
-│   │   ├── processor.py         # Main processing engine
-│   │   ├── validators.py        # Data validation
-│   │   └── transformers.py      # Data transformation
-│   ├── api/                     # API layer
+│   │   ├── routes.py           # Route definitions
+│   │   ├── middleware.py       # Request/response middleware
+│   │   └── dependencies.py     # Dependency injection
+│   │
+│   ├── core/                   # Business logic layer
 │   │   ├── __init__.py
-│   │   ├── routes.py            # Route definitions
-│   │   └── handlers.py          # Request handlers
-│   ├── utils/                   # Utility functions
+│   │   ├── models.py           # Domain models
+│   │   ├── services.py         # Business logic services
+│   │   ├── validators.py       # Input validation
+│   │   └── exceptions.py       # Custom exceptions
+│   │
+│   ├── data/                   # Data access layer
 │   │   ├── __init__.py
-│   │   ├── logger.py            # Logging utilities
-│   │   └── helpers.py           # Helper functions
-│   ├── models/                  # Data models
+│   │   ├── database.py         # Database connection
+│   │   ├── repositories.py     # Data access patterns
+│   │   ├── models.py           # ORM models
+│   │   └── migrations/         # Database migrations
+│   │
+│   ├── infrastructure/         # External integrations
 │   │   ├── __init__.py
-│   │   └── data_models.py       # Model definitions
-│   └── config/                  # Configuration
+│   │   ├── cache.py            # Cache service
+│   │   ├── queue.py            # Message queue
+│   │   ├── storage.py          # File storage
+│   │   └── external_apis.py    # Third-party API clients
+│   │
+│   └── utils/                  # Shared utilities
 │       ├── __init__.py
-│       └── settings.py          # Application settings
-├── tests/                       # Test suites
-├── docs/                        # Documentation
-└── scripts/                     # Utility scripts
+│       ├── logging.py          # Logging configuration
+│       ├── config.py           # Configuration management
+│       └── helpers.py          # Helper functions
+│
+├── tests/                      # Test suite
+│   ├── unit/                   # Unit tests
+│   ├── integration/            # Integration tests
+│   ├── e2e/                    # End-to-end tests
+│   └── fixtures/               # Test fixtures
+│
+├── docs/                       # Documentation
+├── scripts/                    # Utility scripts
+└── config/                     # Configuration files
 ```
 
-### Module Descriptions
+## Layer Responsibilities
 
-**src/core/**: Core business logic modules
-- `processor.py`: Main processing functionality
-- `validators.py`: Input validation and sanitization
-- `transformers.py`: Data transformation logic
+### API Layer (`src/api/`)
+- **Purpose**: Handle HTTP requests/responses
+- **Responsibilities**:
+  - Route definition and request routing
+  - Request validation and serialization
+  - Response formatting
+  - Authentication/authorization checks
+  - Rate limiting and throttling
+- **Dependencies**: Core layer only (no direct data access)
+- **Key Files**:
+  - `routes.py`: Defines API endpoints
+  - `middleware.py`: Request/response processing
+  - `dependencies.py`: Dependency injection for routes
 
-**src/api/**: API layer for external access
-- `routes.py`: RESTful endpoint definitions
-- `handlers.py`: Request/response handling
+### Core Layer (`src/core/`)
+- **Purpose**: Business logic and domain models
+- **Responsibilities**:
+  - Domain model definitions
+  - Business rule enforcement
+  - Data validation
+  - Use case orchestration
+  - Domain events
+- **Dependencies**: Data layer for persistence, no API layer knowledge
+- **Key Files**:
+  - `models.py`: Domain entities and value objects
+  - `services.py`: Business logic services
+  - `validators.py`: Business rule validation
 
-**src/utils/**: Cross-cutting utilities
-- `logger.py`: Centralized logging
-- `helpers.py`: Common helper functions
+### Data Layer (`src/data/`)
+- **Purpose**: Data persistence and retrieval
+- **Responsibilities**:
+  - Database connection management
+  - CRUD operations
+  - Query optimization
+  - Transaction management
+  - Migration management
+- **Dependencies**: Infrastructure layer for connections
+- **Key Files**:
+  - `repositories.py`: Repository pattern implementation
+  - `models.py`: ORM models (SQLAlchemy/etc.)
+  - `database.py`: Database session management
 
-## Dependencies
+### Infrastructure Layer (`src/infrastructure/`)
+- **Purpose**: External service integration
+- **Responsibilities**:
+  - Cache operations
+  - Message queue operations
+  - File storage
+  - Third-party API integration
+  - Email/SMS services
+- **Dependencies**: External services only
+- **Key Files**:
+  - `cache.py`: Redis/Memcached integration
+  - `queue.py`: Celery/RabbitMQ integration
+  - `external_apis.py`: Third-party API clients
 
-### External Dependencies
+## Dependency Rules
 
-| Package | Version | Purpose | License |
-|---------|---------|---------|---------|
-| pandas | >=1.5.0 | Data manipulation | BSD-3 |
-| requests | >=2.28.0 | HTTP client | Apache-2.0 |
-| pydantic | >=2.0.0 | Data validation | MIT |
+1. **Dependencies flow inward**: API → Core → Data → Infrastructure
+2. **Core layer is independent**: No dependencies on outer layers
+3. **Use dependency injection**: Inject dependencies at boundaries
+4. **Interfaces over implementations**: Define protocols/abstract bases
 
-**Rationale for Key Dependencies**:
-- **pandas**: Chosen for efficient data manipulation with large datasets
-- **requests**: Standard HTTP library with excellent documentation
-- **pydantic**: Type-safe data validation with excellent error messages
-
-### Internal Dependencies
+## Module Dependencies
 
 ```
-src/core/processor.py
-├── depends on: src/core/validators.py
-├── depends on: src/core/transformers.py
-└── depends on: src/utils/logger.py
+api/
+├── depends on: core, utils
+└── used by: main.py
 
-src/api/handlers.py
-├── depends on: src/core/processor.py
-└── depends on: src/models/data_models.py
+core/
+├── depends on: data, utils
+└── used by: api, tests
+
+data/
+├── depends on: infrastructure, utils
+└── used by: core
+
+infrastructure/
+├── depends on: utils
+└── used by: data
+
+utils/
+├── depends on: nothing (pure utilities)
+└── used by: all layers
 ```
 
-## Configuration Management
+## Import Conventions
 
-### Configuration System
-
-**Location**: `src/config/settings.py`
-
-**Hierarchy**:
-1. Default values (in code)
-2. Configuration file (config.yaml)
-3. Environment variables (override file)
-4. Command-line arguments (override all)
-
-**Example Configuration**:
 ```python
-from pydantic import BaseSettings
+# Standard library imports
+import os
+import sys
+from typing import List, Optional
 
-class Settings(BaseSettings):
-    # Application
-    app_name: str = "MyApp"
-    debug: bool = False
-    
-    # Database
-    db_host: str = "localhost"
-    db_port: int = 5432
-    
-    # API
-    api_timeout: int = 30
-    api_retries: int = 3
-    
-    class Config:
-        env_prefix = "APP_"
-        env_file = ".env"
+# Third-party imports
+import numpy as np
+from fastapi import FastAPI, HTTPException
+from sqlalchemy import Column, Integer, String
+
+# Local application imports
+from src.core.models import User
+from src.core.services import UserService
+from src.data.repositories import UserRepository
+from src.utils.logging import get_logger
 ```
 
-## Error Handling Strategy
+## Public vs Private APIs
 
-### Exception Hierarchy
+### Public API (for external consumers)
+- Defined in `src/api/routes.py`
+- Versioned endpoints (`/api/v1/...`)
+- Fully documented with OpenAPI/Swagger
+- Backward compatibility guaranteed
+
+### Internal API (for internal modules)
+- Public functions/classes (no underscore prefix)
+- Documented with docstrings
+- May change between minor versions
+
+### Private Implementation (internal only)
+- Functions/classes with underscore prefix (`_internal_func`)
+- No backward compatibility guarantee
+- May change without notice
+```
+
+## Phase 3: Data Flow Documentation
+
+Document how data moves through the system:
+
+```markdown
+# Data Flow
+
+## Request Flow
+
+### Typical API Request Flow
 
 ```
-BaseApplicationException
-├── ValidationError
-│   ├── SchemaValidationError
-│   └── BusinessRuleValidationError
-├── ProcessingError
-│   ├── TransformationError
-│   └── CalculationError
-└── StorageError
-    ├── DatabaseError
-    └── FileSystemError
+1. Client Request
+   │
+   ▼
+2. API Gateway/Load Balancer
+   │
+   ▼
+3. Middleware (auth, logging, rate limit)
+   │
+   ▼
+4. Route Handler (src/api/routes.py)
+   │
+   ├─► Validate request data
+   └─► Extract authentication token
+       │
+       ▼
+5. Business Service (src/core/services.py)
+   │
+   ├─► Apply business rules
+   ├─► Orchestrate operations
+   └─► Validate business constraints
+       │
+       ▼
+6. Repository (src/data/repositories.py)
+   │
+   ├─► Build query
+   ├─► Execute database operation
+   └─► Map ORM models to domain models
+       │
+       ▼
+7. Database
+   │
+   ▼
+8. Response flows back up through layers
+   │
+   └─► Transform → Serialize → Return
 ```
 
-### Error Handling Patterns
+### Example: User Creation Flow
 
-**Input Validation**: Fail fast with detailed error messages
 ```python
-def validate_input(data: Dict) -> Dict:
-    if not data:
-        raise ValidationError("Input cannot be empty")
-    # Validation logic
-    return normalized_data
+# 1. API Layer receives request
+@router.post("/users", response_model=UserResponse)
+async def create_user(
+    user_data: UserCreate,
+    user_service: UserService = Depends(get_user_service)
+):
+    # 2. Delegate to service layer
+    user = await user_service.create_user(user_data)
+    return UserResponse.from_domain(user)
+
+# 3. Service layer applies business logic
+class UserService:
+    async def create_user(self, user_data: UserCreate) -> User:
+        # Validate business rules
+        if await self.repository.email_exists(user_data.email):
+            raise EmailAlreadyExistsError()
+
+        # Create domain model
+        user = User(
+            email=user_data.email,
+            hashed_password=hash_password(user_data.password)
+        )
+
+        # Persist via repository
+        saved_user = await self.repository.save(user)
+
+        # Trigger side effects (async)
+        await self.event_bus.publish(UserCreatedEvent(saved_user))
+
+        return saved_user
+
+# 4. Repository persists data
+class UserRepository:
+    async def save(self, user: User) -> User:
+        # Map domain model to ORM model
+        db_user = UserModel(
+            email=user.email,
+            hashed_password=user.hashed_password
+        )
+
+        # Persist to database
+        self.session.add(db_user)
+        await self.session.commit()
+        await self.session.refresh(db_user)
+
+        # Map back to domain model
+        return User.from_orm(db_user)
 ```
 
-**External Service Calls**: Retry with exponential backoff
-```python
-@retry(max_attempts=3, backoff=exponential)
-def call_external_api(endpoint: str) -> Response:
-    # API call logic
-    pass
+## Event Flow
+
+### Asynchronous Event Processing
+
+```
+1. Event Trigger
+   │
+   ▼
+2. Event Published to Queue
+   │
+   ▼
+3. Event Bus Routes to Handlers
+   │
+   ├─► Handler 1: Send welcome email
+   ├─► Handler 2: Update analytics
+   └─► Handler 3: Trigger workflows
+       │
+       ▼
+4. Each Handler Processes Independently
+   │
+   └─► Results logged/monitored
 ```
 
-**Database Operations**: Transaction with rollback
+## State Management
+
+### Application State
+- **Configuration**: Loaded at startup, immutable
+- **Database Connection Pool**: Managed by SQLAlchemy
+- **Cache**: Redis for session and application cache
+- **Request State**: Stored in request context (FastAPI Depends)
+
+### User Session State
+- **Storage**: Redis with 24-hour TTL
+- **Format**: JSON Web Token (JWT)
+- **Synchronization**: Single source of truth in Redis
+```
+
+## Phase 4: Integration Points
+
+Document external integrations:
+
+```markdown
+# Integration Points
+
+## External APIs
+
+### Third-Party Service A
+- **Purpose**: [What it's used for]
+- **Documentation**: [URL to API docs]
+- **Authentication**: [Method: API key, OAuth, etc.]
+- **Rate Limits**: [Requests per second/minute]
+- **Endpoints Used**:
+  - `GET /api/v1/resource`: [Description]
+  - `POST /api/v1/action`: [Description]
+- **Error Handling**: [How failures are handled]
+- **Retry Strategy**: [Exponential backoff, max retries, etc.]
+- **Monitoring**: [Health checks, alerting]
+
+**Example Integration**:
 ```python
-with database.transaction():
+class ExternalServiceClient:
+    """Client for Third-Party Service A."""
+
+    def __init__(self, api_key: str, base_url: str):
+        self.api_key = api_key
+        self.base_url = base_url
+        self.session = httpx.AsyncClient(
+            timeout=30.0,
+            limits=httpx.Limits(max_keepalive_connections=5)
+        )
+
+    async def fetch_resource(self, resource_id: str) -> Dict:
+        """Fetch resource from external service."""
+        try:
+            response = await self.session.get(
+                f"{self.base_url}/api/v1/resource/{resource_id}",
+                headers={"Authorization": f"Bearer {self.api_key}"}
+            )
+            response.raise_for_status()
+            return response.json()
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code == 429:
+                # Rate limited - implement backoff
+                raise RateLimitError()
+            raise ExternalAPIError(f"API error: {e}")
+```
+
+## Database Schema
+
+### Tables
+
+#### `users` table
+```sql
+CREATE TABLE users (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    email VARCHAR(255) UNIQUE NOT NULL,
+    hashed_password VARCHAR(255) NOT NULL,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_users_created_at ON users(created_at);
+```
+
+#### `sessions` table
+```sql
+CREATE TABLE sessions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    token VARCHAR(512) NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_sessions_token ON sessions(token);
+CREATE INDEX idx_sessions_user_id ON sessions(user_id);
+```
+
+### Migrations
+
+- **Tool**: Alembic
+- **Location**: `src/data/migrations/`
+- **Process**:
+  ```bash
+  # Create new migration
+  alembic revision --autogenerate -m "description"
+
+  # Apply migrations
+  alembic upgrade head
+
+  # Rollback
+  alembic downgrade -1
+  ```
+
+## Message Queue
+
+### Celery Tasks
+
+- **Broker**: Redis
+- **Backend**: Redis
+- **Tasks**:
+  - `send_welcome_email`: Triggered on user registration
+  - `process_batch_import`: Handles bulk data imports
+  - `generate_daily_report`: Scheduled daily at midnight
+
+**Example Task**:
+```python
+@celery_app.task(bind=True, max_retries=3)
+def send_welcome_email(self, user_id: str):
+    """Send welcome email to new user."""
     try:
-        # Database operations
-        database.commit()
-    except Exception:
-        database.rollback()
-        raise
+        user = UserRepository().get_by_id(user_id)
+        email_service.send_template(
+            to=user.email,
+            template="welcome",
+            context={"name": user.name}
+        )
+    except Exception as exc:
+        # Retry with exponential backoff
+        raise self.retry(exc=exc, countdown=2 ** self.request.retries)
 ```
 
-## Security Architecture
+## Authentication & Authorization
 
-### Security Layers
+### Authentication Flow
+1. User submits credentials
+2. Server validates against database
+3. Server generates JWT with user claims
+4. Token returned to client
+5. Client includes token in subsequent requests
+6. Server validates token on each request
 
-1. **Input Validation**: All inputs sanitized and validated
-2. **Authentication**: [Authentication mechanism used]
-3. **Authorization**: [Authorization approach]
-4. **Data Protection**: [Encryption, hashing strategies]
-5. **Audit Logging**: All security-relevant events logged
+### Authorization
+- **Method**: Role-Based Access Control (RBAC)
+- **Roles**: admin, user, guest
+- **Permissions**: Defined per endpoint
+- **Implementation**: FastAPI dependency injection
 
-### Security Implementations
-
-**Authentication**:
 ```python
-# JWT-based authentication
-def authenticate_request(token: str) -> User:
-    payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
-    return User.from_token(payload)
-```
+def require_role(required_role: str):
+    """Dependency to check user role."""
+    async def role_checker(token: str = Depends(oauth2_scheme)):
+        user = await get_current_user(token)
+        if user.role != required_role:
+            raise PermissionDenied()
+        return user
+    return role_checker
 
-**Input Sanitization**:
-```python
-# SQL injection prevention
-def query_database(user_input: str) -> List[Record]:
-    # Use parameterized queries
-    cursor.execute("SELECT * FROM table WHERE id = ?", (user_input,))
-```
-
-## Performance Considerations
-
-### Optimization Strategies
-
-**Caching**: LRU cache for expensive operations
-```python
-from functools import lru_cache
-
-@lru_cache(maxsize=1000)
-def expensive_computation(param: str) -> Result:
-    # Cached computation
+# Usage
+@router.get("/admin/users")
+async def list_users(admin: User = Depends(require_role("admin"))):
+    # Only accessible to admins
     pass
 ```
-
-**Async I/O**: For I/O-bound operations
-```python
-async def fetch_multiple(urls: List[str]) -> List[Response]:
-    async with aiohttp.ClientSession() as session:
-        tasks = [fetch_url(session, url) for url in urls]
-        return await asyncio.gather(*tasks)
 ```
 
-**Database Optimization**: Index strategy and query optimization
-- Indexes on frequently queried fields
-- Batch operations for bulk inserts
-- Connection pooling for efficiency
+## Phase 5: Development Workflow
 
-### Performance Targets
+Document the development process:
 
-| Operation | Target | Actual |
-|-----------|--------|--------|
-| API response time (p95) | < 200ms | ~150ms |
-| Batch processing throughput | > 1000/sec | ~1200/sec |
-| Memory usage (typical) | < 500MB | ~350MB |
+```markdown
+# Development Workflow
 
-## Scalability
+## Development Environment Setup
 
-### Horizontal Scaling
+### Prerequisites
+- Python 3.11+
+- PostgreSQL 15+
+- Redis 7+
+- Docker (optional)
 
-- **Stateless Design**: Application servers are stateless
-- **External State**: All state in database/cache
-- **Load Balancing**: Round-robin distribution
+### Local Setup
 
-### Vertical Scaling
+1. **Clone Repository**
+   ```bash
+   git clone https://github.com/org/project.git
+   cd project
+   ```
 
-- **Resource Limits**: Configurable memory/CPU limits
-- **Connection Pooling**: Efficient resource usage
-- **Async Processing**: Non-blocking I/O
+2. **Create Virtual Environment**
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate  # Windows: .venv\Scripts\activate
+   ```
 
-## Development Environment
+3. **Install Dependencies**
+   ```bash
+   pip install -e .[dev]
+   ```
 
-### Setup Requirements
+4. **Configure Environment**
+   ```bash
+   cp .env.example .env
+   # Edit .env with your local configuration
+   ```
 
-**System Requirements**:
-- Python 3.9+
-- 4GB RAM minimum
-- 10GB disk space
+5. **Setup Database**
+   ```bash
+   # Create database
+   createdb project_dev
 
-**Development Tools**:
-- IDE: VS Code or PyCharm
-- Version control: Git
-- Package manager: pip
+   # Run migrations
+   alembic upgrade head
 
-### Development Workflow
+   # Seed data (optional)
+   python scripts/seed_database.py
+   ```
 
-1. **Clone repository**
-2. **Create virtual environment**
-3. **Install dependencies**: `pip install -e .[dev]`
-4. **Run tests**: `python tests/run_all_tests.py`
-5. **Start development server**
+6. **Start Services**
+   ```bash
+   # Start Redis (if not using Docker)
+   redis-server
 
-### Code Quality Tools
+   # Start application
+   uvicorn src.main:app --reload
 
-- **Formatter**: Black (88 char line length)
-- **Linter**: Flake8 with custom rules
-- **Type Checker**: mypy with strict mode
-- **Test Coverage**: pytest-cov (>80% required)
+   # Start Celery worker (separate terminal)
+   celery -A src.worker worker --loglevel=info
+   ```
 
-## Deployment Architecture
+## Build Process
 
-### Deployment Options
+### Local Build
+```bash
+# Run linters
+black src/ tests/
+flake8 src/ tests/
+mypy src/
 
-**Option 1: Docker Container**
-```dockerfile
-FROM python:3.11-slim
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install -r requirements.txt
-COPY src/ ./src/
-CMD ["python", "-m", "src.main"]
+# Run tests
+pytest tests/ -v --cov=src
+
+# Build package
+python -m build
 ```
 
-**Option 2: Kubernetes**
-- Deployment with 3 replicas
-- Service for load balancing
-- ConfigMap for configuration
-- Secret for sensitive data
+### Docker Build
+```bash
+# Build image
+docker build -t project:latest .
 
-**Option 3: Serverless**
-- AWS Lambda deployment
-- API Gateway integration
-- CloudWatch logging
-
-### Environment Configuration
-
-**Development**: Full logging, debug mode, local storage
-**Staging**: Production-like, test data, reduced logging
-**Production**: Minimal logging, production data, high availability
-
-## Monitoring and Observability
-
-### Logging Strategy
-
-- **Levels**: DEBUG, INFO, WARNING, ERROR, CRITICAL
-- **Format**: JSON structured logging
-- **Destination**: File + centralized logging service
-
-### Metrics Collection
-
-- **Application Metrics**: Request counts, latencies, error rates
-- **System Metrics**: CPU, memory, disk usage
-- **Business Metrics**: Custom business KPIs
-
-### Health Checks
-
-```python
-@app.route('/health')
-def health_check():
-    return {
-        'status': 'healthy',
-        'version': __version__,
-        'dependencies': check_dependencies()
-    }
-```
-
-## Integration Points
-
-### External System Integrations
-
-**System 1: [Name]**
-- **Protocol**: REST API / gRPC / Message Queue
-- **Authentication**: [Method]
-- **Rate Limits**: [Limits]
-- **Error Handling**: [Strategy]
-
-**System 2: [Name]**
-[Similar details]
-
-### Extension Points
-
-Developers can extend functionality through:
-- **Plugin System**: Load custom processors
-- **Hooks**: Pre/post processing hooks
-- **Configuration**: Custom validators and transformers
-
-```python
-# Example extension
-class CustomProcessor(ProcessorInterface):
-    def process(self, data: Any) -> Any:
-        # Custom logic
-        pass
-
-# Register custom processor
-registry.register('custom', CustomProcessor)
+# Run container
+docker run -p 8000:8000 project:latest
 ```
 
 ## Testing Strategy
 
 ### Test Pyramid
+- **Unit Tests** (70%): Fast, isolated, test individual functions
+- **Integration Tests** (20%): Test component integration
+- **E2E Tests** (10%): Test complete user workflows
 
-- **Unit Tests**: 70% - Test individual functions/methods
-- **Integration Tests**: 20% - Test component interactions
-- **End-to-End Tests**: 10% - Test complete workflows
+### Running Tests
+```bash
+# All tests
+pytest
+
+# Unit tests only
+pytest tests/unit/
+
+# With coverage
+pytest --cov=src --cov-report=html
+
+# Specific test
+pytest tests/unit/test_users.py::test_create_user
+```
 
 ### Test Organization
-
 ```
 tests/
-├── unit/                    # Unit tests
-│   ├── test_validators.py
-│   └── test_transformers.py
-├── integration/             # Integration tests
-│   └── test_api_integration.py
-└── e2e/                     # End-to-end tests
-    └── test_workflows.py
+├── unit/
+│   ├── test_services.py    # Business logic tests
+│   ├── test_models.py      # Model tests
+│   └── test_validators.py  # Validation tests
+├── integration/
+│   ├── test_api.py         # API integration tests
+│   └── test_database.py    # Database integration tests
+└── e2e/
+    └── test_user_flow.py   # End-to-end scenarios
 ```
 
-## Troubleshooting Guide
+## CI/CD Pipeline
 
-### Common Development Issues
+### GitHub Actions Workflow
 
-**Issue 1: Import Errors**
-- **Cause**: Python path not configured
-- **Solution**: Ensure `src/` in PYTHONPATH or use `-m` flag
+```yaml
+name: CI/CD
 
-**Issue 2: Test Failures**
-- **Cause**: Environment dependencies
-- **Solution**: Verify virtual environment activated
+on: [push, pull_request]
 
-### Debugging Tips
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - run: pip install -e .[dev]
+      - run: pytest --cov=src
+      - run: black --check src/
+      - run: flake8 src/
+      - run: mypy src/
 
-- **Enable Debug Logging**: Set `LOG_LEVEL=DEBUG`
-- **Use Debugger**: `import pdb; pdb.set_trace()`
-- **Check Logs**: Review application logs for errors
-
-## Future Considerations
-
-### Short Term
-- [ ] Add caching layer for improved performance
-- [ ] Implement rate limiting
-- [ ] Add more comprehensive logging
-
-### Medium Term
-- [ ] Migrate to async architecture
-- [ ] Implement event-driven processing
-- [ ] Add GraphQL API
-
-### Long Term
-- [ ] Microservices migration
-- [ ] Multi-region deployment
-- [ ] ML model integration
-
----
-
-*Technical documentation maintained by: [Team/Individual]*
-*Last updated: [Date]*
-*For technical questions: [Contact]*
+  deploy:
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - run: # Deployment commands
 ```
 
+### Deployment Process
+
+1. **Development**: Push to feature branch
+2. **PR Review**: Create pull request, CI runs tests
+3. **Merge**: Merge to main after approval
+4. **Deploy to Staging**: Automatic deployment
+5. **Manual Testing**: QA testing on staging
+6. **Deploy to Production**: Manual trigger after approval
+
+## Release Process
+
+1. **Version Bump**: Update version in `pyproject.toml`
+2. **Update Changelog**: Document changes in `CHANGELOG.md`
+3. **Create Release Branch**: `release/vX.Y.Z`
+4. **Final Testing**: Run full test suite
+5. **Tag Release**: `git tag vX.Y.Z`
+6. **Deploy**: Trigger production deployment
+7. **Announce**: Notify users of new version
+
 ---
+```
 
-### 2. Codebase Walkthrough (docs/codebase_walkthrough.md)
+## Output Format
 
-Create detailed codebase walkthrough:
+Please provide technical documentation in this format:
+
+### Documentation Structure
 
 ```markdown
-# Codebase Walkthrough
-
-Detailed explanation of codebase organization and key files.
-
-## Entry Points
-
-### Main Application Entry: src/main.py
-
-```python
-# src/main.py
-"""
-Main application entry point.
-
-This file initializes the application, loads configuration,
-sets up logging, and starts the primary processing loop.
-"""
-
-def main():
-    # Load configuration
-    config = load_config()
-    
-    # Initialize logging
-    setup_logging(config.log_level)
-    
-    # Create processor
-    processor = DataProcessor(config)
-    
-    # Start processing
-    processor.run()
-```
-
-**Flow**:
-1. Configuration loaded from file/environment
-2. Logging initialized with appropriate level
-3. Main processor instantiated with config
-4. Processing begins
-
-### API Entry: src/api/app.py
-
-```python
-# src/api/app.py
-"""API application setup."""
-
-app = create_app()
-
-@app.route('/process', methods=['POST'])
-def process_endpoint():
-    # Handle processing request
-    pass
-```
-
-## Core Modules
-
-### src/core/processor.py
-
-**Purpose**: Main data processing logic
-
-**Key Classes**:
-
-#### DataProcessor
-Main processing orchestrator that coordinates validation, transformation, and storage.
-
-```python
-class DataProcessor:
-    """
-    Orchestrates data processing workflow.
-    
-    This class coordinates the entire processing pipeline from
-    input validation through final output generation.
-    """
-    
-    def process(self, data: List[Dict]) -> ProcessingResult:
-        """Main processing method."""
-        # 1. Validate input
-        validated = self.validator.validate(data)
-        
-        # 2. Transform data
-        transformed = self.transformer.transform(validated)
-        
-        # 3. Apply business logic
-        processed = self._apply_business_rules(transformed)
-        
-        # 4. Store results
-        self.storage.save(processed)
-        
-        return ProcessingResult(processed)
-```
-
-**Key Methods**:
-- `process()`: Main entry point for processing
-- `_apply_business_rules()`: Core business logic
-- `_handle_error()`: Error recovery logic
-
-### src/core/validators.py
-
-**Purpose**: Input validation and sanitization
-
-**Key Classes**:
-
-#### SchemaValidator
-Validates data against defined schemas using Pydantic models.
-
-```python
-class SchemaValidator:
-    """Schema-based validation."""
-    
-    def validate(self, data: Any) -> ValidatedData:
-        try:
-            return self.schema.parse_obj(data)
-        except ValidationError as e:
-            raise SchemaValidationError(str(e))
-```
-
-#### BusinessRuleValidator
-Applies business-specific validation rules.
-
-```python
-class BusinessRuleValidator:
-    """Business rule validation."""
-    
-    def validate(self, data: ValidatedData) -> ValidatedData:
-        # Apply business rules
-        self._check_business_constraints(data)
-        return data
-```
-
-### src/utils/logger.py
-
-**Purpose**: Centralized logging configuration
-
-**Key Functions**:
-
-```python
-def setup_logging(level: str = "INFO"):
-    """Configure application-wide logging."""
-    logging.basicConfig(
-        level=getattr(logging, level),
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-
-def get_logger(name: str) -> logging.Logger:
-    """Get logger for specific module."""
-    return logging.getLogger(name)
-```
-
-## Integration Points
-
-### External API Integration: src/integrations/external_api.py
-
-```python
-class ExternalAPIClient:
-    """Client for external API integration."""
-    
-    def __init__(self, api_key: str):
-        self.api_key = api_key
-        self.base_url = "https://api.example.com"
-    
-    def fetch_data(self, query: str) -> Dict:
-        """Fetch data from external API."""
-        response = requests.get(
-            f"{self.base_url}/data",
-            params={'q': query},
-            headers={'Authorization': f'Bearer {self.api_key}'}
-        )
-        response.raise_for_status()
-        return response.json()
-```
-
-**Error Handling**: Implements retry logic with exponential backoff
-**Rate Limiting**: Respects API rate limits with request throttling
-
-### Database Integration: src/storage/database.py
-
-```python
-class DatabaseManager:
-    """Database connection and query management."""
-    
-    def __init__(self, config: DatabaseConfig):
-        self.pool = create_connection_pool(config)
-    
-    def execute_query(self, query: str, params: Tuple) -> List[Row]:
-        """Execute parameterized query."""
-        with self.pool.connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute(query, params)
-            return cursor.fetchall()
-```
-
-## Extension Points
-
-### Custom Processors
-
-Developers can add custom processors by implementing the `ProcessorInterface`:
-
-```python
-from src.core.interfaces import ProcessorInterface
-
-class CustomProcessor(ProcessorInterface):
-    """Custom processing implementation."""
-    
-    def process(self, data: Any) -> Any:
-        # Custom logic here
-        return processed_data
-
-# Register with processor registry
-from src.core.registry import processor_registry
-processor_registry.register('custom', CustomProcessor)
-```
-
-### Custom Validators
-
-Add custom validation logic:
-
-```python
-from src.core.validators import ValidatorBase
-
-class CustomValidator(ValidatorBase):
-    """Custom validation logic."""
-    
-    def validate(self, data: Any) -> bool:
-        # Custom validation
-        return is_valid
-```
-
-## Data Models
-
-### Core Data Structures: src/models/data_models.py
-
-```python
-from pydantic import BaseModel, Field
-from typing import List, Optional
-
-class InputRecord(BaseModel):
-    """Input data record model."""
-    id: str = Field(..., description="Unique identifier")
-    value: float = Field(..., gt=0, description="Positive value")
-    metadata: Optional[Dict] = Field(default_factory=dict)
-
-class ProcessedRecord(BaseModel):
-    """Processed data record model."""
-    input_id: str
-    result: float
-    status: str
-    timestamp: datetime
-```
-
-## Configuration
-
-### Configuration Schema: src/config/settings.py
-
-```python
-class AppConfig(BaseSettings):
-    """Application configuration."""
-    
-    # Application
-    app_name: str = "MyApp"
-    version: str = "1.0.0"
-    debug: bool = False
-    
-    # Processing
-    batch_size: int = 100
-    timeout: int = 30
-    
-    # Storage
-    db_url: str
-    cache_ttl: int = 3600
-    
-    class Config:
-        env_prefix = "APP_"
-```
-
-## Testing
-
-### Test Structure
-
-Tests mirror source structure:
-
-```
-tests/
-├── test_processor.py → tests src/core/processor.py
-├── test_validators.py → tests src/core/validators.py
-└── test_integration.py → integration tests
-```
-
-### Test Utilities: tests/common.py
-
-```python
-def create_test_config() -> AppConfig:
-    """Create configuration for testing."""
-    return AppConfig(
-        db_url="sqlite:///:memory:",
-        debug=True
-    )
-
-def create_mock_data() -> List[Dict]:
-    """Generate mock test data."""
-    return [
-        {'id': '1', 'value': 100.0},
-        {'id': '2', 'value': 200.0}
-    ]
-```
+## ARCHITECTURE.md
+[High-level architecture documentation]
 
 ---
 
-*For questions about specific components, contact: [Developer/Team]*
-```
+## ADR/
+[Architecture Decision Records for key decisions]
 
 ---
 
-## Deliverables
+## DEVELOPMENT.md
+[Development workflow and setup guide]
 
-Please create:
+---
 
-1. **docs/architecture.md** - Complete architecture documentation
-2. **docs/codebase_walkthrough.md** - Detailed code explanation
-3. **Architecture diagrams** - ASCII or image-based diagrams
-4. **docs/design_decisions.md** - Document key decisions
+## INTEGRATIONS.md
+[External integration documentation]
 
-**Quality Checks:**
+---
+```
+
+### Summary Report
+
+```markdown
+## Technical Documentation Summary
+
+**Documents Created**:
+- Architecture Overview: [Yes/No]
+- Architecture Decision Records: [count]
+- Module Organization: [Yes/No]
+- Data Flow Documentation: [Yes/No]
+- Integration Documentation: [Yes/No]
+- Development Workflow: [Yes/No]
+
+**Diagrams Created**:
+- Architecture diagram: [Yes/No]
+- Component diagram: [Yes/No]
+- Data flow diagram: [Yes/No]
+- Deployment diagram: [Yes/No]
+
+**Technical Decisions Documented**: [count]
+**External Integrations Documented**: [count]
+
+**Quality Checks**:
 - [ ] Architecture clearly explained
-- [ ] All components documented
-- [ ] Data flow illustrated
-- [ ] Dependencies listed
-- [ ] Extension points identified
-- [ ] Security considerations noted
+- [ ] Design decisions have rationale
+- [ ] Module organization mapped
+- [ ] Data flows illustrated
+- [ ] Integration points documented
+- [ ] Development workflow complete
+- [ ] Diagrams accurate and up-to-date
 
-Complete and pause. Confirm technical documentation is comprehensive before proceeding to Phase 5.
+**Target Audience**: Development team, technical stakeholders
 ```
 
 ---
 
-## Success Criteria
+## Best Practices
 
-- ✅ Complete architecture documentation
-- ✅ All components explained
-- ✅ Data flow illustrated
-- ✅ Design patterns documented
-- ✅ Integration points identified
-- ✅ Extension points explained
-- ✅ Troubleshooting guide included
+1. **Keep Documentation Close to Code**
+   - Store ADRs in repo
+   - Update docs with code changes
+   - Link docs from code comments
+
+2. **Use Diagrams**
+   - Architecture diagrams
+   - Sequence diagrams for flows
+   - Entity-relationship diagrams
+
+3. **Document Decisions**
+   - Why, not just what
+   - Alternatives considered
+   - Trade-offs made
+
+4. **Maintain Currency**
+   - Review during PRs
+   - Update with major changes
+   - Mark obsolete docs
+
+5. **Progressive Detail**
+   - Start high-level
+   - Drill down to specifics
+   - Link between levels
 
 ---
+~~~
 
-## Next Steps
+## Output Format Specifications
 
-After completing Phase 4, proceed to:
-- **Phase 5**: Build comprehensive API reference documentation
+The technical documentation should:
+- Provide high-level architecture overview with diagrams
+- Document design decisions with rationale and alternatives
+- Map module organization and dependencies clearly
+- Illustrate data flows through the system
+- Document all external integrations comprehensively
+- Explain development workflow and processes
+- Be maintained alongside code changes
+- Target technical audience (developers, architects)

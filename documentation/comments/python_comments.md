@@ -1,467 +1,558 @@
-# Code Comments & Inline Documentation
+# Python Strategic Comments
 
-Add strategic code comments that explain reasoning, non-obvious logic, and important decisions.
+## Objective
+Add strategic, high-value comments that explain "why" rather than "what", focusing on business logic, design decisions, non-obvious implementations, and workarounds while avoiding redundant commentary.
 
----
+## Implementation Checklist
 
-## Overview
+### When to Comment
+- [ ] Complex algorithms requiring explanation
+- [ ] Business logic and domain rules
+- [ ] Non-obvious code decisions
+- [ ] Workarounds for bugs in dependencies
+- [ ] Performance-critical sections
+- [ ] Security-sensitive code
 
-This review focuses on adding high-value comments that explain the "why" behind code decisions, complex algorithms, performance optimizations, and non-obvious behavior. Following organizational standards, comments should be placed above code blocks (never inline) and focus on reasoning rather than describing what code does.
+### When NOT to Comment
+- [ ] Obvious code that's self-explanatory
+- [ ] Information already in docstrings
+- [ ] Redundant type information
+- [ ] Meta-commentary about changes
+- [ ] Commented-out code
 
----
+### Comment Quality
+- [ ] Explains "why" not "what"
+- [ ] Adds genuine value
+- [ ] Concise and clear
+- [ ] Properly formatted
+- [ ] Up-to-date with code
 
 ## Prompt Template
 
 Use the structured prompt below with your coding assistant:
 
 ~~~markdown
+# Python Strategic Comments Request
 
-Please help me add strategic code comments to my Python project following organizational standards.
-**Project Context:**
-- Project name: [YOUR_PROJECT_NAME]
-- Source code location: src/
-- Current comment status: [None / Sparse / Needs improvement]
-**Comment Standards:**
-### Critical Rules
-1. **No inline comments**: Comments must be on separate lines above code
-2. **Explain "why" not "what"**: Focus on reasoning and decisions, not obvious operations
-3. **No meta-commentary**: No editing history, revision notes, or TODO markers in production code
-4. **Above code blocks**: Comments should precede the code they explain
-5. **Descriptive focus**: Explain logic, algorithms, performance, security considerations
+Please add strategic comments to this Python project following this protocol:
+
+## Phase 1: Analysis & Comment Identification
+
+1. **Analyze Codebase for Comment Opportunities**
+   Review the code to identify sections that would benefit from comments:
+   - Complex algorithms or business logic
+   - Non-obvious implementation decisions
+   - Workarounds for known issues
+   - Performance-critical sections
+   - Security-sensitive operations
+   - Sections likely to confuse future developers
+
+2. **Identify Existing Comments**
+   - Review current comments for quality and value
+   - Flag redundant or obvious comments for removal
+   - Identify outdated comments needing updates
+   - Check for commented-out code to remove
+
+3. **Generate Comment Plan**
+   Create a prioritized list of where comments add value before adding them.
+
+## Phase 2: Strategic Comment Patterns
+
+### 1. Complex Algorithm Comments
+
+Use **block comments** before complex algorithms:
+
+```python
+# Calculate optimal route using A* pathfinding algorithm.
+# We use A* instead of Dijkstra because our graph has a reliable heuristic
+# (Euclidean distance), which reduces search time by ~40% in testing.
+# Trade-off: Uses more memory (O(n) vs O(log n)) but acceptable for our
+# typical graph sizes (<1000 nodes).
+def find_optimal_route(start, end, graph):
+    open_set = {start}
+    came_from = {}
+    # ... implementation
+```
+
+**Good**: Explains algorithm choice, trade-offs, and why it's appropriate
+**Bad**: `# Find route` (obvious from function name)
+
+### 2. Business Logic Comments
+
+Document domain rules and business decisions:
+
+```python
+# Business rule: Premium users get 30-day refund window, standard users get 14 days.
+# This differs from the legal minimum (7 days) to improve customer satisfaction.
+# See: Business Policy Document v3.2, Section 4.1
+refund_window = 30 if user.is_premium else 14
+
+# Calculate late fee: $5 per day, capped at 50% of original amount.
+# Cap prevents fees from exceeding loan value (legal requirement in CA).
+late_fee = min(days_late * 5, original_amount * 0.5)
+```
+
+**Good**: Explains business rule, reasoning, and references
+**Bad**: `# Set refund window` (doesn't explain the logic)
+
+### 3. Non-Obvious Implementation Comments
+
+Clarify code that isn't self-explanatory:
+
+```python
+# Use base64 encoding instead of direct binary storage because our database
+# connection doesn't handle binary data reliably (issue #342).
+# TODO: Switch to binary when we upgrade to PostgreSQL 14+
+encoded_data = base64.b64encode(binary_data).decode('utf-8')
+
+# Reverse iteration prevents index shifting during removal.
+# Forward iteration would skip elements after each deletion.
+for i in range(len(items) - 1, -1, -1):
+    if should_remove(items[i]):
+        del items[i]
+```
+
+**Good**: Explains why approach was chosen and what problem it solves
+**Bad**: `# Encode data to base64` (obvious from code)
+
+### 4. Workaround Comments
+
+Document workarounds for bugs or limitations:
+
+```python
+# WORKAROUND: requests library has a memory leak in sessions with keep-alive.
+# Creating new session for each request until fixed in requests 3.0.
+# See: https://github.com/psf/requests/issues/4937
+# TODO: Remove this workaround after upgrading to requests>=3.0
+session = requests.Session()
+response = session.get(url)
+session.close()
+
+# HACK: Sleep 100ms to avoid race condition in third-party API.
+# Their rate limiter returns 429 even when we're under the limit if
+# requests arrive too close together. Reported to vendor 2024-01-15.
+time.sleep(0.1)
+```
+
+**Good**: Explains issue, links to tracking, includes TODO for removal
+**Bad**: `# Wait a bit` (doesn't explain why)
+
+### 5. Performance-Critical Comments
+
+Explain optimization decisions:
+
+```python
+# Cache results because recalculation is expensive (O(n²) complexity).
+# Cache invalidated on data updates via observer pattern.
+# Memory impact: ~10MB for typical dataset of 10k items.
+@lru_cache(maxsize=1000)
+def calculate_statistics(data):
+    # ... expensive calculation
+
+# Use generator instead of list comprehension to avoid loading
+# entire dataset into memory. Processes 1M+ records with <100MB RAM.
+return (process_item(item) for item in large_dataset)
+```
+
+**Good**: Explains performance trade-offs and constraints
+**Bad**: `# Use cache for speed` (obvious, lacks detail)
+
+### 6. Security-Sensitive Comments
+
+Document security considerations:
+
+```python
+# Security: Always use parameterized queries to prevent SQL injection.
+# User input must NEVER be concatenated directly into SQL strings.
+cursor.execute("SELECT * FROM users WHERE id = %s", (user_id,))
+
+# Constant-time comparison prevents timing attacks that could
+# leak information about the correct token value.
+if secrets.compare_digest(provided_token, expected_token):
+    grant_access()
+```
+
+**Good**: Explains security reasoning
+**Bad**: `# Check token` (misses security implication)
+
+### 7. TODO/FIXME/HACK Conventions
+
+Use standardized tags for technical debt:
+
+```python
+# TODO: Refactor this into separate validation module (target: v2.1)
+# Current implementation works but violates single responsibility.
+# Estimate: 4 hours
+def process_and_validate(data):
+    pass
+
+# FIXME: Race condition when multiple workers process same job.
+# Occurs under high load (>1000 jobs/second). Need distributed lock.
+# Priority: HIGH - Causes duplicate processing ~0.1% of time
+# Assigned to: @username, Issue #456
+def process_job(job_id):
+    pass
+
+# HACK: Temporary workaround for memory leak in library v2.3
+# Remove this when upgrading to v2.4+ which has the fix.
+# See: https://github.com/project/issues/123
+gc.collect()
+```
+
+**Format**: `TAG: Description (context)`
+- **TODO**: Planned improvement or feature
+- **FIXME**: Known bug or issue
+- **HACK**: Temporary workaround
+- **NOTE**: Important information
+- **WARNING**: Critical caution
+
+### 8. Inline Comments (Use Sparingly)
+
+Reserve inline comments for truly non-obvious code:
+
+```python
+# Good inline comment - explains non-obvious detail
+result = value & 0xFF  # Mask to get only the last byte
+
+# Bad inline comment - obvious from code
+count += 1  # Increment count
+
+# Good inline comment - explains magic number
+timeout = 86400  # 24 hours in seconds
+
+# Bad inline comment - should be constant
+timeout = 86400  # Timeout value
+# Better: Define constant
+SECONDS_PER_DAY = 86400
+timeout = SECONDS_PER_DAY
+```
+
+### 9. What NOT to Comment
+
+**Avoid these comment anti-patterns:**
+
+```python
+# BAD: Obvious comments
+# Set x to 5
+x = 5
+
+# BAD: Redundant with function name
+# Calculate total
+def calculate_total():
+    pass
+
+# BAD: Meta-commentary about code changes
+# Changed this from += to = on 2024-01-15
+# Fixed bug here
+# Updated by John
+
+# BAD: Commented-out code (use version control instead)
+# old_function()
+# return previous_value
+
+# BAD: Duplicating type information
+# param1 (str): param1 is a string
+def function(param1: str):
+    pass
+
+# BAD: Vague or unhelpful
+# Do stuff
+# Handle things
+# Process data
+```
+
+## Phase 3: Comment Placement Guidelines
+
+### Block Comments
+```python
+# Use block comments before code blocks they describe.
+# Separate from previous code with blank line.
+# Keep lines under 80 characters.
+
+def function():
+    # Block comments inside functions go before the relevant section
+    # with proper indentation.
+    code_section()
+```
+
+### Inline Comments
+```python
+# Place inline comments sparingly, separated by at least 2 spaces
+result = complex_calculation()  # Explanation when truly needed
+```
+
+### Section Dividers
+```python
+# ===== Data Processing Section =====
+# Use sparingly for major logical sections in long files
+
+# ----- Helper Functions -----
+# Or use simpler dividers for subsections
+```
+
+## Phase 4: Comment Quality Review
+
+### Self-Review Checklist
+For each comment, verify:
+
+1. **Adds Value**
+   - Would a competent developer understand the code without it?
+   - If yes, consider removing the comment
+   - If no, is the comment clear enough to help?
+
+2. **Explains "Why" Not "What"**
+   - Bad: "Loop through items" (what)
+   - Good: "Reverse loop to avoid index shifting during removal" (why)
+
+3. **Is Accurate and Current**
+   - Does comment match current code behavior?
+   - Is referenced information still valid?
+   - Are linked issues/docs still relevant?
+
+4. **Is Concise**
+   - Can you say the same thing in fewer words?
+   - Are you repeating information from docstrings or type hints?
+   - Is every sentence necessary?
+
+5. **Is Properly Formatted**
+   - Correct grammar and spelling
+   - Proper indentation
+   - Follows project conventions
+
+## Phase 5: Refactoring vs. Commenting
+
+Sometimes improving code readability is better than adding comments:
+
+### When to Refactor Instead of Comment
+
+```python
+# BAD: Comment explaining complex logic
+# Calculate discount: 10% for orders > $100, 5% for > $50, 0% otherwise
+discount = 0.10 if total > 100 else (0.05 if total > 50 else 0.0)
+
+# GOOD: Extract to well-named function (self-documenting)
+def calculate_discount(total):
+    if total > 100:
+        return 0.10
+    elif total > 50:
+        return 0.05
+    return 0.0
+
+# BAD: Comment explaining magic number
+result = value * 1.07  # Apply sales tax
+
+# GOOD: Named constant (self-documenting)
+SALES_TAX_RATE = 1.07
+result = value * SALES_TAX_RATE
+
+# BAD: Comment explaining complex condition
+if (user.age >= 18 and user.has_license and not user.has_violations):
+    # User is eligible to rent
+
+# GOOD: Extract to well-named function
+if is_eligible_to_rent(user):
+    pass
+```
+
+## Phase 6: Comment Maintenance
+
+### Keeping Comments Current
+
+1. **Update Comments with Code Changes**
+   - When refactoring, review and update affected comments
+   - Remove outdated TODO/FIXME when resolved
+   - Update references to issues, docs, or external resources
+
+2. **Regular Comment Audits**
+   - Review comments during code reviews
+   - Flag outdated or incorrect comments
+   - Remove or update as needed
+
+3. **Version Control Integration**
+   ```bash
+   # Find TODO comments
+   grep -r "TODO" src/
+
+   # Find FIXME comments
+   grep -r "FIXME" src/
+
+   # Track technical debt
+   # Consider tools like:
+   # - fixme (npm package)
+   # - pylint --notes=TODO,FIXME
+   ```
+
+## Output Format
+
+Please provide comment additions in this format:
+
+### File-by-File Report
+```markdown
+## File: src/package/module.py
+
+### Line 45: Complex Algorithm Comment
+**Code Section**:
+```python
+[relevant code]
+```
+
+**Added Comment**:
+```python
+# [strategic comment explaining why/how]
+[code]
+```
+
+**Rationale**: Explains [specific aspect] that isn't obvious from code alone.
+
 ---
-## Comment Categories
-### 1. Algorithm and Logic Explanations
-Add comments explaining complex algorithms, non-obvious logic, and implementation approaches:
-**Pattern:**
-# [Why this algorithm/approach was chosen]
-# [Key characteristics or complexity]
-# [Important constraints or considerations]
-[code implementation]
 
-**Examples:**
-# Use binary search for O(log n) performance on sorted data
-# This is critical for large datasets (>10k items)
-result = binary_search(sorted_list, target)
+### Line 78: Business Logic Comment
+[Similar format]
 
-# Implement breadth-first search to find shortest path
-# Depth-first would be more memory efficient but wouldn't guarantee shortest path
-path = bfs_shortest_path(graph, start, end)
+---
+```
 
-# Use dynamic programming to avoid recalculating overlapping subproblems
-# Naive recursive approach would be O(2^n), this reduces to O(n^2)
-memo = {}
-result = fibonacci_dp(n, memo)
+### Summary Report
+```markdown
+## Comment Addition Summary
 
-# Apply Knuth-Morris-Pratt algorithm for O(n+m) string matching
-# Simple substring search would be O(n*m) for large texts
-matches = kmp_search(text, pattern)
+**Files Processed**: [count]
+**Comments Added**: [count]
+**Comment Types**:
+- Complex algorithm: [count]
+- Business logic: [count]
+- Non-obvious implementation: [count]
+- Workarounds: [count]
+- Performance notes: [count]
+- Security considerations: [count]
+- TODO/FIXME/HACK: [count]
+
+**Comments Removed** (redundant/outdated): [count]
+**Comments Updated**: [count]
+
+**Code Improvements** (refactored instead of commented): [count]
+
+**Quality Metrics**:
+- Average comment value rating: [High/Medium/Low]
+- Comments explaining "why": [X%]
+- Comments with context/references: [X%]
+```
+
+## Best Practices Summary
+
+1. **Comment the Why, Not the What**
+   - Code shows what happens
+   - Comments explain why this approach
+
+2. **Self-Documenting Code First**
+   - Use clear names
+   - Extract complex logic to named functions
+   - Only comment what can't be made obvious
+
+3. **Keep Comments Current**
+   - Update with code changes
+   - Remove obsolete comments
+   - Review during code reviews
+
+4. **Be Concise**
+   - Every word should add value
+   - Avoid redundancy with docstrings/type hints
+   - Get to the point quickly
+
+5. **Provide Context**
+   - Link to issues, docs, or decisions
+   - Explain trade-offs and constraints
+   - Note related code sections
+
+6. **Use Standard Tags**
+   - TODO: Planned improvements
+   - FIXME: Known bugs
+   - HACK: Temporary workarounds
+   - NOTE: Important information
+
+## Tools for Comment Quality
+
+```yaml
+# Recommended tools
+tools:
+  - pylint:
+      # Check for missing docstrings, not inline comments
+      # Configure to allow strategic commenting
+      notes: ["TODO", "FIXME", "HACK", "NOTE", "WARNING"]
+
+  - grep/ripgrep:
+      # Find technical debt tags
+      patterns:
+        - "TODO"
+        - "FIXME"
+        - "HACK"
+
+  - custom-scripts:
+      # Track comment metrics
+      # - Comment-to-code ratio
+      # - TODO/FIXME count over time
+      # - Outdated comment detection
+```
+
+## Common Mistakes to Avoid
+
+1. **Don't Explain Obvious Code**
+   ```python
+   # BAD
+   count = 0  # Initialize count to zero
+
+   # GOOD (no comment needed - obvious from code)
+   count = 0
+   ```
+
+2. **Don't Duplicate Docstrings**
+   ```python
+   # BAD
+   def calculate_total(items):
+       """Calculate total price of items."""
+       # Calculate total price of items
+       return sum(item.price for item in items)
+
+   # GOOD
+   def calculate_total(items):
+       """Calculate total price of items."""
+       return sum(item.price for item in items)
+   ```
+
+3. **Don't Leave Commented-Out Code**
+   ```python
+   # BAD
+   # old_implementation()
+   # previous_approach()
+   new_implementation()
+
+   # GOOD (use version control)
+   new_implementation()
+   ```
+
+4. **Don't Write Vague Comments**
+   ```python
+   # BAD: "Handle edge case"
+   # BAD: "Fix issue here"
+   # BAD: "Do special processing"
+
+   # GOOD: Specific and informative
+   # Handle empty list case to prevent IndexError in downstream code
+   ```
+
+5. **Don't Forget to Update Comments**
+   - Comments that contradict code are worse than no comments
+   - Review comments during every code change
+   - Remove comments that no longer apply
 ~~~
 
-**Apply to:**
-- Complex algorithms
-- Non-obvious logic flows
-- Algorithm selection decisions
-- Complexity considerations
-
----
-
-### 2. Performance Optimizations
-
-Explain performance-related decisions and optimizations:
-
-**Pattern:**
-```python
-# [Performance consideration or optimization]
-# [Expected impact or measurement]
-# [Trade-offs if any]
-[optimized code]
-```
-
-**Examples:**
-```python
-# Cache results to avoid expensive API calls during batch processing
-# API rate limit is 100 calls/minute, caching prevents exceeding it
-if key not in self.cache:
-    self.cache[key] = expensive_api_call(key)
-
-# Use thread pool for I/O-bound operations
-# Testing showed 4x performance improvement with 8 threads
-with ThreadPoolExecutor(max_workers=8) as executor:
-    futures = [executor.submit(process_item, item) for item in items]
-
-# Lazy evaluation to avoid loading entire dataset into memory
-# Dataset can be 10GB+, streaming reduces memory to <100MB
-for chunk in pd.read_csv(filename, chunksize=10000):
-    process_chunk(chunk)
-
-# Preallocate list for known size to avoid repeated reallocations
-# Reduces memory operations from O(n) to O(1)
-results = [None] * len(items)
-for i, item in enumerate(items):
-    results[i] = process(item)
-
-# Use set for O(1) lookups instead of list O(n) scans
-# Dataset contains 100k+ items where lookup performance is critical
-valid_ids = set(valid_id_list)
-if item_id in valid_ids:
-    process_item(item_id)
-```
-
-**Apply to:**
-- Caching strategies
-- Data structure choices
-- Algorithm optimization
-- Memory management
-- Concurrency decisions
-
----
-
-### 3. Security Considerations
-
-Document security-related implementations:
-
-**Pattern:**
-```python
-# [Security concern being addressed]
-# [Approach taken and why]
-# [Relevant standards or best practices]
-[security implementation]
-```
-
-**Examples:**
-```python
-# Sanitize user input to prevent SQL injection
-# Use parameterized queries per OWASP guidelines
-cursor.execute("SELECT * FROM users WHERE id = ?", (user_id,))
-
-# Hash passwords with bcrypt before storage
-# NIST recommends bcrypt with work factor >= 10
-hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt(rounds=12))
-
-# Implement rate limiting to prevent brute force attacks
-# Allow max 5 failed attempts per IP per minute
-if failed_attempts_count(ip_address) > 5:
-    raise RateLimitExceeded("Too many failed attempts")
-
-# Validate and sanitize file uploads to prevent path traversal
-# Ensure filename contains no directory separators or special characters
-safe_filename = secure_filename(uploaded_file.filename)
-
-# Use constant-time comparison to prevent timing attacks
-# Standard == operator leaks information through execution time
-if hmac.compare_digest(provided_token, expected_token):
-    authenticate_user()
-```
-
-**Apply to:**
-- Input validation and sanitization
-- Authentication and authorization
-- Cryptographic operations
-- Rate limiting
-- Data protection
-
----
-
-### 4. Error Handling and Edge Cases
-
-Explain error handling strategies and edge case handling:
-
-**Pattern:**
-```python
-# [Edge case or error condition being handled]
-# [Why this handling approach]
-# [Implications if not handled]
-[handling code]
-```
-
-**Examples:**
-```python
-# Handle empty dataset gracefully without crashing
-# Downstream consumers expect consistent return type
-if not data:
-    return []
-
-# Retry with exponential backoff for transient network failures
-# API occasionally returns 503 under load, usually recovers in seconds
-for attempt in range(max_retries):
-    try:
-        return api_call()
-    except TransientError:
-        wait_time = min(2 ** attempt, 32)
-        time.sleep(wait_time)
-
-# Guard against division by zero in calculation
-# Zero values are valid input but would crash without check
-if denominator == 0:
-    return default_value
-
-# Handle timezone-naive datetime by assuming UTC
-# Legacy data may lack timezone info, UTC is safest assumption
-if dt.tzinfo is None:
-    dt = dt.replace(tzinfo=timezone.utc)
-
-# Validate file exists before attempting to read
-# File may be deleted between check and use, but reduces common errors
-if not os.path.exists(filepath):
-    raise FileNotFoundError(f"File not found: {filepath}")
-```
-
-**Apply to:**
-- Error handling strategies
-- Edge case handling
-- Graceful degradation
-- Defensive programming
-
----
-
-### 5. Business Logic and Domain Knowledge
-
-Document business rules and domain-specific logic:
-
-**Pattern:**
-```python
-# [Business rule or domain constraint]
-# [Source of requirement if applicable]
-# [Special cases or exceptions]
-[business logic]
-```
-
-**Examples:**
-```python
-# Business rule: Orders over $100 receive free shipping
-# Per marketing policy dated 2024-01-15
-if order_total > 100:
-    shipping_cost = 0
-
-# Apply FIFO inventory accounting per GAAP standards
-# Must track each lot's purchase price separately
-oldest_lot = get_oldest_inventory_lot()
-cost_basis = oldest_lot.unit_price
-
-# Calculate overtime as 1.5x rate after 40 hours per week
-# Complies with Fair Labor Standards Act requirements
-regular_hours = min(hours_worked, 40)
-overtime_hours = max(hours_worked - 40, 0)
-total_pay = (regular_hours * rate) + (overtime_hours * rate * 1.5)
-
-# Apply discount tiers based on customer loyalty level
-# Tier structure defined in customer_benefits.md
-if customer.loyalty_level == 'gold':
-    discount = 0.15
-elif customer.loyalty_level == 'silver':
-    discount = 0.10
-else:
-    discount = 0.05
-```
-
-**Apply to:**
-- Business rule implementations
-- Domain-specific calculations
-- Regulatory compliance
-- Policy implementations
-
----
-
-### 6. Integration and External Dependencies
-
-Explain external integrations and API interactions:
-
-**Pattern:**
-```python
-# [External system or API being integrated]
-# [Key behaviors or limitations]
-# [Error handling considerations]
-[integration code]
-```
-
-**Examples:**
-```python
-# Stripe API requires amount in cents, not dollars
-# Failing to convert causes 100x charge errors
-amount_cents = int(amount_dollars * 100)
-stripe.Charge.create(amount=amount_cents)
-
-# AWS S3 limits object keys to 1024 bytes
-# Truncate and hash long filenames to stay within limit
-if len(key) > 1000:
-    key = f"{key[:950]}_{hashlib.md5(key.encode()).hexdigest()}"
-
-# Google Maps API has daily quota of 25,000 requests
-# Cache results for 24 hours to stay within limits
-cached_result = cache.get(address_key)
-if cached_result:
-    return cached_result
-
-# SendGrid requires RFC 5322 compliant email addresses
-# Validate before sending to avoid API rejection
-if not validate_email_rfc5322(email):
-    raise InvalidEmailError(f"Invalid email format: {email}")
-```
-
-**Apply to:**
-- Third-party API integrations
-- External service limitations
-- Protocol requirements
-- Integration constraints
-
----
-
-### 7. Data Structure and State Management
-
-Explain data structure choices and state management:
-
-**Pattern:**
-```python
-# [Data structure choice and reasoning]
-# [Access patterns and performance]
-# [Thread safety or concurrency considerations]
-[data structure usage]
-```
-
-**Examples:**
-```python
-# Use OrderedDict to maintain insertion order for display
-# Standard dict maintains order in Python 3.7+ but OrderedDict is explicit
-display_items = OrderedDict()
-
-# Thread-safe queue for producer-consumer pattern
-# Multiple workers may access simultaneously
-work_queue = queue.Queue(maxsize=1000)
-
-# Use weak references to avoid circular reference memory leaks
-# Parent-child relationships could prevent garbage collection
-self.children = weakref.WeakSet()
-
-# Store as tuple instead of list for immutability
-# Coordinates should never change after creation
-position = (x, y, z)
-
-# Use defaultdict to simplify grouping logic
-# Eliminates need for explicit key existence checks
-groups = defaultdict(list)
-for item in items:
-    groups[item.category].append(item)
-```
-
-**Apply to:**
-- Data structure selection
-- State management
-- Thread safety
-- Memory management
-
----
-
-## Anti-Patterns to Avoid
-
-### ❌ Inline Comments
-```python
-# Bad: Inline comment
-result = process(data)  # Process the data
-x = x + 1  # Increment x
-```
-
-### ❌ Obvious Comments
-```python
-# Bad: States the obvious
-# Loop through items
-for item in items:
-    # Print the item
-    print(item)
-```
-
-### ❌ Meta-Commentary
-```python
-# Bad: Editing history
-# Updated 2024-10-05: Changed algorithm
-# TODO: Fix this later
-# HACK: Temporary workaround
-```
-
-### ❌ Commented-Out Code
-```python
-# Bad: Keeping old code
-# old_function(data)
-new_function(data)
-```
-
-### ✅ Good Examples
-```python
-# Use binary search for O(log n) performance on sorted data
-result = binary_search(sorted_list, target)
-
-# Cache to avoid expensive API calls (100 calls/min limit)
-if key not in cache:
-    cache[key] = api_call(key)
-
-# Apply exponential backoff for rate-limited APIs
-for attempt in range(retries):
-    wait_time = min(2 ** attempt, 32)
-    time.sleep(wait_time)
-```
-
----
-
-## Deliverables
-
-Please add strategic comments to:
-
-1. **Complex algorithms**: Explain approach and complexity
-2. **Performance optimizations**: Document reasoning and impact
-3. **Security implementations**: Note standards and protections
-4. **Error handling**: Explain edge cases and strategies
-5. **Business logic**: Document rules and requirements
-6. **External integrations**: Note limitations and behaviors
-7. **Data structures**: Explain choices and access patterns
-
-**Output Format:**
-- Provide code files with comments added
-- Comments above relevant code blocks
-- No inline comments
-- Focus on non-obvious aspects
-
-**Quality Checks:**
-- [ ] No inline comments
-- [ ] Explains "why" not "what"
-- [ ] No meta-commentary
-- [ ] Complex logic explained
-- [ ] Performance reasoning documented
-- [ ] Security considerations noted
-- [ ] Business rules documented
-
-Complete and pause. Confirm comments add value and follow standards before proceeding to Phase 3.
-
----
-
-## Success Criteria
-
-- ✅ All complex algorithms explained
-- ✅ Performance optimizations documented
-- ✅ Security considerations noted
-- ✅ No inline comments
-- ✅ Comments focus on "why"
-- ✅ Business logic documented
-- ✅ Integration constraints explained
-
----
-
-## Common Issues
-
-### Issue: Too many obvious comments
-**Solution**: Remove comments that just restate code. Focus on non-obvious reasoning.
-
-### Issue: Inline comments present
-**Solution**: Move all comments to separate lines above code.
-
-### Issue: Meta-commentary in code
-**Solution**: Move TODOs to issue tracker, remove revision history.
-
-### Issue: Insufficient detail
-**Solution**: Explain full context including performance impact, security implications, business requirements.
-
----
-
-## Next Steps
-
-After completing Phase 2, proceed to:
-- **Phase 3**: Create user-facing documentation (README, guides, how-tos)
-- **Phase 4**: Generate technical documentation for developers
+## Output Format Specifications
+
+The strategic comments should:
+- Explain "why" decisions were made, not "what" the code does
+- Be concise yet informative (typically 1-3 lines)
+- Include context, references, or trade-offs where relevant
+- Use proper formatting and indentation
+- Follow team conventions for TODO/FIXME/HACK tags
+- Add genuine value that can't be conveyed through code structure
+- Be maintained and updated as code evolves

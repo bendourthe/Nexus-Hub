@@ -18,6 +18,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.1.4] - 2025-10-08
+
+### Added
+- **Complete Code Review Templates** (6 phases, 13 files)
+  - Context Analysis: Project structure, architecture, dependencies
+  - Code Quality: Complexity, maintainability, coding standards
+  - Security Review: OWASP Top 10, vulnerability scanning, secrets detection
+  - Performance Review: Profiling, bottleneck identification, optimization
+  - Testing Review: Coverage analysis, test quality, flaky test detection
+  - Final Report: Consolidated findings with prioritized action plan
+
+- **Complete Documentation Templates** (6 phases, 13 files)
+  - Docstrings: Module, class, and function documentation (Google/NumPy/Sphinx styles)
+  - Comments: Strategic commenting guidelines (explain "why" not "what")
+  - User Docs: README, installation guides, quick starts, tutorials
+  - Technical Docs: Architecture, ADRs, design decisions, codebase walkthroughs
+  - API Docs: OpenAPI/Swagger, endpoint documentation, authentication
+  - SBOM Generation: NTIA compliance, EU CRA, CycloneDX/SPDX formats
+
+- **Complete Test Development Templates** (6 phases, 13 files)
+  - Test Structure: Framework setup, organization, conftest.py hierarchy
+  - Test Cases: Unit/integration/e2e tests, AAA pattern, parametrized tests
+  - Mocks & Fixtures: pytest fixtures, unittest.mock, test data factories
+  - Performance Testing: Load testing (Locust), benchmarking (pytest-benchmark)
+  - Maintenance & CI/CD: GitHub Actions, quality gates, flaky test detection
+  - Code Coverage: 80%+ target, coverage.py, gap analysis, CI/CD integration
+
+### Changed
+- Updated main README with version 0.1.4 and complete template coverage
+- Enhanced navigation with direct links to all subdirectory READMEs
+
+### Technical Details
+- **Total Files Created**: 39 markdown files
+- **Documentation Lines**: ~25,000+ lines of comprehensive templates
+- **Phase Structure**: Consistent multi-phase approach across all templates
+- **Tool Integration**: pytest, coverage.py, bandit, safety, pip-audit, locust, GitHub Actions
+- **Coverage Standards**: 80%+ code coverage, OWASP Top 10 security, performance profiling
+
+---
+
 ## [0.1.2] - 2025-10-07
 
 ### Changed
@@ -169,11 +209,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 | Version | Date       | Description                                      |
 |---------|------------|--------------------------------------------------|
+| 0.1.4   | 2025-10-08 | Complete templates for code review, documentation, and test development |
 | 0.1.2   | 2025-10-07 | README refinements across review, docs, and tests |
 | 0.1.0   | 2025-10-07 | Initial release with complete Python templates   |
 
 ---
 
-[Unreleased]: https://github.com/yourusername/ai_templates/compare/v0.1.2...HEAD
+[Unreleased]: https://github.com/yourusername/ai_templates/compare/v0.1.4...HEAD
+[0.1.4]: https://github.com/yourusername/ai_templates/releases/tag/v0.1.4
 [0.1.2]: https://github.com/yourusername/ai_templates/releases/tag/v0.1.2
 [0.1.0]: https://github.com/yourusername/ai_templates/releases/tag/v0.1.0

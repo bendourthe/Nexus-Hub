@@ -2,36 +2,29 @@
 
 ## 📋 Overview
 
-This review evaluates test coverage, test quality, and testing practices to ensure comprehensive validation of code functionality.
+Testing review assesses the quality, coverage, and effectiveness of the test suite. This phase examines test structure, coverage metrics, test quality, and identifies gaps that could lead to undiscovered bugs or regressions.
 
 ## 🎯 Objectives
 
-- Assess test coverage completeness
-- Evaluate test quality and effectiveness
-- Review test organization and structure
-- Check for edge cases and error conditions
-- Evaluate mocking and fixture usage
-- Review integration and performance tests
-- Provide testing improvement recommendations
+- Measure test coverage across code, branches, and edge cases
+- Evaluate test quality and maintainability
+- Identify untested critical paths
+- Assess test isolation and reliability
+- Review test automation and CI/CD integration
+- Detect flaky or unreliable tests
 
 ## 📂 Available Templates
 
-### Python
-- **[Python Testing Review](python_testing_review.md)** - Comprehensive template covering unit tests, integration tests, edge cases, mocking patterns, test coverage analysis, and testing best practices
-
-## ⏱️ Time Investment
-
-**1-2 hours** for comprehensive testing evaluation
+- **[Python Testing Review](python_testing_review.md)**: Comprehensive test suite assessment for Python projects
 
 ## ✅ Success Criteria
 
-- [ ] Test coverage assessed (target: 80%+)
+- [ ] Test coverage measured (target: 80%+)
+- [ ] Critical paths test coverage verified
 - [ ] Test quality evaluated
-- [ ] Test organization reviewed
-- [ ] Edge cases verified
-- [ ] Mocking patterns checked
-- [ ] Integration tests assessed
-- [ ] Testing improvements documented
+- [ ] Test isolation and independence assessed
+- [ ] Flaky tests identified
+- [ ] Test gap analysis completed with remediation plan
 
 ---
 

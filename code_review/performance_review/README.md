@@ -2,36 +2,29 @@
 
 ## 📋 Overview
 
-This review evaluates code performance, identifies bottlenecks, analyzes resource usage, and provides optimization recommendations.
+Performance review identifies bottlenecks, inefficient algorithms, and resource usage issues that impact application speed, scalability, and user experience. This phase examines computational complexity, I/O operations, memory usage, and provides data-driven optimization recommendations.
 
 ## 🎯 Objectives
 
-- Identify performance bottlenecks
-- Analyze algorithm efficiency
+- Profile application to identify performance bottlenecks
+- Analyze algorithmic complexity and efficiency
 - Evaluate database query performance
-- Assess memory usage patterns
-- Review I/O operations
-- Check for N+1 queries and inefficient loops
-- Provide optimization recommendations
+- Assess memory usage and potential leaks
+- Measure I/O operations and network calls
+- Provide prioritized optimization recommendations
 
 ## 📂 Available Templates
 
-### Python
-- **[Python Performance Review](python_performance_review.md)** - Complete template covering time complexity, database optimization, memory profiling, caching strategies, async operations, and performance benchmarking
-
-## ⏱️ Time Investment
-
-**2-3 hours** for thorough performance analysis
+- **[Python Performance Review](python_performance_review.md)**: Comprehensive performance analysis for Python applications
 
 ## ✅ Success Criteria
 
-- [ ] Performance bottlenecks identified
+- [ ] Performance profiling completed with hotspot identification
 - [ ] Algorithm complexity analyzed
-- [ ] Database queries optimized
-- [ ] Memory usage assessed
-- [ ] I/O operations reviewed
-- [ ] Caching opportunities identified
-- [ ] Optimization recommendations provided
+- [ ] Database query performance evaluated
+- [ ] Memory usage profiled
+- [ ] I/O and network operations assessed
+- [ ] Optimization plan prioritized by impact
 
 ---
 

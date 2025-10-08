@@ -2,36 +2,29 @@
 
 ## 📋 Overview
 
-This review focuses on identifying security vulnerabilities, assessing authentication and authorization mechanisms, and evaluating data protection measures.
+Security review identifies vulnerabilities, insecure coding practices, and compliance gaps that could expose the application to attacks or data breaches. This phase examines authentication, authorization, data protection, dependency vulnerabilities, and adherence to security best practices.
 
 ## 🎯 Objectives
 
-- Identify security vulnerabilities (OWASP Top 10)
-- Review authentication and authorization
-- Assess input validation and sanitization
-- Evaluate data encryption and protection
-- Check for sensitive data exposure
-- Review dependency security
-- Analyze error handling and logging security
+- Identify common vulnerabilities (OWASP Top 10)
+- Audit dependencies for known security issues
+- Detect hardcoded secrets and credentials
+- Evaluate authentication and authorization mechanisms
+- Assess data protection and encryption practices
+- Review compliance with security standards
 
 ## 📂 Available Templates
 
-### Python
-- **[Python Security Review](python_security_review.md)** - Comprehensive template covering SQL injection, XSS, authentication, authorization, input validation, cryptography, secrets management, and dependency vulnerabilities
-
-## ⏱️ Time Investment
-
-**2-4 hours** for comprehensive security assessment
+- **[Python Security Review](python_security_review.md)**: Comprehensive security assessment for Python applications
 
 ## ✅ Success Criteria
 
-- [ ] OWASP Top 10 vulnerabilities checked
-- [ ] Authentication mechanisms reviewed
-- [ ] Authorization controls verified
-- [ ] Input validation assessed
-- [ ] Data protection evaluated
-- [ ] Dependencies scanned for vulnerabilities
-- [ ] Security recommendations documented
+- [ ] Vulnerability scan completed with findings categorized
+- [ ] Dependency security audit performed
+- [ ] Secrets and credentials detection completed
+- [ ] Authentication/authorization mechanisms evaluated
+- [ ] Data protection practices assessed
+- [ ] Compliance gaps identified with remediation plan
 
 ---
 

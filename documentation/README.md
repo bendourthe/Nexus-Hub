@@ -1,113 +1,36 @@
-# Documentation Templates
+# Documentation
 
-Design a complete narrative for your project—from inline docstrings to compliance-grade SBOMs—using the six linked phases in this directory.
+## 📋 Overview
 
----
+This section provides comprehensive documentation templates that enable systematic creation of high-quality code and project documentation. Templates cover docstrings, strategic comments, user guides, technical documentation, API references, and Software Bill of Materials (SBOM) generation for compliance.
 
-## Quick navigation
-- [Start here](#start-here)
-- [Review overview](#phase-overview)
-- [Recommended paths](#recommended-paths)
-- [Review details](#phase-details)
-- [Compliance toolkit](#compliance-toolkit)
-- [Keep docs healthy](#keep-docs-healthy)
-- [Support](#support)
+## 🎯 Objectives
 
----
+- Generate clear, comprehensive docstrings for all public interfaces
+- Add strategic comments that explain "why" not "what"
+- Create user-friendly documentation (README, guides, tutorials)
+- Develop technical documentation for architecture and design decisions
+- Generate complete API reference documentation
+- Produce SBOM for security, compliance, and supply chain management
 
-## Start here
-1. Pick your language folder (Python today) and open the phase prompt you need.
-2. Paste the prompt into your AI assistant, gather the requested context, and generate the draft.
-3. Review and edit for tone, accuracy, and audience fit before publishing.
-4. Repeat for the remaining phases to keep documentation consistent end-to-end.
+## 📂 Available Templates
 
-**Tip:** Keep docstrings and comments in sync with code changes first—later phases rely on them.
+- **[Docstrings](docstrings/python_docstrings.md)**: Comprehensive docstring generation for modules, classes, and functions
+- **[Comments](comments/python_comments.md)**: Strategic inline and block comment guidance
+- **[User Documentation](user_docs/python_user_docs.md)**: README, user guides, and how-to documentation
+- **[Technical Documentation](technical_docs/python_technical_docs.md)**: Architecture, design decisions, and codebase walkthroughs
+- **[API Documentation](api_docs/python_api_docs.md)**: Complete API reference with examples
+- **[SBOM Generation](sbom/python_sbom.md)**: Software Bill of Materials for compliance (NTIA, EU CRA)
 
----
+## ✅ Success Criteria
 
-## Review overview
-| Phase | Focus | Primary outcome | Prompt |
-| --- | --- | --- | --- |
-| 1 | Docstrings | Complete inline documentation with parameters, returns, and examples | [Python](docstrings/python_docstrings.md) |
-| 2 | Comments | High-signal code annotations explaining intent and trade-offs | [Python](comments/python_comments.md) |
-| 3 | User docs | README, quick-start, and troubleshooting content for end users | [Python](user_docs/python_user_docs.md) |
-| 4 | Technical docs | Architecture, decisions, data flows, and deployment runbooks | [Python](technical_docs/python_technical_docs.md) |
-| 5 | API docs | Endpoint reference with authentication, examples, and error handling | [Python](api_docs/python_api_docs.md) |
-| 6 | SBOM & compliance | CycloneDX/SPDX inventory plus NTIA/EU CRA reporting notes | [Python](sbom/python_sbom.md) |
+- [ ] All public interfaces documented with clear docstrings
+- [ ] Strategic comments added explaining complex logic
+- [ ] User documentation complete and accessible
+- [ ] Technical documentation captures architecture and design decisions
+- [ ] API reference generated with examples
+- [ ] SBOM generated meeting compliance requirements
 
 ---
 
-## Recommended paths
-| Goal | Run these phases | Time estimate |
-| --- | --- | --- |
-| ⚡ Essentials for prototypes | 1 → 2 → 3 | ~3–5 h |
-| 🎯 Production-ready docs | 1 → 2 → 3 → 4 → 5 | ~6–10 h |
-| 🛡️ Regulated release / OSS | 1 → 6 → 3 → 4 → 5 → 2 | ~12–16 h |
-
-*Reorder phases when you already have strong coverage—just keep docstrings (1) and SBOM (6) current before major releases.*
-
----
-
-## Review details
-
-### Docstrings
-- Apply consistent style (Google, NumPy, or Sphinx) across modules.
-- Document parameters, return values, raises, and usage examples.
-- Flag TODOs for missing context so downstream docs stay honest.
-- **Python project:** [Docstrings generation prompt template](docstrings/python_docstrings.md)
-
-### Strategic comments
-- Capture intent, design decisions, and performance notes—never restate the code.
-- Mark risks (`TODO`, `FIXME`, `NOTE`) with owners and due dates.
-- Keep comments brief; link to design docs when context spans multiple files.
-- **Python project:** [Comments generation prompt template](comments/python_comments.md)
-
-### User documentation
-- Refresh the project README, quick-start, and FAQ with current workflows.
-- Add task-oriented guides and troubleshooting steps for support teams.
-- Provide upgrade notes when breaking changes land.
-- **Python project:** [User documentations generation prompt template](user_docs/python_user_docs.md)
-
-### Technical documentation
-- Map architecture, data flows, and component responsibilities.
-- Record key decisions, alternatives considered, and trade-offs.
-- Include deployment, rollback, and operational runbook guidance.
-- **Python project:** [Technical documentations generation prompt template](technical_docs/python_technical_docs.md)
-
-### API documentation
-- List every public endpoint, payload schema, success/failure codes, and auth requirements.
-- Supply runnable request/response examples and SDK snippets.
-- Note rate limits, versioning strategy, and deprecation timelines.
-- **Python project:** [API documentations generation prompt template](api_docs/python_api_docs.md)
-
-### SBOM & compliance
-- Generate CycloneDX or SPDX manifests with tooling noted in the prompt.
-- Track license obligations, vulnerabilities, and remediation owners.
-- Summarize NTIA/EU CRA checkpoints, including attestation artifacts.
-- **Python project:** [SBOM generation prompt template](sbom/python_sbom.md)
-
----
-
-## Compliance toolkit
-- Automate manifests with `cyclonedx-bom`, `syft`, or `pip-licenses` as guided.
-- Store SBOM outputs under `docs/sbom/` with version tags for auditing.
-- Link security reports (SAST/DAST) and vendor attestations to Phase 6 deliverables.
-- Keep a changelog of documentation updates alongside code releases.
-
----
-
-## Keep docs healthy
-- Add documentation tasks to definition-of-done for every feature.
-- Include doc coverage in code reviews—especially comments, README updates, and API examples.
-- Schedule quarterly audits for accessibility, terminology, and tooling drift.
-- Pair SBOM regeneration with dependency upgrades to avoid stale inventories.
-
----
-
-## Support
-- Need the bigger picture? Start at the [repository root](../README.md).
-- Looking for prompts for other practices? Explore [system prompts](../system_prompts/README.md) or [test development templates](../test_development/README.md).
-- Questions or suggestions? Share feedback with your documentation lead so we can improve the templates.
-
-*Last updated: October 2025*  
-*Current templates: Python (6 phases complete)*
+[← Back to AI Templates](../README.md)

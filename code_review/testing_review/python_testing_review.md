@@ -1,421 +1,494 @@
-# Testing & Quality Assurance Review
+# Python Testing Review
 
 ## Objective
-Evaluate test coverage, test quality, and overall testing strategy to ensure robust quality assurance.
+Systematically assess test suite quality, coverage, and effectiveness. Identify testing gaps, unreliable tests, and opportunities to improve confidence in code correctness and regression prevention.
 
 ## Review Checklist
 
-### Test Structure
-- [ ] Tests organized in `tests/` directory
-- [ ] `run_all_tests.py` master runner present
-- [ ] `common.py` for shared test utilities
-- [ ] `test_config.py` for pass/fail criteria
-- [ ] Individual test suites for features
-- [ ] Test data properly organized
-
 ### Test Coverage
-- [ ] Unit tests for core functionality
-- [ ] Integration tests for component interactions
-- [ ] Edge cases tested
-- [ ] Error conditions tested
-- [ ] Performance tests where appropriate
-- [ ] Critical paths fully covered
+- [ ] Line coverage measured (target: 80%+)
+- [ ] Branch coverage assessed
+- [ ] Critical paths fully tested
+- [ ] Edge cases and error conditions covered
+- [ ] Coverage gaps identified and prioritized
 
 ### Test Quality
-- [ ] Tests follow naming convention (`test_XX_description`)
-- [ ] Docstrings explain test purpose
+- [ ] Tests follow AAA pattern (Arrange, Act, Assert)
+- [ ] Test names clearly describe what is being tested
 - [ ] Tests are independent and isolated
-- [ ] Tests are repeatable and deterministic
-- [ ] Setup and teardown properly implemented
-- [ ] Mock objects used appropriately
-- [ ] Assertions are meaningful and specific
+- [ ] Assertions are specific and meaningful
+- [ ] Test data is representative and comprehensive
 
-### Test Implementation Standards
-- [ ] `@timeout` decorator used to prevent hangs
-- [ ] `TestResultAggregator` for result tracking
-- [ ] `PerformanceTimer` for timing tests
-- [ ] Proper exception handling in tests
-- [ ] Metrics collected for each test
-- [ ] Pass/fail criteria clearly defined
+### Test Organization
+- [ ] Test structure mirrors source code structure
+- [ ] Test files properly organized
+- [ ] Fixtures and test utilities well-organized
+- [ ] Test configuration managed appropriately
+- [ ] Test documentation present
 
-### Test Output Format
-- [ ] Comprehensive test headers
-- [ ] Formatted individual test results
-- [ ] Summary tables with box-drawing characters
-- [ ] Clear pass/fail indicators (✅/❌)
-- [ ] Execution time reported
-- [ ] Overall status clearly displayed
+### Test Types Coverage
+- [ ] Unit tests present for core logic
+- [ ] Integration tests cover component interactions
+- [ ] End-to-end tests validate critical user flows
+- [ ] Performance tests for critical operations
+- [ ] Security tests for sensitive operations
 
-### Test Maintenance
-- [ ] Tests run successfully
-- [ ] No flaky tests
+### Test Reliability
+- [ ] Flaky tests identified
+- [ ] Tests run independently (no order dependency)
+- [ ] External dependencies properly mocked
+- [ ] Test data properly managed
+- [ ] Tests run consistently in different environments
+
+### CI/CD Integration
+- [ ] Tests run automatically on commits/PRs
+- [ ] Test failures block merges
+- [ ] Coverage reports generated
 - [ ] Test execution time reasonable
-- [ ] Tests updated with code changes
-- [ ] Deprecated tests removed
+- [ ] Parallel test execution configured
 
 ## Prompt Template
 
 Use the structured prompt below with your coding assistant:
 
 ~~~markdown
-Please perform a comprehensive testing and quality assurance review:
+# Python Testing Review
 
-**Test Structure Assessment:**
-1. Verify test organization:
-   - Tests located in `tests/` directory
-   - Master test runner (`run_all_tests.py`) present
-   - Shared utilities in `common.py`
-   - Configuration in `test_config.py`
-   - Individual test suites properly organized
+Please perform a comprehensive testing review of this Python project following this protocol:
 
-2. Check test infrastructure:
+## Phase 1: Test Coverage Analysis
+
+1. **Measure Current Coverage**
+   ```bash
+   # Install coverage.py
+   pip install coverage pytest-cov
+
+   # Run tests with coverage
+   pytest --cov=src --cov-report=html --cov-report=term
+
+   # View detailed coverage report
+   # Open htmlcov/index.html in browser
+   ```
+
+2. **Coverage Analysis**
+   - Overall coverage percentage
+   - Module-by-module coverage breakdown
+   - Identify files with <60% coverage
+   - Find critical paths with inadequate coverage
+   - Document untested code sections
+
+3. **Branch Coverage**
+   ```bash
+   # Measure branch coverage
+   pytest --cov=src --cov-branch --cov-report=term-missing
+   ```
+   - Identify untested conditional branches
+   - Find exception handling without tests
+   - Locate uncovered error paths
+
+## Phase 2: Test Suite Inventory
+
+1. **Test Count and Organization**
+   ```bash
+   # Count tests by type
+   pytest --collect-only
+
+   # List all test files
+   find tests/ -name "test_*.py" -o -name "*_test.py"
+   ```
+
+2. **Test Type Distribution**
+   - **Unit Tests**: Count and coverage
+   - **Integration Tests**: Count and scope
+   - **End-to-End Tests**: Count and critical paths covered
+   - **Performance Tests**: Presence and scope
+   - **Security Tests**: Presence and coverage
+
+3. **Test Structure Assessment**
+   ```
+   tests/
+   ├── unit/           # Should mirror src/ structure
+   ├── integration/    # Component interaction tests
+   ├── e2e/           # End-to-end user flow tests
+   ├── performance/   # Performance and load tests
+   └── conftest.py    # Shared fixtures
+   ```
+
+## Phase 3: Test Quality Assessment
+
+1. **Test Pattern Review**
    ```python
-   # Required utilities should be present:
-   - TestResultAggregator for result tracking
-   - PerformanceTimer for timing tests
-   - format_console_output for display
-   - get_pass_criteria for thresholds
+   # Good test structure (AAA pattern)
+   def test_user_creation():
+       # Arrange
+       username = "testuser"
+       email = "test@example.com"
+
+       # Act
+       user = create_user(username, email)
+
+       # Assert
+       assert user.username == username
+       assert user.email == email
+       assert user.is_active is True
+
+   # Check for anti-patterns:
+   # - Multiple unrelated assertions
+   # - Testing implementation details
+   # - Unclear test purpose
+   # - Missing assertions
+   # - Overly complex setup
    ```
 
-**Test Coverage Analysis:**
-1. Evaluate unit test coverage:
-   - Core functionality tested
-   - All public functions have tests
-   - Critical paths covered
-   - Error conditions tested
-
-2. Check integration testing:
-   - Component interactions tested
-   - End-to-end workflows validated
-   - External dependencies mocked or tested
-
-3. Identify coverage gaps:
-   - Missing tests for critical functions
-   - Untested error paths
-   - Missing edge case tests
-
-**Test Quality Review:**
-1. Examine test structure:
+2. **Test Naming Review**
    ```python
-   # Good test structure:
-   def test_01_basic_functionality(self) -> None:
-       """TEST 1: Basic functionality validation."""
-       test_name = "Basic Functionality Test"
-       description = "Validates core feature operations"
-       timer = PerformanceTimer()
-       timer.start()
-       
-       try:
-           # Test implementation
-           result = perform_test()
-           elapsed = timer.stop()
-           
-           # Metrics collection
-           metrics = {
-               "Test Result": f"{result}",
-               "Processing Time": f"{elapsed:.3f}s"
-           }
-           
-           # Pass/fail determination
-           criteria = get_pass_criteria('test_name')
-           passed = result >= criteria['threshold']
-           
-           # Report results
-           print(format_console_output(
-               1, test_name, description, metrics, 
-               f"Result: {result}", passed
-           ))
-           self.aggregator.add_result(
-               test_name, "✅" if passed else "❌",
-               f"{elapsed:.3f}s", metrics, passed
-           )
-           
-           self.assertTrue(passed, f"Test failed: {result}")
-       except Exception as e:
-           # Handle test exceptions
-           self._handle_test_exception(test_name, description, e, timer)
+   # Good: Descriptive test names
+   def test_create_user_with_valid_data_returns_user_object():
+       pass
+
+   def test_create_user_with_duplicate_email_raises_validation_error():
+       pass
+
+   # Bad: Vague test names
+   def test_user():  # What about user?
+       pass
+
+   def test_1():  # What is being tested?
+       pass
    ```
 
-2. Check test independence:
-   - Tests don't depend on execution order
-   - Proper setup and teardown
-   - No shared state between tests
-   - Tests can run in isolation
-
-3. Review test assertions:
-   - Specific assertions (not just assertTrue)
-   - Meaningful failure messages
-   - Appropriate assertion methods used
-
-**Test Implementation Standards:**
-1. Verify timeout decorator usage:
+3. **Assertion Quality**
    ```python
-   @timeout(120)
-   def test_operation(self):
-       """Test with timeout protection."""
-       # Prevents infinite loops and hangs
+   # Good: Specific assertions
+   assert user.status == "active"
+   assert len(results) == 3
+   with pytest.raises(ValueError, match="Invalid email"):
+       create_user("test", "invalid-email")
+
+   # Bad: Weak assertions
+   assert user  # Too vague
+   assert True  # Meaningless
+   assert results  # What about results?
    ```
 
-2. Check proper setUp and tearDown:
+## Phase 4: Test Independence & Reliability
+
+1. **Test Isolation Check**
+   ```bash
+   # Run tests in random order
+   pytest --random-order
+
+   # Run specific test alone
+   pytest tests/test_specific.py::test_function
+
+   # Run tests in reverse order
+   pytest --reverse
+   ```
+
+2. **Flaky Test Detection**
+   ```bash
+   # Run tests multiple times to detect flakiness
+   pytest --count=10 tests/
+
+   # Or use pytest-repeat
+   pip install pytest-repeat
+   pytest --count=100 tests/test_potentially_flaky.py
+   ```
+
+3. **Common Flakiness Sources**
+   - Tests dependent on external services (not mocked)
+   - Time-based tests (sleep, datetime.now())
+   - Tests with race conditions
+   - Tests dependent on test execution order
+   - Tests using random data without seeding
+   - Tests dependent on file system state
+
+4. **External Dependency Review**
    ```python
-   def setUp(self) -> None:
-       """Set up test environment before each test."""
-       self.test_config = self._load_test_config()
-       self._clean_test_environment()
-       self.test_data = self._prepare_test_data()
-       self.mock_dependencies = self._setup_mocks()
-   
-   def tearDown(self) -> None:
-       """Clean up after each test."""
-       self._cleanup_resources()
-       self._reset_test_state()
+   # Check for proper mocking
+   # Good: External dependencies mocked
+   @mock.patch('requests.get')
+   def test_api_call(mock_get):
+       mock_get.return_value.json.return_value = {"status": "ok"}
+       result = fetch_data()
+       assert result["status"] == "ok"
+
+   # Bad: Real external calls in tests
+   def test_api_call():
+       result = requests.get("https://api.example.com")  # Slow, unreliable
+       assert result.status_code == 200
    ```
 
-3. Review mock usage:
-   - Appropriate use of unittest.mock
-   - Mocks properly configured
-   - Assertions on mock calls
-   - No over-mocking (test real code when possible)
+## Phase 5: Test Coverage Gaps Analysis
 
-**Test Output Format Verification:**
-1. Check output formatting:
-   - Suite header with application name
-   - Individual test sections with descriptions
-   - Metrics clearly displayed
-   - Summary tables with proper box-drawing
-   - Pass/fail indicators (✅/❌)
-   - Time reported in consistent format
+1. **Critical Path Identification**
+   - Authentication and authorization flows
+   - Data validation and processing
+   - Business logic and calculations
+   - Error handling and recovery
+   - API endpoints
+   - Database operations
 
-2. Verify output structure:
-   ```
-   ====================================================================================================
-                               [APPLICATION] - [TEST SUITE]
-   ───────────────────────────────────────────────────────────────────────────────────────────────────
-   Test started at: [YYYY-MM-DD HH:MM:SS]
-   
-   [TEST X] [Test Name]
-   ───────────────────────────────────────────────────────────────────────────────────────────────────
-   Description:     [What test validates]
-   [Metrics]:       [Values]
-   Result:          [Summary] ............................ ✅/❌
-   
-   ┌──────────────────────┬────────┬────────┐
-   │ Test Name            │ Result │ Status │
-   ├──────────────────────┼────────┼────────┤
-   │ [Test 1]             │  X/Y   │   ✅   │
-   └──────────────────────┴────────┴────────┘
-   
-   Tests Passed: X/Y
-   Pass Threshold: Z%
-   Duration: XXXs
-   ───────────────────────────────────────────────────────────────────────────────────────────────────
-   TEST STATUS: ✅/❌ with X% passed
-   ====================================================================================================
+2. **Untested Code Categories**
+   ```bash
+   # Identify untested code
+   coverage report --show-missing
+
+   # Focus on:
+   - Critical business logic without tests
+   - Error handling paths not covered
+   - Edge cases not tested
+   - New code without tests
+   - Complex functions without tests
    ```
 
-**Edge Case Testing:**
-Verify edge cases are tested:
-- Null/None inputs
-- Empty collections
-- Boundary values (0, -1, max values)
-- Special characters in strings
-- Concurrent access scenarios
-- Resource exhaustion scenarios
+3. **Missing Test Types**
+   - [ ] Happy path scenarios
+   - [ ] Error conditions and exceptions
+   - [ ] Boundary values (min, max, zero, negative)
+   - [ ] Invalid input handling
+   - [ ] Concurrent access scenarios
+   - [ ] Performance under load
 
-**Performance Testing:**
-Check for performance test coverage:
-- Response time tests
-- Throughput tests
-- Load tests
-- Memory usage tests
-- Scalability tests
+## Phase 6: Test Maintainability
 
-**Test Maintenance Review:**
-1. Check test health:
-   - All tests pass
-   - No disabled/skipped tests without reason
-   - No flaky tests (inconsistent results)
-   - Reasonable execution time
+1. **Test Code Quality**
+   ```bash
+   # Run linters on test code
+   pylint tests/
+   flake8 tests/
+   ```
+   - Tests follow same quality standards as production code
+   - Tests are readable and well-documented
+   - Tests avoid duplication (use fixtures)
+   - Tests use appropriate helpers and utilities
 
-2. Verify test documentation:
-   - Clear docstrings
-   - Test purpose documented
-   - Expected behavior specified
+2. **Fixture Management**
+   ```python
+   # Good: Reusable fixtures
+   @pytest.fixture
+   def sample_user():
+       return User(username="test", email="test@example.com")
 
-**Deliverables:**
-Provide a testing assessment report with:
-- Test coverage summary (percentage covered)
-- Test quality score (Excellent/Good/Needs Improvement/Poor)
-- Missing test coverage areas with priority
-- Test quality issues with recommendations
-- Flaky or failing tests identified
-- Performance test results and concerns
-- Recommended test improvements
-- Test execution time analysis
-- Overall testing maturity assessment
+   def test_user_activation(sample_user):
+       sample_user.activate()
+       assert sample_user.is_active
+
+   # Check for:
+   - Fixture organization (conftest.py)
+   - Fixture scope (function, class, module, session)
+   - Fixture dependencies
+   - Fixture clarity and documentation
+   ```
+
+3. **Test Data Management**
+   - Test data stored appropriately (fixtures/, factories)
+   - Test database setup/teardown automated
+   - Test data represents realistic scenarios
+   - Test data includes edge cases
+
+## Phase 7: CI/CD Integration Review
+
+1. **Test Automation Assessment**
+   ```yaml
+   # Review CI/CD test configuration
+   # Example GitHub Actions
+   - name: Run tests
+     run: pytest --cov=src --cov-report=xml
+
+   - name: Upload coverage
+     uses: codecov/codecov-action@v3
+   ```
+
+2. **Quality Gates**
+   - [ ] Tests run on every commit/PR
+   - [ ] Coverage thresholds enforced
+   - [ ] Test failures block merges
+   - [ ] Performance regression detection
+   - [ ] Security test integration
+
+3. **Test Execution Performance**
+   ```bash
+   # Measure test execution time
+   pytest --durations=10
+
+   # Identify slow tests
+   pytest --durations=0 | sort -t: -k2 -rn | head -20
+   ```
+   - Total test suite execution time
+   - Slowest individual tests
+   - Parallel execution opportunities
+
+## Output Format
+
+Please provide a comprehensive testing report with the following structure:
+
+### Executive Summary
+- **Overall Test Health**: [Excellent/Good/Fair/Poor]
+- **Test Coverage**: [percentage]
+- **Critical Gaps**: [count and brief description]
+- **Test Quality**: [High/Medium/Low]
+- **Reliability**: [Stable/Some Flakiness/Unreliable]
+
+### Coverage Metrics
+- **Line Coverage**: [%]
+- **Branch Coverage**: [%]
+- **Function Coverage**: [%]
+- **Module Coverage**: [%]
+
+**Coverage by Module**:
+| Module | Line Coverage | Branch Coverage | Untested Lines | Priority |
+|--------|---------------|-----------------|----------------|----------|
+| [name] | [%] | [%] | [count] | [High/Med/Low] |
+
+### Test Suite Inventory
+- **Total Tests**: [count]
+- **Unit Tests**: [count] ([%])
+- **Integration Tests**: [count] ([%])
+- **End-to-End Tests**: [count] ([%])
+- **Performance Tests**: [count]
+- **Security Tests**: [count]
+
+### Critical Coverage Gaps (Priority 1)
+| Module/Function | Current Coverage | Risk Level | Impact | Recommendation |
+|-----------------|------------------|------------|--------|----------------|
+| [name] | [%] | [High/Med/Low] | [description] | [test types needed] |
+
+### Test Quality Issues
+**Test Smell Detections**:
+| Issue | Location | Description | Fix |
+|-------|----------|-------------|-----|
+| [smell type] | [file:line] | [details] | [recommendation] |
+
+**Common Issues**:
+- [ ] Tests with unclear names: [count]
+- [ ] Tests with weak assertions: [count]
+- [ ] Tests with complex setup: [count]
+- [ ] Tests testing implementation details: [count]
+
+### Test Reliability Assessment
+**Flaky Tests Detected**: [count]
+| Test Name | Failure Rate | Root Cause | Fix |
+|-----------|--------------|------------|-----|
+| [test] | [%] | [reason] | [solution] |
+
+**Test Independence Issues**:
+- [ ] Order-dependent tests: [list]
+- [ ] Shared state pollution: [list]
+- [ ] External dependencies not mocked: [list]
+
+### Test Execution Performance
+- **Total Execution Time**: [seconds]
+- **Slowest Tests**:
+  | Test | Duration | Category | Optimization |
+  |------|----------|----------|--------------|
+  | [name] | [seconds] | [unit/integration/e2e] | [suggestion] |
+
+### Missing Test Types
+- [ ] **Edge Cases**: [specific gaps]
+- [ ] **Error Conditions**: [uncovered exceptions]
+- [ ] **Boundary Values**: [missing boundary tests]
+- [ ] **Integration Points**: [untested interactions]
+- [ ] **Performance Tests**: [operations needing perf tests]
+- [ ] **Security Tests**: [security validations needed]
+
+### CI/CD Integration
+- **Automated Test Execution**: [Yes/No/Partial]
+- **Coverage Reporting**: [Yes/No]
+- **Quality Gates**: [Enforced/Not Enforced]
+- **Test Parallelization**: [Yes/No]
+
+**Issues**:
+- [List of CI/CD testing gaps or issues]
+
+### Recommendations
+
+**Immediate Actions** (Priority 1 - this week):
+1. **[Action]**
+   - **Rationale**: [why important]
+   - **Implementation**: [how to do it]
+   - **Effort**: [hours/days]
+
+**Short-term Goals** (Priority 2 - this month):
+[List of medium-priority testing improvements]
+
+**Long-term Initiatives** (Priority 3 - this quarter):
+[List of strategic testing enhancements]
+
+### Testing Best Practices Implementation
+```python
+# Recommended test patterns
+
+# 1. Use factories for test data
+class UserFactory:
+    @staticmethod
+    def create(**kwargs):
+        defaults = {
+            'username': 'testuser',
+            'email': 'test@example.com',
+            'is_active': True
+        }
+        defaults.update(kwargs)
+        return User(**defaults)
+
+# 2. Use parametrized tests for multiple scenarios
+@pytest.mark.parametrize("input,expected", [
+    ("valid@email.com", True),
+    ("invalid-email", False),
+    ("", False),
+])
+def test_email_validation(input, expected):
+    assert validate_email(input) == expected
+
+# 3. Use fixtures for common setup
+@pytest.fixture
+def authenticated_client():
+    client = TestClient()
+    client.login(username="test", password="test")
+    return client
+```
+
+### Test Coverage Improvement Plan
+**Target: [X]% coverage (from current [Y]%)**
+
+**Phase 1** (Week 1-2):
+- Add tests for [critical modules]
+- Expected coverage gain: +[X]%
+
+**Phase 2** (Week 3-4):
+- Add integration tests for [components]
+- Expected coverage gain: +[X]%
+
+**Phase 3** (Month 2):
+- Add edge case and error condition tests
+- Expected coverage gain: +[X]%
+
+### Quality Gates Recommendation
+```yaml
+# Suggested coverage requirements
+- Minimum overall coverage: 80%
+- Minimum new code coverage: 90%
+- Maximum coverage drop: -2%
+- Branch coverage minimum: 70%
+
+# pytest-cov configuration (setup.cfg or pyproject.toml)
+[tool.pytest.ini_options]
+addopts = --cov=src --cov-fail-under=80 --cov-branch
+```
+
+### Next Steps
+- [ ] Address critical coverage gaps (Priority 1 items)
+- [ ] Fix or quarantine flaky tests
+- [ ] Implement test factories and fixtures
+- [ ] Set up coverage monitoring in CI/CD
+- [ ] Establish team testing guidelines
+- [ ] Schedule testing improvement sprint
+- [ ] Configure pre-commit hooks for test requirements
+
+## Notes
+- Focus on testing critical business logic first
+- Aim for meaningful tests, not just coverage percentage
+- Balance unit, integration, and e2e test distribution
+- Keep tests fast and reliable
+- Treat test code with same quality standards as production code
 ~~~
-
-## Expected Outcomes
-
-### Pass Criteria
-- 80%+ test coverage of critical code paths
-- All tests pass consistently
-- Proper test structure and organization
-- Edge cases and error conditions tested
-- Appropriate use of mocks and fixtures
-- Clear test output with proper formatting
-- Test execution time < 5 minutes for full suite
-
-### Critical Issues to Flag
-- No tests present
-- Tests consistently failing
-- Critical functionality untested
-- Flaky tests with inconsistent results
-- Tests without assertions
-- Tests that don't properly clean up resources
-- Extremely slow test execution (>10 minutes)
-
-### High-Priority Issues
-- Low test coverage (<50%)
-- Missing edge case tests
-- No integration tests
-- Poor test isolation (tests affect each other)
-- Missing test documentation
-- Incomplete test output formatting
-- No performance tests for critical operations
-
-## Testing Patterns Reference
-
-### Comprehensive Test Template
-```python
-"""
-Comprehensive test suite for [feature] functionality.
-Tests cover normal operations, edge cases, error conditions, and performance.
-
-Authors:
-    - Benjamin Dourthe (benjamin@adonamed.com)
-"""
-import functools
-import os
-import sys
-import time
-import unittest
-from typing import Any, Dict
-from unittest.mock import Mock, patch
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-
-from common import TestResultAggregator, PerformanceTimer, format_console_output
-from test_config import get_pass_criteria, SUITE_PASS_THRESHOLD
-
-def timeout(seconds: int = 120):
-    """Decorator to add timeout to test methods."""
-    def decorator(func):
-        @functools.wraps(func)
-        def wrapper(*args, **kwargs):
-            import threading
-            result = [None]
-            exception = [None]
-            
-            def target():
-                try:
-                    result[0] = func(*args, **kwargs)
-                except Exception as e:
-                    exception[0] = e
-            
-            thread = threading.Thread(target=target)
-            thread.daemon = True
-            thread.start()
-            thread.join(seconds)
-            
-            if thread.is_alive():
-                raise TimeoutError(f"Test timed out after {seconds} seconds")
-            if exception[0]:
-                raise exception[0]
-            return result[0]
-        return wrapper
-    return decorator
-
-class FeatureTestSuite(unittest.TestCase):
-    """Comprehensive test suite for Feature functionality."""
-    
-    def __init__(self, methodName: str = 'runTest'):
-        """Initialize test suite with result aggregation."""
-        super().__init__(methodName)
-        self.aggregator = TestResultAggregator("Feature Test Suite")
-    
-    def setUp(self) -> None:
-        """Set up test environment before each test."""
-        self.test_config = self._load_test_config()
-        self._clean_test_environment()
-        self.test_data = self._prepare_test_data()
-        self.mock_dependencies = self._setup_mocks()
-    
-    def tearDown(self) -> None:
-        """Clean up after each test."""
-        self._cleanup_resources()
-        self._reset_test_state()
-    
-    @timeout(120)
-    def test_01_basic_functionality(self) -> None:
-        """TEST 1: Basic functionality validation."""
-        test_name = "Basic Functionality Test"
-        description = "Validates core feature operations"
-        timer = PerformanceTimer()
-        timer.start()
-        
-        try:
-            result_value = self._perform_basic_test()
-            elapsed = timer.stop()
-            
-            metrics = {
-                "Test Result": f"{result_value}",
-                "Processing Time": f"{elapsed:.3f}s"
-            }
-            
-            criteria = get_pass_criteria('basic_functionality')
-            passed = result_value >= criteria['minimum_value']
-            
-            print(format_console_output(
-                1, test_name, description, metrics,
-                f"Achieved {result_value}", passed
-            ))
-            self.aggregator.add_result(
-                test_name, "✅" if passed else "❌",
-                f"{elapsed:.3f}s", metrics, passed
-            )
-            self.assertTrue(passed, f"Test failed: {result_value}")
-        except Exception as e:
-            self._handle_test_exception(test_name, description, e, timer)
-```
-
-### Edge Case Testing Pattern
-```python
-def test_02_edge_cases(self) -> None:
-    """TEST 2: Edge case handling."""
-    edge_cases = [
-        (None, "null input"),
-        ([], "empty list"),
-        ([None], "list with null"),
-        ("", "empty string"),
-        (0, "zero value"),
-        (-1, "negative value"),
-        (float('inf'), "infinity"),
-        (10**9, "large number"),
-    ]
-    
-    passed = 0
-    for test_input, case_name in edge_cases:
-        try:
-            result = process_edge_case(test_input)
-            if result:
-                passed += 1
-        except Exception:
-            pass  # Count as failure
-    
-    self.assertGreaterEqual(passed, len(edge_cases) - 1)
-```
-
-## Next Steps
-After completing this review, proceed to the Final Review & Recommendations..

@@ -1,239 +1,311 @@
-# Code Quality & Standards Review
+# Python Code Quality Review
 
 ## Objective
-Evaluate code quality, adherence to style guidelines, and implementation of best practices.
+Systematically evaluate code maintainability, readability, and adherence to Python best practices. Identify technical debt, complexity hotspots, and areas requiring refactoring to improve long-term codebase health.
 
 ## Review Checklist
 
-### Import Organization
-- [ ] All imports at top of files (not inside functions/classes)
-- [ ] Standard library imports first (alphabetically sorted)
-- [ ] Third-party imports second (grouped by functionality with headers)
-- [ ] Local application imports last (alphabetically sorted)
-- [ ] Each section separated by blank line
-- [ ] Absolute imports used for local modules
-- [ ] No unused imports
+### Coding Standards
+- [ ] PEP 8 compliance verified (line length, spacing, naming)
+- [ ] Import organization follows standard order (stdlib, third-party, local)
+- [ ] Docstring format consistent (Google, NumPy, or reStructuredText)
+- [ ] Type hints used appropriately
+- [ ] Consistent naming conventions (snake_case, PascalCase, UPPER_CASE)
 
-### Code Formatting
-- [ ] Line length respects 88-character limit (Black standard)
-- [ ] Acceptable exceptions properly handled (URLs, file paths)
-- [ ] Multi-line function signatures properly formatted
-- [ ] Long strings properly split across lines
-- [ ] Complex conditionals properly formatted
-- [ ] Dictionary/list comprehensions properly formatted
+### Code Complexity
+- [ ] Functions under 50 lines (flagged if exceeded)
+- [ ] Cyclomatic complexity under 10 per function
+- [ ] Nesting depth under 4 levels
+- [ ] Class size reasonable (<300 lines)
+- [ ] Module cohesion evaluated
 
-### Code Layout
-- [ ] No empty lines inside function/method bodies
-- [ ] One blank line between function/method definitions
-- [ ] Two blank lines between class definitions
-- [ ] Related statements grouped closely together
-- [ ] Consistent indentation (4 spaces)
+### Design & Architecture
+- [ ] SOLID principles followed
+- [ ] DRY principle applied (no significant duplication)
+- [ ] Separation of concerns maintained
+- [ ] Appropriate use of design patterns
+- [ ] Dependency injection where beneficial
 
-### Comment Quality
-- [ ] Comments placed above code blocks
-- [ ] Comments explain "why," not just "what"
-- [ ] No inline comments (unless absolutely necessary)
-- [ ] No meta-commentary about editing history
-- [ ] Comments focus on logic, reasoning, and non-obvious behavior
-- [ ] All comments add value
+### Code Smells
+- [ ] Long parameter lists identified (>5 parameters)
+- [ ] Feature envy detected
+- [ ] Shotgun surgery patterns flagged
+- [ ] God classes or modules identified
+- [ ] Dead code marked for removal
 
-### Naming Conventions
-- [ ] Public functions use `snake_case`
-- [ ] Private functions use `_snake_case` with underscore prefix
-- [ ] Constants use `UPPER_CASE`
-- [ ] Classes use `PascalCase`
-- [ ] Type aliases use `PascalCase`
-- [ ] Descriptive, meaningful names throughout
+### Error Handling
+- [ ] Exceptions caught at appropriate level
+- [ ] Specific exceptions used (not bare `except:`)
+- [ ] Error messages informative
+- [ ] Resources properly cleaned up (context managers)
+- [ ] Logging appropriate for debugging
 
-### Function Design
-- [ ] Single responsibility principle followed
-- [ ] Predictable interfaces with consistent parameter patterns
-- [ ] Type hints on all public functions
-- [ ] Explicit error handling with meaningful messages
-- [ ] Guard clauses used for validation
-- [ ] Default parameters placed after required parameters
-- [ ] Functions are appropriately sized (<50 lines ideally)
-
-### Documentation
-- [ ] Complex functions have comprehensive docstrings
-  - Purpose description
-  - Parameters documented
-  - Returns documented
-  - Exceptions documented
-  - Author information included
-- [ ] Simple functions have concise docstrings
-- [ ] Classes have descriptive docstrings
-- [ ] Module-level docstrings present
+### Maintainability
+- [ ] Code self-documenting with clear names
+- [ ] Comments explain "why" not "what"
+- [ ] Magic numbers replaced with named constants
+- [ ] Configuration externalized
+- [ ] Hardcoded values eliminated
 
 ## Prompt Template
 
 Use the structured prompt below with your coding assistant:
 
 ~~~markdown
-Please perform a comprehensive code quality and standards review:
+# Python Code Quality Review
 
-**Import Organization Analysis:**
-1. Check each Python file's imports:
-   - Verify imports are at the top of files
-   - Confirm three-section organization:
-     * Standard library (alphabetically sorted)
-     * Third-party (grouped by functionality with comment headers)
-     * Local application (alphabetically sorted)
-   - Ensure blank lines separate sections
-   - Verify no unused imports
-   - Check for absolute imports for local modules
+Please perform a comprehensive code quality review of this Python project following this protocol:
 
-Example correct format:
-```python
-# Standard library
-import functools
-import os
-import sys
-from datetime import datetime
-from typing import Any, Dict, List, Optional
+## Phase 1: Coding Standards Assessment
 
-# Data processing
-import pandas as pd
-import numpy as np
+1. **PEP 8 Compliance Check**
+   ```bash
+   # Run automated style checker
+   flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+   flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
-# Testing
-import pytest
-from unittest.mock import Mock
+   # Or use pylint
+   pylint src/ --exit-zero
+   ```
 
-# Local imports
-from src.core.database import DatabaseManager
-from src.core.utils import format_response
+2. **Style Violations Analysis**
+   - Document most common violations
+   - Identify patterns of non-compliance
+   - Assess consistency across modules
+   - Flag formatting inconsistencies
+
+3. **Naming Convention Review**
+   - Verify function names are descriptive and snake_case
+   - Check class names use PascalCase
+   - Confirm constants use UPPER_CASE
+   - Identify unclear or abbreviated names
+
+## Phase 2: Complexity Analysis
+
+1. **Function-Level Complexity**
+   ```bash
+   # Calculate cyclomatic complexity
+   radon cc . -a -nb
+
+   # Generate maintainability index
+   radon mi . -nb
+   ```
+
+2. **Identify Complexity Hotspots**
+   - List functions with complexity >10
+   - Flag functions longer than 50 lines
+   - Identify deeply nested code (>4 levels)
+   - Document complex conditional logic
+
+3. **Module-Level Analysis**
+   - Assess module size and cohesion
+   - Identify modules with too many responsibilities
+   - Check coupling between modules
+   - Evaluate package organization
+
+## Phase 3: Design Quality Review
+
+1. **SOLID Principles**
+   - **Single Responsibility**: Check if classes/functions have one clear purpose
+   - **Open/Closed**: Evaluate extensibility without modification
+   - **Liskov Substitution**: Review inheritance hierarchies
+   - **Interface Segregation**: Check for lean interfaces
+   - **Dependency Inversion**: Assess dependency on abstractions
+
+2. **DRY Violations**
+   ```bash
+   # Check for code duplication
+   pylint --disable=all --enable=duplicate-code . --min-similarity-lines=6
+   ```
+   - Identify duplicated logic
+   - Find near-duplicate functions
+   - Document consolidation opportunities
+
+3. **Design Patterns**
+   - Identify patterns in use (factory, singleton, strategy, etc.)
+   - Assess pattern appropriateness
+   - Flag pattern misuse or over-engineering
+   - Suggest beneficial pattern applications
+
+## Phase 4: Code Smell Detection
+
+1. **Common Python Code Smells**
+   - **Long Parameter Lists**: Functions with >5 parameters
+   - **Long Methods**: Methods exceeding 50 lines
+   - **Large Classes**: Classes with >300 lines or >20 methods
+   - **Data Clumps**: Same groups of data appearing together
+   - **Feature Envy**: Methods using data from other classes excessively
+
+2. **Anti-Patterns**
+   - God objects/classes
+   - Spaghetti code
+   - Lava flow (dead/obsolete code)
+   - Copy-paste programming
+   - Magic numbers and strings
+
+3. **Python-Specific Issues**
+   - Mutable default arguments
+   - Bare `except:` clauses
+   - Using `eval()` or `exec()`
+   - Mixing tabs and spaces
+   - Incorrect use of `is` vs `==`
+
+## Phase 5: Error Handling & Robustness
+
+1. **Exception Handling Review**
+   - Check for broad exception catching
+   - Verify appropriate exception types used
+   - Assess error message quality
+   - Review exception propagation strategy
+
+2. **Resource Management**
+   - Verify use of context managers (`with` statements)
+   - Check for proper file/connection cleanup
+   - Review memory management patterns
+   - Identify potential resource leaks
+
+3. **Defensive Programming**
+   - Input validation assessed
+   - Boundary condition handling reviewed
+   - Edge case coverage evaluated
+   - Fail-fast patterns identified
+
+## Phase 6: Documentation Quality
+
+1. **Docstring Coverage**
+   ```bash
+   # Check docstring coverage
+   interrogate . -v
+   ```
+   - Measure module/class/function docstring presence
+   - Assess docstring completeness
+   - Verify parameter documentation
+   - Check return value documentation
+
+2. **Comment Quality**
+   - Evaluate comment necessity and clarity
+   - Flag commented-out code for removal
+   - Check for TODO/FIXME/HACK comments
+   - Verify comments explain "why" not "what"
+
+3. **Type Hints**
+   ```bash
+   # Check type hint coverage
+   mypy src/ --ignore-missing-imports
+   ```
+   - Assess type hint coverage
+   - Verify type hint accuracy
+   - Check for `Any` overuse
+   - Review complex type annotations
+
+## Output Format
+
+Please provide a comprehensive quality report with the following structure:
+
+### Executive Summary
+- **Overall Quality Score**: [A-F grade]
+- **Maintainability Index**: [score]
+- **Average Complexity**: [cyclomatic complexity]
+- **Critical Issues**: [count]
+- **Technical Debt**: [estimated hours to address]
+
+### Coding Standards Compliance
+- **PEP 8 Violations**: [count and severity]
+- **Most Common Issues**:
+  1. [Issue type] - [count] occurrences
+  2. [Issue type] - [count] occurrences
+- **Consistency Score**: [percentage]
+
+### Complexity Analysis
+**High Complexity Functions** (Cyclomatic Complexity >10):
+| Function | File | Complexity | Lines | Recommendation |
+|----------|------|------------|-------|----------------|
+| [name] | [path] | [score] | [count] | [refactor suggestion] |
+
+**Large Files/Modules** (>300 lines):
+| Module | Lines | Classes | Functions | Recommendation |
+|--------|-------|---------|-----------|----------------|
+| [path] | [count] | [count] | [count] | [split suggestion] |
+
+### Design Quality Issues
+1. **SOLID Violations**:
+   - [Principle]: [specific examples and impact]
+
+2. **DRY Violations**:
+   - [Location]: [description of duplication]
+   - **Consolidation Opportunity**: [suggestion]
+
+3. **Missing Patterns**:
+   - [Location]: [beneficial pattern suggestion]
+
+### Code Smells Identified
+| Smell Type | Location | Severity | Description | Remediation |
+|------------|----------|----------|-------------|-------------|
+| [type] | [file:line] | [High/Med/Low] | [details] | [suggestion] |
+
+### Error Handling Assessment
+- **Broad Exception Catching**: [count and locations]
+- **Missing Resource Cleanup**: [locations]
+- **Inadequate Input Validation**: [locations]
+- **Poor Error Messages**: [examples]
+
+### Documentation Score
+- **Docstring Coverage**: [percentage]
+- **Type Hint Coverage**: [percentage]
+- **Comment Quality**: [Good/Fair/Poor]
+- **Areas Needing Documentation**: [list]
+
+### Technical Debt Summary
+**Priority 1 (Critical)**: [Estimated hours]
+- [Issue description and location]
+
+**Priority 2 (High)**: [Estimated hours]
+- [Issue description and location]
+
+**Priority 3 (Medium)**: [Estimated hours]
+- [Issue description and location]
+
+**Priority 4 (Low)**: [Estimated hours]
+- [Issue description and location]
+
+### Refactoring Recommendations
+1. **Immediate Actions** (within 1 sprint):
+   - [Specific refactoring with location and rationale]
+
+2. **Short-term Goals** (1-2 months):
+   - [Improvement initiative with expected impact]
+
+3. **Long-term Initiatives** (3-6 months):
+   - [Strategic refactoring with business justification]
+
+### Positive Patterns
+Acknowledge what's done well:
+- [Good practice observed and locations]
+- [Effective pattern usage examples]
+
+### Next Steps
+- [ ] Address critical complexity hotspots
+- [ ] Implement automated quality gates (linting, type checking)
+- [ ] Plan refactoring sprints for high-priority technical debt
+- [ ] Establish team coding standards documentation
+- [ ] Set up pre-commit hooks for style enforcement
+
+## Automation Recommendations
+Suggest tools and configuration for continuous quality monitoring:
+```yaml
+# Example .pre-commit-config.yaml
+repos:
+  - repo: https://github.com/psf/black
+    rev: 24.1.1
+    hooks:
+      - id: black
+  - repo: https://github.com/pycqa/flake8
+    rev: 7.0.0
+    hooks:
+      - id: flake8
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.8.0
+    hooks:
+      - id: mypy
 ```
-
-**Code Formatting Review:**
-1. Line length compliance:
-   - Flag lines exceeding 88 characters (unless justified exceptions)
-   - Check multi-line function signatures are properly formatted
-   - Verify long strings are properly split
-   - Review complex conditionals for proper formatting
-
-2. Code layout assessment:
-   - Verify no empty lines inside function bodies
-   - Check one blank line between functions
-   - Confirm two blank lines between classes
-   - Ensure related statements are grouped together
-
-**Comment Quality Assessment:**
-1. Evaluate each comment:
-   - Positioned above code blocks (not inline)
-   - Explains "why" and reasoning, not obvious "what"
-   - No editing history or meta-commentary
-   - Adds genuine value to understanding
-
-2. Flag problematic patterns:
-   - Obvious comments that don't add value
-   - Inline comments that clutter code
-   - Outdated or misleading comments
-
-**Naming Convention Audit:**
-Review all identifiers for compliance:
-- Functions: snake_case (public), _snake_case (private)
-- Constants: UPPER_CASE
-- Classes: PascalCase
-- Type aliases: PascalCase
-- Check for descriptive, meaningful names
-
-**Function Design Evaluation:**
-For each function, assess:
-1. Single responsibility (does one thing well)
-2. Type hints on public functions
-3. Error handling (explicit with meaningful messages)
-4. Guard clauses for validation
-5. Parameter ordering (required before defaults)
-6. Appropriate size and complexity
-
-**Documentation Completeness:**
-Review docstrings for:
-1. Complex functions: comprehensive format with Parameters, Returns, Raises, Authors
-2. Simple functions: concise purpose statement
-3. Classes: clear description
-4. Modules: overview docstring
-
-**Deliverables:**
-Provide a structured report with:
-- Import organization issues and corrections
-- Code formatting violations with specific line numbers
-- Comment quality assessment with recommendations
-- Naming convention violations with suggested fixes
-- Function design concerns with refactoring suggestions
-- Documentation gaps with priority levels
-- Overall code quality score (Excellent/Good/Needs Improvement/Poor)
 ~~~
-
-## Expected Outcomes
-
-### Pass Criteria
-- 95%+ compliance with import organization standards
-- 90%+ line length compliance
-- All public functions have type hints
-- Meaningful docstrings on complex functions
-- Consistent naming conventions throughout
-- No obvious code quality issues
-
-### Common Issues to Flag
-- Imports inside functions/classes
-- Inconsistent import organization
-- Lines exceeding 88 characters without justification
-- Missing type hints on public functions
-- Inline comments cluttering code
-- Inconsistent naming conventions
-- Functions violating single responsibility principle
-- Missing or inadequate docstrings
-- Unused imports or variables
-
-## Code Examples for Reference
-
-### Correct Import Organization
-```python
-# Standard library
-import functools
-import os
-from typing import Any, Dict, List
-
-# Data processing
-import pandas as pd
-import numpy as np
-
-# Local imports
-from src.core.utils import helper_function
-```
-
-### Proper Function Documentation
-```python
-def process_user_data(
-    records: List[Dict], 
-    rules: Dict[str, Any]
-) -> List[Dict]:
-    """
-    Process and validate records according to rules.
-
-    Parameters:
-        - records: Raw data records
-        - rules: Validation rules
-
-    Returns:
-        - Processed records
-
-    Raises:
-        - ValueError: Invalid rules
-        - DataError: Processing failed
-
-    Authors:
-        - Benjamin Dourthe (benjamin@adonamed.com)
-    """
-```
-
-### Correct Comment Style
-```python
-# Use binary search for O(log n) performance on sorted data
-# This is critical for large datasets (>10k items)
-result = binary_search(sorted_list, target)
-```
-
-## Next Steps
-After completing this review, proceed to the Security & Error Handling Review..

@@ -1,825 +1,863 @@
-# SBOM Generation & Dependency Documentation
+# Python SBOM Generation
 
-Generate comprehensive Software Bill of Materials (SBOM) and dependency documentation for security, compliance, and supply chain management.
+## Objective
+Generate comprehensive, standards-compliant Software Bill of Materials (SBOM) documentation that meets regulatory requirements (NTIA minimum elements, EU Cyber Resilience Act) for security, compliance, and supply chain management.
 
----
+## Implementation Checklist
 
-## Overview
+### NTIA Minimum Elements
+- [ ] Supplier name documented
+- [ ] Component name documented
+- [ ] Version of component documented
+- [ ] Other unique identifiers (PURL, CPE)
+- [ ] Dependency relationships mapped
+- [ ] Author of SBOM data documented
+- [ ] Timestamp of SBOM generation
 
-This guide focuses on creating detailed Software Bill of Materials (SBOM) documentation that catalogs all software components, dependencies, licenses, and security information. SBOMs are increasingly required for regulatory compliance, security auditing, and supply chain risk management.
+### EU Cyber Resilience Act Requirements
+- [ ] Complete dependency tree with versions
+- [ ] Known vulnerabilities (CVEs) identified
+- [ ] Security advisories tracked
+- [ ] License information documented
+- [ ] Component provenance documented
+- [ ] Update and patch status
 
----
+### Dependency Analysis
+- [ ] Direct dependencies listed with versions
+- [ ] Transitive dependencies mapped
+- [ ] Dependency tree visualized
+- [ ] Circular dependencies identified
+- [ ] Outdated dependencies flagged
+
+### License Compliance
+- [ ] All licenses identified
+- [ ] License compatibility checked
+- [ ] Copyleft obligations documented
+- [ ] License conflicts identified
+- [ ] Attribution requirements tracked
+
+### Vulnerability Tracking
+- [ ] Known CVEs for each component
+- [ ] CVSS scores documented
+- [ ] Patch availability status
+- [ ] Mitigation strategies documented
+- [ ] False positive handling
+
+### Supply Chain Security
+- [ ] Component source/repository documented
+- [ ] Package integrity (hashes) verified
+- [ ] Digital signatures checked
+- [ ] Build provenance tracked
+- [ ] Supply chain risks assessed
 
 ## Prompt Template
 
 Use the structured prompt below with your coding assistant:
 
 ~~~markdown
+# Python SBOM Generation Request
 
-Please help me generate comprehensive SBOM (Software Bill of Materials) and dependency documentation for my Python project.
-**Project Context:**
-- Project name: [YOUR_PROJECT_NAME]
-- Version: [X.Y.Z]
-- Package manager: [pip / poetry / conda]
-- Deployment target: [Production / Open Source / Enterprise]
-- Compliance requirements: [NIST / EU Cyber Resilience Act / NTIA / etc.]
----
-## SBOM Requirements
-### 1. Generate SBOM Files
-Create SBOM files in multiple standard formats:
-#### CycloneDX Format (Recommended)
-# Install CycloneDX generator
+Please generate a comprehensive Software Bill of Materials (SBOM) for this Python project following this protocol:
+
+## Phase 1: Dependency Discovery & Analysis
+
+1. **Inventory Direct Dependencies**
+
+   Analyze `requirements.txt`, `pyproject.toml`, or `setup.py`:
+
+   ```bash
+   # For pip
+   pip list --format=json > dependencies.json
+
+   # For poetry
+   poetry show --tree --format=json > dependencies.json
+
+   # For pipenv
+   pipenv graph --json > dependencies.json
+   ```
+
+2. **Map Transitive Dependencies**
+
+   Create complete dependency tree:
+
+   ```bash
+   # Using pipdeptree
+   pip install pipdeptree
+   pipdeptree --json > dependency_tree.json
+
+   # Using poetry
+   poetry show --tree
+   ```
+
+3. **Identify Dependency Metadata**
+
+   For each dependency, collect:
+   - Package name
+   - Version
+   - License
+   - Repository URL
+   - Maintainer/supplier
+   - Dependencies (for transitive mapping)
+
+## Phase 2: SBOM Format Selection
+
+Choose SBOM format based on requirements:
+
+### Option 1: SPDX (Software Package Data Exchange)
+- **Standard**: ISO/IEC 5962:2021
+- **Format**: JSON, YAML, RDF, Tag-Value
+- **Best for**: License compliance, legal requirements
+- **Tools**: spdx-tools, scancode-toolkit
+
+### Option 2: CycloneDX
+- **Standard**: OWASP CycloneDX
+- **Format**: JSON, XML
+- **Best for**: Security analysis, vulnerability management
+- **Tools**: cyclonedx-python, syft
+
+### Option 3: SWID (Software Identification Tags)
+- **Standard**: ISO/IEC 19770-2:2015
+- **Format**: XML
+- **Best for**: IT asset management
+
+**Recommendation**: Use CycloneDX for security focus, SPDX for license focus.
+
+## Phase 3: Generate SBOM (CycloneDX Format)
+
+### Using cyclonedx-bom
+
+```bash
+# Install tool
 pip install cyclonedx-bom
 
-# Generate SBOM in JSON format
-cyclonedx-py -o sbom.json -F json
+# Generate SBOM from requirements.txt
+cyclonedx-py requirements requirements.txt -o sbom.json
 
-# Generate SBOM in XML format
-cyclonedx-py -o sbom.xml -F xml
+# Generate from poetry
+cyclonedx-py poetry -o sbom.json
 
-**Generated file location**: `sbom.json` or `sbom.xml` in project root
+# Generate from pipenv
+cyclonedx-py pipenv -o sbom.json
 
-#### SPDX Format
+# Generate with all details
+cyclonedx-py requirements requirements.txt \
+  --format json \
+  --output sbom.json \
+  --sv 1.4 \
+  --reproducible
+```
 
-# Install SPDX tools
+### CycloneDX SBOM Template (JSON)
+
+```json
+{
+  "$schema": "http://cyclonedx.org/schema/bom-1.4.schema.json",
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.4",
+  "serialNumber": "urn:uuid:3e671687-395b-41f5-a30f-a58921a69b79",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2024-01-16T10:00:00Z",
+    "tools": [
+      {
+        "vendor": "CycloneDX",
+        "name": "cyclonedx-python",
+        "version": "3.11.0"
+      }
+    ],
+    "authors": [
+      {
+        "name": "Benjamin Dourthe",
+        "email": "benjamin@adonamed.com"
+      }
+    ],
+    "component": {
+      "type": "application",
+      "bom-ref": "pkg:pypi/project-name@1.0.0",
+      "name": "project-name",
+      "version": "1.0.0",
+      "description": "Project description",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:pypi/project-name@1.0.0",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/username/project"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/username/project.git"
+        }
+      ]
+    }
+  },
+  "components": [
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/requests@2.31.0",
+      "name": "requests",
+      "version": "2.31.0",
+      "description": "Python HTTP for Humans.",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "942c5a758f98d8d7c5c5e4f2c9c1c9e3b1b7a7e4c4d4e4f4g4h4i4j4k4l4"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "purl": "pkg:pypi/requests@2.31.0",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://requests.readthedocs.io"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/psf/requests"
+        }
+      ],
+      "properties": [
+        {
+          "name": "pypi:package:type",
+          "value": "library"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/fastapi@0.104.1",
+      "name": "fastapi",
+      "version": "0.104.1",
+      "description": "FastAPI framework, high performance, easy to learn",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:pypi/fastapi@0.104.1",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://fastapi.tiangolo.com"
+        }
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "pkg:pypi/project-name@1.0.0",
+      "dependsOn": [
+        "pkg:pypi/requests@2.31.0",
+        "pkg:pypi/fastapi@0.104.1"
+      ]
+    },
+    {
+      "ref": "pkg:pypi/requests@2.31.0",
+      "dependsOn": [
+        "pkg:pypi/charset-normalizer@3.3.2",
+        "pkg:pypi/idna@3.6",
+        "pkg:pypi/urllib3@2.1.0",
+        "pkg:pypi/certifi@2023.11.17"
+      ]
+    },
+    {
+      "ref": "pkg:pypi/fastapi@0.104.1",
+      "dependsOn": [
+        "pkg:pypi/starlette@0.27.0",
+        "pkg:pypi/pydantic@2.5.0"
+      ]
+    }
+  ],
+  "vulnerabilities": [
+    {
+      "bom-ref": "vuln:pypi/requests@2.31.0:CVE-2023-XXXXX",
+      "id": "CVE-2023-XXXXX",
+      "source": {
+        "name": "NVD",
+        "url": "https://nvd.nist.gov/vuln/detail/CVE-2023-XXXXX"
+      },
+      "ratings": [
+        {
+          "source": {
+            "name": "NVD"
+          },
+          "score": 7.5,
+          "severity": "high",
+          "method": "CVSSv3",
+          "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N"
+        }
+      ],
+      "cwes": [79],
+      "description": "Description of the vulnerability",
+      "recommendation": "Update to version 2.31.1 or higher",
+      "affects": [
+        {
+          "ref": "pkg:pypi/requests@2.31.0",
+          "versions": [
+            {
+              "version": "2.31.0",
+              "status": "affected"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
+## Phase 4: Generate SBOM (SPDX Format)
+
+### Using spdx-tools
+
+```bash
+# Install tools
 pip install spdx-tools
 
 # Generate SPDX SBOM
-# Manual generation or use tools like syft
-~~~
-
-#### Syft (Multi-format)
-
-```bash
-# Install Syft
-# Windows: scoop install syft
-# Linux/Mac: brew install syft
-
-# Generate SBOM
-syft packages . -o cyclonedx-json > sbom.json
-syft packages . -o spdx-json > sbom-spdx.json
-syft packages . -o table
+# (Requires manual construction or tooling)
 ```
 
----
+### SPDX SBOM Template (JSON)
 
-### 2. SBOM Documentation (docs/SBOM.md)
-
-Create comprehensive SBOM documentation:
-
-```markdown
-# Software Bill of Materials (SBOM)
-
-## Overview
-
-This document provides a comprehensive inventory of all software components, dependencies, and licenses used in [Project Name].
-
-**Document Information**:
-- **Project**: [Project Name]
-- **Version**: [X.Y.Z]
-- **Generated**: [YYYY-MM-DD]
-- **SBOM Format**: CycloneDX 1.5 / SPDX 2.3
-- **SBOM Location**: `sbom.json`, `sbom.xml`
-
-## Purpose
-
-This SBOM serves multiple purposes:
-- **Security**: Identify vulnerable components for patching
-- **Compliance**: Meet regulatory requirements (NTIA, EU CRA, etc.)
-- **License Management**: Track and manage open source licenses
-- **Supply Chain Risk**: Understand dependency provenance
-- **Incident Response**: Rapid identification of affected components
-
-## Summary Statistics
-
-- **Total Components**: [X] packages
-- **Direct Dependencies**: [Y] packages
-- **Transitive Dependencies**: [Z] packages
-- **Unique Licenses**: [N] different licenses
-- **Known Vulnerabilities**: [M] (see Security section)
-
-## Direct Dependencies
-
-### Production Dependencies
-
-| Package | Version | License | Purpose |
-|---------|---------|---------|---------|
-| pandas | >=1.5.0 | BSD-3-Clause | Data manipulation and analysis |
-| requests | >=2.28.0 | Apache-2.0 | HTTP client library |
-| pydantic | >=2.0.0 | MIT | Data validation and parsing |
-| [package] | [version] | [license] | [purpose] |
-
-### Development Dependencies
-
-| Package | Version | License | Purpose |
-|---------|---------|---------|---------|
-| pytest | >=7.0.0 | MIT | Testing framework |
-| black | >=22.0.0 | MIT | Code formatter |
-| mypy | >=0.950 | MIT | Static type checker |
-| [package] | [version] | [license] | [purpose] |
-
-## Transitive Dependencies
-
-Complete list of all indirect dependencies:
-
-| Package | Version | Required By | License |
-|---------|---------|-------------|---------|
-| numpy | 1.24.3 | pandas | BSD-3-Clause |
-| python-dateutil | 2.8.2 | pandas | Apache-2.0/BSD-3 |
-| [package] | [version] | [parent] | [license] |
-
-## License Analysis
-
-### License Distribution
-
-- **Permissive Licenses** (MIT, BSD, Apache): [X]% of dependencies
-- **Copyleft Licenses** (GPL, LGPL): [Y]% of dependencies
-- **Proprietary/Other**: [Z]% of dependencies
-
-### License Compatibility
-
-**Project License**: [Your License]
-
-**Compatibility Assessment**:
-- ✅ All dependencies compatible with project license
-- ⚠️ [Package] has [license] - requires attribution
-- ❌ No incompatible licenses detected
-
-### License Details
-
-#### Permissive Licenses
-
-**MIT License** (X packages):
-- pandas, requests, pydantic, [others]
-- **Obligations**: Include copyright notice and license text
-- **Restrictions**: None
-
-**Apache License 2.0** (Y packages):
-- [list packages]
-- **Obligations**: Include copyright, license, and NOTICE file
-- **Restrictions**: Trademark restrictions
-
-**BSD-3-Clause** (Z packages):
-- [list packages]
-- **Obligations**: Include copyright notice
-- **Restrictions**: Cannot use names for endorsement
-
-#### Copyleft Licenses
-
-**LGPL** (if any):
-- [list packages]
-- **Obligations**: Provide source code for modifications
-- **Restrictions**: Dynamic linking allowed
-
-## Security Analysis
-
-### Vulnerability Scanning
-
-Last scanned: [YYYY-MM-DD]
-
-**Scan Results**:
-- **Critical**: [N] vulnerabilities
-- **High**: [N] vulnerabilities
-- **Medium**: [N] vulnerabilities
-- **Low**: [N] vulnerabilities
-
-### Known Vulnerabilities
-
-#### Critical Vulnerabilities
-
-**CVE-YYYY-XXXXX** - [Package Name] [Version]
-- **Severity**: Critical (CVSS 9.8)
-- **Description**: [Brief description]
-- **Affected Versions**: [version range]
-- **Fixed In**: [version]
-- **Remediation**: Update to [version] or higher
-- **Status**: [Open / Patched / Mitigated]
-
-### Vulnerability Mitigation
-
-```bash
-# Update vulnerable packages
-pip install --upgrade [package]
-
-# Or specify exact version
-pip install [package]==[fixed-version]
+```json
+{
+  "spdxVersion": "SPDX-2.3",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "name": "project-name-1.0.0",
+  "documentNamespace": "https://example.com/spdxdocs/project-name-1.0.0-uuid",
+  "creationInfo": {
+    "created": "2024-01-16T10:00:00Z",
+    "creators": [
+      "Tool: spdx-tools-0.8.0",
+      "Person: Benjamin Dourthe (benjamin@adonamed.com)"
+    ],
+    "licenseListVersion": "3.21"
+  },
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-Package-project-name",
+      "name": "project-name",
+      "versionInfo": "1.0.0",
+      "downloadLocation": "https://github.com/username/project",
+      "filesAnalyzed": false,
+      "homepage": "https://github.com/username/project",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "copyrightText": "Copyright (c) 2024 Benjamin Dourthe",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:pypi/project-name@1.0.0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-requests",
+      "name": "requests",
+      "versionInfo": "2.31.0",
+      "downloadLocation": "https://pypi.org/project/requests/2.31.0/",
+      "filesAnalyzed": false,
+      "homepage": "https://requests.readthedocs.io",
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright (c) Kenneth Reitz",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:pypi/requests@2.31.0"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceType": "cpe23Type",
+          "referenceLocator": "cpe:2.3:a:python-requests:requests:2.31.0:*:*:*:*:*:*:*"
+        }
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-Package-project-name"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-project-name",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-requests"
+    }
+  ]
+}
 ```
 
-### Security Scanning Tools
+## Phase 5: Vulnerability Scanning
 
-**Recommended Tools**:
+Scan for known vulnerabilities in dependencies:
+
+### Using pip-audit
+
 ```bash
-# pip-audit - Check for known vulnerabilities
+# Install pip-audit
 pip install pip-audit
-pip-audit
 
-# Safety - Database of known security vulnerabilities
+# Scan for vulnerabilities
+pip-audit --format json --output vulnerabilities.json
+
+# Scan with specific requirement file
+pip-audit -r requirements.txt --format json
+
+# Example output
+{
+  "dependencies": [
+    {
+      "name": "requests",
+      "version": "2.25.0",
+      "vulns": [
+        {
+          "id": "PYSEC-2023-74",
+          "fix_versions": ["2.31.0"],
+          "description": "Requests Proxy-Authorization header leak",
+          "aliases": ["CVE-2023-32681"]
+        }
+      ]
+    }
+  ]
+}
+```
+
+### Using safety
+
+```bash
+# Install safety
 pip install safety
-safety check
 
-# Bandit - Code security analysis
-pip install bandit
-bandit -r src/
+# Scan dependencies
+safety check --json > safety_report.json
 
-# Snyk - Comprehensive security scanning
-snyk test
+# Scan specific requirements file
+safety check -r requirements.txt --json
 ```
 
-## Component Provenance
-
-### Package Sources
-
-| Package | Source Repository | Integrity Check |
-|---------|-------------------|-----------------|
-| pandas | https://github.com/pandas-dev/pandas | SHA256 verified |
-| requests | https://github.com/psf/requests | SHA256 verified |
-| [package] | [repository URL] | [verification method] |
-
-### Dependency Resolution
-
-**Package Manager**: pip [version]
-**Lock File**: requirements.txt / poetry.lock / Pipfile.lock
-**Registry**: PyPI (https://pypi.org)
-
-### Supply Chain Security
-
-**Measures Implemented**:
-- ✅ Dependencies installed from official PyPI
-- ✅ Package integrity verified via SHA256 hashes
-- ✅ Dependency versions pinned for reproducibility
-- ✅ Regular vulnerability scanning
-- ✅ Automated dependency updates via Dependabot
-
-## Dependency Graph
-
-### Top-Level Dependencies
-
-```
-[project-name]
-├── pandas (>=1.5.0)
-│   ├── numpy (>=1.21.0)
-│   ├── python-dateutil (>=2.8.1)
-│   └── pytz (>=2020.1)
-├── requests (>=2.28.0)
-│   ├── charset-normalizer (<4,>=2)
-│   ├── idna (<4,>=2.5)
-│   ├── urllib3 (<3,>=1.21.1)
-│   └── certifi (>=2017.4.17)
-└── pydantic (>=2.0.0)
-    ├── typing-extensions (>=4.6.1)
-    └── pydantic-core (==2.x.x)
-
-### Generate Full Dependency Tree
+### Using Trivy
 
 ```bash
-# Using pipdeptree
-pip install pipdeptree
-pipdeptree --graph-output png > dependency-graph.png
+# Install Trivy
+# See: https://aquasecurity.github.io/trivy/
 
-# Using poetry
-poetry show --tree
+# Scan Python project
+trivy fs --format json --output trivy_report.json .
 
-# Text format
-pip install pipdeptree
-pipdeptree > dependency-tree.txt
+# Scan specific requirements file
+trivy fs --format json -f requirements.txt .
 ```
 
-## Compliance Information
+## Phase 6: License Analysis
 
-### Regulatory Compliance
-
-**NTIA Minimum Elements** (US Executive Order 14028):
-- ✅ Supplier name
-- ✅ Component name
-- ✅ Version of component
-- ✅ Other unique identifiers
-- ✅ Dependency relationships
-- ✅ Author of SBOM data
-- ✅ Timestamp
-
-**EU Cyber Resilience Act**:
-- ✅ SBOM provided in machine-readable format
-- ✅ Vulnerability disclosure process documented
-- ✅ Security updates available
-
-### Export Control
-
-**Export Control Classification**: [EAR99 / Other]
-**ECCN**: [If applicable]
-**Notes**: [Any export restrictions]
-
-## Maintenance
-
-### Update Frequency
-
-- **Regular Updates**: Monthly dependency review
-- **Security Updates**: Within 24-48 hours of disclosure
-- **SBOM Regeneration**: With each release
-
-### Update Process
+### Using pip-licenses
 
 ```bash
-# Check for outdated packages
-pip list --outdated
+# Install pip-licenses
+pip install pip-licenses
 
-# Update specific package
-pip install --upgrade [package]
+# List all licenses
+pip-licenses --format=json --with-urls > licenses.json
 
-# Regenerate SBOM
-cyclonedx-py -o sbom.json -F json
+# Check for specific license types
+pip-licenses --format=markdown --with-urls
 
-# Run security scan
-pip-audit
-safety check
-
-# Update this documentation
-# Update version, date, and statistics
+# Example output format
+[
+  {
+    "Name": "requests",
+    "Version": "2.31.0",
+    "License": "Apache 2.0",
+    "URL": "https://requests.readthedocs.io"
+  },
+  {
+    "Name": "fastapi",
+    "Version": "0.104.1",
+    "License": "MIT",
+    "URL": "https://fastapi.tiangolo.com"
+  }
+]
 ```
 
-### Dependency Update Policy
+### Using licensecheck
 
-**Minor/Patch Updates**: 
-- Reviewed and applied monthly
-- Automated via Dependabot/Renovate
-
-**Major Updates**: 
-- Reviewed quarterly
-- Tested before deployment
-- Breaking changes assessed
-
-**Security Updates**: 
-- Applied immediately upon disclosure
-- Emergency process for critical vulnerabilities
-
-## Third-Party Notices
-
-### Attribution Requirements
-
-The following packages require attribution:
-
-**Package Name** - [License]
-```
-[Copyright notice]
-[License text or reference]
-```
-
-**Complete Notices**: See [THIRD-PARTY-NOTICES.txt](THIRD-PARTY-NOTICES.txt)
-
-## Verification
-
-### SBOM Integrity
-
-**SBOM Checksum** (SHA256):
-```
-[checksum of sbom.json]
-```
-
-**Verification**:
 ```bash
-# Windows PowerShell
-Get-FileHash sbom.json -Algorithm SHA256
+# Install licensecheck
+pip install licensecheck
 
-# Linux/Mac
-shasum -a 256 sbom.json
+# Check licenses
+licensecheck --format json > license_report.json
 ```
 
-### Reproducibility
+### License Compatibility Matrix
 
-This SBOM can be regenerated using:
-```bash
-# Install exact versions from lock file
-pip install -r requirements-lock.txt
-
-# Regenerate SBOM
-cyclonedx-py -o sbom-verify.json -F json
-
-# Compare with original
-diff sbom.json sbom-verify.json
-```
-
-## Contact Information
-
-**SBOM Maintainer**: [Name/Team]
-**Email**: [security@example.com]
-**Security Issues**: [security reporting process]
-**Last Updated**: [YYYY-MM-DD]
-
-## References
-
-- **CycloneDX Specification**: https://cyclonedx.org/specification/overview/
-- **SPDX Specification**: https://spdx.dev/specifications/
-- **NTIA SBOM Guidelines**: https://www.ntia.gov/SBOM
-- **CISA SBOM Resources**: https://www.cisa.gov/sbom
-
----
-
-*This SBOM should be updated with each release and when dependencies change.*
-```
-
----
-
-### 3. Third-Party Notices File
-
-Create complete attribution file:
+Document license compatibility:
 
 ```markdown
-# Third-Party Notices
+## License Compatibility
 
-This file contains the required notices for third-party components used in [Project Name].
+| License | Can Include | Cannot Include | Notes |
+|---------|-------------|----------------|-------|
+| MIT | Any | - | Very permissive |
+| Apache-2.0 | MIT, BSD, Apache | - | Patent grant included |
+| GPL-3.0 | MIT, BSD | Proprietary | Copyleft - requires source |
+| LGPL-3.0 | MIT, BSD | - | Lesser copyleft |
+| BSD-3-Clause | Any | - | Very permissive |
+| Proprietary | ? | GPL, AGPL | Check license terms |
 
----
+**Current Project License**: MIT
 
-## pandas (BSD-3-Clause License)
-
-Copyright (c) 2008-2011, AQR Capital Management, LLC, Lambda Foundry, Inc. and PyData Development Team
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
-
-[Full license text]
-
----
-
-## requests (Apache License 2.0)
-
-Copyright 2019 Kenneth Reitz
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-
-[Full license text]
-
----
-
-[Continue for all dependencies requiring attribution]
+**Compatibility Status**:
+- ✅ Compatible: [list of dependencies]
+- ⚠️ Review Required: [list needing review]
+- ❌ Incompatible: [list of incompatible]
 ```
 
----
+## Phase 7: Supply Chain Security Assessment
 
-### 4. Dependency Lock Files
+### Package Provenance
 
-Ensure proper dependency locking:
-
-**requirements-lock.txt** (pip):
-```txt
-# Generated with: pip freeze > requirements-lock.txt
-pandas==2.1.0
-numpy==1.24.3
-python-dateutil==2.8.2
-pytz==2023.3
-requests==2.31.0
-charset-normalizer==3.2.0
-idna==3.4
-urllib3==2.0.4
-certifi==2023.7.22
-[all dependencies with exact versions]
-```
-
-**poetry.lock** (if using Poetry):
 ```bash
-# Generate lock file
-poetry lock
+# Verify package signatures (if available)
+pip install --require-hashes -r requirements_with_hashes.txt
 
-# Install from lock file
-poetry install
+# Generate requirements with hashes
+pip freeze --all | pip-compile --generate-hashes -o requirements_locked.txt
 ```
 
-**Pipfile.lock** (if using Pipenv):
-```bash
-# Generate lock file
-pipenv lock
+### Repository Security
 
-# Install from lock file
-pipenv sync
+For each dependency, document:
+
+```markdown
+## Dependency: requests
+
+**Repository**: https://github.com/psf/requests
+**Package Index**: https://pypi.org/project/requests/
+**Maintainer**: Python Software Foundation
+
+**Security Posture**:
+- ✅ Active maintenance (last commit: [date])
+- ✅ Security policy present
+- ✅ Vulnerability disclosure process
+- ✅ Code signing (where applicable)
+- ⚠️ No recent security audit
+- ✅ Large, active community (50k+ stars)
+
+**Risk Assessment**: LOW
+- Well-maintained, widely-used library
+- Active security response
+- Regular updates and patches
+
+**Alternative Options**:
+- httpx (modern alternative)
+- urllib3 (lower-level, requests uses this)
+```
+
+## Phase 8: Compliance Documentation
+
+### NTIA Minimum Elements Compliance
+
+```markdown
+# NTIA SBOM Compliance Checklist
+
+## Minimum Elements
+
+- [x] **Supplier Name**: All suppliers identified in SBOM
+- [x] **Component Name**: All components named
+- [x] **Version**: All versions specified
+- [x] **Other Unique Identifiers**: PURL provided for all
+- [x] **Dependency Relationships**: Complete dependency tree
+- [x] **Author of SBOM Data**: [Benjamin Dourthe]
+- [x] **Timestamp**: [2024-01-16T10:00:00Z]
+
+## Automation Supportability
+
+- [x] SBOM in machine-readable format (CycloneDX JSON)
+- [x] Consistent data format across components
+- [x] Unique identifiers (PURL) for all components
+- [x] Dependency relationships machine-parseable
+
+## Practices and Processes
+
+- [x] SBOM generation automated in CI/CD
+- [x] SBOM updated with each release
+- [x] SBOM published alongside releases
+- [x] Vulnerability scanning integrated
+
+**Compliance Status**: ✅ COMPLIANT
+```
+
+### EU Cyber Resilience Act Compliance
+
+```markdown
+# EU CRA Compliance Checklist
+
+## Essential Requirements
+
+- [x] Complete SBOM with all components
+- [x] Known vulnerabilities identified (CVE tracking)
+- [x] Security updates and patches tracked
+- [x] Vulnerability disclosure timeline documented
+- [x] Supply chain security assessed
+
+## Documentation Requirements
+
+- [x] SBOM in standardized format (CycloneDX/SPDX)
+- [x] Vulnerability report attached
+- [x] License compliance documented
+- [x] Security contact information provided
+- [x] Update/patching process documented
+
+## Ongoing Obligations
+
+- [ ] SBOM updated with each release
+- [ ] Vulnerability monitoring continuous
+- [ ] Security updates issued promptly
+- [ ] Users notified of security issues
+
+**Compliance Status**: ✅ COMPLIANT
+```
+
+## Output Format
+
+Please provide SBOM documentation in this format:
+
+### Primary SBOM Files
+
+```markdown
+## SBOM Files Generated
+
+1. **sbom.json** (CycloneDX format)
+   - Complete dependency tree
+   - Vulnerability information
+   - License data
+   - Component metadata
+
+2. **sbom.spdx.json** (SPDX format)
+   - License-focused SBOM
+   - Compliance documentation
+   - Relationship mapping
+
+3. **sbom-lite.json** (Simplified)
+   - Essential information only
+   - For quick reference
+   - Human-readable summary
+```
+
+### Supporting Documentation
+
+```markdown
+## Supporting Files
+
+1. **VULNERABILITIES.md**
+   - All known CVEs
+   - Severity ratings
+   - Remediation status
+   - Mitigation strategies
+
+2. **LICENSES.md**
+   - All component licenses
+   - License compatibility analysis
+   - Attribution requirements
+   - Compliance status
+
+3. **DEPENDENCIES.md**
+   - Dependency tree visualization
+   - Direct dependencies
+   - Transitive dependencies
+   - Update recommendations
+
+4. **SUPPLY_CHAIN.md**
+   - Component provenance
+   - Security assessment
+   - Risk analysis
+   - Alternative options
+```
+
+### Summary Report
+
+```markdown
+## SBOM Generation Summary
+
+**Generated**: [timestamp]
+**Project**: [name] v[version]
+**License**: [license]
+
+**Components**:
+- Total components: [count]
+- Direct dependencies: [count]
+- Transitive dependencies: [count]
+- Unique licenses: [count]
+
+**Vulnerabilities**:
+- Critical: [count]
+- High: [count]
+- Medium: [count]
+- Low: [count]
+- Total: [count]
+
+**License Distribution**:
+- MIT: [count]
+- Apache-2.0: [count]
+- GPL-3.0: [count]
+- Other: [count]
+
+**Compliance**:
+- NTIA Minimum Elements: ✅/❌
+- EU CRA Requirements: ✅/❌
+- SPDX 2.3 Compliant: ✅/❌
+- CycloneDX 1.4 Compliant: ✅/❌
+
+**Supply Chain Risk**: [LOW/MEDIUM/HIGH]
+
+**Actions Required**:
+- [ ] Update [X] components with known vulnerabilities
+- [ ] Review [Y] components with license concerns
+- [ ] Assess [Z] outdated dependencies
 ```
 
 ---
 
-### 5. Vulnerability Monitoring Setup
+## Automation & CI/CD Integration
 
-Configure automated vulnerability monitoring:
+### GitHub Actions Workflow
 
-#### GitHub Dependabot
-
-Create `.github/dependabot.yml`:
 ```yaml
-version: 2
-updates:
-  - package-ecosystem: "pip"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 10
-    labels:
-      - "dependencies"
-      - "security"
-```
+name: Generate SBOM
 
-#### Snyk Integration
-
-```bash
-# Install Snyk CLI
-npm install -g snyk
-
-# Authenticate
-snyk auth
-
-# Monitor project
-snyk monitor
-
-# Test for vulnerabilities
-snyk test
-```
-
-#### Safety in CI/CD
-
-Add to your CI pipeline:
-```yaml
-# .github/workflows/security.yml
-name: Security Scan
-
-on: [push, pull_request]
+on:
+  push:
+    branches: [main]
+  release:
+    types: [published]
 
 jobs:
-  security:
+  sbom:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
           python-version: '3.11'
+
       - name: Install dependencies
-        run: pip install safety pip-audit
-      - name: Run Safety check
-        run: safety check
-      - name: Run pip-audit
-        run: pip-audit
+        run: |
+          pip install cyclonedx-bom pip-audit pip-licenses
+
+      - name: Generate SBOM
+        run: |
+          cyclonedx-py requirements requirements.txt -o sbom.json
+
+      - name: Scan vulnerabilities
+        run: |
+          pip-audit --format json --output vulnerabilities.json
+        continue-on-error: true
+
+      - name: Generate license report
+        run: |
+          pip-licenses --format=json --with-urls > licenses.json
+
+      - name: Upload SBOM artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: sbom
+          path: |
+            sbom.json
+            vulnerabilities.json
+            licenses.json
+
+      - name: Attach to release
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v1
+        with:
+          files: sbom.json
+```
+
+### Pre-commit Hook
+
+```yaml
+# .pre-commit-config.yaml
+repos:
+  - repo: local
+    hooks:
+      - id: generate-sbom
+        name: Generate SBOM
+        entry: cyclonedx-py requirements requirements.txt -o sbom.json
+        language: system
+        pass_filenames: false
+
+      - id: check-vulnerabilities
+        name: Check Vulnerabilities
+        entry: pip-audit
+        language: system
+        pass_filenames: false
 ```
 
 ---
 
-### 6. SBOM Automation Scripts
+## Best Practices
 
-Create automation scripts for SBOM generation:
+1. **Automate SBOM Generation**
+   - Generate in CI/CD pipeline
+   - Update with every release
+   - Include in release artifacts
 
-**scripts/generate_sbom.py**:
-```python
-#!/usr/bin/env python3
-"""
-Generate SBOM and update documentation.
-"""
-import subprocess
-import json
-from datetime import datetime
-from pathlib import Path
+2. **Keep SBOMs Current**
+   - Regenerate on dependency updates
+   - Track vulnerability fixes
+   - Document changes between versions
 
-def generate_sbom():
-    """Generate SBOM in multiple formats."""
-    print("Generating SBOM files...")
-    
-    # CycloneDX JSON
-    subprocess.run([
-        "cyclonedx-py", "-o", "sbom.json", "-F", "json"
-    ], check=True)
-    
-    # CycloneDX XML
-    subprocess.run([
-        "cyclonedx-py", "-o", "sbom.xml", "-F", "xml"
-    ], check=True)
-    
-    print("✅ SBOM files generated")
+3. **Use Multiple Formats**
+   - CycloneDX for security
+   - SPDX for license compliance
+   - Both for comprehensive coverage
 
-def analyze_sbom():
-    """Analyze SBOM and extract statistics."""
-    with open("sbom.json", "r") as f:
-        sbom = json.load(f)
-    
-    components = sbom.get("components", [])
-    
-    stats = {
-        "total": len(components),
-        "licenses": set(),
-        "timestamp": datetime.utcnow().isoformat()
-    }
-    
-    for component in components:
-        if "licenses" in component:
-            for lic in component["licenses"]:
-                if "license" in lic:
-                    stats["licenses"].add(lic["license"].get("id", "Unknown"))
-    
-    print(f"Total components: {stats['total']}")
-    print(f"Unique licenses: {len(stats['licenses'])}")
-    
-    return stats
+4. **Continuous Monitoring**
+   - Monitor for new vulnerabilities
+   - Track dependency updates
+   - Assess supply chain risks
 
-def run_security_scan():
-    """Run security vulnerability scan."""
-    print("Running security scan...")
-    
-    try:
-        subprocess.run(["pip-audit"], check=True)
-        print("✅ No vulnerabilities found")
-    except subprocess.CalledProcessError:
-        print("⚠️ Vulnerabilities detected - see output above")
-
-if __name__ == "__main__":
-    generate_sbom()
-    analyze_sbom()
-    run_security_scan()
-```
-
-**Make script executable and use**:
-```bash
-# Windows
-python scripts/generate_sbom.py
-
-# Unix/Mac
-chmod +x scripts/generate_sbom.py
-./scripts/generate_sbom.py
-```
+5. **Publish Transparently**
+   - Include SBOM in releases
+   - Make publicly available
+   - Provide easy access
 
 ---
+~~~
 
-## Deliverables
+## Output Format Specifications
 
-Please create:
-
-1. **sbom.json** - CycloneDX SBOM in JSON format
-2. **sbom.xml** - CycloneDX SBOM in XML format (optional)
-3. **docs/SBOM.md** - Human-readable SBOM documentation
-4. **THIRD-PARTY-NOTICES.txt** - Complete attribution notices
-5. **requirements-lock.txt** - Pinned dependency versions
-6. **scripts/generate_sbom.py** - Automation script
-7. **.github/dependabot.yml** - Automated dependency updates
-
-**Quality Checks:**
-- [ ] SBOM includes all dependencies (direct and transitive)
-- [ ] All licenses documented
-- [ ] Known vulnerabilities identified
-- [ ] Attribution notices complete
-- [ ] Dependency versions pinned
-- [ ] Automation configured
-- [ ] Compliance requirements met
-
-Complete and confirm SBOM documentation is comprehensive and up-to-date.
-```
-
----
-
-## Success Criteria
-
-- ✅ SBOM files generated in standard formats
-- ✅ All dependencies cataloged (direct and transitive)
-- ✅ All licenses identified and documented
-- ✅ Vulnerability scanning configured
-- ✅ Attribution notices complete
-- ✅ Dependency versions pinned
-- ✅ Automation scripts working
-- ✅ Compliance requirements addressed
-
----
-
-## Tools and Resources
-
-### SBOM Generation Tools
-
-**CycloneDX**:
-```bash
-pip install cyclonedx-bom
-cyclonedx-py -o sbom.json -F json
-```
-
-**Syft**:
-```bash
-# Multi-format SBOM generation
-syft packages . -o cyclonedx-json > sbom.json
-syft packages . -o spdx-json > sbom-spdx.json
-```
-
-**SPDX Tools**:
-```bash
-pip install spdx-tools
-```
-
-### Vulnerability Scanning
-
-**pip-audit** (Python-specific):
-```bash
-pip install pip-audit
-pip-audit
-```
-
-**Safety**:
-```bash
-pip install safety
-safety check
-```
-
-**Snyk** (Multi-language):
-```bash
-npm install -g snyk
-snyk test
-```
-
-**Trivy** (Container and filesystem):
-```bash
-trivy fs .
-```
-
-### Dependency Analysis
-
-**pipdeptree**:
-```bash
-pip install pipdeptree
-pipdeptree
-pipdeptree --graph-output png > deps.png
-```
-
-**pip-licenses**:
-```bash
-pip install pip-licenses
-pip-licenses --format=markdown > licenses.md
-```
-
----
-
-## Compliance Standards
-
-### NTIA Minimum Elements
-
-Required by US Executive Order 14028:
-- Supplier name
-- Component name
-- Version string
-- Other unique identifiers
-- Dependency relationships
-- Author of SBOM data
-- Timestamp
-
-### EU Cyber Resilience Act
-
-Requirements:
-- SBOM in machine-readable format
-- Continuous vulnerability disclosure
-- Security update availability
-- Supply chain transparency
-
-### Industry Standards
-
-- **CycloneDX**: OWASP standard for SBOM
-- **SPDX**: Linux Foundation standard
-- **SWID**: ISO/IEC 19770-2 standard
-
----
-
-## Maintenance Schedule
-
-### Regular Tasks
-
-**Weekly**:
-- Automated vulnerability scans
-- Review Dependabot PRs
-
-**Monthly**:
-- Update dependencies (minor/patch)
-- Regenerate SBOM
-- Review security advisories
-
-**Quarterly**:
-- Major dependency updates
-- License compliance review
-- SBOM process audit
-
-**Per Release**:
-- Generate final SBOM
-- Update documentation
-- Security scan before deployment
-
----
-
-## Common Issues
-
-### Issue: SBOM generation fails
-**Solution**: Ensure all dependencies installed and CycloneDX tools updated
-
-### Issue: Missing transitive dependencies
-**Solution**: Use `pip freeze` to capture all installed packages
-
-### Issue: License information missing
-**Solution**: Check package metadata, may need manual research
-
-### Issue: Vulnerability scanner false positives
-**Solution**: Review CVE details, check if applies to your usage
-
----
-
-## Next Steps
-
-After completing Phase 6:
-- Integrate SBOM generation into CI/CD pipeline
-- Set up automated vulnerability monitoring
-- Establish security update process
-- Train team on SBOM maintenance
-- Document security incident response process
+The SBOM should:
+- Comply with NTIA minimum elements requirements
+- Meet EU Cyber Resilience Act standards
+- Use standard formats (CycloneDX 1.4+ or SPDX 2.3+)
+- Include complete dependency tree with versions
+- Document all known vulnerabilities with CVE IDs
+- Provide license information for all components
+- Assess supply chain security risks
+- Be machine-readable and automatable
+- Be versioned and timestamped
+- Be published alongside software releases

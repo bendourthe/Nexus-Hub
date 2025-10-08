@@ -1,36 +1,41 @@
-# Docstrings & Code Documentation
+# Docstring Generation
 
 ## 📋 Overview
 
-This review focuses on creating comprehensive docstrings for all code elements following organizational standards and best practices.
+This template provides a systematic approach to generating comprehensive, standards-compliant docstrings for Python code. It covers module-level documentation, class descriptions, function signatures with parameter types, and examples.
 
-## 🎯 Objectives
+## 🎯 Objective
 
-- Document all modules, classes, and functions
-- Create simple and complex docstring templates
-- Include parameter descriptions and return values
-- Document exceptions and edge cases
-- Provide usage examples
-- Follow organizational docstring standards
+Generate clear, complete docstrings that document all public interfaces, explain purpose and behavior, include type information, and provide usage examples following industry standards (Google, NumPy, or reStructuredText style).
 
-## 📂 Available Templates
+## 📂 Template
 
-### Python
-- **[Python Docstrings](python_docstrings.md)** - Complete template for module, class, function, method, property, and exception docstrings with simple and complex examples
+- **[Python Docstrings](python_docstrings.md)**: Comprehensive docstring generation prompt
 
-## ⏱️ Time Investment
+## ✅ Key Areas Covered
 
-**1-2 hours** for comprehensive docstring documentation
+- **Module Docstrings**: Package and module-level documentation
+- **Class Docstrings**: Class purpose, attributes, and usage
+- **Function Docstrings**: Parameters, returns, exceptions, and examples
+- **Type Hints Integration**: Coordinating docstrings with type annotations
+- **Docstring Styles**: Support for Google, NumPy, and reStructuredText formats
+- **Examples and Usage**: Practical code examples in docstrings
 
-## ✅ Success Criteria
+## 🚀 Quick Start
 
-- [ ] All public functions documented
-- [ ] All classes documented
-- [ ] All modules documented
-- [ ] Parameter types specified
-- [ ] Return values documented
-- [ ] Exceptions listed
-- [ ] Examples provided where helpful
+1. Choose your preferred docstring style (Google recommended for readability)
+2. Use the comprehensive prompt template in `python_docstrings.md`
+3. Request docstring generation for specific modules, classes, or entire codebase
+4. Review and validate generated docstrings align with your standards
+
+## 📊 Success Criteria
+
+- [ ] All public modules, classes, and functions have docstrings
+- [ ] Docstrings follow consistent style guide
+- [ ] Parameter types and return values clearly documented
+- [ ] Exceptions and edge cases explained
+- [ ] Usage examples provided for complex interfaces
+- [ ] Docstrings integrate properly with type hints
 
 ---
 

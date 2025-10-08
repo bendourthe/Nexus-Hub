@@ -1,652 +1,649 @@
-# Test Case Development
+# Python Test Case Development
 
 ## Objective
-Develop comprehensive test cases covering functionality, edge cases, error conditions, and performance requirements.
+Develop comprehensive, well-structured test cases that validate functionality, cover edge cases, handle error conditions, and provide clear documentation of expected behavior using industry-standard testing patterns.
 
-## Test Development Checklist
+## Implementation Checklist
 
-### Test Suite Structure
-- [ ] Test suite class inherits from `unittest.TestCase`
-- [ ] Comprehensive module docstring with authors
-- [ ] `TestResultAggregator` initialized in `__init__`
-- [ ] `setUp()` method prepares test environment
-- [ ] `tearDown()` method cleans up resources
-- [ ] Tests numbered sequentially (test_01, test_02, etc.)
-- [ ] Each test has descriptive docstring
+### Test Coverage
+- [ ] Happy path scenarios tested
+- [ ] Edge cases and boundaries covered
+- [ ] Error conditions validated
+- [ ] Input validation tested
+- [ ] State transitions verified
+- [ ] Regression tests added for bugs
 
-### Test Coverage Categories
-- [ ] Basic functionality tests (happy path)
-- [ ] Edge case tests (boundaries, empty inputs, nulls)
-- [ ] Error condition tests (invalid inputs, exceptions)
-- [ ] Integration tests (component interactions)
-- [ ] Performance tests (speed, throughput, resource usage)
-- [ ] Stress tests (load handling, limits)
-- [ ] Regression tests (previously fixed bugs)
+### Test Quality
+- [ ] Tests follow AAA pattern (Arrange-Act-Assert)
+- [ ] Test names clearly describe what is tested
+- [ ] Tests are isolated and independent
+- [ ] Tests execute quickly (<1s for unit tests)
+- [ ] Assertions are specific and meaningful
+- [ ] No test interdependencies
 
-### Test Implementation Standards
-- [ ] `@timeout` decorator on all tests
-- [ ] Try-except blocks with proper error handling
-- [ ] `PerformanceTimer` for timing measurements
-- [ ] Comprehensive metrics collection
-- [ ] Pass/fail criteria from `test_config`
-- [ ] Proper assertions with descriptive messages
-- [ ] `format_console_output` for result display
+### Test Organization
+- [ ] Tests grouped logically by feature/module
+- [ ] Related tests organized in test classes
+- [ ] Parametrized tests used for multiple scenarios
+- [ ] Setup and teardown properly implemented
+- [ ] Test documentation provided
 
-### Test Independence
-- [ ] Tests don't depend on execution order
-- [ ] Each test can run in isolation
-- [ ] No shared state between tests
-- [ ] setUp creates fresh test environment
-- [ ] tearDown removes all test artifacts
+## Prompt Template
 
-## Detailed Test Development Prompt
+Use the structured prompt below with your coding assistant:
 
-```
-Please help me develop comprehensive test cases for my Python project.
+~~~markdown
+# Python Test Case Development
 
-**Component to Test:**
-- Module/Class: [MODULE_NAME]
-- Functionality: [DESCRIPTION]
-- Critical operations: [LIST]
-- External dependencies: [LIST]
-- Performance requirements: [REQUIREMENTS]
+Please develop comprehensive test cases for this Python code following this protocol:
 
-**Test Suite Development:**
+## Phase 1: Test Case Planning
 
-### 1. Test Suite Template
-Create test suite following this structure:
+1. **Analyze Code to Test**
+   - Identify all public functions/methods
+   - Document expected behavior
+   - List input parameters and types
+   - Define expected outputs
+   - Note side effects (database, files, API calls)
+
+2. **Identify Test Scenarios**
+
+   **Happy Path**:
+   - Normal operation with valid inputs
+   - Expected use cases
+   - Successful execution flows
+
+   **Edge Cases**:
+   - Boundary values (min/max, empty, null)
+   - Special characters in strings
+   - Large data sets
+   - Concurrent operations
+
+   **Error Conditions**:
+   - Invalid inputs
+   - Missing required parameters
+   - Type errors
+   - Business rule violations
+   - External dependency failures
+
+3. **Create Test Case Matrix**
+
+   | Scenario | Input | Expected Output | Test Type | Priority |
+   |----------|-------|-----------------|-----------|----------|
+   | [description] | [values] | [result] | [unit/integration] | [high/med/low] |
+
+## Phase 2: Unit Test Implementation
+
+### AAA Pattern (Arrange-Act-Assert)
+
+Follow this structure for clear, maintainable tests:
 
 ```python
 """
-Comprehensive test suite for [FEATURE] functionality.
-Tests cover normal operations, edge cases, error conditions, and performance.
+Unit tests for [module_name] module.
 
-Authors:
-    - Benjamin Dourthe (benjamin@adonamed.com)
+Tests cover [description of what is tested].
 """
-import functools
-import os
-import sys
-import time
-import unittest
-from typing import Any, Dict, List, Optional
-from unittest.mock import Mock, patch, MagicMock
+import pytest
+from myapp.module import function_to_test
 
-# Path setup for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
-sys.path.insert(0, os.path.join(os.path.dirname(__file__)))
+class TestFunctionName:
+    """Test suite for function_name()."""
 
-from common import TestResultAggregator, PerformanceTimer, format_console_output
-from test_config import get_pass_criteria, SUITE_PASS_THRESHOLD
+    def test_function_with_valid_input_returns_expected_result(self):
+        """Test that function_name() returns correct value with valid input."""
+        # Arrange - Set up test data and dependencies
+        input_value = "valid input"
+        expected_result = "expected output"
 
-# Import module under test
-from src.core.[module] import [ClassOrFunction]
+        # Act - Execute the function being tested
+        actual_result = function_to_test(input_value)
 
-def timeout(seconds: int = 120):
-    """Decorator to add timeout to test methods."""
-    def decorator(func):
-        @functools.wraps(func)
-        def wrapper(*args, **kwargs):
-            import threading
-            result = [None]
-            exception = [None]
-            
-            def target():
-                try:
-                    result[0] = func(*args, **kwargs)
-                except Exception as e:
-                    exception[0] = e
-            
-            thread = threading.Thread(target=target)
-            thread.daemon = True
-            thread.start()
-            thread.join(seconds)
-            
-            if thread.is_alive():
-                raise TimeoutError(
-                    f"Test {func.__name__} timed out after {seconds} seconds"
-                )
-            if exception[0]:
-                raise exception[0]
-            return result[0]
-        return wrapper
-    return decorator
+        # Assert - Verify the result matches expectations
+        assert actual_result == expected_result
 
-class FeatureTestSuite(unittest.TestCase):
-    """Comprehensive test suite for [Feature] functionality."""
-    
-    def __init__(self, methodName: str = 'runTest'):
-        """Initialize test suite with result aggregation."""
-        super().__init__(methodName)
-        self.aggregator = TestResultAggregator("[Feature] Test Suite")
-        self.test_data_path = os.path.join(
-            os.path.dirname(__file__), 'test_data'
-        )
-    
-    def setUp(self) -> None:
-        """Set up test environment before each test."""
-        # Load test configuration
-        self.test_config = self._load_test_config()
-        # Clean any existing test state
-        self._clean_test_environment()
-        # Prepare test data
-        self.test_data = self._prepare_test_data()
-        # Initialize mocks for external dependencies
-        self.mock_dependencies = self._setup_mocks()
-        # Create instance of class under test (if applicable)
-        self.component = self._create_test_instance()
-    
-    def tearDown(self) -> None:
-        """Clean up after each test."""
-        # Clean up resources
-        self._cleanup_resources()
-        # Reset test state
-        self._reset_test_state()
-        # Close any open connections
-        if hasattr(self, 'connections'):
-            for conn in self.connections:
-                conn.close()
-        # Clear mocks
-        if hasattr(self, 'mock_dependencies'):
-            for mock in self.mock_dependencies.values():
-                mock.reset_mock()
-    
-    # Helper methods
-    def _load_test_config(self) -> Dict[str, Any]:
-        """Load test configuration."""
-        return {
-            'timeout': 120,
-            'retries': 3,
-            'test_mode': True
-        }
-    
-    def _clean_test_environment(self) -> None:
-        """Clean test environment."""
-        # Remove test files
-        # Clear test database
-        # Reset global state
-        pass
-    
-    def _prepare_test_data(self) -> Dict[str, Any]:
-        """Prepare test data."""
-        return {
-            'valid_input': {'key': 'value'},
-            'edge_cases': [None, [], '', 0, -1],
-            'large_dataset': self._generate_large_dataset()
-        }
-    
-    def _setup_mocks(self) -> Dict[str, Mock]:
-        """Setup mock objects for external dependencies."""
-        return {
-            'database': Mock(),
-            'api_client': Mock(),
-            'file_system': Mock()
-        }
-    
-    def _create_test_instance(self) -> Any:
-        """Create instance of component under test."""
-        # Return initialized instance
-        pass
-    
-    def _cleanup_resources(self) -> None:
-        """Clean up test resources."""
-        pass
-    
-    def _reset_test_state(self) -> None:
-        """Reset test state."""
-        pass
-    
-    def _generate_large_dataset(self, size: int = 10000) -> List[Dict]:
-        """Generate large dataset for performance testing."""
-        return [{'id': i, 'data': f'item_{i}'} for i in range(size)]
-    
-    def _handle_test_exception(
-        self,
-        test_name: str,
-        description: str,
-        exception: Exception,
-        timer: PerformanceTimer
-    ) -> None:
-        """Handle test exceptions uniformly."""
-        elapsed = timer.stop() if timer.running else 0
-        metrics = {
-            "Error": str(exception),
-            "Error Type": type(exception).__name__
-        }
-        result_text = f"Failed with error: {str(exception)}"
-        print(format_console_output(
-            0, test_name, description, metrics, result_text, False
-        ))
-        self.aggregator.add_result(
-            test_name, "❌", f"{elapsed:.3f}s", metrics, False
-        )
-        raise
+    def test_function_with_empty_input_raises_value_error(self):
+        """Test that function_name() raises ValueError with empty input."""
+        # Arrange
+        empty_input = ""
 
-if __name__ == '__main__':
-    unittest.main(verbosity=2)
+        # Act & Assert - Use pytest.raises for exception testing
+        with pytest.raises(ValueError) as exc_info:
+            function_to_test(empty_input)
+
+        assert "cannot be empty" in str(exc_info.value)
+
+    def test_function_with_none_input_returns_default_value(self):
+        """Test that function_name() handles None gracefully."""
+        # Arrange
+        none_input = None
+        expected_default = "default"
+
+        # Act
+        result = function_to_test(none_input)
+
+        # Assert
+        assert result == expected_default
 ```
 
-### 2. Basic Functionality Tests
-Implement tests for normal operations:
+### Test Naming Conventions
 
+Use descriptive names that explain what is tested:
+
+**Pattern**: `test_<function>_<condition>_<expected_result>`
+
+**Examples**:
 ```python
-@timeout(120)
-def test_01_basic_functionality(self) -> None:
-    """TEST 1: Basic functionality validation."""
-    test_name = "Basic Functionality Test"
-    description = "Validates core feature operations under normal conditions"
-    timer = PerformanceTimer()
-    timer.start()
-    
-    try:
-        # Arrange: Prepare test inputs
-        test_input = self.test_data['valid_input']
-        
-        # Act: Execute the operation
-        result = self.component.process(test_input)
-        elapsed = timer.stop()
-        
-        # Assert: Verify results
-        self.assertIsNotNone(result)
-        self.assertIsInstance(result, dict)
-        self.assertIn('status', result)
-        self.assertEqual(result['status'], 'success')
-        
-        # Metrics collection
-        metrics = {
-            "Test Result": "Success",
-            "Processing Time": f"{elapsed:.3f}s",
-            "Records Processed": str(len(result.get('data', []))),
-            "Memory Usage": self._get_memory_usage(),
-            "Success Rate": "100%"
-        }
-        
-        # Pass/fail determination
-        criteria = get_pass_criteria('basic_functionality')
-        passed = (
-            elapsed <= criteria['maximum_time']
-            and result['status'] == 'success'
-        )
-        result_text = (
-            f"Processed successfully in {elapsed:.3f}s "
-            f"(threshold: <={criteria['maximum_time']}s)"
-        )
-        
-        print(format_console_output(
-            1, test_name, description, metrics, result_text, passed
-        ))
-        self.aggregator.add_result(
-            test_name, "✅" if passed else "❌",
-            f"{elapsed:.3f}s", metrics, passed
-        )
-        self.assertTrue(passed, f"Test failed: {result_text}")
-        
-    except Exception as e:
-        self._handle_test_exception(test_name, description, e, timer)
+# Good test names
+def test_add_user_with_valid_data_returns_user_id(self):
+def test_add_user_with_duplicate_email_raises_validation_error(self):
+def test_get_user_with_nonexistent_id_returns_none(self):
+def test_update_user_with_invalid_age_raises_value_error(self):
+
+# Poor test names (avoid these)
+def test_add_user(self):              # Too generic
+def test_1(self):                     # Non-descriptive
+def test_error(self):                 # Unclear what error
+def test_user_creation_edge_case(self): # Vague "edge case"
 ```
 
-### 3. Edge Case Tests
-Implement boundary condition tests:
+### Testing Different Scenarios
 
+**1. Testing Return Values**:
 ```python
-@timeout(60)
-def test_02_edge_cases(self) -> None:
-    """TEST 2: Edge case handling."""
-    test_name = "Edge Case Test"
-    description = "Tests boundary conditions and extreme inputs"
-    timer = PerformanceTimer()
-    timer.start()
-    
-    try:
-        edge_cases = [
-            (None, "null input"),
-            ([], "empty list"),
-            ([None], "list with null"),
-            ("", "empty string"),
-            (0, "zero value"),
-            (-1, "negative value"),
-            (float('inf'), "infinity"),
-            (float('-inf'), "negative infinity"),
-            (float('nan'), "not a number"),
-            (10**9, "very large number"),
-            (" " * 10000, "very long string"),
-            ({'nested': {'deeply': {'value': 'here'}}}, "deeply nested"),
-            ({'key': None, 'key2': []}, "mixed null/empty"),
-            ([0] * 10000, "large array"),
-            ("unicode: 你好世界 🌍", "unicode characters")
-        ]
-        
-        cases_passed = 0
-        cases_failed = []
-        
-        for test_input, case_name in edge_cases:
-            try:
-                result = self.component.process(test_input)
-                # Verify graceful handling
-                if result is not None:
-                    cases_passed += 1
-                else:
-                    cases_failed.append((case_name, "returned None"))
-            except ValueError as e:
-                # Expected exception for invalid input
-                cases_passed += 1
-            except Exception as e:
-                cases_failed.append((case_name, str(e)))
-        
-        elapsed = timer.stop()
-        
-        metrics = {
-            "Cases Tested": str(len(edge_cases)),
-            "Cases Passed": str(cases_passed),
-            "Cases Failed": str(len(cases_failed)),
-            "Processing Time": f"{elapsed:.3f}s",
-            "Pass Rate": f"{(cases_passed/len(edge_cases))*100:.1f}%"
-        }
-        
-        criteria = get_pass_criteria('edge_cases')
-        passed = (cases_passed / len(edge_cases)) >= criteria['minimum_pass_rate']
-        result_text = f"Passed {cases_passed}/{len(edge_cases)} edge cases"
-        
-        if cases_failed:
-            result_text += f" (Failed: {', '.join(c[0] for c in cases_failed[:3])})"
-        
-        print(format_console_output(
-            2, test_name, description, metrics, result_text, passed
-        ))
-        self.aggregator.add_result(
-            test_name, "✅" if passed else "❌",
-            f"{elapsed:.3f}s", metrics, passed
-        )
-        self.assertTrue(passed, result_text)
-        
-    except Exception as e:
-        self._handle_test_exception(test_name, description, e, timer)
+def test_calculate_total_with_items_returns_sum(self):
+    """Test calculate_total() returns correct sum."""
+    items = [10.0, 20.0, 30.0]
+    result = calculate_total(items)
+    assert result == 60.0
+
+def test_calculate_total_with_empty_list_returns_zero(self):
+    """Test calculate_total() returns 0 for empty list."""
+    assert calculate_total([]) == 0.0
+
+def test_calculate_total_with_negative_values_returns_correct_sum(self):
+    """Test calculate_total() handles negative values."""
+    items = [10.0, -5.0, 15.0]
+    assert calculate_total(items) == 20.0
 ```
 
-### 4. Error Condition Tests
-Implement exception handling tests:
+**2. Testing Exceptions**:
+```python
+def test_divide_by_zero_raises_zero_division_error(self):
+    """Test divide() raises ZeroDivisionError."""
+    with pytest.raises(ZeroDivisionError):
+        divide(10, 0)
+
+def test_parse_date_with_invalid_format_raises_value_error(self):
+    """Test parse_date() raises ValueError with message."""
+    with pytest.raises(ValueError, match="Invalid date format"):
+        parse_date("not-a-date")
+```
+
+**3. Testing Side Effects**:
+```python
+def test_save_user_creates_database_entry(self, mock_database):
+    """Test save_user() calls database insert."""
+    user = User(name="Alice")
+    save_user(user, mock_database)
+
+    # Verify database was called correctly
+    mock_database.insert.assert_called_once()
+    call_args = mock_database.insert.call_args[0][0]
+    assert call_args["name"] == "Alice"
+
+def test_send_email_calls_email_service(self, mock_email_service):
+    """Test send_email() invokes email service."""
+    send_email("test@example.com", "Hello")
+
+    mock_email_service.send.assert_called_once_with(
+        to="test@example.com",
+        subject="Hello"
+    )
+```
+
+**4. Testing State Changes**:
+```python
+def test_user_login_changes_status_to_active(self):
+    """Test login() updates user status."""
+    user = User(username="alice", status="inactive")
+    user.login()
+    assert user.status == "active"
+    assert user.last_login is not None
+
+def test_order_cancel_reverts_inventory(self, inventory):
+    """Test cancel_order() restores inventory."""
+    order = Order(items=[{"id": 1, "quantity": 5}])
+    initial_stock = inventory.get_stock(item_id=1)
+
+    order.cancel()
+
+    final_stock = inventory.get_stock(item_id=1)
+    assert final_stock == initial_stock + 5
+```
+
+### Parametrized Tests
+
+Test multiple scenarios efficiently with parametrize:
 
 ```python
-@timeout(60)
-def test_03_error_handling(self) -> None:
-    """TEST 3: Error condition handling."""
-    test_name = "Error Handling Test"
-    description = "Validates proper exception handling and error messages"
-    timer = PerformanceTimer()
-    timer.start()
-    
-    try:
-        error_scenarios = [
-            (
-                {'invalid_key': 'value'},
-                KeyError,
-                "missing required key"
-            ),
-            (
-                {'value': 'invalid_type'},
-                TypeError,
-                "invalid type for value"
-            ),
-            (
-                {'value': -999},
-                ValueError,
-                "value out of range"
+import pytest
+
+@pytest.mark.parametrize("input_value,expected", [
+    (0, "zero"),
+    (1, "one"),
+    (5, "five"),
+    (10, "ten"),
+])
+def test_number_to_word_converts_correctly(input_value, expected):
+    """Test number_to_word() with various inputs."""
+    assert number_to_word(input_value) == expected
+
+@pytest.mark.parametrize("email", [
+    "",                           # Empty string
+    "not-an-email",              # No @ symbol
+    "@example.com",              # Missing local part
+    "user@",                     # Missing domain
+    "user @example.com",         # Space in email
+])
+def test_validate_email_rejects_invalid_formats(email):
+    """Test validate_email() rejects invalid formats."""
+    with pytest.raises(ValueError):
+        validate_email(email)
+
+@pytest.mark.parametrize("age,is_adult", [
+    (17, False),
+    (18, True),
+    (21, True),
+    (100, True),
+])
+def test_is_adult_checks_age_threshold(age, is_adult):
+    """Test is_adult() with boundary values."""
+    assert check_is_adult(age) == is_adult
+```
+
+### Testing Edge Cases and Boundaries
+
+```python
+class TestBoundaryConditions:
+    """Test edge cases and boundary values."""
+
+    def test_with_minimum_valid_value(self):
+        """Test with smallest valid input."""
+        assert process_value(0) == expected_min_result
+
+    def test_with_maximum_valid_value(self):
+        """Test with largest valid input."""
+        assert process_value(100) == expected_max_result
+
+    def test_with_below_minimum_value(self):
+        """Test with value below valid range."""
+        with pytest.raises(ValueError):
+            process_value(-1)
+
+    def test_with_above_maximum_value(self):
+        """Test with value above valid range."""
+        with pytest.raises(ValueError):
+            process_value(101)
+
+    def test_with_empty_collection(self):
+        """Test with empty list/dict."""
+        assert process_collection([]) == []
+
+    def test_with_single_item_collection(self):
+        """Test with single element."""
+        assert process_collection([1]) == [1]
+
+    def test_with_large_collection(self):
+        """Test with large dataset."""
+        large_list = list(range(10000))
+        result = process_collection(large_list)
+        assert len(result) == 10000
+```
+
+## Phase 3: Integration Test Implementation
+
+Integration tests verify multiple components working together:
+
+```python
+"""
+Integration tests for user registration workflow.
+
+Tests the complete user registration process including
+validation, database storage, and email notification.
+"""
+import pytest
+from myapp.services import UserService
+from myapp.models import User
+
+class TestUserRegistrationIntegration:
+    """Integration tests for user registration."""
+
+    def test_register_user_creates_db_entry_and_sends_email(
+        self, test_database, mock_email_service
+    ):
+        """Test complete user registration workflow."""
+        # Arrange
+        service = UserService(database=test_database, email=mock_email_service)
+        user_data = {
+            "username": "newuser",
+            "email": "newuser@example.com",
+            "password": "SecurePass123!"
+        }
+
+        # Act
+        user_id = service.register_user(**user_data)
+
+        # Assert - Verify database entry
+        user = test_database.get_user(user_id)
+        assert user is not None
+        assert user.username == "newuser"
+        assert user.email == "newuser@example.com"
+        assert user.password != "SecurePass123!"  # Should be hashed
+
+        # Assert - Verify email sent
+        mock_email_service.send.assert_called_once()
+        email_call = mock_email_service.send.call_args
+        assert email_call[1]["to"] == "newuser@example.com"
+        assert "Welcome" in email_call[1]["subject"]
+
+    def test_register_duplicate_username_raises_error_and_rolls_back(
+        self, test_database
+    ):
+        """Test registration with duplicate username fails cleanly."""
+        # Arrange
+        service = UserService(database=test_database)
+        existing_user = {"username": "alice", "email": "alice@example.com"}
+        service.register_user(**existing_user)
+
+        # Act & Assert
+        with pytest.raises(ValueError, match="Username already exists"):
+            service.register_user(
+                username="alice",
+                email="different@example.com"
             )
-        ]
-        
-        errors_handled_correctly = 0
-        
-        for test_input, expected_exception, description_text in error_scenarios:
-            try:
-                result = self.component.process(test_input)
-                # Should have raised exception
-                pass
-            except expected_exception as e:
-                # Correct exception raised
-                self.assertIn("expected_keyword", str(e).lower())
-                errors_handled_correctly += 1
-            except Exception as e:
-                # Wrong exception type
-                self.fail(
-                    f"Expected {expected_exception.__name__}, "
-                    f"got {type(e).__name__}: {str(e)}"
-                )
-        
-        elapsed = timer.stop()
-        
-        metrics = {
-            "Scenarios Tested": str(len(error_scenarios)),
-            "Correctly Handled": str(errors_handled_correctly),
-            "Processing Time": f"{elapsed:.3f}s"
-        }
-        
-        passed = errors_handled_correctly == len(error_scenarios)
-        result_text = (
-            f"Handled {errors_handled_correctly}/{len(error_scenarios)} "
-            f"error scenarios correctly"
-        )
-        
-        print(format_console_output(
-            3, test_name, description, metrics, result_text, passed
-        ))
-        self.aggregator.add_result(
-            test_name, "✅" if passed else "❌",
-            f"{elapsed:.3f}s", metrics, passed
-        )
-        self.assertTrue(passed, result_text)
-        
-    except Exception as e:
-        self._handle_test_exception(test_name, description, e, timer)
+
+        # Verify no partial data left in database
+        users = test_database.get_users_by_email("different@example.com")
+        assert len(users) == 0
 ```
 
-### 5. Integration Tests
-Implement component interaction tests:
+### API Integration Tests
 
 ```python
-@timeout(180)
-def test_04_integration(self) -> None:
-    """TEST 4: Integration with external components."""
-    test_name = "Integration Test"
-    description = "Tests interaction with databases, APIs, and other services"
-    timer = PerformanceTimer()
-    timer.start()
-    
+class TestAPIEndpoints:
+    """Integration tests for REST API endpoints."""
+
+    def test_post_user_creates_user_and_returns_201(self, api_client):
+        """Test POST /users endpoint."""
+        # Arrange
+        user_data = {
+            "username": "testuser",
+            "email": "test@example.com"
+        }
+
+        # Act
+        response = api_client.post("/users", json=user_data)
+
+        # Assert
+        assert response.status_code == 201
+        assert "id" in response.json()
+        assert response.json()["username"] == "testuser"
+
+    def test_get_user_returns_user_data(self, api_client, created_user):
+        """Test GET /users/{id} endpoint."""
+        # Act
+        response = api_client.get(f"/users/{created_user.id}")
+
+        # Assert
+        assert response.status_code == 200
+        data = response.json()
+        assert data["id"] == created_user.id
+        assert data["username"] == created_user.username
+
+    def test_update_user_with_invalid_data_returns_400(self, api_client, created_user):
+        """Test PUT /users/{id} with invalid data."""
+        # Arrange
+        invalid_data = {"email": "not-an-email"}
+
+        # Act
+        response = api_client.put(f"/users/{created_user.id}", json=invalid_data)
+
+        # Assert
+        assert response.status_code == 400
+        assert "error" in response.json()
+```
+
+## Phase 4: End-to-End Test Implementation
+
+E2E tests validate complete user workflows:
+
+```python
+"""
+End-to-end tests for e-commerce checkout flow.
+
+Tests the complete user journey from adding items to cart
+through payment and order confirmation.
+"""
+class TestCheckoutWorkflow:
+    """E2E tests for checkout process."""
+
+    def test_complete_purchase_workflow_success(
+        self,
+        browser,
+        test_user,
+        test_product
+    ):
+        """Test complete purchase from cart to confirmation."""
+        # Login
+        browser.navigate_to("/login")
+        browser.fill_form({
+            "username": test_user.username,
+            "password": test_user.password
+        })
+        browser.click("Login")
+        assert browser.current_url == "/dashboard"
+
+        # Add product to cart
+        browser.navigate_to(f"/products/{test_product.id}")
+        browser.click("Add to Cart")
+        assert browser.find_element(".cart-count").text == "1"
+
+        # Proceed to checkout
+        browser.navigate_to("/cart")
+        browser.click("Checkout")
+
+        # Fill shipping information
+        browser.fill_form({
+            "address": "123 Test St",
+            "city": "Test City",
+            "zip": "12345"
+        })
+        browser.click("Continue")
+
+        # Enter payment information
+        browser.fill_form({
+            "card_number": "4111111111111111",
+            "expiry": "12/25",
+            "cvv": "123"
+        })
+        browser.click("Place Order")
+
+        # Verify confirmation
+        assert browser.current_url.startswith("/order-confirmation")
+        assert "Thank you" in browser.page_source
+        order_number = browser.find_element(".order-number").text
+        assert order_number is not None
+
+        # Verify order in database
+        order = Order.get_by_number(order_number)
+        assert order.user_id == test_user.id
+        assert order.status == "confirmed"
+        assert len(order.items) == 1
+```
+
+## Phase 5: Test Best Practices
+
+### 1. Test Independence
+
+```python
+# GOOD - Tests are independent
+class TestUserService:
+    def test_create_user(self, clean_database):
+        """Each test gets fresh database."""
+        user = create_user("alice")
+        assert user.id is not None
+
+    def test_delete_user(self, clean_database):
+        """Independent of previous test."""
+        user = create_user("bob")
+        delete_user(user.id)
+        assert get_user(user.id) is None
+
+# BAD - Tests depend on each other
+class TestUserService:
+    def test_01_create_user(self):
+        """Creates user that test_02 depends on."""
+        self.user = create_user("alice")  # Shared state!
+
+    def test_02_delete_user(self):
+        """Depends on test_01 running first."""
+        delete_user(self.user.id)  # Breaks if test_01 fails
+```
+
+### 2. Clear Assertions
+
+```python
+# GOOD - Specific, clear assertions
+def test_user_creation(self):
+    user = create_user("alice", "alice@example.com")
+    assert user.username == "alice"
+    assert user.email == "alice@example.com"
+    assert user.created_at is not None
+    assert user.is_active is True
+
+# BAD - Vague or missing assertions
+def test_user_creation(self):
+    user = create_user("alice", "alice@example.com")
+    assert user  # Too vague - what about user?
+    assert user.username  # Checks existence, not value
+```
+
+### 3. Test Data Management
+
+```python
+# GOOD - Clear, explicit test data
+def test_discount_calculation(self):
+    """Test 10% discount on order over $100."""
+    order = Order(items=[
+        {"price": 50.00, "quantity": 2},
+        {"price": 25.00, "quantity": 2}
+    ])
+    discount = calculate_discount(order)
+    assert discount == 15.00  # 10% of $150
+
+# BAD - Magic numbers without context
+def test_discount_calculation(self):
+    order = Order(items=[{"price": 50, "quantity": 2}])
+    assert calculate_discount(order) == 10  # Why 10?
+```
+
+### 4. Testing Async Code
+
+```python
+import pytest
+
+@pytest.mark.asyncio
+async def test_async_fetch_user_returns_user_data(self):
+    """Test async user fetch operation."""
+    user_id = 123
+    user = await fetch_user(user_id)
+    assert user.id == user_id
+
+@pytest.mark.asyncio
+async def test_async_operation_with_timeout(self):
+    """Test async operation completes within timeout."""
+    import asyncio
     try:
-        # Mock external service responses
-        self.mock_dependencies['database'].query.return_value = [
-            {'id': 1, 'data': 'test'}
-        ]
-        self.mock_dependencies['api_client'].fetch.return_value = {
-            'status': 'success',
-            'data': {'value': 42}
-        }
-        
-        # Execute integration workflow
-        result = self.component.full_workflow(
-            database=self.mock_dependencies['database'],
-            api=self.mock_dependencies['api_client']
-        )
-        
-        elapsed = timer.stop()
-        
-        # Verify interactions
-        self.mock_dependencies['database'].query.assert_called_once()
-        self.mock_dependencies['api_client'].fetch.assert_called()
-        
-        # Verify results
-        self.assertIsNotNone(result)
-        self.assertEqual(result['status'], 'completed')
-        
-        metrics = {
-            "Database Calls": str(self.mock_dependencies['database'].query.call_count),
-            "API Calls": str(self.mock_dependencies['api_client'].fetch.call_count),
-            "Processing Time": f"{elapsed:.3f}s",
-            "Data Consistency": "Verified",
-            "Component Connectivity": "All Connected"
-        }
-        
-        criteria = get_pass_criteria('integration')
-        passed = (
-            elapsed <= criteria['timeout']
-            and criteria['component_connectivity']
-            and criteria['data_consistency']
-        )
-        result_text = f"Integration completed in {elapsed:.3f}s"
-        
-        print(format_console_output(
-            4, test_name, description, metrics, result_text, passed
-        ))
-        self.aggregator.add_result(
-            test_name, "✅" if passed else "❌",
-            f"{elapsed:.3f}s", metrics, passed
-        )
-        self.assertTrue(passed, result_text)
-        
-    except Exception as e:
-        self._handle_test_exception(test_name, description, e, timer)
+        result = await asyncio.wait_for(slow_operation(), timeout=5.0)
+        assert result is not None
+    except asyncio.TimeoutError:
+        pytest.fail("Operation timed out")
 ```
 
-### 6. Performance Tests
-Implement speed and throughput tests:
+## Output Format
 
-```python
-@timeout(300)
-def test_05_performance(self) -> None:
-    """TEST 5: Performance and scalability."""
-    test_name = "Performance Test"
-    description = "Measures processing speed, throughput, and resource usage"
-    timer = PerformanceTimer()
-    timer.start()
-    
-    try:
-        # Generate large dataset
-        large_dataset = self._generate_large_dataset(size=10000)
-        
-        # Measure processing performance
-        process_start = time.time()
-        results = []
-        for item in large_dataset:
-            result = self.component.process(item)
-            results.append(result)
-        process_time = time.time() - process_start
-        
-        elapsed = timer.stop()
-        
-        # Calculate metrics
-        throughput = len(large_dataset) / process_time
-        avg_latency = process_time / len(large_dataset)
-        memory_usage = self._get_memory_usage()
-        
-        metrics = {
-            "Items Processed": str(len(large_dataset)),
-            "Total Time": f"{process_time:.3f}s",
-            "Throughput": f"{throughput:.2f} items/s",
-            "Avg Latency": f"{avg_latency*1000:.2f}ms",
-            "Memory Usage": memory_usage,
-            "Success Rate": f"{(len(results)/len(large_dataset))*100:.1f}%"
-        }
-        
-        criteria = get_pass_criteria('performance')
-        passed = (
-            throughput >= criteria['min_throughput']
-            and avg_latency <= criteria['max_latency']
-        )
-        result_text = (
-            f"Achieved {throughput:.2f} items/s throughput "
-            f"(threshold: >={criteria['min_throughput']} items/s)"
-        )
-        
-        print(format_console_output(
-            5, test_name, description, metrics, result_text, passed
-        ))
-        self.aggregator.add_result(
-            test_name, "✅" if passed else "❌",
-            f"{elapsed:.3f}s", metrics, passed
-        )
-        self.assertTrue(passed, result_text)
-        
-    except Exception as e:
-        self._handle_test_exception(test_name, description, e, timer)
+Please provide comprehensive test cases with the following structure:
+
+### Test Coverage Summary
+- **Total Test Cases**: [count]
+- **Unit Tests**: [count]
+- **Integration Tests**: [count]
+- **E2E Tests**: [count]
+- **Test Types**:
+  - Happy path: [count]
+  - Edge cases: [count]
+  - Error conditions: [count]
+
+### Test Case Implementation
+
+For each module/feature:
+
+**Module**: `[module_name]`
+**Test File**: `tests/unit/test_[module_name].py`
+
+**Test Cases**:
+1. `test_function_with_valid_input_returns_expected_result`
+   - **Scenario**: [description]
+   - **Input**: [test data]
+   - **Expected**: [result]
+   - **Type**: [unit/integration/e2e]
+
+2. `test_function_with_invalid_input_raises_error`
+   - **Scenario**: [description]
+   - **Input**: [test data]
+   - **Expected**: [exception type and message]
+   - **Type**: [unit/integration/e2e]
+
+### Test Execution Results
+```bash
+# Run tests
+pytest tests/unit/test_module.py -v
+
+# Expected output
+test_function_with_valid_input ... PASSED
+test_function_with_invalid_input ... PASSED
+test_function_edge_case ... PASSED
 ```
 
-**Deliverables:**
-1. Complete test suite with 5-10 comprehensive tests
-2. Coverage of all critical functionality
-3. Edge case and error condition handling
-4. Integration and performance tests
-5. Proper test isolation and cleanup
-6. Comprehensive metrics collection
-7. Formatted output matching standards
+### Coverage Gaps Identified
+- [ ] [Function/method]: Missing tests for [scenario]
+- [ ] [Function/method]: Need edge case tests for [condition]
+- [ ] [Function/method]: Error handling not tested
 
-**Success Criteria:**
-- All tests run independently
-- setUp and tearDown work correctly
-- Proper exception handling
-- Comprehensive metrics collected
-- Output formatting matches specifications
-- Tests complete within timeout limits
-- Pass/fail criteria properly evaluated
-```
+### Test Quality Metrics
+- **Average test execution time**: [milliseconds]
+- **Tests following AAA pattern**: [percentage]
+- **Tests with clear names**: [percentage]
+- **Independent tests**: [percentage]
+- **Parametrized tests**: [count]
 
-## Expected Outcomes
+### Next Steps
+- [ ] Implement remaining test cases for coverage gaps
+- [ ] Add performance benchmarks for critical functions
+- [ ] Set up test fixtures for integration tests
+- [ ] Configure CI/CD to run tests automatically
+- [ ] Review and refactor slow tests
+~~~
 
-### Test Coverage Achieved
-- Basic functionality: 100% of core operations
-- Edge cases: 15+ boundary conditions
-- Error handling: All exception paths
-- Integration: All external dependencies
-- Performance: Throughput and latency metrics
+## Output Format
 
-### Test Quality Standards
-- Independent execution (no order dependencies)
-- Proper resource cleanup
-- Comprehensive assertions
-- Descriptive failure messages
-- Detailed metrics collection
+The AI assistant should deliver:
 
-### Documentation Complete
-- Module docstring with purpose and authors
-- Test docstrings with clear descriptions
-- Inline comments for complex logic
-- Helper method documentation
-
-## Common Testing Patterns
-
-### Arrange-Act-Assert Pattern
-```python
-# Arrange: Set up test data and environment
-test_input = {'key': 'value'}
-expected_output = {'status': 'success'}
-
-# Act: Execute the operation
-result = component.process(test_input)
-
-# Assert: Verify results
-self.assertEqual(result, expected_output)
-```
-
-### Mock Usage Pattern
-```python
-# Setup mock
-mock_service = Mock()
-mock_service.fetch.return_value = {'data': 'test'}
-
-# Use mock
-result = component.use_service(mock_service)
-
-# Verify mock calls
-mock_service.fetch.assert_called_once_with(expected_params)
-```
-
-### Exception Testing Pattern
-```python
-# Test that exception is raised
-with self.assertRaises(ValueError) as context:
-    component.invalid_operation()
-
-# Verify exception message
-self.assertIn('expected text', str(context.exception))
-```
-
-## Next Steps
-After completing test case development, proceed to Phase 3: Mock & Fixture Management.
+1. **Test case matrix** documenting all scenarios
+2. **Complete test implementations** with clear AAA structure
+3. **Parametrized tests** for multiple scenarios
+4. **Integration and E2E tests** for workflows
+5. **Test coverage report** showing gaps
+6. **Execution instructions** for running tests
+7. **Quality metrics** and improvement suggestions

@@ -2,36 +2,42 @@
 
 ## 📋 Overview
 
-This review creates user-facing documentation including README files, user guides, installation instructions, and usage examples.
+This template provides a comprehensive approach to creating user-facing documentation including README files, installation guides, quick start tutorials, usage examples, FAQ sections, and troubleshooting guides.
 
-## 🎯 Objectives
+## 🎯 Objective
 
-- Create comprehensive README.md
-- Write installation instructions
-- Provide usage examples
-- Document configuration options
-- Create CHANGELOG.md
-- Maintain DEVLOG.md
-- Build user guides and tutorials
+Create clear, accessible documentation that enables users to quickly understand, install, configure, and effectively use your software, regardless of their technical expertise level.
 
-## 📂 Available Templates
+## 📂 Template
 
-### Python
-- **[Python User Documentation](python_user_docs.md)** - Complete templates for README, CHANGELOG, DEVLOG, user guides, installation instructions, usage examples, and configuration documentation
+- **[Python User Documentation](python_user_docs.md)**: Complete user documentation generation prompt
 
-## ⏱️ Time Investment
+## ✅ Key Areas Covered
 
-**2-3 hours** for comprehensive user documentation
+- **README Structure**: Professional, comprehensive project overview
+- **Installation Guides**: Step-by-step setup instructions
+- **Quick Start Guides**: Getting up and running in minutes
+- **Usage Examples**: Real-world code examples and tutorials
+- **FAQ Sections**: Common questions and answers
+- **Troubleshooting Guides**: Common issues and solutions
 
-## ✅ Success Criteria
+## 🚀 Quick Start
 
-- [ ] README.md created with all sections
-- [ ] Installation instructions clear
-- [ ] Usage examples provided
-- [ ] Configuration documented
-- [ ] CHANGELOG.md established
-- [ ] DEVLOG.md maintained
-- [ ] User guides complete
+1. Determine target audience and their technical level
+2. Use the comprehensive prompt in `python_user_docs.md`
+3. Request specific documentation types (README, installation guide, etc.)
+4. Review generated content for clarity and accuracy
+5. Test installation and usage instructions with fresh users
+
+## 📊 Success Criteria
+
+- [ ] README provides clear project overview and value proposition
+- [ ] Installation instructions are complete and tested
+- [ ] Quick start guide enables users to achieve first success quickly
+- [ ] Usage examples cover common use cases
+- [ ] FAQ addresses frequently encountered questions
+- [ ] Troubleshooting guide helps users resolve common issues
+- [ ] Documentation accessible to target audience skill level
 
 ---
 

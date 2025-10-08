@@ -1,515 +1,447 @@
-# Test Maintenance & CI/CD Integration
+# Python Test Maintenance & CI/CD Integration
 
 ## Objective
-Establish sustainable test maintenance practices and integrate tests into CI/CD pipelines for continuous quality assurance.
+Establish comprehensive test automation infrastructure, integrate tests into CI/CD pipelines, implement quality gates, manage test maintenance, handle flaky tests, optimize test execution, and ensure sustainable testing practices.
 
-## Test Maintenance Checklist
+## Implementation Checklist
 
-### Code Maintenance
-- [ ] Tests updated with code changes
-- [ ] Deprecated tests removed
-- [ ] Test names reflect current functionality
-- [ ] Test documentation current
-- [ ] No duplicate test logic
-- [ ] Helper functions refactored
-- [ ] Test data kept up-to-date
+### CI/CD Configuration
+- [ ] GitHub Actions/GitLab CI pipeline configured
+- [ ] Test stages defined (unit, integration, e2e)
+- [ ] Parallel execution enabled
+- [ ] Test result reporting set up
+- [ ] Artifact storage configured
 
-### Test Quality Monitoring
-- [ ] Flaky tests identified and fixed
-- [ ] Test execution time tracked
-- [ ] Test coverage monitored
-- [ ] Test failure analysis performed
-- [ ] Test success rate tracked
-- [ ] Performance regression detected
-- [ ] Test effectiveness measured
+### Quality Gates
+- [ ] Code coverage threshold enforced (80%+)
+- [ ] Test pass rate requirement set (100%)
+- [ ] Performance regression checks enabled
+- [ ] Security scanning integrated
+- [ ] Deployment gates configured
 
-### CI/CD Integration
-- [ ] GitHub Actions / Jenkins / GitLab CI configured
-- [ ] Tests run on every commit
-- [ ] Tests run on pull requests
-- [ ] Pre-merge test gates established
-- [ ] Automated test reporting
-- [ ] Failure notifications configured
-- [ ] Test artifacts archived
+### Test Maintenance
+- [ ] Flaky test detection implemented
+- [ ] Test execution time monitoring enabled
+- [ ] Obsolete test cleanup process established
+- [ ] Test documentation maintained
+- [ ] Test data management automated
 
-### Continuous Improvement
-- [ ] Test metrics dashboards created
-- [ ] Regular test review meetings scheduled
-- [ ] Test strategy documentation maintained
-- [ ] New test patterns documented
-- [ ] Lessons learned captured
-- [ ] Test suite optimized regularly
+### Pre-commit Hooks
+- [ ] Code formatting checks (Black)
+- [ ] Linting (flake8, pylint)
+- [ ] Type checking (mypy)
+- [ ] Fast test subset execution
+- [ ] Commit hooks configured
 
-## Detailed Test Maintenance & CI/CD Prompt
+## Prompt Template
 
-```
-Please help me establish test maintenance practices and integrate tests into CI/CD pipelines.
+Use the structured prompt below with your coding assistant:
 
-**Project Context:**
-- Version control: [GIT/OTHER]
-- CI/CD platform: [GitHub Actions/Jenkins/GitLab CI/Azure DevOps]
-- Deployment environment: [PRODUCTION/STAGING/DEV]
-- Team size: [NUMBER]
-- Release frequency: [DAILY/WEEKLY/MONTHLY]
+~~~markdown
+# Python Test Maintenance & CI/CD Implementation
 
-**Test Maintenance Implementation:**
+Please implement comprehensive test automation and maintenance infrastructure for this Python project following this protocol:
 
-### 1. Test Organization Best Practices
+## Phase 1: CI/CD Pipeline Configuration
 
-#### Group Related Tests
-```python
-class DataProcessingTests(unittest.TestCase):
-    """Tests for data processing functionality."""
-    
-    # Basic functionality
-    def test_01_basic_processing(self):
-        pass
-    
-    def test_02_batch_processing(self):
-        pass
-    
-    # Edge cases
-    def test_03_empty_input(self):
-        pass
-    
-    def test_04_null_values(self):
-        pass
-    
-    # Error handling
-    def test_05_invalid_format(self):
-        pass
-    
-    def test_06_missing_required_fields(self):
-        pass
-    
-    # Performance
-    def test_07_large_dataset(self):
-        pass
-    
-    # Integration
-    def test_08_database_integration(self):
-        pass
-```
+### GitHub Actions Setup
 
-#### Shared Test Utilities
-```python
-# tests/test_helpers.py
-"""Shared test utilities and helper functions."""
-
-from typing import Any, Dict, List
-import json
-from pathlib import Path
-
-def load_test_fixture(fixture_name: str) -> Dict[str, Any]:
-    """Load test fixture from test_data directory."""
-    fixture_path = Path(__file__).parent / 'test_data' / f'{fixture_name}.json'
-    with open(fixture_path, 'r') as f:
-        return json.load(f)
-
-def assert_valid_response(test_case, response: Dict, required_fields: List[str]):
-    """Common assertions for API responses."""
-    test_case.assertIsInstance(response, dict)
-    for field in required_fields:
-        test_case.assertIn(field, response)
-        test_case.assertIsNotNone(response[field])
-
-def create_test_user(user_id: int = 1, **kwargs) -> Dict[str, Any]:
-    """Create test user data with sensible defaults."""
-    defaults = {
-        'id': user_id,
-        'username': f'testuser{user_id}',
-        'email': f'test{user_id}@example.com',
-        'active': True
-    }
-    defaults.update(kwargs)
-    return defaults
-
-def cleanup_test_files(directory: str, pattern: str = 'test_*'):
-    """Clean up test files matching pattern."""
-    import glob
-    import os
-    for filepath in glob.glob(os.path.join(directory, pattern)):
-        try:
-            os.remove(filepath)
-        except OSError:
-            pass
-```
-
-### 2. Test Flakiness Detection and Resolution
-
-#### Identify Flaky Tests
-```python
-# Script to run tests multiple times and detect flakiness
-import subprocess
-import json
-from collections import defaultdict
-
-def detect_flaky_tests(test_suite: str, iterations: int = 10):
-    """Run test suite multiple times to detect flaky tests."""
-    results = defaultdict(lambda: {'passed': 0, 'failed': 0})
-    
-    for i in range(iterations):
-        print(f"Running iteration {i+1}/{iterations}...")
-        
-        # Run tests with JSON output
-        result = subprocess.run(
-            ['python', '-m', 'pytest', test_suite, '--json-report'],
-            capture_output=True,
-            text=True
-        )
-        
-        # Parse results
-        # Track pass/fail for each test
-        # Identify tests with inconsistent results
-    
-    # Report flaky tests
-    flaky_tests = []
-    for test_name, counts in results.items():
-        if counts['passed'] > 0 and counts['failed'] > 0:
-            flakiness_rate = counts['failed'] / (counts['passed'] + counts['failed'])
-            flaky_tests.append({
-                'test': test_name,
-                'flakiness_rate': flakiness_rate,
-                'passed': counts['passed'],
-                'failed': counts['failed']
-            })
-    
-    # Sort by flakiness rate
-    flaky_tests.sort(key=lambda x: x['flakiness_rate'], reverse=True)
-    
-    return flaky_tests
-```
-
-#### Common Flakiness Causes and Fixes
-
-**Timing Issues:**
-```python
-# Bad: Hard-coded sleep
-time.sleep(2)  # Hope 2 seconds is enough
-
-# Good: Wait for condition with timeout
-def wait_for_condition(condition_func, timeout=10, interval=0.1):
-    """Wait for condition to become true."""
-    start = time.time()
-    while time.time() - start < timeout:
-        if condition_func():
-            return True
-        time.sleep(interval)
-    return False
-
-# Usage
-self.assertTrue(
-    wait_for_condition(lambda: service.is_ready(), timeout=10),
-    "Service did not become ready"
-)
-```
-
-**Race Conditions:**
-```python
-# Bad: No synchronization
-results = []
-thread1 = threading.Thread(target=lambda: results.append(1))
-thread2 = threading.Thread(target=lambda: results.append(2))
-thread1.start()
-thread2.start()
-# Order is non-deterministic
-
-# Good: Proper synchronization
-import threading
-
-lock = threading.Lock()
-results = []
-
-def thread_safe_append(value):
-    with lock:
-        results.append(value)
-
-thread1 = threading.Thread(target=lambda: thread_safe_append(1))
-thread2 = threading.Thread(target=lambda: thread_safe_append(2))
-```
-
-**External Dependency Issues:**
-```python
-# Bad: Relying on external service
-response = requests.get('https://api.example.com/data')
-
-# Good: Mock external dependencies
-from unittest.mock import patch
-
-@patch('requests.get')
-def test_with_mocked_api(mock_get):
-    mock_get.return_value.json.return_value = {'data': 'test'}
-    # Test code here
-```
-
-### 3. CI/CD Integration
-
-#### GitHub Actions Workflow
-Create `.github/workflows/tests.yml`:
+**Create `.github/workflows/tests.yml`**:
 
 ```yaml
-name: Test Suite
+name: Tests
 
 on:
   push:
     branches: [ main, develop ]
   pull_request:
-    branches: [ main, develop ]
-  schedule:
-    # Run tests daily at 2 AM UTC
-    - cron: '0 2 * * *'
+    branches: [ main ]
 
 jobs:
-  test:
+  lint:
+    name: Lint and Format Check
     runs-on: ubuntu-latest
-    
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install black flake8 mypy isort
+
+      - name: Check formatting with Black
+        run: black --check src/ tests/
+
+      - name: Check imports with isort
+        run: isort --check-only src/ tests/
+
+      - name: Lint with flake8
+        run: |
+          flake8 src/ tests/ --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 src/ tests/ --count --exit-zero --max-complexity=10 --max-line-length=88 --statistics
+
+      - name: Type check with mypy
+        run: mypy src/ --ignore-missing-imports
+
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: ['3.9', '3.10', '3.11']
-    
-    steps:
-    - uses: actions/checkout@v3
-    
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ matrix.python-version }}
-    
-    - name: Cache dependencies
-      uses: actions/cache@v3
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
-    
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -e .[dev]
-    
-    - name: Run tests
-      run: |
-        python tests/run_all_tests.py
-      continue-on-error: false
-    
-    - name: Generate coverage report
-      if: always()
-      run: |
-        python -m coverage run -m pytest
-        python -m coverage report
-        python -m coverage html
-    
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
-      if: always()
-      with:
-        files: ./coverage.xml
-        flags: unittests
-        name: codecov-umbrella
-        fail_ci_if_error: false
-    
-    - name: Archive test results
-      if: always()
-      uses: actions/upload-artifact@v3
-      with:
-        name: test-results-${{ matrix.python-version }}
-        path: |
-          test-results/
-          htmlcov/
-        retention-days: 30
-    
-    - name: Notify on failure
-      if: failure()
-      uses: 8398a7/action-slack@v3
-      with:
-        status: ${{ job.status }}
-        text: 'Test suite failed for Python ${{ matrix.python-version }}'
-        webhook_url: ${{ secrets.SLACK_WEBHOOK }}
 
-  quality-gates:
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-cov pytest-xdist
+
+      - name: Run unit tests
+        run: |
+          pytest tests/unit/ \
+            -v \
+            -n auto \
+            --cov=src \
+            --cov-report=xml \
+            --cov-report=term-missing \
+            --junitxml=junit/test-results-${{ matrix.python-version }}.xml
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage.xml
+          flags: unit-tests
+          name: codecov-${{ matrix.python-version }}
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: test-results-${{ matrix.python-version }}
+          path: junit/test-results-*.xml
+
+  integration-tests:
+    name: Integration Tests
     runs-on: ubuntu-latest
-    needs: test
-    
+    needs: unit-tests
+
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_PASSWORD: testpass
+          POSTGRES_DB: testdb
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:7
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
-    
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -e .[dev]
-    
-    - name: Run linters
-      run: |
-        python -m flake8 src/ tests/
-        python -m black --check src/ tests/
-        python -m isort --check src/ tests/
-    
-    - name: Run type checking
-      run: |
-        python -m mypy src/
-    
-    - name: Check test coverage threshold
-      run: |
-        python -m coverage run -m pytest
-        python -m coverage report --fail-under=80
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-cov
+
+      - name: Run integration tests
+        env:
+          DATABASE_URL: postgresql://postgres:testpass@localhost:5432/testdb
+          REDIS_URL: redis://localhost:6379
+        run: |
+          pytest tests/integration/ \
+            -v \
+            --cov=src \
+            --cov-report=xml \
+            --cov-append
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage.xml
+          flags: integration-tests
+
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install bandit safety
+
+      - name: Run Bandit security scan
+        run: bandit -r src/ -f json -o bandit-report.json || true
+
+      - name: Check dependencies for vulnerabilities
+        run: safety check --json || true
+
+      - name: Upload security reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: security-reports
+          path: |
+            bandit-report.json
+
+  quality-gate:
+    name: Quality Gate
+    runs-on: ubuntu-latest
+    needs: [lint, unit-tests, integration-tests, security]
+    steps:
+      - name: Quality gate passed
+        run: echo "All quality checks passed!"
 ```
 
-#### Jenkins Pipeline
-Create `Jenkinsfile`:
+### GitLab CI Configuration
 
-```groovy
-pipeline {
-    agent any
-    
-    environment {
-        PYTHON_VERSION = '3.11'
-        VENV_DIR = '.venv'
-    }
-    
-    stages {
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
-        
-        stage('Setup') {
-            steps {
-                sh '''
-                    python${PYTHON_VERSION} -m venv ${VENV_DIR}
-                    . ${VENV_DIR}/bin/activate
-                    pip install --upgrade pip
-                    pip install -e .[dev]
-                '''
-            }
-        }
-        
-        stage('Lint') {
-            steps {
-                sh '''
-                    . ${VENV_DIR}/bin/activate
-                    python -m flake8 src/ tests/
-                    python -m black --check src/ tests/
-                    python -m mypy src/
-                '''
-            }
-        }
-        
-        stage('Test') {
-            steps {
-                sh '''
-                    . ${VENV_DIR}/bin/activate
-                    python tests/run_all_tests.py
-                '''
-            }
-        }
-        
-        stage('Coverage') {
-            steps {
-                sh '''
-                    . ${VENV_DIR}/bin/activate
-                    python -m coverage run -m pytest
-                    python -m coverage report
-                    python -m coverage xml
-                '''
-            }
-        }
-        
-        stage('Archive Results') {
-            steps {
-                archiveArtifacts artifacts: 'test-results/**/*', allowEmptyArchive: true
-                publishHTML([
-                    reportDir: 'htmlcov',
-                    reportFiles: 'index.html',
-                    reportName: 'Coverage Report'
-                ])
-            }
-        }
-    }
-    
-    post {
-        always {
-            junit 'test-results/*.xml'
-            cleanWs()
-        }
-        failure {
-            emailext(
-                subject: "Test Failure: ${env.JOB_NAME} - ${env.BUILD_NUMBER}",
-                body: "Test suite failed. Check console output at ${env.BUILD_URL}",
-                to: "${env.CHANGE_AUTHOR_EMAIL}"
-            )
-        }
-    }
-}
+**Create `.gitlab-ci.yml`**:
+
+```yaml
+stages:
+  - lint
+  - test
+  - quality
+  - deploy
+
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+cache:
+  paths:
+    - .cache/pip
+
+before_script:
+  - python -m pip install --upgrade pip
+  - pip install -r requirements.txt
+
+lint:
+  stage: lint
+  image: python:3.11
+  script:
+    - pip install black flake8 mypy isort
+    - black --check src/ tests/
+    - isort --check-only src/ tests/
+    - flake8 src/ tests/ --max-line-length=88
+    - mypy src/ --ignore-missing-imports
+
+unit-tests:
+  stage: test
+  image: python:3.11
+  script:
+    - pip install pytest pytest-cov pytest-xdist
+    - pytest tests/unit/ -v -n auto --cov=src --cov-report=xml --cov-report=term
+  coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
+    paths:
+      - coverage.xml
+
+integration-tests:
+  stage: test
+  image: python:3.11
+  services:
+    - postgres:14
+    - redis:7
+  variables:
+    POSTGRES_DB: testdb
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: testpass
+    DATABASE_URL: postgresql://postgres:testpass@postgres:5432/testdb
+  script:
+    - pip install pytest pytest-cov
+    - pytest tests/integration/ -v --cov=src --cov-report=xml
+  artifacts:
+    paths:
+      - coverage.xml
+
+quality-gate:
+  stage: quality
+  image: python:3.11
+  script:
+    - pip install coverage
+    - coverage report --fail-under=80
+  needs:
+    - unit-tests
+    - integration-tests
 ```
 
-### 4. Test Metrics and Monitoring
+## Phase 2: Quality Gates Configuration
 
-#### Test Metrics Dashboard Data
+### Coverage Thresholds
+
+**Configure in `pytest.ini`**:
+```ini
+[pytest]
+addopts =
+    --cov=src
+    --cov-report=html
+    --cov-report=term-missing
+    --cov-fail-under=80
+    --strict-markers
+
+[coverage:run]
+source = src
+omit =
+    */tests/*
+    */test_*.py
+    */__init__.py
+
+[coverage:report]
+precision = 2
+skip_empty = True
+fail_under = 80
+show_missing = True
+
+[coverage:html]
+directory = htmlcov
+```
+
+### Test Pass Rate Gate
+
 ```python
-# tests/generate_metrics.py
-"""Generate test metrics for dashboard."""
+# tests/conftest.py
+"""Configure pytest with quality gates."""
+import pytest
 
+def pytest_sessionfinish(session, exitstatus):
+    """Enforce 100% test pass rate."""
+    if exitstatus != 0:
+        print("\n❌ Quality Gate Failed: Some tests did not pass")
+        print("All tests must pass before merge.")
+    else:
+        print("\n✅ Quality Gate Passed: All tests passed")
+
+def pytest_terminal_summary(terminalreporter):
+    """Display test summary with pass rate."""
+    passed = len(terminalreporter.stats.get('passed', []))
+    failed = len(terminalreporter.stats.get('failed', []))
+    total = passed + failed
+
+    if total > 0:
+        pass_rate = (passed / total) * 100
+        print(f"\n{'='*60}")
+        print(f"Test Pass Rate: {pass_rate:.1f}% ({passed}/{total})")
+        print(f"{'='*60}")
+
+        if pass_rate < 100:
+            print("⚠️  WARNING: Not all tests passed")
+```
+
+### Performance Regression Gate
+
+```python
+# tests/benchmarks/conftest.py
+"""Performance regression gate."""
+import pytest
 import json
-from datetime import datetime
 from pathlib import Path
 
-def generate_test_metrics():
-    """Generate comprehensive test metrics."""
-    
-    metrics = {
-        'timestamp': datetime.now().isoformat(),
-        'summary': {
-            'total_tests': 0,
-            'passed': 0,
-            'failed': 0,
-            'skipped': 0,
-            'pass_rate': 0.0,
-            'total_duration': 0.0,
-            'avg_test_duration': 0.0
-        },
-        'coverage': {
-            'line_coverage': 0.0,
-            'branch_coverage': 0.0,
-            'files_covered': 0,
-            'total_files': 0
-        },
-        'performance': {
-            'slowest_tests': [],
-            'performance_regressions': []
-        },
-        'flakiness': {
-            'flaky_tests': [],
-            'flakiness_rate': 0.0
-        },
-        'trends': {
-            'test_count_history': [],
-            'pass_rate_history': [],
-            'duration_history': []
-        }
-    }
-    
-    # Collect metrics from test runs
-    # Update metrics dictionary
-    
-    # Save metrics
-    metrics_file = Path('test-results') / 'metrics.json'
-    metrics_file.parent.mkdir(exist_ok=True)
-    with open(metrics_file, 'w') as f:
-        json.dump(metrics, f, indent=2)
-    
-    return metrics
+BASELINE_FILE = Path("tests/benchmarks/baseline.json")
+REGRESSION_THRESHOLD = 0.10  # 10% slower fails
+
+def pytest_benchmark_compare_machine_info(config, benchmarkinfo):
+    """Load baseline for comparison."""
+    if BASELINE_FILE.exists():
+        return json.loads(BASELINE_FILE.read_text())
+    return {}
+
+@pytest.hookimpl(hookwrapper=True)
+def pytest_benchmark_scale_unit(config, unit, benchmarks, best, worst, sort):
+    """Check for performance regressions."""
+    yield
+
+    if not BASELINE_FILE.exists():
+        # First run - save baseline
+        baseline = {bench.name: bench.stats.mean for bench in benchmarks}
+        BASELINE_FILE.write_text(json.dumps(baseline, indent=2))
+        return
+
+    # Compare with baseline
+    baseline = json.loads(BASELINE_FILE.read_text())
+    regressions = []
+
+    for bench in benchmarks:
+        if bench.name in baseline:
+            baseline_mean = baseline[bench.name]
+            current_mean = bench.stats.mean
+            regression = (current_mean - baseline_mean) / baseline_mean
+
+            if regression > REGRESSION_THRESHOLD:
+                regressions.append({
+                    'name': bench.name,
+                    'baseline': baseline_mean,
+                    'current': current_mean,
+                    'regression': f"{regression*100:.1f}%"
+                })
+
+    if regressions:
+        print("\n❌ Performance Regression Detected:")
+        for reg in regressions:
+            print(f"  {reg['name']}: {reg['regression']} slower")
+        pytest.fail("Performance regression gate failed")
 ```
 
-### 5. Pre-commit Hooks
+## Phase 3: Pre-commit Hooks
 
-Create `.pre-commit-config.yaml`:
+### Install Pre-commit
+
+```bash
+pip install pre-commit
+```
+
+### Configure Pre-commit Hooks
+
+**Create `.pre-commit-config.yaml`**:
 
 ```yaml
 repos:
@@ -519,102 +451,493 @@ repos:
       - id: trailing-whitespace
       - id: end-of-file-fixer
       - id: check-yaml
-      - id: check-json
       - id: check-added-large-files
+        args: ['--maxkb=1000']
+      - id: check-json
+      - id: check-toml
       - id: check-merge-conflict
-  
+      - id: detect-private-key
+
   - repo: https://github.com/psf/black
-    rev: 23.3.0
+    rev: 24.1.1
     hooks:
       - id: black
         language_version: python3.11
-  
+        args: ['--line-length=88']
+
   - repo: https://github.com/pycqa/isort
-    rev: 5.12.0
+    rev: 5.13.2
     hooks:
       - id: isort
-        args: ['--profile', 'black']
-  
+        args: ['--profile=black', '--line-length=88']
+
   - repo: https://github.com/pycqa/flake8
-    rev: 6.0.0
+    rev: 7.0.0
     hooks:
       - id: flake8
-        args: ['--max-line-length=88']
-  
+        args: ['--max-line-length=88', '--extend-ignore=E203,W503']
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.8.0
+    hooks:
+      - id: mypy
+        additional_dependencies: [types-all]
+        args: ['--ignore-missing-imports']
+
   - repo: local
     hooks:
-      - id: run-tests
-        name: Run critical tests
-        entry: python tests/run_critical_tests.py
+      - id: pytest-fast
+        name: Run fast tests
+        entry: pytest
+        language: system
+        pass_filenames: false
+        args: ['-m', 'not slow', 'tests/unit/', '-v', '--tb=short']
+        always_run: true
+```
+
+### Install Hooks
+
+```bash
+# Install the git hook scripts
+pre-commit install
+
+# Run against all files (optional)
+pre-commit run --all-files
+
+# Update hooks to latest versions
+pre-commit autoupdate
+```
+
+### Custom Pre-commit Hook for Coverage
+
+```python
+# scripts/check_coverage.py
+"""Pre-commit hook to check test coverage."""
+import sys
+import subprocess
+
+def main():
+    """Check that coverage is above threshold."""
+    result = subprocess.run(
+        ['pytest', 'tests/unit/', '--cov=src', '--cov-report=term-missing', '-q'],
+        capture_output=True,
+        text=True
+    )
+
+    # Parse coverage from output
+    for line in result.stdout.split('\n'):
+        if 'TOTAL' in line:
+            parts = line.split()
+            coverage = int(parts[-1].rstrip('%'))
+
+            if coverage < 80:
+                print(f"❌ Coverage too low: {coverage}% (minimum: 80%)")
+                return 1
+
+            print(f"✅ Coverage: {coverage}%")
+            return 0
+
+    print("❌ Could not determine coverage")
+    return 1
+
+if __name__ == '__main__':
+    sys.exit(main())
+```
+
+Add to `.pre-commit-config.yaml`:
+```yaml
+  - repo: local
+    hooks:
+      - id: check-coverage
+        name: Check test coverage
+        entry: python scripts/check_coverage.py
         language: system
         pass_filenames: false
         always_run: true
 ```
 
-**Deliverables:**
-1. Organized test structure with shared utilities
-2. Flaky test detection and resolution mechanisms
-3. Complete CI/CD pipeline configuration
-4. Test metrics collection and monitoring
-5. Pre-commit hooks for quality gates
-6. Documentation of maintenance procedures
-7. Automated test reporting and notifications
+## Phase 4: Test Parallelization
 
-**Success Criteria:**
-- Tests run automatically on every commit
-- Test results visible in CI/CD dashboard
-- Flaky tests identified and fixed
-- Test coverage tracked over time
-- Quality gates prevent bad code from merging
-- Test maintenance procedures documented
-- Team follows testing best practices
+### Configure pytest-xdist
+
+```bash
+pip install pytest-xdist
 ```
 
-## Expected Outcomes
+**Run tests in parallel**:
+```bash
+# Auto-detect CPU cores
+pytest -n auto
 
-### Automated Testing
-- Tests run on every commit
-- Pull requests blocked if tests fail
-- Automatic test result reporting
-- Failure notifications sent to team
-- Test artifacts archived
+# Specific number of workers
+pytest -n 4
 
-### Test Quality
-- Flaky tests eliminated
-- Test execution time optimized
-- Test coverage improving
-- Performance regressions detected
-- Test effectiveness measured
+# Load balancing by test module
+pytest -n auto --dist loadscope
 
-### Sustainable Maintenance
-- Tests kept up-to-date with code
-- Duplicate tests eliminated
-- Test documentation current
-- Regular test reviews conducted
-- Continuous improvement process
+# Load balancing by test file
+pytest -n auto --dist loadfile
+```
 
-## Test Maintenance Best Practices
+### Optimize for CI
 
-### Regular Reviews
-- Weekly test health checks
-- Monthly test effectiveness analysis
-- Quarterly test strategy review
-- Remove obsolete tests
-- Refactor redundant tests
+```ini
+# pytest.ini
+[pytest]
+addopts =
+    -n auto
+    --dist loadscope
+    --maxfail=5
+    --tb=short
+```
 
-### Quality Metrics
-- Test pass rate > 95%
-- Test execution time < 5 minutes
-- Code coverage > 80%
-- Flakiness rate < 1%
-- Test-to-code ratio balanced
+### Handle Non-Thread-Safe Tests
 
-### Team Practices
-- Write tests with code changes
-- Review tests in code reviews
-- Share testing knowledge
-- Document test patterns
-- Celebrate testing wins
+```python
+import pytest
 
-## Next Steps
-All phases complete! Review the comprehensive Python Test Development README for complete methodology overview.
+@pytest.mark.xdist_group("serial")
+def test_database_migration():
+    """Tests that must run serially."""
+    pass
+
+@pytest.mark.xdist_group("serial")
+def test_singleton_resource():
+    """Another test in same serial group."""
+    pass
+```
+
+## Phase 5: Flaky Test Management
+
+### Detect Flaky Tests
+
+```bash
+# Run tests multiple times to detect flakiness
+pip install pytest-flaky pytest-rerunfailures
+
+# Rerun failures automatically
+pytest --reruns 3 --reruns-delay 1
+
+# Mark known flaky tests
+pytest -m flaky
+```
+
+### Mark Flaky Tests
+
+```python
+import pytest
+
+@pytest.mark.flaky(reruns=3, reruns_delay=2)
+def test_external_api_call():
+    """Test that occasionally fails due to network."""
+    response = call_external_api()
+    assert response.status_code == 200
+
+# Or use pytest-rerunfailures
+@pytest.mark.flaky(reruns=3)
+def test_timing_sensitive():
+    """Test with timing issues."""
+    result = time_sensitive_operation()
+    assert result.success
+```
+
+### Track Flaky Tests
+
+```python
+# conftest.py
+"""Track flaky test occurrences."""
+import pytest
+from collections import defaultdict
+
+flaky_tests = defaultdict(int)
+
+@pytest.hookimpl(hookwrapper=True)
+def pytest_runtest_makereport(item, call):
+    """Track test reruns."""
+    outcome = yield
+    report = outcome.get_result()
+
+    if report.when == "call" and hasattr(report, 'wasxfail'):
+        flaky_tests[item.nodeid] += 1
+
+def pytest_sessionfinish(session):
+    """Report flaky tests at end."""
+    if flaky_tests:
+        print("\n⚠️  Flaky Tests Detected:")
+        for test, count in sorted(flaky_tests.items(), key=lambda x: x[1], reverse=True):
+            print(f"  {test}: failed {count} times")
+```
+
+### Fix Flaky Tests
+
+```python
+# Common flaky test issues and fixes
+
+# BAD - Time-dependent test
+def test_cache_expiration():
+    cache.set("key", "value", ttl=1)
+    time.sleep(1.1)  # Flaky - exact timing
+    assert cache.get("key") is None
+
+# GOOD - Mock time
+from unittest.mock import patch
+from datetime import datetime, timedelta
+
+def test_cache_expiration():
+    with patch('myapp.cache.datetime') as mock_dt:
+        start = datetime(2024, 1, 1, 12, 0, 0)
+        mock_dt.now.return_value = start
+
+        cache.set("key", "value", ttl=1)
+
+        # Advance time
+        mock_dt.now.return_value = start + timedelta(seconds=2)
+
+        assert cache.get("key") is None
+
+# BAD - Order-dependent test
+test_results = []
+
+def test_create_user():
+    user = create_user("alice")
+    test_results.append(user.id)
+
+def test_get_user():
+    # Depends on test_create_user running first!
+    user_id = test_results[0]
+    user = get_user(user_id)
+
+# GOOD - Independent tests
+@pytest.fixture
+def created_user():
+    """Each test gets its own user."""
+    user = create_user("alice")
+    yield user
+    delete_user(user.id)
+
+def test_get_user(created_user):
+    user = get_user(created_user.id)
+    assert user.username == "alice"
+```
+
+## Phase 6: Test Maintenance Practices
+
+### Monitor Test Execution Time
+
+```python
+# conftest.py
+"""Monitor slow tests."""
+import pytest
+
+SLOW_TEST_THRESHOLD = 1.0  # seconds
+
+@pytest.hookimpl(hookwrapper=True)
+def pytest_runtest_makereport(item, call):
+    """Track slow tests."""
+    outcome = yield
+    report = outcome.get_result()
+
+    if report.when == "call" and report.duration > SLOW_TEST_THRESHOLD:
+        print(f"\n⚠️  Slow test: {item.nodeid} ({report.duration:.2f}s)")
+
+def pytest_terminal_summary(terminalreporter):
+    """Report slowest tests."""
+    reports = terminalreporter.stats.get('passed', [])
+    reports.extend(terminalreporter.stats.get('failed', []))
+
+    slow_tests = [
+        (r.nodeid, r.duration)
+        for r in reports
+        if hasattr(r, 'duration') and r.duration > SLOW_TEST_THRESHOLD
+    ]
+
+    if slow_tests:
+        print(f"\n{'='*60}")
+        print("Slowest Tests:")
+        for test, duration in sorted(slow_tests, key=lambda x: x[1], reverse=True)[:10]:
+            print(f"  {duration:.2f}s: {test}")
+        print(f"{'='*60}")
+```
+
+### Cleanup Obsolete Tests
+
+```bash
+# Find tests not run recently (using git)
+git log --all --format=%H -- tests/ | while read commit; do
+    git show $commit:tests/ --name-only
+done | sort | uniq -u
+
+# Find tests with no assertions
+grep -r "def test_" tests/ | while read -r line; do
+    file=$(echo $line | cut -d: -f1)
+    if ! grep -q "assert" $file; then
+        echo "No assertions: $file"
+    fi
+done
+```
+
+### Document Test Purpose
+
+```python
+"""
+Test suite for user authentication.
+
+Purpose:
+    Validate user login, logout, and session management.
+
+Coverage:
+    - Valid credential login
+    - Invalid credential handling
+    - Session token generation and validation
+    - Multi-factor authentication
+    - Password reset flow
+
+Maintenance Notes:
+    - Update test_valid_login() if authentication logic changes
+    - mock_email_service fixture required for password reset tests
+    - Tests use in-memory database for speed
+
+Last Review: 2024-01-15
+Reviewed By: alice@example.com
+"""
+```
+
+## Phase 7: Test Result Reporting
+
+### JUnit XML Reports
+
+```bash
+# Generate JUnit XML for CI integration
+pytest --junitxml=junit/test-results.xml
+
+# With multiple test types
+pytest tests/unit/ --junitxml=junit/unit-results.xml
+pytest tests/integration/ --junitxml=junit/integration-results.xml
+```
+
+### HTML Reports
+
+```bash
+pip install pytest-html
+
+pytest --html=report.html --self-contained-html
+```
+
+### Custom Test Report
+
+```python
+# conftest.py
+"""Generate custom test report."""
+import json
+from datetime import datetime
+
+def pytest_sessionfinish(session):
+    """Generate JSON test report."""
+    report = {
+        'timestamp': datetime.now().isoformat(),
+        'total': session.testscollected,
+        'passed': len(session.testscollected - session.testsfailed),
+        'failed': session.testsfailed,
+        'duration': session.duration,
+        'tests': []
+    }
+
+    for item in session.items:
+        if hasattr(item, 'report'):
+            report['tests'].append({
+                'name': item.nodeid,
+                'outcome': item.report.outcome,
+                'duration': item.report.duration
+            })
+
+    with open('test-report.json', 'w') as f:
+        json.dump(report, f, indent=2)
+```
+
+## Output Format
+
+Please provide a comprehensive CI/CD and maintenance implementation with the following structure:
+
+### CI/CD Configuration Summary
+- **Platform**: [GitHub Actions/GitLab CI/Jenkins]
+- **Pipeline Stages**: [list stages]
+- **Parallel Execution**: [enabled/disabled, worker count]
+- **Test Types Automated**: [unit, integration, e2e]
+- **Quality Gates**: [list gates]
+
+### Quality Gate Configuration
+| Gate | Threshold | Current | Status |
+|------|-----------|---------|--------|
+| Code Coverage | 80% | [value] | ✅/❌ |
+| Test Pass Rate | 100% | [value] | ✅/❌ |
+| Performance | <10% regression | [value] | ✅/❌ |
+
+### Pre-commit Hooks Configured
+- [ ] Code formatting (Black)
+- [ ] Import sorting (isort)
+- [ ] Linting (flake8)
+- [ ] Type checking (mypy)
+- [ ] Fast test execution
+- [ ] Coverage check
+
+### Test Maintenance Status
+**Slow Tests Identified**:
+| Test | Duration | Recommendation |
+|------|----------|----------------|
+| [test_name] | [time] | [optimization] |
+
+**Flaky Tests**:
+| Test | Failure Rate | Action |
+|------|--------------|--------|
+| [test_name] | [rate] | [fix planned] |
+
+### Test Execution Metrics
+- **Total Tests**: [count]
+- **Average Execution Time**: [duration]
+- **Parallel Workers**: [count]
+- **Tests per Second**: [rate]
+- **Coverage**: [percentage]
+
+### CI/CD Pipeline Visualization
+```
+┌─────────┐     ┌──────────┐     ┌────────────┐     ┌────────┐
+│  Lint   │────▶│   Unit   │────▶│Integration │────▶│ Deploy │
+└─────────┘     │  Tests   │     │   Tests    │     └────────┘
+                └──────────┘     └────────────┘
+                     │                 │
+                     ▼                 ▼
+                ┌─────────┐       ┌─────────┐
+                │Coverage │       │Security │
+                │  Gate   │       │  Scan   │
+                └─────────┘       └─────────┘
+```
+
+### Best Practices Implemented
+- [ ] All tests automated in CI/CD
+- [ ] Quality gates prevent regressions
+- [ ] Pre-commit hooks catch issues early
+- [ ] Parallel execution for speed
+- [ ] Flaky tests tracked and fixed
+- [ ] Test maintenance schedule established
+
+### Next Steps
+- [ ] Monitor and optimize slow tests
+- [ ] Fix identified flaky tests
+- [ ] Review and update obsolete tests
+- [ ] Enhance test documentation
+- [ ] Set up test result dashboard
+- [ ] Schedule regular test maintenance reviews
+~~~
+
+## Output Format
+
+The AI assistant should deliver:
+
+1. **Complete CI/CD pipeline configuration** (GitHub Actions or GitLab CI)
+2. **Quality gate implementation** with thresholds
+3. **Pre-commit hook configuration** with all checks
+4. **Test parallelization setup** for faster execution
+5. **Flaky test detection and tracking** system
+6. **Test maintenance procedures** and documentation
+7. **Test reporting infrastructure** with dashboards
+8. **Execution metrics and monitoring** setup

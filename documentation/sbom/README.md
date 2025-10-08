@@ -1,37 +1,44 @@
-# SBOM & Dependency Documentation
+# SBOM Generation
 
 ## 📋 Overview
 
-This review generates Software Bill of Materials (SBOM), documents dependencies, conducts vulnerability scanning, and ensures compliance with security standards.
+This template provides comprehensive guidance for generating Software Bill of Materials (SBOM) documents that meet regulatory requirements including NTIA minimum elements and EU Cyber Resilience Act standards.
 
-## 🎯 Objectives
+## 🎯 Objective
 
-- Generate SBOM in CycloneDX/SPDX formats
-- Document all dependencies
-- Scan for vulnerabilities
-- Track license compliance
-- Document third-party components
-- Ensure NTIA and EU CRA compliance
-- Automate SBOM generation
+Generate complete, standards-compliant SBOM documentation that inventories all software components, dependencies, versions, licenses, and known vulnerabilities for security, compliance, and supply chain management.
 
-## 📂 Available Templates
+## 📂 Template
 
-### Python
-- **[Python SBOM Documentation](python_sbom.md)** - Comprehensive template for SBOM generation, dependency documentation, vulnerability scanning, license tracking, compliance documentation, and automation
+- **[Python SBOM](python_sbom.md)**: Complete SBOM generation prompt
 
-## ⏱️ Time Investment
+## ✅ Key Areas Covered
 
-**1-2 hours** for SBOM generation and dependency documentation
+- **NTIA Minimum Elements**: Required components for SBOM compliance
+- **EU Cyber Resilience Act**: CRA-specific requirements
+- **Dependency Tree**: Complete dependency graph with versions
+- **License Information**: License identification and compliance
+- **Known Vulnerabilities**: CVE tracking and security advisories
+- **Supply Chain Security**: Component provenance and integrity
 
-## ✅ Success Criteria
+## 🚀 Quick Start
 
-- [ ] SBOM generated (CycloneDX or SPDX)
-- [ ] Dependencies documented
-- [ ] Vulnerabilities scanned
-- [ ] Licenses tracked
-- [ ] Third-party notices created
-- [ ] Compliance verified (NTIA, EU CRA)
-- [ ] SBOM automation configured
+1. Determine compliance requirements (NTIA, EU CRA, etc.)
+2. Use the comprehensive prompt in `python_sbom.md`
+3. Generate SBOM in required format (SPDX, CycloneDX)
+4. Review for completeness and accuracy
+5. Integrate SBOM generation into CI/CD pipeline
+
+## 📊 Success Criteria
+
+- [ ] SBOM includes all NTIA minimum elements
+- [ ] EU Cyber Resilience Act requirements met (if applicable)
+- [ ] Complete dependency tree with versions documented
+- [ ] All licenses identified and documented
+- [ ] Known vulnerabilities tracked and documented
+- [ ] SBOM format standard-compliant (SPDX or CycloneDX)
+- [ ] Automated SBOM generation integrated in build process
+- [ ] SBOM updated with each release
 
 ---
 

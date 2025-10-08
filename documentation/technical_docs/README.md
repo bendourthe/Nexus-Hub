@@ -2,36 +2,43 @@
 
 ## 📋 Overview
 
-This review creates technical documentation for developers including architecture diagrams, design decisions, codebase walkthroughs, and deployment guides.
+This template provides comprehensive guidance for creating technical documentation that captures architecture decisions, system design, data flows, integration points, and development workflows for developers and technical stakeholders.
 
-## 🎯 Objectives
+## 🎯 Objective
 
-- Document system architecture
-- Explain design decisions
-- Create codebase walkthroughs
-- Document data models and schemas
-- Describe API integrations
-- Provide deployment instructions
-- Document troubleshooting guides
+Document the technical architecture, design decisions, module organization, and development processes to enable developers to understand, maintain, and extend the codebase effectively.
 
-## 📂 Available Templates
+## 📂 Template
 
-### Python
-- **[Python Technical Documentation](python_technical_docs.md)** - Comprehensive templates for architecture documentation, design decisions, codebase walkthroughs, data models, deployment guides, and troubleshooting
+- **[Python Technical Documentation](python_technical_docs.md)**: Complete technical documentation prompt
 
-## ⏱️ Time Investment
+## ✅ Key Areas Covered
 
-**2-4 hours** for complete technical documentation
+- **Architecture Overview**: System design and component organization
+- **Design Decisions**: Rationale behind technical choices
+- **Module Organization**: Code structure and dependencies
+- **Data Flow Diagrams**: How data moves through the system
+- **Integration Points**: External APIs and service connections
+- **Development Workflow**: Setup, testing, deployment processes
 
-## ✅ Success Criteria
+## 🚀 Quick Start
 
-- [ ] Architecture documented with diagrams
-- [ ] Design decisions explained
-- [ ] Codebase walkthrough created
-- [ ] Data models documented
-- [ ] API integrations described
-- [ ] Deployment guide complete
-- [ ] Troubleshooting guide available
+1. Identify key architectural components and design decisions
+2. Use the comprehensive prompt in `python_technical_docs.md`
+3. Request specific documentation sections (architecture, design decisions, etc.)
+4. Review with technical team for accuracy and completeness
+5. Keep documentation updated as architecture evolves
+
+## 📊 Success Criteria
+
+- [ ] Architecture overview clearly explains system design
+- [ ] Design decisions documented with rationale
+- [ ] Module organization and dependencies mapped
+- [ ] Data flow through system illustrated
+- [ ] Integration points with external services documented
+- [ ] Development workflow clearly explained
+- [ ] Technical documentation accessible to team members
+- [ ] Documentation maintained alongside code changes
 
 ---
 

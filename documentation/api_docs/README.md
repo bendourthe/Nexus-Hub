@@ -1,37 +1,44 @@
-# API Reference Documentation
+# API Documentation
 
 ## 📋 Overview
 
-This review creates complete API reference documentation with class descriptions, method signatures, parameter specifications, and usage examples.
+This template provides comprehensive guidance for documenting APIs including endpoints, request/response formats, authentication, error handling, rate limits, and practical code examples.
 
-## 🎯 Objectives
+## 🎯 Objective
 
-- Document all public classes
-- Describe all public methods
-- Specify parameter types and defaults
-- Document return values
-- Provide usage examples
-- List exceptions
-- Create API index
+Create complete, accurate API documentation that enables developers to quickly understand and successfully integrate with your API, including authentication flows, request formats, response structures, and error handling.
 
-## 📂 Available Templates
+## 📂 Template
 
-### Python
-- **[Python API Documentation](python_api_docs.md)** - Complete templates for API reference documentation including class documentation, method signatures, parameter specifications, return values, and comprehensive examples
+- **[Python API Documentation](python_api_docs.md)**: Complete API documentation generation prompt
 
-## ⏱️ Time Investment
+## ✅ Key Areas Covered
 
-**1-2 hours** for complete API reference documentation
+- **Endpoint Documentation**: Complete endpoint reference with methods
+- **Request/Response Formats**: JSON schemas and examples
+- **Authentication**: Auth flows, tokens, API keys
+- **Error Codes**: Comprehensive error handling documentation
+- **Code Examples**: Working examples in multiple languages
+- **Rate Limits**: Usage limits and best practices
 
-## ✅ Success Criteria
+## 🚀 Quick Start
 
-- [ ] All public classes documented
-- [ ] All public methods documented
-- [ ] Parameter types specified
-- [ ] Return values documented
-- [ ] Usage examples provided
-- [ ] Exceptions listed
-- [ ] API index created
+1. Inventory all API endpoints and their functionality
+2. Use the comprehensive prompt in `python_api_docs.md`
+3. Request complete API reference generation
+4. Test all documented examples for accuracy
+5. Publish using tools like Swagger/OpenAPI, Sphinx, or MkDocs
+
+## 📊 Success Criteria
+
+- [ ] All endpoints documented with methods and paths
+- [ ] Request formats and parameters clearly specified
+- [ ] Response formats with schemas and examples provided
+- [ ] Authentication methods fully explained
+- [ ] Error codes comprehensively documented
+- [ ] Working code examples provided
+- [ ] Rate limits and best practices explained
+- [ ] API versioning strategy documented
 
 ---
 
