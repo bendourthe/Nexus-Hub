@@ -8,9 +8,17 @@ This template provides comprehensive guidance for creating technical documentati
 
 Document the technical architecture, design decisions, module organization, and development processes to enable developers to understand, maintain, and extend the codebase effectively.
 
-## 📂 Template
+## 📂 Available Templates
 
-- **[Python Technical Documentation](python_technical_docs.md)**: Complete technical documentation prompt
+| Language | Template File |
+|----------|---------------|
+| **Python** | [python_technical_docs.md](python_technical_docs.md) |
+| **JavaScript/TypeScript** | [javascript_technical_docs.md](javascript_technical_docs.md) |
+| **Java** | [java_technical_docs.md](java_technical_docs.md) |
+| **C#** | [csharp_technical_docs.md](csharp_technical_docs.md) |
+| **Go** | [go_technical_docs.md](go_technical_docs.md) |
+| **C** | [c_technical_docs.md](c_technical_docs.md) |
+| **C++** | [cpp_technical_docs.md](cpp_technical_docs.md) |
 
 ## ✅ Key Areas Covered
 

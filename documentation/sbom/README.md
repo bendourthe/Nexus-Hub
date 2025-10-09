@@ -8,9 +8,17 @@ This template provides comprehensive guidance for generating Software Bill of Ma
 
 Generate complete, standards-compliant SBOM documentation that inventories all software components, dependencies, versions, licenses, and known vulnerabilities for security, compliance, and supply chain management.
 
-## 📂 Template
+## 📂 Available Templates
 
-- **[Python SBOM](python_sbom.md)**: Complete SBOM generation prompt
+| Language | Template File |
+|----------|---------------|
+| **Python** | [python_sbom.md](python_sbom.md) |
+| **JavaScript/TypeScript** | [javascript_sbom.md](javascript_sbom.md) |
+| **Java** | [java_sbom.md](java_sbom.md) |
+| **C#** | [csharp_sbom.md](csharp_sbom.md) |
+| **Go** | [go_sbom.md](go_sbom.md) |
+| **C** | [c_sbom.md](c_sbom.md) |
+| **C++** | [cpp_sbom.md](cpp_sbom.md) |
 
 ## ✅ Key Areas Covered
 

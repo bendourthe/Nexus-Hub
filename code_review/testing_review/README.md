@@ -15,7 +15,15 @@ Testing review assesses the quality, coverage, and effectiveness of the test sui
 
 ## 📂 Available Templates
 
-- **[Python Testing Review](python_testing_review.md)**: Comprehensive test suite assessment for Python projects
+| Language | Template File |
+|----------|---------------|
+| **Python** | [python_testing_review.md](python_testing_review.md) |
+| **JavaScript/TypeScript** | [javascript_testing_review.md](javascript_testing_review.md) |
+| **Java** | [java_testing_review.md](java_testing_review.md) |
+| **C#** | [csharp_testing_review.md](csharp_testing_review.md) |
+| **Go** | [go_testing_review.md](go_testing_review.md) |
+| **C** | [c_testing_review.md](c_testing_review.md) |
+| **C++** | [cpp_testing_review.md](cpp_testing_review.md) |
 
 ## ✅ Success Criteria
 

@@ -14,7 +14,15 @@ Context analysis is the critical first phase of code review. Before evaluating c
 
 ## 📂 Available Templates
 
-- **[Python Context Analysis](python_context_analysis.md)**: Comprehensive context gathering for Python projects
+| Language | Template File |
+|----------|---------------|
+| **Python** | [python_context_analysis.md](python_context_analysis.md) |
+| **JavaScript/TypeScript** | [javascript_context_analysis.md](javascript_context_analysis.md) |
+| **Java** | [java_context_analysis.md](java_context_analysis.md) |
+| **C#** | [csharp_context_analysis.md](csharp_context_analysis.md) |
+| **Go** | [go_context_analysis.md](go_context_analysis.md) |
+| **C** | [c_context_analysis.md](c_context_analysis.md) |
+| **C++** | [cpp_context_analysis.md](cpp_context_analysis.md) |
 
 ## ✅ Success Criteria
 

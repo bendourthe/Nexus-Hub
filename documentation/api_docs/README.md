@@ -8,9 +8,17 @@ This template provides comprehensive guidance for documenting APIs including end
 
 Create complete, accurate API documentation that enables developers to quickly understand and successfully integrate with your API, including authentication flows, request formats, response structures, and error handling.
 
-## 📂 Template
+## 📂 Available Templates
 
-- **[Python API Documentation](python_api_docs.md)**: Complete API documentation generation prompt
+| Language | Template File |
+|----------|---------------|
+| **Python** | [python_api_docs.md](python_api_docs.md) |
+| **JavaScript/TypeScript** | [javascript_api_docs.md](javascript_api_docs.md) |
+| **Java** | [java_api_docs.md](java_api_docs.md) |
+| **C#** | [csharp_api_docs.md](csharp_api_docs.md) |
+| **Go** | [go_api_docs.md](go_api_docs.md) |
+| **C** | [c_api_docs.md](c_api_docs.md) |
+| **C++** | [cpp_api_docs.md](cpp_api_docs.md) |
 
 ## ✅ Key Areas Covered
 

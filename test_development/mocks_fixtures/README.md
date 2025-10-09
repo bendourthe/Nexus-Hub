@@ -55,8 +55,20 @@ Establish effective mocking strategies and fixture management to isolate compone
 - Clear separation of test concerns
 - Reduced test setup complexity
 
+## Available Templates
+
+| Language | Template File | Status |
+|----------|--------------|---------|
+| Python | `python_mocks_fixtures.md` | Available |
+| JavaScript | `javascript_mocks_fixtures.md` | Available |
+| Java | `java_mocks_fixtures.md` | Available |
+| C# | `csharp_mocks_fixtures.md` | Available |
+| Go | `go_mocks_fixtures.md` | Available |
+| C | `c_mocks_fixtures.md` | Available |
+| C++ | `cpp_mocks_fixtures.md` | Available |
+
 ## Quick Start
-Use `python_mocks_fixtures.md` with your AI assistant to:
+Use the appropriate template file with your AI assistant to:
 1. Design fixture architecture for your tests
 2. Implement reusable fixtures with appropriate scopes
 3. Create effective mocks for external dependencies

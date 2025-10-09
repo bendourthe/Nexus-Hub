@@ -55,8 +55,20 @@ Establish comprehensive performance testing practices to validate system behavio
 - Scalability validation
 - Resource utilization insights
 
+## Available Templates
+
+| Language | Template File | Status |
+|----------|--------------|---------|
+| Python | `python_performance_testing.md` | Available |
+| JavaScript | `javascript_performance_testing.md` | Coming Soon |
+| Java | `java_performance_testing.md` | Coming Soon |
+| C# | `csharp_performance_testing.md` | Coming Soon |
+| Go | `go_performance_testing.md` | Coming Soon |
+| C | `c_performance_testing.md` | Coming Soon |
+| C++ | `cpp_performance_testing.md` | Coming Soon |
+
 ## Quick Start
-Use `python_performance_testing.md` with your AI assistant to:
+Use the appropriate template file with your AI assistant to:
 1. Design performance test strategy
 2. Implement load and stress tests
 3. Set up benchmarking infrastructure

@@ -55,8 +55,20 @@ Establish automated testing infrastructure, integrate tests into CI/CD pipelines
 - Clear test reporting
 - Sustainable testing practices
 
+## Available Templates
+
+| Language | Template File | Status |
+|----------|--------------|---------|
+| Python | `python_maintenance_cicd.md` | Available |
+| JavaScript | `javascript_maintenance_cicd.md` | Coming Soon |
+| Java | `java_maintenance_cicd.md` | Coming Soon |
+| C# | `csharp_maintenance_cicd.md` | Coming Soon |
+| Go | `go_maintenance_cicd.md` | Coming Soon |
+| C | `c_maintenance_cicd.md` | Coming Soon |
+| C++ | `cpp_maintenance_cicd.md` | Coming Soon |
+
 ## Quick Start
-Use `python_maintenance_cicd.md` with your AI assistant to:
+Use the appropriate template file with your AI assistant to:
 1. Configure CI/CD pipeline for tests
 2. Set up quality gates and thresholds
 3. Implement pre-commit hooks

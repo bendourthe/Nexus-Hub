@@ -8,9 +8,17 @@ This template guides the addition of strategic, high-value comments that explain
 
 Add meaningful comments that explain business logic, design decisions, non-obvious implementations, and workarounds, while avoiding redundant commentary that clutters code without adding insight.
 
-## 📂 Template
+## 📂 Available Templates
 
-- **[Python Comments](python_comments.md)**: Strategic comment guidance and best practices
+| Language | Template File |
+|----------|---------------|
+| **Python** | [python_comments.md](python_comments.md) |
+| **JavaScript/TypeScript** | [javascript_comments.md](javascript_comments.md) |
+| **Java** | [java_comments.md](java_comments.md) |
+| **C#** | [csharp_comments.md](csharp_comments.md) |
+| **Go** | [go_comments.md](go_comments.md) |
+| **C** | [c_comments.md](c_comments.md) |
+| **C++** | [cpp_comments.md](cpp_comments.md) |
 
 ## ✅ Key Areas Covered
 

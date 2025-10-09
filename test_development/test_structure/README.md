@@ -49,8 +49,20 @@ Establish a robust, maintainable test infrastructure that supports comprehensive
 - Maintainable test utilities
 - Clear testing conventions for the team
 
+## Available Templates
+
+| Language | Template File | Status |
+|----------|--------------|---------|
+| Python | `python_test_structure.md` | Available |
+| JavaScript | `javascript_test_structure.md` | Available |
+| Java | `java_test_structure.md` | Available |
+| C# | `csharp_test_structure.md` | Available |
+| Go | `go_test_structure.md` | Available |
+| C | `c_test_structure.md` | Available |
+| C++ | `cpp_test_structure.md` | Available |
+
 ## Quick Start
-Use `python_test_structure.md` with your AI assistant to:
+Use the appropriate template file with your AI assistant to:
 1. Evaluate current test infrastructure
 2. Design optimal test organization
 3. Set up test framework and configuration

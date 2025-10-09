@@ -55,8 +55,20 @@ Measure, analyze, and improve test coverage to ensure comprehensive testing of t
 - Coverage thresholds enforced
 - Sustainable coverage practices
 
+## Available Templates
+
+| Language | Template File | Status |
+|----------|--------------|---------|
+| Python | `python_code_coverage.md` | Available |
+| JavaScript | `javascript_code_coverage.md` | Coming Soon |
+| Java | `java_code_coverage.md` | Coming Soon |
+| C# | `csharp_code_coverage.md` | Coming Soon |
+| Go | `go_code_coverage.md` | Coming Soon |
+| C | `c_code_coverage.md` | Coming Soon |
+| C++ | `cpp_code_coverage.md` | Coming Soon |
+
 ## Quick Start
-Use `python_code_coverage.md` with your AI assistant to:
+Use the appropriate template file with your AI assistant to:
 1. Set up coverage measurement infrastructure
 2. Analyze current coverage and identify gaps
 3. Establish coverage goals and thresholds

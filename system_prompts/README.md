@@ -5,19 +5,81 @@ This repository contains standardized system prompts (also known as Rules or Ins
 ## 📁 Repository Structure
 
 ```
-ai_prompts/
+system_prompts/
 ├── autonomous_agents/                          # Prompts for autonomous coding agents
 │   └── claude_code/
-│       └── python/
-│           ├── CLAUDE_comprehensive_35k.md     # Full-featured prompt (~35k tokens)
-│           └── CLAUDE_condensed_20k.md         # Streamlined version (~20k tokens)
+│       ├── python/
+│       │   ├── CLAUDE_comprehensive_35k.md     # Full-featured prompt (~35k tokens)
+│       │   └── CLAUDE_condensed_20k.md         # Streamlined version (~20k tokens)
+│       ├── javascript/
+│       │   ├── CLAUDE_comprehensive_35k.md
+│       │   └── CLAUDE_condensed_20k.md
+│       ├── java/
+│       │   ├── CLAUDE_comprehensive_35k.md
+│       │   └── CLAUDE_condensed_20k.md
+│       ├── csharp/
+│       │   ├── CLAUDE_comprehensive_35k.md
+│       │   └── CLAUDE_condensed_20k.md
+│       ├── go/
+│       │   ├── CLAUDE_comprehensive_35k.md
+│       │   └── CLAUDE_condensed_20k.md
+│       ├── c/
+│       │   ├── CLAUDE_comprehensive_35k.md
+│       │   └── CLAUDE_condensed_20k.md
+│       └── cpp/
+│           ├── CLAUDE_comprehensive_35k.md
+│           └── CLAUDE_condensed_20k.md
 ├── coding_assistants/                          # Prompts for coding assistants
-│   └── python/
-│       ├── GLOBAL_comprehensive_35k.md         # Full-featured prompt (~35k tokens)
-│       └── GLOBAL_condensed_15k.md             # Lightweight version (~15k tokens)
+│   ├── python/
+│   │   ├── GLOBAL_comprehensive_35k.md         # Full-featured prompt (~35k tokens)
+│   │   └── GLOBAL_condensed_15k.md             # Lightweight version (~15k tokens)
+│   ├── javascript/
+│   │   ├── GLOBAL_comprehensive_35k.md
+│   │   └── GLOBAL_condensed_15k.md
+│   ├── java/
+│   │   ├── GLOBAL_comprehensive_35k.md
+│   │   └── GLOBAL_condensed_15k.md
+│   ├── csharp/
+│   │   ├── GLOBAL_comprehensive_35k.md
+│   │   └── GLOBAL_condensed_15k.md
+│   ├── go/
+│   │   ├── GLOBAL_comprehensive_35k.md
+│   │   └── GLOBAL_condensed_15k.md
+│   ├── c/
+│   │   ├── GLOBAL_comprehensive_35k.md
+│   │   └── GLOBAL_condensed_15k.md
+│   └── cpp/
+│       ├── GLOBAL_comprehensive_35k.md
+│       └── GLOBAL_condensed_15k.md
 ├── GLOBAL_generalized_system_prompt_15k.md     # General-purpose assistants (non-coding, ~15k tokens)
 └── README.md                                   # This file
 ```
+
+### 📊 Available Language Templates
+
+#### Autonomous Agents (Claude Code)
+
+| Language | Comprehensive | Condensed | Token Count |
+|----------|--------------|-----------|-------------|
+| **Python** | [CLAUDE_comprehensive_35k.md](autonomous_agents/claude_code/python/CLAUDE_comprehensive_35k.md) | [CLAUDE_condensed_20k.md](autonomous_agents/claude_code/python/CLAUDE_condensed_20k.md) | ~35k / ~20k |
+| **JavaScript** | [CLAUDE_comprehensive_35k.md](autonomous_agents/claude_code/javascript/CLAUDE_comprehensive_35k.md) | [CLAUDE_condensed_20k.md](autonomous_agents/claude_code/javascript/CLAUDE_condensed_20k.md) | ~35k / ~20k |
+| **Java** | [CLAUDE_comprehensive_35k.md](autonomous_agents/claude_code/java/CLAUDE_comprehensive_35k.md) | [CLAUDE_condensed_20k.md](autonomous_agents/claude_code/java/CLAUDE_condensed_20k.md) | ~35k / ~20k |
+| **C#** | [CLAUDE_comprehensive_35k.md](autonomous_agents/claude_code/csharp/CLAUDE_comprehensive_35k.md) | [CLAUDE_condensed_20k.md](autonomous_agents/claude_code/csharp/CLAUDE_condensed_20k.md) | ~35k / ~20k |
+| **Go** | [CLAUDE_comprehensive_35k.md](autonomous_agents/claude_code/go/CLAUDE_comprehensive_35k.md) | [CLAUDE_condensed_20k.md](autonomous_agents/claude_code/go/CLAUDE_condensed_20k.md) | ~35k / ~20k |
+| **C** | [CLAUDE_comprehensive_35k.md](autonomous_agents/claude_code/c/CLAUDE_comprehensive_35k.md) | [CLAUDE_condensed_20k.md](autonomous_agents/claude_code/c/CLAUDE_condensed_20k.md) | ~35k / ~20k |
+| **C++** | [CLAUDE_comprehensive_35k.md](autonomous_agents/claude_code/cpp/CLAUDE_comprehensive_35k.md) | [CLAUDE_condensed_20k.md](autonomous_agents/claude_code/cpp/CLAUDE_condensed_20k.md) | ~35k / ~20k |
+
+#### Coding Assistants (General Purpose)
+
+| Language | Comprehensive | Condensed | Token Count |
+|----------|--------------|-----------|-------------|
+| **Python** | [GLOBAL_comprehensive_35k.md](coding_assistants/python/GLOBAL_comprehensive_35k.md) | [GLOBAL_condensed_15k.md](coding_assistants/python/GLOBAL_condensed_15k.md) | ~35k / ~15k |
+| **JavaScript** | [GLOBAL_comprehensive_35k.md](coding_assistants/javascript/GLOBAL_comprehensive_35k.md) | [GLOBAL_condensed_15k.md](coding_assistants/javascript/GLOBAL_condensed_15k.md) | ~35k / ~15k |
+| **Java** | [GLOBAL_comprehensive_35k.md](coding_assistants/java/GLOBAL_comprehensive_35k.md) | [GLOBAL_condensed_15k.md](coding_assistants/java/GLOBAL_condensed_15k.md) | ~35k / ~15k |
+| **C#** | [GLOBAL_comprehensive_35k.md](coding_assistants/csharp/GLOBAL_comprehensive_35k.md) | [GLOBAL_condensed_15k.md](coding_assistants/csharp/GLOBAL_condensed_15k.md) | ~35k / ~15k |
+| **Go** | [GLOBAL_comprehensive_35k.md](coding_assistants/go/GLOBAL_comprehensive_35k.md) | [GLOBAL_condensed_15k.md](coding_assistants/go/GLOBAL_condensed_15k.md) | ~35k / ~15k |
+| **C** | [GLOBAL_comprehensive_35k.md](coding_assistants/c/GLOBAL_comprehensive_35k.md) | [GLOBAL_condensed_15k.md](coding_assistants/c/GLOBAL_condensed_15k.md) | ~35k / ~15k |
+| **C++** | [GLOBAL_comprehensive_35k.md](coding_assistants/cpp/GLOBAL_comprehensive_35k.md) | [GLOBAL_condensed_15k.md](coding_assistants/cpp/GLOBAL_condensed_15k.md) | ~35k / ~15k |
 
 ## 🎯 Purpose
 

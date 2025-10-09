@@ -15,7 +15,15 @@ Performance review identifies bottlenecks, inefficient algorithms, and resource 
 
 ## 📂 Available Templates
 
-- **[Python Performance Review](python_performance_review.md)**: Comprehensive performance analysis for Python applications
+| Language | Template File |
+|----------|---------------|
+| **Python** | [python_performance_review.md](python_performance_review.md) |
+| **JavaScript/TypeScript** | [javascript_performance_review.md](javascript_performance_review.md) |
+| **Java** | [java_performance_review.md](java_performance_review.md) |
+| **C#** | [csharp_performance_review.md](csharp_performance_review.md) |
+| **Go** | [go_performance_review.md](go_performance_review.md) |
+| **C** | [c_performance_review.md](c_performance_review.md) |
+| **C++** | [cpp_performance_review.md](cpp_performance_review.md) |
 
 ## ✅ Success Criteria
 

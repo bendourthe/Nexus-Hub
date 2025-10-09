@@ -15,7 +15,15 @@ The final report consolidates findings from all review phases into a comprehensi
 
 ## 📂 Available Templates
 
-- **[Python Final Report](python_final_report.md)**: Comprehensive consolidation template for Python project reviews
+| Language | Template File |
+|----------|---------------|
+| **Python** | [python_final_report.md](python_final_report.md) |
+| **JavaScript/TypeScript** | [javascript_final_report.md](javascript_final_report.md) |
+| **Java** | [java_final_report.md](java_final_report.md) |
+| **C#** | [csharp_final_report.md](csharp_final_report.md) |
+| **Go** | [go_final_report.md](go_final_report.md) |
+| **C** | [c_final_report.md](c_final_report.md) |
+| **C++** | [cpp_final_report.md](cpp_final_report.md) |
 
 ## ✅ Success Criteria
 

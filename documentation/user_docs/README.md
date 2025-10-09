@@ -8,9 +8,17 @@ This template provides a comprehensive approach to creating user-facing document
 
 Create clear, accessible documentation that enables users to quickly understand, install, configure, and effectively use your software, regardless of their technical expertise level.
 
-## 📂 Template
+## 📂 Available Templates
 
-- **[Python User Documentation](python_user_docs.md)**: Complete user documentation generation prompt
+| Language | Template File |
+|----------|---------------|
+| **Python** | [python_user_docs.md](python_user_docs.md) |
+| **JavaScript/TypeScript** | [javascript_user_docs.md](javascript_user_docs.md) |
+| **Java** | [java_user_docs.md](java_user_docs.md) |
+| **C#** | [csharp_user_docs.md](csharp_user_docs.md) |
+| **Go** | [go_user_docs.md](go_user_docs.md) |
+| **C** | [c_user_docs.md](c_user_docs.md) |
+| **C++** | [cpp_user_docs.md](cpp_user_docs.md) |
 
 ## ✅ Key Areas Covered
 

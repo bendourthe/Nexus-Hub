@@ -54,8 +54,20 @@ Develop comprehensive, well-structured test cases that validate functionality, h
 - Fast, reliable test execution
 - Confidence in code correctness
 
+## Available Templates
+
+| Language | Template File | Status |
+|----------|--------------|---------|
+| Python | `python_test_cases.md` | Available |
+| JavaScript | `javascript_test_cases.md` | Available |
+| Java | `java_test_cases.md` | Available |
+| C# | `csharp_test_cases.md` | Available |
+| Go | `go_test_cases.md` | Available |
+| C | `c_test_cases.md` | Available |
+| C++ | `cpp_test_cases.md` | Available |
+
 ## Quick Start
-Use `python_test_cases.md` with your AI assistant to:
+Use the appropriate template file with your AI assistant to:
 1. Design test cases for new features
 2. Implement test cases following best practices
 3. Cover edge cases and error conditions

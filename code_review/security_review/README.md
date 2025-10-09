@@ -15,7 +15,15 @@ Security review identifies vulnerabilities, insecure coding practices, and compl
 
 ## 📂 Available Templates
 
-- **[Python Security Review](python_security_review.md)**: Comprehensive security assessment for Python applications
+| Language | Template File |
+|----------|---------------|
+| **Python** | [python_security_review.md](python_security_review.md) |
+| **JavaScript/TypeScript** | [javascript_security_review.md](javascript_security_review.md) |
+| **Java** | [java_security_review.md](java_security_review.md) |
+| **C#** | [csharp_security_review.md](csharp_security_review.md) |
+| **Go** | [go_security_review.md](go_security_review.md) |
+| **C** | [c_security_review.md](c_security_review.md) |
+| **C++** | [cpp_security_review.md](cpp_security_review.md) |
 
 ## ✅ Success Criteria
 

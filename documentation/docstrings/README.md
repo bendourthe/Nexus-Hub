@@ -8,9 +8,17 @@ This template provides a systematic approach to generating comprehensive, standa
 
 Generate clear, complete docstrings that document all public interfaces, explain purpose and behavior, include type information, and provide usage examples following industry standards (Google, NumPy, or reStructuredText style).
 
-## 📂 Template
+## 📂 Available Templates
 
-- **[Python Docstrings](python_docstrings.md)**: Comprehensive docstring generation prompt
+| Language | Template File |
+|----------|---------------|
+| **Python** | [python_docstrings.md](python_docstrings.md) |
+| **JavaScript/TypeScript** | [javascript_docstrings.md](javascript_docstrings.md) |
+| **Java** | [java_docstrings.md](java_docstrings.md) |
+| **C#** | [csharp_docstrings.md](csharp_docstrings.md) |
+| **Go** | [go_docstrings.md](go_docstrings.md) |
+| **C** | [c_docstrings.md](c_docstrings.md) |
+| **C++** | [cpp_docstrings.md](cpp_docstrings.md) |
 
 ## ✅ Key Areas Covered
 
