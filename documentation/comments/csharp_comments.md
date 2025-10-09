@@ -3,6 +3,30 @@
 ## Objective
 Add strategic, high-value comments that explain "why" rather than "what", focusing on business logic, design decisions, non-obvious implementations, and workarounds while avoiding redundant commentary.
 
+## Output Directory Structure
+
+All documentation outputs should be saved in organized directories:
+
+```
+documentation/
+└── comments/
+    ├── generated_docs/
+    ├── templates/
+    ├── assets/
+    └── exports/
+```
+
+**Directory Setup**:
+- Create `documentation/` directory in repository root if it doesn't exist
+- Create `documentation/comments/` subdirectory for this documentation phase
+- All documentation files, templates, assets, and exports go in the phase-specific directory
+
+**Expected Outputs**:
+- `generated_docs/` - Generated documentation files (HTML, MD, PDF)
+- `templates/` - Documentation templates and examples
+- `assets/` - Images, diagrams, supplementary files
+- `exports/` - Published documentation, release artifacts
+
 ## Implementation Checklist
 
 ### When to Comment

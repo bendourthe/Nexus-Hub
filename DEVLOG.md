@@ -156,6 +156,13 @@
 - Code review: 42 files (7 languages × 6 phases)
 - Updated subdirectory READMEs
 
+### v0.2.1 - Output Directory Standardization (October 9, 2025)
+- **133 templates updated** with output directory specifications
+- Organized file management: review/, tests/, documentation/, cleanup/
+- Renamed COMPLETION_STATUS_AND_PLAN.md → DEVLOG.md
+- Refactored DEVLOG.md to CLAUDE.md standard structure
+- Repository organization improvements
+
 ### v0.2.0 - Complete Multi-Language (October 9, 2025)
 - **162 templates total**
 - All 5 sections complete for 7 languages
@@ -240,5 +247,5 @@
 ---
 
 *Last Updated: October 9, 2025*
-*Current Version: v0.2.0*
-*Status: Production Ready - 162/162 templates complete*
+*Current Version: v0.2.1*
+*Status: Production Ready - 162/162 templates complete with organized output structures*

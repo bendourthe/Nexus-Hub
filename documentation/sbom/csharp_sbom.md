@@ -3,6 +3,30 @@
 ## Objective
 Generate comprehensive, standards-compliant Software Bill of Materials (SBOM) documentation that meets regulatory requirements (NTIA minimum elements, EU Cyber Resilience Act) for security, compliance, and supply chain management in C# .NET projects.
 
+## Output Directory Structure
+
+All documentation outputs should be saved in organized directories:
+
+```
+documentation/
+└── sbom/
+    ├── generated_docs/
+    ├── templates/
+    ├── assets/
+    └── exports/
+```
+
+**Directory Setup**:
+- Create `documentation/` directory in repository root if it doesn't exist
+- Create `documentation/sbom/` subdirectory for this documentation phase
+- All documentation files, templates, assets, and exports go in the phase-specific directory
+
+**Expected Outputs**:
+- `generated_docs/` - Generated documentation files (HTML, MD, PDF)
+- `templates/` - Documentation templates and examples
+- `assets/` - Images, diagrams, supplementary files
+- `exports/` - Published documentation, release artifacts
+
 ## Implementation Checklist
 
 ### NTIA Minimum Elements

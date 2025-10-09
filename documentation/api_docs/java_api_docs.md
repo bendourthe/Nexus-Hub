@@ -3,6 +3,30 @@
 ## Objective
 Create complete, accurate API documentation for Java-based APIs (REST/gRPC) that enables developers to quickly understand and successfully integrate, including authentication flows, request formats, response structures, and error handling.
 
+## Output Directory Structure
+
+All documentation outputs should be saved in organized directories:
+
+```
+documentation/
+└── api_docs/
+    ├── generated_docs/
+    ├── templates/
+    ├── assets/
+    └── exports/
+```
+
+**Directory Setup**:
+- Create `documentation/` directory in repository root if it doesn't exist
+- Create `documentation/api_docs/` subdirectory for this documentation phase
+- All documentation files, templates, assets, and exports go in the phase-specific directory
+
+**Expected Outputs**:
+- `generated_docs/` - Generated documentation files (HTML, MD, PDF)
+- `templates/` - Documentation templates and examples
+- `assets/` - Images, diagrams, supplementary files
+- `exports/` - Published documentation, release artifacts
+
 ## Implementation Checklist
 
 ### Endpoint Documentation

@@ -3,6 +3,30 @@
 ## Objective
 Establish comprehensive understanding of the project before conducting detailed code review. This phase gathers context about purpose, architecture, dependencies, and current state to inform all subsequent review activities.
 
+## Output Directory Structure
+
+All review outputs should be saved in organized directories:
+
+```
+review/
+└── context_analysis/
+    ├── context_analysis_report.md
+    ├── context_analysis_findings.json
+    ├── analysis_scripts/
+    └── supporting_data/
+```
+
+**Directory Setup**:
+- Create `review/` directory in repository root if it doesn't exist
+- Create `review/context_analysis/` subdirectory for this review phase
+- All reports, scripts, and data files go in the phase-specific directory
+
+**Expected Outputs**:
+- `context_analysis_report.md` - Main findings and recommendations
+- `context_analysis_findings.json` - Structured data for tooling integration
+- `analysis_scripts/` - Any scripts generated during analysis
+- `supporting_data/` - Raw data, logs, profiling results, scan outputs
+
 ## Analysis Checklist
 
 ### Project Understanding

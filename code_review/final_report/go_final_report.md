@@ -3,6 +3,30 @@
 ## Objective
 Synthesize findings from all review phases (context analysis, code quality, security, performance, testing) into a comprehensive, prioritized action plan with clear risk assessment and implementation roadmap.
 
+## Output Directory Structure
+
+All review outputs should be saved in organized directories:
+
+```
+review/
+└── final_report/
+    ├── final_report_report.md
+    ├── final_report_findings.json
+    ├── analysis_scripts/
+    └── supporting_data/
+```
+
+**Directory Setup**:
+- Create `review/` directory in repository root if it doesn't exist
+- Create `review/final_report/` subdirectory for this review phase
+- All reports, scripts, and data files go in the phase-specific directory
+
+**Expected Outputs**:
+- `final_report_report.md` - Main findings and recommendations
+- `final_report_findings.json` - Structured data for tooling integration
+- `analysis_scripts/` - Any scripts generated during analysis
+- `supporting_data/` - Raw data, logs, profiling results, scan outputs
+
 ## Report Structure
 
 This template consolidates:

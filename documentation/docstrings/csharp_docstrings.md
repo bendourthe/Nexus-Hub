@@ -3,6 +3,30 @@
 ## Objective
 Generate comprehensive, standards-compliant XML documentation comments for all public interfaces (namespaces, classes, methods) that clearly document purpose, parameters, return values, exceptions, and provide usage examples with proper type information compatible with IntelliSense and DocFX.
 
+## Output Directory Structure
+
+All documentation outputs should be saved in organized directories:
+
+```
+documentation/
+└── docstrings/
+    ├── generated_docs/
+    ├── templates/
+    ├── assets/
+    └── exports/
+```
+
+**Directory Setup**:
+- Create `documentation/` directory in repository root if it doesn't exist
+- Create `documentation/docstrings/` subdirectory for this documentation phase
+- All documentation files, templates, assets, and exports go in the phase-specific directory
+
+**Expected Outputs**:
+- `generated_docs/` - Generated documentation files (HTML, MD, PDF)
+- `templates/` - Documentation templates and examples
+- `assets/` - Images, diagrams, supplementary files
+- `exports/` - Published documentation, release artifacts
+
 ## Implementation Checklist
 
 ### Namespace-Level Documentation

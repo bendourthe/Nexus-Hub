@@ -3,6 +3,30 @@
 ## Objective
 Systematically identify performance bottlenecks, resource inefficiencies, and real-time constraint violations in embedded C code. Provide data-driven optimization recommendations to improve execution speed, reduce memory footprint, minimize power consumption, and ensure real-time deadlines are met.
 
+## Output Directory Structure
+
+All review outputs should be saved in organized directories:
+
+```
+review/
+└── performance_review/
+    ├── performance_review_report.md
+    ├── performance_review_findings.json
+    ├── analysis_scripts/
+    └── supporting_data/
+```
+
+**Directory Setup**:
+- Create `review/` directory in repository root if it doesn't exist
+- Create `review/performance_review/` subdirectory for this review phase
+- All reports, scripts, and data files go in the phase-specific directory
+
+**Expected Outputs**:
+- `performance_review_report.md` - Main findings and recommendations
+- `performance_review_findings.json` - Structured data for tooling integration
+- `analysis_scripts/` - Any scripts generated during analysis
+- `supporting_data/` - Raw data, logs, profiling results, scan outputs
+
 ## Review Checklist
 
 ### Execution Performance

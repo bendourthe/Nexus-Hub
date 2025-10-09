@@ -3,6 +3,30 @@
 ## Objective
 Systematically identify security vulnerabilities, insecure coding practices, and compliance gaps that could expose the .NET application to attacks, data breaches, or regulatory violations.
 
+## Output Directory Structure
+
+All review outputs should be saved in organized directories:
+
+```
+review/
+└── security_review/
+    ├── security_review_report.md
+    ├── security_review_findings.json
+    ├── analysis_scripts/
+    └── supporting_data/
+```
+
+**Directory Setup**:
+- Create `review/` directory in repository root if it doesn't exist
+- Create `review/security_review/` subdirectory for this review phase
+- All reports, scripts, and data files go in the phase-specific directory
+
+**Expected Outputs**:
+- `security_review_report.md` - Main findings and recommendations
+- `security_review_findings.json` - Structured data for tooling integration
+- `analysis_scripts/` - Any scripts generated during analysis
+- `supporting_data/` - Raw data, logs, profiling results, scan outputs
+
 ## Review Checklist
 
 ### Vulnerability Assessment

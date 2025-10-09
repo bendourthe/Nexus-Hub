@@ -3,6 +3,30 @@
 ## Objective
 Generate comprehensive, idiomatic Go documentation comments that integrate with godoc and pkg.go.dev, clearly documenting purpose, parameters, return values, and providing usage examples following Go conventions.
 
+## Output Directory Structure
+
+All documentation outputs should be saved in organized directories:
+
+```
+documentation/
+└── docstrings/
+    ├── generated_docs/
+    ├── templates/
+    ├── assets/
+    └── exports/
+```
+
+**Directory Setup**:
+- Create `documentation/` directory in repository root if it doesn't exist
+- Create `documentation/docstrings/` subdirectory for this documentation phase
+- All documentation files, templates, assets, and exports go in the phase-specific directory
+
+**Expected Outputs**:
+- `generated_docs/` - Generated documentation files (HTML, MD, PDF)
+- `templates/` - Documentation templates and examples
+- `assets/` - Images, diagrams, supplementary files
+- `exports/` - Published documentation, release artifacts
+
 ## Implementation Checklist
 
 ### Package-Level Documentation

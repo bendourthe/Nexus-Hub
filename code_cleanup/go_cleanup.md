@@ -3,6 +3,30 @@
 ## Objective
 Identify and eliminate dead code, duplication, and legacy patterns so the codebase remains lean, maintainable, and aligned with current architecture decisions. Focus on Go-specific issues including unused imports, dead code, and idiomatic Go patterns.
 
+## Output Directory Structure
+
+All cleanup outputs should be saved in organized directories:
+
+```
+cleanup/
+├── cleanup_report.md
+├── cleanup_history.md
+├── backup/
+├── scripts/
+└── analysis/
+```
+
+**Directory Setup**:
+- Create `cleanup/` directory in repository root if it doesn't exist
+- All cleanup reports, history, backups, scripts, and analysis go in this directory
+
+**Expected Outputs**:
+- `cleanup_report.md` - Detailed report of all cleanup actions performed
+- `cleanup_history.md` - Historical log of cleanup sessions with timestamps
+- `backup/` - Backup copies of files before cleanup modifications
+- `scripts/` - Automated cleanup scripts generated or used
+- `analysis/` - Analysis data, metrics, and diagnostic outputs
+
 ## Review Checklist
 
 ### Dead Code & Drift

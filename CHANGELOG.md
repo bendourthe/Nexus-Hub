@@ -11,6 +11,58 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.2.1] - 2025-10-09
+
+### Changed
+
+#### Standardized Output Directory Structures (133 templates updated)
+Added explicit output directory specifications to all templates for organized file management and consistent project structure.
+
+**Code Review Templates** (42 files):
+- All review outputs now go to `review/{phase}/` directories
+- Each phase (context_analysis, code_quality, security_review, performance_review, testing_review, final_report) has dedicated subdirectory
+- Standardized outputs: phase_report.md, phase_findings.json, analysis_scripts/, supporting_data/
+
+**Test Development Templates** (42 files):
+- All test outputs now go to `tests/{phase}/` directories
+- Each phase (test_structure, test_cases, mocks_fixtures, performance_testing, maintenance_cicd, code_coverage) has dedicated subdirectory
+- Standardized outputs: test_files/, test_data/, test_reports/, test_configs/
+
+**Documentation Templates** (42 files):
+- All documentation outputs now go to `documentation/{phase}/` directories
+- Each phase (docstrings, comments, user_docs, technical_docs, api_docs, sbom) has dedicated subdirectory
+- Standardized outputs: generated_docs/, templates/, assets/, exports/
+
+**Code Cleanup Templates** (7 files):
+- All cleanup outputs now go to `cleanup/` directory
+- Standardized outputs: cleanup_report.md, cleanup_history.md, backup/, scripts/, analysis/
+
+#### Repository Organization Improvements
+- Renamed COMPLETION_STATUS_AND_PLAN.md → DEVLOG.md
+- Refactored DEVLOG.md to follow CLAUDE.md standard structure
+- Added Current Task List, Development History, Implementation Challenges, Technical Decisions
+- Added Troubleshooting History, Version Milestones, Future Enhancements, Metrics
+
+### Technical Details
+
+**Directory Structure Overview**:
+```
+repository_root/
+├── review/           # Code review outputs (6 phases)
+├── tests/            # Test development outputs (6 phases)
+├── documentation/    # Documentation outputs (6 phases)
+└── cleanup/          # Code cleanup outputs
+```
+
+**Benefits**:
+- Organized output management across all template workflows
+- Consistent project structure for teams using multiple templates
+- Clear separation of concerns (review vs tests vs docs vs cleanup)
+- Easy gitignore patterns for generated artifacts
+- Improved traceability and audit trails
+
+---
+
 ## [0.2.0] - 2025-10-09
 
 ### 🎉 Complete Multi-Language Expansion - ALL 161 Templates
@@ -359,6 +411,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 | Version | Date       | Description                                      |
 |---------|------------|--------------------------------------------------|
+| 0.2.1   | 2025-10-09 | Standardized output directory structures for all 133 templates |
 | 0.2.0   | 2025-10-09 | **COMPLETE** - Multi-language expansion: 162 templates across 7 languages |
 | 0.1.5   | 2025-10-08 | Code cleanup (7 languages) + Complete code review (42 files) |
 | 0.1.4   | 2025-10-08 | Complete templates for code review, documentation, and test development (Python only) |
@@ -367,7 +420,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[Unreleased]: https://github.com/yourusername/ai_templates/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/yourusername/ai_templates/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/yourusername/ai_templates/releases/tag/v0.2.1
 [0.2.0]: https://github.com/yourusername/ai_templates/releases/tag/v0.2.0
 [0.1.5]: https://github.com/yourusername/ai_templates/releases/tag/v0.1.5
 [0.1.4]: https://github.com/yourusername/ai_templates/releases/tag/v0.1.4

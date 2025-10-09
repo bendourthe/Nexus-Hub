@@ -1,13 +1,14 @@
 # AI Development Templates
 
-**Version 0.2.0** | Released October 9, 2025
+**Version 0.2.1** | Released October 9, 2025
 
-This repository contains comprehensive templates and standardized prompts to enhance AI-assisted software development. Complete multi-language support across 7 programming languages with 162 production-ready templates.
+This repository contains comprehensive templates and standardized prompts to enhance AI-assisted software development. Complete multi-language support across 7 programming languages with 162 production-ready templates and organized output directory structures.
 
 ---
 
-## 🎉 What's New in Version 0.2.0
+## 🎉 What's New in Version 0.2.1
 
+- **Standardized Output Directories**: All 133 templates now specify organized output structures (review/, tests/, documentation/, cleanup/)
 - **Achievement**: Multi-language expansion complete with 162 production-ready templates
 - **Languages Supported**: 7 production-ready languages
 - **Template Categories**: System Prompts, Code Cleanup, Code Review, Documentation, Test Development
@@ -223,7 +224,7 @@ Current templates focus on Python. To extend to other languages:
 
 ---
 
-*AI Development Templates v0.2.0 - Empowering development teams with structured, AI-assisted workflows*
+*AI Development Templates v0.2.1 - Empowering development teams with structured, AI-assisted workflows*
 
 *Last Updated: October 2025*
 *Repository maintained by Benjamin Dourthe (benjamin@adonamed.com)*
