@@ -8,9 +8,9 @@ This repository contains comprehensive templates and standardized prompts to enh
 
 ## 🎉 What's New in Version 0.2.0
 
-**Achievement**: Multi-language expansion complete with 162 production-ready templates
-**Languages Supported**: 7 production-ready languages
-**Template Categories**: System Prompts, Code Cleanup, Code Review, Documentation, Test Development
+- **Achievement**: Multi-language expansion complete with 162 production-ready templates
+- **Languages Supported**: 7 production-ready languages
+- **Template Categories**: System Prompts, Code Cleanup, Code Review, Documentation, Test Development
 
 [View Changelog](CHANGELOG.md) | [View Development Log](DEVLOG.md) | [View Releases](../../releases)
 
