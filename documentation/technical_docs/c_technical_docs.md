@@ -5,32 +5,29 @@ Create comprehensive technical documentation that captures architecture decision
 
 ## Output Directory Structure
 
-All documentation outputs should be saved in organized directories:
+All outputs should be saved in organized directories:
 
 ```
-documentation/
-└── technical_docs/
-    ├── generated_docs/
-    ├── templates/
-    ├── assets/
-    └── exports/
+documentation/technical_docs/
+├── templates/          # Reusable templates, example configurations, scripts
+├── assets/            # Images, diagrams, charts, supplementary files
+└── exports/           # Final reports, documentation, and publishable artifacts
 ```
 
 **Directory Setup**:
 
 - Create `documentation/technical_docs/` directory in repository root if it doesn't exist
 
-- All documentation files, templates, assets, and exports go in the phase-specific directory
+- All templates, assets, and exports go in the phase-specific directory
 
 **Expected Outputs**:
 
-- `generated_docs/` - Generated documentation files (HTML, MD, PDF)
+- `templates/` - Reusable templates, example configurations, boilerplate scripts
 
-- `templates/` - Documentation templates and examples
+- `assets/` - Images, diagrams, charts, supplementary files
 
-- `assets/` - Images, diagrams, supplementary files
+- `exports/` - Final documentation files, reports, release artifacts
 
-- `exports/` - Published documentation, release artifacts
 
 ## Implementation Checklist
 
@@ -83,6 +80,37 @@ Use the structured prompt below with your coding assistant:
 
 ~~~markdown
 # C Technical Documentation Request
+
+## CRITICAL: Output Directory Setup
+
+**Before proceeding with any phase, create the output directory structure:**
+
+Set the output directory:
+```bash
+OUTPUT_DIR="documentation/technical_docs"
+```
+
+Create the required subdirectories:
+```bash
+mkdir -p ${OUTPUT_DIR}/templates
+mkdir -p ${OUTPUT_DIR}/assets
+mkdir -p ${OUTPUT_DIR}/exports
+```
+
+**Directory Structure:**
+```
+${OUTPUT_DIR}/
+├── templates/          # Reusable templates, example configurations, scripts
+├── assets/            # Images, diagrams, charts, supplementary files
+└── exports/           # Final reports, documentation, and publishable artifacts
+```
+
+**Throughout this prompt:**
+- All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+- Examples:
+  - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+  - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+  - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
 
@@ -616,15 +644,14 @@ int mylib_init(mylib_config_t *config);
 
 ```bash
 # Create directory structure
-mkdir -p documentation/technical_docs/generated_docs
-mkdir -p documentation/technical_docs/templates
-mkdir -p documentation/technical_docs/assets
-mkdir -p documentation/technical_docs/exports
+mkdir -p ${OUTPUT_DIR}/technical_docs/generated_docs
+mkdir -p ${OUTPUT_DIR}/technical_docs/templates
+mkdir -p ${OUTPUT_DIR}/technical_docs/assets
+mkdir -p ${OUTPUT_DIR}/technical_docs/exports
 ```
 
 **Save files as follows**:
 
-- Generated docs → `documentation/technical_docs/generated_docs/`
 
 - Templates → `documentation/technical_docs/templates/`
 
@@ -646,3 +673,26 @@ The technical documentation should:
 - Address portability and platform-specific code
 - Include comprehensive testing approach
 - Target C developers
+---
+
+## Verify Directory Structure
+
+After completing all phases, verify the output structure:
+
+```bash
+tree ${OUTPUT_DIR}
+```
+
+Expected structure:
+```
+${OUTPUT_DIR}/
+├── templates/          # Reusable templates and scripts
+├── assets/            # Images, diagrams, supplementary files
+└── exports/           # Final publishable artifacts and reports
+```
+
+**Verification checklist:**
+- [ ] All directories created successfully
+- [ ] All files saved in correct subdirectories
+- [ ] No files created in repository root
+- [ ] Directory structure matches expected layout

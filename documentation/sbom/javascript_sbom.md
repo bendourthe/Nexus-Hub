@@ -5,32 +5,29 @@ Generate comprehensive, standards-compliant Software Bill of Materials (SBOM) do
 
 ## Output Directory Structure
 
-All documentation outputs should be saved in organized directories:
+All outputs should be saved in organized directories:
 
 ```
-documentation/
-└── sbom/
-    ├── generated_docs/
-    ├── templates/
-    ├── assets/
-    └── exports/
+documentation/sbom/
+├── templates/          # Reusable templates, example configurations, scripts
+├── assets/            # Images, diagrams, charts, supplementary files
+└── exports/           # Final reports, documentation, and publishable artifacts
 ```
 
 **Directory Setup**:
 
 - Create `documentation/sbom/` directory in repository root if it doesn't exist
 
-- All documentation files, templates, assets, and exports go in the phase-specific directory
+- All templates, assets, and exports go in the phase-specific directory
 
 **Expected Outputs**:
 
-- `generated_docs/` - Generated documentation files (HTML, MD, PDF)
+- `templates/` - Reusable templates, example configurations, boilerplate scripts
 
-- `templates/` - Documentation templates and examples
+- `assets/` - Images, diagrams, charts, supplementary files
 
-- `assets/` - Images, diagrams, supplementary files
+- `exports/` - Final documentation files, reports, release artifacts
 
-- `exports/` - Published documentation, release artifacts
 
 ## Implementation Checklist
 
@@ -87,6 +84,37 @@ Use the structured prompt below with your coding assistant:
 ~~~markdown
 # JavaScript SBOM Generation Request
 
+## CRITICAL: Output Directory Setup
+
+**Before proceeding with any phase, create the output directory structure:**
+
+Set the output directory:
+```bash
+OUTPUT_DIR="documentation/sbom"
+```
+
+Create the required subdirectories:
+```bash
+mkdir -p ${OUTPUT_DIR}/templates
+mkdir -p ${OUTPUT_DIR}/assets
+mkdir -p ${OUTPUT_DIR}/exports
+```
+
+**Directory Structure:**
+```
+${OUTPUT_DIR}/
+├── templates/          # Reusable templates, example configurations, scripts
+├── assets/            # Images, diagrams, charts, supplementary files
+└── exports/           # Final reports, documentation, and publishable artifacts
+```
+
+**Throughout this prompt:**
+- All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+- Examples:
+  - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+  - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+  - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
+
 ## Repository Information
 
 **Note**: Your repository URL is stored in `.git/config`. To find it automatically:
@@ -108,16 +136,16 @@ Please generate a comprehensive Software Bill of Materials (SBOM) for this JavaS
 
    ```bash
    # List all dependencies
-   npm list --all --json > dependencies.json
+   npm list --all --json > ${OUTPUT_DIR}/exports/dependencies.json
 
    # List only production dependencies
-   npm list --prod --json > prod-dependencies.json
+   npm list --prod --json > ${OUTPUT_DIR}/exports/prod-dependencies.json
 
    # List development dependencies
-   npm list --dev --json > dev-dependencies.json
+   npm list --dev --json > ${OUTPUT_DIR}/exports/dev-dependencies.json
 
    # Using yarn
-   yarn list --json > dependencies.json
+   yarn list --json > ${OUTPUT_DIR}/exports/dependencies.json
    ```
 
 2. **Map Transitive Dependencies**
@@ -126,13 +154,13 @@ Please generate a comprehensive Software Bill of Materials (SBOM) for this JavaS
 
    ```bash
    # Using npm
-   npm ls --all --depth=10 > dependency_tree.txt
+   npm ls --all --depth=10 > ${OUTPUT_DIR}/exports/dependency_tree.txt
 
    # Using yarn
-   yarn list --depth=10 > dependency_tree.txt
+   yarn list --depth=10 > ${OUTPUT_DIR}/exports/dependency_tree.txt
 
    # Generate detailed JSON tree
-   npm list --all --json --depth=99 > dependency_tree.json
+   npm list --all --json --depth=99 > ${OUTPUT_DIR}/exports/dependency_tree.json
    ```
 
 3. **Identify Dependency Metadata**
@@ -189,7 +217,7 @@ cyclonedx-npm \
 
 # Using cdxgen (comprehensive tool)
 npm install -g @cyclonedx/cdxgen
-cdxgen -t js -o sbom.json .
+cdxgen -t js -o ${OUTPUT_DIR}/exports/sbom.json .
 ```
 
 ### CycloneDX SBOM Template (JSON)
@@ -405,10 +433,10 @@ cdxgen -t js -o sbom.json .
 npm install -g @spdx/spdx-sbom-generator
 
 # Generate SPDX SBOM
-spdx-sbom-generator -o sbom.spdx.json
+spdx-sbom-generator -o ${OUTPUT_DIR}/exports/sbom.spdx.json
 
 # Specify format
-spdx-sbom-generator -f json -o sbom.spdx.json
+spdx-sbom-generator -f json -o ${OUTPUT_DIR}/exports/sbom.spdx.json
 ```
 
 ### SPDX SBOM Template (JSON)
@@ -517,7 +545,7 @@ Scan for known vulnerabilities in dependencies:
 
 ```bash
 # Run npm audit
-npm audit --json > vulnerabilities.json
+npm audit --json > ${OUTPUT_DIR}/exports/vulnerabilities.json
 
 # Audit only production dependencies
 npm audit --production --json
@@ -583,7 +611,7 @@ npm install -g snyk
 snyk auth
 
 # Test for vulnerabilities
-snyk test --json > snyk_report.json
+snyk test --json > ${OUTPUT_DIR}/exports/snyk_report.json
 
 # Monitor project
 snyk monitor
@@ -596,7 +624,7 @@ snyk test --file=package.json --json
 
 ```bash
 # Run yarn audit
-yarn audit --json > vulnerabilities.json
+yarn audit --json > ${OUTPUT_DIR}/exports/vulnerabilities.json
 
 # Get detailed report
 yarn audit
@@ -627,7 +655,7 @@ yarn audit
 # See: https://aquasecurity.github.io/trivy/
 
 # Scan Node.js project
-trivy fs --format json --output trivy_report.json .
+trivy fs --format json --output ${OUTPUT_DIR}/exports/trivy_report.json .
 
 # Scan package-lock.json
 trivy fs --scanners vuln package-lock.json
@@ -642,7 +670,7 @@ trivy fs --scanners vuln package-lock.json
 npm install -g license-checker
 
 # List all licenses
-license-checker --json > licenses.json
+license-checker --json > ${OUTPUT_DIR}/exports/licenses.json
 
 # List with URLs
 license-checker --json --customPath customFormat.json
@@ -686,7 +714,7 @@ license-checker --markdown --out LICENSES.md
 npm install -g licensee
 
 # Check licenses
-licensee --json > license_report.json
+licensee --json > ${OUTPUT_DIR}/exports/license_report.json
 
 # Check against allowed list
 licensee --errors-only --licenses MIT Apache-2.0 ISC BSD-3-Clause
@@ -975,11 +1003,11 @@ jobs:
 
       - name: Run npm audit
         run: |
-          npm audit --json > vulnerabilities.json || true
+          npm audit --json > ${OUTPUT_DIR}/exports/vulnerabilities.json || true
 
       - name: Generate license report
         run: |
-          license-checker --json > licenses.json
+          license-checker --json > ${OUTPUT_DIR}/exports/licenses.json
 
       - name: Upload SBOM artifacts
         uses: actions/upload-artifact@v3
@@ -1007,7 +1035,7 @@ sbom:
     - npm ci
     - npm install -g @cyclonedx/cyclonedx-npm
     - cyclonedx-npm --output-file sbom.json
-    - npm audit --json > vulnerabilities.json || true
+    - npm audit --json > ${OUTPUT_DIR}/exports/vulnerabilities.json || true
   artifacts:
     paths:
       - sbom.json
@@ -1056,15 +1084,14 @@ sbom:
 
 ```bash
 # Create directory structure
-mkdir -p documentation/sbom/generated_docs
-mkdir -p documentation/sbom/templates
-mkdir -p documentation/sbom/assets
-mkdir -p documentation/sbom/exports
+mkdir -p ${OUTPUT_DIR}/sbom/generated_docs
+mkdir -p ${OUTPUT_DIR}/sbom/templates
+mkdir -p ${OUTPUT_DIR}/sbom/assets
+mkdir -p ${OUTPUT_DIR}/sbom/exports
 ```
 
 **Save files as follows**:
 
-- Generated docs → `documentation/sbom/generated_docs/`
 
 - Templates → `documentation/sbom/templates/`
 
@@ -1089,3 +1116,26 @@ The SBOM should:
 - Be machine-readable and automatable
 - Be versioned and timestamped
 - Be published alongside software releases
+---
+
+## Verify Directory Structure
+
+After completing all phases, verify the output structure:
+
+```bash
+tree ${OUTPUT_DIR}
+```
+
+Expected structure:
+```
+${OUTPUT_DIR}/
+├── templates/          # Reusable templates and scripts
+├── assets/            # Images, diagrams, supplementary files
+└── exports/           # Final publishable artifacts and reports
+```
+
+**Verification checklist:**
+- [ ] All directories created successfully
+- [ ] All files saved in correct subdirectories
+- [ ] No files created in repository root
+- [ ] Directory structure matches expected layout

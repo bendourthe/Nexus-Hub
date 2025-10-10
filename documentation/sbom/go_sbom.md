@@ -5,32 +5,29 @@ Generate comprehensive, standards-compliant Software Bill of Materials (SBOM) do
 
 ## Output Directory Structure
 
-All documentation outputs should be saved in organized directories:
+All outputs should be saved in organized directories:
 
 ```
-documentation/
-└── sbom/
-    ├── generated_docs/
-    ├── templates/
-    ├── assets/
-    └── exports/
+documentation/sbom/
+├── templates/          # Reusable templates, example configurations, scripts
+├── assets/            # Images, diagrams, charts, supplementary files
+└── exports/           # Final reports, documentation, and publishable artifacts
 ```
 
 **Directory Setup**:
 
 - Create `documentation/sbom/` directory in repository root if it doesn't exist
 
-- All documentation files, templates, assets, and exports go in the phase-specific directory
+- All templates, assets, and exports go in the phase-specific directory
 
 **Expected Outputs**:
 
-- `generated_docs/` - Generated documentation files (HTML, MD, PDF)
+- `templates/` - Reusable templates, example configurations, boilerplate scripts
 
-- `templates/` - Documentation templates and examples
+- `assets/` - Images, diagrams, charts, supplementary files
 
-- `assets/` - Images, diagrams, supplementary files
+- `exports/` - Final documentation files, reports, release artifacts
 
-- `exports/` - Published documentation, release artifacts
 
 ## Implementation Checklist
 
@@ -87,6 +84,37 @@ Use the structured prompt below with your coding assistant:
 ~~~markdown
 # Go SBOM Generation Request
 
+## CRITICAL: Output Directory Setup
+
+**Before proceeding with any phase, create the output directory structure:**
+
+Set the output directory:
+```bash
+OUTPUT_DIR="documentation/sbom"
+```
+
+Create the required subdirectories:
+```bash
+mkdir -p ${OUTPUT_DIR}/templates
+mkdir -p ${OUTPUT_DIR}/assets
+mkdir -p ${OUTPUT_DIR}/exports
+```
+
+**Directory Structure:**
+```
+${OUTPUT_DIR}/
+├── templates/          # Reusable templates, example configurations, scripts
+├── assets/            # Images, diagrams, charts, supplementary files
+└── exports/           # Final reports, documentation, and publishable artifacts
+```
+
+**Throughout this prompt:**
+- All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+- Examples:
+  - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+  - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+  - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
+
 ## Repository Information
 
 **Note**: Your repository URL is stored in `.git/config`. To find it automatically:
@@ -108,10 +136,10 @@ Please generate a comprehensive Software Bill of Materials (SBOM) for this Go pr
 
    ```bash
    # List all dependencies
-   go list -m all > dependencies.txt
+   go list -m all > ${OUTPUT_DIR}/exports/dependencies.txt
 
    # List with JSON format
-   go list -m -json all > dependencies.json
+   go list -m -json all > ${OUTPUT_DIR}/exports/dependencies.json
 
    # List direct dependencies only
    go list -m -f '{{if not .Indirect}}{{.Path}} {{.Version}}{{end}}' all
@@ -120,7 +148,7 @@ Please generate a comprehensive Software Bill of Materials (SBOM) for this Go pr
    go list -m -u all
 
    # Generate dependency graph
-   go mod graph > dependency_graph.txt
+   go mod graph > ${OUTPUT_DIR}/exports/dependency_graph.txt
    ```
 
 2. **Map Transitive Dependencies**
@@ -207,10 +235,10 @@ cyclonedx-gomod mod -json -output sbom.json -module-path ./myproject
 curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
 
 # Generate CycloneDX SBOM
-syft packages dir:. -o cyclonedx-json > sbom.json
+syft packages dir:. -o cyclonedx-json > ${OUTPUT_DIR}/exports/sbom.json
 
 # Generate from specific go.mod
-syft packages file:go.mod -o cyclonedx-json > sbom.json
+syft packages file:go.mod -o cyclonedx-json > ${OUTPUT_DIR}/exports/sbom.json
 
 # Generate with all details
 syft packages . -o cyclonedx-json --file sbom.json
@@ -417,7 +445,7 @@ spdx-sbom-generator -o . -f json
 
 ```bash
 # Generate SPDX SBOM
-syft packages dir:. -o spdx-json > sbom.spdx.json
+syft packages dir:. -o spdx-json > ${OUTPUT_DIR}/exports/sbom.spdx.json
 
 # Generate SPDX 2.3
 syft packages . -o spdx-json@2.3 --file sbom.spdx.json
@@ -512,7 +540,7 @@ go install golang.org/x/vuln/cmd/govulncheck@latest
 govulncheck ./...
 
 # JSON output
-govulncheck -json ./... > vulnerabilities.json
+govulncheck -json ./... > ${OUTPUT_DIR}/exports/vulnerabilities.json
 
 # Example output
 {
@@ -568,7 +596,7 @@ go install github.com/sonatype-nexus-community/nancy@latest
 nancy sleuth --path go.sum
 
 # JSON output
-nancy sleuth --path go.sum --output json > nancy_report.json
+nancy sleuth --path go.sum --output json > ${OUTPUT_DIR}/exports/nancy_report.json
 ```
 
 ### Using Trivy
@@ -578,7 +606,7 @@ nancy sleuth --path go.sum --output json > nancy_report.json
 # See: https://aquasecurity.github.io/trivy/
 
 # Scan Go project
-trivy fs --format json --output trivy_report.json .
+trivy fs --format json --output ${OUTPUT_DIR}/exports/trivy_report.json .
 
 # Scan go.mod
 trivy fs --scanners vuln go.mod
@@ -597,7 +625,7 @@ npm install -g snyk
 snyk auth
 
 # Test Go project
-snyk test --json > snyk_report.json
+snyk test --json > ${OUTPUT_DIR}/exports/snyk_report.json
 
 # Monitor project
 snyk monitor
@@ -612,10 +640,10 @@ snyk monitor
 go install github.com/google/go-licenses@latest
 
 # List all licenses
-go-licenses csv ./... > licenses.csv
+go-licenses csv ./... > ${OUTPUT_DIR}/exports/licenses.csv
 
 # Generate license report
-go-licenses report ./... > LICENSES.md
+go-licenses report ./... > ${OUTPUT_DIR}/exports/LICENSES.md
 
 # Save license files
 go-licenses save ./... --save_path=./third_party_licenses
@@ -637,7 +665,7 @@ golang.org/x/crypto,BSD-3-Clause,https://cs.opensource.google/go/x/crypto
 go install go.elastic.co/go-license-detector@latest
 
 # Detect licenses
-go-license-detector -includeIndirect ./... > licenses.json
+go-license-detector -includeIndirect ./... > ${OUTPUT_DIR}/exports/licenses.json
 
 # Example JSON output
 {
@@ -926,10 +954,10 @@ jobs:
         run: cyclonedx-gomod mod -json -output sbom.json -licenses
 
       - name: Run govulncheck
-        run: govulncheck -json ./... > vulnerabilities.json || true
+        run: govulncheck -json ./... > ${OUTPUT_DIR}/exports/vulnerabilities.json || true
 
       - name: Generate license report
-        run: go-licenses csv ./... > licenses.csv
+        run: go-licenses csv ./... > ${OUTPUT_DIR}/exports/licenses.csv
 
       - name: Upload SBOM artifacts
         uses: actions/upload-artifact@v3
@@ -957,7 +985,7 @@ sbom:
     - go install github.com/CycloneDX/cyclonedx-gomod/cmd/cyclonedx-gomod@latest
     - go install golang.org/x/vuln/cmd/govulncheck@latest
     - cyclonedx-gomod mod -json -output sbom.json -licenses
-    - govulncheck -json ./... > vulnerabilities.json || true
+    - govulncheck -json ./... > ${OUTPUT_DIR}/exports/vulnerabilities.json || true
   artifacts:
     paths:
       - sbom.json
@@ -1006,15 +1034,14 @@ sbom:
 
 ```bash
 # Create directory structure
-mkdir -p documentation/sbom/generated_docs
-mkdir -p documentation/sbom/templates
-mkdir -p documentation/sbom/assets
-mkdir -p documentation/sbom/exports
+mkdir -p ${OUTPUT_DIR}/sbom/generated_docs
+mkdir -p ${OUTPUT_DIR}/sbom/templates
+mkdir -p ${OUTPUT_DIR}/sbom/assets
+mkdir -p ${OUTPUT_DIR}/sbom/exports
 ```
 
 **Save files as follows**:
 
-- Generated docs → `documentation/sbom/generated_docs/`
 
 - Templates → `documentation/sbom/templates/`
 
@@ -1039,3 +1066,26 @@ The SBOM should:
 - Be machine-readable and automatable
 - Be versioned and timestamped
 - Be published alongside software releases
+---
+
+## Verify Directory Structure
+
+After completing all phases, verify the output structure:
+
+```bash
+tree ${OUTPUT_DIR}
+```
+
+Expected structure:
+```
+${OUTPUT_DIR}/
+├── templates/          # Reusable templates and scripts
+├── assets/            # Images, diagrams, supplementary files
+└── exports/           # Final publishable artifacts and reports
+```
+
+**Verification checklist:**
+- [ ] All directories created successfully
+- [ ] All files saved in correct subdirectories
+- [ ] No files created in repository root
+- [ ] Directory structure matches expected layout

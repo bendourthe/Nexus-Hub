@@ -5,32 +5,29 @@ Generate comprehensive, standards-compliant Software Bill of Materials (SBOM) do
 
 ## Output Directory Structure
 
-All documentation outputs should be saved in organized directories:
+All outputs should be saved in organized directories:
 
 ```
-documentation/
-└── sbom/
-    ├── generated_docs/
-    ├── templates/
-    ├── assets/
-    └── exports/
+documentation/sbom/
+├── templates/          # Reusable templates, example configurations, scripts
+├── assets/            # Images, diagrams, charts, supplementary files
+└── exports/           # Final reports, documentation, and publishable artifacts
 ```
 
 **Directory Setup**:
 
 - Create `documentation/sbom/` directory in repository root if it doesn't exist
 
-- All documentation files, templates, assets, and exports go in the phase-specific directory
+- All templates, assets, and exports go in the phase-specific directory
 
 **Expected Outputs**:
 
-- `generated_docs/` - Generated documentation files (HTML, MD, PDF)
+- `templates/` - Reusable templates, example configurations, boilerplate scripts
 
-- `templates/` - Documentation templates and examples
+- `assets/` - Images, diagrams, charts, supplementary files
 
-- `assets/` - Images, diagrams, supplementary files
+- `exports/` - Final documentation files, reports, release artifacts
 
-- `exports/` - Published documentation, release artifacts
 
 ## Implementation Checklist
 
@@ -86,6 +83,37 @@ Use the structured prompt below with your coding assistant:
 ~~~markdown
 # Python SBOM Generation Request
 
+## CRITICAL: Output Directory Setup
+
+**Before proceeding with any phase, create the output directory structure:**
+
+Set the output directory:
+```bash
+OUTPUT_DIR="documentation/sbom"
+```
+
+Create the required subdirectories:
+```bash
+mkdir -p ${OUTPUT_DIR}/templates
+mkdir -p ${OUTPUT_DIR}/assets
+mkdir -p ${OUTPUT_DIR}/exports
+```
+
+**Directory Structure:**
+```
+${OUTPUT_DIR}/
+├── templates/          # Reusable templates, example configurations, scripts
+├── assets/            # Images, diagrams, charts, supplementary files
+└── exports/           # Final reports, documentation, and publishable artifacts
+```
+
+**Throughout this prompt:**
+- All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+- Examples:
+  - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+  - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+  - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
+
 ## Repository Information
 
 **Note**: Your repository URL is stored in `.git/config`. To find it automatically:
@@ -107,13 +135,13 @@ Please generate a comprehensive Software Bill of Materials (SBOM) for this Pytho
 
    ```bash
    # For pip
-   pip list --format=json > dependencies.json
+   pip list --format=json > ${OUTPUT_DIR}/exports/dependencies.json
 
    # For poetry
-   poetry show --tree --format=json > dependencies.json
+   poetry show --tree --format=json > ${OUTPUT_DIR}/exports/dependencies.json
 
    # For pipenv
-   pipenv graph --json > dependencies.json
+   pipenv graph --json > ${OUTPUT_DIR}/exports/dependencies.json
    ```
 
 2. **Map Transitive Dependencies**
@@ -123,7 +151,7 @@ Please generate a comprehensive Software Bill of Materials (SBOM) for this Pytho
    ```bash
    # Using pipdeptree
    pip install pipdeptree
-   pipdeptree --json > dependency_tree.json
+   pipdeptree --json > ${OUTPUT_DIR}/exports/dependency_tree.json
 
    # Using poetry
    poetry show --tree
@@ -171,18 +199,18 @@ Choose SBOM format based on requirements:
 pip install cyclonedx-bom
 
 # Generate SBOM from requirements.txt
-cyclonedx-py requirements requirements.txt -o sbom.json
+cyclonedx-py requirements requirements.txt -o ${OUTPUT_DIR}/exports/sbom.json
 
 # Generate from poetry
-cyclonedx-py poetry -o sbom.json
+cyclonedx-py poetry -o ${OUTPUT_DIR}/exports/sbom.json
 
 # Generate from pipenv
-cyclonedx-py pipenv -o sbom.json
+cyclonedx-py pipenv -o ${OUTPUT_DIR}/exports/sbom.json
 
 # Generate with all details
 cyclonedx-py requirements requirements.txt \
   --format json \
-  --output sbom.json \
+  --output ${OUTPUT_DIR}/exports/sbom.json \
   --sv 1.4 \
   --reproducible
 ```
@@ -458,7 +486,7 @@ Scan for known vulnerabilities in dependencies:
 pip install pip-audit
 
 # Scan for vulnerabilities
-pip-audit --format json --output vulnerabilities.json
+pip-audit --format json --output ${OUTPUT_DIR}/exports/vulnerabilities.json
 
 # Scan with specific requirement file
 pip-audit -r requirements.txt --format json
@@ -489,7 +517,7 @@ pip-audit -r requirements.txt --format json
 pip install safety
 
 # Scan dependencies
-safety check --json > safety_report.json
+safety check --json > ${OUTPUT_DIR}/exports/safety_report.json
 
 # Scan specific requirements file
 safety check -r requirements.txt --json
@@ -502,7 +530,7 @@ safety check -r requirements.txt --json
 # See: https://aquasecurity.github.io/trivy/
 
 # Scan Python project
-trivy fs --format json --output trivy_report.json .
+trivy fs --format json --output ${OUTPUT_DIR}/exports/trivy_report.json .
 
 # Scan specific requirements file
 trivy fs --format json -f requirements.txt .
@@ -517,7 +545,7 @@ trivy fs --format json -f requirements.txt .
 pip install pip-licenses
 
 # List all licenses
-pip-licenses --format=json --with-urls > licenses.json
+pip-licenses --format=json --with-urls > ${OUTPUT_DIR}/exports/licenses.json
 
 # Check for specific license types
 pip-licenses --format=markdown --with-urls
@@ -546,7 +574,7 @@ pip-licenses --format=markdown --with-urls
 pip install licensecheck
 
 # Check licenses
-licensecheck --format json > license_report.json
+licensecheck --format json > ${OUTPUT_DIR}/exports/license_report.json
 ```
 
 ### License Compatibility Matrix
@@ -582,7 +610,7 @@ Document license compatibility:
 pip install --require-hashes -r requirements_with_hashes.txt
 
 # Generate requirements with hashes
-pip freeze --all | pip-compile --generate-hashes -o requirements_locked.txt
+pip freeze --all | pip-compile --generate-hashes -o ${OUTPUT_DIR}/exports/requirements_locked.txt
 ```
 
 ### Repository Security
@@ -809,16 +837,16 @@ jobs:
 
       - name: Generate SBOM
         run: |
-          cyclonedx-py requirements requirements.txt -o sbom.json
+          cyclonedx-py requirements requirements.txt -o ${OUTPUT_DIR}/exports/sbom.json
 
       - name: Scan vulnerabilities
         run: |
-          pip-audit --format json --output vulnerabilities.json
+          pip-audit --format json --output ${OUTPUT_DIR}/exports/vulnerabilities.json
         continue-on-error: true
 
       - name: Generate license report
         run: |
-          pip-licenses --format=json --with-urls > licenses.json
+          pip-licenses --format=json --with-urls > ${OUTPUT_DIR}/exports/licenses.json
 
       - name: Upload SBOM artifacts
         uses: actions/upload-artifact@v3
@@ -845,7 +873,7 @@ repos:
     hooks:
       - id: generate-sbom
         name: Generate SBOM
-        entry: cyclonedx-py requirements requirements.txt -o sbom.json
+        entry: cyclonedx-py requirements requirements.txt -o ${OUTPUT_DIR}/exports/sbom.json
         language: system
         pass_filenames: false
 
@@ -893,15 +921,14 @@ repos:
 
 ```bash
 # Create directory structure
-mkdir -p documentation/sbom/generated_docs
-mkdir -p documentation/sbom/templates
-mkdir -p documentation/sbom/assets
-mkdir -p documentation/sbom/exports
+mkdir -p ${OUTPUT_DIR}/sbom/generated_docs
+mkdir -p ${OUTPUT_DIR}/sbom/templates
+mkdir -p ${OUTPUT_DIR}/sbom/assets
+mkdir -p ${OUTPUT_DIR}/sbom/exports
 ```
 
 **Save files as follows**:
 
-- Generated docs → `documentation/sbom/generated_docs/`
 
 - Templates → `documentation/sbom/templates/`
 
@@ -926,3 +953,26 @@ The SBOM should:
 - Be machine-readable and automatable
 - Be versioned and timestamped
 - Be published alongside software releases
+---
+
+## Verify Directory Structure
+
+After completing all phases, verify the output structure:
+
+```bash
+tree ${OUTPUT_DIR}
+```
+
+Expected structure:
+```
+${OUTPUT_DIR}/
+├── templates/          # Reusable templates and scripts
+├── assets/            # Images, diagrams, supplementary files
+└── exports/           # Final publishable artifacts and reports
+```
+
+**Verification checklist:**
+- [ ] All directories created successfully
+- [ ] All files saved in correct subdirectories
+- [ ] No files created in repository root
+- [ ] Directory structure matches expected layout

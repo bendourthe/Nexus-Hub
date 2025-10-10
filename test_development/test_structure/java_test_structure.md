@@ -5,32 +5,29 @@ Design and implement a robust test infrastructure with optimal framework configu
 
 ## Output Directory Structure
 
-All test outputs should be saved in organized directories:
+All outputs should be saved in organized directories:
 
 ```
-tests/
-└── test_structure/
-    ├── test_files/
-    ├── test_data/
-    ├── test_reports/
-    └── test_configs/
+tests/test_structure/
+├── templates/          # Reusable templates, example configurations, scripts
+├── assets/            # Images, diagrams, charts, supplementary files
+└── exports/           # Final reports, documentation, and publishable artifacts
 ```
 
 **Directory Setup**:
 
-- Create `tests/{phase}/` directory in repository root if it doesn't exist
+- Create `tests/test_structure/` directory in repository root if it doesn't exist
 
-- All test files, data, reports, and configurations go in the phase-specific directory
+- All templates, assets, and exports go in the phase-specific directory
 
 **Expected Outputs**:
 
-- `test_files/` - Actual test implementation files
+- `templates/` - Reusable templates, example configurations, boilerplate scripts
 
-- `test_data/` - Test fixtures, mock data, sample inputs
+- `assets/` - Images, diagrams, charts, supplementary files
 
-- `test_reports/` - Test execution reports, coverage reports, performance results
+- `exports/` - Final documentation files, reports, release artifacts
 
-- `test_configs/` - Framework configurations, test runner settings
 
 ## Implementation Checklist
 
@@ -68,6 +65,37 @@ Use the structured prompt below with your coding assistant:
 
 ~~~markdown
 # Java Test Infrastructure Setup
+
+## CRITICAL: Output Directory Setup
+
+**Before proceeding with any phase, create the output directory structure:**
+
+Set the output directory:
+```bash
+OUTPUT_DIR="tests/test_structure"
+```
+
+Create the required subdirectories:
+```bash
+mkdir -p ${OUTPUT_DIR}/templates
+mkdir -p ${OUTPUT_DIR}/assets
+mkdir -p ${OUTPUT_DIR}/exports
+```
+
+**Directory Structure:**
+```
+${OUTPUT_DIR}/
+├── templates/          # Reusable templates, example configurations, scripts
+├── assets/            # Images, diagrams, charts, supplementary files
+└── exports/           # Final reports, documentation, and publishable artifacts
+```
+
+**Throughout this prompt:**
+- All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+- Examples:
+  - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+  - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+  - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 Please design and implement a comprehensive test infrastructure for this Java project following this protocol:
 
@@ -610,3 +638,26 @@ mvn test -Dtest=*IT   # Integration tests
 ## Output Format
 
 The AI assistant should deliver comprehensive Java test infrastructure with JUnit 5, proper Maven/Gradle configuration, test fixtures, builders, custom assertions, and execution strategies.
+---
+
+## Verify Directory Structure
+
+After completing all phases, verify the output structure:
+
+```bash
+tree ${OUTPUT_DIR}
+```
+
+Expected structure:
+```
+${OUTPUT_DIR}/
+├── templates/          # Reusable templates and scripts
+├── assets/            # Images, diagrams, supplementary files
+└── exports/           # Final publishable artifacts and reports
+```
+
+**Verification checklist:**
+- [ ] All directories created successfully
+- [ ] All files saved in correct subdirectories
+- [ ] No files created in repository root
+- [ ] Directory structure matches expected layout

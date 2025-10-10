@@ -5,32 +5,29 @@ Design and implement effective mocking strategies and fixture management using C
 
 ## Output Directory Structure
 
-All test outputs should be saved in organized directories:
+All outputs should be saved in organized directories:
 
 ```
-tests/
-└── mocks_fixtures/
-    ├── test_files/
-    ├── test_data/
-    ├── test_reports/
-    └── test_configs/
+tests/mocks_fixtures/
+├── templates/          # Reusable templates, example configurations, scripts
+├── assets/            # Images, diagrams, charts, supplementary files
+└── exports/           # Final reports, documentation, and publishable artifacts
 ```
 
 **Directory Setup**:
 
-- Create `tests/{phase}/` directory in repository root if it doesn't exist
+- Create `tests/mocks_fixtures/` directory in repository root if it doesn't exist
 
-- All test files, data, reports, and configurations go in the phase-specific directory
+- All templates, assets, and exports go in the phase-specific directory
 
 **Expected Outputs**:
 
-- `test_files/` - Actual test implementation files
+- `templates/` - Reusable templates, example configurations, boilerplate scripts
 
-- `test_data/` - Test fixtures, mock data, sample inputs
+- `assets/` - Images, diagrams, charts, supplementary files
 
-- `test_reports/` - Test execution reports, coverage reports, performance results
+- `exports/` - Final documentation files, reports, release artifacts
 
-- `test_configs/` - Framework configurations, test runner settings
 
 ## Implementation Checklist
 
@@ -61,6 +58,37 @@ Use the structured prompt below with your coding assistant:
 
 ~~~markdown
 # C Mocks & Fixtures Implementation
+
+## CRITICAL: Output Directory Setup
+
+**Before proceeding with any phase, create the output directory structure:**
+
+Set the output directory:
+```bash
+OUTPUT_DIR="tests/mocks_fixtures"
+```
+
+Create the required subdirectories:
+```bash
+mkdir -p ${OUTPUT_DIR}/templates
+mkdir -p ${OUTPUT_DIR}/assets
+mkdir -p ${OUTPUT_DIR}/exports
+```
+
+**Directory Structure:**
+```
+${OUTPUT_DIR}/
+├── templates/          # Reusable templates, example configurations, scripts
+├── assets/            # Images, diagrams, charts, supplementary files
+└── exports/           # Final reports, documentation, and publishable artifacts
+```
+
+**Throughout this prompt:**
+- All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+- Examples:
+  - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+  - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+  - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 Please implement comprehensive mocking and fixture strategies for this C project following this protocol:
 
@@ -1015,3 +1043,26 @@ The AI assistant should deliver:
 5. **Usage documentation** with examples
 6. **Best practices guide** for C testing
 7. **Fixture and mock catalog** for easy reference
+---
+
+## Verify Directory Structure
+
+After completing all phases, verify the output structure:
+
+```bash
+tree ${OUTPUT_DIR}
+```
+
+Expected structure:
+```
+${OUTPUT_DIR}/
+├── templates/          # Reusable templates and scripts
+├── assets/            # Images, diagrams, supplementary files
+└── exports/           # Final publishable artifacts and reports
+```
+
+**Verification checklist:**
+- [ ] All directories created successfully
+- [ ] All files saved in correct subdirectories
+- [ ] No files created in repository root
+- [ ] Directory structure matches expected layout

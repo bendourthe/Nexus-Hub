@@ -5,32 +5,29 @@ Establish comprehensive understanding of the JavaScript project before conductin
 
 ## Output Directory Structure
 
-All review outputs should be saved in organized directories:
+All outputs should be saved in organized directories:
 
 ```
-review/
-└── context_analysis/
-    ├── context_analysis_report.md
-    ├── context_analysis_findings.json
-    ├── analysis_scripts/
-    └── supporting_data/
+review/context_analysis/
+├── templates/          # Reusable templates, example configurations, scripts
+├── assets/            # Images, diagrams, charts, supplementary files
+└── exports/           # Final reports, documentation, and publishable artifacts
 ```
 
 **Directory Setup**:
 
 - Create `review/context_analysis/` directory in repository root if it doesn't exist
 
-- All review outputs (reports, findings, scripts, data) go in the phase-specific directory
+- All templates, assets, and exports go in the phase-specific directory
 
 **Expected Outputs**:
 
-- `context_analysis_report.md` - Main findings and recommendations
+- `templates/` - Reusable templates, example configurations, boilerplate scripts
 
-- `context_analysis_findings.json` - Structured data for tooling integration
+- `assets/` - Images, diagrams, charts, supplementary files
 
-- `analysis_scripts/` - Any scripts generated during analysis
+- `exports/` - Final documentation files, reports, release artifacts
 
-- `supporting_data/` - Raw data, logs, profiling results, scan outputs
 
 ## Analysis Checklist
 
@@ -75,6 +72,37 @@ Use the structured prompt below with your coding assistant:
 
 ~~~markdown
 # JavaScript Project Context Analysis
+
+## CRITICAL: Output Directory Setup
+
+**Before proceeding with any phase, create the output directory structure:**
+
+Set the output directory:
+```bash
+OUTPUT_DIR="review/context_analysis"
+```
+
+Create the required subdirectories:
+```bash
+mkdir -p ${OUTPUT_DIR}/templates
+mkdir -p ${OUTPUT_DIR}/assets
+mkdir -p ${OUTPUT_DIR}/exports
+```
+
+**Directory Structure:**
+```
+${OUTPUT_DIR}/
+├── templates/          # Reusable templates, example configurations, scripts
+├── assets/            # Images, diagrams, charts, supplementary files
+└── exports/           # Final reports, documentation, and publishable artifacts
+```
+
+**Throughout this prompt:**
+- All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+- Examples:
+  - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+  - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+  - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
 
@@ -170,7 +198,7 @@ Please perform a comprehensive context analysis of this JavaScript project follo
    npx license-checker --summary
 
    # Detailed license report
-   npx license-checker --json > licenses.json
+   npx license-checker --json > ${OUTPUT_DIR}/exports/licenses.json
    ```
    - List licenses for all dependencies
    - Flag potential license conflicts
@@ -356,8 +384,8 @@ Based on this context, the following review areas should be prioritized:
 
 ```bash
 # Create directory structure
-mkdir -p review/context_analysis/analysis_scripts
-mkdir -p review/context_analysis/supporting_data
+mkdir -p ${OUTPUT_DIR}/context_analysis/analysis_scripts
+mkdir -p ${OUTPUT_DIR}/context_analysis/supporting_data
 ```
 
 **Save files as follows**:
@@ -378,3 +406,26 @@ mkdir -p review/context_analysis/supporting_data
 - For TypeScript projects, include type coverage analysis
 - For frontend projects, consider Lighthouse audit for initial performance baseline
 ~~~
+---
+
+## Verify Directory Structure
+
+After completing all phases, verify the output structure:
+
+```bash
+tree ${OUTPUT_DIR}
+```
+
+Expected structure:
+```
+${OUTPUT_DIR}/
+├── templates/          # Reusable templates and scripts
+├── assets/            # Images, diagrams, supplementary files
+└── exports/           # Final publishable artifacts and reports
+```
+
+**Verification checklist:**
+- [ ] All directories created successfully
+- [ ] All files saved in correct subdirectories
+- [ ] No files created in repository root
+- [ ] Directory structure matches expected layout

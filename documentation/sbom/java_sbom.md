@@ -5,32 +5,29 @@ Generate comprehensive, standards-compliant Software Bill of Materials (SBOM) do
 
 ## Output Directory Structure
 
-All documentation outputs should be saved in organized directories:
+All outputs should be saved in organized directories:
 
 ```
-documentation/
-└── sbom/
-    ├── generated_docs/
-    ├── templates/
-    ├── assets/
-    └── exports/
+documentation/sbom/
+├── templates/          # Reusable templates, example configurations, scripts
+├── assets/            # Images, diagrams, charts, supplementary files
+└── exports/           # Final reports, documentation, and publishable artifacts
 ```
 
 **Directory Setup**:
 
 - Create `documentation/sbom/` directory in repository root if it doesn't exist
 
-- All documentation files, templates, assets, and exports go in the phase-specific directory
+- All templates, assets, and exports go in the phase-specific directory
 
 **Expected Outputs**:
 
-- `generated_docs/` - Generated documentation files (HTML, MD, PDF)
+- `templates/` - Reusable templates, example configurations, boilerplate scripts
 
-- `templates/` - Documentation templates and examples
+- `assets/` - Images, diagrams, charts, supplementary files
 
-- `assets/` - Images, diagrams, supplementary files
+- `exports/` - Final documentation files, reports, release artifacts
 
-- `exports/` - Published documentation, release artifacts
 
 ## Implementation Checklist
 
@@ -87,6 +84,37 @@ Use the structured prompt below with your coding assistant:
 ~~~markdown
 # Java SBOM Generation Request
 
+## CRITICAL: Output Directory Setup
+
+**Before proceeding with any phase, create the output directory structure:**
+
+Set the output directory:
+```bash
+OUTPUT_DIR="documentation/sbom"
+```
+
+Create the required subdirectories:
+```bash
+mkdir -p ${OUTPUT_DIR}/templates
+mkdir -p ${OUTPUT_DIR}/assets
+mkdir -p ${OUTPUT_DIR}/exports
+```
+
+**Directory Structure:**
+```
+${OUTPUT_DIR}/
+├── templates/          # Reusable templates, example configurations, scripts
+├── assets/            # Images, diagrams, charts, supplementary files
+└── exports/           # Final reports, documentation, and publishable artifacts
+```
+
+**Throughout this prompt:**
+- All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+- Examples:
+  - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+  - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+  - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
+
 ## Repository Information
 
 **Note**: Your repository URL is stored in `.git/config`. To find it automatically:
@@ -126,7 +154,7 @@ Please generate a comprehensive Software Bill of Materials (SBOM) for this Java 
 
    ```bash
    # List all dependencies
-   gradle dependencies > dependencies.txt
+   gradle dependencies > ${OUTPUT_DIR}/exports/dependencies.txt
 
    # Generate dependency report
    gradle dependencies --configuration runtimeClasspath
@@ -653,10 +681,10 @@ npm install -g snyk
 snyk auth
 
 # Test Maven project
-snyk test --file=pom.xml --json > snyk_report.json
+snyk test --file=pom.xml --json > ${OUTPUT_DIR}/exports/snyk_report.json
 
 # Test Gradle project
-snyk test --file=build.gradle --json > snyk_report.json
+snyk test --file=build.gradle --json > ${OUTPUT_DIR}/exports/snyk_report.json
 
 # Monitor project
 snyk monitor
@@ -669,7 +697,7 @@ snyk monitor
 # See: https://aquasecurity.github.io/trivy/
 
 # Scan Java project
-trivy fs --format json --output trivy_report.json .
+trivy fs --format json --output ${OUTPUT_DIR}/exports/trivy_report.json .
 
 # Scan specific JAR file
 trivy fs --scanners vuln target/project-name-1.0.0.jar
@@ -1091,15 +1119,14 @@ sbom:
 
 ```bash
 # Create directory structure
-mkdir -p documentation/sbom/generated_docs
-mkdir -p documentation/sbom/templates
-mkdir -p documentation/sbom/assets
-mkdir -p documentation/sbom/exports
+mkdir -p ${OUTPUT_DIR}/sbom/generated_docs
+mkdir -p ${OUTPUT_DIR}/sbom/templates
+mkdir -p ${OUTPUT_DIR}/sbom/assets
+mkdir -p ${OUTPUT_DIR}/sbom/exports
 ```
 
 **Save files as follows**:
 
-- Generated docs → `documentation/sbom/generated_docs/`
 
 - Templates → `documentation/sbom/templates/`
 
@@ -1124,3 +1151,26 @@ The SBOM should:
 - Be machine-readable and automatable
 - Be versioned and timestamped
 - Be published alongside software releases
+---
+
+## Verify Directory Structure
+
+After completing all phases, verify the output structure:
+
+```bash
+tree ${OUTPUT_DIR}
+```
+
+Expected structure:
+```
+${OUTPUT_DIR}/
+├── templates/          # Reusable templates and scripts
+├── assets/            # Images, diagrams, supplementary files
+└── exports/           # Final publishable artifacts and reports
+```
+
+**Verification checklist:**
+- [ ] All directories created successfully
+- [ ] All files saved in correct subdirectories
+- [ ] No files created in repository root
+- [ ] Directory structure matches expected layout

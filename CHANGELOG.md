@@ -11,6 +11,63 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.2.3] - 2025-10-10
+
+### Changed
+
+#### Directory Structure Improvements (155 files)
+Optimized output directory structure across all template files to improve organization and eliminate redundant subdirectories.
+
+**Template Updates** (155 files):
+- **Removed `generated_docs/` subdirectory**: Simplified from 4 to 3 subdirectories for clearer organization
+- **Standardized 3-subdirectory structure**:
+  - `templates/` - Reusable templates, example configurations, and scripts
+  - `assets/` - Images, diagrams, charts, and supplementary files
+  - `exports/` - Final reports, documentation, and publishable artifacts
+- **Added `OUTPUT_DIR` variable**: All templates now establish output directory at the beginning with shell variable
+- **Updated file path references**: All file generation commands now use `${OUTPUT_DIR}/` prefix for consistent output location
+- **Added verification sections**: Each template includes end-of-process directory structure verification checklist
+
+**Files Modified**:
+- Documentation Templates: 49/49 files
+- Code Review Templates: 43/43 files
+- Code Cleanup Templates: 8/8 files
+- Test Development Templates: 55/55 files
+
+**Benefits**:
+- **Clearer Organization**: 3 subdirectories instead of 4 eliminates confusion
+- **Consistent Output Paths**: `${OUTPUT_DIR}` variable ensures all files go to correct location
+- **Better User Experience**: Templates now explicitly establish output directory before any operations
+- **Verification Built-in**: Each template includes checklist to verify correct directory structure
+
+### Technical Details
+
+**Before (4 subdirectories)**:
+```
+phase_name/
+├── generated_docs/  # Redundant with exports/
+├── templates/
+├── assets/
+└── exports/
+```
+
+**After (3 subdirectories)**:
+```
+phase_name/
+├── templates/       # Reusable templates and scripts
+├── assets/          # Images, diagrams, supplementary files
+└── exports/         # Final reports and publishable artifacts
+```
+
+**Example OUTPUT_DIR Usage**:
+```bash
+OUTPUT_DIR="documentation/sbom"
+mkdir -p ${OUTPUT_DIR}/{templates,assets,exports}
+cyclonedx-py requirements requirements.txt -o ${OUTPUT_DIR}/exports/sbom.json
+```
+
+---
+
 ## [0.2.2] - 2025-10-10
 
 ### Changed
@@ -449,6 +506,7 @@ repository_root/
 
 | Version | Date       | Description                                      |
 |---------|------------|--------------------------------------------------|
+| 0.2.3   | 2025-10-10 | Directory structure optimization: Simplified to 3 subdirectories with OUTPUT_DIR variable |
 | 0.2.2   | 2025-10-10 | Bitbucket migration: Repository-agnostic templates with improved formatting |
 | 0.2.1   | 2025-10-09 | Standardized output directory structures for all 133 templates |
 | 0.2.0   | 2025-10-09 | **COMPLETE** - Multi-language expansion: 162 templates across 7 languages |
@@ -459,7 +517,8 @@ repository_root/
 
 ---
 
-[Unreleased]: https://github.com/yourusername/ai_templates/compare/v0.2.2...HEAD
+[Unreleased]: https://github.com/yourusername/ai_templates/compare/v0.2.3...HEAD
+[0.2.3]: https://github.com/yourusername/ai_templates/releases/tag/v0.2.3
 [0.2.2]: https://github.com/yourusername/ai_templates/releases/tag/v0.2.2
 [0.2.1]: https://github.com/yourusername/ai_templates/releases/tag/v0.2.1
 [0.2.0]: https://github.com/yourusername/ai_templates/releases/tag/v0.2.0

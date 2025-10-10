@@ -5,32 +5,29 @@ Systematically identify performance bottlenecks, inefficient algorithms, and res
 
 ## Output Directory Structure
 
-All review outputs should be saved in organized directories:
+All outputs should be saved in organized directories:
 
 ```
-review/
-└── performance_review/
-    ├── performance_review_report.md
-    ├── performance_review_findings.json
-    ├── analysis_scripts/
-    └── supporting_data/
+review/performance_review/
+├── templates/          # Reusable templates, example configurations, scripts
+├── assets/            # Images, diagrams, charts, supplementary files
+└── exports/           # Final reports, documentation, and publishable artifacts
 ```
 
 **Directory Setup**:
 
 - Create `review/performance_review/` directory in repository root if it doesn't exist
 
-- All review outputs (reports, findings, scripts, data) go in the phase-specific directory
+- All templates, assets, and exports go in the phase-specific directory
 
 **Expected Outputs**:
 
-- `performance_review_report.md` - Main findings and recommendations
+- `templates/` - Reusable templates, example configurations, boilerplate scripts
 
-- `performance_review_findings.json` - Structured data for tooling integration
+- `assets/` - Images, diagrams, charts, supplementary files
 
-- `analysis_scripts/` - Any scripts generated during analysis
+- `exports/` - Final documentation files, reports, release artifacts
 
-- `supporting_data/` - Raw data, logs, profiling results, scan outputs
 
 ## Review Checklist
 
@@ -83,6 +80,37 @@ Use the structured prompt below with your coding assistant:
 ~~~markdown
 # JavaScript Performance Review
 
+## CRITICAL: Output Directory Setup
+
+**Before proceeding with any phase, create the output directory structure:**
+
+Set the output directory:
+```bash
+OUTPUT_DIR="review/performance_review"
+```
+
+Create the required subdirectories:
+```bash
+mkdir -p ${OUTPUT_DIR}/templates
+mkdir -p ${OUTPUT_DIR}/assets
+mkdir -p ${OUTPUT_DIR}/exports
+```
+
+**Directory Structure:**
+```
+${OUTPUT_DIR}/
+├── templates/          # Reusable templates, example configurations, scripts
+├── assets/            # Images, diagrams, charts, supplementary files
+└── exports/           # Final reports, documentation, and publishable artifacts
+```
+
+**Throughout this prompt:**
+- All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+- Examples:
+  - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+  - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+  - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
+
 ## Repository Information
 
 **Note**: Your repository URL is stored in `.git/config`. To find it automatically:
@@ -123,7 +151,7 @@ Please perform a comprehensive performance review of this JavaScript application
    ```bash
    # Built-in Node.js profiler
    node --prof app.js
-   node --prof-process isolate-*.log > processed.txt
+   node --prof-process isolate-*.log > ${OUTPUT_DIR}/exports/processed.txt
 
    # Using clinic.js for comprehensive analysis
    npm install -g clinic
@@ -334,7 +362,7 @@ Please perform a comprehensive performance review of this JavaScript application
      if (cache.has(url)) {
        return cache.get(url);
      }
-     const promise = fetch(url).then(r => r.json());
+     const promise = fetch(url).then(r => ${OUTPUT_DIR}/exports/r.json());
      cache.set(url, promise);
      return promise;
    }
@@ -841,8 +869,8 @@ Please provide a comprehensive performance report with the following structure:
 
 ```bash
 # Create directory structure
-mkdir -p review/performance_review/analysis_scripts
-mkdir -p review/performance_review/supporting_data
+mkdir -p ${OUTPUT_DIR}/performance_review/analysis_scripts
+mkdir -p ${OUTPUT_DIR}/performance_review/supporting_data
 ```
 
 **Save files as follows**:
@@ -855,3 +883,26 @@ mkdir -p review/performance_review/supporting_data
 
 - Supporting data → `review/performance_review/supporting_data/`
 ~~~
+---
+
+## Verify Directory Structure
+
+After completing all phases, verify the output structure:
+
+```bash
+tree ${OUTPUT_DIR}
+```
+
+Expected structure:
+```
+${OUTPUT_DIR}/
+├── templates/          # Reusable templates and scripts
+├── assets/            # Images, diagrams, supplementary files
+└── exports/           # Final publishable artifacts and reports
+```
+
+**Verification checklist:**
+- [ ] All directories created successfully
+- [ ] All files saved in correct subdirectories
+- [ ] No files created in repository root
+- [ ] Directory structure matches expected layout

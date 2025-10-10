@@ -5,32 +5,29 @@ Generate comprehensive, standards-compliant Doxygen documentation comments for a
 
 ## Output Directory Structure
 
-All documentation outputs should be saved in organized directories:
+All outputs should be saved in organized directories:
 
 ```
-documentation/
-└── docstrings/
-    ├── generated_docs/
-    ├── templates/
-    ├── assets/
-    └── exports/
+documentation/docstrings/
+├── templates/          # Reusable templates, example configurations, scripts
+├── assets/            # Images, diagrams, charts, supplementary files
+└── exports/           # Final reports, documentation, and publishable artifacts
 ```
 
 **Directory Setup**:
 
 - Create `documentation/docstrings/` directory in repository root if it doesn't exist
 
-- All documentation files, templates, assets, and exports go in the phase-specific directory
+- All templates, assets, and exports go in the phase-specific directory
 
 **Expected Outputs**:
 
-- `generated_docs/` - Generated documentation files (HTML, MD, PDF)
+- `templates/` - Reusable templates, example configurations, boilerplate scripts
 
-- `templates/` - Documentation templates and examples
+- `assets/` - Images, diagrams, charts, supplementary files
 
-- `assets/` - Images, diagrams, supplementary files
+- `exports/` - Final documentation files, reports, release artifacts
 
-- `exports/` - Published documentation, release artifacts
 
 ## Implementation Checklist
 
@@ -76,6 +73,37 @@ Use the structured prompt below with your coding assistant:
 
 ~~~markdown
 # C++ Doxygen Documentation Generation Request
+
+## CRITICAL: Output Directory Setup
+
+**Before proceeding with any phase, create the output directory structure:**
+
+Set the output directory:
+```bash
+OUTPUT_DIR="documentation/docstrings"
+```
+
+Create the required subdirectories:
+```bash
+mkdir -p ${OUTPUT_DIR}/templates
+mkdir -p ${OUTPUT_DIR}/assets
+mkdir -p ${OUTPUT_DIR}/exports
+```
+
+**Directory Structure:**
+```
+${OUTPUT_DIR}/
+├── templates/          # Reusable templates, example configurations, scripts
+├── assets/            # Images, diagrams, charts, supplementary files
+└── exports/           # Final reports, documentation, and publishable artifacts
+```
+
+**Throughout this prompt:**
+- All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+- Examples:
+  - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+  - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+  - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
 
@@ -997,15 +1025,14 @@ template <typename T, typename Enable = std::enable_if_t<std::is_integral_v<T>>>
 
 ```bash
 # Create directory structure
-mkdir -p documentation/docstrings/generated_docs
-mkdir -p documentation/docstrings/templates
-mkdir -p documentation/docstrings/assets
-mkdir -p documentation/docstrings/exports
+mkdir -p ${OUTPUT_DIR}/docstrings/generated_docs
+mkdir -p ${OUTPUT_DIR}/docstrings/templates
+mkdir -p ${OUTPUT_DIR}/docstrings/assets
+mkdir -p ${OUTPUT_DIR}/docstrings/exports
 ```
 
 **Save files as follows**:
 
-- Generated docs → `documentation/docstrings/generated_docs/`
 
 - Templates → `documentation/docstrings/templates/`
 
@@ -1047,3 +1074,26 @@ The generated C++ Doxygen comments should:
 - Cross-reference with @see and @relates
 - Generate well-formatted HTML documentation
 - Pass Doxygen validation for C++ code
+---
+
+## Verify Directory Structure
+
+After completing all phases, verify the output structure:
+
+```bash
+tree ${OUTPUT_DIR}
+```
+
+Expected structure:
+```
+${OUTPUT_DIR}/
+├── templates/          # Reusable templates and scripts
+├── assets/            # Images, diagrams, supplementary files
+└── exports/           # Final publishable artifacts and reports
+```
+
+**Verification checklist:**
+- [ ] All directories created successfully
+- [ ] All files saved in correct subdirectories
+- [ ] No files created in repository root
+- [ ] Directory structure matches expected layout

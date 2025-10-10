@@ -5,34 +5,29 @@ Identify and eliminate dead code, duplication, and legacy patterns so the codeba
 
 ## Output Directory Structure
 
-All cleanup outputs should be saved in organized directories:
+All outputs should be saved in organized directories:
 
 ```
 cleanup/
-├── cleanup_report.md
-├── cleanup_history.md
-├── backup/
-├── scripts/
-└── analysis/
+├── templates/          # Reusable templates, example configurations, scripts
+├── assets/            # Images, diagrams, charts, supplementary files
+└── exports/           # Final reports, documentation, and publishable artifacts
 ```
 
 **Directory Setup**:
 
 - Create `cleanup/` directory in repository root if it doesn't exist
 
-- All cleanup reports, history, backups, scripts, and analysis go in this directory
+- All templates, assets, and exports go in the phase-specific directory
 
 **Expected Outputs**:
 
-- `cleanup_report.md` - Detailed report of all cleanup actions performed
+- `templates/` - Reusable templates, example configurations, boilerplate scripts
 
-- `cleanup_history.md` - Historical log of cleanup sessions with timestamps
+- `assets/` - Images, diagrams, charts, supplementary files
 
-- `backup/` - Backup copies of files before cleanup modifications
+- `exports/` - Final documentation files, reports, release artifacts
 
-- `scripts/` - Automated cleanup scripts generated or used
-
-- `analysis/` - Analysis data, metrics, and diagnostic outputs
 
 ## Review Checklist
 
@@ -73,6 +68,37 @@ Use the structured prompt below with your coding assistant:
 
 ~~~markdown
 # Go Codebase Cleanup Request
+
+## CRITICAL: Output Directory Setup
+
+**Before proceeding with any phase, create the output directory structure:**
+
+Set the output directory:
+```bash
+OUTPUT_DIR="cleanup"
+```
+
+Create the required subdirectories:
+```bash
+mkdir -p ${OUTPUT_DIR}/templates
+mkdir -p ${OUTPUT_DIR}/assets
+mkdir -p ${OUTPUT_DIR}/exports
+```
+
+**Directory Structure:**
+```
+${OUTPUT_DIR}/
+├── templates/          # Reusable templates, example configurations, scripts
+├── assets/            # Images, diagrams, charts, supplementary files
+└── exports/           # Final reports, documentation, and publishable artifacts
+```
+
+**Throughout this prompt:**
+- All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+- Examples:
+  - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+  - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+  - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
 
@@ -298,9 +324,9 @@ Present cleanup in this structure:
 
 ```bash
 # Create directory structure
-mkdir -p cleanup/backup
-mkdir -p cleanup/scripts
-mkdir -p cleanup/analysis
+mkdir -p ${OUTPUT_DIR}/backup
+mkdir -p ${OUTPUT_DIR}/scripts
+mkdir -p ${OUTPUT_DIR}/analysis
 ```
 
 **Save files as follows**:
@@ -331,3 +357,26 @@ If you'd like an even more thorough cleanup, also consider:
 
 These require more careful review and may involve refactoring beyond simple cleanup.
 ~~~
+---
+
+## Verify Directory Structure
+
+After completing all phases, verify the output structure:
+
+```bash
+tree ${OUTPUT_DIR}
+```
+
+Expected structure:
+```
+${OUTPUT_DIR}/
+├── templates/          # Reusable templates and scripts
+├── assets/            # Images, diagrams, supplementary files
+└── exports/           # Final publishable artifacts and reports
+```
+
+**Verification checklist:**
+- [ ] All directories created successfully
+- [ ] All files saved in correct subdirectories
+- [ ] No files created in repository root
+- [ ] Directory structure matches expected layout

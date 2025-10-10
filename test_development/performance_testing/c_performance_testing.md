@@ -5,32 +5,29 @@ Implement comprehensive performance testing to validate system behavior under lo
 
 ## Output Directory Structure
 
-All test outputs should be saved in organized directories:
+All outputs should be saved in organized directories:
 
 ```
-tests/
-└── performance_testing/
-    ├── test_files/
-    ├── test_data/
-    ├── test_reports/
-    └── test_configs/
+tests/performance_testing/
+├── templates/          # Reusable templates, example configurations, scripts
+├── assets/            # Images, diagrams, charts, supplementary files
+└── exports/           # Final reports, documentation, and publishable artifacts
 ```
 
 **Directory Setup**:
 
-- Create `tests/{phase}/` directory in repository root if it doesn't exist
+- Create `tests/performance_testing/` directory in repository root if it doesn't exist
 
-- All test files, data, reports, and configurations go in the phase-specific directory
+- All templates, assets, and exports go in the phase-specific directory
 
 **Expected Outputs**:
 
-- `test_files/` - Actual test implementation files
+- `templates/` - Reusable templates, example configurations, boilerplate scripts
 
-- `test_data/` - Test fixtures, mock data, sample inputs
+- `assets/` - Images, diagrams, charts, supplementary files
 
-- `test_reports/` - Test execution reports, coverage reports, performance results
+- `exports/` - Final documentation files, reports, release artifacts
 
-- `test_configs/` - Framework configurations, test runner settings
 
 ## Implementation Checklist
 
@@ -61,6 +58,37 @@ Use the structured prompt below with your coding assistant:
 
 ~~~markdown
 # C Performance Testing Implementation
+
+## CRITICAL: Output Directory Setup
+
+**Before proceeding with any phase, create the output directory structure:**
+
+Set the output directory:
+```bash
+OUTPUT_DIR="tests/performance_testing"
+```
+
+Create the required subdirectories:
+```bash
+mkdir -p ${OUTPUT_DIR}/templates
+mkdir -p ${OUTPUT_DIR}/assets
+mkdir -p ${OUTPUT_DIR}/exports
+```
+
+**Directory Structure:**
+```
+${OUTPUT_DIR}/
+├── templates/          # Reusable templates, example configurations, scripts
+├── assets/            # Images, diagrams, charts, supplementary files
+└── exports/           # Final reports, documentation, and publishable artifacts
+```
+
+**Throughout this prompt:**
+- All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+- Examples:
+  - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+  - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+  - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 Please implement comprehensive performance testing for this C project following this protocol:
 
@@ -507,7 +535,7 @@ cg_annotate cachegrind.out
  * ./program
  *
  * Analyze profile:
- * gprof program gmon.out > analysis.txt
+ * gprof program gmon.out > ${OUTPUT_DIR}/exports/analysis.txt
  */
 
 #include <stdio.h>
@@ -1008,7 +1036,7 @@ valgrind: all
 # Profile with gprof
 gprof: profile
 	./benchmark_prof
-	gprof benchmark_prof gmon.out > gprof_analysis.txt
+	gprof benchmark_prof gmon.out > ${OUTPUT_DIR}/exports/gprof_analysis.txt
 
 # Clean
 clean:
@@ -1046,13 +1074,13 @@ jobs:
       run: make all
 
     - name: Run benchmarks
-      run: ./benchmark > benchmark-results.txt
+      run: ./benchmark > ${OUTPUT_DIR}/exports/benchmark-results.txt
 
     - name: Run load tests
-      run: ./load_test > load-test-results.txt
+      run: ./load_test > ${OUTPUT_DIR}/exports/load-test-results.txt
 
     - name: Run stress tests
-      run: ./stress_test > stress-test-results.txt
+      run: ./stress_test > ${OUTPUT_DIR}/exports/stress-test-results.txt
 
     - name: Run Valgrind memory check
       run: |
@@ -1191,3 +1219,26 @@ The AI assistant should deliver:
 5. **Regression detection** configuration
 6. **CI/CD integration** for automated performance gates
 7. **Performance report** with metrics and recommendations
+---
+
+## Verify Directory Structure
+
+After completing all phases, verify the output structure:
+
+```bash
+tree ${OUTPUT_DIR}
+```
+
+Expected structure:
+```
+${OUTPUT_DIR}/
+├── templates/          # Reusable templates and scripts
+├── assets/            # Images, diagrams, supplementary files
+└── exports/           # Final publishable artifacts and reports
+```
+
+**Verification checklist:**
+- [ ] All directories created successfully
+- [ ] All files saved in correct subdirectories
+- [ ] No files created in repository root
+- [ ] Directory structure matches expected layout

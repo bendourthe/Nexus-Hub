@@ -5,32 +5,29 @@ Systematically evaluate embedded C code for maintainability, reliability, and ad
 
 ## Output Directory Structure
 
-All review outputs should be saved in organized directories:
+All outputs should be saved in organized directories:
 
 ```
-review/
-└── code_quality/
-    ├── code_quality_report.md
-    ├── code_quality_findings.json
-    ├── analysis_scripts/
-    └── supporting_data/
+review/code_quality/
+├── templates/          # Reusable templates, example configurations, scripts
+├── assets/            # Images, diagrams, charts, supplementary files
+└── exports/           # Final reports, documentation, and publishable artifacts
 ```
 
 **Directory Setup**:
 
 - Create `review/code_quality/` directory in repository root if it doesn't exist
 
-- All review outputs (reports, findings, scripts, data) go in the phase-specific directory
+- All templates, assets, and exports go in the phase-specific directory
 
 **Expected Outputs**:
 
-- `code_quality_report.md` - Main findings and recommendations
+- `templates/` - Reusable templates, example configurations, boilerplate scripts
 
-- `code_quality_findings.json` - Structured data for tooling integration
+- `assets/` - Images, diagrams, charts, supplementary files
 
-- `analysis_scripts/` - Any scripts generated during analysis
+- `exports/` - Final documentation files, reports, release artifacts
 
-- `supporting_data/` - Raw data, logs, profiling results, scan outputs
 
 ## Review Checklist
 
@@ -75,6 +72,37 @@ Use the structured prompt below with your coding assistant:
 
 ~~~markdown
 # C/Embedded Code Quality Review
+
+## CRITICAL: Output Directory Setup
+
+**Before proceeding with any phase, create the output directory structure:**
+
+Set the output directory:
+```bash
+OUTPUT_DIR="review/code_quality"
+```
+
+Create the required subdirectories:
+```bash
+mkdir -p ${OUTPUT_DIR}/templates
+mkdir -p ${OUTPUT_DIR}/assets
+mkdir -p ${OUTPUT_DIR}/exports
+```
+
+**Directory Structure:**
+```
+${OUTPUT_DIR}/
+├── templates/          # Reusable templates, example configurations, scripts
+├── assets/            # Images, diagrams, charts, supplementary files
+└── exports/           # Final reports, documentation, and publishable artifacts
+```
+
+**Throughout this prompt:**
+- All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+- Examples:
+  - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+  - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+  - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
 
@@ -126,7 +154,7 @@ Please perform a comprehensive code quality review of this embedded C project fo
 3. **General Static Analysis**
    ```bash
    # Cppcheck for general issues
-   cppcheck --enable=all --inconclusive --xml src/ 2> cppcheck_report.xml
+   cppcheck --enable=all --inconclusive --xml src/ 2> ${OUTPUT_DIR}/exports/cppcheck_report.xml
 
    # Clang Static Analyzer
    scan-build make
@@ -668,8 +696,8 @@ Advisory rules: >90%
 
 ```bash
 # Create directory structure
-mkdir -p review/code_quality/analysis_scripts
-mkdir -p review/code_quality/supporting_data
+mkdir -p ${OUTPUT_DIR}/code_quality/analysis_scripts
+mkdir -p ${OUTPUT_DIR}/code_quality/supporting_data
 ```
 
 **Save files as follows**:
@@ -682,3 +710,26 @@ mkdir -p review/code_quality/supporting_data
 
 - Supporting data → `review/code_quality/supporting_data/`
 ~~~
+---
+
+## Verify Directory Structure
+
+After completing all phases, verify the output structure:
+
+```bash
+tree ${OUTPUT_DIR}
+```
+
+Expected structure:
+```
+${OUTPUT_DIR}/
+├── templates/          # Reusable templates and scripts
+├── assets/            # Images, diagrams, supplementary files
+└── exports/           # Final publishable artifacts and reports
+```
+
+**Verification checklist:**
+- [ ] All directories created successfully
+- [ ] All files saved in correct subdirectories
+- [ ] No files created in repository root
+- [ ] Directory structure matches expected layout

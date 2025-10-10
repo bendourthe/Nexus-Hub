@@ -5,32 +5,29 @@ Systematically assess test suite quality, coverage, and effectiveness. Identify 
 
 ## Output Directory Structure
 
-All review outputs should be saved in organized directories:
+All outputs should be saved in organized directories:
 
 ```
-review/
-└── testing_review/
-    ├── testing_review_report.md
-    ├── testing_review_findings.json
-    ├── analysis_scripts/
-    └── supporting_data/
+review/testing_review/
+├── templates/          # Reusable templates, example configurations, scripts
+├── assets/            # Images, diagrams, charts, supplementary files
+└── exports/           # Final reports, documentation, and publishable artifacts
 ```
 
 **Directory Setup**:
 
 - Create `review/testing_review/` directory in repository root if it doesn't exist
 
-- All review outputs (reports, findings, scripts, data) go in the phase-specific directory
+- All templates, assets, and exports go in the phase-specific directory
 
 **Expected Outputs**:
 
-- `testing_review_report.md` - Main findings and recommendations
+- `templates/` - Reusable templates, example configurations, boilerplate scripts
 
-- `testing_review_findings.json` - Structured data for tooling integration
+- `assets/` - Images, diagrams, charts, supplementary files
 
-- `analysis_scripts/` - Any scripts generated during analysis
+- `exports/` - Final documentation files, reports, release artifacts
 
-- `supporting_data/` - Raw data, logs, profiling results, scan outputs
 
 ## Review Checklist
 
@@ -83,6 +80,37 @@ Use the structured prompt below with your coding assistant:
 ~~~markdown
 # Go Testing Review
 
+## CRITICAL: Output Directory Setup
+
+**Before proceeding with any phase, create the output directory structure:**
+
+Set the output directory:
+```bash
+OUTPUT_DIR="review/testing_review"
+```
+
+Create the required subdirectories:
+```bash
+mkdir -p ${OUTPUT_DIR}/templates
+mkdir -p ${OUTPUT_DIR}/assets
+mkdir -p ${OUTPUT_DIR}/exports
+```
+
+**Directory Structure:**
+```
+${OUTPUT_DIR}/
+├── templates/          # Reusable templates, example configurations, scripts
+├── assets/            # Images, diagrams, charts, supplementary files
+└── exports/           # Final reports, documentation, and publishable artifacts
+```
+
+**Throughout this prompt:**
+- All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+- Examples:
+  - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+  - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+  - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
+
 ## Repository Information
 
 **Note**: Your repository URL is stored in `.git/config`. To find it automatically:
@@ -107,7 +135,7 @@ Please perform a comprehensive testing review of this Go project following this 
 
    # Generate detailed coverage report
    go test ./... -coverprofile=coverage.out
-   go tool cover -html=coverage.out -o coverage.html
+   go tool cover -html=coverage.out -o ${OUTPUT_DIR}/exports/coverage.html
 
    # Coverage by package
    go test ./... -coverprofile=coverage.out
@@ -721,8 +749,8 @@ bench:
 
 ```bash
 # Create directory structure
-mkdir -p review/testing_review/analysis_scripts
-mkdir -p review/testing_review/supporting_data
+mkdir -p ${OUTPUT_DIR}/testing_review/analysis_scripts
+mkdir -p ${OUTPUT_DIR}/testing_review/supporting_data
 ```
 
 **Save files as follows**:
@@ -735,3 +763,26 @@ mkdir -p review/testing_review/supporting_data
 
 - Supporting data → `review/testing_review/supporting_data/`
 ~~~
+---
+
+## Verify Directory Structure
+
+After completing all phases, verify the output structure:
+
+```bash
+tree ${OUTPUT_DIR}
+```
+
+Expected structure:
+```
+${OUTPUT_DIR}/
+├── templates/          # Reusable templates and scripts
+├── assets/            # Images, diagrams, supplementary files
+└── exports/           # Final publishable artifacts and reports
+```
+
+**Verification checklist:**
+- [ ] All directories created successfully
+- [ ] All files saved in correct subdirectories
+- [ ] No files created in repository root
+- [ ] Directory structure matches expected layout

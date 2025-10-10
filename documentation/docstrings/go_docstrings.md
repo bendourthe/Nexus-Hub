@@ -5,32 +5,29 @@ Generate comprehensive, idiomatic Go documentation comments that integrate with 
 
 ## Output Directory Structure
 
-All documentation outputs should be saved in organized directories:
+All outputs should be saved in organized directories:
 
 ```
-documentation/
-└── docstrings/
-    ├── generated_docs/
-    ├── templates/
-    ├── assets/
-    └── exports/
+documentation/docstrings/
+├── templates/          # Reusable templates, example configurations, scripts
+├── assets/            # Images, diagrams, charts, supplementary files
+└── exports/           # Final reports, documentation, and publishable artifacts
 ```
 
 **Directory Setup**:
 
 - Create `documentation/docstrings/` directory in repository root if it doesn't exist
 
-- All documentation files, templates, assets, and exports go in the phase-specific directory
+- All templates, assets, and exports go in the phase-specific directory
 
 **Expected Outputs**:
 
-- `generated_docs/` - Generated documentation files (HTML, MD, PDF)
+- `templates/` - Reusable templates, example configurations, boilerplate scripts
 
-- `templates/` - Documentation templates and examples
+- `assets/` - Images, diagrams, charts, supplementary files
 
-- `assets/` - Images, diagrams, supplementary files
+- `exports/` - Final documentation files, reports, release artifacts
 
-- `exports/` - Published documentation, release artifacts
 
 ## Implementation Checklist
 
@@ -65,6 +62,37 @@ Use the structured prompt below with your coding assistant:
 
 ~~~markdown
 # Go Documentation Generation Request
+
+## CRITICAL: Output Directory Setup
+
+**Before proceeding with any phase, create the output directory structure:**
+
+Set the output directory:
+```bash
+OUTPUT_DIR="documentation/docstrings"
+```
+
+Create the required subdirectories:
+```bash
+mkdir -p ${OUTPUT_DIR}/templates
+mkdir -p ${OUTPUT_DIR}/assets
+mkdir -p ${OUTPUT_DIR}/exports
+```
+
+**Directory Structure:**
+```
+${OUTPUT_DIR}/
+├── templates/          # Reusable templates, example configurations, scripts
+├── assets/            # Images, diagrams, charts, supplementary files
+└── exports/           # Final reports, documentation, and publishable artifacts
+```
+
+**Throughout this prompt:**
+- All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+- Examples:
+  - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+  - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+  - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
 
@@ -495,7 +523,7 @@ go doc package.Type.Method           # Show specific method docs
 godoc -http=:6060                    # Local godoc server
 
 # Generate static HTML
-godoc -html package > package.html
+godoc -html package > ${OUTPUT_DIR}/exports/package.html
 
 # View on pkg.go.dev (for public modules)
 # https://pkg.go.dev/module@version/package
@@ -564,15 +592,14 @@ godoc -html package > package.html
 
 ```bash
 # Create directory structure
-mkdir -p documentation/docstrings/generated_docs
-mkdir -p documentation/docstrings/templates
-mkdir -p documentation/docstrings/assets
-mkdir -p documentation/docstrings/exports
+mkdir -p ${OUTPUT_DIR}/docstrings/generated_docs
+mkdir -p ${OUTPUT_DIR}/docstrings/templates
+mkdir -p ${OUTPUT_DIR}/docstrings/assets
+mkdir -p ${OUTPUT_DIR}/docstrings/exports
 ```
 
 **Save files as follows**:
 
-- Generated docs → `documentation/docstrings/generated_docs/`
 
 - Templates → `documentation/docstrings/templates/`
 
@@ -594,3 +621,26 @@ The generated Go documentation should:
 - Use proper section headings with # in package docs
 - Keep comments concise but complete
 - Include usage examples for complex types/functions
+---
+
+## Verify Directory Structure
+
+After completing all phases, verify the output structure:
+
+```bash
+tree ${OUTPUT_DIR}
+```
+
+Expected structure:
+```
+${OUTPUT_DIR}/
+├── templates/          # Reusable templates and scripts
+├── assets/            # Images, diagrams, supplementary files
+└── exports/           # Final publishable artifacts and reports
+```
+
+**Verification checklist:**
+- [ ] All directories created successfully
+- [ ] All files saved in correct subdirectories
+- [ ] No files created in repository root
+- [ ] Directory structure matches expected layout

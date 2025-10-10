@@ -5,32 +5,29 @@ Systematically identify security vulnerabilities, insecure coding practices, and
 
 ## Output Directory Structure
 
-All review outputs should be saved in organized directories:
+All outputs should be saved in organized directories:
 
 ```
-review/
-└── security_review/
-    ├── security_review_report.md
-    ├── security_review_findings.json
-    ├── analysis_scripts/
-    └── supporting_data/
+review/security_review/
+├── templates/          # Reusable templates, example configurations, scripts
+├── assets/            # Images, diagrams, charts, supplementary files
+└── exports/           # Final reports, documentation, and publishable artifacts
 ```
 
 **Directory Setup**:
 
 - Create `review/security_review/` directory in repository root if it doesn't exist
 
-- All review outputs (reports, findings, scripts, data) go in the phase-specific directory
+- All templates, assets, and exports go in the phase-specific directory
 
 **Expected Outputs**:
 
-- `security_review_report.md` - Main findings and recommendations
+- `templates/` - Reusable templates, example configurations, boilerplate scripts
 
-- `security_review_findings.json` - Structured data for tooling integration
+- `assets/` - Images, diagrams, charts, supplementary files
 
-- `analysis_scripts/` - Any scripts generated during analysis
+- `exports/` - Final documentation files, reports, release artifacts
 
-- `supporting_data/` - Raw data, logs, profiling results, scan outputs
 
 ## Review Checklist
 
@@ -85,6 +82,37 @@ Use the structured prompt below with your coding assistant:
 
 ~~~markdown
 # Java Security Review
+
+## CRITICAL: Output Directory Setup
+
+**Before proceeding with any phase, create the output directory structure:**
+
+Set the output directory:
+```bash
+OUTPUT_DIR="review/security_review"
+```
+
+Create the required subdirectories:
+```bash
+mkdir -p ${OUTPUT_DIR}/templates
+mkdir -p ${OUTPUT_DIR}/assets
+mkdir -p ${OUTPUT_DIR}/exports
+```
+
+**Directory Structure:**
+```
+${OUTPUT_DIR}/
+├── templates/          # Reusable templates, example configurations, scripts
+├── assets/            # Images, diagrams, charts, supplementary files
+└── exports/           # Final reports, documentation, and publishable artifacts
+```
+
+**Throughout this prompt:**
+- All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+- Examples:
+  - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+  - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+  - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
 
@@ -750,8 +778,8 @@ Acknowledge what's done well:
 
 ```bash
 # Create directory structure
-mkdir -p review/security_review/analysis_scripts
-mkdir -p review/security_review/supporting_data
+mkdir -p ${OUTPUT_DIR}/security_review/analysis_scripts
+mkdir -p ${OUTPUT_DIR}/security_review/supporting_data
 ```
 
 **Save files as follows**:
@@ -764,3 +792,26 @@ mkdir -p review/security_review/supporting_data
 
 - Supporting data → `review/security_review/supporting_data/`
 ~~~
+---
+
+## Verify Directory Structure
+
+After completing all phases, verify the output structure:
+
+```bash
+tree ${OUTPUT_DIR}
+```
+
+Expected structure:
+```
+${OUTPUT_DIR}/
+├── templates/          # Reusable templates and scripts
+├── assets/            # Images, diagrams, supplementary files
+└── exports/           # Final publishable artifacts and reports
+```
+
+**Verification checklist:**
+- [ ] All directories created successfully
+- [ ] All files saved in correct subdirectories
+- [ ] No files created in repository root
+- [ ] Directory structure matches expected layout

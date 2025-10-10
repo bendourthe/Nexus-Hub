@@ -5,32 +5,29 @@ Implement comprehensive code coverage measurement using Go's built-in coverage t
 
 ## Output Directory Structure
 
-All test outputs should be saved in organized directories:
+All outputs should be saved in organized directories:
 
 ```
-tests/
-└── code_coverage/
-    ├── test_files/
-    ├── test_data/
-    ├── test_reports/
-    └── test_configs/
+tests/code_coverage/
+├── templates/          # Reusable templates, example configurations, scripts
+├── assets/            # Images, diagrams, charts, supplementary files
+└── exports/           # Final reports, documentation, and publishable artifacts
 ```
 
 **Directory Setup**:
 
-- Create `tests/{phase}/` directory in repository root if it doesn't exist
+- Create `tests/code_coverage/` directory in repository root if it doesn't exist
 
-- All test files, data, reports, and configurations go in the phase-specific directory
+- All templates, assets, and exports go in the phase-specific directory
 
 **Expected Outputs**:
 
-- `test_files/` - Actual test implementation files
+- `templates/` - Reusable templates, example configurations, boilerplate scripts
 
-- `test_data/` - Test fixtures, mock data, sample inputs
+- `assets/` - Images, diagrams, charts, supplementary files
 
-- `test_reports/` - Test execution reports, coverage reports, performance results
+- `exports/` - Final documentation files, reports, release artifacts
 
-- `test_configs/` - Framework configurations, test runner settings
 
 ## Implementation Checklist
 
@@ -69,6 +66,37 @@ Use the structured prompt below with your coding assistant:
 ~~~markdown
 # Go Code Coverage Implementation
 
+## CRITICAL: Output Directory Setup
+
+**Before proceeding with any phase, create the output directory structure:**
+
+Set the output directory:
+```bash
+OUTPUT_DIR="tests/code_coverage"
+```
+
+Create the required subdirectories:
+```bash
+mkdir -p ${OUTPUT_DIR}/templates
+mkdir -p ${OUTPUT_DIR}/assets
+mkdir -p ${OUTPUT_DIR}/exports
+```
+
+**Directory Structure:**
+```
+${OUTPUT_DIR}/
+├── templates/          # Reusable templates, example configurations, scripts
+├── assets/            # Images, diagrams, charts, supplementary files
+└── exports/           # Final reports, documentation, and publishable artifacts
+```
+
+**Throughout this prompt:**
+- All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+- Examples:
+  - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+  - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+  - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
+
 Please implement comprehensive code coverage measurement and improvement for this Go project following this protocol:
 
 ## Repository Information
@@ -99,7 +127,7 @@ go test -cover ./...
 go test -coverprofile=coverage.out ./...
 
 # Generate HTML coverage report
-go tool cover -html=coverage.out -o coverage.html
+go tool cover -html=coverage.out -o ${OUTPUT_DIR}/exports/coverage.html
 
 # View coverage in terminal
 go tool cover -func=coverage.out
@@ -1003,11 +1031,11 @@ jobs:
       - name: Run tests with coverage
         run: |
           go test -v -coverprofile=coverage.out -covermode=atomic ./...
-          go tool cover -func=coverage.out > coverage-func.txt
+          go tool cover -func=coverage.out > ${OUTPUT_DIR}/exports/coverage-func.txt
 
       - name: Generate coverage report
         run: |
-          go tool cover -html=coverage.out -o coverage.html
+          go tool cover -html=coverage.out -o ${OUTPUT_DIR}/exports/coverage.html
 
       - name: Check coverage threshold
         run: |
@@ -1045,9 +1073,9 @@ jobs:
     # Download base coverage from main branch
     git fetch origin main
     COVERAGE=$(go tool cover -func=coverage.out | grep total | awk '{print $3}' | sed 's/%//')
-    echo "{\"date\":\"$(date -Iseconds)\",\"coverage\":$COVERAGE}" > current-coverage.json
+    echo "{\"date\":\"$(date -Iseconds)\",\"coverage\":$COVERAGE}" > ${OUTPUT_DIR}/exports/current-coverage.json
 
-    git show origin/main:coverage-history.json > base-coverage.json || echo '[]' > base-coverage.json
+    git show origin/main:coverage-history.json > ${OUTPUT_DIR}/exports/base-coverage.json || echo '[]' > ${OUTPUT_DIR}/exports/base-coverage.json
 
     # Compare with current
     go run scripts/coverage_diff.go base-coverage.json current-coverage.json
@@ -1165,3 +1193,26 @@ The AI assistant should deliver:
 7. **Coverage tracking utilities** for trends
 8. **Coverage diff tools** for PR reviews
 9. **Team documentation** on coverage standards
+---
+
+## Verify Directory Structure
+
+After completing all phases, verify the output structure:
+
+```bash
+tree ${OUTPUT_DIR}
+```
+
+Expected structure:
+```
+${OUTPUT_DIR}/
+├── templates/          # Reusable templates and scripts
+├── assets/            # Images, diagrams, supplementary files
+└── exports/           # Final publishable artifacts and reports
+```
+
+**Verification checklist:**
+- [ ] All directories created successfully
+- [ ] All files saved in correct subdirectories
+- [ ] No files created in repository root
+- [ ] Directory structure matches expected layout

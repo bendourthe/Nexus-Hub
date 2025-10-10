@@ -5,32 +5,29 @@ Generate comprehensive, standards-compliant Software Bill of Materials (SBOM) do
 
 ## Output Directory Structure
 
-All documentation outputs should be saved in organized directories:
+All outputs should be saved in organized directories:
 
 ```
-documentation/
-└── sbom/
-    ├── generated_docs/
-    ├── templates/
-    ├── assets/
-    └── exports/
+documentation/sbom/
+├── templates/          # Reusable templates, example configurations, scripts
+├── assets/            # Images, diagrams, charts, supplementary files
+└── exports/           # Final reports, documentation, and publishable artifacts
 ```
 
 **Directory Setup**:
 
 - Create `documentation/sbom/` directory in repository root if it doesn't exist
 
-- All documentation files, templates, assets, and exports go in the phase-specific directory
+- All templates, assets, and exports go in the phase-specific directory
 
 **Expected Outputs**:
 
-- `generated_docs/` - Generated documentation files (HTML, MD, PDF)
+- `templates/` - Reusable templates, example configurations, boilerplate scripts
 
-- `templates/` - Documentation templates and examples
+- `assets/` - Images, diagrams, charts, supplementary files
 
-- `assets/` - Images, diagrams, supplementary files
+- `exports/` - Final documentation files, reports, release artifacts
 
-- `exports/` - Published documentation, release artifacts
 
 ## Implementation Checklist
 
@@ -87,6 +84,37 @@ Use the structured prompt below with your coding assistant:
 ~~~markdown
 # C SBOM Generation Request
 
+## CRITICAL: Output Directory Setup
+
+**Before proceeding with any phase, create the output directory structure:**
+
+Set the output directory:
+```bash
+OUTPUT_DIR="documentation/sbom"
+```
+
+Create the required subdirectories:
+```bash
+mkdir -p ${OUTPUT_DIR}/templates
+mkdir -p ${OUTPUT_DIR}/assets
+mkdir -p ${OUTPUT_DIR}/exports
+```
+
+**Directory Structure:**
+```
+${OUTPUT_DIR}/
+├── templates/          # Reusable templates, example configurations, scripts
+├── assets/            # Images, diagrams, charts, supplementary files
+└── exports/           # Final reports, documentation, and publishable artifacts
+```
+
+**Throughout this prompt:**
+- All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+- Examples:
+  - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+  - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+  - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
+
 ## Repository Information
 
 **Note**: Your repository URL is stored in `.git/config`. To find it automatically:
@@ -110,7 +138,7 @@ Please generate a comprehensive Software Bill of Materials (SBOM) for this C pro
 
    ```bash
    # List all dependencies
-   conan info . > dependencies.txt
+   conan info . > ${OUTPUT_DIR}/exports/dependencies.txt
 
    # Generate dependency graph
    conan info . --graph=graph.html
@@ -144,7 +172,7 @@ Please generate a comprehensive Software Bill of Materials (SBOM) for this C pro
 
    ```bash
    # List installed packages
-   vcpkg list > dependencies.txt
+   vcpkg list > ${OUTPUT_DIR}/exports/dependencies.txt
 
    # Get package information
    vcpkg search zlib
@@ -246,10 +274,10 @@ Choose SBOM format based on requirements:
 curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
 
 # Scan binary for dependencies
-syft packages file:./myapp -o cyclonedx-json > sbom.json
+syft packages file:./myapp -o cyclonedx-json > ${OUTPUT_DIR}/exports/sbom.json
 
 # Scan directory
-syft packages dir:. -o cyclonedx-json > sbom.json
+syft packages dir:. -o cyclonedx-json > ${OUTPUT_DIR}/exports/sbom.json
 
 # Scan with all catalogers
 syft packages . -o cyclonedx-json --catalogers all --file sbom.json
@@ -265,10 +293,10 @@ syft packages . -o cyclonedx-json --scope all-layers
 pip install cyclonedx-conan
 
 # Generate SBOM from Conan
-cyclonedx-conan --output sbom.json
+cyclonedx-conan --output ${OUTPUT_DIR}/exports/sbom.json
 
 # With specific conanfile
-cyclonedx-conan --conanfile conanfile.txt --output sbom.json
+cyclonedx-conan --conanfile conanfile.txt --output ${OUTPUT_DIR}/exports/sbom.json
 ```
 
 ### Manual CycloneDX SBOM Template (JSON)
@@ -512,7 +540,7 @@ spdx-sbom-generator -o . -f json
 
 ```bash
 # Generate SPDX SBOM
-syft packages file:./myapp -o spdx-json > sbom.spdx.json
+syft packages file:./myapp -o spdx-json > ${OUTPUT_DIR}/exports/sbom.spdx.json
 
 # SPDX 2.3 format
 syft packages . -o spdx-json@2.3 --file sbom.spdx.json
@@ -651,10 +679,10 @@ Scan for known vulnerabilities in dependencies:
 curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
 
 # Scan binary
-grype file:./myapp -o json > vulnerabilities.json
+grype file:./myapp -o json > ${OUTPUT_DIR}/exports/vulnerabilities.json
 
 # Scan directory
-grype dir:. -o json > vulnerabilities.json
+grype dir:. -o json > ${OUTPUT_DIR}/exports/vulnerabilities.json
 
 # Use SBOM as input
 grype sbom:./sbom.json -o json
@@ -696,7 +724,7 @@ grype sbom:./sbom.json -o json
 # See: https://aquasecurity.github.io/trivy/
 
 # Scan binary
-trivy fs --format json --output trivy_report.json ./myapp
+trivy fs --format json --output ${OUTPUT_DIR}/exports/trivy_report.json ./myapp
 
 # Scan directory
 trivy fs --scanners vuln .
@@ -1103,10 +1131,10 @@ jobs:
           pip install scancode-toolkit
 
       - name: Generate SBOM with Syft
-        run: syft packages dir:. -o cyclonedx-json > sbom.json
+        run: syft packages dir:. -o cyclonedx-json > ${OUTPUT_DIR}/exports/sbom.json
 
       - name: Scan for vulnerabilities
-        run: grype sbom:./sbom.json -o json > vulnerabilities.json
+        run: grype sbom:./sbom.json -o json > ${OUTPUT_DIR}/exports/vulnerabilities.json
 
       - name: Scan for licenses
         run: scancode -l --json-pp licenses.json .
@@ -1168,15 +1196,14 @@ jobs:
 
 ```bash
 # Create directory structure
-mkdir -p documentation/sbom/generated_docs
-mkdir -p documentation/sbom/templates
-mkdir -p documentation/sbom/assets
-mkdir -p documentation/sbom/exports
+mkdir -p ${OUTPUT_DIR}/sbom/generated_docs
+mkdir -p ${OUTPUT_DIR}/sbom/templates
+mkdir -p ${OUTPUT_DIR}/sbom/assets
+mkdir -p ${OUTPUT_DIR}/sbom/exports
 ```
 
 **Save files as follows**:
 
-- Generated docs → `documentation/sbom/generated_docs/`
 
 - Templates → `documentation/sbom/templates/`
 
@@ -1201,3 +1228,26 @@ The SBOM should:
 - Be machine-readable and automatable
 - Be versioned and timestamped
 - Be published alongside software releases
+---
+
+## Verify Directory Structure
+
+After completing all phases, verify the output structure:
+
+```bash
+tree ${OUTPUT_DIR}
+```
+
+Expected structure:
+```
+${OUTPUT_DIR}/
+├── templates/          # Reusable templates and scripts
+├── assets/            # Images, diagrams, supplementary files
+└── exports/           # Final publishable artifacts and reports
+```
+
+**Verification checklist:**
+- [ ] All directories created successfully
+- [ ] All files saved in correct subdirectories
+- [ ] No files created in repository root
+- [ ] Directory structure matches expected layout

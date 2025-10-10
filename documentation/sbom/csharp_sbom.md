@@ -5,32 +5,29 @@ Generate comprehensive, standards-compliant Software Bill of Materials (SBOM) do
 
 ## Output Directory Structure
 
-All documentation outputs should be saved in organized directories:
+All outputs should be saved in organized directories:
 
 ```
-documentation/
-└── sbom/
-    ├── generated_docs/
-    ├── templates/
-    ├── assets/
-    └── exports/
+documentation/sbom/
+├── templates/          # Reusable templates, example configurations, scripts
+├── assets/            # Images, diagrams, charts, supplementary files
+└── exports/           # Final reports, documentation, and publishable artifacts
 ```
 
 **Directory Setup**:
 
 - Create `documentation/sbom/` directory in repository root if it doesn't exist
 
-- All documentation files, templates, assets, and exports go in the phase-specific directory
+- All templates, assets, and exports go in the phase-specific directory
 
 **Expected Outputs**:
 
-- `generated_docs/` - Generated documentation files (HTML, MD, PDF)
+- `templates/` - Reusable templates, example configurations, boilerplate scripts
 
-- `templates/` - Documentation templates and examples
+- `assets/` - Images, diagrams, charts, supplementary files
 
-- `assets/` - Images, diagrams, supplementary files
+- `exports/` - Final documentation files, reports, release artifacts
 
-- `exports/` - Published documentation, release artifacts
 
 ## Implementation Checklist
 
@@ -87,6 +84,37 @@ Use the structured prompt below with your coding assistant:
 ~~~markdown
 # C# SBOM Generation Request
 
+## CRITICAL: Output Directory Setup
+
+**Before proceeding with any phase, create the output directory structure:**
+
+Set the output directory:
+```bash
+OUTPUT_DIR="documentation/sbom"
+```
+
+Create the required subdirectories:
+```bash
+mkdir -p ${OUTPUT_DIR}/templates
+mkdir -p ${OUTPUT_DIR}/assets
+mkdir -p ${OUTPUT_DIR}/exports
+```
+
+**Directory Structure:**
+```
+${OUTPUT_DIR}/
+├── templates/          # Reusable templates, example configurations, scripts
+├── assets/            # Images, diagrams, charts, supplementary files
+└── exports/           # Final reports, documentation, and publishable artifacts
+```
+
+**Throughout this prompt:**
+- All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+- Examples:
+  - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+  - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+  - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
+
 ## Repository Information
 
 **Note**: Your repository URL is stored in `.git/config`. To find it automatically:
@@ -108,10 +136,10 @@ Please generate a comprehensive Software Bill of Materials (SBOM) for this C# .N
 
    ```bash
    # List all dependencies
-   dotnet list package > dependencies.txt
+   dotnet list package > ${OUTPUT_DIR}/exports/dependencies.txt
 
    # List with transitive dependencies
-   dotnet list package --include-transitive > dependencies_full.txt
+   dotnet list package --include-transitive > ${OUTPUT_DIR}/exports/dependencies_full.txt
 
    # List outdated packages
    dotnet list package --outdated
@@ -120,7 +148,7 @@ Please generate a comprehensive Software Bill of Materials (SBOM) for this C# .N
    dotnet list package --vulnerable
 
    # JSON format (using PowerShell)
-   dotnet list package --format json > dependencies.json
+   dotnet list package --format json > ${OUTPUT_DIR}/exports/dependencies.json
    ```
 
 2. **Map Transitive Dependencies**
@@ -609,7 +637,7 @@ npm install -g snyk
 snyk auth
 
 # Test .NET project
-snyk test --file=MyProject.csproj --json > snyk_report.json
+snyk test --file=MyProject.csproj --json > ${OUTPUT_DIR}/exports/snyk_report.json
 
 # Monitor project
 snyk monitor --file=MyProject.csproj
@@ -622,7 +650,7 @@ snyk monitor --file=MyProject.csproj
 # See: https://aquasecurity.github.io/trivy/
 
 # Scan .NET project
-trivy fs --format json --output trivy_report.json .
+trivy fs --format json --output ${OUTPUT_DIR}/exports/trivy_report.json .
 
 # Scan specific DLL
 trivy fs --scanners vuln bin/Release/net8.0/MyProject.dll
@@ -637,13 +665,13 @@ trivy fs --scanners vuln bin/Release/net8.0/MyProject.dll
 dotnet tool install --global dotnet-project-licenses
 
 # Generate license report
-dotnet-project-licenses -i . -o -f json > licenses.json
+dotnet-project-licenses -i . -o -f json > ${OUTPUT_DIR}/exports/licenses.json
 
 # Generate markdown report
-dotnet-project-licenses -i . -o -f markdown > LICENSES.md
+dotnet-project-licenses -i . -o -f markdown > ${OUTPUT_DIR}/exports/LICENSES.md
 
 # Generate HTML report
-dotnet-project-licenses -i . -o -f html > licenses.html
+dotnet-project-licenses -i . -o -f html > ${OUTPUT_DIR}/exports/licenses.html
 
 # Example JSON output
 [
@@ -966,7 +994,7 @@ jobs:
         run: dotnet CycloneDX MyProject.csproj -o . -f sbom.json -j
 
       - name: Check for vulnerabilities
-        run: dotnet list package --vulnerable --include-transitive > vulnerabilities.txt
+        run: dotnet list package --vulnerable --include-transitive > ${OUTPUT_DIR}/exports/vulnerabilities.txt
 
       - name: Upload SBOM artifacts
         uses: actions/upload-artifact@v3
@@ -1071,15 +1099,14 @@ steps:
 
 ```bash
 # Create directory structure
-mkdir -p documentation/sbom/generated_docs
-mkdir -p documentation/sbom/templates
-mkdir -p documentation/sbom/assets
-mkdir -p documentation/sbom/exports
+mkdir -p ${OUTPUT_DIR}/sbom/generated_docs
+mkdir -p ${OUTPUT_DIR}/sbom/templates
+mkdir -p ${OUTPUT_DIR}/sbom/assets
+mkdir -p ${OUTPUT_DIR}/sbom/exports
 ```
 
 **Save files as follows**:
 
-- Generated docs → `documentation/sbom/generated_docs/`
 
 - Templates → `documentation/sbom/templates/`
 
@@ -1104,3 +1131,26 @@ The SBOM should:
 - Be machine-readable and automatable
 - Be versioned and timestamped
 - Be published alongside software releases
+---
+
+## Verify Directory Structure
+
+After completing all phases, verify the output structure:
+
+```bash
+tree ${OUTPUT_DIR}
+```
+
+Expected structure:
+```
+${OUTPUT_DIR}/
+├── templates/          # Reusable templates and scripts
+├── assets/            # Images, diagrams, supplementary files
+└── exports/           # Final publishable artifacts and reports
+```
+
+**Verification checklist:**
+- [ ] All directories created successfully
+- [ ] All files saved in correct subdirectories
+- [ ] No files created in repository root
+- [ ] Directory structure matches expected layout
