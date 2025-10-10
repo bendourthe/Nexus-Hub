@@ -17,14 +17,19 @@ review/
 ```
 
 **Directory Setup**:
-- Create `review/` directory in repository root if it doesn't exist
-- Create `review/testing_review/` subdirectory for this review phase
-- All reports, scripts, and data files go in the phase-specific directory
+
+- Create `review/testing_review/` directory in repository root if it doesn't exist
+
+- All review outputs (reports, findings, scripts, data) go in the phase-specific directory
 
 **Expected Outputs**:
+
 - `testing_review_report.md` - Main findings and recommendations
+
 - `testing_review_findings.json` - Structured data for tooling integration
+
 - `analysis_scripts/` - Any scripts generated during analysis
+
 - `supporting_data/` - Raw data, logs, profiling results, scan outputs
 
 ## Review Checklist
@@ -77,6 +82,19 @@ Use the structured prompt below with your coding assistant:
 
 ~~~markdown
 # C# Testing Review
+
+## Repository Information
+
+**Note**: Your repository URL is stored in `.git/config`. To find it automatically:
+
+```bash
+# Get the remote repository URL
+git config --get remote.origin.url
+```
+
+Use `<REPO_URL>` as placeholder where repository URLs are needed in this template.
+
+## Review Protocol
 
 Please perform a comprehensive testing review of this C# project following this protocol:
 
@@ -732,4 +750,24 @@ collection.Should().Contain(x => x.IsActive);
 - Keep tests fast and reliable
 - Treat test code with same quality standards as production code
 - Use appropriate test doubles (mocks, stubs, fakes)
+
+## File Output Instructions
+
+**IMPORTANT**: Save all generated files to the correct directory structure:
+
+```bash
+# Create directory structure
+mkdir -p review/testing_review/analysis_scripts
+mkdir -p review/testing_review/supporting_data
+```
+
+**Save files as follows**:
+
+- Main report → `review/testing_review/testing_review_report.md`
+
+- Findings data → `review/testing_review/testing_review_findings.json`
+
+- Analysis scripts → `review/testing_review/analysis_scripts/`
+
+- Supporting data → `review/testing_review/supporting_data/`
 ~~~

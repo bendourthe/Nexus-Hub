@@ -11,6 +11,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.2.2] - 2025-10-10
+
+### Changed
+
+#### Bitbucket Migration & Repository Agnostic Updates (150 files)
+Migrated all templates from GitHub-specific references to repository-agnostic format compatible with Bitbucket and other Git platforms.
+
+**Template Updates** (133 files):
+- **Bullet Point Formatting**: Fixed markdown formatting with blank lines between bullets for proper Bitbucket rendering
+- **Repository URL Instructions**: Replaced hardcoded GitHub URLs with `<REPO_URL>` placeholder
+- **Git Config Integration**: Added instructions to retrieve repository URL from `.git/config`:
+  ```bash
+  git config --get remote.origin.url
+  ```
+- **Explicit File Output Paths**: Added "File Output Instructions" section to all prompt templates with exact file paths and directory creation commands
+
+**System Prompt Updates** (17 files):
+- Replaced GitHub URLs with `<REPO_URL>` placeholder throughout autonomous agent and coding assistant prompts
+- For Go templates: Replaced `github.com/` module paths with `<MODULE_PATH>` placeholder
+- Added `.git/config` retrieval instructions near git workflow sections
+- Maintained tool-specific references (e.g., `github.com/gin-gonic/gin` for third-party packages)
+
+**Files Modified**:
+- Code Review Templates: 42/42 files
+- Test Development Templates: 42/42 files
+- Documentation Templates: 42/42 files
+- Code Cleanup Templates: 7/7 files
+- System Prompts: 17/29 files (only those with GitHub references)
+
+**Benefits**:
+- **Platform Agnostic**: Templates work with Bitbucket, GitHub, GitLab, or any Git platform
+- **Better Bitbucket Rendering**: Fixed bullet point formatting displays correctly in Bitbucket's markdown viewer
+- **Clear File Management**: Users know exactly where to save each generated file
+- **Repository Discovery**: Users can easily find their repository URL from local `.git/config`
+- **Reduced Maintenance**: No hardcoded URLs to update when repositories move
+
+---
+
 ## [0.2.1] - 2025-10-09
 
 ### Changed
@@ -411,6 +449,7 @@ repository_root/
 
 | Version | Date       | Description                                      |
 |---------|------------|--------------------------------------------------|
+| 0.2.2   | 2025-10-10 | Bitbucket migration: Repository-agnostic templates with improved formatting |
 | 0.2.1   | 2025-10-09 | Standardized output directory structures for all 133 templates |
 | 0.2.0   | 2025-10-09 | **COMPLETE** - Multi-language expansion: 162 templates across 7 languages |
 | 0.1.5   | 2025-10-08 | Code cleanup (7 languages) + Complete code review (42 files) |
@@ -420,7 +459,8 @@ repository_root/
 
 ---
 
-[Unreleased]: https://github.com/yourusername/ai_templates/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/yourusername/ai_templates/compare/v0.2.2...HEAD
+[0.2.2]: https://github.com/yourusername/ai_templates/releases/tag/v0.2.2
 [0.2.1]: https://github.com/yourusername/ai_templates/releases/tag/v0.2.1
 [0.2.0]: https://github.com/yourusername/ai_templates/releases/tag/v0.2.0
 [0.1.5]: https://github.com/yourusername/ai_templates/releases/tag/v0.1.5

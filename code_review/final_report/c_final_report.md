@@ -17,14 +17,19 @@ review/
 ```
 
 **Directory Setup**:
-- Create `review/` directory in repository root if it doesn't exist
-- Create `review/final_report/` subdirectory for this review phase
-- All reports, scripts, and data files go in the phase-specific directory
+
+- Create `review/final_report/` directory in repository root if it doesn't exist
+
+- All review outputs (reports, findings, scripts, data) go in the phase-specific directory
 
 **Expected Outputs**:
+
 - `final_report_report.md` - Main findings and recommendations
+
 - `final_report_findings.json` - Structured data for tooling integration
+
 - `analysis_scripts/` - Any scripts generated during analysis
+
 - `supporting_data/` - Raw data, logs, profiling results, scan outputs
 
 ## Report Structure
@@ -43,6 +48,19 @@ Use the structured prompt below with your coding assistant:
 
 ~~~markdown
 # C/Embedded Code Review Final Report Generation
+
+## Repository Information
+
+**Note**: Your repository URL is stored in `.git/config`. To find it automatically:
+
+```bash
+# Get the remote repository URL
+git config --get remote.origin.url
+```
+
+Use `<REPO_URL>` as placeholder where repository URLs are needed in this template.
+
+## Report Protocol
 
 Please consolidate all code review findings into a comprehensive final report following this protocol:
 
@@ -973,4 +991,24 @@ coverage:
 - Manual security audit
 
 ---
+
+## File Output Instructions
+
+**IMPORTANT**: Save all generated files to the correct directory structure:
+
+```bash
+# Create directory structure
+mkdir -p review/final_report/analysis_scripts
+mkdir -p review/final_report/supporting_data
+```
+
+**Save files as follows**:
+
+- Main report → `review/final_report/final_report_report.md`
+
+- Findings data → `review/final_report/final_report_findings.json`
+
+- Analysis scripts → `review/final_report/analysis_scripts/`
+
+- Supporting data → `review/final_report/supporting_data/`
 ~~~

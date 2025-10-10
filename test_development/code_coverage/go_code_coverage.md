@@ -17,14 +17,19 @@ tests/
 ```
 
 **Directory Setup**:
-- Create `tests/` directory in repository root if it doesn't exist
-- Create `tests/code_coverage/` subdirectory for this testing phase
+
+- Create `tests/{phase}/` directory in repository root if it doesn't exist
+
 - All test files, data, reports, and configurations go in the phase-specific directory
 
 **Expected Outputs**:
+
 - `test_files/` - Actual test implementation files
+
 - `test_data/` - Test fixtures, mock data, sample inputs
+
 - `test_reports/` - Test execution reports, coverage reports, performance results
+
 - `test_configs/` - Framework configurations, test runner settings
 
 ## Implementation Checklist
@@ -65,6 +70,19 @@ Use the structured prompt below with your coding assistant:
 # Go Code Coverage Implementation
 
 Please implement comprehensive code coverage measurement and improvement for this Go project following this protocol:
+
+## Repository Information
+
+**Note**: Your repository URL is stored in `.git/config`. To find it automatically:
+
+```bash
+# Get the remote repository URL
+git config --get remote.origin.url
+```
+
+Use `<REPO_URL>` as placeholder where repository URLs are needed in this template.
+
+
 
 ## Phase 1: Coverage Setup and Configuration
 
@@ -1107,6 +1125,31 @@ Please provide a comprehensive coverage analysis with the following structure:
 - [ ] Document coverage standards
 - [ ] Integrate coverage diff in PRs
 - [ ] Track coverage trends monthly
+
+## File Output Instructions
+
+**IMPORTANT**: Save all generated files to the correct directory structure:
+
+```bash
+# Create directory structure
+mkdir -p tests/{phase_name}/test_files
+mkdir -p tests/{phase_name}/test_data
+mkdir -p tests/{phase_name}/test_reports
+mkdir -p tests/{phase_name}/test_configs
+```
+
+**Save files as follows**:
+
+- Test files → `tests/{phase_name}/test_files/`
+
+- Test data → `tests/{phase_name}/test_data/`
+
+- Test reports → `tests/{phase_name}/test_reports/`
+
+- Test configs → `tests/{phase_name}/test_configs/`
+
+Replace `{phase_name}` with the specific phase (test_cases, mocks_fixtures, performance_testing, maintenance_cicd, or code_coverage).
+
 ~~~
 
 ## Output Format

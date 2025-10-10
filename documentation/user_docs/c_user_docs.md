@@ -17,14 +17,19 @@ documentation/
 ```
 
 **Directory Setup**:
-- Create `documentation/` directory in repository root if it doesn't exist
-- Create `documentation/user_docs/` subdirectory for this documentation phase
+
+- Create `documentation/user_docs/` directory in repository root if it doesn't exist
+
 - All documentation files, templates, assets, and exports go in the phase-specific directory
 
 **Expected Outputs**:
+
 - `generated_docs/` - Generated documentation files (HTML, MD, PDF)
+
 - `templates/` - Documentation templates and examples
+
 - `assets/` - Images, diagrams, supplementary files
+
 - `exports/` - Published documentation, release artifacts
 
 ## Implementation Checklist
@@ -71,6 +76,17 @@ Use the structured prompt below with your coding assistant:
 
 ~~~markdown
 # C User Documentation Request
+
+## Repository Information
+
+**Note**: Your repository URL is stored in `.git/config`. To find it automatically:
+
+```bash
+# Get the remote repository URL
+git config --get remote.origin.url
+```
+
+Use `<REPO_URL>` as placeholder where repository URLs are needed in this template.
 
 Please create comprehensive user documentation for this C project following this protocol:
 
@@ -1245,6 +1261,31 @@ if (!result) {
 ```
 
 ---
+
+
+## File Output Instructions
+
+**IMPORTANT**: Save all generated files to the correct directory structure:
+
+```bash
+# Create directory structure
+mkdir -p documentation/user_docs/generated_docs
+mkdir -p documentation/user_docs/templates
+mkdir -p documentation/user_docs/assets
+mkdir -p documentation/user_docs/exports
+```
+
+**Save files as follows**:
+
+- Generated docs → `documentation/user_docs/generated_docs/`
+
+- Templates → `documentation/user_docs/templates/`
+
+- Assets → `documentation/user_docs/assets/`
+
+- Exports → `documentation/user_docs/exports/`
+
+Replace `{phase_name}` with the specific phase (docstrings, comments, user_docs, technical_docs, api_docs, or sbom).
 
 ~~~
 

@@ -17,14 +17,19 @@ review/
 ```
 
 **Directory Setup**:
-- Create `review/` directory in repository root if it doesn't exist
-- Create `review/context_analysis/` subdirectory for this review phase
-- All reports, scripts, and data files go in the phase-specific directory
+
+- Create `review/context_analysis/` directory in repository root if it doesn't exist
+
+- All review outputs (reports, findings, scripts, data) go in the phase-specific directory
 
 **Expected Outputs**:
+
 - `context_analysis_report.md` - Main findings and recommendations
+
 - `context_analysis_findings.json` - Structured data for tooling integration
+
 - `analysis_scripts/` - Any scripts generated during analysis
+
 - `supporting_data/` - Raw data, logs, profiling results, scan outputs
 
 ## Analysis Checklist
@@ -70,6 +75,19 @@ Use the structured prompt below with your coding assistant:
 
 ~~~markdown
 # Python Project Context Analysis
+
+## Repository Information
+
+**Note**: Your repository URL is stored in `.git/config`. To find it automatically:
+
+```bash
+# Get the remote repository URL
+git config --get remote.origin.url
+```
+
+Use `<REPO_URL>` as placeholder where repository URLs are needed in this template.
+
+## Analysis Protocol
 
 Please perform a comprehensive context analysis of this Python project following this protocol:
 
@@ -257,6 +275,26 @@ Based on this context, the following review areas should be prioritized:
 - [ ] Conduct security audit (especially if vulnerable dependencies found)
 - [ ] Perform performance analysis
 - [ ] Review test coverage and quality
+
+## File Output Instructions
+
+**IMPORTANT**: Save all generated files to the correct directory structure:
+
+```bash
+# Create directory structure
+mkdir -p review/context_analysis/analysis_scripts
+mkdir -p review/context_analysis/supporting_data
+```
+
+**Save files as follows**:
+
+- Main report → `review/context_analysis/context_analysis_report.md`
+
+- Findings data → `review/context_analysis/context_analysis_findings.json`
+
+- Analysis scripts → `review/context_analysis/analysis_scripts/`
+
+- Supporting data → `review/context_analysis/supporting_data/`
 
 ## Notes
 - Save this context report - it will inform all subsequent review phases

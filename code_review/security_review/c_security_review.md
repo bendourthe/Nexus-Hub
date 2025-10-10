@@ -17,14 +17,19 @@ review/
 ```
 
 **Directory Setup**:
-- Create `review/` directory in repository root if it doesn't exist
-- Create `review/security_review/` subdirectory for this review phase
-- All reports, scripts, and data files go in the phase-specific directory
+
+- Create `review/security_review/` directory in repository root if it doesn't exist
+
+- All review outputs (reports, findings, scripts, data) go in the phase-specific directory
 
 **Expected Outputs**:
+
 - `security_review_report.md` - Main findings and recommendations
+
 - `security_review_findings.json` - Structured data for tooling integration
+
 - `analysis_scripts/` - Any scripts generated during analysis
+
 - `supporting_data/` - Raw data, logs, profiling results, scan outputs
 
 ## Review Checklist
@@ -77,6 +82,19 @@ Use the structured prompt below with your coding assistant:
 
 ~~~markdown
 # C/Embedded Security Review
+
+## Repository Information
+
+**Note**: Your repository URL is stored in `.git/config`. To find it automatically:
+
+```bash
+# Get the remote repository URL
+git config --get remote.origin.url
+```
+
+Use `<REPO_URL>` as placeholder where repository URLs are needed in this template.
+
+## Review Protocol
 
 Please perform a comprehensive security review of this embedded C project following this protocol:
 
@@ -795,4 +813,24 @@ Acknowledge what's done well:
 - **Retest**: After remediation, rerun security scans and penetration tests
 - **Continuous Monitoring**: Implement ongoing security scanning in CI/CD
 - **Threat Modeling**: Consider device-specific threats (automotive, medical, IoT, etc.)
+
+## File Output Instructions
+
+**IMPORTANT**: Save all generated files to the correct directory structure:
+
+```bash
+# Create directory structure
+mkdir -p review/security_review/analysis_scripts
+mkdir -p review/security_review/supporting_data
+```
+
+**Save files as follows**:
+
+- Main report → `review/security_review/security_review_report.md`
+
+- Findings data → `review/security_review/security_review_findings.json`
+
+- Analysis scripts → `review/security_review/analysis_scripts/`
+
+- Supporting data → `review/security_review/supporting_data/`
 ~~~

@@ -810,10 +810,16 @@ typedef enum {
 
 ### Linux/macOS
     ```bash
-    git clone [repo-url]
+    git clone <REPO_URL>
     cd [project-name]
     make
     ```
+
+**Note**: Your repository URL is stored in `.git/config`. To retrieve it:
+
+```bash
+git config --get remote.origin.url
+```
 
 ### Cross-Compilation
     ```bash
@@ -985,10 +991,12 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ```bash
 # Add Unity as git submodule
-git submodule add https://github.com/ThrowTheSwitch/Unity.git tests/unity
+git submodule add <UNITY_REPO_URL> tests/unity
 
 # Or copy unity.c and unity.h to tests/ directory
 ```
+
+**Note**: Unity testing framework repository: `https://github.com/ThrowTheSwitch/Unity.git`
 
 ### Test Implementation Template
 

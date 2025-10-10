@@ -762,11 +762,17 @@ public class UserService : IUserService
 
 ### Setup
     ```bash
-    git clone [repo-url]
+    git clone <REPO_URL>
     cd [project-name]
     dotnet restore
     dotnet build
     ```
+
+**Note**: Your repository URL is stored in `.git/config`. To retrieve it:
+
+```bash
+git config --get remote.origin.url
+```
 
 ### Database Setup
     ```bash

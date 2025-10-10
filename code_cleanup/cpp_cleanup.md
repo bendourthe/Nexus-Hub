@@ -17,14 +17,21 @@ cleanup/
 ```
 
 **Directory Setup**:
+
 - Create `cleanup/` directory in repository root if it doesn't exist
+
 - All cleanup reports, history, backups, scripts, and analysis go in this directory
 
 **Expected Outputs**:
+
 - `cleanup_report.md` - Detailed report of all cleanup actions performed
+
 - `cleanup_history.md` - Historical log of cleanup sessions with timestamps
+
 - `backup/` - Backup copies of files before cleanup modifications
+
 - `scripts/` - Automated cleanup scripts generated or used
+
 - `analysis/` - Analysis data, metrics, and diagnostic outputs
 
 ## Review Checklist
@@ -66,6 +73,17 @@ Use the structured prompt below with your coding assistant:
 
 ~~~markdown
 # C++ Codebase Cleanup Request
+
+## Repository Information
+
+**Note**: Your repository URL is stored in `.git/config`. To find it automatically:
+
+```bash
+# Get the remote repository URL
+git config --get remote.origin.url
+```
+
+Use `<REPO_URL>` as placeholder where repository URLs are needed in this template.
 
 Please perform a comprehensive, systematic cleanup of my C++ codebase following this protocol:
 
@@ -311,6 +329,29 @@ Present cleanup in this structure:
 - **Static analysis issues fixed:** Q
 
 **Overall Impact:** [Low/Medium/High risk assessment]
+
+## File Output Instructions
+
+**IMPORTANT**: Save all generated files to the correct directory structure:
+
+```bash
+# Create directory structure
+mkdir -p cleanup/backup
+mkdir -p cleanup/scripts
+mkdir -p cleanup/analysis
+```
+
+**Save files as follows**:
+
+- Cleanup report → `cleanup/cleanup_report.md`
+
+- Cleanup history → `cleanup/cleanup_history.md`
+
+- Backups → `cleanup/backup/`
+
+- Scripts → `cleanup/scripts/`
+
+- Analysis → `cleanup/analysis/`
 
 ## Optional Advanced Cleanup (Requires Extra Review)
 If you'd like an even more thorough cleanup, also consider:

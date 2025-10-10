@@ -648,11 +648,17 @@ ProjectName is a comprehensive solution for processing and managing user data wi
 
 ### Setup
     ```bash
-    git clone [repo-url]
+    git clone <REPO_URL>
     cd ProjectName
     dotnet restore
     dotnet build
     ```
+
+**Note**: Your repository URL is stored in `.git/config`. To retrieve it:
+
+```bash
+git config --get remote.origin.url
+```
 
 ### Run Tests
     ```bash

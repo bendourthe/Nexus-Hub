@@ -1,17 +1,18 @@
 # AI Development Templates
 
-**Version 0.2.1** | Released October 9, 2025
+**Version 0.2.2** | Released October 10, 2025
 
-This repository contains comprehensive templates and standardized prompts to enhance AI-assisted software development. Complete multi-language support across 7 programming languages with 162 production-ready templates and organized output directory structures.
+This repository contains comprehensive templates and standardized prompts to enhance AI-assisted software development. Complete multi-language support across 7 programming languages with 162 production-ready templates, repository-agnostic design, and organized output directory structures.
 
 ---
 
-## 🎉 What's New in Version 0.2.1
+## 🎉 What's New in Version 0.2.2
 
-- **Standardized Output Directories**: All 133 templates now specify organized output structures (review/, tests/, documentation/, cleanup/)
-- **Achievement**: Multi-language expansion complete with 162 production-ready templates
-- **Languages Supported**: 7 production-ready languages
-- **Template Categories**: System Prompts, Code Cleanup, Code Review, Documentation, Test Development
+- **Repository Agnostic**: All templates now work with Bitbucket, GitHub, GitLab, or any Git platform
+- **Improved Bitbucket Rendering**: Fixed bullet point formatting for perfect Bitbucket markdown display
+- **Clear File Management**: Every template includes explicit file output paths and directory creation commands
+- **Git Config Integration**: Instructions to retrieve repository URL from `.git/config` instead of hardcoded URLs
+- **150 Files Updated**: 133 templates + 17 system prompts migrated to platform-agnostic format
 
 [View Changelog](CHANGELOG.md) | [View Development Log](DEVLOG.md) | [View Releases](../../releases)
 
@@ -224,7 +225,7 @@ Current templates focus on Python. To extend to other languages:
 
 ---
 
-*AI Development Templates v0.2.1 - Empowering development teams with structured, AI-assisted workflows*
+*AI Development Templates v0.2.2 - Empowering development teams with structured, AI-assisted workflows*
 
 *Last Updated: October 2025*
 *Repository maintained by Benjamin Dourthe (benjamin@adonamed.com)*

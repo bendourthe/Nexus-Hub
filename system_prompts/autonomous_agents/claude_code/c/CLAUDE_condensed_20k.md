@@ -390,10 +390,16 @@ size_t buffer_size(const buffer_t *buf);
 
 ## Building
     ```bash
-    git clone [repo]
+    git clone <REPO_URL>
     cd [project]
     make
     ```
+
+**Note**: Your repository URL is stored in `.git/config`. To retrieve it:
+
+```bash
+git config --get remote.origin.url
+```
 
 ## Usage
     ```c

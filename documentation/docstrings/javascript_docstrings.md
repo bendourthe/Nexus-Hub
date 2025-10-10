@@ -17,14 +17,19 @@ documentation/
 ```
 
 **Directory Setup**:
-- Create `documentation/` directory in repository root if it doesn't exist
-- Create `documentation/docstrings/` subdirectory for this documentation phase
+
+- Create `documentation/docstrings/` directory in repository root if it doesn't exist
+
 - All documentation files, templates, assets, and exports go in the phase-specific directory
 
 **Expected Outputs**:
+
 - `generated_docs/` - Generated documentation files (HTML, MD, PDF)
+
 - `templates/` - Documentation templates and examples
+
 - `assets/` - Images, diagrams, supplementary files
+
 - `exports/` - Published documentation, release artifacts
 
 ## Implementation Checklist
@@ -69,6 +74,17 @@ Use the structured prompt below with your coding assistant:
 
 ~~~markdown
 # JavaScript/TypeScript Documentation Generation Request
+
+## Repository Information
+
+**Note**: Your repository URL is stored in `.git/config`. To find it automatically:
+
+```bash
+# Get the remote repository URL
+git config --get remote.origin.url
+```
+
+Use `<REPO_URL>` as placeholder where repository URLs are needed in this template.
 
 Please generate comprehensive JSDoc documentation for this JavaScript/TypeScript project following this protocol:
 
@@ -608,6 +624,30 @@ module.exports = {
    - Keep in sync with code changes
    - Update examples when behavior changes
    - Remove obsolete information
+
+## File Output Instructions
+
+**IMPORTANT**: Save all generated files to the correct directory structure:
+
+```bash
+# Create directory structure
+mkdir -p documentation/docstrings/generated_docs
+mkdir -p documentation/docstrings/templates
+mkdir -p documentation/docstrings/assets
+mkdir -p documentation/docstrings/exports
+```
+
+**Save files as follows**:
+
+- Generated docs → `documentation/docstrings/generated_docs/`
+
+- Templates → `documentation/docstrings/templates/`
+
+- Assets → `documentation/docstrings/assets/`
+
+- Exports → `documentation/docstrings/exports/`
+
+Replace `{phase_name}` with the specific phase (docstrings, comments, user_docs, technical_docs, api_docs, or sbom).
 ~~~
 
 ## Output Format Specifications

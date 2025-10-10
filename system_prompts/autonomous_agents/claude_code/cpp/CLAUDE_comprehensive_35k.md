@@ -922,12 +922,18 @@ public:
 
 ### Linux/macOS
     ```bash
-    git clone [repo-url]
+    git clone <REPO_URL>
     cd [project-name]
     mkdir build && cd build
     cmake ..
     cmake --build .
     ```
+
+**Note**: Your repository URL is stored in `.git/config`. To retrieve it:
+
+```bash
+git config --get remote.origin.url
+```
 
 ### Windows (Visual Studio)
     ```bash

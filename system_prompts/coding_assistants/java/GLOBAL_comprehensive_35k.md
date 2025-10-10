@@ -688,8 +688,14 @@ profile management, and role-based access control.
 
 #### Clone Repository
 ```bash
-git clone https://github.com/company/project-name.git
+git clone <REPO_URL>
 cd project-name
+```
+
+**Note**: Your repository URL is stored in `.git/config`. To retrieve it:
+
+```bash
+git config --get remote.origin.url
 ```
 
 #### Configure Database
@@ -781,7 +787,7 @@ This project is licensed under the MIT License - see LICENSE file for details.
 ## Contact
 Benjamin Dourthe - benjamin@adonamed.com
 
-Project Link: https://github.com/company/project-name
+Project Link: <REPO_URL>
 ```
 
 ## CHANGELOG.md Structure

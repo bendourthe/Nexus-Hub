@@ -556,11 +556,17 @@ export const UserCard: React.FC<UserCardProps> = ({ user, onEdit, loading }) => 
 
 ### Setup
     ```bash
-    git clone [repo-url]
+    git clone <REPO_URL>
     cd [project-name]
     npm install
     npm run build
     ```
+
+**Note**: Your repository URL is stored in `.git/config`. To retrieve it:
+
+```bash
+git config --get remote.origin.url
+```
 
 ## Usage
     ```typescript

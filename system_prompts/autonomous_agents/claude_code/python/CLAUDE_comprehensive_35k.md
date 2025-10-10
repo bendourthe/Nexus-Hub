@@ -394,12 +394,18 @@ def calculate_total(items: List[float]) -> float:
 
 ### Setup
     ```bash
-    git clone [repo-url]
+    git clone <REPO_URL>
     cd [project-name]
     python -m venv .venv
     .venv\Scripts\activate
     python -m pip install -e .[dev]
     ```
+
+**Note**: Your repository URL is stored in `.git/config`. To retrieve it:
+
+```bash
+git config --get remote.origin.url
+```
 
 ## Usage
     ```python

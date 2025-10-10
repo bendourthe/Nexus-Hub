@@ -245,10 +245,16 @@ public BigDecimal calculateTotal(List<Item> items) {
 
 ### Setup
 ```bash
-git clone https://github.com/company/project.git
+git clone <REPO_URL>
 cd project-name
 mvn clean install
 mvn spring-boot:run
+```
+
+**Note**: Your repository URL is stored in `.git/config`. To retrieve it:
+
+```bash
+git config --get remote.origin.url
 ```
 
 ## Usage

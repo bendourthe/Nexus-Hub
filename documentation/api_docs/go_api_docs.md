@@ -17,14 +17,19 @@ documentation/
 ```
 
 **Directory Setup**:
-- Create `documentation/` directory in repository root if it doesn't exist
-- Create `documentation/api_docs/` subdirectory for this documentation phase
+
+- Create `documentation/api_docs/` directory in repository root if it doesn't exist
+
 - All documentation files, templates, assets, and exports go in the phase-specific directory
 
 **Expected Outputs**:
+
 - `generated_docs/` - Generated documentation files (HTML, MD, PDF)
+
 - `templates/` - Documentation templates and examples
+
 - `assets/` - Images, diagrams, supplementary files
+
 - `exports/` - Published documentation, release artifacts
 
 ## Implementation Checklist
@@ -59,6 +64,17 @@ documentation/
 
 ~~~markdown
 # Go API Documentation Request
+
+## Repository Information
+
+**Note**: Your repository URL is stored in `.git/config`. To find it automatically:
+
+```bash
+# Get the remote repository URL
+git config --get remote.origin.url
+```
+
+Use `<REPO_URL>` as placeholder where repository URLs are needed in this template.
 
 ## Phase 1: API Server Implementation
 
@@ -454,6 +470,31 @@ func TestCreateUser(t *testing.T) {
 8. **Middleware**: Use middleware for cross-cutting concerns
 
 ---
+
+## File Output Instructions
+
+**IMPORTANT**: Save all generated files to the correct directory structure:
+
+```bash
+# Create directory structure
+mkdir -p documentation/api_docs/generated_docs
+mkdir -p documentation/api_docs/templates
+mkdir -p documentation/api_docs/assets
+mkdir -p documentation/api_docs/exports
+```
+
+**Save files as follows**:
+
+- Generated docs → `documentation/api_docs/generated_docs/`
+
+- Templates → `documentation/api_docs/templates/`
+
+- Assets → `documentation/api_docs/assets/`
+
+- Exports → `documentation/api_docs/exports/`
+
+Replace `{phase_name}` with the specific phase (docstrings, comments, user_docs, technical_docs, api_docs, or sbom).
+
 ~~~
 
 ## Output Format Specifications

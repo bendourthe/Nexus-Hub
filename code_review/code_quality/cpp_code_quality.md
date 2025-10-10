@@ -17,14 +17,19 @@ review/
 ```
 
 **Directory Setup**:
-- Create `review/` directory in repository root if it doesn't exist
-- Create `review/code_quality/` subdirectory for this review phase
-- All reports, scripts, and data files go in the phase-specific directory
+
+- Create `review/code_quality/` directory in repository root if it doesn't exist
+
+- All review outputs (reports, findings, scripts, data) go in the phase-specific directory
 
 **Expected Outputs**:
+
 - `code_quality_report.md` - Main findings and recommendations
+
 - `code_quality_findings.json` - Structured data for tooling integration
+
 - `analysis_scripts/` - Any scripts generated during analysis
+
 - `supporting_data/` - Raw data, logs, profiling results, scan outputs
 
 ## Review Checklist
@@ -86,6 +91,19 @@ Use the structured prompt below with your coding assistant:
 
 ~~~markdown
 # C++ Code Quality Review
+
+## Repository Information
+
+**Note**: Your repository URL is stored in `.git/config`. To find it automatically:
+
+```bash
+# Get the remote repository URL
+git config --get remote.origin.url
+```
+
+Use `<REPO_URL>` as placeholder where repository URLs are needed in this template.
+
+## Review Protocol
 
 Please perform a comprehensive code quality review of this C++ project following this protocol:
 
@@ -633,4 +651,24 @@ repos:
         language: system
         files: \.(cpp)$
 ```
+
+## File Output Instructions
+
+**IMPORTANT**: Save all generated files to the correct directory structure:
+
+```bash
+# Create directory structure
+mkdir -p review/code_quality/analysis_scripts
+mkdir -p review/code_quality/supporting_data
+```
+
+**Save files as follows**:
+
+- Main report → `review/code_quality/code_quality_report.md`
+
+- Findings data → `review/code_quality/code_quality_findings.json`
+
+- Analysis scripts → `review/code_quality/analysis_scripts/`
+
+- Supporting data → `review/code_quality/supporting_data/`
 ~~~

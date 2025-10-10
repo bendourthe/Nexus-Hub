@@ -75,7 +75,7 @@ projectname/
 
 ## Project Initialization Sequence
 
-1. **Initialize module**: `go mod init github.com/username/projectname`
+1. **Initialize module**: `go mod init <MODULE_PATH>` (e.g., `example.com/username/projectname` or your repository domain)
 2. **Create directory structure** as outlined above
 3. **Create `main.go`** in `cmd/projectname/`
 4. **Create `.gitignore`** with Go-specific patterns
@@ -87,7 +87,7 @@ projectname/
 
 ## go.mod Template
 ```go
-module github.com/username/projectname
+module <MODULE_PATH>
 
 go 1.21
 
@@ -96,6 +96,8 @@ require (
     go.uber.org/zap v1.26.0
 )
 ```
+
+**Note**: Replace `<MODULE_PATH>` with your module path (e.g., `example.com/username/projectname` or your repository path)
 
 ## Makefile Template
 ```makefile
@@ -163,9 +165,9 @@ import (
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 
-	"github.com/username/projectname/internal/model"
-	"github.com/username/projectname/internal/repository"
-	"github.com/username/projectname/pkg/validator"
+	"<MODULE_PATH>/internal/model"
+	"<MODULE_PATH>/internal/repository"
+	"<MODULE_PATH>/pkg/validator"
 )
 ```
 
@@ -632,11 +634,17 @@ validation, and concurrent processing capabilities.
 
 ### Setup
     ```bash
-    git clone https://github.com/username/projectname
+    git clone <REPO_URL>
     cd projectname
     go mod download
     make build
     ```
+
+**Note**: Your repository URL is stored in `.git/config`. To retrieve it:
+
+```bash
+git config --get remote.origin.url
+```
 
 ### Configuration
 Create `configs/config.yaml`:
@@ -806,7 +814,7 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
-	"github.com/username/projectname/internal/model"
+	"<MODULE_PATH>/internal/model"
 )
 
 // MockRepository is a mock implementation of UserRepository
@@ -1019,8 +1027,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/username/projectname/internal/repository"
-	"github.com/username/projectname/internal/service"
+	"<MODULE_PATH>/internal/repository"
+	"<MODULE_PATH>/internal/service"
 )
 
 func setupTestDB(t *testing.T) *sql.DB {
@@ -1119,7 +1127,7 @@ Please run in your terminal:
 
 ```bash
 # Module management
-go mod init github.com/username/project
+go mod init <MODULE_PATH>
 go mod download
 go mod tidy
 go mod verify

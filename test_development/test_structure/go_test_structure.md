@@ -17,14 +17,19 @@ tests/
 ```
 
 **Directory Setup**:
-- Create `tests/` directory in repository root if it doesn't exist
-- Create `tests/test_structure/` subdirectory for this testing phase
+
+- Create `tests/{phase}/` directory in repository root if it doesn't exist
+
 - All test files, data, reports, and configurations go in the phase-specific directory
 
 **Expected Outputs**:
+
 - `test_files/` - Actual test implementation files
+
 - `test_data/` - Test fixtures, mock data, sample inputs
+
 - `test_reports/` - Test execution reports, coverage reports, performance results
+
 - `test_configs/` - Framework configurations, test runner settings
 
 ## Implementation Checklist
@@ -66,6 +71,17 @@ Use the structured prompt below with your coding assistant:
 
 Please design and implement a comprehensive test infrastructure for this Go project following this protocol:
 
+## Repository Information
+
+**Note**: Your repository URL is stored in `.git/config`. To find it automatically:
+
+```bash
+# Get the remote repository URL
+git config --get remote.origin.url
+```
+
+Use `<REPO_URL>` as placeholder where repository URLs are needed in this template.
+
 ## Phase 1: Framework Selection & Configuration
 
 1. **Test Framework Analysis**
@@ -103,7 +119,7 @@ Please design and implement a comprehensive test infrastructure for this Go proj
 
    **go.mod example**:
    ```go
-   module github.com/username/myapp
+   module <REPO_URL>
 
    go 1.21
 
@@ -543,7 +559,7 @@ Please design and implement a comprehensive test infrastructure for this Go proj
    // internal/user/repository.go
    package user
 
-   //go:generate mockgen -destination=../../mocks/mock_repository.go -package=mocks github.com/username/myapp/internal/user Repository
+   //go:generate mockgen -destination=../../mocks/mock_repository.go -package=mocks <REPO_URL>/internal/user Repository
 
    type Repository interface {
        Create(user *User) error
@@ -568,7 +584,7 @@ Please design and implement a comprehensive test infrastructure for this Go proj
 
        "github.com/golang/mock/gomock"
        "github.com/stretchr/testify/assert"
-       "github.com/username/myapp/mocks"
+       "<REPO_URL>/mocks"
    )
 
    func TestCreateUser(t *testing.T) {
@@ -925,6 +941,30 @@ Please design and implement a comprehensive test infrastructure for this Go proj
 
    echo "All tests passed!"
    ```
+
+## File Output Instructions
+
+**IMPORTANT**: Save all generated files to the correct directory structure:
+
+```bash
+# Create directory structure
+mkdir -p tests/{phase_name}/test_files
+mkdir -p tests/{phase_name}/test_data
+mkdir -p tests/{phase_name}/test_reports
+mkdir -p tests/{phase_name}/test_configs
+```
+
+**Save files as follows**:
+
+- Test files → `tests/{phase_name}/test_files/`
+
+- Test data → `tests/{phase_name}/test_data/`
+
+- Test reports → `tests/{phase_name}/test_reports/`
+
+- Test configs → `tests/{phase_name}/test_configs/`
+
+Replace `{phase_name}` with the specific phase (test_structure, test_cases, mocks_fixtures, performance_testing, maintenance_cicd, or code_coverage).
 
 ## Output Format
 

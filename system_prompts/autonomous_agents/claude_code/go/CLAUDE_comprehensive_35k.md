@@ -118,7 +118,7 @@ project-name/
 
 ## Project Initialization Sequence
 
-1. **Initialize module**: `go mod init github.com/username/project-name`
+1. **Initialize module**: `go mod init <MODULE_PATH>` (e.g., `example.com/username/project-name` or your repository domain)
 2. **Create directory structure** as outlined above
 3. **Create `main.go`** in cmd/api/
 4. **Create `config.yaml`** with application settings
@@ -130,7 +130,7 @@ project-name/
 
 ## go.mod Template
 ```go
-module github.com/company/project-name
+module <MODULE_PATH>
 
 go 1.22
 
@@ -141,6 +141,8 @@ require (
     go.uber.org/zap v1.27.0
 )
 ```
+
+**Note**: Replace `<MODULE_PATH>` with your module path (e.g., `example.com/company/project-name` or your repository path)
 
 ## Makefile Template
 ```makefile
@@ -209,8 +211,8 @@ import (
     "github.com/gin-gonic/gin"
     "go.uber.org/zap"
 
-    "github.com/company/project/internal/model"
-    "github.com/company/project/internal/service"
+    "<MODULE_PATH>/internal/model"
+    "<MODULE_PATH>/internal/service"
 )
 
 // 3. Constants
@@ -634,10 +636,16 @@ type UserService struct {
 ## Installation
 
     ```bash
-    git clone [repo-url]
+    git clone <REPO_URL>
     cd [project-name]
     go mod download
     ```
+
+**Note**: Your repository URL is stored in `.git/config`. To retrieve it:
+
+```bash
+git config --get remote.origin.url
+```
 
 ## Configuration
 
@@ -719,8 +727,8 @@ import (
     "github.com/stretchr/testify/mock"
     "github.com/stretchr/testify/require"
 
-    "github.com/company/project/internal/model"
-    "github.com/company/project/internal/service"
+    "<MODULE_PATH>/internal/model"
+    "<MODULE_PATH>/internal/service"
 )
 
 // Mock repository
@@ -862,8 +870,8 @@ import (
     "github.com/stretchr/testify/assert"
     "github.com/stretchr/testify/require"
 
-    "github.com/company/project/internal/model"
-    "github.com/company/project/internal/repository"
+    "<MODULE_PATH>/internal/model"
+    "<MODULE_PATH>/internal/repository"
 )
 
 func setupTestDB(t *testing.T) *sql.DB {
