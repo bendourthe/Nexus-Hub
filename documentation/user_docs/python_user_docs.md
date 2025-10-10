@@ -32,39 +32,65 @@ documentation/user_docs/
 ## Implementation Checklist
 
 ### README Structure
+
 - [ ] Compelling project overview and value proposition
+
 - [ ] Key features highlighted
+
 - [ ] Installation instructions complete and tested
+
 - [ ] Quick start guide for immediate success
+
 - [ ] Usage examples for common scenarios
+
 - [ ] Links to detailed documentation
 
 ### Installation Guides
+
 - [ ] Prerequisites clearly listed
+
 - [ ] Step-by-step installation process
+
 - [ ] Platform-specific instructions (Windows, macOS, Linux)
+
 - [ ] Troubleshooting common installation issues
+
 - [ ] Verification steps to confirm successful installation
 
 ### Quick Start Guides
+
 - [ ] Minimal example to first success
+
 - [ ] Common use cases covered
+
 - [ ] Progressive complexity (simple to advanced)
+
 - [ ] Expected output shown
+
 - [ ] Next steps guidance
 
 ### Usage Examples
+
 - [ ] Real-world scenarios
+
 - [ ] Complete, runnable code
+
 - [ ] Input/output examples
+
 - [ ] Edge cases and limitations
+
 - [ ] Best practices demonstrated
 
 ### FAQ and Troubleshooting
+
 - [ ] Common questions answered
+
 - [ ] Error messages explained
+
 - [ ] Debugging guidance
+
 - [ ] Known limitations documented
+
 - [ ] Where to get help
 
 ## Prompt Template
@@ -99,7 +125,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -163,8 +191,11 @@ Create a comprehensive README.md that serves as the front door to your project:
 ## ✨ What's New in v[X.Y.Z]
 
 - 🚀 [New Feature 1]: Brief description
+
 - ⚡ [Performance Improvement]: Specific metric (e.g., "50% faster")
+
 - 🐛 [Important Bug Fix]: What was fixed
+
 - 📝 [Documentation Update]: What was improved
 
 [See full changelog](CHANGELOG.md)
@@ -180,8 +211,11 @@ Create a comprehensive README.md that serves as the front door to your project:
 **Solution**: [How does this project solve it?]
 
 **Benefits**:
+
 - ✅ [Key benefit 1]
+
 - ✅ [Key benefit 2]
+
 - ✅ [Key benefit 3]
 
 ---
@@ -189,8 +223,11 @@ Create a comprehensive README.md that serves as the front door to your project:
 ## 🎯 Key Features
 
 - **[Feature 1]**: Description of what it does and why it matters
+
 - **[Feature 2]**: Highlight unique or powerful capabilities
+
 - **[Feature 3]**: Emphasize ease of use or performance benefits
+
 - **[Feature 4]**: Note integration capabilities or extensibility
 
 ---
@@ -232,8 +269,11 @@ print(result)
 ### Prerequisites
 
 Before installing, ensure you have:
+
 - Python 3.9 or higher
+
 - pip (usually comes with Python)
+
 - [Optional] Virtual environment tool (venv or conda)
 
 ### Installation Options
@@ -422,9 +462,13 @@ instance = MainClass.from_env()
 ## 📚 Documentation
 
 - **[User Guide](docs/USER_GUIDE.md)**: Comprehensive usage documentation
+
 - **[API Reference](docs/API.md)**: Complete API documentation
+
 - **[Examples](examples/)**: More code examples and tutorials
+
 - **[FAQ](docs/FAQ.md)**: Frequently asked questions
+
 - **[Troubleshooting](docs/TROUBLESHOOTING.md)**: Common issues and solutions
 
 ---
@@ -523,6 +567,7 @@ This project is licensed under the [MIT License](LICENSE) - see the LICENSE file
 ## 🙏 Acknowledgments
 
 - [Contributor/Library]: For [contribution/inspiration]
+
 - [Resource]: For [helpful resource]
 
 ---
@@ -530,8 +575,11 @@ This project is licensed under the [MIT License](LICENSE) - see the LICENSE file
 ## 📞 Support
 
 - **Issues**: [GitHub Issues](https://github.com/username/project/issues)
+
 - **Discussions**: [GitHub Discussions](https://github.com/username/project/discussions)
+
 - **Email**: [support@project.com](mailto:support@project.com)
+
 - **Documentation**: [https://project.readthedocs.io](https://project.readthedocs.io)
 
 ---
@@ -539,7 +587,9 @@ This project is licensed under the [MIT License](LICENSE) - see the LICENSE file
 ## 🗺️ Roadmap
 
 - [ ] v[X+1].0: [Planned major feature]
+
 - [ ] v[X].Y: [Planned minor feature]
+
 - [ ] [Future feature/improvement]
 
 See [ROADMAP.md](ROADMAP.md) for detailed plans.
@@ -565,14 +615,21 @@ Complete installation instructions for [Project Name].
 ## System Requirements
 
 ### Minimum Requirements
+
 - **OS**: Windows 10+, macOS 10.14+, or Linux (Ubuntu 20.04+)
+
 - **Python**: 3.9 or higher
+
 - **RAM**: 4GB minimum, 8GB recommended
+
 - **Disk Space**: 500MB
 
 ### Recommended Requirements
+
 - Python 3.11+ for best performance
+
 - 16GB RAM for large datasets
+
 - SSD for faster processing
 
 ---
@@ -686,8 +743,10 @@ pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org [packa
 ```
 
 **Common Issues**:
+
 - **Error**: "pip is not recognized"
   - **Fix**: Add Python Scripts directory to PATH
+
 - **Error**: "Access is denied"
   - **Fix**: Run as Administrator or use `--user` flag
 
@@ -710,8 +769,10 @@ brew install [dependency]
 ```
 
 **Common Issues**:
+
 - **Error**: "Permission denied"
   - **Fix**: Use `pip3 install --user [package-name]`
+
 - **Error**: "Command not found: pip3"
   - **Fix**: Use `python3 -m pip install [package-name]`
 
@@ -869,19 +930,27 @@ rm -rf .venv
 ### Common Installation Errors
 
 **Error**: `Could not find a version that satisfies the requirement`
+
 - **Cause**: Package not available for your Python version or platform
+
 - **Fix**: Check Python version (`python --version`) and upgrade if needed
 
 **Error**: `pip: command not found`
+
 - **Cause**: pip not installed or not in PATH
+
 - **Fix**: Install pip: `python -m ensurepip --upgrade`
 
 **Error**: `SSL: CERTIFICATE_VERIFY_FAILED`
+
 - **Cause**: SSL certificate issues
+
 - **Fix**: Update certificates or use `--trusted-host` flag
 
 **Error**: Compilation errors during installation
+
 - **Cause**: Missing compilers or development libraries
+
 - **Fix**: Install build tools:
   - Windows: Install Visual C++ Build Tools
   - macOS: `xcode-select --install`
@@ -933,9 +1002,13 @@ Get started with [Project Name] in under 10 minutes.
 ## What You'll Build
 
 By the end of this guide, you'll have:
+
 - ✅ Installed and configured [Project Name]
+
 - ✅ Run your first example
+
 - ✅ Understanding of core concepts
+
 - ✅ Ready to build your own solution
 
 **Time Required**: ~10 minutes
@@ -945,7 +1018,9 @@ By the end of this guide, you'll have:
 ## Prerequisites
 
 - Python 3.9+ installed
+
 - Basic Python knowledge
+
 - Terminal/command line access
 
 ---
@@ -1021,15 +1096,21 @@ for text in inputs:
 Now that you have the basics:
 
 ### Explore More Examples
+
 - **[Example 2](examples/example_02.py)**: [Description]
+
 - **[Example 3](examples/example_03.py)**: [Description]
 
 ### Read Documentation
+
 - **[User Guide](USER_GUIDE.md)**: Comprehensive usage guide
+
 - **[API Reference](API.md)**: Complete API documentation
 
 ### Join Community
+
 - **[GitHub Discussions](https://github.com/username/project/discussions)**: Ask questions
+
 - **[Examples Repository](https://github.com/username/project-examples)**: More examples
 
 ---
@@ -1053,7 +1134,9 @@ Now that you have the basics:
 ## Need Help?
 
 - **Error Messages**: See [Troubleshooting](TROUBLESHOOTING.md)
+
 - **Questions**: Open an [issue](https://github.com/username/project/issues)
+
 - **Examples**: Check [examples/](examples/) directory
 
 **Congratulations!** You're ready to use [Project Name].
@@ -1193,32 +1276,51 @@ Please provide user documentation in this format:
 ## User Documentation Summary
 
 **Files Created**: [count]
+
 - README.md: [Complete/Updated]
+
 - Installation Guide: [Yes/No]
+
 - Quick Start Guide: [Yes/No]
+
 - FAQ: [Yes/No]
+
 - Troubleshooting Guide: [Yes/No]
 
 **Target Audience**: [Beginner/Intermediate/Advanced]
 
 **Content Metrics**:
+
 - Code examples: [count]
+
 - Platform-specific instructions: [Windows/macOS/Linux]
+
 - Installation methods documented: [count]
+
 - FAQ entries: [count]
+
 - Troubleshooting scenarios: [count]
 
 **Quality Checks**:
+
 - [ ] All examples tested and functional
+
 - [ ] Installation instructions verified on all platforms
+
 - [ ] Links working and up-to-date
+
 - [ ] Screenshots/diagrams included (if applicable)
+
 - [ ] Accessible to target audience
 
 **Next Steps**:
+
 - [ ] Review documentation for accuracy
+
 - [ ] Test installation on fresh system
+
 - [ ] Get feedback from target users
+
 - [ ] Set up documentation hosting (ReadTheDocs, GitHub Pages)
 ```
 
@@ -1258,42 +1360,27 @@ Please provide user documentation in this format:
 
 ---
 
-## File Output Instructions
-
-**IMPORTANT**: Save all generated files to the correct directory structure:
-
-```bash
-# Create directory structure
-mkdir -p ${OUTPUT_DIR}/user_docs/generated_docs
-mkdir -p ${OUTPUT_DIR}/user_docs/templates
-mkdir -p ${OUTPUT_DIR}/user_docs/assets
-mkdir -p ${OUTPUT_DIR}/user_docs/exports
-```
-
-**Save files as follows**:
-
-
-- Templates → `documentation/user_docs/templates/`
-
-- Assets → `documentation/user_docs/assets/`
-
-- Exports → `documentation/user_docs/exports/`
-
-Replace `{phase_name}` with the specific phase (docstrings, comments, user_docs, technical_docs, api_docs, or sbom).
-
-~~~
-
 ## Output Format Specifications
 
 The user documentation should:
+
 - Be clear and accessible to the target audience skill level
+
 - Include complete, tested, runnable examples
+
 - Provide step-by-step instructions with expected outcomes
+
 - Cover multiple platforms where applicable
+
 - Include troubleshooting for common issues
+
 - Use consistent formatting and structure
+
 - Link between related documentation sections
+
 - Include visual aids (badges, diagrams) where helpful
+
+~~~
 ---
 
 ## Verify Directory Structure
@@ -1313,7 +1400,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

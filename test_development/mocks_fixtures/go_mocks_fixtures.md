@@ -32,24 +32,39 @@ tests/mocks_fixtures/
 ## Implementation Checklist
 
 ### Fixture Setup
+
 - [ ] Setup/teardown functions configured appropriately
+
 - [ ] Test data builders created for flexible data generation
+
 - [ ] Fixture factories implemented with realistic data
+
 - [ ] Cleanup and reset logic automated (defer statements)
+
 - [ ] Fixtures documented with clear purposes
 
 ### Mocking Strategy
+
 - [ ] External dependencies identified for mocking
+
 - [ ] Interfaces defined for mockable components
+
 - [ ] Mock implementations created with testify/mock
+
 - [ ] Assertion methods used appropriately
+
 - [ ] Over-mocking avoided
 
 ### Test Data Management
+
 - [ ] Test data factories implemented
+
 - [ ] Realistic test data patterns established
+
 - [ ] Data builders for complex structs created
+
 - [ ] Test data isolated per test
+
 - [ ] Data cleanup automated
 
 ## Prompt Template
@@ -84,7 +99,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -631,18 +648,29 @@ func TestUserService_GetUser(t *testing.T) {
 ### When to Mock vs Use Real Objects
 
 **Use Mocks For**:
+
 - External APIs and services
+
 - Database operations in unit tests
+
 - File system operations
+
 - Network requests
+
 - Time-dependent operations
+
 - Random number generation
 
 **Use Real Objects For**:
+
 - Pure functions
+
 - Simple structs
+
 - Business logic
+
 - Integration tests
+
 - Critical paths
 
 ```go
@@ -964,12 +992,15 @@ Please provide a comprehensive mocks and fixtures implementation with the follow
 
 ### Fixture Architecture
 **Package-Level Setup** (TestMain):
+
 - [fixture_name]: [purpose, setup, teardown]
 
 **Test-Level Setup**:
+
 - [fixture_name]: [purpose, when to use]
 
 **Fixture Factories**:
+
 - [factory_name]: [creates what, option functions]
 
 ### Mocking Strategy
@@ -987,10 +1018,13 @@ mockRepo.On("FindByID", int64(1)).Return(&User{ID: 1}, nil)
 
 ### Test Data Factories
 **Factory Functions**:
+
 - UserFactory: [option functions for customization]
+
 - OrderFactory: [option functions for customization]
 
 **Builder Structs**:
+
 - [builder_name]: [purpose, fluent methods]
 
 ### Usage Examples
@@ -1012,25 +1046,41 @@ func TestUserRegistration(t *testing.T) {
 ```
 
 ### Best Practices Implemented
+
 - [ ] Setup uses helper functions with t.Helper()
+
 - [ ] Cleanup uses defer for guaranteed execution
+
 - [ ] Mocks are interface-based
+
 - [ ] Test data factories use option pattern
+
 - [ ] Table-driven tests for multiple cases
+
 - [ ] httptest used for HTTP mocking
 
 ### Common Pitfalls Avoided
+
 - Not using interfaces for mocking
+
 - Forgetting defer for cleanup
+
 - Complex test setup that obscures intent
+
 - Over-mocking simple functions
+
 - Not calling AssertExpectations
 
 ### Next Steps
+
 - [ ] Implement remaining fixtures for integration tests
+
 - [ ] Add factories for all domain types
+
 - [ ] Document fixture usage for team
+
 - [ ] Set up mockery for automatic mock generation
+
 - [ ] Review mock coverage and necessity
 
 ## File Output Instructions
@@ -1089,7 +1139,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

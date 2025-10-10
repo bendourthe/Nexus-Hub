@@ -32,48 +32,81 @@ documentation/sbom/
 ## Implementation Checklist
 
 ### NTIA Minimum Elements
+
 - [ ] Supplier name documented
+
 - [ ] Component name documented
+
 - [ ] Version of component documented
+
 - [ ] Other unique identifiers (PURL, CPE)
+
 - [ ] Dependency relationships mapped
+
 - [ ] Author of SBOM data documented
+
 - [ ] Timestamp of SBOM generation
 
 ### EU Cyber Resilience Act Requirements
+
 - [ ] Complete dependency tree with versions
+
 - [ ] Known vulnerabilities (CVEs) identified
+
 - [ ] Security advisories tracked
+
 - [ ] License information documented
+
 - [ ] Component provenance documented
+
 - [ ] Update and patch status
 
 ### Dependency Analysis
+
 - [ ] Direct dependencies listed with versions
+
 - [ ] Transitive dependencies mapped
+
 - [ ] Dependency tree visualized
+
 - [ ] Circular dependencies identified
+
 - [ ] Outdated dependencies flagged
 
 ### License Compliance
+
 - [ ] All licenses identified
+
 - [ ] License compatibility checked
+
 - [ ] Copyleft obligations documented
+
 - [ ] License conflicts identified
+
 - [ ] Attribution requirements tracked
 
 ### Vulnerability Tracking
+
 - [ ] Known CVEs for each component
+
 - [ ] CVSS scores documented
+
 - [ ] Patch availability status
+
 - [ ] Mitigation strategies documented
+
 - [ ] False positive handling
 
 ### Supply Chain Security
+
 - [ ] Component source/repository documented
+
 - [ ] Package integrity (hashes) verified
+
 - [ ] Digital signatures checked
+
 - [ ] Build provenance tracked
+
 - [ ] Supply chain risks assessed
 
 ## Prompt Template
@@ -108,7 +141,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -172,20 +207,31 @@ Please generate a comprehensive Software Bill of Materials (SBOM) for this Pytho
 Choose SBOM format based on requirements:
 
 ### Option 1: SPDX (Software Package Data Exchange)
+
 - **Standard**: ISO/IEC 5962:2021
+
 - **Format**: JSON, YAML, RDF, Tag-Value
+
 - **Best for**: License compliance, legal requirements
+
 - **Tools**: spdx-tools, scancode-toolkit
 
 ### Option 2: CycloneDX
+
 - **Standard**: OWASP CycloneDX
+
 - **Format**: JSON, XML
+
 - **Best for**: Security analysis, vulnerability management
+
 - **Tools**: cyclonedx-python, syft
 
 ### Option 3: SWID (Software Identification Tags)
+
 - **Standard**: ISO/IEC 19770-2:2015
+
 - **Format**: XML
+
 - **Best for**: IT asset management
 
 **Recommendation**: Use CycloneDX for security focus, SPDX for license focus.
@@ -596,8 +642,11 @@ Document license compatibility:
 **Current Project License**: MIT
 
 **Compatibility Status**:
+
 - ✅ Compatible: [list of dependencies]
+
 - ⚠️ Review Required: [list needing review]
+
 - ❌ Incompatible: [list of incompatible]
 ```
 
@@ -625,20 +674,31 @@ For each dependency, document:
 **Maintainer**: Python Software Foundation
 
 **Security Posture**:
+
 - ✅ Active maintenance (last commit: [date])
+
 - ✅ Security policy present
+
 - ✅ Vulnerability disclosure process
+
 - ✅ Code signing (where applicable)
+
 - ⚠️ No recent security audit
+
 - ✅ Large, active community (50k+ stars)
 
 **Risk Assessment**: LOW
+
 - Well-maintained, widely-used library
+
 - Active security response
+
 - Regular updates and patches
 
 **Alternative Options**:
+
 - httpx (modern alternative)
+
 - urllib3 (lower-level, requests uses this)
 ```
 
@@ -652,25 +712,37 @@ For each dependency, document:
 ## Minimum Elements
 
 - [x] **Supplier Name**: All suppliers identified in SBOM
+
 - [x] **Component Name**: All components named
+
 - [x] **Version**: All versions specified
+
 - [x] **Other Unique Identifiers**: PURL provided for all
+
 - [x] **Dependency Relationships**: Complete dependency tree
+
 - [x] **Author of SBOM Data**: [Benjamin Dourthe]
+
 - [x] **Timestamp**: [2024-01-16T10:00:00Z]
 
 ## Automation Supportability
 
 - [x] SBOM in machine-readable format (CycloneDX JSON)
+
 - [x] Consistent data format across components
+
 - [x] Unique identifiers (PURL) for all components
+
 - [x] Dependency relationships machine-parseable
 
 ## Practices and Processes
 
 - [x] SBOM generation automated in CI/CD
+
 - [x] SBOM updated with each release
+
 - [x] SBOM published alongside releases
+
 - [x] Vulnerability scanning integrated
 
 **Compliance Status**: ✅ COMPLIANT
@@ -684,24 +756,35 @@ For each dependency, document:
 ## Essential Requirements
 
 - [x] Complete SBOM with all components
+
 - [x] Known vulnerabilities identified (CVE tracking)
+
 - [x] Security updates and patches tracked
+
 - [x] Vulnerability disclosure timeline documented
+
 - [x] Supply chain security assessed
 
 ## Documentation Requirements
 
 - [x] SBOM in standardized format (CycloneDX/SPDX)
+
 - [x] Vulnerability report attached
+
 - [x] License compliance documented
+
 - [x] Security contact information provided
+
 - [x] Update/patching process documented
 
 ## Ongoing Obligations
 
 - [ ] SBOM updated with each release
+
 - [ ] Vulnerability monitoring continuous
+
 - [ ] Security updates issued promptly
+
 - [ ] Users notified of security issues
 
 **Compliance Status**: ✅ COMPLIANT
@@ -773,35 +856,55 @@ Please provide SBOM documentation in this format:
 **License**: [license]
 
 **Components**:
+
 - Total components: [count]
+
 - Direct dependencies: [count]
+
 - Transitive dependencies: [count]
+
 - Unique licenses: [count]
 
 **Vulnerabilities**:
+
 - Critical: [count]
+
 - High: [count]
+
 - Medium: [count]
+
 - Low: [count]
+
 - Total: [count]
 
 **License Distribution**:
+
 - MIT: [count]
+
 - Apache-2.0: [count]
+
 - GPL-3.0: [count]
+
 - Other: [count]
 
 **Compliance**:
+
 - NTIA Minimum Elements: ✅/❌
+
 - EU CRA Requirements: ✅/❌
+
 - SPDX 2.3 Compliant: ✅/❌
+
 - CycloneDX 1.4 Compliant: ✅/❌
 
 **Supply Chain Risk**: [LOW/MEDIUM/HIGH]
 
 **Actions Required**:
+
 - [ ] Update [X] components with known vulnerabilities
+
 - [ ] Review [Y] components with license concerns
+
 - [ ] Assess [Z] outdated dependencies
 ```
 
@@ -915,44 +1018,31 @@ repos:
 
 ---
 
-## File Output Instructions
-
-**IMPORTANT**: Save all generated files to the correct directory structure:
-
-```bash
-# Create directory structure
-mkdir -p ${OUTPUT_DIR}/sbom/generated_docs
-mkdir -p ${OUTPUT_DIR}/sbom/templates
-mkdir -p ${OUTPUT_DIR}/sbom/assets
-mkdir -p ${OUTPUT_DIR}/sbom/exports
-```
-
-**Save files as follows**:
-
-
-- Templates → `documentation/sbom/templates/`
-
-- Assets → `documentation/sbom/assets/`
-
-- Exports → `documentation/sbom/exports/`
-
-Replace `{phase_name}` with the specific phase (docstrings, comments, user_docs, technical_docs, api_docs, or sbom).
-
-~~~
-
 ## Output Format Specifications
 
 The SBOM should:
+
 - Comply with NTIA minimum elements requirements
+
 - Meet EU Cyber Resilience Act standards
+
 - Use standard formats (CycloneDX 1.4+ or SPDX 2.3+)
+
 - Include complete dependency tree with versions
+
 - Document all known vulnerabilities with CVE IDs
+
 - Provide license information for all components
+
 - Assess supply chain security risks
+
 - Be machine-readable and automatable
+
 - Be versioned and timestamped
+
 - Be published alongside software releases
+
+~~~
 ---
 
 ## Verify Directory Structure
@@ -972,7 +1062,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

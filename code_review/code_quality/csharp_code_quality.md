@@ -32,45 +32,75 @@ review/code_quality/
 ## Review Checklist
 
 ### Coding Standards
+
 - [ ] .NET naming conventions followed (PascalCase, camelCase)
+
 - [ ] StyleCop or Roslyn analyzer rules compliance
+
 - [ ] XML documentation on public APIs
+
 - [ ] Nullable reference types used appropriately
+
 - [ ] Async/await patterns followed correctly
 
 ### Code Complexity
+
 - [ ] Methods under 50 lines (flagged if exceeded)
+
 - [ ] Cyclomatic complexity under 10 per method
+
 - [ ] Nesting depth under 4 levels
+
 - [ ] Class size reasonable (<300 lines)
+
 - [ ] Assembly cohesion evaluated
 
 ### Design & Architecture
+
 - [ ] SOLID principles followed
+
 - [ ] DRY principle applied (no significant duplication)
+
 - [ ] Separation of concerns maintained
+
 - [ ] Appropriate use of design patterns
+
 - [ ] Dependency injection used properly
 
 ### Code Smells
+
 - [ ] Long parameter lists identified (>5 parameters)
+
 - [ ] Feature envy detected
+
 - [ ] Shotgun surgery patterns flagged
+
 - [ ] God classes identified
+
 - [ ] Dead code marked for removal
 
 ### Error Handling
+
 - [ ] Exceptions caught at appropriate level
+
 - [ ] Specific exceptions used (not catch(Exception))
+
 - [ ] Exception messages informative
+
 - [ ] Using statements for IDisposable resources
+
 - [ ] Logging appropriate for debugging
 
 ### Maintainability
+
 - [ ] Code self-documenting with clear names
+
 - [ ] Comments explain "why" not "what"
+
 - [ ] Magic numbers replaced with named constants
+
 - [ ] Configuration externalized
+
 - [ ] Hardcoded values eliminated
 
 ## Prompt Template
@@ -105,7 +135,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -311,17 +343,25 @@ Please perform a comprehensive code quality review of this C# project following 
 Please provide a comprehensive quality report with the following structure:
 
 ### Executive Summary
+
 - **Overall Quality Score**: [A-F grade]
+
 - **Maintainability Index**: [score if available]
+
 - **Average Complexity**: [cyclomatic complexity]
+
 - **Critical Issues**: [count]
+
 - **Technical Debt**: [estimated hours to address]
 
 ### Coding Standards Compliance
+
 - **Analyzer Warnings**: [count by severity]
+
 - **Most Common Issues**:
   1. [Issue type] - [count] occurrences
   2. [Issue type] - [count] occurrences
+
 - **Consistency Score**: [percentage]
 
 ### Complexity Analysis
@@ -352,34 +392,50 @@ Please provide a comprehensive quality report with the following structure:
 | [type] | [file:line] | [High/Med/Low] | [details] | [suggestion] |
 
 ### Error Handling Assessment
+
 - **Broad Exception Catching**: [count and locations]
+
 - **Missing Resource Cleanup**: [locations]
+
 - **Inadequate Input Validation**: [locations]
+
 - **Poor Error Messages**: [examples]
 
 ### Documentation Score
+
 - **XML Documentation Coverage**: [percentage]
+
 - **Nullable Annotation Coverage**: [percentage]
+
 - **Comment Quality**: [Good/Fair/Poor]
+
 - **Areas Needing Documentation**: [list]
 
 ### Modern C# Feature Usage
+
 - **Nullable Reference Types**: [enabled/disabled, usage quality]
+
 - **Pattern Matching**: [usage assessment]
+
 - **Record Types**: [appropriate usage]
+
 - **Async/Await**: [proper implementation or issues found]
 
 ### Technical Debt Summary
 **Priority 1 (Critical)**: [Estimated hours]
+
 - [Issue description and location]
 
 **Priority 2 (High)**: [Estimated hours]
+
 - [Issue description and location]
 
 **Priority 3 (Medium)**: [Estimated hours]
+
 - [Issue description and location]
 
 **Priority 4 (Low)**: [Estimated hours]
+
 - [Issue description and location]
 
 ### Refactoring Recommendations
@@ -394,14 +450,21 @@ Please provide a comprehensive quality report with the following structure:
 
 ### Positive Patterns
 Acknowledge what's done well:
+
 - [Good practice observed and locations]
+
 - [Effective pattern usage examples]
 
 ### Next Steps
+
 - [ ] Address critical complexity hotspots
+
 - [ ] Implement automated quality gates (.editorconfig, analyzers)
+
 - [ ] Plan refactoring sprints for high-priority technical debt
+
 - [ ] Establish team coding standards documentation
+
 - [ ] Configure analyzer rules in Directory.Build.props
 
 ## Automation Recommendations
@@ -480,7 +543,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

@@ -32,39 +32,65 @@ documentation/user_docs/
 ## Implementation Checklist
 
 ### README Structure
+
 - [ ] Compelling project overview and value proposition
+
 - [ ] Key features highlighted
+
 - [ ] Installation instructions complete and tested
+
 - [ ] Quick start guide for immediate success
+
 - [ ] Usage examples for common scenarios
+
 - [ ] Links to detailed documentation
 
 ### Installation Guides
+
 - [ ] Prerequisites clearly listed (compiler, C++ version, CMake)
+
 - [ ] Step-by-step installation process
+
 - [ ] Platform-specific instructions (Windows, macOS, Linux)
+
 - [ ] Troubleshooting common installation issues
+
 - [ ] Verification steps to confirm successful installation
 
 ### Quick Start Guides
+
 - [ ] Minimal example to first success
+
 - [ ] Common use cases covered
+
 - [ ] Progressive complexity (simple to advanced)
+
 - [ ] Expected output shown
+
 - [ ] Next steps guidance
 
 ### Usage Examples
+
 - [ ] Real-world scenarios
+
 - [ ] Complete, runnable code
+
 - [ ] Input/output examples
+
 - [ ] Edge cases and limitations
+
 - [ ] Best practices demonstrated
 
 ### FAQ and Troubleshooting
+
 - [ ] Common questions answered
+
 - [ ] Error messages explained
+
 - [ ] Debugging guidance
+
 - [ ] Known limitations documented
+
 - [ ] Where to get help
 
 ## Prompt Template
@@ -99,7 +125,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -164,8 +192,11 @@ Create a comprehensive README.md that serves as the front door to your project:
 ## ✨ What's New in v[X.Y.Z]
 
 - 🚀 [New Feature 1]: Brief description
+
 - ⚡ [Performance Improvement]: Specific metric (e.g., "50% faster")
+
 - 🐛 [Important Bug Fix]: What was fixed
+
 - 📝 [Documentation Update]: What was improved
 
 [See full changelog](CHANGELOG.md)
@@ -181,8 +212,11 @@ Create a comprehensive README.md that serves as the front door to your project:
 **Solution**: [How does this project solve it?]
 
 **Benefits**:
+
 - ✅ [Key benefit 1]
+
 - ✅ [Key benefit 2]
+
 - ✅ [Key benefit 3]
 
 ---
@@ -190,8 +224,11 @@ Create a comprehensive README.md that serves as the front door to your project:
 ## 🎯 Key Features
 
 - **[Feature 1]**: Description of what it does and why it matters
+
 - **[Feature 2]**: Highlight unique or powerful capabilities
+
 - **[Feature 3]**: Emphasize modern C++ features used
+
 - **[Feature 4]**: Note compatibility and portability features
 
 ---
@@ -278,8 +315,11 @@ cmake --build . --target myapp
 ### Prerequisites
 
 Before installing, ensure you have:
+
 - C++17 compiler or higher (GCC 7+, Clang 5+, MSVC 2017+)
+
 - CMake 3.15 or higher
+
 - [Optional] Package manager (vcpkg, Conan, or system package manager)
 
 ### Compiler Support
@@ -697,9 +737,13 @@ g++ -std=c++17 -Wall -Wextra -Wpedantic main.cpp -lproject
 ## 📚 Documentation
 
 - **[User Guide](docs/USER_GUIDE.md)**: Comprehensive usage documentation
+
 - **[API Reference](https://username.github.io/project/api/)**: Complete API documentation
+
 - **[Examples](examples/)**: More code examples and patterns
+
 - **[FAQ](docs/FAQ.md)**: Frequently asked questions
+
 - **[Troubleshooting](docs/TROUBLESHOOTING.md)**: Common issues and solutions
 
 ---
@@ -818,6 +862,7 @@ This project is licensed under the [MIT License](LICENSE) - see the LICENSE file
 ## 🙏 Acknowledgments
 
 - [Contributor/Library]: For [contribution/inspiration]
+
 - [Resource]: For [helpful resource]
 
 ---
@@ -825,8 +870,11 @@ This project is licensed under the [MIT License](LICENSE) - see the LICENSE file
 ## 📞 Support
 
 - **Issues**: [GitHub Issues](https://github.com/username/project/issues)
+
 - **Discussions**: [GitHub Discussions](https://github.com/username/project/discussions)
+
 - **Discord**: [C++ Community](https://discord.gg/...)
+
 - **Documentation**: [https://username.github.io/project](https://username.github.io/project)
 
 ---
@@ -834,8 +882,11 @@ This project is licensed under the [MIT License](LICENSE) - see the LICENSE file
 ## 🗺️ Roadmap
 
 - [ ] v[X+1].0: [Planned major feature]
+
 - [ ] v[X].Y: [Planned minor feature]
+
 - [ ] C++20 module support
+
 - [ ] [Future feature/improvement]
 
 See [ROADMAP.md](ROADMAP.md) for detailed plans.
@@ -859,17 +910,27 @@ Complete installation instructions for [Project Name].
 ## System Requirements
 
 ### Minimum Requirements
+
 - **OS**: Linux (kernel 3.x+), macOS 10.15+, Windows 10+
+
 - **Compiler**: GCC 7+, Clang 5+, or MSVC 2017+
+
 - **C++ Standard**: C++17 or higher
+
 - **CMake**: 3.15 or higher
+
 - **RAM**: 2GB minimum, 4GB recommended
+
 - **Disk Space**: 200MB
 
 ### Recommended Requirements
+
 - GCC 11+ or Clang 13+ or MSVC 2022
+
 - C++20 support for latest features
+
 - CMake 3.20+
+
 - 8GB RAM for development
 
 ---
@@ -1182,21 +1243,29 @@ ctest --verbose
 ### Common CMake Errors
 
 **Error**: `CMake Error: CMake was unable to find a build program corresponding to "Ninja"`
+
 - **Cause**: Build tool not found
+
 - **Fix**: Install ninja or specify generator: `cmake .. -G "Unix Makefiles"`
 
 **Error**: `Could NOT find Project (missing: Project_DIR)`
+
 - **Cause**: Package not installed or not in CMake search path
+
 - **Fix**: Specify location: `cmake .. -DProject_DIR=/path/to/ProjectConfig.cmake`
 
 ### Common Compiler Errors
 
 **Error**: `error: 'filesystem' is not a member of 'std'`
+
 - **Cause**: C++17 not enabled or old compiler
+
 - **Fix**: Add `-std=c++17` and link `-lstdc++fs` (GCC < 9)
 
 **Error**: ABI compatibility issues
+
 - **Cause**: Different C++ standard between library and application
+
 - **Fix**: Use same standard for both
 
 ### Getting Help
@@ -1236,9 +1305,13 @@ Get started with [Project Name] in under 10 minutes.
 ## What You'll Build
 
 By the end of this guide, you'll have:
+
 - ✅ Built and installed [Project Name]
+
 - ✅ Created your first C++ program using the library
+
 - ✅ Understanding of core concepts
+
 - ✅ Ready to build your own solution
 
 **Time Required**: ~10 minutes
@@ -1248,7 +1321,9 @@ By the end of this guide, you'll have:
 ## Prerequisites
 
 - C++17 compiler
+
 - CMake 3.15+
+
 - Basic C++ knowledge
 
 ---
@@ -1267,6 +1342,7 @@ brew install cmake
 ```
 
 **Windows**:
+
 - Install Visual Studio 2019+ with C++ tools
 
 ---
@@ -1359,12 +1435,17 @@ int main() {
 ## Next Steps
 
 ### Explore Examples
+
 - **[Modern C++](examples/modern_cpp.cpp)**: Latest features
+
 - **[Async](examples/async.cpp)**: Concurrent processing
+
 - **[Templates](examples/templates.cpp)**: Generic programming
 
 ### Read Documentation
+
 - **[API Reference](https://username.github.io/project/api/)**: Class documentation
+
 - **[User Guide](USER_GUIDE.md)**: Comprehensive guide
 
 ---
@@ -1372,6 +1453,7 @@ int main() {
 ## Need Help?
 
 - **Errors**: See [Troubleshooting](TROUBLESHOOTING.md)
+
 - **Questions**: Open an [issue](https://github.com/username/project/issues)
 
 **Congratulations!** You're ready to use [Project Name].
@@ -1435,46 +1517,7 @@ try {
 [Back to README](../README.md)
 ```
 
----
-
-
-## File Output Instructions
-
-**IMPORTANT**: Save all generated files to the correct directory structure:
-
-```bash
-# Create directory structure
-mkdir -p ${OUTPUT_DIR}/user_docs/generated_docs
-mkdir -p ${OUTPUT_DIR}/user_docs/templates
-mkdir -p ${OUTPUT_DIR}/user_docs/assets
-mkdir -p ${OUTPUT_DIR}/user_docs/exports
-```
-
-**Save files as follows**:
-
-
-- Templates → `documentation/user_docs/templates/`
-
-- Assets → `documentation/user_docs/assets/`
-
-- Exports → `documentation/user_docs/exports/`
-
-Replace `{phase_name}` with the specific phase (docstrings, comments, user_docs, technical_docs, api_docs, or sbom).
-
 ~~~
-
-## Output Format Specifications
-
-The user documentation should:
-- Be clear and accessible to C++ developers
-- Include complete, compilable examples using modern C++
-- Show RAII, smart pointers, and exception safety
-- Cover CMake, vcpkg, and Conan workflows
-- Demonstrate C++17/20 features
-- Provide platform-specific instructions
-- Include troubleshooting for common CMake/compiler issues
-- Link to API documentation
-- Emphasize modern C++ best practices
 ---
 
 ## Verify Directory Structure
@@ -1494,7 +1537,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

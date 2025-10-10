@@ -32,28 +32,45 @@ documentation/docstrings/
 ## Implementation Checklist
 
 ### Package-Level Documentation
+
 - [ ] Package purpose clearly explained
+
 - [ ] Key types and functions listed
+
 - [ ] Usage examples provided
+
 - [ ] Package-level doc.go file created if needed
 
 ### Type Documentation
+
 - [ ] Type purpose and usage documented
+
 - [ ] Struct fields documented when non-obvious
+
 - [ ] Interface contracts explained
+
 - [ ] Type-level examples provided
 
 ### Function Documentation
+
 - [ ] Function purpose clearly stated
+
 - [ ] Parameters and returns implicitly documented
+
 - [ ] Error return values explained
+
 - [ ] Usage examples for complex functions
+
 - [ ] Goroutine safety documented
 
 ### Go Conventions
+
 - [ ] First sentence is complete and starts with name
+
 - [ ] Documentation immediately precedes declaration
+
 - [ ] Examples follow naming convention (Example_functionName)
+
 - [ ] Code examples are testable
 
 ## Prompt Template
@@ -88,7 +105,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -540,17 +559,27 @@ godoc -html package > ${OUTPUT_DIR}/exports/package.html
 **Examples Added**: [count]
 
 **Go Conventions**:
+
 - [ ] Comments start with name being documented
+
 - [ ] Complete sentences used throughout
+
 - [ ] Concurrency behavior documented
+
 - [ ] Examples are testable
+
 - [ ] Package docs include usage examples
 
 **Quality Checks**:
+
 - [ ] All exported identifiers documented
+
 - [ ] Examples compile and pass
+
 - [ ] godoc formatting correct
+
 - [ ] Cross-references work
+
 - [ ] pkg.go.dev rendering verified
 ```
 
@@ -609,18 +638,6 @@ mkdir -p ${OUTPUT_DIR}/docstrings/exports
 
 Replace `{phase_name}` with the specific phase (docstrings, comments, user_docs, technical_docs, api_docs, or sbom).
 ~~~
-
-## Output Format Specifications
-
-The generated Go documentation should:
-- Follow godoc conventions (start with name, complete sentences)
-- Be immediately above declarations (no blank lines)
-- Include testable examples with Output comments
-- Document concurrency behavior explicitly
-- Render correctly in godoc and pkg.go.dev
-- Use proper section headings with # in package docs
-- Keep comments concise but complete
-- Include usage examples for complex types/functions
 ---
 
 ## Verify Directory Structure
@@ -640,7 +657,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

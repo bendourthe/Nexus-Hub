@@ -7,10 +7,15 @@ Performance review identifies bottlenecks, inefficient algorithms, and resource 
 ## 🎯 Objectives
 
 - Profile application to identify performance bottlenecks
+
 - Analyze algorithmic complexity and efficiency
+
 - Evaluate database query performance
+
 - Assess memory usage and potential leaks
+
 - Measure I/O operations and network calls
+
 - Provide prioritized optimization recommendations
 
 ## 📂 Available Templates
@@ -28,10 +33,15 @@ Performance review identifies bottlenecks, inefficient algorithms, and resource 
 ## ✅ Success Criteria
 
 - [ ] Performance profiling completed with hotspot identification
+
 - [ ] Algorithm complexity analyzed
+
 - [ ] Database query performance evaluated
+
 - [ ] Memory usage profiled
+
 - [ ] I/O and network operations assessed
+
 - [ ] Optimization plan prioritized by impact
 
 ---
@@ -56,7 +66,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

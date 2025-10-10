@@ -32,11 +32,17 @@ review/final_report/
 ## Report Structure
 
 This template consolidates:
+
 - Context Analysis findings
+
 - Code Quality issues
+
 - Security vulnerabilities
+
 - Performance bottlenecks
+
 - Testing gaps
+
 - Overall recommendations
 
 ## Prompt Template
@@ -71,7 +77,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -137,15 +145,19 @@ Categorize all findings using a 2x2 matrix:
 **Impact vs Effort Matrix**:
 ```
 High Impact, Low Effort (DO FIRST - Quick Wins)
+
 - [List findings that deliver significant value with minimal work]
 
 High Impact, High Effort (PLAN CAREFULLY - Strategic Initiatives)
+
 - [List findings requiring substantial investment but critical for success]
 
 Low Impact, Low Effort (DO WHEN TIME PERMITS - Nice to Have)
+
 - [List minor improvements that are easy to implement]
 
 Low Impact, High Effort (AVOID - Not Worth It)
+
 - [List improvements with poor ROI]
 ```
 
@@ -188,6 +200,7 @@ Create a phased implementation plan:
 Define success metrics to track improvement:
 
 ### Code Quality Metrics
+
 - **Current State**:
   - ESLint Issues: [count by severity]
   - Average Complexity: [score]
@@ -203,15 +216,19 @@ Define success metrics to track improvement:
   - TypeScript Adoption: [target %]
 
 ### Security Metrics
+
 - **Current**: [X] critical, [Y] high, [Z] medium vulnerabilities
+
 - **Target**: 0 critical, 0 high, <5 medium
 
 ### Performance Metrics
+
 - **Current**:
   - Bundle Size: [KB/MB]
   - LCP: [seconds]
   - FID: [ms]
   - CLS: [score]
+
 - **Target**:
   - Bundle Size: <[KB/MB]
   - LCP: <2.5s
@@ -219,7 +236,9 @@ Define success metrics to track improvement:
   - CLS: <0.1
 
 ### Testing Metrics
+
 - **Current**: [X]% coverage, [Y] flaky tests
+
 - **Target**: 80%+ coverage, 0 flaky tests
 
 ## Output Format
@@ -241,27 +260,42 @@ Please provide a comprehensive final report with the following structure:
 ## Executive Summary
 
 ### Overall Health Assessment
+
 - **Code Quality**: [Grade: A-F] - [Brief assessment]
+
 - **Security**: [Grade: A-F] - [Brief assessment]
+
 - **Performance**: [Grade: A-F] - [Brief assessment]
+
 - **Testing**: [Grade: A-F] - [Brief assessment]
+
 - **Overall Recommendation**: [Production-ready / Needs work / Major refactoring needed]
 
 ### Key Highlights
 **Strengths**:
+
 - [Positive finding 1]
+
 - [Positive finding 2]
+
 - [Positive finding 3]
 
 **Critical Concerns**:
+
 - [Critical issue 1]
+
 - [Critical issue 2]
+
 - [Critical issue 3]
 
 ### Investment Summary
+
 - **Immediate Actions Required**: [hours/days]
+
 - **Short-term Improvements**: [weeks]
+
 - **Long-term Initiatives**: [months]
+
 - **Total Technical Debt**: [estimated hours]
 
 ---
@@ -271,8 +305,11 @@ Please provide a comprehensive final report with the following structure:
 ### 1. Context & Architecture
 
 **Project Overview**:
+
 - **Purpose**: [Brief description]
+
 - **Architecture**: [SPA/SSR/SSG/Micro-frontends/Monorepo/etc.]
+
 - **Tech Stack**:
   - **Frontend**: [React 18.2/Vue 3.3/Angular 16/etc.]
   - **Backend**: [Node.js 18/Express/Fastify/NestJS/etc.]
@@ -280,17 +317,25 @@ Please provide a comprehensive final report with the following structure:
   - **Build Tool**: [Webpack 5/Vite 4/Turbopack/etc.]
   - **Package Manager**: [npm/yarn/pnpm]
   - **TypeScript**: [Yes (X%)/No/Partial (Y%)]
+
 - **Development Stage**: [Prototype/Production/Legacy]
 
 **Architecture Assessment**:
+
 - **Strengths**: [What's done well]
+
 - **Concerns**: [Areas of improvement]
+
 - **Dependencies**: [Key dependency risks or issues]
 
 **Dependency Analysis**:
+
 - **Total Dependencies**: [count]
+
 - **Outdated Dependencies**: [count]
+
 - **Security Vulnerabilities**: [count by severity]
+
 - **Bundle Impact**: [major contributors to bundle size]
 
 ---
@@ -300,17 +345,27 @@ Please provide a comprehensive final report with the following structure:
 **Overall Quality Score**: [A-F]
 
 **Key Metrics**:
+
 - **ESLint Errors**: [count]
+
 - **ESLint Warnings**: [count]
+
 - **Average Cyclomatic Complexity**: [score]
+
 - **Lines of Code**: [count]
+
 - **Technical Debt**: [estimated hours]
+
 - **TypeScript Coverage**: [% if applicable]
+
 - **Code Duplication**: [% or instances]
 
 **ESLint Configuration**:
+
 - **Config**: [ESLint + Airbnb/Standard/Google/Custom]
+
 - **Plugins**: [React/Vue/TypeScript/etc.]
+
 - **Prettier Integration**: [Yes/No]
 
 **Critical Issues**:
@@ -319,9 +374,13 @@ Please provide a comprehensive final report with the following structure:
 | [issue description] | [file:line] | [High/Med/Low] | [hours] | [P0/P1/P2] |
 
 **TypeScript Adoption** (if applicable):
+
 - **Current Coverage**: [X%]
+
 - **Type Safety Issues**: [count]
+
 - **Any Usage**: [count - should be minimized]
+
 - **Recommendation**: [migrate fully/improve types/etc.]
 
 **Recommendations**:
@@ -336,9 +395,13 @@ Please provide a comprehensive final report with the following structure:
 **Overall Security Score**: [A-F]
 
 **Vulnerability Summary**:
+
 - Critical (CVSS 9.0+): [count]
+
 - High (CVSS 7.0-8.9): [count]
+
 - Medium (CVSS 4.0-6.9): [count]
+
 - Low (CVSS 0.1-3.9): [count]
 
 **npm/yarn audit Results**:
@@ -363,24 +426,39 @@ npm audit summary:
    - **Remediation**: [detailed fix steps]
 
 **Frontend Security Checklist**:
+
 - [ ] XSS Protection: [Pass/Fail]
+
 - [ ] CSRF Protection: [Pass/Fail]
+
 - [ ] Secure Headers: [Pass/Fail]
+
 - [ ] Input Validation: [Pass/Fail]
+
 - [ ] Authentication Security: [Pass/Fail]
+
 - [ ] Sensitive Data Exposure: [Pass/Fail]
+
 - [ ] Third-party Scripts: [Pass/Fail]
 
 **Backend Security Checklist** (if applicable):
+
 - [ ] SQL Injection Prevention: [Pass/Fail]
+
 - [ ] Authentication & Authorization: [Pass/Fail]
+
 - [ ] Rate Limiting: [Pass/Fail]
+
 - [ ] Error Handling: [Pass/Fail]
+
 - [ ] Secrets Management: [Pass/Fail]
 
 **Compliance Assessment**:
+
 - OWASP Top 10: [Pass/Fail - details]
+
 - Dependency Security: [Pass/Fail - details]
+
 - Secrets in Code: [Pass/Fail - details]
 
 **Security Roadmap**:
@@ -405,21 +483,32 @@ npm audit summary:
 | TTFB (Time to First Byte) | [ms] | <600ms | 🔴/🟡/🟢 |
 
 **Bundle Analysis**:
+
 - **Total Bundle Size**: [KB/MB]
+
 - **Main Bundle**: [KB]
+
 - **Vendor Bundle**: [KB]
+
 - **Largest Dependencies**:
   1. [package]: [KB]
   2. [package]: [KB]
   3. [package]: [KB]
+
 - **Code Splitting**: [Excellent/Good/Poor]
+
 - **Tree Shaking**: [Effective/Ineffective]
+
 - **Unused Code**: [KB estimated]
 
 **Runtime Performance**:
+
 - **Average FPS**: [number]
+
 - **Long Tasks (>50ms)**: [count]
+
 - **Memory Usage**: [MB peak]
+
 - **Memory Leaks**: [Detected/None]
 
 **Critical Bottlenecks**:
@@ -438,17 +527,25 @@ npm audit summary:
 **Framework-Specific Performance**:
 
 *For React:*
+
 - **Unnecessary Re-renders**: [count or locations]
+
 - **Missing Memoization**: [opportunities]
+
 - **Virtualization Needed**: [components with long lists]
 
 *For Vue:*
+
 - **Computed vs Methods**: [issues found]
+
 - **v-memo Opportunities**: [count]
+
 - **Unnecessary Watchers**: [count]
 
 *For Angular:*
+
 - **Change Detection Issues**: [count]
+
 - **OnPush Strategy Opportunities**: [count]
 
 ---
@@ -458,23 +555,37 @@ npm audit summary:
 **Overall Testing Score**: [A-F]
 
 **Coverage Metrics**:
+
 - **Line Coverage**: [%]
+
 - **Branch Coverage**: [%]
+
 - **Function Coverage**: [%]
+
 - **Statement Coverage**: [%]
+
 - **Target**: 80%+
 
 **Test Suite Inventory**:
+
 - **Total Tests**: [count]
+
 - **Unit Tests**: [count] ([%])
+
 - **Integration Tests**: [count] ([%])
+
 - **Component Tests**: [count] ([%])
+
 - **E2E Tests**: [count] ([%])
 
 **Test Frameworks**:
+
 - **Unit Testing**: [Jest/Vitest/Mocha]
+
 - **Component Testing**: [React Testing Library/Vue Test Utils/etc.]
+
 - **E2E Testing**: [Cypress/Playwright/Puppeteer]
+
 - **Coverage**: [Istanbul/nyc/c8]
 
 **Critical Gaps**:
@@ -483,17 +594,27 @@ npm audit summary:
 | [name] | [%] | [High/Med/Low] | [test types] |
 
 **Test Quality Issues**:
+
 - **Flaky Tests**: [count]
+
 - **Slow Tests (>1s)**: [count]
+
 - **Tests with Poor Assertions**: [count]
+
 - **Tests with No Assertions**: [count]
+
 - **Snapshot Tests Overuse**: [count - if applicable]
 
 **Missing Test Coverage**:
+
 - [ ] Authentication flows
+
 - [ ] Error boundaries/handling
+
 - [ ] API integration points
+
 - [ ] Complex business logic
+
 - [ ] Edge cases and boundary conditions
 
 **Testing Roadmap**:
@@ -543,8 +664,11 @@ npm audit summary:
    - Success Criteria: [measurable outcome]
 
 **Deliverables**:
+
 - [ ] All critical security vulnerabilities patched
+
 - [ ] Blocking performance issues resolved (Core Web Vitals pass)
+
 - [ ] Critical test coverage gaps filled
 
 ---
@@ -553,15 +677,23 @@ npm audit summary:
 **Objective**: Address P1 items and quick wins
 
 **Focus Areas**:
+
 - **Security**: [specific initiatives]
+
 - **Performance**: [specific optimizations]
+
 - **Quality**: [specific refactorings]
+
 - **Testing**: [coverage improvements]
 
 **Expected Outcomes**:
+
 - Security score: [current] → [target]
+
 - Performance (LCP): [current] → [target]
+
 - Test coverage: [current%] → [target%]
+
 - Bundle size: [current KB] → [target KB]
 
 ---
@@ -642,20 +774,31 @@ npm audit summary:
 ## Recommendations for Stakeholders
 
 ### For Engineering Leadership
+
 - **Investment Required**: [hours/days estimate]
+
 - **Risk if Not Addressed**: [business impact]
+
 - **Recommended Approach**: [phased implementation strategy]
+
 - **Resource Needs**: [team members, tools, budget]
 
 ### For Development Team
+
 - **Immediate Actions**: [list of P0 items]
+
 - **Skill Development Needs**: [TypeScript/performance optimization/security/etc.]
+
 - **Process Improvements**: [code review standards, testing requirements]
+
 - **Tool Recommendations**: [ESLint plugins, bundler upgrades, monitoring tools]
 
 ### For Product Management
+
 - **Feature Impact**: [how technical debt affects features]
+
 - **Quality Risks**: [potential customer impact, slow page loads, security risks]
+
 - **Timeline Considerations**: [how fixes affect roadmap]
 
 ---
@@ -663,10 +806,15 @@ npm audit summary:
 ## Appendices
 
 ### A. Detailed Tool Reports
+
 - **Coverage Report**: [URL or path to htmlcov/index.html]
+
 - **Security Scan**: [URL or npm audit output]
+
 - **Bundle Analysis**: [URL to webpack-bundle-analyzer report]
+
 - **Lighthouse Report**: [URL or score summary]
+
 - **Performance Profile**: [URL or DevTools profile]
 
 ### B. Code Examples
@@ -737,38 +885,61 @@ jobs:
 ### D. Recommended Tools & Plugins
 
 **Code Quality**:
+
 - ESLint + Prettier
+
 - TypeScript (if not using)
+
 - SonarQube / Code Climate
+
 - Husky + lint-staged (pre-commit hooks)
 
 **Security**:
+
 - npm audit / yarn audit
+
 - Snyk / Dependabot
+
 - OWASP Dependency-Check
 
 **Performance**:
+
 - Lighthouse CI
+
 - webpack-bundle-analyzer / rollup-plugin-visualizer
+
 - web-vitals library
+
 - Chrome DevTools Performance panel
 
 **Testing**:
+
 - Jest / Vitest
+
 - React Testing Library / Vue Test Utils
+
 - Cypress / Playwright
+
 - MSW (Mock Service Worker)
 
 **Monitoring**:
+
 - Sentry (error tracking)
+
 - DataDog / New Relic (APM)
+
 - LogRocket / FullStory (session replay)
 
 ### E. Resource Links
+
 - [OWASP Top 10](https://owasp.org/Top10/)
+
 - [JavaScript Best Practices](https://github.com/ryanmcdermott/clean-code-javascript)
+
 - [React Best Practices](https://react.dev/learn)
+
 - [Web.dev Performance](https://web.dev/performance/)
+
 - [Jest Testing Best Practices](https://github.com/goldbergyoni/javascript-testing-best-practices)
 
 ---
@@ -802,34 +973,19 @@ jobs:
 **Report Generated**: [Date and Time]
 **Review Methodology**: Automated scanning + manual review
 **Tools Used**: [List of tools and versions]
+
 - ESLint [version]
+
 - Jest [version]
+
 - Lighthouse [version]
+
 - npm audit
+
 - Chrome DevTools
+
 - [Other tools]
 
----
-
-## File Output Instructions
-
-**IMPORTANT**: Save all generated files to the correct directory structure:
-
-```bash
-# Create directory structure
-mkdir -p ${OUTPUT_DIR}/final_report/analysis_scripts
-mkdir -p ${OUTPUT_DIR}/final_report/supporting_data
-```
-
-**Save files as follows**:
-
-- Main report → `review/final_report/final_report_report.md`
-
-- Findings data → `review/final_report/final_report_findings.json`
-
-- Analysis scripts → `review/final_report/analysis_scripts/`
-
-- Supporting data → `review/final_report/supporting_data/`
 ~~~
 ---
 
@@ -850,7 +1006,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

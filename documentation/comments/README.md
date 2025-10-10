@@ -23,10 +23,15 @@ Add meaningful comments that explain business logic, design decisions, non-obvio
 ## ✅ Key Areas Covered
 
 - **When to Comment**: Identifying code that genuinely needs explanation
+
 - **Block Comments**: Documenting complex algorithms and logic flows
+
 - **Inline Comments**: Clarifying non-obvious code decisions
+
 - **TODO/FIXME/HACK Conventions**: Tracking technical debt
+
 - **What NOT to Comment**: Avoiding redundant and obvious comments
+
 - **Refactoring vs Commenting**: When code should be improved instead
 
 ## 🚀 Quick Start
@@ -39,10 +44,15 @@ Add meaningful comments that explain business logic, design decisions, non-obvio
 ## 📊 Success Criteria
 
 - [ ] Complex algorithms explained with block comments
+
 - [ ] Non-obvious code decisions clarified with inline comments
+
 - [ ] Business logic rationale documented
+
 - [ ] Workarounds and technical debt tracked with TODO/FIXME/HACK
+
 - [ ] No redundant comments explaining obvious code
+
 - [ ] Self-documenting code preferred over excessive comments
 
 ---
@@ -67,7 +77,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

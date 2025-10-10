@@ -32,43 +32,88 @@ documentation/api_docs/
 ## Implementation Checklist
 
 ### Endpoint Documentation
+
 - [ ] All endpoints documented with HTTP methods
+
 - [ ] Request/response models with C# types
+
 - [ ] Route parameters, query strings, body documented
+
 - [ ] Status codes and meanings explained
+
 - [ ] Content types specified
 
 ### Authentication
+
 - [ ] Authentication methods documented (JWT/OAuth2/Azure AD)
+
 - [ ] Authorization policies explained
+
 - [ ] Token management documented
+
 - [ ] Claims and roles documented
 
 ### Request/Response
+
 - [ ] DTO models documented
+
 - [ ] Data annotations explained
+
 - [ ] Validation attributes shown
+
 - [ ] Example JSON payloads provided
 
 ### Error Handling
+
 - [ ] Exception handling documented
+
 - [ ] ProblemDetails format shown
+
 - [ ] HTTP status code mappings
+
 - [ ] Common error scenarios covered
 
 ### Examples
+
 - [ ] HttpClient examples
+
 - [ ] RestSharp examples
+
 - [ ] Refit interface examples
+
 - [ ] Complete integration examples
 
 ### Best Practices
+
 - [ ] Rate limiting documented
+
 - [ ] Pagination patterns explained
+
 - [ ] API versioning (Asp.Versioning)
+
 - [ ] Performance considerations
 
 ## Prompt Template
+
+---
+
+## Output Format Specifications
+
+The API documentation should:
+
+- Follow OpenAPI 3.0 standards
+
+- Include ASP.NET Core-specific patterns
+
+- Provide multiple .NET client examples
+
+- Document validation and error handling
+
+- Show authentication/authorization setup
+
+- Include testing examples
+
+- Target .NET/C# developers
 
 ~~~markdown
 # C#/.NET API Documentation Request
@@ -98,7 +143,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -642,41 +689,25 @@ public class UsersControllerTests : IClassFixture<WebApplicationFactory<Program>
 
 ---
 
-## File Output Instructions
-
-**IMPORTANT**: Save all generated files to the correct directory structure:
-
-```bash
-# Create directory structure
-mkdir -p ${OUTPUT_DIR}/api_docs/generated_docs
-mkdir -p ${OUTPUT_DIR}/api_docs/templates
-mkdir -p ${OUTPUT_DIR}/api_docs/assets
-mkdir -p ${OUTPUT_DIR}/api_docs/exports
-```
-
-**Save files as follows**:
-
-
-- Templates → `documentation/api_docs/templates/`
-
-- Assets → `documentation/api_docs/assets/`
-
-- Exports → `documentation/api_docs/exports/`
-
-Replace `{phase_name}` with the specific phase (docstrings, comments, user_docs, technical_docs, api_docs, or sbom).
-
-~~~
-
 ## Output Format Specifications
 
 The API documentation should:
+
 - Follow OpenAPI 3.0 standards
+
 - Include ASP.NET Core-specific patterns
+
 - Provide multiple .NET client examples
+
 - Document validation and error handling
+
 - Show authentication/authorization setup
+
 - Include testing examples
+
 - Target .NET/C# developers
+
+~~~
 ---
 
 ## Verify Directory Structure
@@ -696,7 +727,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

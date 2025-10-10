@@ -32,45 +32,75 @@ review/testing_review/
 ## Review Checklist
 
 ### Test Coverage
+
 - [ ] Line coverage measured (target: 80%+)
+
 - [ ] Branch coverage assessed
+
 - [ ] Critical paths fully tested
+
 - [ ] Edge cases and error conditions covered
+
 - [ ] Coverage gaps identified and prioritized
 
 ### Test Quality
+
 - [ ] Tests follow AAA pattern (Arrange, Act, Assert)
+
 - [ ] Test names clearly describe what is being tested
+
 - [ ] Tests are independent and isolated
+
 - [ ] Assertions are specific and meaningful
+
 - [ ] Test data is representative and comprehensive
 
 ### Test Organization
+
 - [ ] Test structure mirrors source code structure
+
 - [ ] Test projects properly organized
+
 - [ ] Fixtures and test utilities well-organized
+
 - [ ] Test configuration managed appropriately
+
 - [ ] Test documentation present
 
 ### Test Types Coverage
+
 - [ ] Unit tests present for core logic
+
 - [ ] Integration tests cover component interactions
+
 - [ ] End-to-end tests validate critical user flows
+
 - [ ] Performance tests for critical operations (BenchmarkDotNet)
+
 - [ ] Security tests for sensitive operations
 
 ### Test Reliability
+
 - [ ] Flaky tests identified
+
 - [ ] Tests run independently (no order dependency)
+
 - [ ] External dependencies properly mocked
+
 - [ ] Test data properly managed
+
 - [ ] Tests run consistently in different environments
 
 ### CI/CD Integration
+
 - [ ] Tests run automatically on commits/PRs
+
 - [ ] Test failures block merges
+
 - [ ] Coverage reports generated
+
 - [ ] Test execution time reasonable
+
 - [ ] Parallel test execution configured
 
 ## Prompt Template
@@ -105,7 +135,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -600,15 +632,23 @@ Please perform a comprehensive testing review of this C# project following this 
 Please provide a comprehensive testing report with the following structure:
 
 ### Executive Summary
+
 - **Overall Test Health**: [Excellent/Good/Fair/Poor]
+
 - **Test Coverage**: [percentage] (line) / [percentage] (branch)
+
 - **Critical Gaps**: [count and brief description]
+
 - **Test Quality**: [High/Medium/Low]
+
 - **Reliability**: [Stable/Some Flakiness/Unreliable]
 
 ### Coverage Metrics
+
 - **Line Coverage**: [%]
+
 - **Branch Coverage**: [%]
+
 - **Method Coverage**: [%]
 
 **Coverage by Project**:
@@ -617,12 +657,15 @@ Please provide a comprehensive testing report with the following structure:
 | [name] | [%] | [%] | [count] | [High/Med/Low] |
 
 ### Test Suite Inventory
+
 - **Total Tests**: [count]
   - **Unit Tests**: [count] ([%])
   - **Integration Tests**: [count] ([%])
   - **Functional Tests**: [count] ([%])
   - **Performance Tests**: [count]
+
 - **Test Framework**: [xUnit/NUnit/MSTest]
+
 - **Mocking Framework**: [Moq/NSubstitute/FakeItEasy]
 
 ### Critical Coverage Gaps (Priority 1)
@@ -637,10 +680,15 @@ Please provide a comprehensive testing report with the following structure:
 | [smell type] | [test class:method] | [details] | [recommendation] |
 
 **Common Issues**:
+
 - [ ] Tests with unclear names: [count]
+
 - [ ] Tests with weak assertions: [count]
+
 - [ ] Tests with complex setup: [count]
+
 - [ ] Tests testing implementation details: [count]
+
 - [ ] Tests without AAA structure: [count]
 
 ### Test Reliability Assessment
@@ -650,33 +698,50 @@ Please provide a comprehensive testing report with the following structure:
 | [test] | [%] | [reason] | [solution] |
 
 **Test Independence Issues**:
+
 - [ ] Order-dependent tests: [list]
+
 - [ ] Shared state pollution: [list]
+
 - [ ] External dependencies not mocked: [list]
 
 ### Test Execution Performance
+
 - **Total Execution Time**: [seconds]
+
 - **Slowest Tests**:
   | Test | Duration | Category | Optimization |
   |------|----------|----------|--------------|
   | [name] | [seconds] | [unit/integration/e2e] | [suggestion] |
 
 ### Missing Test Types
+
 - [ ] **Edge Cases**: [specific gaps]
+
 - [ ] **Error Conditions**: [uncovered exceptions]
+
 - [ ] **Boundary Values**: [missing boundary tests]
+
 - [ ] **Integration Points**: [untested interactions]
+
 - [ ] **Performance Tests**: [operations needing perf tests]
+
 - [ ] **Security Tests**: [security validations needed]
 
 ### CI/CD Integration
+
 - **Automated Test Execution**: [Yes/No/Partial]
+
 - **Coverage Reporting**: [Yes/No]
+
 - **Quality Gates**: [Enforced/Not Enforced]
+
 - **Test Parallelization**: [Yes/No]
+
 - **Coverage Threshold**: [percentage or N/A]
 
 **Issues**:
+
 - [List of CI/CD testing gaps or issues]
 
 ### Recommendations
@@ -739,15 +804,21 @@ collection.Should().Contain(x => x.IsActive);
 **Target: [X]% coverage (from current [Y]%)**
 
 **Phase 1** (Week 1-2):
+
 - Add tests for [critical classes]
+
 - Expected coverage gain: +[X]%
 
 **Phase 2** (Week 3-4):
+
 - Add integration tests for [components]
+
 - Expected coverage gain: +[X]%
 
 **Phase 3** (Month 2):
+
 - Add edge case and error condition tests
+
 - Expected coverage gain: +[X]%
 
 ### Quality Gates Recommendation
@@ -763,20 +834,33 @@ collection.Should().Contain(x => x.IsActive);
 ```
 
 ### Next Steps
+
 - [ ] Address critical coverage gaps (Priority 1 items)
+
 - [ ] Fix or quarantine flaky tests
+
 - [ ] Implement test builders and factories
+
 - [ ] Set up coverage monitoring in CI/CD
+
 - [ ] Establish team testing guidelines
+
 - [ ] Schedule testing improvement sprint
+
 - [ ] Configure code coverage requirements
 
 ## Notes
+
 - Focus on testing critical business logic first
+
 - Aim for meaningful tests, not just coverage percentage
+
 - Balance unit, integration, and functional test distribution
+
 - Keep tests fast and reliable
+
 - Treat test code with same quality standards as production code
+
 - Use appropriate test doubles (mocks, stubs, fakes)
 
 ## File Output Instructions
@@ -818,7 +902,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

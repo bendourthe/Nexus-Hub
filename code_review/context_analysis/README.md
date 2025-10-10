@@ -7,9 +7,13 @@ Context analysis is the critical first phase of code review. Before evaluating c
 ## 🎯 Objectives
 
 - Map project structure, entry points, and module organization
+
 - Understand architecture patterns and design decisions
+
 - Identify all dependencies and their versions
+
 - Document build/deployment workflows
+
 - Establish baseline metrics for codebase complexity
 
 ## 📂 Available Templates
@@ -27,10 +31,15 @@ Context analysis is the critical first phase of code review. Before evaluating c
 ## ✅ Success Criteria
 
 - [ ] Project purpose and scope documented
+
 - [ ] Architecture and design patterns identified
+
 - [ ] Dependency tree mapped with version information
+
 - [ ] Build and deployment process understood
+
 - [ ] Codebase metrics baseline established
+
 - [ ] Key stakeholders and documentation located
 
 ---
@@ -55,7 +64,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

@@ -32,45 +32,75 @@ review/performance_review/
 ## Review Checklist
 
 ### Execution Performance
+
 - [ ] CPU profiling completed (gprof, Valgrind, embedded profiler)
+
 - [ ] Interrupt latency measured
+
 - [ ] Critical path timing analyzed
+
 - [ ] Hot functions identified
+
 - [ ] Real-time deadlines verified
 
 ### Memory Usage
+
 - [ ] Flash/ROM usage measured and optimized
+
 - [ ] RAM usage analyzed (static, stack, heap)
+
 - [ ] Stack depth profiling completed
+
 - [ ] Memory fragmentation assessed (if heap used)
+
 - [ ] DMA buffer placement optimized
 
 ### Algorithm Efficiency
+
 - [ ] Time complexity evaluated (O(n), O(n²))
+
 - [ ] Space complexity assessed
+
 - [ ] Lookup tables vs computation trade-offs
+
 - [ ] Unnecessary computations identified
+
 - [ ] Cache-friendly access patterns verified
 
 ### Peripheral & I/O
+
 - [ ] Peripheral configuration optimized
+
 - [ ] DMA usage opportunities identified
+
 - [ ] Interrupt vs polling strategies evaluated
+
 - [ ] Bus utilization analyzed
+
 - [ ] Hardware acceleration leveraged
 
 ### Power Consumption
+
 - [ ] Power profiling completed
+
 - [ ] Sleep modes utilized effectively
+
 - [ ] Peripheral clock gating implemented
+
 - [ ] Active time minimized
+
 - [ ] Low-power design patterns applied
 
 ### Real-Time Behavior
+
 - [ ] Worst-case execution time (WCET) analyzed
+
 - [ ] Deadline misses identified
+
 - [ ] Priority inversion risks assessed
+
 - [ ] Interrupt latency acceptable
+
 - [ ] Jitter minimized
 
 ## Prompt Template
@@ -105,7 +135,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -718,10 +750,15 @@ Please perform a comprehensive performance review of this embedded C application
 Please provide a comprehensive performance report with the following structure:
 
 ### Executive Summary
+
 - **Overall Performance**: [Excellent/Good/Fair/Poor]
+
 - **Real-Time Compliance**: [Met/Violated - deadline miss count]
+
 - **Resource Utilization**: [Flash: X%, RAM: Y%, CPU: Z%]
+
 - **Critical Bottlenecks**: [count and brief description]
+
 - **Optimization Potential**: [estimated improvement]
 
 ### Timing Analysis
@@ -738,14 +775,21 @@ Please provide a comprehensive performance report with the following structure:
 
 ### Memory Analysis
 **Flash Usage**: [X KB / Y KB (Z%)]
+
 - Code: [X KB]
+
 - Constants: [X KB]
+
 - Optimization potential: [X KB]
 
 **RAM Usage**: [X KB / Y KB (Z%)]
+
 - Static: [X KB]
+
 - Stack: [X KB] (peak: [X KB])
+
 - Heap: [X KB] (if used)
+
 - Optimization potential: [X KB]
 
 **Largest Memory Consumers**:
@@ -754,9 +798,13 @@ Please provide a comprehensive performance report with the following structure:
 | [name] | [KB] | [code/data] | [file] | [suggestion] |
 
 ### CPU Utilization
+
 - **Average Load**: [%]
+
 - **Peak Load**: [%]
+
 - **Idle Time**: [%]
+
 - **Interrupt Overhead**: [%]
 
 ### Critical Performance Issues (Priority 1)
@@ -770,15 +818,23 @@ Please provide a comprehensive performance report with the following structure:
 | [name] | [O(n²)] | [X ms] | [O(n) with lookup table] | [10x faster] |
 
 ### Peripheral Performance
+
 - **DMA Opportunities**: [count of locations where DMA could be used]
+
 - **Interrupt Latency**: [average and max]
+
 - **Bus Utilization**: [SPI/I2C/UART efficiency]
 
 ### Power Consumption Analysis
+
 - **Active Current**: [mA at X MHz]
+
 - **Sleep Current**: [µA]
+
 - **Average Current**: [mA] (based on duty cycle)
+
 - **Battery Life**: [estimated hours/days]
+
 - **Optimization Potential**: [X% reduction]
 
 ### Quick Wins (High Impact, Low Effort)
@@ -818,9 +874,11 @@ Please provide a comprehensive performance report with the following structure:
 
 ### Benchmark Results
 **Before Optimization**:
+
 - [Operation]: [time/throughput]
 
 **After Optimization** (projected):
+
 - [Operation]: [time/throughput]
 
 **Improvement**: [X%] faster / [Y%] smaller / [Z%] lower power
@@ -851,19 +909,31 @@ Please provide a comprehensive performance report with the following structure:
 ```
 
 ### Next Steps
+
 - [ ] Implement quick win optimizations
+
 - [ ] Enable compiler optimization flags
+
 - [ ] Add performance monitoring to CI
+
 - [ ] Establish performance budgets for new features
+
 - [ ] Document optimization decisions
+
 - [ ] Plan performance testing before deployment
 
 ## Notes
+
 - Optimize based on profiling data, not assumptions
+
 - Balance performance with code maintainability
+
 - Consider power consumption in battery-powered devices
+
 - Verify optimizations don't break functionality
+
 - Real-time deadlines are hard constraints - must be met
+
 - Document any trade-offs (speed vs size, power vs performance)
 
 ## File Output Instructions
@@ -905,7 +975,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

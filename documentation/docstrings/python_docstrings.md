@@ -32,37 +32,61 @@ documentation/docstrings/
 ## Implementation Checklist
 
 ### Module-Level Documentation
+
 - [ ] Module purpose and scope clearly explained
+
 - [ ] Key classes and functions listed
+
 - [ ] Dependencies and requirements noted
+
 - [ ] Usage examples provided for module imports
+
 - [ ] Author information included
 
 ### Class Documentation
+
 - [ ] Class purpose and responsibility documented
+
 - [ ] All public attributes described with types
+
 - [ ] Constructor parameters documented
+
 - [ ] Class-level examples provided
+
 - [ ] Inheritance relationships explained
 
 ### Function/Method Documentation
+
 - [ ] Function purpose clearly stated
+
 - [ ] All parameters documented with types and descriptions
+
 - [ ] Return values documented with types
+
 - [ ] Exceptions raised documented
+
 - [ ] Side effects and state changes noted
+
 - [ ] Usage examples for complex functions
 
 ### Type Hints Integration
+
 - [ ] Docstrings complement (not duplicate) type hints
+
 - [ ] Complex types explained in docstrings
+
 - [ ] Type constraints and validation documented
+
 - [ ] Generic type usage clarified
 
 ### Documentation Style
+
 - [ ] Consistent style throughout codebase (Google/NumPy/Sphinx)
+
 - [ ] Formatting conventions followed
+
 - [ ] Code examples properly formatted
+
 - [ ] Cross-references to related functions/classes
 
 ## Prompt Template
@@ -97,7 +121,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -406,28 +432,45 @@ def retry_on_failure(max_attempts: int = 3):
 Verify each docstring meets these criteria:
 
 ### Completeness
+
 - [ ] Purpose clearly stated
+
 - [ ] All parameters documented
+
 - [ ] Return value documented
+
 - [ ] Exceptions documented
+
 - [ ] Examples provided for non-trivial functions
 
 ### Clarity
+
 - [ ] Uses clear, concise language
+
 - [ ] Avoids jargon or explains technical terms
+
 - [ ] Follows consistent tense (present tense for descriptions)
+
 - [ ] No redundant information with type hints
 
 ### Examples
+
 - [ ] Examples are runnable (use >>> doctest format when possible)
+
 - [ ] Examples cover common use cases
+
 - [ ] Complex functions have multiple examples
+
 - [ ] Examples demonstrate edge cases or important patterns
 
 ### Formatting
+
 - [ ] Consistent style throughout codebase
+
 - [ ] Proper indentation and line breaks
+
 - [ ] Code blocks properly formatted
+
 - [ ] Cross-references use proper syntax
 
 ## Phase 7: Documentation Generation
@@ -500,37 +543,58 @@ Please provide docstrings in this format:
 **Examples Added**: [count]
 
 **Coverage Metrics**:
+
 - Module coverage: [X%]
+
 - Class coverage: [X%]
+
 - Function coverage: [X%]
+
 - Overall coverage: [X%]
 
 **Quality Checks**:
+
 - [ ] All public interfaces documented
+
 - [ ] Consistent style throughout
+
 - [ ] Examples provided where appropriate
+
 - [ ] Type hints complemented (not duplicated)
+
 - [ ] Doctests pass successfully
 ```
 
 ## Docstring Style Guide Reference
 
 ### Google Style (Recommended)
+
 - Most readable and widely adopted
+
 - Clear section headers (Args, Returns, Raises, etc.)
+
 - Simple, clean formatting
+
 - Good for both humans and documentation generators
 
 ### NumPy Style
+
 - Popular in scientific computing
+
 - More structured with underlines
+
 - Better for complex mathematical functions
+
 - Standard in NumPy, SciPy, pandas ecosystems
 
 ### Sphinx/reStructuredText Style
+
 - Native to Sphinx documentation generator
+
 - More verbose with directives
+
 - Powerful cross-referencing capabilities
+
 - Standard for large documentation projects
 
 ## Best Practices
@@ -628,19 +692,30 @@ mkdir -p ${OUTPUT_DIR}/docstrings/exports
 - Exports → `documentation/docstrings/exports/`
 
 Replace `{phase_name}` with the specific phase (docstrings, comments, user_docs, technical_docs, api_docs, or sbom).
-~~~
+
+---
 
 ## Output Format Specifications
 
 The generated docstrings should:
+
 - Follow the selected style guide consistently (Google/NumPy/Sphinx)
+
 - Include all required sections based on function complexity
+
 - Provide runnable examples using doctest format where appropriate
+
 - Complement existing type hints without redundancy
+
 - Use clear, concise language suitable for the target audience
+
 - Include proper cross-references to related functionality
+
 - Pass style checkers (pydocstyle, darglint)
+
 - Generate properly formatted API documentation (Sphinx, pdoc)
+
+~~~
 ---
 
 ## Verify Directory Structure
@@ -660,7 +735,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

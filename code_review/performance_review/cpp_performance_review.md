@@ -32,44 +32,73 @@ review/performance_review/
 ## Review Checklist
 
 ### Performance Profiling
+
 - [ ] CPU profiling completed (perf, Valgrind, VTune)
+
 - [ ] Memory profiling performed (Valgrind, Heaptrack)
+
 - [ ] Cache analysis conducted (perf, Cachegrind)
+
 - [ ] Hot paths and bottlenecks identified
+
 - [ ] Function-level timing measurements captured
 
 ### Algorithm Efficiency
+
 - [ ] Time complexity evaluated (O(n), O(n²), etc.)
+
 - [ ] Space complexity assessed
+
 - [ ] Inefficient loops identified (nested, redundant)
+
 - [ ] Algorithmic improvements documented
+
 - [ ] Data structure choices reviewed
 
 ### Memory Performance
+
 - [ ] Memory allocation patterns analyzed
+
 - [ ] Cache locality issues identified
+
 - [ ] Memory fragmentation assessed
+
 - [ ] Object size optimization reviewed
+
 - [ ] Memory alignment checked
 
 ### C++ Specific Optimizations
+
 - [ ] Move semantics usage evaluated
+
 - [ ] Copy elision opportunities identified
+
 - [ ] RVO/NRVO application assessed
+
 - [ ] Template instantiation overhead reviewed
+
 - [ ] Compile-time computation opportunities (constexpr)
 
 ### I/O Performance
+
 - [ ] File I/O operations profiled
+
 - [ ] Buffering strategies reviewed
+
 - [ ] Serialization performance assessed
+
 - [ ] Memory-mapped I/O opportunities identified
 
 ### Concurrency & Parallelism
+
 - [ ] Threading/async opportunities identified
+
 - [ ] Lock contention measured
+
 - [ ] Thread pool usage evaluated
+
 - [ ] SIMD opportunities assessed
+
 - [ ] Parallel algorithm usage reviewed
 
 ## Prompt Template
@@ -104,7 +133,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -675,10 +706,15 @@ Please perform a comprehensive performance review of this C++ application follow
 Please provide a comprehensive performance report with the following structure:
 
 ### Executive Summary
+
 - **Overall Performance**: [Excellent/Good/Fair/Poor]
+
 - **Critical Bottlenecks**: [count and brief description]
+
 - **Performance Impact**: [High/Medium/Low user-facing impact]
+
 - **Optimization Potential**: [percentage improvement possible]
+
 - **Recommended Investment**: [estimated hours for major improvements]
 
 ### Performance Profile Overview
@@ -741,20 +777,31 @@ Please provide a comprehensive performance report with the following structure:
 | [excessive instantiation] | [file:line] | [KB] | [factor common code] |
 
 ### I/O Performance
+
 - **File I/O Operations**: [count and total time]
+
 - **Buffering Issues**: [locations]
+
 - **Memory-Mapped I/O Opportunities**: [candidates]
 
 ### Concurrency Assessment
+
 - **Current Concurrency Model**: [threading/async/none]
+
 - **Lock Contention**: [hotspots]
+
 - **Parallelization Opportunities**: [specific candidates]
+
 - **SIMD Opportunities**: [vectorizable loops]
 
 ### Compiler Optimization Analysis
+
 - **Current Optimization Level**: [-O2/-O3]
+
 - **LTO Enabled**: [yes/no]
+
 - **PGO Used**: [yes/no]
+
 - **Recommendations**: [specific flags to add]
 
 ### Optimization Recommendations
@@ -774,11 +821,15 @@ Please provide a comprehensive performance report with the following structure:
 
 ### Benchmark Results
 **Before Optimization**:
+
 - Operation X: [time/throughput]
+
 - Memory usage: [MB]
 
 **After Optimization** (projected):
+
 - Operation X: [time/throughput]
+
 - Memory usage: [MB]
 
 **Improvement**: [X]x faster / [Y]% less memory
@@ -800,25 +851,41 @@ BENCHMARK(BM_MyFunction);
 ```
 
 ### Monitoring Recommendations
+
 - Response time tracking (p50, p95, p99)
+
 - Memory usage alerts
+
 - CPU utilization monitoring
+
 - Cache miss rate tracking
 
 ### Next Steps
+
 - [ ] Implement quick win optimizations
+
 - [ ] Set up performance benchmarking suite
+
 - [ ] Configure production performance monitoring
+
 - [ ] Plan load testing
+
 - [ ] Schedule performance review sprint
+
 - [ ] Document performance SLAs/targets
 
 ## Notes
+
 - Profile in release builds with debug symbols (-O3 -g)
+
 - Optimize based on profiling data, not assumptions
+
 - Focus on hot paths (95% of time in 5% of code)
+
 - Consider scalability alongside raw performance
+
 - Balance performance with code maintainability
+
 - Test performance improvements with realistic data
 
 ## File Output Instructions
@@ -860,7 +927,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

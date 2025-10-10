@@ -32,44 +32,73 @@ review/context_analysis/
 ## Analysis Checklist
 
 ### Project Understanding
+
 - [ ] Target hardware platform and microcontroller identified
+
 - [ ] Real-time requirements and constraints documented
+
 - [ ] Bare metal vs RTOS architecture clarified
+
 - [ ] Power consumption requirements assessed
+
 - [ ] Safety-critical or certification requirements identified (ISO 26262, IEC 61508, DO-178C)
 
 ### Architecture & Structure
+
 - [ ] Entry points and initialization sequence mapped
+
 - [ ] Module organization and layering evaluated
+
 - [ ] Hardware abstraction layers (HAL) identified
+
 - [ ] Interrupt service routines (ISRs) documented
+
 - [ ] Memory map and allocation strategy understood
 
 ### Build System & Toolchain
+
 - [ ] Build system documented (Makefile, CMake, custom)
+
 - [ ] Compiler and version identified (GCC, Clang, IAR, Keil)
+
 - [ ] Compiler flags and optimization levels reviewed
+
 - [ ] Linker scripts analyzed
+
 - [ ] Cross-compilation setup verified
 
 ### Dependency Analysis
+
 - [ ] External libraries and middleware listed (FreeRTOS, CMSIS, vendor SDKs)
+
 - [ ] Hardware dependencies documented (peripherals, sensors, actuators)
+
 - [ ] Third-party component versions tracked
+
 - [ ] License compatibility verified
+
 - [ ] Vendor SDK versions and update status checked
 
 ### Hardware & Resource Constraints
+
 - [ ] Flash/ROM size and usage measured
+
 - [ ] RAM/SRAM allocation analyzed
+
 - [ ] Stack size requirements assessed
+
 - [ ] Clock speeds and timing constraints documented
+
 - [ ] Peripheral usage mapped
 
 ### Configuration Management
+
 - [ ] Configuration files identified (config.h, board.h, etc.)
+
 - [ ] Compile-time vs runtime configuration documented
+
 - [ ] Feature flags and conditional compilation reviewed
+
 - [ ] Debug vs release build differences noted
 
 ## Prompt Template
@@ -104,7 +133,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -385,19 +416,31 @@ Please perform a comprehensive context analysis of this C/embedded project follo
 Please provide a comprehensive context report with the following structure:
 
 ### Executive Summary
+
 - **Project Name**: [name]
+
 - **Purpose**: [1-2 sentence description]
+
 - **Target Hardware**: [MCU family and board]
+
 - **Architecture**: [bare metal/RTOS/hybrid]
+
 - **Compiler**: [toolchain and version]
+
 - **Safety/Certification**: [requirements if any]
 
 ### Hardware Platform
+
 - **Microcontroller**: [Family, part number, core architecture]
+
 - **Flash Memory**: [size and usage]
+
 - **RAM**: [size and usage]
+
 - **Clock Speed**: [frequencies]
+
 - **Key Peripherals**: [list]
+
 - **External Components**: [sensors, actuators, communication modules]
 
 ### Project Structure
@@ -410,10 +453,15 @@ project/
 ```
 
 ### Architecture Overview
+
 - **System Type**: [bare metal, RTOS-based, event-driven]
+
 - **Initialization Flow**: [brief description]
+
 - **Module Organization**: [layering and abstraction]
+
 - **Interrupt Handling**: [ISR count and priority scheme]
+
 - **Memory Architecture**: [Flash/RAM organization]
 
 ### Build System
@@ -431,24 +479,39 @@ project/
 | [name] | [version] | [usage] | [current/outdated] | [license] |
 
 ### Resource Usage
+
 - **Flash Usage**: [X KB / Y KB (Z%)]
+
 - **RAM Usage**: [X KB / Y KB (Z%)]
+
 - **Stack Allocation**: [size per task/total]
+
 - **Heap Usage**: [size if used]
+
 - **Resource Pressure**: [None/Low/Medium/High]
 
 ### RTOS Configuration (if applicable)
+
 - **RTOS**: [name and version]
+
 - **Scheduler**: [type and tick rate]
+
 - **Tasks**: [count and priorities]
+
 - **Stack Sizes**: [per task]
+
 - **Synchronization**: [mechanisms used]
 
 ### Codebase Metrics
+
 - **Total Lines**: [number] (excluding vendor code)
+
 - **Source Files**: [count]
+
 - **Average File Size**: [lines]
+
 - **Largest Files**: [list files >500 lines]
+
 - **Function Complexity**: [average cyclomatic complexity]
 
 ### Key Findings
@@ -465,10 +528,15 @@ Based on this context, the following review areas should be prioritized:
 3. [Area 3] - [reason]
 
 ### Next Steps
+
 - [ ] Proceed with code quality review (MISRA-C, CERT-C compliance)
+
 - [ ] Conduct security audit (buffer overflows, memory safety)
+
 - [ ] Perform performance analysis (timing, resource usage)
+
 - [ ] Review interrupt handling and real-time behavior
+
 - [ ] Assess test coverage (unit tests, hardware-in-the-loop)
 
 ## File Output Instructions
@@ -492,10 +560,15 @@ mkdir -p ${OUTPUT_DIR}/context_analysis/supporting_data
 - Supporting data → `review/context_analysis/supporting_data/`
 
 ## Notes
+
 - Save this context report - it will inform all subsequent review phases
+
 - Flag any critical resource constraints or hardware limitations
+
 - Document any safety-critical or certification requirements
+
 - Note toolchain-specific issues or vendor SDK quirks
+
 - Identify areas where static analysis tools should focus
 ~~~
 ---
@@ -517,7 +590,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

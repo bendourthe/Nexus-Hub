@@ -32,39 +32,65 @@ review/performance_review/
 ## Review Checklist
 
 ### Performance Profiling
+
 - [ ] CPU profiling completed (JProfiler, VisualVM, YourKit)
+
 - [ ] Memory profiling performed (heap analysis, leak detection)
+
 - [ ] Garbage collection analysis conducted
+
 - [ ] Thread profiling and contention analysis done
+
 - [ ] I/O operations analyzed
+
 - [ ] Hot paths and bottlenecks identified
 
 ### Algorithm Efficiency
+
 - [ ] Time complexity evaluated (O(n), O(n²), etc.)
+
 - [ ] Space complexity assessed
+
 - [ ] Inefficient loops identified (nested, redundant)
+
 - [ ] Collection usage patterns reviewed
+
 - [ ] Stream API performance evaluated
 
 ### Memory Management
+
 - [ ] Memory leaks detected
+
 - [ ] Heap usage patterns analyzed
+
 - [ ] Object retention analysis completed
+
 - [ ] GC overhead and pause times measured
+
 - [ ] Memory pooling opportunities identified
 
 ### Database Performance
+
 - [ ] Query execution times measured
+
 - [ ] N+1 query problems identified
+
 - [ ] Missing indexes detected
+
 - [ ] JPA/Hibernate query optimization reviewed
+
 - [ ] Connection pooling configuration evaluated
 
 ### Concurrency & Threading
+
 - [ ] Thread pool configuration reviewed
+
 - [ ] Synchronization overhead assessed
+
 - [ ] Lock contention identified
+
 - [ ] CompletableFuture and reactive patterns evaluated
+
 - [ ] Parallel streams usage assessed
 
 ## Prompt Template
@@ -99,7 +125,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -680,10 +708,15 @@ Please perform a comprehensive performance review of this Java application follo
 Please provide a comprehensive performance report with the following structure:
 
 ### Executive Summary
+
 - **Overall Performance**: [Excellent/Good/Fair/Poor]
+
 - **Critical Bottlenecks**: [count and brief description]
+
 - **Performance Impact**: [High/Medium/Low user-facing impact]
+
 - **Optimization Potential**: [percentage improvement possible]
+
 - **Recommended Investment**: [estimated hours for major improvements]
 
 ### Performance Profile Overview
@@ -703,11 +736,17 @@ Please provide a comprehensive performance report with the following structure:
 | [description] | [class:method] | [High] | [metric] | [goal] | [strategy] |
 
 ### Memory Analysis
+
 - **Heap Usage**: [current/max MB]
+
 - **Memory Leaks Detected**: [Yes/No - locations if yes]
+
 - **Old Generation Growth**: [MB/hour]
+
 - **GC Overhead**: [% of execution time]
+
 - **Average GC Pause**: [ms]
+
 - **Longest GC Pause**: [ms]
 
 **GC Analysis**:
@@ -739,15 +778,23 @@ Please provide a comprehensive performance report with the following structure:
 | [entity] | [class:method] | [N+1 queries] | [JOIN FETCH / Entity Graph] |
 
 **Connection Pool**:
+
 - Pool Size: [current]
+
 - Active Connections: [average]
+
 - Wait Time: [average ms]
+
 - Recommendation: [adjustment if needed]
 
 ### Concurrency Analysis
+
 - **Thread Pool Configuration**: [cores/max/queue]
+
 - **Thread Utilization**: [average %]
+
 - **Lock Contention**: [hot spots identified]
+
 - **Deadlock Potential**: [Yes/No - details]
 
 **Synchronization Issues**:
@@ -756,15 +803,23 @@ Please provide a comprehensive performance report with the following structure:
 | [method] | [ms] | [High/Med/Low] | [reduce scope/use concurrent collections] |
 
 ### Spring Boot Performance** (if applicable)
+
 - **Startup Time**: [seconds]
+
 - **Auto-configuration**: [count of configurations]
+
 - **Bean Creation Time**: [slowest beans]
+
 - **Cache Hit Rate**: [percentage]
 
 ### JVM Tuning Recommendations
+
 - **Current Heap**: [Xms/Xmx]
+
 - **Recommended Heap**: [Xms/Xmx]
+
 - **GC Algorithm**: [current/recommended]
+
 - **GC Tuning**: [specific parameters]
 
 ### Optimization Recommendations
@@ -812,22 +867,37 @@ public User getUser(Long id) { }
 ```
 
 ### Next Steps
+
 - [ ] Implement quick win optimizations
+
 - [ ] Fix identified memory leaks
+
 - [ ] Optimize database queries (N+1 problems)
+
 - [ ] Configure appropriate GC for workload
+
 - [ ] Set up performance monitoring (Prometheus, Grafana)
+
 - [ ] Establish performance benchmarking suite (JMH)
+
 - [ ] Configure load testing in CI/CD
+
 - [ ] Plan performance review sprint
+
 - [ ] Document performance SLAs/targets
 
 ## Notes
+
 - Profile in production-like environment
+
 - Focus on user-facing performance first
+
 - Measure before and after optimization
+
 - Use JMH (Java Microbenchmark Harness) for micro-benchmarks
+
 - Monitor GC behavior - it's critical for Java performance
+
 - Consider reactive programming (Spring WebFlux) for I/O-bound apps
 
 ## File Output Instructions
@@ -869,7 +939,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

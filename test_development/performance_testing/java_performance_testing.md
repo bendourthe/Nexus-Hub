@@ -32,24 +32,39 @@ tests/performance_testing/
 ## Implementation Checklist
 
 ### Performance Test Coverage
+
 - [ ] Load tests implemented for critical endpoints
+
 - [ ] Stress tests validate beyond-capacity behavior
+
 - [ ] Baseline benchmarks established with JMH
+
 - [ ] Performance regression tests configured
+
 - [ ] Resource profiling set up
 
 ### Metrics and Monitoring
+
 - [ ] Response time thresholds defined
+
 - [ ] Throughput targets established
+
 - [ ] Resource usage limits set (heap, GC pauses)
+
 - [ ] Error rate thresholds configured
+
 - [ ] Performance reports automated
 
 ### Test Infrastructure
+
 - [ ] JMH benchmarking configured
+
 - [ ] Gatling load testing set up
+
 - [ ] Performance test data prepared
+
 - [ ] CI/CD integration planned
+
 - [ ] Results storage and trending implemented
 
 ## Prompt Template
@@ -84,7 +99,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -126,10 +143,15 @@ Document expected performance characteristics:
 | Message processing | 50 | 100 | N/A |
 
 **Resource Limits**:
+
 - **Heap Memory**: <2GB
+
 - **GC Pause**: <100ms P99
+
 - **CPU**: <80% average, <95% peak
+
 - **Thread count**: <500 active
+
 - **Database connections**: <50 concurrent
 
 ## Phase 2: Benchmarking with JMH
@@ -1154,10 +1176,15 @@ jobs:
 Please provide a comprehensive performance testing implementation with the following structure:
 
 ### Performance Test Summary
+
 - **Benchmarks Implemented**: [count]
+
 - **Load Tests Created**: [count]
+
 - **Performance Baselines Established**: [yes/no]
+
 - **Regression Detection Configured**: [yes/no]
+
 - **Profiling Tools Set Up**: [list]
 
 ### Performance Requirements
@@ -1200,10 +1227,15 @@ Success Rate: 99.8%
    - **Recommendation**: Use @JsonView or DTOs to reduce payload
 
 ### Performance Improvement Recommendations
+
 - [ ] Add database query optimization (indexes, batch loading)
+
 - [ ] Implement Redis caching for frequent queries
+
 - [ ] Add pagination for large result sets
+
 - [ ] Enable GZIP compression for REST responses
+
 - [ ] Optimize Jackson serialization with custom serializers
 
 ### Test Execution
@@ -1220,10 +1252,15 @@ java -XX:StartFlightRecording=duration=60s,filename=recording.jfr -jar app.jar
 ```
 
 ### Next Steps
+
 - [ ] Establish performance baselines for all critical operations
+
 - [ ] Integrate performance tests into CI/CD pipeline
+
 - [ ] Set up APM (Application Performance Monitoring)
+
 - [ ] Create performance dashboard with Grafana
+
 - [ ] Schedule regular performance review meetings
 
 ## File Output Instructions
@@ -1282,7 +1319,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

@@ -32,11 +32,17 @@ review/final_report/
 ## Report Structure
 
 This template consolidates:
+
 - Context Analysis findings (hardware, toolchain, RTOS)
+
 - Code Quality issues (MISRA-C, CERT-C compliance)
+
 - Security vulnerabilities (buffer overflows, memory safety)
+
 - Performance bottlenecks (timing, resources, power)
+
 - Testing gaps (unit, integration, HIL)
+
 - Overall recommendations
 
 ## Prompt Template
@@ -71,7 +77,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -138,22 +146,33 @@ Categorize all findings using impact and effort assessment:
 **Impact vs Effort Matrix**:
 ```
 High Impact, Low Effort (DO FIRST - Quick Wins)
+
 - [Safety-critical bug fixes requiring minimal code changes]
+
 - [Compiler flag additions for security/performance]
+
 - [Missing NULL pointer checks]
 
 High Impact, High Effort (PLAN CAREFULLY - Strategic Initiatives)
+
 - [RTOS integration for real-time guarantee]
+
 - [Secure boot implementation]
+
 - [Major refactoring for MISRA-C compliance]
 
 Low Impact, Low Effort (DO WHEN TIME PERMITS - Nice to Have)
+
 - [Code style cleanup]
+
 - [Documentation improvements]
+
 - [Minor optimizations]
 
 Low Impact, High Effort (AVOID - Not Worth It)
+
 - [Over-engineering for unlikely scenarios]
+
 - [Premature optimization of non-critical code]
 ```
 
@@ -206,6 +225,7 @@ Create a phased implementation plan:
 Define success metrics to track improvement:
 
 ### Code Quality Metrics
+
 - **Current State**:
   - MISRA-C Compliance: [%]
   - Average Cyclomatic Complexity: [score]
@@ -219,10 +239,13 @@ Define success metrics to track improvement:
   - Technical Debt: [50% reduction]
 
 ### Security Metrics
+
 - **Current**: [X] critical, [Y] high, [Z] medium vulnerabilities
+
 - **Target**: 0 critical, 0 high, <5 medium
 
 ### Performance Metrics
+
 - **Current**:
   - Flash Usage: [X%]
   - RAM Usage: [Y%]
@@ -236,7 +259,9 @@ Define success metrics to track improvement:
   - Power Consumption: [<5 mA average]
 
 ### Testing Metrics
+
 - **Current**: [X]% coverage, [Y] HIL tests, [Z] flaky tests
+
 - **Target**: 75%+ coverage, [Y*2] HIL tests, 0 flaky tests
 
 ## Output Format
@@ -258,33 +283,52 @@ Please provide a comprehensive final report with the following structure:
 ## Executive Summary
 
 ### Overall Health Assessment
+
 - **Code Quality**: [Grade: A-F] - [MISRA-C: X%, Complexity: Y]
+
 - **Security**: [Grade: A-F] - [X critical, Y high vulnerabilities]
+
 - **Performance**: [Grade: A-F] - [Real-time: Pass/Fail, Resources: X% used]
+
 - **Testing**: [Grade: A-F] - [X% coverage, HIL: Yes/No]
+
 - **Overall Recommendation**: [Production-ready / Needs work / Major refactoring needed]
 
 ### Key Highlights
 **Strengths**:
+
 - [Well-structured HAL abstraction]
+
 - [Comprehensive error handling in critical paths]
+
 - [Good use of DMA for I/O operations]
 
 **Critical Concerns**:
+
 - [3 buffer overflow vulnerabilities in protocol parsing]
+
 - [Missing watchdog implementation]
+
 - [Real-time deadline violations in motor control (12% misses)]
 
 ### Investment Summary
+
 - **Immediate Actions Required**: [X hours/days]
+
 - **Short-term Improvements**: [Y weeks]
+
 - **Long-term Initiatives**: [Z months]
+
 - **Total Technical Debt**: [estimated hours]
 
 ### Resource Constraints
+
 - **Flash Usage**: [X KB / Y KB (Z%)]
+
 - **RAM Usage**: [X KB / Y KB (Z%)]
+
 - **Stack Headroom**: [X bytes minimum]
+
 - **Real-Time Margin**: [X% worst-case]
 
 ---
@@ -294,14 +338,21 @@ Please provide a comprehensive final report with the following structure:
 ### 1. Context & Architecture
 
 **Project Overview**:
+
 - **Target Hardware**: [STM32F407, ARM Cortex-M4 @ 168MHz]
+
 - **Flash**: [512 KB, 78% used]
+
 - **RAM**: [128 KB, 65% used]
+
 - **Architecture**: [FreeRTOS v10.4, 5 tasks]
+
 - **Build System**: [Makefile + GCC ARM 10.3]
+
 - **Safety Requirements**: [IEC 61508 SIL-2]
 
 **Architecture Assessment**:
+
 - **Strengths**:
   - Clean separation between HAL and application layers
   - Proper RTOS task priorities and stack sizes
@@ -324,10 +375,15 @@ Please provide a comprehensive final report with the following structure:
 **Overall Quality Score**: [C+]
 
 **Key Metrics**:
+
 - MISRA-C Compliance: [68%] (Target: 95%+)
+
 - CERT-C Compliance: [12 violations, 4 critical]
+
 - Average Cyclomatic Complexity: [11.2] (Target: <8)
+
 - Functions >50 lines: [18]
+
 - Technical Debt: [~320 hours]
 
 **MISRA-C Violations Summary**:
@@ -354,9 +410,13 @@ Please provide a comprehensive final report with the following structure:
 **Overall Security Score**: [D]
 
 **Vulnerability Summary**:
+
 - Critical (CWE Top 25): [3]
+
 - High (CVSS 7.0+): [8]
+
 - Medium (CVSS 4.0-6.9): [15]
+
 - Low (CVSS <4.0): [7]
 
 **Critical Vulnerabilities** (MUST FIX IMMEDIATELY):
@@ -413,9 +473,13 @@ Please provide a comprehensive final report with the following structure:
 **Overall Performance Score**: [B-]
 
 **Key Metrics**:
+
 - CPU Utilization: [Average 45%, Peak 87%]
+
 - Flash Usage: [78%] - approaching limit
+
 - RAM Usage: [65%] - acceptable
+
 - Real-Time Performance: [88% deadline compliance] - FAILING
 
 **Critical Performance Issues**:
@@ -453,10 +517,15 @@ Please provide a comprehensive final report with the following structure:
    - **Trade-off**: +256 bytes Flash
 
 **Power Consumption**:
+
 - **Active Mode**: [85 mA @ 168 MHz]
+
 - **Sleep Mode**: [12 mA] (not optimal)
+
 - **Idle Time**: [55%] (opportunity for better power management)
+
 - **Recommendation**: Implement tickless idle and peripheral clock gating
+
 - **Expected Saving**: 40% reduction in average current
 
 ---
@@ -466,8 +535,11 @@ Please provide a comprehensive final report with the following structure:
 **Overall Testing Score**: [C]
 
 **Coverage Metrics**:
+
 - Line Coverage: [58%] (Target: 75%+)
+
 - Branch Coverage: [42%] (Target: 70%+)
+
 - Function Coverage: [71%]
 
 **Coverage by Module**:
@@ -479,9 +551,13 @@ Please provide a comprehensive final report with the following structure:
 | Application | 65% | 48% | Medium | Fair |
 
 **Test Infrastructure**:
+
 - **Framework**: Unity (good choice)
+
 - **Mocking**: CMock (available but underutilized)
+
 - **CI Integration**: None - CRITICAL GAP
+
 - **HIL Testing**: Manual only, no automation
 
 **Critical Testing Gaps**:
@@ -494,11 +570,17 @@ Please provide a comprehensive final report with the following structure:
 | State machines | 45% | Medium | Logic bugs | Test all transitions |
 
 **Missing Test Types**:
+
 - [ ] **Fuzzing**: Protocol parsers not fuzzed
+
 - [ ] **HIL Automated Tests**: All hardware tests manual
+
 - [ ] **Performance Tests**: No timing verification
+
 - [ ] **Resource Exhaustion**: Buffer full, stack overflow scenarios untested
+
 - [ ] **Concurrency Tests**: Race conditions not tested
+
 - [ ] **Power Tests**: Sleep modes not validated
 
 **Testing Roadmap**:
@@ -537,14 +619,19 @@ Please provide a comprehensive final report with the following structure:
 ### Nice to Have (Low Impact, Low Effort) - DO WHEN TIME PERMITS
 
 - Code style cleanup (snake_case consistency)
+
 - Improve code comments
+
 - Refactor long variable names
+
 - Update documentation
 
 ### Avoid (Low Impact, High Effort) - NOT WORTH IT
 
 - Rewrite working code for "perfection"
+
 - Over-engineer error handling for impossible scenarios
+
 - Optimize non-critical code paths
 
 ---
@@ -586,10 +673,15 @@ Please provide a comprehensive final report with the following structure:
    - Verification: Deliberately hang system, verify reset
 
 **Deliverables**:
+
 - [ ] All critical buffer overflows patched and verified
+
 - [ ] Cryptographic keys secured
+
 - [ ] Real-time constraints met (100% deadline compliance)
+
 - [ ] Watchdog protecting against hangs
+
 - [ ] Compiler security flags enabled
 
 **Risk Mitigation**: Reserve 20% time buffer for unforeseen issues
@@ -603,29 +695,45 @@ Please provide a comprehensive final report with the following structure:
 **Focus Areas**:
 
 **Security**:
+
 - Fix 8 high-severity vulnerabilities (NULL checks, race conditions, integer overflows)
+
 - Enable fuzzing for protocol parsers
+
 - Implement input validation on all external interfaces
 
 **Code Quality**:
+
 - Achieve 85% MISRA-C compliance on critical modules
+
 - Refactor 5 highest-complexity functions (CC >15)
+
 - Add static analysis to CI pipeline
 
 **Testing**:
+
 - Increase coverage to 70% on drivers and protocol modules
+
 - Set up CI for automated test execution
+
 - Add tests for all interrupt handlers
 
 **Performance**:
+
 - Implement DMA for UART and SPI transfers
+
 - Add CRC lookup table
+
 - Profile and optimize 3 additional hot functions
 
 **Expected Outcomes**:
+
 - Security score: D → B
+
 - Code quality: C+ → B
+
 - Test coverage: 58% → 70%
+
 - Real-time compliance: 100% (sustained)
 
 ---
@@ -657,9 +765,13 @@ Please provide a comprehensive final report with the following structure:
    - Tune RTOS task priorities
 
 **Deliverables**:
+
 - MISRA-C compliant codebase (95%+)
+
 - Secure firmware update mechanism
+
 - Automated HIL testing infrastructure
+
 - Optimized resource utilization
 
 ---
@@ -694,9 +806,13 @@ Please provide a comprehensive final report with the following structure:
    - Regular static analysis reviews
 
 **Long-term Vision** (6-12 months):
+
 - Gold standard embedded codebase
+
 - Fully automated testing (unit, integration, HIL)
+
 - Continuous security and performance monitoring
+
 - Ready for safety certification
 
 ---
@@ -761,15 +877,23 @@ Please provide a comprehensive final report with the following structure:
 3. **Medium-term** (Month 2-3): Plan for HIL test equipment and secure element hardware
 
 **Risk if Not Addressed**:
+
 - Product recall due to exploitable vulnerabilities (estimated cost: $500K+)
+
 - Field failures from real-time deadline misses (warranty claims)
+
 - Delayed certification due to code quality issues
+
 - Inability to add features due to Flash exhaustion
 
 **ROI**:
+
 - 90% reduction in field failures
+
 - 50% faster feature development (less debugging)
+
 - Certification-ready codebase
+
 - Reduced technical debt interest
 
 ### For Development Team
@@ -781,44 +905,69 @@ Please provide a comprehensive final report with the following structure:
 4. Begin writing tests for uncovered critical code
 
 **Skill Development Needs**:
+
 - MISRA-C and CERT-C secure coding training (4 hours)
+
 - Real-time systems optimization workshop (1 day)
+
 - Embedded security best practices (4 hours)
+
 - Unit testing and mocking for embedded (1 day)
 
 **Process Improvements**:
+
 - Mandatory code review for all changes
+
 - Pre-commit static analysis hooks
+
 - Test coverage requirements for new code (75%+)
+
 - Security review for all external interfaces
 
 **Tool Recommendations**:
+
 - PC-lint Plus or Cppcheck for MISRA-C checking
+
 - Flawfinder for security scanning
+
 - Valgrind (on development environment) for memory issues
+
 - SEGGER SystemView for real-time analysis
 
 ### For Product Management
 
 **Feature Impact**:
+
 - No new features for 2 weeks (critical fix period)
+
 - 50% reduced feature velocity for 1-2 months (quality improvements)
+
 - Long-term: 2x faster feature development (stable foundation)
 
 **Quality Risks**:
+
 - Current vulnerabilities risk product reputation
+
 - Real-time issues could cause device damage
+
 - Low test coverage increases field failure rate
 
 **Timeline Considerations**:
+
 - Critical fixes: 1 week (non-negotiable)
+
 - Security hardening: 1 month
+
 - Quality improvements: 2-3 months
+
 - Certification prep: 3-6 months (if required)
 
 **Customer Impact**:
+
 - Emergency firmware update may be needed (communicate proactively)
+
 - Improved reliability in next release
+
 - Faster bug fixes going forward
 
 ---
@@ -828,9 +977,13 @@ Please provide a comprehensive final report with the following structure:
 ### A. Detailed Tool Reports
 
 - **Coverage Report**: [Link to htmlcov/index.html]
+
 - **MISRA-C Report**: [Link to misra_violations.html]
+
 - **Security Scan**: [Link to flawfinder_report.html]
+
 - **Performance Profile**: [Link to profiling_results.txt]
+
 - **Map File Analysis**: [Link to memory_analysis.xlsx]
 
 ### B. Code Examples
@@ -972,9 +1125,13 @@ coverage:
 ### D. Resource Links
 
 - [MISRA C:2012 Guidelines](https://www.misra.org.uk/)
+
 - [CERT C Secure Coding Standard](https://wiki.sei.cmu.edu/confluence/display/c/SEI+CERT+C+Coding+Standard)
+
 - [CWE Top 25](https://cwe.mitre.org/top25/)
+
 - [Embedded Software Testing](https://www.embedded.com/how-to-test-embedded-software/)
+
 - [Real-Time Systems](https://www.embedded.com/introduction-to-rtos/)
 
 ---
@@ -991,9 +1148,13 @@ coverage:
 5. **With focused effort over 3 months, project can reach production-ready status**
 
 **Go/No-Go Recommendation**:
+
 - **Current State**: NO-GO for production
+
 - **After Week 1 fixes**: GO for limited field trial
+
 - **After Month 1**: GO for pilot production
+
 - **After Month 3**: GO for full production
 
 **Next Steps**:
@@ -1011,34 +1172,19 @@ coverage:
 **Report Generated**: [Date and Time]
 **Review Methodology**: Automated scanning + manual code review + hardware testing
 **Tools Used**:
+
 - Cppcheck 2.10 with MISRA addon
+
 - Flawfinder 2.0.19
+
 - gcov/lcov for coverage
+
 - ARM Cortex-M DWT for profiling
+
 - Unity test framework
+
 - Manual security audit
 
----
-
-## File Output Instructions
-
-**IMPORTANT**: Save all generated files to the correct directory structure:
-
-```bash
-# Create directory structure
-mkdir -p ${OUTPUT_DIR}/final_report/analysis_scripts
-mkdir -p ${OUTPUT_DIR}/final_report/supporting_data
-```
-
-**Save files as follows**:
-
-- Main report → `review/final_report/final_report_report.md`
-
-- Findings data → `review/final_report/final_report_findings.json`
-
-- Analysis scripts → `review/final_report/analysis_scripts/`
-
-- Supporting data → `review/final_report/supporting_data/`
 ~~~
 ---
 
@@ -1059,7 +1205,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

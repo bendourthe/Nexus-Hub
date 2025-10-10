@@ -32,24 +32,39 @@ tests/performance_testing/
 ## Implementation Checklist
 
 ### Performance Test Coverage
+
 - [ ] Load tests implemented for critical functions
+
 - [ ] Stress tests validate edge cases and limits
+
 - [ ] Baseline benchmarks established
+
 - [ ] Performance regression tests configured
+
 - [ ] Resource profiling set up
 
 ### Metrics and Monitoring
+
 - [ ] Execution time thresholds defined
+
 - [ ] Throughput targets established
+
 - [ ] Resource usage limits set (memory, CPU)
+
 - [ ] Memory leak detection configured
+
 - [ ] Performance reports automated
 
 ### Test Infrastructure
+
 - [ ] Timing infrastructure implemented
+
 - [ ] Memory profiling tools configured
+
 - [ ] Performance test data prepared
+
 - [ ] CI/CD integration planned
+
 - [ ] Results storage and trending implemented
 
 ## Prompt Template
@@ -84,7 +99,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -126,9 +143,13 @@ Document expected performance characteristics:
 | Hash calculations | 1,000 | 5,000 |
 
 **Resource Limits**:
+
 - **Memory**: <512MB heap allocation
+
 - **CPU**: <80% average, <95% peak
+
 - **File handles**: <100 open files
+
 - **Thread count**: <50 threads
 
 ## Phase 2: Timing Infrastructure
@@ -1101,10 +1122,15 @@ jobs:
 Please provide a comprehensive performance testing implementation with the following structure:
 
 ### Performance Test Summary
+
 - **Benchmarks Implemented**: [count]
+
 - **Load Tests Created**: [count]
+
 - **Performance Baselines Established**: [yes/no]
+
 - **Regression Detection Configured**: [yes/no]
+
 - **Profiling Tools Set Up**: [list]
 
 ### Performance Requirements
@@ -1152,10 +1178,15 @@ Latency:
    - **Recommendation**: Implement memory pool for fixed-size objects
 
 ### Performance Improvement Recommendations
+
 - [ ] Implement memory pooling for frequent allocations
+
 - [ ] Use const pointers where data isn't modified
+
 - [ ] Replace malloc/free with arena allocator for temporary data
+
 - [ ] Add __restrict keywords for non-aliasing pointers
+
 - [ ] Enable compiler optimizations (-O3, -march=native)
 
 ### Test Execution
@@ -1176,10 +1207,15 @@ perf report
 ```
 
 ### Next Steps
+
 - [ ] Establish performance baselines for all critical functions
+
 - [ ] Integrate performance tests into CI/CD pipeline
+
 - [ ] Set up continuous monitoring with system profilers
+
 - [ ] Create performance dashboard with historical trends
+
 - [ ] Schedule regular performance review meetings
 
 ## File Output Instructions
@@ -1238,7 +1274,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

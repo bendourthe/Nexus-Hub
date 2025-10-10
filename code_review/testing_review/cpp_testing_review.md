@@ -32,45 +32,75 @@ review/testing_review/
 ## Review Checklist
 
 ### Test Coverage
+
 - [ ] Line coverage measured (target: 80%+) using gcov/lcov
+
 - [ ] Branch coverage assessed
+
 - [ ] Critical paths fully tested
+
 - [ ] Edge cases and error conditions covered
+
 - [ ] Coverage gaps identified and prioritized
 
 ### Test Quality
+
 - [ ] Tests follow AAA pattern (Arrange, Act, Assert)
+
 - [ ] Test names clearly describe what is being tested
+
 - [ ] Tests are independent and isolated
+
 - [ ] Assertions are specific and meaningful
+
 - [ ] Test fixtures properly managed
 
 ### Test Organization
+
 - [ ] Test structure mirrors source code structure
+
 - [ ] Unit tests separated from integration tests
+
 - [ ] Test utilities and mocks well-organized
+
 - [ ] Test configuration managed appropriately
+
 - [ ] Test documentation present
 
 ### Test Types Coverage
+
 - [ ] Unit tests present for core logic
+
 - [ ] Integration tests cover component interactions
+
 - [ ] End-to-end tests validate critical user flows
+
 - [ ] Performance tests for critical operations
+
 - [ ] Memory tests (leak detection, sanitizers)
 
 ### Test Reliability
+
 - [ ] Flaky tests identified
+
 - [ ] Tests run independently (no order dependency)
+
 - [ ] External dependencies properly mocked
+
 - [ ] Test data properly managed
+
 - [ ] Tests run consistently across platforms
 
 ### CI/CD Integration
+
 - [ ] Tests run automatically on commits/PRs
+
 - [ ] Test failures block merges
+
 - [ ] Coverage reports generated
+
 - [ ] Test execution time reasonable
+
 - [ ] Parallel test execution configured
 
 ## Prompt Template
@@ -105,7 +135,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -711,16 +743,25 @@ Please perform a comprehensive testing review of this C++ project following this
 Please provide a comprehensive testing report with the following structure:
 
 ### Executive Summary
+
 - **Overall Test Health**: [Excellent/Good/Fair/Poor]
+
 - **Test Coverage**: [percentage]
+
 - **Critical Gaps**: [count and brief description]
+
 - **Test Quality**: [High/Medium/Low]
+
 - **Reliability**: [Stable/Some Flakiness/Unreliable]
 
 ### Coverage Metrics
+
 - **Line Coverage**: [%]
+
 - **Branch Coverage**: [%]
+
 - **Function Coverage**: [%]
+
 - **Module Coverage**: [%]
 
 **Coverage by Module**:
@@ -729,11 +770,17 @@ Please provide a comprehensive testing report with the following structure:
 | [name] | [%] | [%] | [count] | [High/Med/Low] |
 
 ### Test Suite Inventory
+
 - **Total Tests**: [count]
+
 - **Unit Tests**: [count] ([%])
+
 - **Integration Tests**: [count] ([%])
+
 - **Performance Benchmarks**: [count]
+
 - **Memory Tests**: [count]
+
 - **Test Framework**: [GoogleTest/Catch2/Doctest]
 
 ### Critical Coverage Gaps (Priority 1)
@@ -748,9 +795,13 @@ Please provide a comprehensive testing report with the following structure:
 | [smell type] | [file:line] | [details] | [recommendation] |
 
 **Common Issues**:
+
 - [ ] Tests with unclear names: [count]
+
 - [ ] Tests with weak assertions: [count]
+
 - [ ] Tests with global state dependencies: [count]
+
 - [ ] Tests testing implementation details: [count]
 
 ### Test Reliability Assessment
@@ -760,8 +811,11 @@ Please provide a comprehensive testing report with the following structure:
 | [test] | [%] | [reason] | [solution] |
 
 **Test Independence Issues**:
+
 - [ ] Order-dependent tests: [list]
+
 - [ ] Global state pollution: [list]
+
 - [ ] Missing mocks for external dependencies: [list]
 
 ### Memory Testing Results
@@ -773,28 +827,42 @@ Please provide a comprehensive testing report with the following structure:
 | Uninitialized values | [count] | [High] | [locations] |
 
 ### Test Execution Performance
+
 - **Total Execution Time**: [seconds]
+
 - **Slowest Tests**:
   | Test | Duration | Category | Optimization |
   |------|----------|----------|--------------|
   | [name] | [seconds] | [unit/integration] | [suggestion] |
 
 ### Missing Test Types
+
 - [ ] **Edge Cases**: [specific gaps]
+
 - [ ] **Error Conditions**: [uncovered exceptions]
+
 - [ ] **Boundary Values**: [missing boundary tests]
+
 - [ ] **Concurrency Tests**: [thread safety untested]
+
 - [ ] **Performance Tests**: [operations needing benchmarks]
+
 - [ ] **Exception Safety**: [RAII cleanup not tested]
 
 ### CI/CD Integration
+
 - **Automated Test Execution**: [Yes/No/Partial]
+
 - **Coverage Reporting**: [Yes/No]
+
 - **Quality Gates**: [Enforced/Not Enforced]
+
 - **Test Parallelization**: [Yes/No]
+
 - **Sanitizer Integration**: [Yes/No]
 
 **Issues**:
+
 - [List of CI/CD testing gaps or issues]
 
 ### Recommendations
@@ -858,15 +926,21 @@ TEST(ResourceTest, ExceptionSafety) {
 **Target: [X]% coverage (from current [Y]%)**
 
 **Phase 1** (Week 1-2):
+
 - Add tests for [critical modules]
+
 - Expected coverage gain: +[X]%
 
 **Phase 2** (Week 3-4):
+
 - Add integration tests for [components]
+
 - Expected coverage gain: +[X]%
 
 **Phase 3** (Month 2):
+
 - Add edge case and exception safety tests
+
 - Expected coverage gain: +[X]%
 
 ### Quality Gates Recommendation
@@ -893,22 +967,37 @@ endif()
 ```
 
 ### Next Steps
+
 - [ ] Address critical coverage gaps (Priority 1 items)
+
 - [ ] Fix or quarantine flaky tests
+
 - [ ] Implement test fixtures and mocks
+
 - [ ] Set up coverage monitoring in CI/CD
+
 - [ ] Integrate sanitizers in CI pipeline
+
 - [ ] Establish team testing guidelines
+
 - [ ] Configure pre-commit hooks for test requirements
+
 - [ ] Add performance benchmarks for critical paths
 
 ## Notes
+
 - Focus on testing critical business logic and memory management first
+
 - Aim for meaningful tests, not just coverage percentage
+
 - Balance unit, integration, and performance test distribution
+
 - Keep tests fast and reliable
+
 - Use sanitizers regularly to catch memory issues
+
 - Test exception safety and RAII cleanup
+
 - Treat test code with same quality standards as production code
 
 ## File Output Instructions
@@ -950,7 +1039,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

@@ -32,34 +32,55 @@ documentation/api_docs/
 ## Implementation Checklist
 
 ### Function Documentation
+
 - [ ] All public functions documented with signatures
+
 - [ ] Parameter descriptions with types
+
 - [ ] Return values explained
+
 - [ ] Error codes documented
+
 - [ ] Memory ownership clarified
 
 ### Data Structures
+
 - [ ] All public structs documented
+
 - [ ] Field descriptions provided
+
 - [ ] Alignment/packing notes if relevant
+
 - [ ] Initialization requirements explained
 
 ### Error Handling
+
 - [ ] Error codes enumerated
+
 - [ ] Error messages documented
+
 - [ ] Error handling patterns shown
+
 - [ ] Common error scenarios covered
 
 ### Memory Management
+
 - [ ] Allocation patterns documented
+
 - [ ] Deallocation requirements explained
+
 - [ ] Memory ownership rules clarified
+
 - [ ] Resource cleanup shown
 
 ### Examples
+
 - [ ] Complete working examples
+
 - [ ] HTTP client usage (libcurl, etc.)
+
 - [ ] Error handling examples
+
 - [ ] Memory management examples
 
 ## Prompt Template
@@ -92,7 +113,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -513,40 +536,23 @@ cleanup:
 
 ---
 
-## File Output Instructions
-
-**IMPORTANT**: Save all generated files to the correct directory structure:
-
-```bash
-# Create directory structure
-mkdir -p ${OUTPUT_DIR}/api_docs/generated_docs
-mkdir -p ${OUTPUT_DIR}/api_docs/templates
-mkdir -p ${OUTPUT_DIR}/api_docs/assets
-mkdir -p ${OUTPUT_DIR}/api_docs/exports
-```
-
-**Save files as follows**:
-
-
-- Templates → `documentation/api_docs/templates/`
-
-- Assets → `documentation/api_docs/assets/`
-
-- Exports → `documentation/api_docs/exports/`
-
-Replace `{phase_name}` with the specific phase (docstrings, comments, user_docs, technical_docs, api_docs, or sbom).
-
-~~~
-
 ## Output Format Specifications
 
 The API documentation should:
+
 - Document all public functions with Doxygen comments
+
 - Clarify memory management and ownership
+
 - Show complete working examples with error handling
+
 - Document thread safety characteristics
+
 - Include HTTP client examples using libcurl
+
 - Target C developers with focus on safety
+
+~~~
 ---
 
 ## Verify Directory Structure
@@ -566,7 +572,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

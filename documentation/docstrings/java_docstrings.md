@@ -32,38 +32,63 @@ documentation/docstrings/
 ## Implementation Checklist
 
 ### Package-Level Documentation
+
 - [ ] Package purpose and scope clearly explained
+
 - [ ] Key classes and interfaces listed
+
 - [ ] Dependencies and requirements noted
+
 - [ ] Usage examples provided for package imports
+
 - [ ] Author information included
 
 ### Class/Interface Documentation
+
 - [ ] Class purpose and responsibility documented
+
 - [ ] All public fields described with types
+
 - [ ] Constructor parameters documented
+
 - [ ] Class-level examples provided
+
 - [ ] Inheritance relationships explained
+
 - [ ] Interface contracts documented
 
 ### Method Documentation
+
 - [ ] Method purpose clearly stated
+
 - [ ] All parameters documented with types and descriptions
+
 - [ ] Return values documented with types
+
 - [ ] Exceptions documented with @throws
+
 - [ ] Thread safety documented
+
 - [ ] Usage examples for complex methods
 
 ### Type Integration
+
 - [ ] JavaDoc complements type signatures
+
 - [ ] Generic type usage clarified
+
 - [ ] Type constraints documented
+
 - [ ] Null handling documented
 
 ### Documentation Style
+
 - [ ] Consistent JavaDoc style throughout codebase
+
 - [ ] Formatting conventions followed
+
 - [ ] Code examples properly formatted
+
 - [ ] Cross-references to related classes/methods
 
 ## Prompt Template
@@ -98,7 +123,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -516,28 +543,45 @@ private volatile ProcessingStatus status;
 Verify each JavaDoc comment meets these criteria:
 
 ### Completeness
+
 - [ ] Purpose clearly stated
+
 - [ ] All parameters documented
+
 - [ ] Return value documented
+
 - [ ] Exceptions documented with @throws
+
 - [ ] Examples provided for non-trivial methods
 
 ### Clarity
+
 - [ ] Uses clear, concise language
+
 - [ ] Avoids jargon or explains technical terms
+
 - [ ] Follows consistent tense (present tense for descriptions)
+
 - [ ] HTML formatting used appropriately
 
 ### Examples
+
 - [ ] Examples are compilable and runnable
+
 - [ ] Examples cover common use cases
+
 - [ ] Complex methods have multiple examples
+
 - [ ] Examples demonstrate best practices
 
 ### Formatting
+
 - [ ] Consistent style throughout codebase
+
 - [ ] Proper HTML tags for formatting
+
 - [ ] Code blocks use {@code} or <pre>{@code}</pre>
+
 - [ ] Cross-references use {@link} syntax
 
 ## Phase 7: Documentation Generation
@@ -610,17 +654,27 @@ Please provide JavaDoc documentation in this format:
 **Examples Added**: [count]
 
 **Coverage Metrics**:
+
 - Package coverage: [X%]
+
 - Class coverage: [X%]
+
 - Method coverage: [X%]
+
 - Overall coverage: [X%]
 
 **Quality Checks**:
+
 - [ ] All public interfaces documented
+
 - [ ] Consistent style throughout
+
 - [ ] Examples provided where appropriate
+
 - [ ] Cross-references valid
+
 - [ ] HTML formatting correct
+
 - [ ] Documentation builds without warnings
 ```
 
@@ -734,19 +788,30 @@ mkdir -p ${OUTPUT_DIR}/docstrings/exports
 - Exports → `documentation/docstrings/exports/`
 
 Replace `{phase_name}` with the specific phase (docstrings, comments, user_docs, technical_docs, api_docs, or sbom).
-~~~
+
+---
 
 ## Output Format Specifications
 
 The generated JavaDoc should:
+
 - Follow JavaDoc standard conventions
+
 - Include all required tags based on element type
+
 - Provide compilable examples where appropriate
+
 - Use proper HTML formatting
+
 - Include cross-references using {@link}
+
 - Document thread safety and null handling
+
 - Pass javadoc tool without warnings
+
 - Generate properly formatted HTML documentation
+
+~~~
 ---
 
 ## Verify Directory Structure
@@ -766,7 +831,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

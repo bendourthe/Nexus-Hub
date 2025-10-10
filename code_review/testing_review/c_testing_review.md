@@ -32,38 +32,63 @@ review/testing_review/
 ## Review Checklist
 
 ### Test Coverage
+
 - [ ] Line coverage measured (target: 70%+ for embedded)
+
 - [ ] Branch coverage assessed
+
 - [ ] Critical paths fully tested
+
 - [ ] Hardware abstraction layer (HAL) tested
+
 - [ ] Interrupt handlers tested
 
 ### Test Infrastructure
+
 - [ ] Unit test framework in place (Unity, CUnit, Google Test)
+
 - [ ] Mocking framework available (CMock, fff)
+
 - [ ] CI/CD integration for automated testing
+
 - [ ] Hardware-in-the-loop (HIL) testing setup
+
 - [ ] Code coverage tools configured (gcov, lcov)
 
 ### Test Types Coverage
+
 - [ ] Unit tests for algorithmic code
+
 - [ ] Integration tests for module interactions
+
 - [ ] Hardware tests for peripheral drivers
+
 - [ ] System tests for end-to-end functionality
+
 - [ ] Regression tests for bug prevention
 
 ### Embedded-Specific Testing
+
 - [ ] Interrupt behavior tested
+
 - [ ] Real-time constraints verified
+
 - [ ] Power consumption tested
+
 - [ ] Memory bounds tested (stack, heap)
+
 - [ ] Hardware fault injection tested
 
 ### Test Quality
+
 - [ ] Tests are deterministic and repeatable
+
 - [ ] No dependency on hardware for unit tests
+
 - [ ] Hardware abstraction properly mocked
+
 - [ ] Test execution time acceptable
+
 - [ ] Tests document expected behavior
 
 ## Prompt Template
@@ -98,7 +123,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -687,22 +714,35 @@ Please perform a comprehensive testing review of this embedded C project followi
 Please provide a comprehensive testing report with the following structure:
 
 ### Executive Summary
+
 - **Overall Test Health**: [Excellent/Good/Fair/Poor]
+
 - **Test Coverage**: [X%] (line), [Y%] (branch)
+
 - **Critical Gaps**: [count and brief description]
+
 - **Test Infrastructure**: [Mature/Developing/Minimal]
+
 - **Test Reliability**: [Stable/Some Flakiness/Unreliable]
 
 ### Test Infrastructure
+
 - **Framework**: [Unity/CUnit/Google Test/None]
+
 - **Mocking**: [CMock/fff/Manual/None]
+
 - **Coverage Tool**: [gcov/lcov/None]
+
 - **CI Integration**: [Yes/No]
+
 - **HIL Capability**: [Available/Limited/None]
 
 ### Coverage Metrics
+
 - **Line Coverage**: [X%]
+
 - **Branch Coverage**: [Y%]
+
 - **Function Coverage**: [Z%]
 
 **Coverage by Module**:
@@ -713,10 +753,15 @@ Please provide a comprehensive testing report with the following structure:
 | [Application] | [%] | [%] | [count] | [Med] |
 
 ### Test Suite Inventory
+
 - **Total Tests**: [count]
+
 - **Unit Tests**: [count] ([%])
+
 - **Integration Tests**: [count] ([%])
+
 - **Hardware Tests**: [count] ([%])
+
 - **System Tests**: [count] ([%])
 
 ### Critical Coverage Gaps (Priority 1)
@@ -732,22 +777,35 @@ Please provide a comprehensive testing report with the following structure:
 | [Missing assertions] | [test_uart.c:45] | [Function called but not verified] | [Add assertions] |
 
 ### Hardware Testing Assessment
+
 - **HIL Tests Available**: [Yes/No]
+
 - **Peripheral Coverage**: [list of peripherals with/without tests]
+
 - **Interrupt Tests**: [count and coverage]
+
 - **Real-Time Verification**: [Yes/No]
 
 ### Test Reliability
+
 - **Flaky Tests**: [count]
+
 - **Hardware-Dependent Tests**: [count and locations]
+
 - **Non-Deterministic Tests**: [count]
 
 ### Missing Test Types
+
 - [ ] **Boundary Value Tests**: [specific gaps]
+
 - [ ] **Error Injection**: [uncovered error paths]
+
 - [ ] **Concurrency Tests**: [race conditions not tested]
+
 - [ ] **Resource Exhaustion**: [buffer full, stack overflow scenarios]
+
 - [ ] **Performance Tests**: [timing constraints not verified]
+
 - [ ] **Power Tests**: [sleep modes not validated]
 
 ### Recommendations
@@ -764,15 +822,23 @@ Please provide a comprehensive testing report with the following structure:
    - Approach: Test all message types, malformed inputs
 
 **Short-term Goals** (Priority 2 - this month):
+
 - Implement mocking framework (CMock or fff)
+
 - Set up CI pipeline for automated testing
+
 - Add coverage reporting to build
+
 - Create HIL test setup for critical peripherals
 
 **Long-term Initiatives** (Priority 3 - this quarter):
+
 - Achieve 80% coverage on application code
+
 - Implement fuzzing for protocol parsers
+
 - Set up automated HIL testing infrastructure
+
 - Add performance regression testing
 
 ### Testing Best Practices for Embedded
@@ -826,21 +892,35 @@ test:
 ```
 
 ### Next Steps
+
 - [ ] Set up test framework if not present
+
 - [ ] Achieve 70% coverage on critical modules
+
 - [ ] Implement mocking for hardware abstraction
+
 - [ ] Add HIL tests for key peripherals
+
 - [ ] Configure CI pipeline for automated testing
+
 - [ ] Create testing guidelines document
+
 - [ ] Train team on embedded testing practices
 
 ## Notes
+
 - Embedded testing is challenging due to hardware dependencies
+
 - Focus on testing algorithmic code with unit tests
+
 - Use HIL tests for hardware-specific validation
+
 - Mock hardware interfaces for fast, reliable unit tests
+
 - Aim for 70-80% coverage (100% impractical in embedded)
+
 - Real-time and safety-critical code requires rigorous testing
+
 - Consider test code as production code - maintain quality
 
 ## File Output Instructions
@@ -882,7 +962,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

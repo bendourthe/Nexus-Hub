@@ -32,31 +32,51 @@ tests/maintenance_cicd/
 ## Implementation Checklist
 
 ### CI/CD Configuration
+
 - [ ] GitHub Actions/GitLab CI pipeline configured
+
 - [ ] Test stages defined (unit, integration, memory)
+
 - [ ] Parallel execution enabled
+
 - [ ] Test result reporting set up
+
 - [ ] Artifact storage configured
 
 ### Quality Gates
+
 - [ ] Code coverage threshold enforced (80%+)
+
 - [ ] Test pass rate requirement set (100%)
+
 - [ ] Memory leak detection enabled
+
 - [ ] Static analysis integrated
+
 - [ ] Deployment gates configured
 
 ### Test Maintenance
+
 - [ ] Flaky test detection implemented
+
 - [ ] Test execution time monitoring enabled
+
 - [ ] Obsolete test cleanup process established
+
 - [ ] Test documentation maintained
+
 - [ ] Test data management automated
 
 ### Pre-commit Hooks
+
 - [ ] Code formatting checks (clang-format)
+
 - [ ] Linting (cppcheck)
+
 - [ ] Static analysis (clang-tidy, scan-build)
+
 - [ ] Fast test subset execution
+
 - [ ] Commit hooks configured
 
 ## Prompt Template
@@ -91,7 +111,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -1085,10 +1107,15 @@ genhtml coverage.info --output-directory coverage-html
 Please provide a comprehensive CI/CD and maintenance implementation with the following structure:
 
 ### CI/CD Configuration Summary
+
 - **Platform**: [GitHub Actions/GitLab CI/Jenkins]
+
 - **Pipeline Stages**: [list stages]
+
 - **Parallel Execution**: [enabled/disabled, worker count]
+
 - **Test Types Automated**: [unit, integration, memory]
+
 - **Quality Gates**: [list gates]
 
 ### Quality Gate Configuration
@@ -1099,10 +1126,15 @@ Please provide a comprehensive CI/CD and maintenance implementation with the fol
 | Memory Leaks | 0 | [value] | ✅/❌ |
 
 ### Pre-commit Hooks Configured
+
 - [ ] Code formatting (clang-format)
+
 - [ ] Static analysis (cppcheck, clang-tidy)
+
 - [ ] Build verification
+
 - [ ] Fast test execution
+
 - [ ] Coverage check
 
 ### Test Maintenance Status
@@ -1117,10 +1149,15 @@ Please provide a comprehensive CI/CD and maintenance implementation with the fol
 | [test_name] | [rate] | [fix planned] |
 
 ### Test Execution Metrics
+
 - **Total Tests**: [count]
+
 - **Average Execution Time**: [duration]
+
 - **Parallel Workers**: [count]
+
 - **Tests per Second**: [rate]
+
 - **Coverage**: [percentage]
 
 ### CI/CD Pipeline Visualization
@@ -1138,19 +1175,31 @@ Please provide a comprehensive CI/CD and maintenance implementation with the fol
 ```
 
 ### Best Practices Implemented
+
 - [ ] All tests automated in CI/CD
+
 - [ ] Quality gates prevent regressions
+
 - [ ] Pre-commit hooks catch issues early
+
 - [ ] Parallel execution for speed
+
 - [ ] Memory leak detection enabled
+
 - [ ] Test maintenance schedule established
 
 ### Next Steps
+
 - [ ] Monitor and optimize slow tests
+
 - [ ] Fix identified flaky tests
+
 - [ ] Review and update obsolete tests
+
 - [ ] Enhance test documentation
+
 - [ ] Set up test result dashboard
+
 - [ ] Schedule regular test maintenance reviews
 
 ## File Output Instructions
@@ -1210,7 +1259,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

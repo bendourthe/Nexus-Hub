@@ -32,46 +32,77 @@ documentation/technical_docs/
 ## Implementation Checklist
 
 ### Architecture Documentation
+
 - [ ] System architecture overview with diagrams
+
 - [ ] Component responsibilities clearly defined
+
 - [ ] Technology stack documented with rationale
+
 - [ ] Architectural patterns explained
+
 - [ ] Scalability and performance considerations
+
 - [ ] Security architecture documented
 
 ### Design Decisions
+
 - [ ] Key technical decisions documented with rationale
+
 - [ ] Alternative approaches considered
+
 - [ ] Trade-offs and constraints explained
+
 - [ ] Decision timeline and context
+
 - [ ] Impact assessment of decisions
 
 ### Module Organization
+
 - [ ] Package structure explained
+
 - [ ] Module dependencies mapped
+
 - [ ] Exported vs unexported interfaces defined
+
 - [ ] Import structure documented
+
 - [ ] Code organization principles
 
 ### Data Flow
+
 - [ ] Data flow diagrams created
+
 - [ ] Goroutine patterns documented
+
 - [ ] Channel usage explained
+
 - [ ] Data transformation pipelines
+
 - [ ] Error handling patterns
 
 ### Integration Points
+
 - [ ] External API integrations documented
+
 - [ ] Database schemas and migrations
+
 - [ ] Message queue/event systems
+
 - [ ] Third-party service dependencies
+
 - [ ] Authentication/authorization flows
 
 ### Development Workflow
+
 - [ ] Development environment setup
+
 - [ ] Build and deployment process
+
 - [ ] Testing strategy
+
 - [ ] CI/CD pipeline documentation
+
 - [ ] Release process
 
 ## Prompt Template
@@ -106,7 +137,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -137,9 +170,13 @@ Please create comprehensive technical documentation for this Go project followin
 ## Architecture Style
 
 - **Pattern**: [Layered/Hexagonal/Clean Architecture/Microservices]
+
 - **Framework**: [Gin/Echo/Chi/Standard Library/gRPC]
+
 - **Deployment**: [Binary/Container/Kubernetes/Lambda]
+
 - **Concurrency**: [Goroutines pattern description]
+
 - **Communication**: [REST/gRPC/Message Queue]
 
 ## Technology Stack
@@ -599,41 +636,25 @@ jobs:
 
 ---
 
-## File Output Instructions
-
-**IMPORTANT**: Save all generated files to the correct directory structure:
-
-```bash
-# Create directory structure
-mkdir -p ${OUTPUT_DIR}/technical_docs/generated_docs
-mkdir -p ${OUTPUT_DIR}/technical_docs/templates
-mkdir -p ${OUTPUT_DIR}/technical_docs/assets
-mkdir -p ${OUTPUT_DIR}/technical_docs/exports
-```
-
-**Save files as follows**:
-
-
-- Templates → `documentation/technical_docs/templates/`
-
-- Assets → `documentation/technical_docs/assets/`
-
-- Exports → `documentation/technical_docs/exports/`
-
-Replace `{phase_name}` with the specific phase (docstrings, comments, user_docs, technical_docs, api_docs, or sbom).
-
-~~~
-
 ## Output Format Specifications
 
 The technical documentation should:
+
 - Provide high-level architecture overview
+
 - Document Go-specific patterns (goroutines, channels)
+
 - Map package organization clearly
+
 - Show concurrency and error handling patterns
+
 - Document all external integrations
+
 - Follow Go idioms and best practices
+
 - Target Go developers
+
+~~~
 ---
 
 ## Verify Directory Structure
@@ -653,7 +674,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

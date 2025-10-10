@@ -32,39 +32,65 @@ review/performance_review/
 ## Review Checklist
 
 ### Performance Profiling
+
 - [ ] CPU profiling completed (pprof)
+
 - [ ] Memory profiling performed (pprof)
+
 - [ ] Goroutine profiling analyzed
+
 - [ ] Block profiling reviewed
+
 - [ ] Mutex contention profiling checked
+
 - [ ] Hot paths and bottlenecks identified
 
 ### Algorithm Efficiency
+
 - [ ] Time complexity evaluated (O(n), O(n²), etc.)
+
 - [ ] Space complexity assessed
+
 - [ ] Inefficient loops identified (nested, redundant)
+
 - [ ] Algorithmic improvements documented
+
 - [ ] Data structure choices reviewed
 
 ### Concurrency Performance
+
 - [ ] Goroutine usage patterns evaluated
+
 - [ ] Channel performance assessed
+
 - [ ] Mutex contention measured
+
 - [ ] Work distribution analyzed
+
 - [ ] Race conditions checked
 
 ### Memory Management
+
 - [ ] Memory leaks detected
+
 - [ ] Large object allocations identified
+
 - [ ] Memory growth patterns analyzed
+
 - [ ] Caching strategies reviewed
+
 - [ ] Garbage collection behavior assessed
 
 ### I/O & Network
+
 - [ ] File I/O operations profiled
+
 - [ ] Network call latency measured
+
 - [ ] Connection pooling evaluated
+
 - [ ] Buffering strategies reviewed
+
 - [ ] Context cancellation properly used
 
 ## Prompt Template
@@ -99,7 +125,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -547,10 +575,15 @@ Please perform a comprehensive performance review of this Go application followi
 Please provide a comprehensive performance report with the following structure:
 
 ### Executive Summary
+
 - **Overall Performance**: [Excellent/Good/Fair/Poor]
+
 - **Critical Bottlenecks**: [count and brief description]
+
 - **Performance Impact**: [High/Medium/Low user-facing impact]
+
 - **Optimization Potential**: [percentage improvement possible]
+
 - **Recommended Investment**: [estimated hours for major improvements]
 
 ### Performance Profile Overview
@@ -565,8 +598,11 @@ Please provide a comprehensive performance report with the following structure:
 | [name] | [pkg] | [count] | [MB] | [%] | [details] |
 
 **Goroutine Statistics**:
+
 - Peak goroutines: [count]
+
 - Average goroutines: [count]
+
 - Goroutine leaks detected: [count]
 
 ### Critical Performance Issues (Priority 1)
@@ -595,22 +631,35 @@ Please provide a comprehensive performance report with the following structure:
 | [file:line] | [count] | [reason] | [solution] |
 
 ### Memory Analysis
+
 - **Peak Memory Usage**: [MB]
+
 - **Memory Leaks Detected**: [Yes/No - locations if yes]
+
 - **Allocation Rate**: [allocs/sec]
+
 - **GC Pressure**: [High/Medium/Low]
+
 - **GC Pause Time**: [p50/p95/p99 ms]
 
 ### I/O & Network Performance
+
 - **File I/O Operations**: [count and total time]
+
 - **Network Calls**: [count, total time, average latency]
+
 - **Connection Pool Efficiency**: [utilization %]
+
 - **Blocking Operations**: [count and locations]
 
 ### Go-Specific Findings
+
 - **Escape Analysis Issues**: [allocations that could be stack]
+
 - **Interface Boxing**: [unnecessary allocations]
+
 - **Reflection Usage**: [performance impact]
+
 - **CGO Calls**: [frequency and cost]
 
 ### Benchmark Results
@@ -644,8 +693,11 @@ Please provide a comprehensive performance report with the following structure:
 ### Load Testing Recommendations
 ```bash
 # Suggested load testing tools
+
 - vegeta: HTTP load testing
+
 - hey: HTTP benchmarking
+
 - ghz: gRPC load testing
 
 # Example vegeta test
@@ -671,16 +723,25 @@ var (
 )
 
 // Implement performance monitoring
+
 - Response time tracking (p50, p95, p99)
+
 - Goroutine count monitoring
+
 - Memory usage alerts
+
 - GC pause time tracking
+
 - Custom business metric tracking
 
 // Recommended tools:
+
 - Prometheus + Grafana
+
 - DataDog
+
 - New Relic
+
 - pprof integration
 ```
 
@@ -699,19 +760,31 @@ http.ListenAndServe(":6060", nil)
 ```
 
 ### Next Steps
+
 - [ ] Implement quick win optimizations
+
 - [ ] Set up continuous benchmarking
+
 - [ ] Configure production performance monitoring
+
 - [ ] Plan load testing before deployment
+
 - [ ] Schedule performance review sprint
+
 - [ ] Document performance SLAs/targets
 
 ## Notes
+
 - Optimize based on profiling data, not assumptions
+
 - Focus on user-facing performance improvements first
+
 - Always benchmark before and after optimization
+
 - Consider scalability alongside raw performance
+
 - Balance performance with code maintainability
+
 - Use pprof religiously - it's your best friend
 
 ## File Output Instructions
@@ -753,7 +826,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

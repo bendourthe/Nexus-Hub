@@ -32,29 +32,45 @@ documentation/api_docs/
 ## Implementation Checklist
 
 ### Endpoint Documentation
+
 - [ ] All endpoints with HTTP methods documented
+
 - [ ] Request/response structs with JSON tags
+
 - [ ] Path, query, body parameters specified
+
 - [ ] Status codes and meanings explained
 
 ### Authentication
+
 - [ ] Authentication methods documented
+
 - [ ] JWT/API key handling explained
+
 - [ ] Middleware implementation shown
 
 ### Request/Response
+
 - [ ] Struct definitions with validation tags
+
 - [ ] JSON encoding/decoding examples
+
 - [ ] Error response structures
 
 ### Error Handling
+
 - [ ] Error types documented
+
 - [ ] HTTP status mappings shown
+
 - [ ] Common error scenarios covered
 
 ### Examples
+
 - [ ] net/http client examples
+
 - [ ] Third-party client examples (resty, etc.)
+
 - [ ] Complete integration examples
 
 ## Prompt Template
@@ -87,7 +103,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -499,40 +517,23 @@ func TestCreateUser(t *testing.T) {
 
 ---
 
-## File Output Instructions
-
-**IMPORTANT**: Save all generated files to the correct directory structure:
-
-```bash
-# Create directory structure
-mkdir -p ${OUTPUT_DIR}/api_docs/generated_docs
-mkdir -p ${OUTPUT_DIR}/api_docs/templates
-mkdir -p ${OUTPUT_DIR}/api_docs/assets
-mkdir -p ${OUTPUT_DIR}/api_docs/exports
-```
-
-**Save files as follows**:
-
-
-- Templates → `documentation/api_docs/templates/`
-
-- Assets → `documentation/api_docs/assets/`
-
-- Exports → `documentation/api_docs/exports/`
-
-Replace `{phase_name}` with the specific phase (docstrings, comments, user_docs, technical_docs, api_docs, or sbom).
-
-~~~
-
 ## Output Format Specifications
 
 The API documentation should:
+
 - Show idiomatic Go patterns
+
 - Include context-aware examples
+
 - Demonstrate proper error handling
+
 - Show both standard library and framework approaches
+
 - Include comprehensive testing examples
+
 - Target Go developers
+
+~~~
 ---
 
 ## Verify Directory Structure
@@ -552,7 +553,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

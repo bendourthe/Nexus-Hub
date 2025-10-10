@@ -23,10 +23,15 @@ Generate complete, standards-compliant SBOM documentation that inventories all s
 ## ✅ Key Areas Covered
 
 - **NTIA Minimum Elements**: Required components for SBOM compliance
+
 - **EU Cyber Resilience Act**: CRA-specific requirements
+
 - **Dependency Tree**: Complete dependency graph with versions
+
 - **License Information**: License identification and compliance
+
 - **Known Vulnerabilities**: CVE tracking and security advisories
+
 - **Supply Chain Security**: Component provenance and integrity
 
 ## 🚀 Quick Start
@@ -40,12 +45,19 @@ Generate complete, standards-compliant SBOM documentation that inventories all s
 ## 📊 Success Criteria
 
 - [ ] SBOM includes all NTIA minimum elements
+
 - [ ] EU Cyber Resilience Act requirements met (if applicable)
+
 - [ ] Complete dependency tree with versions documented
+
 - [ ] All licenses identified and documented
+
 - [ ] Known vulnerabilities tracked and documented
+
 - [ ] SBOM format standard-compliant (SPDX or CycloneDX)
+
 - [ ] Automated SBOM generation integrated in build process
+
 - [ ] SBOM updated with each release
 
 ---
@@ -70,7 +82,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

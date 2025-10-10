@@ -32,24 +32,39 @@ tests/mocks_fixtures/
 ## Implementation Checklist
 
 ### Fixture Setup
+
 - [ ] JUnit lifecycle methods configured (@BeforeEach/@AfterEach/@BeforeAll/@AfterAll)
+
 - [ ] Test data builders created for flexible data generation
+
 - [ ] Fixture factories implemented with realistic data
+
 - [ ] Cleanup and reset logic automated
+
 - [ ] Fixtures documented with clear purposes
 
 ### Mocking Strategy
+
 - [ ] External dependencies identified for mocking
+
 - [ ] Mocking approach chosen (mock vs spy vs stub)
+
 - [ ] Mock objects configured with Mockito
+
 - [ ] Verification methods used appropriately
+
 - [ ] Over-mocking avoided
 
 ### Test Data Management
+
 - [ ] Test data factories implemented
+
 - [ ] Realistic test data patterns established
+
 - [ ] Data builders for complex objects created
+
 - [ ] Test data isolated per test
+
 - [ ] Data cleanup automated
 
 ## Prompt Template
@@ -84,7 +99,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -519,18 +536,29 @@ class UserServiceTest {
 ### When to Mock vs Use Real Objects
 
 **Use Mocks For**:
+
 - External APIs and services
+
 - Database operations in unit tests
+
 - File system operations
+
 - Network requests
+
 - Slow dependencies
+
 - Non-deterministic behavior
 
 **Use Real Objects For**:
+
 - Pure functions
+
 - Simple POJOs
+
 - Value objects
+
 - Integration tests
+
 - Critical business logic
 
 ```java
@@ -904,12 +932,15 @@ Please provide a comprehensive mocks and fixtures implementation with the follow
 
 ### Fixture Architecture
 **Class-Level Setup** (@BeforeAll/@AfterAll):
+
 - [fixture_name]: [purpose, setup, teardown]
 
 **Test-Level Setup** (@BeforeEach/@AfterEach):
+
 - [fixture_name]: [purpose, when to use]
 
 **Fixture Factories**:
+
 - [factory_name]: [creates what, customization options]
 
 ### Mocking Strategy
@@ -932,10 +963,13 @@ void setUp() {
 
 ### Test Data Factories
 **Factory Classes**:
+
 - UserFactory: [customization options]
+
 - OrderFactory: [customization options]
 
 **Builder Classes**:
+
 - [builder_name]: [purpose, fluent interface methods]
 
 ### Usage Examples
@@ -970,25 +1004,41 @@ class UserRegistrationTest {
 ```
 
 ### Best Practices Implemented
+
 - [ ] Fixtures use appropriate lifecycle annotations
+
 - [ ] Mocks are used for external dependencies only
+
 - [ ] Test data factories provide flexible data creation
+
 - [ ] Mock verification ensures correct behavior
+
 - [ ] Argument matchers used appropriately
+
 - [ ] Cleanup ensures isolation between tests
 
 ### Common Pitfalls Avoided
+
 - Over-mocking simple POJOs
+
 - Not using @ExtendWith(MockitoExtension.class)
+
 - Stubbing in @AfterEach instead of @BeforeEach
+
 - Complex mock setups that obscure test intent
+
 - Testing mock behavior instead of real code
 
 ### Next Steps
+
 - [ ] Implement remaining fixtures for integration tests
+
 - [ ] Add factories for all domain models
+
 - [ ] Document fixture usage for team
+
 - [ ] Set up WireMock for HTTP integration tests
+
 - [ ] Review mock coverage and necessity
 
 ## File Output Instructions
@@ -1047,7 +1097,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

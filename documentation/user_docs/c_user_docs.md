@@ -32,39 +32,65 @@ documentation/user_docs/
 ## Implementation Checklist
 
 ### README Structure
+
 - [ ] Compelling project overview and value proposition
+
 - [ ] Key features highlighted
+
 - [ ] Installation instructions complete and tested
+
 - [ ] Quick start guide for immediate success
+
 - [ ] Usage examples for common scenarios
+
 - [ ] Links to detailed documentation
 
 ### Installation Guides
+
 - [ ] Prerequisites clearly listed (compiler, build tools)
+
 - [ ] Step-by-step installation process
+
 - [ ] Platform-specific instructions (Windows, macOS, Linux)
+
 - [ ] Troubleshooting common installation issues
+
 - [ ] Verification steps to confirm successful installation
 
 ### Quick Start Guides
+
 - [ ] Minimal example to first success
+
 - [ ] Common use cases covered
+
 - [ ] Progressive complexity (simple to advanced)
+
 - [ ] Expected output shown
+
 - [ ] Next steps guidance
 
 ### Usage Examples
+
 - [ ] Real-world scenarios
+
 - [ ] Complete, runnable code
+
 - [ ] Input/output examples
+
 - [ ] Edge cases and limitations
+
 - [ ] Best practices demonstrated
 
 ### FAQ and Troubleshooting
+
 - [ ] Common questions answered
+
 - [ ] Error messages explained
+
 - [ ] Debugging guidance
+
 - [ ] Known limitations documented
+
 - [ ] Where to get help
 
 ## Prompt Template
@@ -99,7 +125,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -164,8 +192,11 @@ Create a comprehensive README.md that serves as the front door to your project:
 ## ✨ What's New in v[X.Y.Z]
 
 - 🚀 [New Feature 1]: Brief description
+
 - ⚡ [Performance Improvement]: Specific metric (e.g., "50% faster")
+
 - 🐛 [Important Bug Fix]: What was fixed
+
 - 📝 [Documentation Update]: What was improved
 
 [See full changelog](CHANGELOG.md)
@@ -181,8 +212,11 @@ Create a comprehensive README.md that serves as the front door to your project:
 **Solution**: [How does this project solve it?]
 
 **Benefits**:
+
 - ✅ [Key benefit 1]
+
 - ✅ [Key benefit 2]
+
 - ✅ [Key benefit 3]
 
 ---
@@ -190,8 +224,11 @@ Create a comprehensive README.md that serves as the front door to your project:
 ## 🎯 Key Features
 
 - **[Feature 1]**: Description of what it does and why it matters
+
 - **[Feature 2]**: Highlight unique or powerful capabilities
+
 - **[Feature 3]**: Emphasize ease of use or performance benefits
+
 - **[Feature 4]**: Note portability or compatibility features
 
 ---
@@ -272,9 +309,13 @@ gcc -o myapp main.c -lproject
 ### Prerequisites
 
 Before installing, ensure you have:
+
 - C compiler (GCC 4.9+, Clang 3.5+, or MSVC 2015+)
+
 - Make (GNU Make 3.81+ or compatible)
+
 - [Optional] CMake 3.10+ for alternative build
+
 - [Optional] pkg-config for dependency management
 
 ### Platform-Specific Prerequisites
@@ -301,7 +342,9 @@ brew install gcc make
 ```
 
 **Windows**:
+
 - Install MinGW-w64 or MSYS2
+
 - Or use Visual Studio 2015+ with C/C++ tools
 
 ### Installation Options
@@ -616,9 +659,13 @@ project_t *ctx = project_init();
 ## 📚 Documentation
 
 - **[User Guide](docs/USER_GUIDE.md)**: Comprehensive usage documentation
+
 - **[API Reference](docs/API.md)**: Complete function reference
+
 - **[Examples](examples/)**: More code examples
+
 - **[FAQ](docs/FAQ.md)**: Frequently asked questions
+
 - **[Troubleshooting](docs/TROUBLESHOOTING.md)**: Common issues and solutions
 
 ---
@@ -722,6 +769,7 @@ This project is licensed under the [MIT License](LICENSE) - see the LICENSE file
 ## 🙏 Acknowledgments
 
 - [Contributor/Library]: For [contribution/inspiration]
+
 - [Resource]: For [helpful resource]
 
 ---
@@ -729,8 +777,11 @@ This project is licensed under the [MIT License](LICENSE) - see the LICENSE file
 ## 📞 Support
 
 - **Issues**: [GitHub Issues](https://github.com/username/project/issues)
+
 - **Discussions**: [GitHub Discussions](https://github.com/username/project/discussions)
+
 - **Mailing List**: [project@lists.example.com](mailto:project@lists.example.com)
+
 - **Documentation**: [https://project-docs.com](https://project-docs.com)
 
 ---
@@ -738,7 +789,9 @@ This project is licensed under the [MIT License](LICENSE) - see the LICENSE file
 ## 🗺️ Roadmap
 
 - [ ] v[X+1].0: [Planned major feature]
+
 - [ ] v[X].Y: [Planned minor feature]
+
 - [ ] [Future feature/improvement]
 
 See [ROADMAP.md](ROADMAP.md) for detailed plans.
@@ -764,15 +817,23 @@ Complete installation instructions for [Project Name].
 ## System Requirements
 
 ### Minimum Requirements
+
 - **OS**: Linux (kernel 3.x+), macOS 10.10+, Windows 7+
+
 - **Compiler**: GCC 4.9+, Clang 3.5+, or MSVC 2015+
+
 - **Build Tools**: GNU Make 3.81+ or CMake 3.10+
+
 - **RAM**: 512MB minimum
+
 - **Disk Space**: 50MB
 
 ### Recommended Requirements
+
 - GCC 9+ or Clang 11+ for best optimization
+
 - 2GB RAM for development
+
 - pkg-config for dependency management
 
 ---
@@ -1058,19 +1119,27 @@ target_link_libraries(myapp Project::Project)
 ### Common Build Errors
 
 **Error**: `make: command not found`
+
 - **Cause**: Make not installed
+
 - **Fix**: Install build tools (see platform instructions above)
 
 **Error**: `gcc: command not found`
+
 - **Cause**: Compiler not installed
+
 - **Fix**: Install GCC or Clang
 
 **Error**: `undefined reference to 'pthread_create'`
+
 - **Cause**: Missing pthread library
+
 - **Fix**: Add `-lpthread` to linker flags
 
 **Error**: `fatal error: project.h: No such file or directory`
+
 - **Cause**: Header not found
+
 - **Fix**: Add include path: `-I/path/to/include`
 
 ### Getting Help
@@ -1109,9 +1178,13 @@ Get started with [Project Name] in under 10 minutes.
 ## What You'll Build
 
 By the end of this guide, you'll have:
+
 - ✅ Built and installed [Project Name]
+
 - ✅ Created your first C program using the library
+
 - ✅ Understanding of core concepts
+
 - ✅ Ready to build your own solution
 
 **Time Required**: ~10 minutes
@@ -1121,7 +1194,9 @@ By the end of this guide, you'll have:
 ## Prerequisites
 
 - C compiler (GCC or Clang)
+
 - Make
+
 - Basic C knowledge
 
 ---
@@ -1141,6 +1216,7 @@ xcode-select --install
 ```
 
 **Windows**:
+
 - Install MinGW or MSYS2
 
 ---
@@ -1212,12 +1288,17 @@ Result: Processed: Hello, World!
 ## Step 4: Next Steps
 
 ### Explore More Examples
+
 - **[Error Handling](examples/error_handling.c)**: Robust error management
+
 - **[Callbacks](examples/callbacks.c)**: Using callback functions
+
 - **[Threading](examples/threading.c)**: Multi-threaded usage
 
 ### Read Documentation
+
 - **[API Reference](docs/API.md)**: Function documentation
+
 - **[User Guide](USER_GUIDE.md)**: Comprehensive guide
 
 ---
@@ -1225,7 +1306,9 @@ Result: Processed: Hello, World!
 ## Need Help?
 
 - **Error Messages**: See [Troubleshooting](TROUBLESHOOTING.md)
+
 - **Questions**: Open an [issue](https://github.com/username/project/issues)
+
 - **Examples**: Check [examples/](examples/) directory
 
 **Congratulations!** You're ready to use [Project Name].
@@ -1288,45 +1371,7 @@ if (!result) {
 [Back to README](../README.md)
 ```
 
----
-
-
-## File Output Instructions
-
-**IMPORTANT**: Save all generated files to the correct directory structure:
-
-```bash
-# Create directory structure
-mkdir -p ${OUTPUT_DIR}/user_docs/generated_docs
-mkdir -p ${OUTPUT_DIR}/user_docs/templates
-mkdir -p ${OUTPUT_DIR}/user_docs/assets
-mkdir -p ${OUTPUT_DIR}/user_docs/exports
-```
-
-**Save files as follows**:
-
-
-- Templates → `documentation/user_docs/templates/`
-
-- Assets → `documentation/user_docs/assets/`
-
-- Exports → `documentation/user_docs/exports/`
-
-Replace `{phase_name}` with the specific phase (docstrings, comments, user_docs, technical_docs, api_docs, or sbom).
-
 ~~~
-
-## Output Format Specifications
-
-The user documentation should:
-- Be clear and accessible to C developers
-- Include complete, compilable examples
-- Show proper memory management and error handling
-- Cover Makefile and CMake build systems
-- Provide platform-specific instructions
-- Include troubleshooting for common compiler/linker issues
-- Emphasize portability and embedded use cases
-- Link to API documentation
 ---
 
 ## Verify Directory Structure
@@ -1346,7 +1391,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

@@ -32,31 +32,51 @@ tests/test_structure/
 ## Implementation Checklist
 
 ### Test Framework Setup
+
 - [ ] Go modules initialized
+
 - [ ] Testing dependencies installed (testify, gomock, etc.)
+
 - [ ] Test discovery patterns established
+
 - [ ] Build tags configured
+
 - [ ] Coverage tools configured
 
 ### Directory Structure
+
 - [ ] Standard Go test layout implemented
+
 - [ ] Test type separation organized
+
 - [ ] Naming conventions documented
+
 - [ ] Testdata directories created
+
 - [ ] Internal test packages configured
 
 ### Fixture Infrastructure
+
 - [ ] Test setup/teardown functions established
+
 - [ ] Test helpers defined
+
 - [ ] Table-driven test patterns implemented
+
 - [ ] Mock interfaces generated
+
 - [ ] Common fixtures centralized
 
 ### Test Utilities
+
 - [ ] Assertion helpers created
+
 - [ ] Test data builders implemented
+
 - [ ] Helper functions defined
+
 - [ ] Custom matchers established
+
 - [ ] Helper documentation provided
 
 ## Prompt Template
@@ -91,7 +111,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -999,11 +1021,17 @@ Replace `{phase_name}` with the specific phase (test_structure, test_cases, mock
 Please provide a comprehensive test infrastructure design with the following structure:
 
 ### Infrastructure Summary
+
 - **Test Framework**: [testing package + libraries used]
+
 - **Go Version**: [version]
+
 - **Total Packages**: [count]
+
 - **Test Organization**: [structure description]
+
 - **Mock Strategy**: [approach description]
+
 - **Utility Packages**: [list of helper packages]
 
 ### Project Structure
@@ -1013,33 +1041,43 @@ Please provide a comprehensive test infrastructure design with the following str
 
 ### Dependencies Installed
 **Testing Libraries**:
+
 - [package]: [version] - [purpose]
 
 **Mocking Frameworks**:
+
 - [package]: [version] - [purpose]
 
 **Assertion Libraries**:
+
 - [package]: [version] - [purpose]
 
 ### Test Infrastructure
 **Setup Functions**:
+
 - [TestMain usage]: [description]
+
 - [Setup helpers]: [description]
 
 **Fixtures**:
+
 - [FixtureName]: [purpose and usage]
 
 **Mocks**:
+
 - [Mock generation approach]: [description]
 
 ### Test Utilities
 **Assertion Helpers** (`test/helpers/assertions.go`):
+
 - [HelperName]: [purpose]
 
 **Test Builders** (`test/helpers/builders.go`):
+
 - [BuilderName]: [purpose]
 
 **Other Helpers**:
+
 - [HelperName]: [purpose]
 
 ### Test Execution Commands
@@ -1081,30 +1119,51 @@ make mocks
 5. **Test Data**: [testdata directories, golden files]
 
 ### Next Steps
+
 - [ ] Implement actual test cases
+
 - [ ] Add project-specific fixtures
+
 - [ ] Configure CI/CD (GitHub Actions, GitLab CI)
+
 - [ ] Set up coverage reporting (codecov, coveralls)
+
 - [ ] Document testing guidelines
+
 - [ ] Create benchmark suite
+
 - [ ] Set up fuzzing tests
 
 ### Best Practices Implemented
+
 - Table-driven tests for multiple scenarios
+
 - Helper functions marked with t.Helper()
+
 - Parallel test execution where safe
+
 - Clear test organization by type
+
 - Reusable test fixtures and builders
+
 - Mock generation automation
+
 - Coverage measurement integrated
 
 ### Maintenance Recommendations
+
 - Run tests before committing
+
 - Keep tests fast and isolated
+
 - Use t.Helper() in helper functions
+
 - Cleanup resources with t.Cleanup()
+
 - Update golden files when needed
+
 - Monitor test execution time
+
 - Review and update mocks regularly
 ~~~
 
@@ -1138,7 +1197,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

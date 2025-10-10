@@ -32,54 +32,91 @@ review/code_quality/
 ## Review Checklist
 
 ### Coding Standards
+
 - [ ] C++ Core Guidelines compliance verified
+
 - [ ] clang-format configuration applied consistently
+
 - [ ] Naming conventions follow project standards
+
 - [ ] Header guards or #pragma once usage consistent
+
 - [ ] Include order follows convention (own, project, third-party, system)
 
 ### Modern C++ Usage
+
 - [ ] Smart pointers used instead of raw owning pointers
+
 - [ ] RAII principles applied consistently
+
 - [ ] Move semantics utilized appropriately
+
 - [ ] constexpr used for compile-time computation
+
 - [ ] auto used appropriately (not excessively)
+
 - [ ] Range-based for loops preferred over index-based
 
 ### Code Complexity
+
 - [ ] Functions under 50 lines (flagged if exceeded)
+
 - [ ] Cyclomatic complexity under 10 per function
+
 - [ ] Nesting depth under 4 levels
+
 - [ ] Class size reasonable (<500 lines)
+
 - [ ] Template complexity manageable
 
 ### Design & Architecture
+
 - [ ] SOLID principles followed
+
 - [ ] DRY principle applied (no significant duplication)
+
 - [ ] Separation of concerns maintained
+
 - [ ] Appropriate use of design patterns (RAII, PIMPL, factory, etc.)
+
 - [ ] Proper abstraction levels
 
 ### Code Smells
+
 - [ ] Long parameter lists identified (>5 parameters)
+
 - [ ] God classes identified
+
 - [ ] Feature envy detected
+
 - [ ] Raw owning pointers flagged
+
 - [ ] Dead code marked for removal
+
 - [ ] Macro abuse identified
 
 ### Error Handling
+
 - [ ] Exception safety guarantees documented
+
 - [ ] RAII used for resource management
+
 - [ ] noexcept specified appropriately
+
 - [ ] Error handling strategy consistent
+
 - [ ] No resource leaks
 
 ### Maintainability
+
 - [ ] Code self-documenting with clear names
+
 - [ ] Comments explain "why" not "what"
+
 - [ ] Magic numbers replaced with named constants
+
 - [ ] Configuration externalized
+
 - [ ] Platform-specific code isolated
 
 ## Prompt Template
@@ -114,7 +151,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -511,25 +550,39 @@ Please perform a comprehensive code quality review of this C++ project following
 Please provide a comprehensive quality report with the following structure:
 
 ### Executive Summary
+
 - **Overall Quality Score**: [A-F grade]
+
 - **C++ Modernization**: [Excellent/Good/Fair/Poor]
+
 - **Average Complexity**: [cyclomatic complexity]
+
 - **Critical Issues**: [count]
+
 - **Technical Debt**: [estimated hours to address]
 
 ### Coding Standards Compliance
+
 - **clang-tidy Issues**: [count and severity]
+
 - **cppcheck Warnings**: [count]
+
 - **C++ Core Guidelines**: [compliance percentage]
+
 - **Most Common Issues**:
   1. [Issue type] - [count] occurrences
   2. [Issue type] - [count] occurrences
 
 ### Modern C++ Assessment
+
 - **Smart Pointer Usage**: [Excellent/Good/Fair/Poor]
+
 - **RAII Compliance**: [percentage of resources using RAII]
+
 - **Move Semantics**: [appropriate/underutilized/misused]
+
 - **constexpr Usage**: [good/could improve/not used]
+
 - **Legacy Patterns**: [count and locations of C++03-style code]
 
 **Legacy Code Locations**:
@@ -582,39 +635,58 @@ Please provide a comprehensive quality report with the following structure:
 | [file:line] | [owning/observing] | [High/Med/Low] | [unique_ptr/raw non-owning] |
 
 **Memory Management Issues**:
+
 - Manual new/delete: [count and locations]
+
 - Missing RAII wrappers: [count]
+
 - Potential memory leaks: [locations]
+
 - Use-after-free risks: [locations]
 
 **Exception Safety Issues**:
+
 - Missing noexcept: [count and locations]
+
 - Resource leaks in exception paths: [locations]
+
 - Incomplete exception safety: [locations]
 
 ### Error Handling Assessment
+
 - **Exception Safety Guarantees**: [documented/undocumented]
+
 - **noexcept Compliance**: [percentage of functions with appropriate noexcept]
+
 - **Resource Cleanup**: [RAII-based/manual]
+
 - **Error Propagation**: [exceptions/error codes/mixed]
 
 ### Documentation Score
+
 - **API Documentation**: [percentage of public API documented]
+
 - **Doxygen Coverage**: [percentage]
+
 - **Comment Quality**: [Good/Fair/Poor]
+
 - **Areas Needing Documentation**: [list]
 
 ### Technical Debt Summary
 **Priority 1 (Critical)**: [Estimated hours]
+
 - [Issue description and location]
 
 **Priority 2 (High)**: [Estimated hours]
+
 - [Issue description and location]
 
 **Priority 3 (Medium)**: [Estimated hours]
+
 - [Issue description and location]
 
 **Priority 4 (Low)**: [Estimated hours]
+
 - [Issue description and location]
 
 ### Refactoring Recommendations
@@ -635,16 +707,25 @@ Please provide a comprehensive quality report with the following structure:
 
 ### Positive Patterns
 Acknowledge what's done well:
+
 - Excellent RAII usage in [module]
+
 - Effective use of move semantics
+
 - Clean template design in [component]
 
 ### Next Steps
+
 - [ ] Address critical memory management issues
+
 - [ ] Run clang-tidy and fix high-priority warnings
+
 - [ ] Implement automated quality gates (clang-tidy, cppcheck)
+
 - [ ] Plan refactoring sprints for high-priority technical debt
+
 - [ ] Establish team C++ coding standards documentation
+
 - [ ] Set up pre-commit hooks for formatting and linting
 
 ## Automation Recommendations
@@ -719,7 +800,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

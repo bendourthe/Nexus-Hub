@@ -32,38 +32,63 @@ review/context_analysis/
 ## Analysis Checklist
 
 ### Project Understanding
+
 - [ ] Project purpose and target audience identified
+
 - [ ] Core features and use cases documented
+
 - [ ] Development stage assessed (prototype, production, legacy)
+
 - [ ] Key stakeholders and maintainers identified
+
 - [ ] Project documentation reviewed (README, CONTRIBUTING, docs/)
 
 ### Architecture & Structure
+
 - [ ] Entry points and main modules mapped
+
 - [ ] Module organization evaluated (CommonJS vs ES6 modules)
+
 - [ ] Design patterns identified (MVC, Redux, component-based, etc.)
+
 - [ ] Configuration management approach documented
+
 - [ ] Environment-specific settings catalogued
 
 ### Dependency Analysis
+
 - [ ] Direct dependencies listed with versions (package.json)
+
 - [ ] Development dependencies separated from production
+
 - [ ] Outdated packages identified
+
 - [ ] Security vulnerabilities in dependencies checked
+
 - [ ] License compatibility verified
 
 ### Build & Deployment
+
 - [ ] Build process documented (webpack, rollup, parcel, vite)
+
 - [ ] Test execution approach understood
+
 - [ ] CI/CD pipelines identified (GitHub Actions, GitLab CI, Jenkins)
+
 - [ ] Deployment targets documented (Node.js, browser, serverless)
+
 - [ ] Environment variables and secrets management reviewed
 
 ### Codebase Metrics
+
 - [ ] Lines of code measured (total, per module)
+
 - [ ] Cyclomatic complexity assessed
+
 - [ ] Module coupling and cohesion evaluated
+
 - [ ] Code duplication percentage calculated
+
 - [ ] Comment density analyzed
 
 ## Prompt Template
@@ -98,7 +123,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -315,11 +342,17 @@ Please perform a comprehensive context analysis of this JavaScript project follo
 Please provide a comprehensive context report with the following structure:
 
 ### Executive Summary
+
 - **Project Name**: [name]
+
 - **Purpose**: [1-2 sentence description]
+
 - **Stage**: [prototype/production/legacy]
+
 - **Runtime**: [Node.js version / Browser targets]
+
 - **Language**: [JavaScript / TypeScript]
+
 - **Architecture**: [SPA/SSR/API/Full-stack]
 
 ### Project Structure
@@ -332,11 +365,17 @@ project/
 ```
 
 ### Architecture Overview
+
 - **Framework**: [React/Vue/Express/etc.]
+
 - **Module System**: [CommonJS/ES6/Mixed]
+
 - **Design Patterns**: [patterns identified]
+
 - **State Management**: [Redux/Context/etc.]
+
 - **Build Tool**: [webpack/vite/etc.]
+
 - **Key Dependencies**: [critical external packages]
 
 ### Dependency Summary
@@ -345,18 +384,29 @@ project/
 | [name] | [version] | [usage] | [current/outdated] | [safe/vulnerable] |
 
 ### Build & Deployment
+
 - **Build System**: [tool and configuration]
+
 - **Bundle Size**: [size in KB/MB]
+
 - **Test Framework**: [Jest/Mocha/etc.]
+
 - **CI/CD**: [platform and key workflows]
+
 - **Deployment**: [target environments]
 
 ### Codebase Metrics
+
 - **Total Lines**: [number] (excluding tests and node_modules)
+
 - **JavaScript**: [lines] / **TypeScript**: [lines]
+
 - **Average Complexity**: [cyclomatic complexity score]
+
 - **Bundle Size**: [production bundle size]
+
 - **Duplication**: [percentage]
+
 - **Documentation**: [JSDoc/comment coverage %]
 
 ### Key Findings
@@ -373,9 +423,13 @@ Based on this context, the following review areas should be prioritized:
 3. [Area 3] - [reason]
 
 ### Next Steps
+
 - [ ] Proceed with code quality review
+
 - [ ] Conduct security audit (especially if vulnerable dependencies found)
+
 - [ ] Perform performance analysis (bundle size, runtime performance)
+
 - [ ] Review test coverage and quality
 
 ## File Output Instructions
@@ -399,11 +453,17 @@ mkdir -p ${OUTPUT_DIR}/context_analysis/supporting_data
 - Supporting data → `review/context_analysis/supporting_data/`
 
 ## Notes
+
 - Save this context report - it will inform all subsequent review phases
+
 - Flag any critical issues discovered during context gathering
+
 - Update dependency vulnerabilities before detailed code review
+
 - Use this as baseline for measuring improvement over time
+
 - For TypeScript projects, include type coverage analysis
+
 - For frontend projects, consider Lighthouse audit for initial performance baseline
 ~~~
 ---
@@ -425,7 +485,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

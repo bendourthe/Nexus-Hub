@@ -32,48 +32,81 @@ review/security_review/
 ## Review Checklist
 
 ### Vulnerability Assessment
+
 - [ ] OWASP Top 10 vulnerabilities assessed
+
 - [ ] SQL injection vectors identified
+
 - [ ] Command injection points evaluated
+
 - [ ] Path traversal vulnerabilities tested
+
 - [ ] XML/JSON injection points checked
+
 - [ ] Buffer overflow risks assessed (CGO usage)
 
 ### Dependency Security
+
 - [ ] All dependencies scanned for known vulnerabilities (CVEs)
+
 - [ ] Outdated packages with security patches identified
+
 - [ ] Dependency chain analyzed for transitive vulnerabilities
+
 - [ ] License compliance verified
+
 - [ ] Supply chain risks assessed
 
 ### Authentication & Authorization
+
 - [ ] Authentication mechanisms reviewed (JWT, OAuth, session tokens)
+
 - [ ] Password storage security verified (bcrypt, argon2)
+
 - [ ] Session management evaluated
+
 - [ ] Authorization logic checked for privilege escalation
+
 - [ ] Role-based access control (RBAC) implementation reviewed
+
 - [ ] API authentication security assessed
 
 ### Data Protection
+
 - [ ] Sensitive data encryption verified (at rest and in transit)
+
 - [ ] Personally Identifiable Information (PII) handling reviewed
+
 - [ ] Data exposure in logs/errors evaluated
+
 - [ ] Database security assessed (parameterized queries, encryption)
+
 - [ ] File upload security verified
+
 - [ ] Data retention and deletion practices reviewed
 
 ### Secrets Management
+
 - [ ] Hardcoded credentials searched and documented
+
 - [ ] API keys and tokens in code identified
+
 - [ ] Environment variable usage verified
+
 - [ ] Secret management system evaluated
+
 - [ ] Configuration file security checked
 
 ### Input Validation & Sanitization
+
 - [ ] User input validation comprehensiveness assessed
+
 - [ ] Input sanitization for SQL/command injection verified
+
 - [ ] File upload restrictions evaluated
+
 - [ ] API input validation checked
+
 - [ ] JSON/XML parsing security reviewed
 
 ## Prompt Template
@@ -108,7 +141,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -479,10 +514,15 @@ For each OWASP vulnerability category, systematically review the codebase:
 Please provide a comprehensive security report with the following structure:
 
 ### Executive Summary
+
 - **Overall Security Risk**: [Critical/High/Medium/Low]
+
 - **Critical Vulnerabilities**: [count]
+
 - **High-Risk Issues**: [count]
+
 - **Compliance Status**: [compliant/gaps identified]
+
 - **Immediate Actions Required**: [yes/no and brief description]
 
 ### Critical Findings (Severity: CRITICAL)
@@ -514,33 +554,53 @@ Please provide a comprehensive security report with the following structure:
 | [name] | [version] | [Yes/No] | [CVE-ID] | [Critical/High/Med/Low] | [version] |
 
 ### Secrets & Credentials Exposure
+
 - **Hardcoded Secrets Found**: [count]
+
 - **Locations**: [list of files and lines]
+
 - **Types**: [API keys, passwords, tokens, etc.]
+
 - **Git History Scan**: [secrets in commit history: yes/no]
 
 ### Authentication & Authorization
+
 - **Password Storage**: [secure/insecure and method]
+
 - **Session Management**: [secure/issues found]
+
 - **Authorization Coverage**: [percentage of handlers protected]
+
 - **Issues Identified**: [list of specific problems]
 
 ### Data Protection
+
 - **Sensitive Data Inventory**: [types and locations]
+
 - **Encryption at Rest**: [implemented/missing]
+
 - **Encryption in Transit**: [TLS status and configuration]
+
 - **PII Exposure Risks**: [high/medium/low and locations]
 
 ### Go-Specific Security Issues
+
 - **Race Conditions**: [count from -race detector]
+
 - **Unsafe Type Assertions**: [count and locations]
+
 - **Integer Overflow Risks**: [locations]
+
 - **CGO Security**: [issues if applicable]
 
 ### Compliance Assessment
+
 - **GDPR**: [areas of concern]
+
 - **HIPAA**: [if applicable, compliance status]
+
 - **PCI DSS**: [if applicable, compliance status]
+
 - **SOC 2**: [relevant findings]
 
 ### Immediate Action Items (Priority 1)
@@ -596,21 +656,33 @@ jobs:
 
 ### Positive Security Practices
 Acknowledge what's done well:
+
 - [Good practice observed]
+
 - [Effective security measure implemented]
 
 ### Next Steps
+
 - [ ] Remediate all critical vulnerabilities immediately
+
 - [ ] Plan remediation sprints for high-risk issues
+
 - [ ] Implement automated security scanning in CI/CD
+
 - [ ] Conduct penetration testing after fixes
+
 - [ ] Establish security code review process
+
 - [ ] Provide security training for development team
 
 ## Notes
+
 - **Confidentiality**: This security report contains sensitive information - handle appropriately
+
 - **Responsible Disclosure**: If third-party vulnerabilities found, follow responsible disclosure
+
 - **Retest**: After remediation, rerun security scans to verify fixes
+
 - **Continuous Monitoring**: Implement ongoing security scanning and monitoring
 
 ## File Output Instructions
@@ -652,7 +724,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

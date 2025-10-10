@@ -32,45 +32,75 @@ review/code_quality/
 ## Review Checklist
 
 ### Coding Standards
+
 - [ ] ESLint rules compliance verified
+
 - [ ] Code formatting consistent (Prettier or similar)
+
 - [ ] Import organization follows standard order
+
 - [ ] Naming conventions consistent (camelCase, PascalCase, UPPER_CASE)
+
 - [ ] JSDoc or TypeScript type annotations used appropriately
 
 ### Code Complexity
+
 - [ ] Functions under 50 lines (flagged if exceeded)
+
 - [ ] Cyclomatic complexity under 10 per function
+
 - [ ] Nesting depth under 4 levels
+
 - [ ] Class/Component size reasonable (<300 lines)
+
 - [ ] Module cohesion evaluated
 
 ### Design & Architecture
+
 - [ ] SOLID principles followed
+
 - [ ] DRY principle applied (no significant duplication)
+
 - [ ] Separation of concerns maintained
+
 - [ ] Appropriate use of design patterns
+
 - [ ] Proper use of async/await patterns
 
 ### Code Smells
+
 - [ ] Long parameter lists identified (>5 parameters)
+
 - [ ] Callback hell or promise chains flagged
+
 - [ ] Large objects or closures identified
+
 - [ ] God components or modules identified
+
 - [ ] Dead code marked for removal
 
 ### Error Handling
+
 - [ ] Errors caught at appropriate level
+
 - [ ] Specific error types used
+
 - [ ] Error messages informative
+
 - [ ] Promises properly handled (no unhandled rejections)
+
 - [ ] Logging appropriate for debugging
 
 ### Maintainability
+
 - [ ] Code self-documenting with clear names
+
 - [ ] Comments explain "why" not "what"
+
 - [ ] Magic numbers replaced with named constants
+
 - [ ] Configuration externalized
+
 - [ ] Hardcoded values eliminated
 
 ## Prompt Template
@@ -105,7 +135,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -404,25 +436,41 @@ Please perform a comprehensive code quality review of this JavaScript project fo
 ## Phase 8: Framework-Specific Quality (if applicable)
 
 ### React-Specific
+
 - [ ] Proper use of hooks (rules of hooks)
+
 - [ ] Unnecessary re-renders minimized
+
 - [ ] Key props used correctly in lists
+
 - [ ] Side effects managed with useEffect
+
 - [ ] Custom hooks follow naming conventions
+
 - [ ] PropTypes or TypeScript for props validation
 
 ### Vue-Specific
+
 - [ ] Proper reactivity patterns
+
 - [ ] Computed properties used appropriately
+
 - [ ] Component lifecycle understood
+
 - [ ] Props validation implemented
+
 - [ ] Event handling follows conventions
 
 ### Node.js/Express-Specific
+
 - [ ] Proper middleware usage
+
 - [ ] Error handling middleware present
+
 - [ ] Async error handling (use async wrapper or try-catch)
+
 - [ ] Request validation implemented
+
 - [ ] Proper use of async/await in routes
 
 ## Output Format
@@ -430,19 +478,28 @@ Please perform a comprehensive code quality review of this JavaScript project fo
 Please provide a comprehensive quality report with the following structure:
 
 ### Executive Summary
+
 - **Overall Quality Score**: [A-F grade]
+
 - **Maintainability Index**: [score if available]
+
 - **Average Complexity**: [cyclomatic complexity]
+
 - **Critical Issues**: [count]
+
 - **Technical Debt**: [estimated hours to address]
 
 ### Coding Standards Compliance
+
 - **ESLint Violations**: [count and severity breakdown]
+
 - **Most Common Issues**:
   1. [Issue type] - [count] occurrences
   2. [Issue type] - [count] occurrences
   3. [Issue type] - [count] occurrences
+
 - **Consistency Score**: [percentage]
+
 - **Auto-fixable Issues**: [count]
 
 ### Complexity Analysis
@@ -473,34 +530,50 @@ Please provide a comprehensive quality report with the following structure:
 | [type] | [file:line] | [High/Med/Low] | [details] | [suggestion] |
 
 ### Error Handling Assessment
+
 - **Unhandled Promise Rejections**: [count and locations]
+
 - **Missing Error Handling**: [locations]
+
 - **Inadequate Input Validation**: [locations]
+
 - **Poor Error Messages**: [examples]
 
 ### Documentation Score
+
 - **JSDoc Coverage**: [percentage]
+
 - **Type Coverage** (TypeScript): [percentage]
+
 - **Comment Quality**: [Good/Fair/Poor]
+
 - **Areas Needing Documentation**: [list]
 
 ### Modern JavaScript Usage
+
 - **ES6+ Features**: [Good/Inconsistent/Poor adoption]
+
 - **Async/Await Usage**: [Proper/Needs improvement]
+
 - **Functional Programming**: [score]
+
 - **Legacy Patterns to Update**: [list]
 
 ### Technical Debt Summary
 **Priority 1 (Critical)**: [Estimated hours]
+
 - [Issue description and location]
 
 **Priority 2 (High)**: [Estimated hours]
+
 - [Issue description and location]
 
 **Priority 3 (Medium)**: [Estimated hours]
+
 - [Issue description and location]
 
 **Priority 4 (Low)**: [Estimated hours]
+
 - [Issue description and location]
 
 ### Refactoring Recommendations
@@ -515,15 +588,23 @@ Please provide a comprehensive quality report with the following structure:
 
 ### Positive Patterns
 Acknowledge what's done well:
+
 - [Good practice observed and locations]
+
 - [Effective pattern usage examples]
 
 ### Next Steps
+
 - [ ] Address critical complexity hotspots
+
 - [ ] Implement automated quality gates (ESLint, Prettier)
+
 - [ ] Plan refactoring sprints for high-priority technical debt
+
 - [ ] Establish team coding standards documentation
+
 - [ ] Set up pre-commit hooks for style enforcement
+
 - [ ] Consider TypeScript migration (if not already using)
 
 ## Automation Recommendations
@@ -617,7 +698,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

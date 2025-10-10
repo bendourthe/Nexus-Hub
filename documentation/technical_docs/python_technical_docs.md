@@ -32,46 +32,77 @@ documentation/technical_docs/
 ## Implementation Checklist
 
 ### Architecture Documentation
+
 - [ ] System architecture overview with diagrams
+
 - [ ] Component responsibilities clearly defined
+
 - [ ] Technology stack documented with rationale
+
 - [ ] Architectural patterns explained
+
 - [ ] Scalability and performance considerations
+
 - [ ] Security architecture documented
 
 ### Design Decisions
+
 - [ ] Key technical decisions documented with rationale
+
 - [ ] Alternative approaches considered
+
 - [ ] Trade-offs and constraints explained
+
 - [ ] Decision timeline and context
+
 - [ ] Impact assessment of decisions
 
 ### Module Organization
+
 - [ ] Directory structure explained
+
 - [ ] Module dependencies mapped
+
 - [ ] Public vs private interfaces defined
+
 - [ ] Import structure documented
+
 - [ ] Code organization principles
 
 ### Data Flow
+
 - [ ] Data flow diagrams created
+
 - [ ] State management documented
+
 - [ ] Event flows explained
+
 - [ ] Data transformation pipelines
+
 - [ ] Error propagation paths
 
 ### Integration Points
+
 - [ ] External API integrations documented
+
 - [ ] Database schemas and migrations
+
 - [ ] Message queue/event systems
+
 - [ ] Third-party service dependencies
+
 - [ ] Authentication/authorization flows
 
 ### Development Workflow
+
 - [ ] Development environment setup
+
 - [ ] Build and deployment process
+
 - [ ] Testing strategy
+
 - [ ] CI/CD pipeline documentation
+
 - [ ] Release process
 
 ## Prompt Template
@@ -106,7 +137,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -346,56 +379,72 @@ project/
 ## Layer Responsibilities
 
 ### API Layer (`src/api/`)
+
 - **Purpose**: Handle HTTP requests/responses
+
 - **Responsibilities**:
   - Route definition and request routing
   - Request validation and serialization
   - Response formatting
   - Authentication/authorization checks
   - Rate limiting and throttling
+
 - **Dependencies**: Core layer only (no direct data access)
+
 - **Key Files**:
   - `routes.py`: Defines API endpoints
   - `middleware.py`: Request/response processing
   - `dependencies.py`: Dependency injection for routes
 
 ### Core Layer (`src/core/`)
+
 - **Purpose**: Business logic and domain models
+
 - **Responsibilities**:
   - Domain model definitions
   - Business rule enforcement
   - Data validation
   - Use case orchestration
   - Domain events
+
 - **Dependencies**: Data layer for persistence, no API layer knowledge
+
 - **Key Files**:
   - `models.py`: Domain entities and value objects
   - `services.py`: Business logic services
   - `validators.py`: Business rule validation
 
 ### Data Layer (`src/data/`)
+
 - **Purpose**: Data persistence and retrieval
+
 - **Responsibilities**:
   - Database connection management
   - CRUD operations
   - Query optimization
   - Transaction management
   - Migration management
+
 - **Dependencies**: Infrastructure layer for connections
+
 - **Key Files**:
   - `repositories.py`: Repository pattern implementation
   - `models.py`: ORM models (SQLAlchemy/etc.)
   - `database.py`: Database session management
 
 ### Infrastructure Layer (`src/infrastructure/`)
+
 - **Purpose**: External service integration
+
 - **Responsibilities**:
   - Cache operations
   - Message queue operations
   - File storage
   - Third-party API integration
   - Email/SMS services
+
 - **Dependencies**: External services only
+
 - **Key Files**:
   - `cache.py`: Redis/Memcached integration
   - `queue.py`: Celery/RabbitMQ integration
@@ -455,19 +504,29 @@ from src.utils.logging import get_logger
 ## Public vs Private APIs
 
 ### Public API (for external consumers)
+
 - Defined in `src/api/routes.py`
+
 - Versioned endpoints (`/api/v1/...`)
+
 - Fully documented with OpenAPI/Swagger
+
 - Backward compatibility guaranteed
 
 ### Internal API (for internal modules)
+
 - Public functions/classes (no underscore prefix)
+
 - Documented with docstrings
+
 - May change between minor versions
 
 ### Private Implementation (internal only)
+
 - Functions/classes with underscore prefix (`_internal_func`)
+
 - No backward compatibility guarantee
+
 - May change without notice
 ```
 
@@ -598,14 +657,21 @@ class UserRepository:
 ## State Management
 
 ### Application State
+
 - **Configuration**: Loaded at startup, immutable
+
 - **Database Connection Pool**: Managed by SQLAlchemy
+
 - **Cache**: Redis for session and application cache
+
 - **Request State**: Stored in request context (FastAPI Depends)
 
 ### User Session State
+
 - **Storage**: Redis with 24-hour TTL
+
 - **Format**: JSON Web Token (JWT)
+
 - **Synchronization**: Single source of truth in Redis
 ```
 
@@ -619,15 +685,23 @@ Document external integrations:
 ## External APIs
 
 ### Third-Party Service A
+
 - **Purpose**: [What it's used for]
+
 - **Documentation**: [URL to API docs]
+
 - **Authentication**: [Method: API key, OAuth, etc.]
+
 - **Rate Limits**: [Requests per second/minute]
+
 - **Endpoints Used**:
   - `GET /api/v1/resource`: [Description]
   - `POST /api/v1/action`: [Description]
+
 - **Error Handling**: [How failures are handled]
+
 - **Retry Strategy**: [Exponential backoff, max retries, etc.]
+
 - **Monitoring**: [Health checks, alerting]
 
 **Example Integration**:
@@ -695,7 +769,9 @@ CREATE INDEX idx_sessions_user_id ON sessions(user_id);
 ### Migrations
 
 - **Tool**: Alembic
+
 - **Location**: `src/data/migrations/`
+
 - **Process**:
   ```bash
   # Create new migration
@@ -713,7 +789,9 @@ CREATE INDEX idx_sessions_user_id ON sessions(user_id);
 ### Celery Tasks
 
 - **Broker**: Redis
+
 - **Backend**: Redis
+
 - **Tasks**:
   - `send_welcome_email`: Triggered on user registration
   - `process_batch_import`: Handles bulk data imports
@@ -747,9 +825,13 @@ def send_welcome_email(self, user_id: str):
 6. Server validates token on each request
 
 ### Authorization
+
 - **Method**: Role-Based Access Control (RBAC)
+
 - **Roles**: admin, user, guest
+
 - **Permissions**: Defined per endpoint
+
 - **Implementation**: FastAPI dependency injection
 
 ```python
@@ -780,9 +862,13 @@ Document the development process:
 ## Development Environment Setup
 
 ### Prerequisites
+
 - Python 3.11+
+
 - PostgreSQL 15+
+
 - Redis 7+
+
 - Docker (optional)
 
 ### Local Setup
@@ -862,8 +948,11 @@ docker run -p 8000:8000 project:latest
 ## Testing Strategy
 
 ### Test Pyramid
+
 - **Unit Tests** (70%): Fast, isolated, test individual functions
+
 - **Integration Tests** (20%): Test component integration
+
 - **E2E Tests** (10%): Test complete user workflows
 
 ### Running Tests
@@ -982,29 +1071,46 @@ Please provide technical documentation in this format:
 ## Technical Documentation Summary
 
 **Documents Created**:
+
 - Architecture Overview: [Yes/No]
+
 - Architecture Decision Records: [count]
+
 - Module Organization: [Yes/No]
+
 - Data Flow Documentation: [Yes/No]
+
 - Integration Documentation: [Yes/No]
+
 - Development Workflow: [Yes/No]
 
 **Diagrams Created**:
+
 - Architecture diagram: [Yes/No]
+
 - Component diagram: [Yes/No]
+
 - Data flow diagram: [Yes/No]
+
 - Deployment diagram: [Yes/No]
 
 **Technical Decisions Documented**: [count]
 **External Integrations Documented**: [count]
 
 **Quality Checks**:
+
 - [ ] Architecture clearly explained
+
 - [ ] Design decisions have rationale
+
 - [ ] Module organization mapped
+
 - [ ] Data flows illustrated
+
 - [ ] Integration points documented
+
 - [ ] Development workflow complete
+
 - [ ] Diagrams accurate and up-to-date
 
 **Target Audience**: Development team, technical stakeholders
@@ -1041,42 +1147,27 @@ Please provide technical documentation in this format:
 
 ---
 
-## File Output Instructions
-
-**IMPORTANT**: Save all generated files to the correct directory structure:
-
-```bash
-# Create directory structure
-mkdir -p ${OUTPUT_DIR}/technical_docs/generated_docs
-mkdir -p ${OUTPUT_DIR}/technical_docs/templates
-mkdir -p ${OUTPUT_DIR}/technical_docs/assets
-mkdir -p ${OUTPUT_DIR}/technical_docs/exports
-```
-
-**Save files as follows**:
-
-
-- Templates → `documentation/technical_docs/templates/`
-
-- Assets → `documentation/technical_docs/assets/`
-
-- Exports → `documentation/technical_docs/exports/`
-
-Replace `{phase_name}` with the specific phase (docstrings, comments, user_docs, technical_docs, api_docs, or sbom).
-
-~~~
-
 ## Output Format Specifications
 
 The technical documentation should:
+
 - Provide high-level architecture overview with diagrams
+
 - Document design decisions with rationale and alternatives
+
 - Map module organization and dependencies clearly
+
 - Illustrate data flows through the system
+
 - Document all external integrations comprehensively
+
 - Explain development workflow and processes
+
 - Be maintained alongside code changes
+
 - Target technical audience (developers, architects)
+
+~~~
 ---
 
 ## Verify Directory Structure
@@ -1096,7 +1187,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

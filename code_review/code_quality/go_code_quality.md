@@ -32,45 +32,75 @@ review/code_quality/
 ## Review Checklist
 
 ### Coding Standards
+
 - [ ] gofmt compliance verified
+
 - [ ] golint/staticcheck recommendations reviewed
+
 - [ ] Import organization follows standard order
+
 - [ ] Exported identifiers have documentation
+
 - [ ] Consistent naming conventions (MixedCaps, camelCase)
 
 ### Code Complexity
+
 - [ ] Functions under 50 lines (flagged if exceeded)
+
 - [ ] Cyclomatic complexity under 10 per function
+
 - [ ] Nesting depth under 4 levels
+
 - [ ] File size reasonable (<500 lines)
+
 - [ ] Package cohesion evaluated
 
 ### Design & Architecture
+
 - [ ] SOLID principles followed (where applicable)
+
 - [ ] DRY principle applied (no significant duplication)
+
 - [ ] Separation of concerns maintained
+
 - [ ] Appropriate use of interfaces
+
 - [ ] Dependency injection where beneficial
 
 ### Code Smells
+
 - [ ] Long parameter lists identified (>5 parameters)
+
 - [ ] God packages or types identified
+
 - [ ] Dead code marked for removal
+
 - [ ] Magic numbers replaced with constants
+
 - [ ] Global state usage minimized
 
 ### Error Handling
+
 - [ ] Errors always checked and handled
+
 - [ ] Error wrapping provides context
+
 - [ ] Sentinel errors properly defined
+
 - [ ] Resources properly cleaned up (defer)
+
 - [ ] Panic/recover usage appropriate
 
 ### Maintainability
+
 - [ ] Code self-documenting with clear names
+
 - [ ] Comments explain "why" not "what"
+
 - [ ] Configuration externalized
+
 - [ ] Hardcoded values eliminated
+
 - [ ] Appropriate use of goroutines and channels
 
 ## Prompt Template
@@ -105,7 +135,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -351,17 +383,25 @@ Please perform a comprehensive code quality review of this Go project following 
 Please provide a comprehensive quality report with the following structure:
 
 ### Executive Summary
+
 - **Overall Quality Score**: [A-F grade]
+
 - **Average Complexity**: [gocyclo score]
+
 - **Critical Issues**: [count]
+
 - **Technical Debt**: [estimated hours to address]
 
 ### Coding Standards Compliance
+
 - **gofmt Violations**: [count of unformatted files]
+
 - **golint/staticcheck Issues**: [count and severity]
+
 - **Most Common Issues**:
   1. [Issue type] - [count] occurrences
   2. [Issue type] - [count] occurrences
+
 - **Consistency Score**: [percentage]
 
 ### Complexity Analysis
@@ -392,34 +432,50 @@ Please provide a comprehensive quality report with the following structure:
 | [type] | [file:line] | [High/Med/Low] | [details] | [suggestion] |
 
 ### Error Handling Assessment
+
 - **Ignored Errors**: [count and locations]
+
 - **Missing Error Context**: [locations]
+
 - **Improper Error Wrapping**: [locations]
+
 - **Panic/Recover Usage**: [appropriate/inappropriate]
 
 ### Concurrency Issues
+
 - **Potential Race Conditions**: [count and locations]
+
 - **Goroutine Leaks**: [count and locations]
+
 - **Channel Misuse**: [locations]
+
 - **Race Detector Findings**: [summary from `go test -race`]
 
 ### Documentation Score
+
 - **Godoc Coverage**: [percentage of exported identifiers]
+
 - **Package Documentation**: [Good/Fair/Poor]
+
 - **Comment Quality**: [Good/Fair/Poor]
+
 - **Areas Needing Documentation**: [list]
 
 ### Technical Debt Summary
 **Priority 1 (Critical)**: [Estimated hours]
+
 - [Issue description and location]
 
 **Priority 2 (High)**: [Estimated hours]
+
 - [Issue description and location]
 
 **Priority 3 (Medium)**: [Estimated hours]
+
 - [Issue description and location]
 
 **Priority 4 (Low)**: [Estimated hours]
+
 - [Issue description and location]
 
 ### Refactoring Recommendations
@@ -434,15 +490,23 @@ Please provide a comprehensive quality report with the following structure:
 
 ### Positive Patterns
 Acknowledge what's done well:
+
 - [Good practice observed and locations]
+
 - [Effective pattern usage examples]
 
 ### Next Steps
+
 - [ ] Address critical complexity hotspots
+
 - [ ] Fix all `go vet` and `staticcheck` issues
+
 - [ ] Implement automated quality gates (linting, formatting)
+
 - [ ] Plan refactoring sprints for high-priority technical debt
+
 - [ ] Establish team coding standards documentation
+
 - [ ] Set up pre-commit hooks for style enforcement
 
 ## Automation Recommendations
@@ -524,7 +588,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

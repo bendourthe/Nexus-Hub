@@ -32,45 +32,75 @@ review/performance_review/
 ## Review Checklist
 
 ### Performance Profiling
+
 - [ ] CPU profiling completed (cProfile, py-spy)
+
 - [ ] Memory profiling performed (memory_profiler, tracemalloc)
+
 - [ ] I/O operations analyzed
+
 - [ ] Hot paths and bottlenecks identified
+
 - [ ] Function-level timing measurements captured
 
 ### Algorithm Efficiency
+
 - [ ] Time complexity evaluated (O(n), O(n²), etc.)
+
 - [ ] Space complexity assessed
+
 - [ ] Inefficient loops identified (nested, redundant)
+
 - [ ] Algorithmic improvements documented
+
 - [ ] Data structure choices reviewed
 
 ### Database Performance
+
 - [ ] Query execution times measured
+
 - [ ] N+1 query problems identified
+
 - [ ] Missing indexes detected
+
 - [ ] Query optimization opportunities documented
+
 - [ ] Connection pooling evaluated
 
 ### Memory Management
+
 - [ ] Memory leaks detected
+
 - [ ] Large object allocations identified
+
 - [ ] Memory growth patterns analyzed
+
 - [ ] Caching strategies reviewed
+
 - [ ] Garbage collection behavior assessed
 
 ### I/O & Network
+
 - [ ] File I/O operations profiled
+
 - [ ] Network call latency measured
+
 - [ ] Synchronous vs asynchronous patterns evaluated
+
 - [ ] Batching opportunities identified
+
 - [ ] Connection reuse assessed
 
 ### Concurrency & Parallelism
+
 - [ ] Threading/multiprocessing opportunities identified
+
 - [ ] Async/await usage evaluated
+
 - [ ] GIL (Global Interpreter Lock) impact assessed
+
 - [ ] Race conditions checked
+
 - [ ] Resource contention identified
 
 ## Prompt Template
@@ -105,7 +135,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -412,10 +444,15 @@ Please perform a comprehensive performance review of this Python application fol
 Please provide a comprehensive performance report with the following structure:
 
 ### Executive Summary
+
 - **Overall Performance**: [Excellent/Good/Fair/Poor]
+
 - **Critical Bottlenecks**: [count and brief description]
+
 - **Performance Impact**: [High/Medium/Low user-facing impact]
+
 - **Optimization Potential**: [percentage improvement possible]
+
 - **Recommended Investment**: [estimated hours for major improvements]
 
 ### Performance Profile Overview
@@ -455,27 +492,43 @@ Please provide a comprehensive performance report with the following structure:
 | [table] | [cols] | [WHERE/JOIN] | [High/Med/Low] |
 
 ### Memory Analysis
+
 - **Peak Memory Usage**: [MB]
+
 - **Memory Leaks Detected**: [Yes/No - locations if yes]
+
 - **Large Objects**: [list of large allocations]
+
 - **Cache Efficiency**: [hit rate %]
 
 ### I/O & Network Performance
+
 - **File I/O Operations**: [count and total time]
+
 - **Network Calls**: [count, total time, average latency]
+
 - **Blocking Operations**: [count and locations]
+
 - **Async Opportunities**: [list of candidates]
 
 ### Concurrency Assessment
+
 - **Current Concurrency Model**: [threading/multiprocessing/async/none]
+
 - **CPU Utilization**: [percentage during load]
+
 - **GIL Impact**: [High/Medium/Low]
+
 - **Parallelization Opportunities**: [specific candidates]
 
 ### Python-Specific Findings
+
 - **Sub-optimal Patterns**: [list with alternatives]
+
 - **Built-in Replacements**: [manual code that could use built-ins]
+
 - **Generator Opportunities**: [large list operations]
+
 - **Caching Candidates**: [expensive repeated computations]
 
 ### Optimization Recommendations
@@ -507,10 +560,15 @@ Please provide a comprehensive performance report with the following structure:
 ### Monitoring Recommendations
 ```python
 # Implement performance monitoring
+
 - Response time tracking (p50, p95, p99)
+
 - Database query performance monitoring
+
 - Memory usage alerts
+
 - Error rate tracking
+
 - Custom business metric tracking
 
 # Tools: Prometheus, DataDog, New Relic, Sentry
@@ -518,26 +576,39 @@ Please provide a comprehensive performance report with the following structure:
 
 ### Benchmark Results
 **Before Optimization**:
+
 - [Operation]: [time/throughput]
 
 **After Optimization** (projected):
+
 - [Operation]: [time/throughput]
 
 **Improvement**: [percentage] faster / [X]x throughput
 
 ### Next Steps
+
 - [ ] Implement quick win optimizations
+
 - [ ] Set up performance benchmarking suite
+
 - [ ] Configure production performance monitoring
+
 - [ ] Plan load testing before deployment
+
 - [ ] Schedule performance review sprint
+
 - [ ] Document performance SLAs/targets
 
 ## Notes
+
 - Optimize based on profiling data, not assumptions
+
 - Focus on user-facing performance improvements first
+
 - Measure before and after optimization
+
 - Consider scalability alongside raw performance
+
 - Balance performance with code maintainability
 
 ## File Output Instructions
@@ -579,7 +650,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

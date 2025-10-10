@@ -32,39 +32,65 @@ documentation/user_docs/
 ## Implementation Checklist
 
 ### README Structure
+
 - [ ] Compelling project overview and value proposition
+
 - [ ] Key features highlighted
+
 - [ ] Installation instructions complete and tested
+
 - [ ] Quick start guide for immediate success
+
 - [ ] Usage examples for common scenarios
+
 - [ ] Links to detailed documentation
 
 ### Installation Guides
+
 - [ ] Prerequisites clearly listed (.NET version, SDK)
+
 - [ ] Step-by-step installation process
+
 - [ ] Platform-specific instructions (Windows, macOS, Linux)
+
 - [ ] Troubleshooting common installation issues
+
 - [ ] Verification steps to confirm successful installation
 
 ### Quick Start Guides
+
 - [ ] Minimal example to first success
+
 - [ ] Common use cases covered
+
 - [ ] Progressive complexity (simple to advanced)
+
 - [ ] Expected output shown
+
 - [ ] Next steps guidance
 
 ### Usage Examples
+
 - [ ] Real-world scenarios
+
 - [ ] Complete, runnable code
+
 - [ ] Input/output examples
+
 - [ ] Edge cases and limitations
+
 - [ ] Best practices demonstrated
 
 ### FAQ and Troubleshooting
+
 - [ ] Common questions answered
+
 - [ ] Error messages explained
+
 - [ ] Debugging guidance
+
 - [ ] Known limitations documented
+
 - [ ] Where to get help
 
 ## Prompt Template
@@ -99,7 +125,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -163,8 +191,11 @@ Create a comprehensive README.md that serves as the front door to your project:
 ## ✨ What's New in v[X.Y.Z]
 
 - 🚀 [New Feature 1]: Brief description
+
 - ⚡ [Performance Improvement]: Specific metric (e.g., "50% faster")
+
 - 🐛 [Important Bug Fix]: What was fixed
+
 - 📝 [Documentation Update]: What was improved
 
 [See full changelog](CHANGELOG.md)
@@ -180,8 +211,11 @@ Create a comprehensive README.md that serves as the front door to your project:
 **Solution**: [How does this project solve it?]
 
 **Benefits**:
+
 - ✅ [Key benefit 1]
+
 - ✅ [Key benefit 2]
+
 - ✅ [Key benefit 3]
 
 ---
@@ -189,8 +223,11 @@ Create a comprehensive README.md that serves as the front door to your project:
 ## 🎯 Key Features
 
 - **[Feature 1]**: Description of what it does and why it matters
+
 - **[Feature 2]**: Highlight unique or powerful capabilities
+
 - **[Feature 3]**: Emphasize ease of use or performance benefits
+
 - **[Feature 4]**: Note integration capabilities or extensibility
 
 ---
@@ -243,8 +280,11 @@ class Program
 ### Prerequisites
 
 Before installing, ensure you have:
+
 - .NET SDK 6.0 or higher (.NET 8.0+ recommended)
+
 - Visual Studio 2022, VS Code, or Rider (optional but recommended)
+
 - NuGet Package Manager
 
 ### Installation Options
@@ -529,9 +569,13 @@ var instance = new MainClass(options);
 ## 📚 Documentation
 
 - **[User Guide](docs/USER_GUIDE.md)**: Comprehensive usage documentation
+
 - **[API Reference](https://username.github.io/project/api/)**: Complete API documentation
+
 - **[Examples](examples/)**: More code examples and tutorials
+
 - **[FAQ](docs/FAQ.md)**: Frequently asked questions
+
 - **[Troubleshooting](docs/TROUBLESHOOTING.md)**: Common issues and solutions
 
 ---
@@ -633,6 +677,7 @@ This project is licensed under the [MIT License](LICENSE) - see the LICENSE file
 ## 🙏 Acknowledgments
 
 - [Contributor/Library]: For [contribution/inspiration]
+
 - [Resource]: For [helpful resource]
 
 ---
@@ -640,8 +685,11 @@ This project is licensed under the [MIT License](LICENSE) - see the LICENSE file
 ## 📞 Support
 
 - **Issues**: [GitHub Issues](https://github.com/username/project/issues)
+
 - **Discussions**: [GitHub Discussions](https://github.com/username/project/discussions)
+
 - **Stack Overflow**: Tag with `[package-name]`
+
 - **Documentation**: [https://username.github.io/project](https://username.github.io/project)
 
 ---
@@ -649,7 +697,9 @@ This project is licensed under the [MIT License](LICENSE) - see the LICENSE file
 ## 🗺️ Roadmap
 
 - [ ] v[X+1].0: [Planned major feature]
+
 - [ ] v[X].Y: [Planned minor feature]
+
 - [ ] [Future feature/improvement]
 
 See [ROADMAP.md](ROADMAP.md) for detailed plans.
@@ -675,15 +725,23 @@ Complete installation instructions for [Project Name].
 ## System Requirements
 
 ### Minimum Requirements
+
 - **OS**: Windows 10+, macOS 10.15+, or Linux (Ubuntu 20.04+)
+
 - **.NET SDK**: 6.0 or higher
+
 - **RAM**: 4GB minimum, 8GB recommended
+
 - **Disk Space**: 500MB
 
 ### Recommended Requirements
+
 - .NET 8.0 SDK for best performance and latest features
+
 - Visual Studio 2022, VS Code with C# extension, or Rider
+
 - 16GB RAM for large projects
+
 - SSD for faster builds
 
 ---
@@ -811,8 +869,10 @@ dotnet run
 ```
 
 **Common Issues**:
+
 - **Error**: "dotnet is not recognized"
   - **Fix**: Add .NET to PATH or restart terminal after installation
+
 - **Error**: "Unable to find package"
   - **Fix**: Check NuGet sources: `dotnet nuget list source`
 
@@ -840,8 +900,10 @@ dotnet run
 ```
 
 **Common Issues**:
+
 - **Error**: "Permission denied"
   - **Fix**: Check .NET is properly installed: `which dotnet`
+
 - **Error**: "Framework not found"
   - **Fix**: Install correct runtime: `brew install dotnet-runtime`
 
@@ -898,7 +960,9 @@ dotnet --version
 4. Manage NuGet packages via GUI or Package Manager Console
 
 **Extensions** (optional):
+
 - ReSharper for enhanced productivity
+
 - CodeMaid for code cleanup
 
 ### Visual Studio Code
@@ -1061,23 +1125,33 @@ dotnet restore
 ### Common Installation Errors
 
 **Error**: `NU1101: Unable to find package`
+
 - **Cause**: Package name misspelled or not available
+
 - **Fix**: Check package name on nuget.org
 
 **Error**: `NU1605: Detected package downgrade`
+
 - **Cause**: Dependency version conflicts
+
 - **Fix**: Update conflicting packages or use explicit version
 
 **Error**: `NETSDK1045: The current .NET SDK does not support targeting .NET X.X`
+
 - **Cause**: SDK version too old
+
 - **Fix**: Install latest SDK: `dotnet --list-sdks`
 
 **Error**: Restore timeout or slow downloads
+
 - **Cause**: Network issues or slow NuGet feed
+
 - **Fix**: Clear cache: `dotnet nuget locals all --clear`
 
 **Error**: Build errors after installation
+
 - **Cause**: Assembly conflicts or missing dependencies
+
 - **Fix**: Clean and rebuild:
   ```bash
   dotnet clean
@@ -1123,9 +1197,13 @@ Get started with [Project Name] in under 10 minutes.
 ## What You'll Build
 
 By the end of this guide, you'll have:
+
 - ✅ Created .NET project with [Project Name]
+
 - ✅ Run your first example
+
 - ✅ Understanding of core concepts
+
 - ✅ Ready to build your own solution
 
 **Time Required**: ~10 minutes
@@ -1135,8 +1213,11 @@ By the end of this guide, you'll have:
 ## Prerequisites
 
 - .NET SDK 6.0+ installed
+
 - Visual Studio, VS Code, or Rider (optional)
+
 - Basic C# knowledge
+
 - Terminal/command line access
 
 ---
@@ -1255,16 +1336,23 @@ Console.WriteLine($"Result: {result}");
 Now that you have the basics:
 
 ### Explore More Examples
+
 - **[Example 2: Error Handling](examples/ErrorHandlingExample.cs)**: Robust error management
+
 - **[Example 3: Async Patterns](examples/AsyncExample.cs)**: Modern async/await
+
 - **[Example 4: ASP.NET Core](examples/WebApiExample/)**: Web API integration
 
 ### Read Documentation
+
 - **[User Guide](USER_GUIDE.md)**: Comprehensive usage guide
+
 - **[API Reference](https://username.github.io/project/api/)**: API documentation
 
 ### Join Community
+
 - **[GitHub Discussions](https://github.com/username/project/discussions)**: Ask questions
+
 - **[Discord](https://discord.gg/...)**: Community chat
 
 ---
@@ -1311,7 +1399,9 @@ catch (ProcessingException ex)
 ## Need Help?
 
 - **Error Messages**: See [Troubleshooting](TROUBLESHOOTING.md)
+
 - **Questions**: Open an [issue](https://github.com/username/project/issues)
+
 - **Examples**: Check [examples/](examples/) directory
 
 **Congratulations!** You're ready to use [Project Name].
@@ -1373,13 +1463,19 @@ Common questions about [Project Name].
 ### What's the difference between sync and async methods?
 
 Use async methods (`ProcessAsync`) for:
+
 - I/O-bound operations
+
 - Web applications
+
 - High-concurrency scenarios
 
 Use sync methods (`Process`) for:
+
 - CPU-bound operations
+
 - Simple console apps
+
 - When async overhead isn't justified
 
 ### Can I use this in production?
@@ -1464,32 +1560,51 @@ Please provide user documentation in this format:
 ## User Documentation Summary
 
 **Files Created**: [count]
+
 - README.md: [Complete/Updated]
+
 - Installation Guide: [Yes/No]
+
 - Quick Start Guide: [Yes/No]
+
 - FAQ: [Yes/No]
+
 - Troubleshooting Guide: [Yes/No]
 
 **Target Audience**: [Beginner/Intermediate/Advanced]
 
 **Content Metrics**:
+
 - Code examples: [count]
+
 - Platform-specific instructions: [Windows/macOS/Linux]
+
 - .NET versions covered: [6.0/7.0/8.0]
+
 - FAQ entries: [count]
+
 - Troubleshooting scenarios: [count]
 
 **Quality Checks**:
+
 - [ ] All examples tested and functional
+
 - [ ] Installation instructions verified on all platforms
+
 - [ ] Links working and up-to-date
+
 - [ ] API documentation references included
+
 - [ ] Accessible to target audience
 
 **Next Steps**:
+
 - [ ] Review documentation for accuracy
+
 - [ ] Test installation on fresh system
+
 - [ ] Get feedback from target users
+
 - [ ] Set up GitHub Pages for API docs
 ```
 
@@ -1530,43 +1645,29 @@ Please provide user documentation in this format:
 
 ---
 
-## File Output Instructions
-
-**IMPORTANT**: Save all generated files to the correct directory structure:
-
-```bash
-# Create directory structure
-mkdir -p ${OUTPUT_DIR}/user_docs/generated_docs
-mkdir -p ${OUTPUT_DIR}/user_docs/templates
-mkdir -p ${OUTPUT_DIR}/user_docs/assets
-mkdir -p ${OUTPUT_DIR}/user_docs/exports
-```
-
-**Save files as follows**:
-
-
-- Templates → `documentation/user_docs/templates/`
-
-- Assets → `documentation/user_docs/assets/`
-
-- Exports → `documentation/user_docs/exports/`
-
-Replace `{phase_name}` with the specific phase (docstrings, comments, user_docs, technical_docs, api_docs, or sbom).
-
-~~~
-
 ## Output Format Specifications
 
 The user documentation should:
+
 - Be clear and accessible to C#/.NET developers
+
 - Include complete, tested, runnable examples
+
 - Cover .NET CLI, Visual Studio, and VS Code workflows
+
 - Provide step-by-step instructions with expected outcomes
+
 - Cover Windows, macOS, and Linux platforms
+
 - Include troubleshooting for common .NET/NuGet issues
+
 - Use consistent formatting and structure
+
 - Link to API documentation and other resources
+
 - Include badges and visual aids where helpful
+
+~~~
 ---
 
 ## Verify Directory Structure
@@ -1586,7 +1687,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

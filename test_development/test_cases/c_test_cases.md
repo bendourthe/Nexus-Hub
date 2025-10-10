@@ -32,29 +32,49 @@ tests/test_cases/
 ## Implementation Checklist
 
 ### Test Coverage
+
 - [ ] Happy path scenarios tested
+
 - [ ] Edge cases and boundaries covered
+
 - [ ] Error conditions validated
+
 - [ ] Input validation tested
+
 - [ ] State transitions verified
+
 - [ ] Regression tests added for bugs
+
 - [ ] Memory leaks checked
 
 ### Test Quality
+
 - [ ] Tests follow AAA pattern (Arrange-Act-Assert)
+
 - [ ] Test names clearly describe what is tested
+
 - [ ] Tests are isolated and independent
+
 - [ ] Tests execute quickly (<1s for unit tests)
+
 - [ ] Assertions are specific and meaningful
+
 - [ ] No test interdependencies
+
 - [ ] Proper cleanup in tearDown functions
 
 ### Test Organization
+
 - [ ] Tests grouped logically by feature/module
+
 - [ ] Related tests organized in test suites
+
 - [ ] Setup and teardown properly implemented
+
 - [ ] Test documentation provided
+
 - [ ] Memory allocation/deallocation verified
+
 - [ ] Valgrind or similar tool used for memory checks
 
 ## Prompt Template
@@ -89,7 +109,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -914,9 +936,13 @@ void test_handles_malloc_failure(void)
 Please provide comprehensive test cases with the following structure:
 
 ### Test Coverage Summary
+
 - **Total Test Cases**: [count]
+
 - **Unit Tests**: [count]
+
 - **Integration Tests**: [count]
+
 - **Test Types**:
   - Happy path: [count]
   - Edge cases: [count]
@@ -961,23 +987,37 @@ OK
 ```
 
 ### Coverage Gaps Identified
+
 - [ ] [Function]: Missing tests for [scenario]
+
 - [ ] [Function]: Need edge case tests for [condition]
+
 - [ ] [Function]: Error handling not tested
+
 - [ ] [Function]: Memory leak potential not tested
 
 ### Test Quality Metrics
+
 - **Average test execution time**: [milliseconds]
+
 - **Tests following AAA pattern**: [percentage]
+
 - **Tests with clear names**: [percentage]
+
 - **Independent tests**: [percentage]
+
 - **Memory leaks detected**: [count]
 
 ### Next Steps
+
 - [ ] Implement remaining test cases for coverage gaps
+
 - [ ] Add memory leak detection for all allocation paths
+
 - [ ] Set up continuous integration
+
 - [ ] Configure code coverage reporting
+
 - [ ] Review and refactor slow tests
 
 ## File Output Instructions
@@ -1035,7 +1075,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

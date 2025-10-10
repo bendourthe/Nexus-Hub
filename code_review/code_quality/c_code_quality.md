@@ -32,38 +32,63 @@ review/code_quality/
 ## Review Checklist
 
 ### Coding Standards
+
 - [ ] MISRA-C compliance verified (MISRA-C:2012 or MISRA-C:2004)
+
 - [ ] CERT-C secure coding rules followed
+
 - [ ] Project-specific coding standards applied
+
 - [ ] Consistent naming conventions (variables, functions, types)
+
 - [ ] Function and file organization standards met
 
 ### Code Complexity
+
 - [ ] Functions under 50 lines (flagged if exceeded)
+
 - [ ] Cyclomatic complexity under 10 per function
+
 - [ ] Nesting depth under 4 levels
+
 - [ ] Minimal use of goto statements
+
 - [ ] Switch statements with default cases
 
 ### Safety & Reliability
+
 - [ ] Pointer usage verified (NULL checks, bounds checking)
+
 - [ ] Integer overflow/underflow protection
+
 - [ ] Type conversions explicit and safe
+
 - [ ] Volatile usage correct for hardware registers
+
 - [ ] Critical sections properly protected
 
 ### Resource Management
+
 - [ ] Stack usage analyzed (recursion avoided)
+
 - [ ] Heap usage minimized or avoided
+
 - [ ] Static vs dynamic allocation strategy consistent
+
 - [ ] Memory alignment requirements met
+
 - [ ] Resource leaks prevented
 
 ### Hardware Interface
+
 - [ ] Memory-mapped register access safe
+
 - [ ] Peripheral configuration correct
+
 - [ ] Interrupt handlers lightweight and safe
+
 - [ ] DMA usage correct (alignment, coherency)
+
 - [ ] Timing-critical code identified
 
 ## Prompt Template
@@ -98,7 +123,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -581,11 +608,17 @@ Please perform a comprehensive code quality review of this embedded C project fo
 Please provide a comprehensive quality report with the following structure:
 
 ### Executive Summary
+
 - **Overall Quality Score**: [A-F grade]
+
 - **MISRA-C Compliance**: [% compliance, violations by severity]
+
 - **CERT-C Issues**: [count by severity]
+
 - **Average Complexity**: [cyclomatic complexity score]
+
 - **Critical Issues**: [count]
+
 - **Safety Risk Level**: [Low/Medium/High/Critical]
 
 ### MISRA-C Compliance Report
@@ -594,8 +627,11 @@ Please provide a comprehensive quality report with the following structure:
 | [Rule ID] | [Required/Advisory/Mandatory] | [count] | [file:line] | [description] |
 
 **Summary**:
+
 - Mandatory violations: [count] (MUST FIX)
+
 - Required violations: [count]
+
 - Advisory violations: [count]
 
 ### CERT-C Security Issues
@@ -623,22 +659,30 @@ Please provide a comprehensive quality report with the following structure:
 | [Busy wait] | [file:line] | [High] | [no timeout] | [add timeout] |
 
 ### Resource Usage Concerns
+
 - **Large Stack Allocations**: [list functions with >512 bytes]
+
 - **Recursion**: [recursive functions identified]
+
 - **Dynamic Memory**: [malloc/free usage locations]
+
 - **Global Variables**: [excessive global state]
 
 ### Technical Debt Summary
 **Priority 1 (Safety-Critical)**: [Estimated hours]
+
 - [Issue affecting safety or reliability]
 
 **Priority 2 (High)**: [Estimated hours]
+
 - [Significant quality issues]
 
 **Priority 3 (Medium)**: [Estimated hours]
+
 - [Maintainability improvements]
 
 **Priority 4 (Low)**: [Estimated hours]
+
 - [Style and minor issues]
 
 ### Recommendations
@@ -676,18 +720,29 @@ Advisory rules: >90%
 ```
 
 ### Next Steps
+
 - [ ] Address all safety-critical issues (Priority 1)
+
 - [ ] Run static analysis tools in CI pipeline
+
 - [ ] Create suppression list for intentional violations
+
 - [ ] Document coding standards
+
 - [ ] Plan refactoring sprint for complex functions
+
 - [ ] Set up pre-commit hooks for static analysis
 
 ## Notes
+
 - MISRA-C compliance is critical for safety-related projects
+
 - Some MISRA rules may be impractical; document deviations
+
 - Embedded code quality impacts reliability and safety
+
 - Static analysis should be automated in build process
+
 - Balance safety/quality with practical constraints
 
 ## File Output Instructions
@@ -729,7 +784,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

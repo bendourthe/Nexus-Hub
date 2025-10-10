@@ -32,11 +32,17 @@ review/final_report/
 ## Report Structure
 
 This template consolidates:
+
 - Context Analysis findings
+
 - Code Quality issues
+
 - Security vulnerabilities
+
 - Performance bottlenecks
+
 - Testing gaps
+
 - Overall recommendations
 
 ## Prompt Template
@@ -71,7 +77,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -134,15 +142,19 @@ Categorize all findings using a 2x2 matrix:
 **Impact vs Effort Matrix**:
 ```
 High Impact, Low Effort (DO FIRST - Quick Wins)
+
 - [List findings that deliver significant value with minimal work]
 
 High Impact, High Effort (PLAN CAREFULLY - Strategic Initiatives)
+
 - [List findings requiring substantial investment but critical for success]
 
 Low Impact, Low Effort (DO WHEN TIME PERMITS - Nice to Have)
+
 - [List minor improvements that are easy to implement]
 
 Low Impact, High Effort (AVOID - Not Worth It)
+
 - [List improvements with poor ROI]
 ```
 
@@ -185,6 +197,7 @@ Create a phased implementation plan:
 Define success metrics to track improvement:
 
 ### Code Quality Metrics
+
 - **Current State**:
   - Maintainability Index: [score]
   - Average Complexity: [score]
@@ -200,15 +213,21 @@ Define success metrics to track improvement:
   - Technical Debt: [target hours reduction]
 
 ### Security Metrics
+
 - **Current**: [X] critical, [Y] high, [Z] medium vulnerabilities
+
 - **Target**: 0 critical, 0 high, <5 medium
 
 ### Performance Metrics
+
 - **Current**: [baseline performance numbers]
+
 - **Target**: [performance goals]
 
 ### Testing Metrics
+
 - **Current**: [X]% coverage, [Y] flaky tests
+
 - **Target**: 80%+ coverage, 0 flaky tests
 
 ## Output Format
@@ -230,27 +249,42 @@ Please provide a comprehensive final report with the following structure:
 ## Executive Summary
 
 ### Overall Health Assessment
+
 - **Code Quality**: [Grade: A-F] - [Brief assessment]
+
 - **Security**: [Grade: A-F] - [Brief assessment]
+
 - **Performance**: [Grade: A-F] - [Brief assessment]
+
 - **Testing**: [Grade: A-F] - [Brief assessment]
+
 - **Overall Recommendation**: [Production-ready / Needs work / Major refactoring needed]
 
 ### Key Highlights
 **Strengths**:
+
 - [Positive finding 1]
+
 - [Positive finding 2]
+
 - [Positive finding 3]
 
 **Critical Concerns**:
+
 - [Critical issue 1]
+
 - [Critical issue 2]
+
 - [Critical issue 3]
 
 ### Investment Summary
+
 - **Immediate Actions Required**: [hours/days]
+
 - **Short-term Improvements**: [weeks]
+
 - **Long-term Initiatives**: [months]
+
 - **Total Technical Debt**: [estimated hours]
 
 ---
@@ -260,10 +294,15 @@ Please provide a comprehensive final report with the following structure:
 ### 1. Context & Architecture
 
 **Solution Overview**:
+
 - **Purpose**: [Brief description]
+
 - **Architecture**: [Style - Clean Architecture, N-tier, CQRS, etc.]
+
 - **Tech Stack**: [ASP.NET Core, EF Core, key libraries]
+
 - **.NET Version**: [net8.0, net6.0, etc.]
+
 - **Development Stage**: [Prototype/Production/Legacy]
 
 **Solution Structure**:
@@ -281,8 +320,11 @@ SolutionName/
 ```
 
 **Architecture Assessment**:
+
 - **Strengths**: [What's done well]
+
 - **Concerns**: [Areas of improvement]
+
 - **Dependencies**: [NuGet package risks or issues]
 
 ---
@@ -292,10 +334,15 @@ SolutionName/
 **Overall Quality Score**: [A-F]
 
 **Key Metrics**:
+
 - Maintainability Index: [score]
+
 - Average Cyclomatic Complexity: [score]
+
 - Lines of Code: [count]
+
 - Analyzer Warnings: [count] (Error: [X], Warning: [Y], Info: [Z])
+
 - Technical Debt: [estimated hours]
 
 **Critical Issues**:
@@ -304,9 +351,13 @@ SolutionName/
 | [issue description] | [type:method] | [High/Med/Low] | [hours] | [P0/P1/P2] |
 
 **Analyzer Compliance**:
+
 - **StyleCop Violations**: [count]
+
 - **Security Analyzer Warnings**: [count]
+
 - **Nullable Reference Warnings**: [count]
+
 - **Code Analysis Warnings**: [count]
 
 **Recommendations**:
@@ -321,9 +372,13 @@ SolutionName/
 **Overall Security Score**: [A-F]
 
 **Vulnerability Summary**:
+
 - Critical (CVSS 9.0+): [count]
+
 - High (CVSS 7.0-8.9): [count]
+
 - Medium (CVSS 4.0-6.9): [count]
+
 - Low (CVSS 0.1-3.9): [count]
 
 **Critical Vulnerabilities** (MUST FIX IMMEDIATELY):
@@ -340,9 +395,13 @@ SolutionName/
 | [name] | [version] | [CVE-ID] | [Critical/High] | [version] |
 
 **Compliance Assessment**:
+
 - OWASP Top 10: [Pass/Fail - details]
+
 - Dependency Security: [Pass/Fail - details]
+
 - Secrets Management: [Pass/Fail - details]
+
 - Authentication/Authorization: [Pass/Fail - details]
 
 **Security Roadmap**:
@@ -358,11 +417,17 @@ SolutionName/
 **Overall Performance Score**: [A-F]
 
 **Key Metrics**:
+
 - Average Response Time: [ms]
+
 - P95 Response Time: [ms]
+
 - P99 Response Time: [ms]
+
 - Peak Memory Usage: [MB]
+
 - Gen 2 GC Collections: [count/min]
+
 - Thread Pool Utilization: [%]
 
 **Critical Bottlenecks**:
@@ -371,9 +436,13 @@ SolutionName/
 | [operation] | [metric] | [goal] | [High/Med/Low] | [approach] | [hours] |
 
 **GC Performance**:
+
 - Gen 0/1/2 Collection Frequency: [stats]
+
 - GC Pause Time: [ms average, max]
+
 - LOH Size: [MB]
+
 - Memory Pressure: [High/Medium/Low]
 
 **Quick Wins** (High Impact, Low Effort):
@@ -391,15 +460,23 @@ SolutionName/
 **Overall Testing Score**: [A-F]
 
 **Coverage Metrics**:
+
 - Line Coverage: [%]
+
 - Branch Coverage: [%]
+
 - Method Coverage: [%]
+
 - Target: 80%+
 
 **Test Distribution**:
+
 - Unit Tests: [count] ([%])
+
 - Integration Tests: [count] ([%])
+
 - Functional Tests: [count] ([%])
+
 - Performance Tests: [count]
 
 **Critical Gaps**:
@@ -408,9 +485,13 @@ SolutionName/
 | [name] | [%] | [High/Med/Low] | [test types] |
 
 **Test Quality Issues**:
+
 - Flaky Tests: [count]
+
 - Slow Tests (>1s): [count]
+
 - Tests with Weak Assertions: [count]
+
 - Order-Dependent Tests: [count]
 
 **Testing Roadmap**:
@@ -460,8 +541,11 @@ SolutionName/
    - Success Criteria: [measurable outcome]
 
 **Deliverables**:
+
 - [ ] All critical security vulnerabilities patched
+
 - [ ] Blocking performance issues resolved
+
 - [ ] Critical test coverage gaps filled
 
 ---
@@ -470,15 +554,23 @@ SolutionName/
 **Objective**: Address P1 items and quick wins
 
 **Focus Areas**:
+
 - Security: [specific initiatives]
+
 - Performance: [specific optimizations]
+
 - Quality: [specific refactorings]
+
 - Testing: [coverage improvements]
 
 **Expected Outcomes**:
+
 - Security score: [current] → [target]
+
 - Performance: [current] → [target]
+
 - Test coverage: [current%] → [target%]
+
 - Analyzer warnings: [current] → [target]
 
 ---
@@ -536,21 +628,33 @@ SolutionName/
 ## Recommendations for Stakeholders
 
 ### For Engineering Leadership
+
 - **Investment Required**: [hours/days estimate]
+
 - **Risk if Not Addressed**: [business impact]
+
 - **Recommended Approach**: [phased implementation strategy]
+
 - **Resource Needs**: [team members, tools, licenses]
+
 - **.NET Upgrade Considerations**: [migration path if applicable]
 
 ### For Development Team
+
 - **Immediate Actions**: [list of P0 items]
+
 - **Skill Development Needs**: [training on .NET features, security, etc.]
+
 - **Process Improvements**: [recommended changes]
+
 - **Tool Recommendations**: [analyzers, profilers, testing tools]
 
 ### For Product Management
+
 - **Feature Impact**: [how technical debt affects features]
+
 - **Quality Risks**: [potential customer impact]
+
 - **Timeline Considerations**: [how fixes affect roadmap]
 
 ---
@@ -671,10 +775,15 @@ public class MetricsService
 ```
 
 ### D. Resource Links
+
 - [.NET Code Analysis Rules](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/overview)
+
 - [OWASP Top 10](https://owasp.org/Top10/)
+
 - [C# Coding Conventions](https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/coding-style/coding-conventions)
+
 - [EF Core Performance](https://learn.microsoft.com/en-us/ef/core/performance/)
+
 - [ASP.NET Core Best Practices](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/best-practices)
 
 ---
@@ -703,27 +812,6 @@ public class MetricsService
 **Review Methodology**: Automated scanning + manual review
 **Tools Used**: [List of tools and versions - dotTrace, Coverlet, SecurityCodeScan, etc.]
 
----
-
-## File Output Instructions
-
-**IMPORTANT**: Save all generated files to the correct directory structure:
-
-```bash
-# Create directory structure
-mkdir -p ${OUTPUT_DIR}/final_report/analysis_scripts
-mkdir -p ${OUTPUT_DIR}/final_report/supporting_data
-```
-
-**Save files as follows**:
-
-- Main report → `review/final_report/final_report_report.md`
-
-- Findings data → `review/final_report/final_report_findings.json`
-
-- Analysis scripts → `review/final_report/analysis_scripts/`
-
-- Supporting data → `review/final_report/supporting_data/`
 ~~~
 ---
 
@@ -744,7 +832,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

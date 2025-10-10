@@ -32,37 +32,61 @@ documentation/docstrings/
 ## Implementation Checklist
 
 ### File Documentation
+
 - [ ] File purpose and scope clearly explained
+
 - [ ] Key structures and functions listed
+
 - [ ] Dependencies and requirements noted
+
 - [ ] Usage examples provided
+
 - [ ] Author and version information included
 
 ### Structure/Union Documentation
+
 - [ ] Structure purpose and usage documented
+
 - [ ] All fields described with types
+
 - [ ] Memory layout considerations noted
+
 - [ ] Structure-level examples provided
+
 - [ ] Alignment and padding documented
 
 ### Function Documentation
+
 - [ ] Function purpose clearly stated
+
 - [ ] All parameters documented with @param
+
 - [ ] Return values documented with @return
+
 - [ ] Side effects documented
+
 - [ ] Thread safety noted
+
 - [ ] Memory ownership explained
 
 ### Macro Documentation
+
 - [ ] Macro purpose documented
+
 - [ ] Parameter expansion explained
+
 - [ ] Side effects and preconditions noted
+
 - [ ] Type safety considerations documented
 
 ### Documentation Style
+
 - [ ] Consistent Doxygen style throughout codebase
+
 - [ ] Proper use of Doxygen commands (@param, @return, @brief, etc.)
+
 - [ ] Code examples formatted correctly
+
 - [ ] Cross-references properly linked
 
 ## Prompt Template
@@ -97,7 +121,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -687,33 +713,55 @@ typedef int (*processor_callback_t)(data_item_t *item,
 Verify each Doxygen comment meets these criteria:
 
 ### Completeness
+
 - [ ] All public APIs documented
+
 - [ ] All @param tags present and documented
+
 - [ ] @return documented for non-void functions
+
 - [ ] Memory ownership clearly documented
+
 - [ ] Thread safety explicitly stated
+
 - [ ] Examples for non-trivial functions
 
 ### Doxygen Commands
+
 - [ ] @brief for summaries
+
 - [ ] @param[in/out/in,out] for parameters
+
 - [ ] @return for return values
+
 - [ ] @note for important information
+
 - [ ] @warning for critical warnings
+
 - [ ] @see for cross-references
+
 - [ ] @code/@endcode for examples
 
 ### C-Specific Documentation
+
 - [ ] Memory ownership documented
+
 - [ ] Pointer validity requirements stated
+
 - [ ] NULL handling explicitly documented
+
 - [ ] Side effects clearly noted
+
 - [ ] errno usage documented
 
 ### Clarity
+
 - [ ] Clear, professional language
+
 - [ ] Technical terms explained
+
 - [ ] No redundant information
+
 - [ ] Proper grammar and spelling
 
 ## Phase 8: Documentation Generation
@@ -785,22 +833,35 @@ Please provide Doxygen comments in this format:
 **Typedefs Documented**: [count]
 
 **Doxygen Standards Compliance**:
+
 - [ ] All public APIs documented
+
 - [ ] All @param tags present
+
 - [ ] All @return tags present
+
 - [ ] Memory ownership documented
+
 - [ ] Thread safety documented
 
 **C-Specific Documentation**:
+
 - [ ] NULL handling documented
+
 - [ ] errno usage documented
+
 - [ ] Side effects noted
+
 - [ ] Pointer ownership clear
 
 **Coverage Metrics**:
+
 - File coverage: [X%]
+
 - Function coverage: [X%]
+
 - Structure coverage: [X%]
+
 - Overall coverage: [X%]
 ```
 
@@ -901,14 +962,23 @@ QT_AUTOBRIEF = YES
 ## Output Format Specifications
 
 The generated Doxygen comments should:
+
 - Follow Doxygen conventions and C documentation best practices
+
 - Include all standard commands (@param, @return, @brief, etc.)
+
 - Document memory ownership and management explicitly
+
 - State thread safety guarantees clearly
+
 - Include runnable code examples in @code blocks
+
 - Cross-reference related functions with @see
+
 - Generate well-formatted HTML and LaTeX documentation
+
 - Pass Doxygen validation without warnings
+
 - Document all error conditions and errno usage
 ---
 
@@ -929,7 +999,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

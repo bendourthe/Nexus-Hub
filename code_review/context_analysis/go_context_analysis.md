@@ -32,38 +32,63 @@ review/context_analysis/
 ## Analysis Checklist
 
 ### Project Understanding
+
 - [ ] Project purpose and target audience identified
+
 - [ ] Core features and use cases documented
+
 - [ ] Development stage assessed (prototype, production, legacy)
+
 - [ ] Key stakeholders and maintainers identified
+
 - [ ] Project documentation reviewed (README, CONTRIBUTING, docs/)
 
 ### Architecture & Structure
+
 - [ ] Entry points and main packages mapped
+
 - [ ] Package organization evaluated
+
 - [ ] Design patterns identified (factory, adapter, middleware, etc.)
+
 - [ ] Configuration management approach documented
+
 - [ ] Environment-specific settings catalogued
 
 ### Dependency Analysis
+
 - [ ] Direct dependencies listed with versions (go.mod)
+
 - [ ] Indirect dependencies reviewed
+
 - [ ] Outdated packages identified
+
 - [ ] Security vulnerabilities in dependencies checked
+
 - [ ] License compatibility verified
 
 ### Build & Deployment
+
 - [ ] Build process documented (Makefile, build scripts)
+
 - [ ] Test execution approach understood
+
 - [ ] CI/CD pipelines identified (GitHub Actions, GitLab CI, Jenkins)
+
 - [ ] Deployment targets documented (containers, binaries, serverless)
+
 - [ ] Environment variables and secrets management reviewed
 
 ### Codebase Metrics
+
 - [ ] Lines of code measured (total, per package)
+
 - [ ] Cyclomatic complexity assessed
+
 - [ ] Package coupling and cohesion evaluated
+
 - [ ] Code duplication percentage calculated
+
 - [ ] Comment density analyzed
 
 ## Prompt Template
@@ -98,7 +123,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -254,10 +281,15 @@ Please perform a comprehensive context analysis of this Go project following thi
 Please provide a comprehensive context report with the following structure:
 
 ### Executive Summary
+
 - **Project Name**: [name]
+
 - **Purpose**: [1-2 sentence description]
+
 - **Stage**: [prototype/production/legacy]
+
 - **Go Version**: [version requirements]
+
 - **Architecture**: [architectural style]
 
 ### Project Structure
@@ -281,9 +313,13 @@ project/
 ```
 
 ### Architecture Overview
+
 - **Design Patterns**: [patterns identified]
+
 - **Package Organization**: [brief description]
+
 - **Key Dependencies**: [critical external packages]
+
 - **Configuration Approach**: [how settings are managed]
 
 ### Dependency Summary
@@ -292,23 +328,37 @@ project/
 | [name] | [version] | [usage] | [current/outdated] | [safe/vulnerable] |
 
 ### Build & Deployment
+
 - **Build System**: [tool and configuration]
+
 - **Test Framework**: [standard library/testify/other]
+
 - **CI/CD**: [platform and key workflows]
+
 - **Deployment**: [target environments]
 
 ### Codebase Metrics
+
 - **Total Lines**: [number] (excluding tests and vendor)
+
 - **Average Complexity**: [gocyclo score]
+
 - **Packages**: [count]
+
 - **Duplication**: [percentage]
+
 - **Documentation**: [godoc coverage %]
 
 ### Go-Specific Observations
+
 - **Go Version**: [required version from go.mod]
+
 - **Module Path**: [module name]
+
 - **Replace Directives**: [if any, list them]
+
 - **Build Tags**: [if used, list common tags]
+
 - **CGO Usage**: [yes/no and where]
 
 ### Key Findings
@@ -324,9 +374,13 @@ Based on this context, the following review areas should be prioritized:
 3. [Area 3] - [reason]
 
 ### Next Steps
+
 - [ ] Proceed with code quality review
+
 - [ ] Conduct security audit (especially if vulnerable dependencies found)
+
 - [ ] Perform performance analysis
+
 - [ ] Review test coverage and quality
 
 ## File Output Instructions
@@ -350,9 +404,13 @@ mkdir -p ${OUTPUT_DIR}/context_analysis/supporting_data
 - Supporting data → `review/context_analysis/supporting_data/`
 
 ## Notes
+
 - Save this context report - it will inform all subsequent review phases
+
 - Flag any critical issues discovered during context gathering
+
 - Update dependency vulnerabilities before detailed code review
+
 - Use this as baseline for measuring improvement over time
 ~~~
 ---
@@ -374,7 +432,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

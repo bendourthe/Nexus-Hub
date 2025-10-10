@@ -32,45 +32,75 @@ review/code_quality/
 ## Review Checklist
 
 ### Coding Standards
+
 - [ ] PEP 8 compliance verified (line length, spacing, naming)
+
 - [ ] Import organization follows standard order (stdlib, third-party, local)
+
 - [ ] Docstring format consistent (Google, NumPy, or reStructuredText)
+
 - [ ] Type hints used appropriately
+
 - [ ] Consistent naming conventions (snake_case, PascalCase, UPPER_CASE)
 
 ### Code Complexity
+
 - [ ] Functions under 50 lines (flagged if exceeded)
+
 - [ ] Cyclomatic complexity under 10 per function
+
 - [ ] Nesting depth under 4 levels
+
 - [ ] Class size reasonable (<300 lines)
+
 - [ ] Module cohesion evaluated
 
 ### Design & Architecture
+
 - [ ] SOLID principles followed
+
 - [ ] DRY principle applied (no significant duplication)
+
 - [ ] Separation of concerns maintained
+
 - [ ] Appropriate use of design patterns
+
 - [ ] Dependency injection where beneficial
 
 ### Code Smells
+
 - [ ] Long parameter lists identified (>5 parameters)
+
 - [ ] Feature envy detected
+
 - [ ] Shotgun surgery patterns flagged
+
 - [ ] God classes or modules identified
+
 - [ ] Dead code marked for removal
 
 ### Error Handling
+
 - [ ] Exceptions caught at appropriate level
+
 - [ ] Specific exceptions used (not bare `except:`)
+
 - [ ] Error messages informative
+
 - [ ] Resources properly cleaned up (context managers)
+
 - [ ] Logging appropriate for debugging
 
 ### Maintainability
+
 - [ ] Code self-documenting with clear names
+
 - [ ] Comments explain "why" not "what"
+
 - [ ] Magic numbers replaced with named constants
+
 - [ ] Configuration externalized
+
 - [ ] Hardcoded values eliminated
 
 ## Prompt Template
@@ -105,7 +135,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -273,17 +305,25 @@ Please perform a comprehensive code quality review of this Python project follow
 Please provide a comprehensive quality report with the following structure:
 
 ### Executive Summary
+
 - **Overall Quality Score**: [A-F grade]
+
 - **Maintainability Index**: [score]
+
 - **Average Complexity**: [cyclomatic complexity]
+
 - **Critical Issues**: [count]
+
 - **Technical Debt**: [estimated hours to address]
 
 ### Coding Standards Compliance
+
 - **PEP 8 Violations**: [count and severity]
+
 - **Most Common Issues**:
   1. [Issue type] - [count] occurrences
   2. [Issue type] - [count] occurrences
+
 - **Consistency Score**: [percentage]
 
 ### Complexity Analysis
@@ -314,28 +354,40 @@ Please provide a comprehensive quality report with the following structure:
 | [type] | [file:line] | [High/Med/Low] | [details] | [suggestion] |
 
 ### Error Handling Assessment
+
 - **Broad Exception Catching**: [count and locations]
+
 - **Missing Resource Cleanup**: [locations]
+
 - **Inadequate Input Validation**: [locations]
+
 - **Poor Error Messages**: [examples]
 
 ### Documentation Score
+
 - **Docstring Coverage**: [percentage]
+
 - **Type Hint Coverage**: [percentage]
+
 - **Comment Quality**: [Good/Fair/Poor]
+
 - **Areas Needing Documentation**: [list]
 
 ### Technical Debt Summary
 **Priority 1 (Critical)**: [Estimated hours]
+
 - [Issue description and location]
 
 **Priority 2 (High)**: [Estimated hours]
+
 - [Issue description and location]
 
 **Priority 3 (Medium)**: [Estimated hours]
+
 - [Issue description and location]
 
 **Priority 4 (Low)**: [Estimated hours]
+
 - [Issue description and location]
 
 ### Refactoring Recommendations
@@ -350,14 +402,21 @@ Please provide a comprehensive quality report with the following structure:
 
 ### Positive Patterns
 Acknowledge what's done well:
+
 - [Good practice observed and locations]
+
 - [Effective pattern usage examples]
 
 ### Next Steps
+
 - [ ] Address critical complexity hotspots
+
 - [ ] Implement automated quality gates (linting, type checking)
+
 - [ ] Plan refactoring sprints for high-priority technical debt
+
 - [ ] Establish team coding standards documentation
+
 - [ ] Set up pre-commit hooks for style enforcement
 
 ## Automation Recommendations
@@ -418,7 +477,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

@@ -32,38 +32,63 @@ documentation/docstrings/
 ## Implementation Checklist
 
 ### Namespace-Level Documentation
+
 - [ ] Namespace purpose and scope clearly explained
+
 - [ ] Key classes and interfaces listed
+
 - [ ] Dependencies and requirements noted
+
 - [ ] Usage examples provided
+
 - [ ] Author information included
 
 ### Class/Interface Documentation
+
 - [ ] Class purpose and responsibility documented
+
 - [ ] All public properties described with types
+
 - [ ] Constructor parameters documented
+
 - [ ] Class-level examples provided
+
 - [ ] Inheritance relationships explained
+
 - [ ] Generic type parameters documented
 
 ### Method Documentation
+
 - [ ] Method purpose clearly stated
+
 - [ ] All parameters documented with types and descriptions
+
 - [ ] Return values documented with types
+
 - [ ] Exceptions documented with `<exception>`
+
 - [ ] Thread safety documented
+
 - [ ] Usage examples for complex methods
 
 ### XML Documentation Integration
+
 - [ ] XML comments complement type signatures
+
 - [ ] Generic type usage clarified with `<typeparam>`
+
 - [ ] Null handling documented with nullable reference types
+
 - [ ] CREF links to related types
 
 ### Documentation Style
+
 - [ ] Consistent XML comment style throughout codebase
+
 - [ ] Formatting conventions followed
+
 - [ ] Code examples properly formatted
+
 - [ ] Cross-references using `<see cref=""/>` tags
 
 ## Prompt Template
@@ -98,7 +123,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -522,28 +549,45 @@ public event EventHandler<ProcessingEventArgs>? ProcessingCompleted;
 Verify each XML comment meets these criteria:
 
 ### Completeness
+
 - [ ] Purpose clearly stated in `<summary>`
+
 - [ ] All parameters documented with `<param>`
+
 - [ ] Return value documented with `<returns>`
+
 - [ ] Exceptions documented with `<exception>`
+
 - [ ] Examples provided in `<example>` for non-trivial methods
 
 ### Clarity
+
 - [ ] Uses clear, concise language
+
 - [ ] Avoids jargon or explains technical terms
+
 - [ ] Follows consistent tense
+
 - [ ] XML tags properly formatted
 
 ### Examples
+
 - [ ] Examples are compilable
+
 - [ ] Examples cover common use cases
+
 - [ ] Complex methods have multiple examples
+
 - [ ] Examples demonstrate best practices
 
 ### Formatting
+
 - [ ] Consistent style throughout codebase
+
 - [ ] Proper XML structure with paired tags
+
 - [ ] Code blocks use `<code>` tags
+
 - [ ] Cross-references use `<see cref=""/>` or `<seealso cref=""/>`
 
 ## Phase 7: Documentation Generation
@@ -599,17 +643,27 @@ After XML comments are complete:
 **Examples Added**: [count]
 
 **Coverage Metrics**:
+
 - Namespace coverage: [X%]
+
 - Class coverage: [X%]
+
 - Method coverage: [X%]
+
 - Overall coverage: [X%]
 
 **Quality Checks**:
+
 - [ ] All public members documented
+
 - [ ] Consistent style throughout
+
 - [ ] Examples provided where appropriate
+
 - [ ] CREF links valid
+
 - [ ] XML structure valid
+
 - [ ] Documentation builds without errors
 ```
 
@@ -689,19 +743,30 @@ mkdir -p ${OUTPUT_DIR}/docstrings/exports
 - Exports → `documentation/docstrings/exports/`
 
 Replace `{phase_name}` with the specific phase (docstrings, comments, user_docs, technical_docs, api_docs, or sbom).
-~~~
+
+---
 
 ## Output Format Specifications
 
 The generated XML documentation should:
+
 - Follow C# XML documentation comments standard
+
 - Be compatible with IntelliSense
+
 - Generate valid documentation with DocFX/Sandcastle
+
 - Include proper XML structure with paired tags
+
 - Use CREF for cross-references
+
 - Document nullable reference types
+
 - Pass build without XML documentation warnings
+
 - Generate comprehensive API documentation
+
+~~~
 ---
 
 ## Verify Directory Structure
@@ -721,7 +786,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

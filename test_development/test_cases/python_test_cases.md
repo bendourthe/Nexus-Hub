@@ -32,26 +32,43 @@ tests/test_cases/
 ## Implementation Checklist
 
 ### Test Coverage
+
 - [ ] Happy path scenarios tested
+
 - [ ] Edge cases and boundaries covered
+
 - [ ] Error conditions validated
+
 - [ ] Input validation tested
+
 - [ ] State transitions verified
+
 - [ ] Regression tests added for bugs
 
 ### Test Quality
+
 - [ ] Tests follow AAA pattern (Arrange-Act-Assert)
+
 - [ ] Test names clearly describe what is tested
+
 - [ ] Tests are isolated and independent
+
 - [ ] Tests execute quickly (<1s for unit tests)
+
 - [ ] Assertions are specific and meaningful
+
 - [ ] No test interdependencies
 
 ### Test Organization
+
 - [ ] Tests grouped logically by feature/module
+
 - [ ] Related tests organized in test classes
+
 - [ ] Parametrized tests used for multiple scenarios
+
 - [ ] Setup and teardown properly implemented
+
 - [ ] Test documentation provided
 
 ## Prompt Template
@@ -86,7 +103,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -644,10 +663,15 @@ async def test_async_operation_with_timeout(self):
 Please provide comprehensive test cases with the following structure:
 
 ### Test Coverage Summary
+
 - **Total Test Cases**: [count]
+
 - **Unit Tests**: [count]
+
 - **Integration Tests**: [count]
+
 - **E2E Tests**: [count]
+
 - **Test Types**:
   - Happy path: [count]
   - Edge cases: [count]
@@ -685,22 +709,35 @@ test_function_edge_case ... PASSED
 ```
 
 ### Coverage Gaps Identified
+
 - [ ] [Function/method]: Missing tests for [scenario]
+
 - [ ] [Function/method]: Need edge case tests for [condition]
+
 - [ ] [Function/method]: Error handling not tested
 
 ### Test Quality Metrics
+
 - **Average test execution time**: [milliseconds]
+
 - **Tests following AAA pattern**: [percentage]
+
 - **Tests with clear names**: [percentage]
+
 - **Independent tests**: [percentage]
+
 - **Parametrized tests**: [count]
 
 ### Next Steps
+
 - [ ] Implement remaining test cases for coverage gaps
+
 - [ ] Add performance benchmarks for critical functions
+
 - [ ] Set up test fixtures for integration tests
+
 - [ ] Configure CI/CD to run tests automatically
+
 - [ ] Review and refactor slow tests
 
 ## File Output Instructions
@@ -758,7 +795,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

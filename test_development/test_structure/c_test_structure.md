@@ -32,31 +32,51 @@ tests/test_structure/
 ## Implementation Checklist
 
 ### Test Framework Setup
+
 - [ ] Test framework selected (Unity/CUnit/Check)
+
 - [ ] Build system configured (CMake/Make)
+
 - [ ] Framework libraries compiled
+
 - [ ] Test runner scripts created
+
 - [ ] Coverage tools configured (gcov/lcov)
 
 ### Directory Structure
+
 - [ ] Standard test layout implemented
+
 - [ ] Test type separation organized
+
 - [ ] Naming conventions documented
+
 - [ ] Test data directories created
+
 - [ ] Header organization established
 
 ### Fixture Infrastructure
+
 - [ ] Setup/teardown functions established
+
 - [ ] Test fixtures defined
+
 - [ ] Mock functions implemented
+
 - [ ] Fixture documentation added
+
 - [ ] Common fixtures centralized
 
 ### Test Utilities
+
 - [ ] Custom assertion macros created
+
 - [ ] Test data generators implemented
+
 - [ ] Helper functions defined
+
 - [ ] Mock utilities established
+
 - [ ] Helper documentation provided
 
 ## Prompt Template
@@ -91,7 +111,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -1030,12 +1052,19 @@ Replace `{phase_name}` with the specific phase (test_structure, test_cases, mock
 Please provide a comprehensive test infrastructure design with the following structure:
 
 ### Infrastructure Summary
+
 - **Test Framework**: [Unity/CUnit/Check with justification]
+
 - **Build System**: [CMake/Make]
+
 - **C Standard**: [C99/C11/C17]
+
 - **Total Test Files**: [count]
+
 - **Test Organization**: [structure description]
+
 - **Mock Strategy**: [approach description]
+
 - **Utility Modules**: [list of helper modules]
 
 ### Directory Structure
@@ -1044,25 +1073,33 @@ Please provide a comprehensive test infrastructure design with the following str
 ```
 
 ### Build Configuration
+
 - **CMakeLists.txt**: [Key settings]
+
 - **Makefile**: [Key targets]
+
 - **Compiler flags**: [Debug/Release settings]
 
 ### Test Infrastructure
 **Setup/Teardown**:
+
 - [Approach]: [description]
 
 **Fixtures**:
+
 - [FixtureName]: [purpose and usage]
 
 **Mocks**:
+
 - [MockName]: [purpose and usage]
 
 ### Test Utilities
 **Assertion Helpers** (`tests/helpers/assertions.h`):
+
 - [HelperName]: [purpose]
 
 **Test Utils** (`tests/helpers/test_utils.h`):
+
 - [UtilName]: [purpose]
 
 ### Test Execution Commands
@@ -1092,29 +1129,49 @@ make clean
 5. **Test Data**: [organization]
 
 ### Next Steps
+
 - [ ] Implement actual test cases
+
 - [ ] Add project-specific fixtures
+
 - [ ] Configure CI/CD integration
+
 - [ ] Set up coverage reporting
+
 - [ ] Document testing guidelines
+
 - [ ] Create more mock implementations
+
 - [ ] Add memory leak detection (valgrind)
 
 ### Best Practices Implemented
+
 - Clear separation of test types
+
 - Reusable test fixtures
+
 - Comprehensive mocking support
+
 - Custom assertions for readability
+
 - Coverage measurement integrated
+
 - Memory management helpers
+
 - Proper setup/teardown patterns
 
 ### Maintenance Recommendations
+
 - Run tests before committing
+
 - Monitor memory leaks with valgrind
+
 - Keep tests isolated and fast
+
 - Update mocks when interfaces change
+
 - Review coverage regularly
+
 - Document complex test scenarios
 ~~~
 
@@ -1149,7 +1206,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

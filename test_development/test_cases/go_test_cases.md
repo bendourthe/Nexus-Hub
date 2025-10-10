@@ -32,29 +32,49 @@ tests/test_cases/
 ## Implementation Checklist
 
 ### Test Coverage
+
 - [ ] Happy path scenarios tested
+
 - [ ] Edge cases and boundaries covered
+
 - [ ] Error conditions validated
+
 - [ ] Input validation tested
+
 - [ ] State transitions verified
+
 - [ ] Regression tests added for bugs
+
 - [ ] Concurrent operations tested
 
 ### Test Quality
+
 - [ ] Tests follow table-driven test pattern where appropriate
+
 - [ ] Test names clearly describe what is tested
+
 - [ ] Tests are isolated and independent
+
 - [ ] Tests execute quickly (<1s for unit tests)
+
 - [ ] Assertions are specific and meaningful
+
 - [ ] No test interdependencies
+
 - [ ] Proper use of t.Helper() for test helpers
 
 ### Test Organization
+
 - [ ] Tests grouped logically by feature/package
+
 - [ ] Related tests organized using subtests
+
 - [ ] Table-driven tests used for multiple scenarios
+
 - [ ] Setup and teardown properly implemented
+
 - [ ] Test documentation provided
+
 - [ ] Benchmarks included for performance-critical code
 
 ## Prompt Template
@@ -89,7 +109,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -1043,10 +1065,15 @@ func TestLoadConfig(t *testing.T) {
 Please provide comprehensive test cases with the following structure:
 
 ### Test Coverage Summary
+
 - **Total Test Cases**: [count]
+
 - **Unit Tests**: [count]
+
 - **Integration Tests**: [count]
+
 - **Benchmarks**: [count]
+
 - **Test Types**:
   - Happy path: [count]
   - Edge cases: [count]
@@ -1091,23 +1118,37 @@ ok      myapp/user    0.123s
 ```
 
 ### Coverage Gaps Identified
+
 - [ ] [Function]: Missing tests for [scenario]
+
 - [ ] [Function]: Need edge case tests for [condition]
+
 - [ ] [Function]: Error handling not tested
+
 - [ ] [Function]: Concurrent access not tested
 
 ### Test Quality Metrics
+
 - **Average test execution time**: [milliseconds]
+
 - **Table-driven tests**: [count]
+
 - **Tests with clear names**: [percentage]
+
 - **Independent tests**: [percentage]
 
 ### Next Steps
+
 - [ ] Implement remaining test cases for coverage gaps
+
 - [ ] Add benchmarks for performance-critical functions
+
 - [ ] Set up integration tests with test containers
+
 - [ ] Configure CI/CD pipeline
+
 - [ ] Review and refactor slow tests
+
 - [ ] Add race detector tests (-race flag)
 
 ## File Output Instructions
@@ -1165,7 +1206,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

@@ -32,11 +32,17 @@ review/final_report/
 ## Report Structure
 
 This template consolidates:
+
 - Context Analysis findings
+
 - Code Quality issues (C++ Core Guidelines, modern C++ usage)
+
 - Security vulnerabilities (memory safety, UB, sanitizer results)
+
 - Performance bottlenecks (profiling, cache efficiency)
+
 - Testing gaps (coverage, sanitizers, mocks)
+
 - Overall recommendations
 
 ## Prompt Template
@@ -71,7 +77,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -141,24 +149,37 @@ Categorize all findings using a 2x2 matrix:
 **Impact vs Effort Matrix**:
 ```
 High Impact, Low Effort (DO FIRST - Quick Wins)
+
 - Replace raw pointers with smart pointers in [module]
+
 - Fix buffer overflow in [function]
+
 - Add missing const qualifiers
+
 - Enable compiler warnings
 
 High Impact, High Effort (PLAN CAREFULLY - Strategic Initiatives)
+
 - Refactor god class [ClassName]
+
 - Implement RAII for all resource management
+
 - Modernize codebase to C++17/20
+
 - Add comprehensive test coverage
 
 Low Impact, Low Effort (DO WHEN TIME PERMITS - Nice to Have)
+
 - Improve code formatting consistency
+
 - Add Doxygen comments to internal functions
+
 - Minor code style fixes
 
 Low Impact, High Effort (AVOID - Not Worth It)
+
 - Rewrite stable legacy code for style only
+
 - Premature optimization of non-critical paths
 ```
 
@@ -202,6 +223,7 @@ Create a phased implementation plan:
 Define success metrics to track improvement:
 
 ### Code Quality Metrics
+
 - **Current State**:
   - C++ Modernization: [C++03/11/14/17/20 patterns]
   - RAII Coverage: [% resources using RAII]
@@ -217,15 +239,21 @@ Define success metrics to track improvement:
   - clang-tidy Issues: [<10 critical]
 
 ### Security Metrics
+
 - **Current**: [X] ASan errors, [Y] UBSan errors, [Z] memory leaks
+
 - **Target**: 0 sanitizer errors, 0 memory leaks
 
 ### Performance Metrics
+
 - **Current**: [baseline performance numbers, cache miss rates]
+
 - **Target**: [performance goals]
 
 ### Testing Metrics
+
 - **Current**: [X]% coverage, [Y] flaky tests, [Z] untested modules
+
 - **Target**: 80%+ coverage, 0 flaky tests, all critical paths tested
 
 ## Output Format
@@ -248,27 +276,42 @@ Please provide a comprehensive final report with the following structure:
 ## Executive Summary
 
 ### Overall Health Assessment
+
 - **Code Quality**: [Grade: A-F] - [Modern C++ adoption, RAII usage]
+
 - **Memory Safety**: [Grade: A-F] - [Sanitizer results, memory management]
+
 - **Performance**: [Grade: A-F] - [Profiling results, optimization opportunities]
+
 - **Testing**: [Grade: A-F] - [Coverage, sanitizer integration]
+
 - **Overall Recommendation**: [Production-ready / Needs work / Major refactoring needed]
 
 ### Key Highlights
 **Strengths**:
+
 - [Modern C++ features well-adopted]
+
 - [Excellent RAII usage]
+
 - [Strong test coverage]
 
 **Critical Concerns**:
+
 - [Memory safety issues detected by ASan]
+
 - [Performance bottlenecks in hot paths]
+
 - [Insufficient test coverage for error paths]
 
 ### Investment Summary
+
 - **Immediate Actions Required**: [hours/days]
+
 - **Short-term Improvements**: [weeks]
+
 - **Long-term Initiatives**: [months]
+
 - **Total Technical Debt**: [estimated hours]
 
 ---
@@ -278,16 +321,25 @@ Please provide a comprehensive final report with the following structure:
 ### 1. Context & Architecture
 
 **Project Overview**:
+
 - **Purpose**: [Brief description]
+
 - **Architecture**: [Monolithic/Modular/Plugin-based]
+
 - **C++ Standard**: [C++17]
+
 - **Build System**: [CMake 3.20+]
+
 - **Dependency Manager**: [vcpkg/Conan/system packages]
+
 - **Development Stage**: [Prototype/Production/Legacy]
 
 **Architecture Assessment**:
+
 - **Strengths**: [RAII throughout, clear module boundaries]
+
 - **Concerns**: [Header dependency complexity, tight coupling in [module]]
+
 - **Dependencies**: [Key dependency risks: [library] has CVE-XXXX]
 
 **C++ Modernization Status**:
@@ -306,10 +358,15 @@ Please provide a comprehensive final report with the following structure:
 **Overall Quality Score**: [A-F]
 
 **Key Metrics**:
+
 - C++ Core Guidelines Compliance: [70%]
+
 - clang-tidy Issues: [50 warnings, 5 errors]
+
 - Average Cyclomatic Complexity: [8.5]
+
 - Lines of Code: [50,000]
+
 - Technical Debt: [estimated 200 hours]
 
 **Critical Issues**:
@@ -339,9 +396,13 @@ Please provide a comprehensive final report with the following structure:
 **Overall Security Score**: [A-F]
 
 **Memory Safety Summary**:
+
 - **AddressSanitizer**: [X] errors found
+
 - **UndefinedBehaviorSanitizer**: [Y] errors found
+
 - **ThreadSanitizer**: [Z] data races
+
 - **MemorySanitizer**: [W] uninitialized reads
 
 **Critical Vulnerabilities** (MUST FIX IMMEDIATELY):
@@ -354,29 +415,44 @@ Please provide a comprehensive final report with the following structure:
 **Sanitizer Results Detail**:
 ```
 AddressSanitizer:
+
 - Heap buffer overflow: 3 instances
+
 - Stack buffer overflow: 1 instance
+
 - Use-after-free: 2 instances
+
 - Memory leaks: 15 instances
 
 UndefinedBehaviorSanitizer:
+
 - Signed integer overflow: 5 instances
+
 - Null pointer dereference: 2 instances
+
 - Misaligned access: 1 instance
 
 ThreadSanitizer:
+
 - Data races: 8 instances
+
 - Lock order issues: 2 potential deadlocks
 ```
 
 **Input Validation Issues**:
+
 - Command injection risk: [location]
+
 - Path traversal vulnerability: [location]
+
 - Integer overflow in size calculation: [location]
 
 **Cryptography Assessment**:
+
 - Weak hashing (MD5): [locations]
+
 - Insecure random (rand()): [locations]
+
 - Hardcoded secrets: [count]
 
 **Security Roadmap**:
@@ -392,9 +468,13 @@ ThreadSanitizer:
 **Overall Performance Score**: [A-F]
 
 **Key Metrics**:
+
 - Average Response Time: [X ms]
+
 - Peak Memory Usage: [Y MB]
+
 - Cache Miss Rate: [Z%]
+
 - Hot Functions: [list of top 5]
 
 **Critical Bottlenecks**:
@@ -404,22 +484,31 @@ ThreadSanitizer:
 | [Lookup] | [O(n)] | [O(1)] | [High] | [Use unordered_map] | [4h] |
 
 **Memory Performance**:
+
 - Allocation hotspots: [locations]
+
 - Poor cache locality: [locations]
+
 - Excessive copying: [locations]
 
 **Optimization Opportunities**:
 ```
 Move Semantics:
+
 - [function]: Missing std::move, unnecessary copy
+
 - Expected gain: 15% faster
 
 Cache Optimization:
+
 - [struct]: Poor memory layout, excessive padding
+
 - Expected gain: 30% fewer cache misses
 
 Algorithm:
+
 - [function]: O(n²) can be O(n log n)
+
 - Expected gain: 10x faster for large inputs
 ```
 
@@ -440,9 +529,13 @@ Algorithm:
 **Overall Testing Score**: [A-F]
 
 **Coverage Metrics**:
+
 - Line Coverage: [75%]
+
 - Branch Coverage: [60%]
+
 - Function Coverage: [80%]
+
 - Target: 80%+ line coverage
 
 **Critical Gaps**:
@@ -452,14 +545,21 @@ Algorithm:
 | [ResourceManager] | [50%] | [High] | [RAII cleanup, leak tests] |
 
 **Test Quality Issues**:
+
 - Flaky Tests: [5 tests]
+
 - Slow Tests (>1s): [10 tests]
+
 - Missing Mocks: [database, network]
+
 - Untested Exception Safety: [15 functions]
 
 **Memory Testing**:
+
 - Valgrind: [10 memory leaks found]
+
 - ASan in tests: [Not integrated]
+
 - Sanitizer CI: [Not configured]
 
 **Testing Roadmap**:
@@ -489,12 +589,17 @@ Algorithm:
 | [Add 80% test coverage] | [High] | [4 weeks] | [Confidence in changes] | [Month 2-3] |
 
 ### Nice to Have (Low Impact, Low Effort) - DO WHEN TIME PERMITS
+
 - Add Doxygen comments
+
 - Improve code formatting consistency
+
 - Minor style fixes
 
 ### Avoid (Low Impact, High Effort) - NOT WORTH IT
+
 - Rewrite stable legacy code for style only
+
 - Premature optimization of cold paths
 
 ---
@@ -521,8 +626,11 @@ Algorithm:
    - Success Criteria: Valgrind clean
 
 **Deliverables**:
+
 - [ ] All sanitizer errors resolved
+
 - [ ] Critical memory leaks fixed
+
 - [ ] No critical security vulnerabilities remaining
 
 ---
@@ -531,6 +639,7 @@ Algorithm:
 **Objective**: Address P1 items and quick wins
 
 **Focus Areas**:
+
 - **Memory Safety**:
   - Replace raw owning pointers with smart pointers
   - Implement RAII for all resource management
@@ -547,8 +656,11 @@ Algorithm:
   - Fix flaky tests
 
 **Expected Outcomes**:
+
 - Memory safety: 90% RAII compliance
+
 - Performance: 20% average speedup
+
 - Test coverage: 65% → 75%
 
 ---
@@ -557,9 +669,13 @@ Algorithm:
 **Objective**: Systematic improvements to code quality and testing
 
 **Focus Areas**:
+
 - Modernize codebase to C++17/20 patterns
+
 - Refactor complex functions (complexity >10)
+
 - Reach 80% test coverage
+
 - Add performance benchmarks
 
 ---
@@ -568,9 +684,13 @@ Algorithm:
 **Objective**: Long-term architectural and process improvements
 
 **Focus Areas**:
+
 - Complete C++ modernization
+
 - Refactor architecture for better modularity
+
 - Implement continuous performance monitoring
+
 - Add fuzzing and security testing
 
 ---
@@ -613,20 +733,31 @@ Algorithm:
 ## Recommendations for Stakeholders
 
 ### For Engineering Leadership
+
 - **Investment Required**: [200 hours over 3 months]
+
 - **Risk if Not Addressed**: [Memory safety issues could cause production crashes/security incidents]
+
 - **Recommended Approach**: [Phased implementation with critical fixes first]
+
 - **Resource Needs**: [2 senior C++ developers, 1 month focused effort]
 
 ### For Development Team
+
 - **Immediate Actions**: [Fix P0 memory safety issues]
+
 - **Skill Development Needs**: [Modern C++ training (C++17/20 features)]
+
 - **Process Improvements**: [Enable sanitizers in CI, code review checklist]
+
 - **Tool Recommendations**: [clang-tidy, ASan/UBSan in CI, better profiling tools]
 
 ### For Product Management
+
 - **Feature Impact**: [Technical debt blocks [feature X], slows development by ~30%]
+
 - **Quality Risks**: [Memory issues could cause crashes, security vulnerabilities]
+
 - **Timeline Considerations**: [Dedicate 1 sprint to critical fixes, then ongoing improvement]
 
 ---
@@ -634,9 +765,13 @@ Algorithm:
 ## Appendices
 
 ### A. Detailed Tool Reports
+
 - Sanitizer reports: [path/to/asan_report.txt]
+
 - Coverage report: [path/to/lcov_html/]
+
 - Performance profile: [path/to/flamegraph.svg]
+
 - clang-tidy report: [path/to/clang_tidy.txt]
 
 ### B. Code Examples
@@ -665,17 +800,26 @@ endif()
 
 ```yaml
 # CI/CD quality gates
+
 - Code coverage: minimum 80%
+
 - Sanitizers: no errors (ASan, UBSan)
+
 - clang-tidy: no critical issues
+
 - All tests pass
+
 - Performance benchmarks: within 10% of baseline
 ```
 
 ### D. Resource Links
+
 - [C++ Core Guidelines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines)
+
 - [Modern C++ Features](https://github.com/AnthonyCalandra/modern-cpp-features)
+
 - [Sanitizers Documentation](https://github.com/google/sanitizers)
+
 - [GoogleTest Documentation](https://google.github.io/googletest/)
 
 ---
@@ -704,33 +848,17 @@ endif()
 **Report Generated**: [Date and Time]
 **Review Methodology**: Automated scanning (clang-tidy, sanitizers, coverage) + manual review
 **Tools Used**:
+
 - Static Analysis: clang-tidy, cppcheck
+
 - Dynamic Analysis: Valgrind, ASan, UBSan, TSan, MSan
+
 - Performance: perf, Callgrind, flamegraphs
+
 - Testing: GoogleTest, lcov
+
 - Build System: CMake [version]
 
----
-
-## File Output Instructions
-
-**IMPORTANT**: Save all generated files to the correct directory structure:
-
-```bash
-# Create directory structure
-mkdir -p ${OUTPUT_DIR}/final_report/analysis_scripts
-mkdir -p ${OUTPUT_DIR}/final_report/supporting_data
-```
-
-**Save files as follows**:
-
-- Main report → `review/final_report/final_report_report.md`
-
-- Findings data → `review/final_report/final_report_findings.json`
-
-- Analysis scripts → `review/final_report/analysis_scripts/`
-
-- Supporting data → `review/final_report/supporting_data/`
 ~~~
 ---
 
@@ -751,7 +879,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

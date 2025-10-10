@@ -32,31 +32,51 @@ tests/code_coverage/
 ## Implementation Checklist
 
 ### Coverage Setup
+
 - [ ] Coverage.py installed and configured
+
 - [ ] pytest-cov integration enabled
+
 - [ ] Coverage configuration file created
+
 - [ ] HTML report generation configured
+
 - [ ] CI/CD coverage reporting set up
 
 ### Coverage Analysis
+
 - [ ] Current coverage baseline measured
+
 - [ ] Coverage gaps identified and prioritized
+
 - [ ] Critical paths coverage verified
+
 - [ ] Edge cases coverage assessed
+
 - [ ] Untested code documented
 
 ### Coverage Goals
+
 - [ ] Target coverage defined (80%+ recommended)
+
 - [ ] Coverage thresholds set by module
+
 - [ ] Critical path coverage requirements established
+
 - [ ] Coverage improvement plan created
+
 - [ ] Timeline for improvements defined
 
 ### Coverage Integration
+
 - [ ] Coverage gates in CI/CD configured
+
 - [ ] Coverage reports automated
+
 - [ ] Coverage trends tracked
+
 - [ ] Coverage regression prevention enabled
+
 - [ ] Team coverage standards documented
 
 ## Prompt Template
@@ -91,7 +111,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -798,6 +820,7 @@ jobs:
 
 ```yaml
 # Add to existing workflow
+
 - name: Check for coverage regression
   run: |
     # Download base coverage from main branch
@@ -813,11 +836,17 @@ jobs:
 Please provide a comprehensive coverage analysis with the following structure:
 
 ### Coverage Summary
+
 - **Overall Coverage**: [percentage]
+
 - **Line Coverage**: [percentage]
+
 - **Branch Coverage**: [percentage]
+
 - **Function Coverage**: [percentage]
+
 - **Total Statements**: [count]
+
 - **Missing Lines**: [count]
 
 ### Coverage by Module
@@ -840,46 +869,75 @@ Please provide a comprehensive coverage analysis with the following structure:
 
 ### Coverage Improvement Plan
 **Sprint 1** (Target: 75% → 80%):
+
 - [ ] Add error handling tests for user service
+
 - [ ] Cover authentication edge cases
+
 - [ ] Test database connection failures
 
 **Sprint 2** (Target: 80% → 85%):
+
 - [ ] Add branch coverage for conditionals
+
 - [ ] Test input validation thoroughly
+
 - [ ] Cover integration scenarios
 
 **Sprint 3** (Target: 85% → 90%):
+
 - [ ] Add performance edge cases
+
 - [ ] Cover concurrent operations
+
 - [ ] Test all error messages
 
 ### Coverage Reports Generated
+
 - **HTML Report**: `htmlcov/index.html`
+
 - **XML Report**: `coverage.xml` (for CI/CD)
+
 - **JSON Report**: `coverage.json` (for analysis)
+
 - **Badge**: `coverage.svg` (for README)
 
 ### Coverage Thresholds
+
 - **Minimum Overall**: 80%
+
 - **Critical Modules**: 90%
+
 - **New Code**: 100%
+
 - **CI/CD Gate**: Fail if <80%
 
 ### Best Practices Implemented
+
 - [ ] Coverage measured on every test run
+
 - [ ] HTML reports for detailed analysis
+
 - [ ] Coverage tracked over time
+
 - [ ] Regression prevention in CI/CD
+
 - [ ] Critical paths prioritized
+
 - [ ] Team coverage goals established
 
 ### Next Steps
+
 - [ ] Fix identified coverage gaps
+
 - [ ] Set up coverage dashboard
+
 - [ ] Schedule coverage review meetings
+
 - [ ] Document coverage standards
+
 - [ ] Integrate coverage diff in PRs
+
 - [ ] Track coverage trends monthly
 
 ## File Output Instructions
@@ -940,7 +998,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

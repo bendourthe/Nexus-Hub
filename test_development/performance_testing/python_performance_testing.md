@@ -32,24 +32,39 @@ tests/performance_testing/
 ## Implementation Checklist
 
 ### Performance Test Coverage
+
 - [ ] Load tests implemented for critical endpoints
+
 - [ ] Stress tests validate beyond-capacity behavior
+
 - [ ] Baseline benchmarks established
+
 - [ ] Performance regression tests configured
+
 - [ ] Resource profiling set up
 
 ### Metrics and Monitoring
+
 - [ ] Response time thresholds defined
+
 - [ ] Throughput targets established
+
 - [ ] Resource usage limits set
+
 - [ ] Error rate thresholds configured
+
 - [ ] Performance reports automated
 
 ### Test Infrastructure
+
 - [ ] Load testing tools configured
+
 - [ ] Benchmarking framework set up
+
 - [ ] Performance test data prepared
+
 - [ ] CI/CD integration planned
+
 - [ ] Results storage and trending implemented
 
 ## Prompt Template
@@ -84,7 +99,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -125,9 +142,13 @@ Document expected performance characteristics:
 | Background job | 50 | 100 | N/A |
 
 **Resource Limits**:
+
 - **Memory**: <512MB per process
+
 - **CPU**: <80% average, <95% peak
+
 - **Database connections**: <50 concurrent
+
 - **Response size**: <1MB per request
 
 ## Phase 2: Benchmarking with pytest-benchmark
@@ -727,10 +748,15 @@ jobs:
 Please provide a comprehensive performance testing implementation with the following structure:
 
 ### Performance Test Summary
+
 - **Benchmarks Implemented**: [count]
+
 - **Load Tests Created**: [count]
+
 - **Performance Baselines Established**: [yes/no]
+
 - **Regression Detection Configured**: [yes/no]
+
 - **Profiling Tools Set Up**: [list]
 
 ### Performance Requirements
@@ -774,10 +800,15 @@ Failures: 0.2%
    - **Recommendation**: Use faster serializer or pagination
 
 ### Performance Improvement Recommendations
+
 - [ ] Optimize database queries (add indexes)
+
 - [ ] Implement caching for frequent reads
+
 - [ ] Add pagination for large result sets
+
 - [ ] Enable compression for API responses
+
 - [ ] Implement connection pooling
 
 ### Test Execution
@@ -793,10 +824,15 @@ python -m cProfile -o profile.stats test_slow_function.py
 ```
 
 ### Next Steps
+
 - [ ] Establish performance baselines for all critical paths
+
 - [ ] Integrate performance tests into CI/CD pipeline
+
 - [ ] Set up performance monitoring in production
+
 - [ ] Create performance dashboard
+
 - [ ] Schedule regular performance reviews
 
 ## File Output Instructions
@@ -855,7 +891,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

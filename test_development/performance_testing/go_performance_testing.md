@@ -32,24 +32,39 @@ tests/performance_testing/
 ## Implementation Checklist
 
 ### Performance Test Coverage
+
 - [ ] Load tests implemented for critical endpoints
+
 - [ ] Stress tests validate beyond-capacity behavior
+
 - [ ] Baseline benchmarks established with testing.B
+
 - [ ] Performance regression tests configured
+
 - [ ] Resource profiling set up (pprof)
 
 ### Metrics and Monitoring
+
 - [ ] Response time thresholds defined
+
 - [ ] Throughput targets established
+
 - [ ] Resource usage limits set (memory, goroutines)
+
 - [ ] Error rate thresholds configured
+
 - [ ] Performance reports automated
 
 ### Test Infrastructure
+
 - [ ] Go benchmarking configured
+
 - [ ] Load testing tools set up
+
 - [ ] Performance test data prepared
+
 - [ ] CI/CD integration planned
+
 - [ ] Results storage and trending implemented
 
 ## Prompt Template
@@ -84,7 +99,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -126,10 +143,15 @@ Document expected performance characteristics:
 | Message processing | 50 | 100 | N/A |
 
 **Resource Limits**:
+
 - **Memory**: <512MB heap
+
 - **Goroutines**: <10,000 active
+
 - **GC Pause**: <10ms P99
+
 - **CPU**: <80% average, <95% peak
+
 - **Database connections**: <50 concurrent
 
 ## Phase 2: Benchmarking with testing.B
@@ -1127,10 +1149,15 @@ jobs:
 Please provide a comprehensive performance testing implementation with the following structure:
 
 ### Performance Test Summary
+
 - **Benchmarks Implemented**: [count]
+
 - **Load Tests Created**: [count]
+
 - **Performance Baselines Established**: [yes/no]
+
 - **Regression Detection Configured**: [yes/no]
+
 - **Profiling Tools Set Up**: [list]
 
 ### Performance Requirements
@@ -1174,10 +1201,15 @@ Latency:
    - **Recommendation**: Use strings.Builder for efficient concatenation
 
 ### Performance Improvement Recommendations
+
 - [ ] Pre-allocate slices with known capacity
+
 - [ ] Use sync.Pool for frequently allocated objects
+
 - [ ] Implement worker pools for concurrent operations
+
 - [ ] Add response caching with ttlcache or groupcache
+
 - [ ] Use context for timeout and cancellation
 
 ### Test Execution
@@ -1194,10 +1226,15 @@ go test -v -timeout=5m ./tests/load/...
 ```
 
 ### Next Steps
+
 - [ ] Establish performance baselines for all critical operations
+
 - [ ] Integrate performance tests into CI/CD pipeline
+
 - [ ] Set up continuous profiling with pprof in production
+
 - [ ] Create performance dashboard with Prometheus/Grafana
+
 - [ ] Schedule regular performance review meetings
 
 ## File Output Instructions
@@ -1256,7 +1293,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

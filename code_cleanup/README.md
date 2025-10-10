@@ -7,9 +7,13 @@ This section targets the detection and removal of dead code, duplication, and dr
 ## 🎯 Objectives
 
 - Identify and remove unused modules, functions, and feature flags.
+
 - Consolidate duplicated logic and near-duplicate implementations.
+
 - Modernize legacy patterns that conflict with current architecture.
+
 - Document refactoring opportunities with risk and effort estimates.
+
 - Verify that cleanup preserves behaviour through focused regression checks.
 
 ## 📂 Available Templates
@@ -35,9 +39,13 @@ This section targets the detection and removal of dead code, duplication, and dr
 ## ✅ Success Criteria
 
 - [ ] Dead code candidates identified and removed
+
 - [ ] Duplicate logic catalogued with consolidation plan
+
 - [ ] Legacy patterns flagged with modernization strategy
+
 - [ ] Refactor tasks sized with risk/impact notes
+
 - [ ] Regression safeguards defined (tests, toggles, rollout plan)
 
 ---
@@ -62,7 +70,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

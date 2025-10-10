@@ -32,37 +32,61 @@ documentation/docstrings/
 ## Implementation Checklist
 
 ### Module-Level Documentation
+
 - [ ] Module purpose and scope clearly explained
+
 - [ ] Key classes and functions listed
+
 - [ ] Dependencies and requirements noted
+
 - [ ] Usage examples provided for module imports
+
 - [ ] Author information included
 
 ### Class Documentation
+
 - [ ] Class purpose and responsibility documented
+
 - [ ] All public properties described with types
+
 - [ ] Constructor parameters documented
+
 - [ ] Class-level examples provided
+
 - [ ] Inheritance relationships explained
 
 ### Function/Method Documentation
+
 - [ ] Function purpose clearly stated
+
 - [ ] All parameters documented with types and descriptions
+
 - [ ] Return values documented with types
+
 - [ ] Exceptions/errors documented
+
 - [ ] Async/Promise behavior noted
+
 - [ ] Usage examples for complex functions
 
 ### TypeScript Integration
+
 - [ ] JSDoc complements TypeScript definitions
+
 - [ ] Complex types explained in documentation
+
 - [ ] Generic type usage clarified
+
 - [ ] Type constraints documented
 
 ### Documentation Style
+
 - [ ] Consistent JSDoc style throughout codebase
+
 - [ ] Formatting conventions followed
+
 - [ ] Code examples properly formatted
+
 - [ ] Cross-references to related functions/classes
 
 ## Prompt Template
@@ -97,7 +121,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -465,28 +491,45 @@ function UserProfile({ user, onEdit, showAvatar = true }) {
 Verify each JSDoc comment meets these criteria:
 
 ### Completeness
+
 - [ ] Purpose clearly stated
+
 - [ ] All parameters documented
+
 - [ ] Return value documented
+
 - [ ] Exceptions/errors documented
+
 - [ ] Examples provided for non-trivial functions
 
 ### Clarity
+
 - [ ] Uses clear, concise language
+
 - [ ] Avoids jargon or explains technical terms
+
 - [ ] Follows consistent tense
+
 - [ ] No redundant information with TypeScript types
 
 ### Examples
+
 - [ ] Examples are runnable
+
 - [ ] Examples cover common use cases
+
 - [ ] Complex functions have multiple examples
+
 - [ ] Examples demonstrate edge cases or important patterns
 
 ### Formatting
+
 - [ ] Consistent style throughout codebase
+
 - [ ] Proper indentation and line breaks
+
 - [ ] Code blocks properly formatted
+
 - [ ] Cross-references use proper syntax
 
 ## Phase 7: Documentation Generation
@@ -557,16 +600,25 @@ Please provide JSDoc documentation in this format:
 **Examples Added**: [count]
 
 **Coverage Metrics**:
+
 - Module coverage: [X%]
+
 - Class coverage: [X%]
+
 - Function coverage: [X%]
+
 - Overall coverage: [X%]
 
 **Quality Checks**:
+
 - [ ] All public interfaces documented
+
 - [ ] Consistent style throughout
+
 - [ ] Examples provided where appropriate
+
 - [ ] TypeScript types complemented (not duplicated)
+
 - [ ] Documentation builds successfully
 ```
 
@@ -675,19 +727,30 @@ mkdir -p ${OUTPUT_DIR}/docstrings/exports
 - Exports → `documentation/docstrings/exports/`
 
 Replace `{phase_name}` with the specific phase (docstrings, comments, user_docs, technical_docs, api_docs, or sbom).
-~~~
+
+---
 
 ## Output Format Specifications
 
 The generated JSDoc should:
+
 - Follow JSDoc 3 standard consistently
+
 - Include all required tags based on code element type
+
 - Provide runnable examples where appropriate
+
 - Complement TypeScript definitions without redundancy
+
 - Use clear, concise language
+
 - Include proper cross-references to related functionality
+
 - Pass linters (ESLint with jsdoc plugin)
+
 - Generate properly formatted API documentation
+
+~~~
 ---
 
 ## Verify Directory Structure
@@ -707,7 +770,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

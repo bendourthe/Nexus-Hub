@@ -32,24 +32,39 @@ tests/mocks_fixtures/
 ## Implementation Checklist
 
 ### Fixture Setup
+
 - [ ] Fixture scopes defined appropriately (function/class/module/session)
+
 - [ ] Fixture dependencies organized logically
+
 - [ ] Fixture factories created for flexible data generation
+
 - [ ] Teardown and cleanup implemented
+
 - [ ] Fixtures documented with clear purposes
 
 ### Mocking Strategy
+
 - [ ] External dependencies identified for mocking
+
 - [ ] Mocking approach chosen (mock vs stub vs fake)
+
 - [ ] Mock objects configured correctly
+
 - [ ] Assertion methods used appropriately
+
 - [ ] Over-mocking avoided
 
 ### Test Data Management
+
 - [ ] Test data factories implemented
+
 - [ ] Realistic test data patterns established
+
 - [ ] Data builders for complex objects created
+
 - [ ] Test data isolated per test
+
 - [ ] Data cleanup automated
 
 ## Prompt Template
@@ -84,7 +99,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -347,16 +364,25 @@ mock_database.get_user.assert_called_once_with(1)
 ### When to Mock vs Use Real Objects
 
 **Use Mocks For**:
+
 - External APIs and services
+
 - Slow operations (file I/O, network calls)
+
 - Non-deterministic behavior (random, time)
+
 - Testing error conditions
+
 - Isolating unit tests
 
 **Use Real Objects For**:
+
 - Pure functions and simple logic
+
 - Integration tests
+
 - Critical paths requiring confidence
+
 - When mocking adds more complexity than value
 
 ```python
@@ -879,15 +905,19 @@ Please provide a comprehensive mocks and fixtures implementation with the follow
 
 ### Fixture Architecture
 **Session-Scoped Fixtures** (tests/conftest.py):
+
 - [fixture_name]: [purpose, setup, teardown]
 
 **Module-Scoped Fixtures**:
+
 - [fixture_name]: [purpose, when to use]
 
 **Function-Scoped Fixtures**:
+
 - [fixture_name]: [purpose, frequency of use]
 
 **Fixture Factories**:
+
 - [factory_name]: [creates what, customization options]
 
 ### Mocking Strategy
@@ -908,11 +938,15 @@ def mock_api_client(mocker):
 
 ### Test Data Factories
 **Factory Classes**:
+
 - UserFactory: [customization options]
+
 - OrderFactory: [customization options]
+
 - ProductFactory: [customization options]
 
 **Builder Classes**:
+
 - [builder_name]: [purpose, fluent interface methods]
 
 ### Usage Examples
@@ -932,25 +966,41 @@ def test_user_registration(user_factory, mock_email_service):
 ```
 
 ### Best Practices Implemented
+
 - [ ] Fixtures use appropriate scopes for efficiency
+
 - [ ] Mocks are used for external dependencies only
+
 - [ ] Test data factories provide flexible data creation
+
 - [ ] Fixture composition follows logical hierarchy
+
 - [ ] Mock assertions verify behavior, not implementation
+
 - [ ] Teardown ensures clean state between tests
 
 ### Common Pitfalls Avoided
+
 - Over-mocking simple logic
+
 - Fixture scope too broad (causing test coupling)
+
 - Mock leaking between tests
+
 - Complex fixture dependencies
+
 - Testing mock behavior instead of real code
 
 ### Next Steps
+
 - [ ] Implement remaining fixtures for integration tests
+
 - [ ] Add factories for all domain models
+
 - [ ] Document fixture usage for team
+
 - [ ] Review and optimize fixture scopes
+
 - [ ] Set up shared mock configurations
 
 ## File Output Instructions
@@ -1008,7 +1058,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

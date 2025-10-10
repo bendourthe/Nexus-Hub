@@ -32,45 +32,75 @@ review/security_review/
 ## Review Checklist
 
 ### Memory Safety
+
 - [ ] Buffer overflow vulnerabilities identified and fixed
+
 - [ ] Stack overflow protection mechanisms in place
+
 - [ ] Heap corruption risks assessed (if heap used)
+
 - [ ] Use-after-free vulnerabilities prevented
+
 - [ ] NULL pointer dereferences protected against
 
 ### Input Validation
+
 - [ ] All external inputs validated (UART, SPI, I2C, network, USB)
+
 - [ ] Bounds checking on array accesses
+
 - [ ] String operations safe (no strcpy, sprintf)
+
 - [ ] Integer overflow/underflow checked
+
 - [ ] Protocol parsing robust against malformed data
 
 ### Cryptography & Authentication
+
 - [ ] Cryptographic implementation reviewed (avoid custom crypto)
+
 - [ ] Key storage secure (no hardcoded keys)
+
 - [ ] Random number generation cryptographically secure
+
 - [ ] Secure boot / firmware authentication implemented
+
 - [ ] Debug interfaces protected in production
 
 ### Code Injection & Control Flow
+
 - [ ] No command injection vulnerabilities
+
 - [ ] Return-oriented programming (ROP) mitigations
+
 - [ ] Stack canaries or stack protection enabled
+
 - [ ] Control flow integrity verified
+
 - [ ] Function pointer validation
 
 ### Information Disclosure
+
 - [ ] No sensitive data in debug output
+
 - [ ] Secrets not in plaintext in memory
+
 - [ ] Side-channel attack vectors assessed
+
 - [ ] Timing attacks considered
+
 - [ ] Memory cleared after use (keys, passwords)
 
 ### Secure Firmware Updates
+
 - [ ] Firmware signature verification
+
 - [ ] Rollback protection mechanism
+
 - [ ] Secure bootloader implementation
+
 - [ ] Over-the-air (OTA) update security
+
 - [ ] Update authentication and integrity
 
 ## Prompt Template
@@ -105,7 +135,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -694,10 +726,15 @@ Please perform a comprehensive security review of this embedded C project follow
 Please provide a comprehensive security report with the following structure:
 
 ### Executive Summary
+
 - **Overall Security Risk**: [Critical/High/Medium/Low]
+
 - **Critical Vulnerabilities**: [count] - MUST FIX IMMEDIATELY
+
 - **High-Risk Issues**: [count]
+
 - **CWE Top 25 Issues**: [count and types]
+
 - **Exploitability**: [Remote/Local/Physical access required]
 
 ### Critical Findings (Severity: CRITICAL)
@@ -727,34 +764,55 @@ Please provide a comprehensive security report with the following structure:
 | [... Top 25 CWEs] | | | | |
 
 ### Memory Safety Analysis
+
 - **Buffer Overflows**: [count and locations]
+
 - **Stack Overflows**: [risk level and evidence]
+
 - **NULL Pointer Dereferences**: [count]
+
 - **Use-After-Free**: [if heap used, count]
+
 - **Integer Overflows**: [count]
 
 ### Input Validation Assessment
+
 - **External Input Points**: [count]
+
 - **Validated Inputs**: [count and %]
+
 - **Missing Validation**: [locations]
+
 - **Unsafe String Operations**: [count using strcpy, sprintf, etc.]
 
 ### Cryptography Security
+
 - **Weak Algorithms**: [list if found]
+
 - **Hardcoded Keys**: [count and locations] - CRITICAL
+
 - **RNG Quality**: [Hardware/PRNG/Weak]
+
 - **Key Storage**: [Secure/Insecure]
+
 - **Crypto Library**: [mbedTLS/WolfSSL/Custom/None]
 
 ### Firmware Update Security
+
 - **Signature Verification**: [Implemented/Missing]
+
 - **Rollback Protection**: [Yes/No]
+
 - **Secure Boot**: [Yes/No]
+
 - **Debug Interface Protection**: [Production-safe/Exposed]
 
 ### Race Conditions & Concurrency
+
 - **Shared Resource Access**: [Protected/Unprotected]
+
 - **Interrupt Safety**: [Safe/Issues found]
+
 - **Atomic Operations**: [Proper/Improper usage]
 
 ### Compiler Security Posture
@@ -766,8 +824,11 @@ Please provide a comprehensive security report with the following structure:
 | NX Stack | [Enabled/Disabled] | [-z,noexecstack] |
 
 ### Attack Surface Analysis
+
 - **Remote Attack Vectors**: [network, wireless, etc.]
+
 - **Local Attack Vectors**: [USB, UART, debug interfaces]
+
 - **Physical Attack Vectors**: [JTAG, side-channel, fault injection]
 
 ### Immediate Action Items (Priority 1)
@@ -823,23 +884,37 @@ Please provide a comprehensive security report with the following structure:
 
 ### Positive Security Practices
 Acknowledge what's done well:
+
 - [Good practice observed]
+
 - [Effective security measure implemented]
 
 ### Next Steps
+
 - [ ] Fix all critical vulnerabilities IMMEDIATELY
+
 - [ ] Enable compiler security flags
+
 - [ ] Implement input validation on all external interfaces
+
 - [ ] Add firmware signature verification
+
 - [ ] Disable debug interfaces in production builds
+
 - [ ] Conduct penetration testing after fixes
+
 - [ ] Establish secure development lifecycle
 
 ## Notes
+
 - **Confidentiality**: This security report contains sensitive vulnerability information
+
 - **Responsible Disclosure**: If third-party library issues found, follow disclosure process
+
 - **Retest**: After remediation, rerun security scans and penetration tests
+
 - **Continuous Monitoring**: Implement ongoing security scanning in CI/CD
+
 - **Threat Modeling**: Consider device-specific threats (automotive, medical, IoT, etc.)
 
 ## File Output Instructions
@@ -881,7 +956,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

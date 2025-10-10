@@ -32,27 +32,45 @@ documentation/comments/
 ## Implementation Checklist
 
 ### When to Comment
+
 - [ ] Complex algorithms requiring explanation
+
 - [ ] Business logic and domain rules
+
 - [ ] Non-obvious code decisions
+
 - [ ] Workarounds for bugs in dependencies
+
 - [ ] Performance-critical sections
+
 - [ ] Security-sensitive code
+
 - [ ] Thread safety considerations
+
 - [ ] Exception handling rationale
 
 ### When NOT to Comment
+
 - [ ] Obvious code that's self-explanatory
+
 - [ ] Information already in Javadoc
+
 - [ ] Redundant type information
+
 - [ ] Meta-commentary about changes
+
 - [ ] Commented-out code
 
 ### Comment Quality
+
 - [ ] Explains "why" not "what"
+
 - [ ] Adds genuine value
+
 - [ ] Concise and clear
+
 - [ ] Properly formatted
+
 - [ ] Up-to-date with code
 
 ## Prompt Template
@@ -87,7 +105,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -421,10 +441,15 @@ private static final int PROTOCOL_VERSION = 1;
 ```
 
 **Format**: `TAG: Description (context)`
+
 - **TODO**: Planned improvement or feature
+
 - **FIXME**: Known bug or issue
+
 - **HACK**: Temporary workaround
+
 - **NOTE**: Important information
+
 - **WARNING**: Critical caution
 
 ### 10. Inline Comments (Use Sparingly)
@@ -698,14 +723,23 @@ Please provide comment additions in this format:
 **Files Processed**: [count]
 **Comments Added**: [count]
 **Comment Types**:
+
 - Complex algorithm: [count]
+
 - Business logic: [count]
+
 - Non-obvious implementation: [count]
+
 - Workarounds: [count]
+
 - Performance notes: [count]
+
 - Security considerations: [count]
+
 - Thread safety: [count]
+
 - Exception handling: [count]
+
 - TODO/FIXME/HACK: [count]
 
 **Comments Removed** (redundant/outdated): [count]
@@ -714,8 +748,11 @@ Please provide comment additions in this format:
 **Code Improvements** (refactored instead of commented): [count]
 
 **Quality Metrics**:
+
 - Average comment value rating: [High/Medium/Low]
+
 - Comments explaining "why": [X%]
+
 - Comments with context/references: [X%]
 ```
 
@@ -863,18 +900,27 @@ mkdir -p ${OUTPUT_DIR}/comments/exports
 
 Replace `{phase_name}` with the specific phase (docstrings, comments, user_docs, technical_docs, api_docs, or sbom).
 
-~~~
+---
 
 ## Output Format Specifications
 
 The strategic comments should:
+
 - Explain "why" decisions were made, not "what" the code does
+
 - Be concise yet informative (typically 1-3 lines)
+
 - Include context, references, or trade-offs where relevant
+
 - Use proper formatting and indentation
+
 - Follow team conventions for TODO/FIXME/HACK tags
+
 - Add genuine value that can't be conveyed through code structure
+
 - Be maintained and updated as code evolves
+
+~~~
 ---
 
 ## Verify Directory Structure
@@ -894,7 +940,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

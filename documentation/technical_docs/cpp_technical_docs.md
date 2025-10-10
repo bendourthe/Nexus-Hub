@@ -32,46 +32,77 @@ documentation/technical_docs/
 ## Implementation Checklist
 
 ### Architecture Documentation
+
 - [ ] System architecture overview with diagrams
+
 - [ ] Component responsibilities clearly defined
+
 - [ ] Technology stack documented with rationale
+
 - [ ] Architectural patterns explained
+
 - [ ] Performance and memory considerations
+
 - [ ] Security architecture documented
 
 ### Design Decisions
+
 - [ ] Key technical decisions documented with rationale
+
 - [ ] Alternative approaches considered
+
 - [ ] Trade-offs and constraints explained
+
 - [ ] Decision timeline and context
+
 - [ ] Impact assessment of decisions
 
 ### Module Organization
+
 - [ ] Directory/namespace structure explained
+
 - [ ] Module dependencies mapped
+
 - [ ] Public vs private interfaces defined
+
 - [ ] Header organization documented
+
 - [ ] Code organization principles
 
 ### Data Flow
+
 - [ ] Data flow diagrams created
+
 - [ ] RAII patterns documented
+
 - [ ] Move semantics usage explained
+
 - [ ] Data transformation pipelines
+
 - [ ] Error handling patterns
 
 ### Integration Points
+
 - [ ] External library integrations documented
+
 - [ ] API interfaces
+
 - [ ] Third-party dependencies
+
 - [ ] System interfaces
+
 - [ ] Protocol implementations
 
 ### Development Workflow
+
 - [ ] Development environment setup
+
 - [ ] Build system documentation
+
 - [ ] Testing strategy
+
 - [ ] Debugging approaches
+
 - [ ] Release process
 
 ## Prompt Template
@@ -106,7 +137,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -702,41 +735,25 @@ make coverage
 
 ---
 
-## File Output Instructions
-
-**IMPORTANT**: Save all generated files to the correct directory structure:
-
-```bash
-# Create directory structure
-mkdir -p ${OUTPUT_DIR}/technical_docs/generated_docs
-mkdir -p ${OUTPUT_DIR}/technical_docs/templates
-mkdir -p ${OUTPUT_DIR}/technical_docs/assets
-mkdir -p ${OUTPUT_DIR}/technical_docs/exports
-```
-
-**Save files as follows**:
-
-
-- Templates → `documentation/technical_docs/templates/`
-
-- Assets → `documentation/technical_docs/assets/`
-
-- Exports → `documentation/technical_docs/exports/`
-
-Replace `{phase_name}` with the specific phase (docstrings, comments, user_docs, technical_docs, api_docs, or sbom).
-
-~~~
-
 ## Output Format Specifications
 
 The technical documentation should:
+
 - Provide architecture overview focused on modern C++ features
+
 - Document RAII and smart pointer usage
+
 - Show proper move semantics implementation
+
 - Document template and concept usage
+
 - Address exception safety and error handling
+
 - Include comprehensive testing approach
+
 - Target C++ developers with modern standards knowledge
+
+~~~
 ---
 
 ## Verify Directory Structure
@@ -756,7 +773,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

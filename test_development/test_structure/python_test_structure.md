@@ -32,31 +32,51 @@ tests/test_structure/
 ## Implementation Checklist
 
 ### Test Framework Setup
+
 - [ ] Test framework selected (pytest recommended)
+
 - [ ] Configuration files created (pytest.ini, pyproject.toml)
+
 - [ ] Required plugins installed and configured
+
 - [ ] Test discovery rules established
+
 - [ ] Parallel execution configured
 
 ### Directory Structure
+
 - [ ] Standard test layout implemented
+
 - [ ] Test type separation (unit/integration/e2e) organized
+
 - [ ] Naming conventions documented
+
 - [ ] Resource directories created
+
 - [ ] __init__.py files added where needed
 
 ### Fixture Infrastructure
+
 - [ ] conftest.py hierarchy established
+
 - [ ] Fixture scopes defined appropriately
+
 - [ ] Fixture factories implemented
+
 - [ ] Fixture documentation added
+
 - [ ] Common fixtures centralized
 
 ### Test Utilities
+
 - [ ] Common assertion helpers created
+
 - [ ] Test data generators implemented
+
 - [ ] Custom decorators defined
+
 - [ ] Shared base classes established
+
 - [ ] Helper documentation provided
 
 ## Prompt Template
@@ -91,7 +111,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -782,10 +804,15 @@ Replace `{phase_name}` with the specific phase (test_structure, test_cases, mock
 Please provide a comprehensive test infrastructure design with the following structure:
 
 ### Infrastructure Summary
+
 - **Test Framework**: [pytest/unittest with justification]
+
 - **Total Test Files**: [count]
+
 - **Test Organization**: [structure description]
+
 - **Fixture Count**: [number of fixtures created]
+
 - **Utility Modules**: [list of helper modules]
 
 ### Directory Structure
@@ -794,31 +821,41 @@ Please provide a comprehensive test infrastructure design with the following str
 ```
 
 ### Configuration Files Created
+
 - **pytest.ini** or **pyproject.toml**: [Key settings configured]
+
 - **conftest.py locations**: [List with scope descriptions]
+
 - **Custom configurations**: [Any project-specific settings]
 
 ### Fixture Infrastructure
 **Session-Scoped Fixtures** (setup once):
+
 - [fixture_name]: [description and purpose]
 
 **Module-Scoped Fixtures** (per file):
+
 - [fixture_name]: [description and purpose]
 
 **Function-Scoped Fixtures** (per test):
+
 - [fixture_name]: [description and purpose]
 
 **Fixture Factories**:
+
 - [factory_name]: [description and usage example]
 
 ### Test Utilities
 **Assertion Helpers** (`tests/helpers/assertions.py`):
+
 - [helper_name]: [purpose]
 
 **Data Factories** (`tests/helpers/factories.py`):
+
 - [factory_name]: [purpose]
 
 **Custom Decorators** (`tests/helpers/decorators.py`):
+
 - [decorator_name]: [purpose]
 
 ### Test Execution Commands
@@ -852,28 +889,47 @@ pytest -v -s
 5. **Test Data**: [where to store, how to organize]
 
 ### Next Steps
+
 - [ ] Implement actual test cases using this infrastructure
+
 - [ ] Add project-specific fixtures
+
 - [ ] Configure CI/CD integration
+
 - [ ] Set up code coverage reporting
+
 - [ ] Document testing guidelines for team
+
 - [ ] Create test templates for common scenarios
 
 ### Best Practices Implemented
+
 - Fixtures organized by scope for efficiency
+
 - Clear separation of test types
+
 - Reusable test utilities
+
 - Comprehensive test discovery
+
 - Parallel execution support
+
 - Coverage measurement integrated
+
 - Custom markers for test categorization
 
 ### Maintenance Recommendations
+
 - Regularly review and refactor fixtures
+
 - Keep conftest.py files lean and focused
+
 - Document complex fixtures thoroughly
+
 - Monitor test execution time
+
 - Update dependencies regularly
+
 - Review and remove obsolete tests
 ~~~
 
@@ -907,7 +963,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

@@ -6,47 +6,77 @@ Establish a robust, maintainable test infrastructure that supports comprehensive
 ## What This Review Covers
 
 ### Test Framework & Configuration
+
 - Test runner selection (pytest, unittest, nose2)
+
 - Configuration file setup (pytest.ini, setup.cfg, pyproject.toml)
+
 - Plugin ecosystem and extensions
+
 - Test collection and discovery rules
 
 ### Directory Organization
+
 - Standard test layout and hierarchy
+
 - Naming conventions for test files and directories
+
 - Separation of unit, integration, and e2e tests
+
 - Test resource and data file organization
 
 ### Fixture Infrastructure
+
 - Fixture definition and scope management
+
 - conftest.py organization and best practices
+
 - Fixture factories and builders
+
 - Shared fixture libraries
 
 ### Test Utilities & Helpers
+
 - Common assertion helpers
+
 - Test data generators
+
 - Custom test decorators
+
 - Shared test base classes
 
 ## When to Use This Template
+
 - Setting up testing for a new project
+
 - Migrating between test frameworks
+
 - Restructuring existing test suites
+
 - Establishing team testing standards
+
 - Scaling test infrastructure for larger codebases
 
 ## Related Templates
+
 - **Test Cases**: Actual test implementation patterns
+
 - **Mocks & Fixtures**: Data and dependency management
+
 - **Code Coverage**: Measuring test effectiveness
+
 - **CI/CD Integration**: Automating test execution
 
 ## Expected Outcomes
+
 - Well-organized test directory structure
+
 - Efficient test discovery and execution
+
 - Reusable fixture infrastructure
+
 - Maintainable test utilities
+
 - Clear testing conventions for the team
 
 ## Available Templates
@@ -87,7 +117,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

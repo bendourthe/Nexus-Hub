@@ -32,46 +32,77 @@ documentation/technical_docs/
 ## Implementation Checklist
 
 ### Architecture Documentation
+
 - [ ] System architecture overview with diagrams
+
 - [ ] Component responsibilities clearly defined
+
 - [ ] Technology stack documented with rationale
+
 - [ ] Architectural patterns explained
+
 - [ ] Scalability and performance considerations
+
 - [ ] Security architecture documented
 
 ### Design Decisions
+
 - [ ] Key technical decisions documented with rationale
+
 - [ ] Alternative approaches considered
+
 - [ ] Trade-offs and constraints explained
+
 - [ ] Decision timeline and context
+
 - [ ] Impact assessment of decisions
 
 ### Module Organization
+
 - [ ] Package structure explained
+
 - [ ] Module dependencies mapped
+
 - [ ] Public vs package-private vs private interfaces defined
+
 - [ ] Import structure documented
+
 - [ ] Code organization principles
 
 ### Data Flow
+
 - [ ] Data flow diagrams created
+
 - [ ] State management documented
+
 - [ ] Event flows explained
+
 - [ ] Data transformation pipelines
+
 - [ ] Error propagation paths
 
 ### Integration Points
+
 - [ ] External API integrations documented
+
 - [ ] Database schemas and migrations
+
 - [ ] Message queue/event systems
+
 - [ ] Third-party service dependencies
+
 - [ ] Authentication/authorization flows
 
 ### Development Workflow
+
 - [ ] Development environment setup
+
 - [ ] Build and deployment process
+
 - [ ] Testing strategy
+
 - [ ] CI/CD pipeline documentation
+
 - [ ] Release process
 
 ## Prompt Template
@@ -106,7 +137,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -305,41 +338,57 @@ com.company.project/
 ## Layer Responsibilities
 
 ### Controller Layer (`controller/`)
+
 - **Purpose**: Handle HTTP requests/responses
+
 - **Responsibilities**:
   - Route mapping (`@RestController`, `@RequestMapping`)
   - Request validation (`@Valid`, `@Validated`)
   - Response formatting
   - Exception handling
+
 - **Dependencies**: Service layer only
+
 - **Annotations**: `@RestController`, `@RequestMapping`, `@GetMapping`, `@PostMapping`
 
 ### Service Layer (`service/`)
+
 - **Purpose**: Business logic and orchestration
+
 - **Responsibilities**:
   - Business rule enforcement
   - Transaction management (`@Transactional`)
   - Use case orchestration
   - Event publishing
+
 - **Dependencies**: Repository layer, external services
+
 - **Annotations**: `@Service`, `@Transactional`
 
 ### Repository Layer (`repository/`)
+
 - **Purpose**: Data persistence
+
 - **Responsibilities**:
   - CRUD operations
   - Custom queries (`@Query`)
   - Specifications for dynamic queries
+
 - **Dependencies**: JPA entities
+
 - **Annotations**: `@Repository`, `@Query`
 
 ### Domain Layer (`domain/`)
+
 - **Purpose**: Core business entities
+
 - **Responsibilities**:
   - Entity definitions
   - Value objects
   - Domain logic
+
 - **Dependencies**: None (domain-driven design)
+
 - **Annotations**: `@Entity`, `@Table`, `@Id`, `@Column`
 
 ## Dependency Injection
@@ -594,10 +643,15 @@ public class SecurityConfig {
 # Development Workflow
 
 ## Prerequisites
+
 - Java 17 or 21 (LTS)
+
 - Maven 3.8+ or Gradle 8+
+
 - PostgreSQL/MySQL
+
 - Redis (optional)
+
 - Docker (optional)
 
 ## Local Setup
@@ -773,42 +827,27 @@ jobs:
 
 ---
 
-## File Output Instructions
-
-**IMPORTANT**: Save all generated files to the correct directory structure:
-
-```bash
-# Create directory structure
-mkdir -p ${OUTPUT_DIR}/technical_docs/generated_docs
-mkdir -p ${OUTPUT_DIR}/technical_docs/templates
-mkdir -p ${OUTPUT_DIR}/technical_docs/assets
-mkdir -p ${OUTPUT_DIR}/technical_docs/exports
-```
-
-**Save files as follows**:
-
-
-- Templates → `documentation/technical_docs/templates/`
-
-- Assets → `documentation/technical_docs/assets/`
-
-- Exports → `documentation/technical_docs/exports/`
-
-Replace `{phase_name}` with the specific phase (docstrings, comments, user_docs, technical_docs, api_docs, or sbom).
-
-~~~
-
 ## Output Format Specifications
 
 The technical documentation should:
+
 - Provide high-level architecture overview with diagrams
+
 - Document design decisions with rationale and alternatives
+
 - Map module organization and dependencies clearly
+
 - Illustrate data flows through the system
+
 - Document all external integrations comprehensively
+
 - Explain development workflow and processes
+
 - Follow Java and Spring Boot best practices
+
 - Target technical audience (developers, architects)
+
+~~~
 ---
 
 ## Verify Directory Structure
@@ -828,7 +867,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

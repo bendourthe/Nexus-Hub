@@ -32,46 +32,77 @@ documentation/technical_docs/
 ## Implementation Checklist
 
 ### Architecture Documentation
+
 - [ ] System architecture overview with diagrams
+
 - [ ] Module responsibilities clearly defined
+
 - [ ] Technology stack documented with rationale
+
 - [ ] Architectural patterns explained
+
 - [ ] Performance and memory considerations
+
 - [ ] Security architecture documented
 
 ### Design Decisions
+
 - [ ] Key technical decisions documented with rationale
+
 - [ ] Alternative approaches considered
+
 - [ ] Trade-offs and constraints explained
+
 - [ ] Decision timeline and context
+
 - [ ] Impact assessment of decisions
 
 ### Module Organization
+
 - [ ] Directory/file structure explained
+
 - [ ] Module dependencies mapped
+
 - [ ] Public vs static interfaces defined
+
 - [ ] Header organization documented
+
 - [ ] Code organization principles
 
 ### Data Flow
+
 - [ ] Data flow diagrams created
+
 - [ ] Memory management documented
+
 - [ ] Function call flows explained
+
 - [ ] Data transformation pipelines
+
 - [ ] Error handling patterns
 
 ### Integration Points
+
 - [ ] External library integrations documented
+
 - [ ] System call interfaces
+
 - [ ] IPC mechanisms
+
 - [ ] Hardware interfaces (if applicable)
+
 - [ ] Protocol implementations
 
 ### Development Workflow
+
 - [ ] Development environment setup
+
 - [ ] Build system documentation
+
 - [ ] Testing strategy
+
 - [ ] Debugging approaches
+
 - [ ] Release process
 
 ## Prompt Template
@@ -106,7 +137,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -137,9 +170,13 @@ Please create comprehensive technical documentation for this C project following
 ## Architecture Style
 
 - **Pattern**: [Modular/Layered/Event-Driven/Pipeline]
+
 - **Target Platform**: [Linux/Windows/Embedded/Cross-platform]
+
 - **Build System**: [Make/CMake/Autotools/Meson]
+
 - **Memory Management**: [Manual/Pool-based/Custom allocator]
+
 - **Threading**: [Single-threaded/POSIX threads/Platform-specific]
 
 ## Technology Stack
@@ -187,8 +224,11 @@ project/
 ### Core Module (`src/core/`)
 **Purpose**: Core business logic
 **Responsibilities**:
+
 - Main algorithms
+
 - Data structure management
+
 - Business rule enforcement
 
 **Public API** (include/mylib.h):
@@ -638,41 +678,25 @@ int mylib_init(mylib_config_t *config);
 
 ---
 
-## File Output Instructions
-
-**IMPORTANT**: Save all generated files to the correct directory structure:
-
-```bash
-# Create directory structure
-mkdir -p ${OUTPUT_DIR}/technical_docs/generated_docs
-mkdir -p ${OUTPUT_DIR}/technical_docs/templates
-mkdir -p ${OUTPUT_DIR}/technical_docs/assets
-mkdir -p ${OUTPUT_DIR}/technical_docs/exports
-```
-
-**Save files as follows**:
-
-
-- Templates → `documentation/technical_docs/templates/`
-
-- Assets → `documentation/technical_docs/assets/`
-
-- Exports → `documentation/technical_docs/exports/`
-
-Replace `{phase_name}` with the specific phase (docstrings, comments, user_docs, technical_docs, api_docs, or sbom).
-
-~~~
-
 ## Output Format Specifications
 
 The technical documentation should:
+
 - Provide architecture overview focused on C-specific concerns
+
 - Document memory management strategies
+
 - Show clear error handling patterns
+
 - Document build system configuration
+
 - Address portability and platform-specific code
+
 - Include comprehensive testing approach
+
 - Target C developers
+
+~~~
 ---
 
 ## Verify Directory Structure
@@ -692,7 +716,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

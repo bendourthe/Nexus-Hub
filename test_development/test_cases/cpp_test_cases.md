@@ -32,30 +32,51 @@ tests/test_cases/
 ## Implementation Checklist
 
 ### Test Coverage
+
 - [ ] Happy path scenarios tested
+
 - [ ] Edge cases and boundaries covered
+
 - [ ] Error conditions validated
+
 - [ ] Input validation tested
+
 - [ ] State transitions verified
+
 - [ ] Regression tests added for bugs
+
 - [ ] Exception handling validated
+
 - [ ] RAII and resource management tested
 
 ### Test Quality
+
 - [ ] Tests follow AAA pattern (Arrange-Act-Assert)
+
 - [ ] Test names clearly describe what is tested
+
 - [ ] Tests are isolated and independent
+
 - [ ] Tests execute quickly (<1s for unit tests)
+
 - [ ] Assertions are specific and meaningful
+
 - [ ] No test interdependencies
+
 - [ ] Proper use of test fixtures
 
 ### Test Organization
+
 - [ ] Tests grouped logically by feature/class
+
 - [ ] Related tests organized in test fixtures
+
 - [ ] Parametrized tests used for multiple scenarios
+
 - [ ] Setup and teardown properly implemented
+
 - [ ] Test documentation provided
+
 - [ ] Mocks and fakes used appropriately
 
 ## Prompt Template
@@ -90,7 +111,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -949,10 +972,15 @@ TEST_F(UserServiceTest, CreateUser_Success) {
 Please provide comprehensive test cases with the following structure:
 
 ### Test Coverage Summary
+
 - **Total Test Cases**: [count]
+
 - **Unit Tests**: [count]
+
 - **Integration Tests**: [count]
+
 - **Benchmark Tests**: [count]
+
 - **Test Types**:
   - Happy path: [count]
   - Edge cases: [count]
@@ -1001,24 +1029,39 @@ For each class/module:
 ```
 
 ### Coverage Gaps Identified
+
 - [ ] [Method]: Missing tests for [scenario]
+
 - [ ] [Method]: Need edge case tests for [condition]
+
 - [ ] [Method]: Exception handling not tested
+
 - [ ] [Method]: Move semantics not tested
 
 ### Test Quality Metrics
+
 - **Average test execution time**: [milliseconds]
+
 - **Tests following AAA pattern**: [percentage]
+
 - **Tests with clear names**: [percentage]
+
 - **Independent tests**: [percentage]
+
 - **Mock usage**: [appropriate/excessive]
 
 ### Next Steps
+
 - [ ] Implement remaining test cases for coverage gaps
+
 - [ ] Add performance benchmarks for critical methods
+
 - [ ] Set up integration tests with test containers
+
 - [ ] Configure CI/CD pipeline with CMake
+
 - [ ] Review and refactor slow tests
+
 - [ ] Add memory sanitizer tests
 
 ## File Output Instructions
@@ -1076,7 +1119,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

@@ -32,45 +32,75 @@ review/performance_review/
 ## Review Checklist
 
 ### Performance Profiling
+
 - [ ] CPU profiling completed (Chrome DevTools, Node.js profiler)
+
 - [ ] Memory profiling performed (Chrome DevTools Memory, node --inspect)
+
 - [ ] I/O operations analyzed
+
 - [ ] Hot paths and bottlenecks identified
+
 - [ ] Function-level timing measurements captured
 
 ### Algorithm Efficiency
+
 - [ ] Time complexity evaluated (O(n), O(n²), etc.)
+
 - [ ] Space complexity assessed
+
 - [ ] Inefficient loops identified (nested, redundant)
+
 - [ ] Algorithmic improvements documented
+
 - [ ] Data structure choices reviewed
 
 ### Bundle & Asset Performance
+
 - [ ] Bundle size analyzed
+
 - [ ] Code splitting evaluated
+
 - [ ] Lazy loading opportunities identified
+
 - [ ] Tree shaking effectiveness checked
+
 - [ ] Asset optimization reviewed (images, fonts, etc.)
 
 ### Runtime Performance
+
 - [ ] Rendering performance measured (FPS, paint times)
+
 - [ ] DOM manipulation efficiency evaluated
+
 - [ ] Event handler performance checked
+
 - [ ] Memory leaks detected
+
 - [ ] Garbage collection patterns analyzed
 
 ### Network Performance
+
 - [ ] API call latency measured
+
 - [ ] Request waterfall analyzed
+
 - [ ] Caching strategies reviewed
+
 - [ ] Compression and optimization checked
+
 - [ ] CDN usage evaluated
 
 ### Async & Concurrency
+
 - [ ] Promise chains optimized
+
 - [ ] Async/await usage evaluated
+
 - [ ] Parallel request opportunities identified
+
 - [ ] Event loop blocking detected
+
 - [ ] Web Workers usage assessed
 
 ## Prompt Template
@@ -105,7 +135,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -715,10 +747,15 @@ Please perform a comprehensive performance review of this JavaScript application
 Please provide a comprehensive performance report with the following structure:
 
 ### Executive Summary
+
 - **Overall Performance**: [Excellent/Good/Fair/Poor]
+
 - **Critical Bottlenecks**: [count and brief description]
+
 - **Performance Impact**: [High/Medium/Low user-facing impact]
+
 - **Optimization Potential**: [percentage improvement possible]
+
 - **Recommended Investment**: [estimated hours for major improvements]
 
 ### Performance Profile Overview
@@ -738,10 +775,15 @@ Please provide a comprehensive performance report with the following structure:
 | [description] | [file:line] | [High] | [metric] | [goal] | [strategy] |
 
 ### Bundle Analysis
+
 - **Total Bundle Size**: [KB/MB]
+
 - **Largest Chunks**: [list with sizes]
+
 - **Code Splitting**: [Excellent/Good/Needs improvement]
+
 - **Tree Shaking**: [Effective/Ineffective]
+
 - **Unused Code**: [KB estimated]
 
 **Optimization Opportunities**:
@@ -750,9 +792,13 @@ Please provide a comprehensive performance report with the following structure:
 | [name] | [KB] | [KB] | [dynamic import/replacement/removal] |
 
 ### Rendering Performance
+
 - **Average FPS**: [number]
+
 - **Frames Dropped**: [count/percentage]
+
 - **Long Tasks (>50ms)**: [count]
+
 - **Layout Shifts (CLS)**: [score]
 
 **Rendering Issues**:
@@ -761,10 +807,15 @@ Please provide a comprehensive performance report with the following structure:
 | [description] | [component/file] | [High/Med/Low] | [optimization approach] |
 
 ### Network Performance
+
 - **API Calls (Avg)**: [count per page/action]
+
 - **Average Latency**: [ms]
+
 - **Slow Endpoints (>500ms)**: [list]
+
 - **Missing Caching**: [opportunities]
+
 - **Bundle Load Time**: [ms]
 
 **Optimization Recommendations**:
@@ -772,10 +823,15 @@ Please provide a comprehensive performance report with the following structure:
 2. [Compression/CDN optimization]
 
 ### Memory Analysis
+
 - **Peak Memory Usage**: [MB]
+
 - **Memory Leaks Detected**: [Yes/No - locations if yes]
+
 - **Detached DOM Nodes**: [count]
+
 - **Large Objects**: [list of large allocations]
+
 - **GC Pressure**: [High/Medium/Low]
 
 ### Algorithm Inefficiencies
@@ -822,45 +878,70 @@ Please provide a comprehensive performance report with the following structure:
 ### Framework-Specific Recommendations
 
 **React**:
+
 - Component memoization opportunities: [count]
+
 - Unnecessary re-renders: [locations]
+
 - Virtualization opportunities: [components]
 
 **Vue**:
+
 - Computed vs methods issues: [count]
+
 - v-memo opportunities: [count]
+
 - Unnecessary watchers: [count]
 
 **Angular**:
+
 - Change detection issues: [count]
+
 - OnPush strategy opportunities: [count]
+
 - Pipe optimization: [count]
 
 ### Monitoring Recommendations
 ```javascript
 // Implement performance monitoring
+
 - Core Web Vitals tracking
+
 - API latency monitoring (p50, p95, p99)
+
 - Memory usage alerts
+
 - Error rate tracking
+
 - Custom performance marks
 
 // Tools: DataDog, New Relic, Sentry, web-vitals library
 ```
 
 ### Next Steps
+
 - [ ] Implement quick win optimizations
+
 - [ ] Set up performance benchmarking suite
+
 - [ ] Configure production performance monitoring
+
 - [ ] Plan load testing before deployment
+
 - [ ] Schedule performance review sprint
+
 - [ ] Document performance budgets
 
 ## Notes
+
 - Optimize based on profiling data, not assumptions
+
 - Focus on user-facing performance improvements first (Core Web Vitals)
+
 - Measure before and after optimization
+
 - Consider bundle size vs runtime performance tradeoffs
+
 - Balance performance with code maintainability
 
 ## File Output Instructions
@@ -902,7 +983,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

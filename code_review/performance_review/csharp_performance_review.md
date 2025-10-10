@@ -32,45 +32,75 @@ review/performance_review/
 ## Review Checklist
 
 ### Performance Profiling
+
 - [ ] CPU profiling completed (dotTrace, PerfView, VS Profiler)
+
 - [ ] Memory profiling performed (dotMemory, PerfView)
+
 - [ ] GC (Garbage Collection) behavior analyzed
+
 - [ ] Hot paths and bottlenecks identified
+
 - [ ] Method-level timing measurements captured
 
 ### Algorithm Efficiency
+
 - [ ] Time complexity evaluated (O(n), O(n²), etc.)
+
 - [ ] Space complexity assessed
+
 - [ ] Inefficient loops identified (nested, redundant)
+
 - [ ] LINQ query efficiency reviewed
+
 - [ ] Data structure choices evaluated
 
 ### Database Performance
+
 - [ ] Query execution times measured (EF Core query logging)
+
 - [ ] N+1 query problems identified
+
 - [ ] Missing indexes detected
+
 - [ ] Query optimization opportunities documented
+
 - [ ] Connection pooling configured properly
 
 ### Memory Management
+
 - [ ] Memory leaks detected
+
 - [ ] Large object allocations identified (LOH)
+
 - [ ] GC pressure assessed (Gen 0, Gen 1, Gen 2 collections)
+
 - [ ] Caching strategies reviewed
+
 - [ ] IDisposable implementation verified
 
 ### I/O & Network
+
 - [ ] File I/O operations profiled
+
 - [ ] Network call latency measured
+
 - [ ] Synchronous vs asynchronous patterns evaluated
+
 - [ ] HttpClient usage reviewed (reuse, pooling)
+
 - [ ] Batching opportunities identified
 
 ### Concurrency & Parallelism
+
 - [ ] async/await usage evaluated
+
 - [ ] Parallel processing opportunities identified (Parallel.ForEach, PLINQ)
+
 - [ ] Thread pool usage assessed
+
 - [ ] Task management reviewed
+
 - [ ] Deadlock and race condition risks checked
 
 ## Prompt Template
@@ -105,7 +135,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -620,10 +652,15 @@ Please perform a comprehensive performance review of this .NET application follo
 Please provide a comprehensive performance report with the following structure:
 
 ### Executive Summary
+
 - **Overall Performance**: [Excellent/Good/Fair/Poor]
+
 - **Critical Bottlenecks**: [count and brief description]
+
 - **Performance Impact**: [High/Medium/Low user-facing impact]
+
 - **Optimization Potential**: [percentage improvement possible]
+
 - **Recommended Investment**: [estimated hours for major improvements]
 
 ### Performance Profile Overview
@@ -638,11 +675,17 @@ Please provide a comprehensive performance report with the following structure:
 | [desc] | [location] | [count] | [MB] | [%] |
 
 ### GC Statistics
+
 - **Gen 0 Collections**: [count] ([collections/sec])
+
 - **Gen 1 Collections**: [count]
+
 - **Gen 2 Collections**: [count]
+
 - **LOH Size**: [MB]
+
 - **Total Heap Size**: [MB]
+
 - **GC Pause Time**: [ms average, max]
 
 ### Critical Performance Issues (Priority 1)
@@ -668,25 +711,41 @@ Please provide a comprehensive performance report with the following structure:
 | [type:method] | [N+1 count] | [Include/explicit loading] |
 
 ### Memory Analysis
+
 - **Peak Working Set**: [MB]
+
 - **Private Bytes**: [MB]
+
 - **Gen 2 Heap Size**: [MB]
+
 - **LOH Size**: [MB]
+
 - **Memory Leaks Detected**: [Yes/No - locations if yes]
+
 - **Large Object Allocations**: [count and locations]
 
 ### Async/Await Assessment
+
 - **Sync-over-async Calls**: [count and locations]
+
 - **Missing ConfigureAwait**: [count]
+
 - **Thread Pool Starvation Risk**: [High/Medium/Low]
+
 - **ValueTask Opportunities**: [locations]
 
 ### ASP.NET Core Performance
+
 - **Average Request Time**: [ms]
+
 - **P95 Request Time**: [ms]
+
 - **P99 Request Time**: [ms]
+
 - **Throughput**: [requests/sec]
+
 - **Response Caching**: [implemented/not used]
+
 - **HttpClient Usage**: [proper/issues found]
 
 ### Optimization Recommendations
@@ -718,11 +777,17 @@ Please provide a comprehensive performance report with the following structure:
 ### Monitoring Recommendations
 ```csharp
 // Implement performance monitoring
+
 - Response time tracking (p50, p95, p99)
+
 - GC metrics (collection counts, pause time)
+
 - Memory usage and LOH size
+
 - Thread pool metrics
+
 - Database query performance
+
 - Custom business metrics
 
 // Tools: Application Insights, Prometheus, Datadog, New Relic
@@ -730,28 +795,43 @@ Please provide a comprehensive performance report with the following structure:
 
 ### Benchmark Results
 **Before Optimization**:
+
 - [Operation]: [time/throughput]
 
 **After Optimization** (projected):
+
 - [Operation]: [time/throughput]
 
 **Improvement**: [percentage] faster / [X]x throughput
 
 ### Next Steps
+
 - [ ] Implement quick win optimizations
+
 - [ ] Set up performance benchmarking suite (BenchmarkDotNet)
+
 - [ ] Configure production performance monitoring
+
 - [ ] Plan load testing before deployment
+
 - [ ] Schedule performance review sprint
+
 - [ ] Document performance SLAs/targets
+
 - [ ] Enable GC telemetry in production
 
 ## Notes
+
 - Optimize based on profiling data, not assumptions
+
 - Focus on user-facing performance improvements first
+
 - Measure before and after optimization
+
 - Consider scalability alongside raw performance
+
 - Balance performance with code maintainability
+
 - Use BenchmarkDotNet for micro-benchmarks
 
 ## File Output Instructions
@@ -793,7 +873,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

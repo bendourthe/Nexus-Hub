@@ -32,39 +32,65 @@ documentation/user_docs/
 ## Implementation Checklist
 
 ### README Structure
+
 - [ ] Compelling project overview and value proposition
+
 - [ ] Key features highlighted
+
 - [ ] Installation instructions complete and tested
+
 - [ ] Quick start guide for immediate success
+
 - [ ] Usage examples for common scenarios
+
 - [ ] Links to detailed documentation
 
 ### Installation Guides
+
 - [ ] Prerequisites clearly listed (Go version)
+
 - [ ] Step-by-step installation process
+
 - [ ] Platform-specific instructions (Windows, macOS, Linux)
+
 - [ ] Troubleshooting common installation issues
+
 - [ ] Verification steps to confirm successful installation
 
 ### Quick Start Guides
+
 - [ ] Minimal example to first success
+
 - [ ] Common use cases covered
+
 - [ ] Progressive complexity (simple to advanced)
+
 - [ ] Expected output shown
+
 - [ ] Next steps guidance
 
 ### Usage Examples
+
 - [ ] Real-world scenarios
+
 - [ ] Complete, runnable code
+
 - [ ] Input/output examples
+
 - [ ] Edge cases and limitations
+
 - [ ] Best practices demonstrated
 
 ### FAQ and Troubleshooting
+
 - [ ] Common questions answered
+
 - [ ] Error messages explained
+
 - [ ] Debugging guidance
+
 - [ ] Known limitations documented
+
 - [ ] Where to get help
 
 ## Prompt Template
@@ -99,7 +125,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -163,8 +191,11 @@ Create a comprehensive README.md that serves as the front door to your project:
 ## ✨ What's New in v[X.Y.Z]
 
 - 🚀 [New Feature 1]: Brief description
+
 - ⚡ [Performance Improvement]: Specific metric (e.g., "50% faster")
+
 - 🐛 [Important Bug Fix]: What was fixed
+
 - 📝 [Documentation Update]: What was improved
 
 [See full changelog](CHANGELOG.md)
@@ -180,8 +211,11 @@ Create a comprehensive README.md that serves as the front door to your project:
 **Solution**: [How does this project solve it?]
 
 **Benefits**:
+
 - ✅ [Key benefit 1]
+
 - ✅ [Key benefit 2]
+
 - ✅ [Key benefit 3]
 
 ---
@@ -189,8 +223,11 @@ Create a comprehensive README.md that serves as the front door to your project:
 ## 🎯 Key Features
 
 - **[Feature 1]**: Description of what it does and why it matters
+
 - **[Feature 2]**: Highlight unique or powerful capabilities
+
 - **[Feature 3]**: Emphasize ease of use or performance benefits
+
 - **[Feature 4]**: Note integration capabilities or extensibility
 
 ---
@@ -259,8 +296,11 @@ tool process "example input"
 ### Prerequisites
 
 Before installing, ensure you have:
+
 - Go 1.20 or higher (1.21+ recommended)
+
 - Git for `go get` operations
+
 - [Optional] Make for build automation
 
 ### Installation Options
@@ -628,9 +668,13 @@ func getEnvInt(key string, defaultVal int) int {
 ## 📚 Documentation
 
 - **[User Guide](docs/USER_GUIDE.md)**: Comprehensive usage documentation
+
 - **[GoDoc](https://pkg.go.dev/github.com/username/project)**: Complete API documentation
+
 - **[Examples](examples/)**: More code examples and tutorials
+
 - **[FAQ](docs/FAQ.md)**: Frequently asked questions
+
 - **[Troubleshooting](docs/TROUBLESHOOTING.md)**: Common issues and solutions
 
 ---
@@ -737,6 +781,7 @@ This project is licensed under the [MIT License](LICENSE) - see the LICENSE file
 ## 🙏 Acknowledgments
 
 - [Contributor/Library]: For [contribution/inspiration]
+
 - [Resource]: For [helpful resource]
 
 ---
@@ -744,8 +789,11 @@ This project is licensed under the [MIT License](LICENSE) - see the LICENSE file
 ## 📞 Support
 
 - **Issues**: [GitHub Issues](https://github.com/username/project/issues)
+
 - **Discussions**: [GitHub Discussions](https://github.com/username/project/discussions)
+
 - **Gophers Slack**: [#project channel](https://gophers.slack.com)
+
 - **Documentation**: [pkg.go.dev/github.com/username/project](https://pkg.go.dev/github.com/username/project)
 
 ---
@@ -753,7 +801,9 @@ This project is licensed under the [MIT License](LICENSE) - see the LICENSE file
 ## 🗺️ Roadmap
 
 - [ ] v[X+1].0: [Planned major feature]
+
 - [ ] v[X].Y: [Planned minor feature]
+
 - [ ] [Future feature/improvement]
 
 See [ROADMAP.md](ROADMAP.md) for detailed plans.
@@ -779,14 +829,21 @@ Complete installation instructions for [Project Name].
 ## System Requirements
 
 ### Minimum Requirements
+
 - **OS**: Windows 10+, macOS 10.15+, or Linux (kernel 4.x+)
+
 - **Go**: 1.20 or higher
+
 - **RAM**: 512MB minimum, 2GB recommended
+
 - **Disk Space**: 100MB
 
 ### Recommended Requirements
+
 - Go 1.21+ for latest features and performance
+
 - 4GB RAM for development
+
 - SSD for faster builds
 
 ---
@@ -942,8 +999,10 @@ tool --version
 ```
 
 **Common Issues**:
+
 - **Error**: "go: command not found"
   - **Fix**: Add Go to PATH or restart terminal after installation
+
 - **Error**: "tool: command not found"
   - **Fix**: Add `%GOPATH%\bin` to PATH
 
@@ -973,8 +1032,10 @@ tool --version
 ```
 
 **Common Issues**:
+
 - **Error**: "Permission denied"
   - **Fix**: Ensure `$HOME/go/bin` is writable, don't use `sudo`
+
 - **Error**: "Command not found"
   - **Fix**: Add GOPATH/bin to PATH as shown above
 
@@ -1175,7 +1236,9 @@ go mod tidy
 ### Common Installation Errors
 
 **Error**: `go: module github.com/username/project: Get "https://proxy.golang.org/...": dial tcp: lookup proxy.golang.org: no such host`
+
 - **Cause**: Network or proxy issues
+
 - **Fix**: Check network or set GOPROXY:
   ```bash
   export GOPROXY=direct
@@ -1184,14 +1247,18 @@ go mod tidy
   ```
 
 **Error**: `go: github.com/username/project@v1.2.3: invalid version: unknown revision v1.2.3`
+
 - **Cause**: Version doesn't exist or wrong tag
+
 - **Fix**: Check available versions:
   ```bash
   go list -m -versions github.com/username/project
   ```
 
 **Error**: `imports github.com/username/project: cannot find module providing package`
+
 - **Cause**: Module not downloaded or incorrect import path
+
 - **Fix**: Download module:
   ```bash
   go mod download
@@ -1199,7 +1266,9 @@ go mod tidy
   ```
 
 **Error**: Build failures or checksum mismatches
+
 - **Cause**: Corrupted module cache
+
 - **Fix**: Clear cache and retry:
   ```bash
   go clean -modcache
@@ -1244,9 +1313,13 @@ Get started with [Project Name] in under 10 minutes.
 ## What You'll Build
 
 By the end of this guide, you'll have:
+
 - ✅ Installed [Project Name]
+
 - ✅ Created your first Go program using the library
+
 - ✅ Understanding of core concepts
+
 - ✅ Ready to build your own solution
 
 **Time Required**: ~10 minutes
@@ -1256,7 +1329,9 @@ By the end of this guide, you'll have:
 ## Prerequisites
 
 - Go 1.20+ installed
+
 - Basic Go knowledge
+
 - Terminal/command line access
 
 ---
@@ -1382,16 +1457,23 @@ func main() {
 Now that you have the basics:
 
 ### Explore More Examples
+
 - **[Example 2: Error Handling](examples/error_handling/)**: Robust error management
+
 - **[Example 3: Concurrency](examples/concurrency/)**: Using goroutines
+
 - **[Example 4: HTTP Server](examples/http_server/)**: Web service integration
 
 ### Read Documentation
+
 - **[User Guide](USER_GUIDE.md)**: Comprehensive usage guide
+
 - **[GoDoc](https://pkg.go.dev/github.com/username/project)**: API documentation
 
 ### Join Community
+
 - **[GitHub Discussions](https://github.com/username/project/discussions)**: Ask questions
+
 - **[Gophers Slack](https://gophers.slack.com)**: Join #project channel
 
 ---
@@ -1457,7 +1539,9 @@ func main() {
 ## Need Help?
 
 - **Error Messages**: See [Troubleshooting](TROUBLESHOOTING.md)
+
 - **Questions**: Open an [issue](https://github.com/username/project/issues)
+
 - **Examples**: Check [examples/](examples/) directory
 
 **Congratulations!** You're ready to use [Project Name].
@@ -1507,6 +1591,7 @@ No, with Go modules (default since Go 1.11), GOPATH is optional. Dependencies ar
 ### Should I use `go get` or `go install`?
 
 - **go get**: For adding libraries to your project
+
 - **go install**: For installing CLI tools globally
 
 ---
@@ -1606,32 +1691,51 @@ Please provide user documentation in this format:
 ## User Documentation Summary
 
 **Files Created**: [count]
+
 - README.md: [Complete/Updated]
+
 - Installation Guide: [Yes/No]
+
 - Quick Start Guide: [Yes/No]
+
 - FAQ: [Yes/No]
+
 - Troubleshooting Guide: [Yes/No]
 
 **Target Audience**: [Beginner/Intermediate/Advanced]
 
 **Content Metrics**:
+
 - Code examples: [count]
+
 - Platform-specific instructions: [Windows/macOS/Linux]
+
 - Installation methods: [go get/go install/build from source]
+
 - FAQ entries: [count]
+
 - Troubleshooting scenarios: [count]
 
 **Quality Checks**:
+
 - [ ] All examples tested and functional
+
 - [ ] Installation instructions verified on all platforms
+
 - [ ] Links working and up-to-date
+
 - [ ] GoDoc references included
+
 - [ ] Accessible to target audience
 
 **Next Steps**:
+
 - [ ] Review documentation for accuracy
+
 - [ ] Test installation on fresh system
+
 - [ ] Get feedback from target users
+
 - [ ] Ensure pkg.go.dev documentation is current
 ```
 
@@ -1672,44 +1776,31 @@ Please provide user documentation in this format:
 
 ---
 
-## File Output Instructions
-
-**IMPORTANT**: Save all generated files to the correct directory structure:
-
-```bash
-# Create directory structure
-mkdir -p ${OUTPUT_DIR}/user_docs/generated_docs
-mkdir -p ${OUTPUT_DIR}/user_docs/templates
-mkdir -p ${OUTPUT_DIR}/user_docs/assets
-mkdir -p ${OUTPUT_DIR}/user_docs/exports
-```
-
-**Save files as follows**:
-
-
-- Templates → `documentation/user_docs/templates/`
-
-- Assets → `documentation/user_docs/assets/`
-
-- Exports → `documentation/user_docs/exports/`
-
-Replace `{phase_name}` with the specific phase (docstrings, comments, user_docs, technical_docs, api_docs, or sbom).
-
-~~~
-
 ## Output Format Specifications
 
 The user documentation should:
+
 - Be clear and accessible to Go developers
+
 - Include complete, tested, runnable examples
+
 - Cover go get, go install, and go modules workflows
+
 - Show proper Go error handling patterns
+
 - Provide step-by-step instructions with expected outcomes
+
 - Cover Windows, macOS, and Linux platforms
+
 - Include troubleshooting for common Go/module issues
+
 - Use consistent formatting and structure
+
 - Link to pkg.go.dev and other resources
+
 - Include badges and visual aids where helpful
+
+~~~
 ---
 
 ## Verify Directory Structure
@@ -1729,7 +1820,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

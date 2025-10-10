@@ -32,29 +32,49 @@ tests/test_cases/
 ## Implementation Checklist
 
 ### Test Coverage
+
 - [ ] Happy path scenarios tested
+
 - [ ] Edge cases and boundaries covered
+
 - [ ] Error conditions validated
+
 - [ ] Input validation tested
+
 - [ ] State transitions verified
+
 - [ ] Regression tests added for bugs
+
 - [ ] Async methods properly tested
 
 ### Test Quality
+
 - [ ] Tests follow AAA pattern (Arrange-Act-Assert)
+
 - [ ] Test names clearly describe what is tested
+
 - [ ] Tests are isolated and independent
+
 - [ ] Tests execute quickly (<1s for unit tests)
+
 - [ ] Assertions are specific and meaningful
+
 - [ ] No test interdependencies
+
 - [ ] Proper use of SetUp/TearDown or constructors
 
 ### Test Organization
+
 - [ ] Tests grouped logically by feature/class
+
 - [ ] Related tests organized in test classes
+
 - [ ] Theory/TestCase attributes used for parametrized tests
+
 - [ ] Setup and teardown properly implemented
+
 - [ ] Test documentation provided
+
 - [ ] Mocks and fakes used appropriately
 
 ## Prompt Template
@@ -89,7 +109,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -1040,10 +1062,15 @@ public void CreateUser_Success()
 Please provide comprehensive test cases with the following structure:
 
 ### Test Coverage Summary
+
 - **Total Test Cases**: [count]
+
 - **Unit Tests**: [count]
+
 - **Integration Tests**: [count]
+
 - **E2E Tests**: [count]
+
 - **Test Types**:
   - Happy path: [count]
   - Edge cases: [count]
@@ -1084,21 +1111,33 @@ Total tests: 25
 ```
 
 ### Coverage Gaps Identified
+
 - [ ] [Method]: Missing tests for [scenario]
+
 - [ ] [Method]: Need edge case tests for [condition]
+
 - [ ] [Method]: Exception handling not tested
 
 ### Test Quality Metrics
+
 - **Average test execution time**: [milliseconds]
+
 - **Tests following AAA pattern**: [percentage]
+
 - **Tests with clear names**: [percentage]
+
 - **Independent tests**: [percentage]
 
 ### Next Steps
+
 - [ ] Implement remaining test cases for coverage gaps
+
 - [ ] Add performance tests for critical methods
+
 - [ ] Set up test containers for integration tests
+
 - [ ] Configure CI/CD pipeline
+
 - [ ] Review and refactor slow tests
 
 ## File Output Instructions
@@ -1156,7 +1195,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

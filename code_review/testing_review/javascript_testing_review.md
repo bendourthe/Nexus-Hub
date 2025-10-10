@@ -32,45 +32,75 @@ review/testing_review/
 ## Review Checklist
 
 ### Test Coverage
+
 - [ ] Line coverage measured (target: 80%+)
+
 - [ ] Branch coverage assessed
+
 - [ ] Critical paths fully tested
+
 - [ ] Edge cases and error conditions covered
+
 - [ ] Coverage gaps identified and prioritized
 
 ### Test Quality
+
 - [ ] Tests follow AAA pattern (Arrange, Act, Assert)
+
 - [ ] Test names clearly describe what is being tested
+
 - [ ] Tests are independent and isolated
+
 - [ ] Assertions are specific and meaningful
+
 - [ ] Test data is representative and comprehensive
 
 ### Test Organization
+
 - [ ] Test structure mirrors source code structure
+
 - [ ] Test files properly organized
+
 - [ ] Fixtures and test utilities well-organized
+
 - [ ] Test configuration managed appropriately
+
 - [ ] Test documentation present
 
 ### Test Types Coverage
+
 - [ ] Unit tests present for core logic
+
 - [ ] Integration tests cover component interactions
+
 - [ ] End-to-end tests validate critical user flows
+
 - [ ] Performance tests for critical operations
+
 - [ ] Accessibility tests for UI components
 
 ### Test Reliability
+
 - [ ] Flaky tests identified
+
 - [ ] Tests run independently (no order dependency)
+
 - [ ] External dependencies properly mocked
+
 - [ ] Test data properly managed
+
 - [ ] Tests run consistently in different environments
 
 ### CI/CD Integration
+
 - [ ] Tests run automatically on commits/PRs
+
 - [ ] Test failures block merges
+
 - [ ] Coverage reports generated
+
 - [ ] Test execution time reasonable
+
 - [ ] Parallel test execution configured
 
 ## Prompt Template
@@ -105,7 +135,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -756,16 +788,25 @@ test.describe('Login functionality', () => {
 Please provide a comprehensive testing report with the following structure:
 
 ### Executive Summary
+
 - **Overall Test Health**: [Excellent/Good/Fair/Poor]
+
 - **Test Coverage**: [percentage]
+
 - **Critical Gaps**: [count and brief description]
+
 - **Test Quality**: [High/Medium/Low]
+
 - **Reliability**: [Stable/Some Flakiness/Unreliable]
 
 ### Coverage Metrics
+
 - **Line Coverage**: [%]
+
 - **Branch Coverage**: [%]
+
 - **Function Coverage**: [%]
+
 - **Statement Coverage**: [%]
 
 **Coverage by Module**:
@@ -774,17 +815,27 @@ Please provide a comprehensive testing report with the following structure:
 | [name] | [%] | [%] | [count] | [High/Med/Low] |
 
 ### Test Suite Inventory
+
 - **Total Tests**: [count]
+
 - **Unit Tests**: [count] ([%])
+
 - **Integration Tests**: [count] ([%])
+
 - **Component Tests**: [count] ([%])
+
 - **End-to-End Tests**: [count] ([%])
+
 - **Visual Regression Tests**: [count]
 
 ### Test Framework Analysis
+
 - **Primary Framework**: [Jest/Mocha/Vitest/etc.]
+
 - **Component Testing**: [React Testing Library/Vue Test Utils/etc.]
+
 - **E2E Framework**: [Cypress/Playwright/Puppeteer]
+
 - **Coverage Tool**: [Istanbul/nyc/c8]
 
 ### Critical Coverage Gaps (Priority 1)
@@ -799,10 +850,15 @@ Please provide a comprehensive testing report with the following structure:
 | [smell type] | [file:line] | [details] | [recommendation] |
 
 **Common Issues**:
+
 - [ ] Tests with unclear names: [count]
+
 - [ ] Tests with weak assertions: [count]
+
 - [ ] Tests with complex setup: [count]
+
 - [ ] Tests testing implementation details: [count]
+
 - [ ] Snapshot tests without meaning: [count]
 
 ### Test Reliability Assessment
@@ -812,50 +868,78 @@ Please provide a comprehensive testing report with the following structure:
 | [test] | [%] | [reason] | [solution] |
 
 **Test Independence Issues**:
+
 - [ ] Order-dependent tests: [list]
+
 - [ ] Shared state pollution: [list]
+
 - [ ] External dependencies not mocked: [list]
+
 - [ ] Tests depending on system time: [list]
 
 ### Test Execution Performance
+
 - **Total Execution Time**: [seconds]
+
 - **Slowest Tests** (>1s):
   | Test | Duration | Type | Optimization |
   |------|----------|------|--------------|
   | [name] | [seconds] | [unit/integration/e2e] | [suggestion] |
 
 ### E2E Test Coverage
+
 - **Critical User Flows**: [X/Y covered]
+
 - **Browser Coverage**: [Chrome/Firefox/Safari/Edge]
+
 - **Mobile Testing**: [Yes/No]
+
 - **Accessibility Testing**: [Yes/No]
 
 **Missing E2E Tests**:
+
 - [ ] [Critical flow description]
+
 - [ ] [Critical flow description]
 
 ### Component Test Coverage (React/Vue/Angular)
+
 - **Components Tested**: [X/Y]
+
 - **Props/Events Coverage**: [Comprehensive/Partial/Missing]
+
 - **Interaction Testing**: [Good/Needs improvement]
+
 - **Accessibility Testing**: [Present/Missing]
 
 ### Missing Test Types
+
 - [ ] **Edge Cases**: [specific gaps]
+
 - [ ] **Error Conditions**: [uncovered exceptions]
+
 - [ ] **Boundary Values**: [missing boundary tests]
+
 - [ ] **Integration Points**: [untested interactions]
+
 - [ ] **Performance Tests**: [operations needing perf tests]
+
 - [ ] **Accessibility Tests**: [a11y validations needed]
 
 ### CI/CD Integration
+
 - **Automated Test Execution**: [Yes/No/Partial]
+
 - **Coverage Reporting**: [Yes/No]
+
 - **Quality Gates**: [Enforced/Not Enforced]
+
 - **Test Parallelization**: [Yes/No]
+
 - **E2E Tests in CI**: [Yes/No]
 
 **Issues**:
+
 - [List of CI/CD testing gaps or issues]
 
 ### Recommendations
@@ -909,16 +993,23 @@ const waitForElement = (selector, timeout = 1000) => {
 **Target: [X]% coverage (from current [Y]%)**
 
 **Phase 1** (Week 1-2):
+
 - Add tests for [critical modules]
+
 - Expected coverage gain: +[X]%
 
 **Phase 2** (Week 3-4):
+
 - Add integration tests for [components]
+
 - Expected coverage gain: +[X]%
 
 **Phase 3** (Month 2):
+
 - Add E2E tests for critical flows
+
 - Add edge case and error condition tests
+
 - Expected coverage gain: +[X]%
 
 ### Quality Gates Recommendation
@@ -955,21 +1046,35 @@ module.exports = {
 ```
 
 ### Next Steps
+
 - [ ] Address critical coverage gaps (Priority 1 items)
+
 - [ ] Fix or quarantine flaky tests
+
 - [ ] Implement test factories and utilities
+
 - [ ] Set up coverage monitoring in CI/CD
+
 - [ ] Add E2E tests for critical flows
+
 - [ ] Establish team testing guidelines
+
 - [ ] Configure pre-commit hooks for test requirements
+
 - [ ] Add accessibility testing
 
 ## Notes
+
 - Focus on testing critical business logic and user flows first
+
 - Aim for meaningful tests, not just coverage percentage
+
 - Balance unit, integration, and e2e test distribution (70/20/10 is common)
+
 - Keep tests fast and reliable (unit <100ms, integration <1s)
+
 - Treat test code with same quality standards as production code
+
 - Use Testing Library principles: test behavior, not implementation
 
 ## File Output Instructions
@@ -1011,7 +1116,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

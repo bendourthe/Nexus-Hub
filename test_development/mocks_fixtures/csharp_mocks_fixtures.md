@@ -32,24 +32,39 @@ tests/mocks_fixtures/
 ## Implementation Checklist
 
 ### Fixture Setup
+
 - [ ] xUnit/NUnit lifecycle hooks configured appropriately
+
 - [ ] Test data builders created for flexible data generation
+
 - [ ] Fixture factories implemented with realistic data
+
 - [ ] Cleanup and disposal logic automated
+
 - [ ] Fixtures documented with clear purposes
 
 ### Mocking Strategy
+
 - [ ] External dependencies identified for mocking
+
 - [ ] Mocking approach chosen (mock vs stub vs fake)
+
 - [ ] Mock objects configured with Moq or NSubstitute
+
 - [ ] Verification methods used appropriately
+
 - [ ] Over-mocking avoided
 
 ### Test Data Management
+
 - [ ] Test data factories implemented
+
 - [ ] Realistic test data patterns established
+
 - [ ] Data builders for complex objects created
+
 - [ ] Test data isolated per test
+
 - [ ] Data cleanup automated
 
 ## Prompt Template
@@ -84,7 +99,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -516,18 +533,29 @@ public class UserServiceTests
 ### When to Mock vs Use Real Objects
 
 **Use Mocks For**:
+
 - External APIs and services
+
 - Database operations in unit tests
+
 - File system operations
+
 - Network requests
+
 - Slow dependencies
+
 - Non-deterministic behavior
 
 **Use Real Objects For**:
+
 - POCOs and DTOs
+
 - Value objects
+
 - Pure functions
+
 - Integration tests
+
 - Critical business logic
 
 ```csharp
@@ -899,12 +927,15 @@ Please provide a comprehensive mocks and fixtures implementation with the follow
 
 ### Fixture Architecture
 **Class-Level Fixtures** (IClassFixture):
+
 - [fixture_name]: [purpose, setup, teardown]
 
 **Test-Level Setup** (Constructor/Dispose):
+
 - [fixture_name]: [purpose, when to use]
 
 **Fixture Factories**:
+
 - [factory_name]: [creates what, customization options]
 
 ### Mocking Strategy
@@ -928,10 +959,13 @@ public TestClass()
 
 ### Test Data Factories
 **Factory Classes**:
+
 - UserFactory: [customization options]
+
 - OrderFactory: [customization options]
 
 **Builder Classes**:
+
 - [builder_name]: [purpose, fluent interface methods]
 
 ### Usage Examples
@@ -966,25 +1000,41 @@ public class UserRegistrationTests
 ```
 
 ### Best Practices Implemented
+
 - [ ] Fixtures use appropriate scopes (class/collection)
+
 - [ ] Mocks are used for external dependencies only
+
 - [ ] Test data factories provide flexible data creation
+
 - [ ] Mock verification ensures correct behavior
+
 - [ ] Disposal patterns followed for cleanup
+
 - [ ] Interface-based mocking used
 
 ### Common Pitfalls Avoided
+
 - Over-mocking simple DTOs
+
 - Not disposing fixtures properly
+
 - Complex mock setups that obscure test intent
+
 - Mocking concrete classes instead of interfaces
+
 - Testing mock behavior instead of real code
 
 ### Next Steps
+
 - [ ] Implement remaining fixtures for integration tests
+
 - [ ] Add factories for all domain models
+
 - [ ] Document fixture usage for team
+
 - [ ] Set up shared mock configurations
+
 - [ ] Review mock coverage and necessity
 
 ## File Output Instructions
@@ -1043,7 +1093,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

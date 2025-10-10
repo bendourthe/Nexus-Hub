@@ -32,45 +32,75 @@ review/context_analysis/
 ## Analysis Checklist
 
 ### Project Understanding
+
 - [ ] Project purpose and target audience identified
+
 - [ ] Core features and use cases documented
+
 - [ ] Development stage assessed (prototype, production, legacy)
+
 - [ ] Key stakeholders and maintainers identified
+
 - [ ] Project documentation reviewed (README, docs/, wiki)
 
 ### Architecture & Structure
+
 - [ ] Entry points and main modules mapped
+
 - [ ] Header/source organization evaluated
+
 - [ ] Design patterns identified (RAII, PIMPL, factory, singleton, etc.)
+
 - [ ] Configuration management approach documented
+
 - [ ] Build configuration and variants catalogued
 
 ### Build System Analysis
+
 - [ ] Build system identified (CMake, Meson, Bazel, Make, etc.)
+
 - [ ] Build configurations documented (Debug, Release, RelWithDebInfo)
+
 - [ ] Compiler versions and flags reviewed
+
 - [ ] Platform targets identified (Windows, Linux, macOS, embedded)
+
 - [ ] Build dependencies and toolchain requirements documented
 
 ### Dependency Analysis
+
 - [ ] Direct dependencies listed with versions
+
 - [ ] Dependency manager identified (vcpkg, Conan, system packages, git submodules)
+
 - [ ] Header-only libraries documented
+
 - [ ] Outdated packages identified
+
 - [ ] License compatibility verified
 
 ### C++ Standard & Features
+
 - [ ] C++ standard version identified (C++11, C++14, C++17, C++20, C++23)
+
 - [ ] Compiler compatibility requirements documented
+
 - [ ] Modern C++ feature adoption assessed
+
 - [ ] Legacy code patterns identified
+
 - [ ] Platform-specific code isolated
 
 ### Codebase Metrics
+
 - [ ] Lines of code measured (total, per module)
+
 - [ ] Cyclomatic complexity assessed
+
 - [ ] Module coupling and cohesion evaluated
+
 - [ ] Header dependencies analyzed
+
 - [ ] Comment density analyzed
 
 ## Prompt Template
@@ -105,7 +135,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -351,11 +383,17 @@ Please perform a comprehensive context analysis of this C++ project following th
 Please provide a comprehensive context report with the following structure:
 
 ### Executive Summary
+
 - **Project Name**: [name]
+
 - **Purpose**: [1-2 sentence description]
+
 - **Stage**: [prototype/production/legacy]
+
 - **C++ Standard**: [C++11/14/17/20/23]
+
 - **Build System**: [CMake/Meson/Bazel/Make]
+
 - **Architecture**: [architectural style]
 
 ### Project Structure
@@ -376,25 +414,41 @@ project/
 ```
 
 ### Build System Overview
+
 - **Build Tool**: [CMake version, Meson version, etc.]
+
 - **Dependency Manager**: [vcpkg, Conan, system packages, submodules]
+
 - **Compiler Support**: [GCC 9+, Clang 10+, MSVC 2019+, etc.]
+
 - **Platform Targets**: [Linux, Windows, macOS, embedded]
+
 - **Build Configurations**: [Debug, Release, custom]
 
 ### Architecture Overview
+
 - **Design Patterns**: [RAII, PIMPL, factory, singleton, observer, etc.]
+
 - **Module Organization**: [brief description]
+
 - **Memory Management**: [smart pointers, RAII, custom allocators]
+
 - **Error Handling**: [exceptions, error codes, std::expected]
+
 - **Key Dependencies**: [critical external libraries]
+
 - **Configuration Approach**: [how settings are managed]
 
 ### C++ Standard & Features
+
 - **Standard Version**: [C++17, C++20, etc.]
+
 - **Modern Features Used**: [list of C++11/14/17/20 features]
+
 - **Legacy Patterns**: [areas using older C++ patterns]
+
 - **Compiler Extensions**: [GCC-specific, MSVC-specific, etc.]
+
 - **Platform Abstractions**: [cross-platform strategy]
 
 ### Dependency Summary
@@ -403,18 +457,29 @@ project/
 | [name] | [version] | [usage] | [vcpkg/Conan] | [current/outdated] | [license] |
 
 ### Testing Infrastructure
+
 - **Test Framework**: [GoogleTest, Catch2, Doctest]
+
 - **Test Organization**: [unit, integration, e2e]
+
 - **Coverage Tools**: [gcov, lcov, llvm-cov]
+
 - **Sanitizers**: [ASan, TSan, UBSan, MSan]
+
 - **CI/CD**: [platform and key workflows]
 
 ### Codebase Metrics
+
 - **Total Lines**: [number] (excluding tests)
+
 - **Source Files**: [.cpp count]
+
 - **Header Files**: [.h/.hpp count]
+
 - **Average Complexity**: [cyclomatic complexity score]
+
 - **Documentation**: [Doxygen coverage %]
+
 - **Build Time**: [clean build duration]
 
 ### Key Findings
@@ -440,10 +505,15 @@ Based on this context, the following review areas should be prioritized:
 4. **Testing** - [reason based on findings]
 
 ### Next Steps
+
 - [ ] Proceed with code quality review
+
 - [ ] Conduct security audit (memory safety, sanitizers)
+
 - [ ] Perform performance analysis
+
 - [ ] Review test coverage and quality
+
 - [ ] Analyze build system optimization opportunities
 
 ## File Output Instructions
@@ -467,10 +537,15 @@ mkdir -p ${OUTPUT_DIR}/context_analysis/supporting_data
 - Supporting data → `review/context_analysis/supporting_data/`
 
 ## Notes
+
 - Save this context report - it will inform all subsequent review phases
+
 - Flag any critical issues discovered during context gathering
+
 - Update vulnerable dependencies before detailed code review
+
 - Use this as baseline for measuring improvement over time
+
 - Consider running sanitizers (ASan, UBSan) during context phase
 ~~~
 ---
@@ -492,7 +567,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

@@ -7,10 +7,15 @@ This section provides comprehensive code review templates that enable systematic
 ## 🎯 Objectives
 
 - Understand project context, architecture, and dependencies before diving into code
+
 - Evaluate code quality, maintainability, and adherence to best practices
+
 - Identify security vulnerabilities and compliance gaps
+
 - Detect performance bottlenecks and optimization opportunities
+
 - Assess test coverage, quality, and effectiveness
+
 - Generate actionable, prioritized recommendations with clear remediation paths
 
 ## 📂 Available Templates
@@ -18,12 +23,19 @@ This section provides comprehensive code review templates that enable systematic
 ### Supported Languages
 
 Templates are available for the following languages:
+
 - **Python** - General-purpose, data science, web development
+
 - **JavaScript/TypeScript** - Web, Node.js, React, Angular, Vue
+
 - **Java** - Enterprise, Spring Boot, Android
+
 - **C#** - .NET, ASP.NET Core, Unity
+
 - **Go** - Microservices, cloud-native
+
 - **C** - Embedded systems, firmware, RTOS
+
 - **C++** - Performance-critical, embedded, modern C++
 
 ### Review Phases
@@ -42,10 +54,15 @@ Each language has templates for all 6 review phases:
 ## ✅ Success Criteria
 
 - [ ] Complete context understanding documented
+
 - [ ] Code quality issues identified and categorized by severity
+
 - [ ] Security vulnerabilities mapped with remediation steps
+
 - [ ] Performance bottlenecks profiled with optimization recommendations
+
 - [ ] Test coverage gaps identified with improvement plan
+
 - [ ] Final report delivered with prioritized, actionable recommendations
 
 ---
@@ -70,7 +87,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

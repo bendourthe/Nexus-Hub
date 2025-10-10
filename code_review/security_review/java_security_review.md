@@ -32,48 +32,81 @@ review/security_review/
 ## Review Checklist
 
 ### Vulnerability Assessment
+
 - [ ] OWASP Top 10 vulnerabilities assessed
+
 - [ ] SQL injection vectors identified
+
 - [ ] XML External Entity (XXE) vulnerabilities checked
+
 - [ ] Deserialization vulnerabilities evaluated
+
 - [ ] LDAP injection points assessed
+
 - [ ] Path traversal vulnerabilities tested
 
 ### Dependency Security
+
 - [ ] All dependencies scanned for known vulnerabilities (CVEs)
+
 - [ ] Outdated libraries with security patches identified
+
 - [ ] Transitive dependency vulnerabilities analyzed
+
 - [ ] License compliance verified
+
 - [ ] Supply chain risks assessed
 
 ### Authentication & Authorization
+
 - [ ] Authentication mechanisms reviewed (JWT, OAuth2, SAML)
+
 - [ ] Password storage security verified (BCrypt, Argon2)
+
 - [ ] Session management evaluated
+
 - [ ] Spring Security configuration reviewed (if applicable)
+
 - [ ] Role-based access control (RBAC) implementation checked
+
 - [ ] API authentication security assessed
 
 ### Data Protection
+
 - [ ] Sensitive data encryption verified (at rest and in transit)
+
 - [ ] Personally Identifiable Information (PII) handling reviewed
+
 - [ ] Data exposure in logs/errors evaluated
+
 - [ ] Database security assessed (prepared statements, encryption)
+
 - [ ] File upload security verified
+
 - [ ] Data retention and deletion practices reviewed
 
 ### Secrets Management
+
 - [ ] Hardcoded credentials searched and documented
+
 - [ ] API keys and tokens in code identified
+
 - [ ] Environment variable usage verified
+
 - [ ] Secrets management system evaluated (Vault, AWS Secrets Manager)
+
 - [ ] Configuration file security checked
 
 ### Input Validation & Sanitization
+
 - [ ] User input validation comprehensiveness assessed
+
 - [ ] Input sanitization for SQL/LDAP injection verified
+
 - [ ] Bean Validation (JSR-380) usage reviewed
+
 - [ ] API input validation checked
+
 - [ ] Deserialization security reviewed
 
 ## Prompt Template
@@ -108,7 +141,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -617,10 +652,15 @@ For each OWASP vulnerability category, systematically review the codebase:
 Please provide a comprehensive security report with the following structure:
 
 ### Executive Summary
+
 - **Overall Security Risk**: [Critical/High/Medium/Low]
+
 - **Critical Vulnerabilities**: [count]
+
 - **High-Risk Issues**: [count]
+
 - **Compliance Status**: [compliant/gaps identified]
+
 - **Immediate Actions Required**: [yes/no and brief description]
 
 ### Critical Findings (Severity: CRITICAL)
@@ -659,43 +699,71 @@ Please provide a comprehensive security report with the following structure:
 | [group:artifact] | [version] | [CVE-ID] | [Critical/High/Med/Low] | [version] | [High/Med/Low] |
 
 ### Java-Specific Vulnerabilities
+
 - **XXE Vulnerabilities**: [count and locations]
+
 - **Deserialization Issues**: [count and locations]
+
 - **Path Traversal**: [count and locations]
+
 - **Reflection Abuse**: [count and locations]
 
 ### Spring Security Assessment** (if applicable)
+
 - **Configuration**: [secure/issues found]
+
 - **Authentication**: [strong/weak - details]
+
 - **Authorization**: [properly enforced/gaps found]
+
 - **CSRF Protection**: [enabled/disabled - appropriate?]
+
 - **CORS Configuration**: [secure/too permissive]
 
 ### Secrets & Credentials Exposure
+
 - **Hardcoded Secrets Found**: [count]
+
 - **Locations**: [list of classes and lines]
+
 - **Types**: [database passwords, API keys, tokens, etc.]
+
 - **Git History Scan**: [secrets in commit history: yes/no]
 
 ### Authentication & Authorization
+
 - **Password Storage**: [BCrypt/Argon2/weak method]
+
 - **Session Management**: [secure/issues found]
+
 - **JWT Implementation**: [secure/vulnerable] (if applicable)
+
 - **Authorization Coverage**: [percentage of endpoints protected]
+
 - **Issues Identified**: [list of specific problems]
 
 ### Data Protection
+
 - **Sensitive Data Inventory**: [types and locations]
+
 - **Encryption at Rest**: [implemented/missing]
+
 - **Encryption in Transit**: [TLS/HTTPS status]
+
 - **PII Exposure Risks**: [high/medium/low and locations]
+
 - **Database Security**: [prepared statements/vulnerable queries]
 
 ### Compliance Assessment
+
 - **OWASP ASVS**: [level achieved]
+
 - **GDPR**: [areas of concern]
+
 - **HIPAA**: [if applicable, compliance status]
+
 - **PCI DSS**: [if applicable, compliance status]
+
 - **SOC 2**: [relevant findings]
 
 ### Immediate Action Items (Priority 1)
@@ -752,24 +820,39 @@ Please provide a comprehensive security report with the following structure:
 
 ### Positive Security Practices
 Acknowledge what's done well:
+
 - [Good practice observed]
+
 - [Effective security measure implemented]
 
 ### Next Steps
+
 - [ ] Remediate all critical vulnerabilities immediately
+
 - [ ] Plan remediation sprints for high-risk issues
+
 - [ ] Implement automated security scanning in CI/CD
+
 - [ ] Configure OWASP Dependency-Check in build pipeline
+
 - [ ] Set up Find Security Bugs integration
+
 - [ ] Conduct penetration testing after fixes
+
 - [ ] Establish security code review process
+
 - [ ] Provide security training for development team (OWASP Top 10, secure coding)
 
 ## Notes
+
 - **Confidentiality**: This security report contains sensitive information - handle appropriately
+
 - **Responsible Disclosure**: If third-party vulnerabilities found, follow responsible disclosure
+
 - **Retest**: After remediation, rerun security scans to verify fixes
+
 - **Continuous Monitoring**: Implement ongoing security scanning and monitoring
+
 - **Java-Specific**: Pay special attention to deserialization, XXE, and reflection vulnerabilities
 
 ## File Output Instructions
@@ -811,7 +894,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

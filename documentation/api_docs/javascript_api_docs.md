@@ -32,50 +32,102 @@ documentation/api_docs/
 ## Implementation Checklist
 
 ### Endpoint Documentation
+
 - [ ] All endpoints documented with methods and paths
+
 - [ ] Request parameters clearly specified (path, query, body)
+
 - [ ] Response schemas documented with examples
+
 - [ ] Status codes and their meanings explained
+
 - [ ] Content types specified
 
 ### Authentication
+
 - [ ] Authentication methods documented (JWT, OAuth, API Key)
+
 - [ ] Token/key acquisition process explained
+
 - [ ] Authentication headers specified
+
 - [ ] Token refresh mechanism documented
+
 - [ ] Permission levels explained
 
 ### Request/Response
+
 - [ ] Request body schemas with examples
+
 - [ ] Required vs optional fields marked
+
 - [ ] Data types and formats specified
+
 - [ ] Response body schemas with examples
+
 - [ ] Nested objects properly documented
 
 ### Error Handling
+
 - [ ] All error codes documented
+
 - [ ] Error response format specified
+
 - [ ] Error messages and meanings explained
+
 - [ ] Troubleshooting guidance provided
+
 - [ ] Common error scenarios covered
 
 ### Examples
+
 - [ ] Working code examples provided
+
 - [ ] Multiple client libraries (axios, fetch, Node.js)
+
 - [ ] Complete request/response cycles shown
+
 - [ ] Authentication examples included
+
 - [ ] Edge cases demonstrated
 
 ### Best Practices
+
 - [ ] Rate limits documented
+
 - [ ] Pagination explained
+
 - [ ] Filtering and sorting documented
+
 - [ ] Versioning strategy explained
+
 - [ ] Deprecation policy stated
 
 ## Prompt Template
 
 Use the structured prompt below with your coding assistant:
+
+---
+
+## Output Format Specifications
+
+The API documentation should:
+
+- Follow OpenAPI 3.0 specification standards
+
+- Include complete request/response examples
+
+- Provide working code examples for axios and fetch
+
+- Document all error scenarios comprehensively
+
+- Explain JWT authentication and refresh tokens
+
+- Include rate limiting and best practices
+
+- Be compatible with Swagger UI and Postman
+
+- Keep examples up-to-date with API changes
 
 ~~~markdown
 # JavaScript API Documentation Request
@@ -105,7 +157,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -1112,22 +1166,33 @@ All errors follow a consistent format:
 ## Common Error Codes
 
 ### Authentication Errors
+
 - `UNAUTHORIZED`: Missing or invalid token
+
 - `TOKEN_EXPIRED`: Token has expired, refresh needed
+
 - `INVALID_CREDENTIALS`: Wrong email/password
 
 ### Validation Errors
+
 - `VALIDATION_ERROR`: Request data failed validation
+
 - `REQUIRED_FIELD`: Required field missing
+
 - `INVALID_FORMAT`: Field has invalid format
+
 - `EMAIL_EXISTS`: Email already in use
 
 ### Resource Errors
+
 - `NOT_FOUND`: Requested resource doesn't exist
+
 - `ALREADY_EXISTS`: Resource with identifier already exists
+
 - `CONFLICT`: Operation conflicts with current state
 
 ### Rate Limiting
+
 - `RATE_LIMIT_EXCEEDED`: Too many requests
 
 ## Handling Errors in JavaScript
@@ -1170,7 +1235,9 @@ async function makeAPICall() {
 ## Rate Limiting
 
 - **Free tier**: 1000 requests/hour
+
 - **Pro tier**: 10000 requests/hour
+
 - **Enterprise**: Custom limits
 
 Check rate limit headers in responses:
@@ -1280,18 +1347,27 @@ const api = new APIClient(config.apiBaseURL);
 Please provide API documentation in these formats:
 
 ### 1. OpenAPI/Swagger Specification
+
 - Complete openapi.yaml file
+
 - All endpoints, schemas, and examples
+
 - Can be imported into Swagger UI, Postman, etc.
 
 ### 2. Human-Readable Documentation
+
 - Markdown files organized by resource
+
 - Clear examples and explanations
+
 - Suitable for publishing to docs site
 
 ### 3. Code Examples
+
 - Working examples in JavaScript (Node.js, browser)
+
 - Complete client implementations
+
 - Error handling demonstrations
 
 ### Summary Report
@@ -1304,9 +1380,13 @@ Please provide API documentation in these formats:
 **Authentication Method**: JWT Bearer Token
 
 **Endpoints Documented**:
+
 - GET endpoints: [count]
+
 - POST endpoints: [count]
+
 - PATCH/PUT endpoints: [count]
+
 - DELETE endpoints: [count]
 
 **Schemas Documented**: [count]
@@ -1314,61 +1394,37 @@ Please provide API documentation in these formats:
 **Code Examples**: [count]
 
 **Documentation Formats**:
+
 - [ ] OpenAPI 3.0 specification
+
 - [ ] Markdown documentation
+
 - [ ] JavaScript code examples (axios, fetch)
+
 - [ ] Node.js examples
+
 - [ ] cURL examples
+
 - [ ] Interactive API explorer (Swagger UI)
 
 **Quality Checks**:
+
 - [ ] All endpoints documented
+
 - [ ] Request/response schemas complete
+
 - [ ] Authentication fully explained
+
 - [ ] Error handling comprehensive
+
 - [ ] Code examples tested and working
+
 - [ ] Rate limits documented
+
 - [ ] Best practices included
 ```
 
----
-
-## File Output Instructions
-
-**IMPORTANT**: Save all generated files to the correct directory structure:
-
-```bash
-# Create directory structure
-mkdir -p ${OUTPUT_DIR}/api_docs/generated_docs
-mkdir -p ${OUTPUT_DIR}/api_docs/templates
-mkdir -p ${OUTPUT_DIR}/api_docs/assets
-mkdir -p ${OUTPUT_DIR}/api_docs/exports
-```
-
-**Save files as follows**:
-
-
-- Templates → `documentation/api_docs/templates/`
-
-- Assets → `documentation/api_docs/assets/`
-
-- Exports → `documentation/api_docs/exports/`
-
-Replace `{phase_name}` with the specific phase (docstrings, comments, user_docs, technical_docs, api_docs, or sbom).
-
 ~~~
-
-## Output Format Specifications
-
-The API documentation should:
-- Follow OpenAPI 3.0 specification standards
-- Include complete request/response examples
-- Provide working code examples for axios and fetch
-- Document all error scenarios comprehensively
-- Explain JWT authentication and refresh tokens
-- Include rate limiting and best practices
-- Be compatible with Swagger UI and Postman
-- Keep examples up-to-date with API changes
 ---
 
 ## Verify Directory Structure
@@ -1388,7 +1444,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

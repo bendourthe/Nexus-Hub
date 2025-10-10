@@ -32,45 +32,75 @@ review/testing_review/
 ## Review Checklist
 
 ### Test Coverage
+
 - [ ] Line coverage measured (target: 80%+)
+
 - [ ] Branch coverage assessed
+
 - [ ] Critical paths fully tested
+
 - [ ] Edge cases and error conditions covered
+
 - [ ] Coverage gaps identified and prioritized
 
 ### Test Quality
+
 - [ ] Tests follow AAA pattern (Arrange, Act, Assert)
+
 - [ ] Test names clearly describe what is being tested
+
 - [ ] Tests are independent and isolated
+
 - [ ] Assertions are specific and meaningful
+
 - [ ] Test data is representative and comprehensive
 
 ### Test Organization
+
 - [ ] Test files located alongside source (*_test.go)
+
 - [ ] Test helpers and fixtures well-organized
+
 - [ ] Table-driven tests used appropriately
+
 - [ ] Benchmark tests present for critical operations
+
 - [ ] Example tests provided for documentation
 
 ### Test Types Coverage
+
 - [ ] Unit tests present for core logic
+
 - [ ] Integration tests cover component interactions
+
 - [ ] End-to-end tests validate critical user flows
+
 - [ ] Benchmark tests for performance-critical code
+
 - [ ] Fuzz tests for input validation
 
 ### Test Reliability
+
 - [ ] Flaky tests identified
+
 - [ ] Tests run independently (no order dependency)
+
 - [ ] External dependencies properly mocked
+
 - [ ] Test data properly managed
+
 - [ ] Tests run consistently in different environments
 
 ### CI/CD Integration
+
 - [ ] Tests run automatically on commits/PRs
+
 - [ ] Test failures block merges
+
 - [ ] Coverage reports generated
+
 - [ ] Test execution time reasonable
+
 - [ ] Parallel test execution configured
 
 ## Prompt Template
@@ -105,7 +135,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -556,16 +588,25 @@ Please perform a comprehensive testing review of this Go project following this 
 Please provide a comprehensive testing report with the following structure:
 
 ### Executive Summary
+
 - **Overall Test Health**: [Excellent/Good/Fair/Poor]
+
 - **Test Coverage**: [percentage]
+
 - **Critical Gaps**: [count and brief description]
+
 - **Test Quality**: [High/Medium/Low]
+
 - **Reliability**: [Stable/Some Flakiness/Unreliable]
 
 ### Coverage Metrics
+
 - **Line Coverage**: [%]
+
 - **Package Count**: [total]
+
 - **Tested Packages**: [count with >80% coverage]
+
 - **Untested Packages**: [count with <60% coverage]
 
 **Coverage by Package**:
@@ -574,10 +615,15 @@ Please provide a comprehensive testing report with the following structure:
 | [name] | [%] | [Yes/No] | [count] | [High/Med/Low] |
 
 ### Test Suite Inventory
+
 - **Total Tests**: [count]
+
 - **Unit Tests**: [count]
+
 - **Benchmark Tests**: [count]
+
 - **Example Tests**: [count]
+
 - **Fuzz Tests**: [count]
 
 ### Critical Coverage Gaps (Priority 1)
@@ -592,10 +638,15 @@ Please provide a comprehensive testing report with the following structure:
 | [smell type] | [file:line] | [details] | [recommendation] |
 
 **Common Issues**:
+
 - [ ] Tests with unclear names: [count]
+
 - [ ] Tests with weak assertions: [count]
+
 - [ ] Tests with complex setup: [count]
+
 - [ ] Tests not using t.Helper(): [count]
+
 - [ ] Tests not using table-driven pattern where appropriate: [count]
 
 ### Test Reliability Assessment
@@ -610,36 +661,55 @@ Please provide a comprehensive testing report with the following structure:
 | [file:line] | [details] | [High/Med/Low] |
 
 ### Test Execution Performance
+
 - **Total Execution Time**: [seconds]
+
 - **Slowest Tests**:
   | Test | Duration | Category | Optimization |
   |------|----------|----------|--------------|
   | [name] | [seconds] | [unit/integration] | [suggestion] |
 
 ### Missing Test Types
+
 - [ ] **Edge Cases**: [specific gaps]
+
 - [ ] **Error Conditions**: [uncovered error paths]
+
 - [ ] **Boundary Values**: [missing boundary tests]
+
 - [ ] **Integration Points**: [untested interactions]
+
 - [ ] **Benchmarks**: [performance-critical code without benchmarks]
+
 - [ ] **Fuzz Tests**: [input validation without fuzzing]
 
 ### Go-Specific Test Patterns
 **Best Practices Compliance**:
+
 - [ ] Table-driven tests used appropriately: [Yes/No/Partial]
+
 - [ ] Test helpers marked with t.Helper(): [%]
+
 - [ ] Parallel tests marked with t.Parallel(): [%]
+
 - [ ] Example tests for documentation: [count]
+
 - [ ] Testdata directory used: [Yes/No]
 
 ### CI/CD Integration
+
 - **Automated Test Execution**: [Yes/No/Partial]
+
 - **Coverage Reporting**: [Yes/No]
+
 - **Quality Gates**: [Enforced/Not Enforced]
+
 - **Race Detector Enabled**: [Yes/No]
+
 - **Test Parallelization**: [Yes/No]
 
 **Issues**:
+
 - [List of CI/CD testing gaps or issues]
 
 ### Recommendations
@@ -693,15 +763,21 @@ g.Assert(t, "testname", []byte(actualOutput))
 **Target: [X]% coverage (from current [Y]%)**
 
 **Phase 1** (Week 1-2):
+
 - Add tests for [critical packages]
+
 - Expected coverage gain: +[X]%
 
 **Phase 2** (Week 3-4):
+
 - Add integration tests for [components]
+
 - Expected coverage gain: +[X]%
 
 **Phase 3** (Month 2):
+
 - Add edge case and error condition tests
+
 - Expected coverage gain: +[X]%
 
 ### Quality Gates Recommendation
@@ -726,21 +802,35 @@ bench:
 ```
 
 ### Next Steps
+
 - [ ] Address critical coverage gaps (Priority 1 items)
+
 - [ ] Fix or investigate flaky tests
+
 - [ ] Implement table-driven tests where appropriate
+
 - [ ] Set up coverage monitoring in CI/CD
+
 - [ ] Add benchmark tests for critical paths
+
 - [ ] Enable race detector in CI/CD
+
 - [ ] Establish team testing guidelines
+
 - [ ] Configure coverage thresholds
 
 ## Notes
+
 - Focus on testing critical business logic first
+
 - Aim for meaningful tests, not just coverage percentage
+
 - Use table-driven tests for multiple similar scenarios
+
 - Always run tests with -race in development and CI
+
 - Keep tests fast and reliable
+
 - Treat test code with same quality standards as production code
 
 ## File Output Instructions
@@ -782,7 +872,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

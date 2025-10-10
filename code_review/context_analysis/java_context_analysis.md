@@ -32,40 +32,67 @@ review/context_analysis/
 ## Analysis Checklist
 
 ### Project Understanding
+
 - [ ] Project purpose and target audience identified
+
 - [ ] Core features and use cases documented
+
 - [ ] Development stage assessed (prototype, production, legacy)
+
 - [ ] Key stakeholders and maintainers identified
+
 - [ ] Project documentation reviewed (README, docs/)
 
 ### Architecture & Structure
+
 - [ ] Entry points and main classes mapped
+
 - [ ] Package organization evaluated
+
 - [ ] Design patterns identified (MVC, factory, singleton, etc.)
+
 - [ ] Spring Boot/Jakarta EE architecture assessed
+
 - [ ] Configuration management approach documented
+
 - [ ] Multi-module structure analyzed (if applicable)
 
 ### Dependency Analysis
+
 - [ ] Maven/Gradle dependencies listed with versions
+
 - [ ] Direct and transitive dependencies identified
+
 - [ ] Outdated libraries detected
+
 - [ ] Security vulnerabilities in dependencies checked
+
 - [ ] License compatibility verified
 
 ### Build & Deployment
+
 - [ ] Build tool documented (Maven, Gradle, Ant)
+
 - [ ] Build lifecycle and plugins reviewed
+
 - [ ] Test execution approach understood
+
 - [ ] CI/CD pipelines identified (Jenkins, GitHub Actions, GitLab CI)
+
 - [ ] Deployment targets documented (JAR, WAR, container, cloud)
+
 - [ ] Environment configuration reviewed
 
 ### Codebase Metrics
+
 - [ ] Lines of code measured (total, per package)
+
 - [ ] Cyclomatic complexity assessed
+
 - [ ] Package coupling and cohesion evaluated
+
 - [ ] Code duplication percentage calculated
+
 - [ ] JavaDoc coverage analyzed
 
 ## Prompt Template
@@ -100,7 +127,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -339,12 +368,19 @@ Please perform a comprehensive context analysis of this Java project following t
 Please provide a comprehensive context report with the following structure:
 
 ### Executive Summary
+
 - **Project Name**: [name]
+
 - **Purpose**: [1-2 sentence description]
+
 - **Stage**: [prototype/production/legacy]
+
 - **Java Version**: [version]
+
 - **Build Tool**: [Maven/Gradle/Ant]
+
 - **Architecture**: [architectural style]
+
 - **Framework**: [Spring Boot/Jakarta EE/Plain Java/etc.]
 
 ### Project Structure
@@ -364,10 +400,15 @@ project/
 ```
 
 ### Architecture Overview
+
 - **Design Patterns**: [patterns identified]
+
 - **Framework Stack**: [Spring Boot, JPA, etc.]
+
 - **Layering**: [controller → service → repository pattern]
+
 - **Key Dependencies**: [critical external libraries]
+
 - **Configuration Approach**: [properties, YAML, annotations]
 
 ### Technology Stack
@@ -385,27 +426,45 @@ project/
 | [group:artifact] | [version] | [usage] | [current/outdated] | [safe/vulnerable] |
 
 ### Build & Deployment
+
 - **Build Tool**: [Maven/Gradle and version]
+
 - **Build Lifecycle**: [key phases and goals]
+
 - **Test Execution**: [mvn test / gradle test]
+
 - **Packaging**: [JAR/WAR, executable jar]
+
 - **CI/CD**: [platform and key workflows]
+
 - **Deployment**: [target environments - Docker, K8s, Cloud]
 
 ### Codebase Metrics
+
 - **Total Lines**: [number] (excluding tests)
+
 - **Packages**: [count]
+
 - **Classes**: [count]
+
 - **Methods**: [count]
+
 - **Average Complexity**: [cyclomatic complexity score]
+
 - **Duplication**: [percentage]
+
 - **JavaDoc Coverage**: [percentage]
 
 ### Configuration Summary
+
 - **Profile Management**: [dev, test, prod profiles]
+
 - **Property Sources**: [application.properties, environment variables]
+
 - **Secrets Management**: [approach used]
+
 - **Database Configuration**: [datasource, connection pool]
+
 - **Logging Configuration**: [framework and levels]
 
 ### Key Findings
@@ -422,10 +481,15 @@ Based on this context, the following review areas should be prioritized:
 3. [Area 3] - [reason]
 
 ### Next Steps
+
 - [ ] Proceed with code quality review
+
 - [ ] Conduct security audit (especially if vulnerable dependencies found)
+
 - [ ] Perform performance analysis
+
 - [ ] Review test coverage and quality
+
 - [ ] Assess Spring Boot best practices (if applicable)
 
 ## File Output Instructions
@@ -449,10 +513,15 @@ mkdir -p ${OUTPUT_DIR}/context_analysis/supporting_data
 - Supporting data → `review/context_analysis/supporting_data/`
 
 ## Notes
+
 - Save this context report - it will inform all subsequent review phases
+
 - Flag any critical issues discovered during context gathering
+
 - Update vulnerable dependencies before detailed code review
+
 - Use this as baseline for measuring improvement over time
+
 - Pay special attention to Spring Boot autoconfiguration and custom configurations
 ~~~
 ---
@@ -474,7 +543,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

@@ -32,39 +32,65 @@ documentation/docstrings/
 ## Implementation Checklist
 
 ### File/Header Documentation
+
 - [ ] File purpose and scope clearly explained
+
 - [ ] Key classes and templates listed
+
 - [ ] Dependencies and requirements noted
+
 - [ ] Usage examples provided
+
 - [ ] Author and version information included
 
 ### Class/Template Documentation
+
 - [ ] Class purpose and responsibility documented
+
 - [ ] Template parameters documented
+
 - [ ] All public members described
+
 - [ ] Constructor/destructor behavior explained
+
 - [ ] Move/copy semantics documented
+
 - [ ] Exception safety guarantees noted
 
 ### Function/Method Documentation
+
 - [ ] Function purpose clearly stated
+
 - [ ] All parameters documented with @param/@tparam
+
 - [ ] Return values documented with @return
+
 - [ ] Exceptions documented with @throws/@exception
+
 - [ ] Noexcept guarantees documented
+
 - [ ] SFINAE/concepts requirements explained
 
 ### Special Member Documentation
+
 - [ ] Constructor initialization documented
+
 - [ ] Move semantics explained
+
 - [ ] Copy behavior documented
+
 - [ ] Operator overloads clearly explained
+
 - [ ] Template specializations documented
 
 ### Documentation Style
+
 - [ ] Consistent Doxygen style throughout codebase
+
 - [ ] Proper use of Doxygen commands
+
 - [ ] C++11/14/17/20 features documented
+
 - [ ] Modern C++ idioms explained
 
 ## Prompt Template
@@ -99,7 +125,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -844,32 +872,53 @@ template <typename T, typename Enable = std::enable_if_t<std::is_integral_v<T>>>
 ## Phase 6: Doxygen Quality Checks for C++
 
 ### Completeness
+
 - [ ] All public APIs documented
+
 - [ ] Template parameters with @tparam
+
 - [ ] Concept requirements explained
+
 - [ ] Move/copy semantics documented
+
 - [ ] Exception safety guarantees stated
+
 - [ ] noexcept specifications explained
 
 ### Modern C++ Features
+
 - [ ] Move semantics documented
+
 - [ ] Smart pointer ownership clear
+
 - [ ] Concept constraints explained
+
 - [ ] Coroutines documented
+
 - [ ] constexpr usage noted
+
 - [ ] SFINAE/enable_if explained
 
 ### C++ Best Practices
+
 - [ ] RAII patterns documented
+
 - [ ] Rule of five/zero noted
+
 - [ ] Exception safety levels stated
+
 - [ ] Thread safety explicitly documented
+
 - [ ] [[nodiscard]] rationale explained
 
 ### Clarity
+
 - [ ] Clear, modern C++ terminology
+
 - [ ] STL conventions followed
+
 - [ ] Technical terms explained
+
 - [ ] Examples use modern C++
 
 ## Phase 7: Documentation Generation
@@ -940,23 +989,37 @@ template <typename T, typename Enable = std::enable_if_t<std::is_integral_v<T>>>
 **Concepts Documented**: [count] (C++20)
 
 **C++ Features Documented**:
+
 - [ ] Template parameters (@tparam)
+
 - [ ] Move/copy semantics
+
 - [ ] Exception safety
+
 - [ ] noexcept guarantees
+
 - [ ] Concept constraints (C++20)
+
 - [ ] Coroutines (C++20)
 
 **Modern C++ Compliance**:
+
 - [ ] RAII patterns documented
+
 - [ ] Smart pointer ownership clear
+
 - [ ] Rule of five/zero noted
+
 - [ ] [[nodiscard]] usage explained
 
 **Coverage Metrics**:
+
 - Namespace coverage: [X%]
+
 - Class coverage: [X%]
+
 - Function coverage: [X%]
+
 - Overall coverage: [X%]
 ```
 
@@ -1064,15 +1127,25 @@ doxygen_add_docs(docs
 ## Output Format Specifications
 
 The generated C++ Doxygen comments should:
+
 - Follow modern C++ conventions and Doxygen standards
+
 - Document all template parameters with @tparam
+
 - State move/copy semantics explicitly
+
 - Document exception safety guarantees
+
 - Note noexcept specifications
+
 - Explain concept requirements (C++20)
+
 - Include runnable modern C++ examples
+
 - Cross-reference with @see and @relates
+
 - Generate well-formatted HTML documentation
+
 - Pass Doxygen validation for C++ code
 ---
 
@@ -1093,7 +1166,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

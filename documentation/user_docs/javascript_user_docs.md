@@ -32,39 +32,65 @@ documentation/user_docs/
 ## Implementation Checklist
 
 ### README Structure
+
 - [ ] Compelling project overview and value proposition
+
 - [ ] Key features highlighted
+
 - [ ] Installation instructions complete and tested
+
 - [ ] Quick start guide for immediate success
+
 - [ ] Usage examples for common scenarios
+
 - [ ] Links to detailed documentation
 
 ### Installation Guides
+
 - [ ] Prerequisites clearly listed (Node.js version, npm/yarn)
+
 - [ ] Step-by-step installation process
+
 - [ ] Platform-specific instructions (Windows, macOS, Linux)
+
 - [ ] Troubleshooting common installation issues
+
 - [ ] Verification steps to confirm successful installation
 
 ### Quick Start Guides
+
 - [ ] Minimal example to first success
+
 - [ ] Common use cases covered
+
 - [ ] Progressive complexity (simple to advanced)
+
 - [ ] Expected output shown
+
 - [ ] Next steps guidance
 
 ### Usage Examples
+
 - [ ] Real-world scenarios
+
 - [ ] Complete, runnable code
+
 - [ ] Input/output examples
+
 - [ ] Edge cases and limitations
+
 - [ ] Best practices demonstrated
 
 ### FAQ and Troubleshooting
+
 - [ ] Common questions answered
+
 - [ ] Error messages explained
+
 - [ ] Debugging guidance
+
 - [ ] Known limitations documented
+
 - [ ] Where to get help
 
 ## Prompt Template
@@ -99,7 +125,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -163,8 +191,11 @@ Create a comprehensive README.md that serves as the front door to your project:
 ## ✨ What's New in v[X.Y.Z]
 
 - 🚀 [New Feature 1]: Brief description
+
 - ⚡ [Performance Improvement]: Specific metric (e.g., "50% faster")
+
 - 🐛 [Important Bug Fix]: What was fixed
+
 - 📝 [Documentation Update]: What was improved
 
 [See full changelog](CHANGELOG.md)
@@ -180,8 +211,11 @@ Create a comprehensive README.md that serves as the front door to your project:
 **Solution**: [How does this project solve it?]
 
 **Benefits**:
+
 - ✅ [Key benefit 1]
+
 - ✅ [Key benefit 2]
+
 - ✅ [Key benefit 3]
 
 ---
@@ -189,8 +223,11 @@ Create a comprehensive README.md that serves as the front door to your project:
 ## 🎯 Key Features
 
 - **[Feature 1]**: Description of what it does and why it matters
+
 - **[Feature 2]**: Highlight unique or powerful capabilities
+
 - **[Feature 3]**: Emphasize ease of use or performance benefits
+
 - **[Feature 4]**: Note integration capabilities or extensibility
 
 ---
@@ -237,8 +274,11 @@ console.log(result);
 ### Prerequisites
 
 Before installing, ensure you have:
+
 - Node.js 16.x or higher (18.x+ recommended)
+
 - npm 7+ (or yarn 1.22+, pnpm 7+)
+
 - [Optional] TypeScript 4.5+ for TypeScript projects
 
 ### Installation Options
@@ -469,9 +509,13 @@ const instance = MainClass.fromEnv();
 ## 📚 Documentation
 
 - **[User Guide](docs/USER_GUIDE.md)**: Comprehensive usage documentation
+
 - **[API Reference](docs/API.md)**: Complete API documentation
+
 - **[Examples](examples/)**: More code examples and tutorials
+
 - **[FAQ](docs/FAQ.md)**: Frequently asked questions
+
 - **[Troubleshooting](docs/TROUBLESHOOTING.md)**: Common issues and solutions
 
 ---
@@ -574,6 +618,7 @@ This project is licensed under the [MIT License](LICENSE) - see the LICENSE file
 ## 🙏 Acknowledgments
 
 - [Contributor/Library]: For [contribution/inspiration]
+
 - [Resource]: For [helpful resource]
 
 ---
@@ -581,8 +626,11 @@ This project is licensed under the [MIT License](LICENSE) - see the LICENSE file
 ## 📞 Support
 
 - **Issues**: [GitHub Issues](https://github.com/username/project/issues)
+
 - **Discussions**: [GitHub Discussions](https://github.com/username/project/discussions)
+
 - **Discord**: [Community Server](https://discord.gg/...)
+
 - **Documentation**: [https://project-docs.com](https://project-docs.com)
 
 ---
@@ -590,7 +638,9 @@ This project is licensed under the [MIT License](LICENSE) - see the LICENSE file
 ## 🗺️ Roadmap
 
 - [ ] v[X+1].0: [Planned major feature]
+
 - [ ] v[X].Y: [Planned minor feature]
+
 - [ ] [Future feature/improvement]
 
 See [ROADMAP.md](ROADMAP.md) for detailed plans.
@@ -616,16 +666,25 @@ Complete installation instructions for [Project Name].
 ## System Requirements
 
 ### Minimum Requirements
+
 - **OS**: Windows 10+, macOS 10.14+, or Linux (Ubuntu 20.04+)
+
 - **Node.js**: 16.x or higher
+
 - **npm**: 7.x or higher (or yarn 1.22+, pnpm 7+)
+
 - **RAM**: 2GB minimum, 4GB recommended
+
 - **Disk Space**: 200MB
 
 ### Recommended Requirements
+
 - Node.js 18.x LTS for best performance
+
 - npm 9.x or yarn 3.x
+
 - 8GB RAM for large projects
+
 - SSD for faster package installation
 
 ---
@@ -754,8 +813,10 @@ npm install -g package-name
 ```
 
 **Common Issues**:
+
 - **Error**: "npm is not recognized"
   - **Fix**: Add Node.js to PATH or reinstall Node.js
+
 - **Error**: "Access is denied"
   - **Fix**: Run as Administrator or use user-level installation
 
@@ -779,8 +840,10 @@ npm install -g package-name
 ```
 
 **Common Issues**:
+
 - **Error**: "Permission denied"
   - **Fix**: Use `sudo` or configure npm to use user directory
+
 - **Error**: "Command not found: npm"
   - **Fix**: Ensure Node.js is properly installed: `brew reinstall node`
 
@@ -1013,11 +1076,15 @@ npm install
 ### Common Installation Errors
 
 **Error**: `Cannot find module 'package-name'`
+
 - **Cause**: Package not installed or not in node_modules
+
 - **Fix**: Run `npm install` or `npm install package-name`
 
 **Error**: `EACCES: permission denied`
+
 - **Cause**: Insufficient permissions for global installation
+
 - **Fix**: Configure npm to use user directory:
   ```bash
   mkdir ~/.npm-global
@@ -1026,11 +1093,15 @@ npm install
   ```
 
 **Error**: `ERESOLVE unable to resolve dependency tree`
+
 - **Cause**: Dependency version conflicts
+
 - **Fix**: Use `npm install --legacy-peer-deps` or update dependencies
 
 **Error**: Network timeouts or slow installation
+
 - **Cause**: Slow network or npm registry issues
+
 - **Fix**: Try a different registry or use a mirror:
   ```bash
   npm config set registry https://registry.npmjs.org/
@@ -1039,7 +1110,9 @@ npm install
   ```
 
 **Error**: Compilation errors during installation
+
 - **Cause**: Missing native build tools
+
 - **Fix**: Install build tools:
   - Windows: `npm install -g windows-build-tools`
   - macOS: `xcode-select --install`
@@ -1091,9 +1164,13 @@ Get started with [Project Name] in under 10 minutes.
 ## What You'll Build
 
 By the end of this guide, you'll have:
+
 - ✅ Installed and configured [Project Name]
+
 - ✅ Run your first example
+
 - ✅ Understanding of core concepts
+
 - ✅ Ready to build your own solution
 
 **Time Required**: ~10 minutes
@@ -1103,8 +1180,11 @@ By the end of this guide, you'll have:
 ## Prerequisites
 
 - Node.js 16+ installed
+
 - npm or yarn installed
+
 - Basic JavaScript knowledge
+
 - Terminal/command line access
 
 ---
@@ -1218,16 +1298,23 @@ node first-example.js
 Now that you have the basics:
 
 ### Explore More Examples
+
 - **[Example 2: Async Processing](examples/async-processing.js)**: Concurrent operations
+
 - **[Example 3: Error Handling](examples/error-handling.js)**: Robust error management
+
 - **[Example 4: React Integration](examples/react-app/)**: Frontend framework integration
 
 ### Read Documentation
+
 - **[User Guide](USER_GUIDE.md)**: Comprehensive usage guide
+
 - **[API Reference](API.md)**: Complete API documentation
 
 ### Join Community
+
 - **[GitHub Discussions](https://github.com/username/project/discussions)**: Ask questions
+
 - **[Discord](https://discord.gg/...)**: Chat with community
 
 ---
@@ -1282,7 +1369,9 @@ robustProcess().catch(console.error);
 ## Need Help?
 
 - **Error Messages**: See [Troubleshooting](TROUBLESHOOTING.md)
+
 - **Questions**: Open an [issue](https://github.com/username/project/issues)
+
 - **Examples**: Check [examples/](examples/) directory
 
 **Congratulations!** You're ready to use [Project Name].
@@ -1332,8 +1421,11 @@ Node.js 16.x or higher is required. Node.js 18.x LTS is recommended for best per
 ### Should I use npm, yarn, or pnpm?
 
 All three are supported. Choose based on your project:
+
 - **npm**: Default, comes with Node.js
+
 - **yarn**: Faster, better for monorepos
+
 - **pnpm**: Most disk-efficient, strict dependency resolution
 
 ---
@@ -1460,32 +1552,51 @@ Please provide user documentation in this format:
 ## User Documentation Summary
 
 **Files Created**: [count]
+
 - README.md: [Complete/Updated]
+
 - Installation Guide: [Yes/No]
+
 - Quick Start Guide: [Yes/No]
+
 - FAQ: [Yes/No]
+
 - Troubleshooting Guide: [Yes/No]
 
 **Target Audience**: [Beginner/Intermediate/Advanced]
 
 **Content Metrics**:
+
 - Code examples: [count]
+
 - Platform-specific instructions: [Windows/macOS/Linux]
+
 - Package managers documented: [npm/yarn/pnpm]
+
 - FAQ entries: [count]
+
 - Troubleshooting scenarios: [count]
 
 **Quality Checks**:
+
 - [ ] All examples tested and functional
+
 - [ ] Installation instructions verified on all platforms
+
 - [ ] Links working and up-to-date
+
 - [ ] TypeScript examples included
+
 - [ ] Accessible to target audience
 
 **Next Steps**:
+
 - [ ] Review documentation for accuracy
+
 - [ ] Test installation on fresh system
+
 - [ ] Get feedback from target users
+
 - [ ] Set up documentation hosting
 ```
 
@@ -1526,43 +1637,29 @@ Please provide user documentation in this format:
 
 ---
 
-## File Output Instructions
-
-**IMPORTANT**: Save all generated files to the correct directory structure:
-
-```bash
-# Create directory structure
-mkdir -p ${OUTPUT_DIR}/user_docs/generated_docs
-mkdir -p ${OUTPUT_DIR}/user_docs/templates
-mkdir -p ${OUTPUT_DIR}/user_docs/assets
-mkdir -p ${OUTPUT_DIR}/user_docs/exports
-```
-
-**Save files as follows**:
-
-
-- Templates → `documentation/user_docs/templates/`
-
-- Assets → `documentation/user_docs/assets/`
-
-- Exports → `documentation/user_docs/exports/`
-
-Replace `{phase_name}` with the specific phase (docstrings, comments, user_docs, technical_docs, api_docs, or sbom).
-
-~~~
-
 ## Output Format Specifications
 
 The user documentation should:
+
 - Be clear and accessible to JavaScript/TypeScript developers
+
 - Include complete, tested, runnable examples for both JS and TS
+
 - Cover npm, yarn, and pnpm package managers
+
 - Provide step-by-step instructions with expected outcomes
+
 - Cover multiple platforms where applicable
+
 - Include troubleshooting for common Node.js/npm issues
+
 - Use consistent formatting and structure
+
 - Link between related documentation sections
+
 - Include badges and visual aids where helpful
+
+~~~
 ---
 
 ## Verify Directory Structure
@@ -1582,7 +1679,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

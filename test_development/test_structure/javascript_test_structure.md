@@ -32,31 +32,51 @@ tests/test_structure/
 ## Implementation Checklist
 
 ### Test Framework Setup
+
 - [ ] Test framework selected (Jest/Mocha/Jasmine)
+
 - [ ] Configuration files created (jest.config.js, .mocharc.json)
+
 - [ ] Required plugins installed and configured
+
 - [ ] Test discovery rules established
+
 - [ ] Parallel execution configured
 
 ### Directory Structure
+
 - [ ] Standard test layout implemented
+
 - [ ] Test type separation (unit/integration/e2e) organized
+
 - [ ] Naming conventions documented
+
 - [ ] Resource directories created
+
 - [ ] Module resolution configured
 
 ### Fixture Infrastructure
+
 - [ ] Setup/teardown hooks established
+
 - [ ] Fixture scopes defined appropriately
+
 - [ ] Fixture factories implemented
+
 - [ ] Fixture documentation added
+
 - [ ] Common fixtures centralized
 
 ### Test Utilities
+
 - [ ] Common assertion helpers created
+
 - [ ] Test data generators implemented
+
 - [ ] Custom matchers defined
+
 - [ ] Shared base classes established
+
 - [ ] Helper documentation provided
 
 ## Prompt Template
@@ -91,7 +111,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -878,10 +900,15 @@ Replace `{phase_name}` with the specific phase (test_structure, test_cases, mock
 Please provide a comprehensive test infrastructure design with the following structure:
 
 ### Infrastructure Summary
+
 - **Test Framework**: [Jest/Mocha/Vitest with justification]
+
 - **Total Test Files**: [count]
+
 - **Test Organization**: [structure description]
+
 - **Setup Files**: [list of configuration files]
+
 - **Utility Modules**: [list of helper modules]
 
 ### Directory Structure
@@ -890,28 +917,37 @@ Please provide a comprehensive test infrastructure design with the following str
 ```
 
 ### Configuration Files Created
+
 - **jest.config.js** or **vitest.config.js**: [Key settings configured]
+
 - **setup.js**: [Global setup description]
+
 - **Custom configurations**: [Any project-specific settings]
 
 ### Fixture Infrastructure
 **Global Setup**:
+
 - [setup_item]: [description and purpose]
 
 **Factories**:
+
 - [factory_name]: [description and usage]
 
 **Builders**:
+
 - [builder_name]: [description and fluent interface]
 
 ### Test Utilities
 **Custom Matchers** (`tests/helpers/assertions.js`):
+
 - [matcher_name]: [purpose]
 
 **Data Generators** (`tests/helpers/factories.js`):
+
 - [generator_name]: [purpose]
 
 **Helper Functions** (`tests/helpers/testUtils.js`):
+
 - [helper_name]: [purpose]
 
 ### Test Execution Commands
@@ -942,20 +978,33 @@ npm run test:debug
 5. **Test Data**: [where to store, how to organize]
 
 ### Best Practices Implemented
+
 - Clear test organization by type
+
 - Reusable fixtures and factories
+
 - Custom matchers for domain-specific assertions
+
 - Comprehensive test utilities
+
 - Parallel execution support
+
 - Coverage measurement integrated
+
 - Watch mode for development
 
 ### Next Steps
+
 - [ ] Implement actual test cases using this infrastructure
+
 - [ ] Add project-specific fixtures
+
 - [ ] Configure CI/CD integration
+
 - [ ] Set up code coverage reporting
+
 - [ ] Document testing guidelines for team
+
 - [ ] Create test templates for common scenarios
 ~~~
 
@@ -990,7 +1039,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

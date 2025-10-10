@@ -32,34 +32,57 @@ cleanup/
 ## Review Checklist
 
 ### Dead Code & Drift
+
 - [ ] Unused functions, variables, and macros identified
+
 - [ ] Dormant feature flags, experiments, or compile-time toggles catalogued
+
 - [ ] Deprecated APIs and interfaces mapped to replacement timeline
+
 - [ ] Obsolete configuration values or compile flags removed
+
 - [ ] Unreachable code paths confirmed with coverage/profiling evidence
+
 - [ ] Unused static libraries or object files identified
 
 ### Duplication & Consolidation
+
 - [ ] Near-duplicate functions grouped with merge candidates
+
 - [ ] Copy-pasted logic replaced with shared functions or macros
+
 - [ ] Repeated initialization patterns centralized
+
 - [ ] Configuration defaults unified across modules
+
 - [ ] DRY violations documented with recommended abstractions
+
 - [ ] Duplicate struct definitions or typedefs consolidated
 
 ### Refactoring Readiness
+
 - [ ] Local complexity hotspots captured (cyclomatic, cognitive metrics)
+
 - [ ] Large functions broken into manageable units
+
 - [ ] Legacy patterns replaced with modern C equivalents
+
 - [ ] Naming aligns with domain language and module boundaries
+
 - [ ] Deprecation notices or migration guides drafted where needed
+
 - [ ] Code follows consistent style (MISRA-C, CERT-C, or project standards)
 
 ### Regression Safety
+
 - [ ] Critical behaviours covered by unit/integration tests
+
 - [ ] Cleanup changes validated on target hardware (for embedded systems)
+
 - [ ] Memory usage verified (stack, heap, static)
+
 - [ ] Stakeholders notified of breaking removals
+
 - [ ] Rollback strategy documented
 
 ## Prompt Template
@@ -94,7 +117,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -142,23 +167,34 @@ Before making ANY changes, please:
 After I approve, systematically clean the following:
 
 ### Critical Removals
+
 - **Unused #include directives**: Remove headers not referenced in the file
   - Be cautious: some headers may be needed for type definitions
   - Check for transitive dependencies before removing
+
 - **Unused variables**: Remove variables that are assigned but never read
   - Check for volatile variables used for hardware access
+
 - **Unused functions**: Remove static functions that are never called
   - PRESERVE non-static functions (may be called from other modules)
+
 - **Unused macros**: Remove #define macros that are never used
+
 - **Unused typedef/struct**: Remove type definitions that are never used
+
 - **Empty lines within functions**: Remove excessive blank lines inside function bodies
   - KEEP empty lines between logical code sections and between functions
 
 ### Comment Cleanup
+
 - **Inline comments**: Remove same-line comments unless they explain complex logic
+
 - **Meta-commentary**: Remove comments about code changes (version control handles this)
+
 - **Commented-out code**: Remove old code blocks that are commented out
+
 - **TODO comments**: Flag or remove stale TODO comments
+
 - PRESERVE comments that explain:
   - Why a particular approach was chosen
   - Business logic or domain-specific rules
@@ -169,78 +205,128 @@ After I approve, systematically clean the following:
   - Function documentation (Doxygen-style comments)
 
 ### Debugging & Development Artifacts
+
 - **Debug print statements**: Remove printf() and fprintf(stderr, ...) used for debugging
   - PRESERVE intentional output or error messages
+
 - **Test-only code**: Remove code marked as temporary test scaffolding
+
 - **Debug macros**: Remove or clean up DEBUG-only code sections
 
 ### Additional Cleanup Opportunities
 
 #### Code Quality
+
 - **Redundant code**: Identify and consolidate duplicate functions or logic blocks
+
 - **Dead code after returns**: Remove unreachable code after return statements
+
 - **Unnecessary else**: Simplify if-return patterns that don't need else blocks
+
 - **Trailing whitespace**: Remove whitespace at end of lines
+
 - **Redundant NULL checks**: Remove checks that can never be true
+
 - **Redundant type casts**: Remove unnecessary type casts
+
 - **Magic numbers**: Replace with named constants or #define macros
 
 #### Include Organization
+
 - **Organize includes**: Sort include directives in standard order:
   1. Corresponding header file (for .c files)
   2. System headers (<stdio.h>, <stdlib.h>, etc.)
   3. Third-party library headers
   4. Project headers
+
 - **Include guards**: Ensure all headers have proper include guards
+
 - **Forward declarations**: Use forward declarations to reduce header dependencies
 
 #### Memory Management
+
 - **Memory leaks**: Ensure all malloc() has corresponding free()
+
 - **Double free**: Check for potential double-free vulnerabilities
+
 - **Use after free**: Identify potential use-after-free issues
+
 - **Buffer overflows**: Review array access and strcpy/sprintf usage
+
 - **NULL pointer checks**: Add missing NULL checks after malloc()
+
 - **Resource cleanup**: Ensure file handles, sockets are properly closed
 
 #### C Best Practices
+
 - **const correctness**: Add const to function parameters and variables where appropriate
+
 - **Static functions**: Mark internal functions as static to limit scope
+
 - **Function prototypes**: Ensure all functions have prototypes in headers or at file top
+
 - **Avoid global variables**: Minimize global state, prefer passing parameters
+
 - **Error handling**: Check return values from all functions that can fail
+
 - **Initialization**: Initialize all variables at declaration
+
 - **Array bounds**: Ensure all array accesses are within bounds
+
 - **String safety**: Replace strcpy/strcat with safer alternatives (strncpy, strncat, snprintf)
 
 #### Modern C Features (C99+)
+
 - **Inline functions**: Use inline for small, frequently-called functions (C99)
+
 - **Variable declarations**: Declare variables closer to use point (C99)
+
 - **Bool type**: Use stdbool.h for boolean types (C99)
+
 - **Fixed-width integers**: Use stdint.h types (int32_t, uint8_t, etc.) (C99)
+
 - **Compound literals**: Use for inline struct initialization (C99)
+
 - **Designated initializers**: Use for clear struct initialization (C99)
 
 #### Embedded Systems Considerations
+
 - **Stack usage**: Review stack usage in embedded contexts
+
 - **Heap usage**: Minimize or eliminate dynamic allocation in constrained environments
+
 - **Volatile**: Ensure volatile is used for hardware registers and interrupt-shared data
+
 - **Packed structs**: Review __attribute__((packed)) usage for hardware interfaces
+
 - **Alignment**: Ensure proper alignment for DMA buffers and hardware access
+
 - **Interrupt safety**: Review interrupt handler code for safety
+
 - **Static memory**: Prefer static memory allocation over dynamic in embedded systems
 
 #### Static Analysis Findings
+
 - **cppcheck warnings**: Address all warnings from cppcheck
+
 - **clang-tidy**: Fix issues reported by clang-tidy
+
 - **Coverity**: Address findings from Coverity Scan
+
 - **MISRA-C**: Fix MISRA-C violations (if applicable)
+
 - **CERT-C**: Fix CERT-C secure coding violations
+
 - **PC-lint/Flexelint**: Address findings from commercial linters
 
 #### Build System
+
 - **Unused source files**: Remove .c files not included in build
+
 - **Unused libraries**: Remove libraries not linked
+
 - **Compiler flags**: Review and clean up compiler flags
+
 - **Dependencies**: Update dependency lists in Makefile/CMakeLists.txt
 
 ## Phase 3: Verification Protocol
@@ -282,49 +368,80 @@ After cleanup, you MUST:
 ## Critical Safety Rules
 
 **DO NOT:**
+
 - Remove any non-static functions (may be called from other modules)
+
 - Remove function documentation comments
+
 - Remove empty lines between functions or major code sections
+
 - Remove comments that explain business logic or complex algorithms
+
 - Remove constants or variables even if seemingly unused (may be used via extern)
+
 - Remove volatile qualifiers from hardware registers or interrupt-shared data
+
 - Remove struct packing attributes needed for hardware interfaces
+
 - Change function signatures or public APIs
+
 - Remove interrupt handlers or callback functions
+
 - Make multiple sweeping changes at once - work systematically by category
 
 **ALWAYS:**
+
 - Work on one file at a time or in small logical groups
+
 - Explain any removal that might be ambiguous
+
 - Preserve code functionality - cleanup should never change behavior
+
 - Ask for confirmation if uncertain about removing something
+
 - Track what was removed in case rollback is needed
+
 - Run static analysis tools after changes
+
 - Test on target hardware for embedded systems
+
 - Preserve backward compatibility for public APIs
+
 - Be extremely careful with memory management changes
+
 - Consider interrupt context and thread safety
 
 ## Output Format
 Present cleanup in this structure:
+
 - **Cleanup Report - [Category]**
+
 - **File:** path/to/file.c
+
 - **Removals:**
   - Line X: Unused #include <string.h>
   - Lines X-Y: Unused static function function_name()
   - Line Z: Debug printf() statement
   - Line N: Inline comment removed
+
 - **Rationale:** [Brief explanation of why these were removed]
 
 ## Summary Statistics
 
 - **Total files processed:** X
+
 - **Unused includes removed:** Y
+
 - **Unused functions removed:** Z
+
 - **Debug statements removed:** N
+
 - **Memory leaks fixed:** M
+
 - **Lines removed:** L
+
 - **Code reduction:** X%
+
 - **Static analysis issues fixed:** P
 
 **Overall Impact:** [Low/Medium/High risk assessment]
@@ -354,15 +471,25 @@ mkdir -p ${OUTPUT_DIR}/analysis
 
 ## Optional Advanced Cleanup (Requires Extra Review)
 If you'd like an even more thorough cleanup, also consider:
+
 - **Function documentation**: Flag functions missing Doxygen-style comments
+
 - **Naming convention audit**: Ensure consistent naming conventions
+
 - **Complexity analysis**: Flag overly complex functions (cyclomatic complexity > 10)
+
 - **Error handling review**: Ensure consistent error handling patterns
+
 - **Thread safety review**: Review multi-threaded code for race conditions
+
 - **Performance optimization**: Identify inefficient patterns
+
 - **Security audit**: Review for buffer overflows, format string vulnerabilities
+
 - **Porting considerations**: Flag non-portable code if cross-platform support is needed
+
 - **Unit test coverage**: Ensure critical code has unit test coverage
+
 - **API design review**: Review public API design for clarity and safety
 
 These require more careful review and may involve refactoring beyond simple cleanup.
@@ -386,7 +513,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

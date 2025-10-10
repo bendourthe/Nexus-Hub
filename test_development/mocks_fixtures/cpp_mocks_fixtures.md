@@ -32,24 +32,39 @@ tests/mocks_fixtures/
 ## Implementation Checklist
 
 ### Fixture Setup
+
 - [ ] Test fixture classes configured appropriately
+
 - [ ] Test data builders created for flexible data generation
+
 - [ ] Fixture factories implemented with realistic data
+
 - [ ] Cleanup and RAII patterns applied
+
 - [ ] Fixtures documented with clear purposes
 
 ### Mocking Strategy
+
 - [ ] External dependencies identified for mocking
+
 - [ ] Interfaces defined for mockable components
+
 - [ ] Mock implementations created with GMock or Trompeloeil
+
 - [ ] Expectation methods used appropriately
+
 - [ ] Over-mocking avoided
 
 ### Test Data Management
+
 - [ ] Test data factories implemented
+
 - [ ] Realistic test data patterns established
+
 - [ ] Data builders for complex objects created
+
 - [ ] Test data isolated per test
+
 - [ ] RAII ensures automatic cleanup
 
 ## Prompt Template
@@ -84,7 +99,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -573,18 +590,29 @@ TEST_F(UserServiceTest, FindUser) {
 ### When to Mock vs Use Real Objects
 
 **Use Mocks For**:
+
 - External APIs and services
+
 - Database operations in unit tests
+
 - File system operations
+
 - Network requests
+
 - Slow dependencies
+
 - Non-deterministic behavior
 
 **Use Real Objects For**:
+
 - POD types and simple classes
+
 - Value objects
+
 - Pure functions
+
 - Integration tests
+
 - Critical business logic
 
 ```cpp
@@ -953,12 +981,15 @@ Please provide a comprehensive mocks and fixtures implementation with the follow
 
 ### Fixture Architecture
 **Suite-Level Setup** (SetUpTestSuite/TearDownTestSuite):
+
 - [fixture_name]: [purpose, setup, teardown]
 
 **Test-Level Setup** (SetUp/TearDown):
+
 - [fixture_name]: [purpose, RAII usage]
 
 **Fixture Factories**:
+
 - [factory_name]: [creates what, lambda configuration]
 
 ### Mocking Strategy
@@ -978,10 +1009,13 @@ EXPECT_CALL(*mock_repository, Save(_))
 
 ### Test Data Factories
 **Factory Classes**:
+
 - UserFactory: [lambda configuration, RAII]
+
 - OrderFactory: [lambda configuration, RAII]
 
 **Builder Classes**:
+
 - [builder_name]: [purpose, fluent interface, smart pointers]
 
 ### Usage Examples
@@ -1015,25 +1049,41 @@ TEST_F(UserRegistrationTest, RegisterUser) {
 ```
 
 ### Best Practices Implemented
+
 - [ ] RAII ensures automatic cleanup
+
 - [ ] Smart pointers manage memory
+
 - [ ] Interfaces enable mocking
+
 - [ ] Test data factories use lambda configuration
+
 - [ ] Expectations clearly define behavior
+
 - [ ] Parameterized tests for multiple cases
 
 ### Common Pitfalls Avoided
+
 - Not using virtual destructors in interfaces
+
 - Manual memory management instead of smart pointers
+
 - Over-mocking value objects
+
 - Complex expectation setups
+
 - Testing mock behavior instead of real code
 
 ### Next Steps
+
 - [ ] Implement remaining fixtures for integration tests
+
 - [ ] Add factories for all domain classes
+
 - [ ] Document fixture usage for team
+
 - [ ] Set up mock interfaces for external dependencies
+
 - [ ] Review mock coverage and necessity
 
 ## File Output Instructions
@@ -1092,7 +1142,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

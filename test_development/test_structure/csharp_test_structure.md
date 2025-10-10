@@ -32,31 +32,51 @@ tests/test_structure/
 ## Implementation Checklist
 
 ### Test Framework Setup
+
 - [ ] Test framework selected (xUnit/NUnit/MSTest)
+
 - [ ] NuGet packages installed and configured
+
 - [ ] Test discovery rules established
+
 - [ ] Parallel execution configured
+
 - [ ] Test settings configured
 
 ### Directory Structure
+
 - [ ] Standard .NET test layout implemented
+
 - [ ] Test type separation (unit/integration/e2e) organized
+
 - [ ] Naming conventions documented
+
 - [ ] Resource directories created
+
 - [ ] Test categories configured
 
 ### Fixture Infrastructure
+
 - [ ] Test class constructors/Setup methods established
+
 - [ ] IClassFixture/ICollectionFixture configured
+
 - [ ] Fixture scopes defined appropriately
+
 - [ ] Fixture factories implemented
+
 - [ ] Common fixtures centralized
 
 ### Test Utilities
+
 - [ ] Custom assertions created
+
 - [ ] Test data builders implemented
+
 - [ ] Helper classes established
+
 - [ ] Object mothers defined
+
 - [ ] Utility documentation provided
 
 ## Prompt Template
@@ -91,7 +111,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -781,10 +803,15 @@ Replace `{phase_name}` with the specific phase (test_structure, test_cases, mock
 ## Output Format
 
 ### Infrastructure Summary
+
 - **Test Framework**: [xUnit/NUnit/MSTest with justification]
+
 - **Total Test Projects**: [count]
+
 - **Test Organization**: [structure description]
+
 - **Fixture Types**: [list of fixture types]
+
 - **Utility Projects**: [shared test utilities]
 
 ### Directory Structure
@@ -793,28 +820,37 @@ Replace `{phase_name}` with the specific phase (test_structure, test_cases, mock
 ```
 
 ### Configuration Files Created
+
 - **.csproj files**: Dependencies and settings
+
 - **xunit.runner.json** or **.runsettings**: Test configuration
+
 - **Directory.Build.props**: Solution-wide settings
 
 ### Fixture Infrastructure
 **Class Fixtures**:
+
 - [fixture_name]: [description and purpose]
 
 **Collection Fixtures**:
+
 - [fixture_name]: [description and shared scope]
 
 **Builders**:
+
 - [builder_name]: [fluent API methods]
 
 ### Test Utilities
 **Custom Assertions**:
+
 - [assertion_name]: [purpose and usage]
 
 **Data Generators**:
+
 - [generator_name]: [AutoFixture/Bogus configuration]
 
 **Helper Extensions**:
+
 - [extension_name]: [utility methods]
 
 ### Test Execution Commands
@@ -833,19 +869,31 @@ Test Explorer -> Run All
 ```
 
 ### Best Practices Implemented
+
 - Clear separation of test types (Unit/Integration/E2E)
+
 - Reusable fixtures and builders
+
 - Custom assertions for domain objects
+
 - Realistic test data generation
+
 - Parallel execution configured
+
 - Code coverage integrated
+
 - Proper test isolation
 
 ### Next Steps
+
 - [ ] Implement actual test cases using infrastructure
+
 - [ ] Configure CI/CD integration
+
 - [ ] Set up code coverage reporting
+
 - [ ] Add integration test databases
+
 - [ ] Document team testing guidelines
 ~~~
 
@@ -880,7 +928,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

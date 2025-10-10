@@ -1,18 +1,18 @@
 # AI Development Templates
 
-**Version 0.2.3** | Released October 10, 2025
+**Version 0.2.4** | Released October 10, 2025
 
-This repository contains comprehensive templates and standardized prompts to enhance AI-assisted software development. Complete multi-language support across 7 programming languages with 162 production-ready templates, repository-agnostic design, and streamlined 3-subdirectory output structure.
+This repository contains comprehensive templates and standardized prompts to enhance AI-assisted software development. Complete multi-language support across 7 programming languages with 162 production-ready templates, repository-agnostic design, and optimized Bitbucket rendering.
 
 ---
 
-## 🎉 What's New in Version 0.2.3
+## 🎉 What's New in Version 0.2.4
 
-- **Simplified Directory Structure**: Streamlined from 4 to 3 subdirectories (`templates/`, `assets/`, `exports/`)
-- **OUTPUT_DIR Variable**: All templates now establish output directory at the beginning for consistent file placement
-- **Improved File Path Management**: All file generation commands use `${OUTPUT_DIR}/` prefix
-- **Built-in Verification**: Each template includes directory structure verification checklist
-- **155 Files Updated**: All template files updated with improved directory structure and organization
+- **Improved Bitbucket Rendering**: Fixed bullet point formatting with proper blank lines for perfect markdown display
+- **Template Content Cleanup**: Removed redundant "File Output Instructions" sections from all templates
+- **Proper Section Placement**: Moved "Output Format Specifications" inside copyable prompt templates
+- **Better User Experience**: Template sections now logically organized (instructions inside, verification outside)
+- **154 Files Updated**: All template files cleaned up and optimized for Bitbucket compatibility
 
 [View Changelog](CHANGELOG.md) | [View Development Log](DEVLOG.md) | [View Releases](../../releases)
 
@@ -225,7 +225,7 @@ Current templates focus on Python. To extend to other languages:
 
 ---
 
-*AI Development Templates v0.2.3 - Empowering development teams with structured, AI-assisted workflows*
+*AI Development Templates v0.2.4 - Empowering development teams with structured, AI-assisted workflows*
 
 *Last Updated: October 2025*
 *Repository maintained by Benjamin Dourthe (benjamin@adonamed.com)*

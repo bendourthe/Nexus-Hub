@@ -32,11 +32,17 @@ review/final_report/
 ## Report Structure
 
 This template consolidates:
+
 - Context Analysis findings (Maven/Gradle, Spring Boot, architecture)
+
 - Code Quality issues (Checkstyle, PMD, SpotBugs, SonarQube)
+
 - Security vulnerabilities (OWASP, deserialization, XXE)
+
 - Performance bottlenecks (JVM, GC, database)
+
 - Testing gaps (JUnit, Mockito, coverage)
+
 - Overall recommendations
 
 ## Prompt Template
@@ -71,7 +77,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -140,15 +148,19 @@ Categorize all findings using a 2x2 matrix:
 **Impact vs Effort Matrix**:
 ```
 High Impact, Low Effort (DO FIRST - Quick Wins)
+
 - [List findings that deliver significant value with minimal work]
 
 High Impact, High Effort (PLAN CAREFULLY - Strategic Initiatives)
+
 - [List findings requiring substantial investment but critical for success]
 
 Low Impact, Low Effort (DO WHEN TIME PERMITS - Nice to Have)
+
 - [List minor improvements that are easy to implement]
 
 Low Impact, High Effort (AVOID - Not Worth It)
+
 - [List improvements with poor ROI]
 ```
 
@@ -191,6 +203,7 @@ Create a phased implementation plan:
 Define success metrics to track improvement:
 
 ### Code Quality Metrics
+
 - **Current State**:
   - Maintainability Index: [score]
   - Average Complexity: [score]
@@ -206,15 +219,21 @@ Define success metrics to track improvement:
   - Technical Debt: [target hours reduction]
 
 ### Security Metrics
+
 - **Current**: [X] critical, [Y] high, [Z] medium vulnerabilities
+
 - **Target**: 0 critical, 0 high, <5 medium
 
 ### Performance Metrics
+
 - **Current**: [baseline performance numbers]
+
 - **Target**: [performance goals]
 
 ### Testing Metrics
+
 - **Current**: [X]% coverage, [Y] flaky tests
+
 - **Target**: 80%+ coverage, 0 flaky tests
 
 ## Output Format
@@ -237,27 +256,42 @@ Please provide a comprehensive final report with the following structure:
 ## Executive Summary
 
 ### Overall Health Assessment
+
 - **Code Quality**: [Grade: A-F] - [Brief assessment]
+
 - **Security**: [Grade: A-F] - [Brief assessment]
+
 - **Performance**: [Grade: A-F] - [Brief assessment]
+
 - **Testing**: [Grade: A-F] - [Brief assessment]
+
 - **Overall Recommendation**: [Production-ready / Needs work / Major refactoring needed]
 
 ### Key Highlights
 **Strengths**:
+
 - [Positive finding 1 - e.g., "Well-structured Spring Boot application with clear layering"]
+
 - [Positive finding 2 - e.g., "Comprehensive JUnit 5 test suite with 75% coverage"]
+
 - [Positive finding 3 - e.g., "Modern Java features effectively utilized"]
 
 **Critical Concerns**:
+
 - [Critical issue 1 - e.g., "SQL injection vulnerabilities in 3 endpoints"]
+
 - [Critical issue 2 - e.g., "Memory leak in user session management"]
+
 - [Critical issue 3 - e.g., "N+1 query problem affecting API performance"]
 
 ### Investment Summary
+
 - **Immediate Actions Required**: [hours/days]
+
 - **Short-term Improvements**: [weeks]
+
 - **Long-term Initiatives**: [months]
+
 - **Total Technical Debt**: [estimated hours]
 
 ---
@@ -267,10 +301,15 @@ Please provide a comprehensive final report with the following structure:
 ### 1. Context & Architecture
 
 **Project Overview**:
+
 - **Purpose**: [Brief description]
+
 - **Architecture**: [Layered/Microservices/etc.]
+
 - **Tech Stack**: [Spring Boot, JPA, PostgreSQL, etc.]
+
 - **Build Tool**: [Maven/Gradle version]
+
 - **Development Stage**: [Prototype/Production/Legacy]
 
 **Technology Stack**:
@@ -283,8 +322,11 @@ Please provide a comprehensive final report with the following structure:
 | Database | PostgreSQL/etc. | [version] | [current/outdated] |
 
 **Architecture Assessment**:
+
 - **Strengths**: [Well-organized packages, clean separation of concerns]
+
 - **Concerns**: [Tight coupling between services, missing abstraction layers]
+
 - **Dependencies**: [5 outdated dependencies with security vulnerabilities]
 
 ---
@@ -294,10 +336,15 @@ Please provide a comprehensive final report with the following structure:
 **Overall Quality Score**: [A-F]
 
 **Key Metrics**:
+
 - Maintainability Index: [score]
+
 - Average Cyclomatic Complexity: [score]
+
 - Lines of Code: [count]
+
 - Technical Debt: [estimated hours]
+
 - Static Analysis Issues: [count]
 
 **Static Analysis Results**:
@@ -327,9 +374,13 @@ Please provide a comprehensive final report with the following structure:
 **Overall Security Score**: [A-F]
 
 **Vulnerability Summary**:
+
 - Critical (CVSS 9.0+): [count]
+
 - High (CVSS 7.0-8.9): [count]
+
 - Medium (CVSS 4.0-6.9): [count]
+
 - Low (CVSS 0.1-3.9): [count]
 
 **Critical Vulnerabilities** (MUST FIX IMMEDIATELY):
@@ -368,9 +419,13 @@ Please provide a comprehensive final report with the following structure:
 | log4j-core | 2.14.1 | CVE-2021-44228 | Critical | 2.17.1 | Log4Shell RCE |
 
 **Spring Security Assessment**:
+
 - **Configuration**: Needs improvement (CSRF disabled, permissive CORS)
+
 - **Authentication**: BCrypt used ✅, but JWT implementation vulnerable
+
 - **Authorization**: Missing @PreAuthorize on 12 endpoints
+
 - **Session Management**: Weak session timeout (24 hours)
 
 **Security Roadmap**:
@@ -386,10 +441,15 @@ Please provide a comprehensive final report with the following structure:
 **Overall Performance Score**: [A-F]
 
 **Key Metrics**:
+
 - Average API Response Time: [ms]
+
 - P95 Response Time: [ms]
+
 - Peak Memory Usage: [MB]
+
 - GC Overhead: [%]
+
 - Database Query Avg: [ms]
 
 **JVM & GC Analysis**:
@@ -417,13 +477,19 @@ Please provide a comprehensive final report with the following structure:
 | Inefficient Queries | 12 | SELECT * without limit | Med | Use pagination, DTOs |
 
 **Memory Issues**:
+
 - **Memory Leak**: UserSessionCache grows unbounded (no eviction policy)
+
 - **Large Objects**: 500MB reports loaded entirely into memory
+
 - **Object Retention**: ThreadLocal connections not cleared
 
 **Concurrency Issues**:
+
 - **Thread Pool**: Undersized (10 threads, need 50+)
+
 - **Lock Contention**: Synchronized block in hot path (UserService.validate())
+
 - **Database Connections**: Pool exhaustion under load (max 10, need 30)
 
 **Quick Wins** (High Impact, Low Effort):
@@ -443,10 +509,15 @@ Please provide a comprehensive final report with the following structure:
 **Overall Testing Score**: [A-F]
 
 **Coverage Metrics**:
+
 - Line Coverage: [%]
+
 - Branch Coverage: [%]
+
 - Method Coverage: [%]
+
 - Class Coverage: [%]
+
 - Target: 80%+ line coverage
 
 **Coverage by Package**:
@@ -458,11 +529,17 @@ Please provide a comprehensive final report with the following structure:
 | util | 90% | 85% | 15/15 | Good |
 
 **Test Suite Statistics**:
+
 - Total Tests: [count]
+
 - Unit Tests: [count] ([%])
+
 - Integration Tests: [count] ([%])
+
 - E2E Tests: [count] ([%])
+
 - Execution Time: [seconds]
+
 - Flaky Tests: [count]
 
 **Critical Coverage Gaps**:
@@ -473,10 +550,15 @@ Please provide a comprehensive final report with the following structure:
 | AuthenticationFilter | 40% | High | Authorization, token validation |
 
 **Test Quality Issues**:
+
 - [ ] 45 tests without assertions (testing nothing)
+
 - [ ] 12 tests with unclear names (test1, test2, etc.)
+
 - [ ] 8 flaky tests failing intermittently
+
 - [ ] 15 tests with excessive mocking (testing mocks, not logic)
+
 - [ ] No integration tests for critical flows (registration, checkout)
 
 **Flaky Tests**:
@@ -513,14 +595,21 @@ Please provide a comprehensive final report with the following structure:
 | Performance optimization initiative | High | 2 months | 50% faster, memory fix | Q2-Q3 | Performance Team |
 
 ### Nice to Have (Low Impact, Low Effort) - DO WHEN TIME PERMITS
+
 - Update to Java 17 LTS
+
 - Migrate from JUnit 4 to JUnit 5
+
 - Add JavaDoc to public APIs
+
 - Implement API versioning
 
 ### Avoid (Low Impact, High Effort) - NOT WORTH IT
+
 - Rewrite entire app in reactive Spring WebFlux (unless I/O bound)
+
 - Migrate from Maven to Gradle (no clear benefit)
+
 - Complete microservices decomposition (monolith works fine)
 
 ---
@@ -553,9 +642,13 @@ Please provide a comprehensive final report with the following structure:
    - Verification: Production monitoring shows flat memory usage
 
 **Deliverables**:
+
 - [ ] All critical security vulnerabilities patched
+
 - [ ] No critical dependency vulnerabilities
+
 - [ ] Memory leak fixed and verified
+
 - [ ] Emergency deployment plan ready
 
 ---
@@ -564,6 +657,7 @@ Please provide a comprehensive final report with the following structure:
 **Objective**: Address P1 items and implement quick wins
 
 **Focus Areas**:
+
 - **Security**:
   - Enable Spring Security @PreAuthorize on all admin endpoints
   - Fix weak password hashing (BCrypt with proper strength)
@@ -587,9 +681,13 @@ Please provide a comprehensive final report with the following structure:
   - Reach 70% line coverage
 
 **Expected Outcomes**:
+
 - Security score: D → B
+
 - Performance: 50% API response time improvement
+
 - Test coverage: 55% → 70%
+
 - Critical code complexity reduced by 40%
 
 ---
@@ -622,15 +720,23 @@ Please provide a comprehensive final report with the following structure:
 **Objective**: Long-term architectural and process improvements
 
 **Q2 Initiatives**:
+
 - Implement comprehensive security testing (SAST, DAST, pen testing)
+
 - Performance testing framework (Gatling, JMeter)
+
 - Observability stack (metrics, traces, logs)
+
 - Developer documentation and onboarding
 
 **Q3 Initiatives**:
+
 - Microservices decomposition (if justified by team size/scale)
+
 - Event-driven architecture for async workflows
+
 - API gateway and service mesh (if microservices)
+
 - Advanced monitoring and alerting
 
 ---
@@ -681,7 +787,9 @@ Please provide a comprehensive final report with the following structure:
 ## Recommendations for Stakeholders
 
 ### For Engineering Leadership
+
 - **Investment Required**: 2-3 months of focused effort (1-2 engineers full-time)
+
 - **Risk if Not Addressed**:
   - **Critical**: Production data breach, legal liability, reputation damage
   - **High**: System outages, poor user experience, high support costs
@@ -700,6 +808,7 @@ Please provide a comprehensive final report with the following structure:
   - Tools: SonarQube license, APM tool, load testing tools
 
 ### For Development Team
+
 - **Immediate Actions**:
   1. Fix all SQL injection vulnerabilities (this week)
   2. Update log4j and other critical dependencies (this week)
@@ -725,6 +834,7 @@ Please provide a comprehensive final report with the following structure:
   - JaCoCo for coverage with enforceable thresholds
 
 ### For Product Management
+
 - **Feature Impact**:
   - Recommend 2-week feature freeze for critical security fixes
   - Performance improvements will reduce user complaints by ~60%
@@ -745,11 +855,17 @@ Please provide a comprehensive final report with the following structure:
 ## Appendices
 
 ### A. Detailed Tool Reports
+
 - JaCoCo Coverage Report: `target/site/jacoco/index.html`
+
 - SpotBugs Report: `target/site/spotbugs.html`
+
 - PMD Report: `target/site/pmd.html`
+
 - Checkstyle Report: `target/site/checkstyle.html`
+
 - OWASP Dependency-Check: `target/dependency-check-report.html`
+
 - SonarQube Dashboard: `http://sonarqube-server/dashboard?id=project-key`
 
 ### B. Code Examples
@@ -925,10 +1041,15 @@ jobs:
 ```
 
 ### D. Resource Links
+
 - [OWASP Top 10](https://owasp.org/Top10/)
+
 - [Spring Security Reference](https://docs.spring.io/spring-security/reference/)
+
 - [Java Secure Coding Guidelines](https://www.oracle.com/java/technologies/javase/seccodeguide.html)
+
 - [JUnit 5 User Guide](https://junit.org/junit5/docs/current/user-guide/)
+
 - [JVM Performance Tuning](https://docs.oracle.com/en/java/javase/17/gctuning/)
 
 ---
@@ -960,27 +1081,6 @@ jobs:
 **Tools Used**: Maven 3.9.4, JDK 17, Spring Boot 2.7.14, JaCoCo 0.8.10, SpotBugs 4.7.3, Checkstyle 10.12, PMD 6.55
 **Reviewer Certifications**: [If applicable]
 
----
-
-## File Output Instructions
-
-**IMPORTANT**: Save all generated files to the correct directory structure:
-
-```bash
-# Create directory structure
-mkdir -p ${OUTPUT_DIR}/final_report/analysis_scripts
-mkdir -p ${OUTPUT_DIR}/final_report/supporting_data
-```
-
-**Save files as follows**:
-
-- Main report → `review/final_report/final_report_report.md`
-
-- Findings data → `review/final_report/final_report_findings.json`
-
-- Analysis scripts → `review/final_report/analysis_scripts/`
-
-- Supporting data → `review/final_report/supporting_data/`
 ~~~
 ---
 
@@ -1001,7 +1101,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

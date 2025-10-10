@@ -32,38 +32,63 @@ review/context_analysis/
 ## Analysis Checklist
 
 ### Project Understanding
+
 - [ ] Project purpose and target audience identified
+
 - [ ] Core features and use cases documented
+
 - [ ] Development stage assessed (prototype, production, legacy)
+
 - [ ] Key stakeholders and maintainers identified
+
 - [ ] Project documentation reviewed (README, docs/, XML documentation)
 
 ### Architecture & Structure
+
 - [ ] Entry points and main assemblies mapped
+
 - [ ] Solution and project organization evaluated
+
 - [ ] Design patterns identified (MVVM, Repository, Factory, etc.)
+
 - [ ] Configuration management approach documented (appsettings.json, Configuration API)
+
 - [ ] Dependency injection container usage reviewed
 
 ### Dependency Analysis
+
 - [ ] NuGet package dependencies listed with versions
+
 - [ ] Development vs production dependencies separated
+
 - [ ] Outdated packages identified
+
 - [ ] Security vulnerabilities in packages checked
+
 - [ ] License compatibility verified
 
 ### Build & Deployment
+
 - [ ] Build process documented (.csproj, .sln, MSBuild)
+
 - [ ] Test execution approach understood
+
 - [ ] CI/CD pipelines identified (Azure DevOps, GitHub Actions, Jenkins)
+
 - [ ] Deployment targets documented (IIS, Docker, Azure, AWS)
+
 - [ ] Environment variables and secrets management reviewed
 
 ### Codebase Metrics
+
 - [ ] Lines of code measured (total, per project)
+
 - [ ] Cyclomatic complexity assessed
+
 - [ ] Assembly coupling and cohesion evaluated
+
 - [ ] Code duplication percentage calculated
+
 - [ ] XML documentation coverage analyzed
 
 ## Prompt Template
@@ -98,7 +123,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -255,11 +282,17 @@ Please perform a comprehensive context analysis of this C# project following thi
 Please provide a comprehensive context report with the following structure:
 
 ### Executive Summary
+
 - **Project Name**: [name]
+
 - **Purpose**: [1-2 sentence description]
+
 - **Stage**: [prototype/production/legacy]
+
 - **.NET Version**: [target framework(s)]
+
 - **Architecture**: [architectural style]
+
 - **Project Type**: [Web API, Console, Desktop, Class Library, etc.]
 
 ### Solution Structure
@@ -279,10 +312,15 @@ SolutionName/
 ```
 
 ### Architecture Overview
+
 - **Design Patterns**: [patterns identified]
+
 - **Project Organization**: [brief description]
+
 - **Key Dependencies**: [critical NuGet packages]
+
 - **Configuration Approach**: [how settings are managed]
+
 - **DI Container**: [built-in, Autofac, etc.]
 
 ### Dependency Summary
@@ -291,17 +329,27 @@ SolutionName/
 | [name] | [version] | [usage] | [current/outdated] | [safe/vulnerable] |
 
 ### Build & Deployment
+
 - **Build System**: [MSBuild, SDK-style project]
+
 - **Target Framework(s)**: [net8.0, net6.0, etc.]
+
 - **Test Framework**: [xUnit, NUnit, MSTest]
+
 - **CI/CD**: [platform and key workflows]
+
 - **Deployment**: [target environments - IIS, Docker, Azure App Service, etc.]
 
 ### Codebase Metrics
+
 - **Total Projects**: [count]
+
 - **Total Lines**: [number] (excluding tests)
+
 - **Analyzer Warnings**: [count by severity]
+
 - **XML Documentation**: [coverage percentage]
+
 - **Nullable Context**: [enabled/disabled]
 
 ### Key Findings
@@ -317,9 +365,13 @@ Based on this context, the following review areas should be prioritized:
 3. [Area 3] - [reason]
 
 ### Next Steps
+
 - [ ] Proceed with code quality review
+
 - [ ] Conduct security audit (especially if vulnerable dependencies found)
+
 - [ ] Perform performance analysis
+
 - [ ] Review test coverage and quality
 
 ## File Output Instructions
@@ -343,9 +395,13 @@ mkdir -p ${OUTPUT_DIR}/context_analysis/supporting_data
 - Supporting data → `review/context_analysis/supporting_data/`
 
 ## Notes
+
 - Save this context report - it will inform all subsequent review phases
+
 - Flag any critical issues discovered during context gathering
+
 - Update vulnerable dependencies before detailed code review
+
 - Use this as baseline for measuring improvement over time
 ~~~
 ---
@@ -367,7 +423,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

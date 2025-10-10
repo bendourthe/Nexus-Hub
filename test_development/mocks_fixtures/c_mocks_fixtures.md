@@ -32,24 +32,39 @@ tests/mocks_fixtures/
 ## Implementation Checklist
 
 ### Fixture Setup
+
 - [ ] Setup/teardown functions configured appropriately
+
 - [ ] Test data builders created for flexible data generation
+
 - [ ] Fixture factories implemented with realistic data
+
 - [ ] Cleanup and memory management automated
+
 - [ ] Fixtures documented with clear purposes
 
 ### Mocking Strategy
+
 - [ ] External dependencies identified for mocking
+
 - [ ] Function pointers or link-time substitution planned
+
 - [ ] Mock implementations created with CMock or fff
+
 - [ ] Verification methods used appropriately
+
 - [ ] Over-mocking avoided
 
 ### Test Data Management
+
 - [ ] Test data factories implemented
+
 - [ ] Realistic test data patterns established
+
 - [ ] Data builders for complex structures created
+
 - [ ] Test data isolated per test
+
 - [ ] Memory cleanup automated
 
 ## Prompt Template
@@ -84,7 +99,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -660,18 +677,29 @@ void test_user_service_find_user(void) {
 ### When to Mock vs Use Real Objects
 
 **Use Mocks For**:
+
 - External APIs and hardware interfaces
+
 - File system operations
+
 - Network operations
+
 - Database connections
+
 - Time functions (time, clock_gettime)
+
 - System calls
 
 **Use Real Objects For**:
+
 - Pure functions
+
 - Simple data structures
+
 - Mathematical operations
+
 - String manipulation
+
 - Business logic
 
 ```c
@@ -931,12 +959,15 @@ Please provide a comprehensive mocks and fixtures implementation with the follow
 
 ### Fixture Architecture
 **Suite-Level Setup**:
+
 - [fixture_name]: [purpose, setup, teardown]
 
 **Test-Level Setup** (setUp/tearDown):
+
 - [fixture_name]: [purpose, memory management]
 
 **Fixture Factories**:
+
 - [factory_name]: [creates what, memory management]
 
 ### Mocking Strategy
@@ -958,10 +989,13 @@ void setUp(void) {
 
 ### Test Data Factories
 **Factory Functions**:
+
 - UserFactory: [creation functions, memory management]
+
 - OrderFactory: [creation functions, memory management]
 
 **Builder Structs**:
+
 - [builder_name]: [purpose, fluent methods, cleanup]
 
 ### Usage Examples
@@ -985,25 +1019,41 @@ void test_user_registration(void) {
 ```
 
 ### Best Practices Implemented
+
 - [ ] Memory properly allocated and freed
+
 - [ ] setUp/tearDown ensure clean state
+
 - [ ] Factories track allocations for cleanup
+
 - [ ] Mocks reset between tests
+
 - [ ] No memory leaks (verified with valgrind)
+
 - [ ] Function pointers used for testability
 
 ### Common Pitfalls Avoided
+
 - Memory leaks from forgotten frees
+
 - Not resetting fakes between tests
+
 - Over-mocking simple functions
+
 - Complex test setup obscuring intent
+
 - Not using weak symbols for mockability
 
 ### Next Steps
+
 - [ ] Implement remaining fixtures for integration tests
+
 - [ ] Add factories for all domain structures
+
 - [ ] Document fixture usage for team
+
 - [ ] Set up CMock for automatic mock generation
+
 - [ ] Run valgrind to verify no memory leaks
 
 ## File Output Instructions
@@ -1062,7 +1112,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

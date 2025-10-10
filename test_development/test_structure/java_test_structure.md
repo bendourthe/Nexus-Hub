@@ -32,31 +32,51 @@ tests/test_structure/
 ## Implementation Checklist
 
 ### Test Framework Setup
+
 - [ ] JUnit 5 (Jupiter) configured
+
 - [ ] Maven or Gradle build configuration
+
 - [ ] Test dependencies added (AssertJ, Mockito)
+
 - [ ] Test discovery rules established
+
 - [ ] Parallel execution configured
 
 ### Directory Structure
+
 - [ ] Maven/Gradle standard layout implemented
+
 - [ ] Test type separation (unit/integration/e2e) organized
+
 - [ ] Naming conventions documented
+
 - [ ] Resource directories created
+
 - [ ] Test categories configured
 
 ### Fixture Infrastructure
+
 - [ ] @BeforeEach/@AfterEach hooks established
+
 - [ ] @BeforeAll/@AfterAll class-level setup
+
 - [ ] Test instance lifecycle configured
+
 - [ ] Extension model utilized
+
 - [ ] Common fixtures centralized
 
 ### Test Utilities
+
 - [ ] Custom assertions created
+
 - [ ] Test data builders implemented
+
 - [ ] Object mothers defined
+
 - [ ] Helper classes established
+
 - [ ] Utility documentation provided
 
 ## Prompt Template
@@ -91,7 +111,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -603,21 +625,33 @@ Replace `{phase_name}` with the specific phase (test_structure, test_cases, mock
 ## Output Format
 
 ### Infrastructure Summary
+
 - **Test Framework**: JUnit 5 (Jupiter)
+
 - **Build Tool**: Maven/Gradle
+
 - **Total Test Categories**: Unit, Integration, E2E
+
 - **Parallel Execution**: Enabled
+
 - **Mock Framework**: Mockito
+
 - **Assertion Library**: AssertJ
 
 ### Configuration Files
+
 - **pom.xml** or **build.gradle**: Dependencies and plugins
+
 - **junit-platform.properties**: JUnit configuration
+
 - **Base test classes**: AbstractUnitTest, AbstractIntegrationTest
 
 ### Fixtures and Builders
+
 - **UserFixtures**: Standard user test data
+
 - **UserBuilder**: Fluent builder for complex scenarios
+
 - **Custom Assertions**: Domain-specific assertions
 
 ### Test Execution
@@ -628,10 +662,15 @@ mvn test -Dtest=*IT   # Integration tests
 ```
 
 ### Best Practices
+
 - Clear separation of test types
+
 - Reusable fixtures and builders
+
 - Custom assertions for readability
+
 - Parallel execution for speed
+
 - Proper test lifecycle management
 ~~~
 
@@ -657,7 +696,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

@@ -11,6 +11,64 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.2.4] - 2025-10-10
+
+### Fixed
+
+#### Template Content Cleanup and Bitbucket Rendering (154 files)
+Removed redundant sections, fixed markdown formatting issues, and improved content organization for better Bitbucket compatibility.
+
+**Template Updates** (154 files):
+- **Removed old "File Output Instructions" section**: Eliminated redundant and outdated section that referenced deprecated `generated_docs/` subdirectory
+- **Moved "Output Format Specifications" inside prompt templates**: Relocated section from outside closing `~~~` marker to inside, ensuring specifications are included when users copy templates
+- **Fixed bullet point rendering**: Added blank lines before bullet lists for proper Bitbucket markdown rendering
+- **Improved section organization**: Template content now properly structured with instructions inside copyable section, verification checklist outside
+
+**Files Modified**:
+- Documentation Templates: 49/49 files
+- Code Review Templates: 43/43 files
+- Code Cleanup Templates: 8/8 files
+- Test Development Templates: 54/54 files
+
+**Benefits**:
+- **Perfect Bitbucket Rendering**: Bullet points now display correctly with proper spacing
+- **No Redundant Sections**: Removed confusing and outdated "File Output Instructions"
+- **Better Template Structure**: Output specifications now included in copyable prompt template
+- **Clearer Organization**: Logical separation between template content and verification steps
+
+### Technical Details
+
+**Issues Resolved**:
+1. **Bullet Points on Same Line**: Added blank lines before bullet lists
+   ```markdown
+   # Before
+   Text
+   - Bullet 1
+   - Bullet 2
+
+   # After
+   Text
+
+   - Bullet 1
+
+   - Bullet 2
+   ```
+
+2. **Content Outside Template**: Moved specifications inside
+   ```markdown
+   # Before
+   ~~~  ← End of template
+   ## Output Format Specifications  ← Outside (not copied)
+
+   # After
+   ## Output Format Specifications  ← Inside
+   ~~~  ← End of template
+   ```
+
+3. **Redundant Sections**: Removed old file output instructions that duplicated OUTPUT_DIR setup
+
+---
+
 ## [0.2.3] - 2025-10-10
 
 ### Changed
@@ -506,6 +564,7 @@ repository_root/
 
 | Version | Date       | Description                                      |
 |---------|------------|--------------------------------------------------|
+| 0.2.4   | 2025-10-10 | Template cleanup: Fixed Bitbucket rendering, removed redundant sections |
 | 0.2.3   | 2025-10-10 | Directory structure optimization: Simplified to 3 subdirectories with OUTPUT_DIR variable |
 | 0.2.2   | 2025-10-10 | Bitbucket migration: Repository-agnostic templates with improved formatting |
 | 0.2.1   | 2025-10-09 | Standardized output directory structures for all 133 templates |
@@ -517,7 +576,8 @@ repository_root/
 
 ---
 
-[Unreleased]: https://github.com/yourusername/ai_templates/compare/v0.2.3...HEAD
+[Unreleased]: https://github.com/yourusername/ai_templates/compare/v0.2.4...HEAD
+[0.2.4]: https://github.com/yourusername/ai_templates/releases/tag/v0.2.4
 [0.2.3]: https://github.com/yourusername/ai_templates/releases/tag/v0.2.3
 [0.2.2]: https://github.com/yourusername/ai_templates/releases/tag/v0.2.2
 [0.2.1]: https://github.com/yourusername/ai_templates/releases/tag/v0.2.1

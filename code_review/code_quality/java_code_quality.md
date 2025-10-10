@@ -32,45 +32,75 @@ review/code_quality/
 ## Review Checklist
 
 ### Coding Standards
+
 - [ ] Java naming conventions verified (camelCase, PascalCase, UPPER_CASE)
+
 - [ ] Import organization follows standard order
+
 - [ ] JavaDoc format consistent for public APIs
+
 - [ ] Code formatting consistent (Google Style, Oracle conventions)
+
 - [ ] Package structure follows domain organization
 
 ### Code Complexity
+
 - [ ] Methods under 30 lines (flagged if exceeded)
+
 - [ ] Cyclomatic complexity under 10 per method
+
 - [ ] Nesting depth under 4 levels
+
 - [ ] Class size reasonable (<300 lines)
+
 - [ ] Package cohesion evaluated
 
 ### Design & Architecture
+
 - [ ] SOLID principles followed
+
 - [ ] DRY principle applied (no significant duplication)
+
 - [ ] Separation of concerns maintained
+
 - [ ] Appropriate use of design patterns
+
 - [ ] Dependency injection properly used
 
 ### Code Smells
+
 - [ ] Long parameter lists identified (>5 parameters)
+
 - [ ] Feature envy detected
+
 - [ ] God classes or services identified
+
 - [ ] Primitive obsession checked
+
 - [ ] Dead code marked for removal
 
 ### Error Handling
+
 - [ ] Exceptions used appropriately (checked vs unchecked)
+
 - [ ] Custom exceptions defined when needed
+
 - [ ] Try-with-resources used for AutoCloseable
+
 - [ ] Exception messages informative
+
 - [ ] Logging appropriate for debugging
 
 ### Java-Specific Practices
+
 - [ ] Effective use of Java 8+ features (streams, lambdas, Optional)
+
 - [ ] Proper use of generics
+
 - [ ] Equals/hashCode consistency
+
 - [ ] Thread safety considered
+
 - [ ] Resource management (try-with-resources)
 
 ## Prompt Template
@@ -105,7 +135,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -472,17 +504,25 @@ Please perform a comprehensive code quality review of this Java project followin
 Please provide a comprehensive quality report with the following structure:
 
 ### Executive Summary
+
 - **Overall Quality Score**: [A-F grade]
+
 - **Maintainability Index**: [score]
+
 - **Average Complexity**: [cyclomatic complexity]
+
 - **Critical Issues**: [count]
+
 - **Technical Debt**: [estimated hours to address]
 
 ### Coding Standards Compliance
+
 - **Checkstyle Violations**: [count and severity]
+
 - **Most Common Issues**:
   1. [Issue type] - [count] occurrences
   2. [Issue type] - [count] occurrences
+
 - **Consistency Score**: [percentage]
 
 ### Static Analysis Results
@@ -528,35 +568,52 @@ Please provide a comprehensive quality report with the following structure:
 | [type] | [class:method] | [High/Med/Low] | [details] | [suggestion] |
 
 ### Java Best Practices Assessment
+
 - **Modern Java Features Usage**: [Excellent/Good/Poor]
+
 - **Stream API Adoption**: [percentage of opportunities used]
+
 - **Optional Usage**: [appropriate/overused/underused]
+
 - **Lambda Expressions**: [appropriate/could improve]
+
 - **Generics**: [properly used/needs improvement]
 
 ### Spring Boot Best Practices** (if applicable)
+
 - **Dependency Injection**: [constructor/field - recommendation]
+
 - **Stereotype Annotations**: [appropriate/inconsistent]
+
 - **Exception Handling**: [centralized/scattered]
+
 - **REST API Design**: [RESTful/needs improvement]
 
 ### Documentation Score
+
 - **JavaDoc Coverage**: [percentage]
+
 - **Public API Documentation**: [comprehensive/partial/missing]
+
 - **Comment Quality**: [Good/Fair/Poor]
+
 - **Areas Needing Documentation**: [list]
 
 ### Technical Debt Summary
 **Priority 1 (Critical)**: [Estimated hours]
+
 - [Issue description and location]
 
 **Priority 2 (High)**: [Estimated hours]
+
 - [Issue description and location]
 
 **Priority 3 (Medium)**: [Estimated hours]
+
 - [Issue description and location]
 
 **Priority 4 (Low)**: [Estimated hours]
+
 - [Issue description and location]
 
 ### Refactoring Recommendations
@@ -571,15 +628,23 @@ Please provide a comprehensive quality report with the following structure:
 
 ### Positive Patterns
 Acknowledge what's done well:
+
 - [Good practice observed and locations]
+
 - [Effective pattern usage examples]
 
 ### Next Steps
+
 - [ ] Address critical complexity hotspots
+
 - [ ] Implement automated quality gates (Checkstyle, PMD, SpotBugs)
+
 - [ ] Plan refactoring sprints for high-priority technical debt
+
 - [ ] Establish team coding standards documentation
+
 - [ ] Set up pre-commit hooks for style enforcement
+
 - [ ] Configure SonarQube for continuous monitoring
 
 ## Automation Recommendations
@@ -677,7 +742,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

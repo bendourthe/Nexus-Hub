@@ -32,24 +32,39 @@ tests/mocks_fixtures/
 ## Implementation Checklist
 
 ### Fixture Setup
+
 - [ ] Setup/teardown hooks configured appropriately (beforeEach/afterEach/beforeAll/afterAll)
+
 - [ ] Test data builders created for flexible data generation
+
 - [ ] Fixture factories implemented with realistic data
+
 - [ ] Cleanup and reset logic automated
+
 - [ ] Fixtures documented with clear purposes
 
 ### Mocking Strategy
+
 - [ ] External dependencies identified for mocking
+
 - [ ] Mocking approach chosen (mock vs stub vs spy)
+
 - [ ] Mock objects configured with Jest or Sinon
+
 - [ ] Assertion methods used appropriately
+
 - [ ] Over-mocking avoided
 
 ### Test Data Management
+
 - [ ] Test data factories implemented
+
 - [ ] Realistic test data patterns established
+
 - [ ] Data builders for complex objects created
+
 - [ ] Test data isolated per test
+
 - [ ] Data cleanup automated
 
 ## Prompt Template
@@ -84,7 +99,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -433,18 +450,29 @@ await expect(mockError()).rejects.toThrow('Failed');
 ### When to Mock vs Use Real Objects
 
 **Use Mocks For**:
+
 - External APIs and services
+
 - Database operations in unit tests
+
 - File system operations
+
 - Network requests
+
 - Date/time operations
+
 - Random number generation
+
 - Third-party libraries
 
 **Use Real Objects For**:
+
 - Pure functions
+
 - Simple utility classes
+
 - Integration tests
+
 - Critical business logic requiring confidence
 
 ```javascript
@@ -857,12 +885,15 @@ Please provide a comprehensive mocks and fixtures implementation with the follow
 
 ### Fixture Architecture
 **Suite-Level Setup** (beforeAll/afterAll):
+
 - [fixture_name]: [purpose, setup, teardown]
 
 **Test-Level Setup** (beforeEach/afterEach):
+
 - [fixture_name]: [purpose, when to use]
 
 **Fixture Factories**:
+
 - [factory_name]: [creates what, customization options]
 
 ### Mocking Strategy
@@ -880,10 +911,13 @@ mockApiClient.get.mockResolvedValue({ status: 'ok' });
 
 ### Test Data Factories
 **Factory Classes**:
+
 - UserFactory: [customization options]
+
 - OrderFactory: [customization options]
 
 **Builder Classes**:
+
 - [builder_name]: [purpose, fluent interface methods]
 
 ### Usage Examples
@@ -911,25 +945,41 @@ describe('User Registration', () => {
 ```
 
 ### Best Practices Implemented
+
 - [ ] Setup/teardown use appropriate hooks
+
 - [ ] Mocks are used for external dependencies only
+
 - [ ] Test data factories provide flexible data creation
+
 - [ ] Mock cleanup ensures isolation between tests
+
 - [ ] Assertions verify behavior, not implementation
+
 - [ ] Fake timers used for time-dependent tests
 
 ### Common Pitfalls Avoided
+
 - Over-mocking simple functions
+
 - Not restoring mocks after tests
+
 - Mock leaking between tests
+
 - Complex fixture dependencies
+
 - Testing mock behavior instead of real code
 
 ### Next Steps
+
 - [ ] Implement remaining fixtures for integration tests
+
 - [ ] Add factories for all domain models
+
 - [ ] Document fixture usage for team
+
 - [ ] Set up shared mock configurations
+
 - [ ] Review mock coverage and necessity
 
 ## File Output Instructions
@@ -1013,7 +1063,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

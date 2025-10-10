@@ -32,28 +32,45 @@ documentation/api_docs/
 ## Implementation Checklist
 
 ### Class Documentation
+
 - [ ] All public classes documented
+
 - [ ] Member functions with signatures
+
 - [ ] Template parameters explained
+
 - [ ] Exception specifications documented
+
 - [ ] Move/copy semantics clarified
 
 ### Interface Design
+
 - [ ] Public vs private interfaces
+
 - [ ] Virtual functions documented
+
 - [ ] RAII patterns explained
+
 - [ ] Smart pointer usage shown
 
 ### Error Handling
+
 - [ ] Exception types documented
+
 - [ ] noexcept specifications
+
 - [ ] Error handling patterns
+
 - [ ] std::expected usage (C++23)
 
 ### Examples
+
 - [ ] Complete working examples
+
 - [ ] Modern C++ HTTP clients
+
 - [ ] RAII and smart pointer examples
+
 - [ ] Template usage examples
 
 ## Prompt Template
@@ -86,7 +103,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -498,40 +517,23 @@ TEST(APIClientTest, CreateUserInvalidEmail) {
 
 ---
 
-## File Output Instructions
-
-**IMPORTANT**: Save all generated files to the correct directory structure:
-
-```bash
-# Create directory structure
-mkdir -p ${OUTPUT_DIR}/api_docs/generated_docs
-mkdir -p ${OUTPUT_DIR}/api_docs/templates
-mkdir -p ${OUTPUT_DIR}/api_docs/assets
-mkdir -p ${OUTPUT_DIR}/api_docs/exports
-```
-
-**Save files as follows**:
-
-
-- Templates → `documentation/api_docs/templates/`
-
-- Assets → `documentation/api_docs/assets/`
-
-- Exports → `documentation/api_docs/exports/`
-
-Replace `{phase_name}` with the specific phase (docstrings, comments, user_docs, technical_docs, api_docs, or sbom).
-
-~~~
-
 ## Output Format Specifications
 
 The API documentation should:
+
 - Document all public classes and functions
+
 - Show modern C++ patterns (RAII, smart pointers, move semantics)
+
 - Include exception specifications and noexcept
+
 - Provide complete working examples
+
 - Show HTTP client usage with modern libraries
+
 - Target C++17/20/23 developers
+
+~~~
 ---
 
 ## Verify Directory Structure
@@ -551,7 +553,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

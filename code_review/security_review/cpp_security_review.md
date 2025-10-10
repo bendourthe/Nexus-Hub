@@ -32,46 +32,77 @@ review/security_review/
 ## Review Checklist
 
 ### Memory Safety
+
 - [ ] Buffer overflow vulnerabilities identified
+
 - [ ] Use-after-free vulnerabilities checked
+
 - [ ] Double-free vulnerabilities assessed
+
 - [ ] Memory leaks detected
+
 - [ ] Null pointer dereferences identified
+
 - [ ] Uninitialized memory usage checked
 
 ### Undefined Behavior
+
 - [ ] Signed integer overflow checked
+
 - [ ] Strict aliasing violations identified
+
 - [ ] Out-of-bounds access detected
+
 - [ ] Dangling references/pointers found
+
 - [ ] Data races identified
+
 - [ ] Undefined evaluation order issues
 
 ### Input Validation
+
 - [ ] User input validation comprehensiveness assessed
+
 - [ ] Buffer size validation verified
+
 - [ ] Integer overflow in calculations checked
+
 - [ ] Format string vulnerabilities identified
+
 - [ ] Command injection vectors evaluated
 
 ### Sanitizer Testing
+
 - [ ] AddressSanitizer (ASan) run completed
+
 - [ ] UndefinedBehaviorSanitizer (UBSan) run completed
+
 - [ ] ThreadSanitizer (TSan) run for concurrent code
+
 - [ ] MemorySanitizer (MSan) run for uninitialized memory
+
 - [ ] LeakSanitizer findings reviewed
 
 ### Cryptography
+
 - [ ] Weak cryptographic algorithms identified
+
 - [ ] Random number generation security assessed
+
 - [ ] Cryptographic library usage reviewed
+
 - [ ] Key management practices evaluated
+
 - [ ] Secure data erasure verified
 
 ### Dependency Security
+
 - [ ] All dependencies scanned for known vulnerabilities (CVEs)
+
 - [ ] Outdated packages with security patches identified
+
 - [ ] Dependency chain analyzed for transitive vulnerabilities
+
 - [ ] License compliance verified
 
 ## Prompt Template
@@ -106,7 +137,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -635,10 +668,15 @@ Adapt OWASP Top 10 to C++ context:
 Please provide a comprehensive security report with the following structure:
 
 ### Executive Summary
+
 - **Overall Security Risk**: [Critical/High/Medium/Low]
+
 - **Memory Safety Issues**: [count]
+
 - **Critical Vulnerabilities**: [count]
+
 - **High-Risk Issues**: [count]
+
 - **Immediate Actions Required**: [yes/no and brief description]
 
 ### Critical Findings (Severity: CRITICAL)
@@ -648,22 +686,33 @@ Please provide a comprehensive security report with the following structure:
 
 ### Sanitizer Results
 **AddressSanitizer (ASan)**:
+
 - Heap buffer overflows: [count]
+
 - Stack buffer overflows: [count]
+
 - Use-after-free: [count]
+
 - Memory leaks: [count]
 
 **UndefinedBehaviorSanitizer (UBSan)**:
+
 - Signed integer overflow: [count]
+
 - Null pointer dereference: [count]
+
 - Misaligned access: [count]
+
 - Other UB: [count]
 
 **ThreadSanitizer (TSan)**:
+
 - Data races: [count]
+
 - Deadlocks: [count]
 
 **MemorySanitizer (MSan)**:
+
 - Uninitialized memory reads: [count]
 
 ### Memory Safety Assessment
@@ -688,20 +737,31 @@ Please provide a comprehensive security report with the following structure:
 | [Integer overflow] | [file:line] | [High] | [details] | [add overflow checks] |
 
 ### Input Validation Issues
+
 - **Command Injection Risks**: [count and locations]
+
 - **Format String Bugs**: [count and locations]
+
 - **Path Traversal Risks**: [count and locations]
+
 - **SQL Injection Risks**: [count and locations]
 
 ### Cryptography Assessment
+
 - **Weak Algorithms**: [list of MD5/SHA1/DES usage]
+
 - **Weak Random**: [use of rand() for security]
+
 - **Hardcoded Secrets**: [count and types]
+
 - **Insecure Key Storage**: [issues found]
 
 ### Concurrency Issues
+
 - **Data Races**: [count and locations from TSan]
+
 - **Deadlock Risks**: [potential deadlock scenarios]
+
 - **Race Conditions**: [logic-level races]
 
 ### Dependency Vulnerabilities
@@ -710,8 +770,11 @@ Please provide a comprehensive security report with the following structure:
 | [name] | [version] | [CVE-ID] | [Critical/High/Med] | [version] |
 
 ### Compliance Assessment
+
 - **CWE Top 25**: [compliance status]
+
 - **CERT C++ Coding Standard**: [violations found]
+
 - **MISRA C++ (if applicable)**: [violations]
 
 ### Immediate Action Items (Priority 1)
@@ -754,24 +817,39 @@ endif()
 
 ### Positive Security Practices
 Acknowledge what's done well:
+
 - Good use of RAII for resource management
+
 - Smart pointers used consistently
+
 - Proper input validation in [module]
 
 ### Next Steps
+
 - [ ] Fix all critical memory safety issues immediately
+
 - [ ] Run sanitizers regularly in CI/CD
+
 - [ ] Implement automated security scanning
+
 - [ ] Plan security remediation sprints
+
 - [ ] Conduct penetration testing after fixes
+
 - [ ] Establish secure coding guidelines for team
+
 - [ ] Provide security training for development team
 
 ## Notes
+
 - **Confidentiality**: This security report contains sensitive information - handle appropriately
+
 - **Responsible Disclosure**: If third-party vulnerabilities found, follow responsible disclosure
+
 - **Retest**: After remediation, rerun sanitizers and security scans to verify fixes
+
 - **Continuous Monitoring**: Implement ongoing security scanning and fuzzing
+
 - **Memory Safety**: Prioritize modern C++ patterns (RAII, smart pointers) over manual management
 
 ## File Output Instructions
@@ -813,7 +891,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

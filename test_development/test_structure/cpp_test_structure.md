@@ -32,31 +32,51 @@ tests/test_structure/
 ## Implementation Checklist
 
 ### Test Framework Setup
+
 - [ ] Test framework selected (GoogleTest/Catch2/Boost.Test)
+
 - [ ] Build system configured (CMake/Make)
+
 - [ ] Framework dependencies installed
+
 - [ ] Test discovery configured
+
 - [ ] Coverage tools configured (gcov/lcov)
 
 ### Directory Structure
+
 - [ ] Standard test layout implemented
+
 - [ ] Test type separation organized
+
 - [ ] Naming conventions documented
+
 - [ ] Test data directories created
+
 - [ ] Header organization established
 
 ### Fixture Infrastructure
+
 - [ ] Test fixtures defined
+
 - [ ] Setup/teardown methods established
+
 - [ ] Parameterized tests configured
+
 - [ ] Fixture documentation added
+
 - [ ] Common fixtures centralized
 
 ### Test Utilities
+
 - [ ] Custom matchers created
+
 - [ ] Test data builders implemented
+
 - [ ] Helper classes defined
+
 - [ ] Mock utilities established
+
 - [ ] Helper documentation provided
 
 ## Prompt Template
@@ -91,7 +111,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -1088,12 +1110,19 @@ Replace `{phase_name}` with the specific phase (test_structure, test_cases, mock
 Please provide a comprehensive test infrastructure design with the following structure:
 
 ### Infrastructure Summary
+
 - **Test Framework**: [GoogleTest/Catch2/Boost.Test with justification]
+
 - **Build System**: [CMake version]
+
 - **C++ Standard**: [C++11/14/17/20/23]
+
 - **Total Test Files**: [count]
+
 - **Test Organization**: [structure description]
+
 - **Mock Strategy**: [GoogleMock/other]
+
 - **Utility Modules**: [list of helper modules]
 
 ### Project Structure
@@ -1102,28 +1131,37 @@ Please provide a comprehensive test infrastructure design with the following str
 ```
 
 ### Build Configuration
+
 - **CMakeLists.txt**: [Key settings configured]
+
 - **Test discovery**: [Approach used]
+
 - **Compiler flags**: [Debug/Release settings]
 
 ### Test Infrastructure
 **Fixtures**:
+
 - [FixtureName]: [purpose and usage]
 
 **Mocks**:
+
 - [MockName]: [purpose and usage]
 
 **Builders**:
+
 - [BuilderName]: [purpose and usage]
 
 ### Test Utilities
 **Custom Matchers** (`tests/helpers/CustomMatchers.hpp`):
+
 - [MatcherName]: [purpose]
 
 **Test Builders** (`tests/helpers/Builders.hpp`):
+
 - [BuilderName]: [purpose]
 
 **Utilities** (`tests/helpers/TestUtils.hpp`):
+
 - [UtilName]: [purpose]
 
 ### Test Execution Commands
@@ -1153,30 +1191,51 @@ rm -rf build
 5. **Test Data**: [organization]
 
 ### Next Steps
+
 - [ ] Implement actual test cases
+
 - [ ] Add project-specific fixtures
+
 - [ ] Configure CI/CD (GitHub Actions, GitLab CI)
+
 - [ ] Set up coverage reporting (codecov)
+
 - [ ] Document testing guidelines
+
 - [ ] Add benchmark tests
+
 - [ ] Set up sanitizers (ASan, UBSan, TSan)
 
 ### Best Practices Implemented
+
 - Modern C++ features (smart pointers, RAII)
+
 - Clear separation of test types
+
 - Reusable test fixtures and builders
+
 - GoogleMock for comprehensive mocking
+
 - Custom matchers for readable assertions
+
 - Coverage measurement integrated
+
 - Parameterized tests for multiple scenarios
 
 ### Maintenance Recommendations
+
 - Run tests before committing
+
 - Keep tests isolated and fast
+
 - Use smart pointers for automatic cleanup
+
 - Update mocks when interfaces change
+
 - Review coverage regularly
+
 - Run with sanitizers in CI
+
 - Benchmark performance-critical code
 ~~~
 
@@ -1212,7 +1271,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

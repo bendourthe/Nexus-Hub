@@ -32,46 +32,77 @@ documentation/technical_docs/
 ## Implementation Checklist
 
 ### Architecture Documentation
+
 - [ ] System architecture overview with diagrams
+
 - [ ] Component responsibilities clearly defined
+
 - [ ] Technology stack documented with rationale
+
 - [ ] Architectural patterns explained
+
 - [ ] Scalability and performance considerations
+
 - [ ] Security architecture documented
 
 ### Design Decisions
+
 - [ ] Key technical decisions documented with rationale
+
 - [ ] Alternative approaches considered
+
 - [ ] Trade-offs and constraints explained
+
 - [ ] Decision timeline and context
+
 - [ ] Impact assessment of decisions
 
 ### Module Organization
+
 - [ ] Project/namespace structure explained
+
 - [ ] Module dependencies mapped
+
 - [ ] Public vs internal vs private interfaces defined
+
 - [ ] Using directives documented
+
 - [ ] Code organization principles
 
 ### Data Flow
+
 - [ ] Data flow diagrams created
+
 - [ ] State management documented
+
 - [ ] Event flows explained
+
 - [ ] Data transformation pipelines
+
 - [ ] Error propagation paths
 
 ### Integration Points
+
 - [ ] External API integrations documented
+
 - [ ] Database schemas and migrations
+
 - [ ] Message queue/event systems
+
 - [ ] Third-party service dependencies
+
 - [ ] Authentication/authorization flows
 
 ### Development Workflow
+
 - [ ] Development environment setup
+
 - [ ] Build and deployment process
+
 - [ ] Testing strategy
+
 - [ ] CI/CD pipeline documentation
+
 - [ ] Release process
 
 ## Prompt Template
@@ -106,7 +137,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -244,41 +277,55 @@ Solution.sln
 ## Layer Responsibilities
 
 ### API Layer (`MyApp.Api`)
+
 - **Purpose**: HTTP/gRPC endpoints
+
 - **Responsibilities**:
   - Route mapping
   - Request/response handling
   - Authentication/authorization
   - Input validation
+
 - **Dependencies**: Application layer
+
 - **Attributes**: `[ApiController]`, `[Route]`, `[HttpGet]`, `[Authorize]`
 
 ### Application Layer (`MyApp.Application`)
+
 - **Purpose**: Business logic orchestration
+
 - **Responsibilities**:
   - Use case implementation
   - DTO mapping
   - Validation (FluentValidation)
   - Transaction coordination
+
 - **Dependencies**: Domain layer
+
 - **Patterns**: CQRS, MediatR
 
 ### Domain Layer (`MyApp.Domain`)
+
 - **Purpose**: Core business logic
+
 - **Responsibilities**:
   - Entity definitions
   - Business rules
   - Domain events
   - Repository interfaces
+
 - **Dependencies**: None (pure domain)
 
 ### Infrastructure Layer (`MyApp.Infrastructure`)
+
 - **Purpose**: External concerns
+
 - **Responsibilities**:
   - Database access (EF Core)
   - External API integration
   - File storage
   - Caching
+
 - **Dependencies**: Domain layer
 
 ## Dependency Injection
@@ -580,9 +627,13 @@ public async Task<IActionResult> DeleteUser(int id)
 # Development Workflow
 
 ## Prerequisites
+
 - .NET 8.0 SDK
+
 - Visual Studio 2022 / VS Code / Rider
+
 - SQL Server / PostgreSQL
+
 - Docker (optional)
 
 ## Local Setup
@@ -737,41 +788,25 @@ jobs:
 
 ---
 
-## File Output Instructions
-
-**IMPORTANT**: Save all generated files to the correct directory structure:
-
-```bash
-# Create directory structure
-mkdir -p ${OUTPUT_DIR}/technical_docs/generated_docs
-mkdir -p ${OUTPUT_DIR}/technical_docs/templates
-mkdir -p ${OUTPUT_DIR}/technical_docs/assets
-mkdir -p ${OUTPUT_DIR}/technical_docs/exports
-```
-
-**Save files as follows**:
-
-
-- Templates → `documentation/technical_docs/templates/`
-
-- Assets → `documentation/technical_docs/assets/`
-
-- Exports → `documentation/technical_docs/exports/`
-
-Replace `{phase_name}` with the specific phase (docstrings, comments, user_docs, technical_docs, api_docs, or sbom).
-
-~~~
-
 ## Output Format Specifications
 
 The technical documentation should:
+
 - Provide high-level architecture overview with diagrams
+
 - Document design decisions with rationale and alternatives
+
 - Map module organization and dependencies clearly
+
 - Illustrate data flows through the system
+
 - Document all external integrations comprehensively
+
 - Follow .NET and C# best practices
+
 - Target technical audience (developers, architects)
+
+~~~
 ---
 
 ## Verify Directory Structure
@@ -791,7 +826,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout

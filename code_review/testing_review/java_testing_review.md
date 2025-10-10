@@ -32,45 +32,75 @@ review/testing_review/
 ## Review Checklist
 
 ### Test Coverage
+
 - [ ] Line coverage measured (target: 80%+)
+
 - [ ] Branch coverage assessed
+
 - [ ] Critical business logic fully tested
+
 - [ ] Edge cases and error conditions covered
+
 - [ ] Coverage gaps identified and prioritized
 
 ### Test Quality
+
 - [ ] Tests follow AAA pattern (Arrange, Act, Assert)
+
 - [ ] Test names clearly describe what is being tested
+
 - [ ] Tests are independent and isolated
+
 - [ ] Assertions are specific and meaningful
+
 - [ ] Test data is representative and comprehensive
 
 ### Test Organization
+
 - [ ] Test structure mirrors source code structure
+
 - [ ] Test packages properly organized
+
 - [ ] Test utilities and base classes well-organized
+
 - [ ] Test configuration managed appropriately
+
 - [ ] Test documentation present
 
 ### Test Types Coverage
+
 - [ ] Unit tests present for core business logic
+
 - [ ] Integration tests cover component interactions
+
 - [ ] End-to-end tests validate critical user flows
+
 - [ ] Performance tests for critical operations
+
 - [ ] Security tests for sensitive operations
 
 ### Test Reliability
+
 - [ ] Flaky tests identified and documented
+
 - [ ] Tests run independently (no order dependency)
+
 - [ ] External dependencies properly mocked
+
 - [ ] Test data properly managed
+
 - [ ] Tests run consistently across environments
 
 ### CI/CD Integration
+
 - [ ] Tests run automatically on commits/PRs
+
 - [ ] Test failures block merges
+
 - [ ] Coverage reports generated
+
 - [ ] Test execution time reasonable
+
 - [ ] Parallel test execution configured
 
 ## Prompt Template
@@ -105,7 +135,9 @@ ${OUTPUT_DIR}/
 ```
 
 **Throughout this prompt:**
+
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
+
 - Examples:
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
@@ -748,16 +780,25 @@ Please perform a comprehensive testing review of this Java project following thi
 Please provide a comprehensive testing report with the following structure:
 
 ### Executive Summary
+
 - **Overall Test Health**: [Excellent/Good/Fair/Poor]
+
 - **Test Coverage**: [percentage - line and branch]
+
 - **Critical Gaps**: [count and brief description]
+
 - **Test Quality**: [High/Medium/Low]
+
 - **Reliability**: [Stable/Some Flakiness/Unreliable]
 
 ### Coverage Metrics
+
 - **Line Coverage**: [%]
+
 - **Branch Coverage**: [%]
+
 - **Method Coverage**: [%]
+
 - **Class Coverage**: [%]
 
 **Coverage by Package**:
@@ -766,16 +807,25 @@ Please provide a comprehensive testing report with the following structure:
 | [package] | [%] | [%] | [count] | [High/Med/Low] |
 
 ### Test Suite Inventory
+
 - **Total Tests**: [count]
+
 - **Unit Tests**: [count] ([%])
+
 - **Integration Tests**: [count] ([%])
+
 - **End-to-End Tests**: [count] ([%])
+
 - **Performance Tests**: [count]
+
 - **Security Tests**: [count]
 
 **Test Execution Time**:
+
 - Total: [seconds]
+
 - Average per test: [ms]
+
 - Slowest test: [test name] - [seconds]
 
 ### Critical Coverage Gaps (Priority 1)
@@ -790,10 +840,15 @@ Please provide a comprehensive testing report with the following structure:
 | [smell type] | [test class] | [details] | [recommendation] |
 
 **Common Issues**:
+
 - [ ] Tests with unclear names: [count]
+
 - [ ] Tests with weak assertions: [count]
+
 - [ ] Tests with complex setup: [count]
+
 - [ ] Tests testing implementation details: [count]
+
 - [ ] Tests without proper cleanup: [count]
 
 ### Test Reliability Assessment
@@ -803,39 +858,63 @@ Please provide a comprehensive testing report with the following structure:
 | [test] | [%] | [reason] | [solution] |
 
 **Test Independence Issues**:
+
 - [ ] Order-dependent tests: [list]
+
 - [ ] Shared state pollution: [list]
+
 - [ ] External dependencies not mocked: [list]
+
 - [ ] Hardcoded test data: [list]
 
 ### Spring Boot Testing Assessment** (if applicable)
+
 - **Test Slice Usage**: [appropriate/overusing @SpringBootTest]
+
 - **MockBean vs Mock**: [proper separation]
+
 - **TestContainers**: [used/not used]
+
 - **Test Configuration**: [clean/messy]
 
 ### Mock Usage Analysis
+
 - **Mockito Usage**: [appropriate/overused/underused]
+
 - **Spy Usage**: [appropriate/code smell]
+
 - **Verification**: [thorough/missing verifications]
+
 - **Stub Quality**: [realistic/poor]
 
 ### Missing Test Types
+
 - [ ] **Edge Cases**: [specific gaps]
+
 - [ ] **Error Conditions**: [uncovered exceptions]
+
 - [ ] **Boundary Values**: [missing boundary tests]
+
 - [ ] **Integration Points**: [untested interactions]
+
 - [ ] **Performance Tests**: [operations needing perf tests]
+
 - [ ] **Security Tests**: [security validations needed]
 
 ### CI/CD Integration
+
 - **Automated Test Execution**: [Yes/No/Partial]
+
 - **Coverage Reporting**: [JaCoCo/Cobertura/SonarQube]
+
 - **Quality Gates**: [Enforced/Not Enforced]
+
 - **Test Parallelization**: [Yes/No]
+
 - **Separate Integration Tests**: [Yes/No]
 
 **Issues**:
+
 - [List of CI/CD testing gaps or issues]
 
 ### Recommendations
@@ -908,18 +987,27 @@ public class UserAssert extends AbstractAssert<UserAssert, User> {
 **Target: [X]% coverage (from current [Y]%)**
 
 **Phase 1** (Week 1-2):
+
 - Add tests for [critical classes/packages]
+
 - Expected coverage gain: +[X]%
+
 - Focus: Critical business logic
 
 **Phase 2** (Week 3-4):
+
 - Add integration tests for [components]
+
 - Expected coverage gain: +[X]%
+
 - Focus: API endpoints and database operations
 
 **Phase 3** (Month 2):
+
 - Add edge case and error condition tests
+
 - Expected coverage gain: +[X]%
+
 - Focus: Exception handling and validation
 
 ### Quality Gates Recommendation
@@ -951,22 +1039,37 @@ public class UserAssert extends AbstractAssert<UserAssert, User> {
 ```
 
 ### Next Steps
+
 - [ ] Address critical coverage gaps (Priority 1 items)
+
 - [ ] Fix or quarantine flaky tests
+
 - [ ] Implement test data builders and fixtures
+
 - [ ] Set up coverage monitoring in CI/CD
+
 - [ ] Configure TestContainers for integration tests
+
 - [ ] Establish team testing guidelines
+
 - [ ] Schedule testing improvement sprint
+
 - [ ] Set up mutation testing (PIT) for test quality
 
 ## Notes
+
 - Focus on testing critical business logic first
+
 - Aim for meaningful tests, not just coverage percentage
+
 - Balance unit, integration, and e2e test distribution
+
 - Keep tests fast and reliable
+
 - Use TestContainers for real database/service testing
+
 - Consider mutation testing (PIT) to verify test quality
+
 - Treat test code with same quality standards as production code
 
 ## File Output Instructions
@@ -1008,7 +1111,11 @@ ${OUTPUT_DIR}/
 ```
 
 **Verification checklist:**
+
 - [ ] All directories created successfully
+
 - [ ] All files saved in correct subdirectories
+
 - [ ] No files created in repository root
+
 - [ ] Directory structure matches expected layout
