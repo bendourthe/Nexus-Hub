@@ -93,15 +93,15 @@ Establish comprehensive performance testing practices to validate system behavio
 
 ## Available Templates
 
-| Language | Template File | Status |
-|----------|--------------|---------|
-| Python | `python_performance_testing.md` | Available |
-| JavaScript | `javascript_performance_testing.md` | Coming Soon |
-| Java | `java_performance_testing.md` | Coming Soon |
-| C# | `csharp_performance_testing.md` | Coming Soon |
-| Go | `go_performance_testing.md` | Coming Soon |
-| C | `c_performance_testing.md` | Coming Soon |
-| C++ | `cpp_performance_testing.md` | Coming Soon |
+| Language | Template File |
+|----------|---------------|
+| **Python** | [python_performance_testing.md](python_performance_testing.md) |
+| **JavaScript/TypeScript** | [javascript_performance_testing.md](javascript_performance_testing.md) |
+| **Java** | [java_performance_testing.md](java_performance_testing.md) |
+| **C#** | [csharp_performance_testing.md](csharp_performance_testing.md) |
+| **Go** | [go_performance_testing.md](go_performance_testing.md) |
+| **C** | [c_performance_testing.md](c_performance_testing.md) |
+| **C++** | [cpp_performance_testing.md](cpp_performance_testing.md) |
 
 ## Quick Start
 Use the appropriate template file with your AI assistant to:

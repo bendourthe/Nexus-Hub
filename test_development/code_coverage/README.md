@@ -93,15 +93,15 @@ Measure, analyze, and improve test coverage to ensure comprehensive testing of t
 
 ## Available Templates
 
-| Language | Template File | Status |
-|----------|--------------|---------|
-| Python | `python_code_coverage.md` | Available |
-| JavaScript | `javascript_code_coverage.md` | Coming Soon |
-| Java | `java_code_coverage.md` | Coming Soon |
-| C# | `csharp_code_coverage.md` | Coming Soon |
-| Go | `go_code_coverage.md` | Coming Soon |
-| C | `c_code_coverage.md` | Coming Soon |
-| C++ | `cpp_code_coverage.md` | Coming Soon |
+| Language | Template File |
+|----------|---------------|
+| **Python** | [python_code_coverage.md](python_code_coverage.md) |
+| **JavaScript/TypeScript** | [javascript_code_coverage.md](javascript_code_coverage.md) |
+| **Java** | [java_code_coverage.md](java_code_coverage.md) |
+| **C#** | [csharp_code_coverage.md](csharp_code_coverage.md) |
+| **Go** | [go_code_coverage.md](go_code_coverage.md) |
+| **C** | [c_code_coverage.md](c_code_coverage.md) |
+| **C++** | [cpp_code_coverage.md](cpp_code_coverage.md) |
 
 ## Quick Start
 Use the appropriate template file with your AI assistant to:

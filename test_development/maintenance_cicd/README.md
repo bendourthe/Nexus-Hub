@@ -93,15 +93,15 @@ Establish automated testing infrastructure, integrate tests into CI/CD pipelines
 
 ## Available Templates
 
-| Language | Template File | Status |
-|----------|--------------|---------|
-| Python | `python_maintenance_cicd.md` | Available |
-| JavaScript | `javascript_maintenance_cicd.md` | Coming Soon |
-| Java | `java_maintenance_cicd.md` | Coming Soon |
-| C# | `csharp_maintenance_cicd.md` | Coming Soon |
-| Go | `go_maintenance_cicd.md` | Coming Soon |
-| C | `c_maintenance_cicd.md` | Coming Soon |
-| C++ | `cpp_maintenance_cicd.md` | Coming Soon |
+| Language | Template File |
+|----------|---------------|
+| **Python** | [python_maintenance_cicd.md](python_maintenance_cicd.md) |
+| **JavaScript/TypeScript** | [javascript_maintenance_cicd.md](javascript_maintenance_cicd.md) |
+| **Java** | [java_maintenance_cicd.md](java_maintenance_cicd.md) |
+| **C#** | [csharp_maintenance_cicd.md](csharp_maintenance_cicd.md) |
+| **Go** | [go_maintenance_cicd.md](go_maintenance_cicd.md) |
+| **C** | [c_maintenance_cicd.md](c_maintenance_cicd.md) |
+| **C++** | [cpp_maintenance_cicd.md](cpp_maintenance_cicd.md) |
 
 ## Quick Start
 Use the appropriate template file with your AI assistant to:
