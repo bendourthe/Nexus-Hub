@@ -165,6 +165,31 @@ Before making ANY changes, please:
 
 After I approve, systematically clean the following:
 
+### Multi-Pass Cleanup Protocol
+
+**CRITICAL: Perform multiple passes through the entire codebase to ensure completeness**
+
+1. **First Pass**: Apply all cleanup tasks systematically across the codebase
+   - Work through all .java files in src/main/java and src/test/java
+   - Apply all requested cleanup operations
+   - Track which files were modified
+
+2. **Verification Pass**: Review the entire codebase again
+   - Check for any files that were missed in the first pass
+   - Verify all cleanup patterns were applied consistently
+   - Identify any edge cases or exceptions that need attention
+
+3. **Repeat Until Complete**: Continue additional passes if needed
+   - If files were found that needed cleanup in the verification pass, perform another full pass
+   - Repeat until a complete pass finds no additional cleanup opportunities
+   - Track the number of passes required to achieve complete cleanup
+
+4. **Pass Tracking**: Maintain detailed statistics for each pass
+   - Number of files processed per pass
+   - Number of files cleaned per pass
+   - Percentage of codebase cleaned per pass
+   - Types of issues found per pass
+
 ### Critical Removals
 
 - **Unused imports**: Remove any imports not referenced in the code
@@ -294,6 +319,89 @@ After I approve, systematically clean the following:
 
 - **Inappropriate intimacy**: Identify classes that access each other's internals too much
 
+#### Useless Variables and Properties
+
+Identify and remove variables, properties, and configuration that serve no functional purpose:
+
+- **Ignored CSS/Style Properties**: In custom-painted Swing/JavaFX components
+  - CSS properties defined but completely ignored by custom paintComponent() or render() methods
+  - Style settings that are overridden by manual Graphics2D drawing
+  - JavaFX CSS that has no effect due to custom rendering
+
+- **Dead Configuration Values**: Settings that are defined but never used
+  - Unused fields in configuration classes
+  - Properties files with unused keys
+  - Constants that are never referenced
+
+- **Redundant Constants**: Values that duplicate other constants
+  - Multiple constants with identical values
+  - Constants that duplicate framework defaults
+
+**Detection Example: Custom Swing Component**
+
+```java
+// BEFORE - Useless style properties
+public class BadProgressBar extends JProgressBar {
+    // ❌ All these properties are IGNORED by custom paintComponent
+    private static final Color BORDER_COLOR = new Color(0xd0d0d0);  // Not used
+    private static final int BORDER_RADIUS = 12;                     // Not used
+    private static final Color BG_COLOR = new Color(0xe5e7eb);      // Not used
+
+    public BadProgressBar() {
+        super();
+        // CSS-style properties that are ignored
+        setBorder(BorderFactory.createLineBorder(BORDER_COLOR));     // IGNORED
+        setBackground(BG_COLOR);                                      // IGNORED
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        // Custom painting bypasses ALL the properties set above
+        Graphics2D g2 = (Graphics2D) g;
+        g2.setColor(new Color(0xf0f0f0));  // Hardcoded, ignores setBorder/setBackground
+        g2.fillRoundedRect(...);
+    }
+}
+
+// AFTER - Using clear constants
+public class GoodProgressBar extends JProgressBar {
+    // ✅ Visual properties as clear class constants
+    private static final int BORDER_RADIUS = 12;
+    private static final Color BORDER_COLOR = new Color(0xd0d0d0);
+    private static final Color BACKGROUND_COLOR = new Color(0xe5e7eb);
+    private static final Color TEXT_COLOR = new Color(0x2c3e50);
+
+    public GoodProgressBar() {
+        super();
+        // Only non-visual properties
+        setOpaque(false);
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        Graphics2D g2 = (Graphics2D) g;
+        // Use the constants in actual drawing code
+        g2.setColor(BACKGROUND_COLOR);
+        g2.fillRoundedRect(..., BORDER_RADIUS, BORDER_RADIUS);
+        g2.setColor(BORDER_COLOR);
+        g2.drawRoundedRect(..., BORDER_RADIUS, BORDER_RADIUS);
+    }
+}
+```
+
+**Why This Matters:**
+1. **Clarity**: Visual config is discoverable at class top
+2. **Maintainability**: Easy to find and modify appearance constants
+3. **No Confusion**: Clear why setBorder/setBackground don't work
+4. **IDE Support**: Constants have better autocomplete than method chains
+
+**Detection Strategy:**
+1. Find classes that override paintComponent(), paint(), or similar
+2. Check for setBorder(), setBackground(), setForeground() calls
+3. Verify those properties are used in the paint method
+4. Extract hardcoded values to constants, remove useless setter calls
+5. Add Javadoc explaining why standard setters aren't used
+
 #### Build & Configuration
 
 - **Unused Maven/Gradle dependencies**: Identify dependencies not used in code
@@ -386,6 +494,32 @@ Present cleanup in this structure:
 
 ## Summary Statistics
 
+### Multi-Pass Cleanup Metrics
+
+**Pass-by-Pass Breakdown:**
+
+- **Pass 1** (Initial cleanup):
+  - Files processed: X
+  - Files cleaned: Y
+  - Percentage of codebase: Z%
+
+- **Pass 2** (Verification):
+  - Files processed: X
+  - Files cleaned: W (files missed in Pass 1)
+  - Percentage of codebase: V%
+
+- **Pass N** (if needed):
+  - Files processed: X
+  - Files cleaned: 0 (verification complete)
+
+**Multi-Pass Summary:**
+- **Total passes required**: N
+- **Files cleaned in first pass**: Y (Z% of codebase)
+- **Files cleaned in subsequent passes**: W (V% of codebase)
+- **Final verification**: ✅ All files processed, no additional cleanup needed
+
+### Standard Cleanup Metrics
+
 - **Total files processed:** X
 
 - **Unused imports removed:** Y
@@ -401,6 +535,21 @@ Present cleanup in this structure:
 - **Modernization changes:** P
 
 - **Code smells addressed:** Q
+
+### Useless Code Detection Metrics
+
+- **Useless style properties removed:** R
+  - Converted to code constants: S
+  - Simply deleted: T
+
+- **Dead configuration removed:** U
+
+- **Redundant constants consolidated:** V
+
+**Impact Analysis:**
+- Code clarity improvement: [High/Medium/Low]
+- Maintenance burden reduction: [High/Medium/Low]
+- Configuration discoverability: [High/Medium/Low]
 
 **Overall Impact:** [Low/Medium/High risk assessment]
 

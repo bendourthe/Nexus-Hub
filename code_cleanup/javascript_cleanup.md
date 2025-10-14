@@ -164,6 +164,31 @@ Before making ANY changes, please:
 
 After I approve, systematically clean the following:
 
+### Multi-Pass Cleanup Protocol
+
+**CRITICAL: Perform multiple passes through the entire codebase to ensure completeness**
+
+1. **First Pass**: Apply all cleanup tasks systematically across the codebase
+   - Work through all .js, .jsx, .ts, .tsx files in the project
+   - Apply all requested cleanup operations
+   - Track which files were modified
+
+2. **Verification Pass**: Review the entire codebase again
+   - Check for any files that were missed in the first pass
+   - Verify all cleanup patterns were applied consistently
+   - Identify any edge cases or exceptions that need attention
+
+3. **Repeat Until Complete**: Continue additional passes if needed
+   - If files were found that needed cleanup in the verification pass, perform another full pass
+   - Repeat until a complete pass finds no additional cleanup opportunities
+   - Track the number of passes required to achieve complete cleanup
+
+4. **Pass Tracking**: Maintain detailed statistics for each pass
+   - Number of files processed per pass
+   - Number of files cleaned per pass
+   - Percentage of codebase cleaned per pass
+   - Types of issues found per pass
+
 ### Critical Removals
 
 - **Unused imports**: Remove any imports not referenced in the code
@@ -255,6 +280,81 @@ After I approve, systematically clean the following:
 - **Optional chaining**: Use `?.` operator instead of manual null checks
 
 - **Nullish coalescing**: Use `??` operator instead of `||` for default values
+
+#### Useless Variables and Properties
+
+Identify and remove variables, properties, and configuration that serve no functional purpose:
+
+- **Ignored CSS/Style Properties**: In custom-rendered components
+  - CSS properties in styled-components or CSS-in-JS that are overridden by canvas/SVG rendering
+  - Style props passed to components but never used in rendering logic
+  - Theme values that are shadowed by hardcoded values in render methods
+
+- **Dead Configuration Values**: Settings that are defined but never used
+  - Unused props in React components
+  - Configuration objects with unused keys
+  - Redux state properties that are never accessed
+
+- **Redundant Constants**: Values that duplicate other constants
+  - Multiple constants with identical values
+  - Constants that duplicate framework defaults
+
+**Detection Example: Custom Canvas Rendering**
+
+```javascript
+// BEFORE - Useless style properties
+const BadProgressBar = styled.div`
+  border: 1px solid #d0d0d0;      /* ❌ IGNORED by canvas */
+  border-radius: 12px;             /* ❌ IGNORED by canvas */
+  background-color: #e5e7eb;       /* ❌ IGNORED by canvas */
+  color: #2c3e50;                  /* ❌ IGNORED by canvas */
+`;
+
+function CustomProgressBar() {
+  return (
+    <BadProgressBar>
+      <canvas ref={canvasRef} />  {/* Custom drawing ignores all CSS above */}
+    </BadProgressBar>
+  );
+}
+
+// AFTER - Using constants (clear and discoverable)
+const BORDER_RADIUS = 12;
+const BORDER_COLOR = '#d0d0d0';
+const BACKGROUND_COLOR = '#e5e7eb';
+const TEXT_COLOR = '#2c3e50';
+
+const GoodProgressBar = styled.div`
+  /* Only non-visual styles that aren't custom-painted */
+  position: relative;
+  overflow: hidden;
+`;
+
+function CustomProgressBar() {
+  const drawProgress = (ctx) => {
+    // Use constants in actual drawing code
+    ctx.strokeStyle = BORDER_COLOR;
+    ctx.fillStyle = BACKGROUND_COLOR;
+    ctx.beginPath();
+    ctx.arc(..., BORDER_RADIUS);
+  };
+
+  return <GoodProgressBar><canvas ref={canvasRef} /></GoodProgressBar>;
+}
+```
+
+**Why This Matters:**
+1. **Clarity**: Configuration constants are at module top, easy to find
+2. **Maintainability**: Visual properties are in one discoverable location
+3. **No Confusion**: Clear why CSS doesn't control visual appearance
+4. **Better Tooling**: Constants have IntelliSense, CSS strings in JS don't always
+
+**Detection Strategy:**
+1. Find components that use custom rendering (canvas, SVG paths, WebGL)
+2. Check if they have CSS/styled-components with visual properties
+3. Verify those properties are actually used in rendering
+4. Extract values to constants and remove useless styles
+5. Add comment explaining why styles are minimal
 
 #### TypeScript-Specific
 
@@ -350,6 +450,32 @@ Present cleanup in this structure:
 
 ## Summary Statistics
 
+### Multi-Pass Cleanup Metrics
+
+**Pass-by-Pass Breakdown:**
+
+- **Pass 1** (Initial cleanup):
+  - Files processed: X
+  - Files cleaned: Y
+  - Percentage of codebase: Z%
+
+- **Pass 2** (Verification):
+  - Files processed: X
+  - Files cleaned: W (files missed in Pass 1)
+  - Percentage of codebase: V%
+
+- **Pass N** (if needed):
+  - Files processed: X
+  - Files cleaned: 0 (verification complete)
+
+**Multi-Pass Summary:**
+- **Total passes required**: N
+- **Files cleaned in first pass**: Y (Z% of codebase)
+- **Files cleaned in subsequent passes**: W (V% of codebase)
+- **Final verification**: ✅ All files processed, no additional cleanup needed
+
+### Standard Cleanup Metrics
+
 - **Total files processed:** X
 
 - **Unused imports removed:** Y
@@ -363,6 +489,21 @@ Present cleanup in this structure:
 - **Code reduction:** X%
 
 - **Modernization changes:** P
+
+### Useless Code Detection Metrics
+
+- **Useless style properties removed:** Q
+  - Converted to code constants: R
+  - Simply deleted: S
+
+- **Dead configuration removed:** T
+
+- **Redundant constants consolidated:** U
+
+**Impact Analysis:**
+- Code clarity improvement: [High/Medium/Low]
+- Maintenance burden reduction: [High/Medium/Low]
+- Configuration discoverability: [High/Medium/Low]
 
 **Overall Impact:** [Low/Medium/High risk assessment]
 

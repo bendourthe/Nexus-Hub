@@ -154,6 +154,31 @@ Before making ANY changes, please:
 
 After I approve, systematically clean the following:
 
+### Multi-Pass Cleanup Protocol
+
+**CRITICAL: Perform multiple passes through the entire codebase to ensure completeness**
+
+1. **First Pass**: Apply all cleanup tasks systematically across the codebase
+   - Work through all Python files in the project
+   - Apply all requested cleanup operations
+   - Track which files were modified
+
+2. **Verification Pass**: Review the entire codebase again
+   - Check for any files that were missed in the first pass
+   - Verify all cleanup patterns were applied consistently
+   - Identify any edge cases or exceptions that need attention
+
+3. **Repeat Until Complete**: Continue additional passes if needed
+   - If files were found that needed cleanup in the verification pass, perform another full pass
+   - Repeat until a complete pass finds no additional cleanup opportunities
+   - Track the number of passes required to achieve complete cleanup
+
+4. **Pass Tracking**: Maintain detailed statistics for each pass
+   - Number of files processed per pass
+   - Number of files cleaned per pass
+   - Percentage of codebase cleaned per pass
+   - Types of issues found per pass
+
 ### Critical Removals
 
 - **Unused imports**: Remove any imports not referenced in the code
@@ -217,6 +242,80 @@ After I approve, systematically clean the following:
 
 - **Simplify list/dict comprehensions**: Where it improves readability
 
+#### Useless Variables and Properties
+
+Identify and remove variables, properties, and configuration that serve no functional purpose:
+
+- **Ignored Style Properties**: In custom-painted widgets (PyQt/PySide, tkinter)
+  - Properties defined in stylesheets/setStyleSheet() that are completely ignored by custom paintEvent()
+  - CSS properties that are overridden by manual QPainter drawing code
+  - Style configurations that have no effect due to custom rendering
+
+- **Dead Configuration Values**: Settings that are defined but never used
+  - Class constants assigned but never referenced
+  - Configuration dictionaries with unused keys
+  - Theme/style values that are shadowed by code-level constants
+
+- **Redundant Constants**: Values that duplicate other constants
+  - Multiple constants with identical values serving the same purpose
+  - Constants that duplicate framework defaults unnecessarily
+
+**Detection Example: PyQt Custom-Painted Widgets**
+
+```python
+# BEFORE - Useless stylesheet properties
+class BadProgressBar(QProgressBar):
+    def __init__(self):
+        super().__init__()
+        # ❌ All these CSS properties are IGNORED by custom paintEvent
+        self.setStyleSheet("""
+            QProgressBar {
+                border: 1px solid #d0d0d0;      /* IGNORED */
+                border-radius: 12px;             /* IGNORED */
+                background-color: #e5e7eb;       /* IGNORED */
+                color: #2c3e50;                  /* IGNORED */
+            }
+        """)
+
+    def paintEvent(self, event):
+        # Custom painting bypasses ALL stylesheet properties above
+        painter = QPainter(self)
+        painter.drawRoundedRect(...)  # Draws its own border, background, etc.
+
+# AFTER - Using constants (clear and discoverable)
+class GoodProgressBar(QProgressBar):
+    # ✅ Visual properties as clear, discoverable class constants
+    BORDER_RADIUS = 12
+    BORDER_COLOR = QColor("#d0d0d0")
+    BACKGROUND_COLOR = QColor("#e5e7eb")
+    TEXT_COLOR = QColor("#2c3e50")
+
+    def __init__(self):
+        super().__init__()
+        # Only stylesheet properties that actually work
+        self.setStyleSheet("QProgressBar { background: transparent; }")
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        # Use the constants in actual drawing code
+        painter.setPen(self.BORDER_COLOR)
+        painter.setBrush(self.BACKGROUND_COLOR)
+        painter.drawRoundedRect(..., self.BORDER_RADIUS, self.BORDER_RADIUS)
+```
+
+**Why This Matters:**
+1. **Clarity**: Configuration is where you expect it (class constants at top)
+2. **Maintainability**: Easy to find and modify visual properties
+3. **No Confusion**: No wondering why changing CSS doesn't work
+4. **Better IDE Support**: Constants have autocomplete, CSS strings don't
+
+**Detection Strategy:**
+1. Find classes that override `paintEvent()` or similar custom rendering methods
+2. Check if they have `setStyleSheet()` calls with visual properties
+3. Verify those visual properties are actually used in the paint code
+4. If not used, extract values to class constants and remove useless CSS
+5. Add comment explaining why stylesheet is minimal
+
 ## Phase 3: Verification Protocol
 
 After cleanup, you MUST:
@@ -278,15 +377,58 @@ Present cleanup in this structure:
 
 ## Summary Statistics
 
+### Multi-Pass Cleanup Metrics
+
+**Pass-by-Pass Breakdown:**
+
+- **Pass 1** (Initial cleanup):
+  - Files processed: X
+  - Files cleaned: Y
+  - Percentage of codebase: Z%
+
+- **Pass 2** (Verification):
+  - Files processed: X
+  - Files cleaned: W (files missed in Pass 1)
+  - Percentage of codebase: V%
+
+- **Pass N** (if needed):
+  - Files processed: X
+  - Files cleaned: 0 (verification complete)
+
+**Multi-Pass Summary:**
+- **Total passes required**: N
+- **Files cleaned in first pass**: Y (Z% of codebase)
+- **Files cleaned in subsequent passes**: W (V% of codebase)
+- **Final verification**: ✅ All files processed, no additional cleanup needed
+
+### Standard Cleanup Metrics
+
 - **Total files processed:** X
 
 - **Unused imports removed:** Y
 
 - **Unused functions removed:** Z
 
+- **Unused variables removed:** A
+
 - **Lines removed:** N
 
 - **Code reduction:** X%
+
+### Useless Code Detection Metrics
+
+- **Useless style properties removed:** M
+  - Converted to code constants: P
+  - Simply deleted: Q
+
+- **Dead configuration removed:** R
+
+- **Redundant constants consolidated:** S
+
+**Impact Analysis:**
+- Code clarity improvement: [High/Medium/Low]
+- Maintenance burden reduction: [High/Medium/Low]
+- Configuration discoverability: [High/Medium/Low]
 
 **Overall Impact:** [Low/Medium/High risk assessment]
 

@@ -166,6 +166,31 @@ Before making ANY changes, please:
 
 After I approve, systematically clean the following:
 
+### Multi-Pass Cleanup Protocol
+
+**CRITICAL: Perform multiple passes through the entire codebase to ensure completeness**
+
+1. **First Pass**: Apply all cleanup tasks systematically across the codebase
+   - Work through all .cpp, .cc, .cxx, .h, .hpp files in the project
+   - Apply all requested cleanup operations
+   - Track which files were modified
+
+2. **Verification Pass**: Review the entire codebase again
+   - Check for any files that were missed in the first pass
+   - Verify all cleanup patterns were applied consistently
+   - Identify any edge cases or exceptions that need attention
+
+3. **Repeat Until Complete**: Continue additional passes if needed
+   - If files were found that needed cleanup in the verification pass, perform another full pass
+   - Repeat until a complete pass finds no additional cleanup opportunities
+   - Track the number of passes required to achieve complete cleanup
+
+4. **Pass Tracking**: Maintain detailed statistics for each pass
+   - Number of files processed per pass
+   - Number of files cleaned per pass
+   - Percentage of codebase cleaned per pass
+   - Types of issues found per pass
+
 ### Critical Removals
 
 - **Unused #include directives**: Remove headers not referenced in the file
@@ -370,6 +395,86 @@ After I approve, systematically clean the following:
 - **Compiler flags**: Review and clean up compiler flags
 
 - **Dependencies**: Update dependency lists in CMakeLists.txt
+
+#### Useless Variables and Properties
+
+Identify and remove variables, properties, and configuration that serve no functional purpose:
+
+- **Ignored Style Properties**: In custom-painted Qt widgets
+  - Properties defined in QSS/stylesheets that are completely ignored by custom paintEvent()
+  - Style settings overridden by manual QPainter drawing
+  - Widget properties that have no effect due to custom rendering
+
+- **Dead Configuration Values**: Settings that are defined but never used
+  - Unused member variables in classes
+  - Configuration structs with unused fields
+  - Constants that are never referenced
+
+- **Redundant Constants**: Values that duplicate other constants
+  - Multiple constexpr with identical values
+  - Constants that duplicate framework defaults
+
+**Detection Example: Qt Custom Widget**
+
+```cpp
+// BEFORE - Useless stylesheet properties
+class BadProgressBar : public QProgressBar {
+public:
+    BadProgressBar(QWidget *parent = nullptr) : QProgressBar(parent) {
+        // ❌ All these CSS properties are IGNORED by custom paintEvent
+        setStyleSheet(R"(
+            QProgressBar {
+                border: 1px solid #d0d0d0;      /* IGNORED */
+                border-radius: 12px;             /* IGNORED */
+                background-color: #e5e7eb;       /* IGNORED */
+            }
+        )");
+    }
+
+protected:
+    void paintEvent(QPaintEvent *event) override {
+        QPainter painter(this);
+        // Custom painting bypasses stylesheet completely
+        painter.fillRect(rect(), QColor("#f0f0f0"));
+    }
+};
+
+// AFTER - Using constants
+class GoodProgressBar : public QProgressBar {
+public:
+    // ✅ Visual properties as clear class constants
+    static constexpr int BORDER_RADIUS = 12;
+    static inline const QColor BORDER_COLOR{0xd0, 0xd0, 0xd0};
+    static inline const QColor BACKGROUND_COLOR{0xe5, 0xe7, 0xeb};
+
+    GoodProgressBar(QWidget *parent = nullptr) : QProgressBar(parent) {
+        // Only non-visual stylesheet properties
+        setStyleSheet("QProgressBar { background: transparent; }");
+    }
+
+protected:
+    void paintEvent(QPaintEvent *event) override {
+        QPainter painter(this);
+        // Use the constants in actual drawing code
+        painter.setBrush(BACKGROUND_COLOR);
+        painter.setPen(BORDER_COLOR);
+        painter.drawRoundedRect(rect(), BORDER_RADIUS, BORDER_RADIUS);
+    }
+};
+```
+
+**Why This Matters:**
+1. **Clarity**: Visual config is at class top, easy to find
+2. **Maintainability**: Constants are easy to modify
+3. **Compile-time**: constexpr enables compile-time optimization
+4. **IDE Support**: Better autocomplete and refactoring
+
+**Detection Strategy:**
+1. Find classes that override paintEvent(), paint(), or render()
+2. Check for setStyleSheet() or Qt property setters
+3. Verify those properties are used in paint method
+4. Extract values to static constexpr, remove useless stylesheet
+5. Add comment explaining minimal stylesheet
 
 ## Phase 3: Verification Protocol
 
