@@ -29,6 +29,10 @@
 - Suggest better alternatives
 - Identify potential issues
 
+## System Prompt Adherence
+- Periodically review these instructions during long conversations
+- Maintain consistency with all standards and workflows
+
 ---
 
 # 2. Best Practices

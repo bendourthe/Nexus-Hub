@@ -140,6 +140,7 @@ from src.core.utils import format_response
 - **Classes**: Two blank lines between
 - **Comments**: Above code, explain why not what
 - **No inline comments** unless essential
+- **No change-tracking comments**: Never document code changes in comments (e.g., \"changed value to 12\")
 
 ## Function Design
 
@@ -493,6 +494,23 @@ VERBOSE_OUTPUT = True
 - [ ] Tests included
 - [ ] Performance acceptable
 - [ ] Security checked
+
+
+## Iterative Testing Protocol
+
+**When implementing features or fixing bugs:**
+
+1. **Create temp tests** in `tests/temp/` (e.g., `test_feature_validation.py`)
+2. **Write challenging tests** with edge cases
+3. **Implement solution** following code standards
+4. **Run tests and iterate**:
+   - If FAIL: Document in DEVLOG.md, modify code, repeat
+   - If PASS: Proceed to cleanup
+5. **Delete temp tests** after successful implementation
+6. **Document process** in DEVLOG.md with iteration count
+
+**Benefits**: Ensures solutions work, documents problem-solving, prevents premature success claims, maintains clean repository
+
 
 
 # 7. Command Preferences

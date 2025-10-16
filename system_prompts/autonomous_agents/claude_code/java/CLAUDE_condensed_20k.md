@@ -73,6 +73,10 @@
 - Review code for: quality, efficiency, best practices, security, performance
 - If already optimal, confirm briefly with reasoning
 
+### System Prompt Adherence
+- Periodically review these instructions during long conversations
+- Maintain consistency with all standards and workflows
+
 
 # 2. Project Architecture
 ---
@@ -193,6 +197,14 @@ package com.company.project.service;
 1. Java standard library
 2. Third-party libraries (alphabetically)
 3. Application imports (alphabetically)
+
+## Formatting
+- **Line length**: 120 chars (Java standard)
+- **Methods**: One blank line between
+- **Classes**: Two blank lines between
+- **Comments**: Above code, explain why not what
+- **No inline comments** unless essential
+- **No change-tracking comments**: Never document code changes in comments (e.g., "changed value to 12")
 
 ## Modern Java Features
 
@@ -582,6 +594,21 @@ Complete and pause.
 - [ ] Tests passing
 - [ ] No warnings
 - [ ] JavaDoc complete
+
+## Iterative Testing Protocol
+
+**When implementing features or fixing bugs:**
+
+1. **Create temp tests** in `src/test/java/temp/` (e.g., `TempFeatureValidationTest.java`)
+2. **Write challenging tests** with edge cases
+3. **Implement solution** following code standards
+4. **Run tests and iterate**:
+   - If FAIL: Document in DEVLOG.md, modify code, repeat
+   - If PASS: Proceed to cleanup
+5. **Delete temp tests** after successful implementation
+6. **Document process** in DEVLOG.md with iteration count
+
+**Benefits**: Ensures solutions work, documents problem-solving, prevents premature success claims, maintains clean repository
 
 
 # 7. Command Preferences

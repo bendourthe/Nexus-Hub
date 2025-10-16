@@ -36,6 +36,12 @@
 - Review code for: quality, efficiency, best practices, security, performance
 - If already optimal, confirm briefly with reasoning
 
+### System Prompt Adherence
+- **Periodically review these instructions** throughout long conversations
+- Ensure compliance with all coding standards and workflows
+- Reference specific sections when needed to maintain consistency
+- If uncertain about a standard, explicitly consult the relevant section
+
 
 # 2. Project Architecture
 ---
@@ -564,6 +570,28 @@ global using System.Threading.Tasks;
 ---
 
 ## XML Documentation Comments
+
+
+### Comment Guidelines
+
+**Placement and Style:**
+- **Above code blocks**: Comments explain why, not just what
+- **No inline comments**: Avoid same-line comments unless extremely clear
+- **No meta-commentary**: Don't document editing history
+- **No change tracking**: Never add comments like "changed value to 12" or "updated parameter"
+- **Descriptive**: Focus on logic, decision reasoning, and non-obvious behavior
+
+**Prohibited Comment Patterns:**
+```csharp
+// BAD: Don't document changes
+int result = Calculate(12);  // Changed from 10 to 12
+string value = newValue;  // Updated to use newValue instead of oldValue
+
+// GOOD: Explain reasoning
+int result = Calculate(12);  // Use 12 to match API rate limit threshold
+string value = newValue;  // Cache invalidation requires fresh value
+```
+
 
 ### Complete Documentation Template
 ```csharp
@@ -1235,6 +1263,67 @@ public class Program
 - [ ] Performance benchmarks run
 - [ ] Security scan completed
 - [ ] Code review checklist passed
+
+
+## Iterative Testing Protocol
+
+**CRITICAL: Test-Driven Problem Solving**
+
+When implementing new features, fixing bugs, or troubleshooting issues, follow this iterative protocol:
+
+### 1. Create Temporary Test Scripts
+- Create test files in `tests/temp/` directory
+- Name descriptively: `TempFeatureValidationTests.cs`
+- Write challenging tests that thoroughly validate the solution
+- Include edge cases and error conditions
+
+### 2. Implement Solution
+- Write or modify code to address the issue
+- Follow all code standards and best practices
+- Document approach in DEVLOG.md
+
+### 3. Run Tests and Iterate
+- Execute the temporary test script
+- If tests FAIL:
+  - Analyze failure reasons
+  - Document iteration in DEVLOG.md
+  - Modify implementation
+  - Repeat until tests pass
+- If tests PASS:
+  - Verify solution completeness
+  - Proceed to cleanup
+
+### 4. Clean Up Temporary Tests
+- **Delete all files** in `tests/temp/` after successful implementation
+- Move any valuable test cases to permanent test suites if needed
+- Document final solution in DEVLOG.md
+
+### Example Workflow
+```markdown
+## DEVLOG.md Entry
+
+### Feature: User Authentication
+**Iteration 1**: Created tests/temp/TempFeatureValidationTests.cs
+- Tests failed: Password validation too weak
+- Solution: Enhanced regex pattern
+
+**Iteration 2**: Re-ran tests
+- Tests failed: Edge case with special characters
+- Solution: Added character escaping
+
+**Iteration 3**: Final run
+- All tests passed [PASS]
+- Deleted tests/temp/TempFeatureValidationTests.cs
+- Moved 3 test cases to permanent test suite
+```
+
+**Benefits:**
+- Ensures solutions actually work before claiming completion
+- Documents the problem-solving process
+- Prevents premature declarations of success
+- Creates robust, well-tested code
+- Maintains clean repository (no temporary test clutter)
+
 
 
 # 7. Command Preferences

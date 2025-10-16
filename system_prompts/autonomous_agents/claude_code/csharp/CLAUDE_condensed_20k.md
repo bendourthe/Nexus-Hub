@@ -72,6 +72,10 @@
 - Review code for: quality, efficiency, best practices, security, performance
 - If already optimal, confirm briefly with reasoning
 
+### System Prompt Adherence
+- Periodically review these instructions during long conversations
+- Maintain consistency with all standards and workflows
+
 
 # 2. Project Architecture
 ---
@@ -150,6 +154,28 @@ public void ProcessUser(User user, bool isActive) { }
 6. Private methods
 
 ## Modern C# Features
+
+
+### Comment Guidelines
+
+**Placement and Style:**
+- **Above code blocks**: Comments explain why, not just what
+- **No inline comments**: Avoid same-line comments unless extremely clear
+- **No meta-commentary**: Don't document editing history
+- **No change tracking**: Never add comments like "changed value to 12" or "updated parameter"
+- **Descriptive**: Focus on logic, decision reasoning, and non-obvious behavior
+
+**Prohibited Comment Patterns:**
+```csharp
+// BAD: Don't document changes
+int result = Calculate(12);  // Changed from 10 to 12
+string value = newValue;  // Updated to use newValue instead of oldValue
+
+// GOOD: Explain reasoning
+int result = Calculate(12);  // Use 12 to match API rate limit threshold
+string value = newValue;  // Cache invalidation requires fresh value
+```
+
 
 ### Records
 ```csharp
@@ -431,6 +457,23 @@ Complete and pause.
 - [ ] Code compiles
 - [ ] Tests passing
 - [ ] XML docs complete
+
+
+## Iterative Testing Protocol
+
+**When implementing features or fixing bugs:**
+
+1. **Create temp tests** in `tests/temp/` (e.g., `TempFeatureValidationTests.cs`)
+2. **Write challenging tests** with edge cases
+3. **Implement solution** following code standards
+4. **Run tests and iterate**:
+   - If FAIL: Document in DEVLOG.md, modify code, repeat
+   - If PASS: Proceed to cleanup
+5. **Delete temp tests** after successful implementation
+6. **Document process** in DEVLOG.md with iteration count
+
+**Benefits**: Ensures solutions work, documents problem-solving, prevents premature success claims, maintains clean repository
+
 
 
 # 7. Command Preferences

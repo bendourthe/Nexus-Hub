@@ -11,6 +11,98 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.2.5] - 2025-10-16
+
+### Added
+
+#### System Prompt Consistency Enhancements (29 files)
+Enhanced all system prompt files with 4 critical instructions to improve AI behavior consistency, code quality, documentation practices, and testing protocols.
+
+**The 4 New Instructions**:
+
+1. **System Prompt Adherence** (Section 1)
+   - Added after Quality Assurance section
+   - Reminds AI to periodically review instructions during long conversations
+   - Ensures compliance with all coding standards and workflows
+   - References specific sections when needed to maintain consistency
+
+2. **No Change-Tracking Comments** (Section 3)
+   - Added to Code Standards / Comment Guidelines section
+   - Prevents meta-commentary in code comments (e.g., "changed value to 12")
+   - Language-specific examples for all 7 languages (Python, JavaScript, Java, C#, Go, C, C++)
+   - Focuses on explaining "why" rather than documenting "what changed"
+
+3. **Documentation Best Practices** (Section 4)
+   - Added after DEVLOG.md structure
+   - Ensures all development documentation goes in DEVLOG.md only
+   - Prevents documentation fragmentation across multiple markdown files
+   - Maintains single source of truth for development history
+   - Updated DEVLOG.md template with "Tests Run" and "Iterations" fields
+
+4. **Iterative Testing Protocol** (Section 6)
+   - Added after Quality Gates section
+   - Establishes test-driven problem-solving workflow
+   - Uses temporary test files in `tests/temp/` directory
+   - Includes iteration tracking and cleanup procedures
+   - Language-specific test file extensions and paths for all 7 languages
+
+**Files Modified**:
+- Autonomous Agents (Claude Code): 13 files
+  - Python, JavaScript, Java, C#, Go, C, C++ (comprehensive + condensed)
+- Coding Assistants (General): 14 files
+  - Python, JavaScript, Java, C#, Go, C++ (comprehensive + condensed)
+- Global Generalized: 1 file
+- Automation Scripts: 2 batch update scripts created
+
+**Files Renamed**:
+- All comprehensive system prompts: `*_35k.md` → `*_40k.md` (13 files)
+- Reflects increased content size from new instructions
+
+**Language-Specific Customization**:
+- Python: `tests/temp/test_feature_validation.py`
+- JavaScript/TypeScript: `tests/temp/test_feature_validation.test.ts`
+- Java: `src/test/java/temp/TempFeatureValidationTest.java`
+- C#: `tests/temp/TempFeatureValidationTests.cs`
+- Go: `tests/temp/temp_feature_validation_test.go`
+- C: `tests/temp/test_feature_validation.c`
+- C++: `tests/temp/test_feature_validation.cpp`
+
+### Changed
+
+**Automation and Efficiency**:
+- Created `batch_update_remaining_files.py` - Updated 8 Claude Code files (C#, Go, C, C++) automatically
+- Created `batch_update_coding_assistants.py` - Updated 11 coding assistant files automatically
+- Manual updates for Python, JavaScript, Java files to ensure quality
+- Total processing time: ~2 hours (estimated 1 hour saved through automation)
+
+**Documentation Created**:
+- `COMPLETION_SUMMARY.md` - Comprehensive summary of all updates
+- `HANDOFF_FOR_NEW_CONVERSATION.md` - Detailed handoff documentation with all 4 instructions
+- `SYSTEM_PROMPT_UPDATE_GUIDE.md` - Step-by-step guide for system prompt updates
+- `UPDATE_STATUS.md` - Progress tracking document
+
+### Benefits
+
+**Improved AI Behavior**:
+- **Consistency**: AI maintains adherence to standards throughout long conversations
+- **Code Quality**: Eliminates meta-commentary that clutters code comments
+- **Documentation**: Single source of truth in DEVLOG.md prevents fragmentation
+- **Reliability**: Test-driven approach ensures solutions actually work before claiming completion
+
+**Developer Experience**:
+- **Clearer Standards**: Language-specific examples make expectations explicit
+- **Better Testing**: Iterative protocol with temp files ensures robust solutions
+- **Organized Documentation**: All development notes in one place (DEVLOG.md)
+- **Professional Output**: No "changed from X to Y" comments in production code
+
+**Production Readiness**:
+- All 29 system prompt files now have consistent quality standards
+- Language-specific examples tailored to each ecosystem
+- Comprehensive and condensed versions both fully updated
+- Ready for immediate deployment across all supported languages
+
+---
+
 ## [0.2.4] - 2025-10-10
 
 ### Fixed
@@ -564,6 +656,7 @@ repository_root/
 
 | Version | Date       | Description                                      |
 |---------|------------|--------------------------------------------------|
+| 0.2.5   | 2025-10-16 | System prompt enhancements: Added 4 critical instructions, renamed _35k to _40k |
 | 0.2.4   | 2025-10-10 | Template cleanup: Fixed Bitbucket rendering, removed redundant sections |
 | 0.2.3   | 2025-10-10 | Directory structure optimization: Simplified to 3 subdirectories with OUTPUT_DIR variable |
 | 0.2.2   | 2025-10-10 | Bitbucket migration: Repository-agnostic templates with improved formatting |
@@ -576,7 +669,8 @@ repository_root/
 
 ---
 
-[Unreleased]: https://github.com/yourusername/ai_templates/compare/v0.2.4...HEAD
+[Unreleased]: https://github.com/yourusername/ai_templates/compare/v0.2.5...HEAD
+[0.2.5]: https://github.com/yourusername/ai_templates/releases/tag/v0.2.5
 [0.2.4]: https://github.com/yourusername/ai_templates/releases/tag/v0.2.4
 [0.2.3]: https://github.com/yourusername/ai_templates/releases/tag/v0.2.3
 [0.2.2]: https://github.com/yourusername/ai_templates/releases/tag/v0.2.2

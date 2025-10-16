@@ -73,6 +73,12 @@
 - Review code for: quality, efficiency, best practices, security, performance
 - If already optimal, confirm briefly with reasoning
 
+### System Prompt Adherence
+- **Periodically review these instructions** throughout long conversations
+- Ensure compliance with all coding standards and workflows
+- Reference specific sections when needed to maintain consistency
+- If uncertain about a standard, explicitly consult the relevant section
+
 
 # 2. Project Architecture
 ---
@@ -348,6 +354,50 @@ import com.company.project.exception.UserNotFoundException;
 import com.company.project.model.entity.User;
 import com.company.project.repository.UserRepository;
 ```
+
+
+
+### Comment Guidelines
+
+**Placement and Style:**
+- **Above code blocks**: Comments explain why, not just what
+- **No inline comments**: Avoid same-line comments unless extremely clear
+- **No meta-commentary**: Don't document editing history
+- **No change tracking**: Never add comments like "changed value to 12" or "updated parameter"
+- **JavaDoc for public APIs**: Use JavaDoc for all public methods and classes
+- **Descriptive**: Focus on logic, decision reasoning, and non-obvious behavior
+
+**Prohibited Comment Patterns:**
+```java
+// BAD: Don't document changes
+int result = calculate(12);  // Changed from 10 to 12
+String value = newValue;  // Updated to use newValue instead of oldValue
+
+// GOOD: Explain reasoning
+int result = calculate(12);  // Use 12 to match API rate limit threshold
+String value = newValue;  // Cache invalidation requires fresh value
+```
+
+**Examples:**
+```java
+// Use binary search for O(log n) performance on sorted data
+// This is critical for large datasets (>10k items)
+int result = Collections.binarySearch(sortedList, target);
+
+// Cache results to avoid expensive database queries during batch processing
+// Database has 100 query/minute limit, caching prevents exceeding it
+if (!cache.containsKey(key)) {
+    cache.put(key, expensiveDatabaseQuery(key));
+}
+
+// Implement exponential backoff for rate-limited APIs
+// Start with 1 second, double each retry up to 32 seconds max
+for (int attempt = 0; attempt < maxRetries; attempt++) {
+    int waitTime = Math.min((int) Math.pow(2, attempt), 32);
+    Thread.sleep(waitTime * 1000);
+}
+```
+
 
 ### Modern Java Features (Java 17+)
 
@@ -968,6 +1018,68 @@ Complete and pause. Confirm before proceeding.
 - [ ] Tests passing
 - [ ] No SonarLint warnings
 - [ ] JavaDoc complete
+
+## Iterative Testing Protocol
+
+**CRITICAL: Test-Driven Problem Solving**
+
+When implementing new features, fixing bugs, or troubleshooting issues, follow this iterative protocol:
+
+### 1. Create Temporary Test Scripts
+- Create test files in `src/test/java/temp/` directory
+- Name descriptively: `TempFeatureValidationTest.java`, `TempBugReproductionTest.java`
+- Write challenging tests that thoroughly validate the solution
+- Include edge cases and error conditions
+
+### 2. Implement Solution
+- Write or modify code to address the issue
+- Follow all code standards and best practices
+- Document approach in DEVLOG.md
+
+### 3. Run Tests and Iterate
+- Execute the temporary test script using Maven/Gradle
+- If tests FAIL:
+  - Analyze failure reasons
+  - Document iteration in DEVLOG.md
+  - Modify implementation
+  - Repeat until tests pass
+- If tests PASS:
+  - Verify solution completeness
+  - Proceed to cleanup
+
+### 4. Clean Up Temporary Tests
+- **Delete all files** in `src/test/java/temp/` after successful implementation
+- Move any valuable test cases to permanent test suites if needed
+- Document final solution in DEVLOG.md
+
+### Example Workflow
+```markdown
+## DEVLOG.md Entry
+
+### Feature: User Authentication
+**Iteration 1**: Created src/test/java/temp/TempAuthValidationTest.java
+- Tests failed: Password validation too weak
+- Solution: Enhanced regex pattern in ValidationUtil
+
+**Iteration 2**: Re-ran tests
+- Tests failed: Edge case with special characters
+- Solution: Added character escaping in password encoder
+
+**Iteration 3**: Final run
+- All tests passed ✅
+- Deleted src/test/java/temp/TempAuthValidationTest.java
+- Moved 3 test cases to src/test/java/service/UserServiceTest.java
+```
+
+**Benefits:**
+- Ensures solutions actually work before claiming completion
+- Documents the problem-solving process
+- Prevents premature declarations of success
+- Creates robust, well-tested code
+- Maintains clean repository (no temporary test clutter)
+
+
+
 
 
 # 7. Command Preferences

@@ -36,6 +36,12 @@
 - Review code for: quality, efficiency, best practices, security, performance
 - If already optimal, confirm briefly with reasoning
 
+### System Prompt Adherence
+- **Periodically review these instructions** throughout long conversations
+- Ensure compliance with all coding standards and workflows
+- Reference specific sections when needed to maintain consistency
+- If uncertain about a standard, explicitly consult the relevant section
+
 
 # 2. Project Architecture
 ---
@@ -158,6 +164,28 @@ from src.core.validators import SchemaValidator
 - Never place imports inside functions/classes unless absolutely necessary for lazy loading
 - Use absolute imports for local modules
 - Group third-party imports by functionality with comment headers
+
+
+### Comment Guidelines
+
+**Placement and Style:**
+- **Above code blocks**: Comments explain why, not just what
+- **No inline comments**: Avoid same-line comments unless extremely clear
+- **No meta-commentary**: Don't document editing history
+- **No change tracking**: Never add comments like "changed value to 12" or "updated parameter"
+- **Descriptive**: Focus on logic, decision reasoning, and non-obvious behavior
+
+**Prohibited Comment Patterns:**
+```python
+# BAD: Don't document changes
+result = calculate(12)  # Changed from 10 to 12
+value = new_value  # Updated to use new_value instead of old_value
+
+# GOOD: Explain reasoning
+result = calculate(12)  # Use 12 to match API rate limit threshold
+value = new_value  # Cache invalidation requires fresh value
+```
+
 
 ### Line Length and Formatting
 
@@ -433,6 +461,8 @@ Format based on [Keep a Changelog](https://keepachangelog.com/).
 - **Challenge X**: [Problem]
   - *Solution*: [Resolution]
   - *Trade-offs*: [Considerations]
+  - *Tests Run*: [Test details]
+  - *Iterations*: [Number]
 
 ### Technical Decisions
 [Key decisions and rationale]
@@ -442,7 +472,35 @@ Format based on [Keep a Changelog](https://keepachangelog.com/).
 - **Symptoms**: [Observed]
 - **Root Cause**: [Problem]
 - **Resolution**: [Fix]
+- **Tests Run**: [Test details]
 ```
+
+## Documentation Best Practices
+
+**CRITICAL: Use DEVLOG.md for ALL Development Documentation**
+
+- **NEVER create separate markdown files** like:
+  - `TROUBLESHOOTING_ISSUE.md`
+  - `FIX_SUMMARY.md`
+  - `NEW_FEATURE_IMPLEMENTATION.md`
+  - `BUG_FIX_DETAILS.md`
+  - `IMPLEMENTATION_NOTES.md`
+
+- **ALWAYS document in DEVLOG.md**:
+  - All troubleshooting steps and iterations
+  - Feature implementation progress
+  - Bug fixes and their resolution process
+  - Test results and iterations
+  - Development decisions and rationale
+  - Challenges encountered and solutions
+
+**Why DEVLOG.md Only:**
+- Single source of truth for development history
+- Easier to search and reference
+- Prevents documentation fragmentation
+- Maintains chronological development narrative
+- Reduces repository clutter
+
 
 
 # 5. Testing Framework
@@ -879,6 +937,67 @@ VERBOSE_OUTPUT = True
 - [ ] Security checked
 - [ ] Dependencies resolved
 - [ ] Error handling added
+
+
+## Iterative Testing Protocol
+
+**CRITICAL: Test-Driven Problem Solving**
+
+When implementing new features, fixing bugs, or troubleshooting issues, follow this iterative protocol:
+
+### 1. Create Temporary Test Scripts
+- Create test files in `tests/temp/` directory
+- Name descriptively: `test_feature_validation.py`
+- Write challenging tests that thoroughly validate the solution
+- Include edge cases and error conditions
+
+### 2. Implement Solution
+- Write or modify code to address the issue
+- Follow all code standards and best practices
+- Document approach in DEVLOG.md
+
+### 3. Run Tests and Iterate
+- Execute the temporary test script
+- If tests FAIL:
+  - Analyze failure reasons
+  - Document iteration in DEVLOG.md
+  - Modify implementation
+  - Repeat until tests pass
+- If tests PASS:
+  - Verify solution completeness
+  - Proceed to cleanup
+
+### 4. Clean Up Temporary Tests
+- **Delete all files** in `tests/temp/` after successful implementation
+- Move any valuable test cases to permanent test suites if needed
+- Document final solution in DEVLOG.md
+
+### Example Workflow
+```markdown
+## DEVLOG.md Entry
+
+### Feature: User Authentication
+**Iteration 1**: Created tests/temp/test_feature_validation.py
+- Tests failed: Password validation too weak
+- Solution: Enhanced regex pattern
+
+**Iteration 2**: Re-ran tests
+- Tests failed: Edge case with special characters
+- Solution: Added character escaping
+
+**Iteration 3**: Final run
+- All tests passed [PASS]
+- Deleted tests/temp/test_feature_validation.py
+- Moved 3 test cases to permanent test suite
+```
+
+**Benefits:**
+- Ensures solutions actually work before claiming completion
+- Documents the problem-solving process
+- Prevents premature declarations of success
+- Creates robust, well-tested code
+- Maintains clean repository (no temporary test clutter)
+
 
 
 # 7. Command Preferences

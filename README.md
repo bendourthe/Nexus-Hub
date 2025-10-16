@@ -1,18 +1,21 @@
 # AI Development Templates
 
-**Version 0.2.4** | Released October 10, 2025
+**Version 0.2.5** | Released October 16, 2025
 
-This repository contains comprehensive templates and standardized prompts to enhance AI-assisted software development. Complete multi-language support across 7 programming languages with 162 production-ready templates, repository-agnostic design, and optimized Bitbucket rendering.
+This repository contains comprehensive templates and standardized prompts to enhance AI-assisted software development. Complete multi-language support across 7 programming languages with 162 production-ready templates, repository-agnostic design, and enhanced system prompt consistency.
 
 ---
 
-## 🎉 What's New in Version 0.2.4
+## 🎉 What's New in Version 0.2.5
 
-- **Improved Bitbucket Rendering**: Fixed bullet point formatting with proper blank lines for perfect markdown display
-- **Template Content Cleanup**: Removed redundant "File Output Instructions" sections from all templates
-- **Proper Section Placement**: Moved "Output Format Specifications" inside copyable prompt templates
-- **Better User Experience**: Template sections now logically organized (instructions inside, verification outside)
-- **154 Files Updated**: All template files cleaned up and optimized for Bitbucket compatibility
+- **Enhanced System Prompt Consistency**: Added 4 critical instructions across all 29 system prompt files
+  - System Prompt Adherence: AI periodically reviews instructions during long conversations
+  - No Change-Tracking Comments: Prevents meta-commentary in code (e.g., "changed value to 12")
+  - Documentation Best Practices: Ensures all dev docs go in DEVLOG.md (single source of truth)
+  - Iterative Testing Protocol: Test-driven problem-solving with temporary test files
+- **File Renaming**: All comprehensive system prompts renamed from _35k to _40k to reflect increased content
+- **Language-Specific Examples**: Each language now has tailored examples for comment guidelines and testing protocols
+- **Production Ready**: All 29 system prompt files now have consistent standards and quality assurance protocols
 
 [View Changelog](CHANGELOG.md) | [View Development Log](DEVLOG.md) | [View Releases](../../releases)
 
@@ -225,7 +228,7 @@ Current templates focus on Python. To extend to other languages:
 
 ---
 
-*AI Development Templates v0.2.4 - Empowering development teams with structured, AI-assisted workflows*
+*AI Development Templates v0.2.5 - Empowering development teams with structured, AI-assisted workflows*
 
 *Last Updated: October 2025*
 *Repository maintained by Benjamin Dourthe (benjamin@adonamed.com)*

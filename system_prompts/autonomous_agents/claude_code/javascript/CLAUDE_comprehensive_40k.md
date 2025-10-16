@@ -74,6 +74,12 @@
 - Review code for: quality, efficiency, best practices, security, performance
 - If already optimal, confirm briefly with reasoning
 
+### System Prompt Adherence
+- **Periodically review these instructions** throughout long conversations
+- Ensure compliance with all coding standards and workflows
+- Reference specific sections when needed to maintain consistency
+- If uncertain about a standard, explicitly consult the relevant section
+
 
 # 2. Project Architecture
 ---
@@ -379,8 +385,21 @@ class ValidationError extends Error {
 **Placement and Style:**
 - **Above code blocks**: Comments explain why, not just what
 - **No inline comments**: Avoid same-line comments unless extremely clear
+- **No meta-commentary**: Don't document editing history
+- **No change tracking**: Never add comments like "changed value to 12" or "updated parameter"
 - **JSDoc for functions**: Document public APIs
 - **Descriptive**: Focus on logic, decision reasoning, and non-obvious behavior
+
+**Prohibited Comment Patterns:**
+```typescript
+// BAD: Don't document changes
+const result = calculate(12);  // Changed from 10 to 12
+const value = newValue;  // Updated to use newValue instead of oldValue
+
+// GOOD: Explain reasoning
+const result = calculate(12);  // Use 12 to match API rate limit threshold
+const value = newValue;  // Cache invalidation requires fresh value
+```
 
 **Examples:**
 ```typescript
@@ -653,6 +672,8 @@ Format based on [Keep a Changelog](https://keepachangelog.com/).
 - **Challenge X**: [Problem]
   - *Solution*: [Resolution]
   - *Trade-offs*: [Considerations]
+  - *Tests Run*: [Test details]
+  - *Iterations*: [Number]
 
 ### Technical Decisions
 [Key decisions and rationale]
@@ -662,7 +683,34 @@ Format based on [Keep a Changelog](https://keepachangelog.com/).
 - **Symptoms**: [Observed]
 - **Root Cause**: [Problem]
 - **Resolution**: [Fix]
+- **Tests Run**: [Test details]
 ```
+
+## Documentation Best Practices
+
+**CRITICAL: Use DEVLOG.md for ALL Development Documentation**
+
+- **NEVER create separate markdown files** like:
+  - `TROUBLESHOOTING_ISSUE.md`
+  - `FIX_SUMMARY.md`
+  - `NEW_FEATURE_IMPLEMENTATION.md`
+  - `BUG_FIX_DETAILS.md`
+  - `IMPLEMENTATION_NOTES.md`
+
+- **ALWAYS document in DEVLOG.md**:
+  - All troubleshooting steps and iterations
+  - Feature implementation progress
+  - Bug fixes and their resolution process
+  - Test results and iterations
+  - Development decisions and rationale
+  - Challenges encountered and solutions
+
+**Why DEVLOG.md Only:**
+- Single source of truth for development history
+- Easier to search and reference
+- Prevents documentation fragmentation
+- Maintains chronological development narrative
+- Reduces repository clutter
 
 
 # 5. Testing Framework
@@ -891,6 +939,65 @@ describe('UserCard Component', () => {
 - [ ] Documentation complete
 - [ ] Performance acceptable
 - [ ] Security checked
+
+## Iterative Testing Protocol
+
+**CRITICAL: Test-Driven Problem Solving**
+
+When implementing new features, fixing bugs, or troubleshooting issues, follow this iterative protocol:
+
+### 1. Create Temporary Test Scripts
+- Create test files in `tests/temp/` directory
+- Name descriptively: `test_feature_validation.test.ts`, `test_bug_reproduction.spec.js`
+- Write challenging tests that thoroughly validate the solution
+- Include edge cases and error conditions
+
+### 2. Implement Solution
+- Write or modify code to address the issue
+- Follow all code standards and best practices
+- Document approach in DEVLOG.md
+
+### 3. Run Tests and Iterate
+- Execute the temporary test script
+- If tests FAIL:
+  - Analyze failure reasons
+  - Document iteration in DEVLOG.md
+  - Modify implementation
+  - Repeat until tests pass
+- If tests PASS:
+  - Verify solution completeness
+  - Proceed to cleanup
+
+### 4. Clean Up Temporary Tests
+- **Delete all files** in `tests/temp/` after successful implementation
+- Move any valuable test cases to permanent test suites if needed
+- Document final solution in DEVLOG.md
+
+### Example Workflow
+```markdown
+## DEVLOG.md Entry
+
+### Feature: User Authentication
+**Iteration 1**: Created tests/temp/test_auth_validation.test.ts
+- Tests failed: Password validation too weak
+- Solution: Enhanced regex pattern
+
+**Iteration 2**: Re-ran tests
+- Tests failed: Edge case with special characters
+- Solution: Added character escaping
+
+**Iteration 3**: Final run
+- All tests passed ✅
+- Deleted tests/temp/test_auth_validation.test.ts
+- Moved 3 test cases to tests/auth/test_authentication.test.ts
+```
+
+**Benefits:**
+- Ensures solutions actually work before claiming completion
+- Documents the problem-solving process
+- Prevents premature declarations of success
+- Creates robust, well-tested code
+- Maintains clean repository (no temporary test clutter)
 
 
 # 7. Command Preferences

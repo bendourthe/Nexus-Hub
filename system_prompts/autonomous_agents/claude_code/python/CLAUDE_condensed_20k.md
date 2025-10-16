@@ -74,6 +74,10 @@
 - Review code for: quality, efficiency, best practices, security, performance
 - If already optimal, confirm briefly with reasoning
 
+### System Prompt Adherence
+- Periodically review these instructions during long conversations
+- Maintain consistency with all standards and workflows
+
 
 # 2. Project Architecture
 ---
@@ -180,6 +184,7 @@ from src.core.utils import format_response
 - **Classes**: Two blank lines between
 - **Comments**: Above code, explain why not what
 - **No inline comments** unless essential
+- **No change-tracking comments**: Never document code changes in comments (e.g., "changed value to 12")
 
 ## Function Design
 
@@ -325,6 +330,8 @@ Format based on [Keep a Changelog](https://keepachangelog.com/).
 - **Challenge X**: [Problem]
   - *Solution*: [Resolution]
   - *Trade-offs*: [Considerations]
+  - *Tests Run*: [Test details]
+  - *Iterations*: [Number]
 
 ### Technical Decisions
 [Key decisions and rationale]
@@ -334,7 +341,16 @@ Format based on [Keep a Changelog](https://keepachangelog.com/).
 - **Symptoms**: [Observed]
 - **Root Cause**: [Problem]
 - **Resolution**: [Fix]
+- **Tests Run**: [Test details]
 ```
+
+## Documentation Best Practices
+
+**CRITICAL: All development documentation goes in DEVLOG.md ONLY**
+
+- **Never create** separate files like `TROUBLESHOOTING_ISSUE.md`, `FIX_SUMMARY.md`, `NEW_FEATURE_IMPLEMENTATION.md`
+- **Always use DEVLOG.md** for: troubleshooting, implementations, bug fixes, test results, iterations
+- **Reason**: Single source of truth, prevents fragmentation, maintains history
 
 
 # 5. Testing Framework
@@ -585,6 +601,21 @@ Complete and pause. Confirm before proceeding.
 - [ ] Tests included
 - [ ] Performance acceptable
 - [ ] Security checked
+
+## Iterative Testing Protocol
+
+**When implementing features or fixing bugs:**
+
+1. **Create temp tests** in `tests/temp/` (e.g., `test_feature_validation.py`)
+2. **Write challenging tests** with edge cases
+3. **Implement solution** following code standards
+4. **Run tests and iterate**:
+   - If FAIL: Document in DEVLOG.md, modify code, repeat
+   - If PASS: Proceed to cleanup
+5. **Delete temp tests** after successful implementation
+6. **Document process** in DEVLOG.md with iteration count
+
+**Benefits**: Ensures solutions work, documents problem-solving, prevents premature success claims, maintains clean repository
 
 
 # 7. Command Preferences

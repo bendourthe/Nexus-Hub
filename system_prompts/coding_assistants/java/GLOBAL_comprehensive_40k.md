@@ -36,6 +36,12 @@
 - Review code for: quality, efficiency, best practices, security, performance
 - If already optimal, confirm briefly with reasoning
 
+### System Prompt Adherence
+- **Periodically review these instructions** throughout long conversations
+- Ensure compliance with all coding standards and workflows
+- Reference specific sections when needed to maintain consistency
+- If uncertain about a standard, explicitly consult the relevant section
+
 
 # 2. Project Architecture
 ---
@@ -2726,6 +2732,28 @@ Java Class Import?
    ├─ com.company.project.service.*
    └─ com.company.project.util.*
 ```
+
+
+### Comment Guidelines
+
+**Placement and Style:**
+- **Above code blocks**: Comments explain why, not just what
+- **No inline comments**: Avoid same-line comments unless extremely clear
+- **No meta-commentary**: Don't document editing history
+- **No change tracking**: Never add comments like "changed value to 12" or "updated parameter"
+- **Descriptive**: Focus on logic, decision reasoning, and non-obvious behavior
+
+**Prohibited Comment Patterns:**
+```java
+// BAD: Don't document changes
+int result = calculate(12);  // Changed from 10 to 12
+String value = newValue;  // Updated to use newValue instead of oldValue
+
+// GOOD: Explain reasoning
+int result = calculate(12);  // Use 12 to match API rate limit threshold
+String value = newValue;  // Cache invalidation requires fresh value
+```
+
 
 ### Error Handling
 ```

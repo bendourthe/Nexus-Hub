@@ -51,6 +51,28 @@
 
 ## Modern JavaScript/TypeScript Features
 
+
+### Comment Guidelines
+
+**Placement and Style:**
+- **Above code blocks**: Comments explain why, not just what
+- **No inline comments**: Avoid same-line comments unless extremely clear
+- **No meta-commentary**: Don't document editing history
+- **No change tracking**: Never add comments like "changed value to 12" or "updated parameter"
+- **Descriptive**: Focus on logic, decision reasoning, and non-obvious behavior
+
+**Prohibited Comment Patterns:**
+```javascript
+// BAD: Don't document changes
+const result = calculate(12);  // Changed from 10 to 12
+const value = newValue;  // Updated to use newValue instead of oldValue
+
+// GOOD: Explain reasoning
+const result = calculate(12);  // Use 12 to match API rate limit threshold
+const value = newValue;  // Cache invalidation requires fresh value
+```
+
+
 ### Use Modern Syntax
 ```typescript
 // ✅ Good - Modern destructuring and spread

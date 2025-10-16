@@ -35,6 +35,10 @@
 - Review code for: quality, efficiency, best practices, security, performance
 - If already optimal, confirm briefly with reasoning
 
+### System Prompt Adherence
+- Periodically review these instructions during long conversations
+- Maintain consistency with all standards and workflows
+
 
 # 2. Project Architecture
 ---
@@ -300,6 +304,23 @@ public class UserServiceTests
 - [ ] Unit tests >80% coverage
 - [ ] Performance acceptable
 - [ ] Security checked
+
+
+## Iterative Testing Protocol
+
+**When implementing features or fixing bugs:**
+
+1. **Create temp tests** in `tests/temp/` (e.g., `TempFeatureValidationTests.cs`)
+2. **Write challenging tests** with edge cases
+3. **Implement solution** following code standards
+4. **Run tests and iterate**:
+   - If FAIL: Document in DEVLOG.md, modify code, repeat
+   - If PASS: Proceed to cleanup
+5. **Delete temp tests** after successful implementation
+6. **Document process** in DEVLOG.md with iteration count
+
+**Benefits**: Ensures solutions work, documents problem-solving, prevents premature success claims, maintains clean repository
+
 
 
 # 7. Command Preferences
