@@ -1,15 +1,48 @@
-# AI Prompts for Agentic Coding
+# AI Agent Prompts for Agentic Coding
 
-This repository contains standardized system prompts (also known as Rules or Instructions) specifically engineered for agentic coding across different AI platforms. These prompts ensure consistent, high-quality code generation and maintain organizational software development standards.
+This directory contains standardized system prompts (also known as Rules or Instructions) and **Claude Code Skills** specifically engineered for agentic coding across different AI platforms. These resources ensure consistent, high-quality code generation and maintain organizational software development standards.
+
+## 🆕 Claude Code Skills Framework
+
+**NEW**: 6 production-ready skills for autonomous agentic coding workflows!
+
+Skills provide task-specific expertise with token-efficient loading and natural language invocation.
+
+**[→ View All Skills Documentation](autonomous_agents/claude_code/skills/README.md)**
+
+### Quick Start
+```
+"Use the plan-before-code skill to design this feature"
+"Use the init-python-project skill to create 'my-app'"
+"Use the create-claude-md skill to configure this project"
+```
+
+### Available Skills
+- `plan-before-code` 🔥 - Anthropic's #1 best practice workflow
+- `create-claude-md` 🔥 - Generate CLAUDE.md configuration
+- `init-python-project` - Initialize complete Python projects
+- `setup-python-system-prompt` - Configure Python standards
+- `cleanup-python` - Modernize Python codebases
+- `generate-api-docs` - Generate API documentation
+
+**[Complete Skills Documentation →](autonomous_agents/claude_code/skills/)**
 
 ## 📁 Repository Structure
 
 ```
-system_prompts/
+agent_prompts/
 ├── autonomous_agents/                          # Prompts for autonomous coding agents
 │   └── claude_code/
+│       ├── skills/                            # ← NEW: Claude Code Skills
+│       │   ├── README.md                      #   Complete skills documentation
+│       │   ├── plan-before-code/             #   🔥 Anthropic best practice
+│       │   ├── create-claude-md/             #   🔥 CLAUDE.md generator
+│       │   ├── init-python-project/          #   Project initialization
+│       │   ├── setup-python-system-prompt/   #   Python standards
+│       │   ├── cleanup-python/               #   Code modernization
+│       │   └── generate-api-docs/            #   API documentation
 │       ├── python/
-│       │   ├── CLAUDE_comprehensive_35k.md     # Full-featured prompt (~35k tokens)
+│       │   ├── CLAUDE_comprehensive_40k.md     # Full-featured prompt (~40k tokens)
 │       │   └── CLAUDE_condensed_20k.md         # Streamlined version (~20k tokens)
 │       ├── javascript/
 │       │   ├── CLAUDE_comprehensive_35k.md

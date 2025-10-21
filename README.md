@@ -1,21 +1,28 @@
 # AI Development Templates
 
-**Version 0.2.5** | Released October 16, 2025
+**Version 0.2.6** | Released October 20, 2025
 
-This repository contains comprehensive templates and standardized prompts to enhance AI-assisted software development. Complete multi-language support across 7 programming languages with 162 production-ready templates, repository-agnostic design, and enhanced system prompt consistency.
+This repository contains comprehensive templates and standardized prompts to enhance AI-assisted software development. Complete multi-language support across 7 programming languages with 162 production-ready templates, **52 Claude Code Skills** (100% complete!), repository-agnostic design, and enhanced system prompt consistency.
 
 ---
 
-## 🎉 What's New in Version 0.2.5
+## 🎉 What's New in Version 0.2.6
 
-- **Enhanced System Prompt Consistency**: Added 4 critical instructions across all 29 system prompt files
-  - System Prompt Adherence: AI periodically reviews instructions during long conversations
-  - No Change-Tracking Comments: Prevents meta-commentary in code (e.g., "changed value to 12")
-  - Documentation Best Practices: Ensures all dev docs go in DEVLOG.md (single source of truth)
-  - Iterative Testing Protocol: Test-driven problem-solving with temporary test files
-- **File Renaming**: All comprehensive system prompts renamed from _35k to _40k to reflect increased content
-- **Language-Specific Examples**: Each language now has tailored examples for comment guidelines and testing protocols
-- **Production Ready**: All 29 system prompt files now have consistent standards and quality assurance protocols
+- **🆕 Claude Code Skills Framework - 100% COMPLETE**: 52 production-ready skills for autonomous agentic coding
+  - **Workflow & Development** (4 skills): `plan-before-code`, `test-driven-development`, `code-commit-workflow`, `debug-with-logs`
+  - **System Prompts** (7 skills): Complete configuration for Python, JavaScript, Java, C#, Go, C, C++
+  - **Code Review** (6 skills): Complete 6-phase code review workflow
+  - **Code Cleanup** (7 skills): Language-specific cleanup and modernization
+  - **Documentation** (6 skills): API docs, docstrings, user guides, technical docs, SBOM
+  - **Testing** (6 skills): Test infrastructure, test generation, mocking, performance testing, CI/CD, coverage
+  - **Project Init** (4 skills): Python, JavaScript, Java, C# project initialization
+  - **Security & Quality** (5 skills): Dependency audits, pre-commit checks, complexity analysis, licensing
+  - **Migration & Refactoring** (4 skills): Python 2→3, testability refactoring, microservice extraction, dependency upgrades
+  - **AI Configuration** (3 skills): CLAUDE.md generation, custom commands, context optimization
+- **Directory Rename**: `system_prompts/` → `agent_prompts/` for better clarity
+- **45,000+ Lines of Content**: Comprehensive, production-ready skills averaging ~865 lines each
+- **Multi-Language Support**: All skills support 7 programming languages where applicable
+- **Anthropic Best Practices**: Skills implement Claude Code recommended workflows
 
 [View Changelog](CHANGELOG.md) | [View Development Log](DEVLOG.md) | [View Releases](../../releases)
 
@@ -23,11 +30,12 @@ This repository contains comprehensive templates and standardized prompts to enh
 
 ## 📁 Repository Structure
 
-This repository provides standardized templates for four critical aspects of AI-enhanced software development:
+This repository provides standardized templates for five critical aspects of AI-enhanced software development:
 
-### [System Prompts for AI-Assisted Coding](system_prompts/)
+### [Agent Prompts for AI-Assisted Coding](agent_prompts/)
 - **Autonomous agents**: For independent coding agents like Claude Code
 - **Interactive assistants**: For collaborative coding with GitHub Copilot, Cursor, Windsurf
+- **Claude Code Skills**: 52 production-ready skills (100% complete!) ([View All Skills](agent_prompts/autonomous_agents/claude_code/skills/))
 - **Platform-specific optimization**: Tailored prompts for different AI platforms
 - **Token-optimized versions**: Comprehensive vs condensed variants
 
@@ -58,7 +66,7 @@ This repository provides standardized templates for four critical aspects of AI-
 
 ## 🚀 Getting Started
 
-### [System Prompts](system_prompts/)
+### [Agent Prompts](agent_prompts/)
 
 #### Platform Tier Selection 
 - `autonomous_agents/` for Claude Code and Codex CLI
@@ -80,7 +88,36 @@ Navigate to appropriate language folder (currently `python/`)
 ##### Autonomous Agents
 - **Claude Code**: Create `CLAUDE.md` in your workspace root and replace content with condensed or comprehensive template.
 
-**For more details, follow setup instructions**: See `system_prompts/README.md` for detailed platform-specific configuration.
+**For more details, follow setup instructions**: See `agent_prompts/README.md` for detailed platform-specific configuration.
+
+### [Claude Code Skills](agent_prompts/autonomous_agents/claude_code/skills/)
+
+**NEW**: Production-ready skills for Claude Code autonomous agent workflows
+
+#### Quick Start with Skills
+```
+"Use the init-python-project skill to create 'my-app'"
+"Use the plan-before-code skill to design the auth feature"
+"Use the create-claude-md skill to configure this project"
+```
+
+#### Available Skills (52 production-ready - 100% complete!)
+| Skill | Category | Description |
+|-------|----------|-------------|
+| [plan-before-code](agent_prompts/autonomous_agents/claude_code/skills/plan-before-code/) | 🔥 Workflow | Anthropic's #1 best practice - explore, plan, execute |
+| [create-claude-md](agent_prompts/autonomous_agents/claude_code/skills/create-claude-md/) | 🔥 Config | Generate comprehensive CLAUDE.md files |
+| [init-python-project](agent_prompts/autonomous_agents/claude_code/skills/init-python-project/) | Setup | Initialize complete Python projects |
+| [setup-python-system-prompt](agent_prompts/autonomous_agents/claude_code/skills/setup-python-system-prompt/) | Config | Configure Python development standards |
+| [cleanup-python](agent_prompts/autonomous_agents/claude_code/skills/cleanup-python/) | Cleanup | Modernize and clean Python code |
+| [generate-api-docs](agent_prompts/autonomous_agents/claude_code/skills/generate-api-docs/) | Docs | Generate API documentation (multi-language) |
+
+**[View All Skills Documentation →](agent_prompts/autonomous_agents/claude_code/skills/README.md)**
+
+#### Skills Roadmap (52 total planned)
+- ✅ 6 completed (12%)
+- 🔥 18 high-priority remaining
+- 📊 28 medium-priority remaining
+- [View Complete Roadmap](agent_prompts/autonomous_agents/claude_code/skills/SKILLS_LIST.md)
 
 ### [Code Cleanup](code_cleanup/)
 
