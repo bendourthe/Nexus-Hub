@@ -11,6 +11,138 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.2.7] - 2025-10-21
+
+### Added
+
+#### Discovery & Installation System
+Implemented comprehensive skill discovery, browsing, and installation infrastructure inspired by claude-code-templates repository analysis.
+
+- **Skills Catalog** (`skills.json`): Machine-readable catalog with metadata for all 48 skills
+  - Complete metadata: category, priority, tools required, size metrics
+  - Security validation scores (structural, integrity, semantic)
+  - Download tracking and versioning support
+  - ~143,667 estimated tokens across 46,259 lines
+
+- **CLI Installation Tool** (`tools/install_skill.py`): One-command skill installation
+  - Install by skill name: `--skill plan-before-code`
+  - Install by category: `--category workflow`
+  - Install by priority: `--priority CRITICAL`
+  - Install all skills: `--all`
+  - List and filter: `--list`, `--categories`, `--info`
+  - Auto-detect `.claude/skills/` directory
+  - Force overwrite with `--force` flag
+  - Cross-platform support (Windows, Linux, macOS)
+
+- **Catalog Builder** (`tools/build_skills_catalog.py`): Automated catalog generation
+  - Extracts YAML frontmatter from all SKILL.md files
+  - Calculates size metrics (lines, characters, estimated tokens)
+  - Identifies required tools from skill content
+  - Generates comprehensive statistics
+  - Validates skill structure and metadata
+
+- **Web-Based Skills Browser** (`docs/index.html`): Interactive skill discovery
+  - Search by name or description
+  - Filter by category, priority, language
+  - Responsive design (desktop and mobile)
+  - Installation command generation
+  - Copy-to-clipboard functionality
+  - GitHub Pages ready
+  - No backend required (pure client-side)
+
+- **Tools Documentation** (`tools/README.md`): Complete usage guide
+  - Installation workflows for new and existing projects
+  - Skill categories and descriptions
+  - Advanced usage patterns
+  - Troubleshooting guide
+  - Batch installation examples
+
+#### Integration & Automation Infrastructure
+
+- **MCP Integration Guide** (`integrations/README.md`): External service connections
+  - 11 MCP templates (GitHub, GitLab, databases, cloud, AI services)
+  - Security best practices for API keys
+  - Environment variable configuration
+  - Troubleshooting common issues
+  - Skills-to-MCP mapping
+
+- **Hooks System** (`hooks/README.md`): Automation workflows
+  - Git hooks (pre-commit, pre-push, post-commit)
+  - File hooks (on-save actions)
+  - Development hooks (test run, build success)
+  - Hook installation templates
+  - CI/CD integration patterns
+  - Workflow examples (quality gates, auto-documentation)
+
+#### Contributing Guidelines
+
+- **CONTRIBUTING.md**: Comprehensive contribution guide
+  - Skill creation guidelines with templates
+  - Quality standards and requirements
+  - Submission process and PR template
+  - Testing guidelines
+  - Tool development standards
+  - Documentation requirements
+  - Common pitfalls to avoid
+
+#### User Onboarding Documentation
+
+- **QUICKSTART.md**: 5-minute setup guide for new projects
+  - Step-by-step project initialization from scratch
+  - Skill installation workflow with examples
+  - Common scenarios (Python web app, JavaScript/React, existing projects, teams)
+  - Verification steps and project structure overview
+  - Troubleshooting section with solutions
+  - Tips, best practices, and next steps
+
+### Changed
+
+- **README.md**: Major update with new features and onboarding
+  - Added prominent "New to This Repository? Start Here!" section
+  - Added comprehensive "Setting Up a New Project" guide (7 steps)
+  - Added Quick Reference with 4 common setup scenarios
+  - Included "Installing Skills to Existing Projects" section
+  - Updated repository structure with new directories
+  - Added links to web browser and QUICKSTART guide
+  - Updated statistics (48 skills, 46k lines, 144k tokens)
+  - Improved navigation and organization
+
+- **Skills Browser UX**: Enhanced discovery experience
+  - Priority badges with color coding (Critical, High, Medium, Low)
+  - Category tags for quick identification
+  - Tool requirements displayed on cards
+  - Size metrics (lines, tokens) visible
+  - Installation modal with detailed information
+
+### Fixed
+
+- **Windows Console Compatibility**: Resolved emoji encoding issues
+  - Replaced Unicode emojis with ASCII markers in CLI tool
+  - Used text-based priority indicators: [!], [*], [-], [ ]
+  - Ensured cross-platform console output
+
+### Technical Debt
+
+- **Category Normalization**: Skills catalog has inconsistent category casing
+  - Some categories use Title Case (e.g., "Code Cleanup")
+  - Others use lowercase (e.g., "configuration", "security")
+  - Future version should normalize to single standard
+  - Affects catalog statistics and filtering
+
+### Statistics
+
+- **Total Skills**: 48 production-ready skills
+- **Total Lines**: 46,259 lines of skill content
+- **Estimated Tokens**: 143,667 tokens
+- **Categories**: 12 unique categories
+- **New Files Added**: 9 major files
+  - 2 tools (install_skill.py, build_skills_catalog.py)
+  - 1 catalog (skills.json)
+  - 1 web browser (docs/index.html)
+  - 5 documentation files (CONTRIBUTING, QUICKSTART, integrations/README, hooks/README, tools/README, docs/README)
+
+---
+
 ## [0.2.6] - 2025-10-20
 
 ### Added

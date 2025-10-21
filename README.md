@@ -1,70 +1,295 @@
 # AI Development Templates
 
-**Version 0.2.6** | Released October 20, 2025
+**Version 0.2.7** | Released October 21, 2025
 
-This repository contains comprehensive templates and standardized prompts to enhance AI-assisted software development. Complete multi-language support across 7 programming languages with 162 production-ready templates, **52 Claude Code Skills** (100% complete!), repository-agnostic design, and enhanced system prompt consistency.
+This repository contains comprehensive templates and standardized prompts to enhance AI-assisted software development. Complete multi-language support across 7 programming languages with 162 production-ready templates, **48 Claude Code Skills**, one-command installation, web-based discovery, and comprehensive automation.
 
 ---
 
-## 🎉 What's New in Version 0.2.6
+## 🎯 New to This Repository? Start Here!
 
-- **🆕 Claude Code Skills Framework - 100% COMPLETE**: 52 production-ready skills for autonomous agentic coding
-  - **Workflow & Development** (4 skills): `plan-before-code`, `test-driven-development`, `code-commit-workflow`, `debug-with-logs`
-  - **System Prompts** (7 skills): Complete configuration for Python, JavaScript, Java, C#, Go, C, C++
-  - **Code Review** (6 skills): Complete 6-phase code review workflow
-  - **Code Cleanup** (7 skills): Language-specific cleanup and modernization
-  - **Documentation** (6 skills): API docs, docstrings, user guides, technical docs, SBOM
-  - **Testing** (6 skills): Test infrastructure, test generation, mocking, performance testing, CI/CD, coverage
-  - **Project Init** (4 skills): Python, JavaScript, Java, C# project initialization
-  - **Security & Quality** (5 skills): Dependency audits, pre-commit checks, complexity analysis, licensing
-  - **Migration & Refactoring** (4 skills): Python 2→3, testability refactoring, microservice extraction, dependency upgrades
-  - **AI Configuration** (3 skills): CLAUDE.md generation, custom commands, context optimization
-- **Directory Rename**: `system_prompts/` → `agent_prompts/` for better clarity
-- **45,000+ Lines of Content**: Comprehensive, production-ready skills averaging ~865 lines each
-- **Multi-Language Support**: All skills support 7 programming languages where applicable
-- **Anthropic Best Practices**: Skills implement Claude Code recommended workflows
+**→ [📖 Quick Start Guide: Set Up a New Project in 5 Minutes](QUICKSTART.md) ←**
 
-[View Changelog](CHANGELOG.md) | [View Development Log](DEVLOG.md) | [View Releases](../../releases)
+Learn how to:
+- Create a new project with Claude Code superpowers
+- Install skills with one command
+- Generate project structure, CLAUDE.md, and documentation automatically
+- Start developing with 48 production-ready skills at your fingertips
+
+---
+
+## 🎉 What's New in Version 0.2.7
+
+### 🚀 NEW: Discovery & Installation System
+- **Skills Catalog** ([skills.json](skills.json)): Machine-readable catalog of all 48 skills with metadata
+- **CLI Installation Tool** ([tools/install_skill.py](tools/install_skill.py)): One-command skill installation
+  ```bash
+  python tools/install_skill.py --skill plan-before-code
+  python tools/install_skill.py --category workflow --force
+  ```
+- **Web Browser** ([Browse Skills](https://bdourthe.github.io/ai_templates/)): Search, filter, and discover skills online
+- **Automated Catalog Builder** ([tools/build_skills_catalog.py](tools/build_skills_catalog.py)): Keep catalog up-to-date
+
+### 📚 NEW: Comprehensive Guides
+- **Contributing Guide** ([CONTRIBUTING.md](CONTRIBUTING.md)): Detailed guidelines for adding skills, templates, and tools
+- **MCP Integrations** ([integrations/](integrations/)): Connect Claude to GitHub, databases, cloud services, and more
+- **Automation Hooks** ([hooks/](hooks/)): Git hooks and automated workflows for quality gates
+
+### ✨ Enhanced Features
+- **Security Validation**: All skills include integrity scoring
+- **Rich Metadata**: Categories, priorities, tools required, size metrics
+- **Multi-Platform Tools**: Windows, Linux, macOS support
+- **Installation Automation**: Batch install by category or priority
+
+### 📊 Stats
+- **48 Production-Ready Skills** across 12 categories
+- **46,000+ Lines** of skill content
+- **~144,000 Tokens** of guidance
+- **7 Languages Supported**: Python, JavaScript, Java, C#, Go, C, C++
+
+[View Changelog](CHANGELOG.md) | [View Development Log](DEVLOG.md) | [Browse Skills Online](https://bdourthe.github.io/ai_templates/)
 
 ---
 
 ## 📁 Repository Structure
 
-This repository provides standardized templates for five critical aspects of AI-enhanced software development:
+This repository provides standardized templates for AI-enhanced software development:
 
 ### [Agent Prompts for AI-Assisted Coding](agent_prompts/)
 - **Autonomous agents**: For independent coding agents like Claude Code
 - **Interactive assistants**: For collaborative coding with GitHub Copilot, Cursor, Windsurf
-- **Claude Code Skills**: 52 production-ready skills (100% complete!) ([View All Skills](agent_prompts/autonomous_agents/claude_code/skills/))
+- **Claude Code Skills**: 48 production-ready skills ([Browse Skills](https://bdourthe.github.io/ai_templates/))
 - **Platform-specific optimization**: Tailored prompts for different AI platforms
 - **Token-optimized versions**: Comprehensive vs condensed variants
 
+### [Tools](tools/) - NEW!
+- **[Skills Catalog Builder](tools/build_skills_catalog.py)**: Generate skills.json metadata
+- **[Skill Installer](tools/install_skill.py)**: CLI tool for one-command skill installation
+- **[Tool Documentation](tools/README.md)**: Complete usage guide
+
+### [Integrations](integrations/) - NEW!
+- **[MCP Configurations](integrations/)**: Connect Claude to external services
+- **GitHub, GitLab**: Repository and CI/CD integration
+- **Databases**: PostgreSQL, MySQL, MongoDB support
+- **Cloud Services**: AWS, Azure, GCP configurations
+- **AI Services**: OpenAI, Anthropic integration
+
+### [Hooks](hooks/) - NEW!
+- **[Automation Workflows](hooks/)**: Git hooks and quality gates
+- **Pre-commit**: Quality checks before commits
+- **Pre-push**: Comprehensive validation before push
+- **Post-commit**: Auto-documentation updates
+- **CI/CD Integration**: Hooks for build pipelines
+
 ### [Code Cleanup Templates](code_cleanup/)
-- **Structured cleanup processes**: Comprehensive deep codebase review and evaluation 
-- **Quality assurance standards**: Consistent cleanup process across projects
-- **Security and performance focus**: Templates emphasizing critical non-functional requirements
-- **Educational feedback**: Templates that help developers learn from resulting cleanup report
+- **Structured cleanup processes**: Comprehensive deep codebase review
+- **Quality assurance standards**: Consistent cleanup process
+- **Security and performance focus**: Critical non-functional requirements
+- **Educational feedback**: Learn from cleanup reports
 
 ### [Code Review Templates](code_review/)
-- **Structured review processes**: Comprehensive checklists and evaluation criteria
-- **Quality assurance standards**: Consistent review patterns across projects
-- **Security and performance focus**: Templates emphasizing critical non-functional requirements
-- **Educational feedback**: Templates that help developers learn from reviews
+- **Structured review processes**: Comprehensive checklists
+- **Quality assurance standards**: Consistent review patterns
+- **Security and performance focus**: Critical analysis
+- **Educational feedback**: Learn from reviews
 
 ### [Test Development Templates](test_development/)
-- **Comprehensive testing frameworks**: Complete test suite structures and patterns
-- **Test automation**: Templates for automated test generation and execution
-- **Quality metrics**: Standardized approaches to test coverage and effectiveness
-- **Performance testing**: Templates for load, stress, and performance validation
+- **Comprehensive testing frameworks**: Complete test structures
+- **Test automation**: Automated test generation
+- **Quality metrics**: Coverage and effectiveness
+- **Performance testing**: Load and stress tests
 
 ### [Documentation Templates](documentation/)
-- **Code-level documentation**: Docstrings and strategic comments following organizational standards
-- **User documentation**: README files, user guides, how-to sections, and about pages
-- **Technical documentation**: Architecture, design decisions, and codebase walkthroughs
-- **API documentation**: Complete reference documentation for public interfaces
-- **SBOM documentation**: Software Bill of Materials for security, compliance, and supply chain management
+- **Code-level documentation**: Docstrings and strategic comments
+- **User documentation**: README files and guides
+- **Technical documentation**: Architecture and design
+- **API documentation**: Complete API reference
+- **SBOM documentation**: Security and compliance
 
 ## 🚀 Getting Started
+
+### Setting Up a New Project with Claude Code (Recommended)
+
+**Complete setup in 5 minutes to supercharge your development with Claude Code!**
+
+#### Step 1: Create Your Project Repository
+
+```bash
+# Create and clone your new project
+mkdir my-awesome-project
+cd my-awesome-project
+git init
+```
+
+#### Step 2: Clone AI Templates Repository (Temporary)
+
+```bash
+# Clone ai_templates to a temporary location
+cd ..
+git clone https://github.com/bdourthe/ai_templates.git
+```
+
+#### Step 3: Install Skills into Your Project
+
+```bash
+# Install essential skills to your project
+cd ai_templates
+
+# Install critical workflow skills (RECOMMENDED START)
+python tools/install_skill.py --priority CRITICAL --destination ../my-awesome-project
+
+# Install project initialization skill for your language
+python tools/install_skill.py --skill init-python-project --destination ../my-awesome-project
+# Or: --skill init-javascript-project / init-java-project / init-csharp-project
+
+# Install code review suite (HIGHLY RECOMMENDED)
+python tools/install_skill.py --category "Code Review" --destination ../my-awesome-project
+
+# Optional: Install all skills for complete power
+python tools/install_skill.py --all --destination ../my-awesome-project
+```
+
+#### Step 4: Initialize Your Project with Claude Code
+
+```bash
+# Go back to your project
+cd ../my-awesome-project
+
+# Start Claude Code and use the skills you just installed!
+claude
+
+# Then in Claude Code, run:
+"Use the init-python-project skill to create 'my-awesome-project'"
+"Use the create-claude-md skill to configure this project"
+```
+
+#### Step 5: Verify Setup
+
+Your project should now have:
+```
+my-awesome-project/
+├── .claude/
+│   └── skills/              # All installed skills
+├── CLAUDE.md                # Project configuration (generated by skill)
+├── src/                     # Source code (generated by init skill)
+├── tests/                   # Test infrastructure
+├── pyproject.toml           # Project configuration
+├── README.md                # Documentation
+└── .gitignore              # Git ignore rules
+```
+
+#### Step 6: Start Developing!
+
+```bash
+# In Claude Code, leverage your skills:
+"Use the plan-before-code skill to design the authentication feature"
+"Use the test-driven-development skill to implement user registration"
+"Use the code-review-security skill to audit the code"
+"Use the generate-api-docs skill to document the API"
+```
+
+#### Step 7: Clean Up (Optional)
+
+```bash
+# Remove the temporary ai_templates clone
+cd ..
+rm -rf ai_templates
+```
+
+---
+
+### Quick Reference: Common Setup Scenarios
+
+#### Scenario 1: Python Web Application
+```bash
+python tools/install_skill.py --priority CRITICAL --destination ../my-project
+python tools/install_skill.py --skill init-python-project --destination ../my-project
+python tools/install_skill.py --category "Code Review" --destination ../my-project
+python tools/install_skill.py --category Documentation --destination ../my-project
+```
+
+#### Scenario 2: JavaScript/React Application
+```bash
+python tools/install_skill.py --priority CRITICAL --destination ../my-project
+python tools/install_skill.py --skill init-javascript-project --destination ../my-project
+python tools/install_skill.py --skill cleanup-javascript --destination ../my-project
+python tools/install_skill.py --category Testing --destination ../my-project
+```
+
+#### Scenario 3: Existing Project (Add Claude Code Support)
+```bash
+# Navigate to your existing project
+cd my-existing-project
+
+# Install skills directly
+python ../ai_templates/tools/install_skill.py --priority CRITICAL
+python ../ai_templates/tools/install_skill.py --skill create-claude-md
+
+# Then in Claude Code:
+"Use the create-claude-md skill to configure this existing project"
+```
+
+#### Scenario 4: Team Project with Standardization
+```bash
+# Install comprehensive quality tooling
+python tools/install_skill.py --category workflow --destination ../team-project
+python tools/install_skill.py --category "Code Review" --destination ../team-project
+python tools/install_skill.py --category security --destination ../team-project
+python tools/install_skill.py --skill pre-commit-checklist --destination ../team-project
+
+# Configure project standards
+cd ../team-project
+claude
+"Use the create-claude-md skill with team coding standards"
+```
+
+---
+
+### Alternative: Browse and Install from Web
+
+**Don't want to use command line?**
+
+1. Visit [AI Templates Skills Browser](https://bdourthe.github.io/ai_templates/)
+2. Browse and search for skills you need
+3. Copy installation commands for each skill
+4. Run commands with `--destination` flag pointing to your project
+
+---
+
+### Installing Skills to Existing Projects
+
+**Already have a project and want to add Claude Code skills?**
+
+```bash
+# Option 1: Install from cloned ai_templates
+cd /path/to/ai_templates
+python tools/install_skill.py --skill plan-before-code --destination /path/to/your-project
+
+# Option 2: Install from anywhere using --repo flag
+python install_skill.py --skill plan-before-code --destination /path/to/your-project --repo /path/to/ai_templates
+```
+
+---
+
+### Exploring Available Skills
+
+**Before installing, explore what's available:**
+
+```bash
+# List all skills with descriptions
+python tools/install_skill.py --list
+
+# Show all categories
+python tools/install_skill.py --categories
+
+# Get detailed info about a specific skill
+python tools/install_skill.py --info plan-before-code
+
+# Filter by priority
+python tools/install_skill.py --list --priority CRITICAL
+```
+
+---
 
 ### [Agent Prompts](agent_prompts/)
 
