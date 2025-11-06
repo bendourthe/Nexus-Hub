@@ -69,6 +69,8 @@ Establish effective mocking strategies and fixture management to isolate compone
 
 ## Related Templates
 
+- **Unit Tests**: Uses mocking for test isolation (companion phase)
+
 - **Test Structure**: Infrastructure and organization
 
 - **Test Cases**: Actual test implementation
@@ -76,6 +78,8 @@ Establish effective mocking strategies and fixture management to isolate compone
 - **Integration Testing**: When to minimize mocking
 
 - **Performance Testing**: Realistic data patterns
+
+- **Reward Hacking**: Validates mock usage appropriateness
 
 ## Expected Outcomes
 

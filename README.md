@@ -1,8 +1,8 @@
 # AI Development Templates
 
-**Version 0.2.7** | Released October 21, 2025
+**Version 0.2.8** | Released November 6, 2025
 
-This repository contains comprehensive templates and standardized prompts to enhance AI-assisted software development. Complete multi-language support across 7 programming languages with 162 production-ready templates, **48 Claude Code Skills**, one-command installation, web-based discovery, and comprehensive automation.
+This repository contains comprehensive templates and standardized prompts to enhance AI-assisted software development. Complete multi-language support across 7 programming languages with 178 production-ready templates, **48 Claude Code Skills**, comprehensive 8-phase testing methodology, one-command installation, web-based discovery, and comprehensive automation.
 
 ---
 
@@ -18,33 +18,39 @@ Learn how to:
 
 ---
 
-## 🎉 What's New in Version 0.2.7
+## 🎉 What's New in Version 0.2.8
 
-### 🚀 NEW: Discovery & Installation System
-- **Skills Catalog** ([skills.json](skills.json)): Machine-readable catalog of all 48 skills with metadata
-- **CLI Installation Tool** ([tools/install_skill.py](tools/install_skill.py)): One-command skill installation
-  ```bash
-  python tools/install_skill.py --skill plan-before-code
-  python tools/install_skill.py --category workflow --force
-  ```
-- **Web Browser** ([Browse Skills](https://bdourthe.github.io/ai_templates/)): Search, filter, and discover skills online
-- **Automated Catalog Builder** ([tools/build_skills_catalog.py](tools/build_skills_catalog.py)): Keep catalog up-to-date
+### 🧪 NEW: Complete 8-Phase Testing Methodology
+- **Unit Tests Phase** ([test_development/unit_tests/](test_development/unit_tests/)): Foundational unit testing with FIRST principles
+  - 7 language templates (Python, JavaScript, Java, C#, Go, C, C++)
+  - FIRST principles (Fast, Independent, Repeatable, Self-validating, Timely)
+  - AAA pattern (Arrange-Act-Assert) with 20-30+ examples per language
+  - Testing all component types: functions, classes, async, decorators, generators, context managers
+  - Anti-patterns guide with remediation strategies
+  - Speed requirements: <1 second per test (target: <100ms)
 
-### 📚 NEW: Comprehensive Guides
-- **Contributing Guide** ([CONTRIBUTING.md](CONTRIBUTING.md)): Detailed guidelines for adding skills, templates, and tools
-- **MCP Integrations** ([integrations/](integrations/)): Connect Claude to GitHub, databases, cloud services, and more
-- **Automation Hooks** ([hooks/](hooks/)): Git hooks and automated workflows for quality gates
+- **Reward Hacking Phase** ([test_development/reward_hacking/](test_development/reward_hacking/)): Test quality validation through mutation testing
+  - 7 language templates with mutation testing setup
+  - Detects "reward hacking" where tests pass without validating functionality
+  - 7-phase validation covering ALL previous test phases
+  - Mutation testing tools: mutmut, Stryker, PITest, Stryker.NET, go-mutesting, mull
+  - 15-20 weak vs. strong test examples per language
+  - Quality metrics: >80% mutation score, 100% test independence
+  - Remediation action plans with continuous monitoring
 
-### ✨ Enhanced Features
-- **Security Validation**: All skills include integrity scoring
-- **Rich Metadata**: Categories, priorities, tools required, size metrics
-- **Multi-Platform Tools**: Windows, Linux, macOS support
-- **Installation Automation**: Batch install by category or priority
+### 🔬 Testing Framework Enhancements
+- **Complete 8-Phase Workflow**: From infrastructure to quality validation
+- **Updated all phase READMEs** with cross-references to new phases
+- **Quality Targets**: Mutation score >80%, test speed <1s, error coverage >80%
+- **Detection Patterns**: Tautological tests, weak assertions, over-mocking, happy-path-only testing
 
 ### 📊 Stats
-- **48 Production-Ready Skills** across 12 categories
-- **46,000+ Lines** of skill content
-- **~144,000 Tokens** of guidance
+- **178 Production-Ready Templates** (up from 162)
+- **16 New Testing Files**: 8 Unit Tests + 8 Reward Hacking
+- **~25,800 Lines**: Of comprehensive testing guidance
+- **150+ Code Examples**: Across all 7 languages
+- **8-Phase Testing**: Complete methodology from setup to validation
+- **48 Claude Code Skills** across 12 categories
 - **7 Languages Supported**: Python, JavaScript, Java, C#, Go, C, C++
 
 [View Changelog](CHANGELOG.md) | [View Development Log](DEVLOG.md) | [Browse Skills Online](https://bdourthe.github.io/ai_templates/)

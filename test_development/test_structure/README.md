@@ -59,6 +59,8 @@ Establish a robust, maintainable test infrastructure that supports comprehensive
 
 ## Related Templates
 
+- **Unit Tests**: Next step after infrastructure setup - foundational unit testing
+
 - **Test Cases**: Actual test implementation patterns
 
 - **Mocks & Fixtures**: Data and dependency management
@@ -66,6 +68,8 @@ Establish a robust, maintainable test infrastructure that supports comprehensive
 - **Code Coverage**: Measuring test effectiveness
 
 - **CI/CD Integration**: Automating test execution
+
+- **Reward Hacking**: Final validation (use after all phases)
 
 ## Expected Outcomes
 
@@ -98,6 +102,8 @@ Use the appropriate template file with your AI assistant to:
 3. Set up test framework and configuration
 4. Implement shared fixtures and utilities
 5. Establish testing conventions
+
+**Next Steps**: After completing test infrastructure setup, proceed to **Unit Tests** phase to begin writing foundational unit tests using this infrastructure.
 ---
 
 ## Verify Directory Structure

@@ -69,6 +69,8 @@ Measure, analyze, and improve test coverage to ensure comprehensive testing of t
 
 ## Related Templates
 
+- **Unit Tests**: Foundation for coverage
+
 - **Test Cases**: Filling coverage gaps
 
 - **Test Structure**: Organizing coverage
@@ -76,6 +78,8 @@ Measure, analyze, and improve test coverage to ensure comprehensive testing of t
 - **CI/CD Integration**: Enforcing thresholds
 
 - **Code Quality**: Quality metrics
+
+- **Reward Hacking**: Validates coverage integrity with mutation testing (critical follow-up)
 
 ## Expected Outcomes
 
@@ -111,6 +115,8 @@ Use the appropriate template file with your AI assistant to:
 4. Implement strategies to improve coverage
 5. Integrate coverage into CI/CD pipeline
 6. Create coverage reports and dashboards
+
+**Critical Follow-Up**: After achieving coverage goals, proceed to **Reward Hacking** phase to verify coverage integrity through mutation testing. High coverage metrics can be misleading if tests don't actually validate behavior.
 ---
 
 ## Verify Directory Structure

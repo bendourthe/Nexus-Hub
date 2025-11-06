@@ -69,6 +69,8 @@ Develop comprehensive, well-structured test cases that validate functionality, h
 
 ## Related Templates
 
+- **Unit Tests**: Foundational unit testing (should precede this phase)
+
 - **Test Structure**: Infrastructure and organization
 
 - **Mocks & Fixtures**: Test data and dependencies
@@ -76,6 +78,8 @@ Develop comprehensive, well-structured test cases that validate functionality, h
 - **Code Coverage**: Measuring test effectiveness
 
 - **Performance Testing**: Load and stress testing
+
+- **Reward Hacking**: Final quality validation
 
 ## Expected Outcomes
 
@@ -108,6 +112,8 @@ Use the appropriate template file with your AI assistant to:
 3. Cover edge cases and error conditions
 4. Write parametrized tests for multiple scenarios
 5. Establish test naming and structure conventions
+
+**Note**: The **Unit Tests** phase should be completed first to establish foundational unit testing practices before proceeding to broader test case development.
 ---
 
 ## Verify Directory Structure

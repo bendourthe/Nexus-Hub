@@ -77,6 +77,8 @@ Establish comprehensive performance testing practices to validate system behavio
 
 - **Production Monitoring**: Real-world validation
 
+- **Reward Hacking**: Validates performance test effectiveness
+
 ## Expected Outcomes
 
 - Established performance baselines
