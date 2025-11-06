@@ -43,7 +43,7 @@ Develop comprehensive unit testing strategy for Go applications using the built-
 
 ## Prompt Template
 
-```markdown
+~~~markdown
 # Go Unit Testing Implementation - Comprehensive Guide
 
 ## Context
@@ -836,7 +836,7 @@ go test -race
 - [ ] Coverage analysis
 
 ---
-```
+~~~
 
 End of prompt template.
 

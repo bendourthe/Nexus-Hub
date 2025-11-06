@@ -54,7 +54,7 @@ All generated files should be saved to the following directory structure:
 
 Copy the prompt below into your AI assistant to generate comprehensive unit testing guidance:
 
-```markdown
+~~~markdown
 # Python Unit Testing Implementation - Comprehensive Guide
 
 ## Context
@@ -2221,7 +2221,7 @@ After generating all content, verify:
 - [ ] Quality checklist is comprehensive
 
 ---
-```
+~~~
 
 End of prompt template.
 

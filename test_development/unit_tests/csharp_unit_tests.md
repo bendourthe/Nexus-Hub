@@ -41,7 +41,7 @@ Develop a comprehensive unit testing strategy for C# applications using xUnit an
 
 ## Prompt Template
 
-```markdown
+~~~markdown
 # C# Unit Testing Implementation - Comprehensive Guide
 
 ## Context
@@ -792,7 +792,7 @@ Generate these files:
 - [ ] Configuration files complete
 
 ---
-```
+~~~
 
 End of prompt template.
 

@@ -42,7 +42,7 @@ Develop comprehensive unit testing strategy for C applications using Unity and C
 
 ## Prompt Template
 
-```markdown
+~~~markdown
 # C Unit Testing Implementation - Comprehensive Guide
 
 ## Context
@@ -793,7 +793,7 @@ void test_initialized(void) {
 - [ ] Build configurations
 
 ---
-```
+~~~
 
 End of prompt template.
 

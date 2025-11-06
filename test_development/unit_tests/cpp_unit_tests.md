@@ -42,7 +42,7 @@ Develop comprehensive unit testing strategy for C++ applications using Google Te
 
 ## Prompt Template
 
-```markdown
+~~~markdown
 # C++ Unit Testing Implementation - Comprehensive Guide
 
 ## Context
@@ -929,7 +929,7 @@ TEST(VectorTest, PopBack_OnEmptyVector_ThrowsException) { }
 - [ ] Modern C++ (C++17+)
 
 ---
-```
+~~~
 
 End of prompt template.
 
