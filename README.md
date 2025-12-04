@@ -1,502 +1,604 @@
 # AI Development Templates
 
-**Version 0.2.8** | Released November 6, 2025
+**Version 0.3.0** | [Quick Start](QUICKSTART.md) | [More Guides](guides/) | [Browse Skills](https://bdourthe.github.io/ai_templates/) | [Changelog](CHANGELOG.md)
 
-This repository contains comprehensive templates and standardized prompts to enhance AI-assisted software development. Complete multi-language support across 7 programming languages with 178 production-ready templates, **48 Claude Code Skills**, comprehensive 8-phase testing methodology, one-command installation, web-based discovery, and comprehensive automation.
+> **178 production-ready templates** across 7 languages | **48 Claude Code skills** | **8-phase testing methodology** | **Google Test + Copilot integration** | **Complete automation**
 
 ---
 
-## 🎯 New to This Repository? Start Here!
+## 🎯 What are you looking for?
 
-**→ [📖 Quick Start Guide: Set Up a New Project in 5 Minutes](QUICKSTART.md) ←**
+<details open>
+<summary><h3>📚 I want to learn what this repository offers</h3></summary>
 
-Learn how to:
-- Create a new project with Claude Code superpowers
-- Install skills with one command
-- Generate project structure, CLAUDE.md, and documentation automatically
-- Start developing with 48 production-ready skills at your fingertips
+### Repository Overview
+
+This repository provides comprehensive, production-ready templates for AI-assisted software development across the entire development lifecycle:
+
+- **7 programming languages**: Python, JavaScript, Java, C#, Go, C, C++
+- **178 production-ready templates** with consistent structure and quality
+- **48 Claude Code skills** for autonomous development workflows
+- **Complete automation**: CLI tools, hooks, integrations, web-based discovery
+
+### What's Inside
+
+| Category | Description | Templates |
+|----------|-------------|-----------|
+| **[AI Instructions](templates/ai_instructions/)** | System prompts for AI coding assistants | 14 prompts + 48 skills |
+| **[Code Cleanup](templates/code_cleanup/)** | Dead code removal & modernization | 7 templates |
+| **[Code Review](templates/code_review/)** | 6-phase comprehensive review methodology | 42 templates |
+| **[Test Development](templates/test_development/)** | 8-phase testing methodology | 56 templates |
+| **[Documentation](templates/documentation_generation/)** | 6 types of documentation generation | 42 templates |
+| **[Tools](infrastructure/tools/)** | CLI utilities for skill management | 7 tools |
+| **[Integrations](infrastructure/integrations/)** | MCP configurations for external services | 11 integrations |
+| **[Hooks](infrastructure/hooks/)** | Git hooks and automation workflows | 6 hooks |
+
+### Benefits
+
+**Consistent Quality**
+- Standardized outputs across all AI-generated content
+- Reduced review time with established patterns
+- Cross-platform compatibility (works with all major AI tools)
+- Built-in compliance with coding standards
+
+**Enhanced Productivity**
+- Pre-built templates accelerate common tasks by 50-70%
+- Reduced cognitive load with structured approaches
+- Knowledge transfer through captured best practices
+- Copy-paste ready prompts for immediate AI collaboration
+
+**Quality Assurance**
+- Built-in security, performance, and maintainability considerations
+- Comprehensive coverage of software development lifecycle
+- Automated testing and quality gates
+- Continuous improvement based on industry best practices
+
+</details>
+
+<details>
+<summary><h3>🚀 I want to set up a new project</h3></summary>
+
+### Quick Setup (5 minutes)
+
+#### Choose Your Language
+
+<details>
+<summary><strong>Python Project Setup</strong></summary>
+
+```bash
+# 1. Clone ai_templates
+git clone https://github.com/bdourthe/ai_templates.git
+
+# 2. Install essential skills
+cd ai_templates
+python infrastructure/tools/install_skill.py --priority CRITICAL --destination ../my-project
+python infrastructure/tools/install_skill.py --skill init-python-project --destination ../my-project
+
+# 3. Initialize project with Claude Code
+cd ../my-project
+claude
+"Use the init-python-project skill to create my project"
+```
+
+**Next steps:**
+- [Python system prompts](templates/ai_instructions/autonomous_agents/claude_code/python/)
+- [Python testing templates](templates/test_development/unit_tests/python_unit_tests.md)
+- [Python documentation](templates/documentation_generation/docstrings/python_docstrings.md)
+
+</details>
+
+<details>
+<summary><strong>JavaScript Project Setup</strong></summary>
+
+```bash
+cd ai_templates
+python infrastructure/tools/install_skill.py --priority CRITICAL --destination ../my-project
+python infrastructure/tools/install_skill.py --skill init-javascript-project --destination ../my-project
+cd ../my-project
+claude
+"Use the init-javascript-project skill to create my project"
+```
+
+**Next steps:**
+- [JavaScript system prompts](templates/ai_instructions/autonomous_agents/claude_code/javascript/)
+- [JavaScript testing](templates/test_development/unit_tests/javascript_unit_tests.md)
+
+</details>
+
+<details>
+<summary><strong>Java / C# / Go / C / C++ Project Setup</strong></summary>
+
+Same process as above - just replace the skill name:
+- Java: `--skill init-java-project`
+- C#: `--skill init-csharp-project`
+- Go: `--skill init-go-project`
+- C/C++: Use Python/JavaScript as template, adapt as needed
+
+</details>
+
+**See [QUICKSTART.md](QUICKSTART.md) for detailed step-by-step instructions**
+
+</details>
+
+<details>
+<summary><h3>🔍 I want to find a specific template</h3></summary>
+
+### Template Finder - Quick Links
+
+**Popular Templates:**
+- **Code Cleanup** → [7 language templates](templates/code_cleanup/) | 4-8 hours | Remove dead code & duplication
+- **Unit Tests** → [7 language templates](templates/test_development/unit_tests/) | 3-6 hours | FIRST principles, AAA pattern
+- **Security Review** → [7 language templates](templates/code_review/security_review/) | 2-3 hours | Vulnerability assessment
+- **API Documentation** → [7 language templates](templates/documentation_generation/api_docs/) | 4-8 hours | Complete API reference
+
+#### What do you want to do?
+
+<details>
+<summary><strong>Clean up existing codebase (remove dead code, duplication)</strong></summary>
+
+**Template:** Code Cleanup
+**Time:** 4-8 hours | **Difficulty:** Intermediate
+
+**Choose your language:**
+- [Python Cleanup](templates/code_cleanup/python_cleanup.md)
+- [JavaScript Cleanup](templates/code_cleanup/javascript_cleanup.md)
+- [Java Cleanup](templates/code_cleanup/java_cleanup.md)
+- [C# Cleanup](templates/code_cleanup/csharp_cleanup.md)
+- [Go Cleanup](templates/code_cleanup/go_cleanup.md)
+- [C Cleanup](templates/code_cleanup/c_cleanup.md)
+- [C++ Cleanup](templates/code_cleanup/cpp_cleanup.md)
+
+**What you'll get:**
+- Dead code removal
+- Duplication elimination
+- Legacy pattern modernization
+- Multi-pass validation for thoroughness
+- Regression safety protocols
+
+**Claude Code Skill:** [cleanup-python](templates/ai_instructions/autonomous_agents/claude_code/skills/cleanup-python/) (and other languages)
+
+</details>
+
+<details>
+<summary><strong>Review code for quality/security/performance</strong></summary>
+
+**Template:** Code Review (6-phase methodology)
+**Time:** 2-10 hours (depending on phases) | **Difficulty:** Intermediate to Advanced
+
+**Review Phases:**
+1. **[Context Analysis](templates/code_review/context_analysis/)** - Understand the project (2 hours)
+2. **[Code Quality](templates/code_review/code_quality/)** - Style & maintainability (2-3 hours)
+3. **[Security Review](templates/code_review/security_review/)** - Vulnerabilities (2-3 hours)
+4. **[Performance Review](templates/code_review/performance_review/)** - Optimization (2-3 hours)
+5. **[Testing Review](templates/code_review/testing_review/)** - Test coverage (2 hours)
+6. **[Final Report](templates/code_review/final_report/)** - Consolidated findings (1 hour)
+
+**Quick Review:** Phases 1-2 only (4 hours)
+**Comprehensive Review:** All 6 phases (10-12 hours)
+
+**Choose your language:**
+- [Python Reviews](templates/code_review/context_analysis/python_context_analysis.md)
+- [JavaScript Reviews](templates/code_review/context_analysis/javascript_context_analysis.md)
+- [Java / C# / Go / C / C++ Reviews](templates/code_review/)
+
+**Claude Code Skills:**
+- [code-review-quality](templates/ai_instructions/autonomous_agents/claude_code/skills/code-review-quality/)
+- [code-review-security](templates/ai_instructions/autonomous_agents/claude_code/skills/code-review-security/)
+- [code-review-performance](templates/ai_instructions/autonomous_agents/claude_code/skills/code-review-performance/)
+
+</details>
+
+<details>
+<summary><strong>Generate unit tests for my code</strong></summary>
+
+**Template:** Unit Tests (Phase 2 of 8-phase methodology)
+**Time:** 3-6 hours | **Difficulty:** Intermediate
+**Prerequisites:** Test infrastructure setup (Phase 1)
+
+**Choose your language:**
+- [Python Unit Tests](templates/test_development/unit_tests/python_unit_tests.md) - pytest with FIRST principles
+- [JavaScript Unit Tests](templates/test_development/unit_tests/javascript_unit_tests.md) - Jest with AAA pattern
+- [Java Unit Tests](templates/test_development/unit_tests/java_unit_tests.md) - JUnit 5
+- [C# Unit Tests](templates/test_development/unit_tests/csharp_unit_tests.md) - NUnit
+- [Go Unit Tests](templates/test_development/unit_tests/go_unit_tests.md) - testing package
+- [C Unit Tests](templates/test_development/unit_tests/c_unit_tests.md) - Unity
+- [C++ Unit Tests](templates/test_development/unit_tests/cpp_unit_tests.md) - Google Test
+
+**What you'll get:**
+- FIRST principles (Fast, Independent, Repeatable, Self-validating, Timely)
+- AAA pattern (Arrange-Act-Assert)
+- 20-30 examples per language
+- Anti-patterns guide with remediation
+- Speed requirements: <1 second per test (target: <100ms)
+
+**Next steps:** [Test Cases (Integration/E2E)](templates/test_development/test_cases/)
+
+**Claude Code Skill:** [test-driven-development](templates/ai_instructions/autonomous_agents/claude_code/skills/test-driven-development/)
+
+</details>
+
+<details>
+<summary><strong>Generate documentation (API docs, README, docstrings)</strong></summary>
+
+**Templates:** Documentation (6 types)
+**Time:** 2-8 hours (depending on type) | **Difficulty:** Beginner to Intermediate
+
+**Documentation Types:**
+1. **[Docstrings](templates/documentation_generation/docstrings/)** - Code-level documentation (2-3 hours)
+2. **[Strategic Comments](templates/documentation_generation/comments/)** - Inline explanations (1-2 hours)
+3. **[User Documentation](templates/documentation_generation/user_docs/)** - README, guides (3-4 hours)
+4. **[Technical Documentation](templates/documentation_generation/technical_docs/)** - Architecture (4-6 hours)
+5. **[API Documentation](templates/documentation_generation/api_docs/)** - Complete API reference (4-8 hours)
+6. **[SBOM](templates/documentation_generation/sbom/)** - Software Bill of Materials (2-3 hours)
+
+**Choose your language:**
+- [Python Documentation](templates/documentation_generation/docstrings/python_docstrings.md)
+- [JavaScript Documentation](templates/documentation_generation/docstrings/javascript_docstrings.md)
+- [Java / C# / Go / C / C++ Documentation](templates/documentation_generation/)
+
+**Claude Code Skills:**
+- [generate-api-docs](templates/ai_instructions/autonomous_agents/claude_code/skills/generate-api-docs/)
+- [create-technical-docs](templates/ai_instructions/autonomous_agents/claude_code/skills/create-technical-docs/)
+
+</details>
+
+**See complete template catalog:** [TEMPLATE_FINDER.md](TEMPLATE_FINDER.md)
+**Need help choosing?** [DECISION_TREES.md](DECISION_TREES.md)
+
+</details>
+
+<details>
+<summary><h3>⚙️ I want to configure my AI coding assistant</h3></summary>
+
+### AI Assistant Configuration
+
+#### Choose Your Platform
+
+<details>
+<summary><strong>Claude Code (Autonomous Agent)</strong></summary>
+
+**Setup:**
+1. Create `CLAUDE.md` in your project root
+2. Choose version based on your needs:
+
+**When to use Comprehensive (40k tokens):**
+- ✅ New team members / onboarding
+- ✅ Complex/legacy codebase (>10k LOC)
+- ✅ Teaching and mentoring focus
+- ✅ Establishing new patterns
+- ✅ Token budget allows (Claude Sonnet)
+
+**When to use Condensed (20k tokens):**
+- ✅ Experienced team
+- ✅ Well-established patterns
+- ✅ Quick tasks (<30 minutes)
+- ✅ Token optimization needed
+- ✅ Claude Haiku usage
+
+**Templates by Language:**
+- **Python:** [Comprehensive (40k)](templates/ai_instructions/autonomous_agents/claude_code/python/CLAUDE_comprehensive_40k.md) | [Condensed (20k)](templates/ai_instructions/autonomous_agents/claude_code/python/CLAUDE_condensed_20k.md)
+- **JavaScript:** [Comprehensive](templates/ai_instructions/autonomous_agents/claude_code/javascript/CLAUDE_comprehensive_40k.md) | [Condensed](templates/ai_instructions/autonomous_agents/claude_code/javascript/CLAUDE_condensed_20k.md)
+- **Java / C# / Go / C / C++:** [Browse all languages](templates/ai_instructions/autonomous_agents/claude_code/)
+
+**Alternative:** Use [create-claude-md skill](templates/ai_instructions/autonomous_agents/claude_code/skills/create-claude-md/) to generate CLAUDE.md automatically
+
+</details>
+
+<details>
+<summary><strong>GitHub Copilot</strong></summary>
+
+**Setup:**
+1. Create `.github/copilot-instructions.md` in your workspace
+2. Choose version:
+   - [Comprehensive (35k tokens)](templates/ai_instructions/coding_assistants/python/GLOBAL_comprehensive_35k.md) - Detailed guidance
+   - [Condensed (15k tokens)](templates/ai_instructions/coding_assistants/python/GLOBAL_condensed_15k.md) - Quick reference
+3. Paste content into `copilot-instructions.md`
+
+**Languages available:** [Python](templates/ai_instructions/coding_assistants/python/), [JavaScript](templates/ai_instructions/coding_assistants/javascript/), [Java](templates/ai_instructions/coding_assistants/java/), [C#](templates/ai_instructions/coding_assistants/csharp/), [Go](templates/ai_instructions/coding_assistants/go/), [C](templates/ai_instructions/coding_assistants/c/), [C++](templates/ai_instructions/coding_assistants/cpp/)
+
+**Resources:**
+- [GitHub Copilot documentation](https://docs.github.com/en/copilot)
+- [Customization guide](templates/ai_instructions/README.md)
+
+</details>
+
+<details>
+<summary><strong>Cursor</strong></summary>
+
+**Setup:**
+1. Go to File > Preferences > Cursor Settings
+2. Navigate to Rules & Memories > User Rules
+3. Paste content from [condensed](templates/ai_instructions/coding_assistants/python/GLOBAL_condensed_15k.md) or [comprehensive](templates/ai_instructions/coding_assistants/python/GLOBAL_comprehensive_35k.md) template
+
+**Languages available:** [All 7 languages](templates/ai_instructions/coding_assistants/)
+
+</details>
+
+<details>
+<summary><strong>Windsurf</strong></summary>
+
+**Setup:**
+1. Open Cascade chat (right panel)
+2. Click Customizations icon (top right)
+3. Customizations > Rules > Edit global_windsurf.md
+4. Paste content from [template](templates/ai_instructions/coding_assistants/python/)
+
+**Languages available:** [All 7 languages](templates/ai_instructions/coding_assistants/)
+
+</details>
+
+**Need help choosing versions?** See [Decision Trees](DECISION_TREES.md#decision-tree-4-comprehensive-vs-condensed-system-prompts)
+
+</details>
+
+<details>
+<summary><h3>🔧 I want to install Claude Code skills</h3></summary>
+
+### Claude Code Skills Installation
+
+**48 production-ready skills** for autonomous development workflows
+
+#### Quick Install Commands
+
+**Essential Skills (Start Here):**
+```bash
+# Critical workflow skills (plan-before-code, test-driven-development, etc.)
+python infrastructure/tools/install_skill.py --priority CRITICAL --destination /path/to/your-project
+```
+
+**Code Review Skills:**
+```bash
+# 6 review skills (quality, security, performance, testing, context, consistency)
+python infrastructure/tools/install_skill.py --category "Code Review" --destination /path/to/your-project
+```
+
+**Project Initialization:**
+```bash
+# Choose one based on your language:
+python infrastructure/tools/install_skill.py --skill init-python-project --destination /path/to/your-project
+python infrastructure/tools/install_skill.py --skill init-javascript-project --destination /path/to/your-project
+python infrastructure/tools/install_skill.py --skill init-java-project --destination /path/to/your-project
+```
+
+**All Skills:**
+```bash
+python infrastructure/tools/install_skill.py --all --destination /path/to/your-project
+```
+
+#### Browse Skills
+
+**Prefer visual browsing?** Visit [AI Templates Skills Browser](https://bdourthe.github.io/ai_templates/)
+- Search and filter 48 skills
+- View detailed descriptions
+- Copy installation commands
+
+#### Explore Available Skills
+
+```bash
+# List all skills
+python infrastructure/tools/install_skill.py --list
+
+# View categories
+python infrastructure/tools/install_skill.py --categories
+
+# Get skill details
+python infrastructure/tools/install_skill.py --info plan-before-code
+```
+
+#### Featured Skills
+
+| Skill | Category | Description |
+|-------|----------|-------------|
+| [plan-before-code](templates/ai_instructions/autonomous_agents/claude_code/skills/plan-before-code/) | Workflow | Anthropic's #1 best practice - explore, plan, execute |
+| [create-claude-md](templates/ai_instructions/autonomous_agents/claude_code/skills/create-claude-md/) | Config | Generate comprehensive CLAUDE.md files |
+| [test-driven-development](templates/ai_instructions/autonomous_agents/claude_code/skills/test-driven-development/) | Workflow | TDD methodology implementation |
+| [code-review-security](templates/ai_instructions/autonomous_agents/claude_code/skills/code-review-security/) | Review | Security vulnerability assessment |
+| [cleanup-python](templates/ai_instructions/autonomous_agents/claude_code/skills/cleanup-python/) | Cleanup | Modernize and clean Python code |
+| [generate-api-docs](templates/ai_instructions/autonomous_agents/claude_code/skills/generate-api-docs/) | Docs | Generate API documentation (multi-language) |
+
+**[View All Skills Documentation →](templates/ai_instructions/autonomous_agents/claude_code/skills/README.md)**
+
+</details>
 
 ---
 
 ## 🎉 What's New in Version 0.2.8
 
-### 🧪 NEW: Complete 8-Phase Testing Methodology
-- **Unit Tests Phase** ([test_development/unit_tests/](test_development/unit_tests/)): Foundational unit testing with FIRST principles
-  - 7 language templates (Python, JavaScript, Java, C#, Go, C, C++)
-  - FIRST principles (Fast, Independent, Repeatable, Self-validating, Timely)
-  - AAA pattern (Arrange-Act-Assert) with 20-30+ examples per language
-  - Testing all component types: functions, classes, async, decorators, generators, context managers
-  - Anti-patterns guide with remediation strategies
-  - Speed requirements: <1 second per test (target: <100ms)
+### Complete 8-Phase Testing Methodology
 
-- **Reward Hacking Phase** ([test_development/reward_hacking/](test_development/reward_hacking/)): Test quality validation through mutation testing
-  - 7 language templates with mutation testing setup
-  - Detects "reward hacking" where tests pass without validating functionality
-  - 7-phase validation covering ALL previous test phases
-  - Mutation testing tools: mutmut, Stryker, PITest, Stryker.NET, go-mutesting, mull
-  - 15-20 weak vs. strong test examples per language
-  - Quality metrics: >80% mutation score, 100% test independence
-  - Remediation action plans with continuous monitoring
+**NEW: Unit Tests Phase** ([templates/test_development/unit_tests/](templates/test_development/unit_tests/))
+- 7 language templates with FIRST principles
+- AAA pattern (Arrange-Act-Assert) with 20-30+ examples per language
+- Speed requirements: <1 second per test (target: <100ms)
+- Anti-patterns guide with remediation strategies
 
-### 🔬 Testing Framework Enhancements
-- **Complete 8-Phase Workflow**: From infrastructure to quality validation
-- **Updated all phase READMEs** with cross-references to new phases
-- **Quality Targets**: Mutation score >80%, test speed <1s, error coverage >80%
-- **Detection Patterns**: Tautological tests, weak assertions, over-mocking, happy-path-only testing
+**NEW: Reward Hacking Phase** ([templates/test_development/reward_hacking/](templates/test_development/reward_hacking/))
+- Mutation testing setup for all 7 languages
+- Detects "reward hacking" where tests pass without validating functionality
+- 7-phase validation covering ALL previous test phases
+- Quality metrics: >80% mutation score, 100% test independence
 
-### 📊 Stats
+### Stats
 - **178 Production-Ready Templates** (up from 162)
-- **16 New Testing Files**: 8 Unit Tests + 8 Reward Hacking
-- **~25,800 Lines**: Of comprehensive testing guidance
-- **150+ Code Examples**: Across all 7 languages
-- **8-Phase Testing**: Complete methodology from setup to validation
 - **48 Claude Code Skills** across 12 categories
 - **7 Languages Supported**: Python, JavaScript, Java, C#, Go, C, C++
+- **16 New Testing Files**: 8 Unit Tests + 8 Reward Hacking
+- **~25,800 Lines**: Of comprehensive testing guidance
 
-[View Changelog](CHANGELOG.md) | [View Development Log](DEVLOG.md) | [Browse Skills Online](https://bdourthe.github.io/ai_templates/)
-
----
-
-## 📁 Repository Structure
-
-This repository provides standardized templates for AI-enhanced software development:
-
-### [Agent Prompts for AI-Assisted Coding](agent_prompts/)
-- **Autonomous agents**: For independent coding agents like Claude Code
-- **Interactive assistants**: For collaborative coding with GitHub Copilot, Cursor, Windsurf
-- **Claude Code Skills**: 48 production-ready skills ([Browse Skills](https://bdourthe.github.io/ai_templates/))
-- **Platform-specific optimization**: Tailored prompts for different AI platforms
-- **Token-optimized versions**: Comprehensive vs condensed variants
-
-### [Tools](tools/) - NEW!
-- **[Skills Catalog Builder](tools/build_skills_catalog.py)**: Generate skills.json metadata
-- **[Skill Installer](tools/install_skill.py)**: CLI tool for one-command skill installation
-- **[Tool Documentation](tools/README.md)**: Complete usage guide
-
-### [Integrations](integrations/) - NEW!
-- **[MCP Configurations](integrations/)**: Connect Claude to external services
-- **GitHub, GitLab**: Repository and CI/CD integration
-- **Databases**: PostgreSQL, MySQL, MongoDB support
-- **Cloud Services**: AWS, Azure, GCP configurations
-- **AI Services**: OpenAI, Anthropic integration
-
-### [Hooks](hooks/) - NEW!
-- **[Automation Workflows](hooks/)**: Git hooks and quality gates
-- **Pre-commit**: Quality checks before commits
-- **Pre-push**: Comprehensive validation before push
-- **Post-commit**: Auto-documentation updates
-- **CI/CD Integration**: Hooks for build pipelines
-
-### [Code Cleanup Templates](code_cleanup/)
-- **Structured cleanup processes**: Comprehensive deep codebase review
-- **Quality assurance standards**: Consistent cleanup process
-- **Security and performance focus**: Critical non-functional requirements
-- **Educational feedback**: Learn from cleanup reports
-
-### [Code Review Templates](code_review/)
-- **Structured review processes**: Comprehensive checklists
-- **Quality assurance standards**: Consistent review patterns
-- **Security and performance focus**: Critical analysis
-- **Educational feedback**: Learn from reviews
-
-### [Test Development Templates](test_development/)
-- **Comprehensive testing frameworks**: Complete test structures
-- **Test automation**: Automated test generation
-- **Quality metrics**: Coverage and effectiveness
-- **Performance testing**: Load and stress tests
-
-### [Documentation Templates](documentation/)
-- **Code-level documentation**: Docstrings and strategic comments
-- **User documentation**: README files and guides
-- **Technical documentation**: Architecture and design
-- **API documentation**: Complete API reference
-- **SBOM documentation**: Security and compliance
-
-## 🚀 Getting Started
-
-### Setting Up a New Project with Claude Code (Recommended)
-
-**Complete setup in 5 minutes to supercharge your development with Claude Code!**
-
-#### Step 1: Create Your Project Repository
-
-```bash
-# Create and clone your new project
-mkdir my-awesome-project
-cd my-awesome-project
-git init
-```
-
-#### Step 2: Clone AI Templates Repository (Temporary)
-
-```bash
-# Clone ai_templates to a temporary location
-cd ..
-git clone https://github.com/bdourthe/ai_templates.git
-```
-
-#### Step 3: Install Skills into Your Project
-
-```bash
-# Install essential skills to your project
-cd ai_templates
-
-# Install critical workflow skills (RECOMMENDED START)
-python tools/install_skill.py --priority CRITICAL --destination ../my-awesome-project
-
-# Install project initialization skill for your language
-python tools/install_skill.py --skill init-python-project --destination ../my-awesome-project
-# Or: --skill init-javascript-project / init-java-project / init-csharp-project
-
-# Install code review suite (HIGHLY RECOMMENDED)
-python tools/install_skill.py --category "Code Review" --destination ../my-awesome-project
-
-# Optional: Install all skills for complete power
-python tools/install_skill.py --all --destination ../my-awesome-project
-```
-
-#### Step 4: Initialize Your Project with Claude Code
-
-```bash
-# Go back to your project
-cd ../my-awesome-project
-
-# Start Claude Code and use the skills you just installed!
-claude
-
-# Then in Claude Code, run:
-"Use the init-python-project skill to create 'my-awesome-project'"
-"Use the create-claude-md skill to configure this project"
-```
-
-#### Step 5: Verify Setup
-
-Your project should now have:
-```
-my-awesome-project/
-├── .claude/
-│   └── skills/              # All installed skills
-├── CLAUDE.md                # Project configuration (generated by skill)
-├── src/                     # Source code (generated by init skill)
-├── tests/                   # Test infrastructure
-├── pyproject.toml           # Project configuration
-├── README.md                # Documentation
-└── .gitignore              # Git ignore rules
-```
-
-#### Step 6: Start Developing!
-
-```bash
-# In Claude Code, leverage your skills:
-"Use the plan-before-code skill to design the authentication feature"
-"Use the test-driven-development skill to implement user registration"
-"Use the code-review-security skill to audit the code"
-"Use the generate-api-docs skill to document the API"
-```
-
-#### Step 7: Clean Up (Optional)
-
-```bash
-# Remove the temporary ai_templates clone
-cd ..
-rm -rf ai_templates
-```
+[View Complete Changelog](CHANGELOG.md) | [Development Log](DEVLOG.md)
 
 ---
 
-### Quick Reference: Common Setup Scenarios
+## 📊 Repository Statistics
 
-#### Scenario 1: Python Web Application
-```bash
-python tools/install_skill.py --priority CRITICAL --destination ../my-project
-python tools/install_skill.py --skill init-python-project --destination ../my-project
-python tools/install_skill.py --category "Code Review" --destination ../my-project
-python tools/install_skill.py --category Documentation --destination ../my-project
-```
-
-#### Scenario 2: JavaScript/React Application
-```bash
-python tools/install_skill.py --priority CRITICAL --destination ../my-project
-python tools/install_skill.py --skill init-javascript-project --destination ../my-project
-python tools/install_skill.py --skill cleanup-javascript --destination ../my-project
-python tools/install_skill.py --category Testing --destination ../my-project
-```
-
-#### Scenario 3: Existing Project (Add Claude Code Support)
-```bash
-# Navigate to your existing project
-cd my-existing-project
-
-# Install skills directly
-python ../ai_templates/tools/install_skill.py --priority CRITICAL
-python ../ai_templates/tools/install_skill.py --skill create-claude-md
-
-# Then in Claude Code:
-"Use the create-claude-md skill to configure this existing project"
-```
-
-#### Scenario 4: Team Project with Standardization
-```bash
-# Install comprehensive quality tooling
-python tools/install_skill.py --category workflow --destination ../team-project
-python tools/install_skill.py --category "Code Review" --destination ../team-project
-python tools/install_skill.py --category security --destination ../team-project
-python tools/install_skill.py --skill pre-commit-checklist --destination ../team-project
-
-# Configure project standards
-cd ../team-project
-claude
-"Use the create-claude-md skill with team coding standards"
-```
+| Metric | Count | Description |
+|--------|-------|-------------|
+| **Templates** | 178 | Production-ready templates |
+| **Skills** | 48 | Claude Code skills |
+| **Languages** | 7 | Python, JavaScript, Java, C#, Go, C, C++ |
+| **Test Phases** | 8 | Complete testing methodology |
+| **Review Phases** | 6 | Structured code review process |
+| **Doc Types** | 6 | From docstrings to SBOM |
 
 ---
 
-### Alternative: Browse and Install from Web
+## 📚 Complete Repository Structure
 
-**Don't want to use command line?**
+<details>
+<summary><h3>View Detailed Structure</h3></summary>
 
-1. Visit [AI Templates Skills Browser](https://bdourthe.github.io/ai_templates/)
-2. Browse and search for skills you need
-3. Copy installation commands for each skill
-4. Run commands with `--destination` flag pointing to your project
+### [Agent Prompts](templates/ai_instructions/)
+System prompts for AI-assisted coding across platforms
+
+- **[Autonomous Agents](templates/ai_instructions/autonomous_agents/)** - For Claude Code, independent coding agents
+  - [Claude Code Skills](templates/ai_instructions/autonomous_agents/claude_code/skills/) - 48 production-ready skills
+  - [Python](templates/ai_instructions/autonomous_agents/claude_code/python/) | [JavaScript](templates/ai_instructions/autonomous_agents/claude_code/javascript/) | [Java](templates/ai_instructions/autonomous_agents/claude_code/java/) | [C#](templates/ai_instructions/autonomous_agents/claude_code/csharp/) | [Go](templates/ai_instructions/autonomous_agents/claude_code/go/) | [C](templates/ai_instructions/autonomous_agents/claude_code/c/) | [C++](templates/ai_instructions/autonomous_agents/claude_code/cpp/)
+
+- **[Coding Assistants](templates/ai_instructions/coding_assistants/)** - For GitHub Copilot, Cursor, Windsurf
+  - [Python](templates/ai_instructions/coding_assistants/python/) | [JavaScript](templates/ai_instructions/coding_assistants/javascript/) | [Java](templates/ai_instructions/coding_assistants/java/) | [C#](templates/ai_instructions/coding_assistants/csharp/) | [Go](templates/ai_instructions/coding_assistants/go/) | [C](templates/ai_instructions/coding_assistants/c/) | [C++](templates/ai_instructions/coding_assistants/cpp/)
+
+### [Code Cleanup](templates/code_cleanup/)
+Structured cleanup processes for codebase modernization
+
+- [Python](templates/code_cleanup/python_cleanup.md) | [JavaScript](templates/code_cleanup/javascript_cleanup.md) | [Java](templates/code_cleanup/java_cleanup.md) | [C#](templates/code_cleanup/csharp_cleanup.md) | [Go](templates/code_cleanup/go_cleanup.md) | [C](templates/code_cleanup/c_cleanup.md) | [C++](templates/code_cleanup/cpp_cleanup.md)
+
+### [Code Review](templates/code_review/)
+6-phase comprehensive review methodology
+
+| Phase | Focus | Time |
+|-------|-------|------|
+| [Context Analysis](templates/code_review/context_analysis/) | Project understanding | 2h |
+| [Code Quality](templates/code_review/code_quality/) | Style and maintainability | 2-3h |
+| [Security](templates/code_review/security_review/) | Vulnerability assessment | 2-3h |
+| [Performance](templates/code_review/performance_review/) | Optimization opportunities | 2-3h |
+| [Testing](templates/code_review/testing_review/) | Test coverage and quality | 2h |
+| [Final Report](templates/code_review/final_report/) | Consolidated findings | 1h |
+
+**All phases available in 7 languages**
+
+### [Test Development](templates/test_development/)
+8-phase comprehensive testing methodology
+
+| Phase | Focus | Time |
+|-------|-------|------|
+| [Test Structure](templates/test_development/test_structure/) | Infrastructure setup | 2-4h |
+| [Unit Tests](templates/test_development/unit_tests/) | FIRST principles, AAA pattern | 3-6h |
+| [Test Cases](templates/test_development/test_cases/) | Integration/E2E tests | 4-8h |
+| [Mocks & Fixtures](templates/test_development/mocks_fixtures/) | Test isolation | 2-4h |
+| [Performance Testing](templates/test_development/performance_testing/) | Load and stress tests | 4-6h |
+| [Code Coverage](templates/test_development/code_coverage/) | Coverage analysis (80%+ target) | 2-3h |
+| [Maintenance & CI/CD](templates/test_development/maintenance_cicd/) | Automation and quality gates | 3-5h |
+| [Reward Hacking](templates/test_development/reward_hacking/) | Test quality validation | 3-5h |
+
+**All phases available in 7 languages**
+
+### [Documentation](templates/documentation_generation/)
+6 types of documentation generation
+
+| Type | Focus | Time |
+|------|-------|------|
+| [Docstrings](templates/documentation_generation/docstrings/) | Code-level documentation | 2-3h |
+| [Comments](templates/documentation_generation/comments/) | Strategic code comments | 1-2h |
+| [User Docs](templates/documentation_generation/user_docs/) | README, guides, tutorials | 3-4h |
+| [Technical Docs](templates/documentation_generation/technical_docs/) | Architecture and design | 4-6h |
+| [API Docs](templates/documentation_generation/api_docs/) | Complete API reference | 4-8h |
+| [SBOM](templates/documentation_generation/sbom/) | Software Bill of Materials | 2-3h |
+
+**All types available in 7 languages**
+
+### [Tools](infrastructure/tools/)
+CLI utilities for skill and template management
+
+- [build_skills_catalog.py](infrastructure/tools/build_skills_catalog.py) - Generate skills.json metadata
+- [install_skill.py](infrastructure/tools/install_skill.py) - One-command skill installation
+- [Tool Documentation](infrastructure/tools/README.md) - Complete usage guide
+
+### [Integrations](infrastructure/integrations/)
+MCP configurations for external services
+
+- **Development:** GitHub, GitLab
+- **Databases:** PostgreSQL, MySQL, MongoDB
+- **Cloud:** AWS, Azure, GCP
+- **AI Services:** OpenAI, Anthropic
+- **Knowledge:** Confluence, Notion
+
+### [Hooks](infrastructure/hooks/)
+Git hooks and automation workflows
+
+- **Pre-commit:** Quality checks before commits
+- **Pre-push:** Comprehensive validation before push
+- **Post-commit:** Auto-documentation updates
+- **CI/CD Integration:** Hooks for build pipelines
+
+</details>
 
 ---
-
-### Installing Skills to Existing Projects
-
-**Already have a project and want to add Claude Code skills?**
-
-```bash
-# Option 1: Install from cloned ai_templates
-cd /path/to/ai_templates
-python tools/install_skill.py --skill plan-before-code --destination /path/to/your-project
-
-# Option 2: Install from anywhere using --repo flag
-python install_skill.py --skill plan-before-code --destination /path/to/your-project --repo /path/to/ai_templates
-```
-
----
-
-### Exploring Available Skills
-
-**Before installing, explore what's available:**
-
-```bash
-# List all skills with descriptions
-python tools/install_skill.py --list
-
-# Show all categories
-python tools/install_skill.py --categories
-
-# Get detailed info about a specific skill
-python tools/install_skill.py --info plan-before-code
-
-# Filter by priority
-python tools/install_skill.py --list --priority CRITICAL
-```
-
----
-
-### [Agent Prompts](agent_prompts/)
-
-#### Platform Tier Selection 
-- `autonomous_agents/` for Claude Code and Codex CLI
-- `coding_assistants/` for GitHub Copilot, Cursor, and Windsurf
-
-#### Coding Language Selection
-Navigate to appropriate language folder (currently `python/`)
-
-#### Version Selection 
-- Comprehensive (~35k tokens) for complex projects
-- Condensed (15k-20k tokens) for efficiency and speed
-
-#### AI platform Configuration
-
-##### Coding Assistants
-- **GitHub Copilot**: Create `.github/copilot-instructions.md` in your workspace and replace content with condensed or comprehensive template.
-- **Cursor**: Go to File > Preferences > Cursor Settings > Rules & Memories (tab on the left panel) > User Rules, then paste content of condensed or comprehensive template.
-- **Windsurf**: Open Cascade chat on the right > Customizations icon (top right corner) > Customizations > Rules > Edit global_windsurf.md, then paste content of condensed or comprehensive template.
-##### Autonomous Agents
-- **Claude Code**: Create `CLAUDE.md` in your workspace root and replace content with condensed or comprehensive template.
-
-**For more details, follow setup instructions**: See `agent_prompts/README.md` for detailed platform-specific configuration.
-
-### [Claude Code Skills](agent_prompts/autonomous_agents/claude_code/skills/)
-
-**NEW**: Production-ready skills for Claude Code autonomous agent workflows
-
-#### Quick Start with Skills
-```
-"Use the init-python-project skill to create 'my-app'"
-"Use the plan-before-code skill to design the auth feature"
-"Use the create-claude-md skill to configure this project"
-```
-
-#### Available Skills (52 production-ready - 100% complete!)
-| Skill | Category | Description |
-|-------|----------|-------------|
-| [plan-before-code](agent_prompts/autonomous_agents/claude_code/skills/plan-before-code/) | 🔥 Workflow | Anthropic's #1 best practice - explore, plan, execute |
-| [create-claude-md](agent_prompts/autonomous_agents/claude_code/skills/create-claude-md/) | 🔥 Config | Generate comprehensive CLAUDE.md files |
-| [init-python-project](agent_prompts/autonomous_agents/claude_code/skills/init-python-project/) | Setup | Initialize complete Python projects |
-| [setup-python-system-prompt](agent_prompts/autonomous_agents/claude_code/skills/setup-python-system-prompt/) | Config | Configure Python development standards |
-| [cleanup-python](agent_prompts/autonomous_agents/claude_code/skills/cleanup-python/) | Cleanup | Modernize and clean Python code |
-| [generate-api-docs](agent_prompts/autonomous_agents/claude_code/skills/generate-api-docs/) | Docs | Generate API documentation (multi-language) |
-
-**[View All Skills Documentation →](agent_prompts/autonomous_agents/claude_code/skills/README.md)**
-
-#### Skills Roadmap (52 total planned)
-- ✅ 6 completed (12%)
-- 🔥 18 high-priority remaining
-- 📊 28 medium-priority remaining
-- [View Complete Roadmap](agent_prompts/autonomous_agents/claude_code/skills/SKILLS_LIST.md)
-
-### [Code Cleanup](code_cleanup/)
-
-#### Review Selection
-| Phase | Focus |
-| --- | --- |
-| [Code Cleanup](code_cleanup/) | Dead code and duplication removal |
-
-### [Code Reviews](code_review/)
-
-#### Review Selection
-| Phase | Focus |
-| --- | --- |
-| [Context Analysis](code_review/context_analysis/) | Project understanding |
-| [Code Quality](code_review/code_quality/) | Style and maintainability |
-| [Security](code_review/security_review/) | Vulnerability assessment |
-| [Performance](code_review/performance_review/) | Optimization opportunities |
-| [Testing](code_review/testing_review/) | Test coverage and quality |
-| [Final Report](code_review/final_report/) | Consolidated findings |
-
-#### Prompt Execution
-Each code review type has copy-paste ready prompts for AI assistants.
-
-#### Comprehensive Review
-Run each code review prompt template one at a time for comprehensive coverage.
-
-### [Test Development](test_development/)
-
-#### Test Selection
-| Phase | Focus |
-| --- | --- |
-| [Test Structure](test_development/test_structure/) | Infrastructure setup |
-| [Test Cases](test_development/test_cases/) | Comprehensive test development |
-| [Mocks & Fixtures](test_development/mocks_fixtures/) | Test isolation |
-| [Performance Testing](test_development/performance_testing/) | Load and stress tests |
-| [Maintenance & CI/CD](test_development/maintenance_cicd/) | Automation and quality gates |
-| [Code Coverage](test_development/code_coverage/) | Coverage analysis (80%+ target) |
-
-#### Prompt Execution
-Each test type has copy-paste ready prompts for AI assistants.
-
-#### Comprehensive Testing
-Run each test prompt template one at a time for comprehensive coverage.
-
-### [Documentation](documentation/)
-
-#### Documentation Selection
-| Phase | Focus |
-| --- | --- |
-| [Docstrings](documentation/docstrings/) | Code-level documentation |
-| [Comments](documentation/comments/) | Strategic code comments |
-| [User Docs](documentation/user_docs/) | README, guides, and tutorials |
-| [Technical Docs](documentation/technical_docs/) | Architecture and design |
-| [API Docs](documentation/api_docs/) | Complete API reference |
-| [SBOM](documentation/sbom/) | Software Bill of Materials and compliance |
-
-#### Prompt Execution
-Each documentation type has copy-paste ready prompts for AI assistants.
-
-#### Comprehensive Documentation
-Run each documentation prompt template one at a time for comprehensive coverage.
-
-## 📈 Benefits
-
-### Consistent Quality
-- **Standardized outputs**: All AI-generated content follows same high standards
-- **Reduced review time**: Content adheres to established patterns and practices
-- **Cross-platform compatibility**: Templates work across different AI tools and platforms
-- **Organizational alignment**: Built-in compliance with coding standards and best practices
-
-### Enhanced Productivity
-- **Faster development**: Pre-built templates accelerate common development tasks
-- **Reduced cognitive load**: Templates provide structure, allowing focus on problem-solving
-- **Knowledge transfer**: Templates capture and share organizational best practices
-- **AI-assisted workflows**: Copy-paste prompts enable immediate AI collaboration
-- **Time savings**: Comprehensive templates reduce implementation time by 50-70%
-
-### Quality Assurance
-- **Built-in standards**: Templates include security, performance, and maintainability considerations
-- **Comprehensive coverage**: Templates address all aspects of software development lifecycle
-- **Continuous improvement**: Templates evolve based on lessons learned and industry best practices
-- **Automated testing**: Test templates establish robust quality gates
-- **Security first**: Code review templates emphasize vulnerability detection
-- **Performance monitoring**: Built-in performance testing and profiling
-
-### Educational Value
-- **Learning through templates**: Detailed explanations help teams understand best practices
-- **Pattern recognition**: Templates demonstrate proven architectural and coding patterns
-- **Progressive improvement**: Teams naturally adopt better practices through template use
 
 ## 🔧 Customization
 
 These templates are designed to be:
-- **Modular**: Easy to adapt sections for specific organizational needs
-- **Extensible**: Add organization-specific guidelines without breaking core structure
-- **Language-agnostic**: Core principles apply beyond specific programming languages (Python currently implemented)
-- **Technology-flexible**: Adaptable to different frameworks, tools, and methodologies
-- **AI-platform neutral**: Works with GitHub Copilot, Claude, ChatGPT, Cursor, Windsurf, and other AI assistants
 
-### To customize:
+- **Modular** - Easy to adapt sections for specific needs
+- **Extensible** - Add organization-specific guidelines
+- **Language-agnostic** - Core principles apply broadly
+- **Technology-flexible** - Adaptable to different frameworks
+- **AI-platform neutral** - Works with all major AI assistants
+
+### To Customize:
+
 1. **Fork or copy** relevant template files
-2. **Modify sections** specific to your organization's standards and requirements
-3. **Adjust criteria**: Update pass/fail thresholds, coverage requirements, performance targets
-4. **Extend checklists**: Add organization-specific evaluation points
-5. **Test thoroughly** with your typical development workflows and use cases
-6. **Version control** your customizations to track changes and enable rollback
-7. **Share learnings** by contributing improvements back to the community
+2. **Modify sections** for your organization's standards
+3. **Adjust criteria** - Update pass/fail thresholds, coverage requirements
+4. **Extend checklists** - Add organization-specific evaluation points
+5. **Test thoroughly** with your workflows
+6. **Version control** your customizations
+7. **Share learnings** by contributing improvements
 
-### Language Expansion
-Current templates focus on Python. To extend to other languages:
-1. **Copy Python structure** as a starting point
-2. **Adapt language-specific patterns**: Modify for language idioms and frameworks
-3. **Update tool references**: Replace Python-specific tools (pytest, unittest) with language equivalents
-4. **Maintain phase structure**: Keep proven phase-based methodology
-5. **Test and validate**: Ensure templates work with target language ecosystem
+---
 
 ## 🔧 Troubleshooting
 
 ### Common Issues
 
-#### System Prompts
-- **Token limits**: Use condensed versions for platforms with stricter token constraints
-- **Platform compatibility**: Some features may need adjustment per AI platform or tool
-- **Performance impact**: Monitor AI response quality and adjust template complexity as needed
+**System Prompts**
+- **Token limits**: Use condensed versions for stricter constraints
+- **Platform compatibility**: Some features may need adjustment per platform
+- **Performance impact**: Monitor AI response quality and adjust complexity
 
-#### Code Review Templates
+**Code Review Templates**
 - **Too detailed**: Use quick review (phases 1-2) for simple changes
-- **Context gathering**: Ensure you have repository access for phase 1 analysis
+- **Context gathering**: Ensure repository access for phase 1 analysis
 - **Missing information**: Skip unavailable checks rather than making assumptions
 
-#### Test Development Templates
+**Test Development Templates**
 - **Time constraints**: Use quick setup (2 hours) for rapid prototyping
-- **Complex setup**: Start with phase 1 infrastructure before adding advanced features
+- **Complex setup**: Start with phase 1 infrastructure before advanced features
 - **CI/CD integration**: Test locally before configuring automated pipelines
-- **Flaky tests**: Run flakiness detection script before deployment
 
 ### Best Practices
-- **Start comprehensive, optimize later**: Begin with full-featured templates, then streamline if needed
-- **Regular review and updates**: Keep templates current with evolving best practices and tools
-- **Cross-functional feedback**: Gather input from development, QA, and security teams
-- **Iterative improvement**: Make incremental changes and measure impact before major revisions
-- **Measure effectiveness**: Track time savings, bug reduction, and quality improvements
-- **Team training**: Ensure team understands template structure and intended usage
-- **Progressive adoption**: Implement one template category at a time
+
+- **Start comprehensive, optimize later** - Begin with full templates, then streamline
+- **Regular updates** - Keep templates current with evolving best practices
+- **Cross-functional feedback** - Gather input from dev, QA, and security teams
+- **Iterative improvement** - Make incremental changes and measure impact
+- **Measure effectiveness** - Track time savings, bug reduction, quality improvements
+- **Team training** - Ensure team understands template structure and usage
+- **Progressive adoption** - Implement one template category at a time
 
 ---
 
-*AI Development Templates v0.2.5 - Empowering development teams with structured, AI-assisted workflows*
+## 📖 Additional Resources
 
-*Last Updated: October 2025*
-*Repository maintained by Benjamin Dourthe (benjamin@adonamed.com)*
+- **[QUICKSTART.md](QUICKSTART.md)** - Set up a new project in 5 minutes
+- **[TEMPLATE_FINDER.md](TEMPLATE_FINDER.md)** - Quick reference matrix for finding templates
+- **[DECISION_TREES.md](DECISION_TREES.md)** - Interactive template selection guide
+- **[Skills Browser](https://bdourthe.github.io/ai_templates/)** - Web-based skill discovery
+- **[CHANGELOG.md](CHANGELOG.md)** - Version history and updates
+- **[DEVLOG.md](DEVLOG.md)** - Development log and technical decisions
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** - Contribution guidelines
+
+---
+
+*AI Development Templates v0.2.8 - Empowering development teams with structured, AI-assisted workflows*
+
+*Last Updated: November 2025 | Repository maintained by Benjamin Dourthe ([benjamin@adonamed.com](mailto:benjamin@adonamed.com))*

@@ -1,0 +1,86 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "CMake: Configure",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "-B", "${workspaceFolder}/build",
+                "-G", "Ninja",
+                "-DCMAKE_BUILD_TYPE=Debug",
+                "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
+            ],
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+        {
+            "label": "CMake: Build Tests",
+            "type": "shell",
+            "command": "cmake",
+            "args": ["--build", "${workspaceFolder}/build", "--target", "all"],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "dependsOn": ["CMake: Configure"]
+        },
+        {
+            "label": "Run All Tests",
+            "type": "shell",
+            "command": "ctest",
+            "args": ["--test-dir", "${workspaceFolder}/build", "--output-on-failure", "-j8"],
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "dependsOn": ["CMake: Build Tests"],
+            "presentation": {
+                "reveal": "always",
+                "focus": true
+            }
+        },
+        {
+            "label": "Run Tests (Verbose)",
+            "type": "shell",
+            "command": "ctest",
+            "args": ["--test-dir", "${workspaceFolder}/build", "--verbose", "-j8"],
+            "group": "test",
+            "dependsOn": ["CMake: Build Tests"]
+        },
+        {
+            "label": "Run Single Test",
+            "type": "shell",
+            "command": "ctest",
+            "args": [
+                "--test-dir", "${workspaceFolder}/build",
+                "-R", "${input:testName}",
+                "--output-on-failure"
+            ],
+            "group": "test",
+            "dependsOn": ["CMake: Build Tests"]
+        },
+        {
+            "label": "Generate Code Coverage",
+            "type": "shell",
+            "command": "cmake",
+            "args": ["--build", "${workspaceFolder}/build", "--target", "coverage"],
+            "group": "test",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        }
+    ],
+    "inputs": [
+        {
+            "id": "testName",
+            "type": "promptString",
+            "description": "Test name pattern (e.g., UserTest.*)",
+            "default": "*"
+        }
+    ]
+}

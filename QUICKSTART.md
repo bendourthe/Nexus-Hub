@@ -1,341 +1,263 @@
-# Quick Start Guide: Set Up a New Project with Claude Code
+# Quick Start Guide - AI Templates
 
-**Goal**: Get a new project up and running with Claude Code superpowers in 5 minutes.
+**Get started in 3 simple steps!**
 
----
-
-## What You'll Get
-
-After following this guide, your project will have:
-
-✅ **Complete project structure** (src/, tests/, docs/, etc.)
-✅ **CLAUDE.md configuration** - Claude understands your project standards
-✅ **48 production-ready skills** - Powerful commands for development
-✅ **Testing infrastructure** - Ready to write tests immediately
-✅ **Documentation templates** - Professional docs from day one
-✅ **Git hooks** - Automated quality checks
+This guide helps you quickly find and use the right template for your task, whether you're using **GitHub Copilot**, **ChatGPT**, **Claude**, or another AI assistant.
 
 ---
 
-## Prerequisites
+## 🎯 What Do You Want to Do?
 
-- Python 3.9+ installed
-- Git installed
-- Claude Code installed ([Get it here](https://claude.ai/claude-code))
-- 5 minutes of your time
+Click your goal below to jump straight to the templates:
 
----
+<details open>
+<summary><strong>🧹 Clean Up Existing Code</strong></summary>
 
-## Step-by-Step Setup
+**What it does:** Remove dead code, unused imports, duplication, and legacy patterns
+**Time:** 4-8 hours | **Difficulty:** Intermediate
 
-### 1. Create Your Project
+**Choose your language:**
+- [Python](templates/code_cleanup/python_cleanup.md) | [JavaScript](templates/code_cleanup/javascript_cleanup.md) | [Java](templates/code_cleanup/java_cleanup.md)
+- [C#](templates/code_cleanup/csharp_cleanup.md) | [Go](templates/code_cleanup/go_cleanup.md) | [C](templates/code_cleanup/c_cleanup.md) | [C++](templates/code_cleanup/cpp_cleanup.md)
 
-```bash
-# Create your new project directory
-mkdir my-awesome-project
-cd my-awesome-project
+</details>
 
-# Initialize git
-git init
+<details>
+<summary><strong>🔍 Review Code Quality</strong></summary>
 
-# Create initial README
-echo "# My Awesome Project" > README.md
-git add README.md
-git commit -m "Initial commit"
-```
+**What it does:** Get comprehensive feedback on quality, security, performance, and testing
+**Time:** 2-12 hours (depending on phases) | **Difficulty:** Intermediate to Advanced
 
-### 2. Get AI Templates (Temporary)
+### Quick Review (4 hours)
+Run just Phases 1-2: [Context Analysis](#phase-1-context-analysis) + [Code Quality](#phase-2-code-quality)
 
-```bash
-# Go up one level
-cd ..
+### Comprehensive Review (10-12 hours)
+Run all 6 phases sequentially:
 
-# Clone the AI templates repository
-git clone https://github.com/bdourthe/ai_templates.git
+#### Phase 1: Context Analysis (2-3 hours)
+[Python](templates/code_review/context_analysis/python_context_analysis.md) | [JavaScript](templates/code_review/context_analysis/javascript_context_analysis.md) | [Java](templates/code_review/context_analysis/java_context_analysis.md) | [C#](templates/code_review/context_analysis/csharp_context_analysis.md) | [Go](templates/code_review/context_analysis/go_context_analysis.md) | [C](templates/code_review/context_analysis/c_context_analysis.md) | [C++](templates/code_review/context_analysis/cpp_context_analysis.md)
 
-# You'll delete this later - it's just for installation
-```
+#### Phase 2: Code Quality (2-3 hours)
+[Python](templates/code_review/code_quality/python_code_quality.md) | [JavaScript](templates/code_review/code_quality/javascript_code_quality.md) | [Java](templates/code_review/code_quality/java_code_quality.md) | [C#](templates/code_review/code_quality/csharp_code_quality.md) | [Go](templates/code_review/code_quality/go_code_quality.md) | [C](templates/code_review/code_quality/c_code_quality.md) | [C++](templates/code_review/code_quality/cpp_code_quality.md)
 
-### 3. Install Claude Code Skills
+#### Phase 3: Security Review (2-3 hours)
+[Python](templates/code_review/security_review/python_security_review.md) | [JavaScript](templates/code_review/security_review/javascript_security_review.md) | [Java](templates/code_review/security_review/java_security_review.md) | [C#](templates/code_review/security_review/csharp_security_review.md) | [Go](templates/code_review/security_review/go_security_review.md) | [C](templates/code_review/security_review/c_security_review.md) | [C++](templates/code_review/security_review/cpp_security_review.md)
 
-```bash
-cd ai_templates
+#### Phase 4: Performance Review (2-3 hours)
+[Python](templates/code_review/performance_review/python_performance_review.md) | [JavaScript](templates/code_review/performance_review/javascript_performance_review.md) | [Java](templates/code_review/performance_review/java_performance_review.md) | [C#](templates/code_review/performance_review/csharp_performance_review.md) | [Go](templates/code_review/performance_review/go_performance_review.md) | [C](templates/code_review/performance_review/c_performance_review.md) | [C++](templates/code_review/performance_review/cpp_performance_review.md)
 
-# Install essential skills (takes ~10 seconds)
-python tools/install_skill.py --priority CRITICAL --destination ../my-awesome-project
-python tools/install_skill.py --skill init-python-project --destination ../my-awesome-project
-python tools/install_skill.py --category "Code Review" --destination ../my-awesome-project
-```
+#### Phase 5: Testing Review (2 hours)
+[Python](templates/code_review/testing_review/python_testing_review.md) | [JavaScript](templates/code_review/testing_review/javascript_testing_review.md) | [Java](templates/code_review/testing_review/java_testing_review.md) | [C#](templates/code_review/testing_review/csharp_testing_review.md) | [Go](templates/code_review/testing_review/go_testing_review.md) | [C](templates/code_review/testing_review/c_testing_review.md) | [C++](templates/code_review/testing_review/cpp_testing_review.md)
 
-**What just happened?**
-- Installed 3 CRITICAL workflow skills (plan-before-code, test-driven-development, etc.)
-- Installed Python project initialization skill
-- Installed 6 code review skills for quality assurance
+#### Phase 6: Final Report (1 hour)
+[Python](templates/code_review/final_report/python_final_report.md) | [JavaScript](templates/code_review/final_report/javascript_final_report.md) | [Java](templates/code_review/final_report/java_final_report.md) | [C#](templates/code_review/final_report/csharp_final_report.md) | [Go](templates/code_review/final_report/go_final_report.md) | [C](templates/code_review/final_report/c_final_report.md) | [C++](templates/code_review/final_report/cpp_final_report.md)
 
-### 4. Initialize Your Project Structure
+</details>
 
-```bash
-# Go to your project
-cd ../my-awesome-project
+<details>
+<summary><strong>✅ Generate Tests</strong></summary>
 
-# Start Claude Code
-claude
-```
+**What it does:** Create unit tests, integration tests, and validation tests
+**Time:** 2-8 hours (per phase) | **Difficulty:** Intermediate to Advanced
 
-**In Claude Code, type:**
-```
-Use the init-python-project skill to create 'my-awesome-project'
-```
+### Most Popular: Unit Tests ⭐
+**Time:** 3-6 hours | **What you'll get:** Complete unit test suite with FIRST principles
 
-**Claude will:**
-- Create src/, tests/, docs/ directories
-- Generate pyproject.toml with proper configuration
-- Create .gitignore with sensible defaults
-- Set up testing framework (pytest)
-- Create requirements.txt
-- Generate initial documentation
+[Python](templates/test_development/unit_tests/python_unit_tests.md) | [JavaScript](templates/test_development/unit_tests/javascript_unit_tests.md) | [Java](templates/test_development/unit_tests/java_unit_tests.md) | [C#](templates/test_development/unit_tests/csharp_unit_tests.md) | [Go](templates/test_development/unit_tests/go_unit_tests.md) | [C](templates/test_development/unit_tests/c_unit_tests.md) | [C++](templates/test_development/unit_tests/cpp_unit_tests.md)
 
-### 5. Configure Claude for Your Project
+### 🆕 Google Test + VS Code + Copilot (C++ Only) ⚡
+**NEW in v0.3.0:** Automated C++ test generation workflow
+**Time:** 10 minutes from clone to running tests!
 
-**Still in Claude Code, type:**
-```
-Use the create-claude-md skill to configure this project as a Python web API
-```
+**What you get:**
+- ✅ Ready-to-use VS Code configurations (tasks, debugging, IntelliSense)
+- 🤖 GitHub Copilot generates 15+ comprehensive tests automatically
+- ⌨️ One-click build (`Ctrl+Shift+B`) and test execution
+- 🐛 Seamless debugging with breakpoints (press `F5`)
+- 📊 Automated code coverage reports
 
-**Claude will:**
-- Generate a comprehensive CLAUDE.md file
-- Include your project structure
-- Document bash commands
-- Set coding standards
-- Configure development workflow
+**Quick links:**
+- **[Complete Workflow Guide](templates/test_development/GOOGLE_TEST_VSCODE_WORKFLOW.md)** - 10-step setup (10 minutes)
+- **[Copilot Quick Reference](templates/test_development/unit_tests/COPILOT_QUICK_REFERENCE.md)** - One-line prompts
+- **[VS Code Configuration](templates/test_development/vscode_config/README.md)** - Config details
 
-### 6. Verify Everything Works
-
-```bash
-# Check your project structure
-ls -la
-
-# You should see:
-# .claude/          (skills directory)
-# src/              (source code)
-# tests/            (test infrastructure)
-# docs/             (documentation)
-# CLAUDE.md         (Claude configuration)
-# pyproject.toml    (project config)
-# requirements.txt  (dependencies)
-# .gitignore
-# README.md
-```
-
-### 7. Start Developing with Superpowers!
-
-**Back in Claude Code:**
-
-```
-"Use the plan-before-code skill to design a user authentication system"
-
-"Use the test-driven-development skill to implement user registration"
-
-"Use the code-review-security skill to audit the authentication code"
-
-"Use the generate-api-docs skill to document the API endpoints"
-```
-
-### 8. Clean Up (Optional)
-
-```bash
-# Remove the temporary ai_templates clone
-cd ..
-rm -rf ai_templates
-
-# Or keep it if you want to install more skills later
-```
+**Perfect for:** C++ developers using VS Code + GitHub Copilot who want instant test generation
 
 ---
 
-## What's Next?
+### Complete 8-Phase Testing Methodology
 
-### Explore Your Skills
+**Phase 1:** [Test Structure](templates/test_development/test_structure/) - Set up testing infrastructure (2-4 hours)
+**Phase 2:** [Unit Tests](templates/test_development/unit_tests/) - Generate unit tests (3-6 hours) ⭐
+**Phase 3:** [Test Cases](templates/test_development/test_cases/) - Integration & E2E tests (4-8 hours)
+**Phase 4:** [Mocks & Fixtures](templates/test_development/mocks_fixtures/) - Test doubles (3-5 hours)
+**Phase 5:** [Performance Testing](templates/test_development/performance_testing/) - Benchmarks (4-6 hours)
+**Phase 6:** [Code Coverage](templates/test_development/code_coverage/) - Coverage analysis (2-3 hours)
+**Phase 7:** [CI/CD](templates/test_development/maintenance_cicd/) - Pipeline integration (3-5 hours)
+**Phase 8:** [Validation](templates/test_development/reward_hacking/) - Mutation testing (4-6 hours)
 
-```bash
-# See what skills you have
-ls .claude/skills/
+</details>
 
-# Read about a skill
-cat .claude/skills/plan-before-code/SKILL.md
-```
+<details>
+<summary><strong>📚 Generate Documentation</strong></summary>
 
-### Install More Skills
+**What it does:** Create docstrings, API docs, README files, and technical documentation
+**Time:** 1-8 hours (depending on type) | **Difficulty:** Beginner to Intermediate
 
-If you kept ai_templates:
-```bash
-cd ../ai_templates
-python tools/install_skill.py --list
-python tools/install_skill.py --skill generate-docstrings --destination ../my-awesome-project
-```
+### Quick Docs (1-3 hours)
+- **[Docstrings](templates/documentation_generation/docstrings/)** - Function/class documentation (2-3 hours)
+- **[Comments](templates/documentation_generation/comments/)** - Inline explanations (1-2 hours)
 
-### Set Up Git Hooks
+### User-Facing Docs (3-4 hours)
+- **[User Documentation](templates/documentation_generation/user_docs/)** - README, guides, getting started
 
-```bash
-# Copy pre-commit hook template
-cp ../ai_templates/hooks/pre-commit.sh .git/hooks/pre-commit
-chmod +x .git/hooks/pre-commit
+### Complete Documentation (4-8 hours)
+- **[Technical Docs](templates/documentation_generation/technical_docs/)** - Architecture, design decisions (4-6 hours)
+- **[API Documentation](templates/documentation_generation/api_docs/)** - Complete API reference (4-8 hours)
+- **[SBOM](templates/documentation_generation/sbom/)** - Software Bill of Materials (2-3 hours)
 
-# Now every commit will run quality checks!
-```
+**All languages:** Python | JavaScript | Java | C# | Go | C | C++
 
-### Customize CLAUDE.md
-
-Edit `CLAUDE.md` to add:
-- Project-specific conventions
-- Team coding standards
-- Custom bash commands
-- Architecture decisions
-- Domain knowledge
+</details>
 
 ---
 
-## Common Scenarios
+## 📋 How to Use a Template
 
-### Scenario: JavaScript/React Project
+### Step 1: Click the Template Link
+Choose your language and task from the sections above.
 
-```bash
-# Step 3 alternative:
-python tools/install_skill.py --priority CRITICAL --destination ../my-project
-python tools/install_skill.py --skill init-javascript-project --destination ../my-project
-python tools/install_skill.py --skill cleanup-javascript --destination ../my-project
+### Step 2: Find the Prompt
+Scroll to the **"## Prompt Template"** section in the file.
 
-# Step 4: In Claude Code:
-"Use the init-javascript-project skill to create a React application"
-```
+### Step 3: Copy the Entire Prompt
+Select everything from that section to the end of the file.
 
-### Scenario: Existing Project (Add Skills)
+### Step 4: Paste into Your AI Assistant
 
-```bash
-# In your existing project directory
-cd my-existing-project
+**GitHub Copilot:**
+1. Open Copilot Chat (Ctrl+Shift+I or Cmd+Shift+I)
+2. Paste the prompt
+3. Press Enter
 
-# Install skills directly
-python ../ai_templates/tools/install_skill.py --priority CRITICAL
+**ChatGPT:**
+1. Go to [chat.openai.com](https://chat.openai.com)
+2. Paste the prompt in the message box
+3. Press Send
 
-# In Claude Code:
-"Use the create-claude-md skill to configure this existing project"
-```
+**Claude:**
+1. Go to [claude.ai](https://claude.ai)
+2. Paste the prompt
+3. Press Send
 
-### Scenario: Team Project with Standards
+**Cursor / Windsurf:**
+1. Open the AI chat panel
+2. Paste the prompt
+3. Press Enter
 
-```bash
-# Install comprehensive tooling
-python tools/install_skill.py --category workflow --destination ../team-project
-python tools/install_skill.py --category "Code Review" --destination ../team-project
-python tools/install_skill.py --category Security --destination ../team-project
-
-# In Claude Code:
-"Use the create-claude-md skill with team standards:
-- PEP 8 compliance required
-- 80% test coverage minimum
-- Security scans on all PRs
-- Automated documentation generation"
-```
+### Step 5: Follow the Instructions
+The AI will guide you through the process step-by-step.
 
 ---
 
-## Troubleshooting
+## 🎓 Example Workflow
 
-### "Python not found"
+**Goal:** Generate unit tests for a Python web API
 
-**Solution:** Install Python 3.9+ from [python.org](https://python.org)
-
-### "Claude command not found"
-
-**Solution:** Install Claude Code from [claude.ai/claude-code](https://claude.ai/claude-code)
-
-### "No .claude directory found"
-
-**Solution:** The tool creates it automatically. If you see this warning, it just means you're creating a new setup (this is normal).
-
-### "Skill already installed"
-
-**Solution:** Use `--force` flag to overwrite:
-```bash
-python tools/install_skill.py --skill plan-before-code --destination ../my-project --force
-```
-
-### "Wrong directory structure"
-
-**Solution:** Make sure you're in the ai_templates directory when running install commands:
-```bash
-cd ai_templates
-pwd  # Should show .../ai_templates
-python tools/install_skill.py --list
-```
+1. Click [Python Unit Tests](templates/test_development/unit_tests/python_unit_tests.md)
+2. Read the "Objective" section (understand what you'll get)
+3. Scroll to "## Prompt Template"
+4. Copy the entire prompt from that section
+5. Open GitHub Copilot Chat / ChatGPT / Claude
+6. Paste the prompt
+7. Answer any questions the AI asks
+8. Review the generated tests
+9. Run the tests: `pytest tests/`
+10. Iterate if needed by asking the AI to refine specific tests
 
 ---
 
-## Tips & Best Practices
+## 💡 Tips for Success
 
-### Tip 1: Start with Critical Skills
+### ✅ Do This
+- **Read the "Objective"** section before using a template
+- **Customize the prompt** with your project-specific details
+- **Follow multi-phase workflows in order** (Context Analysis before Code Review, etc.)
+- **Verify outputs** - don't blindly accept AI-generated code
+- **Iterate** - ask the AI to refine if the first result isn't perfect
 
-Don't install all 48 skills immediately. Start with:
-- `--priority CRITICAL` (3 skills)
-- `init-[language]-project` (1 skill)
-- `Code Review` category (6 skills)
-
-Install more as you need them.
-
-### Tip 2: Use the Web Browser
-
-Visit [https://bdourthe.github.io/ai_templates/](https://bdourthe.github.io/ai_templates/) to:
-- Browse all skills visually
-- Read descriptions before installing
-- Copy installation commands
-
-### Tip 3: Customize CLAUDE.md
-
-The generated CLAUDE.md is a template. Edit it to add:
-- Your team's specific standards
-- Project-specific conventions
-- Domain knowledge
-- Common bash commands
-
-### Tip 4: Keep ai_templates Clone
-
-Don't delete the ai_templates clone immediately. Keep it around to:
-- Install additional skills later
-- Update skills when new versions release
-- Reference documentation
-
-### Tip 5: Commit .claude/skills to Git
-
-**Do this:**
-```bash
-git add .claude/
-git commit -m "Add Claude Code skills"
-```
-
-Your team members will get the same skills when they clone the repo!
+### ❌ Avoid This
+- **Skipping phases** in multi-phase workflows (you'll get incomplete results)
+- **Not reading "Success Criteria"** (you won't know what good output looks like)
+- **Mixing languages** (use the Python template for Python code, not JavaScript)
+- **Copying partial prompts** (copy the entire ## Prompt Template section)
 
 ---
 
-## Next Steps
+## 🔍 Finding Templates
 
-1. **Read the skills documentation**: [Skills README](agent_prompts/autonomous_agents/claude_code/skills/README.md)
-2. **Explore integrations**: [MCP Setup Guide](integrations/README.md)
-3. **Set up hooks**: [Automation Hooks](hooks/README.md)
-4. **Contribute**: [Contributing Guide](CONTRIBUTING.md)
+### By Task
+Use the sections at the top of this guide.
+
+### By Language
+All templates are organized in folders:
+- `code_cleanup/` - 7 cleanup templates (one per language)
+- `code_review/` - 42 review templates (6 phases × 7 languages)
+- `test_development/` - 56 testing templates (8 phases × 7 languages)
+- `documentation/` - 42 doc templates (6 types × 7 languages)
+
+### By Time Available
+- **< 2 hours:** [Comments](templates/documentation_generation/comments/), [Docstrings](templates/documentation_generation/docstrings/)
+- **2-4 hours:** [Context Analysis](templates/code_review/context_analysis/), [Test Structure](templates/test_development/test_structure/)
+- **4-8 hours:** [Code Cleanup](templates/code_cleanup/), [Unit Tests](templates/test_development/unit_tests/)
+- **10+ hours:** [Complete Code Review](templates/code_review/) (all phases), [Complete Testing](templates/test_development/) (all phases)
+
+### Decision Trees
+Not sure which template to use? Check our [Decision Trees](guides/DECISION_TREES.md) for step-by-step guidance.
+
+### Template Finder
+Browse all 178 templates organized by task, language, time, and difficulty: [Template Finder](guides/TEMPLATE_FINDER.md)
 
 ---
 
-## Getting Help
+## 🆘 Getting Help
 
-- **Issues**: [GitHub Issues](https://github.com/bdourthe/ai_templates/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/bdourthe/ai_templates/discussions)
-- **Email**: benjamin@adonamed.com
+### Common Questions
+
+**Q: Do I need to install anything?**
+A: No! Just copy the template and paste it into any AI assistant (GitHub Copilot, ChatGPT, Claude, etc.)
+
+**Q: Can I use these with GitHub Copilot?**
+A: Yes! These templates work with **any** AI coding assistant.
+
+**Q: Do I need to follow the phases in order?**
+A: For multi-phase workflows (Code Review, Testing), yes. Each phase builds on the previous one.
+
+**Q: Can I modify the templates?**
+A: Absolutely! Customize them for your project's specific needs.
+
+**Q: Are these templates free?**
+A: Yes! 100% free and open source.
+
+### More Resources
+- **Full Documentation:** [README.md](README.md)
+- **Decision Trees:** [guides/DECISION_TREES.md](guides/DECISION_TREES.md)
+- **Template Finder:** [guides/TEMPLATE_FINDER.md](guides/TEMPLATE_FINDER.md)
+- **For Claude Code Users:** [guides/QUICKSTART_CLAUDE_CODE.md](guides/QUICKSTART_CLAUDE_CODE.md)
 
 ---
 
-**You're all set! Happy coding with Claude! 🚀**
+## 🚀 Ready to Start?
 
-*Quick Start Guide v1.0.0 - Part of AI Templates v0.2.7*
+**Pick your task:**
+- [Clean Up Code](#-clean-up-existing-code)
+- [Review Code Quality](#-review-code-quality)
+- [Generate Tests](#-generate-tests)
+- [Generate Documentation](#-generate-documentation)
 
-*Last Updated: October 21, 2025*
+**Or browse all templates:** [Template Finder](guides/TEMPLATE_FINDER.md)
+
+---
+
+*Quick Start Guide v2.0.0 - AI Templates v0.2.9*
+*Last Updated: December 3, 2025*

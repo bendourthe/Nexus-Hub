@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude Code Skills Browser - AI Templates</title>
+    <meta name="description" content="Browse and install 48+ production-ready Claude Code skills for autonomous AI development">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f7fa;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 1.3em;
+            opacity: 0.9;
+            margin-bottom: 30px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .controls {
+            background: white;
+            padding: 30px;
+            margin: 30px 0;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 15px 20px;
+            font-size: 1.1em;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            transition: border-color 0.3s;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .filters {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            color: #666;
+        }
+
+        select {
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            background: white;
+            transition: border-color 0.3s;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .skill-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+
+        .skill-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        }
+
+        .skill-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+
+        .skill-name {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .priority-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .priority-critical {
+            background: #fee;
+            color: #c33;
+        }
+
+        .priority-high {
+            background: #ffeaa7;
+            color: #d63031;
+        }
+
+        .priority-medium {
+            background: #dfe6e9;
+            color: #2d3436;
+        }
+
+        .priority-low {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .category-tag {
+            display: inline-block;
+            background: #f0f0f0;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            margin-bottom: 10px;
+            color: #666;
+        }
+
+        .skill-description {
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .skill-meta {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            font-size: 0.9em;
+            color: #999;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .install-button {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: opacity 0.2s;
+        }
+
+        .install-button:hover {
+            opacity: 0.9;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 2em;
+            cursor: pointer;
+            color: #999;
+            background: none;
+            border: none;
+        }
+
+        .modal-close:hover {
+            color: #333;
+        }
+
+        .install-command {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            margin: 15px 0;
+            word-break: break-all;
+        }
+
+        .copy-button {
+            padding: 8px 16px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .copy-button:hover {
+            opacity: 0.9;
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+            margin-top: 60px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            font-size: 1.2em;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+
+            .skills-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats {
+                gap: 20px;
+            }
+
+            .stat-number {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Claude Code Skills</h1>
+            <p class="subtitle">Production-Ready Skills for Autonomous AI Development</p>
+            <div class="stats">
+                <div class="stat">
+                    <span class="stat-number" id="total-skills">48</span>
+                    <span class="stat-label">Skills Available</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-number" id="total-categories">12</span>
+                    <span class="stat-label">Categories</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-number">7</span>
+                    <span class="stat-label">Languages Supported</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="controls">
+            <input type="text" id="search" class="search-box" placeholder="Search skills by name or description...">
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="category-filter">Category:</label>
+                    <select id="category-filter">
+                        <option value="">All Categories</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="priority-filter">Priority:</label>
+                    <select id="priority-filter">
+                        <option value="">All Priorities</option>
+                        <option value="CRITICAL">Critical</option>
+                        <option value="HIGH">High</option>
+                        <option value="MEDIUM">Medium</option>
+                        <option value="LOW">Low</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="language-filter">Language:</label>
+                    <select id="language-filter">
+                        <option value="">All Languages</option>
+                        <option value="Multi-language">Multi-language</option>
+                        <option value="Python">Python</option>
+                        <option value="JavaScript">JavaScript</option>
+                        <option value="Java">Java</option>
+                        <option value="C#">C#</option>
+                        <option value="Go">Go</option>
+                        <option value="C">C</option>
+                        <option value="C++">C++</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div id="skills-container" class="loading">
+            Loading skills...
+        </div>
+    </div>
+
+    <div id="install-modal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <h2 id="modal-title">Install Skill</h2>
+            <p id="modal-description"></p>
+            <h3>Installation Command:</h3>
+            <div class="install-command" id="install-command"></div>
+            <button class="copy-button" onclick="copyCommand()">Copy Command</button>
+            <h3 style="margin-top: 30px;">Skill Details:</h3>
+            <div id="modal-details"></div>
+        </div>
+    </div>
+
+    <footer>
+        <p><strong>AI Templates v0.2.6</strong></p>
+        <p>Production-ready Claude Code skills for autonomous development</p>
+        <p><a href="https://github.com/bdourthe/ai_templates" style="color: #667eea; text-decoration: none;">View on GitHub</a></p>
+    </footer>
+
+    <script>
+        let allSkills = [];
+        let currentSkill = null;
+
+        // Load skills from JSON
+        async function loadSkills() {
+            try {
+                const response = await fetch('../catalogs/skills.json');
+                const data = await response.json();
+                allSkills = data.skills;
+
+                // Update stats
+                document.getElementById('total-skills').textContent = data.statistics.total_skills;
+                document.getElementById('total-categories').textContent = Object.keys(data.statistics.categories).length;
+
+                // Populate category filter
+                const categories = [...new Set(allSkills.map(s => s.category))].sort();
+                const categoryFilter = document.getElementById('category-filter');
+                categories.forEach(cat => {
+                    const option = document.createElement('option');
+                    option.value = cat;
+                    option.textContent = cat;
+                    categoryFilter.appendChild(option);
+                });
+
+                displaySkills(allSkills);
+            } catch (error) {
+                document.getElementById('skills-container').innerHTML =
+                    '<p class="loading">Error loading skills. Please try again later.</p>';
+                console.error('Error loading skills:', error);
+            }
+        }
+
+        function displaySkills(skills) {
+            const container = document.getElementById('skills-container');
+            if (skills.length === 0) {
+                container.innerHTML = '<p class="loading">No skills found matching your criteria.</p>';
+                return;
+            }
+
+            container.className = 'skills-grid';
+            container.innerHTML = skills.map(skill => {
+                const priorityClass = `priority-${skill.priority.toLowerCase()}`;
+                return `
+                    <div class="skill-card" onclick="showInstallModal('${skill.name}')">
+                        <div class="skill-header">
+                            <div>
+                                <div class="skill-name">${skill.name}</div>
+                                <span class="category-tag">${skill.category}</span>
+                            </div>
+                            <span class="priority-badge ${priorityClass}">${skill.priority}</span>
+                        </div>
+                        <p class="skill-description">${skill.description}</p>
+                        <div class="skill-meta">
+                            <span class="meta-item">📦 ${skill.language}</span>
+                            <span class="meta-item">📝 ${skill.size.lines} lines</span>
+                            ${skill.tools_required.length > 0 ? `<span class="meta-item">🔧 ${skill.tools_required.length} tools</span>` : ''}
+                        </div>
+                        <button class="install-button">Install Skill</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filterSkills() {
+            const searchTerm = document.getElementById('search').value.toLowerCase();
+            const category = document.getElementById('category-filter').value;
+            const priority = document.getElementById('priority-filter').value;
+            const language = document.getElementById('language-filter').value;
+
+            const filtered = allSkills.filter(skill => {
+                const matchesSearch = !searchTerm ||
+                    skill.name.toLowerCase().includes(searchTerm) ||
+                    skill.description.toLowerCase().includes(searchTerm);
+                const matchesCategory = !category || skill.category === category;
+                const matchesPriority = !priority || skill.priority === priority;
+                const matchesLanguage = !language || skill.language.includes(language);
+
+                return matchesSearch && matchesCategory && matchesPriority && matchesLanguage;
+            });
+
+            displaySkills(filtered);
+        }
+
+        function showInstallModal(skillName) {
+            const skill = allSkills.find(s => s.name === skillName);
+            if (!skill) return;
+
+            currentSkill = skill;
+
+            document.getElementById('modal-title').textContent = skill.name;
+            document.getElementById('modal-description').textContent = skill.description;
+            document.getElementById('install-command').textContent =
+                `python tools/install_skill.py --skill ${skill.name}`;
+
+            const details = `
+                <p><strong>Version:</strong> ${skill.version}</p>
+                <p><strong>Author:</strong> ${skill.author}</p>
+                <p><strong>Category:</strong> ${skill.category}</p>
+                <p><strong>Priority:</strong> ${skill.priority}</p>
+                <p><strong>Language:</strong> ${skill.language}</p>
+                ${skill.tools_required.length > 0 ? `<p><strong>Tools Required:</strong> ${skill.tools_required.join(', ')}</p>` : ''}
+                ${skill.tags.length > 0 ? `<p><strong>Tags:</strong> ${skill.tags.join(', ')}</p>` : ''}
+                <p><strong>Size:</strong> ${skill.size.lines} lines (~${skill.size.tokens_estimate} tokens)</p>
+                ${skill.based_on ? `<p><strong>Based On:</strong> ${skill.based_on}</p>` : ''}
+            `;
+            document.getElementById('modal-details').innerHTML = details;
+
+            document.getElementById('install-modal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('install-modal').classList.remove('active');
+        }
+
+        function copyCommand() {
+            const command = document.getElementById('install-command').textContent;
+            navigator.clipboard.writeText(command).then(() => {
+                const button = event.target;
+                button.textContent = 'Copied!';
+                setTimeout(() => {
+                    button.textContent = 'Copy Command';
+                }, 2000);
+            });
+        }
+
+        // Event listeners
+        document.getElementById('search').addEventListener('input', filterSkills);
+        document.getElementById('category-filter').addEventListener('change', filterSkills);
+        document.getElementById('priority-filter').addEventListener('change', filterSkills);
+        document.getElementById('language-filter').addEventListener('change', filterSkills);
+
+        // Close modal on background click
+        document.getElementById('install-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'install-modal') {
+                closeModal();
+            }
+        });
+
+        // Load skills on page load
+        loadSkills();
+    </script>
+</body>
+</html>

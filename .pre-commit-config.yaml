@@ -1,0 +1,46 @@
+# Pre-commit hooks for AI Templates Repository
+#
+# Installation:
+#   pip install pre-commit
+#   pre-commit install
+#
+# Run manually:
+#   pre-commit run --all-files
+
+repos:
+  - repo: local
+    hooks:
+      - id: lint-templates
+        name: Lint Templates
+        entry: python tools/lint_templates.py
+        language: python
+        pass_filenames: false
+        always_run: false
+        files: '\.(md)$'
+
+      - id: build-catalogs
+        name: Build Skills & Templates Catalogs
+        entry: bash -c 'python tools/build_skills_catalog.py && python tools/build_templates_catalog.py'
+        language: system
+        pass_filenames: false
+        files: '(SKILL\.md|.*_(cleanup|code_quality|context_analysis|final_report|performance_review|security_review|testing_review|api_docs|comments|docstrings|sbom|technical_docs|user_docs|code_coverage|maintenance_cicd|mocks_fixtures|performance_testing|reward_hacking|test_cases|test_structure|unit_tests)\.md)$'
+
+      - id: check-yaml-frontmatter
+        name: Check YAML Frontmatter
+        entry: python -c "import sys; import re; content = open(sys.argv[1], encoding='utf-8').read(); sys.exit(0 if content.startswith('---') else 1)"
+        language: python
+        files: '^(code_cleanup|code_review|test_development|documentation|agent_prompts)/.*\.md$'
+        exclude: '(README|CHANGELOG|DEVLOG|TEMPLATE_FINDER|DECISION_TREES)\.md$'
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: '\.(md)$'
+      - id: end-of-file-fixer
+      - id: check-yaml
+        exclude: 'templates.json|skills.json'
+      - id: check-json
+        files: '\.(json)$'
+      - id: mixed-line-ending
+        args: ['--fix=lf']

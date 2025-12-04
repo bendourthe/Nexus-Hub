@@ -1,0 +1,52 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug Current Test Binary",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/test_${input:testBinary}",
+            "args": ["--gtest_filter=${input:gtestFilter}"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "CMake: Build Tests"
+        },
+        {
+            "name": "Debug All Tests",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/test_all",
+            "args": ["--gtest_catch_exceptions=0"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "preLaunchTask": "CMake: Build Tests"
+        }
+    ],
+    "inputs": [
+        {
+            "id": "testBinary",
+            "type": "promptString",
+            "description": "Test binary name (e.g., user, order)",
+            "default": "user"
+        },
+        {
+            "id": "gtestFilter",
+            "type": "promptString",
+            "description": "GTest filter pattern (e.g., UserTest.Create*)",
+            "default": "*"
+        }
+    ]
+}

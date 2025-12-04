@@ -1,0 +1,29 @@
+{
+    "cmake.configureOnOpen": true,
+    "cmake.buildDirectory": "${workspaceFolder}/build",
+    "cmake.generator": "Ninja",
+    "cmake.configureSettings": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "ENABLE_TESTING": "ON",
+        "ENABLE_COVERAGE": "ON"
+    },
+    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+    "C_Cpp.default.compileCommands": "${workspaceFolder}/build/compile_commands.json",
+    "C_Cpp.default.cppStandard": "c++17",
+    "testMate.cpp.test.advancedExecutables": [
+        {
+            "pattern": "build/test_*",
+            "cwd": "${workspaceFolder}",
+            "env": {}
+        }
+    ],
+    "editor.formatOnSave": true,
+    "[cpp]": {
+        "editor.defaultFormatter": "xaver.clang-format"
+    },
+    "github.copilot.enable": {
+        "*": true,
+        "cpp": true
+    }
+}
