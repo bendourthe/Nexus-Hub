@@ -8,15 +8,34 @@
 
 ---
 
+## 🎉 What's New in v0.3.0
+
+### Google Test + VS Code + GitHub Copilot Integration
+
+- ⚡ **10-minute setup** from clone to running tests (vs. 1-2 hours manual)
+- 🤖 **AI-assisted testing** with GitHub Copilot generating 15+ comprehensive test suites
+- ⌨️ **One-click build/test/debug** with keyboard shortcuts
+- 📊 **Automated code coverage** with lcov/gcovr
+- 🔄 **Cross-platform** support (Linux, macOS, Windows)
+
+**New Files:**
+- [Complete Workflow Guide](templates/test_development/GOOGLE_TEST_VSCODE_WORKFLOW.md) - 10-step setup
+- [Copilot Quick Reference](templates/test_development/unit_tests/COPILOT_QUICK_REFERENCE.md) - 50+ AI prompts
+- [VS Code Configuration](templates/test_development/vscode_config/README.md) - Ready-to-use configs
+
+[View Complete Changelog](CHANGELOG.md)
+
+---
+
 ## 🎯 Quick Navigation
 
 **I want to...**
 
-- **[Generate Unit Tests](#-test-development)** → 7 languages | 3-6 hours | FIRST principles
-- **[Review My Code](#-code-review)** → 6-phase methodology | Security, performance, quality
-- **[Clean Up Code](#-code-cleanup)** → Remove dead code, duplication, legacy patterns
-- **[Generate Documentation](#-documentation)** → API docs, README, docstrings
-- **[Configure AI Assistant](#%EF%B8%8F-ai-instructions)** → Claude Code, GitHub Copilot, Cursor
+- **[Configure my AI Assistant](#%EF%B8%8F-ai-instructions)** → Claude Code, GitHub Copilot, Cursor
+- **[Generate Code Documentation](#-documentation)** → API docs, README, docstrings
+- **[Generate Tests](#-test-development)** → Unit tests, code coverage, CI/CD integration
+- **[Review My Code](#-code-review)** → Security, performance, quality
+- **[Clean Up My Codebase](#-code-cleanup)** → Remove dead code, duplication, legacy patterns
 
 **Or browse all:** [Template Finder](TEMPLATE_FINDER.md) | [Decision Trees](DECISION_TREES.md)
 
@@ -27,100 +46,22 @@
 This repository provides **ready-to-use prompt templates** for AI coding assistants that generate production-quality code across the entire development lifecycle.
 
 **How it works:**
+
 1. Find your template below (e.g., "Python Unit Tests")
+
 2. Click the link to open the template file
+
 3. Copy the "Prompt Template" section from that file
+
 4. Paste it into GitHub Copilot, ChatGPT, Claude, or Cursor
+
 5. Get comprehensive, production-ready results in minutes
 
 **Supported languages:** Python | JavaScript | Java | C# | Go | C | C++
 
 ---
 
-## 🧪 Test Development
-
-**Generate comprehensive test suites with FIRST principles and AAA pattern**
-
-### Quick Links by Phase
-
-| Phase | What It Does | Time | Click to Open |
-|-------|--------------|------|---------------|
-| **1. Test Structure** | Set up testing framework | 2-4h | [Python](templates/test_development/test_structure/python_test_structure.md) \| [JavaScript](templates/test_development/test_structure/javascript_test_structure.md) \| [Java](templates/test_development/test_structure/java_test_structure.md) \| [C#](templates/test_development/test_structure/csharp_test_structure.md) \| [Go](templates/test_development/test_structure/go_test_structure.md) \| [C](templates/test_development/test_structure/c_test_structure.md) \| [C++](templates/test_development/test_structure/cpp_test_structure.md) |
-| **2. Unit Tests** ⭐ | Generate unit tests | 3-6h | [Python](templates/test_development/unit_tests/python_unit_tests.md) \| [JavaScript](templates/test_development/unit_tests/javascript_unit_tests.md) \| [Java](templates/test_development/unit_tests/java_unit_tests.md) \| [C#](templates/test_development/unit_tests/csharp_unit_tests.md) \| [Go](templates/test_development/unit_tests/go_unit_tests.md) \| [C](templates/test_development/unit_tests/c_unit_tests.md) \| [C++](templates/test_development/unit_tests/cpp_unit_tests.md) |
-| **3. Integration Tests** | E2E and integration | 4-8h | [Python](templates/test_development/test_cases/python_test_cases.md) \| [JavaScript](templates/test_development/test_cases/javascript_test_cases.md) \| [Java](templates/test_development/test_cases/java_test_cases.md) \| [C#](templates/test_development/test_cases/csharp_test_cases.md) \| [Go](templates/test_development/test_cases/go_test_cases.md) \| [C](templates/test_development/test_cases/c_test_cases.md) \| [C++](templates/test_development/test_cases/cpp_test_cases.md) |
-| **4. Mocks & Fixtures** | Test isolation | 2-4h | [Python](templates/test_development/mocks_fixtures/python_mocks_fixtures.md) \| [JavaScript](templates/test_development/mocks_fixtures/javascript_mocks_fixtures.md) \| [Java](templates/test_development/mocks_fixtures/java_mocks_fixtures.md) \| [C#](templates/test_development/mocks_fixtures/csharp_mocks_fixtures.md) \| [Go](templates/test_development/mocks_fixtures/go_mocks_fixtures.md) \| [C](templates/test_development/mocks_fixtures/c_mocks_fixtures.md) \| [C++](templates/test_development/mocks_fixtures/cpp_mocks_fixtures.md) |
-| **5. Performance Tests** | Load and stress | 4-6h | [Python](templates/test_development/performance_testing/python_performance_testing.md) \| [JavaScript](templates/test_development/performance_testing/javascript_performance_testing.md) \| [Java](templates/test_development/performance_testing/java_performance_testing.md) \| [C#](templates/test_development/performance_testing/csharp_performance_testing.md) \| [Go](templates/test_development/performance_testing/go_performance_testing.md) \| [C](templates/test_development/performance_testing/c_performance_testing.md) \| [C++](templates/test_development/performance_testing/cpp_performance_testing.md) |
-| **6. Code Coverage** | Achieve 80%+ | 2-3h | [Python](templates/test_development/code_coverage/python_code_coverage.md) \| [JavaScript](templates/test_development/code_coverage/javascript_code_coverage.md) \| [Java](templates/test_development/code_coverage/java_code_coverage.md) \| [C#](templates/test_development/code_coverage/csharp_code_coverage.md) \| [Go](templates/test_development/code_coverage/go_code_coverage.md) \| [C](templates/test_development/code_coverage/c_code_coverage.md) \| [C++](templates/test_development/code_coverage/cpp_code_coverage.md) |
-| **7. CI/CD Integration** | Automate testing | 3-5h | [Python](templates/test_development/maintenance_cicd/python_maintenance_cicd.md) \| [JavaScript](templates/test_development/maintenance_cicd/javascript_maintenance_cicd.md) \| [Java](templates/test_development/maintenance_cicd/java_maintenance_cicd.md) \| [C#](templates/test_development/maintenance_cicd/csharp_maintenance_cicd.md) \| [Go](templates/test_development/maintenance_cicd/go_maintenance_cicd.md) \| [C](templates/test_development/maintenance_cicd/c_maintenance_cicd.md) \| [C++](templates/test_development/maintenance_cicd/cpp_maintenance_cicd.md) |
-| **8. Test Validation** | Mutation testing | 3-5h | [Python](templates/test_development/reward_hacking/python_reward_hacking.md) \| [JavaScript](templates/test_development/reward_hacking/javascript_reward_hacking.md) \| [Java](templates/test_development/reward_hacking/java_reward_hacking.md) \| [C#](templates/test_development/reward_hacking/csharp_reward_hacking.md) \| [Go](templates/test_development/reward_hacking/go_reward_hacking.md) \| [C](templates/test_development/reward_hacking/c_reward_hacking.md) \| [C++](templates/test_development/reward_hacking/cpp_reward_hacking.md) |
-
-**🆕 NEW: C++ Google Test + VS Code + Copilot**
-- **10-minute setup** from clone to running tests
-- **[Complete Workflow Guide](templates/test_development/GOOGLE_TEST_VSCODE_WORKFLOW.md)** - Step-by-step setup
-- **[Copilot Quick Reference](templates/test_development/unit_tests/COPILOT_QUICK_REFERENCE.md)** - 50+ AI prompts
-- **[VS Code Configuration](templates/test_development/vscode_config/README.md)** - Ready-to-use configs
-
-**Most Popular:** Phase 2 (Unit Tests) - Start here if you already have a test framework
-
----
-
-## 🔍 Code Review
-
-**Comprehensive 6-phase code review methodology with severity classification**
-
-### Quick Links by Phase
-
-| Phase | What It Does | Time | Click to Open |
-|-------|--------------|------|---------------|
-| **1. Context Analysis** | Understand project | 2h | [Python](templates/code_review/context_analysis/python_context_analysis.md) \| [JavaScript](templates/code_review/context_analysis/javascript_context_analysis.md) \| [Java](templates/code_review/context_analysis/java_context_analysis.md) \| [C#](templates/code_review/context_analysis/csharp_context_analysis.md) \| [Go](templates/code_review/context_analysis/go_context_analysis.md) \| [C](templates/code_review/context_analysis/c_context_analysis.md) \| [C++](templates/code_review/context_analysis/cpp_context_analysis.md) |
-| **2. Code Quality** ⭐ | Style & maintainability | 2-3h | [Python](templates/code_review/code_quality/python_code_quality.md) \| [JavaScript](templates/code_review/code_quality/javascript_code_quality.md) \| [Java](templates/code_review/code_quality/java_code_quality.md) \| [C#](templates/code_review/code_quality/csharp_code_quality.md) \| [Go](templates/code_review/code_quality/go_code_quality.md) \| [C](templates/code_review/code_quality/c_code_quality.md) \| [C++](templates/code_review/code_quality/cpp_code_quality.md) |
-| **3. Security Review** | Vulnerability assessment | 2-3h | [Python](templates/code_review/security_review/python_security_review.md) \| [JavaScript](templates/code_review/security_review/javascript_security_review.md) \| [Java](templates/code_review/security_review/java_security_review.md) \| [C#](templates/code_review/security_review/csharp_security_review.md) \| [Go](templates/code_review/security_review/go_security_review.md) \| [C](templates/code_review/security_review/c_security_review.md) \| [C++](templates/code_review/security_review/cpp_security_review.md) |
-| **4. Performance Review** | Optimization opportunities | 2-3h | [Python](templates/code_review/performance_review/python_performance_review.md) \| [JavaScript](templates/code_review/performance_review/javascript_performance_review.md) \| [Java](templates/code_review/performance_review/java_performance_review.md) \| [C#](templates/code_review/performance_review/csharp_performance_review.md) \| [Go](templates/code_review/performance_review/go_performance_review.md) \| [C](templates/code_review/performance_review/c_performance_review.md) \| [C++](templates/code_review/performance_review/cpp_performance_review.md) |
-| **5. Testing Review** | Test quality & coverage | 2h | [Python](templates/code_review/testing_review/python_testing_review.md) \| [JavaScript](templates/code_review/testing_review/javascript_testing_review.md) \| [Java](templates/code_review/testing_review/java_testing_review.md) \| [C#](templates/code_review/testing_review/csharp_testing_review.md) \| [Go](templates/code_review/testing_review/go_testing_review.md) \| [C](templates/code_review/testing_review/c_testing_review.md) \| [C++](templates/code_review/testing_review/cpp_testing_review.md) |
-| **6. Final Report** | Consolidated findings | 1h | [Python](templates/code_review/final_report/python_final_report.md) \| [JavaScript](templates/code_review/final_report/javascript_final_report.md) \| [Java](templates/code_review/final_report/java_final_report.md) \| [C#](templates/code_review/final_report/csharp_final_report.md) \| [Go](templates/code_review/final_report/go_final_report.md) \| [C](templates/code_review/final_report/c_final_report.md) \| [C++](templates/code_review/final_report/cpp_final_report.md) |
-
-**Quick Review:** Phases 1-2 only (4 hours) | **Comprehensive:** All 6 phases (10-12 hours)
-
----
-
-## 🧹 Code Cleanup
-
-**Remove dead code, duplication, and legacy patterns with multi-pass validation**
-
-### Quick Links by Language
-
-| Language | Time | Click to Open |
-|----------|------|---------------|
-| **Python** | 4-8h | [Python Cleanup Template](templates/code_cleanup/python_cleanup.md) |
-| **JavaScript** | 4-8h | [JavaScript Cleanup Template](templates/code_cleanup/javascript_cleanup.md) |
-| **Java** | 4-8h | [Java Cleanup Template](templates/code_cleanup/java_cleanup.md) |
-| **C#** | 4-8h | [C# Cleanup Template](templates/code_cleanup/csharp_cleanup.md) |
-| **Go** | 4-8h | [Go Cleanup Template](templates/code_cleanup/go_cleanup.md) |
-| **C** | 4-8h | [C Cleanup Template](templates/code_cleanup/c_cleanup.md) |
-| **C++** | 4-8h | [C++ Cleanup Template](templates/code_cleanup/cpp_cleanup.md) |
-
-**What you get:** Dead code removal | Duplication elimination | Legacy pattern modernization | Stopping criteria to prevent over-cleaning
-
----
-
-## 📚 Documentation
-
-**Generate comprehensive documentation from docstrings to SBOM**
-
-### Quick Links by Type
-
-| Type | What It Generates | Time | Click to Open |
-|------|-------------------|------|---------------|
-| **Docstrings** | Function/class docs | 2-3h | [Python](templates/documentation_generation/docstrings/python_docstrings.md) \| [JavaScript](templates/documentation_generation/docstrings/javascript_docstrings.md) \| [Java](templates/documentation_generation/docstrings/java_docstrings.md) \| [C#](templates/documentation_generation/docstrings/csharp_docstrings.md) \| [Go](templates/documentation_generation/docstrings/go_docstrings.md) \| [C](templates/documentation_generation/docstrings/c_docstrings.md) \| [C++](templates/documentation_generation/docstrings/cpp_docstrings.md) |
-| **Comments** | Strategic inline explanations | 1-2h | [Python](templates/documentation_generation/comments/python_comments.md) \| [JavaScript](templates/documentation_generation/comments/javascript_comments.md) \| [Java](templates/documentation_generation/comments/java_comments.md) \| [C#](templates/documentation_generation/comments/csharp_comments.md) \| [Go](templates/documentation_generation/comments/go_comments.md) \| [C](templates/documentation_generation/comments/c_comments.md) \| [C++](templates/documentation_generation/comments/cpp_comments.md) |
-| **User Docs** | README, guides, tutorials | 3-4h | [Python](templates/documentation_generation/user_docs/python_user_docs.md) \| [JavaScript](templates/documentation_generation/user_docs/javascript_user_docs.md) \| [Java](templates/documentation_generation/user_docs/java_user_docs.md) \| [C#](templates/documentation_generation/user_docs/csharp_user_docs.md) \| [Go](templates/documentation_generation/user_docs/go_user_docs.md) \| [C](templates/documentation_generation/user_docs/c_user_docs.md) \| [C++](templates/documentation_generation/user_docs/cpp_user_docs.md) |
-| **Technical Docs** | Architecture, design | 4-6h | [Python](templates/documentation_generation/technical_docs/python_technical_docs.md) \| [JavaScript](templates/documentation_generation/technical_docs/javascript_technical_docs.md) \| [Java](templates/documentation_generation/technical_docs/java_technical_docs.md) \| [C#](templates/documentation_generation/technical_docs/csharp_technical_docs.md) \| [Go](templates/documentation_generation/technical_docs/go_technical_docs.md) \| [C](templates/documentation_generation/technical_docs/c_technical_docs.md) \| [C++](templates/documentation_generation/technical_docs/cpp_technical_docs.md) |
-| **API Docs** | Complete API reference | 4-8h | [Python](templates/documentation_generation/api_docs/python_api_docs.md) \| [JavaScript](templates/documentation_generation/api_docs/javascript_api_docs.md) \| [Java](templates/documentation_generation/api_docs/java_api_docs.md) \| [C#](templates/documentation_generation/api_docs/csharp_api_docs.md) \| [Go](templates/documentation_generation/api_docs/go_api_docs.md) \| [C](templates/documentation_generation/api_docs/c_api_docs.md) \| [C++](templates/documentation_generation/api_docs/cpp_api_docs.md) |
-| **SBOM** | Software Bill of Materials | 2-3h | [Python](templates/documentation_generation/sbom/python_sbom.md) \| [JavaScript](templates/documentation_generation/sbom/javascript_sbom.md) \| [Java](templates/documentation_generation/sbom/java_sbom.md) \| [C#](templates/documentation_generation/sbom/csharp_sbom.md) \| [Go](templates/documentation_generation/sbom/go_sbom.md) \| [C](templates/documentation_generation/sbom/c_sbom.md) \| [C++](templates/documentation_generation/sbom/cpp_sbom.md) |
-
----
-
-## ⚙️ AI Instructions
+## ⚙️ AI Instructions Configuration
 
 **Configure your AI coding assistant with language-specific system prompts**
 
@@ -149,9 +90,109 @@ This repository provides **ready-to-use prompt templates** for AI coding assista
 | **C# / Go / C / C++** | [Browse all](templates/ai_instructions/coding_assistants/) | [Browse all](templates/ai_instructions/coding_assistants/) |
 
 **Installation:**
+
 - **Copilot:** Create `.github/copilot-instructions.md` and paste content
+
 - **Cursor:** File → Preferences → Cursor Settings → Rules & Memories → User Rules
+
 - **Windsurf:** Cascade → Customizations → Rules → Edit global_windsurf.md
+
+---
+
+## 📚 Code Documentation Generation
+
+**Generate comprehensive documentation from docstrings to SBOM**
+
+### Quick Links by Type
+
+| Type | What It Generates | Time | Click to Open |
+|------|-------------------|------|---------------|
+| **Docstrings** | Function/class docs | 2-3h | [Python](templates/documentation_generation/docstrings/python_docstrings.md) \| [JavaScript](templates/documentation_generation/docstrings/javascript_docstrings.md) \| [Java](templates/documentation_generation/docstrings/java_docstrings.md) \| [C#](templates/documentation_generation/docstrings/csharp_docstrings.md) \| [Go](templates/documentation_generation/docstrings/go_docstrings.md) \| [C](templates/documentation_generation/docstrings/c_docstrings.md) \| [C++](templates/documentation_generation/docstrings/cpp_docstrings.md) |
+| **Comments** | Strategic inline explanations | 1-2h | [Python](templates/documentation_generation/comments/python_comments.md) \| [JavaScript](templates/documentation_generation/comments/javascript_comments.md) \| [Java](templates/documentation_generation/comments/java_comments.md) \| [C#](templates/documentation_generation/comments/csharp_comments.md) \| [Go](templates/documentation_generation/comments/go_comments.md) \| [C](templates/documentation_generation/comments/c_comments.md) \| [C++](templates/documentation_generation/comments/cpp_comments.md) |
+| **User Docs** | README, guides, tutorials | 3-4h | [Python](templates/documentation_generation/user_docs/python_user_docs.md) \| [JavaScript](templates/documentation_generation/user_docs/javascript_user_docs.md) \| [Java](templates/documentation_generation/user_docs/java_user_docs.md) \| [C#](templates/documentation_generation/user_docs/csharp_user_docs.md) \| [Go](templates/documentation_generation/user_docs/go_user_docs.md) \| [C](templates/documentation_generation/user_docs/c_user_docs.md) \| [C++](templates/documentation_generation/user_docs/cpp_user_docs.md) |
+| **Technical Docs** | Architecture, design | 4-6h | [Python](templates/documentation_generation/technical_docs/python_technical_docs.md) \| [JavaScript](templates/documentation_generation/technical_docs/javascript_technical_docs.md) \| [Java](templates/documentation_generation/technical_docs/java_technical_docs.md) \| [C#](templates/documentation_generation/technical_docs/csharp_technical_docs.md) \| [Go](templates/documentation_generation/technical_docs/go_technical_docs.md) \| [C](templates/documentation_generation/technical_docs/c_technical_docs.md) \| [C++](templates/documentation_generation/technical_docs/cpp_technical_docs.md) |
+| **API Docs** | Complete API reference | 4-8h | [Python](templates/documentation_generation/api_docs/python_api_docs.md) \| [JavaScript](templates/documentation_generation/api_docs/javascript_api_docs.md) \| [Java](templates/documentation_generation/api_docs/java_api_docs.md) \| [C#](templates/documentation_generation/api_docs/csharp_api_docs.md) \| [Go](templates/documentation_generation/api_docs/go_api_docs.md) \| [C](templates/documentation_generation/api_docs/c_api_docs.md) \| [C++](templates/documentation_generation/api_docs/cpp_api_docs.md) |
+| **SBOM** | Software Bill of Materials | 2-3h | [Python](templates/documentation_generation/sbom/python_sbom.md) \| [JavaScript](templates/documentation_generation/sbom/javascript_sbom.md) \| [Java](templates/documentation_generation/sbom/java_sbom.md) \| [C#](templates/documentation_generation/sbom/csharp_sbom.md) \| [Go](templates/documentation_generation/sbom/go_sbom.md) \| [C](templates/documentation_generation/sbom/c_sbom.md) \| [C++](templates/documentation_generation/sbom/cpp_sbom.md) |
+
+---
+
+## 🧪 Test Development
+
+**Generate comprehensive test suites with FIRST principles and AAA pattern**
+
+### Quick Links by Phase
+
+| Phase | What It Does | Time | Click to Open |
+|-------|--------------|------|---------------|
+| **1. Test Structure** | Set up testing framework | 2-4h | [Python](templates/test_development/test_structure/python_test_structure.md) \| [JavaScript](templates/test_development/test_structure/javascript_test_structure.md) \| [Java](templates/test_development/test_structure/java_test_structure.md) \| [C#](templates/test_development/test_structure/csharp_test_structure.md) \| [Go](templates/test_development/test_structure/go_test_structure.md) \| [C](templates/test_development/test_structure/c_test_structure.md) \| [C++](templates/test_development/test_structure/cpp_test_structure.md) |
+| **2. Unit Tests** | Generate unit tests | 3-6h | [Python](templates/test_development/unit_tests/python_unit_tests.md) \| [JavaScript](templates/test_development/unit_tests/javascript_unit_tests.md) \| [Java](templates/test_development/unit_tests/java_unit_tests.md) \| [C#](templates/test_development/unit_tests/csharp_unit_tests.md) \| [Go](templates/test_development/unit_tests/go_unit_tests.md) \| [C](templates/test_development/unit_tests/c_unit_tests.md) \| [C++](templates/test_development/unit_tests/cpp_unit_tests.md) |
+| **3. Integration Tests** | E2E and integration | 4-8h | [Python](templates/test_development/test_cases/python_test_cases.md) \| [JavaScript](templates/test_development/test_cases/javascript_test_cases.md) \| [Java](templates/test_development/test_cases/java_test_cases.md) \| [C#](templates/test_development/test_cases/csharp_test_cases.md) \| [Go](templates/test_development/test_cases/go_test_cases.md) \| [C](templates/test_development/test_cases/c_test_cases.md) \| [C++](templates/test_development/test_cases/cpp_test_cases.md) |
+| **4. Mocks & Fixtures** | Test isolation | 2-4h | [Python](templates/test_development/mocks_fixtures/python_mocks_fixtures.md) \| [JavaScript](templates/test_development/mocks_fixtures/javascript_mocks_fixtures.md) \| [Java](templates/test_development/mocks_fixtures/java_mocks_fixtures.md) \| [C#](templates/test_development/mocks_fixtures/csharp_mocks_fixtures.md) \| [Go](templates/test_development/mocks_fixtures/go_mocks_fixtures.md) \| [C](templates/test_development/mocks_fixtures/c_mocks_fixtures.md) \| [C++](templates/test_development/mocks_fixtures/cpp_mocks_fixtures.md) |
+| **5. Performance Tests** | Load and stress | 4-6h | [Python](templates/test_development/performance_testing/python_performance_testing.md) \| [JavaScript](templates/test_development/performance_testing/javascript_performance_testing.md) \| [Java](templates/test_development/performance_testing/java_performance_testing.md) \| [C#](templates/test_development/performance_testing/csharp_performance_testing.md) \| [Go](templates/test_development/performance_testing/go_performance_testing.md) \| [C](templates/test_development/performance_testing/c_performance_testing.md) \| [C++](templates/test_development/performance_testing/cpp_performance_testing.md) |
+| **6. Code Coverage** | Achieve 80%+ | 2-3h | [Python](templates/test_development/code_coverage/python_code_coverage.md) \| [JavaScript](templates/test_development/code_coverage/javascript_code_coverage.md) \| [Java](templates/test_development/code_coverage/java_code_coverage.md) \| [C#](templates/test_development/code_coverage/csharp_code_coverage.md) \| [Go](templates/test_development/code_coverage/go_code_coverage.md) \| [C](templates/test_development/code_coverage/c_code_coverage.md) \| [C++](templates/test_development/code_coverage/cpp_code_coverage.md) |
+| **7. CI/CD Integration** | Automate testing | 3-5h | [Python](templates/test_development/maintenance_cicd/python_maintenance_cicd.md) \| [JavaScript](templates/test_development/maintenance_cicd/javascript_maintenance_cicd.md) \| [Java](templates/test_development/maintenance_cicd/java_maintenance_cicd.md) \| [C#](templates/test_development/maintenance_cicd/csharp_maintenance_cicd.md) \| [Go](templates/test_development/maintenance_cicd/go_maintenance_cicd.md) \| [C](templates/test_development/maintenance_cicd/c_maintenance_cicd.md) \| [C++](templates/test_development/maintenance_cicd/cpp_maintenance_cicd.md) |
+| **8. Test Validation** | Mutation testing | 3-5h | [Python](templates/test_development/reward_hacking/python_reward_hacking.md) \| [JavaScript](templates/test_development/reward_hacking/javascript_reward_hacking.md) \| [Java](templates/test_development/reward_hacking/java_reward_hacking.md) \| [C#](templates/test_development/reward_hacking/csharp_reward_hacking.md) \| [Go](templates/test_development/reward_hacking/go_reward_hacking.md) \| [C](templates/test_development/reward_hacking/c_reward_hacking.md) \| [C++](templates/test_development/reward_hacking/cpp_reward_hacking.md) |
+
+**🆕 NEW: C++ Google Test + VS Code + Copilot**
+
+- **10-minute setup** from clone to running tests
+
+- **[Complete Workflow Guide](templates/test_development/GOOGLE_TEST_VSCODE_WORKFLOW.md)** - Step-by-step setup
+
+- **[Copilot Quick Reference](templates/test_development/unit_tests/COPILOT_QUICK_REFERENCE.md)** - 50+ AI prompts
+
+- **[VS Code Configuration](templates/test_development/vscode_config/README.md)** - Ready-to-use configs
+
+**Most Popular:** Phase 2 (Unit Tests) - Start here if you already have a test framework
+
+---
+
+## 🔍 Code Review
+
+**Comprehensive 6-phase code review methodology with severity classification**
+
+### Quick Links by Phase
+
+| Phase | What It Does | Time | Click to Open |
+|-------|--------------|------|---------------|
+| **1. Context Analysis** | Understand project | 2h | [Python](templates/code_review/context_analysis/python_context_analysis.md) \| [JavaScript](templates/code_review/context_analysis/javascript_context_analysis.md) \| [Java](templates/code_review/context_analysis/java_context_analysis.md) \| [C#](templates/code_review/context_analysis/csharp_context_analysis.md) \| [Go](templates/code_review/context_analysis/go_context_analysis.md) \| [C](templates/code_review/context_analysis/c_context_analysis.md) \| [C++](templates/code_review/context_analysis/cpp_context_analysis.md) |
+| **2. Code Quality** | Style & maintainability | 2-3h | [Python](templates/code_review/code_quality/python_code_quality.md) \| [JavaScript](templates/code_review/code_quality/javascript_code_quality.md) \| [Java](templates/code_review/code_quality/java_code_quality.md) \| [C#](templates/code_review/code_quality/csharp_code_quality.md) \| [Go](templates/code_review/code_quality/go_code_quality.md) \| [C](templates/code_review/code_quality/c_code_quality.md) \| [C++](templates/code_review/code_quality/cpp_code_quality.md) |
+| **3. Security Review** | Vulnerability assessment | 2-3h | [Python](templates/code_review/security_review/python_security_review.md) \| [JavaScript](templates/code_review/security_review/javascript_security_review.md) \| [Java](templates/code_review/security_review/java_security_review.md) \| [C#](templates/code_review/security_review/csharp_security_review.md) \| [Go](templates/code_review/security_review/go_security_review.md) \| [C](templates/code_review/security_review/c_security_review.md) \| [C++](templates/code_review/security_review/cpp_security_review.md) |
+| **4. Performance Review** | Optimization opportunities | 2-3h | [Python](templates/code_review/performance_review/python_performance_review.md) \| [JavaScript](templates/code_review/performance_review/javascript_performance_review.md) \| [Java](templates/code_review/performance_review/java_performance_review.md) \| [C#](templates/code_review/performance_review/csharp_performance_review.md) \| [Go](templates/code_review/performance_review/go_performance_review.md) \| [C](templates/code_review/performance_review/c_performance_review.md) \| [C++](templates/code_review/performance_review/cpp_performance_review.md) |
+| **5. Testing Review** | Test quality & coverage | 2h | [Python](templates/code_review/testing_review/python_testing_review.md) \| [JavaScript](templates/code_review/testing_review/javascript_testing_review.md) \| [Java](templates/code_review/testing_review/java_testing_review.md) \| [C#](templates/code_review/testing_review/csharp_testing_review.md) \| [Go](templates/code_review/testing_review/go_testing_review.md) \| [C](templates/code_review/testing_review/c_testing_review.md) \| [C++](templates/code_review/testing_review/cpp_testing_review.md) |
+| **6. Final Report** | Consolidated findings | 1h | [Python](templates/code_review/final_report/python_final_report.md) \| [JavaScript](templates/code_review/final_report/javascript_final_report.md) \| [Java](templates/code_review/final_report/java_final_report.md) \| [C#](templates/code_review/final_report/csharp_final_report.md) \| [Go](templates/code_review/final_report/go_final_report.md) \| [C](templates/code_review/final_report/c_final_report.md) \| [C++](templates/code_review/final_report/cpp_final_report.md) |
+
+**Quick Review:** Phases 1-2 only (4 hours)
+
+**Comprehensive:** All 6 phases (10-12 hours)
+
+---
+
+## 🧹 Code Cleanup
+
+**Remove dead code, duplication, and legacy patterns with multi-pass validation**
+
+### Quick Links by Language
+
+| Language | Time | Click to Open |
+|----------|------|---------------|
+| **Python** | 4-8h | [Python Cleanup Template](templates/code_cleanup/python_cleanup.md) |
+| **JavaScript** | 4-8h | [JavaScript Cleanup Template](templates/code_cleanup/javascript_cleanup.md) |
+| **Java** | 4-8h | [Java Cleanup Template](templates/code_cleanup/java_cleanup.md) |
+| **C#** | 4-8h | [C# Cleanup Template](templates/code_cleanup/csharp_cleanup.md) |
+| **Go** | 4-8h | [Go Cleanup Template](templates/code_cleanup/go_cleanup.md) |
+| **C** | 4-8h | [C Cleanup Template](templates/code_cleanup/c_cleanup.md) |
+| **C++** | 4-8h | [C++ Cleanup Template](templates/code_cleanup/cpp_cleanup.md) |
+
+**What you get:**
+
+- Dead code removal
+
+- Duplication elimination
+
+- Legacy pattern modernization
+
+- Stopping criteria to prevent over-cleaning
 
 ---
 
@@ -168,25 +209,6 @@ This repository provides **ready-to-use prompt templates** for AI coding assista
 
 ---
 
-## 🎉 What's New in v0.3.0
-
-### Google Test + VS Code + GitHub Copilot Integration
-
-- ⚡ **10-minute setup** from clone to running tests (vs. 1-2 hours manual)
-- 🤖 **AI-assisted testing** with GitHub Copilot generating 15+ comprehensive test suites
-- ⌨️ **One-click build/test/debug** with keyboard shortcuts
-- 📊 **Automated code coverage** with lcov/gcovr
-- 🔄 **Cross-platform** support (Linux, macOS, Windows)
-
-**New Files:**
-- [Complete Workflow Guide](templates/test_development/GOOGLE_TEST_VSCODE_WORKFLOW.md) - 10-step setup
-- [Copilot Quick Reference](templates/test_development/unit_tests/COPILOT_QUICK_REFERENCE.md) - 50+ AI prompts
-- [VS Code Configuration](templates/test_development/vscode_config/README.md) - Ready-to-use configs
-
-[View Complete Changelog](CHANGELOG.md)
-
----
-
 ## 🤝 Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on:
@@ -194,12 +216,6 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on:
 - Improving existing templates
 - Reporting issues
 - Submitting pull requests
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License - see [LICENSE](LICENSE) file for details.
 
 ---
 
