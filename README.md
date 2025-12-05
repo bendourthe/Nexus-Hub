@@ -38,15 +38,15 @@
 
 **I want to...**
 
-- **[Configure my AI Assistant](#%EF%B8%8F-ai-instructions)** → Claude Code, GitHub Copilot, Cursor
+- **[Configure my AI Assistant](#templates/ai_instructions)** → Claude Code, GitHub Copilot, Cursor
 
-- **[Generate Code Documentation](#-documentation)** → API docs, README, docstrings
+- **[Generate Code Documentation](#templates/documentation_generation)** → API docs, README, docstrings
 
-- **[Generate Tests](#-test-development)** → Unit tests, code coverage, CI/CD integration
+- **[Generate Tests](#templates/test_development)** → Unit tests, code coverage, CI/CD integration
 
-- **[Review My Code](#-code-review)** → Security, performance, quality
+- **[Review My Code](#templates/code_review)** → Security, performance, quality
 
-- **[Clean Up My Codebase](#-code-cleanup)** → Remove dead code, duplication, legacy patterns
+- **[Clean Up My Codebase](#templates/code_cleanup)** → Remove dead code, duplication, legacy patterns
 
 ---
 
