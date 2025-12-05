@@ -10,8 +10,7 @@ This guide helps you quickly find and use the right template for your task, whet
 
 Click your goal below to jump straight to the templates:
 
-<details open>
-<summary><strong>🧹 Clean Up Existing Code</strong></summary>
+### 🧹 Clean Up Existing Code
 
 **What it does:** Remove dead code, unused imports, duplication, and legacy patterns
 **Time:** 4-8 hours | **Difficulty:** Intermediate
@@ -20,52 +19,50 @@ Click your goal below to jump straight to the templates:
 - [Python](templates/code_cleanup/python_cleanup.md) | [JavaScript](templates/code_cleanup/javascript_cleanup.md) | [Java](templates/code_cleanup/java_cleanup.md)
 - [C#](templates/code_cleanup/csharp_cleanup.md) | [Go](templates/code_cleanup/go_cleanup.md) | [C](templates/code_cleanup/c_cleanup.md) | [C++](templates/code_cleanup/cpp_cleanup.md)
 
-</details>
+---
 
-<details>
-<summary><strong>🔍 Review Code Quality</strong></summary>
+### 🔍 Review Code Quality
 
 **What it does:** Get comprehensive feedback on quality, security, performance, and testing
 **Time:** 2-12 hours (depending on phases) | **Difficulty:** Intermediate to Advanced
 
-### Quick Review (4 hours)
+#### Quick Review (4 hours)
 Run just Phases 1-2: [Context Analysis](#phase-1-context-analysis) + [Code Quality](#phase-2-code-quality)
 
-### Comprehensive Review (10-12 hours)
+#### Comprehensive Review (10-12 hours)
 Run all 6 phases sequentially:
 
-#### Phase 1: Context Analysis (2-3 hours)
+**Phase 1: Context Analysis (2-3 hours)**
 [Python](templates/code_review/context_analysis/python_context_analysis.md) | [JavaScript](templates/code_review/context_analysis/javascript_context_analysis.md) | [Java](templates/code_review/context_analysis/java_context_analysis.md) | [C#](templates/code_review/context_analysis/csharp_context_analysis.md) | [Go](templates/code_review/context_analysis/go_context_analysis.md) | [C](templates/code_review/context_analysis/c_context_analysis.md) | [C++](templates/code_review/context_analysis/cpp_context_analysis.md)
 
-#### Phase 2: Code Quality (2-3 hours)
+**Phase 2: Code Quality (2-3 hours)**
 [Python](templates/code_review/code_quality/python_code_quality.md) | [JavaScript](templates/code_review/code_quality/javascript_code_quality.md) | [Java](templates/code_review/code_quality/java_code_quality.md) | [C#](templates/code_review/code_quality/csharp_code_quality.md) | [Go](templates/code_review/code_quality/go_code_quality.md) | [C](templates/code_review/code_quality/c_code_quality.md) | [C++](templates/code_review/code_quality/cpp_code_quality.md)
 
-#### Phase 3: Security Review (2-3 hours)
+**Phase 3: Security Review (2-3 hours)**
 [Python](templates/code_review/security_review/python_security_review.md) | [JavaScript](templates/code_review/security_review/javascript_security_review.md) | [Java](templates/code_review/security_review/java_security_review.md) | [C#](templates/code_review/security_review/csharp_security_review.md) | [Go](templates/code_review/security_review/go_security_review.md) | [C](templates/code_review/security_review/c_security_review.md) | [C++](templates/code_review/security_review/cpp_security_review.md)
 
-#### Phase 4: Performance Review (2-3 hours)
+**Phase 4: Performance Review (2-3 hours)**
 [Python](templates/code_review/performance_review/python_performance_review.md) | [JavaScript](templates/code_review/performance_review/javascript_performance_review.md) | [Java](templates/code_review/performance_review/java_performance_review.md) | [C#](templates/code_review/performance_review/csharp_performance_review.md) | [Go](templates/code_review/performance_review/go_performance_review.md) | [C](templates/code_review/performance_review/c_performance_review.md) | [C++](templates/code_review/performance_review/cpp_performance_review.md)
 
-#### Phase 5: Testing Review (2 hours)
+**Phase 5: Testing Review (2 hours)**
 [Python](templates/code_review/testing_review/python_testing_review.md) | [JavaScript](templates/code_review/testing_review/javascript_testing_review.md) | [Java](templates/code_review/testing_review/java_testing_review.md) | [C#](templates/code_review/testing_review/csharp_testing_review.md) | [Go](templates/code_review/testing_review/go_testing_review.md) | [C](templates/code_review/testing_review/c_testing_review.md) | [C++](templates/code_review/testing_review/cpp_testing_review.md)
 
-#### Phase 6: Final Report (1 hour)
+**Phase 6: Final Report (1 hour)**
 [Python](templates/code_review/final_report/python_final_report.md) | [JavaScript](templates/code_review/final_report/javascript_final_report.md) | [Java](templates/code_review/final_report/java_final_report.md) | [C#](templates/code_review/final_report/csharp_final_report.md) | [Go](templates/code_review/final_report/go_final_report.md) | [C](templates/code_review/final_report/c_final_report.md) | [C++](templates/code_review/final_report/cpp_final_report.md)
 
-</details>
+---
 
-<details>
-<summary><strong>✅ Generate Tests</strong></summary>
+### ✅ Generate Tests
 
 **What it does:** Create unit tests, integration tests, and validation tests
 **Time:** 2-8 hours (per phase) | **Difficulty:** Intermediate to Advanced
 
-### Most Popular: Unit Tests ⭐
+#### Most Popular: Unit Tests ⭐
 **Time:** 3-6 hours | **What you'll get:** Complete unit test suite with FIRST principles
 
 [Python](templates/test_development/unit_tests/python_unit_tests.md) | [JavaScript](templates/test_development/unit_tests/javascript_unit_tests.md) | [Java](templates/test_development/unit_tests/java_unit_tests.md) | [C#](templates/test_development/unit_tests/csharp_unit_tests.md) | [Go](templates/test_development/unit_tests/go_unit_tests.md) | [C](templates/test_development/unit_tests/c_unit_tests.md) | [C++](templates/test_development/unit_tests/cpp_unit_tests.md)
 
-### 🆕 Google Test + VS Code + Copilot (C++ Only) ⚡
+#### 🆕 Google Test + VS Code + Copilot (C++ Only) ⚡
 **NEW in v0.3.0:** Automated C++ test generation workflow
 **Time:** 10 minutes from clone to running tests!
 
@@ -83,9 +80,7 @@ Run all 6 phases sequentially:
 
 **Perfect for:** C++ developers using VS Code + GitHub Copilot who want instant test generation
 
----
-
-### Complete 8-Phase Testing Methodology
+#### Complete 8-Phase Testing Methodology
 
 **Phase 1:** [Test Structure](templates/test_development/test_structure/) - Set up testing infrastructure (2-4 hours)
 **Phase 2:** [Unit Tests](templates/test_development/unit_tests/) - Generate unit tests (3-6 hours) ⭐
@@ -96,29 +91,26 @@ Run all 6 phases sequentially:
 **Phase 7:** [CI/CD](templates/test_development/maintenance_cicd/) - Pipeline integration (3-5 hours)
 **Phase 8:** [Validation](templates/test_development/reward_hacking/) - Mutation testing (4-6 hours)
 
-</details>
+---
 
-<details>
-<summary><strong>📚 Generate Documentation</strong></summary>
+### 📚 Generate Documentation
 
 **What it does:** Create docstrings, API docs, README files, and technical documentation
 **Time:** 1-8 hours (depending on type) | **Difficulty:** Beginner to Intermediate
 
-### Quick Docs (1-3 hours)
+#### Quick Docs (1-3 hours)
 - **[Docstrings](templates/documentation_generation/docstrings/)** - Function/class documentation (2-3 hours)
 - **[Comments](templates/documentation_generation/comments/)** - Inline explanations (1-2 hours)
 
-### User-Facing Docs (3-4 hours)
+#### User-Facing Docs (3-4 hours)
 - **[User Documentation](templates/documentation_generation/user_docs/)** - README, guides, getting started
 
-### Complete Documentation (4-8 hours)
+#### Complete Documentation (4-8 hours)
 - **[Technical Docs](templates/documentation_generation/technical_docs/)** - Architecture, design decisions (4-6 hours)
 - **[API Documentation](templates/documentation_generation/api_docs/)** - Complete API reference (4-8 hours)
 - **[SBOM](templates/documentation_generation/sbom/)** - Software Bill of Materials (2-3 hours)
 
 **All languages:** Python | JavaScript | Java | C# | Go | C | C++
-
-</details>
 
 ---
 
@@ -259,5 +251,5 @@ A: Yes! 100% free and open source.
 
 ---
 
-*Quick Start Guide v2.0.0 - AI Templates v0.2.9*
-*Last Updated: December 3, 2025*
+*Quick Start Guide v2.0.0 - AI Templates v0.3.0*
+*Last Updated: December 4, 2025*

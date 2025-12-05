@@ -76,8 +76,9 @@ Templates are available for the following languages:
 
 Each phase builds on the previous one. Run them in order for best results.
 
-<details open>
-<summary><strong>Phase 1: Context Analysis (2-3 hours) - START HERE</strong></summary>
+---
+
+### Phase 1: Context Analysis (2-3 hours) - START HERE
 
 **What it does:** Understand the project structure, architecture, dependencies, and tech stack
 
@@ -90,10 +91,9 @@ Each phase builds on the previous one. Run them in order for best results.
 - [C](context_analysis/c_context_analysis.md)
 - [C++](context_analysis/cpp_context_analysis.md)
 
-</details>
+---
 
-<details>
-<summary><strong>Phase 2: Code Quality (2-3 hours)</strong></summary>
+### Phase 2: Code Quality (2-3 hours)
 
 **What it does:** Evaluate code style, maintainability, complexity, and best practices
 
@@ -106,10 +106,9 @@ Each phase builds on the previous one. Run them in order for best results.
 - [C](code_quality/c_code_quality.md)
 - [C++](code_quality/cpp_code_quality.md)
 
-</details>
+---
 
-<details>
-<summary><strong>Phase 3: Security Review (2-3 hours)</strong></summary>
+### Phase 3: Security Review (2-3 hours)
 
 **What it does:** Identify vulnerabilities, security risks, OWASP Top 10, supply chain security
 
@@ -122,10 +121,9 @@ Each phase builds on the previous one. Run them in order for best results.
 - [C](security_review/c_security_review.md)
 - [C++](security_review/cpp_security_review.md)
 
-</details>
+---
 
-<details>
-<summary><strong>Phase 4: Performance Review (2-3 hours)</strong></summary>
+### Phase 4: Performance Review (2-3 hours)
 
 **What it does:** Profile performance, identify bottlenecks, recommend optimizations
 
@@ -138,10 +136,9 @@ Each phase builds on the previous one. Run them in order for best results.
 - [C](performance_review/c_performance_review.md)
 - [C++](performance_review/cpp_performance_review.md)
 
-</details>
+---
 
-<details>
-<summary><strong>Phase 5: Testing Review (2 hours)</strong></summary>
+### Phase 5: Testing Review (2 hours)
 
 **What it does:** Analyze test coverage, test quality, testing strategy
 
@@ -154,10 +151,9 @@ Each phase builds on the previous one. Run them in order for best results.
 - [C](testing_review/c_testing_review.md)
 - [C++](testing_review/cpp_testing_review.md)
 
-</details>
+---
 
-<details>
-<summary><strong>Phase 6: Final Report (1 hour) - FINISH HERE</strong></summary>
+### Phase 6: Final Report (1 hour) - FINISH HERE
 
 **What it does:** Consolidate all findings with severity classification and action plan
 
@@ -169,8 +165,6 @@ Each phase builds on the previous one. Run them in order for best results.
 - [Go](final_report/go_final_report.md)
 - [C](final_report/c_final_report.md)
 - [C++](final_report/cpp_final_report.md)
-
-</details>
 
 ---
 
