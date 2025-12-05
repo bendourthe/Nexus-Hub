@@ -38,15 +38,15 @@
 
 **I want to...**
 
-- **[Configure my AI Assistant](#templates/ai_instructions)** → Claude Code, GitHub Copilot, Cursor
+- **[Configure my AI Assistant](#ai-instructions-configuration)** → Claude Code, GitHub Copilot, Cursor
 
-- **[Generate Code Documentation](#templates/documentation_generation)** → API docs, README, docstrings
+- **[Generate Code Documentation](#code-documentation-generation)** → API docs, README, docstrings
 
-- **[Generate Tests](#templates/test_development)** → Unit tests, code coverage, CI/CD integration
+- **[Generate Tests](#test-development)** → Unit tests, code coverage, CI/CD integration
 
-- **[Review My Code](#templates/code_review)** → Security, performance, quality
+- **[Review My Code](#code-review)** → Security, performance, quality
 
-- **[Clean Up My Codebase](#templates/code_cleanup)** → Remove dead code, duplication, legacy patterns
+- **[Clean Up My Codebase](#codebase-cleanup)** → Remove dead code, duplication, legacy patterns
 
 ---
 
@@ -69,6 +69,8 @@ This repository provides **ready-to-use prompt templates** for AI coding assista
 **Supported languages:** Python | JavaScript | Java | C# | Go | C | C++
 
 ---
+
+<a name="ai-instructions-configuration"></a>
 
 ## ⚙️ AI Instructions Configuration
 
@@ -122,6 +124,8 @@ This repository provides **ready-to-use prompt templates** for AI coding assista
 
 ---
 
+<a name="code-documentation-generation"></a>
+
 ## 📚 Code Documentation Generation
 
 **Generate comprehensive documentation from docstrings to SBOM**
@@ -138,6 +142,8 @@ This repository provides **ready-to-use prompt templates** for AI coding assista
 | **SBOM** | Software Bill of Materials | [Python](templates/documentation_generation/sbom/python_sbom.md) \| [JavaScript](templates/documentation_generation/sbom/javascript_sbom.md) \| [Java](templates/documentation_generation/sbom/java_sbom.md) \| [C#](templates/documentation_generation/sbom/csharp_sbom.md) \| [Go](templates/documentation_generation/sbom/go_sbom.md) \| [C](templates/documentation_generation/sbom/c_sbom.md) \| [C++](templates/documentation_generation/sbom/cpp_sbom.md) |
 
 ---
+
+<a name="test-development"></a>
 
 ## 🧪 Test Development
 
@@ -168,6 +174,8 @@ This repository provides **ready-to-use prompt templates** for AI coding assista
 
 ---
 
+<a name="code-review"></a>
+
 ## 🔍 Code Review
 
 **Comprehensive 6-phase code review methodology with severity classification**
@@ -184,6 +192,8 @@ This repository provides **ready-to-use prompt templates** for AI coding assista
 | **6. Final Report** | Consolidated findings | [Python](templates/code_review/final_report/python_final_report.md) \| [JavaScript](templates/code_review/final_report/javascript_final_report.md) \| [Java](templates/code_review/final_report/java_final_report.md) \| [C#](templates/code_review/final_report/csharp_final_report.md) \| [Go](templates/code_review/final_report/go_final_report.md) \| [C](templates/code_review/final_report/c_final_report.md) \| [C++](templates/code_review/final_report/cpp_final_report.md) |
 
 ---
+
+<a name="codebase-cleanup"></a>
 
 ## 🧹 Codebase Cleanup
 
