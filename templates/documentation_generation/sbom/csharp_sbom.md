@@ -12,12 +12,16 @@ prerequisites: []
 tools:
 
   - NUnit (4.2.2)
+
   - xUnit
+
   - MSTest
 tags:
 
   - documentation
+
   - documentation
+
   - c#
 ---
 # C# SBOM Generation
@@ -169,8 +173,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -231,13 +238,21 @@ Please generate a comprehensive Software Bill of Materials (SBOM) for this C# .N
 3. **Identify Dependency Metadata**
 
    For each dependency, collect:
+
    - Package name
+
    - Version (semver)
+
    - License
+
    - Repository URL
+
    - Authors/owners
+
    - Dependencies (for transitive mapping)
+
    - Package hash (SHA-512)
+
    - Target framework
 
 ## Phase 2: SBOM Format Selection
@@ -971,19 +986,29 @@ Please provide SBOM documentation in this format:
 ## SBOM Files Generated
 
 1. **sbom.json** (CycloneDX format)
+
    - Complete dependency tree
+
    - Vulnerability information
+
    - License data
+
    - Component metadata
 
 2. **sbom.spdx.json** (SPDX format)
+
    - License-focused SBOM
+
    - Compliance documentation
+
    - Relationship mapping
 
 3. **sbom-lite.json** (Simplified)
+
    - Essential information only
+
    - For quick reference
+
    - Human-readable summary
 ```
 
@@ -993,28 +1018,45 @@ Please provide SBOM documentation in this format:
 ## Supporting Files
 
 1. **VULNERABILITIES.md**
+
    - All known CVEs (from dotnet list package)
+
    - Severity ratings
+
    - Remediation status
+
    - Mitigation strategies
 
 2. **LICENSES.md**
+
    - All component licenses
+
    - License compatibility analysis
+
    - Attribution requirements
+
    - Compliance status
 
 3. **DEPENDENCIES.md**
+
    - Dependency tree visualization
+
    - Direct dependencies
+
    - Transitive dependencies
+
    - Framework dependencies
+
    - Update recommendations
 
 4. **SUPPLY_CHAIN.md**
+
    - Component provenance
+
    - Security assessment
+
    - Risk analysis
+
    - Alternative options
 ```
 
@@ -1195,33 +1237,53 @@ steps:
 ## Best Practices
 
 1. **Automate SBOM Generation**
+
    - Integrate into build process
+
    - Generate in CI/CD pipeline
+
    - Update with every release
+
    - Include in release artifacts
 
 2. **Keep SBOMs Current**
+
    - Regenerate on dependency updates
+
    - Track vulnerability fixes
+
    - Document changes between versions
+
    - Run dotnet list package --vulnerable regularly
 
 3. **Use Multiple Formats**
+
    - CycloneDX for security
+
    - SPDX for license compliance
+
    - Both for comprehensive coverage
+
    - Microsoft SBOM Tool supports both
 
 4. **Continuous Monitoring**
+
    - Monitor for new vulnerabilities (dotnet list package)
+
    - Track dependency updates (Dependabot)
+
    - Assess supply chain risks
+
    - Enable NuGet package signing verification
 
 5. **Publish Transparently**
+
    - Include SBOM in releases
+
    - Make publicly available
+
    - Provide easy access
+
    - Document update process
 
 ---

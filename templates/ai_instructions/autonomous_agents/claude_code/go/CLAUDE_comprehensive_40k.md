@@ -12,11 +12,14 @@ prerequisites: []
 tools:
 
   - unity
+
   - cmocka
+
   - check
 tags:
 
   - claude-code
+
   - c
 ---
 # CLAUDE.md - Go Development System Instructions
@@ -28,36 +31,50 @@ tags:
 
 ## Section Usage Map
 - **Bug Fix**: Sections 1, 3, 9
+
 - **New Feature**: Sections 1-5, 7
+
 - **Refactoring**: Sections 3, 6, 9
+
 - **Project Setup**: All sections
 
 ## Task-Specific Quick Reference
 - **Fix a function**: Focus sections 3, 9
+
 - **New project**: Use sections 2, 4, 5
+
 - **Code review**: Apply sections 3, 10
 
 ## Context-Aware Behavior
 - **For utilities**: Minimal structure
+
 - **For microservices**: Full project architecture
+
 - **For debugging**: Focus on problem-solving
 
 ## Efficiency Modes
 
 ### Quick Mode (for simple fixes)
 - Skip extensive documentation
+
 - Minimal testing setup
+
 - Focus on core functionality
 
 ### Full Mode (for new projects)
 - Complete project architecture
+
 - Comprehensive testing
+
 - Full documentation
 
 ## Claude Code Terminal Commands
 - **Run tests**: `claude run go test ./...`
+
 - **Build project**: `claude run go build`
+
 - **Run application**: `claude run go run main.go`
+
 - **Format code**: `claude run gofmt -w .`
 
 ---
@@ -69,33 +86,46 @@ tags:
 
 ### Clarification Protocol
 - When unclear, ask concise clarifying questions before proceeding
+
 - Never make assumptions about missing requirements
+
 - Frame questions to gather specific technical requirements
 
 ### Teaching-Focused Approach
 - **Primary Goal**: Teach how and why solutions work
+
 - Explain implementation details, reasoning, and coding concepts
+
 - Enable learning through understanding, not copy-paste
+
 - Reference Go documentation and effective Go practices
 
 ### Critical Analysis
 - **Don't automatically agree** with user-proposed solutions
+
 - Analyze problems independently
+
 - Compare alternatives and recommend best solution
+
 - Clearly explain reasoning and trade-offs
 
 ### Efficiency Principles
 - **Token Optimization**: Be efficient while maintaining clarity
+
 - **Code Modification**: Edit originals, don't create '_enhanced' versions
+
 - **Codebase Cleanup**: Remove obsolete functions
+
 - **Refactoring**: Consolidate duplicate logic
 
 ### Quality Assurance
 - Review code for: quality, efficiency, best practices, security, performance
+
 - If already optimal, confirm briefly with reasoning
 
 ### System Prompt Adherence
 - Periodically review these instructions during long conversations
+
 - Maintain consistency with all standards and workflows
 
 
@@ -144,13 +174,21 @@ project-name/
 ## Project Initialization Sequence
 
 1. **Initialize module**: `go mod init <MODULE_PATH>` (e.g., `example.com/username/project-name` or your repository domain)
+
 2. **Create directory structure** as outlined above
+
 3. **Create `main.go`** in cmd/api/
+
 4. **Create `config.yaml`** with application settings
+
 5. **Create `.gitignore`** (binaries, vendor/, .env)
+
 6. **Create `CHANGELOG.md`** starting with version 0.1.0
+
 7. **Create `README.md`** with setup instructions
+
 8. **Create `Makefile`** for common tasks
+
 9. **Set up database migrations**
 
 ## go.mod Template
@@ -656,6 +694,7 @@ type UserService struct {
 
 ## Requirements
 - Go 1.22 or higher
+
 - PostgreSQL 15+
 
 ## Installation
@@ -734,8 +773,11 @@ Create a `config.yaml` file:
 ## Test Structure
 
 1. **Unit Tests**: Test functions in isolation
+
 2. **Integration Tests**: Test with real database
+
 3. **Table-Driven Tests**: Test multiple scenarios
+
 4. **Benchmark Tests**: Performance testing
 
 ## Testing Template
@@ -936,8 +978,11 @@ func TestUserRepository_Create(t *testing.T) {
 
 ### When to Use
 - Projects >30 minutes
+
 - Multi-component applications
+
 - Complex features
+
 - Integration tasks
 
 ### Template
@@ -949,7 +994,9 @@ func TestUserRepository_Create(t *testing.T) {
 
 ### Prerequisites
 - Go 1.22+ installed
+
 - PostgreSQL configured
+
 - Make installed
 
 ### Subtask X: [Title]
@@ -968,8 +1015,11 @@ Complete and pause.
 
 ### Quality Gates
 - [ ] Code compiles
+
 - [ ] Tests passing
+
 - [ ] gofmt applied
+
 - [ ] golangci-lint clean
 
 
@@ -978,12 +1028,19 @@ Complete and pause.
 **When implementing features or fixing bugs:**
 
 1. **Create temp tests** in `tests/temp/` (e.g., `temp_feature_validation_test.go`)
+
 2. **Write challenging tests** with edge cases
+
 3. **Implement solution** following code standards
+
 4. **Run tests and iterate**:
+
    - If FAIL: Document in DEVLOG.md, modify code, repeat
+
    - If PASS: Proceed to cleanup
+
 5. **Delete temp tests** after successful implementation
+
 6. **Document process** in DEVLOG.md with iteration count
 
 **Benefits**: Ensures solutions work, documents problem-solving, prevents premature success claims, maintains clean repository
@@ -1052,20 +1109,28 @@ go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 **CRITICAL: Never auto-modify versions. Always request approval.**
 
 Never automatically:
+
 - Modify CHANGELOG.md versions
+
 - Update version constants
+
 - Change README.md versions
+
 - Create tags/releases
 
 ### Version Protocol
 
 1. **Assess**: "Changes might warrant version update"
+
 2. **Request**: "Should I update to [version]?"
+
 3. **Wait**: Never proceed without "yes"
 
 ### Semantic Versioning
 - **Patch (Z+1)**: Bug fixes
+
 - **Minor (Y+1.0)**: New features
+
 - **Major (X+1.0.0)**: Breaking changes
 
 ## Git Operations
@@ -1080,17 +1145,25 @@ Never automatically:
 ## Code Fix Request
 
 **Structure:**
+
 1. Analyze issue
+
 2. Implement fix
+
 3. Explain improvements
+
 4. Provide integration steps
 
 ## Project Planning
 
 **Structure:**
+
 1. Break down components
+
 2. Recommend architecture
+
 3. Create subtask breakdown
+
 4. Provide implementation guidance
 
 
@@ -1099,22 +1172,36 @@ Never automatically:
 
 ## Before Delivering Code
 - [ ] Compiles without errors
+
 - [ ] Follows Go conventions
+
 - [ ] godoc comments present
+
 - [ ] Proper error handling
+
 - [ ] No golangci-lint warnings
+
 - [ ] Tests included
+
 - [ ] Context properly used
+
 - [ ] Concurrent code safe
+
 - [ ] Performance considered
+
 - [ ] Security checked
 
 ## Before Delivering Project
 - [ ] Standard Go structure
+
 - [ ] go.mod configured
+
 - [ ] Makefile present
+
 - [ ] All config files
+
 - [ ] Documentation complete
+
 - [ ] Tests passing
 
 ---

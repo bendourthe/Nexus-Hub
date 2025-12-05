@@ -109,9 +109,13 @@ Develop comprehensive, well-structured test cases that validate functionality, h
 Use the appropriate template file with your AI assistant to:
 
 1. Design test cases for new features
+
 2. Implement test cases following best practices
+
 3. Cover edge cases and error conditions
+
 4. Write parametrized tests for multiple scenarios
+
 5. Establish test naming and structure conventions
 
 **Note**: The **Unit Tests** phase should be completed first to establish foundational unit testing practices before proceeding to broader test case development.

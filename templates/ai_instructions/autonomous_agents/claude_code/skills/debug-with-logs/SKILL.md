@@ -16,22 +16,37 @@ Master systematic debugging through strategic logging and log analysis. Learn to
 ## When to Use This Skill
 
 Use this skill when:
+
 - Investigating production issues where debuggers aren't available
+
 - Debugging intermittent or timing-dependent bugs
+
 - Understanding code flow in complex systems
+
 - Troubleshooting integration issues between components
+
 - Analyzing performance bottlenecks
+
 - Debugging multithreaded or concurrent code
+
 - Working with legacy code without test coverage
+
 - Investigating issues in distributed systems
+
 - Debugging issues that only occur in specific environments
+
 - Learning unfamiliar codebases
 
 **Logging is especially valuable when**:
+
 - Issue only reproduces in production
+
 - Debugger affects timing/behavior
+
 - Multiple components interact
+
 - Root cause is unclear
+
 - Need historical context for debugging
 
 ## What This Skill Does
@@ -40,26 +55,38 @@ This skill provides a systematic approach to debugging that:
 
 ### 1. Strategic Logging
 - Add meaningful log statements at critical points
+
 - Use appropriate log levels (DEBUG, INFO, WARN, ERROR)
+
 - Log contextual information (variables, state, timing)
+
 - Avoid log spam and noise
 
 ### 2. Log Analysis
 - Read and interpret log output effectively
+
 - Identify patterns and anomalies
+
 - Trace execution flow through logs
+
 - Correlate events across components
 
 ### 3. Problem Solving
 - Form hypotheses based on log evidence
+
 - Validate assumptions with targeted logging
+
 - Narrow down root cause systematically
+
 - Document findings for future reference
 
 ### 4. Best Practices
 - Structured logging for easier parsing
+
 - Performance-conscious logging
+
 - Security-aware logging (no sensitive data)
+
 - Production-ready logging strategies
 
 ## Why Logging for Debugging Works
@@ -72,10 +99,15 @@ Developer: *steps through code line by line*
 Result:
 
 - ❌ Debugger unavailable in production
+
 - ❌ Changes program timing (hides race conditions)
+
 - ❌ Slow iteration cycle (stop, inspect, repeat)
+
 - ❌ No historical context
+
 - ❌ Difficult for distributed systems
+
 - ❌ Can't easily share debugging session
 ```
 
@@ -88,10 +120,15 @@ Developer: *refines hypothesis and adds more logs*
 Result:
 
 - ✅ Works in any environment (dev, staging, prod)
+
 - ✅ Captures real timing and behavior
+
 - ✅ Fast iteration (just re-run)
+
 - ✅ Historical record of events
+
 - ✅ Perfect for distributed systems
+
 - ✅ Logs can be shared with team
 ```
 
@@ -100,13 +137,19 @@ Result:
 Use debuggers for:
 
 - Understanding code structure
+
 - Exploring object state
+
 - Local development
 
 Use logging for:
+
 - Production debugging
+
 - Integration issues
+
 - Performance analysis
+
 - Long-term monitoring
 ```
 
@@ -114,46 +157,67 @@ Use logging for:
 
 ### Production-Ready
 - Works in environments where debuggers aren't available
+
 - Doesn't require stopping or restarting services
+
 - Minimal performance impact when done correctly
+
 - Can be enabled/disabled dynamically
 
 ### Historical Context
 - Logs provide timeline of events
+
 - Can analyze multiple runs
+
 - Identify patterns over time
+
 - Correlate with monitoring metrics
 
 ### Collaboration
 - Logs can be shared with team
+
 - Provide evidence for bug reports
+
 - Document reproduction steps
+
 - Enable async debugging
 
 ### Comprehensive View
 - See interactions between components
+
 - Track data flow through system
+
 - Identify side effects
+
 - Understand system state changes
 
 ## Prerequisites
 
 ### Required
 - Understanding of log levels (DEBUG, INFO, WARN, ERROR)
+
 - Basic knowledge of logging frameworks
+
 - Ability to read and interpret log output
+
 - Access to application logs
 
 ### Recommended
 - Log aggregation tool (ELK, Splunk, CloudWatch, etc.)
+
 - Log viewer with search/filter capabilities
+
 - Basic understanding of structured logging
+
 - Familiarity with log rotation and retention
 
 ### Knowledge
 - Programming concepts (variables, functions, control flow)
+
 - Basic debugging principles
+
 - Understanding of your logging framework
+
 - Awareness of log performance implications
 
 ## Instructions
@@ -163,18 +227,27 @@ Use logging for:
 Before adding logs, clearly define what you're debugging:
 
 **Ask yourself**:
+
 - What is the expected behavior?
+
 - What is the actual behavior?
+
 - When does the problem occur?
+
 - What are the symptoms?
+
 - What do I need to learn?
 
 **Example Problem**: "User reports that order confirmation emails are not being sent"
 
 **Questions to answer**:
+
 - Is the order being created successfully?
+
 - Is the email service being called?
+
 - Are there any errors during email sending?
+
 - What's the timing of each step?
 
 ### Step 2: Identify Key Points for Logging
@@ -272,10 +345,15 @@ def process_payment(order_id, amount):
 Include relevant context in log messages:
 
 **What to Log**:
+
 - **Identifiers**: User ID, order ID, request ID, correlation ID
+
 - **Values**: Input parameters, calculated values, return values
+
 - **Timing**: Timestamps, duration, elapsed time
+
 - **State**: Current state, previous state, transitions
+
 - **Environment**: Server name, environment (dev/prod), version
 
 **Python Example**:
@@ -430,10 +508,15 @@ Use request IDs to follow flow across services
 10:00:30.500 ERROR Payment timeout [order=ORD-123]
 
 Analysis:
+
 - Order retrieval works (logs present)
+
 - Total calculation works (logs present)
+
 - Payment gateway call initiated (log present)
+
 - No response received from gateway (log missing)
+
 - Timeout after 30 seconds (from timestamps)
 Hypothesis: Payment gateway not responding -> Add network-level logging
 ```
@@ -477,16 +560,25 @@ logger.debug(f"Cache hit for key {key}")
 After debugging, clean up temporary logging:
 
 **Keep**:
+
 - Error logging
+
 - Important business events
+
 - Performance metrics
+
 - Security events
+
 - Integration points
 
 **Remove**:
+
 - Verbose debug statements
+
 - Loop iteration logs
+
 - Temporary diagnostic logs
+
 - Excessive variable dumps
 
 **Example Cleanup**:
@@ -1115,22 +1207,37 @@ public:
 ### What to Log
 
 **✅ Always Log**:
+
 - Application startup/shutdown
+
 - User authentication events
+
 - Authorization failures
+
 - Data mutations (create, update, delete)
+
 - External service calls
+
 - Errors and exceptions
+
 - Performance metrics
+
 - Security events
 
 **❌ Never Log**:
+
 - Passwords or credentials
+
 - Credit card numbers
+
 - Social security numbers
+
 - Personal health information
+
 - API keys or secrets
+
 - Session tokens
+
 - Encryption keys
 
 ### Performance Considerations
@@ -1338,9 +1445,13 @@ logger.info("Processing complete")
 **Problem**: Bug only occurs occasionally.
 
 **Approach**:
+
 1. Add logging around suspected area
+
 2. Log all inputs and state
+
 3. Run multiple times to capture failure
+
 4. Analyze failed runs vs successful runs
 
 **Example**:
@@ -1374,8 +1485,11 @@ def process_transaction(transaction_id):
 **Problem**: Application running slow.
 
 **Approach**:
+
 1. Add timing logs around operations
+
 2. Identify bottlenecks
+
 3. Investigate slow components
 
 **Example**:
@@ -1410,8 +1524,11 @@ def slow_operation():
 **Problem**: Communication between services failing.
 
 **Approach**:
+
 1. Log all requests and responses
+
 2. Include correlation IDs
+
 3. Trace flow across services
 
 **Example**:
@@ -1496,69 +1613,108 @@ tail -f application.log | grep ERROR
 ### Log Aggregation Tools
 
 **ELK Stack** (Elasticsearch, Logstash, Kibana):
+
 - Centralized log storage
+
 - Powerful search capabilities
+
 - Visualization and dashboards
+
 - Alerting
 
 **Splunk**:
+
 - Enterprise log management
+
 - Advanced analytics
+
 - Real-time monitoring
+
 - Machine learning
 
 **CloudWatch** (AWS):
+
 - Cloud-native logging
+
 - Integration with AWS services
+
 - Metrics and alarms
+
 - Log insights queries
 
 **Datadog**:
+
 - Unified observability
+
 - Log correlation with metrics
+
 - APM integration
+
 - Alerting and dashboards
 
 ## Success Criteria
 
 - [ ] Logs provide enough context to understand issues
+
 - [ ] Log levels are used appropriately
+
 - [ ] No sensitive information in logs
+
 - [ ] Performance impact is minimal
+
 - [ ] Logs are structured and parseable
+
 - [ ] Correlation IDs used for request tracking
+
 - [ ] Errors include stack traces
+
 - [ ] Temporary debug logs removed after debugging
+
 - [ ] Logs help identify root cause quickly
+
 - [ ] Team can understand logs without explanation
 
 ## Related Skills
 
 - [`test-driven-development`](../test-driven-development/SKILL.md) - Write tests to complement logging
+
 - [`code-review-security`](../code-review-security/SKILL.md) - Review logs for security issues
+
 - [`dependency-security-audit`](../dependency-security-audit/SKILL.md) - Audit logging libraries
+
 - [`plan-before-code`](../plan-before-code/SKILL.md) - Plan logging strategy upfront
+
 - [`code-commit-workflow`](../code-commit-workflow/SKILL.md) - Commit logging changes properly
 
 ## Additional Resources
 
 ### Logging Frameworks
 - **Python**: [logging](https://docs.python.org/3/library/logging.html), [structlog](https://www.structlog.org/)
+
 - **JavaScript**: [Winston](https://github.com/winstonjs/winston), [Pino](https://getpino.io/)
+
 - **Java**: [SLF4J](http://www.slf4j.org/), [Log4j 2](https://logging.apache.org/log4j/2.x/)
+
 - **C#**: [Serilog](https://serilog.net/), [NLog](https://nlog-project.org/)
+
 - **Go**: [logrus](https://github.com/sirupsen/logrus), [zap](https://github.com/uber-go/zap)
+
 - **C++**: [spdlog](https://github.com/gabime/spdlog), [Boost.Log](https://www.boost.org/doc/libs/release/libs/log/)
 
 ### Best Practices
 - [12-Factor App: Logs](https://12factor.net/logs) - Logging principles
+
 - [Google SRE Book: Monitoring](https://sre.google/sre-book/monitoring-distributed-systems/)
+
 - [The Art of Logging](https://www.codeproject.com/Articles/42354/The-Art-of-Logging)
 
 ### Tools
 - [ELK Stack](https://www.elastic.co/elastic-stack) - Log aggregation and analysis
+
 - [Splunk](https://www.splunk.com/) - Enterprise log management
+
 - [Datadog](https://www.datadoghq.com/) - Observability platform
+
 - [AWS CloudWatch](https://aws.amazon.com/cloudwatch/) - Cloud logging
 
 ---

@@ -12,12 +12,16 @@ prerequisites: []
 tools:
 
   - unity
+
   - cmocka
+
   - check
 tags:
 
   - documentation
+
   - documentation
+
   - c
 ---
 # C Technical Documentation
@@ -163,8 +167,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -646,12 +653,16 @@ gcov src/*.c
 /**
 
  * @file mylib.h
+
  * @brief Main API for MyLib
+
  * @author John Doe
+
  * @date 2024-01-16
  */
 
 /**
+
  * @brief Initialize the library
  *
 
@@ -659,6 +670,7 @@ gcov src/*.c
  *
 
  * @param config Configuration structure
+
  * @return 0 on success, negative error code on failure
  *
 
@@ -673,33 +685,53 @@ int mylib_init(mylib_config_t *config);
 ## Best Practices
 
 1. **Memory Safety**
+
    - Always check malloc/calloc return values
+
    - Free in reverse order of allocation
+
    - Set pointers to NULL after freeing
+
    - Use valgrind to detect leaks
 
 2. **Error Handling**
+
    - Return error codes from functions
+
    - Use errno for system call errors
+
    - Provide descriptive error messages
+
    - Clean up on error paths
 
 3. **Code Quality**
+
    - Follow consistent naming conventions
+
    - Keep functions small and focused
+
    - Use static for internal linkage
+
    - Document with Doxygen comments
 
 4. **Platform Portability**
+
    - Use standard C library when possible
+
    - Abstract platform-specific code
+
    - Test on multiple platforms
+
    - Use feature detection in build system
 
 5. **Security**
+
    - Validate all inputs
+
    - Use safe string functions (strncpy, snprintf)
+
    - Avoid buffer overflows
+
    - Initialize all variables
 
 ---

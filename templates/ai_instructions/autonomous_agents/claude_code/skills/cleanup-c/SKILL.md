@@ -17,13 +17,21 @@ Systematically identify and remove dead code, fix memory issues, and apply C bes
 ## When to Use This Skill
 
 Use this skill when you need to:
+
 - Remove unused includes, functions, variables, and types
+
 - Fix memory leaks and buffer overflows
+
 - Consolidate duplicate code
+
 - Apply C best practices (const correctness, static functions, error handling)
+
 - Clean up printf statements and commented code
+
 - Optimize include organization
+
 - Prepare codebase for embedded systems deployment
+
 - Address MISRA-C or CERT-C violations
 
 ## What This Skill Does
@@ -32,54 +40,84 @@ This skill performs comprehensive C code cleanup:
 
 ### 1. Dead Code Detection
 - **Unused #include Directives**: Identifies and removes unused headers
+
 - **Unused Functions**: Finds static functions never called
+
 - **Unused Variables**: Identifies variables assigned but never used
+
 - **Unused Macros**: Detects #define macros that are never used
+
 - **Unused Types**: Finds typedef/struct definitions never used
+
 - **Unreachable Code**: Finds code after return statements
+
 - **Empty Blocks**: Detects empty functions or unnecessary code
 
 ### 2. Memory Safety
 - **Memory Leaks**: Ensures all malloc() has corresponding free()
+
 - **Double Free**: Checks for potential double-free vulnerabilities
+
 - **Use After Free**: Identifies potential use-after-free issues
+
 - **Buffer Overflows**: Reviews array access and unsafe string functions
+
 - **NULL Pointer Checks**: Adds missing NULL checks after malloc()
+
 - **Resource Cleanup**: Ensures file handles, sockets are properly closed
 
 ### 3. Duplicate Code Consolidation
 - **Exact Duplicates**: Finds identical code blocks
+
 - **Near Duplicates**: Detects similar code with minor variations
+
 - **Duplicate Logic**: Identifies functionally equivalent implementations
+
 - **Consolidation Strategy**: Recommends refactoring approach
 
 ### 4. C Best Practices
 - **Const Correctness**: Adds const to parameters and variables
+
 - **Static Functions**: Marks internal functions as static
+
 - **Function Prototypes**: Ensures all functions have prototypes
+
 - **Avoid Global Variables**: Minimizes global state
+
 - **Error Handling**: Checks return values
+
 - **Initialization**: Initializes all variables at declaration
+
 - **Array Bounds**: Ensures array accesses are within bounds
+
 - **String Safety**: Replaces strcpy/strcat with safer alternatives
 
 ### 5. Debug Statement Cleanup
 - **Print Statements**: Removes debug printf()
+
 - **Commented Code**: Cleans up old commented-out code
+
 - **TODO Comments**: Catalogs and prioritizes TODO items
+
 - **Debug Macros**: Reviews DEBUG-only code sections
 
 ### 6. Include Organization
 - **Organize Includes**: Sorts includes in standard order
+
 - **Include Guards**: Ensures proper include guards in headers
+
 - **Forward Declarations**: Uses forward declarations to reduce dependencies
 
 ## Prerequisites
 
 - C codebase to clean up
+
 - Version control (git) for safe cleanup
+
 - Test suite (recommended)
+
 - Backup of codebase
+
 - C compiler (gcc, clang) and build system (Make, CMake)
 
 ## Instructions
@@ -124,11 +162,17 @@ Tell Claude Code to use this skill:
 Focus on:
 
 1. Removing all unused includes, functions, and variables
+
 2. Fixing memory leaks and buffer overflows
+
 3. Consolidating duplicate code
+
 4. Applying C best practices (const correctness, static functions)
+
 5. Removing printf statements
+
 6. Organizing includes properly
+
 7. Addressing static analysis warnings
 
 Save all reports to cleanup_report/ directory."
@@ -139,11 +183,17 @@ Save all reports to cleanup_report/ directory."
 Claude Code will generate a comprehensive cleanup plan including:
 
 1. **Dead Code Candidates** - List of unused code
+
 2. **Memory Safety Issues** - Leaks, overflows, null pointer issues
+
 3. **Duplication Report** - Duplicate code locations
+
 4. **Best Practices** - Areas needing improvement
+
 5. **Static Analysis Findings** - cppcheck, clang-tidy warnings
+
 6. **Risk Assessment** - Impact analysis
+
 7. **Implementation Plan** - Ordered steps
 
 **Review the plan before proceeding with changes!**
@@ -151,39 +201,63 @@ Claude Code will generate a comprehensive cleanup plan including:
 ### Step 4: Execute Cleanup in Phases
 
 **Phase 1: Low-Risk Cleanup**
+
 - Remove unused includes
+
 - Clean printf statements
+
 - Remove commented code
+
 - Organize includes
 
 **Phase 2: Memory Safety**
+
 - Fix memory leaks
+
 - Add NULL checks
+
 - Fix buffer overflows
+
 - Replace unsafe string functions
 
 **Phase 3: Structural Changes**
+
 - Consolidate duplicates
+
 - Remove dead functions
+
 - Simplify complex code
+
 - Extract constants
 
 **Phase 4: Best Practices**
+
 - Apply const correctness
+
 - Mark static functions
+
 - Add function prototypes
+
 - Check error returns
 
 **Phase 5: Verification**
+
 - Run tests after each phase
+
 - Run static analysis
+
 - Test on target hardware (embedded)
+
 - Document any issues
 
 **Phase 6: Multi-Pass Protocol**
+
 - First pass: Apply cleanup
+
 - Verification pass: Check for missed opportunities
+
 - Repeat until complete
+
 - Track statistics
 
 ### Step 5: Test After Cleanup
@@ -487,37 +561,57 @@ cleanup_report/
 ## Safety Measures
 
 1. **Version Control Required**
+
 2. **Test Coverage**
+
 3. **Incremental Approach**
+
 4. **Risk Assessment**
+
 5. **Documentation**
 
 ## Success Criteria
 
 - [ ] All unused includes removed
+
 - [ ] No printf debugging statements
+
 - [ ] No commented-out code
+
 - [ ] All memory leaks fixed
+
 - [ ] NULL checks added
+
 - [ ] Buffer overflows fixed
+
 - [ ] Const correctness applied
+
 - [ ] Static functions marked
+
 - [ ] All tests passing
+
 - [ ] Static analysis passes
+
 - [ ] Code builds successfully
+
 - [ ] Cleanup documented
 
 ## Tools and Libraries
 
 ### Static Analysis
 - **cppcheck**: C/C++ static analyzer
+
 - **clang-tidy**: Clang-based linter
+
 - **Coverity**: Commercial static analysis
+
 - **PC-lint**: Commercial linter
 
 ### Memory Analysis
 - **Valgrind**: Memory error detector
+
 - **AddressSanitizer**: Google memory error detector
+
 - **MemorySanitizer**: Uninitialized memory detector
 
 ```bash
@@ -537,8 +631,11 @@ gcc -fsanitize=address -g program.c
 ## Additional Resources
 
 - [MISRA C Guidelines](https://www.misra.org.uk/)
+
 - [CERT C Coding Standard](https://wiki.sei.cmu.edu/confluence/display/c)
+
 - [The C Programming Language (K&R)](https://en.wikipedia.org/wiki/The_C_Programming_Language)
+
 - [Embedded C Best Practices](https://barrgroup.com/embedded-systems/books/embedded-c-coding-standard)
 
 ---

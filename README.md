@@ -13,9 +13,13 @@
 ### Google Test + VS Code + GitHub Copilot Integration
 
 - ⚡ **10-minute setup** from clone to running tests (vs. 1-2 hours manual)
+
 - 🤖 **AI-assisted testing** with GitHub Copilot generating 15+ comprehensive test suites
+
 - ⌨️ **One-click build/test/debug** with keyboard shortcuts
+
 - 📊 **Automated code coverage** with lcov/gcovr
+
 - 🔄 **Cross-platform** support (Linux, macOS, Windows)
 
 **New Files:**
@@ -35,9 +39,13 @@
 **I want to...**
 
 - **[Configure my AI Assistant](#%EF%B8%8F-ai-instructions)** → Claude Code, GitHub Copilot, Cursor
+
 - **[Generate Code Documentation](#-documentation)** → API docs, README, docstrings
+
 - **[Generate Tests](#-test-development)** → Unit tests, code coverage, CI/CD integration
+
 - **[Review My Code](#-code-review)** → Security, performance, quality
+
 - **[Clean Up My Codebase](#-code-cleanup)** → Remove dead code, duplication, legacy patterns
 
 ---
@@ -105,8 +113,11 @@ This repository provides **ready-to-use prompt templates** for AI coding assista
 ### AI Instructions Setup
 
 - **Copilot:** Create `.github/copilot-instructions.md` and paste content
+
 - **Cursor:** File → Preferences → Cursor Settings → Rules & Memories → User Rules
+
 - **Windsurf:** Cascade → Customizations → Rules → Edit global_windsurf.md
+
 - **Claude Code:** Save selected markdown file as CLAUDE.md in the root directory of your project
 
 ---
@@ -218,9 +229,13 @@ This repository provides **ready-to-use prompt templates** for AI coding assista
 ## 🤝 Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on:
+
 - Adding new templates
+
 - Improving existing templates
+
 - Reporting issues
+
 - Submitting pull requests
 
 ---

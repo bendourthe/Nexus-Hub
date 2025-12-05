@@ -12,11 +12,14 @@ prerequisites: []
 tools:
 
   - unity
+
   - cmocka
+
   - check
 tags:
 
   - claude-code
+
   - c
 ---
 # CLAUDE.md - C Development System Instructions
@@ -28,38 +31,54 @@ tags:
 
 ## Section Usage Map
 - **Bug Fix**: Sections 1, 3, 9
+
 - **New Feature**: Sections 1-5, 7
+
 - **Refactoring**: Sections 3, 6, 9
+
 - **Project Setup**: All sections
 
 ## Task-Specific Quick Reference
 - **Fix a function**: Focus sections 3, 9
+
 - **New project**: Use sections 2, 4, 5
+
 - **Code review**: Apply sections 3, 10
+
 - **Embedded system**: Sections 2, 3, 11
 
 ## Context-Aware Behavior
 - **For embedded systems**: Minimal dependencies, strict memory management
+
 - **For libraries**: Standard structure with API clarity
+
 - **For debugging**: Focus on memory safety and undefined behavior
 
 ## Efficiency Modes
 
 ### Quick Mode (for simple fixes)
 - Skip extensive documentation
+
 - Minimal testing setup
+
 - Focus on core functionality
 
 ### Full Mode (for new projects)
 - Complete architecture
+
 - Comprehensive testing
+
 - Full documentation with Doxygen support
 
 ## Claude Code Terminal Commands
 - **Build project**: `claude run make all`
+
 - **Run tests**: `claude run make test`
+
 - **Clean build**: `claude run make clean`
+
 - **Format code**: `claude format src/`
+
 - **Static analysis**: `claude run make analysis`
 
 ---
@@ -71,35 +90,53 @@ tags:
 
 ### Clarification Protocol
 - When unclear, ask concise clarifying questions before proceeding
+
 - Never make assumptions about missing requirements
+
 - Frame questions to gather specific technical requirements
+
 - Clarify target platform (embedded, Linux, Windows, cross-platform)
+
 - Determine memory constraints and real-time requirements
 
 ### Teaching-Focused Approach
 - **Primary Goal**: Teach how and why solutions work
+
 - Explain implementation details, reasoning, and C idioms
+
 - Enable learning through understanding, not copy-paste
+
 - Reference C standards (C99, C11, C17, C23) when relevant
+
 - Explain undefined behavior, implementation-defined behavior, and unspecified behavior
 
 ### Critical Analysis
 - **Don't automatically agree** with user-proposed solutions
+
 - Analyze problems independently for memory safety and performance
+
 - Compare alternatives and recommend best solution
+
 - Clearly explain reasoning and trade-offs
+
 - Warn about common C pitfalls (buffer overflows, null pointers, memory leaks)
 
 ### Efficiency Principles
 - **Token Optimization**: Be efficient while maintaining clarity
+
 - **Code Modification**: Edit originals, don't create '_enhanced' versions
+
 - **Codebase Cleanup**: Remove obsolete functions and dead code
+
 - **Refactoring**: Consolidate duplicate logic and improve maintainability
 
 ### Quality Assurance
 - Review code for: quality, efficiency, best practices, security, memory safety
+
 - Check for: buffer overflows, null pointer dereferences, memory leaks, race conditions
+
 - Verify: proper error handling, resource cleanup, bounds checking
+
 - If already optimal, confirm briefly with reasoning
 
 
@@ -185,13 +222,21 @@ embedded_project/
 ## Project Initialization Sequence
 
 1. **Create directory structure** as outlined above
+
 2. **Create `.gitignore`** for build artifacts, object files, binaries
+
 3. **Create `Makefile`** with targets: all, clean, test, install, analysis
+
 4. **Create `CHANGELOG.md`** starting with version 0.1.0
+
 5. **Create `README.md`** with build instructions
+
 6. **Create `DEVLOG.md`** with initial task list
+
 7. **Set up formatting**: Create `.clang-format` configuration
+
 8. **Set up analysis**: Create `.clang-tidy` configuration
+
 9. **Initialize headers**: Create header guards and includes
 
 ## Makefile Template
@@ -299,7 +344,9 @@ SpaceBeforeParens: ControlStatements
 **Always place includes at the top of files in this exact order:**
 
 1. **System headers** (alphabetically sorted)
+
 2. **Third-party library headers** (alphabetically sorted)
+
 3. **Project headers** (alphabetically sorted)
 
 **Example:**
@@ -332,35 +379,53 @@ SpaceBeforeParens: ControlStatements
 ```
 
 **Include What You Use:**
+
 - Every header should be self-contained
+
 - Include all dependencies needed for the header
+
 - Don't rely on transitive includes
+
 - Use forward declarations when possible
 
 ### Naming Conventions
 
 **Files:**
+
 - Source files: `lowercase_with_underscores.c`
+
 - Header files: `lowercase_with_underscores.h`
+
 - Private headers: `module_name_internal.h`
 
 **Functions:**
+
 - Public API: `projectname_module_action()` (namespace prefix)
+
 - Private functions: `static` with descriptive names
+
 - Example: `buffer_create()`, `buffer_destroy()`, `buffer_append()`
 
 **Types:**
+
 - Structs: `snake_case` with `_t` suffix
+
 - Example: `buffer_t`, `config_t`, `device_handle_t`
+
 - Avoid typedef for pointers (prefer explicit `*`)
 
 **Constants and Macros:**
+
 - All uppercase: `MAX_BUFFER_SIZE`, `ERROR_INVALID_INPUT`
+
 - Prefix with module name: `MODULE_MAX_SIZE`
 
 **Variables:**
+
 - Local variables: `snake_case`
+
 - Global variables: Avoid or use `g_` prefix
+
 - Static variables: Use `s_` prefix for file-scope statics
 
 **Example:**
@@ -387,15 +452,21 @@ static int buffer_resize(buffer_t *buf, size_t new_capacity);
 ### Code Layout and Formatting
 
 **Line Length:**
+
 - **Standard limit**: 100 characters
+
 - **Acceptable exceptions**: Long string literals, comments with URLs
 
 **Indentation:**
+
 - **4 spaces** per indent level (no tabs)
+
 - Align multi-line function parameters
+
 - Align struct members for readability
 
 **Braces:**
+
 - **Linux kernel style** (opening brace on same line, closing on new line)
 ```c
 if (condition) {
@@ -424,7 +495,9 @@ while (running) {
  *
 
  * @param[in] param1 Description of param1
+
  * @param[out] result Description of result
+
  * @return 0 on success, negative error code on failure
  */
 int function_name(const type_t *param1, result_t *result)
@@ -482,9 +555,13 @@ cleanup:
 ### Comment Guidelines
 
 **Style:**
+
 - Use `/* */` for all comments (C89 compatible)
+
 - Multi-line comments for explanations
+
 - Single-line comments for brief notes
+
 - Doxygen-style for API documentation
 
 **Examples:**
@@ -492,7 +569,9 @@ cleanup:
 /*
 
  * This is a multi-line comment explaining
+
  * a complex algorithm or design decision.
+
  * Use this style for detailed explanations.
  */
 
@@ -503,18 +582,22 @@ int result = calculate_value();
 int x = 42;  /* Magic number - avoid this style */
 
 /**
+
  * @brief Create a new buffer with specified size
  *
 
  * Allocates memory for a buffer structure and initializes
+
  * it with the specified initial capacity.
  *
 
  * @param[in] initial_size Initial capacity in bytes
+
  * @return Pointer to new buffer, or NULL on allocation failure
  *
 
  * @note Caller is responsible for calling buffer_destroy()
+
  * @see buffer_destroy()
  *
 
@@ -618,27 +701,38 @@ ptr = NULL;  /* Avoid dangling pointers */
 /*
 
  * Document ownership clearly:
+
  * - Who allocates?
+
  * - Who frees?
+
  * - What happens to pointers passed in?
  */
 
 /**
+
  * @brief Create and initialize object
+
  * @return Newly allocated object (caller owns, must call object_destroy)
  */
 object_t *object_create(void);
 
 /**
+
  * @brief Destroy object and free memory
+
  * @param[in] obj Object to destroy (may be NULL)
+
  * @note Sets obj to NULL after freeing
  */
 void object_destroy(object_t **obj);
 
 /**
+
  * @brief Process data (does not take ownership)
+
  * @param[in] data Data to process (must remain valid during call)
+
  * @note Caller retains ownership of data
  */
 int object_process(const uint8_t *data, size_t len);
@@ -704,15 +798,19 @@ memset(password, 0, sizeof(password));
 /**
 
  * @file buffer.c
+
  * @brief Dynamic buffer implementation
  *
 
  * Provides a growable byte buffer with automatic reallocation.
+
  * Thread-safe when used with external synchronization.
  *
 
  * @author Benjamin Dourthe (benjamin@adonamed.com)
+
  * @date 2025-01-01
+
  * @version 0.1.0
  */
 ```
@@ -727,34 +825,51 @@ memset(password, 0, sizeof(password));
  *
 
  * Reads the configuration file line by line, parsing key-value pairs
+
  * and populating the provided config structure. Supports comments
+
  * (lines starting with '#') and blank lines.
  *
 
  * @param[in] filename Path to configuration file
+
  * @param[out] config Configuration structure to populate
+
  * @return 0 on success, negative error code on failure
+
  * @retval 0 Success
+
  * @retval -EINVAL Invalid arguments
+
  * @retval -ENOENT File not found
+
  * @retval -ENOMEM Out of memory
+
  * @retval -EFORMAT Parse error
  *
 
  * @note The config structure must be initialized before calling
+
  * @warning Not thread-safe, caller must synchronize
  *
 
  * @code
+
  * config_t cfg;
+
  * config_init(&cfg);
+
  * if (parse_config("app.conf", &cfg) < 0) {
+
  *     fprintf(stderr, "Failed to parse config\n");
+
  * }
+
  * @endcode
  *
 
  * @see config_init(), config_free()
+
  * @author Benjamin Dourthe (benjamin@adonamed.com)
  */
 int parse_config(const char *filename, config_t *config);
@@ -765,7 +880,9 @@ int parse_config(const char *filename, config_t *config);
 /**
 
  * @brief Get buffer size in bytes
+
  * @param[in] buf Buffer instance
+
  * @return Current buffer size
  */
 size_t buffer_size(const buffer_t *buf);
@@ -777,10 +894,12 @@ size_t buffer_size(const buffer_t *buf);
 /**
 
  * @struct buffer
+
  * @brief Dynamic byte buffer with automatic growth
  *
 
  * Maintains a contiguous block of memory that grows automatically
+
  * when data is appended beyond current capacity.
  */
 typedef struct buffer {
@@ -790,7 +909,9 @@ typedef struct buffer {
 } buffer_t;
 
 /**
+
  * @enum log_level
+
  * @brief Logging severity levels
  */
 typedef enum {
@@ -808,16 +929,23 @@ typedef enum {
 /**
 
  * @def BUFFER_DEFAULT_SIZE
+
  * @brief Default initial buffer size in bytes
  */
 #define BUFFER_DEFAULT_SIZE 1024
 
 /**
+
  * @def MIN(a, b)
+
  * @brief Return minimum of two values
+
  * @param a First value
+
  * @param b Second value
+
  * @return Minimum of a and b
+
  * @note Evaluates arguments multiple times, use with care
  */
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
@@ -836,14 +964,18 @@ typedef enum {
 
 ## Features
 - [Core capabilities]
+
 - [Performance characteristics]
+
 - [Platform support]
 
 ## Requirements
 
 ### Build Dependencies
 - GCC 9.0+ or Clang 10.0+
+
 - Make 4.0+
+
 - Optional: clang-format, clang-tidy, cppcheck
 
 ### Runtime Dependencies
@@ -873,7 +1005,9 @@ git config --get remote.origin.url
 Edit `config.h` to customize:
 
 - Buffer sizes
+
 - Feature flags
+
 - Platform-specific settings
 
 ## Installation
@@ -937,14 +1071,20 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ### Added
 - Initial release
+
 - Core buffer implementation
+
 - Basic API with create/destroy/append operations
+
 - Unit test suite
+
 - Makefile build system
+
 - Doxygen documentation
 
 ### Security
 - Input validation on all public APIs
+
 - Bounds checking on buffer operations
 ```
 
@@ -957,64 +1097,88 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ### High Priority
 - [ ] Implement thread-safe buffer operations
+
 - [ ] Add comprehensive error handling
 
 ### Medium Priority
 - [ ] Optimize memory allocation strategy
+
 - [ ] Add benchmarking suite
 
 ### Low Priority
 - [ ] Support alternative allocators
+
 - [ ] Add debugging instrumentation
 
 ## Development History
 
 ### Project Architecture
 - **Initial Design**: Simple dynamic buffer with automatic growth
+
 - **Memory Model**: Caller-owned objects with explicit destroy
+
 - **Error Handling**: Error codes compatible with errno
+
 - **Platform Support**: POSIX-compliant systems initially
 
 ### Implementation Challenges
 
 #### Challenge 1: Memory Reallocation Strategy
 - **Problem**: Frequent reallocation causes performance issues
+
 - **Solution**: Geometric growth (doubling) with configurable limits
+
 - **Trade-offs**: Memory overhead vs. reallocation frequency
+
 - **Lessons**: Profile before optimizing, measure actual usage patterns
 
 #### Challenge 2: Thread Safety
 - **Problem**: Multiple threads accessing same buffer
+
 - **Solution**: External locking, document non-thread-safe
+
 - **Trade-offs**: Performance vs. safety, explicit vs. implicit
+
 - **Lessons**: Clear documentation prevents misuse
 
 ### Technical Decisions
 
 #### Error Handling Strategy
 - **Decision**: Return negative errno codes
+
 - **Rationale**: Familiar to Unix programmers, composable
+
 - **Alternative Considered**: Boolean + errno global
+
 - **Why Not**: Thread safety issues, harder to compose
 
 #### Memory Ownership
 - **Decision**: Caller owns all heap-allocated objects
+
 - **Rationale**: Clear ownership, explicit lifecycle
+
 - **Alternative Considered**: Reference counting
+
 - **Why Not**: Added complexity, potential for cycles
 
 ## Troubleshooting History
 
 ### Issue 1: Segmentation Fault in buffer_append
 - **Symptoms**: Crash when appending to buffer
+
 - **Root Cause**: Forgot to check realloc return value
+
 - **Resolution**: Added null check, updated all realloc calls
+
 - **Prevention**: Added static analysis to CI
 
 ### Issue 2: Memory Leak in Error Path
 - **Symptoms**: Valgrind reports leak on parse failure
+
 - **Root Cause**: Missing cleanup in error handling
+
 - **Resolution**: Used goto cleanup pattern consistently
+
 - **Prevention**: Added Valgrind to test suite
 ```
 
@@ -1025,8 +1189,11 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 ## Test Structure
 
 1. **test_runner.c**: Main test runner with Unity framework
+
 2. **test_module.c**: Individual test suites per module
+
 3. **test_config.h**: Test configuration and thresholds
+
 4. **Makefile**: Test build and execution
 
 ## Unity Test Framework
@@ -1048,10 +1215,12 @@ git submodule add <UNITY_REPO_URL> tests/unity
 /**
 
  * @file test_buffer.c
+
  * @brief Unit tests for buffer module
  *
 
  * Comprehensive test suite covering normal operations,
+
  * edge cases, and error conditions.
  *
 
@@ -1066,7 +1235,9 @@ git submodule add <UNITY_REPO_URL> tests/unity
 #include "project_name/buffer.h"
 
 /* ========================================================================
+
  * Test Setup and Teardown
+
  * ======================================================================== */
 
 void setUp(void)
@@ -1080,7 +1251,9 @@ void tearDown(void)
 }
 
 /* ========================================================================
+
  * Basic Functionality Tests
+
  * ======================================================================== */
 
 void test_buffer_create_success(void)
@@ -1116,7 +1289,9 @@ void test_buffer_append_basic(void)
 }
 
 /* ========================================================================
+
  * Edge Case Tests
+
  * ======================================================================== */
 
 void test_buffer_append_null_buffer(void)
@@ -1147,7 +1322,9 @@ void test_buffer_append_zero_length(void)
 }
 
 /* ========================================================================
+
  * Stress Tests
+
  * ======================================================================== */
 
 void test_buffer_large_append(void)
@@ -1186,7 +1363,9 @@ void test_buffer_multiple_appends(void)
 }
 
 /* ========================================================================
+
  * Performance Tests
+
  * ======================================================================== */
 
 void test_buffer_append_performance(void)
@@ -1210,7 +1389,9 @@ void test_buffer_append_performance(void)
 }
 
 /* ========================================================================
+
  * Test Runner
+
  * ======================================================================== */
 
 int main(void)
@@ -1323,19 +1504,28 @@ test: $(TEST_TARGET)
 **Apply systematic breakdown for:**
 
 - Projects estimated >30 minutes
+
 - Multi-module applications
+
 - Embedded system development
+
 - Hardware abstraction layers
+
 - Driver development
+
 - Real-time system implementation
 
 ### Analysis Phase
 **Always start with:**
 
 1. **Requirements**: Identify modules, dependencies, hardware interfaces
+
 2. **Complexity**: Determine scope, performance requirements, constraints
+
 3. **Prerequisites**: List toolchain, hardware, debuggers
+
 4. **Risk**: Identify memory constraints, timing requirements, hardware limitations
+
 5. **Success Metrics**: Define measurable outcomes (performance, memory usage)
 
 ### Task Template
@@ -1347,8 +1537,11 @@ test: $(TEST_TARGET)
 
 ### Prerequisites
 - Toolchain (GCC, Clang, cross-compiler)
+
 - Hardware or emulator
+
 - Debug tools (GDB, OpenOCD)
+
 - Test framework (Unity)
 
 ### Subtask X: [Title]
@@ -1371,22 +1564,36 @@ test: $(TEST_TARGET)
 
 ### Subtask Principles
 - **Self-Contained**: Independent compilation and testing
+
 - **Clearly Defined**: Unambiguous objectives with measurable outcomes
+
 - **Scoped**: 15-45 minutes work
+
 - **Sequenced**: Logical progression (HAL → drivers → application)
+
 - **Verifiable**: Testable results with clear pass/fail criteria
+
 - **Documented**: Clear API contracts and ownership rules
 
 ### Quality Gates
 - [ ] Functionality verified
+
 - [ ] Coding standards compliance (MISRA-C if applicable)
+
 - [ ] Documentation complete (Doxygen)
+
 - [ ] Unit tests included
+
 - [ ] Memory leaks checked (Valgrind)
+
 - [ ] Static analysis clean (cppcheck, clang-tidy)
+
 - [ ] Performance acceptable
+
 - [ ] Security reviewed (buffer overflows, integer overflows)
+
 - [ ] Thread safety considered
+
 - [ ] Error handling comprehensive
 
 
@@ -1395,12 +1602,19 @@ test: $(TEST_TARGET)
 **When implementing features or fixing bugs:**
 
 1. **Create temp tests** in `tests/temp/` (e.g., `test_feature_validation.c`)
+
 2. **Write challenging tests** with edge cases
+
 3. **Implement solution** following code standards
+
 4. **Run tests and iterate**:
+
    - If FAIL: Document in DEVLOG.md, modify code, repeat
+
    - If PASS: Proceed to cleanup
+
 5. **Delete temp tests** after successful implementation
+
 6. **Document process** in DEVLOG.md with iteration count
 
 **Benefits**: Ensures solutions work, documents problem-solving, prevents premature success claims, maintains clean repository
@@ -1431,13 +1645,19 @@ Please run in your terminal:
 ```
 
 **Never Say:**
+
 - "Let me run this command"
+
 - "I'll execute this"
+
 - "Running the compilation"
 
 **Always Say:**
+
 - "Please run this in your terminal"
+
 - "Execute after verifying toolchain"
+
 - "Run and share results"
 
 ## Common Make Commands
@@ -1528,9 +1748,13 @@ gcc -fsanitize=undefined -g program.c -o program
 **CRITICAL: Never auto-modify versions. Always request approval.**
 
 Never automatically:
+
 - Modify CHANGELOG.md versions
+
 - Update version defines in headers
+
 - Change README.md versions
+
 - Create tags/releases
 
 ### Version Protocol
@@ -1540,7 +1764,9 @@ Never automatically:
    Changes might warrant version update from X.Y.Z:
 
    - [List changes]
+
    - [Categorize as patch/minor/major]
+
    - [Note API changes]
    ```
 
@@ -1554,7 +1780,9 @@ Never automatically:
 
 ### Semantic Versioning
 - **Patch (Z+1)**: Bug fixes, no API changes
+
 - **Minor (Y+1.0)**: New features, backward-compatible API additions
+
 - **Major (X+1.0.0)**: Breaking API changes
 
 Example:
@@ -1562,7 +1790,9 @@ Example:
 Changes include:
 
 - Added buffer_reserve() function (minor - new API)
+
 - Fixed memory leak in buffer_destroy() (patch)
+
 - Changed buffer_create() signature (major - breaking change)
 
 Suggested: 1.2.0 → 2.0.0 (major bump due to breaking change)
@@ -1574,10 +1804,15 @@ Suggested: 1.2.0 → 2.0.0 (major bump due to breaking change)
 **CRITICAL: Never suggest Git commands unless explicitly requested.**
 
 Never suggest:
+
 - `git add/commit/push`
+
 - `git branch/merge`
+
 - `git tag` or releases
+
 - `git init`
+
 - `git submodule`
 
 ### When Git Help IS Requested
@@ -1586,22 +1821,32 @@ Never suggest:
 Since you requested Git help:
 
 1. Check status: git status
+
 2. Stage: git add src/ include/ tests/ Makefile
+
 3. Commit: git commit -m "Add buffer module implementation"
+
 4. Push: git push origin main
 
 Verify before running:
+
 - Correct branch: git branch
+
 - No uncommitted changes: git status
+
 - Tests pass: make test
+
 - No memory leaks: make valgrind
 ```
 
 ### Repository Setup
 
 For new projects:
+
 - Include .gitignore for build artifacts
+
 - Never auto-init repository
+
 - Let user control version control
 
 ```
@@ -1618,15 +1863,23 @@ Need Git workflow guidance?
 ## DEVLOG.md Updates
 
 Safe to update without permission:
+
 - Task lists
+
 - Development history
+
 - Implementation challenges
+
 - Technical decisions
+
 - Troubleshooting notes
 
 Never include:
+
 - Commit hashes
+
 - Git workflow assumptions
+
 - Version control strategies
 
 Example:
@@ -1635,9 +1888,13 @@ Example:
 
 #### Challenge 3: Memory Reallocation Performance
 - **Problem**: Frequent reallocation causing performance bottleneck
+
 - **Solution**: Implemented geometric growth strategy (1.5x factor)
+
 - **Trade-offs**: Memory overhead vs. reallocation frequency
+
 - **Lessons**: Profile before optimizing, measure don't guess
+
 - **Metrics**: Reduced reallocation calls by 75%, memory overhead <10%
 ```
 
@@ -1698,14 +1955,21 @@ Example:
    **Key Improvements:**
 
    - Added input validation (null check)
+
    - Check length before copy
+
    - Use memcpy with explicit length
+
    - Null-terminate explicitly
+
    - Return error codes for failures
 
    **Why This Works:**
+
    - Bounds checking prevents writing beyond buffer
+
    - Explicit length prevents off-by-one errors
+
    - Error codes allow caller to handle failures
    ```
 
@@ -1714,8 +1978,11 @@ Example:
    **To Apply:**
 
    - Replace function implementation
+
    - Update callers to check return value
+
    - Add test for overflow condition
+
    - Run under Valgrind to verify safety
    ```
 
@@ -1800,8 +2067,11 @@ C idiom for error handling.
 This project requires:
 
 - Hardware Abstraction Layer (HAL) for I2C
+
 - Device driver for temperature sensor
+
 - Application layer for reading temperature
+
 - Error handling for I2C communication failures
 
 Complexity: Medium (4-6 hours)
@@ -1813,7 +2083,9 @@ Hardware: I2C-capable microcontroller, temperature sensor
 Layered architecture:
 
 - HAL Layer: i2c_hal.h/c (platform-specific)
+
 - Driver Layer: temp_sensor.h/c (device-specific)
+
 - Application: main.c (user code)
 
 Error Handling: Return codes for all operations
@@ -1832,7 +2104,9 @@ Memory: Statically allocated structures (no malloc on embedded)
 Create I2C HAL with functions:
 
 - i2c_init(port, speed)
+
 - i2c_write(port, addr, data, len)
+
 - i2c_read(port, addr, data, len)
 
 Use static allocation, return error codes.
@@ -1848,7 +2122,9 @@ Complete and pause for review.
 Implement driver with:
 
 - temp_sensor_init(config)
+
 - temp_sensor_read(temp_celsius)
+
 - temp_sensor_shutdown()
 
 Document register map, timing requirements.
@@ -1939,69 +2215,121 @@ Array?
 
 ## Before Delivering Code
 - [ ] **Functionality**: Code solves the stated problem completely
+
 - [ ] **Memory Safety**: No buffer overflows, null dereferences, or leaks
+
 - [ ] **Error Handling**: All error paths handled and tested
+
 - [ ] **Bounds Checking**: Array accesses validated
+
 - [ ] **Integer Overflow**: Checked where arithmetic could overflow
+
 - [ ] **Coding Standards**: Follows style guide consistently
+
 - [ ] **Documentation**: Doxygen comments for public API
+
 - [ ] **Testing**: Unit tests for normal and error cases
+
 - [ ] **Static Analysis**: Clean cppcheck and clang-tidy
+
 - [ ] **Valgrind Clean**: No memory leaks or invalid accesses
+
 - [ ] **Thread Safety**: Documented and verified if applicable
+
 - [ ] **Performance**: Meets performance requirements
+
 - [ ] **Portability**: No platform-specific assumptions unless documented
+
 - [ ] **MISRA Compliance**: If required, document deviations
 
 ## Before Delivering Project Structure
 - [ ] **Standard Architecture**: Uses recommended structure
+
 - [ ] **Complete Setup**: All essential files included (Makefile, headers, etc.)
+
 - [ ] **Version Consistency**: Versions match across all files
+
 - [ ] **Documentation**: README, CHANGELOG, DEVLOG present
+
 - [ ] **Build System**: Makefile with all targets (all, clean, test, install)
+
 - [ ] **Testing Framework**: Unity or similar integrated
+
 - [ ] **Formatting**: .clang-format configuration included
+
 - [ ] **Static Analysis**: .clang-tidy configuration included
+
 - [ ] **Git Integration**: Appropriate .gitignore
+
 - [ ] **Dependencies**: All documented and included/referenced
+
 - [ ] **Cross-Platform**: Platform differences isolated and documented
+
 - [ ] **License**: LICENSE file included
+
 - [ ] **API Documentation**: Doxygen configuration and comments
 
 ## Code Review Standards
 - [ ] **Logic**: Algorithm correctness verified
+
 - [ ] **Edge Cases**: Boundary conditions tested (0, 1, max values)
+
 - [ ] **Resources**: Files, sockets, memory properly managed
+
 - [ ] **Memory**: Efficient allocation/deallocation patterns
+
 - [ ] **Leaks**: Verified with Valgrind
+
 - [ ] **Scalability**: Handles growth requirements
+
 - [ ] **Debugging**: Appropriate error messages and logging
+
 - [ ] **Reusability**: Modular function design
+
 - [ ] **Naming**: Clear, descriptive identifiers
+
 - [ ] **Comments**: Explain why, not what
+
 - [ ] **Const Correctness**: Read-only data marked const
+
 - [ ] **Null Safety**: All pointers checked before use
+
 - [ ] **String Safety**: No unsafe string functions (strcpy, sprintf)
+
 - [ ] **Signed/Unsigned**: Appropriate type choices
 
 ## Performance Considerations
 - [ ] **Algorithms**: Optimal complexity (O(n) vs O(n²))
+
 - [ ] **Data Structures**: Appropriate for use case
+
 - [ ] **Memory**: Minimize allocations, use stack when possible
+
 - [ ] **Cache Locality**: Data structures cache-friendly
+
 - [ ] **I/O**: Minimized and buffered
+
 - [ ] **System Calls**: Reduced where possible
+
 - [ ] **Hot Paths**: Optimized critical sections
+
 - [ ] **Embedded**: ROM/RAM usage within constraints
 
 ## Embedded Systems Additional Checks
 - [ ] **Memory Budget**: RAM/ROM usage documented and within limits
+
 - [ ] **Interrupt Safety**: ISR code is reentrant and minimal
+
 - [ ] **Real-Time**: Timing requirements met and documented
+
 - [ ] **Power Management**: Sleep modes used appropriately
+
 - [ ] **Hardware Dependencies**: Documented and abstracted
+
 - [ ] **Initialization Order**: Correct startup sequence
+
 - [ ] **Watchdog**: Properly configured and fed
+
 - [ ] **Stack Usage**: Analyzed and within limits
 
 ---
@@ -2104,6 +2432,7 @@ int rtos_init(void)
 /**
 
  * @file gpio_hal.h
+
  * @brief GPIO Hardware Abstraction Layer
  */
 
@@ -2143,40 +2472,59 @@ typedef enum {
 } gpio_pull_t;
 
 /**
+
  * @brief Initialize GPIO pin
+
  * @param[in] port GPIO port
+
  * @param[in] pin GPIO pin number
+
  * @param[in] dir Direction (input/output)
+
  * @param[in] pull Pull configuration
+
  * @return 0 on success, negative on error
  */
 int gpio_init(gpio_port_t port, gpio_pin_t pin, gpio_dir_t dir, gpio_pull_t pull);
 
 /**
+
  * @brief Set GPIO pin high
+
  * @param[in] port GPIO port
+
  * @param[in] pin GPIO pin number
  */
 void gpio_set(gpio_port_t port, gpio_pin_t pin);
 
 /**
+
  * @brief Set GPIO pin low
+
  * @param[in] port GPIO port
+
  * @param[in] pin GPIO pin number
  */
 void gpio_clear(gpio_port_t port, gpio_pin_t pin);
 
 /**
+
  * @brief Toggle GPIO pin
+
  * @param[in] port GPIO port
+
  * @param[in] pin GPIO pin number
  */
 void gpio_toggle(gpio_port_t port, gpio_pin_t pin);
 
 /**
+
  * @brief Read GPIO pin state
+
  * @param[in] port GPIO port
+
  * @param[in] pin GPIO pin number
+
  * @return Pin state (0 or 1)
  */
 int gpio_read(gpio_port_t port, gpio_pin_t pin);

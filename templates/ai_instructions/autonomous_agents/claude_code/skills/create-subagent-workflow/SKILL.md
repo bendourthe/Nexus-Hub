@@ -12,6 +12,7 @@ prerequisites: []
 tags:
 
   - skills
+
   - generic
 ---
 # create-subagent-workflow
@@ -31,18 +32,27 @@ Design and implement multi-agent workflows where Claude Code delegates tasks to 
 ## When to Use This Skill
 
 - Complex tasks requiring specialized expertise
+
 - Parallel processing of independent subtasks
+
 - Different context requirements for different operations
+
 - Need for specialized prompts or constraints
+
 - Task decomposition and delegation patterns
+
 - Building agent orchestration systems
 
 ## Prerequisites
 
 - Understanding of Claude Code agent architecture
+
 - Familiarity with prompt engineering
+
 - Knowledge of task decomposition
+
 - Error handling and retry patterns
+
 - Understanding of context management
 
 ## Step-by-Step Instructions
@@ -58,35 +68,57 @@ Design and implement multi-agent workflows where Claude Code delegates tasks to 
 Agent Specialization Taxonomy
 
 1. Code Generation Agents
+
    - Backend API developer
+
    - Frontend UI developer
+
    - Database schema designer
+
    - Test writer
+
    - Documentation writer
 
 2. Analysis Agents
+
    - Code reviewer
+
    - Security auditor
+
    - Performance analyzer
+
    - Dependency checker
+
    - Complexity analyzer
 
 3. Refactoring Agents
+
    - Legacy code modernizer
+
    - Pattern implementer
+
    - Performance optimizer
+
    - Test coverage improver
 
 4. Infrastructure Agents
+
    - Docker configuration specialist
+
    - CI/CD pipeline builder
+
    - Cloud deployment specialist
+
    - Monitoring setup agent
 
 5. Domain-Specific Agents
+
    - Machine learning specialist
+
    - Web scraping expert
+
    - Data transformation specialist
+
    - API integration specialist
 """
 
@@ -101,9 +133,13 @@ class AgentSpecialization:
 You are a code review specialist. Review the following code for:
 
 - Code quality and readability
+
 - Potential bugs and edge cases
+
 - Performance issues
+
 - Security vulnerabilities
+
 - Best practice violations
 
 Code to review:
@@ -124,10 +160,15 @@ Code:
 {code}
 
 Requirements:
+
 - Unit tests for all functions
+
 - Edge case coverage
+
 - Mock external dependencies
+
 - Clear test names and documentation
+
 - Follow {framework} testing patterns
 
 Framework: {framework}
@@ -145,10 +186,15 @@ Requirements:
 {requirements}
 
 Provide:
+
 1. Endpoint structure
+
 2. Request/response schemas
+
 3. Error handling
+
 4. Authentication approach
+
 5. OpenAPI specification
 """,
             'max_tokens': 5000
@@ -166,10 +212,15 @@ Requirements:
 Technology: {database_type}
 
 Provide:
+
 1. Entity-relationship diagram (text format)
+
 2. Table definitions with types
+
 3. Indexes and constraints
+
 4. Migration scripts
+
 5. Performance considerations
 """,
             'max_tokens': 5000
@@ -185,10 +236,15 @@ Code:
 {code}
 
 Check for:
+
 - SQL injection
+
 - XSS vulnerabilities
+
 - Authentication/authorization issues
+
 - Sensitive data exposure
+
 - OWASP Top 10 vulnerabilities
 
 Provide detailed findings with severity levels and remediation steps.
@@ -945,69 +1001,101 @@ class WorkflowMonitor:
 After implementing this workflow:
 
 1. **Coordinated multi-agent system**
+
    - Tasks delegated to specialized agents
+
    - Results aggregated effectively
+
    - Dependencies managed correctly
 
 2. **Robust error handling**
+
    - Failures handled gracefully
+
    - Recovery strategies applied
+
    - Workflows don't fail catastrophically
 
 3. **Performance optimized**
+
    - Parallel execution where possible
+
    - Bottlenecks identified and resolved
+
    - Resource utilization efficient
 
 4. **Maintainable architecture**
+
    - Clear agent responsibilities
+
    - Reusable workflow patterns
+
    - Easy to extend and modify
 
 ## Success Criteria
 
 - [ ] Agent specializations clearly defined
+
 - [ ] Workflow types implemented (sequential, parallel, hierarchical)
+
 - [ ] Task dependencies resolved correctly
+
 - [ ] Error handling and retry logic working
+
 - [ ] Parallel execution functioning
+
 - [ ] Result aggregation successful
+
 - [ ] Monitoring and logging in place
+
 - [ ] Performance acceptable
 
 ## Common Pitfalls
 
 1. **Over-specialization**
+
    - Don't create too many specialized agents
+
    - Balance specialization with maintainability
 
 2. **Dependency hell**
+
    - Keep dependencies simple
+
    - Avoid circular dependencies
 
 3. **Context explosion**
+
    - Be mindful of token limits
+
    - Use context management strategies
 
 4. **Poor error handling**
+
    - Always handle agent failures
+
    - Provide fallback strategies
 
 ## Related Skills
 
 - **optimize-context-usage**: Manage token usage efficiently
+
 - **refactor-for-testability**: Make code testable
+
 - **setup-python-project**: Project structure
 
 ## Additional Resources
 
 ### Patterns
 - [Saga Pattern](https://microservices.io/patterns/data/saga.html)
+
 - [Orchestration vs Choreography](https://www.thoughtworks.com/insights/blog/microservices/orchestration-vs-choreography)
 
 ### Tools
 - [Apache Airflow](https://airflow.apache.org/) - Workflow orchestration
+
 - [Temporal](https://temporal.io/) - Durable execution
+
 - [Prefect](https://www.prefect.io/) - Workflow management
 
 ---

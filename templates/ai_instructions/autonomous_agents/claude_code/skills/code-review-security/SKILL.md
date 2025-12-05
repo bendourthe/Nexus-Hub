@@ -19,19 +19,31 @@ Systematically identify security vulnerabilities, insecure coding practices, and
 Use this skill as **Phase 3** after completing context and quality reviews:
 
 - ✅ After [Phase 1: Context Analysis](../code-review-context-analysis/SKILL.md) and [Phase 2: Quality Review](../code-review-quality/SKILL.md) complete
+
 - ✅ Pre-production security audit
+
 - ✅ Compliance assessment preparation
+
 - ✅ Post-incident security hardening
+
 - ✅ Third-party code integration review
+
 - ✅ Open-source project security audit
+
 - ✅ Regulatory compliance verification
+
 - ✅ Penetration testing preparation
 
 **This skill is essential when**:
+
 - You need to identify OWASP Top 10 vulnerabilities
+
 - You're auditing authentication and authorization
+
 - You want to detect hardcoded secrets and credentials
+
 - You're assessing data protection practices
+
 - You need to comply with security standards
 
 ## What This Skill Does
@@ -40,10 +52,15 @@ This skill implements **Phase 3: Security Review** of the six-phase code review 
 
 ### Complete Workflow
 - Phase 1: [Context Analysis](../code-review-context-analysis/SKILL.md) - Project understanding
+
 - Phase 2: [Quality Review](../code-review-quality/SKILL.md) - Code maintainability
+
 - **Phase 3: Security Review (This Skill)** - Vulnerability identification
+
 - Phase 4: [Performance Review](../code-review-performance/SKILL.md) - Bottleneck analysis
+
 - Phase 5: [Testing Review](../code-review-testing/SKILL.md) - Test coverage evaluation
+
 - Phase 6: [Final Report](../code-review-final-report/SKILL.md) - Consolidated findings
 
 ## Why Security Review Matters
@@ -56,10 +73,15 @@ Attackers: *exploit security gaps*
 Result:
 
 - ❌ Data breaches and unauthorized access
+
 - ❌ Injection attacks compromise data
+
 - ❌ Authentication bypass allows impersonation
+
 - ❌ Sensitive data exposure causes compliance violations
+
 - ❌ Financial and reputational damage
+
 - ❌ Legal liability and regulatory fines
 ```
 
@@ -71,10 +93,15 @@ Attackers: *find hardened, secure application*
 Result:
 
 - ✅ Data protected from unauthorized access
+
 - ✅ Injection attacks prevented
+
 - ✅ Authentication properly enforced
+
 - ✅ Sensitive data encrypted and protected
+
 - ✅ Compliance requirements met
+
 - ✅ Risk minimized, trust maintained
 ```
 
@@ -82,42 +109,62 @@ Result:
 
 ### Risk Mitigation
 - **Prevent Breaches**: Identify vulnerabilities before attackers do
+
 - **Protect Data**: Ensure sensitive information stays secure
+
 - **Maintain Trust**: Build confidence with users and stakeholders
+
 - **Avoid Costs**: Prevent expensive breaches and remediation
 
 ### Compliance
 - **Meet Standards**: Verify compliance with GDPR, HIPAA, PCI-DSS, SOC 2
+
 - **Audit Readiness**: Prepare for security audits and assessments
+
 - **Legal Protection**: Reduce legal liability and regulatory risk
+
 - **Certifications**: Support security certification processes
 
 ### Security Culture
 - **Education**: Teach developers secure coding practices
+
 - **Awareness**: Build security mindset across the team
+
 - **Continuous Improvement**: Establish ongoing security practices
+
 - **Best Practices**: Implement industry-standard security patterns
 
 ## Prerequisites
 
 ### Required
 - Completion of [Phase 1: Context Analysis](../code-review-context-analysis/SKILL.md) and [Phase 2: Quality Review](../code-review-quality/SKILL.md)
+
 - Source code access
+
 - Security scanning tools installed
+
 - Understanding of OWASP Top 10
 
 ### Recommended
 - Access to dependency vulnerability databases
+
 - Secret scanning tools
+
 - Static Application Security Testing (SAST) tools
+
 - Dynamic Application Security Testing (DAST) tools
+
 - Penetration testing experience
 
 ### Knowledge
 - Common vulnerability types (injection, XSS, CSRF)
+
 - Authentication and authorization patterns
+
 - Cryptography best practices
+
 - Secure coding principles
+
 - Compliance requirements (GDPR, HIPAA, etc.)
 
 ## Instructions
@@ -252,9 +299,13 @@ Result:
 1. **A01: Broken Access Control**
 
    **What to Check**:
+
    - Authorization checks on all protected resources
+
    - User cannot access resources beyond permissions
+
    - No horizontal/vertical privilege escalation
+
    - Proper role-based access control (RBAC)
 
    **Python Example**:
@@ -318,10 +369,15 @@ Result:
 2. **A02: Cryptographic Failures**
 
    **What to Check**:
+
    - No weak hashing algorithms (MD5, SHA1)
+
    - HTTPS/TLS for sensitive data transmission
+
    - Encrypted storage for sensitive data
+
    - Proper password hashing (bcrypt, argon2, scrypt)
+
    - No sensitive data in logs
 
    **Python Example**:
@@ -430,9 +486,13 @@ Result:
 4. **A04: Insecure Design**
 
    **What to Check**:
+
    - Security requirements in design documentation
+
    - Threat modeling evidence
+
    - Secure architecture patterns
+
    - Defense in depth implementation
 
 5. **A05: Security Misconfiguration**
@@ -472,8 +532,11 @@ Result:
 6. **A06: Vulnerable and Outdated Components**
 
    Cross-reference findings from Step 1 dependency scanning:
+
    - Identify CVEs with CVSS score > 7.0
+
    - Check for available security patches
+
    - Assess transitive dependency risks
 
 7. **A07: Identification and Authentication Failures**
@@ -601,19 +664,29 @@ Result:
 1. **Password Security Audit**
 
    Search for:
+
    - Plain text password storage
+
    - Weak hashing algorithms
+
    - Missing password complexity requirements
+
    - No password expiration policy
+
    - Password hints or recovery questions
 
 2. **Session Management Review**
 
    Check for:
+
    - Secure session token generation (cryptographically random)
+
    - Session fixation protection
+
    - Session timeout and expiration
+
    - Secure cookie attributes (HttpOnly, Secure, SameSite)
+
    - Session invalidation on logout
 
    **Python Example**:
@@ -630,9 +703,13 @@ Result:
 3. **Multi-Factor Authentication (MFA)**
 
    Verify:
+
    - MFA available for sensitive operations
+
    - Secure MFA token generation
+
    - Backup authentication methods
+
    - MFA enrollment process security
 
 ### Step 4: Data Protection Assessment
@@ -642,11 +719,17 @@ Result:
 1. **Sensitive Data Identification**
 
    Identify and catalog:
+
    - Personally Identifiable Information (PII)
+
    - Payment card data
+
    - Health information
+
    - Authentication credentials
+
    - API keys and secrets
+
    - Encryption keys
 
 2. **Encryption Verification**
@@ -669,19 +752,29 @@ Result:
    ```
 
    **Data in Transit**:
+
    - HTTPS/TLS enforced for all sensitive endpoints
+
    - No mixed content (HTTP and HTTPS)
+
    - Certificate validation enabled
+
    - Minimum TLS version 1.2 or higher
 
 3. **Data Exposure Prevention**
 
    Search for sensitive data in:
+
    - Log files
+
    - Error messages
+
    - URLs and query parameters
+
    - Client-side code
+
    - Configuration files
+
    - Version control history
 
    **Bad Patterns to Find**:
@@ -736,10 +829,15 @@ Result:
 2. **File Upload Security**
 
    **Check for**:
+
    - File type validation (extension and MIME type)
+
    - File size limits
+
    - Malware scanning
+
    - Safe file storage location
+
    - Filename sanitization
 
    **Python Example**:
@@ -815,11 +913,17 @@ Result:
 1. **Search Patterns**
 
    Look for:
+
    - API keys: `api[_-]?key`, `apikey`, `api[_-]secret`
+
    - Passwords: `password\s*=\s*["']`, `pwd\s*=`
+
    - Tokens: `token\s*=\s*["']`, `access[_-]token`
+
    - Credentials: `username.*password`, `user.*pass`
+
    - Private keys: `BEGIN.*PRIVATE KEY`
+
    - Database URLs: `postgres://`, `mysql://` with credentials
 
 2. **Environment Variables Usage**
@@ -851,11 +955,17 @@ Result:
 3. **Secrets Management Tools**
 
    Recommend:
+
    - AWS Secrets Manager
+
    - HashiCorp Vault
+
    - Azure Key Vault
+
    - Google Secret Manager
+
    - Docker secrets
+
    - Kubernetes secrets
 
 ### Step 7: Generate Security Report
@@ -872,10 +982,15 @@ Result:
 ## Executive Summary
 
 - **Overall Security Rating**: [Critical / High Risk / Medium Risk / Low Risk]
+
 - **Critical Vulnerabilities**: [Count]
+
 - **High-Risk Issues**: [Count]
+
 - **Medium-Risk Issues**: [Count]
+
 - **Low-Risk Issues**: [Count]
+
 - **Compliance Status**: [Compliant / Non-Compliant / Partial]
 
 ## Vulnerability Summary
@@ -904,17 +1019,23 @@ Result:
 
 ### A01: Broken Access Control - [Fail/Pass]
 - **Findings**: [List issues]
+
 - **Risk Level**: [Critical/High/Medium/Low]
+
 - **Recommendations**: [Actions]
 
 ### A02: Cryptographic Failures - [Fail/Pass]
 - **Findings**: [List issues]
+
 - **Risk Level**: [Critical/High/Medium/Low]
+
 - **Recommendations**: [Actions]
 
 ### A03: Injection - [Fail/Pass]
 - **Findings**: [List issues]
+
 - **Risk Level**: [Critical/High/Medium/Low]
+
 - **Recommendations**: [Actions]
 
 [Continue for all OWASP Top 10...]
@@ -935,32 +1056,45 @@ Result:
 
 ### Password Security
 - **Hashing Algorithm**: [bcrypt/argon2/insecure]
+
 - **Password Policy**: [Strong/Weak/None]
+
 - **Password Storage**: [Secure/Insecure]
+
 - **Issues**: [List problems]
 
 ### Session Management
 - **Token Generation**: [Secure/Insecure]
+
 - **Session Timeout**: [Configured/Missing]
+
 - **Session Fixation Protection**: [Yes/No]
+
 - **Issues**: [List problems]
 
 ### Authorization
 - **RBAC Implementation**: [Yes/No/Partial]
+
 - **Missing Authorization**: [List endpoints]
+
 - **Privilege Escalation Risks**: [List issues]
 
 ## Data Protection
 
 ### Encryption Status
 - **Data at Rest**: [Encrypted/Not Encrypted]
+
 - **Data in Transit**: [HTTPS/Mixed/HTTP]
+
 - **Sensitive Fields**: [List and protection status]
 
 ### Data Exposure
 - **In Logs**: [Count] instances
+
 - **In URLs**: [Count] instances
+
 - **In Error Messages**: [Count] instances
+
 - **Client-Side**: [Count] instances
 
 ## Secrets Management
@@ -972,15 +1106,20 @@ Result:
 
 ### Recommendations
 - Migrate to [secrets management solution]
+
 - Implement secret rotation
+
 - Audit secret access
 
 ## Compliance Assessment
 
 ### GDPR Compliance
 - **Data Inventory**: [Complete/Incomplete]
+
 - **Consent Management**: [Implemented/Missing]
+
 - **Right to Erasure**: [Implemented/Missing]
+
 - **Data Breach Notification**: [Implemented/Missing]
 
 ### [Other Regulations]
@@ -990,31 +1129,43 @@ Result:
 
 ### Immediate (Week 1) - Critical Items
 1. **[Vulnerability]**
+
    - **Risk**: [Description]
+
    - **Effort**: [Hours]
+
    - **Owner**: [Team/Person]
 
 ### Short-term (Weeks 2-4) - High Priority
 1. **[Issue]**
+
    - **Risk**: [Description]
+
    - **Effort**: [Days]
 
 ### Medium-term (Months 2-3) - Medium Priority
 1. **[Issue]**
+
    - **Effort**: [Weeks]
 
 ## Positive Findings
 
 - [Security practices done well]
+
 - [Effective security controls]
 
 ## Next Steps
 
 - [ ] Fix all critical vulnerabilities (P0)
+
 - [ ] Update vulnerable dependencies
+
 - [ ] Implement secret management
+
 - [ ] Add automated security scanning to CI/CD
+
 - [ ] Conduct penetration testing
+
 - [ ] Proceed to [Phase 4: Performance Review](../code-review-performance/SKILL.md)
 ```
 
@@ -1023,11 +1174,17 @@ Result:
 This skill supports comprehensive security review for:
 
 - **Python** - Django, Flask, FastAPI applications
+
 - **JavaScript/TypeScript** - Node.js, React, Angular, Vue applications
+
 - **Java** - Spring Boot, Jakarta EE applications
+
 - **Go** - Standard library, Gin, Echo applications
+
 - **C** - System programming, embedded applications
+
 - **C++** - Modern C++, Qt, Boost applications
+
 - **C#** - .NET Core, ASP.NET applications
 
 Each language has specific security concerns, vulnerability patterns, and scanning tools.
@@ -1061,44 +1218,67 @@ Each language has specific security concerns, vulnerability patterns, and scanni
 ## Success Criteria
 
 - [ ] All automated security scans completed
+
 - [ ] OWASP Top 10 vulnerabilities assessed
+
 - [ ] Dependency vulnerabilities identified and prioritized
+
 - [ ] Authentication and authorization audited
+
 - [ ] Data protection practices reviewed
+
 - [ ] Hardcoded secrets detected and documented
+
 - [ ] Input validation comprehensively evaluated
+
 - [ ] Security report generated with remediation plan
+
 - [ ] Critical vulnerabilities have fix timeline
+
 - [ ] Team ready for performance review
 
 ## Related Skills
 
 ### Code Review Workflow
 1. [Phase 1: Context Analysis](../code-review-context-analysis/SKILL.md)
+
 2. [Phase 2: Quality Review](../code-review-quality/SKILL.md)
+
 3. **Phase 3: Security Review (This Skill)**
+
 4. [Phase 4: Performance Review](../code-review-performance/SKILL.md)
+
 5. [Phase 5: Testing Review](../code-review-testing/SKILL.md)
+
 6. [Phase 6: Final Report](../code-review-final-report/SKILL.md)
 
 ## Additional Resources
 
 ### Security Tools
 - **Python**: bandit, safety, pip-audit, semgrep
+
 - **JavaScript**: ESLint security plugins, npm audit, snyk
+
 - **Java**: SpotBugs, Find Security Bugs, OWASP Dependency-Check
+
 - **Go**: gosec, govulncheck, staticcheck
+
 - **C/C++**: cppcheck, flawfinder, clang-tidy
+
 - **Multi-language**: semgrep, SonarQube, Snyk, GitLeaks
 
 ### Security Standards
 - [OWASP Top 10](https://owasp.org/www-project-top-ten/)
+
 - [OWASP ASVS](https://owasp.org/www-project-application-security-verification-standard/)
+
 - [CWE Top 25](https://cwe.mitre.org/top25/)
+
 - [NIST Cybersecurity Framework](https://www.nist.gov/cyberframework)
 
 ### Secure Coding Guidelines
 - [OWASP Secure Coding Practices](https://owasp.org/www-project-secure-coding-practices-quick-reference-guide/)
+
 - [SEI CERT Coding Standards](https://wiki.sei.cmu.edu/confluence/display/seccode)
 
 ---

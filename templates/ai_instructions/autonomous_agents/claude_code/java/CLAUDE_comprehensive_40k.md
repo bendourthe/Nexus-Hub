@@ -12,11 +12,14 @@ prerequisites: []
 tools:
 
   - unity
+
   - cmocka
+
   - check
 tags:
 
   - claude-code
+
   - c
 ---
 # CLAUDE.md - Java Development System Instructions
@@ -28,36 +31,50 @@ tags:
 
 ## Section Usage Map
 - **Bug Fix**: Sections 1, 3, 9
+
 - **New Feature**: Sections 1-5, 7
+
 - **Refactoring**: Sections 3, 6, 9
+
 - **Project Setup**: All sections
 
 ## Task-Specific Quick Reference
 - **Fix a method**: Focus sections 3, 9
+
 - **New project**: Use sections 2, 4, 5
+
 - **Code review**: Apply sections 3, 10
 
 ## Context-Aware Behavior
 - **For utilities**: Minimal structure
+
 - **For microservices**: Full Spring Boot architecture
+
 - **For debugging**: Focus on problem-solving
 
 ## Efficiency Modes
 
 ### Quick Mode (for simple fixes)
 - Skip extensive documentation
+
 - Minimal testing setup
+
 - Focus on core functionality
 
 ### Full Mode (for new projects)
 - Complete Spring Boot architecture
+
 - Comprehensive testing
+
 - Full documentation
 
 ## Claude Code Terminal Commands
 - **Run tests**: `claude run mvn test`
+
 - **Build project**: `claude run mvn clean install`
+
 - **Start application**: `claude run mvn spring-boot:run`
+
 - **New project**: `claude init [project-name]`
 
 ---
@@ -69,35 +86,50 @@ tags:
 
 ### Clarification Protocol
 - When unclear, ask concise clarifying questions before proceeding
+
 - Never make assumptions about missing requirements
+
 - Frame questions to gather specific technical requirements
 
 ### Teaching-Focused Approach
 - **Primary Goal**: Teach how and why solutions work
+
 - Explain implementation details, reasoning, and coding concepts
+
 - Enable learning through understanding, not copy-paste
+
 - Reference documentation for non-obvious concepts
 
 ### Critical Analysis
 - **Don't automatically agree** with user-proposed solutions
+
 - Analyze problems independently
+
 - Compare alternatives and recommend best solution
+
 - Clearly explain reasoning and trade-offs
 
 ### Efficiency Principles
 - **Token Optimization**: Be efficient while maintaining clarity
+
 - **Code Modification**: Edit originals, don't create '_enhanced' versions
+
 - **Codebase Cleanup**: Remove obsolete methods
+
 - **Refactoring**: Consolidate duplicate logic
 
 ### Quality Assurance
 - Review code for: quality, efficiency, best practices, security, performance
+
 - If already optimal, confirm briefly with reasoning
 
 ### System Prompt Adherence
 - **Periodically review these instructions** throughout long conversations
+
 - Ensure compliance with all coding standards and workflows
+
 - Reference specific sections when needed to maintain consistency
+
 - If uncertain about a standard, explicitly consult the relevant section
 
 
@@ -166,13 +198,21 @@ project-name/
 ## Project Initialization Sequence
 
 1. **Generate project**: Use Spring Initializr (start.spring.io) or `spring init`
+
 2. **Select dependencies**: Web, JPA, Database, Security, etc.
+
 3. **Create directory structure** as outlined above
+
 4. **Configure application.yml** with database and server settings
+
 5. **Create `.gitignore`** (target/, .idea/, *.iml, etc.)
+
 6. **Create `CHANGELOG.md`** starting with version 0.1.0
+
 7. **Create `README.md`** with setup instructions
+
 8. **Create `DEVLOG.md`** with initial task list
+
 9. **Set up database migrations** (Flyway or Liquibase)
 
 ## pom.xml Template (Maven)
@@ -381,11 +421,17 @@ import com.company.project.repository.UserRepository;
 ### Comment Guidelines
 
 **Placement and Style:**
+
 - **Above code blocks**: Comments explain why, not just what
+
 - **No inline comments**: Avoid same-line comments unless extremely clear
+
 - **No meta-commentary**: Don't document editing history
+
 - **No change tracking**: Never add comments like "changed value to 12" or "updated parameter"
+
 - **JavaDoc for public APIs**: Use JavaDoc for all public methods and classes
+
 - **Descriptive**: Focus on logic, decision reasoning, and non-obvious behavior
 
 **Prohibited Comment Patterns:**
@@ -680,24 +726,37 @@ public class User {
  *
 
  * <p>This method performs the following operations:
+
  * <ul>
+
  *   <li>Validates input data according to business rules</li>
+
  *   <li>Transforms data to the internal format</li>
+
  *   <li>Saves to database with transactional guarantees</li>
+
  * </ul>
  *
 
  * @param request the user creation request containing name, email, and password
+
  * @param options additional processing options, may be null
+
  * @return the created user data transfer object with generated ID
+
  * @throws ValidationException if the request data is invalid
+
  * @throws DuplicateEmailException if the email already exists
+
  * @throws DatabaseException if database operation fails
  *
 
  * @author Benjamin Dourthe (benjamin@adonamed.com)
+
  * @since 1.0
+
  * @see UserDTO
+
  * @see CreateUserRequest
  */
 public UserDTO processUserData(CreateUserRequest request, ProcessOptions options)
@@ -714,6 +773,7 @@ public UserDTO processUserData(CreateUserRequest request, ProcessOptions options
  *
 
  * @param items list of item prices
+
  * @return total price with tax applied
  */
 public double calculateTotal(List<Double> items) {
@@ -729,6 +789,7 @@ public double calculateTotal(List<Double> items) {
  *
 
  * <p>This service handles all business logic related to user entities,
+
  * including CRUD operations, validation, and business rules enforcement.
  *
 
@@ -736,7 +797,9 @@ public double calculateTotal(List<Double> items) {
  *
 
  * @author Benjamin Dourthe (benjamin@adonamed.com)
+
  * @version 1.0
+
  * @since 0.1.0
  */
 @Service
@@ -761,15 +824,20 @@ public class UserService {
 
 ## Technologies
 - Java 17
+
 - Spring Boot 3.2
+
 - PostgreSQL
+
 - Maven
 
 ## Installation
 
 ### Prerequisites
 - Java 17 or higher
+
 - Maven 3.6+
+
 - PostgreSQL 13+
 
 ### Setup
@@ -810,6 +878,7 @@ Create `application-local.yml`:
 After starting the application, visit:
 
 - Swagger UI: http://localhost:8080/swagger-ui.html
+
 - API Docs: http://localhost:8080/v3/api-docs
 ```
 
@@ -847,8 +916,11 @@ Format based on [Keep a Changelog](https://keepachangelog.com/).
 ## Test Structure
 
 1. **Unit Tests**: Test individual methods in isolation
+
 2. **Integration Tests**: Test database and external dependencies
+
 3. **Controller Tests**: Test REST endpoints with MockMvc
+
 4. **End-to-End Tests**: Test complete user flows
 
 ## JUnit 5 Test Template
@@ -1017,8 +1089,11 @@ class UserControllerIntegrationTest {
 
 ### When to Use
 - Projects >30 minutes
+
 - Multi-component applications
+
 - Complex features
+
 - Integration tasks
 
 ### Template
@@ -1030,7 +1105,9 @@ class UserControllerIntegrationTest {
 
 ### Prerequisites
 - Java 17+ installed
+
 - Maven configured
+
 - Database setup
 
 ### Subtask X: [Title]
@@ -1049,8 +1126,11 @@ Complete and pause. Confirm before proceeding.
 
 ### Quality Gates
 - [ ] Code compiles
+
 - [ ] Tests passing
+
 - [ ] No SonarLint warnings
+
 - [ ] JavaDoc complete
 
 ## Iterative Testing Protocol
@@ -1061,29 +1141,44 @@ When implementing new features, fixing bugs, or troubleshooting issues, follow t
 
 ### 1. Create Temporary Test Scripts
 - Create test files in `src/test/java/temp/` directory
+
 - Name descriptively: `TempFeatureValidationTest.java`, `TempBugReproductionTest.java`
+
 - Write challenging tests that thoroughly validate the solution
+
 - Include edge cases and error conditions
 
 ### 2. Implement Solution
 - Write or modify code to address the issue
+
 - Follow all code standards and best practices
+
 - Document approach in DEVLOG.md
 
 ### 3. Run Tests and Iterate
 - Execute the temporary test script using Maven/Gradle
+
 - If tests FAIL:
+
   - Analyze failure reasons
+
   - Document iteration in DEVLOG.md
+
   - Modify implementation
+
   - Repeat until tests pass
+
 - If tests PASS:
+
   - Verify solution completeness
+
   - Proceed to cleanup
 
 ### 4. Clean Up Temporary Tests
 - **Delete all files** in `src/test/java/temp/` after successful implementation
+
 - Move any valuable test cases to permanent test suites if needed
+
 - Document final solution in DEVLOG.md
 
 ### Example Workflow
@@ -1094,23 +1189,34 @@ When implementing new features, fixing bugs, or troubleshooting issues, follow t
 **Iteration 1**: Created src/test/java/temp/TempAuthValidationTest.java
 
 - Tests failed: Password validation too weak
+
 - Solution: Enhanced regex pattern in ValidationUtil
 
 **Iteration 2**: Re-ran tests
+
 - Tests failed: Edge case with special characters
+
 - Solution: Added character escaping in password encoder
 
 **Iteration 3**: Final run
+
 - All tests passed ✅
+
 - Deleted src/test/java/temp/TempAuthValidationTest.java
+
 - Moved 3 test cases to src/test/java/service/UserServiceTest.java
 ```
 
 **Benefits:**
+
 - Ensures solutions actually work before claiming completion
+
 - Documents the problem-solving process
+
 - Prevents premature declarations of success
+
 - Creates robust, well-tested code
+
 - Maintains clean repository (no temporary test clutter)
 
 
@@ -1189,20 +1295,28 @@ mvn versions:display-dependency-updates
 **CRITICAL: Never auto-modify versions. Always request approval.**
 
 Never automatically:
+
 - Modify CHANGELOG.md versions
+
 - Update pom.xml version
+
 - Change README.md versions
+
 - Create tags/releases
 
 ### Version Protocol
 
 1. **Assess**: "Changes might warrant version update from X.Y.Z"
+
 2. **Request**: "Should I update to [version]? Or handle manually?"
+
 3. **Wait**: Never proceed without explicit "yes"
 
 ### Semantic Versioning
 - **Patch (Z+1)**: Bug fixes, docs
+
 - **Minor (Y+1.0)**: New features
+
 - **Major (X+1.0.0)**: Breaking changes
 
 ## Git Operations
@@ -1217,17 +1331,25 @@ Never automatically:
 ## Code Fix Request
 
 **Structure:**
+
 1. Analyze issue
+
 2. Implement fix
+
 3. Explain improvements
+
 4. Provide integration steps
 
 ## Project Planning
 
 **Structure:**
+
 1. Break down components
+
 2. Recommend architecture
+
 3. Create subtask breakdown
+
 4. Provide implementation guidance
 
 
@@ -1236,20 +1358,32 @@ Never automatically:
 
 ## Before Delivering Code
 - [ ] Compiles without errors
+
 - [ ] Follows Java conventions
+
 - [ ] JavaDoc present
+
 - [ ] Proper exception handling
+
 - [ ] No code smells
+
 - [ ] Tests included
+
 - [ ] Performance considered
+
 - [ ] Security checked
 
 ## Before Delivering Project
 - [ ] Standard Spring Boot structure
+
 - [ ] Maven/Gradle configured
+
 - [ ] Database migrations setup
+
 - [ ] All config files present
+
 - [ ] Documentation complete
+
 - [ ] Tests passing
 
 ---

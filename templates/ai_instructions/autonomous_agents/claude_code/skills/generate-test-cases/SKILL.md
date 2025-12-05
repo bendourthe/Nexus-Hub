@@ -17,45 +17,71 @@ Create comprehensive test suites covering unit tests, integration tests, and end
 ## When to Use This Skill
 
 Use this skill when:
+
 - Implementing new features that need test coverage
+
 - Adding tests to untested legacy code
+
 - Improving test coverage for critical paths
+
 - Systematically testing edge cases and boundaries
+
 - Writing tests for bug fixes
+
 - Creating regression test suites
+
 - Documenting expected behavior through tests
 
 **This skill is essential for**:
+
 - New feature development with TDD
+
 - Legacy code modernization
+
 - Critical business logic validation
+
 - API contract testing
+
 - Integration point verification
 
 ## What This Skill Does
 
 This skill helps you:
+
 1. **Generate unit tests** for isolated functionality
+
 2. **Create integration tests** for component interactions
+
 3. **Develop E2E tests** for complete workflows
+
 4. **Identify edge cases** and boundary conditions
+
 5. **Apply test patterns** (AAA, Given-When-Then)
+
 6. **Test error paths** and exception handling
+
 7. **Verify input validation** thoroughly
+
 8. **Test concurrent scenarios** where applicable
 
 ## Prerequisites
 
 ### Required
 - Testing infrastructure set up (see `setup-test-infrastructure`)
+
 - Understanding of code under test
+
 - Knowledge of expected behavior
+
 - Test framework familiarity
 
 ### Recommended
 - Code coverage tool configured
+
 - Mocking framework available
+
 - Test data factories ready
+
 - CI/CD pipeline configured
 
 ## Instructions
@@ -65,29 +91,47 @@ This skill helps you:
 Before writing tests, identify what needs to be tested:
 
 **Happy Path Scenarios**:
+
 - Normal execution with valid inputs
+
 - Expected user workflows
+
 - Common use cases
 
 **Edge Cases**:
+
 - Boundary values (min/max, zero, negative)
+
 - Empty inputs (null, empty strings, empty arrays)
+
 - Large inputs (performance boundaries)
+
 - Special characters and Unicode
+
 - Concurrent access
 
 **Error Cases**:
+
 - Invalid inputs
+
 - Missing required data
+
 - System failures (network, database)
+
 - Permission errors
+
 - Timeouts and rate limits
 
 **Integration Points**:
+
 - External API interactions
+
 - Database operations
+
 - File system access
+
 - Message queues
+
 - Third-party services
 
 ### Step 2: Write Unit Tests
@@ -1188,32 +1232,47 @@ def test_square_function(input, expected):
 ## Success Criteria
 
 - [ ] Unit tests cover all public functions
+
 - [ ] Integration tests verify component interactions
+
 - [ ] E2E tests validate complete workflows
+
 - [ ] Edge cases and boundaries tested
+
 - [ ] Error paths tested
+
 - [ ] Test naming follows conventions
+
 - [ ] Tests follow AAA or Given-When-Then pattern
+
 - [ ] Parametrized tests used where appropriate
+
 - [ ] Test coverage meets minimum threshold (80%+)
+
 - [ ] Tests run reliably and consistently
 
 ## Related Skills
 
 - [`test-driven-development`](../test-driven-development/SKILL.md) - Write tests first
+
 - [`setup-test-infrastructure`](../setup-test-infrastructure/SKILL.md) - Set up framework
+
 - [`create-mocks-fixtures`](../create-mocks-fixtures/SKILL.md) - Create test data
+
 - [`analyze-code-coverage`](../analyze-code-coverage/SKILL.md) - Measure coverage
 
 ## Additional Resources
 
 ### Testing Patterns
 - [Arrange-Act-Assert Pattern](https://automationpanda.com/2020/07/07/arrange-act-assert-a-pattern-for-writing-good-tests/)
+
 - [Given-When-Then](https://martinfowler.com/bliki/GivenWhenThen.html)
+
 - [Test Pyramid](https://martinfowler.com/articles/practical-test-pyramid.html)
 
 ### Best Practices
 - [Unit Testing Best Practices](https://docs.microsoft.com/en-us/dotnet/core/testing/unit-testing-best-practices)
+
 - [JavaScript Testing Best Practices](https://github.com/goldbergyoni/javascript-testing-best-practices)
 
 ---

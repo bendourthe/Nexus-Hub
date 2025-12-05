@@ -19,19 +19,31 @@ Establish comprehensive understanding of the project before conducting detailed 
 Use this skill as the **first phase** of any comprehensive code review:
 
 - ✅ Beginning a code review for a new project or codebase
+
 - ✅ Onboarding to an unfamiliar codebase
+
 - ✅ Before proposing major architectural changes
+
 - ✅ Pre-acquisition technical due diligence
+
 - ✅ Audit preparation and compliance assessment
+
 - ✅ Legacy codebase evaluation for modernization
+
 - ✅ Security audit preparation
+
 - ✅ Performance optimization planning
 
 **This skill is essential when**:
+
 - You need to understand project architecture and design decisions
+
 - You're identifying technical debt and maintenance burden
+
 - You want to assess development maturity and practices
+
 - You need to map dependencies and potential security risks
+
 - You're planning follow-up review phases
 
 ## What This Skill Does
@@ -43,9 +55,13 @@ Understand the project landscape, architecture, and development practices
 
 ### Subsequent Phases
 - Phase 2: [Code Quality Review](../code-review-quality/SKILL.md)
+
 - Phase 3: [Security Review](../code-review-security/SKILL.md)
+
 - Phase 4: [Performance Review](../code-review-performance/SKILL.md)
+
 - Phase 5: [Testing Review](../code-review-testing/SKILL.md)
+
 - Phase 6: [Final Report](../code-review-final-report/SKILL.md)
 
 ## Why Context Analysis Matters
@@ -57,10 +73,15 @@ Reviewer: *flags architectural pattern as "bad practice"*
 Result:
 
 - ❌ Misunderstanding of design decisions
+
 - ❌ Inappropriate recommendations
+
 - ❌ Missing critical dependencies
+
 - ❌ Overlooking project-specific constraints
+
 - ❌ Inefficient review process
+
 - ❌ Poor prioritization of findings
 ```
 
@@ -72,10 +93,15 @@ Reviewer: *reviews code within proper context*
 Result:
 
 - ✅ Informed, relevant recommendations
+
 - ✅ Proper understanding of tradeoffs
+
 - ✅ Comprehensive dependency mapping
+
 - ✅ Awareness of project constraints
+
 - ✅ Efficient, focused review process
+
 - ✅ Well-prioritized, actionable findings
 ```
 
@@ -83,40 +109,58 @@ Result:
 
 ### Better Review Quality
 - **Informed Decisions**: Understand why code is structured as it is
+
 - **Relevant Recommendations**: Suggestions fit project constraints and goals
+
 - **Comprehensive Coverage**: Don't miss critical areas or dependencies
+
 - **Proper Prioritization**: Focus on actual risks and issues
 
 ### Efficiency
 - **Focused Review**: Know where to look for specific issues
+
 - **Avoid Distractions**: Skip reviewing known, acceptable patterns
+
 - **Faster Analysis**: Understanding architecture speeds up code review
+
 - **Better Planning**: Allocate time appropriately across codebase
 
 ### Stakeholder Value
 - **Business Alignment**: Recommendations align with project goals
+
 - **Cost Awareness**: Understand development and maintenance costs
+
 - **Risk Assessment**: Identify and quantify technical risks
+
 - **Strategic Guidance**: Provide long-term technical direction
 
 ## Prerequisites
 
 ### Required
 - Access to source code repository
+
 - Repository structure and organization details
+
 - Build and configuration files
+
 - Documentation (README, architecture docs, etc.)
 
 ### Recommended
 - Access to development team for clarifications
+
 - Historical context (git history, past decisions)
+
 - Deployment and infrastructure information
+
 - Issue tracking and project management tools access
 
 ### Knowledge
 - Understanding of common architectural patterns
+
 - Familiarity with dependency management
+
 - Basic knowledge of security best practices
+
 - Understanding of software metrics and complexity
 
 ## Instructions
@@ -141,44 +185,73 @@ Result:
 2. **Identify Key Files and Directories**
 
    **For Python projects**, look for:
+
    - `src/` or `app/` - Main source code
+
    - `tests/` - Test suite
+
    - `pyproject.toml`, `setup.py`, `setup.cfg` - Build configuration
+
    - `requirements.txt`, `Pipfile`, `poetry.lock` - Dependencies
+
    - `README.md`, `CHANGELOG.md` - Documentation
+
    - `.github/`, `.gitlab-ci.yml` - CI/CD configuration
 
    **For JavaScript projects**, look for:
+
    - `src/` or `lib/` - Main source code
+
    - `tests/` or `__tests__/` - Test suite
+
    - `package.json`, `tsconfig.json` - Configuration
+
    - `node_modules/` - Dependency directory
+
    - `.github/workflows/`, `.circleci/` - CI/CD
 
    **For Java projects**, look for:
+
    - `src/main/java/` - Main source code
+
    - `src/test/java/` - Test suite
+
    - `pom.xml`, `build.gradle` - Build configuration
+
    - `target/` or `build/` - Build outputs
 
    **For Go projects**, look for:
+
    - Root package files - Main source code
+
    - `*_test.go` - Test files
+
    - `go.mod`, `go.sum` - Dependency management
+
    - `cmd/` - Application entry points
+
    - `pkg/` - Library code
 
    **For C/C++ projects**, look for:
+
    - `src/` - Source files
+
    - `include/` - Header files
+
    - `tests/` or `test/` - Test suite
+
    - `CMakeLists.txt`, `Makefile` - Build configuration
+
    - `lib/` or `vendor/` - External libraries
 
    **For C# projects**, look for:
+
    - `*.sln` - Solution file
+
    - `*.csproj` - Project files
+
    - Source and test directories
+
    - `packages.config`, `*.nuspec` - Dependencies
 
 3. **Read Primary Documentation**
@@ -269,15 +342,25 @@ Result:
 2. **Identify Architectural Patterns**
 
    Common patterns to look for:
+
    - **Monolithic**: Single deployable application
+
    - **Modular**: Organized into logical modules/packages
+
    - **Microservices**: Multiple independent services
+
    - **MVC**: Model-View-Controller separation
+
    - **Layered**: Presentation, Business, Data layers
+
    - **Repository Pattern**: Data access abstraction
+
    - **Factory Pattern**: Object creation abstraction
+
    - **Singleton Pattern**: Single instance management
+
    - **Observer Pattern**: Event-driven architecture
+
    - **Strategy Pattern**: Algorithm encapsulation
 
 3. **Map Module Dependencies**
@@ -474,25 +557,39 @@ Result:
 2. **CI/CD Configuration**
 
    Look for:
+
    - GitHub Actions: `.github/workflows/*.yml`
+
    - GitLab CI: `.gitlab-ci.yml`
+
    - CircleCI: `.circleci/config.yml`
+
    - Jenkins: `Jenkinsfile`
+
    - Travis CI: `.travis.yml`
 
    Review what's automated:
+
    - Builds
+
    - Tests
+
    - Linting/code quality checks
+
    - Security scans
+
    - Deployments
 
 3. **Environment Configuration**
 
    Look for:
+
    - Environment variables (`.env.example`)
+
    - Configuration files (`config.yaml`, `settings.py`)
+
    - Secrets management approach
+
    - Multi-environment support (dev/staging/prod)
 
 ### Step 5: Codebase Metrics Collection
@@ -584,12 +681,19 @@ Result:
 2. **Project Documentation**
 
    Check for:
+
    - README.md completeness
+
    - CONTRIBUTING.md presence
+
    - CHANGELOG.md or release notes
+
    - Architecture documentation
+
    - API documentation
+
    - Setup and installation guides
+
    - Troubleshooting guides
 
 ### Step 7: Generate Context Report
@@ -608,10 +712,15 @@ Create a report with the following structure:
 ## Executive Summary
 
 - **Project Purpose**: [Brief description]
+
 - **Development Stage**: [Prototype/Production/Legacy]
+
 - **Primary Language**: [Language]
+
 - **Architecture Style**: [Pattern]
+
 - **Team Size**: [Estimated from contributors]
+
 - **Age**: [First commit to last commit timespan]
 
 ## Project Structure
@@ -621,7 +730,9 @@ Create a report with the following structure:
 
 ### Key Components
 - Entry Points: [List main entry points]
+
 - Core Modules: [List critical modules]
+
 - External Interfaces: [APIs, CLI, GUI]
 
 ## Architecture Analysis
@@ -634,16 +745,22 @@ Create a report with the following structure:
 
 ### Technology Stack
 - **Language**: [Version]
+
 - **Framework**: [Name and version]
+
 - **Database**: [Type and version]
+
 - **Key Libraries**: [Major dependencies]
 
 ## Dependency Health
 
 ### Summary
 - Total Dependencies: [Count]
+
 - Outdated: [Count]
+
 - With Known Vulnerabilities: [Count]
+
 - License Issues: [Count]
 
 ### Critical Dependencies
@@ -665,10 +782,15 @@ Create a report with the following structure:
 ## Codebase Metrics
 
 - **Total Lines**: [Number]
+
 - **Source Code**: [Number] ([%])
+
 - **Comments**: [Number] ([%])
+
 - **Average Complexity**: [Score]
+
 - **Maintainability Index**: [Score]
+
 - **Duplication**: [%]
 
 ### Complexity Hotspots
@@ -679,24 +801,32 @@ Create a report with the following structure:
 ## Documentation Quality
 
 - **Code Documentation**: [Good/Fair/Poor]
+
 - **Project Documentation**: [Comprehensive/Adequate/Lacking]
+
 - **API Documentation**: [Present/Absent]
+
 - **Gaps Identified**: [List major gaps]
 
 ## Key Findings
 
 ### Strengths
 1. [Positive observation]
+
 2. [Positive observation]
+
 3. [Positive observation]
 
 ### Concerns
 1. [Issue to investigate]
+
 2. [Issue to investigate]
+
 3. [Issue to investigate]
 
 ### Dependencies
 - Outdated packages: [List critical ones]
+
 - Vulnerable packages: [List with CVEs]
 
 ## Recommendations for Review Focus
@@ -704,16 +834,23 @@ Create a report with the following structure:
 Based on context analysis, prioritize:
 
 1. **[Area]** - [Reason and expected findings]
+
 2. **[Area]** - [Reason and expected findings]
+
 3. **[Area]** - [Reason and expected findings]
 
 ## Next Steps
 
 - [ ] Proceed with [Phase 2: Code Quality Review](../code-review-quality/SKILL.md)
+
 - [ ] Address critical dependency vulnerabilities
+
 - [ ] Conduct [Phase 3: Security Review](../code-review-security/SKILL.md)
+
 - [ ] Perform [Phase 4: Performance Analysis](../code-review-performance/SKILL.md)
+
 - [ ] Execute [Phase 5: Testing Review](../code-review-testing/SKILL.md)
+
 - [ ] Generate [Phase 6: Final Report](../code-review-final-report/SKILL.md)
 ```
 
@@ -722,11 +859,17 @@ Based on context analysis, prioritize:
 This skill supports comprehensive context analysis for:
 
 - **Python** - Django, Flask, FastAPI applications
+
 - **JavaScript/TypeScript** - Node.js, React, Angular, Vue applications
+
 - **Java** - Spring Boot, Jakarta EE applications
+
 - **Go** - Standard library, Gin, Echo applications
+
 - **C** - System programming, embedded applications
+
 - **C++** - Modern C++, Qt, Boost applications
+
 - **C#** - .NET Core, ASP.NET applications
 
 Each language has specific tools and patterns for dependency analysis, metrics collection, and documentation assessment.
@@ -760,46 +903,68 @@ Each language has specific tools and patterns for dependency analysis, metrics c
 ## Success Criteria
 
 - [ ] Complete understanding of project purpose and architecture
+
 - [ ] All dependencies identified and health-checked
+
 - [ ] Build and deployment processes documented
+
 - [ ] Codebase metrics collected and analyzed
+
 - [ ] Documentation quality assessed
+
 - [ ] Key strengths and concerns identified
+
 - [ ] Focus areas for subsequent reviews determined
+
 - [ ] Context report generated and shared
+
 - [ ] Team ready to proceed with detailed code review phases
 
 ## Related Skills
 
 ### Code Review Workflow (6-Phase Process)
 1. [`code-review-context-analysis`](./SKILL.md) - **This skill** - Understand project landscape
+
 2. [`code-review-quality`](../code-review-quality/SKILL.md) - Assess maintainability and technical debt
+
 3. [`code-review-security`](../code-review-security/SKILL.md) - Identify vulnerabilities and risks
+
 4. [`code-review-performance`](../code-review-performance/SKILL.md) - Find bottlenecks and optimization opportunities
+
 5. [`code-review-testing`](../code-review-testing/SKILL.md) - Evaluate test coverage and quality
+
 6. [`code-review-final-report`](../code-review-final-report/SKILL.md) - Consolidate findings and create action plan
 
 ### Supporting Skills
 - [`plan-before-code`](../plan-before-code/SKILL.md) - Planning methodology
+
 - [`test-driven-development`](../test-driven-development/SKILL.md) - TDD workflow
 
 ## Additional Resources
 
 ### Context Analysis Tools
 - **Python**: radon, interrogate, pip-audit, safety
+
 - **JavaScript**: complexity-report, npm-audit, documentation
+
 - **Java**: PMD, Checkstyle, OWASP Dependency-Check
+
 - **Go**: gocyclo, govulncheck, staticcheck
+
 - **Multi-language**: cloc, SonarQube, CodeClimate
 
 ### Architecture Documentation
 - [C4 Model](https://c4model.com/) - Software architecture diagrams
+
 - [Arc42](https://arc42.org/) - Architecture documentation template
+
 - [Structurizr](https://structurizr.com/) - Architecture as code
 
 ### Metrics and Analysis
 - [Sonar](https://www.sonarsource.com/) - Code quality and security
+
 - [CodeClimate](https://codeclimate.com/) - Maintainability analysis
+
 - [LGTM](https://lgtm.com/) - Automated code review
 
 ---

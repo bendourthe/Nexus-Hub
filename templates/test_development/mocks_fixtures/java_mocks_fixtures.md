@@ -18,11 +18,14 @@ related_templates:
 tools:
 
   - junit (5.11.3)
+
   - maven
+
   - gradle
 tags:
 
   - test-development
+
   - java
 ---
 # Java Mocks & Fixtures
@@ -151,8 +154,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 Please implement comprehensive mocking and fixture strategies for this Java project following this protocol:
@@ -1120,11 +1126,17 @@ Replace `{phase_name}` with the specific phase (test_cases, mocks_fixtures, perf
 The AI assistant should deliver:
 
 1. **Comprehensive fixture setup** using JUnit 5 annotations
+
 2. **Mock configurations** for external dependencies
+
 3. **Test data factories** for domain objects
+
 4. **Builder patterns** for complex test data
+
 5. **Usage documentation** with examples
+
 6. **Best practices guide** for Mockito and WireMock
+
 7. **Fixture and mock catalog** for easy reference
 ---
 

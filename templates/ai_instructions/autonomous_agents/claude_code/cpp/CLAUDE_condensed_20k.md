@@ -12,11 +12,14 @@ prerequisites: []
 tools:
 
   - unity
+
   - cmocka
+
   - check
 tags:
 
   - claude-code
+
   - c
 ---
 # CLAUDE.md - C++ Development System Instructions
@@ -28,36 +31,50 @@ tags:
 
 ## Section Usage Map
 - **Bug Fix**: Sections 1, 3, 9
+
 - **New Feature**: Sections 1-5, 7
+
 - **Refactoring**: Sections 3, 6, 9
+
 - **Project Setup**: All sections
 
 ## Task-Specific Quick Reference
 - **Fix a function**: Focus sections 3, 9
+
 - **New project**: Use sections 2, 4, 5
+
 - **Code review**: Apply sections 3, 10
+
 - **Modernize code**: Section 11
 
 ## Context-Aware Behavior
 - **For applications**: Use modern C++ features, STL
+
 - **For libraries**: Clear API, header-only when appropriate
+
 - **For performance**: Profile first, optimize second
 
 ## Efficiency Modes
 
 ### Quick Mode (for simple fixes)
 - Skip extensive documentation
+
 - Minimal testing setup
+
 - Focus on core functionality
 
 ### Full Mode (for new projects)
 - Complete architecture with CMake
+
 - Comprehensive testing
+
 - Full documentation
 
 ## Claude Code Terminal Commands
 - **Build**: `cmake --build build`
+
 - **Test**: `ctest --test-dir build`
+
 - **Format**: `clang-format -i src/**/*.cpp`
 
 ---
@@ -69,32 +86,47 @@ tags:
 
 ### Clarification Protocol
 - When unclear, ask concise clarifying questions before proceeding
+
 - Never make assumptions about missing requirements
+
 - Frame questions to gather specific technical requirements
+
 - Clarify C++ standard version (C++11, 14, 17, 20, 23)
 
 ### Teaching-Focused Approach
 - **Primary Goal**: Teach how and why solutions work
+
 - Explain implementation details, reasoning, and modern C++ idioms
+
 - Enable learning through understanding, not copy-paste
+
 - Reference C++ Core Guidelines
+
 - Explain RAII, move semantics, templates
 
 ### Critical Analysis
 - **Don't automatically agree** with user-proposed solutions
+
 - Analyze problems independently
+
 - Compare alternatives (STL vs custom, smart vs raw pointers)
+
 - Clearly explain reasoning and trade-offs
+
 - Recommend modern C++ over C-style code
 
 ### Efficiency Principles
 - **Token Optimization**: Be efficient while maintaining clarity
+
 - **Code Modification**: Edit originals, don't create '_enhanced' versions
+
 - **Codebase Cleanup**: Remove obsolete code
+
 - **Refactoring**: Use modern C++ features
 
 ### Quality Assurance
 - Review code for: quality, efficiency, best practices, exception safety, const-correctness
+
 - If already optimal, confirm briefly with reasoning
 
 
@@ -190,9 +222,13 @@ gtest_discover_tests(unit_tests)
 ## Include Organization
 
 Order (blank line between):
+
 1. Corresponding header (for .cpp files)
+
 2. C++ standard library (alphabetically)
+
 3. Third-party libraries (alphabetically)
+
 4. Project headers (alphabetically)
 
 ```cpp
@@ -431,19 +467,27 @@ void threadSafe() {
 /**
 
  * @file buffer.hpp
+
  * @brief Dynamic buffer with automatic growth
+
  * @author Benjamin Dourthe (benjamin@adonamed.com)
  */
 
 /**
+
  * @class Buffer
+
  * @brief Dynamic byte buffer with RAII
  *
 
  * Example:
+
  * @code
+
  * Buffer buf(1024);
+
  * buf.append(data, size);
+
  * @endcode
  */
 class Buffer {
@@ -451,22 +495,30 @@ public:
     /**
 
      * @brief Construct buffer
+
      * @param[in] capacity Initial capacity
+
      * @throws std::bad_alloc If allocation fails
      */
     explicit Buffer(size_t capacity);
 
     /**
+
      * @brief Get size
+
      * @return Size in bytes
      */
     [[nodiscard]] size_t size() const noexcept;
 };
 
 /**
+
  * @brief Parse configuration
+
  * @param[in] filename Path to file
+
  * @return Configuration data
+
  * @throws std::runtime_error On error
  */
 ConfigData parseConfig(const std::string& filename);
@@ -482,12 +534,16 @@ ConfigData parseConfig(const std::string& filename);
 
 ## Features
 - Modern C++17
+
 - Exception-safe with RAII
+
 - Comprehensive tests
 
 ## Requirements
 - CMake 3.15+
+
 - C++17 compiler (GCC 9+, Clang 10+, MSVC 2019+)
+
 - GoogleTest
 
 ## Building
@@ -521,10 +577,15 @@ ConfigData parseConfig(const std::string& filename);
 ### Comment Guidelines
 
 **Placement and Style:**
+
 - **Above code blocks**: Comments explain why, not just what
+
 - **No inline comments**: Avoid same-line comments unless extremely clear
+
 - **No meta-commentary**: Don't document editing history
+
 - **No change tracking**: Never add comments like "changed value to 12" or "updated parameter"
+
 - **Descriptive**: Focus on logic, decision reasoning, and non-obvious behavior
 
 **Prohibited Comment Patterns:**
@@ -546,7 +607,9 @@ std::string value = newValue;  // Cache invalidation requires fresh value
 ## [0.1.0] - 2025-01-01
 ### Added
 - Initial release
+
 - Buffer class with RAII
+
 - CMake build system
 ```
 
@@ -567,7 +630,9 @@ std::string value = newValue;  // Cache invalidation requires fresh value
 
 ### Implementation Challenges
 - **Challenge X**: [Problem]
+
   - *Solution*: [Resolution]
+
   - *Trade-offs*: [Considerations]
 ```
 
@@ -645,8 +710,11 @@ int main(int argc, char** argv) {
 
 ### When to Use
 - Projects >30 minutes
+
 - Multi-module applications
+
 - Library development
+
 - Template-heavy code
 
 ### Template
@@ -658,7 +726,9 @@ int main(int argc, char** argv) {
 
 ### Prerequisites
 - C++17 compiler
+
 - CMake 3.15+
+
 - GoogleTest
 
 ### Subtask X: [Title]
@@ -677,13 +747,21 @@ int main(int argc, char** argv) {
 
 ### Quality Gates
 - [ ] Functionality verified
+
 - [ ] Modern C++ used
+
 - [ ] RAII implemented
+
 - [ ] Exception safety
+
 - [ ] Move semantics
+
 - [ ] Documentation
+
 - [ ] Tests with >80% coverage
+
 - [ ] No compiler warnings
+
 - [ ] clang-tidy clean
 
 
@@ -692,12 +770,19 @@ int main(int argc, char** argv) {
 **When implementing features or fixing bugs:**
 
 1. **Create temp tests** in `tests/temp/` (e.g., `test_feature_validation.cpp`)
+
 2. **Write challenging tests** with edge cases
+
 3. **Implement solution** following code standards
+
 4. **Run tests and iterate**:
+
    - If FAIL: Document in DEVLOG.md, modify code, repeat
+
    - If PASS: Proceed to cleanup
+
 5. **Delete temp tests** after successful implementation
+
 6. **Document process** in DEVLOG.md with iteration count
 
 **Benefits**: Ensures solutions work, documents problem-solving, prevents premature success claims, maintains clean repository
@@ -781,19 +866,26 @@ valgrind --leak-check=full ./build/app
 **CRITICAL: Never auto-modify versions. Always request approval.**
 
 Never automatically:
+
 - Modify CHANGELOG.md versions
+
 - Update CMakeLists.txt version
+
 - Change README.md versions
 
 ### Version Protocol
 
 1. **Assess**: "Changes might warrant update from X.Y.Z"
+
 2. **Request**: "Should I update to [version]?"
+
 3. **Wait**: Never proceed without explicit "yes"
 
 ### Semantic Versioning
 - **Patch (Z+1)**: Bug fixes, no API changes
+
 - **Minor (Y+1.0)**: New features, backward-compatible
+
 - **Major (X+1.0.0)**: Breaking changes
 
 ## Git Operations
@@ -806,7 +898,9 @@ Only when requested:
 Since you requested Git help:
 
 1. Stage: git add src/ include/ CMakeLists.txt
+
 2. Commit: git commit -m "Add Buffer class"
+
 3. Push: git push origin main
 ```
 
@@ -814,7 +908,9 @@ Since you requested Git help:
 Safe to update without permission:
 
 - Task lists
+
 - Development history
+
 - Challenges/solutions
 
 
@@ -894,35 +990,59 @@ Performance-critical? → error code/bool
 
 ## Before Delivering Code
 - [ ] Solves problem
+
 - [ ] Modern C++ (C++17+)
+
 - [ ] RAII for resources
+
 - [ ] Smart pointers (no raw owning pointers)
+
 - [ ] Exception safety
+
 - [ ] Move semantics
+
 - [ ] Const correctness
+
 - [ ] noexcept where appropriate
+
 - [ ] Documentation
+
 - [ ] Tests
+
 - [ ] No warnings (-Wall -Wextra)
+
 - [ ] clang-tidy clean
 
 ## Before Delivering Project
 - [ ] CMake build (3.15+)
+
 - [ ] C++ standard specified
+
 - [ ] Testing integrated
+
 - [ ] Documentation
+
 - [ ] .clang-format
+
 - [ ] .clang-tidy
+
 - [ ] .gitignore
+
 - [ ] Cross-platform
 
 ## Modern C++ Checklist
 - [ ] Smart pointers (no new/delete)
+
 - [ ] RAII throughout
+
 - [ ] Auto where appropriate
+
 - [ ] Range-for loops
+
 - [ ] Lambdas for local functions
+
 - [ ] std::optional for optional values
+
 - [ ] std::string_view for strings
 
 ---

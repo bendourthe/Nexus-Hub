@@ -111,10 +111,15 @@ Measure, analyze, and improve test coverage to ensure comprehensive testing of t
 Use the appropriate template file with your AI assistant to:
 
 1. Set up coverage measurement infrastructure
+
 2. Analyze current coverage and identify gaps
+
 3. Establish coverage goals and thresholds
+
 4. Implement strategies to improve coverage
+
 5. Integrate coverage into CI/CD pipeline
+
 6. Create coverage reports and dashboards
 
 **Critical Follow-Up**: After achieving coverage goals, proceed to **Reward Hacking** phase to verify coverage integrity through mutation testing. High coverage metrics can be misleading if tests don't actually validate behavior.

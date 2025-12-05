@@ -15,10 +15,12 @@ prerequisites:
 tools:
 
   - go test (1.23+)
+
   - testify
 tags:
 
   - test-development
+
   - go
 ---
 # Go Reward Hacking - Test Quality Validation Guide
@@ -84,32 +86,50 @@ ${OUTPUT_DIR}/
 
 ### Prerequisites Verification
 - [ ] All 7 previous testing phases completed
+
 - [ ] Test structure output collected
+
 - [ ] Unit test results available
+
 - [ ] Integration test outputs gathered
+
 - [ ] Mock and fixture implementations documented
+
 - [ ] Performance test results compiled
+
 - [ ] CI/CD pipeline logs obtained
+
 - [ ] Code coverage reports generated
 
 ### Mutation Testing Setup
 - [ ] go-mutesting installed
+
 - [ ] Mutation testing baseline established
+
 - [ ] Mutation score thresholds defined
+
 - [ ] Test execution environment prepared
 
 ### Quality Analysis
 - [ ] Tautological test detection script created
+
 - [ ] Weak assertion analyzer implemented
+
 - [ ] Over-mocking detection configured
+
 - [ ] Coverage integrity validator developed
+
 - [ ] Test independence checker deployed
 
 ### Reporting
 - [ ] Comprehensive test quality report generated (25-35 pages)
+
 - [ ] Mutation testing results documented
+
 - [ ] Phase-by-phase validation completed
+
 - [ ] Remediation action plan created
+
 - [ ] Continuous monitoring configured
 
 ---
@@ -157,9 +177,13 @@ git config --get remote.origin.url
 Analyze all unit tests for patterns that always pass:
 
 **Detection Criteria:**
+
 - Tests with no assertions
+
 - Tests with trivial assertions (true checks, nil checks only)
+
 - Tests that only check types without validating behavior
+
 - Tests with mocked return values used directly in assertions
 
 **Create:** `${OUTPUT_DIR}/templates/tautological_detector.go`
@@ -581,9 +605,13 @@ go run ${OUTPUT_DIR}/templates/isolation_verifier.go 20
 Detect excessive mocking that prevents real code validation:
 
 **Analysis focuses on:**
+
 - Interface mock implementations
+
 - testify/mock usage patterns
+
 - gomock usage patterns
+
 - Excessive mock setup
 
 ---
@@ -630,9 +658,13 @@ Mutants generated: 250
 Mutants tested: 250
 
 Results:
+
 - PASSED (mutant killed): 205 (82%)
+
 - FAILED (mutant survived): 35 (14%)
+
 - TIMEOUT: 8 (3%)
+
 - SKIPPED: 2 (1%)
 
 Mutation Score: 82%
@@ -642,8 +674,11 @@ Mutation Score: 82%
 **Severity Classification:**
 
 - **FAILED/Survived (Critical):** Mutations not caught by tests
+
 - **SKIPPED (Critical):** Code not covered by tests
+
 - **TIMEOUT (Medium):** Tests too slow or infinite loops
+
 - **PASSED/Killed (Good):** Tests successfully caught mutations
 
 ### 2.3 Analyzing Survived Mutations
@@ -1076,14 +1111,23 @@ func TestDivideErrors(t *testing.T) {
 After completing this reward hacking validation phase:
 
 - [ ] Overall test quality score >80/100
+
 - [ ] go-mutesting mutation score >80% across all packages
+
 - [ ] Zero critical reward hacking incidents
+
 - [ ] <5% high severity issues
+
 - [ ] 100% test independence verified (go test -shuffle)
+
 - [ ] <2% flaky test rate
+
 - [ ] Continuous monitoring configured with go-mutesting
+
 - [ ] Team trained on table-driven test patterns
+
 - [ ] CI/CD quality gates active
+
 - [ ] Regular audit schedule established
 
 ---

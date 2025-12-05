@@ -12,12 +12,16 @@ prerequisites: []
 tools:
 
   - junit (5.11.3)
+
   - maven
+
   - gradle
 tags:
 
   - documentation
+
   - documentation
+
   - java
 ---
 # Java Documentation Generation (JavaDoc)
@@ -149,8 +153,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -169,17 +176,24 @@ Please generate comprehensive JavaDoc documentation for this Java project follow
 ## Phase 1: Analysis & Style Selection
 
 1. **Analyze Existing Code**
+
    - Inventory all packages, classes, and public methods
+
    - Identify existing JavaDoc patterns
+
    - Note special documentation requirements
+
    - Review inheritance hierarchies
 
 2. **Determine Documentation Style**
    Use **JavaDoc standard** with proper HTML formatting.
 
 3. **Review Type Definitions**
+
    - Check generic type usage
+
    - Ensure JavaDoc complements type signatures
+
    - Document complex type relationships
 
 ## Phase 2: Package-Level Documentation
@@ -194,35 +208,50 @@ For each package, create comprehensive documentation:
  *
 
  * <p>[Detailed description of package functionality, scope, and use cases.
+
  * Include key concepts, main responsibilities, and intended usage.]</p>
  *
 
  * <h2>Key Classes</h2>
+
  * <ul>
+
  *   <li>{@link ClassName1} - Brief description</li>
+
  *   <li>{@link ClassName2} - Brief description</li>
+
  * </ul>
  *
 
  * <h2>Usage Example</h2>
+
  * <pre>{@code
+
  * import com.example.package.*;
  *
 
  * MainClass instance = new MainClass(param1, param2);
+
  * Result result = instance.process();
+
  * }</pre>
  *
 
  * <h2>Dependencies</h2>
+
  * <ul>
+
  *   <li>org.apache.commons:commons-lang3:3.12.0 - String utilities</li>
+
  *   <li>com.google.guava:guava:32.0.0 - Collections utilities</li>
+
  * </ul>
  *
 
  * @author Benjamin Dourthe (benjamin@adonamed.com)
+
  * @version 1.0.0
+
  * @since 1.0.0
  */
 package com.example.package;
@@ -240,7 +269,9 @@ For each class and interface, document:
  *
 
  * <p>[Detailed description of class responsibility, behavior, and usage.
+
  * Explain what problems this class solves and how it fits into the
+
  * overall architecture.]</p>
  *
 
@@ -248,32 +279,50 @@ For each class and interface, document:
  *
 
  * <h2>Example Usage</h2>
+
  * <pre>{@code
+
  * // Basic usage example
+
  * ExampleClass obj = new ExampleClass("value");
+
  * Result result = obj.process();
+
  * System.out.println(result.getValue()); // prints: processed_value
+
  * }</pre>
  *
 
  * <pre>{@code
+
  * // Advanced usage with builder pattern
+
  * ExampleClass obj = new ExampleClass.Builder()
+
  *     .setValue("value")
+
  *     .setVerbose(true)
+
  *     .setMaxRetries(3)
+
  *     .build();
+
  * Result result = obj.processAsync().get();
+
  * }</pre>
  *
 
  * @param <T> the type of elements processed by this class
+
  * @see RelatedClass
+
  * @see <a href="https://docs.example.com/classes">Documentation</a>
  *
 
  * @author Benjamin Dourthe (benjamin@adonamed.com)
+
  * @version 1.0.0
+
  * @since 1.0.0
  */
 public class ExampleClass<T> {
@@ -289,30 +338,46 @@ public class ExampleClass<T> {
  *
 
  * <p>[Detailed description of what implementations must provide.
+
  * Explain the contract, invariants, and expected behavior.]</p>
  *
 
  * <p><strong>Implementation Requirements:</strong></p>
+
  * <ul>
+
  *   <li>Implementations must be thread-safe</li>
+
  *   <li>Methods must not return null unless documented</li>
+
  *   <li>Exceptions must be properly documented</li>
+
  * </ul>
  *
 
  * <h2>Example Implementation</h2>
+
  * <pre>{@code
+
  * public class MyProcessor implements Processor<String> {
+
  *     @Override
+
  *     public String process(String input) {
+
  *         return input.toUpperCase();
+
  *     }
+
  * }
+
  * }</pre>
  *
 
  * @param <T> the type of elements to process
+
  * @author Benjamin Dourthe (benjamin@adonamed.com)
+
  * @since 1.0.0
  */
 public interface Processor<T> {
@@ -322,7 +387,9 @@ public interface Processor<T> {
      *
 
      * @param input the element to process, must not be null
+
      * @return the processed element, never null
+
      * @throws ProcessingException if processing fails
      */
     T process(T input) throws ProcessingException;
@@ -341,6 +408,7 @@ For each method, document:
  *
 
  * <p>[Detailed description of method behavior, algorithm, and usage.
+
  * Explain the problem it solves and any important implementation details.]</p>
  *
 
@@ -348,34 +416,51 @@ For each method, document:
  *
 
  * @param param1 Description of param1. Include constraints, expected
+
  *               format, or valid values. Can span multiple lines.
+
  * @param param2 Description of param2. Explain what the parameter
+
  *               controls or represents.
+
  * @param param3 Description of optional param. Explain behavior when
+
  *               null vs when provided. Defaults to empty list if null.
  *
 
  * @return Description of return value structure. For complex returns,
+
  *         document the object properties and their meanings.
+
  *         Returns a Result object containing:
+
  *         <ul>
+
  *           <li>status - Success/failure status</li>
+
  *           <li>data - The processed result</li>
+
  *           <li>metadata - Additional information</li>
+
  *         </ul>
  *
 
  * @throws IllegalArgumentException if param1 is null or empty
+
  * @throws IllegalStateException if object is not initialized
+
  * @throws ProcessingException if processing fails
  *
 
  * @see #relatedMethod(String)
+
  * @see OtherClass#method(String, int)
  *
 
  * @since 1.0.0
+
  * @deprecated Use {@link #newMethod(String, int, List)} instead.
+
  *             This method will be removed in version 2.0.
  */
 public Result complexMethod(String param1, int param2, List<String> param3)
@@ -392,15 +477,19 @@ public Result complexMethod(String param1, int param2, List<String> param3)
  *
 
  * <p>Creates and initializes all internal data structures. This constructor
+
  * performs validation and will throw if parameters are invalid.</p>
  *
 
  * @param value the initial value, must not be null or empty
+
  * @param options configuration options for this instance. If null,
+
  *                default options will be used.
  *
 
  * @throws IllegalArgumentException if value is null or empty
+
  * @throws NullPointerException if value is null
  *
 
@@ -421,16 +510,24 @@ public ExampleClass(String value, Options options) {
  *
 
  * <p>This method applies the transformer to each element in the input
+
  * collection and returns a new collection with the results. The original
+
  * collection is not modified.</p>
  *
 
  * @param <I> the type of input elements
+
  * @param <O> the type of output elements
+
  * @param items the collection to process, must not be null
+
  * @param transformer the transformation function, must not be null
+
  * @return a new collection containing transformed elements, never null
+
  * @throws NullPointerException if items or transformer is null
+
  * @throws ProcessingException if transformation fails
  *
 
@@ -451,21 +548,31 @@ public <I, O> List<O> transform(Collection<I> items,
  *
 
  * <p>This builder provides a fluent API for constructing ExampleClass
+
  * objects with optional parameters. All builder methods return {@code this}
+
  * to enable method chaining.</p>
  *
 
  * <h2>Example Usage</h2>
+
  * <pre>{@code
+
  * ExampleClass obj = new ExampleClass.Builder()
+
  *     .setValue("test")
+
  *     .setVerbose(true)
+
  *     .setMaxRetries(5)
+
  *     .build();
+
  * }</pre>
  *
 
  * @author Benjamin Dourthe (benjamin@adonamed.com)
+
  * @since 1.0.0
  */
 public static class Builder {
@@ -475,7 +582,9 @@ public static class Builder {
      *
 
      * @param value the value to set, must not be null
+
      * @return this builder instance for method chaining
+
      * @throws IllegalArgumentException if value is null or empty
      */
     public Builder setValue(String value) {
@@ -484,6 +593,7 @@ public static class Builder {
     }
 
     /**
+
      * Builds and returns a new ExampleClass instance.
      *
 
@@ -491,6 +601,7 @@ public static class Builder {
      *
 
      * @return a new ExampleClass configured with this builder's parameters
+
      * @throws IllegalStateException if required parameters are not set
      */
     public ExampleClass build() {
@@ -507,11 +618,14 @@ public static class Builder {
  *
 
  * <p>Each status represents a distinct state in the processing lifecycle.
+
  * Status transitions follow a specific order: PENDING -> PROCESSING ->
+
  * (SUCCESS | FAILURE).</p>
  *
 
  * @author Benjamin Dourthe (benjamin@adonamed.com)
+
  * @since 1.0.0
  */
 public enum ProcessingStatus {
@@ -522,21 +636,25 @@ public enum ProcessingStatus {
     PENDING,
 
     /**
+
      * Operation is currently being processed.
      */
     PROCESSING,
 
     /**
+
      * Operation completed successfully.
      */
     SUCCESS,
 
     /**
+
      * Operation failed with an error.
      */
     FAILURE;
 
     /**
+
      * Checks if this status represents a terminal state.
      *
 
@@ -556,20 +674,29 @@ public enum ProcessingStatus {
  *
 
  * <p>This exception indicates a recoverable processing error. Clients
+
  * may retry the operation or handle the error gracefully. The exception
+
  * message provides details about the failure.</p>
  *
 
  * <h2>Common Causes</h2>
+
  * <ul>
+
  *   <li>Invalid input format</li>
+
  *   <li>Resource temporarily unavailable</li>
+
  *   <li>Processing timeout</li>
+
  * </ul>
  *
 
  * @author Benjamin Dourthe (benjamin@adonamed.com)
+
  * @see Processor
+
  * @since 1.0.0
  */
 public class ProcessingException extends Exception {
@@ -585,10 +712,12 @@ public class ProcessingException extends Exception {
     }
 
     /**
+
      * Constructs a new processing exception with message and cause.
      *
 
      * @param message the detail message
+
      * @param cause the underlying cause of this exception
      */
     public ProcessingException(String message, Throwable cause) {
@@ -605,6 +734,7 @@ public class ProcessingException extends Exception {
  *
 
  * <p>This value is used by {@link #retryOperation(Operation)} to determine
+
  * how many times to retry before giving up. The default value is 3.</p>
  *
 
@@ -613,10 +743,12 @@ public class ProcessingException extends Exception {
 private static final int MAX_RETRIES = 3;
 
 /**
+
  * Current processing status.
  *
 
  * <p>This field is volatile to ensure visibility across threads.
+
  * Access should be synchronized when both reading and writing.</p>
  */
 private volatile ProcessingStatus status;
@@ -767,31 +899,49 @@ Please provide JavaDoc documentation in this format:
 ### Best Practices
 
 1. **First Sentence is Summary**
+
    - First sentence should be a concise summary
+
    - Ends at first period followed by space or end of paragraph
+
    - Shows in method summaries and package lists
 
 2. **Use HTML Formatting**
+
    - `<p>` for paragraphs
+
    - `<pre>{@code}</pre>` for code blocks
+
    - `<ul>/<ol>` for lists
+
    - `<strong>/<em>` for emphasis
 
 3. **Provide Context**
+
    - Explain why, not just what
+
    - Link to related methods/classes with {@link}
+
    - Note thread safety considerations
+
    - Document null handling
 
 4. **Document Contracts**
+
    - Pre-conditions and post-conditions
+
    - Side effects
+
    - Thread safety guarantees
+
    - Immutability
 
 5. **Maintain Consistency**
+
    - Use same style throughout project
+
    - Follow Sun/Oracle conventions
+
    - Update JavaDoc when code changes
 
 ## Tools & Validation
@@ -826,28 +976,43 @@ Please provide JavaDoc documentation in this format:
 ## Common Mistakes to Avoid
 
 1. **Don't duplicate method signature in prose**
+
    - Bad: `This method takes a String param1 and int param2 and returns Result`
+
    - Good: `Processes the input using the specified configuration`
 
 2. **Don't use imperative mood for methods**
+
    - Bad: `Process the data...`
+
    - Good: `Processes the data...`
 
 3. **Don't omit important details**
+
    - Document null handling explicitly
+
    - Explain thread safety
+
    - Note performance implications
+
    - Document side effects
 
 4. **Don't forget HTML escaping**
+
    - Use `{@code}` for code snippets
+
    - Escape HTML characters in descriptions
+
    - Use `{@literal}` for literal text with special chars
 
 5. **Don't forget to update JavaDoc**
+
    - Keep in sync with code changes
+
    - Update examples when behavior changes
+
    - Remove obsolete @deprecated tags
+
    - Update @since versions appropriately
 
 ## File Output Instructions

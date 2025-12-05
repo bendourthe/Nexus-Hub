@@ -12,12 +12,16 @@ prerequisites: []
 tools:
 
   - jest (29.7.0)
+
   - eslint (9.15.0)
+
   - prettier
 tags:
 
   - ai-templates
+
   - refactoring
+
   - javascript
 ---
 # Code Cleanup & Refactoring Review - JavaScript/TypeScript
@@ -143,8 +147,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -165,19 +172,31 @@ Please perform a comprehensive, systematic cleanup of my JavaScript/TypeScript c
 Before making ANY changes, please:
 
 1. **Analyze the complete codebase structure**
+
    - Identify all .js, .jsx, .ts, .tsx files in src/ and test/
+
    - Map dependencies between modules
+
    - Identify public APIs that must be preserved
+
    - Check package.json for unused dependencies
 
 2. **Generate a detailed cleanup report** listing:
+
    - Unused imports and exports
+
    - Unused variables, functions, and classes
+
    - Console.log() and debugging statements
+
    - Empty lines within function bodies
+
    - Inline and meta-commentary comments
+
    - Dead code after returns or in unreachable branches
+
    - Legacy patterns (var, function expressions, callbacks)
+
    - Estimated impact and risk level for each category
 
 3. **Present findings and wait for my approval** before proceeding
@@ -191,24 +210,37 @@ After I approve, systematically clean the following:
 **CRITICAL: Perform multiple passes through the entire codebase to ensure completeness**
 
 1. **First Pass**: Apply all cleanup tasks systematically across the codebase
+
    - Work through all .js, .jsx, .ts, .tsx files in the project
+
    - Apply all requested cleanup operations
+
    - Track which files were modified
 
 2. **Verification Pass**: Review the entire codebase again
+
    - Check for any files that were missed in the first pass
+
    - Verify all cleanup patterns were applied consistently
+
    - Identify any edge cases or exceptions that need attention
 
 3. **Repeat Until Complete**: Continue additional passes if needed
+
    - If files were found that needed cleanup in the verification pass, perform another full pass
+
    - Repeat until a complete pass finds no additional cleanup opportunities
+
    - Track the number of passes required to achieve complete cleanup
 
 4. **Pass Tracking**: Maintain detailed statistics for each pass
+
    - Number of files processed per pass
+
    - Number of files cleaned per pass
+
    - Percentage of codebase cleaned per pass
+
    - Types of issues found per pass
 
 #### When to Stop Multi-Pass Cleanup
@@ -216,23 +248,35 @@ After I approve, systematically clean the following:
 Stop when **ONE** of these conditions is met:
 
 1. ✅ **Zero-change pass** (RECOMMENDED STOPPING POINT)
+
    - Entire verification pass finds nothing to clean
+
    - All files reviewed, no modifications made
+
    - This is the ideal completion state
 
 2. ✅ **Diminishing returns threshold**
+
    - <5% additional files cleaned per pass
+
    - Calculate: `(files_cleaned_this_pass / total_files) < 0.05`
+
    - Example: If 150 total files and pass cleans <8 files, stop
 
 3. ✅ **Pass limit reached**
+
    - Maximum 3 passes completed
+
    - Log incomplete work if stopping at this point
+
    - Document remaining issues for future cleanup
 
 4. ✅ **Time limit reached**
+
    - 8 hours of cleanup time exceeded
+
    - Document progress and remaining work
+
    - Schedule follow-up cleanup session if needed
 
 **NEVER stop without at least 2 passes (initial + verification).**
@@ -246,35 +290,59 @@ Create `${OUTPUT_DIR}/cleanup/progress.md` after each pass:
 
 ## Pass 1 - Initial Cleanup
 - **Date**: 2025-12-03
+
 - **Start Time**: 10:00 AM
+
 - **End Time**: 1:00 PM
+
 - **Duration**: 3 hours
+
 - **Files Analyzed**: 150
+
 - **Files Cleaned**: 45 (30.0%)
+
 - **Issues Found**: 234
+
   - Unused imports: 67
+
   - Unused variables: 89
+
   - Console.log statements: 34
+
   - Empty lines: 44
+
 - **Issues Resolved**: 234 (100%)
 
 ## Pass 2 - Verification
 - **Date**: 2025-12-03
+
 - **Start Time**: 2:00 PM
+
 - **End Time**: 3:00 PM
+
 - **Duration**: 1 hour
+
 - **Files Analyzed**: 150
+
 - **Files Cleaned**: 8 (5.3%)
+
 - **Issues Found**: 12
+
   - Unused imports: 5
+
   - Empty lines: 7
+
 - **Issues Resolved**: 12 (100%)
 
 ## Decision: STOP - Diminishing returns threshold met
 - **Condition Met**: Files cleaned in Pass 2 (5.3%) < threshold (5%)
+
 - **Total Passes**: 2
+
 - **Total Time**: 4 hours
+
 - **Total Files Cleaned**: 53/150 (35.3%)
+
 - **Overall Status**: ✅ Cleanup complete
 ```
 
@@ -290,28 +358,37 @@ Use this matrix to decide whether to continue or stop:
 | 16+ | 150 | >10% | **CONTINUE** - Significant cleanup remaining |
 
 **Time-based stopping:**
+
 - After 8 hours total cleanup time, **STOP** regardless of percentage
+
 - Document remaining work for future cleanup session
 
 **Pass-based stopping:**
+
 - After 3 passes, **STOP** and document incomplete work
+
 - Consider if issues are edge cases or systematic problems
 
 ### Critical Removals
 
 - **Unused imports**: Remove any imports not referenced in the code
+
   - Use ESLint's no-unused-vars or TypeScript's compiler to detect
+
   - Remove entire import statements when no specifiers are used
 
 - **Unused variables**: Remove variables that are assigned but never used
 
 - **Unused functions**: Remove private functions (not exported) that are never called
+
   - PRESERVE exported functions even if seemingly unused (may be part of public API)
 
 - **Unused parameters**: Remove parameters that are defined but never used in function bodies
+
   - Keep parameters that are part of function signature contracts (callbacks, event handlers)
 
 - **Empty lines within functions**: Remove excessive blank lines inside function/method bodies
+
   - KEEP empty lines between logical code sections and between functions
 
 ### Comment Cleanup
@@ -325,15 +402,21 @@ Use this matrix to decide whether to continue or stop:
 - **TODO comments**: Flag or remove stale TODO comments
 
 - PRESERVE comments that explain:
+
   - Why a particular approach was chosen
+
   - Business logic or domain-specific rules
+
   - Complex algorithms or non-obvious implementations
+
   - Workarounds for known issues/bugs in dependencies
+
   - JSDoc/TSDoc documentation
 
 ### Debugging & Development Artifacts
 
 - **Console statements**: Remove console.log(), console.debug(), console.warn() used for debugging
+
   - PRESERVE intentional logging for production (error handling, monitoring)
 
 - **Debugger statements**: Remove `debugger;` breakpoints
@@ -361,10 +444,15 @@ Use this matrix to decide whether to continue or stop:
 - **Consolidate imports**: Combine multiple imports from same module
 
 - **Sort imports**: Organize imports in standard order:
+
   1. Node.js built-ins (fs, path, etc.)
+
   2. External dependencies (react, lodash, etc.)
+
   3. Internal modules (grouped by feature)
+
   4. Type imports (TypeScript)
+
   5. Styles and assets
 
 - **Use named imports**: Replace `import *` with specific named imports where possible
@@ -394,17 +482,25 @@ Use this matrix to decide whether to continue or stop:
 Identify and remove variables, properties, and configuration that serve no functional purpose:
 
 - **Ignored CSS/Style Properties**: In custom-rendered components
+
   - CSS properties in styled-components or CSS-in-JS that are overridden by canvas/SVG rendering
+
   - Style props passed to components but never used in rendering logic
+
   - Theme values that are shadowed by hardcoded values in render methods
 
 - **Dead Configuration Values**: Settings that are defined but never used
+
   - Unused props in React components
+
   - Configuration objects with unused keys
+
   - Redux state properties that are never accessed
 
 - **Redundant Constants**: Values that duplicate other constants
+
   - Multiple constants with identical values
+
   - Constants that duplicate framework defaults
 
 **Detection Example: Custom Canvas Rendering**
@@ -452,16 +548,25 @@ function CustomProgressBar() {
 ```
 
 **Why This Matters:**
+
 1. **Clarity**: Configuration constants are at module top, easy to find
+
 2. **Maintainability**: Visual properties are in one discoverable location
+
 3. **No Confusion**: Clear why CSS doesn't control visual appearance
+
 4. **Better Tooling**: Constants have IntelliSense, CSS strings in JS don't always
 
 **Detection Strategy:**
+
 1. Find components that use custom rendering (canvas, SVG paths, WebGL)
+
 2. Check if they have CSS/styled-components with visual properties
+
 3. Verify those properties are actually used in rendering
+
 4. Extract values to constants and remove useless styles
+
 5. Add comment explaining why styles are minimal
 
 #### TypeScript-Specific
@@ -487,7 +592,9 @@ function CustomProgressBar() {
 After cleanup, you MUST:
 
 1. **Provide summary** of all changes made, organized by category
+
 2. **Highlight any edge cases** or decisions that required judgment
+
 3. **Request that I run tests and linting** to verify nothing broke:
    ```bash
    npm run lint
@@ -499,9 +606,13 @@ After cleanup, you MUST:
    ```markdown
    ### Code Cleanup - [Date]
    - Removed [X] unused imports
+
    - Removed [Y] unused functions
+
    - Removed [Z] console.log statements
+
    - Modernized [N] legacy patterns
+
    - Additional improvements: [summary]
    ```
 
@@ -549,9 +660,13 @@ Present cleanup in this structure:
 - **File:** path/to/file.js
 
 - **Removals:**
+
   - Line X: Unused import { module }
+
   - Lines X-Y: Unused function functionName()
+
   - Line Z: console.log() debugging statement
+
   - Line N: Inline comment removed
 
 - **Rationale:** [Brief explanation of why these were removed]
@@ -563,23 +678,35 @@ Present cleanup in this structure:
 **Pass-by-Pass Breakdown:**
 
 - **Pass 1** (Initial cleanup):
+
   - Files processed: X
+
   - Files cleaned: Y
+
   - Percentage of codebase: Z%
 
 - **Pass 2** (Verification):
+
   - Files processed: X
+
   - Files cleaned: W (files missed in Pass 1)
+
   - Percentage of codebase: V%
 
 - **Pass N** (if needed):
+
   - Files processed: X
+
   - Files cleaned: 0 (verification complete)
 
 **Multi-Pass Summary:**
+
 - **Total passes required**: N
+
 - **Files cleaned in first pass**: Y (Z% of codebase)
+
 - **Files cleaned in subsequent passes**: W (V% of codebase)
+
 - **Final verification**: ✅ All files processed, no additional cleanup needed
 
 ### Standard Cleanup Metrics
@@ -601,7 +728,9 @@ Present cleanup in this structure:
 ### Useless Code Detection Metrics
 
 - **Useless style properties removed:** Q
+
   - Converted to code constants: R
+
   - Simply deleted: S
 
 - **Dead configuration removed:** T
@@ -609,8 +738,11 @@ Present cleanup in this structure:
 - **Redundant constants consolidated:** U
 
 **Impact Analysis:**
+
 - Code clarity improvement: [High/Medium/Low]
+
 - Maintenance burden reduction: [High/Medium/Low]
+
 - Configuration discoverability: [High/Medium/Low]
 
 **Overall Impact:** [Low/Medium/High risk assessment]

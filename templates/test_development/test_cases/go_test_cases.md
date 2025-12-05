@@ -18,11 +18,14 @@ related_templates:
 tools:
 
   - go test (1.23+)
+
   - testify
 tags:
 
   - test-development
+
   - testing
+
   - go
 ---
 # Go Test Case Development
@@ -161,8 +164,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 Please develop comprehensive test cases for this Go code following this protocol:
@@ -181,35 +187,57 @@ Use `<REPO_URL>` as placeholder where repository URLs are needed in this templat
 ## Phase 1: Test Case Planning
 
 1. **Analyze Code to Test**
+
    - Identify all exported functions and methods
+
    - Document expected behavior
+
    - List input parameters and types
+
    - Define expected outputs
+
    - Note side effects (database, files, network calls)
+
    - Identify errors that should be returned
 
 2. **Identify Test Scenarios**
 
    **Happy Path**:
+
    - Normal operation with valid inputs
+
    - Expected use cases
+
    - Successful execution flows
+
    - Valid state transitions
 
    **Edge Cases**:
+
    - Boundary values (0, -1, math.MaxInt, math.MinInt)
+
    - Empty slices, maps, and strings
+
    - Nil pointers and interfaces
+
    - Large data sets
+
    - Special characters in strings
+
    - Concurrent access scenarios
 
    **Error Conditions**:
+
    - Invalid inputs
+
    - Missing required parameters
+
    - Type assertion failures
+
    - Context cancellation
+
    - Timeout scenarios
+
    - External dependency failures
 
 3. **Create Test Case Matrix**
@@ -1123,9 +1151,13 @@ Please provide comprehensive test cases with the following structure:
 - **Benchmarks**: [count]
 
 - **Test Types**:
+
   - Happy path: [count]
+
   - Edge cases: [count]
+
   - Error conditions: [count]
+
   - Concurrent operations: [count]
 
 ### Test Case Implementation
@@ -1136,16 +1168,25 @@ For each package/function:
 **Test File**: `[package_name]_test.go`
 
 **Test Cases**:
+
 1. `TestFunctionName_Condition_ExpectedResult`
+
    - **Scenario**: [description]
+
    - **Input**: [test data]
+
    - **Expected**: [result]
+
    - **Type**: [unit/integration/benchmark]
 
 2. `TestFunctionName_InvalidInput_ReturnsError`
+
    - **Scenario**: [description]
+
    - **Input**: [test data]
+
    - **Expected**: [error]
+
    - **Type**: [unit/integration]
 
 ### Test Execution Results
@@ -1229,11 +1270,17 @@ Replace `{phase_name}` with the specific phase (test_cases, mocks_fixtures, perf
 The AI assistant should deliver:
 
 1. **Test case matrix** documenting all scenarios
+
 2. **Complete test implementations** with table-driven pattern
+
 3. **Integration tests** for workflows
+
 4. **Benchmarks** for performance-critical code
+
 5. **Test coverage report** showing gaps
+
 6. **Execution instructions** for running tests
+
 7. **Quality metrics** and improvement suggestions
 ---
 

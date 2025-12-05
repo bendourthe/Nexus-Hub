@@ -16,11 +16,14 @@ related_templates:
 tools:
 
   - google test
+
   - catch2
+
   - boost.test
 tags:
 
   - code-review
+
   - cpp
 ---
 # C++ Context Analysis
@@ -137,16 +140,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Issues that create immediate risks to system stability, data integrity, or compliance.
 
 **Examples:**
+
 - Security vulnerabilities (SQL injection, XSS, authentication bypass)
+
 - Resource leaks (unclosed connections, file handles, memory leaks)
+
 - Data loss risks (destructive operations without validation)
+
 - Thread safety violations (race conditions, deadlocks)
+
 - Compliance violations (GDPR, HIPAA, PCI-DSS)
 
 **Action Required:**
+
 - Block deployment until fixed
+
 - Require hotfix within 24 hours
+
 - Add tests to prevent regression
+
 - Document root cause and fix
 
 ---
@@ -156,16 +168,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Issues that significantly impact maintainability, performance, or correctness but don't cause immediate failures.
 
 **Examples:**
+
 - Incorrect business logic (wrong calculations, flawed algorithms)
+
 - Performance bottlenecks (O(n²) algorithms, missing indexes, inefficient queries)
+
 - Memory inefficiency (loading large datasets into memory unnecessarily)
+
 - Breaking API changes without deprecation
+
 - Missing critical error handling (network errors, API failures not caught)
 
 **Action Required:**
+
 - Schedule fix in current sprint
+
 - Cannot release without resolution
+
 - Update documentation
+
 - Performance test after fix
 
 ---
@@ -175,16 +196,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Code smells and technical debt that reduce maintainability but don't affect correctness.
 
 **Examples:**
+
 - High complexity (cyclomatic complexity >10, functions >100 lines)
+
 - Code duplication (>10 lines duplicated across modules)
+
 - Poor naming (unclear variable/function names, inconsistent conventions)
+
 - Missing tests (<80% coverage on critical paths)
+
 - Incomplete error messages (no context for debugging)
 
 **Action Required:**
+
 - Add to backlog
+
 - Prioritize in next sprint planning
+
 - Consider during refactoring opportunities
+
 - Track technical debt metrics
 
 ---
@@ -194,16 +224,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Style inconsistencies and minor optimizations that don't impact functionality.
 
 **Examples:**
+
 - Style violations (linting warnings, formatting issues)
+
 - Minor performance optimizations (in non-critical code paths)
+
 - Missing documentation on helper functions
+
 - Verbose code that could be more concise
+
 - Debug statements left in code
 
 **Action Required:**
+
 - Fix opportunistically during other work
+
 - Batch with other low-priority changes
+
 - Good for new contributors
+
 - Can be deferred indefinitely
 
 ---
@@ -211,20 +250,31 @@ Use this framework to classify and prioritize all findings from the code review.
 ## Severity Assignment Guidelines
 
 **When to Escalate Severity:**
+
 - Issue affects **production environment** → escalate one level
+
 - Issue affects **customer-facing features** → escalate one level
+
 - Issue has **no workaround** → escalate one level
+
 - Issue appears in **multiple locations** → escalate one level
 
 **When to De-escalate Severity:**
+
 - Issue only in **test/development code** → de-escalate one level
+
 - Issue has **easy workaround** → de-escalate one level
+
 - Issue is **isolated to single module** → de-escalate one level
+
 - Issue **rarely executed** (edge case) → de-escalate one level
 
 **Examples:**
+
 - Memory leak in production API: **HIGH → CRITICAL** (production + customer-facing)
+
 - Style violation in test file: **LOW → Ignore** (test code + style only)
+
 - Duplicated logic across 15 modules: **MEDIUM → HIGH** (multiple locations)
 
 ---
@@ -254,16 +304,22 @@ For each finding, include:
 **Issue:** The user search function loads all users into memory and performs linear search on every request.
 
 **Impact:**
+
 - Response time degrades with user count (currently 500ms for 10k users)
+
 - High memory usage (50MB+ per request)
+
 - Poor scalability (can't handle >100k users)
 
 **Recommendation:**
 Move filtering to database with indexed query:
 
 - Add database index on search fields
+
 - Use database LIKE/ILIKE queries
+
 - Implement pagination (limit results to 50)
+
 - Add caching for common searches
 
 **Effort:** 3 hours (2 hours implementation + 1 hour testing)
@@ -310,8 +366,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -332,16 +391,25 @@ Please perform a comprehensive context analysis of this C++ project following th
 ## Phase 1: Project Discovery
 
 1. **Identify Project Fundamentals**
+
    - Read and summarize README.md and primary documentation
+
    - Determine project purpose, target audience, and key features
+
    - Identify development stage (prototype/production/legacy)
+
    - List primary maintainers and stakeholders
 
 2. **Map Repository Structure**
+
    - Identify source directories (src/, lib/, include/, etc.)
+
    - Locate header directories (public vs private headers)
+
    - Find test directories and test frameworks used
+
    - Document build configuration files (CMakeLists.txt, Makefile, meson.build, etc.)
+
    - Locate documentation (docs/, Doxygen configs, external)
 
 ## Phase 2: Build System Understanding
@@ -365,47 +433,77 @@ Please perform a comprehensive context analysis of this C++ project following th
    ```
 
 2. **Compiler & Toolchain**
+
    - Identify supported compilers (GCC, Clang, MSVC, Intel)
+
    - Document compiler version requirements
+
    - Review compiler flags and warnings
+
    - Identify platform-specific requirements
+
    - Check for cross-compilation support
 
 3. **Build Configurations**
+
    - Debug configuration settings
+
    - Release configuration optimizations
+
    - RelWithDebInfo settings
+
    - Custom build types
+
    - Sanitizer builds (ASan, TSan, UBSan, MSan)
 
 ## Phase 3: Architecture Understanding
 
 1. **Entry Points & Core Modules**
+
    - Identify main entry points (main.cpp, library exports)
+
    - Map core business logic modules
+
    - Document public API surface
+
    - Identify internal vs external interfaces
+
    - Review namespace organization
 
 2. **Design Patterns & Architecture**
+
    - Identify architectural style (monolithic, modular, plugin-based)
+
    - Document design patterns in use (RAII, PIMPL, factory, observer, etc.)
+
    - Map data flow through the application
+
    - Identify configuration management approach
+
    - Review error handling strategy
 
 3. **Module Dependencies**
+
    - Create dependency graph between modules
+
    - Identify circular dependencies (header and link-time)
+
    - Assess module coupling (tight/loose)
+
    - Evaluate separation of concerns
+
    - Review header inclusion patterns
 
 4. **Memory Management Strategy**
+
    - Identify smart pointer usage (unique_ptr, shared_ptr, weak_ptr)
+
    - Review raw pointer usage patterns
+
    - Check for custom allocators
+
    - Assess RAII adherence
+
    - Identify manual memory management
 
 ## Phase 4: Dependency Analysis
@@ -427,18 +525,29 @@ Please perform a comprehensive context analysis of this C++ project following th
    ```
 
 2. **Dependency Categories**
+
    - Standard library version (C++11/14/17/20/23)
+
    - Boost libraries (and which modules)
+
    - System libraries (pthread, dl, etc.)
+
    - Third-party libraries
+
    - Header-only libraries
+
    - Test frameworks (GoogleTest, Catch2, Doctest)
 
 3. **Dependency Health Check**
+
    - Check for outdated dependencies
+
    - Identify deprecated libraries
+
    - Review license compatibility
+
    - Assess security vulnerabilities (CVEs)
+
    - Check for unmaintained packages
 
 ## Phase 5: C++ Standard & Features
@@ -452,34 +561,57 @@ Please perform a comprehensive context analysis of this C++ project following th
    ```
 
 2. **Modern C++ Feature Adoption**
+
    - Auto type deduction usage
+
    - Range-based for loops
+
    - Lambda expressions
+
    - Move semantics and rvalue references
+
    - Smart pointers (unique_ptr, shared_ptr)
+
    - constexpr usage
+
    - std::optional, std::variant, std::any
+
    - Structured bindings (C++17)
+
    - Concepts (C++20)
+
    - Coroutines (C++20)
+
    - Ranges (C++20)
+
    - Modules (C++20)
 
 3. **Legacy Code Identification**
+
    - Raw pointer usage (new/delete)
+
    - Manual memory management
+
    - C-style arrays
+
    - Null pointer issues (NULL vs nullptr)
+
    - C-style casts
+
    - Raw owning pointers
+
    - Macros over constexpr/templates
 
 ## Phase 6: Testing & Quality Infrastructure
 
 1. **Test Framework**
+
    - Identify testing framework (GoogleTest, Catch2, Doctest, Boost.Test)
+
    - Document test execution approach
+
    - Review test configuration files
+
    - Assess test organization and structure
 
 2. **Static Analysis**
@@ -496,14 +628,21 @@ Please perform a comprehensive context analysis of this C++ project following th
    ```
 
 3. **CI/CD Pipeline**
+
    - Locate CI/CD configuration (.github/workflows, .gitlab-ci.yml, etc.)
+
    - Document automated checks (linting, testing, sanitizers)
+
    - Review deployment automation
+
    - Identify quality gates and merge requirements
 
 4. **Code Coverage**
+
    - Check for coverage tools (gcov, lcov, llvm-cov)
+
    - Review coverage configuration
+
    - Identify coverage reporting setup
 
 ## Phase 7: Codebase Metrics
@@ -521,32 +660,51 @@ Please perform a comprehensive context analysis of this C++ project following th
    ```
 
 2. **Quality Indicators**
+
    - Calculate code-to-comment ratio
+
    - Measure average function/method length
+
    - Identify large files (>1000 lines)
+
    - Count TODO/FIXME/HACK/XXX comments
+
    - Assess header inclusion complexity
 
 3. **Compilation Metrics**
+
    - Measure clean build time
+
    - Assess incremental build performance
+
    - Identify slow-to-compile headers
+
    - Review precompiled header usage
 
 ## Phase 8: Documentation Review
 
 1. **Code Documentation**
+
    - Assess API documentation coverage (Doxygen, Sphinx)
+
    - Review comment format and consistency
+
    - Check header documentation completeness
+
    - Evaluate inline comment quality
+
    - Review namespace/module documentation
 
 2. **Project Documentation**
+
    - Review README completeness
+
    - Check for CONTRIBUTING.md
+
    - Assess CHANGELOG.md or release notes
+
    - Review architecture documentation
+
    - Check build instructions
 
 ## Output Format
@@ -655,13 +813,19 @@ project/
 
 ### Key Findings
 1. **Strengths**: [positive observations]
+
    - Modern C++ features adoption
+
    - Good RAII usage
+
    - Comprehensive testing
 
 2. **Concerns**: [potential issues to investigate]
+
    - Memory management patterns
+
    - Header dependency complexity
+
    - Build system issues
 
 3. **Dependencies**: [outdated or vulnerable packages]
@@ -672,8 +836,11 @@ project/
 Based on this context, the following review areas should be prioritized:
 
 1. **Memory Safety** - [reason based on findings]
+
 2. **Performance** - [reason based on findings]
+
 3. **Code Quality** - [reason based on findings]
+
 4. **Testing** - [reason based on findings]
 
 ### Next Steps

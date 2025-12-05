@@ -18,11 +18,14 @@ related_templates:
 tools:
 
   - junit (5.11.3)
+
   - maven
+
   - gradle
 tags:
 
   - test-development
+
   - java
 ---
 # Java Code Coverage Analysis
@@ -163,8 +166,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 Please implement comprehensive code coverage measurement and improvement for this Java project following this protocol:
@@ -521,6 +527,7 @@ import java.io.*;
 import java.util.*;
 
 /**
+
  * Analyze coverage gaps and prioritize improvements.
  */
 public class CoverageGapAnalyzer {
@@ -632,6 +639,7 @@ import java.nio.file.Path;
 import java.util.*;
 
 /**
+
  * Identify critical code paths requiring coverage.
  */
 public class CriticalPathAnalyzer {
@@ -1010,6 +1018,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 /**
+
  * Track coverage metrics over time.
  */
 public class CoverageTracker {
@@ -1070,6 +1079,7 @@ import java.io.File;
 import java.util.Map;
 
 /**
+
  * Show coverage changes in pull request.
  */
 public class CoverageDiff {
@@ -1119,6 +1129,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
       - uses: actions/checkout@v3
 
       - name: Set up JDK 17
@@ -1197,13 +1208,19 @@ Please provide a comprehensive coverage analysis with the following structure:
 
 ### Critical Coverage Gaps
 1. **com.myapp.service.UserService** (67% line coverage)
+
    - **Missing**: Error handling branches
+
    - **Priority**: Critical - core business logic
+
    - **Action**: Add exception handling tests
 
 2. **com.myapp.security.AuthService** (78% line coverage)
+
    - **Missing**: Edge cases in authentication
+
    - **Priority**: High - security-critical
+
    - **Action**: Add boundary condition tests
 
 ### Coverage Improvement Plan
@@ -1308,13 +1325,21 @@ Replace `{phase_name}` with the specific phase (test_cases, mocks_fixtures, perf
 The AI assistant should deliver:
 
 1. **Complete coverage configuration** (Maven pom.xml or Gradle build files)
+
 2. **Current coverage analysis** with gaps identified
+
 3. **Prioritized improvement plan** with specific actions
+
 4. **Test implementations** to fill critical gaps (JUnit 5)
+
 5. **Coverage reporting infrastructure** (HTML, XML, CSV)
+
 6. **CI/CD integration** with coverage gates
+
 7. **Coverage tracking utilities** for trends
+
 8. **Coverage diff tools** for PR reviews
+
 9. **Team documentation** on coverage standards
 ---
 

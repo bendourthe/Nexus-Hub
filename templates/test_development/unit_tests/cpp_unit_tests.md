@@ -18,12 +18,16 @@ related_templates:
 tools:
 
   - google test
+
   - catch2
+
   - boost.test
 tags:
 
   - test-development
+
   - testing
+
   - cpp
 ---
 # C++ Unit Tests - Comprehensive Implementation Guide
@@ -70,21 +74,31 @@ ${OUTPUT_DIR}/
 
 ### Test Foundation
 - [ ] Google Test and Catch2 comparison
+
 - [ ] Test project structure (CMake)
+
 - [ ] Modern C++ features in tests
+
 - [ ] Mock framework (Google Mock)
 
 ### Test Patterns
 - [ ] Function and method tests
+
 - [ ] Class tests with RAII
+
 - [ ] Template tests
+
 - [ ] Exception tests
+
 - [ ] Move semantics tests
 
 ### Test Quality
 - [ ] Memory safety verification
+
 - [ ] Valgrind/AddressSanitizer
+
 - [ ] Coverage analysis
+
 - [ ] Edge cases covered
 
 ---
@@ -106,9 +120,13 @@ code .  # Opens VS Code
 #### Step 2: Set Up VS Code Configuration
 
 1. **Install Required Extensions**:
+
    - CMake Tools (`twxs.cmake`)
+
    - C/C++ Extension Pack (`ms-vscode.cpptools-extension-pack`)
+
    - Test Explorer UI (`hbenl.vscode-test-explorer`)
+
    - GitHub Copilot (`GitHub.copilot`)
 
 2. **Copy VS Code Configuration**:
@@ -124,14 +142,19 @@ code .  # Opens VS Code
 #### Step 3: Generate Tests with GitHub Copilot
 
 1. **Open GitHub Copilot Chat**: `Ctrl+Shift+I` (or `Cmd+Shift+I` on Mac)
+
 2. **Copy the Prompt Template section below** (starting at "## Prompt Template")
+
 3. **Paste into Copilot Chat** - Copilot will generate comprehensive unit tests
+
 4. **Review and Accept** the generated tests
 
 #### Step 4: Build & Run Tests
 
 - **Build**: `Ctrl+Shift+B` (or Command Palette → "CMake: Build")
+
 - **Run Tests**: Command Palette → "Tasks: Run Test Task" → "Run All Tests"
+
 - **Debug Tests**: Set breakpoints → Press `F5`
 
 ---
@@ -169,16 +192,25 @@ Focus on edge cases and error handling.
 ### Copilot Best Practices
 
 **✅ DO:**
+
 - Start with a single class/component
+
 - Request specific test patterns (fixtures, mocks, parametrized)
+
 - Ask for both happy path and error cases
+
 - Request CMake integration updates
+
 - Ask Copilot to explain test logic
 
 **❌ DON'T:**
+
 - Generate tests for entire codebase at once (too broad)
+
 - Skip fixture setup for stateful classes
+
 - Generate tests without understanding the code
+
 - Ignore compilation errors (fix incrementally)
 
 ---
@@ -186,8 +218,11 @@ Focus on edge cases and error handling.
 ### Complete Workflow Documentation
 
 For detailed step-by-step instructions, see:
+
 - **[Complete Workflow Guide](../GOOGLE_TEST_VSCODE_WORKFLOW.md)** - End-to-end setup (10 minutes)
+
 - **[Copilot Quick Reference](COPILOT_QUICK_REFERENCE.md)** - One-line prompts and examples
+
 - **[VS Code Configuration](../vscode_config/README.md)** - Detailed config explanations
 
 **Estimated Time**: 10 minutes from clone to first test run
@@ -215,27 +250,41 @@ mkdir -p ${OUTPUT_DIR}/templates ${OUTPUT_DIR}/assets ${OUTPUT_DIR}/exports
 ### 1.1 FIRST Principles
 
 **Fast** - Tests execute quickly
+
 - Use mock objects
+
 - Avoid file I/O
+
 - Test pure functions
 
 **Independent** - No shared state
+
 - RAII handles cleanup
+
 - Each test creates own objects
+
 - Use test fixtures
 
 **Repeatable** - Deterministic
+
 - Mock time/random
+
 - Control dependencies
+
 - Initialize all state
 
 **Self-validating** - Clear assertions
+
 - Use framework macros
+
 - Fluent assertions
+
 - Descriptive messages
 
 **Timely** - Written with code
+
 - TDD practices
+
 - High coverage
 
 **AAA Pattern:**
@@ -257,17 +306,27 @@ TEST(CalculatorTest, CalculateDiscount_WithValidRate_ReturnsDiscountedPrice) {
 ### 1.2 Framework Comparison
 
 **Google Test:**
+
 - Industry standard
+
 - Rich assertion macros
+
 - Test fixtures
+
 - Google Mock integration
+
 - Mature ecosystem
 
 **Catch2:**
+
 - Header-only
+
 - BDD-style syntax
+
 - Self-contained
+
 - Modern C++ features
+
 - Lighter weight
 
 ---
@@ -348,12 +407,17 @@ gtest_discover_tests(unit_tests)
 ### 2.3 Test Naming Conventions
 
 **File Naming:**
+
 - `<class>_test.cpp`
+
 - Examples: `calculator_test.cpp`, `user_test.cpp`
 
 **Test Naming:**
+
 - `TEST(TestSuiteName, TestName)`
+
 - `TEST_F(TestFixture, TestName)`
+
 - Use descriptive names
 
 ```cpp
@@ -1032,14 +1096,23 @@ TEST(VectorTest, PopBack_OnEmptyVector_ThrowsException) { }
 ### 5.2 Maintenance Checklist
 
 - [ ] All tests pass independently
+
 - [ ] RAII used properly
+
 - [ ] No memory leaks (AddressSanitizer clean)
+
 - [ ] Exception safety verified
+
 - [ ] Move semantics tested
+
 - [ ] Templates tested with multiple types
+
 - [ ] Mocks used appropriately
+
 - [ ] >80% code coverage
+
 - [ ] No undefined behavior
+
 - [ ] Clear test names
 
 ---
@@ -1056,16 +1129,24 @@ TEST(VectorTest, PopBack_OnEmptyVector_ThrowsException) { }
 `${OUTPUT_DIR}/templates/`:
 
 - `test_template.cpp`
+
 - `fixture_template.cpp`
+
 - `mock_template.cpp`
+
 - `CMakeLists.txt`
 
 ### 4. Guides
 - RAII testing guide
+
 - Template testing guide
+
 - Mock usage guide (GMock)
+
 - Memory safety guide
+
 - Coverage guide
+
 - Quality checklist
 
 ---
@@ -1073,14 +1154,23 @@ TEST(VectorTest, PopBack_OnEmptyVector_ThrowsException) { }
 ## Verification Checklist
 
 - [ ] All deliverables created
+
 - [ ] 20-30 page guide
+
 - [ ] 50+ test examples
+
 - [ ] Google Test covered
+
 - [ ] Catch2 examples included
+
 - [ ] Template testing
+
 - [ ] RAII patterns
+
 - [ ] Move semantics
+
 - [ ] GMock patterns
+
 - [ ] Modern C++ (C++17+)
 
 ---
@@ -1093,9 +1183,13 @@ End of prompt template.
 ## Additional Notes
 
 - Build: `cmake -B build && cmake --build build`
+
 - Run tests: `./build/unit_tests`
+
 - With ASan: `cmake -DCMAKE_BUILD_TYPE=Debug -B build`
+
 - Coverage: `cmake -DCODE_COVERAGE=ON -B build`
+
 - Valgrind: `valgrind --leak-check=full ./build/unit_tests`
 
 ---

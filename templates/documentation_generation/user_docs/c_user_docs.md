@@ -12,12 +12,16 @@ prerequisites: []
 tools:
 
   - unity
+
   - cmocka
+
   - check
 tags:
 
   - documentation
+
   - documentation
+
   - c
 ---
 # C User Documentation
@@ -151,8 +155,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -171,27 +178,42 @@ Please create comprehensive user documentation for this C project following this
 ## Phase 1: Audience Analysis & Documentation Planning
 
 1. **Identify Target Audience**
+
    - Primary users: [embedded developers/systems programmers/library users/etc.]
+
    - Technical skill level: [beginner/intermediate/advanced]
+
    - Use cases: [what problems they're solving]
+
    - Context: [how they'll use the software]
 
 2. **Document Existing Features**
+
    - List all major features and capabilities
+
    - Identify most common use cases
+
    - Note any complex or non-obvious functionality
+
    - Document prerequisites and dependencies
 
 3. **Outline Documentation Structure**
    Plan what documentation is needed:
 
    - [ ] README.md (essential)
+
    - [ ] INSTALL.md or installation section
+
    - [ ] QUICKSTART.md or quick start guide
+
    - [ ] USER_GUIDE.md for detailed usage
+
    - [ ] EXAMPLES.md with common patterns
+
    - [ ] FAQ.md for common questions
+
    - [ ] TROUBLESHOOTING.md for common issues
+
    - [ ] API.md for function reference
 
 ## Phase 2: README.md - Professional Project Overview
@@ -772,13 +794,21 @@ make coverage
 Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 Quick start for contributors:
+
 1. Fork the repository
+
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+
 3. Make your changes
+
 4. Run tests (`make test`)
+
 5. Check with valgrind (`make valgrind`)
+
 6. Commit your changes (`git commit -m 'Add amazing feature'`)
+
 7. Push to the branch (`git push origin feature/amazing-feature`)
+
 8. Open a Pull Request
 
 ---
@@ -1168,12 +1198,19 @@ target_link_libraries(myapp Project::Project)
 ### Getting Help
 
 If installation fails:
+
 1. Check [GitHub Issues](https://github.com/username/project/issues)
+
 2. Review [Troubleshooting Guide](TROUBLESHOOTING.md)
+
 3. Open a new issue with:
+
    - Your OS and version
+
    - Compiler version (`gcc --version`)
+
    - Full error message
+
    - Output of `make V=1` (verbose)
 
 ---
@@ -1181,9 +1218,13 @@ If installation fails:
 ## Next Steps
 
 After successful installation:
+
 1. Review the [Quick Start Guide](README.md#quick-start)
+
 2. Try the [examples/](examples/) directory
+
 3. Read the [API Reference](docs/API.md)
+
 4. Check the [User Guide](USER_GUIDE.md)
 ```
 

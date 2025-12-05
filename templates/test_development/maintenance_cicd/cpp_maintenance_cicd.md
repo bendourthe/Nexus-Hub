@@ -18,11 +18,14 @@ related_templates:
 tools:
 
   - google test
+
   - catch2
+
   - boost.test
 tags:
 
   - test-development
+
   - cpp
 ---
 # C++ Test Maintenance & CI/CD Integration
@@ -163,8 +166,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 Please implement comprehensive test automation and maintenance infrastructure for this C++ project following this protocol:
@@ -243,6 +249,7 @@ jobs:
             compiler: clang
 
     steps:
+
       - uses: actions/checkout@v3
 
       - name: Install dependencies (Ubuntu)
@@ -306,6 +313,7 @@ jobs:
     needs: unit-tests
 
     steps:
+
       - uses: actions/checkout@v3
 
       - name: Install Valgrind
@@ -343,6 +351,7 @@ jobs:
         sanitizer: [address, undefined, thread]
 
     steps:
+
       - uses: actions/checkout@v3
 
       - name: Install dependencies
@@ -427,6 +436,7 @@ jobs:
           - 6379:6379
 
     steps:
+
       - uses: actions/checkout@v3
 
       - name: Install dependencies
@@ -491,8 +501,11 @@ jobs:
 stages:
 
   - lint
+
   - test
+
   - quality
+
   - deploy
 
 variables:
@@ -504,7 +517,9 @@ cache:
     - build/
 
 before_script:
+
   - apt-get update -qq
+
   - apt-get install -y -qq build-essential cmake ninja-build libgtest-dev gcovr
 
 lint:
@@ -513,7 +528,9 @@ lint:
   script:
 
     - apt-get install -y -qq clang-format cppcheck
+
     - find src tests -name '*.cpp' -o -name '*.h' -o -name '*.hpp' | xargs clang-format -n -Werror
+
     - cppcheck --enable=all --error-exitcode=1 --suppress=missingIncludeSystem --std=c++17 src/
 
 unit-tests:
@@ -522,8 +539,11 @@ unit-tests:
   script:
 
     - cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DENABLE_COVERAGE=ON -DENABLE_TESTING=ON
+
     - cmake --build build
+
     - cd build && ctest --output-on-failure
+
     - gcovr -r .. --xml -o ${OUTPUT_DIR}/exports/coverage.xml
   coverage: '/lines: \d+\.\d+%/'
   artifacts:
@@ -534,6 +554,7 @@ unit-tests:
     paths:
 
       - build/coverage.xml
+
       - build/Testing/
 
 memory-tests:
@@ -542,8 +563,11 @@ memory-tests:
   script:
 
     - apt-get install -y -qq valgrind
+
     - cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DENABLE_TESTING=ON
+
     - cmake --build build
+
     - cd build && ctest -T memcheck --output-on-failure
   artifacts:
     paths:
@@ -556,8 +580,11 @@ benchmark:
   script:
 
     - apt-get install -y -qq libbenchmark-dev
+
     - cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_BENCHMARKS=ON
+
     - cmake --build build
+
     - cd build && ctest -L benchmark --output-on-failure
   artifacts:
     paths:
@@ -570,6 +597,7 @@ quality-gate:
   script:
 
     - apt-get install -y -qq python3-lxml
+
     - python3 scripts/check_coverage.py build/coverage.xml 80
   needs:
 
@@ -692,27 +720,37 @@ gtest_discover_tests(database_integration_test
 using namespace testing;
 
 /**
+
  * Math Utilities Test Suite
  *
 
  * Purpose:
+
  *   Validate mathematical operations and utility functions.
  *
 
  * Coverage:
+
  *   - Basic arithmetic operations
+
  *   - Edge cases (overflow, underflow, division by zero)
+
  *   - Floating-point precision
+
  *   - Vector operations
  *
 
  * Maintenance Notes:
+
  *   - Update tests when adding new math functions
+
  *   - Check for numerical stability
+
  *   - Consider performance implications
  *
 
  * Last Review: 2024-01-15
+
  * Reviewed By: alice@example.com
  */
 
@@ -859,12 +897,16 @@ repos:
     hooks:
 
       - id: trailing-whitespace
+
       - id: end-of-file-fixer
+
       - id: check-yaml
+
       - id: check-added-large-files
         args: ['--maxkb=1000']
 
       - id: check-merge-conflict
+
       - id: detect-private-key
 
   - repo: local
@@ -1452,12 +1494,19 @@ Replace `{phase_name}` with the specific phase (test_cases, mocks_fixtures, perf
 The AI assistant should deliver:
 
 1. **Complete CI/CD pipeline configuration** (GitHub Actions or GitLab CI)
+
 2. **Quality gate implementation** with thresholds (CMake, gcovr, Google Test)
+
 3. **Pre-commit hook configuration** with all checks
+
 4. **Test parallelization setup** for faster execution (CTest)
+
 5. **Flaky test detection and tracking** system
+
 6. **Test maintenance procedures** and documentation
+
 7. **Test reporting infrastructure** with dashboards
+
 8. **Execution metrics and monitoring** setup
 ---
 

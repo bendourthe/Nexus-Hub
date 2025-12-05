@@ -18,10 +18,12 @@ related_templates:
 tools:
 
   - go test (1.23+)
+
   - testify
 tags:
 
   - test-development
+
   - go
 ---
 # Go Mocks & Fixtures
@@ -150,8 +152,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 Please implement comprehensive mocking and fixture strategies for this Go project following this protocol:
@@ -1161,11 +1166,17 @@ Replace `{phase_name}` with the specific phase (test_cases, mocks_fixtures, perf
 The AI assistant should deliver:
 
 1. **Comprehensive fixture setup** using Go testing patterns
+
 2. **Mock configurations** for external dependencies
+
 3. **Test data factories** using option pattern
+
 4. **Builder patterns** for complex structs
+
 5. **Usage documentation** with examples
+
 6. **Best practices guide** for testify and httptest
+
 7. **Fixture and mock catalog** for easy reference
 ---
 

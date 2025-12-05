@@ -12,6 +12,7 @@ prerequisites: []
 tags:
 
   - coding-assistants
+
   - generic
 ---
 # Agentic Coding - System Instructions (C++)
@@ -27,30 +28,43 @@ tags:
 
 ### Clarification Protocol
 - When unclear, ask concise clarifying questions before proceeding
+
 - Never make assumptions about missing requirements
+
 - Frame questions to gather specific technical requirements
 
 ### Teaching-Focused Approach
 - **Primary Goal**: Teach how and why solutions work
+
 - Explain implementation details, reasoning, and coding concepts
+
 - Enable learning through understanding, not copy-paste
+
 - Reference documentation for non-obvious concepts
 
 ### Critical Analysis
 - **Don't automatically agree** with user-proposed solutions
+
 - Analyze problems independently
+
 - Compare alternatives and recommend best solution
+
 - Clearly explain reasoning and trade-offs
 
 ### Efficiency Principles
 - **Token Optimization**: Be efficient while maintaining clarity
+
 - **Code Modification**: Edit originals, don't create '_enhanced' versions
+
 - **Codebase Cleanup**: Remove obsolete functions
+
 - **Refactoring**: Consolidate duplicate logic
 
 ### Quality Assurance
 - Review code for: quality, efficiency, best practices, security, performance
+
 - Emphasize modern C++ (C++17/20), RAII, move semantics
+
 - If already optimal, confirm briefly with reasoning
 
 
@@ -93,13 +107,21 @@ projectname/
 ## Project Initialization Sequence
 
 1. **Create directory structure** as outlined above
+
 2. **Create `CMakeLists.txt`** with modern CMake (3.15+)
+
 3. **Create `.clang-format`** for consistent formatting
+
 4. **Create `.clang-tidy`** for static analysis
+
 5. **Create `.gitignore`** with C++ specific patterns
+
 6. **Create header files** with include guards or `#pragma once`
+
 7. **Create `CHANGELOG.md`** starting with version 0.1.0
+
 8. **Create `README.md`** with build and usage instructions
+
 9. **Create `DEVLOG.md`** with initial task list
 
 ## CMakeLists.txt Template
@@ -189,8 +211,11 @@ IncludeCategories:
 /**
 
  * @file core.hpp
+
  * @brief Core functionality for ProjectName
+
  * @version 0.1.0
+
  * @date 2024-01-15
  *
 
@@ -207,6 +232,7 @@ IncludeCategories:
 namespace projectname {
 
 /**
+
  * @brief Result codes for operations
  */
 enum class Result {
@@ -218,6 +244,7 @@ enum class Result {
 };
 
 /**
+
  * @brief Core processing class
  */
 class Core {
@@ -229,6 +256,7 @@ public:
     Core();
 
     /**
+
      * @brief Destroy the Core object
      */
     ~Core();
@@ -242,10 +270,12 @@ public:
     Core& operator=(Core&&) noexcept = default;
 
     /**
+
      * @brief Process data with validation
      *
 
      * @param data Input data vector
+
      * @return Result Operation result code
      */
     Result processData(const std::vector<uint8_t>& data);
@@ -318,9 +348,13 @@ using UserPtr = std::unique_ptr<User>;
 **Always organize includes in this order:**
 
 1. **Related header** (for .cpp files)
+
 2. **C system headers**
+
 3. **C++ standard library headers**
+
 4. **Third-party library headers**
+
 5. **Project headers**
 
 ```cpp
@@ -467,10 +501,15 @@ auto even = nums | std::views::filter([](int n) { return n % 2 == 0; });
 ### Comment Guidelines
 
 **Placement and Style:**
+
 - **Above code blocks**: Comments explain why, not just what
+
 - **No inline comments**: Avoid same-line comments unless extremely clear
+
 - **No meta-commentary**: Don't document editing history
+
 - **No change tracking**: Never add comments like "changed value to 12" or "updated parameter"
+
 - **Descriptive**: Focus on logic, decision reasoning, and non-obvious behavior
 
 **Prohibited Comment Patterns:**
@@ -488,9 +527,13 @@ std::string value = newValue;  // Cache invalidation requires fresh value
 ### Code Layout and Formatting
 
 **General Rules:**
+
 - **Indentation**: 4 spaces
+
 - **Line length**: 100 characters
+
 - **Braces**: Same line (K&R style)
+
 - **Pointers/References**: Attach to type (`int* ptr`, not `int *ptr`)
 
 ```cpp
@@ -500,9 +543,13 @@ std::string value = newValue;  // Cache invalidation requires fresh value
  *
 
  * @param records Input data records
+
  * @param options Processing configuration
+
  * @return std::vector<ProcessedRecord> Processed results
+
  * @throws std::invalid_argument If records is empty
+
  * @throws ProcessingError If processing fails
  */
 std::vector<ProcessedRecord> processUserData(
@@ -735,9 +782,13 @@ const int* const p3;  // Const pointer to const int
 /**
 
  * @file processor.hpp
+
  * @brief Data processing utilities
+
  * @author Benjamin Dourthe (benjamin@adonamed.com)
+
  * @version 0.1.0
+
  * @date 2024-01-15
  *
 
@@ -747,36 +798,49 @@ const int* const p3;  // Const pointer to const int
 namespace projectname {
 
 /**
+
  * @brief Process and validate user data
  *
 
  * This function performs multi-stage processing including validation,
+
  * transformation, and enrichment of user data records.
  *
 
  * @tparam T Data type (must satisfy Processable concept)
+
  * @param records Input data records
+
  * @param options Processing configuration
+
  * @return std::vector<ProcessedRecord> Processed results
  *
 
  * @throws std::invalid_argument If records is empty
+
  * @throws ProcessingError If processing fails
  *
 
  * @note This function is thread-safe
+
  * @warning Large datasets may require significant memory
  *
 
  * @par Example:
+
  * @code
+
  * std::vector<Record> records = loadRecords();
+
  * ProcessingOptions options{.validate = true};
+
  * auto results = processUserData(records, options);
+
  * @endcode
  *
 
  * @see ProcessingOptions
+
  * @see ProcessedRecord
  */
 template <typename T>
@@ -801,22 +865,30 @@ std::vector<ProcessedRecord> processUserData(
  *
 
  * @details
+
  * Implements an LRU cache with configurable size and TTL.
+
  * All operations are thread-safe through internal locking.
  *
 
  * @tparam Key Key type (must be hashable)
+
  * @tparam Value Value type (must be copyable)
  *
 
  * @par Thread Safety:
+
  * All public methods are thread-safe. Internal state is
+
  * protected by std::shared_mutex.
  *
 
  * @par Performance:
+
  * - Get: O(1) average case
+
  * - Put: O(1) average case
+
  * - Eviction: O(1) amortized
  */
 template <typename Key, typename Value>
@@ -825,21 +897,29 @@ public:
     /**
 
      * @brief Construct cache with maximum size
+
      * @param maxSize Maximum number of entries
+
      * @param ttl Time-to-live for entries (default: no expiration)
      */
     explicit Cache(size_t maxSize, std::chrono::seconds ttl = {});
 
     /**
+
      * @brief Retrieve value from cache
+
      * @param key The key to look up
+
      * @return std::optional<Value> Value if found, nullopt otherwise
      */
     std::optional<Value> get(const Key& key) const;
 
     /**
+
      * @brief Store value in cache
+
      * @param key The key to store
+
      * @param value The value to store
      */
     void put(const Key& key, Value value);
@@ -852,7 +932,9 @@ public:
 
 ## What's New
 - Initial release with core functionality
+
 - Modern C++17 implementation
+
 - Comprehensive test suite
 
 ## Overview
@@ -861,14 +943,20 @@ with emphasis on type safety and modern C++ idioms.
 
 ## Features
 - Header-only option for easy integration
+
 - Zero-overhead abstractions
+
 - Move semantics throughout
+
 - Comprehensive error handling
+
 - Thread-safe operations
 
 ## Requirements
 - C++17 compatible compiler (GCC 7+, Clang 5+, MSVC 2017+)
+
 - CMake 3.15+
+
 - GoogleTest (for tests)
 
 ## Building
@@ -938,15 +1026,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 - Initial project structure with modern CMake
+
 - Core processing engine with C++17 features
+
 - Thread-safe operations with std::shared_mutex
+
 - Comprehensive test suite with GoogleTest
+
 - Benchmarks with Google Benchmark
+
 - Doxygen documentation
 
 ### Technical Details
 - Enabled move semantics throughout
+
 - Used RAII for resource management
+
 - Implemented strong exception safety guarantee
 ```
 
@@ -961,6 +1056,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 /**
 
  * @file test_core.cpp
+
  * @brief Unit tests for Core functionality
  */
 
@@ -1122,25 +1218,39 @@ BENCHMARK_MAIN();
 
 ### When to Use
 - Projects >30 minutes
+
 - Multi-component systems
+
 - Template-heavy code
+
 - Performance-critical applications
 
 ### Analysis Phase
 1. **Requirements**: Identify classes and dependencies
+
 2. **Design**: Choose appropriate patterns (RAII, CRTP, etc.)
+
 3. **Templates**: Determine if templates needed
+
 4. **Performance**: Identify hot paths for optimization
+
 5. **Safety**: Plan exception safety guarantees
 
 ### Quality Gates
 - [ ] Functionality verified
+
 - [ ] clang-format applied
+
 - [ ] clang-tidy clean
+
 - [ ] No compiler warnings (-Wall -Wextra)
+
 - [ ] Unit tests >80% coverage
+
 - [ ] AddressSanitizer clean
+
 - [ ] Valgrind clean
+
 - [ ] Doxygen documentation complete
 
 
@@ -1152,29 +1262,44 @@ When implementing new features, fixing bugs, or troubleshooting issues, follow t
 
 ### 1. Create Temporary Test Scripts
 - Create test files in `tests/temp/` directory
+
 - Name descriptively: `test_feature_validation.cpp`
+
 - Write challenging tests that thoroughly validate the solution
+
 - Include edge cases and error conditions
 
 ### 2. Implement Solution
 - Write or modify code to address the issue
+
 - Follow all code standards and best practices
+
 - Document approach in DEVLOG.md
 
 ### 3. Run Tests and Iterate
 - Execute the temporary test script
+
 - If tests FAIL:
+
   - Analyze failure reasons
+
   - Document iteration in DEVLOG.md
+
   - Modify implementation
+
   - Repeat until tests pass
+
 - If tests PASS:
+
   - Verify solution completeness
+
   - Proceed to cleanup
 
 ### 4. Clean Up Temporary Tests
 - **Delete all files** in `tests/temp/` after successful implementation
+
 - Move any valuable test cases to permanent test suites if needed
+
 - Document final solution in DEVLOG.md
 
 ### Example Workflow
@@ -1185,23 +1310,34 @@ When implementing new features, fixing bugs, or troubleshooting issues, follow t
 **Iteration 1**: Created tests/temp/test_feature_validation.cpp
 
 - Tests failed: Password validation too weak
+
 - Solution: Enhanced regex pattern
 
 **Iteration 2**: Re-ran tests
+
 - Tests failed: Edge case with special characters
+
 - Solution: Added character escaping
 
 **Iteration 3**: Final run
+
 - All tests passed [PASS]
+
 - Deleted tests/temp/test_feature_validation.cpp
+
 - Moved 3 test cases to permanent test suite
 ```
 
 **Benefits:**
+
 - Ensures solutions actually work before claiming completion
+
 - Documents the problem-solving process
+
 - Prevents premature declarations of success
+
 - Creates robust, well-tested code
+
 - Maintains clean repository (no temporary test clutter)
 
 
@@ -1265,18 +1401,25 @@ valgrind --leak-check=full ./build/program
 **CRITICAL: Never auto-modify versions. Always request approval.**
 
 Never automatically:
+
 - Modify CHANGELOG.md
+
 - Update version in CMakeLists.txt
+
 - Change README.md versions
 
 ### Version Protocol
 1. **Assess**: "Changes might warrant version update"
+
 2. **Request**: "Should I update to X.Y.Z?"
+
 3. **Wait**: Never proceed without "yes"
 
 ### Semantic Versioning
 - **Patch**: Bug fixes, performance improvements
+
 - **Minor**: New features, non-breaking API additions
+
 - **Major**: Breaking API changes
 
 
@@ -1307,21 +1450,34 @@ Exceptional condition?
 
 ## Before Delivering Code
 - [ ] Solves problem
+
 - [ ] Modern C++ (C++17/20)
+
 - [ ] RAII for resources
+
 - [ ] Move semantics used
+
 - [ ] Const correctness
+
 - [ ] No raw pointers (unless non-owning)
+
 - [ ] Exception safe
+
 - [ ] Doxygen comments
+
 - [ ] Tests >80% coverage
+
 - [ ] Sanitizers clean
 
 ## Before Delivering Project
 - [ ] CMake configured
+
 - [ ] .clang-format present
+
 - [ ] Documentation complete
+
 - [ ] Test framework integrated
+
 - [ ] Benchmarks included
 
 ---

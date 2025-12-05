@@ -17,13 +17,21 @@ Systematically identify and remove dead code, apply modern C++ patterns (C++17/2
 ## When to Use This Skill
 
 Use this skill when you need to:
+
 - Remove unused includes, functions, classes, and templates
+
 - Replace raw pointers with smart pointers
+
 - Apply RAII and move semantics
+
 - Consolidate duplicate code
+
 - Modernize to C++11/14/17/20 features
+
 - Clean up debug statements and commented code
+
 - Optimize include organization
+
 - Address static analysis warnings
 
 ## What This Skill Does
@@ -32,61 +40,95 @@ This skill performs comprehensive C++ code cleanup:
 
 ### 1. Dead Code Detection
 - **Unused #include Directives**: Identifies and removes unused headers
+
 - **Unused Functions**: Finds static/private functions never called
+
 - **Unused Classes**: Detects classes never instantiated
+
 - **Unused Templates**: Finds template functions/classes never instantiated
+
 - **Unreachable Code**: Finds code after return statements
+
 - **Empty Blocks**: Detects empty methods or unnecessary code
 
 ### 2. Memory Management
 - **Smart Pointers**: Replaces raw pointers with unique_ptr/shared_ptr
+
 - **RAII Violations**: Ensures resources managed by RAII
+
 - **Manual Delete**: Replaces new/delete with smart pointers
+
 - **Memory Leaks**: Ensures proper resource cleanup
+
 - **Move Semantics**: Ensures proper move constructors/assignment
 
 ### 3. Duplicate Code Consolidation
 - **Exact Duplicates**: Finds identical code blocks
+
 - **Near Duplicates**: Detects similar code with minor variations
+
 - **Duplicate Logic**: Identifies functionally equivalent implementations
+
 - **Consolidation Strategy**: Recommends refactoring approach
 
 ### 4. Modern C++ (C++11)
 - **Auto Keyword**: Uses auto for complex types
+
 - **Range-based For**: Replaces traditional loops
+
 - **nullptr**: Replaces NULL and 0
+
 - **Override**: Adds override to virtual functions
+
 - **Lambdas**: Replaces functors
+
 - **Smart Pointers**: Uses unique_ptr/shared_ptr
+
 - **Move Semantics**: Implements move operations
 
 ### 5. Modern C++ (C++14/17/20)
 - **Make Functions**: Uses make_unique/make_shared (C++14)
+
 - **Structured Bindings**: Uses auto [a, b] = pair (C++17)
+
 - **If/Switch Initializers**: Uses if (init; condition) (C++17)
+
 - **Optional/Variant**: Replaces nullable pointers (C++17)
+
 - **String View**: Uses string_view for read-only strings (C++17)
+
 - **Filesystem**: Uses std::filesystem (C++17)
+
 - **Concepts**: Uses concepts for templates (C++20)
+
 - **Ranges**: Uses ranges library (C++20)
+
 - **Three-way Comparison**: Uses operator<=> (C++20)
 
 ### 6. Debug Statement Cleanup
 - **Print Statements**: Removes debug std::cout
+
 - **Commented Code**: Cleans up old commented-out code
+
 - **TODO Comments**: Catalogs and prioritizes TODO items
 
 ### 7. Include Organization
 - **Organize Includes**: Sorts includes in standard order
+
 - **Include Guards**: Replaces with #pragma once
+
 - **Forward Declarations**: Uses to reduce dependencies
 
 ## Prerequisites
 
 - C++ codebase to clean up
+
 - Version control (git)
+
 - Test suite (recommended)
+
 - C++ compiler (gcc, clang, MSVC)
+
 - CMake or Make build system
 
 ## Instructions
@@ -132,11 +174,17 @@ Tell Claude Code to use this skill:
 Focus on:
 
 1. Removing all unused includes, functions, and classes
+
 2. Replacing raw pointers with smart pointers
+
 3. Applying RAII and move semantics
+
 4. Modernizing to C++17/20 patterns
+
 5. Consolidating duplicate code
+
 6. Removing debug statements
+
 7. Organizing includes properly
 
 Save all reports to cleanup_report/ directory."
@@ -147,11 +195,17 @@ Save all reports to cleanup_report/ directory."
 Claude Code will generate a comprehensive cleanup plan including:
 
 1. **Dead Code Candidates** - List of unused code
+
 2. **Memory Management Issues** - Raw pointers to convert
+
 3. **Duplication Report** - Duplicate code locations
+
 4. **Modernization Opportunities** - Legacy patterns to update
+
 5. **Static Analysis Findings** - clang-tidy, cppcheck warnings
+
 6. **Risk Assessment** - Impact analysis
+
 7. **Implementation Plan** - Ordered steps
 
 **Review the plan before proceeding with changes!**
@@ -159,47 +213,77 @@ Claude Code will generate a comprehensive cleanup plan including:
 ### Step 4: Execute Cleanup in Phases
 
 **Phase 1: Low-Risk Cleanup**
+
 - Remove unused includes
+
 - Clean debug statements
+
 - Remove commented code
+
 - Organize includes
 
 **Phase 2: Memory Management**
+
 - Replace raw pointers with smart pointers
+
 - Apply RAII patterns
+
 - Implement move semantics
+
 - Fix memory leaks
 
 **Phase 3: Modernization**
+
 - Apply auto keyword
+
 - Use range-based for loops
+
 - Add override/final
+
 - Use lambdas
+
 - Apply nullptr
 
 **Phase 4: Advanced Modernization (C++17/20)**
+
 - Structured bindings
+
 - Optional/Variant
+
 - String view
+
 - Filesystem library
+
 - Concepts (C++20)
 
 **Phase 5: Structural Changes**
+
 - Consolidate duplicates
+
 - Remove dead functions
+
 - Simplify complex code
+
 - Extract constants
 
 **Phase 6: Verification**
+
 - Run tests after each phase
+
 - Run sanitizers (ASan, UBSan)
+
 - Verify no functionality changes
+
 - Document any issues
 
 **Phase 7: Multi-Pass Protocol**
+
 - First pass: Apply cleanup
+
 - Verification pass: Check for missed opportunities
+
 - Repeat until complete
+
 - Track statistics
 
 ### Step 5: Test After Cleanup
@@ -550,36 +634,55 @@ cleanup_report/
 ## Safety Measures
 
 1. **Version Control Required**
+
 2. **Test Coverage**
+
 3. **Incremental Approach**
+
 4. **Risk Assessment**
+
 5. **Documentation**
 
 ## Success Criteria
 
 - [ ] All unused includes removed
+
 - [ ] Raw pointers replaced with smart pointers
+
 - [ ] RAII applied throughout
+
 - [ ] Move semantics implemented
+
 - [ ] Modern C++ patterns applied
+
 - [ ] No debug statements
+
 - [ ] No commented-out code
+
 - [ ] All tests passing
+
 - [ ] Sanitizers pass
+
 - [ ] Code builds successfully
+
 - [ ] Cleanup documented
 
 ## Tools and Libraries
 
 ### Static Analysis
 - **clang-tidy**: Clang-based linter
+
 - **cppcheck**: C++ static analyzer
+
 - **PVS-Studio**: Commercial analyzer
 
 ### Memory Analysis
 - **Valgrind**: Memory error detector
+
 - **AddressSanitizer**: Google memory error detector
+
 - **UndefinedBehaviorSanitizer**: UB detector
+
 - **ThreadSanitizer**: Race condition detector
 
 ```bash
@@ -599,8 +702,11 @@ cmake --build .
 ## Additional Resources
 
 - [C++ Core Guidelines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines)
+
 - [Effective Modern C++ by Scott Meyers](https://www.oreilly.com/library/view/effective-modern-c/9781491908419/)
+
 - [Modern C++ Design](https://en.wikipedia.org/wiki/Modern_C%2B%2B_Design)
+
 - [cppreference.com](https://en.cppreference.com/)
 
 ---

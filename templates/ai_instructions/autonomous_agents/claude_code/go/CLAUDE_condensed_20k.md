@@ -12,11 +12,14 @@ prerequisites: []
 tools:
 
   - unity
+
   - cmocka
+
   - check
 tags:
 
   - claude-code
+
   - c
 ---
 # CLAUDE.md - Go Development System Instructions
@@ -28,35 +31,48 @@ tags:
 
 ## Section Usage Map
 - **Bug Fix**: Sections 1, 3, 9
+
 - **New Feature**: Sections 1-5, 7
+
 - **Refactoring**: Sections 3, 6, 9
+
 - **Project Setup**: All sections
 
 ## Task-Specific Quick Reference
 - **Fix a function**: Focus sections 3, 9
+
 - **New project**: Use sections 2, 4, 5
+
 - **Code review**: Apply sections 3, 10
 
 ## Context-Aware Behavior
 - **For utilities**: Minimal structure
+
 - **For microservices**: Full architecture
+
 - **For debugging**: Focus on problem-solving
 
 ## Efficiency Modes
 
 ### Quick Mode (for simple fixes)
 - Skip extensive documentation
+
 - Minimal testing setup
+
 - Focus on core functionality
 
 ### Full Mode (for new projects)
 - Complete architecture
+
 - Comprehensive testing
+
 - Full documentation
 
 ## Claude Code Terminal Commands
 - **Run tests**: `claude run go test ./...`
+
 - **Build project**: `claude run go build`
+
 - **Format code**: `claude run gofmt -w .`
 
 ---
@@ -68,29 +84,41 @@ tags:
 
 ### Clarification Protocol
 - When unclear, ask concise clarifying questions
+
 - Never make assumptions
+
 - Frame questions for specific requirements
 
 ### Teaching-Focused Approach
 - **Primary Goal**: Teach how and why
+
 - Explain implementation details
+
 - Enable learning through understanding
+
 - Reference Go documentation
 
 ### Critical Analysis
 - **Don't automatically agree**
+
 - Analyze independently
+
 - Recommend best solution
+
 - Explain reasoning
 
 ### Efficiency Principles
 - **Token Optimization**: Be efficient
+
 - **Code Modification**: Edit originals
+
 - **Codebase Cleanup**: Remove obsolete
+
 - **Refactoring**: Consolidate logic
 
 ### Quality Assurance
 - Review: quality, efficiency, best practices
+
 - If optimal, confirm briefly
 
 
@@ -117,11 +145,17 @@ project-name/
 ## Initialization Sequence
 
 1. **Init module**: `go mod init github.com/user/project`
+
 2. **Create directories**
+
 3. **Create main.go**
+
 4. **Create Makefile**
+
 5. **Create `.gitignore`**
+
 6. **Create `CHANGELOG.md`** v0.1.0
+
 7. **Create `README.md`**
 
 
@@ -260,6 +294,7 @@ func GetUser(ctx context.Context, id int) (*User, error) {
 
 ## Requirements
 - Go 1.22+
+
 - PostgreSQL
 
 ## Installation
@@ -331,6 +366,7 @@ func TestUserService_GetByID(t *testing.T) {
 
 ### When to Use
 - Projects >30 minutes
+
 - Complex features
 
 ### Template
@@ -350,8 +386,11 @@ func TestUserService_GetByID(t *testing.T) {
 
 ### Quality Gates
 - [ ] Compiles
+
 - [ ] Tests pass
+
 - [ ] gofmt applied
+
 - [ ] golangci-lint clean
 
 
@@ -360,12 +399,19 @@ func TestUserService_GetByID(t *testing.T) {
 **When implementing features or fixing bugs:**
 
 1. **Create temp tests** in `tests/temp/` (e.g., `temp_feature_validation_test.go`)
+
 2. **Write challenging tests** with edge cases
+
 3. **Implement solution** following code standards
+
 4. **Run tests and iterate**:
+
    - If FAIL: Document in DEVLOG.md, modify code, repeat
+
    - If PASS: Proceed to cleanup
+
 5. **Delete temp tests** after successful implementation
+
 6. **Document process** in DEVLOG.md with iteration count
 
 **Benefits**: Ensures solutions work, documents problem-solving, prevents premature success claims, maintains clean repository
@@ -422,19 +468,26 @@ go mod tidy
 **CRITICAL: Never auto-modify versions.**
 
 Never automatically:
+
 - Modify CHANGELOG.md
+
 - Update versions
+
 - Create tags
 
 ### Version Protocol
 
 1. **Assess**: "Changes might warrant update"
+
 2. **Request**: "Should I update?"
+
 3. **Wait**: Never proceed without "yes"
 
 ### Semantic Versioning
 - **Patch**: Bug fixes
+
 - **Minor**: New features
+
 - **Major**: Breaking changes
 
 ## Git Operations
@@ -449,17 +502,25 @@ Never automatically:
 ## Code Fix Request
 
 **Structure:**
+
 1. Analyze
+
 2. Implement
+
 3. Explain
+
 4. Integrate
 
 ## Project Planning
 
 **Structure:**
+
 1. Break down
+
 2. Recommend
+
 3. Create subtasks
+
 4. Guide
 
 
@@ -468,18 +529,28 @@ Never automatically:
 
 ## Before Delivering Code
 - [ ] Compiles
+
 - [ ] Follows Go conventions
+
 - [ ] godoc comments
+
 - [ ] Error handling
+
 - [ ] Tests included
+
 - [ ] Context used
+
 - [ ] Race-free
 
 ## Before Delivering Project
 - [ ] Standard structure
+
 - [ ] go.mod configured
+
 - [ ] Makefile
+
 - [ ] Docs complete
+
 - [ ] Tests passing
 
 ---

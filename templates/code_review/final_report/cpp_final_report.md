@@ -18,11 +18,14 @@ related_templates:
 tools:
 
   - google test
+
   - catch2
+
   - boost.test
 tags:
 
   - code-review
+
   - cpp
 ---
 # C++ Code Review Final Report
@@ -81,16 +84,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Issues that create immediate risks to system stability, data integrity, or compliance.
 
 **Examples:**
+
 - Security vulnerabilities (SQL injection, XSS, authentication bypass)
+
 - Resource leaks (unclosed connections, file handles, memory leaks)
+
 - Data loss risks (destructive operations without validation)
+
 - Thread safety violations (race conditions, deadlocks)
+
 - Compliance violations (GDPR, HIPAA, PCI-DSS)
 
 **Action Required:**
+
 - Block deployment until fixed
+
 - Require hotfix within 24 hours
+
 - Add tests to prevent regression
+
 - Document root cause and fix
 
 ---
@@ -100,16 +112,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Issues that significantly impact maintainability, performance, or correctness but don't cause immediate failures.
 
 **Examples:**
+
 - Incorrect business logic (wrong calculations, flawed algorithms)
+
 - Performance bottlenecks (O(n²) algorithms, missing indexes, inefficient queries)
+
 - Memory inefficiency (loading large datasets into memory unnecessarily)
+
 - Breaking API changes without deprecation
+
 - Missing critical error handling (network errors, API failures not caught)
 
 **Action Required:**
+
 - Schedule fix in current sprint
+
 - Cannot release without resolution
+
 - Update documentation
+
 - Performance test after fix
 
 ---
@@ -119,16 +140,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Code smells and technical debt that reduce maintainability but don't affect correctness.
 
 **Examples:**
+
 - High complexity (cyclomatic complexity >10, functions >100 lines)
+
 - Code duplication (>10 lines duplicated across modules)
+
 - Poor naming (unclear variable/function names, inconsistent conventions)
+
 - Missing tests (<80% coverage on critical paths)
+
 - Incomplete error messages (no context for debugging)
 
 **Action Required:**
+
 - Add to backlog
+
 - Prioritize in next sprint planning
+
 - Consider during refactoring opportunities
+
 - Track technical debt metrics
 
 ---
@@ -138,16 +168,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Style inconsistencies and minor optimizations that don't impact functionality.
 
 **Examples:**
+
 - Style violations (linting warnings, formatting issues)
+
 - Minor performance optimizations (in non-critical code paths)
+
 - Missing documentation on helper functions
+
 - Verbose code that could be more concise
+
 - Debug statements left in code
 
 **Action Required:**
+
 - Fix opportunistically during other work
+
 - Batch with other low-priority changes
+
 - Good for new contributors
+
 - Can be deferred indefinitely
 
 ---
@@ -155,20 +194,31 @@ Use this framework to classify and prioritize all findings from the code review.
 ## Severity Assignment Guidelines
 
 **When to Escalate Severity:**
+
 - Issue affects **production environment** → escalate one level
+
 - Issue affects **customer-facing features** → escalate one level
+
 - Issue has **no workaround** → escalate one level
+
 - Issue appears in **multiple locations** → escalate one level
 
 **When to De-escalate Severity:**
+
 - Issue only in **test/development code** → de-escalate one level
+
 - Issue has **easy workaround** → de-escalate one level
+
 - Issue is **isolated to single module** → de-escalate one level
+
 - Issue **rarely executed** (edge case) → de-escalate one level
 
 **Examples:**
+
 - Memory leak in production API: **HIGH → CRITICAL** (production + customer-facing)
+
 - Style violation in test file: **LOW → Ignore** (test code + style only)
+
 - Duplicated logic across 15 modules: **MEDIUM → HIGH** (multiple locations)
 
 ---
@@ -198,16 +248,22 @@ For each finding, include:
 **Issue:** The user search function loads all users into memory and performs linear search on every request.
 
 **Impact:**
+
 - Response time degrades with user count (currently 500ms for 10k users)
+
 - High memory usage (50MB+ per request)
+
 - Poor scalability (can't handle >100k users)
 
 **Recommendation:**
 Move filtering to database with indexed query:
 
 - Add database index on search fields
+
 - Use database LIKE/ILIKE queries
+
 - Implement pagination (limit results to 50)
+
 - Add caching for common searches
 
 **Effort:** 3 hours (2 hours implementation + 1 hour testing)
@@ -254,8 +310,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -278,41 +337,69 @@ Please consolidate all code review findings into a comprehensive final report fo
 Gather and organize findings from all review phases:
 
 1. **Context Analysis Summary**
+
    - Project architecture overview
+
    - Build system and toolchain
+
    - C++ standard and feature adoption
+
    - Dependency management approach
+
    - Development maturity assessment
 
 2. **Code Quality Findings**
+
    - Modern C++ usage assessment
+
    - RAII compliance
+
    - Memory management patterns
+
    - Complexity hotspots
+
    - Technical debt summary
+
    - C++ Core Guidelines compliance
 
 3. **Security Assessment**
+
    - Memory safety issues (buffer overflows, UAF, double-free)
+
    - Sanitizer results (ASan, UBSan, TSan, MSan)
+
    - Undefined behavior detection
+
    - Input validation gaps
+
    - Cryptography and secrets management
+
    - Concurrency safety
 
 4. **Performance Analysis**
+
    - Critical bottlenecks
+
    - Memory performance (allocations, cache)
+
    - Algorithm inefficiencies
+
    - Move semantics opportunities
+
    - Parallelization potential
+
    - Compiler optimization assessment
 
 5. **Testing Evaluation**
+
    - Coverage metrics (gcov/lcov)
+
    - Test quality assessment
+
    - Memory testing (Valgrind, sanitizers)
+
    - Critical gaps
+
    - Flaky test reliability
 
 ## Phase 2: Priority Matrix
@@ -374,10 +461,15 @@ Create a phased implementation plan:
 **Critical P0 Items** - Must be addressed immediately:
 
 1. **[Critical Memory Safety Issue]**
+
    - **Risk**: [exploitation, crashes, data corruption]
+
    - **Effort**: [hours/days]
+
    - **Owner**: [team/role]
+
    - **Dependencies**: [blockers]
+
    - **Success Criteria**: [sanitizers pass, no crashes]
 
 ### Short-term Goals (Weeks 2-4)
@@ -399,17 +491,27 @@ Define success metrics to track improvement:
 ### Code Quality Metrics
 
 - **Current State**:
+
   - C++ Modernization: [C++03/11/14/17/20 patterns]
+
   - RAII Coverage: [% resources using RAII]
+
   - Smart Pointer Usage: [% vs raw pointers]
+
   - Code Coverage: [%]
+
   - clang-tidy Issues: [count]
 
 - **Target State** (3 months):
+
   - C++ Modernization: [C++17/20 throughout]
+
   - RAII Coverage: [100% for resources]
+
   - Smart Pointer Usage: [>90%]
+
   - Code Coverage: [>80%]
+
   - clang-tidy Issues: [<10 critical]
 
 ### Security Metrics
@@ -558,9 +660,13 @@ Please provide a comprehensive final report with the following structure:
 | [NULL] | [multiple] | [nullptr] | [P2] |
 
 **Recommendations**:
+
 1. Replace all raw owning pointers with smart pointers
+
 2. Apply RAII to all resource management
+
 3. Fix Rule of Five violations in [classes]
+
 4. Enable stricter compiler warnings (-Wall -Wextra -Wpedantic)
 
 ---
@@ -630,9 +736,13 @@ ThreadSanitizer:
 - Hardcoded secrets: [count]
 
 **Security Roadmap**:
+
 1. **Week 1**: Fix all critical memory safety issues (ASan errors)
+
 2. **Weeks 2-4**: Address UB issues, add input validation
+
 3. **Month 2**: Implement security automation (sanitizers in CI)
+
 4. **Ongoing**: Security monitoring and fuzzing
 
 ---
@@ -687,13 +797,19 @@ Algorithm:
 ```
 
 **Quick Wins** (High Impact, Low Effort):
+
 1. Add std::move in [location] - 15% speedup - 1 hour
+
 2. Reserve vector capacity in [location] - 20% less allocations - 30 min
+
 3. Use const& instead of copy in [location] - 10% speedup - 1 hour
 
 **Strategic Initiatives**:
+
 1. Implement object pooling for [type] - 40% less allocations - 3 days
+
 2. Refactor to Structure of Arrays - 30% cache improvement - 5 days
+
 3. Add parallelization with std::execution - 3x speedup - 2 weeks
 
 ---
@@ -737,9 +853,13 @@ Algorithm:
 - Sanitizer CI: [Not configured]
 
 **Testing Roadmap**:
+
 1. **Week 1**: Add tests for critical uncovered paths (ErrorHandler, ResourceManager)
+
 2. **Weeks 2-4**: Integrate sanitizers in CI, fix memory leaks
+
 3. **Month 2**: Reach 80% coverage, add performance benchmarks
+
 4. **Month 3**: Add fuzzing for input validation
 
 ---
@@ -784,19 +904,29 @@ Algorithm:
 **Objective**: Address all P0 items blocking production or posing critical risks
 
 **Action Items**:
+
 1. **Fix ASan Buffer Overflow in parser.cpp**
+
    - Owner: [person/team]
+
    - Effort: [2 hours]
+
    - Success Criteria: ASan clean, tests pass
 
 2. **Fix Use-After-Free in cache.cpp**
+
    - Owner: [person/team]
+
    - Effort: [4 hours]
+
    - Success Criteria: ASan clean, no crashes
 
 3. **Fix Critical Memory Leaks**
+
    - Owner: [person/team]
+
    - Effort: [8 hours]
+
    - Success Criteria: Valgrind clean
 
 **Deliverables**:
@@ -815,18 +945,27 @@ Algorithm:
 **Focus Areas**:
 
 - **Memory Safety**:
+
   - Replace raw owning pointers with smart pointers
+
   - Implement RAII for all resource management
+
   - Fix Rule of Five violations
 
 - **Performance**:
+
   - Optimize hot paths identified in profiling
+
   - Add std::move where beneficial
+
   - Improve cache locality
 
 - **Testing**:
+
   - Add test coverage for critical gaps
+
   - Integrate sanitizers in CI
+
   - Fix flaky tests
 
 **Expected Outcomes**:
@@ -1003,16 +1142,25 @@ endif()
 **Overall Assessment**: [Production-ready / Needs improvement / Requires significant work]
 
 **Key Takeaways**:
+
 1. [Critical memory safety issues require immediate attention]
+
 2. [Good RAII usage but inconsistent - needs completion]
+
 3. [Performance bottlenecks in hot paths - optimization opportunities identified]
+
 4. [Test coverage gaps in error handling and resource management]
 
 **Next Steps**:
+
 1. Review and approve this report
+
 2. Assign owners to P0 and P1 items
+
 3. Schedule kickoff for remediation sprints
+
 4. Set up tracking dashboard for metrics
+
 5. Plan follow-up review in [3 months]
 
 **Questions or Clarifications**: [Contact information]

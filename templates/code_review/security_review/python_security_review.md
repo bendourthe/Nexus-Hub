@@ -18,14 +18,20 @@ related_templates:
 tools:
 
   - pytest (8.3.4+)
+
   - black (24.12.0)
+
   - mypy (1.13.0)
+
   - ruff
 tags:
 
   - code-review
+
   - security
+
   - code-review
+
   - python
 ---
 # Python Security Review
@@ -148,16 +154,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Issues that create immediate risks to system stability, data integrity, or compliance.
 
 **Examples:**
+
 - Security vulnerabilities (SQL injection, XSS, authentication bypass)
+
 - Resource leaks (unclosed connections, file handles, memory leaks)
+
 - Data loss risks (destructive operations without validation)
+
 - Thread safety violations (race conditions, deadlocks)
+
 - Compliance violations (GDPR, HIPAA, PCI-DSS)
 
 **Action Required:**
+
 - Block deployment until fixed
+
 - Require hotfix within 24 hours
+
 - Add tests to prevent regression
+
 - Document root cause and fix
 
 ---
@@ -167,16 +182,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Issues that significantly impact maintainability, performance, or correctness but don't cause immediate failures.
 
 **Examples:**
+
 - Incorrect business logic (wrong calculations, flawed algorithms)
+
 - Performance bottlenecks (O(n²) algorithms, missing indexes, inefficient queries)
+
 - Memory inefficiency (loading large datasets into memory unnecessarily)
+
 - Breaking API changes without deprecation
+
 - Missing critical error handling (network errors, API failures not caught)
 
 **Action Required:**
+
 - Schedule fix in current sprint
+
 - Cannot release without resolution
+
 - Update documentation
+
 - Performance test after fix
 
 ---
@@ -186,16 +210,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Code smells and technical debt that reduce maintainability but don't affect correctness.
 
 **Examples:**
+
 - High complexity (cyclomatic complexity >10, functions >100 lines)
+
 - Code duplication (>10 lines duplicated across modules)
+
 - Poor naming (unclear variable/function names, inconsistent conventions)
+
 - Missing tests (<80% coverage on critical paths)
+
 - Incomplete error messages (no context for debugging)
 
 **Action Required:**
+
 - Add to backlog
+
 - Prioritize in next sprint planning
+
 - Consider during refactoring opportunities
+
 - Track technical debt metrics
 
 ---
@@ -205,16 +238,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Style inconsistencies and minor optimizations that don't impact functionality.
 
 **Examples:**
+
 - Style violations (linting warnings, formatting issues)
+
 - Minor performance optimizations (in non-critical code paths)
+
 - Missing documentation on helper functions
+
 - Verbose code that could be more concise
+
 - Debug statements left in code
 
 **Action Required:**
+
 - Fix opportunistically during other work
+
 - Batch with other low-priority changes
+
 - Good for new contributors
+
 - Can be deferred indefinitely
 
 ---
@@ -222,20 +264,31 @@ Use this framework to classify and prioritize all findings from the code review.
 ## Severity Assignment Guidelines
 
 **When to Escalate Severity:**
+
 - Issue affects **production environment** → escalate one level
+
 - Issue affects **customer-facing features** → escalate one level
+
 - Issue has **no workaround** → escalate one level
+
 - Issue appears in **multiple locations** → escalate one level
 
 **When to De-escalate Severity:**
+
 - Issue only in **test/development code** → de-escalate one level
+
 - Issue has **easy workaround** → de-escalate one level
+
 - Issue is **isolated to single module** → de-escalate one level
+
 - Issue **rarely executed** (edge case) → de-escalate one level
 
 **Examples:**
+
 - Memory leak in production API: **HIGH → CRITICAL** (production + customer-facing)
+
 - Style violation in test file: **LOW → Ignore** (test code + style only)
+
 - Duplicated logic across 15 modules: **MEDIUM → HIGH** (multiple locations)
 
 ---
@@ -265,16 +318,22 @@ For each finding, include:
 **Issue:** The user search function loads all users into memory and performs linear search on every request.
 
 **Impact:**
+
 - Response time degrades with user count (currently 500ms for 10k users)
+
 - High memory usage (50MB+ per request)
+
 - Poor scalability (can't handle >100k users)
 
 **Recommendation:**
 Move filtering to database with indexed query:
 
 - Add database index on search fields
+
 - Use database LIKE/ILIKE queries
+
 - Implement pagination (limit results to 50)
+
 - Add caching for common searches
 
 **Effort:** 3 hours (2 hours implementation + 1 hour testing)
@@ -321,8 +380,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -376,24 +438,39 @@ Please perform a comprehensive security review of this Python project following 
 For each OWASP vulnerability category, systematically review the codebase:
 
 1. **A01: Broken Access Control**
+
    - Review authorization logic in all endpoints/routes
+
    - Check for missing authorization checks
+
    - Verify user cannot access resources beyond permissions
+
    - Test for horizontal/vertical privilege escalation
+
    - Example locations: API endpoints, view functions, resource access
 
 2. **A02: Cryptographic Failures**
+
    - Search for weak hashing algorithms (MD5, SHA1)
+
    - Verify HTTPS/TLS usage for sensitive data transmission
+
    - Check database encryption for sensitive fields
+
    - Review password storage (should use bcrypt, argon2, scrypt)
+
    - Identify sensitive data in logs or error messages
 
 3. **A03: Injection**
+
    - **SQL Injection**: Verify parameterized queries (SQLAlchemy, psycopg2)
+
    - **Command Injection**: Check `os.system()`, `subprocess` with user input
+
    - **LDAP/NoSQL Injection**: Review query construction
+
    - **Template Injection**: Check template rendering with user data
+
    - Search patterns:
      ```python
      # Dangerous patterns
@@ -404,49 +481,81 @@ For each OWASP vulnerability category, systematically review the codebase:
      ```
 
 4. **A04: Insecure Design**
+
    - Review architecture for security anti-patterns
+
    - Assess threat modeling evidence
+
    - Check security requirements in design docs
+
    - Evaluate secure development lifecycle integration
 
 5. **A05: Security Misconfiguration**
+
    - Check for debug mode in production
+
    - Review default credentials or configurations
+
    - Verify error messages don't leak sensitive information
+
    - Check for exposed admin interfaces
+
    - Review CORS configuration
+
    - Assess security headers (CSP, HSTS, X-Frame-Options)
 
 6. **A06: Vulnerable and Outdated Components**
+
    - Cross-reference dependency vulnerabilities from Phase 1
+
    - Identify components without security patches
+
    - Check for deprecated libraries
+
    - Review transitive dependency risks
 
 7. **A07: Identification and Authentication Failures**
+
    - Review password complexity requirements
+
    - Check for weak session management
+
    - Verify multi-factor authentication implementation
+
    - Assess brute-force protection (rate limiting)
+
    - Check for authentication bypass vulnerabilities
 
 8. **A08: Software and Data Integrity Failures**
+
    - Review CI/CD pipeline security
+
    - Check code signing and verification
+
    - Assess deserialization security (pickle, yaml.unsafe_load)
+
    - Verify update mechanisms security
 
 9. **A09: Security Logging and Monitoring Failures**
+
    - Assess logging comprehensiveness
+
    - Check for sensitive data in logs
+
    - Review log retention and protection
+
    - Verify alerting on suspicious activities
+
    - Check audit trail completeness
 
 10. **A10: Server-Side Request Forgery (SSRF)**
+
     - Review URL handling and validation
+
     - Check for unvalidated redirects
+
     - Assess internal service requests
+
     - Verify allowlist/blocklist for external requests
 
 ## Phase 3: Authentication & Authorization Deep Dive
@@ -464,23 +573,35 @@ For each OWASP vulnerability category, systematically review the codebase:
    ```
 
 2. **Session Management**
+
    - Check session token generation (cryptographically secure random)
+
    - Verify session expiration and timeout
+
    - Review session fixation protection
+
    - Check for session data exposure
 
 3. **Authorization Patterns**
+
    - Verify authorization checks on all protected resources
+
    - Check for missing decorators/middleware
+
    - Review role/permission enforcement
+
    - Test for privilege escalation paths
 
 ## Phase 4: Data Protection Review
 
 1. **Sensitive Data Identification**
+
    - Identify PII (names, emails, addresses, phone numbers)
+
    - Locate financial data (credit cards, bank accounts)
+
    - Find health information (PHI/medical data)
+
    - Document authentication credentials
 
 2. **Encryption Assessment**
@@ -495,11 +616,17 @@ For each OWASP vulnerability category, systematically review the codebase:
    ```
 
 3. **Data Exposure Risks**
+
    - Search for sensitive data in:
+
      - Exception messages and stack traces
+
      - Log files
+
      - Debug output
+
      - API responses
+
      - Database queries visible in logs
 
 ## Phase 5: Input Validation & Sanitization
@@ -537,9 +664,13 @@ For each OWASP vulnerability category, systematically review the codebase:
    ```
 
 4. **File Upload Security**
+
    - Check file type validation (not just extension)
+
    - Verify file size limits
+
    - Review file storage location (outside web root)
+
    - Check for malicious file content scanning
 
 ## Phase 6: Secrets Management
@@ -554,14 +685,21 @@ For each OWASP vulnerability category, systematically review the codebase:
    ```
 
 2. **Configuration File Review**
+
    - Check .env files for secrets
+
    - Review config.py or settings.py
+
    - Verify secrets not in version control
+
    - Check .gitignore includes sensitive files
 
 3. **Environment Variable Usage**
+
    - Verify secrets loaded from environment
+
    - Check for default/fallback secrets
+
    - Review environment variable naming
 
 ## Output Format
@@ -650,9 +788,13 @@ Please provide a comprehensive security report with the following structure:
 
 ### Immediate Action Items (Priority 1)
 1. **[Critical Issue]**
+
    - **Location**: [file:line]
+
    - **Fix**: [specific remediation steps]
+
    - **Time Estimate**: [hours]
+
    - **Risk if Not Fixed**: [consequences]
 
 ### Short-term Actions (Priority 2 - within 1 week)
@@ -669,13 +811,19 @@ Please provide a comprehensive security report with the following structure:
 # Recommended security automation
 
 - pre-commit-hooks:
+
   - bandit (static security analysis)
+
   - detect-secrets (secret scanning)
+
   - safety (dependency vulnerabilities)
 
 - CI/CD integration:
+
   - pip-audit in GitHub Actions
+
   - SAST tools (Semgrep, Snyk)
+
   - Dependency scanning (Dependabot, Renovate)
 ```
 
@@ -691,14 +839,18 @@ Acknowledge what's done well:
 ### Supply Chain Security
 
 **Dependency Attacks:**
+
 - [ ] Dependency pinning with hash verification
   ```python
   # requirements.txt with hashes
   requests==2.32.0 --hash=sha256:abc123...
   ```
 - [ ] Private package repository configuration (prevent dependency confusion)
+
 - [ ] Typosquatting protection (check for similar package names)
+
   - Example: "requets" instead of "requests"
+
 - [ ] SBOM (Software Bill of Materials) generation
   ```bash
   pip-audit --format json > sbom.json
@@ -709,20 +861,29 @@ Acknowledge what's done well:
   ```
 
 **Package Integrity:**
+
 - [ ] Use `pip install --require-hashes` for production deployments
+
 - [ ] Verify package signatures when available
+
 - [ ] Monitor for package maintainer changes
+
 - [ ] Check for unusual package update patterns
 
 **Tools:**
+
 - `pip-audit` - Vulnerability scanning
+
 - `safety` - Dependency vulnerability checker
+
 - `dependabot` / `renovate` - Automated dependency updates
+
 - `oss-review-toolkit` - Comprehensive supply chain analysis
 
 ### CI/CD Security
 
 **GitHub Actions Security:**
+
 - [ ] Secrets handling - never log secrets
   ```yaml
   - name: Use secret
@@ -755,21 +916,29 @@ Acknowledge what's done well:
     id-token: write  # Required for OIDC
   ```
 - [ ] Branch protection rules (require reviews, status checks)
+
 - [ ] Workflow approval for external contributors
 
 **GitLab CI Security:**
+
 - [ ] Protected variables for sensitive data
+
 - [ ] Pipeline approval requirements
+
 - [ ] Security scanning jobs (SAST, dependency scanning)
 
 **Jenkins Security:**
+
 - [ ] Credential binding for secrets
+
 - [ ] Restricted job permissions
+
 - [ ] Audit logging enabled
 
 ### Container Security (if applicable)
 
 **Image Security:**
+
 - [ ] Base image vulnerabilities (use slim/alpine variants)
   ```dockerfile
   # BAD
@@ -789,6 +958,7 @@ Acknowledge what's done well:
   ```
 
 **Secrets in Layers:**
+
 - [ ] No secrets in container layers (use multi-stage builds)
   ```dockerfile
   # Multi-stage build to avoid secrets in final image
@@ -810,6 +980,7 @@ Acknowledge what's done well:
   ```
 
 **Runtime Security:**
+
 - [ ] Read-only root filesystem when possible
   ```yaml
   # Kubernetes
@@ -817,17 +988,23 @@ Acknowledge what's done well:
     readOnlyRootFilesystem: true
   ```
 - [ ] Drop unnecessary Linux capabilities
+
 - [ ] Network policies to restrict traffic
 
 **Tools:**
+
 - `trivy` - Container vulnerability scanner
+
 - `grype` - Container security scanner
+
 - `snyk` - Container and dependency scanning
+
 - `docker scan` - Built-in Docker scanning
 
 ### AI/LLM Security (if applicable)
 
 **Prompt Injection:**
+
 - [ ] Input validation for user prompts
   ```python
   def validate_prompt(user_input: str) -> str:
@@ -843,6 +1020,7 @@ Acknowledge what's done well:
       return user_input
   ```
 - [ ] Sandboxing for AI-generated code execution
+
 - [ ] Output validation and sanitization
   ```python
   def sanitize_ai_output(output: str) -> str:
@@ -852,11 +1030,15 @@ Acknowledge what's done well:
   ```
 
 **Training Data Privacy:**
+
 - [ ] PII detection in training data
+
 - [ ] Data anonymization before training
+
 - [ ] Consent management for data usage
 
 **Model Security:**
+
 - [ ] API rate limiting to prevent model theft
   ```python
   from slowapi import Limiter
@@ -868,39 +1050,59 @@ Acknowledge what's done well:
       ...
   ```
 - [ ] Watermarking AI-generated content
+
 - [ ] Model access control and authentication
 
 **Cost Control:**
+
 - [ ] Token limits per request
+
 - [ ] Budget alerts for API usage
+
 - [ ] Caching to reduce API calls
 
 ### Cloud-Specific Security
 
 **AWS:**
+
 - [ ] IAM role least privilege (avoid wildcard permissions)
+
 - [ ] S3 bucket policies (block public access)
+
 - [ ] CloudTrail logging enabled
+
 - [ ] Secrets Manager for credentials (not hardcoded)
+
 - [ ] Security Groups restrictive (not 0.0.0.0/0)
 
 **Azure:**
+
 - [ ] Managed identities for authentication
+
 - [ ] Key Vault for secrets
+
 - [ ] Network security groups configured
+
 - [ ] Azure Security Center recommendations
 
 **GCP:**
+
 - [ ] Service accounts with minimal permissions
+
 - [ ] Secret Manager integration
+
 - [ ] VPC firewall rules
+
 - [ ] Security Command Center monitoring
 
 ### Modern Threat Patterns
 
 **API Security:**
+
 - [ ] GraphQL query depth/complexity limits (prevent DoS)
+
 - [ ] REST API versioning (prevent breaking changes)
+
 - [ ] Webhook signature verification
   ```python
   import hmac
@@ -916,6 +1118,7 @@ Acknowledge what's done well:
   ```
 
 **Frontend Security:**
+
 - [ ] Content Security Policy (CSP) headers
   ```python
   @app.after_request
@@ -928,11 +1131,15 @@ Acknowledge what's done well:
       return response
   ```
 - [ ] Subresource Integrity (SRI) for CDN resources
+
 - [ ] HTTPS-only cookies
 
 **Zero Trust Architecture:**
+
 - [ ] Service-to-service authentication
+
 - [ ] Mutual TLS (mTLS) between services
+
 - [ ] Short-lived credentials (rotate frequently)
 
 ### Next Steps

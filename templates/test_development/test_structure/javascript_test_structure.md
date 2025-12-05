@@ -16,12 +16,16 @@ related_templates:
 tools:
 
   - jest (29.7.0)
+
   - eslint (9.15.0)
+
   - prettier
 tags:
 
   - test-development
+
   - testing
+
   - javascript
 ---
 # JavaScript Test Structure & Infrastructure
@@ -162,8 +166,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 Please design and implement a comprehensive test infrastructure for this JavaScript/Node.js project following this protocol:
@@ -182,12 +189,19 @@ Use `<REPO_URL>` as placeholder where repository URLs are needed in this templat
 ## Phase 1: Framework Selection & Configuration
 
 1. **Test Framework Analysis**
+
    - **Current State**: Document existing test setup if any
+
    - **Framework Recommendation**:
+
      - **Jest** (recommended): All-in-one, zero-config, great DX, built-in coverage
+
      - **Mocha**: Flexible, requires additional libraries (chai, sinon)
+
      - **Jasmine**: Behavior-driven, good for legacy projects
+
      - **Vitest**: Modern, Vite-native, extremely fast
+
    - **Rationale**: Justify framework choice based on project needs
 
 2. **Install Core Testing Dependencies**
@@ -432,8 +446,11 @@ Use `<REPO_URL>` as placeholder where repository URLs are needed in this templat
 2. **Naming Conventions**
 
    **File Naming**:
+
    - Test files: `*.test.js` or `*.spec.js`
+
    - Test suites: `describe('ComponentName', ...)`
+
    - Test cases: `test('should do something', ...)` or `it('should do something', ...)`
 
    **Examples**:
@@ -476,21 +493,33 @@ Use `<REPO_URL>` as placeholder where repository URLs are needed in this templat
 3. **Test Type Organization**
 
    **Unit Tests** (`tests/unit/`):
+
    - Test single functions/classes in isolation
+
    - Fast execution (<100ms per test)
+
    - No external dependencies
+
    - Extensive mocking
 
    **Integration Tests** (`tests/integration/`):
+
    - Test multiple components together
+
    - Database, API, service interactions
+
    - Moderate execution time
+
    - Minimal mocking
 
    **E2E Tests** (`tests/e2e/`):
+
    - Test complete user workflows
+
    - Full system with real dependencies
+
    - Slowest execution
+
    - No mocking of core functionality
 
 ## Phase 3: Fixture Infrastructure
@@ -1026,9 +1055,13 @@ npm run test:debug
 
 ### Testing Conventions Established
 1. **File Naming**: [convention]
+
 2. **Test Naming**: [convention]
+
 3. **Suite Organization**: [convention]
+
 4. **Mock Usage**: [guidelines]
+
 5. **Test Data**: [where to store, how to organize]
 
 ### Best Practices Implemented
@@ -1067,12 +1100,19 @@ npm run test:debug
 The AI assistant should deliver:
 
 1. **Test infrastructure design document** with complete directory structure
+
 2. **Configuration files** (jest.config.js, .mocharc.json, or vitest.config.js)
+
 3. **Setup files** with global configuration
+
 4. **Fixture factories** for common test data
+
 5. **Test utility modules** in helpers/ directory
+
 6. **Custom matchers** for domain-specific assertions
+
 7. **Documentation** of conventions and best practices
+
 8. **Execution commands** for common test scenarios
 ---
 

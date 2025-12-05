@@ -15,11 +15,14 @@ prerequisites:
 tools:
 
   - google test
+
   - catch2
+
   - boost.test
 tags:
 
   - test-development
+
   - cpp
 ---
 # C++ Reward Hacking - Test Quality Validation Guide
@@ -85,33 +88,52 @@ ${OUTPUT_DIR}/
 
 ### Prerequisites Verification
 - [ ] All 7 previous testing phases completed
+
 - [ ] Test structure output collected
+
 - [ ] Unit test results available
+
 - [ ] Integration test outputs gathered
+
 - [ ] Mock and fixture implementations documented
+
 - [ ] Performance test results compiled
+
 - [ ] CI/CD pipeline logs obtained
+
 - [ ] Code coverage reports generated
 
 ### Mutation Testing Setup
 - [ ] mull installed (LLVM-based for C++)
+
 - [ ] Mutation testing baseline established
+
 - [ ] Mutation score thresholds defined
+
 - [ ] Test execution environment prepared
 
 ### Quality Analysis
 - [ ] Tautological test detection script created
+
 - [ ] Weak assertion analyzer implemented
+
 - [ ] RAII validation configured
+
 - [ ] Move semantics testing validated
+
 - [ ] Coverage integrity validator developed
+
 - [ ] Test independence checker deployed
 
 ### Reporting
 - [ ] Comprehensive test quality report generated (25-35 pages)
+
 - [ ] Mutation testing results documented
+
 - [ ] Phase-by-phase validation completed
+
 - [ ] Remediation action plan created
+
 - [ ] Continuous monitoring configured
 
 ---
@@ -159,11 +181,17 @@ git config --get remote.origin.url
 Analyze all unit tests for patterns that always pass:
 
 **Detection Criteria:**
+
 - Tests with no assertions
+
 - Tests with trivial assertions (EXPECT_TRUE(true))
+
 - Tests that only check nullptr/not nullptr without validating behavior
+
 - Tests with mocked return values used directly in assertions
+
 - Missing move semantics validation
+
 - RAII not properly tested
 
 **Create:** `${OUTPUT_DIR}/templates/TautologicalDetector.cpp`
@@ -637,19 +665,31 @@ mull-reporter-html test_runner
 mutators:
 
   - cxx_add_to_sub
+
   - cxx_sub_to_add
+
   - cxx_mul_to_div
+
   - cxx_div_to_mul
+
   - cxx_le_to_lt
+
   - cxx_lt_to_le
+
   - cxx_ge_to_gt
+
   - cxx_gt_to_ge
+
   - negate_condition
+
   - remove_void_call
+
   - scalar_value_mutator
 
 reporters:
+
   - IDE
+
   - HTML
 
 timeout: 10000
@@ -670,9 +710,13 @@ Mutants generated: 200
 Mutants tested: 200
 
 Results:
+
 - Killed: 164 (82%)
+
 - Survived: 28 (14%)
+
 - Timeout: 6 (3%)
+
 - Not Covered: 2 (1%)
 
 Mutation Score: 82%
@@ -941,16 +985,27 @@ TEST(VectorTest, Strong) {
 After completing this reward hacking validation phase:
 
 - [ ] Overall test quality score >80/100
+
 - [ ] mull mutation score >80% across all modules
+
 - [ ] Zero RAII violations in tests
+
 - [ ] Zero critical reward hacking incidents
+
 - [ ] <5% high severity issues
+
 - [ ] 100% test independence verified
+
 - [ ] <2% flaky test rate
+
 - [ ] Move semantics properly tested
+
 - [ ] Continuous monitoring configured with mull
+
 - [ ] Team trained on modern C++ testing
+
 - [ ] CI/CD quality gates active
+
 - [ ] Regular audit schedule established
 
 ---

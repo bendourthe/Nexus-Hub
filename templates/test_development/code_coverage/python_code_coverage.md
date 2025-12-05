@@ -18,12 +18,16 @@ related_templates:
 tools:
 
   - pytest (8.3.4+)
+
   - black (24.12.0)
+
   - mypy (1.13.0)
+
   - ruff
 tags:
 
   - test-development
+
   - python
 ---
 # Python Code Coverage Analysis
@@ -164,8 +168,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 Please implement comprehensive code coverage measurement and improvement for this Python project following this protocol:
@@ -823,6 +830,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
       - uses: actions/checkout@v3
 
       - name: Set up Python
@@ -907,13 +915,19 @@ Please provide a comprehensive coverage analysis with the following structure:
 
 ### Critical Coverage Gaps
 1. **src/services/user.py** (67% coverage)
+
    - **Missing**: Error handling paths (lines 45-67)
+
    - **Priority**: Critical - core business logic
+
    - **Action**: Add tests for error scenarios
 
 2. **src/core/auth.py** (78% coverage)
+
    - **Missing**: Edge cases (lines 23-25, 45-48)
+
    - **Priority**: High - security-critical
+
    - **Action**: Add boundary condition tests
 
 ### Coverage Improvement Plan
@@ -1020,13 +1034,21 @@ Replace `{phase_name}` with the specific phase (test_cases, mocks_fixtures, perf
 The AI assistant should deliver:
 
 1. **Complete coverage configuration** (`.coveragerc` or `pyproject.toml`)
+
 2. **Current coverage analysis** with gaps identified
+
 3. **Prioritized improvement plan** with specific actions
+
 4. **Test implementations** to fill critical gaps
+
 5. **Coverage reporting infrastructure** (HTML, XML, JSON, badges)
+
 6. **CI/CD integration** with coverage gates
+
 7. **Coverage tracking scripts** for trends
+
 8. **Coverage diff tools** for PR reviews
+
 9. **Team documentation** on coverage standards
 ---
 

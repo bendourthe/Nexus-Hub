@@ -37,9 +37,13 @@ Document the technical architecture, design decisions, module organization, and 
 ## 🚀 Quick Start
 
 1. Identify key architectural components and design decisions
+
 2. Use the comprehensive prompt in `python_technical_docs.md`
+
 3. Request specific documentation sections (architecture, design decisions, etc.)
+
 4. Review with technical team for accuracy and completeness
+
 5. Keep documentation updated as architecture evolves
 
 ## 📊 Success Criteria

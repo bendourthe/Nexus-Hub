@@ -12,12 +12,16 @@ prerequisites: []
 tools:
 
   - NUnit (4.2.2)
+
   - xUnit
+
   - MSTest
 tags:
 
   - documentation
+
   - documentation
+
   - c#
 ---
 # C# User Documentation
@@ -151,8 +155,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -171,26 +178,40 @@ Please create comprehensive user documentation for this C#/.NET project followin
 ## Phase 1: Audience Analysis & Documentation Planning
 
 1. **Identify Target Audience**
+
    - Primary users: [backend developers/enterprise developers/game developers/etc.]
+
    - Technical skill level: [beginner/intermediate/advanced]
+
    - Use cases: [what problems they're solving]
+
    - Context: [how they'll use the software]
 
 2. **Document Existing Features**
+
    - List all major features and capabilities
+
    - Identify most common use cases
+
    - Note any complex or non-obvious functionality
+
    - Document prerequisites and dependencies
 
 3. **Outline Documentation Structure**
    Plan what documentation is needed:
 
    - [ ] README.md (essential)
+
    - [ ] INSTALL.md or installation section
+
    - [ ] QUICKSTART.md or quick start guide
+
    - [ ] USER_GUIDE.md for detailed usage
+
    - [ ] EXAMPLES.md with common patterns
+
    - [ ] FAQ.md for common questions
+
    - [ ] TROUBLESHOOTING.md for common issues
 
 ## Phase 2: README.md - Professional Project Overview
@@ -681,12 +702,19 @@ dotnet test --logger "console;verbosity=detailed"
 Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 Quick start for contributors:
+
 1. Fork the repository
+
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+
 3. Make your changes
+
 4. Run tests (`dotnet test`)
+
 5. Commit your changes (`git commit -m 'Add amazing feature'`)
+
 6. Push to the branch (`git push origin feature/amazing-feature`)
+
 7. Open a Pull Request
 
 ---
@@ -795,9 +823,13 @@ Install-Package PackageName
 ### Method 3: Visual Studio GUI
 
 1. Right-click on your project in Solution Explorer
+
 2. Select "Manage NuGet Packages"
+
 3. Click "Browse" tab
+
 4. Search for "PackageName"
+
 5. Click "Install"
 
 ### Method 4: Edit .csproj Directly
@@ -870,7 +902,9 @@ dotnet pack -c Release -o ./nupkg
 ### Windows
 
 **Prerequisites**:
+
 1. Install .NET SDK from [dotnet.microsoft.com](https://dotnet.microsoft.com/download)
+
 2. Verify installation:
 ```powershell
 dotnet --version
@@ -894,15 +928,19 @@ dotnet run
 **Common Issues**:
 
 - **Error**: "dotnet is not recognized"
+
   - **Fix**: Add .NET to PATH or restart terminal after installation
 
 - **Error**: "Unable to find package"
+
   - **Fix**: Check NuGet sources: `dotnet nuget list source`
 
 ### macOS
 
 **Prerequisites**:
+
 1. Install .NET SDK from [dotnet.microsoft.com](https://dotnet.microsoft.com/download)
+
 2. Or use Homebrew: `brew install dotnet`
 
 **Installation**:
@@ -925,9 +963,11 @@ dotnet run
 **Common Issues**:
 
 - **Error**: "Permission denied"
+
   - **Fix**: Check .NET is properly installed: `which dotnet`
 
 - **Error**: "Framework not found"
+
   - **Fix**: Install correct runtime: `brew install dotnet-runtime`
 
 ### Linux
@@ -978,8 +1018,11 @@ dotnet --version
 ### Visual Studio 2022
 
 1. Install from [visualstudio.com](https://visualstudio.com)
+
 2. Select ".NET desktop development" workload
+
 3. Create new project or open existing
+
 4. Manage NuGet packages via GUI or Package Manager Console
 
 **Extensions** (optional):
@@ -991,9 +1034,13 @@ dotnet --version
 ### Visual Studio Code
 
 1. Install VS Code from [code.visualstudio.com](https://code.visualstudio.com)
+
 2. Install C# extension from Microsoft
+
 3. Install .NET SDK
+
 4. Open folder with .csproj file
+
 5. Use integrated terminal for .NET CLI commands
 
 **Recommended Extensions**:
@@ -1006,8 +1053,11 @@ code --install-extension k--kato.docomment
 ### JetBrains Rider
 
 1. Install from [jetbrains.com/rider](https://jetbrains.com/rider)
+
 2. Open solution or project
+
 3. NuGet packages managed automatically
+
 4. Use NuGet tool window for package management
 
 ---
@@ -1185,12 +1235,19 @@ dotnet restore
 ### Getting Help
 
 If installation fails:
+
 1. Check [GitHub Issues](https://github.com/username/project/issues)
+
 2. Review [Troubleshooting Guide](TROUBLESHOOTING.md)
+
 3. Open a new issue with:
+
    - Your OS and version
+
    - .NET SDK version (`dotnet --version`)
+
    - Full error message
+
    - Contents of .csproj file
 
 ---
@@ -1198,9 +1255,13 @@ If installation fails:
 ## Next Steps
 
 After successful installation:
+
 1. Review the [Quick Start Guide](README.md#quick-start)
+
 2. Try the [examples/](examples/) directory
+
 3. Read the [User Guide](USER_GUIDE.md)
+
 4. Check the [API Documentation](https://username.github.io/project/api/)
 ```
 
@@ -1315,8 +1376,11 @@ Result: Processed: Hello, World!
 Let's break down what happened:
 
 1. **Using**: We imported the namespace
+
 2. **Instantiate**: We created an instance
+
 3. **Process**: We processed data
+
 4. **Result**: We got a result back
 
 Now try modifying the example:
@@ -1636,34 +1700,53 @@ Please provide user documentation in this format:
 ## Best Practices
 
 1. **Write for Your Audience**
+
    - Match technical level to C#/.NET developers
+
    - Explain .NET/NuGet ecosystem concepts
+
    - Provide context for async/await patterns
 
 2. **Show, Don't Just Tell**
+
    - Include complete, runnable examples
+
    - Show both synchronous and asynchronous patterns
+
    - Demonstrate modern C# features
+
    - Include framework integrations (ASP.NET Core)
 
 3. **Make It Easy to Find Information**
+
    - Clear table of contents
+
    - Good headings and structure
+
    - Links to API documentation
 
 4. **Test Your Documentation**
+
    - Follow your own instructions
+
    - Test on different .NET versions
+
    - Verify on Windows, macOS, and Linux
 
 5. **Keep It Updated**
+
    - Update with code changes
+
    - Version documentation with releases
+
    - Address user questions in FAQ
 
 6. **Progressive Disclosure**
+
    - Start simple, add complexity gradually
+
    - Quick start for immediate success
+
    - Detailed docs for advanced users
 
 ---

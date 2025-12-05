@@ -17,12 +17,19 @@ Create a complete, production-ready Python project with standard structure, conf
 ## When to Use This Skill
 
 Use this skill when you need to:
+
 - ✅ Start a new Python project from scratch
+
 - ✅ Establish standard project structure quickly
+
 - ✅ Set up development environment with best practices
+
 - ✅ Initialize testing framework and CI/CD configuration
+
 - ✅ Create documentation templates (README, CHANGELOG, DEVLOG)
+
 - ✅ Configure linting, formatting, and type checking
+
 - ✅ Onboard team with consistent project setup
 
 ## What This Skill Does
@@ -60,33 +67,48 @@ project_name/
 
 ### 2. Configuration Files
 - **pyproject.toml**: Project metadata, dependencies, tool configurations
+
 - **requirements.txt**: Pinned dependencies for reproducibility
+
 - **.gitignore**: Comprehensive Python ignore patterns
+
 - **CLAUDE.md**: Claude Code project guidelines
 
 ### 3. Documentation
 - **README.md**: Installation, usage, and feature documentation
+
 - **CHANGELOG.md**: Version history following Keep a Changelog format
+
 - **DEVLOG.md**: Development task list and decision log
 
 ### 4. Testing Framework
 - Master test runner with auto-detection
+
 - Shared test utilities and fixtures
+
 - Configuration for pass/fail criteria
+
 - Example test structure
 
 ### 5. Development Tools
 - Black (code formatter)
+
 - Flake8 (linter)
+
 - mypy (type checker)
+
 - isort (import sorter)
+
 - pytest (test framework)
 
 ## Prerequisites
 
 - Python 3.9+ installed
+
 - pip (Python package installer)
+
 - git (version control)
+
 - (Optional) Claude Code for AI assistance
 
 ## Instructions
@@ -96,17 +118,25 @@ project_name/
 Gather this information before initialization:
 
 **Project Details**:
+
 - **Name**: Project identifier (lowercase, underscores for spaces)
+
 - **Description**: One-line summary of purpose
+
 - **Type**: CLI tool / Web API / Library / Data Processing / GUI Application
+
 - **Author**: Your name and email
 
 **Dependencies**:
+
 - Core dependencies (e.g., fastapi, pandas, requests)
+
 - Development dependencies (testing, linting)
 
 **Features**:
+
 - Key capabilities to document
+
 - Initial version number (default: 0.1.0)
 
 ### Step 2: Invoke the Skill
@@ -115,20 +145,31 @@ Gather this information before initialization:
 "Use the init-python-project skill to create a new Python project.
 
 Project Details:
+
 - Name: my_awesome_project
+
 - Description: A tool for processing data and generating reports
+
 - Type: CLI tool
+
 - Author: Your Name (your.email@example.com)
 
 Dependencies:
+
 - click (CLI framework)
+
 - pandas (data processing)
+
 - jinja2 (template rendering)
 
 Features:
+
 - Load CSV data files
+
 - Apply transformations
+
 - Generate HTML reports
+
 - Export to multiple formats
 
 Please initialize the complete project structure."
@@ -226,8 +267,11 @@ git add .
 git commit -m "Initial project structure
 
 - Standard Python project layout
+
 - Testing framework configured
+
 - Documentation templates created
+
 - Development tools configured
 
 Generated with init-python-project skill"
@@ -309,8 +353,11 @@ addopts = "-v --cov=src --cov-report=html --cov-report=term"
 
 ## What's New
 - Initial release
+
 - CSV data loading
+
 - Data transformations
+
 - HTML report generation
 
 ## Overview
@@ -318,14 +365,18 @@ A command-line tool for processing data and generating reports. Loads CSV files,
 
 ## Features
 - **Data Loading**: Import CSV files with automatic type detection
+
 - **Transformations**: Apply filters, aggregations, and calculations
+
 - **Report Generation**: Create HTML reports with charts and tables
+
 - **Multi-Format Export**: Save results as CSV, JSON, or Excel
 
 ## Installation
 
 ### Prerequisites
 - Python 3.9 or higher
+
 - pip (Python package installer)
 
 ### Setup
@@ -381,9 +432,13 @@ flake8 src/ tests/
 
 ## Contributing
 1. Fork the repository
+
 2. Create a feature branch
+
 3. Make your changes
+
 4. Run tests and quality checks
+
 5. Submit a pull request
 
 ## License
@@ -414,12 +469,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 - Initial project structure
+
 - CSV data loading functionality
+
 - Data transformation pipeline
+
 - HTML report generation
+
 - Multi-format export (CSV, JSON, Excel)
+
 - Comprehensive test suite
+
 - CLI interface with click
+
 - Documentation templates
 ```
 
@@ -431,33 +493,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### High Priority
 - [ ] Implement CSV data loader
+
 - [ ] Create transformation pipeline
+
 - [ ] Build HTML report generator
+
 - [ ] Add export functionality
 
 ### Medium Priority
 - [ ] Add data validation
+
 - [ ] Implement caching
+
 - [ ] Create configuration file support
+
 - [ ] Add progress indicators
 
 ### Low Priority
 - [ ] Support additional input formats (Excel, JSON)
+
 - [ ] Add interactive mode
+
 - [ ] Create web UI
+
 - [ ] Add database export option
 
 ## Development History
 
 ### Project Architecture
 - **Design**: Command-line tool with modular architecture
+
 - **Tech Stack**: Python 3.9+, pandas, Jinja2, click
+
 - **Pattern**: Pipeline-based data processing
 
 ### Initial Setup - 2025-10-20
 - Created standard Python project structure
+
 - Configured development tools (black, mypy, pytest)
+
 - Set up testing framework
+
 - Initialized documentation
 
 ## Troubleshooting History
@@ -473,6 +549,7 @@ My Awesome Project - Main Entry Point
 A tool for processing data and generating reports.
 
 Authors:
+
     - Your Name (your.email@example.com)
 """
 import sys
@@ -517,6 +594,7 @@ Automatically discovers and runs all test suites, providing comprehensive
 reporting with pass/fail status, timing, and coverage information.
 
 Authors:
+
     - Your Name (your.email@example.com)
 """
 import sys
@@ -576,7 +654,9 @@ if __name__ == "__main__":
 
 ### CLI Tool (Default)
 - click or argparse for CLI
+
 - Rich for beautiful terminal output
+
 - Progress bars and interactive prompts
 
 ### Web API
@@ -584,13 +664,19 @@ if __name__ == "__main__":
 Dependencies:
 
 - fastapi
+
 - uvicorn
+
 - pydantic
+
 - sqlalchemy
 
 Structure additions:
+
 - src/api/routes/
+
 - src/models/
+
 - src/schemas/
 ```
 
@@ -599,15 +685,23 @@ Structure additions:
 Dependencies:
 
 - pandas
+
 - numpy
+
 - matplotlib
+
 - jupyter
+
 - scikit-learn
 
 Structure additions:
+
 - notebooks/
+
 - data/raw/
+
 - data/processed/
+
 - models/
 ```
 
@@ -616,12 +710,17 @@ Structure additions:
 Additional files:
 
 - setup.py
+
 - MANIFEST.in
+
 - LICENSE
 
 Focus on:
+
 - Public API design
+
 - Documentation
+
 - Examples/
 ```
 
@@ -632,8 +731,11 @@ Focus on:
 "Use init-python-project with minimal configuration:
 
 - Basic structure only
+
 - Essential documentation
+
 - Skip CI/CD files
+
 - No example tests"
 ```
 
@@ -642,9 +744,13 @@ Focus on:
 "Use init-python-project with full configuration:
 
 - Complete directory structure
+
 - GitHub Actions CI/CD
+
 - Pre-commit hooks
+
 - Comprehensive documentation
+
 - Example tests and fixtures"
 ```
 
@@ -653,9 +759,13 @@ Focus on:
 "Use init-python-project with custom requirements:
 
 - FastAPI web application
+
 - PostgreSQL database
+
 - Docker configuration
+
 - AWS deployment scripts
+
 - OpenAPI documentation"
 ```
 
@@ -663,8 +773,11 @@ Focus on:
 
 ### 1. Configure IDE
 - Set Python interpreter to `.venv/bin/python`
+
 - Enable format on save (Black)
+
 - Configure test runner (pytest)
+
 - Set up debugger
 
 ### 2. Set Up Pre-Commit Hooks
@@ -682,11 +795,13 @@ repos:
     hooks:
 
       - id: black
+
   - repo: https://github.com/pycqa/isort
     rev: 5.10.1
     hooks:
 
       - id: isort
+
   - repo: https://github.com/pycqa/flake8
     rev: 5.0.4
     hooks:
@@ -696,15 +811,22 @@ repos:
 
 ### 3. Configure GitHub Repository
 - Create repository on GitHub
+
 - Add description and topics
+
 - Set up branch protection
+
 - Enable GitHub Actions
+
 - Add README badges
 
 ### 4. Start Development
 - Review DEVLOG.md task list
+
 - Prioritize features
+
 - Begin with tests (TDD)
+
 - Commit frequently
 
 ## Success Criteria
@@ -712,34 +834,53 @@ repos:
 After initialization, verify:
 
 - [ ] All directories created correctly
+
 - [ ] Configuration files are valid
+
 - [ ] Virtual environment created and activated
+
 - [ ] Dependencies installed successfully
+
 - [ ] Tests run and pass
+
 - [ ] Linting and formatting tools work
+
 - [ ] Documentation is complete and accurate
+
 - [ ] Git repository initialized
+
 - [ ] CLAUDE.md configured for Claude Code
+
 - [ ] Ready to begin development
 
 ## Related Skills
 
 **Use After Initialization**:
+
 - `setup-python-system-prompt`: Configure Claude Code standards
+
 - `create-claude-md`: Customize project guidelines
+
 - `generate-test-cases`: Add comprehensive tests
+
 - `generate-docstrings`: Document code
 
 **For Development**:
+
 - `plan-before-code`: Plan features before implementing
+
 - `test-driven-development`: Write tests first
+
 - `cleanup-python`: Clean code periodically
 
 ## Additional Resources
 
 - [Python Packaging Guide](https://packaging.python.org/)
+
 - [Python Project Structure](https://docs.python-guide.org/writing/structure/)
+
 - [pytest Documentation](https://docs.pytest.org/)
+
 - [Black Code Formatter](https://black.readthedocs.io/)
 
 ---

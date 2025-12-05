@@ -12,12 +12,16 @@ prerequisites: []
 tools:
 
   - NUnit (4.2.2)
+
   - xUnit
+
   - MSTest
 tags:
 
   - ai-templates
+
   - refactoring
+
   - c#
 ---
 # Code Cleanup & Refactoring Review - C#
@@ -143,8 +147,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -165,21 +172,35 @@ Please perform a comprehensive, systematic cleanup of my C# codebase following t
 Before making ANY changes, please:
 
 1. **Analyze the complete codebase structure**
+
    - Identify all .cs files in the solution
+
    - Map dependencies between projects, namespaces, and classes
+
    - Identify public APIs that must be preserved
+
    - Check .csproj files for unused NuGet package references
 
 2. **Generate a detailed cleanup report** listing:
+
    - Unused using directives
+
    - Unused fields, properties, methods, and classes
+
    - Debug Console.WriteLine() or Debug.WriteLine() statements
+
    - Empty lines within method bodies
+
    - Inline and meta-commentary comments
+
    - Dead code after returns or in unreachable branches
+
    - Legacy patterns (old-style properties, delegates, null checks)
+
    - Code smells (god classes, long methods, feature envy)
+
    - ReSharper/Rider warnings and suggestions
+
    - Estimated impact and risk level for each category
 
 3. **Present findings and wait for my approval** before proceeding
@@ -193,24 +214,37 @@ After I approve, systematically clean the following:
 **CRITICAL: Perform multiple passes through the entire codebase to ensure completeness**
 
 1. **First Pass**: Apply all cleanup tasks systematically across the codebase
+
    - Work through all .cs files in the project
+
    - Apply all requested cleanup operations
+
    - Track which files were modified
 
 2. **Verification Pass**: Review the entire codebase again
+
    - Check for any files that were missed in the first pass
+
    - Verify all cleanup patterns were applied consistently
+
    - Identify any edge cases or exceptions that need attention
 
 3. **Repeat Until Complete**: Continue additional passes if needed
+
    - If files were found that needed cleanup in the verification pass, perform another full pass
+
    - Repeat until a complete pass finds no additional cleanup opportunities
+
    - Track the number of passes required to achieve complete cleanup
 
 4. **Pass Tracking**: Maintain detailed statistics for each pass
+
    - Number of files processed per pass
+
    - Number of files cleaned per pass
+
    - Percentage of codebase cleaned per pass
+
    - Types of issues found per pass
 
 #### When to Stop Multi-Pass Cleanup
@@ -218,23 +252,35 @@ After I approve, systematically clean the following:
 Stop when **ONE** of these conditions is met:
 
 1. ✅ **Zero-change pass** (RECOMMENDED STOPPING POINT)
+
    - Entire verification pass finds nothing to clean
+
    - All files reviewed, no modifications made
+
    - This is the ideal completion state
 
 2. ✅ **Diminishing returns threshold**
+
    - <5% additional files cleaned per pass
+
    - Calculate: `(files_cleaned_this_pass / total_files) < 0.05`
+
    - Example: If 150 total files and pass cleans <8 files, stop
 
 3. ✅ **Pass limit reached**
+
    - Maximum 3 passes completed
+
    - Log incomplete work if stopping at this point
+
    - Document remaining issues for future cleanup
 
 4. ✅ **Time limit reached**
+
    - 8 hours of cleanup time exceeded
+
    - Document progress and remaining work
+
    - Schedule follow-up cleanup session if needed
 
 **NEVER stop without at least 2 passes (initial + verification).**
@@ -248,35 +294,59 @@ Create `${OUTPUT_DIR}/cleanup/progress.md` after each pass:
 
 ## Pass 1 - Initial Cleanup
 - **Date**: 2025-12-03
+
 - **Start Time**: 10:00 AM
+
 - **End Time**: 1:00 PM
+
 - **Duration**: 3 hours
+
 - **Files Analyzed**: 150
+
 - **Files Cleaned**: 45 (30.0%)
+
 - **Issues Found**: 234
+
   - Unused using directives: 67
+
   - Unused variables: 89
+
   - Empty lines: 45
+
   - Inline comments: 33
+
 - **Issues Resolved**: 234 (100%)
 
 ## Pass 2 - Verification
 - **Date**: 2025-12-03
+
 - **Start Time**: 2:00 PM
+
 - **End Time**: 3:00 PM
+
 - **Duration**: 1 hour
+
 - **Files Analyzed**: 150
+
 - **Files Cleaned**: 8 (5.3%)
+
 - **Issues Found**: 12
+
   - Unused using directives: 5
+
   - Empty lines: 7
+
 - **Issues Resolved**: 12 (100%)
 
 ## Decision: STOP - Diminishing returns threshold met
 - **Condition Met**: Files cleaned in Pass 2 (5.3%) < threshold (5%)
+
 - **Total Passes**: 2
+
 - **Total Time**: 4 hours
+
 - **Total Files Cleaned**: 53/150 (35.3%)
+
 - **Overall Status**: ✅ Cleanup complete
 ```
 
@@ -292,17 +362,23 @@ Use this matrix to decide whether to continue or stop:
 | 16+ | 150 | >10% | **CONTINUE** - Significant cleanup remaining |
 
 **Time-based stopping:**
+
 - After 8 hours total cleanup time, **STOP** regardless of percentage
+
 - Document remaining work for future cleanup session
 
 **Pass-based stopping:**
+
 - After 3 passes, **STOP** and document incomplete work
+
 - Consider if issues are edge cases or systematic problems
 
 ### Critical Removals
 
 - **Unused using directives**: Remove any using statements not referenced in the file
+
   - Use Visual Studio/Rider's "Remove Unused Usings" feature as reference
+
   - Keep System usings that are implicitly used
 
 - **Unused fields**: Remove private fields that are assigned but never read
@@ -310,9 +386,11 @@ Use this matrix to decide whether to continue or stop:
 - **Unused properties**: Remove private/internal properties that are never accessed
 
 - **Unused methods**: Remove private methods that are never called
+
   - PRESERVE public and protected methods (may be part of public API or used by subclasses)
 
 - **Unused parameters**: Remove parameters that are defined but never used
+
   - Consider marking with discard `_` if parameter is required by interface/delegate
 
 - **Unused local variables**: Remove variables that are assigned but never used
@@ -320,6 +398,7 @@ Use this matrix to decide whether to continue or stop:
 - **Empty methods**: Remove empty method bodies or replace with NotImplementedException
 
 - **Empty lines within methods**: Remove excessive blank lines inside method bodies
+
   - KEEP empty lines between logical code sections and between methods
 
 ### Comment Cleanup
@@ -335,15 +414,21 @@ Use this matrix to decide whether to continue or stop:
 - **Auto-generated comments**: Remove default XML comments that provide no value
 
 - PRESERVE comments that explain:
+
   - Why a particular approach was chosen
+
   - Business logic or domain-specific rules
+
   - Complex algorithms or non-obvious implementations
+
   - Workarounds for known issues/bugs in dependencies
+
   - XML documentation for public APIs
 
 ### Debugging & Development Artifacts
 
 - **Console statements**: Remove Console.WriteLine() and Console.Write() used for debugging
+
   - PRESERVE intentional console output in console applications
 
 - **Debug statements**: Remove Debug.WriteLine() and Debug.Write() statements
@@ -377,8 +462,11 @@ Use this matrix to decide whether to continue or stop:
 #### Using Directives Organization
 
 - **Organize usings**: Sort using directives in standard order:
+
   1. System namespaces (alphabetically)
+
   2. Third-party namespaces (alphabetically)
+
   3. Internal namespaces (alphabetically)
 
 - **Place usings inside namespace**: Consider moving using directives inside namespace (C# 10+)
@@ -494,7 +582,9 @@ Use this matrix to decide whether to continue or stop:
 After cleanup, you MUST:
 
 1. **Provide summary** of all changes made, organized by category
+
 2. **Highlight any edge cases** or decisions that required judgment
+
 3. **Request that I run tests and build** to verify nothing broke:
    ```bash
    dotnet clean
@@ -506,9 +596,13 @@ After cleanup, you MUST:
    ```markdown
    ### Code Cleanup - [Date]
    - Removed [X] unused using directives
+
    - Removed [Y] unused methods
+
    - Removed [Z] Console.WriteLine statements
+
    - Modernized [N] legacy patterns
+
    - Additional improvements: [summary]
    ```
 
@@ -564,9 +658,13 @@ Present cleanup in this structure:
 - **File:** Path\To\File.cs
 
 - **Removals:**
+
   - Line X: Unused using System.Collections
+
   - Lines X-Y: Unused private method MethodName()
+
   - Line Z: Console.WriteLine() debugging statement
+
   - Line N: Inline comment removed
 
 - **Rationale:** [Brief explanation of why these were removed]

@@ -18,11 +18,14 @@ related_templates:
 tools:
 
   - NUnit (4.2.2)
+
   - xUnit
+
   - MSTest
 tags:
 
   - code-review
+
   - c#
 ---
 # C# Code Quality Review
@@ -139,16 +142,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Issues that create immediate risks to system stability, data integrity, or compliance.
 
 **Examples:**
+
 - Security vulnerabilities (SQL injection, XSS, authentication bypass)
+
 - Resource leaks (unclosed connections, file handles, memory leaks)
+
 - Data loss risks (destructive operations without validation)
+
 - Thread safety violations (race conditions, deadlocks)
+
 - Compliance violations (GDPR, HIPAA, PCI-DSS)
 
 **Action Required:**
+
 - Block deployment until fixed
+
 - Require hotfix within 24 hours
+
 - Add tests to prevent regression
+
 - Document root cause and fix
 
 ---
@@ -158,16 +170,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Issues that significantly impact maintainability, performance, or correctness but don't cause immediate failures.
 
 **Examples:**
+
 - Incorrect business logic (wrong calculations, flawed algorithms)
+
 - Performance bottlenecks (O(n²) algorithms, missing indexes, inefficient queries)
+
 - Memory inefficiency (loading large datasets into memory unnecessarily)
+
 - Breaking API changes without deprecation
+
 - Missing critical error handling (network errors, API failures not caught)
 
 **Action Required:**
+
 - Schedule fix in current sprint
+
 - Cannot release without resolution
+
 - Update documentation
+
 - Performance test after fix
 
 ---
@@ -177,16 +198,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Code smells and technical debt that reduce maintainability but don't affect correctness.
 
 **Examples:**
+
 - High complexity (cyclomatic complexity >10, functions >100 lines)
+
 - Code duplication (>10 lines duplicated across modules)
+
 - Poor naming (unclear variable/function names, inconsistent conventions)
+
 - Missing tests (<80% coverage on critical paths)
+
 - Incomplete error messages (no context for debugging)
 
 **Action Required:**
+
 - Add to backlog
+
 - Prioritize in next sprint planning
+
 - Consider during refactoring opportunities
+
 - Track technical debt metrics
 
 ---
@@ -196,16 +226,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Style inconsistencies and minor optimizations that don't impact functionality.
 
 **Examples:**
+
 - Style violations (linting warnings, formatting issues)
+
 - Minor performance optimizations (in non-critical code paths)
+
 - Missing documentation on helper functions
+
 - Verbose code that could be more concise
+
 - Debug statements left in code
 
 **Action Required:**
+
 - Fix opportunistically during other work
+
 - Batch with other low-priority changes
+
 - Good for new contributors
+
 - Can be deferred indefinitely
 
 ---
@@ -213,20 +252,31 @@ Use this framework to classify and prioritize all findings from the code review.
 ## Severity Assignment Guidelines
 
 **When to Escalate Severity:**
+
 - Issue affects **production environment** → escalate one level
+
 - Issue affects **customer-facing features** → escalate one level
+
 - Issue has **no workaround** → escalate one level
+
 - Issue appears in **multiple locations** → escalate one level
 
 **When to De-escalate Severity:**
+
 - Issue only in **test/development code** → de-escalate one level
+
 - Issue has **easy workaround** → de-escalate one level
+
 - Issue is **isolated to single module** → de-escalate one level
+
 - Issue **rarely executed** (edge case) → de-escalate one level
 
 **Examples:**
+
 - Memory leak in production API: **HIGH → CRITICAL** (production + customer-facing)
+
 - Style violation in test file: **LOW → Ignore** (test code + style only)
+
 - Duplicated logic across 15 modules: **MEDIUM → HIGH** (multiple locations)
 
 ---
@@ -256,16 +306,22 @@ For each finding, include:
 **Issue:** The user search function loads all users into memory and performs linear search on every request.
 
 **Impact:**
+
 - Response time degrades with user count (currently 500ms for 10k users)
+
 - High memory usage (50MB+ per request)
+
 - Poor scalability (can't handle >100k users)
 
 **Recommendation:**
 Move filtering to database with indexed query:
 
 - Add database index on search fields
+
 - Use database LIKE/ILIKE queries
+
 - Implement pagination (limit results to 50)
+
 - Add caching for common searches
 
 **Effort:** 3 hours (2 hours implementation + 1 hour testing)
@@ -312,8 +368,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -347,16 +406,25 @@ Please perform a comprehensive code quality review of this C# project following 
    ```
 
 2. **Style Violations Analysis**
+
    - Document most common violations
+
    - Identify patterns of non-compliance
+
    - Assess consistency across projects
+
    - Flag formatting inconsistencies
 
 3. **Naming Convention Review**
+
    - Verify public members use PascalCase
+
    - Check private fields use _camelCase or camelCase
+
    - Confirm interfaces start with 'I'
+
    - Verify async methods end with 'Async'
+
    - Identify unclear or abbreviated names
 
 ## Phase 2: Complexity Analysis
@@ -371,84 +439,137 @@ Please perform a comprehensive code quality review of this C# project following 
    ```
 
 2. **Identify Complexity Hotspots**
+
    - List methods with complexity >10
+
    - Flag methods longer than 50 lines
+
    - Identify deeply nested code (>4 levels)
+
    - Document complex LINQ queries
+
    - Review switch expressions and pattern matching
 
 3. **Assembly-Level Analysis**
+
    - Assess project size and cohesion
+
    - Identify projects with too many responsibilities
+
    - Check coupling between projects
+
    - Evaluate namespace organization
 
 ## Phase 3: Design Quality Review
 
 1. **SOLID Principles**
+
    - **Single Responsibility**: Check if classes have one clear purpose
+
    - **Open/Closed**: Evaluate extensibility without modification
+
    - **Liskov Substitution**: Review inheritance hierarchies
+
    - **Interface Segregation**: Check for lean interfaces
+
    - **Dependency Inversion**: Assess dependency on abstractions
 
 2. **DRY Violations**
+
    - Identify duplicated logic
+
    - Find near-duplicate methods
+
    - Document consolidation opportunities
+
    - Review code generation opportunities
 
 3. **Design Patterns**
+
    - Identify patterns in use (Repository, Factory, Strategy, etc.)
+
    - Assess pattern appropriateness
+
    - Flag pattern misuse or over-engineering
+
    - Suggest beneficial pattern applications
 
 ## Phase 4: Code Smell Detection
 
 1. **Common C# Code Smells**
+
    - **Long Parameter Lists**: Methods with >5 parameters
+
    - **Long Methods**: Methods exceeding 50 lines
+
    - **Large Classes**: Classes with >300 lines or >20 methods
+
    - **Data Clumps**: Same groups of data appearing together
+
    - **Feature Envy**: Methods using data from other classes excessively
+
    - **Primitive Obsession**: Using primitives instead of value objects
 
 2. **Anti-Patterns**
+
    - God objects/classes
+
    - Circular dependencies
+
    - Lava flow (dead/obsolete code)
+
    - Copy-paste programming
+
    - Magic numbers and strings
+
    - Improper use of static classes
 
 3. **C#-Specific Issues**
+
    - Not using 'using' statements for IDisposable
+
    - Catching Exception instead of specific exceptions
+
    - Not using async/await properly
+
    - Blocking on async code (.Result, .Wait())
+
    - String concatenation in loops (use StringBuilder)
+
    - Boxing/unboxing performance issues
 
 ## Phase 5: Error Handling & Robustness
 
 1. **Exception Handling Review**
+
    - Check for broad exception catching
+
    - Verify appropriate exception types used
+
    - Assess error message quality
+
    - Review exception propagation strategy
+
    - Check for exception filters when appropriate
 
 2. **Resource Management**
+
    - Verify use of 'using' statements
+
    - Check for proper async disposal (IAsyncDisposable)
+
    - Review memory management patterns
+
    - Identify potential resource leaks
 
 3. **Defensive Programming**
+
    - Input validation assessed (guard clauses)
+
    - Boundary condition handling reviewed
+
    - Null-checking with nullable reference types
+
    - Edge case coverage evaluated
 
 ## Phase 6: Documentation Quality
@@ -462,30 +583,47 @@ Please perform a comprehensive code quality review of this C# project following 
    dotnet build /p:GenerateDocumentationFile=true
    ```
    - Measure public API documentation coverage
+
    - Assess documentation completeness
+
    - Verify parameter documentation
+
    - Check return value documentation
 
 2. **Comment Quality**
+
    - Evaluate comment necessity and clarity
+
    - Flag commented-out code for removal
+
    - Check for TODO/FIXME/HACK comments
+
    - Verify comments explain "why" not "what"
 
 3. **Nullable Reference Types**
+
    - Check nullable context enabled
+
    - Verify nullable annotations on public APIs
+
    - Review null-forgiving operator (!) usage
+
    - Check for proper null checking
 
 ## Phase 7: Modern C# Features
 
 1. **Language Feature Usage**
+
    - Pattern matching usage
+
    - Record types for DTOs
+
    - Init-only properties
+
    - Top-level statements appropriateness
+
    - File-scoped namespaces
+
    - Global using statements
 
 2. **Async/Await Patterns**
@@ -506,9 +644,13 @@ Please perform a comprehensive code quality review of this C# project following 
    ```
 
 3. **LINQ Usage**
+
    - Check for inefficient LINQ queries
+
    - Review deferred execution understanding
+
    - Identify multiple enumeration issues
+
    - Assess query complexity
 
 ## Output Format
@@ -532,7 +674,9 @@ Please provide a comprehensive quality report with the following structure:
 - **Analyzer Warnings**: [count by severity]
 
 - **Most Common Issues**:
+
   1. [Issue type] - [count] occurrences
+
   2. [Issue type] - [count] occurrences
 
 - **Consistency Score**: [percentage]
@@ -550,13 +694,17 @@ Please provide a comprehensive quality report with the following structure:
 
 ### Design Quality Issues
 1. **SOLID Violations**:
+
    - [Principle]: [specific examples and impact]
 
 2. **DRY Violations**:
+
    - [Location]: [description of duplication]
+
    - **Consolidation Opportunity**: [suggestion]
 
 3. **Missing Patterns**:
+
    - [Location]: [beneficial pattern suggestion]
 
 ### Code Smells Identified
@@ -613,12 +761,15 @@ Please provide a comprehensive quality report with the following structure:
 
 ### Refactoring Recommendations
 1. **Immediate Actions** (within 1 sprint):
+
    - [Specific refactoring with location and rationale]
 
 2. **Short-term Goals** (1-2 months):
+
    - [Improvement initiative with expected impact]
 
 3. **Long-term Initiatives** (3-6 months):
+
    - [Strategic refactoring with business justification]
 
 ### Positive Patterns

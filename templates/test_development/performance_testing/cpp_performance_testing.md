@@ -18,13 +18,18 @@ related_templates:
 tools:
 
   - google test
+
   - catch2
+
   - boost.test
 tags:
 
   - test-development
+
   - testing
+
   - performance
+
   - cpp
 ---
 # C++ Performance Testing
@@ -153,8 +158,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 Please implement comprehensive performance testing for this C++ project following this protocol:
@@ -1305,6 +1313,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
     - uses: actions/checkout@v3
 
     - name: Install dependencies
@@ -1419,13 +1428,19 @@ Latency:
 
 ### Bottlenecks Identified
 1. **String Concatenation with operator+**
+
    - **Issue**: Repeated reallocation and copying
+
    - **Impact**: O(n²) complexity for n concatenations
+
    - **Recommendation**: Use std::string::reserve() or std::string::append()
 
 2. **Vector Insertions Without Reserve**
+
    - **Issue**: Multiple reallocations as vector grows
+
    - **Impact**: 40% slower than pre-reserved vector
+
    - **Recommendation**: Call reserve() when final size is known
 
 ### Performance Improvement Recommendations
@@ -1499,11 +1514,17 @@ Replace `{phase_name}` with the specific phase (test_cases, mocks_fixtures, perf
 The AI assistant should deliver:
 
 1. **Performance test suite** with Google Benchmark tests
+
 2. **Performance baselines** documented
+
 3. **Load test scenarios** for critical operations
+
 4. **Profiling results** with bottleneck identification
+
 5. **Regression detection** configuration
+
 6. **CI/CD integration** for automated performance gates
+
 7. **Performance report** with metrics and recommendations
 ---
 

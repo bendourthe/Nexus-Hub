@@ -19,19 +19,31 @@ Systematically assess test suite quality, coverage, and effectiveness to ensure 
 Use this skill as **Phase 5** after completing context, quality, security, and performance reviews:
 
 - ✅ After [Phase 1: Context](../code-review-context-analysis/SKILL.md), [Phase 2: Quality](../code-review-quality/SKILL.md), [Phase 3: Security](../code-review-security/SKILL.md), and [Phase 4: Performance](../code-review-performance/SKILL.md) complete
+
 - ✅ Evaluating test coverage before production deployment
+
 - ✅ Assessing test suite maintainability
+
 - ✅ Identifying untested critical paths
+
 - ✅ Improving test reliability and reducing flakiness
+
 - ✅ Establishing quality gates for CI/CD
+
 - ✅ Planning testing infrastructure improvements
+
 - ✅ Onboarding to testing best practices
 
 **This skill is essential when**:
+
 - You need to measure and improve test coverage
+
 - You're identifying critical testing gaps
+
 - You want to improve test quality and reliability
+
 - You're reducing flaky tests
+
 - You need to establish testing standards
 
 ## What This Skill Does
@@ -40,10 +52,15 @@ This skill implements **Phase 5: Testing Review** of the six-phase code review w
 
 ### Complete Workflow
 - Phase 1: [Context Analysis](../code-review-context-analysis/SKILL.md) - Project understanding
+
 - Phase 2: [Quality Review](../code-review-quality/SKILL.md) - Code maintainability
+
 - Phase 3: [Security Review](../code-review-security/SKILL.md) - Vulnerability identification
+
 - Phase 4: [Performance Review](../code-review-performance/SKILL.md) - Bottleneck analysis
+
 - **Phase 5: Testing Review (This Skill)** - Test coverage evaluation
+
 - Phase 6: [Final Report](../code-review-final-report/SKILL.md) - Consolidated findings
 
 ## Why Testing Review Matters
@@ -56,10 +73,15 @@ Bugs: *slip through to production*
 Result:
 
 - ❌ Low coverage leaves bugs undiscovered
+
 - ❌ Flaky tests waste developer time
+
 - ❌ Poor test quality doesn't catch regressions
+
 - ❌ Critical paths remain untested
+
 - ❌ Deployment confidence is low
+
 - ❌ Production incidents increase
 ```
 
@@ -71,10 +93,15 @@ Bugs: *caught before deployment*
 Result:
 
 - ✅ High coverage catches bugs early
+
 - ✅ Reliable tests save developer time
+
 - ✅ Quality tests prevent regressions
+
 - ✅ Critical paths thoroughly tested
+
 - ✅ Deployment confidence is high
+
 - ✅ Production incidents decrease
 ```
 
@@ -82,41 +109,60 @@ Result:
 
 ### Quality Assurance
 - **Bug Prevention**: Catch defects before production
+
 - **Regression Protection**: Prevent old bugs from returning
+
 - **Confidence**: Deploy with assurance code works
+
 - **Documentation**: Tests document expected behavior
 
 ### Development Velocity
 - **Fast Feedback**: Tests run quickly in CI/CD
+
 - **Safe Refactoring**: Change code without fear
+
 - **Reduced Debugging**: Tests pinpoint issues quickly
+
 - **Developer Productivity**: Less time fixing production bugs
 
 ### Cost Reduction
 - **Early Detection**: Fixing bugs in development is cheaper
+
 - **Reduced Downtime**: Fewer production incidents
+
 - **Lower Support Costs**: Fewer user-reported issues
+
 - **Faster Releases**: Confidence enables frequent deploys
 
 ## Prerequisites
 
 ### Required
 - Completion of [Phase 1: Context](../code-review-context-analysis/SKILL.md), [Phase 2: Quality](../code-review-quality/SKILL.md), [Phase 3: Security](../code-review-security/SKILL.md), and [Phase 4: Performance](../code-review-performance/SKILL.md)
+
 - Source code and test suite access
+
 - Test framework understanding
+
 - Coverage measurement tools
 
 ### Recommended
 - CI/CD pipeline access
+
 - Test execution logs
+
 - Historical test failure data
+
 - Performance benchmarks for tests
 
 ### Knowledge
 - Testing types (unit, integration, e2e)
+
 - Test patterns (AAA, Given-When-Then)
+
 - Mocking and stubbing techniques
+
 - Test-driven development (TDD)
+
 - Coverage metrics interpretation
 
 ## Instructions
@@ -205,16 +251,23 @@ Result:
 2. **Analyze Coverage Metrics**
 
    **Line Coverage**:
+
    - Percentage of code lines executed by tests
+
    - Target: 80%+ for critical code, 60%+ overall
 
    **Branch Coverage**:
+
    - Percentage of conditional branches tested
+
    - More important than line coverage
+
    - Target: 75%+ for critical paths
 
    **Function Coverage**:
+
    - Percentage of functions called by tests
+
    - Identifies completely untested functions
 
    **Example Analysis**:
@@ -238,9 +291,13 @@ Result:
    ```
 
    Look for:
+
    - Critical paths with <80% coverage
+
    - Error handling code not tested
+
    - Edge cases not covered
+
    - Complex logic with low branch coverage
 
 ### Step 2: Test Suite Inventory
@@ -276,8 +333,11 @@ Result:
 2. **Test Distribution Analysis**
 
    Ideal distribution:
+
    - **70% Unit Tests**: Fast, isolated, test individual functions
+
    - **20% Integration Tests**: Test component interactions
+
    - **10% E2E Tests**: Test complete user workflows
 
    **Test Pyramid**:
@@ -814,6 +874,7 @@ Result:
        runs-on: ubuntu-latest
 
        steps:
+
          - uses: actions/checkout@v2
 
          - name: Set up Python
@@ -834,10 +895,15 @@ Result:
    ```
 
    **Check for**:
+
    - Tests run on every commit/PR
+
    - Multiple environments tested (Python versions, Node versions, etc.)
+
    - Coverage reports generated
+
    - Test failures block merges
+
    - Parallel test execution for speed
 
 2. **Test Execution Performance**
@@ -854,9 +920,13 @@ Result:
    ```
 
    **Optimization Strategies**:
+
    - Parallelize test execution
+
    - Use test selection (run only affected tests)
+
    - Mock slow dependencies
+
    - Use in-memory databases for tests
 
 ### Step 8: Generate Testing Report
@@ -873,18 +943,26 @@ Result:
 ## Executive Summary
 
 - **Overall Testing Grade**: [A-F]
+
 - **Coverage**: [%] lines, [%] branches
+
 - **Total Tests**: [count]
+
 - **Test Quality**: [Excellent/Good/Fair/Poor]
+
 - **Flaky Tests**: [count]
+
 - **Critical Gaps**: [count]
 
 ## Test Coverage Analysis
 
 ### Overall Metrics
 - **Line Coverage**: [%]
+
 - **Branch Coverage**: [%]
+
 - **Function Coverage**: [%]
+
 - **Target**: 80% line, 75% branch
 
 ### Coverage by Module
@@ -898,20 +976,27 @@ Result:
 
 #### Gap 1: Error Handling Not Tested
 - **Location**: src/auth.py lines 45-60
+
 - **Risk**: High - authentication failure paths untested
+
 - **Recommendation**: Add tests for invalid credentials, expired tokens
 
 #### Gap 2: Edge Cases Missing
 - **Location**: src/utils/parser.py
+
 - **Risk**: Medium - boundary conditions not validated
+
 - **Recommendation**: Test empty inputs, null values, large datasets
 
 ## Test Suite Inventory
 
 ### Test Distribution
 - **Unit Tests**: [count] ([%])
+
 - **Integration Tests**: [count] ([%])
+
 - **E2E Tests**: [count] ([%])
+
 - **Performance Tests**: [count]
 
 **Assessment**: [Follows test pyramid / Inverted pyramid / Needs rebalancing]
@@ -931,33 +1016,44 @@ tests/
 
 ### Naming Conventions
 - **Good Names**: [%]
+
 - **Poor Names**: [count] tests need renaming
+
 - **Examples of Issues**:
+
   - test_1, test_2, test_function (non-descriptive)
 
 ### Test Structure (AAA Pattern)
 - **Following AAA**: [%]
+
 - **Mixed Structure**: [count] tests
+
 - **No Clear Structure**: [count] tests
 
 ### Assertion Quality
 - **Strong Assertions**: [%]
+
 - **Weak Assertions**: [count] ("assert x", "assert True")
+
 - **Missing Assertions**: [count] tests
 
 ### Test Anti-Patterns Found
 
 #### Pattern 1: Testing Implementation Details
 - **Occurrences**: [count]
+
 - **Examples**: [list files/lines]
+
 - **Impact**: Tests brittle, break with refactoring
 
 #### Pattern 2: Multiple Unrelated Assertions
 - **Occurrences**: [count]
+
 - **Impact**: Tests unclear, hard to debug failures
 
 #### Pattern 3: Test Interdependence
 - **Occurrences**: [count]
+
 - **Impact**: Tests fail when run in isolation
 
 ## Test Reliability
@@ -970,19 +1066,25 @@ tests/
 
 ### Test Independence
 - **Independent Tests**: [%]
+
 - **Dependent Tests**: [count]
+
 - **Recommended Fix**: [Use fixtures, clean up state]
 
 ### External Dependencies
 - **Network Calls**: [count] tests - [mocked/not mocked]
+
 - **Database Calls**: [count] tests - [using test DB/mocked]
+
 - **File System**: [count] tests - [using temp dir/not isolated]
 
 ## Mocking Assessment
 
 ### Mock Usage
 - **Appropriate Mocking**: [count] tests
+
 - **Over-Mocked**: [count] tests (testing mocks, not logic)
+
 - **Under-Mocked**: [count] tests (hitting real external services)
 
 ### Mock Quality Issues
@@ -992,114 +1094,166 @@ tests/
 
 ### Tested Edge Cases
 - **Boundary Values**: [Good/Poor]
+
 - **Null/Empty Inputs**: [Good/Poor]
+
 - **Error Conditions**: [Good/Poor]
+
 - **Large Inputs**: [Good/Poor]
 
 ### Missing Edge Case Tests
 1. **[Feature]**: No tests for [edge case]
+
    - **Risk**: [description]
+
    - **Recommended Tests**: [list]
 
 ## CI/CD Integration
 
 ### Pipeline Status
 - **Tests Run Automatically**: [Yes/No]
+
 - **Environments Tested**: [list]
+
 - **Coverage Tracking**: [Yes/No]
+
 - **Failure Blocks Merge**: [Yes/No]
 
 ### Test Execution Performance
 - **Total Test Time**: [seconds]
+
 - **Slowest Tests**: [list top 5]
+
 - **Parallel Execution**: [Enabled/Disabled]
+
 - **Target**: <5 minutes total
 
 ### Recommendations
 - [Enable parallel execution]
+
 - [Optimize slow tests]
+
 - [Add test selection]
 
 ## Critical Testing Gaps
 
 ### Priority 1 (Immediate)
 1. **Untested Authentication Failure Paths**
+
    - **Risk**: High
+
    - **Location**: auth.py
+
    - **Tests Needed**: 5
+
    - **Effort**: 2 hours
 
 ### Priority 2 (Short-term)
 1. **Missing Integration Tests for API-Database**
+
    - **Risk**: Medium
+
    - **Coverage Gap**: 15%
+
    - **Tests Needed**: 10
+
    - **Effort**: 1 day
 
 ### Priority 3 (Long-term)
 1. **E2E Test Coverage for Critical Flows**
+
    - **Risk**: Medium
+
    - **Current**: 2 flows tested
+
    - **Needed**: 8 flows
+
    - **Effort**: 1 week
 
 ## Test Improvement Roadmap
 
 ### Immediate Actions (Week 1)
 - [ ] Fix flaky tests
+
 - [ ] Add tests for critical gaps
+
 - [ ] Clean up test anti-patterns
 
 ### Short-term (Weeks 2-4)
 - [ ] Improve coverage to 80%
+
 - [ ] Refactor poorly named tests
+
 - [ ] Add missing edge case tests
 
 ### Medium-term (Months 2-3)
 - [ ] Establish testing standards
+
 - [ ] Implement test selection
+
 - [ ] Optimize test execution time
 
 ### Long-term (Months 4-6)
 - [ ] Comprehensive E2E test suite
+
 - [ ] Performance test automation
+
 - [ ] Property-based testing for critical logic
 
 ## Positive Findings
 
 - [Good practices observed]
+
 - [Effective test patterns]
 
 ## Next Steps
 
 - [ ] Fix critical testing gaps (P1)
+
 - [ ] Eliminate flaky tests
+
 - [ ] Improve coverage to target levels
+
 - [ ] Establish CI/CD quality gates
+
 - [ ] Train team on testing best practices
+
 - [ ] Proceed to [Phase 6: Final Report](../code-review-final-report/SKILL.md)
 ```
 
 ## Success Criteria
 
 - [ ] Test coverage measured and analyzed
+
 - [ ] Test suite inventory completed
+
 - [ ] Test quality assessed
+
 - [ ] Flaky tests identified
+
 - [ ] Critical gaps documented
+
 - [ ] Edge case coverage verified
+
 - [ ] CI/CD integration reviewed
+
 - [ ] Test improvement roadmap created
+
 - [ ] Team ready for final report generation
 
 ## Related Skills
 
 ### Code Review Workflow
 1. [Phase 1: Context Analysis](../code-review-context-analysis/SKILL.md)
+
 2. [Phase 2: Quality Review](../code-review-quality/SKILL.md)
+
 3. [Phase 3: Security Review](../code-review-security/SKILL.md)
+
 4. [Phase 4: Performance Review](../code-review-performance/SKILL.md)
+
 5. **Phase 5: Testing Review (This Skill)**
+
 6. [Phase 6: Final Report](../code-review-final-report/SKILL.md)
 
 ### Supporting Skills
@@ -1109,15 +1263,22 @@ tests/
 
 ### Testing Tools
 - **Python**: pytest, coverage, pytest-cov, pytest-mock, hypothesis
+
 - **JavaScript**: Jest, Mocha, Chai, Sinon, Testing Library
+
 - **Java**: JUnit 5, Mockito, AssertJ, JaCoCo, TestContainers
+
 - **Go**: testing package, testify, gomock, go-sqlmock
+
 - **C/C++**: Google Test, Catch2, CppUTest, gcov, lcov
+
 - **C#**: xUnit, NUnit, Moq, Coverlet, FluentAssertions
 
 ### Testing Best Practices
 - [Test-Driven Development by Kent Beck](https://www.amazon.com/Test-Driven-Development-Kent-Beck/dp/0321146530)
+
 - [xUnit Test Patterns](http://xunitpatterns.com/)
+
 - [Growing Object-Oriented Software, Guided by Tests](http://www.growing-object-oriented-software.com/)
 
 ---

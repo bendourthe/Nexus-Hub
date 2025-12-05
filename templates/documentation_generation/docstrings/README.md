@@ -37,8 +37,11 @@ Generate clear, complete docstrings that document all public interfaces, explain
 ## 🚀 Quick Start
 
 1. Choose your preferred docstring style (Google recommended for readability)
+
 2. Use the comprehensive prompt template in `python_docstrings.md`
+
 3. Request docstring generation for specific modules, classes, or entire codebase
+
 4. Review and validate generated docstrings align with your standards
 
 ## 📊 Success Criteria

@@ -17,13 +17,21 @@ Systematically identify and remove dead code, consolidate duplicate logic, and m
 ## When to Use This Skill
 
 Use this skill when you need to:
+
 - Remove unused imports, methods, classes, and fields
+
 - Consolidate duplicate code and near-duplicate implementations
+
 - Modernize legacy patterns (loops to streams, anonymous classes to lambdas, null checks to Optional)
+
 - Clean up System.out.println statements and commented code
+
 - Optimize import organization and code structure
+
 - Prepare codebase for new features or refactoring
+
 - Reduce technical debt before major releases
+
 - Remove unused Maven/Gradle dependencies
 
 ## What This Skill Does
@@ -32,67 +40,107 @@ This skill performs comprehensive Java code cleanup:
 
 ### 1. Dead Code Detection
 - **Unused Imports**: Identifies and removes unused import statements
+
 - **Unused Methods**: Finds private methods never called
+
 - **Unused Classes**: Detects classes without instantiation
+
 - **Unused Fields**: Identifies fields assigned but never read
+
 - **Unreachable Code**: Finds code after return/break/continue statements
+
 - **Empty Blocks**: Detects empty methods, classes, or catch blocks
+
 - **Unused Dependencies**: Identifies Maven/Gradle dependencies not used in code
 
 ### 2. Duplicate Code Consolidation
 - **Exact Duplicates**: Finds identical code blocks for consolidation
+
 - **Near Duplicates**: Detects similar code with minor variations
+
 - **Duplicate Logic**: Identifies functionally equivalent implementations
+
 - **Copy-Paste Detection**: Finds code copied across classes
+
 - **Consolidation Strategy**: Recommends refactoring approach
 
 ### 3. Code Modernization (Java 8+)
 - **Lambda Expressions**: Converts anonymous classes to lambdas
+
 - **Method References**: Replaces lambdas with method references
+
 - **Streams API**: Modernizes collection processing
+
 - **Optional**: Uses Optional instead of null checks
+
 - **Try-with-resources**: Converts try-finally patterns
+
 - **Diamond Operator**: Uses `<>` for type inference
 
 ### 4. Code Modernization (Java 9+)
 - **Collection Factories**: Uses List.of(), Set.of(), Map.of()
+
 - **Private Interface Methods**: Extracts duplicate default method logic
+
 - **Var Keyword**: Uses var for local variable type inference (Java 10+)
+
 - **Switch Expressions**: Converts switch statements (Java 12+)
+
 - **Text Blocks**: Uses text blocks for multi-line strings (Java 13+)
+
 - **Records**: Replaces simple POJOs (Java 14+)
+
 - **Pattern Matching**: Uses pattern matching for instanceof (Java 14+)
+
 - **Sealed Classes**: Applies sealed classes for controlled inheritance (Java 15+)
 
 ### 5. Debug Statement Cleanup
 - **Print Statements**: Removes debug System.out.println()
+
 - **Commented Code**: Cleans up old commented-out code
+
 - **TODO Comments**: Catalogs and prioritizes TODO items
+
 - **printStackTrace**: Replaces with proper logging
+
 - **Temporary Variables**: Identifies debug-only variables
 
 ### 6. Import Organization
 - **Standard Library**: Groups Java standard library imports
+
 - **Extensions**: Organizes javax.* imports
+
 - **Third-Party**: Structures external dependencies
+
 - **Internal Packages**: Organizes project imports
+
 - **Unused Removal**: Eliminates unnecessary imports
+
 - **Wildcard Imports**: Replaces `import java.util.*;` with specific imports
 
 ### 7. Code Simplification
 - **Complex Conditionals**: Simplifies nested if/else statements
+
 - **Excessive Nesting**: Reduces deeply nested code
+
 - **Long Methods**: Identifies candidates for decomposition
+
 - **Magic Numbers**: Converts literals to named constants
+
 - **Redundant Code**: Removes unnecessary operations
+
 - **Unnecessary Else**: Simplifies if-return patterns
 
 ## Prerequisites
 
 - Java codebase to clean up
+
 - Version control (git) for safe cleanup with rollback capability
+
 - Test suite for regression verification (recommended)
+
 - Backup of codebase or committed state
+
 - Maven or Gradle build system
 
 ## Instructions
@@ -133,10 +181,15 @@ Tell Claude Code to use this skill:
 Focus on:
 
 1. Removing all unused imports, methods, and fields
+
 2. Consolidating duplicate code
+
 3. Modernizing to Java 8+ patterns (streams, lambdas, Optional)
+
 4. Removing System.out.println statements
+
 5. Organizing imports properly
+
 6. Identifying unused Maven/Gradle dependencies
 
 Save all reports to cleanup_report/ directory."
@@ -147,10 +200,15 @@ Save all reports to cleanup_report/ directory."
 Claude Code will generate a comprehensive cleanup plan including:
 
 1. **Dead Code Candidates** - List of unused code with usage analysis
+
 2. **Duplication Report** - Duplicate code locations with consolidation strategy
+
 3. **Modernization Opportunities** - Legacy patterns to update
+
 4. **Code Smells** - God classes, long methods, feature envy
+
 5. **Risk Assessment** - Impact analysis for each cleanup operation
+
 6. **Implementation Plan** - Ordered steps with dependencies
 
 **Review the plan before proceeding with changes!**
@@ -160,34 +218,55 @@ Claude Code will generate a comprehensive cleanup plan including:
 The skill will execute cleanup in safe phases:
 
 **Phase 1: Low-Risk Cleanup**
+
 - Remove unused imports
+
 - Clean System.out.println statements
+
 - Remove commented code
+
 - Organize imports
 
 **Phase 2: Code Modernization**
+
 - Convert to lambda expressions
+
 - Apply method references
+
 - Use streams API
+
 - Apply Optional for null handling
+
 - Use try-with-resources
 
 **Phase 3: Structural Changes**
+
 - Consolidate duplicates
+
 - Remove dead methods
+
 - Simplify complex code
+
 - Extract constants
 
 **Phase 4: Verification**
+
 - Run tests after each phase
+
 - Run static analysis tools
+
 - Verify no functionality changes
+
 - Document any issues
 
 **Phase 5: Multi-Pass Protocol**
+
 - First pass: Apply cleanup across all files
+
 - Verification pass: Check for missed opportunities
+
 - Repeat until complete
+
 - Track statistics for each pass
 
 ### Step 5: Test After Cleanup
@@ -224,8 +303,11 @@ The skill will execute cleanup in safe phases:
    ```
 
 4. **Manual Testing** (if no automated tests):
+
    - Test critical user workflows
+
    - Verify application starts correctly
+
    - Check key features still work
 
 ### Step 6: Review and Commit
@@ -567,27 +649,37 @@ cleanup_report/
 
 ### 1. Version Control Required
 - Always commit before cleanup
+
 - Create dedicated cleanup branch
+
 - Commit changes in logical phases
 
 ### 2. Test Coverage
 - Run tests before cleanup (baseline)
+
 - Run tests after each phase
+
 - Document any test failures immediately
 
 ### 3. Incremental Approach
 - Apply changes in small batches
+
 - Verify after each batch
+
 - Don't proceed if tests fail
 
 ### 4. Risk Assessment
 - High-risk changes reviewed manually
+
 - Critical paths tested thoroughly
+
 - Rollback plan documented
 
 ### 5. Documentation
 - Document all changes in commit messages
+
 - Update DEVLOG.md with cleanup history
+
 - Note any behavioral changes
 
 ## Common Issues and Solutions
@@ -596,40 +688,55 @@ cleanup_report/
 **Solution**:
 
 1. Review git diff for the failing area
+
 2. Use `git checkout -- <file>` to revert specific files
+
 3. Re-run tests to isolate issue
+
 4. Apply cleanup more granularly
 
 ### Issue: False Positive for "Unused" Code
 **Solution**:
 
 - Check for reflection usage
+
 - Verify serialization requirements
+
 - Look for Spring/DI framework usage
+
 - Keep code if uncertain
 
 ### Issue: Import Organization Breaks Code
 **Solution**:
 
 - Check for static imports conflicts
+
 - Verify class name conflicts
+
 - Keep original organization if needed
+
 - Document special requirements
 
 ### Issue: Modernization Changes Behavior
 **Solution**:
 
 - Review Java version compatibility
+
 - Check for subtle semantic differences (e.g., exception handling in streams)
+
 - Test edge cases thoroughly
+
 - Revert if behavior changes
 
 ### Issue: Compilation Errors After Changes
 **Solution**:
 
 - Run `mvn clean compile` or `./gradlew clean build`
+
 - Fix errors incrementally
+
 - Consider Java version compatibility
+
 - Check for missing dependencies
 
 ## Success Criteria
@@ -637,39 +744,58 @@ cleanup_report/
 After using this skill, your codebase should have:
 
 - [ ] All unused imports removed
+
 - [ ] No System.out.println debugging statements
+
 - [ ] No commented-out code (except strategic comments)
+
 - [ ] Duplicate code consolidated where appropriate
+
 - [ ] Modern Java patterns applied (streams, lambdas, Optional)
+
 - [ ] Imports organized properly (java → javax → third-party → internal)
+
 - [ ] Unused dependencies identified or removed
+
 - [ ] All tests passing
+
 - [ ] All static analysis checks passing
+
 - [ ] Code builds successfully
+
 - [ ] Cleanup documented in DEVLOG.md
+
 - [ ] Changes committed to version control
 
 ## Related Skills
 
 - `setup-java-system-prompt`: Establish standards before cleanup
+
 - `code-review-quality`: Review code quality after cleanup
+
 - `generate-test-cases`: Create tests for newly consolidated code
+
 - `generate-javadoc`: Document cleaned-up code
 
 ## Tools and Libraries
 
 ### Static Analysis Tools
 - **Checkstyle**: Style checking
+
 - **PMD**: Code analysis
+
 - **SpotBugs**: Bug detection
+
 - **SonarQube**: Comprehensive analysis
 
 ### Duplication Detection
 - **CPD** (Copy/Paste Detector): Part of PMD
+
 - **Simian**: Similarity analysis
 
 ### Unused Code Detection
 - **Maven Dependency Plugin**: Dependency analysis
+
 - **Gradle unused-dependencies**: Unused dependency detection
 
 ### Installation and Usage
@@ -714,9 +840,13 @@ mvn dependency:analyze
 ## Additional Resources
 
 - [Effective Java (3rd Edition) by Joshua Bloch](https://www.oreilly.com/library/view/effective-java-3rd/9780134686097/)
+
 - [Refactoring to Streams and Lambdas](https://www.oracle.com/technical-resources/articles/java/ma14-java-se-8-streams.html)
+
 - [Java Code Conventions](https://www.oracle.com/java/technologies/javase/codeconventions-contents.html)
+
 - [Modern Java in Action](https://www.manning.com/books/modern-java-in-action)
+
 - [Java Design Patterns](https://java-design-patterns.com/)
 
 ---

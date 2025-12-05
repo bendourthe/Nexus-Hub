@@ -14,13 +14,19 @@ python tools/build_skills_catalog.py
 ```
 
 **Output:**
+
 - Creates `catalogs/skills.json`
+
 - Contains metadata for all 48+ skills
+
 - Includes statistics, categories, and security validation
 
 **When to Run:**
+
 - After adding new skills
+
 - After modifying skill metadata
+
 - Before publishing repository updates
 
 ---
@@ -61,15 +67,25 @@ python tools/install_skill.py --skill plan-before-code --force
 ```
 
 **Options:**
+
 - `--skill, -s`: Install specific skill by name
+
 - `--category, -c`: Install all skills in category
+
 - `--priority, -p`: Install skills by priority (CRITICAL, HIGH, MEDIUM, LOW)
+
 - `--all, -a`: Install all skills
+
 - `--list, -l`: List all available skills
+
 - `--categories`: Show all categories
+
 - `--info, -i`: Show detailed skill information
+
 - `--destination, -d`: Installation location (default: auto-detect)
+
 - `--force, -f`: Overwrite existing skills
+
 - `--repo`: Path to repository (default: auto-detect)
 
 **Examples:**
@@ -206,8 +222,11 @@ echo "Installation complete!"
 **Problem:** `Skill not found: xyz`
 
 **Solution:**
+
 1. Run `python tools/install_skill.py --list` to see available skills
+
 2. Check spelling and use exact skill name
+
 3. Rebuild catalog: `python tools/build_skills_catalog.py`
 
 ### Cannot Find .claude Directory
@@ -215,8 +234,11 @@ echo "Installation complete!"
 **Problem:** `Warning: No .claude directory found`
 
 **Solution:**
+
 1. The tool will create `.claude/skills/` in current directory
+
 2. Or specify destination: `--destination ~/my-project`
+
 3. Or run from project root that contains `.claude/`
 
 ### Skills Already Installed
@@ -224,6 +246,7 @@ echo "Installation complete!"
 **Problem:** `Skill 'xyz' already installed`
 
 **Solution:**
+
 - Use `--force` to overwrite: `python tools/install_skill.py --skill xyz --force`
 
 ### Encoding Issues (Windows)
@@ -231,7 +254,9 @@ echo "Installation complete!"
 **Problem:** Unicode/emoji errors on Windows console
 
 **Solution:**
+
 - Tool uses ASCII-safe markers instead of emojis
+
 - Use `chcp 65001` to enable UTF-8 in Windows console (optional)
 
 ---
@@ -241,17 +266,25 @@ echo "Installation complete!"
 ### Adding New Tools
 
 1. Create script in `tools/` directory
+
 2. Follow naming convention: `verb_noun.py`
+
 3. Include comprehensive docstring
+
 4. Add to this README
+
 5. Test on multiple platforms (Windows, Linux, Mac)
 
 ### Improving Existing Tools
 
 1. Update script with improvements
+
 2. Rebuild catalog if metadata structure changes
+
 3. Test all command-line options
+
 4. Update documentation
+
 5. Submit pull request
 
 ---
@@ -261,10 +294,15 @@ echo "Installation complete!"
 Planned tool additions:
 
 - [ ] `validate_skill.py` - Verify skill integrity and security
+
 - [ ] `update_skill.py` - Update installed skills to latest versions
+
 - [ ] `remove_skill.py` - Uninstall skills cleanly
+
 - [ ] `export_skills.py` - Export installed skills for sharing
+
 - [ ] `import_skills.py` - Import skill collections
+
 - [ ] `skill_usage_stats.py` - Track which skills are most used
 
 ---

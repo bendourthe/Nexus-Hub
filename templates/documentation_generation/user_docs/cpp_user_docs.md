@@ -12,12 +12,16 @@ prerequisites: []
 tools:
 
   - google test
+
   - catch2
+
   - boost.test
 tags:
 
   - documentation
+
   - documentation
+
   - cpp
 ---
 # C++ User Documentation
@@ -151,8 +155,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -171,27 +178,42 @@ Please create comprehensive user documentation for this C++ project following th
 ## Phase 1: Audience Analysis & Documentation Planning
 
 1. **Identify Target Audience**
+
    - Primary users: [game developers/systems programmers/library users/etc.]
+
    - Technical skill level: [beginner/intermediate/advanced]
+
    - Use cases: [what problems they're solving]
+
    - Context: [how they'll use the software]
 
 2. **Document Existing Features**
+
    - List all major features and capabilities
+
    - Identify most common use cases
+
    - Note any complex or non-obvious functionality
+
    - Document prerequisites and dependencies
 
 3. **Outline Documentation Structure**
    Plan what documentation is needed:
 
    - [ ] README.md (essential)
+
    - [ ] INSTALL.md or installation section
+
    - [ ] QUICKSTART.md or quick start guide
+
    - [ ] USER_GUIDE.md for detailed usage
+
    - [ ] EXAMPLES.md with common patterns
+
    - [ ] FAQ.md for common questions
+
    - [ ] TROUBLESHOOTING.md for common issues
+
    - [ ] API.md for class/function reference
 
 ## Phase 2: README.md - Professional Project Overview
@@ -865,13 +887,21 @@ ctest
 Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 Quick start for contributors:
+
 1. Fork the repository
+
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+
 3. Make your changes
+
 4. Format code (`clang-format -i src/*.cpp`)
+
 5. Run tests (`ctest`)
+
 6. Commit your changes (`git commit -m 'Add amazing feature'`)
+
 7. Push to the branch (`git push origin feature/amazing-feature`)
+
 8. Open a Pull Request
 
 ---
@@ -1121,12 +1151,19 @@ REM Build -> Build All
 ```
 
 **Using CMake GUI**:
+
 1. Open CMake GUI
+
 2. Set source directory to project root
+
 3. Set build directory to `project/build`
+
 4. Click "Configure"
+
 5. Select compiler (Visual Studio or MinGW)
+
 6. Click "Generate"
+
 7. Click "Open Project" or build from command line
 
 **Using Command Line (VS)**:
@@ -1294,13 +1331,21 @@ ctest --verbose
 ### Getting Help
 
 If installation fails:
+
 1. Check [GitHub Issues](https://github.com/username/project/issues)
+
 2. Review [Troubleshooting Guide](TROUBLESHOOTING.md)
+
 3. Open a new issue with:
+
    - Your OS and version
+
    - Compiler version (`g++ --version`)
+
    - CMake version (`cmake --version`)
+
    - Full error message
+
    - CMake output
 
 ---
@@ -1308,9 +1353,13 @@ If installation fails:
 ## Next Steps
 
 After successful installation:
+
 1. Review the [Quick Start Guide](README.md#quick-start)
+
 2. Try the [examples/](examples/) directory
+
 3. Read the [API Reference](https://username.github.io/project/api/)
+
 4. Check the [User Guide](USER_GUIDE.md)
 ```
 

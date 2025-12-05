@@ -12,7 +12,9 @@ prerequisites: []
 tags:
 
   - skills
+
   - testing
+
   - generic
 ---
 # refactor-for-testability
@@ -32,19 +34,29 @@ Refactor existing code to improve testability by introducing dependency injectio
 ## When to Use This Skill
 
 - Code is difficult to unit test
+
 - High coupling between components
+
 - Heavy use of global state or singletons
+
 - Hard-coded dependencies on external systems
+
 - Inability to test components in isolation
+
 - Low test coverage due to structural issues
+
 - Preparing legacy code for test-driven development
 
 ## Prerequisites
 
 - Existing test suite or testing framework setup
+
 - Understanding of dependency injection principles
+
 - Familiarity with mocking/stubbing concepts
+
 - Version control with clean working directory
+
 - Refactoring tools for your language
 
 ## Step-by-Step Instructions
@@ -118,35 +130,49 @@ Date: [date]
 Issues Found:
 
 1. Hard-coded Dependencies
+
    - UserService → MySQLDatabase
+
    - EmailService → SMTP
+
    - PaymentService → PayPal API
    Impact: Cannot test without real services
    Priority: HIGH
 
 2. Global State
+
    - current_user global variable
+
    - configuration singletons
    Impact: Tests interfere with each other
    Priority: HIGH
 
 3. Static Methods
+
    - DatabaseHelper.get_connection()
+
    - ConfigManager.get_config()
    Impact: Difficult to mock
    Priority: MEDIUM
 
 4. Tight Coupling
+
    - OrderProcessor → PayPalPayment
+
    - NotificationService → SMSProvider
    Impact: Cannot test implementations independently
    Priority: HIGH
 
 Recommended Actions:
+
 1. Introduce dependency injection
+
 2. Create interfaces/protocols
+
 3. Extract methods for testability
+
 4. Remove global state
+
 5. Add seams for testing
 """
 ```
@@ -1152,83 +1178,126 @@ def test_user_service_integration():
 After completing this refactoring:
 
 1. **Improved testability**
+
    - Easy to write unit tests
+
    - Components can be tested in isolation
+
    - Fast test execution
 
 2. **Better code structure**
+
    - Clear dependencies
+
    - Single responsibility principle
+
    - Loose coupling
 
 3. **Higher test coverage**
+
    - Ability to test edge cases
+
    - Mock external dependencies
+
    - Test error conditions
 
 4. **Maintainable codebase**
+
    - Easier to understand
+
    - Easier to modify
+
    - Easier to extend
 
 ## Success Criteria
 
 - [ ] All hard-coded dependencies removed
+
 - [ ] Constructor injection implemented
+
 - [ ] Interfaces/protocols defined
+
 - [ ] Global state eliminated
+
 - [ ] Singletons replaced with DI
+
 - [ ] Large methods broken down
+
 - [ ] External dependencies extracted
+
 - [ ] Test fixtures created
+
 - [ ] Unit test coverage >80%
+
 - [ ] Integration tests passing
+
 - [ ] All tests run in <1 minute
+
 - [ ] Mock objects used effectively
 
 ## Common Pitfalls
 
 1. **Over-engineering**
+
    - Don't create interfaces for everything
+
    - Balance between testability and complexity
 
 2. **Incomplete refactoring**
+
    - Ensure all dependencies are injected
+
    - Don't leave global state behind
 
 3. **Poor abstraction boundaries**
+
    - Create meaningful interfaces
+
    - Don't leak implementation details
 
 4. **Neglecting integration tests**
+
    - Unit tests aren't enough
+
    - Test real integrations too
 
 ## Related Skills
 
 - **add-unit-tests**: Add comprehensive unit tests
+
 - **code-complexity-analysis**: Analyze code complexity
+
 - **dependency-upgrade**: Upgrade dependencies safely
+
 - **migrate-python-2-to-3**: Python 2 to 3 migration
+
 - **extract-microservice**: Extract microservices
 
 ## Additional Resources
 
 ### Books
 - "Working Effectively with Legacy Code" by Michael Feathers
+
 - "Refactoring" by Martin Fowler
+
 - "Clean Code" by Robert Martin
+
 - "Test Driven Development" by Kent Beck
 
 ### Patterns
 - [Dependency Injection](https://en.wikipedia.org/wiki/Dependency_injection)
+
 - [SOLID Principles](https://en.wikipedia.org/wiki/SOLID)
+
 - [Test Double Patterns](http://xunitpatterns.com/Test%20Double.html)
 
 ### Tools
 - **Python**: pytest, unittest.mock, factory_boy
+
 - **JavaScript**: Jest, Sinon, test-data-bot
+
 - **Java**: JUnit, Mockito, TestNG
+
 - **C#**: NUnit, Moq, AutoFixture
 
 ---

@@ -19,19 +19,31 @@ Systematically identify performance bottlenecks, inefficient algorithms, and res
 Use this skill as **Phase 4** after completing context, quality, and security reviews:
 
 - ✅ After [Phase 1: Context](../code-review-context-analysis/SKILL.md), [Phase 2: Quality](../code-review-quality/SKILL.md), and [Phase 3: Security](../code-review-security/SKILL.md) complete
+
 - ✅ Application experiencing slow response times
+
 - ✅ High resource consumption (CPU, memory, disk)
+
 - ✅ Scalability issues as user load increases
+
 - ✅ Database query performance problems
+
 - ✅ Pre-production performance validation
+
 - ✅ Capacity planning and optimization
+
 - ✅ Cost reduction initiatives (cloud resources)
 
 **This skill is essential when**:
+
 - You need to identify performance bottlenecks
+
 - You're planning optimization initiatives
+
 - You want to improve application scalability
+
 - You're reducing infrastructure costs
+
 - You need to meet performance SLAs
 
 ## What This Skill Does
@@ -40,10 +52,15 @@ This skill implements **Phase 4: Performance Review** of the six-phase code revi
 
 ### Complete Workflow
 - Phase 1: [Context Analysis](../code-review-context-analysis/SKILL.md) - Project understanding
+
 - Phase 2: [Quality Review](../code-review-quality/SKILL.md) - Code maintainability
+
 - Phase 3: [Security Review](../code-review-security/SKILL.md) - Vulnerability identification
+
 - **Phase 4: Performance Review (This Skill)** - Bottleneck analysis
+
 - Phase 5: [Testing Review](../code-review-testing/SKILL.md) - Test coverage evaluation
+
 - Phase 6: [Final Report](../code-review-final-report/SKILL.md) - Consolidated findings
 
 ## Why Performance Review Matters
@@ -56,10 +73,15 @@ Infrastructure: *over-provisioned to compensate*
 Result:
 
 - ❌ Poor user experience and satisfaction
+
 - ❌ High infrastructure costs
+
 - ❌ Cannot scale to handle growth
+
 - ❌ Inefficient resource utilization
+
 - ❌ Competitive disadvantage
+
 - ❌ Lost revenue from slow performance
 ```
 
@@ -71,10 +93,15 @@ Infrastructure: *right-sized for actual needs*
 Result:
 
 - ✅ Excellent user experience
+
 - ✅ Reduced infrastructure costs
+
 - ✅ Scales efficiently with growth
+
 - ✅ Optimal resource utilization
+
 - ✅ Competitive advantage
+
 - ✅ Increased revenue from better performance
 ```
 
@@ -82,43 +109,64 @@ Result:
 
 ### User Experience
 - **Fast Response**: Users get results quickly
+
 - **Smooth Interactions**: No lag or delays
+
 - **Reliability**: Consistent performance under load
+
 - **Scalability**: Maintains performance as users grow
 
 ### Cost Optimization
 - **Resource Efficiency**: Reduce CPU, memory, storage usage
+
 - **Infrastructure Savings**: Right-size cloud resources
+
 - **Bandwidth Reduction**: Optimize network usage
+
 - **Database Costs**: Reduce query execution time
 
 ### Business Impact
 - **User Retention**: Fast apps keep users engaged
+
 - **Conversion Rates**: Performance impacts revenue
+
 - **Competitive Edge**: Faster than competitors
+
 - **Capacity Planning**: Understand growth limits
 
 ## Prerequisites
 
 ### Required
 - Completion of [Phase 1: Context](../code-review-context-analysis/SKILL.md), [Phase 2: Quality](../code-review-quality/SKILL.md), and [Phase 3: Security](../code-review-security/SKILL.md)
+
 - Source code access
+
 - Profiling tools installed
+
 - Representative test data
+
 - Performance testing environment
 
 ### Recommended
 - Production performance baselines
+
 - Load testing tools
+
 - Application Performance Monitoring (APM) access
+
 - Database query logs
+
 - Historical performance data
 
 ### Knowledge
 - Algorithm complexity (Big O notation)
+
 - Profiling and benchmarking techniques
+
 - Database optimization
+
 - Caching strategies
+
 - Concurrency patterns
 
 ## Instructions
@@ -238,10 +286,15 @@ Result:
 1. **CPU Hotspots**
 
    Look for:
+
    - Functions consuming >5% of total CPU time
+
    - Functions called excessively (thousands of times)
+
    - Nested loops with high iteration counts
+
    - Recursive functions with poor base cases
+
    - Inefficient algorithms (O(n²) or worse)
 
 2. **Memory Analysis**
@@ -263,17 +316,25 @@ Result:
    ```
 
    Look for:
+
    - Large object allocations
+
    - Memory growth over time (potential leaks)
+
    - Unnecessary data copies
+
    - Large collections kept in memory
 
 3. **I/O Bottlenecks**
 
    Monitor:
+
    - File read/write operations
+
    - Network calls and latency
+
    - Database queries and execution time
+
    - API calls to external services
 
 ### Step 3: Algorithm Efficiency Review
@@ -455,11 +516,17 @@ Result:
 2. **Data Structure Optimization**
 
    Choose appropriate data structures:
+
    - **Lists**: Sequential access, ordered
+
    - **Sets**: Fast membership testing (O(1))
+
    - **Dictionaries/Maps**: Fast key-value lookup (O(1))
+
    - **Queues**: FIFO processing
+
    - **Priority Queues**: Ordered processing
+
    - **Trees**: Hierarchical data, range queries
 
 ### Step 4: Database Performance Analysis
@@ -838,38 +905,55 @@ Result:
 ## Executive Summary
 
 - **Overall Performance Grade**: [A-F]
+
 - **Critical Bottlenecks**: [Count]
+
 - **Optimization Potential**: [%]
+
 - **Estimated Improvement**: [X]x faster, [Y]% less memory
 
 ## Performance Metrics Baseline
 
 ### Response Time
 - **Average**: [ms]
+
 - **95th Percentile**: [ms]
+
 - **99th Percentile**: [ms]
+
 - **Maximum**: [ms]
 
 ### Resource Usage
 - **CPU**: [%] average, [%] peak
+
 - **Memory**: [MB] average, [MB] peak
+
 - **Disk I/O**: [MB/s] read, [MB/s] write
+
 - **Network**: [MB/s] in, [MB/s] out
 
 ### Throughput
 - **Requests/second**: [count]
+
 - **Transactions/second**: [count]
+
 - **Concurrent Users**: [count]
 
 ## Critical Bottlenecks
 
 ### Bottleneck 1: [Description]
 - **Location**: [file:line]
+
 - **Impact**: [% of total time]
+
 - **Current Performance**: [metrics]
+
 - **Root Cause**: [explanation]
+
 - **Recommended Fix**: [solution]
+
 - **Expected Improvement**: [estimate]
+
 - **Effort**: [hours/days]
 
 ### Bottleneck 2: [Description]
@@ -911,6 +995,7 @@ Result:
 
 ### Memory Leaks
 - **Leak 1**: [Description and fix]
+
 - **Leak 2**: [Description and fix]
 
 ### Caching Recommendations
@@ -923,7 +1008,9 @@ Result:
 
 ### Network Performance
 - **Sequential API Calls**: [Count] - Parallelize
+
 - **Missing Connection Pooling**: [Location]
+
 - **Large Payload Sizes**: [Location] - Compress
 
 ### Database Connection Issues
@@ -944,41 +1031,62 @@ Result:
 
 ### Quick Wins (Hours)
 1. **Add Database Index on users.email**
+
    - **Impact**: 10x faster user lookups
+
    - **Effort**: 1 hour
+
    - **Risk**: Low
 
 2. **Cache Expensive Calculation**
+
    - **Impact**: 50% reduction in response time
+
    - **Effort**: 2 hours
+
    - **Risk**: Low
 
 ### Short-term (Days)
 1. **Fix N+1 Queries**
+
    - **Impact**: 5x faster API endpoints
+
    - **Effort**: 3 days
+
    - **Risk**: Medium
 
 2. **Implement Connection Pooling**
+
    - **Impact**: 30% better throughput
+
    - **Effort**: 2 days
+
    - **Risk**: Low
 
 ### Medium-term (Weeks)
 1. **Optimize Algorithm Complexity**
+
    - **Impact**: 100x improvement on large datasets
+
    - **Effort**: 2 weeks
+
    - **Risk**: Medium
 
 2. **Implement Async Processing**
+
    - **Impact**: 3x better concurrent request handling
+
    - **Effort**: 2 weeks
+
    - **Risk**: High
 
 ### Long-term (Months)
 1. **Architectural Refactoring**
+
    - **Impact**: Horizontal scalability
+
    - **Effort**: 2 months
+
    - **Risk**: High
 
 ## Performance Testing Recommendations
@@ -996,61 +1104,92 @@ Result:
 
 ### Current Costs
 - **Infrastructure**: $[amount]/month
+
 - **Database**: $[amount]/month
+
 - **Bandwidth**: $[amount]/month
 
 ### Projected Savings (After Optimization)
 - **Infrastructure**: $[amount]/month ([%] reduction)
+
 - **Database**: $[amount]/month ([%] reduction)
+
 - **Bandwidth**: $[amount]/month ([%] reduction)
+
 - **Total Annual Savings**: $[amount]
 
 ## Next Steps
 
 - [ ] Implement quick wins (high impact, low effort)
+
 - [ ] Set up performance monitoring
+
 - [ ] Create performance test suite
+
 - [ ] Schedule short-term optimizations
+
 - [ ] Plan medium-term architectural improvements
+
 - [ ] Proceed to [Phase 5: Testing Review](../code-review-testing/SKILL.md)
 ```
 
 ## Success Criteria
 
 - [ ] Performance profiling completed
+
 - [ ] Bottlenecks identified and prioritized
+
 - [ ] Algorithm complexity analyzed
+
 - [ ] Database queries optimized
+
 - [ ] Memory usage profiled
+
 - [ ] I/O operations assessed
+
 - [ ] Concurrency opportunities identified
+
 - [ ] Optimization roadmap created
+
 - [ ] Cost impact calculated
+
 - [ ] Team ready for testing review
 
 ## Related Skills
 
 ### Code Review Workflow
 1. [Phase 1: Context Analysis](../code-review-context-analysis/SKILL.md)
+
 2. [Phase 2: Quality Review](../code-review-quality/SKILL.md)
+
 3. [Phase 3: Security Review](../code-review-security/SKILL.md)
+
 4. **Phase 4: Performance Review (This Skill)**
+
 5. [Phase 5: Testing Review](../code-review-testing/SKILL.md)
+
 6. [Phase 6: Final Report](../code-review-final-report/SKILL.md)
 
 ## Additional Resources
 
 ### Profiling Tools
 - **Python**: cProfile, py-spy, pyinstrument, memory_profiler, line_profiler
+
 - **JavaScript**: Node.js profiler, clinic.js, Chrome DevTools
+
 - **Java**: JProfiler, YourKit, VisualVM, Java Flight Recorder
+
 - **Go**: pprof, trace, benchstat
+
 - **C/C++**: Valgrind, gprof, perf, Intel VTune
+
 - **C#**: dotTrace, PerfView, BenchmarkDotNet
 
 ### Performance Best Practices
 - [Google Web Vitals](https://web.dev/vitals/)
+
 - [Database Performance Tuning](https://use-the-index-luke.com/)
+
 - [High Performance Browser Networking](https://hpbn.co/)
 
 ---

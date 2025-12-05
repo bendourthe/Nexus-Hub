@@ -16,13 +16,21 @@ Configure Claude Code with comprehensive modern C++ development standards, best 
 ## When to Use This Skill
 
 Use this skill when you need to:
+
 - Set up a new C++ project with Claude Code
+
 - Configure Claude Code for modern C++ development (C++17/C++20/C++23)
+
 - Apply comprehensive C++ development standards and Core Guidelines
+
 - Establish consistent coding practices for C++ projects
+
 - Optimize Claude Code for C++ library development
+
 - Implement RAII, smart pointers, and exception safety
+
 - Develop high-performance C++ applications
+
 - Create header-only or template-heavy libraries
 
 ## What This Skill Does
@@ -30,60 +38,101 @@ Use this skill when you need to:
 This skill helps you configure Claude Code with:
 
 1. **Modern C++ Standards**
+
    - C++17/C++20/C++23 features (structured bindings, concepts, ranges)
+
    - Smart pointer usage (unique_ptr, shared_ptr, weak_ptr)
+
    - RAII resource management patterns
+
    - Move semantics and perfect forwarding
+
    - Exception safety guarantees
+
    - Const correctness and type safety
 
 2. **Project Architecture Guidelines**
+
    - Standard C++ application structure (include/, src/, tests/)
+
    - Header-only library structure
+
    - CMake-based build system (modern CMake 3.15+)
+
    - Static analysis configuration (.clang-format, .clang-tidy)
+
    - Documentation structure (README, CHANGELOG, DEVLOG, Doxygen)
 
 3. **Memory and Resource Safety**
+
    - Automatic resource management (RAII)
+
    - Smart pointers instead of raw owning pointers
+
    - Exception safety (basic, strong, no-throw guarantees)
+
    - Move semantics for efficiency
+
    - No manual memory management (no naked new/delete)
 
 4. **Testing Framework**
+
    - GoogleTest integration (gtest, gmock)
+
    - Catch2 as alternative
+
    - Test structure and patterns
+
    - Parameterized tests
+
    - Death tests and fixtures
+
    - Performance benchmarking
 
 5. **Template Programming**
+
    - Template best practices
+
    - Concepts for constraints (C++20)
+
    - SFINAE and type traits
+
    - Perfect forwarding
+
    - Variadic templates
+
    - Template specialization
 
 6. **Development Workflow**
+
    - Task breakdown methodology
+
    - Iterative testing protocol
+
    - Quality gates and checklists
+
    - Version control best practices
+
    - Static analysis integration
 
 ## Prerequisites
 
 - Claude Code installed and configured
+
 - C++ compiler installed:
+
   - GCC 9.0+ or Clang 10.0+ (C++17 support)
+
   - GCC 11+ or Clang 13+ (C++20 support)
+
   - MSVC 2019+ (Windows)
+
 - CMake 3.15+ for build system
+
 - Basic understanding of C++ development
+
 - Project directory created (or ready to create new project)
+
 - Optional: GoogleTest, Doxygen, clang-tidy
 
 ## Instructions
@@ -93,17 +142,27 @@ This skill helps you configure Claude Code with:
 Decide between two versions based on your needs:
 
 **Comprehensive Version (~40k tokens)**
+
 - Best for: Complex projects, libraries, template-heavy code, performance-critical applications
+
 - Features: Complete architectural guidance, modern C++ patterns, template metaprogramming, STL best practices
+
 - Token count: ~40,000 tokens
+
 - Use cases: Production libraries, high-performance systems, template libraries, frameworks
+
 - File: `agent_prompts/autonomous_agents/claude_code/cpp/CLAUDE_comprehensive_40k.md`
 
 **Condensed Version (~20k tokens)**
+
 - Best for: Quick development, CLI tools, prototyping, learning projects
+
 - Features: Essential modern C++ guidelines, core best practices, streamlined workflow
+
 - Token count: ~20,000 tokens
+
 - Use cases: Utility programs, tools, applications, proof-of-concepts
+
 - File: `agent_prompts/autonomous_agents/claude_code/cpp/CLAUDE_condensed_20k.md`
 
 ### Step 2: Configure Claude Code
@@ -113,6 +172,7 @@ There are two methods to configure Claude Code with the C++ system prompt:
 #### Method A: Project-Level CLAUDE.md (Recommended)
 
 1. Navigate to your project root directory
+
 2. Copy the chosen system prompt file to `CLAUDE.md`:
    ```bash
    # For comprehensive version (libraries/production)
@@ -144,12 +204,19 @@ Test that the system prompt is active by asking Claude Code to:
    ```
 
    Expected behavior:
+
    - Uses smart pointers (std::unique_ptr, std::vector)
+
    - Implements move constructor and move assignment
+
    - Rule of Zero or Rule of Five properly implemented
+
    - No manual memory management (no naked new/delete)
+
    - Exception-safe design
+
    - Const correctness
+
    - noexcept specifications on move operations
 
 2. **Request project structure** and verify it matches standards:
@@ -158,10 +225,15 @@ Test that the system prompt is active by asking Claude Code to:
    ```
 
    Expected behavior:
+
    - Includes include/, src/, tests/ directories
+
    - Shows CMakeLists.txt structure
+
    - Includes .clang-format and .clang-tidy
+
    - Shows test integration (GoogleTest)
+
    - Includes CHANGELOG.md, README.md, DEVLOG.md
 
 3. **Ask about testing** and confirm it knows the framework:
@@ -170,10 +242,15 @@ Test that the system prompt is active by asking Claude Code to:
    ```
 
    Expected behavior:
+
    - Mentions GoogleTest or Catch2
+
    - Describes test fixtures and parameterized tests
+
    - Explains test structure and naming
+
    - Discusses CMake integration with CTest
+
    - Mentions coverage and sanitizers
 
 4. **Verify modern C++ awareness**:
@@ -182,12 +259,19 @@ Test that the system prompt is active by asking Claude Code to:
    ```
 
    Expected behavior:
+
    - Replaces raw pointers with smart pointers
+
    - Uses auto where appropriate
+
    - Applies range-based for loops
+
    - Implements move semantics
+
    - Uses nullptr instead of NULL
+
    - Applies const correctness
+
    - Uses std::string_view for parameters
 
 ### Step 4: Configure CMake Build System
@@ -303,17 +387,24 @@ Configure formatting and analysis tools:
 If you need to add organization-specific standards or C++ version constraints:
 
 1. Open the CLAUDE.md file in your project
+
 2. Add a new section at the end:
    ```markdown
    # Organization-Specific Standards
 
    ## Additional Requirements
    - [C++ standard version (C++17, C++20, C++23)]
+
    - [Compiler support matrix]
+
    - [Third-party library restrictions]
+
    - [Performance requirements]
+
    - [Platform support (Windows, Linux, macOS)]
+
    - [Exception policy (exceptions allowed/forbidden)]
+
    - [RTTI policy (enabled/disabled)]
    ```
 3. Save and restart Claude Code session
@@ -365,8 +456,11 @@ git push
 Automatically organizes includes in the correct order:
 
 1. Corresponding header (for .cpp files)
+
 2. C++ standard library headers (alphabetically)
+
 3. Third-party library headers (alphabetically)
+
 4. Project headers (alphabetically)
 
 **Example:**
@@ -569,21 +663,28 @@ auto evenCount = std::count_if(numbers.begin(), numbers.end(),
 /**
 
  * @class Buffer
+
  * @brief Dynamic byte buffer with automatic growth
  *
 
  * Thread-safe when used with external synchronization.
+
  * Provides strong exception safety guarantee.
  *
 
  * Example:
+
  * @code
+
  * Buffer buf(1024);
+
  * buf.append(data, size);
+
  * @endcode
  *
 
  * @note Move-only type (copying disabled)
+
  * @warning Not thread-safe without external synchronization
  */
 class Buffer {
@@ -591,15 +692,21 @@ public:
     /**
 
      * @brief Construct buffer with specified capacity
+
      * @param[in] initialCapacity Initial capacity in bytes
+
      * @throws std::bad_alloc If allocation fails
      */
     explicit Buffer(size_t initialCapacity);
 
     /**
+
      * @brief Append data to buffer
+
      * @param[in] data Pointer to data
+
      * @param[in] size Number of bytes
+
      * @throws std::invalid_argument If data is null and size > 0
      */
     void append(const uint8_t* data, size_t size);
@@ -690,20 +797,25 @@ add_test(NAME MyTest COMMAND unit_tests)
 **Solution**:
 
 - Comprehensive version emphasizes smart pointers
+
 - Explicitly request: "Refactor this code to use smart pointers instead of raw pointers"
 
 ### Issue: CMake Build Failures
 **Solution**:
 
 - Verify CMake 3.15+ installed: `cmake --version`
+
 - Check C++ compiler supports C++17: `g++ --version` or `clang++ --version`
+
 - Ensure GoogleTest is available
 
 ### Issue: Static Analysis Errors
 **Solution**:
 
 - Create `.clang-tidy` in project root
+
 - Run: `clang-tidy src/*.cpp -- -std=c++17 -Iinclude`
+
 - Suppress false positives in config file
 
 ## Success Criteria
@@ -711,59 +823,92 @@ add_test(NAME MyTest COMMAND unit_tests)
 After completing this skill, you should have:
 
 - [ ] Claude Code configured with C++ system prompt (CLAUDE.md in project root)
+
 - [ ] Verified configuration by testing class generation (with RAII and move semantics)
+
 - [ ] Confirmed project structure knowledge (CMake-based)
+
 - [ ] Validated testing framework understanding (GoogleTest)
+
 - [ ] Verified modern C++ awareness (smart pointers, move semantics)
+
 - [ ] Set up CMake build system
+
 - [ ] Configured static analysis tools (.clang-format, .clang-tidy)
+
 - [ ] Initialized test framework (GoogleTest or Catch2)
+
 - [ ] Verified compilation with no warnings (-Wall -Wextra -Werror)
+
 - [ ] Optionally customized for organization-specific needs
+
 - [ ] Committed CLAUDE.md and configurations to version control
 
 ## Related Skills
 
 - `generate-cpp-documentation`: Generate Doxygen documentation for C++ code
+
 - `refactor-to-modern-cpp`: Convert legacy C++ to modern C++17/C++20
+
 - `implement-move-semantics`: Add move constructors and move assignment
+
 - `template-library-design`: Create header-only template libraries
+
 - `cpp-performance-optimization`: Optimize C++ code for performance
+
 - `exception-safety-review`: Review and improve exception safety
 
 ## Additional Resources
 
 ### Standards and Guidelines
 - [C++ Core Guidelines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines)
+
 - [C++17 Standard](https://en.cppreference.com/w/cpp/17)
+
 - [C++20 Standard](https://en.cppreference.com/w/cpp/20)
+
 - [Effective Modern C++](https://www.aristeia.com/EMC++.html) by Scott Meyers
 
 ### Tools
 - [GoogleTest](https://github.com/google/googletest)
+
 - [Catch2](https://github.com/catchorg/Catch2)
+
 - [CMake](https://cmake.org/)
+
 - [Clang-Tidy](https://clang.llvm.org/extra/clang-tidy/)
+
 - [Clang-Format](https://clang.llvm.org/docs/ClangFormat.html)
+
 - [Compiler Explorer](https://godbolt.org/)
 
 ### Libraries
 - [Abseil](https://abseil.io/) - Google's C++ library
+
 - [Boost](https://www.boost.org/) - Comprehensive C++ libraries
+
 - [fmt](https://fmt.dev/) - Modern formatting library
+
 - [spdlog](https://github.com/gabime/spdlog) - Fast logging library
+
 - [{fmt}](https://github.com/fmtlib/fmt) - Formatting library
 
 ### Books and References
 - "Effective Modern C++" by Scott Meyers
+
 - "C++ Concurrency in Action" by Anthony Williams
+
 - "Professional CMake" by Craig Scott
+
 - "C++ Templates: The Complete Guide" by Vandevoorde, Josuttis, Gregor
 
 ### Online Resources
 - [cppreference.com](https://en.cppreference.com/) - C++ reference
+
 - [C++ Weekly](https://www.youtube.com/c/lefticus1) by Jason Turner
+
 - [CppCon YouTube Channel](https://www.youtube.com/user/CppCon)
+
 - [ModernesCpp.com](https://www.modernescpp.com/)
 
 ---

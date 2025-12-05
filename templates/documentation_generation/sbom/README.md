@@ -37,9 +37,13 @@ Generate complete, standards-compliant SBOM documentation that inventories all s
 ## 🚀 Quick Start
 
 1. Determine compliance requirements (NTIA, EU CRA, etc.)
+
 2. Use the comprehensive prompt in `python_sbom.md`
+
 3. Generate SBOM in required format (SPDX, CycloneDX)
+
 4. Review for completeness and accuracy
+
 5. Integrate SBOM generation into CI/CD pipeline
 
 ## 📊 Success Criteria

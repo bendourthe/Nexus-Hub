@@ -18,11 +18,14 @@ related_templates:
 tools:
 
   - unity
+
   - cmocka
+
   - check
 tags:
 
   - test-development
+
   - c
 ---
 # C Mocks & Fixtures
@@ -151,8 +154,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 Please implement comprehensive mocking and fixture strategies for this C project following this protocol:
@@ -1135,11 +1141,17 @@ Replace `{phase_name}` with the specific phase (test_cases, mocks_fixtures, perf
 The AI assistant should deliver:
 
 1. **Comprehensive fixture setup** with proper memory management
+
 2. **Mock configurations** using fff or CMock
+
 3. **Test data factories** with allocation tracking
+
 4. **Builder patterns** for complex structures
+
 5. **Usage documentation** with examples
+
 6. **Best practices guide** for C testing
+
 7. **Fixture and mock catalog** for easy reference
 ---
 

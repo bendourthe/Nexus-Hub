@@ -12,11 +12,14 @@ prerequisites: []
 tools:
 
   - unity
+
   - cmocka
+
   - check
 tags:
 
   - claude-code
+
   - c
 ---
 # CLAUDE.md - C# Development System Instructions
@@ -28,36 +31,50 @@ tags:
 
 ## Section Usage Map
 - **Bug Fix**: Sections 1, 3, 9
+
 - **New Feature**: Sections 1-5, 7
+
 - **Refactoring**: Sections 3, 6, 9
+
 - **Project Setup**: All sections
 
 ## Task-Specific Quick Reference
 - **Fix a method**: Focus sections 3, 9
+
 - **New project**: Use sections 2, 4, 5
+
 - **Code review**: Apply sections 3, 10
 
 ## Context-Aware Behavior
 - **For class libraries**: Minimal structure
+
 - **For web APIs**: Full ASP.NET Core architecture
+
 - **For debugging**: Focus on problem-solving
 
 ## Efficiency Modes
 
 ### Quick Mode (for simple fixes)
 - Skip extensive documentation
+
 - Minimal testing setup
+
 - Focus on core functionality
 
 ### Full Mode (for new projects)
 - Complete ASP.NET Core architecture
+
 - Comprehensive testing
+
 - Full documentation
 
 ## Claude Code Terminal Commands
 - **Run tests**: `claude run dotnet test`
+
 - **Build project**: `claude run dotnet build`
+
 - **Start application**: `claude run dotnet run`
+
 - **New project**: `claude init [project-name]`
 
 ---
@@ -69,33 +86,46 @@ tags:
 
 ### Clarification Protocol
 - When unclear, ask concise clarifying questions before proceeding
+
 - Never make assumptions about missing requirements
+
 - Frame questions to gather specific technical requirements
 
 ### Teaching-Focused Approach
 - **Primary Goal**: Teach how and why solutions work
+
 - Explain implementation details, reasoning, and coding concepts
+
 - Enable learning through understanding, not copy-paste
+
 - Reference Microsoft documentation for non-obvious concepts
 
 ### Critical Analysis
 - **Don't automatically agree** with user-proposed solutions
+
 - Analyze problems independently
+
 - Compare alternatives and recommend best solution
+
 - Clearly explain reasoning and trade-offs
 
 ### Efficiency Principles
 - **Token Optimization**: Be efficient while maintaining clarity
+
 - **Code Modification**: Edit originals, don't create '_enhanced' versions
+
 - **Codebase Cleanup**: Remove obsolete methods
+
 - **Refactoring**: Consolidate duplicate logic
 
 ### Quality Assurance
 - Review code for: quality, efficiency, best practices, security, performance
+
 - If already optimal, confirm briefly with reasoning
 
 ### System Prompt Adherence
 - Periodically review these instructions during long conversations
+
 - Maintain consistency with all standards and workflows
 
 
@@ -138,17 +168,29 @@ ProjectName/
 ## Project Initialization Sequence
 
 1. **Create solution**: `dotnet new sln -n ProjectName`
+
 2. **Create projects**:
+
    - `dotnet new webapi -n ProjectName.API`
+
    - `dotnet new classlib -n ProjectName.Core`
+
    - `dotnet new classlib -n ProjectName.Application`
+
    - `dotnet new classlib -n ProjectName.Infrastructure`
+
 3. **Add projects to solution**: `dotnet sln add src/**/*.csproj`
+
 4. **Create test projects**: `dotnet new xunit -n ProjectName.UnitTests`
+
 5. **Configure appsettings.json** with connection strings
+
 6. **Create `.gitignore`** (bin/, obj/, .vs/)
+
 7. **Create `CHANGELOG.md`** starting with version 0.1.0
+
 8. **Create `README.md`** with setup instructions
+
 9. **Set up Entity Framework migrations**
 
 ## Project File Template (.csproj)
@@ -408,10 +450,15 @@ public class UserService(
 ### Comment Guidelines
 
 **Placement and Style:**
+
 - **Above code blocks**: Comments explain why, not just what
+
 - **No inline comments**: Avoid same-line comments unless extremely clear
+
 - **No meta-commentary**: Don't document editing history
+
 - **No change tracking**: Never add comments like "changed value to 12" or "updated parameter"
+
 - **Descriptive**: Focus on logic, decision reasoning, and non-obvious behavior
 
 **Prohibited Comment Patterns:**
@@ -429,10 +476,15 @@ string value = newValue;  // Cache invalidation requires fresh value
 ### Comment Guidelines
 
 **Placement and Style:**
+
 - **Above code blocks**: Comments explain why, not just what
+
 - **No inline comments**: Avoid same-line comments unless extremely clear
+
 - **No meta-commentary**: Don't document editing history
+
 - **No change tracking**: Never add comments like "changed value to 12" or "updated parameter"
+
 - **Descriptive**: Focus on logic, decision reasoning, and non-obvious behavior
 
 **Prohibited Comment Patterns:**
@@ -818,15 +870,20 @@ public class UserService : IUserService
 
 ## Technologies
 - .NET 8
+
 - ASP.NET Core Web API
+
 - Entity Framework Core
+
 - SQL Server
 
 ## Installation
 
 ### Prerequisites
 - .NET 8 SDK or higher
+
 - SQL Server 2019+ or LocalDB
+
 - Visual Studio 2022 or VS Code
 
 ### Setup
@@ -872,6 +929,7 @@ Update `appsettings.Development.json`:
 After starting the application, visit:
 
 - Swagger UI: https://localhost:5001/swagger
+
 - OpenAPI Spec: https://localhost:5001/swagger/v1/swagger.json
 ```
 
@@ -909,8 +967,11 @@ Format based on [Keep a Changelog](https://keepachangelog.com/).
 ## Test Structure
 
 1. **Unit Tests**: Test individual methods with mocking
+
 2. **Integration Tests**: Test with real database (in-memory or test DB)
+
 3. **API Tests**: Test controllers with WebApplicationFactory
+
 4. **End-to-End Tests**: Test complete user flows
 
 ## xUnit Test Template
@@ -1136,8 +1197,11 @@ public class UsersControllerTests : IClassFixture<WebApplicationFactory<Program>
 
 ### When to Use
 - Projects >30 minutes
+
 - Multi-component applications
+
 - Complex features
+
 - Integration tasks
 
 ### Template
@@ -1149,7 +1213,9 @@ public class UsersControllerTests : IClassFixture<WebApplicationFactory<Program>
 
 ### Prerequisites
 - .NET 8 SDK installed
+
 - SQL Server configured
+
 - Entity Framework tools
 
 ### Subtask X: [Title]
@@ -1168,8 +1234,11 @@ Complete and pause. Confirm before proceeding.
 
 ### Quality Gates
 - [ ] Code compiles
+
 - [ ] Tests passing
+
 - [ ] No StyleCop warnings
+
 - [ ] XML documentation complete
 
 
@@ -1178,12 +1247,19 @@ Complete and pause. Confirm before proceeding.
 **When implementing features or fixing bugs:**
 
 1. **Create temp tests** in `tests/temp/` (e.g., `TempFeatureValidationTests.cs`)
+
 2. **Write challenging tests** with edge cases
+
 3. **Implement solution** following code standards
+
 4. **Run tests and iterate**:
+
    - If FAIL: Document in DEVLOG.md, modify code, repeat
+
    - If PASS: Proceed to cleanup
+
 5. **Delete temp tests** after successful implementation
+
 6. **Document process** in DEVLOG.md with iteration count
 
 **Benefits**: Ensures solutions work, documents problem-solving, prevents premature success claims, maintains clean repository
@@ -1195,12 +1271,19 @@ Complete and pause. Confirm before proceeding.
 **When implementing features or fixing bugs:**
 
 1. **Create temp tests** in `tests/temp/` (e.g., `TempFeatureValidationTests.cs`)
+
 2. **Write challenging tests** with edge cases
+
 3. **Implement solution** following code standards
+
 4. **Run tests and iterate**:
+
    - If FAIL: Document in DEVLOG.md, modify code, repeat
+
    - If PASS: Proceed to cleanup
+
 5. **Delete temp tests** after successful implementation
+
 6. **Document process** in DEVLOG.md with iteration count
 
 **Benefits**: Ensures solutions work, documents problem-solving, prevents premature success claims, maintains clean repository
@@ -1272,20 +1355,28 @@ dotnet publish -c Release -o ./publish
 **CRITICAL: Never auto-modify versions. Always request approval.**
 
 Never automatically:
+
 - Modify CHANGELOG.md versions
+
 - Update .csproj Version property
+
 - Change README.md versions
+
 - Create tags/releases
 
 ### Version Protocol
 
 1. **Assess**: "Changes might warrant version update from X.Y.Z"
+
 2. **Request**: "Should I update to [version]? Or handle manually?"
+
 3. **Wait**: Never proceed without explicit "yes"
 
 ### Semantic Versioning
 - **Patch (Z+1)**: Bug fixes, docs
+
 - **Minor (Y+1.0)**: New features
+
 - **Major (X+1.0.0)**: Breaking changes
 
 ## Git Operations
@@ -1300,17 +1391,25 @@ Never automatically:
 ## Code Fix Request
 
 **Structure:**
+
 1. Analyze issue
+
 2. Implement fix
+
 3. Explain improvements
+
 4. Provide integration steps
 
 ## Project Planning
 
 **Structure:**
+
 1. Break down components
+
 2. Recommend architecture
+
 3. Create subtask breakdown
+
 4. Provide implementation guidance
 
 
@@ -1319,23 +1418,38 @@ Never automatically:
 
 ## Before Delivering Code
 - [ ] Compiles without errors
+
 - [ ] Follows C# conventions
+
 - [ ] XML documentation present
+
 - [ ] Proper exception handling
+
 - [ ] No StyleCop warnings
+
 - [ ] Tests included
+
 - [ ] Async/await properly used
+
 - [ ] Nullable reference types handled
+
 - [ ] Performance considered
+
 - [ ] Security checked
 
 ## Before Delivering Project
 - [ ] Standard ASP.NET Core structure
+
 - [ ] Solution file configured
+
 - [ ] EF migrations setup
+
 - [ ] All config files present
+
 - [ ] Dependency injection configured
+
 - [ ] Documentation complete
+
 - [ ] Tests passing
 
 ---

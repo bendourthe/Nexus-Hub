@@ -17,13 +17,21 @@ Systematically identify and remove dead code, consolidate duplicate logic, and a
 ## When to Use This Skill
 
 Use this skill when you need to:
+
 - Remove unused imports, functions, variables, and types
+
 - Consolidate duplicate code and near-duplicate implementations
+
 - Apply idiomatic Go patterns (error handling, goroutines, defer)
+
 - Clean up fmt.Println statements and commented code
+
 - Optimize import organization and code structure
+
 - Prepare codebase for new features or refactoring
+
 - Reduce technical debt before major releases
+
 - Remove unused module dependencies
 
 ## What This Skill Does
@@ -32,55 +40,86 @@ This skill performs comprehensive Go code cleanup:
 
 ### 1. Dead Code Detection
 - **Unused Imports**: Identifies and removes unused import statements
+
 - **Unused Functions**: Finds private (lowercase) functions never called
+
 - **Unused Variables**: Identifies variables assigned but never used
+
 - **Unused Constants**: Detects constants that are never referenced
+
 - **Unused Types**: Finds private types (structs, interfaces) never used
+
 - **Unreachable Code**: Finds code after return statements
+
 - **Empty Blocks**: Detects empty functions or unnecessary code
 
 ### 2. Duplicate Code Consolidation
 - **Exact Duplicates**: Finds identical code blocks for consolidation
+
 - **Near Duplicates**: Detects similar code with minor variations
+
 - **Duplicate Logic**: Identifies functionally equivalent implementations
+
 - **Copy-Paste Detection**: Finds code copied across packages
+
 - **Consolidation Strategy**: Recommends refactoring approach
 
 ### 3. Idiomatic Go Patterns
 - **Error Handling**: Ensures errors are checked immediately
+
 - **Named Returns**: Removes unnecessary named returns
+
 - **Receiver Names**: Uses consistent receiver names (1-2 chars)
+
 - **Context Parameter**: Ensures context.Context is first parameter
+
 - **Interface Placement**: Moves interfaces to consumer packages
+
 - **Accept Interfaces, Return Structs**: Follows this principle
+
 - **Small Interfaces**: Prefers small, focused interfaces
+
 - **Range Loops**: Uses appropriate range patterns
 
 ### 4. Debug Statement Cleanup
 - **Print Statements**: Removes debug fmt.Println()
+
 - **Commented Code**: Cleans up old commented-out code
+
 - **TODO Comments**: Catalogs and prioritizes TODO items
+
 - **Temporary Variables**: Identifies debug-only variables
 
 ### 5. Import Organization
 - **Standard Library**: Groups Go standard library imports
+
 - **External Packages**: Organizes third-party dependencies
+
 - **Internal Packages**: Structures internal imports
+
 - **Unused Removal**: Eliminates unnecessary imports
+
 - **Dot Imports**: Replaces dot imports with explicit imports
 
 ### 6. Code Simplification
 - **Redundant Nil Checks**: Removes unnecessary nil checks
+
 - **Unnecessary Else**: Simplifies if-return patterns
+
 - **Trailing Whitespace**: Removes whitespace at end of lines
+
 - **Redundant Type Conversions**: Removes unnecessary conversions
 
 ## Prerequisites
 
 - Go codebase to clean up
+
 - Version control (git) for safe cleanup with rollback capability
+
 - Test suite for regression verification (recommended)
+
 - Backup of codebase or committed state
+
 - Go toolchain installed
 
 ## Instructions
@@ -124,10 +163,15 @@ Tell Claude Code to use this skill:
 Focus on:
 
 1. Removing all unused imports, functions, and variables
+
 2. Consolidating duplicate code
+
 3. Applying idiomatic Go patterns
+
 4. Removing fmt.Println statements
+
 5. Organizing imports properly
+
 6. Running go mod tidy to clean dependencies
 
 Save all reports to cleanup_report/ directory."
@@ -138,10 +182,15 @@ Save all reports to cleanup_report/ directory."
 Claude Code will generate a comprehensive cleanup plan including:
 
 1. **Dead Code Candidates** - List of unused code with usage analysis
+
 2. **Duplication Report** - Duplicate code locations
+
 3. **Idiomatic Go Opportunities** - Non-idiomatic patterns to fix
+
 4. **go vet Warnings** - Static analysis findings
+
 5. **Risk Assessment** - Impact analysis for each operation
+
 6. **Implementation Plan** - Ordered steps with dependencies
 
 **Review the plan before proceeding with changes!**
@@ -149,34 +198,55 @@ Claude Code will generate a comprehensive cleanup plan including:
 ### Step 4: Execute Cleanup in Phases
 
 **Phase 1: Low-Risk Cleanup**
+
 - Remove unused imports
+
 - Clean fmt.Println statements
+
 - Remove commented code
+
 - Organize imports
 
 **Phase 2: Idiomatic Go Patterns**
+
 - Fix error handling
+
 - Apply proper receiver names
+
 - Use context.Context correctly
+
 - Apply range loop patterns
+
 - Use make with capacity
 
 **Phase 3: Structural Changes**
+
 - Consolidate duplicates
+
 - Remove dead functions
+
 - Simplify complex code
+
 - Extract constants
 
 **Phase 4: Verification**
+
 - Run tests after each phase
+
 - Run go vet, staticcheck
+
 - Verify no functionality changes
+
 - Document any issues
 
 **Phase 5: Multi-Pass Protocol**
+
 - First pass: Apply cleanup across all files
+
 - Verification pass: Check for missed opportunities
+
 - Repeat until complete
+
 - Track statistics for each pass
 
 ### Step 5: Test After Cleanup
@@ -490,35 +560,53 @@ cleanup_report/
 ## Safety Measures
 
 1. **Version Control Required**
+
 2. **Test Coverage**
+
 3. **Incremental Approach**
+
 4. **Risk Assessment**
+
 5. **Documentation**
 
 ## Success Criteria
 
 - [ ] All unused imports removed
+
 - [ ] No fmt.Println debugging statements
+
 - [ ] No commented-out code
+
 - [ ] Duplicate code consolidated
+
 - [ ] Idiomatic Go patterns applied
+
 - [ ] Imports organized properly
+
 - [ ] All tests passing
+
 - [ ] go vet passes
+
 - [ ] staticcheck passes
+
 - [ ] go mod tidy run
+
 - [ ] Cleanup documented
 
 ## Tools and Libraries
 
 ### Static Analysis
 - **go vet**: Built-in static analysis
+
 - **staticcheck**: Advanced static analysis
+
 - **golangci-lint**: Meta-linter
+
 - **gosec**: Security analysis
 
 ### Formatting
 - **gofmt**: Official formatter
+
 - **goimports**: Import organizer
 
 ### Dependency Management
@@ -541,8 +629,11 @@ go mod tidy
 ## Additional Resources
 
 - [Effective Go](https://golang.org/doc/effective_go)
+
 - [Go Code Review Comments](https://github.com/golang/go/wiki/CodeReviewComments)
+
 - [Idiomatic Go](https://dmitri.shuralyov.com/idiomatic-go)
+
 - [Go Proverbs](https://go-proverbs.github.io/)
 
 ---

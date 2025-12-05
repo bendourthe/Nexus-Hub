@@ -18,10 +18,12 @@ related_templates:
 tools:
 
   - go test (1.23+)
+
   - testify
 tags:
 
   - code-review
+
   - go
 ---
 # Go Code Review Final Report
@@ -80,16 +82,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Issues that create immediate risks to system stability, data integrity, or compliance.
 
 **Examples:**
+
 - Security vulnerabilities (SQL injection, XSS, authentication bypass)
+
 - Resource leaks (unclosed connections, file handles, memory leaks)
+
 - Data loss risks (destructive operations without validation)
+
 - Thread safety violations (race conditions, deadlocks)
+
 - Compliance violations (GDPR, HIPAA, PCI-DSS)
 
 **Action Required:**
+
 - Block deployment until fixed
+
 - Require hotfix within 24 hours
+
 - Add tests to prevent regression
+
 - Document root cause and fix
 
 ---
@@ -99,16 +110,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Issues that significantly impact maintainability, performance, or correctness but don't cause immediate failures.
 
 **Examples:**
+
 - Incorrect business logic (wrong calculations, flawed algorithms)
+
 - Performance bottlenecks (O(n²) algorithms, missing indexes, inefficient queries)
+
 - Memory inefficiency (loading large datasets into memory unnecessarily)
+
 - Breaking API changes without deprecation
+
 - Missing critical error handling (network errors, API failures not caught)
 
 **Action Required:**
+
 - Schedule fix in current sprint
+
 - Cannot release without resolution
+
 - Update documentation
+
 - Performance test after fix
 
 ---
@@ -118,16 +138,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Code smells and technical debt that reduce maintainability but don't affect correctness.
 
 **Examples:**
+
 - High complexity (cyclomatic complexity >10, functions >100 lines)
+
 - Code duplication (>10 lines duplicated across modules)
+
 - Poor naming (unclear variable/function names, inconsistent conventions)
+
 - Missing tests (<80% coverage on critical paths)
+
 - Incomplete error messages (no context for debugging)
 
 **Action Required:**
+
 - Add to backlog
+
 - Prioritize in next sprint planning
+
 - Consider during refactoring opportunities
+
 - Track technical debt metrics
 
 ---
@@ -137,16 +166,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Style inconsistencies and minor optimizations that don't impact functionality.
 
 **Examples:**
+
 - Style violations (linting warnings, formatting issues)
+
 - Minor performance optimizations (in non-critical code paths)
+
 - Missing documentation on helper functions
+
 - Verbose code that could be more concise
+
 - Debug statements left in code
 
 **Action Required:**
+
 - Fix opportunistically during other work
+
 - Batch with other low-priority changes
+
 - Good for new contributors
+
 - Can be deferred indefinitely
 
 ---
@@ -154,20 +192,31 @@ Use this framework to classify and prioritize all findings from the code review.
 ## Severity Assignment Guidelines
 
 **When to Escalate Severity:**
+
 - Issue affects **production environment** → escalate one level
+
 - Issue affects **customer-facing features** → escalate one level
+
 - Issue has **no workaround** → escalate one level
+
 - Issue appears in **multiple locations** → escalate one level
 
 **When to De-escalate Severity:**
+
 - Issue only in **test/development code** → de-escalate one level
+
 - Issue has **easy workaround** → de-escalate one level
+
 - Issue is **isolated to single module** → de-escalate one level
+
 - Issue **rarely executed** (edge case) → de-escalate one level
 
 **Examples:**
+
 - Memory leak in production API: **HIGH → CRITICAL** (production + customer-facing)
+
 - Style violation in test file: **LOW → Ignore** (test code + style only)
+
 - Duplicated logic across 15 modules: **MEDIUM → HIGH** (multiple locations)
 
 ---
@@ -197,16 +246,22 @@ For each finding, include:
 **Issue:** The user search function loads all users into memory and performs linear search on every request.
 
 **Impact:**
+
 - Response time degrades with user count (currently 500ms for 10k users)
+
 - High memory usage (50MB+ per request)
+
 - Poor scalability (can't handle >100k users)
 
 **Recommendation:**
 Move filtering to database with indexed query:
 
 - Add database index on search fields
+
 - Use database LIKE/ILIKE queries
+
 - Implement pagination (limit results to 50)
+
 - Add caching for common searches
 
 **Effort:** 3 hours (2 hours implementation + 1 hour testing)
@@ -253,8 +308,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -277,33 +335,53 @@ Please consolidate all code review findings into a comprehensive final report fo
 Gather and organize findings from all review phases:
 
 1. **Context Analysis Summary**
+
    - Project architecture overview
+
    - Technology stack and dependencies
+
    - Key architectural decisions
+
    - Development maturity assessment
 
 2. **Code Quality Findings**
+
    - Complexity hotspots
+
    - Maintainability issues
+
    - Technical debt summary
+
    - Coding standards compliance
 
 3. **Security Assessment**
+
    - Critical vulnerabilities (CVSS 9.0+)
+
    - High-risk issues (CVSS 7.0-8.9)
+
    - Medium-risk issues (CVSS 4.0-6.9)
+
    - Compliance gaps
 
 4. **Performance Analysis**
+
    - Critical bottlenecks
+
    - Resource usage issues
+
    - Scalability concerns
+
    - Optimization opportunities
 
 5. **Testing Evaluation**
+
    - Coverage metrics
+
    - Test quality assessment
+
    - Critical gaps
+
    - Reliability issues
 
 ## Phase 2: Priority Matrix
@@ -346,10 +424,15 @@ Create a phased implementation plan:
 **Critical P0 Items** - Must be addressed immediately:
 
 1. **[Issue]**
+
    - **Risk**: [what happens if not fixed]
+
    - **Effort**: [hours/days]
+
    - **Owner**: [team/role]
+
    - **Dependencies**: [blockers]
+
    - **Success Criteria**: [measurable outcome]
 
 ### Short-term Goals (Weeks 2-4)
@@ -371,15 +454,23 @@ Define success metrics to track improvement:
 ### Code Quality Metrics
 
 - **Current State**:
+
   - Average Complexity: [gocyclo score]
+
   - Code Coverage: [%]
+
   - Technical Debt: [hours]
+
   - gofmt Compliance: [%]
 
 - **Target State** (3 months):
+
   - Average Complexity: [target score]
+
   - Code Coverage: [target %]
+
   - Technical Debt: [target hours reduction]
+
   - gofmt Compliance: 100%
 
 ### Security Metrics
@@ -536,8 +627,11 @@ project/
 - **Resource Management**: [defer usage, goroutine leaks]
 
 **Recommendations**:
+
 1. [Prioritized recommendation 1]
+
 2. [Prioritized recommendation 2]
+
 3. [Prioritized recommendation 3]
 
 ---
@@ -585,9 +679,13 @@ project/
 - **Cryptographic Issues**: [weak algorithms, TLS config]
 
 **Security Roadmap**:
+
 1. **Week 1**: Fix all critical vulnerabilities
+
 2. **Weeks 2-4**: Address high-risk issues
+
 3. **Month 2**: Implement security automation
+
 4. **Ongoing**: Security monitoring and scanning
 
 ---
@@ -632,11 +730,15 @@ project/
 - **GC Pressure**: [High/Medium/Low]
 
 **Quick Wins** (High Impact, Low Effort):
+
 1. [Optimization 1] - [Expected improvement]
+
 2. [Optimization 2] - [Expected improvement]
 
 **Strategic Initiatives** (High Impact, High Effort):
+
 1. [Major optimization 1] - [Expected improvement]
+
 2. [Major optimization 2] - [Expected improvement]
 
 ---
@@ -673,9 +775,13 @@ project/
 - Race Conditions: [count from -race]
 
 **Testing Roadmap**:
+
 1. **Week 1**: Add tests for critical uncovered paths
+
 2. **Weeks 2-4**: Fix flaky tests, improve coverage to 70%+
+
 3. **Month 2**: Reach 80%+ coverage, add benchmarks
+
 4. **Month 3**: Fuzz testing and integration tests
 
 ---
@@ -706,16 +812,25 @@ project/
 **Objective**: Address all P0 items blocking production or posing critical risks
 
 **Action Items**:
+
 1. **[P0 Item 1]**
+
    - Owner: [person/team]
+
    - Effort: [hours]
+
    - Dependencies: [blockers]
+
    - Success Criteria: [measurable outcome]
 
 2. **[P0 Item 2]**
+
    - Owner: [person/team]
+
    - Effort: [hours]
+
    - Dependencies: [blockers]
+
    - Success Criteria: [measurable outcome]
 
 **Deliverables**:
@@ -844,9 +959,13 @@ project/
 Required tools:
 
   - gofmt: Format all code
+
   - goimports: Organize imports
+
   - go vet: Static analysis
+
   - staticcheck: Comprehensive linting
+
   - golangci-lint: Aggregate linter
 ```
 
@@ -882,6 +1001,7 @@ jobs:
     steps:
 
       - uses: actions/checkout@v3
+
       - uses: actions/setup-go@v4
         with:
           go-version: '1.21'
@@ -926,14 +1046,23 @@ linters:
   enable:
 
     - gofmt
+
     - goimports
+
     - govet
+
     - staticcheck
+
     - errcheck
+
     - gosec
+
     - gocyclo
+
     - ineffassign
+
     - misspell
+
     - unconvert
 
 linters-settings:
@@ -966,8 +1095,11 @@ issues:
 **Overall Assessment**: [Production-ready / Needs improvement / Requires significant work]
 
 **Key Takeaways**:
+
 1. [Major finding or recommendation]
+
 2. [Major finding or recommendation]
+
 3. [Major finding or recommendation]
 
 **Go-Specific Observations**:
@@ -979,11 +1111,17 @@ issues:
 - [Observation about error handling]
 
 **Next Steps**:
+
 1. Review and approve this report
+
 2. Assign owners to P0 and P1 items
+
 3. Schedule kickoff for remediation sprints
+
 4. Set up tracking dashboard for metrics
+
 5. Implement automated quality gates
+
 6. Plan follow-up review in [timeframe]
 
 **Questions or Clarifications**: [Contact information]

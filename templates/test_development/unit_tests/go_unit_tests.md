@@ -18,11 +18,14 @@ related_templates:
 tools:
 
   - go test (1.23+)
+
   - testify
 tags:
 
   - test-development
+
   - testing
+
   - go
 ---
 # Go Unit Tests - Comprehensive Implementation Guide
@@ -69,22 +72,33 @@ ${OUTPUT_DIR}/
 
 ### Test Foundation
 - [ ] testing package overview
+
 - [ ] Test file structure (_test.go)
+
 - [ ] Table-driven test patterns
+
 - [ ] Benchmark tests
+
 - [ ] Example tests
 
 ### Test Patterns
 - [ ] Function tests
+
 - [ ] Method tests (receivers)
+
 - [ ] Interface tests
+
 - [ ] Goroutine tests
+
 - [ ] Error handling tests
 
 ### Test Quality
 - [ ] Test independence verified
+
 - [ ] Subtests with t.Run()
+
 - [ ] Mock patterns documented
+
 - [ ] Coverage analysis
 
 ---
@@ -110,26 +124,39 @@ mkdir -p ${OUTPUT_DIR}/templates ${OUTPUT_DIR}/assets ${OUTPUT_DIR}/exports
 ### 1.1 FIRST Principles in Go
 
 **Fast** - Tests execute in milliseconds
+
 - Use `go test -short` for quick tests
+
 - Avoid I/O in unit tests
+
 - Use mocks for external dependencies
 
 **Independent** - No shared state
+
 - Each test function is independent
+
 - Use setup/teardown within test functions
+
 - Avoid package-level variables
 
 **Repeatable** - Deterministic results
+
 - Mock time-dependent code
+
 - Control randomness with fixed seeds
+
 - Isolate from environment
 
 **Self-validating** - Clear pass/fail
+
 - Use descriptive error messages
+
 - Use testing.T methods effectively
 
 **Timely** - Written with code
+
 - Follow TDD practices
+
 - Maintain coverage >80%
 
 **Arrange-Act-Assert Pattern:**
@@ -154,12 +181,17 @@ func TestCalculateDiscount(t *testing.T) {
 ### 1.2 Go Testing Conventions
 
 **File Naming:**
+
 - Test files: `<file>_test.go`
+
 - Examples: `calculator_test.go`, `user_test.go`
 
 **Function Naming:**
+
 - `Test<Name>(t *testing.T)` - Unit tests
+
 - `Benchmark<Name>(b *testing.B)` - Benchmarks
+
 - `Example<Name>()` - Example functions
 
 **Package:**
@@ -839,12 +871,19 @@ go test -race
 ### 5.2 Maintenance Checklist
 
 - [ ] All tests pass independently
+
 - [ ] Tests use table-driven patterns
+
 - [ ] Subtests with t.Run()
+
 - [ ] Fast execution
+
 - [ ] No code duplication
+
 - [ ] Clear error messages
+
 - [ ] Edge cases covered
+
 - [ ] >80% coverage
 
 ---
@@ -861,14 +900,20 @@ go test -race
 `${OUTPUT_DIR}/templates/`:
 
 - `test_template.go`
+
 - `table_test_template.go`
+
 - `benchmark_template.go`
+
 - `interface_test_template.go`
 
 ### 4. Guides
 - Anti-patterns guide
+
 - Quality checklist
+
 - Coverage guide
+
 - Benchmark guide
 
 ---
@@ -876,12 +921,19 @@ go test -race
 ## Verification Checklist
 
 - [ ] All deliverables created
+
 - [ ] 20-30 page guide
+
 - [ ] 50+ examples
+
 - [ ] Table-driven patterns
+
 - [ ] Interface testing
+
 - [ ] Goroutine testing
+
 - [ ] Benchmark examples
+
 - [ ] Coverage analysis
 
 ---
@@ -894,9 +946,13 @@ End of prompt template.
 ## Additional Notes
 
 - Run tests: `go test`
+
 - With coverage: `go test -cover`
+
 - Benchmarks: `go test -bench=.`
+
 - Race detection: `go test -race`
+
 - Verbose: `go test -v`
 
 ---

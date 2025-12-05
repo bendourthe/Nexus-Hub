@@ -12,6 +12,7 @@ prerequisites: []
 tags:
 
   - skills
+
   - generic
 ---
 # extract-microservice
@@ -31,19 +32,29 @@ Extract functionality from a monolithic application into an independent microser
 ## When to Use This Skill
 
 - Monolithic application growing too large
+
 - Team scaling requires independent deployments
+
 - Different scaling requirements for different features
+
 - Technology stack needs to vary by component
+
 - Organizational boundaries align with service boundaries
+
 - Performance isolation needed for specific features
 
 ## Prerequisites
 
 - Understanding of domain-driven design
+
 - Knowledge of API design (REST/GraphQL/gRPC)
+
 - Database migration experience
+
 - Container/orchestration platform access
+
 - Monitoring and logging infrastructure
+
 - Service mesh or API gateway (recommended)
 
 ## Step-by-Step Instructions
@@ -71,21 +82,33 @@ monolith/
 ### Proposed Extraction: Order Service
 
 **Bounded Context:**
+
 - Order creation and management
+
 - Order status tracking
+
 - Order history
+
 - Order validation
 
 **Dependencies:**
+
 - Users service (authentication)
+
 - Inventory service (stock checking)
+
 - Payments service (payment processing)
+
 - Notifications service (order updates)
 
 **Data Ownership:**
+
 - Orders table (primary)
+
 - Order items table
+
 - Order status history
+
 - Order metadata
 
 ### Decision Criteria
@@ -112,27 +135,43 @@ Current Dependencies Analysis
 OrderService currently depends on:
 
 Direct Dependencies:
+
 1. UserService.get_user(user_id) → Authentication
+
 2. UserService.get_shipping_address(user_id) → Address info
+
 3. InventoryService.check_stock(product_id) → Availability
+
 4. InventoryService.reserve_items(items) → Stock reservation
+
 5. PaymentService.charge(payment_info) → Payment processing
+
 6. NotificationService.send_email(template, data) → Customer notifications
 
 Database Dependencies:
+
 - users table → customer information
+
 - products table → product details
+
 - inventory table → stock levels
+
 - payments table → payment records
 
 Shared Libraries:
+
 - validation_utils → Input validation
+
 - logging_utils → Centralized logging
+
 - auth_middleware → JWT validation
 
 Reverse Dependencies (who calls OrderService):
+
 - ShippingService.create_shipment(order_id)
+
 - AnalyticsService.track_order(order_data)
+
 - AdminDashboard.get_order_details(order_id)
 """
 
@@ -241,11 +280,17 @@ async def create_order(
     Create a new order.
 
     Workflow:
+
     1. Validate user and address
+
     2. Check inventory availability
+
     3. Create order record
+
     4. Reserve inventory
+
     5. Process payment
+
     6. Send confirmation
     """
     try:
@@ -671,9 +716,13 @@ class OrderDataMigration:
         Run migration in batches.
 
         Strategy:
+
         1. Migrate historical data first
+
         2. Enable dual-write
+
         3. Sync remaining data
+
         4. Verify consistency
         """
         source_conn = await asyncpg.connect(self.source_dsn)
@@ -887,15 +936,22 @@ services:
     environment:
 
       - DATABASE_URL=postgresql://order_db:5432/orders
+
       - USER_SERVICE_URL=http://user-service:8001
+
       - INVENTORY_SERVICE_URL=http://inventory-service:8002
+
       - PAYMENT_SERVICE_URL=http://payment-service:8003
+
       - REDIS_URL=redis://redis:6379
+
       - RABBITMQ_URL=amqp://rabbitmq:5672
     depends_on:
 
       - order-db
+
       - redis
+
       - rabbitmq
     restart: unless-stopped
 
@@ -904,7 +960,9 @@ services:
     environment:
 
       - POSTGRES_DB=orders
+
       - POSTGRES_USER=order_user
+
       - POSTGRES_PASSWORD=order_pass
     volumes:
 
@@ -1146,81 +1204,122 @@ class OrderService:
 After completing this extraction:
 
 1. **Independent microservice**
+
    - Runs separately from monolith
+
    - Own database and data ownership
+
    - Independent deployment and scaling
 
 2. **Clean API boundaries**
+
    - Well-defined REST/gRPC APIs
+
    - Event-driven communication
+
    - Resilience patterns implemented
 
 3. **Data consistency**
+
    - Data migration completed
+
    - Eventual consistency handled
+
    - No data loss
 
 4. **Operational readiness**
+
    - Monitoring and logging
+
    - Health checks and metrics
+
    - Deployment automation
 
 ## Success Criteria
 
 - [ ] Service boundaries clearly defined
+
 - [ ] API contracts documented
+
 - [ ] Data migration completed successfully
+
 - [ ] Service deployed and running
+
 - [ ] Inter-service communication working
+
 - [ ] Monitoring and alerting configured
+
 - [ ] Load testing completed
+
 - [ ] Rollback plan documented
+
 - [ ] Zero data loss during migration
+
 - [ ] Performance SLAs met
+
 - [ ] Team trained on new service
 
 ## Common Pitfalls
 
 1. **Data consistency issues**
+
    - Plan for eventual consistency
+
    - Implement saga patterns for transactions
 
 2. **Tight coupling**
+
    - Avoid shared databases
+
    - Use events instead of direct calls
 
 3. **Network failures**
+
    - Implement retries and circuit breakers
+
    - Design for failure
 
 4. **Incomplete extraction**
+
    - Ensure all dependencies identified
+
    - Don't leave shared code
 
 ## Related Skills
 
 - **refactor-for-testability**: Improve code testability
+
 - **dependency-upgrade**: Upgrade dependencies
+
 - **setup-python-project**: Initialize new projects
+
 - **add-api-endpoint**: Add new endpoints
+
 - **database-migration**: Migrate databases
 
 ## Additional Resources
 
 ### Books
 - "Building Microservices" by Sam Newman
+
 - "Microservices Patterns" by Chris Richardson
+
 - "Domain-Driven Design" by Eric Evans
 
 ### Patterns
 - [Strangler Fig Pattern](https://martinfowler.com/bliki/StranglerFigApplication.html)
+
 - [Saga Pattern](https://microservices.io/patterns/data/saga.html)
+
 - [Circuit Breaker](https://martinfowler.com/bliki/CircuitBreaker.html)
 
 ### Tools
 - Docker/Kubernetes for containerization
+
 - Istio/Linkerd for service mesh
+
 - Prometheus/Grafana for monitoring
+
 - Jaeger/Zipkin for tracing
 
 ---

@@ -18,13 +18,18 @@ related_templates:
 tools:
 
   - unity
+
   - cmocka
+
   - check
 tags:
 
   - test-development
+
   - testing
+
   - performance
+
   - c
 ---
 # C Performance Testing
@@ -153,8 +158,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 Please implement comprehensive performance testing for this C project following this protocol:
@@ -233,6 +241,7 @@ typedef struct {
 } perf_timer_t;
 
 /**
+
  * Get current timestamp in nanoseconds.
  */
 static inline uint64_t perf_get_time_ns(void) {
@@ -250,6 +259,7 @@ static inline uint64_t perf_get_time_ns(void) {
 }
 
 /**
+
  * Start performance timer.
  */
 static inline void perf_timer_start(perf_timer_t *timer) {
@@ -257,6 +267,7 @@ static inline void perf_timer_start(perf_timer_t *timer) {
 }
 
 /**
+
  * Stop performance timer and calculate elapsed time.
  */
 static inline void perf_timer_stop(perf_timer_t *timer) {
@@ -265,6 +276,7 @@ static inline void perf_timer_stop(perf_timer_t *timer) {
 }
 
 /**
+
  * Get elapsed time in milliseconds.
  */
 static inline double perf_timer_elapsed_ms(const perf_timer_t *timer) {
@@ -272,6 +284,7 @@ static inline double perf_timer_elapsed_ms(const perf_timer_t *timer) {
 }
 
 /**
+
  * Get elapsed time in microseconds.
  */
 static inline double perf_timer_elapsed_us(const perf_timer_t *timer) {
@@ -316,6 +329,7 @@ typedef struct {
 } benchmark_result_t;
 
 /**
+
  * Run a benchmark function.
  */
 static inline benchmark_result_t benchmark_run(
@@ -358,6 +372,7 @@ static inline benchmark_result_t benchmark_run(
 }
 
 /**
+
  * Print benchmark results.
  */
 static inline void benchmark_print_result(const benchmark_result_t *result) {
@@ -372,6 +387,7 @@ static inline void benchmark_print_result(const benchmark_result_t *result) {
 }
 
 /**
+
  * Macro to define and run a benchmark.
  */
 #define BENCHMARK(name, iterations) \
@@ -489,6 +505,7 @@ typedef struct {
 static memory_stats_t g_memory_stats = {0};
 
 /**
+
  * Tracked malloc wrapper.
  */
 static inline void* tracked_malloc(size_t size, const char *file, int line) {
@@ -510,6 +527,7 @@ static inline void* tracked_malloc(size_t size, const char *file, int line) {
 }
 
 /**
+
  * Tracked free wrapper.
  */
 static inline void tracked_free(void *ptr, size_t size, const char *file, int line) {
@@ -527,6 +545,7 @@ static inline void tracked_free(void *ptr, size_t size, const char *file, int li
 }
 
 /**
+
  * Print memory statistics.
  */
 static inline void print_memory_stats(void) {
@@ -551,6 +570,7 @@ static inline void print_memory_stats(void) {
 }
 
 /**
+
  * Reset memory statistics.
  */
 static inline void reset_memory_stats(void) {
@@ -609,14 +629,17 @@ cg_annotate cachegrind.out
 /**
 
  * Compile with profiling enabled:
+
  * gcc -pg -o program program.c
  *
 
  * Run program to generate gmon.out
+
  * ./program
  *
 
  * Analyze profile:
+
  * gprof program gmon.out > ${OUTPUT_DIR}/exports/analysis.txt
  */
 
@@ -856,6 +879,7 @@ int main(void) {
 #include <string.h>
 
 /**
+
  * Test memory allocation stress.
  */
 void test_memory_stress(void) {
@@ -890,6 +914,7 @@ void test_memory_stress(void) {
 }
 
 /**
+
  * Test sustained operation stress.
  */
 void test_sustained_operations(void) {
@@ -983,6 +1008,7 @@ typedef struct {
 } baseline_db_t;
 
 /**
+
  * Load baseline database from file.
  */
 int load_baseline(const char *filename, baseline_db_t *db) {
@@ -1006,6 +1032,7 @@ int load_baseline(const char *filename, baseline_db_t *db) {
 }
 
 /**
+
  * Save baseline database to file.
  */
 int save_baseline(const char *filename, const baseline_db_t *db) {
@@ -1026,6 +1053,7 @@ int save_baseline(const char *filename, const baseline_db_t *db) {
 }
 
 /**
+
  * Compare current result with baseline.
  */
 int check_regression(baseline_db_t *db, const char *name, double current_ms) {
@@ -1152,6 +1180,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
     - uses: actions/checkout@v3
 
     - name: Install dependencies
@@ -1236,13 +1265,19 @@ Latency:
 
 ### Bottlenecks Identified
 1. **String Concatenation in process_data()**
+
    - **Issue**: Repeated reallocation using strcat()
+
    - **Impact**: O(n²) complexity, 200ms for 10K operations
+
    - **Recommendation**: Use single allocation with snprintf() or memcpy()
 
 2. **Memory Fragmentation**
+
    - **Issue**: Many small allocations without pooling
+
    - **Impact**: 40% overhead in allocation time
+
    - **Recommendation**: Implement memory pool for fixed-size objects
 
 ### Performance Improvement Recommendations
@@ -1317,11 +1352,17 @@ Replace `{phase_name}` with the specific phase (test_cases, mocks_fixtures, perf
 The AI assistant should deliver:
 
 1. **Performance test suite** with timing infrastructure and benchmarks
+
 2. **Performance baselines** documented
+
 3. **Load test scenarios** for critical operations
+
 4. **Profiling results** with bottleneck identification
+
 5. **Regression detection** configuration
+
 6. **CI/CD integration** for automated performance gates
+
 7. **Performance report** with metrics and recommendations
 ---
 

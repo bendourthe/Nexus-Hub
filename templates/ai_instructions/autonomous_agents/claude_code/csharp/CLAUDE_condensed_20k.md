@@ -12,11 +12,14 @@ prerequisites: []
 tools:
 
   - unity
+
   - cmocka
+
   - check
 tags:
 
   - claude-code
+
   - c
 ---
 # CLAUDE.md - C# Development System Instructions
@@ -28,35 +31,48 @@ tags:
 
 ## Section Usage Map
 - **Bug Fix**: Sections 1, 3, 9
+
 - **New Feature**: Sections 1-5, 7
+
 - **Refactoring**: Sections 3, 6, 9
+
 - **Project Setup**: All sections
 
 ## Task-Specific Quick Reference
 - **Fix a method**: Focus sections 3, 9
+
 - **New project**: Use sections 2, 4, 5
+
 - **Code review**: Apply sections 3, 10
 
 ## Context-Aware Behavior
 - **For class libraries**: Minimal structure
+
 - **For web APIs**: Full ASP.NET Core architecture
+
 - **For debugging**: Focus on problem-solving
 
 ## Efficiency Modes
 
 ### Quick Mode (for simple fixes)
 - Skip extensive documentation
+
 - Minimal testing setup
+
 - Focus on core functionality
 
 ### Full Mode (for new projects)
 - Complete ASP.NET Core architecture
+
 - Comprehensive testing
+
 - Full documentation
 
 ## Claude Code Terminal Commands
 - **Run tests**: `claude run dotnet test`
+
 - **Build project**: `claude run dotnet build`
+
 - **Start application**: `claude run dotnet run`
 
 ---
@@ -68,33 +84,46 @@ tags:
 
 ### Clarification Protocol
 - When unclear, ask concise clarifying questions before proceeding
+
 - Never make assumptions about missing requirements
+
 - Frame questions to gather specific technical requirements
 
 ### Teaching-Focused Approach
 - **Primary Goal**: Teach how and why solutions work
+
 - Explain implementation details, reasoning, and coding concepts
+
 - Enable learning through understanding, not copy-paste
+
 - Reference Microsoft documentation for non-obvious concepts
 
 ### Critical Analysis
 - **Don't automatically agree** with user-proposed solutions
+
 - Analyze problems independently
+
 - Compare alternatives and recommend best solution
+
 - Clearly explain reasoning and trade-offs
 
 ### Efficiency Principles
 - **Token Optimization**: Be efficient while maintaining clarity
+
 - **Code Modification**: Edit originals, don't create '_enhanced' versions
+
 - **Codebase Cleanup**: Remove obsolete methods
+
 - **Refactoring**: Consolidate duplicate logic
 
 ### Quality Assurance
 - Review code for: quality, efficiency, best practices, security, performance
+
 - If already optimal, confirm briefly with reasoning
 
 ### System Prompt Adherence
 - Periodically review these instructions during long conversations
+
 - Maintain consistency with all standards and workflows
 
 
@@ -121,11 +150,17 @@ ProjectName/
 ## Project Initialization Sequence
 
 1. **Create solution**: `dotnet new sln -n ProjectName`
+
 2. **Create projects**: webapi, classlibs for layers
+
 3. **Add to solution**: `dotnet sln add src/**/*.csproj`
+
 4. **Configure appsettings.json**
+
 5. **Create `.gitignore`**
+
 6. **Create `CHANGELOG.md`** version 0.1.0
+
 7. **Set up EF migrations**
 
 ## Project File Template
@@ -168,10 +203,15 @@ public void ProcessUser(User user, bool isActive) { }
 
 ## Class Structure Order
 1. Private fields
+
 2. Constructors
+
 3. Public properties
+
 4. Public methods
+
 5. Protected methods
+
 6. Private methods
 
 ## Modern C# Features
@@ -180,10 +220,15 @@ public void ProcessUser(User user, bool isActive) { }
 ### Comment Guidelines
 
 **Placement and Style:**
+
 - **Above code blocks**: Comments explain why, not just what
+
 - **No inline comments**: Avoid same-line comments unless extremely clear
+
 - **No meta-commentary**: Don't document editing history
+
 - **No change tracking**: Never add comments like "changed value to 12" or "updated parameter"
+
 - **Descriptive**: Focus on logic, decision reasoning, and non-obvious behavior
 
 **Prohibited Comment Patterns:**
@@ -368,14 +413,18 @@ public decimal CalculateTotal(List<decimal> items)
 
 ## Technologies
 - .NET 8
+
 - ASP.NET Core
+
 - Entity Framework Core
+
 - SQL Server
 
 ## Installation
 
 ### Prerequisites
 - .NET 8 SDK
+
 - SQL Server
 
 ### Setup
@@ -449,7 +498,9 @@ public class UserServiceTests
 
 ### When to Use
 - Projects >30 minutes
+
 - Multi-component applications
+
 - Complex features
 
 ### Template
@@ -461,6 +512,7 @@ public class UserServiceTests
 
 ### Prerequisites
 - .NET 8 SDK
+
 - SQL Server
 
 ### Subtask X: [Title]
@@ -476,7 +528,9 @@ Complete and pause.
 
 ### Quality Gates
 - [ ] Code compiles
+
 - [ ] Tests passing
+
 - [ ] XML docs complete
 
 
@@ -485,12 +539,19 @@ Complete and pause.
 **When implementing features or fixing bugs:**
 
 1. **Create temp tests** in `tests/temp/` (e.g., `TempFeatureValidationTests.cs`)
+
 2. **Write challenging tests** with edge cases
+
 3. **Implement solution** following code standards
+
 4. **Run tests and iterate**:
+
    - If FAIL: Document in DEVLOG.md, modify code, repeat
+
    - If PASS: Proceed to cleanup
+
 5. **Delete temp tests** after successful implementation
+
 6. **Document process** in DEVLOG.md with iteration count
 
 **Benefits**: Ensures solutions work, documents problem-solving, prevents premature success claims, maintains clean repository
@@ -548,20 +609,28 @@ dotnet add package Microsoft.EntityFrameworkCore
 **CRITICAL: Never auto-modify versions. Always request approval.**
 
 Never automatically:
+
 - Modify CHANGELOG.md
+
 - Update .csproj Version
+
 - Change README.md versions
+
 - Create tags
 
 ### Version Protocol
 
 1. **Assess**: "Changes might warrant version update"
+
 2. **Request**: "Should I update to [version]?"
+
 3. **Wait**: Never proceed without "yes"
 
 ### Semantic Versioning
 - **Patch (Z+1)**: Bug fixes
+
 - **Minor (Y+1.0)**: New features
+
 - **Major (X+1.0.0)**: Breaking changes
 
 ## Git Operations
@@ -576,17 +645,25 @@ Never automatically:
 ## Code Fix Request
 
 **Structure:**
+
 1. Analyze issue
+
 2. Implement fix
+
 3. Explain improvements
+
 4. Provide integration steps
 
 ## Project Planning
 
 **Structure:**
+
 1. Break down components
+
 2. Recommend architecture
+
 3. Create subtask breakdown
+
 4. Provide guidance
 
 
@@ -595,20 +672,32 @@ Never automatically:
 
 ## Before Delivering Code
 - [ ] Compiles without errors
+
 - [ ] Follows C# conventions
+
 - [ ] XML documentation
+
 - [ ] Exception handling
+
 - [ ] No StyleCop warnings
+
 - [ ] Tests included
+
 - [ ] Async/await proper
+
 - [ ] Nullable types handled
 
 ## Before Delivering Project
 - [ ] Standard structure
+
 - [ ] Solution configured
+
 - [ ] EF migrations
+
 - [ ] All config files
+
 - [ ] DI configured
+
 - [ ] Tests passing
 
 ---

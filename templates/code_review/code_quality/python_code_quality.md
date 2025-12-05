@@ -18,12 +18,16 @@ related_templates:
 tools:
 
   - pytest (8.3.4+)
+
   - black (24.12.0)
+
   - mypy (1.13.0)
+
   - ruff
 tags:
 
   - code-review
+
   - python
 ---
 # Python Code Quality Review
@@ -140,10 +144,15 @@ Use this framework to classify and prioritize all findings from the code quality
 **Definition:** Issues that create immediate risks to system stability, data integrity, or compliance.
 
 **Examples:**
+
 - **Unhandled exceptions in critical paths** that could crash the application
+
 - **Resource leaks** (unclosed files, database connections, memory leaks)
+
 - **Data loss risks** (overwriting files without backup, destructive operations without confirmation)
+
 - **Compliance violations** (GDPR violations, logging sensitive data, hardcoded secrets)
+
 - **Thread safety issues** in concurrent code causing race conditions
 
 **Code Example:**
@@ -161,9 +170,13 @@ def read_config():
 ```
 
 **Action Required:**
+
 - Block deployment until fixed
+
 - Require hotfix within 24 hours
+
 - Add tests to prevent regression
+
 - Document root cause and fix
 
 ---
@@ -173,10 +186,15 @@ def read_config():
 **Definition:** Issues that significantly impact maintainability, performance, or correctness but don't cause immediate failures.
 
 **Examples:**
+
 - **Incorrect business logic** (wrong calculations, flawed algorithms)
+
 - **Performance bottlenecks** (O(n²) algorithms in hot paths, missing database indexes)
+
 - **Memory inefficiency** (loading entire files into memory, inefficient data structures)
+
 - **Breaking changes to public APIs** without deprecation warnings
+
 - **Missing critical error handling** (network errors, API failures not caught)
 
 **Code Example:**
@@ -202,9 +220,13 @@ def find_duplicates(items):
 ```
 
 **Action Required:**
+
 - Schedule fix in current sprint
+
 - Cannot release without resolution
+
 - Update documentation
+
 - Performance test after fix
 
 ---
@@ -214,10 +236,15 @@ def find_duplicates(items):
 **Definition:** Code smells and technical debt that reduce maintainability but don't affect correctness.
 
 **Examples:**
+
 - **High complexity** (cyclomatic complexity >10, functions >100 lines)
+
 - **Code duplication** (>10 lines duplicated across modules)
+
 - **Poor naming** (unclear variable/function names, inconsistent conventions)
+
 - **Missing tests** (<80% coverage on critical paths)
+
 - **Incomplete error messages** (no context for debugging)
 
 **Code Example:**
@@ -245,9 +272,13 @@ def process_order(order, user, inventory, payment):
 ```
 
 **Action Required:**
+
 - Add to backlog
+
 - Prioritize in next sprint planning
+
 - Consider during refactoring opportunities
+
 - Track technical debt metrics
 
 ---
@@ -257,10 +288,15 @@ def process_order(order, user, inventory, payment):
 **Definition:** Style inconsistencies and minor optimizations that don't impact functionality.
 
 **Examples:**
+
 - **Style violations** (PEP 8 formatting, inconsistent quotes)
+
 - **Minor performance optimizations** (using list comprehensions vs loops in non-critical code)
+
 - **Missing docstrings** on private helper functions
+
 - **Verbose code** that could be more concise
+
 - **Debug statements** (print/console.log left in code)
 
 **Code Example:**
@@ -278,9 +314,13 @@ def calculate_total(items):
 ```
 
 **Action Required:**
+
 - Fix opportunistically during other work
+
 - Batch with other low-priority changes
+
 - Good for new contributors
+
 - Can be deferred indefinitely
 
 ---
@@ -288,20 +328,31 @@ def calculate_total(items):
 ## Severity Assignment Guidelines
 
 **When to Escalate Severity:**
+
 - Issue affects **production environment** → escalate one level
+
 - Issue affects **customer-facing features** → escalate one level
+
 - Issue has **no workaround** → escalate one level
+
 - Issue appears in **multiple locations** → escalate one level
 
 **When to De-escalate Severity:**
+
 - Issue only in **test/development code** → de-escalate one level
+
 - Issue has **easy workaround** → de-escalate one level
+
 - Issue is **isolated to single module** → de-escalate one level
+
 - Issue **rarely executed** (edge case) → de-escalate one level
 
 **Examples:**
+
 - Memory leak in production API endpoint: **HIGH → CRITICAL** (production + customer-facing)
+
 - Style violation in test file: **LOW → Ignore** (test code + style only)
+
 - Duplicated logic across 15 modules: **MEDIUM → HIGH** (multiple locations)
 
 ---
@@ -331,8 +382,11 @@ For each finding, include:
 **Issue:** The user search function loads all users into memory and performs linear search on every request.
 
 **Impact:**
+
 - Response time degrades linearly with user count (currently 500ms for 10k users)
+
 - Database connection held open unnecessarily during iteration
+
 - High memory usage on server (50MB+ per request)
 
 **Recommendation:**
@@ -389,8 +443,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -421,15 +478,23 @@ Please perform a comprehensive code quality review of this Python project follow
    ```
 
 2. **Style Violations Analysis**
+
    - Document most common violations
+
    - Identify patterns of non-compliance
+
    - Assess consistency across modules
+
    - Flag formatting inconsistencies
 
 3. **Naming Convention Review**
+
    - Verify function names are descriptive and snake_case
+
    - Check class names use PascalCase
+
    - Confirm constants use UPPER_CASE
+
    - Identify unclear or abbreviated names
 
 ## Phase 2: Complexity Analysis
@@ -444,24 +509,37 @@ Please perform a comprehensive code quality review of this Python project follow
    ```
 
 2. **Identify Complexity Hotspots**
+
    - List functions with complexity >10
+
    - Flag functions longer than 50 lines
+
    - Identify deeply nested code (>4 levels)
+
    - Document complex conditional logic
 
 3. **Module-Level Analysis**
+
    - Assess module size and cohesion
+
    - Identify modules with too many responsibilities
+
    - Check coupling between modules
+
    - Evaluate package organization
 
 ## Phase 3: Design Quality Review
 
 1. **SOLID Principles**
+
    - **Single Responsibility**: Check if classes/functions have one clear purpose
+
    - **Open/Closed**: Evaluate extensibility without modification
+
    - **Liskov Substitution**: Review inheritance hierarchies
+
    - **Interface Segregation**: Check for lean interfaces
+
    - **Dependency Inversion**: Assess dependency on abstractions
 
 2. **DRY Violations**
@@ -470,56 +548,89 @@ Please perform a comprehensive code quality review of this Python project follow
    pylint --disable=all --enable=duplicate-code . --min-similarity-lines=6
    ```
    - Identify duplicated logic
+
    - Find near-duplicate functions
+
    - Document consolidation opportunities
 
 3. **Design Patterns**
+
    - Identify patterns in use (factory, singleton, strategy, etc.)
+
    - Assess pattern appropriateness
+
    - Flag pattern misuse or over-engineering
+
    - Suggest beneficial pattern applications
 
 ## Phase 4: Code Smell Detection
 
 1. **Common Python Code Smells**
+
    - **Long Parameter Lists**: Functions with >5 parameters
+
    - **Long Methods**: Methods exceeding 50 lines
+
    - **Large Classes**: Classes with >300 lines or >20 methods
+
    - **Data Clumps**: Same groups of data appearing together
+
    - **Feature Envy**: Methods using data from other classes excessively
 
 2. **Anti-Patterns**
+
    - God objects/classes
+
    - Spaghetti code
+
    - Lava flow (dead/obsolete code)
+
    - Copy-paste programming
+
    - Magic numbers and strings
 
 3. **Python-Specific Issues**
+
    - Mutable default arguments
+
    - Bare `except:` clauses
+
    - Using `eval()` or `exec()`
+
    - Mixing tabs and spaces
+
    - Incorrect use of `is` vs `==`
 
 ## Phase 5: Error Handling & Robustness
 
 1. **Exception Handling Review**
+
    - Check for broad exception catching
+
    - Verify appropriate exception types used
+
    - Assess error message quality
+
    - Review exception propagation strategy
 
 2. **Resource Management**
+
    - Verify use of context managers (`with` statements)
+
    - Check for proper file/connection cleanup
+
    - Review memory management patterns
+
    - Identify potential resource leaks
 
 3. **Defensive Programming**
+
    - Input validation assessed
+
    - Boundary condition handling reviewed
+
    - Edge case coverage evaluated
+
    - Fail-fast patterns identified
 
 ## Phase 6: Documentation Quality
@@ -530,14 +641,21 @@ Please perform a comprehensive code quality review of this Python project follow
    interrogate . -v
    ```
    - Measure module/class/function docstring presence
+
    - Assess docstring completeness
+
    - Verify parameter documentation
+
    - Check return value documentation
 
 2. **Comment Quality**
+
    - Evaluate comment necessity and clarity
+
    - Flag commented-out code for removal
+
    - Check for TODO/FIXME/HACK comments
+
    - Verify comments explain "why" not "what"
 
 3. **Type Hints**
@@ -546,8 +664,11 @@ Please perform a comprehensive code quality review of this Python project follow
    mypy src/ --ignore-missing-imports
    ```
    - Assess type hint coverage
+
    - Verify type hint accuracy
+
    - Check for `Any` overuse
+
    - Review complex type annotations
 
 ## Output Format
@@ -571,7 +692,9 @@ Please provide a comprehensive quality report with the following structure:
 - **PEP 8 Violations**: [count and severity]
 
 - **Most Common Issues**:
+
   1. [Issue type] - [count] occurrences
+
   2. [Issue type] - [count] occurrences
 
 - **Consistency Score**: [percentage]
@@ -589,13 +712,17 @@ Please provide a comprehensive quality report with the following structure:
 
 ### Design Quality Issues
 1. **SOLID Violations**:
+
    - [Principle]: [specific examples and impact]
 
 2. **DRY Violations**:
+
    - [Location]: [description of duplication]
+
    - **Consolidation Opportunity**: [suggestion]
 
 3. **Missing Patterns**:
+
    - [Location]: [beneficial pattern suggestion]
 
 ### Code Smells Identified
@@ -642,12 +769,15 @@ Please provide a comprehensive quality report with the following structure:
 
 ### Refactoring Recommendations
 1. **Immediate Actions** (within 1 sprint):
+
    - [Specific refactoring with location and rationale]
 
 2. **Short-term Goals** (1-2 months):
+
    - [Improvement initiative with expected impact]
 
 3. **Long-term Initiatives** (3-6 months):
+
    - [Strategic refactoring with business justification]
 
 ### Positive Patterns
@@ -680,11 +810,13 @@ repos:
     hooks:
 
       - id: black
+
   - repo: https://github.com/pycqa/flake8
     rev: 7.1.1
     hooks:
 
       - id: flake8
+
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: 1.13.0
     hooks:

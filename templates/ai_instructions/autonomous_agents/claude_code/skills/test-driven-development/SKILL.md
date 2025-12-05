@@ -17,19 +17,31 @@ Implement features using the Test-Driven Development workflow: write tests first
 ## When to Use This Skill
 
 Use this skill for:
+
 - ✅ Implementing new features from scratch
+
 - ✅ Adding functionality to existing systems
+
 - ✅ Bug fixes (write test that reproduces bug, then fix)
+
 - ✅ Refactoring (tests ensure behavior preservation)
+
 - ✅ API development (test contracts first)
+
 - ✅ Critical business logic
+
 - ✅ Code that will be maintained long-term
+
 - ✅ Team environments (tests document behavior)
 
 **TDD is especially valuable when**:
+
 - Requirements are clear and testable
+
 - You want to ensure comprehensive test coverage
+
 - You're working on complex logic with edge cases
+
 - You need living documentation through tests
 
 ## What This Skill Does
@@ -38,22 +50,30 @@ This skill implements the **Red-Green-Refactor** TDD cycle:
 
 ### 🔴 Red: Write a Failing Test
 1. Write a test for the next small piece of functionality
+
 2. Run the test and watch it fail (proves test is working)
+
 3. Test should fail for the right reason (not syntax error)
 
 ### 🟢 Green: Make the Test Pass
 4. Write the minimal code needed to make the test pass
+
 5. Don't worry about perfect code yet (make it work first)
+
 6. Run the test and see it pass
 
 ### 🔵 Refactor: Improve the Code
 7. Refactor the implementation while keeping tests green
+
 8. Improve code quality, remove duplication, optimize
+
 9. All tests must still pass after refactoring
 
 ### 🔁 Repeat
 10. Commit the code
+
 11. Move to the next small piece of functionality
+
 12. Repeat the cycle
 
 ## Why TDD Works
@@ -65,10 +85,15 @@ Developer: *writes tests afterward*
 Result:
 
 - ❌ Tests influenced by implementation (not requirements)
+
 - ❌ Hard-to-test code (not designed for testability)
+
 - ❌ Missing edge cases
+
 - ❌ Tests feel like a chore
+
 - ❌ Low test coverage
+
 - ❌ Bugs discovered late
 ```
 
@@ -81,10 +106,15 @@ Developer: *repeats for next requirement*
 Result:
 
 - ✅ Tests driven by requirements (not implementation)
+
 - ✅ Code naturally testable (designed for testing)
+
 - ✅ Edge cases discovered early
+
 - ✅ Tests guide development
+
 - ✅ High test coverage (by design)
+
 - ✅ Bugs caught immediately
 ```
 
@@ -92,47 +122,69 @@ Result:
 
 ### Code Quality
 - **Better Design**: Forces you to think about interfaces before implementation
+
 - **Simpler Code**: Writing tests first encourages simple, focused solutions
+
 - **Fewer Bugs**: Catch issues immediately, not in production
+
 - **Refactoring Safety**: Comprehensive tests allow confident refactoring
 
 ### Development Speed
 - **Faster Debugging**: Test failures pinpoint exact problems
+
 - **Less Rework**: Get it right the first time
+
 - **Faster Integration**: Confidence in changes prevents integration issues
+
 - **Reduced Technical Debt**: Clean code from the start
 
 ### Documentation
 - **Living Documentation**: Tests document how code should behave
+
 - **Usage Examples**: Tests show how to use the code
+
 - **Requirements Traceability**: Each test maps to a requirement
 
 ### Team Benefits
 - **Onboarding**: New developers understand code through tests
+
 - **Collaboration**: Tests clarify expectations
+
 - **Code Reviews**: Tests validate correctness
+
 - **Regression Prevention**: Tests catch future breaking changes
 
 ## Prerequisites
 
 ### Required
 - Testing framework installed for your language:
+
   - **Python**: pytest, unittest
+
   - **JavaScript**: Jest, Mocha, Vitest
+
   - **Java**: JUnit, TestNG
+
   - **C#**: xUnit, NUnit, MSTest
+
   - **Go**: testing package, testify
+
   - **C**: Unity, Check, CUnit
+
   - **C++**: Google Test, Catch2, Boost.Test
 
 ### Recommended
 - Code coverage tool (pytest-cov, Istanbul, JaCoCo, etc.)
+
 - Test watcher for continuous testing
+
 - CI/CD pipeline for automated testing
 
 ### Knowledge
 - Understanding of unit testing concepts
+
 - Basic testing framework syntax
+
 - Willingness to write tests first (mindset shift!)
 
 ## Instructions
@@ -140,17 +192,25 @@ Result:
 ### Step 1: Understand the Requirement
 
 **Before writing any code or tests**, ensure you understand:
+
 - What functionality needs to be implemented?
+
 - What are the inputs and expected outputs?
+
 - What edge cases exist?
+
 - What should happen when things go wrong?
 
 **Example Requirement**: "Implement a function that validates email addresses"
 
 **Clarifications needed**:
+
 - What makes an email valid? (RFC 5322 compliant?)
+
 - How should invalid emails be handled? (return false, raise exception?)
+
 - What about internationalized email addresses?
+
 - What about edge cases (empty string, null, whitespace)?
 
 ### Step 2: Write Your First Failing Test (🔴 Red)
@@ -448,9 +508,13 @@ git commit -m "feat: add email validation with comprehensive tests"
 ### Pattern 1: Test-First for Bug Fixes
 
 **Process**:
+
 1. **Reproduce the bug** with a failing test
+
 2. **Fix the bug** to make the test pass
+
 3. **Verify** the fix with the test
+
 4. **Prevent regression** (test stays forever)
 
 **Example** (Bug: Division by zero not handled):
@@ -834,42 +898,64 @@ def test_user_service_returns_user_by_id():
 ## Success Criteria
 
 - [ ] All tests are written **before** implementation code
+
 - [ ] Each test tests **one specific behavior**
+
 - [ ] Tests have **descriptive names** explaining what they test
+
 - [ ] All tests follow **Arrange-Act-Assert** pattern
+
 - [ ] Tests are **independent** (no shared state)
+
 - [ ] Code coverage is **80%+** (90%+ for critical code)
+
 - [ ] Tests run **quickly** (< 1 second for unit tests)
+
 - [ ] All tests **pass** before committing
+
 - [ ] Tests are committed **with** the implementation
+
 - [ ] Refactoring was done while keeping tests green
 
 ## Related Skills
 
 - [`plan-before-code`](../plan-before-code/SKILL.md) - Plan your TDD approach before starting
+
 - [`setup-test-infrastructure`](../setup-test-infrastructure/SKILL.md) - Set up testing frameworks
+
 - [`generate-test-cases`](../generate-test-cases/SKILL.md) - Generate comprehensive test cases
+
 - [`create-mocks-fixtures`](../create-mocks-fixtures/SKILL.md) - Create test data and mocks
+
 - [`analyze-code-coverage`](../analyze-code-coverage/SKILL.md) - Analyze test coverage gaps
+
 - [`code-review-testing`](../code-review-testing/SKILL.md) - Review test quality
 
 ## Additional Resources
 
 ### TDD Fundamentals
 - [Test-Driven Development by Kent Beck](https://www.amazon.com/Test-Driven-Development-Kent-Beck/dp/0321146530) - The definitive TDD book
+
 - [Growing Object-Oriented Software, Guided by Tests](https://www.amazon.com/Growing-Object-Oriented-Software-Guided-Tests/dp/0321503627)
+
 - [Martin Fowler on TDD](https://martinfowler.com/bliki/TestDrivenDevelopment.html)
 
 ### Testing Frameworks
 - **Python**: [pytest documentation](https://docs.pytest.org/)
+
 - **JavaScript**: [Jest documentation](https://jestjs.io/), [Vitest](https://vitest.dev/)
+
 - **Java**: [JUnit 5 User Guide](https://junit.org/junit5/docs/current/user-guide/)
+
 - **C#**: [xUnit documentation](https://xunit.net/), [NUnit](https://nunit.org/)
+
 - **Go**: [testing package](https://pkg.go.dev/testing), [testify](https://github.com/stretchr/testify)
+
 - **C++**: [Google Test](https://google.github.io/googletest/), [Catch2](https://github.com/catchorg/Catch2)
 
 ### Anthropic Claude Code
 - [Claude Code Best Practices](https://docs.anthropic.com/claude/docs/claude-code-best-practices) - Official best practices
+
 - [Test-Driven Development with Claude](https://docs.anthropic.com/claude/docs/tdd-workflow) - TDD workflow guide
 
 ---
@@ -880,5 +966,7 @@ def test_user_service_returns_user_by_id():
 **Template Sources**:
 
 - `test_development/test_structure/*.md`
+
 - `test_development/test_cases/*.md`
+
 - `test_development/code_coverage/*.md`

@@ -16,12 +16,16 @@ related_templates:
 tools:
 
   - junit (5.11.3)
+
   - maven
+
   - gradle
 tags:
 
   - test-development
+
   - testing
+
   - java
 ---
 # Java Test Structure & Infrastructure
@@ -162,8 +166,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 Please design and implement a comprehensive test infrastructure for this Java project following this protocol:
@@ -182,9 +189,13 @@ Use `<REPO_URL>` as placeholder where repository URLs are needed in this templat
 ## Phase 1: Framework Selection & Configuration
 
 1. **Test Framework**: JUnit 5 (Jupiter)
+
    - Modern, extensible architecture
+
    - Rich assertion library
+
    - Excellent IDE integration
+
    - Parallel test execution
 
 2. **Install Dependencies**
@@ -366,6 +377,7 @@ project/
    import org.mockito.junit.jupiter.MockitoExtension;
 
    /**
+
     * Base class for unit tests with Mockito support.
     */
    @ExtendWith(MockitoExtension.class)
@@ -387,6 +399,7 @@ project/
    import org.springframework.test.context.ActiveProfiles;
 
    /**
+
     * Base class for integration tests with Spring context.
     */
    @SpringBootTest
@@ -409,6 +422,7 @@ project/
    import java.util.concurrent.atomic.AtomicLong;
 
    /**
+
     * Provides test fixtures for User domain.
     */
    public class UserFixtures {
@@ -451,6 +465,7 @@ project/
    import java.time.LocalDateTime;
 
    /**
+
     * Test data builder for User objects.
     */
    public class UserBuilder {
@@ -514,6 +529,7 @@ project/
    import org.assertj.core.api.AbstractAssert;
 
    /**
+
     * Custom AssertJ assertions for domain objects.
     */
    public class UserAssert extends AbstractAssert<UserAssert, User> {
@@ -567,6 +583,7 @@ project/
    import java.util.logging.Logger;
 
    /**
+
     * JUnit extension to measure test execution time.
     */
    public class TimingExtension implements

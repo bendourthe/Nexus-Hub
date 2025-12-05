@@ -18,11 +18,14 @@ related_templates:
 tools:
 
   - jest (29.7.0)
+
   - eslint (9.15.0)
+
   - prettier
 tags:
 
   - test-development
+
   - javascript
 ---
 # JavaScript Test Maintenance & CI/CD Integration
@@ -163,8 +166,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 Please implement comprehensive test automation and maintenance infrastructure for this JavaScript/TypeScript project following this protocol:
@@ -231,6 +237,7 @@ jobs:
         node-version: ['16', '18', '20']
 
     steps:
+
       - uses: actions/checkout@v3
 
       - name: Set up Node.js ${{ matrix.node-version }}
@@ -293,6 +300,7 @@ jobs:
           - 6379:6379
 
     steps:
+
       - uses: actions/checkout@v3
 
       - name: Set up Node.js
@@ -322,6 +330,7 @@ jobs:
     needs: integration-tests
 
     steps:
+
       - uses: actions/checkout@v3
 
       - name: Set up Node.js
@@ -397,8 +406,11 @@ jobs:
 stages:
 
   - lint
+
   - test
+
   - quality
+
   - deploy
 
 variables:
@@ -409,9 +421,11 @@ cache:
   paths:
 
     - .npm
+
     - node_modules
 
 before_script:
+
   - npm ci
 
 lint:
@@ -420,7 +434,9 @@ lint:
   script:
 
     - npm run format:check
+
     - npm run lint
+
     - npm run type-check
 
 unit-tests:
@@ -446,6 +462,7 @@ integration-tests:
   services:
 
     - postgres:14
+
     - redis:7
   variables:
     POSTGRES_DB: testdb
@@ -466,6 +483,7 @@ e2e-tests:
   script:
 
     - npm ci
+
     - npm run test:e2e
   artifacts:
     when: always
@@ -482,6 +500,7 @@ quality-gate:
   needs:
 
     - unit-tests
+
     - integration-tests
 ```
 
@@ -1123,31 +1142,45 @@ findObsoleteTests();
  *
 
  * Purpose:
+
  *   Validate user login, logout, and session management functionality.
  *
 
  * Coverage:
+
  *   - Valid credential login
+
  *   - Invalid credential handling
+
  *   - Session token generation and validation
+
  *   - Multi-factor authentication flow
+
  *   - Password reset process
  *
 
  * Maintenance Notes:
+
  *   - Update testValidLogin() if authentication logic changes
+
  *   - mockEmailService fixture required for password reset tests
+
  *   - Tests use in-memory database for speed
+
  *   - External API calls are mocked
  *
 
  * Dependencies:
+
  *   - @/services/auth
+
  *   - @/models/User
+
  *   - @/utils/jwt
  *
 
  * Last Review: 2024-01-15
+
  * Reviewed By: alice@example.com
  */
 
@@ -1389,12 +1422,19 @@ Replace `{phase_name}` with the specific phase (test_cases, mocks_fixtures, perf
 The AI assistant should deliver:
 
 1. **Complete CI/CD pipeline configuration** (GitHub Actions or GitLab CI)
+
 2. **Quality gate implementation** with thresholds
+
 3. **Pre-commit hook configuration** with all checks
+
 4. **Test parallelization setup** for faster execution
+
 5. **Flaky test detection and tracking** system
+
 6. **Test maintenance procedures** and documentation
+
 7. **Test reporting infrastructure** with dashboards
+
 8. **Execution metrics and monitoring** setup
 ---
 

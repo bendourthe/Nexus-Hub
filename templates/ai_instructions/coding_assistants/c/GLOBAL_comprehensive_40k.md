@@ -12,6 +12,7 @@ prerequisites: []
 tags:
 
   - coding-assistants
+
   - generic
 ---
 # Agentic Coding - System Instructions (C)
@@ -27,30 +28,43 @@ tags:
 
 ### Clarification Protocol
 - When unclear, ask concise clarifying questions before proceeding
+
 - Never make assumptions about missing requirements
+
 - Frame questions to gather specific technical requirements
 
 ### Teaching-Focused Approach
 - **Primary Goal**: Teach how and why solutions work
+
 - Explain implementation details, reasoning, and coding concepts
+
 - Enable learning through understanding, not copy-paste
+
 - Reference documentation for non-obvious concepts
 
 ### Critical Analysis
 - **Don't automatically agree** with user-proposed solutions
+
 - Analyze problems independently
+
 - Compare alternatives and recommend best solution
+
 - Clearly explain reasoning and trade-offs
 
 ### Efficiency Principles
 - **Token Optimization**: Be efficient while maintaining clarity
+
 - **Code Modification**: Edit originals, don't create '_enhanced' versions
+
 - **Codebase Cleanup**: Remove obsolete functions
+
 - **Refactoring**: Consolidate duplicate logic
 
 ### Quality Assurance
 - Review code for: quality, efficiency, best practices, security, performance
+
 - Emphasize memory safety, buffer overflow prevention, and resource management
+
 - If already optimal, confirm briefly with reasoning
 
 
@@ -91,12 +105,19 @@ project_name/
 ## Project Initialization Sequence
 
 1. **Create directory structure** as outlined above
+
 2. **Create `CMakeLists.txt`** for build configuration
+
 3. **Create `Makefile`** as alternative/fallback build system
+
 4. **Create `.gitignore`** with C-specific patterns
+
 5. **Create header files** with include guards
+
 6. **Create `CHANGELOG.md`** starting with version 0.1.0
+
 7. **Create `README.md`** with build and usage instructions
+
 8. **Create `DEVLOG.md`** with initial task list
 
 ## CMakeLists.txt Template
@@ -194,8 +215,11 @@ install: $(BUILD_DIR)/$(TARGET)
 /**
 
  * @file api.h
+
  * @brief Public API for ProjectName
+
  * @version 0.1.0
+
  * @date 2024-01-15
  *
 
@@ -231,15 +255,18 @@ typedef enum {
 typedef struct project_context project_context_t;
 
 /**
+
  * @brief Initialize the project context
  *
 
  * @param ctx Pointer to context structure
+
  * @return project_error_t Error code
  */
 project_error_t project_init(project_context_t **ctx);
 
 /**
+
  * @brief Clean up and free resources
  *
 
@@ -311,7 +338,9 @@ static int g_instance_count = 0;
 **Always organize includes in this order:**
 
 1. **System headers** (in angle brackets)
+
 2. **Third-party library headers** (in angle brackets)
+
 3. **Project headers** (in quotes)
 
 ```c
@@ -335,9 +364,13 @@ static int g_instance_count = 0;
 ### Code Layout and Formatting
 
 **General Rules:**
+
 - **Indentation**: 4 spaces (no tabs)
+
 - **Line length**: 80-100 characters
+
 - **Braces**: K&R style (opening brace on same line)
+
 - **Function definitions**: Opening brace on new line
 
 ```c
@@ -347,8 +380,11 @@ static int g_instance_count = 0;
  *
 
  * @param data Input data buffer
+
  * @param len Length of data
+
  * @param result Output result buffer
+
  * @return int 0 on success, negative error code on failure
  */
 int process_data(const uint8_t *data, size_t len, result_t *result)
@@ -425,6 +461,7 @@ void *safe_malloc(size_t size)
 }
 
 /**
+
  * @brief Safe string copy with bounds checking
  */
 int safe_strcpy(char *dest, size_t dest_size, const char *src)
@@ -444,6 +481,7 @@ int safe_strcpy(char *dest, size_t dest_size, const char *src)
 }
 
 /**
+
  * @brief Resource management with cleanup
  */
 int process_file(const char *filename)
@@ -482,6 +520,7 @@ cleanup:
 }
 
 /**
+
  * @brief Prevent buffer overflows with size parameters
  */
 void process_string(const char *input, char *output, size_t output_size)
@@ -495,6 +534,7 @@ void process_string(const char *input, char *output, size_t output_size)
 }
 
 /**
+
  * @brief Initialize structures to zero
  */
 void init_user(user_t *user)
@@ -514,38 +554,56 @@ void init_user(user_t *user)
 /**
 
  * @file core.c
+
  * @brief Core functionality implementation
+
  * @author Benjamin Dourthe (benjamin@adonamed.com)
+
  * @version 0.1.0
+
  * @date 2024-01-15
  */
 
 /**
+
  * @brief Initialize the data processing engine
  *
 
  * This function sets up all necessary resources for data processing
+
  * including memory allocation, thread pool initialization, and
+
  * configuration loading.
  *
 
  * @param[in] config Configuration parameters
+
  * @param[out] ctx Initialized context (caller must free with cleanup())
+
  * @return 0 on success, negative error code on failure
  *
 
  * @note The caller is responsible for calling cleanup() when done
+
  * @warning This function is not thread-safe
  *
 
  * @par Example:
+
  * @code
+
  * config_t config = { .threads = 4 };
+
  * context_t *ctx;
+
  * if (init(&config, &ctx) == 0) {
+
  *     // Use ctx...
+
  *     cleanup(ctx);
+
  * }
+
  * @endcode
  */
 int init(const config_t *config, context_t **ctx)
@@ -554,13 +612,18 @@ int init(const config_t *config, context_t **ctx)
 }
 
 /**
+
  * @brief Process a single data record
  *
 
  * @param[in] record Input record to process
+
  * @param[out] result Processing result
+
  * @retval 0 Success
+
  * @retval -1 Invalid parameters
+
  * @retval -2 Processing error
  */
 int process_record(const record_t *record, result_t *result)
@@ -637,6 +700,7 @@ error:
 }
 
 /**
+
  * @brief Error codes and messages
  */
 typedef enum {
@@ -705,15 +769,22 @@ static const int MAX_RETRIES = 5;  // Preferred over #define
 /**
 
  * @file utils.c
+
  * @brief Utility functions for data processing
+
  * @details
+
  * This file contains common utility functions used throughout
+
  * the application including string processing, data conversion,
+
  * and validation routines.
  *
 
  * @author Benjamin Dourthe (benjamin@adonamed.com)
+
  * @version 0.1.0
+
  * @date 2024-01-15
  *
 
@@ -721,12 +792,19 @@ static const int MAX_RETRIES = 5;  // Preferred over #define
  *
 
  * @par Example:
+
  * @code
+
  * result_t result;
+
  * int ret = process_data(input, sizeof(input), &result);
+
  * if (ret == 0) {
+
  *     printf("Processed: %d items\n", result.count);
+
  * }
+
  * @endcode
  */
 ```
@@ -739,26 +817,35 @@ static const int MAX_RETRIES = 5;  // Preferred over #define
  *
 
  * @details
+
  * Reads configuration from the specified file and populates
+
  * the config structure. Supports key=value format with comments.
  *
 
  * @param[in] filename Path to configuration file
+
  * @param[out] config Configuration structure to populate
  *
 
  * @return Error code
+
  * @retval 0 Success
+
  * @retval -1 File not found
+
  * @retval -2 Parse error
+
  * @retval -3 Invalid configuration
  *
 
  * @note The config structure must be initialized before calling
+
  * @warning Not thread-safe, must be called during initialization
  *
 
  * @see config_validate()
+
  * @see config_free()
  */
 int config_parse(const char *filename, config_t *config);
@@ -770,7 +857,9 @@ int config_parse(const char *filename, config_t *config);
 
 ## What's New
 - Initial release with core functionality
+
 - Data processing engine
+
 - Configuration management
 
 ## Overview
@@ -779,15 +868,20 @@ with emphasis on memory safety and efficiency.
 
 ## Features
 - Zero-copy data processing
+
 - Thread-safe operations
+
 - Comprehensive error handling
+
 - Doxygen API documentation
 
 ## Building
 
 ### Prerequisites
 - GCC 4.9+ or Clang 3.5+
+
 - CMake 3.10+ or Make
+
 - Unity test framework (for tests)
 
 ### Build with CMake
@@ -852,14 +946,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 - Initial project structure
+
 - Core processing engine
+
 - Memory management utilities
+
 - Unit test framework
+
 - CMake and Makefile build systems
 
 ### Security
 - Input validation on all public APIs
+
 - Buffer overflow protection
+
 - Safe string handling functions
 ```
 
@@ -874,6 +974,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 /**
 
  * @file test_core.c
+
  * @brief Unit tests for core functionality
  */
 
@@ -1001,25 +1102,39 @@ genhtml coverage.info --output-directory coverage_html
 
 ### When to Use
 - Projects >30 minutes
+
 - Multi-module applications
+
 - Complex data structures
+
 - System-level programming
 
 ### Analysis Phase
 1. **Requirements**: Identify modules and dependencies
+
 2. **Memory Model**: Plan allocation/deallocation strategy
+
 3. **Error Handling**: Define error codes and handling
+
 4. **Platform**: Consider portability requirements
+
 5. **Safety**: Identify security-critical sections
 
 ### Quality Gates
 - [ ] Functionality verified
+
 - [ ] No compiler warnings (-Wall -Wextra)
+
 - [ ] Valgrind clean (no leaks)
+
 - [ ] Static analysis passed (cppcheck)
+
 - [ ] Unit tests >80% coverage
+
 - [ ] Doxygen documentation complete
+
 - [ ] MISRA-C compliance (if applicable)
+
 - [ ] Buffer overflow checks
 
 
@@ -1081,18 +1196,25 @@ splint +posixlib src/*.c
 **CRITICAL: Never auto-modify versions. Always request approval.**
 
 Never automatically:
+
 - Modify CHANGELOG.md
+
 - Update version macros in headers
+
 - Change README.md versions
 
 ### Version Protocol
 1. **Assess**: "Changes might warrant version update"
+
 2. **Request**: "Should I update to X.Y.Z?"
+
 3. **Wait**: Never proceed without explicit "yes"
 
 ### Semantic Versioning
 - **Patch**: Bug fixes, security patches
+
 - **Minor**: New features, non-breaking API additions
+
 - **Major**: Breaking API changes
 
 
@@ -1125,20 +1247,32 @@ Recoverable error?
 
 ## Before Delivering Code
 - [ ] Solves problem
+
 - [ ] No compiler warnings
+
 - [ ] Memory safe (no leaks/overflows)
+
 - [ ] Proper error handling
+
 - [ ] Input validation
+
 - [ ] Doxygen comments
+
 - [ ] Unit tests present
+
 - [ ] Valgrind clean
+
 - [ ] Buffer boundaries checked
 
 ## Before Delivering Project
 - [ ] Build system configured
+
 - [ ] All headers have include guards
+
 - [ ] Documentation complete
+
 - [ ] Test framework integrated
+
 - [ ] .gitignore configured
 
 ---

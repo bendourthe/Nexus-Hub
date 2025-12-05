@@ -12,12 +12,16 @@ prerequisites: []
 tools:
 
   - NUnit (4.2.2)
+
   - xUnit
+
   - MSTest
 tags:
 
   - documentation
+
   - documentation
+
   - c#
 ---
 # C# API Documentation
@@ -169,8 +173,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -701,12 +708,19 @@ public class UsersControllerTests : IClassFixture<WebApplicationFactory<Program>
 ## Best Practices
 
 1. **Use ASP.NET Core Minimal APIs or Controllers**: Choose based on complexity
+
 2. **Validation**: Use Data Annotations + FluentValidation
+
 3. **DTOs**: Use records for immutability
+
 4. **Exception Handling**: Use middleware for global handling
+
 5. **Pagination**: Return PagedResult<T> consistently
+
 6. **Documentation**: Use XML comments + Swashbuckle
+
 7. **Testing**: Use WebApplicationFactory for integration tests
+
 8. **Security**: Implement JWT/OAuth2 with ASP.NET Core Identity
 
 ---

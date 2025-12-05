@@ -12,12 +12,16 @@ prerequisites: []
 tools:
 
   - junit (5.11.3)
+
   - maven
+
   - gradle
 tags:
 
   - documentation
+
   - documentation
+
   - java
 ---
 # Java User Documentation
@@ -151,8 +155,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -171,26 +178,40 @@ Please create comprehensive user documentation for this Java project following t
 ## Phase 1: Audience Analysis & Documentation Planning
 
 1. **Identify Target Audience**
+
    - Primary users: [backend developers/enterprise developers/Android developers/etc.]
+
    - Technical skill level: [beginner/intermediate/advanced]
+
    - Use cases: [what problems they're solving]
+
    - Context: [how they'll use the software]
 
 2. **Document Existing Features**
+
    - List all major features and capabilities
+
    - Identify most common use cases
+
    - Note any complex or non-obvious functionality
+
    - Document prerequisites and dependencies
 
 3. **Outline Documentation Structure**
    Plan what documentation is needed:
 
    - [ ] README.md (essential)
+
    - [ ] INSTALL.md or installation section
+
    - [ ] QUICKSTART.md or quick start guide
+
    - [ ] USER_GUIDE.md for detailed usage
+
    - [ ] EXAMPLES.md with common patterns
+
    - [ ] FAQ.md for common questions
+
    - [ ] TROUBLESHOOTING.md for common issues
 
 ## Phase 2: README.md - Professional Project Overview
@@ -690,12 +711,19 @@ mvn test -Dtest=ClassName#methodName
 Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 Quick start for contributors:
+
 1. Fork the repository
+
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+
 3. Make your changes
+
 4. Run tests (`mvn test` or `./gradlew test`)
+
 5. Commit your changes (`git commit -m 'Add amazing feature'`)
+
 6. Push to the branch (`git push origin feature/amazing-feature`)
+
 7. Open a Pull Request
 
 ---
@@ -865,6 +893,7 @@ mvn install -DskipTests
 For projects without build tool integration:
 
 1. Download JAR from [Maven Central](https://search.maven.org/artifact/com.example/package-name)
+
 2. Add to your project's classpath:
 ```bash
 java -cp "lib/*:package-name-X.Y.Z.jar" com.example.Main
@@ -877,7 +906,9 @@ java -cp "lib/*:package-name-X.Y.Z.jar" com.example.Main
 ### Windows
 
 **Prerequisites**:
+
 1. Install JDK from [AdoptOpenJDK](https://adoptopenjdk.net/) or [Oracle](https://oracle.com/java)
+
 2. Set JAVA_HOME environment variable:
    ```cmd
    setx JAVA_HOME "C:\Program Files\Java\jdk-17"
@@ -901,16 +932,21 @@ mvn clean install
 **Common Issues**:
 
 - **Error**: "JAVA_HOME is not set"
+
   - **Fix**: Set JAVA_HOME as shown above
 
 - **Error**: "mvn: command not found"
+
   - **Fix**: Add Maven bin directory to PATH
 
 ### macOS
 
 **Prerequisites**:
+
 1. Install JDK via Homebrew: `brew install openjdk@17`
+
 2. Link JDK: `sudo ln -sfn $(brew --prefix openjdk@17)/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-17.jdk`
+
 3. Install Maven: `brew install maven` or Gradle: `brew install gradle`
 
 **Installation**:
@@ -929,9 +965,11 @@ mvn clean install
 **Common Issues**:
 
 - **Error**: "Unable to locate Java"
+
   - **Fix**: Set JAVA_HOME: `export JAVA_HOME=$(/usr/libexec/java_home -v 17)`
 
 - **Error**: "Permission denied"
+
   - **Fix**: Use `sudo` or adjust permissions
 
 ### Linux
@@ -1034,7 +1072,9 @@ dependencies {
 ### IntelliJ IDEA
 
 1. Open project
+
 2. Wait for Maven/Gradle sync
+
 3. Dependencies automatically downloaded
 
 **Manual sync**:
@@ -1046,14 +1086,19 @@ dependencies {
 ### Eclipse
 
 1. Import as Maven/Gradle project
+
 2. Right-click project → Maven → Update Project
+
 3. Or use Buildship Gradle plugin
 
 ### VS Code
 
 1. Install Java Extension Pack
+
 2. Install Maven/Gradle extensions
+
 3. Open project folder
+
 4. Dependencies sync automatically
 
 ---
@@ -1195,13 +1240,21 @@ mvn clean
 ### Getting Help
 
 If installation fails:
+
 1. Check [GitHub Issues](https://github.com/username/project/issues)
+
 2. Review [Troubleshooting Guide](TROUBLESHOOTING.md)
+
 3. Open a new issue with:
+
    - Your OS and version
+
    - Java version (`java -version`)
+
    - Maven/Gradle version
+
    - Full error message
+
    - Build file (pom.xml or build.gradle)
 
 ---
@@ -1209,9 +1262,13 @@ If installation fails:
 ## Next Steps
 
 After successful installation:
+
 1. Review the [Quick Start Guide](README.md#quick-start)
+
 2. Try the [examples/](examples/) directory
+
 3. Read the [User Guide](USER_GUIDE.md)
+
 4. Check the [Javadoc](https://javadoc.io/doc/com.example/package-name)
 ```
 
@@ -1340,8 +1397,11 @@ Result: Processed: Hello, World!
 Let's break down what happened:
 
 1. **Import**: We imported the main class
+
 2. **Instantiate**: We created an instance
+
 3. **Process**: We processed data
+
 4. **Result**: We got a result back
 
 Now try modifying the example:
@@ -1655,34 +1715,53 @@ Please provide user documentation in this format:
 ## Best Practices
 
 1. **Write for Your Audience**
+
    - Match technical level to Java developers
+
    - Explain Maven/Gradle ecosystem concepts
+
    - Provide context for build tool decisions
 
 2. **Show, Don't Just Tell**
+
    - Include complete, runnable examples
+
    - Show both Maven and Gradle syntax
+
    - Demonstrate Java best practices
+
    - Include framework integrations
 
 3. **Make It Easy to Find Information**
+
    - Clear table of contents
+
    - Good headings and structure
+
    - Links to Javadoc
 
 4. **Test Your Documentation**
+
    - Follow your own instructions
+
    - Test on different JDK versions
+
    - Verify both Maven and Gradle work
 
 5. **Keep It Updated**
+
    - Update with code changes
+
    - Version documentation with releases
+
    - Address user questions in FAQ
 
 6. **Progressive Disclosure**
+
    - Start simple, add complexity gradually
+
    - Quick start for immediate success
+
    - Detailed docs for advanced users
 
 ---

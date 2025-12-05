@@ -99,18 +99,31 @@ Generate tests to improve code coverage for UserValidator.cpp. Focus on uncovere
 Generate comprehensive Google Test unit tests for <ClassName>.
 
 Requirements:
+
 - Use TEST() for stateless functions, TEST_F for stateful classes
+
 - Follow AAA pattern (Arrange-Act-Assert)
+
 - Include test cases for:
+
   * Happy path scenarios
+
   * Boundary values
+
   * Edge cases (empty, null, negative, overflow)
+
   * Error conditions
+
 - Use appropriate assertions:
+
   * EXPECT_EQ / ASSERT_EQ for equality
+
   * EXPECT_THROW / ASSERT_THROW for exceptions
+
   * EXPECT_TRUE / ASSERT_TRUE for boolean checks
+
   * EXPECT_NEAR for floating-point comparisons (tolerance 0.0001)
+
 - Follow FIRST principles (Fast, Independent, Repeatable, Self-validating, Timely)
 
 Generate at least 15 comprehensive tests covering all public methods.
@@ -129,17 +142,29 @@ File location: tests/unit/<ClassName>Test.cpp
 Create TEST_F fixture for <ClassName> with proper SetUp and TearDown.
 
 Requirements:
+
 - Define <ClassName>TestFixture class inheriting from ::testing::Test
+
 - In SetUp():
+
   * Initialize test objects
+
   * Set up mock dependencies
+
   * Prepare test data
+
 - In TearDown():
+
   * Clean up resources
+
   * Reset state
+
   * Release memory
+
 - Create tests for: <method1>, <method2>, <method3>
+
 - Each test should be independent and repeatable
+
 - Use fixture member variables to share common setup
 
 Generate fixture class and at least 10 tests.
@@ -156,12 +181,19 @@ Generate fixture class and at least 10 tests.
 Generate TEST_P parametrized tests for <FunctionName>.
 
 Requirements:
+
 - Create test fixture: <FunctionName>ParamTest inheriting from ::testing::TestWithParam<<InputType>>
+
 - Implement TEST_P with GetParam() to retrieve test values
+
 - Use INSTANTIATE_TEST_SUITE_P with ::testing::Values() or ::testing::ValuesIn()
+
 - Test these input values: [<val1>, <val2>, <val3>, ...]
+
 - Include boundary values: minimum, maximum, zero, negative
+
 - Test edge cases: empty, null, overflow, underflow
+
 - Verify output for each input case
 
 Generate parametrized fixture and test cases.
@@ -178,15 +210,25 @@ Generate parametrized fixture and test cases.
 Create Google Mock for <InterfaceName> interface and generate tests for <ConcreteClass>.
 
 Requirements:
+
 - Define Mock<InterfaceName> class with MOCK_METHOD macros
+
 - Mock all virtual methods from <InterfaceName>
+
 - Create tests verifying <ConcreteClass> interactions:
+
   * Use EXPECT_CALL to set expectations
+
   * Verify method calls with correct arguments
+
   * Use matchers: Eq(), NotNull(), _, Gt(), Lt(), etc.
+
   * Verify call counts: Times(1), AtLeast(1), AtMost(3)
+
   * Set return values: WillOnce(Return(...)), WillRepeatedly(Return(...))
+
 - Test both success and failure scenarios
+
 - Verify exception propagation
 
 Generate mock class and at least 8 tests.
@@ -203,15 +245,25 @@ Generate mock class and at least 8 tests.
 Add comprehensive exception handling tests for <ClassName>.
 
 Requirements:
+
 - Test each method that can throw exceptions
+
 - Use EXPECT_THROW(<expression>, <ExceptionType>)
+
 - Verify exception messages when applicable
+
 - Test error conditions:
+
   * Invalid input (null, empty, negative)
+
   * Out-of-range values
+
   * Resource unavailable (file, network, database)
+
   * State violations (calling methods in wrong order)
+
 - Use EXPECT_NO_THROW for methods that should never throw
+
 - Test exception safety (resources cleaned up after throw)
 
 Generate at least 10 exception tests.
@@ -228,13 +280,21 @@ Generate at least 10 exception tests.
 Update tests/CMakeLists.txt to integrate test_<module>.cpp with Google Test.
 
 Requirements:
+
 - Use add_gtest() helper function if available, or add_executable + target_link_libraries
+
 - Link against:
+
   * GTest::gtest_main (provides main function)
+
   * GTest::gmock (for mocking)
+
   * Project library being tested
+
 - Set include directories: ${CMAKE_SOURCE_DIR}/include
+
 - Use gtest_discover_tests() for automatic test discovery by CTest
+
 - Add to existing test suite structure
 
 Example:
@@ -453,9 +513,13 @@ Fix compilation errors in test_calculator.cpp. Show all required include stateme
 ```
 
 **Common Issues Copilot Will Fix**:
+
 - Missing `#include <gtest/gtest.h>` or `#include <gmock/gmock.h>`
+
 - Incorrect namespace (`testing::` vs `::testing::`)
+
 - Missing forward declarations
+
 - Type mismatches in EXPECT_EQ
 
 ---
@@ -492,9 +556,13 @@ Optimize test_calculator.cpp. Replace real file I/O with mocks. Aim for <1ms per
 ```
 
 **Copilot Will**:
+
 - Replace file operations with mocks
+
 - Remove unnecessary sleep/wait calls
+
 - Use in-memory data structures
+
 - Simplify complex setup
 
 ---
@@ -539,7 +607,9 @@ open build/coverage/index.html
 Generate tests for Calculator.cpp lines 45-52 (multiply method edge cases). Cover:
 
 - Multiplication by zero
+
 - Negative number multiplication
+
 - Overflow detection for INT_MAX * 2
 ```
 
@@ -554,7 +624,9 @@ Generate tests for Calculator.cpp lines 45-52 (multiply method edge cases). Cove
 Generate property-based tests for Calculator::add verifying:
 
 - Commutativity: a + b == b + a
+
 - Associativity: (a + b) + c == a + (b + c)
+
 - Identity: a + 0 == a
 Use parametrized tests with random values
 ```
@@ -604,20 +676,32 @@ Add Google Benchmark tests for Calculator::multiply. Measure throughput with 1M 
 
 ### ✅ DO:
 1. **Start specific**: Target one class/method at a time
+
 2. **Request patterns**: Ask for TEST_F, TEST_P, or MOCK_METHOD explicitly
+
 3. **Specify assertions**: Request EXPECT_EQ, EXPECT_THROW, EXPECT_NEAR by name
+
 4. **Iterate**: Build tests incrementally (basic → edge cases → mocks)
+
 5. **Ask for explanations**: "Explain the test logic for CalculatorTest::DivideByZero"
+
 6. **Request CMake updates**: Always ask Copilot to update CMakeLists.txt
+
 7. **Verify coverage**: Ask Copilot to identify uncovered code paths
 
 ### ❌ DON'T:
 1. **Don't go too broad**: "Generate tests for entire codebase" (too vague)
+
 2. **Don't skip fixtures**: For stateful classes, always use TEST_F
+
 3. **Don't trust blindly**: Review generated tests for correctness
+
 4. **Don't ignore warnings**: Fix compilation errors immediately
+
 5. **Don't over-mock**: Mock external dependencies, not internal logic
+
 6. **Don't forget edge cases**: Explicitly request boundary value testing
+
 7. **Don't neglect CMake**: Tests won't run without proper CMakeLists.txt
 
 ---
@@ -649,7 +733,9 @@ Ctrl+Shift+P → "Tasks: Run Test"    → Run all tests
 This quick reference is designed to work with:
 
 1. **VS Code Configuration**: Use `.vscode/` configs for one-click build/test
+
 2. **Full Workflow Guide**: See [GOOGLE_TEST_VSCODE_WORKFLOW.md](../GOOGLE_TEST_VSCODE_WORKFLOW.md)
+
 3. **Comprehensive Templates**: See [cpp_unit_tests.md](cpp_unit_tests.md) for detailed methodology
 
 ---
@@ -657,11 +743,17 @@ This quick reference is designed to work with:
 ## Summary
 
 **Fastest Path to Tests**:
+
 1. Open Copilot Chat (`Ctrl+Shift+I`)
+
 2. Paste: `Generate Google Test unit tests for <YourClass> with FIRST principles and AAA pattern`
+
 3. Review and accept generated code
+
 4. Build (`Ctrl+Shift+B`)
+
 5. Run tests (Command Palette → "Tasks: Run Test Task")
+
 6. Iterate with follow-up prompts for edge cases and mocks
 
 **Estimated Time**: 5-10 minutes from prompt to running tests.

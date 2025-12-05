@@ -3,7 +3,9 @@
 **This directory contains the GitHub Pages website for browsing Claude Code skills.**
 
 **⚠️ Not to be confused with:**
+
 - `/documentation/` - Templates for **generating** documentation (docstrings, API docs, etc.)
+
 - `/guides/` - User guides (QUICKSTART, TEMPLATE_FINDER, DECISION_TREES)
 
 ---
@@ -25,42 +27,62 @@ Once deployed to GitHub Pages, this will be available at:
    ```
 
 2. **Enable GitHub Pages:**
+
    - Go to repository Settings
+
    - Navigate to "Pages" section
+
    - Under "Source", select "Deploy from a branch"
+
    - Select branch: `main`
+
    - Select folder: `/docs`
+
    - Click "Save"
 
 3. **Wait for deployment:**
+
    - GitHub will build and deploy automatically
+
    - Takes 1-2 minutes
+
    - Check the Pages section for the live URL
 
 ## Features
 
 ### Search and Filter
 - **Search:** Type in skill name or description
+
 - **Category Filter:** Browse by category (Workflow, Documentation, etc.)
+
 - **Priority Filter:** Filter by CRITICAL, HIGH, MEDIUM, LOW
+
 - **Language Filter:** Find skills for specific programming languages
 
 ### Skill Cards
 Each skill displays:
 
 - Name and description
+
 - Category and priority badge
+
 - Language support
+
 - Size metrics (lines, tokens)
+
 - Required tools
+
 - Install button
 
 ### Installation Modal
 Click any skill card to see:
 
 - Detailed skill information
+
 - Installation command
+
 - Copy-to-clipboard functionality
+
 - Complete metadata
 
 ## Local Development
@@ -95,16 +117,23 @@ docs/
 ### Updating Styles
 
 Edit the `<style>` section in `index.html`:
+
 - Colors: Modify CSS variables at top
+
 - Layout: Adjust grid template in `.skills-grid`
+
 - Responsive: Modify media queries at bottom
 
 ### Adding Features
 
 The JavaScript code at bottom of `index.html` handles:
+
 - `loadSkills()` - Fetches and parses skills.json
+
 - `displaySkills()` - Renders skill cards
+
 - `filterSkills()` - Search and filter logic
+
 - `showInstallModal()` - Installation details
 
 ## Maintenance
@@ -128,7 +157,9 @@ The JavaScript code at bottom of `index.html` handles:
 ### Updating Browser
 
 1. **Edit `docs/index.html`**
+
 2. **Test locally** (see Local Development above)
+
 3. **Push changes:**
    ```bash
    git add docs/index.html
@@ -139,27 +170,41 @@ The JavaScript code at bottom of `index.html` handles:
 ## Browser Compatibility
 
 Tested and working on:
+
 - ✅ Chrome/Edge (latest)
+
 - ✅ Firefox (latest)
+
 - ✅ Safari (latest)
+
 - ✅ Mobile browsers (iOS Safari, Chrome Mobile)
 
 ## Performance
 
 - Loads all skills at once (48 skills = ~200KB JSON)
+
 - Client-side filtering (instant results)
+
 - No backend required
+
 - Works offline after initial load
 
 ## Future Enhancements
 
 Potential additions:
+
 - [ ] Skill comparison feature
+
 - [ ] Installation history tracking
+
 - [ ] Favorites/bookmarks
+
 - [ ] Dark mode toggle
+
 - [ ] Advanced search (tags, tools)
+
 - [ ] Related skills recommendations
+
 - [ ] Download statistics (if tracking added)
 
 ---

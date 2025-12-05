@@ -18,14 +18,20 @@ related_templates:
 tools:
 
   - pytest (8.3.4+)
+
   - black (24.12.0)
+
   - mypy (1.13.0)
+
   - ruff
 tags:
 
   - test-development
+
   - testing
+
   - performance
+
   - python
 ---
 # Python Performance Testing
@@ -154,8 +160,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 Please implement comprehensive performance testing for this Python project following this protocol:
@@ -767,6 +776,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
     - uses: actions/checkout@v3
 
     - name: Set up Python
@@ -841,13 +851,19 @@ Failures: 0.2%
 
 ### Bottlenecks Identified
 1. **Database Query in user_search()**
+
    - **Issue**: N+1 query problem
+
    - **Impact**: 200ms average response time
+
    - **Recommendation**: Implement query optimization
 
 2. **JSON Serialization**
+
    - **Issue**: Large response payload
+
    - **Impact**: 150ms serialization time
+
    - **Recommendation**: Use faster serializer or pagination
 
 ### Performance Improvement Recommendations
@@ -917,11 +933,17 @@ Replace `{phase_name}` with the specific phase (test_cases, mocks_fixtures, perf
 The AI assistant should deliver:
 
 1. **Performance test suite** with benchmarks and load tests
+
 2. **Performance baselines** documented
+
 3. **Load test scenarios** for critical endpoints
+
 4. **Profiling results** with bottleneck identification
+
 5. **Regression detection** configuration
+
 6. **CI/CD integration** for automated performance gates
+
 7. **Performance report** with metrics and recommendations
 ---
 

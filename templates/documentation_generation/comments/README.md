@@ -37,8 +37,11 @@ Add meaningful comments that explain business logic, design decisions, non-obvio
 ## 🚀 Quick Start
 
 1. Review the strategic commenting guidelines in `python_comments.md`
+
 2. Identify complex business logic, non-obvious implementations, and workarounds
+
 3. Request strategic comment additions using the comprehensive prompt
+
 4. Review comments to ensure they explain "why" not "what"
 
 ## 📊 Success Criteria

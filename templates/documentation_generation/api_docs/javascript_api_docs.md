@@ -12,12 +12,16 @@ prerequisites: []
 tools:
 
   - jest (29.7.0)
+
   - eslint (9.15.0)
+
   - prettier
 tags:
 
   - documentation
+
   - documentation
+
   - javascript
 ---
 # JavaScript API Documentation
@@ -183,8 +187,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -203,20 +210,31 @@ Please create comprehensive API documentation for this JavaScript project follow
 ## Phase 1: API Inventory & Analysis
 
 1. **Discover All Endpoints**
+
    - List all routes/endpoints in the Express/Fastify application
+
    - Identify HTTP methods for each endpoint
+
    - Group endpoints by resource/functionality
+
    - Note which endpoints require authentication
 
 2. **Analyze Request/Response Patterns**
+
    - Document request body schemas
+
    - Document response body schemas
+
    - Identify common patterns across endpoints
+
    - Note error response formats
 
 3. **Authentication & Authorization**
+
    - Document authentication methods used (JWT, OAuth2, API Key)
+
    - Identify authorization requirements per endpoint
+
    - Document token/session management
 
 ## Phase 2: OpenAPI/Swagger Specification
@@ -232,7 +250,9 @@ info:
 
     ## Base URLs
     - Production: https://api.example.com/v1
+
     - Staging: https://staging-api.example.com/v1
+
     - Development: http://localhost:3000/api/v1
 
     ## Authentication
@@ -244,12 +264,17 @@ info:
 
     ## Rate Limiting
     - Free tier: 1000 requests/hour
+
     - Pro tier: 10000 requests/hour
+
     - Enterprise: Custom limits
 
     Rate limit headers are included in all responses:
+
     - `X-RateLimit-Limit`: Request limit per window
+
     - `X-RateLimit-Remaining`: Remaining requests
+
     - `X-RateLimit-Reset`: Time when limit resets (Unix timestamp)
 
     ## Versioning
@@ -266,6 +291,7 @@ info:
     url: https://opensource.org/licenses/MIT
 
 servers:
+
   - url: https://api.example.com/v1
     description: Production server
 
@@ -276,6 +302,7 @@ servers:
     description: Development server
 
 tags:
+
   - name: Authentication
     description: User authentication and token management
 
@@ -286,6 +313,7 @@ tags:
     description: Product catalog management
 
 security:
+
   - BearerAuth: []
 
 paths:
@@ -311,7 +339,9 @@ paths:
               required:
 
                 - email
+
                 - password
+
                 - name
               properties:
                 email:
@@ -387,6 +417,7 @@ paths:
               required:
 
                 - email
+
                 - password
               properties:
                 email:
@@ -748,11 +779,17 @@ components:
       required:
 
         - id
+
         - email
+
         - name
+
         - role
+
         - isActive
+
         - createdAt
+
         - updatedAt
 
     UserCreate:
@@ -776,7 +813,9 @@ components:
       required:
 
         - email
+
         - name
+
         - password
 
     UserUpdate:
@@ -845,6 +884,7 @@ components:
           required:
 
             - code
+
             - message
 
   responses:

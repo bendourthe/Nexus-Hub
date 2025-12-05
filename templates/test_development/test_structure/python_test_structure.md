@@ -16,13 +16,18 @@ related_templates:
 tools:
 
   - pytest (8.3.4+)
+
   - black (24.12.0)
+
   - mypy (1.13.0)
+
   - ruff
 tags:
 
   - test-development
+
   - testing
+
   - python
 ---
 # Python Test Structure & Infrastructure
@@ -163,8 +168,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 Please design and implement a comprehensive test infrastructure for this Python project following this protocol:
@@ -183,11 +191,17 @@ Use `<REPO_URL>` as placeholder where repository URLs are needed in this templat
 ## Phase 1: Framework Selection & Configuration
 
 1. **Test Framework Analysis**
+
    - **Current State**: Document existing test setup if any
+
    - **Framework Recommendation**:
+
      - **pytest** (recommended): Modern, feature-rich, excellent plugin ecosystem
+
      - **unittest**: Standard library, verbose, class-based
+
      - **nose2**: Legacy, less maintained
+
    - **Rationale**: Justify framework choice based on project needs
 
 2. **Install Core Testing Dependencies**
@@ -338,8 +352,11 @@ Use `<REPO_URL>` as placeholder where repository URLs are needed in this templat
 2. **Naming Conventions**
 
    **File Naming**:
+
    - Test files: `test_<module_name>.py` or `<module_name>_test.py`
+
    - Test class: `Test<FeatureName>` or `<FeatureName>Tests`
+
    - Test function: `test_<what_is_tested>`
 
    **Examples**:
@@ -361,21 +378,33 @@ Use `<REPO_URL>` as placeholder where repository URLs are needed in this templat
 3. **Test Type Organization**
 
    **Unit Tests** (`tests/unit/`):
+
    - Test single functions/methods in isolation
+
    - Fast execution (<1s per test)
+
    - No external dependencies
+
    - Extensive mocking
 
    **Integration Tests** (`tests/integration/`):
+
    - Test multiple components together
+
    - Database, API, service interactions
+
    - Moderate execution time
+
    - Minimal mocking
 
    **E2E Tests** (`tests/e2e/`):
+
    - Test complete user workflows
+
    - Full system with real dependencies
+
    - Slowest execution
+
    - No mocking of core functionality
 
 ## Phase 3: Fixture Infrastructure
@@ -931,9 +960,13 @@ pytest -v -s
 
 ### Testing Conventions Established
 1. **File Naming**: [convention]
+
 2. **Test Naming**: [convention]
+
 3. **Fixture Naming**: [convention]
+
 4. **Marker Usage**: [how to use markers]
+
 5. **Test Data**: [where to store, how to organize]
 
 ### Next Steps
@@ -986,11 +1019,17 @@ pytest -v -s
 The AI assistant should deliver:
 
 1. **Test infrastructure design document** with complete directory structure
+
 2. **Configuration files** (pytest.ini or pyproject.toml configuration)
+
 3. **conftest.py files** at appropriate levels with documented fixtures
+
 4. **Test utility modules** in helpers/ directory
+
 5. **Test runner script** for easy execution
+
 6. **Documentation** of conventions and best practices
+
 7. **Execution commands** for common test scenarios
 ---
 

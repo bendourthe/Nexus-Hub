@@ -12,12 +12,16 @@ prerequisites: []
 tools:
 
   - unity
+
   - cmocka
+
   - check
 tags:
 
   - documentation
+
   - documentation
+
   - c
 ---
 # C SBOM Generation
@@ -169,8 +173,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -290,14 +297,23 @@ Please generate a comprehensive Software Bill of Materials (SBOM) for this C pro
 2. **Identify Dependency Metadata**
 
    For each dependency, collect:
+
    - Library name
+
    - Version
+
    - License
+
    - Source URL/repository
+
    - Download URL
+
    - Checksum (SHA-256)
+
    - Installation location
+
    - Linking type (static/dynamic)
+
    - Dependencies (for transitive mapping)
 
 ## Phase 2: SBOM Format Selection
@@ -996,9 +1012,13 @@ For each dependency, document:
 - Regular security audits
 
 **Verification Steps**:
+
 1. Download from official source
+
 2. Verify SHA-256 checksum
+
 3. Verify GPG signature
+
 4. Build from source with known-good compiler
 
 **Alternative Options**:
@@ -1106,18 +1126,27 @@ Please provide SBOM documentation in this format:
 ## SBOM Files Generated
 
 1. **sbom.json** (CycloneDX format)
+
    - Complete dependency list
+
    - Vulnerability information
+
    - License data
+
    - Component metadata
 
 2. **sbom.spdx.json** (SPDX format)
+
    - License-focused SBOM
+
    - Compliance documentation
+
    - Relationship mapping
 
 3. **sbom-lite.json** (Simplified)
+
    - Essential information only
+
    - For quick reference
 ```
 
@@ -1127,33 +1156,53 @@ Please provide SBOM documentation in this format:
 ## Supporting Files
 
 1. **VULNERABILITIES.md**
+
    - All known CVEs (from Grype/Trivy)
+
    - Severity ratings
+
    - Remediation status
+
    - Mitigation strategies
 
 2. **LICENSES.md**
+
    - All component licenses
+
    - License compatibility analysis
+
    - Attribution requirements
+
    - Compliance status
 
 3. **LICENSES/** (directory)
+
    - Full license texts for all dependencies
 
 4. **DEPENDENCIES.md**
+
    - Dependency tree visualization
+
    - Direct dependencies
+
    - Transitive dependencies
+
    - System libraries
+
    - Build dependencies
+
    - Update recommendations
 
 5. **SUPPLY_CHAIN.md**
+
    - Component provenance
+
    - Security assessment
+
    - Checksum verification
+
    - Risk analysis
+
    - Alternative options
 ```
 
@@ -1296,32 +1345,51 @@ jobs:
 ## Best Practices
 
 1. **Manual Tracking for C Projects**
+
    - Maintain comprehensive dependency inventory
+
    - Document all system libraries
+
    - Track both build-time and runtime dependencies
+
    - Use package managers when possible (Conan, vcpkg)
 
 2. **Keep SBOMs Current**
+
    - Regenerate on dependency updates
+
    - Track vulnerability fixes
+
    - Document changes between versions
+
    - Verify checksums regularly
 
 3. **Use Multiple Formats**
+
    - CycloneDX for security
+
    - SPDX for license compliance
+
    - Both for comprehensive coverage
 
 4. **Continuous Monitoring**
+
    - Monitor for new vulnerabilities (Grype, Trivy)
+
    - Track dependency updates manually
+
    - Assess supply chain risks (checksums, signatures)
+
    - Subscribe to security mailing lists
 
 5. **Publish Transparently**
+
    - Include SBOM in releases
+
    - Make publicly available
+
    - Provide easy access
+
    - Document update process
 
 ---

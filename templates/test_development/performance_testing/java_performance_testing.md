@@ -18,13 +18,18 @@ related_templates:
 tools:
 
   - junit (5.11.3)
+
   - maven
+
   - gradle
 tags:
 
   - test-development
+
   - testing
+
   - performance
+
   - java
 ---
 # Java Performance Testing
@@ -153,8 +158,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 Please implement comprehensive performance testing for this Java project following this protocol:
@@ -266,6 +274,7 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 import java.util.concurrent.TimeUnit;
 
 /**
+
  * Benchmark for data processing operations.
  *
 
@@ -339,6 +348,7 @@ import org.openjdk.jmh.infra.Blackhole;
 import java.util.concurrent.TimeUnit;
 
 /**
+
  * Advanced JMH benchmark patterns.
  */
 @BenchmarkMode({Mode.Throughput, Mode.AverageTime})
@@ -383,6 +393,7 @@ public class AdvancedBenchmarks {
     }
 
     /**
+
      * Benchmark method with state for each thread.
      */
     @Benchmark
@@ -403,6 +414,7 @@ public class AdvancedBenchmarks {
     }
 
     /**
+
      * Benchmark with custom measurement.
      */
     @Benchmark
@@ -412,6 +424,7 @@ public class AdvancedBenchmarks {
     }
 
     /**
+
      * Group multiple benchmarks together.
      */
     @Benchmark
@@ -490,6 +503,7 @@ import io.gatling.http.Predef._
 import scala.concurrent.duration._
 
 /**
+
  * Basic load test for REST API.
  *
 
@@ -684,6 +698,7 @@ import static io.gatling.javaapi.http.HttpDsl.*;
 import java.time.Duration;
 
 /**
+
  * Gatling load test using Java DSL.
  */
 public class JavaApiSimulation extends Simulation {
@@ -745,6 +760,7 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
+
  * Stress tests to find breaking points.
  */
 public class StressTests {
@@ -840,6 +856,7 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
+
  * Response time performance tests.
  */
 public class ResponseTimeTests {
@@ -928,6 +945,7 @@ package com.example.tests.profiling;
 import java.lang.management.*;
 
 /**
+
  * JVM performance monitoring utilities.
  */
 public class JvmProfiler {
@@ -1019,6 +1037,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+
  * Performance baseline management for regression detection.
  */
 public class PerformanceBaseline {
@@ -1180,6 +1199,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
     - uses: actions/checkout@v3
 
     - name: Set up JDK 17
@@ -1270,13 +1290,19 @@ Success Rate: 99.8%
 
 ### Bottlenecks Identified
 1. **Database Query in UserService.findAll()**
+
    - **Issue**: N+1 query problem
+
    - **Impact**: 200ms average response time
+
    - **Recommendation**: Use JOIN FETCH or batch loading
 
 2. **JSON Serialization**
+
    - **Issue**: Jackson serialization overhead
+
    - **Impact**: 150ms for large responses
+
    - **Recommendation**: Use @JsonView or DTOs to reduce payload
 
 ### Performance Improvement Recommendations
@@ -1347,11 +1373,17 @@ Replace `{phase_name}` with the specific phase (test_cases, mocks_fixtures, perf
 The AI assistant should deliver:
 
 1. **Performance test suite** with JMH benchmarks and Gatling load tests
+
 2. **Performance baselines** documented
+
 3. **Load test scenarios** for critical endpoints
+
 4. **Profiling results** with bottleneck identification
+
 5. **Regression detection** configuration
+
 6. **CI/CD integration** for automated performance gates
+
 7. **Performance report** with metrics and recommendations
 ---
 

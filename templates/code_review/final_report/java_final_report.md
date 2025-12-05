@@ -18,11 +18,14 @@ related_templates:
 tools:
 
   - junit (5.11.3)
+
   - maven
+
   - gradle
 tags:
 
   - code-review
+
   - java
 ---
 # Java Code Review Final Report
@@ -81,16 +84,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Issues that create immediate risks to system stability, data integrity, or compliance.
 
 **Examples:**
+
 - Security vulnerabilities (SQL injection, XSS, authentication bypass)
+
 - Resource leaks (unclosed connections, file handles, memory leaks)
+
 - Data loss risks (destructive operations without validation)
+
 - Thread safety violations (race conditions, deadlocks)
+
 - Compliance violations (GDPR, HIPAA, PCI-DSS)
 
 **Action Required:**
+
 - Block deployment until fixed
+
 - Require hotfix within 24 hours
+
 - Add tests to prevent regression
+
 - Document root cause and fix
 
 ---
@@ -100,16 +112,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Issues that significantly impact maintainability, performance, or correctness but don't cause immediate failures.
 
 **Examples:**
+
 - Incorrect business logic (wrong calculations, flawed algorithms)
+
 - Performance bottlenecks (O(n²) algorithms, missing indexes, inefficient queries)
+
 - Memory inefficiency (loading large datasets into memory unnecessarily)
+
 - Breaking API changes without deprecation
+
 - Missing critical error handling (network errors, API failures not caught)
 
 **Action Required:**
+
 - Schedule fix in current sprint
+
 - Cannot release without resolution
+
 - Update documentation
+
 - Performance test after fix
 
 ---
@@ -119,16 +140,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Code smells and technical debt that reduce maintainability but don't affect correctness.
 
 **Examples:**
+
 - High complexity (cyclomatic complexity >10, functions >100 lines)
+
 - Code duplication (>10 lines duplicated across modules)
+
 - Poor naming (unclear variable/function names, inconsistent conventions)
+
 - Missing tests (<80% coverage on critical paths)
+
 - Incomplete error messages (no context for debugging)
 
 **Action Required:**
+
 - Add to backlog
+
 - Prioritize in next sprint planning
+
 - Consider during refactoring opportunities
+
 - Track technical debt metrics
 
 ---
@@ -138,16 +168,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Style inconsistencies and minor optimizations that don't impact functionality.
 
 **Examples:**
+
 - Style violations (linting warnings, formatting issues)
+
 - Minor performance optimizations (in non-critical code paths)
+
 - Missing documentation on helper functions
+
 - Verbose code that could be more concise
+
 - Debug statements left in code
 
 **Action Required:**
+
 - Fix opportunistically during other work
+
 - Batch with other low-priority changes
+
 - Good for new contributors
+
 - Can be deferred indefinitely
 
 ---
@@ -155,20 +194,31 @@ Use this framework to classify and prioritize all findings from the code review.
 ## Severity Assignment Guidelines
 
 **When to Escalate Severity:**
+
 - Issue affects **production environment** → escalate one level
+
 - Issue affects **customer-facing features** → escalate one level
+
 - Issue has **no workaround** → escalate one level
+
 - Issue appears in **multiple locations** → escalate one level
 
 **When to De-escalate Severity:**
+
 - Issue only in **test/development code** → de-escalate one level
+
 - Issue has **easy workaround** → de-escalate one level
+
 - Issue is **isolated to single module** → de-escalate one level
+
 - Issue **rarely executed** (edge case) → de-escalate one level
 
 **Examples:**
+
 - Memory leak in production API: **HIGH → CRITICAL** (production + customer-facing)
+
 - Style violation in test file: **LOW → Ignore** (test code + style only)
+
 - Duplicated logic across 15 modules: **MEDIUM → HIGH** (multiple locations)
 
 ---
@@ -198,16 +248,22 @@ For each finding, include:
 **Issue:** The user search function loads all users into memory and performs linear search on every request.
 
 **Impact:**
+
 - Response time degrades with user count (currently 500ms for 10k users)
+
 - High memory usage (50MB+ per request)
+
 - Poor scalability (can't handle >100k users)
 
 **Recommendation:**
 Move filtering to database with indexed query:
 
 - Add database index on search fields
+
 - Use database LIKE/ILIKE queries
+
 - Implement pagination (limit results to 50)
+
 - Add caching for common searches
 
 **Effort:** 3 hours (2 hours implementation + 1 hour testing)
@@ -254,8 +310,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -278,40 +337,67 @@ Please consolidate all code review findings into a comprehensive final report fo
 Gather and organize findings from all review phases:
 
 1. **Context Analysis Summary**
+
    - Project architecture overview
+
    - Technology stack (Java version, Spring Boot, frameworks)
+
    - Build system (Maven/Gradle)
+
    - Dependency status and vulnerabilities
+
    - Development maturity assessment
 
 2. **Code Quality Findings**
+
    - Static analysis results (Checkstyle, PMD, SpotBugs)
+
    - Complexity hotspots
+
    - Maintainability issues
+
    - Design pattern usage
+
    - Technical debt summary
 
 3. **Security Assessment**
+
    - Critical vulnerabilities (CVSS 9.0+)
+
    - High-risk issues (CVSS 7.0-8.9)
+
    - Java-specific vulnerabilities (deserialization, XXE, injection)
+
    - Spring Security configuration issues
+
    - Dependency vulnerabilities
+
    - Compliance gaps
 
 4. **Performance Analysis**
+
    - JVM and GC performance
+
    - Critical bottlenecks
+
    - Memory leaks and heap issues
+
    - Database query performance
+
    - Concurrency and threading issues
+
    - Optimization opportunities
 
 5. **Testing Evaluation**
+
    - Coverage metrics (JaCoCo)
+
    - Test quality assessment (JUnit, Mockito)
+
    - Integration test coverage
+
    - Critical gaps
+
    - Flaky test issues
 
 ## Phase 2: Priority Matrix
@@ -354,10 +440,15 @@ Create a phased implementation plan:
 **Critical P0 Items** - Must be addressed immediately:
 
 1. **[Issue]**
+
    - **Risk**: [what happens if not fixed]
+
    - **Effort**: [hours/days]
+
    - **Owner**: [team/role]
+
    - **Dependencies**: [blockers]
+
    - **Success Criteria**: [measurable outcome]
 
 ### Short-term Goals (Weeks 2-4)
@@ -379,17 +470,27 @@ Define success metrics to track improvement:
 ### Code Quality Metrics
 
 - **Current State**:
+
   - Maintainability Index: [score]
+
   - Average Complexity: [score]
+
   - Code Coverage: [%]
+
   - Static Analysis Issues: [count by severity]
+
   - Technical Debt: [hours]
 
 - **Target State** (3 months):
+
   - Maintainability Index: [target score]
+
   - Average Complexity: [target score]
+
   - Code Coverage: [target %]
+
   - Static Analysis Issues: [target count]
+
   - Technical Debt: [target hours reduction]
 
 ### Security Metrics
@@ -537,8 +638,11 @@ Please provide a comprehensive final report with the following structure:
 | [15% code duplication] | [package] | [Med] | [1 day] | [P2] |
 
 **Recommendations**:
+
 1. **Refactor God Classes**: Break down UserService into smaller, focused services
+
 2. **Reduce Complexity**: Simplify methods with complexity >10 using strategy pattern
+
 3. **Eliminate Duplication**: Extract common validation logic into utility classes
 
 ---
@@ -603,9 +707,13 @@ Please provide a comprehensive final report with the following structure:
 - **Session Management**: Weak session timeout (24 hours)
 
 **Security Roadmap**:
+
 1. **Week 1**: Fix all critical vulnerabilities (SQL injection, deserialization, XXE)
+
 2. **Weeks 2-3**: Update vulnerable dependencies, fix high-risk issues
+
 3. **Month 2**: Implement comprehensive security testing, add OWASP checks to CI/CD
+
 4. **Ongoing**: Security training, code review process, automated scanning
 
 ---
@@ -667,13 +775,19 @@ Please provide a comprehensive final report with the following structure:
 - **Database Connections**: Pool exhaustion under load (max 10, need 30)
 
 **Quick Wins** (High Impact, Low Effort):
+
 1. Add database index on users.email (10 min, 80% search speedup)
+
 2. Enable Spring Boot caching for getUserById() (30 min, 90% hit rate)
+
 3. Fix N+1 query in OrderService.findAll() (1 hour, 95% faster)
 
 **Strategic Initiatives**:
+
 1. Implement async processing for reports (2 days)
+
 2. Migrate to reactive Spring WebFlux for I/O-bound operations (2 weeks)
+
 3. Optimize JVM and GC settings (1 day, ongoing tuning)
 
 ---
@@ -743,9 +857,13 @@ Please provide a comprehensive final report with the following structure:
 | OrderRepositoryTest.testFind() | 10% | Shared test data | Use @DirtiesContext |
 
 **Testing Roadmap**:
+
 1. **Week 1**: Add tests for critical uncovered methods (UserService, PaymentProcessor)
+
 2. **Weeks 2-3**: Fix all flaky tests, reach 70% coverage
+
 3. **Month 2**: Add integration tests with TestContainers, reach 80% coverage
+
 4. **Month 3**: Performance tests (JMH), security tests, mutation testing (PIT)
 
 ---
@@ -794,25 +912,41 @@ Please provide a comprehensive final report with the following structure:
 **Objective**: Address all P0 items blocking production or posing critical security risks
 
 **Action Items**:
+
 1. **Fix SQL Injection Vulnerabilities** (P0)
+
    - Owner: Backend Team
+
    - Effort: 4 hours
+
    - Files: UserController.java, ProductController.java, OrderController.java
+
    - Success: All queries use PreparedStatement or JPA
+
    - Verification: Security scan passes, pen test shows no injection
 
 2. **Update Vulnerable Dependencies** (P0)
+
    - Owner: DevOps
+
    - Effort: 2 hours
+
    - Dependencies: log4j (2.17.1), jackson-databind (2.15.2), spring-boot (2.7.14)
+
    - Success: OWASP Dependency-Check shows 0 critical, 0 high
+
    - Verification: mvn dependency-check:check passes
 
 3. **Fix Memory Leak in UserSessionCache** (P0)
+
    - Owner: Backend Team
+
    - Effort: 4 hours
+
    - Implementation: Add Caffeine cache with TTL and max size
+
    - Success: Heap usage stable over 24 hours
+
    - Verification: Production monitoring shows flat memory usage
 
 **Deliverables**:
@@ -833,25 +967,39 @@ Please provide a comprehensive final report with the following structure:
 **Focus Areas**:
 
 - **Security**:
+
   - Enable Spring Security @PreAuthorize on all admin endpoints
+
   - Fix weak password hashing (BCrypt with proper strength)
+
   - Enable CSRF protection for state-changing operations
 
 - **Performance**:
+
   - Fix all N+1 query problems
+
   - Add missing database indexes
+
   - Optimize thread pool and connection pool sizes
+
   - Implement caching for frequently accessed data
 
 - **Quality**:
+
   - Refactor methods with complexity >15
+
   - Extract duplicated code into utility classes
+
   - Add Checkstyle/PMD to CI/CD pipeline
 
 - **Testing**:
+
   - Add unit tests for critical business logic (UserService, PaymentProcessor)
+
   - Fix all 8 flaky tests
+
   - Implement TestContainers for integration tests
+
   - Reach 70% line coverage
 
 **Expected Outcomes**:
@@ -870,22 +1018,35 @@ Please provide a comprehensive final report with the following structure:
 **Objective**: Systematic improvements to code quality and testing
 
 **Initiatives**:
+
 1. **Code Quality Sprint**
+
    - Refactor God classes (UserService, OrderService)
+
    - Apply design patterns (Strategy for payment, Factory for notifications)
+
    - Reduce technical debt by 50%
+
    - Set up SonarQube for continuous monitoring
 
 2. **Testing Sprint**
+
    - Reach 80%+ test coverage
+
    - Add integration tests for all critical flows
+
    - Implement contract testing for microservice boundaries
+
    - Add performance benchmarks (JMH)
 
 3. **Performance Optimization**
+
    - JVM tuning (heap size, GC algorithm)
+
    - Database query optimization review
+
    - Implement async processing for long-running operations
+
    - Set up APM (Datadog, New Relic, or Prometheus)
 
 ---
@@ -965,63 +1126,99 @@ Please provide a comprehensive final report with the following structure:
 - **Investment Required**: 2-3 months of focused effort (1-2 engineers full-time)
 
 - **Risk if Not Addressed**:
+
   - **Critical**: Production data breach, legal liability, reputation damage
+
   - **High**: System outages, poor user experience, high support costs
+
   - **Medium**: Slowed development velocity, difficulty hiring/retaining engineers
 
 - **Recommended Approach**:
+
   1. **Week 1**: Emergency security fixes (halt feature development)
+
   2. **Weeks 2-4**: Performance and quality improvements
+
   3. **Months 2-3**: Systematic technical debt reduction
+
   4. **Ongoing**: Automated quality gates, continuous improvement
 
 - **Resource Needs**:
+
   - 1-2 senior engineers for refactoring and architecture
+
   - Security consultant for remediation guidance
+
   - QA engineer for test automation
+
   - Tools: SonarQube license, APM tool, load testing tools
 
 ### For Development Team
 
 - **Immediate Actions**:
+
   1. Fix all SQL injection vulnerabilities (this week)
+
   2. Update log4j and other critical dependencies (this week)
+
   3. Fix memory leak in UserSessionCache (this week)
 
 - **Skill Development Needs**:
+
   - Secure coding training (OWASP Top 10)
+
   - JVM performance tuning workshop
+
   - Spring Boot best practices session
+
   - Test-driven development (TDD) training
 
 - **Process Improvements**:
+
   - Mandatory security code review for all changes
+
   - Automated quality gates (Checkstyle, PMD, SpotBugs, OWASP checks)
+
   - Test coverage requirement (80% for new code)
+
   - Performance testing before production deployment
 
 - **Tool Recommendations**:
+
   - IntelliJ IDEA SonarLint plugin (real-time feedback)
+
   - VisualVM or JProfiler (performance profiling)
+
   - OWASP Dependency-Check Maven plugin
+
   - TestContainers for integration tests
+
   - JaCoCo for coverage with enforceable thresholds
 
 ### For Product Management
 
 - **Feature Impact**:
+
   - Recommend 2-week feature freeze for critical security fixes
+
   - Performance improvements will reduce user complaints by ~60%
+
   - Improved quality will reduce production bugs by ~50%
 
 - **Quality Risks**:
+
   - **Current**: High risk of security breach, frequent production issues
+
   - **After fixes**: Acceptable risk level, stable releases
 
 - **Timeline Considerations**:
+
   - Security fixes: 1 week (non-negotiable)
+
   - Performance optimization: 3-4 weeks
+
   - Quality improvements: 2-3 months (can be done alongside features)
+
   - Consider dedicating 20% of sprint capacity to technical debt
 
 ---
@@ -1234,17 +1431,27 @@ jobs:
 **Overall Assessment**: [Production-ready / Needs improvement / Requires significant work]
 
 **Key Takeaways**:
+
 1. **Critical Security Issues**: SQL injection, deserialization, and vulnerable dependencies pose immediate risk - must fix within 1 week
+
 2. **Performance Problems**: N+1 queries and memory leak significantly impact user experience - should fix within 2-4 weeks
+
 3. **Quality and Testing**: Low coverage and high complexity increase maintenance costs - systematic improvement needed over 2-3 months
 
 **Next Steps**:
+
 1. ✅ Review and approve this report with stakeholders
+
 2. ✅ Assign owners to all P0 and P1 items
+
 3. ✅ Schedule emergency security fixes (Week 1)
+
 4. ✅ Plan performance and quality improvement sprints (Weeks 2-12)
+
 5. ✅ Set up automated quality gates in CI/CD
+
 6. ✅ Establish tracking dashboard for all KPIs
+
 7. ✅ Plan follow-up review in 3 months
 
 **Questions or Clarifications**: [Contact information]

@@ -17,13 +17,21 @@ Systematically identify and remove dead code, consolidate duplicate logic, and m
 ## When to Use This Skill
 
 Use this skill when you need to:
+
 - Remove unused using directives, methods, classes, and properties
+
 - Consolidate duplicate code and near-duplicate implementations
+
 - Modernize legacy patterns (delegates to lambdas, string.Format to interpolation, manual null checks to nullable types)
+
 - Clean up Console.WriteLine and Debug statements
+
 - Optimize using directive organization and code structure
+
 - Prepare codebase for new features or refactoring
+
 - Reduce technical debt before major releases
+
 - Remove unused NuGet packages
 
 ## What This Skill Does
@@ -32,71 +40,112 @@ This skill performs comprehensive C# code cleanup:
 
 ### 1. Dead Code Detection
 - **Unused Using Directives**: Identifies and removes unused using statements
+
 - **Unused Methods**: Finds private methods never called
+
 - **Unused Classes**: Detects classes without instantiation
+
 - **Unused Properties/Fields**: Identifies members assigned but never read
+
 - **Unreachable Code**: Finds code after return/break/continue statements
+
 - **Empty Blocks**: Detects empty methods, classes, or catch blocks
+
 - **Unused NuGet Packages**: Identifies packages not used in code
 
 ### 2. Duplicate Code Consolidation
 - **Exact Duplicates**: Finds identical code blocks for consolidation
+
 - **Near Duplicates**: Detects similar code with minor variations
+
 - **Duplicate Logic**: Identifies functionally equivalent implementations
+
 - **Copy-Paste Detection**: Finds code copied across classes
+
 - **Consolidation Strategy**: Recommends refactoring approach
 
 ### 3. Code Modernization (C# 6+)
 - **Null-conditional Operators**: Uses `?.` for null checks
+
 - **Null-coalescing Operators**: Uses `??` for defaults
+
 - **String Interpolation**: Replaces string.Format with $""
+
 - **Expression-bodied Members**: Uses `=>` for simple methods
+
 - **Auto-property Initializers**: Initializes properties inline
+
 - **nameof Operator**: Uses nameof() instead of magic strings
 
 ### 4. Code Modernization (C# 7+)
 - **Out Variables**: Declares out variables inline
+
 - **Discards**: Uses `_` for unused values
+
 - **Local Functions**: Extracts nested functionality
+
 - **Throw Expressions**: Uses throw in expressions
+
 - **Pattern Matching**: Uses pattern matching with is/switch
 
 ### 5. Code Modernization (C# 8+)
 - **Nullable Reference Types**: Enables and addresses warnings
+
 - **Switch Expressions**: Replaces switch statements
+
 - **Using Declarations**: Replaces using statements
+
 - **Null-coalescing Assignment**: Uses `??=` operator
+
 - **Indices and Ranges**: Uses `^` and `..` for collections
 
 ### 6. Code Modernization (C# 9-11+)
 - **Records**: Replaces simple POCOs (C# 9)
+
 - **Init-only Properties**: Uses init for immutability (C# 9)
+
 - **Target-typed New**: Uses `new()` (C# 9)
+
 - **File-scoped Namespaces**: Removes namespace braces (C# 10)
+
 - **Global Usings**: Moves common usings (C# 10)
+
 - **Required Members**: Uses required keyword (C# 11)
+
 - **Raw String Literals**: Uses raw strings (C# 11)
 
 ### 7. Debug Statement Cleanup
 - **Console Statements**: Removes debug Console.WriteLine()
+
 - **Debug Statements**: Removes Debug.WriteLine()
+
 - **Commented Code**: Cleans up old commented-out code
+
 - **TODO Comments**: Catalogs and prioritizes TODO items
+
 - **Conditional Compilation**: Reviews #if DEBUG blocks
 
 ### 8. Using Directive Organization
 - **System Namespaces**: Groups System.* imports
+
 - **Third-Party**: Organizes external dependencies
+
 - **Internal Namespaces**: Structures project imports
+
 - **Unused Removal**: Eliminates unnecessary usings
+
 - **Duplicate Usings**: Consolidates repeated usings
 
 ## Prerequisites
 
 - C#/.NET codebase to clean up
+
 - Version control (git) for safe cleanup with rollback capability
+
 - Test suite for regression verification (recommended)
+
 - Backup of codebase or committed state
+
 - .NET SDK installed
 
 ## Instructions
@@ -139,10 +188,15 @@ Tell Claude Code to use this skill:
 Focus on:
 
 1. Removing all unused using directives, methods, and properties
+
 2. Consolidating duplicate code
+
 3. Modernizing to C# 8+ patterns (nullable types, switch expressions, using declarations)
+
 4. Removing Console.WriteLine and Debug statements
+
 5. Organizing using directives properly
+
 6. Identifying unused NuGet packages
 
 Save all reports to cleanup_report/ directory."
@@ -153,10 +207,15 @@ Save all reports to cleanup_report/ directory."
 Claude Code will generate a comprehensive cleanup plan including:
 
 1. **Dead Code Candidates** - List of unused code with usage analysis
+
 2. **Duplication Report** - Duplicate code locations with consolidation strategy
+
 3. **Modernization Opportunities** - Legacy patterns to update
+
 4. **Code Smells** - Long methods, god classes, feature envy
+
 5. **Risk Assessment** - Impact analysis for each cleanup operation
+
 6. **Implementation Plan** - Ordered steps with dependencies
 
 **Review the plan before proceeding with changes!**
@@ -164,34 +223,55 @@ Claude Code will generate a comprehensive cleanup plan including:
 ### Step 4: Execute Cleanup in Phases
 
 **Phase 1: Low-Risk Cleanup**
+
 - Remove unused using directives
+
 - Clean Console.WriteLine/Debug statements
+
 - Remove commented code
+
 - Organize usings
 
 **Phase 2: Code Modernization**
+
 - Apply string interpolation
+
 - Use null-conditional operators
+
 - Apply expression-bodied members
+
 - Use pattern matching
+
 - Apply nullable reference types
 
 **Phase 3: Structural Changes**
+
 - Consolidate duplicates
+
 - Remove dead methods
+
 - Simplify complex code
+
 - Extract constants
 
 **Phase 4: Verification**
+
 - Run tests after each phase
+
 - Run dotnet format
+
 - Verify no functionality changes
+
 - Document any issues
 
 **Phase 5: Multi-Pass Protocol**
+
 - First pass: Apply cleanup across all files
+
 - Verification pass: Check for missed opportunities
+
 - Repeat until complete
+
 - Track statistics for each pass
 
 ### Step 5: Test After Cleanup
@@ -498,29 +578,45 @@ cleanup_report/
 ## Safety Measures
 
 1. **Version Control Required**
+
 2. **Test Coverage**
+
 3. **Incremental Approach**
+
 4. **Risk Assessment**
+
 5. **Documentation**
 
 ## Success Criteria
 
 - [ ] All unused using directives removed
+
 - [ ] No Console.WriteLine/Debug debugging statements
+
 - [ ] No commented-out code
+
 - [ ] Duplicate code consolidated
+
 - [ ] Modern C# patterns applied
+
 - [ ] Using directives organized
+
 - [ ] All tests passing
+
 - [ ] Code builds successfully
+
 - [ ] Cleanup documented
 
 ## Tools and Libraries
 
 - **dotnet format**: Code formatting
+
 - **StyleCop**: Style analysis
+
 - **FxCop/Roslyn Analyzers**: Code analysis
+
 - **ReSharper**: Comprehensive analysis
+
 - **NDepend**: Dependency and quality metrics
 
 ```bash
@@ -536,7 +632,9 @@ dotnet build /p:TreatWarningsAsErrors=true
 ## Additional Resources
 
 - [C# Coding Conventions](https://docs.microsoft.com/en-us/dotnet/csharp/fundamentals/coding-style/coding-conventions)
+
 - [C# What's New](https://docs.microsoft.com/en-us/dotnet/csharp/whats-new/)
+
 - [.NET Application Architecture](https://dotnet.microsoft.com/learn/dotnet/architecture-guides)
 
 ---

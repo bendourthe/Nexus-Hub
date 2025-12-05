@@ -12,11 +12,14 @@ prerequisites: []
 tools:
 
   - go test (1.23+)
+
   - testify
 tags:
 
   - documentation
+
   - documentation
+
   - go
 ---
 # Go API Documentation
@@ -128,8 +131,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -528,12 +534,19 @@ func TestCreateUser(t *testing.T) {
 ## Best Practices
 
 1. **Use Standard Library**: net/http is robust, frameworks optional
+
 2. **Context**: Always use context.Context for cancellation
+
 3. **Error Handling**: Return errors, don't panic
+
 4. **JSON Tags**: Use json:"name" tags consistently
+
 5. **Validation**: Use validator package for struct validation
+
 6. **Testing**: Use httptest for API testing
+
 7. **Documentation**: Use godoc comments
+
 8. **Middleware**: Use middleware for cross-cutting concerns
 
 ---

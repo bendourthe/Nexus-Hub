@@ -18,12 +18,16 @@ related_templates:
 tools:
 
   - jest (29.7.0)
+
   - eslint (9.15.0)
+
   - prettier
 tags:
 
   - test-development
+
   - testing
+
   - javascript
 ---
 # JavaScript Unit Tests - Comprehensive Implementation Guide
@@ -72,29 +76,44 @@ ${OUTPUT_DIR}/
 
 ### Test Foundation
 - [ ] Jest, Mocha, and Vitest framework comparison completed
+
 - [ ] Test directory structure established
+
 - [ ] Naming conventions documented
+
 - [ ] jest.config.js or vitest.config.js configured
+
 - [ ] Test setup files created
 
 ### Test Patterns
 - [ ] Pure function tests implemented
+
 - [ ] Class and method tests created
+
 - [ ] Async/await and Promise test patterns established
+
 - [ ] Exception testing patterns documented
+
 - [ ] Parametrized test examples created
 
 ### Test Quality
 - [ ] Test independence verified
+
 - [ ] Execution time profiled (<1s per test)
+
 - [ ] Mock usage patterns documented
+
 - [ ] Edge case coverage completed
+
 - [ ] Anti-patterns guide created
 
 ### Documentation
 - [ ] Unit test implementation guide completed (20-30 pages)
+
 - [ ] 50+ example test functions documented
+
 - [ ] Test quality checklist created
+
 - [ ] Code review guidelines established
 
 ---
@@ -140,34 +159,55 @@ git config --get remote.origin.url
 Provide detailed explanation of:
 
 **FIRST Principles:**
+
 - **Fast** - Unit tests should execute in milliseconds (target: <100ms per test)
+
   - Why speed matters for developer productivity
+
   - How to identify slow tests with Jest's `--detectSlowTests` flag
+
   - Techniques to optimize test execution time
+
   - Avoiding unnecessary I/O operations in tests
 
 - **Independent** - Tests must not depend on each other or shared state
+
   - How to verify test independence
+
   - Running tests in random order with `--randomize`
+
   - Avoiding test pollution with proper cleanup
+
   - Using `beforeEach` and `afterEach` for isolation
 
 - **Repeatable** - Same results every time, in any environment
+
   - Dealing with time-dependent code using `jest.useFakeTimers()`
+
   - Handling randomness with mocking `Math.random()`
+
   - Environment isolation techniques
+
   - Freezing time for consistent tests
 
 - **Self-validating** - Clear pass/fail without manual inspection
+
   - Writing clear assertions with Jest matchers
+
   - Meaningful error messages
+
   - Custom matchers for domain-specific assertions
+
   - Avoiding console.log debugging in tests
 
 - **Timely** - Written before or alongside production code
+
   - Test-Driven Development (TDD) with JavaScript
+
   - Benefits of early test writing
+
   - Maintaining test coverage during refactoring
+
   - Watch mode for continuous testing
 
 **AAA Pattern (Arrange-Act-Assert):**
@@ -190,10 +230,15 @@ describe('calculateDiscount', () => {
 ```
 
 Explain:
+
 - Why separating these phases improves readability
+
 - How to handle tests with complex setup
+
 - When to use helper functions for arrangement
+
 - Dealing with multiple assertions (when appropriate)
+
 - Using `describe` blocks for grouping related tests
 
 ### 1.2 Unit vs Integration vs E2E Testing
@@ -212,10 +257,15 @@ Create a comparison table:
 | **Tools** | Jest, Vitest | Jest, Mocha | Cypress, Playwright |
 
 Provide guidance on:
+
 - When to write unit tests vs integration tests
+
 - The testing pyramid concept (70% unit, 20% integration, 10% E2E)
+
 - How to identify if a test is truly a unit test
+
 - Converting integration tests to unit tests
+
 - JavaScript-specific testing challenges (callbacks, promises, async/await)
 
 ### 1.3 Common Unit Test Anti-Patterns
@@ -403,10 +453,15 @@ project/
 ```
 
 Explain:
+
 - Why mirror the source structure
+
 - Benefits of separating unit/integration/e2e tests
+
 - When to deviate from this structure
+
 - How Jest/Vitest discover tests
+
 - Co-located vs separate test directories
 
 ### 2.2 Test Naming Conventions
@@ -414,13 +469,19 @@ Explain:
 Provide detailed naming guidelines:
 
 **File Naming:**
+
 - `*.test.js` - Jest/Vitest convention
+
 - `*.spec.js` - Alternative convention
+
 - Examples: `calculator.test.js`, `userService.test.js`
 
 **Test Suite Naming (describe blocks):**
+
 - Use descriptive names matching the module/class
+
 - Nest describe blocks for clarity
+
 - Examples:
   ```javascript
   describe('Calculator', () => {
@@ -436,8 +497,11 @@ Provide detailed naming guidelines:
   ```
 
 **Test Naming (test/it):**
+
 - Use `test()` or `it()` interchangeably
+
 - Descriptive names: `test('what_condition_expected')`
+
 - Examples:
   ```javascript
   test('calculates discount with valid rate correctly', () => {});
@@ -447,9 +511,13 @@ Provide detailed naming guidelines:
   ```
 
 **Why This Matters:**
+
 - Test names serve as documentation
+
 - Failed tests clearly indicate what went wrong
+
 - No need to read test code to understand purpose
+
 - Test names appear in reports and CI logs
 
 ### 2.3 Jest Configuration
@@ -460,6 +528,7 @@ Provide comprehensive `jest.config.js` example:
 /**
 
  * Jest configuration for unit tests
+
  * @type {import('jest').Config}
  */
 module.exports = {
@@ -592,6 +661,7 @@ Provide `jest.setup.js` example:
 /**
 
  * Global test setup for Jest
+
  * This file runs before all tests
  */
 
@@ -675,9 +745,13 @@ Pure functions (no side effects, deterministic) are easiest to test.
 /**
 
  * Calculate discounted price
+
  * @param {number} price - Original price
+
  * @param {number} discountRate - Discount rate (0.0 to 1.0)
+
  * @returns {number} Final price after discount
+
  * @throws {Error} If price is negative or discount rate is invalid
  */
 export function calculateDiscount(price, discountRate) {
@@ -772,11 +846,17 @@ describe('calculateDiscount', () => {
 ```
 
 **Key Principles:**
+
 - Test happy path (normal inputs)
+
 - Test edge cases (boundaries: 0%, 100%, 0 price)
+
 - Test error conditions (negative price, invalid discount)
+
 - Test floating-point precision with `toBeCloseTo()`
+
 - Use `test.each()` for parametrized tests
+
 - Group related tests with nested `describe` blocks
 
 ### 3.2 Testing Classes and Methods
@@ -788,8 +868,11 @@ export class User {
   /**
 
    * Create a new user
+
    * @param {string} name - User name
+
    * @param {string} email - User email
+
    * @param {number} [age] - User age
    */
   constructor(name, email, age = null) {
@@ -1026,12 +1109,19 @@ describe('User', () => {
 ```
 
 **Key Principles:**
+
 - Group related tests with nested `describe` blocks
+
 - Use `beforeEach` for common setup
+
 - Test each method independently
+
 - Test properties and state changes
+
 - Test both valid and invalid inputs
+
 - Verify error messages in exceptions
+
 - Use parametrized tests with `test.each()`
 
 ### 3.3 Testing Asynchronous Code
@@ -1232,12 +1322,19 @@ describe('async test patterns', () => {
 ```
 
 **Key Principles:**
+
 - Use `async/await` for cleaner test code
+
 - Use `.resolves` and `.rejects` matchers for assertions
+
 - Use `done` callback for callback-based async code
+
 - Test promise resolution and rejection
+
 - Test concurrent async operations
+
 - Handle errors properly in async tests
+
 - Use `fail()` in try-catch blocks to ensure errors are thrown
 
 ### 3.4 Testing Callbacks and Promises
@@ -1369,10 +1466,15 @@ describe('promise patterns', () => {
 ```
 
 **Key Principles:**
+
 - Test both promise resolution and rejection
+
 - Test promise chains and transformations
+
 - Use `Promise.all`, `Promise.race`, `Promise.allSettled` patterns
+
 - Handle async timing with proper awaits
+
 - Test error propagation through promise chains
 
 ### 3.5 Testing Event Emitters
@@ -1512,11 +1614,17 @@ describe('DataProcessor', () => {
 ```
 
 **Key Principles:**
+
 - Test event emissions with spy functions
+
 - Test event payloads
+
 - Test multiple listeners
+
 - Test listener removal
+
 - Test error events
+
 - Use `jest.fn()` for event listeners
 
 ### 3.6 Testing Closures and Higher-Order Functions
@@ -1741,10 +1849,15 @@ describe('memoize', () => {
 ```
 
 **Key Principles:**
+
 - Test closure state management
+
 - Test function independence
+
 - Test higher-order function composition
+
 - Test memoization caching behavior
+
 - Use `jest.fn()` to track function calls
 
 ---
@@ -2105,20 +2218,35 @@ module.exports = {
 Create a maintenance checklist:
 
 - [ ] All tests pass independently
+
 - [ ] Tests can run in any order
+
 - [ ] Each test has clear, descriptive name
+
 - [ ] Tests execute in <100ms each
+
 - [ ] No duplicate setup code (use beforeEach/fixtures)
+
 - [ ] No test logic complexity (loops, conditionals)
+
 - [ ] Clear assertions with helpful messages
+
 - [ ] Tests are properly documented
+
 - [ ] Mocks are used appropriately (not excessively)
+
 - [ ] Edge cases are covered
+
 - [ ] Error conditions are tested
+
 - [ ] Tests follow AAA pattern
+
 - [ ] Test coverage is >80% for critical code
+
 - [ ] No console.log statements in tests
+
 - [ ] Async tests properly handle promises
+
 - [ ] Mock cleanup in afterEach
 
 ### 5.4 Debugging Tests
@@ -2164,78 +2292,116 @@ Generate the following deliverables:
 Comprehensive document saved to `${OUTPUT_DIR}/exports/unit_test_implementation_guide.md` covering:
 
 - FIRST principles detailed explanation
+
 - AAA pattern with examples
+
 - Unit vs Integration vs E2E comparison
+
 - Test organization strategies
+
 - Framework-specific best practices (Jest, Mocha, Vitest)
+
 - Common anti-patterns and solutions
 
 ### 2. Test Examples Collection
 File saved to `${OUTPUT_DIR}/exports/unit_test_examples.md` containing:
 
 - 50+ example test functions
+
 - Pure function tests
+
 - Class and method tests
+
 - Async code tests (async/await, Promises, callbacks)
+
 - Event emitter tests
+
 - Closure and higher-order function tests
+
 - Edge case examples
+
 - Error handling examples
 
 ### 3. Test Templates
 Files saved to `${OUTPUT_DIR}/templates/`:
 
 - `unit_test_template.js` - Basic test template
+
 - `class_test_template.js` - Class testing template
+
 - `async_test_template.js` - Async testing template
+
 - `mock_test_template.js` - Mocking patterns template
+
 - `jest.config.js` - Complete Jest configuration
+
 - `vitest.config.ts` - Complete Vitest configuration
+
 - `jest.setup.js` - Global test setup
 
 ### 4. Configuration Files
 Files saved to `${OUTPUT_DIR}/templates/`:
 
 - `jest.config.js` - Complete Jest configuration
+
 - `vitest.config.ts` - Complete Vitest configuration
+
 - `mocha.opts` - Mocha configuration
+
 - `.babelrc` - Babel configuration for ES6+
+
 - `tsconfig.json` - TypeScript configuration
 
 ### 5. Visual Assets
 Files saved to `${OUTPUT_DIR}/assets/`:
 
 - `first_principles_diagram.png` - Visual representation of FIRST principles
+
 - `aaa_pattern_visualization.png` - AAA pattern flowchart
+
 - `test_pyramid.png` - Testing pyramid diagram
+
 - `test_organization_structure.png` - Directory structure diagram
+
 - `async_testing_patterns.png` - Async testing patterns
 
 ### 6. Anti-Patterns Guide
 File saved to `${OUTPUT_DIR}/exports/anti_patterns_guide.md`:
 
 - Common anti-patterns with examples
+
 - How to identify each anti-pattern
+
 - Refactoring strategies
+
 - Before/after examples
+
 - JavaScript-specific anti-patterns
 
 ### 7. Unit Test Quality Checklist
 File saved to `${OUTPUT_DIR}/exports/unit_test_quality_checklist.md`:
 
 - Test independence checklist
+
 - Performance checklist
+
 - Code quality checklist
+
 - Maintenance checklist
+
 - Review guidelines
 
 ### 8. Mocking and Stubbing Guide
 File saved to `${OUTPUT_DIR}/exports/mocking_guide.md`:
 
 - When to use mocks vs stubs
+
 - Jest mocking patterns
+
 - Module mocking strategies
+
 - Spy usage examples
+
 - Mock cleanup best practices
 
 ---
@@ -2284,19 +2450,33 @@ mkdir -p ${OUTPUT_DIR}/templates ${OUTPUT_DIR}/assets ${OUTPUT_DIR}/exports
 After generating all content, verify:
 
 - [ ] All 8+ deliverables are created
+
 - [ ] Files are saved to correct directories (templates/, assets/, exports/)
+
 - [ ] Implementation guide is 20-30 pages
+
 - [ ] 50+ test examples are included
+
 - [ ] FIRST principles are thoroughly explained
+
 - [ ] AAA pattern is demonstrated in all examples
+
 - [ ] Common anti-patterns are documented
+
 - [ ] Jest, Mocha, and Vitest examples are included
+
 - [ ] Configuration files are complete and usable
+
 - [ ] Visual diagrams are included (or placeholders)
+
 - [ ] All code examples are syntactically correct
+
 - [ ] Repository information is included where applicable
+
 - [ ] Quality checklist is comprehensive
+
 - [ ] Async testing patterns (async/await, Promises, callbacks) are covered
+
 - [ ] Mock and spy usage is thoroughly documented
 
 ---
@@ -2309,11 +2489,17 @@ End of prompt template.
 ## Additional Notes
 
 - Install Jest: `npm install --save-dev jest @types/jest`
+
 - Install Vitest: `npm install --save-dev vitest`
+
 - Install Mocha: `npm install --save-dev mocha chai`
+
 - Run unit tests: `jest` or `npm test`
+
 - Check coverage: `jest --coverage`
+
 - Watch mode: `jest --watch`
+
 - Debug tests: `node --inspect-brk node_modules/.bin/jest --runInBand`
 
 ---

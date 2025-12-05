@@ -18,13 +18,18 @@ related_templates:
 tools:
 
   - junit (5.11.3)
+
   - maven
+
   - gradle
 tags:
 
   - code-review
+
   - testing
+
   - code-review
+
   - java
 ---
 # Java Testing Review
@@ -141,16 +146,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Issues that create immediate risks to system stability, data integrity, or compliance.
 
 **Examples:**
+
 - Security vulnerabilities (SQL injection, XSS, authentication bypass)
+
 - Resource leaks (unclosed connections, file handles, memory leaks)
+
 - Data loss risks (destructive operations without validation)
+
 - Thread safety violations (race conditions, deadlocks)
+
 - Compliance violations (GDPR, HIPAA, PCI-DSS)
 
 **Action Required:**
+
 - Block deployment until fixed
+
 - Require hotfix within 24 hours
+
 - Add tests to prevent regression
+
 - Document root cause and fix
 
 ---
@@ -160,16 +174,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Issues that significantly impact maintainability, performance, or correctness but don't cause immediate failures.
 
 **Examples:**
+
 - Incorrect business logic (wrong calculations, flawed algorithms)
+
 - Performance bottlenecks (O(n²) algorithms, missing indexes, inefficient queries)
+
 - Memory inefficiency (loading large datasets into memory unnecessarily)
+
 - Breaking API changes without deprecation
+
 - Missing critical error handling (network errors, API failures not caught)
 
 **Action Required:**
+
 - Schedule fix in current sprint
+
 - Cannot release without resolution
+
 - Update documentation
+
 - Performance test after fix
 
 ---
@@ -179,16 +202,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Code smells and technical debt that reduce maintainability but don't affect correctness.
 
 **Examples:**
+
 - High complexity (cyclomatic complexity >10, functions >100 lines)
+
 - Code duplication (>10 lines duplicated across modules)
+
 - Poor naming (unclear variable/function names, inconsistent conventions)
+
 - Missing tests (<80% coverage on critical paths)
+
 - Incomplete error messages (no context for debugging)
 
 **Action Required:**
+
 - Add to backlog
+
 - Prioritize in next sprint planning
+
 - Consider during refactoring opportunities
+
 - Track technical debt metrics
 
 ---
@@ -198,16 +230,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Style inconsistencies and minor optimizations that don't impact functionality.
 
 **Examples:**
+
 - Style violations (linting warnings, formatting issues)
+
 - Minor performance optimizations (in non-critical code paths)
+
 - Missing documentation on helper functions
+
 - Verbose code that could be more concise
+
 - Debug statements left in code
 
 **Action Required:**
+
 - Fix opportunistically during other work
+
 - Batch with other low-priority changes
+
 - Good for new contributors
+
 - Can be deferred indefinitely
 
 ---
@@ -215,20 +256,31 @@ Use this framework to classify and prioritize all findings from the code review.
 ## Severity Assignment Guidelines
 
 **When to Escalate Severity:**
+
 - Issue affects **production environment** → escalate one level
+
 - Issue affects **customer-facing features** → escalate one level
+
 - Issue has **no workaround** → escalate one level
+
 - Issue appears in **multiple locations** → escalate one level
 
 **When to De-escalate Severity:**
+
 - Issue only in **test/development code** → de-escalate one level
+
 - Issue has **easy workaround** → de-escalate one level
+
 - Issue is **isolated to single module** → de-escalate one level
+
 - Issue **rarely executed** (edge case) → de-escalate one level
 
 **Examples:**
+
 - Memory leak in production API: **HIGH → CRITICAL** (production + customer-facing)
+
 - Style violation in test file: **LOW → Ignore** (test code + style only)
+
 - Duplicated logic across 15 modules: **MEDIUM → HIGH** (multiple locations)
 
 ---
@@ -258,16 +310,22 @@ For each finding, include:
 **Issue:** The user search function loads all users into memory and performs linear search on every request.
 
 **Impact:**
+
 - Response time degrades with user count (currently 500ms for 10k users)
+
 - High memory usage (50MB+ per request)
+
 - Poor scalability (can't handle >100k users)
 
 **Recommendation:**
 Move filtering to database with indexed query:
 
 - Add database index on search fields
+
 - Use database LIKE/ILIKE queries
+
 - Implement pagination (limit results to 50)
+
 - Add caching for common searches
 
 **Effort:** 3 hours (2 hours implementation + 1 hour testing)
@@ -314,8 +372,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -352,16 +413,25 @@ Please perform a comprehensive testing review of this Java project following thi
    ```
 
 2. **Coverage Analysis**
+
    - Overall coverage percentage (line and branch)
+
    - Package-by-package coverage breakdown
+
    - Identify classes with <60% coverage
+
    - Find critical business logic with inadequate coverage
+
    - Document untested code sections
 
 3. **Branch Coverage**
+
    - Identify untested conditional branches
+
    - Find exception handling without tests
+
    - Locate uncovered error paths
+
    - Review switch/case coverage
 
 ## Phase 2: Test Suite Inventory
@@ -380,10 +450,15 @@ Please perform a comprehensive testing review of this Java project following thi
    ```
 
 2. **Test Type Distribution**
+
    - **Unit Tests**: Count and coverage (naming: *Test.java)
+
    - **Integration Tests**: Count and scope (*IT.java, *IntegrationTest.java)
+
    - **End-to-End Tests**: Count and critical paths (*E2ETest.java)
+
    - **Performance Tests**: Presence and scope
+
    - **Security Tests**: Presence and coverage
 
 3. **Test Structure Assessment**
@@ -492,12 +567,19 @@ Please perform a comprehensive testing review of this Java project following thi
    ```
 
 3. **Common Flakiness Sources**
+
    - Tests dependent on external services (not mocked)
+
    - Time-based tests (LocalDateTime.now(), System.currentTimeMillis())
+
    - Tests with race conditions (threading issues)
+
    - Tests dependent on test execution order
+
    - Tests using random data without seeding
+
    - Tests dependent on file system state
+
    - Tests with hardcoded ports or paths
 
 4. **Mock Usage Review**
@@ -639,12 +721,19 @@ Please perform a comprehensive testing review of this Java project following thi
 ## Phase 6: Test Coverage Gaps Analysis
 
 1. **Critical Path Identification**
+
    - Authentication and authorization flows
+
    - Business logic and calculations
+
    - Data validation and processing
+
    - Error handling and recovery
+
    - REST API endpoints
+
    - Database operations
+
    - External service integrations
 
 2. **Untested Code Categories**
@@ -652,18 +741,28 @@ Please perform a comprehensive testing review of this Java project following thi
    # Identify untested code using JaCoCo report
    # Look for:
    - Critical business logic without tests
+
    - Exception handling paths not covered
+
    - Edge cases not tested
+
    - New code without tests
+
    - Complex methods without tests (cyclomatic complexity > 10)
    ```
 
 3. **Missing Test Types**
+
    - [ ] Happy path scenarios
+
    - [ ] Error conditions and exceptions
+
    - [ ] Boundary values (null, empty, max, min)
+
    - [ ] Invalid input handling
+
    - [ ] Concurrent access scenarios
+
    - [ ] Performance under load
 
 ## Phase 7: Test Maintainability
@@ -716,9 +815,13 @@ Please perform a comprehensive testing review of this Java project following thi
    }
 
    // Check for:
+
    - Test data builders and factories
+
    - Fixture organization
+
    - Object mother pattern usage
+
    - Test data reusability
    ```
 
@@ -873,8 +976,11 @@ Please perform a comprehensive testing review of this Java project following thi
    // Check for:
 
    - Baseline performance tests
+
    - Load test scenarios
+
    - Stress test scenarios
+
    - Endurance test scenarios
    ```
 
@@ -933,10 +1039,15 @@ Please perform a comprehensive testing review of this Java project following thi
    ```
 
 2. **Quality Gates**
+
    - [ ] Tests run on every commit/PR
+
    - [ ] Coverage thresholds enforced (80% minimum)
+
    - [ ] Test failures block merges
+
    - [ ] Performance regression detection
+
    - [ ] Security test integration
 
 3. **Test Execution Performance**
@@ -1096,9 +1207,13 @@ Please provide a comprehensive testing report with the following structure:
 ### Recommendations
 
 **Immediate Actions** (Priority 1 - this week):
+
 1. **[Action]**
+
    - **Rationale**: [why important]
+
    - **Implementation**: [how to do it with code examples]
+
    - **Effort**: [hours/days]
 
 **Short-term Goals** (Priority 2 - this month):

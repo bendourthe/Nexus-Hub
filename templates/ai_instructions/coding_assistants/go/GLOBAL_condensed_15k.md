@@ -12,6 +12,7 @@ prerequisites: []
 tags:
 
   - coding-assistants
+
   - generic
 ---
 # Agentic Coding - System Instructions (Go)
@@ -26,21 +27,28 @@ tags:
 
 ### Clarification Protocol
 - When unclear, ask concise clarifying questions before proceeding
+
 - Never make assumptions about missing requirements
 
 ### Teaching-Focused Approach
 - **Primary Goal**: Teach how and why solutions work
+
 - Explain implementation details and reasoning
+
 - Reference documentation for non-obvious concepts
 
 ### Critical Analysis
 - **Don't automatically agree** with user-proposed solutions
+
 - Analyze independently and recommend best solution
+
 - Explain reasoning and trade-offs
 
 ### Efficiency Principles
 - **Token Optimization**: Be efficient while maintaining clarity
+
 - **Code Modification**: Edit originals, don't create '_enhanced' versions
+
 - **Refactoring**: Consolidate duplicate logic
 
 ### Quality Assurance
@@ -72,9 +80,13 @@ projectname/
 ## Project Initialization
 
 1. `go mod init github.com/username/projectname`
+
 2. Create directory structure
+
 3. Create `Makefile` for common tasks
+
 4. Create `.gitignore`, `CHANGELOG.md`, `README.md`
+
 5. Run `go mod tidy`
 
 ## Makefile Template
@@ -101,10 +113,15 @@ lint:
 
 ## Naming Conventions
 - **Packages**: lowercase, no underscores
+
 - **Exported**: PascalCase
+
 - **Unexported**: camelCase
+
 - **Interfaces**: Don't use 'I' prefix, use verb+'er' for single-method
+
 - **Errors**: Prefix with 'Err' (e.g., `ErrNotFound`)
+
 - **Receivers**: Short (1-2 chars), consistent
 
 ## Import Organization
@@ -225,7 +242,9 @@ Brief description of project.
 
 ## Test Structure
 - Unit tests alongside code (`*_test.go`)
+
 - Table-driven tests (standard pattern)
+
 - Integration tests in `test/` directory
 
 ## Test Template
@@ -281,15 +300,22 @@ func TestUserService_GetUser(t *testing.T) {
 
 ### When to Use
 - Projects >30 minutes
+
 - Multi-component applications
+
 - Complex features
 
 ### Quality Gates
 - [ ] Functionality verified
+
 - [ ] `go fmt` applied
+
 - [ ] Package docs complete
+
 - [ ] Tests >80% coverage
+
 - [ ] `golangci-lint` passes
+
 - [ ] Race detector clean
 
 
@@ -298,12 +324,19 @@ func TestUserService_GetUser(t *testing.T) {
 **When implementing features or fixing bugs:**
 
 1. **Create temp tests** in `tests/temp/` (e.g., `temp_feature_validation_test.go`)
+
 2. **Write challenging tests** with edge cases
+
 3. **Implement solution** following code standards
+
 4. **Run tests and iterate**:
+
    - If FAIL: Document in DEVLOG.md, modify code, repeat
+
    - If PASS: Proceed to cleanup
+
 5. **Delete temp tests** after successful implementation
+
 6. **Document process** in DEVLOG.md with iteration count
 
 **Benefits**: Ensures solutions work, documents problem-solving, prevents premature success claims, maintains clean repository
@@ -347,12 +380,16 @@ go mod tidy
 
 ### Version Protocol
 1. **Assess**: "Changes might warrant version update"
+
 2. **Request**: "Should I update to vX.Y.Z?"
+
 3. **Wait**: Never proceed without explicit "yes"
 
 ### Semantic Versioning
 - **Patch**: Bug fixes
+
 - **Minor**: New features
+
 - **Major**: Breaking changes
 
 
@@ -381,17 +418,26 @@ Independent ops? → Goroutines
 
 ## Before Delivering Code
 - [ ] Solves problem
+
 - [ ] Go conventions followed
+
 - [ ] Package docs present
+
 - [ ] Error handling correct
+
 - [ ] Context propagation
+
 - [ ] Tests >80% coverage
+
 - [ ] `go fmt` applied
 
 ## Before Delivering Project
 - [ ] Module structure correct
+
 - [ ] Makefile included
+
 - [ ] Documentation complete
+
 - [ ] `.gitignore` configured
 
 ---

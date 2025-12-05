@@ -15,11 +15,14 @@ prerequisites:
 tools:
 
   - unity
+
   - cmocka
+
   - check
 tags:
 
   - test-development
+
   - c
 ---
 # C Reward Hacking - Test Quality Validation Guide
@@ -85,32 +88,50 @@ ${OUTPUT_DIR}/
 
 ### Prerequisites Verification
 - [ ] All 7 previous testing phases completed
+
 - [ ] Test structure output collected
+
 - [ ] Unit test results available
+
 - [ ] Integration test outputs gathered
+
 - [ ] Mock and fixture implementations documented
+
 - [ ] Performance test results compiled
+
 - [ ] CI/CD pipeline logs obtained
+
 - [ ] Code coverage reports generated
 
 ### Mutation Testing Setup
 - [ ] mull installed (LLVM-based)
+
 - [ ] Mutation testing baseline established
+
 - [ ] Mutation score thresholds defined
+
 - [ ] Test execution environment prepared
 
 ### Quality Analysis
 - [ ] Tautological test detection script created
+
 - [ ] Weak assertion analyzer implemented
+
 - [ ] Memory leak detection configured (Valgrind)
+
 - [ ] Coverage integrity validator developed
+
 - [ ] Test independence checker deployed
 
 ### Reporting
 - [ ] Comprehensive test quality report generated (25-35 pages)
+
 - [ ] Mutation testing results documented
+
 - [ ] Phase-by-phase validation completed
+
 - [ ] Remediation action plan created
+
 - [ ] Continuous monitoring configured
 
 ---
@@ -158,9 +179,13 @@ git config --get remote.origin.url
 Analyze all unit tests for patterns that always pass:
 
 **Detection Criteria:**
+
 - Tests with no assertions
+
 - Tests with trivial assertions (always true conditions)
+
 - Tests that only check NULL/non-NULL without validating behavior
+
 - Tests with mocked return values used directly in assertions
 
 **Create:** `${OUTPUT_DIR}/templates/tautological_detector.c`
@@ -463,8 +488,11 @@ cat > "$OUTPUT_DIR/summary.md" <<EOF
 
 ## Summary
 - **Total Tests:** $TOTAL_TESTS
+
 - **Clean Tests:** $PASSED_TESTS
+
 - **Tests with Memory Errors:** $MEMORY_ERRORS
+
 - **Pass Rate:** $(echo "scale=2; $PASSED_TESTS * 100 / $TOTAL_TESTS" | bc)%
 
 ## Detailed Results
@@ -534,8 +562,11 @@ cat > test_isolation_report.md <<EOF
 
 ## Summary
 - **Total Iterations:** $ITERATIONS
+
 - **Passed:** $PASSED
+
 - **Failed:** $FAILED
+
 - **Isolation Score:** ${ISOLATION_SCORE}%
 
 EOF
@@ -557,9 +588,13 @@ Tests failed in $FAILED out of $ITERATIONS random orders.
 ### Recommended Actions
 
 1. **Review setup/teardown** - Ensure clean state between tests
+
 2. **Check for static variables** - Avoid shared state
+
 3. **Verify resource cleanup** - Close files, free memory
+
 4. **Use test fixtures** - Isolate test data
+
 5. **Check global state** - Reset globals between tests
 EOF
     echo "❌ ISOLATION ISSUES: ${ISOLATION_SCORE}% pass rate"
@@ -610,12 +645,19 @@ Create `.mull.yml`:
 mutators:
 
   - cxx_add_to_sub
+
   - cxx_sub_to_add
+
   - cxx_mul_to_div
+
   - cxx_div_to_mul
+
   - cxx_lt_to_le
+
   - cxx_le_to_lt
+
   - negate_condition
+
   - remove_void_call
 
 timeout: 10000
@@ -636,9 +678,13 @@ Mutants generated: 150
 Mutants tested: 150
 
 Results:
+
 - Killed: 123 (82%)
+
 - Survived: 20 (13%)
+
 - Timeout: 5 (3%)
+
 - Not Covered: 2 (2%)
 
 Mutation Score: 82%
@@ -648,8 +694,11 @@ Mutation Score: 82%
 **Severity Classification:**
 
 - **Survived (Critical):** Mutations not caught by tests
+
 - **Not Covered (Critical):** Code never executed by tests
+
 - **Timeout (Medium):** Tests too slow or infinite loops
+
 - **Killed (Good):** Tests successfully caught mutations
 
 ### 2.3 Analyzing Survived Mutations
@@ -962,15 +1011,25 @@ void test_process_null_data(void) {
 After completing this reward hacking validation phase:
 
 - [ ] Overall test quality score >80/100
+
 - [ ] mull mutation score >80% across all modules
+
 - [ ] Zero memory leaks (Valgrind clean)
+
 - [ ] Zero critical reward hacking incidents
+
 - [ ] <5% high severity issues
+
 - [ ] 100% test independence verified
+
 - [ ] <2% flaky test rate
+
 - [ ] Continuous monitoring configured with mull
+
 - [ ] Team trained on memory-safe testing
+
 - [ ] CI/CD quality gates active with Valgrind
+
 - [ ] Regular audit schedule established
 
 ---

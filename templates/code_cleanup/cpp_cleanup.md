@@ -12,12 +12,16 @@ prerequisites: []
 tools:
 
   - google test
+
   - catch2
+
   - boost.test
 tags:
 
   - ai-templates
+
   - refactoring
+
   - cpp
 ---
 # Code Cleanup & Refactoring Review - C++
@@ -143,8 +147,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -165,21 +172,35 @@ Please perform a comprehensive, systematic cleanup of my C++ codebase following 
 Before making ANY changes, please:
 
 1. **Analyze the complete codebase structure**
+
    - Identify all .cpp, .cc, .cxx, .h, .hpp files in the project
+
    - Map dependencies between modules and namespaces
+
    - Identify public APIs that must be preserved
+
    - Review build system (CMakeLists.txt, Makefile) for unused files
 
 2. **Generate a detailed cleanup report** listing:
+
    - Unused #include directives
+
    - Unused variables, functions, classes, and templates
+
    - Debug std::cout or logging statements
+
    - Empty lines within function bodies
+
    - Inline and meta-commentary comments
+
    - Dead code after returns or in unreachable branches
+
    - Memory leaks or RAII violations
+
    - Static analysis findings (clang-tidy, cppcheck, PVS-Studio)
+
    - Raw pointers that could use smart pointers
+
    - Estimated impact and risk level for each category
 
 3. **Present findings and wait for my approval** before proceeding
@@ -193,24 +214,37 @@ After I approve, systematically clean the following:
 **CRITICAL: Perform multiple passes through the entire codebase to ensure completeness**
 
 1. **First Pass**: Apply all cleanup tasks systematically across the codebase
+
    - Work through all .cpp, .cc, .cxx, .h, .hpp files in the project
+
    - Apply all requested cleanup operations
+
    - Track which files were modified
 
 2. **Verification Pass**: Review the entire codebase again
+
    - Check for any files that were missed in the first pass
+
    - Verify all cleanup patterns were applied consistently
+
    - Identify any edge cases or exceptions that need attention
 
 3. **Repeat Until Complete**: Continue additional passes if needed
+
    - If files were found that needed cleanup in the verification pass, perform another full pass
+
    - Repeat until a complete pass finds no additional cleanup opportunities
+
    - Track the number of passes required to achieve complete cleanup
 
 4. **Pass Tracking**: Maintain detailed statistics for each pass
+
    - Number of files processed per pass
+
    - Number of files cleaned per pass
+
    - Percentage of codebase cleaned per pass
+
    - Types of issues found per pass
 
 #### When to Stop Multi-Pass Cleanup
@@ -218,23 +252,35 @@ After I approve, systematically clean the following:
 Stop when **ONE** of these conditions is met:
 
 1. ✅ **Zero-change pass** (RECOMMENDED STOPPING POINT)
+
    - Entire verification pass finds nothing to clean
+
    - All files reviewed, no modifications made
+
    - This is the ideal completion state
 
 2. ✅ **Diminishing returns threshold**
+
    - <5% additional files cleaned per pass
+
    - Calculate: `(files_cleaned_this_pass / total_files) < 0.05`
+
    - Example: If 150 total files and pass cleans <8 files, stop
 
 3. ✅ **Pass limit reached**
+
    - Maximum 3 passes completed
+
    - Log incomplete work if stopping at this point
+
    - Document remaining issues for future cleanup
 
 4. ✅ **Time limit reached**
+
    - 8 hours of cleanup time exceeded
+
    - Document progress and remaining work
+
    - Schedule follow-up cleanup session if needed
 
 **NEVER stop without at least 2 passes (initial + verification).**
@@ -248,35 +294,59 @@ Create `${OUTPUT_DIR}/cleanup/progress.md` after each pass:
 
 ## Pass 1 - Initial Cleanup
 - **Date**: 2025-12-03
+
 - **Start Time**: 10:00 AM
+
 - **End Time**: 1:00 PM
+
 - **Duration**: 3 hours
+
 - **Files Analyzed**: 150
+
 - **Files Cleaned**: 45 (30.0%)
+
 - **Issues Found**: 234
+
   - Unused #includes: 67
+
   - Unused variables: 89
+
   - Empty lines: 45
+
   - Inline comments: 33
+
 - **Issues Resolved**: 234 (100%)
 
 ## Pass 2 - Verification
 - **Date**: 2025-12-03
+
 - **Start Time**: 2:00 PM
+
 - **End Time**: 3:00 PM
+
 - **Duration**: 1 hour
+
 - **Files Analyzed**: 150
+
 - **Files Cleaned**: 8 (5.3%)
+
 - **Issues Found**: 12
+
   - Unused #includes: 5
+
   - Empty lines: 7
+
 - **Issues Resolved**: 12 (100%)
 
 ## Decision: STOP - Diminishing returns threshold met
 - **Condition Met**: Files cleaned in Pass 2 (5.3%) < threshold (5%)
+
 - **Total Passes**: 2
+
 - **Total Time**: 4 hours
+
 - **Total Files Cleaned**: 53/150 (35.3%)
+
 - **Overall Status**: ✅ Cleanup complete
 ```
 
@@ -292,22 +362,29 @@ Use this matrix to decide whether to continue or stop:
 | 16+ | 150 | >10% | **CONTINUE** - Significant cleanup remaining |
 
 **Time-based stopping:**
+
 - After 8 hours total cleanup time, **STOP** regardless of percentage
+
 - Document remaining work for future cleanup session
 
 **Pass-based stopping:**
+
 - After 3 passes, **STOP** and document incomplete work
+
 - Consider if issues are edge cases or systematic problems
 
 ### Critical Removals
 
 - **Unused #include directives**: Remove headers not referenced in the file
+
   - Be cautious: some headers may be needed for template instantiation
+
   - Check for transitive dependencies before removing
 
 - **Unused variables**: Remove variables that are assigned but never read
 
 - **Unused functions**: Remove static/private functions that are never called
+
   - PRESERVE public functions (may be called from other modules)
 
 - **Unused classes**: Remove private/internal classes that are never instantiated
@@ -317,6 +394,7 @@ Use this matrix to decide whether to continue or stop:
 - **Unused namespaces**: Remove namespace definitions that are empty or unused
 
 - **Empty lines within functions**: Remove excessive blank lines inside function bodies
+
   - KEEP empty lines between logical code sections and between functions
 
 ### Comment Cleanup
@@ -330,17 +408,25 @@ Use this matrix to decide whether to continue or stop:
 - **TODO comments**: Flag or remove stale TODO comments
 
 - PRESERVE comments that explain:
+
   - Why a particular approach was chosen
+
   - Business logic or domain-specific rules
+
   - Complex algorithms or non-obvious implementations
+
   - Thread safety or exception safety considerations
+
   - Template specialization rationale
+
   - Performance considerations or optimization notes
+
   - Function/class documentation (Doxygen-style comments)
 
 ### Debugging & Development Artifacts
 
 - **Debug output**: Remove std::cout, std::cerr, printf() used for debugging
+
   - PRESERVE intentional output or error messages
 
 - **Test-only code**: Remove code marked as temporary test scaffolding
@@ -368,10 +454,15 @@ Use this matrix to decide whether to continue or stop:
 #### Include Organization
 
 - **Organize includes**: Sort include directives in standard order:
+
   1. Corresponding header file (for .cpp files)
+
   2. C++ standard library headers (<vector>, <string>, etc.)
+
   3. C standard library headers (<cstdio>, <cstring>, etc.)
+
   4. Third-party library headers
+
   5. Project headers
 
 - **Include guards**: Replace include guards with #pragma once where appropriate
@@ -509,17 +600,25 @@ Use this matrix to decide whether to continue or stop:
 Identify and remove variables, properties, and configuration that serve no functional purpose:
 
 - **Ignored Style Properties**: In custom-painted Qt widgets
+
   - Properties defined in QSS/stylesheets that are completely ignored by custom paintEvent()
+
   - Style settings overridden by manual QPainter drawing
+
   - Widget properties that have no effect due to custom rendering
 
 - **Dead Configuration Values**: Settings that are defined but never used
+
   - Unused member variables in classes
+
   - Configuration structs with unused fields
+
   - Constants that are never referenced
 
 - **Redundant Constants**: Values that duplicate other constants
+
   - Multiple constexpr with identical values
+
   - Constants that duplicate framework defaults
 
 **Detection Example: Qt Custom Widget**
@@ -572,16 +671,25 @@ protected:
 ```
 
 **Why This Matters:**
+
 1. **Clarity**: Visual config is at class top, easy to find
+
 2. **Maintainability**: Constants are easy to modify
+
 3. **Compile-time**: constexpr enables compile-time optimization
+
 4. **IDE Support**: Better autocomplete and refactoring
 
 **Detection Strategy:**
+
 1. Find classes that override paintEvent(), paint(), or render()
+
 2. Check for setStyleSheet() or Qt property setters
+
 3. Verify those properties are used in paint method
+
 4. Extract values to static constexpr, remove useless stylesheet
+
 5. Add comment explaining minimal stylesheet
 
 ## Phase 3: Verification Protocol
@@ -589,7 +697,9 @@ protected:
 After cleanup, you MUST:
 
 1. **Provide summary** of all changes made, organized by category
+
 2. **Highlight any edge cases** or decisions that required judgment
+
 3. **Request that I run tests and tools** to verify nothing broke:
    ```bash
    # Build
@@ -617,9 +727,13 @@ After cleanup, you MUST:
    ```markdown
    ### Code Cleanup - [Date]
    - Removed [X] unused includes
+
    - Removed [Y] unused functions
+
    - Fixed [Z] memory leaks
+
    - Modernized [N] legacy patterns
+
    - Additional improvements: [summary]
    ```
 
@@ -677,9 +791,13 @@ Present cleanup in this structure:
 - **File:** path/to/file.cpp
 
 - **Removals:**
+
   - Line X: Unused #include <string>
+
   - Lines X-Y: Unused function functionName()
+
   - Line Z: Debug std::cout statement
+
   - Line N: Inline comment removed
 
 - **Rationale:** [Brief explanation of why these were removed]

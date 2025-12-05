@@ -12,12 +12,16 @@ prerequisites: []
 tools:
 
   - jest (29.7.0)
+
   - eslint (9.15.0)
+
   - prettier
 tags:
 
   - documentation
+
   - documentation
+
   - javascript
 ---
 # JavaScript SBOM Generation
@@ -169,8 +173,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -224,12 +231,19 @@ Please generate a comprehensive Software Bill of Materials (SBOM) for this JavaS
 3. **Identify Dependency Metadata**
 
    For each dependency, collect:
+
    - Package name
+
    - Version (semver)
+
    - License
+
    - Repository URL
+
    - Maintainer/author
+
    - Dependencies (for transitive mapping)
+
    - Package integrity (shasum)
 
 ## Phase 2: SBOM Format Selection
@@ -980,19 +994,29 @@ Please provide SBOM documentation in this format:
 ## SBOM Files Generated
 
 1. **sbom.json** (CycloneDX format)
+
    - Complete dependency tree
+
    - Vulnerability information
+
    - License data
+
    - Component metadata
 
 2. **sbom.spdx.json** (SPDX format)
+
    - License-focused SBOM
+
    - Compliance documentation
+
    - Relationship mapping
 
 3. **sbom-lite.json** (Simplified)
+
    - Essential information only
+
    - For quick reference
+
    - Human-readable summary
 ```
 
@@ -1002,28 +1026,45 @@ Please provide SBOM documentation in this format:
 ## Supporting Files
 
 1. **VULNERABILITIES.md**
+
    - All known CVEs
+
    - Severity ratings (npm audit)
+
    - Remediation status
+
    - Mitigation strategies
 
 2. **LICENSES.md**
+
    - All component licenses
+
    - License compatibility analysis
+
    - Attribution requirements
+
    - Compliance status
 
 3. **DEPENDENCIES.md**
+
    - Dependency tree visualization
+
    - Direct dependencies
+
    - Transitive dependencies
+
    - Peer dependencies
+
    - Update recommendations
 
 4. **SUPPLY_CHAIN.md**
+
    - Component provenance
+
    - Security assessment
+
    - Risk analysis
+
    - Alternative options
 ```
 
@@ -1167,13 +1208,17 @@ sbom:
   script:
 
     - npm ci
+
     - npm install -g @cyclonedx/cyclonedx-npm
+
     - cyclonedx-npm --output-file sbom.json
+
     - npm audit --json > ${OUTPUT_DIR}/exports/vulnerabilities.json || true
   artifacts:
     paths:
 
       - sbom.json
+
       - vulnerabilities.json
     expire_in: 1 year
 ```
@@ -1183,32 +1228,51 @@ sbom:
 ## Best Practices
 
 1. **Automate SBOM Generation**
+
    - Generate in CI/CD pipeline
+
    - Update with every release
+
    - Include in release artifacts
+
    - Use package-lock.json for deterministic builds
 
 2. **Keep SBOMs Current**
+
    - Regenerate on dependency updates
+
    - Track vulnerability fixes
+
    - Document changes between versions
+
    - Monitor npm audit regularly
 
 3. **Use Multiple Formats**
+
    - CycloneDX for security
+
    - SPDX for license compliance
+
    - Both for comprehensive coverage
 
 4. **Continuous Monitoring**
+
    - Monitor for new vulnerabilities (npm audit, Snyk)
+
    - Track dependency updates (Dependabot)
+
    - Assess supply chain risks
+
    - Enable npm audit signatures
 
 5. **Publish Transparently**
+
    - Include SBOM in releases
+
    - Make publicly available
+
    - Provide easy access
+
    - Document update process
 
 ---

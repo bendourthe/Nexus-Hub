@@ -17,13 +17,21 @@ Systematically identify and remove dead code, consolidate duplicate logic, and m
 ## When to Use This Skill
 
 Use this skill when you need to:
+
 - Remove unused imports, functions, classes, and modules
+
 - Consolidate duplicate code and near-duplicate implementations
+
 - Modernize legacy patterns (callbacks to async/await, var to const/let, ES5 to ES6+)
+
 - Clean up console.log statements and commented code
+
 - Optimize import organization and code structure
+
 - Prepare codebase for new features or refactoring
+
 - Reduce technical debt before major releases
+
 - Remove unused npm dependencies
 
 ## What This Skill Does
@@ -32,58 +40,92 @@ This skill performs comprehensive JavaScript/TypeScript code cleanup:
 
 ### 1. Dead Code Detection
 - **Unused Imports**: Identifies and removes unused import statements
+
 - **Unused Functions**: Finds functions never called in codebase
+
 - **Unused Classes**: Detects classes without instantiation
+
 - **Unused Variables**: Identifies variables assigned but never used
+
 - **Unreachable Code**: Finds code after return/break/continue statements
+
 - **Empty Blocks**: Detects empty functions, classes, or try/catch blocks
+
 - **Unused npm Dependencies**: Identifies packages in package.json not imported anywhere
 
 ### 2. Duplicate Code Consolidation
 - **Exact Duplicates**: Finds identical code blocks for consolidation
+
 - **Near Duplicates**: Detects similar code with minor variations
+
 - **Duplicate Logic**: Identifies functionally equivalent implementations
+
 - **Copy-Paste Detection**: Finds code copied across modules
+
 - **Consolidation Strategy**: Recommends refactoring approach
 
 ### 3. Code Modernization
 - **ES6+ Features**: Updates to arrow functions, destructuring, spread operators
+
 - **Async/Await**: Converts promise chains to async/await
+
 - **Template Literals**: Replaces string concatenation with template literals
+
 - **Const/Let**: Converts var to const/let as appropriate
+
 - **Optional Chaining**: Uses `?.` operator for null checks
+
 - **Nullish Coalescing**: Uses `??` for default values
+
 - **Modern Imports**: Converts require() to ES6 import statements (where appropriate)
 
 ### 4. Debug Statement Cleanup
 - **Console Statements**: Removes debug console.log(), console.debug()
+
 - **Commented Code**: Cleans up old commented-out code
+
 - **TODO Comments**: Catalogs and prioritizes TODO items
+
 - **Debugger Statements**: Removes debugger breakpoints
+
 - **Temporary Variables**: Identifies debug-only variables
 
 ### 5. Import Organization
 - **Node.js Built-ins**: Groups and sorts Node.js core modules
+
 - **External Dependencies**: Organizes third-party packages
+
 - **Internal Modules**: Structures local module imports
+
 - **Type Imports**: Organizes TypeScript type-only imports
+
 - **Unused Removal**: Eliminates unnecessary imports
+
 - **Duplicate Imports**: Consolidates repeated imports from same module
 
 ### 6. Code Simplification
 - **Complex Conditionals**: Simplifies nested if/else statements
+
 - **Excessive Nesting**: Reduces deeply nested code
+
 - **Long Functions**: Identifies candidates for decomposition
+
 - **Magic Numbers**: Converts literals to named constants
+
 - **Redundant Code**: Removes unnecessary operations
+
 - **Unnecessary Else**: Simplifies if-return patterns
 
 ## Prerequisites
 
 - JavaScript/TypeScript codebase to clean up
+
 - Version control (git) for safe cleanup with rollback capability
+
 - Test suite for regression verification (recommended)
+
 - Backup of codebase or committed state
+
 - Node.js and npm/yarn installed
 
 ## Instructions
@@ -129,10 +171,15 @@ Tell Claude Code to use this skill:
 Focus on:
 
 1. Removing all unused imports and functions
+
 2. Consolidating duplicate code
+
 3. Modernizing to ES6+ patterns
+
 4. Removing console.log statements
+
 5. Organizing imports properly
+
 6. Identifying unused npm packages
 
 Save all reports to cleanup_report/ directory."
@@ -143,10 +190,15 @@ Save all reports to cleanup_report/ directory."
 Claude Code will generate a comprehensive cleanup plan including:
 
 1. **Dead Code Candidates** - List of unused code with usage analysis
+
 2. **Duplication Report** - Duplicate code locations with consolidation strategy
+
 3. **Modernization Opportunities** - Legacy patterns to update
+
 4. **Risk Assessment** - Impact analysis for each cleanup operation
+
 5. **Implementation Plan** - Ordered steps with dependencies
+
 6. **Package Analysis** - Unused dependencies in package.json
 
 **Review the plan before proceeding with changes!**
@@ -156,34 +208,55 @@ Claude Code will generate a comprehensive cleanup plan including:
 The skill will execute cleanup in safe phases:
 
 **Phase 1: Low-Risk Cleanup**
+
 - Remove unused imports
+
 - Clean console.log statements
+
 - Remove commented code
+
 - Organize imports
 
 **Phase 2: Code Modernization**
+
 - Update to arrow functions
+
 - Apply template literals
+
 - Convert to const/let
+
 - Add optional chaining
+
 - Apply async/await patterns
 
 **Phase 3: Structural Changes**
+
 - Consolidate duplicates
+
 - Remove dead functions
+
 - Simplify complex code
+
 - Extract constants
 
 **Phase 4: Verification**
+
 - Run tests after each phase
+
 - Run linting and type checking
+
 - Verify no functionality changes
+
 - Document any issues
 
 **Phase 5: Multi-Pass Protocol**
+
 - First pass: Apply cleanup across all files
+
 - Verification pass: Check for missed opportunities
+
 - Repeat until complete
+
 - Track statistics for each pass
 
 ### Step 5: Test After Cleanup
@@ -215,8 +288,11 @@ The skill will execute cleanup in safe phases:
    ```
 
 5. **Manual Testing** (if no automated tests):
+
    - Test critical user workflows
+
    - Verify application starts correctly
+
    - Check key features still work
 
 ### Step 6: Review and Commit
@@ -459,27 +535,37 @@ cleanup_report/
 
 ### 1. Version Control Required
 - Always commit before cleanup
+
 - Create dedicated cleanup branch
+
 - Commit changes in logical phases
 
 ### 2. Test Coverage
 - Run tests before cleanup (baseline)
+
 - Run tests after each phase
+
 - Document any test failures immediately
 
 ### 3. Incremental Approach
 - Apply changes in small batches
+
 - Verify after each batch
+
 - Don't proceed if tests fail
 
 ### 4. Risk Assessment
 - High-risk changes reviewed manually
+
 - Critical paths tested thoroughly
+
 - Rollback plan documented
 
 ### 5. Documentation
 - Document all changes in commit messages
+
 - Update DEVLOG.md with cleanup history
+
 - Note any behavioral changes
 
 ## Common Issues and Solutions
@@ -488,40 +574,55 @@ cleanup_report/
 **Solution**:
 
 1. Review git diff for the failing area
+
 2. Use `git checkout -- <file>` to revert specific files
+
 3. Re-run tests to isolate issue
+
 4. Apply cleanup more granularly
 
 ### Issue: False Positive for "Unused" Code
 **Solution**:
 
 - Check for dynamic imports (import())
+
 - Verify reflection/string-based references
+
 - Look for eval() or dynamic require()
+
 - Keep code if uncertain
 
 ### Issue: Import Organization Breaks Code
 **Solution**:
 
 - Check for circular dependencies
+
 - Verify import side effects
+
 - Keep original organization if needed
+
 - Document special requirements
 
 ### Issue: Modernization Changes Behavior
 **Solution**:
 
 - Review browser/Node.js compatibility
+
 - Check for subtle semantic differences
+
 - Test edge cases thoroughly
+
 - Revert if behavior changes
 
 ### Issue: TypeScript Type Errors After Cleanup
 **Solution**:
 
 - Run `tsc --noEmit` to check types
+
 - Fix type errors incrementally
+
 - Consider type-only imports
+
 - Update @types/* packages if needed
 
 ## Success Criteria
@@ -529,40 +630,60 @@ cleanup_report/
 After using this skill, your codebase should have:
 
 - [ ] All unused imports removed
+
 - [ ] No console.log debugging statements
+
 - [ ] No commented-out code (except strategic comments)
+
 - [ ] Duplicate code consolidated where appropriate
+
 - [ ] Modern ES6+ patterns applied (arrow functions, destructuring, async/await)
+
 - [ ] Imports organized properly (Node.js → external → internal)
+
 - [ ] Unused npm packages identified or removed
+
 - [ ] All tests passing
+
 - [ ] All linting checks passing
+
 - [ ] TypeScript compilation successful (if using TypeScript)
+
 - [ ] Cleanup documented in DEVLOG.md
+
 - [ ] Changes committed to version control
 
 ## Related Skills
 
 - `setup-javascript-system-prompt`: Establish standards before cleanup
+
 - `code-review-quality`: Review code quality after cleanup
+
 - `generate-test-cases`: Create tests for newly consolidated code
+
 - `generate-docstrings`: Document cleaned-up code
 
 ## Tools and Libraries
 
 ### Static Analysis Tools
 - **ESLint**: Linting and style checking
+
 - **TypeScript**: Type checking
+
 - **Prettier**: Code formatting
+
 - **import-js**: Import management
 
 ### Duplication Detection
 - **jscpd**: Copy-paste detection
+
 - **jsinspect**: Structural duplication detection
 
 ### Unused Code Detection
 - **depcheck**: Unused npm dependencies
+
 - **ts-prune**: Unused TypeScript exports
+
 - **unimported**: Unused files and dependencies
 
 ### Installation
@@ -595,9 +716,13 @@ npx jscpd src/
 ## Additional Resources
 
 - [JavaScript Clean Code](https://github.com/ryanmcdermott/clean-code-javascript)
+
 - [TypeScript Best Practices](https://www.typescriptlang.org/docs/handbook/declaration-files/do-s-and-don-ts.html)
+
 - [Airbnb JavaScript Style Guide](https://github.com/airbnb/javascript)
+
 - [ES6 Features](https://github.com/lukehoban/es6features)
+
 - [You Don't Know JS](https://github.com/getify/You-Dont-Know-JS)
 
 ---

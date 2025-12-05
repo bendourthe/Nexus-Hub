@@ -12,12 +12,16 @@ prerequisites: []
 tools:
 
   - jest (29.7.0)
+
   - eslint (9.15.0)
+
   - prettier
 tags:
 
   - documentation
+
   - documentation
+
   - javascript
 ---
 # JavaScript Technical Documentation
@@ -163,8 +167,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -196,18 +203,26 @@ Please create comprehensive technical documentation for this JavaScript/Node.js 
    ## Architecture Style
 
    - **Pattern**: [MVC/Layered/Event-Driven/Microservices/etc.]
+
    - **Runtime**: [Node.js/Browser/Universal/Edge]
+
    - **Deployment**: [Single instance/distributed/serverless/containerized]
+
    - **State Management**: [Redux/MobX/Context/Stateless/etc.]
+
    - **Communication**: [REST/GraphQL/WebSocket/gRPC]
 
    ## Key Architectural Decisions
 
    ### Decision 1: [Technology/Pattern Choice]
    - **Context**: [What problem needed solving]
+
    - **Decision**: [What was chosen]
+
    - **Rationale**: [Why this approach]
+
    - **Consequences**: [Benefits and trade-offs]
+
    - **Alternatives Considered**: [What else was evaluated]
 
    ### Decision 2: [Another Key Decision]
@@ -256,16 +271,23 @@ Please create comprehensive technical documentation for this JavaScript/Node.js 
    ## Scalability Considerations
 
    - **Horizontal Scaling**: [How the system scales horizontally]
+
    - **Vertical Scaling**: [Limits and considerations]
+
    - **Bottlenecks**: [Known bottlenecks and mitigation]
+
    - **Performance Targets**: [SLAs and performance goals]
 
    ## Security Architecture
 
    - **Authentication**: [Method and implementation]
+
    - **Authorization**: [RBAC/ABAC approach]
+
    - **Data Protection**: [Encryption, PII handling]
+
    - **Network Security**: [TLS, firewall rules, etc.]
+
    - **Secrets Management**: [How secrets are stored/accessed]
    ```
 
@@ -295,34 +317,47 @@ Please create comprehensive technical documentation for this JavaScript/Node.js 
    ### Rationale
 
    **Why this approach was chosen**:
+
    - [Reason 1]
+
    - [Reason 2]
+
    - [Reason 3]
 
    **Alternatives Considered**:
 
    #### Alternative 1: [Name]
    - **Pros**: [Benefits]
+
    - **Cons**: [Drawbacks]
+
    - **Why Rejected**: [Reason]
 
    #### Alternative 2: [Name]
    - **Pros**: [Benefits]
+
    - **Cons**: [Drawbacks]
+
    - **Why Rejected**: [Reason]
 
    ### Consequences
 
    **Positive**:
+
    - [Benefit 1]
+
    - [Benefit 2]
 
    **Negative**:
+
    - [Trade-off 1]
+
    - [Trade-off 2]
 
    **Risks**:
+
    - [Risk 1 and mitigation]
+
    - [Risk 2 and mitigation]
 
    ### Implementation Notes
@@ -332,7 +367,9 @@ Please create comprehensive technical documentation for this JavaScript/Node.js 
    ### References
 
    - [Link to relevant documentation]
+
    - [Link to discussion thread]
+
    - [Related ADRs]
 
    ---
@@ -424,17 +461,25 @@ project/
 - **Purpose**: Handle HTTP requests/responses
 
 - **Responsibilities**:
+
   - Route definition and request routing
+
   - Request validation and parsing
+
   - Response formatting
+
   - Authentication/authorization checks
+
   - Rate limiting and throttling
 
 - **Dependencies**: Services layer only (no direct data access)
 
 - **Key Files**:
+
   - `routes/`: Defines API endpoints
+
   - `middleware/`: Request/response processing
+
   - `controllers/`: Request handlers
 
 ### Services Layer (`src/services/`)
@@ -442,17 +487,25 @@ project/
 - **Purpose**: Business logic and domain operations
 
 - **Responsibilities**:
+
   - Business rule enforcement
+
   - Data validation
+
   - Use case orchestration
+
   - Transaction coordination
+
   - Event emission
 
 - **Dependencies**: Repositories for persistence, no API layer knowledge
 
 - **Key Files**:
+
   - `userService.js`: User business logic
+
   - `productService.js`: Product business logic
+
   - `authService.js`: Authentication logic
 
 ### Repositories Layer (`src/repositories/`)
@@ -460,16 +513,23 @@ project/
 - **Purpose**: Data persistence and retrieval
 
 - **Responsibilities**:
+
   - Database operations (CRUD)
+
   - Query building and optimization
+
   - Transaction management
+
   - Data mapping (DB ↔ Domain)
 
 - **Dependencies**: Infrastructure layer for connections
 
 - **Key Files**:
+
   - `userRepository.js`: User data access
+
   - `productRepository.js`: Product data access
+
   - `baseRepository.js`: Common repository logic
 
 ### Infrastructure Layer (`src/infrastructure/`)
@@ -477,24 +537,35 @@ project/
 - **Purpose**: External service integration
 
 - **Responsibilities**:
+
   - Database connections
+
   - Cache operations
+
   - Message queue operations
+
   - File storage
+
   - Third-party API integration
 
 - **Dependencies**: External services only
 
 - **Key Files**:
+
   - `database/connection.js`: Database setup
+
   - `cache/redisClient.js`: Redis integration
+
   - `queue/jobQueue.js`: Queue integration
 
 ## Dependency Rules
 
 1. **Dependencies flow inward**: API → Services → Repositories → Infrastructure
+
 2. **Services layer is independent**: No dependencies on outer layers
+
 3. **Use dependency injection**: Inject dependencies at boundaries
+
 4. **Interfaces over implementations**: Use abstract classes or interfaces
 
 ## Module Dependencies
@@ -810,7 +881,9 @@ Document external integrations:
 - **Rate Limits**: [Requests per second/minute]
 
 - **Endpoints Used**:
+
   - `GET /api/v1/resource`: [Description]
+
   - `POST /api/v1/action`: [Description]
 
 - **Error Handling**: [How failures are handled]
@@ -925,8 +998,11 @@ CREATE INDEX idx_sessions_user_id ON sessions(user_id);
 - **Broker**: Redis
 
 - **Queues**:
+
   - `email-queue`: Email sending jobs
+
   - `import-queue`: Batch data imports
+
   - `report-queue`: Report generation
 
 - **Workers**: Separate worker processes
@@ -967,10 +1043,15 @@ emailQueue.process('welcome', async (job) => {
 
 ### Authentication Flow
 1. User submits credentials
+
 2. Server validates against database
+
 3. Server generates JWT with user claims
+
 4. Token returned to client
+
 5. Client includes token in subsequent requests
+
 6. Server validates token on each request
 
 ### Authorization
@@ -1192,6 +1273,7 @@ jobs:
           --health-retries 5
 
     steps:
+
       - uses: actions/checkout@v3
 
       - uses: actions/setup-node@v3
@@ -1219,20 +1301,31 @@ jobs:
 ### Deployment Process
 
 1. **Development**: Push to feature branch
+
 2. **PR Review**: Create pull request, CI runs tests
+
 3. **Merge**: Merge to main after approval
+
 4. **Deploy to Staging**: Automatic deployment
+
 5. **Manual Testing**: QA testing on staging
+
 6. **Deploy to Production**: Manual trigger after approval
 
 ## Release Process
 
 1. **Version Bump**: Update version in `package.json`
+
 2. **Update Changelog**: Document changes in `CHANGELOG.md`
+
 3. **Create Release Branch**: `release/vX.Y.Z`
+
 4. **Final Testing**: Run full test suite
+
 5. **Tag Release**: `git tag vX.Y.Z`
+
 6. **Deploy**: Trigger production deployment
+
 7. **Announce**: Notify users of new version
 
 ---
@@ -1322,28 +1415,43 @@ Please provide technical documentation in this format:
 ## Best Practices
 
 1. **Keep Documentation Close to Code**
+
    - Store ADRs in repo
+
    - Update docs with code changes
+
    - Link docs from code comments
 
 2. **Use Diagrams**
+
    - Architecture diagrams
+
    - Sequence diagrams for flows
+
    - Entity-relationship diagrams
 
 3. **Document Decisions**
+
    - Why, not just what
+
    - Alternatives considered
+
    - Trade-offs made
 
 4. **Maintain Currency**
+
    - Review during PRs
+
    - Update with major changes
+
    - Mark obsolete docs
 
 5. **Progressive Detail**
+
    - Start high-level
+
    - Drill down to specifics
+
    - Link between levels
 
 ---

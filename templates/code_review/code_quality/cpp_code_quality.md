@@ -18,11 +18,14 @@ related_templates:
 tools:
 
   - google test
+
   - catch2
+
   - boost.test
 tags:
 
   - code-review
+
   - cpp
 ---
 # C++ Code Quality Review
@@ -155,16 +158,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Issues that create immediate risks to system stability, data integrity, or compliance.
 
 **Examples:**
+
 - Security vulnerabilities (SQL injection, XSS, authentication bypass)
+
 - Resource leaks (unclosed connections, file handles, memory leaks)
+
 - Data loss risks (destructive operations without validation)
+
 - Thread safety violations (race conditions, deadlocks)
+
 - Compliance violations (GDPR, HIPAA, PCI-DSS)
 
 **Action Required:**
+
 - Block deployment until fixed
+
 - Require hotfix within 24 hours
+
 - Add tests to prevent regression
+
 - Document root cause and fix
 
 ---
@@ -174,16 +186,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Issues that significantly impact maintainability, performance, or correctness but don't cause immediate failures.
 
 **Examples:**
+
 - Incorrect business logic (wrong calculations, flawed algorithms)
+
 - Performance bottlenecks (O(n²) algorithms, missing indexes, inefficient queries)
+
 - Memory inefficiency (loading large datasets into memory unnecessarily)
+
 - Breaking API changes without deprecation
+
 - Missing critical error handling (network errors, API failures not caught)
 
 **Action Required:**
+
 - Schedule fix in current sprint
+
 - Cannot release without resolution
+
 - Update documentation
+
 - Performance test after fix
 
 ---
@@ -193,16 +214,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Code smells and technical debt that reduce maintainability but don't affect correctness.
 
 **Examples:**
+
 - High complexity (cyclomatic complexity >10, functions >100 lines)
+
 - Code duplication (>10 lines duplicated across modules)
+
 - Poor naming (unclear variable/function names, inconsistent conventions)
+
 - Missing tests (<80% coverage on critical paths)
+
 - Incomplete error messages (no context for debugging)
 
 **Action Required:**
+
 - Add to backlog
+
 - Prioritize in next sprint planning
+
 - Consider during refactoring opportunities
+
 - Track technical debt metrics
 
 ---
@@ -212,16 +242,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Style inconsistencies and minor optimizations that don't impact functionality.
 
 **Examples:**
+
 - Style violations (linting warnings, formatting issues)
+
 - Minor performance optimizations (in non-critical code paths)
+
 - Missing documentation on helper functions
+
 - Verbose code that could be more concise
+
 - Debug statements left in code
 
 **Action Required:**
+
 - Fix opportunistically during other work
+
 - Batch with other low-priority changes
+
 - Good for new contributors
+
 - Can be deferred indefinitely
 
 ---
@@ -229,20 +268,31 @@ Use this framework to classify and prioritize all findings from the code review.
 ## Severity Assignment Guidelines
 
 **When to Escalate Severity:**
+
 - Issue affects **production environment** → escalate one level
+
 - Issue affects **customer-facing features** → escalate one level
+
 - Issue has **no workaround** → escalate one level
+
 - Issue appears in **multiple locations** → escalate one level
 
 **When to De-escalate Severity:**
+
 - Issue only in **test/development code** → de-escalate one level
+
 - Issue has **easy workaround** → de-escalate one level
+
 - Issue is **isolated to single module** → de-escalate one level
+
 - Issue **rarely executed** (edge case) → de-escalate one level
 
 **Examples:**
+
 - Memory leak in production API: **HIGH → CRITICAL** (production + customer-facing)
+
 - Style violation in test file: **LOW → Ignore** (test code + style only)
+
 - Duplicated logic across 15 modules: **MEDIUM → HIGH** (multiple locations)
 
 ---
@@ -272,16 +322,22 @@ For each finding, include:
 **Issue:** The user search function loads all users into memory and performs linear search on every request.
 
 **Impact:**
+
 - Response time degrades with user count (currently 500ms for 10k users)
+
 - High memory usage (50MB+ per request)
+
 - Poor scalability (can't handle >100k users)
 
 **Recommendation:**
 Move filtering to database with indexed query:
 
 - Add database index on search fields
+
 - Use database LIKE/ILIKE queries
+
 - Implement pagination (limit results to 50)
+
 - Add caching for common searches
 
 **Effort:** 3 hours (2 hours implementation + 1 hour testing)
@@ -328,8 +384,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -399,9 +458,13 @@ Please perform a comprehensive code quality review of this C++ project following
    std::shared_ptr<Widget> shared = std::make_shared<Widget>();
 
    // Check for:
+
    - Raw new/delete usage
+
    - Missing RAII wrappers
+
    - Ownership ambiguity
+
    - Memory leak potential
    ```
 
@@ -413,9 +476,13 @@ Please perform a comprehensive code quality review of this C++ project following
    return std::move(local_resource);  // For move-only types
 
    // Check for:
+
    - Copy where move would be more efficient
+
    - Missing move constructors/assignment operators
+
    - Unnecessary std::move on temporaries
+
    - std::move on const objects (ineffective)
    ```
 
@@ -425,9 +492,13 @@ Please perform a comprehensive code quality review of this C++ project following
    constexpr int compute() { return 42; }
 
    // Check for:
+
    - Missing const on methods that don't modify state
+
    - Missing constexpr on functions that could be compile-time
+
    - Mutable variables that should be const
+
    - const correctness in APIs
    ```
 
@@ -443,7 +514,9 @@ Please perform a comprehensive code quality review of this C++ project following
    auto& y = getSomeRef();  // Unclear if reference
 
    // Flag:
+
    - Overuse obscuring types
+
    - Missing explicit reference/pointer indicators
    ```
 
@@ -456,8 +529,11 @@ Please perform a comprehensive code quality review of this C++ project following
    }
 
    // Check for:
+
    - Index-based loops that could be range-based
+
    - Missing const in range-for loops
+
    - Unnecessary copies in range-for loops
    ```
 
@@ -473,10 +549,15 @@ Please perform a comprehensive code quality review of this C++ project following
    ```
 
 2. **Identify Complexity Hotspots**
+
    - List functions with complexity >10
+
    - Flag functions longer than 50 lines
+
    - Identify deeply nested code (>4 levels)
+
    - Document complex conditional logic
+
    - Review template metaprogramming complexity
 
 3. **Header Dependency Analysis**
@@ -490,10 +571,15 @@ Please perform a comprehensive code quality review of this C++ project following
    ```
 
 4. **Template Complexity**
+
    - Assess template parameter complexity
+
    - Review template specialization usage
+
    - Check for excessive SFINAE
+
    - Evaluate template instantiation burden
+
    - Consider concepts usage (C++20)
 
 ## Phase 4: Design Quality Review
@@ -512,9 +598,13 @@ Please perform a comprehensive code quality review of this C++ project following
    };
 
    // Check for:
+
    - Resources not wrapped in RAII classes
+
    - Manual resource management
+
    - Missing destructors
+
    - Resource leaks in exception paths
    ```
 
@@ -538,16 +628,24 @@ Please perform a comprehensive code quality review of this C++ project following
    };
 
    // Check for:
+
    - Incomplete special member functions
+
    - Missing noexcept on move operations
+
    - Violation of Rule of Zero
    ```
 
 3. **SOLID Principles**
+
    - **Single Responsibility**: Check if classes have one clear purpose
+
    - **Open/Closed**: Evaluate extensibility without modification
+
    - **Liskov Substitution**: Review inheritance hierarchies
+
    - **Interface Segregation**: Check for lean interfaces
+
    - **Dependency Inversion**: Assess dependency on abstractions
 
 4. **DRY Violations**
@@ -559,23 +657,35 @@ Please perform a comprehensive code quality review of this C++ project following
    simian src/**/*.cpp
    ```
    - Identify duplicated logic
+
    - Find near-duplicate functions
+
    - Document consolidation opportunities
 
 5. **Design Patterns**
+
    - Identify patterns in use (RAII, PIMPL, factory, observer, etc.)
+
    - Assess pattern appropriateness
+
    - Flag pattern misuse or over-engineering
+
    - Suggest beneficial pattern applications
 
 ## Phase 5: Code Smell Detection
 
 1. **Common C++ Code Smells**
+
    - **Long Parameter Lists**: Functions with >5 parameters
+
    - **Long Methods**: Methods exceeding 50 lines
+
    - **Large Classes**: Classes with >500 lines or >30 methods
+
    - **God Objects**: Classes doing too much
+
    - **Feature Envy**: Methods using data from other classes excessively
+
    - **Shotgun Surgery**: Changes require modifications across many files
 
 2. **C++ Specific Anti-Patterns**
@@ -611,10 +721,15 @@ Please perform a comprehensive code quality review of this C++ project following
    ```
 
 3. **Resource Management Issues**
+
    - Memory leaks
+
    - Double-free vulnerabilities
+
    - Use-after-free
+
    - Resource leaks (files, sockets, locks)
+
    - Missing exception safety
 
 ## Phase 6: Error Handling & Safety
@@ -627,10 +742,15 @@ Please perform a comprehensive code quality review of this C++ project following
    // No-throw guarantee: Operation never throws
 
    // Check for:
+
    - Functions that should be noexcept
+
    - Exception specifications documented
+
    - RAII used for exception safety
+
    - Strong exception safety where needed
+
    - No resource leaks in exceptional paths
    ```
 
@@ -640,21 +760,32 @@ Please perform a comprehensive code quality review of this C++ project following
    // Should be noexcept:
 
    - Destructors
+
    - Move constructors
+
    - Move assignment operators
+
    - Swap functions
+
    - Simple accessors
 
    // Check for:
+
    - Missing noexcept where appropriate
+
    - Incorrect noexcept (function can actually throw)
+
    - noexcept(true) vs noexcept(false) usage
    ```
 
 3. **Resource Management**
+
    - Verify RAII wrappers for all resources
+
    - Check for proper cleanup in all code paths
+
    - Review exception safety guarantees
+
    - Identify potential resource leaks
 
 ## Phase 7: Documentation Quality
@@ -665,31 +796,48 @@ Please perform a comprehensive code quality review of this C++ project following
    /**
 
     * @brief Brief description
+
     * @param param1 Description of param1
+
     * @param param2 Description of param2
+
     * @return Description of return value
+
     * @throws std::runtime_error if condition occurs
     */
    int function(int param1, int param2);
 
    // Verify:
+
    - Public API fully documented
+
    - Parameters documented
+
    - Return values documented
+
    - Exceptions documented
+
    - Pre/post conditions specified
    ```
 
 2. **Comment Quality**
+
    - Evaluate comment necessity and clarity
+
    - Flag commented-out code for removal
+
    - Check for TODO/FIXME/HACK/XXX comments
+
    - Verify comments explain "why" not "what"
 
 3. **Header Documentation**
+
    - Check file-level documentation
+
    - Verify namespace documentation
+
    - Review class-level documentation
+
    - Assess module documentation
 
 ## Phase 8: Build System Quality
@@ -745,7 +893,9 @@ Please provide a comprehensive quality report with the following structure:
 - **C++ Core Guidelines**: [compliance percentage]
 
 - **Most Common Issues**:
+
   1. [Issue type] - [count] occurrences
+
   2. [Issue type] - [count] occurrences
 
 ### Modern C++ Assessment
@@ -783,14 +933,19 @@ Please provide a comprehensive quality report with the following structure:
 
 ### Design Quality Issues
 1. **SOLID Violations**:
+
    - [Principle]: [specific examples and impact]
 
 2. **RAII Violations**:
+
    - [Location]: [resource not wrapped in RAII]
+
    - **Fix**: [suggested RAII wrapper]
 
 3. **DRY Violations**:
+
    - [Location]: [description of duplication]
+
    - **Consolidation Opportunity**: [suggestion]
 
 4. **Rule of Five/Zero Issues**:
@@ -866,18 +1021,27 @@ Please provide a comprehensive quality report with the following structure:
 
 ### Refactoring Recommendations
 1. **Immediate Actions** (within 1 sprint):
+
    - Replace raw pointers with smart pointers in [module]
+
    - Apply RAII to resource management in [component]
+
    - Fix Rule of Five violations in [classes]
 
 2. **Short-term Goals** (1-2 months):
+
    - Reduce cyclomatic complexity in [functions]
+
    - Modernize C++03 patterns to C++17/20
+
    - Improve exception safety guarantees
 
 3. **Long-term Initiatives** (3-6 months):
+
    - Refactor god classes
+
    - Reduce header dependencies
+
    - Adopt C++20 concepts/ranges
 
 ### Positive Patterns

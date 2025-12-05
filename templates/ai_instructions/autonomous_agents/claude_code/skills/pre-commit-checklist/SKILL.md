@@ -19,22 +19,37 @@ Implement comprehensive automated pre-commit quality checks that validate code b
 Use this skill whenever you need to:
 
 - ✅ Establish quality gates before code enters version control
+
 - ✅ Prevent committing secrets or sensitive data
+
 - ✅ Enforce code style and formatting standards
+
 - ✅ Run fast unit tests before each commit
+
 - ✅ Validate commit message conventions
+
 - ✅ Detect common security issues early
+
 - ✅ Ensure type safety before commits
+
 - ✅ Maintain consistent code quality across team
+
 - ✅ Reduce CI/CD pipeline failures
+
 - ✅ Implement shift-left security practices
 
 **This skill is critical when**:
+
 - Building team coding standards
+
 - Onboarding new developers
+
 - Preventing security credential leaks
+
 - Enforcing commit message conventions
+
 - Reducing code review overhead
+
 - Implementing DevSecOps practices
 
 ## What This Skill Does
@@ -43,21 +58,34 @@ This skill implements automated pre-commit validation:
 
 ### Core Capabilities
 - **Git Hook Setup**: Install and configure pre-commit hooks
+
 - **Code Formatting**: Automatic formatting enforcement
+
 - **Linting**: Style and quality validation
+
 - **Type Checking**: Static type verification
+
 - **Unit Testing**: Fast smoke tests before commit
+
 - **Security Scanning**: Detect secrets and vulnerabilities
+
 - **Commit Message Validation**: Enforce conventions
+
 - **File Size Checks**: Prevent large file commits
+
 - **Merge Conflict Detection**: Catch unresolved conflicts
 
 ### Language Support
 - Python (Black, Flake8, mypy, pytest)
+
 - JavaScript/TypeScript (ESLint, Prettier, tsc, Jest)
+
 - Java (Checkstyle, SpotBugs, JUnit)
+
 - C# (dotnet format, StyleCop, xUnit)
+
 - Go (gofmt, golint, staticcheck, go test)
+
 - C/C++ (clang-format, clang-tidy, cppcheck)
 
 ## Why Pre-Commit Checks Matter
@@ -68,19 +96,31 @@ Developer: *commits code directly*
 Issues Present:
 
 - ❌ Secrets committed to repository
+
 - ❌ Unformatted code creates noise in diffs
+
 - ❌ Linting errors break CI pipeline
+
 - ❌ Type errors discovered in code review
+
 - ❌ Basic unit tests fail in CI
+
 - ❌ Invalid commit messages make history unclear
+
 - ❌ Large files accidentally committed
 
 Result:
+
 - Wasted CI/CD resources
+
 - Delayed feedback loop (minutes/hours)
+
 - Context switching for developers
+
 - Increased code review burden
+
 - Security incidents from leaked credentials
+
 - Poor code quality in version control
 ```
 
@@ -91,20 +131,33 @@ Pre-commit hooks: *run automated checks*
 Issues Found:
 
 - ✅ Secret detected and commit blocked
+
 - ✅ Code automatically formatted
+
 - ✅ Linting errors shown immediately
+
 - ✅ Type errors caught before commit
+
 - ✅ Fast tests verify basic functionality
+
 - ✅ Commit message validated
+
 - ✅ Large files rejected
 
 Result:
+
 - Fast feedback (seconds)
+
 - Issues fixed before entering version control
+
 - Clean CI/CD pipeline runs
+
 - Reduced code review time
+
 - No security credential leaks
+
 - Consistent code quality
+
 - Clear commit history
 ```
 
@@ -112,46 +165,67 @@ Result:
 
 ### Quality Assurance
 - **Early Detection**: Catch issues in seconds, not minutes/hours
+
 - **Consistent Standards**: Enforce team conventions automatically
+
 - **Clean History**: Only quality code enters version control
+
 - **Reduced Debt**: Prevent technical debt accumulation
 
 ### Security
 - **Secret Detection**: Block hardcoded credentials
+
 - **Vulnerability Prevention**: Catch common security issues
+
 - **Compliance**: Enforce security policies automatically
+
 - **Supply Chain**: Validate dependency integrity
 
 ### Developer Experience
 - **Fast Feedback**: Immediate results, no CI wait
+
 - **Reduced Context Switching**: Fix issues while in flow
+
 - **Learning Tool**: Teaches best practices automatically
+
 - **Less Review Burden**: Fewer trivial comments
 
 ### Team Efficiency
 - **CI/CD Savings**: Fewer failed pipeline runs
+
 - **Code Review Speed**: Reviewers focus on logic, not style
+
 - **Onboarding**: New developers learn standards quickly
+
 - **Documentation**: Pre-commit config documents standards
 
 ## Prerequisites
 
 ### Required
 - Git repository initialized
+
 - Package manager for target language(s)
+
 - Bash or PowerShell (for hook scripts)
+
 - Development environment with command-line access
 
 ### Recommended
 - Pre-commit framework installed (cross-language)
+
 - CI/CD pipeline for integration
+
 - Team agreement on standards
+
 - Documentation of conventions
 
 ### Knowledge
 - Git hooks basics
+
 - Linting and formatting tools
+
 - Test frameworks
+
 - Commit message conventions
 
 ## Instructions
@@ -182,10 +256,15 @@ pre-commit run --all-files
 ```
 
 **Advantages**:
+
 - Multi-language support
+
 - Large plugin ecosystem
+
 - Automatic tool installation
+
 - Easy configuration
+
 - Active community
 
 #### Option B: Husky (JavaScript/TypeScript Projects)
@@ -207,9 +286,13 @@ chmod +x .husky/pre-commit
 ```
 
 **Advantages**:
+
 - Lightweight for JavaScript projects
+
 - npm/yarn integration
+
 - Simple setup
+
 - JavaScript-native
 
 #### Option C: Manual Git Hooks
@@ -248,9 +331,13 @@ chmod +x pre-commit
 ```
 
 **Advantages**:
+
 - Full control
+
 - No dependencies
+
 - Customizable
+
 - Language-agnostic
 
 ### Step 2: Configure Language-Specific Checks
@@ -321,13 +408,18 @@ repos:
     hooks:
 
       - id: trailing-whitespace
+
       - id: end-of-file-fixer
+
       - id: check-yaml
+
       - id: check-added-large-files
         args: ['--maxkb=1000']
 
       - id: check-merge-conflict
+
       - id: check-json
+
       - id: pretty-format-json
         args: ['--autofix']
 
@@ -376,7 +468,9 @@ repos:
         additional_dependencies:
 
           - eslint@8.52.0
+
           - eslint-plugin-security@1.7.1
+
           - '@typescript-eslint/eslint-plugin@6.10.0'
 
   # Prettier
@@ -810,9 +904,13 @@ repos:
 ```
 
 **Workflow**:
+
 1. Initial scan creates baseline of existing "secrets" (false positives)
+
 2. Pre-commit hook compares new changes against baseline
+
 3. New secrets are blocked
+
 4. Update baseline when adding legitimate patterns
 
 **Update baseline** when adding legitimate patterns:
@@ -904,12 +1002,19 @@ password.*["\'][^"\']{8,}["\']
 **Format**: `<type>(<scope>): <subject>`
 
 **Types**:
+
 - `feat`: New feature
+
 - `fix`: Bug fix
+
 - `docs`: Documentation
+
 - `style`: Formatting (no code change)
+
 - `refactor`: Code restructuring
+
 - `test`: Adding tests
+
 - `chore`: Maintenance
 
 **Examples**:
@@ -1209,6 +1314,7 @@ repos:
 
       # Check file encoding
       - id: check-case-conflict
+
       - id: mixed-line-ending
         args: ['--fix=lf']
 
@@ -1290,17 +1396,26 @@ repos:
     hooks:
 
       - id: trailing-whitespace
+
       - id: end-of-file-fixer
+
       - id: check-yaml
+
       - id: check-json
+
       - id: check-toml
+
       - id: check-xml
+
       - id: check-added-large-files
         args: ['--maxkb=1000']
 
       - id: check-merge-conflict
+
       - id: check-case-conflict
+
       - id: detect-private-key
+
       - id: no-commit-to-branch
         args: ['--branch', 'main']
 
@@ -1454,13 +1569,21 @@ pre-commit run --all-files
 ```
 
 **What Gets Checked**:
+
 - ✅ Code formatting (Black, Prettier, etc.)
+
 - ✅ Linting (Flake8, ESLint, etc.)
+
 - ✅ Type checking (mypy, TypeScript)
+
 - ✅ Security scanning (bandit, secret detection)
+
 - ✅ Quick unit tests
+
 - ✅ Commit message format
+
 - ✅ File size limits
+
 - ✅ Merge conflict detection
 
 **Bypassing Hooks** (use sparingly):
@@ -1540,6 +1663,7 @@ pre-commit-checks:
   only:
 
     - merge_requests
+
     - main
 ```
 
@@ -1586,8 +1710,11 @@ git commit -m "chore: update pre-commit hooks"
 **Quarterly Tasks**:
 
 1. **Review hook effectiveness**:
+
    - Are hooks catching real issues?
+
    - Are there too many false positives?
+
    - Should we add new checks?
 
 2. **Audit bypass rate**:
@@ -1597,13 +1724,19 @@ git commit -m "chore: update pre-commit hooks"
    ```
 
 3. **Team feedback**:
+
    - Survey team on hook usefulness
+
    - Identify pain points
+
    - Adjust configuration
 
 4. **Performance tuning**:
+
    - Measure hook execution time
+
    - Optimize slow hooks
+
    - Consider parallel execution
 
 #### Performance Optimization
@@ -1622,6 +1755,7 @@ repos:
     hooks:
 
       - id: trailing-whitespace
+
       - id: end-of-file-fixer
 
   # Slow hooks run in parallel
@@ -1637,7 +1771,9 @@ repos:
 ```
 
 **Use `pass_filenames: false` judiciously**:
+
 - Reduces overhead for tools that scan entire project
+
 - But may run on unchanged files
 
 **Conditional execution**:
@@ -1662,40 +1798,60 @@ This skill provides pre-commit automation for:
 
 ### Python
 - **Formatting**: Black, autopep8
+
 - **Linting**: Flake8, pylint, ruff
+
 - **Type Checking**: mypy, pyright
+
 - **Security**: bandit, safety
+
 - **Testing**: pytest (quick tests)
 
 ### JavaScript/TypeScript
 - **Formatting**: Prettier, standardjs
+
 - **Linting**: ESLint with plugins
+
 - **Type Checking**: TypeScript compiler
+
 - **Security**: ESLint security plugin
+
 - **Testing**: Jest (related tests)
 
 ### Java
 - **Formatting**: Google Java Format, Prettier Java
+
 - **Linting**: Checkstyle, PMD
+
 - **Security**: SpotBugs, Find Security Bugs
+
 - **Testing**: JUnit (quick tests)
 
 ### C#
 - **Formatting**: dotnet format, StyleCop
+
 - **Linting**: Roslyn analyzers
+
 - **Security**: Security Code Scan
+
 - **Testing**: xUnit (filtered tests)
 
 ### Go
 - **Formatting**: gofmt, goimports
+
 - **Linting**: golint, staticcheck
+
 - **Security**: gosec
+
 - **Testing**: go test -short
 
 ### C/C++
 - **Formatting**: clang-format
+
 - **Linting**: clang-tidy, cppcheck
+
 - **Security**: flawfinder, cppcheck
+
 - **Testing**: CTest (quick label)
 
 ## Common Pitfalls and Solutions
@@ -1705,9 +1861,13 @@ This skill provides pre-commit automation for:
 **Problem**: Pre-commit takes >30 seconds, frustrating developers.
 
 **Solution**:
+
 - Run only quick tests (< 5 seconds total)
+
 - Use `lint-staged` to check only changed files
+
 - Offload comprehensive checks to CI/CD
+
 - Parallelize independent checks
 
 ```yaml
@@ -1727,9 +1887,13 @@ repos:
 **Problem**: Legitimate code flagged incorrectly.
 
 **Solution**:
+
 - Tune linting rules to reduce noise
+
 - Add exclusions for generated code
+
 - Update secret detection baseline
+
 - Provide clear bypass instructions for exceptional cases
 
 ```yaml
@@ -1743,10 +1907,15 @@ repos:
 **Problem**: Team uses `--no-verify` frequently.
 
 **Solution**:
+
 - Investigate why hooks are being bypassed
+
 - Fix underlying issues (speed, false positives)
+
 - Enforce checks in CI/CD (safety net)
+
 - Educate team on importance
+
 - Make bypass rate visible (metrics)
 
 ```bash
@@ -1759,9 +1928,13 @@ repos:
 **Problem**: New team members forget to install hooks.
 
 **Solution**:
+
 - Add setup to onboarding documentation
+
 - Include in README prominently
+
 - Add installation check to CI/CD
+
 - Use `husky` which auto-installs for JavaScript projects
 
 ```yaml
@@ -1779,9 +1952,13 @@ repos:
 **Problem**: Hook versions become outdated, miss new checks.
 
 **Solution**:
+
 - Schedule monthly `pre-commit autoupdate`
+
 - Subscribe to security advisories for tools
+
 - Review changelogs for new features
+
 - Automate updates with Dependabot
 
 ```yaml
@@ -1797,29 +1974,45 @@ updates:
 ## Success Criteria
 
 - [ ] Pre-commit framework installed and configured
+
 - [ ] Code formatting automated for all languages
+
 - [ ] Linting enforced with appropriate rules
+
 - [ ] Type checking enabled (TypeScript, Python, etc.)
+
 - [ ] Secret detection preventing credential leaks
+
 - [ ] Quick unit tests running (<10 seconds)
+
 - [ ] Commit message validation enforcing conventions
+
 - [ ] File size and type checks preventing inappropriate commits
+
 - [ ] Team trained on pre-commit workflow
+
 - [ ] CI/CD pipeline enforces same checks
+
 - [ ] Documentation updated with setup instructions
+
 - [ ] Performance optimized (total time <30 seconds)
+
 - [ ] False positive rate acceptable (<5%)
+
 - [ ] Bypass rate monitored and low (<10%)
+
 - [ ] Regular maintenance scheduled
 
 ## Related Skills
 
 ### Security Skills
 - [Code Review Security](../code-review-security/SKILL.md) - Deep security audit
+
 - [Dependency Security Audit](../dependency-security-audit/SKILL.md) - Dependency vulnerabilities
 
 ### Quality Skills
 - [Code Review Quality](../code-review-quality/SKILL.md) - Code quality assessment
+
 - [Test-Driven Development](../test-driven-development/SKILL.md) - TDD practices
 
 ### Workflow Skills
@@ -1829,24 +2022,34 @@ updates:
 
 ### Pre-commit Frameworks
 - [Pre-commit Framework](https://pre-commit.com/) - Multi-language framework
+
 - [Husky](https://typicode.github.io/husky/) - JavaScript/TypeScript
+
 - [Lefthook](https://github.com/evilmartians/lefthook) - Fast Git hooks manager
 
 ### Commit Message Standards
 - [Conventional Commits](https://www.conventionalcommits.org/)
+
 - [Commitlint](https://commitlint.js.org/)
+
 - [Angular Commit Guidelines](https://github.com/angular/angular/blob/master/CONTRIBUTING.md#commit)
 
 ### Secret Detection
 - [detect-secrets](https://github.com/Yelp/detect-secrets)
+
 - [TruffleHog](https://github.com/trufflesecurity/trufflehog)
+
 - [git-secrets](https://github.com/awslabs/git-secrets)
+
 - [Gitleaks](https://github.com/gitleaks/gitleaks)
 
 ### Code Quality Tools
 - [Black](https://black.readthedocs.io/) - Python formatter
+
 - [ESLint](https://eslint.org/) - JavaScript linter
+
 - [Prettier](https://prettier.io/) - Universal formatter
+
 - [Checkstyle](https://checkstyle.org/) - Java style checker
 
 ---

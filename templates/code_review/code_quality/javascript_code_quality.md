@@ -18,11 +18,14 @@ related_templates:
 tools:
 
   - jest (29.7.0)
+
   - eslint (9.15.0)
+
   - prettier
 tags:
 
   - code-review
+
   - javascript
 ---
 # JavaScript Code Quality Review
@@ -139,10 +142,15 @@ Use this framework to classify and prioritize all findings from the code quality
 **Definition:** Issues that create immediate risks to system stability, data integrity, or compliance.
 
 **Examples:**
+
 - **Unhandled promise rejections** that could crash the Node.js process
+
 - **Memory leaks** (event listeners not removed, closures holding references)
+
 - **XSS vulnerabilities** (unescaped user input in DOM)
+
 - **Prototype pollution** vulnerabilities
+
 - **Race conditions** in async code causing data corruption
 
 **Code Example:**
@@ -167,9 +175,13 @@ async function fetchUserData(userId) {
 ```
 
 **Action Required:**
+
 - Block deployment until fixed
+
 - Require hotfix within 24 hours
+
 - Add tests to prevent regression
+
 - Document root cause and fix
 
 ---
@@ -179,10 +191,15 @@ async function fetchUserData(userId) {
 **Definition:** Issues that significantly impact maintainability, performance, or correctness but don't cause immediate failures.
 
 **Examples:**
+
 - **Incorrect business logic** (wrong calculations, flawed state management)
+
 - **Performance bottlenecks** (inefficient array operations, missing React.memo)
+
 - **Memory inefficiency** (large arrays/objects not cleaned up)
+
 - **Breaking changes to APIs** without deprecation
+
 - **Missing critical error handling** (network errors, API failures)
 
 **Code Example:**
@@ -215,9 +232,13 @@ function findDuplicates(items) {
 ```
 
 **Action Required:**
+
 - Schedule fix in current sprint
+
 - Cannot release without resolution
+
 - Update documentation
+
 - Performance test after fix
 
 ---
@@ -227,10 +248,15 @@ function findDuplicates(items) {
 **Definition:** Code smells and technical debt that reduce maintainability but don't affect correctness.
 
 **Examples:**
+
 - **High complexity** (cyclomatic complexity >10, functions >100 lines)
+
 - **Code duplication** (>10 lines duplicated across files)
+
 - **Poor naming** (unclear variable/function names)
+
 - **Missing tests** (<80% coverage on critical paths)
+
 - **Console.log statements** left in production code
 
 **Code Example:**
@@ -267,9 +293,13 @@ function processOrder(order, user, inventory, payment) {
 ```
 
 **Action Required:**
+
 - Add to backlog
+
 - Prioritize in next sprint planning
+
 - Consider during refactoring opportunities
+
 - Track technical debt metrics
 
 ---
@@ -279,10 +309,15 @@ function processOrder(order, user, inventory, payment) {
 **Definition:** Style inconsistencies and minor optimizations that don't impact functionality.
 
 **Examples:**
+
 - **Style violations** (ESLint warnings, inconsistent quotes)
+
 - **Minor optimizations** (using `const` vs `let` in non-critical code)
+
 - **Missing JSDoc** on helper functions
+
 - **Verbose code** that could use modern ES6+ features
+
 - **Debug statements** (console.log, debugger)
 
 **Code Example:**
@@ -303,9 +338,13 @@ function calculateTotal(items) {
 ```
 
 **Action Required:**
+
 - Fix opportunistically during other work
+
 - Batch with other low-priority changes
+
 - Good for new contributors
+
 - Can be deferred indefinitely
 
 ---
@@ -313,20 +352,31 @@ function calculateTotal(items) {
 ## Severity Assignment Guidelines
 
 **When to Escalate Severity:**
+
 - Issue affects **production environment** → escalate one level
+
 - Issue affects **customer-facing features** → escalate one level
+
 - Issue has **no workaround** → escalate one level
+
 - Issue appears in **multiple locations** → escalate one level
 
 **When to De-escalate Severity:**
+
 - Issue only in **test/development code** → de-escalate one level
+
 - Issue has **easy workaround** → de-escalate one level
+
 - Issue is **isolated to single module** → de-escalate one level
+
 - Issue **rarely executed** (edge case) → de-escalate one level
 
 **Examples:**
+
 - Memory leak in React component used everywhere: **HIGH → CRITICAL** (production + multiple locations)
+
 - ESLint warning in test file: **LOW → Ignore** (test code + style only)
+
 - Duplicated validation logic across 15 API endpoints: **MEDIUM → HIGH** (multiple locations)
 
 ---
@@ -356,9 +406,13 @@ For each finding, include:
 **Issue:** The user search endpoint loads all users into memory and performs JavaScript array filtering on every request.
 
 **Impact:**
+
 - Response time: 800ms for 10k users (target: <100ms)
+
 - Memory spike: 75MB per request
+
 - Database connection held open during filtering
+
 - Server can only handle 20 concurrent searches before OOM
 
 **Recommendation:**
@@ -418,8 +472,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -461,16 +518,25 @@ Please perform a comprehensive code quality review of this JavaScript project fo
    ```
 
 3. **Style Violations Analysis**
+
    - Document most common violations
+
    - Identify patterns of non-compliance
+
    - Assess consistency across modules
+
    - Flag formatting inconsistencies
 
 4. **Naming Convention Review**
+
    - Verify function names are descriptive and camelCase
+
    - Check class/component names use PascalCase
+
    - Confirm constants use UPPER_CASE or descriptive names
+
    - Identify unclear or abbreviated names
+
    - Check for Hungarian notation or other anti-patterns
 
 ## Phase 2: Complexity Analysis
@@ -488,26 +554,41 @@ Please perform a comprehensive code quality review of this JavaScript project fo
    ```
 
 2. **Identify Complexity Hotspots**
+
    - List functions with complexity >10
+
    - Flag functions longer than 50 lines
+
    - Identify deeply nested code (>4 levels)
+
    - Document complex conditional logic
+
    - Find excessive use of ternary operators
 
 3. **Module-Level Analysis**
+
    - Assess module size and cohesion
+
    - Identify modules with too many responsibilities
+
    - Check coupling between modules
+
    - Evaluate package organization
+
    - Identify circular dependencies
 
 ## Phase 3: Design Quality Review
 
 1. **SOLID Principles**
+
    - **Single Responsibility**: Check if classes/functions have one clear purpose
+
    - **Open/Closed**: Evaluate extensibility without modification
+
    - **Liskov Substitution**: Review inheritance hierarchies (if applicable)
+
    - **Interface Segregation**: Check for lean interfaces
+
    - **Dependency Inversion**: Assess dependency on abstractions
 
 2. **DRY Violations**
@@ -519,24 +600,37 @@ Please perform a comprehensive code quality review of this JavaScript project fo
    npx jscpd src/ --format html -o ./duplication-report
    ```
    - Identify duplicated logic
+
    - Find near-duplicate functions
+
    - Document consolidation opportunities
+
    - Check for repeated patterns
 
 3. **Design Patterns**
+
    - Identify patterns in use (Factory, Observer, Module, etc.)
+
    - Assess pattern appropriateness
+
    - Flag pattern misuse or over-engineering
+
    - Suggest beneficial pattern applications
 
 ## Phase 4: Code Smell Detection
 
 1. **Common JavaScript Code Smells**
+
    - **Long Parameter Lists**: Functions with >5 parameters
+
    - **Long Functions**: Functions exceeding 50 lines
+
    - **Large Classes/Components**: Classes with >300 lines or >20 methods
+
    - **Callback Hell**: Deep nesting of callbacks
+
    - **Promise Chains**: Excessive .then() chaining
+
    - **Data Clumps**: Same groups of data appearing together
 
 2. **Anti-Patterns**
@@ -577,12 +671,19 @@ Please perform a comprehensive code quality review of this JavaScript project fo
    ```
 
 3. **JavaScript-Specific Issues**
+
    - Using `==` instead of `===`
+
    - Implicit type coercion issues
+
    - Scope issues (var hoisting, closure problems)
+
    - `this` binding confusion
+
    - Missing `await` on promises
+
    - Unhandled async errors
+
    - Memory leaks (event listeners, timers, closures)
 
 ## Phase 5: Error Handling & Robustness
@@ -615,17 +716,27 @@ Please perform a comprehensive code quality review of this JavaScript project fo
    ```
 
 2. **Promise & Async/Await Review**
+
    - Check for unhandled promise rejections
+
    - Verify proper use of async/await
+
    - Look for missing `await` keywords
+
    - Check for unnecessary `await` (sequential vs parallel)
+
    - Review error propagation in async code
 
 3. **Defensive Programming**
+
    - Input validation assessed
+
    - Boundary condition handling reviewed
+
    - Edge case coverage evaluated
+
    - Null/undefined checks where appropriate
+
    - Type checking (especially in non-TypeScript projects)
 
 ## Phase 6: Documentation Quality
@@ -639,15 +750,23 @@ Please perform a comprehensive code quality review of this JavaScript project fo
    npx documentation build src/** -f html -o docs
    ```
    - Measure function/class JSDoc presence
+
    - Assess JSDoc completeness (@param, @returns, @throws)
+
    - Verify parameter documentation accuracy
+
    - Check return value documentation
 
 2. **Comment Quality**
+
    - Evaluate comment necessity and clarity
+
    - Flag commented-out code for removal
+
    - Check for TODO/FIXME/HACK comments
+
    - Verify comments explain "why" not "what"
+
    - Look for outdated comments
 
 3. **Type Annotations** (TypeScript)
@@ -659,8 +778,11 @@ Please perform a comprehensive code quality review of this JavaScript project fo
    npx tsc --noEmit --noImplicitAny
    ```
    - Assess type annotation coverage
+
    - Verify type accuracy
+
    - Check for `any` overuse
+
    - Review complex type definitions
 
 ## Phase 7: Modern JavaScript Best Practices
@@ -707,9 +829,13 @@ Please perform a comprehensive code quality review of this JavaScript project fo
    ```
 
 3. **Functional Programming Patterns**
+
    - Prefer immutability
+
    - Use array methods (map, filter, reduce) over loops
+
    - Avoid side effects in functions
+
    - Use pure functions where possible
 
 ## Phase 8: Framework-Specific Quality (if applicable)
@@ -773,8 +899,11 @@ Please provide a comprehensive quality report with the following structure:
 - **ESLint Violations**: [count and severity breakdown]
 
 - **Most Common Issues**:
+
   1. [Issue type] - [count] occurrences
+
   2. [Issue type] - [count] occurrences
+
   3. [Issue type] - [count] occurrences
 
 - **Consistency Score**: [percentage]
@@ -794,13 +923,17 @@ Please provide a comprehensive quality report with the following structure:
 
 ### Design Quality Issues
 1. **SOLID Violations**:
+
    - [Principle]: [specific examples and impact]
 
 2. **DRY Violations**:
+
    - [Location]: [description of duplication]
+
    - **Consolidation Opportunity**: [suggestion]
 
 3. **Missing Patterns**:
+
    - [Location]: [beneficial pattern suggestion]
 
 ### Code Smells Identified
@@ -857,12 +990,15 @@ Please provide a comprehensive quality report with the following structure:
 
 ### Refactoring Recommendations
 1. **Immediate Actions** (within 1 sprint):
+
    - [Specific refactoring with location and rationale]
 
 2. **Short-term Goals** (1-2 months):
+
    - [Improvement initiative with expected impact]
 
 3. **Long-term Initiatives** (3-6 months):
+
    - [Strategic refactoring with business justification]
 
 ### Positive Patterns

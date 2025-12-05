@@ -21,11 +21,17 @@ Then reload VS Code: `Ctrl+Shift+P` → "Developer: Reload Window"
 **Purpose**: Defines VS Code tasks for building and running tests.
 
 **Available Tasks**:
+
 - **CMake: Configure** - Configures CMake with Ninja generator
+
 - **CMake: Build Tests** (Default Build: `Ctrl+Shift+B`) - Builds all test executables
+
 - **Run All Tests** (Default Test Task) - Runs all tests with CTest
+
 - **Run Tests (Verbose)** - Runs tests with detailed output
+
 - **Run Single Test** - Runs specific test by name pattern
+
 - **Generate Code Coverage** - Builds coverage report
 
 **Usage**:
@@ -36,8 +42,11 @@ Ctrl+Shift+P         → "Tasks: Run Task" → Select specific task
 ```
 
 **Customization**:
+
 - Change build type: Modify `CMAKE_BUILD_TYPE` (Debug/Release/RelWithDebInfo)
+
 - Change generator: Replace `Ninja` with `Unix Makefiles` or `Visual Studio 17 2022`
+
 - Adjust parallel jobs: Change `-j8` to match your CPU cores
 
 ---
@@ -47,14 +56,21 @@ Ctrl+Shift+P         → "Tasks: Run Task" → Select specific task
 **Purpose**: Enables debugging Google Test executables with breakpoints and step-through execution.
 
 **Available Configurations**:
+
 - **Debug Current Test Binary** - Debug specific test executable with GTest filter
+
 - **Debug All Tests** - Debug all tests at once
 
 **Usage**:
+
 1. Open test file
+
 2. Set breakpoint (click in gutter)
+
 3. Press `F5` → Select "Debug Current Test Binary"
+
 4. Enter test binary name (e.g., "calculator")
+
 5. Enter GTest filter (e.g., "CalculatorTest.Add*" or "*")
 
 **Keyboard Shortcuts**:
@@ -68,7 +84,9 @@ Shift+F5        → Stop debugging
 ```
 
 **Platform Notes**:
+
 - **Linux/Mac**: Uses `gdb` (change to `lldb` for LLVM)
+
 - **Windows**: Change `"MIMode": "gdb"` to `"MIMode": "lldb"` or configure MSVC debugger
 
 ---
@@ -109,8 +127,11 @@ Shift+F5        → Stop debugging
 ```
 
 **Customization**:
+
 - Change C++ standard: Modify `"c++17"` to `"c++11"`, `"c++14"`, `"c++20"`, etc.
+
 - Disable auto-configure: Set `"cmake.configureOnOpen": false`
+
 - Change formatter: Replace `"xaver.clang-format"` with alternative
 
 ---
@@ -120,8 +141,11 @@ Shift+F5        → Stop debugging
 **Purpose**: Configures C++ IntelliSense for different platforms with Google Test headers.
 
 **Configurations Included**:
+
 - **Linux**: GCC with `linux-gcc-x64` IntelliSense mode
+
 - **Mac**: Clang with `macos-clang-x64` IntelliSense mode
+
 - **Win32**: MSVC with `windows-msvc-x64` IntelliSense mode
 
 **Key Paths**:
@@ -134,13 +158,19 @@ Shift+F5        → Stop debugging
 ```
 
 **Why This Matters**:
+
 - Prevents red squiggly lines for `#include <gtest/gtest.h>`
+
 - Enables auto-completion for Google Test macros (TEST, EXPECT_EQ, etc.)
+
 - Provides hover documentation for Google Test APIs
 
 **Customization**:
+
 - Update compiler path if not in standard location
+
 - Add additional include directories for your project
+
 - Change C++ standard to match your project
 
 ---
@@ -151,17 +181,23 @@ Install these extensions for full functionality:
 
 ### Essential
 - **CMake Tools** (`twxs.cmake`) - CMake integration
+
 - **C/C++** (`ms-vscode.cpptools`) - C++ language support
+
 - **C/C++ Extension Pack** (`ms-vscode.cpptools-extension-pack`) - Full C++ toolkit
 
 ### Recommended
 - **Test Explorer UI** (`hbenl.vscode-test-explorer`) - Graphical test runner
+
 - **C++ TestMate** (`matepek.vscode-catch2-test-adapter`) - Google Test integration
+
 - **GitHub Copilot** (`GitHub.copilot`) - AI code generation
 
 ### Optional
 - **clangd** (`llvm-vs-code-extensions.vscode-clangd`) - Alternative IntelliSense
+
 - **CodeLLDB** (`vadimcn.vscode-lldb`) - Advanced LLVM debugger
+
 - **CMake** (`twxs.cmake`) - CMake language support
 
 Install all at once:
@@ -181,24 +217,35 @@ code --install-extension GitHub.copilot
 ### Issue: CMake doesn't auto-configure
 
 **Solution**:
+
 1. Check bottom status bar for CMake kit selection
+
 2. Press `Ctrl+Shift+P` → "CMake: Select a Kit"
+
 3. Choose your compiler (GCC, Clang, or MSVC)
+
 4. Press `Ctrl+Shift+P` → "CMake: Configure"
 
 ### Issue: IntelliSense shows errors for Google Test headers
 
 **Solution**:
+
 1. Ensure CMake has run at least once: `cmake -B build`
+
 2. Check `build/_deps/googletest-src/` exists
+
 3. Reload window: `Ctrl+Shift+P` → "Developer: Reload Window"
+
 4. Verify `c_cpp_properties.json` paths match your system
 
 ### Issue: Tests don't appear in Test Explorer
 
 **Solution**:
+
 1. Install "C++ TestMate" extension
+
 2. Build tests first: `Ctrl+Shift+B`
+
 3. Check `settings.json` has correct test pattern:
    ```json
    "testMate.cpp.test.advancedExecutables": [
@@ -210,22 +257,35 @@ code --install-extension GitHub.copilot
 ### Issue: Debugger doesn't start
 
 **Solution**:
+
 1. Verify test binary exists: `ls build/test_*`
+
 2. Check debugger is installed:
+
    - **Linux**: `sudo apt-get install gdb`
+
    - **Mac**: `xcode-select --install` (includes lldb)
+
    - **Windows**: Install Visual Studio Build Tools
+
 3. Update `launch.json` with correct `MIMode` for your platform
 
 ### Issue: Build fails with "Ninja not found"
 
 **Solution**:
+
 1. Install Ninja:
+
    - **Linux**: `sudo apt-get install ninja-build`
+
    - **Mac**: `brew install ninja`
+
    - **Windows**: `choco install ninja`
+
 2. Or change generator in `tasks.json`:
+
    - Replace `"Ninja"` with `"Unix Makefiles"` (Linux/Mac)
+
    - Replace with `"Visual Studio 17 2022"` (Windows)
 
 ---
@@ -235,14 +295,21 @@ code --install-extension GitHub.copilot
 These configurations are designed to work with the Google Test + GitHub Copilot workflow:
 
 1. **Clone repo** → Open in VS Code
+
 2. **Copy `.vscode/` configs** → Auto-configure CMake
+
 3. **Generate tests with Copilot** → Use prompt templates
+
 4. **Build tests** → `Ctrl+Shift+B`
+
 5. **Run tests** → Command Palette → "Tasks: Run Test Task"
+
 6. **Debug failures** → Set breakpoints → `F5`
 
 For complete workflow documentation, see:
+
 - [templates/test_development/GOOGLE_TEST_VSCODE_WORKFLOW.md](../GOOGLE_TEST_VSCODE_WORKFLOW.md)
+
 - [templates/test_development/unit_tests/COPILOT_QUICK_REFERENCE.md](../unit_tests/COPILOT_QUICK_REFERENCE.md)
 
 ---
@@ -266,6 +333,7 @@ Edit `settings.json`:
 
 ### Use Different Compiler
 1. Press `Ctrl+Shift+P` → "CMake: Edit User-Local CMake Kits"
+
 2. Add custom kit:
 ```json
 {
@@ -294,18 +362,25 @@ For projects with multiple test suites:
 
 ### Linux
 - Default debugger: GDB
+
 - Compiler: GCC or Clang
+
 - Package manager: apt/yum/dnf
 
 ### macOS
 - Default debugger: LLDB (change in `launch.json`)
+
 - Compiler: Apple Clang
+
 - Package manager: Homebrew
 
 ### Windows
 - Default debugger: MSVC (requires configuration update)
+
 - Compiler: MSVC 2022
+
 - Package manager: Chocolatey or winget
+
 - **Note**: Use PowerShell or CMD, not Git Bash, for tasks
 
 For Windows MSVC debugging, update `launch.json`:
@@ -324,8 +399,11 @@ For Windows MSVC debugging, update `launch.json`:
 ## Additional Resources
 
 - [CMake Tools Documentation](https://vector-of-bool.github.io/docs/vscode-cmake-tools/)
+
 - [VS Code C++ Documentation](https://code.visualstudio.com/docs/languages/cpp)
+
 - [Google Test Primer](https://google.github.io/googletest/primer.html)
+
 - [Debugging in VS Code](https://code.visualstudio.com/docs/editor/debugging)
 
 ---

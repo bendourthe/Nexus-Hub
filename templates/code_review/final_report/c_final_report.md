@@ -18,11 +18,14 @@ related_templates:
 tools:
 
   - unity
+
   - cmocka
+
   - check
 tags:
 
   - code-review
+
   - c
 ---
 # C/Embedded Code Review Final Report
@@ -81,16 +84,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Issues that create immediate risks to system stability, data integrity, or compliance.
 
 **Examples:**
+
 - Security vulnerabilities (SQL injection, XSS, authentication bypass)
+
 - Resource leaks (unclosed connections, file handles, memory leaks)
+
 - Data loss risks (destructive operations without validation)
+
 - Thread safety violations (race conditions, deadlocks)
+
 - Compliance violations (GDPR, HIPAA, PCI-DSS)
 
 **Action Required:**
+
 - Block deployment until fixed
+
 - Require hotfix within 24 hours
+
 - Add tests to prevent regression
+
 - Document root cause and fix
 
 ---
@@ -100,16 +112,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Issues that significantly impact maintainability, performance, or correctness but don't cause immediate failures.
 
 **Examples:**
+
 - Incorrect business logic (wrong calculations, flawed algorithms)
+
 - Performance bottlenecks (O(n²) algorithms, missing indexes, inefficient queries)
+
 - Memory inefficiency (loading large datasets into memory unnecessarily)
+
 - Breaking API changes without deprecation
+
 - Missing critical error handling (network errors, API failures not caught)
 
 **Action Required:**
+
 - Schedule fix in current sprint
+
 - Cannot release without resolution
+
 - Update documentation
+
 - Performance test after fix
 
 ---
@@ -119,16 +140,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Code smells and technical debt that reduce maintainability but don't affect correctness.
 
 **Examples:**
+
 - High complexity (cyclomatic complexity >10, functions >100 lines)
+
 - Code duplication (>10 lines duplicated across modules)
+
 - Poor naming (unclear variable/function names, inconsistent conventions)
+
 - Missing tests (<80% coverage on critical paths)
+
 - Incomplete error messages (no context for debugging)
 
 **Action Required:**
+
 - Add to backlog
+
 - Prioritize in next sprint planning
+
 - Consider during refactoring opportunities
+
 - Track technical debt metrics
 
 ---
@@ -138,16 +168,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Style inconsistencies and minor optimizations that don't impact functionality.
 
 **Examples:**
+
 - Style violations (linting warnings, formatting issues)
+
 - Minor performance optimizations (in non-critical code paths)
+
 - Missing documentation on helper functions
+
 - Verbose code that could be more concise
+
 - Debug statements left in code
 
 **Action Required:**
+
 - Fix opportunistically during other work
+
 - Batch with other low-priority changes
+
 - Good for new contributors
+
 - Can be deferred indefinitely
 
 ---
@@ -155,20 +194,31 @@ Use this framework to classify and prioritize all findings from the code review.
 ## Severity Assignment Guidelines
 
 **When to Escalate Severity:**
+
 - Issue affects **production environment** → escalate one level
+
 - Issue affects **customer-facing features** → escalate one level
+
 - Issue has **no workaround** → escalate one level
+
 - Issue appears in **multiple locations** → escalate one level
 
 **When to De-escalate Severity:**
+
 - Issue only in **test/development code** → de-escalate one level
+
 - Issue has **easy workaround** → de-escalate one level
+
 - Issue is **isolated to single module** → de-escalate one level
+
 - Issue **rarely executed** (edge case) → de-escalate one level
 
 **Examples:**
+
 - Memory leak in production API: **HIGH → CRITICAL** (production + customer-facing)
+
 - Style violation in test file: **LOW → Ignore** (test code + style only)
+
 - Duplicated logic across 15 modules: **MEDIUM → HIGH** (multiple locations)
 
 ---
@@ -198,16 +248,22 @@ For each finding, include:
 **Issue:** The user search function loads all users into memory and performs linear search on every request.
 
 **Impact:**
+
 - Response time degrades with user count (currently 500ms for 10k users)
+
 - High memory usage (50MB+ per request)
+
 - Poor scalability (can't handle >100k users)
 
 **Recommendation:**
 Move filtering to database with indexed query:
 
 - Add database index on search fields
+
 - Use database LIKE/ILIKE queries
+
 - Implement pagination (limit results to 50)
+
 - Add caching for common searches
 
 **Effort:** 3 hours (2 hours implementation + 1 hour testing)
@@ -254,8 +310,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -278,38 +337,63 @@ Please consolidate all code review findings into a comprehensive final report fo
 Gather and organize findings from all review phases:
 
 1. **Context Analysis Summary**
+
    - Target hardware platform and constraints
+
    - Build system and toolchain configuration
+
    - RTOS vs bare metal architecture
+
    - Memory resources (Flash/RAM usage)
+
    - Real-time and safety requirements
 
 2. **Code Quality Findings**
+
    - MISRA-C compliance status
+
    - CERT-C secure coding violations
+
    - Complexity hotspots
+
    - Technical debt summary
+
    - Coding standards adherence
 
 3. **Security Assessment**
+
    - Critical vulnerabilities (buffer overflows, use-after-free)
+
    - Memory safety issues
+
    - Input validation gaps
+
    - Cryptography and authentication weaknesses
+
    - Firmware update security
 
 4. **Performance Analysis**
+
    - Real-time constraint violations
+
    - Resource utilization (CPU, Flash, RAM)
+
    - Power consumption issues
+
    - Interrupt latency problems
+
    - Optimization opportunities
 
 5. **Testing Evaluation**
+
    - Coverage metrics (line, branch)
+
    - Test infrastructure maturity
+
    - Critical testing gaps
+
    - Hardware-in-the-loop testing status
+
    - Reliability issues
 
 ## Phase 2: Priority Matrix
@@ -367,19 +451,31 @@ Create a phased implementation plan:
 **Critical P0 Items** - Must be addressed immediately:
 
 1. **[Fix buffer overflow in UART handler]**
+
    - **Risk**: Remote code execution, system crash
+
    - **Effort**: 4 hours
+
    - **Owner**: [Firmware lead]
+
    - **Dependencies**: None
+
    - **Success Criteria**: All buffer accesses bounds-checked
+
    - **Verification**: Code review + fuzzing test
 
 2. **[Add stack overflow protection]**
+
    - **Risk**: Silent corruption, unpredictable behavior
+
    - **Effort**: 1 day
+
    - **Owner**: [Systems engineer]
+
    - **Dependencies**: Stack usage analysis
+
    - **Success Criteria**: Stack canary or MPU protection enabled
+
    - **Verification**: Deliberate overflow triggers fault handler
 
 ### Short-term Goals (Weeks 2-4)
@@ -401,15 +497,23 @@ Define success metrics to track improvement:
 ### Code Quality Metrics
 
 - **Current State**:
+
   - MISRA-C Compliance: [%]
+
   - Average Cyclomatic Complexity: [score]
+
   - Test Coverage: [%]
+
   - Technical Debt: [hours]
 
 - **Target State** (3 months):
+
   - MISRA-C Compliance: [95%+]
+
   - Average Cyclomatic Complexity: [<8]
+
   - Test Coverage: [75%+]
+
   - Technical Debt: [50% reduction]
 
 ### Security Metrics
@@ -421,15 +525,23 @@ Define success metrics to track improvement:
 ### Performance Metrics
 
 - **Current**:
+
   - Flash Usage: [X%]
+
   - RAM Usage: [Y%]
+
   - Worst-case ISR latency: [Z µs]
+
   - Power Consumption: [mA]
 
 - **Target**:
+
   - Flash Usage: [<80%]
+
   - RAM Usage: [<75%]
+
   - WCET for critical ISR: [<10 µs]
+
   - Power Consumption: [<5 mA average]
 
 ### Testing Metrics
@@ -528,18 +640,27 @@ Please provide a comprehensive final report with the following structure:
 **Architecture Assessment**:
 
 - **Strengths**:
+
   - Clean separation between HAL and application layers
+
   - Proper RTOS task priorities and stack sizes
+
   - Well-documented initialization sequence
 
 - **Concerns**:
+
   - Excessive global variables (42 identified)
+
   - Tight coupling between protocol handler and UART driver
+
   - Missing hardware abstraction for analog inputs
 
 - **Dependencies**:
+
   - [STM32 HAL v1.7.12 - outdated, security patches available]
+
   - [FreeRTOS v10.4.6 - current]
+
   - [mbedTLS v2.28 - outdated, upgrade recommended]
 
 ---
@@ -573,8 +694,11 @@ Please provide a comprehensive final report with the following structure:
 | [Complex state machine (CC=18)] | [comm.c:234] | [High] | [8h] | [P1] |
 
 **Recommendations**:
+
 1. Fix all mandatory and required MISRA-C violations (P0)
+
 2. Refactor functions with complexity >15 (P1)
+
 3. Enable static analysis in CI pipeline (P1)
 
 ---
@@ -596,12 +720,19 @@ Please provide a comprehensive final report with the following structure:
 **Critical Vulnerabilities** (MUST FIX IMMEDIATELY):
 
 1. **CWE-119: Buffer Overflow in Protocol Parser**
+
    - **Location**: protocol.c:145
+
    - **CVSS**: 9.8 (Critical)
+
    - **Description**: `memcpy()` without bounds checking allows attacker-controlled length
+
    - **Exploit**: Remote code execution via crafted network packet
+
    - **Fix**: Add length validation before memcpy
+
    - **Effort**: 2 hours
+
    - **Code**:
      ```c
      // VULNERABLE:
@@ -615,15 +746,23 @@ Please provide a comprehensive final report with the following structure:
      ```
 
 2. **CWE-120: strcpy() without Bounds Checking**
+
    - **Location**: config.c:78
+
    - **CVSS**: 8.6 (High)
+
    - **Fix**: Replace with strncpy + null termination
+
    - **Effort**: 1 hour
 
 3. **CWE-327: Hardcoded Cryptographic Key**
+
    - **Location**: crypto.c:23
+
    - **CVSS**: 9.1 (Critical)
+
    - **Fix**: Use key derivation or secure storage
+
    - **Effort**: 1 day
 
 **High-Risk Issues**:
@@ -634,10 +773,15 @@ Please provide a comprehensive final report with the following structure:
 | CWE-362 | Race condition on g_data | main.c:234 | 7.8 | Protect with mutex |
 
 **Security Roadmap**:
+
 1. **Week 1**: Fix all 3 critical vulnerabilities
+
 2. **Week 2-4**: Address 8 high-risk issues
+
 3. **Month 2**: Implement compiler security flags (-fstack-protector, -D_FORTIFY_SOURCE)
+
 4. **Month 3**: Add firmware signature verification
+
 5. **Ongoing**: Enable security scanning in CI (Flawfinder, Cppcheck)
 
 ---
@@ -674,20 +818,31 @@ Please provide a comprehensive final report with the following structure:
 **Quick Wins** (High Impact, Low Effort):
 
 1. **Replace floating-point with fixed-point in motor control**
+
    - **Current**: 450µs per control loop
+
    - **Expected**: 50µs per control loop (9x faster)
+
    - **Effort**: 4 hours
+
    - **Impact**: Meets real-time deadline
 
 2. **Use DMA for SPI sensor read**
+
    - **Current**: 80% CPU during 5ms SPI transfer
+
    - **Expected**: <2% CPU overhead
+
    - **Effort**: 3 hours
 
 3. **Pre-compute CRC lookup table**
+
    - **Current**: 850µs calculation time
+
    - **Expected**: 80µs (10.6x faster)
+
    - **Effort**: 2 hours
+
    - **Trade-off**: +256 bytes Flash
 
 **Power Consumption**:
@@ -758,10 +913,15 @@ Please provide a comprehensive final report with the following structure:
 - [ ] **Power Tests**: Sleep modes not validated
 
 **Testing Roadmap**:
+
 1. **Week 1-2**: Add tests for critical protocol parsing (target: 80% coverage)
+
 2. **Week 3-4**: Set up CI pipeline with automated testing
+
 3. **Month 2**: Implement HIL test automation for 5 critical peripherals
+
 4. **Month 3**: Add fuzzing for all external input paths
+
 5. **Ongoing**: Maintain 75% coverage on new code
 
 ---
@@ -819,31 +979,51 @@ Please provide a comprehensive final report with the following structure:
 **P0 Action Items**:
 
 1. **Fix Buffer Overflow in Protocol Parser** [CRITICAL]
+
    - Owner: [Senior Dev]
+
    - Effort: 2 hours
+
    - Dependencies: None
+
    - Success Criteria: All buffer accesses bounds-checked, fuzzing test passes
+
    - Verification: Code review + fuzzing with oversized packets
 
 2. **Remove Hardcoded Crypto Key** [CRITICAL]
+
    - Owner: [Security Lead]
+
    - Effort: 8 hours
+
    - Dependencies: Key storage mechanism
+
    - Success Criteria: Keys derived from UID or stored in secure element
+
    - Verification: Key not found in binary analysis
 
 3. **Fix Real-Time Deadline Violations** [CRITICAL]
+
    - Owner: [Embedded Lead]
+
    - Effort: 4 hours
+
    - Dependencies: None
+
    - Success Criteria: Motor control WCET < 1ms
+
    - Verification: 10,000 iterations with no deadline miss
 
 4. **Add Watchdog Implementation** [HIGH]
+
    - Owner: [Firmware Dev]
+
    - Effort: 4 hours
+
    - Dependencies: None
+
    - Success Criteria: Watchdog triggers reset on hang
+
    - Verification: Deliberately hang system, verify reset
 
 **Deliverables**:
@@ -919,23 +1099,35 @@ Please provide a comprehensive final report with the following structure:
 **Initiatives**:
 
 1. **MISRA-C Compliance** (3 weeks)
+
    - Target: 95% compliance
+
    - Focus on required and advisory rules
+
    - Document justified deviations
 
 2. **Secure Boot Implementation** (2 weeks)
+
    - Firmware signature verification
+
    - Rollback protection
+
    - Secure key storage
 
 3. **HIL Test Automation** (3 weeks)
+
    - Automate tests for 5 critical peripherals
+
    - Set up continuous hardware testing
+
    - Create regression test suite
 
 4. **Performance Optimization** (1 week)
+
    - Optimize remaining performance hotspots
+
    - Reduce Flash usage to <75%
+
    - Tune RTOS task priorities
 
 **Deliverables**:
@@ -957,26 +1149,41 @@ Please provide a comprehensive final report with the following structure:
 **Q1 Goals**:
 
 1. **Certification Preparation** (if applicable)
+
    - IEC 61508 / ISO 26262 documentation
+
    - Traceability matrix
+
    - Safety analysis (FMEA, FTA)
 
 2. **Power Management** (2 weeks)
+
    - Implement tickless idle
+
    - Dynamic voltage scaling
+
    - Peripheral power management
+
    - Target: 40% average current reduction
 
 3. **Advanced Testing** (ongoing)
+
    - Achieve 80% coverage
+
    - Implement continuous fuzzing
+
    - Add performance regression tests
+
    - Stress testing (72+ hour runs)
 
 4. **Process Improvements**
+
    - Establish secure development lifecycle
+
    - Code review checklist
+
    - Security training for team
+
    - Regular static analysis reviews
 
 **Long-term Vision** (6-12 months):
@@ -1046,8 +1253,11 @@ Please provide a comprehensive final report with the following structure:
 **Investment Required**: [~400 hours over 3 months]
 
 **Critical Actions**:
+
 1. **Immediate** (Week 1): Allocate 2 senior developers for critical fixes
+
 2. **Short-term** (Month 1): Budget for static analysis tools and CI infrastructure
+
 3. **Medium-term** (Month 2-3): Plan for HIL test equipment and secure element hardware
 
 **Risk if Not Addressed**:
@@ -1073,9 +1283,13 @@ Please provide a comprehensive final report with the following structure:
 ### For Development Team
 
 **Immediate Actions**:
+
 1. Stop adding features; focus on P0 fixes (Week 1)
+
 2. Set up local static analysis (cppcheck, MISRA checker)
+
 3. Review and understand critical vulnerability fixes
+
 4. Begin writing tests for uncovered critical code
 
 **Skill Development Needs**:
@@ -1260,8 +1474,11 @@ quality: static-analysis coverage
 # CI Configuration (.gitlab-ci.yml or GitHub Actions)
 
 stages:
+
   - build
+
   - test
+
   - analyze
 
 build:
@@ -1269,6 +1486,7 @@ build:
   script:
 
     - make clean
+
     - make all
 
 test:
@@ -1285,11 +1503,13 @@ static-analysis:
   script:
 
     - cppcheck --xml --enable=all src/ 2> ${OUTPUT_DIR}/exports/cppcheck_report.xml
+
     - flawfinder --html src/ > ${OUTPUT_DIR}/exports/security_report.html
   artifacts:
     paths:
 
       - cppcheck_report.xml
+
       - security_report.html
 
 coverage:
@@ -1297,6 +1517,7 @@ coverage:
   script:
 
     - make COVERAGE=1 test
+
     - lcov --summary coverage.info
   coverage: '/lines.*: (\d+\.\d+)%/'
 ```
@@ -1320,10 +1541,15 @@ coverage:
 **Overall Assessment**: [Needs significant work before production deployment]
 
 **Key Takeaways**:
+
 1. **Critical security vulnerabilities must be fixed immediately** (buffer overflows, hardcoded keys)
+
 2. **Real-time constraints are not being met** (motor control deadline misses)
+
 3. **Code quality and test coverage need improvement** for long-term maintainability
+
 4. **Resource usage is approaching limits** (78% Flash usage leaves little headroom)
+
 5. **With focused effort over 3 months, project can reach production-ready status**
 
 **Go/No-Go Recommendation**:
@@ -1337,11 +1563,17 @@ coverage:
 - **After Month 3**: GO for full production
 
 **Next Steps**:
+
 1. ✅ Review and approve this report
+
 2. ✅ Assign owners to P0 and P1 items
+
 3. ✅ Schedule kickoff for critical fix sprint (Week 1)
+
 4. ✅ Procure tools and equipment (static analyzers, HIL test setup)
+
 5. ✅ Set up tracking dashboard for metrics
+
 6. ✅ Plan follow-up review in 1 month
 
 **Questions or Clarifications**: [Contact: firmware-lead@company.com]

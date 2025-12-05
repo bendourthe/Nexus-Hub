@@ -12,12 +12,16 @@ prerequisites: []
 tools:
 
   - NUnit (4.2.2)
+
   - xUnit
+
   - MSTest
 tags:
 
   - documentation
+
   - documentation
+
   - c#
 ---
 # C# Documentation Generation (XML Documentation Comments)
@@ -149,8 +153,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -169,17 +176,24 @@ Please generate comprehensive XML documentation comments for this C# project fol
 ## Phase 1: Analysis & Style Selection
 
 1. **Analyze Existing Code**
+
    - Inventory all namespaces, classes, and public methods
+
    - Identify existing XML documentation patterns
+
    - Note special documentation requirements (nullable reference types, etc.)
+
    - Review inheritance hierarchies and interfaces
 
 2. **Determine Documentation Style**
    Use **C# XML Documentation Comments** standard compatible with IntelliSense and DocFX.
 
 3. **Review Type Definitions**
+
    - Check generic type usage
+
    - Ensure XML comments complement type signatures
+
    - Document nullable reference types
 
 ## Phase 2: Namespace-Level Documentation
@@ -692,55 +706,85 @@ After XML comments are complete:
 ## Best Practices
 
 1. **First Sentence is Summary**
+
    - Keep `<summary>` concise (one or two sentences)
+
    - Use `<remarks>` for detailed explanations
+
    - Summary shows in IntelliSense popup
 
 2. **Use Proper XML Tags**
+
    - `<para>` for paragraphs
+
    - `<code>` for code snippets
+
    - `<list type="bullet|number|table">` for lists
+
    - `<c>` for inline code references
 
 3. **Cross-Reference with CREF**
+
    - Use `<see cref=""/>` for inline references
+
    - Use `<seealso cref=""/>` for related items
+
    - Use `<paramref name=""/>` to reference parameters
 
 4. **Document Null Handling**
+
    - Explicitly document nullable parameters and returns
+
    - Use nullable reference types (`T?`)
+
    - Document null behavior in `<param>` and `<returns>`
 
 5. **Maintain Consistency**
+
    - Use same style throughout project
+
    - Follow Microsoft documentation conventions
+
    - Update XML comments when code changes
 
 ## Common Mistakes to Avoid
 
 1. **Don't duplicate method signature**
+
    - Bad: `This method takes string param1 and returns Result`
+
    - Good: `Processes the input using the specified configuration`
 
 2. **Don't forget to document exceptions**
+
    - Always use `<exception cref="ExceptionType">`
+
    - Explain when and why the exception is thrown
+
    - Reference parameters using `<paramref>`
 
 3. **Don't use invalid XML**
+
    - Always close tags properly
+
    - Escape XML characters: `&lt;`, `&gt;`, `&amp;`
+
    - Use `<![CDATA[...]]>` for complex code examples
 
 4. **Don't forget IntelliSense compatibility**
+
    - Keep `<summary>` concise for tooltip display
+
    - Put detailed info in `<remarks>`
+
    - Test IntelliSense display in Visual Studio
 
 5. **Don't forget to enable XML documentation**
+
    - Set `GenerateDocumentationFile` to true in .csproj
+
    - Configure warnings appropriately
+
    - Include XML files in NuGet packages
 
 ## File Output Instructions

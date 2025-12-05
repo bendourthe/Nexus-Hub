@@ -19,19 +19,31 @@ Systematically evaluate code maintainability, readability, and adherence to best
 Use this skill as **Phase 2** after completing context analysis:
 
 - ✅ After [Phase 1: Context Analysis](../code-review-context-analysis/SKILL.md) is complete
+
 - ✅ Evaluating code quality for existing projects
+
 - ✅ Identifying technical debt before major features
+
 - ✅ Assessing maintainability for team transitions
+
 - ✅ Pre-refactoring analysis and planning
+
 - ✅ Establishing quality baselines and metrics
+
 - ✅ Code ownership and responsibility assessment
+
 - ✅ Compliance with coding standards verification
 
 **This skill is essential when**:
+
 - You need to quantify technical debt
+
 - You're planning refactoring initiatives
+
 - You want to improve code maintainability
+
 - You're establishing quality gates for CI/CD
+
 - You need to identify complexity hotspots
 
 ## What This Skill Does
@@ -40,10 +52,15 @@ This skill implements **Phase 2: Quality Review** of the six-phase code review w
 
 ### Complete Workflow
 - Phase 1: [Context Analysis](../code-review-context-analysis/SKILL.md) - Project understanding
+
 - **Phase 2: Quality Review (This Skill)** - Code maintainability assessment
+
 - Phase 3: [Security Review](../code-review-security/SKILL.md) - Vulnerability identification
+
 - Phase 4: [Performance Review](../code-review-performance/SKILL.md) - Bottleneck analysis
+
 - Phase 5: [Testing Review](../code-review-testing/SKILL.md) - Test coverage evaluation
+
 - Phase 6: [Final Report](../code-review-final-report/SKILL.md) - Consolidated findings
 
 ## Why Quality Review Matters
@@ -56,10 +73,15 @@ Maintenance: *becomes increasingly expensive*
 Result:
 
 - ❌ High complexity makes changes risky
+
 - ❌ Duplicated code multiplies bugs
+
 - ❌ Poor naming hinders understanding
+
 - ❌ Inconsistent style wastes review time
+
 - ❌ Technical debt compounds over time
+
 - ❌ Developer velocity decreases
 ```
 
@@ -71,10 +93,15 @@ Maintenance: *stays manageable*
 Result:
 
 - ✅ Low complexity enables safe changes
+
 - ✅ DRY principle reduces bug surface
+
 - ✅ Clear naming aids comprehension
+
 - ✅ Consistent style speeds reviews
+
 - ✅ Technical debt stays controlled
+
 - ✅ Developer velocity sustained
 ```
 
@@ -82,41 +109,60 @@ Result:
 
 ### Code Maintainability
 - **Easier Changes**: Simple, well-organized code is easier to modify
+
 - **Faster Onboarding**: New developers understand code quickly
+
 - **Reduced Bugs**: Clear code has fewer defects
+
 - **Lower Costs**: Less time spent on maintenance
 
 ### Technical Debt Management
 - **Quantified Debt**: Know exactly what needs improvement
+
 - **Prioritized Fixes**: Address highest-impact issues first
+
 - **Tracked Progress**: Measure debt reduction over time
+
 - **Prevented Accumulation**: Stop new debt from forming
 
 ### Team Productivity
 - **Faster Reviews**: Consistent style speeds code review
+
 - **Less Confusion**: Clear code needs fewer explanations
+
 - **Better Collaboration**: Standards enable teamwork
+
 - **Knowledge Sharing**: Readable code teaches patterns
 
 ## Prerequisites
 
 ### Required
 - Completion of [Phase 1: Context Analysis](../code-review-context-analysis/SKILL.md)
+
 - Source code access
+
 - Static analysis tools installed
+
 - Understanding of language-specific best practices
 
 ### Recommended
 - Code style guides for the language
+
 - Complexity analysis tools
+
 - Code duplication detectors
+
 - Team coding standards documentation
 
 ### Knowledge
 - SOLID principles
+
 - Design patterns
+
 - Code smells recognition
+
 - Refactoring techniques
+
 - Language-specific idioms
 
 ## Instructions
@@ -202,18 +248,27 @@ Result:
 2. **Analyze Common Violations**
 
    Document the most frequent issues:
+
    - Line length violations
+
    - Indentation inconsistencies
+
    - Naming convention violations
+
    - Import organization issues
+
    - Whitespace problems
 
 3. **Assess Consistency**
 
    Check for:
+
    - Consistent naming across codebase
+
    - Uniform formatting style
+
    - Standardized error handling
+
    - Common patterns usage
 
 ### Step 2: Complexity Analysis
@@ -276,17 +331,25 @@ Result:
    ```
 
    Look for:
+
    - Functions exceeding 50 lines
+
    - Methods with >5 parameters
+
    - Deep nesting (>4 levels)
+
    - Large classes (>300 lines)
 
 3. **Module-Level Analysis**
 
    Evaluate:
+
    - Module cohesion (single responsibility)
+
    - Module coupling (dependencies)
+
    - Package organization
+
    - Circular dependencies
 
 ### Step 3: Design Quality Review
@@ -420,14 +483,21 @@ Result:
 3. **Design Patterns Assessment**
 
    Identify patterns in use:
+
    - **Creational**: Factory, Builder, Singleton
+
    - **Structural**: Adapter, Decorator, Facade
+
    - **Behavioral**: Observer, Strategy, Command
 
    Check for:
+
    - Appropriate pattern usage
+
    - Pattern misapplication
+
    - Over-engineering
+
    - Missing beneficial patterns
 
 ### Step 4: Code Smell Detection
@@ -659,18 +729,27 @@ Result:
 2. **Resource Management**
 
    Check for:
+
    - Proper use of context managers (Python)
+
    - Try-with-resources (Java)
+
    - Using statements (C#)
+
    - Defer statements (Go)
+
    - RAII (C++)
 
 3. **Logging and Error Messages**
 
    Evaluate:
+
    - Error messages are informative
+
    - Sensitive data not logged
+
    - Appropriate log levels used
+
    - Errors logged before re-throwing
 
 ### Step 6: Documentation Quality
@@ -703,9 +782,13 @@ Result:
    ```
 
    Look for:
+
    - Commented-out code (remove it)
+
    - Outdated comments
+
    - TODO/FIXME comments
+
    - Missing documentation for complex logic
 
 3. **Type Hints/Annotations**
@@ -735,21 +818,29 @@ Result:
 ## Executive Summary
 
 - **Overall Quality Score**: [A-F]
+
 - **Maintainability Index**: [Score]
+
 - **Average Complexity**: [Score]
+
 - **Critical Issues**: [Count]
+
 - **Technical Debt**: [Estimated hours]
 
 ## Coding Standards Compliance
 
 ### Style Violations
 - **Total Violations**: [Count]
+
 - **Most Common**: [Type] ([Count] occurrences)
+
 - **Consistency Score**: [%]
 
 ### Top Issues
 1. [Issue Type] - [Count] occurrences
+
 2. [Issue Type] - [Count] occurrences
+
 3. [Issue Type] - [Count] occurrences
 
 ## Complexity Analysis
@@ -768,14 +859,20 @@ Result:
 
 ### SOLID Violations
 1. **Single Responsibility**: [Examples and impact]
+
 2. **Open/Closed**: [Examples and impact]
+
 3. **Liskov Substitution**: [Examples and impact]
+
 4. **Interface Segregation**: [Examples and impact]
+
 5. **Dependency Inversion**: [Examples and impact]
 
 ### DRY Violations
 - **Duplication Found**: [Count] instances
+
 - **Locations**: [List major duplications]
+
 - **Consolidation Opportunities**: [Suggestions]
 
 ## Code Smells Detected
@@ -787,15 +884,21 @@ Result:
 ## Error Handling Assessment
 
 - **Broad Exception Catching**: [Count] locations
+
 - **Missing Resource Cleanup**: [Count] locations
+
 - **Inadequate Error Messages**: [Count] instances
+
 - **Silent Failures**: [Count] occurrences
 
 ## Documentation Score
 
 - **Code Documentation**: [%] coverage
+
 - **Type Hints**: [%] coverage
+
 - **Comment Quality**: [Good/Fair/Poor]
+
 - **Missing Documentation**: [List areas]
 
 ## Technical Debt Summary
@@ -826,54 +929,81 @@ Result:
 ## Positive Patterns
 
 - [Good practice observed]
+
 - [Effective pattern usage]
 
 ## Next Steps
 
 - [ ] Address critical complexity hotspots
+
 - [ ] Implement automated quality gates
+
 - [ ] Plan refactoring sprints for P1/P2 debt
+
 - [ ] Establish team coding standards
+
 - [ ] Set up pre-commit hooks
+
 - [ ] Proceed to [Phase 3: Security Review](../code-review-security/SKILL.md)
 ```
 
 ## Success Criteria
 
 - [ ] Coding standards compliance assessed
+
 - [ ] Complexity hotspots identified
+
 - [ ] SOLID principles evaluated
+
 - [ ] Code smells documented
+
 - [ ] Error handling reviewed
+
 - [ ] Documentation quality measured
+
 - [ ] Technical debt quantified
+
 - [ ] Refactoring plan created
+
 - [ ] Quality report generated
+
 - [ ] Team ready for security review
 
 ## Related Skills
 
 ### Code Review Workflow
 1. [Phase 1: Context Analysis](../code-review-context-analysis/SKILL.md)
+
 2. **Phase 2: Quality Review (This Skill)**
+
 3. [Phase 3: Security Review](../code-review-security/SKILL.md)
+
 4. [Phase 4: Performance Review](../code-review-performance/SKILL.md)
+
 5. [Phase 5: Testing Review](../code-review-testing/SKILL.md)
+
 6. [Phase 6: Final Report](../code-review-final-report/SKILL.md)
 
 ## Additional Resources
 
 ### Quality Tools
 - **Python**: pylint, flake8, black, radon, mypy
+
 - **JavaScript**: ESLint, Prettier, JSDoc, complexity-report
+
 - **Java**: Checkstyle, PMD, SpotBugs, SonarQube
+
 - **Go**: golint, gofmt, go vet, staticcheck
+
 - **C/C++**: clang-tidy, cppcheck, clang-format
+
 - **C#**: StyleCop, FxCop, ReSharper
 
 ### Best Practices
 - [Clean Code by Robert C. Martin](https://www.amazon.com/Clean-Code-Handbook-Software-Craftsmanship/dp/0132350882)
+
 - [Refactoring by Martin Fowler](https://refactoring.com/)
+
 - [Code Complete by Steve McConnell](https://www.amazon.com/Code-Complete-Practical-Handbook-Construction/dp/0735619670)
 
 ---

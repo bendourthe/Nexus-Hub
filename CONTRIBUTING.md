@@ -5,13 +5,21 @@ Thank you for your interest in contributing to AI Templates! This document provi
 ## Table of Contents
 
 - [Code of Conduct](#code-of-conduct)
+
 - [Getting Started](#getting-started)
+
 - [Contributing Skills](#contributing-skills)
+
 - [Contributing Templates](#contributing-templates)
+
 - [Contributing Tools](#contributing-tools)
+
 - [Contributing Documentation](#contributing-documentation)
+
 - [Quality Standards](#quality-standards)
+
 - [Submission Process](#submission-process)
+
 - [Testing Guidelines](#testing-guidelines)
 
 ---
@@ -19,9 +27,13 @@ Thank you for your interest in contributing to AI Templates! This document provi
 ## Code of Conduct
 
 By participating in this project, you agree to:
+
 - Be respectful and inclusive
+
 - Provide constructive feedback
+
 - Focus on what is best for the community
+
 - Show empathy towards other contributors
 
 ---
@@ -90,8 +102,11 @@ Longer description explaining what the skill does and when to use it.
 ## When to Use This Skill
 
 List specific scenarios:
+
 - ✅ Scenario 1
+
 - ✅ Scenario 2
+
 - ✅ Scenario 3
 
 ## What This Skill Does
@@ -117,7 +132,9 @@ Describe what Claude will do when this skill is invoked.
 ## Quality Criteria
 
 List success criteria:
+
 - [ ] Criterion 1
+
 - [ ] Criterion 2
 
 ## Examples
@@ -127,12 +144,15 @@ Provide real-world examples of skill usage.
 ## Notes
 
 - Important considerations
+
 - Limitations
+
 - Best practices
 
 ## Related Skills
 
 - [related-skill-1](../related-skill-1/SKILL.md)
+
 - [related-skill-2](../related-skill-2/SKILL.md)
 ```
 
@@ -156,25 +176,37 @@ Choose the most appropriate category:
 ### Skill Priority Levels
 
 - **CRITICAL**: Essential for all projects (e.g., plan-before-code)
+
 - **HIGH**: Very useful, recommended for most projects
+
 - **MEDIUM**: Useful for specific scenarios
+
 - **LOW**: Nice-to-have, specialized use cases
 
 ### Naming Conventions
 
 - Use kebab-case: `skill-name-here`
+
 - Be descriptive and specific
+
 - Use verbs for actions: `generate-`, `create-`, `setup-`
+
 - Be concise but clear
 
 **Good Examples:**
+
 - `plan-before-code`
+
 - `generate-api-docs`
+
 - `cleanup-python`
 
 **Bad Examples:**
+
 - `my_skill` (underscore, not descriptive)
+
 - `doStuff` (camelCase, vague)
+
 - `python-code-cleanup-and-modernization-tool` (too long)
 
 ---
@@ -186,8 +218,11 @@ Templates provide structured prompts for specific tasks.
 ### Template Categories
 
 - **Code Review**: Multi-phase review processes
+
 - **Code Cleanup**: Dead code removal and refactoring
+
 - **Test Development**: Test generation and infrastructure
+
 - **Documentation**: API docs, user guides, technical docs
 
 ### Template Structure
@@ -209,6 +244,7 @@ What the user should receive.
 
 ## Quality Checklist
 - [ ] Criterion 1
+
 - [ ] Criterion 2
 ```
 
@@ -221,9 +257,13 @@ Tools enhance repository functionality and user experience.
 ### Tool Requirements
 
 1. **Python scripts** in `tools/` directory
+
 2. **Comprehensive docstrings** with usage examples
+
 3. **Command-line interface** using `argparse`
+
 4. **Error handling** for common failure cases
+
 5. **Cross-platform compatibility** (Windows, Linux, macOS)
 
 ### Tool Template
@@ -238,6 +278,7 @@ Usage:
     python tools/tool_name.py --option value
 
 Authors:
+
     - Your Name (your.email@example.com)
 """
 import argparse
@@ -276,16 +317,23 @@ if __name__ == '__main__':
 ### Documentation Standards
 
 1. **Clarity**: Write for beginners and experts alike
+
 2. **Examples**: Include practical, real-world examples
+
 3. **Structure**: Use consistent headings and formatting
+
 4. **Completeness**: Cover common use cases and edge cases
+
 5. **Maintenance**: Keep documentation up-to-date with code changes
 
 ### Documentation Categories
 
 - **README files**: Overview and quick start
+
 - **Skill documentation**: SKILL.md files with usage
+
 - **Tool documentation**: Tools README with examples
+
 - **API documentation**: Reference for programmatic use
 
 ---
@@ -297,27 +345,41 @@ All contributions must meet these standards:
 ### Content Quality
 
 - [ ] **Clear and concise**: Easy to understand
+
 - [ ] **Accurate**: Technically correct
+
 - [ ] **Complete**: Covers all necessary information
+
 - [ ] **Tested**: Verified to work as described
+
 - [ ] **Well-structured**: Logical organization
+
 - [ ] **Grammatically correct**: Proper spelling and grammar
 
 ### Technical Quality
 
 - [ ] **Follows conventions**: Naming, formatting, structure
+
 - [ ] **Cross-platform**: Works on Windows, Linux, macOS
+
 - [ ] **Error handling**: Graceful failure with helpful messages
+
 - [ ] **Performance**: Efficient, no unnecessary operations
+
 - [ ] **Security**: No vulnerabilities or unsafe practices
 
 ### Skill-Specific Quality
 
 - [ ] **YAML frontmatter**: Complete and accurate
+
 - [ ] **Clear purpose**: When to use section is specific
+
 - [ ] **Detailed instructions**: Step-by-step guidance
+
 - [ ] **Examples**: Real-world usage scenarios
+
 - [ ] **Quality criteria**: Measurable success conditions
+
 - [ ] **Related skills**: Links to complementary skills
 
 ---
@@ -327,7 +389,9 @@ All contributions must meet these standards:
 ### 1. Prepare Your Contribution
 
 - **Create or modify files** following guidelines above
+
 - **Test thoroughly** on multiple platforms if possible
+
 - **Update catalog** if adding/modifying skills:
   ```bash
   python tools/build_skills_catalog.py
@@ -350,11 +414,17 @@ git push origin feature/your-skill-name
 ### 3. Create Pull Request
 
 1. Go to GitHub and create a Pull Request
+
 2. **Title**: Clear, descriptive (e.g., "Add cleanup-rust skill")
+
 3. **Description**: Include:
+
    - What you're adding/changing
+
    - Why it's useful
+
    - How you tested it
+
    - Related issues (if any)
 
 **PR Template:**
@@ -364,37 +434,55 @@ git push origin feature/your-skill-name
 
 ## Type of Change
 - [ ] New skill
+
 - [ ] New template
+
 - [ ] New tool
+
 - [ ] Documentation
+
 - [ ] Bug fix
+
 - [ ] Enhancement
 
 ## Skill/Template Details (if applicable)
 - **Name**: skill-name
+
 - **Category**: Category
+
 - **Priority**: CRITICAL | HIGH | MEDIUM | LOW
+
 - **Language**: Multi-language | Specific
 
 ## Testing
 - [ ] Tested on Windows
+
 - [ ] Tested on Linux
+
 - [ ] Tested on macOS
+
 - [ ] Updated skills.json
+
 - [ ] Documentation updated
 
 ## Checklist
 - [ ] Follows contribution guidelines
+
 - [ ] Meets quality standards
+
 - [ ] Includes examples
+
 - [ ] No breaking changes
 ```
 
 ### 4. Review Process
 
 1. **Maintainers review** your contribution
+
 2. **Feedback provided** if changes needed
+
 3. **Iterate** based on feedback
+
 4. **Merged** once approved
 
 ---
@@ -404,15 +492,23 @@ git push origin feature/your-skill-name
 ### Manual Testing
 
 **For Skills:**
+
 1. Test skill invocation in Claude Code
+
 2. Verify expected behavior
+
 3. Test edge cases and error conditions
+
 4. Check cross-language support (if applicable)
 
 **For Tools:**
+
 1. Test all command-line options
+
 2. Test with invalid inputs
+
 3. Test on different operating systems
+
 4. Verify error messages are helpful
 
 ### Automated Testing
@@ -442,23 +538,33 @@ if __name__ == '__main__':
 ### Skills
 
 - ❌ Too vague: "Use this for coding"
+
 - ❌ Too narrow: Only works for one specific framework version
+
 - ❌ Missing frontmatter or incomplete metadata
+
 - ❌ No examples or usage guidance
+
 - ❌ Assumes too much prior knowledge
 
 ### Tools
 
 - ❌ Platform-specific code without fallbacks
+
 - ❌ Poor error messages: "Error" vs "File not found: path/to/file"
+
 - ❌ No command-line help
+
 - ❌ Hardcoded paths
 
 ### Documentation
 
 - ❌ Outdated examples that no longer work
+
 - ❌ Missing context or prerequisites
+
 - ❌ Inconsistent formatting
+
 - ❌ Broken links
 
 ---
@@ -466,8 +572,11 @@ if __name__ == '__main__':
 ## Recognition
 
 Contributors will be:
+
 - Listed in skill/tool author fields
+
 - Mentioned in release notes for significant contributions
+
 - Thanked in repository README
 
 ---
@@ -475,7 +584,9 @@ Contributors will be:
 ## Questions?
 
 - **Issues**: Open an issue on GitHub for bugs or feature requests
+
 - **Discussions**: Use GitHub Discussions for questions
+
 - **Email**: Contact repository maintainer: benjamin@adonamed.com
 
 ---

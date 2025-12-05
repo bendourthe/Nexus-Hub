@@ -12,12 +12,16 @@ prerequisites: []
 tools:
 
   - junit (5.11.3)
+
   - maven
+
   - gradle
 tags:
 
   - documentation
+
   - documentation
+
   - java
 ---
 # Java Technical Documentation
@@ -163,8 +167,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -196,18 +203,26 @@ Please create comprehensive technical documentation for this Java project follow
    ## Architecture Style
 
    - **Pattern**: [Layered/Hexagonal/Clean/Microservices/Event-Driven]
+
    - **Framework**: [Spring Boot/Quarkus/Micronaut/Jakarta EE/etc.]
+
    - **Deployment**: [Single WAR/JAR/containerized/serverless]
+
    - **State Management**: [Stateless/stateful/hybrid]
+
    - **Communication**: [REST/gRPC/SOAP/Messaging]
 
    ## Key Architectural Decisions
 
    ### Decision 1: [Technology/Pattern Choice]
    - **Context**: [What problem needed solving]
+
    - **Decision**: [What was chosen]
+
    - **Rationale**: [Why this approach]
+
    - **Consequences**: [Benefits and trade-offs]
+
    - **Alternatives Considered**: [What else was evaluated]
 
    ## Technology Stack
@@ -225,16 +240,23 @@ Please create comprehensive technical documentation for this Java project follow
    ## Scalability Considerations
 
    - **Horizontal Scaling**: [Load balancing across instances]
+
    - **Vertical Scaling**: [JVM tuning, heap sizing]
+
    - **Bottlenecks**: [Known bottlenecks and mitigation]
+
    - **Performance Targets**: [Response times, throughput]
 
    ## Security Architecture
 
    - **Authentication**: [JWT/OAuth2/SAML]
+
    - **Authorization**: [Spring Security/Apache Shiro]
+
    - **Data Protection**: [Encryption at rest/in transit]
+
    - **Network Security**: [TLS, firewall rules]
+
    - **Secrets Management**: [Vault/AWS Secrets Manager]
    ```
 
@@ -261,24 +283,33 @@ Please create comprehensive technical documentation for this Java project follow
    ### Rationale
 
    **Why this approach was chosen**:
+
    - [Reason 1]
+
    - [Reason 2]
 
    **Alternatives Considered**:
+
    - Alternative 1: [Name] - Why rejected
+
    - Alternative 2: [Name] - Why rejected
 
    ### Consequences
 
    **Positive**:
+
    - [Benefit 1]
+
    - [Benefit 2]
 
    **Negative**:
+
    - [Trade-off 1]
+
    - [Trade-off 2]
 
    **Risks**:
+
    - [Risk and mitigation]
    ```
 
@@ -364,9 +395,13 @@ com.company.project/
 - **Purpose**: Handle HTTP requests/responses
 
 - **Responsibilities**:
+
   - Route mapping (`@RestController`, `@RequestMapping`)
+
   - Request validation (`@Valid`, `@Validated`)
+
   - Response formatting
+
   - Exception handling
 
 - **Dependencies**: Service layer only
@@ -378,9 +413,13 @@ com.company.project/
 - **Purpose**: Business logic and orchestration
 
 - **Responsibilities**:
+
   - Business rule enforcement
+
   - Transaction management (`@Transactional`)
+
   - Use case orchestration
+
   - Event publishing
 
 - **Dependencies**: Repository layer, external services
@@ -392,8 +431,11 @@ com.company.project/
 - **Purpose**: Data persistence
 
 - **Responsibilities**:
+
   - CRUD operations
+
   - Custom queries (`@Query`)
+
   - Specifications for dynamic queries
 
 - **Dependencies**: JPA entities
@@ -405,8 +447,11 @@ com.company.project/
 - **Purpose**: Core business entities
 
 - **Responsibilities**:
+
   - Entity definitions
+
   - Value objects
+
   - Domain logic
 
 - **Dependencies**: None (domain-driven design)
@@ -800,6 +845,7 @@ jobs:
     steps:
 
       - uses: actions/checkout@v3
+
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
@@ -822,33 +868,53 @@ jobs:
 ## Best Practices
 
 1. **Follow Java Naming Conventions**
+
    - Classes: PascalCase
+
    - Methods/variables: camelCase
+
    - Constants: UPPER_SNAKE_CASE
+
    - Packages: lowercase.separated.by.dots
 
 2. **Use Spring Boot Best Practices**
+
    - Constructor injection over field injection
+
    - Use `@RequiredArgsConstructor` with Lombok
+
    - Keep controllers thin, services fat
+
    - Use DTOs for API contracts
 
 3. **Apply SOLID Principles**
+
    - Single Responsibility
+
    - Open/Closed
+
    - Liskov Substitution
+
    - Interface Segregation
+
    - Dependency Inversion
 
 4. **Comprehensive Testing**
+
    - Unit tests for services
+
    - Integration tests for repositories
+
    - End-to-end tests for APIs
+
    - Use test containers for DB tests
 
 5. **Documentation**
+
    - Javadoc for public APIs
+
    - Swagger/OpenAPI for REST endpoints
+
    - Architecture Decision Records for major decisions
 
 ---

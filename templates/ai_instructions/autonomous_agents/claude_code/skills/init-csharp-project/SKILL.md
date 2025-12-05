@@ -17,14 +17,23 @@ Create a complete, production-ready C# project with .NET 8+, ASP.NET Core Web AP
 ## When to Use This Skill
 
 Use this skill when you need to:
+
 - ✅ Start a new C#/.NET project from scratch
+
 - ✅ Set up ASP.NET Core Web API
+
 - ✅ Initialize Entity Framework Core with migrations
+
 - ✅ Establish Clean Architecture structure
+
 - ✅ Configure testing framework (xUnit, NUnit, or MSTest)
+
 - ✅ Set up authentication and authorization
+
 - ✅ Create Docker configuration
+
 - ✅ Initialize OpenAPI/Swagger documentation
+
 - ✅ Set up CI/CD with GitHub Actions
 
 ## What This Skill Does
@@ -149,44 +158,70 @@ ProjectName/
 
 ### 2. Configuration Files
 - **ProjectName.sln**: Solution file with all projects
+
 - **global.json**: .NET SDK version specification
+
 - **Directory.Build.props**: Shared build properties
+
 - **appsettings.json**: Application configuration with environments
+
 - **.editorconfig**: Code style enforcement
+
 - **.gitignore**: Comprehensive .NET ignore patterns
+
 - **Dockerfile**: Container configuration
+
 - **docker-compose.yml**: Multi-container setup
 
 ### 3. Documentation
 - **README.md**: Installation, usage, and feature documentation
+
 - **CHANGELOG.md**: Version history following Keep a Changelog format
+
 - **DEVLOG.md**: Development task list and decision log
+
 - **CLAUDE.md**: Claude Code project guidelines
+
 - **Swagger UI**: Interactive API documentation
 
 ### 4. Testing Framework
 - xUnit / NUnit / MSTest for unit testing
+
 - Moq or NSubstitute for mocking
+
 - FluentAssertions for readable assertions
+
 - WebApplicationFactory for integration tests
+
 - Coverlet for code coverage
+
 - TestContainers for database testing
 
 ### 5. Development Tools
 - Entity Framework Core for data access
+
 - AutoMapper for object mapping
+
 - FluentValidation for input validation
+
 - MediatR for CQRS pattern (Clean Architecture)
+
 - Serilog for structured logging
+
 - Swagger/OpenAPI for API documentation
 
 ## Prerequisites
 
 - .NET 8 SDK or later
+
 - Visual Studio 2022+ / Rider / VS Code with C# extension
+
 - Docker (optional, for containerization)
+
 - SQL Server / PostgreSQL / SQLite (database)
+
 - git (version control)
+
 - (Optional) Claude Code for AI assistance
 
 ## Instructions
@@ -196,19 +231,29 @@ ProjectName/
 Gather this information before initialization:
 
 **Project Details**:
+
 - **Name**: Project identifier (PascalCase)
+
 - **Description**: One-line summary of purpose
+
 - **Type**: Web API / Microservice / Clean Architecture
+
 - **Architecture**: Standard / Clean Architecture / Vertical Slice
+
 - **Database**: SQL Server / PostgreSQL / SQLite
 
 **Dependencies**:
+
 - Core dependencies (e.g., EF Core, AutoMapper)
+
 - Authentication requirements
+
 - External services (Redis, RabbitMQ, etc.)
 
 **Features**:
+
 - Key capabilities to document
+
 - Initial version number (default: 0.1.0)
 
 ### Step 2: Invoke the Skill
@@ -218,25 +263,41 @@ Gather this information before initialization:
 "Use the init-csharp-project skill to create a new ASP.NET Core Web API project.
 
 Project Details:
+
 - Name: TaskManagement
+
 - Description: RESTful API for task management with ASP.NET Core
+
 - Type: Web API
+
 - Architecture: Standard
+
 - Database: PostgreSQL
+
 - .NET Version: 8.0
 
 Dependencies:
+
 - Entity Framework Core (database access)
+
 - AutoMapper (object mapping)
+
 - FluentValidation (input validation)
+
 - Serilog (logging)
+
 - Swagger/OpenAPI (documentation)
 
 Features:
+
 - User authentication with JWT
+
 - Task CRUD operations
+
 - Task categorization
+
 - RESTful API design
+
 - Health checks and monitoring
 
 Please initialize the complete project structure with all configurations."
@@ -247,26 +308,43 @@ Please initialize the complete project structure with all configurations."
 "Use the init-csharp-project skill to create a new Clean Architecture project.
 
 Project Details:
+
 - Name: TaskManagement
+
 - Description: Task management system with Clean Architecture
+
 - Type: Web API
+
 - Architecture: Clean Architecture with CQRS
+
 - Database: SQL Server
+
 - .NET Version: 8.0
 
 Dependencies:
+
 - Entity Framework Core
+
 - MediatR (CQRS pattern)
+
 - AutoMapper
+
 - FluentValidation
+
 - Serilog
+
 - Swagger/OpenAPI
 
 Features:
+
 - CQRS with MediatR
+
 - Domain-driven design
+
 - Repository pattern
+
 - Unit of Work pattern
+
 - Comprehensive validation
 
 Please initialize the complete Clean Architecture structure."
@@ -402,9 +480,13 @@ git add .
 git commit -m "Initial project structure
 
 - ASP.NET Core Web API setup
+
 - Entity Framework Core configured
+
 - Testing framework included
+
 - Docker configuration added
+
 - OpenAPI documentation setup
 
 Generated with init-csharp-project skill"
@@ -816,6 +898,7 @@ services:
     environment:
 
       - ASPNETCORE_ENVIRONMENT=Production
+
       - ConnectionStrings__DefaultConnection=Host=postgres;Database=taskmanagement;Username=postgres;Password=password
     depends_on:
       postgres:
@@ -932,9 +1015,13 @@ Thumbs.db
 
 ## What's New
 - Initial release
+
 - ASP.NET Core 8.0 Web API
+
 - Entity Framework Core with PostgreSQL
+
 - JWT authentication
+
 - OpenAPI/Swagger documentation
 
 ## Overview
@@ -942,28 +1029,43 @@ A production-ready RESTful API for task management built with ASP.NET Core 8.0, 
 
 ## Features
 - **Authentication**: JWT-based authentication
+
 - **Task Management**: Full CRUD operations
+
 - **Validation**: FluentValidation for input validation
+
 - **Documentation**: Interactive API documentation with Swagger UI
+
 - **Monitoring**: Health checks and structured logging
+
 - **Database Migrations**: Entity Framework Core migrations
+
 - **Containerization**: Docker and docker-compose configuration
 
 ## Technology Stack
 - .NET 8.0
+
 - ASP.NET Core 8.0
+
 - Entity Framework Core 8.0
+
 - PostgreSQL
+
 - AutoMapper
+
 - FluentValidation
+
 - Serilog
+
 - Swagger/OpenAPI
 
 ## Installation
 
 ### Prerequisites
 - .NET 8 SDK or higher
+
 - PostgreSQL 12+ (or Docker)
+
 - Docker (optional)
 
 ### Setup
@@ -1020,6 +1122,7 @@ Update `src/TaskManagement.Api/appsettings.Development.json`:
 
 ### API Documentation
 - **Swagger UI**: http://localhost:5000/swagger
+
 - **Health Check**: http://localhost:5000/health
 
 ### Example Endpoints
@@ -1074,9 +1177,13 @@ dotnet publish -c Release -o ./publish
 
 ## Contributing
 1. Fork the repository
+
 2. Create a feature branch
+
 3. Make your changes
+
 4. Run tests and ensure coverage
+
 5. Submit a pull request
 
 ## License
@@ -1107,14 +1214,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 - Initial ASP.NET Core 8.0 project structure
+
 - Entity Framework Core with PostgreSQL
+
 - JWT authentication implementation
+
 - Task CRUD operations
+
 - OpenAPI/Swagger documentation
+
 - Global exception handling middleware
+
 - Health check endpoints
+
 - Docker configuration
+
 - Comprehensive test suite
+
 - Structured logging with Serilog
 ```
 
@@ -1126,34 +1242,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### High Priority
 - [ ] Implement user authentication
+
 - [ ] Create task entity and DbContext
+
 - [ ] Add task CRUD endpoints
+
 - [ ] Configure JWT authentication
 
 ### Medium Priority
 - [ ] Add task filtering and sorting
+
 - [ ] Implement pagination
+
 - [ ] Add task categories
+
 - [ ] Create user profile management
 
 ### Low Priority
 - [ ] Add task search functionality
+
 - [ ] Implement task sharing
+
 - [ ] Add email notifications
+
 - [ ] Create admin dashboard
 
 ## Development History
 
 ### Project Architecture
 - **Design**: RESTful API with ASP.NET Core
+
 - **Tech Stack**: .NET 8, ASP.NET Core, Entity Framework Core, PostgreSQL
+
 - **Pattern**: Layered architecture (API-Application-Infrastructure-Core)
 
 ### Initial Setup - 2025-10-21
 - Created standard ASP.NET Core project structure
+
 - Configured Entity Framework Core
+
 - Set up testing framework (xUnit)
+
 - Configured OpenAPI documentation
+
 - Initialized Docker configuration
 
 ## Troubleshooting History
@@ -1168,7 +1299,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 Additional Dependencies:
 
 - Microsoft.AspNetCore.Authentication.JwtBearer
+
 - Microsoft.AspNetCore.Identity.EntityFrameworkCore
+
 - IdentityModel
 ```
 
@@ -1177,7 +1310,9 @@ Additional Dependencies:
 Additional Dependencies:
 
 - MediatR
+
 - MediatR.Extensions.Microsoft.DependencyInjection
+
 - FluentValidation.DependencyInjectionExtensions
 ```
 
@@ -1186,8 +1321,11 @@ Additional Dependencies:
 Additional Dependencies:
 
 - Polly (resilience)
+
 - RabbitMQ.Client (messaging)
+
 - StackExchange.Redis (caching)
+
 - OpenTelemetry (observability)
 ```
 
@@ -1196,34 +1334,53 @@ Additional Dependencies:
 After initialization, verify:
 
 - [ ] Solution builds successfully
+
 - [ ] All projects compile
+
 - [ ] Application starts
+
 - [ ] Tests run and pass
+
 - [ ] Swagger UI accessible
+
 - [ ] Health endpoint responds
+
 - [ ] Database migrations work
+
 - [ ] Docker containers start
+
 - [ ] Documentation complete
+
 - [ ] Ready to begin development
 
 ## Related Skills
 
 **Use After Initialization**:
+
 - `setup-csharp-system-prompt`: Configure Claude Code standards
+
 - `create-claude-md`: Customize project guidelines
+
 - `generate-test-cases`: Add comprehensive tests
 
 **For Development**:
+
 - `plan-before-code`: Plan features before implementing
+
 - `test-driven-development`: Write tests first
+
 - `cleanup-csharp`: Clean code periodically
 
 ## Additional Resources
 
 - [ASP.NET Core Documentation](https://docs.microsoft.com/aspnet/core/)
+
 - [Entity Framework Core Documentation](https://docs.microsoft.com/ef/core/)
+
 - [Clean Architecture Guide](https://github.com/jasontaylordev/CleanArchitecture)
+
 - [.NET CLI Reference](https://docs.microsoft.com/dotnet/core/tools/)
+
 - [xUnit Documentation](https://xunit.net/)
 
 ---

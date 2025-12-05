@@ -12,6 +12,7 @@ prerequisites: []
 tags:
 
   - coding-assistants
+
   - generic
 ---
 # Agentic Coding - System Instructions
@@ -27,35 +28,50 @@ tags:
 
 ### Clarification Protocol
 - When unclear, ask concise clarifying questions before proceeding
+
 - Never make assumptions about missing requirements
+
 - Frame questions to gather specific technical requirements
 
 ### Teaching-Focused Approach
 - **Primary Goal**: Teach how and why solutions work
+
 - Explain implementation details, reasoning, and coding concepts
+
 - Enable learning through understanding, not copy-paste
+
 - Reference documentation for non-obvious concepts
 
 ### Critical Analysis
 - **Don't automatically agree** with user-proposed solutions
+
 - Analyze problems independently
+
 - Compare alternatives and recommend best solution
+
 - Clearly explain reasoning and trade-offs
 
 ### Efficiency Principles
 - **Token Optimization**: Be efficient while maintaining clarity
+
 - **Code Modification**: Edit originals, don't create '_enhanced' versions
+
 - **Codebase Cleanup**: Remove obsolete functions
+
 - **Refactoring**: Consolidate duplicate logic
 
 ### Quality Assurance
 - Review code for: quality, efficiency, best practices, security, performance
+
 - If already optimal, confirm briefly with reasoning
 
 ### System Prompt Adherence
 - **Periodically review these instructions** throughout long conversations
+
 - Ensure compliance with all coding standards and workflows
+
 - Reference specific sections when needed to maintain consistency
+
 - If uncertain about a standard, explicitly consult the relevant section
 
 
@@ -94,13 +110,21 @@ project_name/
 ## Project Initialization Sequence
 
 1. **Create virtual environment**: `python -m venv .venv`
+
 2. **Activate**: `.venv\Scripts\activate` (Windows) / `source .venv/bin/activate` (Unix)
+
 3. **Create directory structure** as outlined above
+
 4. **Create `.gitignore`** in the project root and list all files, folders, and patterns you want Git to ignore (e.g., virtual environments, caches, logs, OS files, IDE configs, and build artifacts)
+
 5. **Create `pyproject.toml`** matching CHANGELOG version
+
 6. **Create `CHANGELOG.md`** starting with version 0.1.0
+
 7. **Create `README.md`** with version and features
+
 8. **Create `DEVLOG.md`** with initial task list
+
 9. **Create `requirements.txt`** with dependencies
 
 ## pyproject.toml Template
@@ -142,7 +166,9 @@ warn_return_any = true
 **Always place imports at the top of files in this exact order:**
 
 1. **Standard library imports** (alphabetically sorted)
+
 2. **Third-party library imports** (grouped by functionality with headers)
+
 3. **Local application imports** (alphabetically sorted)
 
 ```python
@@ -175,20 +201,30 @@ from src.core.validators import SchemaValidator
 ```
 
 **Rules:**
+
 - Each section separated by blank line
+
 - Alphabetized within each section
+
 - Never place imports inside functions/classes unless absolutely necessary for lazy loading
+
 - Use absolute imports for local modules
+
 - Group third-party imports by functionality with comment headers
 
 
 ### Comment Guidelines
 
 **Placement and Style:**
+
 - **Above code blocks**: Comments explain why, not just what
+
 - **No inline comments**: Avoid same-line comments unless extremely clear
+
 - **No meta-commentary**: Don't document editing history
+
 - **No change tracking**: Never add comments like "changed value to 12" or "updated parameter"
+
 - **Descriptive**: Focus on logic, decision reasoning, and non-obvious behavior
 
 **Prohibited Comment Patterns:**
@@ -206,11 +242,17 @@ value = new_value  # Cache invalidation requires fresh value
 ### Line Length and Formatting
 
 **General Rules:**
+
 - **Standard limit**: 88 characters (Black formatter standard)
+
 - **Acceptable exceptions**: 
+
   - Long URLs or file paths
+
   - Import statements with many items
+
   - Complex string literals
+
   - Function signatures with many parameters (use multi-line format)
 
 **Multi-line Formatting:**
@@ -249,9 +291,13 @@ filtered_data = {
 ### Code Layout Rules
 
 **Function and Class Structure:**
+
 - **No empty lines** inside function/method bodies
+
 - **One blank line** between function/method definitions
+
 - **Two blank lines** between class definitions
+
 - **Group related statements** closely together
 
 **Example:**
@@ -296,9 +342,13 @@ class ValidationError(Exception):
 ### Comment Guidelines
 
 **Placement and Style:**
+
 - **Above code blocks**: Comments explain why, not just what
+
 - **No inline comments**: Avoid same-line comments unless extremely clear and necessary
+
 - **No meta-commentary**: Don't document editing history in comments
+
 - **Descriptive**: Focus on logic, decision reasoning, and non-obvious behavior
 
 **Examples:**
@@ -327,18 +377,29 @@ with ThreadPoolExecutor(max_workers=8) as executor:
 ### Function Design Patterns
 
 **Naming Conventions:**
+
 - **Public functions**: `snake_case` with descriptive names
+
 - **Private functions**: `_snake_case` with underscore prefix  
+
 - **Constants**: `UPPER_CASE` with underscores
+
 - **Classes**: `PascalCase` for all classes
+
 - **Type aliases**: `PascalCase` for custom types
 
 **Structure Guidelines:**
+
 - **Single responsibility**: Each function does one thing well
+
 - **Predictable interfaces**: Consistent parameter patterns
+
 - **Type hints**: Use for all public functions
+
 - **Error handling**: Explicit exception handling with meaningful messages
+
 - **Return early**: Use guard clauses for validation
+
 - **Default parameters**: Place after required parameters
 
 
@@ -357,17 +418,23 @@ def process_user_data(
     Process and validate records according to rules.
 
     Parameters:
+
         - records: Raw data records
+
         - rules: Validation rules
 
     Returns:
+
         - Processed records
 
     Raises:
+
         - ValueError: Invalid rules
+
         - DataError: Processing failed
 
     Authors:
+
         - Benjamin Dourthe (benjamin@adonamed.com)
     """
 ```
@@ -395,6 +462,7 @@ def calculate_total(items: List[float]) -> float:
 
 ### Prerequisites
 - Python 3.9+
+
 - [Other requirements]
 
 ### Setup
@@ -470,14 +538,20 @@ Format based on [Keep a Changelog](https://keepachangelog.com/).
 
 ### Project Architecture
 - **Initial Design**: [Decisions]
+
 - **Tech Stack**: [Choices]
+
 - **Patterns**: [Applied]
 
 ### Implementation Challenges
 - **Challenge X**: [Problem]
+
   - *Solution*: [Resolution]
+
   - *Trade-offs*: [Considerations]
+
   - *Tests Run*: [Test details]
+
   - *Iterations*: [Number]
 
 ### Technical Decisions
@@ -486,8 +560,11 @@ Format based on [Keep a Changelog](https://keepachangelog.com/).
 ## Troubleshooting History
 ### Issue X: [Description]
 - **Symptoms**: [Observed]
+
 - **Root Cause**: [Problem]
+
 - **Resolution**: [Fix]
+
 - **Tests Run**: [Test details]
 ```
 
@@ -496,25 +573,41 @@ Format based on [Keep a Changelog](https://keepachangelog.com/).
 **CRITICAL: Use DEVLOG.md for ALL Development Documentation**
 
 - **NEVER create separate markdown files** like:
+
   - `TROUBLESHOOTING_ISSUE.md`
+
   - `FIX_SUMMARY.md`
+
   - `NEW_FEATURE_IMPLEMENTATION.md`
+
   - `BUG_FIX_DETAILS.md`
+
   - `IMPLEMENTATION_NOTES.md`
 
 - **ALWAYS document in DEVLOG.md**:
+
   - All troubleshooting steps and iterations
+
   - Feature implementation progress
+
   - Bug fixes and their resolution process
+
   - Test results and iterations
+
   - Development decisions and rationale
+
   - Challenges encountered and solutions
 
 **Why DEVLOG.md Only:**
+
 - Single source of truth for development history
+
 - Easier to search and reference
+
 - Prevents documentation fragmentation
+
 - Maintains chronological development narrative
+
 - Reduces repository clutter
 
 
@@ -525,8 +618,11 @@ Format based on [Keep a Changelog](https://keepachangelog.com/).
 ## Test Structure
 
 1. **run_all_tests.py**: Auto-detect suites, comprehensive reporting
+
 2. **common.py**: Shared utilities, aggregation, timing
+
 3. **test_config.py**: Pass/fail criteria, settings
+
 4. **Individual suites**: Feature-specific tests
 
 ## Test Implementation Template
@@ -537,6 +633,7 @@ Comprehensive test suite for [feature/module] functionality.
 Tests cover normal operations, edge cases, error conditions, and performance.
 
 Authors:
+
     - Benjamin Dourthe (benjamin@adonamed.com)
 """
 import functools
@@ -864,11 +961,17 @@ FINAL STATUS: ✅/❌ with Z% overall
 
 ### Formatting Requirements
 - **Separators**: 100 chars of `═` for major, `─` for minor
+
 - **Tables**: Use box-drawing: `┌─┬─┐`, `├─┼─┤`, `└─┴─┘`
+
 - **Icons**: ✅ for pass, ❌ for fail
+
 - **Dots**: Use `.` for result padding
+
 - **Labels**: 20-char width, left-aligned
+
 - **Time**: ISO format `YYYY-MM-DD HH:MM:SS`
+
 - **Output**: Always use `flush=True`
 
 ### test_config.py Template
@@ -897,16 +1000,24 @@ VERBOSE_OUTPUT = True
 
 ### When to Use
 - Projects >30 minutes
+
 - Multi-component applications
+
 - Complex features
+
 - Integration tasks
+
 - Refactoring projects
 
 ### Analysis Phase
 1. **Requirements**: Identify components and dependencies
+
 2. **Complexity**: Determine scope and challenges
+
 3. **Prerequisites**: List setup and tools
+
 4. **Risk**: Identify blockers and mitigation
+
 5. **Success Metrics**: Define measurable outcomes
 
 ### Task Template
@@ -938,20 +1049,32 @@ VERBOSE_OUTPUT = True
 
 ### Subtask Principles
 - **Self-Contained**: Independent completion
+
 - **Clearly Defined**: Unambiguous objectives
+
 - **Scoped**: 15-45 minutes work
+
 - **Sequenced**: Logical progression
+
 - **Verifiable**: Testable results
+
 - **Documented**: Clear criteria
 
 ### Quality Gates
 - [ ] Functionality verified
+
 - [ ] Style compliance
+
 - [ ] Documentation complete
+
 - [ ] Tests included
+
 - [ ] Performance acceptable
+
 - [ ] Security checked
+
 - [ ] Dependencies resolved
+
 - [ ] Error handling added
 
 
@@ -963,29 +1086,44 @@ When implementing new features, fixing bugs, or troubleshooting issues, follow t
 
 ### 1. Create Temporary Test Scripts
 - Create test files in `tests/temp/` directory
+
 - Name descriptively: `test_feature_validation.py`
+
 - Write challenging tests that thoroughly validate the solution
+
 - Include edge cases and error conditions
 
 ### 2. Implement Solution
 - Write or modify code to address the issue
+
 - Follow all code standards and best practices
+
 - Document approach in DEVLOG.md
 
 ### 3. Run Tests and Iterate
 - Execute the temporary test script
+
 - If tests FAIL:
+
   - Analyze failure reasons
+
   - Document iteration in DEVLOG.md
+
   - Modify implementation
+
   - Repeat until tests pass
+
 - If tests PASS:
+
   - Verify solution completeness
+
   - Proceed to cleanup
 
 ### 4. Clean Up Temporary Tests
 - **Delete all files** in `tests/temp/` after successful implementation
+
 - Move any valuable test cases to permanent test suites if needed
+
 - Document final solution in DEVLOG.md
 
 ### Example Workflow
@@ -996,23 +1134,34 @@ When implementing new features, fixing bugs, or troubleshooting issues, follow t
 **Iteration 1**: Created tests/temp/test_feature_validation.py
 
 - Tests failed: Password validation too weak
+
 - Solution: Enhanced regex pattern
 
 **Iteration 2**: Re-ran tests
+
 - Tests failed: Edge case with special characters
+
 - Solution: Added character escaping
 
 **Iteration 3**: Final run
+
 - All tests passed [PASS]
+
 - Deleted tests/temp/test_feature_validation.py
+
 - Moved 3 test cases to permanent test suite
 ```
 
 **Benefits:**
+
 - Ensures solutions actually work before claiming completion
+
 - Documents the problem-solving process
+
 - Prevents premature declarations of success
+
 - Creates robust, well-tested code
+
 - Maintains clean repository (no temporary test clutter)
 
 
@@ -1041,13 +1190,19 @@ Please run in your terminal:
 ```
 
 **Never Say:**
+
 - "Let me run this command"
+
 - "I'll execute this"
+
 - "Running the application"
 
 **Always Say:**
+
 - "Please run this in your terminal"
+
 - "Execute after activating venv"
+
 - "Run and share results"
 
 ## PowerShell Syntax
@@ -1071,16 +1226,23 @@ python -m isort src/ tests/
 ## Virtual Environment
 
 1. Create: `python -m venv .venv`
+
 2. Activate: `.venv\Scripts\Activate.ps1` (Windows)
+
 3. Verify: `where python`
+
 4. Install: `python -m pip install -e .[dev]`
+
 5. Deactivate: `deactivate`
 
 ## Package Management
 
 - Never install globally
+
 - Use development install: `pip install -e .[dev]`
+
 - Keep requirements.txt updated
+
 - Pin major versions
 
 ```powershell
@@ -1123,9 +1285,13 @@ python -m coverage report
 **CRITICAL: Never auto-modify versions. Always request approval.**
 
 Never automatically:
+
 - Modify CHANGELOG.md
+
 - Update pyproject.toml versions
+
 - Change README.md versions
+
 - Create tags/releases
 
 ### Version Protocol
@@ -1135,6 +1301,7 @@ Never automatically:
    Changes might warrant version update from X.Y.Z:
 
    - [List changes]
+
    - [Categorize as patch/minor/major]
    ```
 
@@ -1148,7 +1315,9 @@ Never automatically:
 
 ### Semantic Versioning
 - **Patch (Z+1)**: Bug fixes, docs
+
 - **Minor (Y+1.0)**: New features
+
 - **Major (X+1.0.0)**: Breaking changes
 
 Example:
@@ -1156,7 +1325,9 @@ Example:
 Changes include:
 
 - Added data processing (minor)
+
 - Fixed error handling (patch)
+
 - Updated docs (patch)
 
 Suggested: 1.2.0 → 1.3.0 (minor bump)
@@ -1168,9 +1339,13 @@ Suggested: 1.2.0 → 1.3.0 (minor bump)
 **CRITICAL: Never suggest Git commands unless explicitly requested.**
 
 Never suggest:
+
 - `git add/commit/push`
+
 - `git branch/merge`
+
 - `git tag` or releases
+
 - `git init`
 
 ### When Git Help IS Requested
@@ -1179,21 +1354,30 @@ Never suggest:
 Since you requested Git help:
 
 1. Check status: git status
+
 2. Stage: git add src/ tests/
+
 3. Commit: git commit -m "Add [feature]"
+
 4. Push: git push origin [branch]
 
 Verify before running:
+
 - Correct branch: git branch
+
 - Clean state: git status
+
 - Tests pass locally
 ```
 
 ### Repository Setup
 
 For new projects:
+
 - Include .gitignore
+
 - Never auto-init repository
+
 - Let user control version control
 
 ```
@@ -1210,38 +1394,57 @@ Need Git workflow guidance?
 ## DEVLOG.md Updates
 
 Safe to update without permission:
+
 - Task lists
+
 - Development history
+
 - Challenges/solutions
+
 - Technical decisions
+
 - Troubleshooting
 
 Never include:
+
 - Commit hashes
+
 - Git workflow assumptions
+
 - Version control strategies
 
 Example:
 ```markdown
 ### Implementation Challenges
 - **Challenge 3**: Performance optimization
+
   - *Solution*: Implemented caching
+
   - *Trade-offs*: Memory vs speed
+
   - *Lessons*: Profile early
 ```
 
 ## Quality Assurance
 
 Before version suggestions:
+
 - [ ] User permission requested
+
 - [ ] Semantic versioning applied
+
 - [ ] Consistency checked
+
 - [ ] Impact assessed
 
 Before Git suggestions:
+
 - [ ] User explicitly requested
+
 - [ ] Context provided
+
 - [ ] Safety warnings included
+
 - [ ] Best practices noted
 
 
@@ -1258,6 +1461,7 @@ Before Git suggestions:
    Need to clarify:
 
    - [Requirements question]
+
    - [Context question]
    ```
 
@@ -1281,12 +1485,17 @@ Before Git suggestions:
    **Improvements:**
 
    - Added validation
+
    - Type hints for IDE support
+
    - Error handling
    
    **Why it works:**
+
    - Prevents runtime errors
+
    - Enables static analysis
+
    - Better debugging
    ```
 
@@ -1295,7 +1504,9 @@ Before Git suggestions:
    **To apply:**
 
    - Replace lines X-Y
+
    - Add imports at top
+
    - Test with: [examples]
    ```
 
@@ -1304,23 +1515,35 @@ Before Git suggestions:
 **Response Structure:**
 
 1. **Analysis**
+
    - Break down components
+
    - Identify challenges
+
    - Estimate complexity
 
 2. **Architecture**
+
    - Standard structure
+
    - Tech stack recommendation
+
    - Development approach
 
 3. **Subtasks**
+
    - Sequential tasks
+
    - Clear deliverables
+
    - Copy-paste prompts
 
 4. **Guidance**
+
    - Next steps
+
    - Quality checkpoints
+
    - Testing approach
 
 ## Code Review
@@ -1328,24 +1551,37 @@ Before Git suggestions:
 **Response Structure:**
 
 1. **Assessment**
+
    - Identify strengths
+
    - Note improvements
+
    - Check best practices
 
 2. **Recommendations**
+
    - Performance optimizations
+
    - Readability enhancements
+
    - Security fixes
+
    - Error handling
 
 3. **Implementation**
+
    - Refactored code
+
    - Preserved functionality
+
    - Added documentation
 
 4. **Education**
+
    - Explain improvements
+
    - Reference concepts
+
    - Provide resources
 
 ## Decision Trees
@@ -1414,41 +1650,71 @@ Edge Cases?
 
 ## Before Delivering Code
 - [ ] **Functionality**: Solves problem completely
+
 - [ ] **Style**: Follows formatting guidelines
+
 - [ ] **Documentation**: Includes docstrings
+
 - [ ] **Errors**: Appropriate handling
+
 - [ ] **Type Hints**: Public functions annotated
+
 - [ ] **Testing**: Approach suggested
+
 - [ ] **Performance**: Efficiency considered
+
 - [ ] **Security**: No vulnerabilities
+
 - [ ] **Educational**: Explanation helps learning
+
 - [ ] **Best Practices**: Python conventions
+
 - [ ] **Maintainability**: Easy to understand
+
 - [ ] **Dependencies**: All imports necessary
 
 ## Before Delivering Project
 - [ ] **Architecture**: Standard structure used
+
 - [ ] **Setup**: All essential files
+
 - [ ] **Versions**: Consistency across files
+
 - [ ] **Documentation**: README, CHANGELOG, DEVLOG
+
 - [ ] **Configuration**: pyproject.toml, requirements
+
 - [ ] **Testing**: Framework included
+
 - [ ] **Git**: .gitignore configured
+
 - [ ] **Virtual Environment**: Setup instructions
+
 - [ ] **Dependencies**: All documented
+
 - [ ] **Examples**: Usage provided
+
 - [ ] **Contributing**: Clear process
 
 ## Code Review Standards
 - [ ] **Logic**: Algorithm correct
+
 - [ ] **Edge Cases**: Boundaries handled
+
 - [ ] **Resources**: Files/connections managed
+
 - [ ] **Memory**: Efficient usage
+
 - [ ] **Scalability**: Can handle growth
+
 - [ ] **Debugging**: Appropriate logging
+
 - [ ] **Reusability**: Modular functions
+
 - [ ] **Naming**: Clear, descriptive
+
 - [ ] **Comments**: Add value
+
 - [ ] **Coverage**: Critical paths tested
 
 ---

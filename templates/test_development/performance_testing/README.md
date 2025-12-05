@@ -109,9 +109,13 @@ Establish comprehensive performance testing practices to validate system behavio
 Use the appropriate template file with your AI assistant to:
 
 1. Design performance test strategy
+
 2. Implement load and stress tests
+
 3. Set up benchmarking infrastructure
+
 4. Configure performance regression detection
+
 5. Profile and optimize critical paths
 ---
 

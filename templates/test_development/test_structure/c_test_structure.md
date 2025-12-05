@@ -16,12 +16,16 @@ related_templates:
 tools:
 
   - unity
+
   - cmocka
+
   - check
 tags:
 
   - test-development
+
   - testing
+
   - c
 ---
 # C Test Structure & Infrastructure
@@ -162,8 +166,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 Please design and implement a comprehensive test infrastructure for this C project following this protocol:
@@ -182,12 +189,19 @@ Use `<REPO_URL>` as placeholder where repository URLs are needed in this templat
 ## Phase 1: Framework Selection & Configuration
 
 1. **Test Framework Analysis**
+
    - **Current State**: Document existing test setup if any
+
    - **Framework Recommendations**:
+
      - **Unity** (recommended): Lightweight, portable, embedded-friendly
+
      - **CUnit**: Full-featured, good documentation, heavier
+
      - **Check**: Fork-safe, supports fixtures, more complex
+
      - **MinUnit**: Minimal, single-header, very simple
+
    - **Rationale**: Justify framework choice based on project needs
 
 2. **Install Test Framework**
@@ -449,9 +463,13 @@ Use `<REPO_URL>` as placeholder where repository URLs are needed in this templat
 2. **Naming Conventions**
 
    **File Naming**:
+
    - Test file: `test_<module>.c`
+
    - Test function: `test_<function>_<scenario>`
+
    - Fixture file: `<module>_fixtures.c`
+
    - Mock file: `mock_<module>.c`
 
    **Unity Test Example**:
@@ -576,15 +594,23 @@ Use `<REPO_URL>` as placeholder where repository URLs are needed in this templat
 3. **Test Type Organization**
 
    **Unit Tests** (`tests/unit/`):
+
    - Test individual functions in isolation
+
    - Fast execution
+
    - Heavy use of mocks
+
    - No external dependencies
 
    **Integration Tests** (`tests/integration/`):
+
    - Test multiple modules together
+
    - Real implementations
+
    - May use test databases
+
    - Slower execution
 
 ## Phase 3: Fixture Infrastructure
@@ -1170,9 +1196,13 @@ make clean
 
 ### Testing Conventions Established
 1. **File Naming**: [convention]
+
 2. **Test Function Naming**: [convention]
+
 3. **Assertion Usage**: [patterns]
+
 4. **Mock Usage**: [when and how]
+
 5. **Test Data**: [organization]
 
 ### Next Steps
@@ -1227,12 +1257,19 @@ make clean
 The AI assistant should deliver:
 
 1. **Test infrastructure design document** with complete directory structure
+
 2. **Build configuration files** (CMakeLists.txt or Makefile)
+
 3. **Test fixture implementations** with setup/teardown
+
 4. **Mock implementations** for external dependencies
+
 5. **Test utility libraries** with custom assertions
+
 6. **Test runner scripts** for automation
+
 7. **Documentation** of conventions and best practices
+
 8. **Execution commands** for common scenarios
 ---
 

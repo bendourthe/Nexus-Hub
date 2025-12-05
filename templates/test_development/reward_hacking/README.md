@@ -10,35 +10,56 @@ Validate the integrity and robustness of all testing phases by detecting test qu
 
 ### 1. Test Quality Validation
 - Detecting tests that always pass (tautological tests)
+
 - Identifying insufficient or weak assertions
+
 - Finding tests with missing error path coverage
+
 - Verifying test independence and isolation
+
 - Checking for proper exception and error validation
+
 - Detecting over-mocking that hides real bugs
 
 ### 2. Coverage Integrity Analysis
 - Validating that coverage metrics represent true validation
+
 - Detecting uncovered error paths and edge cases
+
 - Identifying trivial tests inflating coverage percentages
+
 - Verifying branch coverage completeness
+
 - Analyzing coverage gaps vs. reported metrics
+
 - Mutation testing to verify test effectiveness
 
 ### 3. Cross-Phase Integration Verification
 - **Unit Test Quality Assessment** - Validating isolation and speed
+
 - **Test Structure Evaluation** - Infrastructure effectiveness
+
 - **Test Cases Review** - Integration and E2E test quality
+
 - **Mock & Fixture Usage** - Appropriate isolation techniques
+
 - **Performance Test Accuracy** - Meaningful benchmarks
+
 - **CI/CD Pipeline Validation** - Test execution reliability
+
 - **Code Coverage Truthfulness** - Metric accuracy assessment
 
 ### 4. Test Effectiveness Measurement
 - Mutation testing implementation and analysis
+
 - False positive detection and remediation
+
 - Test oracle quality assessment
+
 - Assertion strength and specificity analysis
+
 - Failure case coverage validation
+
 - Regression detection capability
 
 ---
@@ -48,13 +69,21 @@ Validate the integrity and robustness of all testing phases by detecting test qu
 **Critical:** This phase should ONLY be used after completing ALL previous testing phases.
 
 Use this template when:
+
 - **All 7 previous testing phases are complete** (Test Structure, Unit Tests, Test Cases, Mocks & Fixtures, Performance Testing, Maintenance & CI/CD, Code Coverage)
+
 - **Before declaring testing "complete"** for production deployment
+
 - **Test metrics seem too good to be true** (>95% coverage, 100% pass rate with minimal test count)
+
 - **During test suite quality audits** or architecture reviews
+
 - **When preparing for production deployment** and need validation
+
 - **As part of testing best practice reviews** or team assessments
+
 - **After major refactoring** to ensure tests still validate correctly
+
 - **When onboarding new team members** to teach test quality principles
 
 **Warning:** Running this phase prematurely (before other phases are complete) will result in incomplete validation and false confidence.
@@ -83,50 +112,77 @@ After completing this phase, you will have:
 
 ### 1. **Comprehensive Test Quality Report** (25-35 pages)
 - Overall test suite health score (0-100)
+
 - Phase-by-phase validation results
+
 - Reward hacking incidents identified and categorized
+
 - Test effectiveness metrics and trends
+
 - Executive summary with key findings
 
 ### 2. **Mutation Testing Results**
 - Mutation score for each module/package
+
 - Survived mutations indicating weak tests
+
 - Killed mutations confirming effective tests
+
 - Mutation coverage heatmap
+
 - Prioritized list of areas needing stronger tests
 
 ### 3. **Test Quality Scorecard**
 - Independence score (tests run in any order)
+
 - Speed score (execution time analysis)
+
 - Assertion quality score (strength and specificity)
+
 - Coverage integrity score (meaningful vs. trivial)
+
 - Error handling score (exception path coverage)
+
 - Mock usage score (appropriate vs. excessive)
 
 ### 4. **Phase-by-Phase Validation Results**
 - Detailed analysis for each of the 7 previous phases
+
 - Specific issues identified per phase
+
 - Severity ratings (critical, high, medium, low)
+
 - Impact assessment on test suite reliability
 
 ### 5. **Remediation Action Plan**
 - Prioritized list of issues to fix
+
 - Recommended improvements for each phase
+
 - Code examples showing weak vs. strong tests
+
 - Timeline and effort estimates
+
 - Success metrics for improvements
 
 ### 6. **Continuous Monitoring Setup**
 - Integration with CI/CD for ongoing validation
+
 - Automated quality gate configuration
+
 - Metrics dashboard specification
+
 - Alert thresholds and notification setup
+
 - Regular audit schedule recommendation
 
 ### 7. **Weak Test Detection Scripts**
 - Scripts to detect common reward hacking patterns
+
 - Automated test quality analysis tools
+
 - Integration with existing test runners
+
 - Custom quality metrics implementation
 
 ---
@@ -151,11 +207,17 @@ After completing this phase, you will have:
 **Critical:** Ensure ALL 7 previous testing phases are complete:
 
 - [ ] Test Structure phase completed
+
 - [ ] Unit Tests phase completed
+
 - [ ] Test Cases phase completed
+
 - [ ] Mocks & Fixtures phase completed
+
 - [ ] Performance Testing phase completed
+
 - [ ] Maintenance & CI/CD phase completed
+
 - [ ] Code Coverage phase completed
 
 ### Step 2: Gather Test Outputs
@@ -202,21 +264,31 @@ go-mutesting ./...
 Open your selected language template and copy the prompt section into your AI assistant or IDE. Provide:
 
 - Mutation testing results
+
 - Test coverage reports from all 7 phases
+
 - Test execution logs
+
 - Any known test quality issues
 
 ### Step 7: Review and Remediate
 - Review the generated test quality report
+
 - Prioritize issues based on severity
+
 - Implement recommended fixes
+
 - Re-run mutation testing to verify improvements
+
 - Update CI/CD pipeline with quality gates
 
 ### Step 8: Establish Continuous Monitoring
 - Integrate mutation testing into CI/CD
+
 - Set up automated quality metrics
+
 - Configure alerting for quality degradation
+
 - Schedule regular test quality audits (monthly/quarterly)
 
 ---
@@ -389,30 +461,46 @@ Issues discovered in reward hacking analysis are categorized by severity:
 
 ### Critical
 - Tests that never fail (tautological)
+
 - Zero assertion tests (execution only)
+
 - Mutation survival rate >50%
+
 - Complete lack of error path testing
+
 - **Impact:** False confidence, high risk of production bugs
 
 ### High
 - Weak assertions (type checks only, is not None)
+
 - Excessive mocking (>70% of dependencies)
+
 - Missing edge case coverage
+
 - Mutation survival rate 30-50%
+
 - **Impact:** Incomplete validation, medium risk
 
 ### Medium
 - Inconsistent test patterns
+
 - Some missing error paths
+
 - Moderate over-mocking (40-70%)
+
 - Mutation survival rate 15-30%
+
 - **Impact:** Reduced effectiveness, low-medium risk
 
 ### Low
 - Minor assertion improvements needed
+
 - Test naming issues
+
 - Documentation gaps
+
 - Mutation survival rate <15%
+
 - **Impact:** Minor quality improvements possible
 
 ---
@@ -440,25 +528,36 @@ This phase isn't a one-time activity. Establish ongoing practices:
 
 ### Weekly
 - Monitor mutation score trends
+
 - Review new test additions for quality
+
 - Check for test execution time increases
 
 ### Monthly
 - Run full mutation testing analysis
+
 - Review quality scorecard
+
 - Address new reward hacking patterns
+
 - Update quality gates if needed
 
 ### Quarterly
 - Comprehensive test suite audit
+
 - Team training on identified weak patterns
+
 - Tool and framework updates
+
 - Process improvement retrospective
 
 ### Annually
 - Full test strategy review
+
 - Benchmark against industry standards
+
 - Major refactoring of weak areas
+
 - Technology stack evaluation
 
 ---
@@ -471,20 +570,31 @@ This phase isn't a one-time activity. Establish ongoing practices:
 
 ### Mutation Testing Tools
 - **Python:** mutmut, mutpy, cosmic-ray
+
 - **JavaScript:** Stryker, Stryker-js
+
 - **Java:** PITest, Descartes
+
 - **C#:** Stryker.NET, Fettle
+
 - **Go:** go-mutesting
+
 - **C/C++:** mull, LLVM-based mutators
 
 ### Test Quality Analysis
 - Code coverage tools (language-specific)
+
 - Static analysis tools
+
 - Test execution profilers
+
 - CI/CD integration guides
 
 ### Further Reading
 - "Growing Object-Oriented Software, Guided by Tests" - Freeman & Pryce
+
 - "Effective Software Testing" - Mauricio Aniche
+
 - "Unit Testing Principles, Practices, and Patterns" - Vladimir Khorikov
+
 - Mutation Testing research papers and case studies

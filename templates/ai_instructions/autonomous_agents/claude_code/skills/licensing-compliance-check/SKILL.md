@@ -12,6 +12,7 @@ prerequisites: []
 tags:
 
   - skills
+
   - generic
 ---
 # licensing-compliance-check
@@ -31,17 +32,25 @@ Audit project dependencies for license compliance, identify potential legal issu
 ## When to Use This Skill
 
 - Before releasing open-source software
+
 - Corporate compliance requirements
+
 - Adding new dependencies to project
+
 - Legal review needed for distribution
+
 - Mergers and acquisitions due diligence
+
 - Contributing to projects with strict license policies
 
 ## Prerequisites
 
 - Access to project dependency manifests
+
 - Understanding of common open-source licenses
+
 - Company license policy (if applicable)
+
 - Legal team contact (for complex cases)
 
 ## Step-by-Step Instructions
@@ -227,8 +236,11 @@ class LicenseAnalyzer:
         Check if dependencies are compatible with project license.
 
         Compatibility rules:
+
         - Permissive (MIT, BSD, Apache) can use anything except strong copyleft
+
         - Weak copyleft (LGPL, MPL) can use permissive and weak copyleft
+
         - Strong copyleft (GPL) can use everything (but makes project GPL)
         """
         categories = self.categorize_licenses()
@@ -374,40 +386,58 @@ allowed_licenses:
   permissive:
 
     - MIT
+
     - BSD-2-Clause
+
     - BSD-3-Clause
+
     - Apache-2.0
+
     - ISC
+
     - Unlicense
+
     - CC0-1.0
 
   # Weak copyleft - allowed with conditions
   weak_copyleft:
 
     - LGPL-2.1
+
     - LGPL-3.0
+
     - MPL-2.0
+
     - EPL-2.0
     conditions: "Dynamic linking only, no modification of LGPL code"
 
 denied_licenses:
   # Strong copyleft - not compatible with MIT
   - GPL-2.0
+
   - GPL-3.0
+
   - AGPL-3.0
+
   - CC-BY-SA-4.0
 
   # Proprietary/unclear licenses
   - Commercial
+
   - Proprietary
+
   - Custom
+
   - UNLICENSED
 
 requires_review:
   # Licenses requiring legal review
   - Artistic-2.0
+
   - OFL-1.1
+
   - CC-BY-4.0
+
   - Zlib
 
 exceptions:
@@ -589,7 +619,9 @@ on:
     paths:
 
       - 'requirements.txt'
+
       - 'package.json'
+
       - 'pom.xml'
   schedule:
 
@@ -743,71 +775,102 @@ if __name__ == '__main__':
 After completing this compliance check:
 
 1. **Complete license inventory**
+
    - All dependencies catalogued
+
    - License types identified
+
    - Risk levels assessed
 
 2. **Compliance verification**
+
    - Compatible with project license
+
    - No legal issues identified
+
    - Proper attribution included
 
 3. **Automated monitoring**
+
    - CI/CD checks in place
+
    - Policy enforcement automated
+
    - Regular audits scheduled
 
 4. **Legal documentation**
+
    - NOTICE file generated
+
    - Attribution page created
+
    - Compliance report available
 
 ## Success Criteria
 
 - [ ] All dependency licenses identified
+
 - [ ] License compatibility verified
+
 - [ ] No high-risk violations present
+
 - [ ] Company policy compliance confirmed
+
 - [ ] NOTICE file generated
+
 - [ ] Attribution documentation complete
+
 - [ ] CI/CD checks implemented
+
 - [ ] Legal team review completed (if required)
 
 ## Common Pitfalls
 
 1. **Ignoring transitive dependencies**
+
    - Check entire dependency tree, not just direct deps
 
 2. **Assuming compatibility**
+
    - Verify each license combination carefully
 
 3. **Missing attribution**
+
    - Include proper notices for all third-party code
 
 4. **Not updating regularly**
+
    - Re-check when dependencies change
 
 ## Related Skills
 
 - **dependency-upgrade**: Upgrade dependencies safely
+
 - **setup-python-project**: Initialize projects with proper licensing
+
 - **code-review**: Review license compliance in code reviews
 
 ## Additional Resources
 
 ### License Databases
 - [SPDX License List](https://spdx.org/licenses/)
+
 - [ChooseALicense.com](https://choosealicense.com/)
+
 - [TLDRLegal](https://tldrlegal.com/)
 
 ### Tools
 - **Python**: pip-licenses, licensecheck
+
 - **JavaScript**: license-checker, licensee
+
 - **Java**: license-maven-plugin
+
 - **Multi-language**: FOSSology, ScanCode
 
 ### License Compatibility
 - [GPL Compatibility Matrix](https://www.gnu.org/licenses/gpl-faq.html#AllCompatibility)
+
 - [Apache-GPLv3 Compatibility](https://www.apache.org/licenses/GPL-compatibility.html)
 
 ---

@@ -18,11 +18,14 @@ related_templates:
 tools:
 
   - jest (29.7.0)
+
   - eslint (9.15.0)
+
   - prettier
 tags:
 
   - test-development
+
   - javascript
 ---
 # JavaScript Mocks & Fixtures
@@ -151,8 +154,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 Please implement comprehensive mocking and fixture strategies for this JavaScript project following this protocol:
@@ -1086,11 +1092,17 @@ Replace `{phase_name}` with the specific phase (test_cases, mocks_fixtures, perf
 The AI assistant should deliver:
 
 1. **Comprehensive fixture setup** using Jest hooks
+
 2. **Mock configurations** for external dependencies
+
 3. **Test data factories** for domain objects
+
 4. **Builder patterns** for complex test data
+
 5. **Usage documentation** with examples
+
 6. **Best practices guide** for Jest and Sinon
+
 7. **Fixture and mock catalog** for easy reference
 ---
 

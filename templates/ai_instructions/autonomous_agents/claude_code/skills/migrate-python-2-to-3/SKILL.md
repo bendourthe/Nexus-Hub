@@ -12,6 +12,7 @@ prerequisites: []
 tags:
 
   - skills
+
   - generic
 ---
 # migrate-python-2-to-3
@@ -31,17 +32,25 @@ Systematically migrate Python 2 codebase to Python 3, handling syntax changes, l
 ## When to Use This Skill
 
 - Migrating legacy Python 2 applications to Python 3
+
 - Modernizing codebases that need Python 3 features
+
 - Preparing projects for Python 2 end-of-life
+
 - Upgrading applications to use latest libraries
+
 - Converting projects to support type hints and async/await
 
 ## Prerequisites
 
 - Python 2 and Python 3 installed for comparison testing
+
 - Comprehensive test suite (recommended)
+
 - Version control with clean working directory
+
 - Backup of original codebase
+
 - List of all dependencies and their Python 3 compatibility
 
 ## Step-by-Step Instructions
@@ -75,14 +84,21 @@ Current Python version: 2.7.x
 Target Python version: 3.9+
 
 Critical Dependencies:
+
 - [dependency]: Python 3 compatible? [yes/no]
+
 - [dependency]: Alternative needed? [yes/no]
 
 High-Risk Areas:
+
 - Unicode/string handling
+
 - Dictionary iteration
+
 - Integer division
+
 - Print statements
+
 - Exception syntax
 
 Estimated Migration Time: [hours]
@@ -121,7 +137,9 @@ pip list --outdated
 
 ### Dependencies Requiring Code Changes
 - ConfigParser → configparser (module renamed)
+
 - urllib2 → urllib.request (restructured)
+
 - StringIO → io.StringIO (moved)
 ```
 
@@ -141,11 +159,17 @@ python3 -m lib2to3 . --output-dir=migrated_code
 **Review 2to3 suggested changes:**
 
 Common transformations:
+
 - `print` statements → `print()` function
+
 - `xrange()` → `range()`
+
 - `dict.iteritems()` → `dict.items()`
+
 - `unicode()` → `str()`
+
 - Exception syntax: `except E, e:` → `except E as e:`
+
 - Integer division: `/` → `//` (when needed)
 
 ### Phase 2: Automated Migration
@@ -598,33 +622,53 @@ diff py2_results.txt py3_results.txt
 Manual Testing Checklist
 
 1. Core Functionality
+
    - [ ] Main workflows execute correctly
+
    - [ ] Data processing produces same results
+
    - [ ] API endpoints respond as expected
+
    - [ ] Database operations work correctly
 
 2. Edge Cases
+
    - [ ] Empty input handling
+
    - [ ] Large dataset processing
+
    - [ ] Concurrent operations
+
    - [ ] Error conditions
 
 3. Integration Points
+
    - [ ] External API calls
+
    - [ ] File system operations
+
    - [ ] Database connections
+
    - [ ] Third-party libraries
 
 4. Performance
+
    - [ ] Response times acceptable
+
    - [ ] Memory usage reasonable
+
    - [ ] No resource leaks
+
    - [ ] Comparable to Python 2 version
 
 5. Data Integrity
+
    - [ ] Unicode data handled correctly
+
    - [ ] Binary data preserved
+
    - [ ] File encoding correct
+
    - [ ] Database encoding correct
 """
 
@@ -744,15 +788,21 @@ language: python
 python:
 
   - "3.6"
+
   - "3.7"
+
   - "3.8"
+
   - "3.9"
 
 install:
+
   - pip install -r requirements.txt
+
   - pip install -r requirements-test.txt
 
 script:
+
   - pytest tests/ -v --cov=src
 ```
 
@@ -765,19 +815,27 @@ This project has been migrated from Python 2 to Python 3.
 
 ### Breaking Changes
 - Minimum Python version: 3.6+
+
 - New dependency: [package] (replaces [old_package])
+
 - API changes: [list specific changes]
 
 ### Migration Guide for Users
 1. Update Python to 3.6 or higher
+
 2. Update dependencies: `pip install -r requirements.txt`
+
 3. Review [MIGRATION.md] for API changes
+
 4. Run tests to verify compatibility
 
 ### For Developers
 - See [MIGRATION.md] for complete migration details
+
 - All new code must use Python 3 features
+
 - Type hints are encouraged
+
 - Use f-strings for formatting
 ```
 
@@ -786,94 +844,143 @@ This project has been migrated from Python 2 to Python 3.
 After completing this migration:
 
 1. **Codebase fully Python 3 compatible**
+
    - All syntax updated to Python 3
+
    - Dependencies compatible with Python 3
+
    - Tests passing on Python 3.6+
 
 2. **Modern Python features available**
+
    - Type hints for better IDE support
+
    - Async/await for concurrent operations
+
    - f-strings for readable formatting
+
    - Modern standard library modules
 
 3. **Improved code quality**
+
    - Explicit string/byte handling
+
    - Consistent exception handling
+
    - Better Unicode support
+
    - Cleaner syntax
 
 4. **Future-proof codebase**
+
    - Compatible with latest Python versions
+
    - Access to new language features
+
    - Security updates and support
+
    - Better performance characteristics
 
 ## Success Criteria
 
 - [ ] All Python 2 syntax replaced with Python 3
+
 - [ ] All imports updated to Python 3 modules
+
 - [ ] String/byte handling corrected throughout
+
 - [ ] Integer division behavior verified
+
 - [ ] Exception handling uses 'as' keyword
+
 - [ ] All tests passing on Python 3.6+
+
 - [ ] No Python 2 dependencies remaining
+
 - [ ] Documentation updated with Python 3 requirements
+
 - [ ] Performance comparable or better than Python 2
+
 - [ ] Type hints added to public APIs (optional)
+
 - [ ] CI/CD updated for Python 3
+
 - [ ] Deployment scripts updated
 
 ## Common Pitfalls
 
 1. **Incomplete string/byte conversion**
+
    - Problem: Mixing str and bytes types
+
    - Solution: Be explicit about encoding/decoding
 
 2. **Dictionary iteration assumptions**
+
    - Problem: Code assumes lists from .keys()/.values()
+
    - Solution: Convert to list explicitly if needed
 
 3. **Integer division surprises**
+
    - Problem: Expected integer division, got float
+
    - Solution: Use // for floor division
 
 4. **Dependency incompatibility**
+
    - Problem: Old package doesn't support Python 3
+
    - Solution: Find maintained alternative or fork
 
 5. **File encoding issues**
+
    - Problem: Files opened without encoding specification
+
    - Solution: Always specify encoding='utf-8'
 
 ## Related Skills
 
 - **dependency-upgrade**: Upgrade project dependencies safely
+
 - **setup-python-project**: Initialize new Python projects
+
 - **add-typing**: Add type hints to Python code
+
 - **refactor-for-testability**: Improve code testability
+
 - **code-complexity-analysis**: Analyze and reduce complexity
 
 ## Additional Resources
 
 ### Official Documentation
 - [Python 3 What's New](https://docs.python.org/3/whatsnew/)
+
 - [Porting Python 2 to Python 3](https://docs.python.org/3/howto/pyporting.html)
+
 - [2to3 Documentation](https://docs.python.org/3/library/2to3.html)
 
 ### Tools
 - [python-modernize](https://github.com/PyCQA/modernize)
+
 - [six](https://six.readthedocs.io/)
+
 - [python-future](http://python-future.org/)
+
 - [caniusepython3](https://pypi.org/project/caniusepython3/)
 
 ### Migration Guides
 - [Conservative Python 3 Porting Guide](https://portingguide.readthedocs.io/)
+
 - [The Hitchhiker's Guide to Python 3](https://python-3-patterns-idioms-test.readthedocs.io/)
+
 - [Dropping Python 2 Support](https://python3statement.org/)
 
 ### Best Practices
 - [PEP 8 - Style Guide](https://www.python.org/dev/peps/pep-0008/)
+
 - [PEP 484 - Type Hints](https://www.python.org/dev/peps/pep-0484/)
+
 - [PEP 3107 - Function Annotations](https://www.python.org/dev/peps/pep-3107/)
 
 ---

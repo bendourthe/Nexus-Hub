@@ -12,13 +12,18 @@ prerequisites: []
 tools:
 
   - pytest (8.3.4+)
+
   - black (24.12.0)
+
   - mypy (1.13.0)
+
   - ruff
 tags:
 
   - ai-templates
+
   - refactoring
+
   - python
 ---
 # Code Cleanup & Refactoring Review
@@ -138,8 +143,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -160,15 +168,23 @@ Please perform a comprehensive, systematic cleanup of my codebase following this
 Before making ANY changes, please:
 
 1. **Analyze the complete codebase structure**
+
    - Identify all Python files in src/ and tests/
+
    - Map dependencies between modules
+
    - Identify public APIs that must be preserved
 
 2. **Generate a detailed cleanup report** listing:
+
    - Unused imports, variables, and functions
+
    - Empty lines within function bodies
+
    - Inline and meta-commentary comments
+
    - Any additional cleanup opportunities (see below)
+
    - Estimated impact and risk level for each category
 
 3. **Present findings and wait for my approval** before proceeding
@@ -182,24 +198,37 @@ After I approve, systematically clean the following:
 **CRITICAL: Perform multiple passes through the entire codebase to ensure completeness**
 
 1. **First Pass**: Apply all cleanup tasks systematically across the codebase
+
    - Work through all Python files in the project
+
    - Apply all requested cleanup operations
+
    - Track which files were modified
 
 2. **Verification Pass**: Review the entire codebase again
+
    - Check for any files that were missed in the first pass
+
    - Verify all cleanup patterns were applied consistently
+
    - Identify any edge cases or exceptions that need attention
 
 3. **Repeat Until Complete**: Continue additional passes if needed
+
    - If files were found that needed cleanup in the verification pass, perform another full pass
+
    - Repeat until a complete pass finds no additional cleanup opportunities
+
    - Track the number of passes required to achieve complete cleanup
 
 4. **Pass Tracking**: Maintain detailed statistics for each pass
+
    - Number of files processed per pass
+
    - Number of files cleaned per pass
+
    - Percentage of codebase cleaned per pass
+
    - Types of issues found per pass
 
 #### When to Stop Multi-Pass Cleanup
@@ -207,23 +236,35 @@ After I approve, systematically clean the following:
 Stop when **ONE** of these conditions is met:
 
 1. ✅ **Zero-change pass** (RECOMMENDED STOPPING POINT)
+
    - Entire verification pass finds nothing to clean
+
    - All files reviewed, no modifications made
+
    - This is the ideal completion state
 
 2. ✅ **Diminishing returns threshold**
+
    - <5% additional files cleaned per pass
+
    - Calculate: `(files_cleaned_this_pass / total_files) < 0.05`
+
    - Example: If 150 total files and pass cleans <8 files, stop
 
 3. ✅ **Pass limit reached**
+
    - Maximum 3 passes completed
+
    - Log incomplete work if stopping at this point
+
    - Document remaining issues for future cleanup
 
 4. ✅ **Time limit reached**
+
    - 8 hours of cleanup time exceeded
+
    - Document progress and remaining work
+
    - Schedule follow-up cleanup session if needed
 
 **NEVER stop without at least 2 passes (initial + verification).**
@@ -237,35 +278,59 @@ Create `${OUTPUT_DIR}/cleanup/progress.md` after each pass:
 
 ## Pass 1 - Initial Cleanup
 - **Date**: 2025-12-03
+
 - **Start Time**: 10:00 AM
+
 - **End Time**: 1:00 PM
+
 - **Duration**: 3 hours
+
 - **Files Analyzed**: 150
+
 - **Files Cleaned**: 45 (30.0%)
+
 - **Issues Found**: 234
+
   - Unused imports: 67
+
   - Unused variables: 89
+
   - Empty lines: 45
+
   - Inline comments: 33
+
 - **Issues Resolved**: 234 (100%)
 
 ## Pass 2 - Verification
 - **Date**: 2025-12-03
+
 - **Start Time**: 2:00 PM
+
 - **End Time**: 3:00 PM
+
 - **Duration**: 1 hour
+
 - **Files Analyzed**: 150
+
 - **Files Cleaned**: 8 (5.3%)
+
 - **Issues Found**: 12
+
   - Unused imports: 5
+
   - Empty lines: 7
+
 - **Issues Resolved**: 12 (100%)
 
 ## Decision: STOP - Diminishing returns threshold met
 - **Condition Met**: Files cleaned in Pass 2 (5.3%) < threshold (5%)
+
 - **Total Passes**: 2
+
 - **Total Time**: 4 hours
+
 - **Total Files Cleaned**: 53/150 (35.3%)
+
 - **Overall Status**: ✅ Cleanup complete
 ```
 
@@ -281,11 +346,15 @@ Use this matrix to decide whether to continue or stop:
 | 16+ | 150 | >10% | **CONTINUE** - Significant cleanup remaining |
 
 **Time-based stopping:**
+
 - After 8 hours total cleanup time, **STOP** regardless of percentage
+
 - Document remaining work for future cleanup session
 
 **Pass-based stopping:**
+
 - After 3 passes, **STOP** and document incomplete work
+
 - Consider if issues are edge cases or systematic problems
 
 ### Critical Removals
@@ -295,9 +364,11 @@ Use this matrix to decide whether to continue or stop:
 - **Unused variables**: Remove variables that are assigned but never used
 
 - **Unused functions**: Remove private functions (starting with `_`) that are never called
+
   - PRESERVE public functions even if seemingly unused (may be part of public API)
 
 - **Empty lines within functions**: Remove blank lines inside function/method bodies
+
   - KEEP empty lines between functions, classes, and major code sections
 
 ### Comment Cleanup
@@ -309,9 +380,13 @@ Use this matrix to decide whether to continue or stop:
 - **Commented-out code**: Remove old code blocks that are commented out
 
 - PRESERVE comments that explain:
+
   - Why a particular approach was chosen
+
   - Business logic or domain-specific rules
+
   - Complex algorithms or non-obvious implementations
+
   - Workarounds for known issues/bugs in dependencies
 
 ### Additional Cleanup Opportunities
@@ -337,8 +412,11 @@ Use this matrix to decide whether to continue or stop:
 - **Optimize import statements**: Use more efficient import patterns where applicable
 
 - **Verify import grouping**: Ensure imports follow the standard structure:
+
   1. Standard library (alphabetically)
+
   2. Third-party libraries (grouped by function)
+
   3. Local application imports (alphabetically)
 
 #### Code Simplification
@@ -356,17 +434,25 @@ Use this matrix to decide whether to continue or stop:
 Identify and remove variables, properties, and configuration that serve no functional purpose:
 
 - **Ignored Style Properties**: In custom-painted widgets (PyQt/PySide, tkinter)
+
   - Properties defined in stylesheets/setStyleSheet() that are completely ignored by custom paintEvent()
+
   - CSS properties that are overridden by manual QPainter drawing code
+
   - Style configurations that have no effect due to custom rendering
 
 - **Dead Configuration Values**: Settings that are defined but never used
+
   - Class constants assigned but never referenced
+
   - Configuration dictionaries with unused keys
+
   - Theme/style values that are shadowed by code-level constants
 
 - **Redundant Constants**: Values that duplicate other constants
+
   - Multiple constants with identical values serving the same purpose
+
   - Constants that duplicate framework defaults unnecessarily
 
 **Detection Example: PyQt Custom-Painted Widgets**
@@ -413,16 +499,25 @@ class GoodProgressBar(QProgressBar):
 ```
 
 **Why This Matters:**
+
 1. **Clarity**: Configuration is where you expect it (class constants at top)
+
 2. **Maintainability**: Easy to find and modify visual properties
+
 3. **No Confusion**: No wondering why changing CSS doesn't work
+
 4. **Better IDE Support**: Constants have autocomplete, CSS strings don't
 
 **Detection Strategy:**
+
 1. Find classes that override `paintEvent()` or similar custom rendering methods
+
 2. Check if they have `setStyleSheet()` calls with visual properties
+
 3. Verify those visual properties are actually used in the paint code
+
 4. If not used, extract values to class constants and remove useless CSS
+
 5. Add comment explaining why stylesheet is minimal
 
 ## Phase 3: Verification Protocol
@@ -430,7 +525,9 @@ class GoodProgressBar(QProgressBar):
 After cleanup, you MUST:
 
 1. **Provide summary** of all changes made, organized by category
+
 2. **Highlight any edge cases** or decisions that required judgment
+
 3. **Request that I run tests** to verify nothing broke:
 Please run your test suite to verify the cleanup didn't break anything:
 python tests/run_all_tests.py
@@ -439,8 +536,11 @@ python tests/run_all_tests.py
 ```markdown
    ### Code Cleanup - [Date]
    - Removed [X] unused imports
+
    - Removed [Y] unused functions
+
    - Removed [Z] empty lines
+
    - Additional improvements: [summary]
 
 ## Critical Safety Rules
@@ -479,8 +579,11 @@ Present cleanup in this structure:
 - **File:** path/to/file.py
 
 - **Removals:**
+
   - Line X: Unused import module_name
+
   - Lines X-Y: Unused function function_name()
+
   - Line Z: Inline comment removed
 
 - **Rationale:** [Brief explanation of why these were removed]
@@ -492,23 +595,35 @@ Present cleanup in this structure:
 **Pass-by-Pass Breakdown:**
 
 - **Pass 1** (Initial cleanup):
+
   - Files processed: X
+
   - Files cleaned: Y
+
   - Percentage of codebase: Z%
 
 - **Pass 2** (Verification):
+
   - Files processed: X
+
   - Files cleaned: W (files missed in Pass 1)
+
   - Percentage of codebase: V%
 
 - **Pass N** (if needed):
+
   - Files processed: X
+
   - Files cleaned: 0 (verification complete)
 
 **Multi-Pass Summary:**
+
 - **Total passes required**: N
+
 - **Files cleaned in first pass**: Y (Z% of codebase)
+
 - **Files cleaned in subsequent passes**: W (V% of codebase)
+
 - **Final verification**: ✅ All files processed, no additional cleanup needed
 
 ### Standard Cleanup Metrics
@@ -528,7 +643,9 @@ Present cleanup in this structure:
 ### Useless Code Detection Metrics
 
 - **Useless style properties removed:** M
+
   - Converted to code constants: P
+
   - Simply deleted: Q
 
 - **Dead configuration removed:** R
@@ -536,8 +653,11 @@ Present cleanup in this structure:
 - **Redundant constants consolidated:** S
 
 **Impact Analysis:**
+
 - Code clarity improvement: [High/Medium/Low]
+
 - Maintenance burden reduction: [High/Medium/Low]
+
 - Configuration discoverability: [High/Medium/Low]
 
 **Overall Impact:** [Low/Medium/High risk assessment]

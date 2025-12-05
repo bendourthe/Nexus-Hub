@@ -18,13 +18,18 @@ related_templates:
 tools:
 
   - jest (29.7.0)
+
   - eslint (9.15.0)
+
   - prettier
 tags:
 
   - code-review
+
   - security
+
   - code-review
+
   - javascript
 ---
 # JavaScript Security Review
@@ -147,16 +152,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Issues that create immediate risks to system stability, data integrity, or compliance.
 
 **Examples:**
+
 - Security vulnerabilities (SQL injection, XSS, authentication bypass)
+
 - Resource leaks (unclosed connections, file handles, memory leaks)
+
 - Data loss risks (destructive operations without validation)
+
 - Thread safety violations (race conditions, deadlocks)
+
 - Compliance violations (GDPR, HIPAA, PCI-DSS)
 
 **Action Required:**
+
 - Block deployment until fixed
+
 - Require hotfix within 24 hours
+
 - Add tests to prevent regression
+
 - Document root cause and fix
 
 ---
@@ -166,16 +180,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Issues that significantly impact maintainability, performance, or correctness but don't cause immediate failures.
 
 **Examples:**
+
 - Incorrect business logic (wrong calculations, flawed algorithms)
+
 - Performance bottlenecks (O(n²) algorithms, missing indexes, inefficient queries)
+
 - Memory inefficiency (loading large datasets into memory unnecessarily)
+
 - Breaking API changes without deprecation
+
 - Missing critical error handling (network errors, API failures not caught)
 
 **Action Required:**
+
 - Schedule fix in current sprint
+
 - Cannot release without resolution
+
 - Update documentation
+
 - Performance test after fix
 
 ---
@@ -185,16 +208,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Code smells and technical debt that reduce maintainability but don't affect correctness.
 
 **Examples:**
+
 - High complexity (cyclomatic complexity >10, functions >100 lines)
+
 - Code duplication (>10 lines duplicated across modules)
+
 - Poor naming (unclear variable/function names, inconsistent conventions)
+
 - Missing tests (<80% coverage on critical paths)
+
 - Incomplete error messages (no context for debugging)
 
 **Action Required:**
+
 - Add to backlog
+
 - Prioritize in next sprint planning
+
 - Consider during refactoring opportunities
+
 - Track technical debt metrics
 
 ---
@@ -204,16 +236,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Style inconsistencies and minor optimizations that don't impact functionality.
 
 **Examples:**
+
 - Style violations (linting warnings, formatting issues)
+
 - Minor performance optimizations (in non-critical code paths)
+
 - Missing documentation on helper functions
+
 - Verbose code that could be more concise
+
 - Debug statements left in code
 
 **Action Required:**
+
 - Fix opportunistically during other work
+
 - Batch with other low-priority changes
+
 - Good for new contributors
+
 - Can be deferred indefinitely
 
 ---
@@ -221,20 +262,31 @@ Use this framework to classify and prioritize all findings from the code review.
 ## Severity Assignment Guidelines
 
 **When to Escalate Severity:**
+
 - Issue affects **production environment** → escalate one level
+
 - Issue affects **customer-facing features** → escalate one level
+
 - Issue has **no workaround** → escalate one level
+
 - Issue appears in **multiple locations** → escalate one level
 
 **When to De-escalate Severity:**
+
 - Issue only in **test/development code** → de-escalate one level
+
 - Issue has **easy workaround** → de-escalate one level
+
 - Issue is **isolated to single module** → de-escalate one level
+
 - Issue **rarely executed** (edge case) → de-escalate one level
 
 **Examples:**
+
 - Memory leak in production API: **HIGH → CRITICAL** (production + customer-facing)
+
 - Style violation in test file: **LOW → Ignore** (test code + style only)
+
 - Duplicated logic across 15 modules: **MEDIUM → HIGH** (multiple locations)
 
 ---
@@ -264,16 +316,22 @@ For each finding, include:
 **Issue:** The user search function loads all users into memory and performs linear search on every request.
 
 **Impact:**
+
 - Response time degrades with user count (currently 500ms for 10k users)
+
 - High memory usage (50MB+ per request)
+
 - Poor scalability (can't handle >100k users)
 
 **Recommendation:**
 Move filtering to database with indexed query:
 
 - Add database index on search fields
+
 - Use database LIKE/ILIKE queries
+
 - Implement pagination (limit results to 50)
+
 - Add caching for common searches
 
 **Effort:** 3 hours (2 hours implementation + 1 hour testing)
@@ -320,8 +378,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -392,10 +453,15 @@ Please perform a comprehensive security review of this JavaScript project follow
 For each OWASP vulnerability category, systematically review the codebase:
 
 1. **A01: Broken Access Control**
+
    - Review authorization logic in all API endpoints/routes
+
    - Check for missing authorization checks
+
    - Verify users cannot access resources beyond permissions
+
    - Test for horizontal/vertical privilege escalation
+
    - Check for insecure direct object references (IDOR)
 
 2. **A02: Cryptographic Failures**
@@ -419,6 +485,7 @@ For each OWASP vulnerability category, systematically review the codebase:
    ```
 
 3. **A03: Injection**
+
    - **SQL Injection**: Verify parameterized queries
    ```javascript
    // Good: Parameterized query
@@ -460,9 +527,13 @@ For each OWASP vulnerability category, systematically review the codebase:
    ```
 
 4. **A04: Insecure Design**
+
    - Review architecture for security anti-patterns
+
    - Assess threat modeling evidence
+
    - Check security requirements in design
+
    - Evaluate rate limiting and resource controls
 
 5. **A05: Security Misconfiguration**
@@ -491,9 +562,13 @@ For each OWASP vulnerability category, systematically review the codebase:
    ```
 
 6. **A06: Vulnerable and Outdated Components**
+
    - Cross-reference dependency vulnerabilities from Phase 1
+
    - Identify components without security patches
+
    - Check for deprecated libraries
+
    - Review package-lock.json for dependency pinning
 
 7. **A07: Identification and Authentication Failures**
@@ -522,8 +597,11 @@ For each OWASP vulnerability category, systematically review the codebase:
    ```
 
 8. **A08: Software and Data Integrity Failures**
+
    - Review package-lock.json integrity
+
    - Check for package signature verification
+
    - Assess deserialization security
    ```javascript
    // Bad: eval() is dangerous
@@ -540,7 +618,9 @@ For each OWASP vulnerability category, systematically review the codebase:
    ```
 
 9. **A09: Security Logging and Monitoring Failures**
+
    - Assess logging comprehensiveness
+
    - Check for sensitive data in logs
    ```javascript
    // Bad: Logging sensitive data
@@ -634,9 +714,13 @@ For each OWASP vulnerability category, systematically review the codebase:
 ## Phase 4: Data Protection Review
 
 1. **Sensitive Data Identification**
+
    - Identify PII (names, emails, addresses, phone numbers)
+
    - Locate financial data (credit cards, bank accounts)
+
    - Find authentication credentials (passwords, tokens, API keys)
+
    - Document sensitive business data
 
 2. **Encryption Assessment**
@@ -768,17 +852,25 @@ For each OWASP vulnerability category, systematically review the codebase:
    ```
 
 3. **Configuration File Security**
+
    - Check .env files not in version control
+
    - Verify .gitignore includes sensitive files
+
    - Review config file permissions
+
    - Check for default/example secrets
 
 ## Phase 7: Frontend-Specific Security (if applicable)
 
 1. **XSS Prevention**
+
    - Verify Content Security Policy (CSP) headers
+
    - Check for dangerouslySetInnerHTML usage
+
    - Review third-party script inclusion
+
    - Assess inline script usage
 
 2. **CSRF Protection**
@@ -884,9 +976,13 @@ Please provide a comprehensive security report with the following structure:
 
 ### Immediate Action Items (Priority 1)
 1. **[Critical Issue]**
+
    - **Location**: [file:line]
+
    - **Fix**: [specific remediation steps]
+
    - **Time Estimate**: [hours]
+
    - **Risk if Not Fixed**: [consequences]
 
 ### Short-term Actions (Priority 2 - within 1 week)

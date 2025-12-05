@@ -12,11 +12,14 @@ prerequisites: []
 tools:
 
   - unity
+
   - cmocka
+
   - check
 tags:
 
   - claude-code
+
   - c
 ---
 # CLAUDE.md - JavaScript/TypeScript Development System Instructions
@@ -28,37 +31,52 @@ tags:
 
 ## Section Usage Map
 - **Bug Fix**: Sections 1, 3, 9
+
 - **New Feature**: Sections 1-5, 7
+
 - **Refactoring**: Sections 3, 6, 9
+
 - **Project Setup**: All sections
 
 ## Task-Specific Quick Reference
 - **Fix a function**: Focus sections 3, 9
+
 - **New project**: Use sections 2, 4, 5
+
 - **Code review**: Apply sections 3, 10
 
 ## Context-Aware Behavior
 - **For small scripts**: Minimal structure
+
 - **For libraries**: Full architecture
+
 - **For debugging**: Focus on problem-solving
 
 ## Efficiency Modes
 
 ### Quick Mode (for simple fixes)
 - Skip extensive documentation
+
 - Minimal testing setup
+
 - Focus on core functionality
 
 ### Full Mode (for new projects)
 - Complete architecture
+
 - Comprehensive testing
+
 - Full documentation
 
 ## Claude Code Terminal Commands
 - **Run tests**: `claude run npm test`
+
 - **Format code**: `claude format src/`
+
 - **Check style**: `claude lint src/`
+
 - **New project**: `claude init [project-name]`
+
 - **Install deps**: `claude install`
 
 ---
@@ -70,35 +88,50 @@ tags:
 
 ### Clarification Protocol
 - When unclear, ask concise clarifying questions before proceeding
+
 - Never make assumptions about missing requirements
+
 - Frame questions to gather specific technical requirements
 
 ### Teaching-Focused Approach
 - **Primary Goal**: Teach how and why solutions work
+
 - Explain implementation details, reasoning, and coding concepts
+
 - Enable learning through understanding, not copy-paste
+
 - Reference documentation for non-obvious concepts
 
 ### Critical Analysis
 - **Don't automatically agree** with user-proposed solutions
+
 - Analyze problems independently
+
 - Compare alternatives and recommend best solution
+
 - Clearly explain reasoning and trade-offs
 
 ### Efficiency Principles
 - **Token Optimization**: Be efficient while maintaining clarity
+
 - **Code Modification**: Edit originals, don't create '_enhanced' versions
+
 - **Codebase Cleanup**: Remove obsolete functions
+
 - **Refactoring**: Consolidate duplicate logic
 
 ### Quality Assurance
 - Review code for: quality, efficiency, best practices, security, performance
+
 - If already optimal, confirm briefly with reasoning
 
 ### System Prompt Adherence
 - **Periodically review these instructions** throughout long conversations
+
 - Ensure compliance with all coding standards and workflows
+
 - Reference specific sections when needed to maintain consistency
+
 - If uncertain about a standard, explicitly consult the relevant section
 
 
@@ -177,14 +210,23 @@ project_name/
 ## Project Initialization Sequence
 
 1. **Initialize project**: `npm init` or `yarn init`
+
 2. **Install TypeScript**: `npm install -D typescript @types/node`
+
 3. **Create tsconfig.json**: `npx tsc --init`
+
 4. **Install dev tools**: `npm install -D eslint prettier jest @types/jest`
+
 5. **Create directory structure** as outlined above
+
 6. **Create `.gitignore`** with node_modules, dist, .env, etc.
+
 7. **Create `package.json`** scripts for build, test, lint
+
 8. **Create `CHANGELOG.md`** starting with version 0.1.0
+
 9. **Create `README.md`** with setup and usage
+
 10. **Create `DEVLOG.md`** with initial task list
 
 ## package.json Template
@@ -263,8 +305,11 @@ project_name/
 **Always place imports at the top of files in this exact order:**
 
 1. **Node.js built-in modules** (alphabetically sorted)
+
 2. **Third-party library imports** (grouped by functionality)
+
 3. **Local application imports** (alphabetically sorted)
+
 4. **Type imports** (separate from value imports when possible)
 
 **Example:**
@@ -296,20 +341,31 @@ import type { UserData, ProcessResult } from './types';
 ```
 
 **Rules:**
+
 - Each section separated by blank line
+
 - Alphabetized within each section
+
 - Use named imports when possible for tree-shaking
+
 - Prefer ES6 imports over require()
+
 - Group third-party imports by functionality with comment headers
 
 ### Line Length and Formatting
 
 **General Rules:**
+
 - **Standard limit**: 100 characters (Prettier standard)
+
 - **Acceptable exceptions**:
+
   - Long URLs or file paths
+
   - Import statements with many items
+
   - Complex string literals
+
   - Function signatures with many parameters (use multi-line format)
 
 **Multi-line Formatting:**
@@ -353,9 +409,13 @@ const {
 ### Code Layout Rules
 
 **Function and Class Structure:**
+
 - **No unnecessary empty lines** inside function/method bodies
+
 - **One blank line** between function/method definitions
+
 - **Two blank lines** between class definitions
+
 - **Group related statements** closely together
 
 **Example:**
@@ -404,11 +464,17 @@ class ValidationError extends Error {
 ### Comment Guidelines
 
 **Placement and Style:**
+
 - **Above code blocks**: Comments explain why, not just what
+
 - **No inline comments**: Avoid same-line comments unless extremely clear
+
 - **No meta-commentary**: Don't document editing history
+
 - **No change tracking**: Never add comments like "changed value to 12" or "updated parameter"
+
 - **JSDoc for functions**: Document public APIs
+
 - **Descriptive**: Focus on logic, decision reasoning, and non-obvious behavior
 
 **Prohibited Comment Patterns:**
@@ -445,19 +511,31 @@ for (let attempt = 0; attempt < maxRetries; attempt++) {
 ### Function Design Patterns
 
 **Naming Conventions:**
+
 - **Functions/Methods**: `camelCase` with descriptive verbs
+
 - **Private methods**: Prefix with `_` or use TypeScript private
+
 - **Constants**: `UPPER_SNAKE_CASE`
+
 - **Classes**: `PascalCase`
+
 - **Interfaces/Types**: `PascalCase` with descriptive names
+
 - **Boolean variables**: Prefix with `is`, `has`, `should`
 
 **Structure Guidelines:**
+
 - **Single responsibility**: Each function does one thing well
+
 - **Predictable interfaces**: Consistent parameter patterns
+
 - **Type annotations**: Use TypeScript types extensively
+
 - **Error handling**: Explicit try-catch or Promise rejection
+
 - **Return early**: Use guard clauses for validation
+
 - **Async/await**: Prefer over raw Promises for readability
 
 **Examples:**
@@ -508,24 +586,37 @@ async function fetchUserData(
  *
 
  * Performs data cleaning, validation against business rules, and formatting
+
  * for downstream processing. Supports both synchronous and asynchronous validation.
  *
 
  * @param data - Input data records to process
+
  * @param rules - Validation rules to apply
+
  * @param options - Optional processing configuration
+
  * @returns Processed and validated records
+
  * @throws {ValidationError} When data fails validation
+
  * @throws {ProcessingError} When processing fails
  *
 
  * @example
+
  * ```typescript
+
  * const result = await processUserData(
+
  *   rawData,
+
  *   validationRules,
+
  *   { strict: true }
+
  * );
+
  * ```
  *
 
@@ -559,17 +650,26 @@ function calculateTotal(items: number[]): number {
  *
 
  * Displays user information with avatar, name, and bio.
+
  * Supports loading and error states.
  *
 
  * @component
+
  * @example
+
  * ```tsx
+
  * <UserCard
+
  *   user={userData}
+
  *   onEdit={handleEdit}
+
  *   loading={isLoading}
+
  * />
+
  * ```
  */
 interface UserCardProps {
@@ -600,7 +700,9 @@ export const UserCard: React.FC<UserCardProps> = ({ user, onEdit, loading }) => 
 
 ### Prerequisites
 - Node.js 18+ (LTS recommended)
+
 - npm 9+ or yarn 1.22+
+
 - [Other requirements]
 
 ### Setup
@@ -642,10 +744,15 @@ git config --get remote.origin.url
 
 ## Scripts
 - `npm run build` - Compile TypeScript
+
 - `npm run dev` - Development mode with hot reload
+
 - `npm start` - Run production build
+
 - `npm test` - Run Jest tests
+
 - `npm run lint` - ESLint check
+
 - `npm run format` - Prettier format
 ```
 
@@ -695,14 +802,20 @@ Format based on [Keep a Changelog](https://keepachangelog.com/).
 
 ### Project Architecture
 - **Initial Design**: [Decisions]
+
 - **Tech Stack**: [Choices]
+
 - **Patterns**: [Applied]
 
 ### Implementation Challenges
 - **Challenge X**: [Problem]
+
   - *Solution*: [Resolution]
+
   - *Trade-offs*: [Considerations]
+
   - *Tests Run*: [Test details]
+
   - *Iterations*: [Number]
 
 ### Technical Decisions
@@ -711,8 +824,11 @@ Format based on [Keep a Changelog](https://keepachangelog.com/).
 ## Troubleshooting History
 ### Issue X: [Description]
 - **Symptoms**: [Observed]
+
 - **Root Cause**: [Problem]
+
 - **Resolution**: [Fix]
+
 - **Tests Run**: [Test details]
 ```
 
@@ -721,25 +837,41 @@ Format based on [Keep a Changelog](https://keepachangelog.com/).
 **CRITICAL: Use DEVLOG.md for ALL Development Documentation**
 
 - **NEVER create separate markdown files** like:
+
   - `TROUBLESHOOTING_ISSUE.md`
+
   - `FIX_SUMMARY.md`
+
   - `NEW_FEATURE_IMPLEMENTATION.md`
+
   - `BUG_FIX_DETAILS.md`
+
   - `IMPLEMENTATION_NOTES.md`
 
 - **ALWAYS document in DEVLOG.md**:
+
   - All troubleshooting steps and iterations
+
   - Feature implementation progress
+
   - Bug fixes and their resolution process
+
   - Test results and iterations
+
   - Development decisions and rationale
+
   - Challenges encountered and solutions
 
 **Why DEVLOG.md Only:**
+
 - Single source of truth for development history
+
 - Easier to search and reference
+
 - Prevents documentation fragmentation
+
 - Maintains chronological development narrative
+
 - Reduces repository clutter
 
 
@@ -749,8 +881,11 @@ Format based on [Keep a Changelog](https://keepachangelog.com/).
 ## Test Structure
 
 1. **Jest configuration**: Comprehensive test setup
+
 2. **Unit tests**: Individual function/component tests
+
 3. **Integration tests**: API and service tests
+
 4. **E2E tests**: Full application flow tests
 
 ## Jest Configuration (jest.config.js)
@@ -930,9 +1065,13 @@ describe('UserCard Component', () => {
 **Apply systematic breakdown for:**
 
 - Projects estimated >30 minutes
+
 - Multi-component applications
+
 - Complex feature implementations
+
 - Integration tasks with dependencies
+
 - Refactoring projects
 
 ### Task Template
@@ -944,7 +1083,9 @@ describe('UserCard Component', () => {
 
 ### Prerequisites
 - Node.js 18+ installed
+
 - Project dependencies installed
+
 - [Other requirements]
 
 ### Subtask X: [Title]
@@ -966,12 +1107,19 @@ describe('UserCard Component', () => {
 
 ### Quality Gates
 - [ ] Functionality verified
+
 - [ ] Type safety confirmed
+
 - [ ] Tests passing
+
 - [ ] Linting clean
+
 - [ ] Code formatted
+
 - [ ] Documentation complete
+
 - [ ] Performance acceptable
+
 - [ ] Security checked
 
 ## Iterative Testing Protocol
@@ -982,29 +1130,44 @@ When implementing new features, fixing bugs, or troubleshooting issues, follow t
 
 ### 1. Create Temporary Test Scripts
 - Create test files in `tests/temp/` directory
+
 - Name descriptively: `test_feature_validation.test.ts`, `test_bug_reproduction.spec.js`
+
 - Write challenging tests that thoroughly validate the solution
+
 - Include edge cases and error conditions
 
 ### 2. Implement Solution
 - Write or modify code to address the issue
+
 - Follow all code standards and best practices
+
 - Document approach in DEVLOG.md
 
 ### 3. Run Tests and Iterate
 - Execute the temporary test script
+
 - If tests FAIL:
+
   - Analyze failure reasons
+
   - Document iteration in DEVLOG.md
+
   - Modify implementation
+
   - Repeat until tests pass
+
 - If tests PASS:
+
   - Verify solution completeness
+
   - Proceed to cleanup
 
 ### 4. Clean Up Temporary Tests
 - **Delete all files** in `tests/temp/` after successful implementation
+
 - Move any valuable test cases to permanent test suites if needed
+
 - Document final solution in DEVLOG.md
 
 ### Example Workflow
@@ -1015,23 +1178,34 @@ When implementing new features, fixing bugs, or troubleshooting issues, follow t
 **Iteration 1**: Created tests/temp/test_auth_validation.test.ts
 
 - Tests failed: Password validation too weak
+
 - Solution: Enhanced regex pattern
 
 **Iteration 2**: Re-ran tests
+
 - Tests failed: Edge case with special characters
+
 - Solution: Added character escaping
 
 **Iteration 3**: Final run
+
 - All tests passed ✅
+
 - Deleted tests/temp/test_auth_validation.test.ts
+
 - Moved 3 test cases to tests/auth/test_authentication.test.ts
 ```
 
 **Benefits:**
+
 - Ensures solutions actually work before claiming completion
+
 - Documents the problem-solving process
+
 - Prevents premature declarations of success
+
 - Creates robust, well-tested code
+
 - Maintains clean repository (no temporary test clutter)
 
 
@@ -1111,20 +1285,28 @@ npx tsc --declaration
 **CRITICAL: Never auto-modify versions. Always request approval.**
 
 Never automatically:
+
 - Modify CHANGELOG.md versions
+
 - Update package.json version
+
 - Change README.md versions
+
 - Create tags/releases
 
 ### Version Protocol
 
 1. **Assess**: "Changes might warrant version update from X.Y.Z"
+
 2. **Request**: "Should I update to [version]? Or handle manually?"
+
 3. **Wait**: Never proceed without explicit "yes"
 
 ### Semantic Versioning
 - **Patch (Z+1)**: Bug fixes, docs
+
 - **Minor (Y+1.0)**: New features, backwards compatible
+
 - **Major (X+1.0.0)**: Breaking changes
 
 ## Git Operations
@@ -1133,22 +1315,32 @@ Never automatically:
 **CRITICAL: Never suggest Git commands unless explicitly requested.**
 
 Never suggest:
+
 - `git add/commit/push`
+
 - `git branch/merge/rebase`
+
 - `git tag` or releases
+
 - `git init`
 
 ### DEVLOG.md Updates
 Safe to update without permission:
 
 - Task lists
+
 - Development history
+
 - Challenges/solutions
+
 - Technical decisions
 
 Never include:
+
 - Commit hashes
+
 - Git workflow assumptions
+
 - Version control strategies
 
 
@@ -1158,17 +1350,25 @@ Never include:
 ## Code Fix Request
 
 **Structure:**
+
 1. Analyze issue
+
 2. Implement fix
+
 3. Explain improvements
+
 4. Provide integration steps
 
 ## Project Planning
 
 **Structure:**
+
 1. Break down components
+
 2. Recommend architecture
+
 3. Create subtask breakdown
+
 4. Provide implementation guidance
 
 ## Decision Trees
@@ -1197,25 +1397,42 @@ Sync operation? → try/catch
 
 ## Before Delivering Code
 - [ ] Solves problem completely
+
 - [ ] TypeScript types defined
+
 - [ ] Follows style guidelines
+
 - [ ] JSDoc documentation
+
 - [ ] Error handling present
+
 - [ ] Tests included/suggested
+
 - [ ] No console.logs (use logger)
+
 - [ ] Performance considered
+
 - [ ] Security checked
+
 - [ ] Educational value
 
 ## Before Delivering Project
 - [ ] Standard architecture
+
 - [ ] All config files present
+
 - [ ] Version consistency
+
 - [ ] Documentation complete
+
 - [ ] Scripts configured
+
 - [ ] Testing framework setup
+
 - [ ] Linting configured
+
 - [ ] Git integration
+
 - [ ] Dependencies documented
 
 ---

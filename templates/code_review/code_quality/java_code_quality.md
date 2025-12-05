@@ -18,11 +18,14 @@ related_templates:
 tools:
 
   - junit (5.11.3)
+
   - maven
+
   - gradle
 tags:
 
   - code-review
+
   - java
 ---
 # Java Code Quality Review
@@ -139,10 +142,15 @@ Use this framework to classify and prioritize all findings from the code quality
 **Definition:** Issues that create immediate risks to system stability, data integrity, or compliance.
 
 **Examples:**
+
 - **Unclosed resources** (JDBC connections, file streams, sockets)
+
 - **Thread safety violations** in concurrent code (race conditions, deadlocks)
+
 - **SQL injection vulnerabilities** (unsanitized user input)
+
 - **Memory leaks** (static collections holding references)
+
 - **NullPointerExceptions** in critical paths without null checks
 
 **Code Example:**
@@ -168,9 +176,13 @@ public List<User> getUsers() {
 ```
 
 **Action Required:**
+
 - Block deployment until fixed
+
 - Require hotfix within 24 hours
+
 - Add tests to prevent regression
+
 - Document root cause and fix
 
 ---
@@ -180,10 +192,15 @@ public List<User> getUsers() {
 **Definition:** Issues that significantly impact maintainability, performance, or correctness but don't cause immediate failures.
 
 **Examples:**
+
 - **Incorrect business logic** (wrong calculations, flawed algorithms)
+
 - **Performance bottlenecks** (O(n²) algorithms, missing indexes)
+
 - **Memory inefficiency** (unnecessary object creation, large data structures)
+
 - **Breaking API changes** without deprecation
+
 - **Missing error handling** (swallowed exceptions, empty catch blocks)
 
 **Code Example:**
@@ -216,9 +233,13 @@ public List<Integer> findDuplicates(List<Integer> items) {
 ```
 
 **Action Required:**
+
 - Schedule fix in current sprint
+
 - Cannot release without resolution
+
 - Update documentation
+
 - Performance test after fix
 
 ---
@@ -228,10 +249,15 @@ public List<Integer> findDuplicates(List<Integer> items) {
 **Definition:** Code smells and technical debt that reduce maintainability but don't affect correctness.
 
 **Examples:**
+
 - **High complexity** (cyclomatic complexity >10, methods >100 lines)
+
 - **Code duplication** (>10 lines duplicated across classes)
+
 - **Poor naming** (unclear variable/method names)
+
 - **Missing tests** (<80% coverage on critical paths)
+
 - **Overly broad exception handling** (catching Exception instead of specific types)
 
 **Code Example:**
@@ -270,9 +296,13 @@ public boolean processOrder(Order order, User user,
 ```
 
 **Action Required:**
+
 - Add to backlog
+
 - Prioritize in next sprint planning
+
 - Consider during refactoring opportunities
+
 - Track technical debt metrics
 
 ---
@@ -282,10 +312,15 @@ public boolean processOrder(Order order, User user,
 **Definition:** Style inconsistencies and minor optimizations that don't impact functionality.
 
 **Examples:**
+
 - **Style violations** (Checkstyle/PMD warnings, inconsistent formatting)
+
 - **Minor optimizations** (using StringBuilder vs string concatenation in loops)
+
 - **Missing Javadoc** on private helper methods
+
 - **Verbose code** that could use Java 8+ features (streams, lambdas)
+
 - **System.out.println** left in production code
 
 **Code Example:**
@@ -308,9 +343,13 @@ public double calculateTotal(List<Item> items) {
 ```
 
 **Action Required:**
+
 - Fix opportunistically during other work
+
 - Batch with other low-priority changes
+
 - Good for new contributors
+
 - Can be deferred indefinitely
 
 ---
@@ -318,20 +357,31 @@ public double calculateTotal(List<Item> items) {
 ## Severity Assignment Guidelines
 
 **When to Escalate Severity:**
+
 - Issue affects **production environment** → escalate one level
+
 - Issue affects **customer-facing features** → escalate one level
+
 - Issue has **no workaround** → escalate one level
+
 - Issue appears in **multiple locations** → escalate one level
 
 **When to De-escalate Severity:**
+
 - Issue only in **test/development code** → de-escalate one level
+
 - Issue has **easy workaround** → de-escalate one level
+
 - Issue is **isolated to single module** → de-escalate one level
+
 - Issue **rarely executed** (edge case) → de-escalate one level
 
 **Examples:**
+
 - Connection leak in production REST API: **HIGH → CRITICAL** (production + customer-facing)
+
 - Checkstyle violation in test utility class: **LOW → Ignore** (test code + style only)
+
 - Duplicated validation logic across 20 controllers: **MEDIUM → HIGH** (multiple locations)
 
 ---
@@ -361,9 +411,13 @@ For each finding, include:
 **Issue:** The findUserByEmail method creates new database connections without returning them to the pool.
 
 **Impact:**
+
 - Connection pool exhausted after ~50 concurrent requests
+
 - Average response time: 3.5 seconds (target: <200ms)
+
 - Application becomes unresponsive until restart
+
 - Memory usage: 500MB → 2GB over 24 hours
 
 **Recommendation:**
@@ -437,8 +491,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -471,17 +528,27 @@ Please perform a comprehensive code quality review of this Java project followin
    ```
 
 2. **Style Violations Analysis**
+
    - Document most common violations
+
    - Identify patterns of non-compliance
+
    - Assess consistency across packages
+
    - Flag formatting inconsistencies
+
    - Review against Google Java Style or Oracle conventions
 
 3. **Naming Convention Review**
+
    - Verify method names are descriptive and camelCase
+
    - Check class names use PascalCase
+
    - Confirm constants use UPPER_SNAKE_CASE
+
    - Review package naming (lowercase, domain-based)
+
    - Identify unclear or abbreviated names
 
 ## Phase 2: Static Analysis
@@ -531,26 +598,41 @@ Please perform a comprehensive code quality review of this Java project followin
    ```
 
 2. **Identify Complexity Hotspots**
+
    - List methods with complexity >10
+
    - Flag methods longer than 30 lines
+
    - Identify deeply nested code (>4 levels)
+
    - Document complex conditional logic
+
    - Review switch statements with many cases
 
 3. **Class-Level Analysis**
+
    - Assess class size and cohesion
+
    - Identify classes with too many responsibilities
+
    - Check coupling between classes
+
    - Evaluate package organization
+
    - Review class hierarchies depth
 
 ## Phase 4: Design Quality Review
 
 1. **SOLID Principles**
+
    - **Single Responsibility**: Check if classes have one clear purpose
+
    - **Open/Closed**: Evaluate extensibility without modification
+
    - **Liskov Substitution**: Review inheritance hierarchies
+
    - **Interface Segregation**: Check for lean interfaces
+
    - **Dependency Inversion**: Assess dependency on abstractions
 
 2. **DRY Violations**
@@ -561,15 +643,23 @@ Please perform a comprehensive code quality review of this Java project followin
    # Or use SonarQube duplication detection
    ```
    - Identify duplicated logic
+
    - Find near-duplicate methods
+
    - Document consolidation opportunities
+
    - Check for copy-paste programming
 
 3. **Design Patterns**
+
    - Identify patterns in use (factory, builder, strategy, observer)
+
    - Assess pattern appropriateness
+
    - Flag pattern misuse or over-engineering
+
    - Suggest beneficial pattern applications
+
    - Review Spring stereotypes usage (@Service, @Repository, @Component)
 
 ## Phase 5: Java-Specific Best Practices
@@ -657,29 +747,47 @@ Please perform a comprehensive code quality review of this Java project followin
    ```
 
 3. **Generics Usage**
+
    - Check for raw types (should use generics)
+
    - Verify proper use of wildcards (? extends, ? super)
+
    - Assess type safety
+
    - Review collections with proper type parameters
 
 ## Phase 6: Code Smell Detection
 
 1. **Common Java Code Smells**
+
    - **Long Method**: Methods exceeding 30 lines
+
    - **Large Class**: Classes with >300 lines or >20 methods
+
    - **Long Parameter List**: Methods with >5 parameters
+
    - **Data Clumps**: Same groups of parameters appearing together
+
    - **Primitive Obsession**: Using primitives instead of objects
+
    - **Switch Statements**: Can often be replaced with polymorphism
+
    - **Temporary Field**: Fields only used in certain circumstances
 
 2. **Anti-Patterns**
+
    - God objects/classes
+
    - Circular dependencies
+
    - Lava flow (dead/obsolete code)
+
    - Copy-paste programming
+
    - Magic numbers and strings
+
    - Anemic domain model
+
    - Service layer overuse
 
 3. **Java-Specific Issues**
@@ -721,15 +829,23 @@ Please perform a comprehensive code quality review of this Java project followin
 ## Phase 7: Spring Boot Specific (if applicable)
 
 1. **Spring Stereotypes**
+
    - Verify proper use of @Service, @Repository, @Component
+
    - Check @Controller vs @RestController usage
+
    - Review @Configuration classes
+
    - Assess @Bean definitions
 
 2. **Dependency Injection**
+
    - Prefer constructor injection over field injection
+
    - Avoid circular dependencies
+
    - Use @Qualifier when needed
+
    - Review @Autowired usage
 
 3. **Spring Best Practices**
@@ -786,15 +902,23 @@ Please perform a comprehensive code quality review of this Java project followin
    mvn javadoc:javadoc -Xdoclint:all
    ```
    - Measure public API JavaDoc presence
+
    - Assess JavaDoc completeness
+
    - Verify parameter documentation
+
    - Check return value documentation
+
    - Review exception documentation
 
 2. **Comment Quality**
+
    - Evaluate comment necessity and clarity
+
    - Flag commented-out code for removal
+
    - Check for TODO/FIXME/XXX comments
+
    - Verify comments explain "why" not "what"
 
 ## Output Format
@@ -818,7 +942,9 @@ Please provide a comprehensive quality report with the following structure:
 - **Checkstyle Violations**: [count and severity]
 
 - **Most Common Issues**:
+
   1. [Issue type] - [count] occurrences
+
   2. [Issue type] - [count] occurrences
 
 - **Consistency Score**: [percentage]
@@ -851,13 +977,17 @@ Please provide a comprehensive quality report with the following structure:
 
 ### Design Quality Issues
 1. **SOLID Violations**:
+
    - [Principle]: [specific examples and impact]
 
 2. **DRY Violations**:
+
    - [Location]: [description of duplication]
+
    - **Consolidation Opportunity**: [suggestion]
 
 3. **Missing or Misused Patterns**:
+
    - [Location]: [pattern suggestion or misuse]
 
 ### Code Smells Identified
@@ -916,12 +1046,15 @@ Please provide a comprehensive quality report with the following structure:
 
 ### Refactoring Recommendations
 1. **Immediate Actions** (within 1 sprint):
+
    - [Specific refactoring with location and rationale]
 
 2. **Short-term Goals** (1-2 months):
+
    - [Improvement initiative with expected impact]
 
 3. **Long-term Initiatives** (3-6 months):
+
    - [Strategic refactoring with business justification]
 
 ### Positive Patterns

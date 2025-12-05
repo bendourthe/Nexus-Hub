@@ -12,12 +12,16 @@ prerequisites: []
 tools:
 
   - junit (5.11.3)
+
   - maven
+
   - gradle
 tags:
 
   - documentation
+
   - documentation
+
   - java
 ---
 # Java SBOM Generation
@@ -169,8 +173,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -246,13 +253,21 @@ Please generate a comprehensive Software Bill of Materials (SBOM) for this Java 
 4. **Identify Dependency Metadata**
 
    For each dependency, collect:
+
    - Group ID
+
    - Artifact ID
+
    - Version
+
    - License
+
    - Repository URL
+
    - Type (JAR, WAR, POM)
+
    - Scope/configuration
+
    - Dependencies (for transitive mapping)
 
 ## Phase 2: SBOM Format Selection
@@ -1027,19 +1042,29 @@ Please provide SBOM documentation in this format:
 ## SBOM Files Generated
 
 1. **sbom.json** (CycloneDX format)
+
    - Complete dependency tree
+
    - Vulnerability information
+
    - License data
+
    - Component metadata
 
 2. **sbom.spdx.json** (SPDX format)
+
    - License-focused SBOM
+
    - Compliance documentation
+
    - Relationship mapping
 
 3. **sbom-lite.json** (Simplified)
+
    - Essential information only
+
    - For quick reference
+
    - Human-readable summary
 ```
 
@@ -1049,28 +1074,45 @@ Please provide SBOM documentation in this format:
 ## Supporting Files
 
 1. **VULNERABILITIES.md**
+
    - All known CVEs (from OWASP Dependency-Check)
+
    - Severity ratings
+
    - Remediation status
+
    - Mitigation strategies
 
 2. **LICENSES.md**
+
    - All component licenses
+
    - License compatibility analysis
+
    - Attribution requirements
+
    - Compliance status
 
 3. **DEPENDENCIES.md**
+
    - Dependency tree visualization
+
    - Direct dependencies
+
    - Transitive dependencies
+
    - Scope-specific dependencies
+
    - Update recommendations
 
 4. **SUPPLY_CHAIN.md**
+
    - Component provenance
+
    - Security assessment
+
    - Risk analysis
+
    - Alternative options
 ```
 
@@ -1201,12 +1243,15 @@ sbom:
   script:
 
     - mvn clean package
+
     - mvn cyclonedx:makeAggregateBom
+
     - mvn dependency-check:check
   artifacts:
     paths:
 
       - target/sbom.json
+
       - target/dependency-check/dependency-check-report.json
     expire_in: 1 year
 ```
@@ -1216,32 +1261,51 @@ sbom:
 ## Best Practices
 
 1. **Automate SBOM Generation**
+
    - Integrate into Maven/Gradle build
+
    - Generate in CI/CD pipeline
+
    - Update with every release
+
    - Include in release artifacts
 
 2. **Keep SBOMs Current**
+
    - Regenerate on dependency updates
+
    - Track vulnerability fixes
+
    - Document changes between versions
+
    - Run OWASP Dependency-Check regularly
 
 3. **Use Multiple Formats**
+
    - CycloneDX for security
+
    - SPDX for license compliance
+
    - Both for comprehensive coverage
 
 4. **Continuous Monitoring**
+
    - Monitor for new vulnerabilities (OWASP, Snyk)
+
    - Track dependency updates (Dependabot, Renovate)
+
    - Assess supply chain risks
+
    - Enable Maven Central security scanning
 
 5. **Publish Transparently**
+
    - Include SBOM in releases
+
    - Make publicly available
+
    - Provide easy access
+
    - Document update process
 
 ---

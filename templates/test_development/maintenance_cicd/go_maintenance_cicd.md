@@ -18,10 +18,12 @@ related_templates:
 tools:
 
   - go test (1.23+)
+
   - testify
 tags:
 
   - test-development
+
   - go
 ---
 # Go Test Maintenance & CI/CD Integration
@@ -162,8 +164,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 Please implement comprehensive test automation and maintenance infrastructure for this Go project following this protocol:
@@ -246,6 +251,7 @@ jobs:
         go-version: ['1.20', '1.21', '1.22']
 
     steps:
+
       - uses: actions/checkout@v3
 
       - name: Set up Go ${{ matrix.go-version }}
@@ -310,6 +316,7 @@ jobs:
           - 6379:6379
 
     steps:
+
       - uses: actions/checkout@v3
 
       - name: Set up Go
@@ -405,8 +412,11 @@ jobs:
 stages:
 
   - lint
+
   - test
+
   - quality
+
   - deploy
 
 variables:
@@ -419,7 +429,9 @@ cache:
     - .go/pkg/mod/
 
 before_script:
+
   - mkdir -p .go
+
   - go mod download
 
 lint:
@@ -428,9 +440,13 @@ lint:
   script:
 
     - gofmt -l .
+
     - test -z "$(gofmt -l .)"
+
     - go vet ./...
+
     - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s v1.55.2
+
     - ./bin/golangci-lint run --timeout 5m
 
 unit-tests:
@@ -439,6 +455,7 @@ unit-tests:
   script:
 
     - go test -v -race -coverprofile=coverage.txt -covermode=atomic -run="^Test[^Integration]" ./...
+
     - go tool cover -func=coverage.txt
   coverage: '/total:\s+\(statements\)\s+(\d+\.\d+)%/'
   artifacts:
@@ -456,6 +473,7 @@ integration-tests:
   services:
 
     - postgres:14
+
     - redis:7
   variables:
     POSTGRES_DB: testdb
@@ -479,6 +497,7 @@ quality-gate:
   needs:
 
     - unit-tests
+
     - integration-tests
 ```
 
@@ -677,12 +696,16 @@ repos:
     hooks:
 
       - id: trailing-whitespace
+
       - id: end-of-file-fixer
+
       - id: check-yaml
+
       - id: check-added-large-files
         args: ['--maxkb=1000']
 
       - id: check-merge-conflict
+
       - id: detect-private-key
 
   - repo: local
@@ -753,20 +776,35 @@ linters:
   enable:
 
     - gofmt
+
     - goimports
+
     - govet
+
     - staticcheck
+
     - errcheck
+
     - gosimple
+
     - ineffassign
+
     - unused
+
     - typecheck
+
     - gosec
+
     - misspell
+
     - unconvert
+
     - unparam
+
     - gocyclo
+
     - goconst
+
     - gocritic
 
 linters-settings:
@@ -788,6 +826,7 @@ issues:
       linters:
 
         - gosec
+
         - errcheck
 ```
 
@@ -1105,21 +1144,33 @@ Purpose:
   Validate user login, logout, and session management functionality.
 
 Coverage:
+
   - Valid credential login
+
   - Invalid credential handling
+
   - Session token generation and validation
+
   - Multi-factor authentication flow
+
   - Password reset process
 
 Maintenance Notes:
+
   - Update TestValidLogin() if authentication logic changes
+
   - mockEmailService fixture required for password reset tests
+
   - Tests use in-memory database for speed
+
   - External API calls are mocked
 
 Dependencies:
+
   - auth.Service
+
   - user.Repository
+
   - jwt.TokenProvider
 
 Last Review: 2024-01-15
@@ -1370,12 +1421,19 @@ Replace `{phase_name}` with the specific phase (test_cases, mocks_fixtures, perf
 The AI assistant should deliver:
 
 1. **Complete CI/CD pipeline configuration** (GitHub Actions or GitLab CI)
+
 2. **Quality gate implementation** with thresholds (go test, go tool cover)
+
 3. **Pre-commit hook configuration** with all checks
+
 4. **Test parallelization setup** for faster execution
+
 5. **Flaky test detection and tracking** system
+
 6. **Test maintenance procedures** and documentation
+
 7. **Test reporting infrastructure** with dashboards
+
 8. **Execution metrics and monitoring** setup
 ---
 

@@ -12,12 +12,16 @@ prerequisites: []
 tools:
 
   - unity
+
   - cmocka
+
   - check
 tags:
 
   - documentation
+
   - documentation
+
   - c
 ---
 # C Strategic Comments
@@ -133,8 +137,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -156,19 +163,31 @@ Please add strategic comments to this C project following this protocol:
    Review the code to identify sections that would benefit from comments:
 
    - Complex algorithms or business logic
+
    - Non-obvious implementation decisions
+
    - Workarounds for known issues
+
    - Performance-critical sections
+
    - Security-sensitive operations
+
    - Memory management and ownership
+
    - Pointer usage and arithmetic
+
    - Platform-specific implementations
+
    - Sections likely to confuse future developers
 
 2. **Identify Existing Comments**
+
    - Review current comments for quality and value
+
    - Flag redundant or obvious comments for removal
+
    - Identify outdated comments needing updates
+
    - Check for commented-out code to remove
 
 3. **Generate Comment Plan**
@@ -184,9 +203,13 @@ Use **block comments** before complex algorithms:
 /*
 
  * Calculate optimal route using A* pathfinding algorithm.
+
  * We use A* instead of Dijkstra because our graph has a reliable heuristic
+
  * (Euclidean distance), which reduces search time by ~40% in testing.
+
  * Trade-off: Uses more memory (O(n) vs O(log n)) but acceptable for our
+
  * typical graph sizes (<1000 nodes).
  */
 route_t* find_optimal_route(node_t* start, node_t* end, graph_t* graph) {
@@ -207,11 +230,13 @@ Document domain rules and business decisions:
 /* Business rule: Premium users get 30-day refund window, standard users get 14 days.
 
  * This differs from the legal minimum (7 days) to improve customer satisfaction.
+
  * See: Business Policy Document v3.2, Section 4.1
  */
 int refund_window = user->is_premium ? 30 : 14;
 
 /* Calculate late fee: $5 per day, capped at 50% of original amount.
+
  * Cap prevents fees from exceeding loan value (legal requirement in CA).
  */
 double late_fee = fmin(days_late * 5.0, original_amount * 0.5);
@@ -228,12 +253,15 @@ Clarify code that isn't self-explanatory:
 /* Use calloc instead of malloc to zero-initialize memory.
 
  * Zero initialization prevents uninitialized read vulnerabilities.
+
  * Performance impact negligible (<1%) for typical allocations.
  */
 buffer_t* buffer = calloc(1, sizeof(buffer_t));
 
 /* Iterate backwards to avoid array index shifting during removal.
+
  * Forward iteration with memmove would cause quadratic time complexity.
+
  * Reverse iteration maintains O(n) by processing each element once.
  */
 for (int i = count - 1; i >= 0; i--) {
@@ -244,7 +272,9 @@ for (int i = count - 1; i >= 0; i--) {
 }
 
 /* Copy string to prevent external modification of internal buffer.
+
  * Returning direct pointer violates encapsulation and enables buffer overflow.
+
  * Caller responsible for freeing returned memory.
  */
 char* get_name(const user_t* user) {
@@ -263,18 +293,23 @@ Document workarounds for bugs or limitations:
 /* WORKAROUND: glibc 2.24 has buffer overflow in strftime() with %Z specifier.
 
  * Using manual timezone formatting until system upgraded to glibc 2.28+
+
  * See: https://sourceware.org/bugzilla/show_bug.cgi?id=12345
+
  * TODO: Remove this workaround after upgrading to glibc 2.28+
  */
 format_timezone_manual(buffer, sizeof(buffer), &tm);
 
 /* HACK: Sleep 100ms to avoid race condition in third-party driver.
+
  * Their interrupt handler has race condition that causes missed events
+
  * if requests arrive too close together. Reported to vendor 2024-01-15.
  */
 usleep(100000); /* 100ms */
 
 /* GCC 4.8 doesn't support C11 _Generic, using macro dispatch as fallback.
+
  * TODO: Replace with _Generic when minimum compiler version is GCC 4.9+
  */
 #if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 9)
@@ -297,7 +332,9 @@ Explain optimization decisions:
 /* Cache results because recalculation is expensive (O(n²) complexity).
 
  * Cache invalidated on data updates via callback mechanism.
+
  * Memory impact: ~10MB for typical dataset of 10k items.
+
  * Thread-safety: Protected by reader-writer lock.
  */
 static cache_t* statistics_cache = NULL;
@@ -326,15 +363,20 @@ statistics_t calculate_statistics(const data_t* data, size_t count) {
 }
 
 /* Use fixed-size buffer on stack instead of heap allocation.
+
  * Stack allocation avoids malloc overhead (~50ns per call).
+
  * Buffer size adequate for all valid inputs (max 256 chars).
+
  * Reduces allocation calls from 1M to 0, saving ~50ms per million operations.
  */
 char buffer[256];
 format_string(buffer, sizeof(buffer), input);
 
 /* Pre-allocate exact capacity to avoid reallocation during growth.
+
  * Reallocation causes O(n) copies and memory fragmentation.
+
  * Known size enables single allocation, reducing time from 500ms to 5ms.
  */
 array_t* array = array_create_with_capacity(known_count);
@@ -351,13 +393,17 @@ Document security considerations:
 /* Security: Use snprintf to prevent buffer overflow.
 
  * sprintf has no bounds checking and enables arbitrary code execution.
+
  * Always specify buffer size with snprintf to prevent overflow attacks.
  */
 snprintf(buffer, sizeof(buffer), "User: %s", username);
 
 /* Constant-time comparison prevents timing attacks that could
+
  * leak information about the correct token value.
+
  * strcmp returns early on mismatch, leaking token length and content.
+
  * Use memcmp_const_time or similar for security-critical comparisons.
  */
 if (memcmp_const_time(provided_token, expected_token, TOKEN_LENGTH) == 0) {
@@ -365,15 +411,20 @@ if (memcmp_const_time(provided_token, expected_token, TOKEN_LENGTH) == 0) {
 }
 
 /* Clear sensitive data from memory immediately after use.
+
  * Prevents sensitive data from lingering in memory after free.
+
  * explicit_bzero() prevents compiler from optimizing away the clear.
+
  * Standard memset() may be optimized out as "dead store".
  */
 explicit_bzero(password, password_length);
 free(password);
 
 /* Validate array index before access to prevent out-of-bounds read.
+
  * Out-of-bounds access causes undefined behavior and potential exploits.
+
  * Always check bounds before dereferencing arrays or pointers.
  */
 if (index >= 0 && index < array_size) {
@@ -393,6 +444,7 @@ Explain allocation, ownership, and lifetime:
 /* Allocate buffer on heap because size exceeds stack limit (8KB).
 
  * Stack overflow causes segfault, heap allocation is safer for large buffers.
+
  * Caller responsible for freeing returned memory with free().
  */
 uint8_t* create_large_buffer(size_t size) {
@@ -400,7 +452,9 @@ uint8_t* create_large_buffer(size_t size) {
 }
 
 /* Transfer ownership of buffer to caller.
+
  * This function allocates memory that caller must free.
+
  * Prevents double-free by setting internal pointer to NULL.
  */
 char* take_buffer(buffer_t* buf) {
@@ -410,8 +464,11 @@ char* take_buffer(buffer_t* buf) {
 }
 
 /* Shallow copy: Only copies pointers, not pointed-to data.
+
  * Both source and destination point to same underlying memory.
+
  * Caller must ensure source outlives destination to prevent use-after-free.
+
  * Deep copy requires duplicating all pointed-to memory.
  */
 void shallow_copy_user(user_t* dest, const user_t* src) {
@@ -420,8 +477,11 @@ void shallow_copy_user(user_t* dest, const user_t* src) {
 }
 
 /* Reference counting for shared ownership.
+
  * Increment refcount when creating new reference.
+
  * Decrement on release; free when refcount reaches zero.
+
  * Thread-safe refcount requires atomic operations.
  */
 void user_retain(user_t* user) {
@@ -448,18 +508,23 @@ Explain pointer manipulations:
 /* Align pointer to 16-byte boundary for SIMD operations.
 
  * Unaligned access causes performance penalty or crash on some architectures.
+
  * Alignment formula: (ptr + align - 1) & ~(align - 1)
  */
 void* aligned_ptr = (void*)(((uintptr_t)ptr + 15) & ~15);
 
 /* Calculate structure offset using pointer arithmetic.
+
  * offsetof() not available for dynamically-sized members.
+
  * Cast to char* for byte-level arithmetic, then cast back.
  */
 size_t offset = (char*)&s->member - (char*)s;
 
 /* Use void pointer for type-agnostic memory operations.
+
  * Cast to char* for byte-level manipulation.
+
  * void pointer arithmetic is undefined; char* arithmetic is well-defined.
  */
 void* memcpy_custom(void* dest, const void* src, size_t n) {
@@ -472,7 +537,9 @@ void* memcpy_custom(void* dest, const void* src, size_t n) {
 }
 
 /* Iterate through linked list using pointer-to-pointer.
+
  * Eliminates special case for head node, simplifying deletion logic.
+
  * *pp = (*pp)->next updates previous pointer to skip deleted node.
  */
 void list_remove(list_t** head, int value) {
@@ -498,7 +565,9 @@ Explain platform differences and portability:
 /* Platform-specific endianness conversion.
 
  * Network byte order is big-endian (most significant byte first).
+
  * x86/x86_64 use little-endian (least significant byte first).
+
  * ARM can be either (bi-endian); check platform macros.
  */
 uint32_t network_to_host(uint32_t net_value) {
@@ -510,7 +579,9 @@ uint32_t network_to_host(uint32_t net_value) {
 }
 
 /* Windows uses backslash for paths, Unix uses forward slash.
+
  * Path separator defined in platform-specific headers.
+
  * Use PATH_SEPARATOR constant for cross-platform compatibility.
  */
 #ifdef _WIN32
@@ -520,7 +591,9 @@ uint32_t network_to_host(uint32_t net_value) {
 #endif
 
 /* POSIX mmap() not available on Windows.
+
  * Use CreateFileMapping/MapViewOfFile on Windows.
+
  * Abstract behind portable interface for cross-platform code.
  */
 #ifdef _WIN32
@@ -547,6 +620,7 @@ Use standardized tags for technical debt:
 /* TODO: Refactor this into separate validation module (target: v2.1)
 
  * Current implementation works but violates single responsibility principle.
+
  * Estimate: 4 hours
  */
 int process_and_validate(const data_t* data) {
@@ -554,8 +628,11 @@ int process_and_validate(const data_t* data) {
 }
 
 /* FIXME: Race condition when multiple threads process same job.
+
  * Occurs under high load (>1000 jobs/second). Need mutex protection.
+
  * Priority: HIGH - Causes duplicate processing ~0.1% of time
+
  * Assigned to: @username, Issue #456
  */
 void process_job(const char* job_id) {
@@ -563,12 +640,15 @@ void process_job(const char* job_id) {
 }
 
 /* HACK: Temporary workaround for memory leak in libfoo v2.3
+
  * Remove this when upgrading to v2.4+ which has the fix.
+
  * See: https://github.com/project/issues/123
  */
 free_workaround(resource); /* Force cleanup */
 
 /* NOTE: This function must be called before initialization.
+
  * Order dependency: network must be initialized first.
  */
 void configure_network(void) {
@@ -576,7 +656,9 @@ void configure_network(void) {
 }
 
 /* WARNING: Modifying this constant will break binary compatibility.
+
  * Value is part of ABI contract with existing shared libraries.
+
  * Cannot change without major version bump.
  */
 #define PROTOCOL_VERSION 1
@@ -630,12 +712,16 @@ flags |= (1 << 3); /* Set bit 3 (enable verbose mode) */
  *
 
  * This function validates the payment, performs fraud checks, and processes
+
  * the transaction through the payment gateway. All amounts are in cents.
  *
 
  * @param payment Payment details including amount, currency, and card info
+
  * @return Payment confirmation with transaction ID, or NULL on error
+
  * @note Sets errno to EINVAL if payment data is invalid
+
  * @note Sets errno to EACCES if payment fails fraud checks
  */
 payment_result_t* process_payment(const payment_t* payment);
@@ -652,6 +738,7 @@ payment_result_t* process_payment(const payment_t* payment) {
     }
 
     /* 3D Secure required for EU transactions over €30 (PSD2 compliance).
+
      * US transactions always skip 3DS for better conversion rates.
      */
     bool requires_3ds = strcmp(payment->currency, "EUR") == 0
@@ -715,7 +802,9 @@ double calculate_total(const item_t* items, size_t count) {
 /*
 
  * Use block comments before code blocks they describe.
+
  * Separate from previous code with blank line.
+
  * Keep lines under 80 characters.
  */
 
@@ -749,27 +838,41 @@ int result = complex_calculation(); /* Explanation when truly needed */
 For each comment, verify:
 
 1. **Adds Value**
+
    - Would a competent developer understand the code without it?
+
    - If yes, consider removing the comment
+
    - If no, is the comment clear enough to help?
 
 2. **Explains "Why" Not "What"**
+
    - Bad: "Loop through items" (what)
+
    - Good: "Reverse loop to avoid memmove on every removal" (why)
 
 3. **Is Accurate and Current**
+
    - Does comment match current code behavior?
+
    - Is referenced information still valid?
+
    - Are linked issues/docs still relevant?
 
 4. **Is Concise**
+
    - Can you say the same thing in fewer words?
+
    - Are you repeating information from headers or declarations?
+
    - Is every sentence necessary?
 
 5. **Is Properly Formatted**
+
    - Correct grammar and spelling
+
    - Proper indentation
+
    - Follows project conventions
 
 ## Phase 5: Refactoring vs. Commenting
@@ -813,13 +916,19 @@ if (is_eligible_to_rent(user)) {
 ### Keeping Comments Current
 
 1. **Update Comments with Code Changes**
+
    - When refactoring, review and update affected comments
+
    - Remove outdated TODO/FIXME when resolved
+
    - Update references to issues, docs, or external resources
 
 2. **Regular Comment Audits**
+
    - Review comments during code reviews
+
    - Flag outdated or incorrect comments
+
    - Remove or update as needed
 
 3. **Version Control Integration**
@@ -911,34 +1020,53 @@ Please provide comment additions in this format:
 ## Best Practices Summary
 
 1. **Comment the Why, Not the What**
+
    - Code shows what happens
+
    - Comments explain why this approach
 
 2. **Self-Documenting Code First**
+
    - Use clear names
+
    - Extract complex logic to named functions
+
    - Only comment what can't be made obvious
 
 3. **Keep Comments Current**
+
    - Update with code changes
+
    - Remove obsolete comments
+
    - Review during code reviews
 
 4. **Be Concise**
+
    - Every word should add value
+
    - Avoid redundancy with headers
+
    - Get to the point quickly
 
 5. **Provide Context**
+
    - Link to issues, docs, or decisions
+
    - Explain trade-offs and constraints
+
    - Note related code sections
 
 6. **Use Standard Tags**
+
    - TODO: Planned improvements
+
    - FIXME: Known bugs
+
    - HACK: Temporary workarounds
+
    - NOTE: Important information
+
    - WARNING: Critical cautions
 
 ## Tools for Comment Quality
@@ -964,9 +1092,13 @@ tools:
       patterns:
 
         - "TODO"
+
         - "FIXME"
+
         - "HACK"
+
         - "NOTE"
+
         - "WARNING"
 ```
 
@@ -1027,8 +1159,11 @@ tools:
    ```
 
 5. **Don't Forget to Update Comments**
+
    - Comments that contradict code are worse than no comments
+
    - Review comments during every code change
+
    - Remove comments that no longer apply
 
 ## File Output Instructions

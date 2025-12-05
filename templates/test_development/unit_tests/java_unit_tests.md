@@ -18,12 +18,16 @@ related_templates:
 tools:
 
   - junit (5.11.3)
+
   - maven
+
   - gradle
 tags:
 
   - test-development
+
   - testing
+
   - java
 ---
 # Java Unit Tests - Comprehensive Implementation Guide
@@ -72,29 +76,44 @@ ${OUTPUT_DIR}/
 
 ### Test Foundation
 - [ ] JUnit 5 framework overview completed
+
 - [ ] Test directory structure established (src/test/java)
+
 - [ ] Naming conventions documented
+
 - [ ] Maven/Gradle test configuration created
+
 - [ ] Test base classes and utilities created
 
 ### Test Patterns
 - [ ] Pure method tests implemented
+
 - [ ] Class and interface tests created
+
 - [ ] Exception testing patterns established
+
 - [ ] Parametrized test examples created
+
 - [ ] Nested test examples documented
 
 ### Test Quality
 - [ ] Test independence verified
+
 - [ ] Execution time profiled (<1s per test)
+
 - [ ] Mock usage patterns documented (Mockito)
+
 - [ ] Edge case coverage completed
+
 - [ ] Anti-patterns guide created
 
 ### Documentation
 - [ ] Unit test implementation guide completed (20-30 pages)
+
 - [ ] 50+ example test methods documented
+
 - [ ] Test quality checklist created
+
 - [ ] Code review guidelines established
 
 ---
@@ -140,35 +159,57 @@ git config --get remote.origin.url
 Provide detailed explanation of:
 
 **FIRST Principles:**
+
 - **Fast** - Unit tests should execute in milliseconds (target: <100ms per test)
+
   - Why speed matters for developer productivity
+
   - How to identify slow tests using JUnit's `@Timeout` annotation
+
   - Techniques to optimize test execution time
+
   - Avoiding unnecessary I/O operations and database calls
 
 - **Independent** - Tests must not depend on each other or shared state
+
   - How to verify test independence
+
   - Running tests in random order
+
   - Avoiding test pollution with proper cleanup
+
   - Using `@BeforeEach` and `@AfterEach` for isolation
+
   - Understanding test execution lifecycle
 
 - **Repeatable** - Same results every time, in any environment
+
   - Dealing with time-dependent code using `Clock` abstraction
+
   - Handling randomness with controlled seeds
+
   - Environment isolation techniques
+
   - Using test doubles for external dependencies
 
 - **Self-validating** - Clear pass/fail without manual inspection
+
   - Writing clear assertions with JUnit assertions
+
   - Meaningful error messages with custom assertion messages
+
   - Using AssertJ for fluent assertions
+
   - Avoiding System.out.println debugging in tests
 
 - **Timely** - Written before or alongside production code
+
   - Test-Driven Development (TDD) with Java
+
   - Benefits of early test writing
+
   - Maintaining test coverage during refactoring
+
   - Using Maven/Gradle test goals for continuous testing
 
 **AAA Pattern (Arrange-Act-Assert):**
@@ -190,10 +231,15 @@ void calculateDiscount_withValidInputs_returnsDiscountedPrice() {
 ```
 
 Explain:
+
 - Why separating these phases improves readability
+
 - How to handle tests with complex setup
+
 - When to use helper methods or `@BeforeEach` for arrangement
+
 - Dealing with multiple assertions (when appropriate)
+
 - Using private helper methods for test utilities
 
 ### 1.2 Unit vs Integration vs E2E Testing
@@ -212,10 +258,15 @@ Create a comparison table:
 | **Framework** | JUnit 5 | JUnit 5 + TestContainers | Selenium, RestAssured |
 
 Provide guidance on:
+
 - When to write unit tests vs integration tests
+
 - The testing pyramid concept (70% unit, 20% integration, 10% E2E)
+
 - How to identify if a test is truly a unit test
+
 - Converting integration tests to unit tests
+
 - Java-specific testing challenges (null handling, checked exceptions)
 
 ### 1.3 Common Unit Test Anti-Patterns
@@ -406,10 +457,15 @@ project/
 ```
 
 Explain:
+
 - Why mirror the source structure in test directory
+
 - Benefits of separating unit/integration tests (using annotations or packages)
+
 - When to deviate from this structure
+
 - How Maven/Gradle discover and run tests
+
 - Using test resource directories for test data
 
 ### 2.2 Test Naming Conventions
@@ -417,8 +473,11 @@ Explain:
 Provide detailed naming guidelines:
 
 **Class Naming:**
+
 - `<ClassName>Test` - Standard pattern
+
 - Examples: `CalculatorTest`, `UserServiceTest`
+
 - Use the exact name of the class being tested with "Test" suffix
 
 **Method Naming Patterns:**
@@ -457,10 +516,15 @@ void givenInvalidEmail_whenCreatingUser_thenThrowsException() {}
 ```
 
 **Why This Matters:**
+
 - Test names serve as documentation
+
 - Failed tests clearly indicate what went wrong
+
 - No need to read test code to understand purpose
+
 - Test names appear in reports and CI logs
+
 - Helps with test organization and maintenance
 
 ### 2.3 JUnit 5 Annotations
@@ -471,6 +535,7 @@ Provide comprehensive annotation guide:
 import org.junit.jupiter.api.*;
 
 /**
+
  * Example test class demonstrating JUnit 5 annotations
  */
 class LifecycleTest {
@@ -753,15 +818,21 @@ Pure methods (no side effects, deterministic) are easiest to test.
 package com.example;
 
 /**
+
  * Calculator for price discount calculations
  */
 public class Calculator {
 
     /**
+
      * Calculate discounted price
+
      * @param price Original price
+
      * @param discountRate Discount rate (0.0 to 1.0)
+
      * @return Final price after discount
+
      * @throws IllegalArgumentException if price is negative or discount rate is invalid
      */
     public double calculateDiscount(double price, double discountRate) {
@@ -904,12 +975,19 @@ class CalculatorTest {
 ```
 
 **Key Principles:**
+
 - Test happy path (normal inputs)
+
 - Test edge cases (boundaries: 0%, 100%, 0 price)
+
 - Test error conditions (negative price, invalid discount)
+
 - Use delta for floating-point comparison
+
 - Use `@ParameterizedTest` for multiple similar cases
+
 - Use `@Nested` classes to group related tests
+
 - Use `@DisplayName` for readable test names
 
 ### 3.2 Testing Classes with State
@@ -922,6 +1000,7 @@ import java.time.LocalDateTime;
 import java.util.regex.Pattern;
 
 /**
+
  * Represents a user in the system
  */
 public class User {
@@ -935,10 +1014,15 @@ public class User {
     private boolean active;
 
     /**
+
      * Create a new user
+
      * @param name User name
+
      * @param email User email
+
      * @param age User age (optional)
+
      * @throws IllegalArgumentException if validation fails
      */
     public User(String name, String email, Integer age) {
@@ -1200,13 +1284,21 @@ class UserTest {
 ```
 
 **Key Principles:**
+
 - Group related tests with `@Nested` classes
+
 - Use `@BeforeEach` for common setup
+
 - Test each method independently
+
 - Test state changes
+
 - Test both valid and invalid inputs
+
 - Verify exception messages
+
 - Use parametrized tests for multiple similar cases
+
 - Use descriptive display names
 
 ### 3.3 Testing Interfaces and Abstract Classes
@@ -1218,6 +1310,7 @@ package com.example;
 import java.util.List;
 
 /**
+
  * Data processor interface
  */
 public interface DataProcessor {
@@ -1226,6 +1319,7 @@ public interface DataProcessor {
 }
 
 /**
+
  * Concrete implementation that doubles each element
  */
 public class DoublingProcessor implements DataProcessor {
@@ -1247,6 +1341,7 @@ public class DoublingProcessor implements DataProcessor {
 }
 
 /**
+
  * Abstract base class for processors
  */
 public abstract class BaseProcessor implements DataProcessor {
@@ -1351,6 +1446,7 @@ class DoublingProcessorTest {
 }
 
 /**
+
  * Test base processor using concrete implementation
  */
 class BaseProcessorTest {
@@ -1396,10 +1492,15 @@ class BaseProcessorTest {
 ```
 
 **Key Principles:**
+
 - Test concrete implementations of interfaces
+
 - Test abstract class behavior using concrete subclass
+
 - Verify interface contract is fulfilled
+
 - Test inherited behavior
+
 - Use inner test classes for concrete implementations
 
 ### 3.4 Testing Exception Handling
@@ -1409,6 +1510,7 @@ class BaseProcessorTest {
 package com.example;
 
 /**
+
  * Validator with multiple exception types
  */
 public class Validator {
@@ -1586,11 +1688,17 @@ class ValidatorTest {
 ```
 
 **Key Principles:**
+
 - Use `assertThrows()` to verify exceptions are thrown
+
 - Check exception type and message
+
 - Use `assertDoesNotThrow()` for valid inputs
+
 - Test different exception types
+
 - Test exception messages contain useful information
+
 - Use `assertAll()` for grouped assertions
 
 ### 3.5 Testing Collections and Streams
@@ -1603,6 +1711,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
+
  * Collection utilities
  */
 public class CollectionUtils {
@@ -1835,11 +1944,17 @@ class CollectionUtilsTest {
 ```
 
 **Key Principles:**
+
 - Test stream operations thoroughly
+
 - Test empty collections
+
 - Test null inputs
+
 - Test collection transformations
+
 - Verify order preservation when important
+
 - Test Optional handling
 
 ---
@@ -2095,12 +2210,19 @@ class UserServiceTest {
 ```
 
 **Key Principles:**
+
 - Use `@ExtendWith(MockitoExtension.class)` for Mockito integration
+
 - Use `@Mock` for mock objects
+
 - Use `@InjectMocks` for the class under test
+
 - Use `when().thenReturn()` for stubbing
+
 - Use `verify()` to check method calls
+
 - Use `ArgumentCaptor` for verifying arguments
+
 - Use `never()`, `times()`, `atLeast()` for call verification
 
 ---
@@ -2203,20 +2325,35 @@ open target/site/jacoco/index.html
 Create a maintenance checklist:
 
 - [ ] All tests pass independently
+
 - [ ] Tests can run in any order
+
 - [ ] Each test has clear, descriptive name
+
 - [ ] Tests execute in <100ms each
+
 - [ ] No duplicate setup code (use `@BeforeEach`)
+
 - [ ] No test logic complexity (loops, conditionals)
+
 - [ ] Clear assertions with helpful messages
+
 - [ ] Tests are properly documented with `@DisplayName`
+
 - [ ] Mocks are used appropriately (not excessively)
+
 - [ ] Edge cases are covered
+
 - [ ] Error conditions are tested
+
 - [ ] Tests follow AAA pattern
+
 - [ ] Test coverage is >80% for critical code
+
 - [ ] No System.out.println statements in tests
+
 - [ ] Proper use of `@Nested` for test organization
+
 - [ ] Exception handling is tested thoroughly
 
 ---
@@ -2229,76 +2366,112 @@ Generate the following deliverables:
 Comprehensive document saved to `${OUTPUT_DIR}/exports/unit_test_implementation_guide.md` covering:
 
 - FIRST principles detailed explanation
+
 - AAA pattern with examples
+
 - Unit vs Integration vs E2E comparison
+
 - Test organization strategies
+
 - JUnit 5 framework features
+
 - Common anti-patterns and solutions
 
 ### 2. Test Examples Collection
 File saved to `${OUTPUT_DIR}/exports/unit_test_examples.md` containing:
 
 - 50+ example test methods
+
 - Pure method tests
+
 - Class and interface tests
+
 - Exception handling tests
+
 - Collection and stream tests
+
 - Mockito examples
+
 - Edge case examples
 
 ### 3. Test Templates
 Files saved to `${OUTPUT_DIR}/templates/`:
 
 - `UnitTestTemplate.java` - Basic test template
+
 - `ClassTestTemplate.java` - Class testing template
+
 - `MockitoTestTemplate.java` - Mockito patterns template
+
 - `ParameterizedTestTemplate.java` - Parametrized test template
+
 - `pom.xml` - Complete Maven configuration
+
 - `build.gradle` - Complete Gradle configuration
 
 ### 4. Configuration Files
 Files saved to `${OUTPUT_DIR}/templates/`:
 
 - `pom.xml` - Complete Maven configuration with JUnit 5, Mockito, AssertJ, JaCoCo
+
 - `build.gradle` - Complete Gradle configuration
+
 - `junit-platform.properties` - JUnit configuration
+
 - `mockito-extensions/` - Mockito extensions
 
 ### 5. Visual Assets
 Files saved to `${OUTPUT_DIR}/assets/`:
 
 - `first_principles_diagram.png` - Visual representation of FIRST principles
+
 - `aaa_pattern_visualization.png` - AAA pattern flowchart
+
 - `test_pyramid.png` - Testing pyramid diagram
+
 - `test_organization_structure.png` - Maven directory structure diagram
+
 - `junit5_lifecycle.png` - JUnit 5 test lifecycle diagram
 
 ### 6. Anti-Patterns Guide
 File saved to `${OUTPUT_DIR}/exports/anti_patterns_guide.md`:
 
 - Common anti-patterns with examples
+
 - How to identify each anti-pattern
+
 - Refactoring strategies
+
 - Before/after examples
+
 - Java-specific anti-patterns
 
 ### 7. Unit Test Quality Checklist
 File saved to `${OUTPUT_DIR}/exports/unit_test_quality_checklist.md`:
 
 - Test independence checklist
+
 - Performance checklist
+
 - Code quality checklist
+
 - Maintenance checklist
+
 - Review guidelines
 
 ### 8. Mockito Guide
 File saved to `${OUTPUT_DIR}/exports/mockito_guide.md`:
 
 - When to use mocks vs stubs
+
 - Mockito annotation patterns
+
 - Stubbing strategies
+
 - Verification examples
+
 - Mock cleanup best practices
+
 - ArgumentCaptor usage
 
 ---
@@ -2344,19 +2517,33 @@ mkdir -p ${OUTPUT_DIR}/templates ${OUTPUT_DIR}/assets ${OUTPUT_DIR}/exports
 After generating all content, verify:
 
 - [ ] All 8+ deliverables are created
+
 - [ ] Files are saved to correct directories (templates/, assets/, exports/)
+
 - [ ] Implementation guide is 20-30 pages
+
 - [ ] 50+ test examples are included
+
 - [ ] FIRST principles are thoroughly explained
+
 - [ ] AAA pattern is demonstrated in all examples
+
 - [ ] Common anti-patterns are documented
+
 - [ ] JUnit 5 annotations and features are covered
+
 - [ ] Configuration files are complete and usable (Maven and Gradle)
+
 - [ ] Visual diagrams are included (or placeholders)
+
 - [ ] All code examples are syntactically correct
+
 - [ ] Repository information is included where applicable
+
 - [ ] Quality checklist is comprehensive
+
 - [ ] Mockito usage is thoroughly documented
+
 - [ ] AssertJ fluent assertions are covered
 
 ---
@@ -2369,10 +2556,15 @@ End of prompt template.
 ## Additional Notes
 
 - Install dependencies: Add to `pom.xml` or `build.gradle`
+
 - Run tests: `mvn test` or `gradle test`
+
 - Check coverage: `mvn jacoco:report` or `gradle jacocoTestReport`
+
 - Run specific test: `mvn test -Dtest=CalculatorTest`
+
 - Run with tag: `mvn test -Dgroups=fast`
+
 - Debug tests: Use IDE debugger or `mvnDebug test`
 
 ---

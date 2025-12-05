@@ -18,13 +18,18 @@ related_templates:
 tools:
 
   - pytest (8.3.4+)
+
   - black (24.12.0)
+
   - mypy (1.13.0)
+
   - ruff
 tags:
 
   - test-development
+
   - testing
+
   - python
 ---
 # Python Unit Tests - Comprehensive Implementation Guide
@@ -72,29 +77,44 @@ ${OUTPUT_DIR}/
 
 ### Test Foundation
 - [ ] pytest and unittest framework comparison completed
+
 - [ ] Test directory structure established
+
 - [ ] Naming conventions documented
+
 - [ ] conftest.py configuration created
+
 - [ ] pytest.ini or pyproject.toml configured
 
 ### Test Patterns
 - [ ] Pure function tests implemented
+
 - [ ] Class and method tests created
+
 - [ ] Async/await test patterns established
+
 - [ ] Exception testing patterns documented
+
 - [ ] Parametrized test examples created
 
 ### Test Quality
 - [ ] Test independence verified
+
 - [ ] Execution time profiled (<1s per test)
+
 - [ ] Mock usage patterns documented
+
 - [ ] Edge case coverage completed
+
 - [ ] Anti-patterns guide created
 
 ### Documentation
 - [ ] Unit test implementation guide completed (20-30 pages)
+
 - [ ] 50+ example test functions documented
+
 - [ ] Test quality checklist created
+
 - [ ] Code review guidelines established
 
 ---
@@ -140,29 +160,45 @@ git config --get remote.origin.url
 Provide detailed explanation of:
 
 **FIRST Principles:**
+
 - **Fast** - Unit tests should execute in milliseconds (target: <100ms per test)
+
   - Why speed matters for developer productivity
+
   - How to identify slow tests
+
   - Techniques to optimize test execution time
 
 - **Independent** - Tests must not depend on each other or shared state
+
   - How to verify test independence
+
   - Running tests in random order
+
   - Avoiding test pollution
 
 - **Repeatable** - Same results every time, in any environment
+
   - Dealing with time-dependent code
+
   - Handling randomness in tests
+
   - Environment isolation techniques
 
 - **Self-validating** - Clear pass/fail without manual inspection
+
   - Writing clear assertions
+
   - Meaningful error messages
+
   - Avoiding print-debugging in tests
 
 - **Timely** - Written before or alongside production code
+
   - Test-Driven Development (TDD) overview
+
   - Benefits of early test writing
+
   - Maintaining test coverage during refactoring
 
 **AAA Pattern (Arrange-Act-Assert):**
@@ -182,9 +218,13 @@ def test_calculate_discount():
 ```
 
 Explain:
+
 - Why separating these phases improves readability
+
 - How to handle tests with complex setup
+
 - When to use helper methods for arrangement
+
 - Dealing with multiple assertions (when appropriate)
 
 ### 1.2 Unit vs Integration vs E2E Testing
@@ -202,9 +242,13 @@ Create a comparison table:
 | **Cost** | Low | Medium | High |
 
 Provide guidance on:
+
 - When to write unit tests vs integration tests
+
 - The testing pyramid concept (70% unit, 20% integration, 10% E2E)
+
 - How to identify if a test is truly a unit test
+
 - Converting integration tests to unit tests
 
 ### 1.3 Common Unit Test Anti-Patterns
@@ -374,9 +418,13 @@ project/
 ```
 
 Explain:
+
 - Why mirror the source structure
+
 - Benefits of separating unit/integration/e2e tests
+
 - When to deviate from this structure
+
 - How pytest discovers tests
 
 ### 2.2 Test Naming Conventions
@@ -384,17 +432,25 @@ Explain:
 Provide detailed naming guidelines:
 
 **File Naming:**
+
 - `test_<module_name>.py` - Always prefix with `test_`
+
 - Examples: `test_calculator.py`, `test_user_service.py`
 
 **Class Naming:**
+
 - `Test<ClassName>` - Use PascalCase with Test prefix
+
 - Group related tests in classes
+
 - Examples: `TestCalculator`, `TestUserRegistration`
 
 **Function Naming:**
+
 - `test_<what>_<condition>_<expected>` - Descriptive pattern
+
 - Use snake_case
+
 - Examples:
   ```python
   def test_calculate_discount_with_valid_rate_returns_discounted_price():
@@ -411,8 +467,11 @@ Provide detailed naming guidelines:
   ```
 
 **Why This Matters:**
+
 - Test names serve as documentation
+
 - Failed tests should clearly indicate what went wrong
+
 - No need to read test code to understand purpose
 
 ### 2.3 conftest.py Configuration
@@ -751,10 +810,15 @@ class TestCalculateDiscount:
 ```
 
 **Key Principles:**
+
 - Test happy path (normal inputs)
+
 - Test edge cases (boundaries: 0%, 100%, 0 price)
+
 - Test error conditions (negative price, invalid discount)
+
 - Test floating-point precision with approximate comparison
+
 - Use parametrized tests for multiple similar cases
 
 ### 3.2 Testing Classes and Methods
@@ -1042,11 +1106,17 @@ class TestUserFixtureUsage:
 ```
 
 **Key Principles:**
+
 - Group related tests into classes
+
 - Test each method independently
+
 - Test properties and state changes
+
 - Use fixtures for common setup
+
 - Test both valid and invalid inputs
+
 - Verify error messages in exceptions
 
 ### 3.3 Testing Asynchronous Code
@@ -1213,11 +1283,17 @@ class TestAsyncFixtures:
 ```
 
 **Key Principles:**
+
 - Use `@pytest.mark.asyncio` for async tests
+
 - Test async functions with `await`
+
 - Install `pytest-asyncio` package
+
 - Test concurrent execution
+
 - Handle exceptions in async code
+
 - Use async fixtures when needed
 
 **Configuration for pytest-asyncio:**
@@ -1372,11 +1448,17 @@ class TestChunkList:
 ```
 
 **Key Principles:**
+
 - Convert generators to lists for testing complete sequences
+
 - Test lazy evaluation (generators don't compute all at once)
+
 - Test partial consumption with `next()`
+
 - Test empty cases
+
 - Test boundary conditions
+
 - Verify generator can be exhausted
 
 ### 3.5 Testing Decorators
@@ -1639,12 +1721,19 @@ class TestValidatePositiveDecorator:
 ```
 
 **Key Principles:**
+
 - Test that decorator returns function result
+
 - Test that decorator preserves function metadata (`functools.wraps`)
+
 - Test decorator behavior (timing, retrying, validation)
+
 - Use `capsys` fixture to capture print output
+
 - Use `patch` to mock external dependencies (like `time.sleep`)
+
 - Test with and without arguments
+
 - Test with both args and kwargs
 
 ### 3.6 Testing Context Managers
@@ -1840,11 +1929,17 @@ class TestFileWriter:
 ```
 
 **Key Principles:**
+
 - Test that resources are created in `__enter__`
+
 - Test that resources are cleaned up in `__exit__`
+
 - Test cleanup even when exceptions occur
+
 - Use `tmp_path` fixture for file system operations
+
 - Verify file/resource states before and after context
+
 - Test that exceptions are propagated correctly
 
 ---
@@ -2103,13 +2198,17 @@ def test_calculate_discount_with_valid_inputs():
     Test that calculate_discount correctly computes discounted price.
 
     Given:
+
         - Original price of $100
+
         - Discount rate of 20%
 
     When:
+
         - calculate_discount is called
 
     Then:
+
         - Returns $80 (20% off $100)
 
     This test validates the core discount calculation logic used
@@ -2129,17 +2228,29 @@ def test_calculate_discount_with_valid_inputs():
 Create a maintenance checklist:
 
 - [ ] All tests pass independently
+
 - [ ] Tests can run in any order
+
 - [ ] Each test has clear, descriptive name
+
 - [ ] Tests execute in <100ms each
+
 - [ ] No duplicate setup code (use fixtures)
+
 - [ ] No test logic complexity (loops, conditionals)
+
 - [ ] Clear assertions with helpful messages
+
 - [ ] Tests are properly documented
+
 - [ ] Mocks are used appropriately (not excessively)
+
 - [ ] Edge cases are covered
+
 - [ ] Error conditions are tested
+
 - [ ] Tests follow AAA pattern
+
 - [ ] Test coverage is >80% for critical code
 
 ---
@@ -2152,73 +2263,106 @@ Generate the following deliverables:
 Comprehensive document saved to `${OUTPUT_DIR}/exports/unit_test_implementation_guide.md` covering:
 
 - FIRST principles detailed explanation
+
 - AAA pattern with examples
+
 - Unit vs Integration vs E2E comparison
+
 - Test organization strategies
+
 - Framework-specific best practices
+
 - Common anti-patterns and solutions
 
 ### 2. Test Examples Collection
 File saved to `${OUTPUT_DIR}/exports/unit_test_examples.md` containing:
 
 - 50+ example test functions
+
 - Pure function tests
+
 - Class and method tests
+
 - Async code tests
+
 - Generator tests
+
 - Decorator tests
+
 - Context manager tests
+
 - Edge case examples
+
 - Error handling examples
 
 ### 3. Test Templates
 Files saved to `${OUTPUT_DIR}/templates/`:
 
 - `unit_test_template.py` - Basic test template
+
 - `class_test_template.py` - Class testing template
+
 - `async_test_template.py` - Async testing template
+
 - `parametrized_test_template.py` - Parametrized test template
+
 - `conftest_template.py` - Fixture configuration template
+
 - `pytest_ini_template.ini` - pytest configuration
 
 ### 4. Configuration Files
 Files saved to `${OUTPUT_DIR}/templates/`:
 
 - `pytest.ini` - Complete pytest configuration
+
 - `pyproject.toml` - Alternative configuration
+
 - `.coveragerc` - Coverage configuration
 
 ### 5. Visual Assets
 Files saved to `${OUTPUT_DIR}/assets/`:
 
 - `first_principles_diagram.png` - Visual representation of FIRST principles
+
 - `aaa_pattern_visualization.png` - AAA pattern flowchart
+
 - `test_pyramid.png` - Testing pyramid diagram
+
 - `test_organization_structure.png` - Directory structure diagram
 
 ### 6. Anti-Patterns Guide
 File saved to `${OUTPUT_DIR}/exports/anti_patterns_guide.md`:
 
 - Common anti-patterns with examples
+
 - How to identify each anti-pattern
+
 - Refactoring strategies
+
 - Before/after examples
 
 ### 7. Unit Test Quality Checklist
 File saved to `${OUTPUT_DIR}/exports/unit_test_quality_checklist.md`:
 
 - Test independence checklist
+
 - Performance checklist
+
 - Code quality checklist
+
 - Maintenance checklist
+
 - Review guidelines
 
 ### 8. Execution Profiling Report
 File saved to `${OUTPUT_DIR}/exports/execution_profiling_report.md`:
 
 - Command to profile test execution times
+
 - How to identify slow tests
+
 - Optimization strategies
+
 - Performance benchmarks
 
 ---
@@ -2264,17 +2408,29 @@ mkdir -p ${OUTPUT_DIR}/templates ${OUTPUT_DIR}/assets ${OUTPUT_DIR}/exports
 After generating all content, verify:
 
 - [ ] All 8 deliverables are created
+
 - [ ] Files are saved to correct directories (templates/, assets/, exports/)
+
 - [ ] Implementation guide is 20-30 pages
+
 - [ ] 50+ test examples are included
+
 - [ ] FIRST principles are thoroughly explained
+
 - [ ] AAA pattern is demonstrated in all examples
+
 - [ ] Common anti-patterns are documented
+
 - [ ] pytest and unittest examples are included
+
 - [ ] Configuration files are complete and usable
+
 - [ ] Visual diagrams are included (or placeholders)
+
 - [ ] All code examples are syntactically correct
+
 - [ ] Repository information is included where applicable
+
 - [ ] Quality checklist is comprehensive
 
 ---
@@ -2287,9 +2443,13 @@ End of prompt template.
 ## Additional Notes
 
 - Install pytest: `pip install pytest pytest-cov pytest-asyncio pytest-mock`
+
 - Run unit tests: `pytest tests/unit/ -v`
+
 - Check coverage: `pytest tests/unit/ --cov=src --cov-report=html`
+
 - Profile slow tests: `pytest --durations=10`
+
 - Run tests in random order: `pip install pytest-random-order && pytest --random-order`
 
 ---

@@ -12,11 +12,14 @@ prerequisites: []
 tools:
 
   - go test (1.23+)
+
   - testify
 tags:
 
   - documentation
+
   - documentation
+
   - go
 ---
 # Go User Documentation
@@ -150,8 +153,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -170,26 +176,40 @@ Please create comprehensive user documentation for this Go project following thi
 ## Phase 1: Audience Analysis & Documentation Planning
 
 1. **Identify Target Audience**
+
    - Primary users: [backend developers/DevOps/cloud engineers/etc.]
+
    - Technical skill level: [beginner/intermediate/advanced]
+
    - Use cases: [what problems they're solving]
+
    - Context: [how they'll use the software]
 
 2. **Document Existing Features**
+
    - List all major features and capabilities
+
    - Identify most common use cases
+
    - Note any complex or non-obvious functionality
+
    - Document prerequisites and dependencies
 
 3. **Outline Documentation Structure**
    Plan what documentation is needed:
 
    - [ ] README.md (essential)
+
    - [ ] INSTALL.md or installation section
+
    - [ ] QUICKSTART.md or quick start guide
+
    - [ ] USER_GUIDE.md for detailed usage
+
    - [ ] EXAMPLES.md with common patterns
+
    - [ ] FAQ.md for common questions
+
    - [ ] TROUBLESHOOTING.md for common issues
 
 ## Phase 2: README.md - Professional Project Overview
@@ -783,13 +803,21 @@ go test -bench=. ./...
 Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 Quick start for contributors:
+
 1. Fork the repository
+
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+
 3. Make your changes
+
 4. Run tests (`go test ./...`)
+
 5. Format code (`go fmt ./...`)
+
 6. Commit your changes (`git commit -m 'Add amazing feature'`)
+
 7. Push to the branch (`git push origin feature/amazing-feature`)
+
 8. Open a Pull Request
 
 ---
@@ -995,7 +1023,9 @@ choco install project
 ### Windows
 
 **Prerequisites**:
+
 1. Install Go from [golang.org](https://golang.org/dl/)
+
 2. Verify installation:
 ```powershell
 go version
@@ -1023,15 +1053,19 @@ tool --version
 **Common Issues**:
 
 - **Error**: "go: command not found"
+
   - **Fix**: Add Go to PATH or restart terminal after installation
 
 - **Error**: "tool: command not found"
+
   - **Fix**: Add `%GOPATH%\bin` to PATH
 
 ### macOS
 
 **Prerequisites**:
+
 1. Install Go via Homebrew: `brew install go`
+
 2. Or download from [golang.org](https://golang.org/dl/)
 
 **Installation**:
@@ -1056,9 +1090,11 @@ tool --version
 **Common Issues**:
 
 - **Error**: "Permission denied"
+
   - **Fix**: Ensure `$HOME/go/bin` is writable, don't use `sudo`
 
 - **Error**: "Command not found"
+
   - **Fix**: Add GOPATH/bin to PATH as shown above
 
 ### Linux
@@ -1300,12 +1336,19 @@ go mod tidy
 ### Getting Help
 
 If installation fails:
+
 1. Check [GitHub Issues](https://github.com/username/project/issues)
+
 2. Review [Troubleshooting Guide](TROUBLESHOOTING.md)
+
 3. Open a new issue with:
+
    - Your OS and version
+
    - Go version (`go version`)
+
    - Full error message
+
    - Output of `go env`
 
 ---
@@ -1313,9 +1356,13 @@ If installation fails:
 ## Next Steps
 
 After successful installation:
+
 1. Review the [Quick Start Guide](README.md#quick-start)
+
 2. Try the [examples/](examples/) directory
+
 3. Read the [User Guide](USER_GUIDE.md)
+
 4. Check [pkg.go.dev](https://pkg.go.dev/github.com/username/project) for API docs
 ```
 
@@ -1439,8 +1486,11 @@ Result: Processed: Hello, World!
 Let's break down what happened:
 
 1. **Import**: We imported the package
+
 2. **Create**: We created a client instance
+
 3. **Process**: We processed data
+
 4. **Error Handling**: We checked for errors (the Go way!)
 
 Now try modifying the example:
@@ -1766,34 +1816,53 @@ Please provide user documentation in this format:
 ## Best Practices
 
 1. **Write for Your Audience**
+
    - Match technical level to Go developers
+
    - Explain Go modules and GOPATH concepts
+
    - Emphasize Go idioms (error handling, interfaces)
 
 2. **Show, Don't Just Tell**
+
    - Include complete, runnable examples
+
    - Show proper error handling
+
    - Demonstrate concurrency patterns (goroutines, channels)
+
    - Include real-world use cases
 
 3. **Make It Easy to Find Information**
+
    - Clear table of contents
+
    - Good headings and structure
+
    - Links to pkg.go.dev
 
 4. **Test Your Documentation**
+
    - Follow your own instructions
+
    - Test on different Go versions
+
    - Verify on Windows, macOS, and Linux
 
 5. **Keep It Updated**
+
    - Update with code changes
+
    - Version documentation with releases
+
    - Address user questions in FAQ
 
 6. **Progressive Disclosure**
+
    - Start simple, add complexity gradually
+
    - Quick start for immediate success
+
    - Detailed docs for advanced users
 
 ---

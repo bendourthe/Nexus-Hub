@@ -16,7 +16,9 @@ Click your goal below to jump straight to the templates:
 **Time:** 4-8 hours | **Difficulty:** Intermediate
 
 **Choose your language:**
+
 - [Python](templates/code_cleanup/python_cleanup.md) | [JavaScript](templates/code_cleanup/javascript_cleanup.md) | [Java](templates/code_cleanup/java_cleanup.md)
+
 - [C#](templates/code_cleanup/csharp_cleanup.md) | [Go](templates/code_cleanup/go_cleanup.md) | [C](templates/code_cleanup/c_cleanup.md) | [C++](templates/code_cleanup/cpp_cleanup.md)
 
 ---
@@ -67,15 +69,23 @@ Run all 6 phases sequentially:
 **Time:** 10 minutes from clone to running tests!
 
 **What you get:**
+
 - ✅ Ready-to-use VS Code configurations (tasks, debugging, IntelliSense)
+
 - 🤖 GitHub Copilot generates 15+ comprehensive tests automatically
+
 - ⌨️ One-click build (`Ctrl+Shift+B`) and test execution
+
 - 🐛 Seamless debugging with breakpoints (press `F5`)
+
 - 📊 Automated code coverage reports
 
 **Quick links:**
+
 - **[Complete Workflow Guide](templates/test_development/GOOGLE_TEST_VSCODE_WORKFLOW.md)** - 10-step setup (10 minutes)
+
 - **[Copilot Quick Reference](templates/test_development/unit_tests/COPILOT_QUICK_REFERENCE.md)** - One-line prompts
+
 - **[VS Code Configuration](templates/test_development/vscode_config/README.md)** - Config details
 
 **Perfect for:** C++ developers using VS Code + GitHub Copilot who want instant test generation
@@ -100,6 +110,7 @@ Run all 6 phases sequentially:
 
 #### Quick Docs (1-3 hours)
 - **[Docstrings](templates/documentation_generation/docstrings/)** - Function/class documentation (2-3 hours)
+
 - **[Comments](templates/documentation_generation/comments/)** - Inline explanations (1-2 hours)
 
 #### User-Facing Docs (3-4 hours)
@@ -107,7 +118,9 @@ Run all 6 phases sequentially:
 
 #### Complete Documentation (4-8 hours)
 - **[Technical Docs](templates/documentation_generation/technical_docs/)** - Architecture, design decisions (4-6 hours)
+
 - **[API Documentation](templates/documentation_generation/api_docs/)** - Complete API reference (4-8 hours)
+
 - **[SBOM](templates/documentation_generation/sbom/)** - Software Bill of Materials (2-3 hours)
 
 **All languages:** Python | JavaScript | Java | C# | Go | C | C++
@@ -128,23 +141,35 @@ Select everything from that section to the end of the file.
 ### Step 4: Paste into Your AI Assistant
 
 **GitHub Copilot:**
+
 1. Open Copilot Chat (Ctrl+Shift+I or Cmd+Shift+I)
+
 2. Paste the prompt
+
 3. Press Enter
 
 **ChatGPT:**
+
 1. Go to [chat.openai.com](https://chat.openai.com)
+
 2. Paste the prompt in the message box
+
 3. Press Send
 
 **Claude:**
+
 1. Go to [claude.ai](https://claude.ai)
+
 2. Paste the prompt
+
 3. Press Send
 
 **Cursor / Windsurf:**
+
 1. Open the AI chat panel
+
 2. Paste the prompt
+
 3. Press Enter
 
 ### Step 5: Follow the Instructions
@@ -157,14 +182,23 @@ The AI will guide you through the process step-by-step.
 **Goal:** Generate unit tests for a Python web API
 
 1. Click [Python Unit Tests](templates/test_development/unit_tests/python_unit_tests.md)
+
 2. Read the "Objective" section (understand what you'll get)
+
 3. Scroll to "## Prompt Template"
+
 4. Copy the entire prompt from that section
+
 5. Open GitHub Copilot Chat / ChatGPT / Claude
+
 6. Paste the prompt
+
 7. Answer any questions the AI asks
+
 8. Review the generated tests
+
 9. Run the tests: `pytest tests/`
+
 10. Iterate if needed by asking the AI to refine specific tests
 
 ---
@@ -173,15 +207,22 @@ The AI will guide you through the process step-by-step.
 
 ### ✅ Do This
 - **Read the "Objective"** section before using a template
+
 - **Customize the prompt** with your project-specific details
+
 - **Follow multi-phase workflows in order** (Context Analysis before Code Review, etc.)
+
 - **Verify outputs** - don't blindly accept AI-generated code
+
 - **Iterate** - ask the AI to refine if the first result isn't perfect
 
 ### ❌ Avoid This
 - **Skipping phases** in multi-phase workflows (you'll get incomplete results)
+
 - **Not reading "Success Criteria"** (you won't know what good output looks like)
+
 - **Mixing languages** (use the Python template for Python code, not JavaScript)
+
 - **Copying partial prompts** (copy the entire ## Prompt Template section)
 
 ---
@@ -195,14 +236,20 @@ Use the sections at the top of this guide.
 All templates are organized in folders:
 
 - `code_cleanup/` - 7 cleanup templates (one per language)
+
 - `code_review/` - 42 review templates (6 phases × 7 languages)
+
 - `test_development/` - 56 testing templates (8 phases × 7 languages)
+
 - `documentation/` - 42 doc templates (6 types × 7 languages)
 
 ### By Time Available
 - **< 2 hours:** [Comments](templates/documentation_generation/comments/), [Docstrings](templates/documentation_generation/docstrings/)
+
 - **2-4 hours:** [Context Analysis](templates/code_review/context_analysis/), [Test Structure](templates/test_development/test_structure/)
+
 - **4-8 hours:** [Code Cleanup](templates/code_cleanup/), [Unit Tests](templates/test_development/unit_tests/)
+
 - **10+ hours:** [Complete Code Review](templates/code_review/) (all phases), [Complete Testing](templates/test_development/) (all phases)
 
 ### Decision Trees
@@ -234,8 +281,11 @@ A: Yes! 100% free and open source.
 
 ### More Resources
 - **Full Documentation:** [README.md](README.md)
+
 - **Decision Trees:** [guides/DECISION_TREES.md](guides/DECISION_TREES.md)
+
 - **Template Finder:** [guides/TEMPLATE_FINDER.md](guides/TEMPLATE_FINDER.md)
+
 - **For Claude Code Users:** [guides/QUICKSTART_CLAUDE_CODE.md](guides/QUICKSTART_CLAUDE_CODE.md)
 
 ---
@@ -243,9 +293,13 @@ A: Yes! 100% free and open source.
 ## 🚀 Ready to Start?
 
 **Pick your task:**
+
 - [Clean Up Code](#-clean-up-existing-code)
+
 - [Review Code Quality](#-review-code-quality)
+
 - [Generate Tests](#-generate-tests)
+
 - [Generate Documentation](#-generate-documentation)
 
 **Or browse all templates:** [Template Finder](guides/TEMPLATE_FINDER.md)

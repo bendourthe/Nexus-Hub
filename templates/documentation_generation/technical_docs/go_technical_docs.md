@@ -12,11 +12,14 @@ prerequisites: []
 tools:
 
   - go test (1.23+)
+
   - testify
 tags:
 
   - documentation
+
   - documentation
+
   - go
 ---
 # Go Technical Documentation
@@ -162,8 +165,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -601,6 +607,7 @@ jobs:
           --health-interval 10s
 
     steps:
+
       - uses: actions/checkout@v3
 
       - uses: actions/setup-go@v4
@@ -626,33 +633,53 @@ jobs:
 ## Best Practices
 
 1. **Follow Go Conventions**
+
    - Use `gofmt` and `goimports`
+
    - Follow effective Go guidelines
+
    - Use `golangci-lint` for linting
+
    - Package names: short, lowercase, no underscores
 
 2. **Error Handling**
+
    - Return errors, don't panic
+
    - Wrap errors with context (`fmt.Errorf` with `%w`)
+
    - Check all errors
+
    - Use custom error types when needed
 
 3. **Concurrency**
+
    - Use channels for communication
+
    - Always use `context.Context` for cancellation
+
    - Avoid goroutine leaks
+
    - Use `sync.WaitGroup` for coordination
 
 4. **Testing**
+
    - Write table-driven tests
+
    - Use interfaces for mocking
+
    - Test edge cases
+
    - Use `testify` for assertions
 
 5. **Project Structure**
+
    - Use `internal/` for private code
+
    - Use `pkg/` for reusable libraries
+
    - Keep `main.go` in `cmd/`
+
    - Follow standard Go project layout
 
 ---

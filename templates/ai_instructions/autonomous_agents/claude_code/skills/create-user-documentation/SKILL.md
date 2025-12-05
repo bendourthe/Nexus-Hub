@@ -10,11 +10,17 @@ tags: [documentation, readme, user-guide, tutorial, installation, troubleshootin
 template_sources:
 
   - documentation/user_docs/python_user_docs.md
+
   - documentation/user_docs/javascript_user_docs.md
+
   - documentation/user_docs/java_user_docs.md
+
   - documentation/user_docs/csharp_user_docs.md
+
   - documentation/user_docs/go_user_docs.md
+
   - documentation/user_docs/c_user_docs.md
+
   - documentation/user_docs/cpp_user_docs.md
 ---
 
@@ -25,15 +31,25 @@ Generate clear, comprehensive user-facing documentation that enables users to qu
 ## When to Use This Skill
 
 Use this skill when you need to:
+
 - Create professional README files for repositories
+
 - Write installation and setup guides
+
 - Build quick start tutorials
+
 - Generate usage examples and code samples
+
 - Create FAQ sections
+
 - Write troubleshooting guides
+
 - Document configuration options
+
 - Prepare software for public release
+
 - Onboard new users or team members
+
 - Improve software adoption and usability
 
 ## What This Skill Does
@@ -42,57 +58,94 @@ This skill generates comprehensive user documentation:
 
 ### For All Languages
 1. **README Files**
+
    - Project overview and value proposition
+
    - Feature highlights
+
    - Installation instructions
+
    - Quick start examples
+
    - Usage documentation
+
    - Contributing guidelines
+
    - License information
 
 2. **Installation Guides**
+
    - Prerequisites and requirements
+
    - Platform-specific instructions
+
    - Dependency installation
+
    - Configuration steps
+
    - Verification procedures
+
    - Common installation issues
 
 3. **Quick Start Tutorials**
+
    - First-time setup
+
    - Basic usage examples
+
    - Common workflows
+
    - Expected outcomes
+
    - Next steps and resources
 
 4. **Usage Documentation**
+
    - Feature documentation
+
    - Code examples and snippets
+
    - Configuration options
+
    - Command-line interface
+
    - API usage patterns
+
    - Best practices
 
 5. **FAQ and Troubleshooting**
+
    - Common questions
+
    - Known issues and workarounds
+
    - Error messages and solutions
+
    - Performance optimization
+
    - Debugging tips
 
 6. **Reference Documentation**
+
    - Configuration file reference
+
    - Environment variables
+
    - Command-line options
+
    - Version compatibility
+
    - Migration guides
 
 ### Language-Specific Features
 
 #### Python
 - **Package Installation**: pip, conda, poetry
+
 - **Virtual Environments**: venv, virtualenv, conda
+
 - **Dependencies**: requirements.txt, setup.py, pyproject.toml
+
 - **Examples**:
   ```markdown
   ## Installation
@@ -139,8 +192,11 @@ This skill generates comprehensive user documentation:
 
 #### JavaScript/TypeScript
 - **Package Installation**: npm, yarn, pnpm
+
 - **Dependencies**: package.json
+
 - **Module Systems**: CommonJS, ES modules
+
 - **Examples**:
   ```markdown
   ## Installation
@@ -189,7 +245,9 @@ This skill generates comprehensive user documentation:
 
 #### Java
 - **Build Tools**: Maven, Gradle
+
 - **Dependencies**: pom.xml, build.gradle
+
 - **Examples**:
   ```markdown
   ## Installation
@@ -242,8 +300,11 @@ This skill generates comprehensive user documentation:
 
 #### C#
 - **Package Manager**: NuGet
+
 - **Project Files**: .csproj
+
 - **Frameworks**: .NET Framework, .NET Core, .NET 5+
+
 - **Examples**:
   ```markdown
   ## Installation
@@ -296,7 +357,9 @@ This skill generates comprehensive user documentation:
 
 #### Go
 - **Package Manager**: go modules
+
 - **Dependencies**: go.mod
+
 - **Examples**:
   ```markdown
   ## Installation
@@ -356,7 +419,9 @@ This skill generates comprehensive user documentation:
 
 #### C
 - **Build Systems**: Make, CMake, Autotools
+
 - **Dependencies**: Package managers vary by OS
+
 - **Examples**:
   ```markdown
   ## Installation
@@ -415,7 +480,9 @@ This skill generates comprehensive user documentation:
 
 #### C++
 - **Build Systems**: CMake, Make, MSBuild
+
 - **Package Managers**: vcpkg, Conan, Hunter
+
 - **Examples**:
   ```markdown
   ## Installation
@@ -466,10 +533,15 @@ This skill generates comprehensive user documentation:
 ## Prerequisites
 
 - Completed or stable software project
+
 - Understanding of target audience (developers, end-users, admins)
+
 - Knowledge of installation requirements
+
 - Example use cases and workflows
+
 - Common issues and solutions
+
 - Version information and compatibility
 
 ## Instructions
@@ -477,19 +549,29 @@ This skill generates comprehensive user documentation:
 ### Step 1: Understand Your Audience
 
 1. **Identify User Types**:
+
    - End users (minimal technical knowledge)
+
    - Developers (integrating your software)
+
    - System administrators (deploying/configuring)
+
    - Contributors (extending/improving)
 
 2. **Determine Technical Level**:
+
    - Beginner: Step-by-step instructions, screenshots
+
    - Intermediate: Code examples, explanations
+
    - Advanced: Reference documentation, architecture
 
 3. **Define User Goals**:
+
    - What are users trying to accomplish?
+
    - What problems does your software solve?
+
    - What are common workflows?
 
 ### Step 2: Invoke the Create User Documentation Skill
@@ -504,11 +586,17 @@ Target Audience: Developers / Data Scientists / End Users
 Documentation Needed:
 
 - Professional README with badges and features
+
 - Installation guide (pip, conda, from source)
+
 - Quick start tutorial with examples
+
 - Usage guide for main features
+
 - Configuration reference
+
 - FAQ and troubleshooting
+
 - Contributing guidelines
 Output Directory: docs/"
 ```
@@ -523,11 +611,17 @@ Target Audience: Frontend Developers / Backend Developers
 Documentation Needed:
 
 - README with installation and quick start
+
 - Setup guide (npm, yarn, pnpm)
+
 - Usage examples with code snippets
+
 - API documentation overview
+
 - TypeScript type definitions guide
+
 - Browser compatibility notes
+
 - Troubleshooting common issues
 Output Directory: docs/"
 ```
@@ -543,11 +637,17 @@ Target Audience: Java Developers
 Documentation Needed:
 
 - README with dependency instructions
+
 - Installation guide (Maven, Gradle)
+
 - Getting started tutorial
+
 - Configuration guide (application.properties)
+
 - Code examples for common tasks
+
 - FAQ section
+
 - Version compatibility matrix
 Output Directory: docs/"
 ```
@@ -563,11 +663,17 @@ Target Audience: .NET Developers
 Documentation Needed:
 
 - README with NuGet installation
+
 - Setup guide for Visual Studio / VS Code
+
 - Quick start examples
+
 - Configuration guide (appsettings.json)
+
 - Common usage patterns
+
 - Troubleshooting guide
+
 - Migration guide (if applicable)
 Output Directory: docs/"
 ```
@@ -582,11 +688,17 @@ Target Audience: Go Developers
 Documentation Needed:
 
 - README with installation (go get)
+
 - Quick start guide
+
 - Usage examples
+
 - Configuration guide (env vars, config files)
+
 - Command-line options reference
+
 - FAQ and common pitfalls
+
 - Contributing guide
 Output Directory: docs/"
 ```
@@ -602,11 +714,17 @@ Target Audience: C/C++ Developers / System Programmers
 Documentation Needed:
 
 - README with build instructions
+
 - Installation guide (multiple platforms)
+
 - Quick start with example code
+
 - API overview
+
 - Configuration and build options
+
 - Platform-specific notes
+
 - Troubleshooting compilation issues
 Output Directory: docs/"
 ```
@@ -664,7 +782,9 @@ A comprehensive README includes:
 ## Features
 
 - ✨ Key feature 1
+
 - 🚀 Key feature 2
+
 - 🔧 Key feature 3
 
 ## Quick Start
@@ -693,9 +813,13 @@ pip install myproject
 ## Documentation
 
 - [Quick Start Guide](docs/QUICK_START.md)
+
 - [Usage Guide](docs/USAGE.md)
+
 - [Configuration](docs/CONFIGURATION.md)
+
 - [API Reference](docs/API.md)
+
 - [FAQ](docs/FAQ.md)
 
 ## Examples
@@ -713,14 +837,19 @@ This project is licensed under the MIT License - see [LICENSE](LICENSE).
 ## Support
 
 - 📧 Email: support@example.com
+
 - 💬 Discord: [Join our server](https://discord.gg/...)
+
 - 📖 Documentation: https://docs.example.com
+
 - 🐛 Issues: https://github.com/user/project/issues
 
 ## Acknowledgments
 
 - Thanks to contributors
+
 - Inspired by similar-project
+
 - Built with awesome-library
 ```
 
@@ -734,7 +863,9 @@ Comprehensive installation documentation:
 ## Prerequisites
 
 - Python 3.8 or higher
+
 - pip 20.0 or higher
+
 - Git (for source installation)
 
 ## Installation Methods
@@ -768,11 +899,15 @@ pip install -e .[dev]
 ### Windows
 
 1. Install Python from [python.org](https://www.python.org/)
+
 2. Open Command Prompt or PowerShell
+
 3. Run: `pip install myproject`
 
 **Common Issues:**
+
 - If `pip` not found, add Python to PATH
+
 - Use `python -m pip` instead of `pip`
 
 ### macOS
@@ -913,7 +1048,9 @@ result = asyncio.run(process_async())
 ## Next Steps
 
 - Read the [Usage Guide](USAGE.md) for comprehensive documentation
+
 - Explore [Examples](../examples/) for more use cases
+
 - Check [FAQ](FAQ.md) for common questions
 ```
 
@@ -949,8 +1086,11 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md) for guidelines.
 **Cause:** Package not installed or wrong environment
 
 **Solution:**
+
 1. Verify installation: `pip list | grep myproject`
+
 2. Check Python environment: `which python`
+
 3. Reinstall: `pip install --force-reinstall myproject`
 
 ### Error: "Connection timeout"
@@ -958,8 +1098,11 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md) for guidelines.
 **Cause:** Network issues or firewall blocking
 
 **Solution:**
+
 1. Check internet connection
+
 2. Try with proxy: `pip install --proxy http://proxy:port myproject`
+
 3. Use alternative index: `pip install --index-url https://pypi.org/simple myproject`
 
 ### Performance Issues
@@ -967,9 +1110,13 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md) for guidelines.
 **Symptom:** Slow processing
 
 **Solutions:**
+
 - Enable caching: `instance.enable_cache()`
+
 - Use batch processing for large datasets
+
 - Check configuration: `instance.config.get('performance')`
+
 - Profile your code: `python -m cProfile script.py`
 
 ### Memory Errors
@@ -977,9 +1124,13 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md) for guidelines.
 **Symptom:** Out of memory errors
 
 **Solutions:**
+
 - Process data in chunks
+
 - Use iterator-based methods
+
 - Clear cache periodically: `instance.clear_cache()`
+
 - Monitor memory: `pip install memory_profiler`
 
 ## Getting Help
@@ -987,14 +1138,21 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md) for guidelines.
 If your issue isn't listed:
 
 1. **Search Issues:** Check [GitHub Issues](https://github.com/user/project/issues)
+
 2. **Ask Community:** Join [Discord](https://discord.gg/...)
+
 3. **Report Bug:** Open [new issue](https://github.com/user/project/issues/new)
+
 4. **Email Support:** support@example.com
 
 When reporting issues, include:
+
 - Python version: `python --version`
+
 - Package version: `pip show myproject`
+
 - Error messages (full traceback)
+
 - Minimal reproducible example
 ```
 
@@ -1003,19 +1161,33 @@ When reporting issues, include:
 Before finalizing user documentation, verify:
 
 - [ ] README is clear and comprehensive
+
 - [ ] Installation instructions tested on target platforms
+
 - [ ] Quick start tutorial works from scratch
+
 - [ ] Code examples are valid and tested
+
 - [ ] Screenshots and diagrams are current
+
 - [ ] Configuration options documented
+
 - [ ] FAQ addresses common questions
+
 - [ ] Troubleshooting covers known issues
+
 - [ ] Links and references are valid
+
 - [ ] Version information is current
+
 - [ ] License and attribution included
+
 - [ ] Contributing guidelines present
+
 - [ ] Contact information provided
+
 - [ ] Documentation accessible to target audience
+
 - [ ] No jargon without explanation
 
 ## Common Issues and Solutions
@@ -1024,36 +1196,52 @@ Before finalizing user documentation, verify:
 **Solution**:
 
 - Test on fresh system or VM
+
 - Document platform-specific steps
+
 - Include common error messages
+
 - Provide alternative installation methods
+
 - Keep prerequisites list complete
 
 ### Issue: Examples Are Outdated
 **Solution**:
 
 - Test examples with each release
+
 - Use CI/CD to validate examples
+
 - Include version compatibility notes
+
 - Update examples when API changes
+
 - Link examples to specific versions
 
 ### Issue: Documentation Too Technical
 **Solution**:
 
 - Write for target audience level
+
 - Define technical terms
+
 - Use analogies and metaphors
+
 - Include visual aids
+
 - Progressive disclosure (basic → advanced)
 
 ### Issue: Missing Use Cases
 **Solution**:
 
 - Survey users for common tasks
+
 - Document real-world scenarios
+
 - Provide multiple example levels
+
 - Include integration examples
+
 - Show complete workflows
 
 ## Success Criteria
@@ -1061,57 +1249,87 @@ Before finalizing user documentation, verify:
 After using this skill, you should have:
 
 - [ ] Professional README file
+
 - [ ] Complete installation guide
+
 - [ ] Working quick start tutorial
+
 - [ ] Comprehensive usage documentation
+
 - [ ] Configuration reference
+
 - [ ] FAQ section
+
 - [ ] Troubleshooting guide
+
 - [ ] Code examples (tested)
+
 - [ ] Contributing guidelines
+
 - [ ] License information
+
 - [ ] All documentation accurate and current
+
 - [ ] Target audience can use software independently
 
 ## Related Skills
 
 - `generate-docstrings`: Create API documentation
+
 - `generate-api-docs`: Build API reference
+
 - `create-technical-docs`: Document architecture
+
 - `init-*-project`: Initialize projects with docs
 
 ## Tools and Resources
 
 ### Documentation Generators
 - **MkDocs**: Python documentation sites
+
 - **Docusaurus**: React-based documentation
+
 - **VuePress**: Vue-powered documentation
+
 - **GitBook**: Collaborative documentation
+
 - **Read the Docs**: Free documentation hosting
 
 ### Markdown Tools
 - **Typora**: WYSIWYG Markdown editor
+
 - **VS Code**: Markdown preview
+
 - **Grip**: GitHub-flavored Markdown preview
+
 - **pandoc**: Document conversion
 
 ### Diagramming Tools
 - **Mermaid**: Text-based diagrams
+
 - **draw.io**: Visual diagramming
+
 - **PlantUML**: UML diagrams from text
+
 - **Excalidraw**: Hand-drawn diagrams
 
 ### Badge Services
 - **shields.io**: Dynamic badges
+
 - **badgen.net**: Fast badge generation
+
 - **GitHub Actions**: Build status badges
 
 ## Additional Resources
 
 - [Write the Docs](https://www.writethedocs.org/)
+
 - [Google Developer Documentation Style Guide](https://developers.google.com/style)
+
 - [Microsoft Writing Style Guide](https://docs.microsoft.com/en-us/style-guide/)
+
 - [The Documentation System](https://documentation.divio.com/)
+
 - [Awesome README](https://github.com/matiassingers/awesome-readme)
 
 ---

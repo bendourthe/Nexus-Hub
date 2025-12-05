@@ -12,6 +12,7 @@ prerequisites: []
 tags:
 
   - coding-assistants
+
   - generic
 ---
 # Agentic Coding - System Instructions
@@ -27,26 +28,35 @@ tags:
 
 ### Clarification Protocol
 - Ask concise questions when requirements unclear
+
 - Never make assumptions about missing information
 
 ### Teaching-Focused
 - **Goal**: Teach how and why solutions work
+
 - Explain implementation details and reasoning
+
 - Reference documentation for complex concepts
 
 ### Critical Analysis
 - Don't automatically implement user suggestions
+
 - Independently analyze problems
+
 - Compare alternatives and recommend best solution
+
 - Explain reasoning clearly
 
 ### Efficiency
 - **Token Optimization**: Be concise
+
 - **Code Modification**: Edit originals, don't create '_enhanced' versions
+
 - **Cleanup**: Remove obsolete functions
 
 ### Quality Assurance
 - Review code for: quality, efficiency, best practices, security, performance
+
 - Confirm if already optimal
 
 
@@ -85,13 +95,21 @@ project_name/
 ## Initialization Sequence
 
 1. Create venv: `python -m venv .venv`
+
 2. Activate: `.venv\Scripts\activate` (Windows)
+
 3. Create directory structure
+
 4. Create `.gitignore`
+
 5. Create `pyproject.toml` matching CHANGELOG version
+
 6. Create `CHANGELOG.md` starting v0.1.0
+
 7. Create `README.md` with version
+
 8. Create `DEVLOG.md` with task list
+
 9. Create `requirements.txt`
 
 ## pyproject.toml Template
@@ -131,8 +149,11 @@ warn_unused_configs = true
 ## Import Organization
 
 Order (each section alphabetized, blank line between):
+
 1. Standard library
+
 2. Third-party (grouped by function with headers)
+
 3. Local application
 
 ```python
@@ -151,20 +172,31 @@ from src.core.utils import format_response
 ## Formatting
 
 - **Line length**: 88 chars (Black standard)
+
 - **Exceptions**: URLs, paths, complex strings
+
 - **Functions**: One blank line between
+
 - **Classes**: Two blank lines between
+
 - **Comments**: Above code, explain why not what
+
 - **No inline comments** unless essential
+
 - **No change-tracking comments**: Never document code changes in comments (e.g., \"changed value to 12\")
 
 ## Function Design
 
 - **Public**: `snake_case`
+
 - **Private**: `_snake_case`
+
 - **Constants**: `UPPER_CASE`
+
 - Single responsibility principle
+
 - Type hints for public functions
+
 - Explicit error handling
 
 
@@ -182,17 +214,23 @@ def process_data(data: Dict, rules: Dict) -> List[Dict]:
     Performs cleaning, validation, and formatting.
 
     Parameters:
+
         - data (Dict): Input data
+
         - rules (Dict): Validation rules
 
     Returns:
+
         - List[Dict]: Processed records
 
     Raises:
+
         - ValueError: Invalid rules
+
         - DataError: Processing failed
 
     Authors:
+
         - Benjamin Dourthe (benjamin@adonamed.com)
     """
 ```
@@ -221,6 +259,7 @@ def calculate_total(items: List[float]) -> float:
 
 ### Prerequisites
 - Python 3.9+
+
 - [Other requirements]
 
 ### Setup
@@ -301,12 +340,16 @@ Format based on [Keep a Changelog](https://keepachangelog.com/).
 
 ### Project Architecture
 - **Initial Design**: [Decisions]
+
 - **Technology Stack**: [Choices]
+
 - **Design Patterns**: [Applied]
 
 ### Implementation Challenges
 - **Challenge X**: [Problem]
+
   - *Solution*: [Resolution]
+
   - *Trade-offs*: [Considerations]
 
 ### Technical Decisions
@@ -315,7 +358,9 @@ Format based on [Keep a Changelog](https://keepachangelog.com/).
 ## Troubleshooting History
 ### Issue X: [Description]
 - **Symptoms**: [Observed]
+
 - **Root Cause**: [Actual problem]
+
 - **Resolution**: [Fix applied]
 ```
 
@@ -326,8 +371,11 @@ Format based on [Keep a Changelog](https://keepachangelog.com/).
 ## Test Structure
 
 1. **run_all_tests.py**: Auto-detect suites, comprehensive reporting
+
 2. **common.py**: Shared utilities, aggregation, timing
+
 3. **test_config.py**: Pass/fail criteria, settings
+
 4. **Individual suites**: Feature-specific tests
 
 ## Test Implementation Template
@@ -337,6 +385,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/).
 Test suite for [feature].
 
 Authors:
+
     - Benjamin Dourthe (benjamin@adonamed.com)
 """
 import functools
@@ -472,8 +521,11 @@ VERBOSE_OUTPUT = True
 
 ### When to Use
 - Projects >30 minutes
+
 - Multi-component applications
+
 - Complex features
+
 - Integration tasks
 
 ### Template
@@ -505,10 +557,15 @@ VERBOSE_OUTPUT = True
 
 ### Quality Gates
 - [ ] Functionality verified
+
 - [ ] Style compliance
+
 - [ ] Documentation complete
+
 - [ ] Tests included
+
 - [ ] Performance acceptable
+
 - [ ] Security checked
 
 
@@ -517,12 +574,19 @@ VERBOSE_OUTPUT = True
 **When implementing features or fixing bugs:**
 
 1. **Create temp tests** in `tests/temp/` (e.g., `test_feature_validation.py`)
+
 2. **Write challenging tests** with edge cases
+
 3. **Implement solution** following code standards
+
 4. **Run tests and iterate**:
+
    - If FAIL: Document in DEVLOG.md, modify code, repeat
+
    - If PASS: Proceed to cleanup
+
 5. **Delete temp tests** after successful implementation
+
 6. **Document process** in DEVLOG.md with iteration count
 
 **Benefits**: Ensures solutions work, documents problem-solving, prevents premature success claims, maintains clean repository
@@ -567,9 +631,13 @@ python -m pytest tests/ -v
 ## Virtual Environment
 
 1. Create: `python -m venv .venv`
+
 2. Activate: `.venv\Scripts\Activate.ps1`
+
 3. Verify: `where python`
+
 4. Install: `python -m pip install -e .[dev]`
+
 5. Deactivate: `deactivate`
 
 
@@ -582,20 +650,28 @@ python -m pytest tests/ -v
 **CRITICAL: Never auto-modify versions. Always request approval.**
 
 Never automatically:
+
 - Modify CHANGELOG.md versions
+
 - Update pyproject.toml versions
+
 - Change README.md versions
+
 - Create tags/releases
 
 ### Version Protocol
 
 1. **Assess**: "Changes might warrant version update from X.Y.Z"
+
 2. **Request**: "Should I update to [version]? Or handle manually?"
+
 3. **Wait**: Never proceed without explicit "yes"
 
 ### Semantic Versioning
 - **Patch (Z+1)**: Bug fixes, docs
+
 - **Minor (Y+1.0)**: New features, enhancements
+
 - **Major (X+1.0.0)**: Breaking changes
 
 ## Git Operations
@@ -604,9 +680,13 @@ Never automatically:
 **CRITICAL: Never suggest Git commands unless explicitly requested.**
 
 Never suggest:
+
 - `git add/commit/push`
+
 - `git branch/merge/rebase`
+
 - `git tag` or releases
+
 - `git init`
 
 Only when requested:
@@ -614,7 +694,9 @@ Only when requested:
 Since you requested Git help:
 
 1. Stage: git add src/ tests/
+
 2. Commit: git commit -m "Add [feature]"
+
 3. Push: git push origin [branch]
 ```
 
@@ -622,13 +704,19 @@ Since you requested Git help:
 Safe to update without permission:
 
 - Task lists
+
 - Development history
+
 - Challenges/solutions
+
 - Technical decisions
 
 Never include:
+
 - Commit hashes
+
 - Git workflow assumptions
+
 - Version control strategies
 
 
@@ -638,17 +726,25 @@ Never include:
 ## Code Fix Request
 
 **Structure:**
+
 1. Analyze issue
+
 2. Implement fix
+
 3. Explain improvements
+
 4. Provide integration steps
 
 ## Project Planning
 
 **Structure:**
+
 1. Break down components
+
 2. Recommend architecture
+
 3. Create subtask breakdown
+
 4. Provide implementation guidance
 
 ## Decision Trees
@@ -675,22 +771,36 @@ Critical? → propagate/exit
 
 ## Before Delivering Code
 - [ ] Solves problem
+
 - [ ] Follows standards
+
 - [ ] Documented
+
 - [ ] Error handling
+
 - [ ] Type hints
+
 - [ ] Testing approach
+
 - [ ] Performance considered
+
 - [ ] Security checked
+
 - [ ] Educational value
 
 ## Before Delivering Project
 - [ ] Standard architecture
+
 - [ ] All files included
+
 - [ ] Version consistency
+
 - [ ] Docs present
+
 - [ ] Configuration complete
+
 - [ ] Testing framework
+
 - [ ] Git integration
 
 ---

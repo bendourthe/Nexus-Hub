@@ -18,12 +18,16 @@ related_templates:
 tools:
 
   - NUnit (4.2.2)
+
   - xUnit
+
   - MSTest
 tags:
 
   - test-development
+
   - testing
+
   - c#
 ---
 # C# Unit Tests - Comprehensive Implementation Guide
@@ -70,20 +74,29 @@ ${OUTPUT_DIR}/
 
 ### Test Foundation
 - [ ] xUnit and NUnit framework comparison
+
 - [ ] Test project structure established
+
 - [ ] Naming conventions documented
+
 - [ ] Configuration files created
 
 ### Test Patterns
 - [ ] Method and class tests
+
 - [ ] Async/await test patterns
+
 - [ ] Exception testing patterns
+
 - [ ] Theory and data-driven tests
 
 ### Test Quality
 - [ ] Test independence verified
+
 - [ ] Mock patterns documented (Moq)
+
 - [ ] Edge cases covered
+
 - [ ] Anti-patterns identified
 
 ---
@@ -109,27 +122,41 @@ mkdir -p ${OUTPUT_DIR}/templates ${OUTPUT_DIR}/assets ${OUTPUT_DIR}/exports
 ### 1.1 FIRST Principles
 
 **Fast** - Tests execute in milliseconds
+
 - Use `[Fact(Timeout = 1000)]` to enforce speed
+
 - Avoid I/O operations
+
 - Mock external dependencies
 
 **Independent** - No shared state between tests
+
 - Use test class constructors for setup
+
 - Use `IDisposable` for cleanup
+
 - Each test creates its own test data
 
 **Repeatable** - Deterministic results
+
 - Mock `DateTime.Now` with `ISystemClock`
+
 - Control randomness
+
 - Isolate from environment
 
 **Self-validating** - Clear pass/fail
+
 - Use descriptive assertion messages
+
 - Use FluentAssertions for readability
+
 - Avoid manual verification
 
 **Timely** - Written with or before code
+
 - Follow TDD practices
+
 - Maintain high coverage
 
 **AAA Pattern:**
@@ -196,7 +223,9 @@ Solution/
 ### 2.2 Test Naming
 
 **Class Naming:** `<ClassName>Tests`
+
 - `CalculatorTests`
+
 - `UserServiceTests`
 
 **Method Naming:** `MethodName_StateUnderTest_ExpectedBehavior`
@@ -780,13 +809,21 @@ reportgenerator -reports:coverage.opencover.xml -targetdir:coverage
 ### 5.2 Test Maintenance Checklist
 
 - [ ] All tests pass independently
+
 - [ ] Tests run in any order
+
 - [ ] Descriptive test names
+
 - [ ] Fast execution (<100ms per test)
+
 - [ ] No code duplication in tests
+
 - [ ] Clear AAA pattern
+
 - [ ] Appropriate use of mocks
+
 - [ ] Edge cases covered
+
 - [ ] >80% code coverage for critical paths
 
 ---
@@ -805,28 +842,40 @@ Generate these files:
 `${OUTPUT_DIR}/templates/`:
 
 - `UnitTestTemplate.cs`
+
 - `MockTestTemplate.cs`
+
 - `AsyncTestTemplate.cs`
+
 - `test.csproj`
+
 - `xunit.runner.json`
 
 ### 4. Configuration Files
 - `.csproj` with all dependencies
+
 - `xunit.runner.json`
+
 - `.runsettings` for test execution
 
 ### 5. Visual Assets
 `${OUTPUT_DIR}/assets/`:
 
 - FIRST principles diagram
+
 - AAA pattern visualization
+
 - Test pyramid
+
 - Project structure diagram
 
 ### 6. Guides
 - Anti-patterns guide
+
 - Quality checklist
+
 - Moq usage guide
+
 - FluentAssertions guide
 
 ---
@@ -834,12 +883,19 @@ Generate these files:
 ## Verification Checklist
 
 - [ ] All deliverables created
+
 - [ ] 20-30 page implementation guide
+
 - [ ] 50+ test examples
+
 - [ ] xUnit and NUnit examples
+
 - [ ] Moq patterns documented
+
 - [ ] FluentAssertions covered
+
 - [ ] Async testing covered
+
 - [ ] Configuration files complete
 
 ---
@@ -852,9 +908,13 @@ End of prompt template.
 ## Additional Notes
 
 - Install: `dotnet add package xunit`
+
 - Run tests: `dotnet test`
+
 - Coverage: `dotnet test /p:CollectCoverage=true`
+
 - Watch mode: `dotnet watch test`
+
 - Filter: `dotnet test --filter "FullyQualifiedName~Calculator"`
 
 ---

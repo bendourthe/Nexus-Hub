@@ -18,11 +18,14 @@ related_templates:
 tools:
 
   - unity
+
   - cmocka
+
   - check
 tags:
 
   - test-development
+
   - c
 ---
 # C Test Maintenance & CI/CD Integration
@@ -163,8 +166,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 Please implement comprehensive test automation and maintenance infrastructure for this C project following this protocol:
@@ -235,6 +241,7 @@ jobs:
         compiler: [gcc, clang]
 
     steps:
+
       - uses: actions/checkout@v3
 
       - name: Install dependencies (Ubuntu)
@@ -295,6 +302,7 @@ jobs:
     needs: unit-tests
 
     steps:
+
       - uses: actions/checkout@v3
 
       - name: Install Valgrind
@@ -344,6 +352,7 @@ jobs:
           - 5432:5432
 
     steps:
+
       - uses: actions/checkout@v3
 
       - name: Install dependencies
@@ -407,8 +416,11 @@ jobs:
 stages:
 
   - lint
+
   - test
+
   - quality
+
   - deploy
 
 variables:
@@ -421,7 +433,9 @@ cache:
     - build/
 
 before_script:
+
   - apt-get update -qq
+
   - apt-get install -y -qq build-essential cmake gcovr valgrind
 
 lint:
@@ -430,7 +444,9 @@ lint:
   script:
 
     - apt-get install -y -qq clang-format cppcheck
+
     - find src tests -name '*.c' -o -name '*.h' | xargs clang-format -n -Werror
+
     - cppcheck --enable=all --error-exitcode=1 --suppress=missingIncludeSystem src/
 
 unit-tests:
@@ -439,8 +455,11 @@ unit-tests:
   script:
 
     - cmake -B build -DCMAKE_BUILD_TYPE=Debug -DENABLE_COVERAGE=ON -DENABLE_TESTING=ON
+
     - cmake --build build
+
     - cd build && ctest --output-on-failure -R "^test_"
+
     - gcovr -r .. --xml -o ${OUTPUT_DIR}/exports/coverage.xml
   coverage: '/lines: \d+\.\d+%/'
   artifacts:
@@ -451,6 +470,7 @@ unit-tests:
     paths:
 
       - build/coverage.xml
+
       - build/Testing/
 
 memory-tests:
@@ -459,7 +479,9 @@ memory-tests:
   script:
 
     - cmake -B build -DCMAKE_BUILD_TYPE=Debug -DENABLE_TESTING=ON
+
     - cmake --build build
+
     - cd build && ctest --output-on-failure -T memcheck
   artifacts:
     paths:
@@ -472,6 +494,7 @@ quality-gate:
   script:
 
     - apt-get install -y -qq python3-lxml
+
     - python3 scripts/check_coverage.py build/coverage.xml 80
   needs:
 
@@ -768,12 +791,16 @@ repos:
     hooks:
 
       - id: trailing-whitespace
+
       - id: end-of-file-fixer
+
       - id: check-yaml
+
       - id: check-added-large-files
         args: ['--maxkb=1000']
 
       - id: check-merge-conflict
+
       - id: detect-private-key
 
   - repo: local
@@ -1081,29 +1108,41 @@ void print_slow_test_report(void) {
  *
 
  * Purpose:
+
  *   Validate user login, logout, and session management functionality.
  *
 
  * Coverage:
+
  *   - Valid credential login
+
  *   - Invalid credential handling
+
  *   - Session token generation and validation
+
  *   - Password reset process
  *
 
  * Maintenance Notes:
+
  *   - Update test_valid_login() if authentication logic changes
+
  *   - Tests use in-memory database for speed
+
  *   - External API calls are mocked
  *
 
  * Dependencies:
+
  *   - auth.h
+
  *   - user.h
+
  *   - jwt.h
  *
 
  * Last Review: 2024-01-15
+
  * Reviewed By: alice@example.com
  */
 
@@ -1304,12 +1343,19 @@ Replace `{phase_name}` with the specific phase (test_cases, mocks_fixtures, perf
 The AI assistant should deliver:
 
 1. **Complete CI/CD pipeline configuration** (GitHub Actions or GitLab CI)
+
 2. **Quality gate implementation** with thresholds (CMake, gcovr)
+
 3. **Pre-commit hook configuration** with all checks
+
 4. **Test parallelization setup** for faster execution (CTest)
+
 5. **Flaky test detection and tracking** system
+
 6. **Test maintenance procedures** and documentation
+
 7. **Test reporting infrastructure** with dashboards
+
 8. **Execution metrics and monitoring** setup
 ---
 

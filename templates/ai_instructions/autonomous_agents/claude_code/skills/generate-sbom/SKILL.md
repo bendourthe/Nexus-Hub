@@ -10,11 +10,17 @@ tags: [sbom, compliance, security, dependencies, licenses, vulnerabilities, cycl
 template_sources:
 
   - documentation/sbom/python_sbom.md
+
   - documentation/sbom/javascript_sbom.md
+
   - documentation/sbom/java_sbom.md
+
   - documentation/sbom/csharp_sbom.md
+
   - documentation/sbom/go_sbom.md
+
   - documentation/sbom/c_sbom.md
+
   - documentation/sbom/cpp_sbom.md
 ---
 
@@ -25,15 +31,25 @@ Generate comprehensive, standards-compliant SBOM documentation that inventories 
 ## When to Use This Skill
 
 Use this skill when you need to:
+
 - Meet regulatory compliance (NTIA, EU Cyber Resilience Act)
+
 - Document software supply chain
+
 - Track dependencies and versions
+
 - Identify license compliance issues
+
 - Audit security vulnerabilities
+
 - Prepare for security assessments
+
 - Support procurement processes
+
 - Enable vulnerability management
+
 - Satisfy customer security requirements
+
 - Maintain software inventory
 
 ## What This Skill Does
@@ -42,58 +58,96 @@ This skill generates comprehensive SBOM documentation:
 
 ### For All Languages
 1. **SBOM Generation**
+
    - Complete dependency tree
+
    - Component identification (name, version, supplier)
+
    - License information
+
    - Checksums and hashes
+
    - PURL (Package URL) identifiers
+
    - CPE (Common Platform Enumeration)
+
    - Relationship mapping
 
 2. **Compliance Standards**
+
    - **NTIA Minimum Elements**: Required baseline fields
+
    - **EU Cyber Resilience Act**: CRA-specific requirements
+
    - **SPDX Format**: Software Package Data Exchange
+
    - **CycloneDX Format**: Lightweight SBOM standard
+
    - **SWID Tags**: Software Identification Tags
 
 3. **Security Analysis**
+
    - CVE (Common Vulnerabilities and Exposures) tracking
+
    - CVSS scores and severity ratings
+
    - Known vulnerability identification
+
    - Security advisory references
+
    - Patch availability information
+
    - Exploit maturity assessment
 
 4. **License Compliance**
+
    - License identification (SPDX identifiers)
+
    - License compatibility analysis
+
    - Copyleft obligations
+
    - Attribution requirements
+
    - Commercial use restrictions
+
    - License conflict detection
 
 5. **Supply Chain Security**
+
    - Component provenance
+
    - Supplier information
+
    - Repository sources
+
    - Build tool information
+
    - Dependency integrity verification
+
    - Transitive dependency tracking
 
 6. **SBOM Maintenance**
+
    - Automated generation in CI/CD
+
    - Version tracking over time
+
    - Change detection and reporting
+
    - SBOM comparison tools
+
    - Continuous monitoring integration
 
 ### Language-Specific Features
 
 #### Python
 - **Tools**: CycloneDX Python, pip-licenses, pip-audit
+
 - **Formats**: CycloneDX, SPDX, JSON
+
 - **Package Managers**: pip, poetry, conda
+
 - **Examples**:
   ```bash
   # Install tools
@@ -152,8 +206,11 @@ This skill generates comprehensive SBOM documentation:
 
 #### JavaScript/TypeScript
 - **Tools**: CycloneDX Node.js, npm-audit, snyk
+
 - **Formats**: CycloneDX, SPDX, JSON
+
 - **Package Managers**: npm, yarn, pnpm
+
 - **Examples**:
   ```bash
   # Install tools
@@ -193,8 +250,11 @@ This skill generates comprehensive SBOM documentation:
 
 #### Java
 - **Tools**: CycloneDX Maven/Gradle, OWASP Dependency-Check
+
 - **Formats**: CycloneDX, SPDX, XML/JSON
+
 - **Build Tools**: Maven, Gradle
+
 - **Examples**:
 
   **Maven Configuration (pom.xml):**
@@ -256,8 +316,11 @@ This skill generates comprehensive SBOM documentation:
 
 #### C#
 - **Tools**: CycloneDX .NET, dotnet list package
+
 - **Formats**: CycloneDX, SPDX, XML/JSON
+
 - **Build Tools**: dotnet CLI, NuGet
+
 - **Examples**:
   ```bash
   # Install tool
@@ -304,8 +367,11 @@ This skill generates comprehensive SBOM documentation:
 
 #### Go
 - **Tools**: CycloneDX Go, go-licenses, govulncheck
+
 - **Formats**: CycloneDX, SPDX, JSON
+
 - **Package Manager**: go modules
+
 - **Examples**:
   ```bash
   # Install tools
@@ -346,8 +412,11 @@ This skill generates comprehensive SBOM documentation:
 
 #### C
 - **Tools**: syft, SPDX tools, scancode-toolkit
+
 - **Formats**: SPDX, CycloneDX
+
 - **Build Systems**: Make, CMake, Autotools
+
 - **Examples**:
   ```bash
   # Install syft (multi-language SBOM tool)
@@ -401,8 +470,11 @@ This skill generates comprehensive SBOM documentation:
 
 #### C++
 - **Tools**: syft, conan sbom, vcpkg export
+
 - **Formats**: SPDX, CycloneDX
+
 - **Build Systems**: CMake, Conan, vcpkg
+
 - **Examples**:
   ```bash
   # Using syft
@@ -447,10 +519,15 @@ This skill generates comprehensive SBOM documentation:
 ## Prerequisites
 
 - Completed or stable software project
+
 - Dependency manifest files (requirements.txt, package.json, pom.xml, etc.)
+
 - Build environment configured
+
 - Understanding of license requirements
+
 - Access to vulnerability databases (optional)
+
 - CI/CD integration capability (optional)
 
 ## Instructions
@@ -458,23 +535,37 @@ This skill generates comprehensive SBOM documentation:
 ### Step 1: Understand SBOM Requirements
 
 1. **Regulatory Compliance**:
+
    - **NTIA Minimum Elements**: Baseline SBOM requirements
+
    - **EU Cyber Resilience Act**: CRA compliance
+
    - **NIST SP 800-161**: Supply chain risk management
+
    - **Executive Order 14028**: US federal requirements
 
 2. **SBOM Format Selection**:
+
    - **CycloneDX**: Lightweight, security-focused, widely supported
+
    - **SPDX**: Comprehensive, license-focused, Linux Foundation standard
+
    - **SWID**: Software identification, ISO/IEC 19770-2 standard
 
 3. **NTIA Minimum Elements**:
+
    - Supplier name
+
    - Component name
+
    - Version of component
+
    - Other unique identifiers (PURL, CPE)
+
    - Dependency relationship
+
    - Author of SBOM data
+
    - Timestamp
 
 ### Step 2: Invoke the Generate SBOM Skill
@@ -490,9 +581,13 @@ Compliance: NTIA minimum elements / EU CRA
 Include:
 
 - All dependencies (direct and transitive)
+
 - License information
+
 - CVE vulnerability scanning
+
 - Component hashes
+
 - PURL identifiers
 Output: sbom.json, vulnerabilities.json, licenses.txt
 Automation: GitHub Actions workflow"
@@ -509,9 +604,13 @@ Compliance: NTIA minimum elements
 Include:
 
 - Production dependencies only
+
 - License compatibility check
+
 - npm audit results
+
 - Package integrity hashes
+
 - Security advisories
 Output: sbom.json, audit.json
 Automation: npm script + CI/CD"
@@ -528,9 +627,13 @@ Compliance: NTIA + EU CRA
 Include:
 
 - Compile and runtime dependencies
+
 - License information
+
 - OWASP dependency check
+
 - CVE tracking
+
 - Component metadata
 Output: target/sbom.json, dependency-check-report.html
 Automation: Maven/Gradle plugin"
@@ -548,9 +651,13 @@ Compliance: NTIA minimum elements
 Include:
 
 - NuGet dependencies (direct + transitive)
+
 - License information
+
 - Vulnerability check
+
 - Package signatures
+
 - Framework dependencies
 Output: sbom.json, vulnerabilities.txt
 Automation: dotnet tool + Azure DevOps"
@@ -567,9 +674,13 @@ Compliance: NTIA requirements
 Include:
 
 - go.mod dependencies
+
 - Indirect dependencies
+
 - License information
+
 - govulncheck results
+
 - Module checksums
 Output: sbom.json, vulnerabilities.json, licenses.md
 Automation: Makefile + CI/CD"
@@ -586,9 +697,13 @@ Compliance: NTIA minimum elements
 Include:
 
 - System libraries
+
 - Third-party dependencies
+
 - Build tool versions
+
 - License information
+
 - Manual component entries
 Output: sbom.spdx.json, dependencies.txt
 Automation: Build system integration"
@@ -786,17 +901,21 @@ generate-sbom:
   script:
 
     - pip install cyclonedx-bom pip-audit
+
     - cyclonedx-py -r --format json -o sbom.json
+
     - pip-audit --format json --output vulnerabilities.json
   artifacts:
     paths:
 
       - sbom.json
+
       - vulnerabilities.json
     expire_in: 1 year
   only:
 
     - main
+
     - tags
 ```
 
@@ -1029,19 +1148,33 @@ updates:
 Before finalizing SBOM, verify:
 
 - [ ] All NTIA minimum elements present
+
 - [ ] EU CRA requirements met (if applicable)
+
 - [ ] All dependencies included (direct + transitive)
+
 - [ ] License information complete
+
 - [ ] Version numbers accurate
+
 - [ ] Component hashes/checksums included
+
 - [ ] PURL identifiers for all components
+
 - [ ] Vulnerability data included
+
 - [ ] Supplier information present
+
 - [ ] Timestamp and tool information
+
 - [ ] Dependency relationships mapped
+
 - [ ] SBOM validates against schema
+
 - [ ] Format is standards-compliant
+
 - [ ] CI/CD integration working
+
 - [ ] SBOM versioned with software releases
 
 ## Common Issues and Solutions
@@ -1050,36 +1183,52 @@ Before finalizing SBOM, verify:
 **Solution**:
 
 - Use tools that automatically detect transitive deps
+
 - For Python: `cyclonedx-py -r` (recursive)
+
 - For JavaScript: ensure dev dependencies excluded if needed
+
 - For Java: use aggregate BOM in Maven
+
 - Manually verify dependency tree
 
 ### Issue: License Information Incomplete
 **Solution**:
 
 - Use dedicated license detection tools
+
 - Check project metadata files (LICENSE, README)
+
 - Manual review for ambiguous licenses
+
 - Use SPDX license identifiers
+
 - Document license conflicts
 
 ### Issue: SBOM Too Large
 **Solution**:
 
 - Exclude test/dev dependencies
+
 - Use compression (gzip)
+
 - Split into multiple SBOMs (layers)
+
 - Remove redundant metadata
+
 - Focus on production dependencies
 
 ### Issue: Vulnerability Data Outdated
 **Solution**:
 
 - Regenerate SBOM regularly (CI/CD)
+
 - Use real-time vulnerability scanning
+
 - Subscribe to security advisories
+
 - Automate dependency updates (Dependabot)
+
 - Monitor CVE databases
 
 ## Success Criteria
@@ -1087,60 +1236,93 @@ Before finalizing SBOM, verify:
 After using this skill, you should have:
 
 - [ ] Complete SBOM in standard format (CycloneDX/SPDX)
+
 - [ ] All NTIA minimum elements included
+
 - [ ] EU CRA compliance (if required)
+
 - [ ] Comprehensive dependency inventory
+
 - [ ] License compliance documentation
+
 - [ ] Vulnerability assessment
+
 - [ ] SBOM validation passed
+
 - [ ] CI/CD integration automated
+
 - [ ] SBOM versioned with releases
+
 - [ ] Monitoring and update process
+
 - [ ] Team trained on SBOM maintenance
+
 - [ ] Compliance requirements satisfied
 
 ## Related Skills
 
 - `dependency-security-audit`: Audit dependencies for vulnerabilities
+
 - `generate-api-docs`: Document APIs
+
 - `create-technical-docs`: Architecture documentation
+
 - `code-review-security`: Security code review
 
 ## Tools and Resources
 
 ### SBOM Generation Tools
 - **CycloneDX**: Multi-language SBOM tools
+
 - **Syft**: Universal SBOM generator (Anchore)
+
 - **SPDX Tools**: Official SPDX utilities
+
 - **Tern**: Container SBOM analysis
+
 - **OSS Review Toolkit**: Comprehensive SBOM suite
 
 ### Vulnerability Scanners
 - **Grype**: Vulnerability scanner (Anchore)
+
 - **Trivy**: Container/filesystem scanner (Aqua)
+
 - **OWASP Dependency-Check**: Multi-language vulnerability detection
+
 - **Snyk**: Commercial vulnerability platform
+
 - **GitHub Dependabot**: Automated dependency updates
 
 ### License Analysis
 - **FOSSA**: License compliance platform
+
 - **ScanCode**: Open source license scanner
+
 - **licensee**: GitHub's license detection
+
 - **FOSSology**: License compliance system
 
 ### SBOM Management
 - **Dependency-Track**: SBOM analysis platform
+
 - **sw360**: Software component catalog
+
 - **Hoppr**: SBOM diffing and analysis
+
 - **SBOM Tool**: Microsoft SBOM utility
 
 ## Additional Resources
 
 - [NTIA SBOM Minimum Elements](https://www.ntia.gov/files/ntia/publications/sbom_minimum_elements_report.pdf)
+
 - [EU Cyber Resilience Act](https://digital-strategy.ec.europa.eu/en/policies/cyber-resilience-act)
+
 - [CycloneDX Specification](https://cyclonedx.org/specification/overview/)
+
 - [SPDX Specification](https://spdx.github.io/spdx-spec/)
+
 - [CISA SBOM Resources](https://www.cisa.gov/sbom)
+
 - [OpenSSF Security Scorecard](https://securityscorecards.dev/)
 
 ---

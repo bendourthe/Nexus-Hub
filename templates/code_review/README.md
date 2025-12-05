@@ -19,10 +19,15 @@ What do you need?
 ```
 
 **Copy & Paste Templates:**
+
 1. Choose your language below
+
 2. Click the phase you want to start with
+
 3. Scroll to "## Prompt Template" in that file
+
 4. Copy the entire prompt
+
 5. Paste into GitHub Copilot / ChatGPT / Claude
 
 ---
@@ -32,10 +37,15 @@ What do you need?
 This section provides comprehensive code review templates that enable systematic analysis across multiple dimensions: context understanding, code quality, security vulnerabilities, performance optimization, testing adequacy, and final consolidated reporting.
 
 **What You'll Get:**
+
 - ✅ Severity-classified findings (CRITICAL, HIGH, MEDIUM, LOW)
+
 - ✅ Specific file locations and line numbers
+
 - ✅ Code examples showing issues and fixes
+
 - ✅ Prioritized action plan
+
 - ✅ Time estimates for remediation
 
 ## 🎯 Objectives
@@ -83,12 +93,19 @@ Each phase builds on the previous one. Run them in order for best results.
 **What it does:** Understand the project structure, architecture, dependencies, and tech stack
 
 **Templates:**
+
 - [Python](context_analysis/python_context_analysis.md)
+
 - [JavaScript](context_analysis/javascript_context_analysis.md)
+
 - [Java](context_analysis/java_context_analysis.md)
+
 - [C#](context_analysis/csharp_context_analysis.md)
+
 - [Go](context_analysis/go_context_analysis.md)
+
 - [C](context_analysis/c_context_analysis.md)
+
 - [C++](context_analysis/cpp_context_analysis.md)
 
 ---
@@ -98,12 +115,19 @@ Each phase builds on the previous one. Run them in order for best results.
 **What it does:** Evaluate code style, maintainability, complexity, and best practices
 
 **Templates:**
+
 - [Python](code_quality/python_code_quality.md)
+
 - [JavaScript](code_quality/javascript_code_quality.md)
+
 - [Java](code_quality/java_code_quality.md)
+
 - [C#](code_quality/csharp_code_quality.md)
+
 - [Go](code_quality/go_code_quality.md)
+
 - [C](code_quality/c_code_quality.md)
+
 - [C++](code_quality/cpp_code_quality.md)
 
 ---
@@ -113,12 +137,19 @@ Each phase builds on the previous one. Run them in order for best results.
 **What it does:** Identify vulnerabilities, security risks, OWASP Top 10, supply chain security
 
 **Templates:**
+
 - [Python](security_review/python_security_review.md)
+
 - [JavaScript](security_review/javascript_security_review.md)
+
 - [Java](security_review/java_security_review.md)
+
 - [C#](security_review/csharp_security_review.md)
+
 - [Go](security_review/go_security_review.md)
+
 - [C](security_review/c_security_review.md)
+
 - [C++](security_review/cpp_security_review.md)
 
 ---
@@ -128,12 +159,19 @@ Each phase builds on the previous one. Run them in order for best results.
 **What it does:** Profile performance, identify bottlenecks, recommend optimizations
 
 **Templates:**
+
 - [Python](performance_review/python_performance_review.md)
+
 - [JavaScript](performance_review/javascript_performance_review.md)
+
 - [Java](performance_review/java_performance_review.md)
+
 - [C#](performance_review/csharp_performance_review.md)
+
 - [Go](performance_review/go_performance_review.md)
+
 - [C](performance_review/c_performance_review.md)
+
 - [C++](performance_review/cpp_performance_review.md)
 
 ---
@@ -143,12 +181,19 @@ Each phase builds on the previous one. Run them in order for best results.
 **What it does:** Analyze test coverage, test quality, testing strategy
 
 **Templates:**
+
 - [Python](testing_review/python_testing_review.md)
+
 - [JavaScript](testing_review/javascript_testing_review.md)
+
 - [Java](testing_review/java_testing_review.md)
+
 - [C#](testing_review/csharp_testing_review.md)
+
 - [Go](testing_review/go_testing_review.md)
+
 - [C](testing_review/c_testing_review.md)
+
 - [C++](testing_review/cpp_testing_review.md)
 
 ---
@@ -158,12 +203,19 @@ Each phase builds on the previous one. Run them in order for best results.
 **What it does:** Consolidate all findings with severity classification and action plan
 
 **Templates:**
+
 - [Python](final_report/python_final_report.md)
+
 - [JavaScript](final_report/javascript_final_report.md)
+
 - [Java](final_report/java_final_report.md)
+
 - [C#](final_report/csharp_final_report.md)
+
 - [Go](final_report/go_final_report.md)
+
 - [C](final_report/c_final_report.md)
+
 - [C++](final_report/cpp_final_report.md)
 
 ---

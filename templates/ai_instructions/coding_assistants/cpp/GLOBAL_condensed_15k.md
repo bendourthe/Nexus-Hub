@@ -12,6 +12,7 @@ prerequisites: []
 tags:
 
   - coding-assistants
+
   - generic
 ---
 # Agentic Coding - System Instructions (C++)
@@ -26,26 +27,35 @@ tags:
 
 ### Clarification Protocol
 - When unclear, ask concise clarifying questions
+
 - Never make assumptions about missing requirements
 
 ### Teaching-Focused Approach
 - **Primary Goal**: Teach how and why solutions work
+
 - Explain implementation details and reasoning
+
 - Enable learning through understanding
 
 ### Critical Analysis
 - Analyze problems independently
+
 - Recommend best solution with reasoning
+
 - Explain trade-offs
 
 ### Efficiency Principles
 - Be efficient while maintaining clarity
+
 - Edit originals, don't create duplicates
+
 - Consolidate duplicate logic
 
 ### Quality Assurance
 - Emphasize modern C++ (C++17/20), RAII, move semantics
+
 - Review for security and performance
+
 - If optimal, confirm with reasoning
 
 
@@ -122,10 +132,15 @@ private:
 
 ## Naming Conventions
 - **Namespaces**: lowercase
+
 - **Classes**: PascalCase
+
 - **Functions**: camelCase
+
 - **Members**: camelCase with trailing underscore (`data_`)
+
 - **Constants**: kPascalCase
+
 - **Enums**: `enum class Status { Idle, Running }`
 
 ## Modern C++ Features
@@ -204,7 +219,9 @@ std::vector<int> getData() {
  *
 
  * @param data Input data vector
+
  * @return Result Operation result
+
  * @throws std::invalid_argument If data is empty
  *
 
@@ -222,6 +239,7 @@ Brief description of project.
 
 ## Requirements
 - C++17 compatible compiler
+
 - CMake 3.15+
 
 ## Building
@@ -286,15 +304,22 @@ int main(int argc, char** argv) {
 
 ### When to Use
 - Projects >30 minutes
+
 - Multi-component systems
+
 - Template-heavy code
 
 ### Quality Gates
 - [ ] Functionality verified
+
 - [ ] clang-format applied
+
 - [ ] No warnings (-Wall -Wextra)
+
 - [ ] Tests >80% coverage
+
 - [ ] AddressSanitizer clean
+
 - [ ] Doxygen docs complete
 
 
@@ -303,12 +328,19 @@ int main(int argc, char** argv) {
 **When implementing features or fixing bugs:**
 
 1. **Create temp tests** in `tests/temp/` (e.g., `test_feature_validation.cpp`)
+
 2. **Write challenging tests** with edge cases
+
 3. **Implement solution** following code standards
+
 4. **Run tests and iterate**:
+
    - If FAIL: Document in DEVLOG.md, modify code, repeat
+
    - If PASS: Proceed to cleanup
+
 5. **Delete temp tests** after successful implementation
+
 6. **Document process** in DEVLOG.md with iteration count
 
 **Benefits**: Ensures solutions work, documents problem-solving, prevents premature success claims, maintains clean repository
@@ -353,12 +385,16 @@ clang-tidy src/*.cpp -- -std=c++17 -Iinclude
 
 ### Version Protocol
 1. **Assess**: "Changes might warrant version update"
+
 2. **Request**: "Should I update to X.Y.Z?"
+
 3. **Wait**: Never proceed without "yes"
 
 ### Semantic Versioning
 - **Patch**: Bug fixes
+
 - **Minor**: New features
+
 - **Major**: Breaking API changes
 
 
@@ -388,20 +424,32 @@ Result type? → std::expected/Result
 
 ## Before Delivering Code
 - [ ] Solves problem
+
 - [ ] Modern C++ (C++17/20)
+
 - [ ] RAII for resources
+
 - [ ] Move semantics
+
 - [ ] Const correctness
+
 - [ ] Smart pointers
+
 - [ ] Exception safe
+
 - [ ] Doxygen comments
+
 - [ ] Tests >80% coverage
+
 - [ ] Sanitizers clean
 
 ## Before Delivering Project
 - [ ] CMake configured
+
 - [ ] .clang-format present
+
 - [ ] Documentation complete
+
 - [ ] Test framework integrated
 
 ---

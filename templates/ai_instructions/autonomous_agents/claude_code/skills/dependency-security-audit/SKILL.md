@@ -19,20 +19,33 @@ Systematically audit all project dependencies for known security vulnerabilities
 Use this skill whenever you need to:
 
 - ✅ Audit dependencies before production deployment
+
 - ✅ Comply with security requirements (SOC 2, ISO 27001)
+
 - ✅ Respond to newly disclosed vulnerabilities
+
 - ✅ Onboard third-party or legacy code
+
 - ✅ Prepare for security certification
+
 - ✅ Establish supply chain security baseline
+
 - ✅ Generate SBOM for compliance reporting
+
 - ✅ Verify open-source license compatibility
+
 - ✅ Quarterly or monthly security reviews
 
 **This skill is critical when**:
+
 - New CVEs are disclosed affecting your stack
+
 - Preparing for security audits or penetration testing
+
 - Onboarding acquired or inherited codebases
+
 - Implementing DevSecOps practices
+
 - Meeting regulatory compliance requirements
 
 ## What This Skill Does
@@ -41,19 +54,30 @@ This skill provides comprehensive dependency security analysis:
 
 ### Core Capabilities
 - **Vulnerability Scanning**: Detect known CVEs in all dependencies
+
 - **License Auditing**: Identify license compliance issues
+
 - **Outdated Package Detection**: Find dependencies with security patches
+
 - **Transitive Dependency Analysis**: Audit indirect dependencies
+
 - **SBOM Generation**: Create complete software bill of materials
+
 - **Risk Prioritization**: CVSS scoring and exploitability assessment
+
 - **Remediation Guidance**: Actionable fix recommendations
 
 ### Language Support
 - Python (pip, poetry, pipenv)
+
 - JavaScript/TypeScript (npm, yarn, pnpm)
+
 - Java (Maven, Gradle)
+
 - C# (.NET, NuGet)
+
 - Go (go.mod)
+
 - C/C++ (Conan, vcpkg, CMake)
 
 ## Why Dependency Security Audits Matter
@@ -66,10 +90,15 @@ Attackers: *exploit public vulnerabilities*
 Result:
 
 - ❌ Remote code execution via vulnerable library
+
 - ❌ Data breach through dependency exploit
+
 - ❌ Supply chain compromise
+
 - ❌ Legal liability for known vulnerabilities
+
 - ❌ Compliance violations and audit failures
+
 - ❌ Reputation damage from preventable breach
 ```
 
@@ -81,10 +110,15 @@ Attackers: *find no known vulnerable dependencies*
 Result:
 
 - ✅ Vulnerabilities identified and patched proactively
+
 - ✅ Clean security audit reports
+
 - ✅ Compliance requirements met
+
 - ✅ Supply chain risk minimized
+
 - ✅ Security posture documented
+
 - ✅ Confidence in production deployments
 ```
 
@@ -92,39 +126,56 @@ Result:
 
 ### Risk Mitigation
 - **Prevent Exploits**: Fix vulnerabilities before attackers discover them
+
 - **Supply Chain Security**: Verify all third-party code
+
 - **Reduce Attack Surface**: Remove unnecessary dependencies
+
 - **Stay Current**: Keep pace with security patches
 
 ### Compliance
 - **Meet Standards**: Satisfy SOC 2, ISO 27001, PCI-DSS requirements
+
 - **SBOM Requirements**: Comply with executive orders and regulations
+
 - **License Compliance**: Avoid legal issues with incompatible licenses
+
 - **Audit Readiness**: Provide complete dependency documentation
 
 ### Operational Excellence
 - **Technical Debt**: Identify outdated dependencies
+
 - **Maintenance Planning**: Prioritize upgrade efforts
+
 - **Security Culture**: Build awareness of supply chain risks
+
 - **Automation**: Integrate into CI/CD pipelines
 
 ## Prerequisites
 
 ### Required
 - Package manager configuration files accessible
+
 - Network access to vulnerability databases
+
 - Command-line tool installation permissions
 
 ### Recommended
 - CI/CD pipeline access for automation
+
 - Version control system (Git)
+
 - API keys for enhanced scanning (Snyk, GitHub, etc.)
+
 - Security dashboard or tracking system
 
 ### Knowledge
 - Dependency management for target language
+
 - CVE severity scoring (CVSS)
+
 - Software licensing basics
+
 - Semantic versioning principles
 
 ## Instructions
@@ -471,8 +522,11 @@ flawfinder --html src/ > flawfinder-report.html
 ```
 
 **Note**: C/C++ dependency vulnerability scanning is less mature than other ecosystems. Consider:
+
 - Manually tracking dependencies and CVEs
+
 - Using container scanning if deploying in containers
+
 - Implementing SBOM practices for visibility
 
 ### Step 3: License Compliance Audit
@@ -563,9 +617,13 @@ go-licenses save ./... --save_path=licenses/
 | Proprietary | MIT, BSD, Apache 2.0 | GPL*, AGPL* |
 
 **Action Required for Incompatible Licenses**:
+
 1. Replace with compatible alternative library
+
 2. Negotiate license exception (rarely possible)
+
 3. Change project license (if feasible)
+
 4. Remove functionality that requires incompatible dependency
 
 ### Step 4: Generate Software Bill of Materials (SBOM)
@@ -619,10 +677,15 @@ cyclonedx-gomod app -json=true -output sbom.json
 ```
 
 **SBOM Use Cases**:
+
 - Compliance reporting (FDA, NTIA, Executive Orders)
+
 - Vulnerability management (track affected components)
+
 - License compliance documentation
+
 - Supply chain risk assessment
+
 - Incident response (identify affected systems)
 
 ### Step 5: Analyze and Prioritize Vulnerabilities
@@ -632,9 +695,13 @@ cyclonedx-gomod app -json=true -output sbom.json
 #### Severity Classification
 
 **CVSS Score Ranges**:
+
 - **Critical (9.0-10.0)**: Immediate action required
+
 - **High (7.0-8.9)**: Urgent attention needed
+
 - **Medium (4.0-6.9)**: Plan remediation
+
 - **Low (0.1-3.9)**: Address when possible
 
 **Prioritization Matrix**:
@@ -647,17 +714,27 @@ Low Exploitability + Low Impact   = P2 (Plan for future)
 ```
 
 **Exploitability Factors**:
+
 - [ ] Public exploit code available
+
 - [ ] Vulnerability in internet-facing component
+
 - [ ] No authentication required
+
 - [ ] Easy to exploit (low complexity)
+
 - [ ] Actively being exploited in the wild
 
 **Impact Factors**:
+
 - [ ] Affects production systems
+
 - [ ] Handles sensitive data
+
 - [ ] Critical business function
+
 - [ ] Regulatory compliance requirement
+
 - [ ] Customer-facing component
 
 #### Vulnerability Assessment Template
@@ -675,26 +752,39 @@ Low Exploitability + Low Impact   = P2 (Plan for future)
 Remote code execution via prototype pollution in lodash template function.
 
 **Affected Code**:
+
 - `src/api/users.js:45` - Uses lodash.template with user input
+
 - `src/utils/formatter.js:120` - Calls vulnerable function
 
 **Exploitability**: HIGH
+
 - [x] Public exploit available (exploit-db.com/exploits/12345)
+
 - [x] Internet-facing endpoint
+
 - [x] No authentication required
+
 - [x] Low complexity
 
 **Impact**: HIGH
+
 - [x] Production system affected
+
 - [x] Handles PII data
+
 - [x] Critical user authentication flow
 
 **Priority**: P0 - Fix Immediately
 
 **Remediation**:
+
 1. Upgrade lodash to 4.17.21 or higher
+
 2. Review all uses of lodash.template
+
 3. Sanitize user input before template processing
+
 4. Deploy fix within 24 hours
 
 **Estimated Effort**: 2 hours
@@ -764,22 +854,31 @@ urllib3>=2.0.0  # Even if another package requires older version
 **3. Find Alternative Package**
 
 When no secure version exists:
+
 - Search for actively maintained alternatives
+
 - Compare features and migration effort
+
 - Verify alternative doesn't have same issues
 
 **4. Patch or Fork**
 
 Last resort for abandoned packages:
+
 - Fork repository
+
 - Apply security patch
+
 - Use forked version (document thoroughly)
 
 **5. Remove Dependency**
 
 If not critical:
+
 - Implement functionality yourself
+
 - Use standard library alternative
+
 - Reconsider if feature is necessary
 
 #### Remediation Roadmap Template
@@ -795,71 +894,111 @@ If not critical:
 
 ### 1. CVE-2023-XXXXX - lodash (Critical, CVSS 9.8)
 - **Action**: Upgrade lodash 4.17.15 → 4.17.21
+
 - **Impact**: No breaking changes expected
+
 - **Testing**: Unit tests + security regression test
+
 - **Effort**: 2 hours
+
 - **Owner**: Security Team
+
 - **Status**: 🔴 Not Started
 
 ### 2. CVE-2023-YYYYY - requests (High, CVSS 8.1)
 - **Action**: Upgrade requests 2.25.0 → 2.31.0
+
 - **Impact**: Minor API changes in edge cases
+
 - **Testing**: Integration test suite
+
 - **Effort**: 4 hours
+
 - **Owner**: Backend Team
+
 - **Status**: 🔴 Not Started
 
 ## Urgent (This Sprint) - P1
 
 ### 3. CVE-2023-ZZZZZ - jackson-databind (High, CVSS 7.5)
 - **Action**: Upgrade jackson-databind 2.12.0 → 2.15.2
+
 - **Impact**: Review deserialization patterns
+
 - **Testing**: Full API test suite
+
 - **Effort**: 8 hours
+
 - **Owner**: API Team
+
 - **Status**: 🔴 Not Started
 
 ## Planned (Next Sprint) - P2
 
 ### 4. Multiple outdated packages (Medium risk)
 - **Action**: Upgrade 12 outdated packages
+
 - **Impact**: Minimal, mostly security patches
+
 - **Testing**: Automated test suite
+
 - **Effort**: 1 day
+
 - **Owner**: DevOps Team
+
 - **Status**: 🔴 Not Started
 
 ## Monitoring (Continuous)
 
 ### 5. Enable automated dependency scanning
 - **Action**: Integrate Snyk/Dependabot into CI/CD
+
 - **Impact**: Early detection of new vulnerabilities
+
 - **Effort**: 4 hours setup
+
 - **Owner**: DevOps Team
+
 - **Status**: 🔴 Not Started
 
 ## Testing Protocol for Upgrades
 
 **For Each Remediation**:
+
 1. Create feature branch
+
 2. Update dependency version
+
 3. Run full test suite locally
+
 4. Manual testing of affected features
+
 5. Security regression test (verify fix)
+
 6. Code review
+
 7. Deploy to staging
+
 8. Run production-like tests
+
 9. Monitor for 24 hours
+
 10. Deploy to production
+
 11. Post-deployment monitoring
 
 ## Rollback Plan
 
 **If Issues Arise**:
+
 1. Immediately rollback to previous version
+
 2. Document issue in ticket
+
 3. Investigate root cause
+
 4. Consider alternative remediation
+
 5. Update roadmap with new approach
 ```
 
@@ -887,6 +1026,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
       - uses: actions/checkout@v3
 
       # Python Projects
@@ -961,7 +1101,9 @@ dependency-scan:
   script:
 
     - pip install pip-audit safety
+
     - pip-audit --desc --format json --output pip-audit-report.json || true
+
     - safety check --json --output safety-report.json || true
   artifacts:
     reports:
@@ -969,11 +1111,13 @@ dependency-scan:
     paths:
 
       - pip-audit-report.json
+
       - safety-report.json
     expire_in: 30 days
   only:
 
     - merge_requests
+
     - main
 
 npm-security-scan:
@@ -990,6 +1134,7 @@ npm-security-scan:
   only:
 
     - merge_requests
+
     - main
 ```
 
@@ -1087,6 +1232,7 @@ updates:
     labels:
 
       - "dependencies"
+
       - "security"
 
   # JavaScript
@@ -1142,13 +1288,21 @@ updates:
 ## Executive Summary
 
 - **Total Dependencies**: [Direct: X, Transitive: Y, Total: Z]
+
 - **Vulnerabilities Found**: [Count]
+
   - Critical: [Count] (CVSS 9.0-10.0)
+
   - High: [Count] (CVSS 7.0-8.9)
+
   - Medium: [Count] (CVSS 4.0-6.9)
+
   - Low: [Count] (CVSS 0.1-3.9)
+
 - **License Issues**: [Count]
+
 - **Outdated Packages**: [Count with security patches]
+
 - **Risk Rating**: [Critical / High / Medium / Low]
 
 ## Detailed Findings
@@ -1169,12 +1323,17 @@ Prototype pollution vulnerability allows remote code execution via template func
 **Exploit Status**: Public exploit available, actively exploited in the wild
 
 **Affected Code Locations**:
+
 - `src/api/users.js:45` - User input processed with lodash.template
+
 - `src/utils/formatter.js:120` - Server-side template rendering
 
 **Impact**:
+
 - Remote attackers can execute arbitrary code
+
 - Full system compromise possible
+
 - Customer data exposure risk
 
 **Remediation**:
@@ -1183,8 +1342,11 @@ npm update lodash@4.17.21
 ```
 
 **Testing Requirements**:
+
 - Verify all lodash.template uses
+
 - Security regression test
+
 - Full integration test suite
 
 **Estimated Effort**: 2 hours
@@ -1231,8 +1393,11 @@ npm update lodash@4.17.21
 ### License Distribution
 
 - MIT: 45 packages (68%)
+
 - Apache-2.0: 12 packages (18%)
+
 - BSD-3-Clause: 8 packages (12%)
+
 - ISC: 1 package (1.5%)
 
 ### License Issues
@@ -1242,8 +1407,11 @@ npm update lodash@4.17.21
 OR
 
 **Issues Identified**:
+
 1. **GPL-3.0 Dependency**: `package-name@1.0.0`
+
    - Incompatible with proprietary project license
+
    - **Recommendation**: Replace with MIT-licensed alternative
 
 ## Software Bill of Materials (SBOM)
@@ -1253,10 +1421,15 @@ OR
 **Generated**: [Date]
 
 SBOM includes:
+
 - All direct and transitive dependencies
+
 - Version information
+
 - License data
+
 - Vulnerability mappings
+
 - Component hashes
 
 **SBOM Location**: Attached as `sbom.json`
@@ -1280,81 +1453,114 @@ SBOM includes:
 
 ### Phase 1: Critical (This Week)
 - [ ] Fix CVE-2023-XXXXX (lodash) - 2 hours
+
 - [ ] Fix CVE-2023-YYYYY (requests) - 4 hours
+
 - [ ] **Total Effort**: 6 hours
+
 - [ ] **Target Completion**: [Date]
 
 ### Phase 2: High Priority (This Sprint)
 - [ ] Fix CVE-2023-ZZZZZ (urllib3) - 3 hours
+
 - [ ] Replace GPL-licensed package - 8 hours
+
 - [ ] **Total Effort**: 11 hours
+
 - [ ] **Target Completion**: [Date]
 
 ### Phase 3: Medium Priority (Next Sprint)
 - [ ] Update 12 outdated packages - 1 day
+
 - [ ] Review and test all updates - 1 day
+
 - [ ] **Total Effort**: 2 days
+
 - [ ] **Target Completion**: [Date]
 
 ### Phase 4: Continuous Improvement
 - [ ] Implement automated dependency scanning in CI/CD
+
 - [ ] Enable Dependabot/Renovate
+
 - [ ] Establish monthly audit cadence
+
 - [ ] Create security dashboard
 
 ## Recommendations
 
 ### Immediate Actions
 1. **Deploy Critical Fixes**: Address CVE-2023-XXXXX within 24 hours
+
 2. **Block Vulnerable Versions**: Add policy to prevent deployment with critical CVEs
+
 3. **Enable Monitoring**: Set up Snyk/Dependabot for continuous monitoring
 
 ### Short-Term Improvements
 1. **Automate Scanning**: Integrate dependency checks into CI/CD pipeline
+
 2. **Establish Policy**: Define acceptable risk levels and remediation SLAs
+
 3. **Team Training**: Educate developers on secure dependency management
 
 ### Long-Term Strategy
 1. **Supply Chain Security**: Implement comprehensive SBOM tracking
+
 2. **Vendor Assessment**: Evaluate all third-party dependencies
+
 3. **Dependency Minimization**: Regularly review and remove unnecessary dependencies
+
 4. **Update Cadence**: Establish quarterly major update reviews
 
 ## Compliance Status
 
 ### SOC 2 Requirements
 - ✅ Vulnerability scanning implemented
+
 - ✅ SBOM available for all components
+
 - ⚠️ Automated monitoring not yet enabled (in progress)
 
 ### ISO 27001 Requirements
 - ✅ Asset inventory (dependency list) maintained
+
 - ✅ Risk assessment completed
+
 - ✅ Remediation plan documented
 
 ## Positive Findings
 
 - Majority of dependencies use secure, well-maintained packages
+
 - License compliance is generally good
+
 - No malicious packages detected
+
 - Development dependencies properly separated
 
 ## Appendix
 
 ### Tools Used
 - pip-audit v2.6.1
+
 - npm audit v9.8.1
+
 - Snyk CLI v1.1200.0
+
 - OWASP Dependency-Check v8.4.0
+
 - govulncheck v1.0.1
 
 ### References
 - [NVD - National Vulnerability Database](https://nvd.nist.gov/)
+
 - [OSV - Open Source Vulnerabilities](https://osv.dev/)
+
 - [Snyk Vulnerability Database](https://security.snyk.io/)
 
 ### Change Log
 - [Date]: Initial audit completed
+
 - [Date]: Remediation progress review
 
 ---
@@ -1370,38 +1576,56 @@ This skill provides comprehensive dependency auditing for:
 
 ### Python Ecosystem
 - **Package Managers**: pip, poetry, pipenv, conda
+
 - **Scanning Tools**: pip-audit, safety, bandit
+
 - **SBOM**: CycloneDX, SPDX
+
 - **Automation**: GitHub Dependabot, Renovate
 
 ### JavaScript/TypeScript Ecosystem
 - **Package Managers**: npm, yarn, pnpm
+
 - **Scanning Tools**: npm audit, yarn audit, Snyk
+
 - **SBOM**: CycloneDX for npm
+
 - **Automation**: Dependabot, Renovate, Snyk
 
 ### Java Ecosystem
 - **Build Tools**: Maven, Gradle
+
 - **Scanning Tools**: OWASP Dependency-Check, Snyk
+
 - **SBOM**: CycloneDX Maven/Gradle plugins
+
 - **Automation**: Dependabot, Renovate
 
 ### C# / .NET Ecosystem
 - **Package Manager**: NuGet
+
 - **Scanning Tools**: dotnet CLI, dotnet-outdated
+
 - **SBOM**: CycloneDX for .NET
+
 - **Automation**: Dependabot, Renovate
 
 ### Go Ecosystem
 - **Package Manager**: go modules
+
 - **Scanning Tools**: govulncheck, Nancy
+
 - **SBOM**: CycloneDX for Go
+
 - **Automation**: Dependabot, Renovate
 
 ### C/C++ Ecosystem
 - **Package Managers**: Conan, vcpkg, system packages
+
 - **Scanning Tools**: cppcheck, flawfinder, Snyk
+
 - **SBOM**: Manual SBOM generation
+
 - **Automation**: Limited native support
 
 ## Common Pitfalls and Solutions
@@ -1437,9 +1661,13 @@ mvn dependency:tree  # Analyze full tree
 **Problem**: Some vulnerabilities have no fix available, blocking development.
 
 **Solution**:
+
 - Assess actual exploitability in your context
+
 - Implement compensating controls (WAF, input validation)
+
 - Consider alternative packages
+
 - Document accepted risk with approval
 
 ```markdown
@@ -1450,9 +1678,13 @@ mvn dependency:tree  # Analyze full tree
 **No Fix Available**: Package abandoned, no maintained alternatives
 
 **Mitigations Implemented**:
+
 - Library only used in isolated admin tool (not internet-facing)
+
 - Input validation prevents exploit
+
 - Network segmentation limits impact
+
 - Monitoring alerts on suspicious activity
 
 **Risk Acceptance**: Approved by Security Team
@@ -1491,22 +1723,34 @@ npm test
 ## Success Criteria
 
 - [ ] All package managers identified and scanned
+
 - [ ] Vulnerability scanning completed for all languages
+
 - [ ] Transitive dependencies analyzed
+
 - [ ] License compliance verified
+
 - [ ] SBOM generated and stored
+
 - [ ] Critical vulnerabilities prioritized with CVSS scores
+
 - [ ] Remediation roadmap created with timelines
+
 - [ ] Automated scanning integrated into CI/CD
+
 - [ ] Continuous monitoring enabled (Dependabot/Snyk)
+
 - [ ] Comprehensive audit report generated
+
 - [ ] Team briefed on findings and remediation plan
+
 - [ ] Follow-up audit scheduled
 
 ## Related Skills
 
 ### Security Skills
 - [Code Review Security](../code-review-security/SKILL.md) - Application-level security audit
+
 - [Pre-Commit Security Checklist](../pre-commit-checklist/SKILL.md) - Pre-commit security checks
 
 ### Code Quality Skills
@@ -1516,23 +1760,32 @@ npm test
 
 ### Vulnerability Databases
 - [National Vulnerability Database (NVD)](https://nvd.nist.gov/)
+
 - [OSV - Open Source Vulnerabilities](https://osv.dev/)
+
 - [Snyk Vulnerability Database](https://security.snyk.io/)
+
 - [GitHub Advisory Database](https://github.com/advisories)
 
 ### SBOM Standards
 - [CycloneDX](https://cyclonedx.org/)
+
 - [SPDX](https://spdx.dev/)
+
 - [NTIA SBOM Guidelines](https://www.ntia.gov/sbom)
 
 ### Security Tools
 - [OWASP Dependency-Check](https://owasp.org/www-project-dependency-check/)
+
 - [Snyk](https://snyk.io/)
+
 - [Dependabot](https://github.com/dependabot)
+
 - [Renovate](https://renovatebot.com/)
 
 ### Compliance Frameworks
 - [NIST Supply Chain Security](https://csrc.nist.gov/Projects/cyber-supply-chain-risk-management)
+
 - [Executive Order 14028](https://www.nist.gov/itl/executive-order-14028-improving-nations-cybersecurity) (SBOM requirements)
 
 ---

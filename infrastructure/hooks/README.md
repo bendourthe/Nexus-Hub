@@ -50,8 +50,11 @@ exit 0
 ```
 
 **Skills to use:**
+
 - `pre-commit-checklist`
+
 - `code-complexity-analysis`
+
 - `licensing-compliance-check`
 
 ---
@@ -82,8 +85,11 @@ exit 0
 ```
 
 **Skills to use:**
+
 - `code-review-*` (all review skills)
+
 - `dependency-security-audit`
+
 - `generate-test-cases`
 
 ---
@@ -109,8 +115,11 @@ exit 0
 ```
 
 **Skills to use:**
+
 - `generate-docstrings`
+
 - `add-strategic-comments`
+
 - `create-technical-docs`
 
 ---
@@ -142,7 +151,9 @@ exit 0
 ```
 
 **Skills to use:**
+
 - `cleanup-*` (language-specific)
+
 - `generate-docstrings`
 
 ---
@@ -177,8 +188,11 @@ if __name__ == '__main__':
 ```
 
 **Skills to use:**
+
 - `measure-code-coverage`
+
 - `generate-test-cases`
+
 - `setup-test-infrastructure`
 
 ---
@@ -212,8 +226,11 @@ jobs:
 ```
 
 **Skills to use:**
+
 - `generate-api-docs`
+
 - `create-user-documentation`
+
 - `generate-sbom`
 
 ---
@@ -300,13 +317,19 @@ Create `.claude/hooks.json`:
 ### Workflow 1: Quality Gate
 
 **Pre-commit:**
+
 1. Run `pre-commit-checklist`
+
 2. Check code complexity
+
 3. Verify licensing compliance
 
 **Pre-push:**
+
 1. Full code review (all phases)
+
 2. Security audit
+
 3. Test suite execution
 
 ---
@@ -314,13 +337,19 @@ Create `.claude/hooks.json`:
 ### Workflow 2: Documentation Automation
 
 **Post-commit:**
+
 1. Generate/update docstrings
+
 2. Add strategic comments
+
 3. Update technical docs
 
 **Post-push:**
+
 1. Generate API documentation
+
 2. Update user guides
+
 3. Create SBOM
 
 ---
@@ -328,13 +357,19 @@ Create `.claude/hooks.json`:
 ### Workflow 3: Continuous Quality
 
 **On file save:**
+
 1. Code cleanup (language-specific)
+
 2. Format code
+
 3. Update inline docs
 
 **On test run:**
+
 1. Measure coverage
+
 2. Generate missing tests
+
 3. Update test docs
 
 ---
@@ -366,8 +401,11 @@ Create `.claude/hooks.json`:
 **Problem:** Git hook doesn't run
 
 **Solutions:**
+
 1. Check file is executable: `chmod +x .git/hooks/pre-commit`
+
 2. Verify shebang line: `#!/bin/bash` or `#!/usr/bin/env python`
+
 3. Test directly: `./.git/hooks/pre-commit`
 
 ---
@@ -377,9 +415,13 @@ Create `.claude/hooks.json`:
 **Problem:** Pre-commit hook times out or is too slow
 
 **Solutions:**
+
 1. Run only fast checks pre-commit
+
 2. Move slow checks to pre-push or CI
+
 3. Use caching for expensive operations
+
 4. Run checks on changed files only
 
 ---
@@ -389,9 +431,13 @@ Create `.claude/hooks.json`:
 **Problem:** Hook fails but unsure why
 
 **Solutions:**
+
 1. Add debug output: `set -x` in bash scripts
+
 2. Check error messages carefully
+
 3. Test skill independently
+
 4. Verify all dependencies installed
 
 ---

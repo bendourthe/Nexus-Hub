@@ -12,12 +12,16 @@ prerequisites: []
 tools:
 
   - jest (29.7.0)
+
   - eslint (9.15.0)
+
   - prettier
 tags:
 
   - documentation
+
   - documentation
+
   - javascript
 ---
 # JavaScript User Documentation
@@ -151,8 +155,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -171,26 +178,40 @@ Please create comprehensive user documentation for this JavaScript/TypeScript pr
 ## Phase 1: Audience Analysis & Documentation Planning
 
 1. **Identify Target Audience**
+
    - Primary users: [frontend developers/backend developers/full-stack/etc.]
+
    - Technical skill level: [beginner/intermediate/advanced]
+
    - Use cases: [what problems they're solving]
+
    - Context: [how they'll use the software]
 
 2. **Document Existing Features**
+
    - List all major features and capabilities
+
    - Identify most common use cases
+
    - Note any complex or non-obvious functionality
+
    - Document prerequisites and dependencies
 
 3. **Outline Documentation Structure**
    Plan what documentation is needed:
 
    - [ ] README.md (essential)
+
    - [ ] INSTALL.md or installation section
+
    - [ ] QUICKSTART.md or quick start guide
+
    - [ ] USER_GUIDE.md for detailed usage
+
    - [ ] EXAMPLES.md with common patterns
+
    - [ ] FAQ.md for common questions
+
    - [ ] TROUBLESHOOTING.md for common issues
 
 ## Phase 2: README.md - Professional Project Overview
@@ -622,12 +643,19 @@ npm test -- path/to/test.spec.js
 Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 Quick start for contributors:
+
 1. Fork the repository
+
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+
 3. Make your changes
+
 4. Run tests (`npm test`)
+
 5. Commit your changes (`git commit -m 'Add amazing feature'`)
+
 6. Push to the branch (`git push origin feature/amazing-feature`)
+
 7. Open a Pull Request
 
 ---
@@ -817,8 +845,11 @@ docker run -it project
 ### Windows
 
 **Prerequisites**:
+
 1. Install Node.js from [nodejs.org](https://nodejs.org)
+
 2. Ensure Node.js and npm are in PATH
+
 3. Open Command Prompt or PowerShell
 
 **Installation**:
@@ -838,15 +869,19 @@ npm install -g package-name
 **Common Issues**:
 
 - **Error**: "npm is not recognized"
+
   - **Fix**: Add Node.js to PATH or reinstall Node.js
 
 - **Error**: "Access is denied"
+
   - **Fix**: Run as Administrator or use user-level installation
 
 ### macOS
 
 **Prerequisites**:
+
 1. Install Node.js via Homebrew (recommended): `brew install node`
+
 2. Or download from [nodejs.org](https://nodejs.org)
 
 **Installation**:
@@ -865,9 +900,11 @@ npm install -g package-name
 **Common Issues**:
 
 - **Error**: "Permission denied"
+
   - **Fix**: Use `sudo` or configure npm to use user directory
 
 - **Error**: "Command not found: npm"
+
   - **Fix**: Ensure Node.js is properly installed: `brew reinstall node`
 
 ### Linux
@@ -1137,19 +1174,29 @@ npm install
 - **Cause**: Missing native build tools
 
 - **Fix**: Install build tools:
+
   - Windows: `npm install -g windows-build-tools`
+
   - macOS: `xcode-select --install`
+
   - Linux: `sudo apt install build-essential`
 
 ### Getting Help
 
 If installation fails:
+
 1. Check [GitHub Issues](https://github.com/username/project/issues)
+
 2. Review [Troubleshooting Guide](TROUBLESHOOTING.md)
+
 3. Open a new issue with:
+
    - Your OS and version
+
    - Node.js and npm versions (`node -v`, `npm -v`)
+
    - Full error message
+
    - Installation method attempted
 
 ---
@@ -1157,9 +1204,13 @@ If installation fails:
 ## Next Steps
 
 After successful installation:
+
 1. Review the [Quick Start Guide](README.md#quick-start)
+
 2. Try the [examples/](examples/) directory
+
 3. Read the [User Guide](USER_GUIDE.md)
+
 4. Join the [community discussions](https://github.com/username/project/discussions)
 ```
 
@@ -1169,10 +1220,15 @@ Create a focused quick start for immediate success:
 
 ### Structure
 1. **Goal**: What the user will achieve
+
 2. **Time Estimate**: "5 minutes" or "15 minutes"
+
 3. **Prerequisites**: What they need before starting
+
 4. **Steps**: Clear, numbered steps with code
+
 5. **Expected Output**: Show what success looks like
+
 6. **Next Steps**: Where to go from here
 
 ### Quick Start Template
@@ -1264,8 +1320,11 @@ Result: Processed: Hello, World!
 Let's break down what happened:
 
 1. **Import**: We imported the main class using CommonJS
+
 2. **Configure**: We created an instance with options
+
 3. **Process**: We processed data asynchronously
+
 4. **Result**: We got a result back
 
 Now try modifying the example:
@@ -1628,34 +1687,53 @@ Please provide user documentation in this format:
 ## Best Practices
 
 1. **Write for Your Audience**
+
    - Match technical level to JavaScript/TypeScript developers
+
    - Explain npm ecosystem concepts
+
    - Provide context for async/await patterns
 
 2. **Show, Don't Just Tell**
+
    - Include complete, runnable examples
+
    - Show both CommonJS and ES Module syntax
+
    - Demonstrate async/await patterns
+
    - Include TypeScript examples
 
 3. **Make It Easy to Find Information**
+
    - Clear table of contents
+
    - Good headings and structure
+
    - Links between related sections
 
 4. **Test Your Documentation**
+
    - Follow your own instructions
+
    - Test on different Node versions
+
    - Verify all package managers work
 
 5. **Keep It Updated**
+
    - Update with code changes
+
    - Version documentation with releases
+
    - Address user questions in FAQ
 
 6. **Progressive Disclosure**
+
    - Start simple, add complexity gradually
+
    - Quick start for immediate success
+
    - Detailed docs for advanced users
 
 ---

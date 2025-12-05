@@ -17,14 +17,23 @@ Create a complete, production-ready JavaScript/TypeScript project with standard 
 ## When to Use This Skill
 
 Use this skill when you need to:
+
 - ✅ Start a new JavaScript/TypeScript project from scratch
+
 - ✅ Set up Node.js backend with Express
+
 - ✅ Initialize React frontend application
+
 - ✅ Create Next.js full-stack application
+
 - ✅ Establish standard project structure quickly
+
 - ✅ Configure TypeScript, ESLint, and Prettier
+
 - ✅ Set up testing framework (Jest)
+
 - ✅ Create documentation templates (README, CHANGELOG, DEVLOG)
+
 - ✅ Initialize CI/CD with GitHub Actions
 
 ## What This Skill Does
@@ -150,36 +159,54 @@ project_name/
 
 ### 2. Configuration Files
 - **package.json**: Dependencies, scripts, and project metadata
+
 - **tsconfig.json**: TypeScript compiler configuration
+
 - **.eslintrc.json**: ESLint code quality rules
+
 - **.prettierrc**: Code formatting configuration
+
 - **jest.config.js**: Testing framework configuration
+
 - **.gitignore**: Comprehensive ignore patterns
 
 ### 3. Documentation
 - **README.md**: Installation, usage, and feature documentation
+
 - **CHANGELOG.md**: Version history following Keep a Changelog format
+
 - **DEVLOG.md**: Development task list and decision log
+
 - **CLAUDE.md**: Claude Code project guidelines
 
 ### 4. Testing Framework
 - Jest for unit and integration testing
+
 - React Testing Library for component tests
+
 - Supertest for API endpoint tests (backend)
+
 - Code coverage reporting
 
 ### 5. Development Tools
 - TypeScript for type safety
+
 - ESLint for code linting
+
 - Prettier for code formatting
+
 - Nodemon for development server (backend)
+
 - Hot module replacement (frontend)
 
 ## Prerequisites
 
 - Node.js 18+ installed
+
 - npm, yarn, or pnpm (package manager)
+
 - git (version control)
+
 - (Optional) Claude Code for AI assistance
 
 ## Instructions
@@ -189,18 +216,27 @@ project_name/
 Gather this information before initialization:
 
 **Project Details**:
+
 - **Name**: Project identifier (kebab-case recommended)
+
 - **Description**: One-line summary of purpose
+
 - **Type**: Node.js Backend / React Frontend / Next.js Full-Stack
+
 - **Author**: Your name and email
+
 - **Package Manager**: npm / yarn / pnpm
 
 **Dependencies**:
+
 - Core dependencies (e.g., express, react, next)
+
 - Development dependencies (testing, linting)
 
 **Features**:
+
 - Key capabilities to document
+
 - Initial version number (default: 0.1.0)
 
 ### Step 2: Invoke the Skill
@@ -210,22 +246,35 @@ Gather this information before initialization:
 "Use the init-javascript-project skill to create a new Node.js backend project.
 
 Project Details:
+
 - Name: my-awesome-api
+
 - Description: RESTful API for task management
+
 - Type: Node.js Backend (Express)
+
 - Author: Your Name (your.email@example.com)
+
 - Package Manager: npm
 
 Dependencies:
+
 - express (web framework)
+
 - cors (CORS middleware)
+
 - dotenv (environment variables)
+
 - joi (validation)
 
 Features:
+
 - User authentication
+
 - Task CRUD operations
+
 - Task categorization
+
 - RESTful API design
 
 Please initialize the complete project structure with TypeScript."
@@ -236,22 +285,35 @@ Please initialize the complete project structure with TypeScript."
 "Use the init-javascript-project skill to create a new React frontend project.
 
 Project Details:
+
 - Name: task-manager-ui
+
 - Description: Modern task management interface
+
 - Type: React Frontend
+
 - Author: Your Name (your.email@example.com)
+
 - Package Manager: yarn
 
 Dependencies:
+
 - react-router-dom (routing)
+
 - axios (HTTP client)
+
 - @tanstack/react-query (data fetching)
+
 - tailwindcss (styling)
 
 Features:
+
 - Task dashboard
+
 - User authentication
+
 - Real-time updates
+
 - Responsive design
 
 Please initialize the complete project structure with TypeScript."
@@ -262,22 +324,35 @@ Please initialize the complete project structure with TypeScript."
 "Use the init-javascript-project skill to create a new Next.js full-stack project.
 
 Project Details:
+
 - Name: fullstack-app
+
 - Description: Full-stack task management application
+
 - Type: Next.js Full-Stack
+
 - Author: Your Name (your.email@example.com)
+
 - Package Manager: pnpm
 
 Dependencies:
+
 - prisma (ORM)
+
 - next-auth (authentication)
+
 - zod (validation)
+
 - tailwindcss (styling)
 
 Features:
+
 - Server-side rendering
+
 - API routes
+
 - Database integration
+
 - Authentication system
 
 Please initialize the complete project structure with TypeScript and App Router."
@@ -395,8 +470,11 @@ git add .
 git commit -m "Initial project structure
 
 - Standard JavaScript/TypeScript project layout
+
 - Testing framework configured
+
 - Development tools configured
+
 - Documentation templates created
 
 Generated with init-javascript-project skill"
@@ -775,9 +853,13 @@ next-env.d.ts
 
 ## What's New
 - Initial release
+
 - RESTful API endpoints
+
 - User authentication
+
 - Task CRUD operations
+
 - Input validation
 
 ## Overview
@@ -785,16 +867,22 @@ A RESTful API for task management built with Express and TypeScript. Provides en
 
 ## Features
 - **Authentication**: JWT-based user authentication
+
 - **Task Management**: Create, read, update, and delete tasks
+
 - **Validation**: Request validation with Joi
+
 - **Security**: Helmet security headers, CORS configuration
+
 - **Logging**: Request logging with Morgan
+
 - **Error Handling**: Centralized error handling middleware
 
 ## Installation
 
 ### Prerequisites
 - Node.js 18 or higher
+
 - npm, yarn, or pnpm
 
 ### Setup
@@ -862,9 +950,13 @@ npm run type-check
 
 ## Contributing
 1. Fork the repository
+
 2. Create a feature branch
+
 3. Make your changes
+
 4. Run tests and quality checks
+
 5. Submit a pull request
 
 ## License
@@ -895,14 +987,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 - Initial project structure
+
 - Express server setup
+
 - TypeScript configuration
+
 - User authentication endpoints
+
 - Task CRUD operations
+
 - Request validation with Joi
+
 - Security middleware (Helmet, CORS)
+
 - Comprehensive test suite
+
 - ESLint and Prettier configuration
+
 - Documentation templates
 ```
 
@@ -914,34 +1015,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### High Priority
 - [ ] Implement user authentication
+
 - [ ] Create task CRUD endpoints
+
 - [ ] Add input validation
+
 - [ ] Set up database connection
 
 ### Medium Priority
 - [ ] Add pagination to task list
+
 - [ ] Implement task filtering
+
 - [ ] Add task categories
+
 - [ ] Create API documentation (Swagger)
 
 ### Low Priority
 - [ ] Add task search functionality
+
 - [ ] Implement task sharing
+
 - [ ] Add email notifications
+
 - [ ] Create admin dashboard
 
 ## Development History
 
 ### Project Architecture
 - **Design**: RESTful API with Express and TypeScript
+
 - **Tech Stack**: Node.js, Express, TypeScript, Jest
+
 - **Pattern**: MVC architecture with service layer
 
 ### Initial Setup - 2025-10-21
 - Created standard Node.js project structure
+
 - Configured TypeScript with strict mode
+
 - Set up testing framework (Jest)
+
 - Configured development tools (ESLint, Prettier)
+
 - Initialized documentation
 
 ## Troubleshooting History
@@ -1023,13 +1139,19 @@ export default app;
 Additional Dependencies:
 
 - pg (PostgreSQL)
+
 - typeorm or prisma (ORM)
+
 - bcrypt (password hashing)
+
 - jsonwebtoken (JWT)
 
 Structure additions:
+
 - src/entities/
+
 - src/migrations/
+
 - src/database/
 ```
 
@@ -1038,13 +1160,19 @@ Structure additions:
 Additional Dependencies:
 
 - redux and @reduxjs/toolkit
+
 - react-hook-form
+
 - react-toastify
+
 - framer-motion
 
 Structure additions:
+
 - src/store/
+
 - src/features/
+
 - src/animations/
 ```
 
@@ -1053,13 +1181,19 @@ Structure additions:
 Additional Dependencies:
 
 - next-auth
+
 - @auth/prisma-adapter
+
 - prisma
+
 - bcrypt
 
 Structure additions:
+
 - src/app/api/auth/
+
 - prisma/
+
 - middleware.ts
 ```
 
@@ -1070,8 +1204,11 @@ Structure additions:
 "Use init-javascript-project with minimal configuration:
 
 - Basic structure only
+
 - Essential documentation
+
 - Skip CI/CD files
+
 - No example tests"
 ```
 
@@ -1080,10 +1217,15 @@ Structure additions:
 "Use init-javascript-project with full configuration:
 
 - Complete directory structure
+
 - GitHub Actions CI/CD
+
 - Docker configuration
+
 - Comprehensive documentation
+
 - Example tests and fixtures
+
 - Pre-commit hooks"
 ```
 
@@ -1092,9 +1234,13 @@ Structure additions:
 "Use init-javascript-project with custom requirements:
 
 - GraphQL API with Apollo Server
+
 - MongoDB database
+
 - Redis caching
+
 - Docker and docker-compose
+
 - Kubernetes configuration"
 ```
 
@@ -1102,8 +1248,11 @@ Structure additions:
 
 ### 1. Configure IDE
 - Install recommended extensions (ESLint, Prettier, TypeScript)
+
 - Set up auto-format on save
+
 - Configure debugger launch configurations
+
 - Set up path aliases
 
 ### 2. Set Up Git Hooks
@@ -1166,9 +1315,13 @@ services:
 
 ### 4. Configure GitHub Repository
 - Create repository on GitHub
+
 - Add description and topics
+
 - Set up branch protection rules
+
 - Enable GitHub Actions
+
 - Add status badges to README
 
 ## Success Criteria
@@ -1176,34 +1329,53 @@ services:
 After initialization, verify:
 
 - [ ] All directories created correctly
+
 - [ ] Configuration files are valid
+
 - [ ] Dependencies installed successfully
+
 - [ ] Development server starts
+
 - [ ] Tests run and pass
+
 - [ ] Linting and formatting tools work
+
 - [ ] TypeScript compilation succeeds
+
 - [ ] Documentation is complete and accurate
+
 - [ ] Git repository initialized
+
 - [ ] Ready to begin development
 
 ## Related Skills
 
 **Use After Initialization**:
+
 - `setup-javascript-system-prompt`: Configure Claude Code standards
+
 - `create-claude-md`: Customize project guidelines
+
 - `generate-test-cases`: Add comprehensive tests
 
 **For Development**:
+
 - `plan-before-code`: Plan features before implementing
+
 - `test-driven-development`: Write tests first
+
 - `cleanup-javascript`: Clean code periodically
 
 ## Additional Resources
 
 - [Node.js Best Practices](https://github.com/goldbergyoni/nodebestpractices)
+
 - [TypeScript Handbook](https://www.typescriptlang.org/docs/)
+
 - [React Documentation](https://react.dev/)
+
 - [Next.js Documentation](https://nextjs.org/docs)
+
 - [Express.js Guide](https://expressjs.com/en/guide/routing.html)
 
 ---

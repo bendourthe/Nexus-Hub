@@ -176,11 +176,17 @@ START: What aspect concerns you most?
 ```
 
 **Recommended Phase Order:**
+
 1. **Context Analysis** (always first - understand before reviewing)
+
 2. **Code Quality** (foundational issues)
+
 3. **Security** (critical vulnerabilities)
+
 4. **Performance** (optimization opportunities)
+
 5. **Testing** (coverage & quality)
+
 6. **Final Report** (consolidate findings)
 
 ---
@@ -410,8 +416,11 @@ START: How much time can you invest?
 **Path:**
 
 1. [Context Analysis](code_review/context_analysis/) (2h) - Understand what you're dealing with
+
 2. [Code Cleanup](code_cleanup/) (4-8h) - Remove dead code, fix duplication
+
 3. [Code Quality Review](code_review/code_quality/) (2-3h) - Identify remaining issues
+
 4. [Unit Tests](test_development/unit_tests/) (3-6h) - Add safety net for future changes
 
 **Total:** 11-19 hours | **Result:** Maintainable codebase with test coverage
@@ -422,9 +431,13 @@ START: How much time can you invest?
 **Path:**
 
 1. [Security Review](code_review/security_review/) (2-3h) - Find vulnerabilities
+
 2. [Performance Review](code_review/performance_review/) (2-3h) - Optimize bottlenecks
+
 3. [Testing Review](code_review/testing_review/) (2h) - Validate test coverage
+
 4. [API Documentation](documentation/api_docs/) (4-8h) - Document public interfaces
+
 5. [SBOM](documentation/sbom/) (2-3h) - Compliance & dependencies
 
 **Total:** 12-19 hours | **Result:** Production-ready, secure, documented code
@@ -435,9 +448,13 @@ START: How much time can you invest?
 **Path:**
 
 1. [Test Structure](test_development/test_structure/) (2-4h) - Setup infrastructure
+
 2. [Unit Tests](test_development/unit_tests/) (3-6h) - Cover core functionality
+
 3. [Test Cases](test_development/test_cases/) (4-8h) - Integration & E2E tests
+
 4. [Code Coverage](test_development/code_coverage/) (2-3h) - Measure & report
+
 5. [CI/CD](test_development/maintenance_cicd/) (3-5h) - Automate testing
 
 **Total:** 14-26 hours | **Result:** Comprehensive test suite with automation
@@ -448,10 +465,15 @@ START: How much time can you invest?
 **Path:**
 
 1. **Use Skills** (if using Claude Code):
+
    - [init-{language}-project](agent_prompts/autonomous_agents/claude_code/skills/init-python-project/) (1h)
+
    - [create-claude-md](agent_prompts/autonomous_agents/claude_code/skills/create-claude-md/) (1h)
+
 2. [Test Structure](test_development/test_structure/) (2-4h) - Setup from day 1
+
 3. [User Documentation](documentation/user_docs/) (3-4h) - README, setup guide
+
 4. [CI/CD](test_development/maintenance_cicd/) (3-5h) - Automation pipeline
 
 **Total:** 10-15 hours | **Result:** Professional project setup with quality foundations
@@ -462,7 +484,9 @@ START: How much time can you invest?
 **Path:**
 
 1. [Context Analysis](code_review/context_analysis/) (2h) - Understand changes
+
 2. [Code Quality Review](code_review/code_quality/) (2h) - Style & maintainability
+
 3. **Optional:** [Security Review](code_review/security_review/) (2-3h) - If touching sensitive areas
 
 **Total:** 4-7 hours | **Result:** Confident merge decision
@@ -473,14 +497,20 @@ START: How much time can you invest?
 
 ### Find Templates By:
 - **Task Type:** See [TEMPLATE_FINDER.md](TEMPLATE_FINDER.md) "By Task Type"
+
 - **Time Available:** See [TEMPLATE_FINDER.md](TEMPLATE_FINDER.md) "By Time Available"
+
 - **Difficulty Level:** See [TEMPLATE_FINDER.md](TEMPLATE_FINDER.md) "By Difficulty"
+
 - **Language:** See [TEMPLATE_FINDER.md](TEMPLATE_FINDER.md) "By Language"
 
 ### Other Resources:
 - [Main README](README.md) - Repository overview
+
 - [Quick Start Guide](QUICKSTART.md) - New project setup (5 minutes)
+
 - [Skills Browser](https://bdourthe.github.io/ai_templates/) - Web-based skill discovery
+
 - [Changelog](CHANGELOG.md) - Version history
 
 ---

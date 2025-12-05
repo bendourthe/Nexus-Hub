@@ -20,10 +20,15 @@ Your Testing Journey:
 **Most Popular:** Phase 2 (Unit Tests) - Jump straight here if you already have a testing framework!
 
 **Copy & Paste Templates:**
+
 1. Choose your language below
+
 2. Click the phase you want
+
 3. Scroll to "## Prompt Template" in that file
+
 4. Copy the entire prompt
+
 5. Paste into GitHub Copilot / ChatGPT / Claude
 
 ---
@@ -33,11 +38,17 @@ Your Testing Journey:
 This section provides comprehensive test development templates for creating robust, maintainable test suites through an 8-phase methodology.
 
 **What You'll Get:**
+
 - ✅ FIRST principles (Fast, Independent, Repeatable, Self-validating, Timely)
+
 - ✅ AAA pattern (Arrange-Act-Assert)
+
 - ✅ 20-30 test examples per language
+
 - ✅ Anti-patterns guide
+
 - ✅ CI/CD integration examples
+
 - ✅ Mutation testing for test quality validation
 
 ## 🎯 Objectives
@@ -98,12 +109,19 @@ Each language has templates for all 8 testing phases:
 For optimal results, follow this testing workflow:
 
 1. **Test Structure** - Set up infrastructure
+
 2. **Unit Tests** - Establish fast, isolated tests for individual components
+
 3. **Test Cases** - Add integration and E2E tests for workflows
+
 4. **Mocks & Fixtures** - Implement proper test isolation
+
 5. **Performance Testing** - Validate performance requirements
+
 6. **Maintenance & CI/CD** - Automate testing in pipelines
+
 7. **Code Coverage** - Measure and improve coverage
+
 8. **Reward Hacking** - Validate test quality and effectiveness (FINAL PHASE)
 
 ## ✅ Success Criteria

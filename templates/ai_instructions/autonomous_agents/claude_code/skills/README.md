@@ -5,8 +5,11 @@ This directory contains specialized Claude Code skills that provide task-specifi
 ## What are Claude Skills?
 
 Claude Skills are markdown files (SKILL.md) that tell Claude how to perform specific tasks. Each skill includes:
+
 - **YAML frontmatter** with skill metadata (name, description, version)
+
 - **Detailed instructions** for completing the task
+
 - **Optional resources** like scripts, templates, or data files
 
 Skills are token-efficient: only a short description is loaded initially, with full details loaded when needed.
@@ -96,12 +99,19 @@ skill-name/
 ## Supported Languages
 
 All skills support 7 programming languages:
+
 - **Python** - General-purpose, data science, web development
+
 - **JavaScript/TypeScript** - Web, Node.js, React, Angular, Vue
+
 - **Java** - Enterprise, Spring Boot, Android
+
 - **C#** - .NET, ASP.NET Core, Unity
+
 - **Go** - Microservices, cloud-native applications
+
 - **C** - Embedded systems, firmware, RTOS
+
 - **C++** - Performance-critical, embedded, modern C++
 
 ## Creating Custom Skills
@@ -109,6 +119,7 @@ All skills support 7 programming languages:
 You can create custom skills based on this repository's templates:
 
 1. **Create skill directory**: `mkdir -p .claude/skills/my-skill`
+
 2. **Create SKILL.md** with YAML frontmatter:
 ```yaml
 ---
@@ -119,14 +130,19 @@ author: Your Name
 ---
 ```
 3. **Add instructions**: Write detailed markdown instructions
+
 4. **Optional resources**: Add supporting files to `resources/` subdirectory
 
 ## Benefits of Using Skills
 
 - **Token Efficiency**: Only brief descriptions loaded initially
+
 - **Reusability**: Use same skill across multiple projects
+
 - **Consistency**: Standardized approaches to common tasks
+
 - **Specialization**: Each skill focuses on one specific task
+
 - **Composability**: Combine skills for complex workflows
 
 ## Version History

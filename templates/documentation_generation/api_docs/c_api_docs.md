@@ -12,12 +12,16 @@ prerequisites: []
 tools:
 
   - unity
+
   - cmocka
+
   - check
 tags:
 
   - documentation
+
   - documentation
+
   - c
 ---
 # C API Documentation
@@ -139,8 +143,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -161,8 +168,11 @@ Use `<REPO_URL>` as placeholder where repository URLs are needed in this templat
 /**
 
  * @file mylib.h
+
  * @brief Main API for MyLib
+
  * @author Your Name
+
  * @version 1.0.0
  */
 
@@ -195,19 +205,24 @@ typedef struct {
 typedef struct mylib_context mylib_context_t;
 
 /**
+
  * @brief Initialize the library
  *
 
  * This function must be called before any other library functions.
+
  * Resources allocated by this function must be freed using mylib_cleanup().
  *
 
  * @param config Pointer to configuration structure
+
  * @param ctx Output parameter for context handle
+
  * @return MYLIB_OK on success, error code on failure
  *
 
  * @note The caller retains ownership of the config parameter.
+
  * @note The ctx parameter will be set to NULL on failure.
  *
 
@@ -216,32 +231,41 @@ typedef struct mylib_context mylib_context_t;
 int mylib_init(const mylib_config_t *config, mylib_context_t **ctx);
 
 /**
+
  * @brief Process input data
  *
 
  * @param ctx Context handle from mylib_init()
+
  * @param input Input string (NULL-terminated)
+
  * @param output Output buffer (caller-allocated)
+
  * @param output_size Size of output buffer
+
  * @return Number of bytes written, or negative error code
  *
 
  * @note Output buffer must be at least as large as input
+
  * @note Function is thread-safe if contexts don't overlap
  */
 int mylib_process(mylib_context_t *ctx, const char *input,
                   char *output, size_t output_size);
 
 /**
+
  * @brief Get error message for error code
  *
 
  * @param error Error code
+
  * @return Human-readable error message (static string)
  */
 const char* mylib_strerror(int error);
 
 /**
+
  * @brief Cleanup and free resources
  *
 
@@ -558,12 +582,19 @@ cleanup:
 ## Best Practices
 
 1. **Memory Management**: Always document ownership, use goto for cleanup
+
 2. **Error Handling**: Return error codes, use errno for system errors
+
 3. **Thread Safety**: Document thread safety guarantees
+
 4. **API Design**: Use opaque pointers for handles
+
 5. **Documentation**: Use Doxygen comments extensively
+
 6. **Const Correctness**: Use const for input parameters
+
 7. **NULL Checking**: Always check for NULL returns
+
 8. **Resource Cleanup**: Provide cleanup functions for all resources
 
 ---

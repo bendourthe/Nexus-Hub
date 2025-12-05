@@ -12,13 +12,18 @@ prerequisites: []
 tools:
 
   - pytest (8.3.4+)
+
   - black (24.12.0)
+
   - mypy (1.13.0)
+
   - ruff
 tags:
 
   - documentation
+
   - documentation
+
   - python
 ---
 # Python API Documentation
@@ -184,8 +189,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -204,20 +212,31 @@ Please create comprehensive API documentation for this Python project following 
 ## Phase 1: API Inventory & Analysis
 
 1. **Discover All Endpoints**
+
    - List all routes/endpoints in the application
+
    - Identify HTTP methods for each endpoint
+
    - Group endpoints by resource/functionality
+
    - Note which endpoints require authentication
 
 2. **Analyze Request/Response Patterns**
+
    - Document request body schemas
+
    - Document response body schemas
+
    - Identify common patterns across endpoints
+
    - Note error response formats
 
 3. **Authentication & Authorization**
+
    - Document authentication methods used
+
    - Identify authorization requirements per endpoint
+
    - Document token/session management
 
 ## Phase 2: OpenAPI/Swagger Specification
@@ -233,7 +252,9 @@ info:
 
     ## Base URLs
     - Production: https://api.example.com/v1
+
     - Staging: https://staging-api.example.com/v1
+
     - Development: http://localhost:8000/api/v1
 
     ## Authentication
@@ -245,7 +266,9 @@ info:
 
     ## Rate Limiting
     - Free tier: 1000 requests/hour
+
     - Pro tier: 10000 requests/hour
+
     - Enterprise: Unlimited
 
     ## Versioning
@@ -262,6 +285,7 @@ info:
     url: https://opensource.org/licenses/MIT
 
 servers:
+
   - url: https://api.example.com/v1
     description: Production server
 
@@ -269,6 +293,7 @@ servers:
     description: Staging server
 
 tags:
+
   - name: Users
     description: User management operations
 
@@ -276,6 +301,7 @@ tags:
     description: Authentication and authorization
 
 security:
+
   - BearerAuth: []
 
 paths:
@@ -573,9 +599,13 @@ components:
       required:
 
         - id
+
         - email
+
         - name
+
         - is_active
+
         - created_at
 
     UserCreate:
@@ -605,7 +635,9 @@ components:
       required:
 
         - email
+
         - name
+
         - password
 
     UserUpdate:
@@ -641,8 +673,11 @@ components:
       required:
 
         - page
+
         - page_size
+
         - total_items
+
         - total_pages
 
     PaginationLinks:
@@ -673,8 +708,11 @@ components:
       required:
 
         - first
+
         - last
+
         - next
+
         - prev
 
     Error:
@@ -700,6 +738,7 @@ components:
           required:
 
             - code
+
             - message
 
   responses:

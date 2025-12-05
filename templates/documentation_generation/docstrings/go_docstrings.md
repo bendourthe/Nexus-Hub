@@ -12,11 +12,14 @@ prerequisites: []
 tools:
 
   - go test (1.23+)
+
   - testify
 tags:
 
   - documentation
+
   - documentation
+
   - go
 ---
 # Go Documentation Generation (godoc)
@@ -130,8 +133,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -150,9 +156,13 @@ Please generate comprehensive godoc-compatible documentation for this Go project
 ## Phase 1: Analysis & Go Conventions
 
 1. **Analyze Existing Code**
+
    - Inventory all packages, types, and exported functions
+
    - Identify existing documentation patterns
+
    - Note special documentation requirements
+
    - Review interface definitions
 
 2. **Go Documentation Style**

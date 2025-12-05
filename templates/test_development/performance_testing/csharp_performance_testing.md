@@ -18,13 +18,18 @@ related_templates:
 tools:
 
   - NUnit (4.2.2)
+
   - xUnit
+
   - MSTest
 tags:
 
   - test-development
+
   - testing
+
   - performance
+
   - c#
 ---
 # C# Performance Testing
@@ -153,8 +158,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 Please implement comprehensive performance testing for this C#/.NET project following this protocol:
@@ -1183,6 +1191,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
     - uses: actions/checkout@v3
 
     - name: Setup .NET
@@ -1272,13 +1281,19 @@ Success Rate: 99.8%
 
 ### Bottlenecks Identified
 1. **LINQ Query in UserService**
+
    - **Issue**: Multiple enumerations causing N iterations
+
    - **Impact**: 200ms average processing time
+
    - **Recommendation**: Use compiled query or AsNoTracking()
 
 2. **JSON Serialization**
+
    - **Issue**: Reflection-based serialization overhead
+
    - **Impact**: 150ms for large responses
+
    - **Recommendation**: Use System.Text.Json source generators
 
 ### Performance Improvement Recommendations
@@ -1348,11 +1363,17 @@ Replace `{phase_name}` with the specific phase (test_cases, mocks_fixtures, perf
 The AI assistant should deliver:
 
 1. **Performance test suite** with BenchmarkDotNet and NBomber tests
+
 2. **Performance baselines** documented
+
 3. **Load test scenarios** for critical endpoints
+
 4. **Profiling results** with bottleneck identification
+
 5. **Regression detection** configuration
+
 6. **CI/CD integration** for automated performance gates
+
 7. **Performance report** with metrics and recommendations
 ---
 

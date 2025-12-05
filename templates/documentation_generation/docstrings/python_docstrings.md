@@ -12,13 +12,18 @@ prerequisites: []
 tools:
 
   - pytest (8.3.4+)
+
   - black (24.12.0)
+
   - mypy (1.13.0)
+
   - ruff
 tags:
 
   - documentation
+
   - documentation
+
   - python
 ---
 # Python Docstring Generation
@@ -148,8 +153,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -168,8 +176,11 @@ Please generate comprehensive docstrings for this Python project following this 
 ## Phase 1: Analysis & Style Selection
 
 1. **Analyze Existing Code**
+
    - Inventory all modules, classes, and public functions
+
    - Identify existing docstring patterns and style
+
    - Note any special documentation requirements
 
 2. **Determine Docstring Style**
@@ -178,8 +189,11 @@ Please generate comprehensive docstrings for this Python project following this 
    If not specified, use **Google style** (most readable and widely adopted).
 
 3. **Review Type Hints**
+
    - Check existing type annotations
+
    - Ensure docstrings complement (not duplicate) type hints
+
    - Document complex types requiring additional explanation
 
 ## Phase 2: Module-Level Docstrings
@@ -202,18 +216,25 @@ Typical usage example:
     result = instance.process()
 
 Key Classes:
+
     - ClassName1: [Brief description]
+
     - ClassName2: [Brief description]
 
 Key Functions:
+
     - function_name1: [Brief description]
+
     - function_name2: [Brief description]
 
 Dependencies:
+
     - numpy>=1.20.0: [Why it's needed]
+
     - requests: [What it's used for]
 
 Authors:
+
     - [Name] ([email])
 
 Version:
@@ -623,28 +644,43 @@ Please provide docstrings in this format:
 ## Best Practices
 
 1. **Write for Humans First**
+
    - Docstrings are primarily for developers, not just tools
+
    - Use clear, natural language
+
    - Explain concepts, don't just describe syntax
 
 2. **Complement Type Hints**
+
    - Don't repeat type information from hints
+
    - Explain constraints, validation, or complex type usage
+
    - Document expected formats or patterns
 
 3. **Provide Context**
+
    - Explain why, not just what
+
    - Link to related functions/classes
+
    - Note performance considerations or side effects
 
 4. **Keep Examples Simple**
+
    - Start with basic usage
+
    - Add complex examples only if needed
+
    - Make examples copy-paste runnable
 
 5. **Maintain Consistency**
+
    - Use same style throughout project
+
    - Follow team conventions
+
    - Update docstrings when code changes
 
 ## Tools & Validation
@@ -666,33 +702,48 @@ tools:
       extensions:
 
         - sphinx.ext.autodoc
+
         - sphinx.ext.napoleon  # Google/NumPy style support
+
         - sphinx.ext.doctest
 ```
 
 ## Common Mistakes to Avoid
 
 1. **Don't duplicate type hints in prose**
+
    - Bad: `param1 (str): param1 is a string that...`
+
    - Good: `param1: The identifier used to...`
 
 2. **Don't use imperative mood**
+
    - Bad: `Calculate the sum...`
+
    - Good: `Calculates the sum...` or `The sum of...`
 
 3. **Don't omit important details**
+
    - Document side effects
+
    - Explain non-obvious behavior
+
    - Note performance implications
 
 4. **Don't write overly verbose docstrings**
+
    - Be concise but complete
+
    - Avoid redundant phrases
+
    - Get to the point quickly
 
 5. **Don't forget to update docstrings**
+
    - Keep in sync with code changes
+
    - Update examples when behavior changes
+
    - Remove obsolete information
 
 ## File Output Instructions

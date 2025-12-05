@@ -18,12 +18,16 @@ related_templates:
 tools:
 
   - go test (1.23+)
+
   - testify
 tags:
 
   - test-development
+
   - testing
+
   - performance
+
   - go
 ---
 # Go Performance Testing
@@ -152,8 +156,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 Please implement comprehensive performance testing for this Go project following this protocol:
@@ -1138,6 +1145,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
     - uses: actions/checkout@v3
 
     - name: Set up Go
@@ -1241,13 +1249,19 @@ Latency:
 
 ### Bottlenecks Identified
 1. **Slice Reallocation in processUsers()**
+
    - **Issue**: Slice grows without pre-allocated capacity
+
    - **Impact**: Excessive allocations, 150ms overhead
+
    - **Recommendation**: Pre-allocate slice with make([]User, 0, expectedSize)
 
 2. **String Concatenation in Loop**
+
    - **Issue**: Using + operator for string building
+
    - **Impact**: O(n²) complexity, 200ms for large strings
+
    - **Recommendation**: Use strings.Builder for efficient concatenation
 
 ### Performance Improvement Recommendations
@@ -1318,11 +1332,17 @@ Replace `{phase_name}` with the specific phase (test_cases, mocks_fixtures, perf
 The AI assistant should deliver:
 
 1. **Performance test suite** with testing.B benchmarks and load tests
+
 2. **Performance baselines** documented
+
 3. **Load test scenarios** for critical endpoints
+
 4. **Profiling results** with pprof analysis
+
 5. **Regression detection** configuration
+
 6. **CI/CD integration** for automated performance gates
+
 7. **Performance report** with metrics and recommendations
 ---
 

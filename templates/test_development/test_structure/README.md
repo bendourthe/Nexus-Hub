@@ -99,9 +99,13 @@ Establish a robust, maintainable test infrastructure that supports comprehensive
 Use the appropriate template file with your AI assistant to:
 
 1. Evaluate current test infrastructure
+
 2. Design optimal test organization
+
 3. Set up test framework and configuration
+
 4. Implement shared fixtures and utilities
+
 5. Establish testing conventions
 
 **Next Steps**: After completing test infrastructure setup, proceed to **Unit Tests** phase to begin writing foundational unit tests using this infrastructure.

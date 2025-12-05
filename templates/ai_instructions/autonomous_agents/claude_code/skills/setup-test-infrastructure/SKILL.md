@@ -17,29 +17,47 @@ Establish robust testing frameworks with optimal configuration, logical director
 ## When to Use This Skill
 
 Use this skill when:
+
 - Starting a new project that needs testing infrastructure
+
 - Modernizing legacy test setups
+
 - Standar dizing testing across team projects
+
 - Setting up testing for microservices
+
 - Migrating between test frameworks
+
 - Establishing testing best practices
+
 - Creating reusable test templates
 
 **This skill is essential for**:
+
 - Projects without existing test infrastructure
+
 - Teams adopting testing standards
+
 - Codebases with inconsistent test organization
+
 - Applications requiring multiple test types (unit/integration/e2e)
 
 ## What This Skill Does
 
 This skill helps you:
+
 1. **Select and configure** appropriate testing frameworks for your language
+
 2. **Design directory structures** that scale with your project
+
 3. **Set up test discovery** and execution workflows
+
 4. **Configure fixtures** and test utilities
+
 5. **Establish naming conventions** and best practices
+
 6. **Enable parallel test execution** for performance
+
 7. **Integrate coverage tools** from the start
 
 ## Prerequisites
@@ -47,38 +65,56 @@ This skill helps you:
 ### Language-Specific Requirements
 
 **Python**:
+
 - Python 3.9+
+
 - pip package manager
+
 - Virtual environment tool
 
 **JavaScript/TypeScript**:
+
 - Node.js 18+
+
 - npm or yarn package manager
 
 **Java**:
+
 - JDK 11+
+
 - Maven or Gradle build tool
 
 **C#**:
+
 - .NET 6.0+
+
 - dotnet CLI
 
 **Go**:
+
 - Go 1.19+
+
 - go modules enabled
 
 **C**:
+
 - GCC or Clang compiler
+
 - Make or CMake build system
 
 **C++**:
+
 - C++17 compatible compiler
+
 - CMake 3.14+
 
 ### Recommended Knowledge
 - Basic testing concepts (unit, integration, e2e)
+
 - Command-line operations
+
 - Package management for your language
+
 - Build tool configuration
 
 ## Instructions
@@ -88,39 +124,61 @@ This skill helps you:
 Select the appropriate framework for your language:
 
 **Python**:
+
 - **pytest** (Recommended): Modern, powerful, great plugins
+
 - **unittest**: Standard library, class-based, verbose
+
 - **nose2**: Legacy, less maintained
 
 **JavaScript/TypeScript**:
+
 - **Jest** (Recommended): Feature-rich, zero-config, fast
+
 - **Vitest**: Modern, Vite-compatible, fast
+
 - **Mocha**: Flexible, requires configuration
+
 - **Jasmine**: Behavior-driven, no dependencies
 
 **Java**:
+
 - **JUnit 5** (Recommended): Modern, powerful, extensible
+
 - **TestNG**: Advanced features, parallel execution
+
 - **Spock**: Groovy-based, expressive
 
 **C#**:
+
 - **xUnit** (Recommended): Modern, clean, parallel
+
 - **NUnit**: Mature, feature-rich
+
 - **MSTest**: Microsoft's framework, Visual Studio integration
 
 **Go**:
+
 - **testing** (Standard): Built-in, simple, effective
+
 - **testify**: Assertions and mocking
+
 - **ginkgo**: BDD-style
 
 **C**:
+
 - **Unity** (Recommended): Lightweight, embedded-friendly
+
 - **Check**: Unit testing, test fixtures
+
 - **CUnit**: Comprehensive, complex setup
 
 **C++**:
+
 - **Google Test** (Recommended): Industry standard, mature
+
 - **Catch2**: Header-only, modern C++
+
 - **Boost.Test**: Part of Boost, comprehensive
 
 ### Step 2: Install Testing Framework
@@ -1149,38 +1207,59 @@ describe('User tests', () => {
 ## Success Criteria
 
 - [ ] Testing framework installed and configured
+
 - [ ] Directory structure follows language conventions
+
 - [ ] Test discovery works correctly
+
 - [ ] Configuration files created
+
 - [ ] Test utilities implemented
+
 - [ ] Naming conventions documented
+
 - [ ] Test execution commands verified
+
 - [ ] Coverage measurement enabled
+
 - [ ] Parallel execution configured (if applicable)
+
 - [ ] Documentation created for team
 
 ## Related Skills
 
 - [`test-driven-development`](../test-driven-development/SKILL.md) - Write tests first, then code
+
 - [`generate-test-cases`](../generate-test-cases/SKILL.md) - Create comprehensive test cases
+
 - [`create-mocks-fixtures`](../create-mocks-fixtures/SKILL.md) - Implement mocking and fixtures
+
 - [`analyze-code-coverage`](../analyze-code-coverage/SKILL.md) - Measure and improve coverage
+
 - [`setup-ci-cd-testing`](../setup-ci-cd-testing/SKILL.md) - Integrate tests into CI/CD
 
 ## Additional Resources
 
 ### Framework Documentation
 - **Python**: [pytest](https://docs.pytest.org/), [unittest](https://docs.python.org/3/library/unittest.html)
+
 - **JavaScript**: [Jest](https://jestjs.io/), [Vitest](https://vitest.dev/)
+
 - **Java**: [JUnit 5](https://junit.org/junit5/), [TestNG](https://testng.org/)
+
 - **C#**: [xUnit](https://xunit.net/), [NUnit](https://nunit.org/)
+
 - **Go**: [testing](https://pkg.go.dev/testing), [testify](https://github.com/stretchr/testify)
+
 - **C**: [Unity](https://github.com/ThrowTheSwitch/Unity), [Check](https://libcheck.github.io/check/)
+
 - **C++**: [Google Test](https://google.github.io/googletest/), [Catch2](https://github.com/catchorg/Catch2)
 
 ### Best Practices
 - [Test Pyramid](https://martinfowler.com/articles/practical-test-pyramid.html)
+
 - [Testing Best Practices](https://testingjavascript.com/)
+
 - [Unit Testing Principles](https://www.artofunittesting.com/)
 
 ---

@@ -18,13 +18,18 @@ related_templates:
 tools:
 
   - pytest (8.3.4+)
+
   - black (24.12.0)
+
   - mypy (1.13.0)
+
   - ruff
 tags:
 
   - test-development
+
   - testing
+
   - python
 ---
 # Python Test Case Development
@@ -157,8 +162,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 Please develop comprehensive test cases for this Python code following this protocol:
@@ -177,30 +185,47 @@ Use `<REPO_URL>` as placeholder where repository URLs are needed in this templat
 ## Phase 1: Test Case Planning
 
 1. **Analyze Code to Test**
+
    - Identify all public functions/methods
+
    - Document expected behavior
+
    - List input parameters and types
+
    - Define expected outputs
+
    - Note side effects (database, files, API calls)
 
 2. **Identify Test Scenarios**
 
    **Happy Path**:
+
    - Normal operation with valid inputs
+
    - Expected use cases
+
    - Successful execution flows
 
    **Edge Cases**:
+
    - Boundary values (min/max, empty, null)
+
    - Special characters in strings
+
    - Large data sets
+
    - Concurrent operations
 
    **Error Conditions**:
+
    - Invalid inputs
+
    - Missing required parameters
+
    - Type errors
+
    - Business rule violations
+
    - External dependency failures
 
 3. **Create Test Case Matrix**
@@ -723,8 +748,11 @@ Please provide comprehensive test cases with the following structure:
 - **E2E Tests**: [count]
 
 - **Test Types**:
+
   - Happy path: [count]
+
   - Edge cases: [count]
+
   - Error conditions: [count]
 
 ### Test Case Implementation
@@ -735,16 +763,25 @@ For each module/feature:
 **Test File**: `tests/unit/test_[module_name].py`
 
 **Test Cases**:
+
 1. `test_function_with_valid_input_returns_expected_result`
+
    - **Scenario**: [description]
+
    - **Input**: [test data]
+
    - **Expected**: [result]
+
    - **Type**: [unit/integration/e2e]
 
 2. `test_function_with_invalid_input_raises_error`
+
    - **Scenario**: [description]
+
    - **Input**: [test data]
+
    - **Expected**: [exception type and message]
+
    - **Type**: [unit/integration/e2e]
 
 ### Test Execution Results
@@ -820,11 +857,17 @@ Replace `{phase_name}` with the specific phase (test_cases, mocks_fixtures, perf
 The AI assistant should deliver:
 
 1. **Test case matrix** documenting all scenarios
+
 2. **Complete test implementations** with clear AAA structure
+
 3. **Parametrized tests** for multiple scenarios
+
 4. **Integration and E2E tests** for workflows
+
 5. **Test coverage report** showing gaps
+
 6. **Execution instructions** for running tests
+
 7. **Quality metrics** and improvement suggestions
 ---
 

@@ -12,6 +12,7 @@ prerequisites: []
 tags:
 
   - skills
+
   - generic
 ---
 # optimize-context-usage
@@ -31,18 +32,27 @@ Optimize token usage and context management in Claude Code interactions to reduc
 ## When to Use This Skill
 
 - Hitting context length limits frequently
+
 - High token costs in production
+
 - Slow response times due to large contexts
+
 - Need to process large codebases
+
 - Multiple iterations required on same task
+
 - Long-running conversations with Claude
 
 ## Prerequisites
 
 - Understanding of tokenization
+
 - Access to token counting tools
+
 - Knowledge of context window limits
+
 - Familiarity with Claude's capabilities
+
 - Understanding of your codebase structure
 
 ## Step-by-Step Instructions
@@ -208,35 +218,53 @@ if __name__ == '__main__':
 Token Optimization Checklist
 
 1. Large Files
+
    - Which files exceed 4,000 tokens?
+
    - Can they be split into smaller modules?
+
    - Are there redundant sections?
 
 2. Redundant Context
+
    - Are we sending the same code repeatedly?
+
    - Can we cache common components?
+
    - Are we including unnecessary imports?
 
 3. Documentation Overhead
+
    - Are docstrings too verbose?
+
    - Can we summarize instead of including full docs?
+
    - Are comments necessary for Claude's task?
 
 4. Test Files
+
    - Do we need to include tests in context?
+
    - Can we reference test patterns instead?
 
 5. Generated Code
+
    - Are we including auto-generated files?
+
    - Can we exclude build artifacts?
 
 6. Historical Context
+
    - Are we carrying too much conversation history?
+
    - Can we summarize previous exchanges?
 
 Optimization Potential Score:
+
 - 0-5 files >4k tokens: LOW (10-20% reduction possible)
+
 - 6-15 files >4k tokens: MEDIUM (20-40% reduction possible)
+
 - 16+ files >4k tokens: HIGH (40-60% reduction possible)
 """
 ```
@@ -265,8 +293,11 @@ class ContextOptimizer:
         Split large file into logical chunks.
 
         Strategies:
+
         1. Split by class boundaries
+
         2. Split by function boundaries
+
         3. Keep related code together
         """
         with open(filepath, 'r', encoding='utf-8') as f:
@@ -422,9 +453,13 @@ class ContextOptimizer:
         Create optimized context package from file list.
 
         Strategy:
+
         1. Summarize large files
+
         2. Include full content for small files
+
         3. Chunk medium files
+
         4. Stay within token budget
         """
         package = {
@@ -860,77 +895,114 @@ print(f"\nTokens: {TokenCounter().count_tokens(reference_context)}")
 After optimization:
 
 1. **Reduced token usage**
+
    - 30-50% reduction in typical cases
+
    - Stay within context limits
+
    - Lower API costs
 
 2. **Faster responses**
+
    - Smaller contexts = faster processing
+
    - More efficient communication
+
    - Better user experience
 
 3. **Better context quality**
+
    - More relevant information included
+
    - Less noise and redundancy
+
    - Focused on task at hand
 
 4. **Scalability**
+
    - Can handle larger codebases
+
    - Multiple iterations possible
+
    - Long conversations maintained
 
 ## Success Criteria
 
 - [ ] Token usage measured and baselined
+
 - [ ] Large files identified and optimized
+
 - [ ] Chunking strategy implemented
+
 - [ ] Smart file selection working
+
 - [ ] Context summaries created
+
 - [ ] Caching mechanism in place
+
 - [ ] 30%+ token reduction achieved
+
 - [ ] Context quality maintained or improved
 
 ## Common Pitfalls
 
 1. **Over-optimization**
+
    - Don't sacrifice context quality for token count
+
    - Keep necessary information
 
 2. **Poor chunking**
+
    - Maintain logical code boundaries
+
    - Don't break related code apart
 
 3. **Missing dependencies**
+
    - Include files that are imported
+
    - Maintain context coherence
 
 4. **Aggressive summarization**
+
    - Summaries should be informative
+
    - Don't lose critical details
 
 ## Related Skills
 
 - **create-subagent-workflow**: Delegate to specialized agents
+
 - **code-complexity-analysis**: Identify complex code
+
 - **refactor-for-testability**: Simplify code structure
 
 ## Additional Resources
 
 ### Tools
 - **tiktoken**: Token counting for OpenAI models
+
 - **anthropic-sdk**: Official Claude SDK
+
 - **token-count**: CLI tool for counting tokens
 
 ### Best Practices
 - Prefer summaries for reference code
+
 - Include full content only for code being modified
+
 - Use chunking for large files
+
 - Cache frequently accessed code
+
 - Measure before and after optimization
 
 ### Limits
 - Claude 3.5 Sonnet: 200K token context window
+
 - Claude 3 Opus: 200K token context window
+
 - Claude 3 Haiku: 200K token context window
 
 ---

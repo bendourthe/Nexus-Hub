@@ -18,12 +18,16 @@ related_templates:
 tools:
 
   - google test
+
   - catch2
+
   - boost.test
 tags:
 
   - test-development
+
   - testing
+
   - cpp
 ---
 # C++ Test Case Development
@@ -164,8 +168,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 Please develop comprehensive test cases for this C++ code following this protocol:
@@ -184,36 +191,59 @@ Use `<REPO_URL>` as placeholder where repository URLs are needed in this templat
 ## Phase 1: Test Case Planning
 
 1. **Analyze Code to Test**
+
    - Identify all public methods and classes
+
    - Document expected behavior
+
    - List input parameters and types
+
    - Define expected outputs
+
    - Note side effects (memory allocation, file I/O, external calls)
+
    - Identify exceptions that should be thrown
 
 2. **Identify Test Scenarios**
 
    **Happy Path**:
+
    - Normal operation with valid inputs
+
    - Expected use cases
+
    - Successful execution flows
+
    - Valid object state transitions
+
    - Move semantics and copy operations
 
    **Edge Cases**:
+
    - Boundary values (0, -1, std::numeric_limits)
+
    - Empty containers
+
    - nullptr and empty smart pointers
+
    - Large data sets
+
    - Special characters in strings
+
    - Move-only types
 
    **Error Conditions**:
+
    - Invalid inputs
+
    - Missing required parameters
+
    - Exception scenarios
+
    - Resource allocation failures
+
    - Thread safety issues
+
    - RAII violations
 
 3. **Create Test Case Matrix**
@@ -236,7 +266,9 @@ Follow this structure for clear, maintainable tests:
 #include <string>
 
 /**
+
  * @file user_service_test.cpp
+
  * @brief Unit tests for UserService class.
  *
 
@@ -274,6 +306,7 @@ protected:
 };
 
 /**
+
  * @brief Test creating user with valid data returns user ID.
  */
 TEST_F(UserServiceTest, CreateUser_WithValidData_ReturnsUserId) {
@@ -295,6 +328,7 @@ TEST_F(UserServiceTest, CreateUser_WithValidData_ReturnsUserId) {
 }
 
 /**
+
  * @brief Test creating user with invalid email throws exception.
  */
 TEST_F(UserServiceTest, CreateUser_WithInvalidEmail_ThrowsException) {
@@ -308,6 +342,7 @@ TEST_F(UserServiceTest, CreateUser_WithInvalidEmail_ThrowsException) {
 }
 
 /**
+
  * @brief Test creating user with empty name throws exception.
  */
 TEST_F(UserServiceTest, CreateUser_WithEmptyName_ThrowsException) {
@@ -321,6 +356,7 @@ TEST_F(UserServiceTest, CreateUser_WithEmptyName_ThrowsException) {
 }
 
 /**
+
  * @brief Test creating user with negative age throws exception.
  */
 TEST_F(UserServiceTest, CreateUser_WithNegativeAge_ThrowsException) {
@@ -761,11 +797,14 @@ Integration tests verify multiple components working together:
 #include <memory>
 
 /**
+
  * @file user_integration_test.cpp
+
  * @brief Integration tests for user registration workflow.
  *
 
  * Tests the complete user registration process including
+
  * validation, database storage, and email notification.
  */
 
@@ -1033,8 +1072,11 @@ Please provide comprehensive test cases with the following structure:
 - **Benchmark Tests**: [count]
 
 - **Test Types**:
+
   - Happy path: [count]
+
   - Edge cases: [count]
+
   - Error conditions: [count]
 
 ### Test Case Implementation
@@ -1045,16 +1087,25 @@ For each class/module:
 **Test File**: `test_[class_name].cpp`
 
 **Test Cases**:
+
 1. `MethodName_WithValidData_ReturnsExpectedResult`
+
    - **Scenario**: [description]
+
    - **Input**: [test data]
+
    - **Expected**: [result]
+
    - **Type**: [unit/integration]
 
 2. `MethodName_WithInvalidInput_ThrowsException`
+
    - **Scenario**: [description]
+
    - **Input**: [test data]
+
    - **Expected**: [exception type]
+
    - **Type**: [unit/integration]
 
 ### Test Execution Results
@@ -1145,11 +1196,17 @@ Replace `{phase_name}` with the specific phase (test_cases, mocks_fixtures, perf
 The AI assistant should deliver:
 
 1. **Test case matrix** documenting all scenarios
+
 2. **Complete test implementations** with clear AAA structure
+
 3. **Parametrized tests** for multiple scenarios
+
 4. **Integration and benchmark tests** for workflows
+
 5. **Test coverage report** showing gaps
+
 6. **Execution instructions** for running tests
+
 7. **Quality metrics** and improvement suggestions
 ---
 

@@ -18,11 +18,14 @@ related_templates:
 tools:
 
   - NUnit (4.2.2)
+
   - xUnit
+
   - MSTest
 tags:
 
   - test-development
+
   - c#
 ---
 # C# Test Maintenance & CI/CD Integration
@@ -163,8 +166,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 Please implement comprehensive test automation and maintenance infrastructure for this C#/.NET project following this protocol:
@@ -234,6 +240,7 @@ jobs:
         dotnet-version: ['6.0.x', '7.0.x', '8.0.x']
 
     steps:
+
       - uses: actions/checkout@v3
 
       - name: Setup .NET ${{ matrix.dotnet-version }}
@@ -314,6 +321,7 @@ jobs:
           - 6379:6379
 
     steps:
+
       - uses: actions/checkout@v3
 
       - name: Setup .NET
@@ -395,8 +403,11 @@ jobs:
 stages:
 
   - lint
+
   - test
+
   - quality
+
   - deploy
 
 variables:
@@ -409,6 +420,7 @@ cache:
     - .nuget/
 
 before_script:
+
   - dotnet restore
 
 lint:
@@ -417,6 +429,7 @@ lint:
   script:
 
     - dotnet format --verify-no-changes
+
     - dotnet build /p:TreatWarningsAsErrors=true
 
 unit-tests:
@@ -446,6 +459,7 @@ integration-tests:
   services:
 
     - postgres:14
+
     - redis:7
   variables:
     POSTGRES_DB: testdb
@@ -467,6 +481,7 @@ quality-gate:
   script:
 
     - dotnet tool install -g dotnet-reportgenerator-globaltool
+
     - reportgenerator
         -reports:coverage/**/coverage.cobertura.xml
         -targetdir:coverage/report
@@ -476,6 +491,7 @@ quality-gate:
   needs:
 
     - unit-tests
+
     - integration-tests
 ```
 
@@ -1347,12 +1363,19 @@ Replace `{phase_name}` with the specific phase (test_cases, mocks_fixtures, perf
 The AI assistant should deliver:
 
 1. **Complete CI/CD pipeline configuration** (GitHub Actions or GitLab CI)
+
 2. **Quality gate implementation** with thresholds (.NET tooling)
+
 3. **Pre-commit hook configuration** with all checks
+
 4. **Test parallelization setup** for faster execution
+
 5. **Flaky test detection and tracking** system
+
 6. **Test maintenance procedures** and documentation
+
 7. **Test reporting infrastructure** with dashboards
+
 8. **Execution metrics and monitoring** setup
 ---
 

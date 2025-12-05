@@ -18,14 +18,20 @@ related_templates:
 tools:
 
   - pytest (8.3.4+)
+
   - black (24.12.0)
+
   - mypy (1.13.0)
+
   - ruff
 tags:
 
   - code-review
+
   - performance
+
   - code-review
+
   - python
 ---
 # Python Performance Review
@@ -142,16 +148,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Issues that create immediate risks to system stability, data integrity, or compliance.
 
 **Examples:**
+
 - Security vulnerabilities (SQL injection, XSS, authentication bypass)
+
 - Resource leaks (unclosed connections, file handles, memory leaks)
+
 - Data loss risks (destructive operations without validation)
+
 - Thread safety violations (race conditions, deadlocks)
+
 - Compliance violations (GDPR, HIPAA, PCI-DSS)
 
 **Action Required:**
+
 - Block deployment until fixed
+
 - Require hotfix within 24 hours
+
 - Add tests to prevent regression
+
 - Document root cause and fix
 
 ---
@@ -161,16 +176,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Issues that significantly impact maintainability, performance, or correctness but don't cause immediate failures.
 
 **Examples:**
+
 - Incorrect business logic (wrong calculations, flawed algorithms)
+
 - Performance bottlenecks (O(n²) algorithms, missing indexes, inefficient queries)
+
 - Memory inefficiency (loading large datasets into memory unnecessarily)
+
 - Breaking API changes without deprecation
+
 - Missing critical error handling (network errors, API failures not caught)
 
 **Action Required:**
+
 - Schedule fix in current sprint
+
 - Cannot release without resolution
+
 - Update documentation
+
 - Performance test after fix
 
 ---
@@ -180,16 +204,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Code smells and technical debt that reduce maintainability but don't affect correctness.
 
 **Examples:**
+
 - High complexity (cyclomatic complexity >10, functions >100 lines)
+
 - Code duplication (>10 lines duplicated across modules)
+
 - Poor naming (unclear variable/function names, inconsistent conventions)
+
 - Missing tests (<80% coverage on critical paths)
+
 - Incomplete error messages (no context for debugging)
 
 **Action Required:**
+
 - Add to backlog
+
 - Prioritize in next sprint planning
+
 - Consider during refactoring opportunities
+
 - Track technical debt metrics
 
 ---
@@ -199,16 +232,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Style inconsistencies and minor optimizations that don't impact functionality.
 
 **Examples:**
+
 - Style violations (linting warnings, formatting issues)
+
 - Minor performance optimizations (in non-critical code paths)
+
 - Missing documentation on helper functions
+
 - Verbose code that could be more concise
+
 - Debug statements left in code
 
 **Action Required:**
+
 - Fix opportunistically during other work
+
 - Batch with other low-priority changes
+
 - Good for new contributors
+
 - Can be deferred indefinitely
 
 ---
@@ -216,20 +258,31 @@ Use this framework to classify and prioritize all findings from the code review.
 ## Severity Assignment Guidelines
 
 **When to Escalate Severity:**
+
 - Issue affects **production environment** → escalate one level
+
 - Issue affects **customer-facing features** → escalate one level
+
 - Issue has **no workaround** → escalate one level
+
 - Issue appears in **multiple locations** → escalate one level
 
 **When to De-escalate Severity:**
+
 - Issue only in **test/development code** → de-escalate one level
+
 - Issue has **easy workaround** → de-escalate one level
+
 - Issue is **isolated to single module** → de-escalate one level
+
 - Issue **rarely executed** (edge case) → de-escalate one level
 
 **Examples:**
+
 - Memory leak in production API: **HIGH → CRITICAL** (production + customer-facing)
+
 - Style violation in test file: **LOW → Ignore** (test code + style only)
+
 - Duplicated logic across 15 modules: **MEDIUM → HIGH** (multiple locations)
 
 ---
@@ -259,16 +312,22 @@ For each finding, include:
 **Issue:** The user search function loads all users into memory and performs linear search on every request.
 
 **Impact:**
+
 - Response time degrades with user count (currently 500ms for 10k users)
+
 - High memory usage (50MB+ per request)
+
 - Poor scalability (can't handle >100k users)
 
 **Recommendation:**
 Move filtering to database with indexed query:
 
 - Add database index on search fields
+
 - Use database LIKE/ILIKE queries
+
 - Implement pagination (limit results to 50)
+
 - Add caching for common searches
 
 **Effort:** 3 hours (2 hours implementation + 1 hour testing)
@@ -315,8 +374,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -387,29 +449,45 @@ Please perform a comprehensive performance review of this Python application fol
 ## Phase 2: Bottleneck Identification
 
 1. **Analyze Profiling Results**
+
    - Identify functions consuming >5% of total time
+
    - Find functions called excessive times
+
    - Locate memory-intensive operations
+
    - Identify I/O bound operations
 
 2. **Hot Path Analysis**
+
    - Map critical execution paths
+
    - Measure end-to-end latency
+
    - Identify slowest endpoints/operations
+
    - Document user-facing performance impacts
 
 3. **Resource Usage Patterns**
+
    - CPU utilization during typical operations
+
    - Memory growth patterns over time
+
    - Network bandwidth usage
+
    - Disk I/O patterns
 
 ## Phase 3: Algorithm Efficiency Review
 
 1. **Time Complexity Analysis**
+
    - Review loops and nested iterations
+
    - Identify O(n²) or worse algorithms
+
    - Check for redundant computations
+
    - Assess search and sort operations
 
 2. **Common Performance Anti-Patterns**
@@ -453,9 +531,13 @@ Please perform a comprehensive performance review of this Python application fol
    ```
 
 3. **Data Structure Optimization**
+
    - Evaluate list vs set vs dict usage
+
    - Check for appropriate container choices
+
    - Review sorting strategies
+
    - Assess caching data structures
 
 ## Phase 4: Database Performance Analysis
@@ -483,15 +565,23 @@ Please perform a comprehensive performance review of this Python application fol
    ```
 
 3. **Index Analysis**
+
    - Review query execution plans
+
    - Identify missing indexes on filtered/joined columns
+
    - Check for unused indexes
+
    - Assess index selectivity
 
 4. **Query Optimization**
+
    - Simplify complex queries
+
    - Reduce data fetched (select specific columns)
+
    - Optimize JOIN operations
+
    - Evaluate pagination strategies
 
 ## Phase 5: Memory Management Review
@@ -518,15 +608,23 @@ Please perform a comprehensive performance review of this Python application fol
    ```
 
 2. **Large Object Analysis**
+
    - Identify large data structures in memory
+
    - Review object lifecycle and cleanup
+
    - Assess when objects can be released
+
    - Check for unnecessary data retention
 
 3. **Caching Strategy Review**
+
    - Evaluate cache hit rates
+
    - Check for cache invalidation logic
+
    - Assess memory limits for caches
+
    - Review cache eviction policies
 
 ## Phase 6: I/O & Concurrency Optimization
@@ -536,8 +634,11 @@ Please perform a comprehensive performance review of this Python application fol
    # Identify synchronous I/O bottlenecks
    # Look for patterns like:
    - Multiple sequential file reads
+
    - Synchronous API calls in loops
+
    - Blocking database calls
+
    - Lack of connection pooling
    ```
 
@@ -546,8 +647,11 @@ Please perform a comprehensive performance review of this Python application fol
    # Evaluate async/await usage
    # Good candidates for async:
    - Multiple independent API calls
+
    - I/O bound operations
+
    - Database queries (with async driver)
+
    - File operations
 
    # Example: Sequential vs Concurrent
@@ -566,9 +670,13 @@ Please perform a comprehensive performance review of this Python application fol
    ```
 
 3. **Concurrency Review**
+
    - Assess threading vs multiprocessing suitability
+
    - Evaluate async/await implementation
+
    - Check for race conditions and locks
+
    - Review connection pool configurations
 
 ## Phase 7: Python-Specific Optimizations
@@ -577,9 +685,13 @@ Please perform a comprehensive performance review of this Python application fol
    ```python
    # Check usage of:
    - List comprehensions vs loops
+
    - Generator expressions for large datasets
+
    - Built-in functions (sum, max, min vs manual loops)
+
    - collections module (deque, Counter, defaultdict)
+
    - functools.lru_cache for memoization
    ```
 
@@ -710,10 +822,15 @@ Please provide a comprehensive performance report with the following structure:
 ### Optimization Recommendations
 
 **Quick Wins** (< 1 day effort, high impact):
+
 1. **[Optimization]**
+
    - **Location**: [file:line]
+
    - **Current**: [metric]
+
    - **Expected Improvement**: [metric/percentage]
+
    - **Implementation**: [specific steps]
 
 **Medium-term** (1-3 days effort):
@@ -726,8 +843,11 @@ Please provide a comprehensive performance report with the following structure:
 ```python
 # Suggested load testing scenarios
 1. Normal load: X requests/sec for Y minutes
+
 2. Peak load: X*3 requests/sec for Y minutes
+
 3. Stress test: Gradually increase to failure point
+
 4. Soak test: Normal load for 24 hours
 
 # Tools: locust, pytest-benchmark, ab (Apache Bench)

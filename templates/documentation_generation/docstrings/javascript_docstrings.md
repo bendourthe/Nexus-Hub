@@ -12,12 +12,16 @@ prerequisites: []
 tools:
 
   - jest (29.7.0)
+
   - eslint (9.15.0)
+
   - prettier
 tags:
 
   - documentation
+
   - documentation
+
   - javascript
 ---
 # JavaScript Documentation Generation (JSDoc)
@@ -147,8 +151,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -167,17 +174,24 @@ Please generate comprehensive JSDoc documentation for this JavaScript/TypeScript
 ## Phase 1: Analysis & Style Selection
 
 1. **Analyze Existing Code**
+
    - Inventory all modules, classes, and public functions
+
    - Identify existing documentation patterns
+
    - Note TypeScript usage and type definitions
+
    - Check for special documentation requirements
 
 2. **Determine Documentation Style**
    Use **JSDoc 3** standard with TypeScript support.
 
 3. **Review Type Definitions**
+
    - Check existing TypeScript types or Flow annotations
+
    - Ensure JSDoc complements (not duplicates) type definitions
+
    - Document complex types requiring additional explanation
 
 ## Phase 2: Module-Level Documentation
@@ -192,31 +206,42 @@ For each module, create comprehensive documentation:
  *
 
  * [Detailed description of module functionality, scope, and use cases.
+
  * Include key concepts, main responsibilities, and intended usage.]
  *
 
  * @module moduleName
+
  * @requires dependency1
+
  * @requires dependency2
  *
 
  * @example
+
  * // Typical usage example
+
  * import { MainClass } from './module-name';
  *
 
  * const instance = new MainClass(param1, param2);
+
  * const result = instance.process();
  *
 
  * @example
+
  * // CommonJS require
+
  * const { MainClass } = require('./module-name');
  *
 
  * @author Benjamin Dourthe <benjamin@adonamed.com>
+
  * @version 1.0.0
+
  * @since 1.0.0
+
  * @license MIT
  */
 ```
@@ -233,40 +258,57 @@ For each class, document:
  *
 
  * [Detailed description of class responsibility, behavior, and usage.
+
  * Explain what problems this class solves and how it fits into the
+
  * overall architecture.]
  *
 
  * @class
+
  * @classdesc [Additional detailed description if needed]
  *
 
  * @property {string} propertyName - Description of what this property represents
+
  *     and how it's used. Can span multiple lines if needed.
+
  * @property {number|null} anotherProp - Description including null behavior.
  *
 
  * @example
+
  * // Basic usage example showing common patterns
+
  * const obj = new ExampleClass('value');
+
  * const result = obj.process();
+
  * console.log(result); // 'processed_value'
  *
 
  * @example
+
  * // Advanced usage with options
+
  * const obj = new ExampleClass('value', {
+
  *   verbose: true,
+
  *   maxRetries: 3
+
  * });
+
  * const result = await obj.processAsync();
  *
 
  * @throws {TypeError} When constructor receives invalid parameters
+
  * @throws {ValidationError} When validation fails
  *
 
  * @see RelatedClass
+
  * @see {@link https://docs.example.com/classes Documentation}
  *
 
@@ -279,10 +321,15 @@ class ExampleClass {
    *
 
    * @constructor
+
    * @param {string} value - The initial value to process
+
    * @param {Object} [options={}] - Configuration options
+
    * @param {boolean} [options.verbose=false] - Enable verbose output
+
    * @param {number} [options.maxRetries=3] - Maximum retry attempts
+
    * @throws {TypeError} If value is not a string
    */
   constructor(value, options = {}) {
@@ -299,6 +346,7 @@ class ExampleClass {
  *
 
  * @template T - The type of items this class processes
+
  * @implements {Processor<T>}
  */
 class GenericProcessor<T> implements Processor<T> {
@@ -308,12 +356,16 @@ class GenericProcessor<T> implements Processor<T> {
    *
 
    * @param {T[]} items - Array of items to process
+
    * @returns {Promise<T[]>} Processed items
+
    * @throws {ProcessingError} If processing fails
    *
 
    * @example
+
    * const processor = new GenericProcessor<string>();
+
    * const result = await processor.process(['a', 'b', 'c']);
    */
   async process(items: T[]): Promise<T[]> {
@@ -334,49 +386,72 @@ For each function and method, document:
  *
 
  * [Detailed description of function behavior, algorithm, and usage.
+
  * Explain the problem it solves and any important implementation details.]
  *
 
  * @function
+
  * @async
+
  * @param {string} param1 - Description of param1. Include constraints,
+
  *     expected format, or valid values. Can span multiple lines.
+
  * @param {number} param2 - Description of param2. Explain what the
+
  *     parameter controls or represents.
+
  * @param {string[]} [param3=[]] - Description of optional param.
+
  *     Explain behavior when empty vs when provided.
  *
 
  * @returns {Promise<Object>} Description of return value structure.
+
  *     For complex returns, document the object shape:
+
  *     - status {string} - Success/failure status
+
  *     - data {*} - The processed result
+
  *     - metadata {Object} - Additional information
  *
 
  * @throws {ValueError} When param1 is empty or invalid format
+
  * @throws {TypeError} When param2 is not a number
+
  * @throws {CustomError} When specific condition occurs
  *
 
  * @example
+
  * // Basic usage
+
  * const result = await complexFunction('input', 42);
+
  * console.log(result.status); // 'success'
  *
 
  * @example
+
  * // Advanced usage with optional parameter
+
  * const items = ['a', 'b', 'c'];
+
  * const result = await complexFunction('input', 42, items);
+
  * console.log(result.data); // ['processed_a', 'processed_b', 'processed_c']
  *
 
  * @see {@link relatedFunction} Similar functionality
+
  * @see {@link AnotherClass#method} Used internally by this function
  *
 
  * @since 1.0.0
+
  * @deprecated Use newFunction instead
  */
 async function complexFunction(param1, param2, param3 = []) {
@@ -392,15 +467,22 @@ async function complexFunction(param1, param2, param3 = []) {
  *
 
  * @type {Function}
+
  * @param {Array<*>} items - Items to process
+
  * @param {Function} callback - Processing callback
+
  * @param {*} callback.item - Current item
+
  * @param {number} callback.index - Current index
+
  * @returns {Array<*>} Processed items
  *
 
  * @example
+
  * const result = processItems([1, 2, 3], (item, index) => item * 2);
+
  * // Returns: [2, 4, 6]
  */
 const processItems = (items, callback) => {
@@ -418,20 +500,32 @@ const processItems = (items, callback) => {
  *
 
  * @async
+
  * @function
+
  * @param {string} url - The endpoint URL to fetch from
+
  * @param {Object} [options] - Fetch options
+
  * @returns {Promise<Object>} The processed response data
+
  * @rejects {FetchError} If network request fails
+
  * @rejects {TimeoutError} If operation exceeds timeout
  *
 
  * @example
+
  * try {
+
  *   const result = await asyncOperation('https://api.example.com/data');
+
  *   console.log(result.status);
+
  * } catch (error) {
+
  *   console.error('Failed:', error);
+
  * }
  */
 async function asyncOperation(url, options = {}) {
@@ -447,15 +541,22 @@ async function asyncOperation(url, options = {}) {
  *
 
  * @generator
+
  * @function
+
  * @param {number} start - First number in sequence
+
  * @param {number} end - Last number in sequence (inclusive)
+
  * @yields {number} Next number in the sequence
  *
 
  * @example
+
  * for (const num of numberGenerator(1, 5)) {
+
  *   console.log(num); // 1, 2, 3, 4, 5
+
  * }
  */
 function* numberGenerator(start, end) {
@@ -473,15 +574,22 @@ function* numberGenerator(start, end) {
  *
 
  * @function
+
  * @param {number} [maxAttempts=3] - Maximum number of retry attempts
+
  * @returns {Function} Decorated function with retry logic
+
  *     @param {Function} fn - Function to wrap
+
  *     @returns {Function} Wrapped function
  *
 
  * @example
+
  * const retryable = withRetry(5);
+
  * const stableFunction = retryable(unstableFunction);
+
  * await stableFunction();
  */
 function withRetry(maxAttempts = 3) {
@@ -501,27 +609,37 @@ function withRetry(maxAttempts = 3) {
  *
 
  * @typedef {Object} AppConfig
+
  * @property {string} apiKey - API authentication key
+
  * @property {string} [baseUrl='https://api.example.com'] - Base API URL
+
  * @property {number} [timeout=5000] - Request timeout in milliseconds
+
  * @property {RetryOptions} [retry] - Retry configuration
  */
 
 /**
+
  * Retry configuration options.
  *
 
  * @typedef {Object} RetryOptions
+
  * @property {number} maxAttempts - Maximum retry attempts
+
  * @property {number} backoff - Backoff multiplier
+
  * @property {number[]} retryStatusCodes - HTTP status codes to retry
  */
 
 /**
+
  * Initialize application with configuration.
  *
 
  * @param {AppConfig} config - Application configuration
+
  * @returns {Promise<Application>} Initialized application instance
  */
 async function initApp(config) {
@@ -537,9 +655,13 @@ async function initApp(config) {
  *
 
  * @component
+
  * @param {Object} props - Component props
+
  * @param {User} props.user - User object to display
+
  * @param {Function} props.onEdit - Callback when edit button clicked
+
  * @param {boolean} [props.showAvatar=true] - Whether to show user avatar
  *
 
@@ -547,10 +669,15 @@ async function initApp(config) {
  *
 
  * @example
+
  * <UserProfile
+
  *   user={currentUser}
+
  *   onEdit={(user) => handleEdit(user)}
+
  *   showAvatar={true}
+
  * />
  */
 function UserProfile({ user, onEdit, showAvatar = true }) {
@@ -701,28 +828,43 @@ Please provide JSDoc documentation in this format:
 ### Best Practices
 
 1. **Write for Humans First**
+
    - JSDoc is primarily for developers
+
    - Use clear, natural language
+
    - Explain concepts, not just syntax
 
 2. **Complement TypeScript**
+
    - Don't repeat type information from TypeScript
+
    - Explain constraints, validation, or complex type usage
+
    - Document expected formats or patterns
 
 3. **Provide Context**
+
    - Explain why, not just what
+
    - Link to related functions/classes
+
    - Note performance considerations or side effects
 
 4. **Keep Examples Simple**
+
    - Start with basic usage
+
    - Add complex examples only if needed
+
    - Make examples copy-paste runnable
 
 5. **Maintain Consistency**
+
    - Use same style throughout project
+
    - Follow team conventions
+
    - Update JSDoc when code changes
 
 ## Tools & Validation
@@ -757,26 +899,39 @@ module.exports = {
 ## Common Mistakes to Avoid
 
 1. **Don't duplicate TypeScript types in prose**
+
    - Bad: `@param {string} param1 - param1 is a string that...`
+
    - Good: `@param {string} param1 - The identifier used to...`
 
 2. **Don't use imperative mood**
+
    - Bad: `Calculate the sum...`
+
    - Good: `Calculates the sum...` or `The sum of...`
 
 3. **Don't omit important details**
+
    - Document side effects
+
    - Explain non-obvious behavior
+
    - Note performance implications
 
 4. **Don't write overly verbose documentation**
+
    - Be concise but complete
+
    - Avoid redundant phrases
+
    - Get to the point quickly
 
 5. **Don't forget to update JSDoc**
+
    - Keep in sync with code changes
+
    - Update examples when behavior changes
+
    - Remove obsolete information
 
 ## File Output Instructions

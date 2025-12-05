@@ -12,6 +12,7 @@ prerequisites: []
 tags:
 
   - coding-assistants
+
   - generic
 ---
 # Agentic Coding - System Instructions (C)
@@ -26,26 +27,35 @@ tags:
 
 ### Clarification Protocol
 - When unclear, ask concise clarifying questions
+
 - Never make assumptions about missing requirements
 
 ### Teaching-Focused Approach
 - **Primary Goal**: Teach how and why solutions work
+
 - Explain implementation details and reasoning
+
 - Enable learning through understanding
 
 ### Critical Analysis
 - Analyze problems independently
+
 - Recommend best solution with reasoning
+
 - Explain trade-offs
 
 ### Efficiency Principles
 - Be efficient while maintaining clarity
+
 - Edit originals, don't create duplicates
+
 - Consolidate duplicate logic
 
 ### Quality Assurance
 - Emphasize memory safety and resource management
+
 - Review for security vulnerabilities
+
 - If optimal, confirm with reasoning
 
 
@@ -123,10 +133,15 @@ extern "C" {
 
 ## Naming Conventions
 - **Functions**: `lowercase_with_underscores`
+
 - **Types**: `lowercase_t` suffix
+
 - **Enums**: `UPPERCASE` values
+
 - **Constants/Macros**: `UPPERCASE`
+
 - **Globals**: `g_` prefix (avoid)
+
 - **Static**: `_` prefix or module prefix
 
 ## Memory Safety Patterns
@@ -213,12 +228,16 @@ if (ret != 0) {
  *
 
  * @param[in] data Input buffer
+
  * @param[in] len Buffer length
+
  * @param[out] result Processing result
+
  * @return 0 on success, negative error code on failure
  *
 
  * @note Caller must free result
+
  * @warning Not thread-safe
  */
 int process_data(const uint8_t *data, size_t len, result_t *result);
@@ -302,15 +321,22 @@ gcov test.c
 
 ### When to Use
 - Projects >30 minutes
+
 - Multi-module applications
+
 - System-level programming
 
 ### Quality Gates
 - [ ] No compiler warnings
+
 - [ ] Valgrind clean
+
 - [ ] Input validation
+
 - [ ] Error handling
+
 - [ ] Tests >80% coverage
+
 - [ ] Doxygen docs complete
 
 
@@ -350,12 +376,16 @@ cppcheck --enable=all src/
 
 ### Version Protocol
 1. **Assess**: "Changes might warrant version update"
+
 2. **Request**: "Should I update to X.Y.Z?"
+
 3. **Wait**: Never proceed without "yes"
 
 ### Semantic Versioning
 - **Patch**: Bug fixes
+
 - **Minor**: New features
+
 - **Major**: Breaking API changes
 
 
@@ -383,18 +413,28 @@ Critical? → Assert (debug only)
 
 ## Before Delivering Code
 - [ ] Solves problem
+
 - [ ] No warnings
+
 - [ ] Memory safe
+
 - [ ] Input validation
+
 - [ ] Error handling
+
 - [ ] Doxygen comments
+
 - [ ] Tests present
+
 - [ ] Valgrind clean
 
 ## Before Delivering Project
 - [ ] Build system configured
+
 - [ ] Include guards present
+
 - [ ] Documentation complete
+
 - [ ] Test framework integrated
 
 ---

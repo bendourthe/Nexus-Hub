@@ -16,11 +16,14 @@ related_templates:
 tools:
 
   - go test (1.23+)
+
   - testify
 tags:
 
   - test-development
+
   - testing
+
   - go
 ---
 # Go Test Structure & Infrastructure
@@ -161,8 +164,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 Please design and implement a comprehensive test infrastructure for this Go project following this protocol:
@@ -181,11 +187,17 @@ Use `<REPO_URL>` as placeholder where repository URLs are needed in this templat
 ## Phase 1: Framework Selection & Configuration
 
 1. **Test Framework Analysis**
+
    - **Current State**: Document existing test setup if any
+
    - **Framework Approach**:
+
      - **testing package** (standard library): Native, no dependencies, simple
+
      - **testify**: Assertions and mocking, most popular third-party
+
      - **ginkgo/gomega**: BDD-style, more verbose
+
    - **Rationale**: Go's testing package is sufficient for most cases, with testify for enhanced assertions
 
 2. **Install Core Testing Dependencies**
@@ -372,9 +384,13 @@ Use `<REPO_URL>` as placeholder where repository URLs are needed in this templat
 2. **Naming Conventions**
 
    **File Naming**:
+
    - Test file: `<source_file>_test.go`
+
    - Test function: `Test<FunctionName>`
+
    - Benchmark: `Benchmark<FunctionName>`
+
    - Example: `Example<FunctionName>`
 
    **Standard Unit Test Example**:
@@ -466,20 +482,31 @@ Use `<REPO_URL>` as placeholder where repository URLs are needed in this templat
 3. **Test Type Organization**
 
    **Unit Tests** (in package directories):
+
    - Test files alongside source: `user.go` → `user_test.go`
+
    - Use `-short` flag to run only unit tests
+
    - Fast execution (<10ms per test)
+
    - Heavy use of mocking
 
    **Integration Tests** (`test/integration/`):
+
    - Test multiple components together
+
    - No `-short` flag (longer running)
+
    - Real dependencies (test database, etc.)
+
    - Use build tags if needed: `//go:build integration`
 
    **E2E Tests** (`test/e2e/`):
+
    - Test complete workflows
+
    - Full system with real dependencies
+
    - Use build tags: `//go:build e2e`
 
 ## Phase 3: Fixture Infrastructure
@@ -1159,9 +1186,13 @@ make mocks
 
 ### Testing Conventions Established
 1. **File Naming**: [convention]
+
 2. **Test Function Naming**: [convention]
+
 3. **Table-Driven Tests**: [pattern]
+
 4. **Subtest Usage**: [when to use]
+
 5. **Test Data**: [testdata directories, golden files]
 
 ### Next Steps
@@ -1218,11 +1249,17 @@ make mocks
 The AI assistant should deliver:
 
 1. **Test infrastructure design document** with complete project structure
+
 2. **Test helper packages** with reusable utilities
+
 3. **Fixture implementations** for common test scenarios
+
 4. **Mock generation setup** with go:generate directives
+
 5. **Makefile** for easy test execution
+
 6. **Documentation** of conventions and best practices
+
 7. **Execution commands** for common test scenarios
 ---
 

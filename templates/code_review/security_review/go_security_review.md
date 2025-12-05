@@ -18,12 +18,16 @@ related_templates:
 tools:
 
   - go test (1.23+)
+
   - testify
 tags:
 
   - code-review
+
   - security
+
   - code-review
+
   - go
 ---
 # Go Security Review
@@ -146,16 +150,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Issues that create immediate risks to system stability, data integrity, or compliance.
 
 **Examples:**
+
 - Security vulnerabilities (SQL injection, XSS, authentication bypass)
+
 - Resource leaks (unclosed connections, file handles, memory leaks)
+
 - Data loss risks (destructive operations without validation)
+
 - Thread safety violations (race conditions, deadlocks)
+
 - Compliance violations (GDPR, HIPAA, PCI-DSS)
 
 **Action Required:**
+
 - Block deployment until fixed
+
 - Require hotfix within 24 hours
+
 - Add tests to prevent regression
+
 - Document root cause and fix
 
 ---
@@ -165,16 +178,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Issues that significantly impact maintainability, performance, or correctness but don't cause immediate failures.
 
 **Examples:**
+
 - Incorrect business logic (wrong calculations, flawed algorithms)
+
 - Performance bottlenecks (O(n²) algorithms, missing indexes, inefficient queries)
+
 - Memory inefficiency (loading large datasets into memory unnecessarily)
+
 - Breaking API changes without deprecation
+
 - Missing critical error handling (network errors, API failures not caught)
 
 **Action Required:**
+
 - Schedule fix in current sprint
+
 - Cannot release without resolution
+
 - Update documentation
+
 - Performance test after fix
 
 ---
@@ -184,16 +206,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Code smells and technical debt that reduce maintainability but don't affect correctness.
 
 **Examples:**
+
 - High complexity (cyclomatic complexity >10, functions >100 lines)
+
 - Code duplication (>10 lines duplicated across modules)
+
 - Poor naming (unclear variable/function names, inconsistent conventions)
+
 - Missing tests (<80% coverage on critical paths)
+
 - Incomplete error messages (no context for debugging)
 
 **Action Required:**
+
 - Add to backlog
+
 - Prioritize in next sprint planning
+
 - Consider during refactoring opportunities
+
 - Track technical debt metrics
 
 ---
@@ -203,16 +234,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Style inconsistencies and minor optimizations that don't impact functionality.
 
 **Examples:**
+
 - Style violations (linting warnings, formatting issues)
+
 - Minor performance optimizations (in non-critical code paths)
+
 - Missing documentation on helper functions
+
 - Verbose code that could be more concise
+
 - Debug statements left in code
 
 **Action Required:**
+
 - Fix opportunistically during other work
+
 - Batch with other low-priority changes
+
 - Good for new contributors
+
 - Can be deferred indefinitely
 
 ---
@@ -220,20 +260,31 @@ Use this framework to classify and prioritize all findings from the code review.
 ## Severity Assignment Guidelines
 
 **When to Escalate Severity:**
+
 - Issue affects **production environment** → escalate one level
+
 - Issue affects **customer-facing features** → escalate one level
+
 - Issue has **no workaround** → escalate one level
+
 - Issue appears in **multiple locations** → escalate one level
 
 **When to De-escalate Severity:**
+
 - Issue only in **test/development code** → de-escalate one level
+
 - Issue has **easy workaround** → de-escalate one level
+
 - Issue is **isolated to single module** → de-escalate one level
+
 - Issue **rarely executed** (edge case) → de-escalate one level
 
 **Examples:**
+
 - Memory leak in production API: **HIGH → CRITICAL** (production + customer-facing)
+
 - Style violation in test file: **LOW → Ignore** (test code + style only)
+
 - Duplicated logic across 15 modules: **MEDIUM → HIGH** (multiple locations)
 
 ---
@@ -263,16 +314,22 @@ For each finding, include:
 **Issue:** The user search function loads all users into memory and performs linear search on every request.
 
 **Impact:**
+
 - Response time degrades with user count (currently 500ms for 10k users)
+
 - High memory usage (50MB+ per request)
+
 - Poor scalability (can't handle >100k users)
 
 **Recommendation:**
 Move filtering to database with indexed query:
 
 - Add database index on search fields
+
 - Use database LIKE/ILIKE queries
+
 - Implement pagination (limit results to 50)
+
 - Add caching for common searches
 
 **Effort:** 3 hours (2 hours implementation + 1 hour testing)
@@ -319,8 +376,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -378,20 +438,31 @@ Please perform a comprehensive security review of this Go project following this
 For each OWASP vulnerability category, systematically review the codebase:
 
 1. **A01: Broken Access Control**
+
    - Review authorization logic in all HTTP handlers
+
    - Check for missing authorization checks
+
    - Verify users cannot access resources beyond permissions
+
    - Test for horizontal/vertical privilege escalation
+
    - Example locations: middleware, handlers, service layer
 
 2. **A02: Cryptographic Failures**
+
    - Search for weak hashing algorithms (MD5, SHA1)
+
    - Verify TLS usage for sensitive data transmission
+
    - Check database encryption for sensitive fields
+
    - Review password storage (should use bcrypt, argon2, scrypt)
+
    - Identify sensitive data in logs or error messages
 
 3. **A03: Injection**
+
    - **SQL Injection**: Verify parameterized queries
    ```go
    // Good: Parameterized query
@@ -411,47 +482,74 @@ For each OWASP vulnerability category, systematically review the codebase:
    ```
 
    - **Template Injection**: Check template rendering with user data
+
    - **LDAP/NoSQL Injection**: Review query construction
 
 4. **A04: Insecure Design**
+
    - Review architecture for security anti-patterns
+
    - Assess threat modeling evidence
+
    - Check security requirements in design docs
+
    - Evaluate secure development lifecycle integration
 
 5. **A05: Security Misconfiguration**
+
    - Check for debug mode in production
+
    - Review default configurations
+
    - Verify error messages don't leak sensitive information
+
    - Check for exposed admin interfaces
+
    - Review CORS configuration
+
    - Assess security headers (CSP, HSTS, X-Frame-Options)
    ```go
    // Check for:
 
    - Debug endpoints not protected
+
    - Stack traces in production
+
    - Verbose error messages
+
    - Default credentials
    ```
 
 6. **A06: Vulnerable and Outdated Components**
+
    - Cross-reference dependency vulnerabilities from Phase 1
+
    - Identify components without security patches
+
    - Check for deprecated libraries
+
    - Review transitive dependency risks
 
 7. **A07: Identification and Authentication Failures**
+
    - Review password complexity requirements
+
    - Check for weak session management
+
    - Verify multi-factor authentication implementation
+
    - Assess brute-force protection (rate limiting)
+
    - Check for authentication bypass vulnerabilities
 
 8. **A08: Software and Data Integrity Failures**
+
    - Review CI/CD pipeline security
+
    - Check code signing and verification
+
    - Assess deserialization security (JSON, XML, gob)
+
    - Verify update mechanisms security
    ```go
    // Dangerous deserialization
@@ -461,16 +559,25 @@ For each OWASP vulnerability category, systematically review the codebase:
    ```
 
 9. **A09: Security Logging and Monitoring Failures**
+
    - Assess logging comprehensiveness
+
    - Check for sensitive data in logs
+
    - Review log retention and protection
+
    - Verify alerting on suspicious activities
+
    - Check audit trail completeness
 
 10. **A10: Server-Side Request Forgery (SSRF)**
+
     - Review URL handling and validation
+
     - Check for unvalidated redirects
+
     - Assess internal service requests
+
     - Verify allowlist for external requests
 
 ## Phase 3: Authentication & Authorization Deep Dive
@@ -491,6 +598,7 @@ For each OWASP vulnerability category, systematically review the codebase:
    ```
 
 2. **Session Management**
+
    - Check session token generation (crypto/rand)
    ```go
    // Good: Cryptographically secure random
@@ -503,21 +611,31 @@ For each OWASP vulnerability category, systematically review the codebase:
    token := fmt.Sprintf("%d", time.Now().Unix()) // CRITICAL
    ```
    - Verify session expiration and timeout
+
    - Review session fixation protection
+
    - Check for session data exposure
 
 3. **Authorization Patterns**
+
    - Verify authorization checks on all protected resources
+
    - Check for missing middleware
+
    - Review role/permission enforcement
+
    - Test for privilege escalation paths
 
 ## Phase 4: Data Protection Review
 
 1. **Sensitive Data Identification**
+
    - Identify PII (names, emails, addresses, phone numbers)
+
    - Locate financial data (credit cards, bank accounts)
+
    - Find health information (PHI/medical data)
+
    - Document authentication credentials
 
 2. **Encryption Assessment**
@@ -554,11 +672,17 @@ For each OWASP vulnerability category, systematically review the codebase:
    ```
 
 4. **Data Exposure Risks**
+
    - Search for sensitive data in:
+
      - Error messages and stack traces
+
      - Log statements
+
      - Debug output
+
      - API responses
+
      - HTTP headers
 
 ## Phase 5: Input Validation & Sanitization
@@ -622,9 +746,13 @@ For each OWASP vulnerability category, systematically review the codebase:
    ```
 
 2. **Configuration File Review**
+
    - Check config files for secrets
+
    - Review environment variable usage
+
    - Verify secrets not in version control
+
    - Check .gitignore includes sensitive files
 
 3. **Environment Variable Usage**
@@ -680,8 +808,11 @@ For each OWASP vulnerability category, systematically review the codebase:
    ```
 
 5. **CGO Security**
+
    - Review all CGO usage for buffer overflows
+
    - Check memory management in C code
+
    - Verify input validation at C boundaries
 
 ## Output Format
@@ -780,9 +911,13 @@ Please provide a comprehensive security report with the following structure:
 
 ### Immediate Action Items (Priority 1)
 1. **[Critical Issue]**
+
    - **Location**: [file:line]
+
    - **Fix**: [specific remediation steps]
+
    - **Time Estimate**: [hours]
+
    - **Risk if Not Fixed**: [consequences]
 
 ### Short-term Actions (Priority 2 - within 1 week)
@@ -800,13 +935,19 @@ Please provide a comprehensive security report with the following structure:
 pre-commit-hooks:
 
   - gosec (static security analysis)
+
   - gitleaks (secret scanning)
+
   - govulncheck (dependency vulnerabilities)
 
 CI/CD integration:
+
   - gosec in GitHub Actions
+
   - govulncheck automated scanning
+
   - Dependency scanning (Dependabot, Renovate)
+
   - Container scanning (Trivy, Snyk)
 ```
 
@@ -820,7 +961,9 @@ jobs:
     steps:
 
       - uses: actions/checkout@v3
+
       - uses: actions/setup-go@v4
+
       - name: Run Gosec
         uses: securego/gosec@master
         with:

@@ -12,12 +12,16 @@ prerequisites: []
 tools:
 
   - google test
+
   - catch2
+
   - boost.test
 tags:
 
   - documentation
+
   - documentation
+
   - cpp
 ---
 # C++ API Documentation
@@ -129,8 +133,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -159,6 +166,7 @@ Use `<REPO_URL>` as placeholder where repository URLs are needed in this templat
 namespace mylib {
 
 /**
+
  * @brief Error codes for library operations
  */
 enum class Error {
@@ -169,6 +177,7 @@ enum class Error {
 };
 
 /**
+
  * @brief Configuration for library
  */
 struct Config {
@@ -177,19 +186,27 @@ struct Config {
 };
 
 /**
+
  * @brief Main library class
  *
 
  * This class provides the primary interface for library functionality.
+
  * Instances are not copyable but moveable.
  *
 
  * @code
+
  * Config config{.buffer_size = 2048};
+
  * auto engine = Engine::create(config);
+
  * if (engine) {
+
  *     auto result = engine->process("input");
+
  * }
+
  * @endcode
  */
 class Engine {
@@ -197,12 +214,15 @@ public:
     /**
 
      * @brief Factory method to create engine
+
      * @param config Configuration options
+
      * @return Engine instance or nullopt on failure
      */
     [[nodiscard]] static std::optional<Engine> create(const Config& config);
 
     /**
+
      * @brief Destructor - automatically cleans up resources
      */
     ~Engine();
@@ -214,15 +234,21 @@ public:
     Engine& operator=(Engine&&) noexcept;
 
     /**
+
      * @brief Process input data
+
      * @param input Input string
+
      * @return Processed string or error
+
      * @throws Never throws (uses std::expected)
      */
     [[nodiscard]] std::expected<std::string, Error> process(std::string_view input) noexcept;
 
     /**
+
      * @brief Get current status
+
      * @return Status information
      */
     [[nodiscard]] std::string get_status() const noexcept;
@@ -234,6 +260,7 @@ private:
 };
 
 /**
+
  * @brief Convert error to string
  */
 [[nodiscard]] const char* error_to_string(Error error) noexcept;
@@ -532,12 +559,19 @@ TEST(APIClientTest, CreateUserInvalidEmail) {
 ## Best Practices
 
 1. **RAII**: Use RAII for all resource management
+
 2. **Smart Pointers**: Prefer unique_ptr, use shared_ptr sparingly
+
 3. **Move Semantics**: Delete copy, implement move for performance
+
 4. **Const Correctness**: Use const and constexpr liberally
+
 5. **noexcept**: Mark functions noexcept when appropriate
+
 6. **std::expected**: Use for error handling without exceptions
+
 7. **Modern Features**: Use C++17/20/23 features
+
 8. **Rule of Five/Zero**: Follow consistently
 
 ---

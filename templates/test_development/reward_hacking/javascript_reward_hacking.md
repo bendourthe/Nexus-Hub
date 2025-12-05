@@ -15,11 +15,14 @@ prerequisites:
 tools:
 
   - jest (29.7.0)
+
   - eslint (9.15.0)
+
   - prettier
 tags:
 
   - test-development
+
   - javascript
 ---
 # JavaScript/TypeScript Reward Hacking - Test Quality Validation Guide
@@ -85,33 +88,52 @@ ${OUTPUT_DIR}/
 
 ### Prerequisites Verification
 - [ ] All 7 previous testing phases completed
+
 - [ ] Test structure output collected
+
 - [ ] Unit test results available
+
 - [ ] Integration test outputs gathered
+
 - [ ] Mock and fixture implementations documented
+
 - [ ] Performance test results compiled
+
 - [ ] CI/CD pipeline logs obtained
+
 - [ ] Code coverage reports generated
 
 ### Mutation Testing Setup
 - [ ] Stryker installed and configured
+
 - [ ] stryker.conf.js created
+
 - [ ] Mutation testing baseline established
+
 - [ ] Mutation score thresholds defined
+
 - [ ] Test execution environment prepared
 
 ### Quality Analysis
 - [ ] Tautological test detection script created
+
 - [ ] Weak assertion analyzer implemented
+
 - [ ] Over-mocking detection configured
+
 - [ ] Coverage integrity validator developed
+
 - [ ] Test independence checker deployed
 
 ### Reporting
 - [ ] Comprehensive test quality report generated (25-35 pages)
+
 - [ ] Mutation testing results documented
+
 - [ ] Phase-by-phase validation completed
+
 - [ ] Remediation action plan created
+
 - [ ] Continuous monitoring configured
 
 ---
@@ -159,9 +181,13 @@ git config --get remote.origin.url
 Analyze all unit tests for patterns that always pass:
 
 **Detection Criteria:**
+
 - Tests with no expectations/assertions
+
 - Tests with trivial assertions (toBe(true), toBeTruthy())
+
 - Tests that only check types without validating behavior
+
 - Tests with mocked return values used directly in expectations
 
 **Create:** `${OUTPUT_DIR}/templates/detectTautologicalTests.js`
@@ -187,6 +213,7 @@ class TautologicalTestDetector {
   }
 
   /**
+
    * Analyze a test file for tautological patterns
    */
   analyzeFile(filePath) {
@@ -206,6 +233,7 @@ class TautologicalTestDetector {
   }
 
   /**
+
    * Visit AST nodes to detect test patterns
    */
   visitAST(ast) {
@@ -258,6 +286,7 @@ class TautologicalTestDetector {
   }
 
   /**
+
    * Check if node is a test function call
    */
   isTestFunction(node) {
@@ -269,6 +298,7 @@ class TautologicalTestDetector {
   }
 
   /**
+
    * Extract test name from test function
    */
   getTestName(node) {
@@ -280,6 +310,7 @@ class TautologicalTestDetector {
   }
 
   /**
+
    * Check if test function has assertions
    */
   hasAssertions(testFunction) {
@@ -307,6 +338,7 @@ class TautologicalTestDetector {
   }
 
   /**
+
    * Analyze quality of assertions in test
    */
   checkAssertionQuality(testFunction) {
@@ -353,6 +385,7 @@ class TautologicalTestDetector {
   }
 
   /**
+
    * Scan directory recursively for test files
    */
   scanDirectory(dir) {
@@ -371,6 +404,7 @@ class TautologicalTestDetector {
   }
 
   /**
+
    * Check if file is a test file
    */
   isTestFile(filename) {
@@ -378,6 +412,7 @@ class TautologicalTestDetector {
   }
 
   /**
+
    * Generate markdown report
    */
   generateReport(outputPath) {
@@ -388,7 +423,9 @@ class TautologicalTestDetector {
 
 ## Summary
 - **Total Issues:** ${this.issues.length}
+
 - **Critical:** ${critical.length}
+
 - **High:** ${high.length}
 
 ## Critical Issues (No Expectations)
@@ -399,6 +436,7 @@ class TautologicalTestDetector {
       report += `### ${issue.file}:${issue.line} - ${issue.test}
 
 - **Pattern:** ${issue.pattern}
+
 - **Issue:** ${issue.issue}
 
 `;
@@ -410,6 +448,7 @@ class TautologicalTestDetector {
       report += `### ${issue.file}:${issue.line} - ${issue.test}
 
 - **Pattern:** ${issue.pattern}
+
 - **Issue:** ${issue.issue}
 
 `;
@@ -480,6 +519,7 @@ class TestIsolationVerifier {
   }
 
   /**
+
    * Get all test file paths
    */
   getTestFiles() {
@@ -494,6 +534,7 @@ class TestIsolationVerifier {
   }
 
   /**
+
    * Run tests in specified order
    */
   runTestsInOrder(testFiles) {
@@ -511,6 +552,7 @@ class TestIsolationVerifier {
   }
 
   /**
+
    * Shuffle array in place
    */
   shuffle(array) {
@@ -523,6 +565,7 @@ class TestIsolationVerifier {
   }
 
   /**
+
    * Verify test isolation by running tests in random orders
    */
   async verifyIsolation(iterations = 10) {
@@ -551,6 +594,7 @@ class TestIsolationVerifier {
   }
 
   /**
+
    * Analyze verification results
    */
   analyzeResults() {
@@ -572,6 +616,7 @@ class TestIsolationVerifier {
   }
 
   /**
+
    * Generate isolation report
    */
   generateReport(analysis, outputPath) {
@@ -579,8 +624,11 @@ class TestIsolationVerifier {
 
 ## Summary
 - **Total Iterations:** ${analysis.totalIterations}
+
 - **All Passed:** ${analysis.allPassed ? '✅ YES' : '❌ NO'}
+
 - **Failed Iterations:** ${analysis.failedCount}
+
 - **Isolation Score:** ${analysis.isolationScore.toFixed(1)}%
 
 `;
@@ -608,9 +656,13 @@ Tests failed in ${analysis.failedCount} out of ${analysis.totalIterations} rando
 ### Recommended Actions
 
 1. **Review test setup/teardown** - Ensure clean state between tests
+
 2. **Check for shared resources** - Database, files, global state
+
 3. **Verify mock cleanup** - Ensure mocks are restored after each test
+
 4. **Use \`beforeEach\` and \`afterEach\`** - Properly initialize and clean up
+
 5. **Run tests with \`--runInBand\`** - Identify parallel execution issues
 
 `;
@@ -675,6 +727,7 @@ class OverMockingDetector {
   }
 
   /**
+
    * Analyze a test file for over-mocking
    */
   analyzeFile(filePath) {
@@ -694,6 +747,7 @@ class OverMockingDetector {
   }
 
   /**
+
    * Visit AST to analyze mocking patterns
    */
   visitAST(ast) {
@@ -724,6 +778,7 @@ class OverMockingDetector {
   }
 
   /**
+
    * Analyze mock usage in a test function
    */
   analyzeMockUsage(testFunction) {
@@ -799,6 +854,7 @@ class OverMockingDetector {
   }
 
   /**
+
    * Calculate severity of mocking issues
    */
   calculateMockSeverity(analysis) {
@@ -823,6 +879,7 @@ class OverMockingDetector {
   }
 
   /**
+
    * Check if node is a test function
    */
   isTestFunction(node) {
@@ -834,6 +891,7 @@ class OverMockingDetector {
   }
 
   /**
+
    * Get test name from node
    */
   getTestName(node) {
@@ -845,6 +903,7 @@ class OverMockingDetector {
   }
 
   /**
+
    * Scan directory for test files
    */
   scanDirectory(dir) {
@@ -863,6 +922,7 @@ class OverMockingDetector {
   }
 
   /**
+
    * Check if file is a test file
    */
   isTestFile(filename) {
@@ -870,6 +930,7 @@ class OverMockingDetector {
   }
 
   /**
+
    * Generate over-mocking report
    */
   generateReport(outputPath) {
@@ -881,8 +942,11 @@ class OverMockingDetector {
 
 ## Summary
 - **Total Tests Analyzed:** ${this.results.length}
+
 - **Critical Issues:** ${critical.length}
+
 - **High Issues:** ${high.length}
+
 - **Medium Issues:** ${medium.length}
 
 ## Critical: Excessive Mocking
@@ -894,8 +958,11 @@ class OverMockingDetector {
       report += `### ${result.file}:${result.line} - ${result.test}
 
 - **Mock Count:** ${result.mockCount}
+
 - **Spy Count:** ${result.spyCount}
+
 - **Total:** ${totalMocks}
+
 - **Direct Mock Assertions:** ${result.directMockAssertions.length}
 
 `;
@@ -1057,8 +1124,11 @@ No Coverage: 2/200
 **Severity Classification:**
 
 - **Survived (Critical):** Mutations not caught by tests
+
 - **No Coverage (Critical):** Code not executed by any test
+
 - **Timeout (Medium):** Tests running too long
+
 - **Killed (Good):** Tests successfully caught mutations
 
 ### 2.3 Analyzing Survived Mutations
@@ -1080,7 +1150,9 @@ For each survived mutation, generate detailed analysis:
 This mutation reverses the discount logic but tests still pass, indicating:
 
 1. No test validates the actual discount calculation
+
 2. Tests may be checking mock return values only
+
 3. Assertions are too weak (e.g., toBeDefined() only)
 
 #### Current Weak Test
@@ -1272,6 +1344,7 @@ class FlakyTestDetector {
   }
 
   /**
+
    * Run test suite multiple times
    */
   async runMultipleIterations(iterations = 20) {
@@ -1296,6 +1369,7 @@ class FlakyTestDetector {
   }
 
   /**
+
    * Parse test results JSON
    */
   parseResults(filename) {
@@ -1327,6 +1401,7 @@ class FlakyTestDetector {
   }
 
   /**
+
    * Analyze results to identify flaky tests
    */
   analyzeResults(iterations) {
@@ -1353,6 +1428,7 @@ class FlakyTestDetector {
   }
 
   /**
+
    * Generate flaky test report
    */
   generateReport(flakyTests, outputPath) {
@@ -1363,7 +1439,9 @@ class FlakyTestDetector {
 
 ## Summary
 - **Total Flaky Tests:** ${flakyTests.length}
+
 - **Critical (>30% failure rate):** ${critical.length}
+
 - **High (10-30% failure rate):** ${high.length}
 
 ## Flaky Tests
@@ -1374,8 +1452,11 @@ class FlakyTestDetector {
       report += `### ${test.test}
 
 - **Failure Rate:** ${test.failureRate.toFixed(1)}%
+
 - **Passed:** ${test.passed}/${test.total}
+
 - **Failed:** ${test.failed}/${test.total}
+
 - **Severity:** ${test.severity}
 
 `;
@@ -1386,23 +1467,35 @@ class FlakyTestDetector {
 ## Common Causes of Flaky Tests in JavaScript
 
 1. **Async/Await Issues**
+
    - Missing await keywords
+
    - Race conditions in async operations
+
    - Improper promise handling
 
 2. **Timing Dependencies**
+
    - setTimeout/setInterval without proper control
+
    - Animation or debounce logic
+
    - Network request timing
 
 3. **Shared State**
+
    - Global variables not cleaned up
+
    - Module-level state
+
    - Jest's module caching
 
 4. **External Dependencies**
+
    - Real HTTP requests
+
    - File system operations
+
    - Date/time dependencies
 
 ## Remediation Steps
@@ -1946,14 +2039,23 @@ bash ${OUTPUT_DIR}/templates/continuousMonitoringSetup.sh
 After completing this reward hacking validation phase:
 
 - [ ] Overall test quality score >80/100
+
 - [ ] Mutation score >80% across all modules
+
 - [ ] Zero critical reward hacking incidents
+
 - [ ] <5% high severity issues
+
 - [ ] 100% test independence verified
+
 - [ ] <2% flaky test rate
+
 - [ ] Continuous monitoring configured with Stryker
+
 - [ ] Team trained on strong test patterns
+
 - [ ] CI/CD quality gates active
+
 - [ ] Regular audit schedule established
 
 ---

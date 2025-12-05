@@ -16,12 +16,16 @@ related_templates:
 tools:
 
   - NUnit (4.2.2)
+
   - xUnit
+
   - MSTest
 tags:
 
   - test-development
+
   - testing
+
   - c#
 ---
 # C# Test Structure & Infrastructure
@@ -162,8 +166,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 Please design and implement a comprehensive test infrastructure for this C#/.NET project following this protocol:
@@ -182,11 +189,17 @@ Use `<REPO_URL>` as placeholder where repository URLs are needed in this templat
 ## Phase 1: Framework Selection & Configuration
 
 1. **Test Framework Analysis**
+
    - **Current State**: Document existing test setup if any
+
    - **Framework Recommendation**:
+
      - **xUnit** (recommended): Modern, extensible, no static state
+
      - **NUnit**: Feature-rich, well-established, FluentAssertions
+
      - **MSTest**: Microsoft official, Visual Studio integrated
+
    - **Rationale**: Justify framework choice based on project needs
 
 2. **Install Core Testing Dependencies**
@@ -949,12 +962,19 @@ Test Explorer -> Run All
 The AI assistant should deliver:
 
 1. **Test infrastructure design** with complete solution structure
+
 2. **Configuration files** (.csproj, xunit.runner.json, .runsettings)
+
 3. **Fixture implementations** for different scopes
+
 4. **Test data builders and generators**
+
 5. **Custom assertions** for domain objects
+
 6. **Test utility library** with shared helpers
+
 7. **Documentation** of conventions and patterns
+
 8. **Execution commands** for various scenarios
 ---
 

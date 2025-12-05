@@ -20,8 +20,11 @@ After following this guide, your project will have:
 ## Prerequisites
 
 - Python 3.9+ installed
+
 - Git installed
+
 - Claude Code installed ([Get it here](https://claude.ai/claude-code))
+
 - 5 minutes of your time
 
 ---
@@ -68,8 +71,11 @@ python tools/install_skill.py --category "Code Review" --destination ../my-aweso
 ```
 
 **What just happened?**
+
 - Installed 3 CRITICAL workflow skills (plan-before-code, test-driven-development, etc.)
+
 - Installed Python project initialization skill
+
 - Installed 6 code review skills for quality assurance
 
 ### 4. Initialize Your Project Structure
@@ -88,11 +94,17 @@ Use the init-python-project skill to create 'my-awesome-project'
 ```
 
 **Claude will:**
+
 - Create src/, tests/, docs/ directories
+
 - Generate pyproject.toml with proper configuration
+
 - Create .gitignore with sensible defaults
+
 - Set up testing framework (pytest)
+
 - Create requirements.txt
+
 - Generate initial documentation
 
 ### 5. Configure Claude for Your Project
@@ -103,10 +115,15 @@ Use the create-claude-md skill to configure this project as a Python web API
 ```
 
 **Claude will:**
+
 - Generate a comprehensive CLAUDE.md file
+
 - Include your project structure
+
 - Document bash commands
+
 - Set coding standards
+
 - Configure development workflow
 
 ### 6. Verify Everything Works
@@ -187,10 +204,15 @@ chmod +x .git/hooks/pre-commit
 ### Customize CLAUDE.md
 
 Edit `CLAUDE.md` to add:
+
 - Project-specific conventions
+
 - Team coding standards
+
 - Custom bash commands
+
 - Architecture decisions
+
 - Domain knowledge
 
 ---
@@ -234,8 +256,11 @@ python tools/install_skill.py --category Security --destination ../team-project
 "Use the create-claude-md skill with team standards:
 
 - PEP 8 compliance required
+
 - 80% test coverage minimum
+
 - Security scans on all PRs
+
 - Automated documentation generation"
 ```
 
@@ -278,8 +303,11 @@ python tools/install_skill.py --list
 ### Tip 1: Start with Critical Skills
 
 Don't install all 48 skills immediately. Start with:
+
 - `--priority CRITICAL` (3 skills)
+
 - `init-[language]-project` (1 skill)
+
 - `Code Review` category (6 skills)
 
 Install more as you need them.
@@ -287,23 +315,33 @@ Install more as you need them.
 ### Tip 2: Use the Web Browser
 
 Visit [https://bdourthe.github.io/ai_templates/](https://bdourthe.github.io/ai_templates/) to:
+
 - Browse all skills visually
+
 - Read descriptions before installing
+
 - Copy installation commands
 
 ### Tip 3: Customize CLAUDE.md
 
 The generated CLAUDE.md is a template. Edit it to add:
+
 - Your team's specific standards
+
 - Project-specific conventions
+
 - Domain knowledge
+
 - Common bash commands
 
 ### Tip 4: Keep ai_templates Clone
 
 Don't delete the ai_templates clone immediately. Keep it around to:
+
 - Install additional skills later
+
 - Update skills when new versions release
+
 - Reference documentation
 
 ### Tip 5: Commit .claude/skills to Git
@@ -321,8 +359,11 @@ Your team members will get the same skills when they clone the repo!
 ## Next Steps
 
 1. **Read the skills documentation**: [Skills README](agent_prompts/autonomous_agents/claude_code/skills/README.md)
+
 2. **Explore integrations**: [MCP Setup Guide](integrations/README.md)
+
 3. **Set up hooks**: [Automation Hooks](hooks/README.md)
+
 4. **Contribute**: [Contributing Guide](CONTRIBUTING.md)
 
 ---
@@ -330,7 +371,9 @@ Your team members will get the same skills when they clone the repo!
 ## Getting Help
 
 - **Issues**: [GitHub Issues](https://github.com/bdourthe/ai_templates/issues)
+
 - **Discussions**: [GitHub Discussions](https://github.com/bdourthe/ai_templates/discussions)
+
 - **Email**: benjamin@adonamed.com
 
 ---

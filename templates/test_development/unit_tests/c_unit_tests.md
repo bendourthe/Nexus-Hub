@@ -18,12 +18,16 @@ related_templates:
 tools:
 
   - unity
+
   - cmocka
+
   - check
 tags:
 
   - test-development
+
   - testing
+
   - c
 ---
 # C Unit Tests - Comprehensive Implementation Guide
@@ -70,21 +74,31 @@ ${OUTPUT_DIR}/
 
 ### Test Foundation
 - [ ] Unity and Check framework overview
+
 - [ ] Test project structure
+
 - [ ] Build system configuration (Make/CMake)
+
 - [ ] Memory testing strategies
 
 ### Test Patterns
 - [ ] Function tests
+
 - [ ] Struct tests
+
 - [ ] Pointer and memory tests
+
 - [ ] File I/O tests
+
 - [ ] Error handling tests
 
 ### Test Quality
 - [ ] Memory leak detection
+
 - [ ] Valgrind integration
+
 - [ ] Coverage analysis (gcov)
+
 - [ ] Edge cases covered
 
 ---
@@ -110,27 +124,41 @@ mkdir -p ${OUTPUT_DIR}/templates ${OUTPUT_DIR}/assets ${OUTPUT_DIR}/exports
 ### 1.1 FIRST Principles in C
 
 **Fast** - Tests execute quickly
+
 - Avoid file I/O in unit tests
+
 - Use memory-based operations
+
 - Mock external dependencies
 
 **Independent** - No shared state
+
 - Clean up all allocated memory
+
 - Reset global variables
+
 - Use setUp/tearDown functions
 
 **Repeatable** - Deterministic results
+
 - Initialize all variables
+
 - Don't rely on undefined behavior
+
 - Control randomness
 
 **Self-validating** - Clear assertions
+
 - Use framework assertion macros
+
 - Provide descriptive messages
+
 - Check all error conditions
 
 **Timely** - Written with code
+
 - Test during development
+
 - Maintain test coverage
 
 **Arrange-Act-Assert Pattern:**
@@ -152,15 +180,23 @@ void test_calculate_discount(void) {
 ### 1.2 Framework Comparison
 
 **Unity Framework:**
+
 - Lightweight, portable
+
 - No dynamic memory allocation
+
 - Embedded systems friendly
+
 - Simple setup
 
 **Check Framework:**
+
 - Fork-based isolation
+
 - Memory leak detection
+
 - XML/TAP output
+
 - More features, heavier
 
 ---
@@ -794,14 +830,23 @@ void test_initialized(void) {
 ### 5.2 Test Maintenance Checklist
 
 - [ ] All allocated memory freed
+
 - [ ] No buffer overflows
+
 - [ ] All variables initialized
+
 - [ ] Pointers checked for NULL
+
 - [ ] Error conditions tested
+
 - [ ] Valgrind clean run
+
 - [ ] No compiler warnings
+
 - [ ] >80% code coverage
+
 - [ ] Clear test names
+
 - [ ] setUp/tearDown used properly
 
 ---
@@ -818,15 +863,22 @@ void test_initialized(void) {
 `${OUTPUT_DIR}/templates/`:
 
 - `test_template.c`
+
 - `test_runner_template.c`
+
 - `Makefile`
+
 - `CMakeLists.txt`
 
 ### 4. Guides
 - Memory management guide
+
 - Valgrind usage guide
+
 - Coverage guide
+
 - Anti-patterns guide
+
 - Quality checklist
 
 ---
@@ -834,12 +886,19 @@ void test_initialized(void) {
 ## Verification Checklist
 
 - [ ] All deliverables created
+
 - [ ] 20-30 page guide
+
 - [ ] 50+ test examples
+
 - [ ] Unity framework covered
+
 - [ ] Memory testing patterns
+
 - [ ] Pointer testing examples
+
 - [ ] Valgrind integration
+
 - [ ] Build configurations
 
 ---
@@ -852,9 +911,13 @@ End of prompt template.
 ## Additional Notes
 
 - Compile: `gcc -o test test.c src.c unity.c`
+
 - Run tests: `./test`
+
 - With Valgrind: `valgrind --leak-check=full ./test`
+
 - Coverage: `gcc --coverage -o test test.c src.c`
+
 - Generate report: `gcov src.c && lcov`
 
 ---

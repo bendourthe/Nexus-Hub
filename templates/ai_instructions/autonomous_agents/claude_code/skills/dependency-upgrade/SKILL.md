@@ -12,6 +12,7 @@ prerequisites: []
 tags:
 
   - skills
+
   - generic
 ---
 # dependency-upgrade
@@ -31,19 +32,29 @@ Safely upgrade project dependencies to newer versions, handling breaking changes
 ## When to Use This Skill
 
 - Security vulnerabilities in current dependencies
+
 - Need access to new features in updated packages
+
 - Dependencies reaching end-of-life
+
 - Performance improvements in newer versions
+
 - Compatibility issues with other updated packages
+
 - Regular maintenance and keeping dependencies current
 
 ## Prerequisites
 
 - Comprehensive test suite
+
 - Version control with clean working directory
+
 - Backup or ability to rollback
+
 - Understanding of semantic versioning
+
 - CI/CD pipeline for automated testing
+
 - Staging environment for validation
 
 ## Step-by-Step Instructions
@@ -118,9 +129,13 @@ Date: 2025-10-21
 | flask-cors | Deprecated | flask-cors-extended |
 
 **Recommendation Priority:**
+
 1. Security updates (IMMEDIATE)
+
 2. Deprecated packages (HIGH)
+
 3. Major versions (MEDIUM - test thoroughly)
+
 4. Minor/patch versions (LOW - low risk)
 ```
 
@@ -486,7 +501,9 @@ on:
     paths:
 
       - 'requirements.txt'
+
       - 'package.json'
+
       - 'pyproject.toml'
 
 jobs:
@@ -497,6 +514,7 @@ jobs:
         python-version: ['3.9', '3.10', '3.11']
 
     steps:
+
     - uses: actions/checkout@v3
 
     - name: Set up Python
@@ -609,7 +627,9 @@ Upgraded critical dependencies to address security vulnerabilities and gain acce
 
 #### SQLAlchemy 2.0
 - `session.query()` deprecated, use `select()` instead
+
 - `session.execute()` returns Result object
+
 - Migration guide: https://docs.sqlalchemy.org/en/20/changelog/migration_20.html
 
 **Before:**
@@ -625,7 +645,9 @@ users = session.execute(stmt).scalars().all()
 
 #### Pydantic 2.0
 - `@validator` replaced with `@field_validator`
+
 - `Config` class replaced with `model_config`
+
 - `.dict()` method replaced with `.model_dump()`
 
 **Before:**
@@ -646,9 +668,13 @@ class User(BaseModel):
 ### Migration Steps for Developers
 
 1. Pull latest changes: `git pull origin main`
+
 2. Update virtual environment: `pip install -r requirements.txt`
+
 3. Run migrations: `alembic upgrade head`
+
 4. Run tests: `pytest tests/ -v`
+
 5. Update your code if using deprecated APIs
 
 ### Known Issues
@@ -672,82 +698,119 @@ Documentation: https://docs.company.com/dependency-upgrade-2025
 After completing this upgrade:
 
 1. **Security improved**
+
    - All known vulnerabilities patched
+
    - Dependencies up-to-date
 
 2. **New features available**
+
    - Access to latest package features
+
    - Performance improvements
 
 3. **Technical debt reduced**
+
    - Modern APIs and patterns
+
    - Better type checking
 
 4. **Stability maintained**
+
    - All tests passing
+
    - No regressions introduced
 
 ## Success Criteria
 
 - [ ] All dependencies upgraded to target versions
+
 - [ ] Security vulnerabilities resolved
+
 - [ ] All tests passing (100% pass rate)
+
 - [ ] No performance regressions
+
 - [ ] Breaking changes documented
+
 - [ ] Team trained on new APIs
+
 - [ ] Rollback plan documented and tested
+
 - [ ] CI/CD pipeline updated
+
 - [ ] Production deployment successful
+
 - [ ] No increase in error rates post-deployment
 
 ## Common Pitfalls
 
 1. **Upgrading too many packages at once**
+
    - Solution: Upgrade incrementally, test between changes
 
 2. **Not reading changelogs**
+
    - Solution: Always review breaking changes before upgrading
 
 3. **Insufficient testing**
+
    - Solution: Run full test suite, including integration tests
 
 4. **No rollback plan**
+
    - Solution: Always have a tested rollback procedure
 
 5. **Upgrading in production first**
+
    - Solution: Test in dev/staging before production
 
 ## Related Skills
 
 - **migrate-python-2-to-3**: Python 2 to 3 migration
+
 - **refactor-for-testability**: Improve code testability
+
 - **setup-python-project**: Initialize Python projects
+
 - **add-unit-tests**: Add comprehensive tests
+
 - **database-migration**: Migrate databases
 
 ## Additional Resources
 
 ### Tools
 - **Python**: pip-audit, pip-outdated, dependabot
+
 - **JavaScript**: npm-check-updates, Snyk, Renovate
+
 - **Java**: Maven Versions Plugin, Dependabot
+
 - **General**: WhiteSource, Sonatype Nexus Lifecycle
 
 ### Semantic Versioning
 - [Semantic Versioning 2.0.0](https://semver.org/)
+
 - MAJOR.MINOR.PATCH format
+
 - Breaking changes = major bump
 
 ### Security
 - [CVE Database](https://cve.mitre.org/)
+
 - [GitHub Advisory Database](https://github.com/advisories)
+
 - [Snyk Vulnerability Database](https://security.snyk.io/)
 
 ### Best Practices
 - Keep dependencies up-to-date regularly
+
 - Use automated dependency updates (Dependabot/Renovate)
+
 - Pin versions in production
+
 - Use lock files (requirements.txt, package-lock.json)
+
 - Test thoroughly before deploying
 
 ---

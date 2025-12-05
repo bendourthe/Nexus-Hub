@@ -12,12 +12,16 @@ prerequisites: []
 tools:
 
   - junit (5.11.3)
+
   - maven
+
   - gradle
 tags:
 
   - documentation
+
   - documentation
+
   - java
 ---
 # Java API Documentation
@@ -169,8 +173,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -610,12 +617,19 @@ class UserControllerIntegrationTest {
 ## Best Practices
 
 1. **Use Spring Boot Starters**: Leverage spring-boot-starter-web for REST APIs
+
 2. **Validation**: Use Jakarta Bean Validation (@Valid, @NotNull, etc.)
+
 3. **DTOs**: Separate DTOs from entities, use MapStruct for mapping
+
 4. **Exception Handling**: Use @ControllerAdvice for global error handling
+
 5. **Pagination**: Use Spring Data's Page/Pageable
+
 6. **Documentation**: Use Springdoc OpenAPI for automatic doc generation
+
 7. **Testing**: Write integration tests with MockMvc
+
 8. **Security**: Implement OAuth2/JWT with Spring Security
 
 ---

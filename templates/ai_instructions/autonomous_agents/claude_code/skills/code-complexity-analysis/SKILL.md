@@ -12,6 +12,7 @@ prerequisites: []
 tags:
 
   - skills
+
   - generic
 ---
 # code-complexity-analysis
@@ -31,17 +32,25 @@ Analyze code complexity using multiple metrics (cyclomatic, cognitive, halstead)
 ## When to Use This Skill
 
 - Code reviews revealing difficult-to-understand code
+
 - High bug rates in certain modules
+
 - Onboarding new developers struggling with codebase
+
 - Pre-refactoring assessment needed
+
 - Technical debt analysis
+
 - Code quality gates for CI/CD
 
 ## Prerequisites
 
 - Access to codebase
+
 - Static analysis tools installed
+
 - Understanding of complexity metrics
+
 - Ability to refactor code (if implementing fixes)
 
 ## Step-by-Step Instructions
@@ -738,75 +747,112 @@ echo "✅ Complexity check passed"
 After completing this analysis:
 
 1. **Complexity metrics measured**
+
    - Cyclomatic complexity scores
+
    - Cognitive complexity analysis
+
    - Maintainability index calculated
 
 2. **Problem areas identified**
+
    - High-complexity functions flagged
+
    - Code smells detected
+
    - Technical debt quantified
 
 3. **Refactoring roadmap created**
+
    - Prioritized list of functions to refactor
+
    - Specific strategies recommended
+
    - Estimated effort for improvements
 
 4. **Quality gates established**
+
    - CI/CD checks for complexity
+
    - Automated monitoring
+
    - Trending analysis
 
 ## Success Criteria
 
 - [ ] Complexity analysis completed for entire codebase
+
 - [ ] All functions with CC > 15 identified
+
 - [ ] Refactoring recommendations provided
+
 - [ ] At least 80% of high-complexity functions refactored
+
 - [ ] Maintainability index improved by 10%
+
 - [ ] Automated complexity checks in CI/CD
+
 - [ ] Team trained on complexity metrics
+
 - [ ] Documentation updated with standards
 
 ## Common Pitfalls
 
 1. **Over-optimizing**
+
    - Don't refactor everything, focus on problem areas
+
    - Balance complexity reduction with code clarity
 
 2. **Ignoring context**
+
    - Some complex algorithms are inherently complex
+
    - Domain complexity may require code complexity
 
 3. **Premature abstraction**
+
    - Don't add layers just to reduce metrics
+
    - Keep it simple and readable
 
 ## Related Skills
 
 - **refactor-for-testability**: Improve testability
+
 - **add-unit-tests**: Add comprehensive tests
+
 - **setup-python-project**: Project setup
+
 - **code-review**: Review code quality
 
 ## Additional Resources
 
 ### Tools
 - **Radon** (Python): https://radon.readthedocs.io/
+
 - **Lizard** (Multi-language): https://github.com/terryyin/lizard
+
 - **SonarQube**: https://www.sonarqube.org/
+
 - **CodeClimate**: https://codeclimate.com/
 
 ### Metrics
 - Cyclomatic Complexity: Measures decision points
+
 - Cognitive Complexity: Measures understandability
+
 - Halstead Metrics: Measures program difficulty
+
 - Maintainability Index: Overall maintainability score
 
 ### Thresholds
 - CC 1-10: Simple, low risk
+
 - CC 11-20: Moderate, medium risk
+
 - CC 21-50: Complex, high risk
+
 - CC 50+: Untestable, very high risk
 
 ---

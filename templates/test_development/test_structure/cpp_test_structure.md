@@ -16,12 +16,16 @@ related_templates:
 tools:
 
   - google test
+
   - catch2
+
   - boost.test
 tags:
 
   - test-development
+
   - testing
+
   - cpp
 ---
 # C++ Test Structure & Infrastructure
@@ -162,8 +166,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 Please design and implement a comprehensive test infrastructure for this C++ project following this protocol:
@@ -182,12 +189,19 @@ Use `<REPO_URL>` as placeholder where repository URLs are needed in this templat
 ## Phase 1: Framework Selection & Configuration
 
 1. **Test Framework Analysis**
+
    - **Current State**: Document existing test setup if any
+
    - **Framework Recommendations**:
+
      - **GoogleTest** (recommended): Industry standard, Google-backed, feature-rich
+
      - **Catch2**: Header-only option, BDD-style, modern C++
+
      - **Boost.Test**: Part of Boost, well-integrated if already using Boost
+
      - **doctest**: Fast compile times, header-only, similar to Catch2
+
    - **Rationale**: Justify framework choice based on project needs
 
 2. **Install Test Framework**
@@ -433,22 +447,35 @@ Use `<REPO_URL>` as placeholder where repository URLs are needed in this templat
    ```
 
    **What This Provides**:
+
    - **One-Click Build**: `Ctrl+Shift+B` to build tests
+
    - **One-Click Test Run**: Command Palette → "Tasks: Run Test Task"
+
    - **Seamless Debugging**: Set breakpoints, press `F5` to debug tests
+
    - **IntelliSense**: Auto-completion for Google Test macros
+
    - **Test Explorer**: Visual test runner with play/debug buttons
 
    **Required VS Code Extensions**:
+
    - CMake Tools (`twxs.cmake`)
+
    - C/C++ Extension Pack (`ms-vscode.cpptools-extension-pack`)
+
    - Test Explorer UI (`hbenl.vscode-test-explorer`)
+
    - GitHub Copilot (`GitHub.copilot`) - For AI-assisted test generation
 
    **Configuration Files**:
+
    - `.vscode/tasks.json` - Build and test tasks
+
    - `.vscode/launch.json` - Debugging configurations
+
    - `.vscode/settings.json` - CMake Tools and IntelliSense settings
+
    - `.vscode/c_cpp_properties.json` - Platform-specific includes
 
    See **[VS Code Configuration Guide](../vscode_config/README.md)** for detailed setup instructions.
@@ -456,24 +483,35 @@ Use `<REPO_URL>` as placeholder where repository URLs are needed in this templat
    **GitHub Copilot Integration**:
 
    Once VS Code is configured, use GitHub Copilot to generate tests:
+
    1. Open Copilot Chat (`Ctrl+Shift+I`)
+
    2. Paste prompt template from [cpp_unit_tests.md](../unit_tests/cpp_unit_tests.md)
+
    3. Copilot generates comprehensive Google Test suite
+
    4. Build and run with keyboard shortcuts
 
    See **[Complete Workflow Guide](../GOOGLE_TEST_VSCODE_WORKFLOW.md)** for step-by-step instructions (10 minutes from clone to test run).
 
    **Alternative IDEs**:
+
    - **CLion**: Native CMake integration, built-in Google Test runner
+
    - **Visual Studio**: Test Explorer with Google Test adapter
+
    - **Qt Creator**: CMake support, test integration plugin
 
 3. **Naming Conventions**
 
    **File Naming**:
+
    - Test file: `<ClassName>Test.cpp`
+
    - Test case: `TEST(TestSuiteName, TestCaseName)`
+
    - Fixture class: `<Name>Fixture` or `<Name>Test`
+
    - Mock class: `Mock<ClassName>`
 
    **GoogleTest Example**:
@@ -608,21 +646,33 @@ Use `<REPO_URL>` as placeholder where repository URLs are needed in this templat
 3. **Test Type Organization**
 
    **Unit Tests** (`tests/unit/`):
+
    - Test individual classes in isolation
+
    - Fast execution (<10ms per test)
+
    - Heavy use of mocks
+
    - No external dependencies
 
    **Integration Tests** (`tests/integration/`):
+
    - Test multiple components together
+
    - Real implementations
+
    - May use test databases
+
    - Moderate execution time
 
    **E2E Tests** (`tests/e2e/`):
+
    - Test complete workflows
+
    - Full system integration
+
    - Slowest execution
+
    - Minimal mocking
 
 ## Phase 3: Fixture Infrastructure
@@ -1279,9 +1329,13 @@ rm -rf build
 
 ### Testing Conventions Established
 1. **File Naming**: [convention]
+
 2. **Test Naming**: [convention]
+
 3. **Fixture Usage**: [patterns]
+
 4. **Mock Usage**: [when and how]
+
 5. **Test Data**: [organization]
 
 ### Next Steps
@@ -1338,13 +1392,21 @@ rm -rf build
 The AI assistant should deliver:
 
 1. **Test infrastructure design document** with complete directory structure
+
 2. **CMake configuration files** with GoogleTest integration
+
 3. **Test fixture classes** with proper RAII
+
 4. **Mock implementations** using GoogleMock
+
 5. **Test utility libraries** with custom matchers
+
 6. **Test builder classes** for data generation
+
 7. **Test runner scripts** for automation
+
 8. **Documentation** of conventions and best practices
+
 9. **Execution commands** for common scenarios
 ---
 

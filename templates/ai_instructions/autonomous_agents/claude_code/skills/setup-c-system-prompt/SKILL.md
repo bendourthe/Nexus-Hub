@@ -16,12 +16,19 @@ Configure Claude Code with comprehensive C development standards, embedded syste
 ## When to Use This Skill
 
 Use this skill when you need to:
+
 - Set up a new C project with Claude Code
+
 - Configure Claude Code for C development (application or embedded systems)
+
 - Apply comprehensive C development standards (C11/C17/C23)
+
 - Establish consistent coding practices for C projects
+
 - Optimize Claude Code for embedded systems development
+
 - Implement MISRA-C or CERT-C compliance requirements
+
 - Develop safety-critical or real-time systems
 
 ## What This Skill Does
@@ -29,56 +36,93 @@ Use this skill when you need to:
 This skill helps you configure Claude Code with:
 
 1. **C Development Standards**
+
    - C11/C17/C23 standards compliance
+
    - MISRA-C and CERT-C guidelines
+
    - Memory safety and pointer discipline
+
    - Include organization and header guards
+
    - Function design and naming conventions
 
 2. **Project Architecture Guidelines**
+
    - Standard C application structure (src/, include/, tests/)
+
    - Embedded systems structure (HAL, drivers, RTOS integration)
+
    - Makefile-based build system
+
    - Static analysis configuration (.clang-format, .clang-tidy)
+
    - Documentation structure (README, CHANGELOG, DEVLOG, Doxygen)
 
 3. **Memory Safety and Security**
+
    - Buffer overflow prevention
+
    - Integer overflow checking
+
    - Pointer safety patterns
+
    - Resource management (RAII-like patterns in C)
+
    - Bounds checking and validation
 
 4. **Testing Framework**
+
    - Unity test framework integration
+
    - Test structure and patterns
+
    - Valgrind memory checking
+
    - Address sanitizer usage
+
    - Coverage analysis
 
 5. **Embedded Systems Support**
+
    - Hardware abstraction layer (HAL) patterns
+
    - RTOS integration (FreeRTOS, bare metal)
+
    - Interrupt service routines (ISR) best practices
+
    - Memory optimization techniques
+
    - Linker script guidance
 
 6. **Development Workflow**
+
    - Task breakdown methodology
+
    - Iterative testing protocol
+
    - Quality gates and checklists
+
    - Version control best practices
+
    - Static analysis integration
 
 ## Prerequisites
 
 - Claude Code installed and configured
+
 - C compiler installed:
+
   - GCC 9.0+ or Clang 10.0+ (Linux/macOS)
+
   - MinGW-w64 or MSVC (Windows)
+
 - Make or CMake build system
+
 - Basic understanding of C development
+
 - Project directory created (or ready to create new project)
+
 - Optional: Cross-compiler for embedded targets
 
 ## Instructions
@@ -88,17 +132,27 @@ This skill helps you configure Claude Code with:
 Decide between two versions based on your needs:
 
 **Comprehensive Version (~40k tokens)**
+
 - Best for: Complex projects, embedded systems, safety-critical applications
+
 - Features: Complete architectural guidance, MISRA-C compliance, embedded patterns, HAL design
+
 - Token count: ~40,000 tokens
+
 - Use cases: Production firmware, device drivers, safety-critical systems, RTOS applications
+
 - File: `agent_prompts/autonomous_agents/claude_code/c/CLAUDE_comprehensive_40k.md`
 
 **Condensed Version (~20k tokens)**
+
 - Best for: Quick development, CLI tools, prototyping, learning projects
+
 - Features: Essential guidelines, core best practices, streamlined workflow
+
 - Token count: ~20,000 tokens
+
 - Use cases: Utility programs, tools, simple applications, proof-of-concepts
+
 - File: `agent_prompts/autonomous_agents/claude_code/c/CLAUDE_condensed_20k.md`
 
 ### Step 2: Configure Claude Code
@@ -108,6 +162,7 @@ There are two methods to configure Claude Code with the C system prompt:
 #### Method A: Project-Level CLAUDE.md (Recommended)
 
 1. Navigate to your project root directory
+
 2. Copy the chosen system prompt file to `CLAUDE.md`:
    ```bash
    # For comprehensive version (embedded/production)
@@ -139,11 +194,17 @@ Test that the system prompt is active by asking Claude Code to:
    ```
 
    Expected behavior:
+
    - Proper header guards or inclusion
+
    - Doxygen-style documentation
+
    - Input validation (null pointer checks)
+
    - Bounds checking (strncpy or memcpy with size)
+
    - Return error codes (errno-style)
+
    - No inline comments unless essential
 
 2. **Request project structure** and verify it matches standards:
@@ -152,10 +213,15 @@ Test that the system prompt is active by asking Claude Code to:
    ```
 
    Expected behavior:
+
    - Includes include/, src/, tests/ directories
+
    - Shows HAL, drivers, RTOS structure
+
    - Includes Makefile or CMakeLists.txt
+
    - Shows linker scripts for embedded targets
+
    - Includes CHANGELOG.md, README.md, DEVLOG.md
 
 3. **Ask about testing** and confirm it knows the framework:
@@ -164,10 +230,15 @@ Test that the system prompt is active by asking Claude Code to:
    ```
 
    Expected behavior:
+
    - Mentions Unity test framework
+
    - Describes test structure and patterns
+
    - Explains Valgrind for memory checking
+
    - Discusses address sanitizer usage
+
    - Mentions coverage analysis tools
 
 4. **Verify memory safety awareness**:
@@ -176,10 +247,15 @@ Test that the system prompt is active by asking Claude Code to:
    ```
 
    Expected behavior:
+
    - Identifies buffer overflow vulnerability
+
    - Suggests bounds checking
+
    - Recommends safe string functions
+
    - Proposes input validation
+
    - Explains security implications
 
 ### Step 4: Configure Build System
@@ -253,16 +329,22 @@ Configure formatting and analysis tools:
 If you need to add organization-specific standards or embedded platform details:
 
 1. Open the CLAUDE.md file in your project
+
 2. Add a new section at the end:
    ```markdown
    # Organization-Specific Standards
 
    ## Additional Requirements
    - [MISRA-C compliance level]
+
    - [Coding standard deviations]
+
    - [Platform-specific constraints]
+
    - [Memory budgets (RAM/ROM)]
+
    - [Real-time requirements]
+
    - [Safety certification level]
    ```
 3. Save and restart Claude Code session
@@ -310,7 +392,9 @@ git push
 Automatically organizes includes in the correct order:
 
 1. System headers (alphabetically sorted)
+
 2. Third-party library headers (alphabetically sorted)
+
 3. Project headers (alphabetically sorted)
 
 **Example:**
@@ -414,9 +498,13 @@ cleanup:
 
 ### 5. Naming Conventions
 - **Functions**: `projectname_module_action()` (namespace prefix)
+
 - **Types**: `snake_case_t` suffix
+
 - **Constants**: `UPPER_CASE` with module prefix
+
 - **Variables**: `snake_case`
+
 - **Private functions**: `static` with descriptive names
 
 ### 6. Doxygen Documentation
@@ -428,14 +516,17 @@ cleanup:
  *
 
  * Allocates memory for a buffer structure and initializes
+
  * it with the specified initial capacity.
  *
 
  * @param[in] initial_size Initial capacity in bytes
+
  * @return Pointer to new buffer, or NULL on allocation failure
  *
 
  * @note Caller is responsible for calling buffer_destroy()
+
  * @see buffer_destroy()
  *
 
@@ -541,10 +632,15 @@ analysis:
 **Iterative testing protocol:**
 
 1. Create temp tests in `tests/temp/`
+
 2. Write challenging tests with edge cases
+
 3. Implement solution
+
 4. Run tests and iterate until passing
+
 5. Delete temp tests, move valuable tests to permanent suite
+
 6. Document in DEVLOG.md
 
 ## Common Configuration Issues
@@ -562,6 +658,7 @@ analysis:
 **Solution**:
 
 - Use comprehensive version for embedded projects
+
 - Specify target platform in questions: "How do I implement I2C HAL for STM32?"
 
 ### Issue: Build System Not Matching Standards
@@ -571,7 +668,9 @@ analysis:
 **Solution**:
 
 - Create `.clang-tidy` configuration in project root
+
 - Run with: `clang-tidy src/*.c -- -Iinclude -std=c11`
+
 - Add suppression for false positives
 
 ## Success Criteria
@@ -579,50 +678,77 @@ analysis:
 After completing this skill, you should have:
 
 - [ ] Claude Code configured with C system prompt (CLAUDE.md in project root)
+
 - [ ] Verified configuration by testing function generation (with memory safety)
+
 - [ ] Confirmed project structure knowledge (standard or embedded)
+
 - [ ] Validated testing framework understanding (Unity)
+
 - [ ] Verified memory safety awareness (buffer overflow detection)
+
 - [ ] Set up build system (Makefile or CMake)
+
 - [ ] Configured static analysis tools (.clang-format, .clang-tidy)
+
 - [ ] Initialized test framework (Unity)
+
 - [ ] Optionally customized for organization-specific needs
+
 - [ ] Committed CLAUDE.md and configurations to version control
 
 ## Related Skills
 
 - `generate-c-documentation`: Generate Doxygen documentation for C code
+
 - `setup-embedded-toolchain`: Configure cross-compilation toolchain
+
 - `implement-hal-layer`: Create hardware abstraction layer
+
 - `misra-compliance-check`: Verify MISRA-C compliance
+
 - `optimize-embedded-memory`: Reduce RAM/ROM usage
+
 - `code-review-c-safety`: Review C code for safety issues
 
 ## Additional Resources
 
 ### Standards and Guidelines
 - [C11 Standard (ISO/IEC 9899:2011)](http://www.open-std.org/jtc1/sc22/wg14/)
+
 - [MISRA-C:2012 Guidelines](https://www.misra.org.uk/)
+
 - [CERT C Coding Standard](https://wiki.sei.cmu.edu/confluence/display/c/SEI+CERT+C+Coding+Standard)
+
 - [Linux Kernel Coding Style](https://www.kernel.org/doc/html/latest/process/coding-style.html)
 
 ### Tools
 - [Unity Test Framework](https://github.com/ThrowTheSwitch/Unity)
+
 - [Valgrind Memory Analyzer](https://valgrind.org/)
+
 - [Cppcheck Static Analyzer](http://cppcheck.sourceforge.net/)
+
 - [Clang Static Analyzer](https://clang-analyzer.llvm.org/)
+
 - [Address Sanitizer](https://github.com/google/sanitizers)
 
 ### Embedded Development
 - [FreeRTOS](https://www.freertos.org/)
+
 - [ARM CMSIS](https://developer.arm.com/tools-and-software/embedded/cmsis)
+
 - [GNU ARM Embedded Toolchain](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm)
+
 - [OpenOCD](http://openocd.org/)
 
 ### Books and References
 - "The C Programming Language" by Kernighan and Ritchie
+
 - "Expert C Programming" by Peter van der Linden
+
 - "Embedded C Coding Standard" by Michael Barr
+
 - "Making Embedded Systems" by Elecia White
 
 ---

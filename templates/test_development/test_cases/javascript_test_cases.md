@@ -18,12 +18,16 @@ related_templates:
 tools:
 
   - jest (29.7.0)
+
   - eslint (9.15.0)
+
   - prettier
 tags:
 
   - test-development
+
   - testing
+
   - javascript
 ---
 # JavaScript Test Case Development
@@ -162,8 +166,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 Please develop comprehensive test cases for this JavaScript code following this protocol:
@@ -182,35 +189,57 @@ Use `<REPO_URL>` as placeholder where repository URLs are needed in this templat
 ## Phase 1: Test Case Planning
 
 1. **Analyze Code to Test**
+
    - Identify all exported functions/methods/classes
+
    - Document expected behavior
+
    - List input parameters and types
+
    - Define expected outputs
+
    - Note side effects (API calls, DOM manipulation, state changes)
+
    - Identify async operations
 
 2. **Identify Test Scenarios**
 
    **Happy Path**:
+
    - Normal operation with valid inputs
+
    - Expected use cases
+
    - Successful execution flows
+
    - Resolved promises
 
    **Edge Cases**:
+
    - Boundary values (0, -1, Infinity, NaN)
+
    - Empty arrays/objects
+
    - Null and undefined values
+
    - Large data sets
+
    - Special characters in strings
+
    - Concurrent async operations
 
    **Error Conditions**:
+
    - Invalid inputs
+
    - Missing required parameters
+
    - Type errors
+
    - Rejected promises
+
    - Network failures
+
    - Timeout scenarios
 
 3. **Create Test Case Matrix**
@@ -584,6 +613,7 @@ Integration tests verify multiple components working together:
  *
 
  * Tests the complete user registration process including
+
  * validation, database storage, and email notification.
  */
 import { UserService } from './UserService';
@@ -743,6 +773,7 @@ E2E tests validate complete user workflows (using Cypress or Puppeteer):
  *
 
  * Tests the complete user journey from adding items to cart
+
  * through payment and order confirmation.
  */
 describe('Checkout Workflow', () => {
@@ -897,9 +928,13 @@ Please provide comprehensive test cases with the following structure:
 - **E2E Tests**: [count]
 
 - **Test Types**:
+
   - Happy path: [count]
+
   - Edge cases: [count]
+
   - Error conditions: [count]
+
   - Async operations: [count]
 
 ### Test Case Implementation
@@ -910,16 +945,25 @@ For each module/feature:
 **Test File**: `tests/unit/[module_name].test.js`
 
 **Test Cases**:
+
 1. `should return expected result with valid input`
+
    - **Scenario**: [description]
+
    - **Input**: [test data]
+
    - **Expected**: [result]
+
    - **Type**: [unit/integration/e2e]
 
 2. `should throw error with invalid input`
+
    - **Scenario**: [description]
+
    - **Input**: [test data]
+
    - **Expected**: [exception type and message]
+
    - **Type**: [unit/integration/e2e]
 
 ### Test Execution Results
@@ -1003,11 +1047,17 @@ Replace `{phase_name}` with the specific phase (test_cases, mocks_fixtures, perf
 The AI assistant should deliver:
 
 1. **Test case matrix** documenting all scenarios
+
 2. **Complete test implementations** with clear AAA structure
+
 3. **Parametrized tests** for multiple scenarios
+
 4. **Integration and E2E tests** for workflows
+
 5. **Test coverage report** showing gaps
+
 6. **Execution instructions** for running tests
+
 7. **Quality metrics** and improvement suggestions
 ---
 

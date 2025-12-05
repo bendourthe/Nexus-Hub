@@ -18,12 +18,16 @@ related_templates:
 tools:
 
   - NUnit (4.2.2)
+
   - xUnit
+
   - MSTest
 tags:
 
   - test-development
+
   - testing
+
   - c#
 ---
 # C# Test Case Development
@@ -162,8 +166,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 Please develop comprehensive test cases for this C# code following this protocol:
@@ -182,35 +189,57 @@ Use `<REPO_URL>` as placeholder where repository URLs are needed in this templat
 ## Phase 1: Test Case Planning
 
 1. **Analyze Code to Test**
+
    - Identify all public methods and classes
+
    - Document expected behavior
+
    - List input parameters and types
+
    - Define expected outputs
+
    - Note side effects (database, files, external services)
+
    - Identify exceptions that should be thrown
 
 2. **Identify Test Scenarios**
 
    **Happy Path**:
+
    - Normal operation with valid inputs
+
    - Expected use cases
+
    - Successful execution flows
+
    - Valid object state transitions
 
    **Edge Cases**:
+
    - Boundary values (int.MaxValue, int.MinValue, 0)
+
    - Empty collections (empty List, Dictionary, Array)
+
    - Null values
+
    - Large data sets
+
    - Special characters in strings
+
    - Concurrent access scenarios
 
    **Error Conditions**:
+
    - Invalid inputs
+
    - Missing required parameters
+
    - ArgumentException scenarios
+
    - NullReferenceException scenarios
+
    - Business rule violations
+
    - External dependency failures
 
 3. **Create Test Case Matrix**
@@ -1121,8 +1150,11 @@ Please provide comprehensive test cases with the following structure:
 - **E2E Tests**: [count]
 
 - **Test Types**:
+
   - Happy path: [count]
+
   - Edge cases: [count]
+
   - Error conditions: [count]
 
 ### Test Case Implementation
@@ -1133,16 +1165,25 @@ For each class/module:
 **Test File**: `tests/[ClassName]Tests.cs`
 
 **Test Cases**:
+
 1. `MethodName_WithValidData_ReturnsExpectedResult`
+
    - **Scenario**: [description]
+
    - **Input**: [test data]
+
    - **Expected**: [result]
+
    - **Type**: [unit/integration/e2e]
 
 2. `MethodName_WithInvalidInput_ThrowsException`
+
    - **Scenario**: [description]
+
    - **Input**: [test data]
+
    - **Expected**: [exception type]
+
    - **Type**: [unit/integration/e2e]
 
 ### Test Execution Results
@@ -1219,11 +1260,17 @@ Replace `{phase_name}` with the specific phase (test_cases, mocks_fixtures, perf
 The AI assistant should deliver:
 
 1. **Test case matrix** documenting all scenarios
+
 2. **Complete test implementations** with clear AAA structure
+
 3. **Parametrized tests** for multiple scenarios
+
 4. **Integration and E2E tests** for workflows
+
 5. **Test coverage report** showing gaps
+
 6. **Execution instructions** for running tests
+
 7. **Quality metrics** and improvement suggestions
 ---
 

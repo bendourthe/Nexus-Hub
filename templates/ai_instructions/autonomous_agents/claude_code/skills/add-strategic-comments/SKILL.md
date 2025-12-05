@@ -10,11 +10,17 @@ tags: [documentation, comments, code-clarity, maintainability, refactoring, best
 template_sources:
 
   - documentation/comments/python_comments.md
+
   - documentation/comments/javascript_comments.md
+
   - documentation/comments/java_comments.md
+
   - documentation/comments/csharp_comments.md
+
   - documentation/comments/go_comments.md
+
   - documentation/comments/c_comments.md
+
   - documentation/comments/cpp_comments.md
 ---
 
@@ -25,15 +31,25 @@ Add meaningful, high-value comments that explain "why" not "what", focusing on c
 ## When to Use This Skill
 
 Use this skill when you need to:
+
 - Explain complex business logic and rules
+
 - Document non-obvious algorithm implementations
+
 - Clarify design decisions and trade-offs
+
 - Mark temporary workarounds and technical debt
+
 - Explain performance optimizations
+
 - Document security considerations
+
 - Clarify edge case handling
+
 - Add context for future maintainers
+
 - Improve code comprehension without cluttering
+
 - Balance self-documenting code with necessary explanations
 
 ## What This Skill Does
@@ -42,41 +58,66 @@ This skill identifies where strategic comments add value and generates appropria
 
 ### For All Languages
 1. **Strategic Comment Identification**
+
    - Complex algorithms requiring explanation
+
    - Non-obvious business rules
+
    - Design decision rationale
+
    - Performance optimization reasoning
+
    - Security-critical sections
+
    - Workarounds and temporary fixes
+
    - Edge case handling
 
 2. **Comment Quality Standards**
+
    - Explain "why" not "what"
+
    - Add value beyond code itself
+
    - Stay concise and focused
+
    - Remain maintainable over time
+
    - Avoid redundancy with code
+
    - Use proper formatting conventions
 
 3. **Technical Debt Tracking**
+
    - TODO: Future improvements
+
    - FIXME: Known issues to address
+
    - HACK: Temporary workarounds
+
    - NOTE: Important considerations
+
    - WARNING: Critical information
 
 4. **Refactoring Suggestions**
+
    - Identify code needing simplification
+
    - Suggest when comments indicate poor design
+
    - Balance commenting vs. code improvement
+
    - Recommend self-documenting alternatives
 
 ### Language-Specific Features
 
 #### Python
 - **Block Comments**: `#` for explanations above code blocks
+
 - **Inline Comments**: Sparingly, only when necessary
+
 - **PEP 8**: Comment style guidelines
+
 - **Examples**:
   ```python
   # Use binary search for O(log n) performance on sorted data
@@ -103,7 +144,9 @@ This skill identifies where strategic comments add value and generates appropria
 
 #### JavaScript/TypeScript
 - **Block Comments**: `//` or `/* */` for multi-line
+
 - **JSDoc vs Comments**: JSDoc for API, comments for logic
+
 - **Examples**:
   ```javascript
   // Debounce API calls to prevent overwhelming the server
@@ -136,7 +179,9 @@ This skill identifies where strategic comments add value and generates appropria
 
 #### Java
 - **Block Comments**: `//` for single-line, `/* */` for multi-line
+
 - **JavaDoc**: Separate from strategic comments
+
 - **Examples**:
   ```java
   // Use ConcurrentHashMap instead of synchronized HashMap
@@ -170,7 +215,9 @@ This skill identifies where strategic comments add value and generates appropria
 
 #### C#
 - **Block Comments**: `//` for single-line, `/* */` for multi-line
+
 - **XML Docs**: Separate from strategic comments
+
 - **Examples**:
   ```csharp
   // Use Lazy<T> for thread-safe singleton initialization
@@ -203,7 +250,9 @@ This skill identifies where strategic comments add value and generates appropria
 
 #### Go
 - **Block Comments**: `//` standard, `/* */` for multi-line
+
 - **Exported vs Unexported**: Different comment needs
+
 - **Examples**:
   ```go
   // Use buffered channel to prevent goroutine leaks
@@ -238,26 +287,33 @@ This skill identifies where strategic comments add value and generates appropria
 
 #### C
 - **Block Comments**: `//` (C99+) or `/* */` (traditional)
+
 - **Header Comments**: Function declarations in headers
+
 - **Examples**:
   ```c
   /* Use static inline for small frequently-called functions
 
    * Compiler likely to inline, reducing function call overhead
+
    * Benchmark showed 15% performance improvement in hot path */
   static inline int min(int a, int b) {
       return (a < b) ? a : b;
   }
 
   /* Manual memory management required for legacy API compatibility
+
    * Modern code should use RAII-style wrappers in C++
+
    * Caller must free() returned pointer */
   char* allocate_buffer(size_t size) {
       // ...
   }
 
   /* HACK: Workaround for undefined behavior in pre-C99 compilers
+
    * Flexible array member not supported, using size 1 + allocation
+
    * Remove when minimum compiler version raised to C99 */
   struct packet {
       size_t length;
@@ -265,19 +321,25 @@ This skill identifies where strategic comments add value and generates appropria
   };
 
   /* Thread-local storage for errno-style error reporting
+
    * Alternative to global variable prevents race conditions
+
    * Requires compiler TLS support (-pthread flag) */
   __thread int last_error = 0;
 
   /* WARNING: Buffer overflow risk if input not validated
+
    * Caller MUST ensure src_len <= dest_size - 1
+
    * Consider using strncpy_s on platforms supporting it */
   void unsafe_copy(char* dest, const char* src, size_t dest_size);
   ```
 
 #### C++
 - **Block Comments**: `//` standard, `/* */` for multi-line
+
 - **Modern C++**: Comment trade-offs and design choices
+
 - **Examples**:
   ```cpp
   // Use unique_ptr for automatic memory management
@@ -324,9 +386,13 @@ This skill identifies where strategic comments add value and generates appropria
 ## Prerequisites
 
 - Codebase with complex logic or non-obvious implementations
+
 - Understanding of code purpose and design decisions
+
 - Knowledge of project history and context
+
 - Identification of technical debt and workarounds
+
 - Team coding standards for comments
 
 ## Instructions
@@ -334,30 +400,49 @@ This skill identifies where strategic comments add value and generates appropria
 ### Step 1: Analyze Code for Comment Opportunities
 
 1. **Identify Complex Logic**:
+
    - Algorithms with non-obvious implementations
+
    - Business rules with specific requirements
+
    - Performance optimizations
+
    - Security-critical sections
+
    - Edge case handling
 
 2. **Find Design Decisions**:
+
    - Architecture choices
+
    - Technology selections
+
    - Trade-off considerations
+
    - Workarounds for limitations
+
    - Compatibility concerns
 
 3. **Locate Technical Debt**:
+
    - Temporary solutions
+
    - Known issues
+
    - Future improvements
+
    - Refactoring candidates
+
    - Deprecated patterns
 
 4. **Review Existing Comments**:
+
    - Remove redundant comments
+
    - Update outdated information
+
    - Clarify ambiguous comments
+
    - Remove commented-out code
 
 ### Step 2: Invoke the Add Strategic Comments Skill
@@ -371,16 +456,24 @@ Scope: Module 'business_logic.py' / Directory 'src/core/'
 Focus Areas:
 
 - Complex algorithms in data processing
+
 - Business rules validation logic
+
 - Performance optimizations (caching, etc.)
+
 - Workarounds for library limitations
+
 - Security considerations
 Guidelines:
 
 - Explain 'why' not 'what'
+
 - Avoid redundant comments
+
 - Use TODO/FIXME/HACK appropriately
+
 - Keep comments concise
+
 - Follow PEP 8 style"
 ```
 
@@ -393,16 +486,24 @@ Scope: Module 'services/api.js' / Directory 'src/utils/'
 Focus Areas:
 
 - Asynchronous operation patterns
+
 - Type narrowing explanations (TypeScript)
+
 - Performance optimizations
+
 - Browser compatibility workarounds
+
 - State management logic
 Guidelines:
 
 - Explain design decisions
+
 - Document performance trade-offs
+
 - Clarify type inference limitations
+
 - Mark technical debt with TODO/FIXME
+
 - Balance JSDoc with inline comments"
 ```
 
@@ -415,16 +516,24 @@ Scope: Class 'BusinessService.java' / Package 'com.example.core'
 Focus Areas:
 
 - Thread safety considerations
+
 - Design pattern implementations
+
 - Exception handling strategies
+
 - Resource management
+
 - Business rule enforcement
 Guidelines:
 
 - Explain concurrency design choices
+
 - Document defensive programming
+
 - Reference Effective Java items
+
 - Use FIXME for known issues
+
 - Keep comments maintainable"
 ```
 
@@ -437,16 +546,24 @@ Scope: Class 'DataProcessor.cs' / Namespace 'MyApp.Core'
 Focus Areas:
 
 - Async/await patterns
+
 - LINQ query explanations
+
 - Dependency injection decisions
+
 - IDisposable implementations
+
 - Performance optimizations
 Guidelines:
 
 - Explain asynchronous design
+
 - Document LINQ deferred execution
+
 - Clarify DI lifetime choices
+
 - Mark technical debt
+
 - Reference Microsoft documentation"
 ```
 
@@ -459,16 +576,24 @@ Scope: Package 'processor' / File 'worker.go'
 Focus Areas:
 
 - Goroutine and channel patterns
+
 - Error handling strategies
+
 - Interface design decisions
+
 - Memory management
+
 - Concurrency patterns
 Guidelines:
 
 - Explain goroutine coordination
+
 - Document channel buffer sizing
+
 - Clarify interface contracts
+
 - Reference Go blog posts
+
 - Keep comments idiomatic"
 ```
 
@@ -481,47 +606,75 @@ Scope: Header 'processor.h' / Directory 'src/core/'
 Focus Areas:
 
 - Memory management strategies
+
 - Thread safety guarantees
+
 - Undefined behavior prevention
+
 - Performance optimizations
+
 - Modern C++ feature usage
 Guidelines:
 
 - Explain ownership semantics
+
 - Document thread safety
+
 - Warn about unsafe operations
+
 - Reference C++ Core Guidelines
+
 - Clarify template metaprogramming"
 ```
 
 ### Step 3: Review and Refine Comments
 
 1. **Validate Comment Quality**:
+
    - Does it explain "why" not "what"?
+
    - Does it add value beyond code?
+
    - Is it clear and concise?
+
    - Will it remain accurate?
+
    - Could the code be improved instead?
 
 2. **Check for Anti-Patterns**:
+
    - Redundant comments explaining obvious code
+
    - Commented-out code (remove or explain why kept)
+
    - Outdated information contradicting code
+
    - Apologies or complaints in comments
+
    - Excessive commentary cluttering code
 
 3. **Consider Refactoring**:
+
    - If comment is complex, simplify code
+
    - Extract functions with descriptive names
+
    - Use constants instead of magic numbers
+
    - Improve variable naming
+
    - Apply design patterns
 
 4. **Maintain Comment Quality**:
+
    - Update comments with code changes
+
    - Remove obsolete comments
+
    - Keep TODO/FIXME list manageable
+
    - Link to external documentation
+
    - Review comments in code reviews
 
 ### Step 4: Apply Comment Best Practices
@@ -657,9 +810,13 @@ Use consistent markers for different comment types:
 ### Step 6: Integrate with Development Workflow
 
 1. **Code Review Focus**:
+
    - Review comment quality with code changes
+
    - Ensure comments explain "why"
+
    - Verify no commented-out code
+
    - Check TODO/FIXME items are tracked
 
 2. **Automated Checks**:
@@ -672,15 +829,23 @@ Use consistent markers for different comment types:
    ```
 
 3. **Linter Integration**:
+
    - Configure linters to check comment style
+
    - Set maximum comment line length
+
    - Enforce spacing around comment markers
+
    - Flag redundant comments (if tool supports)
 
 4. **Documentation Generation**:
+
    - Strategic comments complement docstrings
+
    - Extract TODO/FIXME for issue tracking
+
    - Include design decision comments in architecture docs
+
    - Reference comments in technical documentation
 
 ## Quality Checklist
@@ -688,19 +853,33 @@ Use consistent markers for different comment types:
 Before finalizing strategic comments, verify:
 
 - [ ] Comments explain "why" not "what"
+
 - [ ] Complex algorithms have clear explanations
+
 - [ ] Business rules are documented with context
+
 - [ ] Design decisions include rationale
+
 - [ ] Workarounds are marked and tracked
+
 - [ ] Performance optimizations are explained
+
 - [ ] Security considerations are noted
+
 - [ ] No redundant or obvious comments
+
 - [ ] No commented-out code without explanation
+
 - [ ] TODO/FIXME items are actionable
+
 - [ ] Comments are concise and clear
+
 - [ ] Language-specific conventions followed
+
 - [ ] Comments will age well with code
+
 - [ ] Refactoring considered before commenting
+
 - [ ] External references included where helpful
 
 ## Common Issues and Solutions
@@ -709,36 +888,52 @@ Before finalizing strategic comments, verify:
 **Solution**:
 
 - Review each comment: does it add value?
+
 - Refactor code to be more self-documenting
+
 - Use better variable/function names
+
 - Extract complex logic into well-named functions
+
 - Remove redundant comments
 
 ### Issue: Outdated Comments
 **Solution**:
 
 - Update comments when changing code
+
 - Review comments during code review
+
 - Remove comments that no longer apply
+
 - Use linters to detect code-comment mismatches (if available)
+
 - Keep comments focused on "why" which ages better
 
 ### Issue: Comment Overload on Simple Code
 **Solution**:
 
 - Trust developers to understand basic patterns
+
 - Comment the non-obvious, not the obvious
+
 - Use comments to explain intent, not mechanics
+
 - Let code speak for itself when possible
+
 - Focus comments on business logic and edge cases
 
 ### Issue: Inconsistent TODO/FIXME Usage
 **Solution**:
 
 - Define team standards for technical debt markers
+
 - Create issue tracker tickets for important items
+
 - Regular cleanup of completed TODO items
+
 - Use consistent format: `TODO(author): description`
+
 - Review and prioritize during planning meetings
 
 ## Success Criteria
@@ -746,68 +941,103 @@ Before finalizing strategic comments, verify:
 After using this skill, you should have:
 
 - [ ] Complex logic explained with clear comments
+
 - [ ] Business rules documented with context
+
 - [ ] Design decisions include rationale
+
 - [ ] Workarounds marked and tracked
+
 - [ ] Technical debt visible and managed
+
 - [ ] No redundant or obvious comments
+
 - [ ] No commented-out code clutter
+
 - [ ] Consistent comment style across codebase
+
 - [ ] Comments complement self-documenting code
+
 - [ ] Development team understands when to comment
 
 ## Related Skills
 
 - `generate-docstrings`: Create API documentation
+
 - `generate-api-docs`: Build comprehensive API reference
+
 - `create-technical-docs`: Document architecture decisions
+
 - `code-review-quality`: Review code including comments
+
 - `cleanup-*`: Clean up code and comments
 
 ## Tools by Language
 
 ### Python
 - **pylint**: Comment style checking
+
 - **pydocstyle**: Docstring conventions
+
 - **flake8**: Code quality including comments
+
 - **black**: Code formatting (comment spacing)
 
 ### JavaScript/TypeScript
 - **ESLint**: Comment validation rules
+
 - **prettier**: Comment formatting
+
 - **tslint**: TypeScript-specific comment rules
+
 - **jsdoc**: API documentation validation
 
 ### Java
 - **Checkstyle**: Comment style enforcement
+
 - **PMD**: Code quality including comments
+
 - **SpotBugs**: Detect commented-out code
+
 - **SonarQube**: Comment quality metrics
 
 ### C#
 - **StyleCop**: Comment style rules
+
 - **ReSharper**: Comment suggestions
+
 - **SonarQube**: Code quality metrics
+
 - **FxCop**: Code analysis including comments
 
 ### Go
 - **golint**: Comment conventions
+
 - **staticcheck**: Code quality analysis
+
 - **gofmt**: Code formatting
+
 - **revive**: Flexible linter with comment rules
 
 ### C/C++
 - **cppcheck**: Static analysis
+
 - **clang-tidy**: Comment style checking
+
 - **cpplint**: Google style guide enforcement
+
 - **doxygen**: Documentation generation
 
 ## Additional Resources
 
 - [Code Complete 2 - Chapter 32: Self-Documenting Code](https://www.oreilly.com/library/view/code-complete-2nd/0735619670/)
+
 - [Clean Code - Chapter 4: Comments](https://www.oreilly.com/library/view/clean-code-a/9780136083238/)
+
 - [The Art of Readable Code - Chapter 5: Knowing What to Comment](https://www.oreilly.com/library/view/the-art-of/9781449318482/)
+
 - [Google Code Review Guidelines - Comments](https://google.github.io/eng-practices/review/reviewer/looking-for.html#comments)
+
 - [Linux Kernel Coding Style - Commenting](https://www.kernel.org/doc/html/latest/process/coding-style.html#commenting)
 
 ---

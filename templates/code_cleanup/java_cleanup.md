@@ -12,12 +12,16 @@ prerequisites: []
 tools:
 
   - junit (5.11.3)
+
   - maven
+
   - gradle
 tags:
 
   - ai-templates
+
   - refactoring
+
   - java
 ---
 # Code Cleanup & Refactoring Review - Java
@@ -143,8 +147,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -165,20 +172,33 @@ Please perform a comprehensive, systematic cleanup of my Java codebase following
 Before making ANY changes, please:
 
 1. **Analyze the complete codebase structure**
+
    - Identify all .java files in src/main/java and src/test/java
+
    - Map dependencies between packages and classes
+
    - Identify public APIs that must be preserved
+
    - Check pom.xml or build.gradle for unused dependencies
 
 2. **Generate a detailed cleanup report** listing:
+
    - Unused imports and static imports
+
    - Unused fields, methods, and classes
+
    - Debug System.out.println() statements
+
    - Empty lines within method bodies
+
    - Inline and meta-commentary comments
+
    - Dead code after returns or in unreachable branches
+
    - Legacy patterns (raw types, old-style loops, null checks)
+
    - Code smells (god classes, long methods, feature envy)
+
    - Estimated impact and risk level for each category
 
 3. **Present findings and wait for my approval** before proceeding
@@ -192,24 +212,37 @@ After I approve, systematically clean the following:
 **CRITICAL: Perform multiple passes through the entire codebase to ensure completeness**
 
 1. **First Pass**: Apply all cleanup tasks systematically across the codebase
+
    - Work through all .java files in src/main/java and src/test/java
+
    - Apply all requested cleanup operations
+
    - Track which files were modified
 
 2. **Verification Pass**: Review the entire codebase again
+
    - Check for any files that were missed in the first pass
+
    - Verify all cleanup patterns were applied consistently
+
    - Identify any edge cases or exceptions that need attention
 
 3. **Repeat Until Complete**: Continue additional passes if needed
+
    - If files were found that needed cleanup in the verification pass, perform another full pass
+
    - Repeat until a complete pass finds no additional cleanup opportunities
+
    - Track the number of passes required to achieve complete cleanup
 
 4. **Pass Tracking**: Maintain detailed statistics for each pass
+
    - Number of files processed per pass
+
    - Number of files cleaned per pass
+
    - Percentage of codebase cleaned per pass
+
    - Types of issues found per pass
 
 #### When to Stop Multi-Pass Cleanup
@@ -217,23 +250,35 @@ After I approve, systematically clean the following:
 Stop when **ONE** of these conditions is met:
 
 1. ✅ **Zero-change pass** (RECOMMENDED STOPPING POINT)
+
    - Entire verification pass finds nothing to clean
+
    - All files reviewed, no modifications made
+
    - This is the ideal completion state
 
 2. ✅ **Diminishing returns threshold**
+
    - <5% additional files cleaned per pass
+
    - Calculate: `(files_cleaned_this_pass / total_files) < 0.05`
+
    - Example: If 150 total files and pass cleans <8 files, stop
 
 3. ✅ **Pass limit reached**
+
    - Maximum 3 passes completed
+
    - Log incomplete work if stopping at this point
+
    - Document remaining issues for future cleanup
 
 4. ✅ **Time limit reached**
+
    - 8 hours of cleanup time exceeded
+
    - Document progress and remaining work
+
    - Schedule follow-up cleanup session if needed
 
 **NEVER stop without at least 2 passes (initial + verification).**
@@ -247,35 +292,59 @@ Create `${OUTPUT_DIR}/cleanup/progress.md` after each pass:
 
 ## Pass 1 - Initial Cleanup
 - **Date**: 2025-12-03
+
 - **Start Time**: 10:00 AM
+
 - **End Time**: 1:00 PM
+
 - **Duration**: 3 hours
+
 - **Files Analyzed**: 150
+
 - **Files Cleaned**: 45 (30.0%)
+
 - **Issues Found**: 234
+
   - Unused imports: 67
+
   - Unused variables: 89
+
   - Empty lines: 45
+
   - Inline comments: 33
+
 - **Issues Resolved**: 234 (100%)
 
 ## Pass 2 - Verification
 - **Date**: 2025-12-03
+
 - **Start Time**: 2:00 PM
+
 - **End Time**: 3:00 PM
+
 - **Duration**: 1 hour
+
 - **Files Analyzed**: 150
+
 - **Files Cleaned**: 8 (5.3%)
+
 - **Issues Found**: 12
+
   - Unused imports: 5
+
   - Empty lines: 7
+
 - **Issues Resolved**: 12 (100%)
 
 ## Decision: STOP - Diminishing returns threshold met
 - **Condition Met**: Files cleaned in Pass 2 (5.3%) < threshold (5%)
+
 - **Total Passes**: 2
+
 - **Total Time**: 4 hours
+
 - **Total Files Cleaned**: 53/150 (35.3%)
+
 - **Overall Status**: ✅ Cleanup complete
 ```
 
@@ -291,25 +360,33 @@ Use this matrix to decide whether to continue or stop:
 | 16+ | 150 | >10% | **CONTINUE** - Significant cleanup remaining |
 
 **Time-based stopping:**
+
 - After 8 hours total cleanup time, **STOP** regardless of percentage
+
 - Document remaining work for future cleanup session
 
 **Pass-based stopping:**
+
 - After 3 passes, **STOP** and document incomplete work
+
 - Consider if issues are edge cases or systematic problems
 
 ### Critical Removals
 
 - **Unused imports**: Remove any imports not referenced in the code
+
   - Use IDE inspections or static analysis tools to detect
+
   - Remove wildcard imports (import java.util.*;) and replace with specific imports
 
 - **Unused fields**: Remove private fields that are assigned but never read
 
 - **Unused methods**: Remove private methods that are never called
+
   - PRESERVE public and protected methods (may be part of public API or used by subclasses)
 
 - **Unused parameters**: Remove parameters that are defined but never used
+
   - Consider using @SuppressWarnings("unused") if parameter is required by interface
 
 - **Unused local variables**: Remove variables that are assigned but never used
@@ -317,6 +394,7 @@ Use this matrix to decide whether to continue or stop:
 - **Empty methods**: Remove empty method bodies or replace with appropriate implementations
 
 - **Empty lines within methods**: Remove excessive blank lines inside method bodies
+
   - KEEP empty lines between logical code sections and between methods
 
 ### Comment Cleanup
@@ -330,15 +408,21 @@ Use this matrix to decide whether to continue or stop:
 - **TODO comments**: Flag or remove stale TODO comments
 
 - PRESERVE comments that explain:
+
   - Why a particular approach was chosen
+
   - Business logic or domain-specific rules
+
   - Complex algorithms or non-obvious implementations
+
   - Workarounds for known issues/bugs in dependencies
+
   - Javadoc documentation for public APIs
 
 ### Debugging & Development Artifacts
 
 - **System.out/err statements**: Remove System.out.println() and System.err.println() used for debugging
+
   - PRESERVE intentional logging using proper logging frameworks (SLF4J, Log4j)
 
 - **printStackTrace()**: Replace printStackTrace() with proper logging
@@ -366,9 +450,13 @@ Use this matrix to decide whether to continue or stop:
 #### Import Organization
 
 - **Consolidate imports**: Organize imports in standard order:
+
   1. Java standard library (java.*)
+
   2. Java extensions (javax.*)
+
   3. Third-party libraries (org.*, com.*)
+
   4. Internal packages
 
 - **Remove wildcard imports**: Replace `import java.util.*;` with specific imports
@@ -432,17 +520,25 @@ Use this matrix to decide whether to continue or stop:
 Identify and remove variables, properties, and configuration that serve no functional purpose:
 
 - **Ignored CSS/Style Properties**: In custom-painted Swing/JavaFX components
+
   - CSS properties defined but completely ignored by custom paintComponent() or render() methods
+
   - Style settings that are overridden by manual Graphics2D drawing
+
   - JavaFX CSS that has no effect due to custom rendering
 
 - **Dead Configuration Values**: Settings that are defined but never used
+
   - Unused fields in configuration classes
+
   - Properties files with unused keys
+
   - Constants that are never referenced
 
 - **Redundant Constants**: Values that duplicate other constants
+
   - Multiple constants with identical values
+
   - Constants that duplicate framework defaults
 
 **Detection Example: Custom Swing Component**
@@ -498,16 +594,25 @@ public class GoodProgressBar extends JProgressBar {
 ```
 
 **Why This Matters:**
+
 1. **Clarity**: Visual config is discoverable at class top
+
 2. **Maintainability**: Easy to find and modify appearance constants
+
 3. **No Confusion**: Clear why setBorder/setBackground don't work
+
 4. **IDE Support**: Constants have better autocomplete than method chains
 
 **Detection Strategy:**
+
 1. Find classes that override paintComponent(), paint(), or similar
+
 2. Check for setBorder(), setBackground(), setForeground() calls
+
 3. Verify those properties are used in the paint method
+
 4. Extract hardcoded values to constants, remove useless setter calls
+
 5. Add Javadoc explaining why standard setters aren't used
 
 #### Build & Configuration
@@ -523,7 +628,9 @@ public class GoodProgressBar extends JProgressBar {
 After cleanup, you MUST:
 
 1. **Provide summary** of all changes made, organized by category
+
 2. **Highlight any edge cases** or decisions that required judgment
+
 3. **Request that I run tests and build** to verify nothing broke:
    ```bash
    # Maven
@@ -539,9 +646,13 @@ After cleanup, you MUST:
    ```markdown
    ### Code Cleanup - [Date]
    - Removed [X] unused imports
+
    - Removed [Y] unused methods
+
    - Removed [Z] System.out.println statements
+
    - Modernized [N] legacy patterns
+
    - Additional improvements: [summary]
    ```
 
@@ -593,9 +704,13 @@ Present cleanup in this structure:
 - **File:** path/to/File.java
 
 - **Removals:**
+
   - Line X: Unused import java.util.List
+
   - Lines X-Y: Unused private method methodName()
+
   - Line Z: System.out.println() debugging statement
+
   - Line N: Inline comment removed
 
 - **Rationale:** [Brief explanation of why these were removed]
@@ -607,23 +722,35 @@ Present cleanup in this structure:
 **Pass-by-Pass Breakdown:**
 
 - **Pass 1** (Initial cleanup):
+
   - Files processed: X
+
   - Files cleaned: Y
+
   - Percentage of codebase: Z%
 
 - **Pass 2** (Verification):
+
   - Files processed: X
+
   - Files cleaned: W (files missed in Pass 1)
+
   - Percentage of codebase: V%
 
 - **Pass N** (if needed):
+
   - Files processed: X
+
   - Files cleaned: 0 (verification complete)
 
 **Multi-Pass Summary:**
+
 - **Total passes required**: N
+
 - **Files cleaned in first pass**: Y (Z% of codebase)
+
 - **Files cleaned in subsequent passes**: W (V% of codebase)
+
 - **Final verification**: ✅ All files processed, no additional cleanup needed
 
 ### Standard Cleanup Metrics
@@ -647,7 +774,9 @@ Present cleanup in this structure:
 ### Useless Code Detection Metrics
 
 - **Useless style properties removed:** R
+
   - Converted to code constants: S
+
   - Simply deleted: T
 
 - **Dead configuration removed:** U
@@ -655,8 +784,11 @@ Present cleanup in this structure:
 - **Redundant constants consolidated:** V
 
 **Impact Analysis:**
+
 - Code clarity improvement: [High/Medium/Low]
+
 - Maintenance burden reduction: [High/Medium/Low]
+
 - Configuration discoverability: [High/Medium/Low]
 
 **Overall Impact:** [Low/Medium/High risk assessment]

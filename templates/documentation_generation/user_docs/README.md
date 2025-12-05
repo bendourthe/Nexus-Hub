@@ -37,9 +37,13 @@ Create clear, accessible documentation that enables users to quickly understand,
 ## 🚀 Quick Start
 
 1. Determine target audience and their technical level
+
 2. Use the comprehensive prompt in `python_user_docs.md`
+
 3. Request specific documentation types (README, installation guide, etc.)
+
 4. Review generated content for clarity and accuracy
+
 5. Test installation and usage instructions with fresh users
 
 ## 📊 Success Criteria

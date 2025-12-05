@@ -18,11 +18,14 @@ related_templates:
 tools:
 
   - google test
+
   - catch2
+
   - boost.test
 tags:
 
   - test-development
+
   - cpp
 ---
 # C++ Code Coverage Analysis
@@ -163,8 +166,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 Please implement comprehensive code coverage measurement and improvement for this C++ project following this protocol:
@@ -1049,6 +1055,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
       - uses: actions/checkout@v3
 
       - name: Install dependencies
@@ -1120,13 +1127,19 @@ Please provide a comprehensive coverage analysis with the following structure:
 
 ### Critical Coverage Gaps
 1. **src/service.cpp** (67% line coverage)
+
    - **Missing**: Error handling paths, exception handling
+
    - **Priority**: Critical - core business logic
+
    - **Action**: Add exception and error scenario tests
 
 2. **src/auth.cpp** (78% line coverage)
+
    - **Missing**: Edge cases in authentication, boundary conditions
+
    - **Priority**: High - security-critical
+
    - **Action**: Add boundary condition and security tests
 
 ### Coverage Improvement Plan
@@ -1235,13 +1248,21 @@ Replace `{phase_name}` with the specific phase (test_cases, mocks_fixtures, perf
 The AI assistant should deliver:
 
 1. **Complete coverage configuration** (CMakeLists.txt or Makefile)
+
 2. **Current coverage analysis** with gaps identified
+
 3. **Prioritized improvement plan** with specific actions
+
 4. **Test implementations** to fill critical gaps (Google Test/Google Mock)
+
 5. **Coverage reporting infrastructure** (LCOV or llvm-cov, HTML)
+
 6. **CI/CD integration** with coverage gates
+
 7. **Coverage tracking utilities** for trends
+
 8. **Coverage diff tools** for PR reviews
+
 9. **Team documentation** on coverage standards
 ---
 

@@ -16,10 +16,15 @@ Configure Claude Code with comprehensive Go development standards, idiomatic Go 
 ## When to Use This Skill
 
 Use this skill when you need to:
+
 - Set up a new Go project with Claude Code
+
 - Configure Claude Code for Go development (Go 1.21+)
+
 - Apply comprehensive Go development standards and idioms
+
 - Establish consistent coding practices across Go projects
+
 - Optimize Claude Code for Go-specific workflows (goroutines, channels, interfaces)
 
 ## What This Skill Does
@@ -27,47 +32,75 @@ Use this skill when you need to:
 This skill helps you configure Claude Code with:
 
 1. **Go Development Standards**
+
    - Idiomatic Go code patterns and conventions
+
    - gofmt and goimports formatting
+
    - Error handling best practices (return errors, not panic)
+
    - Naming conventions (PascalCase exports, camelCase unexported)
 
 2. **Project Architecture Guidelines**
+
    - Standard project structure (cmd/, internal/, pkg/)
+
    - go.mod and go.sum management
+
    - Configuration patterns (YAML, environment variables)
+
    - Documentation structure (README, CHANGELOG, godoc)
 
 3. **Concurrency Patterns**
+
    - Goroutines and channel usage
+
    - Worker pool patterns
+
    - Context for cancellation and timeouts
+
    - sync package primitives (Mutex, WaitGroup, Once)
 
 4. **Testing Framework**
+
    - Go testing package patterns
+
    - Table-driven tests
+
    - testify/assert for assertions
+
    - Benchmark and example tests
 
 5. **Code Quality Standards**
+
    - Interface design (small, focused interfaces)
+
    - Error wrapping with fmt.Errorf and %w
+
    - HTTP handler patterns (Gin framework)
+
    - Repository and service layer patterns
 
 6. **Development Tools**
+
    - go build, go test, go run commands
+
    - golangci-lint for comprehensive linting
+
    - gofmt and goimports for formatting
+
    - go vet for static analysis
+
    - go mod tidy for dependency management
 
 ## Prerequisites
 
 - Claude Code installed and configured
+
 - Go 1.21+ installed
+
 - Basic understanding of Go development
+
 - Project directory created (or ready to create new project)
 
 ## Instructions
@@ -77,17 +110,27 @@ This skill helps you configure Claude Code with:
 Decide between two versions based on your needs:
 
 **Comprehensive Version (~40k tokens)**
+
 - Best for: Enterprise microservices, production APIs, complex Go applications
+
 - Features: Complete architectural guidance, extensive concurrency patterns, detailed error handling
+
 - Token count: ~40,000 tokens
+
 - File: `agent_prompts/autonomous_agents/claude_code/go/CLAUDE_comprehensive_40k.md`
+
 - Includes: Full HTTP handler patterns, repository layer, middleware, database integration
 
 **Condensed Version (~20k tokens)**
+
 - Best for: CLI tools, quick utilities, smaller Go services, prototyping
+
 - Features: Essential Go idioms, core best practices, streamlined workflow
+
 - Token count: ~20,000 tokens
+
 - File: `agent_prompts/autonomous_agents/claude_code/go/CLAUDE_condensed_20k.md`
+
 - Includes: Core patterns, essential standards, rapid development focus
 
 ### Step 2: Configure Claude Code
@@ -97,6 +140,7 @@ There are two methods to configure Claude Code with the Go system prompt:
 #### Method A: Project-Level CLAUDE.md (Recommended)
 
 1. Navigate to your Go project root directory
+
 2. Copy the chosen system prompt file to `CLAUDE.md`:
    ```bash
    # For comprehensive version
@@ -128,10 +172,15 @@ Test that the system prompt is active by asking Claude Code to:
    ```
 
    Expected behavior:
+
    - Returns error instead of panicking
+
    - Uses error wrapping with fmt.Errorf
+
    - Proper naming conventions (PascalCase for exported)
+
    - Includes godoc comments
+
    - No blank lines inside functions
 
 2. **Request project structure** and verify it matches Go standards:
@@ -140,10 +189,15 @@ Test that the system prompt is active by asking Claude Code to:
    ```
 
    Expected behavior:
+
    - Includes cmd/, internal/, pkg/ directories
+
    - Shows go.mod and Makefile
+
    - Includes config/ for configuration
+
    - Shows handler/, service/, repository/ layers
+
    - Includes CHANGELOG.md, README.md
 
 3. **Ask about concurrency** and confirm it knows Go patterns:
@@ -152,10 +206,15 @@ Test that the system prompt is active by asking Claude Code to:
    ```
 
    Expected behavior:
+
    - Mentions goroutines and channels
+
    - Discusses worker pool pattern
+
    - Explains context for cancellation
+
    - Shows proper channel closing with defer
+
    - Discusses sync.WaitGroup usage
 
 4. **Request testing patterns** and verify Go testing knowledge:
@@ -164,10 +223,15 @@ Test that the system prompt is active by asking Claude Code to:
    ```
 
    Expected behavior:
+
    - Mentions table-driven tests
+
    - Describes _test.go file naming
+
    - Explains testify/assert usage
+
    - Shows TestMain for setup/teardown
+
    - Discusses test coverage with go test -cover
 
 ### Step 4: Initialize Go Module (If New Project)
@@ -179,11 +243,17 @@ If starting a new project, verify Claude Code guides you correctly:
 ```
 
 Expected behavior:
+
 1. Guides you to run `go mod init <module-path>`
+
 2. Creates standard directory structure
+
 3. Creates main.go in cmd/api/
+
 4. Creates Makefile with build, test, run targets
+
 5. Creates .gitignore with Go-specific entries
+
 6. Sets up CHANGELOG.md starting at version 0.1.0
 
 ### Step 5: Customize for Your Organization (Optional)
@@ -191,14 +261,18 @@ Expected behavior:
 If you need to add organization-specific Go standards:
 
 1. Open the CLAUDE.md file in your project
+
 2. Add a new section at the end:
    ```markdown
    # Organization-Specific Go Standards
 
    ## Additional Requirements
    - [Your custom module path prefix]
+
    - [Internal package guidelines]
+
    - [Deployment patterns]
+
    - [Monitoring/logging standards]
    ```
 3. Save and restart Claude Code session
@@ -219,9 +293,13 @@ git push
 Automatically follows Go conventions:
 
 - **Exported vs unexported**: PascalCase for exported, camelCase for internal
+
 - **Error handling**: Always return errors, never panic in library code
+
 - **Error wrapping**: Use fmt.Errorf with %w for error chains
+
 - **Interface design**: Small, focused interfaces (Reader, Writer patterns)
+
 - **Constructor pattern**: NewXxx functions that return pointers
 
 ### 2. Project Structure
@@ -244,49 +322,73 @@ project/
 Proper use of Go's concurrency primitives:
 
 - **Goroutines**: Lightweight concurrent execution
+
 - **Channels**: Communication between goroutines
+
 - **Select**: Multiplexing channel operations
+
 - **Context**: Cancellation and timeout propagation
+
 - **sync package**: Mutex, WaitGroup, Once patterns
+
 - **Worker pools**: Controlled concurrent processing
 
 ### 4. Error Handling
 Go-idiomatic error handling:
 
 - Return errors, don't panic (except for programmer errors)
+
 - Custom error types implementing error interface
+
 - Error wrapping with fmt.Errorf("context: %w", err)
+
 - errors.Is and errors.As for error checking
+
 - Sentinel errors for common cases
 
 ### 5. Testing Patterns
 Go testing best practices:
 
 - Table-driven tests for multiple scenarios
+
 - Subtests with t.Run for organization
+
 - testify/assert for readable assertions
+
 - Mock interfaces for dependencies
+
 - Benchmark tests for performance
+
 - Example tests for documentation
 
 ### 6. HTTP Handler Patterns (Gin)
 Standard handler structure:
 
 - Constructor injection of dependencies
+
 - Context propagation from request
+
 - Proper HTTP status codes
+
 - JSON response formatting
+
 - Error logging with structured logging (zap)
+
 - Validation and request binding
 
 ### 7. Code Quality Tools
 Integration with Go ecosystem:
 
 - **gofmt**: Standard code formatting
+
 - **goimports**: Import organization and management
+
 - **go vet**: Static analysis for common mistakes
+
 - **golangci-lint**: Comprehensive linter suite
+
 - **go test -cover**: Code coverage analysis
+
 - **go mod tidy**: Dependency cleanup
 
 ## Common Configuration Issues
@@ -314,44 +416,69 @@ Integration with Go ecosystem:
 After completing this skill, you should have:
 
 - [ ] Claude Code configured with Go system prompt (CLAUDE.md in project root)
+
 - [ ] Verified configuration by testing function generation with error handling
+
 - [ ] Confirmed project structure knowledge (cmd/, internal/, pkg/)
+
 - [ ] Validated concurrency pattern understanding (goroutines, channels, context)
+
 - [ ] Confirmed testing framework knowledge (table-driven tests, testify)
+
 - [ ] Verified HTTP handler pattern knowledge (Gin framework)
+
 - [ ] Optionally customized for organization-specific Go standards
+
 - [ ] Committed CLAUDE.md to version control for team consistency
 
 ## Go Version Compatibility
 
 This system prompt is optimized for:
+
 - **Go 1.21+**: Primary target with latest features
+
 - **Go 1.22**: Full support for enhanced routing, range over functions
+
 - **Backwards compatible**: Works with Go 1.18+ (generics support)
 
 Key features used:
+
 - Error wrapping with %w (Go 1.13+)
+
 - Embedded interfaces (Go 1.14+)
+
 - Type parameters/generics (Go 1.18+)
+
 - Context-aware HTTP handlers (all versions)
 
 ## Related Skills
 
 - `init-go-project`: Initialize new Go project following system prompt standards
+
 - `setup-go-testing`: Establish testing framework with table-driven tests
+
 - `go-code-review`: Review Go code quality against configured standards
+
 - `generate-go-interfaces`: Generate idiomatic Go interfaces
+
 - `go-concurrency-patterns`: Implement goroutines and channels correctly
 
 ## Additional Resources
 
 - [Effective Go](https://go.dev/doc/effective_go) - Official Go best practices
+
 - [Go Code Review Comments](https://github.com/golang/go/wiki/CodeReviewComments) - Common review feedback
+
 - [Go Proverbs](https://go-proverbs.github.io/) - Simple programming values
+
 - [Uber Go Style Guide](https://github.com/uber-go/guide/blob/master/style.md) - Production Go style guide
+
 - [Standard Go Project Layout](https://github.com/golang-standards/project-layout) - Project structure reference
+
 - [testify Documentation](https://github.com/stretchr/testify) - Testing assertions
+
 - [Gin Web Framework](https://gin-gonic.com/docs/) - HTTP framework guide
+
 - [golangci-lint](https://golangci-lint.run/) - Comprehensive linter
 
 ## Go-Specific Best Practices Enforced
@@ -519,9 +646,13 @@ func NewUserService(repo UserRepository, cache CacheService, logger *zap.Logger)
 ```
 
 **Benefits**:
+
 - Testability through interface mocking
+
 - Loose coupling between components
+
 - Clear dependencies at construction time
+
 - No hidden global state
 
 ### Repository Pattern

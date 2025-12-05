@@ -7,8 +7,11 @@ Model Context Protocol (MCP) integrations and external service configurations fo
 **Model Context Protocol (MCP)** is Anthropic's standard for connecting Claude to external tools, services, and data sources. MCPs enable Claude Code to:
 
 - Access external APIs (GitHub, databases, cloud services)
+
 - Read/write to specialized data stores
+
 - Interact with development tools
+
 - Retrieve real-time information
 
 ## MCP Configuration
@@ -55,16 +58,25 @@ MCPs are configured in `.mcp.json` at your project root:
 ```
 
 **Setup:**
+
 1. Generate GitHub Personal Access Token:
+
    - Go to GitHub Settings > Developer settings > Personal access tokens
+
    - Generate new token (classic)
+
    - Select scopes: `repo`, `read:org`, `read:user`
+
 2. Add token to `.mcp.json`
+
 3. Restart Claude Code
 
 **Skills that use this:**
+
 - `code-commit-workflow`
+
 - `dependency-security-audit`
+
 - `code-review-*` (for remote repos)
 
 ---
@@ -113,7 +125,9 @@ MCPs are configured in `.mcp.json` at your project root:
 ```
 
 **Skills that use this:**
+
 - `generate-api-docs` (for database-backed APIs)
+
 - `code-review-performance` (for query optimization)
 
 ---
@@ -317,8 +331,11 @@ Copy relevant configurations from templates above.
 ### Step 4: Obtain API Keys
 
 For each MCP:
+
 1. Visit the service's developer portal
+
 2. Generate API keys/tokens
+
 3. Add to `.mcp.json` env section
 
 ### Step 5: Test Configuration
@@ -408,7 +425,9 @@ Load in `.mcp.json`:
 ### Rotate Keys Regularly
 
 - Change API keys every 90 days
+
 - Use short-lived tokens when possible
+
 - Revoke unused keys immediately
 
 ---
@@ -433,9 +452,13 @@ npm install -g @modelcontextprotocol/server-github
 **Problem:** `401 Unauthorized` or `403 Forbidden`
 
 **Solution:**
+
 1. Verify API key is correct
+
 2. Check key has required permissions
+
 3. Ensure key hasn't expired
+
 4. Test key directly with service API
 
 ### Connection Timeout
@@ -443,9 +466,13 @@ npm install -g @modelcontextprotocol/server-github
 **Problem:** `ETIMEDOUT` or connection errors
 
 **Solution:**
+
 1. Check network connectivity
+
 2. Verify service URL is correct
+
 3. Check firewall settings
+
 4. Test with curl/wget:
    ```bash
    curl -H "Authorization: token YOUR_TOKEN" https://api.github.com/user
@@ -456,9 +483,13 @@ npm install -g @modelcontextprotocol/server-github
 **Problem:** `429 Too Many Requests`
 
 **Solution:**
+
 1. Reduce API call frequency
+
 2. Implement caching in your workflows
+
 3. Upgrade to higher rate limit tier
+
 4. Use authenticated requests (higher limits)
 
 ---
@@ -466,8 +497,11 @@ npm install -g @modelcontextprotocol/server-github
 ## MCP Development
 
 Want to create custom MCPs? See:
+
 - [Anthropic MCP Documentation](https://docs.anthropic.com/model-context-protocol)
+
 - [MCP SDK](https://github.com/anthropics/mcp-sdk)
+
 - [Example MCPs](https://github.com/anthropics/mcp-examples)
 
 ---
@@ -506,21 +540,33 @@ Want to create custom MCPs? See:
 Load different MCPs based on project type:
 
 **For web projects:**
+
 - GitHub
+
 - PostgreSQL/MySQL
+
 - AWS/GCP
+
 - OpenAI
 
 **For data science projects:**
+
 - GitHub
+
 - MongoDB
+
 - AWS S3
+
 - OpenAI
 
 **For enterprise projects:**
+
 - GitLab
+
 - Oracle/SQL Server
+
 - Azure
+
 - Confluence
 
 ---
@@ -529,18 +575,22 @@ Load different MCPs based on project type:
 
 ### Requires GitHub MCP:
 - `code-commit-workflow`
+
 - `dependency-security-audit` (for remote repos)
 
 ### Requires Database MCP:
 - `generate-api-docs` (for DB-backed APIs)
+
 - `code-review-performance` (for query analysis)
 
 ### Requires Cloud MCP:
 - `dependency-security-audit` (for cloud dependencies)
+
 - `generate-sbom` (for cloud resources)
 
 ### No MCP Required:
 - Most skills work with local files only
+
 - MCP is optional enhancement for additional functionality
 
 ---

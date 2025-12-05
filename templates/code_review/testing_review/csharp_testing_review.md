@@ -18,13 +18,18 @@ related_templates:
 tools:
 
   - NUnit (4.2.2)
+
   - xUnit
+
   - MSTest
 tags:
 
   - code-review
+
   - testing
+
   - code-review
+
   - c#
 ---
 # C# Testing Review
@@ -141,16 +146,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Issues that create immediate risks to system stability, data integrity, or compliance.
 
 **Examples:**
+
 - Security vulnerabilities (SQL injection, XSS, authentication bypass)
+
 - Resource leaks (unclosed connections, file handles, memory leaks)
+
 - Data loss risks (destructive operations without validation)
+
 - Thread safety violations (race conditions, deadlocks)
+
 - Compliance violations (GDPR, HIPAA, PCI-DSS)
 
 **Action Required:**
+
 - Block deployment until fixed
+
 - Require hotfix within 24 hours
+
 - Add tests to prevent regression
+
 - Document root cause and fix
 
 ---
@@ -160,16 +174,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Issues that significantly impact maintainability, performance, or correctness but don't cause immediate failures.
 
 **Examples:**
+
 - Incorrect business logic (wrong calculations, flawed algorithms)
+
 - Performance bottlenecks (O(n²) algorithms, missing indexes, inefficient queries)
+
 - Memory inefficiency (loading large datasets into memory unnecessarily)
+
 - Breaking API changes without deprecation
+
 - Missing critical error handling (network errors, API failures not caught)
 
 **Action Required:**
+
 - Schedule fix in current sprint
+
 - Cannot release without resolution
+
 - Update documentation
+
 - Performance test after fix
 
 ---
@@ -179,16 +202,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Code smells and technical debt that reduce maintainability but don't affect correctness.
 
 **Examples:**
+
 - High complexity (cyclomatic complexity >10, functions >100 lines)
+
 - Code duplication (>10 lines duplicated across modules)
+
 - Poor naming (unclear variable/function names, inconsistent conventions)
+
 - Missing tests (<80% coverage on critical paths)
+
 - Incomplete error messages (no context for debugging)
 
 **Action Required:**
+
 - Add to backlog
+
 - Prioritize in next sprint planning
+
 - Consider during refactoring opportunities
+
 - Track technical debt metrics
 
 ---
@@ -198,16 +230,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Style inconsistencies and minor optimizations that don't impact functionality.
 
 **Examples:**
+
 - Style violations (linting warnings, formatting issues)
+
 - Minor performance optimizations (in non-critical code paths)
+
 - Missing documentation on helper functions
+
 - Verbose code that could be more concise
+
 - Debug statements left in code
 
 **Action Required:**
+
 - Fix opportunistically during other work
+
 - Batch with other low-priority changes
+
 - Good for new contributors
+
 - Can be deferred indefinitely
 
 ---
@@ -215,20 +256,31 @@ Use this framework to classify and prioritize all findings from the code review.
 ## Severity Assignment Guidelines
 
 **When to Escalate Severity:**
+
 - Issue affects **production environment** → escalate one level
+
 - Issue affects **customer-facing features** → escalate one level
+
 - Issue has **no workaround** → escalate one level
+
 - Issue appears in **multiple locations** → escalate one level
 
 **When to De-escalate Severity:**
+
 - Issue only in **test/development code** → de-escalate one level
+
 - Issue has **easy workaround** → de-escalate one level
+
 - Issue is **isolated to single module** → de-escalate one level
+
 - Issue **rarely executed** (edge case) → de-escalate one level
 
 **Examples:**
+
 - Memory leak in production API: **HIGH → CRITICAL** (production + customer-facing)
+
 - Style violation in test file: **LOW → Ignore** (test code + style only)
+
 - Duplicated logic across 15 modules: **MEDIUM → HIGH** (multiple locations)
 
 ---
@@ -258,16 +310,22 @@ For each finding, include:
 **Issue:** The user search function loads all users into memory and performs linear search on every request.
 
 **Impact:**
+
 - Response time degrades with user count (currently 500ms for 10k users)
+
 - High memory usage (50MB+ per request)
+
 - Poor scalability (can't handle >100k users)
 
 **Recommendation:**
 Move filtering to database with indexed query:
 
 - Add database index on search fields
+
 - Use database LIKE/ILIKE queries
+
 - Implement pagination (limit results to 50)
+
 - Add caching for common searches
 
 **Effort:** 3 hours (2 hours implementation + 1 hour testing)
@@ -314,8 +372,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -353,16 +414,25 @@ Please perform a comprehensive testing review of this C# project following this 
    ```
 
 2. **Coverage Analysis**
+
    - Overall coverage percentage (line and branch)
+
    - Project-by-project coverage breakdown
+
    - Identify classes with <60% coverage
+
    - Find critical paths with inadequate coverage
+
    - Document untested code sections
 
 3. **Branch Coverage**
+
    - Identify untested conditional branches
+
    - Find exception handling without tests
+
    - Locate uncovered error paths
+
    - Review switch statement coverage
 
 ## Phase 2: Test Suite Inventory
@@ -378,10 +448,15 @@ Please perform a comprehensive testing review of this C# project following this 
    ```
 
 2. **Test Type Distribution**
+
    - **Unit Tests**: Count and coverage
+
    - **Integration Tests**: Count and scope
+
    - **End-to-End Tests**: Count and critical paths covered
+
    - **Performance Tests**: Presence and scope (BenchmarkDotNet)
+
    - **Security Tests**: Presence and coverage
 
 3. **Test Framework Assessment**
@@ -524,12 +599,19 @@ Please perform a comprehensive testing review of this C# project following this 
    ```
 
 3. **Common Flakiness Sources**
+
    - Tests dependent on external services (not mocked)
+
    - Time-based tests (DateTime.Now, delays)
+
    - Tests with race conditions
+
    - Tests dependent on test execution order
+
    - Tests using random data without seeding
+
    - Tests dependent on file system or database state
+
    - Shared static state between tests
 
 4. **External Dependency Review**
@@ -618,11 +700,17 @@ Please perform a comprehensive testing review of this C# project following this 
 ## Phase 5: Test Coverage Gaps Analysis
 
 1. **Critical Path Identification**
+
    - Authentication and authorization flows
+
    - Data validation and processing
+
    - Business logic and calculations
+
    - Error handling and recovery
+
    - API endpoints and controllers
+
    - Database operations and repositories
 
 2. **Untested Code Categories**
@@ -634,17 +722,27 @@ Please perform a comprehensive testing review of this C# project following this 
    Focus on:
 
    - Critical business logic without tests
+
    - Error handling paths not covered
+
    - Edge cases not tested
+
    - New code without tests
+
    - Complex methods without tests
 
 3. **Missing Test Types**
+
    - [ ] Happy path scenarios
+
    - [ ] Error conditions and exceptions
+
    - [ ] Boundary values (min, max, zero, negative, null)
+
    - [ ] Invalid input handling
+
    - [ ] Concurrent access scenarios
+
    - [ ] Performance under load
 
 ## Phase 6: Mocking and Test Doubles
@@ -736,6 +834,7 @@ Please perform a comprehensive testing review of this C# project following this 
        steps:
 
          - uses: actions/checkout@v3
+
          - uses: actions/setup-dotnet@v3
            with:
              dotnet-version: '8.0.x'
@@ -756,10 +855,15 @@ Please perform a comprehensive testing review of this C# project following this 
    ```
 
 2. **Quality Gates**
+
    - [ ] Tests run on every commit/PR
+
    - [ ] Coverage thresholds enforced (ReportGenerator, Codecov)
+
    - [ ] Test failures block merges
+
    - [ ] Performance regression detection (BenchmarkDotNet)
+
    - [ ] Security test integration
 
 3. **Test Execution Performance**
@@ -840,9 +944,13 @@ Please provide a comprehensive testing report with the following structure:
 ### Test Suite Inventory
 
 - **Total Tests**: [count]
+
   - **Unit Tests**: [count] ([%])
+
   - **Integration Tests**: [count] ([%])
+
   - **Functional Tests**: [count] ([%])
+
   - **Performance Tests**: [count]
 
 - **Test Framework**: [xUnit/NUnit/MSTest]
@@ -928,9 +1036,13 @@ Please provide a comprehensive testing report with the following structure:
 ### Recommendations
 
 **Immediate Actions** (Priority 1 - this week):
+
 1. **[Action]**
+
    - **Rationale**: [why important]
+
    - **Implementation**: [how to do it]
+
    - **Effort**: [hours/days]
 
 **Short-term Goals** (Priority 2 - this month):

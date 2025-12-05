@@ -18,13 +18,18 @@ related_templates:
 tools:
 
   - google test
+
   - catch2
+
   - boost.test
 tags:
 
   - code-review
+
   - security
+
   - code-review
+
   - cpp
 ---
 # C++ Security Review
@@ -143,16 +148,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Issues that create immediate risks to system stability, data integrity, or compliance.
 
 **Examples:**
+
 - Security vulnerabilities (SQL injection, XSS, authentication bypass)
+
 - Resource leaks (unclosed connections, file handles, memory leaks)
+
 - Data loss risks (destructive operations without validation)
+
 - Thread safety violations (race conditions, deadlocks)
+
 - Compliance violations (GDPR, HIPAA, PCI-DSS)
 
 **Action Required:**
+
 - Block deployment until fixed
+
 - Require hotfix within 24 hours
+
 - Add tests to prevent regression
+
 - Document root cause and fix
 
 ---
@@ -162,16 +176,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Issues that significantly impact maintainability, performance, or correctness but don't cause immediate failures.
 
 **Examples:**
+
 - Incorrect business logic (wrong calculations, flawed algorithms)
+
 - Performance bottlenecks (O(n²) algorithms, missing indexes, inefficient queries)
+
 - Memory inefficiency (loading large datasets into memory unnecessarily)
+
 - Breaking API changes without deprecation
+
 - Missing critical error handling (network errors, API failures not caught)
 
 **Action Required:**
+
 - Schedule fix in current sprint
+
 - Cannot release without resolution
+
 - Update documentation
+
 - Performance test after fix
 
 ---
@@ -181,16 +204,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Code smells and technical debt that reduce maintainability but don't affect correctness.
 
 **Examples:**
+
 - High complexity (cyclomatic complexity >10, functions >100 lines)
+
 - Code duplication (>10 lines duplicated across modules)
+
 - Poor naming (unclear variable/function names, inconsistent conventions)
+
 - Missing tests (<80% coverage on critical paths)
+
 - Incomplete error messages (no context for debugging)
 
 **Action Required:**
+
 - Add to backlog
+
 - Prioritize in next sprint planning
+
 - Consider during refactoring opportunities
+
 - Track technical debt metrics
 
 ---
@@ -200,16 +232,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Style inconsistencies and minor optimizations that don't impact functionality.
 
 **Examples:**
+
 - Style violations (linting warnings, formatting issues)
+
 - Minor performance optimizations (in non-critical code paths)
+
 - Missing documentation on helper functions
+
 - Verbose code that could be more concise
+
 - Debug statements left in code
 
 **Action Required:**
+
 - Fix opportunistically during other work
+
 - Batch with other low-priority changes
+
 - Good for new contributors
+
 - Can be deferred indefinitely
 
 ---
@@ -217,20 +258,31 @@ Use this framework to classify and prioritize all findings from the code review.
 ## Severity Assignment Guidelines
 
 **When to Escalate Severity:**
+
 - Issue affects **production environment** → escalate one level
+
 - Issue affects **customer-facing features** → escalate one level
+
 - Issue has **no workaround** → escalate one level
+
 - Issue appears in **multiple locations** → escalate one level
 
 **When to De-escalate Severity:**
+
 - Issue only in **test/development code** → de-escalate one level
+
 - Issue has **easy workaround** → de-escalate one level
+
 - Issue is **isolated to single module** → de-escalate one level
+
 - Issue **rarely executed** (edge case) → de-escalate one level
 
 **Examples:**
+
 - Memory leak in production API: **HIGH → CRITICAL** (production + customer-facing)
+
 - Style violation in test file: **LOW → Ignore** (test code + style only)
+
 - Duplicated logic across 15 modules: **MEDIUM → HIGH** (multiple locations)
 
 ---
@@ -260,16 +312,22 @@ For each finding, include:
 **Issue:** The user search function loads all users into memory and performs linear search on every request.
 
 **Impact:**
+
 - Response time degrades with user count (currently 500ms for 10k users)
+
 - High memory usage (50MB+ per request)
+
 - Poor scalability (can't handle >100k users)
 
 **Recommendation:**
 Move filtering to database with indexed query:
 
 - Add database index on search fields
+
 - Use database LIKE/ILIKE queries
+
 - Implement pagination (limit results to 50)
+
 - Add caching for common searches
 
 **Effort:** 3 hours (2 hours implementation + 1 hour testing)
@@ -316,8 +374,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -414,9 +475,13 @@ Please perform a comprehensive security review of this C++ project following thi
    }
 
    // Check for:
+
    - C-style string functions (strcpy, strcat, sprintf)
+
    - Fixed-size buffers with unbounded input
+
    - Array access without bounds checking
+
    - Integer overflow in size calculations
    ```
 
@@ -445,9 +510,13 @@ Please perform a comprehensive security review of this C++ project following thi
    // Automatic cleanup, no use-after-free possible
 
    // Check for:
+
    - Manual delete followed by access
+
    - Returning references to locals
+
    - Iterator invalidation
+
    - Storing pointers/references to temporary objects
    ```
 
@@ -470,8 +539,11 @@ Please perform a comprehensive security review of this C++ project following thi
    // Automatic cleanup, no double-free possible
 
    // Check for:
+
    - Multiple delete on same pointer
+
    - Deleting non-owning pointers
+
    - Missing copy/move constructor deletion
    ```
 
@@ -505,9 +577,13 @@ Please perform a comprehensive security review of this C++ project following thi
    }
 
    // Check for:
+
    - new without corresponding delete
+
    - Resource acquisition without RAII
+
    - Exception safety issues
+
    - Missing cleanup in error paths
    ```
 
@@ -537,9 +613,13 @@ Please perform a comprehensive security review of this C++ project following thi
    SafeInt<size_t> safe_total = safe_width * safe_height;
 
    // Check for:
+
    - Arithmetic on user-controlled integers
+
    - Size calculations that can overflow
+
    - Array allocations with unchecked sizes
+
    - Signed integer overflow
    ```
 
@@ -567,8 +647,11 @@ Please perform a comprehensive security review of this C++ project following thi
    }
 
    // Check for:
+
    - Dereferencing without null checks
+
    - Assumptions that pointers are valid
+
    - Missing validation of returned pointers
    ```
 
@@ -667,8 +750,11 @@ Please perform a comprehensive security review of this C++ project following thi
    std::cout << user_input;  // C++ streams are safe
 
    // Check for:
+
    - printf family with user-controlled format
+
    - sprintf family functions
+
    - Legacy C formatting functions
    ```
 
@@ -718,8 +804,11 @@ Please perform a comprehensive security review of this C++ project following thi
    AES-256-GCM, ChaCha20-Poly1305
 
    // Check for:
+
    - Use of MD5, SHA1 for security purposes
+
    - Use of DES, 3DES, RC4
+
    - Home-grown cryptography
    ```
 
@@ -804,9 +893,13 @@ Please perform a comprehensive security review of this C++ project following thi
    ```
 
 3. **Thread Safety**
+
    - Review shared state access
+
    - Verify proper synchronization
+
    - Check for race conditions
+
    - Identify lock-free algorithm issues
 
 ## Phase 7: OWASP Top 10 for C++
@@ -814,28 +907,43 @@ Please perform a comprehensive security review of this C++ project following thi
 Adapt OWASP Top 10 to C++ context:
 
 1. **Memory Corruption Vulnerabilities**
+
    - Buffer overflows
+
    - Use-after-free
+
    - Double-free
+
    - Type confusion
 
 2. **Injection Flaws**
+
    - Command injection
+
    - SQL injection
+
    - Format string bugs
 
 3. **Broken Authentication**
+
    - Weak password hashing
+
    - Insecure session management
 
 4. **Sensitive Data Exposure**
+
    - Unencrypted sensitive data
+
    - Weak cryptography
+
    - Information leakage
 
 5. **Security Misconfiguration**
+
    - Debug code in production
+
    - Unnecessary features enabled
+
    - Default credentials
 
 ## Output Format
@@ -954,9 +1062,13 @@ Please provide a comprehensive security report with the following structure:
 
 ### Immediate Action Items (Priority 1)
 1. **[Critical Memory Safety Issue]**
+
    - **Location**: [file:line]
+
    - **Fix**: [specific remediation steps]
+
    - **Time Estimate**: [hours]
+
    - **Risk if Not Fixed**: [consequences]
 
 ### Short-term Actions (Priority 2 - within 1 week)

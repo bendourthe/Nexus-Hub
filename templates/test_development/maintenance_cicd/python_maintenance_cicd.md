@@ -18,12 +18,16 @@ related_templates:
 tools:
 
   - pytest (8.3.4+)
+
   - black (24.12.0)
+
   - mypy (1.13.0)
+
   - ruff
 tags:
 
   - test-development
+
   - python
 ---
 # Python Test Maintenance & CI/CD Integration
@@ -164,8 +168,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 Please implement comprehensive test automation and maintenance infrastructure for this Python project following this protocol:
@@ -238,6 +245,7 @@ jobs:
         python-version: ['3.9', '3.10', '3.11']
 
     steps:
+
       - uses: actions/checkout@v3
 
       - name: Set up Python ${{ matrix.python-version }}
@@ -315,6 +323,7 @@ jobs:
           - 6379:6379
 
     steps:
+
       - uses: actions/checkout@v3
 
       - name: Set up Python
@@ -393,8 +402,11 @@ jobs:
 stages:
 
   - lint
+
   - test
+
   - quality
+
   - deploy
 
 variables:
@@ -406,7 +418,9 @@ cache:
     - .cache/pip
 
 before_script:
+
   - python -m pip install --upgrade pip
+
   - pip install -r requirements.txt
 
 lint:
@@ -415,9 +429,13 @@ lint:
   script:
 
     - pip install black flake8 mypy isort
+
     - black --check src/ tests/
+
     - isort --check-only src/ tests/
+
     - flake8 src/ tests/ --max-line-length=88
+
     - mypy src/ --ignore-missing-imports
 
 unit-tests:
@@ -426,6 +444,7 @@ unit-tests:
   script:
 
     - pip install pytest pytest-cov pytest-xdist
+
     - pytest tests/unit/ -v -n auto --cov=src --cov-report=xml --cov-report=term
   coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
   artifacts:
@@ -443,6 +462,7 @@ integration-tests:
   services:
 
     - postgres:14
+
     - redis:7
   variables:
     POSTGRES_DB: testdb
@@ -452,6 +472,7 @@ integration-tests:
   script:
 
     - pip install pytest pytest-cov
+
     - pytest tests/integration/ -v --cov=src --cov-report=xml
   artifacts:
     paths:
@@ -464,10 +485,12 @@ quality-gate:
   script:
 
     - pip install coverage
+
     - coverage report --fail-under=80
   needs:
 
     - unit-tests
+
     - integration-tests
 ```
 
@@ -607,14 +630,20 @@ repos:
     hooks:
 
       - id: trailing-whitespace
+
       - id: end-of-file-fixer
+
       - id: check-yaml
+
       - id: check-added-large-files
         args: ['--maxkb=1000']
 
       - id: check-json
+
       - id: check-toml
+
       - id: check-merge-conflict
+
       - id: detect-private-key
 
   - repo: https://github.com/psf/black
@@ -951,15 +980,23 @@ Purpose:
     Validate user login, logout, and session management.
 
 Coverage:
+
     - Valid credential login
+
     - Invalid credential handling
+
     - Session token generation and validation
+
     - Multi-factor authentication
+
     - Password reset flow
 
 Maintenance Notes:
+
     - Update test_valid_login() if authentication logic changes
+
     - mock_email_service fixture required for password reset tests
+
     - Tests use in-memory database for speed
 
 Last Review: 2024-01-15
@@ -1152,12 +1189,19 @@ Replace `{phase_name}` with the specific phase (test_cases, mocks_fixtures, perf
 The AI assistant should deliver:
 
 1. **Complete CI/CD pipeline configuration** (GitHub Actions or GitLab CI)
+
 2. **Quality gate implementation** with thresholds
+
 3. **Pre-commit hook configuration** with all checks
+
 4. **Test parallelization setup** for faster execution
+
 5. **Flaky test detection and tracking** system
+
 6. **Test maintenance procedures** and documentation
+
 7. **Test reporting infrastructure** with dashboards
+
 8. **Execution metrics and monitoring** setup
 ---
 

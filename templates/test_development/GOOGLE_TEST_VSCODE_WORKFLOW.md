@@ -7,8 +7,11 @@ This guide provides a complete end-to-end workflow for setting up C++ unit testi
 ## Table of Contents
 
 1. [Prerequisites](#prerequisites)
+
 2. [Workflow Step-by-Step](#workflow-step-by-step)
+
 3. [Troubleshooting](#troubleshooting)
+
 4. [Next Steps](#next-steps)
 
 ---
@@ -30,18 +33,27 @@ This guide provides a complete end-to-end workflow for setting up C++ unit testi
 Install these extensions for full functionality:
 
 **Essential**:
+
 - **CMake Tools** (`twxs.cmake`) - CMake integration
+
 - **C/C++** (`ms-vscode.cpptools`) - C++ language support and IntelliSense
+
 - **C/C++ Extension Pack** (`ms-vscode.cpptools-extension-pack`) - Complete C++ toolkit
 
 **Recommended**:
+
 - **Test Explorer UI** (`hbenl.vscode-test-explorer`) - Graphical test runner interface
+
 - **C++ TestMate** (`matepek.vscode-catch2-test-adapter`) - Google Test integration for Test Explorer
+
 - **GitHub Copilot** (`GitHub.copilot`) - AI-powered code generation
 
 **Optional**:
+
 - **clangd** (`llvm-vs-code-extensions.vscode-clangd`) - Alternative IntelliSense engine
+
 - **CodeLLDB** (`vadimcn.vscode-lldb`) - Advanced LLVM debugger for Mac/Linux
+
 - **CMake** (`twxs.cmake`) - CMake language support and syntax highlighting
 
 ### Installation Commands
@@ -96,8 +108,11 @@ cl.exe    # Should show MSVC compiler
 ### Install VS Code Extensions
 
 **Option 1: Via VS Code UI**
+
 1. Open VS Code
+
 2. Press `Ctrl+Shift+X` (Extensions view)
+
 3. Search for and install each extension listed above
 
 **Option 2: Via Command Line**
@@ -232,9 +247,13 @@ add_subdirectory(tests)
 ```
 
 **Key Points**:
+
 - **FetchContent**: Downloads Google Test automatically (no manual installation)
+
 - **v1.14.0**: Latest stable Google Test version
+
 - **CMAKE_EXPORT_COMPILE_COMMANDS**: Required for VS Code IntelliSense
+
 - **enable_testing()**: Activates CTest integration
 
 #### 2.2 Source Directory CMakeLists.txt
@@ -301,9 +320,13 @@ add_gtest(test_calculator unit/CalculatorTest.cpp)
 ```
 
 **Key Points**:
+
 - **add_gtest()**: Reusable function for adding tests
+
 - **gtest_discover_tests()**: Automatically finds all TEST() macros
+
 - **GTest::gtest_main**: Provides main() function (no need to write it)
+
 - **GTest::gmock**: Required for mocking capabilities
 
 ---
@@ -319,9 +342,13 @@ cp path/to/ai-templates/templates/test_development/vscode_config/*.json .vscode/
 ```
 
 **Or create manually**:
+
 - [tasks.json](vscode_config/tasks.json) - Build and test tasks
+
 - [launch.json](vscode_config/launch.json) - Debugging configurations
+
 - [settings.json](vscode_config/settings.json) - CMake Tools and IntelliSense
+
 - [c_cpp_properties.json](vscode_config/c_cpp_properties.json) - Platform-specific includes
 
 See [VS Code Config README](vscode_config/README.md) for detailed explanations.
@@ -349,20 +376,29 @@ code .
 ```
 
 **VS Code will automatically**:
+
 1. Detect CMake project
+
 2. Prompt: "Would you like to configure this project?" → Click **Yes**
+
 3. Prompt: "Select a kit" → Choose your compiler (e.g., **GCC 11.4.0**)
 
 #### 4.2 Verify Setup
 
 **Check Bottom Status Bar**:
+
 - Should show: `[Ninja] Debug` (build type)
+
 - CMake icon should be clickable
+
 - Kit should show your selected compiler
 
 **Check Output Panel**:
+
 - Press `Ctrl+Shift+U` (View Output)
+
 - Select "CMake/Build" from dropdown
+
 - Should show: "Configuring done" and "Generating done"
 
 **Verify Build Directory**:
@@ -420,11 +456,15 @@ double Calculator::divide(double a, double b) {
 #### 5.2 Open GitHub Copilot Chat
 
 **Keyboard Shortcut**:
+
 - **Windows/Linux**: `Ctrl+Shift+I`
+
 - **Mac**: `Cmd+Shift+I`
 
 **Alternative**:
+
 - Click Copilot icon in Activity Bar (left sidebar)
+
 - Select "Open Chat"
 
 #### 5.3 Paste Comprehensive Test Generation Prompt
@@ -435,18 +475,31 @@ double Calculator::divide(double a, double b) {
 Generate comprehensive Google Test unit tests for the Calculator class.
 
 Requirements:
+
 - Use TEST() macro for simple function tests (no fixtures needed for stateless functions)
+
 - Follow AAA pattern (Arrange-Act-Assert) in every test
+
 - Include these test cases:
+
   * add(): Test positive numbers, negative numbers, zero, boundary values (INT_MAX, INT_MIN)
+
   * subtract(): Test positive results, negative results, zero, boundary values
+
   * multiply(): Test positive, negative, zero, overflow scenarios
+
   * divide(): Test positive division, negative division, floating-point precision, divide-by-zero exception
+
 - Use appropriate assertions:
+
   * EXPECT_EQ for integer comparisons
+
   * EXPECT_THROW(expression, std::invalid_argument) for exception testing
+
   * EXPECT_NEAR(actual, expected, tolerance) for floating-point comparisons (tolerance 0.0001)
+
 - Follow FIRST principles (Fast, Independent, Repeatable, Self-validating, Timely)
+
 - Each test should be independent and not rely on execution order
 
 File location: tests/unit/CalculatorTest.cpp
@@ -472,11 +525,17 @@ Generate at least 15 comprehensive tests covering all public methods and edge ca
 #### 5.4 Review Generated Tests
 
 Copilot will generate `CalculatorTest.cpp` with approximately:
+
 - 15-20 test cases
+
 - Proper includes (`#include <gtest/gtest.h>`, `#include "myapp/Calculator.hpp"`)
+
 - Correct Google Test syntax
+
 - AAA pattern structure
+
 - Boundary value tests
+
 - Exception tests
 
 **Example Output**:
@@ -508,9 +567,13 @@ TEST(CalculatorTest, DivideFloatingPointPrecision) {
 #### 5.5 Accept and Save
 
 1. Review generated code in Copilot chat window
+
 2. Click **"Insert at Cursor"** or **"Copy"**
+
 3. Create `tests/unit/CalculatorTest.cpp` if not already created
+
 4. Paste code
+
 5. Save file (`Ctrl+S`)
 
 ---
@@ -520,7 +583,9 @@ TEST(CalculatorTest, DivideFloatingPointPrecision) {
 #### Option A: VS Code Command Palette (Recommended)
 
 1. Press `Ctrl+Shift+P`
+
 2. Type "CMake: Build"
+
 3. Press Enter
 
 **Expected Output**:
@@ -532,6 +597,7 @@ TEST(CalculatorTest, DivideFloatingPointPrecision) {
 #### Option B: Keyboard Shortcut
 
 1. Press `Ctrl+Shift+B`
+
 2. Select **"CMake: Build Tests"** (should be default)
 
 #### Option C: Terminal
@@ -555,7 +621,9 @@ ls build/test_*
 #### Option A: VS Code Tasks (Recommended)
 
 1. Press `Ctrl+Shift+P`
+
 2. Type "Tasks: Run Test Task"
+
 3. Select **"Run All Tests"**
 
 **Expected Output**:
@@ -586,8 +654,11 @@ ctest --verbose
 #### Option C: Test Explorer UI
 
 1. Open Test Explorer view (beaker icon in Activity Bar)
+
 2. Tests should automatically appear in tree view
+
 3. Click play button (▶) to run all tests
+
 4. Click individual test to run specific test
 
 ---
@@ -597,41 +668,63 @@ ctest --verbose
 #### 8.1 Set Breakpoints
 
 1. Open `tests/unit/CalculatorTest.cpp`
+
 2. Click in the gutter (left of line numbers) on the line where you want to pause
+
 3. Red dot should appear (breakpoint)
 
 #### 8.2 Start Debugging
 
 **Method 1: F5 Keyboard Shortcut**
+
 1. Press `F5`
+
 2. VS Code prompts: "Select configuration"
+
 3. Choose **"Debug Current Test Binary"**
+
 4. Enter test binary name (e.g., "calculator")
+
 5. Enter GTest filter (e.g., "*" for all or "CalculatorTest.Divide*" for specific)
 
 **Method 2: Debug from Test Explorer**
+
 1. Right-click test in Test Explorer
+
 2. Select "Debug Test"
 
 **Method 3: Launch Configuration**
+
 1. Press `Ctrl+Shift+D` (Debug view)
+
 2. Select "Debug Current Test Binary" from dropdown
+
 3. Click green play button
 
 #### 8.3 Debug Controls
 
 **Keyboard Shortcuts**:
+
 - `F5` - Continue execution
+
 - `F10` - Step Over (execute current line)
+
 - `F11` - Step Into (enter function call)
+
 - `Shift+F11` - Step Out (exit current function)
+
 - `Ctrl+Shift+F5` - Restart debugging
+
 - `Shift+F5` - Stop debugging
 
 **Debug Panel Features**:
+
 - **Variables**: Inspect local variables and parameters
+
 - **Watch**: Monitor specific expressions
+
 - **Call Stack**: View function call hierarchy
+
 - **Breakpoints**: Manage all breakpoints
 
 #### 8.4 Debugging Specific Test
@@ -639,7 +732,9 @@ ctest --verbose
 If you want to debug only `CalculatorTest.DivideByZero`:
 
 **Option 1: GTest Filter**
+
 1. Start debugging (F5)
+
 2. Enter filter: `CalculatorTest.DivideByZero`
 
 **Option 2: Run from Command Line**
@@ -661,9 +756,13 @@ Add parametrized tests for Calculator::add using TEST_P and INSTANTIATE_TEST_SUI
 Test these value pairs:
 
 - (1, 2) → 3
+
 - (0, 0) → 0
+
 - (-5, 5) → 0
+
 - (INT_MAX, 0) → INT_MAX
+
 - (-1, -1) → -2
 
 Use std::tuple<int, int, int> where the third value is expected result.
@@ -796,7 +895,9 @@ Generate tests for Calculator.cpp lines 42-48 (multiply method edge cases).
 Coverage report shows these lines are uncovered. Add tests for:
 
 - Multiplication resulting in zero
+
 - Negative number multiplication
+
 - Overflow detection (INT_MAX * 2 should be handled)
 
 Use parametrized tests if appropriate.
@@ -880,13 +981,19 @@ Red squiggly lines under `#include <gtest/gtest.h>`
    ```
 
 4. Reload VS Code window:
+
    - Press `Ctrl+Shift+P`
+
    - Type "Developer: Reload Window"
+
    - Press Enter
 
 5. If still not working, manually set include path:
+
    - Open Command Palette: `Ctrl+Shift+P`
+
    - Type "C/C++: Edit Configurations (JSON)"
+
    - Add Google Test paths to `includePath`
 
 ---
@@ -923,7 +1030,9 @@ Test Explorer is empty after building
 4. Reload window: `Ctrl+Shift+P` → "Developer: Reload Window"
 
 5. Manually refresh Test Explorer:
+
    - Click beaker icon (Test Explorer)
+
    - Click refresh icon at top
 
 ---
@@ -1017,10 +1126,15 @@ Ensure namespace declarations are correct (use ::testing:: not testing::).
 ```
 
 **Common Issues Copilot Will Fix**:
+
 - Missing `#include <gtest/gtest.h>` or `#include <gmock/gmock.h>`
+
 - Incorrect namespace (`testing::Test` should be `::testing::Test`)
+
 - Missing `#include <limits>` for `std::numeric_limits`
+
 - Missing `#include <stdexcept>` for `std::invalid_argument`
+
 - Type mismatches in EXPECT_EQ (e.g., comparing `int` with `double`)
 
 ---
@@ -1033,18 +1147,23 @@ Tests pass on your machine but fail in GitHub Actions or other CI
 **Common Causes**:
 
 1. **Timing Issues**: Tests depend on execution speed
+
    - **Solution**: Add timeouts or use mocks for time-dependent code
 
 2. **File System Paths**: Hard-coded absolute paths
+
    - **Solution**: Use `CMAKE_SOURCE_DIR` or relative paths
 
 3. **Random Test Order**: Tests depend on execution order
+
    - **Solution**: Make tests independent (FIRST principles)
 
 4. **Environment Variables**: Missing env vars in CI
+
    - **Solution**: Set env vars in CI config or use defaults in code
 
 5. **Compiler Differences**: Different compilers in CI
+
    - **Solution**: Test locally with same compiler (e.g., use Docker)
 
 **Debug in CI**:
@@ -1180,11 +1299,17 @@ Tests pass on your machine but fail in GitHub Actions or other CI
 ## Additional Resources
 
 - [CMake Documentation](https://cmake.org/documentation/)
+
 - [Google Test Primer](https://google.github.io/googletest/primer.html)
+
 - [Google Mock for Dummies](https://google.github.io/googletest/gmock_for_dummies.html)
+
 - [VS Code C++ Documentation](https://code.visualstudio.com/docs/languages/cpp)
+
 - [VS Code Debugging](https://code.visualstudio.com/docs/editor/debugging)
+
 - [CMake Tools Extension](https://vector-of-bool.github.io/docs/vscode-cmake-tools/)
+
 - [GitHub Copilot Documentation](https://docs.github.com/en/copilot)
 
 ---
@@ -1194,9 +1319,13 @@ Tests pass on your machine but fail in GitHub Actions or other CI
 This workflow integrates with:
 
 - **[cpp_unit_tests.md](unit_tests/cpp_unit_tests.md)**: Comprehensive unit testing methodology
+
 - **[COPILOT_QUICK_REFERENCE.md](unit_tests/COPILOT_QUICK_REFERENCE.md)**: One-line prompts for Copilot
+
 - **[VS Code Config README](vscode_config/README.md)**: Detailed config explanations
+
 - **[cpp_test_structure.md](test_structure/cpp_test_structure.md)**: Test project architecture
+
 - **[cpp_mocks_fixtures.md](mocks_fixtures/cpp_mocks_fixtures.md)**: Advanced mocking patterns
 
 ---

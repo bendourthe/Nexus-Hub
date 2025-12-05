@@ -12,12 +12,16 @@ prerequisites: []
 tools:
 
   - google test
+
   - catch2
+
   - boost.test
 tags:
 
   - documentation
+
   - documentation
+
   - cpp
 ---
 # C++ Technical Documentation
@@ -163,8 +167,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -245,6 +252,7 @@ project/
 namespace mylib {
 
 /**
+
  * @brief Configuration for the library
  */
 struct Config {
@@ -253,6 +261,7 @@ struct Config {
 };
 
 /**
+
  * @brief Main library class
  */
 class Engine {
@@ -260,7 +269,9 @@ public:
     /**
 
      * @brief Construct engine with configuration
+
      * @param config Configuration options
+
      * @throws std::invalid_argument if config is invalid
      */
     explicit Engine(const Config& config);
@@ -273,13 +284,17 @@ public:
     Engine& operator=(Engine&&) noexcept;
 
     /**
+
      * @brief Process input data
+
      * @param input Input string
+
      * @return Result or error
      */
     std::expected<std::string, Error> process(std::string_view input);
 
     /**
+
      * @brief Get current status
      */
     [[nodiscard]] Status get_status() const noexcept;
@@ -729,31 +744,49 @@ make coverage
 ## Best Practices
 
 1. **Modern C++ Features**
+
    - Use smart pointers (unique_ptr, shared_ptr)
+
    - Apply RAII for resource management
+
    - Leverage move semantics
+
    - Use auto and structured bindings
+
    - Prefer algorithms over raw loops
 
 2. **Rule of Five/Zero**
+
    - Implement all or none: destructor, copy constructor, copy assignment, move constructor, move assignment
+
    - Or use = default/= delete appropriately
 
 3. **Const Correctness**
+
    - Mark methods const when they don't modify state
+
    - Use const& for read-only parameters
+
    - Use constexpr for compile-time constants
 
 4. **Template Best Practices**
+
    - Use concepts (C++20) for constraints
+
    - Avoid template bloat
+
    - Prefer type deduction
+
    - Document template requirements
 
 5. **Error Handling**
+
    - Use exceptions for exceptional cases
+
    - Use std::expected/std::optional for expected failures
+
    - Don't throw from destructors
+
    - Use noexcept where appropriate
 
 ---

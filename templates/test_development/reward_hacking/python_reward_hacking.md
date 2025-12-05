@@ -15,12 +15,16 @@ prerequisites:
 tools:
 
   - pytest (8.3.4+)
+
   - black (24.12.0)
+
   - mypy (1.13.0)
+
   - ruff
 tags:
 
   - test-development
+
   - python
 ---
 # Python Reward Hacking - Test Quality Validation Guide
@@ -86,33 +90,52 @@ ${OUTPUT_DIR}/
 
 ### Prerequisites Verification
 - [ ] All 7 previous testing phases completed
+
 - [ ] Test structure output collected
+
 - [ ] Unit test results available
+
 - [ ] Integration test outputs gathered
+
 - [ ] Mock and fixture implementations documented
+
 - [ ] Performance test results compiled
+
 - [ ] CI/CD pipeline logs obtained
+
 - [ ] Code coverage reports generated
 
 ### Mutation Testing Setup
 - [ ] mutmut installed and configured
+
 - [ ] mutpy installed and configured
+
 - [ ] Mutation testing baseline established
+
 - [ ] Mutation score thresholds defined
+
 - [ ] Test execution environment prepared
 
 ### Quality Analysis
 - [ ] Tautological test detection script created
+
 - [ ] Weak assertion analyzer implemented
+
 - [ ] Over-mocking detection configured
+
 - [ ] Coverage integrity validator developed
+
 - [ ] Test independence checker deployed
 
 ### Reporting
 - [ ] Comprehensive test quality report generated (25-35 pages)
+
 - [ ] Mutation testing results documented
+
 - [ ] Phase-by-phase validation completed
+
 - [ ] Remediation action plan created
+
 - [ ] Continuous monitoring configured
 
 ---
@@ -160,9 +183,13 @@ git config --get remote.origin.url
 Analyze all unit tests for patterns that always pass:
 
 **Detection Criteria:**
+
 - Tests with no assertions
+
 - Tests with trivial assertions (assert True, assert 1 == 1)
+
 - Tests that only check type without validating behavior
+
 - Tests with mocked return values used directly in assertions
 
 **Create:** `${OUTPUT_DIR}/templates/detect_tautological_tests.py`
@@ -308,7 +335,9 @@ def generate_report(issues: List[Dict], output_path: str):
 
 ## Summary
 - **Total Issues:** {len(issues)}
+
 - **Critical:** {len(critical)}
+
 - **High:** {len(high)}
 
 ## Critical Issues (No Assertions)
@@ -319,6 +348,7 @@ def generate_report(issues: List[Dict], output_path: str):
         report += f"""### {issue['file']}:{issue['line']} - {issue['test']}
 
 - **Pattern:** {issue['pattern']}
+
 - **Issue:** {issue['issue']}
 
 """
@@ -329,6 +359,7 @@ def generate_report(issues: List[Dict], output_path: str):
         report += f"""### {issue['file']}:{issue['line']} - {issue['test']}
 
 - **Pattern:** {issue['pattern']}
+
 - **Issue:** {issue['issue']}
 
 """
@@ -360,17 +391,27 @@ if __name__ == '__main__':
 **Analysis Requirements:**
 
 1. **Scan all test files** in the test directory
+
 2. **Identify tests with:**
+
    - Zero assertions
+
    - Trivial assertions (assert True, assert 1 == 1)
+
    - Type-only checks (isinstance, type())
+
    - is not None patterns without value validation
+
    - Mock return values used directly in assertions
 
 3. **Generate report with:**
+
    - Count of tautological tests by severity
+
    - File locations and line numbers
+
    - Specific weak patterns identified
+
    - Recommendations for strengthening each test
 
 **Run Detection:**
@@ -499,8 +540,11 @@ def generate_isolation_report(analysis: Dict, output_path: str):
 
 ## Summary
 - **Total Iterations:** {analysis['total_iterations']}
+
 - **All Passed:** {'✅ YES' if analysis['all_passed'] else '❌ NO'}
+
 - **Failed Iterations:** {analysis['failed_count']}
+
 - **Isolation Score:** {analysis['isolation_score']:.1f}%
 
 """
@@ -530,9 +574,13 @@ These tests failed in some orders but not others, indicating dependencies:
 ### Recommended Actions
 
 1. **Review test setup/teardown** - Ensure clean state between tests
+
 2. **Check for shared resources** - Database, files, global state
+
 3. **Verify fixture cleanup** - Ensure fixtures don't leak state
+
 4. **Run tests with --forked** - Use pytest-xdist for process isolation
+
 5. **Add explicit cleanup** - Use try/finally or context managers
 
 """
@@ -573,9 +621,13 @@ python ${OUTPUT_DIR}/templates/verify_test_isolation.py tests/ 20
 Detect excessive mocking that prevents real code validation:
 
 **Analysis Criteria:**
+
 - Tests with >70% of dependencies mocked
+
 - Tests mocking core business logic
+
 - Tests with deep mock chains (mock.method().method())
+
 - Mock return values used directly in assertions
 
 **Detection Script:** `${OUTPUT_DIR}/templates/detect_over_mocking.py`
@@ -720,8 +772,11 @@ def generate_mocking_report(results: List[Dict], output_path: str):
 
 ## Summary
 - **Total Tests Analyzed:** {len(results)}
+
 - **Critical Issues:** {len(critical)}
+
 - **High Issues:** {len(high)}
+
 - **Medium Issues:** {len(medium)}
 
 ## Critical: Excessive Mocking
@@ -732,7 +787,9 @@ def generate_mocking_report(results: List[Dict], output_path: str):
         report += f"""### {result['file']}:{result['line']} - {result['test']}
 
 - **Mock Count:** {result['mock_count']}
+
 - **Deep Chains:** {len(result['deep_chains'])}
+
 - **Direct Mock Assertions:** {len(result['direct_mock_assertions'])}
 
 """
@@ -812,17 +869,27 @@ python ${OUTPUT_DIR}/templates/detect_over_mocking.py tests/
 Analyze assertion strength and specificity:
 
 **Weak Assertion Patterns:**
+
 1. `assert result` (truthiness only)
+
 2. `assert result is not None` (existence only)
+
 3. `assert type(result) == int` (type only)
+
 4. `assert len(result) > 0` (size only)
+
 5. `assert result != error_value` (negative check only)
 
 **Strong Assertion Patterns:**
+
 1. `assert result == expected_value` (exact value)
+
 2. `assert result.status == Status.SUCCESS and result.total == 5` (multiple properties)
+
 3. `assert 0.99 < result < 1.01` (range with tolerance)
+
 4. `assert result in expected_set` (membership in valid set)
+
 5. `assert result.matches_schema(expected_schema)` (structure validation)
 
 **Generate Analysis:** Provide count and examples of weak vs. strong assertions
@@ -834,9 +901,13 @@ Analyze assertion strength and specificity:
 Review test independence:
 
 **Check for:**
+
 - Tests that modify global state
+
 - Tests that depend on filesystem state from previous tests
+
 - Tests that share database connections
+
 - Tests that don't clean up resources
 
 **Generate:** Test independence scorecard (0-100%)
@@ -852,16 +923,23 @@ Review test independence:
 Verify integration tests actually use real dependencies:
 
 **Detection Criteria:**
+
 - Integration tests with >50% mocking
+
 - E2E tests not starting real services
+
 - Integration tests using in-memory stubs instead of real implementations
+
 - Missing database transaction validation
 
 **Analysis Requirements:**
 
 1. **Scan integration test files** (typically in `tests/integration/`)
+
 2. **Identify tests marked as integration** (`@pytest.mark.integration`)
+
 3. **Count real vs. mocked dependencies**
+
 4. **Flag tests with inappropriate mocking**
 
 **Expected Output:**
@@ -870,11 +948,14 @@ Verify integration tests actually use real dependencies:
 
 ### Real Dependency Usage
 - Tests using real database: 45/60 (75%)
+
 - Tests using real API: 30/60 (50%) ⚠️
+
 - Tests using real filesystem: 55/60 (92%) ✅
 
 ### Problematic Tests
 - `test_api_workflow_mocked` - Integration test with mocked API (should use test API)
+
 - `test_database_operations_memory` - Using in-memory DB instead of real PostgreSQL
 ```
 
@@ -885,9 +966,13 @@ Verify integration tests actually use real dependencies:
 Verify E2E tests cover complete workflows:
 
 **Analysis Criteria:**
+
 - Multi-step workflows tested end-to-end
+
 - Error recovery paths validated
+
 - Transaction boundaries tested
+
 - Data consistency verified
 
 **Detection Script:** Check E2E tests for:
@@ -929,10 +1014,15 @@ def test_user_registration_complete():
 Verify error paths are tested in integration scenarios:
 
 **Check for:**
+
 - Network failure simulation
+
 - Timeout handling
+
 - Database constraint violations
+
 - API error responses
+
 - Partial failure recovery
 
 **Generate:** Error path coverage matrix
@@ -958,22 +1048,33 @@ paths_to_mutate:
   - src/
 
 tests_dir:
+
   - tests/
 
 runner:
+
   - pytest
+
   - -x
+
   - --tb=short
+
   - --timeout=60
 
 dict_synonyms:
+
   - id
+
   - pk
+
   - identifier
 
 exclude:
+
   - __init__.py
+
   - migrations/
+
   - tests/
 ```
 
@@ -1011,8 +1112,11 @@ Mutation Score: 80%
 **Severity Classification:**
 
 - **Survived Mutations (Critical):** Code changes not caught by tests
+
 - **Suspicious (High):** Tests behave inconsistently
+
 - **Timeout (Medium):** Tests too slow or infinite loops
+
 - **Killed (Good):** Tests successfully caught changes
 
 ### 3.3 Analyzing Survived Mutations
@@ -1023,8 +1127,11 @@ Mutation Score: 80%
 ```markdown
 ### Mutation #42: SURVIVED
 - **File:** src/core/calculator.py:15
+
 - **Original:** `return price * (1 - discount)`
+
 - **Mutated:** `return price * (1 + discount)`
+
 - **Status:** SURVIVED (tests still pass!)
 
 ### Why This is Critical
@@ -1032,7 +1139,9 @@ This mutation changes subtraction to addition in discount calculation,
 completely reversing the logic. Tests passing indicate:
 
 1. No test validates actual discount calculation
+
 2. Possible mock return value used in assertion
+
 3. Test only checks type/existence, not correctness
 ```
 
@@ -1056,8 +1165,11 @@ def test_calculate_discount_strong():
 ```
 
 3. **Remediation Steps:**
+
    - Strengthen assertions to validate exact behavior
+
    - Add test cases for edge values
+
    - Remove over-mocking that hides real logic
 
 ### 3.4 Mutation Coverage Heatmap
@@ -1102,8 +1214,11 @@ exclude = __init__.py,*/migrations/*
 **Compare mutmut vs. mutpy results:**
 
 Generate comparison report showing:
+
 - Mutations detected by both tools
+
 - Mutations unique to each tool
+
 - Recommended primary tool based on codebase
 
 ---
@@ -1152,9 +1267,13 @@ def test_user_login(db):
 ```
 
 **Detection Criteria:**
+
 - Fixtures used in <3 tests (should be inline)
+
 - Fixtures with >5 dependencies
+
 - Fixtures that hide important setup logic
+
 - Fixtures that modify global state
 
 ### 4.2 Mock Behavior Validation
@@ -1349,9 +1468,13 @@ def test_performance_realistic():
 Check if load tests simulate realistic usage:
 
 **Analysis Criteria:**
+
 - Concurrent user simulation with realistic delays
+
 - Gradual ramp-up vs. instant load
+
 - Mixed operation types (read/write ratios)
+
 - Realistic data access patterns
 
 **Generate:** Load pattern realism scorecard
@@ -1447,7 +1570,9 @@ def generate_flaky_test_report(flaky_tests: List[Dict], output_path: str):
 
 ## Summary
 - **Total Flaky Tests:** {len(flaky_tests)}
+
 - **Critical (>30% failure rate):** {len([t for t in flaky_tests if t['severity'] == 'CRITICAL'])}
+
 - **High (10-30% failure rate):** {len([t for t in flaky_tests if t['severity'] == 'HIGH'])}
 
 ## Flaky Tests
@@ -1458,8 +1583,11 @@ def generate_flaky_test_report(flaky_tests: List[Dict], output_path: str):
         report += f"""### {test['test']}
 
 - **Failure Rate:** {test['failure_rate']*100:.1f}%
+
 - **Passed:** {test['passed']}/{test['total_runs']}
+
 - **Failed:** {test['failed']}/{test['total_runs']}
+
 - **Severity:** {test['severity']}
 
 """
@@ -1468,28 +1596,41 @@ def generate_flaky_test_report(flaky_tests: List[Dict], output_path: str):
 ## Common Causes of Flaky Tests
 
 1. **Race Conditions**
+
    - Async operations without proper synchronization
+
    - Timing-dependent assertions
 
 2. **Shared State**
+
    - Global variables modified by tests
+
    - Database state not cleaned up
 
 3. **External Dependencies**
+
    - Network requests without mocking
+
    - Time-based logic without freezing time
 
 4. **Resource Leaks**
+
    - File handles not closed
+
    - Database connections not released
 
 ## Remediation Steps
 
 For each flaky test:
+
 1. Run test in isolation 100 times to confirm flakiness
+
 2. Add debugging output to identify timing/state issues
+
 3. Review test for async operations, sleeps, or waits
+
 4. Ensure proper setup/teardown and state isolation
+
 5. Consider using pytest-repeat and pytest-randomly plugins
 """
 
@@ -1527,9 +1668,13 @@ python ${OUTPUT_DIR}/templates/detect_flaky_tests.py 50
 Verify CI/CD pipeline catches real issues:
 
 **Check:**
+
 - Test failures block deployment
+
 - Coverage thresholds enforced
+
 - Mutation score gates configured
+
 - Performance regression detection
 
 ---
@@ -1552,10 +1697,15 @@ quality_score = (
 ```
 
 **Score Interpretation:**
+
 - **90-100:** Excellent - World-class test suite
+
 - **80-89:** Good - Strong testing practices
+
 - **70-79:** Acceptable - Needs improvement
+
 - **60-69:** Poor - Significant issues
+
 - **<60:** Critical - Major overhaul needed
 
 ### 7.2 Reward Hacking Incidents Summary
@@ -1567,16 +1717,21 @@ quality_score = (
 
 ## Critical Issues (20)
 - 15 tests with no assertions (execution-only)
+
 - 5 tests with survived mutations >50%
 
 ## High Severity (45)
 - 30 tests with weak assertions (is not None, type checks)
+
 - 10 tests with excessive mocking (>70%)
+
 - 5 integration tests using mocked dependencies
 
 ## Medium Severity (68)
 - 40 tests with missing error path coverage
+
 - 20 tests with unrealistic test data
+
 - 8 flaky tests (10-30% failure rate)
 
 ## Total Incidents: 133
@@ -1595,13 +1750,19 @@ quality_score = (
 
 ### Tasks
 1. **Add assertions to execution-only tests** (15 tests)
+
    - Effort: 1 day
+
    - Priority: P0
+
    - Assignee: [Team Member]
 
 2. **Fix survived mutations >50%** (5 modules)
+
    - Effort: 3 days
+
    - Priority: P0
+
    - Assignee: [Team Member]
 
 ## Sprint 2 (2 weeks) - High Severity
@@ -1609,15 +1770,21 @@ quality_score = (
 
 ### Tasks
 1. **Replace weak assertions with specific checks** (30 tests)
+
    - Effort: 2 days
+
    - Priority: P1
 
 2. **Reduce mocking in unit tests** (10 tests)
+
    - Effort: 2 days
+
    - Priority: P1
 
 3. **Convert integration tests to use real dependencies** (5 tests)
+
    - Effort: 3 days
+
    - Priority: P1
 
 ## Sprint 3 (2 weeks) - Medium Severity
@@ -1625,17 +1792,24 @@ quality_score = (
 
 ### Tasks
 1. **Add error path coverage** (40 tests)
+
    - Effort: 4 days
+
    - Priority: P2
 
 2. **Fix flaky tests** (8 tests)
+
    - Effort: 2 days
+
    - Priority: P1 (moved up due to impact)
 
 ## Success Metrics
 - Mutation score: 62% → 85%
+
 - Test quality score: 62 → 85
+
 - Zero critical issues
+
 - <5 high severity issues
 ```
 
@@ -1713,13 +1887,18 @@ Date: $(date +%Y-%m-%d)
 
 ## Metrics
 - Mutation Score: $(cat mutation_reports/latest/score.txt)
+
 - Test Count: $(pytest --collect-only -q | tail -1)
+
 - Coverage: $(pytest --cov=src --cov-report=term-missing | grep TOTAL | awk '{print $4}')
 
 ## Issues Detected
 - Tautological Tests: $(grep "Total Issues" "$OUTPUT_DIR/tautological.txt" | cut -d: -f2)
+
 - Isolation Issues: $(grep "Failed Iterations" "$OUTPUT_DIR/isolation.txt" | cut -d: -f2)
+
 - Over-Mocking: $(grep "Critical Issues" "$OUTPUT_DIR/mocking.txt" | cut -d: -f2)
+
 - Flaky Tests: $(grep "Total Flaky Tests" "$OUTPUT_DIR/flaky.txt" | cut -d: -f2)
 
 SUMMARY
@@ -2062,12 +2241,19 @@ Generate these deliverables in `${OUTPUT_DIR}/exports/`:
 **File:** `test_quality_report.md`
 
 **Contents:**
+
 - Executive summary with overall quality score
+
 - Phase-by-phase validation results
+
 - Reward hacking incidents categorized by severity
+
 - Mutation testing analysis with survived mutations
+
 - Test effectiveness metrics
+
 - Comparison against industry benchmarks
+
 - Recommendations and action plan
 
 ### 2. Mutation Testing Results
@@ -2075,10 +2261,15 @@ Generate these deliverables in `${OUTPUT_DIR}/exports/`:
 **File:** `mutation_testing_results.md`
 
 **Contents:**
+
 - Mutation score by module
+
 - List of survived mutations with code examples
+
 - Weak tests identified per mutation
+
 - Remediation examples for each survived mutation
+
 - Mutation coverage heatmap reference
 
 ### 3. Test Quality Scorecard
@@ -2086,15 +2277,25 @@ Generate these deliverables in `${OUTPUT_DIR}/exports/`:
 **File:** `test_quality_scorecard.md`
 
 **Contents:**
+
 - Overall quality score (0-100)
+
 - Individual component scores:
+
   - Mutation score
+
   - Assertion quality score
+
   - Test independence score
+
   - Coverage integrity score
+
   - Performance test quality score
+
   - CI/CD reliability score
+
 - Historical trends (if available)
+
 - Target vs. actual comparison
 
 ### 4. Phase-by-Phase Validation
@@ -2102,10 +2303,15 @@ Generate these deliverables in `${OUTPUT_DIR}/exports/`:
 **File:** `phase_by_phase_validation.md`
 
 **Contents:**
+
 - Detailed analysis for each of 7 phases
+
 - Issues detected per phase
+
 - Severity ratings and counts
+
 - Examples of weak patterns found
+
 - Specific remediation for each phase
 
 ### 5. Remediation Action Plan
@@ -2113,11 +2319,17 @@ Generate these deliverables in `${OUTPUT_DIR}/exports/`:
 **File:** `remediation_action_plan.md`
 
 **Contents:**
+
 - Prioritized list of issues
+
 - Sprint-based remediation plan
+
 - Effort estimates per task
+
 - Success metrics and targets
+
 - Code examples showing fixes
+
 - Timeline and milestones
 
 ### 6. Continuous Monitoring Setup
@@ -2125,11 +2337,17 @@ Generate these deliverables in `${OUTPUT_DIR}/exports/`:
 **File:** `continuous_monitoring_setup.md`
 
 **Contents:**
+
 - CI/CD integration instructions
+
 - Automated quality gate configuration
+
 - Alert threshold setup
+
 - Dashboard specification
+
 - Regular audit schedule
+
 - Tool installation guide
 
 ### 7. Weak Test Examples
@@ -2137,9 +2355,13 @@ Generate these deliverables in `${OUTPUT_DIR}/exports/`:
 **File:** `weak_test_examples.md`
 
 **Contents:**
+
 - 20+ weak vs. strong test comparisons
+
 - Common anti-patterns identified in codebase
+
 - Language-specific issues
+
 - Before/after remediation examples
 
 ---
@@ -2175,14 +2397,20 @@ bash test_quality_monitoring/weekly_quality_report.sh
 
 ### Monthly Audits
 - Review all metrics trends
+
 - Update quality thresholds
+
 - Team retrospective on test quality
+
 - Update detection scripts if needed
 
 ### Quarterly Planning
 - Major remediation sprints
+
 - Test strategy review
+
 - Tool and framework evaluation
+
 - Training and knowledge sharing
 
 ---
@@ -2217,9 +2445,13 @@ python templates/quality_metrics_calculator.py
 ### Interpreting Mutation Scores
 
 - **>90%** - Excellent test quality
+
 - **80-90%** - Good test quality
+
 - **70-80%** - Acceptable, needs improvement
+
 - **60-70%** - Poor, significant issues
+
 - **<60%** - Critical, major overhaul needed
 
 ### Priority Action Matrix
@@ -2239,14 +2471,23 @@ python templates/quality_metrics_calculator.py
 After completing this reward hacking validation phase:
 
 - [ ] Overall test quality score >80/100
+
 - [ ] Mutation score >80% across all modules
+
 - [ ] Zero critical reward hacking incidents
+
 - [ ] <5% high severity issues
+
 - [ ] 100% test independence verified
+
 - [ ] <2% flaky test rate
+
 - [ ] Continuous monitoring configured
+
 - [ ] Team trained on strong test patterns
+
 - [ ] CI/CD quality gates active
+
 - [ ] Regular audit schedule established
 
 ---

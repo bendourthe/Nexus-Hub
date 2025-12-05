@@ -18,13 +18,18 @@ related_templates:
 tools:
 
   - jest (29.7.0)
+
   - eslint (9.15.0)
+
   - prettier
 tags:
 
   - test-development
+
   - testing
+
   - performance
+
   - javascript
 ---
 # JavaScript Performance Testing
@@ -153,8 +158,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 Please implement comprehensive performance testing for this JavaScript/Node.js project following this protocol:
@@ -257,6 +265,7 @@ const Benchmark = require('benchmark');
 const { performance } = require('perf_hooks');
 
 /**
+
  * Advanced benchmark with custom setup and teardown.
  */
 class AdvancedBenchmark {
@@ -1056,6 +1065,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
     - uses: actions/checkout@v3
 
     - name: Setup Node.js
@@ -1167,13 +1177,19 @@ Failures: 0.2%
 
 ### Bottlenecks Identified
 1. **JSON Serialization in /api/users**
+
    - **Issue**: Large response payload
+
    - **Impact**: 150ms serialization time
+
    - **Recommendation**: Implement response streaming or pagination
 
 2. **Database Connection Pool**
+
    - **Issue**: Connection pool exhaustion under load
+
    - **Impact**: Requests queuing, increased latency
+
    - **Recommendation**: Increase pool size or implement connection management
 
 ### Performance Improvement Recommendations
@@ -1245,11 +1261,17 @@ Replace `{phase_name}` with the specific phase (test_cases, mocks_fixtures, perf
 The AI assistant should deliver:
 
 1. **Performance test suite** with benchmarks and load tests
+
 2. **Performance baselines** documented
+
 3. **Load test scenarios** for critical endpoints
+
 4. **Profiling results** with bottleneck identification
+
 5. **Regression detection** configuration
+
 6. **CI/CD integration** for automated performance gates
+
 7. **Performance report** with metrics and recommendations
 ---
 

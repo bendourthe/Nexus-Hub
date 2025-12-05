@@ -12,12 +12,16 @@ prerequisites: []
 tools:
 
   - google test
+
   - catch2
+
   - boost.test
 tags:
 
   - documentation
+
   - documentation
+
   - cpp
 ---
 # C++ SBOM Generation
@@ -169,8 +173,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -278,14 +285,23 @@ Please generate a comprehensive Software Bill of Materials (SBOM) for this C++ p
 2. **Identify Dependency Metadata**
 
    For each dependency, collect:
+
    - Library name
+
    - Version
+
    - License
+
    - Source URL/repository
+
    - Download URL
+
    - Checksum (SHA-256)
+
    - Installation location
+
    - Linking type (static/dynamic/header-only)
+
    - Dependencies (for transitive mapping)
 
 ## Phase 2: SBOM Format Selection
@@ -991,9 +1007,13 @@ For each dependency, document:
 - Regular security reviews
 
 **Verification Steps**:
+
 1. Download from official Conan/vcpkg
+
 2. Verify SHA-256 checksum
+
 3. Compare with Boost.org checksums
+
 4. Build from source with known-good compiler
 
 **Alternative Options**:
@@ -1103,19 +1123,29 @@ Please provide SBOM documentation in this format:
 ## SBOM Files Generated
 
 1. **sbom.json** (CycloneDX format)
+
    - Complete dependency tree
+
    - Vulnerability information
+
    - License data
+
    - Component metadata
+
    - Header-only library tracking
 
 2. **sbom.spdx.json** (SPDX format)
+
    - License-focused SBOM
+
    - Compliance documentation
+
    - Relationship mapping
 
 3. **sbom-lite.json** (Simplified)
+
    - Essential information only
+
    - For quick reference
 ```
 
@@ -1125,35 +1155,57 @@ Please provide SBOM documentation in this format:
 ## Supporting Files
 
 1. **VULNERABILITIES.md**
+
    - All known CVEs (from Grype/Trivy)
+
    - Severity ratings
+
    - Remediation status
+
    - Mitigation strategies
 
 2. **LICENSES.md**
+
    - All component licenses
+
    - License compatibility analysis
+
    - Header-only library considerations
+
    - Attribution requirements
+
    - Compliance status
 
 3. **LICENSES/** (directory)
+
    - Full license texts for all dependencies
 
 4. **DEPENDENCIES.md**
+
    - Dependency tree visualization
+
    - Direct dependencies
+
    - Transitive dependencies
+
    - Header-only libraries
+
    - System libraries
+
    - Build dependencies
+
    - Update recommendations
 
 5. **SUPPLY_CHAIN.md**
+
    - Component provenance
+
    - Security assessment
+
    - Checksum verification (Conan/vcpkg)
+
    - Risk analysis
+
    - Alternative options
 ```
 
@@ -1312,18 +1364,24 @@ sbom:
   before_script:
 
     - pip install cyclonedx-conan
+
     - curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
   script:
 
     - conan install . --build=missing
+
     - cmake -B build -DCMAKE_BUILD_TYPE=Release
+
     - cmake --build build
+
     - cyclonedx-conan --output ${OUTPUT_DIR}/exports/sbom.json
+
     - syft packages dir:./build -o cyclonedx-json > ${OUTPUT_DIR}/exports/sbom_syft.json
   artifacts:
     paths:
 
       - sbom.json
+
       - sbom_syft.json
     expire_in: 1 year
 ```
@@ -1333,38 +1391,61 @@ sbom:
 ## Best Practices
 
 1. **Use Package Managers**
+
    - Prefer Conan or vcpkg for dependency management
+
    - Automated checksum verification
+
    - Easier SBOM generation
+
    - Better version tracking
 
 2. **Track Header-Only Libraries**
+
    - Document all header-only dependencies
+
    - Include in SBOM even though no linking occurs
+
    - Important for license compliance
+
    - Track versions carefully
 
 3. **Keep SBOMs Current**
+
    - Regenerate on dependency updates
+
    - Track vulnerability fixes
+
    - Document changes between versions
+
    - Verify checksums regularly
 
 4. **Use Multiple Formats**
+
    - CycloneDX for security
+
    - SPDX for license compliance
+
    - Both for comprehensive coverage
 
 5. **Continuous Monitoring**
+
    - Monitor for new vulnerabilities (Grype, Trivy)
+
    - Track dependency updates (Conan/vcpkg)
+
    - Assess supply chain risks (checksums)
+
    - Subscribe to security advisories
 
 6. **Publish Transparently**
+
    - Include SBOM in releases
+
    - Make publicly available
+
    - Provide easy access
+
    - Document update process
 
 ---

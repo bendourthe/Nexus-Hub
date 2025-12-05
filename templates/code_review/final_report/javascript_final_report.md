@@ -18,11 +18,14 @@ related_templates:
 tools:
 
   - jest (29.7.0)
+
   - eslint (9.15.0)
+
   - prettier
 tags:
 
   - code-review
+
   - javascript
 ---
 # JavaScript Code Review Final Report
@@ -81,16 +84,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Issues that create immediate risks to system stability, data integrity, or compliance.
 
 **Examples:**
+
 - Security vulnerabilities (SQL injection, XSS, authentication bypass)
+
 - Resource leaks (unclosed connections, file handles, memory leaks)
+
 - Data loss risks (destructive operations without validation)
+
 - Thread safety violations (race conditions, deadlocks)
+
 - Compliance violations (GDPR, HIPAA, PCI-DSS)
 
 **Action Required:**
+
 - Block deployment until fixed
+
 - Require hotfix within 24 hours
+
 - Add tests to prevent regression
+
 - Document root cause and fix
 
 ---
@@ -100,16 +112,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Issues that significantly impact maintainability, performance, or correctness but don't cause immediate failures.
 
 **Examples:**
+
 - Incorrect business logic (wrong calculations, flawed algorithms)
+
 - Performance bottlenecks (O(n²) algorithms, missing indexes, inefficient queries)
+
 - Memory inefficiency (loading large datasets into memory unnecessarily)
+
 - Breaking API changes without deprecation
+
 - Missing critical error handling (network errors, API failures not caught)
 
 **Action Required:**
+
 - Schedule fix in current sprint
+
 - Cannot release without resolution
+
 - Update documentation
+
 - Performance test after fix
 
 ---
@@ -119,16 +140,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Code smells and technical debt that reduce maintainability but don't affect correctness.
 
 **Examples:**
+
 - High complexity (cyclomatic complexity >10, functions >100 lines)
+
 - Code duplication (>10 lines duplicated across modules)
+
 - Poor naming (unclear variable/function names, inconsistent conventions)
+
 - Missing tests (<80% coverage on critical paths)
+
 - Incomplete error messages (no context for debugging)
 
 **Action Required:**
+
 - Add to backlog
+
 - Prioritize in next sprint planning
+
 - Consider during refactoring opportunities
+
 - Track technical debt metrics
 
 ---
@@ -138,16 +168,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Style inconsistencies and minor optimizations that don't impact functionality.
 
 **Examples:**
+
 - Style violations (linting warnings, formatting issues)
+
 - Minor performance optimizations (in non-critical code paths)
+
 - Missing documentation on helper functions
+
 - Verbose code that could be more concise
+
 - Debug statements left in code
 
 **Action Required:**
+
 - Fix opportunistically during other work
+
 - Batch with other low-priority changes
+
 - Good for new contributors
+
 - Can be deferred indefinitely
 
 ---
@@ -155,20 +194,31 @@ Use this framework to classify and prioritize all findings from the code review.
 ## Severity Assignment Guidelines
 
 **When to Escalate Severity:**
+
 - Issue affects **production environment** → escalate one level
+
 - Issue affects **customer-facing features** → escalate one level
+
 - Issue has **no workaround** → escalate one level
+
 - Issue appears in **multiple locations** → escalate one level
 
 **When to De-escalate Severity:**
+
 - Issue only in **test/development code** → de-escalate one level
+
 - Issue has **easy workaround** → de-escalate one level
+
 - Issue is **isolated to single module** → de-escalate one level
+
 - Issue **rarely executed** (edge case) → de-escalate one level
 
 **Examples:**
+
 - Memory leak in production API: **HIGH → CRITICAL** (production + customer-facing)
+
 - Style violation in test file: **LOW → Ignore** (test code + style only)
+
 - Duplicated logic across 15 modules: **MEDIUM → HIGH** (multiple locations)
 
 ---
@@ -198,16 +248,22 @@ For each finding, include:
 **Issue:** The user search function loads all users into memory and performs linear search on every request.
 
 **Impact:**
+
 - Response time degrades with user count (currently 500ms for 10k users)
+
 - High memory usage (50MB+ per request)
+
 - Poor scalability (can't handle >100k users)
 
 **Recommendation:**
 Move filtering to database with indexed query:
 
 - Add database index on search fields
+
 - Use database LIKE/ILIKE queries
+
 - Implement pagination (limit results to 50)
+
 - Add caching for common searches
 
 **Effort:** 3 hours (2 hours implementation + 1 hour testing)
@@ -254,8 +310,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -278,37 +337,61 @@ Please consolidate all code review findings into a comprehensive final report fo
 Gather and organize findings from all review phases:
 
 1. **Context Analysis Summary**
+
    - Project architecture overview
+
    - Technology stack (React/Vue/Angular/Node.js/etc.)
+
    - Build tools and dependencies (Webpack/Vite/etc.)
+
    - Key architectural decisions
+
    - Development maturity assessment
 
 2. **Code Quality Findings**
+
    - Complexity hotspots
+
    - Maintainability issues
+
    - Technical debt summary
+
    - Coding standards compliance (ESLint/Prettier)
+
    - TypeScript adoption (if applicable)
 
 3. **Security Assessment**
+
    - Critical vulnerabilities (CVSS 9.0+)
+
    - High-risk issues (CVSS 7.0-8.9)
+
    - Medium-risk issues (CVSS 4.0-6.9)
+
    - Dependency vulnerabilities (npm audit)
+
    - Compliance gaps
 
 4. **Performance Analysis**
+
    - Critical bottlenecks
+
    - Bundle size issues
+
    - Runtime performance
+
    - Core Web Vitals metrics
+
    - Optimization opportunities
 
 5. **Testing Evaluation**
+
    - Coverage metrics (line, branch, function)
+
    - Test quality assessment
+
    - Critical gaps
+
    - Reliability issues (flaky tests)
 
 ## Phase 2: Priority Matrix
@@ -351,10 +434,15 @@ Create a phased implementation plan:
 **Critical P0 Items** - Must be addressed immediately:
 
 1. **[Issue]**
+
    - **Risk**: [what happens if not fixed]
+
    - **Effort**: [hours/days]
+
    - **Owner**: [team/role]
+
    - **Dependencies**: [blockers]
+
    - **Success Criteria**: [measurable outcome]
 
 ### Short-term Goals (Weeks 2-4)
@@ -376,17 +464,27 @@ Define success metrics to track improvement:
 ### Code Quality Metrics
 
 - **Current State**:
+
   - ESLint Issues: [count by severity]
+
   - Average Complexity: [score]
+
   - Code Coverage: [%]
+
   - Technical Debt: [hours]
+
   - TypeScript Adoption: [%]
 
 - **Target State** (3 months):
+
   - ESLint Issues: [target count]
+
   - Average Complexity: [target score]
+
   - Code Coverage: [target %]
+
   - Technical Debt: [target hours reduction]
+
   - TypeScript Adoption: [target %]
 
 ### Security Metrics
@@ -398,15 +496,23 @@ Define success metrics to track improvement:
 ### Performance Metrics
 
 - **Current**:
+
   - Bundle Size: [KB/MB]
+
   - LCP: [seconds]
+
   - FID: [ms]
+
   - CLS: [score]
 
 - **Target**:
+
   - Bundle Size: <[KB/MB]
+
   - LCP: <2.5s
+
   - FID: <100ms
+
   - CLS: <0.1
 
 ### Testing Metrics
@@ -485,11 +591,17 @@ Please provide a comprehensive final report with the following structure:
 - **Architecture**: [SPA/SSR/SSG/Micro-frontends/Monorepo/etc.]
 
 - **Tech Stack**:
+
   - **Frontend**: [React 18.2/Vue 3.3/Angular 16/etc.]
+
   - **Backend**: [Node.js 18/Express/Fastify/NestJS/etc.]
+
   - **State Management**: [Redux/Zustand/Pinia/NgRx/etc.]
+
   - **Build Tool**: [Webpack 5/Vite 4/Turbopack/etc.]
+
   - **Package Manager**: [npm/yarn/pnpm]
+
   - **TypeScript**: [Yes (X%)/No/Partial (Y%)]
 
 - **Development Stage**: [Prototype/Production/Legacy]
@@ -558,8 +670,11 @@ Please provide a comprehensive final report with the following structure:
 - **Recommendation**: [migrate fully/improve types/etc.]
 
 **Recommendations**:
+
 1. [Prioritized recommendation 1]
+
 2. [Prioritized recommendation 2]
+
 3. [Prioritized recommendation 3]
 
 ---
@@ -594,9 +709,13 @@ npm audit summary:
 | [vuln type] | [package@version] | [score] | [description] | [update to version/alternative] | [hours] |
 
 **High-Risk Issues**:
+
 1. **[Issue Category]**
+
    - **Location**: [file:line]
+
    - **Impact**: [description]
+
    - **Remediation**: [detailed fix steps]
 
 **Frontend Security Checklist**:
@@ -636,9 +755,13 @@ npm audit summary:
 - Secrets in Code: [Pass/Fail - details]
 
 **Security Roadmap**:
+
 1. **Week 1**: Fix all critical vulnerabilities
+
 2. **Weeks 2-4**: Address high-risk issues
+
 3. **Month 2**: Implement security automation (Snyk/Dependabot)
+
 4. **Ongoing**: Security monitoring and scanning
 
 ---
@@ -665,8 +788,11 @@ npm audit summary:
 - **Vendor Bundle**: [KB]
 
 - **Largest Dependencies**:
+
   1. [package]: [KB]
+
   2. [package]: [KB]
+
   3. [package]: [KB]
 
 - **Code Splitting**: [Excellent/Good/Poor]
@@ -691,11 +817,15 @@ npm audit summary:
 | [operation] | [metric] | [goal] | [High/Med/Low] | [approach] | [hours] |
 
 **Quick Wins** (High Impact, Low Effort):
+
 1. [Optimization 1] - Expected improvement: [X% or Yms]
+
 2. [Optimization 2] - Expected improvement: [X% or Yms]
 
 **Strategic Initiatives** (High Impact, High Effort):
+
 1. [Major optimization 1] - Expected improvement: [description]
+
 2. [Major optimization 2] - Expected improvement: [description]
 
 **Framework-Specific Performance**:
@@ -792,9 +922,13 @@ npm audit summary:
 - [ ] Edge cases and boundary conditions
 
 **Testing Roadmap**:
+
 1. **Week 1**: Add tests for critical uncovered paths
+
 2. **Weeks 2-4**: Fix flaky tests, improve coverage to 70%+
+
 3. **Month 2**: Reach 80%+ coverage, add integration tests
+
 4. **Month 3**: E2E tests for critical flows, performance tests
 
 ---
@@ -825,16 +959,25 @@ npm audit summary:
 **Objective**: Address all P0 items blocking production or posing critical risks
 
 **Action Items**:
+
 1. **[P0 Item 1]**
+
    - Owner: [person/team]
+
    - Effort: [hours]
+
    - Dependencies: [blockers]
+
    - Success Criteria: [measurable outcome]
 
 2. **[P0 Item 2]**
+
    - Owner: [person/team]
+
    - Effort: [hours]
+
    - Dependencies: [blockers]
+
    - Success Criteria: [measurable outcome]
 
 **Deliverables**:
@@ -876,19 +1019,29 @@ npm audit summary:
 **Objective**: Systematic improvements to code quality and testing
 
 **Key Initiatives**:
+
 1. **TypeScript Migration** (if applicable)
+
    - Migrate [X] critical modules
+
    - Add strict type checking
+
    - Effort: [days]
 
 2. **Performance Optimization**
+
    - Implement code splitting for [routes/features]
+
    - Add lazy loading for [components]
+
    - Effort: [days]
 
 3. **Testing Infrastructure**
+
    - Add E2E tests for [critical flows]
+
    - Improve integration test coverage
+
    - Effort: [days]
 
 ---
@@ -897,14 +1050,21 @@ npm audit summary:
 **Objective**: Long-term architectural and process improvements
 
 **Major Initiatives**:
+
 1. **[Strategic Initiative 1]**
+
    - Description: [details]
+
    - Effort: [weeks]
+
    - Impact: [expected benefits]
 
 2. **[Strategic Initiative 2]**
+
    - Description: [details]
+
    - Effort: [weeks]
+
    - Impact: [expected benefits]
 
 ---
@@ -1033,6 +1193,7 @@ jobs:
     steps:
 
       - uses: actions/checkout@v3
+
       - uses: actions/setup-node@v3
 
       # Linting
@@ -1124,21 +1285,33 @@ jobs:
 **Overall Assessment**: [Production-ready / Needs improvement / Requires significant work]
 
 **Key Takeaways**:
+
 1. [Major finding or recommendation]
+
 2. [Major finding or recommendation]
+
 3. [Major finding or recommendation]
 
 **Critical Success Factors**:
+
 1. [Factor that will determine success of improvements]
+
 2. [Factor that will determine success of improvements]
+
 3. [Factor that will determine success of improvements]
 
 **Next Steps**:
+
 1. Review and approve this report with team
+
 2. Assign owners to P0 and P1 items
+
 3. Schedule kickoff for remediation sprints
+
 4. Set up automated quality gates in CI/CD
+
 5. Configure monitoring dashboards for key metrics
+
 6. Plan follow-up review in [timeframe]
 
 **Questions or Clarifications**: [Contact information]

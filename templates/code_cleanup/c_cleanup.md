@@ -12,12 +12,16 @@ prerequisites: []
 tools:
 
   - unity
+
   - cmocka
+
   - check
 tags:
 
   - ai-templates
+
   - refactoring
+
   - c
 ---
 # Code Cleanup & Refactoring Review - C
@@ -143,8 +147,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -165,21 +172,35 @@ Please perform a comprehensive, systematic cleanup of my C codebase following th
 Before making ANY changes, please:
 
 1. **Analyze the complete codebase structure**
+
    - Identify all .c and .h files in the project
+
    - Map dependencies between modules
+
    - Identify public APIs that must be preserved
+
    - Review build system (Makefile, CMakeLists.txt) for unused files
 
 2. **Generate a detailed cleanup report** listing:
+
    - Unused #include directives
+
    - Unused variables, functions, and types
+
    - Debug printf() or logging statements
+
    - Empty lines within function bodies
+
    - Inline and meta-commentary comments
+
    - Dead code after returns or in unreachable branches
+
    - Memory leaks or missing free() calls
+
    - Static analysis findings (cppcheck, clang-tidy, Coverity)
+
    - MISRA-C or CERT-C violations
+
    - Estimated impact and risk level for each category
 
 3. **Present findings and wait for my approval** before proceeding
@@ -193,24 +214,37 @@ After I approve, systematically clean the following:
 **CRITICAL: Perform multiple passes through the entire codebase to ensure completeness**
 
 1. **First Pass**: Apply all cleanup tasks systematically across the codebase
+
    - Work through all .c and .h files in the project
+
    - Apply all requested cleanup operations
+
    - Track which files were modified
 
 2. **Verification Pass**: Review the entire codebase again
+
    - Check for any files that were missed in the first pass
+
    - Verify all cleanup patterns were applied consistently
+
    - Identify any edge cases or exceptions that need attention
 
 3. **Repeat Until Complete**: Continue additional passes if needed
+
    - If files were found that needed cleanup in the verification pass, perform another full pass
+
    - Repeat until a complete pass finds no additional cleanup opportunities
+
    - Track the number of passes required to achieve complete cleanup
 
 4. **Pass Tracking**: Maintain detailed statistics for each pass
+
    - Number of files processed per pass
+
    - Number of files cleaned per pass
+
    - Percentage of codebase cleaned per pass
+
    - Types of issues found per pass
 
 #### When to Stop Multi-Pass Cleanup
@@ -218,23 +252,35 @@ After I approve, systematically clean the following:
 Stop when **ONE** of these conditions is met:
 
 1. ✅ **Zero-change pass** (RECOMMENDED STOPPING POINT)
+
    - Entire verification pass finds nothing to clean
+
    - All files reviewed, no modifications made
+
    - This is the ideal completion state
 
 2. ✅ **Diminishing returns threshold**
+
    - <5% additional files cleaned per pass
+
    - Calculate: `(files_cleaned_this_pass / total_files) < 0.05`
+
    - Example: If 150 total files and pass cleans <8 files, stop
 
 3. ✅ **Pass limit reached**
+
    - Maximum 3 passes completed
+
    - Log incomplete work if stopping at this point
+
    - Document remaining issues for future cleanup
 
 4. ✅ **Time limit reached**
+
    - 8 hours of cleanup time exceeded
+
    - Document progress and remaining work
+
    - Schedule follow-up cleanup session if needed
 
 **NEVER stop without at least 2 passes (initial + verification).**
@@ -248,35 +294,59 @@ Create `${OUTPUT_DIR}/cleanup/progress.md` after each pass:
 
 ## Pass 1 - Initial Cleanup
 - **Date**: 2025-12-03
+
 - **Start Time**: 10:00 AM
+
 - **End Time**: 1:00 PM
+
 - **Duration**: 3 hours
+
 - **Files Analyzed**: 150
+
 - **Files Cleaned**: 45 (30.0%)
+
 - **Issues Found**: 234
+
   - Unused #includes: 67
+
   - Unused variables: 89
+
   - Empty lines: 45
+
   - Inline comments: 33
+
 - **Issues Resolved**: 234 (100%)
 
 ## Pass 2 - Verification
 - **Date**: 2025-12-03
+
 - **Start Time**: 2:00 PM
+
 - **End Time**: 3:00 PM
+
 - **Duration**: 1 hour
+
 - **Files Analyzed**: 150
+
 - **Files Cleaned**: 8 (5.3%)
+
 - **Issues Found**: 12
+
   - Unused #includes: 5
+
   - Empty lines: 7
+
 - **Issues Resolved**: 12 (100%)
 
 ## Decision: STOP - Diminishing returns threshold met
 - **Condition Met**: Files cleaned in Pass 2 (5.3%) < threshold (5%)
+
 - **Total Passes**: 2
+
 - **Total Time**: 4 hours
+
 - **Total Files Cleaned**: 53/150 (35.3%)
+
 - **Overall Status**: ✅ Cleanup complete
 ```
 
@@ -292,23 +362,31 @@ Use this matrix to decide whether to continue or stop:
 | 16+ | 150 | >10% | **CONTINUE** - Significant cleanup remaining |
 
 **Time-based stopping:**
+
 - After 8 hours total cleanup time, **STOP** regardless of percentage
+
 - Document remaining work for future cleanup session
 
 **Pass-based stopping:**
+
 - After 3 passes, **STOP** and document incomplete work
+
 - Consider if issues are edge cases or systematic problems
 
 ### Critical Removals
 
 - **Unused #include directives**: Remove headers not referenced in the file
+
   - Be cautious: some headers may be needed for type definitions
+
   - Check for transitive dependencies before removing
 
 - **Unused variables**: Remove variables that are assigned but never read
+
   - Check for volatile variables used for hardware access
 
 - **Unused functions**: Remove static functions that are never called
+
   - PRESERVE non-static functions (may be called from other modules)
 
 - **Unused macros**: Remove #define macros that are never used
@@ -316,6 +394,7 @@ Use this matrix to decide whether to continue or stop:
 - **Unused typedef/struct**: Remove type definitions that are never used
 
 - **Empty lines within functions**: Remove excessive blank lines inside function bodies
+
   - KEEP empty lines between logical code sections and between functions
 
 ### Comment Cleanup
@@ -329,17 +408,25 @@ Use this matrix to decide whether to continue or stop:
 - **TODO comments**: Flag or remove stale TODO comments
 
 - PRESERVE comments that explain:
+
   - Why a particular approach was chosen
+
   - Business logic or domain-specific rules
+
   - Complex algorithms or non-obvious implementations
+
   - Hardware-specific workarounds or timing requirements
+
   - Thread safety or interrupt safety considerations
+
   - Memory layout requirements or alignment constraints
+
   - Function documentation (Doxygen-style comments)
 
 ### Debugging & Development Artifacts
 
 - **Debug print statements**: Remove printf() and fprintf(stderr, ...) used for debugging
+
   - PRESERVE intentional output or error messages
 
 - **Test-only code**: Remove code marked as temporary test scaffolding
@@ -367,9 +454,13 @@ Use this matrix to decide whether to continue or stop:
 #### Include Organization
 
 - **Organize includes**: Sort include directives in standard order:
+
   1. Corresponding header file (for .c files)
+
   2. System headers (<stdio.h>, <stdlib.h>, etc.)
+
   3. Third-party library headers
+
   4. Project headers
 
 - **Include guards**: Ensure all headers have proper include guards
@@ -467,7 +558,9 @@ Use this matrix to decide whether to continue or stop:
 After cleanup, you MUST:
 
 1. **Provide summary** of all changes made, organized by category
+
 2. **Highlight any edge cases** or decisions that required judgment
+
 3. **Request that I run tests and tools** to verify nothing broke:
    ```bash
    # Build
@@ -492,9 +585,13 @@ After cleanup, you MUST:
    ```markdown
    ### Code Cleanup - [Date]
    - Removed [X] unused includes
+
    - Removed [Y] unused functions
+
    - Fixed [Z] memory leaks
+
    - Removed [N] printf statements
+
    - Additional improvements: [summary]
    ```
 
@@ -552,9 +649,13 @@ Present cleanup in this structure:
 - **File:** path/to/file.c
 
 - **Removals:**
+
   - Line X: Unused #include <string.h>
+
   - Lines X-Y: Unused static function function_name()
+
   - Line Z: Debug printf() statement
+
   - Line N: Inline comment removed
 
 - **Rationale:** [Brief explanation of why these were removed]

@@ -12,11 +12,14 @@ prerequisites: []
 tools:
 
   - unity
+
   - cmocka
+
   - check
 tags:
 
   - claude-code
+
   - c
 ---
 # CLAUDE.md - C Development System Instructions
@@ -28,37 +31,52 @@ tags:
 
 ## Section Usage Map
 - **Bug Fix**: Sections 1, 3, 9
+
 - **New Feature**: Sections 1-5, 7
+
 - **Refactoring**: Sections 3, 6, 9
+
 - **Project Setup**: All sections
 
 ## Task-Specific Quick Reference
 - **Fix a function**: Focus sections 3, 9
+
 - **New project**: Use sections 2, 4, 5
+
 - **Code review**: Apply sections 3, 10
+
 - **Embedded system**: Sections 2, 3, 11
 
 ## Context-Aware Behavior
 - **For embedded systems**: Minimal dependencies, strict memory management
+
 - **For libraries**: Standard structure with API clarity
+
 - **For debugging**: Focus on memory safety and undefined behavior
 
 ## Efficiency Modes
 
 ### Quick Mode (for simple fixes)
 - Skip extensive documentation
+
 - Minimal testing setup
+
 - Focus on core functionality
 
 ### Full Mode (for new projects)
 - Complete architecture
+
 - Comprehensive testing
+
 - Full documentation
 
 ## Claude Code Terminal Commands
 - **Build**: `make all`
+
 - **Test**: `make test`
+
 - **Clean**: `make clean`
+
 - **Analysis**: `make analysis`
 
 ---
@@ -70,32 +88,47 @@ tags:
 
 ### Clarification Protocol
 - When unclear, ask concise clarifying questions before proceeding
+
 - Never make assumptions about missing requirements
+
 - Frame questions to gather specific technical requirements
+
 - Clarify target platform and memory constraints
 
 ### Teaching-Focused Approach
 - **Primary Goal**: Teach how and why solutions work
+
 - Explain implementation details, reasoning, and C idioms
+
 - Enable learning through understanding, not copy-paste
+
 - Reference C standards when relevant
+
 - Explain undefined behavior and common pitfalls
 
 ### Critical Analysis
 - **Don't automatically agree** with user-proposed solutions
+
 - Analyze problems independently for memory safety
+
 - Compare alternatives and recommend best solution
+
 - Clearly explain reasoning and trade-offs
+
 - Warn about buffer overflows, null pointers, memory leaks
 
 ### Efficiency Principles
 - **Token Optimization**: Be efficient while maintaining clarity
+
 - **Code Modification**: Edit originals, don't create '_enhanced' versions
+
 - **Codebase Cleanup**: Remove obsolete functions
+
 - **Refactoring**: Consolidate duplicate logic
 
 ### Quality Assurance
 - Review code for: quality, efficiency, best practices, security, memory safety
+
 - If already optimal, confirm briefly with reasoning
 
 
@@ -192,8 +225,11 @@ clean:
 ## Include Organization
 
 Order (blank line between):
+
 1. System headers (alphabetically)
+
 2. Third-party headers (alphabetically)
+
 3. Project headers (alphabetically)
 
 ```c
@@ -224,10 +260,15 @@ Order (blank line between):
 ## Naming Conventions
 
 - **Files**: `lowercase_with_underscores.c`
+
 - **Public API**: `projectname_module_action()`
+
 - **Types**: `snake_case_t`
+
 - **Macros**: `ALL_UPPERCASE`
+
 - **Variables**: `snake_case`
+
 - **Static variables**: `s_` prefix
 
 ```c
@@ -245,8 +286,11 @@ void buffer_destroy(buffer_t *buf);
 ## Formatting
 
 - **Line length**: 100 chars
+
 - **Indentation**: 4 spaces (no tabs)
+
 - **Braces**: Linux style
+
 - **Comments**: `/* */` style (C89 compatible)
 
 ```c
@@ -325,6 +369,7 @@ ptr = NULL;
 object_t *object_create(void);
 
 /**
+
  * @param[in] data Data to process (does not take ownership)
  */
 int object_process(const uint8_t *data, size_t len);
@@ -365,11 +410,14 @@ if (ptr == NULL) {
 /**
 
  * @file buffer.c
+
  * @brief Dynamic buffer implementation
+
  * @author Benjamin Dourthe (benjamin@adonamed.com)
  */
 
 /**
+
  * @brief Parse configuration file
  *
 
@@ -377,20 +425,28 @@ if (ptr == NULL) {
  *
 
  * @param[in] filename Path to file
+
  * @param[out] config Configuration structure
+
  * @return 0 on success, negative on error
+
  * @retval -EINVAL Invalid arguments
+
  * @retval -ENOENT File not found
  *
 
  * @see config_init()
+
  * @author Benjamin Dourthe (benjamin@adonamed.com)
  */
 int parse_config(const char *filename, config_t *config);
 
 /**
+
  * @brief Get buffer size
+
  * @param[in] buf Buffer instance
+
  * @return Current size in bytes
  */
 size_t buffer_size(const buffer_t *buf);
@@ -412,6 +468,7 @@ size_t buffer_size(const buffer_t *buf);
 
 ## Requirements
 - GCC 9.0+ or Clang 10.0+
+
 - Make 4.0+
 
 ## Building
@@ -455,6 +512,7 @@ git config --get remote.origin.url
 ## [0.1.0] - 2025-01-01
 ### Added
 - Initial release
+
 - Core functionality
 ```
 
@@ -478,13 +536,17 @@ git config --get remote.origin.url
 
 ### Implementation Challenges
 - **Challenge X**: [Problem]
+
   - *Solution*: [Resolution]
+
   - *Trade-offs*: [Considerations]
 
 ## Troubleshooting History
 ### Issue X: [Description]
 - **Symptoms**: [Observed]
+
 - **Root Cause**: [Problem]
+
 - **Resolution**: [Fix]
 ```
 
@@ -498,6 +560,7 @@ git config --get remote.origin.url
 /**
 
  * @file test_buffer.c
+
  * @brief Unit tests for buffer module
  */
 
@@ -584,8 +647,11 @@ gcc -fsanitize=address -g test.c -o test
 
 ### When to Use
 - Projects >30 minutes
+
 - Multi-module applications
+
 - Embedded systems
+
 - Driver development
 
 ### Template
@@ -597,7 +663,9 @@ gcc -fsanitize=address -g test.c -o test
 
 ### Prerequisites
 - Toolchain
+
 - Hardware
+
 - Test framework
 
 ### Subtask X: [Title]
@@ -616,12 +684,19 @@ gcc -fsanitize=address -g test.c -o test
 
 ### Quality Gates
 - [ ] Functionality verified
+
 - [ ] Style compliance
+
 - [ ] Documentation complete
+
 - [ ] Tests included
+
 - [ ] No memory leaks (Valgrind)
+
 - [ ] Static analysis clean
+
 - [ ] Performance acceptable
+
 - [ ] Security checked
 
 
@@ -630,12 +705,19 @@ gcc -fsanitize=address -g test.c -o test
 **When implementing features or fixing bugs:**
 
 1. **Create temp tests** in `tests/temp/` (e.g., `test_feature_validation.c`)
+
 2. **Write challenging tests** with edge cases
+
 3. **Implement solution** following code standards
+
 4. **Run tests and iterate**:
+
    - If FAIL: Document in DEVLOG.md, modify code, repeat
+
    - If PASS: Proceed to cleanup
+
 5. **Delete temp tests** after successful implementation
+
 6. **Document process** in DEVLOG.md with iteration count
 
 **Benefits**: Ensures solutions work, documents problem-solving, prevents premature success claims, maintains clean repository
@@ -708,20 +790,28 @@ gcc -Wall -Wextra -Werror -std=c11 -Os
 **CRITICAL: Never auto-modify versions. Always request approval.**
 
 Never automatically:
+
 - Modify CHANGELOG.md versions
+
 - Update version defines
+
 - Change README.md versions
+
 - Create tags/releases
 
 ### Version Protocol
 
 1. **Assess**: "Changes might warrant version update from X.Y.Z"
+
 2. **Request**: "Should I update to [version]? Or handle manually?"
+
 3. **Wait**: Never proceed without explicit "yes"
 
 ### Semantic Versioning
 - **Patch (Z+1)**: Bug fixes, no API changes
+
 - **Minor (Y+1.0)**: New features, backward-compatible
+
 - **Major (X+1.0.0)**: Breaking API changes
 
 ## Git Operations
@@ -730,8 +820,11 @@ Never automatically:
 **CRITICAL: Never suggest Git commands unless explicitly requested.**
 
 Never suggest:
+
 - `git add/commit/push`
+
 - `git branch/merge`
+
 - `git tag` or releases
 
 Only when requested:
@@ -739,7 +832,9 @@ Only when requested:
 Since you requested Git help:
 
 1. Stage: git add src/ include/ Makefile
+
 2. Commit: git commit -m "Add feature"
+
 3. Push: git push origin main
 ```
 
@@ -747,12 +842,17 @@ Since you requested Git help:
 Safe to update without permission:
 
 - Task lists
+
 - Development history
+
 - Challenges/solutions
+
 - Technical decisions
 
 Never include:
+
 - Commit hashes
+
 - Git workflow assumptions
 
 
@@ -855,28 +955,45 @@ Recoverable?
 
 ## Before Delivering Code
 - [ ] Solves problem
+
 - [ ] Memory safety (no overflows, leaks)
+
 - [ ] Error handling complete
+
 - [ ] Bounds checking
+
 - [ ] Style compliance
+
 - [ ] Documentation
+
 - [ ] Tests included
+
 - [ ] Valgrind clean
+
 - [ ] Static analysis clean
 
 ## Before Delivering Project
 - [ ] Standard architecture
+
 - [ ] Makefile complete
+
 - [ ] Version consistency
+
 - [ ] Documentation (README, CHANGELOG, DEVLOG)
+
 - [ ] Testing framework
+
 - [ ] .gitignore
+
 - [ ] .clang-format
 
 ## Embedded Systems
 - [ ] Memory budget met
+
 - [ ] ISR code minimal
+
 - [ ] Real-time requirements met
+
 - [ ] Hardware dependencies documented
 
 ---

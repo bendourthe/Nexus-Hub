@@ -16,13 +16,21 @@ Guide developers through a proper Git commit workflow that produces clean, revie
 ## When to Use This Skill
 
 Use this skill when:
+
 - ✅ Preparing to commit changes to version control
+
 - ✅ Working on features that span multiple files
+
 - ✅ Making changes that should be split into logical commits
+
 - ✅ Collaborating with a team (clean history matters)
+
 - ✅ Preparing code for pull request review
+
 - ✅ Following conventional commit standards
+
 - ✅ Ensuring traceability of changes
+
 - ✅ Building professional development habits
 
 ## What This Skill Does
@@ -31,26 +39,38 @@ This skill provides a systematic approach to committing code that results in:
 
 ### 1. Atomic Commits
 - Each commit represents **one logical change**
+
 - Commits can be understood, reviewed, and reverted independently
+
 - No mixing of unrelated changes
+
 - Clear separation of concerns
 
 ### 2. Clear Commit Messages
 - Descriptive, meaningful commit messages
+
 - Follows conventional commit format
+
 - Explains **why** changes were made, not just **what**
+
 - Provides context for future maintainers
 
 ### 3. Clean History
 - Reviewable git history
+
 - Easy to trace when and why changes occurred
+
 - Simplified debugging with `git bisect`
+
 - Professional development practices
 
 ### 4. Team Collaboration
 - Consistent commit style across team
+
 - Easy code review process
+
 - Clear documentation of changes
+
 - Traceability for project management
 
 ## Atomic Commit Principles
@@ -58,9 +78,13 @@ This skill provides a systematic approach to committing code that results in:
 ### What is an Atomic Commit?
 
 An atomic commit is a **single, self-contained change** that:
+
 - ✅ Has one clear purpose
+
 - ✅ Can be understood without other commits
+
 - ✅ Doesn't break the build
+
 - ✅ Can be reverted safely if needed
 
 ### Examples of Atomic vs. Non-Atomic Commits
@@ -71,16 +95,23 @@ Commit: "Various changes"
 Files changed: 15 files
 
 - Added user authentication
+
 - Fixed bug in payment processing
+
 - Refactored database queries
+
 - Updated documentation
+
 - Changed CSS styling
 ```
 **Problems**:
 
 - Impossible to review effectively
+
 - Can't revert one change without others
+
 - No clear purpose
+
 - Vague commit message
 
 **✅ Atomic (Good)**:
@@ -89,6 +120,7 @@ Commit 1: "feat: add JWT authentication for user login"
 Files: src/auth/jwt.py, tests/test_auth.py
 
 - Implements JWT token generation
+
 - Adds token validation middleware
 
 Commit 2: "fix: handle edge case in payment refund calculation"
@@ -108,26 +140,36 @@ Files: static/css/buttons.css
 **Benefits**:
 
 - Each commit has clear purpose
+
 - Easy to review individually
+
 - Can cherry-pick or revert specific changes
+
 - Clear, searchable history
 
 ## Prerequisites
 
 ### Required
 - Git installed and configured
+
 - Understanding of basic Git commands
+
 - Working directory with Git repository initialized
 
 ### Recommended
 - Git GUI tool (GitKraken, SourceTree, VS Code Git, etc.)
+
 - Pre-commit hooks configured
+
 - Linting and formatting tools set up
+
 - CI/CD pipeline for automated testing
 
 ### Knowledge
 - Basic Git concepts (staging, commits, branches)
+
 - Command line basics
+
 - Conventional commit format (optional but recommended)
 
 ## Instructions
@@ -148,8 +190,11 @@ git diff --cached
 ```
 
 **Ask yourself**:
+
 - What did I change?
+
 - Can I group these changes into logical units?
+
 - Should any changes be split into separate commits?
 
 ### Step 2: Stage Changes Selectively
@@ -178,8 +223,11 @@ git add -p src/user_service.py
 ```
 
 **Option C: Stage Individual Lines** (using GUI):
+
 - Use VS Code, GitKraken, or SourceTree
+
 - Select specific lines to stage
+
 - Create precise commits
 
 **Example Interactive Session**:
@@ -191,7 +239,9 @@ diff --git a/src/user_service.py b/src/user_service.py
      user = User(**data)
 
 +    # Add email validation
+
 +    if not validate_email(user.email):
+
 +        raise ValueError("Invalid email")
      user.save()
 
@@ -202,6 +252,7 @@ Stage this hunk [y,n,q,a,d,s,e,?]? y
 +
 
 +    # TODO: Add audit logging
+
 +    log_user_update(user_id, data)
 
 Stage this hunk [y,n,q,a,d,s,e,?]? n
@@ -248,10 +299,15 @@ Closes #123
 ```
 
 **Breakdown**:
+
 - **Type**: `feat` (new feature)
+
 - **Scope**: `auth` (authentication module)
+
 - **Subject**: "add JWT token refresh endpoint" (what was done)
+
 - **Body**: Explains why and provides context
+
 - **Footer**: References issue/ticket
 
 #### Good vs. Bad Commit Messages
@@ -315,8 +371,11 @@ JWTs provide stateless authentication and improved security
 through short-lived tokens with refresh capability.
 
 - Generate JWT tokens on successful login
+
 - Validate tokens on protected endpoints
+
 - Implement token refresh endpoint
+
 - Add unit tests for token generation and validation
 
 Closes #234"
@@ -338,10 +397,15 @@ git log --oneline -5
 ```
 
 **Verify**:
+
 - [ ] Commit message is clear and descriptive
+
 - [ ] Only intended changes are included
+
 - [ ] No debug code, console.logs, or temporary changes
+
 - [ ] No sensitive information (API keys, passwords)
+
 - [ ] Tests still pass
 
 ### Step 6: Run Tests Before Pushing
@@ -409,10 +473,12 @@ Brief description of what this PR does.
 
 ## Changes
 - List of changes made
+
 - Organized by commit
 
 ## Testing
 - How was this tested?
+
 - Test coverage added/updated?
 
 ## Screenshots (if applicable)
@@ -420,8 +486,11 @@ Visual evidence of changes
 
 ## Checklist
 - [ ] Tests pass
+
 - [ ] Code follows style guidelines
+
 - [ ] Documentation updated
+
 - [ ] No breaking changes (or documented if present)
 
 Closes #issue-number
@@ -493,11 +562,17 @@ git rebase -i HEAD~5
 ```
 
 **Rebase commands**:
+
 - `pick` - keep commit as-is
+
 - `reword` - keep commit but edit message
+
 - `edit` - pause to amend commit
+
 - `squash` - combine with previous commit
+
 - `fixup` - squash but discard commit message
+
 - `drop` - remove commit
 
 **⚠️ Warning**: Never rebase commits that have been pushed to shared branches!
@@ -691,8 +766,11 @@ Add JWTService class to handle token generation, validation,
 and refresh operations. Uses PyJWT library with RS256 algorithm.
 
 - Generate access tokens (15 min expiry)
+
 - Generate refresh tokens (7 day expiry)
+
 - Validate token signatures and expiry
+
 - Extract user claims from tokens
 
 Includes comprehensive unit tests with 95% coverage.
@@ -713,8 +791,11 @@ update their profile information. Validates input and ensures
 users can only update their own profiles.
 
 - Add validation middleware for user input
+
 - Implement authorization check
+
 - Add integration tests
+
 - Update API documentation
 
 Closes #256"
@@ -734,9 +815,13 @@ with inventory rollback. Includes transaction management to ensure
 data consistency.
 
 - Validate order can be cancelled (not shipped)
+
 - Update order status to CANCELLED
+
 - Rollback inventory quantities
+
 - Send cancellation notification
+
 - Add unit and integration tests
 
 Closes #378"
@@ -745,41 +830,62 @@ Closes #378"
 ## Success Criteria
 
 - [ ] Each commit represents **one logical change**
+
 - [ ] Commit messages follow **conventional commits** format
+
 - [ ] Commit messages explain **why**, not just **what**
+
 - [ ] No commits mix **unrelated changes**
+
 - [ ] All commits include **relevant tests**
+
 - [ ] Tests **pass** before pushing
+
 - [ ] No **sensitive information** in commits
+
 - [ ] No **debug code** or console.logs in commits
+
 - [ ] Commit history is **clean and reviewable**
+
 - [ ] Pull requests have **clear descriptions**
 
 ## Related Skills
 
 - [`plan-before-code`](../plan-before-code/SKILL.md) - Plan changes before committing
+
 - [`test-driven-development`](../test-driven-development/SKILL.md) - Write tests with commits
+
 - [`code-review-quality`](../code-review-quality/SKILL.md) - Review commits before PR
+
 - [`pre-commit-checklist`](../pre-commit-checklist/SKILL.md) - Quality gates before commits
+
 - [`create-claude-md`](../create-claude-md/SKILL.md) - Configure project standards
 
 ## Additional Resources
 
 ### Git Best Practices
 - [Conventional Commits](https://www.conventionalcommits.org/) - Commit message convention
+
 - [Git Best Practices](https://git-scm.com/book/en/v2/Distributed-Git-Contributing-to-a-Project)
+
 - [How to Write a Git Commit Message](https://chris.beams.io/posts/git-commit/)
+
 - [Pro Git Book](https://git-scm.com/book/en/v2) - Complete Git guide
 
 ### Tools
 - [pre-commit](https://pre-commit.com/) - Git hooks framework
+
 - [commitlint](https://commitlint.js.org/) - Lint commit messages
+
 - [husky](https://typicode.github.io/husky/) - Git hooks for JavaScript
+
 - [git-secrets](https://github.com/awslabs/git-secrets) - Prevent committing secrets
 
 ### Workflows
 - [GitHub Flow](https://guides.github.com/introduction/flow/) - Simple branching model
+
 - [Git Flow](https://nvie.com/posts/a-successful-git-branching-model/) - Feature branch workflow
+
 - [Trunk Based Development](https://trunkbaseddevelopment.com/) - Continuous integration approach
 
 ---

@@ -12,12 +12,16 @@ prerequisites: []
 tools:
 
   - NUnit (4.2.2)
+
   - xUnit
+
   - MSTest
 tags:
 
   - documentation
+
   - documentation
+
   - c#
 ---
 # C# Technical Documentation
@@ -163,8 +167,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -194,9 +201,13 @@ Please create comprehensive technical documentation for this C#/.NET project fol
    ## Architecture Style
 
    - **Pattern**: [Clean Architecture/Layered/CQRS/Vertical Slice/etc.]
+
    - **Framework**: [ASP.NET Core/Minimal APIs/.NET MAUI/WPF/etc.]
+
    - **Deployment**: [IIS/Kestrel/Azure App Service/Docker/Kubernetes]
+
    - **State Management**: [Stateless/stateful/hybrid]
+
    - **Communication**: [REST/gRPC/SignalR/Message Bus]
 
    ## Technology Stack
@@ -214,8 +225,11 @@ Please create comprehensive technical documentation for this C#/.NET project fol
    ## Security Architecture
 
    - **Authentication**: [JWT/OAuth2/Azure AD/IdentityServer]
+
    - **Authorization**: [Policy-based/Claims-based/Role-based]
+
    - **Data Protection**: [Data Protection API/Azure Key Vault]
+
    - **Secrets Management**: [User Secrets/Azure Key Vault/AWS Secrets Manager]
    ```
 
@@ -303,9 +317,13 @@ Solution.sln
 - **Purpose**: HTTP/gRPC endpoints
 
 - **Responsibilities**:
+
   - Route mapping
+
   - Request/response handling
+
   - Authentication/authorization
+
   - Input validation
 
 - **Dependencies**: Application layer
@@ -317,9 +335,13 @@ Solution.sln
 - **Purpose**: Business logic orchestration
 
 - **Responsibilities**:
+
   - Use case implementation
+
   - DTO mapping
+
   - Validation (FluentValidation)
+
   - Transaction coordination
 
 - **Dependencies**: Domain layer
@@ -331,9 +353,13 @@ Solution.sln
 - **Purpose**: Core business logic
 
 - **Responsibilities**:
+
   - Entity definitions
+
   - Business rules
+
   - Domain events
+
   - Repository interfaces
 
 - **Dependencies**: None (pure domain)
@@ -343,9 +369,13 @@ Solution.sln
 - **Purpose**: External concerns
 
 - **Responsibilities**:
+
   - Database access (EF Core)
+
   - External API integration
+
   - File storage
+
   - Caching
 
 - **Dependencies**: Domain layer
@@ -781,32 +811,51 @@ jobs:
 ## Best Practices
 
 1. **Follow C# Coding Conventions**
+
    - PascalCase for classes, methods, properties
+
    - camelCase for parameters, local variables
+
    - Prefix interfaces with `I`
+
    - Use `async`/`await` for I/O operations
 
 2. **Use Modern C# Features**
+
    - Record types for DTOs
+
    - Pattern matching
+
    - Null-coalescing operators
+
    - File-scoped namespaces
 
 3. **Apply Clean Architecture**
+
    - Domain at center, no dependencies
+
    - Application layer orchestrates
+
    - Infrastructure implements interfaces
+
    - API layer is thin
 
 4. **Comprehensive Testing**
+
    - Unit tests with xUnit/NUnit + Moq
+
    - Integration tests with WebApplicationFactory
+
    - Use FluentAssertions for readable assertions
 
 5. **Performance Considerations**
+
    - Use `ValueTask` for hot paths
+
    - Configure EF Core query splitting
+
    - Implement caching strategically
+
    - Profile with BenchmarkDotNet
 
 ---

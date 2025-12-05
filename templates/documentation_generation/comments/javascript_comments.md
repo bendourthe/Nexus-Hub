@@ -12,12 +12,16 @@ prerequisites: []
 tools:
 
   - jest (29.7.0)
+
   - eslint (9.15.0)
+
   - prettier
 tags:
 
   - documentation
+
   - documentation
+
   - javascript
 ---
 # JavaScript Strategic Comments
@@ -131,8 +135,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -154,18 +161,29 @@ Please add strategic comments to this JavaScript project following this protocol
    Review the code to identify sections that would benefit from comments:
 
    - Complex algorithms or business logic
+
    - Non-obvious implementation decisions
+
    - Workarounds for known issues
+
    - Performance-critical sections
+
    - Security-sensitive operations
+
    - Browser compatibility workarounds
+
    - Async/await error handling patterns
+
    - Sections likely to confuse future developers
 
 2. **Identify Existing Comments**
+
    - Review current comments for quality and value
+
    - Flag redundant or obvious comments for removal
+
    - Identify outdated comments needing updates
+
    - Check for commented-out code to remove
 
 3. **Generate Comment Plan**
@@ -181,9 +199,13 @@ Use **block comments** before complex algorithms:
 /**
 
  * Calculate optimal route using A* pathfinding algorithm.
+
  * We use A* instead of Dijkstra because our graph has a reliable heuristic
+
  * (Euclidean distance), which reduces search time by ~40% in testing.
+
  * Trade-off: Uses more memory (O(n) vs O(log n)) but acceptable for our
+
  * typical graph sizes (<1000 nodes).
  */
 function findOptimalRoute(start, end, graph) {
@@ -467,9 +489,13 @@ const pattern = /^[\w.+-]+@[\w.-]+\.[a-zA-Z]{2,}$/;  // RFC 5322 email format
  *
 
  * @param {Object} payment - Payment details
+
  * @param {number} payment.amount - Amount in cents
+
  * @param {string} payment.currency - ISO 4217 currency code
+
  * @returns {Promise<PaymentResult>} Payment confirmation
+
  * @throws {FraudError} If payment fails fraud checks
  */
 async function processPayment(payment) {
@@ -566,27 +592,41 @@ const result = complexCalculation();  // Explanation when truly needed
 For each comment, verify:
 
 1. **Adds Value**
+
    - Would a competent developer understand the code without it?
+
    - If yes, consider removing the comment
+
    - If no, is the comment clear enough to help?
 
 2. **Explains "Why" Not "What"**
+
    - Bad: "Loop through items" (what)
+
    - Good: "Reverse loop to avoid index shifting during removal" (why)
 
 3. **Is Accurate and Current**
+
    - Does comment match current code behavior?
+
    - Is referenced information still valid?
+
    - Are linked issues/docs still relevant?
 
 4. **Is Concise**
+
    - Can you say the same thing in fewer words?
+
    - Are you repeating information from JSDoc or type annotations?
+
    - Is every sentence necessary?
 
 5. **Is Properly Formatted**
+
    - Correct grammar and spelling
+
    - Proper indentation
+
    - Follows project conventions
 
 ## Phase 5: Refactoring vs. Commenting
@@ -640,13 +680,19 @@ items.filter(isAvailable);
 ### Keeping Comments Current
 
 1. **Update Comments with Code Changes**
+
    - When refactoring, review and update affected comments
+
    - Remove outdated TODO/FIXME when resolved
+
    - Update references to issues, docs, or external resources
 
 2. **Regular Comment Audits**
+
    - Review comments during code reviews
+
    - Flag outdated or incorrect comments
+
    - Remove or update as needed
 
 3. **Version Control Integration**
@@ -736,34 +782,53 @@ Please provide comment additions in this format:
 ## Best Practices Summary
 
 1. **Comment the Why, Not the What**
+
    - Code shows what happens
+
    - Comments explain why this approach
 
 2. **Self-Documenting Code First**
+
    - Use clear names
+
    - Extract complex logic to named functions
+
    - Only comment what can't be made obvious
 
 3. **Keep Comments Current**
+
    - Update with code changes
+
    - Remove obsolete comments
+
    - Review during code reviews
 
 4. **Be Concise**
+
    - Every word should add value
+
    - Avoid redundancy with JSDoc
+
    - Get to the point quickly
 
 5. **Provide Context**
+
    - Link to issues, docs, or decisions
+
    - Explain trade-offs and constraints
+
    - Note related code sections
 
 6. **Use Standard Tags**
+
    - TODO: Planned improvements
+
    - FIXME: Known bugs
+
    - HACK: Temporary workarounds
+
    - NOTE: Important information
+
    - WARNING: Critical cautions
 
 ## Tools for Comment Quality
@@ -777,7 +842,9 @@ tools:
       rules:
 
         - no-warning-comments  # Track TODO/FIXME
+
         - spaced-comment  # Enforce spacing
+
         - capitalized-comments  # Enforce style
 
   - jsdoc:
@@ -789,9 +856,13 @@ tools:
       patterns:
 
         - "TODO"
+
         - "FIXME"
+
         - "HACK"
+
         - "NOTE"
+
         - "WARNING"
 ```
 
@@ -850,8 +921,11 @@ tools:
    ```
 
 5. **Don't Forget to Update Comments**
+
    - Comments that contradict code are worse than no comments
+
    - Review comments during every code change
+
    - Remove comments that no longer apply
 
 ## File Output Instructions

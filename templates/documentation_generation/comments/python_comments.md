@@ -12,13 +12,18 @@ prerequisites: []
 tools:
 
   - pytest (8.3.4+)
+
   - black (24.12.0)
+
   - mypy (1.13.0)
+
   - ruff
 tags:
 
   - documentation
+
   - documentation
+
   - python
 ---
 # Python Strategic Comments
@@ -128,8 +133,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -151,16 +159,25 @@ Please add strategic comments to this Python project following this protocol:
    Review the code to identify sections that would benefit from comments:
 
    - Complex algorithms or business logic
+
    - Non-obvious implementation decisions
+
    - Workarounds for known issues
+
    - Performance-critical sections
+
    - Security-sensitive operations
+
    - Sections likely to confuse future developers
 
 2. **Identify Existing Comments**
+
    - Review current comments for quality and value
+
    - Flag redundant or obvious comments for removal
+
    - Identify outdated comments needing updates
+
    - Check for commented-out code to remove
 
 3. **Generate Comment Plan**
@@ -411,27 +428,41 @@ result = complex_calculation()  # Explanation when truly needed
 For each comment, verify:
 
 1. **Adds Value**
+
    - Would a competent developer understand the code without it?
+
    - If yes, consider removing the comment
+
    - If no, is the comment clear enough to help?
 
 2. **Explains "Why" Not "What"**
+
    - Bad: "Loop through items" (what)
+
    - Good: "Reverse loop to avoid index shifting during removal" (why)
 
 3. **Is Accurate and Current**
+
    - Does comment match current code behavior?
+
    - Is referenced information still valid?
+
    - Are linked issues/docs still relevant?
 
 4. **Is Concise**
+
    - Can you say the same thing in fewer words?
+
    - Are you repeating information from docstrings or type hints?
+
    - Is every sentence necessary?
 
 5. **Is Properly Formatted**
+
    - Correct grammar and spelling
+
    - Proper indentation
+
    - Follows project conventions
 
 ## Phase 5: Refactoring vs. Commenting
@@ -474,13 +505,19 @@ if is_eligible_to_rent(user):
 ### Keeping Comments Current
 
 1. **Update Comments with Code Changes**
+
    - When refactoring, review and update affected comments
+
    - Remove outdated TODO/FIXME when resolved
+
    - Update references to issues, docs, or external resources
 
 2. **Regular Comment Audits**
+
    - Review comments during code reviews
+
    - Flag outdated or incorrect comments
+
    - Remove or update as needed
 
 3. **Version Control Integration**
@@ -566,33 +603,51 @@ Please provide comment additions in this format:
 ## Best Practices Summary
 
 1. **Comment the Why, Not the What**
+
    - Code shows what happens
+
    - Comments explain why this approach
 
 2. **Self-Documenting Code First**
+
    - Use clear names
+
    - Extract complex logic to named functions
+
    - Only comment what can't be made obvious
 
 3. **Keep Comments Current**
+
    - Update with code changes
+
    - Remove obsolete comments
+
    - Review during code reviews
 
 4. **Be Concise**
+
    - Every word should add value
+
    - Avoid redundancy with docstrings/type hints
+
    - Get to the point quickly
 
 5. **Provide Context**
+
    - Link to issues, docs, or decisions
+
    - Explain trade-offs and constraints
+
    - Note related code sections
 
 6. **Use Standard Tags**
+
    - TODO: Planned improvements
+
    - FIXME: Known bugs
+
    - HACK: Temporary workarounds
+
    - NOTE: Important information
 
 ## Tools for Comment Quality
@@ -611,7 +666,9 @@ tools:
       patterns:
 
         - "TODO"
+
         - "FIXME"
+
         - "HACK"
 
   - custom-scripts:
@@ -668,8 +725,11 @@ tools:
    ```
 
 5. **Don't Forget to Update Comments**
+
    - Comments that contradict code are worse than no comments
+
    - Review comments during every code change
+
    - Remove comments that no longer apply
 
 ## File Output Instructions

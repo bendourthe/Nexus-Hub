@@ -16,11 +16,14 @@ related_templates:
 tools:
 
   - unity
+
   - cmocka
+
   - check
 tags:
 
   - code-review
+
   - c
 ---
 # C/Embedded Context Analysis
@@ -135,16 +138,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Issues that create immediate risks to system stability, data integrity, or compliance.
 
 **Examples:**
+
 - Security vulnerabilities (SQL injection, XSS, authentication bypass)
+
 - Resource leaks (unclosed connections, file handles, memory leaks)
+
 - Data loss risks (destructive operations without validation)
+
 - Thread safety violations (race conditions, deadlocks)
+
 - Compliance violations (GDPR, HIPAA, PCI-DSS)
 
 **Action Required:**
+
 - Block deployment until fixed
+
 - Require hotfix within 24 hours
+
 - Add tests to prevent regression
+
 - Document root cause and fix
 
 ---
@@ -154,16 +166,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Issues that significantly impact maintainability, performance, or correctness but don't cause immediate failures.
 
 **Examples:**
+
 - Incorrect business logic (wrong calculations, flawed algorithms)
+
 - Performance bottlenecks (O(n²) algorithms, missing indexes, inefficient queries)
+
 - Memory inefficiency (loading large datasets into memory unnecessarily)
+
 - Breaking API changes without deprecation
+
 - Missing critical error handling (network errors, API failures not caught)
 
 **Action Required:**
+
 - Schedule fix in current sprint
+
 - Cannot release without resolution
+
 - Update documentation
+
 - Performance test after fix
 
 ---
@@ -173,16 +194,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Code smells and technical debt that reduce maintainability but don't affect correctness.
 
 **Examples:**
+
 - High complexity (cyclomatic complexity >10, functions >100 lines)
+
 - Code duplication (>10 lines duplicated across modules)
+
 - Poor naming (unclear variable/function names, inconsistent conventions)
+
 - Missing tests (<80% coverage on critical paths)
+
 - Incomplete error messages (no context for debugging)
 
 **Action Required:**
+
 - Add to backlog
+
 - Prioritize in next sprint planning
+
 - Consider during refactoring opportunities
+
 - Track technical debt metrics
 
 ---
@@ -192,16 +222,25 @@ Use this framework to classify and prioritize all findings from the code review.
 **Definition:** Style inconsistencies and minor optimizations that don't impact functionality.
 
 **Examples:**
+
 - Style violations (linting warnings, formatting issues)
+
 - Minor performance optimizations (in non-critical code paths)
+
 - Missing documentation on helper functions
+
 - Verbose code that could be more concise
+
 - Debug statements left in code
 
 **Action Required:**
+
 - Fix opportunistically during other work
+
 - Batch with other low-priority changes
+
 - Good for new contributors
+
 - Can be deferred indefinitely
 
 ---
@@ -209,20 +248,31 @@ Use this framework to classify and prioritize all findings from the code review.
 ## Severity Assignment Guidelines
 
 **When to Escalate Severity:**
+
 - Issue affects **production environment** → escalate one level
+
 - Issue affects **customer-facing features** → escalate one level
+
 - Issue has **no workaround** → escalate one level
+
 - Issue appears in **multiple locations** → escalate one level
 
 **When to De-escalate Severity:**
+
 - Issue only in **test/development code** → de-escalate one level
+
 - Issue has **easy workaround** → de-escalate one level
+
 - Issue is **isolated to single module** → de-escalate one level
+
 - Issue **rarely executed** (edge case) → de-escalate one level
 
 **Examples:**
+
 - Memory leak in production API: **HIGH → CRITICAL** (production + customer-facing)
+
 - Style violation in test file: **LOW → Ignore** (test code + style only)
+
 - Duplicated logic across 15 modules: **MEDIUM → HIGH** (multiple locations)
 
 ---
@@ -252,16 +302,22 @@ For each finding, include:
 **Issue:** The user search function loads all users into memory and performs linear search on every request.
 
 **Impact:**
+
 - Response time degrades with user count (currently 500ms for 10k users)
+
 - High memory usage (50MB+ per request)
+
 - Poor scalability (can't handle >100k users)
 
 **Recommendation:**
 Move filtering to database with indexed query:
 
 - Add database index on search fields
+
 - Use database LIKE/ILIKE queries
+
 - Implement pagination (limit results to 50)
+
 - Add caching for common searches
 
 **Effort:** 3 hours (2 hours implementation + 1 hour testing)
@@ -308,8 +364,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 ## Repository Information
@@ -330,10 +389,15 @@ Please perform a comprehensive context analysis of this C/embedded project follo
 ## Phase 1: Project Discovery
 
 1. **Identify Project Fundamentals**
+
    - Read and summarize README.md and primary documentation
+
    - Determine project purpose: firmware, bootloader, device driver, bare metal, RTOS-based
+
    - Identify target hardware: microcontroller family, board, peripherals
+
    - Document real-time requirements and constraints
+
    - Identify safety/certification requirements (automotive, medical, aerospace)
 
 2. **Map Repository Structure**
@@ -355,27 +419,43 @@ Please perform a comprehensive context analysis of this C/embedded project follo
    └── Makefile or CMakeLists.txt
    ```
    - Document the actual structure
+
    - Identify deviations from standard patterns
+
    - Locate startup code and initialization sequences
 
 3. **Hardware Platform Details**
+
    - Microcontroller: Family, part number, core (ARM Cortex-M, RISC-V, AVR, etc.)
+
    - Flash size: Total and available
+
    - RAM size: Total and available
+
    - Clock speed: System clock, peripheral clocks
+
    - Peripherals: UART, SPI, I2C, ADC, timers, DMA, etc.
+
    - External components: Sensors, displays, communication modules
 
 ## Phase 2: Architecture Understanding
 
 1. **System Architecture**
+
    - Determine architecture type:
+
      - Bare metal (superloop)
+
      - RTOS-based (FreeRTOS, Zephyr, ThreadX, etc.)
+
      - Event-driven
+
      - State machine-based
+
    - Map task/thread structure (if RTOS)
+
    - Identify interrupt priorities and nesting
+
    - Document communication mechanisms (queues, semaphores, mutexes)
 
 2. **Initialization & Boot Sequence**
@@ -383,19 +463,30 @@ Please perform a comprehensive context analysis of this C/embedded project follo
    // Trace startup sequence:
 
    1. Reset vector (startup_*.s or startup_*.c)
+
    2. SystemInit() - Clock and core configuration
+
    3. __libc_init_array() - C runtime initialization
+
    4. main() entry
+
    5. Peripheral initialization
+
    6. RTOS scheduler start (if applicable)
+
    7. Application tasks/main loop
    ```
 
 3. **Module Organization**
+
    - Hardware abstraction: How hardware is abstracted from application
+
    - Driver organization: Low-level, middleware, high-level
+
    - Application layers: Business logic separation
+
    - Module dependencies and coupling
+
    - Interface design patterns
 
 4. **Memory Architecture**
@@ -403,20 +494,30 @@ Please perform a comprehensive context analysis of this C/embedded project follo
    Analyze linker script (.ld file):
 
    - Code section (.text)
+
    - Initialized data (.data)
+
    - Uninitialized data (.bss)
+
    - Stack allocation
+
    - Heap allocation (if used)
+
    - Memory-mapped peripherals
+
    - Special sections (DMA buffers, shared memory)
    ```
 
 ## Phase 3: Build System & Toolchain Analysis
 
 1. **Build Configuration**
+
    - Build system: Makefile, CMake, IDE project, custom scripts
+
    - Compiler: GCC, Clang, IAR, Keil, proprietary
+
    - Compiler version and target architecture
+
    - Cross-compilation setup (arm-none-eabi-gcc, etc.)
 
 2. **Compiler Flags Review**
@@ -443,38 +544,61 @@ Please perform a comprehensive context analysis of this C/embedded project follo
    ```
 
 3. **Linker Script Analysis**
+
    - Review memory regions (FLASH, RAM, special regions)
+
    - Check stack size allocation
+
    - Verify heap configuration
+
    - Identify custom memory sections
+
    - Review symbol exports and imports
 
 4. **Build Artifacts**
+
    - Output formats: .elf, .bin, .hex
+
    - Map file generation: memory usage report
+
    - Symbol file for debugging
+
    - Size reporting: text, data, bss sections
 
 ## Phase 4: Dependency & Library Analysis
 
 1. **Third-Party Components**
+
    - RTOS: FreeRTOS, Zephyr, CMSIS-RTOS, proprietary
+
    - Vendor HAL/SDK: STM32Cube, ESP-IDF, Nordic SDK, etc.
+
    - Communication stacks: TCP/IP, USB, Bluetooth, LoRa
+
    - File systems: FatFS, LittleFS
+
    - Bootloaders: U-Boot, custom
+
    - Cryptography: mbedTLS, WolfSSL
 
 2. **Dependency Health Check**
+
    - Component versions: latest, outdated, obsolete
+
    - Security advisories: CVEs for embedded libraries
+
    - Vendor support status: active, legacy, deprecated
+
    - Update frequency and maintenance status
 
 3. **License Compliance**
+
    - Component licenses: BSD, MIT, GPL, proprietary
+
    - License compatibility assessment
+
    - Attribution requirements
+
    - GPL contamination risks (especially for commercial products)
 
 ## Phase 5: Resource Usage Analysis
@@ -489,30 +613,46 @@ Please perform a comprehensive context analysis of this C/embedded project follo
 
    # Look for:
    - Flash usage: X KB / Y KB (Z%)
+
    - RAM usage: X KB / Y KB (Z%)
+
    - Stack allocation
+
    - Heap allocation (if used)
    ```
 
 2. **Memory Map Review**
+
    - Code placement in Flash
+
    - Data sections in RAM
+
    - DMA buffers: special alignment requirements
+
    - Memory-mapped peripheral registers
+
    - Reserved areas: bootloader, configuration, logs
 
 3. **Resource Constraints**
+
    - Identify memory pressure (>80% Flash or RAM usage)
+
    - Stack overflow risks
+
    - Heap fragmentation concerns
+
    - DMA buffer placement and alignment
 
 ## Phase 6: Configuration Management
 
 1. **Configuration Files**
+
    - config.h, board.h, FreeRTOSConfig.h, etc.
+
    - Feature flags and conditional compilation (#ifdef/#ifndef)
+
    - Hardware configuration (pin assignments, peripheral config)
+
    - Build-time vs runtime configuration trade-offs
 
 2. **Conditional Compilation Review**
@@ -523,14 +663,21 @@ Please perform a comprehensive context analysis of this C/embedded project follo
    #if defined(BOARD_V2) && !defined(BOOTLOADER)
    ```
    - Feature enabling/disabling
+
    - Debug vs release differences
+
    - Platform-specific code
+
    - Version-specific code
 
 3. **Debug Configuration**
+
    - Debug interface: SWD, JTAG, UART
+
    - Debug symbols and optimization
+
    - Logging/tracing configuration
+
    - Profiling and instrumentation
 
 ## Phase 7: Codebase Metrics
@@ -546,10 +693,15 @@ Please perform a comprehensive context analysis of this C/embedded project follo
    ```
 
 2. **Code Organization Metrics**
+
    - Number of modules/files
+
    - Average file size
+
    - Largest files (potential refactoring candidates)
+
    - Cyclomatic complexity per function
+
    - Comment density
 
 3. **Dependency Metrics**
@@ -559,29 +711,44 @@ Please perform a comprehensive context analysis of this C/embedded project follo
 
    # Analyze:
    - Function call depth
+
    - Circular dependencies
+
    - Unused functions
+
    - Global variable usage
    ```
 
 ## Phase 8: RTOS Configuration (if applicable)
 
 1. **RTOS Details**
+
    - RTOS name and version
+
    - Configuration file (FreeRTOSConfig.h, etc.)
+
    - Scheduler type: preemptive, cooperative
+
    - Tick rate configuration
 
 2. **Task/Thread Analysis**
+
    - Number of tasks/threads
+
    - Task priorities
+
    - Stack sizes per task
+
    - Task communication mechanisms
 
 3. **Synchronization Primitives**
+
    - Mutexes, semaphores, events
+
    - Message queues
+
    - Critical sections
+
    - Interrupt-safe mechanisms
 
 ## Output Format
@@ -689,16 +856,22 @@ project/
 
 ### Key Findings
 1. **Strengths**: [positive observations]
+
 2. **Concerns**: [potential issues to investigate]
+
 3. **Dependencies**: [outdated or problematic components]
+
 4. **Resource Constraints**: [memory pressure, timing concerns]
+
 5. **Build Issues**: [warnings, deprecated features]
 
 ### Recommendations for Review Focus
 Based on this context, the following review areas should be prioritized:
 
 1. [Area 1] - [reason]
+
 2. [Area 2] - [reason]
+
 3. [Area 3] - [reason]
 
 ### Next Steps

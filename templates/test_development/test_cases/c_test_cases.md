@@ -18,12 +18,16 @@ related_templates:
 tools:
 
   - unity
+
   - cmocka
+
   - check
 tags:
 
   - test-development
+
   - testing
+
   - c
 ---
 # C Test Case Development
@@ -162,8 +166,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 Please develop comprehensive test cases for this C code following this protocol:
@@ -182,34 +189,55 @@ Use `<REPO_URL>` as placeholder where repository URLs are needed in this templat
 ## Phase 1: Test Case Planning
 
 1. **Analyze Code to Test**
+
    - Identify all public functions
+
    - Document expected behavior
+
    - List input parameters and types
+
    - Define expected outputs
+
    - Note side effects (memory allocation, file I/O, system calls)
+
    - Identify error conditions and return codes
 
 2. **Identify Test Scenarios**
 
    **Happy Path**:
+
    - Normal operation with valid inputs
+
    - Expected use cases
+
    - Successful execution flows
+
    - Valid pointer operations
 
    **Edge Cases**:
+
    - Boundary values (0, -1, INT_MAX, INT_MIN)
+
    - Empty strings and NULL pointers
+
    - Buffer boundaries
+
    - Large data sets
+
    - Special characters in strings
 
    **Error Conditions**:
+
    - Invalid inputs
+
    - NULL pointer handling
+
    - Buffer overflow scenarios
+
    - Memory allocation failures
+
    - File operation errors
+
    - Invalid return codes
 
 3. **Create Test Case Matrix**
@@ -231,7 +259,9 @@ Follow this structure for clear, maintainable tests:
 #include <stdlib.h>
 
 /**
+
  * @file test_user_service.c
+
  * @brief Unit tests for user_service module.
  *
 
@@ -243,6 +273,7 @@ static user_t *test_user;
 static user_service_t *service;
 
 /**
+
  * @brief Setup function called before each test.
  */
 void setUp(void)
@@ -252,6 +283,7 @@ void setUp(void)
 }
 
 /**
+
  * @brief Teardown function called after each test.
  */
 void tearDown(void)
@@ -267,6 +299,7 @@ void tearDown(void)
 }
 
 /**
+
  * @brief Test creating user with valid data returns user ID.
  */
 void test_create_user_with_valid_data_returns_user_id(void)
@@ -286,6 +319,7 @@ void test_create_user_with_valid_data_returns_user_id(void)
 }
 
 /**
+
  * @brief Test creating user with invalid email returns error code.
  */
 void test_create_user_with_invalid_email_returns_error(void)
@@ -303,6 +337,7 @@ void test_create_user_with_invalid_email_returns_error(void)
 }
 
 /**
+
  * @brief Test creating user with NULL name returns error code.
  */
 void test_create_user_with_null_name_returns_error(void)
@@ -320,6 +355,7 @@ void test_create_user_with_null_name_returns_error(void)
 }
 
 /**
+
  * @brief Test creating user with negative age returns error code.
  */
 void test_create_user_with_negative_age_returns_error(void)
@@ -337,6 +373,7 @@ void test_create_user_with_negative_age_returns_error(void)
 }
 
 /**
+
  * @brief Main test runner.
  */
 int main(void)
@@ -762,10 +799,12 @@ Integration tests verify multiple components working together:
 /**
 
  * @file test_user_integration.c
+
  * @brief Integration tests for user registration workflow.
  *
 
  * Tests the complete user registration process including
+
  * validation, database storage, and notification.
  */
 
@@ -998,9 +1037,13 @@ Please provide comprehensive test cases with the following structure:
 - **Integration Tests**: [count]
 
 - **Test Types**:
+
   - Happy path: [count]
+
   - Edge cases: [count]
+
   - Error conditions: [count]
+
   - Memory tests: [count]
 
 ### Test Case Implementation
@@ -1011,16 +1054,25 @@ For each module/function:
 **Test File**: `test_[module_name].c`
 
 **Test Cases**:
+
 1. `test_function_with_valid_input_returns_expected_result`
+
    - **Scenario**: [description]
+
    - **Input**: [test data]
+
    - **Expected**: [result]
+
    - **Type**: [unit/integration]
 
 2. `test_function_with_invalid_input_returns_error`
+
    - **Scenario**: [description]
+
    - **Input**: [test data]
+
    - **Expected**: [error code]
+
    - **Type**: [unit/integration]
 
 ### Test Execution Results
@@ -1104,11 +1156,17 @@ Replace `{phase_name}` with the specific phase (test_cases, mocks_fixtures, perf
 The AI assistant should deliver:
 
 1. **Test case matrix** documenting all scenarios
+
 2. **Complete test implementations** with clear AAA structure
+
 3. **Integration tests** for workflows
+
 4. **Memory leak tests** with Valgrind
+
 5. **Test coverage report** showing gaps
+
 6. **Execution instructions** for running tests
+
 7. **Quality metrics** and improvement suggestions
 ---
 

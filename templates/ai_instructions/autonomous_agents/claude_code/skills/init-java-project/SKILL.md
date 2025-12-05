@@ -17,14 +17,23 @@ Create a complete, production-ready Java project with Spring Boot, Maven or Grad
 ## When to Use This Skill
 
 Use this skill when you need to:
+
 - ✅ Start a new Java project from scratch
+
 - ✅ Set up Spring Boot application
+
 - ✅ Initialize Maven or Gradle build configuration
+
 - ✅ Establish standard project structure quickly
+
 - ✅ Configure testing framework (JUnit 5, Mockito)
+
 - ✅ Set up Spring Security basics
+
 - ✅ Create Docker configuration
+
 - ✅ Initialize OpenAPI/Swagger documentation
+
 - ✅ Set up CI/CD with GitHub Actions
 
 ## What This Skill Does
@@ -128,40 +137,62 @@ project-name/
 
 ### 2. Configuration Files
 - **pom.xml / build.gradle**: Dependencies and build configuration
+
 - **application.yml**: Application configuration (dev, test, prod profiles)
+
 - **SecurityConfig.java**: Spring Security configuration
+
 - **SwaggerConfig.java**: OpenAPI documentation setup
+
 - **.gitignore**: Comprehensive Java ignore patterns
+
 - **Dockerfile**: Container configuration
+
 - **docker-compose.yml**: Multi-container setup
 
 ### 3. Documentation
 - **README.md**: Installation, usage, and feature documentation
+
 - **CHANGELOG.md**: Version history following Keep a Changelog format
+
 - **DEVLOG.md**: Development task list and decision log
+
 - **CLAUDE.md**: Claude Code project guidelines
+
 - **Swagger UI**: Interactive API documentation
 
 ### 4. Testing Framework
 - JUnit 5 for unit testing
+
 - Mockito for mocking
+
 - Spring Boot Test for integration tests
+
 - Test containers for database testing
+
 - Code coverage with JaCoCo
 
 ### 5. Development Tools
 - Spring Boot DevTools for hot reload
+
 - Lombok for boilerplate reduction
+
 - MapStruct for object mapping
+
 - Flyway or Liquibase for database migrations
+
 - Spring Boot Actuator for monitoring
 
 ## Prerequisites
 
 - Java 17+ (JDK)
+
 - Maven 3.8+ or Gradle 8+
+
 - Docker (optional, for containerization)
+
 - git (version control)
+
 - (Optional) Claude Code for AI assistance
 
 ## Instructions
@@ -171,22 +202,35 @@ project-name/
 Gather this information before initialization:
 
 **Project Details**:
+
 - **Name**: Project identifier (kebab-case)
+
 - **Group ID**: com.company.domain
+
 - **Artifact ID**: project-name
+
 - **Description**: One-line summary of purpose
+
 - **Type**: REST API / Microservice / Web Application
+
 - **Build Tool**: Maven / Gradle
+
 - **Database**: PostgreSQL / MySQL / MongoDB / H2
 
 **Dependencies**:
+
 - Core dependencies (e.g., Spring Web, Spring Data JPA)
+
 - Security requirements
+
 - Database drivers
+
 - Additional features (Redis, Kafka, etc.)
 
 **Features**:
+
 - Key capabilities to document
+
 - Initial version number (default: 0.1.0)
 
 ### Step 2: Invoke the Skill
@@ -196,29 +240,49 @@ Gather this information before initialization:
 "Use the init-java-project skill to create a new Spring Boot REST API project.
 
 Project Details:
+
 - Name: task-management-api
+
 - Group ID: com.company.taskmanager
+
 - Artifact ID: task-management-api
+
 - Description: RESTful API for task management with Spring Boot
+
 - Type: REST API
+
 - Build Tool: Maven
+
 - Database: PostgreSQL
+
 - Java Version: 17
 
 Dependencies:
+
 - Spring Web (REST endpoints)
+
 - Spring Data JPA (database access)
+
 - Spring Security (authentication)
+
 - Spring Validation (input validation)
+
 - PostgreSQL Driver
+
 - Flyway (database migrations)
+
 - Lombok (code generation)
 
 Features:
+
 - User authentication with JWT
+
 - Task CRUD operations
+
 - Task categorization
+
 - RESTful API design
+
 - OpenAPI documentation
 
 Please initialize the complete project structure with all configurations."
@@ -229,28 +293,47 @@ Please initialize the complete project structure with all configurations."
 "Use the init-java-project skill to create a new microservice project.
 
 Project Details:
+
 - Name: user-service
+
 - Group ID: com.company.microservices
+
 - Artifact ID: user-service
+
 - Description: User management microservice
+
 - Type: Microservice
+
 - Build Tool: Gradle
+
 - Database: MongoDB
+
 - Java Version: 21
 
 Dependencies:
+
 - Spring Web
+
 - Spring Data MongoDB
+
 - Spring Cloud (service discovery)
+
 - Spring Boot Actuator
+
 - Resilience4j (circuit breaker)
+
 - Micrometer (metrics)
 
 Features:
+
 - User registration and management
+
 - Service discovery integration
+
 - Health checks and monitoring
+
 - Circuit breaker patterns
+
 - Distributed tracing
 
 Please initialize the complete project structure with Gradle."
@@ -401,9 +484,13 @@ git add .
 git commit -m "Initial project structure
 
 - Spring Boot application setup
+
 - Maven/Gradle build configuration
+
 - Testing framework configured
+
 - Docker configuration included
+
 - OpenAPI documentation setup
 
 Generated with init-java-project skill"
@@ -739,6 +826,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
+
  * Main application class for Task Management API.
  *
 
@@ -766,6 +854,7 @@ import java.time.Instant;
 import java.util.Map;
 
 /**
+
  * Health check controller for monitoring application status.
  *
 
@@ -801,6 +890,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
+
  * Global exception handler for centralized error handling.
  *
 
@@ -976,9 +1066,13 @@ application-local.yml
 
 ## What's New
 - Initial release
+
 - RESTful API with Spring Boot
+
 - User authentication with JWT
+
 - Task CRUD operations
+
 - OpenAPI documentation
 
 ## Overview
@@ -986,30 +1080,47 @@ A production-ready RESTful API for task management built with Spring Boot 3, Spr
 
 ## Features
 - **Authentication**: JWT-based authentication with Spring Security
+
 - **Task Management**: Full CRUD operations for tasks
+
 - **Validation**: Input validation with Bean Validation
+
 - **Documentation**: Interactive API documentation with Swagger UI
+
 - **Monitoring**: Health checks and metrics with Spring Actuator
+
 - **Database Migrations**: Flyway for version-controlled schema changes
+
 - **Containerization**: Docker and docker-compose configuration
 
 ## Technology Stack
 - Java 17
+
 - Spring Boot 3.2.0
+
 - Spring Security
+
 - Spring Data JPA
+
 - PostgreSQL
+
 - Flyway
+
 - JWT (jjwt)
+
 - Lombok
+
 - SpringDoc OpenAPI
 
 ## Installation
 
 ### Prerequisites
 - Java 17 or higher
+
 - Maven 3.8+ or Gradle 8+
+
 - PostgreSQL 12+ (or Docker)
+
 - Docker (optional)
 
 ### Setup
@@ -1073,6 +1184,7 @@ jwt:
 
 ### API Documentation
 - **Swagger UI**: http://localhost:8080/swagger-ui.html
+
 - **OpenAPI JSON**: http://localhost:8080/api-docs
 
 ### Health Check
@@ -1149,9 +1261,13 @@ java -jar target/task-management-api-0.1.0.jar \
 
 ## Contributing
 1. Fork the repository
+
 2. Create a feature branch
+
 3. Make your changes
+
 4. Run tests and ensure coverage
+
 5. Submit a pull request
 
 ## License
@@ -1182,13 +1298,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 - Initial Spring Boot project structure
+
 - User authentication with JWT
+
 - Task CRUD operations
+
 - OpenAPI documentation with Swagger UI
+
 - Global exception handling
+
 - Database migrations with Flyway
+
 - Docker configuration
+
 - Comprehensive test suite
+
 - Health check endpoints
 ```
 
@@ -1200,34 +1324,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### High Priority
 - [ ] Implement user authentication endpoints
+
 - [ ] Create task entity and repository
+
 - [ ] Add task CRUD operations
+
 - [ ] Configure Spring Security
 
 ### Medium Priority
 - [ ] Add task filtering and sorting
+
 - [ ] Implement pagination
+
 - [ ] Add task categories
+
 - [ ] Create user profile management
 
 ### Low Priority
 - [ ] Add task search functionality
+
 - [ ] Implement task sharing
+
 - [ ] Add email notifications
+
 - [ ] Create admin dashboard
 
 ## Development History
 
 ### Project Architecture
 - **Design**: RESTful API with Spring Boot
+
 - **Tech Stack**: Java 17, Spring Boot 3, PostgreSQL
+
 - **Pattern**: Layered architecture (Controller-Service-Repository)
 
 ### Initial Setup - 2025-10-21
 - Created standard Spring Boot project structure
+
 - Configured Maven/Gradle build
+
 - Set up testing framework (JUnit 5)
+
 - Configured OpenAPI documentation
+
 - Initialized Docker configuration
 
 ## Troubleshooting History
@@ -1242,8 +1381,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 Additional Dependencies:
 
 - Spring Data JPA
+
 - PostgreSQL or MySQL driver
+
 - Flyway or Liquibase
+
 - MapStruct (entity-DTO mapping)
 ```
 
@@ -1252,8 +1394,11 @@ Additional Dependencies:
 Additional Dependencies:
 
 - Spring Cloud (Config, Discovery)
+
 - Spring Cloud Gateway
+
 - Resilience4j
+
 - Sleuth (distributed tracing)
 ```
 
@@ -1262,7 +1407,9 @@ Additional Dependencies:
 Additional Dependencies:
 
 - Spring WebFlux
+
 - R2DBC drivers
+
 - Reactor Test
 ```
 
@@ -1271,34 +1418,53 @@ Additional Dependencies:
 After initialization, verify:
 
 - [ ] All directories created correctly
+
 - [ ] Build configuration is valid
+
 - [ ] Application starts successfully
+
 - [ ] Tests run and pass
+
 - [ ] Swagger UI accessible
+
 - [ ] Health endpoint responds
+
 - [ ] Database connection works
+
 - [ ] Docker containers start
+
 - [ ] Documentation complete
+
 - [ ] Ready to begin development
 
 ## Related Skills
 
 **Use After Initialization**:
+
 - `setup-java-system-prompt`: Configure Claude Code standards
+
 - `create-claude-md`: Customize project guidelines
+
 - `generate-test-cases`: Add comprehensive tests
 
 **For Development**:
+
 - `plan-before-code`: Plan features before implementing
+
 - `test-driven-development`: Write tests first
+
 - `cleanup-java`: Clean code periodically
 
 ## Additional Resources
 
 - [Spring Boot Documentation](https://docs.spring.io/spring-boot/docs/current/reference/)
+
 - [Spring Security Reference](https://docs.spring.io/spring-security/reference/)
+
 - [Spring Data JPA Guide](https://docs.spring.io/spring-data/jpa/docs/current/reference/html/)
+
 - [Maven Getting Started](https://maven.apache.org/guides/getting-started/)
+
 - [Gradle User Manual](https://docs.gradle.org/current/userguide/userguide.html)
 
 ---

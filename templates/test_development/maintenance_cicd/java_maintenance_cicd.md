@@ -18,11 +18,14 @@ related_templates:
 tools:
 
   - junit (5.11.3)
+
   - maven
+
   - gradle
 tags:
 
   - test-development
+
   - java
 ---
 # Java Test Maintenance & CI/CD Integration
@@ -163,8 +166,11 @@ ${OUTPUT_DIR}/
 - All generated files should be saved with the `${OUTPUT_DIR}/` prefix
 
 - Examples:
+
   - Reports and documentation → `${OUTPUT_DIR}/exports/report.md`
+
   - Template files → `${OUTPUT_DIR}/templates/template.yaml`
+
   - Diagrams and images → `${OUTPUT_DIR}/assets/diagram.png`
 
 Please implement comprehensive test automation and maintenance infrastructure for this Java project following this protocol:
@@ -232,6 +238,7 @@ jobs:
         java-version: ['11', '17', '21']
 
     steps:
+
       - uses: actions/checkout@v3
 
       - name: Set up JDK ${{ matrix.java-version }}
@@ -295,6 +302,7 @@ jobs:
           - 6379:6379
 
     steps:
+
       - uses: actions/checkout@v3
 
       - name: Set up JDK 17
@@ -367,8 +375,11 @@ jobs:
 stages:
 
   - lint
+
   - test
+
   - quality
+
   - deploy
 
 variables:
@@ -381,6 +392,7 @@ cache:
     - .m2/repository
 
 before_script:
+
   - export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 
 lint:
@@ -389,8 +401,11 @@ lint:
   script:
 
     - mvn $MAVEN_CLI_OPTS com.spotify.fmt:fmt-maven-plugin:check
+
     - mvn $MAVEN_CLI_OPTS checkstyle:check
+
     - mvn $MAVEN_CLI_OPTS spotbugs:check
+
     - mvn $MAVEN_CLI_OPTS pmd:check
 
 unit-tests:
@@ -399,6 +414,7 @@ unit-tests:
   script:
 
     - mvn $MAVEN_CLI_OPTS test -Dtest=**/*Test.java
+
     - mvn $MAVEN_CLI_OPTS jacoco:report
   coverage: '/Total.*?([0-9]{1,3})%/'
   artifacts:
@@ -419,6 +435,7 @@ integration-tests:
   services:
 
     - postgres:14
+
     - redis:7
   variables:
     POSTGRES_DB: testdb
@@ -442,6 +459,7 @@ quality-gate:
   needs:
 
     - unit-tests
+
     - integration-tests
 ```
 
@@ -711,6 +729,7 @@ import org.junit.platform.launcher.TestPlan;
 import org.junit.platform.engine.reporting.ReportEntry;
 
 /**
+
  * Quality gate enforcement for test suite.
  */
 public class QualityGateListener implements TestExecutionListener {
@@ -777,6 +796,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+
  * Performance regression detection.
  */
 public class PerformanceGate {
@@ -875,12 +895,16 @@ repos:
     hooks:
 
       - id: trailing-whitespace
+
       - id: end-of-file-fixer
+
       - id: check-yaml
+
       - id: check-added-large-files
         args: ['--maxkb=1000']
 
       - id: check-merge-conflict
+
       - id: detect-private-key
 
   - repo: local
@@ -991,6 +1015,7 @@ import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.jupiter.api.parallel.ResourceLock;
 
 /**
+
  * Tests that must run serially.
  */
 @Execution(ExecutionMode.SAME_THREAD)
@@ -1039,6 +1064,7 @@ package com.example.util;
 import org.junit.jupiter.api.extension.*;
 
 /**
+
  * Retry extension for flaky tests.
  */
 public class RetryExtension implements TestExecutionExceptionHandler {
@@ -1098,6 +1124,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+
  * Track flaky test occurrences.
  */
 public class FlakyTestTracker implements TestExecutionListener {
@@ -1173,6 +1200,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
+
  * Monitor slow tests.
  */
 public class SlowTestListener implements TestExecutionListener {
@@ -1247,41 +1275,62 @@ package com.example.auth;
 import org.junit.jupiter.api.*;
 
 /**
+
  * User Authentication Test Suite
  *
 
  * <p>Purpose:
+
  * Validate user login, logout, and session management functionality.
  *
 
  * <p>Coverage:
+
  * <ul>
+
  *   <li>Valid credential login</li>
+
  *   <li>Invalid credential handling</li>
+
  *   <li>Session token generation and validation</li>
+
  *   <li>Multi-factor authentication flow</li>
+
  *   <li>Password reset process</li>
+
  * </ul>
  *
 
  * <p>Maintenance Notes:
+
  * <ul>
+
  *   <li>Update testValidLogin() if authentication logic changes</li>
+
  *   <li>mockEmailService fixture required for password reset tests</li>
+
  *   <li>Tests use in-memory H2 database for speed</li>
+
  *   <li>External API calls are mocked</li>
+
  * </ul>
  *
 
  * <p>Dependencies:
+
  * <ul>
+
  *   <li>AuthService</li>
+
  *   <li>UserRepository</li>
+
  *   <li>JwtTokenProvider</li>
+
  * </ul>
  *
 
  * <p>Last Review: 2024-01-15
+
  * <p>Reviewed By: alice@example.com
  */
 @DisplayName("User Authentication Tests")
@@ -1339,6 +1388,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
+
  * Generate custom JSON test report.
  */
 public class CustomTestReporter implements TestExecutionListener {
@@ -1517,12 +1567,19 @@ Replace `{phase_name}` with the specific phase (test_cases, mocks_fixtures, perf
 The AI assistant should deliver:
 
 1. **Complete CI/CD pipeline configuration** (GitHub Actions or GitLab CI)
+
 2. **Quality gate implementation** with thresholds (Maven/Gradle)
+
 3. **Pre-commit hook configuration** with all checks
+
 4. **Test parallelization setup** for faster execution
+
 5. **Flaky test detection and tracking** system
+
 6. **Test maintenance procedures** and documentation
+
 7. **Test reporting infrastructure** with dashboards
+
 8. **Execution metrics and monitoring** setup
 ---
 
