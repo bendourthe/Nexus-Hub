@@ -80,7 +80,7 @@ This repository provides **ready-to-use prompt templates** for AI coding assista
 
 > **Comprehensive Instructions (35k characters):** Best for complex projects that require highly detailed rules.
 >
-> **Condensed (20k characters):** Best for quick and efficient tasks.
+> **Condensed (15k characters):** Best for quick and efficient tasks.
 
 ### Agentic Systems
 > Claude Code, Codex CLI, Gemini CLI
