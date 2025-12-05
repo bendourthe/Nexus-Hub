@@ -144,17 +144,15 @@ This repository provides **ready-to-use prompt templates** for AI coding assista
 | **7. CI/CD Integration** | Automate testing | [Python](templates/test_development/maintenance_cicd/python_maintenance_cicd.md) \| [JavaScript](templates/test_development/maintenance_cicd/javascript_maintenance_cicd.md) \| [Java](templates/test_development/maintenance_cicd/java_maintenance_cicd.md) \| [C#](templates/test_development/maintenance_cicd/csharp_maintenance_cicd.md) \| [Go](templates/test_development/maintenance_cicd/go_maintenance_cicd.md) \| [C](templates/test_development/maintenance_cicd/c_maintenance_cicd.md) \| [C++](templates/test_development/maintenance_cicd/cpp_maintenance_cicd.md) |
 | **8. Test Validation** | Mutation testing | [Python](templates/test_development/reward_hacking/python_reward_hacking.md) \| [JavaScript](templates/test_development/reward_hacking/javascript_reward_hacking.md) \| [Java](templates/test_development/reward_hacking/java_reward_hacking.md) \| [C#](templates/test_development/reward_hacking/csharp_reward_hacking.md) \| [Go](templates/test_development/reward_hacking/go_reward_hacking.md) \| [C](templates/test_development/reward_hacking/c_reward_hacking.md) \| [C++](templates/test_development/reward_hacking/cpp_reward_hacking.md) |
 
-**🆕 NEW: C++ Google Test + VS Code + Copilot**
-
-- **10-minute setup** from clone to running tests
-
-- **[Complete Workflow Guide](templates/test_development/GOOGLE_TEST_VSCODE_WORKFLOW.md)** - Step-by-step setup
-
-- **[Copilot Quick Reference](templates/test_development/unit_tests/COPILOT_QUICK_REFERENCE.md)** - 50+ AI prompts
-
-- **[VS Code Configuration](templates/test_development/vscode_config/README.md)** - Ready-to-use configs
-
-**Most Popular:** Phase 2 (Unit Tests) - Start here if you already have a test framework
+> **🆕 NEW: C++ Google Test + VS Code + Copilot**
+> 
+> - **10-minute setup** from clone to running tests
+> 
+> - **[Complete Workflow Guide](templates/test_development/GOOGLE_TEST_VSCODE_WORKFLOW.md)** - Step-by-step setup
+> 
+> - **[Copilot Quick Reference](templates/test_development/unit_tests/COPILOT_QUICK_REFERENCE.md)** - 50+ AI prompts
+> 
+> - **[VS Code Configuration](templates/test_development/vscode_config/README.md)** - Ready-to-use configs
 
 ---
 
@@ -191,15 +189,15 @@ This repository provides **ready-to-use prompt templates** for AI coding assista
 | **C** | [C Cleanup Template](templates/code_cleanup/c_cleanup.md) |
 | **C++** | [C++ Cleanup Template](templates/code_cleanup/cpp_cleanup.md) |
 
-**What you get:**
-
-- Dead code removal
-
-- Duplication elimination
-
-- Legacy pattern modernization
-
-- Stopping criteria to prevent over-cleaning
+> **What you get:**
+> 
+> - Dead code removal
+> 
+> - Duplication elimination
+> 
+> - Legacy pattern modernization
+> 
+> - Stopping criteria to prevent over-cleaning
 
 ---
 
