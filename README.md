@@ -79,6 +79,7 @@ This repository provides **ready-to-use prompt templates** for AI coding assista
 | **C# / Go / C / C++** | [Browse all](templates/ai_instructions/coding_assistants/) | [Browse all](templates/ai_instructions/coding_assistants/) |
 
 > **Comprehensive Instructions (35k characters):** Best for complex projects that require highly detailed rules.
+>
 > **Condensed (20k characters):** Best for quick and efficient tasks.
 
 ### Agentic Systems
@@ -92,6 +93,7 @@ This repository provides **ready-to-use prompt templates** for AI coding assista
 | **C# / Go / C / C++** | [Browse all](templates/ai_instructions/autonomous_agents/claude_code/) | [Browse all](templates/ai_instructions/autonomous_agents/claude_code/) |
 
 > **Comprehensive Instructions (40k characters):** Best for complex projects that require highly detailed rules.
+>
 > **Condensed (20k characters):** Best for quick and efficient tasks.
 >
 > **48 Claude Code Skills Available:** [View Skills Catalog](templates/ai_instructions/autonomous_agents/claude_code/skills/README.md)
