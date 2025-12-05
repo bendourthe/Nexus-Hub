@@ -10,14 +10,18 @@ phase_number: 4
 difficulty: advanced
 estimated_time_hours: 2-3
 prerequisites:
+
   - code_review/security_review/csharp_security_review.md
 related_templates:
+
   - code_review/code_quality/csharp_code_quality.md
 tools:
+
   - NUnit (4.2.2)
   - xUnit
   - MSTest
 tags:
+
   - code-review
   - performance
   - code-review
@@ -260,6 +264,7 @@ For each finding, include:
 
 **Recommendation:**
 Move filtering to database with indexed query:
+
 - Add database index on search fields
 - Use database LIKE/ILIKE queries
 - Implement pagination (limit results to 50)
@@ -936,6 +941,7 @@ Please provide a comprehensive performance report with the following structure:
 ### Load Testing Recommendations
 ```csharp
 // Suggested load testing scenarios
+
 1. Normal load: X requests/sec for Y minutes
 2. Peak load: X*3 requests/sec for Y minutes
 3. Stress test: Gradually increase to failure point

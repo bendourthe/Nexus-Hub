@@ -10,10 +10,12 @@ difficulty: beginner
 estimated_time_hours: 2-3
 prerequisites: []
 tools:
+
   - NUnit (4.2.2)
   - xUnit
   - MSTest
 tags:
+
   - documentation
   - documentation
   - c#
@@ -1100,6 +1102,7 @@ jobs:
   sbom:
     runs-on: windows-latest
     steps:
+
       - uses: actions/checkout@v3
 
       - name: Setup .NET
@@ -1143,6 +1146,7 @@ jobs:
 
 ```yaml
 trigger:
+
   - main
 
 pool:

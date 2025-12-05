@@ -10,6 +10,7 @@ difficulty: intermediate
 estimated_time_hours: 2-4
 prerequisites: []
 tags:
+
   - skills
   - generic
 ---
@@ -881,8 +882,10 @@ services:
   order-service:
     build: .
     ports:
+
       - "8000:8000"
     environment:
+
       - DATABASE_URL=postgresql://order_db:5432/orders
       - USER_SERVICE_URL=http://user-service:8001
       - INVENTORY_SERVICE_URL=http://inventory-service:8002
@@ -890,6 +893,7 @@ services:
       - REDIS_URL=redis://redis:6379
       - RABBITMQ_URL=amqp://rabbitmq:5672
     depends_on:
+
       - order-db
       - redis
       - rabbitmq
@@ -898,10 +902,12 @@ services:
   order-db:
     image: postgres:15
     environment:
+
       - POSTGRES_DB=orders
       - POSTGRES_USER=order_user
       - POSTGRES_PASSWORD=order_pass
     volumes:
+
       - order-data:/var/lib/postgresql/data
     restart: unless-stopped
 
@@ -912,6 +918,7 @@ services:
   rabbitmq:
     image: rabbitmq:3-management-alpine
     ports:
+
       - "15672:15672"
     restart: unless-stopped
 
@@ -940,16 +947,20 @@ spec:
         app: order-service
     spec:
       containers:
+
       - name: order-service
         image: myregistry/order-service:1.0.0
         ports:
+
         - containerPort: 8000
         env:
+
         - name: DATABASE_URL
           valueFrom:
             secretKeyRef:
               name: order-service-secrets
               key: database-url
+
         - name: USER_SERVICE_URL
           value: "http://user-service:8001"
         resources:
@@ -980,6 +991,7 @@ spec:
   selector:
     app: order-service
   ports:
+
   - protocol: TCP
     port: 8000
     targetPort: 8000
@@ -997,12 +1009,14 @@ spec:
   minReplicas: 3
   maxReplicas: 10
   metrics:
+
   - type: Resource
     resource:
       name: cpu
       target:
         type: Utilization
         averageUtilization: 70
+
   - type: Resource
     resource:
       name: memory

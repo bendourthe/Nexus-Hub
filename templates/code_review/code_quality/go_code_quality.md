@@ -10,13 +10,17 @@ phase_number: 2
 difficulty: intermediate
 estimated_time_hours: 2-3
 prerequisites:
+
   - code_review/context_analysis/go_context_analysis.md
 related_templates:
+
   - code_review/security_review/go_security_review.md
 tools:
+
   - go test (1.23+)
   - testify
 tags:
+
   - code-review
   - go
 ---
@@ -257,6 +261,7 @@ For each finding, include:
 
 **Recommendation:**
 Move filtering to database with indexed query:
+
 - Add database index on search fields
 - Use database LIKE/ILIKE queries
 - Implement pagination (limit results to 50)
@@ -475,6 +480,7 @@ Please perform a comprehensive code quality review of this Go project following 
 1. **Goroutine Usage**
    ```go
    // Check for:
+
    - Goroutine leaks (goroutines never terminate)
    - Missing synchronization
    - Race conditions
@@ -485,6 +491,7 @@ Please perform a comprehensive code quality review of this Go project following 
 2. **Channel Patterns**
    ```go
    // Good patterns:
+
    - Producer-consumer patterns
    - Fan-out/fan-in patterns
    - Pipeline patterns
@@ -682,6 +689,7 @@ Suggest tools and configuration for continuous quality monitoring:
 # Example .golangci.yml
 linters:
   enable:
+
     - gofmt
     - goimports
     - golint

@@ -10,6 +10,7 @@ difficulty: intermediate
 estimated_time_hours: 2-4
 prerequisites: []
 tags:
+
   - coding-assistants
   - generic
 ---
@@ -619,6 +620,7 @@ Since you requested Git help:
 
 ### DEVLOG.md Updates
 Safe to update without permission:
+
 - Task lists
 - Development history
 - Challenges/solutions

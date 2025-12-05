@@ -54,6 +54,7 @@ Team: *writes code without quality checks*
 Code: *accumulates technical debt*
 Maintenance: *becomes increasingly expensive*
 Result:
+
 - ❌ High complexity makes changes risky
 - ❌ Duplicated code multiplies bugs
 - ❌ Poor naming hinders understanding
@@ -68,6 +69,7 @@ Team: *follows quality standards*
 Code: *maintains consistent quality*
 Maintenance: *stays manageable*
 Result:
+
 - ✅ Low complexity enables safe changes
 - ✅ DRY principle reduces bug surface
 - ✅ Clear naming aids comprehension

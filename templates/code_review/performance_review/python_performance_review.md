@@ -10,15 +10,19 @@ phase_number: 4
 difficulty: advanced
 estimated_time_hours: 2-3
 prerequisites:
+
   - code_review/security_review/python_security_review.md
 related_templates:
+
   - code_review/code_quality/python_code_quality.md
 tools:
+
   - pytest (8.3.4+)
   - black (24.12.0)
   - mypy (1.13.0)
   - ruff
 tags:
+
   - code-review
   - performance
   - code-review
@@ -261,6 +265,7 @@ For each finding, include:
 
 **Recommendation:**
 Move filtering to database with indexed query:
+
 - Add database index on search fields
 - Use database LIKE/ILIKE queries
 - Implement pagination (limit results to 50)

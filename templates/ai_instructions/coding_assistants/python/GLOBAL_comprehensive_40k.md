@@ -10,6 +10,7 @@ difficulty: intermediate
 estimated_time_hours: 2-4
 prerequisites: []
 tags:
+
   - coding-assistants
   - generic
 ---
@@ -993,6 +994,7 @@ When implementing new features, fixing bugs, or troubleshooting issues, follow t
 
 ### Feature: User Authentication
 **Iteration 1**: Created tests/temp/test_feature_validation.py
+
 - Tests failed: Password validation too weak
 - Solution: Enhanced regex pattern
 
@@ -1131,6 +1133,7 @@ Never automatically:
 1. **Assess**: 
    ```
    Changes might warrant version update from X.Y.Z:
+
    - [List changes]
    - [Categorize as patch/minor/major]
    ```
@@ -1151,6 +1154,7 @@ Never automatically:
 Example:
 ```
 Changes include:
+
 - Added data processing (minor)
 - Fixed error handling (patch)
 - Updated docs (patch)
@@ -1252,6 +1256,7 @@ Before Git suggestions:
    ```
    I see [specific issues].
    Need to clarify:
+
    - [Requirements question]
    - [Context question]
    ```
@@ -1274,6 +1279,7 @@ Before Git suggestions:
 3. **Explanation**
    ```
    **Improvements:**
+
    - Added validation
    - Type hints for IDE support
    - Error handling
@@ -1287,6 +1293,7 @@ Before Git suggestions:
 4. **Integration**
    ```
    **To apply:**
+
    - Replace lines X-Y
    - Add imports at top
    - Test with: [examples]

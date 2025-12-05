@@ -10,11 +10,13 @@ difficulty: beginner
 estimated_time_hours: 4-6
 prerequisites: []
 tools:
+
   - pytest (8.3.4+)
   - black (24.12.0)
   - mypy (1.13.0)
   - ruff
 tags:
+
   - documentation
   - documentation
   - python
@@ -566,18 +568,22 @@ Document how data moves through the system:
 1. Client Request
    │
    ▼
+
 2. API Gateway/Load Balancer
    │
    ▼
+
 3. Middleware (auth, logging, rate limit)
    │
    ▼
+
 4. Route Handler (src/api/routes.py)
    │
    ├─► Validate request data
    └─► Extract authentication token
        │
        ▼
+
 5. Business Service (src/core/services.py)
    │
    ├─► Apply business rules
@@ -585,6 +591,7 @@ Document how data moves through the system:
    └─► Validate business constraints
        │
        ▼
+
 6. Repository (src/data/repositories.py)
    │
    ├─► Build query
@@ -592,9 +599,11 @@ Document how data moves through the system:
    └─► Map ORM models to domain models
        │
        ▼
+
 7. Database
    │
    ▼
+
 8. Response flows back up through layers
    │
    └─► Transform → Serialize → Return
@@ -660,9 +669,11 @@ class UserRepository:
 1. Event Trigger
    │
    ▼
+
 2. Event Published to Queue
    │
    ▼
+
 3. Event Bus Routes to Handlers
    │
    ├─► Handler 1: Send welcome email
@@ -670,6 +681,7 @@ class UserRepository:
    └─► Handler 3: Trigger workflows
        │
        ▼
+
 4. Each Handler Processes Independently
    │
    └─► Results logged/monitored
@@ -1018,10 +1030,12 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
+
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
           python-version: '3.11'
+
       - run: pip install -e .[dev]
       - run: pytest --cov=src
       - run: black --check src/
@@ -1033,6 +1047,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
+
       - run: # Deployment commands
 ```
 

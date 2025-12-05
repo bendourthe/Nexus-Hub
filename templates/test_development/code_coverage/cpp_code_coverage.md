@@ -10,14 +10,18 @@ phase_number: 6
 difficulty: intermediate
 estimated_time_hours: 2-3
 prerequisites:
+
   - test_development/performance_testing/cpp_performance_testing.md
 related_templates:
+
   - test_development/maintenance_cicd/cpp_maintenance_cicd.md
 tools:
+
   - google test
   - catch2
   - boost.test
 tags:
+
   - test-development
   - cpp
 ---
@@ -622,8 +626,10 @@ lcov --list coverage/coverage.info > ${OUTPUT_DIR}/exports/coverage_list.txt
 
 ```cpp
 /**
+
  * Add tests for basic functionality of uncovered code.
  *
+
  * Focus on main execution paths first.
  */
 
@@ -684,6 +690,7 @@ TEST_F(DiscountCalculatorTest, CalculateDiscount_Guest) {
 
 ```cpp
 /**
+
  * Add tests for boundary conditions and edge cases.
  */
 
@@ -755,6 +762,7 @@ INSTANTIATE_TEST_SUITE_P(
 
 ```cpp
 /**
+
  * Add tests for error handling and exceptional conditions.
  */
 
@@ -869,6 +877,7 @@ TEST_F(UserServiceTest, LoadUserData_DatabaseError) {
 
 ```cpp
 /**
+
  * Ensure all branches of conditional logic are tested.
  */
 

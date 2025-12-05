@@ -10,6 +10,7 @@ difficulty: intermediate
 estimated_time_hours: 2-4
 prerequisites: []
 tags:
+
   - coding-assistants
   - generic
 ---
@@ -660,13 +661,16 @@ async function authMiddleware(
 ## JSDoc Comments
 ```typescript
 /**
+
  * Processes user data with validation and transformation.
  *
+
  * @param data - Raw user data from input
  * @param options - Processing options
  * @returns Processed and validated user object
  * @throws {ValidationError} If data is invalid
  *
+
  * @example
  * ```typescript
  * const user = processUserData(rawData, { strict: true });

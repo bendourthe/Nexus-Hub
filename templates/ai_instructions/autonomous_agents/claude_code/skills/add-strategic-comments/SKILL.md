@@ -8,6 +8,7 @@ category: Documentation
 priority: MEDIUM
 tags: [documentation, comments, code-clarity, maintainability, refactoring, best-practices]
 template_sources:
+
   - documentation/comments/python_comments.md
   - documentation/comments/javascript_comments.md
   - documentation/comments/java_comments.md
@@ -241,6 +242,7 @@ This skill identifies where strategic comments add value and generates appropria
 - **Examples**:
   ```c
   /* Use static inline for small frequently-called functions
+
    * Compiler likely to inline, reducing function call overhead
    * Benchmark showed 15% performance improvement in hot path */
   static inline int min(int a, int b) {
@@ -367,12 +369,14 @@ For **Python** code:
 Language: Python
 Scope: Module 'business_logic.py' / Directory 'src/core/'
 Focus Areas:
+
 - Complex algorithms in data processing
 - Business rules validation logic
 - Performance optimizations (caching, etc.)
 - Workarounds for library limitations
 - Security considerations
 Guidelines:
+
 - Explain 'why' not 'what'
 - Avoid redundant comments
 - Use TODO/FIXME/HACK appropriately
@@ -387,12 +391,14 @@ For **JavaScript/TypeScript** code:
 Language: JavaScript / TypeScript
 Scope: Module 'services/api.js' / Directory 'src/utils/'
 Focus Areas:
+
 - Asynchronous operation patterns
 - Type narrowing explanations (TypeScript)
 - Performance optimizations
 - Browser compatibility workarounds
 - State management logic
 Guidelines:
+
 - Explain design decisions
 - Document performance trade-offs
 - Clarify type inference limitations
@@ -407,12 +413,14 @@ For **Java** code:
 Language: Java
 Scope: Class 'BusinessService.java' / Package 'com.example.core'
 Focus Areas:
+
 - Thread safety considerations
 - Design pattern implementations
 - Exception handling strategies
 - Resource management
 - Business rule enforcement
 Guidelines:
+
 - Explain concurrency design choices
 - Document defensive programming
 - Reference Effective Java items
@@ -427,12 +435,14 @@ For **C#** code:
 Language: C#
 Scope: Class 'DataProcessor.cs' / Namespace 'MyApp.Core'
 Focus Areas:
+
 - Async/await patterns
 - LINQ query explanations
 - Dependency injection decisions
 - IDisposable implementations
 - Performance optimizations
 Guidelines:
+
 - Explain asynchronous design
 - Document LINQ deferred execution
 - Clarify DI lifetime choices
@@ -447,12 +457,14 @@ For **Go** code:
 Language: Go
 Scope: Package 'processor' / File 'worker.go'
 Focus Areas:
+
 - Goroutine and channel patterns
 - Error handling strategies
 - Interface design decisions
 - Memory management
 - Concurrency patterns
 Guidelines:
+
 - Explain goroutine coordination
 - Document channel buffer sizing
 - Clarify interface contracts
@@ -467,12 +479,14 @@ For **C/C++** code:
 Language: C / C++
 Scope: Header 'processor.h' / Directory 'src/core/'
 Focus Areas:
+
 - Memory management strategies
 - Thread safety guarantees
 - Undefined behavior prevention
 - Performance optimizations
 - Modern C++ feature usage
 Guidelines:
+
 - Explain ownership semantics
 - Document thread safety
 - Warn about unsafe operations
@@ -693,6 +707,7 @@ Before finalizing strategic comments, verify:
 
 ### Issue: Too Many Comments
 **Solution**:
+
 - Review each comment: does it add value?
 - Refactor code to be more self-documenting
 - Use better variable/function names
@@ -701,6 +716,7 @@ Before finalizing strategic comments, verify:
 
 ### Issue: Outdated Comments
 **Solution**:
+
 - Update comments when changing code
 - Review comments during code review
 - Remove comments that no longer apply
@@ -709,6 +725,7 @@ Before finalizing strategic comments, verify:
 
 ### Issue: Comment Overload on Simple Code
 **Solution**:
+
 - Trust developers to understand basic patterns
 - Comment the non-obvious, not the obvious
 - Use comments to explain intent, not mechanics
@@ -717,6 +734,7 @@ Before finalizing strategic comments, verify:
 
 ### Issue: Inconsistent TODO/FIXME Usage
 **Solution**:
+
 - Define team standards for technical debt markers
 - Create issue tracker tickets for important items
 - Regular cleanup of completed TODO items

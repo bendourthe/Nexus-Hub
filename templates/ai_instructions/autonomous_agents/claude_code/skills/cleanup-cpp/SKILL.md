@@ -130,6 +130,7 @@ Tell Claude Code to use this skill:
 ```
 "Use the cleanup-cpp skill to analyze and clean up this C++ codebase.
 Focus on:
+
 1. Removing all unused includes, functions, and classes
 2. Replacing raw pointers with smart pointers
 3. Applying RAII and move semantics

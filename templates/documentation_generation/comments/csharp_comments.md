@@ -10,10 +10,12 @@ difficulty: beginner
 estimated_time_hours: 1-2
 prerequisites: []
 tools:
+
   - NUnit (4.2.2)
   - xUnit
   - MSTest
 tags:
+
   - documentation
   - documentation
   - c#
@@ -152,6 +154,7 @@ Please add strategic comments to this C# project following this protocol:
 
 1. **Analyze Codebase for Comment Opportunities**
    Review the code to identify sections that would benefit from comments:
+
    - Complex algorithms or business logic
    - Non-obvious implementation decisions
    - Workarounds for known issues
@@ -876,6 +879,7 @@ Please provide comment additions in this format:
 ```yaml
 # Recommended tools
 tools:
+
   - stylecop:
       # Enforce comment standards
       # Check XML documentation
@@ -891,6 +895,7 @@ tools:
   - grep/ripgrep:
       # Find technical debt tags
       patterns:
+
         - "TODO"
         - "FIXME"
         - "HACK"

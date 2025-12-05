@@ -10,6 +10,7 @@ difficulty: intermediate
 estimated_time_hours: 2-4
 prerequisites: []
 tags:
+
   - skills
   - generic
 ---
@@ -741,6 +742,7 @@ setup(
 # Update .travis.yml or GitHub Actions
 language: python
 python:
+
   - "3.6"
   - "3.7"
   - "3.8"

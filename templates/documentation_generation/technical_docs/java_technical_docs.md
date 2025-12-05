@@ -10,10 +10,12 @@ difficulty: beginner
 estimated_time_hours: 4-6
 prerequisites: []
 tools:
+
   - junit (5.11.3)
   - maven
   - gradle
 tags:
+
   - documentation
   - documentation
   - java
@@ -796,16 +798,20 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+
       - uses: actions/checkout@v3
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: 'temurin'
+
       - name: Build with Maven
         run: mvn clean install
+
       - name: Run tests
         run: mvn test
+
       - name: Build Docker image
         run: docker build -t myapp:latest .
 ```

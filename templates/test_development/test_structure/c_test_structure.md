@@ -11,12 +11,15 @@ difficulty: intermediate
 estimated_time_hours: 2-4
 prerequisites: []
 related_templates:
+
   - test_development/unit_tests/c_unit_tests.md
 tools:
+
   - unity
   - cmocka
   - check
 tags:
+
   - test-development
   - testing
   - c

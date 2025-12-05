@@ -10,10 +10,12 @@ difficulty: beginner
 estimated_time_hours: 4-8
 prerequisites: []
 tools:
+
   - unity
   - cmocka
   - check
 tags:
+
   - documentation
   - documentation
   - c
@@ -157,6 +159,7 @@ Use `<REPO_URL>` as placeholder where repository URLs are needed in this templat
 ### Public Header (mylib.h)
 ```c
 /**
+
  * @file mylib.h
  * @brief Main API for MyLib
  * @author Your Name
@@ -194,16 +197,20 @@ typedef struct mylib_context mylib_context_t;
 /**
  * @brief Initialize the library
  *
+
  * This function must be called before any other library functions.
  * Resources allocated by this function must be freed using mylib_cleanup().
  *
+
  * @param config Pointer to configuration structure
  * @param ctx Output parameter for context handle
  * @return MYLIB_OK on success, error code on failure
  *
+
  * @note The caller retains ownership of the config parameter.
  * @note The ctx parameter will be set to NULL on failure.
  *
+
  * @see mylib_cleanup()
  */
 int mylib_init(const mylib_config_t *config, mylib_context_t **ctx);
@@ -211,12 +218,14 @@ int mylib_init(const mylib_config_t *config, mylib_context_t **ctx);
 /**
  * @brief Process input data
  *
+
  * @param ctx Context handle from mylib_init()
  * @param input Input string (NULL-terminated)
  * @param output Output buffer (caller-allocated)
  * @param output_size Size of output buffer
  * @return Number of bytes written, or negative error code
  *
+
  * @note Output buffer must be at least as large as input
  * @note Function is thread-safe if contexts don't overlap
  */
@@ -226,6 +235,7 @@ int mylib_process(mylib_context_t *ctx, const char *input,
 /**
  * @brief Get error message for error code
  *
+
  * @param error Error code
  * @return Human-readable error message (static string)
  */
@@ -234,8 +244,10 @@ const char* mylib_strerror(int error);
 /**
  * @brief Cleanup and free resources
  *
+
  * @param ctx Context handle to cleanup (can be NULL)
  *
+
  * @note After calling this function, the context is invalid
  */
 void mylib_cleanup(mylib_context_t *ctx);

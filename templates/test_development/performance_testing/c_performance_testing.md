@@ -10,14 +10,18 @@ phase_number: 5
 difficulty: advanced
 estimated_time_hours: 4-6
 prerequisites:
+
   - test_development/mocks_fixtures/c_mocks_fixtures.md
 related_templates:
+
   - test_development/code_coverage/c_code_coverage.md
 tools:
+
   - unity
   - cmocka
   - check
 tags:
+
   - test-development
   - testing
   - performance
@@ -204,8 +208,10 @@ Document expected performance characteristics:
 
 ```c
 /**
+
  * performance_timer.h
  *
+
  * High-resolution timing utilities for performance measurement.
  */
 #ifndef PERFORMANCE_TIMER_H
@@ -279,8 +285,10 @@ static inline double perf_timer_elapsed_us(const perf_timer_t *timer) {
 
 ```c
 /**
+
  * benchmark.h
  *
+
  * Simple benchmarking framework for C.
  */
 #ifndef BENCHMARK_H
@@ -386,8 +394,10 @@ static inline void benchmark_print_result(const benchmark_result_t *result) {
 
 ```c
 /**
+
  * example_benchmarks.c
  *
+
  * Example performance benchmarks.
  */
 #include "benchmark.h"
@@ -452,8 +462,10 @@ int main(void) {
 
 ```c
 /**
+
  * memory_profiler.h
  *
+
  * Memory allocation tracking and leak detection.
  */
 #ifndef MEMORY_PROFILER_H
@@ -595,12 +607,15 @@ cg_annotate cachegrind.out
 
 ```c
 /**
+
  * Compile with profiling enabled:
  * gcc -pg -o program program.c
  *
+
  * Run program to generate gmon.out
  * ./program
  *
+
  * Analyze profile:
  * gprof program gmon.out > ${OUTPUT_DIR}/exports/analysis.txt
  */
@@ -664,8 +679,10 @@ perf record -e cpu-cycles,cache-misses ./program
 
 ```c
 /**
+
  * load_test.c
  *
+
  * Load testing framework for C functions.
  */
 #include "performance_timer.h"
@@ -826,8 +843,10 @@ int main(void) {
 
 ```c
 /**
+
  * stress_test.c
  *
+
  * Stress testing to find breaking points.
  */
 #include "memory_profiler.h"
@@ -935,8 +954,10 @@ int main(void) {
 
 ```c
 /**
+
  * regression_test.h
  *
+
  * Performance regression detection.
  */
 #ifndef REGRESSION_TEST_H
@@ -1123,6 +1144,7 @@ on:
   pull_request:
     branches: [ main ]
   schedule:
+
     - cron: '0 2 * * *'
 
 jobs:

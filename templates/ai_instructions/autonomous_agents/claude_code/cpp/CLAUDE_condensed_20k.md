@@ -10,10 +10,12 @@ difficulty: intermediate
 estimated_time_hours: 2-4
 prerequisites: []
 tools:
+
   - unity
   - cmocka
   - check
 tags:
+
   - claude-code
   - c
 ---
@@ -427,6 +429,7 @@ void threadSafe() {
 
 ```cpp
 /**
+
  * @file buffer.hpp
  * @brief Dynamic buffer with automatic growth
  * @author Benjamin Dourthe (benjamin@adonamed.com)
@@ -436,6 +439,7 @@ void threadSafe() {
  * @class Buffer
  * @brief Dynamic byte buffer with RAII
  *
+
  * Example:
  * @code
  * Buffer buf(1024);
@@ -445,6 +449,7 @@ void threadSafe() {
 class Buffer {
 public:
     /**
+
      * @brief Construct buffer
      * @param[in] capacity Initial capacity
      * @throws std::bad_alloc If allocation fails
@@ -807,6 +812,7 @@ Since you requested Git help:
 
 ### DEVLOG.md Updates
 Safe to update without permission:
+
 - Task lists
 - Development history
 - Challenges/solutions

@@ -10,14 +10,18 @@ phase_number: 2
 difficulty: intermediate
 estimated_time_hours: 3-6
 prerequisites:
+
   - test_development/test_structure/c_test_structure.md
 related_templates:
+
   - test_development/test_cases/c_test_cases.md
 tools:
+
   - unity
   - cmocka
   - check
 tags:
+
   - test-development
   - testing
   - c
@@ -812,6 +816,7 @@ void test_initialized(void) {
 
 ### 3. Templates
 `${OUTPUT_DIR}/templates/`:
+
 - `test_template.c`
 - `test_runner_template.c`
 - `Makefile`

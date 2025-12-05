@@ -952,10 +952,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### src/index.ts (Node.js Backend)
 ```typescript
 /**
+
  * My Awesome API - Main Entry Point
  *
+
  * RESTful API for task management.
  *
+
  * @author Your Name (your.email@example.com)
  */
 import dotenv from 'dotenv';
@@ -976,8 +979,10 @@ app.listen(PORT, () => {
 ### src/app.ts (Node.js Backend)
 ```typescript
 /**
+
  * Express Application Configuration
  *
+
  * @author Your Name (your.email@example.com)
  */
 import express, { Application } from 'express';
@@ -1016,6 +1021,7 @@ export default app;
 ### Node.js Backend with Database
 ```
 Additional Dependencies:
+
 - pg (PostgreSQL)
 - typeorm or prisma (ORM)
 - bcrypt (password hashing)
@@ -1030,6 +1036,7 @@ Structure additions:
 ### React Frontend with State Management
 ```
 Additional Dependencies:
+
 - redux and @reduxjs/toolkit
 - react-hook-form
 - react-toastify
@@ -1044,6 +1051,7 @@ Structure additions:
 ### Next.js with Authentication
 ```
 Additional Dependencies:
+
 - next-auth
 - @auth/prisma-adapter
 - prisma
@@ -1060,6 +1068,7 @@ Structure additions:
 ### Minimal Setup (Fast Start)
 ```
 "Use init-javascript-project with minimal configuration:
+
 - Basic structure only
 - Essential documentation
 - Skip CI/CD files
@@ -1069,6 +1078,7 @@ Structure additions:
 ### Full Setup (Production-Ready)
 ```
 "Use init-javascript-project with full configuration:
+
 - Complete directory structure
 - GitHub Actions CI/CD
 - Docker configuration
@@ -1080,6 +1090,7 @@ Structure additions:
 ### Custom Template
 ```
 "Use init-javascript-project with custom requirements:
+
 - GraphQL API with Apollo Server
 - MongoDB database
 - Redis caching
@@ -1143,10 +1154,13 @@ services:
   api:
     build: .
     ports:
+
       - "3000:3000"
     environment:
+
       - NODE_ENV=production
     volumes:
+
       - ./.env:/app/.env
 ```
 

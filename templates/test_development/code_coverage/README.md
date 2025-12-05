@@ -109,6 +109,7 @@ Measure, analyze, and improve test coverage to ensure comprehensive testing of t
 
 ## Quick Start
 Use the appropriate template file with your AI assistant to:
+
 1. Set up coverage measurement infrastructure
 2. Analyze current coverage and identify gaps
 3. Establish coverage goals and thresholds

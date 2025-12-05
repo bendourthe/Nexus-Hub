@@ -70,6 +70,7 @@ Developer: *sets breakpoint*
 Developer: *runs debugger*
 Developer: *steps through code line by line*
 Result:
+
 - ❌ Debugger unavailable in production
 - ❌ Changes program timing (hides race conditions)
 - ❌ Slow iteration cycle (stop, inspect, repeat)
@@ -85,6 +86,7 @@ Developer: *runs application normally*
 Developer: *analyzes log output*
 Developer: *refines hypothesis and adds more logs*
 Result:
+
 - ✅ Works in any environment (dev, staging, prod)
 - ✅ Captures real timing and behavior
 - ✅ Fast iteration (just re-run)
@@ -96,6 +98,7 @@ Result:
 **Best Approach** (Combined):
 ```
 Use debuggers for:
+
 - Understanding code structure
 - Exploring object state
 - Local development

@@ -47,6 +47,7 @@ Once deployed to GitHub Pages, this will be available at:
 
 ### Skill Cards
 Each skill displays:
+
 - Name and description
 - Category and priority badge
 - Language support
@@ -56,6 +57,7 @@ Each skill displays:
 
 ### Installation Modal
 Click any skill card to see:
+
 - Detailed skill information
 - Installation command
 - Copy-to-clipboard functionality

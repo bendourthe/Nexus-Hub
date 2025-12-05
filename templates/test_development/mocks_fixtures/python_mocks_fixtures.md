@@ -10,15 +10,19 @@ phase_number: 4
 difficulty: intermediate
 estimated_time_hours: 3-5
 prerequisites:
+
   - test_development/test_cases/python_test_cases.md
 related_templates:
+
   - test_development/performance_testing/python_performance_testing.md
 tools:
+
   - pytest (8.3.4+)
   - black (24.12.0)
   - mypy (1.13.0)
   - ruff
 tags:
+
   - test-development
   - python
 ---

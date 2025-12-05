@@ -10,10 +10,12 @@ difficulty: beginner
 estimated_time_hours: 2-3
 prerequisites: []
 tools:
+
   - junit (5.11.3)
   - maven
   - gradle
 tags:
+
   - documentation
   - documentation
   - java
@@ -187,31 +189,38 @@ For each package, create comprehensive documentation:
 ### Package Documentation Template (package-info.java)
 ```java
 /**
+
  * [One-line summary of package purpose]
  *
+
  * <p>[Detailed description of package functionality, scope, and use cases.
  * Include key concepts, main responsibilities, and intended usage.]</p>
  *
+
  * <h2>Key Classes</h2>
  * <ul>
  *   <li>{@link ClassName1} - Brief description</li>
  *   <li>{@link ClassName2} - Brief description</li>
  * </ul>
  *
+
  * <h2>Usage Example</h2>
  * <pre>{@code
  * import com.example.package.*;
  *
+
  * MainClass instance = new MainClass(param1, param2);
  * Result result = instance.process();
  * }</pre>
  *
+
  * <h2>Dependencies</h2>
  * <ul>
  *   <li>org.apache.commons:commons-lang3:3.12.0 - String utilities</li>
  *   <li>com.google.guava:guava:32.0.0 - Collections utilities</li>
  * </ul>
  *
+
  * @author Benjamin Dourthe (benjamin@adonamed.com)
  * @version 1.0.0
  * @since 1.0.0
@@ -226,14 +235,18 @@ For each class and interface, document:
 ### Class Documentation Template
 ```java
 /**
+
  * [One-line summary of class purpose]
  *
+
  * <p>[Detailed description of class responsibility, behavior, and usage.
  * Explain what problems this class solves and how it fits into the
  * overall architecture.]</p>
  *
+
  * <p>This class is thread-safe / not thread-safe. [Explain thread safety]</p>
  *
+
  * <h2>Example Usage</h2>
  * <pre>{@code
  * // Basic usage example
@@ -242,6 +255,7 @@ For each class and interface, document:
  * System.out.println(result.getValue()); // prints: processed_value
  * }</pre>
  *
+
  * <pre>{@code
  * // Advanced usage with builder pattern
  * ExampleClass obj = new ExampleClass.Builder()
@@ -252,10 +266,12 @@ For each class and interface, document:
  * Result result = obj.processAsync().get();
  * }</pre>
  *
+
  * @param <T> the type of elements processed by this class
  * @see RelatedClass
  * @see <a href="https://docs.example.com/classes">Documentation</a>
  *
+
  * @author Benjamin Dourthe (benjamin@adonamed.com)
  * @version 1.0.0
  * @since 1.0.0
@@ -268,11 +284,14 @@ public class ExampleClass<T> {
 ### Interface Documentation Template
 ```java
 /**
+
  * [One-line summary of interface contract]
  *
+
  * <p>[Detailed description of what implementations must provide.
  * Explain the contract, invariants, and expected behavior.]</p>
  *
+
  * <p><strong>Implementation Requirements:</strong></p>
  * <ul>
  *   <li>Implementations must be thread-safe</li>
@@ -280,6 +299,7 @@ public class ExampleClass<T> {
  *   <li>Exceptions must be properly documented</li>
  * </ul>
  *
+
  * <h2>Example Implementation</h2>
  * <pre>{@code
  * public class MyProcessor implements Processor<String> {
@@ -290,14 +310,17 @@ public class ExampleClass<T> {
  * }
  * }</pre>
  *
+
  * @param <T> the type of elements to process
  * @author Benjamin Dourthe (benjamin@adonamed.com)
  * @since 1.0.0
  */
 public interface Processor<T> {
     /**
+
      * Process the given input element.
      *
+
      * @param input the element to process, must not be null
      * @return the processed element, never null
      * @throws ProcessingException if processing fails
@@ -313,13 +336,17 @@ For each method, document:
 ### Method Documentation Template
 ```java
 /**
+
  * [One-line summary of what method does]
  *
+
  * <p>[Detailed description of method behavior, algorithm, and usage.
  * Explain the problem it solves and any important implementation details.]</p>
  *
+
  * <p>This method is thread-safe and can be called concurrently.</p>
  *
+
  * @param param1 Description of param1. Include constraints, expected
  *               format, or valid values. Can span multiple lines.
  * @param param2 Description of param2. Explain what the parameter
@@ -327,6 +354,7 @@ For each method, document:
  * @param param3 Description of optional param. Explain behavior when
  *               null vs when provided. Defaults to empty list if null.
  *
+
  * @return Description of return value structure. For complex returns,
  *         document the object properties and their meanings.
  *         Returns a Result object containing:
@@ -336,13 +364,16 @@ For each method, document:
  *           <li>metadata - Additional information</li>
  *         </ul>
  *
+
  * @throws IllegalArgumentException if param1 is null or empty
  * @throws IllegalStateException if object is not initialized
  * @throws ProcessingException if processing fails
  *
+
  * @see #relatedMethod(String)
  * @see OtherClass#method(String, int)
  *
+
  * @since 1.0.0
  * @deprecated Use {@link #newMethod(String, int, List)} instead.
  *             This method will be removed in version 2.0.
@@ -356,18 +387,23 @@ public Result complexMethod(String param1, int param2, List<String> param3)
 ### Constructor Documentation
 ```java
 /**
+
  * Constructs a new ExampleClass with the specified parameters.
  *
+
  * <p>Creates and initializes all internal data structures. This constructor
  * performs validation and will throw if parameters are invalid.</p>
  *
+
  * @param value the initial value, must not be null or empty
  * @param options configuration options for this instance. If null,
  *                default options will be used.
  *
+
  * @throws IllegalArgumentException if value is null or empty
  * @throws NullPointerException if value is null
  *
+
  * @see Builder
  */
 public ExampleClass(String value, Options options) {
@@ -380,12 +416,15 @@ public ExampleClass(String value, Options options) {
 ### Generic Methods
 ```java
 /**
+
  * Process a collection of items using the provided transformer.
  *
+
  * <p>This method applies the transformer to each element in the input
  * collection and returns a new collection with the results. The original
  * collection is not modified.</p>
  *
+
  * @param <I> the type of input elements
  * @param <O> the type of output elements
  * @param items the collection to process, must not be null
@@ -394,6 +433,7 @@ public ExampleClass(String value, Options options) {
  * @throws NullPointerException if items or transformer is null
  * @throws ProcessingException if transformation fails
  *
+
  * @see Transformer
  */
 public <I, O> List<O> transform(Collection<I> items,
@@ -406,12 +446,15 @@ public <I, O> List<O> transform(Collection<I> items,
 ### Builder Pattern
 ```java
 /**
+
  * Builder for creating {@link ExampleClass} instances.
  *
+
  * <p>This builder provides a fluent API for constructing ExampleClass
  * objects with optional parameters. All builder methods return {@code this}
  * to enable method chaining.</p>
  *
+
  * <h2>Example Usage</h2>
  * <pre>{@code
  * ExampleClass obj = new ExampleClass.Builder()
@@ -421,13 +464,16 @@ public <I, O> List<O> transform(Collection<I> items,
  *     .build();
  * }</pre>
  *
+
  * @author Benjamin Dourthe (benjamin@adonamed.com)
  * @since 1.0.0
  */
 public static class Builder {
     /**
+
      * Sets the value for this builder.
      *
+
      * @param value the value to set, must not be null
      * @return this builder instance for method chaining
      * @throws IllegalArgumentException if value is null or empty
@@ -440,8 +486,10 @@ public static class Builder {
     /**
      * Builds and returns a new ExampleClass instance.
      *
+
      * <p>All required parameters must be set before calling this method.</p>
      *
+
      * @return a new ExampleClass configured with this builder's parameters
      * @throws IllegalStateException if required parameters are not set
      */
@@ -454,17 +502,21 @@ public static class Builder {
 ### Enum Documentation
 ```java
 /**
+
  * Defines the status of a processing operation.
  *
+
  * <p>Each status represents a distinct state in the processing lifecycle.
  * Status transitions follow a specific order: PENDING -> PROCESSING ->
  * (SUCCESS | FAILURE).</p>
  *
+
  * @author Benjamin Dourthe (benjamin@adonamed.com)
  * @since 1.0.0
  */
 public enum ProcessingStatus {
     /**
+
      * Operation is pending and has not started yet.
      */
     PENDING,
@@ -487,6 +539,7 @@ public enum ProcessingStatus {
     /**
      * Checks if this status represents a terminal state.
      *
+
      * @return true if status is SUCCESS or FAILURE, false otherwise
      */
     public boolean isTerminal() {
@@ -498,12 +551,15 @@ public enum ProcessingStatus {
 ### Exception Documentation
 ```java
 /**
+
  * Exception thrown when data processing fails.
  *
+
  * <p>This exception indicates a recoverable processing error. Clients
  * may retry the operation or handle the error gracefully. The exception
  * message provides details about the failure.</p>
  *
+
  * <h2>Common Causes</h2>
  * <ul>
  *   <li>Invalid input format</li>
@@ -511,14 +567,17 @@ public enum ProcessingStatus {
  *   <li>Processing timeout</li>
  * </ul>
  *
+
  * @author Benjamin Dourthe (benjamin@adonamed.com)
  * @see Processor
  * @since 1.0.0
  */
 public class ProcessingException extends Exception {
     /**
+
      * Constructs a new processing exception with the specified detail message.
      *
+
      * @param message the detail message explaining the error
      */
     public ProcessingException(String message) {
@@ -528,6 +587,7 @@ public class ProcessingException extends Exception {
     /**
      * Constructs a new processing exception with message and cause.
      *
+
      * @param message the detail message
      * @param cause the underlying cause of this exception
      */
@@ -540,11 +600,14 @@ public class ProcessingException extends Exception {
 ### Field Documentation
 ```java
 /**
+
  * The maximum number of retry attempts for failed operations.
  *
+
  * <p>This value is used by {@link #retryOperation(Operation)} to determine
  * how many times to retry before giving up. The default value is 3.</p>
  *
+
  * @see #retryOperation(Operation)
  */
 private static final int MAX_RETRIES = 3;
@@ -552,6 +615,7 @@ private static final int MAX_RETRIES = 3;
 /**
  * Current processing status.
  *
+
  * <p>This field is volatile to ensure visibility across threads.
  * Access should be synchronized when both reading and writing.</p>
  */

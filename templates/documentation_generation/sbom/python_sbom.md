@@ -10,11 +10,13 @@ difficulty: beginner
 estimated_time_hours: 2-3
 prerequisites: []
 tools:
+
   - pytest (8.3.4+)
   - black (24.12.0)
   - mypy (1.13.0)
   - ruff
 tags:
+
   - documentation
   - documentation
   - python
@@ -948,6 +950,7 @@ jobs:
   sbom:
     runs-on: ubuntu-latest
     steps:
+
       - uses: actions/checkout@v3
 
       - name: Set up Python
@@ -993,8 +996,10 @@ jobs:
 ```yaml
 # .pre-commit-config.yaml
 repos:
+
   - repo: local
     hooks:
+
       - id: generate-sbom
         name: Generate SBOM
         entry: cyclonedx-py requirements requirements.txt -o ${OUTPUT_DIR}/exports/sbom.json

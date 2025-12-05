@@ -66,6 +66,7 @@ This skill implements automated pre-commit validation:
 ```
 Developer: *commits code directly*
 Issues Present:
+
 - ❌ Secrets committed to repository
 - ❌ Unformatted code creates noise in diffs
 - ❌ Linting errors break CI pipeline
@@ -88,6 +89,7 @@ Result:
 Developer: *attempts to commit code*
 Pre-commit hooks: *run automated checks*
 Issues Found:
+
 - ✅ Secret detected and commit blocked
 - ✅ Code automatically formatted
 - ✅ Linting errors shown immediately
@@ -266,6 +268,7 @@ repos:
   - repo: https://github.com/psf/black
     rev: 23.10.1
     hooks:
+
       - id: black
         language_version: python3.11
         args: ['--line-length=88']
@@ -274,6 +277,7 @@ repos:
   - repo: https://github.com/PyCQA/isort
     rev: 5.12.0
     hooks:
+
       - id: isort
         args: ['--profile', 'black']
 
@@ -281,6 +285,7 @@ repos:
   - repo: https://github.com/PyCQA/flake8
     rev: 6.1.0
     hooks:
+
       - id: flake8
         args: ['--max-line-length=88', '--extend-ignore=E203']
         additional_dependencies: [flake8-docstrings]
@@ -289,6 +294,7 @@ repos:
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.6.1
     hooks:
+
       - id: mypy
         args: ['--ignore-missing-imports', '--strict']
         additional_dependencies: [types-all]
@@ -297,6 +303,7 @@ repos:
   - repo: https://github.com/PyCQA/bandit
     rev: 1.7.5
     hooks:
+
       - id: bandit
         args: ['-r', 'src/', '-ll']
 
@@ -304,6 +311,7 @@ repos:
   - repo: https://github.com/Yelp/detect-secrets
     rev: v1.4.0
     hooks:
+
       - id: detect-secrets
         args: ['--baseline', '.secrets.baseline']
 
@@ -311,11 +319,13 @@ repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
     hooks:
+
       - id: trailing-whitespace
       - id: end-of-file-fixer
       - id: check-yaml
       - id: check-added-large-files
         args: ['--maxkb=1000']
+
       - id: check-merge-conflict
       - id: check-json
       - id: pretty-format-json
@@ -324,6 +334,7 @@ repos:
   # Testing (fast smoke tests only)
   - repo: local
     hooks:
+
       - id: pytest-quick
         name: pytest-quick
         entry: pytest tests/quick/ -x --tb=short
@@ -357,11 +368,13 @@ repos:
   - repo: https://github.com/pre-commit/mirrors-eslint
     rev: v8.52.0
     hooks:
+
       - id: eslint
         files: \.[jt]sx?$
         types: [file]
         args: ['--fix']
         additional_dependencies:
+
           - eslint@8.52.0
           - eslint-plugin-security@1.7.1
           - '@typescript-eslint/eslint-plugin@6.10.0'
@@ -370,12 +383,14 @@ repos:
   - repo: https://github.com/pre-commit/mirrors-prettier
     rev: v3.0.3
     hooks:
+
       - id: prettier
         args: ['--write']
 
   # TypeScript Type Checking
   - repo: local
     hooks:
+
       - id: tsc
         name: TypeScript Type Check
         entry: npx tsc --noEmit
@@ -386,6 +401,7 @@ repos:
   # Jest Quick Tests
   - repo: local
     hooks:
+
       - id: jest-quick
         name: Jest Quick Tests
         entry: npm run test:quick
@@ -397,6 +413,7 @@ repos:
   - repo: https://github.com/Yelp/detect-secrets
     rev: v1.4.0
     hooks:
+
       - id: detect-secrets
 ```
 
@@ -471,6 +488,7 @@ repos:
   - repo: https://github.com/pre-commit/mirrors-checkstyle
     rev: v10.12.5
     hooks:
+
       - id: checkstyle
         args: ['-c', 'checkstyle.xml']
 
@@ -478,11 +496,13 @@ repos:
   - repo: https://github.com/google/google-java-format
     rev: v1.18.1
     hooks:
+
       - id: google-java-format
 
   # SpotBugs (Security)
   - repo: local
     hooks:
+
       - id: spotbugs
         name: SpotBugs Security Check
         entry: mvn spotbugs:check
@@ -493,6 +513,7 @@ repos:
   # Quick Unit Tests
   - repo: local
     hooks:
+
       - id: maven-test-quick
         name: Maven Quick Tests
         entry: mvn test -Dtest=*QuickTest
@@ -553,6 +574,7 @@ repos:
   # dotnet format
   - repo: local
     hooks:
+
       - id: dotnet-format
         name: dotnet format
         entry: dotnet format --verify-no-changes
@@ -563,6 +585,7 @@ repos:
   # StyleCop Analyzer
   - repo: local
     hooks:
+
       - id: stylecop
         name: StyleCop Analysis
         entry: dotnet build /p:TreatWarningsAsErrors=true
@@ -572,6 +595,7 @@ repos:
   # Security Analysis
   - repo: local
     hooks:
+
       - id: security-scan
         name: .NET Security Scan
         entry: dotnet list package --vulnerable
@@ -581,6 +605,7 @@ repos:
   # Quick Unit Tests
   - repo: local
     hooks:
+
       - id: dotnet-test-quick
         name: Quick Unit Tests
         entry: dotnet test --filter "Category=Quick"
@@ -618,41 +643,48 @@ repos:
   - repo: https://github.com/dnephin/pre-commit-golang
     rev: v0.5.1
     hooks:
+
       - id: go-fmt
 
   # goimports
   - repo: https://github.com/dnephin/pre-commit-golang
     rev: v0.5.1
     hooks:
+
       - id: go-imports
 
   # golint
   - repo: https://github.com/dnephin/pre-commit-golang
     rev: v0.5.1
     hooks:
+
       - id: go-lint
 
   # go vet
   - repo: https://github.com/dnephin/pre-commit-golang
     rev: v0.5.1
     hooks:
+
       - id: go-vet
 
   # staticcheck
   - repo: https://github.com/dnephin/pre-commit-golang
     rev: v0.5.1
     hooks:
+
       - id: go-staticcheck
 
   # Security - gosec
   - repo: https://github.com/dnephin/pre-commit-golang
     rev: v0.5.1
     hooks:
+
       - id: go-sec
 
   # Quick tests
   - repo: local
     hooks:
+
       - id: go-test-quick
         name: Go Quick Tests
         entry: go test -short ./...
@@ -695,12 +727,14 @@ repos:
   - repo: https://github.com/pre-commit/mirrors-clang-format
     rev: v17.0.4
     hooks:
+
       - id: clang-format
         args: ['-i']
 
   # cppcheck
   - repo: local
     hooks:
+
       - id: cppcheck
         name: cppcheck
         entry: cppcheck
@@ -711,6 +745,7 @@ repos:
   # clang-tidy
   - repo: local
     hooks:
+
       - id: clang-tidy
         name: clang-tidy
         entry: clang-tidy
@@ -722,11 +757,13 @@ repos:
   - repo: https://github.com/cheshirekow/cmake-format-precommit
     rev: v0.6.13
     hooks:
+
       - id: cmake-format
 
   # Quick unit tests (if using CTest)
   - repo: local
     hooks:
+
       - id: ctest-quick
         name: CTest Quick Tests
         entry: ctest -L quick
@@ -762,9 +799,11 @@ detect-secrets scan > .secrets.baseline
 ```yaml
 # .pre-commit-config.yaml
 repos:
+
   - repo: https://github.com/Yelp/detect-secrets
     rev: v1.4.0
     hooks:
+
       - id: detect-secrets
         args: ['--baseline', '.secrets.baseline']
         exclude: package-lock.json
@@ -801,8 +840,10 @@ pip install truffleHog
 ```yaml
 # .pre-commit-config.yaml
 repos:
+
   - repo: local
     hooks:
+
       - id: trufflehog
         name: TruffleHog Secret Scan
         entry: trufflehog filesystem . --json --fail
@@ -925,9 +966,11 @@ module.exports = {
 ```yaml
 # .pre-commit-config.yaml
 repos:
+
   - repo: https://github.com/compilerla/conventional-pre-commit
     rev: v3.0.0
     hooks:
+
       - id: conventional-pre-commit
         stages: [commit-msg]
         args: []
@@ -1008,8 +1051,10 @@ def test_database_migration():
 ```yaml
 # .pre-commit-config.yaml
 repos:
+
   - repo: local
     hooks:
+
       - id: pytest-quick
         name: Quick Unit Tests
         entry: pytest -m quick --tb=short -x
@@ -1147,6 +1192,7 @@ go test -short ./...
 ```yaml
 # .pre-commit-config.yaml
 repos:
+
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
     hooks:
@@ -1201,6 +1247,7 @@ repos:
 ```yaml
 # .pre-commit-config.yaml
 repos:
+
   - repo: local
     hooks:
       # Prevent committing .env files
@@ -1241,6 +1288,7 @@ repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
     hooks:
+
       - id: trailing-whitespace
       - id: end-of-file-fixer
       - id: check-yaml
@@ -1249,6 +1297,7 @@ repos:
       - id: check-xml
       - id: check-added-large-files
         args: ['--maxkb=1000']
+
       - id: check-merge-conflict
       - id: check-case-conflict
       - id: detect-private-key
@@ -1259,6 +1308,7 @@ repos:
   - repo: https://github.com/Yelp/detect-secrets
     rev: v1.4.0
     hooks:
+
       - id: detect-secrets
         args: ['--baseline', '.secrets.baseline']
         exclude: package-lock.json
@@ -1267,29 +1317,34 @@ repos:
   - repo: https://github.com/psf/black
     rev: 23.10.1
     hooks:
+
       - id: black
 
   - repo: https://github.com/PyCQA/isort
     rev: 5.12.0
     hooks:
+
       - id: isort
         args: ['--profile', 'black']
 
   - repo: https://github.com/PyCQA/flake8
     rev: 6.1.0
     hooks:
+
       - id: flake8
         args: ['--max-line-length=88']
 
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.6.1
     hooks:
+
       - id: mypy
         args: ['--ignore-missing-imports']
 
   - repo: https://github.com/PyCQA/bandit
     rev: 1.7.5
     hooks:
+
       - id: bandit
         args: ['-ll']
 
@@ -1297,6 +1352,7 @@ repos:
   - repo: https://github.com/pre-commit/mirrors-eslint
     rev: v8.52.0
     hooks:
+
       - id: eslint
         files: \.[jt]sx?$
         types: [file]
@@ -1305,12 +1361,14 @@ repos:
   - repo: https://github.com/pre-commit/mirrors-prettier
     rev: v3.0.3
     hooks:
+
       - id: prettier
 
   # ===== Commit Message =====
   - repo: https://github.com/compilerla/conventional-pre-commit
     rev: v3.0.0
     hooks:
+
       - id: conventional-pre-commit
         stages: [commit-msg]
 
@@ -1448,6 +1506,7 @@ jobs:
   pre-commit:
     runs-on: ubuntu-latest
     steps:
+
       - uses: actions/checkout@v3
 
       - uses: actions/setup-python@v4
@@ -1466,16 +1525,20 @@ jobs:
 ```yaml
 # .gitlab-ci.yml
 stages:
+
   - quality
 
 pre-commit-checks:
   stage: quality
   image: python:3.11
   before_script:
+
     - pip install pre-commit
   script:
+
     - pre-commit run --all-files
   only:
+
     - merge_requests
     - main
 ```
@@ -1557,12 +1620,14 @@ repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
     hooks:
+
       - id: trailing-whitespace
       - id: end-of-file-fixer
 
   # Slow hooks run in parallel
   - repo: local
     hooks:
+
       - id: tests
         name: Unit Tests
         entry: make test-quick
@@ -1579,8 +1644,10 @@ repos:
 
 ```yaml
 repos:
+
   - repo: local
     hooks:
+
       - id: expensive-check
         name: Expensive Check
         entry: expensive-check
@@ -1646,8 +1713,10 @@ This skill provides pre-commit automation for:
 ```yaml
 # Good: Fast focused checks
 repos:
+
   - repo: local
     hooks:
+
       - id: quick-test
         entry: pytest tests/unit/quick/ -x --tb=line
         # Only essential quick tests
@@ -1718,6 +1787,7 @@ repos:
 ```yaml
 # .github/dependabot.yml
 updates:
+
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:

@@ -10,11 +10,13 @@ difficulty: beginner
 estimated_time_hours: 4-8
 prerequisites: []
 tools:
+
   - pytest (8.3.4+)
   - black (24.12.0)
   - mypy (1.13.0)
   - ruff
 tags:
+
   - documentation
   - documentation
   - python
@@ -262,12 +264,14 @@ info:
 servers:
   - url: https://api.example.com/v1
     description: Production server
+
   - url: https://staging-api.example.com/v1
     description: Staging server
 
 tags:
   - name: Users
     description: User management operations
+
   - name: Authentication
     description: Authentication and authorization
 
@@ -285,8 +289,10 @@ paths:
 
         **Rate Limit**: 100 requests per minute
       tags:
+
         - Users
       parameters:
+
         - name: page
           in: query
           description: Page number (1-indexed)
@@ -295,6 +301,7 @@ paths:
             type: integer
             minimum: 1
             default: 1
+
         - name: page_size
           in: query
           description: Number of items per page
@@ -304,6 +311,7 @@ paths:
             minimum: 1
             maximum: 100
             default: 20
+
         - name: sort
           in: query
           description: Sort field and direction (e.g., "created_at:desc")
@@ -312,6 +320,7 @@ paths:
             type: string
             enum: [created_at:asc, created_at:desc, name:asc, name:desc]
             default: created_at:desc
+
         - name: filter[email]
           in: query
           description: Filter by email (partial match)
@@ -339,11 +348,13 @@ paths:
                   summary: Successful user list response
                   value:
                     data:
+
                       - id: "123e4567-e89b-12d3-a456-426614174000"
                         email: "user@example.com"
                         name: "John Doe"
                         is_active: true
                         created_at: "2024-01-15T10:30:00Z"
+
                       - id: "123e4567-e89b-12d3-a456-426614174001"
                         email: "jane@example.com"
                         name: "Jane Smith"
@@ -377,6 +388,7 @@ paths:
 
         **Rate Limit**: 10 requests per minute
       tags:
+
         - Users
       requestBody:
         required: true
@@ -438,8 +450,10 @@ paths:
       summary: Get user by ID
       description: Retrieve detailed information about a specific user
       tags:
+
         - Users
       parameters:
+
         - name: user_id
           in: path
           description: User ID (UUID)
@@ -461,8 +475,10 @@ paths:
       summary: Update user
       description: Update specific fields of a user
       tags:
+
         - Users
       parameters:
+
         - name: user_id
           in: path
           required: true
@@ -494,8 +510,10 @@ paths:
 
         **Permissions Required**: `delete:users`
       tags:
+
         - Users
       parameters:
+
         - name: user_id
           in: path
           required: true
@@ -553,6 +571,7 @@ components:
           description: Last update timestamp (ISO 8601)
           example: "2024-01-15T10:30:00Z"
       required:
+
         - id
         - email
         - name
@@ -584,6 +603,7 @@ components:
           description: Optional metadata about the user
           additionalProperties: true
       required:
+
         - email
         - name
         - password
@@ -619,6 +639,7 @@ components:
           description: Total number of pages
           example: 3
       required:
+
         - page
         - page_size
         - total_items
@@ -650,6 +671,7 @@ components:
           description: Link to previous page (null if on first page)
           example: null
       required:
+
         - first
         - last
         - next
@@ -676,6 +698,7 @@ components:
               example:
                 email: ["Must be a valid email address"]
           required:
+
             - code
             - message
 

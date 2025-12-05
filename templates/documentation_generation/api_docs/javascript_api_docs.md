@@ -10,10 +10,12 @@ difficulty: beginner
 estimated_time_hours: 4-8
 prerequisites: []
 tools:
+
   - jest (29.7.0)
   - eslint (9.15.0)
   - prettier
 tags:
+
   - documentation
   - documentation
   - javascript
@@ -266,16 +268,20 @@ info:
 servers:
   - url: https://api.example.com/v1
     description: Production server
+
   - url: https://staging-api.example.com/v1
     description: Staging server
+
   - url: http://localhost:3000/api/v1
     description: Development server
 
 tags:
   - name: Authentication
     description: User authentication and token management
+
   - name: Users
     description: User account operations
+
   - name: Products
     description: Product catalog management
 
@@ -293,6 +299,7 @@ paths:
 
         **Rate Limit**: 10 requests per hour per IP
       tags:
+
         - Authentication
       security: []
       requestBody:
@@ -302,6 +309,7 @@ paths:
             schema:
               type: object
               required:
+
                 - email
                 - password
                 - name
@@ -367,6 +375,7 @@ paths:
 
         **Rate Limit**: 5 requests per minute per IP
       tags:
+
         - Authentication
       security: []
       requestBody:
@@ -376,6 +385,7 @@ paths:
             schema:
               type: object
               required:
+
                 - email
                 - password
               properties:
@@ -435,6 +445,7 @@ paths:
 
         **No authentication required** (uses refresh token)
       tags:
+
         - Authentication
       security: []
       requestBody:
@@ -444,6 +455,7 @@ paths:
             schema:
               type: object
               required:
+
                 - refreshToken
               properties:
                 refreshToken:
@@ -479,8 +491,10 @@ paths:
 
         **Rate Limit**: 100 requests per minute
       tags:
+
         - Users
       parameters:
+
         - name: page
           in: query
           description: Page number (1-indexed)
@@ -488,6 +502,7 @@ paths:
             type: integer
             minimum: 1
             default: 1
+
         - name: limit
           in: query
           description: Number of items per page
@@ -496,6 +511,7 @@ paths:
             minimum: 1
             maximum: 100
             default: 20
+
         - name: sort
           in: query
           description: Sort field and direction (e.g., "createdAt:desc")
@@ -503,6 +519,7 @@ paths:
             type: string
             enum: [createdAt:asc, createdAt:desc, name:asc, name:desc]
             default: createdAt:desc
+
         - name: search
           in: query
           description: Search in name and email fields
@@ -528,6 +545,7 @@ paths:
               example:
                 success: true
                 data:
+
                   - id: "507f1f77bcf86cd799439011"
                     email: "user@example.com"
                     name: "John Doe"
@@ -558,6 +576,7 @@ paths:
 
         **Rate Limit**: 10 requests per minute
       tags:
+
         - Users
       requestBody:
         required: true
@@ -592,8 +611,10 @@ paths:
       summary: Get user by ID
       description: Retrieve detailed information about a specific user
       tags:
+
         - Users
       parameters:
+
         - name: userId
           in: path
           required: true
@@ -620,8 +641,10 @@ paths:
       summary: Update user
       description: Update specific fields of a user
       tags:
+
         - Users
       parameters:
+
         - name: userId
           in: path
           required: true
@@ -659,8 +682,10 @@ paths:
 
         **Warning**: This action is irreversible.
       tags:
+
         - Users
       parameters:
+
         - name: userId
           in: path
           required: true
@@ -721,6 +746,7 @@ components:
           description: Last update timestamp (ISO 8601)
           example: "2024-01-15T10:30:00.000Z"
       required:
+
         - id
         - email
         - name
@@ -748,6 +774,7 @@ components:
           enum: [user, admin, moderator]
           default: user
       required:
+
         - email
         - name
         - password
@@ -816,6 +843,7 @@ components:
               description: Additional error details
               additionalProperties: true
           required:
+
             - code
             - message
 

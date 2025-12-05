@@ -232,6 +232,7 @@ python tools/install_skill.py --category Security --destination ../team-project
 
 # In Claude Code:
 "Use the create-claude-md skill with team standards:
+
 - PEP 8 compliance required
 - 80% test coverage minimum
 - Security scans on all PRs

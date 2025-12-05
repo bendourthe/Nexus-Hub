@@ -8,6 +8,7 @@ category: Documentation
 priority: MEDIUM
 tags: [sbom, compliance, security, dependencies, licenses, vulnerabilities, cyclonedx, spdx, supply-chain]
 template_sources:
+
   - documentation/sbom/python_sbom.md
   - documentation/sbom/javascript_sbom.md
   - documentation/sbom/java_sbom.md
@@ -293,6 +294,7 @@ This skill generates comprehensive SBOM documentation:
   ```yaml
   - name: Generate SBOM
     run: dotnet CycloneDX MyApp.sln -o sbom.json -f json
+
   - name: Upload SBOM
     uses: actions/upload-artifact@v3
     with:
@@ -486,6 +488,7 @@ Package Manager: pip / poetry / conda
 Format: CycloneDX / SPDX
 Compliance: NTIA minimum elements / EU CRA
 Include:
+
 - All dependencies (direct and transitive)
 - License information
 - CVE vulnerability scanning
@@ -504,6 +507,7 @@ Package Manager: npm / yarn / pnpm
 Format: CycloneDX / SPDX
 Compliance: NTIA minimum elements
 Include:
+
 - Production dependencies only
 - License compatibility check
 - npm audit results
@@ -522,6 +526,7 @@ Build Tool: Maven / Gradle
 Format: CycloneDX / SPDX
 Compliance: NTIA + EU CRA
 Include:
+
 - Compile and runtime dependencies
 - License information
 - OWASP dependency check
@@ -541,6 +546,7 @@ Framework: .NET 6+ / .NET Framework
 Format: CycloneDX / SPDX
 Compliance: NTIA minimum elements
 Include:
+
 - NuGet dependencies (direct + transitive)
 - License information
 - Vulnerability check
@@ -559,6 +565,7 @@ Package Manager: go modules
 Format: CycloneDX / SPDX
 Compliance: NTIA requirements
 Include:
+
 - go.mod dependencies
 - Indirect dependencies
 - License information
@@ -577,6 +584,7 @@ Build System: CMake / Make / Conan / vcpkg
 Format: SPDX / CycloneDX
 Compliance: NTIA minimum elements
 Include:
+
 - System libraries
 - Third-party dependencies
 - Build tool versions
@@ -727,6 +735,7 @@ jobs:
   sbom:
     runs-on: ubuntu-latest
     steps:
+
       - uses: actions/checkout@v3
 
       - name: Set up Python
@@ -775,15 +784,18 @@ generate-sbom:
   stage: build
   image: python:3.11
   script:
+
     - pip install cyclonedx-bom pip-audit
     - cyclonedx-py -r --format json -o sbom.json
     - pip-audit --format json --output vulnerabilities.json
   artifacts:
     paths:
+
       - sbom.json
       - vulnerabilities.json
     expire_in: 1 year
   only:
+
     - main
     - tags
 ```
@@ -834,6 +846,7 @@ cyclonedx diff --from sbom-v1.0.0.json --to sbom-v1.1.0.json
 # Dependabot configuration (.github/dependabot.yml)
 version: 2
 updates:
+
   - package-ecosystem: "pip"
     directory: "/"
     schedule:
@@ -1035,6 +1048,7 @@ Before finalizing SBOM, verify:
 
 ### Issue: Missing Transitive Dependencies
 **Solution**:
+
 - Use tools that automatically detect transitive deps
 - For Python: `cyclonedx-py -r` (recursive)
 - For JavaScript: ensure dev dependencies excluded if needed
@@ -1043,6 +1057,7 @@ Before finalizing SBOM, verify:
 
 ### Issue: License Information Incomplete
 **Solution**:
+
 - Use dedicated license detection tools
 - Check project metadata files (LICENSE, README)
 - Manual review for ambiguous licenses
@@ -1051,6 +1066,7 @@ Before finalizing SBOM, verify:
 
 ### Issue: SBOM Too Large
 **Solution**:
+
 - Exclude test/dev dependencies
 - Use compression (gzip)
 - Split into multiple SBOMs (layers)
@@ -1059,6 +1075,7 @@ Before finalizing SBOM, verify:
 
 ### Issue: Vulnerability Data Outdated
 **Solution**:
+
 - Regenerate SBOM regularly (CI/CD)
 - Use real-time vulnerability scanning
 - Subscribe to security advisories

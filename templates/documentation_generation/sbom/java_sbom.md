@@ -10,10 +10,12 @@ difficulty: beginner
 estimated_time_hours: 2-3
 prerequisites: []
 tools:
+
   - junit (5.11.3)
   - maven
   - gradle
 tags:
+
   - documentation
   - documentation
   - java
@@ -1156,6 +1158,7 @@ jobs:
   sbom-maven:
     runs-on: ubuntu-latest
     steps:
+
       - uses: actions/checkout@v3
 
       - name: Set up JDK 17
@@ -1196,11 +1199,13 @@ sbom:
   stage: build
   image: maven:3.9-eclipse-temurin-17
   script:
+
     - mvn clean package
     - mvn cyclonedx:makeAggregateBom
     - mvn dependency-check:check
   artifacts:
     paths:
+
       - target/sbom.json
       - target/dependency-check/dependency-check-report.json
     expire_in: 1 year

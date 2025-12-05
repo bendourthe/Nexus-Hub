@@ -10,14 +10,18 @@ phase_number: 2
 difficulty: intermediate
 estimated_time_hours: 2-3
 prerequisites:
+
   - code_review/context_analysis/java_context_analysis.md
 related_templates:
+
   - code_review/security_review/java_security_review.md
 tools:
+
   - junit (5.11.3)
   - maven
   - gradle
 tags:
+
   - code-review
   - java
 ---

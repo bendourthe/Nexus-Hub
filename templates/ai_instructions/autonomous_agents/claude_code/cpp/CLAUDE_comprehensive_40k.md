@@ -10,10 +10,12 @@ difficulty: intermediate
 estimated_time_hours: 2-4
 prerequisites: []
 tools:
+
   - unity
   - cmocka
   - check
 tags:
+
   - claude-code
   - c
 ---
@@ -791,12 +793,15 @@ try {
 
 ```cpp
 /**
+
  * @file buffer.hpp
  * @brief Dynamic buffer with automatic growth
  *
+
  * Provides a type-safe dynamic buffer with RAII semantics,
  * automatic memory management, and exception safety.
  *
+
  * @author Benjamin Dourthe (benjamin@adonamed.com)
  * @date 2025-01-01
  * @version 0.1.0
@@ -807,12 +812,15 @@ try {
 
 ```cpp
 /**
+
  * @class Buffer
  * @brief Dynamic byte buffer with automatic growth
  *
+
  * Thread-safe when used with external synchronization.
  * Provides strong exception safety guarantee for all operations.
  *
+
  * Example usage:
  * @code
  * Buffer buf(1024);
@@ -820,17 +828,21 @@ try {
  * const auto* ptr = buf.data();
  * @endcode
  *
+
  * @note Move-only type (copying disabled for performance)
  * @warning Not thread-safe without external synchronization
  */
 class Buffer {
 public:
     /**
+
      * @brief Construct buffer with specified capacity
      *
+
      * @param[in] initialCapacity Initial capacity in bytes
      * @throws std::bad_alloc If allocation fails
      *
+
      * @post Buffer is empty but has reserved capacity
      */
     explicit Buffer(size_t initialCapacity);
@@ -838,14 +850,17 @@ public:
     /**
      * @brief Append data to buffer
      *
+
      * Automatically grows buffer if needed. Provides strong
      * exception safety guarantee.
      *
+
      * @param[in] data Pointer to data to append
      * @param[in] size Number of bytes to append
      * @throws std::invalid_argument If data is null and size > 0
      * @throws std::bad_alloc If reallocation fails
      *
+
      * @pre data must be valid for size bytes
      * @post Buffer size increased by size bytes
      */
@@ -874,19 +889,24 @@ private:
 
 ```cpp
 /**
+
  * @brief Parse configuration file
  *
+
  * Reads configuration from INI-style file and returns
  * structured data. Supports comments and blank lines.
  *
+
  * @param[in] filename Path to configuration file
  * @return Configuration data
  * @throws std::runtime_error If file cannot be opened
  * @throws std::invalid_argument If parse error occurs
  *
+
  * @note Thread-safe
  * @see ConfigData, saveConfig()
  *
+
  * @author Benjamin Dourthe (benjamin@adonamed.com)
  */
 ConfigData parseConfig(const std::string& filename);
@@ -904,11 +924,14 @@ ConfigData parseConfig(const std::string& filename);
 
 ```cpp
 /**
+
  * @brief Generic container adapter
  *
+
  * @tparam T Element type (must be movable)
  * @tparam Container Underlying container type
  *
+
  * @invariant Container is always in valid state
  */
 template <typename T, typename Container = std::vector<T>>
@@ -917,6 +940,7 @@ class Stack {
                   "T must be move constructible");
 public:
     /**
+
      * @brief Push element onto stack
      * @param[in] value Element to push
      */
@@ -1202,9 +1226,11 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ```cpp
 /**
+
  * @file test_buffer.cpp
  * @brief Unit tests for Buffer class
  *
+
  * Comprehensive test coverage for Buffer including
  * normal operations, edge cases, move semantics,
  * and exception safety.
@@ -1543,6 +1569,7 @@ add_custom_target(run_tests
 
 ### When to Use Task Breakdown
 **Apply systematic breakdown for:**
+
 - Projects estimated >30 minutes
 - Multi-module applications
 - Library development
@@ -1552,6 +1579,7 @@ add_custom_target(run_tests
 
 ### Analysis Phase
 **Always start with:**
+
 1. **Requirements**: Identify modules, dependencies, C++ standard requirements
 2. **Complexity**: Determine scope, performance goals, memory constraints
 3. **Prerequisites**: List compiler versions, build tools, third-party libraries
@@ -1790,6 +1818,7 @@ Never automatically:
 1. **Assess**:
    ```
    Changes might warrant version update from X.Y.Z:
+
    - [List changes]
    - [Categorize as patch/minor/major]
    - [Note API/ABI changes]
@@ -1800,6 +1829,7 @@ Never automatically:
    ```
    Should I update to [version]?
    Note: This requires updates to:
+
    - CHANGELOG.md
    - CMakeLists.txt (project VERSION)
    - README.md
@@ -1833,6 +1863,7 @@ Never automatically:
 Example:
 ```
 Changes include:
+
 - Added Buffer::reserve() method (minor - new API)
 - Fixed memory leak in Buffer::~Buffer() (patch)
 - Changed Buffer::append() to take std::span (major - breaking API)

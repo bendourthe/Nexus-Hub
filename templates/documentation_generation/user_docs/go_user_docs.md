@@ -10,9 +10,11 @@ difficulty: beginner
 estimated_time_hours: 3-4
 prerequisites: []
 tools:
+
   - go test (1.23+)
   - testify
 tags:
+
   - documentation
   - documentation
   - go
@@ -181,6 +183,7 @@ Please create comprehensive user documentation for this Go project following thi
 
 3. **Outline Documentation Structure**
    Plan what documentation is needed:
+
    - [ ] README.md (essential)
    - [ ] INSTALL.md or installation section
    - [ ] QUICKSTART.md or quick start guide

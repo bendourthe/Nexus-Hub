@@ -10,14 +10,18 @@ phase_number: 4
 difficulty: advanced
 estimated_time_hours: 2-3
 prerequisites:
+
   - code_review/security_review/c_security_review.md
 related_templates:
+
   - code_review/code_quality/c_code_quality.md
 tools:
+
   - unity
   - cmocka
   - check
 tags:
+
   - code-review
   - performance
   - code-review
@@ -260,6 +264,7 @@ For each finding, include:
 
 **Recommendation:**
 Move filtering to database with indexed query:
+
 - Add database index on search fields
 - Use database LIKE/ILIKE queries
 - Implement pagination (limit results to 50)

@@ -10,15 +10,19 @@ phase_number: 2
 difficulty: intermediate
 estimated_time_hours: 2-3
 prerequisites:
+
   - code_review/context_analysis/python_context_analysis.md
 related_templates:
+
   - code_review/security_review/python_security_review.md
 tools:
+
   - pytest (8.3.4+)
   - black (24.12.0)
   - mypy (1.13.0)
   - ruff
 tags:
+
   - code-review
   - python
 ---
@@ -670,17 +674,21 @@ Suggest tools and configuration for continuous quality monitoring:
 ```yaml
 # Example .pre-commit-config.yaml
 repos:
+
   - repo: https://github.com/psf/black
     rev: 24.12.0
     hooks:
+
       - id: black
   - repo: https://github.com/pycqa/flake8
     rev: 7.1.1
     hooks:
+
       - id: flake8
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: 1.13.0
     hooks:
+
       - id: mypy
 ```
 

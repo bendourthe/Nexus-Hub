@@ -122,6 +122,7 @@ Tell Claude Code to use this skill:
 ```
 "Use the cleanup-c skill to analyze and clean up this C codebase.
 Focus on:
+
 1. Removing all unused includes, functions, and variables
 2. Fixing memory leaks and buffer overflows
 3. Consolidating duplicate code

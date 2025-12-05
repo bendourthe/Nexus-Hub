@@ -10,14 +10,18 @@ phase_number: 6
 difficulty: intermediate
 estimated_time_hours: 2-3
 prerequisites:
+
   - test_development/performance_testing/c_performance_testing.md
 related_templates:
+
   - test_development/maintenance_cicd/c_maintenance_cicd.md
 tools:
+
   - unity
   - cmocka
   - check
 tags:
+
   - test-development
   - c
 ---
@@ -577,8 +581,10 @@ lcov --list coverage/coverage.info > ${OUTPUT_DIR}/exports/coverage_list.txt
 
 ```c
 /**
+
  * Add tests for basic functionality of uncovered code.
  *
+
  * Focus on main execution paths first.
  */
 
@@ -645,6 +651,7 @@ int main() {
 
 ```c
 /**
+
  * Add tests for boundary conditions and edge cases.
  */
 
@@ -710,6 +717,7 @@ int main() {
 
 ```c
 /**
+
  * Add tests for error handling and exceptional conditions.
  */
 
@@ -829,6 +837,7 @@ int main() {
 
 ```c
 /**
+
  * Ensure all branches of conditional logic are tested.
  */
 

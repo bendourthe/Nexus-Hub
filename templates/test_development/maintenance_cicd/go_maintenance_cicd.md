@@ -10,13 +10,17 @@ phase_number: 7
 difficulty: intermediate
 estimated_time_hours: 3-5
 prerequisites:
+
   - test_development/code_coverage/go_code_coverage.md
 related_templates:
+
   - test_development/reward_hacking/go_reward_hacking.md
 tools:
+
   - go test (1.23+)
   - testify
 tags:
+
   - test-development
   - go
 ---
@@ -200,6 +204,7 @@ jobs:
     name: Lint and Format Check
     runs-on: ubuntu-latest
     steps:
+
       - uses: actions/checkout@v3
 
       - name: Set up Go
@@ -290,6 +295,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
         ports:
+
           - 5432:5432
 
       redis:
@@ -300,6 +306,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
         ports:
+
           - 6379:6379
 
     steps:
@@ -332,6 +339,7 @@ jobs:
     name: Benchmark Tests
     runs-on: ubuntu-latest
     steps:
+
       - uses: actions/checkout@v3
 
       - name: Set up Go
@@ -354,6 +362,7 @@ jobs:
     name: Security Scan
     runs-on: ubuntu-latest
     steps:
+
       - uses: actions/checkout@v3
 
       - name: Set up Go
@@ -383,6 +392,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [lint, unit-tests, integration-tests, security]
     steps:
+
       - name: Quality gate passed
         run: echo "All quality checks passed!"
 ```
@@ -393,6 +403,7 @@ jobs:
 
 ```yaml
 stages:
+
   - lint
   - test
   - quality
@@ -404,6 +415,7 @@ variables:
 
 cache:
   paths:
+
     - .go/pkg/mod/
 
 before_script:
@@ -414,6 +426,7 @@ lint:
   stage: lint
   image: golang:${GO_VERSION}
   script:
+
     - gofmt -l .
     - test -z "$(gofmt -l .)"
     - go vet ./...
@@ -424,6 +437,7 @@ unit-tests:
   stage: test
   image: golang:${GO_VERSION}
   script:
+
     - go test -v -race -coverprofile=coverage.txt -covermode=atomic -run="^Test[^Integration]" ./...
     - go tool cover -func=coverage.txt
   coverage: '/total:\s+\(statements\)\s+(\d+\.\d+)%/'
@@ -433,12 +447,14 @@ unit-tests:
         coverage_format: cobertura
         path: coverage.txt
     paths:
+
       - coverage.txt
 
 integration-tests:
   stage: test
   image: golang:${GO_VERSION}
   services:
+
     - postgres:14
     - redis:7
   variables:
@@ -447,17 +463,21 @@ integration-tests:
     POSTGRES_PASSWORD: testpass
     DATABASE_URL: postgresql://postgres:testpass@postgres:5432/testdb?sslmode=disable
   script:
+
     - go test -v -race -coverprofile=coverage.txt -covermode=atomic -run="TestIntegration" ./...
   artifacts:
     paths:
+
       - coverage.txt
 
 quality-gate:
   stage: quality
   image: golang:${GO_VERSION}
   script:
+
     - go tool cover -func=coverage.txt | grep total | awk '{if ($3+0 < 80.0) exit 1}'
   needs:
+
     - unit-tests
     - integration-tests
 ```
@@ -651,19 +671,23 @@ pip install pre-commit
 
 ```yaml
 repos:
+
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0
     hooks:
+
       - id: trailing-whitespace
       - id: end-of-file-fixer
       - id: check-yaml
       - id: check-added-large-files
         args: ['--maxkb=1000']
+
       - id: check-merge-conflict
       - id: detect-private-key
 
   - repo: local
     hooks:
+
       - id: go-fmt
         name: Format Go code
         entry: gofmt -s -w
@@ -727,6 +751,7 @@ run:
 
 linters:
   enable:
+
     - gofmt
     - goimports
     - govet
@@ -758,8 +783,10 @@ linters-settings:
 
 issues:
   exclude-rules:
+
     - path: _test\.go
       linters:
+
         - gosec
         - errcheck
 ```

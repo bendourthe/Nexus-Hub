@@ -479,6 +479,7 @@ Example DEVLOG.md entry:
 ```markdown
 ### Feature: User Authentication
 **Iteration 1**: Created tests/temp/UserAuthTests.cs
+
 - Tests failed: Password validation too weak
 - Solution: Enhanced regex pattern
 

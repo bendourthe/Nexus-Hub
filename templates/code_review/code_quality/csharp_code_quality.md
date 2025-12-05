@@ -10,14 +10,18 @@ phase_number: 2
 difficulty: intermediate
 estimated_time_hours: 2-3
 prerequisites:
+
   - code_review/context_analysis/csharp_context_analysis.md
 related_templates:
+
   - code_review/security_review/csharp_security_review.md
 tools:
+
   - NUnit (4.2.2)
   - xUnit
   - MSTest
 tags:
+
   - code-review
   - c#
 ---
@@ -258,6 +262,7 @@ For each finding, include:
 
 **Recommendation:**
 Move filtering to database with indexed query:
+
 - Add database index on search fields
 - Use database LIKE/ILIKE queries
 - Implement pagination (limit results to 50)

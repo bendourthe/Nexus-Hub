@@ -173,6 +173,7 @@ git push
 
 ### 1. Import Organization
 Automatically organizes imports in the correct order:
+
 1. Standard library (alphabetically sorted)
 2. Third-party libraries (grouped by function with headers)
 3. Local application imports (alphabetically sorted)

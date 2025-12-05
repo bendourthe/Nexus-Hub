@@ -10,9 +10,11 @@ difficulty: intermediate
 estimated_time_hours: 2-4
 prerequisites: []
 tools:
+
   - go test (1.23+)
   - testify
 tags:
+
   - ai-templates
   - refactoring
   - go

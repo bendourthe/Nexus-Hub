@@ -10,6 +10,7 @@ difficulty: intermediate
 estimated_time_hours: 2-4
 prerequisites: []
 tags:
+
   - skills
   - generic
 ---
@@ -98,6 +99,7 @@ class AgentSpecialization:
             'expertise': ['code quality', 'best practices', 'bug detection'],
             'prompt_template': """
 You are a code review specialist. Review the following code for:
+
 - Code quality and readability
 - Potential bugs and edge cases
 - Performance issues

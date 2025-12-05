@@ -10,10 +10,12 @@ difficulty: beginner
 estimated_time_hours: 4-6
 prerequisites: []
 tools:
+
   - google test
   - catch2
   - boost.test
 tags:
+
   - documentation
   - documentation
   - cpp
@@ -256,6 +258,7 @@ struct Config {
 class Engine {
 public:
     /**
+
      * @brief Construct engine with configuration
      * @param config Configuration options
      * @throws std::invalid_argument if config is invalid

@@ -10,10 +10,12 @@ difficulty: beginner
 estimated_time_hours: 1-2
 prerequisites: []
 tools:
+
   - google test
   - catch2
   - boost.test
 tags:
+
   - documentation
   - documentation
   - cpp
@@ -152,6 +154,7 @@ Please add strategic comments to this C++ project following this protocol:
 
 1. **Analyze Codebase for Comment Opportunities**
    Review the code to identify sections that would benefit from comments:
+
    - Complex algorithms or business logic
    - Non-obvious implementation decisions
    - Workarounds for known issues
@@ -179,6 +182,7 @@ Use **block comments** before complex algorithms:
 
 ```cpp
 /**
+
  * Calculate optimal route using A* pathfinding algorithm.
  * We use A* instead of Dijkstra because our graph has a reliable heuristic
  * (Euclidean distance), which reduces search time by ~40% in testing.
@@ -601,11 +605,14 @@ std::regex pattern(R"(^[\w.+-]+@[\w.-]+\.[a-zA-Z]{2,}$)");  // RFC 5322 email fo
 
 ```cpp
 /**
+
  * @brief Process user payment with fraud detection.
  *
+
  * This function validates the payment, performs fraud checks, and processes
  * the transaction through the payment gateway. All amounts are in cents.
  *
+
  * @param payment Payment details including amount, currency, and card info
  * @return Payment confirmation with transaction ID
  * @throws ValidationException if payment data is invalid
@@ -655,6 +662,7 @@ double calculateTotal() {
 
 // BAD: Duplicating Doxygen
 /**
+
  * Calculate total price.
  */
 double calculateTotal(const std::vector<Item>& items) {
@@ -904,6 +912,7 @@ Please provide comment additions in this format:
 ```yaml
 # Recommended tools
 tools:
+
   - clang-tidy:
       # Code quality and style
       # Comment format checking
@@ -919,6 +928,7 @@ tools:
   - grep/ripgrep:
       # Find technical debt tags
       patterns:
+
         - "TODO"
         - "FIXME"
         - "HACK"
@@ -941,6 +951,7 @@ tools:
    ```cpp
    // BAD
    /**
+
     * Calculate total price of items.
     */
    double calculateTotal(const std::vector<Item>& items) {
@@ -951,6 +962,7 @@ tools:
 
    // GOOD
    /**
+
     * Calculate total price of items.
     */
    double calculateTotal(const std::vector<Item>& items) {

@@ -10,6 +10,7 @@ difficulty: intermediate
 estimated_time_hours: 2-4
 prerequisites: []
 tags:
+
   - ai-templates
   - generic
 ---
@@ -125,6 +126,7 @@ tags:
 
 ### Text Content
 **Use Markdown formatting:**
+
 - Headings: `#` for structure
 - Lists: `-` for unordered, `1.` for ordered
 - Emphasis: **bold** for key terms, *italic* for emphasis
@@ -333,6 +335,7 @@ Summary of analysis with actionable insights
 **Concise Feedback:**
 ```markdown
 **Suggested Changes:**
+
 - [Specific issue]: [Proposed fix]
 - [Another issue]: [Improvement]
 
@@ -439,6 +442,7 @@ This differs because [brief explanation of the mistake].
 
 ### File Changes
 **Always:**
+
 - Explain what changes you're making
 - Provide reasoning for modifications
 - Maintain existing structure unless improvement needed
@@ -452,6 +456,7 @@ This differs because [brief explanation of the mistake].
 
 ### Documentation Updates
 **Safe to update:**
+
 - Documentation content
 - Code comments
 - README sections (except version)
@@ -465,6 +470,7 @@ This differs because [brief explanation of the mistake].
 
 ### Version Changes
 **Protocol:**
+
 1. Identify that changes might warrant version update
 2. Explain what changed and impact
 3. Suggest appropriate version increment

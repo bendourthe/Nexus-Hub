@@ -8,6 +8,7 @@ category: Documentation
 priority: MEDIUM
 tags: [documentation, readme, user-guide, tutorial, installation, troubleshooting, getting-started]
 template_sources:
+
   - documentation/user_docs/python_user_docs.md
   - documentation/user_docs/javascript_user_docs.md
   - documentation/user_docs/java_user_docs.md
@@ -501,6 +502,7 @@ Language: Python
 Project Type: Library / CLI Tool / Web Application
 Target Audience: Developers / Data Scientists / End Users
 Documentation Needed:
+
 - Professional README with badges and features
 - Installation guide (pip, conda, from source)
 - Quick start tutorial with examples
@@ -519,6 +521,7 @@ Language: JavaScript / TypeScript
 Project Type: NPM Package / React Library / Node.js Tool
 Target Audience: Frontend Developers / Backend Developers
 Documentation Needed:
+
 - README with installation and quick start
 - Setup guide (npm, yarn, pnpm)
 - Usage examples with code snippets
@@ -538,6 +541,7 @@ Project Type: Library / Spring Boot Application / CLI Tool
 Build System: Maven / Gradle
 Target Audience: Java Developers
 Documentation Needed:
+
 - README with dependency instructions
 - Installation guide (Maven, Gradle)
 - Getting started tutorial
@@ -557,6 +561,7 @@ Project Type: .NET Library / ASP.NET Application / Console App
 Target Framework: .NET Framework / .NET Core / .NET 5+
 Target Audience: .NET Developers
 Documentation Needed:
+
 - README with NuGet installation
 - Setup guide for Visual Studio / VS Code
 - Quick start examples
@@ -575,6 +580,7 @@ Language: Go
 Project Type: Library / CLI Tool / Service
 Target Audience: Go Developers
 Documentation Needed:
+
 - README with installation (go get)
 - Quick start guide
 - Usage examples
@@ -594,6 +600,7 @@ Project Type: Library / System Tool / Framework
 Build System: CMake / Make / Autotools
 Target Audience: C/C++ Developers / System Programmers
 Documentation Needed:
+
 - README with build instructions
 - Installation guide (multiple platforms)
 - Quick start with example code
@@ -1015,6 +1022,7 @@ Before finalizing user documentation, verify:
 
 ### Issue: Installation Instructions Don't Work
 **Solution**:
+
 - Test on fresh system or VM
 - Document platform-specific steps
 - Include common error messages
@@ -1023,6 +1031,7 @@ Before finalizing user documentation, verify:
 
 ### Issue: Examples Are Outdated
 **Solution**:
+
 - Test examples with each release
 - Use CI/CD to validate examples
 - Include version compatibility notes
@@ -1031,6 +1040,7 @@ Before finalizing user documentation, verify:
 
 ### Issue: Documentation Too Technical
 **Solution**:
+
 - Write for target audience level
 - Define technical terms
 - Use analogies and metaphors
@@ -1039,6 +1049,7 @@ Before finalizing user documentation, verify:
 
 ### Issue: Missing Use Cases
 **Solution**:
+
 - Survey users for common tasks
 - Document real-world scenarios
 - Provide multiple example levels

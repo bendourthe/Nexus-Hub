@@ -10,10 +10,12 @@ difficulty: beginner
 estimated_time_hours: 2-3
 prerequisites: []
 tools:
+
   - jest (29.7.0)
   - eslint (9.15.0)
   - prettier
 tags:
+
   - documentation
   - documentation
   - javascript
@@ -1112,6 +1114,7 @@ jobs:
   sbom:
     runs-on: ubuntu-latest
     steps:
+
       - uses: actions/checkout@v3
 
       - name: Set up Node.js
@@ -1162,12 +1165,14 @@ sbom:
   stage: build
   image: node:18
   script:
+
     - npm ci
     - npm install -g @cyclonedx/cyclonedx-npm
     - cyclonedx-npm --output-file sbom.json
     - npm audit --json > ${OUTPUT_DIR}/exports/vulnerabilities.json || true
   artifacts:
     paths:
+
       - sbom.json
       - vulnerabilities.json
     expire_in: 1 year

@@ -131,6 +131,7 @@ Tell Claude Code to use this skill:
 ```
 "Use the cleanup-java skill to analyze and clean up this Java codebase.
 Focus on:
+
 1. Removing all unused imports, methods, and fields
 2. Consolidating duplicate code
 3. Modernizing to Java 8+ patterns (streams, lambdas, Optional)
@@ -593,6 +594,7 @@ cleanup_report/
 
 ### Issue: Tests Fail After Cleanup
 **Solution**:
+
 1. Review git diff for the failing area
 2. Use `git checkout -- <file>` to revert specific files
 3. Re-run tests to isolate issue
@@ -600,6 +602,7 @@ cleanup_report/
 
 ### Issue: False Positive for "Unused" Code
 **Solution**:
+
 - Check for reflection usage
 - Verify serialization requirements
 - Look for Spring/DI framework usage
@@ -607,6 +610,7 @@ cleanup_report/
 
 ### Issue: Import Organization Breaks Code
 **Solution**:
+
 - Check for static imports conflicts
 - Verify class name conflicts
 - Keep original organization if needed
@@ -614,6 +618,7 @@ cleanup_report/
 
 ### Issue: Modernization Changes Behavior
 **Solution**:
+
 - Review Java version compatibility
 - Check for subtle semantic differences (e.g., exception handling in streams)
 - Test edge cases thoroughly
@@ -621,6 +626,7 @@ cleanup_report/
 
 ### Issue: Compilation Errors After Changes
 **Solution**:
+
 - Run `mvn clean compile` or `./gradlew clean build`
 - Fix errors incrementally
 - Consider Java version compatibility

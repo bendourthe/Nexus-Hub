@@ -69,6 +69,7 @@ An atomic commit is a **single, self-contained change** that:
 ```
 Commit: "Various changes"
 Files changed: 15 files
+
 - Added user authentication
 - Fixed bug in payment processing
 - Refactored database queries
@@ -76,6 +77,7 @@ Files changed: 15 files
 - Changed CSS styling
 ```
 **Problems**:
+
 - Impossible to review effectively
 - Can't revert one change without others
 - No clear purpose
@@ -85,11 +87,13 @@ Files changed: 15 files
 ```
 Commit 1: "feat: add JWT authentication for user login"
 Files: src/auth/jwt.py, tests/test_auth.py
+
 - Implements JWT token generation
 - Adds token validation middleware
 
 Commit 2: "fix: handle edge case in payment refund calculation"
 Files: src/payments/refund.py, tests/test_refund.py
+
 - Fixes division by zero for partial refunds
 
 Commit 3: "refactor: optimize database queries with connection pooling"
@@ -102,6 +106,7 @@ Commit 5: "style: update button styling to match design system"
 Files: static/css/buttons.css
 ```
 **Benefits**:
+
 - Each commit has clear purpose
 - Easy to review individually
 - Can cherry-pick or revert specific changes
@@ -184,6 +189,7 @@ $ git add -p src/user_service.py
 diff --git a/src/user_service.py b/src/user_service.py
 @@ -15,6 +15,10 @@ def create_user(data):
      user = User(**data)
+
 +    # Add email validation
 +    if not validate_email(user.email):
 +        raise ValueError("Invalid email")
@@ -194,6 +200,7 @@ Stage this hunk [y,n,q,a,d,s,e,?]? y
 @@ -45,3 +49,7 @@ def update_user(user_id, data):
      user.save()
 +
+
 +    # TODO: Add audit logging
 +    log_user_update(user_id, data)
 

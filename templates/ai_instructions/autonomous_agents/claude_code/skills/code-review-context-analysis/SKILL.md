@@ -55,6 +55,7 @@ Understand the project landscape, architecture, and development practices
 Reviewer: *jumps directly into code review*
 Reviewer: *flags architectural pattern as "bad practice"*
 Result:
+
 - ❌ Misunderstanding of design decisions
 - ❌ Inappropriate recommendations
 - ❌ Missing critical dependencies
@@ -69,6 +70,7 @@ Reviewer: *understands architecture and constraints*
 Reviewer: *identifies patterns and their rationale*
 Reviewer: *reviews code within proper context*
 Result:
+
 - ✅ Informed, relevant recommendations
 - ✅ Proper understanding of tradeoffs
 - ✅ Comprehensive dependency mapping

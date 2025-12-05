@@ -10,13 +10,17 @@ phase_number: 6
 difficulty: intermediate
 estimated_time_hours: 2-3
 prerequisites:
+
   - test_development/performance_testing/go_performance_testing.md
 related_templates:
+
   - test_development/maintenance_cicd/go_maintenance_cicd.md
 tools:
+
   - go test (1.23+)
   - testify
 tags:
+
   - test-development
   - go
 ---
@@ -636,8 +640,10 @@ func main() {
 
 ```go
 /**
+
  * Add tests for basic functionality of uncovered code.
  *
+
  * Focus on main execution paths first.
  */
 
@@ -697,6 +703,7 @@ func TestCalculateDiscount_Guest(t *testing.T) {
 
 ```go
 /**
+
  * Add tests for boundary conditions and edge cases.
  */
 
@@ -734,6 +741,7 @@ func TestCalculateDiscount_EdgeCases(t *testing.T) {
 
 ```go
 /**
+
  * Add tests for error handling and exceptional conditions.
  */
 
@@ -841,6 +849,7 @@ func TestUserService_LoadUserData_DatabaseError(t *testing.T) {
 
 ```go
 /**
+
  * Ensure all branches of conditional logic are tested.
  */
 

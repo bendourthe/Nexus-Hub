@@ -10,10 +10,12 @@ difficulty: intermediate
 estimated_time_hours: 2-4
 prerequisites: []
 tools:
+
   - google test
   - catch2
   - boost.test
 tags:
+
   - ai-templates
   - refactoring
   - cpp

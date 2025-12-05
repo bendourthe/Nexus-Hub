@@ -11,13 +11,16 @@ difficulty: intermediate
 estimated_time_hours: 2-4
 prerequisites: []
 related_templates:
+
   - test_development/unit_tests/python_unit_tests.md
 tools:
+
   - pytest (8.3.4+)
   - black (24.12.0)
   - mypy (1.13.0)
   - ruff
 tags:
+
   - test-development
   - testing
   - python

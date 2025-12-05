@@ -10,14 +10,18 @@ phase_number: 5
 difficulty: advanced
 estimated_time_hours: 4-6
 prerequisites:
+
   - test_development/mocks_fixtures/cpp_mocks_fixtures.md
 related_templates:
+
   - test_development/code_coverage/cpp_code_coverage.md
 tools:
+
   - google test
   - catch2
   - boost.test
 tags:
+
   - test-development
   - testing
   - performance
@@ -240,8 +244,10 @@ endif()
 
 ```cpp
 /**
+
  * string_benchmarks.cpp
  *
+
  * Performance benchmarks for string operations.
  */
 #include <benchmark/benchmark.h>
@@ -306,8 +312,10 @@ BENCHMARK_MAIN();
 
 ```cpp
 /**
+
  * container_benchmarks.cpp
  *
+
  * Performance benchmarks for STL containers.
  */
 #include <benchmark/benchmark.h>
@@ -438,8 +446,10 @@ BENCHMARK_TEMPLATE(BM_ContainerIteration, std::deque<int>)->Range(8, 8<<10);
 
 ```cpp
 /**
+
  * advanced_benchmarks.cpp
  *
+
  * Benchmarks with custom metrics and statistics.
  */
 #include <benchmark/benchmark.h>
@@ -537,8 +547,10 @@ compare.py benchstat old.json new.json
 
 ```cpp
 /**
+
  * memory_benchmarks.cpp
  *
+
  * Benchmarks for memory allocation and smart pointers.
  */
 #include <benchmark/benchmark.h>
@@ -728,8 +740,10 @@ vtune -report summary -result-dir=vtune_results -format html -report-output=vtun
 
 ```cpp
 /**
+
  * profiler.hpp
  *
+
  * Simple RAII-based profiler for hot path analysis.
  */
 #ifndef PROFILER_HPP
@@ -829,8 +843,10 @@ inline Profiler& get_profiler() {
 
 ```cpp
 /**
+
  * load_test.cpp
  *
+
  * Multithreaded load testing framework.
  */
 #include <iostream>
@@ -965,8 +981,10 @@ int main() {
 
 ```cpp
 /**
+
  * stress_test.cpp
  *
+
  * Stress testing to find breaking points.
  */
 #include <iostream>
@@ -1096,8 +1114,10 @@ int main() {
 
 ```cpp
 /**
+
  * regression_test.hpp
  *
+
  * Performance regression detection system.
  */
 #ifndef REGRESSION_TEST_HPP
@@ -1277,6 +1297,7 @@ on:
   pull_request:
     branches: [ main ]
   schedule:
+
     - cron: '0 2 * * *'
 
 jobs:

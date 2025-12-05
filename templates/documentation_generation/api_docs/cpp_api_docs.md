@@ -10,10 +10,12 @@ difficulty: beginner
 estimated_time_hours: 4-8
 prerequisites: []
 tools:
+
   - google test
   - catch2
   - boost.test
 tags:
+
   - documentation
   - documentation
   - cpp
@@ -177,9 +179,11 @@ struct Config {
 /**
  * @brief Main library class
  *
+
  * This class provides the primary interface for library functionality.
  * Instances are not copyable but moveable.
  *
+
  * @code
  * Config config{.buffer_size = 2048};
  * auto engine = Engine::create(config);
@@ -191,6 +195,7 @@ struct Config {
 class Engine {
 public:
     /**
+
      * @brief Factory method to create engine
      * @param config Configuration options
      * @return Engine instance or nullopt on failure

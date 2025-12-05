@@ -10,6 +10,7 @@ difficulty: intermediate
 estimated_time_hours: 2-4
 prerequisites: []
 tags:
+
   - skills
   - generic
 ---
@@ -670,6 +671,7 @@ jobs:
   complexity:
     runs-on: ubuntu-latest
     steps:
+
     - uses: actions/checkout@v3
 
     - name: Set up Python

@@ -10,14 +10,18 @@ phase_number: 5
 difficulty: intermediate
 estimated_time_hours: 2
 prerequisites:
+
   - code_review/performance_review/cpp_performance_review.md
 related_templates:
+
   - code_review/code_quality/cpp_code_quality.md
 tools:
+
   - google test
   - catch2
   - boost.test
 tags:
+
   - code-review
   - testing
   - code-review
@@ -260,6 +264,7 @@ For each finding, include:
 
 **Recommendation:**
 Move filtering to database with indexed query:
+
 - Add database index on search fields
 - Use database LIKE/ILIKE queries
 - Implement pagination (limit results to 50)
@@ -453,6 +458,7 @@ Please perform a comprehensive testing review of this C++ project following this
 3. **Test Framework Usage**
    ```cpp
    // GoogleTest features
+
    - TEST() / TEST_F() macros
    - Fixtures (SetUp/TearDown)
    - Parameterized tests (TEST_P)
@@ -857,21 +863,26 @@ Please perform a comprehensive testing review of this C++ project following this
      test:
        runs-on: ubuntu-latest
        steps:
+
          - uses: actions/checkout@v2
          - name: Install dependencies
            run: |
              sudo apt-get update
              sudo apt-get install -y cmake g++ lcov
+
          - name: Build
            run: |
              cmake -B build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="--coverage"
              cmake --build build
+
          - name: Run tests
            run: cd build && ctest --output-on-failure
+
          - name: Generate coverage
            run: |
              lcov --capture --directory build --output-file coverage.info
              lcov --remove coverage.info '/usr/*' --output-file coverage.info
+
          - name: Upload coverage
            uses: codecov/codecov-action@v2
            with:

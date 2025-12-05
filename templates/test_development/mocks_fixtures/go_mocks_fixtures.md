@@ -10,13 +10,17 @@ phase_number: 4
 difficulty: intermediate
 estimated_time_hours: 3-5
 prerequisites:
+
   - test_development/test_cases/go_test_cases.md
 related_templates:
+
   - test_development/performance_testing/go_performance_testing.md
 tools:
+
   - go test (1.23+)
   - testify
 tags:
+
   - test-development
   - go
 ---

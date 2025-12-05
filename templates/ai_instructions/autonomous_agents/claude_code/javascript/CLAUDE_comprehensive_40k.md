@@ -10,10 +10,12 @@ difficulty: intermediate
 estimated_time_hours: 2-4
 prerequisites: []
 tools:
+
   - unity
   - cmocka
   - check
 tags:
+
   - claude-code
   - c
 ---
@@ -501,11 +503,14 @@ async function fetchUserData(
 ### Complex Functions
 ```typescript
 /**
+
  * Process and validate user records according to specified rules.
  *
+
  * Performs data cleaning, validation against business rules, and formatting
  * for downstream processing. Supports both synchronous and asynchronous validation.
  *
+
  * @param data - Input data records to process
  * @param rules - Validation rules to apply
  * @param options - Optional processing configuration
@@ -513,6 +518,7 @@ async function fetchUserData(
  * @throws {ValidationError} When data fails validation
  * @throws {ProcessingError} When processing fails
  *
+
  * @example
  * ```typescript
  * const result = await processUserData(
@@ -522,6 +528,7 @@ async function fetchUserData(
  * );
  * ```
  *
+
  * @author Benjamin Dourthe <benjamin@adonamed.com>
  */
 async function processUserData(
@@ -536,6 +543,7 @@ async function processUserData(
 ### Simple Functions
 ```typescript
 /**
+
  * Calculate total including tax.
  */
 function calculateTotal(items: number[]): number {
@@ -546,11 +554,14 @@ function calculateTotal(items: number[]): number {
 ### React Components
 ```typescript
 /**
+
  * User profile card component.
  *
+
  * Displays user information with avatar, name, and bio.
  * Supports loading and error states.
  *
+
  * @component
  * @example
  * ```tsx
@@ -772,10 +783,13 @@ module.exports = {
 
 ```typescript
 /**
+
  * Test suite for [feature/module].
  *
+
  * Comprehensive tests covering normal operations, edge cases, and error conditions.
  *
+
  * @author Benjamin Dourthe <benjamin@adonamed.com>
  */
 import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
@@ -914,6 +928,7 @@ describe('UserCard Component', () => {
 
 ### When to Use Task Breakdown
 **Apply systematic breakdown for:**
+
 - Projects estimated >30 minutes
 - Multi-component applications
 - Complex feature implementations
@@ -998,6 +1013,7 @@ When implementing new features, fixing bugs, or troubleshooting issues, follow t
 
 ### Feature: User Authentication
 **Iteration 1**: Created tests/temp/test_auth_validation.test.ts
+
 - Tests failed: Password validation too weak
 - Solution: Enhanced regex pattern
 
@@ -1124,6 +1140,7 @@ Never suggest:
 
 ### DEVLOG.md Updates
 Safe to update without permission:
+
 - Task lists
 - Development history
 - Challenges/solutions

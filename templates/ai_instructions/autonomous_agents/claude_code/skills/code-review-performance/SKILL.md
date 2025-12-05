@@ -54,6 +54,7 @@ Application: *runs without profiling*
 Users: *experience slow response times*
 Infrastructure: *over-provisioned to compensate*
 Result:
+
 - ❌ Poor user experience and satisfaction
 - ❌ High infrastructure costs
 - ❌ Cannot scale to handle growth
@@ -68,6 +69,7 @@ Application: *optimized based on profiling data*
 Users: *experience fast, responsive application*
 Infrastructure: *right-sized for actual needs*
 Result:
+
 - ✅ Excellent user experience
 - ✅ Reduced infrastructure costs
 - ✅ Scales efficiently with growth

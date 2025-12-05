@@ -10,14 +10,18 @@ phase_number: 3
 difficulty: intermediate
 estimated_time_hours: 4-8
 prerequisites:
+
   - test_development/unit_tests/csharp_unit_tests.md
 related_templates:
+
   - test_development/mocks_fixtures/csharp_mocks_fixtures.md
 tools:
+
   - NUnit (4.2.2)
   - xUnit
   - MSTest
 tags:
+
   - test-development
   - testing
   - c#

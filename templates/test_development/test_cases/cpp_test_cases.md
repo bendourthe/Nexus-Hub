@@ -10,14 +10,18 @@ phase_number: 3
 difficulty: intermediate
 estimated_time_hours: 4-8
 prerequisites:
+
   - test_development/unit_tests/cpp_unit_tests.md
 related_templates:
+
   - test_development/mocks_fixtures/cpp_mocks_fixtures.md
 tools:
+
   - google test
   - catch2
   - boost.test
 tags:
+
   - test-development
   - testing
   - cpp
@@ -235,6 +239,7 @@ Follow this structure for clear, maintainable tests:
  * @file user_service_test.cpp
  * @brief Unit tests for UserService class.
  *
+
  * Tests cover user creation, validation, and retrieval operations.
  */
 
@@ -759,6 +764,7 @@ Integration tests verify multiple components working together:
  * @file user_integration_test.cpp
  * @brief Integration tests for user registration workflow.
  *
+
  * Tests the complete user registration process including
  * validation, database storage, and email notification.
  */

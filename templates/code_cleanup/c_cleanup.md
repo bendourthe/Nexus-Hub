@@ -10,10 +10,12 @@ difficulty: intermediate
 estimated_time_hours: 2-4
 prerequisites: []
 tools:
+
   - unity
   - cmocka
   - check
 tags:
+
   - ai-templates
   - refactoring
   - c

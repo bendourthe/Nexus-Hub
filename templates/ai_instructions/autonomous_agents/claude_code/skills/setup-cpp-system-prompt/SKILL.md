@@ -363,6 +363,7 @@ git push
 
 ### 1. Include Organization
 Automatically organizes includes in the correct order:
+
 1. Corresponding header (for .cpp files)
 2. C++ standard library headers (alphabetically)
 3. Third-party library headers (alphabetically)
@@ -566,24 +567,29 @@ auto evenCount = std::count_if(numbers.begin(), numbers.end(),
 **Class documentation:**
 ```cpp
 /**
+
  * @class Buffer
  * @brief Dynamic byte buffer with automatic growth
  *
+
  * Thread-safe when used with external synchronization.
  * Provides strong exception safety guarantee.
  *
+
  * Example:
  * @code
  * Buffer buf(1024);
  * buf.append(data, size);
  * @endcode
  *
+
  * @note Move-only type (copying disabled)
  * @warning Not thread-safe without external synchronization
  */
 class Buffer {
 public:
     /**
+
      * @brief Construct buffer with specified capacity
      * @param[in] initialCapacity Initial capacity in bytes
      * @throws std::bad_alloc If allocation fails
@@ -682,17 +688,20 @@ add_test(NAME MyTest COMMAND unit_tests)
 
 ### Issue: Smart Pointers Not Being Suggested
 **Solution**:
+
 - Comprehensive version emphasizes smart pointers
 - Explicitly request: "Refactor this code to use smart pointers instead of raw pointers"
 
 ### Issue: CMake Build Failures
 **Solution**:
+
 - Verify CMake 3.15+ installed: `cmake --version`
 - Check C++ compiler supports C++17: `g++ --version` or `clang++ --version`
 - Ensure GoogleTest is available
 
 ### Issue: Static Analysis Errors
 **Solution**:
+
 - Create `.clang-tidy` in project root
 - Run: `clang-tidy src/*.cpp -- -std=c++17 -Iinclude`
 - Suppress false positives in config file

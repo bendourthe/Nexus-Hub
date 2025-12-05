@@ -10,14 +10,18 @@ phase_number: 5
 difficulty: advanced
 estimated_time_hours: 4-6
 prerequisites:
+
   - test_development/mocks_fixtures/csharp_mocks_fixtures.md
 related_templates:
+
   - test_development/code_coverage/csharp_code_coverage.md
 tools:
+
   - NUnit (4.2.2)
   - xUnit
   - MSTest
 tags:
+
   - test-development
   - testing
   - performance
@@ -1171,6 +1175,7 @@ on:
   pull_request:
     branches: [ main ]
   schedule:
+
     - cron: '0 2 * * *'
 
 jobs:

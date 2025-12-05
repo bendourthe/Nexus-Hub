@@ -10,6 +10,7 @@ difficulty: intermediate
 estimated_time_hours: 2-4
 prerequisites: []
 tags:
+
   - claude-code
   - generic
 ---
@@ -136,18 +137,21 @@ tags:
 
 ### Start Here
 New to Claude Skills? Read in this order:
+
 1. [QUICK_START.md](QUICK_START.md) - Get started in 5 minutes
 2. [README.md](README.md) - Comprehensive overview
 3. [Example Skill](setup-python-system-prompt/SKILL.md) - See skill structure
 
 ### For Developers
 Creating new skills? Read:
+
 1. [IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md) - Technical details
 2. [SKILLS_LIST.md](SKILLS_LIST.md) - See all planned skills
 3. [Any existing SKILL.md](plan-before-code/SKILL.md) - Use as template
 
 ### For Project Managers
 Understanding scope? Read:
+
 1. [FINAL_SUMMARY.md](FINAL_SUMMARY.md) - Project summary
 2. [SKILLS_LIST.md](SKILLS_LIST.md) - Complete roadmap
 3. [README.md](README.md) - Benefits and features

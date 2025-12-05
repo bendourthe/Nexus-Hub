@@ -8,6 +8,7 @@ category: Documentation
 priority: MEDIUM
 tags: [documentation, architecture, adr, design-decisions, system-design, technical-docs, diagrams]
 template_sources:
+
   - documentation/technical_docs/python_technical_docs.md
   - documentation/technical_docs/javascript_technical_docs.md
   - documentation/technical_docs/java_technical_docs.md
@@ -647,6 +648,7 @@ Language: Python
 Framework: Django / Flask / FastAPI
 Architecture Style: Layered / Microservices / Monolithic
 Documentation Needed:
+
 - System architecture overview with diagrams
 - Module organization and dependencies
 - Design patterns used (Repository, Service Layer, etc.)
@@ -667,6 +669,7 @@ Language: JavaScript / TypeScript
 Framework: React / Node.js / Express / NestJS
 Architecture Style: Component-based / Microservices / Serverless
 Documentation Needed:
+
 - Frontend architecture (if React)
 - Backend architecture (if Node.js)
 - State management design
@@ -686,6 +689,7 @@ Language: Java
 Framework: Spring Boot / Jakarta EE
 Architecture Style: Microservices / Layered / Clean Architecture
 Documentation Needed:
+
 - System architecture overview
 - Spring configuration and beans
 - Database design (JPA entities)
@@ -705,6 +709,7 @@ Language: C#
 Framework: ASP.NET Core / .NET
 Architecture Style: Clean Architecture / CQRS / DDD
 Documentation Needed:
+
 - Solution structure and projects
 - Domain model design
 - CQRS implementation
@@ -723,6 +728,7 @@ For **Go** projects:
 Language: Go
 Architecture Style: Clean Architecture / Hexagonal / Microservices
 Documentation Needed:
+
 - Package structure and organization
 - Interface-based design
 - Dependency management
@@ -741,6 +747,7 @@ For **C/C++** projects:
 Language: C / C++
 Project Type: Library / System Tool / Framework
 Documentation Needed:
+
 - Module architecture
 - API design (public vs private)
 - Memory management strategy
@@ -1131,20 +1138,25 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
+
       - uses: actions/checkout@v3
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
+
       - name: Install dependencies
         run: pip install -e .[dev]
+
       - name: Lint
         run: |
           black --check src/ tests/
           flake8 src/ tests/
           mypy src/
+
       - name: Test
         run: pytest tests/ --cov=src --cov-report=xml
+
       - name: Upload coverage
         uses: codecov/codecov-action@v3
 ```
@@ -1312,6 +1324,7 @@ Before finalizing technical documentation, verify:
 
 ### Issue: Documentation Quickly Outdated
 **Solution**:
+
 - Keep docs close to code (docs/ folder)
 - Review docs in code reviews
 - Automate diagram generation where possible
@@ -1320,6 +1333,7 @@ Before finalizing technical documentation, verify:
 
 ### Issue: Too Much Detail vs Too Little
 **Solution**:
+
 - Target audience: fellow developers
 - Explain "why" not just "what"
 - Use layered documentation (overview → details)
@@ -1328,6 +1342,7 @@ Before finalizing technical documentation, verify:
 
 ### Issue: Diagrams Hard to Maintain
 **Solution**:
+
 - Use text-based diagrams (Mermaid, PlantUML)
 - Version control diagrams with code
 - Automate generation from code/config
@@ -1336,6 +1351,7 @@ Before finalizing technical documentation, verify:
 
 ### Issue: ADRs Not Being Created
 **Solution**:
+
 - Make ADR template easily accessible
 - Create ADR during design phase, not after
 - Review ADRs in architecture reviews

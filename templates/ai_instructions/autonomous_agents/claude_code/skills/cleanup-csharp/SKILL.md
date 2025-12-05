@@ -137,6 +137,7 @@ Tell Claude Code to use this skill:
 ```
 "Use the cleanup-csharp skill to analyze and clean up this C# codebase.
 Focus on:
+
 1. Removing all unused using directives, methods, and properties
 2. Consolidating duplicate code
 3. Modernizing to C# 8+ patterns (nullable types, switch expressions, using declarations)

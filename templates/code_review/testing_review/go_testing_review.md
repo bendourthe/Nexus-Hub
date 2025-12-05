@@ -10,13 +10,17 @@ phase_number: 5
 difficulty: intermediate
 estimated_time_hours: 2
 prerequisites:
+
   - code_review/performance_review/go_performance_review.md
 related_templates:
+
   - code_review/code_quality/go_code_quality.md
 tools:
+
   - go test (1.23+)
   - testify
 tags:
+
   - code-review
   - testing
   - code-review
@@ -259,6 +263,7 @@ For each finding, include:
 
 **Recommendation:**
 Move filtering to database with indexed query:
+
 - Add database index on search fields
 - Use database LIKE/ILIKE queries
 - Implement pagination (limit results to 50)
@@ -719,14 +724,17 @@ Please perform a comprehensive testing review of this Go project following this 
      test:
        runs-on: ubuntu-latest
        steps:
+
          - uses: actions/checkout@v3
          - uses: actions/setup-go@v4
            with:
              go-version: '1.21'
+
          - name: Run tests
            run: |
              go test -v -race -coverprofile=coverage.out ./...
              go tool cover -func=coverage.out
+
          - name: Upload coverage
            uses: codecov/codecov-action@v3
            with:

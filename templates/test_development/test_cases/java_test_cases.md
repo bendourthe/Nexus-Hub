@@ -10,14 +10,18 @@ phase_number: 3
 difficulty: intermediate
 estimated_time_hours: 4-8
 prerequisites:
+
   - test_development/unit_tests/java_unit_tests.md
 related_templates:
+
   - test_development/mocks_fixtures/java_mocks_fixtures.md
 tools:
+
   - junit (5.11.3)
   - maven
   - gradle
 tags:
+
   - test-development
   - testing
   - java
@@ -235,6 +239,7 @@ import static org.mockito.Mockito.*;
 /**
  * Unit tests for UserService class.
  *
+
  * Tests cover user creation, validation, and retrieval operations.
  */
 class UserServiceTest {
@@ -647,6 +652,7 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Integration tests for user registration workflow.
  *
+
  * Tests the complete user registration process including
  * validation, database storage, and email notification.
  */
@@ -823,8 +829,10 @@ E2E tests validate complete workflows:
 
 ```java
 /**
+
  * End-to-end tests for e-commerce checkout flow.
  *
+
  * Tests the complete user journey from adding items to cart
  * through payment and order confirmation.
  */

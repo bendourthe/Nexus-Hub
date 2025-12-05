@@ -10,12 +10,15 @@ phase_number: 8
 difficulty: advanced
 estimated_time_hours: 4-6
 prerequisites:
+
   - test_development/maintenance_cicd/c_maintenance_cicd.md
 tools:
+
   - unity
   - cmocka
   - check
 tags:
+
   - test-development
   - c
 ---
@@ -164,8 +167,10 @@ Analyze all unit tests for patterns that always pass:
 
 ```c
 /*
+
  * Tautological Test Detector for C
  *
+
  * Analyzes Unity/Check test files to identify patterns that always pass.
  */
 
@@ -603,6 +608,7 @@ Create `.mull.yml`:
 
 ```yaml
 mutators:
+
   - cxx_add_to_sub
   - cxx_sub_to_add
   - cxx_mul_to_div

@@ -11,12 +11,15 @@ difficulty: intermediate
 estimated_time_hours: 2-4
 prerequisites: []
 related_templates:
+
   - test_development/unit_tests/java_unit_tests.md
 tools:
+
   - junit (5.11.3)
   - maven
   - gradle
 tags:
+
   - test-development
   - testing
   - java

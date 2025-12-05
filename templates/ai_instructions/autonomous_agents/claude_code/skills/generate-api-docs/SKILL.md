@@ -7,6 +7,7 @@ language: Multi-language (Python, JavaScript, Java, C#, Go, C, C++)
 category: Documentation
 tags: [documentation, api, reference, multi-language, openapi, swagger]
 template_sources:
+
   - documentation/api_docs/python_api_docs.md
   - documentation/api_docs/javascript_api_docs.md
   - documentation/api_docs/java_api_docs.md
@@ -347,6 +348,7 @@ async def get_user(user_id: int):
 
 ```javascript
 /**
+
  * @swagger
  * /users/{id}:
  *   get:
@@ -380,10 +382,13 @@ router.get('/users/:id', async (req, res) => {
 
 ```java
 /**
+
  * User management controller.
  *
+
  * <p>Provides endpoints for user CRUD operations.</p>
  *
+
  * @author Benjamin Dourthe
  * @version 1.0.0
  */
@@ -395,6 +400,7 @@ public class UserController {
     /**
      * Retrieve user by ID.
      *
+
      * @param id the unique user identifier
      * @return the user object if found
      * @throws UserNotFoundException if user doesn't exist
@@ -436,24 +442,28 @@ Before finalizing API documentation, verify:
 
 ### Issue: Documentation Out of Sync with Code
 **Solution**:
+
 - Integrate documentation generation into CI/CD
 - Use doc-testing to validate examples
 - Automate OpenAPI spec generation from code
 
 ### Issue: Incomplete Type Information
 **Solution**:
+
 - Add comprehensive type hints (Python)
 - Use TypeScript instead of JavaScript
 - Enable strict mode in type checkers
 
 ### Issue: Missing Examples
 **Solution**:
+
 - Create example gallery template
 - Include curl commands for all endpoints
 - Provide SDK examples for common languages
 
 ### Issue: Poor Organization
 **Solution**:
+
 - Group by resource/domain
 - Use clear hierarchical structure
 - Provide search and navigation

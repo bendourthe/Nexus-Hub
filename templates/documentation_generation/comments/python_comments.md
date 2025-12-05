@@ -10,11 +10,13 @@ difficulty: beginner
 estimated_time_hours: 1-2
 prerequisites: []
 tools:
+
   - pytest (8.3.4+)
   - black (24.12.0)
   - mypy (1.13.0)
   - ruff
 tags:
+
   - documentation
   - documentation
   - python
@@ -147,6 +149,7 @@ Please add strategic comments to this Python project following this protocol:
 
 1. **Analyze Codebase for Comment Opportunities**
    Review the code to identify sections that would benefit from comments:
+
    - Complex algorithms or business logic
    - Non-obvious implementation decisions
    - Workarounds for known issues
@@ -597,6 +600,7 @@ Please provide comment additions in this format:
 ```yaml
 # Recommended tools
 tools:
+
   - pylint:
       # Check for missing docstrings, not inline comments
       # Configure to allow strategic commenting
@@ -605,6 +609,7 @@ tools:
   - grep/ripgrep:
       # Find technical debt tags
       patterns:
+
         - "TODO"
         - "FIXME"
         - "HACK"

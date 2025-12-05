@@ -10,10 +10,12 @@ difficulty: beginner
 estimated_time_hours: 1-2
 prerequisites: []
 tools:
+
   - jest (29.7.0)
   - eslint (9.15.0)
   - prettier
 tags:
+
   - documentation
   - documentation
   - javascript
@@ -150,6 +152,7 @@ Please add strategic comments to this JavaScript project following this protocol
 
 1. **Analyze Codebase for Comment Opportunities**
    Review the code to identify sections that would benefit from comments:
+
    - Complex algorithms or business logic
    - Non-obvious implementation decisions
    - Workarounds for known issues
@@ -176,6 +179,7 @@ Use **block comments** before complex algorithms:
 
 ```javascript
 /**
+
  * Calculate optimal route using A* pathfinding algorithm.
  * We use A* instead of Dijkstra because our graph has a reliable heuristic
  * (Euclidean distance), which reduces search time by ~40% in testing.
@@ -458,8 +462,10 @@ const pattern = /^[\w.+-]+@[\w.-]+\.[a-zA-Z]{2,}$/;  // RFC 5322 email format
 
 ```javascript
 /**
+
  * Process user payment with fraud detection.
  *
+
  * @param {Object} payment - Payment details
  * @param {number} payment.amount - Amount in cents
  * @param {string} payment.currency - ISO 4217 currency code
@@ -510,6 +516,7 @@ function calculateTotal() {
 
 // BAD: Duplicating JSDoc
 /**
+
  * Calculate total price.
  */
 function calculateTotal(items) {
@@ -764,9 +771,11 @@ Please provide comment additions in this format:
 ```yaml
 # Recommended tools
 tools:
+
   - eslint:
       # Configure comment rules
       rules:
+
         - no-warning-comments  # Track TODO/FIXME
         - spaced-comment  # Enforce spacing
         - capitalized-comments  # Enforce style
@@ -778,6 +787,7 @@ tools:
   - grep/ripgrep:
       # Find technical debt tags
       patterns:
+
         - "TODO"
         - "FIXME"
         - "HACK"
@@ -800,6 +810,7 @@ tools:
    ```javascript
    // BAD
    /**
+
     * Calculate total price of items.
     */
    function calculateTotal(items) {
@@ -809,6 +820,7 @@ tools:
 
    // GOOD
    /**
+
     * Calculate total price of items.
     */
    function calculateTotal(items) {

@@ -64,6 +64,7 @@ Team: *deploys with vulnerable dependencies*
 Application: *runs with known exploitable CVEs*
 Attackers: *exploit public vulnerabilities*
 Result:
+
 - ❌ Remote code execution via vulnerable library
 - ❌ Data breach through dependency exploit
 - ❌ Supply chain compromise
@@ -78,6 +79,7 @@ Team: *performs regular dependency audits*
 Application: *runs with patched, secure libraries*
 Attackers: *find no known vulnerable dependencies*
 Result:
+
 - ✅ Vulnerabilities identified and patched proactively
 - ✅ Clean security audit reports
 - ✅ Compliance requirements met
@@ -877,6 +879,7 @@ on:
   pull_request:
     branches: [ main ]
   schedule:
+
     - cron: '0 0 * * 1'  # Weekly on Monday
 
 jobs:
@@ -949,12 +952,14 @@ jobs:
 ```yaml
 # .gitlab-ci.yml
 stages:
+
   - security
 
 dependency-scan:
   stage: security
   image: python:3.11
   script:
+
     - pip install pip-audit safety
     - pip-audit --desc --format json --output pip-audit-report.json || true
     - safety check --json --output safety-report.json || true
@@ -962,10 +967,12 @@ dependency-scan:
     reports:
       dependency_scanning: pip-audit-report.json
     paths:
+
       - pip-audit-report.json
       - safety-report.json
     expire_in: 30 days
   only:
+
     - merge_requests
     - main
 
@@ -973,12 +980,15 @@ npm-security-scan:
   stage: security
   image: node:18
   script:
+
     - npm audit --json > npm-audit-report.json || true
   artifacts:
     paths:
+
       - npm-audit-report.json
     expire_in: 30 days
   only:
+
     - merge_requests
     - main
 ```
@@ -1072,8 +1082,10 @@ updates:
       interval: "weekly"
     open-pull-requests-limit: 10
     reviewers:
+
       - "security-team"
     labels:
+
       - "dependencies"
       - "security"
 

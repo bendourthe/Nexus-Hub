@@ -408,6 +408,7 @@ START: How much time can you invest?
 
 ### Scenario 1: "I inherited a messy codebase"
 **Path:**
+
 1. [Context Analysis](code_review/context_analysis/) (2h) - Understand what you're dealing with
 2. [Code Cleanup](code_cleanup/) (4-8h) - Remove dead code, fix duplication
 3. [Code Quality Review](code_review/code_quality/) (2-3h) - Identify remaining issues
@@ -419,6 +420,7 @@ START: How much time can you invest?
 
 ### Scenario 2: "Preparing for production release"
 **Path:**
+
 1. [Security Review](code_review/security_review/) (2-3h) - Find vulnerabilities
 2. [Performance Review](code_review/performance_review/) (2-3h) - Optimize bottlenecks
 3. [Testing Review](code_review/testing_review/) (2h) - Validate test coverage
@@ -431,6 +433,7 @@ START: How much time can you invest?
 
 ### Scenario 3: "Code review flagged testing issues"
 **Path:**
+
 1. [Test Structure](test_development/test_structure/) (2-4h) - Setup infrastructure
 2. [Unit Tests](test_development/unit_tests/) (3-6h) - Cover core functionality
 3. [Test Cases](test_development/test_cases/) (4-8h) - Integration & E2E tests
@@ -443,6 +446,7 @@ START: How much time can you invest?
 
 ### Scenario 4: "Starting a new project from scratch"
 **Path:**
+
 1. **Use Skills** (if using Claude Code):
    - [init-{language}-project](agent_prompts/autonomous_agents/claude_code/skills/init-python-project/) (1h)
    - [create-claude-md](agent_prompts/autonomous_agents/claude_code/skills/create-claude-md/) (1h)
@@ -456,6 +460,7 @@ START: How much time can you invest?
 
 ### Scenario 5: "Quick pre-merge code review"
 **Path:**
+
 1. [Context Analysis](code_review/context_analysis/) (2h) - Understand changes
 2. [Code Quality Review](code_review/code_quality/) (2h) - Style & maintainability
 3. **Optional:** [Security Review](code_review/security_review/) (2-3h) - If touching sensitive areas

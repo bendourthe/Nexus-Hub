@@ -10,10 +10,12 @@ difficulty: beginner
 estimated_time_hours: 2-3
 prerequisites: []
 tools:
+
   - unity
   - cmocka
   - check
 tags:
+
   - documentation
   - documentation
   - c
@@ -1244,6 +1246,7 @@ jobs:
   sbom:
     runs-on: ubuntu-latest
     steps:
+
       - uses: actions/checkout@v3
 
       - name: Install dependencies

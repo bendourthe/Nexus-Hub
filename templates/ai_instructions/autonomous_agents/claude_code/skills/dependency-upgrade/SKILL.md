@@ -10,6 +10,7 @@ difficulty: intermediate
 estimated_time_hours: 2-4
 prerequisites: []
 tags:
+
   - skills
   - generic
 ---
@@ -483,6 +484,7 @@ name: Dependency Upgrade
 on:
   pull_request:
     paths:
+
       - 'requirements.txt'
       - 'package.json'
       - 'pyproject.toml'

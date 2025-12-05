@@ -109,6 +109,7 @@ Establish effective mocking strategies and fixture management to isolate compone
 
 ## Quick Start
 Use the appropriate template file with your AI assistant to:
+
 1. Design fixture architecture for your tests
 2. Implement reusable fixtures with appropriate scopes
 3. Create effective mocks for external dependencies

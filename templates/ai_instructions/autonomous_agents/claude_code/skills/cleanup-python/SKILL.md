@@ -114,6 +114,7 @@ Tell Claude Code to use this skill:
 ```
 "Use the cleanup-python skill to analyze and clean up this Python codebase.
 Focus on:
+
 1. Removing all unused imports and functions
 2. Consolidating duplicate code
 3. Modernizing to Python 3.9+ patterns
@@ -382,6 +383,7 @@ cleanup_report/
 
 ### Issue: Tests Fail After Cleanup
 **Solution**:
+
 1. Review git diff for the failing area
 2. Use `git checkout -- <file>` to revert specific files
 3. Re-run tests to isolate issue
@@ -389,6 +391,7 @@ cleanup_report/
 
 ### Issue: False Positive for "Unused" Code
 **Solution**:
+
 - Check for dynamic imports (importlib)
 - Verify reflection/introspection usage
 - Look for string-based references
@@ -396,6 +399,7 @@ cleanup_report/
 
 ### Issue: Import Organization Breaks Code
 **Solution**:
+
 - Check for circular imports
 - Verify import order dependencies
 - Keep original organization if needed
@@ -403,6 +407,7 @@ cleanup_report/
 
 ### Issue: Modernization Changes Behavior
 **Solution**:
+
 - Review Python version compatibility
 - Check for subtle semantic differences
 - Test edge cases thoroughly

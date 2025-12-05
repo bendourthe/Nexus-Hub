@@ -10,6 +10,7 @@ difficulty: intermediate
 estimated_time_hours: 2-4
 prerequisites: []
 tags:
+
   - coding-assistants
   - generic
 ---
@@ -332,6 +333,7 @@ public void processUserData(
 
 // Long strings
 String errorMessage = "This is a very long error message that needs to be split "
+
         + "across multiple lines for better readability and to comply "
         + "with the character line length limit.";
 
@@ -439,9 +441,11 @@ public class UserService {
 **Examples:**
 ```java
 /**
+
  * Processes user data with validation and persistence.
  * Uses binary search for O(log n) performance on sorted collections.
  *
+
  * @param userData the user data to process
  * @return processed user entity
  * @throws ValidationException if validation fails
@@ -587,12 +591,15 @@ public class DataService {
 ### Class Documentation
 ```java
 /**
+
  * Service for managing user accounts and authentication.
  *
+
  * <p>This service handles user registration, authentication, profile management,
  * and provides caching for frequently accessed user data. Thread-safe for
  * concurrent operations.
  *
+
  * <p>Example usage:
  * <pre>{@code
  * UserService userService = new UserService(userRepository, emailService);
@@ -600,6 +607,7 @@ public class DataService {
  * Optional<User> found = userService.getUserById(user.getId());
  * }</pre>
  *
+
  * @author Benjamin Dourthe
  * @version 1.0
  * @since 0.1.0
@@ -615,8 +623,10 @@ public class UserService {
 ### Method Documentation
 ```java
 /**
+
  * Processes and validates user data according to business rules.
  *
+
  * <p>Performs the following operations:
  * <ul>
  *   <li>Validates input data format and constraints</li>
@@ -625,6 +635,7 @@ public class UserService {
  *   <li>Persists to database with transaction support</li>
  * </ul>
  *
+
  * @param userData the user data transfer object containing registration info
  * @return the created and persisted user entity with generated ID
  * @throws ValidationException if the input data fails validation rules
@@ -641,8 +652,10 @@ public User processUserData(UserDto userData)
 ### Simple Method Documentation
 ```java
 /**
+
  * Calculates the total price including tax and discounts.
  *
+
  * @param items the list of items to calculate total for
  * @return the total price with tax applied
  */
@@ -654,6 +667,7 @@ public BigDecimal calculateTotal(List<Item> items) {
 ### Field Documentation
 ```java
 /**
+
  * Maximum number of retry attempts for transient failures.
  * Configured via application.properties (retry.max.attempts).
  */
@@ -1029,6 +1043,7 @@ import com.company.project.repository.UserRepository;
  * Comprehensive unit tests for UserService.
  * Tests cover normal operations, edge cases, error conditions, and validation.
  *
+
  * @author Benjamin Dourthe
  */
 @ExtendWith(MockitoExtension.class)
@@ -1250,6 +1265,7 @@ import com.company.project.repository.UserRepository;
  * Integration tests for UserService with real database.
  * Uses H2 in-memory database for testing.
  *
+
  * @author Benjamin Dourthe
  */
 @SpringBootTest
@@ -1399,6 +1415,7 @@ Spring Security infrastructure.
 ### Subtask 1: JWT Token Service
 **Objective**: Create service for generating and validating JWT tokens
 **Deliverables**:
+
   - JwtTokenService class with generation and validation methods
   - Unit tests for token creation and parsing
   - Configuration properties for secret key and expiration
@@ -1436,6 +1453,7 @@ Complete implementation and confirm before proceeding.
 ### Subtask 2: Authentication Filter
 **Objective**: Create JWT authentication filter for request processing
 **Deliverables**:
+
   - JwtAuthenticationFilter extending OncePerRequestFilter
   - Integration with SecurityContext
   - Unit and integration tests
@@ -1470,6 +1488,7 @@ Complete and confirm.
 ### Subtask 3: Security Configuration
 **Objective**: Configure Spring Security with JWT filter
 **Deliverables**:
+
   - SecurityConfig class
   - Filter chain configuration
   - CORS and CSRF settings
@@ -1509,6 +1528,7 @@ Complete and confirm.
 
 ### Quality Gates
 Before marking subtask complete:
+
 - [ ] Functionality verified through unit tests
 - [ ] Code follows style guidelines (checkstyle passes)
 - [ ] Documentation complete (Javadoc for public APIs)
@@ -2090,8 +2110,10 @@ Before proposing fixes, I need clarification:
 2. **Solution Implementation**
 ```java
 /**
+
  * Improved user data processing with proper resource management.
  *
+
  * Changes made:
  * - Added null validation with Objects.requireNonNull()
  * - Implemented try-with-resources for automatic connection cleanup
@@ -2309,6 +2331,7 @@ Do these requirements align with your expectations? Any modifications needed?
 ### Subtask 1: Project Setup and Configuration
 **Objective**: Initialize Spring Boot project with dependencies
 **Deliverables**:
+
   - Project structure created
   - pom.xml with all dependencies
   - application.properties configured
@@ -2319,6 +2342,7 @@ Do these requirements align with your expectations? Any modifications needed?
 ### Subtask 2: User Entity and Repository
 **Objective**: Create user data model and repository
 **Deliverables**:
+
   - User entity class
   - UserRepository interface
   - Database migration scripts
@@ -2329,6 +2353,7 @@ Do these requirements align with your expectations? Any modifications needed?
 ### Subtask 3: Authentication Service
 **Objective**: Implement JWT authentication
 **Deliverables**:
+
   - JwtTokenService
   - AuthenticationService
   - Login/Register endpoints
@@ -2339,6 +2364,7 @@ Do these requirements align with your expectations? Any modifications needed?
 ### Subtask 4: Product Management
 **Objective**: Implement product CRUD operations
 **Deliverables**:
+
   - Product entity and repository
   - ProductService with business logic
   - ProductController with REST endpoints
@@ -2349,6 +2375,7 @@ Do these requirements align with your expectations? Any modifications needed?
 ### Subtask 5: Order Processing
 **Objective**: Implement order creation and management
 **Deliverables**:
+
   - Order and OrderItem entities
   - OrderService with transaction management
   - OrderController
@@ -2359,6 +2386,7 @@ Do these requirements align with your expectations? Any modifications needed?
 ### Subtask 6: Payment Integration
 **Objective**: Integrate payment gateway
 **Deliverables**:
+
   - PaymentService interface
   - Payment gateway adapter
   - Transaction handling
@@ -2369,6 +2397,7 @@ Do these requirements align with your expectations? Any modifications needed?
 ### Subtask 7: Testing and Documentation
 **Objective**: Comprehensive testing and API docs
 **Deliverables**:
+
   - Complete test coverage (>80%)
   - Swagger/OpenAPI documentation
   - Postman collection
@@ -2391,6 +2420,7 @@ Do these requirements align with your expectations? Any modifications needed?
 
 **Quality Checkpoints:**
 After each subtask, verify:
+
 - All tests pass (mvn test)
 - Code follows style guidelines (mvn checkstyle:check)
 - No security vulnerabilities
@@ -2399,6 +2429,7 @@ After each subtask, verify:
 
 **Next Steps:**
 Ready to begin with Subtask 1? I'll provide detailed implementation guidance for:
+
 - Spring Boot project initialization
 - Maven dependencies selection
 - Database configuration
@@ -2481,6 +2512,7 @@ private static final Pattern PASSWORD_PATTERN = Pattern.compile(
 /**
  * Validates password strength according to security requirements.
  *
+
  * Requirements:
  * - At least 8 characters
  * - At least one digit
@@ -2489,6 +2521,7 @@ private static final Pattern PASSWORD_PATTERN = Pattern.compile(
  * - At least one special character
  * - No whitespace
  *
+
  * @param password the password to validate
  * @return true if password meets all requirements
  */
@@ -2563,6 +2596,7 @@ public User updateUser(String userId, UserDto userDto)
 3. **Refactored Code**
 ```java
 /**
+
  * Refactored UserService with all improvements applied.
  */
 @Service
@@ -2590,6 +2624,7 @@ public class UserService {
      * Retrieves all users with their orders efficiently.
      * Uses entity graph to avoid N+1 query problem.
      *
+
      * @return list of users with orders loaded
      */
     @Transactional(readOnly = true)
@@ -2600,6 +2635,7 @@ public class UserService {
     /**
      * Updates user information with validation and concurrency control.
      *
+
      * @param userId the ID of user to update
      * @param userDto the updated user data
      * @return the updated user entity

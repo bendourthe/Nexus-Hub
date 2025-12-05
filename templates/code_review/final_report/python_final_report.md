@@ -10,15 +10,19 @@ phase_number: 6
 difficulty: intermediate
 estimated_time_hours: 1
 prerequisites:
+
   - code_review/testing_review/python_testing_review.md
 related_templates:
+
   - code_review/code_quality/python_code_quality.md
 tools:
+
   - pytest (8.3.4+)
   - black (24.12.0)
   - mypy (1.13.0)
   - ruff
 tags:
+
   - code-review
   - python
 ---
@@ -201,6 +205,7 @@ For each finding, include:
 
 **Recommendation:**
 Move filtering to database with indexed query:
+
 - Add database index on search fields
 - Use database LIKE/ILIKE queries
 - Implement pagination (limit results to 50)
@@ -341,6 +346,7 @@ Create a phased implementation plan:
 
 ### Immediate Actions (Week 1)
 **Critical P0 Items** - Must be addressed immediately:
+
 1. **[Issue]**
    - **Risk**: [what happens if not fixed]
    - **Effort**: [hours/days]

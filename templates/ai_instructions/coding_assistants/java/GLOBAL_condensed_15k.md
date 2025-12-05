@@ -10,6 +10,7 @@ difficulty: intermediate
 estimated_time_hours: 2-4
 prerequisites: []
 tags:
+
   - coding-assistants
   - generic
 ---
@@ -203,10 +204,13 @@ import com.company.project.repository.UserRepository;
 ### Complex Methods
 ```java
 /**
+
  * Processes and validates user data according to business rules.
  *
+
  * <p>Performs validation, deduplication, and persistence operations.
  *
+
  * @param userData the user data to process
  * @return processed user entity with generated ID
  * @throws ValidationException if validation fails
@@ -222,8 +226,10 @@ public User processUserData(UserDto userData) throws ValidationException {
 ### Simple Methods
 ```java
 /**
+
  * Calculates total price with tax.
  *
+
  * @param items items to calculate
  * @return total with tax
  */
@@ -387,6 +393,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 /**
  * Unit tests for UserService.
  *
+
  * @author Benjamin Dourthe
  */
 @ExtendWith(MockitoExtension.class)
@@ -657,6 +664,7 @@ Since you requested Git help:
 
 ### DEVLOG.md Updates
 Safe to update:
+
 - Task lists
 - Development history
 - Challenges/solutions

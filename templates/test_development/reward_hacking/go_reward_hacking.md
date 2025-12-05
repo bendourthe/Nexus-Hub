@@ -10,11 +10,14 @@ phase_number: 8
 difficulty: advanced
 estimated_time_hours: 4-6
 prerequisites:
+
   - test_development/maintenance_cicd/go_maintenance_cicd.md
 tools:
+
   - go test (1.23+)
   - testify
 tags:
+
   - test-development
   - go
 ---

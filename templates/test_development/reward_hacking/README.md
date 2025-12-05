@@ -149,6 +149,7 @@ After completing this phase, you will have:
 
 ### Step 1: Verify Prerequisites
 **Critical:** Ensure ALL 7 previous testing phases are complete:
+
 - [ ] Test Structure phase completed
 - [ ] Unit Tests phase completed
 - [ ] Test Cases phase completed
@@ -199,6 +200,7 @@ go-mutesting ./...
 
 ### Step 6: Use the Template
 Open your selected language template and copy the prompt section into your AI assistant or IDE. Provide:
+
 - Mutation testing results
 - Test coverage reports from all 7 phases
 - Test execution logs

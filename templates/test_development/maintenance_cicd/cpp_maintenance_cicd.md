@@ -10,14 +10,18 @@ phase_number: 7
 difficulty: intermediate
 estimated_time_hours: 3-5
 prerequisites:
+
   - test_development/code_coverage/cpp_code_coverage.md
 related_templates:
+
   - test_development/reward_hacking/cpp_reward_hacking.md
 tools:
+
   - google test
   - catch2
   - boost.test
 tags:
+
   - test-development
   - cpp
 ---
@@ -201,6 +205,7 @@ jobs:
     name: Lint and Format Check
     runs-on: ubuntu-latest
     steps:
+
       - uses: actions/checkout@v3
 
       - name: Install tools
@@ -233,6 +238,7 @@ jobs:
         compiler: [gcc, clang]
         build_type: [Debug, Release]
         exclude:
+
           - os: windows-latest
             compiler: clang
 
@@ -362,6 +368,7 @@ jobs:
     name: Benchmark Tests
     runs-on: ubuntu-latest
     steps:
+
       - uses: actions/checkout@v3
 
       - name: Install dependencies
@@ -405,6 +412,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
         ports:
+
           - 5432:5432
 
       redis:
@@ -415,6 +423,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
         ports:
+
           - 6379:6379
 
     steps:
@@ -445,6 +454,7 @@ jobs:
     name: Security Scan
     runs-on: ubuntu-latest
     steps:
+
       - uses: actions/checkout@v3
 
       - name: Install scan-build
@@ -468,6 +478,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [lint, unit-tests, memory-tests, sanitizer-tests, integration-tests, security]
     steps:
+
       - name: Quality gate passed
         run: echo "All quality checks passed!"
 ```
@@ -478,6 +489,7 @@ jobs:
 
 ```yaml
 stages:
+
   - lint
   - test
   - quality
@@ -488,6 +500,7 @@ variables:
 
 cache:
   paths:
+
     - build/
 
 before_script:
@@ -498,6 +511,7 @@ lint:
   stage: lint
   image: ubuntu:22.04
   script:
+
     - apt-get install -y -qq clang-format cppcheck
     - find src tests -name '*.cpp' -o -name '*.h' -o -name '*.hpp' | xargs clang-format -n -Werror
     - cppcheck --enable=all --error-exitcode=1 --suppress=missingIncludeSystem --std=c++17 src/
@@ -506,6 +520,7 @@ unit-tests:
   stage: test
   image: ubuntu:22.04
   script:
+
     - cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DENABLE_COVERAGE=ON -DENABLE_TESTING=ON
     - cmake --build build
     - cd build && ctest --output-on-failure
@@ -517,6 +532,7 @@ unit-tests:
         coverage_format: cobertura
         path: build/coverage.xml
     paths:
+
       - build/coverage.xml
       - build/Testing/
 
@@ -524,33 +540,39 @@ memory-tests:
   stage: test
   image: ubuntu:22.04
   script:
+
     - apt-get install -y -qq valgrind
     - cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DENABLE_TESTING=ON
     - cmake --build build
     - cd build && ctest -T memcheck --output-on-failure
   artifacts:
     paths:
+
       - build/Testing/Temporary/MemoryChecker.*.log
 
 benchmark:
   stage: test
   image: ubuntu:22.04
   script:
+
     - apt-get install -y -qq libbenchmark-dev
     - cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_BENCHMARKS=ON
     - cmake --build build
     - cd build && ctest -L benchmark --output-on-failure
   artifacts:
     paths:
+
       - build/benchmark-results.json
 
 quality-gate:
   stage: quality
   image: ubuntu:22.04
   script:
+
     - apt-get install -y -qq python3-lxml
     - python3 scripts/check_coverage.py build/coverage.xml 80
   needs:
+
     - unit-tests
 ```
 
@@ -672,20 +694,24 @@ using namespace testing;
 /**
  * Math Utilities Test Suite
  *
+
  * Purpose:
  *   Validate mathematical operations and utility functions.
  *
+
  * Coverage:
  *   - Basic arithmetic operations
  *   - Edge cases (overflow, underflow, division by zero)
  *   - Floating-point precision
  *   - Vector operations
  *
+
  * Maintenance Notes:
  *   - Update tests when adding new math functions
  *   - Check for numerical stability
  *   - Consider performance implications
  *
+
  * Last Review: 2024-01-15
  * Reviewed By: alice@example.com
  */
@@ -827,19 +853,23 @@ pip install pre-commit
 
 ```yaml
 repos:
+
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0
     hooks:
+
       - id: trailing-whitespace
       - id: end-of-file-fixer
       - id: check-yaml
       - id: check-added-large-files
         args: ['--maxkb=1000']
+
       - id: check-merge-conflict
       - id: detect-private-key
 
   - repo: local
     hooks:
+
       - id: clang-format
         name: Format C++ code
         entry: clang-format -i
@@ -911,12 +941,16 @@ WarningsAsErrors: '*'
 HeaderFilterRegex: '.*'
 FormatStyle: file
 CheckOptions:
+
   - key: readability-identifier-naming.ClassCase
     value: CamelCase
+
   - key: readability-identifier-naming.FunctionCase
     value: camelCase
+
   - key: readability-identifier-naming.VariableCase
     value: camelCase
+
   - key: readability-identifier-naming.ConstantCase
     value: UPPER_CASE
 ```

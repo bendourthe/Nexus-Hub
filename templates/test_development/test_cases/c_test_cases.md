@@ -10,14 +10,18 @@ phase_number: 3
 difficulty: intermediate
 estimated_time_hours: 4-8
 prerequisites:
+
   - test_development/unit_tests/c_unit_tests.md
 related_templates:
+
   - test_development/mocks_fixtures/c_mocks_fixtures.md
 tools:
+
   - unity
   - cmocka
   - check
 tags:
+
   - test-development
   - testing
   - c
@@ -230,6 +234,7 @@ Follow this structure for clear, maintainable tests:
  * @file test_user_service.c
  * @brief Unit tests for user_service module.
  *
+
  * Tests cover user creation, validation, and retrieval operations.
  */
 
@@ -755,9 +760,11 @@ Integration tests verify multiple components working together:
 
 ```c
 /**
+
  * @file test_user_integration.c
  * @brief Integration tests for user registration workflow.
  *
+
  * Tests the complete user registration process including
  * validation, database storage, and notification.
  */
@@ -838,8 +845,10 @@ Use Valgrind or similar tools to detect memory issues:
 
 ```c
 /**
+
  * @brief Test for memory leaks in user creation.
  *
+
  * Run with: valgrind --leak-check=full ./test_program
  */
 void test_user_create_and_destroy_no_memory_leak(void)

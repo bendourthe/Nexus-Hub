@@ -10,11 +10,13 @@ difficulty: beginner
 estimated_time_hours: 2-3
 prerequisites: []
 tools:
+
   - pytest (8.3.4+)
   - black (24.12.0)
   - mypy (1.13.0)
   - ruff
 tags:
+
   - documentation
   - documentation
   - python
@@ -650,6 +652,7 @@ Please provide docstrings in this format:
 ```yaml
 # Recommended tools for docstring quality
 tools:
+
   - interrogate: # Docstring coverage measurement
       threshold: 95
 
@@ -661,6 +664,7 @@ tools:
 
   - sphinx: # Documentation generation
       extensions:
+
         - sphinx.ext.autodoc
         - sphinx.ext.napoleon  # Google/NumPy style support
         - sphinx.ext.doctest

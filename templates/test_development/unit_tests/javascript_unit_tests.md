@@ -10,14 +10,18 @@ phase_number: 2
 difficulty: intermediate
 estimated_time_hours: 3-6
 prerequisites:
+
   - test_development/test_structure/javascript_test_structure.md
 related_templates:
+
   - test_development/test_cases/javascript_test_cases.md
 tools:
+
   - jest (29.7.0)
   - eslint (9.15.0)
   - prettier
 tags:
+
   - test-development
   - testing
   - javascript
@@ -454,6 +458,7 @@ Provide comprehensive `jest.config.js` example:
 
 ```javascript
 /**
+
  * Jest configuration for unit tests
  * @type {import('jest').Config}
  */
@@ -585,6 +590,7 @@ Provide `jest.setup.js` example:
 
 ```javascript
 /**
+
  * Global test setup for Jest
  * This file runs before all tests
  */
@@ -667,6 +673,7 @@ Pure functions (no side effects, deterministic) are easiest to test.
 ```javascript
 // src/calculator.js
 /**
+
  * Calculate discounted price
  * @param {number} price - Original price
  * @param {number} discountRate - Discount rate (0.0 to 1.0)
@@ -779,6 +786,7 @@ describe('calculateDiscount', () => {
 // src/user.js
 export class User {
   /**
+
    * Create a new user
    * @param {string} name - User name
    * @param {string} email - User email
@@ -2154,6 +2162,7 @@ Generate the following deliverables:
 
 ### 1. Unit Test Implementation Guide (20-30 pages)
 Comprehensive document saved to `${OUTPUT_DIR}/exports/unit_test_implementation_guide.md` covering:
+
 - FIRST principles detailed explanation
 - AAA pattern with examples
 - Unit vs Integration vs E2E comparison
@@ -2163,6 +2172,7 @@ Comprehensive document saved to `${OUTPUT_DIR}/exports/unit_test_implementation_
 
 ### 2. Test Examples Collection
 File saved to `${OUTPUT_DIR}/exports/unit_test_examples.md` containing:
+
 - 50+ example test functions
 - Pure function tests
 - Class and method tests
@@ -2174,6 +2184,7 @@ File saved to `${OUTPUT_DIR}/exports/unit_test_examples.md` containing:
 
 ### 3. Test Templates
 Files saved to `${OUTPUT_DIR}/templates/`:
+
 - `unit_test_template.js` - Basic test template
 - `class_test_template.js` - Class testing template
 - `async_test_template.js` - Async testing template
@@ -2184,6 +2195,7 @@ Files saved to `${OUTPUT_DIR}/templates/`:
 
 ### 4. Configuration Files
 Files saved to `${OUTPUT_DIR}/templates/`:
+
 - `jest.config.js` - Complete Jest configuration
 - `vitest.config.ts` - Complete Vitest configuration
 - `mocha.opts` - Mocha configuration
@@ -2192,6 +2204,7 @@ Files saved to `${OUTPUT_DIR}/templates/`:
 
 ### 5. Visual Assets
 Files saved to `${OUTPUT_DIR}/assets/`:
+
 - `first_principles_diagram.png` - Visual representation of FIRST principles
 - `aaa_pattern_visualization.png` - AAA pattern flowchart
 - `test_pyramid.png` - Testing pyramid diagram
@@ -2200,6 +2213,7 @@ Files saved to `${OUTPUT_DIR}/assets/`:
 
 ### 6. Anti-Patterns Guide
 File saved to `${OUTPUT_DIR}/exports/anti_patterns_guide.md`:
+
 - Common anti-patterns with examples
 - How to identify each anti-pattern
 - Refactoring strategies
@@ -2208,6 +2222,7 @@ File saved to `${OUTPUT_DIR}/exports/anti_patterns_guide.md`:
 
 ### 7. Unit Test Quality Checklist
 File saved to `${OUTPUT_DIR}/exports/unit_test_quality_checklist.md`:
+
 - Test independence checklist
 - Performance checklist
 - Code quality checklist
@@ -2216,6 +2231,7 @@ File saved to `${OUTPUT_DIR}/exports/unit_test_quality_checklist.md`:
 
 ### 8. Mocking and Stubbing Guide
 File saved to `${OUTPUT_DIR}/exports/mocking_guide.md`:
+
 - When to use mocks vs stubs
 - Jest mocking patterns
 - Module mocking strategies

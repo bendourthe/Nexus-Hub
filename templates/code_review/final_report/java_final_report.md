@@ -10,14 +10,18 @@ phase_number: 6
 difficulty: intermediate
 estimated_time_hours: 1
 prerequisites:
+
   - code_review/testing_review/java_testing_review.md
 related_templates:
+
   - code_review/code_quality/java_code_quality.md
 tools:
+
   - junit (5.11.3)
   - maven
   - gradle
 tags:
+
   - code-review
   - java
 ---
@@ -200,6 +204,7 @@ For each finding, include:
 
 **Recommendation:**
 Move filtering to database with indexed query:
+
 - Add database index on search fields
 - Use database LIKE/ILIKE queries
 - Implement pagination (limit results to 50)
@@ -347,6 +352,7 @@ Create a phased implementation plan:
 
 ### Immediate Actions (Week 1)
 **Critical P0 Items** - Must be addressed immediately:
+
 1. **[Issue]**
    - **Risk**: [what happens if not fixed]
    - **Effort**: [hours/days]
@@ -1183,6 +1189,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+
       - uses: actions/checkout@v3
 
       - name: Set up JDK 17

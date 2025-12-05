@@ -11,13 +11,16 @@ difficulty: intermediate
 estimated_time_hours: 2-3
 prerequisites: []
 related_templates:
+
   - code_review/code_quality/python_code_quality.md
 tools:
+
   - pytest (8.3.4+)
   - black (24.12.0)
   - mypy (1.13.0)
   - ruff
 tags:
+
   - code-review
   - python
 ---
@@ -246,6 +249,7 @@ For each finding, include:
 
 **Recommendation:**
 Move filtering to database with indexed query:
+
 - Add database index on search fields
 - Use database LIKE/ILIKE queries
 - Implement pagination (limit results to 50)
@@ -507,6 +511,7 @@ project/
 
 ### Recommendations for Review Focus
 Based on this context, the following review areas should be prioritized:
+
 1. [Area 1] - [reason]
 2. [Area 2] - [reason]
 3. [Area 3] - [reason]

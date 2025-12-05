@@ -10,10 +10,12 @@ difficulty: beginner
 estimated_time_hours: 2-3
 prerequisites: []
 tools:
+
   - google test
   - catch2
   - boost.test
 tags:
+
   - documentation
   - documentation
   - cpp
@@ -1247,6 +1249,7 @@ jobs:
   sbom:
     runs-on: ubuntu-latest
     steps:
+
       - uses: actions/checkout@v3
 
       - name: Install Conan
@@ -1307,9 +1310,11 @@ sbom:
   stage: build
   image: conanio/gcc11
   before_script:
+
     - pip install cyclonedx-conan
     - curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
   script:
+
     - conan install . --build=missing
     - cmake -B build -DCMAKE_BUILD_TYPE=Release
     - cmake --build build
@@ -1317,6 +1322,7 @@ sbom:
     - syft packages dir:./build -o cyclonedx-json > ${OUTPUT_DIR}/exports/sbom_syft.json
   artifacts:
     paths:
+
       - sbom.json
       - sbom_syft.json
     expire_in: 1 year

@@ -122,6 +122,7 @@ Tell Claude Code to use this skill:
 ```
 "Use the cleanup-go skill to analyze and clean up this Go codebase.
 Focus on:
+
 1. Removing all unused imports, functions, and variables
 2. Consolidating duplicate code
 3. Applying idiomatic Go patterns

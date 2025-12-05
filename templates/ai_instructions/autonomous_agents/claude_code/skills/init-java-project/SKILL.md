@@ -741,6 +741,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 /**
  * Main application class for Task Management API.
  *
+
  * @author Your Name (your.email@example.com)
  */
 @SpringBootApplication
@@ -767,6 +768,7 @@ import java.util.Map;
 /**
  * Health check controller for monitoring application status.
  *
+
  * @author Your Name (your.email@example.com)
  */
 @RestController
@@ -801,6 +803,7 @@ import java.util.Map;
 /**
  * Global exception handler for centralized error handling.
  *
+
  * @author Your Name (your.email@example.com)
  */
 @RestControllerAdvice
@@ -866,10 +869,13 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
     ports:
+
       - "5432:5432"
     volumes:
+
       - postgres_data:/var/lib/postgresql/data
     networks:
+
       - app-network
 
   api:
@@ -877,6 +883,7 @@ services:
       context: ..
       dockerfile: docker/Dockerfile
     ports:
+
       - "8080:8080"
     environment:
       SPRING_PROFILES_ACTIVE: prod
@@ -884,8 +891,10 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: password
     depends_on:
+
       - postgres
     networks:
+
       - app-network
 
 volumes:
@@ -1231,6 +1240,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### REST API with Database
 ```
 Additional Dependencies:
+
 - Spring Data JPA
 - PostgreSQL or MySQL driver
 - Flyway or Liquibase
@@ -1240,6 +1250,7 @@ Additional Dependencies:
 ### Microservice
 ```
 Additional Dependencies:
+
 - Spring Cloud (Config, Discovery)
 - Spring Cloud Gateway
 - Resilience4j
@@ -1249,6 +1260,7 @@ Additional Dependencies:
 ### Reactive Application
 ```
 Additional Dependencies:
+
 - Spring WebFlux
 - R2DBC drivers
 - Reactor Test

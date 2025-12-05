@@ -582,6 +582,7 @@ if __name__ == "__main__":
 ### Web API
 ```
 Dependencies:
+
 - fastapi
 - uvicorn
 - pydantic
@@ -596,6 +597,7 @@ Structure additions:
 ### Data Science Project
 ```
 Dependencies:
+
 - pandas
 - numpy
 - matplotlib
@@ -612,6 +614,7 @@ Structure additions:
 ### Library/Package
 ```
 Additional files:
+
 - setup.py
 - MANIFEST.in
 - LICENSE
@@ -627,6 +630,7 @@ Focus on:
 ### Minimal Setup (Fast Start)
 ```
 "Use init-python-project with minimal configuration:
+
 - Basic structure only
 - Essential documentation
 - Skip CI/CD files
@@ -636,6 +640,7 @@ Focus on:
 ### Full Setup (Production-Ready)
 ```
 "Use init-python-project with full configuration:
+
 - Complete directory structure
 - GitHub Actions CI/CD
 - Pre-commit hooks
@@ -646,6 +651,7 @@ Focus on:
 ### Custom Template
 ```
 "Use init-python-project with custom requirements:
+
 - FastAPI web application
 - PostgreSQL database
 - Docker configuration
@@ -670,17 +676,21 @@ pre-commit install
 Create `.pre-commit-config.yaml`:
 ```yaml
 repos:
+
   - repo: https://github.com/psf/black
     rev: 22.10.0
     hooks:
+
       - id: black
   - repo: https://github.com/pycqa/isort
     rev: 5.10.1
     hooks:
+
       - id: isort
   - repo: https://github.com/pycqa/flake8
     rev: 5.0.4
     hooks:
+
       - id: flake8
 ```
 

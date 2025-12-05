@@ -10,10 +10,12 @@ difficulty: beginner
 estimated_time_hours: 4-6
 prerequisites: []
 tools:
+
   - jest (29.7.0)
   - eslint (9.15.0)
   - prettier
 tags:
+
   - documentation
   - documentation
   - javascript
@@ -587,12 +589,15 @@ Document how data moves through the system:
 1. Client Request
    │
    ▼
+
 2. Load Balancer/API Gateway
    │
    ▼
+
 3. Middleware (auth, logging, rate limit)
    │
    ▼
+
 4. Route Handler (src/api/routes/)
    │
    ├─► Parse request body
@@ -600,12 +605,14 @@ Document how data moves through the system:
    └─► Extract authentication token
        │
        ▼
+
 5. Controller (src/api/controllers/)
    │
    ├─► Map request to service call
    └─► Handle response formatting
        │
        ▼
+
 6. Service (src/services/)
    │
    ├─► Apply business rules
@@ -613,6 +620,7 @@ Document how data moves through the system:
    └─► Validate business constraints
        │
        ▼
+
 7. Repository (src/repositories/)
    │
    ├─► Build query
@@ -620,9 +628,11 @@ Document how data moves through the system:
    └─► Map DB models to domain models
        │
        ▼
+
 8. Database
    │
    ▼
+
 9. Response flows back up through layers
    │
    └─► Transform → Serialize → Return
@@ -741,9 +751,11 @@ class UserRepository {
 1. Event Trigger
    │
    ▼
+
 2. Event Published to Queue/Event Bus
    │
    ▼
+
 3. Event Dispatcher Routes to Handlers
    │
    ├─► Handler 1: Send welcome email
@@ -751,6 +763,7 @@ class UserRepository {
    └─► Handler 3: Trigger workflows
        │
        ▼
+
 4. Each Handler Processes Independently
    │
    └─► Results logged/monitored
@@ -1199,6 +1212,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
+
       - run: # Deployment commands
 ```
 

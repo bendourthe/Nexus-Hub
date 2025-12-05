@@ -10,14 +10,18 @@ phase_number: 4
 difficulty: intermediate
 estimated_time_hours: 3-5
 prerequisites:
+
   - test_development/test_cases/c_test_cases.md
 related_templates:
+
   - test_development/performance_testing/c_performance_testing.md
 tools:
+
   - unity
   - cmocka
   - check
 tags:
+
   - test-development
   - c
 ---

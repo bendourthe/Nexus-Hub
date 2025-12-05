@@ -10,10 +10,12 @@ difficulty: beginner
 estimated_time_hours: 4-8
 prerequisites: []
 tools:
+
   - junit (5.11.3)
   - maven
   - gradle
 tags:
+
   - documentation
   - documentation
   - java
@@ -198,11 +200,13 @@ paths:
       tags: [Users]
       summary: List users
       parameters:
+
         - name: page
           in: query
           schema:
             type: integer
             default: 0
+
         - name: size
           in: query
           schema:

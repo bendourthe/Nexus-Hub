@@ -10,11 +10,13 @@ difficulty: intermediate
 estimated_time_hours: 2-4
 prerequisites: []
 tools:
+
   - pytest (8.3.4+)
   - black (24.12.0)
   - mypy (1.13.0)
   - ruff
 tags:
+
   - ai-templates
   - refactoring
   - python
@@ -432,6 +434,7 @@ After cleanup, you MUST:
 3. **Request that I run tests** to verify nothing broke:
 Please run your test suite to verify the cleanup didn't break anything:
 python tests/run_all_tests.py
+
 4. **Document cleanup** in DEVLOG.md under a new section:
 ```markdown
    ### Code Cleanup - [Date]

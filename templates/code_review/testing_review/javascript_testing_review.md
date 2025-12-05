@@ -10,14 +10,18 @@ phase_number: 5
 difficulty: intermediate
 estimated_time_hours: 2
 prerequisites:
+
   - code_review/performance_review/javascript_performance_review.md
 related_templates:
+
   - code_review/code_quality/javascript_code_quality.md
 tools:
+
   - jest (29.7.0)
   - eslint (9.15.0)
   - prettier
 tags:
+
   - code-review
   - testing
   - code-review
@@ -260,6 +264,7 @@ For each finding, include:
 
 **Recommendation:**
 Move filtering to database with indexed query:
+
 - Add database index on search fields
 - Use database LIKE/ILIKE queries
 - Implement pagination (limit results to 50)
@@ -915,10 +920,12 @@ test.describe('Login functionality', () => {
      test:
        runs-on: ubuntu-latest
        steps:
+
          - uses: actions/checkout@v3
          - uses: actions/setup-node@v3
            with:
              node-version: '18'
+
          - run: npm ci
          - run: npm test -- --coverage
          - uses: codecov/codecov-action@v3

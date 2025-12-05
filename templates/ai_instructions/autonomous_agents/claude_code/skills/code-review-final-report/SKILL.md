@@ -54,6 +54,7 @@ Reviews: *completed independently*
 Findings: *scattered across documents*
 Team: *unclear what to prioritize*
 Result:
+
 - ❌ Findings don't get implemented
 - ❌ Critical issues overlooked
 - ❌ Resources wasted on low-impact items
@@ -68,6 +69,7 @@ Reviews: *consolidated and synthesized*
 Findings: *prioritized and actionable*
 Team: *clear implementation roadmap*
 Result:
+
 - ✅ Critical issues addressed first
 - ✅ Resources used efficiently
 - ✅ Stakeholders informed
@@ -218,24 +220,28 @@ Result:
    ```
    High Impact, Low Effort (DO FIRST - Quick Wins)
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
    - Add database index on users.email (1 hour → 10x faster queries)
    - Fix SQL injection in auth.py (2 hours → eliminate critical vulnerability)
    - Cache expensive calculation (3 hours → 50% response time reduction)
 
    High Impact, High Effort (PLAN CAREFULLY - Strategic)
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
    - Refactor authentication system (3 weeks → eliminate multiple security issues)
    - Optimize algorithm complexity (2 weeks → 100x performance improvement)
    - Implement comprehensive E2E test suite (4 weeks → reduce production bugs)
 
    Low Impact, Low Effort (DO WHEN TIME PERMITS)
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
    - Fix code style violations (4 hours → better consistency)
    - Add missing docstrings (1 day → improved documentation)
    - Rename poorly named variables (2 hours → better readability)
 
    Low Impact, High Effort (AVOID - Not Worth It)
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
    - Rewrite entire module in new language (3 months → marginal benefit)
    - Over-engineer abstraction layer (2 weeks → adds complexity)
    ```

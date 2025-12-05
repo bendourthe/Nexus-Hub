@@ -10,10 +10,12 @@ difficulty: beginner
 estimated_time_hours: 4-6
 prerequisites: []
 tools:
+
   - unity
   - cmocka
   - check
 tags:
+
   - documentation
   - documentation
   - c
@@ -642,6 +644,7 @@ gcov src/*.c
 
 ```c
 /**
+
  * @file mylib.h
  * @brief Main API for MyLib
  * @author John Doe
@@ -651,11 +654,14 @@ gcov src/*.c
 /**
  * @brief Initialize the library
  *
+
  * This function must be called before any other library functions.
  *
+
  * @param config Configuration structure
  * @return 0 on success, negative error code on failure
  *
+
  * @see mylib_cleanup()
  */
 int mylib_init(mylib_config_t *config);

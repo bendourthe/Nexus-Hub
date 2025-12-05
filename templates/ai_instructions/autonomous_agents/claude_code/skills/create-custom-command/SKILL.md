@@ -631,6 +631,7 @@ Generate [type of artifact] following project conventions.
 
 ## Output Format
 Provide:
+
 1. Complete [artifact] ready to use
 2. File location recommendation
 3. Usage instructions
@@ -662,18 +663,21 @@ Perform analysis of [aspect] in the codebase.
 
 ### 1. [Dimension 1]
 Look for:
+
 - Pattern 1
 - Pattern 2
 - Red flags
 
 ### 2. [Dimension 2]
 Evaluate:
+
 - Metric 1
 - Metric 2
 - Best practices
 
 ### 3. [Dimension 3]
 Assess:
+
 - Quality indicator 1
 - Quality indicator 2
 
@@ -862,6 +866,7 @@ class UserCreate(BaseModel):
 
 ### 3. Controller/Handler
 Implement business logic:
+
 - Validate input
 - Call service layer
 - Handle errors
@@ -869,6 +874,7 @@ Implement business logic:
 
 ### 4. Service Layer
 Business logic implementation:
+
 - Database operations
 - Validation logic
 - External API calls
@@ -876,6 +882,7 @@ Business logic implementation:
 
 ### 5. Tests
 Generate test cases:
+
 - Happy path test
 - Invalid input tests
 - Authentication tests
@@ -884,6 +891,7 @@ Generate test cases:
 
 ### 6. Documentation
 Generate:
+
 - OpenAPI/Swagger documentation
 - Request/response examples
 - Error code documentation
@@ -925,6 +933,7 @@ Guide through creating a safe database migration.
 
 ### 1. Define Changes
 What needs to change?
+
 - [ ] Add table
 - [ ] Modify table
 - [ ] Remove table
@@ -942,6 +951,7 @@ What needs to change?
 
 ### 3. Migration Strategy
 Choose approach:
+
 - **Non-breaking**: Add new, deprecate old
 - **Breaking**: Requires downtime
 - **Multi-phase**: Gradual transition
@@ -1295,6 +1305,7 @@ stats.print_stats(20)
 
 ### 1.2 Identify Bottlenecks
 Look for:
+
 - Functions taking most time
 - Database queries (N+1 problems)
 - I/O operations
@@ -1303,6 +1314,7 @@ Look for:
 
 ### 1.3 Establish Baseline
 Record current performance:
+
 - Execution time
 - Memory usage
 - Database query count
@@ -2020,6 +2032,7 @@ curl https://api.example.com/health
 
 ### Rollback Criteria
 Rollback if:
+
 - Error rate > 5%
 - Response time > 2x normal
 - Health checks failing
@@ -2120,22 +2133,27 @@ def calculate_order_total(items: List[Item], tax_rate: float = 0.08) -> Decimal:
 ### JavaScript (JSDoc)
 ```javascript
 /**
+
  * Calculate the total cost of an order including tax.
  *
+
  * Calculates the subtotal of all items, applies the tax rate,
  * and returns the final total rounded to 2 decimal places.
  *
+
  * @param {Array<Item>} items - List of items in the order
  * @param {number} [taxRate=0.08] - Tax rate as decimal (default 8%)
  * @returns {number} Order total rounded to 2 decimal places
  * @throws {Error} If tax rate is negative or > 1
  * @throws {Error} If items array is empty
  *
+
  * @example
  * const items = [{ price: 10.00 }, { price: 20.00 }];
  * calculateOrderTotal(items, 0.08);
  * // Returns: 32.40
  *
+
  * @author Benjamin Dourthe <benjamin@adonamed.com>
  */
 function calculateOrderTotal(items, taxRate = 0.08) {
@@ -2146,17 +2164,21 @@ function calculateOrderTotal(items, taxRate = 0.08) {
 ### Java (Javadoc)
 ```java
 /**
+
  * Calculate the total cost of an order including tax.
  *
+
  * <p>Calculates the subtotal of all items, applies the tax rate,
  * and returns the final total rounded to 2 decimal places.</p>
  *
+
  * @param items List of items in the order
  * @param taxRate Tax rate as decimal (e.g., 0.08 for 8%)
  * @return Order total as BigDecimal rounded to 2 decimal places
  * @throws IllegalArgumentException if tax rate is negative or > 1
  * @throws IllegalArgumentException if items list is empty
  *
+
  * @see Item
  * @since 1.0
  * @author Benjamin Dourthe (benjamin@adonamed.com)
@@ -2247,6 +2269,7 @@ Usage:
 
 Configuration:
     Set these environment variables:
+
     - PAYMENT_API_KEY: Payment gateway API key
     - INVENTORY_API_URL: Inventory service URL
     - ORDER_TIMEOUT: Order processing timeout in seconds
@@ -2607,6 +2630,7 @@ git diff --cached
 
 ### 2. Choose Type
 Based on changes:
+
 - New feature → `feat`
 - Bug fix → `fix`
 - Refactoring → `refactor`
@@ -2616,6 +2640,7 @@ Based on changes:
 
 ### 3. Determine Scope
 Scope identifies affected component:
+
 - `auth` - Authentication/authorization
 - `api` - API endpoints
 - `db` - Database

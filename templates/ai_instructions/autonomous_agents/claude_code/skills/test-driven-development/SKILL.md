@@ -63,6 +63,7 @@ This skill implements the **Red-Green-Refactor** TDD cycle:
 Developer: *writes 200 lines of code*
 Developer: *writes tests afterward*
 Result:
+
 - ❌ Tests influenced by implementation (not requirements)
 - ❌ Hard-to-test code (not designed for testability)
 - ❌ Missing edge cases
@@ -78,6 +79,7 @@ Developer: *writes minimal code to pass test*
 Developer: *refactors with confidence*
 Developer: *repeats for next requirement*
 Result:
+
 - ✅ Tests driven by requirements (not implementation)
 - ✅ Code naturally testable (designed for testing)
 - ✅ Edge cases discovered early
@@ -420,6 +422,7 @@ git commit -m "feat: add email validation with comprehensive tests"
    └──────────────┘       └──────────────┘       └──────────────┘
                                                          │
                                                          ▼
+
     6. Next Feature       5. Commit            4. Run Test
    ┌──────────────┐       ┌──────────────┐       ┌──────────────┐
    │              │       │              │       │              │
@@ -875,6 +878,7 @@ def test_user_service_returns_user_by_id():
 **Last Updated**: October 2025
 **Based on**: Anthropic Claude Code Best Practices 2025, ai_templates Test Development Templates
 **Template Sources**:
+
 - `test_development/test_structure/*.md`
 - `test_development/test_cases/*.md`
 - `test_development/code_coverage/*.md`

@@ -10,10 +10,12 @@ difficulty: intermediate
 estimated_time_hours: 2-4
 prerequisites: []
 tools:
+
   - unity
   - cmocka
   - check
 tags:
+
   - claude-code
   - c
 ---
@@ -748,6 +750,7 @@ Since you requested Git help:
 
 ### DEVLOG.md Updates
 Safe to update without permission:
+
 - Task lists
 - Development history
 - Challenges/solutions

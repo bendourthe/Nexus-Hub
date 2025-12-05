@@ -11,11 +11,14 @@ difficulty: intermediate
 estimated_time_hours: 2-4
 prerequisites: []
 related_templates:
+
   - test_development/unit_tests/go_unit_tests.md
 tools:
+
   - go test (1.23+)
   - testify
 tags:
+
   - test-development
   - testing
   - go

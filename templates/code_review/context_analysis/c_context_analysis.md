@@ -11,12 +11,15 @@ difficulty: intermediate
 estimated_time_hours: 2-3
 prerequisites: []
 related_templates:
+
   - code_review/code_quality/c_code_quality.md
 tools:
+
   - unity
   - cmocka
   - check
 tags:
+
   - code-review
   - c
 ---
@@ -255,6 +258,7 @@ For each finding, include:
 
 **Recommendation:**
 Move filtering to database with indexed query:
+
 - Add database index on search fields
 - Use database LIKE/ILIKE queries
 - Implement pagination (limit results to 50)
@@ -377,6 +381,7 @@ Please perform a comprehensive context analysis of this C/embedded project follo
 2. **Initialization & Boot Sequence**
    ```c
    // Trace startup sequence:
+
    1. Reset vector (startup_*.s or startup_*.c)
    2. SystemInit() - Clock and core configuration
    3. __libc_init_array() - C runtime initialization
@@ -396,6 +401,7 @@ Please perform a comprehensive context analysis of this C/embedded project follo
 4. **Memory Architecture**
    ```
    Analyze linker script (.ld file):
+
    - Code section (.text)
    - Initialized data (.data)
    - Uninitialized data (.bss)
@@ -690,6 +696,7 @@ project/
 
 ### Recommendations for Review Focus
 Based on this context, the following review areas should be prioritized:
+
 1. [Area 1] - [reason]
 2. [Area 2] - [reason]
 3. [Area 3] - [reason]

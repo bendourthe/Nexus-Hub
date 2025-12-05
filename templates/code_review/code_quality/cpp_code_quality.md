@@ -10,14 +10,18 @@ phase_number: 2
 difficulty: intermediate
 estimated_time_hours: 2-3
 prerequisites:
+
   - code_review/context_analysis/cpp_context_analysis.md
 related_templates:
+
   - code_review/security_review/cpp_security_review.md
 tools:
+
   - google test
   - catch2
   - boost.test
 tags:
+
   - code-review
   - cpp
 ---
@@ -274,6 +278,7 @@ For each finding, include:
 
 **Recommendation:**
 Move filtering to database with indexed query:
+
 - Add database index on search fields
 - Use database LIKE/ILIKE queries
 - Implement pagination (limit results to 50)
@@ -633,6 +638,7 @@ Please perform a comprehensive code quality review of this C++ project following
    ```cpp
    // Verify noexcept specifications
    // Should be noexcept:
+
    - Destructors
    - Move constructors
    - Move assignment operators
@@ -657,6 +663,7 @@ Please perform a comprehensive code quality review of this C++ project following
    ```cpp
    // Check for Doxygen/documentation comments
    /**
+
     * @brief Brief description
     * @param param1 Description of param1
     * @param param2 Description of param2
@@ -904,6 +911,7 @@ Checks: 'modernize-*,performance-*,readability-*,bugprone-*,cppcoreguidelines-*'
 WarningsAsErrors: '*'
 HeaderFilterRegex: '.*'
 CheckOptions:
+
   - key: modernize-use-nullptr.NullMacros
     value: 'NULL'
 
@@ -915,13 +923,16 @@ PointerAlignment: Left
 
 # Example pre-commit hook
 repos:
+
   - repo: local
     hooks:
+
       - id: clang-format
         name: clang-format
         entry: clang-format --dry-run -Werror
         language: system
         files: \.(cpp|hpp|h)$
+
       - id: clang-tidy
         name: clang-tidy
         entry: clang-tidy

@@ -10,14 +10,18 @@ phase_number: 2
 difficulty: intermediate
 estimated_time_hours: 2-3
 prerequisites:
+
   - code_review/context_analysis/c_context_analysis.md
 related_templates:
+
   - code_review/security_review/c_security_review.md
 tools:
+
   - unity
   - cmocka
   - check
 tags:
+
   - code-review
   - c
 ---
@@ -246,6 +250,7 @@ For each finding, include:
 
 **Recommendation:**
 Move filtering to database with indexed query:
+
 - Add database index on search fields
 - Use database LIKE/ILIKE queries
 - Implement pagination (limit results to 50)
@@ -409,6 +414,7 @@ Please perform a comprehensive code quality review of this embedded C project fo
 
    // Good: Function documentation
    /**
+
     * @brief Initialize UART peripheral for debug communication
     * @param baudrate Desired baud rate (9600, 115200, etc.)
     * @return 0 on success, -1 on error

@@ -11,12 +11,15 @@ difficulty: intermediate
 estimated_time_hours: 2-3
 prerequisites: []
 related_templates:
+
   - code_review/code_quality/cpp_code_quality.md
 tools:
+
   - google test
   - catch2
   - boost.test
 tags:
+
   - code-review
   - cpp
 ---
@@ -257,6 +260,7 @@ For each finding, include:
 
 **Recommendation:**
 Move filtering to database with indexed query:
+
 - Add database index on search fields
 - Use database LIKE/ILIKE queries
 - Implement pagination (limit results to 50)
@@ -666,6 +670,7 @@ project/
 
 ### Recommendations for Review Focus
 Based on this context, the following review areas should be prioritized:
+
 1. **Memory Safety** - [reason based on findings]
 2. **Performance** - [reason based on findings]
 3. **Code Quality** - [reason based on findings]

@@ -10,6 +10,7 @@ difficulty: intermediate
 estimated_time_hours: 2-4
 prerequisites: []
 tags:
+
   - claude-code
   - generic
 ---
@@ -132,6 +133,7 @@ Brief overview paragraph.
 
 ## What This Skill Does
 Detailed description of:
+
 1. Primary capabilities
 2. Secondary features
 3. Output artifacts
@@ -222,6 +224,7 @@ finally use code-review-quality to verify everything"
 ### Parameterized
 ```
 "Use cleanup-python focusing only on:
+
 1. Removing unused imports
 2. Modernizing to f-strings
 3. Organizing imports"

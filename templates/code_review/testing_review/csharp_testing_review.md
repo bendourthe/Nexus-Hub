@@ -10,14 +10,18 @@ phase_number: 5
 difficulty: intermediate
 estimated_time_hours: 2
 prerequisites:
+
   - code_review/performance_review/csharp_performance_review.md
 related_templates:
+
   - code_review/code_quality/csharp_code_quality.md
 tools:
+
   - NUnit (4.2.2)
   - xUnit
   - MSTest
 tags:
+
   - code-review
   - testing
   - code-review
@@ -260,6 +264,7 @@ For each finding, include:
 
 **Recommendation:**
 Move filtering to database with indexed query:
+
 - Add database index on search fields
 - Use database LIKE/ILIKE queries
 - Implement pagination (limit results to 50)
@@ -627,6 +632,7 @@ Please perform a comprehensive testing review of this C# project following this 
    # Open report/index.html and review uncovered lines
    ```
    Focus on:
+
    - Critical business logic without tests
    - Error handling paths not covered
    - Edge cases not tested
@@ -728,16 +734,21 @@ Please perform a comprehensive testing review of this C# project following this 
      test:
        runs-on: ubuntu-latest
        steps:
+
          - uses: actions/checkout@v3
          - uses: actions/setup-dotnet@v3
            with:
              dotnet-version: '8.0.x'
+
          - name: Restore
            run: dotnet restore
+
          - name: Build
            run: dotnet build --no-restore
+
          - name: Test with coverage
            run: dotnet test --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+
          - name: Upload coverage
            uses: codecov/codecov-action@v3
            with:

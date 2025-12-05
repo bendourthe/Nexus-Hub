@@ -10,6 +10,7 @@ difficulty: intermediate
 estimated_time_hours: 2-4
 prerequisites: []
 tags:
+
   - coding-assistants
   - generic
 ---
@@ -1182,6 +1183,7 @@ When implementing new features, fixing bugs, or troubleshooting issues, follow t
 
 ### Feature: User Authentication
 **Iteration 1**: Created tests/temp/temp_feature_validation_test.go
+
 - Tests failed: Password validation too weak
 - Solution: Enhanced regex pattern
 

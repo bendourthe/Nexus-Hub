@@ -10,10 +10,12 @@ difficulty: beginner
 estimated_time_hours: 3-4
 prerequisites: []
 tools:
+
   - junit (5.11.3)
   - maven
   - gradle
 tags:
+
   - documentation
   - documentation
   - java
@@ -182,6 +184,7 @@ Please create comprehensive user documentation for this Java project following t
 
 3. **Outline Documentation Structure**
    Plan what documentation is needed:
+
    - [ ] README.md (essential)
    - [ ] INSTALL.md or installation section
    - [ ] QUICKSTART.md or quick start guide

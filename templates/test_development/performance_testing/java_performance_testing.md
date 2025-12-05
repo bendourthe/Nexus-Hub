@@ -10,14 +10,18 @@ phase_number: 5
 difficulty: advanced
 estimated_time_hours: 4-6
 prerequisites:
+
   - test_development/mocks_fixtures/java_mocks_fixtures.md
 related_templates:
+
   - test_development/code_coverage/java_code_coverage.md
 tools:
+
   - junit (5.11.3)
   - maven
   - gradle
 tags:
+
   - test-development
   - testing
   - performance
@@ -264,6 +268,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Benchmark for data processing operations.
  *
+
  * Run with: java -jar target/benchmarks.jar
  */
 @BenchmarkMode(Mode.AverageTime)
@@ -487,6 +492,7 @@ import scala.concurrent.duration._
 /**
  * Basic load test for REST API.
  *
+
  * Run with: mvn gatling:test -Dgatling.simulationClass=simulations.BasicApiSimulation
  */
 class BasicApiSimulation extends Simulation {
@@ -1166,6 +1172,7 @@ on:
   pull_request:
     branches: [ main ]
   schedule:
+
     - cron: '0 2 * * *'
 
 jobs:

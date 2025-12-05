@@ -10,6 +10,7 @@ difficulty: intermediate
 estimated_time_hours: 2-4
 prerequisites: []
 tags:
+
   - coding-assistants
   - generic
 ---
@@ -198,12 +199,15 @@ std::vector<int> getData() {
 
 ```cpp
 /**
+
  * @brief Process data with validation
  *
+
  * @param data Input data vector
  * @return Result Operation result
  * @throws std::invalid_argument If data is empty
  *
+
  * @note Thread-safe
  */
 Result processData(const std::vector<uint8_t>& data);

@@ -10,6 +10,7 @@ difficulty: intermediate
 estimated_time_hours: 2-4
 prerequisites: []
 tags:
+
   - skills
   - generic
 ---
@@ -371,6 +372,7 @@ project_license: MIT
 allowed_licenses:
   # Permissive licenses - always allowed
   permissive:
+
     - MIT
     - BSD-2-Clause
     - BSD-3-Clause
@@ -381,6 +383,7 @@ allowed_licenses:
 
   # Weak copyleft - allowed with conditions
   weak_copyleft:
+
     - LGPL-2.1
     - LGPL-3.0
     - MPL-2.0
@@ -584,16 +587,19 @@ name: License Compliance
 on:
   pull_request:
     paths:
+
       - 'requirements.txt'
       - 'package.json'
       - 'pom.xml'
   schedule:
+
     - cron: '0 0 * * 0'  # Weekly check
 
 jobs:
   license-check:
     runs-on: ubuntu-latest
     steps:
+
     - uses: actions/checkout@v3
 
     - name: Set up Python

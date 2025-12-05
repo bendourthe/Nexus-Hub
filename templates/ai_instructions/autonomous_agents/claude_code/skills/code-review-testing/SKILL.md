@@ -54,6 +54,7 @@ Team: *writes tests inconsistently*
 Tests: *provide false confidence*
 Bugs: *slip through to production*
 Result:
+
 - ❌ Low coverage leaves bugs undiscovered
 - ❌ Flaky tests waste developer time
 - ❌ Poor test quality doesn't catch regressions
@@ -68,6 +69,7 @@ Team: *follows testing best practices*
 Tests: *provide real confidence*
 Bugs: *caught before deployment*
 Result:
+
 - ✅ High coverage catches bugs early
 - ✅ Reliable tests save developer time
 - ✅ Quality tests prevent regressions

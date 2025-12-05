@@ -10,14 +10,18 @@ phase_number: 3
 difficulty: intermediate
 estimated_time_hours: 4-8
 prerequisites:
+
   - test_development/unit_tests/javascript_unit_tests.md
 related_templates:
+
   - test_development/mocks_fixtures/javascript_mocks_fixtures.md
 tools:
+
   - jest (29.7.0)
   - eslint (9.15.0)
   - prettier
 tags:
+
   - test-development
   - testing
   - javascript
@@ -223,8 +227,10 @@ Follow this structure for clear, maintainable tests:
 
 ```javascript
 /**
+
  * Unit tests for userService module.
  *
+
  * Tests cover user creation, validation, and retrieval.
  */
 import { createUser, validateEmail, getUserById } from './userService';
@@ -573,8 +579,10 @@ Integration tests verify multiple components working together:
 
 ```javascript
 /**
+
  * Integration tests for user registration workflow.
  *
+
  * Tests the complete user registration process including
  * validation, database storage, and email notification.
  */
@@ -730,8 +738,10 @@ E2E tests validate complete user workflows (using Cypress or Puppeteer):
 
 ```javascript
 /**
+
  * End-to-end tests for e-commerce checkout flow.
  *
+
  * Tests the complete user journey from adding items to cart
  * through payment and order confirmation.
  */

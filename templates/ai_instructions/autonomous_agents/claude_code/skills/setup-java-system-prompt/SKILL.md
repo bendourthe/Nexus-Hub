@@ -233,6 +233,7 @@ git push
 
 ### 1. Import Organization
 Automatically organizes imports in the correct order:
+
 1. **Java standard library** (java.*)
 2. **Java extensions** (javax.*)
 3. **Spring framework** (org.springframework.*)
@@ -388,8 +389,10 @@ class UserControllerIntegrationTest {
 **Complex Methods**:
 ```java
 /**
+
  * Processes user registration with email verification.
  *
+
  * <p>This method handles the complete user registration flow including:
  * <ul>
  *   <li>Email validation and uniqueness check</li>
@@ -397,6 +400,7 @@ class UserControllerIntegrationTest {
  *   <li>Verification token generation and email dispatch</li>
  * </ul>
  *
+
  * @param registrationRequest the user registration data containing email and password
  * @return UserDTO containing the newly created user information
  * @throws EmailAlreadyExistsException if the email is already registered
@@ -412,8 +416,10 @@ public UserDTO registerUser(RegistrationRequest registrationRequest) {
 **Simple Methods**:
 ```java
 /**
+
  * Retrieves all active users.
  *
+
  * @return list of active users
  */
 public List<UserDTO> findActiveUsers() {

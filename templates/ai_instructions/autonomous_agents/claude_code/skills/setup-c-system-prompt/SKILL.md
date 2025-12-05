@@ -308,6 +308,7 @@ git push
 
 ### 1. Include Organization
 Automatically organizes includes in the correct order:
+
 1. System headers (alphabetically sorted)
 2. Third-party library headers (alphabetically sorted)
 3. Project headers (alphabetically sorted)
@@ -422,17 +423,22 @@ cleanup:
 **Function documentation:**
 ```c
 /**
+
  * @brief Create a new buffer with specified size
  *
+
  * Allocates memory for a buffer structure and initializes
  * it with the specified initial capacity.
  *
+
  * @param[in] initial_size Initial capacity in bytes
  * @return Pointer to new buffer, or NULL on allocation failure
  *
+
  * @note Caller is responsible for calling buffer_destroy()
  * @see buffer_destroy()
  *
+
  * @author Benjamin Dourthe (benjamin@adonamed.com)
  */
 buffer_t *buffer_create(size_t initial_size);
@@ -533,6 +539,7 @@ analysis:
 
 ### 10. Development Workflow
 **Iterative testing protocol:**
+
 1. Create temp tests in `tests/temp/`
 2. Write challenging tests with edge cases
 3. Implement solution
@@ -553,6 +560,7 @@ analysis:
 
 ### Issue: Embedded Features Not Recognized
 **Solution**:
+
 - Use comprehensive version for embedded projects
 - Specify target platform in questions: "How do I implement I2C HAL for STM32?"
 
@@ -561,6 +569,7 @@ analysis:
 
 ### Issue: Static Analysis Warnings Inconsistent
 **Solution**:
+
 - Create `.clang-tidy` configuration in project root
 - Run with: `clang-tidy src/*.c -- -Iinclude -std=c11`
 - Add suppression for false positives

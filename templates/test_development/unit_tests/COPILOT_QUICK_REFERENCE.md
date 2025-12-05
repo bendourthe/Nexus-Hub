@@ -537,6 +537,7 @@ open build/coverage/index.html
 
 # Step 3: Prompt Copilot
 Generate tests for Calculator.cpp lines 45-52 (multiply method edge cases). Cover:
+
 - Multiplication by zero
 - Negative number multiplication
 - Overflow detection for INT_MAX * 2
@@ -551,6 +552,7 @@ Generate tests for Calculator.cpp lines 45-52 (multiply method edge cases). Cove
 **Prompt**:
 ```
 Generate property-based tests for Calculator::add verifying:
+
 - Commutativity: a + b == b + a
 - Associativity: (a + b) + c == a + (b + c)
 - Identity: a + 0 == a

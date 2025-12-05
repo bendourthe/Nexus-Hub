@@ -8,6 +8,7 @@ category: Documentation
 priority: MEDIUM
 tags: [documentation, docstrings, jsdoc, javadoc, xml-docs, godoc, doxygen, comments, type-hints]
 template_sources:
+
   - documentation/docstrings/python_docstrings.md
   - documentation/docstrings/javascript_docstrings.md
   - documentation/docstrings/java_docstrings.md
@@ -111,21 +112,26 @@ This skill generates language-appropriate docstrings and documentation:
 - **Examples**:
   ```javascript
   /**
+
    * Process and filter data items based on threshold.
    *
+
    * Filters input items by comparing their score against the threshold value,
    * returning only items that meet or exceed the threshold.
    *
+
    * @param {Array<Object>} items - List of objects containing data with 'score' property
    * @param {number} [threshold=0.5] - Minimum score value for inclusion
    * @returns {Array<Object>} Filtered array of objects meeting threshold criteria
    * @throws {Error} If items array is empty or threshold is negative
    *
+
    * @example
    * const data = [{id: 1, score: 0.8}, {id: 2, score: 0.3}];
    * const result = processData(data, 0.5);
    * console.log(result.length); // 1
    *
+
    * @author Benjamin Dourthe <benjamin@adonamed.com>
    * @version 1.0.0
    */
@@ -136,8 +142,10 @@ This skill generates language-appropriate docstrings and documentation:
 
   ```typescript
   /**
+
    * Process and filter data items based on threshold.
    *
+
    * @template T - Type of data items
    * @param items - List of typed objects with score property
    * @param threshold - Minimum score value for inclusion
@@ -158,17 +166,21 @@ This skill generates language-appropriate docstrings and documentation:
 - **Examples**:
   ```java
   /**
+
    * Process and filter data items based on threshold.
    *
+
    * <p>Filters input items by comparing their score against the threshold value,
    * returning only items that meet or exceed the threshold.</p>
    *
+
    * @param items List of data items with score property
    * @param threshold Minimum score value for inclusion (must be non-negative)
    * @return List of filtered items meeting threshold criteria
    * @throws IllegalArgumentException if items is null or empty, or threshold is negative
    * @throws NullPointerException if any item in list is null
    *
+
    * @example
    * <pre>{@code
    * List<DataItem> data = Arrays.asList(
@@ -179,6 +191,7 @@ This skill generates language-appropriate docstrings and documentation:
    * assert result.size() == 1;
    * }</pre>
    *
+
    * @author Benjamin Dourthe
    * @version 1.0.0
    * @since 1.0
@@ -268,20 +281,25 @@ This skill generates language-appropriate docstrings and documentation:
 - **Examples**:
   ```c
   /**
+
    * @brief Process and filter data items based on threshold.
    *
+
    * Filters input items by comparing their score against the threshold value,
    * returning only items that meet or exceed the threshold.
    *
+
    * @param items Array of data_item_t structures with score field
    * @param item_count Number of items in the array
    * @param threshold Minimum score value for inclusion
    * @param result_count Pointer to store count of filtered items
    * @return Pointer to newly allocated array of filtered items, or NULL on error
    *
+
    * @note Caller is responsible for freeing returned array with free()
    * @warning Returns NULL if items is NULL, item_count is 0, or threshold is negative
    *
+
    * @code
    * data_item_t data[] = {{1, 0.8}, {2, 0.3}};
    * size_t result_count;
@@ -292,6 +310,7 @@ This skill generates language-appropriate docstrings and documentation:
    * }
    * @endcode
    *
+
    * @author Benjamin Dourthe <benjamin@adonamed.com>
    * @version 1.0.0
    * @since 1.0
@@ -307,27 +326,34 @@ This skill generates language-appropriate docstrings and documentation:
 - **Examples**:
   ```cpp
   /**
+
    * @brief Process and filter data items based on threshold.
    *
+
    * @tparam T Type of data items (must have score member)
    * @tparam Compare Comparison function type
    *
+
    * Filters input items by comparing their score against the threshold value,
    * returning only items that meet or exceed the threshold.
    *
+
    * @param items Vector of data items with score member
    * @param threshold Minimum score value for inclusion
    * @return std::vector<T> Filtered vector meeting threshold criteria
    *
+
    * @throws std::invalid_argument if items is empty or threshold is negative
    * @throws std::runtime_error if comparison operation fails
    *
+
    * @code{.cpp}
    * std::vector<DataItem> data = {{1, 0.8}, {2, 0.3}};
    * auto result = processData(data, 0.5);
    * std::cout << result.size() << std::endl; // Output: 1
    * @endcode
    *
+
    * @note This function uses move semantics for efficiency
    * @see DataItem
    * @author Benjamin Dourthe <benjamin@adonamed.com>
@@ -702,6 +728,7 @@ Before finalizing docstring generation, verify:
 
 ### Issue: Docstrings Too Verbose
 **Solution**:
+
 - Keep descriptions concise but complete
 - Use examples for complex cases
 - Avoid repeating obvious type information
@@ -709,6 +736,7 @@ Before finalizing docstring generation, verify:
 
 ### Issue: Inconsistent Style
 **Solution**:
+
 - Choose one style guide and stick to it
 - Use linters (pydocstyle, ESLint with JSDoc plugin)
 - Create style guide document for team
@@ -716,6 +744,7 @@ Before finalizing docstring generation, verify:
 
 ### Issue: Outdated Documentation
 **Solution**:
+
 - Update docstrings when modifying code
 - Use doctest to keep examples current
 - Automate documentation generation in CI/CD
@@ -723,6 +752,7 @@ Before finalizing docstring generation, verify:
 
 ### Issue: Missing Type Information
 **Solution**:
+
 - Add type hints (Python) or type annotations
 - Use TypeScript instead of JavaScript
 - Enable strict type checking

@@ -10,10 +10,12 @@ difficulty: beginner
 estimated_time_hours: 2-3
 prerequisites: []
 tools:
+
   - jest (29.7.0)
   - eslint (9.15.0)
   - prettier
 tags:
+
   - documentation
   - documentation
   - javascript
@@ -185,26 +187,33 @@ For each module, create comprehensive documentation:
 ### Module Documentation Template
 ```javascript
 /**
+
  * @fileoverview [One-line summary of module purpose]
  *
+
  * [Detailed description of module functionality, scope, and use cases.
  * Include key concepts, main responsibilities, and intended usage.]
  *
+
  * @module moduleName
  * @requires dependency1
  * @requires dependency2
  *
+
  * @example
  * // Typical usage example
  * import { MainClass } from './module-name';
  *
+
  * const instance = new MainClass(param1, param2);
  * const result = instance.process();
  *
+
  * @example
  * // CommonJS require
  * const { MainClass } = require('./module-name');
  *
+
  * @author Benjamin Dourthe <benjamin@adonamed.com>
  * @version 1.0.0
  * @since 1.0.0
@@ -219,25 +228,31 @@ For each class, document:
 ### Class Documentation Template
 ```javascript
 /**
+
  * [One-line summary of class purpose]
  *
+
  * [Detailed description of class responsibility, behavior, and usage.
  * Explain what problems this class solves and how it fits into the
  * overall architecture.]
  *
+
  * @class
  * @classdesc [Additional detailed description if needed]
  *
+
  * @property {string} propertyName - Description of what this property represents
  *     and how it's used. Can span multiple lines if needed.
  * @property {number|null} anotherProp - Description including null behavior.
  *
+
  * @example
  * // Basic usage example showing common patterns
  * const obj = new ExampleClass('value');
  * const result = obj.process();
  * console.log(result); // 'processed_value'
  *
+
  * @example
  * // Advanced usage with options
  * const obj = new ExampleClass('value', {
@@ -246,18 +261,23 @@ For each class, document:
  * });
  * const result = await obj.processAsync();
  *
+
  * @throws {TypeError} When constructor receives invalid parameters
  * @throws {ValidationError} When validation fails
  *
+
  * @see RelatedClass
  * @see {@link https://docs.example.com/classes Documentation}
  *
+
  * @since 1.0.0
  */
 class ExampleClass {
   /**
+
    * Creates an instance of ExampleClass.
    *
+
    * @constructor
    * @param {string} value - The initial value to process
    * @param {Object} [options={}] - Configuration options
@@ -274,19 +294,24 @@ class ExampleClass {
 ### TypeScript Class with JSDoc
 ```typescript
 /**
+
  * Type-safe example class with JSDoc documentation.
  *
+
  * @template T - The type of items this class processes
  * @implements {Processor<T>}
  */
 class GenericProcessor<T> implements Processor<T> {
   /**
+
    * Process items of type T.
    *
+
    * @param {T[]} items - Array of items to process
    * @returns {Promise<T[]>} Processed items
    * @throws {ProcessingError} If processing fails
    *
+
    * @example
    * const processor = new GenericProcessor<string>();
    * const result = await processor.process(['a', 'b', 'c']);
@@ -304,11 +329,14 @@ For each function and method, document:
 ### Function Documentation Template
 ```javascript
 /**
+
  * [One-line summary of what function does]
  *
+
  * [Detailed description of function behavior, algorithm, and usage.
  * Explain the problem it solves and any important implementation details.]
  *
+
  * @function
  * @async
  * @param {string} param1 - Description of param1. Include constraints,
@@ -318,30 +346,36 @@ For each function and method, document:
  * @param {string[]} [param3=[]] - Description of optional param.
  *     Explain behavior when empty vs when provided.
  *
+
  * @returns {Promise<Object>} Description of return value structure.
  *     For complex returns, document the object shape:
  *     - status {string} - Success/failure status
  *     - data {*} - The processed result
  *     - metadata {Object} - Additional information
  *
+
  * @throws {ValueError} When param1 is empty or invalid format
  * @throws {TypeError} When param2 is not a number
  * @throws {CustomError} When specific condition occurs
  *
+
  * @example
  * // Basic usage
  * const result = await complexFunction('input', 42);
  * console.log(result.status); // 'success'
  *
+
  * @example
  * // Advanced usage with optional parameter
  * const items = ['a', 'b', 'c'];
  * const result = await complexFunction('input', 42, items);
  * console.log(result.data); // ['processed_a', 'processed_b', 'processed_c']
  *
+
  * @see {@link relatedFunction} Similar functionality
  * @see {@link AnotherClass#method} Used internally by this function
  *
+
  * @since 1.0.0
  * @deprecated Use newFunction instead
  */
@@ -353,8 +387,10 @@ async function complexFunction(param1, param2, param3 = []) {
 ### Arrow Function Documentation
 ```javascript
 /**
+
  * Process array items using a callback function.
  *
+
  * @type {Function}
  * @param {Array<*>} items - Items to process
  * @param {Function} callback - Processing callback
@@ -362,6 +398,7 @@ async function complexFunction(param1, param2, param3 = []) {
  * @param {number} callback.index - Current index
  * @returns {Array<*>} Processed items
  *
+
  * @example
  * const result = processItems([1, 2, 3], (item, index) => item * 2);
  * // Returns: [2, 4, 6]
@@ -376,8 +413,10 @@ const processItems = (items, callback) => {
 ### Async Functions
 ```javascript
 /**
+
  * Asynchronously fetch and process data from URL.
  *
+
  * @async
  * @function
  * @param {string} url - The endpoint URL to fetch from
@@ -386,6 +425,7 @@ const processItems = (items, callback) => {
  * @rejects {FetchError} If network request fails
  * @rejects {TimeoutError} If operation exceeds timeout
  *
+
  * @example
  * try {
  *   const result = await asyncOperation('https://api.example.com/data');
@@ -402,14 +442,17 @@ async function asyncOperation(url, options = {}) {
 ### Generator Functions
 ```javascript
 /**
+
  * Generate sequence of numbers from start to end.
  *
+
  * @generator
  * @function
  * @param {number} start - First number in sequence
  * @param {number} end - Last number in sequence (inclusive)
  * @yields {number} Next number in the sequence
  *
+
  * @example
  * for (const num of numberGenerator(1, 5)) {
  *   console.log(num); // 1, 2, 3, 4, 5
@@ -425,14 +468,17 @@ function* numberGenerator(start, end) {
 ### Higher-Order Functions
 ```javascript
 /**
+
  * Creates a function that retries on failure.
  *
+
  * @function
  * @param {number} [maxAttempts=3] - Maximum number of retry attempts
  * @returns {Function} Decorated function with retry logic
  *     @param {Function} fn - Function to wrap
  *     @returns {Function} Wrapped function
  *
+
  * @example
  * const retryable = withRetry(5);
  * const stableFunction = retryable(unstableFunction);
@@ -450,8 +496,10 @@ function withRetry(maxAttempts = 3) {
 ### TypeScript Type Definitions
 ```typescript
 /**
+
  * Configuration options for the application.
  *
+
  * @typedef {Object} AppConfig
  * @property {string} apiKey - API authentication key
  * @property {string} [baseUrl='https://api.example.com'] - Base API URL
@@ -462,6 +510,7 @@ function withRetry(maxAttempts = 3) {
 /**
  * Retry configuration options.
  *
+
  * @typedef {Object} RetryOptions
  * @property {number} maxAttempts - Maximum retry attempts
  * @property {number} backoff - Backoff multiplier
@@ -471,6 +520,7 @@ function withRetry(maxAttempts = 3) {
 /**
  * Initialize application with configuration.
  *
+
  * @param {AppConfig} config - Application configuration
  * @returns {Promise<Application>} Initialized application instance
  */
@@ -482,16 +532,20 @@ async function initApp(config) {
 ### React Components (JSX)
 ```javascript
 /**
+
  * User profile display component.
  *
+
  * @component
  * @param {Object} props - Component props
  * @param {User} props.user - User object to display
  * @param {Function} props.onEdit - Callback when edit button clicked
  * @param {boolean} [props.showAvatar=true] - Whether to show user avatar
  *
+
  * @returns {React.Element} Rendered component
  *
+
  * @example
  * <UserProfile
  *   user={currentUser}

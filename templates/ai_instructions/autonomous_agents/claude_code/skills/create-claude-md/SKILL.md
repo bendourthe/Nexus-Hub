@@ -159,6 +159,7 @@ Start a new Claude Code session and verify it loads:
 Expected response should reference CLAUDE.md contents:
 ```
 "Based on the CLAUDE.md file, this project follows:
+
 - [Style guide specified]
 - [Testing framework specified]
 - [Architecture patterns specified]"
@@ -507,6 +508,7 @@ docker push [registry]/project-name:latest
 ### ADR 001: FastAPI over Django
 **Decision**: Use FastAPI for API layer
 **Rationale**:
+
 - High performance (async support)
 - Automatic OpenAPI documentation
 - Modern Python features (type hints)
@@ -515,6 +517,7 @@ docker push [registry]/project-name:latest
 ### ADR 002: PostgreSQL for Primary Database
 **Decision**: PostgreSQL as primary datastore
 **Rationale**:
+
 - ACID compliance required
 - Complex query support needed
 - JSON support for flexible schema
@@ -523,6 +526,7 @@ docker push [registry]/project-name:latest
 ### ADR 003: Redis for Caching
 **Decision**: Redis for caching and rate limiting
 **Rationale**:
+
 - Fast in-memory operations
 - Built-in data structures
 - Pub/sub for real-time features
@@ -558,6 +562,7 @@ Maintained by: [Team Name]
 
 ### For Python Projects
 Include:
+
 - Virtual environment setup
 - pip/poetry commands
 - pytest configuration
@@ -566,6 +571,7 @@ Include:
 
 ### For JavaScript Projects
 Include:
+
 - npm/yarn commands
 - ESLint/Prettier configuration
 - Jest/Cypress test commands
@@ -574,6 +580,7 @@ Include:
 
 ### For Java Projects
 Include:
+
 - Maven/Gradle commands
 - JUnit test execution
 - Spring Boot profiles
@@ -582,6 +589,7 @@ Include:
 
 ### For C# Projects
 Include:
+
 - dotnet CLI commands
 - NUnit/xUnit test execution
 - Solution/project structure

@@ -10,6 +10,7 @@ difficulty: intermediate
 estimated_time_hours: 2-4
 prerequisites: []
 tags:
+
   - coding-assistants
   - generic
 ---
@@ -1258,6 +1259,7 @@ public class Program
 **Prompt**:
     ```
     Create the domain models for [feature]:
+
     - User entity with validation attributes
     - DTOs for API requests/responses
     - Value objects for business logic
@@ -1319,6 +1321,7 @@ When implementing new features, fixing bugs, or troubleshooting issues, follow t
 
 ### Feature: User Authentication
 **Iteration 1**: Created tests/temp/TempFeatureValidationTests.cs
+
 - Tests failed: Password validation too weak
 - Solution: Enhanced regex pattern
 
@@ -1459,6 +1462,7 @@ Never automatically:
 1. **Assess**:
    ```
    Changes might warrant version update from X.Y.Z:
+
    - Added new features (minor)
    - Fixed bugs (patch)
    - Breaking API changes (major)
@@ -1467,6 +1471,7 @@ Never automatically:
 2. **Request**:
    ```
    Should I update version to X.Y.Z in:
+
    - CHANGELOG.md
    - ProjectName.csproj
    - README.md
@@ -1535,6 +1540,7 @@ Never include:
 1. **Analysis**
    ```
    The current implementation has several issues:
+
    - Missing null checks on parameters
    - Synchronous operations blocking threads
    - No cancellation token support
@@ -1570,6 +1576,7 @@ Never include:
 3. **Explanation**
    ```
    **Improvements:**
+
    - Added null argument validation using ThrowIfNull
    - Converted to async/await for non-blocking I/O
    - Added CancellationToken support for cooperative cancellation

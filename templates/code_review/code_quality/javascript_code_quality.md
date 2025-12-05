@@ -10,14 +10,18 @@ phase_number: 2
 difficulty: intermediate
 estimated_time_hours: 2-3
 prerequisites:
+
   - code_review/context_analysis/javascript_context_analysis.md
 related_templates:
+
   - code_review/security_review/javascript_security_review.md
 tools:
+
   - jest (29.7.0)
   - eslint (9.15.0)
   - prettier
 tags:
+
   - code-review
   - javascript
 ---

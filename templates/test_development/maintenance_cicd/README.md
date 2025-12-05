@@ -107,6 +107,7 @@ Establish automated testing infrastructure, integrate tests into CI/CD pipelines
 
 ## Quick Start
 Use the appropriate template file with your AI assistant to:
+
 1. Configure CI/CD pipeline for tests
 2. Set up quality gates and thresholds
 3. Implement pre-commit hooks

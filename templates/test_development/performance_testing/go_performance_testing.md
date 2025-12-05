@@ -10,13 +10,17 @@ phase_number: 5
 difficulty: advanced
 estimated_time_hours: 4-6
 prerequisites:
+
   - test_development/mocks_fixtures/go_mocks_fixtures.md
 related_templates:
+
   - test_development/code_coverage/go_code_coverage.md
 tools:
+
   - go test (1.23+)
   - testify
 tags:
+
   - test-development
   - testing
   - performance
@@ -1126,6 +1130,7 @@ on:
   pull_request:
     branches: [ main ]
   schedule:
+
     - cron: '0 2 * * *'
 
 jobs:

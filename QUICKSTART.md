@@ -193,6 +193,7 @@ Use the sections at the top of this guide.
 
 ### By Language
 All templates are organized in folders:
+
 - `code_cleanup/` - 7 cleanup templates (one per language)
 - `code_review/` - 42 review templates (6 phases × 7 languages)
 - `test_development/` - 56 testing templates (8 phases × 7 languages)

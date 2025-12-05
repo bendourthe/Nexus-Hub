@@ -10,13 +10,17 @@ phase_number: 6
 difficulty: intermediate
 estimated_time_hours: 1
 prerequisites:
+
   - code_review/testing_review/go_testing_review.md
 related_templates:
+
   - code_review/code_quality/go_code_quality.md
 tools:
+
   - go test (1.23+)
   - testify
 tags:
+
   - code-review
   - go
 ---
@@ -199,6 +203,7 @@ For each finding, include:
 
 **Recommendation:**
 Move filtering to database with indexed query:
+
 - Add database index on search fields
 - Use database LIKE/ILIKE queries
 - Implement pagination (limit results to 50)
@@ -339,6 +344,7 @@ Create a phased implementation plan:
 
 ### Immediate Actions (Week 1)
 **Critical P0 Items** - Must be addressed immediately:
+
 1. **[Issue]**
    - **Risk**: [what happens if not fixed]
    - **Effort**: [hours/days]
@@ -836,6 +842,7 @@ project/
 ### Coding Standards
 ```yaml
 Required tools:
+
   - gofmt: Format all code
   - goimports: Organize imports
   - go vet: Static analysis
@@ -873,17 +880,22 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
+
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v4
         with:
           go-version: '1.21'
+
       - name: Verify formatting
         run: |
           gofmt -l . | grep . && exit 1 || exit 0
+
       - name: Run linters
         uses: golangci/golangci-lint-action@v3
+
       - name: Run tests
         run: go test -v -race -coverprofile=coverage.out ./...
+
       - name: Security scan
         run: |
           go install golang.org/x/vuln/cmd/govulncheck@latest
@@ -912,6 +924,7 @@ jobs:
 # .golangci.yml configuration
 linters:
   enable:
+
     - gofmt
     - goimports
     - govet

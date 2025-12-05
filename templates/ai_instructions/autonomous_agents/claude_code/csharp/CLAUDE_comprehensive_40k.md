@@ -10,10 +10,12 @@ difficulty: intermediate
 estimated_time_hours: 2-4
 prerequisites: []
 tools:
+
   - unity
   - cmocka
   - check
 tags:
+
   - claude-code
   - c
 ---
@@ -868,6 +870,7 @@ Update `appsettings.Development.json`:
 
 ## API Documentation
 After starting the application, visit:
+
 - Swagger UI: https://localhost:5001/swagger
 - OpenAPI Spec: https://localhost:5001/swagger/v1/swagger.json
 ```

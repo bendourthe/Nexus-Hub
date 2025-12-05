@@ -10,13 +10,17 @@ phase_number: 3
 difficulty: intermediate
 estimated_time_hours: 4-8
 prerequisites:
+
   - test_development/unit_tests/go_unit_tests.md
 related_templates:
+
   - test_development/mocks_fixtures/go_mocks_fixtures.md
 tools:
+
   - go test (1.23+)
   - testify
 tags:
+
   - test-development
   - testing
   - go

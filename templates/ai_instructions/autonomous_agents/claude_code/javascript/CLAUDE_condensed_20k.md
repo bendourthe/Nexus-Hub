@@ -10,10 +10,12 @@ difficulty: intermediate
 estimated_time_hours: 2-4
 prerequisites: []
 tools:
+
   - unity
   - cmocka
   - check
 tags:
+
   - claude-code
   - c
 ---
@@ -223,15 +225,19 @@ import type { UserData } from './types';
 ### Complex Functions
 ```typescript
 /**
+
  * Process and validate user data according to rules.
  *
+
  * Performs cleaning, validation, and formatting.
  *
+
  * @param data - Input data records
  * @param rules - Validation rules
  * @returns Processed records
  * @throws {ValidationError} When validation fails
  *
+
  * @author Benjamin Dourthe <benjamin@adonamed.com>
  */
 async function processUserData(
@@ -245,6 +251,7 @@ async function processUserData(
 ### Simple Functions
 ```typescript
 /**
+
  * Calculate total including tax.
  */
 function calculateTotal(items: number[]): number {
@@ -377,8 +384,10 @@ Format based on [Keep a Changelog](https://keepachangelog.com/).
 
 ```typescript
 /**
+
  * Test suite for [feature].
  *
+
  * @author Benjamin Dourthe <benjamin@adonamed.com>
  */
 import { describe, it, expect, beforeEach } from '@jest/globals';
@@ -540,6 +549,7 @@ Never suggest:
 
 ### DEVLOG.md Updates
 Safe to update without permission:
+
 - Task lists
 - Development history
 - Challenges/solutions

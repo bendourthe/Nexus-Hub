@@ -33,6 +33,7 @@ Quick reference guide to find the right template for your task. Filter by task t
 
 ### Python
 **System Prompts:**
+
 - [CLAUDE.md Comprehensive (40k tokens)](agent_prompts/autonomous_agents/claude_code/python/CLAUDE_comprehensive_40k.md) - For complex projects, mentoring
 - [CLAUDE.md Condensed (20k tokens)](agent_prompts/autonomous_agents/claude_code/python/CLAUDE_condensed_20k.md) - For quick tasks, efficiency
 - [Copilot/Cursor Comprehensive (35k tokens)](agent_prompts/coding_assistants/python/GLOBAL_comprehensive_35k.md)
@@ -70,6 +71,7 @@ Quick reference guide to find the right template for your task. Filter by task t
 
 ### JavaScript
 **System Prompts:**
+
 - [CLAUDE.md Comprehensive (40k tokens)](agent_prompts/autonomous_agents/claude_code/javascript/CLAUDE_comprehensive_40k.md)
 - [CLAUDE.md Condensed (20k tokens)](agent_prompts/autonomous_agents/claude_code/javascript/CLAUDE_condensed_20k.md)
 - [Copilot/Cursor Comprehensive (35k tokens)](agent_prompts/coding_assistants/javascript/GLOBAL_comprehensive_35k.md)
@@ -81,6 +83,7 @@ Quick reference guide to find the right template for your task. Filter by task t
 
 ### Java
 **System Prompts:**
+
 - [CLAUDE.md Comprehensive (40k tokens)](agent_prompts/autonomous_agents/claude_code/java/CLAUDE_comprehensive_40k.md)
 - [CLAUDE.md Condensed (20k tokens)](agent_prompts/autonomous_agents/claude_code/java/CLAUDE_condensed_20k.md)
 - [Copilot/Cursor Comprehensive (35k tokens)](agent_prompts/coding_assistants/java/GLOBAL_comprehensive_35k.md)
@@ -92,6 +95,7 @@ Quick reference guide to find the right template for your task. Filter by task t
 
 ### C#
 **System Prompts:**
+
 - [CLAUDE.md Comprehensive (40k tokens)](agent_prompts/autonomous_agents/claude_code/csharp/CLAUDE_comprehensive_40k.md)
 - [CLAUDE.md Condensed (20k tokens)](agent_prompts/autonomous_agents/claude_code/csharp/CLAUDE_condensed_20k.md)
 - [Copilot/Cursor Comprehensive (35k tokens)](agent_prompts/coding_assistants/csharp/GLOBAL_comprehensive_35k.md)
@@ -103,6 +107,7 @@ Quick reference guide to find the right template for your task. Filter by task t
 
 ### Go
 **System Prompts:**
+
 - [CLAUDE.md Comprehensive (40k tokens)](agent_prompts/autonomous_agents/claude_code/go/CLAUDE_comprehensive_40k.md)
 - [CLAUDE.md Condensed (20k tokens)](agent_prompts/autonomous_agents/claude_code/go/CLAUDE_condensed_20k.md)
 - [Copilot/Cursor Comprehensive (35k tokens)](agent_prompts/coding_assistants/go/GLOBAL_comprehensive_35k.md)
@@ -114,6 +119,7 @@ Quick reference guide to find the right template for your task. Filter by task t
 
 ### C
 **System Prompts:**
+
 - [CLAUDE.md Comprehensive (40k tokens)](agent_prompts/autonomous_agents/claude_code/c/CLAUDE_comprehensive_40k.md)
 - [CLAUDE.md Condensed (20k tokens)](agent_prompts/autonomous_agents/claude_code/c/CLAUDE_condensed_20k.md)
 - [Copilot/Cursor Comprehensive (35k tokens)](agent_prompts/coding_assistants/c/GLOBAL_comprehensive_35k.md)
@@ -125,6 +131,7 @@ Quick reference guide to find the right template for your task. Filter by task t
 
 ### C++
 **System Prompts:**
+
 - [CLAUDE.md Comprehensive (40k tokens)](agent_prompts/autonomous_agents/claude_code/cpp/CLAUDE_comprehensive_40k.md)
 - [CLAUDE.md Condensed (20k tokens)](agent_prompts/autonomous_agents/claude_code/cpp/CLAUDE_condensed_20k.md)
 - [Copilot/Cursor Comprehensive (35k tokens)](agent_prompts/coding_assistants/cpp/GLOBAL_comprehensive_35k.md)

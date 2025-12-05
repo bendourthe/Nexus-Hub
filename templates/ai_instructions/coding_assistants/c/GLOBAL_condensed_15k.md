@@ -10,6 +10,7 @@ difficulty: intermediate
 estimated_time_hours: 2-4
 prerequisites: []
 tags:
+
   - coding-assistants
   - generic
 ---
@@ -207,13 +208,16 @@ if (ret != 0) {
 
 ```c
 /**
+
  * @brief Process data with validation
  *
+
  * @param[in] data Input buffer
  * @param[in] len Buffer length
  * @param[out] result Processing result
  * @return 0 on success, negative error code on failure
  *
+
  * @note Caller must free result
  * @warning Not thread-safe
  */

@@ -10,10 +10,12 @@ difficulty: intermediate
 estimated_time_hours: 2-4
 prerequisites: []
 tools:
+
   - unity
   - cmocka
   - check
 tags:
+
   - claude-code
   - c
 ---
@@ -414,10 +416,13 @@ while (running) {
 **Function Layout:**
 ```c
 /**
+
  * @brief Brief description of function
  *
+
  * Detailed description if needed.
  *
+
  * @param[in] param1 Description of param1
  * @param[out] result Description of result
  * @return 0 on success, negative error code on failure
@@ -485,6 +490,7 @@ cleanup:
 **Examples:**
 ```c
 /*
+
  * This is a multi-line comment explaining
  * a complex algorithm or design decision.
  * Use this style for detailed explanations.
@@ -499,15 +505,19 @@ int x = 42;  /* Magic number - avoid this style */
 /**
  * @brief Create a new buffer with specified size
  *
+
  * Allocates memory for a buffer structure and initializes
  * it with the specified initial capacity.
  *
+
  * @param[in] initial_size Initial capacity in bytes
  * @return Pointer to new buffer, or NULL on allocation failure
  *
+
  * @note Caller is responsible for calling buffer_destroy()
  * @see buffer_destroy()
  *
+
  * @author Benjamin Dourthe (benjamin@adonamed.com)
  */
 buffer_t *buffer_create(size_t initial_size);
@@ -606,6 +616,7 @@ ptr = NULL;  /* Avoid dangling pointers */
 **Ownership Rules:**
 ```c
 /*
+
  * Document ownership clearly:
  * - Who allocates?
  * - Who frees?
@@ -691,12 +702,15 @@ memset(password, 0, sizeof(password));
 
 ```c
 /**
+
  * @file buffer.c
  * @brief Dynamic buffer implementation
  *
+
  * Provides a growable byte buffer with automatic reallocation.
  * Thread-safe when used with external synchronization.
  *
+
  * @author Benjamin Dourthe (benjamin@adonamed.com)
  * @date 2025-01-01
  * @version 0.1.0
@@ -708,12 +722,15 @@ memset(password, 0, sizeof(password));
 **Complex Functions:**
 ```c
 /**
+
  * @brief Parse configuration file and populate config structure
  *
+
  * Reads the configuration file line by line, parsing key-value pairs
  * and populating the provided config structure. Supports comments
  * (lines starting with '#') and blank lines.
  *
+
  * @param[in] filename Path to configuration file
  * @param[out] config Configuration structure to populate
  * @return 0 on success, negative error code on failure
@@ -723,9 +740,11 @@ memset(password, 0, sizeof(password));
  * @retval -ENOMEM Out of memory
  * @retval -EFORMAT Parse error
  *
+
  * @note The config structure must be initialized before calling
  * @warning Not thread-safe, caller must synchronize
  *
+
  * @code
  * config_t cfg;
  * config_init(&cfg);
@@ -734,6 +753,7 @@ memset(password, 0, sizeof(password));
  * }
  * @endcode
  *
+
  * @see config_init(), config_free()
  * @author Benjamin Dourthe (benjamin@adonamed.com)
  */
@@ -743,6 +763,7 @@ int parse_config(const char *filename, config_t *config);
 **Simple Functions:**
 ```c
 /**
+
  * @brief Get buffer size in bytes
  * @param[in] buf Buffer instance
  * @return Current buffer size
@@ -754,9 +775,11 @@ size_t buffer_size(const buffer_t *buf);
 
 ```c
 /**
+
  * @struct buffer
  * @brief Dynamic byte buffer with automatic growth
  *
+
  * Maintains a contiguous block of memory that grows automatically
  * when data is appended beyond current capacity.
  */
@@ -783,6 +806,7 @@ typedef enum {
 
 ```c
 /**
+
  * @def BUFFER_DEFAULT_SIZE
  * @brief Default initial buffer size in bytes
  */
@@ -847,6 +871,7 @@ git config --get remote.origin.url
 
 ### Configuration
 Edit `config.h` to customize:
+
 - Buffer sizes
 - Feature flags
 - Platform-specific settings
@@ -1021,12 +1046,15 @@ git submodule add <UNITY_REPO_URL> tests/unity
 
 ```c
 /**
+
  * @file test_buffer.c
  * @brief Unit tests for buffer module
  *
+
  * Comprehensive test suite covering normal operations,
  * edge cases, and error conditions.
  *
+
  * @author Benjamin Dourthe (benjamin@adonamed.com)
  */
 
@@ -1293,6 +1321,7 @@ test: $(TEST_TARGET)
 
 ### When to Use Task Breakdown
 **Apply systematic breakdown for:**
+
 - Projects estimated >30 minutes
 - Multi-module applications
 - Embedded system development
@@ -1302,6 +1331,7 @@ test: $(TEST_TARGET)
 
 ### Analysis Phase
 **Always start with:**
+
 1. **Requirements**: Identify modules, dependencies, hardware interfaces
 2. **Complexity**: Determine scope, performance requirements, constraints
 3. **Prerequisites**: List toolchain, hardware, debuggers
@@ -1508,6 +1538,7 @@ Never automatically:
 1. **Assess**:
    ```
    Changes might warrant version update from X.Y.Z:
+
    - [List changes]
    - [Categorize as patch/minor/major]
    - [Note API changes]
@@ -1529,6 +1560,7 @@ Never automatically:
 Example:
 ```
 Changes include:
+
 - Added buffer_reserve() function (minor - new API)
 - Fixed memory leak in buffer_destroy() (patch)
 - Changed buffer_create() signature (major - breaking change)
@@ -1664,6 +1696,7 @@ Example:
 3. **Explanation**
    ```
    **Key Improvements:**
+
    - Added input validation (null check)
    - Check length before copy
    - Use memcpy with explicit length
@@ -1679,6 +1712,7 @@ Example:
 4. **Integration**
    ```
    **To Apply:**
+
    - Replace function implementation
    - Update callers to check return value
    - Add test for overflow condition
@@ -1764,6 +1798,7 @@ C idiom for error handling.
 1. **Project Analysis**
 ```
 This project requires:
+
 - Hardware Abstraction Layer (HAL) for I2C
 - Device driver for temperature sensor
 - Application layer for reading temperature
@@ -1776,6 +1811,7 @@ Hardware: I2C-capable microcontroller, temperature sensor
 2. **Architecture Recommendation**
 ```
 Layered architecture:
+
 - HAL Layer: i2c_hal.h/c (platform-specific)
 - Driver Layer: temp_sensor.h/c (device-specific)
 - Application: main.c (user code)
@@ -1794,6 +1830,7 @@ Memory: Statically allocated structures (no malloc on embedded)
 
 **Prompt**:
 Create I2C HAL with functions:
+
 - i2c_init(port, speed)
 - i2c_write(port, addr, data, len)
 - i2c_read(port, addr, data, len)
@@ -1809,6 +1846,7 @@ Complete and pause for review.
 
 **Prompt**:
 Implement driver with:
+
 - temp_sensor_init(config)
 - temp_sensor_read(temp_celsius)
 - temp_sensor_shutdown()
@@ -2064,6 +2102,7 @@ int rtos_init(void)
 
 ```c
 /**
+
  * @file gpio_hal.h
  * @brief GPIO Hardware Abstraction Layer
  */

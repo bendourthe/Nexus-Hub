@@ -10,14 +10,18 @@ phase_number: 5
 difficulty: advanced
 estimated_time_hours: 4-6
 prerequisites:
+
   - test_development/mocks_fixtures/javascript_mocks_fixtures.md
 related_templates:
+
   - test_development/code_coverage/javascript_code_coverage.md
 tools:
+
   - jest (29.7.0)
   - eslint (9.15.0)
   - prettier
 tags:
+
   - test-development
   - testing
   - performance
@@ -209,8 +213,10 @@ npm install --save-dev benchmark microtime
 
 ```javascript
 /**
+
  * Performance benchmarks for critical functions.
  *
+
  * Uses Benchmark.js to measure execution time and detect regressions.
  */
 const Benchmark = require('benchmark');
@@ -327,6 +333,7 @@ bench
 
 ```javascript
 /**
+
  * Benchmark scaling characteristics with different data sizes.
  */
 function benchmarkScaling() {
@@ -374,8 +381,10 @@ function benchmarkScaling() {
 
 ```javascript
 /**
+
  * k6 load test for API endpoints.
  *
+
  * Run with: k6 run tests/load/api-load-test.js
  */
 import http from 'k6/http';
@@ -603,8 +612,10 @@ npm install --save-dev autocannon
 
 ```javascript
 /**
+
  * Autocannon load test for Node.js HTTP servers.
  *
+
  * Run with: node tests/load/autocannon-test.js
  */
 const autocannon = require('autocannon');
@@ -758,8 +769,10 @@ npm install --save-dev clinic
 
 ```javascript
 /**
+
  * Run with: clinic doctor -- node app.js
  *
+
  * Generates CPU and event loop analysis.
  */
 
@@ -794,8 +807,10 @@ function expensiveOperation(data) {
 
 ```javascript
 /**
+
  * Run with: clinic heapprofiler -- node app.js
  *
+
  * Generates memory allocation analysis.
  */
 
@@ -845,8 +860,10 @@ function detectMemoryLeak() {
 
 ```javascript
 /**
+
  * Run with: clinic bubbleprof -- node app.js
  *
+
  * Visualizes async operations and event loop delays.
  */
 
@@ -880,6 +897,7 @@ process.on('exit', () => {
 
 ```javascript
 /**
+
  * Performance regression testing with baseline comparison.
  */
 const fs = require('fs');
@@ -1030,6 +1048,7 @@ on:
   pull_request:
     branches: [ main ]
   schedule:
+
     - cron: '0 2 * * *'  # Daily at 2 AM
 
 jobs:

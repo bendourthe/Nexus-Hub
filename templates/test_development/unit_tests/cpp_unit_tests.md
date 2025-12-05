@@ -10,14 +10,18 @@ phase_number: 2
 difficulty: intermediate
 estimated_time_hours: 3-6
 prerequisites:
+
   - test_development/test_structure/cpp_test_structure.md
 related_templates:
+
   - test_development/test_cases/cpp_test_cases.md
 tools:
+
   - google test
   - catch2
   - boost.test
 tags:
+
   - test-development
   - testing
   - cpp
@@ -1050,6 +1054,7 @@ TEST(VectorTest, PopBack_OnEmptyVector_ThrowsException) { }
 
 ### 3. Templates
 `${OUTPUT_DIR}/templates/`:
+
 - `test_template.cpp`
 - `fixture_template.cpp`
 - `mock_template.cpp`

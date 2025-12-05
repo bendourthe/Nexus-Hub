@@ -74,7 +74,10 @@ This repository provides **ready-to-use prompt templates** for AI coding assista
 | **Python** | [35k tokens](templates/ai_instructions/coding_assistants/python/GLOBAL_comprehensive_40k.md) | [15k tokens](templates/ai_instructions/coding_assistants/python/GLOBAL_condensed_15k.md) |
 | **JavaScript** | [35k tokens](templates/ai_instructions/coding_assistants/javascript/GLOBAL_comprehensive_40k.md) | [15k tokens](templates/ai_instructions/coding_assistants/javascript/GLOBAL_condensed_15k.md) |
 | **Java** | [35k tokens](templates/ai_instructions/coding_assistants/java/GLOBAL_comprehensive_40k.md) | [15k tokens](templates/ai_instructions/coding_assistants/java/GLOBAL_condensed_15k.md) |
-| **C# / Go / C / C++** | [Browse all](templates/ai_instructions/coding_assistants/) | [Browse all](templates/ai_instructions/coding_assistants/) |
+| **C#** | [35k tokens](templates/ai_instructions/coding_assistants/csharp/GLOBAL_comprehensive_40k.md) | [15k tokens](templates/ai_instructions/coding_assistants/csharp/GLOBAL_condensed_15k.md) |
+| **Go** | [35k tokens](templates/ai_instructions/coding_assistants/go/GLOBAL_comprehensive_40k.md) | [15k tokens](templates/ai_instructions/coding_assistants/go/GLOBAL_condensed_15k.md) |
+| **C** | [35k tokens](templates/ai_instructions/coding_assistants/c/GLOBAL_comprehensive_40k.md) | [15k tokens](templates/ai_instructions/coding_assistants/c/GLOBAL_condensed_15k.md) |
+| **C++** | [35k tokens](templates/ai_instructions/coding_assistants/cpp/GLOBAL_comprehensive_40k.md) | [15k tokens](templates/ai_instructions/coding_assistants/cpp/GLOBAL_condensed_15k.md) |
 
 > **Comprehensive Instructions (35k characters):** Best for complex projects that require highly detailed rules.
 >
@@ -88,7 +91,10 @@ This repository provides **ready-to-use prompt templates** for AI coding assista
 | **Python** | [40k tokens](templates/ai_instructions/autonomous_agents/claude_code/python/CLAUDE_comprehensive_40k.md) | [20k tokens](templates/ai_instructions/autonomous_agents/claude_code/python/CLAUDE_condensed_20k.md) |
 | **JavaScript** | [40k tokens](templates/ai_instructions/autonomous_agents/claude_code/javascript/CLAUDE_comprehensive_40k.md) | [20k tokens](templates/ai_instructions/autonomous_agents/claude_code/javascript/CLAUDE_condensed_20k.md) |
 | **Java** | [40k tokens](templates/ai_instructions/autonomous_agents/claude_code/java/CLAUDE_comprehensive_40k.md) | [20k tokens](templates/ai_instructions/autonomous_agents/claude_code/java/CLAUDE_condensed_20k.md) |
-| **C# / Go / C / C++** | [Browse all](templates/ai_instructions/autonomous_agents/claude_code/) | [Browse all](templates/ai_instructions/autonomous_agents/claude_code/) |
+| **C#** | [40k tokens](templates/ai_instructions/autonomous_agents/claude_code/csharp/CLAUDE_comprehensive_40k.md) | [20k tokens](templates/ai_instructions/autonomous_agents/claude_code/csharp/CLAUDE_condensed_20k.md) |
+| **Go** | [40k tokens](templates/ai_instructions/autonomous_agents/claude_code/go/CLAUDE_comprehensive_40k.md) | [20k tokens](templates/ai_instructions/autonomous_agents/claude_code/go/CLAUDE_condensed_20k.md) |
+| **C** | [40k tokens](templates/ai_instructions/autonomous_agents/claude_code/c/CLAUDE_comprehensive_40k.md) | [20k tokens](templates/ai_instructions/autonomous_agents/claude_code/c/CLAUDE_condensed_20k.md) |
+| **C++** | [40k tokens](templates/ai_instructions/autonomous_agents/claude_code/cpp/CLAUDE_comprehensive_40k.md) | [20k tokens](templates/ai_instructions/autonomous_agents/claude_code/cpp/CLAUDE_condensed_20k.md) |
 
 > **Comprehensive Instructions (40k characters):** Best for complex projects that require highly detailed rules.
 >
@@ -99,11 +105,8 @@ This repository provides **ready-to-use prompt templates** for AI coding assista
 ### AI Instructions Setup
 
 - **Copilot:** Create `.github/copilot-instructions.md` and paste content
-
 - **Cursor:** File → Preferences → Cursor Settings → Rules & Memories → User Rules
-
 - **Windsurf:** Cascade → Customizations → Rules → Edit global_windsurf.md
-
 - **Claude Code:** Save selected markdown file as CLAUDE.md in the root directory of your project
 
 ---

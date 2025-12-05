@@ -10,11 +10,13 @@ difficulty: beginner
 estimated_time_hours: 3-4
 prerequisites: []
 tools:
+
   - pytest (8.3.4+)
   - black (24.12.0)
   - mypy (1.13.0)
   - ruff
 tags:
+
   - documentation
   - documentation
   - python
@@ -183,6 +185,7 @@ Please create comprehensive user documentation for this Python project following
 
 3. **Outline Documentation Structure**
    Plan what documentation is needed:
+
    - [ ] README.md (essential)
    - [ ] INSTALL.md or installation section
    - [ ] QUICKSTART.md or quick start guide

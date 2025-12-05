@@ -10,15 +10,19 @@ phase_number: 6
 difficulty: intermediate
 estimated_time_hours: 2-3
 prerequisites:
+
   - test_development/performance_testing/python_performance_testing.md
 related_templates:
+
   - test_development/maintenance_cicd/python_maintenance_cicd.md
 tools:
+
   - pytest (8.3.4+)
   - black (24.12.0)
   - mypy (1.13.0)
   - ruff
 tags:
+
   - test-development
   - python
 ---

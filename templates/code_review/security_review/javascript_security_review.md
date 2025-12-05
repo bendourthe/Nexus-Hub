@@ -10,14 +10,18 @@ phase_number: 3
 difficulty: advanced
 estimated_time_hours: 2-3
 prerequisites:
+
   - code_review/code_quality/javascript_code_quality.md
 related_templates:
+
   - code_review/code_quality/javascript_code_quality.md
 tools:
+
   - jest (29.7.0)
   - eslint (9.15.0)
   - prettier
 tags:
+
   - code-review
   - security
   - code-review
@@ -266,6 +270,7 @@ For each finding, include:
 
 **Recommendation:**
 Move filtering to database with indexed query:
+
 - Add database index on search fields
 - Use database LIKE/ILIKE queries
 - Implement pagination (limit results to 50)

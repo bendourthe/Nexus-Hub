@@ -60,6 +60,7 @@ This skill implements Anthropic's **#1 recommended best practice** for Claude Co
 User: "Add user authentication to the API"
 Claude: *immediately starts writing code*
 Result:
+
 - ❌ Missed existing auth patterns
 - ❌ Incompatible with current architecture
 - ❌ Missing edge cases
@@ -74,6 +75,7 @@ Claude: *explores codebase, analyzes patterns, creates plan*
 User: *reviews and approves plan*
 Claude: *implements according to plan*
 Result:
+
 - ✅ Consistent with existing patterns
 - ✅ Comprehensive implementation
 - ✅ Edge cases covered
@@ -196,23 +198,27 @@ Files: package.json
 
 **Step 2: Create Rate Limit Middleware**
 Create: src/middleware/rateLimit.js
+
 - Initialize Redis client
 - Configure rate limit rules (100 req/15min per IP)
 - Export middleware function
 
 **Step 3: Apply to Routes**
 Modify: src/routes/index.js
+
 - Import rate limit middleware
 - Apply globally or per-route basis
 - Add custom messages for rate limit errors
 
 **Step 4: Error Handling**
 Modify: src/middleware/errorHandler.js
+
 - Add specific handling for rate limit errors (429)
 - Return user-friendly messages
 
 **Step 5: Testing**
 Create: tests/rateLimit.test.js
+
 - Test rate limit enforcement
 - Test Redis connection handling
 - Test error responses
@@ -236,6 +242,7 @@ Medium - 2-3 hours with testing
 Ask questions if anything is unclear:
 ```
 "The plan looks good, but I have questions:
+
 1. Why Redis over in-memory store?
 2. Should we have different limits for authenticated users?
 3. What about rate limiting by API key vs IP?"
@@ -253,6 +260,7 @@ Once satisfied with the plan:
 
 ```
 "Please modify the plan:
+
 - Use different rate limit (50 req/10min)
 - Add separate limits for auth vs non-auth endpoints
 - Include rate limit headers in responses
@@ -274,6 +282,7 @@ After implementation:
 
 ```
 "Please verify the implementation:
+
 1. Run all tests
 2. Check all files modified match the plan
 3. Confirm no TODO items left
@@ -337,6 +346,7 @@ Claude: "## Pagination Implementation Plan
 
 ### Approach
 Mirror existing posts pagination for consistency:
+
 - Query params: page (default 1), limit (default 20, max 100)
 - Response format: {data: users[], pagination: {page, limit, total, totalPages}}
 
@@ -344,6 +354,7 @@ Mirror existing posts pagination for consistency:
 
 **Step 1: Update Controller**
 File: src/controllers/userController.js
+
 - Extract page/limit from query params
 - Add validation (page >= 1, limit between 1-100)
 - Modify Sequelize query to use offset/limit
@@ -352,11 +363,13 @@ File: src/controllers/userController.js
 
 **Step 2: Update Route**
 File: src/routes/users.js
+
 - Add query param documentation in comments
 - No code changes needed (controller handles it)
 
 **Step 3: Update Tests**
 File: tests/controllers/userController.test.js
+
 - Test default pagination (page=1, limit=20)
 - Test custom page/limit
 - Test invalid params (page=0, limit=1000)
@@ -365,12 +378,14 @@ File: tests/controllers/userController.test.js
 
 **Step 4: Update API Documentation**
 File: docs/api.md
+
 - Document query parameters
 - Add example requests/responses
 - Note max limit of 100
 
 **Step 5: Database Optimization** (Optional)
 File: src/models/User.js
+
 - Consider adding index on commonly sorted fields
 - Test query performance with LIMIT/OFFSET
 
@@ -440,6 +455,7 @@ For complex tasks, ask Claude to use subagents:
 **✅ Correct**:
 ```
 "Explore:
+
 1. Read src/module.js
 2. Find similar features
 3. Check dependencies
@@ -465,6 +481,7 @@ User: "Approved"  → Too vague
 **✅ Correct**:
 ```
 "Please expand the plan:
+
 - Exact files to modify
 - Step-by-step sequence
 - Testing strategy

@@ -10,14 +10,18 @@ phase_number: 3
 difficulty: advanced
 estimated_time_hours: 2-3
 prerequisites:
+
   - code_review/code_quality/c_code_quality.md
 related_templates:
+
   - code_review/code_quality/c_code_quality.md
 tools:
+
   - unity
   - cmocka
   - check
 tags:
+
   - code-review
   - security
   - code-review
@@ -260,6 +264,7 @@ For each finding, include:
 
 **Recommendation:**
 Move filtering to database with indexed query:
+
 - Add database index on search fields
 - Use database LIKE/ILIKE queries
 - Implement pagination (limit results to 50)
@@ -638,6 +643,7 @@ Please perform a comprehensive security review of this embedded C project follow
    ```c
    // CRITICAL: Weak or obsolete algorithms
    // Avoid:
+
    - MD5 for hashing
    - SHA-1 for signatures
    - DES, 3DES for encryption

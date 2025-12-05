@@ -10,10 +10,12 @@ difficulty: intermediate
 estimated_time_hours: 2-4
 prerequisites: []
 tools:
+
   - unity
   - cmocka
   - check
 tags:
+
   - claude-code
   - c
 ---
@@ -317,6 +319,7 @@ ptr = NULL;
 
 /* Document ownership */
 /**
+
  * @return Newly allocated object (caller owns, must destroy)
  */
 object_t *object_create(void);
@@ -360,6 +363,7 @@ if (ptr == NULL) {
 
 ```c
 /**
+
  * @file buffer.c
  * @brief Dynamic buffer implementation
  * @author Benjamin Dourthe (benjamin@adonamed.com)
@@ -368,14 +372,17 @@ if (ptr == NULL) {
 /**
  * @brief Parse configuration file
  *
+
  * Reads and parses configuration from file.
  *
+
  * @param[in] filename Path to file
  * @param[out] config Configuration structure
  * @return 0 on success, negative on error
  * @retval -EINVAL Invalid arguments
  * @retval -ENOENT File not found
  *
+
  * @see config_init()
  * @author Benjamin Dourthe (benjamin@adonamed.com)
  */
@@ -489,6 +496,7 @@ git config --get remote.origin.url
 
 ```c
 /**
+
  * @file test_buffer.c
  * @brief Unit tests for buffer module
  */
@@ -737,6 +745,7 @@ Since you requested Git help:
 
 ### DEVLOG.md Updates
 Safe to update without permission:
+
 - Task lists
 - Development history
 - Challenges/solutions

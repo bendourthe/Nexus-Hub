@@ -10,10 +10,12 @@ difficulty: intermediate
 estimated_time_hours: 2-4
 prerequisites: []
 tools:
+
   - unity
   - cmocka
   - check
 tags:
+
   - claude-code
   - c
 ---
@@ -967,6 +969,7 @@ VERBOSE_OUTPUT = True
 
 ### When to Use Task Breakdown
 **Apply systematic breakdown for:**
+
 - Projects estimated >30 minutes
 - Multi-component applications
 - Complex feature implementations
@@ -975,6 +978,7 @@ VERBOSE_OUTPUT = True
 
 ### Analysis Phase
 **Always start with:**
+
 1. **Requirements**: Identify components and dependencies
 2. **Complexity**: Determine scope and challenges
 3. **Prerequisites**: List setup and tools
@@ -1065,6 +1069,7 @@ When implementing new features, fixing bugs, or troubleshooting issues, follow t
 
 ### Feature: User Authentication
 **Iteration 1**: Created tests/temp/test_auth_validation.py
+
 - Tests failed: Password validation too weak
 - Solution: Enhanced regex pattern
 
@@ -1202,6 +1207,7 @@ Never automatically:
 1. **Assess**: 
    ```
    Changes might warrant version update from X.Y.Z:
+
    - [List changes]
    - [Categorize as patch/minor/major]
    ```
@@ -1222,6 +1228,7 @@ Never automatically:
 Example:
 ```
 Changes include:
+
 - Added data processing (minor)
 - Fixed error handling (patch)
 - Updated docs (patch)
@@ -1345,6 +1352,7 @@ Before Git suggestions:
 3. **Explanation and Teaching**
    ```
    **Key Improvements Made:**
+
    - [Specific improvement 1 with reasoning]
    - [Specific improvement 2 with reasoning]
    
@@ -1356,6 +1364,7 @@ Before Git suggestions:
 4. **Integration Instructions**
    ```
    **To Apply This Fix:**
+
    - Replace lines X-Y in your original function
    - Add the import statement at the top of your file
    - Test with [suggested test cases]

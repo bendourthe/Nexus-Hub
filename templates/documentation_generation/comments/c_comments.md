@@ -10,10 +10,12 @@ difficulty: beginner
 estimated_time_hours: 1-2
 prerequisites: []
 tools:
+
   - unity
   - cmocka
   - check
 tags:
+
   - documentation
   - documentation
   - c
@@ -152,6 +154,7 @@ Please add strategic comments to this C project following this protocol:
 
 1. **Analyze Codebase for Comment Opportunities**
    Review the code to identify sections that would benefit from comments:
+
    - Complex algorithms or business logic
    - Non-obvious implementation decisions
    - Workarounds for known issues
@@ -179,6 +182,7 @@ Use **block comments** before complex algorithms:
 
 ```c
 /*
+
  * Calculate optimal route using A* pathfinding algorithm.
  * We use A* instead of Dijkstra because our graph has a reliable heuristic
  * (Euclidean distance), which reduces search time by ~40% in testing.
@@ -201,6 +205,7 @@ Document domain rules and business decisions:
 
 ```c
 /* Business rule: Premium users get 30-day refund window, standard users get 14 days.
+
  * This differs from the legal minimum (7 days) to improve customer satisfaction.
  * See: Business Policy Document v3.2, Section 4.1
  */
@@ -221,6 +226,7 @@ Clarify code that isn't self-explanatory:
 
 ```c
 /* Use calloc instead of malloc to zero-initialize memory.
+
  * Zero initialization prevents uninitialized read vulnerabilities.
  * Performance impact negligible (<1%) for typical allocations.
  */
@@ -255,6 +261,7 @@ Document workarounds for bugs or limitations:
 
 ```c
 /* WORKAROUND: glibc 2.24 has buffer overflow in strftime() with %Z specifier.
+
  * Using manual timezone formatting until system upgraded to glibc 2.28+
  * See: https://sourceware.org/bugzilla/show_bug.cgi?id=12345
  * TODO: Remove this workaround after upgrading to glibc 2.28+
@@ -288,6 +295,7 @@ Explain optimization decisions:
 
 ```c
 /* Cache results because recalculation is expensive (O(n²) complexity).
+
  * Cache invalidated on data updates via callback mechanism.
  * Memory impact: ~10MB for typical dataset of 10k items.
  * Thread-safety: Protected by reader-writer lock.
@@ -341,6 +349,7 @@ Document security considerations:
 
 ```c
 /* Security: Use snprintf to prevent buffer overflow.
+
  * sprintf has no bounds checking and enables arbitrary code execution.
  * Always specify buffer size with snprintf to prevent overflow attacks.
  */
@@ -382,6 +391,7 @@ Explain allocation, ownership, and lifetime:
 
 ```c
 /* Allocate buffer on heap because size exceeds stack limit (8KB).
+
  * Stack overflow causes segfault, heap allocation is safer for large buffers.
  * Caller responsible for freeing returned memory with free().
  */
@@ -436,6 +446,7 @@ Explain pointer manipulations:
 
 ```c
 /* Align pointer to 16-byte boundary for SIMD operations.
+
  * Unaligned access causes performance penalty or crash on some architectures.
  * Alignment formula: (ptr + align - 1) & ~(align - 1)
  */
@@ -485,6 +496,7 @@ Explain platform differences and portability:
 
 ```c
 /* Platform-specific endianness conversion.
+
  * Network byte order is big-endian (most significant byte first).
  * x86/x86_64 use little-endian (least significant byte first).
  * ARM can be either (bi-endian); check platform macros.
@@ -533,6 +545,7 @@ Use standardized tags for technical debt:
 
 ```c
 /* TODO: Refactor this into separate validation module (target: v2.1)
+
  * Current implementation works but violates single responsibility principle.
  * Estimate: 4 hours
  */
@@ -612,11 +625,14 @@ flags |= (1 << 3); /* Set bit 3 (enable verbose mode) */
 ```c
 /* Header file (user.h) */
 /*
+
  * Process user payment with fraud detection.
  *
+
  * This function validates the payment, performs fraud checks, and processes
  * the transaction through the payment gateway. All amounts are in cents.
  *
+
  * @param payment Payment details including amount, currency, and card info
  * @return Payment confirmation with transaction ID, or NULL on error
  * @note Sets errno to EINVAL if payment data is invalid
@@ -627,6 +643,7 @@ payment_result_t* process_payment(const payment_t* payment);
 /* Implementation file (user.c) */
 payment_result_t* process_payment(const payment_t* payment) {
     /* Use Luhn algorithm to validate card number before API call.
+
      * Prevents unnecessary API charges for invalid cards (~15% of attempts).
      */
     if (!is_valid_card_number(payment->card_number)) {
@@ -673,6 +690,7 @@ double calculate_total(void) {
 
 /* BAD: Duplicating header documentation */
 /*
+
  * Calculate total price.
  */
 double calculate_total(const item_t* items, size_t count) {
@@ -695,6 +713,7 @@ double calculate_total(const item_t* items, size_t count) {
 ### Block Comments
 ```c
 /*
+
  * Use block comments before code blocks they describe.
  * Separate from previous code with blank line.
  * Keep lines under 80 characters.
@@ -702,6 +721,7 @@ double calculate_total(const item_t* items, size_t count) {
 
 void my_function(void) {
     /* Block comments inside functions go before the relevant section
+
      * with proper indentation.
      */
     code_section();
@@ -926,6 +946,7 @@ Please provide comment additions in this format:
 ```yaml
 # Recommended tools
 tools:
+
   - cppcheck:
       # Static analysis
       # Comment style checking
@@ -941,6 +962,7 @@ tools:
   - grep/ripgrep:
       # Find technical debt tags
       patterns:
+
         - "TODO"
         - "FIXME"
         - "HACK"

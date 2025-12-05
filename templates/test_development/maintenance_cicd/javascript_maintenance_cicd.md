@@ -10,14 +10,18 @@ phase_number: 7
 difficulty: intermediate
 estimated_time_hours: 3-5
 prerequisites:
+
   - test_development/code_coverage/javascript_code_coverage.md
 related_templates:
+
   - test_development/reward_hacking/javascript_reward_hacking.md
 tools:
+
   - jest (29.7.0)
   - eslint (9.15.0)
   - prettier
 tags:
+
   - test-development
   - javascript
 ---
@@ -198,6 +202,7 @@ jobs:
     name: Lint and Format Check
     runs-on: ubuntu-latest
     steps:
+
       - uses: actions/checkout@v3
 
       - name: Set up Node.js
@@ -273,6 +278,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
         ports:
+
           - 5432:5432
 
       redis:
@@ -283,6 +289,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
         ports:
+
           - 6379:6379
 
     steps:
@@ -343,6 +350,7 @@ jobs:
     name: Security Scan
     runs-on: ubuntu-latest
     steps:
+
       - uses: actions/checkout@v3
 
       - name: Set up Node.js
@@ -376,6 +384,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [lint, unit-tests, integration-tests, e2e-tests, security]
     steps:
+
       - name: Quality gate passed
         run: echo "All quality checks passed!"
 ```
@@ -386,6 +395,7 @@ jobs:
 
 ```yaml
 stages:
+
   - lint
   - test
   - quality
@@ -397,6 +407,7 @@ variables:
 
 cache:
   paths:
+
     - .npm
     - node_modules
 
@@ -407,6 +418,7 @@ lint:
   stage: lint
   image: node:${NODE_VERSION}
   script:
+
     - npm run format:check
     - npm run lint
     - npm run type-check
@@ -415,6 +427,7 @@ unit-tests:
   stage: test
   image: node:${NODE_VERSION}
   script:
+
     - npm run test:unit -- --coverage --ci --maxWorkers=2
   coverage: '/All files[^|]*\|[^|]*\s+([\d\.]+)/'
   artifacts:
@@ -424,12 +437,14 @@ unit-tests:
         path: coverage/cobertura-coverage.xml
       junit: junit.xml
     paths:
+
       - coverage/
 
 integration-tests:
   stage: test
   image: node:${NODE_VERSION}
   services:
+
     - postgres:14
     - redis:7
   variables:
@@ -438,28 +453,34 @@ integration-tests:
     POSTGRES_PASSWORD: testpass
     DATABASE_URL: postgresql://postgres:testpass@postgres:5432/testdb
   script:
+
     - npm run test:integration -- --coverage --ci
   artifacts:
     paths:
+
       - coverage/
 
 e2e-tests:
   stage: test
   image: mcr.microsoft.com/playwright:v1.40.0-focal
   script:
+
     - npm ci
     - npm run test:e2e
   artifacts:
     when: always
     paths:
+
       - playwright-report/
 
 quality-gate:
   stage: quality
   image: node:${NODE_VERSION}
   script:
+
     - npm run test:coverage-check
   needs:
+
     - unit-tests
     - integration-tests
 ```
@@ -536,6 +557,7 @@ module.exports = {
 ```javascript
 // tests/setup/qualityGate.js
 /**
+
  * Quality gate enforcement for test suite.
  */
 
@@ -587,6 +609,7 @@ reporters: [
 ```javascript
 // tests/benchmarks/performanceGate.js
 /**
+
  * Performance regression detection.
  */
 const fs = require('fs');
@@ -815,6 +838,7 @@ module.exports = {
 ```javascript
 // tests/integration/database.test.js
 /**
+
  * Tests that must run serially.
  */
 describe.serial('Database Migrations', () => {
@@ -852,6 +876,7 @@ npm test -- --testSequencer=./tests/setup/flakyDetector.js
 ```javascript
 // tests/setup/flakyDetector.js
 /**
+
  * Detect flaky tests by running them multiple times.
  */
 const Sequencer = require('@jest/test-sequencer').default;
@@ -875,6 +900,7 @@ module.exports = FlakyTestSequencer;
 ```javascript
 // tests/utils/retry.js
 /**
+
  * Retry wrapper for flaky tests.
  */
 export function retryTest(testFn, retries = 3, delay = 1000) {
@@ -909,6 +935,7 @@ describe('API Tests', () => {
 ```javascript
 // tests/setup/flakyTracker.js
 /**
+
  * Track flaky test occurrences.
  */
 const fs = require('fs');
@@ -968,6 +995,7 @@ module.exports = new FlakyTestTracker();
 ```javascript
 // tests/setup/slowTestReporter.js
 /**
+
  * Report slow tests.
  */
 const SLOW_TEST_THRESHOLD = 1000; // 1 second
@@ -1016,6 +1044,7 @@ module.exports = SlowTestReporter;
 ```javascript
 // scripts/findObsoleteTests.js
 /**
+
  * Find tests that may be obsolete.
  */
 const fs = require('fs');
@@ -1089,11 +1118,14 @@ findObsoleteTests();
 
 ```javascript
 /**
+
  * User Authentication Test Suite
  *
+
  * Purpose:
  *   Validate user login, logout, and session management functionality.
  *
+
  * Coverage:
  *   - Valid credential login
  *   - Invalid credential handling
@@ -1101,17 +1133,20 @@ findObsoleteTests();
  *   - Multi-factor authentication flow
  *   - Password reset process
  *
+
  * Maintenance Notes:
  *   - Update testValidLogin() if authentication logic changes
  *   - mockEmailService fixture required for password reset tests
  *   - Tests use in-memory database for speed
  *   - External API calls are mocked
  *
+
  * Dependencies:
  *   - @/services/auth
  *   - @/models/User
  *   - @/utils/jwt
  *
+
  * Last Review: 2024-01-15
  * Reviewed By: alice@example.com
  */
@@ -1173,6 +1208,7 @@ reporters: [
 ```javascript
 // tests/setup/customReporter.js
 /**
+
  * Generate custom JSON test report.
  */
 const fs = require('fs');

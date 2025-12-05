@@ -10,14 +10,18 @@ phase_number: 5
 difficulty: intermediate
 estimated_time_hours: 2
 prerequisites:
+
   - code_review/performance_review/c_performance_review.md
 related_templates:
+
   - code_review/code_quality/c_code_quality.md
 tools:
+
   - unity
   - cmocka
   - check
 tags:
+
   - code-review
   - testing
   - code-review
@@ -248,6 +252,7 @@ For each finding, include:
 
 **Recommendation:**
 Move filtering to database with indexed query:
+
 - Add database index on search fields
 - Use database LIKE/ILIKE queries
 - Implement pagination (limit results to 50)
@@ -410,6 +415,7 @@ Please perform a comprehensive testing review of this embedded C project followi
 2. **Coverage by Module**
    ```
    Analyze coverage for each subsystem:
+
    - Drivers: [%] (target: 80%+, critical for hardware interaction)
    - HAL: [%] (target: 70%+)
    - Application: [%] (target: 80%+)
@@ -733,6 +739,7 @@ Please perform a comprehensive testing review of this embedded C project followi
 2. **Critical Gaps Assessment**
    ```
    High-priority gaps (must test):
+
    - Safety-critical functions
    - Protocol parsing
    - State machine transitions
@@ -752,6 +759,7 @@ Please perform a comprehensive testing review of this embedded C project followi
 3. **Missing Test Types**
    ```
    Identify missing test categories:
+
    - [ ] Boundary value tests (min, max, zero, overflow)
    - [ ] Error injection tests (null pointers, invalid inputs)
    - [ ] Concurrency tests (race conditions, deadlocks)
@@ -1049,6 +1057,7 @@ void protocol_init(driver_if_t *driver) {
 test:
   stage: test
   script:
+
     - make clean
     - make COVERAGE=1 test
     - lcov --capture --directory . --output-file coverage.info

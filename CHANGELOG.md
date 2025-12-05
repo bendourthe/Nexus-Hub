@@ -846,6 +846,7 @@ Removed redundant sections, fixed markdown formatting issues, and improved conte
    ```markdown
    # Before
    Text
+
    - Bullet 1
    - Bullet 2
 

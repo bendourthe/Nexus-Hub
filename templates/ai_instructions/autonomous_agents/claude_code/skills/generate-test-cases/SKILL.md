@@ -213,6 +213,7 @@ class TestAgeValidation:
 **JavaScript Example (Jest)**:
 ```javascript
 /**
+
  * Unit tests for user validation module
  */
 import { validateEmail, validateAge } from '../src/validation';
@@ -818,6 +819,7 @@ class TestUserRepository:
 **JavaScript Example (API Integration)**:
 ```javascript
 /**
+
  * Integration tests for user API
  */
 import request from 'supertest';

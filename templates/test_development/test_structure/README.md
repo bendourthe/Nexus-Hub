@@ -97,6 +97,7 @@ Establish a robust, maintainable test infrastructure that supports comprehensive
 
 ## Quick Start
 Use the appropriate template file with your AI assistant to:
+
 1. Evaluate current test infrastructure
 2. Design optimal test organization
 3. Set up test framework and configuration

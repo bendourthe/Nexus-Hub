@@ -10,14 +10,18 @@ phase_number: 7
 difficulty: intermediate
 estimated_time_hours: 3-5
 prerequisites:
+
   - test_development/code_coverage/java_code_coverage.md
 related_templates:
+
   - test_development/reward_hacking/java_reward_hacking.md
 tools:
+
   - junit (5.11.3)
   - maven
   - gradle
 tags:
+
   - test-development
   - java
 ---
@@ -198,6 +202,7 @@ jobs:
     name: Lint and Format Check
     runs-on: ubuntu-latest
     steps:
+
       - uses: actions/checkout@v3
 
       - name: Set up JDK 17
@@ -275,6 +280,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
         ports:
+
           - 5432:5432
 
       redis:
@@ -285,6 +291,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
         ports:
+
           - 6379:6379
 
     steps:
@@ -315,6 +322,7 @@ jobs:
     name: Security Scan
     runs-on: ubuntu-latest
     steps:
+
       - uses: actions/checkout@v3
 
       - name: Set up JDK 17
@@ -346,6 +354,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [lint, unit-tests, integration-tests, security]
     steps:
+
       - name: Quality gate passed
         run: echo "All quality checks passed!"
 ```
@@ -356,6 +365,7 @@ jobs:
 
 ```yaml
 stages:
+
   - lint
   - test
   - quality
@@ -367,6 +377,7 @@ variables:
 
 cache:
   paths:
+
     - .m2/repository
 
 before_script:
@@ -376,6 +387,7 @@ lint:
   stage: lint
   image: maven:3.9-eclipse-temurin-17
   script:
+
     - mvn $MAVEN_CLI_OPTS com.spotify.fmt:fmt-maven-plugin:check
     - mvn $MAVEN_CLI_OPTS checkstyle:check
     - mvn $MAVEN_CLI_OPTS spotbugs:check
@@ -385,23 +397,27 @@ unit-tests:
   stage: test
   image: maven:3.9-eclipse-temurin-17
   script:
+
     - mvn $MAVEN_CLI_OPTS test -Dtest=**/*Test.java
     - mvn $MAVEN_CLI_OPTS jacoco:report
   coverage: '/Total.*?([0-9]{1,3})%/'
   artifacts:
     reports:
       junit:
+
         - target/surefire-reports/TEST-*.xml
       coverage_report:
         coverage_format: cobertura
         path: target/site/jacoco/jacoco.xml
     paths:
+
       - target/site/jacoco/
 
 integration-tests:
   stage: test
   image: maven:3.9-eclipse-temurin-17
   services:
+
     - postgres:14
     - redis:7
   variables:
@@ -410,17 +426,21 @@ integration-tests:
     POSTGRES_PASSWORD: testpass
     DATABASE_URL: jdbc:postgresql://postgres:5432/testdb
   script:
+
     - mvn $MAVEN_CLI_OPTS verify -Dtest=**/*IT.java
   artifacts:
     paths:
+
       - target/site/jacoco/
 
 quality-gate:
   stage: quality
   image: maven:3.9-eclipse-temurin-17
   script:
+
     - mvn $MAVEN_CLI_OPTS jacoco:check
   needs:
+
     - unit-tests
     - integration-tests
 ```
@@ -849,19 +869,23 @@ pip install pre-commit
 
 ```yaml
 repos:
+
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0
     hooks:
+
       - id: trailing-whitespace
       - id: end-of-file-fixer
       - id: check-yaml
       - id: check-added-large-files
         args: ['--maxkb=1000']
+
       - id: check-merge-conflict
       - id: detect-private-key
 
   - repo: local
     hooks:
+
       - id: maven-format
         name: Format Java code
         entry: mvn com.spotify.fmt:fmt-maven-plugin:format
@@ -1225,9 +1249,11 @@ import org.junit.jupiter.api.*;
 /**
  * User Authentication Test Suite
  *
+
  * <p>Purpose:
  * Validate user login, logout, and session management functionality.
  *
+
  * <p>Coverage:
  * <ul>
  *   <li>Valid credential login</li>
@@ -1237,6 +1263,7 @@ import org.junit.jupiter.api.*;
  *   <li>Password reset process</li>
  * </ul>
  *
+
  * <p>Maintenance Notes:
  * <ul>
  *   <li>Update testValidLogin() if authentication logic changes</li>
@@ -1245,6 +1272,7 @@ import org.junit.jupiter.api.*;
  *   <li>External API calls are mocked</li>
  * </ul>
  *
+
  * <p>Dependencies:
  * <ul>
  *   <li>AuthService</li>
@@ -1252,6 +1280,7 @@ import org.junit.jupiter.api.*;
  *   <li>JwtTokenProvider</li>
  * </ul>
  *
+
  * <p>Last Review: 2024-01-15
  * <p>Reviewed By: alice@example.com
  */

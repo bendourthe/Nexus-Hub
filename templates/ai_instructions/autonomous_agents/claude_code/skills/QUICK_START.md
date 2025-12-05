@@ -10,6 +10,7 @@ difficulty: intermediate
 estimated_time_hours: 2-4
 prerequisites: []
 tags:
+
   - claude-code
   - generic
 ---
@@ -85,6 +86,7 @@ comprehensive Python standards"
 **Example**:
 ```
 "Use cleanup-python to:
+
 1. Remove all unused imports
 2. Modernize to f-strings
 3. Consolidate duplicate validation functions"
@@ -124,6 +126,7 @@ agent_prompts/autonomous_agents/claude_code/skills/
 
 ### Option 1: Use Existing Skills
 Start using the 3 complete skills right away:
+
 1. Configure your Python project with `setup-python-system-prompt`
 2. Clean up your code with `cleanup-python`
 3. Generate API docs with `generate-api-docs`
@@ -144,6 +147,7 @@ Follow the implementation guide to create the remaining 28 skills:
 
 ### Option 3: Customize Existing Skills
 Adapt the 3 example skills for your organization:
+
 1. Add company-specific standards to `setup-python-system-prompt`
 2. Customize cleanup rules in `cleanup-python`
 3. Add organization templates to `generate-api-docs`
@@ -243,6 +247,7 @@ A: Yes! Skills are just structured markdown. You can read them like templates an
 
 **Q: How are skills different from templates?**
 A: Skills are:
+
 - More discoverable (natural language invocation)
 - More token-efficient (metadata-only loading)
 - Action-oriented (step-by-step instructions)

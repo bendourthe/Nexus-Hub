@@ -10,10 +10,12 @@ difficulty: intermediate
 estimated_time_hours: 2-4
 prerequisites: []
 tools:
+
   - unity
   - cmocka
   - check
 tags:
+
   - claude-code
   - c
 ---
@@ -673,8 +675,10 @@ public class User {
 ### Complex Methods
 ```java
 /**
+
  * Processes user data with validation and transformation.
  *
+
  * <p>This method performs the following operations:
  * <ul>
  *   <li>Validates input data according to business rules</li>
@@ -682,6 +686,7 @@ public class User {
  *   <li>Saves to database with transactional guarantees</li>
  * </ul>
  *
+
  * @param request the user creation request containing name, email, and password
  * @param options additional processing options, may be null
  * @return the created user data transfer object with generated ID
@@ -689,6 +694,7 @@ public class User {
  * @throws DuplicateEmailException if the email already exists
  * @throws DatabaseException if database operation fails
  *
+
  * @author Benjamin Dourthe (benjamin@adonamed.com)
  * @since 1.0
  * @see UserDTO
@@ -703,8 +709,10 @@ public UserDTO processUserData(CreateUserRequest request, ProcessOptions options
 ### Simple Methods
 ```java
 /**
+
  * Calculates the total price including tax.
  *
+
  * @param items list of item prices
  * @return total price with tax applied
  */
@@ -716,13 +724,17 @@ public double calculateTotal(List<Double> items) {
 ### Class Documentation
 ```java
 /**
+
  * Service layer for user management operations.
  *
+
  * <p>This service handles all business logic related to user entities,
  * including CRUD operations, validation, and business rules enforcement.
  *
+
  * <p>All methods in this service are transactional unless otherwise specified.
  *
+
  * @author Benjamin Dourthe (benjamin@adonamed.com)
  * @version 1.0
  * @since 0.1.0
@@ -796,6 +808,7 @@ Create `application-local.yml`:
 
 ## API Documentation
 After starting the application, visit:
+
 - Swagger UI: http://localhost:8080/swagger-ui.html
 - API Docs: http://localhost:8080/v3/api-docs
 ```
@@ -842,8 +855,10 @@ Format based on [Keep a Changelog](https://keepachangelog.com/).
 
 ```java
 /**
+
  * Test suite for UserService.
  *
+
  * @author Benjamin Dourthe (benjamin@adonamed.com)
  */
 @ExtendWith(MockitoExtension.class)
@@ -1077,6 +1092,7 @@ When implementing new features, fixing bugs, or troubleshooting issues, follow t
 
 ### Feature: User Authentication
 **Iteration 1**: Created src/test/java/temp/TempAuthValidationTest.java
+
 - Tests failed: Password validation too weak
 - Solution: Enhanced regex pattern in ValidationUtil
 

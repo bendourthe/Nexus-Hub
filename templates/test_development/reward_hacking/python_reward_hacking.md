@@ -10,13 +10,16 @@ phase_number: 8
 difficulty: advanced
 estimated_time_hours: 4-6
 prerequisites:
+
   - test_development/maintenance_cicd/python_maintenance_cicd.md
 tools:
+
   - pytest (8.3.4+)
   - black (24.12.0)
   - mypy (1.13.0)
   - ruff
 tags:
+
   - test-development
   - python
 ---
@@ -314,6 +317,7 @@ def generate_report(issues: List[Dict], output_path: str):
 
     for issue in critical:
         report += f"""### {issue['file']}:{issue['line']} - {issue['test']}
+
 - **Pattern:** {issue['pattern']}
 - **Issue:** {issue['issue']}
 
@@ -323,6 +327,7 @@ def generate_report(issues: List[Dict], output_path: str):
 
     for issue in high:
         report += f"""### {issue['file']}:{issue['line']} - {issue['test']}
+
 - **Pattern:** {issue['pattern']}
 - **Issue:** {issue['issue']}
 
@@ -725,6 +730,7 @@ def generate_mocking_report(results: List[Dict], output_path: str):
 
     for result in critical:
         report += f"""### {result['file']}:{result['line']} - {result['test']}
+
 - **Mock Count:** {result['mock_count']}
 - **Deep Chains:** {len(result['deep_chains'])}
 - **Direct Mock Assertions:** {len(result['direct_mock_assertions'])}
@@ -948,6 +954,7 @@ pip install mutmut
 
 ```yaml
 paths_to_mutate:
+
   - src/
 
 tests_dir:
@@ -1023,6 +1030,7 @@ Mutation Score: 80%
 ### Why This is Critical
 This mutation changes subtraction to addition in discount calculation,
 completely reversing the logic. Tests passing indicate:
+
 1. No test validates actual discount calculation
 2. Possible mock return value used in assertion
 3. Test only checks type/existence, not correctness
@@ -1448,6 +1456,7 @@ def generate_flaky_test_report(flaky_tests: List[Dict], output_path: str):
 
     for test in flaky_tests:
         report += f"""### {test['test']}
+
 - **Failure Rate:** {test['failure_rate']*100:.1f}%
 - **Passed:** {test['passed']}/{test['total_runs']}
 - **Failed:** {test['failed']}/{test['total_runs']}

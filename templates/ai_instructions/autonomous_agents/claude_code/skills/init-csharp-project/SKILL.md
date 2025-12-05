@@ -792,10 +792,13 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
     ports:
+
       - "5432:5432"
     volumes:
+
       - postgres_data:/var/lib/postgresql/data
     networks:
+
       - app-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
@@ -808,14 +811,17 @@ services:
       context: ..
       dockerfile: docker/Dockerfile
     ports:
+
       - "5000:80"
     environment:
+
       - ASPNETCORE_ENVIRONMENT=Production
       - ConnectionStrings__DefaultConnection=Host=postgres;Database=taskmanagement;Username=postgres;Password=password
     depends_on:
       postgres:
         condition: service_healthy
     networks:
+
       - app-network
 
 volumes:
@@ -1160,6 +1166,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### Web API with Authentication
 ```
 Additional Dependencies:
+
 - Microsoft.AspNetCore.Authentication.JwtBearer
 - Microsoft.AspNetCore.Identity.EntityFrameworkCore
 - IdentityModel
@@ -1168,6 +1175,7 @@ Additional Dependencies:
 ### Clean Architecture with CQRS
 ```
 Additional Dependencies:
+
 - MediatR
 - MediatR.Extensions.Microsoft.DependencyInjection
 - FluentValidation.DependencyInjectionExtensions
@@ -1176,6 +1184,7 @@ Additional Dependencies:
 ### Microservice
 ```
 Additional Dependencies:
+
 - Polly (resilience)
 - RabbitMQ.Client (messaging)
 - StackExchange.Redis (caching)

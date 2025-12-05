@@ -54,6 +54,7 @@ Team: *deploys without security audit*
 Application: *contains critical vulnerabilities*
 Attackers: *exploit security gaps*
 Result:
+
 - ❌ Data breaches and unauthorized access
 - ❌ Injection attacks compromise data
 - ❌ Authentication bypass allows impersonation
@@ -68,6 +69,7 @@ Team: *performs comprehensive security audit*
 Application: *vulnerabilities identified and fixed*
 Attackers: *find hardened, secure application*
 Result:
+
 - ✅ Data protected from unauthorized access
 - ✅ Injection attacks prevented
 - ✅ Authentication properly enforced

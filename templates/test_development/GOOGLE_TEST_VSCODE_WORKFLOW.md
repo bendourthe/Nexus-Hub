@@ -659,6 +659,7 @@ Use Copilot to incrementally improve test coverage.
 ```
 Add parametrized tests for Calculator::add using TEST_P and INSTANTIATE_TEST_SUITE_P.
 Test these value pairs:
+
 - (1, 2) → 3
 - (0, 0) → 0
 - (-5, 5) → 0
@@ -793,6 +794,7 @@ After viewing coverage report, identify uncovered lines (e.g., Calculator.cpp li
 ```
 Generate tests for Calculator.cpp lines 42-48 (multiply method edge cases).
 Coverage report shows these lines are uncovered. Add tests for:
+
 - Multiplication resulting in zero
 - Negative number multiplication
 - Overflow detection (INT_MAX * 2 should be handled)

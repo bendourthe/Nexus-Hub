@@ -10,15 +10,19 @@ phase_number: 5
 difficulty: advanced
 estimated_time_hours: 4-6
 prerequisites:
+
   - test_development/mocks_fixtures/python_mocks_fixtures.md
 related_templates:
+
   - test_development/code_coverage/python_code_coverage.md
 tools:
+
   - pytest (8.3.4+)
   - black (24.12.0)
   - mypy (1.13.0)
   - ruff
 tags:
+
   - test-development
   - testing
   - performance

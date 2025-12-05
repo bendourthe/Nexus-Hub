@@ -10,14 +10,18 @@ phase_number: 5
 difficulty: intermediate
 estimated_time_hours: 2
 prerequisites:
+
   - code_review/performance_review/java_performance_review.md
 related_templates:
+
   - code_review/code_quality/java_code_quality.md
 tools:
+
   - junit (5.11.3)
   - maven
   - gradle
 tags:
+
   - code-review
   - testing
   - code-review
@@ -260,6 +264,7 @@ For each finding, include:
 
 **Recommendation:**
 Move filtering to database with indexed query:
+
 - Add database index on search fields
 - Use database LIKE/ILIKE queries
 - Implement pagination (limit results to 50)
@@ -866,6 +871,7 @@ Please perform a comprehensive testing review of this Java project following thi
    ```java
    // Gatling or JMeter tests for API load testing
    // Check for:
+
    - Baseline performance tests
    - Load test scenarios
    - Stress test scenarios

@@ -11,12 +11,15 @@ difficulty: intermediate
 estimated_time_hours: 2-4
 prerequisites: []
 related_templates:
+
   - test_development/unit_tests/javascript_unit_tests.md
 tools:
+
   - jest (29.7.0)
   - eslint (9.15.0)
   - prettier
 tags:
+
   - test-development
   - testing
   - javascript
@@ -497,6 +500,7 @@ Use `<REPO_URL>` as placeholder where repository URLs are needed in this templat
    **Global Setup** (`tests/setup.js`):
    ```javascript
    /**
+
     * Global test setup executed before all tests.
     */
 
@@ -536,6 +540,7 @@ Use `<REPO_URL>` as placeholder where repository URLs are needed in this templat
    **Global Teardown** (`tests/teardown.js`):
    ```javascript
    /**
+
     * Global test teardown executed after all tests.
     */
    module.exports = async () => {
@@ -590,6 +595,7 @@ Use `<REPO_URL>` as placeholder where repository URLs are needed in this templat
    **User Factory** (`tests/fixtures/users.js`):
    ```javascript
    /**
+
     * User test data factory.
     */
    let idCounter = 0;
@@ -636,6 +642,7 @@ Use `<REPO_URL>` as placeholder where repository URLs are needed in this templat
    **Builder Pattern** (`tests/helpers/builders.js`):
    ```javascript
    /**
+
     * Builder pattern for complex test objects.
     */
    export class UserBuilder {
@@ -695,6 +702,7 @@ Use `<REPO_URL>` as placeholder where repository URLs are needed in this templat
 
    ```javascript
    /**
+
     * Custom Jest matchers for cleaner test assertions.
     */
    expect.extend({
@@ -756,6 +764,7 @@ Use `<REPO_URL>` as placeholder where repository URLs are needed in this templat
 
    ```javascript
    /**
+
     * Test data generation utilities.
     */
    import { faker } from '@faker-js/faker';
@@ -805,6 +814,7 @@ Use `<REPO_URL>` as placeholder where repository URLs are needed in this templat
 
    ```javascript
    /**
+
     * Common test utility functions.
     */
 

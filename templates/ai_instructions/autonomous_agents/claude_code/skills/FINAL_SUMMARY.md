@@ -10,6 +10,7 @@ difficulty: intermediate
 estimated_time_hours: 2-4
 prerequisites: []
 tags:
+
   - claude-code
   - generic
 ---
@@ -247,6 +248,7 @@ finally use test-driven-development to implement it"
 ### Parameterized
 ```
 "Use cleanup-python focusing only on:
+
 1. Removing unused imports
 2. Modernizing to f-strings
 3. Type hint additions"

@@ -10,9 +10,11 @@ difficulty: beginner
 estimated_time_hours: 1-2
 prerequisites: []
 tools:
+
   - go test (1.23+)
   - testify
 tags:
+
   - documentation
   - documentation
   - go
@@ -151,6 +153,7 @@ Please add strategic comments to this Go project following this protocol:
 
 1. **Analyze Codebase for Comment Opportunities**
    Review the code to identify sections that would benefit from comments:
+
    - Complex algorithms or business logic
    - Non-obvious implementation decisions
    - Workarounds for known issues
@@ -917,6 +920,7 @@ Please provide comment additions in this format:
 ```yaml
 # Recommended tools
 tools:
+
   - golangci-lint:
       # godox linter for TODO/FIXME tracking
       # misspell for comment spelling
@@ -932,6 +936,7 @@ tools:
   - grep/ripgrep:
       # Find technical debt tags
       patterns:
+
         - "TODO"
         - "FIXME"
         - "HACK"

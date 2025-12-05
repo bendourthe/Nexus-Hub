@@ -127,6 +127,7 @@ Tell Claude Code to use this skill:
 ```
 "Use the cleanup-javascript skill to analyze and clean up this JavaScript/TypeScript codebase.
 Focus on:
+
 1. Removing all unused imports and functions
 2. Consolidating duplicate code
 3. Modernizing to ES6+ patterns
@@ -485,6 +486,7 @@ cleanup_report/
 
 ### Issue: Tests Fail After Cleanup
 **Solution**:
+
 1. Review git diff for the failing area
 2. Use `git checkout -- <file>` to revert specific files
 3. Re-run tests to isolate issue
@@ -492,6 +494,7 @@ cleanup_report/
 
 ### Issue: False Positive for "Unused" Code
 **Solution**:
+
 - Check for dynamic imports (import())
 - Verify reflection/string-based references
 - Look for eval() or dynamic require()
@@ -499,6 +502,7 @@ cleanup_report/
 
 ### Issue: Import Organization Breaks Code
 **Solution**:
+
 - Check for circular dependencies
 - Verify import side effects
 - Keep original organization if needed
@@ -506,6 +510,7 @@ cleanup_report/
 
 ### Issue: Modernization Changes Behavior
 **Solution**:
+
 - Review browser/Node.js compatibility
 - Check for subtle semantic differences
 - Test edge cases thoroughly
@@ -513,6 +518,7 @@ cleanup_report/
 
 ### Issue: TypeScript Type Errors After Cleanup
 **Solution**:
+
 - Run `tsc --noEmit` to check types
 - Fix type errors incrementally
 - Consider type-only imports

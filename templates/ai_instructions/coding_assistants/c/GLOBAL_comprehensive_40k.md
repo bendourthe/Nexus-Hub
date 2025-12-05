@@ -10,6 +10,7 @@ difficulty: intermediate
 estimated_time_hours: 2-4
 prerequisites: []
 tags:
+
   - coding-assistants
   - generic
 ---
@@ -191,11 +192,13 @@ install: $(BUILD_DIR)/$(TARGET)
 ## Header Template with Include Guards
 ```c
 /**
+
  * @file api.h
  * @brief Public API for ProjectName
  * @version 0.1.0
  * @date 2024-01-15
  *
+
  * @copyright Copyright (c) 2024 Benjamin Dourthe
  */
 
@@ -230,6 +233,7 @@ typedef struct project_context project_context_t;
 /**
  * @brief Initialize the project context
  *
+
  * @param ctx Pointer to context structure
  * @return project_error_t Error code
  */
@@ -238,6 +242,7 @@ project_error_t project_init(project_context_t **ctx);
 /**
  * @brief Clean up and free resources
  *
+
  * @param ctx Context to clean up
  */
 void project_cleanup(project_context_t *ctx);
@@ -337,8 +342,10 @@ static int g_instance_count = 0;
 
 ```c
 /**
+
  * @brief Process user data with validation
  *
+
  * @param data Input data buffer
  * @param len Length of data
  * @param result Output result buffer
@@ -404,6 +411,7 @@ default:
 
 ```c
 /**
+
  * @brief Safe memory allocation with error checking
  */
 void *safe_malloc(size_t size)
@@ -504,6 +512,7 @@ void init_user(user_t *user)
 
 ```c
 /**
+
  * @file core.c
  * @brief Core functionality implementation
  * @author Benjamin Dourthe (benjamin@adonamed.com)
@@ -514,17 +523,21 @@ void init_user(user_t *user)
 /**
  * @brief Initialize the data processing engine
  *
+
  * This function sets up all necessary resources for data processing
  * including memory allocation, thread pool initialization, and
  * configuration loading.
  *
+
  * @param[in] config Configuration parameters
  * @param[out] ctx Initialized context (caller must free with cleanup())
  * @return 0 on success, negative error code on failure
  *
+
  * @note The caller is responsible for calling cleanup() when done
  * @warning This function is not thread-safe
  *
+
  * @par Example:
  * @code
  * config_t config = { .threads = 4 };
@@ -543,6 +556,7 @@ int init(const config_t *config, context_t **ctx)
 /**
  * @brief Process a single data record
  *
+
  * @param[in] record Input record to process
  * @param[out] result Processing result
  * @retval 0 Success
@@ -574,6 +588,7 @@ int process_record(const record_t *record, result_t *result)
 
 ```c
 /**
+
  * @brief Error handling with cleanup pattern
  */
 int complex_operation(const char *input)
@@ -655,6 +670,7 @@ const char *error_string(error_code_t code)
 
 ```c
 /**
+
  * @brief Safe macro definitions
  */
 
@@ -687,6 +703,7 @@ static const int MAX_RETRIES = 5;  // Preferred over #define
 ### File Header
 ```c
 /**
+
  * @file utils.c
  * @brief Utility functions for data processing
  * @details
@@ -694,12 +711,15 @@ static const int MAX_RETRIES = 5;  // Preferred over #define
  * the application including string processing, data conversion,
  * and validation routines.
  *
+
  * @author Benjamin Dourthe (benjamin@adonamed.com)
  * @version 0.1.0
  * @date 2024-01-15
  *
+
  * @copyright Copyright (c) 2024
  *
+
  * @par Example:
  * @code
  * result_t result;
@@ -714,24 +734,30 @@ static const int MAX_RETRIES = 5;  // Preferred over #define
 ### Function Documentation
 ```c
 /**
+
  * @brief Parse configuration from file
  *
+
  * @details
  * Reads configuration from the specified file and populates
  * the config structure. Supports key=value format with comments.
  *
+
  * @param[in] filename Path to configuration file
  * @param[out] config Configuration structure to populate
  *
+
  * @return Error code
  * @retval 0 Success
  * @retval -1 File not found
  * @retval -2 Parse error
  * @retval -3 Invalid configuration
  *
+
  * @note The config structure must be initialized before calling
  * @warning Not thread-safe, must be called during initialization
  *
+
  * @see config_validate()
  * @see config_free()
  */
@@ -846,6 +872,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### Test File Structure
 ```c
 /**
+
  * @file test_core.c
  * @brief Unit tests for core functionality
  */

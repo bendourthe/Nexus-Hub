@@ -217,6 +217,7 @@ git push
 
 ### 1. Idiomatic Go Code Patterns
 Automatically follows Go conventions:
+
 - **Exported vs unexported**: PascalCase for exported, camelCase for internal
 - **Error handling**: Always return errors, never panic in library code
 - **Error wrapping**: Use fmt.Errorf with %w for error chains
@@ -241,6 +242,7 @@ project/
 
 ### 3. Concurrency Patterns
 Proper use of Go's concurrency primitives:
+
 - **Goroutines**: Lightweight concurrent execution
 - **Channels**: Communication between goroutines
 - **Select**: Multiplexing channel operations
@@ -250,6 +252,7 @@ Proper use of Go's concurrency primitives:
 
 ### 4. Error Handling
 Go-idiomatic error handling:
+
 - Return errors, don't panic (except for programmer errors)
 - Custom error types implementing error interface
 - Error wrapping with fmt.Errorf("context: %w", err)
@@ -258,6 +261,7 @@ Go-idiomatic error handling:
 
 ### 5. Testing Patterns
 Go testing best practices:
+
 - Table-driven tests for multiple scenarios
 - Subtests with t.Run for organization
 - testify/assert for readable assertions
@@ -267,6 +271,7 @@ Go testing best practices:
 
 ### 6. HTTP Handler Patterns (Gin)
 Standard handler structure:
+
 - Constructor injection of dependencies
 - Context propagation from request
 - Proper HTTP status codes
@@ -276,6 +281,7 @@ Standard handler structure:
 
 ### 7. Code Quality Tools
 Integration with Go ecosystem:
+
 - **gofmt**: Standard code formatting
 - **goimports**: Import organization and management
 - **go vet**: Static analysis for common mistakes

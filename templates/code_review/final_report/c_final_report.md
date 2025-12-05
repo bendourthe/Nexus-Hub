@@ -10,14 +10,18 @@ phase_number: 6
 difficulty: intermediate
 estimated_time_hours: 1
 prerequisites:
+
   - code_review/testing_review/c_testing_review.md
 related_templates:
+
   - code_review/code_quality/c_code_quality.md
 tools:
+
   - unity
   - cmocka
   - check
 tags:
+
   - code-review
   - c
 ---
@@ -200,6 +204,7 @@ For each finding, include:
 
 **Recommendation:**
 Move filtering to database with indexed query:
+
 - Add database index on search fields
 - Use database LIKE/ILIKE queries
 - Implement pagination (limit results to 50)
@@ -360,6 +365,7 @@ Create a phased implementation plan:
 
 ### Immediate Actions (Week 1)
 **Critical P0 Items** - Must be addressed immediately:
+
 1. **[Fix buffer overflow in UART handler]**
    - **Risk**: Remote code execution, system crash
    - **Effort**: 4 hours
@@ -1261,12 +1267,14 @@ stages:
 build:
   stage: build
   script:
+
     - make clean
     - make all
 
 test:
   stage: test
   script:
+
     - make test
   artifacts:
     reports:
@@ -1275,16 +1283,19 @@ test:
 static-analysis:
   stage: analyze
   script:
+
     - cppcheck --xml --enable=all src/ 2> ${OUTPUT_DIR}/exports/cppcheck_report.xml
     - flawfinder --html src/ > ${OUTPUT_DIR}/exports/security_report.html
   artifacts:
     paths:
+
       - cppcheck_report.xml
       - security_report.html
 
 coverage:
   stage: analyze
   script:
+
     - make COVERAGE=1 test
     - lcov --summary coverage.info
   coverage: '/lines.*: (\d+\.\d+)%/'

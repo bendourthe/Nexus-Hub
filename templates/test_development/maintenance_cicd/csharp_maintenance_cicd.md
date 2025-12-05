@@ -10,14 +10,18 @@ phase_number: 7
 difficulty: intermediate
 estimated_time_hours: 3-5
 prerequisites:
+
   - test_development/code_coverage/csharp_code_coverage.md
 related_templates:
+
   - test_development/reward_hacking/csharp_reward_hacking.md
 tools:
+
   - NUnit (4.2.2)
   - xUnit
   - MSTest
 tags:
+
   - test-development
   - c#
 ---
@@ -201,6 +205,7 @@ jobs:
     name: Lint and Format Check
     runs-on: ubuntu-latest
     steps:
+
       - uses: actions/checkout@v3
 
       - name: Setup .NET
@@ -285,6 +290,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
         ports:
+
           - 5432:5432
 
       sqlserver:
@@ -293,6 +299,7 @@ jobs:
           ACCEPT_EULA: Y
           SA_PASSWORD: TestP@ssw0rd
         ports:
+
           - 1433:1433
 
       redis:
@@ -303,6 +310,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
         ports:
+
           - 6379:6379
 
     steps:
@@ -342,6 +350,7 @@ jobs:
     name: Security Scan
     runs-on: ubuntu-latest
     steps:
+
       - uses: actions/checkout@v3
 
       - name: Setup .NET
@@ -373,6 +382,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [lint, unit-tests, integration-tests, security]
     steps:
+
       - name: Quality gate passed
         run: echo "All quality checks passed!"
 ```
@@ -383,6 +393,7 @@ jobs:
 
 ```yaml
 stages:
+
   - lint
   - test
   - quality
@@ -394,6 +405,7 @@ variables:
 
 cache:
   paths:
+
     - .nuget/
 
 before_script:
@@ -403,6 +415,7 @@ lint:
   stage: lint
   image: mcr.microsoft.com/dotnet/sdk:${DOTNET_VERSION}
   script:
+
     - dotnet format --verify-no-changes
     - dotnet build /p:TreatWarningsAsErrors=true
 
@@ -410,6 +423,7 @@ unit-tests:
   stage: test
   image: mcr.microsoft.com/dotnet/sdk:${DOTNET_VERSION}
   script:
+
     - dotnet test
         --filter "FullyQualifiedName~UnitTests"
         --collect:"XPlat Code Coverage"
@@ -423,12 +437,14 @@ unit-tests:
         coverage_format: cobertura
         path: coverage/**/coverage.cobertura.xml
     paths:
+
       - coverage/
 
 integration-tests:
   stage: test
   image: mcr.microsoft.com/dotnet/sdk:${DOTNET_VERSION}
   services:
+
     - postgres:14
     - redis:7
   variables:
@@ -436,24 +452,29 @@ integration-tests:
     POSTGRES_USER: postgres
     POSTGRES_PASSWORD: testpass
   script:
+
     - dotnet test
         --filter "FullyQualifiedName~IntegrationTests"
         --collect:"XPlat Code Coverage"
   artifacts:
     paths:
+
       - coverage/
 
 quality-gate:
   stage: quality
   image: mcr.microsoft.com/dotnet/sdk:${DOTNET_VERSION}
   script:
+
     - dotnet tool install -g dotnet-reportgenerator-globaltool
     - reportgenerator
         -reports:coverage/**/coverage.cobertura.xml
         -targetdir:coverage/report
         -reporttypes:TextSummary
+
     - cat coverage/report/Summary.txt
   needs:
+
     - unit-tests
     - integration-tests
 ```

@@ -10,12 +10,15 @@ phase_number: 8
 difficulty: advanced
 estimated_time_hours: 4-6
 prerequisites:
+
   - test_development/maintenance_cicd/csharp_maintenance_cicd.md
 tools:
+
   - NUnit (4.2.2)
   - xUnit
   - MSTest
 tags:
+
   - test-development
   - c#
 ---

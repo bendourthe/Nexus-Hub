@@ -734,6 +734,7 @@ def assert_datetime_recent(dt, max_seconds=60):
 **JavaScript (tests/helpers/testUtils.js)**:
 ```javascript
 /**
+
  * Test utility functions
  */
 

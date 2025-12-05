@@ -10,10 +10,12 @@ difficulty: intermediate
 estimated_time_hours: 2-4
 prerequisites: []
 tools:
+
   - unity
   - cmocka
   - check
 tags:
+
   - claude-code
   - c
 ---
@@ -384,14 +386,17 @@ public class User {
 ### Complex Methods
 ```java
 /**
+
  * Processes user data with validation.
  *
+
  * @param request the user creation request
  * @param options additional options, may be null
  * @return the created user DTO
  * @throws ValidationException if data is invalid
  * @throws DuplicateEmailException if email exists
  *
+
  * @author Benjamin Dourthe (benjamin@adonamed.com)
  */
 public UserDTO processUserData(CreateUserRequest request, Options options) {
@@ -402,8 +407,10 @@ public UserDTO processUserData(CreateUserRequest request, Options options) {
 ### Simple Methods
 ```java
 /**
+
  * Calculates total price with tax.
  *
+
  * @param items list of item prices
  * @return total price with tax
  */

@@ -10,14 +10,18 @@ phase_number: 4
 difficulty: advanced
 estimated_time_hours: 2-3
 prerequisites:
+
   - code_review/security_review/javascript_security_review.md
 related_templates:
+
   - code_review/code_quality/javascript_code_quality.md
 tools:
+
   - jest (29.7.0)
   - eslint (9.15.0)
   - prettier
 tags:
+
   - code-review
   - performance
   - code-review
@@ -260,6 +264,7 @@ For each finding, include:
 
 **Recommendation:**
 Move filtering to database with indexed query:
+
 - Add database index on search fields
 - Use database LIKE/ILIKE queries
 - Implement pagination (limit results to 50)
@@ -434,6 +439,7 @@ Please perform a comprehensive performance review of this JavaScript application
 3. **Tree Shaking Effectiveness**
    ```javascript
    // Check for:
+
    - Side-effect free modules (package.json "sideEffects": false)
    - ES6 module usage (import/export vs require)
    - Unused exports detection

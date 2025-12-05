@@ -10,9 +10,11 @@ difficulty: beginner
 estimated_time_hours: 2-3
 prerequisites: []
 tools:
+
   - go test (1.23+)
   - testify
 tags:
+
   - documentation
   - documentation
   - go

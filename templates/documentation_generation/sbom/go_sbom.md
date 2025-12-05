@@ -10,9 +10,11 @@ difficulty: beginner
 estimated_time_hours: 2-3
 prerequisites: []
 tools:
+
   - go test (1.23+)
   - testify
 tags:
+
   - documentation
   - documentation
   - go
@@ -1064,6 +1066,7 @@ jobs:
   sbom:
     runs-on: ubuntu-latest
     steps:
+
       - uses: actions/checkout@v3
 
       - name: Set up Go
@@ -1109,12 +1112,14 @@ sbom:
   stage: build
   image: golang:1.21
   script:
+
     - go install github.com/CycloneDX/cyclonedx-gomod/cmd/cyclonedx-gomod@latest
     - go install golang.org/x/vuln/cmd/govulncheck@latest
     - cyclonedx-gomod mod -json -output sbom.json -licenses
     - govulncheck -json ./... > ${OUTPUT_DIR}/exports/vulnerabilities.json || true
   artifacts:
     paths:
+
       - sbom.json
       - vulnerabilities.json
     expire_in: 1 year

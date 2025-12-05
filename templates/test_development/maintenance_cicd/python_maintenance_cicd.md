@@ -10,15 +10,19 @@ phase_number: 7
 difficulty: intermediate
 estimated_time_hours: 3-5
 prerequisites:
+
   - test_development/code_coverage/python_code_coverage.md
 related_templates:
+
   - test_development/reward_hacking/python_reward_hacking.md
 tools:
+
   - pytest (8.3.4+)
   - black (24.12.0)
   - mypy (1.13.0)
   - ruff
 tags:
+
   - test-development
   - python
 ---
@@ -199,6 +203,7 @@ jobs:
     name: Lint and Format Check
     runs-on: ubuntu-latest
     steps:
+
       - uses: actions/checkout@v3
 
       - name: Set up Python
@@ -295,6 +300,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
         ports:
+
           - 5432:5432
 
       redis:
@@ -305,6 +311,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
         ports:
+
           - 6379:6379
 
     steps:
@@ -342,6 +349,7 @@ jobs:
     name: Security Scan
     runs-on: ubuntu-latest
     steps:
+
       - uses: actions/checkout@v3
 
       - name: Set up Python
@@ -372,6 +380,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [lint, unit-tests, integration-tests, security]
     steps:
+
       - name: Quality gate passed
         run: echo "All quality checks passed!"
 ```
@@ -382,6 +391,7 @@ jobs:
 
 ```yaml
 stages:
+
   - lint
   - test
   - quality
@@ -392,6 +402,7 @@ variables:
 
 cache:
   paths:
+
     - .cache/pip
 
 before_script:
@@ -402,6 +413,7 @@ lint:
   stage: lint
   image: python:3.11
   script:
+
     - pip install black flake8 mypy isort
     - black --check src/ tests/
     - isort --check-only src/ tests/
@@ -412,6 +424,7 @@ unit-tests:
   stage: test
   image: python:3.11
   script:
+
     - pip install pytest pytest-cov pytest-xdist
     - pytest tests/unit/ -v -n auto --cov=src --cov-report=xml --cov-report=term
   coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
@@ -421,12 +434,14 @@ unit-tests:
         coverage_format: cobertura
         path: coverage.xml
     paths:
+
       - coverage.xml
 
 integration-tests:
   stage: test
   image: python:3.11
   services:
+
     - postgres:14
     - redis:7
   variables:
@@ -435,19 +450,23 @@ integration-tests:
     POSTGRES_PASSWORD: testpass
     DATABASE_URL: postgresql://postgres:testpass@postgres:5432/testdb
   script:
+
     - pip install pytest pytest-cov
     - pytest tests/integration/ -v --cov=src --cov-report=xml
   artifacts:
     paths:
+
       - coverage.xml
 
 quality-gate:
   stage: quality
   image: python:3.11
   script:
+
     - pip install coverage
     - coverage report --fail-under=80
   needs:
+
     - unit-tests
     - integration-tests
 ```
@@ -582,14 +601,17 @@ pip install pre-commit
 
 ```yaml
 repos:
+
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0
     hooks:
+
       - id: trailing-whitespace
       - id: end-of-file-fixer
       - id: check-yaml
       - id: check-added-large-files
         args: ['--maxkb=1000']
+
       - id: check-json
       - id: check-toml
       - id: check-merge-conflict
@@ -598,6 +620,7 @@ repos:
   - repo: https://github.com/psf/black
     rev: 24.12.0
     hooks:
+
       - id: black
         language_version: python3.11
         args: ['--line-length=88']
@@ -605,24 +628,28 @@ repos:
   - repo: https://github.com/pycqa/isort
     rev: 5.13.2
     hooks:
+
       - id: isort
         args: ['--profile=black', '--line-length=88']
 
   - repo: https://github.com/pycqa/flake8
     rev: 7.1.1
     hooks:
+
       - id: flake8
         args: ['--max-line-length=88', '--extend-ignore=E203,W503']
 
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: 1.13.0
     hooks:
+
       - id: mypy
         additional_dependencies: [types-all]
         args: ['--ignore-missing-imports']
 
   - repo: local
     hooks:
+
       - id: pytest-fast
         name: Run fast tests
         entry: pytest
@@ -685,6 +712,7 @@ Add to `.pre-commit-config.yaml`:
 ```yaml
   - repo: local
     hooks:
+
       - id: check-coverage
         name: Check test coverage
         entry: python scripts/check_coverage.py

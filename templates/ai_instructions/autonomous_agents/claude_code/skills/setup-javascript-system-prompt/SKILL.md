@@ -326,6 +326,7 @@ git push
 
 ### 1. Import Organization
 Automatically organizes imports in the correct order:
+
 1. **Node.js built-in modules** (fs, path, util) - alphabetically sorted
 2. **Third-party libraries** (express, mongoose, lodash) - grouped by function with headers
 3. **Local application imports** (@/core, @/utils) - alphabetically sorted
