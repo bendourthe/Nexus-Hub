@@ -24,11 +24,11 @@
 
 **New Files:**
 
-- [Complete Workflow Guide](templates/test_development/GOOGLE_TEST_VSCODE_WORKFLOW.md) - 10-step setup
+- [Complete Workflow Guide](templates/tests_generation/GOOGLE_TEST_VSCODE_WORKFLOW.md) - 10-step setup
 
-- [Copilot Quick Reference](templates/test_development/unit_tests/COPILOT_QUICK_REFERENCE.md) - 50+ AI prompts
+- [Copilot Quick Reference](templates/tests_generation/unit_tests/COPILOT_QUICK_REFERENCE.md) - 50+ AI prompts
 
-- [VS Code Configuration](templates/test_development/vscode_config/README.md) - Ready-to-use configs
+- [VS Code Configuration](templates/tests_generation/vscode_config/README.md) - Ready-to-use configs
 
 [View Complete Changelog](CHANGELOG.md)
 
@@ -42,7 +42,7 @@
 
 - **[Generate Code Documentation](#code-documentation-generation)** → API docs, README, docstrings
 
-- **[Generate Tests](#test-development)** → Unit tests, code coverage, CI/CD integration
+- **[Generate Tests](#tests-generation)** → Unit tests, code coverage, CI/CD integration
 
 - **[Review My Code](#code-review)** → Security, performance, quality
 
@@ -143,9 +143,9 @@ This repository provides **ready-to-use prompt templates** for AI coding assista
 
 ---
 
-<a name="test-development"></a>
+<a name="tests-generation"></a>
 
-## 🧪 Test Development
+## 🧪 Tests Generation
 
 **Generate comprehensive test suites with FIRST principles and AAA pattern**
 
@@ -153,24 +153,24 @@ This repository provides **ready-to-use prompt templates** for AI coding assista
 
 | Phase | What It Does | Click to Open |
 |-------|--------------|---------------|
-| **1. Test Structure** | Set up testing framework | [Python](templates/test_development/test_structure/python_test_structure.md) \| [JavaScript](templates/test_development/test_structure/javascript_test_structure.md) \| [Java](templates/test_development/test_structure/java_test_structure.md) \| [C#](templates/test_development/test_structure/csharp_test_structure.md) \| [Go](templates/test_development/test_structure/go_test_structure.md) \| [C](templates/test_development/test_structure/c_test_structure.md) \| [C++](templates/test_development/test_structure/cpp_test_structure.md) |
-| **2. Unit Tests** | Generate unit tests | [Python](templates/test_development/unit_tests/python_unit_tests.md) \| [JavaScript](templates/test_development/unit_tests/javascript_unit_tests.md) \| [Java](templates/test_development/unit_tests/java_unit_tests.md) \| [C#](templates/test_development/unit_tests/csharp_unit_tests.md) \| [Go](templates/test_development/unit_tests/go_unit_tests.md) \| [C](templates/test_development/unit_tests/c_unit_tests.md) \| [C++](templates/test_development/unit_tests/cpp_unit_tests.md) |
-| **3. Integration Tests** | E2E and integration | [Python](templates/test_development/test_cases/python_test_cases.md) \| [JavaScript](templates/test_development/test_cases/javascript_test_cases.md) \| [Java](templates/test_development/test_cases/java_test_cases.md) \| [C#](templates/test_development/test_cases/csharp_test_cases.md) \| [Go](templates/test_development/test_cases/go_test_cases.md) \| [C](templates/test_development/test_cases/c_test_cases.md) \| [C++](templates/test_development/test_cases/cpp_test_cases.md) |
-| **4. Mocks & Fixtures** | Test isolation | [Python](templates/test_development/mocks_fixtures/python_mocks_fixtures.md) \| [JavaScript](templates/test_development/mocks_fixtures/javascript_mocks_fixtures.md) \| [Java](templates/test_development/mocks_fixtures/java_mocks_fixtures.md) \| [C#](templates/test_development/mocks_fixtures/csharp_mocks_fixtures.md) \| [Go](templates/test_development/mocks_fixtures/go_mocks_fixtures.md) \| [C](templates/test_development/mocks_fixtures/c_mocks_fixtures.md) \| [C++](templates/test_development/mocks_fixtures/cpp_mocks_fixtures.md) |
-| **5. Performance Tests** | Load and stress | [Python](templates/test_development/performance_testing/python_performance_testing.md) \| [JavaScript](templates/test_development/performance_testing/javascript_performance_testing.md) \| [Java](templates/test_development/performance_testing/java_performance_testing.md) \| [C#](templates/test_development/performance_testing/csharp_performance_testing.md) \| [Go](templates/test_development/performance_testing/go_performance_testing.md) \| [C](templates/test_development/performance_testing/c_performance_testing.md) \| [C++](templates/test_development/performance_testing/cpp_performance_testing.md) |
-| **6. Code Coverage** | Achieve 80%+ | [Python](templates/test_development/code_coverage/python_code_coverage.md) \| [JavaScript](templates/test_development/code_coverage/javascript_code_coverage.md) \| [Java](templates/test_development/code_coverage/java_code_coverage.md) \| [C#](templates/test_development/code_coverage/csharp_code_coverage.md) \| [Go](templates/test_development/code_coverage/go_code_coverage.md) \| [C](templates/test_development/code_coverage/c_code_coverage.md) \| [C++](templates/test_development/code_coverage/cpp_code_coverage.md) |
-| **7. CI/CD Integration** | Automate testing | [Python](templates/test_development/maintenance_cicd/python_maintenance_cicd.md) \| [JavaScript](templates/test_development/maintenance_cicd/javascript_maintenance_cicd.md) \| [Java](templates/test_development/maintenance_cicd/java_maintenance_cicd.md) \| [C#](templates/test_development/maintenance_cicd/csharp_maintenance_cicd.md) \| [Go](templates/test_development/maintenance_cicd/go_maintenance_cicd.md) \| [C](templates/test_development/maintenance_cicd/c_maintenance_cicd.md) \| [C++](templates/test_development/maintenance_cicd/cpp_maintenance_cicd.md) |
-| **8. Test Validation** | Mutation testing | [Python](templates/test_development/reward_hacking/python_reward_hacking.md) \| [JavaScript](templates/test_development/reward_hacking/javascript_reward_hacking.md) \| [Java](templates/test_development/reward_hacking/java_reward_hacking.md) \| [C#](templates/test_development/reward_hacking/csharp_reward_hacking.md) \| [Go](templates/test_development/reward_hacking/go_reward_hacking.md) \| [C](templates/test_development/reward_hacking/c_reward_hacking.md) \| [C++](templates/test_development/reward_hacking/cpp_reward_hacking.md) |
+| **1. Test Structure** | Set up testing framework | [Python](templates/tests_generation/test_structure/python_test_structure.md) \| [JavaScript](templates/tests_generation/test_structure/javascript_test_structure.md) \| [Java](templates/tests_generation/test_structure/java_test_structure.md) \| [C#](templates/tests_generation/test_structure/csharp_test_structure.md) \| [Go](templates/tests_generation/test_structure/go_test_structure.md) \| [C](templates/tests_generation/test_structure/c_test_structure.md) \| [C++](templates/tests_generation/test_structure/cpp_test_structure.md) |
+| **2. Unit Tests** | Generate unit tests | [Python](templates/tests_generation/unit_tests/python_unit_tests.md) \| [JavaScript](templates/tests_generation/unit_tests/javascript_unit_tests.md) \| [Java](templates/tests_generation/unit_tests/java_unit_tests.md) \| [C#](templates/tests_generation/unit_tests/csharp_unit_tests.md) \| [Go](templates/tests_generation/unit_tests/go_unit_tests.md) \| [C](templates/tests_generation/unit_tests/c_unit_tests.md) \| [C++](templates/tests_generation/unit_tests/cpp_unit_tests.md) |
+| **3. Integration Tests** | E2E and integration | [Python](templates/tests_generation/test_cases/python_test_cases.md) \| [JavaScript](templates/tests_generation/test_cases/javascript_test_cases.md) \| [Java](templates/tests_generation/test_cases/java_test_cases.md) \| [C#](templates/tests_generation/test_cases/csharp_test_cases.md) \| [Go](templates/tests_generation/test_cases/go_test_cases.md) \| [C](templates/tests_generation/test_cases/c_test_cases.md) \| [C++](templates/tests_generation/test_cases/cpp_test_cases.md) |
+| **4. Mocks & Fixtures** | Test isolation | [Python](templates/tests_generation/mocks_fixtures/python_mocks_fixtures.md) \| [JavaScript](templates/tests_generation/mocks_fixtures/javascript_mocks_fixtures.md) \| [Java](templates/tests_generation/mocks_fixtures/java_mocks_fixtures.md) \| [C#](templates/tests_generation/mocks_fixtures/csharp_mocks_fixtures.md) \| [Go](templates/tests_generation/mocks_fixtures/go_mocks_fixtures.md) \| [C](templates/tests_generation/mocks_fixtures/c_mocks_fixtures.md) \| [C++](templates/tests_generation/mocks_fixtures/cpp_mocks_fixtures.md) |
+| **5. Performance Tests** | Load and stress | [Python](templates/tests_generation/performance_testing/python_performance_testing.md) \| [JavaScript](templates/tests_generation/performance_testing/javascript_performance_testing.md) \| [Java](templates/tests_generation/performance_testing/java_performance_testing.md) \| [C#](templates/tests_generation/performance_testing/csharp_performance_testing.md) \| [Go](templates/tests_generation/performance_testing/go_performance_testing.md) \| [C](templates/tests_generation/performance_testing/c_performance_testing.md) \| [C++](templates/tests_generation/performance_testing/cpp_performance_testing.md) |
+| **6. Code Coverage** | Achieve 80%+ | [Python](templates/tests_generation/code_coverage/python_code_coverage.md) \| [JavaScript](templates/tests_generation/code_coverage/javascript_code_coverage.md) \| [Java](templates/tests_generation/code_coverage/java_code_coverage.md) \| [C#](templates/tests_generation/code_coverage/csharp_code_coverage.md) \| [Go](templates/tests_generation/code_coverage/go_code_coverage.md) \| [C](templates/tests_generation/code_coverage/c_code_coverage.md) \| [C++](templates/tests_generation/code_coverage/cpp_code_coverage.md) |
+| **7. CI/CD Integration** | Automate testing | [Python](templates/tests_generation/maintenance_cicd/python_maintenance_cicd.md) \| [JavaScript](templates/tests_generation/maintenance_cicd/javascript_maintenance_cicd.md) \| [Java](templates/tests_generation/maintenance_cicd/java_maintenance_cicd.md) \| [C#](templates/tests_generation/maintenance_cicd/csharp_maintenance_cicd.md) \| [Go](templates/tests_generation/maintenance_cicd/go_maintenance_cicd.md) \| [C](templates/tests_generation/maintenance_cicd/c_maintenance_cicd.md) \| [C++](templates/tests_generation/maintenance_cicd/cpp_maintenance_cicd.md) |
+| **8. Test Validation** | Mutation testing | [Python](templates/tests_generation/reward_hacking/python_reward_hacking.md) \| [JavaScript](templates/tests_generation/reward_hacking/javascript_reward_hacking.md) \| [Java](templates/tests_generation/reward_hacking/java_reward_hacking.md) \| [C#](templates/tests_generation/reward_hacking/csharp_reward_hacking.md) \| [Go](templates/tests_generation/reward_hacking/go_reward_hacking.md) \| [C](templates/tests_generation/reward_hacking/c_reward_hacking.md) \| [C++](templates/tests_generation/reward_hacking/cpp_reward_hacking.md) |
 
 > **🆕 NEW: C++ Google Test + VS Code + Copilot**
 > 
 > - **10-minute setup** from clone to running tests
 > 
-> - **[Complete Workflow Guide](templates/test_development/GOOGLE_TEST_VSCODE_WORKFLOW.md)** - Step-by-step setup
+> - **[Complete Workflow Guide](templates/tests_generation/GOOGLE_TEST_VSCODE_WORKFLOW.md)** - Step-by-step setup
 > 
-> - **[Copilot Quick Reference](templates/test_development/unit_tests/COPILOT_QUICK_REFERENCE.md)** - 50+ AI prompts
+> - **[Copilot Quick Reference](templates/tests_generation/unit_tests/COPILOT_QUICK_REFERENCE.md)** - 50+ AI prompts
 > 
-> - **[VS Code Configuration](templates/test_development/vscode_config/README.md)** - Ready-to-use configs
+> - **[VS Code Configuration](templates/tests_generation/vscode_config/README.md)** - Ready-to-use configs
 
 ---
 
@@ -236,9 +236,19 @@ This repository provides **ready-to-use prompt templates** for AI coding assista
 
 ---
 
+## 📚 Guides
+
+Comprehensive guides for getting started and mastering AI-assisted development:
+
+- **[Coding Assistant Guide](guides/CODING_ASSISTANT_GUIDE.md)** - Setup and usage for GitHub Copilot, Cursor, Windsurf, ChatGPT, and Claude
+- **[Claude Code Guide](guides/CLAUDE_CODE_GUIDE.md)** - Setup and autonomous workflows with Claude Code
+- **[Contributing Guide](guides/CONTRIBUTING.md)** - How to contribute to this repository
+
+---
+
 ## 🤝 Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on:
+See [Contributing Guide](guides/CONTRIBUTING.md) for guidelines on:
 
 - Adding new templates
 
@@ -251,5 +261,3 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on:
 ---
 
 **Made with ❤️ for developers using AI coding assistants**
-
-[Browse Skills](https://bdourthe.github.io/ai_templates/) | [Quick Start](QUICKSTART.md) | [Template Finder](TEMPLATE_FINDER.md) | [Decision Trees](DECISION_TREES.md)
