@@ -40,8 +40,6 @@
 - **[Review My Code](#-code-review)** → Security, performance, quality
 - **[Clean Up My Codebase](#-code-cleanup)** → Remove dead code, duplication, legacy patterns
 
-**Or browse all:** [Template Finder](TEMPLATE_FINDER.md) | [Decision Trees](DECISION_TREES.md)
-
 ---
 
 ## 📖 What is This Repository?
