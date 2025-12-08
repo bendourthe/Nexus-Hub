@@ -45,9 +45,13 @@ This sub-phase provides detailed, language-specific templates for implementing a
 
 **Common Combinations:**
 - **Early-stage SaaS**: SOC 2 Type II
+
 - **Enterprise SaaS**: SOC 2 + ISO 27001
+
 - **AI/ML SaaS**: SOC 2 + NIST AI RMF + ISO 42001
+
 - **E-commerce**: PCI-DSS + SOC 2
+
 - **Global Enterprise**: ISO 27001 + ISO 42001 (if AI)
 
 ### Step 2: Run Prerequisites
@@ -97,9 +101,13 @@ Each template follows this structure:
 
 **Trust Services Criteria (TSC)**:
 - **Security (CC)**: Common Criteria - foundational controls
+
 - **Availability (A)**: System uptime and performance
+
 - **Confidentiality (C)**: Protection of confidential information
+
 - **Processing Integrity (PI)**: Complete, valid, accurate, timely processing
+
 - **Privacy (P)**: Collection, use, retention, disclosure, disposal of PI
 
 **Key Changes for AI/ML Systems (2025)**:
@@ -119,8 +127,11 @@ Each template follows this structure:
 
 **Control Categories (114 controls across 4 themes)**:
 - **Organizational Controls** (37 controls): Policies, organizational structure, HR security
+
 - **People Controls** (8 controls): Before, during, and after employment
+
 - **Physical Controls** (14 controls): Physical security, equipment security
+
 - **Technological Controls** (34 controls): Access control, cryptography, development security
 
 **New in 2022 Version**:
@@ -139,9 +150,13 @@ Each template follows this structure:
 
 **Key Focus Areas**:
 - **Ethical AI**: Transparency, fairness, accountability in AI operations
+
 - **Risk Management**: AI-specific risk identification and mitigation
+
 - **Data Governance**: Training data quality, lineage, and protection
+
 - **Model Lifecycle**: Development, deployment, monitoring, decommissioning
+
 - **Human Oversight**: Human-in-the-loop requirements and escalation
 
 **Control Objectives**:

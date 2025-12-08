@@ -13,19 +13,29 @@ This category provides comprehensive templates for establishing, documenting, an
 ### What's Included
 
 - **Compliance Frameworks**: SOC 2 Type II, ISO 27001, ISO 42001 (AI Management), PCI-DSS, NIST AI RMF
+
 - **Risk Management**: Risk assessment, threat modeling, defense-in-depth strategies
+
 - **Governance Policies**: Security policies, access control, least privilege implementations
+
 - **Privacy Protection**: GDPR, CCPA compliance and data lifecycle management
+
 - **Incident Response**: IR plans, breach protocols, recovery procedures
+
 - **AI Agent Governance**: Lifecycle management, observability, agent-specific controls (4 Pillars Framework)
 
 ### Who Should Use This
 
 - **Compliance Teams**: Building audit-ready documentation and evidence
+
 - **Security Architects**: Designing defense-in-depth security controls
+
 - **AI/ML Engineers**: Implementing AI agent governance and monitoring
+
 - **CISOs & Risk Officers**: Establishing organization-wide risk management
+
 - **DevOps/MLOps Teams**: Integrating compliance into CI/CD pipelines
+
 - **Legal & Privacy Teams**: Ensuring GDPR, CCPA, and data protection compliance
 
 ---
@@ -41,10 +51,15 @@ Modern AI systems — especially agentic AI — require governance frameworks th
 **Best Practice**: Separation of duties with promotion workflows and rollback capabilities.
 
 **Key Techniques**:
+
 - **Version Control**: Git, model registries, data versioning, schema evolution
+
 - **CI/CD Pipelines**: Automated testing, build pipelines, deployment automation
+
 - **Environment Management**: Dev/staging/prod isolation, containerization (Docker), infrastructure as code (Terraform)
+
 - **Deployment Orchestration**: Blue-green deployments, canary releases, container orchestration
+
 - **Change Management**: Pull request workflows, approval gates, rollback capabilities, feature flags
 
 **Checklist**:
@@ -58,9 +73,13 @@ Modern AI systems — especially agentic AI — require governance frameworks th
 
 **Key Techniques**:
 - **Data Quality Monitoring**: Schema validation, drift detection, data profiling, anomaly detection
+
 - **PII Detection**: Pattern matching, entity recognition, data classification
+
 - **Guardrails**: Input validation, output filtering, content moderation, safety checks
+
 - **Compliance**: Data classification, audit trails, retention policies, deletion capabilities
+
 - **Model Validation**: Testing frameworks, bias detection, performance monitoring
 
 **Checklist**:
@@ -74,9 +93,13 @@ Modern AI systems — especially agentic AI — require governance frameworks th
 
 **Key Techniques**:
 - **Authentication**: OAuth 2.0, SSO (SAML, OIDC), multi-factor authentication, service principals, API keys
+
 - **Secrets Management**: Key vaults, credential rotation, token management
+
 - **Access Control**: Role-based access control (RBAC), group permissions, attribute-based access
+
 - **Data Protection**: TLS/SSL, encryption at rest, key management, data masking, tokenization
+
 - **Network Security**: Private networks, firewalls, endpoint security
 
 **Checklist**:
@@ -90,9 +113,13 @@ Modern AI systems — especially agentic AI — require governance frameworks th
 
 **Key Techniques**:
 - **Tracing**: OTel (OpenTelemetry) standard, experiment tracking, model versioning, distributed tracing, prompt optimization
+
 - **Logging**: Audit logs, application logs, inference logging, access logs
+
 - **Monitoring**: Performance monitoring, cost dashboards, drift detection, uptime monitoring
+
 - **Lineage**: Data lineage tracking, model lineage, pipeline visualization, dependency mapping
+
 - **Alerting**: Anomaly detection, threshold alerts, performance degradation alerts, cost overrun alerts
 
 **Checklist**:
@@ -137,8 +164,11 @@ Modern AI systems — especially agentic AI — require governance frameworks th
 
 **Recommended Starting Point**:
 - **Traditional SaaS**: Start with SOC 2 + ISO 27001
+
 - **AI/ML Systems**: Start with NIST AI RMF + AI Agent Governance (4 Pillars)
+
 - **Payment Processing**: Start with PCI-DSS + SOC 2
+
 - **EU Markets**: Start with GDPR + ISO 27001
 
 ### Step 3: Implement by Pillar
@@ -233,9 +263,13 @@ For AI systems, implement governance following the 4 Pillars sequence:
 Comprehensive implementation guides for industry-standard compliance frameworks:
 
 - **SOC 2 Type II**: Trust Services Criteria (Security, Availability, Confidentiality, Processing Integrity, Privacy)
+
 - **ISO 27001:2022**: Information Security Management Systems (114 controls)
+
 - **ISO 42001:2023**: Artificial Intelligence Management Systems (AI-specific)
+
 - **NIST AI RMF 1.0**: AI Risk Management Framework (Govern, Map, Measure, Manage)
+
 - **PCI-DSS v4.0**: Payment Card Industry Data Security Standard
 
 **Time Investment**: 6-8 hours per framework
@@ -250,7 +284,9 @@ Comprehensive implementation guides for industry-standard compliance frameworks:
 Implement defense-in-depth strategies with multiple protection layers:
 
 - **Risk Assessment**: Systematic threat identification, vulnerability scoring, risk mitigation
+
 - **Threat Modeling**: Attack surface analysis, STRIDE methodology, data flow diagrams
+
 - **Defense in Depth**: Layered security controls, guardrails, monitoring
 
 **Time Investment**: 4-6 hours per template
@@ -265,6 +301,7 @@ Implement defense-in-depth strategies with multiple protection layers:
 Establish organization-wide security policies and access controls:
 
 - **Security Policies**: Comprehensive security policy documentation, control frameworks
+
 - **Access Control**: RBAC implementation, least privilege, zero-trust architecture
 
 **Time Investment**: 4-5 hours per template
@@ -279,6 +316,7 @@ Establish organization-wide security policies and access controls:
 Ensure compliance with global privacy regulations:
 
 - **GDPR Compliance**: EU General Data Protection Regulation (data subject rights, DPIAs, breach notification)
+
 - **CCPA Compliance**: California Consumer Privacy Act (consumer rights, opt-out, data deletion)
 
 **Time Investment**: 5-7 hours per template
@@ -293,6 +331,7 @@ Ensure compliance with global privacy regulations:
 Prepare for security incidents with documented response procedures:
 
 - **Incident Response Plans**: Detection, containment, eradication, recovery, lessons learned
+
 - **Breach Protocols**: Notification procedures, regulatory reporting, stakeholder communication
 
 **Time Investment**: 4-6 hours per template
@@ -307,8 +346,11 @@ Prepare for security incidents with documented response procedures:
 Specialized governance for autonomous AI agents following the 4 Pillars Framework:
 
 - **Lifecycle Management**: Version control, CI/CD for AI, environment promotion, rollback procedures
+
 - **Agent Observability**: Comprehensive tracing (OTel), audit logging, lineage tracking, compliance reporting
+
 - **Agent Security**: Service principal authentication, API key management, least privilege for agents
+
 - **Agent Risk Controls**: Guardrails, PII detection, output validation, behavioral monitoring
 
 **Time Investment**: 6-8 hours per template
@@ -392,8 +434,11 @@ Specialized governance for autonomous AI agents following the 4 Pillars Framewor
 
 **Phased Approach** (Recommended):
 - **Phase 1** (Weeks 1-4): SOC 2 + ISO 27001 + Risk Assessment = 28 hours
+
 - **Phase 2** (Weeks 5-6): GDPR + CCPA + Incident Response = 18 hours
+
 - **Phase 3** (Weeks 7-8): AI Agent Governance + NIST AI RMF = 14 hours
+
 - **Phase 4** (Weeks 9-10): PCI-DSS + ISO 42001 + Policies = 20 hours
 
 **Total**: 80 hours (10 weeks at 8 hours/week)
@@ -528,9 +573,13 @@ Don't start from scratch:
 ### Tools and Automation
 
 - **Security Scanning**: Snyk, Dependabot, Trivy, Bandit (Python), ESLint (JS)
+
 - **Compliance Automation**: Drata, Vanta, Secureframe, TrustCloud
+
 - **AI Observability**: OpenTelemetry, MLflow, Weights & Biases, LangSmith
+
 - **Policy as Code**: Open Policy Agent (OPA), HashiCorp Sentinel
+
 - **SBOM Generation**: Syft, CycloneDX, SPDX tools
 
 ---
@@ -540,15 +589,21 @@ Don't start from scratch:
 ### Internal Resources
 
 - **Security Issues**: Start with [security_review](../code_review/security_review/) templates
+
 - **Dependency Issues**: Use [dependency-security-audit](../ai_instructions/autonomous_agents/claude_code/skills/dependency-security-audit.md) skill
+
 - **Documentation**: Leverage [documentation_generation](../documentation_generation/) templates
+
 - **Testing**: Reference [tests_generation](../tests_generation/) for security test patterns
 
 ### External Support
 
 - **Auditors**: Engage qualified auditors early for SOC 2/ISO 27001
+
 - **Legal Counsel**: Consult for GDPR/CCPA compliance interpretation
+
 - **Security Consultants**: For penetration testing and security architecture reviews
+
 - **Framework Training**: Official courses for NIST AI RMF, ISO 27001, etc.
 
 ---

@@ -98,11 +98,17 @@ This sub-phase provides comprehensive templates for compliance with major privac
 
 2. **Data Subject Rights** (7 Rights)
    - **Right to Access**: Provide copy of personal data
+
    - **Right to Rectification**: Correct inaccurate data
+
    - **Right to Erasure**: Delete data ("right to be forgotten")
+
    - **Right to Portability**: Export data in machine-readable format
+
    - **Right to Restrict Processing**: Temporarily halt processing
+
    - **Right to Object**: Object to processing
+
    - **Rights Related to Automated Decision-Making**: Opt-out of profiling
 
 3. **Privacy by Design and Default**
@@ -155,8 +161,11 @@ This sub-phase provides comprehensive templates for compliance with major privac
 
 1. **Consumer Rights** (4 Primary Rights)
    - **Right to Know**: What personal information is collected, used, shared, sold
+
    - **Right to Delete**: Request deletion of personal information
+
    - **Right to Opt-Out**: Opt out of sale/sharing of personal information
+
    - **Right to Non-Discrimination**: No discrimination for exercising rights
 
 2. **Notice Requirements**
@@ -469,9 +478,13 @@ class CCPAOptOut:
 
 **Valid Consent Must Be**:
 - **Freely given**: No coercion
+
 - **Specific**: Purpose-specific
+
 - **Informed**: Clear explanation
+
 - **Unambiguous**: Clear affirmative action
+
 - **Withdrawable**: Easy to withdraw as to give
 
 **Implementation**:
@@ -674,14 +687,18 @@ class BreachNotification:
 
 Privacy controls support SOC 2:
 - **Privacy (P)**: If Privacy TSC is in scope
+
 - **CC6.7**: Encryption of personal data
+
 - **CC7.4**: Data management and retention
 
 ### ISO 27001 Integration
 
 Maps to:
 - **Control 5.33**: Protection of records
+
 - **Control 5.34**: Privacy and protection of PII
+
 - **Control 5.36**: Compliance with internal policies and external requirements
 
 ### ISO 42001 (AI Systems) Integration
@@ -729,8 +746,11 @@ For AI/ML systems processing personal data:
 ### Tools
 
 - **Consent Management**: OneTrust, Cookiebot, Osano
+
 - **Data Mapping**: OneTrust, BigID, Collibra
+
 - **DSAR Automation**: OneTrust, DataGrail, Transcend
+
 - **Cookie Scanning**: Cookiebot, OneTrust
 
 ---

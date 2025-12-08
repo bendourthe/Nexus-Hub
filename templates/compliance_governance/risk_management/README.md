@@ -24,9 +24,13 @@ This sub-phase provides comprehensive risk management templates implementing **D
 
 **Key Techniques**:
 - **Data Quality Monitoring**: Schema validation, drift detection, data profiling, anomaly detection
+
 - **PII Detection**: Pattern matching, entity recognition, data classification
+
 - **Guardrails**: Input validation, output filtering, content moderation, safety checks
+
 - **Compliance**: Data classification, audit trails, retention policies, deletion capabilities
+
 - **Model Validation**: Testing frameworks, bias detection, performance monitoring
 
 **Checklist**: ✅ Do you have multiple layers of protection to catch issues before they impact production?
@@ -109,8 +113,11 @@ This sub-phase provides comprehensive risk management templates implementing **D
 
 **Methodologies**:
 - **STRIDE**: Spoofing, Tampering, Repudiation, Information Disclosure, DoS, Elevation of Privilege
+
 - **PASTA**: Process for Attack Simulation and Threat Analysis
+
 - **Attack Trees**: Visual representation of attack paths
+
 - **Data Flow Diagrams**: Map data movement and trust boundaries
 
 **Code Examples Include**:
@@ -163,17 +170,23 @@ This sub-phase provides comprehensive risk management templates implementing **D
 
 1. **Training Data Risks**
    - **Data Poisoning**: Malicious data injected into training set
+
    - **Data Leakage**: Sensitive information memorized by model
+
    - **Bias**: Historical biases perpetuated in predictions
 
 2. **Model Risks**
    - **Model Extraction**: Stealing model via API queries
+
    - **Adversarial Attacks**: Crafted inputs fool the model
+
    - **Model Inversion**: Recovering training data from model
 
 3. **Deployment Risks**
    - **Drift**: Model performance degrades over time
+
    - **Explainability**: Inability to explain decisions
+
    - **Fairness**: Discriminatory outcomes for protected groups
 
 ### AI Risk Mitigation Strategies
@@ -241,7 +254,9 @@ def monitor_bias(predictions, protected_attributes):
 ### SOC 2 Integration
 
 - **CC3.2**: Risk assessment feeds control design
+
 - **CC4.1**: Continuous monitoring of risks
+
 - **CC7.2**: System monitoring for threats
 
 Use risk assessment outputs to document SOC 2 control implementations.
@@ -249,7 +264,9 @@ Use risk assessment outputs to document SOC 2 control implementations.
 ### ISO 27001 Integration
 
 - **Control 5.7**: Threat intelligence
+
 - **Control 6.8**: Information security risk assessment
+
 - **Control 8.8**: Management of technical vulnerabilities
 
 Risk register becomes core ISMS documentation.
@@ -257,7 +274,9 @@ Risk register becomes core ISMS documentation.
 ### NIST AI RMF Integration
 
 - **Map Function**: Context establishment, risk identification
+
 - **Measure Function**: Risk assessment and tracking
+
 - **Manage Function**: Risk treatment and monitoring
 
 Templates directly support NIST AI RMF implementation.
@@ -345,9 +364,13 @@ Templates directly support NIST AI RMF implementation.
 ### Tools
 
 - **Risk Assessment**: RiskLens, ServiceNow GRC, FAIR-U
+
 - **Threat Modeling**: Microsoft Threat Modeling Tool, OWASP Threat Dragon, IriusRisk
+
 - **AI Security**: Adversarial Robustness Toolbox (ART), Foolbox, CleverHans
+
 - **PII Detection**: Microsoft Presidio, AWS Macie, Google DLP API
+
 - **Bias Detection**: Fairlearn, AI Fairness 360 (AIF360), What-If Tool
 
 ---

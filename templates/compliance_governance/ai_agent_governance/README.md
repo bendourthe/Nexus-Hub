@@ -130,8 +130,11 @@ Based on research from [McKinsey](https://www.mckinsey.com/capabilities/risk-and
 
 **Guardrails**:
 - **Input guardrails**: Validate user inputs, detect prompt injection
+
 - **Output guardrails**: Filter harmful content, redact PII from responses
+
 - **Tool use guardrails**: Restrict agent tool access, require approval for sensitive operations
+
 - **Content moderation**: Block toxic, biased, or inappropriate outputs
 
 **Compliance Controls**:
@@ -366,8 +369,11 @@ Each template provides:
 
 AI agent governance directly supports SOC 2 controls:
 - **CC6.1**: Agent access controls (Pillar 3: Security)
+
 - **CC6.7**: Encryption of agent communications (Pillar 3: Security)
+
 - **CC7.2**: Monitoring agent behavior (Pillar 4: Observability)
+
 - **CC8.1**: Change management for agents (Pillar 1: Lifecycle)
 
 Use observability logs as audit evidence.
@@ -376,8 +382,11 @@ Use observability logs as audit evidence.
 
 The 4 Pillars Framework maps directly to ISO 42001 requirements:
 - **AI System Lifecycle**: Pillar 1 (Lifecycle Management)
+
 - **AI Risk Management**: Pillar 2 (Risk Management)
+
 - **AI Security**: Pillar 3 (Security)
+
 - **AI Performance Monitoring**: Pillar 4 (Observability)
 
 Templates provide implementation guidance for certification.
@@ -385,8 +394,11 @@ Templates provide implementation guidance for certification.
 ### NIST AI RMF Integration
 
 - **GOVERN function**: Pillar 1 + Pillar 3
+
 - **MAP function**: Pillar 2 (risk identification)
+
 - **MEASURE function**: Pillar 4 (monitoring and metrics)
+
 - **MANAGE function**: All 4 pillars (continuous risk management)
 
 ---

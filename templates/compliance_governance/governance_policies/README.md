@@ -23,9 +23,13 @@ This sub-phase provides comprehensive templates for establishing, documenting, a
 
 **Key Techniques**:
 - **Authentication**: OAuth 2.0, SSO (SAML, OIDC), multi-factor authentication, service principals, API keys
+
 - **Secrets Management**: Key vaults, credential rotation, token management
+
 - **Access Control**: Role-based access control (RBAC), group permissions, attribute-based access
+
 - **Data Protection**: TLS/SSL, encryption at rest, key management, data masking, tokenization
+
 - **Network Security**: Private networks, firewalls, endpoint security
 
 **Checklist**: ✅ Are all your data sources accessible only to authorized agents and users?
@@ -239,8 +243,11 @@ This policy applies to:
 
 ### Classification
 - **Public**: No harm if disclosed
+
 - **Internal**: Moderate harm if disclosed
+
 - **Confidential**: Significant harm if disclosed
+
 - **Restricted**: Severe harm if disclosed (PII, trade secrets)
 
 ### Handling Requirements
@@ -565,9 +572,13 @@ class PolicyAcknowledgment:
 
 Governance policies directly support:
 - **CC1.1-CC1.5**: Control environment (policies establish tone from top)
+
 - **CC2.1-CC2.3**: Communication (policies communicate requirements)
+
 - **CC6.1**: Logical access controls (access control policy)
+
 - **CC6.2**: Authentication (MFA requirements)
+
 - **CC6.8**: Segregation of duties (role definitions)
 
 Policies serve as evidence of "tone from the top" and documented controls.
@@ -576,9 +587,13 @@ Policies serve as evidence of "tone from the top" and documented controls.
 
 Maps to Organizational Controls:
 - **Control 5.1**: Policies for information security
+
 - **Control 5.2**: Information security roles and responsibilities
+
 - **Control 5.15**: Access control
+
 - **Control 5.16**: Identity management
+
 - **Control 5.18**: Access rights
 
 Policies form the foundation of your ISMS (Information Security Management System).
@@ -668,8 +683,11 @@ Privacy-related policies:
 ### Tools
 
 - **Policy Management**: PolicyTech, LogicManager, Qualys Policy Compliance
+
 - **Policy-as-Code**: Open Policy Agent (OPA), HashiCorp Sentinel
+
 - **Access Control**: Okta, Azure AD, Auth0, AWS IAM
+
 - **Secrets Management**: HashiCorp Vault, AWS Secrets Manager, Azure Key Vault
 
 ---

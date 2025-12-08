@@ -66,10 +66,15 @@ This sub-phase provides comprehensive incident response templates for detecting,
 
 **Core Roles**:
 - **Incident Commander**: Overall coordination, decisions
+
 - **Security Lead**: Technical investigation, forensics
+
 - **Engineering**: System access, technical remediation
+
 - **Legal**: Regulatory requirements, liability
+
 - **Communications**: Internal/external messaging
+
 - **Executive Sponsor**: Authority for major decisions
 
 ---
@@ -139,8 +144,11 @@ This sub-phase provides comprehensive incident response templates for detecting,
 
 **Regulatory Requirements**:
 - **GDPR**: Notify supervisory authority within 72 hours
+
 - **CCPA**: Notify affected individuals "without unreasonable delay"
+
 - **State breach laws**: Varies by state (often 30-60 days)
+
 - **Sector-specific**: HIPAA (60 days), PCI-DSS (immediately)
 
 **Breach Response Phases**:
@@ -529,7 +537,9 @@ class BreachNotification:
 
 Incident response supports:
 - **CC7.3**: Incident detection, management, and resolution
+
 - **CC7.5**: Detect and respond to security incidents
+
 - **CC9.2**: Monitor vendor/partner incidents
 
 Documented IR plan and incident records serve as audit evidence.
@@ -538,8 +548,11 @@ Documented IR plan and incident records serve as audit evidence.
 
 Maps to:
 - **Control 5.24**: Information security incident management planning and preparation
+
 - **Control 5.25**: Assessment and decision on information security events
+
 - **Control 5.26**: Response to information security incidents
+
 - **Control 5.27**: Learning from information security incidents
 
 ### GDPR/CCPA Integration
@@ -640,8 +653,11 @@ Breach protocols ensure:
 ### Tools
 
 - **SIEM**: Splunk, ELK Stack, Datadog, Sumo Logic
+
 - **Forensics**: Autopsy, Volatility, The Sleuth Kit
+
 - **Orchestration**: Cortex XSOAR, Splunk Phantom, IBM Resilient
+
 - **Communication**: PagerDuty, Opsgenie, Slack
 
 ---
