@@ -16,8 +16,8 @@
 - [Part 5: Code Review](#part-5-code-review)
 - [Part 6: Compliance & Governance](#part-6-compliance--governance)
 - [Part 7: Codebase Cleanup](#part-7-codebase-cleanup)
-- [Complete Workflow Example](#-complete-workflow-example)
-- [Next Steps](#-next-steps)
+- [Complete Workflow Example](#complete-workflow-example)
+- [Next Steps](#next-steps)
 
 ---
 

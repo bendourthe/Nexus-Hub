@@ -17,9 +17,9 @@
 - [Part 6: Code Review](#part-6-code-review)
 - [Part 7: Compliance & Governance](#part-7-compliance--governance)
 - [Part 8: Codebase Cleanup](#part-8-codebase-cleanup)
-- [Complete Autonomous Workflow Example](#-complete-autonomous-workflow-example)
-- [Getting Started Checklist](#-getting-started-checklist)
-- [Additional Resources](#-additional-resources)
+- [Complete Autonomous Workflow Example](#complete-autonomous-workflow-example)
+- [Getting Started Checklist](#getting-started-checklist)
+- [Additional Resources](#additional-resources)
 
 ---
 
