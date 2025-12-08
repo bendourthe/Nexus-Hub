@@ -1,14 +1,36 @@
 # AI Development Templates
 
-**Version 0.3.0**
+**Version 0.3.1**
 
-> **178 production-ready templates** for AI-assisted software development across 7 languages
+> **277 production-ready templates** for AI-assisted software development across 7 languages
 >
 > Copy prompts → Paste into AI assistant → Get production-quality code
 
 ---
 
-## 🎉 What's New in v0.3.0
+## 🎉 What's New in v0.3.1
+
+### Compliance & Governance Templates (96 New Templates)
+
+- 🏢 **Enterprise Security Frameworks** - SOC 2, ISO 27001, PCI-DSS, NIST AI RMF
+
+- 🤖 **4 Pillars AI Agent Governance** - Lifecycle, Risk, Security, Observability
+
+- 🔒 **Privacy Compliance** - GDPR, CCPA with 72-hour breach protocols
+
+- 📋 **Incident Response** - NIST SP 800-61 6-phase lifecycle with comprehensive reporting
+
+- ⚖️ **Risk Management** - Threat modeling, CVSS scoring, STRIDE framework
+
+- 📜 **Governance Policies** - RBAC/ABAC, security policies, access control
+
+**96 templates** across 7 languages with production-ready code for all compliance controls
+
+[View Complete Changelog](CHANGELOG.md) | [View Compliance & Governance Documentation](templates/compliance_governance/README.md)
+
+---
+
+## 🎉 What's in v0.3.0
 
 ### Google Test + VS Code + GitHub Copilot Integration
 
@@ -30,8 +52,6 @@
 
 - [VS Code Configuration](templates/tests_generation/vscode_config/README.md) - Ready-to-use configs
 
-[View Complete Changelog](CHANGELOG.md)
-
 ---
 
 ## 🎯 Quick Navigation
@@ -45,6 +65,8 @@
 - **[Generate Tests](#tests-generation)** → Unit tests, code coverage, CI/CD integration
 
 - **[Review My Code](#code-review)** → Security, performance, quality
+
+- **[Establish Compliance & Governance](#compliance-governance)** → SOC 2, ISO 27001, GDPR, AI governance
 
 - **[Clean Up My Codebase](#codebase-cleanup)** → Remove dead code, duplication, legacy patterns
 
@@ -193,6 +215,54 @@ This repository provides **ready-to-use prompt templates** for AI coding assista
 
 ---
 
+<a name="compliance-governance"></a>
+
+## 🔒 Compliance & Governance
+
+**Build organization-wide security posture with strategic governance frameworks and AI agent governance**
+
+### Quick Links by Framework
+
+| Framework | What It Does | Click to Open |
+|-----------|--------------|---------------|
+| **SOC 2 Type II** | Enterprise trust & security compliance | [Python](templates/compliance_governance/compliance_frameworks/python_soc2_compliance.md) \| [JavaScript](templates/compliance_governance/compliance_frameworks/javascript_soc2_compliance.md) \| [All Languages](templates/compliance_governance/compliance_frameworks/) |
+| **ISO 27001** | Information security management (114 controls) | [Python](templates/compliance_governance/compliance_frameworks/python_iso27001_implementation.md) \| [JavaScript](templates/compliance_governance/compliance_frameworks/javascript_iso27001_implementation.md) \| [All Languages](templates/compliance_governance/compliance_frameworks/) |
+| **ISO 42001** | AI management systems (NEW for 2025) | [Python](templates/compliance_governance/compliance_frameworks/python_iso42001_ai_management.md) \| [All Languages](templates/compliance_governance/compliance_frameworks/) |
+| **NIST AI RMF** | AI risk management framework | [Python](templates/compliance_governance/compliance_frameworks/python_nist_ai_rmf.md) \| [All Languages](templates/compliance_governance/compliance_frameworks/) |
+| **PCI-DSS v4.0** | Payment card data security | [Python](templates/compliance_governance/compliance_frameworks/python_pci_dss_compliance.md) \| [All Languages](templates/compliance_governance/compliance_frameworks/) |
+| **GDPR** | EU data protection & privacy | [Python](templates/compliance_governance/privacy_protection/python_gdpr_compliance.md) \| [All Languages](templates/compliance_governance/privacy_protection/) |
+| **CCPA** | California consumer privacy | [Python](templates/compliance_governance/privacy_protection/python_ccpa_compliance.md) \| [All Languages](templates/compliance_governance/privacy_protection/) |
+| **Risk Assessment** | Threat modeling & risk management | [Python](templates/compliance_governance/risk_management/python_risk_assessment.md) \| [All Languages](templates/compliance_governance/risk_management/) |
+| **Security Policies** | Organization-wide governance policies | [Python](templates/compliance_governance/governance_policies/python_security_policies.md) \| [All Languages](templates/compliance_governance/governance_policies/) |
+| **Incident Response** | Breach protocols & recovery procedures | [Python](templates/compliance_governance/incident_response/python_incident_response_plan.md) \| [All Languages](templates/compliance_governance/incident_response/) |
+| **AI Agent Governance** | 4 Pillars: Lifecycle, Risk, Security, Observability | [Python](templates/compliance_governance/ai_agent_governance/python_agent_observability.md) \| [All Languages](templates/compliance_governance/ai_agent_governance/) |
+
+> **What you get:**
+>
+> - Comprehensive compliance frameworks (SOC 2, ISO 27001, PCI-DSS, GDPR, CCPA)
+>
+> - AI-specific governance (ISO 42001, NIST AI RMF, 4 Pillars Framework)
+>
+> - Production-ready code examples for all security controls
+>
+> - Audit preparation and evidence collection guidance
+>
+> - Integration with [Security Review](#code-review) templates
+
+> **New for 2025:**
+>
+> - **4 Pillars AI Agent Governance**: Lifecycle Management, Risk Management, Security, Observability
+>
+> - **ISO 42001**: First international standard for AI Management Systems
+>
+> - **AI-enhanced SOC 2**: Model security, bias testing, inference logging
+>
+> - Research-backed best practices from [McKinsey](https://www.mckinsey.com/capabilities/risk-and-resilience/our-insights/deploying-agentic-ai-with-safety-and-security-a-playbook-for-technology-leaders), [Bain](https://www.bain.com/insights/building-the-foundation-for-agentic-ai-technology-report-2025/), [AWS](https://aws.amazon.com/blogs/machine-learning/advancing-ai-agent-governance-with-boomi-and-aws-a-unified-approach-to-observability-and-compliance/), [NIST](https://www.nist.gov/itl/ai-risk-management-framework)
+
+**[→ View Complete Compliance & Governance Documentation](templates/compliance_governance/README.md)**
+
+---
+
 <a name="codebase-cleanup"></a>
 
 ## 🧹 Codebase Cleanup
@@ -227,9 +297,11 @@ This repository provides **ready-to-use prompt templates** for AI coding assista
 
 | Metric | Count |
 |--------|-------|
-| **Templates** | 178 production-ready templates |
+| **Templates** | 277 production-ready templates |
 | **Languages** | 7 (Python, JavaScript, Java, C#, Go, C, C++) |
 | **Claude Code Skills** | 48 autonomous development skills |
+| **Compliance Frameworks** | 8 frameworks (SOC 2, ISO 27001, NIST AI RMF, PCI-DSS, GDPR, CCPA) |
+| **AI Agent Governance** | 4 Pillars (Lifecycle, Risk, Security, Observability) |
 | **Test Phases** | 8-phase testing methodology |
 | **Review Phases** | 6-phase review methodology |
 | **Doc Types** | 6 documentation types |

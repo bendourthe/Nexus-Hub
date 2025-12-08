@@ -1,7 +1,7 @@
 {
   "version": "0.2.9",
-  "generated_date": "2025-12-04",
-  "total_templates": 229,
+  "generated_date": "2025-12-05",
+  "total_templates": 173,
   "templates": [
     {
       "template_id": "cpp_cleanup",
@@ -25,7 +25,7 @@
         "cpp"
       ],
       "file_path": "templates/code_cleanup/cpp_cleanup.md",
-      "file_size_kb": 24.3,
+      "file_size_kb": 24.5,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -50,7 +50,7 @@
         "c#"
       ],
       "file_path": "templates/code_cleanup/csharp_cleanup.md",
-      "file_size_kb": 21.1,
+      "file_size_kb": 21.3,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -75,7 +75,7 @@
         "c"
       ],
       "file_path": "templates/code_cleanup/c_cleanup.md",
-      "file_size_kb": 19.7,
+      "file_size_kb": 19.9,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -99,7 +99,7 @@
         "go"
       ],
       "file_path": "templates/code_cleanup/go_cleanup.md",
-      "file_size_kb": 19.5,
+      "file_size_kb": 19.7,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -124,7 +124,7 @@
         "javascript"
       ],
       "file_path": "templates/code_cleanup/javascript_cleanup.md",
-      "file_size_kb": 21.4,
+      "file_size_kb": 21.6,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -149,7 +149,7 @@
         "java"
       ],
       "file_path": "templates/code_cleanup/java_cleanup.md",
-      "file_size_kb": 23.3,
+      "file_size_kb": 23.6,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -175,7 +175,7 @@
         "python"
       ],
       "file_path": "templates/code_cleanup/python_cleanup.md",
-      "file_size_kb": 18.8,
+      "file_size_kb": 19.1,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -205,7 +205,7 @@
         "cpp"
       ],
       "file_path": "templates/code_review/code_quality/cpp_code_quality.md",
-      "file_size_kb": 27.0,
+      "file_size_kb": 27.4,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -235,7 +235,7 @@
         "c#"
       ],
       "file_path": "templates/code_review/code_quality/csharp_code_quality.md",
-      "file_size_kb": 20.6,
+      "file_size_kb": 20.9,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -265,7 +265,7 @@
         "c"
       ],
       "file_path": "templates/code_review/code_quality/c_code_quality.md",
-      "file_size_kb": 26.5,
+      "file_size_kb": 26.7,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -294,7 +294,7 @@
         "go"
       ],
       "file_path": "templates/code_review/code_quality/go_code_quality.md",
-      "file_size_kb": 20.1,
+      "file_size_kb": 20.4,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -324,7 +324,7 @@
         "javascript"
       ],
       "file_path": "templates/code_review/code_quality/javascript_code_quality.md",
-      "file_size_kb": 26.9,
+      "file_size_kb": 27.1,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -354,7 +354,7 @@
         "java"
       ],
       "file_path": "templates/code_review/code_quality/java_code_quality.md",
-      "file_size_kb": 29.1,
+      "file_size_kb": 29.4,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -385,7 +385,7 @@
         "python"
       ],
       "file_path": "templates/code_review/code_quality/python_code_quality.md",
-      "file_size_kb": 20.7,
+      "file_size_kb": 21.0,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -413,7 +413,7 @@
         "cpp"
       ],
       "file_path": "templates/code_review/context_analysis/cpp_context_analysis.md",
-      "file_size_kb": 21.1,
+      "file_size_kb": 21.5,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -441,7 +441,7 @@
         "c#"
       ],
       "file_path": "templates/code_review/context_analysis/csharp_context_analysis.md",
-      "file_size_kb": 17.7,
+      "file_size_kb": 17.9,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -469,7 +469,7 @@
         "c"
       ],
       "file_path": "templates/code_review/context_analysis/c_context_analysis.md",
-      "file_size_kb": 21.9,
+      "file_size_kb": 22.2,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -496,7 +496,7 @@
         "go"
       ],
       "file_path": "templates/code_review/context_analysis/go_context_analysis.md",
-      "file_size_kb": 17.2,
+      "file_size_kb": 17.4,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -524,7 +524,7 @@
         "javascript"
       ],
       "file_path": "templates/code_review/context_analysis/javascript_context_analysis.md",
-      "file_size_kb": 19.4,
+      "file_size_kb": 19.7,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -552,7 +552,7 @@
         "java"
       ],
       "file_path": "templates/code_review/context_analysis/java_context_analysis.md",
-      "file_size_kb": 20.9,
+      "file_size_kb": 21.2,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -581,7 +581,7 @@
         "python"
       ],
       "file_path": "templates/code_review/context_analysis/python_context_analysis.md",
-      "file_size_kb": 16.5,
+      "file_size_kb": 16.8,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -611,7 +611,7 @@
         "cpp"
       ],
       "file_path": "templates/code_review/final_report/cpp_final_report.md",
-      "file_size_kb": 28.8,
+      "file_size_kb": 29.1,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -641,7 +641,7 @@
         "c#"
       ],
       "file_path": "templates/code_review/final_report/csharp_final_report.md",
-      "file_size_kb": 26.5,
+      "file_size_kb": 26.7,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -671,7 +671,7 @@
         "c"
       ],
       "file_path": "templates/code_review/final_report/c_final_report.md",
-      "file_size_kb": 38.4,
+      "file_size_kb": 38.8,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -700,7 +700,7 @@
         "go"
       ],
       "file_path": "templates/code_review/final_report/go_final_report.md",
-      "file_size_kb": 24.9,
+      "file_size_kb": 25.2,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -730,7 +730,7 @@
         "javascript"
       ],
       "file_path": "templates/code_review/final_report/javascript_final_report.md",
-      "file_size_kb": 29.4,
+      "file_size_kb": 29.7,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -760,7 +760,7 @@
         "java"
       ],
       "file_path": "templates/code_review/final_report/java_final_report.md",
-      "file_size_kb": 40.0,
+      "file_size_kb": 40.4,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -791,7 +791,7 @@
         "python"
       ],
       "file_path": "templates/code_review/final_report/python_final_report.md",
-      "file_size_kb": 21.6,
+      "file_size_kb": 21.8,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -823,7 +823,7 @@
         "cpp"
       ],
       "file_path": "templates/code_review/performance_review/cpp_performance_review.md",
-      "file_size_kb": 30.1,
+      "file_size_kb": 30.3,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -855,7 +855,7 @@
         "c#"
       ],
       "file_path": "templates/code_review/performance_review/csharp_performance_review.md",
-      "file_size_kb": 29.2,
+      "file_size_kb": 29.3,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -887,7 +887,7 @@
         "c"
       ],
       "file_path": "templates/code_review/performance_review/c_performance_review.md",
-      "file_size_kb": 30.6,
+      "file_size_kb": 30.9,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -918,7 +918,7 @@
         "go"
       ],
       "file_path": "templates/code_review/performance_review/go_performance_review.md",
-      "file_size_kb": 25.6,
+      "file_size_kb": 25.8,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -950,7 +950,7 @@
         "javascript"
       ],
       "file_path": "templates/code_review/performance_review/javascript_performance_review.md",
-      "file_size_kb": 31.8,
+      "file_size_kb": 32.0,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -982,7 +982,7 @@
         "java"
       ],
       "file_path": "templates/code_review/performance_review/java_performance_review.md",
-      "file_size_kb": 31.5,
+      "file_size_kb": 31.7,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -1015,7 +1015,7 @@
         "python"
       ],
       "file_path": "templates/code_review/performance_review/python_performance_review.md",
-      "file_size_kb": 22.8,
+      "file_size_kb": 23.0,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -1047,7 +1047,7 @@
         "cpp"
       ],
       "file_path": "templates/code_review/security_review/cpp_security_review.md",
-      "file_size_kb": 29.0,
+      "file_size_kb": 29.2,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -1079,7 +1079,7 @@
         "c#"
       ],
       "file_path": "templates/code_review/security_review/csharp_security_review.md",
-      "file_size_kb": 29.5,
+      "file_size_kb": 29.8,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -1111,7 +1111,7 @@
         "c"
       ],
       "file_path": "templates/code_review/security_review/c_security_review.md",
-      "file_size_kb": 30.9,
+      "file_size_kb": 31.1,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -1142,7 +1142,7 @@
         "go"
       ],
       "file_path": "templates/code_review/security_review/go_security_review.md",
-      "file_size_kb": 25.5,
+      "file_size_kb": 25.8,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -1174,7 +1174,7 @@
         "javascript"
       ],
       "file_path": "templates/code_review/security_review/javascript_security_review.md",
-      "file_size_kb": 28.9,
+      "file_size_kb": 29.1,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -1206,7 +1206,7 @@
         "java"
       ],
       "file_path": "templates/code_review/security_review/java_security_review.md",
-      "file_size_kb": 32.8,
+      "file_size_kb": 33.0,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -1239,7 +1239,7 @@
         "python"
       ],
       "file_path": "templates/code_review/security_review/python_security_review.md",
-      "file_size_kb": 29.0,
+      "file_size_kb": 29.4,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -1271,7 +1271,7 @@
         "cpp"
       ],
       "file_path": "templates/code_review/testing_review/cpp_testing_review.md",
-      "file_size_kb": 32.9,
+      "file_size_kb": 33.1,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -1303,7 +1303,7 @@
         "c#"
       ],
       "file_path": "templates/code_review/testing_review/csharp_testing_review.md",
-      "file_size_kb": 29.1,
+      "file_size_kb": 29.3,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -1335,7 +1335,7 @@
         "c"
       ],
       "file_path": "templates/code_review/testing_review/c_testing_review.md",
-      "file_size_kb": 30.4,
+      "file_size_kb": 30.7,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -1366,7 +1366,7 @@
         "go"
       ],
       "file_path": "templates/code_review/testing_review/go_testing_review.md",
-      "file_size_kb": 27.3,
+      "file_size_kb": 27.5,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -1398,7 +1398,7 @@
         "javascript"
       ],
       "file_path": "templates/code_review/testing_review/javascript_testing_review.md",
-      "file_size_kb": 34.6,
+      "file_size_kb": 34.8,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -1430,7 +1430,7 @@
         "java"
       ],
       "file_path": "templates/code_review/testing_review/java_testing_review.md",
-      "file_size_kb": 34.8,
+      "file_size_kb": 35.1,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -1463,1688 +1463,8 @@
         "python"
       ],
       "file_path": "templates/code_review/testing_review/python_testing_review.md",
-      "file_size_kb": 22.8,
+      "file_size_kb": 23.0,
       "description": "All outputs should be saved in organized directories:"
-    },
-    {
-      "template_id": "cpp_code_coverage",
-      "template_name": "Code Coverage - Cpp",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "Cpp",
-      "category": "test_development",
-      "phase": "code_coverage",
-      "phase_number": "6",
-      "difficulty": "intermediate",
-      "estimated_time_hours": "2-3",
-      "prerequisites": [
-        "test_development/performance_testing/cpp_performance_testing.md"
-      ],
-      "related_templates": [
-        "test_development/maintenance_cicd/cpp_maintenance_cicd.md"
-      ],
-      "tools": [
-        "google test",
-        "catch2",
-        "boost.test"
-      ],
-      "tags": [
-        "test-development",
-        "cpp"
-      ],
-      "file_path": "templates/test_development/code_coverage/cpp_code_coverage.md",
-      "file_size_kb": 34.7,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                  ► │ [COMPLETE]\n│ Phase 2: Unit Tests                            ► │ [COMPLETE]\n│ Phase ..."
-    },
-    {
-      "template_id": "csharp_code_coverage",
-      "template_name": "Code Coverage - C#",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "C#",
-      "category": "test_development",
-      "phase": "code_coverage",
-      "phase_number": "6",
-      "difficulty": "intermediate",
-      "estimated_time_hours": "2-3",
-      "prerequisites": [
-        "test_development/performance_testing/csharp_performance_testing.md"
-      ],
-      "related_templates": [
-        "test_development/maintenance_cicd/csharp_maintenance_cicd.md"
-      ],
-      "tools": [
-        "NUnit (4.2.2)",
-        "xUnit",
-        "MSTest"
-      ],
-      "tags": [
-        "test-development",
-        "c#"
-      ],
-      "file_path": "templates/test_development/code_coverage/csharp_code_coverage.md",
-      "file_size_kb": 36.2,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                  ► │ [COMPLETE]\n│ Phase 2: Unit Tests                            ► │ [COMPLETE]\n│ Phase ..."
-    },
-    {
-      "template_id": "c_code_coverage",
-      "template_name": "Code Coverage - C",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "C",
-      "category": "test_development",
-      "phase": "code_coverage",
-      "phase_number": "6",
-      "difficulty": "intermediate",
-      "estimated_time_hours": "2-3",
-      "prerequisites": [
-        "test_development/performance_testing/c_performance_testing.md"
-      ],
-      "related_templates": [
-        "test_development/maintenance_cicd/c_maintenance_cicd.md"
-      ],
-      "tools": [
-        "unity",
-        "cmocka",
-        "check"
-      ],
-      "tags": [
-        "test-development",
-        "c"
-      ],
-      "file_path": "templates/test_development/code_coverage/c_code_coverage.md",
-      "file_size_kb": 31.1,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                  ► │ [COMPLETE]\n│ Phase 2: Unit Tests                            ► │ [COMPLETE]\n│ Phase ..."
-    },
-    {
-      "template_id": "go_code_coverage",
-      "template_name": "Code Coverage - Go",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "Go",
-      "category": "test_development",
-      "phase": "code_coverage",
-      "phase_number": "6",
-      "difficulty": "intermediate",
-      "estimated_time_hours": "2-3",
-      "prerequisites": [
-        "test_development/performance_testing/go_performance_testing.md"
-      ],
-      "related_templates": [
-        "test_development/maintenance_cicd/go_maintenance_cicd.md"
-      ],
-      "tools": [
-        "go test (1.23+)",
-        "testify"
-      ],
-      "tags": [
-        "test-development",
-        "go"
-      ],
-      "file_path": "templates/test_development/code_coverage/go_code_coverage.md",
-      "file_size_kb": 31.8,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                  ► │ [COMPLETE]\n│ Phase 2: Unit Tests                            ► │ [COMPLETE]\n│ Phase ..."
-    },
-    {
-      "template_id": "javascript_code_coverage",
-      "template_name": "Code Coverage - Javascript",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "Javascript",
-      "category": "test_development",
-      "phase": "code_coverage",
-      "phase_number": "6",
-      "difficulty": "intermediate",
-      "estimated_time_hours": "2-3",
-      "prerequisites": [
-        "test_development/performance_testing/javascript_performance_testing.md"
-      ],
-      "related_templates": [
-        "test_development/maintenance_cicd/javascript_maintenance_cicd.md"
-      ],
-      "tools": [
-        "jest (29.7.0)",
-        "eslint (9.15.0)",
-        "prettier"
-      ],
-      "tags": [
-        "test-development",
-        "javascript"
-      ],
-      "file_path": "templates/test_development/code_coverage/javascript_code_coverage.md",
-      "file_size_kb": 31.4,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                  ► │ [COMPLETE]\n│ Phase 2: Unit Tests                            ► │ [COMPLETE]\n│ Phase ..."
-    },
-    {
-      "template_id": "java_code_coverage",
-      "template_name": "Code Coverage - Java",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "Java",
-      "category": "test_development",
-      "phase": "code_coverage",
-      "phase_number": "6",
-      "difficulty": "intermediate",
-      "estimated_time_hours": "2-3",
-      "prerequisites": [
-        "test_development/performance_testing/java_performance_testing.md"
-      ],
-      "related_templates": [
-        "test_development/maintenance_cicd/java_maintenance_cicd.md"
-      ],
-      "tools": [
-        "junit (5.11.3)",
-        "maven",
-        "gradle"
-      ],
-      "tags": [
-        "test-development",
-        "java"
-      ],
-      "file_path": "templates/test_development/code_coverage/java_code_coverage.md",
-      "file_size_kb": 36.0,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                  ► │ [COMPLETE]\n│ Phase 2: Unit Tests                            ► │ [COMPLETE]\n│ Phase ..."
-    },
-    {
-      "template_id": "python_code_coverage",
-      "template_name": "Code Coverage - Python",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "Python",
-      "category": "test_development",
-      "phase": "code_coverage",
-      "phase_number": "6",
-      "difficulty": "intermediate",
-      "estimated_time_hours": "2-3",
-      "prerequisites": [
-        "test_development/performance_testing/python_performance_testing.md"
-      ],
-      "related_templates": [
-        "test_development/maintenance_cicd/python_maintenance_cicd.md"
-      ],
-      "tools": [
-        "pytest (8.3.4+)",
-        "black (24.12.0)",
-        "mypy (1.13.0)",
-        "ruff"
-      ],
-      "tags": [
-        "test-development",
-        "python"
-      ],
-      "file_path": "templates/test_development/code_coverage/python_code_coverage.md",
-      "file_size_kb": 27.5,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                  ► │ [COMPLETE]\n│ Phase 2: Unit Tests                            ► │ [COMPLETE]\n│ Phase ..."
-    },
-    {
-      "template_id": "cpp_maintenance_cicd",
-      "template_name": "Maintenance & CI/CD - Cpp",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "Cpp",
-      "category": "test_development",
-      "phase": "maintenance_cicd",
-      "phase_number": "7",
-      "difficulty": "intermediate",
-      "estimated_time_hours": "3-5",
-      "prerequisites": [
-        "test_development/code_coverage/cpp_code_coverage.md"
-      ],
-      "related_templates": [
-        "test_development/reward_hacking/cpp_reward_hacking.md"
-      ],
-      "tools": [
-        "google test",
-        "catch2",
-        "boost.test"
-      ],
-      "tags": [
-        "test-development",
-        "cpp"
-      ],
-      "file_path": "templates/test_development/maintenance_cicd/cpp_maintenance_cicd.md",
-      "file_size_kb": 38.9,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                  ► │ [COMPLETE]\n│ Phase 2: Unit Tests                            ► │ [COMPLETE]\n│ Phase ..."
-    },
-    {
-      "template_id": "csharp_maintenance_cicd",
-      "template_name": "Maintenance & CI/CD - C#",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "C#",
-      "category": "test_development",
-      "phase": "maintenance_cicd",
-      "phase_number": "7",
-      "difficulty": "intermediate",
-      "estimated_time_hours": "3-5",
-      "prerequisites": [
-        "test_development/code_coverage/csharp_code_coverage.md"
-      ],
-      "related_templates": [
-        "test_development/reward_hacking/csharp_reward_hacking.md"
-      ],
-      "tools": [
-        "NUnit (4.2.2)",
-        "xUnit",
-        "MSTest"
-      ],
-      "tags": [
-        "test-development",
-        "c#"
-      ],
-      "file_path": "templates/test_development/maintenance_cicd/csharp_maintenance_cicd.md",
-      "file_size_kb": 37.8,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                  ► │ [COMPLETE]\n│ Phase 2: Unit Tests                            ► │ [COMPLETE]\n│ Phase ..."
-    },
-    {
-      "template_id": "c_maintenance_cicd",
-      "template_name": "Maintenance & CI/CD - C",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "C",
-      "category": "test_development",
-      "phase": "maintenance_cicd",
-      "phase_number": "7",
-      "difficulty": "intermediate",
-      "estimated_time_hours": "3-5",
-      "prerequisites": [
-        "test_development/code_coverage/c_code_coverage.md"
-      ],
-      "related_templates": [
-        "test_development/reward_hacking/c_reward_hacking.md"
-      ],
-      "tools": [
-        "unity",
-        "cmocka",
-        "check"
-      ],
-      "tags": [
-        "test-development",
-        "c"
-      ],
-      "file_path": "templates/test_development/maintenance_cicd/c_maintenance_cicd.md",
-      "file_size_kb": 33.3,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                  ► │ [COMPLETE]\n│ Phase 2: Unit Tests                            ► │ [COMPLETE]\n│ Phase ..."
-    },
-    {
-      "template_id": "go_maintenance_cicd",
-      "template_name": "Maintenance & CI/CD - Go",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "Go",
-      "category": "test_development",
-      "phase": "maintenance_cicd",
-      "phase_number": "7",
-      "difficulty": "intermediate",
-      "estimated_time_hours": "3-5",
-      "prerequisites": [
-        "test_development/code_coverage/go_code_coverage.md"
-      ],
-      "related_templates": [
-        "test_development/reward_hacking/go_reward_hacking.md"
-      ],
-      "tools": [
-        "go test (1.23+)",
-        "testify"
-      ],
-      "tags": [
-        "test-development",
-        "go"
-      ],
-      "file_path": "templates/test_development/maintenance_cicd/go_maintenance_cicd.md",
-      "file_size_kb": 33.2,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                  ► │ [COMPLETE]\n│ Phase 2: Unit Tests                            ► │ [COMPLETE]\n│ Phase ..."
-    },
-    {
-      "template_id": "javascript_maintenance_cicd",
-      "template_name": "Maintenance & CI/CD - Javascript",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "Javascript",
-      "category": "test_development",
-      "phase": "maintenance_cicd",
-      "phase_number": "7",
-      "difficulty": "intermediate",
-      "estimated_time_hours": "3-5",
-      "prerequisites": [
-        "test_development/code_coverage/javascript_code_coverage.md"
-      ],
-      "related_templates": [
-        "test_development/reward_hacking/javascript_reward_hacking.md"
-      ],
-      "tools": [
-        "jest (29.7.0)",
-        "eslint (9.15.0)",
-        "prettier"
-      ],
-      "tags": [
-        "test-development",
-        "javascript"
-      ],
-      "file_path": "templates/test_development/maintenance_cicd/javascript_maintenance_cicd.md",
-      "file_size_kb": 33.1,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                  ► │ [COMPLETE]\n│ Phase 2: Unit Tests                            ► │ [COMPLETE]\n│ Phase ..."
-    },
-    {
-      "template_id": "java_maintenance_cicd",
-      "template_name": "Maintenance & CI/CD - Java",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "Java",
-      "category": "test_development",
-      "phase": "maintenance_cicd",
-      "phase_number": "7",
-      "difficulty": "intermediate",
-      "estimated_time_hours": "3-5",
-      "prerequisites": [
-        "test_development/code_coverage/java_code_coverage.md"
-      ],
-      "related_templates": [
-        "test_development/reward_hacking/java_reward_hacking.md"
-      ],
-      "tools": [
-        "junit (5.11.3)",
-        "maven",
-        "gradle"
-      ],
-      "tags": [
-        "test-development",
-        "java"
-      ],
-      "file_path": "templates/test_development/maintenance_cicd/java_maintenance_cicd.md",
-      "file_size_kb": 41.1,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                  ► │ [COMPLETE]\n│ Phase 2: Unit Tests                            ► │ [COMPLETE]\n│ Phase ..."
-    },
-    {
-      "template_id": "python_maintenance_cicd",
-      "template_name": "Maintenance & CI/CD - Python",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "Python",
-      "category": "test_development",
-      "phase": "maintenance_cicd",
-      "phase_number": "7",
-      "difficulty": "intermediate",
-      "estimated_time_hours": "3-5",
-      "prerequisites": [
-        "test_development/code_coverage/python_code_coverage.md"
-      ],
-      "related_templates": [
-        "test_development/reward_hacking/python_reward_hacking.md"
-      ],
-      "tools": [
-        "pytest (8.3.4+)",
-        "black (24.12.0)",
-        "mypy (1.13.0)",
-        "ruff"
-      ],
-      "tags": [
-        "test-development",
-        "python"
-      ],
-      "file_path": "templates/test_development/maintenance_cicd/python_maintenance_cicd.md",
-      "file_size_kb": 29.3,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                  ► │ [COMPLETE]\n│ Phase 2: Unit Tests                            ► │ [COMPLETE]\n│ Phase ..."
-    },
-    {
-      "template_id": "cpp_mocks_fixtures",
-      "template_name": "Mocks & Fixtures - Cpp",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "Cpp",
-      "category": "test_development",
-      "phase": "mocks_fixtures",
-      "phase_number": "4",
-      "difficulty": "intermediate",
-      "estimated_time_hours": "3-5",
-      "prerequisites": [
-        "test_development/test_cases/cpp_test_cases.md"
-      ],
-      "related_templates": [
-        "test_development/performance_testing/cpp_performance_testing.md"
-      ],
-      "tools": [
-        "google test",
-        "catch2",
-        "boost.test"
-      ],
-      "tags": [
-        "test-development",
-        "cpp"
-      ],
-      "file_path": "templates/test_development/mocks_fixtures/cpp_mocks_fixtures.md",
-      "file_size_kb": 29.8,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                  ► │ [COMPLETE]\n│ Phase 2: Unit Tests                            ► │ [COMPLETE]\n│ Phase ..."
-    },
-    {
-      "template_id": "csharp_mocks_fixtures",
-      "template_name": "Mocks & Fixtures - C#",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "C#",
-      "category": "test_development",
-      "phase": "mocks_fixtures",
-      "phase_number": "4",
-      "difficulty": "intermediate",
-      "estimated_time_hours": "3-5",
-      "prerequisites": [
-        "test_development/test_cases/csharp_test_cases.md"
-      ],
-      "related_templates": [
-        "test_development/performance_testing/csharp_performance_testing.md"
-      ],
-      "tools": [
-        "NUnit (4.2.2)",
-        "xUnit",
-        "MSTest"
-      ],
-      "tags": [
-        "test-development",
-        "c#"
-      ],
-      "file_path": "templates/test_development/mocks_fixtures/csharp_mocks_fixtures.md",
-      "file_size_kb": 28.8,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                  ► │ [COMPLETE]\n│ Phase 2: Unit Tests                            ► │ [COMPLETE]\n│ Phase ..."
-    },
-    {
-      "template_id": "c_mocks_fixtures",
-      "template_name": "Mocks & Fixtures - C",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "C",
-      "category": "test_development",
-      "phase": "mocks_fixtures",
-      "phase_number": "4",
-      "difficulty": "intermediate",
-      "estimated_time_hours": "3-5",
-      "prerequisites": [
-        "test_development/test_cases/c_test_cases.md"
-      ],
-      "related_templates": [
-        "test_development/performance_testing/c_performance_testing.md"
-      ],
-      "tools": [
-        "unity",
-        "cmocka",
-        "check"
-      ],
-      "tags": [
-        "test-development",
-        "c"
-      ],
-      "file_path": "templates/test_development/mocks_fixtures/c_mocks_fixtures.md",
-      "file_size_kb": 29.8,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                  ► │ [COMPLETE]\n│ Phase 2: Unit Tests                            ► │ [COMPLETE]\n│ Phase ..."
-    },
-    {
-      "template_id": "go_mocks_fixtures",
-      "template_name": "Mocks & Fixtures - Go",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "Go",
-      "category": "test_development",
-      "phase": "mocks_fixtures",
-      "phase_number": "4",
-      "difficulty": "intermediate",
-      "estimated_time_hours": "3-5",
-      "prerequisites": [
-        "test_development/test_cases/go_test_cases.md"
-      ],
-      "related_templates": [
-        "test_development/performance_testing/go_performance_testing.md"
-      ],
-      "tools": [
-        "go test (1.23+)",
-        "testify"
-      ],
-      "tags": [
-        "test-development",
-        "go"
-      ],
-      "file_path": "templates/test_development/mocks_fixtures/go_mocks_fixtures.md",
-      "file_size_kb": 27.8,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                  ► │ [COMPLETE]\n│ Phase 2: Unit Tests                            ► │ [COMPLETE]\n│ Phase ..."
-    },
-    {
-      "template_id": "javascript_mocks_fixtures",
-      "template_name": "Mocks & Fixtures - Javascript",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "Javascript",
-      "category": "test_development",
-      "phase": "mocks_fixtures",
-      "phase_number": "4",
-      "difficulty": "intermediate",
-      "estimated_time_hours": "3-5",
-      "prerequisites": [
-        "test_development/test_cases/javascript_test_cases.md"
-      ],
-      "related_templates": [
-        "test_development/performance_testing/javascript_performance_testing.md"
-      ],
-      "tools": [
-        "jest (29.7.0)",
-        "eslint (9.15.0)",
-        "prettier"
-      ],
-      "tags": [
-        "test-development",
-        "javascript"
-      ],
-      "file_path": "templates/test_development/mocks_fixtures/javascript_mocks_fixtures.md",
-      "file_size_kb": 26.3,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                  ► │ [COMPLETE]\n│ Phase 2: Unit Tests                            ► │ [COMPLETE]\n│ Phase ..."
-    },
-    {
-      "template_id": "java_mocks_fixtures",
-      "template_name": "Mocks & Fixtures - Java",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "Java",
-      "category": "test_development",
-      "phase": "mocks_fixtures",
-      "phase_number": "4",
-      "difficulty": "intermediate",
-      "estimated_time_hours": "3-5",
-      "prerequisites": [
-        "test_development/test_cases/java_test_cases.md"
-      ],
-      "related_templates": [
-        "test_development/performance_testing/java_performance_testing.md"
-      ],
-      "tools": [
-        "junit (5.11.3)",
-        "maven",
-        "gradle"
-      ],
-      "tags": [
-        "test-development",
-        "java"
-      ],
-      "file_path": "templates/test_development/mocks_fixtures/java_mocks_fixtures.md",
-      "file_size_kb": 29.9,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                  ► │ [COMPLETE]\n│ Phase 2: Unit Tests                            ► │ [COMPLETE]\n│ Phase ..."
-    },
-    {
-      "template_id": "python_mocks_fixtures",
-      "template_name": "Mocks & Fixtures - Python",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "Python",
-      "category": "test_development",
-      "phase": "mocks_fixtures",
-      "phase_number": "4",
-      "difficulty": "intermediate",
-      "estimated_time_hours": "3-5",
-      "prerequisites": [
-        "test_development/test_cases/python_test_cases.md"
-      ],
-      "related_templates": [
-        "test_development/performance_testing/python_performance_testing.md"
-      ],
-      "tools": [
-        "pytest (8.3.4+)",
-        "black (24.12.0)",
-        "mypy (1.13.0)",
-        "ruff"
-      ],
-      "tags": [
-        "test-development",
-        "python"
-      ],
-      "file_path": "templates/test_development/mocks_fixtures/python_mocks_fixtures.md",
-      "file_size_kb": 28.8,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                  ► │ [COMPLETE]\n│ Phase 2: Unit Tests                            ► │ [COMPLETE]\n│ Phase ..."
-    },
-    {
-      "template_id": "cpp_performance_testing",
-      "template_name": "Performance Testing - Cpp",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "Cpp",
-      "category": "test_development",
-      "phase": "performance_testing",
-      "phase_number": "5",
-      "difficulty": "advanced",
-      "estimated_time_hours": "4-6",
-      "prerequisites": [
-        "test_development/mocks_fixtures/cpp_mocks_fixtures.md"
-      ],
-      "related_templates": [
-        "test_development/code_coverage/cpp_code_coverage.md"
-      ],
-      "tools": [
-        "google test",
-        "catch2",
-        "boost.test"
-      ],
-      "tags": [
-        "test-development",
-        "testing",
-        "performance",
-        "cpp"
-      ],
-      "file_path": "templates/test_development/performance_testing/cpp_performance_testing.md",
-      "file_size_kb": 42.4,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                  ► │ [COMPLETE]\n│ Phase 2: Unit Tests                            ► │ [COMPLETE]\n│ Phase ..."
-    },
-    {
-      "template_id": "csharp_performance_testing",
-      "template_name": "Performance Testing - C#",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "C#",
-      "category": "test_development",
-      "phase": "performance_testing",
-      "phase_number": "5",
-      "difficulty": "advanced",
-      "estimated_time_hours": "4-6",
-      "prerequisites": [
-        "test_development/mocks_fixtures/csharp_mocks_fixtures.md"
-      ],
-      "related_templates": [
-        "test_development/code_coverage/csharp_code_coverage.md"
-      ],
-      "tools": [
-        "NUnit (4.2.2)",
-        "xUnit",
-        "MSTest"
-      ],
-      "tags": [
-        "test-development",
-        "testing",
-        "performance",
-        "c#"
-      ],
-      "file_path": "templates/test_development/performance_testing/csharp_performance_testing.md",
-      "file_size_kb": 40.9,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                  ► │ [COMPLETE]\n│ Phase 2: Unit Tests                            ► │ [COMPLETE]\n│ Phase ..."
-    },
-    {
-      "template_id": "c_performance_testing",
-      "template_name": "Performance Testing - C",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "C",
-      "category": "test_development",
-      "phase": "performance_testing",
-      "phase_number": "5",
-      "difficulty": "advanced",
-      "estimated_time_hours": "4-6",
-      "prerequisites": [
-        "test_development/mocks_fixtures/c_mocks_fixtures.md"
-      ],
-      "related_templates": [
-        "test_development/code_coverage/c_code_coverage.md"
-      ],
-      "tools": [
-        "unity",
-        "cmocka",
-        "check"
-      ],
-      "tags": [
-        "test-development",
-        "testing",
-        "performance",
-        "c"
-      ],
-      "file_path": "templates/test_development/performance_testing/c_performance_testing.md",
-      "file_size_kb": 33.3,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                  ► │ [COMPLETE]\n│ Phase 2: Unit Tests                            ► │ [COMPLETE]\n│ Phase ..."
-    },
-    {
-      "template_id": "go_performance_testing",
-      "template_name": "Performance Testing - Go",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "Go",
-      "category": "test_development",
-      "phase": "performance_testing",
-      "phase_number": "5",
-      "difficulty": "advanced",
-      "estimated_time_hours": "4-6",
-      "prerequisites": [
-        "test_development/mocks_fixtures/go_mocks_fixtures.md"
-      ],
-      "related_templates": [
-        "test_development/code_coverage/go_code_coverage.md"
-      ],
-      "tools": [
-        "go test (1.23+)",
-        "testify"
-      ],
-      "tags": [
-        "test-development",
-        "testing",
-        "performance",
-        "go"
-      ],
-      "file_path": "templates/test_development/performance_testing/go_performance_testing.md",
-      "file_size_kb": 33.9,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                  ► │ [COMPLETE]\n│ Phase 2: Unit Tests                            ► │ [COMPLETE]\n│ Phase ..."
-    },
-    {
-      "template_id": "javascript_performance_testing",
-      "template_name": "Performance Testing - Javascript",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "Javascript",
-      "category": "test_development",
-      "phase": "performance_testing",
-      "phase_number": "5",
-      "difficulty": "advanced",
-      "estimated_time_hours": "4-6",
-      "prerequisites": [
-        "test_development/mocks_fixtures/javascript_mocks_fixtures.md"
-      ],
-      "related_templates": [
-        "test_development/code_coverage/javascript_code_coverage.md"
-      ],
-      "tools": [
-        "jest (29.7.0)",
-        "eslint (9.15.0)",
-        "prettier"
-      ],
-      "tags": [
-        "test-development",
-        "testing",
-        "performance",
-        "javascript"
-      ],
-      "file_path": "templates/test_development/performance_testing/javascript_performance_testing.md",
-      "file_size_kb": 32.5,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                  ► │ [COMPLETE]\n│ Phase 2: Unit Tests                            ► │ [COMPLETE]\n│ Phase ..."
-    },
-    {
-      "template_id": "java_performance_testing",
-      "template_name": "Performance Testing - Java",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "Java",
-      "category": "test_development",
-      "phase": "performance_testing",
-      "phase_number": "5",
-      "difficulty": "advanced",
-      "estimated_time_hours": "4-6",
-      "prerequisites": [
-        "test_development/mocks_fixtures/java_mocks_fixtures.md"
-      ],
-      "related_templates": [
-        "test_development/code_coverage/java_code_coverage.md"
-      ],
-      "tools": [
-        "junit (5.11.3)",
-        "maven",
-        "gradle"
-      ],
-      "tags": [
-        "test-development",
-        "testing",
-        "performance",
-        "java"
-      ],
-      "file_path": "templates/test_development/performance_testing/java_performance_testing.md",
-      "file_size_kb": 39.3,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                  ► │ [COMPLETE]\n│ Phase 2: Unit Tests                            ► │ [COMPLETE]\n│ Phase ..."
-    },
-    {
-      "template_id": "python_performance_testing",
-      "template_name": "Performance Testing - Python",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "Python",
-      "category": "test_development",
-      "phase": "performance_testing",
-      "phase_number": "5",
-      "difficulty": "advanced",
-      "estimated_time_hours": "4-6",
-      "prerequisites": [
-        "test_development/mocks_fixtures/python_mocks_fixtures.md"
-      ],
-      "related_templates": [
-        "test_development/code_coverage/python_code_coverage.md"
-      ],
-      "tools": [
-        "pytest (8.3.4+)",
-        "black (24.12.0)",
-        "mypy (1.13.0)",
-        "ruff"
-      ],
-      "tags": [
-        "test-development",
-        "testing",
-        "performance",
-        "python"
-      ],
-      "file_path": "templates/test_development/performance_testing/python_performance_testing.md",
-      "file_size_kb": 25.4,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                  ► │ [COMPLETE]\n│ Phase 2: Unit Tests                            ► │ [COMPLETE]\n│ Phase ..."
-    },
-    {
-      "template_id": "cpp_reward_hacking",
-      "template_name": "Reward Hacking Validation - Cpp",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "Cpp",
-      "category": "test_development",
-      "phase": "reward_hacking",
-      "phase_number": "8",
-      "difficulty": "advanced",
-      "estimated_time_hours": "4-6",
-      "prerequisites": [
-        "test_development/maintenance_cicd/cpp_maintenance_cicd.md"
-      ],
-      "tools": [
-        "google test",
-        "catch2",
-        "boost.test"
-      ],
-      "tags": [
-        "test-development",
-        "cpp"
-      ],
-      "file_path": "templates/test_development/reward_hacking/cpp_reward_hacking.md",
-      "file_size_kb": 27.4,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                  ► │ [COMPLETE]\n│ Phase 2: Unit Tests                            ► │ [COMPLETE]\n│ Phase ..."
-    },
-    {
-      "template_id": "csharp_reward_hacking",
-      "template_name": "Reward Hacking Validation - C#",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "C#",
-      "category": "test_development",
-      "phase": "reward_hacking",
-      "phase_number": "8",
-      "difficulty": "advanced",
-      "estimated_time_hours": "4-6",
-      "prerequisites": [
-        "test_development/maintenance_cicd/csharp_maintenance_cicd.md"
-      ],
-      "tools": [
-        "NUnit (4.2.2)",
-        "xUnit",
-        "MSTest"
-      ],
-      "tags": [
-        "test-development",
-        "c#"
-      ],
-      "file_path": "templates/test_development/reward_hacking/csharp_reward_hacking.md",
-      "file_size_kb": 36.0,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                  ► │ [COMPLETE]\n│ Phase 2: Unit Tests                            ► │ [COMPLETE]\n│ Phase ..."
-    },
-    {
-      "template_id": "c_reward_hacking",
-      "template_name": "Reward Hacking Validation - C",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "C",
-      "category": "test_development",
-      "phase": "reward_hacking",
-      "phase_number": "8",
-      "difficulty": "advanced",
-      "estimated_time_hours": "4-6",
-      "prerequisites": [
-        "test_development/maintenance_cicd/c_maintenance_cicd.md"
-      ],
-      "tools": [
-        "unity",
-        "cmocka",
-        "check"
-      ],
-      "tags": [
-        "test-development",
-        "c"
-      ],
-      "file_path": "templates/test_development/reward_hacking/c_reward_hacking.md",
-      "file_size_kb": 26.9,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                  ► │ [COMPLETE]\n│ Phase 2: Unit Tests                            ► │ [COMPLETE]\n│ Phase ..."
-    },
-    {
-      "template_id": "go_reward_hacking",
-      "template_name": "Reward Hacking Validation - Go",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "Go",
-      "category": "test_development",
-      "phase": "reward_hacking",
-      "phase_number": "8",
-      "difficulty": "advanced",
-      "estimated_time_hours": "4-6",
-      "prerequisites": [
-        "test_development/maintenance_cicd/go_maintenance_cicd.md"
-      ],
-      "tools": [
-        "go test (1.23+)",
-        "testify"
-      ],
-      "tags": [
-        "test-development",
-        "go"
-      ],
-      "file_path": "templates/test_development/reward_hacking/go_reward_hacking.md",
-      "file_size_kb": 28.6,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                  ► │ [COMPLETE]\n│ Phase 2: Unit Tests                            ► │ [COMPLETE]\n│ Phase ..."
-    },
-    {
-      "template_id": "javascript_reward_hacking",
-      "template_name": "Reward Hacking Validation - Javascript",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "Javascript",
-      "category": "test_development",
-      "phase": "reward_hacking",
-      "phase_number": "8",
-      "difficulty": "advanced",
-      "estimated_time_hours": "4-6",
-      "prerequisites": [
-        "test_development/maintenance_cicd/javascript_maintenance_cicd.md"
-      ],
-      "tools": [
-        "jest (29.7.0)",
-        "eslint (9.15.0)",
-        "prettier"
-      ],
-      "tags": [
-        "test-development",
-        "javascript"
-      ],
-      "file_path": "templates/test_development/reward_hacking/javascript_reward_hacking.md",
-      "file_size_kb": 51.0,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                  ► │ [COMPLETE]\n│ Phase 2: Unit Tests                            ► │ [COMPLETE]\n│ Phase ..."
-    },
-    {
-      "template_id": "java_reward_hacking",
-      "template_name": "Reward Hacking Validation - Java",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "Java",
-      "category": "test_development",
-      "phase": "reward_hacking",
-      "phase_number": "8",
-      "difficulty": "advanced",
-      "estimated_time_hours": "4-6",
-      "prerequisites": [
-        "test_development/maintenance_cicd/java_maintenance_cicd.md"
-      ],
-      "tools": [
-        "junit (5.11.3)",
-        "maven",
-        "gradle"
-      ],
-      "tags": [
-        "test-development",
-        "java"
-      ],
-      "file_path": "templates/test_development/reward_hacking/java_reward_hacking.md",
-      "file_size_kb": 35.6,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                  ► │ [COMPLETE]\n│ Phase 2: Unit Tests                            ► │ [COMPLETE]\n│ Phase ..."
-    },
-    {
-      "template_id": "python_reward_hacking",
-      "template_name": "Reward Hacking Validation - Python",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "Python",
-      "category": "test_development",
-      "phase": "reward_hacking",
-      "phase_number": "8",
-      "difficulty": "advanced",
-      "estimated_time_hours": "4-6",
-      "prerequisites": [
-        "test_development/maintenance_cicd/python_maintenance_cicd.md"
-      ],
-      "tools": [
-        "pytest (8.3.4+)",
-        "black (24.12.0)",
-        "mypy (1.13.0)",
-        "ruff"
-      ],
-      "tags": [
-        "test-development",
-        "python"
-      ],
-      "file_path": "templates/test_development/reward_hacking/python_reward_hacking.md",
-      "file_size_kb": 65.7,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                  ► │ [COMPLETE]\n│ Phase 2: Unit Tests                            ► │ [COMPLETE]\n│ Phase ..."
-    },
-    {
-      "template_id": "cpp_test_cases",
-      "template_name": "Test Cases Development - Cpp",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "Cpp",
-      "category": "test_development",
-      "phase": "test_cases",
-      "phase_number": "3",
-      "difficulty": "intermediate",
-      "estimated_time_hours": "4-8",
-      "prerequisites": [
-        "test_development/unit_tests/cpp_unit_tests.md"
-      ],
-      "related_templates": [
-        "test_development/mocks_fixtures/cpp_mocks_fixtures.md"
-      ],
-      "tools": [
-        "google test",
-        "catch2",
-        "boost.test"
-      ],
-      "tags": [
-        "test-development",
-        "testing",
-        "cpp"
-      ],
-      "file_path": "templates/test_development/test_cases/cpp_test_cases.md",
-      "file_size_kb": 30.7,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                  ► │ [COMPLETE]\n│ Phase 2: Unit Tests                            ► │ [COMPLETE]\n│ Phase ..."
-    },
-    {
-      "template_id": "csharp_test_cases",
-      "template_name": "Test Cases Development - C#",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "C#",
-      "category": "test_development",
-      "phase": "test_cases",
-      "phase_number": "3",
-      "difficulty": "intermediate",
-      "estimated_time_hours": "4-8",
-      "prerequisites": [
-        "test_development/unit_tests/csharp_unit_tests.md"
-      ],
-      "related_templates": [
-        "test_development/mocks_fixtures/csharp_mocks_fixtures.md"
-      ],
-      "tools": [
-        "NUnit (4.2.2)",
-        "xUnit",
-        "MSTest"
-      ],
-      "tags": [
-        "test-development",
-        "testing",
-        "c#"
-      ],
-      "file_path": "templates/test_development/test_cases/csharp_test_cases.md",
-      "file_size_kb": 33.6,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                  ► │ [COMPLETE]\n│ Phase 2: Unit Tests                            ► │ [COMPLETE]\n│ Phase ..."
-    },
-    {
-      "template_id": "c_test_cases",
-      "template_name": "Test Cases Development - C",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "C",
-      "category": "test_development",
-      "phase": "test_cases",
-      "phase_number": "3",
-      "difficulty": "intermediate",
-      "estimated_time_hours": "4-8",
-      "prerequisites": [
-        "test_development/unit_tests/c_unit_tests.md"
-      ],
-      "related_templates": [
-        "test_development/mocks_fixtures/c_mocks_fixtures.md"
-      ],
-      "tools": [
-        "unity",
-        "cmocka",
-        "check"
-      ],
-      "tags": [
-        "test-development",
-        "testing",
-        "c"
-      ],
-      "file_path": "templates/test_development/test_cases/c_test_cases.md",
-      "file_size_kb": 27.2,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                  ► │ [COMPLETE]\n│ Phase 2: Unit Tests                            ► │ [COMPLETE]\n│ Phase ..."
-    },
-    {
-      "template_id": "go_test_cases",
-      "template_name": "Test Cases Development - Go",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "Go",
-      "category": "test_development",
-      "phase": "test_cases",
-      "phase_number": "3",
-      "difficulty": "intermediate",
-      "estimated_time_hours": "4-8",
-      "prerequisites": [
-        "test_development/unit_tests/go_unit_tests.md"
-      ],
-      "related_templates": [
-        "test_development/mocks_fixtures/go_mocks_fixtures.md"
-      ],
-      "tools": [
-        "go test (1.23+)",
-        "testify"
-      ],
-      "tags": [
-        "test-development",
-        "testing",
-        "go"
-      ],
-      "file_path": "templates/test_development/test_cases/go_test_cases.md",
-      "file_size_kb": 32.7,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                  ► │ [COMPLETE]\n│ Phase 2: Unit Tests                            ► │ [COMPLETE]\n│ Phase ..."
-    },
-    {
-      "template_id": "javascript_test_cases",
-      "template_name": "Test Cases Development - Javascript",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "Javascript",
-      "category": "test_development",
-      "phase": "test_cases",
-      "phase_number": "3",
-      "difficulty": "intermediate",
-      "estimated_time_hours": "4-8",
-      "prerequisites": [
-        "test_development/unit_tests/javascript_unit_tests.md"
-      ],
-      "related_templates": [
-        "test_development/mocks_fixtures/javascript_mocks_fixtures.md"
-      ],
-      "tools": [
-        "jest (29.7.0)",
-        "eslint (9.15.0)",
-        "prettier"
-      ],
-      "tags": [
-        "test-development",
-        "testing",
-        "javascript"
-      ],
-      "file_path": "templates/test_development/test_cases/javascript_test_cases.md",
-      "file_size_kb": 27.6,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                  ► │ [COMPLETE]\n│ Phase 2: Unit Tests                            ► │ [COMPLETE]\n│ Phase ..."
-    },
-    {
-      "template_id": "java_test_cases",
-      "template_name": "Test Cases Development - Java",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "Java",
-      "category": "test_development",
-      "phase": "test_cases",
-      "phase_number": "3",
-      "difficulty": "intermediate",
-      "estimated_time_hours": "4-8",
-      "prerequisites": [
-        "test_development/unit_tests/java_unit_tests.md"
-      ],
-      "related_templates": [
-        "test_development/mocks_fixtures/java_mocks_fixtures.md"
-      ],
-      "tools": [
-        "junit (5.11.3)",
-        "maven",
-        "gradle"
-      ],
-      "tags": [
-        "test-development",
-        "testing",
-        "java"
-      ],
-      "file_path": "templates/test_development/test_cases/java_test_cases.md",
-      "file_size_kb": 31.6,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                  ► │ [COMPLETE]\n│ Phase 2: Unit Tests                            ► │ [COMPLETE]\n│ Phase ..."
-    },
-    {
-      "template_id": "python_test_cases",
-      "template_name": "Test Cases Development - Python",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "Python",
-      "category": "test_development",
-      "phase": "test_cases",
-      "phase_number": "3",
-      "difficulty": "intermediate",
-      "estimated_time_hours": "4-8",
-      "prerequisites": [
-        "test_development/unit_tests/python_unit_tests.md"
-      ],
-      "related_templates": [
-        "test_development/mocks_fixtures/python_mocks_fixtures.md"
-      ],
-      "tools": [
-        "pytest (8.3.4+)",
-        "black (24.12.0)",
-        "mypy (1.13.0)",
-        "ruff"
-      ],
-      "tags": [
-        "test-development",
-        "testing",
-        "python"
-      ],
-      "file_path": "templates/test_development/test_cases/python_test_cases.md",
-      "file_size_kb": 24.7,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                  ► │ [COMPLETE]\n│ Phase 2: Unit Tests                            ► │ [COMPLETE]\n│ Phase ..."
-    },
-    {
-      "template_id": "cpp_test_structure",
-      "template_name": "Test Structure Setup - Cpp",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "Cpp",
-      "category": "test_development",
-      "phase": "test_structure",
-      "phase_number": "1",
-      "difficulty": "intermediate",
-      "estimated_time_hours": "2-4",
-      "prerequisites": "[]",
-      "related_templates": [
-        "test_development/unit_tests/cpp_unit_tests.md"
-      ],
-      "tools": [
-        "google test",
-        "catch2",
-        "boost.test"
-      ],
-      "tags": [
-        "test-development",
-        "testing",
-        "cpp"
-      ],
-      "file_path": "templates/test_development/test_structure/cpp_test_structure.md",
-      "file_size_kb": 34.3,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                   ► │ ● CURRENT\n│ Phase 2: Unit Tests                                ► │ [NEXT]\n│ Phase ..."
-    },
-    {
-      "template_id": "csharp_test_structure",
-      "template_name": "Test Structure Setup - C#",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "C#",
-      "category": "test_development",
-      "phase": "test_structure",
-      "phase_number": "1",
-      "difficulty": "intermediate",
-      "estimated_time_hours": "2-4",
-      "prerequisites": "[]",
-      "related_templates": [
-        "test_development/unit_tests/csharp_unit_tests.md"
-      ],
-      "tools": [
-        "NUnit (4.2.2)",
-        "xUnit",
-        "MSTest"
-      ],
-      "tags": [
-        "test-development",
-        "testing",
-        "c#"
-      ],
-      "file_path": "templates/test_development/test_structure/csharp_test_structure.md",
-      "file_size_kb": 26.9,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                   ► │ ● CURRENT\n│ Phase 2: Unit Tests                                ► │ [NEXT]\n│ Phase ..."
-    },
-    {
-      "template_id": "c_test_structure",
-      "template_name": "Test Structure Setup - C",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "C",
-      "category": "test_development",
-      "phase": "test_structure",
-      "phase_number": "1",
-      "difficulty": "intermediate",
-      "estimated_time_hours": "2-4",
-      "prerequisites": "[]",
-      "related_templates": [
-        "test_development/unit_tests/c_unit_tests.md"
-      ],
-      "tools": [
-        "unity",
-        "cmocka",
-        "check"
-      ],
-      "tags": [
-        "test-development",
-        "testing",
-        "c"
-      ],
-      "file_path": "templates/test_development/test_structure/c_test_structure.md",
-      "file_size_kb": 32.6,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                   ► │ ● CURRENT\n│ Phase 2: Unit Tests                                ► │ [NEXT]\n│ Phase ..."
-    },
-    {
-      "template_id": "go_test_structure",
-      "template_name": "Test Structure Setup - Go",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "Go",
-      "category": "test_development",
-      "phase": "test_structure",
-      "phase_number": "1",
-      "difficulty": "intermediate",
-      "estimated_time_hours": "2-4",
-      "prerequisites": "[]",
-      "related_templates": [
-        "test_development/unit_tests/go_unit_tests.md"
-      ],
-      "tools": [
-        "go test (1.23+)",
-        "testify"
-      ],
-      "tags": [
-        "test-development",
-        "testing",
-        "go"
-      ],
-      "file_path": "templates/test_development/test_structure/go_test_structure.md",
-      "file_size_kb": 30.5,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                   ► │ ● CURRENT\n│ Phase 2: Unit Tests                                ► │ [NEXT]\n│ Phase ..."
-    },
-    {
-      "template_id": "javascript_test_structure",
-      "template_name": "Test Structure Setup - Javascript",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "Javascript",
-      "category": "test_development",
-      "phase": "test_structure",
-      "phase_number": "1",
-      "difficulty": "intermediate",
-      "estimated_time_hours": "2-4",
-      "prerequisites": "[]",
-      "related_templates": [
-        "test_development/unit_tests/javascript_unit_tests.md"
-      ],
-      "tools": [
-        "jest (29.7.0)",
-        "eslint (9.15.0)",
-        "prettier"
-      ],
-      "tags": [
-        "test-development",
-        "testing",
-        "javascript"
-      ],
-      "file_path": "templates/test_development/test_structure/javascript_test_structure.md",
-      "file_size_kb": 28.6,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                   ► │ ● CURRENT\n│ Phase 2: Unit Tests                                ► │ [NEXT]\n│ Phase ..."
-    },
-    {
-      "template_id": "java_test_structure",
-      "template_name": "Test Structure Setup - Java",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "Java",
-      "category": "test_development",
-      "phase": "test_structure",
-      "phase_number": "1",
-      "difficulty": "intermediate",
-      "estimated_time_hours": "2-4",
-      "prerequisites": "[]",
-      "related_templates": [
-        "test_development/unit_tests/java_unit_tests.md"
-      ],
-      "tools": [
-        "junit (5.11.3)",
-        "maven",
-        "gradle"
-      ],
-      "tags": [
-        "test-development",
-        "testing",
-        "java"
-      ],
-      "file_path": "templates/test_development/test_structure/java_test_structure.md",
-      "file_size_kb": 21.3,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                   ► │ ● CURRENT\n│ Phase 2: Unit Tests                                ► │ [NEXT]\n│ Phase ..."
-    },
-    {
-      "template_id": "python_test_structure",
-      "template_name": "Test Structure Setup - Python",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "Python",
-      "category": "test_development",
-      "phase": "test_structure",
-      "phase_number": "1",
-      "difficulty": "intermediate",
-      "estimated_time_hours": "2-4",
-      "prerequisites": "[]",
-      "related_templates": [
-        "test_development/unit_tests/python_unit_tests.md"
-      ],
-      "tools": [
-        "pytest (8.3.4+)",
-        "black (24.12.0)",
-        "mypy (1.13.0)",
-        "ruff"
-      ],
-      "tags": [
-        "test-development",
-        "testing",
-        "python"
-      ],
-      "file_path": "templates/test_development/test_structure/python_test_structure.md",
-      "file_size_kb": 29.1,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                   ► │ ● CURRENT\n│ Phase 2: Unit Tests                                ► │ [NEXT]\n│ Phase ..."
-    },
-    {
-      "template_id": "cpp_unit_tests",
-      "template_name": "Unit Tests - Cpp",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "Cpp",
-      "category": "test_development",
-      "phase": "unit_tests",
-      "phase_number": "2",
-      "difficulty": "intermediate",
-      "estimated_time_hours": "3-6",
-      "prerequisites": [
-        "test_development/test_structure/cpp_test_structure.md"
-      ],
-      "related_templates": [
-        "test_development/test_cases/cpp_test_cases.md"
-      ],
-      "tools": [
-        "google test",
-        "catch2",
-        "boost.test"
-      ],
-      "tags": [
-        "test-development",
-        "testing",
-        "cpp"
-      ],
-      "file_path": "templates/test_development/unit_tests/cpp_unit_tests.md",
-      "file_size_kb": 23.6,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                  ► │ [COMPLETE]\n│ Phase 2: Unit Tests                             ► │ ● CURRENT\n│ Phase ..."
-    },
-    {
-      "template_id": "csharp_unit_tests",
-      "template_name": "Unit Tests - C#",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "C#",
-      "category": "test_development",
-      "phase": "unit_tests",
-      "phase_number": "2",
-      "difficulty": "intermediate",
-      "estimated_time_hours": "3-6",
-      "prerequisites": [
-        "test_development/test_structure/csharp_test_structure.md"
-      ],
-      "related_templates": [
-        "test_development/test_cases/csharp_test_cases.md"
-      ],
-      "tools": [
-        "NUnit (4.2.2)",
-        "xUnit",
-        "MSTest"
-      ],
-      "tags": [
-        "test-development",
-        "testing",
-        "c#"
-      ],
-      "file_path": "templates/test_development/unit_tests/csharp_unit_tests.md",
-      "file_size_kb": 21.4,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                  ► │ [COMPLETE]\n│ Phase 2: Unit Tests                             ► │ ● CURRENT\n│ Phase ..."
-    },
-    {
-      "template_id": "c_unit_tests",
-      "template_name": "Unit Tests - C",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "C",
-      "category": "test_development",
-      "phase": "unit_tests",
-      "phase_number": "2",
-      "difficulty": "intermediate",
-      "estimated_time_hours": "3-6",
-      "prerequisites": [
-        "test_development/test_structure/c_test_structure.md"
-      ],
-      "related_templates": [
-        "test_development/test_cases/c_test_cases.md"
-      ],
-      "tools": [
-        "unity",
-        "cmocka",
-        "check"
-      ],
-      "tags": [
-        "test-development",
-        "testing",
-        "c"
-      ],
-      "file_path": "templates/test_development/unit_tests/c_unit_tests.md",
-      "file_size_kb": 19.8,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                  ► │ [COMPLETE]\n│ Phase 2: Unit Tests                             ► │ ● CURRENT\n│ Phase ..."
-    },
-    {
-      "template_id": "go_unit_tests",
-      "template_name": "Unit Tests - Go",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "Go",
-      "category": "test_development",
-      "phase": "unit_tests",
-      "phase_number": "2",
-      "difficulty": "intermediate",
-      "estimated_time_hours": "3-6",
-      "prerequisites": [
-        "test_development/test_structure/go_test_structure.md"
-      ],
-      "related_templates": [
-        "test_development/test_cases/go_test_cases.md"
-      ],
-      "tools": [
-        "go test (1.23+)",
-        "testify"
-      ],
-      "tags": [
-        "test-development",
-        "testing",
-        "go"
-      ],
-      "file_path": "templates/test_development/unit_tests/go_unit_tests.md",
-      "file_size_kb": 20.2,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                  ► │ [COMPLETE]\n│ Phase 2: Unit Tests                             ► │ ● CURRENT\n│ Phase ..."
-    },
-    {
-      "template_id": "javascript_unit_tests",
-      "template_name": "Unit Tests - Javascript",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "Javascript",
-      "category": "test_development",
-      "phase": "unit_tests",
-      "phase_number": "2",
-      "difficulty": "intermediate",
-      "estimated_time_hours": "3-6",
-      "prerequisites": [
-        "test_development/test_structure/javascript_test_structure.md"
-      ],
-      "related_templates": [
-        "test_development/test_cases/javascript_test_cases.md"
-      ],
-      "tools": [
-        "jest (29.7.0)",
-        "eslint (9.15.0)",
-        "prettier"
-      ],
-      "tags": [
-        "test-development",
-        "testing",
-        "javascript"
-      ],
-      "file_path": "templates/test_development/unit_tests/javascript_unit_tests.md",
-      "file_size_kb": 61.7,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                  ► │ [COMPLETE]\n│ Phase 2: Unit Tests                             ► │ ● CURRENT\n│ Phase ..."
-    },
-    {
-      "template_id": "java_unit_tests",
-      "template_name": "Unit Tests - Java",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "Java",
-      "category": "test_development",
-      "phase": "unit_tests",
-      "phase_number": "2",
-      "difficulty": "intermediate",
-      "estimated_time_hours": "3-6",
-      "prerequisites": [
-        "test_development/test_structure/java_test_structure.md"
-      ],
-      "related_templates": [
-        "test_development/test_cases/java_test_cases.md"
-      ],
-      "tools": [
-        "junit (5.11.3)",
-        "maven",
-        "gradle"
-      ],
-      "tags": [
-        "test-development",
-        "testing",
-        "java"
-      ],
-      "file_path": "templates/test_development/unit_tests/java_unit_tests.md",
-      "file_size_kb": 69.8,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup                  ► │ [COMPLETE]\n│ Phase 2: Unit Tests                             ► │ ● CURRENT\n│ Phase ..."
-    },
-    {
-      "template_id": "python_unit_tests",
-      "template_name": "Unit Tests - Python",
-      "version": "1.0.0",
-      "last_updated": "2025-12-03",
-      "language": "Python",
-      "category": "test_development",
-      "phase": "unit_tests",
-      "phase_number": "2",
-      "difficulty": "intermediate",
-      "estimated_time_hours": "3-6",
-      "prerequisites": [
-        "test_development/test_structure/python_test_structure.md"
-      ],
-      "related_templates": [
-        "test_development/test_cases/python_test_cases.md"
-      ],
-      "tools": [
-        "pytest (8.3.4+)",
-        "black (24.12.0)",
-        "mypy (1.13.0)",
-        "ruff"
-      ],
-      "tags": [
-        "test-development",
-        "testing",
-        "python"
-      ],
-      "file_path": "templates/test_development/unit_tests/python_unit_tests.md",
-      "file_size_kb": 68.6,
-      "description": "```\n┌─────────────────────────────────────────────────────────┐\n│ Phase 1: Test Structure Setup ────────────────────────► │ [COMPLETE]\n│ Phase 2: Unit Tests (YOU ARE HERE) ───────────────────► │ ● CUR..."
     },
     {
       "template_id": "cpp_api_docs",
@@ -3168,7 +1488,7 @@
         "cpp"
       ],
       "file_path": "templates/documentation_generation/api_docs/cpp_api_docs.md",
-      "file_size_kb": 15.1,
+      "file_size_kb": 15.2,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -3193,7 +1513,7 @@
         "c#"
       ],
       "file_path": "templates/documentation_generation/api_docs/csharp_api_docs.md",
-      "file_size_kb": 20.7,
+      "file_size_kb": 20.8,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -3267,7 +1587,7 @@
         "javascript"
       ],
       "file_path": "templates/documentation_generation/api_docs/javascript_api_docs.md",
-      "file_size_kb": 37.3,
+      "file_size_kb": 37.5,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -3292,7 +1612,7 @@
         "java"
       ],
       "file_path": "templates/documentation_generation/api_docs/java_api_docs.md",
-      "file_size_kb": 18.3,
+      "file_size_kb": 18.4,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -3318,7 +1638,7 @@
         "python"
       ],
       "file_path": "templates/documentation_generation/api_docs/python_api_docs.md",
-      "file_size_kb": 35.9,
+      "file_size_kb": 36.1,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -3343,7 +1663,7 @@
         "cpp"
       ],
       "file_path": "templates/documentation_generation/comments/cpp_comments.md",
-      "file_size_kb": 30.2,
+      "file_size_kb": 30.4,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -3368,7 +1688,7 @@
         "c#"
       ],
       "file_path": "templates/documentation_generation/comments/csharp_comments.md",
-      "file_size_kb": 28.7,
+      "file_size_kb": 28.8,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -3393,7 +1713,7 @@
         "c"
       ],
       "file_path": "templates/documentation_generation/comments/c_comments.md",
-      "file_size_kb": 29.8,
+      "file_size_kb": 30.1,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -3417,7 +1737,7 @@
         "go"
       ],
       "file_path": "templates/documentation_generation/comments/go_comments.md",
-      "file_size_kb": 28.8,
+      "file_size_kb": 28.9,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -3442,7 +1762,7 @@
         "javascript"
       ],
       "file_path": "templates/documentation_generation/comments/javascript_comments.md",
-      "file_size_kb": 24.9,
+      "file_size_kb": 25.1,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -3467,7 +1787,7 @@
         "java"
       ],
       "file_path": "templates/documentation_generation/comments/java_comments.md",
-      "file_size_kb": 27.5,
+      "file_size_kb": 27.7,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -3493,7 +1813,7 @@
         "python"
       ],
       "file_path": "templates/documentation_generation/comments/python_comments.md",
-      "file_size_kb": 19.1,
+      "file_size_kb": 19.3,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -3518,7 +1838,7 @@
         "cpp"
       ],
       "file_path": "templates/documentation_generation/docstrings/cpp_docstrings.md",
-      "file_size_kb": 33.4,
+      "file_size_kb": 34.3,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -3543,7 +1863,7 @@
         "c#"
       ],
       "file_path": "templates/documentation_generation/docstrings/csharp_docstrings.md",
-      "file_size_kb": 22.9,
+      "file_size_kb": 23.0,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -3568,7 +1888,7 @@
         "c"
       ],
       "file_path": "templates/documentation_generation/docstrings/c_docstrings.md",
-      "file_size_kb": 28.1,
+      "file_size_kb": 28.8,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -3592,7 +1912,7 @@
         "go"
       ],
       "file_path": "templates/documentation_generation/docstrings/go_docstrings.md",
-      "file_size_kb": 18.3,
+      "file_size_kb": 18.4,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -3617,7 +1937,7 @@
         "javascript"
       ],
       "file_path": "templates/documentation_generation/docstrings/javascript_docstrings.md",
-      "file_size_kb": 20.1,
+      "file_size_kb": 20.6,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -3642,7 +1962,7 @@
         "java"
       ],
       "file_path": "templates/documentation_generation/docstrings/java_docstrings.md",
-      "file_size_kb": 22.2,
+      "file_size_kb": 22.7,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -3668,7 +1988,7 @@
         "python"
       ],
       "file_path": "templates/documentation_generation/docstrings/python_docstrings.md",
-      "file_size_kb": 18.6,
+      "file_size_kb": 18.7,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -3693,7 +2013,7 @@
         "cpp"
       ],
       "file_path": "templates/documentation_generation/sbom/cpp_sbom.md",
-      "file_size_kb": 33.1,
+      "file_size_kb": 33.3,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -3718,7 +2038,7 @@
         "c#"
       ],
       "file_path": "templates/documentation_generation/sbom/csharp_sbom.md",
-      "file_size_kb": 30.2,
+      "file_size_kb": 30.3,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -3743,7 +2063,7 @@
         "c"
       ],
       "file_path": "templates/documentation_generation/sbom/c_sbom.md",
-      "file_size_kb": 31.9,
+      "file_size_kb": 32.0,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -3767,7 +2087,7 @@
         "go"
       ],
       "file_path": "templates/documentation_generation/sbom/go_sbom.md",
-      "file_size_kb": 28.0,
+      "file_size_kb": 28.2,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -3792,7 +2112,7 @@
         "javascript"
       ],
       "file_path": "templates/documentation_generation/sbom/javascript_sbom.md",
-      "file_size_kb": 28.2,
+      "file_size_kb": 28.4,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -3817,7 +2137,7 @@
         "java"
       ],
       "file_path": "templates/documentation_generation/sbom/java_sbom.md",
-      "file_size_kb": 30.3,
+      "file_size_kb": 30.5,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -3843,7 +2163,7 @@
         "python"
       ],
       "file_path": "templates/documentation_generation/sbom/python_sbom.md",
-      "file_size_kb": 24.3,
+      "file_size_kb": 24.4,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -3893,7 +2213,7 @@
         "c#"
       ],
       "file_path": "templates/documentation_generation/technical_docs/csharp_technical_docs.md",
-      "file_size_kb": 23.0,
+      "file_size_kb": 23.1,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -3918,7 +2238,7 @@
         "c"
       ],
       "file_path": "templates/documentation_generation/technical_docs/c_technical_docs.md",
-      "file_size_kb": 16.6,
+      "file_size_kb": 16.7,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -3942,7 +2262,7 @@
         "go"
       ],
       "file_path": "templates/documentation_generation/technical_docs/go_technical_docs.md",
-      "file_size_kb": 17.3,
+      "file_size_kb": 17.4,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -3967,7 +2287,7 @@
         "javascript"
       ],
       "file_path": "templates/documentation_generation/technical_docs/javascript_technical_docs.md",
-      "file_size_kb": 33.7,
+      "file_size_kb": 33.9,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -3992,7 +2312,7 @@
         "java"
       ],
       "file_path": "templates/documentation_generation/technical_docs/java_technical_docs.md",
-      "file_size_kb": 22.7,
+      "file_size_kb": 22.8,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -4018,7 +2338,7 @@
         "python"
       ],
       "file_path": "templates/documentation_generation/technical_docs/python_technical_docs.md",
-      "file_size_kb": 30.2,
+      "file_size_kb": 30.5,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -4043,7 +2363,7 @@
         "cpp"
       ],
       "file_path": "templates/documentation_generation/user_docs/cpp_user_docs.md",
-      "file_size_kb": 32.0,
+      "file_size_kb": 32.1,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -4068,7 +2388,7 @@
         "c#"
       ],
       "file_path": "templates/documentation_generation/user_docs/csharp_user_docs.md",
-      "file_size_kb": 34.4,
+      "file_size_kb": 34.6,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -4093,7 +2413,7 @@
         "c"
       ],
       "file_path": "templates/documentation_generation/user_docs/c_user_docs.md",
-      "file_size_kb": 27.1,
+      "file_size_kb": 27.2,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -4117,7 +2437,7 @@
         "go"
       ],
       "file_path": "templates/documentation_generation/user_docs/go_user_docs.md",
-      "file_size_kb": 35.8,
+      "file_size_kb": 35.9,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -4142,7 +2462,7 @@
         "javascript"
       ],
       "file_path": "templates/documentation_generation/user_docs/javascript_user_docs.md",
-      "file_size_kb": 34.5,
+      "file_size_kb": 34.6,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -4167,7 +2487,7 @@
         "java"
       ],
       "file_path": "templates/documentation_generation/user_docs/java_user_docs.md",
-      "file_size_kb": 36.5,
+      "file_size_kb": 36.7,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -4193,7 +2513,7 @@
         "python"
       ],
       "file_path": "templates/documentation_generation/user_docs/python_user_docs.md",
-      "file_size_kb": 29.2,
+      "file_size_kb": 29.4,
       "description": "All outputs should be saved in organized directories:"
     },
     {
@@ -4212,7 +2532,7 @@
         "generic"
       ],
       "file_path": "templates/ai_instructions/GLOBAL_generalized_system_prompt_15k.md",
-      "file_size_kb": 15.5,
+      "file_size_kb": 15.8,
       "description": "*Comprehensive system prompt for efficient, clear, and high-quality assistance across all domains.*"
     },
     {
@@ -4236,7 +2556,7 @@
         "c"
       ],
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/c/CLAUDE_comprehensive_40k.md",
-      "file_size_kb": 59.0,
+      "file_size_kb": 59.8,
       "description": "---"
     },
     {
@@ -4260,7 +2580,7 @@
         "c"
       ],
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/c/CLAUDE_condensed_20k.md",
-      "file_size_kb": 19.6,
+      "file_size_kb": 19.9,
       "description": "---"
     },
     {
@@ -4284,7 +2604,7 @@
         "c"
       ],
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/cpp/CLAUDE_comprehensive_40k.md",
-      "file_size_kb": 70.2,
+      "file_size_kb": 70.9,
       "description": "---"
     },
     {
@@ -4308,7 +2628,7 @@
         "c"
       ],
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/cpp/CLAUDE_condensed_20k.md",
-      "file_size_kb": 20.5,
+      "file_size_kb": 20.8,
       "description": "---"
     },
     {
@@ -4332,7 +2652,7 @@
         "c"
       ],
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/csharp/CLAUDE_comprehensive_40k.md",
-      "file_size_kb": 34.5,
+      "file_size_kb": 34.7,
       "description": "---"
     },
     {
@@ -4356,7 +2676,7 @@
         "c"
       ],
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/csharp/CLAUDE_condensed_20k.md",
-      "file_size_kb": 13.4,
+      "file_size_kb": 13.6,
       "description": "---"
     },
     {
@@ -4380,7 +2700,7 @@
         "c"
       ],
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/go/CLAUDE_comprehensive_40k.md",
-      "file_size_kb": 25.5,
+      "file_size_kb": 25.7,
       "description": "---"
     },
     {
@@ -4404,7 +2724,7 @@
         "c"
       ],
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/go/CLAUDE_condensed_20k.md",
-      "file_size_kb": 9.1,
+      "file_size_kb": 9.2,
       "description": "---"
     },
     {
@@ -4428,7 +2748,7 @@
         "c"
       ],
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/java/CLAUDE_comprehensive_40k.md",
-      "file_size_kb": 33.8,
+      "file_size_kb": 34.1,
       "description": "---"
     },
     {
@@ -4452,7 +2772,7 @@
         "c"
       ],
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/java/CLAUDE_condensed_20k.md",
-      "file_size_kb": 16.8,
+      "file_size_kb": 17.0,
       "description": "---"
     },
     {
@@ -4476,7 +2796,7 @@
         "c"
       ],
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/javascript/CLAUDE_comprehensive_40k.md",
-      "file_size_kb": 31.2,
+      "file_size_kb": 31.6,
       "description": "---"
     },
     {
@@ -4500,7 +2820,7 @@
         "c"
       ],
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/javascript/CLAUDE_condensed_20k.md",
-      "file_size_kb": 13.3,
+      "file_size_kb": 13.5,
       "description": "---"
     },
     {
@@ -4524,7 +2844,7 @@
         "c"
       ],
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/python/CLAUDE_comprehensive_40k.md",
-      "file_size_kb": 45.7,
+      "file_size_kb": 46.3,
       "description": "---"
     },
     {
@@ -4548,7 +2868,7 @@
         "c"
       ],
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/python/CLAUDE_condensed_20k.md",
-      "file_size_kb": 24.8,
+      "file_size_kb": 25.1,
       "description": "---"
     },
     {
@@ -4567,7 +2887,7 @@
         "generic"
       ],
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/skills/FINAL_SUMMARY.md",
-      "file_size_kb": 13.3,
+      "file_size_kb": 13.6,
       "description": "**Date**: October 20, 2025\n**Project**: ai_templates v0.2.5\n**Location**: `agent_prompts/autonomous_agents/claude_code/skills/`"
     },
     {
@@ -4586,7 +2906,7 @@
         "generic"
       ],
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/skills/IMPLEMENTATION_SUMMARY.md",
-      "file_size_kb": 13.4,
+      "file_size_kb": 13.7,
       "description": "**Date**: October 20, 2025\n**Repository**: ai_templates v0.2.5\n**Location**: `agent_prompts/autonomous_agents/claude_code/skills/`"
     },
     {
@@ -4605,7 +2925,7 @@
         "generic"
       ],
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/skills/INDEX.md",
-      "file_size_kb": 10.2,
+      "file_size_kb": 10.4,
       "description": "**Project**: ai_templates v0.2.5\n**Location**: `agent_prompts/autonomous_agents/claude_code/skills/`\n**Created**: October 20, 2025\n**Status**: Production Ready ✅"
     },
     {
@@ -4624,7 +2944,7 @@
         "generic"
       ],
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/skills/QUICK_START.md",
-      "file_size_kb": 9.2,
+      "file_size_kb": 9.4,
       "description": "A complete **Claude Code Skills Framework** with:"
     },
     {
@@ -4643,7 +2963,7 @@
         "generic"
       ],
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/skills/SKILLS_LIST.md",
-      "file_size_kb": 12.5,
+      "file_size_kb": 12.6,
       "description": "This document provides a comprehensive list of all Claude Code skills available in this repository, organized by category."
     },
     {
@@ -4665,7 +2985,7 @@
         "documentation/comments/cpp_comments.md"
       ],
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/skills/add-strategic-comments/SKILL.md",
-      "file_size_kb": 26.1
+      "file_size_kb": 26.5
     },
     {
       "name": "cleanup-c",
@@ -4678,7 +2998,7 @@
       "tags": "[c, cleanup, refactoring, memory-safety, dead-code, embedded, misra]",
       "template_source": "code_cleanup/c_cleanup.md",
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/skills/cleanup-c/SKILL.md",
-      "file_size_kb": 13.1
+      "file_size_kb": 13.3
     },
     {
       "name": "cleanup-cpp",
@@ -4691,7 +3011,7 @@
       "tags": "[cpp, c++, cleanup, refactoring, modernization, smart-pointers, raii, move-semantics]",
       "template_source": "code_cleanup/cpp_cleanup.md",
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/skills/cleanup-cpp/SKILL.md",
-      "file_size_kb": 15.2
+      "file_size_kb": 15.4
     },
     {
       "name": "cleanup-csharp",
@@ -4704,7 +3024,7 @@
       "tags": "[csharp, dotnet, cleanup, refactoring, modernization, dead-code, linq, async]",
       "template_source": "code_cleanup/csharp_cleanup.md",
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/skills/cleanup-csharp/SKILL.md",
-      "file_size_kb": 14.3
+      "file_size_kb": 14.5
     },
     {
       "name": "cleanup-go",
@@ -4717,7 +3037,7 @@
       "tags": "[go, golang, cleanup, refactoring, idiomatic, dead-code, goroutines]",
       "template_source": "code_cleanup/go_cleanup.md",
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/skills/cleanup-go/SKILL.md",
-      "file_size_kb": 13.0
+      "file_size_kb": 13.1
     },
     {
       "name": "cleanup-java",
@@ -4730,7 +3050,7 @@
       "tags": "[java, cleanup, refactoring, modernization, dead-code, streams, lambdas]",
       "template_source": "code_cleanup/java_cleanup.md",
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/skills/cleanup-java/SKILL.md",
-      "file_size_kb": 19.9
+      "file_size_kb": 20.1
     },
     {
       "name": "cleanup-javascript",
@@ -4743,7 +3063,7 @@
       "tags": "[javascript, typescript, cleanup, refactoring, modernization, dead-code, es6]",
       "template_source": "code_cleanup/javascript_cleanup.md",
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/skills/cleanup-javascript/SKILL.md",
-      "file_size_kb": 16.7
+      "file_size_kb": 17.0
     },
     {
       "name": "cleanup-python",
@@ -4755,7 +3075,7 @@
       "tags": "[python, cleanup, refactoring, modernization, dead-code]",
       "template_source": "code_cleanup/python_cleanup.md",
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/skills/cleanup-python/SKILL.md",
-      "file_size_kb": 12.8
+      "file_size_kb": 13.0
     },
     {
       "name": "code-commit-workflow",
@@ -4767,7 +3087,7 @@
       "tags": "[workflow, git, commits, version-control, best-practice, collaboration]",
       "priority": "HIGH",
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/skills/code-commit-workflow/SKILL.md",
-      "file_size_kb": 20.8
+      "file_size_kb": 21.0
     },
     {
       "template_id": "SKILL",
@@ -4785,7 +3105,7 @@
         "generic"
       ],
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/skills/code-complexity-analysis/SKILL.md",
-      "file_size_kb": 22.5,
+      "file_size_kb": 22.6,
       "description": "---\ncategory: security-quality\npriority: MEDIUM\nlanguages: [python, javascript, typescript, java, csharp, go, rust]\nrequires_user_input: false\nestimated_duration: 30min-2 hours\n---"
     },
     {
@@ -4799,7 +3119,7 @@
       "priority": "HIGH",
       "based_on": "AI Templates Code Review Workflow, Anthropic Claude Code Best Practices 2025",
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/skills/code-review-context-analysis/SKILL.md",
-      "file_size_kb": 21.4
+      "file_size_kb": 21.7
     },
     {
       "name": "code-review-final-report",
@@ -4812,7 +3132,7 @@
       "priority": "HIGH",
       "based_on": "AI Templates Code Review Workflow, Anthropic Claude Code Best Practices 2025",
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/skills/code-review-final-report/SKILL.md",
-      "file_size_kb": 32.1
+      "file_size_kb": 32.9
     },
     {
       "name": "code-review-performance",
@@ -4825,7 +3145,7 @@
       "priority": "HIGH",
       "based_on": "AI Templates Code Review Workflow, Anthropic Claude Code Best Practices 2025",
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/skills/code-review-performance/SKILL.md",
-      "file_size_kb": 29.1
+      "file_size_kb": 29.4
     },
     {
       "name": "code-review-quality",
@@ -4838,7 +3158,7 @@
       "priority": "HIGH",
       "based_on": "AI Templates Code Review Workflow, Anthropic Claude Code Best Practices 2025",
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/skills/code-review-quality/SKILL.md",
-      "file_size_kb": 22.5
+      "file_size_kb": 22.7
     },
     {
       "name": "code-review-security",
@@ -4851,7 +3171,7 @@
       "priority": "HIGH",
       "based_on": "AI Templates Code Review Workflow, Anthropic Claude Code Best Practices 2025",
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/skills/code-review-security/SKILL.md",
-      "file_size_kb": 32.2
+      "file_size_kb": 32.6
     },
     {
       "name": "code-review-testing",
@@ -4864,7 +3184,7 @@
       "priority": "HIGH",
       "based_on": "AI Templates Code Review Workflow, Anthropic Claude Code Best Practices 2025",
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/skills/code-review-testing/SKILL.md",
-      "file_size_kb": 32.6
+      "file_size_kb": 32.9
     },
     {
       "name": "create-claude-md",
@@ -4877,7 +3197,7 @@
       "priority": "CRITICAL",
       "based_on": "Claude Code Best Practices 2025",
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/skills/create-claude-md/SKILL.md",
-      "file_size_kb": 16.6
+      "file_size_kb": 16.9
     },
     {
       "name": "create-custom-command",
@@ -4889,7 +3209,7 @@
       "tags": "[workflow, automation, commands, productivity, claude-code]",
       "priority": "HIGH",
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/skills/create-custom-command/SKILL.md",
-      "file_size_kb": 78.4
+      "file_size_kb": 80.0
     },
     {
       "template_id": "SKILL",
@@ -4907,7 +3227,7 @@
         "generic"
       ],
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/skills/create-subagent-workflow/SKILL.md",
-      "file_size_kb": 31.6,
+      "file_size_kb": 31.8,
       "description": "---\ncategory: security-quality\npriority: MEDIUM\nlanguages: [python, javascript, typescript, all]\nrequires_user_input: true\nestimated_duration: 2-6 hours\n---"
     },
     {
@@ -4929,7 +3249,7 @@
         "documentation/technical_docs/cpp_technical_docs.md"
       ],
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/skills/create-technical-docs/SKILL.md",
-      "file_size_kb": 35.5
+      "file_size_kb": 36.2
     },
     {
       "name": "create-user-documentation",
@@ -4950,7 +3270,7 @@
         "documentation/user_docs/cpp_user_docs.md"
       ],
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/skills/create-user-documentation/SKILL.md",
-      "file_size_kb": 25.3
+      "file_size_kb": 25.7
     },
     {
       "name": "debug-with-logs",
@@ -4962,7 +3282,7 @@
       "tags": "[workflow, debugging, logging, troubleshooting, best-practice]",
       "priority": "HIGH",
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/skills/debug-with-logs/SKILL.md",
-      "file_size_kb": 41.8
+      "file_size_kb": 42.2
     },
     {
       "name": "dependency-security-audit",
@@ -4975,7 +3295,7 @@
       "priority": "HIGH",
       "based_on": "OWASP Dependency-Check, Snyk Security Best Practices, NIST Software Supply Chain Guidelines",
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/skills/dependency-security-audit/SKILL.md",
-      "file_size_kb": 41.2
+      "file_size_kb": 41.7
     },
     {
       "template_id": "SKILL",
@@ -4993,7 +3313,7 @@
         "generic"
       ],
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/skills/dependency-upgrade/SKILL.md",
-      "file_size_kb": 19.2,
+      "file_size_kb": 19.3,
       "description": "---\ncategory: migration-refactoring\npriority: MEDIUM\nlanguages: [python, javascript, typescript, java, csharp, go, rust]\nrequires_user_input: true\nestimated_duration: 1-4 hours\n---"
     },
     {
@@ -5012,7 +3332,7 @@
         "generic"
       ],
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/skills/extract-microservice/SKILL.md",
-      "file_size_kb": 33.9,
+      "file_size_kb": 34.1,
       "description": "---\ncategory: migration-refactoring\npriority: MEDIUM\nlanguages: [python, javascript, typescript, java, csharp, go]\nrequires_user_input: true\nestimated_duration: 4-16 hours\n---"
     },
     {
@@ -5033,7 +3353,7 @@
         "documentation/api_docs/cpp_api_docs.md"
       ],
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/skills/generate-api-docs/SKILL.md",
-      "file_size_kb": 14.3
+      "file_size_kb": 14.6
     },
     {
       "name": "generate-docstrings",
@@ -5054,7 +3374,7 @@
         "documentation/docstrings/cpp_docstrings.md"
       ],
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/skills/generate-docstrings/SKILL.md",
-      "file_size_kb": 23.7
+      "file_size_kb": 24.2
     },
     {
       "name": "generate-sbom",
@@ -5075,7 +3395,7 @@
         "documentation/sbom/cpp_sbom.md"
       ],
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/skills/generate-sbom/SKILL.md",
-      "file_size_kb": 29.3
+      "file_size_kb": 29.7
     },
     {
       "name": "generate-test-cases",
@@ -5088,7 +3408,7 @@
       "priority": "MEDIUM",
       "based_on": "Test Development Templates - Test Cases",
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/skills/generate-test-cases/SKILL.md",
-      "file_size_kb": 33.9
+      "file_size_kb": 34.0
     },
     {
       "name": "init-csharp-project",
@@ -5101,7 +3421,7 @@
       "priority": "MEDIUM",
       "template_source": "agent_prompts/autonomous_agents/claude_code/csharp/",
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/skills/init-csharp-project/SKILL.md",
-      "file_size_kb": 33.2
+      "file_size_kb": 33.5
     },
     {
       "name": "init-java-project",
@@ -5114,7 +3434,7 @@
       "priority": "MEDIUM",
       "template_source": "agent_prompts/autonomous_agents/claude_code/java/",
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/skills/init-java-project/SKILL.md",
-      "file_size_kb": 31.8
+      "file_size_kb": 32.2
     },
     {
       "name": "init-javascript-project",
@@ -5127,7 +3447,7 @@
       "priority": "MEDIUM",
       "template_source": "agent_prompts/autonomous_agents/claude_code/javascript/",
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/skills/init-javascript-project/SKILL.md",
-      "file_size_kb": 27.4
+      "file_size_kb": 27.8
     },
     {
       "name": "init-python-project",
@@ -5140,7 +3460,7 @@
       "priority": "HIGH",
       "template_source": "agent_prompts/autonomous_agents/claude_code/python/",
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/skills/init-python-project/SKILL.md",
-      "file_size_kb": 17.0
+      "file_size_kb": 17.3
     },
     {
       "template_id": "SKILL",
@@ -5158,7 +3478,7 @@
         "generic"
       ],
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/skills/licensing-compliance-check/SKILL.md",
-      "file_size_kb": 26.0,
+      "file_size_kb": 26.1,
       "description": "---\ncategory: security-quality\npriority: MEDIUM\nlanguages: [python, javascript, typescript, java, csharp, go, rust]\nrequires_user_input: true\nestimated_duration: 1-3 hours\n---"
     },
     {
@@ -5177,7 +3497,7 @@
         "generic"
       ],
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/skills/migrate-python-2-to-3/SKILL.md",
-      "file_size_kb": 22.0,
+      "file_size_kb": 22.2,
       "description": "---\ncategory: migration-refactoring\npriority: MEDIUM\nlanguages: [python]\nrequires_user_input: true\nestimated_duration: 2-6 hours\n---"
     },
     {
@@ -5196,7 +3516,7 @@
         "generic"
       ],
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/skills/optimize-context-usage/SKILL.md",
-      "file_size_kb": 29.6,
+      "file_size_kb": 29.7,
       "description": "---\ncategory: security-quality\npriority: MEDIUM\nlanguages: [all]\nrequires_user_input: false\nestimated_duration: 1-3 hours\n---"
     },
     {
@@ -5210,7 +3530,7 @@
       "priority": "CRITICAL",
       "based_on": "Anthropic Claude Code Best Practices 2025",
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/skills/plan-before-code/SKILL.md",
-      "file_size_kb": 15.7
+      "file_size_kb": 16.0
     },
     {
       "name": "pre-commit-checklist",
@@ -5223,7 +3543,7 @@
       "priority": "HIGH",
       "based_on": "Git Hooks Best Practices, Pre-commit Framework, Husky, Conventional Commits",
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/skills/pre-commit-checklist/SKILL.md",
-      "file_size_kb": 42.0
+      "file_size_kb": 42.6
     },
     {
       "template_id": "SKILL",
@@ -5242,7 +3562,7 @@
         "generic"
       ],
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/skills/refactor-for-testability/SKILL.md",
-      "file_size_kb": 35.0,
+      "file_size_kb": 35.1,
       "description": "---\ncategory: migration-refactoring\npriority: MEDIUM\nlanguages: [python, javascript, typescript, java, csharp, go]\nrequires_user_input: true\nestimated_duration: 2-8 hours\n---"
     },
     {
@@ -5255,7 +3575,7 @@
       "tags": "[c, setup, system-prompt, configuration, embedded, standards, misra]",
       "priority": "HIGH",
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/skills/setup-c-system-prompt/SKILL.md",
-      "file_size_kb": 17.9
+      "file_size_kb": 18.1
     },
     {
       "name": "setup-cpp-system-prompt",
@@ -5267,7 +3587,7 @@
       "tags": "[cpp, c++, setup, system-prompt, configuration, modern-cpp, standards, raii]",
       "priority": "HIGH",
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/skills/setup-cpp-system-prompt/SKILL.md",
-      "file_size_kb": 21.4
+      "file_size_kb": 21.7
     },
     {
       "name": "setup-csharp-system-prompt",
@@ -5279,7 +3599,7 @@
       "priority": "HIGH",
       "tags": "[csharp, dotnet, setup, system-prompt, configuration, standards, aspnetcore, entityframework]",
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/skills/setup-csharp-system-prompt/SKILL.md",
-      "file_size_kb": 18.3
+      "file_size_kb": 18.5
     },
     {
       "name": "setup-go-system-prompt",
@@ -5291,7 +3611,7 @@
       "priority": "HIGH",
       "tags": "[go, golang, setup, system-prompt, configuration, standards, idiomatic]",
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/skills/setup-go-system-prompt/SKILL.md",
-      "file_size_kb": 30.2
+      "file_size_kb": 30.5
     },
     {
       "name": "setup-java-system-prompt",
@@ -5303,7 +3623,7 @@
       "priority": "HIGH",
       "tags": "[java, spring-boot, setup, system-prompt, configuration, standards, maven, gradle, junit]",
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/skills/setup-java-system-prompt/SKILL.md",
-      "file_size_kb": 22.8
+      "file_size_kb": 23.2
     },
     {
       "name": "setup-javascript-system-prompt",
@@ -5316,7 +3636,7 @@
       "priority": "HIGH",
       "template_source": "agent_prompts/autonomous_agents/claude_code/javascript/",
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/skills/setup-javascript-system-prompt/SKILL.md",
-      "file_size_kb": 24.5
+      "file_size_kb": 24.9
     },
     {
       "name": "setup-python-system-prompt",
@@ -5327,7 +3647,7 @@
       "category": "Configuration",
       "tags": "[python, setup, system-prompt, configuration, standards]",
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/skills/setup-python-system-prompt/SKILL.md",
-      "file_size_kb": 8.8
+      "file_size_kb": 9.0
     },
     {
       "name": "setup-test-infrastructure",
@@ -5340,7 +3660,7 @@
       "priority": "MEDIUM",
       "based_on": "Test Development Templates - Test Structure",
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/skills/setup-test-infrastructure/SKILL.md",
-      "file_size_kb": 27.7
+      "file_size_kb": 27.9
     },
     {
       "name": "test-driven-development",
@@ -5353,7 +3673,7 @@
       "priority": "CRITICAL",
       "based_on": "Anthropic Claude Code Best Practices 2025, Test Development Templates",
       "file_path": "templates/ai_instructions/autonomous_agents/claude_code/skills/test-driven-development/SKILL.md",
-      "file_size_kb": 26.7
+      "file_size_kb": 26.8
     },
     {
       "template_id": "GLOBAL_comprehensive_40k",
@@ -5371,7 +3691,7 @@
         "generic"
       ],
       "file_path": "templates/ai_instructions/coding_assistants/c/GLOBAL_comprehensive_40k.md",
-      "file_size_kb": 24.2,
+      "file_size_kb": 24.5,
       "description": "*Comprehensive system prompt for consistent, educational, and efficient C development.*"
     },
     {
@@ -5390,7 +3710,7 @@
         "generic"
       ],
       "file_path": "templates/ai_instructions/coding_assistants/c/GLOBAL_condensed_15k.md",
-      "file_size_kb": 7.2,
+      "file_size_kb": 7.3,
       "description": "---"
     },
     {
@@ -5409,7 +3729,7 @@
         "generic"
       ],
       "file_path": "templates/ai_instructions/coding_assistants/cpp/GLOBAL_comprehensive_40k.md",
-      "file_size_kb": 30.0,
+      "file_size_kb": 30.4,
       "description": "*Comprehensive system prompt for consistent, educational, and efficient C++ development.*"
     },
     {
@@ -5428,7 +3748,7 @@
         "generic"
       ],
       "file_path": "templates/ai_instructions/coding_assistants/cpp/GLOBAL_condensed_15k.md",
-      "file_size_kb": 8.2,
+      "file_size_kb": 8.3,
       "description": "---"
     },
     {
@@ -5447,7 +3767,7 @@
         "generic"
       ],
       "file_path": "templates/ai_instructions/coding_assistants/csharp/GLOBAL_comprehensive_40k.md",
-      "file_size_kb": 46.9,
+      "file_size_kb": 47.3,
       "description": "*Comprehensive system prompt for consistent, educational, and efficient C# development.*"
     },
     {
@@ -5466,7 +3786,7 @@
         "generic"
       ],
       "file_path": "templates/ai_instructions/coding_assistants/csharp/GLOBAL_condensed_15k.md",
-      "file_size_kb": 10.1,
+      "file_size_kb": 10.2,
       "description": "---"
     },
     {
@@ -5485,7 +3805,7 @@
         "generic"
       ],
       "file_path": "templates/ai_instructions/coding_assistants/go/GLOBAL_comprehensive_40k.md",
-      "file_size_kb": 31.8,
+      "file_size_kb": 32.1,
       "description": "*Comprehensive system prompt for consistent, educational, and efficient Go development.*"
     },
     {
@@ -5504,7 +3824,7 @@
         "generic"
       ],
       "file_path": "templates/ai_instructions/coding_assistants/go/GLOBAL_condensed_15k.md",
-      "file_size_kb": 7.8,
+      "file_size_kb": 7.9,
       "description": "---"
     },
     {
@@ -5523,7 +3843,7 @@
         "generic"
       ],
       "file_path": "templates/ai_instructions/coding_assistants/java/GLOBAL_comprehensive_40k.md",
-      "file_size_kb": 95.7,
+      "file_size_kb": 96.9,
       "description": "*Comprehensive system prompt for consistent, educational, and efficient Java development assistance.*"
     },
     {
@@ -5542,7 +3862,7 @@
         "generic"
       ],
       "file_path": "templates/ai_instructions/coding_assistants/java/GLOBAL_condensed_15k.md",
-      "file_size_kb": 15.7,
+      "file_size_kb": 16.0,
       "description": "*Condensed system prompt for consistent, educational, and efficient Java development assistance.*"
     },
     {
@@ -5561,7 +3881,7 @@
         "generic"
       ],
       "file_path": "templates/ai_instructions/coding_assistants/javascript/GLOBAL_comprehensive_40k.md",
-      "file_size_kb": 16.7,
+      "file_size_kb": 16.8,
       "description": "---"
     },
     {
@@ -5580,7 +3900,7 @@
         "generic"
       ],
       "file_path": "templates/ai_instructions/coding_assistants/javascript/GLOBAL_condensed_15k.md",
-      "file_size_kb": 6.3,
+      "file_size_kb": 6.4,
       "description": "---"
     },
     {
@@ -5599,7 +3919,7 @@
         "generic"
       ],
       "file_path": "templates/ai_instructions/coding_assistants/python/GLOBAL_comprehensive_40k.md",
-      "file_size_kb": 40.9,
+      "file_size_kb": 41.5,
       "description": "*Comprehensive system prompt for consistent, educational, and efficient agentic coding.*"
     },
     {
@@ -5618,19 +3938,19 @@
         "generic"
       ],
       "file_path": "templates/ai_instructions/coding_assistants/python/GLOBAL_condensed_15k.md",
-      "file_size_kb": 17.1,
+      "file_size_kb": 17.3,
       "description": "*Comprehensive system prompt for consistent, educational, and efficient agentic coding.*"
     }
   ],
   "statistics": {
     "by_language": {
-      "Cpp": 21,
-      "C#": 24,
-      "C": 37,
-      "Go": 23,
-      "Javascript": 21,
-      "Java": 24,
-      "Python": 24,
+      "Cpp": 13,
+      "C#": 16,
+      "C": 29,
+      "Go": 15,
+      "Javascript": 13,
+      "Java": 16,
+      "Python": 16,
       "Generic": 28,
       "Multi-language (Python, JavaScript, Java, C#, Go, C, C++)": 6,
       "C++": 2,
@@ -5641,7 +3961,6 @@
     "by_category": {
       "ai-templates": 8,
       "code_review": 42,
-      "test_development": 56,
       "documentation": 42,
       "claude_code": 19,
       "Documentation": 6,
@@ -5656,8 +3975,8 @@
       "coding_assistants": 14
     },
     "by_difficulty": {
-      "intermediate": 119,
-      "advanced": 28,
+      "intermediate": 77,
+      "advanced": 14,
       "beginner": 42,
       "unknown": 40
     },
@@ -5669,14 +3988,6 @@
       "performance_review": 7,
       "security_review": 7,
       "testing_review": 7,
-      "code_coverage": 7,
-      "maintenance_cicd": 7,
-      "mocks_fixtures": 7,
-      "performance_testing": 7,
-      "reward_hacking": 7,
-      "test_cases": 7,
-      "test_structure": 7,
-      "unit_tests": 7,
       "api_docs": 7,
       "comments": 7,
       "docstrings": 7,
@@ -5702,7 +4013,7 @@
       "optimize-context-usage": 1,
       "refactor-for-testability": 1
     },
-    "total_estimated_hours": 623.0
+    "total_estimated_hours": 385.0
   },
   "categories": {
     "code_cleanup": "Remove dead code, duplication, and legacy patterns",

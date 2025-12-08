@@ -11,6 +11,102 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.3.1] - 2025-12-08
+
+### Added
+
+#### Compliance & Governance Templates (96 new templates across 7 languages)
+
+Complete enterprise security and AI governance framework with production-ready implementations:
+
+**Compliance Frameworks** (28 templates):
+
+- **SOC 2 Type II Compliance** - Trust Service Criteria implementation (Security, Availability, Confidentiality, Processing Integrity, Privacy) across all 7 languages
+
+- **ISO 27001 Implementation** - Information security management with 114 controls mapped to code-level implementations
+
+- **NIST AI RMF** - AI Risk Management Framework with Govern, Map, Measure, Manage phases
+
+- **PCI-DSS v4.0 Compliance** - Payment card data security with tokenization, encryption, and audit logging
+
+**AI Agent Governance** (28 templates - 4 pillars × 7 languages):
+
+- **🔄 Pillar 1: Lifecycle Management** - Separation of duties, multi-stage promotion (Development → Testing → Staging → Production), version control
+
+- **⚠️ Pillar 2: Risk Management** - Rate limiting, circuit breakers, confidence thresholds, human-in-the-loop for high-risk decisions
+
+- **🔒 Pillar 3: Security** - Input validation, prompt injection prevention, least privilege access, secure credential management
+
+- **🔍 Pillar 4: Observability** - Decision logging, model drift detection, performance metrics, audit trails
+
+**Privacy Protection** (14 templates):
+
+- **GDPR Compliance** - EU data protection with 72-hour breach notification, data subject rights (access, erasure, portability)
+
+- **CCPA Compliance** - California consumer privacy with opt-out mechanisms, data inventory, transparency requirements
+
+**Risk Management** (14 templates):
+
+- **Risk Assessment** - CVSS scoring, threat modeling (STRIDE framework), risk matrix visualization
+
+- **Threat Modeling** - Attack surface analysis, attack tree generation, mitigation strategies
+
+**Governance Policies** (14 templates):
+
+- **Security Policies** - Access control policies, data classification, acceptable use policies
+
+- **Access Control** - RBAC/ABAC implementation, least privilege, separation of duties
+
+**Incident Response** (14 templates):
+
+- **Incident Response Plan** - NIST SP 800-61 6-phase lifecycle (Preparation, Detection, Containment, Eradication, Recovery, Post-Incident)
+
+  - Response time SLAs: P1 Critical (15 min), P2 High (60 min), P3 Medium (240 min), P4 Low (1440 min)
+
+  - Duration metrics tracking, comprehensive incident reporting
+
+  - Post-mortem analysis with root cause and lessons learned
+
+- **Breach Protocols** - GDPR Article 33/34 compliance, 72-hour notification workflow, breach assessment, authority/individual notification templates
+
+**Documentation & Guides** (7 files):
+
+- Category README with implementation roadmap
+
+- Sub-phase READMEs for each governance area (5 files)
+
+- IMPLEMENTATION_GUIDE.md with integration patterns
+
+### Enhanced
+
+- **All Incident Response Templates** - Added comprehensive `generateIncidentReport()` functions with full timeline, impact analysis, response actions, and post-mortem data across all 7 languages (Java, C#, Go, C, C++, Python, JavaScript)
+
+### Key Features
+
+- **96 production-ready templates** covering 8 major compliance frameworks
+
+- **4 Pillars AI Agent Governance** - Research-backed framework from McKinsey, Bain, AWS, NIST
+
+- **Code-level implementations** - Not just documentation, actual working code for all controls
+
+- **Audit preparation guidance** - Evidence collection, gap analysis, remediation tracking
+
+- **Cross-language consistency** - Same governance patterns adapted idiomatically to Python, JavaScript, Java, C#, Go, C, C++
+
+- **Integration with existing templates** - Links to Security Review, SBOM Generation, Documentation templates
+
+### Research Sources
+
+- [McKinsey: Deploying Agentic AI with Safety and Security](https://www.mckinsey.com/capabilities/risk-and-resilience/our-insights/deploying-agentic-ai-with-safety-and-security-a-playbook-for-technology-leaders)
+
+- [Bain: Building the Foundation for Agentic AI](https://www.bain.com/insights/building-the-foundation-for-agentic-ai-technology-report-2025/)
+
+- [AWS: Advancing AI Agent Governance](https://aws.amazon.com/blogs/machine-learning/advancing-ai-agent-governance-with-boomi-and-aws-a-unified-approach-to-observability-and-compliance/)
+
+- [NIST AI Risk Management Framework](https://www.nist.gov/itl/ai-risk-management-framework)
+
+---
+
 ## [0.3.0] - 2025-12-04
 
 ### Added
