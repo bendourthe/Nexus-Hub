@@ -30,30 +30,6 @@
 
 ---
 
-## 🎉 What's in v0.3.0
-
-### Google Test + VS Code + GitHub Copilot Integration
-
-- ⚡ **10-minute setup** from clone to running tests (vs. 1-2 hours manual)
-
-- 🤖 **AI-assisted testing** with GitHub Copilot generating 15+ comprehensive test suites
-
-- ⌨️ **One-click build/test/debug** with keyboard shortcuts
-
-- 📊 **Automated code coverage** with lcov/gcovr
-
-- 🔄 **Cross-platform** support (Linux, macOS, Windows)
-
-**New Files:**
-
-- [Complete Workflow Guide](templates/tests_generation/GOOGLE_TEST_VSCODE_WORKFLOW.md) - 10-step setup
-
-- [Copilot Quick Reference](templates/tests_generation/unit_tests/COPILOT_QUICK_REFERENCE.md) - 50+ AI prompts
-
-- [VS Code Configuration](templates/tests_generation/vscode_config/README.md) - Ready-to-use configs
-
----
-
 ## 🎯 Quick Navigation
 
 **I want to...**
@@ -225,17 +201,16 @@ This repository provides **ready-to-use prompt templates** for AI coding assista
 
 | Framework | What It Does | Click to Open |
 |-----------|--------------|---------------|
-| **SOC 2 Type II** | Enterprise trust & security compliance | [Python](templates/compliance_governance/compliance_frameworks/python_soc2_compliance.md) \| [JavaScript](templates/compliance_governance/compliance_frameworks/javascript_soc2_compliance.md) \| [All Languages](templates/compliance_governance/compliance_frameworks/) |
-| **ISO 27001** | Information security management (114 controls) | [Python](templates/compliance_governance/compliance_frameworks/python_iso27001_implementation.md) \| [JavaScript](templates/compliance_governance/compliance_frameworks/javascript_iso27001_implementation.md) \| [All Languages](templates/compliance_governance/compliance_frameworks/) |
-| **ISO 42001** | AI management systems (NEW for 2025) | [Python](templates/compliance_governance/compliance_frameworks/python_iso42001_ai_management.md) \| [All Languages](templates/compliance_governance/compliance_frameworks/) |
-| **NIST AI RMF** | AI risk management framework | [Python](templates/compliance_governance/compliance_frameworks/python_nist_ai_rmf.md) \| [All Languages](templates/compliance_governance/compliance_frameworks/) |
-| **PCI-DSS v4.0** | Payment card data security | [Python](templates/compliance_governance/compliance_frameworks/python_pci_dss_compliance.md) \| [All Languages](templates/compliance_governance/compliance_frameworks/) |
-| **GDPR** | EU data protection & privacy | [Python](templates/compliance_governance/privacy_protection/python_gdpr_compliance.md) \| [All Languages](templates/compliance_governance/privacy_protection/) |
-| **CCPA** | California consumer privacy | [Python](templates/compliance_governance/privacy_protection/python_ccpa_compliance.md) \| [All Languages](templates/compliance_governance/privacy_protection/) |
-| **Risk Assessment** | Threat modeling & risk management | [Python](templates/compliance_governance/risk_management/python_risk_assessment.md) \| [All Languages](templates/compliance_governance/risk_management/) |
-| **Security Policies** | Organization-wide governance policies | [Python](templates/compliance_governance/governance_policies/python_security_policies.md) \| [All Languages](templates/compliance_governance/governance_policies/) |
-| **Incident Response** | Breach protocols & recovery procedures | [Python](templates/compliance_governance/incident_response/python_incident_response_plan.md) \| [All Languages](templates/compliance_governance/incident_response/) |
-| **AI Agent Governance** | 4 Pillars: Lifecycle, Risk, Security, Observability | [Python](templates/compliance_governance/ai_agent_governance/python_agent_observability.md) \| [All Languages](templates/compliance_governance/ai_agent_governance/) |
+| **SOC 2 Type II** | Enterprise trust & security compliance | [Python](templates/compliance_governance/compliance_frameworks/python_soc2_compliance.md) \| [JavaScript](templates/compliance_governance/compliance_frameworks/javascript_soc2_compliance.md) \| [Java](templates/compliance_governance/compliance_frameworks/java_soc2_compliance.md) \| [C#](templates/compliance_governance/compliance_frameworks/csharp_soc2_compliance.md) \| [Go](templates/compliance_governance/compliance_frameworks/go_soc2_compliance.md) \| [C](templates/compliance_governance/compliance_frameworks/c_soc2_compliance.md) \| [C++](templates/compliance_governance/compliance_frameworks/cpp_soc2_compliance.md) |
+| **ISO 27001** | Information security management (114 controls) | [Python](templates/compliance_governance/compliance_frameworks/python_iso27001_implementation.md) \| [JavaScript](templates/compliance_governance/compliance_frameworks/javascript_iso27001_implementation.md) \| [Java](templates/compliance_governance/compliance_frameworks/java_iso27001_implementation.md) \| [C#](templates/compliance_governance/compliance_frameworks/csharp_iso27001_implementation.md) \| [Go](templates/compliance_governance/compliance_frameworks/go_iso27001_implementation.md) \| [C](templates/compliance_governance/compliance_frameworks/c_iso27001_implementation.md) \| [C++](templates/compliance_governance/compliance_frameworks/cpp_iso27001_implementation.md) |
+| **NIST AI RMF** | AI risk management framework | [Python](templates/compliance_governance/compliance_frameworks/python_nist_ai_rmf.md) \| [JavaScript](templates/compliance_governance/compliance_frameworks/javascript_nist_ai_rmf.md) \| [Java](templates/compliance_governance/compliance_frameworks/java_nist_ai_rmf.md) \| [C#](templates/compliance_governance/compliance_frameworks/csharp_nist_ai_rmf.md) \| [Go](templates/compliance_governance/compliance_frameworks/go_nist_ai_rmf.md) \| [C](templates/compliance_governance/compliance_frameworks/c_nist_ai_rmf.md) \| [C++](templates/compliance_governance/compliance_frameworks/cpp_nist_ai_rmf.md) |
+| **PCI-DSS v4.0** | Payment card data security | [Python](templates/compliance_governance/compliance_frameworks/python_pci_dss_compliance.md) \| [JavaScript](templates/compliance_governance/compliance_frameworks/javascript_pci_dss_compliance.md) \| [Java](templates/compliance_governance/compliance_frameworks/java_pci_dss_compliance.md) \| [C#](templates/compliance_governance/compliance_frameworks/csharp_pci_dss_compliance.md) \| [Go](templates/compliance_governance/compliance_frameworks/go_pci_dss_compliance.md) \| [C](templates/compliance_governance/compliance_frameworks/c_pci_dss_compliance.md) \| [C++](templates/compliance_governance/compliance_frameworks/cpp_pci_dss_compliance.md) |
+| **GDPR** | EU data protection & privacy | [Python](templates/compliance_governance/privacy_protection/python_gdpr_compliance.md) \| [JavaScript](templates/compliance_governance/privacy_protection/javascript_gdpr_compliance.md) \| [Java](templates/compliance_governance/privacy_protection/java_gdpr_compliance.md) \| [C#](templates/compliance_governance/privacy_protection/csharp_gdpr_compliance.md) \| [Go](templates/compliance_governance/privacy_protection/go_gdpr_compliance.md) \| [C](templates/compliance_governance/privacy_protection/c_gdpr_compliance.md) \| [C++](templates/compliance_governance/privacy_protection/cpp_gdpr_compliance.md) |
+| **CCPA** | California consumer privacy | [Python](templates/compliance_governance/privacy_protection/python_ccpa_compliance.md) \| [JavaScript](templates/compliance_governance/privacy_protection/javascript_ccpa_compliance.md) \| [Java](templates/compliance_governance/privacy_protection/java_ccpa_compliance.md) \| [C#](templates/compliance_governance/privacy_protection/csharp_ccpa_compliance.md) \| [Go](templates/compliance_governance/privacy_protection/go_ccpa_compliance.md) \| [C](templates/compliance_governance/privacy_protection/c_ccpa_compliance.md) \| [C++](templates/compliance_governance/privacy_protection/cpp_ccpa_compliance.md) |
+| **Risk Assessment** | Threat modeling & risk management | [Python](templates/compliance_governance/risk_management/python_risk_assessment.md) \| [JavaScript](templates/compliance_governance/risk_management/javascript_risk_assessment.md) \| [Java](templates/compliance_governance/risk_management/java_risk_assessment.md) \| [C#](templates/compliance_governance/risk_management/csharp_risk_assessment.md) \| [Go](templates/compliance_governance/risk_management/go_risk_assessment.md) \| [C](templates/compliance_governance/risk_management/c_risk_assessment.md) \| [C++](templates/compliance_governance/risk_management/cpp_risk_assessment.md) |
+| **Security Policies** | Organization-wide governance policies | [Python](templates/compliance_governance/governance_policies/python_security_policies.md) \| [JavaScript](templates/compliance_governance/governance_policies/javascript_security_policies.md) \| [Java](templates/compliance_governance/governance_policies/java_security_policies.md) \| [C#](templates/compliance_governance/governance_policies/csharp_security_policies.md) \| [Go](templates/compliance_governance/governance_policies/go_security_policies.md) \| [C](templates/compliance_governance/governance_policies/c_security_policies.md) \| [C++](templates/compliance_governance/governance_policies/cpp_security_policies.md) |
+| **Incident Response** | Breach protocols & recovery procedures | [Python](templates/compliance_governance/incident_response/python_incident_response_plan.md) \| [JavaScript](templates/compliance_governance/incident_response/javascript_incident_response_plan.md) \| [Java](templates/compliance_governance/incident_response/java_incident_response_plan.md) \| [C#](templates/compliance_governance/incident_response/csharp_incident_response_plan.md) \| [Go](templates/compliance_governance/incident_response/go_incident_response_plan.md) \| [C](templates/compliance_governance/incident_response/c_incident_response_plan.md) \| [C++](templates/compliance_governance/incident_response/cpp_incident_response_plan.md) |
+| **AI Agent Governance** | 4 Pillars: Lifecycle, Risk, Security, Observability | [Python](templates/compliance_governance/ai_agent_governance/python_agent_lifecycle.md) \| [JavaScript](templates/compliance_governance/ai_agent_governance/javascript_agent_lifecycle.md) \| [Java](templates/compliance_governance/ai_agent_governance/java_agent_lifecycle.md) \| [C#](templates/compliance_governance/ai_agent_governance/csharp_agent_lifecycle.md) \| [Go](templates/compliance_governance/ai_agent_governance/go_agent_lifecycle.md) \| [C](templates/compliance_governance/ai_agent_governance/c_agent_lifecycle.md) \| [C++](templates/compliance_governance/ai_agent_governance/cpp_agent_lifecycle.md) |
 
 > **What you get:**
 >
