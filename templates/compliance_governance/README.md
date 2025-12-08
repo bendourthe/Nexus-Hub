@@ -608,31 +608,4 @@ Don't start from scratch:
 
 ---
 
-## Changelog
-
-### Version 1.0.0 - 2025-12-05
-
-**Added**:
-- Initial compliance_governance category structure
-- 4 Pillars AI Agent Governance framework integration
-- 8 sub-phases: compliance_frameworks, risk_management, governance_policies, privacy_protection, incident_response, ai_agent_governance
-- Support for all 7 languages (Python, JavaScript, Java, C#, Go, C, C++)
-- Integration with existing security_review, dependency-security-audit, and documentation templates
-- Comprehensive framework comparison matrix
-- Quick start guide and best practices
-
-**Framework Coverage**:
-- SOC 2 Type II
-- ISO 27001:2022
-- ISO 42001:2023 (AI Management Systems)
-- NIST AI RMF 1.0
-- PCI-DSS v4.0
-- GDPR
-- CCPA
-- AI Agent Governance (4 Pillars)
-
-**Total Templates**: 63 language-specific templates + 7 READMEs = 70 files
-
----
-
 [← Back to Main README](../../README.md)
