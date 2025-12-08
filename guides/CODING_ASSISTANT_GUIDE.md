@@ -6,6 +6,21 @@
 
 ---
 
+## Table of Contents
+
+- [Introduction](#introduction)
+- [Part 1: Setting Up Your Coding Assistant](#part-1-setting-up-your-coding-assistant)
+- [Part 2: Understanding Templates](#part-2-understanding-templates)
+- [Part 3: Generate Code Documentation](#part-3-generate-code-documentation)
+- [Part 4: Generate Tests](#part-4-generate-tests)
+- [Part 5: Code Review](#part-5-code-review)
+- [Part 6: Compliance & Governance](#part-6-compliance--governance)
+- [Part 7: Codebase Cleanup](#part-7-codebase-cleanup)
+- [Complete Workflow Example](#-complete-workflow-example)
+- [Next Steps](#-next-steps)
+
+---
+
 ## Introduction
 
 This guide helps you maximize AI-assisted development using the comprehensive template collection in this repository. Whether you're using GitHub Copilot, Cursor, Windsurf, ChatGPT, or Claude, you'll learn how to:
@@ -1972,9 +1987,271 @@ Fixed performance issues? → Re-run Phase 4 (Performance Review)
 
 ---
 
-## Part 6: Codebase Cleanup
+## Part 6: Compliance & Governance
 
-### 6.1 Process Overview
+### 6.1 Overview and Business Value
+
+Compliance & Governance templates help implement regulatory frameworks, security governance, and risk management for production systems.
+
+**Available Frameworks (96 templates):**
+- **SOC 2 Type II** - Trust Services Criteria for enterprise customers
+- **ISO 27001:2022** - Information Security Management Systems (114 controls)
+- **ISO 42001:2023** - AI Management Systems (NEW for 2025)
+- **NIST AI RMF 1.0** - AI Risk Management Framework
+- **PCI-DSS v4.0** - Payment Card Industry Data Security Standard
+- **GDPR/CCPA** - Privacy protection regulations
+- **AI Agent Governance** - 4 Pillars Framework for agentic AI
+- **Incident Response** - NIST SP 800-61 6-phase lifecycle
+
+**Time Investment:** 6-12 hours per framework (manual with AI assistance)
+
+**Location:** [templates/compliance_governance/](../templates/compliance_governance/)
+
+### 6.2 When to Use Compliance Templates
+
+**For Traditional SaaS:**
+- **SOC 2 + ISO 27001** - Enterprise trust and security
+- **Use Case**: Enterprise sales require SOC 2 reports
+- **Time**: 12-20 hours per framework
+
+**For AI/ML Systems:**
+- **NIST AI RMF + ISO 42001 + AI Agent Governance** - AI-specific compliance
+- **Use Case**: Demonstrate trustworthy AI deployment
+- **Time**: 18-30 hours for complete AI governance
+
+**For Payment Processing:**
+- **PCI-DSS + SOC 2** - Payment security + trust
+- **Use Case**: Processing credit card payments
+- **Time**: 15-25 hours
+
+**For EU Markets:**
+- **GDPR + ISO 27001** - Privacy + information security
+- **Use Case**: Serving EU customers
+- **Time**: 12-20 hours
+
+### 6.3 The Four Pillars of AI Agent Governance
+
+Modern AI systems require specialized governance. The **4 Pillars Framework** addresses unique AI risks:
+
+#### Pillar 1: 🔄 Lifecycle Management (Separation of Duties)
+**Definition**: Multiple teams manage data/model changes through dev/staging/prod environments
+
+**What You'll Implement:**
+- Git + model registries for version control
+- CI/CD pipelines for AI deployments
+- Blue-green and canary deployment strategies
+- Approval gates and rollback procedures
+- Feature flags for gradual rollout
+
+**Templates:** [ai_agent_governance/lifecycle_management/](../templates/compliance_governance/ai_agent_governance/)
+
+#### Pillar 2: ⚠️ Risk Management (Defense in Depth)
+**Definition**: Multiple overlapping defense layers (PII detection, guardrails, compliance controls)
+
+**What You'll Implement:**
+- Data quality monitoring (schema validation, drift detection)
+- PII detection and automatic redaction
+- Input/output guardrails
+- Compliance controls (audit trails, retention policies)
+- Model validation (bias detection, performance monitoring)
+
+**Templates:** [ai_agent_governance/agent_risk_controls/](../templates/compliance_governance/ai_agent_governance/)
+
+#### Pillar 3: 🔒 Security (Least Privilege Access)
+**Definition**: Agents and users receive only minimum required permissions
+
+**What You'll Implement:**
+- OAuth 2.0, SSO (SAML, OIDC), multi-factor authentication
+- Secrets management (key vaults, credential rotation)
+- RBAC with group permissions
+- Data encryption (TLS/SSL, encryption at rest)
+- Network security (private networks, firewalls)
+
+**Templates:** [ai_agent_governance/agent_security/](../templates/compliance_governance/ai_agent_governance/)
+
+#### Pillar 4: 🔍 Observability (Audit Everything)
+**Definition**: Comprehensive logs of all system interactions for complete traceability
+
+**What You'll Implement:**
+- OTel (OpenTelemetry) tracing standard
+- Audit logging for all agent actions
+- Performance monitoring and cost dashboards
+- Data and model lineage tracking
+- Anomaly detection and alerting
+
+**Templates:** [ai_agent_governance/agent_observability/](../templates/compliance_governance/ai_agent_governance/)
+
+### 6.4 Template Usage
+
+#### Step 1: Choose Your Framework
+
+**Decision Tree:**
+```
+What type of system?
+
+├─ Traditional SaaS → SOC 2 + ISO 27001
+├─ AI/ML Platform → NIST AI RMF + ISO 42001 + 4 Pillars
+├─ Payment Processing → PCI-DSS + SOC 2
+└─ EU Market → GDPR + ISO 27001
+```
+
+#### Step 2: Follow Template Structure
+
+Each compliance template includes:
+
+1. **Overview** - Framework purpose, scope, business value
+2. **Compliance Requirements** - Control objectives, evidence needs
+3. **Code-Level Implementation** - Language-specific security patterns
+4. **Documentation Requirements** - Policy templates, evidence artifacts
+5. **Risk Assessment** - Threat modeling, risk scoring
+6. **Audit Preparation** - Evidence gathering, gap analysis
+7. **Continuous Monitoring** - Ongoing compliance, alerting
+8. **Cross-References** - Links to security_review, tests_generation
+
+#### Step 3: Implement Controls
+
+**Example: SOC 2 Implementation (8-12 hours)**
+
+```
+1. Use Template (2 hours)
+   - Open templates/compliance_governance/compliance_frameworks/python_soc2_compliance.md
+   - Copy prompt template into your AI assistant
+   - Provide your codebase context
+
+2. Implement Security Controls (4-6 hours)
+   - Map Trust Services Criteria to your code
+   - Implement missing controls (encryption, access control, logging)
+   - Add security tests
+
+3. Generate Documentation (2-3 hours)
+   - Create policy templates
+   - Document evidence collection procedures
+   - Generate audit checklists
+
+4. Continuous Monitoring (1-2 hours)
+   - Set up automated compliance checks
+   - Configure alerting for violations
+   - Integrate into CI/CD
+```
+
+### 6.5 Integration with Existing Templates
+
+**Compliance builds on security and testing:**
+
+```
+Security Review (Part 5)
+  ↓
+Identify vulnerabilities → Fix → Implement Controls
+  ↓
+Compliance Frameworks (Part 6)
+  ↓
+Map controls to code → Document → Audit Prep
+  ↓
+Tests Generation (Part 4)
+  ↓
+Generate compliance tests → 85%+ coverage → CI/CD
+```
+
+**Example Workflow:**
+
+```
+1. Run Security Review (Phase 3)
+   - Find: 2 CRITICAL, 5 HIGH security issues
+   - Time: 2-3 hours
+
+2. Fix Critical Issues
+   - SQL injection, hardcoded secrets
+   - Time: 4-6 hours
+
+3. Implement SOC 2 Controls
+   - Map to Trust Services Criteria
+   - Implement missing controls
+   - Time: 8-12 hours
+
+4. Generate Compliance Tests
+   - Create security tests for all controls
+   - Achieve 85%+ coverage
+   - Time: 6-8 hours
+
+5. Audit Preparation
+   - Document evidence collection
+   - Create audit checklist
+   - Time: 2-3 hours
+
+Total Time: 22-32 hours for SOC 2-compliant, auditable codebase
+```
+
+### 6.6 Expected Outcomes
+
+**After Implementing Compliance Templates:**
+
+✅ **Technical Achievements:**
+- All framework controls implemented in code
+- Security tests passing at 85%+ coverage
+- Automated evidence collection operational
+- Continuous compliance monitoring active
+- Audit-ready documentation generated
+
+✅ **Business Benefits:**
+- Pass SOC 2/ISO 27001 audits on first attempt
+- Accelerate enterprise sales cycles (trust badges)
+- Meet regulatory requirements (GDPR, CCPA, PCI-DSS)
+- Reduce audit preparation time by 50-60%
+- Demonstrate trustworthy AI deployment (for AI systems)
+
+✅ **Risk Management:**
+- Defense-in-depth security implemented
+- PII detection and redaction operational
+- Incident response plans documented
+- Breach notification procedures ready (GDPR 72-hour compliance)
+
+### 6.7 Verification Steps
+
+**After Completing Compliance Implementation:**
+
+- [ ] All framework controls mapped to codebase
+- [ ] Security controls implemented and tested
+- [ ] Policy documentation generated
+- [ ] Evidence collection procedures documented
+- [ ] Audit preparation checklist complete
+- [ ] Continuous monitoring operational
+- [ ] CI/CD includes compliance checks
+- [ ] Compliance tests passing at 85%+
+- [ ] No CRITICAL/HIGH security findings remaining
+
+**Audit Readiness Checklist:**
+
+- [ ] Control implementation evidence collected
+- [ ] Policy documentation reviewed by legal/compliance
+- [ ] Access logs demonstrate least privilege
+- [ ] Encryption verified for data at rest and in transit
+- [ ] Incident response plan tested
+- [ ] Vendor risk assessments complete
+- [ ] Security training documented
+- [ ] Third-party audit scheduled
+
+### 6.8 Resources and Tools
+
+**Official Framework Documentation:**
+- [SOC 2 Trust Services Criteria](https://www.aicpa.org/interestareas/frc/assuranceadvisoryservices/trustdataintegrity.html)
+- [ISO 27001:2022 Standard](https://www.iso.org/standard/27001)
+- [ISO 42001:2023 AI Management](https://www.iso.org/standard/81230.html)
+- [NIST AI Risk Management Framework](https://www.nist.gov/itl/ai-risk-management-framework)
+- [PCI-DSS v4.0 Requirements](https://www.pcisecuritystandards.org/document_library)
+- [GDPR Official Text](https://gdpr-info.eu/)
+- [CCPA Official Text](https://oag.ca.gov/privacy/ccpa)
+
+**Compliance Automation Tools:**
+- **Drata, Vanta, Secureframe** - SOC 2/ISO 27001 automation
+- **OneTrust, BigID** - Privacy compliance (GDPR/CCPA)
+- **OpenTelemetry, MLflow** - AI observability
+- **Open Policy Agent (OPA)** - Policy as code
+
+---
+
+## Part 7: Codebase Cleanup
+
+### 7.1 Process Overview
 
 Codebase cleanup systematically removes technical debt: dead code, duplication, and outdated patterns.
 

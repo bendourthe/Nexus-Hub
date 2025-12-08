@@ -6,6 +6,23 @@
 
 ---
 
+## Table of Contents
+
+- [Introduction](#introduction)
+- [Part 1: Setting Up CLAUDE.md](#part-1-setting-up-claudemd)
+- [Part 2: Claude Code Skills](#part-2-claude-code-skills)
+- [Part 3: Using Templates with Claude Code](#part-3-using-templates-with-claude-code)
+- [Part 4: Generate Code Documentation](#part-4-generate-code-documentation)
+- [Part 5: Generate Tests](#part-5-generate-tests)
+- [Part 6: Code Review](#part-6-code-review)
+- [Part 7: Compliance & Governance](#part-7-compliance--governance)
+- [Part 8: Codebase Cleanup](#part-8-codebase-cleanup)
+- [Complete Autonomous Workflow Example](#-complete-autonomous-workflow-example)
+- [Getting Started Checklist](#-getting-started-checklist)
+- [Additional Resources](#-additional-resources)
+
+---
+
 ## Introduction
 
 This guide shows you how to use Claude Code—an autonomous AI coding agent—with the AI Templates repository for maximum development productivity. Unlike manual coding assistants (GitHub Copilot, Cursor), Claude Code can execute multi-step workflows autonomously, making complex decisions and performing tasks end-to-end.
@@ -1155,9 +1172,320 @@ Recommended Order: CRITICAL first, then HIGH, then MEDIUM
 
 ---
 
-## Part 7: Codebase Cleanup
+## Part 7: Compliance & Governance
 
-### 7.1 Process Overview with Safety Checks
+### 7.1 Overview with Autonomous Execution
+
+Claude Code autonomously implements compliance frameworks, security governance, and regulatory requirements:
+
+| Framework | Claude Code Automation | Time Saved |
+|-----------|------------------------|------------|
+| **SOC 2 Type II** | Auto-generates controls, evidence collection | 60% faster |
+| **ISO 27001** | Auto-maps 114 controls to codebase | 60% faster |
+| **NIST AI RMF** | Auto-implements AI risk management | 70% faster |
+| **GDPR/CCPA** | Auto-generates privacy controls | 60% faster |
+| **AI Agent Governance** | Auto-implements 4 Pillars Framework | 70% faster |
+| **Incident Response** | Auto-creates IR plans and breach protocols | 50% faster |
+
+**Total Time:** 30-60 hours (vs 80-120 hours manual) for comprehensive governance
+
+### 7.2 Available Templates (96 Total)
+
+**Location:** [templates/compliance_governance/](../templates/compliance_governance/)
+
+#### Compliance Frameworks (28 templates)
+- **SOC 2 Type II** - Trust Services Criteria for SaaS/Cloud providers
+- **ISO 27001:2022** - Information Security Management Systems (114 controls)
+- **ISO 42001:2023** - AI Management Systems (NEW for 2025)
+- **NIST AI RMF 1.0** - AI Risk Management Framework
+- **PCI-DSS v4.0** - Payment Card Industry Data Security Standard
+
+**Templates:** [compliance_frameworks/](../templates/compliance_governance/compliance_frameworks/)
+
+#### Risk Management (14 templates)
+- **Risk Assessment** - Systematic threat identification and mitigation
+- **Threat Modeling** - STRIDE methodology, attack surface analysis
+
+**Templates:** [risk_management/](../templates/compliance_governance/risk_management/)
+
+#### Governance Policies (14 templates)
+- **Security Policies** - Comprehensive security policy documentation
+- **Access Control** - RBAC implementation, least privilege
+
+**Templates:** [governance_policies/](../templates/compliance_governance/governance_policies/)
+
+#### Privacy Protection (14 templates)
+- **GDPR Compliance** - EU General Data Protection Regulation
+- **CCPA Compliance** - California Consumer Privacy Act
+
+**Templates:** [privacy_protection/](../templates/compliance_governance/privacy_protection/)
+
+#### Incident Response (14 templates)
+- **Incident Response Plans** - NIST SP 800-61 6-phase lifecycle
+- **Breach Protocols** - GDPR 72-hour notification compliance
+
+**Templates:** [incident_response/](../templates/compliance_governance/incident_response/)
+
+#### AI Agent Governance (14 templates)
+- **Lifecycle Management** - Separation of duties, CI/CD for AI
+- **Agent Observability** - OTel tracing, audit logging
+- **Agent Security** - Least privilege for agents
+- **Agent Risk Controls** - Guardrails, PII detection
+
+**Templates:** [ai_agent_governance/](../templates/compliance_governance/ai_agent_governance/)
+
+### 7.3 The Four Pillars of AI Agent Governance
+
+Modern AI systems require governance beyond traditional software. The **4 Pillars Framework** provides the foundation:
+
+#### 1. 🔄 Lifecycle Management (Separation of Duties)
+**Definition**: Multiple teams manage data/model changes through dev/staging/prod with version control
+
+**Autonomous Implementation:**
+```
+User: "Implement lifecycle management for our AI agent system"
+
+Claude executes autonomously:
+1. Sets up Git with model registries
+2. Creates dev/staging/prod environments
+3. Configures CI/CD pipelines for AI
+4. Implements deployment orchestration (blue-green, canary)
+5. Adds change management workflows with approval gates
+6. Creates rollback procedures
+7. Adds feature flags for gradual rollout
+8. Documents promotion workflows
+9. Commits all configurations
+
+Time: 6-8 hours autonomous (vs 12-16 hours manual)
+```
+
+#### 2. ⚠️ Risk Management (Defense in Depth)
+**Definition**: Multiple overlapping defense layers (PII detection, guardrails, compliance controls, monitoring)
+
+**Autonomous Implementation:**
+```
+User: "Implement defense-in-depth risk management for AI"
+
+Claude executes autonomously:
+1. Adds data quality monitoring (schema validation, drift detection)
+2. Implements PII detection and redaction
+3. Creates guardrails (input validation, output filtering)
+4. Adds compliance controls (audit trails, retention policies)
+5. Implements model validation (bias detection, performance monitoring)
+6. Creates layered security checks
+7. Documents risk mitigation strategies
+8. Commits all controls
+
+Time: 6-8 hours autonomous (vs 12-16 hours manual)
+```
+
+#### 3. 🔒 Security (Least Privilege Access)
+**Definition**: Agents and users receive only minimum required permissions
+
+**Autonomous Implementation:**
+```
+User: "Implement least privilege security for AI agents"
+
+Claude executes autonomously:
+1. Configures OAuth 2.0, SSO (SAML, OIDC), MFA
+2. Sets up secrets management (key vaults, credential rotation)
+3. Implements RBAC with group permissions
+4. Adds data protection (TLS/SSL, encryption at rest)
+5. Configures network security (private networks, firewalls)
+6. Creates zero-trust architecture
+7. Documents access control policies
+8. Commits all security configurations
+
+Time: 4-6 hours autonomous (vs 8-12 hours manual)
+```
+
+#### 4. 🔍 Observability (Audit Everything)
+**Definition**: Comprehensive logs of all system interactions for complete traceability
+
+**Autonomous Implementation:**
+```
+User: "Implement comprehensive observability for AI agents"
+
+Claude executes autonomously:
+1. Sets up OTel (OpenTelemetry) tracing
+2. Implements audit logging for all agent actions
+3. Adds application and inference logging
+4. Creates performance monitoring and cost dashboards
+5. Implements data and model lineage tracking
+6. Adds drift detection and anomaly alerting
+7. Creates compliance reporting dashboards
+8. Documents observability architecture
+9. Commits all monitoring configurations
+
+Time: 6-8 hours autonomous (vs 12-16 hours manual)
+```
+
+### 7.4 Autonomous Compliance Implementation
+
+**Comprehensive SOC 2 + AI Governance Example:**
+
+```
+User: "Implement SOC 2 Type II compliance with AI agent governance"
+
+Claude executes fully autonomously over 24-30 hours:
+
+=== Phase 1: SOC 2 Framework (8-10 hours) ===
+✅ Analyzes Trust Services Criteria (Security, Availability, Confidentiality)
+✅ Maps 114 controls to codebase
+✅ Implements security controls (CC6.x)
+✅ Adds logical access controls (CC6.1)
+✅ Implements encryption (CC6.7)
+✅ Creates audit logging (CC7.2)
+✅ Documents control implementations
+✅ Generates evidence collection procedures
+✅ Creates policy templates
+✅ Commits: "feat: Implement SOC 2 Type II controls"
+
+=== Phase 2: AI Agent Governance (12-16 hours) ===
+✅ Implements Pillar 1: Lifecycle Management
+   - Git + model registries
+   - CI/CD pipelines
+   - Deployment orchestration
+✅ Implements Pillar 2: Risk Management
+   - PII detection
+   - Guardrails
+   - Compliance controls
+✅ Implements Pillar 3: Security
+   - OAuth 2.0, RBAC
+   - Secrets management
+   - Data encryption
+✅ Implements Pillar 4: Observability
+   - OTel tracing
+   - Audit logging
+   - Lineage tracking
+✅ Commits: "feat: Implement 4 Pillars AI Agent Governance"
+
+=== Phase 3: Documentation & Verification (4-6 hours) ===
+✅ Generates comprehensive documentation
+✅ Creates audit preparation checklists
+✅ Documents evidence collection procedures
+✅ Creates compliance dashboards
+✅ Verifies all controls operational
+✅ Runs compliance validation tests
+✅ Generates final compliance report
+
+Reports: "SOC 2 + AI Governance implementation complete. All controls operational, evidence collection automated, audit-ready documentation generated."
+
+Time: 24-30 hours autonomous (vs 50-70 hours manual)
+```
+
+### 7.5 Integration with Security & Testing
+
+**Compliance integrates with existing templates:**
+
+```
+Compliance Frameworks → Code Review (Security Phase)
+  ↓                         ↓
+Maps controls         Validates implementation
+to code              ↓
+  ↓                  Generates findings
+Implements        ↓
+controls          Creates remediation plan
+  ↓
+Tests Generation → Compliance Tests
+  ↓                   ↓
+Generates        Validates controls work
+compliance       ↓
+tests            Achieves 80%+ coverage
+```
+
+**Autonomous Integration Example:**
+
+```
+User: "Ensure our application is SOC 2 compliant and secure"
+
+Claude executes autonomously:
+1. Phase 1: Runs security review (6-10 hours)
+   - Identifies OWASP Top 10 vulnerabilities
+   - Finds 2 CRITICAL, 5 HIGH issues
+2. Phase 2: Fixes critical issues (4-6 hours)
+   - Implements parameterized queries
+   - Adds input validation
+   - Removes hardcoded secrets
+3. Phase 3: Implements SOC 2 controls (8-10 hours)
+   - Maps controls to codebase
+   - Implements missing controls
+   - Documents evidence collection
+4. Phase 4: Generates compliance tests (6-8 hours)
+   - Creates security tests for all controls
+   - Achieves 85% coverage
+   - Integrates into CI/CD
+5. Phase 5: Verification (2-3 hours)
+   - All tests pass
+   - All controls operational
+   - Audit documentation complete
+
+Reports: "Application is SOC 2 compliant and secure. All CRITICAL/HIGH vulnerabilities fixed, controls implemented, tests passing, audit-ready."
+
+Total Time: 26-37 hours autonomous (vs 60-80 hours manual)
+```
+
+### 7.6 Quick Start Recommendations
+
+**For Traditional SaaS:**
+```
+User: "Implement compliance for our SaaS application"
+
+Recommended: SOC 2 + ISO 27001
+Time: 12-16 hours autonomous
+Claude implements: Trust Services Criteria + ISMS
+```
+
+**For AI/ML Systems:**
+```
+User: "Implement compliance for our AI/ML platform"
+
+Recommended: NIST AI RMF + ISO 42001 + 4 Pillars AI Governance
+Time: 18-24 hours autonomous
+Claude implements: AI risk management + AI management system + agent governance
+```
+
+**For Payment Processing:**
+```
+User: "Implement compliance for payment processing"
+
+Recommended: PCI-DSS + SOC 2
+Time: 15-18 hours autonomous
+Claude implements: Payment security + trust services
+```
+
+**For EU Markets:**
+```
+User: "Implement compliance for EU operations"
+
+Recommended: GDPR + ISO 27001
+Time: 12-16 hours autonomous
+Claude implements: Privacy protection + information security
+```
+
+### 7.7 Expected Outcomes
+
+**Autonomous Compliance Achievements:**
+- ✅ All framework controls implemented
+- ✅ Evidence collection automated
+- ✅ Policy documentation generated
+- ✅ Audit preparation checklists created
+- ✅ Compliance tests passing at 85%+
+- ✅ Continuous monitoring operational
+- ✅ Audit-ready documentation complete
+
+**Business Impact:**
+- 📈 Pass SOC 2 audits on first attempt
+- 📈 Accelerate enterprise sales cycles
+- 📈 Meet regulatory requirements (GDPR, CCPA)
+- 📈 Reduce audit preparation time by 60%
+- 📈 Demonstrate trustworthy AI deployment
+
+---
+
+## Part 8: Codebase Cleanup
+
+### 8.1 Process Overview with Safety Checks
 
 Claude Code executes cleanup with comprehensive safety checks:
 
@@ -1229,7 +1557,7 @@ Reports: "Cleanup complete. Removed 215 lines of dead code, reduced duplication 
 Time: 4-5 hours autonomous (vs 8-10 hours manual)
 ```
 
-### 7.2 Autonomous Cleanup (What Claude Code Handles Automatically)
+### 8.2 Autonomous Cleanup (What Claude Code Handles Automatically)
 
 **Fully Autonomous:**
 - ✅ Unused import removal
@@ -1268,7 +1596,7 @@ For the 8 ambiguous cases, would you like me to:
 Which would you prefer?"
 ```
 
-### 7.3 Post-Cleanup Verification (Automated Test Runs)
+### 8.3 Post-Cleanup Verification (Automated Test Runs)
 
 **Claude Code Automatically:**
 1. ✅ Runs full test suite after each cleanup pass
