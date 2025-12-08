@@ -21,6 +21,7 @@
 
 ---
 
+<a name="introduction"></a>
 ## Introduction
 
 This guide helps you maximize AI-assisted development using the comprehensive template collection in this repository. Whether you're using GitHub Copilot, Cursor, Windsurf, ChatGPT, or Claude, you'll learn how to:
@@ -49,6 +50,7 @@ This guide helps you maximize AI-assisted development using the comprehensive te
 
 ---
 
+<a name="part-1-setting-up-your-coding-assistant"></a>
 ## Part 1: Setting Up Your Coding Assistant
 
 ### Overview
@@ -312,6 +314,7 @@ Different assistants have different token limits for instructions:
 
 ---
 
+<a name="part-2-understanding-templates"></a>
 ## Part 2: Understanding Templates
 
 ### 2.1 How Templates Work
@@ -476,6 +479,7 @@ For a complete project setup, follow this order:
 
 ---
 
+<a name="part-3-generate-code-documentation"></a>
 ## Part 3: Generate Code Documentation
 
 ### 3.1 Available Templates
@@ -855,6 +859,7 @@ aspell check docs/*.md
 
 ---
 
+<a name="part-4-generate-tests"></a>
 ## Part 4: Generate Tests
 
 ### 4.1 8-Phase Testing Methodology
@@ -1408,6 +1413,7 @@ Generate GoogleTest fixtures and helper functions to support testing [ClassName]
 
 ---
 
+<a name="part-5-code-review"></a>
 ## Part 5: Code Review
 
 ### 5.1 6-Phase Review Methodology
@@ -1987,6 +1993,7 @@ Fixed performance issues? → Re-run Phase 4 (Performance Review)
 
 ---
 
+<a name="part-6-compliance--governance"></a>
 ## Part 6: Compliance & Governance
 
 ### 6.1 Overview and Business Value
@@ -2249,6 +2256,7 @@ Total Time: 22-32 hours for SOC 2-compliant, auditable codebase
 
 ---
 
+<a name="part-7-codebase-cleanup"></a>
 ## Part 7: Codebase Cleanup
 
 ### 7.1 Process Overview
@@ -2739,6 +2747,7 @@ git bisect good <last-working-commit>
 
 ---
 
+<a name="complete-workflow-example"></a>
 ## 🎓 Complete Workflow Example
 
 **Scenario:** Python web API with undocumented code, no tests, security concerns, and technical debt
@@ -3191,6 +3200,7 @@ Complete overhaul bringing codebase to production quality standards.
 
 ---
 
+<a name="next-steps"></a>
 ## 🚀 Next Steps
 
 ### Continue Learning

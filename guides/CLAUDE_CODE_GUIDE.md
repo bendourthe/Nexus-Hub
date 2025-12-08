@@ -23,6 +23,7 @@
 
 ---
 
+<a name="introduction"></a>
 ## Introduction
 
 This guide shows you how to use Claude Code—an autonomous AI coding agent—with the AI Templates repository for maximum development productivity. Unlike manual coding assistants (GitHub Copilot, Cursor), Claude Code can execute multi-step workflows autonomously, making complex decisions and performing tasks end-to-end.
@@ -54,6 +55,7 @@ This guide shows you how to use Claude Code—an autonomous AI coding agent—wi
 
 ---
 
+<a name="part-1-setting-up-claudemd"></a>
 ## Part 1: Setting Up CLAUDE.md
 
 ### Overview
@@ -335,6 +337,7 @@ Pre-built CLAUDE.md templates for all supported languages:
 
 ---
 
+<a name="part-2-claude-code-skills"></a>
 ## Part 2: Claude Code Skills
 
 ### 2.1 What are Skills?
@@ -522,6 +525,7 @@ Skills are organized by focus area:
 
 ---
 
+<a name="part-3-using-templates-with-claude-code"></a>
 ## Part 3: Using Templates with Claude Code
 
 ### 3.1 Template Integration
@@ -667,6 +671,7 @@ Result: Complete test suite with 82% coverage, CI/CD integrated, mutation score 
 
 ---
 
+<a name="part-4-generate-code-documentation"></a>
 ## Part 4: Generate Code Documentation
 
 ### 4.1 Available Templates (Same as CODING_ASSISTANT_GUIDE)
@@ -827,6 +832,7 @@ Claude Code will autonomously refine based on specific feedback.
 
 ---
 
+<a name="part-5-generate-tests"></a>
 ## Part 5: Generate Tests
 
 ### 4.1 8-Phase Testing Methodology with Claude Code Automation
@@ -974,6 +980,7 @@ Recommendations:
 
 ---
 
+<a name="part-6-code-review"></a>
 ## Part 6: Code Review
 
 ### 6.1 6-Phase Review with Autonomous Analysis
@@ -1172,6 +1179,7 @@ Recommended Order: CRITICAL first, then HIGH, then MEDIUM
 
 ---
 
+<a name="part-7-compliance--governance"></a>
 ## Part 7: Compliance & Governance
 
 ### 7.1 Overview with Autonomous Execution
@@ -1483,6 +1491,7 @@ Claude implements: Privacy protection + information security
 
 ---
 
+<a name="part-8-codebase-cleanup"></a>
 ## Part 8: Codebase Cleanup
 
 ### 8.1 Process Overview with Safety Checks
@@ -1642,6 +1651,7 @@ Ready for review and merge.
 
 ---
 
+<a name="complete-autonomous-workflow-example"></a>
 ## 🎓 Complete Autonomous Workflow Example
 
 **Scenario:** Python web API - undocumented, untested, security issues, technical debt
@@ -1751,6 +1761,7 @@ Pull Request: #123
 
 ---
 
+<a name="getting-started-checklist"></a>
 ## 🚀 Getting Started Checklist
 
 **5-Minute Setup:**
@@ -1781,6 +1792,7 @@ Pull Request: #123
 
 ---
 
+<a name="additional-resources"></a>
 ## 📚 Additional Resources
 
 **Essential Reading:**
