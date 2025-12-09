@@ -4,91 +4,62 @@ This directory contains standardized system prompts (also known as Rules or Inst
 
 ## 🆕 Claude Code Skills Framework
 
-**NEW**: 6 production-ready skills for autonomous agentic coding workflows!
+**47+ production-ready skills** for autonomous agentic coding workflows!
 
 Skills provide task-specific expertise with token-efficient loading and natural language invocation.
 
-**[→ View All Skills Documentation](autonomous_agents/claude_code/skil../../README.md)**
+**[→ View All Skills](../../catalogs/claude_skills/)**
 
 ### Quick Start
 ```
 "Use the plan-before-code skill to design this feature"
 "Use the init-python-project skill to create 'my-app'"
-"Use the create-claude-md skill to configure this project"
+"Generate unit tests for my authentication module"
 ```
 
-### Available Skills
-- `plan-before-code` 🔥 - Anthropic's #1 best practice workflow
+### Skill Categories
+- **Workflow** - plan-before-code, test-driven-development, code-commit-workflow
+- **Code Review** - security review, performance review, quality analysis
+- **Tests Generation** - unit tests, integration tests, mutation testing
+- **Documentation** - API docs, docstrings, user documentation
+- **Code Cleanup** - Python, JavaScript, Java, C#, Go, C, C++
+- **Compliance** - SOC 2, ISO 27001, GDPR, AI governance
+- **Project Setup** - Python, JavaScript, Java, C# project initialization
+- **Security** - dependency audits, licensing compliance
 
-- `create-claude-md` 🔥 - Generate CLAUDE.md configuration
-
-- `init-python-project` - Initialize complete Python projects
-
-- `setup-python-system-prompt` - Configure Python standards
-
-- `cleanup-python` - Modernize Python codebases
-
-- `generate-api-docs` - Generate API documentation
-
-**[Complete Skills Documentation →](autonomous_agents/claude_code/skills/)**
+**[Complete Skills Catalog →](../../catalogs/claude_skills/)**
 
 ## 📁 Repository Structure
 
 ```
-agent_prompts/
-├── autonomous_agents/                          # Prompts for autonomous coding agents
+ai_instructions/
+├── agentic_systems/                            # Prompts for autonomous coding agents
 │   └── claude_code/
-│       ├── skills/                            # ← NEW: Claude Code Skills
-│       │   ├── README.md                      #   Complete skills documentation
-│       │   ├── plan-before-code/             #   🔥 Anthropic best practice
-│       │   ├── create-claude-md/             #   🔥 CLAUDE.md generator
-│       │   ├── init-python-project/          #   Project initialization
-│       │   ├── setup-python-system-prompt/   #   Python standards
-│       │   ├── cleanup-python/               #   Code modernization
-│       │   └── generate-api-docs/            #   API documentation
-│       ├── python/
-│       │   ├── CLAUDE_comprehensive_40k.md     # Full-featured prompt (~40k tokens)
-│       │   └── CLAUDE_condensed_20k.md         # Streamlined version (~20k tokens)
-│       ├── javascript/
-│       │   ├── CLAUDE_comprehensive_35k.md
-│       │   └── CLAUDE_condensed_20k.md
-│       ├── java/
-│       │   ├── CLAUDE_comprehensive_35k.md
-│       │   └── CLAUDE_condensed_20k.md
-│       ├── csharp/
-│       │   ├── CLAUDE_comprehensive_35k.md
-│       │   └── CLAUDE_condensed_20k.md
-│       ├── go/
-│       │   ├── CLAUDE_comprehensive_35k.md
-│       │   └── CLAUDE_condensed_20k.md
-│       ├── c/
-│       │   ├── CLAUDE_comprehensive_35k.md
-│       │   └── CLAUDE_condensed_20k.md
-│       └── cpp/
-│           ├── CLAUDE_comprehensive_35k.md
-│           └── CLAUDE_condensed_20k.md
-├── coding_assistants/                          # Prompts for coding assistants
+│       ├── python/                            # Modular skills-based templates
+│       │   ├── CLAUDE.md                      # Core instructions (~60 lines)
+│       │   ├── .claude/skills/                # Auto-activated skills
+│       │   └── legacy/                        # Legacy monolithic templates
+│       ├── javascript/                        # JavaScript/TypeScript templates
+│       ├── java/                              # Java/Spring Boot templates
+│       ├── csharp/                            # C#/.NET templates
+│       ├── go/                                # Go templates
+│       ├── c/                                 # C templates
+│       └── cpp/                               # C++ templates
+├── coding_assistants/                          # Prompts for coding assistants (GitHub Copilot)
 │   ├── python/
-│   │   ├── GLOBAL_comprehensive_35k.md         # Full-featured prompt (~35k tokens)
-│   │   └── GLOBAL_condensed_15k.md             # Lightweight version (~15k tokens)
+│   │   └── copilot-instructions.md             # Consolidated template (~20k characters)
 │   ├── javascript/
-│   │   ├── GLOBAL_comprehensive_35k.md
-│   │   └── GLOBAL_condensed_15k.md
+│   │   └── copilot-instructions.md
 │   ├── java/
-│   │   ├── GLOBAL_comprehensive_35k.md
-│   │   └── GLOBAL_condensed_15k.md
+│   │   └── copilot-instructions.md
 │   ├── csharp/
-│   │   ├── GLOBAL_comprehensive_35k.md
-│   │   └── GLOBAL_condensed_15k.md
+│   │   └── copilot-instructions.md
 │   ├── go/
-│   │   ├── GLOBAL_comprehensive_35k.md
-│   │   └── GLOBAL_condensed_15k.md
+│   │   └── copilot-instructions.md
 │   ├── c/
-│   │   ├── GLOBAL_comprehensive_35k.md
-│   │   └── GLOBAL_condensed_15k.md
+│   │   └── copilot-instructions.md
 │   └── cpp/
-│       ├── GLOBAL_comprehensive_35k.md
-│       └── GLOBAL_condensed_15k.md
+│       └── copilot-instructions.md
 ├── GLOBAL_generalized_system_prompt_15k.md     # General-purpose assistants (non-coding, ~15k tokens)
 └── README.md                                   # This file
 ```
@@ -97,27 +68,31 @@ agent_prompts/
 
 #### Autonomous Agents (Claude Code)
 
-| Language | Comprehensive | Condensed | Token Count |
-|----------|--------------|-----------|-------------|
-| **Python** | [CLAUDE_comprehensive_35k.md](autonomous_agents/claude_code/python/CLAUDE_comprehensive_35k.md) | [CLAUDE_condensed_20k.md](autonomous_agents/claude_code/python/CLAUDE_condensed_20k.md) | ~35k / ~20k |
-| **JavaScript** | [CLAUDE_comprehensive_35k.md](autonomous_agents/claude_code/javascript/CLAUDE_comprehensive_35k.md) | [CLAUDE_condensed_20k.md](autonomous_agents/claude_code/javascript/CLAUDE_condensed_20k.md) | ~35k / ~20k |
-| **Java** | [CLAUDE_comprehensive_35k.md](autonomous_agents/claude_code/java/CLAUDE_comprehensive_35k.md) | [CLAUDE_condensed_20k.md](autonomous_agents/claude_code/java/CLAUDE_condensed_20k.md) | ~35k / ~20k |
-| **C#** | [CLAUDE_comprehensive_35k.md](autonomous_agents/claude_code/csharp/CLAUDE_comprehensive_35k.md) | [CLAUDE_condensed_20k.md](autonomous_agents/claude_code/csharp/CLAUDE_condensed_20k.md) | ~35k / ~20k |
-| **Go** | [CLAUDE_comprehensive_35k.md](autonomous_agents/claude_code/go/CLAUDE_comprehensive_35k.md) | [CLAUDE_condensed_20k.md](autonomous_agents/claude_code/go/CLAUDE_condensed_20k.md) | ~35k / ~20k |
-| **C** | [CLAUDE_comprehensive_35k.md](autonomous_agents/claude_code/c/CLAUDE_comprehensive_35k.md) | [CLAUDE_condensed_20k.md](autonomous_agents/claude_code/c/CLAUDE_condensed_20k.md) | ~35k / ~20k |
-| **C++** | [CLAUDE_comprehensive_35k.md](autonomous_agents/claude_code/cpp/CLAUDE_comprehensive_35k.md) | [CLAUDE_condensed_20k.md](autonomous_agents/claude_code/cpp/CLAUDE_condensed_20k.md) | ~35k / ~20k |
+| Language | Template | Token Efficiency |
+|----------|----------|------------------|
+| **Python** | [python/](agentic_systems/claude_code/python/) | ~4k-8k (skills-based) |
+| **JavaScript** | [javascript/](agentic_systems/claude_code/javascript/) | ~4k-8k (skills-based) |
+| **Java** | [java/](agentic_systems/claude_code/java/) | ~4k-8k (skills-based) |
+| **C#** | [csharp/](agentic_systems/claude_code/csharp/) | ~4k-8k (skills-based) |
+| **Go** | [go/](agentic_systems/claude_code/go/) | ~4k-8k (skills-based) |
+| **C** | [c/](agentic_systems/claude_code/c/) | ~4k-8k (skills-based) |
+| **C++** | [cpp/](agentic_systems/claude_code/cpp/) | ~4k-8k (skills-based) |
 
-#### Coding Assistants (General Purpose)
+> **Note**: Legacy monolithic templates (40k comprehensive, 20k condensed) available in each language's `legacy/` directory.
 
-| Language | Comprehensive | Condensed | Token Count |
-|----------|--------------|-----------|-------------|
-| **Python** | [GLOBAL_comprehensive_35k.md](coding_assistants/python/GLOBAL_comprehensive_35k.md) | [GLOBAL_condensed_15k.md](coding_assistants/python/GLOBAL_condensed_15k.md) | ~35k / ~15k |
-| **JavaScript** | [GLOBAL_comprehensive_35k.md](coding_assistants/javascript/GLOBAL_comprehensive_35k.md) | [GLOBAL_condensed_15k.md](coding_assistants/javascript/GLOBAL_condensed_15k.md) | ~35k / ~15k |
-| **Java** | [GLOBAL_comprehensive_35k.md](coding_assistants/java/GLOBAL_comprehensive_35k.md) | [GLOBAL_condensed_15k.md](coding_assistants/java/GLOBAL_condensed_15k.md) | ~35k / ~15k |
-| **C#** | [GLOBAL_comprehensive_35k.md](coding_assistants/csharp/GLOBAL_comprehensive_35k.md) | [GLOBAL_condensed_15k.md](coding_assistants/csharp/GLOBAL_condensed_15k.md) | ~35k / ~15k |
-| **Go** | [GLOBAL_comprehensive_35k.md](coding_assistants/go/GLOBAL_comprehensive_35k.md) | [GLOBAL_condensed_15k.md](coding_assistants/go/GLOBAL_condensed_15k.md) | ~35k / ~15k |
-| **C** | [GLOBAL_comprehensive_35k.md](coding_assistants/c/GLOBAL_comprehensive_35k.md) | [GLOBAL_condensed_15k.md](coding_assistants/c/GLOBAL_condensed_15k.md) | ~35k / ~15k |
-| **C++** | [GLOBAL_comprehensive_35k.md](coding_assistants/cpp/GLOBAL_comprehensive_35k.md) | [GLOBAL_condensed_15k.md](coding_assistants/cpp/GLOBAL_condensed_15k.md) | ~35k / ~15k |
+#### Coding Assistants (GitHub Copilot)
+
+| Language | Instructions |
+|----------|-------------|
+| **Python** | [copilot-instructions.md](coding_assistants/python/copilot-instructions.md) |
+| **JavaScript** | [copilot-instructions.md](coding_assistants/javascript/copilot-instructions.md) |
+| **Java** | [copilot-instructions.md](coding_assistants/java/copilot-instructions.md) |
+| **C#** | [copilot-instructions.md](coding_assistants/csharp/copilot-instructions.md) |
+| **Go** | [copilot-instructions.md](coding_assistants/go/copilot-instructions.md) |
+| **C** | [copilot-instructions.md](coding_assistants/c/copilot-instructions.md) |
+| **C++** | [copilot-instructions.md](coding_assistants/cpp/copilot-instructions.md) |
+
+> **One consolidated template per language** (~20k characters) covering project setup, code standards, testing, and documentation.
 
 ## 🎯 Purpose
 
@@ -144,121 +119,50 @@ Having standardized and version-controlled prompts helps ensure that your organi
 
 ### GitHub Copilot
 
-1. **Via VS Code Settings**:
+**Setup in VS Code (3 steps):**
 
-   - Open VS Code settings (`Ctrl+,` or `Cmd+,`)
+1. Create `.github` folder in your project root
 
-   - Search for "copilot instructions"
+2. Create `copilot-instructions.md` file inside `.github`
 
-   - Add the content from `coding_assistants/python/GLOBAL_comprehensive_35k.md`
-
-2. **Via Copilot Chat**:
-
-   - Open Copilot Chat panel
-
-   - Use the `/` command followed by your custom instructions
-
-   - Reference the appropriate prompt file for your project
-
-### Cursor
-
-1. **Global Settings**:
-
-   - Go to File > Preferences > Cursor Settings
-
-   - Click on "Rules & Memories" tab on the left panel
-
-   - Click on "User Rules"
-
-   - Paste content from `coding_assistants/python/GLOBAL_comprehensive_35k.md`
-
-2. **Project-Specific**:
-
-   - Create a `.cursorrules` file in your project root
-
-   - Copy the appropriate prompt content into this file
-
-### Windsurf
-
-1. **Global Rules Setup**:
-
-   - Open Cascade chat on the right side of the interface
-
-   - Click the Customizations icon in the top right corner of Cascade
-
-   - Navigate to Customizations > Rules
-
-   - Click "Edit global_windsurf.md"
-
-   - Paste content from `coding_assistants/python/GLOBAL_comprehensive_35k.md`
-
-2. **Per-Session Setup**:
-
-   - Start a new coding session
-
-   - Load the appropriate prompt file as context
-
-   - Reference throughout your session
+3. Copy the content from your language template (e.g., `coding_assistants/python/copilot-instructions.md`)
 
 ### Claude Code (Autonomous Agent)
 
-1. **Direct Integration**:
+1. **Copy template to project:**
    ```bash
-   claude config set system-prompt path/to/CLAUDE_comprehensive_35k.md
+   cp -r agentic_systems/claude_code/python/* your-project/
    ```
 
-2. **Session-Based**:
+2. **Start Claude Code and run setup wizard:**
    ```bash
-   claude --system-prompt ./autonomous_agents/claude_code/python/CLAUDE_comprehensive_35k.md
+   cd your-project && claude
    ```
+   Then run `/setup-project` to interactively configure your project.
 
-### Codex CLI
+3. **Available slash commands:**
+   | Command | Description |
+   |---------|-------------|
+   | `/setup-project` | Interactive wizard to configure CLAUDE.md with project details |
+   | `/import-skills` | Import skills from the ai-templates catalog |
+   | `/update-documentation` | 8-step documentation consistency audit |
+   | `/upgrade-version` | 11-step semantic version upgrade assistant |
 
-1. **Configuration File**:
+4. **Optional customization:**
+   - Update `.claude/context/architecture.md` with architectural decisions
+   - Copy additional skills from `catalogs/claude_skills/`
 
-   - Create or edit `~/.codex/config.yaml`
+## 📊 Template Versions
 
-   - Add system prompt reference:
-   ```yaml
-   system_prompt_file: "path/to/autonomous_agents/claude_code/python/CLAUDE_comprehensive_35k.md"
-   ```
+### Coding Assistant Templates (~20k characters)
+- **One template per language**: Balanced approach combining comprehensive and condensed guidance
+- **Best for**: All project sizes, from quick tasks to complex development
+- **Format**: `copilot-instructions.md` for GitHub Copilot auto-discovery
 
-2. **Command Line**:
-   ```bash
-   codex --system-prompt ./autonomous_agents/claude_code/python/CLAUDE_comprehensive_35k.md
-   ```
-
-### GitHub Copilot CLI
-
-1. **Environment Variable**:
-   ```bash
-   export COPILOT_SYSTEM_PROMPT="$(cat ./coding_assistants/python/GLOBAL_comprehensive_35k.md)"
-   gh copilot suggest
-   ```
-
-2. **Config File**:
-
-   - Create `~/.github-copilot/config.yml`
-
-   - Add system prompt path reference
-
-## 📊 Prompt Versions
-
-### Comprehensive Versions (~35k tokens)
-- **Best for**: Complex projects, enterprise development, full-stack applications
-
-- **Features**: Complete architectural guidance, extensive best practices, detailed error handling
-
-- **Use when**: Maximum code quality and consistency is required
-
-### Condensed Versions (15k-20k tokens)
-- **Best for**: Quick development, prototyping, smaller projects
-
-- **Features**: Essential guidelines, core best practices, streamlined workflow
-
-- **Use when**: Token efficiency is important or working within limits
-
-- **General-purpose option**: `GLOBAL_generalized_system_prompt_15k.md` delivers broad guidance for assistants that are not dedicated to coding tasks.
+### Claude Code Skills-Based Templates (~4-8k per session)
+- **Modular loading**: Only relevant skills loaded per task
+- **Best for**: Autonomous agentic coding workflows
+- **Format**: `.claude/skills/` directory structure
 
 ## 🚀 Getting Started
 
@@ -356,4 +260,4 @@ These prompts are designed for organizational use and can be customized accordin
 
 ---
 
-*Last Updated: September 2025*
+*Last Updated: December 2025*

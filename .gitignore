@@ -54,3 +54,6 @@ Thumbs.db
 # Claude Code settings
 .claude/
 settings.local.json
+
+# Temporary working directory
+temp/

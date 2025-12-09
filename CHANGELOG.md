@@ -11,6 +11,54 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.3.2] - 2025-12-09
+
+### Changed
+
+#### Simplified AI Instructions Templates
+
+Consolidated and streamlined coding assistant templates for better usability and GitHub Copilot compatibility.
+
+**Template Consolidation** (7 languages):
+
+- **Merged comprehensive/condensed templates** - Each language now has ONE optimized template (~20k characters) instead of two separate files
+
+- **Renamed to GitHub Copilot format** - All templates renamed to `copilot-instructions.md` matching VS Code's expected format
+
+- **Balanced content** - Combines the best of comprehensive (detail) and condensed (efficiency) approaches
+
+**Languages Updated**:
+
+- Python, JavaScript, Java, C#, Go, C, C++ - All consolidated to single `copilot-instructions.md`
+
+**Documentation Simplification**:
+
+- **Focused on two platforms** - GitHub Copilot (coding assistants) and Claude Code (agentic systems)
+
+- **Removed Cursor/Windsurf/Codex CLI references** - Simplified to reduce maintenance burden
+
+- **Clear setup instructions** - 3-step guides for both GitHub Copilot and Claude Code
+
+**README Updates**:
+
+- Simplified Coding Assistants section with VS Code setup instructions
+
+- Streamlined Agentic Systems section with `/setup-project` and `/import-skills` workflow
+
+- Removed redundant "AI Instructions Setup" section
+
+**Benefits**:
+
+- **Easier to use** - One template per language, no decision fatigue
+
+- **Better Copilot integration** - Correct filename format for VS Code auto-discovery
+
+- **Reduced maintenance** - Single template to maintain per language
+
+- **Clearer documentation** - Focused on the most popular platforms
+
+---
+
 ## [0.3.1] - 2025-12-08
 
 ### Added
@@ -2149,6 +2197,10 @@ repository_root/
 
 | Version | Date       | Description                                      |
 |---------|------------|--------------------------------------------------|
+| 0.3.2   | 2025-12-09 | **Simplified Templates**: Consolidated coding assistant templates, GitHub Copilot format |
+| 0.3.1   | 2025-12-08 | **Compliance & Governance**: 96 templates for SOC 2, ISO 27001, GDPR, AI governance |
+| 0.3.0   | 2025-12-04 | **Google Test Integration**: VS Code + GitHub Copilot workflow for C++ testing |
+| 0.2.9   | 2025-11-06 | **Quality Enhancements**: Severity classification, stopping criteria, phase diagrams |
 | 0.2.8   | 2025-11-06 | **Testing Complete**: Unit Tests + Reward Hacking phases (16 files, 8-phase testing methodology) |
 | 0.2.7   | 2025-10-21 | Discovery & Installation System: Skills catalog, CLI tool, web browser, comprehensive onboarding |
 | 0.2.6   | 2025-10-20 | **Claude Code Skills**: 52 production-ready skills + directory rename (system_prompts → agent_prompts) |
@@ -2165,7 +2217,11 @@ repository_root/
 
 ---
 
-[Unreleased]: https://github.com/yourusername/ai_templates/compare/v0.2.8...HEAD
+[Unreleased]: https://github.com/yourusername/ai_templates/compare/v0.3.2...HEAD
+[0.3.2]: https://github.com/yourusername/ai_templates/releases/tag/v0.3.2
+[0.3.1]: https://github.com/yourusername/ai_templates/releases/tag/v0.3.1
+[0.3.0]: https://github.com/yourusername/ai_templates/releases/tag/v0.3.0
+[0.2.9]: https://github.com/yourusername/ai_templates/releases/tag/v0.2.9
 [0.2.8]: https://github.com/yourusername/ai_templates/releases/tag/v0.2.8
 [0.2.7]: https://github.com/yourusername/ai_templates/releases/tag/v0.2.7
 [0.2.6]: https://github.com/yourusername/ai_templates/releases/tag/v0.2.6

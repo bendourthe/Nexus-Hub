@@ -23,6 +23,8 @@
 
 - [x] Complete v0.3.1 Compliance & Governance templates (96 templates across 7 languages)
 
+- [x] Complete v0.3.2 Simplified AI Instructions templates (consolidated 7 language templates)
+
 - [ ] Deploy GitHub Pages for skills browser
 
 - [ ] Add repository to package managers (npm, PyPI)
@@ -48,6 +50,62 @@
 - [ ] Create VS Code extension for template usage
 
 - [ ] Add ML/AI-specific development templates
+
+---
+
+## V0.3.2 Development Notes - Simplified AI Instructions Templates (Dec 9, 2025)
+
+### Task: Consolidate and Simplify Coding Assistant Templates
+
+**Objective**: Streamline coding assistant templates by merging comprehensive (~40k) and condensed (~15k) versions into single optimized templates (~20k), rename to GitHub Copilot format, and simplify documentation.
+
+**Implementation Summary**:
+
+#### Phase 1: Template Consolidation (7 files)
+
+Created consolidated `copilot-instructions.md` templates for all 7 languages:
+
+- **Python** - Combined best practices from both versions, ~20k characters
+- **JavaScript** - TypeScript/Node.js focused, ~20k characters
+- **Java** - Maven/Gradle, JUnit 5, ~20k characters
+- **C#** - .NET 8, xUnit, ~20k characters
+- **Go** - Idiomatic patterns, table-driven tests, ~20k characters
+- **C** - Memory safety, Unity test framework, ~20k characters
+- **C++** - Modern C++17/20, Google Test, ~20k characters
+
+**Template Structure** (consistent across all languages):
+
+1. General Behavior - Core principles
+2. Project Architecture - Standard structure
+3. Code Standards - Naming, formatting, imports
+4. Documentation Standards - Comments, README
+5. Testing Framework - Language-specific testing
+6. Development Workflow - Task breakdown, quality gates
+7. Command Preferences - Execution protocol
+8. Version Control - User-controlled versioning
+9. Quality Checklist - Pre-delivery checks
+
+#### Phase 2: Documentation Simplification
+
+**README.md Updates**:
+
+- Simplified Coding Assistants section with 3-step VS Code setup
+- Focused Agentic Systems section on Claude Code with `/setup-project` and `/import-skills`
+- Removed "AI Instructions Setup" section (redundant)
+- Removed Cursor/Windsurf/Codex CLI/Gemini CLI references
+
+**Benefits Achieved**:
+
+- **Easier to use** - One template per language eliminates decision fatigue
+- **Better Copilot integration** - `copilot-instructions.md` matches VS Code expected format
+- **Reduced maintenance** - Single template to update per language
+- **Clearer documentation** - Focused on most popular platforms
+
+**Files Created**: 7 consolidated templates
+
+**Files Modified**: README.md, CHANGELOG.md, DEVLOG.md
+
+**Development Time**: ~2 hours
 
 ---
 
@@ -1290,6 +1348,6 @@ Created comprehensive test quality validation through mutation testing and rewar
 
 ---
 
-*Last Updated: October 20, 2025*
-*Current Version: v0.2.6*
-*Status: Production Ready - 162/162 templates, 29/29 system prompts enhanced, 6/52 Claude Code Skills complete, agent_prompts/ directory renamed*
+*Last Updated: December 9, 2025*
+*Current Version: v0.3.2*
+*Status: Production Ready - 277+ templates, consolidated coding assistant templates, simplified documentation*

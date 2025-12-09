@@ -255,28 +255,28 @@ Claude Code can handle larger context than chat-based assistants:
 
 Pre-built CLAUDE.md templates for all supported languages:
 
-**Location:** `templates/ai_instructions/autonomous_agents/claude_code/`
+**Location:** `templates/ai_instructions/agentic_systems/claude_code/`
 
 **Available Templates:**
-- [Python](../templates/ai_instructions/autonomous_agents/claude_code/python/) - 40k comprehensive, 20k condensed
+- [Python](../templates/ai_instructions/agentic_systems/claude_code/python/) - Modular skills-based template
 
-- [JavaScript/TypeScript](../templates/ai_instructions/autonomous_agents/claude_code/javascript/) - Full stack, Node.js
+- [JavaScript/TypeScript](../templates/ai_instructions/agentic_systems/claude_code/javascript/) - Full stack, Node.js
 
-- [Java](../templates/ai_instructions/autonomous_agents/claude_code/java/) - Enterprise, Spring Boot
+- [Java](../templates/ai_instructions/agentic_systems/claude_code/java/) - Enterprise, Spring Boot
 
-- [C#](../templates/ai_instructions/autonomous_agents/claude_code/csharp/) - .NET Core, ASP.NET
+- [C#](../templates/ai_instructions/agentic_systems/claude_code/csharp/) - .NET Core, ASP.NET
 
-- [Go](../templates/ai_instructions/autonomous_agents/claude_code/go/) - Cloud-native, microservices
+- [Go](../templates/ai_instructions/agentic_systems/claude_code/go/) - Cloud-native, microservices
 
-- [C](../templates/ai_instructions/autonomous_agents/claude_code/c/) - Embedded, firmware
+- [C](../templates/ai_instructions/agentic_systems/claude_code/c/) - Embedded, firmware
 
-- [C++](../templates/ai_instructions/autonomous_agents/claude_code/cpp/) - Modern C++17/20
+- [C++](../templates/ai_instructions/agentic_systems/claude_code/cpp/) - Modern C++17/20
 
 **Setup Steps:**
 
 1. **Copy template to project:**
    ```bash
-   cp templates/ai_instructions/autonomous_agents/claude_code/python/CLAUDE_comprehensive_40k.md CLAUDE.md
+   cp -r templates/ai_instructions/agentic_systems/claude_code/python/* your-project/
    ```
 
 2. **Customize for your project:**
@@ -369,8 +369,8 @@ Skills are installed in your project's `.claude/skills/` directory.
 # Create skills directory
 mkdir -p .claude/skills
 
-# Copy skill from templates
-cp -r templates/ai_instructions/autonomous_agents/claude_code/skills/code-review-security .claude/skills/
+# Copy skill from catalogs
+cp -r catalogs/claude_skills/code-review/code-review-security .claude/skills/
 
 # Claude Code automatically detects it
 ```
@@ -501,7 +501,7 @@ Claude: "I'll use the setup-test-infrastructure skill followed by generate-test-
 
 - **refactor-safely** (CRITICAL) - Safe refactoring with tests
 
-**Full catalog:** [templates/ai_instructions/autonomous_agents/claude_code/skills/README.md](../templates/ai_instructions/autonomous_agents/claude_code/skills/README.md)
+**Full catalog:** [catalogs/claude_skills/](../catalogs/claude_skills/)
 
 ### 2.5 Skill Categories
 
@@ -1796,11 +1796,11 @@ Pull Request: #123
 ## 📚 Additional Resources
 
 **Essential Reading:**
-- [CLAUDE.md Templates](../templates/ai_instructions/autonomous_agents/claude_code/)
+- [CLAUDE.md Templates](../templates/ai_instructions/agentic_systems/claude_code/)
 
-- [Skills Catalog](../templates/ai_instructions/autonomous_agents/claude_code/skills/README.md)
+- [Skills Catalog](../catalogs/claude_skills/)
 
-- [Skills Quick Start](../templates/ai_instructions/autonomous_agents/claude_code/skills/QUICK_START.md)
+- [Claude Code Project Setup Guide](CLAUDE_CODE_PROJECT_SETUP.md)
 
 **Template Directories:**
 - [Documentation Templates](../templates/documentation_generation/)

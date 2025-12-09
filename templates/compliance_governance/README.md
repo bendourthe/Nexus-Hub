@@ -142,7 +142,7 @@ Modern AI systems — especially agentic AI — require governance frameworks th
 
 2. **Evaluate Existing Controls**:
    - Run [security_review](../code_review/security_review/) templates first (reactive assessment)
-   - Run [dependency-security-audit](../ai_instructions/autonomous_agents/claude_code/skills/dependency-security-audit.md) skill
+   - Run [dependency-security-audit](../../catalogs/claude_skills/security/dependency-security-audit/SKILL.md) skill
    - Document current security posture
 
 3. **Identify Gaps**:
@@ -222,8 +222,8 @@ For AI systems, implement governance following the 4 Pillars sequence:
 | Template | Purpose | Integration Point |
 |----------|---------|-------------------|
 | [security_review](../code_review/security_review/) | Identify vulnerabilities | Findings feed into risk assessments |
-| [dependency-security-audit](../ai_instructions/autonomous_agents/claude_code/skills/dependency-security-audit.md) | CVE scanning, SBOM | Supply chain risk for compliance |
-| [licensing-compliance-check](../ai_instructions/autonomous_agents/claude_code/skills/licensing-compliance-check.md) | License auditing | Legal compliance documentation |
+| [dependency-security-audit](../../catalogs/claude_skills/security/dependency-security-audit/SKILL.md) | CVE scanning, SBOM | Supply chain risk for compliance |
+| [licensing-compliance-check](../../catalogs/claude_skills/security/licensing-compliance/SKILL.md) | License auditing | Legal compliance documentation |
 
 ### Related Templates (Use Together)
 
@@ -497,7 +497,7 @@ Frameworks evolve, regulations change:
 
 Don't start from scratch:
 - Use findings from [security_review](../code_review/security_review/) templates
-- Reference [dependency-security-audit](../ai_instructions/autonomous_agents/claude_code/skills/dependency-security-audit.md) results
+- Reference [dependency-security-audit](../../catalogs/claude_skills/security/dependency-security-audit/SKILL.md) results
 - Build on [documentation_generation](../documentation_generation/) outputs
 - Integrate with existing [tests_generation](../tests_generation/) suites
 
@@ -590,7 +590,7 @@ Don't start from scratch:
 
 - **Security Issues**: Start with [security_review](../code_review/security_review/) templates
 
-- **Dependency Issues**: Use [dependency-security-audit](../ai_instructions/autonomous_agents/claude_code/skills/dependency-security-audit.md) skill
+- **Dependency Issues**: Use [dependency-security-audit](../../catalogs/claude_skills/security/dependency-security-audit/SKILL.md) skill
 
 - **Documentation**: Leverage [documentation_generation](../documentation_generation/) templates
 

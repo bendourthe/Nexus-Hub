@@ -147,7 +147,7 @@ All SOC 2 reports include these foundational controls. Each control maps to Pyth
 
 **Python Implementation**:
 - Regular threat modeling sessions
-- Dependency vulnerability scanning (use [dependency-security-audit skill](../../ai_instructions/autonomous_agents/claude_code/skills/dependency-security-audit.md))
+- Dependency vulnerability scanning (use [dependency-security-audit skill](../../../catalogs/claude_skills/security/dependency-security-audit/SKILL.md))
 - Risk register maintained and reviewed quarterly
 - Use [risk_management](../risk_management/python_risk_assessment.md) templates
 
@@ -282,7 +282,7 @@ All SOC 2 reports include these foundational controls. Each control maps to Pyth
 **Python Implementation**:
 - Vendor security questionnaires
 - Third-party dependency monitoring
-- Supply chain security (use [dependency-security-audit](../../ai_instructions/autonomous_agents/claude_code/skills/dependency-security-audit.md))
+- Supply chain security (use [dependency-security-audit](../../../catalogs/claude_skills/security/dependency-security-audit/SKILL.md))
 
 **Evidence**:
 - [ ] Vendor risk assessments
@@ -1289,7 +1289,7 @@ Use [risk_management](../risk_management/python_risk_assessment.md) for comprehe
 **Impact**: High (depends on vulnerability)
 
 **Mitigations**:
-- Regular dependency scanning (use [dependency-security-audit](../../ai_instructions/autonomous_agents/claude_code/skills/dependency-security-audit.md))
+- Regular dependency scanning (use [dependency-security-audit](../../../catalogs/claude_skills/security/dependency-security-audit/SKILL.md))
 - Automated updates via Dependabot/Renovate
 - SBOM generation and maintenance
 - Lock files (requirements.txt, Pipfile.lock, poetry.lock)
@@ -1412,7 +1412,7 @@ Prepare evidence package 4-6 weeks before audit kickoff:
 - [ ] Vendor contracts with security requirements
 - [ ] Dependency scan results (SBOM)
 - [ ] Third-party audit reports (SOC 2 reports from vendors)
-- [ ] Use [dependency-security-audit](../../ai_instructions/autonomous_agents/claude_code/skills/dependency-security-audit.md) outputs
+- [ ] Use [dependency-security-audit](../../../catalogs/claude_skills/security/dependency-security-audit/SKILL.md) outputs
 
 #### 10. AI/ML-Specific Evidence (if applicable)
 
@@ -1725,11 +1725,11 @@ Document all audit activities and findings. Remediate any issues before external
    - Identifies vulnerabilities to remediate before audit
    - Findings feed into SOC 2 control implementations
 
-2. **Dependency Security Audit**: [dependency-security-audit skill](../../ai_instructions/autonomous_agents/claude_code/skills/dependency-security-audit.md)
+2. **Dependency Security Audit**: [dependency-security-audit skill](../../../catalogs/claude_skills/security/dependency-security-audit/SKILL.md)
    - CVE scanning for supply chain risk (CC9.1)
    - SBOM generation for vendor management
 
-3. **License Compliance Check**: [licensing-compliance-check skill](../../ai_instructions/autonomous_agents/claude_code/skills/licensing-compliance-check.md)
+3. **License Compliance Check**: [licensing-compliance-check skill](../../../catalogs/claude_skills/security/licensing-compliance/SKILL.md)
    - Verify no GPL violations or license conflicts
    - Documentation for legal compliance
 

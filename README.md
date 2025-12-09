@@ -1,6 +1,6 @@
 # AI Development Templates
 
-**Version 0.3.1**
+**Version 0.3.2**
 
 > **277 production-ready templates** for AI-assisted software development across 7 languages
 >
@@ -8,25 +8,19 @@
 
 ---
 
-## 🎉 What's New in v0.3.1
+## 🎉 What's New in v0.3.2
 
-### Compliance & Governance Templates (96 New Templates)
+### Simplified AI Instructions Templates
 
-- 🏢 **Enterprise Security Frameworks** - SOC 2, ISO 27001, PCI-DSS, NIST AI RMF
+- **Consolidated Coding Assistant Templates** - One optimized template per language (~20k characters) replacing comprehensive/condensed split
 
-- 🤖 **4 Pillars AI Agent Governance** - Lifecycle, Risk, Security, Observability
+- **GitHub Copilot Format** - Templates renamed to `copilot-instructions.md` matching expected VS Code format
 
-- 🔒 **Privacy Compliance** - GDPR, CCPA with 72-hour breach protocols
+- **Streamlined Setup** - Clear 3-step instructions for GitHub Copilot and Claude Code
 
-- 📋 **Incident Response** - NIST SP 800-61 6-phase lifecycle with comprehensive reporting
+- **Removed Complexity** - Focused documentation on GitHub Copilot and Claude Code only
 
-- ⚖️ **Risk Management** - Threat modeling, CVSS scoring, STRIDE framework
-
-- 📜 **Governance Policies** - RBAC/ABAC, security policies, access control
-
-**96 templates** across 7 languages with production-ready code for all compliance controls
-
-[View Complete Changelog](CHANGELOG.md) | [View Compliance & Governance Documentation](templates/compliance_governance/README.md)
+[View Complete Changelog](CHANGELOG.md)
 
 ---
 
@@ -74,51 +68,59 @@ This repository provides **ready-to-use prompt templates** for AI coding assista
 
 **Configure your AI coding assistant with language-specific system prompts**
 
-### Coding Assistants
-> GitHub Copilot / Cursor / Windsurf
+### Coding Assistants (GitHub Copilot)
 
-| Language | Comprehensive | Condensed |
-|----------|---------------|-----------|
-| **Python** | [35k tokens](templates/ai_instructions/coding_assistants/python/GLOBAL_comprehensive_40k.md) | [15k tokens](templates/ai_instructions/coding_assistants/python/GLOBAL_condensed_15k.md) |
-| **JavaScript** | [35k tokens](templates/ai_instructions/coding_assistants/javascript/GLOBAL_comprehensive_40k.md) | [15k tokens](templates/ai_instructions/coding_assistants/javascript/GLOBAL_condensed_15k.md) |
-| **Java** | [35k tokens](templates/ai_instructions/coding_assistants/java/GLOBAL_comprehensive_40k.md) | [15k tokens](templates/ai_instructions/coding_assistants/java/GLOBAL_condensed_15k.md) |
-| **C#** | [35k tokens](templates/ai_instructions/coding_assistants/csharp/GLOBAL_comprehensive_40k.md) | [15k tokens](templates/ai_instructions/coding_assistants/csharp/GLOBAL_condensed_15k.md) |
-| **Go** | [35k tokens](templates/ai_instructions/coding_assistants/go/GLOBAL_comprehensive_40k.md) | [15k tokens](templates/ai_instructions/coding_assistants/go/GLOBAL_condensed_15k.md) |
-| **C** | [35k tokens](templates/ai_instructions/coding_assistants/c/GLOBAL_comprehensive_40k.md) | [15k tokens](templates/ai_instructions/coding_assistants/c/GLOBAL_condensed_15k.md) |
-| **C++** | [35k tokens](templates/ai_instructions/coding_assistants/cpp/GLOBAL_comprehensive_40k.md) | [15k tokens](templates/ai_instructions/coding_assistants/cpp/GLOBAL_condensed_15k.md) |
+| Language | Instructions |
+|----------|-------------|
+| **Python** | [copilot-instructions.md](templates/ai_instructions/coding_assistants/python/copilot-instructions.md) |
+| **JavaScript** | [copilot-instructions.md](templates/ai_instructions/coding_assistants/javascript/copilot-instructions.md) |
+| **Java** | [copilot-instructions.md](templates/ai_instructions/coding_assistants/java/copilot-instructions.md) |
+| **C#** | [copilot-instructions.md](templates/ai_instructions/coding_assistants/csharp/copilot-instructions.md) |
+| **Go** | [copilot-instructions.md](templates/ai_instructions/coding_assistants/go/copilot-instructions.md) |
+| **C** | [copilot-instructions.md](templates/ai_instructions/coding_assistants/c/copilot-instructions.md) |
+| **C++** | [copilot-instructions.md](templates/ai_instructions/coding_assistants/cpp/copilot-instructions.md) |
 
-> **Comprehensive Instructions (35k characters):** Best for complex projects that require highly detailed rules.
+**Setup in VS Code (3 steps):**
+
+1. Create `.github` folder in your project root
+
+2. Create `copilot-instructions.md` file inside `.github`
+
+3. Copy the content from your language template above into the file
+
+
+### Agentic Systems (Claude Code)
+
+**Quick Setup (3 steps):**
+
+1. **Copy template** to your project:
+   ```bash
+   cp -r templates/ai_instructions/agentic_systems/claude_code/python/* your-project/
+   ```
+
+2. **Start Claude Code** and run the setup wizard:
+   ```
+   /setup-project
+   ```
+
+3. **Import skills** from the catalog:
+   ```
+   /import-skills
+   ```
+
+| Language | Template |
+|----------|----------|
+| **Python** | [python/](templates/ai_instructions/agentic_systems/claude_code/python/) |
+| **JavaScript** | [javascript/](templates/ai_instructions/agentic_systems/claude_code/javascript/) |
+| **Java** | [java/](templates/ai_instructions/agentic_systems/claude_code/java/) |
+| **C#** | [csharp/](templates/ai_instructions/agentic_systems/claude_code/csharp/) |
+| **Go** | [go/](templates/ai_instructions/agentic_systems/claude_code/go/) |
+| **C** | [c/](templates/ai_instructions/agentic_systems/claude_code/c/) |
+| **C++** | [cpp/](templates/ai_instructions/agentic_systems/claude_code/cpp/) |
+
+> **Modular skills-based templates** with ~80% token reduction. **47+ skills available** in the [Skills Catalog](catalogs/claude_skills/).
 >
-> **Condensed (15k characters):** Best for quick and efficient tasks.
-
-### Agentic Systems
-> Claude Code, Codex CLI, Gemini CLI
-
-| Language | Comprehensive | Condensed |
-|----------|---------------|-----------|
-| **Python** | [40k tokens](templates/ai_instructions/autonomous_agents/claude_code/python/CLAUDE_comprehensive_40k.md) | [20k tokens](templates/ai_instructions/autonomous_agents/claude_code/python/CLAUDE_condensed_20k.md) |
-| **JavaScript** | [40k tokens](templates/ai_instructions/autonomous_agents/claude_code/javascript/CLAUDE_comprehensive_40k.md) | [20k tokens](templates/ai_instructions/autonomous_agents/claude_code/javascript/CLAUDE_condensed_20k.md) |
-| **Java** | [40k tokens](templates/ai_instructions/autonomous_agents/claude_code/java/CLAUDE_comprehensive_40k.md) | [20k tokens](templates/ai_instructions/autonomous_agents/claude_code/java/CLAUDE_condensed_20k.md) |
-| **C#** | [40k tokens](templates/ai_instructions/autonomous_agents/claude_code/csharp/CLAUDE_comprehensive_40k.md) | [20k tokens](templates/ai_instructions/autonomous_agents/claude_code/csharp/CLAUDE_condensed_20k.md) |
-| **Go** | [40k tokens](templates/ai_instructions/autonomous_agents/claude_code/go/CLAUDE_comprehensive_40k.md) | [20k tokens](templates/ai_instructions/autonomous_agents/claude_code/go/CLAUDE_condensed_20k.md) |
-| **C** | [40k tokens](templates/ai_instructions/autonomous_agents/claude_code/c/CLAUDE_comprehensive_40k.md) | [20k tokens](templates/ai_instructions/autonomous_agents/claude_code/c/CLAUDE_condensed_20k.md) |
-| **C++** | [40k tokens](templates/ai_instructions/autonomous_agents/claude_code/cpp/CLAUDE_comprehensive_40k.md) | [20k tokens](templates/ai_instructions/autonomous_agents/claude_code/cpp/CLAUDE_condensed_20k.md) |
-
-> **Comprehensive Instructions (40k characters):** Best for complex projects that require highly detailed rules.
->
-> **Condensed (20k characters):** Best for quick and efficient tasks.
->
-> **48 Claude Code Skills Available:** [View Skills Catalog](templates/ai_instructions/autonomous_agents/claude_code/skills/README.md)
-
-### AI Instructions Setup
-
-- **Copilot:** Create `.github/copilot-instructions.md` and paste content
-
-- **Cursor:** File → Preferences → Cursor Settings → Rules & Memories → User Rules
-
-- **Windsurf:** Cascade → Customizations → Rules → Edit global_windsurf.md
-
-- **Claude Code:** Save selected markdown file as CLAUDE.md in the root directory of your project
+> **[→ Full Claude Code Setup Guide](guides/CLAUDE_CODE_PROJECT_SETUP.md)**
 
 ---
 

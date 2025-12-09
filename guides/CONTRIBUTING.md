@@ -72,27 +72,22 @@ Skills are the core of this repository. Follow these guidelines to create high-q
 
 ### Skill Structure
 
-Create a new directory under `agent_prompts/autonomous_agents/claude_code/skills/`:
+Create a new directory under `catalogs/claude_skills/{category}/`:
 
 ```
-agent_prompts/autonomous_agents/claude_code/skills/your-skill-name/
+catalogs/claude_skills/{category}/your-skill-name/
 ├── SKILL.md              # Required: Main skill file
 └── README.md             # Optional: Additional documentation
 ```
 
 ### SKILL.md Template
 
+Follow the [official Claude Skills specification](https://code.claude.com/docs/en/skills):
+
 ```markdown
 ---
 name: your-skill-name
-description: Brief one-line description (max 100 characters)
-version: 1.0.0
-author: Your Name
-language: Multi-language (or specific: Python, JavaScript, etc.)
-category: Category Name
-tags: [tag1, tag2, tag3, tag4]
-priority: CRITICAL | HIGH | MEDIUM | LOW
-based_on: Source or inspiration (if applicable)
+description: Brief description of what the skill does AND when to use it. Include trigger phrases like "Use when..." (max 1024 characters)
 ---
 
 # Skill Name
@@ -401,8 +396,8 @@ All contributions must meet these standards:
 
 ```bash
 # Add files
-git add agent_prompts/autonomous_agents/claude_code/skills/your-skill-name/
-git add skills.json  # If updated
+git add catalogs/claude_skills/{category}/your-skill-name/
+git add catalogs/skills.json  # If updated
 
 # Commit with descriptive message
 git commit -m "feat: Add [skill-name] skill for [purpose]"
