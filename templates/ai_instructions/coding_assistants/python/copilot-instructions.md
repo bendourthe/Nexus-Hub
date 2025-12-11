@@ -153,10 +153,58 @@ from src.core.utils import format_response
 - **Exceptions**: URLs, paths, complex strings
 - **Functions**: One blank line between
 - **Classes**: Two blank lines between
-- **No empty lines** inside function/method bodies
 - **Comments**: Above code, explain why not what
 - **No inline comments** unless essential
 - **No change-tracking comments**: Never document code changes in comments
+
+### Compact Code Block Formatting
+
+**Within functions/methods - NO empty lines between code blocks:**
+- Comments should directly precede their associated code (no blank line before comment)
+- Group related statements without blank line separators
+
+**Empty lines ARE allowed:**
+- **One blank line** between function/method definitions
+- **Two blank lines** between class definitions
+- Before/after major section headers marked with: `# ----------- #`
+
+**Example - Preferred (compact):**
+```python
+def process_signals(ra_signal, la_signal, baseline_ptt, sample_rate):
+    """Process and align cardiac signals."""
+    # Normalize signals to 0-1 range
+    ra_norm = normalize_data(ra_signal)
+    la_norm = normalize_data(la_signal)
+    # Apply negative PTT to align LA with RA
+    la_aligned = apply_fractional_delay(la_signal, -baseline_ptt, sample_rate)
+    la_aligned_norm = normalize_data(la_aligned)
+    # Get cardiac cycle indices
+    ra_cycles = results.loc['cycles_characteristics', ra_col]
+    la_cycles = results.loc['cycles_characteristics', la_col]
+    # Extract beat start indices
+    ra_cycle_indices = [start for start, end in ra_cycles['indices']]
+    la_cycle_indices = [start for start, end in la_cycles['indices']]
+    # Calculate per-beat PTT
+    per_beat_ptt_ms = []
+    for ra_time in ra_beat_times_s:
+        # Find closest LA beat time
+        closest_idx = np.argmin([abs(la - ra_time) for la in la_beat_times_s])
+        ptt_ms = (la_beat_times_s[closest_idx] - ra_time) * 1000
+        per_beat_ptt_ms.append(ptt_ms)
+    return per_beat_ptt_ms
+```
+
+**Example - Avoid (too many blank lines):**
+```python
+def process_signals(ra_signal, la_signal, baseline_ptt, sample_rate):
+    """Process and align cardiac signals."""
+    # Normalize signals to 0-1 range
+    ra_norm = normalize_data(ra_signal)
+    la_norm = normalize_data(la_signal)
+
+    # Apply negative PTT to align LA with RA  <-- unnecessary blank line
+    la_aligned = apply_fractional_delay(la_signal, -baseline_ptt, sample_rate)
+```
 
 ## Function Design
 

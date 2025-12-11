@@ -369,7 +369,41 @@ Use this matrix to decide whether to continue or stop:
 
 - **Empty lines within functions**: Remove blank lines inside function/method bodies
 
-  - KEEP empty lines between functions, classes, and major code sections
+  - KEEP empty lines between functions (1 blank line), between classes (2 blank lines)
+
+  - KEEP empty lines around major section headers marked with: `# ----------- #`
+
+  - Comments should directly precede their associated code (no blank line before comment)
+
+**Empty Line Removal Example:**
+```python
+# BEFORE - Too many blank lines
+def process_data(signals, config):
+    """Process signals with config."""
+    # Normalize signals
+    normalized = normalize(signals)
+    scaled = scale(normalized)
+
+    # Apply transformation
+    result = transform(scaled, config)
+
+    # Format output
+    output = format_output(result)
+
+    return output
+
+# AFTER - Compact style (preferred)
+def process_data(signals, config):
+    """Process signals with config."""
+    # Normalize signals
+    normalized = normalize(signals)
+    scaled = scale(normalized)
+    # Apply transformation
+    result = transform(scaled, config)
+    # Format output
+    output = format_output(result)
+    return output
+```
 
 ### Comment Cleanup
 

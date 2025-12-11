@@ -30,18 +30,24 @@ Use this skill when you need to:
    - Unused variables/functions
    - Commented-out code
 
-2. **Style Compliance**
+2. **Empty Line Cleanup**
+   - Remove blank lines inside function/method bodies
+   - Comments should directly precede their code (no blank line before comment)
+   - KEEP: 1 blank line between functions, 2 blank lines between classes
+   - KEEP: Blank lines around section headers (`# ----------- #`)
+
+3. **Style Compliance**
    - PEP 8 formatting
    - Naming conventions
    - Line length
    - Import organization
 
-3. **Type Annotations**
+4. **Type Annotations**
    - Function signatures
    - Variable annotations
    - Return types
 
-4. **Modernization**
+5. **Modernization**
    - f-strings over .format()
    - pathlib over os.path
    - dataclasses
@@ -92,7 +98,45 @@ isort .
 ruff check --fix .
 ```
 
-### Step 4: Add Type Hints
+### Step 4: Remove Empty Lines Within Functions
+
+Remove unnecessary blank lines inside function bodies. Comments should directly precede their code.
+
+```python
+# Before - Too many blank lines
+def process_data(signals, config):
+    """Process signals with config."""
+    # Normalize signals
+    normalized = normalize(signals)
+    scaled = scale(normalized)
+
+    # Apply transformation
+    result = transform(scaled, config)
+
+    # Format output
+    output = format_output(result)
+
+    return output
+
+# After - Compact style (preferred)
+def process_data(signals, config):
+    """Process signals with config."""
+    # Normalize signals
+    normalized = normalize(signals)
+    scaled = scale(normalized)
+    # Apply transformation
+    result = transform(scaled, config)
+    # Format output
+    output = format_output(result)
+    return output
+```
+
+**Keep blank lines:**
+- Between functions (1 blank line)
+- Between classes (2 blank lines)
+- Around section headers (`# ----------- #`)
+
+### Step 5: Add Type Hints
 
 ```python
 # Before
@@ -108,7 +152,7 @@ def calculate_total(items: List[Dict[str, float]], tax_rate: float) -> float:
     return total * (1 + tax_rate)
 ```
 
-### Step 5: Modernize Patterns
+### Step 6: Modernize Patterns
 
 ```python
 # String formatting: .format() → f-string
@@ -162,6 +206,7 @@ class User:
 
 - [ ] Unused imports removed
 - [ ] Unused variables removed
+- [ ] Empty lines within functions removed
 - [ ] PEP 8 compliance verified
 - [ ] Type hints added
 - [ ] Modern patterns applied

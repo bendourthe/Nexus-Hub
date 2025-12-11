@@ -185,6 +185,23 @@ from src.core.utils import format_response
 
 - **No change-tracking comments**: Never document code changes in comments (e.g., \"changed value to 12\")
 
+- **No empty lines** between code blocks within functions - comments directly precede their code
+
+- Blank lines allowed: between functions (1), between classes (2), around section headers (`# ----------- #`)
+
+**Example - Compact style (preferred):**
+```python
+def process_data(signals, config):
+    """Process signals with config."""
+    # Normalize signals
+    normalized = normalize(signals)
+    scaled = scale(normalized)
+    # Apply transformation
+    result = transform(scaled, config)
+    output = format_output(result)
+    return output
+```
+
 ## Function Design
 
 - **Public**: `snake_case`
