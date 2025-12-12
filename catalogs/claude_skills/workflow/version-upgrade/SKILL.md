@@ -1,6 +1,6 @@
 ---
 name: version-upgrade
-description: Comprehensive version upgrade workflow for releasing new versions. Updates version numbers across all files, documentation, changelogs, and generates commit messages. Use when upgrading app version, releasing new version, bumping version numbers, or preparing a release.
+description: Comprehensive version upgrade workflow for releasing new versions. Automatically analyzes git history, updates version numbers across all files, documentation, changelogs, and generates commit messages. Use when upgrading app version, releasing new version, bumping version numbers, or preparing a release.
 ---
 
 # Version Upgrade Workflow
@@ -24,34 +24,100 @@ Use this skill when you need to:
 
 ### Version Upgrade Process
 
-1. **Configuration Files** - Update version in all config files
-2. **Documentation** - Update README, docs, help menus
-3. **Changelog** - Document all changes since last version
-4. **Development Log** - Update DEVLOG with release notes
-5. **Cleanup** - Remove temp files, deprecated content
+1. **Determine Target Version** - Accept version type OR direct version number
+2. **Analyze Git Changes** - Auto-analyze commits since last tag (DO NOT ask user)
+3. **Generate CHANGELOG** - Auto-generate entries from commit analysis
+4. **Update All Files** - Configuration, documentation, source code
+5. **Deep Scan** - Find ALL version references in codebase
 6. **Validation** - Verify all references are consistent
-7. **Commit Message** - Generate comprehensive commit message
+7. **Commit Message** - Generate ready-to-copy commit message
 
 ## Instructions
 
-### Step 1: Identify All Version Locations
+### Step 1: Determine Target Version
 
-Search for current version across the codebase:
+Accept one of:
+- **Version type**: "PATCH", "MINOR", or "MAJOR"
+- **Direct version**: e.g., "0.2.2", "1.0.0", etc.
 
-```bash
-# Find all files containing the current version
-grep -r "X.X.X" --include="*.md" --include="*.toml" --include="*.json" --include="*.yaml" --include="*.yml" --include="*.py" --include="*.js" --include="*.ts" --include="*.java" --include="*.cs" --include="*.go" --include="*.xml" .
+If the user has not specified, ask:
 
-# Common locations by language:
-# Python: pyproject.toml, setup.py, __init__.py, __version__.py
-# JavaScript: package.json, package-lock.json
-# Java: pom.xml, build.gradle
-# C#: *.csproj, AssemblyInfo.cs
-# Go: version.go, go.mod (module version)
-# General: README.md, CHANGELOG.md, docs/*, config files
+```
+What type of changes are you releasing?
+
+Options:
+1. PATCH (bug fixes, docs) - X.Y.Z → X.Y.(Z+1)
+2. MINOR (new features, non-breaking) - X.Y.Z → X.(Y+1).0
+3. MAJOR (breaking changes) - X.Y.Z → (X+1).0.0
+
+Or specify a direct version number (e.g., "0.2.2")
 ```
 
-### Step 2: Update Configuration Files
+If user specifies a direct version, use that. If they specify a type, calculate the new version.
+
+### Step 2: Identify Current Version and Last Tag
+
+Find the current version in the project:
+
+```bash
+# Check these locations:
+# - pyproject.toml (version = "X.Y.Z")
+# - package.json (version field)
+# - CHANGELOG.md (latest version header)
+# - README.md (version in header/badge)
+# - Source code (__version__, VERSION constant)
+
+# Find last git tag
+git describe --tags --abbrev=0
+```
+
+Tell the user: "Current version found: X.Y.Z. New version will be: A.B.C"
+
+### Step 3: Analyze Git Changes (Auto-Analysis)
+
+**IMPORTANT**: Automatically analyze changes since the last release. Do NOT ask the user to describe changes.
+
+```bash
+# Find commits since last tag
+git log {last_tag}..HEAD --oneline --no-merges
+
+# Get detailed file changes
+git diff {last_tag}..HEAD --stat
+```
+
+For each commit, analyze the commit message and changed files to categorize:
+- **Added**: New features, new files, new functionality
+- **Changed**: Modifications, improvements, refactoring
+- **Fixed**: Bug fixes, corrections
+- **Removed**: Deleted features, deprecated code removal
+
+Generate proposed CHANGELOG entries from this analysis.
+
+### Step 4: Present Proposed Changes
+
+Show the user the auto-generated CHANGELOG entries:
+
+```markdown
+## Proposed CHANGELOG for [NEW_VERSION]
+
+### Added
+- [Auto-detected additions]
+
+### Changed
+- [Auto-detected changes]
+
+### Fixed
+- [Auto-detected fixes]
+
+### Removed
+- [Auto-detected removals]
+```
+
+Ask: "Does this accurately reflect the changes? I can adjust any entries before proceeding."
+
+Wait for user confirmation before continuing.
+
+### Step 5: Update Configuration Files
 
 #### Python (pyproject.toml)
 ```toml
@@ -88,7 +154,7 @@ __version__ = "Y.Y.Y"
 const Version = "Y.Y.Y"
 ```
 
-### Step 3: Update README.md
+### Step 6: Update README.md
 
 #### Update Title/Badge
 ```markdown
@@ -98,7 +164,7 @@ const Version = "Y.Y.Y"
 ```
 
 #### Replace "What's New" Section
-Remove the previous "What's New" section entirely and add:
+Use the top 3-5 most significant items from the CHANGELOG:
 
 ```markdown
 ## What's New in Version Y.Y.Y
@@ -106,21 +172,13 @@ Remove the previous "What's New" section entirely and add:
 - **Feature 1**: Description of major feature or change
 - **Feature 2**: Description of another significant change
 - **Bug Fix**: Description of important bug fix
-- **Improvement**: Description of improvement
 
 See [CHANGELOG.md](CHANGELOG.md) for complete version history.
 ```
 
-#### Update Installation Instructions
-Ensure any version-specific installation commands are updated:
-```markdown
-pip install package-name==Y.Y.Y
-npm install package-name@Y.Y.Y
-```
+### Step 7: Update CHANGELOG.md
 
-### Step 4: Update CHANGELOG.md
-
-Add new version entry at the top (below [Unreleased]):
+Add new version entry at the top (below [Unreleased]) using the approved content from Step 4:
 
 ```markdown
 ## [Y.Y.Y] - YYYY-MM-DD
@@ -140,15 +198,11 @@ Add new version entry at the top (below [Unreleased]):
 ### Removed
 - Removed deprecated function X
 - Removed unused file Y
-
-### Security
-- Patched vulnerability in [component]
-
-### Deprecated
-- Function X will be removed in version Z.Z.Z
 ```
 
-### Step 5: Update DEVLOG.md
+Use today's date in YYYY-MM-DD format.
+
+### Step 8: Update DEVLOG.md (if exists)
 
 Add release entry:
 
@@ -161,101 +215,48 @@ Brief summary of this release and its significance.
 ### Key Changes
 1. **Major Change 1**: Detailed explanation
 2. **Major Change 2**: Detailed explanation
-
-### Migration Notes
-- Any breaking changes requiring user action
-- Configuration changes needed
-
-### Known Issues
-- List any known issues in this release
-
-### Contributors
-- @contributor1 - Feature A
-- @contributor2 - Bug fix B
 ```
 
-### Step 6: Update Help Menus and About Dialogs
+### Step 9: Update Help Menus and About Dialogs (if applicable)
 
-#### CLI Help Text
-```python
-# Update version in CLI help
-parser = argparse.ArgumentParser(
-    description="Application Name vY.Y.Y"
-)
-parser.add_argument('--version', action='version', version='Y.Y.Y')
-```
+Check for version displays in:
+- CLI help messages
+- GUI about dialogs
+- API version endpoints
+- Documentation headers
 
-#### GUI About Dialog
-```python
-# Update About dialog
-about_text = """
-Application Name
-Version Y.Y.Y
+### Step 10: Deep Codebase Scan
 
-Copyright (c) YYYY Author Name
-"""
-```
-
-#### Man Pages / Documentation
-Update any man pages, help files, or documentation that reference the version.
-
-### Step 7: Update .gitignore (If Needed)
-
-Review and update .gitignore for any new patterns:
-
-```gitignore
-# Add new patterns for this version
-*.new-extension
-new-temp-directory/
-
-# Remove obsolete patterns
-# -old-pattern-no-longer-needed
-```
-
-### Step 8: Clean Up Temp Files
-
-Remove temporary files that should not be in the release:
+**CRITICAL**: Perform a comprehensive search for ALL version references that might have been missed.
 
 ```bash
-# Common temp file patterns
-rm -rf tests/temp/*
-rm -rf temp/
-rm -rf __pycache__/
-rm -rf *.pyc
-rm -rf .pytest_cache/
-rm -rf .coverage
-rm -rf htmlcov/
-rm -rf dist/
-rm -rf build/
-rm -rf *.egg-info/
-rm -rf node_modules/.cache/
-rm -rf .next/
-rm -rf .nuxt/
+# Find all files containing version references
+grep -r "X.X.X" --include="*.md" --include="*.toml" --include="*.json" --include="*.yaml" --include="*.yml" --include="*.py" --include="*.js" --include="*.ts" --include="*.java" --include="*.cs" --include="*.go" --include="*.xml" .
+
+# Find version strings in Python files
+grep -r "__version__" --include="*.py"
+
+# Find version in config files
+grep -r "version.*=" --include="*.toml" --include="*.json" --include="*.yaml" --include="*.cfg"
+
+# Find version in documentation
+grep -r "v[0-9]\+\.[0-9]\+\.[0-9]\+" --include="*.md"
 ```
 
-### Step 9: Check for Deprecated Content
+**Check these specific locations:**
+- Root: `pyproject.toml`, `README.md`, `CHANGELOG.md`, `setup.py`, `setup.cfg`
+- Source: `src/__init__.py`, `src/*/__init__.py` (all nested packages)
+- Any `__version__.py` files
+- Any sub-package `README.md` files
+- `VERSION` file (if exists)
+- `manifest.json`, `package-lock.json`
+- `.bumpversion.cfg`, `.version`
+- Documentation config files (`conf.py`, `mkdocs.yml`)
+- Help menus, about dialogs, CLI version flags
 
-#### Find References to Non-Existent Files
-```bash
-# Find markdown links and verify targets exist
-grep -roh '\[.*\]([^)]*\.md)' --include="*.md" . | \
-  sed 's/.*(\([^)]*\))/\1/' | \
-  while read file; do
-    if [ ! -f "$file" ]; then
-      echo "Broken link: $file"
-    fi
-  done
-```
+Report any files found that contain version references and whether they were updated.
 
-#### Review for Outdated References
-Check documentation for:
-- References to removed features
-- Outdated screenshots
-- Obsolete API endpoints
-- Deprecated function names
-- Old configuration options
-
-### Step 10: Validate Version Consistency
+### Step 11: Validate Version Consistency
 
 ```bash
 # Verify all version references match Y.Y.Y
@@ -268,53 +269,96 @@ grep -r "X.X.X" --include="*.md" --include="*.toml" --include="*.json" .
 # Should return empty if all updated
 ```
 
-### Step 11: Generate Commit Message
+Final Checklist:
+- [ ] pyproject.toml / package.json
+- [ ] README.md header
+- [ ] CHANGELOG.md latest entry
+- [ ] Source code __version__
+- [ ] All nested __init__.py files
+- [ ] All sub-README files
+- [ ] Any other version references found in deep scan
 
-Create a temp file with the comprehensive commit message:
+Report any mismatches found.
 
-```bash
-# Create commit message file
-cat > temp/COMMIT_MESSAGE.txt << 'EOF'
-vY.Y.Y: [Brief description of the release]
+### Step 12: Generate Summary
 
-## Version Updates
-- Updated version from X.X.X to Y.Y.Y in all configuration files
-- Updated README.md with new "What's New" section
-- Updated CHANGELOG.md with complete release notes
-- Updated DEVLOG.md with release documentation
+Present the upgrade summary:
 
-## Features Added
-- [Feature 1]: [Description]
-- [Feature 2]: [Description]
+```markdown
+## Version Upgrade Summary
 
-## Bug Fixes
-- Fixed [issue description]
-- Resolved [issue description]
+**Previous Version**: X.Y.Z
+**New Version**: A.B.C
+**Type**: MAJOR/MINOR/PATCH
 
-## Documentation
-- Updated installation instructions
-- Refreshed API documentation
-- Updated help menus and about dialogs
+### Files Updated
+- [ ] pyproject.toml
+- [ ] README.md
+- [ ] CHANGELOG.md
+- [ ] DEVLOG.md
+- [ ] Source code version
+- [ ] [Any additional files from deep scan]
 
-## Cleanup
-- Removed deprecated [files/functions]
-- Cleaned up temp files
-- Updated .gitignore patterns
+### Changes Documented
+- Added: X items
+- Changed: Y items
+- Fixed: Z items
+- Removed: W items
 
-## Breaking Changes
-- [If any, list them here]
-
-## Files Modified
-- pyproject.toml (version bump)
-- README.md (What's New section)
-- CHANGELOG.md (release notes)
-- DEVLOG.md (release documentation)
-- [Other modified files]
-
----
-Release prepared with version-upgrade skill
-EOF
+### Ready for Release
+All version references updated and consistent.
 ```
+
+### Step 13: Generate Commit Message
+
+Generate a ready-to-use commit message for the user:
+
+**Format:**
+```
+vX.X.X: [One sentence summarizing the main changes]
+
+Changes:
+- [Bullet point from Added]
+- [Bullet point from Changed]
+- [Bullet point from Fixed]
+- [etc.]
+```
+
+**Rules:**
+- First line: `vX.X.X:` followed by a concise summary (under 72 chars)
+- Blank line after the first line
+- "Changes:" header followed by bullet points
+- Include all significant changes from CHANGELOG (Added, Changed, Fixed, Removed)
+- Keep each bullet point concise
+- **DO NOT** add "Created by Claude Code" or any AI attribution footer
+- **DO NOT** add "Co-Authored-By" lines
+
+**Example:**
+```
+v0.2.2: Add figure settings management and improve UI components
+
+Changes:
+- Add FigureSettings class for figure configuration management
+- Add FigureSettingsDialog for user-friendly settings editing
+- Add ModernDateEdit widget for improved date selection
+- Improve Matplotlib theming with enhanced theme adapter
+- Update default parameters in calibration settings
+- Fix color picker initialization bug
+```
+
+Present this commit message in a code block so the user can easily copy/paste it:
+
+```
+Here's your commit message (ready to copy/paste):
+```
+
+## After the Upgrade
+
+After presenting the commit message, ask:
+
+"Would you like me to create a git tag for this release? (The commit should be done manually using the message above)"
+
+Only proceed with tag creation if explicitly requested.
 
 ## Version Number Format
 
@@ -383,30 +427,46 @@ Before finalizing the version upgrade:
 - [ ] Temp files removed
 - [ ] Deprecated content removed
 - [ ] All documentation links valid
-- [ ] Commit message generated in temp/COMMIT_MESSAGE.txt
+- [ ] Commit message generated and ready to copy
 - [ ] Version follows SemVer guidelines
 
 ## Example Workflow
 
 ```
-User: Upgrade version from 0.2.6 to 0.2.7
+User: Upgrade version to 0.2.7
 
 Claude:
-1. Searching for all occurrences of "0.2.6"...
-2. Found version in: pyproject.toml, README.md, __init__.py
-3. Updating pyproject.toml: 0.2.6 → 0.2.7
-4. Updating README.md:
-   - Title badge: 0.2.6 → 0.2.7
-   - Replacing "What's New in 0.2.6" with "What's New in 0.2.7"
-5. Updating __init__.py: __version__ = "0.2.7"
-6. Adding CHANGELOG entry for [0.2.7] - 2025-12-09
-7. Adding DEVLOG release entry
-8. Checking for broken documentation links...
-9. Removing temp files from tests/temp/
-10. Generating commit message in temp/COMMIT_MESSAGE.txt
-11. Validating no "0.2.6" references remain...
+1. Found current version: 0.2.6 (from pyproject.toml)
+2. Found last tag: v0.2.6
+3. Analyzing commits since v0.2.6...
+   - Found 5 commits with changes to 12 files
+4. Auto-generated CHANGELOG entries:
+   ### Added
+   - New FigureSettings class for configuration management
+   - ModernDateEdit widget for date selection
+   ### Changed
+   - Improved Matplotlib theming
+   ### Fixed
+   - Color picker initialization bug
+5. User confirms CHANGELOG is accurate
+6. Updating files:
+   - pyproject.toml: 0.2.6 → 0.2.7 ✓
+   - README.md: Updated title and "What's New" ✓
+   - src/__init__.py: __version__ = "0.2.7" ✓
+   - CHANGELOG.md: Added [0.2.7] entry ✓
+7. Deep scan found no additional version references
+8. Validation: No "0.2.6" references remain ✓
+9. Generated commit message:
 
-Version upgrade complete! Review temp/COMMIT_MESSAGE.txt and commit when ready.
+v0.2.7: Add figure settings management and improve theming
+
+Changes:
+- Add FigureSettings class for configuration management
+- Add ModernDateEdit widget for date selection
+- Improve Matplotlib theming
+- Fix color picker initialization bug
+
+Version upgrade complete! Copy the commit message above when ready.
 ```
 
 ## Related Skills
@@ -417,6 +477,6 @@ Version upgrade complete! Review temp/COMMIT_MESSAGE.txt and commit when ready.
 
 ---
 
-**Version**: 1.0.0
+**Version**: 2.0.0
 **Last Updated**: December 2025
 **Based on**: Semantic Versioning 2.0.0

@@ -51,8 +51,8 @@ Thumbs.db
 # Instruction files
 .github/
 
-# Claude Code settings
-.claude/
+# Claude Code settings (root only)
+/.claude/
 settings.local.json
 CLAUDE.md
 
