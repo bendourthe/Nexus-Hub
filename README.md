@@ -30,6 +30,8 @@
 
 - **[Configure my AI Assistant](#ai-instructions-configuration)** → Claude Code, GitHub Copilot, Cursor
 
+- **[Use Pre-built Claude Skills](#claude-skills)** → 47 automated skills for testing, review, compliance
+
 - **[Generate Code Documentation](#code-documentation-generation)** → API docs, README, docstrings
 
 - **[Generate Tests](#tests-generation)** → Unit tests, code coverage, CI/CD integration
@@ -121,6 +123,65 @@ This repository provides **ready-to-use prompt templates** for AI coding assista
 > **Modular skills-based templates** with ~80% token reduction. **47+ skills available** in the [Skills Catalog](catalogs/claude_skills/).
 >
 > **[→ Full Claude Code Setup Guide](guides/CLAUDE_CODE_PROJECT_SETUP.md)**
+
+---
+
+<a name="claude-skills"></a>
+
+## 🧠 Claude Skills
+
+**47 production-ready skills for automated development workflows with Claude Code**
+
+Claude Skills are modular instruction sets that automatically activate when you describe a task. Instead of writing prompts, simply tell Claude what you need and the appropriate skill takes over.
+
+### What Are Skills?
+
+Skills are self-contained `SKILL.md` files that:
+- **Auto-activate** based on natural language triggers ("write unit tests", "security review")
+- **Provide step-by-step guidance** with language-specific code examples
+- **Chain together** for complete workflows (test → review → document → commit)
+
+### Quick Setup
+
+```bash
+# Copy a single skill to your project
+cp -r catalogs/claude_skills/tests-generation/unit-tests/ your-project/.claude/skills/
+
+# Or copy an entire category
+cp -r catalogs/claude_skills/workflow/ your-project/.claude/skills/
+```
+
+Once installed, skills activate automatically when you describe related tasks.
+
+### Pre-Built Skill Categories
+
+| Category | Skills | What They Do |
+|----------|--------|--------------|
+| **[Tests Generation](catalogs/claude_skills/tests-generation/)** | 8 | FIRST principles, AAA pattern, mocks, coverage, CI/CD |
+| **[Code Review](catalogs/claude_skills/code-review/)** | 6 | 6-phase review: context → quality → security → performance → testing → report |
+| **[Code Cleanup](catalogs/claude_skills/code-cleanup/)** | 7 | Dead code removal, modernization per language |
+| **[Documentation](catalogs/claude_skills/documentation/)** | 6 | Docstrings, comments, README, API docs, SBOM |
+| **[Compliance](catalogs/claude_skills/compliance/)** | 8 | SOC 2, ISO 27001, GDPR, NIST AI RMF, AI governance |
+| **[Project Setup](catalogs/claude_skills/project-setup/)** | 4 | Initialize projects with best practices |
+| **[Workflow](catalogs/claude_skills/workflow/)** | 5 | Plan-before-code, TDD, commit workflow |
+| **[Security](catalogs/claude_skills/security/)** | 3 | Dependency audit, pre-commit checks, licensing |
+
+### Pre-Built Slash Commands
+
+The Claude Code templates include 6 ready-to-use slash commands:
+
+| Command | What It Does |
+|---------|--------------|
+| `/setup-project` | Initialize project structure with best practices |
+| `/test` | Run tests and fix failures |
+| `/review` | Comprehensive code review |
+| `/update-documentation` | Sync docs with code changes |
+| `/import-skills` | Import skills from the catalog |
+| `/upgrade-version` | Manage semantic versioning |
+
+**Creating custom commands**: Add `.md` files to `.claude/commands/` in your project. See the [create-custom-command](catalogs/claude_skills/workflow/create-custom-command/) skill for guidance.
+
+> **Full Documentation**: [Skills README](catalogs/claude_skills/README.md) | [Skills Catalog](catalogs/claude_skills/CATALOG.md)
 
 ---
 
@@ -276,7 +337,7 @@ This repository provides **ready-to-use prompt templates** for AI coding assista
 |--------|-------|
 | **Templates** | 277 production-ready templates |
 | **Languages** | 7 (Python, JavaScript, Java, C#, Go, C, C++) |
-| **Claude Code Skills** | 48 autonomous development skills |
+| **Claude Code Skills** | 47 autonomous development skills |
 | **Compliance Frameworks** | 8 frameworks (SOC 2, ISO 27001, NIST AI RMF, PCI-DSS, GDPR, CCPA) |
 | **AI Agent Governance** | 4 Pillars (Lifecycle, Risk, Security, Observability) |
 | **Test Phases** | 8-phase testing methodology |
