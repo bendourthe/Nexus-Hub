@@ -318,6 +318,100 @@
 
 ---
 
+## Infrastructure Skills
+
+### kubernetes-expert
+**Path**: `infrastructure/kubernetes-expert/`
+**Description**: Deep Kubernetes expertise for container orchestration, deployment patterns, and cluster management. Use when deploying to K8s, writing Helm charts, configuring RBAC, troubleshooting pods, or optimizing cluster resources.
+**Technologies**: Kubernetes, Helm, kubectl
+**Priority**: HIGH
+
+### terraform-specialist
+**Path**: `infrastructure/terraform-specialist/`
+**Description**: Infrastructure as Code expertise with Terraform/OpenTofu for cloud provisioning. Use when writing Terraform modules, managing state, configuring multi-environment setups, or implementing IaC best practices for AWS, Azure, or GCP.
+**Technologies**: Terraform, OpenTofu, HCL
+**Priority**: HIGH
+
+### cicd-architect
+**Path**: `infrastructure/cicd-architect/`
+**Description**: CI/CD pipeline expertise for automated build, test, and deployment workflows. Use when setting up GitHub Actions, GitLab CI, Jenkins, or other CI/CD systems, implementing deployment strategies, or optimizing pipeline performance.
+**Technologies**: GitHub Actions, GitLab CI, Jenkins
+**Priority**: HIGH
+
+### cloud-architect
+**Path**: `infrastructure/cloud-architect/`
+**Description**: Multi-cloud architecture expertise for AWS, Azure, and GCP. Use when designing cloud infrastructure, implementing Well-Architected Framework principles, optimizing costs, or building highly available and secure cloud solutions.
+**Technologies**: AWS, Azure, GCP
+**Priority**: HIGH
+
+---
+
+## Orchestration Skills
+
+### task-coordinator
+**Path**: `orchestration/task-coordinator/`
+**Description**: Coordinate complex multi-step tasks by breaking them down into manageable subtasks with dependency tracking. Use when implementing large features, coordinating parallel work streams, or managing complex workflows that span multiple files or components.
+**Languages**: Multi-language
+**Priority**: MEDIUM
+
+### context-manager
+**Path**: `orchestration/context-manager/`
+**Description**: Manage and maintain context across large codebases and complex multi-file changes. Use when working on changes that span many files, navigating unfamiliar codebases, or synthesizing information from multiple sources to make informed decisions.
+**Languages**: Multi-language
+**Priority**: MEDIUM
+
+### workflow-orchestrator
+**Path**: `orchestration/workflow-orchestrator/`
+**Description**: Design and execute end-to-end workflows by chaining multiple skills and managing quality gates between phases. Use for complete feature implementations, full testing cycles, comprehensive code reviews, or any multi-phase development process.
+**Languages**: Multi-language
+**Priority**: MEDIUM
+
+---
+
+## Developer Experience Skills
+
+### refactoring-expert
+**Path**: `developer-experience/refactoring-expert/`
+**Description**: Safe code refactoring using proven patterns from Martin Fowler's catalog. Use when restructuring code, extracting methods/classes, simplifying conditionals, improving naming, or reducing technical debt without changing behavior.
+**Languages**: Multi-language
+**Priority**: MEDIUM
+
+### legacy-modernizer
+**Path**: `developer-experience/legacy-modernizer/`
+**Description**: Modernize legacy codebases using proven migration strategies like Strangler Fig pattern. Use when upgrading frameworks, migrating to new architectures, replacing deprecated APIs, or incrementally modernizing old code without full rewrites.
+**Languages**: Multi-language
+**Priority**: MEDIUM
+
+### dependency-manager
+**Path**: `developer-experience/dependency-manager/`
+**Description**: Manage and upgrade project dependencies safely. Use when upgrading packages, handling breaking changes, managing lock files, patching vulnerabilities, or auditing dependency health across your projects.
+**Languages**: Multi-language
+**Priority**: MEDIUM
+
+---
+
+## Language Specialist Skills
+
+### rust-expert
+**Path**: `language-specialists/rust-expert/`
+**Description**: Deep Rust expertise for systems programming with ownership, borrowing, and lifetimes. Use when writing Rust code, understanding ownership errors, implementing traits, working with async/await, or optimizing performance-critical code.
+**Language**: Rust
+**Priority**: MEDIUM
+
+### go-expert
+**Path**: `language-specialists/go-expert/`
+**Description**: Deep Go expertise for concurrent systems programming. Use when writing Go code, implementing goroutines and channels, designing interfaces, handling errors idiomatically, or optimizing Go applications for performance.
+**Language**: Go
+**Priority**: MEDIUM
+
+### sql-expert
+**Path**: `language-specialists/sql-expert/`
+**Description**: Deep SQL expertise for query optimization and database design. Use when writing complex queries, optimizing slow queries, designing schemas, understanding execution plans, or working with PostgreSQL, MySQL, or SQL Server specific features.
+**Languages**: SQL, PostgreSQL, MySQL, SQL Server
+**Priority**: MEDIUM
+
+---
+
 ## Summary Statistics
 
 | Category | Count | Avg Priority |
@@ -330,11 +424,15 @@
 | Project Setup | 4 | MEDIUM |
 | Workflow | 5 | HIGH |
 | Security | 3 | HIGH |
-| **Total** | **47** | **HIGH** |
+| Infrastructure | 4 | HIGH |
+| Orchestration | 3 | MEDIUM |
+| Developer Experience | 3 | MEDIUM |
+| Language Specialists | 3 | MEDIUM |
+| **Total** | **60** | **HIGH** |
 
 ---
 
 ## Version
 
-- **Catalog Version**: 1.0.0
-- **Last Updated**: December 2025
+- **Catalog Version**: 1.1.0
+- **Last Updated**: January 2026

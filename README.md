@@ -1,6 +1,6 @@
 # AI Development Templates
 
-**Version 0.3.2**
+**Version 0.3.3**
 
 > **277 production-ready templates** for AI-assisted software development across 7 languages
 >
@@ -8,17 +8,19 @@
 
 ---
 
-## 🎉 What's New in v0.3.2
+## 🎉 What's New in v0.3.3
 
-### Simplified AI Instructions Templates
+### Expanded Claude Skills (47 → 60 skills)
 
-- **Consolidated Coding Assistant Templates** - One optimized template per language (~20k characters) replacing comprehensive/condensed split
+- **Infrastructure Skills** (4 new) - `kubernetes-expert`, `terraform-specialist`, `cicd-architect`, `cloud-architect`
 
-- **GitHub Copilot Format** - Templates renamed to `copilot-instructions.md` matching expected VS Code format
+- **Orchestration Skills** (3 new) - `task-coordinator`, `context-manager`, `workflow-orchestrator`
 
-- **Streamlined Setup** - Clear 3-step instructions for GitHub Copilot and Claude Code
+- **Developer Experience** (3 new) - `refactoring-expert`, `legacy-modernizer`, `dependency-manager`
 
-- **Removed Complexity** - Focused documentation on GitHub Copilot and Claude Code only
+- **Language Specialists** (3 new) - `rust-expert`, `go-expert`, `sql-expert`
+
+- **New Subagents Guide** - Comprehensive guide for using specialist skills effectively
 
 [View Complete Changelog](CHANGELOG.md)
 
@@ -30,7 +32,7 @@
 
 - **[Configure my AI Assistant](#ai-instructions-configuration)** → Claude Code, GitHub Copilot, Cursor
 
-- **[Use Pre-built Claude Skills](#claude-skills)** → 47 automated skills for testing, review, compliance
+- **[Use Pre-built Claude Skills](#claude-skills)** → 60 automated skills for testing, review, compliance, infrastructure
 
 - **[Generate Code Documentation](#code-documentation-generation)** → API docs, README, docstrings
 
@@ -120,7 +122,7 @@ This repository provides **ready-to-use prompt templates** for AI coding assista
 | **C** | [c/](templates/ai_instructions/agentic_systems/claude_code/c/) |
 | **C++** | [cpp/](templates/ai_instructions/agentic_systems/claude_code/cpp/) |
 
-> **Modular skills-based templates** with ~80% token reduction. **47+ skills available** in the [Skills Catalog](catalogs/claude_skills/).
+> **Modular skills-based templates** with ~80% token reduction. **60 skills available** in the [Skills Catalog](catalogs/claude_skills/).
 >
 > **[→ Full Claude Code Setup Guide](guides/CLAUDE_CODE_PROJECT_SETUP.md)**
 
@@ -130,7 +132,7 @@ This repository provides **ready-to-use prompt templates** for AI coding assista
 
 ## 🧠 Claude Skills
 
-**47 production-ready skills for automated development workflows with Claude Code**
+**60 production-ready skills for automated development workflows with Claude Code**
 
 Claude Skills are modular instruction sets that automatically activate when you describe a task. Instead of writing prompts, simply tell Claude what you need and the appropriate skill takes over.
 
@@ -165,6 +167,10 @@ Once installed, skills activate automatically when you describe related tasks.
 | **[Project Setup](catalogs/claude_skills/project-setup/)** | 4 | Initialize projects with best practices |
 | **[Workflow](catalogs/claude_skills/workflow/)** | 5 | Plan-before-code, TDD, commit workflow |
 | **[Security](catalogs/claude_skills/security/)** | 3 | Dependency audit, pre-commit checks, licensing |
+| **[Infrastructure](catalogs/claude_skills/infrastructure/)** | 4 | Kubernetes, Terraform, CI/CD, Cloud architecture |
+| **[Orchestration](catalogs/claude_skills/orchestration/)** | 3 | Task coordination, context management, workflow orchestration |
+| **[Developer Experience](catalogs/claude_skills/developer-experience/)** | 3 | Refactoring, legacy modernization, dependency management |
+| **[Language Specialists](catalogs/claude_skills/language-specialists/)** | 3 | Deep expertise in Rust, Go, SQL |
 
 ### Pre-Built Slash Commands
 
@@ -181,7 +187,7 @@ The Claude Code templates include 6 ready-to-use slash commands:
 
 **Creating custom commands**: Add `.md` files to `.claude/commands/` in your project. See the [create-custom-command](catalogs/claude_skills/workflow/create-custom-command/) skill for guidance.
 
-> **Full Documentation**: [Skills README](catalogs/claude_skills/README.md) | [Skills Catalog](catalogs/claude_skills/CATALOG.md)
+> **Full Documentation**: [Skills README](catalogs/claude_skills/README.md) | [Skills Catalog](catalogs/claude_skills/CATALOG.md) | **[Subagents Guide](guides/SUBAGENTS_GUIDE.md)** (NEW)
 
 ---
 
@@ -337,7 +343,7 @@ The Claude Code templates include 6 ready-to-use slash commands:
 |--------|-------|
 | **Templates** | 277 production-ready templates |
 | **Languages** | 7 (Python, JavaScript, Java, C#, Go, C, C++) |
-| **Claude Code Skills** | 47 autonomous development skills |
+| **Claude Code Skills** | 60 autonomous development skills |
 | **Compliance Frameworks** | 8 frameworks (SOC 2, ISO 27001, NIST AI RMF, PCI-DSS, GDPR, CCPA) |
 | **AI Agent Governance** | 4 Pillars (Lifecycle, Risk, Security, Observability) |
 | **Test Phases** | 8-phase testing methodology |

@@ -76,14 +76,22 @@ cmake -B build -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined"
 
 ## Quick Reference
 
-### Task Types → Focus Areas
-| Task Type | Skills Activated |
-|-----------|------------------|
-| Bug Fix | interaction-principles, code-standards, quality-checklist |
-| New Feature | project-setup, workflow-methodology, testing-framework |
-| Refactoring | code-standards, implementation-patterns |
-| Documentation | documentation-standards |
-| Version/Git | version-control |
+### Task Types → Skills Activated
+| Task Type | Core Skills | Specialist Skills |
+|-----------|-------------|-------------------|
+| Bug Fix | code-standards, quality-checklist | context-manager, refactoring-expert |
+| New Feature | workflow-methodology, testing-framework | task-coordinator, workflow-orchestrator |
+| Refactoring | code-standards, implementation-patterns | refactoring-expert, legacy-modernizer |
+| Documentation | documentation-standards | api-documentation, technical-documentation |
+| Testing | unit-tests, test-cases | performance-testing, mutation-testing |
+| Infrastructure | cicd-integration | kubernetes-expert, terraform-specialist, cicd-architect |
+| Database | code-standards | sql-expert |
+| Dependencies | security | dependency-manager, dependency-security-audit |
+
+### Workflow Skills (for complex tasks)
+- **task-coordinator** - Break down multi-step implementations
+- **context-manager** - Navigate large codebases
+- **workflow-orchestrator** - Chain skills with quality gates
 
 ### Efficiency Modes
 - **Quick Mode** (simple fixes): Minimal docs, focus on core fix

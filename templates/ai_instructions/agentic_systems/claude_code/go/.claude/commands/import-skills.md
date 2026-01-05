@@ -97,7 +97,7 @@ Display the available skills organized by category:
 ### Step 4: Ask User Selection
 
 Ask the user: "Which skills would you like to import? You can:
-1. Type **all** to import all 47 skills
+1. Type **all** to import all 60 skills
 2. Type a **category name** (e.g., 'workflow', 'security') to import all skills in that category
 3. Type **specific skill names** separated by commas (e.g., 'unit-tests, security-review, plan-before-code')
 4. Type **recommended** for a curated selection of essential skills"

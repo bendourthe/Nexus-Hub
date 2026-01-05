@@ -11,6 +11,58 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.3.3] - 2026-01-05
+
+### Added
+
+#### New Claude Skills Categories (13 new skills)
+
+Expanded the Claude Skills catalog from 47 to 60 skills with 4 new categories inspired by awesome-claude-code-subagents patterns.
+
+**Infrastructure Skills** (4 skills):
+
+- **kubernetes-expert** - Deep Kubernetes expertise for container orchestration, deployment patterns, Helm charts, RBAC, and cluster management
+
+- **terraform-specialist** - Infrastructure as Code with Terraform/OpenTofu for cloud provisioning, module design, state management, and multi-environment setups
+
+- **cicd-architect** - CI/CD pipeline expertise for GitHub Actions, GitLab CI, Jenkins with deployment strategies (blue-green, canary) and security scanning
+
+- **cloud-architect** - Multi-cloud architecture for AWS, Azure, GCP with Well-Architected Framework principles, high availability, and cost optimization
+
+**Orchestration Skills** (3 skills):
+
+- **task-coordinator** - Coordinate complex multi-step tasks with dependency tracking, parallel execution, and progress monitoring
+
+- **context-manager** - Manage context across large codebases, track file relationships, and synthesize information for multi-file changes
+
+- **workflow-orchestrator** - Design end-to-end workflows by chaining skills with quality gates between phases
+
+**Developer Experience Skills** (3 skills):
+
+- **refactoring-expert** - Safe code refactoring using Martin Fowler's catalog patterns, incremental changes, and test preservation
+
+- **legacy-modernizer** - Modernize legacy codebases using Strangler Fig pattern, dual-write migrations, and feature toggles
+
+- **dependency-manager** - Safe dependency upgrades, vulnerability patching, breaking change handling, and lock file management
+
+**Language Specialist Skills** (3 skills):
+
+- **rust-expert** - Deep Rust expertise for ownership, borrowing, lifetimes, async/await, and unsafe Rust patterns
+
+- **go-expert** - Go expertise for goroutines, channels, interface design, error handling idioms, and concurrent systems
+
+- **sql-expert** - SQL expertise for query optimization, indexing strategies, execution plans, and database-specific features (PostgreSQL, MySQL, SQL Server)
+
+**Catalog Updates**:
+
+- Updated CATALOG.md with all 13 new skills organized in 4 categories
+
+- Updated skill count from 47 to 60 in README.md
+
+- Added new categories to Pre-Built Skill Categories table
+
+---
+
 ## [0.3.2] - 2025-12-09
 
 ### Changed

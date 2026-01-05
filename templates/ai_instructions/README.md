@@ -4,7 +4,7 @@ This directory contains standardized system prompts (also known as Rules or Inst
 
 ## 🆕 Claude Code Skills Framework
 
-**47+ production-ready skills** for autonomous agentic coding workflows!
+**60 production-ready skills** for autonomous agentic coding workflows!
 
 Skills provide task-specific expertise with token-efficient loading and natural language invocation.
 
