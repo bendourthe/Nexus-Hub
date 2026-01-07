@@ -9,7 +9,7 @@ Validates:
 5. Language-specific requirements met
 
 Authors:
-    - Benjamin Dourthe (benjamin@adonamed.com)
+    - Benjamin Dourthe (benjamin.dourthe@gmail.com)
 """
 import re
 from pathlib import Path

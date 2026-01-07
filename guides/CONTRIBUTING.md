@@ -45,8 +45,8 @@ By participating in this project, you agree to:
 1. **Fork the repository**
    ```bash
    # Click "Fork" on GitHub
-   git clone https://github.com/[your-username]/ai_templates.git
-   cd ai_templates
+   git clone https://github.com/[your-username]/devai-hub.git
+   cd devai-hub
    ```
 
 2. **Create a branch**
@@ -60,8 +60,8 @@ By participating in this project, you agree to:
    python --version
 
    # Test tools work
-   python tools/build_skills_catalog.py
-   python tools/install_skill.py --list
+   python infrastructure/tools/build_skills_catalog.py
+   python infrastructure/tools/install_skill.py --list
    ```
 
 ---
@@ -72,10 +72,10 @@ Skills are the core of this repository. Follow these guidelines to create high-q
 
 ### Skill Structure
 
-Create a new directory under `catalogs/claude_skills/{category}/`:
+Create a new directory under `claude-skills-catalog/{category}/`:
 
 ```
-catalogs/claude_skills/{category}/your-skill-name/
+claude-skills-catalog/{category}/your-skill-name/
 ├── SKILL.md              # Required: Main skill file
 └── README.md             # Optional: Additional documentation
 ```
@@ -251,7 +251,7 @@ Tools enhance repository functionality and user experience.
 
 ### Tool Requirements
 
-1. **Python scripts** in `tools/` directory
+1. **Python scripts** in `infrastructure/tools/` directory
 
 2. **Comprehensive docstrings** with usage examples
 
@@ -270,7 +270,7 @@ Tool Name - Brief description.
 Detailed explanation of what this tool does.
 
 Usage:
-    python tools/tool_name.py --option value
+    python infrastructure/tools/tool_name.py --option value
 
 Authors:
 
@@ -389,15 +389,15 @@ All contributions must meet these standards:
 
 - **Update catalog** if adding/modifying skills:
   ```bash
-  python tools/build_skills_catalog.py
+  python infrastructure/tools/build_skills_catalog.py
   ```
 
 ### 2. Commit Changes
 
 ```bash
 # Add files
-git add catalogs/claude_skills/{category}/your-skill-name/
-git add catalogs/skills.json  # If updated
+git add claude-skills-catalog/{category}/your-skill-name/
+git add skills.json  # If updated
 
 # Commit with descriptive message
 git commit -m "feat: Add [skill-name] skill for [purpose]"
@@ -582,7 +582,7 @@ Contributors will be:
 
 - **Discussions**: Use GitHub Discussions for questions
 
-- **Email**: Contact repository maintainer: benjamin@adonamed.com
+- **Email**: Contact repository maintainer: benjamin.dourthe@gmail.com
 
 ---
 

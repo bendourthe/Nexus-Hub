@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to the AI Development Templates repository will be documented in this file.
+All notable changes to the DevAI Hub repository will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -8,6 +8,73 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## [Unreleased]
+
+---
+
+## [0.4.0] - 2026-01-07
+
+### Changed
+
+#### Major Repository Restructuring
+
+Simplified repository structure for improved navigation and maintainability with kebab-case naming conventions throughout.
+
+**Directory Structure Changes**:
+
+- **Skills Catalog**: Moved `catalogs/claude_skills/` → `claude-skills-catalog/` (root level for easier access)
+
+- **AI Instructions**: Simplified `templates/ai_instructions/agentic_systems/claude_code/` → `templates/ai-instructions/CLAUDE_MD/`
+
+- **Development Templates**: Reorganized under `templates/development/` with kebab-case naming:
+  - `code_cleanup/` → `codebase-cleanup/`
+  - `code_review/` → `codebase-review/`
+  - `compliance_governance/` → `compliance-review/`
+  - `documentation_generation/` → `documentation-generation/`
+  - `tests_generation/` → `tests-generation/`
+
+- **JSON Catalogs**: Moved to repository root for easier access:
+  - `catalogs/skills.json` → `skills.json`
+  - `catalogs/templates.json` → `templates.json`
+
+**Removed**:
+
+- **Coding Assistants Templates**: Removed `templates/ai_instructions/coding_assistants/` (deprecated in favor of Claude Code templates)
+
+- **Legacy Folders**: Removed all `legacy/` subdirectories across 7 language templates
+
+- **Old Catalogs Directory**: Removed empty `catalogs/` after migration
+
+**Updated Documentation** (75+ link updates):
+
+- Updated all path references in `README.md`, `CLAUDE.md`, and guide files
+
+- Updated all `import-skills.md` files across 7 languages
+
+- Updated compliance-review documentation with corrected relative paths
+
+- Updated tests-generation documentation and VS Code configuration paths
+
+- Updated skills catalog README with new repository structure
+
+**Benefits**:
+
+- **Cleaner Navigation**: Simpler, more intuitive directory structure
+
+- **Consistent Naming**: Kebab-case throughout (e.g., `codebase-review` vs `code_review`)
+
+- **Reduced Depth**: Skills catalog at root level, AI instructions path shortened
+
+- **Focused Content**: Removed deprecated coding assistants, keeping focus on Claude Code
+
+**Statistics**:
+
+- **Files Moved**: 400+ files reorganized
+
+- **Links Updated**: 75+ documentation links corrected
+
+- **Directories Renamed**: 7 major directory renames
+
+- **Templates Regenerated**: `templates.json` rebuilt with 306 templates
 
 ---
 
@@ -2249,6 +2316,8 @@ repository_root/
 
 | Version | Date       | Description                                      |
 |---------|------------|--------------------------------------------------|
+| 0.4.0   | 2026-01-07 | **Repository Restructuring**: Simplified structure, kebab-case naming, skills catalog at root |
+| 0.3.3   | 2026-01-05 | **Expanded Skills**: 13 new specialist skills, subagents integration |
 | 0.3.2   | 2025-12-09 | **Simplified Templates**: Consolidated coding assistant templates, GitHub Copilot format |
 | 0.3.1   | 2025-12-08 | **Compliance & Governance**: 96 templates for SOC 2, ISO 27001, GDPR, AI governance |
 | 0.3.0   | 2025-12-04 | **Google Test Integration**: VS Code + GitHub Copilot workflow for C++ testing |
@@ -2269,21 +2338,23 @@ repository_root/
 
 ---
 
-[Unreleased]: https://github.com/yourusername/ai_templates/compare/v0.3.2...HEAD
-[0.3.2]: https://github.com/yourusername/ai_templates/releases/tag/v0.3.2
-[0.3.1]: https://github.com/yourusername/ai_templates/releases/tag/v0.3.1
-[0.3.0]: https://github.com/yourusername/ai_templates/releases/tag/v0.3.0
-[0.2.9]: https://github.com/yourusername/ai_templates/releases/tag/v0.2.9
-[0.2.8]: https://github.com/yourusername/ai_templates/releases/tag/v0.2.8
-[0.2.7]: https://github.com/yourusername/ai_templates/releases/tag/v0.2.7
-[0.2.6]: https://github.com/yourusername/ai_templates/releases/tag/v0.2.6
-[0.2.5]: https://github.com/yourusername/ai_templates/releases/tag/v0.2.5
-[0.2.4]: https://github.com/yourusername/ai_templates/releases/tag/v0.2.4
-[0.2.3]: https://github.com/yourusername/ai_templates/releases/tag/v0.2.3
-[0.2.2]: https://github.com/yourusername/ai_templates/releases/tag/v0.2.2
-[0.2.1]: https://github.com/yourusername/ai_templates/releases/tag/v0.2.1
-[0.2.0]: https://github.com/yourusername/ai_templates/releases/tag/v0.2.0
-[0.1.5]: https://github.com/yourusername/ai_templates/releases/tag/v0.1.5
-[0.1.4]: https://github.com/yourusername/ai_templates/releases/tag/v0.1.4
-[0.1.2]: https://github.com/yourusername/ai_templates/releases/tag/v0.1.2
-[0.1.0]: https://github.com/yourusername/ai_templates/releases/tag/v0.1.0
+[Unreleased]: https://github.com/yourusername/devai-hub/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/yourusername/devai-hub/releases/tag/v0.4.0
+[0.3.3]: https://github.com/yourusername/devai-hub/releases/tag/v0.3.3
+[0.3.2]: https://github.com/yourusername/devai-hub/releases/tag/v0.3.2
+[0.3.1]: https://github.com/yourusername/devai-hub/releases/tag/v0.3.1
+[0.3.0]: https://github.com/yourusername/devai-hub/releases/tag/v0.3.0
+[0.2.9]: https://github.com/yourusername/devai-hub/releases/tag/v0.2.9
+[0.2.8]: https://github.com/yourusername/devai-hub/releases/tag/v0.2.8
+[0.2.7]: https://github.com/yourusername/devai-hub/releases/tag/v0.2.7
+[0.2.6]: https://github.com/yourusername/devai-hub/releases/tag/v0.2.6
+[0.2.5]: https://github.com/yourusername/devai-hub/releases/tag/v0.2.5
+[0.2.4]: https://github.com/yourusername/devai-hub/releases/tag/v0.2.4
+[0.2.3]: https://github.com/yourusername/devai-hub/releases/tag/v0.2.3
+[0.2.2]: https://github.com/yourusername/devai-hub/releases/tag/v0.2.2
+[0.2.1]: https://github.com/yourusername/devai-hub/releases/tag/v0.2.1
+[0.2.0]: https://github.com/yourusername/devai-hub/releases/tag/v0.2.0
+[0.1.5]: https://github.com/yourusername/devai-hub/releases/tag/v0.1.5
+[0.1.4]: https://github.com/yourusername/devai-hub/releases/tag/v0.1.4
+[0.1.2]: https://github.com/yourusername/devai-hub/releases/tag/v0.1.2
+[0.1.0]: https://github.com/yourusername/devai-hub/releases/tag/v0.1.0

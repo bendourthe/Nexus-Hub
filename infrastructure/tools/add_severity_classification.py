@@ -5,7 +5,7 @@ This script adds a comprehensive severity classification section to all code
 review templates to help users prioritize findings.
 
 Authors:
-    - Benjamin Dourthe (benjamin@adonamed.com)
+    - Benjamin Dourthe (benjamin.dourthe@gmail.com)
 """
 import os
 import re
@@ -448,7 +448,7 @@ def add_severity_to_file(filepath: Path) -> bool:
 
 def main():
     """Add severity classification to all code review templates."""
-    base_path = Path(__file__).parent.parent / 'code_review'
+    base_path = Path(__file__).parent.parent.parent / 'templates' / 'development' / 'codebase-review'
 
     if not base_path.exists():
         print(f"ERROR: Code review directory not found: {base_path}")

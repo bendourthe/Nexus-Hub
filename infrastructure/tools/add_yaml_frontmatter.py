@@ -5,7 +5,7 @@ This script adds comprehensive YAML frontmatter to all templates for searchabili
 filtering, and automated catalog generation.
 
 Authors:
-    - Benjamin Dourthe (benjamin@adonamed.com)
+    - Benjamin Dourthe (benjamin.dourthe@gmail.com)
 """
 import os
 import re

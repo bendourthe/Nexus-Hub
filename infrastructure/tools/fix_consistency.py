@@ -6,7 +6,7 @@ This script fixes:
 2. Reports all files that need updates
 
 Authors:
-    - Benjamin Dourthe (benjamin@adonamed.com)
+    - Benjamin Dourthe (benjamin.dourthe@gmail.com)
 """
 import os
 import re

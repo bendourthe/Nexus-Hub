@@ -4,7 +4,7 @@ Update tool versions to 2025 standards across all templates.
 This script updates outdated tool references to current versions as of December 2025.
 
 Authors:
-    - Benjamin Dourthe (benjamin@adonamed.com)
+    - Benjamin Dourthe (benjamin.dourthe@gmail.com)
 """
 import os
 import re

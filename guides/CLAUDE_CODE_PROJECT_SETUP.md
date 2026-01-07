@@ -48,7 +48,7 @@ For experienced users who want to get started immediately:
 cd your-project
 
 # 2. Copy the language-specific template (e.g., Python)
-cp -r /path/to/ai-templates/templates/ai_instructions/agentic_systems/claude_code/python/* .
+cp -r /path/to/ai-templates/templates/ai-instructions/CLAUDE_MD/python/* .
 # Or for other languages: javascript/, java/, csharp/, go/, c/, cpp/
 
 # 3. Start Claude Code
@@ -710,7 +710,7 @@ When implementing new features, fixing bugs, or troubleshooting issues, follow t
 ### Language-Specific Templates
 
 Pre-configured templates are available for multiple languages in:
-`templates/ai_instructions/agentic_systems/claude_code/`
+`templates/ai-instructions/CLAUDE_MD/`
 
 | Language | Directory | Key Files |
 |----------|-----------|-----------|
@@ -724,7 +724,7 @@ Pre-configured templates are available for multiple languages in:
 
 ### Additional Skills
 
-Production-ready skills are available in `catalogs/claude_skills/`:
+Production-ready skills are available in `claude-skills-catalog/`:
 
 | Category | Skills |
 |----------|--------|
@@ -867,7 +867,7 @@ Try these prompts to verify skills activate:
 ## Additional Resources
 
 - [Claude Code Guide](CLAUDE_CODE_GUIDE.md) - General Claude Code usage
-- [Coding Assistant Guide](CODING_ASSISTANT_GUIDE.md) - For non-autonomous assistants
+- [Subagents Guide](SUBAGENTS_GUIDE.md) - Using specialist skills effectively
 - [Contributing Guide](CONTRIBUTING.md) - How to contribute to ai-templates
 
 ---

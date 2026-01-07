@@ -1,0 +1,1858 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "generated": "2025-10-21",
+    "repository": "https://github.com/bdourthe/devai-hub",
+    "description": "Comprehensive catalog of Claude Code skills for autonomous AI development"
+  },
+  "statistics": {
+    "total_skills": 48,
+    "categories": {
+      "Documentation": 6,
+      "Code Cleanup": 7,
+      "Workflow": 5,
+      "skills": 8,
+      "Code Review": 6,
+      "Configuration": 8,
+      "Security": 2,
+      "Testing": 2,
+      "Project Initialization": 4
+    },
+    "priorities": {
+      "MEDIUM": 27,
+      "HIGH": 18,
+      "CRITICAL": 3
+    },
+    "total_lines": 46380,
+    "total_tokens_estimate": 143901,
+    "average_lines_per_skill": 966,
+    "languages_supported": [
+      "Python",
+      "JavaScript",
+      "Java",
+      "C#",
+      "Go",
+      "C",
+      "C++"
+    ],
+    "repository": "https://github.com/bdourthe/devai-hub",
+    "last_updated": "2025-10-21"
+  },
+  "skills": [
+    {
+      "name": "add-strategic-comments",
+      "title": "add-strategic-comments",
+      "description": "Add strategic, high-value comments that explain complex logic, business rules, and design decisions without cluttering code with obvious statements",
+      "long_description": "Add meaningful, high-value comments that explain \"why\" not \"what\", focusing on complex algorithms, business logic, design decisions, and non-obvious implementations while maintaining clean, self-documenting code.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Documentation",
+      "language": "Multi-language (Python, JavaScript, Java, C#, Go, C, C++)",
+      "tags": [
+        "documentation",
+        "comments",
+        "code-clarity",
+        "maintainability",
+        "refactoring",
+        "best-practices"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read",
+        "Task",
+        "Write"
+      ],
+      "path": "agent_prompts/autonomous_agents/claude_code/skills/add-strategic-comments/",
+      "file": "agent_prompts/autonomous_agents/claude_code/skills/add-strategic-comments/SKILL.md",
+      "size": {
+        "lines": 800,
+        "characters": 25884,
+        "tokens_estimate": 3460
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "cleanup-c",
+      "title": "cleanup-c",
+      "description": "Remove dead code, fix memory leaks, and apply C best practices for improved maintainability and safety",
+      "long_description": "Systematically identify and remove dead code, fix memory issues, and apply C best practices to maintain a lean, safe, and maintainable codebase.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Code Cleanup",
+      "language": "C",
+      "tags": [
+        "c",
+        "cleanup",
+        "refactoring",
+        "memory-safety",
+        "dead-code",
+        "embedded",
+        "misra"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Glob"
+      ],
+      "path": "agent_prompts/autonomous_agents/claude_code/skills/cleanup-c/",
+      "file": "agent_prompts/autonomous_agents/claude_code/skills/cleanup-c/SKILL.md",
+      "size": {
+        "lines": 548,
+        "characters": 12774,
+        "tokens_estimate": 1749
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "cleanup-cpp",
+      "title": "cleanup-cpp",
+      "description": "Remove dead code, apply modern C++ patterns, and improve memory management for maintainability",
+      "long_description": "Systematically identify and remove dead code, apply modern C++ patterns (C++17/20), and modernize memory management to maintain a lean, safe, and maintainable codebase.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Code Cleanup",
+      "language": "C++",
+      "tags": [
+        "cpp",
+        "c++",
+        "cleanup",
+        "refactoring",
+        "modernization",
+        "smart-pointers",
+        "raii",
+        "move-semantics"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "agent_prompts/autonomous_agents/claude_code/skills/cleanup-cpp/",
+      "file": "agent_prompts/autonomous_agents/claude_code/skills/cleanup-cpp/SKILL.md",
+      "size": {
+        "lines": 610,
+        "characters": 14870,
+        "tokens_estimate": 1896
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "cleanup-csharp",
+      "title": "cleanup-csharp",
+      "description": "Remove dead code, consolidate duplicates, and modernize C# codebases for improved maintainability",
+      "long_description": "Systematically identify and remove dead code, consolidate duplicate logic, and modernize legacy C# patterns to maintain a lean, current, and maintainable codebase.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Code Cleanup",
+      "language": "C#",
+      "tags": [
+        "csharp",
+        "dotnet",
+        "cleanup",
+        "refactoring",
+        "modernization",
+        "dead-code",
+        "linq",
+        "async"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Glob",
+        "Read",
+        "Task",
+        "Write"
+      ],
+      "path": "agent_prompts/autonomous_agents/claude_code/skills/cleanup-csharp/",
+      "file": "agent_prompts/autonomous_agents/claude_code/skills/cleanup-csharp/SKILL.md",
+      "size": {
+        "lines": 546,
+        "characters": 13969,
+        "tokens_estimate": 1777
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "cleanup-go",
+      "title": "cleanup-go",
+      "description": "Remove dead code, consolidate duplicates, and apply idiomatic Go patterns for improved maintainability",
+      "long_description": "Systematically identify and remove dead code, consolidate duplicate logic, and apply idiomatic Go patterns to maintain a lean, current, and maintainable codebase.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Code Cleanup",
+      "language": "Go",
+      "tags": [
+        "go",
+        "golang",
+        "cleanup",
+        "refactoring",
+        "idiomatic",
+        "dead-code",
+        "goroutines"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "agent_prompts/autonomous_agents/claude_code/skills/cleanup-go/",
+      "file": "agent_prompts/autonomous_agents/claude_code/skills/cleanup-go/SKILL.md",
+      "size": {
+        "lines": 552,
+        "characters": 12629,
+        "tokens_estimate": 1718
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "cleanup-java",
+      "title": "cleanup-java",
+      "description": "Remove dead code, consolidate duplicates, and modernize Java codebases for improved maintainability",
+      "long_description": "Systematically identify and remove dead code, consolidate duplicate logic, and modernize legacy Java patterns to maintain a lean, current, and maintainable codebase.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Code Cleanup",
+      "language": "Java",
+      "tags": [
+        "java",
+        "cleanup",
+        "refactoring",
+        "modernization",
+        "dead-code",
+        "streams",
+        "lambdas"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Edit",
+        "Read"
+      ],
+      "path": "agent_prompts/autonomous_agents/claude_code/skills/cleanup-java/",
+      "file": "agent_prompts/autonomous_agents/claude_code/skills/cleanup-java/SKILL.md",
+      "size": {
+        "lines": 721,
+        "characters": 19519,
+        "tokens_estimate": 2436
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "cleanup-javascript",
+      "title": "cleanup-javascript",
+      "description": "Remove dead code, consolidate duplicates, and modernize JavaScript/TypeScript codebases for improved maintainability",
+      "long_description": "Systematically identify and remove dead code, consolidate duplicate logic, and modernize legacy JavaScript/TypeScript patterns to maintain a lean, current, and maintainable codebase.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Code Cleanup",
+      "language": "JavaScript/TypeScript",
+      "tags": [
+        "javascript",
+        "typescript",
+        "cleanup",
+        "refactoring",
+        "modernization",
+        "dead-code",
+        "es6"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "agent_prompts/autonomous_agents/claude_code/skills/cleanup-javascript/",
+      "file": "agent_prompts/autonomous_agents/claude_code/skills/cleanup-javascript/SKILL.md",
+      "size": {
+        "lines": 602,
+        "characters": 16450,
+        "tokens_estimate": 2136
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "cleanup-python",
+      "title": "cleanup-python",
+      "description": "Remove dead code, consolidate duplicates, and modernize Python codebases for improved maintainability",
+      "long_description": "Systematically identify and remove dead code, consolidate duplicate logic, and modernize legacy Python patterns to maintain a lean, current, and maintainable codebase.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Code Cleanup",
+      "language": "Python",
+      "tags": [
+        "python",
+        "cleanup",
+        "refactoring",
+        "modernization",
+        "dead-code"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "agent_prompts/autonomous_agents/claude_code/skills/cleanup-python/",
+      "file": "agent_prompts/autonomous_agents/claude_code/skills/cleanup-python/SKILL.md",
+      "size": {
+        "lines": 464,
+        "characters": 12590,
+        "tokens_estimate": 1663
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "code-commit-workflow",
+      "title": "code-commit-workflow",
+      "description": "Guide through proper Git commit workflow with best practices for atomic commits and clear messages",
+      "long_description": "Guide developers through a proper Git commit workflow that produces clean, reviewable history with atomic commits and clear, meaningful commit messages.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Workflow",
+      "language": "Multi-language",
+      "tags": [
+        "workflow",
+        "git",
+        "commits",
+        "version-control",
+        "best-practice",
+        "collaboration"
+      ],
+      "priority": "HIGH",
+      "based_on": "",
+      "tools_required": [
+        "Write"
+      ],
+      "path": "agent_prompts/autonomous_agents/claude_code/skills/code-commit-workflow/",
+      "file": "agent_prompts/autonomous_agents/claude_code/skills/code-commit-workflow/SKILL.md",
+      "size": {
+        "lines": 783,
+        "characters": 20471,
+        "tokens_estimate": 2998
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "code-complexity-analysis",
+      "title": "code-complexity-analysis",
+      "description": "",
+      "long_description": "---\ncategory: security-quality\npriority: MEDIUM\nlanguages: [python, javascript, typescript, java, csharp, go, rust]\nrequires_user_input: false\nestimated_duration: 30min-2 hours\n---",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "skills",
+      "language": "Generic",
+      "tags": "",
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "agent_prompts/autonomous_agents/claude_code/skills/code-complexity-analysis/",
+      "file": "agent_prompts/autonomous_agents/claude_code/skills/code-complexity-analysis/SKILL.md",
+      "size": {
+        "lines": 813,
+        "characters": 22256,
+        "tokens_estimate": 2266
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "code-review-context-analysis",
+      "title": "code-review-context-analysis",
+      "description": "Establish comprehensive understanding of project structure, architecture, dependencies, and current state before conducting detailed code review",
+      "long_description": "Establish comprehensive understanding of the project before conducting detailed code review. This skill is Phase 1 of the complete code review workflow, gathering context about project purpose, architecture, dependencies, and current state to inform all subsequent review activities.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Code Review",
+      "language": "Multi-language",
+      "tags": [
+        "code-review",
+        "context",
+        "architecture",
+        "workflow",
+        "phase-1"
+      ],
+      "priority": "HIGH",
+      "based_on": "AI Templates Code Review Workflow, Anthropic Claude Code Best Practices 2025",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "agent_prompts/autonomous_agents/claude_code/skills/code-review-context-analysis/",
+      "file": "agent_prompts/autonomous_agents/claude_code/skills/code-review-context-analysis/SKILL.md",
+      "size": {
+        "lines": 809,
+        "characters": 21071,
+        "tokens_estimate": 2614
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "code-review-final-report",
+      "title": "code-review-final-report",
+      "description": "Consolidate findings from all review phases into comprehensive report with prioritized action plan, risk assessment, and implementation roadmap",
+      "long_description": "Synthesize findings from all review phases (context analysis, code quality, security, performance, testing) into a comprehensive, prioritized action plan with clear risk assessment and implementation roadmap. This skill is Phase 6 of the complete code review workflow, providing the consolidated deli...",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Code Review",
+      "language": "Multi-language",
+      "tags": [
+        "code-review",
+        "report",
+        "consolidation",
+        "workflow",
+        "phase-6"
+      ],
+      "priority": "HIGH",
+      "based_on": "AI Templates Code Review Workflow, Anthropic Claude Code Best Practices 2025",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "agent_prompts/autonomous_agents/claude_code/skills/code-review-final-report/",
+      "file": "agent_prompts/autonomous_agents/claude_code/skills/code-review-final-report/SKILL.md",
+      "size": {
+        "lines": 1047,
+        "characters": 30808,
+        "tokens_estimate": 3973
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "code-review-performance",
+      "title": "code-review-performance",
+      "description": "Systematically identify performance bottlenecks, inefficient algorithms, and resource usage issues - analyze complexity, database queries, memory usage, and I/O operations",
+      "long_description": "Systematically identify performance bottlenecks, inefficient algorithms, and resource usage issues that impact application speed, scalability, and user experience. This skill is Phase 4 of the complete code review workflow, examining computational complexity, I/O operations, memory usage, and provid...",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Code Review",
+      "language": "Multi-language",
+      "tags": [
+        "code-review",
+        "performance",
+        "optimization",
+        "workflow",
+        "phase-4"
+      ],
+      "priority": "HIGH",
+      "based_on": "AI Templates Code Review Workflow, Anthropic Claude Code Best Practices 2025",
+      "tools_required": [
+        "Task",
+        "Write"
+      ],
+      "path": "agent_prompts/autonomous_agents/claude_code/skills/code-review-performance/",
+      "file": "agent_prompts/autonomous_agents/claude_code/skills/code-review-performance/SKILL.md",
+      "size": {
+        "lines": 1060,
+        "characters": 28702,
+        "tokens_estimate": 3606
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "code-review-quality",
+      "title": "code-review-quality",
+      "description": "Systematically evaluate code maintainability, readability, and adherence to best practices - identify technical debt and complexity hotspots",
+      "long_description": "Systematically evaluate code maintainability, readability, and adherence to best practices. This skill is Phase 2 of the complete code review workflow, identifying technical debt, complexity hotspots, and areas requiring refactoring to improve long-term codebase health.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Code Review",
+      "language": "Multi-language",
+      "tags": [
+        "code-review",
+        "quality",
+        "maintainability",
+        "workflow",
+        "phase-2"
+      ],
+      "priority": "HIGH",
+      "based_on": "AI Templates Code Review Workflow, Anthropic Claude Code Best Practices 2025",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "agent_prompts/autonomous_agents/claude_code/skills/code-review-quality/",
+      "file": "agent_prompts/autonomous_agents/claude_code/skills/code-review-quality/SKILL.md",
+      "size": {
+        "lines": 883,
+        "characters": 22096,
+        "tokens_estimate": 2740
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "code-review-security",
+      "title": "code-review-security",
+      "description": "Systematically identify security vulnerabilities, insecure coding practices, and compliance gaps - assess authentication, authorization, data protection, and OWASP Top 10 vulnerabilities",
+      "long_description": "Systematically identify security vulnerabilities, insecure coding practices, and compliance gaps that could expose the application to attacks or data breaches. This skill is Phase 3 of the complete code review workflow, examining authentication, authorization, data protection, dependency vulnerabili...",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Code Review",
+      "language": "Multi-language",
+      "tags": [
+        "code-review",
+        "security",
+        "vulnerabilities",
+        "workflow",
+        "phase-3"
+      ],
+      "priority": "HIGH",
+      "based_on": "AI Templates Code Review Workflow, Anthropic Claude Code Best Practices 2025",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "agent_prompts/autonomous_agents/claude_code/skills/code-review-security/",
+      "file": "agent_prompts/autonomous_agents/claude_code/skills/code-review-security/SKILL.md",
+      "size": {
+        "lines": 1108,
+        "characters": 31827,
+        "tokens_estimate": 3624
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "code-review-testing",
+      "title": "code-review-testing",
+      "description": "Systematically assess test suite quality, coverage, and effectiveness - evaluate test structure, identify gaps, analyze test reliability and maintainability",
+      "long_description": "Systematically assess test suite quality, coverage, and effectiveness to ensure confidence in code correctness and regression prevention. This skill is Phase 5 of the complete code review workflow, examining test structure, coverage metrics, test quality, and identifying gaps that could lead to undi...",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Code Review",
+      "language": "Multi-language",
+      "tags": [
+        "code-review",
+        "testing",
+        "coverage",
+        "quality",
+        "workflow",
+        "phase-5"
+      ],
+      "priority": "HIGH",
+      "based_on": "AI Templates Code Review Workflow, Anthropic Claude Code Best Practices 2025",
+      "tools_required": [],
+      "path": "agent_prompts/autonomous_agents/claude_code/skills/code-review-testing/",
+      "file": "agent_prompts/autonomous_agents/claude_code/skills/code-review-testing/SKILL.md",
+      "size": {
+        "lines": 1127,
+        "characters": 32069,
+        "tokens_estimate": 3698
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "create-claude-md",
+      "title": "create-claude-md",
+      "description": "Generate comprehensive CLAUDE.md configuration file for optimal Claude Code performance",
+      "long_description": "Generate a comprehensive CLAUDE.md file - the single most important tool for guiding Claude Code's behavior in your project.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Configuration",
+      "language": "Multi-language",
+      "tags": [
+        "configuration",
+        "claude-md",
+        "setup",
+        "standards",
+        "best-practice"
+      ],
+      "priority": "CRITICAL",
+      "based_on": "Claude Code Best Practices 2025",
+      "tools_required": [
+        "Bash",
+        "Edit"
+      ],
+      "path": "agent_prompts/autonomous_agents/claude_code/skills/create-claude-md/",
+      "file": "agent_prompts/autonomous_agents/claude_code/skills/create-claude-md/SKILL.md",
+      "size": {
+        "lines": 722,
+        "characters": 16207,
+        "tokens_estimate": 2244
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "create-custom-command",
+      "title": "create-custom-command",
+      "description": "Create custom slash commands for Claude Code to automate repetitive workflows",
+      "long_description": "Create custom slash commands for Claude Code that automate repetitive development workflows, enforce best practices, and streamline common tasks. Transform multi-step processes into single-command operations.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Workflow",
+      "language": "Multi-language",
+      "tags": [
+        "workflow",
+        "automation",
+        "commands",
+        "productivity",
+        "claude-code"
+      ],
+      "priority": "HIGH",
+      "based_on": "",
+      "tools_required": [
+        "Read",
+        "Task",
+        "Write"
+      ],
+      "path": "agent_prompts/autonomous_agents/claude_code/skills/create-custom-command/",
+      "file": "agent_prompts/autonomous_agents/claude_code/skills/create-custom-command/SKILL.md",
+      "size": {
+        "lines": 3316,
+        "characters": 75939,
+        "tokens_estimate": 10755
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "create-subagent-workflow",
+      "title": "create-subagent-workflow",
+      "description": "",
+      "long_description": "---\ncategory: security-quality\npriority: MEDIUM\nlanguages: [python, javascript, typescript, all]\nrequires_user_input: true\nestimated_duration: 2-6 hours\n---",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "skills",
+      "language": "Generic",
+      "tags": "",
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Task",
+        "Write"
+      ],
+      "path": "agent_prompts/autonomous_agents/claude_code/skills/create-subagent-workflow/",
+      "file": "agent_prompts/autonomous_agents/claude_code/skills/create-subagent-workflow/SKILL.md",
+      "size": {
+        "lines": 1014,
+        "characters": 31378,
+        "tokens_estimate": 2697
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "create-technical-docs",
+      "title": "create-technical-docs",
+      "description": "Generate technical documentation including architecture diagrams, ADRs (Architecture Decision Records), system design docs, and development workflows",
+      "long_description": "Generate comprehensive technical documentation that captures architecture decisions, system design, data flows, integration points, and development workflows for developers and technical stakeholders.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Documentation",
+      "language": "Multi-language (Python, JavaScript, Java, C#, Go, C, C++)",
+      "tags": [
+        "documentation",
+        "architecture",
+        "adr",
+        "design-decisions",
+        "system-design",
+        "technical-docs",
+        "diagrams"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Glob",
+        "Read",
+        "Task",
+        "Write"
+      ],
+      "path": "agent_prompts/autonomous_agents/claude_code/skills/create-technical-docs/",
+      "file": "agent_prompts/autonomous_agents/claude_code/skills/create-technical-docs/SKILL.md",
+      "size": {
+        "lines": 1409,
+        "characters": 34464,
+        "tokens_estimate": 4338
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "create-user-documentation",
+      "title": "create-user-documentation",
+      "description": "Generate comprehensive user-facing documentation including README files, installation guides, tutorials, usage examples, and troubleshooting guides",
+      "long_description": "Generate clear, comprehensive user-facing documentation that enables users to quickly understand, install, configure, and effectively use your software with guides, examples, and troubleshooting help.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Documentation",
+      "language": "Multi-language (Python, JavaScript, Java, C#, Go, C, C++)",
+      "tags": [
+        "documentation",
+        "readme",
+        "user-guide",
+        "tutorial",
+        "installation",
+        "troubleshooting",
+        "getting-started"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read",
+        "Write"
+      ],
+      "path": "agent_prompts/autonomous_agents/claude_code/skills/create-user-documentation/",
+      "file": "agent_prompts/autonomous_agents/claude_code/skills/create-user-documentation/SKILL.md",
+      "size": {
+        "lines": 1111,
+        "characters": 24542,
+        "tokens_estimate": 3018
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "debug-with-logs",
+      "title": "debug-with-logs",
+      "description": "Systematic debugging using strategic logging and log analysis techniques",
+      "long_description": "Master systematic debugging through strategic logging and log analysis. Learn to add effective logging statements, analyze log output, and solve problems efficiently without relying solely on debuggers.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Workflow",
+      "language": "Multi-language",
+      "tags": [
+        "workflow",
+        "debugging",
+        "logging",
+        "troubleshooting",
+        "best-practice"
+      ],
+      "priority": "HIGH",
+      "based_on": "",
+      "tools_required": [
+        "Read",
+        "Write"
+      ],
+      "path": "agent_prompts/autonomous_agents/claude_code/skills/debug-with-logs/",
+      "file": "agent_prompts/autonomous_agents/claude_code/skills/debug-with-logs/SKILL.md",
+      "size": {
+        "lines": 1566,
+        "characters": 41260,
+        "tokens_estimate": 4316
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "dependency-security-audit",
+      "title": "dependency-security-audit",
+      "description": "Systematically audit project dependencies for known vulnerabilities (CVEs), license compliance issues, and outdated packages - generate SBOM and provide remediation strategies",
+      "long_description": "Systematically audit all project dependencies for known security vulnerabilities (CVEs), license compliance issues, and outdated packages. Generate comprehensive Software Bill of Materials (SBOM) and provide actionable remediation strategies across all supported languages.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Security",
+      "language": "Multi-language",
+      "tags": [
+        "security",
+        "dependencies",
+        "vulnerabilities",
+        "CVE",
+        "SBOM",
+        "audit",
+        "compliance"
+      ],
+      "priority": "HIGH",
+      "based_on": "OWASP Dependency-Check, Snyk Security Best Practices, NIST Software Supply Chain Guidelines",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "agent_prompts/autonomous_agents/claude_code/skills/dependency-security-audit/",
+      "file": "agent_prompts/autonomous_agents/claude_code/skills/dependency-security-audit/SKILL.md",
+      "size": {
+        "lines": 1531,
+        "characters": 40113,
+        "tokens_estimate": 4935
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "dependency-upgrade",
+      "title": "dependency-upgrade",
+      "description": "",
+      "long_description": "---\ncategory: migration-refactoring\npriority: MEDIUM\nlanguages: [python, javascript, typescript, java, csharp, go, rust]\nrequires_user_input: true\nestimated_duration: 1-4 hours\n---",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "skills",
+      "language": "Generic",
+      "tags": "",
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "agent_prompts/autonomous_agents/claude_code/skills/dependency-upgrade/",
+      "file": "agent_prompts/autonomous_agents/claude_code/skills/dependency-upgrade/SKILL.md",
+      "size": {
+        "lines": 754,
+        "characters": 18908,
+        "tokens_estimate": 2285
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "extract-microservice",
+      "title": "extract-microservice",
+      "description": "",
+      "long_description": "---\ncategory: migration-refactoring\npriority: MEDIUM\nlanguages: [python, javascript, typescript, java, csharp, go]\nrequires_user_input: true\nestimated_duration: 4-16 hours\n---",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "skills",
+      "language": "Generic",
+      "tags": "",
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "agent_prompts/autonomous_agents/claude_code/skills/extract-microservice/",
+      "file": "agent_prompts/autonomous_agents/claude_code/skills/extract-microservice/SKILL.md",
+      "size": {
+        "lines": 1215,
+        "characters": 33394,
+        "tokens_estimate": 3130
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "generate-api-docs",
+      "title": "generate-api-docs",
+      "description": "Generate comprehensive API reference documentation with examples for all public interfaces across multiple languages",
+      "long_description": "Create comprehensive, production-ready API reference documentation with examples, schemas, and integration guides for all public interfaces in your codebase.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Documentation",
+      "language": "Multi-language (Python, JavaScript, Java, C#, Go, C, C++)",
+      "tags": [
+        "documentation",
+        "api",
+        "reference",
+        "multi-language",
+        "openapi",
+        "swagger"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "agent_prompts/autonomous_agents/claude_code/skills/generate-api-docs/",
+      "file": "agent_prompts/autonomous_agents/claude_code/skills/generate-api-docs/SKILL.md",
+      "size": {
+        "lines": 527,
+        "characters": 13973,
+        "tokens_estimate": 1722
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "generate-docstrings",
+      "title": "generate-docstrings",
+      "description": "Generate comprehensive docstrings and inline documentation for all functions, classes, and modules with type hints and usage examples",
+      "long_description": "Create comprehensive, standards-compliant docstrings and inline documentation for all public and private interfaces including functions, methods, classes, and modules with complete parameter descriptions, return values, exceptions, and usage examples.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Documentation",
+      "language": "Multi-language (Python, JavaScript, Java, C#, Go, C, C++)",
+      "tags": [
+        "documentation",
+        "docstrings",
+        "jsdoc",
+        "javadoc",
+        "xml-docs",
+        "godoc",
+        "doxygen",
+        "comments",
+        "type-hints"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Write"
+      ],
+      "path": "agent_prompts/autonomous_agents/claude_code/skills/generate-docstrings/",
+      "file": "agent_prompts/autonomous_agents/claude_code/skills/generate-docstrings/SKILL.md",
+      "size": {
+        "lines": 812,
+        "characters": 23363,
+        "tokens_estimate": 3014
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "generate-sbom",
+      "title": "generate-sbom",
+      "description": "Generate Software Bill of Materials (SBOM) documenting all components, dependencies, licenses, and vulnerabilities for compliance and security",
+      "long_description": "Generate comprehensive, standards-compliant SBOM documentation that inventories all software components, dependencies, versions, licenses, and known vulnerabilities for security, compliance, and supply chain management.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Documentation",
+      "language": "Multi-language (Python, JavaScript, Java, C#, Go, C, C++)",
+      "tags": [
+        "sbom",
+        "compliance",
+        "security",
+        "dependencies",
+        "licenses",
+        "vulnerabilities",
+        "cyclonedx",
+        "spdx",
+        "supply-chain"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "agent_prompts/autonomous_agents/claude_code/skills/generate-sbom/",
+      "file": "agent_prompts/autonomous_agents/claude_code/skills/generate-sbom/SKILL.md",
+      "size": {
+        "lines": 1134,
+        "characters": 28913,
+        "tokens_estimate": 3075
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "generate-test-cases",
+      "title": "generate-test-cases",
+      "description": "Create comprehensive unit, integration, and end-to-end tests with proper patterns and edge case coverage",
+      "long_description": "Create comprehensive test suites covering unit tests, integration tests, and end-to-end scenarios with proper test patterns, edge case handling, and boundary testing across all supported languages.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Testing",
+      "language": "Multi-language",
+      "tags": [
+        "testing",
+        "test-cases",
+        "unit-tests",
+        "integration-tests",
+        "e2e",
+        "edge-cases",
+        "AAA-pattern",
+        "given-when-then"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "Test Development Templates - Test Cases",
+      "tools_required": [
+        "Write"
+      ],
+      "path": "agent_prompts/autonomous_agents/claude_code/skills/generate-test-cases/",
+      "file": "agent_prompts/autonomous_agents/claude_code/skills/generate-test-cases/SKILL.md",
+      "size": {
+        "lines": 1222,
+        "characters": 33484,
+        "tokens_estimate": 2933
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "init-csharp-project",
+      "title": "init-csharp-project",
+      "description": "Initialize complete C# project with .NET 8+, ASP.NET Core Web API, Entity Framework Core, and production-ready configuration",
+      "long_description": "Create a complete, production-ready C# project with .NET 8+, ASP.NET Core Web API, Entity Framework Core, comprehensive testing framework, and documentation in minutes. Supports REST APIs, microservices, and Clean Architecture patterns.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Project Initialization",
+      "language": "C#",
+      "tags": [
+        "csharp",
+        "dotnet",
+        "aspnet-core",
+        "entity-framework",
+        "initialization",
+        "setup",
+        "project-structure"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Glob",
+        "Read",
+        "Task",
+        "Write"
+      ],
+      "path": "agent_prompts/autonomous_agents/claude_code/skills/init-csharp-project/",
+      "file": "agent_prompts/autonomous_agents/claude_code/skills/init-csharp-project/SKILL.md",
+      "size": {
+        "lines": 1226,
+        "characters": 31800,
+        "tokens_estimate": 3275
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "init-java-project",
+      "title": "init-java-project",
+      "description": "Initialize complete Java project with Spring Boot, Maven/Gradle build tools, testing framework, and production-ready configuration",
+      "long_description": "Create a complete, production-ready Java project with Spring Boot, Maven or Gradle build tools, comprehensive testing framework, and documentation in minutes. Supports REST APIs, microservices, and enterprise applications.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Project Initialization",
+      "language": "Java",
+      "tags": [
+        "java",
+        "spring-boot",
+        "maven",
+        "gradle",
+        "initialization",
+        "setup",
+        "project-structure"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Glob",
+        "Read",
+        "Task",
+        "Write"
+      ],
+      "path": "agent_prompts/autonomous_agents/claude_code/skills/init-java-project/",
+      "file": "agent_prompts/autonomous_agents/claude_code/skills/init-java-project/SKILL.md",
+      "size": {
+        "lines": 1298,
+        "characters": 30526,
+        "tokens_estimate": 3072
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "init-javascript-project",
+      "title": "init-javascript-project",
+      "description": "Initialize complete JavaScript/TypeScript project with Node.js backend, React frontend, or Next.js full-stack configuration",
+      "long_description": "Create a complete, production-ready JavaScript/TypeScript project with standard structure, configuration files, testing framework, and documentation in minutes. Supports Node.js backend, React frontend, and Next.js full-stack applications.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Project Initialization",
+      "language": "JavaScript/TypeScript",
+      "tags": [
+        "javascript",
+        "typescript",
+        "nodejs",
+        "react",
+        "nextjs",
+        "initialization",
+        "setup",
+        "project-structure"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Edit",
+        "Glob",
+        "Read",
+        "Task",
+        "Write"
+      ],
+      "path": "agent_prompts/autonomous_agents/claude_code/skills/init-javascript-project/",
+      "file": "agent_prompts/autonomous_agents/claude_code/skills/init-javascript-project/SKILL.md",
+      "size": {
+        "lines": 1201,
+        "characters": 26162,
+        "tokens_estimate": 3169
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "init-python-project",
+      "title": "init-python-project",
+      "description": "Initialize complete Python project with standard structure, configuration files, and documentation",
+      "long_description": "Create a complete, production-ready Python project with standard structure, configuration files, testing framework, and documentation in minutes.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Project Initialization",
+      "language": "Python",
+      "tags": [
+        "python",
+        "initialization",
+        "setup",
+        "project-structure",
+        "boilerplate"
+      ],
+      "priority": "HIGH",
+      "based_on": "",
+      "tools_required": [
+        "Read",
+        "Task",
+        "Write"
+      ],
+      "path": "agent_prompts/autonomous_agents/claude_code/skills/init-python-project/",
+      "file": "agent_prompts/autonomous_agents/claude_code/skills/init-python-project/SKILL.md",
+      "size": {
+        "lines": 741,
+        "characters": 16353,
+        "tokens_estimate": 2193
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "licensing-compliance-check",
+      "title": "licensing-compliance-check",
+      "description": "",
+      "long_description": "---\ncategory: security-quality\npriority: MEDIUM\nlanguages: [python, javascript, typescript, java, csharp, go, rust]\nrequires_user_input: true\nestimated_duration: 1-3 hours\n---",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "skills",
+      "language": "Generic",
+      "tags": "",
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Write"
+      ],
+      "path": "agent_prompts/autonomous_agents/claude_code/skills/licensing-compliance-check/",
+      "file": "agent_prompts/autonomous_agents/claude_code/skills/licensing-compliance-check/SKILL.md",
+      "size": {
+        "lines": 810,
+        "characters": 25726,
+        "tokens_estimate": 2251
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "migrate-python-2-to-3",
+      "title": "migrate-python-2-to-3",
+      "description": "",
+      "long_description": "---\ncategory: migration-refactoring\npriority: MEDIUM\nlanguages: [python]\nrequires_user_input: true\nestimated_duration: 2-6 hours\n---",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "skills",
+      "language": "Generic",
+      "tags": "",
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "agent_prompts/autonomous_agents/claude_code/skills/migrate-python-2-to-3/",
+      "file": "agent_prompts/autonomous_agents/claude_code/skills/migrate-python-2-to-3/SKILL.md",
+      "size": {
+        "lines": 880,
+        "characters": 21576,
+        "tokens_estimate": 2930
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "optimize-context-usage",
+      "title": "optimize-context-usage",
+      "description": "",
+      "long_description": "---\ncategory: security-quality\npriority: MEDIUM\nlanguages: [all]\nrequires_user_input: false\nestimated_duration: 1-3 hours\n---",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "skills",
+      "language": "Generic",
+      "tags": "",
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "agent_prompts/autonomous_agents/claude_code/skills/optimize-context-usage/",
+      "file": "agent_prompts/autonomous_agents/claude_code/skills/optimize-context-usage/SKILL.md",
+      "size": {
+        "lines": 938,
+        "characters": 29371,
+        "tokens_estimate": 2747
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "plan-before-code",
+      "title": "plan-before-code",
+      "description": "Guide Claude through exploration and planning phases before implementation (Anthropic best practice)",
+      "long_description": "Guide Claude Code through systematic exploration and planning before jumping into implementation. This Anthropic-recommended workflow significantly improves code quality and reduces iterations.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Workflow",
+      "language": "Multi-language",
+      "tags": [
+        "workflow",
+        "planning",
+        "best-practice",
+        "anthropic",
+        "methodology"
+      ],
+      "priority": "CRITICAL",
+      "based_on": "Anthropic Claude Code Best Practices 2025",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "agent_prompts/autonomous_agents/claude_code/skills/plan-before-code/",
+      "file": "agent_prompts/autonomous_agents/claude_code/skills/plan-before-code/SKILL.md",
+      "size": {
+        "lines": 581,
+        "characters": 15376,
+        "tokens_estimate": 2224
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "pre-commit-checklist",
+      "title": "pre-commit-checklist",
+      "description": "Implement comprehensive automated pre-commit quality checks including linting, formatting, type checking, unit tests, security scans, and commit message validation - prevent defects before they enter version control",
+      "long_description": "Implement comprehensive automated pre-commit quality checks that validate code before it enters version control. Prevent defects, security issues, and policy violations by catching problems at commit time through linting, formatting, type checking, unit tests, security scans, and commit message vali...",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Security",
+      "language": "Multi-language",
+      "tags": [
+        "security",
+        "quality",
+        "git-hooks",
+        "pre-commit",
+        "automation",
+        "linting",
+        "testing",
+        "CI/CD"
+      ],
+      "priority": "HIGH",
+      "based_on": "Git Hooks Best Practices, Pre-commit Framework, Husky, Conventional Commits",
+      "tools_required": [
+        "Bash",
+        "Task"
+      ],
+      "path": "agent_prompts/autonomous_agents/claude_code/skills/pre-commit-checklist/",
+      "file": "agent_prompts/autonomous_agents/claude_code/skills/pre-commit-checklist/SKILL.md",
+      "size": {
+        "lines": 1787,
+        "characters": 41197,
+        "tokens_estimate": 4658
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "refactor-for-testability",
+      "title": "refactor-for-testability",
+      "description": "",
+      "long_description": "---\ncategory: migration-refactoring\npriority: MEDIUM\nlanguages: [python, javascript, typescript, java, csharp, go]\nrequires_user_input: true\nestimated_duration: 2-8 hours\n---",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "skills",
+      "language": "Generic",
+      "tags": "",
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Glob",
+        "Write"
+      ],
+      "path": "agent_prompts/autonomous_agents/claude_code/skills/refactor-for-testability/",
+      "file": "agent_prompts/autonomous_agents/claude_code/skills/refactor-for-testability/SKILL.md",
+      "size": {
+        "lines": 1236,
+        "characters": 34604,
+        "tokens_estimate": 3486
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "setup-c-system-prompt",
+      "title": "setup-c-system-prompt",
+      "description": "Configure comprehensive C development system prompt for Claude Code with embedded systems focus, MISRA-C standards, and memory safety best practices",
+      "long_description": "Configure Claude Code with comprehensive C development standards, embedded systems best practices, and safety-critical development workflows optimized for production-quality C code generation.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Configuration",
+      "language": "C",
+      "tags": [
+        "c",
+        "setup",
+        "system-prompt",
+        "configuration",
+        "embedded",
+        "standards",
+        "misra"
+      ],
+      "priority": "HIGH",
+      "based_on": "",
+      "tools_required": [
+        "Task",
+        "Write"
+      ],
+      "path": "agent_prompts/autonomous_agents/claude_code/skills/setup-c-system-prompt/",
+      "file": "agent_prompts/autonomous_agents/claude_code/skills/setup-c-system-prompt/SKILL.md",
+      "size": {
+        "lines": 626,
+        "characters": 17682,
+        "tokens_estimate": 2200
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "setup-cpp-system-prompt",
+      "title": "setup-cpp-system-prompt",
+      "description": "Configure comprehensive C++ development system prompt for Claude Code with modern C++ features, RAII, smart pointers, and exception safety best practices",
+      "long_description": "Configure Claude Code with comprehensive modern C++ development standards, best practices, and workflows optimized for production-quality C++ code generation with C++17/C++20 features.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Configuration",
+      "language": "C++",
+      "tags": [
+        "cpp",
+        "c++",
+        "setup",
+        "system-prompt",
+        "configuration",
+        "modern-cpp",
+        "standards",
+        "raii"
+      ],
+      "priority": "HIGH",
+      "based_on": "",
+      "tools_required": [
+        "Task"
+      ],
+      "path": "agent_prompts/autonomous_agents/claude_code/skills/setup-cpp-system-prompt/",
+      "file": "agent_prompts/autonomous_agents/claude_code/skills/setup-cpp-system-prompt/SKILL.md",
+      "size": {
+        "lines": 767,
+        "characters": 21156,
+        "tokens_estimate": 2519
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "setup-csharp-system-prompt",
+      "title": "setup-csharp-system-prompt",
+      "description": "Configure comprehensive C#/.NET development system prompt for Claude Code with best practices, standards, and workflows",
+      "long_description": "Configure Claude Code with comprehensive C#/.NET development standards, best practices, and workflows optimized for production-quality enterprise applications.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Configuration",
+      "language": "C#",
+      "tags": [
+        "csharp",
+        "dotnet",
+        "setup",
+        "system-prompt",
+        "configuration",
+        "standards",
+        "aspnetcore",
+        "entityframework"
+      ],
+      "priority": "HIGH",
+      "based_on": "",
+      "tools_required": [
+        "Glob",
+        "Task",
+        "Write"
+      ],
+      "path": "agent_prompts/autonomous_agents/claude_code/skills/setup-csharp-system-prompt/",
+      "file": "agent_prompts/autonomous_agents/claude_code/skills/setup-csharp-system-prompt/SKILL.md",
+      "size": {
+        "lines": 591,
+        "characters": 18088,
+        "tokens_estimate": 2141
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "setup-go-system-prompt",
+      "title": "setup-go-system-prompt",
+      "description": "Configure comprehensive Go development system prompt for Claude Code with idiomatic Go practices, standards, and workflows",
+      "long_description": "Configure Claude Code with comprehensive Go development standards, idiomatic Go practices, and workflows optimized for production-quality Go code generation.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Configuration",
+      "language": "Go",
+      "tags": [
+        "go",
+        "golang",
+        "setup",
+        "system-prompt",
+        "configuration",
+        "standards",
+        "idiomatic"
+      ],
+      "priority": "HIGH",
+      "based_on": "",
+      "tools_required": [
+        "Read",
+        "Write"
+      ],
+      "path": "agent_prompts/autonomous_agents/claude_code/skills/setup-go-system-prompt/",
+      "file": "agent_prompts/autonomous_agents/claude_code/skills/setup-go-system-prompt/SKILL.md",
+      "size": {
+        "lines": 1077,
+        "characters": 29771,
+        "tokens_estimate": 3694
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "setup-java-system-prompt",
+      "title": "setup-java-system-prompt",
+      "description": "Configure comprehensive Java development system prompt for Claude Code with Spring Boot, Maven/Gradle, testing frameworks, and enterprise best practices",
+      "long_description": "Configure Claude Code with comprehensive Java development standards, best practices, and workflows optimized for enterprise-quality Spring Boot application development.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Configuration",
+      "language": "Java",
+      "tags": [
+        "java",
+        "spring-boot",
+        "setup",
+        "system-prompt",
+        "configuration",
+        "standards",
+        "maven",
+        "gradle",
+        "junit"
+      ],
+      "priority": "HIGH",
+      "based_on": "",
+      "tools_required": [
+        "Task",
+        "Write"
+      ],
+      "path": "agent_prompts/autonomous_agents/claude_code/skills/setup-java-system-prompt/",
+      "file": "agent_prompts/autonomous_agents/claude_code/skills/setup-java-system-prompt/SKILL.md",
+      "size": {
+        "lines": 753,
+        "characters": 22617,
+        "tokens_estimate": 2694
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "setup-javascript-system-prompt",
+      "title": "setup-javascript-system-prompt",
+      "description": "Configure comprehensive JavaScript/TypeScript development standards for Claude Code with best practices, testing frameworks, and modern workflows",
+      "long_description": "Configure Claude Code with comprehensive JavaScript/TypeScript development standards, best practices, and workflows optimized for production-quality code generation across Node.js, React, and full-stack applications.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Configuration",
+      "language": "JavaScript, TypeScript",
+      "tags": [
+        "configuration",
+        "javascript",
+        "typescript",
+        "system-prompt",
+        "standards",
+        "node",
+        "react",
+        "jest",
+        "eslint"
+      ],
+      "priority": "HIGH",
+      "based_on": "",
+      "tools_required": [
+        "Glob",
+        "Task"
+      ],
+      "path": "agent_prompts/autonomous_agents/claude_code/skills/setup-javascript-system-prompt/",
+      "file": "agent_prompts/autonomous_agents/claude_code/skills/setup-javascript-system-prompt/SKILL.md",
+      "size": {
+        "lines": 732,
+        "characters": 24115,
+        "tokens_estimate": 2844
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "setup-python-system-prompt",
+      "title": "setup-python-system-prompt",
+      "description": "Configure comprehensive Python development system prompt for Claude Code with best practices, standards, and workflows",
+      "long_description": "Configure Claude Code with comprehensive Python development standards, best practices, and workflows optimized for production-quality code generation.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Configuration",
+      "language": "Python",
+      "tags": [
+        "python",
+        "setup",
+        "system-prompt",
+        "configuration",
+        "standards"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Task"
+      ],
+      "path": "agent_prompts/autonomous_agents/claude_code/skills/setup-python-system-prompt/",
+      "file": "agent_prompts/autonomous_agents/claude_code/skills/setup-python-system-prompt/SKILL.md",
+      "size": {
+        "lines": 259,
+        "characters": 8758,
+        "tokens_estimate": 1126
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "setup-test-infrastructure",
+      "title": "setup-test-infrastructure",
+      "description": "Establish comprehensive testing frameworks and directory structure across all languages",
+      "long_description": "Establish robust testing frameworks with optimal configuration, logical directory organization, efficient fixture management, and reusable test utilities to support comprehensive testing practices across Python, JavaScript, Java, C#, Go, C, and C++ projects.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Testing",
+      "language": "Multi-language",
+      "tags": [
+        "testing",
+        "infrastructure",
+        "framework",
+        "setup",
+        "pytest",
+        "jest",
+        "junit",
+        "xunit",
+        "go-testing",
+        "unity",
+        "googletest"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "Test Development Templates - Test Structure",
+      "tools_required": [
+        "Glob",
+        "Write"
+      ],
+      "path": "agent_prompts/autonomous_agents/claude_code/skills/setup-test-infrastructure/",
+      "file": "agent_prompts/autonomous_agents/claude_code/skills/setup-test-infrastructure/SKILL.md",
+      "size": {
+        "lines": 1190,
+        "characters": 25745,
+        "tokens_estimate": 2949
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "test-driven-development",
+      "title": "test-driven-development",
+      "description": "Implement Test-Driven Development (TDD) workflow - write tests first, then code (Anthropic-favorite)",
+      "long_description": "Implement features using the Test-Driven Development workflow: write tests first, then write code to make them pass. This Anthropic-favorite approach ensures high code quality, comprehensive test coverage, and fewer bugs.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Workflow",
+      "language": "Multi-language",
+      "tags": [
+        "workflow",
+        "testing",
+        "tdd",
+        "best-practice",
+        "quality",
+        "anthropic"
+      ],
+      "priority": "CRITICAL",
+      "based_on": "Anthropic Claude Code Best Practices 2025, Test Development Templates",
+      "tools_required": [
+        "Write"
+      ],
+      "path": "agent_prompts/autonomous_agents/claude_code/skills/test-driven-development/",
+      "file": "agent_prompts/autonomous_agents/claude_code/skills/test-driven-development/SKILL.md",
+      "size": {
+        "lines": 881,
+        "characters": 25205,
+        "tokens_estimate": 2913
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    }
+  ]
+}

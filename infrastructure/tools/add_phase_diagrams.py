@@ -5,7 +5,7 @@ This script adds visual phase diagrams to all test development templates
 to help users understand where they are in the 8-phase methodology.
 
 Authors:
-    - Benjamin Dourthe (benjamin@adonamed.com)
+    - Benjamin Dourthe (benjamin.dourthe@gmail.com)
 """
 import os
 import re
@@ -162,7 +162,7 @@ def add_diagram_to_file(filepath: Path) -> bool:
 
 def main():
     """Add phase diagrams to all testing templates."""
-    base_path = Path(__file__).parent.parent / 'test_development'
+    base_path = Path(__file__).parent.parent.parent / 'templates' / 'development' / 'tests-generation'
 
     if not base_path.exists():
         print(f"❌ Test development directory not found: {base_path}")

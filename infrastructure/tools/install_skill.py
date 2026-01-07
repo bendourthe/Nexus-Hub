@@ -10,7 +10,7 @@ Usage:
     python tools/install_skill.py --list
 
 Authors:
-    - Benjamin Dourthe (benjamin@adonamed.com)
+    - Benjamin Dourthe (benjamin.dourthe@gmail.com)
 """
 import argparse
 import json
@@ -30,8 +30,8 @@ class SkillInstaller:
             repository_root = Path(__file__).parent.parent.parent
 
         self.repo_root = repository_root
-        self.skills_source = repository_root / 'templates' / 'ai_instructions' / 'autonomous_agents' / 'claude_code' / 'skills'
-        self.catalog_path = repository_root / 'catalogs' / 'skills.json'
+        self.skills_source = repository_root / 'claude-skills-catalog'
+        self.catalog_path = repository_root / 'skills.json'
 
         # Load catalog
         if not self.catalog_path.exists():

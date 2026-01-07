@@ -5,7 +5,7 @@ This script scans all templates with YAML frontmatter and generates a searchable
 JSON catalog for use in web interfaces and CLI tools.
 
 Authors:
-    - Benjamin Dourthe (benjamin@adonamed.com)
+    - Benjamin Dourthe (benjamin.dourthe@gmail.com)
 """
 import json
 import os
@@ -64,11 +64,12 @@ def scan_templates(base_path: Path) -> List[Dict]:
     """Scan all template directories and extract metadata."""
     templates = []
     categories = [
-        'templates/code_cleanup',
-        'templates/code_review',
-        'templates/test_development',
-        'templates/documentation_generation',
-        'templates/ai_instructions'
+        'templates/development/codebase-cleanup',
+        'templates/development/codebase-review',
+        'templates/development/tests-generation',
+        'templates/development/documentation-generation',
+        'templates/development/compliance-review',
+        'templates/ai-instructions'
     ]
 
     for category in categories:
@@ -194,11 +195,8 @@ def main():
     print("Generating catalog with statistics...")
     catalog = generate_catalog(templates)
 
-    # Create catalogs directory if it doesn't exist
-    catalogs_dir = base_path / 'catalogs'
-    catalogs_dir.mkdir(exist_ok=True)
-
-    output_path = catalogs_dir / 'templates.json'
+    # Save to repository root
+    output_path = base_path / 'templates.json'
     with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(catalog, f, indent=2, ensure_ascii=False)
 

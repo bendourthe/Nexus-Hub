@@ -5,7 +5,7 @@ Scans all skills in the repository and extracts metadata from YAML frontmatter
 to create a machine-readable catalog for discovery and installation.
 
 Authors:
-    - Benjamin Dourthe (benjamin@adonamed.com)
+    - Benjamin Dourthe (benjamin.dourthe@gmail.com)
 """
 import json
 import os
@@ -143,7 +143,7 @@ def assign_category(skill_name: str, frontmatter: Dict) -> str:
 
 def build_catalog() -> List[Dict[str, Any]]:
     """Build complete skills catalog."""
-    skills_base = Path(__file__).parent.parent.parent / 'templates' / 'ai_instructions' / 'autonomous_agents' / 'claude_code' / 'skills'
+    skills_base = Path(__file__).parent.parent.parent / 'claude-skills-catalog'
 
     catalog = []
 
@@ -174,8 +174,8 @@ def build_catalog() -> List[Dict[str, Any]]:
             'priority': frontmatter.get('priority', 'MEDIUM'),
             'based_on': frontmatter.get('based_on', ''),
             'tools_required': extract_tools_required(skill_file),
-            'path': f'agent_prompts/autonomous_agents/claude_code/skills/{skill_name}/',
-            'file': f'agent_prompts/autonomous_agents/claude_code/skills/{skill_name}/SKILL.md',
+            'path': f'claude-skills-catalog/{skill_name}/',
+            'file': f'claude-skills-catalog/{skill_name}/SKILL.md',
             'size': calculate_skill_size(skill_file),
             'downloads': 0,
             'status': 'production',
@@ -220,7 +220,7 @@ def generate_statistics(catalog: List[Dict]) -> Dict[str, Any]:
         'total_tokens_estimate': total_tokens,
         'average_lines_per_skill': total_lines // len(catalog) if catalog else 0,
         'languages_supported': ['Python', 'JavaScript', 'Java', 'C#', 'Go', 'C', 'C++'],
-        'repository': 'https://github.com/bdourthe/ai_templates',
+        'repository': 'https://github.com/bdourthe/devai-hub',
         'last_updated': '2025-10-21'
     }
 
@@ -240,20 +240,16 @@ def main():
         'metadata': {
             'version': '1.0.0',
             'generated': '2025-10-21',
-            'repository': 'https://github.com/bdourthe/ai_templates',
+            'repository': 'https://github.com/bdourthe/devai-hub',
             'description': 'Comprehensive catalog of Claude Code skills for autonomous AI development'
         },
         'statistics': stats,
         'skills': catalog
     }
 
-    # Save catalog
-    # Create catalogs directory if it doesn't exist (at repository root)
+    # Save catalog to repository root
     base_path = Path(__file__).parent.parent.parent
-    catalogs_dir = base_path / 'catalogs'
-    catalogs_dir.mkdir(exist_ok=True)
-
-    output_path = catalogs_dir / 'skills.json'
+    output_path = base_path / 'skills.json'
     with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(output, f, indent=2, ensure_ascii=False)
 
