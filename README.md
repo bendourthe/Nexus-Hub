@@ -152,6 +152,7 @@ Once installed, skills activate automatically when you describe related tasks.
 | **[Orchestration](claude-skills-catalog/orchestration/)** | 3 | Task coordination, context management, workflow orchestration |
 | **[Developer Experience](claude-skills-catalog/developer-experience/)** | 3 | Refactoring, legacy modernization, dependency management |
 | **[Language Specialists](claude-skills-catalog/language-specialists/)** | 3 | Deep expertise in Rust, Go, SQL |
+| **[Research](claude-skills-catalog/research/)** | 1 | Trend analysis, prompt generation, community consensus |
 
 ### Pre-Built Slash Commands
 

@@ -1853,6 +1853,43 @@
         "semantic": 95,
         "validated": true
       }
+    },
+    {
+      "name": "trend-research",
+      "title": "trend-research",
+      "description": "Research recent trends (last 30 days) on any topic and generate production-ready prompts",
+      "long_description": "Research any topic across Reddit, X (Twitter), and the web to identify recent trends (last 30 days), synthesize community consensus, and generate production-ready prompts or recommendations based on real-world usage patterns.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Research",
+      "language": "Multi-language",
+      "tags": [
+        "research",
+        "trends",
+        "prompt-engineering",
+        "analysis",
+        "web-search"
+      ],
+      "priority": "HIGH",
+      "based_on": "mvanhorn/last30days-skill",
+      "tools_required": [
+        "Search"
+      ],
+      "path": "claude-skills-catalog/research/trend-research/",
+      "file": "claude-skills-catalog/research/trend-research/SKILL.md",
+      "size": {
+        "lines": 90,
+        "characters": 3500,
+        "tokens_estimate": 800
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 100,
+        "validated": true
+      }
     }
   ]
 }
