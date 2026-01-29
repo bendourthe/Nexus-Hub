@@ -1,0 +1,9 @@
+# Enforce consistent line endings
+* text=auto
+
+# Ensure script files keep LF if needed (optional, but good for bash)
+*.sh text eol=lf
+*.ps1 text=auto
+
+# Documentation
+*.md text=auto

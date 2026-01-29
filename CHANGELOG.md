@@ -11,6 +11,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.5.0] - 2026-01-28
+
+### Changed
+
+#### Universal Catalog Refactoring
+Massive structural simplification to create a single source of truth for all AI assets.
+
+- **New `catalog/` Directory**: Centralized formatted assets.
+  - `catalog/skills/`: Consolidated skills (formerly `claude-skills-catalog`).
+  - `catalog/commands/`: Language-agnostic slash commands.
+  - `catalog/context/` & `catalog/memory/`: Shared architecture/decision templates.
+  - `catalog/CLAUDE.md`: Universal system prompt template.
+
+- **Removed**:
+  - `claude-skills-catalog/` (merged into catalog).
+  - `templates/ai-instructions/claude-code/` (legacy language-specific redundancy removed).
+
+#### Installer V5
+Complete rewrite of `installer.ps1` implementation.
+- **Unified Logic**: Now installs to both `.claude` and `.gemini` using the same catalog source.
+- **Enhanced UX**:
+  - Clearer prompts (`[Y]es / [N]o / [A]ll`).
+  - "Overwrite All" support for bulk updates.
+  - Strict, consistent logging (e.g., `✓ Global instructions installed at...`).
+  - Restored support for Copilot, Cursor, and Windsurf global/workspace configuration.
+
+### Added
+
+#### New Operational Commands
+- `/generate-tests`: Deep comprehensive test suite generation (Unit, Feature, Edge Cases).
+- `/run-deep-review`: Comprehensive code analysis and reporting.
+- `/generate-sbom`: Generate Software Bill of Materials (JSON/Markdown).
+- `/create-skill-or-command`: Interactive wizard to build new AI capabilities.
+- `/generate-commit-message`: Context-aware git commit message generation.
+- `/update-devlog`: "Flight recorder" logger for development context.
+
+---
+
 ## [0.4.0] - 2026-01-07
 
 ### Changed

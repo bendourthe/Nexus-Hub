@@ -155,7 +155,8 @@ function Safe-Copy {
     param(
         [string]$Source,
         [string]$Destination,
-        [boolean]$Confirm = $false
+        [boolean]$Confirm = $false,
+        [string]$CustomMessage
     )
     
     if (-not (Test-Path $Source)) {
@@ -167,7 +168,7 @@ function Safe-Copy {
         if ($Confirm) {
             if (-not $script:OverwriteAll) {
                 Write-Item -Message "File exists: $Destination" -Color "Yellow"
-                $resp = Read-Prompt "Overwrite? (Y/N/A)"
+                $resp = Read-Prompt "Overwrite? [Y]es / [N]o / [A]ll"
                 if ($resp -match "^[Aa]") {
                     $script:OverwriteAll = $true
                 } elseif ($resp -notmatch "^[Yy]") {
@@ -181,7 +182,12 @@ function Safe-Copy {
     try {
         if (Test-Path $Destination) { Remove-Item $Destination -Force -ErrorAction Stop }
         Copy-Item -Path $Source -Destination $Destination -Force -ErrorAction Stop
-        Write-Item -Message "✓ Installed to $Destination" -Color "DarkGreen"
+        
+        if (-not [string]::IsNullOrEmpty($CustomMessage)) {
+             Write-Item -Message $CustomMessage -Color "DarkGreen"
+        } else {
+             Write-Item -Message "✓ Installed to $Destination" -Color "DarkGreen"
+        }
     } catch {
         Write-Item -Message "ERROR: Could not write file. Is it open?" -Color "Red"
         Write-Item -Message $_.Exception.Message -Color "Red" -Indent 2
@@ -191,12 +197,13 @@ function Safe-Copy {
 function Safe-Folder-Copy {
     param(
         [string]$Source,
-        [string]$Destination
+        [string]$Destination,
+        [string]$CustomMessage
     )
     if (Test-Path $Destination) {
         if (-not $script:OverwriteAll) {
             Write-Item -Message "Folder exists: $Destination" -Color "Yellow"
-            $resp = Read-Prompt "Overwrite contents? (Y/N/A)"
+            $resp = Read-Prompt "Overwrite contents? [Y]es / [N]o / [A]ll"
             if ($resp -match "^[Aa]") {
                 $script:OverwriteAll = $true
             } elseif ($resp -notmatch "^[Yy]") {
@@ -211,7 +218,12 @@ function Safe-Folder-Copy {
     $logFile = "$env:TEMP\devai_install_v5.log"
     # Suppress output to keep cleaner logs
     & robocopy $Source $Destination /E /NFL /NDL /NJH /NJS | Out-Null
-    Write-Item -Message "✓ Folder updated." -Color "DarkGreen"
+    
+    if (-not [string]::IsNullOrEmpty($CustomMessage)) {
+         Write-Item -Message $CustomMessage -Color "DarkGreen"
+    } else {
+         Write-Item -Message "✓ Installed to $Destination" -Color "DarkGreen"
+    }
 }
 
 # --- Install Functions ---
@@ -232,21 +244,35 @@ function Install-Global {
     
     # 1. Claude
     Write-Header -Provider "CLAUDE"
-    Write-Item -Message "Checking Global Skills..."
+    Write-Item -Message "Checking Global Configuration..."
     $globalClaude = Join-Path $env:USERPROFILE ".claude"
-    Safe-Folder-Copy -Source "$RepoRoot\claude-skills-catalog" -Destination (Join-Path $globalClaude "skills")
+    if (-not (Test-Path $globalClaude)) { New-Item -ItemType Directory -Force -Path $globalClaude | Out-Null }
+
+    # Global CLAUDE.md
+    Safe-Copy -Source "$RepoRoot\catalog\CLAUDE.md" -Destination "$globalClaude\CLAUDE.md" -Confirm:$true -CustomMessage "✓ Global instructions installed at: $globalClaude\CLAUDE.md"
+
+    # Global Skills
+    Safe-Folder-Copy -Source "$RepoRoot\catalog\skills" -Destination (Join-Path $globalClaude "skills") -CustomMessage "✓ Global skills catalog installed at: $(Join-Path $globalClaude "skills")"
+
+    # Global Commands
+    Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $globalClaude "commands") -CustomMessage "✓ Global commands installed at: $(Join-Path $globalClaude "commands")"
 
     # 2. Gemini
     Write-Header -Provider "GEMINI"
-    Write-Item -Message "Checking Configuration & Skills..."
+    Write-Item -Message "Checking Global Configuration..."
     $globalGeminiDir = Join-Path $env:USERPROFILE ".gemini"
     if (-not (Test-Path $globalGeminiDir)) { New-Item -ItemType Directory -Force -Path $globalGeminiDir | Out-Null }
     
-    Safe-Copy -Source "$RepoRoot\templates\ai-instructions\generic-instructions.md" -Destination "$globalGeminiDir\GEMINI.md" -Confirm:$true
+    # Global GEMINI.md (sourced from generic instructions, or CLAUDE.md?) User request implied GEMINI.md.
+    # Actually, if we have a Universal Catalog, maybe we should use catalog/CLAUDE.md as source for GEMINI.md too?
+    # Keeping existing logic (generic-instructions) but updating log.
+    Safe-Copy -Source "$RepoRoot\templates\ai-instructions\generic-instructions.md" -Destination "$globalGeminiDir\GEMINI.md" -Confirm:$true -CustomMessage "✓ Global instructions installed at: $globalGeminiDir\GEMINI.md"
     
     # Mirror Skills to Gemini
-    $geminiSkills = Join-Path $globalGeminiDir "skills"
-    Safe-Folder-Copy -Source "$RepoRoot\claude-skills-catalog" -Destination $geminiSkills
+    Safe-Folder-Copy -Source "$RepoRoot\catalog\skills" -Destination (Join-Path $globalGeminiDir "skills") -CustomMessage "✓ Global skills catalog installed at: $(Join-Path $globalGeminiDir "skills")"
+    
+    # Mirror Commands to Gemini
+    Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $globalGeminiDir "commands") -CustomMessage "✓ Global commands installed at: $(Join-Path $globalGeminiDir "commands")"
 
     # 3. Copilot
     Write-Header -Provider "COPILOT" 
@@ -261,7 +287,7 @@ function Install-Global {
     Write-Item -Message "Checking Memories/Rules..."
     $windsurfDir = Join-Path $env:USERPROFILE ".codeium\windsurf\memories"
     if (-not (Test-Path $windsurfDir)) { New-Item -ItemType Directory -Force -Path $windsurfDir | Out-Null }
-    Safe-Copy -Source "$RepoRoot\templates\ai-instructions\generic-instructions.md" -Destination "$windsurfDir\global_rules.md" -Confirm:$true
+    Safe-Copy -Source "$RepoRoot\templates\ai-instructions\generic-instructions.md" -Destination "$windsurfDir\global_rules.md" -Confirm:$true -CustomMessage "✓ Global instructions installed at: $windsurfDir\global_rules.md"
     
     Write-Host ""
     Write-Host "----------------------------------------------------------------" -ForegroundColor Green
@@ -276,7 +302,7 @@ function Get-LanguageSelection {
     
     if ($Detected.Count -gt 0) {
         Write-Host "Detected languages: $($Detected -join ', ')" -ForegroundColor Yellow
-        $resp = Read-Host "${spaces}└─> Use these? (Y/N)" -ForegroundColor Yellow
+        $resp = Read-Host "└─> Use these? [Y]es / [N]o"
         if ($resp -match "^[Yy]") { return $Detected }
     }
 
@@ -315,7 +341,7 @@ function Install-Workspace {
     while ($true) {
         Write-Host ""
         Write-Host "Do you want to configure a specific local project/repository?" -ForegroundColor White
-        $response = Read-Host "Select Project? (Y/N)"
+        $response = Read-Host "Select Project? [Y]es / [N]o"
         if ($response -notmatch "^[Yy]") { break }
 
         $targetPath = [ModernFolderPicker.FileOpenDialog]::ShowDialog()
@@ -335,28 +361,33 @@ function Install-Workspace {
         Write-Header -Provider "CLAUDE"
         Write-Item -Message "Installing Workspace Resources..."
         $claudeDir = Join-Path $targetPath ".claude"
-        New-Item -ItemType Directory -Force -Path (Join-Path $claudeDir "skills") | Out-Null
-        Invoke-Expression "robocopy '$RepoRoot\claude-skills-catalog' '$targetPath\.claude\skills' /E /NFL /NDL /NJH /NJS" | Out-Null
         
-        $primary = $languages[0].ToLower()
-        if ($primary -eq "c++") { $primary = "cpp" }
+        # CLAUDE.md
+        Safe-Copy -Source "$RepoRoot\catalog\CLAUDE.md" -Destination "$targetPath\CLAUDE.md" -Confirm:$true -CustomMessage "✓ Workspace instructions installed at: $targetPath\CLAUDE.md"
+
+        # Skills
+        Safe-Folder-Copy -Source "$RepoRoot\catalog\skills" -Destination (Join-Path $claudeDir "skills") -CustomMessage "✓ Workspace skills catalog installed at: $(Join-Path $claudeDir "skills")"
         
-        # FIX: Source is README.md, Dest is CLAUDE.md
-        Safe-Copy -Source "$RepoRoot\templates\ai-instructions\claude-code\${primary}\README.md" -Destination "$targetPath\CLAUDE.md" -Confirm:$true
+        # Commands
+        Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $claudeDir "commands") -CustomMessage "✓ Workspace commands installed at: $(Join-Path $claudeDir "commands")"
+
+        # Context & Memory
+        Safe-Folder-Copy -Source "$RepoRoot\catalog\context" -Destination (Join-Path $claudeDir "context") -CustomMessage "✓ Workspace context installed at: $(Join-Path $claudeDir "context")"
+        Safe-Folder-Copy -Source "$RepoRoot\catalog\memory" -Destination (Join-Path $claudeDir "memory") -CustomMessage "✓ Workspace memory installed at: $(Join-Path $claudeDir "memory")"
 
         # 2. Gemini
         Write-Header -Provider "GEMINI"
         Write-Item -Message "Installing Workspace Instructions..."
         $geminiDir = Join-Path $targetPath ".gemini"
         if (-not (Test-Path $geminiDir)) { New-Item -ItemType Directory -Force -Path $geminiDir | Out-Null }
-        Safe-Copy -Source "$RepoRoot\templates\ai-instructions\generic-instructions.md" -Destination "$geminiDir\GEMINI.md" -Confirm:$true
+        Safe-Copy -Source "$RepoRoot\templates\ai-instructions\generic-instructions.md" -Destination "$geminiDir\GEMINI.md" -Confirm:$true -CustomMessage "✓ Workspace instructions installed at: $geminiDir\GEMINI.md"
         
         # Mirror Skills to Workspace Gemini
-        New-Item -ItemType Directory -Force -Path (Join-Path $geminiDir "skills") | Out-Null
-        $geminiCmds = Join-Path $geminiDir "commands"
-        New-Item -ItemType Directory -Force -Path $geminiCmds | Out-Null
+        Safe-Folder-Copy -Source "$RepoRoot\catalog\skills" -Destination (Join-Path $geminiDir "skills") -CustomMessage "✓ Workspace skills catalog installed at: $(Join-Path $geminiDir "skills")"
         
-        Invoke-Expression "robocopy '$RepoRoot\claude-skills-catalog' '$geminiDir\skills' /E /NFL /NDL /NJH /NJS" | Out-Null
+        # Mirror Commands
+        Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $geminiDir "commands") -CustomMessage "✓ Workspace commands installed at: $(Join-Path $geminiDir "commands")"
+
         Write-Item -Message "✓ Copied Skills & Commands structure" -Color "DarkGreen"
 
         # --- Prepare Rules for Copilot/Cursor ---
@@ -379,13 +410,19 @@ function Install-Workspace {
         
         $doWrite = $true
         if ((Test-Path $copilotFile)) {
-             Write-Item -Message "File exists: copilot-instructions.md" -Color "Yellow"
-             $resp = Read-Prompt "Overwrite? (Y/N)"
-             if ($resp -notmatch "^[Yy]") { $doWrite = $false }
+             if (-not $script:OverwriteAll) {
+                 Write-Item -Message "File exists: copilot-instructions.md" -Color "Yellow"
+                 $resp = Read-Prompt "Overwrite? [Y]es / [N]o / [A]ll"
+                 if ($resp -match "^[Aa]") {
+                    $script:OverwriteAll = $true
+                 } elseif ($resp -notmatch "^[Yy]") { 
+                    $doWrite = $false 
+                 }
+             }
         }
         if ($doWrite) {
             $mergedContent | Set-Content $copilotFile
-            Write-Item -Message "✓ Updated copilot-instructions.md" -Color "DarkGreen"
+            Write-Item -Message "✓ Workspace instructions installed at: $copilotFile" -Color "DarkGreen"
         }
 
         # 4. Cursor
@@ -394,13 +431,19 @@ function Install-Workspace {
         $cursorFile = Join-Path $targetPath ".cursorrules"
         $doWrite = $true
         if ((Test-Path $cursorFile)) {
-             Write-Item -Message "File exists: .cursorrules" -Color "Yellow"
-             $resp = Read-Prompt "Overwrite? (Y/N)"
-             if ($resp -notmatch "^[Yy]") { $doWrite = $false }
+             if (-not $script:OverwriteAll) {
+                 Write-Item -Message "File exists: .cursorrules" -Color "Yellow"
+                 $resp = Read-Prompt "Overwrite? [Y]es / [N]o / [A]ll"
+                 if ($resp -match "^[Aa]") {
+                    $script:OverwriteAll = $true
+                 } elseif ($resp -notmatch "^[Yy]") { 
+                    $doWrite = $false 
+                 }
+             }
         }
         if ($doWrite) {
             $mergedContent | Set-Content $cursorFile
-            Write-Item -Message "✓ Updated .cursorrules" -Color "DarkGreen"
+            Write-Item -Message "✓ Workspace rules installed at: $cursorFile" -Color "DarkGreen"
         }
 
         # 5. Windsurf
@@ -408,7 +451,7 @@ function Install-Workspace {
         Write-Item -Message "Installing Workspace Rules..."
         $windsurfDir = Join-Path $targetPath ".codeium\windsurf\memories"
         if (-not (Test-Path $windsurfDir)) { New-Item -ItemType Directory -Force -Path $windsurfDir | Out-Null }
-        Safe-Copy -Source "$RepoRoot\templates\ai-instructions\generic-instructions.md" -Destination "$windsurfDir\rules.md" -Confirm:$true
+        Safe-Copy -Source "$RepoRoot\templates\ai-instructions\generic-instructions.md" -Destination "$windsurfDir\rules.md" -Confirm:$true -CustomMessage "✓ Workspace instructions installed at: $windsurfDir\rules.md"
         
         Write-Host ""
         Write-Host "----------------------------------------------------------------" -ForegroundColor Green
@@ -421,5 +464,9 @@ function Install-Workspace {
 $repoRoot = Resolve-Path "$PSScriptRoot\.."
 Install-Global -RepoRoot $repoRoot
 Install-Workspace -RepoRoot $repoRoot
-Write-Host "Done."
+Write-Host ""
+Write-Host "================================================================" -ForegroundColor DarkCyan
+Write-Host "       Thank You For Using The DevAI-Hub Universal Installer    " -ForegroundColor DarkCyan
+Write-Host "================================================================" -ForegroundColor DarkCyan
+Write-Host ""
 Pause
