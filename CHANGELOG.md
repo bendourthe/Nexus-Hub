@@ -11,6 +11,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.5.1] - 2026-01-28
+
+### Added
+
+#### Cross-Platform Installation
+- **macOS & Linux Support**: Added native Bash installer support.
+  - `install.sh`: New entry point for Unix-like systems.
+  - `scripts/installer.sh`: Bash implementation mirroring the Windows logic (Global/Workspace install, Language Detection).
+  - **Gemini / Antigravity Support**: Correctly maps `catalog/commands` to `.agent/workflows` and `catalog/skills` to `.agent/skills` for full agentic capability.
+
+### Changed
+- **Documentation**: Updated `README.md` with installation instructions for macOS/Linux.
+
+---
+
 ## [0.5.0] - 2026-01-28
 
 ### Changed

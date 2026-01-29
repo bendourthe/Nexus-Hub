@@ -1,3 +1,6 @@
+---
+description: Analyze the current git changes and generate a comprehensive, structured commit message.
+---
 # Generate Commit Message Command
 
 Analyze the current git changes and generate a comprehensive, structured commit message.

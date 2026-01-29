@@ -11,7 +11,9 @@
 Don't want to copy-paste files manually? We made an installer.
 
 1.  **Clone or Download** this repository.
-2.  Double-click **`install.bat`**.
+2.  **Run the installer**:
+    *   **Windows**: Double-click **`install.bat`**.
+    *   **macOS / Linux**: Run `./install.sh` in your terminal.
 3.  **Drag and drop** your target project folder when asked.
 4.  **Confirm** to install global skills.
 5.  **(Optional) Select a project** to configure workspace-specific rules.

@@ -1,3 +1,6 @@
+---
+description: Analyze recent changes and generate a comprehensive entry for the DEVLOG.md file.
+---
 # Update DEVLOG Command
 
 Analyze recent changes and generate a comprehensive entry for the `DEVLOG.md` file.

@@ -1,5 +1,15 @@
 # Development Log
 
+## [2026-01-28 22:15] - Release 0.5.1: Cross-Platform Support
+
+*   **Goal**: Extend the DevAI-Hub installer to support macOS and Linux operating systems.
+*   **Implementation**:
+    *   **Bash Installer**: Ported the logic from `installer.ps1` to `scripts/installer.sh` using Bash.
+    *   **Features Preserved**: Replicated global installation, workspace selection, language detection, and safe overwrite prompts.
+    *   **Entry Point**: Created a root-level `install.sh` script for easy execution.
+*   **Documentation**: Updated `README.md` to guide non-Windows users.
+*   **Result**: The repo now supports Windows, macOS, and Linux with a unified installation experience.
+
 ## [2026-01-28 21:35] - Release 0.5.0: Universal Catalog & Installer V5 Refactor
 
 *   **Goal**: Refactor the entire repository to a "Universal Catalog" model to remove duplication between Claude/Gemini and various languages, and build a robust, user-friendly installer.

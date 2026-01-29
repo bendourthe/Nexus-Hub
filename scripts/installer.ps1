@@ -257,22 +257,23 @@ function Install-Global {
     # Global Commands
     Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $globalClaude "commands") -CustomMessage "✓ Global commands installed at: $(Join-Path $globalClaude "commands")"
 
-    # 2. Gemini
+    # 2. Gemini / Antigravity
     Write-Header -Provider "GEMINI"
     Write-Item -Message "Checking Global Configuration..."
     $globalGeminiDir = Join-Path $env:USERPROFILE ".gemini"
-    if (-not (Test-Path $globalGeminiDir)) { New-Item -ItemType Directory -Force -Path $globalGeminiDir | Out-Null }
+    $globalAgentDir = Join-Path $env:USERPROFILE ".agent"
     
-    # Global GEMINI.md (sourced from generic instructions, or CLAUDE.md?) User request implied GEMINI.md.
-    # Actually, if we have a Universal Catalog, maybe we should use catalog/CLAUDE.md as source for GEMINI.md too?
-    # Keeping existing logic (generic-instructions) but updating log.
+    if (-not (Test-Path $globalGeminiDir)) { New-Item -ItemType Directory -Force -Path $globalGeminiDir | Out-Null }
+    if (-not (Test-Path $globalAgentDir)) { New-Item -ItemType Directory -Force -Path $globalAgentDir | Out-Null }
+    
+    # Global GEMINI.md
     Safe-Copy -Source "$RepoRoot\templates\ai-instructions\generic-instructions.md" -Destination "$globalGeminiDir\GEMINI.md" -Confirm:$true -CustomMessage "✓ Global instructions installed at: $globalGeminiDir\GEMINI.md"
     
-    # Mirror Skills to Gemini
-    Safe-Folder-Copy -Source "$RepoRoot\catalog\skills" -Destination (Join-Path $globalGeminiDir "skills") -CustomMessage "✓ Global skills catalog installed at: $(Join-Path $globalGeminiDir "skills")"
+    # Mirror Skills to Agent (Antigravity)
+    Safe-Folder-Copy -Source "$RepoRoot\catalog\skills" -Destination (Join-Path $globalAgentDir "skills") -CustomMessage "✓ Global skills catalog installed at: $(Join-Path $globalAgentDir "skills")"
     
-    # Mirror Commands to Gemini
-    Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $globalGeminiDir "commands") -CustomMessage "✓ Global commands installed at: $(Join-Path $globalGeminiDir "commands")"
+    # Mirror Commands to Agent Workflows
+    Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $globalAgentDir "workflows") -CustomMessage "✓ Global workflows installed at: $(Join-Path $globalAgentDir "workflows")"
 
     # 3. Copilot
     Write-Header -Provider "COPILOT" 
@@ -375,20 +376,24 @@ function Install-Workspace {
         Safe-Folder-Copy -Source "$RepoRoot\catalog\context" -Destination (Join-Path $claudeDir "context") -CustomMessage "✓ Workspace context installed at: $(Join-Path $claudeDir "context")"
         Safe-Folder-Copy -Source "$RepoRoot\catalog\memory" -Destination (Join-Path $claudeDir "memory") -CustomMessage "✓ Workspace memory installed at: $(Join-Path $claudeDir "memory")"
 
-        # 2. Gemini
+        # 2. Gemini / Antigravity
         Write-Header -Provider "GEMINI"
         Write-Item -Message "Installing Workspace Instructions..."
         $geminiDir = Join-Path $targetPath ".gemini"
+        $agentDir = Join-Path $targetPath ".agent"
+
         if (-not (Test-Path $geminiDir)) { New-Item -ItemType Directory -Force -Path $geminiDir | Out-Null }
+        if (-not (Test-Path $agentDir)) { New-Item -ItemType Directory -Force -Path $agentDir | Out-Null }
+
         Safe-Copy -Source "$RepoRoot\templates\ai-instructions\generic-instructions.md" -Destination "$geminiDir\GEMINI.md" -Confirm:$true -CustomMessage "✓ Workspace instructions installed at: $geminiDir\GEMINI.md"
         
-        # Mirror Skills to Workspace Gemini
-        Safe-Folder-Copy -Source "$RepoRoot\catalog\skills" -Destination (Join-Path $geminiDir "skills") -CustomMessage "✓ Workspace skills catalog installed at: $(Join-Path $geminiDir "skills")"
+        # Mirror Skills to Agent
+        Safe-Folder-Copy -Source "$RepoRoot\catalog\skills" -Destination (Join-Path $agentDir "skills") -CustomMessage "✓ Workspace skills catalog installed at: $(Join-Path $agentDir "skills")"
         
-        # Mirror Commands
-        Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $geminiDir "commands") -CustomMessage "✓ Workspace commands installed at: $(Join-Path $geminiDir "commands")"
+        # Mirror Commands to Agent Workflows
+        Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $agentDir "workflows") -CustomMessage "✓ Workspace workflows installed at: $(Join-Path $agentDir "workflows")"
 
-        Write-Item -Message "✓ Copied Skills & Commands structure" -Color "DarkGreen"
+        Write-Item -Message "✓ Copied Skills & Workflows structure" -Color "DarkGreen"
 
         # --- Prepare Rules for Copilot/Cursor ---
         $mergedContent = "# AI Coding Rules`n`n"
