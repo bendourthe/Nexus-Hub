@@ -107,19 +107,20 @@ namespace ModernFolderPicker
 
 try {
     Add-Type -TypeDefinition $folderPickerCode
-} catch { }
+}
+catch { }
 
 # --- Formatting Helpers ---
 
 function Get-ProviderColor {
     param([string]$Provider)
     $color = switch ($Provider) {
-        "CLAUDE"   { "DarkYellow" }
-        "GEMINI"   { "Blue" }
+        "CLAUDE" { "DarkYellow" }
+        "GEMINI" { "Blue" }
         "WINDSURF" { "Cyan" }
-        "CURSOR"   { "Magenta" }
-        "COPILOT"  { "Gray" }
-        Default    { "White" }
+        "CURSOR" { "Magenta" }
+        "COPILOT" { "Gray" }
+        Default { "White" }
     }
     return $color
 }
@@ -151,6 +152,54 @@ function Read-Prompt {
     return Read-Host " "
 }
 
+# --- Interaction Helpers ---
+
+function Select-Platforms {
+    param([string]$PhaseName)
+    Write-Host ""
+    Write-Host "Select platforms to install for $PhaseName (comma separated):" -ForegroundColor White
+    Write-Host "1. Claude"
+    Write-Host "2. Gemini / Antigravity"
+    Write-Host "3. Copilot"
+    Write-Host "4. Cursor"
+    Write-Host "5. Windsurf"
+    Write-Host "6. ALL (Recommended)"
+    
+    $inputStr = Read-Prompt "Selection [1-6]"
+    if ([string]::IsNullOrWhiteSpace($inputStr)) { return @("CLAUDE", "GEMINI", "COPILOT", "CURSOR", "WINDSURF") }
+
+    $map = @{ "1" = "CLAUDE"; "2" = "GEMINI"; "3" = "COPILOT"; "4" = "CURSOR"; "5" = "WINDSURF"; "6" = "ALL" }
+    $selected = @()
+    
+    $inputStr.Split(',') | ForEach-Object {
+        $key = $_.Trim()
+        if ($map.ContainsKey($key)) {
+            if ($map[$key] -eq "ALL") {
+                return @("CLAUDE", "GEMINI", "COPILOT", "CURSOR", "WINDSURF")
+            }
+            $selected += $map[$key]
+        }
+    }
+    
+    if ($selected.Count -eq 0) { return @("CLAUDE", "GEMINI", "COPILOT", "CURSOR", "WINDSURF") }
+    return $selected
+}
+
+function Get-Overwrite-Preference {
+    Write-Host "How should we handle existing installations?" -ForegroundColor White
+    Write-Host "[O]verwrite All     - Replace everything without asking"
+    Write-Host "[S]kip All          - Keep existing files without asking"
+    Write-Host "[A]sk (Recommended) - Prompt for each conflict"
+    
+    $resp = Read-Prompt "Selection [O/S/A]"
+    
+    if ($resp -match "^[Oo]") { return "ALL" }
+    if ($resp -match "^[Ss]") { return "NONE" }
+    return "ASK"
+}
+
+# --- File Operations ---
+
 function Safe-Copy {
     param(
         [string]$Source,
@@ -165,13 +214,23 @@ function Safe-Copy {
     }
 
     if (Test-Path $Destination) {
-        if ($Confirm) {
-            if (-not $script:OverwriteAll) {
+        # Check global overwrite preference
+        if ($script:OverwriteMode -eq "ALL") {
+            # Proceed to overwrite
+        }
+        elseif ($script:OverwriteMode -eq "NONE") {
+            Write-Item -Message "Skip: File exists ($Destination)" -Color "DarkGray"
+            return
+        }
+        else {
+            # ASK mode
+            if ($Confirm) {
                 Write-Item -Message "File exists: $Destination" -Color "Yellow"
                 $resp = Read-Prompt "Overwrite? [Y]es / [N]o / [A]ll"
                 if ($resp -match "^[Aa]") {
-                    $script:OverwriteAll = $true
-                } elseif ($resp -notmatch "^[Yy]") {
+                    $script:OverwriteMode = "ALL"
+                }
+                elseif ($resp -notmatch "^[Yy]") {
                     Write-Item -Message "Skipped by user." -Color "Gray"
                     return
                 }
@@ -184,11 +243,13 @@ function Safe-Copy {
         Copy-Item -Path $Source -Destination $Destination -Force -ErrorAction Stop
         
         if (-not [string]::IsNullOrEmpty($CustomMessage)) {
-             Write-Item -Message $CustomMessage -Color "DarkGreen"
-        } else {
-             Write-Item -Message "✓ Installed to $Destination" -Color "DarkGreen"
+            Write-Item -Message $CustomMessage -Color "DarkGreen"
         }
-    } catch {
+        else {
+            Write-Item -Message "✓ Installed to $Destination" -Color "DarkGreen"
+        }
+    }
+    catch {
         Write-Item -Message "ERROR: Could not write file. Is it open?" -Color "Red"
         Write-Item -Message $_.Exception.Message -Color "Red" -Indent 2
     }
@@ -201,17 +262,27 @@ function Safe-Folder-Copy {
         [string]$CustomMessage
     )
     if (Test-Path $Destination) {
-        if (-not $script:OverwriteAll) {
+        if ($script:OverwriteMode -eq "ALL") {
+            # Proceed
+        }
+        elseif ($script:OverwriteMode -eq "NONE") {
+            Write-Item -Message "Skip: Folder exists ($Destination)" -Color "DarkGray"
+            return
+        }
+        else {
+            # ASK
             Write-Item -Message "Folder exists: $Destination" -Color "Yellow"
             $resp = Read-Prompt "Overwrite contents? [Y]es / [N]o / [A]ll"
             if ($resp -match "^[Aa]") {
-                $script:OverwriteAll = $true
-            } elseif ($resp -notmatch "^[Yy]") {
+                $script:OverwriteMode = "ALL"
+            }
+            elseif ($resp -notmatch "^[Yy]") {
                 Write-Item -Message "Skipped." -Color "Gray"
                 return
             }
         }
-    } else {
+    }
+    else {
         New-Item -ItemType Directory -Force -Path $Destination | Out-Null
     }
 
@@ -220,9 +291,10 @@ function Safe-Folder-Copy {
     & robocopy $Source $Destination /E /NFL /NDL /NJH /NJS | Out-Null
     
     if (-not [string]::IsNullOrEmpty($CustomMessage)) {
-         Write-Item -Message $CustomMessage -Color "DarkGreen"
-    } else {
-         Write-Item -Message "✓ Installed to $Destination" -Color "DarkGreen"
+        Write-Item -Message $CustomMessage -Color "DarkGreen"
+    }
+    else {
+        Write-Item -Message "✓ Installed to $Destination" -Color "DarkGreen"
     }
 }
 
@@ -231,64 +303,80 @@ function Safe-Folder-Copy {
 function Install-Global {
     param ($RepoRoot)
     Clear-Host
-    $script:OverwriteAll = $false
     Write-Host "================================================================" -ForegroundColor DarkCyan
-    Write-Host "                   DevAI-Hub Universal Installer                " -ForegroundColor DarkCyan
+    Write-Host "           Welcome to the DevAI-Hub Universal Installer         " -ForegroundColor DarkCyan
     Write-Host "================================================================" -ForegroundColor DarkCyan
     Write-Host ""
+    
+    # Global Overwrite Preference
+    $script:OverwriteMode = Get-Overwrite-Preference
+    Write-Host ""
+
     Write-Host "----------------------------------------------------------------" -ForegroundColor Cyan
     Write-Host "                  PHASE 1: Global Installation                  " -ForegroundColor Cyan
     Write-Host "----------------------------------------------------------------" -ForegroundColor Cyan
+    
+    $platforms = Select-Platforms -PhaseName "Global Phase"
     Write-Host ""
     Write-Host "Checking User Profile ($env:USERPROFILE)..." -ForegroundColor Gray
     
     # 1. Claude
-    Write-Header -Provider "CLAUDE"
-    Write-Item -Message "Checking Global Configuration..."
-    $globalClaude = Join-Path $env:USERPROFILE ".claude"
-    if (-not (Test-Path $globalClaude)) { New-Item -ItemType Directory -Force -Path $globalClaude | Out-Null }
+    if ($platforms -contains "CLAUDE") {
+        Write-Header -Provider "CLAUDE"
+        Write-Item -Message "Checking Global Configuration..."
+        $globalClaude = Join-Path $env:USERPROFILE ".claude"
+        if (-not (Test-Path $globalClaude)) { New-Item -ItemType Directory -Force -Path $globalClaude | Out-Null }
 
-    # Global CLAUDE.md
-    Safe-Copy -Source "$RepoRoot\catalog\CLAUDE.md" -Destination "$globalClaude\CLAUDE.md" -Confirm:$true -CustomMessage "✓ Global instructions installed at: $globalClaude\CLAUDE.md"
+        # Global CLAUDE.md
+        Safe-Copy -Source "$RepoRoot\catalog\CLAUDE.md" -Destination "$globalClaude\CLAUDE.md" -Confirm:$true -CustomMessage "✓ Global instructions installed at: $globalClaude\CLAUDE.md"
 
-    # Global Skills
-    Safe-Folder-Copy -Source "$RepoRoot\catalog\skills" -Destination (Join-Path $globalClaude "skills") -CustomMessage "✓ Global skills catalog installed at: $(Join-Path $globalClaude "skills")"
+        # Global Skills
+        Safe-Folder-Copy -Source "$RepoRoot\catalog\skills" -Destination (Join-Path $globalClaude "skills") -CustomMessage "✓ Global skills catalog installed at: $(Join-Path $globalClaude "skills")"
 
-    # Global Commands
-    Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $globalClaude "commands") -CustomMessage "✓ Global commands installed at: $(Join-Path $globalClaude "commands")"
+        # Global Commands
+        Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $globalClaude "commands") -CustomMessage "✓ Global commands installed at: $(Join-Path $globalClaude "commands")"
+    }
 
     # 2. Gemini / Antigravity
-    Write-Header -Provider "GEMINI"
-    Write-Item -Message "Checking Global Configuration..."
-    $globalGeminiDir = Join-Path $env:USERPROFILE ".gemini"
-    $globalAgentDir = Join-Path $env:USERPROFILE ".agent"
-    
-    if (-not (Test-Path $globalGeminiDir)) { New-Item -ItemType Directory -Force -Path $globalGeminiDir | Out-Null }
-    if (-not (Test-Path $globalAgentDir)) { New-Item -ItemType Directory -Force -Path $globalAgentDir | Out-Null }
-    
-    # Global GEMINI.md
-    Safe-Copy -Source "$RepoRoot\templates\ai-instructions\generic-instructions.md" -Destination "$globalGeminiDir\GEMINI.md" -Confirm:$true -CustomMessage "✓ Global instructions installed at: $globalGeminiDir\GEMINI.md"
-    
-    # Mirror Skills to Agent (Antigravity)
-    Safe-Folder-Copy -Source "$RepoRoot\catalog\skills" -Destination (Join-Path $globalAgentDir "skills") -CustomMessage "✓ Global skills catalog installed at: $(Join-Path $globalAgentDir "skills")"
-    
-    # Mirror Commands to Agent Workflows
-    Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $globalAgentDir "workflows") -CustomMessage "✓ Global workflows installed at: $(Join-Path $globalAgentDir "workflows")"
+    if ($platforms -contains "GEMINI") {
+        Write-Header -Provider "GEMINI"
+        Write-Item -Message "Checking Global Configuration..."
+        $globalGeminiDir = Join-Path $env:USERPROFILE ".gemini"
+        $globalAgentDir = Join-Path $env:USERPROFILE ".agent"
+        
+        if (-not (Test-Path $globalGeminiDir)) { New-Item -ItemType Directory -Force -Path $globalGeminiDir | Out-Null }
+        if (-not (Test-Path $globalAgentDir)) { New-Item -ItemType Directory -Force -Path $globalAgentDir | Out-Null }
+        
+        # Global GEMINI.md
+        Safe-Copy -Source "$RepoRoot\templates\ai-instructions\generic-instructions.md" -Destination "$globalGeminiDir\GEMINI.md" -Confirm:$true -CustomMessage "✓ Global instructions installed at: $globalGeminiDir\GEMINI.md"
+        
+        # Mirror Skills to Agent (Antigravity)
+        Safe-Folder-Copy -Source "$RepoRoot\catalog\skills" -Destination (Join-Path $globalAgentDir "skills") -CustomMessage "✓ Global skills catalog installed at: $(Join-Path $globalAgentDir "skills")"
+        
+        # Mirror Commands to Agent Workflows
+        Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $globalAgentDir "workflows") -CustomMessage "✓ Global workflows installed at: $(Join-Path $globalAgentDir "workflows")"
+    }
 
     # 3. Copilot
-    Write-Header -Provider "COPILOT" 
-    Write-Item -Message "Check skipped (No global file support on Windows)." -Color "DarkGray"
+    if ($platforms -contains "COPILOT") {
+        Write-Header -Provider "COPILOT" 
+        Write-Item -Message "Check skipped (No global file support on Windows)." -Color "DarkGray"
+    }
 
     # 4. Cursor
-    Write-Header -Provider "CURSOR"
-    Write-Item -Message "Check skipped (No global file support on Windows)." -Color "DarkGray"
+    if ($platforms -contains "CURSOR") {
+        Write-Header -Provider "CURSOR"
+        Write-Item -Message "Check skipped (No global file support on Windows)." -Color "DarkGray"
+    }
     
     # 5. Windsurf
-    Write-Header -Provider "WINDSURF"
-    Write-Item -Message "Checking Memories/Rules..."
-    $windsurfDir = Join-Path $env:USERPROFILE ".codeium\windsurf\memories"
-    if (-not (Test-Path $windsurfDir)) { New-Item -ItemType Directory -Force -Path $windsurfDir | Out-Null }
-    Safe-Copy -Source "$RepoRoot\templates\ai-instructions\generic-instructions.md" -Destination "$windsurfDir\global_rules.md" -Confirm:$true -CustomMessage "✓ Global instructions installed at: $windsurfDir\global_rules.md"
+    if ($platforms -contains "WINDSURF") {
+        Write-Header -Provider "WINDSURF"
+        Write-Item -Message "Checking Memories/Rules..."
+        $windsurfDir = Join-Path $env:USERPROFILE ".codeium\windsurf\memories"
+        if (-not (Test-Path $windsurfDir)) { New-Item -ItemType Directory -Force -Path $windsurfDir | Out-Null }
+        Safe-Copy -Source "$RepoRoot\templates\ai-instructions\generic-instructions.md" -Destination "$windsurfDir\global_rules.md" -Confirm:$true -CustomMessage "✓ Global instructions installed at: $windsurfDir\global_rules.md"
+    }
     
     Write-Host ""
     Write-Host "----------------------------------------------------------------" -ForegroundColor Green
@@ -299,7 +387,7 @@ function Install-Global {
 
 function Get-LanguageSelection {
     param([array]$Detected)
-    $map = @{ "1"="Python"; "2"="JavaScript"; "3"="TypeScript"; "4"="Java"; "5"="C#"; "6"="Go"; "7"="C++" }
+    $map = @{ "1" = "Python"; "2" = "JavaScript"; "3" = "TypeScript"; "4" = "Java"; "5" = "C#"; "6" = "Go"; "7" = "C++" }
     
     if ($Detected.Count -gt 0) {
         Write-Host "Detected languages: $($Detected -join ', ')" -ForegroundColor Yellow
@@ -322,13 +410,13 @@ function Get-LanguageSelection {
 function Detect-Languages {
     param([string]$Path)
     $counts = @{
-        "Python" = (Get-ChildItem $Path -Include *.py -Recurse -ErrorAction SilentlyContinue | Measure-Object).Count
-        "JavaScript" = (Get-ChildItem $Path -Include *.js,*.jsx -Recurse -ErrorAction SilentlyContinue | Measure-Object).Count
-        "TypeScript" = (Get-ChildItem $Path -Include *.ts,*.tsx -Recurse -ErrorAction SilentlyContinue | Measure-Object).Count
-        "Java" = (Get-ChildItem $Path -Include *.java -Recurse -ErrorAction SilentlyContinue | Measure-Object).Count
-        "C#" = (Get-ChildItem $Path -Include *.cs -Recurse -ErrorAction SilentlyContinue | Measure-Object).Count
-        "Go" = (Get-ChildItem $Path -Include *.go -Recurse -ErrorAction SilentlyContinue | Measure-Object).Count
-        "C++" = (Get-ChildItem $Path -Include *.cpp,*.h,*.hpp -Recurse -ErrorAction SilentlyContinue | Measure-Object).Count
+        "Python"     = (Get-ChildItem $Path -Include *.py -Recurse -ErrorAction SilentlyContinue | Measure-Object).Count
+        "JavaScript" = (Get-ChildItem $Path -Include *.js, *.jsx -Recurse -ErrorAction SilentlyContinue | Measure-Object).Count
+        "TypeScript" = (Get-ChildItem $Path -Include *.ts, *.tsx -Recurse -ErrorAction SilentlyContinue | Measure-Object).Count
+        "Java"       = (Get-ChildItem $Path -Include *.java -Recurse -ErrorAction SilentlyContinue | Measure-Object).Count
+        "C#"         = (Get-ChildItem $Path -Include *.cs -Recurse -ErrorAction SilentlyContinue | Measure-Object).Count
+        "Go"         = (Get-ChildItem $Path -Include *.go -Recurse -ErrorAction SilentlyContinue | Measure-Object).Count
+        "C++"        = (Get-ChildItem $Path -Include *.cpp, *.h, *.hpp -Recurse -ErrorAction SilentlyContinue | Measure-Object).Count
     }
     return ($counts.GetEnumerator() | Where-Object { $_.Value -gt 0 } | Sort-Object Value -Descending).Name
 }
@@ -351,49 +439,55 @@ function Install-Workspace {
             continue 
         }
         Write-Host "Target: $targetPath" -ForegroundColor DarkYellow
+        
+        $workspacePlatforms = Select-Platforms -PhaseName "Workspace Phase"
 
         $detected = Detect-Languages -Path $targetPath
         $languages = Get-LanguageSelection -Detected $detected
-        Write-Host "Selected: $($languages -join ', ')" -ForegroundColor Yellow
+        Write-Host "Selected Languages: $($languages -join ', ')" -ForegroundColor Yellow
 
         # --- Install Logic ---
 
         # 1. Claude
-        Write-Header -Provider "CLAUDE"
-        Write-Item -Message "Installing Workspace Resources..."
-        $claudeDir = Join-Path $targetPath ".claude"
-        
-        # CLAUDE.md
-        Safe-Copy -Source "$RepoRoot\catalog\CLAUDE.md" -Destination "$targetPath\CLAUDE.md" -Confirm:$true -CustomMessage "✓ Workspace instructions installed at: $targetPath\CLAUDE.md"
+        if ($workspacePlatforms -contains "CLAUDE") {
+            Write-Header -Provider "CLAUDE"
+            Write-Item -Message "Installing Workspace Resources..."
+            $claudeDir = Join-Path $targetPath ".claude"
+            
+            # CLAUDE.md
+            Safe-Copy -Source "$RepoRoot\catalog\CLAUDE.md" -Destination "$targetPath\CLAUDE.md" -Confirm:$true -CustomMessage "✓ Workspace instructions installed at: $targetPath\CLAUDE.md"
 
-        # Skills
-        Safe-Folder-Copy -Source "$RepoRoot\catalog\skills" -Destination (Join-Path $claudeDir "skills") -CustomMessage "✓ Workspace skills catalog installed at: $(Join-Path $claudeDir "skills")"
-        
-        # Commands
-        Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $claudeDir "commands") -CustomMessage "✓ Workspace commands installed at: $(Join-Path $claudeDir "commands")"
+            # Skills
+            Safe-Folder-Copy -Source "$RepoRoot\catalog\skills" -Destination (Join-Path $claudeDir "skills") -CustomMessage "✓ Workspace skills catalog installed at: $(Join-Path $claudeDir "skills")"
+            
+            # Commands
+            Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $claudeDir "commands") -CustomMessage "✓ Workspace commands installed at: $(Join-Path $claudeDir "commands")"
 
-        # Context & Memory
-        Safe-Folder-Copy -Source "$RepoRoot\catalog\context" -Destination (Join-Path $claudeDir "context") -CustomMessage "✓ Workspace context installed at: $(Join-Path $claudeDir "context")"
-        Safe-Folder-Copy -Source "$RepoRoot\catalog\memory" -Destination (Join-Path $claudeDir "memory") -CustomMessage "✓ Workspace memory installed at: $(Join-Path $claudeDir "memory")"
+            # Context & Memory
+            Safe-Folder-Copy -Source "$RepoRoot\catalog\context" -Destination (Join-Path $claudeDir "context") -CustomMessage "✓ Workspace context installed at: $(Join-Path $claudeDir "context")"
+            Safe-Folder-Copy -Source "$RepoRoot\catalog\memory" -Destination (Join-Path $claudeDir "memory") -CustomMessage "✓ Workspace memory installed at: $(Join-Path $claudeDir "memory")"
+        }
 
         # 2. Gemini / Antigravity
-        Write-Header -Provider "GEMINI"
-        Write-Item -Message "Installing Workspace Instructions..."
-        $geminiDir = Join-Path $targetPath ".gemini"
-        $agentDir = Join-Path $targetPath ".agent"
+        if ($workspacePlatforms -contains "GEMINI") {
+            Write-Header -Provider "GEMINI"
+            Write-Item -Message "Installing Workspace Instructions..."
+            $geminiDir = Join-Path $targetPath ".gemini"
+            $agentDir = Join-Path $targetPath ".agent"
 
-        if (-not (Test-Path $geminiDir)) { New-Item -ItemType Directory -Force -Path $geminiDir | Out-Null }
-        if (-not (Test-Path $agentDir)) { New-Item -ItemType Directory -Force -Path $agentDir | Out-Null }
+            if (-not (Test-Path $geminiDir)) { New-Item -ItemType Directory -Force -Path $geminiDir | Out-Null }
+            if (-not (Test-Path $agentDir)) { New-Item -ItemType Directory -Force -Path $agentDir | Out-Null }
 
-        Safe-Copy -Source "$RepoRoot\templates\ai-instructions\generic-instructions.md" -Destination "$geminiDir\GEMINI.md" -Confirm:$true -CustomMessage "✓ Workspace instructions installed at: $geminiDir\GEMINI.md"
-        
-        # Mirror Skills to Agent
-        Safe-Folder-Copy -Source "$RepoRoot\catalog\skills" -Destination (Join-Path $agentDir "skills") -CustomMessage "✓ Workspace skills catalog installed at: $(Join-Path $agentDir "skills")"
-        
-        # Mirror Commands to Agent Workflows
-        Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $agentDir "workflows") -CustomMessage "✓ Workspace workflows installed at: $(Join-Path $agentDir "workflows")"
+            Safe-Copy -Source "$RepoRoot\templates\ai-instructions\generic-instructions.md" -Destination "$geminiDir\GEMINI.md" -Confirm:$true -CustomMessage "✓ Workspace instructions installed at: $geminiDir\GEMINI.md"
+            
+            # Mirror Skills to Agent
+            Safe-Folder-Copy -Source "$RepoRoot\catalog\skills" -Destination (Join-Path $agentDir "skills") -CustomMessage "✓ Workspace skills catalog installed at: $(Join-Path $agentDir "skills")"
+            
+            # Mirror Commands to Agent Workflows
+            Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $agentDir "workflows") -CustomMessage "✓ Workspace workflows installed at: $(Join-Path $agentDir "workflows")"
 
-        Write-Item -Message "✓ Copied Skills & Workflows structure" -Color "DarkGreen"
+            Write-Item -Message "✓ Copied Skills & Workflows structure" -Color "DarkGreen"
+        }
 
         # --- Prepare Rules for Copilot/Cursor ---
         $mergedContent = "# AI Coding Rules`n`n"
@@ -407,56 +501,80 @@ function Install-Workspace {
         }
 
         # 3. Copilot
-        Write-Header -Provider "COPILOT"
-        Write-Item -Message "Installing instructions..."
-        $copilotDir = Join-Path $targetPath ".github"
-        if (-not (Test-Path $copilotDir)) { New-Item -ItemType Directory -Force -Path $copilotDir | Out-Null }
-        $copilotFile = Join-Path $copilotDir "copilot-instructions.md"
-        
-        $doWrite = $true
-        if ((Test-Path $copilotFile)) {
-             if (-not $script:OverwriteAll) {
-                 Write-Item -Message "File exists: copilot-instructions.md" -Color "Yellow"
-                 $resp = Read-Prompt "Overwrite? [Y]es / [N]o / [A]ll"
-                 if ($resp -match "^[Aa]") {
-                    $script:OverwriteAll = $true
-                 } elseif ($resp -notmatch "^[Yy]") { 
-                    $doWrite = $false 
-                 }
-             }
-        }
-        if ($doWrite) {
-            $mergedContent | Set-Content $copilotFile
-            Write-Item -Message "✓ Workspace instructions installed at: $copilotFile" -Color "DarkGreen"
+        if ($workspacePlatforms -contains "COPILOT") {
+            Write-Header -Provider "COPILOT"
+            Write-Item -Message "Installing instructions..."
+            $copilotDir = Join-Path $targetPath ".github"
+            if (-not (Test-Path $copilotDir)) { New-Item -ItemType Directory -Force -Path $copilotDir | Out-Null }
+            $copilotFile = Join-Path $copilotDir "copilot-instructions.md"
+            
+            $doWrite = $true
+            if ((Test-Path $copilotFile)) {
+                if ($script:OverwriteMode -eq "ALL") {
+                    # Overwrite
+                }
+                elseif ($script:OverwriteMode -eq "NONE") {
+                    Write-Item -Message "File exists: copilot-instructions.md (Skipped)" -Color "DarkGray"
+                    $doWrite = $false
+                }
+                else {
+                    # ASK
+                    Write-Item -Message "File exists: copilot-instructions.md" -Color "Yellow"
+                    $resp = Read-Prompt "Overwrite? [Y]es / [N]o / [A]ll"
+                    if ($resp -match "^[Aa]") {
+                        $script:OverwriteMode = "ALL"
+                    }
+                    elseif ($resp -notmatch "^[Yy]") { 
+                        $doWrite = $false 
+                    }
+                }
+            }
+            if ($doWrite) {
+                $mergedContent | Set-Content $copilotFile
+                Write-Item -Message "✓ Workspace instructions installed at: $copilotFile" -Color "DarkGreen"
+            }
         }
 
         # 4. Cursor
-        Write-Header -Provider "CURSOR"
-        Write-Item -Message "Installing .cursorrules..."
-        $cursorFile = Join-Path $targetPath ".cursorrules"
-        $doWrite = $true
-        if ((Test-Path $cursorFile)) {
-             if (-not $script:OverwriteAll) {
-                 Write-Item -Message "File exists: .cursorrules" -Color "Yellow"
-                 $resp = Read-Prompt "Overwrite? [Y]es / [N]o / [A]ll"
-                 if ($resp -match "^[Aa]") {
-                    $script:OverwriteAll = $true
-                 } elseif ($resp -notmatch "^[Yy]") { 
-                    $doWrite = $false 
-                 }
-             }
-        }
-        if ($doWrite) {
-            $mergedContent | Set-Content $cursorFile
-            Write-Item -Message "✓ Workspace rules installed at: $cursorFile" -Color "DarkGreen"
+        if ($workspacePlatforms -contains "CURSOR") {
+            Write-Header -Provider "CURSOR"
+            Write-Item -Message "Installing .cursorrules..."
+            $cursorFile = Join-Path $targetPath ".cursorrules"
+            $doWrite = $true
+            if ((Test-Path $cursorFile)) {
+                if ($script:OverwriteMode -eq "ALL") {
+                    # Overwrite
+                }
+                elseif ($script:OverwriteMode -eq "NONE") {
+                    Write-Item -Message "File exists: .cursorrules (Skipped)" -Color "DarkGray"
+                    $doWrite = $false
+                }
+                else {
+                    # ASK
+                    Write-Item -Message "File exists: .cursorrules" -Color "Yellow"
+                    $resp = Read-Prompt "Overwrite? [Y]es / [N]o / [A]ll"
+                    if ($resp -match "^[Aa]") {
+                        $script:OverwriteMode = "ALL"
+                    }
+                    elseif ($resp -notmatch "^[Yy]") { 
+                        $doWrite = $false 
+                    }
+                }
+            }
+            if ($doWrite) {
+                $mergedContent | Set-Content $cursorFile
+                Write-Item -Message "✓ Workspace rules installed at: $cursorFile" -Color "DarkGreen"
+            }
         }
 
         # 5. Windsurf
-        Write-Header -Provider "WINDSURF"
-        Write-Item -Message "Installing Workspace Rules..."
-        $windsurfDir = Join-Path $targetPath ".codeium\windsurf\memories"
-        if (-not (Test-Path $windsurfDir)) { New-Item -ItemType Directory -Force -Path $windsurfDir | Out-Null }
-        Safe-Copy -Source "$RepoRoot\templates\ai-instructions\generic-instructions.md" -Destination "$windsurfDir\rules.md" -Confirm:$true -CustomMessage "✓ Workspace instructions installed at: $windsurfDir\rules.md"
+        if ($workspacePlatforms -contains "WINDSURF") {
+            Write-Header -Provider "WINDSURF"
+            Write-Item -Message "Installing Workspace Rules..."
+            $windsurfDir = Join-Path $targetPath ".codeium\windsurf\memories"
+            if (-not (Test-Path $windsurfDir)) { New-Item -ItemType Directory -Force -Path $windsurfDir | Out-Null }
+            Safe-Copy -Source "$RepoRoot\templates\ai-instructions\generic-instructions.md" -Destination "$windsurfDir\rules.md" -Confirm:$true -CustomMessage "✓ Workspace instructions installed at: $windsurfDir\rules.md"
+        }
         
         Write-Host ""
         Write-Host "----------------------------------------------------------------" -ForegroundColor Green
