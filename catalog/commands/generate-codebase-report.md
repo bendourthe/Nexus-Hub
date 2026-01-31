@@ -18,8 +18,9 @@ Analyze the codebase and generate a comprehensive report in both Markdown and DO
     *   Construct a JSON object with the following structure:
         ```json
         {
-          "title": "Codebase Deep Dive Report",
-          "subtitle": "Analysis of [Project Name]",
+          "title": "[Project Name] Codebase Report",
+          "subtitle": "A Comprehensive Evaluation of [Project]’s Capabilities, Architectural Patterns, and Deployment Systems",
+          "header_subtitle": "Capabilities, Architecture, and Deployment Evaluation",
           "author": "DevAI-Hub Agent",
           "purpose": "Detailed paragraph explaining the report's purpose.",
           "executive_summary": "One or two paragraphs summarizing the purpose of the codebase, how it works, and how it can be used.",
@@ -36,14 +37,15 @@ Analyze the codebase and generate a comprehensive report in both Markdown and DO
         ```
     *   Save this JSON to `report_data.json`.
 
-3.  **Generate Markdown Report**
-    *   Create a file `Codebase_Report.md` using the data from the analysis.
-    *   Include all sections: Title, Purpose, Executive Summary, Component Analysis, User Manual.
-
-4.  **Generate DOCX Report**
+3.  **Generate Reports**
     *   Check if `python-docx` is installed. If not, ask the user to run `pip install python-docx`.
-    *   The helper script `scripts/generate_report.py` handles the DOCX generation.
+    *   The helper script `scripts/generate_report.py` handles both Markdown and DOCX generation.
     *   Run the script: `python scripts/generate_report.py report_data.json`
+    *   **Features**:
+        *   **Authorship**: Automatically detects `git config user.name` if available.
+        *   **Silent TOC Update**: Pre-calculates TOC via background PowerShell process.
+        *   **Professional Layout**: 1.0" Body Margins, 0.5" Header/Footer Margins, Centered Title Page.
+        *   **Dynamic Titles**: Supports short headers via `header_subtitle`.
     *   If the script is missing, create it first using the content below:
 
 <details>
@@ -53,59 +55,16 @@ Analyze the codebase and generate a comprehensive report in both Markdown and DO
 import json
 import sys
 import os
+import subprocess
+import re
 from datetime import datetime
 
 try:
     from docx import Document
-    from docx.shared import Pt, Inches
-    from docx.enum.text import WD_ALIGN_PARAGRAPH
-except ImportError:
-    print("Error: python-docx not installed. Run: pip install python-docx")
-    sys.exit(1)
-
-def create_report(data_file):
-    with open(data_file, 'r', encoding='utf-8') as f:
-        data = json.load(f)
-
-    doc = Document()
-    
-    # Title Page
-    doc.add_heading(data.get("title", "Report"), 0).alignment = WD_ALIGN_PARAGRAPH.CENTER
-    doc.add_paragraph(data.get("subtitle", "")).alignment = WD_ALIGN_PARAGRAPH.CENTER
-    doc.add_paragraph(f"\nAuthor: {data.get('author', 'Agent')}").alignment = WD_ALIGN_PARAGRAPH.CENTER
-    doc.add_paragraph(f"Date: {datetime.now().strftime('%B %d, %Y')}").alignment = WD_ALIGN_PARAGRAPH.CENTER
-    doc.add_page_break()
-
-    # Sections
-    sections = [
-        ("1. Document Purpose", "purpose"),
-        ("2. Executive Summary", "executive_summary"),
-        ("3. User Manual", "user_manual")
-    ]
-    
-    for title, key in sections:
-        doc.add_heading(title, level=1)
-        doc.add_paragraph(data.get(key, "N/A"))
-
-    # Components
-    doc.add_heading("4. Component Analysis", level=1)
-    for comp in data.get("components", []):
-        doc.add_heading(comp.get("name", "Component"), level=2)
-        doc.add_paragraph(f"Description: {comp.get('description', '')}")
-        doc.add_paragraph(comp.get("details", ""))
-
-    output_file = "Codebase_Report.docx"
-    doc.save(output_file)
-    print(f"Generated: {output_file}")
-
-if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        create_report(sys.argv[1])
-    else:
-        print("Usage: python generate_report.py <json_file>")
+# ... (See full implementation in scripts/generate_report.py)
 ```
 </details>
 
 ## Output
-*   `Codebase_Report.md`: Markdown version of the report.
-*   `Codebase_Report.docx`: Professional Word document (if python-docx is available).
+*   `Codebase_Report.md`: Markdown version of the report (with TOC and Appendix).
+*   `Codebase_Report.docx`: Professional Word document (with Title Page, Headers/Footers, TOC).
