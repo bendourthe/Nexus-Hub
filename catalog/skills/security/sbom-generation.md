@@ -33,3 +33,11 @@ When invoking this skill:
 2.  **Read** all relevant manifest files.
 3.  **Synthesize** a consolidated list of unique dependencies.
 4.  **Generate** the requested output format (default to Markdown Table + JSON block).
+
+
+### Iterative Refinement Strategy
+This skill is optimized for an iterative approach:
+1. **Execute**: Perform the core steps defined above.
+2. **Review**: Critically analyze the output (coverage, quality, completeness).
+3. **Refine**: If targets aren't met, repeat the specific implementation steps with improved context.
+4. **Loop**: Continue until the definition of done is satisfied.

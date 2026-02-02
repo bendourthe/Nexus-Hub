@@ -334,3 +334,20 @@ Only proceed with tag creation if explicitly requested.
 - Auto-analyze git history instead of asking user to describe changes
 - Always perform deep codebase scan to catch missed version references
 - Always generate a copy-paste ready commit message
+
+
+## Phase: Iterative Refinement (Loop)
+
+**CRITICAL**: This is an iterative process. You cannot assume the first pass is perfect.
+Perform the following refinement loop up to **3 times** (or as specified by the user's input, e.g., "5 iterations"):
+
+1.  **Analyze**: Look at the generated output.
+    *   Is it complete?
+    *   Are there any obvious errors?
+    *   Does it meet the user's requirements?
+2.  **Refine**:
+    *   Fix any issues found.
+    *   Add missing components.
+3.  **Stop**:
+    *   If you are confident the result is excellent.
+    *   OR if you have reached the maximum iteration count.

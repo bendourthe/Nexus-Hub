@@ -436,3 +436,11 @@
 
 - **Catalog Version**: 1.1.0
 - **Last Updated**: January 2026
+
+
+### Iterative Refinement Strategy
+This skill is optimized for an iterative approach:
+1. **Execute**: Perform the core steps defined above.
+2. **Review**: Critically analyze the output (coverage, quality, completeness).
+3. **Refine**: If targets aren't met, repeat the specific implementation steps with improved context.
+4. **Loop**: Continue until the definition of done is satisfied.

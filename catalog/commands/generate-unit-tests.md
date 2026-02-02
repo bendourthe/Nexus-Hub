@@ -43,3 +43,20 @@ This command performs a deep, comprehensive analysis of the codebase to generate
 1.  **`unit_test_plan.md`**: A detailed document outlining the strategy and coverage for each file.
 2.  **Test Code**: High-quality, runnable unit test files.
 3.  **Summary**: A final report on what was generated and any manual steps required.
+
+
+## Phase: Iterative Refinement (Loop)
+
+**CRITICAL**: This is an iterative process. You cannot assume the first pass is perfect.
+Perform the following refinement loop up to **3 times** (or as specified by the user's input, e.g., "5 iterations"):
+
+1.  **Analyze**: Look at the generated output.
+    *   Is it complete?
+    *   Are there any obvious errors?
+    *   Does it meet the user's requirements?
+2.  **Refine**:
+    *   Fix any issues found.
+    *   Add missing components.
+3.  **Stop**:
+    *   If you are confident the result is excellent.
+    *   OR if you have reached the maximum iteration count.
