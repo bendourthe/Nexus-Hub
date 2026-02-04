@@ -2,7 +2,7 @@
 **Production-Grade Brain Upgrades for Your AI Coding Assistant**
 
 > **Turn generic AI into a Senior Engineer.**
-> One-click setup for Claude Code, GitHub Copilot, Cursor, and more.
+> One-click setup for Claude Code (Anthropic), Gemini (Google), Codex (OpenAI), and GitHub Copilot (Microsoft).
 
 ---
 
@@ -19,8 +19,8 @@ Don't want to copy-paste files manually? We made an installer.
 5.  **(Optional) Select a project** to configure workspace-specific rules.
 
 **Done.**
-*   **Globally**: Your user profile now has all 60+ Claude Skills and Gemini instructions.
-*   **Locally**: Your project has `.cursorrules` and `copilot-instructions.md` tailored to your language.
+*   **Globally**: Your user profile now has all 60+ Claude Skills, Gemini instructions, and OpenAI Codex setup.
+*   **Locally**: Your project has `copilot-instructions.md` tailored to your language.
 
 ---
 
@@ -40,17 +40,21 @@ Most AI assistants (Claude, Copilot, ChatGPT) are "generic junkies"—they know 
 
 If you prefer to copy things yourself, here is how the repo is organized:
 
-### 1. Claude Code
+### 1. Claude Code (Anthropic)
 This is the most powerful integration. It adds **autonomous agent capabilities**.
 *   **CLAUDE.md**: The "Brain". Copy `templates/ai-instructions/claude-code/{LANG}/CLAUDE.md` to your project root.
 *   **Skills**: The "Hands". Copy folders from `claude-skills-catalog/` to your project's `.claude/skills/` folder.
     *   *Example*: Copy `claude-skills-catalog/research/trend-research` to enable the "Trend Research" skill.
 
-### 2. Cursor (.cursorrules)
-Teaches Cursor how to write code in your specific language.
-*   Copy `templates/ai-instructions/coding-instructions/{LANG}.md` to your project root and rename it to `.cursorrules`.
+### 2. Gemini (Google)
+Optimized instructions for Google's Gemini models.
+*   **Gemini Instructions**: Copy `templates/ai-instructions/generic-instructions.md` to `.gemini/GEMINI.md` in your project or user profile.
 
-### 3. GitHub Copilot
+### 3. Codex (OpenAI)
+Setup for OpenAI's Codex agent in VS Code.
+*   **Skills & Commands**: The installer creates a `.codex` folder with standard skills and commands.
+
+### 4. GitHub Copilot (Microsoft)
 Instructions for VS Code's Copilot Chat.
 *   Copy `templates/ai-instructions/coding-instructions/{LANG}.md` to `.github/copilot-instructions.md`.
 

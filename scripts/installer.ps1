@@ -117,8 +117,7 @@ function Get-ProviderColor {
     $color = switch ($Provider) {
         "CLAUDE" { "DarkYellow" }
         "GEMINI" { "Blue" }
-        "WINDSURF" { "Cyan" }
-        "CURSOR" { "Magenta" }
+        "CODEX" { "DarkMagenta" }
         "COPILOT" { "Gray" }
         Default { "White" }
     }
@@ -158,30 +157,29 @@ function Select-Platforms {
     param([string]$PhaseName)
     Write-Host ""
     Write-Host "Select platforms to install for $PhaseName (comma separated):" -ForegroundColor White
-    Write-Host "1. Claude"
-    Write-Host "2. Gemini / Antigravity"
-    Write-Host "3. Copilot"
-    Write-Host "4. Cursor"
-    Write-Host "5. Windsurf"
-    Write-Host "6. ALL (Recommended)"
+    Write-Host "A - ALL (Recommended)"
+    Write-Host "1 - Claude Code (Anthropic)"
+    Write-Host "2 - Gemini (Google)"
+    Write-Host "3 - Codex (OpenAI)"
+    Write-Host "4 - GitHub Copilot (Microsoft)"
     
-    $inputStr = Read-Prompt "Selection [1-6]"
-    if ([string]::IsNullOrWhiteSpace($inputStr)) { return @("CLAUDE", "GEMINI", "COPILOT", "CURSOR", "WINDSURF") }
+    $inputStr = Read-Prompt "Selection [A, 1-4]"
+    if ([string]::IsNullOrWhiteSpace($inputStr)) { return @("CLAUDE", "GEMINI", "CODEX", "COPILOT") }
 
-    $map = @{ "1" = "CLAUDE"; "2" = "GEMINI"; "3" = "COPILOT"; "4" = "CURSOR"; "5" = "WINDSURF"; "6" = "ALL" }
+    $map = @{ "1" = "CLAUDE"; "2" = "GEMINI"; "3" = "CODEX"; "4" = "COPILOT"; "A" = "ALL" }
     $selected = @()
     
     $inputStr.Split(',') | ForEach-Object {
         $key = $_.Trim()
         if ($map.ContainsKey($key)) {
             if ($map[$key] -eq "ALL") {
-                return @("CLAUDE", "GEMINI", "COPILOT", "CURSOR", "WINDSURF")
+                return @("CLAUDE", "GEMINI", "CODEX", "COPILOT")
             }
             $selected += $map[$key]
         }
     }
     
-    if ($selected.Count -eq 0) { return @("CLAUDE", "GEMINI", "COPILOT", "CURSOR", "WINDSURF") }
+    if ($selected.Count -eq 0) { return @("CLAUDE", "GEMINI", "CODEX", "COPILOT") }
     return $selected
 }
 
@@ -323,7 +321,7 @@ function Install-Global {
     # 1. Claude
     if ($platforms -contains "CLAUDE") {
         Write-Header -Provider "CLAUDE"
-        Write-Item -Message "Checking Global Configuration..."
+        Write-Item -Message "Installing Global Configuration..."
         $globalClaude = Join-Path $env:USERPROFILE ".claude"
         if (-not (Test-Path $globalClaude)) { New-Item -ItemType Directory -Force -Path $globalClaude | Out-Null }
 
@@ -340,7 +338,7 @@ function Install-Global {
     # 2. Gemini / Antigravity
     if ($platforms -contains "GEMINI") {
         Write-Header -Provider "GEMINI"
-        Write-Item -Message "Checking Global Configuration..."
+        Write-Item -Message "Installing Global Configuration..."
         $globalGeminiDir = Join-Path $env:USERPROFILE ".gemini"
         $globalAgentDir = Join-Path $env:USERPROFILE ".agent"
         
@@ -357,27 +355,27 @@ function Install-Global {
         Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $globalAgentDir "workflows") -CustomMessage "✓ Global workflows installed at: $(Join-Path $globalAgentDir "workflows")"
     }
 
-    # 3. Copilot
+    # 3. OpenAI Codex
+    if ($platforms -contains "CODEX") {
+        Write-Header -Provider "CODEX"
+        Write-Item -Message "Installing Global Configuration..."
+        $globalCodexDir = Join-Path $env:USERPROFILE ".codex"
+        
+        if (-not (Test-Path $globalCodexDir)) { New-Item -ItemType Directory -Force -Path $globalCodexDir | Out-Null }
+        
+        # Global Skills
+        Safe-Folder-Copy -Source "$RepoRoot\catalog\skills" -Destination (Join-Path $globalCodexDir "skills") -CustomMessage "✓ Global skills catalog installed at: $(Join-Path $globalCodexDir "skills")"
+        
+        # Global Commands
+        Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $globalCodexDir "commands") -CustomMessage "✓ Global commands installed at: $(Join-Path $globalCodexDir "commands")"
+    }
+
+    # 4. Microsoft - Github Copilot
     if ($platforms -contains "COPILOT") {
         Write-Header -Provider "COPILOT" 
         Write-Item -Message "Check skipped (No global file support on Windows)." -Color "DarkGray"
     }
-
-    # 4. Cursor
-    if ($platforms -contains "CURSOR") {
-        Write-Header -Provider "CURSOR"
-        Write-Item -Message "Check skipped (No global file support on Windows)." -Color "DarkGray"
-    }
-    
-    # 5. Windsurf
-    if ($platforms -contains "WINDSURF") {
-        Write-Header -Provider "WINDSURF"
-        Write-Item -Message "Checking Memories/Rules..."
-        $windsurfDir = Join-Path $env:USERPROFILE ".codeium\windsurf\memories"
-        if (-not (Test-Path $windsurfDir)) { New-Item -ItemType Directory -Force -Path $windsurfDir | Out-Null }
-        Safe-Copy -Source "$RepoRoot\templates\ai-instructions\generic-instructions.md" -Destination "$windsurfDir\global_rules.md" -Confirm:$true -CustomMessage "✓ Global instructions installed at: $windsurfDir\global_rules.md"
-    }
-    
+ 
     Write-Host ""
     Write-Host "----------------------------------------------------------------" -ForegroundColor Green
     Write-Host "              Global Installation Phase Complete.               " -ForegroundColor Green
@@ -451,7 +449,7 @@ function Install-Workspace {
         # 1. Claude
         if ($workspacePlatforms -contains "CLAUDE") {
             Write-Header -Provider "CLAUDE"
-            Write-Item -Message "Installing Workspace Resources..."
+            Write-Item -Message "Installing Workspace Configuration..."
             $claudeDir = Join-Path $targetPath ".claude"
             
             # CLAUDE.md
@@ -471,7 +469,7 @@ function Install-Workspace {
         # 2. Gemini / Antigravity
         if ($workspacePlatforms -contains "GEMINI") {
             Write-Header -Provider "GEMINI"
-            Write-Item -Message "Installing Workspace Instructions..."
+            Write-Item -Message "Installing Workspace Configuration..."
             $geminiDir = Join-Path $targetPath ".gemini"
             $agentDir = Join-Path $targetPath ".agent"
 
@@ -489,6 +487,21 @@ function Install-Workspace {
             Write-Item -Message "✓ Copied Skills & Workflows structure" -Color "DarkGreen"
         }
 
+        # 3. OpenAI Codex
+        if ($workspacePlatforms -contains "CODEX") {
+            Write-Header -Provider "CODEX"
+            Write-Item -Message "Installing Workspace Configuration..."
+            $codexDir = Join-Path $targetPath ".codex"
+            
+            if (-not (Test-Path $codexDir)) { New-Item -ItemType Directory -Force -Path $codexDir | Out-Null }
+            
+            # Skills
+            Safe-Folder-Copy -Source "$RepoRoot\catalog\skills" -Destination (Join-Path $codexDir "skills") -CustomMessage "✓ Workspace skills catalog installed at: $(Join-Path $codexDir "skills")"
+            
+            # Commands
+            Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $codexDir "commands") -CustomMessage "✓ Workspace commands installed at: $(Join-Path $codexDir "commands")"
+        }
+
         # --- Prepare Rules for Copilot/Cursor ---
         $mergedContent = "# AI Coding Rules`n`n"
         foreach ($lang in $languages) {
@@ -500,10 +513,10 @@ function Install-Workspace {
             }
         }
 
-        # 3. Copilot
+        # 4. Microsoft - Github Copilot
         if ($workspacePlatforms -contains "COPILOT") {
             Write-Header -Provider "COPILOT"
-            Write-Item -Message "Installing instructions..."
+            Write-Item -Message "Installing Workspace Configuration..."
             $copilotDir = Join-Path $targetPath ".github"
             if (-not (Test-Path $copilotDir)) { New-Item -ItemType Directory -Force -Path $copilotDir | Out-Null }
             $copilotFile = Join-Path $copilotDir "copilot-instructions.md"
@@ -533,47 +546,6 @@ function Install-Workspace {
                 $mergedContent | Set-Content $copilotFile
                 Write-Item -Message "✓ Workspace instructions installed at: $copilotFile" -Color "DarkGreen"
             }
-        }
-
-        # 4. Cursor
-        if ($workspacePlatforms -contains "CURSOR") {
-            Write-Header -Provider "CURSOR"
-            Write-Item -Message "Installing .cursorrules..."
-            $cursorFile = Join-Path $targetPath ".cursorrules"
-            $doWrite = $true
-            if ((Test-Path $cursorFile)) {
-                if ($script:OverwriteMode -eq "ALL") {
-                    # Overwrite
-                }
-                elseif ($script:OverwriteMode -eq "NONE") {
-                    Write-Item -Message "File exists: .cursorrules (Skipped)" -Color "DarkGray"
-                    $doWrite = $false
-                }
-                else {
-                    # ASK
-                    Write-Item -Message "File exists: .cursorrules" -Color "Yellow"
-                    $resp = Read-Prompt "Overwrite? [Y]es / [N]o / [A]ll"
-                    if ($resp -match "^[Aa]") {
-                        $script:OverwriteMode = "ALL"
-                    }
-                    elseif ($resp -notmatch "^[Yy]") { 
-                        $doWrite = $false 
-                    }
-                }
-            }
-            if ($doWrite) {
-                $mergedContent | Set-Content $cursorFile
-                Write-Item -Message "✓ Workspace rules installed at: $cursorFile" -Color "DarkGreen"
-            }
-        }
-
-        # 5. Windsurf
-        if ($workspacePlatforms -contains "WINDSURF") {
-            Write-Header -Provider "WINDSURF"
-            Write-Item -Message "Installing Workspace Rules..."
-            $windsurfDir = Join-Path $targetPath ".codeium\windsurf\memories"
-            if (-not (Test-Path $windsurfDir)) { New-Item -ItemType Directory -Force -Path $windsurfDir | Out-Null }
-            Safe-Copy -Source "$RepoRoot\templates\ai-instructions\generic-instructions.md" -Destination "$windsurfDir\rules.md" -Confirm:$true -CustomMessage "✓ Workspace instructions installed at: $windsurfDir\rules.md"
         }
         
         Write-Host ""

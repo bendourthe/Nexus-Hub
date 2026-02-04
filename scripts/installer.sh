@@ -24,8 +24,7 @@ get_provider_color() {
     case "$1" in
         "CLAUDE") echo -ne "${DARK_YELLOW}" ;;
         "GEMINI") echo -ne "${BLUE}" ;;
-        "WINDSURF") echo -ne "${CYAN}" ;;
-        "CURSOR") echo -ne "${MAGENTA}" ;;
+        "CODEX") echo -ne "${MAGENTA}" ;;
         "COPILOT") echo -ne "${GRAY}" ;;
         *) echo -ne "${RESET}" ;;
     esac
@@ -192,22 +191,23 @@ install_global() {
     # Mirror Commands to Agent Workflows
     safe_folder_copy "$repo_root/catalog/commands" "$global_agent_dir/workflows" "✓ Global workflows installed at: $global_agent_dir/workflows"
 
-    # 3. Copilot
+    # 3. OpenAI Codex
+    write_header "CODEX"
+    write_item "Checking Global Configuration (OpenAI Codex)..."
+    local global_codex_dir="$user_home/.codex"
+    
+    mkdir -p "$global_codex_dir"
+    
+    # Global Skills
+    safe_folder_copy "$repo_root/catalog/skills" "$global_codex_dir/skills" "✓ Global skills catalog installed at: $global_codex_dir/skills"
+    
+    # Global Commands
+    safe_folder_copy "$repo_root/catalog/commands" "$global_codex_dir/commands" "✓ Global commands installed at: $global_codex_dir/commands"
+
+    # 4. Microsoft - Github Copilot
     write_header "COPILOT"
     # Copilot usually doesn't have a global config file in the same way, skipped as per Windows version or add if known.
     write_item "Check skipped (No global file support standard)." "$GRAY"
-
-    # 4. Cursor
-    write_header "CURSOR"
-    write_item "Check skipped (No global file support standard)." "$GRAY"
-
-    # 5. Windsurf
-    write_header "WINDSURF"
-    write_item "Checking Memories/Rules..."
-    local windsurf_dir="$user_home/.codeium/windsurf/memories"
-    mkdir -p "$windsurf_dir"
-    
-    safe_copy "$repo_root/templates/ai-instructions/generic-instructions.md" "$windsurf_dir/global_rules.md" true "✓ Global instructions installed at: $windsurf_dir/global_rules.md"
 
     echo ""
     echo -e "${GREEN}----------------------------------------------------------------${RESET}"
@@ -325,7 +325,7 @@ install_workspace() {
 
         # 2. Gemini / Antigravity
         write_header "GEMINI"
-        write_item "Installing Workspace Instructions..."
+        write_item "Installing Workspace Resources..."
         local gemini_dir="$target_path/.gemini"
         local agent_dir="$target_path/.agent"
 
@@ -341,19 +341,27 @@ install_workspace() {
         safe_folder_copy "$repo_root/catalog/commands" "$agent_dir/workflows" "✓ Workspace workflows installed at: $agent_dir/workflows"
 
         write_item "✓ Copied Skills & Workflows structure" "$GREEN"
+        
+        # 3. OpenAI Codex
+        write_header "CODEX"
+        write_item "Installing Workspace Resources..."
+        local codex_dir="$target_path/.codex"
+        
+        mkdir -p "$codex_dir"
+        
+        # Skills
+        safe_folder_copy "$repo_root/catalog/skills" "$codex_dir/skills" "✓ Workspace skills catalog installed at: $codex_dir/skills"
+        
+        # Commands
+        safe_folder_copy "$repo_root/catalog/commands" "$codex_dir/commands" "✓ Workspace commands installed at: $codex_dir/commands"
 
-        # --- Prepare Rules for Copilot/Cursor ---
+        # --- Prepare Rules for Copilot ---
         local merged_content="# AI Coding Rules\n\n"
         
         IFS=',' read -ra LANGS <<< "$languages"
         for lang in "${LANGS[@]}"; do
             lang_key=$(echo "$lang" | tr '[:upper:]' '[:lower:]')
             if [ "$lang_key" == "c++" ]; then lang_key="cpp"; fi
-            
-            # handle 'c#' to 'csharp' mapping if file exists as such? No, prompt says 'csharp.md' usually. 
-            # Looking at Windows script: "c#" -> "c#" in lower case is "c#". 
-            # Let's check file existence on the fly. 
-            # The Windows script assumes the file name matches the key. 
             
             src="$repo_root/templates/ai-instructions/coding-instructions/${lang_key}.md"
             if [ ! -f "$src" ]; then
@@ -367,9 +375,9 @@ install_workspace() {
             fi
         done
 
-        # 3. Copilot
+        # 4. Microsoft - Github Copilot
         write_header "COPILOT"
-        write_item "Installing instructions..."
+        write_item "Installing Workspace Instructions..."
         local copilot_dir="$target_path/.github"
         mkdir -p "$copilot_dir"
         local copilot_file="$copilot_dir/copilot-instructions.md"
@@ -389,34 +397,6 @@ install_workspace() {
             echo -e "$merged_content" > "$copilot_file"
             write_item "✓ Workspace instructions installed at: $copilot_file" "$GREEN"
         fi
-
-        # 4. Cursor
-        write_header "CURSOR"
-        write_item "Installing .cursorrules..."
-        local cursor_file="$target_path/.cursorrules"
-        do_write=true
-        if [ -f "$cursor_file" ] && [ "$OVERWRITE_ALL" = false ]; then
-             write_item "File exists: .cursorrules" "$YELLOW"
-             local resp=$(read_prompt "Overwrite? [Y]es / [N]o / [A]ll")
-             if [[ "$resp" =~ ^[Aa] ]]; then
-                OVERWRITE_ALL=true
-             elif [[ ! "$resp" =~ ^[Yy] ]]; then
-                do_write=false
-             fi
-        fi
-
-        if [ "$do_write" = true ]; then
-             echo -e "$merged_content" > "$cursor_file"
-             write_item "✓ Workspace rules installed at: $cursor_file" "$GREEN"
-        fi
-
-        # 5. Windsurf
-        write_header "WINDSURF"
-        write_item "Installing Workspace Rules..."
-        local windsurf_ws_dir="$target_path/.codeium/windsurf/memories"
-        mkdir -p "$windsurf_ws_dir"
-        
-        safe_copy "$repo_root/templates/ai-instructions/generic-instructions.md" "$windsurf_ws_dir/rules.md" true "✓ Workspace instructions installed at: $windsurf_ws_dir/rules.md"
 
         echo ""
         echo -e "${GREEN}----------------------------------------------------------------${RESET}"
