@@ -353,6 +353,14 @@ function Install-Global {
         
         # Mirror Commands to Agent Workflows
         Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $globalAgentDir "workflows") -CustomMessage "✓ Global workflows installed at: $(Join-Path $globalAgentDir "workflows")"
+
+        # Mirror to .gemini (For Antigravity Global Context)
+        Safe-Folder-Copy -Source "$RepoRoot\catalog\skills" -Destination (Join-Path $globalGeminiDir "skills") -CustomMessage "✓ Global skills catalog installed at: $(Join-Path $globalGeminiDir "skills")"
+        
+        # Correct path for Antigravity Global Workflows
+        $globalAntigravityWorkflows = Join-Path $globalGeminiDir "antigravity\global_workflows"
+        if (-not (Test-Path $globalAntigravityWorkflows)) { New-Item -ItemType Directory -Force -Path $globalAntigravityWorkflows | Out-Null }
+        Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination $globalAntigravityWorkflows -CustomMessage "✓ Global workflows installed at: $globalAntigravityWorkflows"
     }
 
     # 3. OpenAI Codex

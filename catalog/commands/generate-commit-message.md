@@ -18,6 +18,9 @@ Analyze the current git changes and generate a comprehensive, structured commit 
 
 3.  **Draft Message**:
     *   **Title**: Conventional Commit format (`<type>(<scope>): <short summary>`). Limits to 50 chars.
+        - Types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`.
+        - Scope: Optional, e.g., `(auth)`, `(api)`, `(installer)`.
+        - Description: Concise summary in imperative mood (e.g., "add feature" not "added feature").
     *   **Body**: Bullet points explaining *what* changed and *why*. Group by component.
     *   **Footer**: Note any breaking changes or issue references.
 

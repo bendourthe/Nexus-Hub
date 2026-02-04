@@ -49,6 +49,7 @@ This is the most powerful integration. It adds **autonomous agent capabilities**
 ### 2. Gemini (Google)
 Optimized instructions for Google's Gemini models.
 *   **Gemini Instructions**: Copy `templates/ai-instructions/generic-instructions.md` to `.gemini/GEMINI.md` in your project or user profile.
+*   **Skills & Workflows**: The installer mirrors these to `.gemini/skills` and `.gemini/antigravity/global_workflows` so they appear globally in Antigravity.
 
 ### 3. Codex (OpenAI)
 Setup for OpenAI's Codex agent in VS Code.

@@ -1,7 +1,7 @@
 ---
 description: Guide the user through a comprehensive version upgrade following semantic versioning.
 ---
-# Version Upgrade Assistant
+# Updated Version Command
 
 Guide the user through a comprehensive version upgrade following semantic versioning.
 

@@ -1,4 +1,88 @@
+---
+description: Analyze the codebase, explain its architecture and use cases, and optionally generate a comprehensive report.
+---
 
+# Analyze Codebase Command
+
+Analyze the codebase structure, purpose, and logic, then provide a high-level summary in the chat before offering a full report.
+
+## Phase 1: Interactive Analysis (Chat Output)
+
+1.  **Deep Scan**:
+    *   Read `README.md`, `package.json` / `pyproject.toml`, and directory structure.
+    *   Identify key components, main entry points, and architectural patterns.
+
+2.  **Generate Chat Summary**:
+    *   Output a structured summary *directly in the chat*:
+        ```markdown
+        # 🏗️ Codebase Overview
+
+        ## Executive Summary
+        [2-3 sentences explaining what this project does]
+
+        ## Architecture
+        - **Frontend**: [Tech stack & patterns]
+        - **Backend**: [Tech stack & patterns]
+        - **Key Components**:
+          - `Component A`: [Purpose]
+          - `Component B`: [Purpose]
+
+        ## Use Cases
+        1. [Use Case 1]
+        2. [Use Case 2]
+
+        ## Dependencies
+        - [Key dependency 1]
+        - [Key dependency 2]
+        ```
+
+3.  **Offer Full Report**:
+    *   Ask the user:
+        > "Would you like me to generate a comprehensive, professional report (DOCX/Markdown) for this codebase?"
+
+4.  **Stop**:
+    *   If the user says "No", stop here.
+    *   If the user says "Yes", proceed to Phase 2.
+
+## Phase 2: Full Report Generation (File Output)
+
+1.  **Generate Report Content (JSON)**
+    *   Construct a JSON object with the following structure:
+        ```json
+        {
+          "title": "[Project Name] Codebase Report",
+          "subtitle": "A Comprehensive Evaluation of [Project]’s Capabilities, Architectural Patterns, and Deployment Systems",
+          "header_subtitle": "Capabilities, Architecture, and Deployment Evaluation",
+          "author": "DevAI-Hub Agent",
+          "purpose": "Detailed paragraph explaining the report's purpose.",
+          "executive_summary": "Expanded summary from Phase 1.",
+          "components": [
+            {
+              "name": "Component Name",
+              "description": "Brief description.",
+              "details": "Detailed explanation of functionality, file location, and usage."
+            }
+          ],
+          "user_manual": "Detailed user manual with steps on how to use the app.",
+          "issues": ["List of potential issues", "Optimization suggestions"]
+        }
+        ```
+    *   Save this JSON to `report_data.json`.
+
+2.  **Generate Reports**
+    *   Check if `python-docx` is installed. If not, ask the user to run `pip install python-docx`.
+    *   The helper script `scripts/generate_report.py` handles both Markdown and DOCX generation.
+    *   Run the script: `python scripts/generate_report.py report_data.json`
+    *   **Features**:
+        *   **Authorship**: Automatically detects `git config user.name` if available.
+        *   **Silent TOC Update**: Pre-calculates TOC via background PowerShell process.
+        *   **Professional Layout**: 1.0" Body Margins, 0.5" Header/Footer Margins, Centered Title Page.
+    *   If the script is missing, create it first using the content below:
+
+<details>
+<summary>scripts/generate_report.py content (if missing)</summary>
+
+```python
 import json
 import sys
 import os
@@ -280,7 +364,7 @@ def generate_markdown_report(data, author, tree_structure, output_file="Codebase
     subtitle = data.get("subtitle", "")
     date_str = datetime.now().strftime("%Y-%m-%d")
     
-    md_content = f"""# {title}
+    md_content = f\"\"\"# {title}
 **Subtitle**: {subtitle}
 **Author**: {author}
 **Date**: {date_str}
@@ -301,35 +385,35 @@ def generate_markdown_report(data, author, tree_structure, output_file="Codebase
 {data.get('executive_summary', 'N/A')}
 
 ## 2. Component Analysis
-"""
+\"\"\"
     for comp in data.get("components", []):
-        md_content += f"\n### {comp.get('name', 'Component')}\n"
-        md_content += f"**Description**: {comp.get('description', '')}\n\n"
-        md_content += f"{comp.get('details', '')}\n"
+        md_content += f"\\n### {comp.get('name', 'Component')}\\n"
+        md_content += f"**Description**: {comp.get('description', '')}\\n\\n"
+        md_content += f"{comp.get('details', '')}\\n"
 
-    md_content += "\n## 3. Dependencies & Prerequisites\n"
+    md_content += "\\n## 3. Dependencies & Prerequisites\\n"
     deps = data.get("dependencies", [])
     if isinstance(deps, list):
         for d in deps:
-            md_content += f"- {d}\n"
+            md_content += f"- {d}\\n"
     else:
-        md_content += f"{deps}\n"
+        md_content += f"{deps}\\n"
 
-    md_content += "\n## 4. Platform Support\n"
+    md_content += "\\n## 4. Platform Support\\n"
     platforms = data.get("platforms", [])
     if isinstance(platforms, list):
         for p in platforms:
-            md_content += f"- {p}\n"
+            md_content += f"- {p}\\n"
     else:
-        md_content += f"{platforms}\n"
+        md_content += f"{platforms}\\n"
 
-    md_content += f"\n## 5. User Manual & Usage Guide\n{data.get('user_manual', 'N/A')}\n"
+    md_content += f"\\n## 5. User Manual & Usage Guide\\n{data.get('user_manual', 'N/A')}\\n"
 
-    md_content += "\n## 6. Issues & Optimization\n"
+    md_content += "\\n## 6. Issues & Optimization\\n"
     for issue in data.get("issues", []):
-        md_content += f"- {issue}\n"
+        md_content += f"- {issue}\\n"
 
-    md_content += f"\n## Appendix A: Project Architecture\n```text\n{tree_structure}\n```\n"
+    md_content += f"\\n## Appendix A: Project Architecture\\n```text\\n{tree_structure}\\n```\\n"
 
     with open(output_file, 'w', encoding='utf-8') as f:
         f.write(md_content)
@@ -379,7 +463,7 @@ def generate_docx_report(data, author, tree_structure, output_file="Codebase_Rep
     
     meta_p = doc.add_paragraph()
     meta_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    meta_p.add_run(f"Author: {author}\n")
+    meta_p.add_run(f"Author: {author}\\n")
     meta_p.add_run(f"Date: {datetime.now().strftime('%B %d, %Y')}")
 
     # --- Section 1: Main Content (Top Aligned) ---
@@ -536,10 +620,32 @@ if __name__ == "__main__":
         author = resolve_author(data.get("author"))
         
         root_dir = os.getcwd()
-        tree_str = f"{os.path.basename(root_dir)}/\n{generate_tree_structure(root_dir)}"
+        tree_str = f"{os.path.basename(root_dir)}/\\n{generate_tree_structure(root_dir)}"
         
         generate_markdown_report(data, author, tree_str)
         generate_docx_report(data, author, tree_str)
         
     else:
         print("Usage: python generate_report.py <json_file>")
+```
+</details>
+
+3.  **Output**
+    *   `Codebase_Report.md`: Markdown version of the report (with TOC and Appendix).
+    *   `Codebase_Report.docx`: Professional Word document.
+
+## Phase: Iterative Refinement (Loop)
+
+**CRITICAL**: This is an iterative process. You cannot assume the first pass is perfect.
+Perform the following refinement loop up to **3 times** (or as specified by the user's input, e.g., "5 iterations"):
+
+1.  **Analyze**: Look at the generated output.
+    *   Is it complete?
+    *   Are there any obvious errors?
+    *   Does it meet the user's requirements?
+2.  **Refine**:
+    *   Fix any issues found.
+    *   Add missing components.
+3.  **Stop**:
+    *   If you are confident the result is excellent.
+    *   OR if you have reached the maximum iteration count.

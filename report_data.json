@@ -1,51 +1,36 @@
 {
-    "title": "Codebase Deep Dive Report",
+    "title": "DevAI-Hub Codebase Report",
     "subtitle": "A Comprehensive Evaluation of DevAI-Hub’s Capabilities, Architectural Patterns, and Deployment Systems",
     "header_subtitle": "Capabilities, Architecture, and Deployment Evaluation",
     "author": "DevAI-Hub Agent",
-    "purpose": "This report provides a comprehensive analysis of the DevAI-Hub codebase, identifying its core components, architectural patterns, and functional capabilities. It serves as a guide for developers and users to understand the system's structure and how to leverage its features for enhancing AI coding assistants.",
-    "executive_summary": "DevAI-Hub is a specialized repository designed to upgrade 'generic' AI coding assistants into production-grade engineering tools. It achieves this by providing a structured catalog of 'System Instructions' and 'Skills' that can be injected into AI contexts like Claude Code, Cursor, and GitHub Copilot. \n\nThe system is built around a centralized catalog of skills (e.g., code review workflows, testing protocols, documentation generators) and templates. It includes installation scripts to automate the deployment of these resources into local development environments. By defining strict behavioral rules and autonomous workflows, DevAI-Hub aims to standardize high-quality software engineering practices across different AI platforms.",
+    "purpose": "This report provides a detailed analysis of the DevAI-Hub codebase, facilitating understanding for onboarding, technical review, and deployment of AI-assisted development workflows.",
+    "executive_summary": "DevAI-Hub is a production-grade configuration hub designed to upgrade generic AI coding assistants (Claude, Gemini, Codex, Copilot) into 'Senior Engineer' level partners. It acts as a central repository for system instructions ('Brain'), autonomous skills ('Hands'), and workflow definitions. The system encompasses robust installation scripts for cross-platform deployment, a vast catalog of over 60 skills, and templates for various development environments.",
     "components": [
         {
             "name": "Skill Catalog",
-            "description": "The core library of autonomous capabilities.",
-            "details": "Located in the `catalog/` directory (and tracked in `skills.json`), this component contains the definitions of various skills. Each skill is a specific capability taught to the AI, such as 'Trend Research', 'Code Review', or 'Test Generation'. The `skills.json` file serves as a database, tracking metadata like version, author, tools required, and priority for each skill."
+            "description": "A comprehensive library of autonomous capabilities for AI agents.",
+            "details": "Located in `catalog/skills/`, this component contains over 60 specialized skills. These skills enable specific autonomous behaviors such as 'Trend Research', 'Code Review', 'Test Generation', and 'Compliance Checking'. They are structured to be easily injected into agent configurations."
         },
         {
-            "name": "Templates Library",
-            "description": "Reusable markdown templates for instructions and workflows.",
-            "details": "Located in the `templates/` directory, this collection holds the raw content for AI instructions (e.g., `CLAUDE.md`, `.cursorrules`) and development workflows. It acts as the source of truth for the artifacts that get installed into user projects. The `templates.json` file provides a structured manifest of these templates."
+            "name": "System Instructions (Templates)",
+            "description": "Core behavioral definitions and role-playing prompts for different AI models.",
+            "details": "Found in `templates/ai-instructions/`, these markdown files define the 'persona' and operational rules for agents. Notable templates include `CLAUDE.md` for Anthropic's Claude, `GEMINI.md` for Google's Gemini, and `copilot-instructions.md` for GitHub Copilot. They transform generic model behavior into specialized engineering roles."
         },
         {
-            "name": "Installation System",
-            "description": "Scripts for automated deployment.",
-            "details": "The project includes `install.bat` (Windows) and `install.sh` (macOS/Linux), which wrap around core logic (likely in `scripts/installer.ps1` for Windows). These scripts handle the interaction with the user, allowing them to select target projects and install the desired global skills and local configurations."
+            "name": "Infrastructure & Tools",
+            "description": "Utilities for management, deployment, and content generation.",
+            "details": "The `infrastructure/` and `scripts/` directories house essential tools. Key scripts include `installer.ps1` and `installer.sh` for seamless setup across Windows, macOS, and Linux. The `scripts/generate_report.py` tool automates documentation by analyzing the codebase and producing professional reports in DOCX and Markdown formats."
         },
         {
-            "name": "Helper Scripts",
-            "description": "Utility scripts for maintenance and report generation.",
-            "details": "Located in `scripts/`, this directory contains tools like `generate_report.py` (for creating this report) and `installer.ps1`. These scripts facilitate the automation of tasks within the DevAI-Hub ecosystem."
-        },
-        {
-            "name": "Agentic Workflows",
-            "description": "Agent-ready configurations for autonomous workflows.",
-            "details": "Located in `.agent/`, this directory contains `workflows/` (e.g., `/create-commit-message`, `/generate-codebase-report`) and `skills/` that provide structured instructions for AI agents to perform complex multi-step tasks autonomously."
+            "name": "Command Interface",
+            "description": "User-defined commands that map to complex workflows.",
+            "details": "Located in `catalog/commands/`, these define slash-commands (e.g., `/analyze-codebase`, `/generate-tests`) that trigger multi-step agent workflows. This layer bridges the gap between simple chat interactions and complex background processes."
         }
     ],
-    "user_manual": "1. **Prerequisites**: Ensure you have an AI coding assistant (Claude Code, Cursor, or Copilot) and Git installed.\n2. **Installation**:\n   - Clone the repository.\n   - Run `install.bat` (Windows) or `./install.sh` (Mac/Linux).\n   - Follow the prompts to select your target project directory.\n3. **Usage**:\n   - Once installed, the skills are available in your AI's context.\n   - **Claude Code**: Use custom slash commands if configured, or prompt the AI to perform specific tasks like '/run-deep-review'.\n   - **Cursor**: The `.cursorrules` file will automatically guide the AI's code generation style.\n   - **Copilot**: The instructions in `.github/copilot-instructions.md` will inform Copilot's detailed responses.",
+    "user_manual": "1. **Installation**: \n   - **Windows**: Run `scripts/installer.ps1` or double-click `install.bat`.\n   - **Mac/Linux**: Execute `./install.sh`.\n   - Follow the interactive prompts to select your target project and install global skills.\n\n2. **Configuration**:\n   - Copy desired instruction templates from `templates/` to your project root (e.g., `.claude/CLAUDE.md` or `.github/copilot-instructions.md`).\n   - Customize the instructions to match your team's coding standards.\n\n3. **Usage**:\n   - Use installed slash commands (e.g., `/help`, `/review`) in your AI chat interface to trigger specialized behaviors.\n   - Refer to `guides/` for advanced skill usage and customization.",
     "issues": [
-        "Dependency on Python (and python-docx) for report generation features.",
-        "Manual synchronization might be required if the upstream repo updates (unless the installer handles auto-updates).",
-        "Large number of templates might require better categorization for easier manual browsing."
-    ],
-    "dependencies": [
-        "Python 3.x",
-        "python-docx (for DOCX report generation)",
-        "Git (for user name resolution and version control)"
-    ],
-    "platforms": [
-        "Windows 10/11 (PowerShell required)",
-        "macOS",
-        "Linux (Bash required)"
+        "Ensure Python environment has `python-docx` installed for report generation.",
+        "Verify file permission execution policies on Windows (PowerShell) and Linux/Mac (chmod +x) for installers.",
+        "Regularly update the local catalog from the upstream repository to receive new skills and fixes."
     ]
 }
