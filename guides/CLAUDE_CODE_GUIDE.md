@@ -370,7 +370,7 @@ Skills are installed in your project's `.claude/skills/` directory.
 mkdir -p .claude/skills
 
 # Copy skill from catalog
-cp -r claude-skills-catalog/code-review/code-review-security .claude/skills/
+cp -r catalog/skills/code-review/code-review-security .claude/skills/
 
 # Claude Code automatically detects it
 ```
@@ -501,7 +501,7 @@ Claude: "I'll use the setup-test-infrastructure skill followed by generate-test-
 
 - **refactor-safely** (CRITICAL) - Safe refactoring with tests
 
-**Full catalog:** [claude-skills-catalog/](../claude-skills-catalog/)
+**Full catalog:** [catalog/skills/](../catalog/skills/)
 
 ### 2.5 Skill Categories
 
@@ -1798,7 +1798,7 @@ Pull Request: #123
 **Essential Reading:**
 - [CLAUDE.md Templates](../templates/ai-instructions/CLAUDE_MD/)
 
-- [Skills Catalog](../claude-skills-catalog/)
+- [Skills Catalog](../catalog/skills/)
 
 - [Claude Code Project Setup Guide](CLAUDE_CODE_PROJECT_SETUP.md)
 

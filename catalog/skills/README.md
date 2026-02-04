@@ -22,10 +22,10 @@ These skills mirror and extend the templates in [`templates/`](../templates/), c
 1. **Copy skill folder to your project:**
    ```bash
    # Copy a single skill
-   cp -r claude-skills-catalog/tests-generation/unit-tests/ .claude/skills/
+   cp -r catalog/skills/tests-generation/unit-tests/ .claude/skills/
 
    # Or copy an entire category
-   cp -r claude-skills-catalog/tests-generation/ .claude/skills/
+   cp -r catalog/skills/tests-generation/ .claude/skills/
    ```
 
 2. **Use the skill:**
@@ -38,7 +38,7 @@ These skills mirror and extend the templates in [`templates/`](../templates/), c
 
 1. **ZIP a skill folder:**
    ```bash
-   cd claude-skills-catalog/tests-generation
+   cd catalog/skills/tests-generation
    zip -r unit-tests.zip unit-tests/
    ```
 

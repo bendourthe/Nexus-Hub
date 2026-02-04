@@ -1,5 +1,25 @@
 # Development Log
 
+## [2026-02-04 15:32] - Release 0.5.3: Documentation Fixes & Command Cleanup
+
+*   **Goal**: Simplify the repository by removing deprecated legacy skill definitions, consolidating catalog commands, and fixing critical broken links.
+*   **Attempted Solutions**:
+    *   **Cleanup Legacy Skills**:
+        *   *Action*: Removed `.codex`, `.gemini`, and `.github/copilot-instructions.md` directories containing outdated definitions.
+        *   *Result*: Success. Codebase is significantly cleaner.
+    *   **Consolidate Commands**:
+        *   *Action*: Consolidated `generate-commit-message`. Removed redundant `create-commit-message`, `generate-codebase-report`, `upgrade-version`.
+        *   *Result*: Success. Reduced maintenance overhead.
+    *   **Installer Logic**:
+        *   *Action*: Updated `scripts/installer.ps1` to ensure `$globalAntigravityWorkflows` directory is explicitly created before copying.
+        *   *Result*: Verified.
+*   **Changes**:
+    *   Modified `scripts/installer.ps1`: Enhanced global workflow directory handling.
+    *   Modified `scripts/generate_report.py`: Refined report generation logic.
+    *   Deleted `.codex/`, `.gemini/`, `.github/copilot-instructions.md`: Removed legacy artifacts.
+*   **Lessons Learned**: Always verify destination directory existence in PowerShell before copy operations to prevent runtime errors.
+*   **Current Status**: Verified.
+
 ## [2026-01-30 16:55] - Release 0.5.2: Enhanced Reporting & Upgrade Automation
 
 *   **Goal**: Improve the codebase reporting capabilities with professional DOCX output and streamline the version upgrade process.

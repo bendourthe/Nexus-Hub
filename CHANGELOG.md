@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.5.3] - 2026-02-04
+
+### Changed
+- **Documentation Refactoring**: Fixed critical path issues by renaming `claude-skills-catalog` references to `catalog/skills` across 20+ documentation files.
+- **Legacy Cleanup**: Removed deprecated `claude-skills-catalog` references from `README.md`, `CHANGELOG.md`, and guides.
+- **Command Consolidation**: Merged overlapping functionality to streamline the CLI experience.
+
 ## [0.5.2] - 2026-01-30
 
 ### Added
@@ -89,7 +96,7 @@ Simplified repository structure for improved navigation and maintainability with
 
 **Directory Structure Changes**:
 
-- **Skills Catalog**: Moved `catalogs/claude_skills/` → `claude-skills-catalog/` (root level for easier access)
+- **Skills Catalog**: Moved `catalogs/claude_skills/` → `catalog/skills/` (root level for easier access)
 
 - **AI Instructions**: Simplified `templates/ai_instructions/agentic_systems/claude_code/` → `templates/ai-instructions/CLAUDE_MD/`
 

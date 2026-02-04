@@ -724,7 +724,7 @@ Pre-configured templates are available for multiple languages in:
 
 ### Additional Skills
 
-Production-ready skills are available in `claude-skills-catalog/`:
+Production-ready skills are available in `catalog/skills/`:
 
 | Category | Skills |
 |----------|--------|

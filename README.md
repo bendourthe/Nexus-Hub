@@ -43,8 +43,8 @@ If you prefer to copy things yourself, here is how the repo is organized:
 ### 1. Claude Code (Anthropic)
 This is the most powerful integration. It adds **autonomous agent capabilities**.
 *   **CLAUDE.md**: The "Brain". Copy `templates/ai-instructions/claude-code/{LANG}/CLAUDE.md` to your project root.
-*   **Skills**: The "Hands". Copy folders from `claude-skills-catalog/` to your project's `.claude/skills/` folder.
-    *   *Example*: Copy `claude-skills-catalog/research/trend-research` to enable the "Trend Research" skill.
+*   **Skills**: The "Hands". Copy folders from `catalog/skills/` to your project's `.claude/skills/` folder.
+    *   *Example*: Copy `catalog/skills/research/trend-research` to enable the "Trend Research" skill.
 
 ### 2. Gemini (Google)
 Optimized instructions for Google's Gemini models.
@@ -70,7 +70,7 @@ Instructions for VS Code's Copilot Chat.
 | **Test Gen** | Writes comprehensive unit tests using AAA pattern and mocks. |
 | **Compliance** | Checks code against SOC2, GDPR, and ISO standards. |
 
-[→ View Full Skills Catalog](claude-skills-catalog/README.md)
+[→ View Full Skills Catalog](catalog/skills/README.md)
 
 ---
 

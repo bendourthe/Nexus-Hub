@@ -72,10 +72,10 @@ Skills are the core of this repository. Follow these guidelines to create high-q
 
 ### Skill Structure
 
-Create a new directory under `claude-skills-catalog/{category}/`:
+Create a new directory under `catalog/skills/{category}/`:
 
 ```
-claude-skills-catalog/{category}/your-skill-name/
+catalog/skills/{category}/your-skill-name/
 ├── SKILL.md              # Required: Main skill file
 └── README.md             # Optional: Additional documentation
 ```
@@ -396,7 +396,7 @@ All contributions must meet these standards:
 
 ```bash
 # Add files
-git add claude-skills-catalog/{category}/your-skill-name/
+git add catalog/skills/{category}/your-skill-name/
 git add skills.json  # If updated
 
 # Commit with descriptive message

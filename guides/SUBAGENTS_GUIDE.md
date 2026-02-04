@@ -13,7 +13,7 @@ This guide helps you leverage specialist skills to get better results from Claud
 ```bash
 # 1. Pick a skill from the catalog
 # 2. Copy it to your project's .claude/skills/ folder
-cp claude-skills-catalog/infrastructure/kubernetes-expert/SKILL.md .claude/skills/
+cp catalog/skills/infrastructure/kubernetes-expert/SKILL.md .claude/skills/
 ```
 
 ### Use it naturally:
@@ -331,18 +331,18 @@ Each skill has a quality checklist at the end - use it to verify your work.
 mkdir -p .claude/skills
 
 # Copy specific skills you need
-cp claude-skills-catalog/infrastructure/kubernetes-expert/SKILL.md .claude/skills/
-cp claude-skills-catalog/language-specialists/go-expert/SKILL.md .claude/skills/
+cp catalog/skills/infrastructure/kubernetes-expert/SKILL.md .claude/skills/
+cp catalog/skills/language-specialists/go-expert/SKILL.md .claude/skills/
 ```
 
 ### Method 2: Copy Entire Categories
 
 ```bash
 # Copy all infrastructure skills
-cp -r claude-skills-catalog/infrastructure .claude/skills/
+cp -r catalog/skills/infrastructure .claude/skills/
 
 # Copy all orchestration skills
-cp -r claude-skills-catalog/orchestration .claude/skills/
+cp -r catalog/skills/orchestration .claude/skills/
 ```
 
 ### Method 3: Reference from Central Location
@@ -351,7 +351,7 @@ In your project's `CLAUDE.md`:
 
 ```markdown
 ## Skills Reference
-See: @../ai-templates/claude-skills-catalog/ for available skills
+See: @../ai-templates/catalog/skills/ for available skills
 ```
 
 ---
@@ -443,7 +443,7 @@ WORKFLOW:
 
 ## Next Steps
 
-1. **Browse the catalog**: `claude-skills-catalog/CATALOG.md`
+1. **Browse the catalog**: `catalog/skills/CATALOG.md`
 2. **Try a skill**: Copy `kubernetes-expert` and ask about K8s
 3. **Combine skills**: Use `task-coordinator` to plan complex work
 4. **Customize**: Modify skills for your specific needs

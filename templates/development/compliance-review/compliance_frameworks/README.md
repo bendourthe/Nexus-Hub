@@ -59,8 +59,8 @@ This sub-phase provides detailed, language-specific templates for implementing a
 Before starting compliance implementation, gather current security posture:
 
 1. **Security Review**: Run [security_review](../../codebase-review/security_review/) for your language
-2. **Dependency Audit**: Run [dependency-security-audit](../../../../claude-skills-catalog/security/dependency-security-audit/SKILL.md) skill
-3. **License Check**: Run [licensing-compliance](../../../../claude-skills-catalog/security/licensing-compliance/SKILL.md) skill
+2. **Dependency Audit**: Run [dependency-security-audit](../../../../catalog/skills/security/dependency-security-audit/SKILL.md) skill
+3. **License Check**: Run [licensing-compliance](../../../../catalog/skills/security/licensing-compliance/SKILL.md) skill
 
 These findings will feed into your compliance documentation.
 
