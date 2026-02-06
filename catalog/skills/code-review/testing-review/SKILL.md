@@ -39,6 +39,15 @@ Use this skill when you need to:
 - **Function Coverage**: 90%+
 - **Critical Paths**: 95%+
 
+### Severity Classification
+
+| Level | Alias | Description |
+|-------|-------|-------------|
+| **P0** | CRITICAL | Critical paths completely untested |
+| **P1** | HIGH | Significant coverage gaps in important code |
+| **P2** | MEDIUM | Test quality issues or moderate gaps |
+| **P3** | LOW | Minor test improvements |
+
 ## Instructions
 
 ### Step 1: Measure Coverage
@@ -55,12 +64,15 @@ mvn jacoco:report
 
 # Go
 go test -coverprofile=coverage.out ./...
+
+# C# / .NET
+dotnet test --collect:"XPlat Code Coverage"
 ```
 
 ### Step 2: Analyze Test Quality
 
 1. **Test Structure**
-   - Clear AAA pattern
+   - Clear AAA pattern (Arrange-Act-Assert)
    - Descriptive names
    - Single responsibility
 
@@ -78,10 +90,10 @@ go test -coverprofile=coverage.out ./...
 
 Check for missing tests in:
 - Error handling paths
-- Edge cases
-- Boundary conditions
+- Edge cases and boundary conditions
 - Critical business logic
 - Security-sensitive code
+- Recently changed code (in git-changes mode)
 
 ### Step 4: Document Findings
 
@@ -89,7 +101,7 @@ Check for missing tests in:
 ## Testing Review Finding
 
 **Category**: Coverage Gap
-**Severity**: HIGH
+**Severity**: P1 (HIGH)
 **File**: [src/services/payment.py]
 
 ### Issue
@@ -104,7 +116,7 @@ Payment processing has 45% coverage, critical path untested
 Add tests for error scenarios and edge cases
 
 ### Priority
-Immediate - before next release
+Immediate (before next release)
 ```
 
 ## Test Quality Indicators
@@ -127,23 +139,28 @@ Immediate - before next release
 
 - [ ] Coverage metrics collected
 - [ ] Coverage gaps identified
-- [ ] Test quality assessed
+- [ ] Test quality assessed (AAA pattern, naming, isolation)
 - [ ] Anti-patterns detected
+- [ ] Test type balance evaluated (70/20/10)
 - [ ] Test performance reviewed
-- [ ] Recommendations documented
+- [ ] Critical path coverage verified (95%+ target)
+- [ ] Recommendations documented with severity (P0-P3)
 
 ## Related Skills
 
 - `context-analysis` - Context understanding (Phase 1)
+- `code-quality` - Code quality + SOLID review (Phase 2)
+- `security-review` - Security analysis (Phase 3)
+- `performance-review` - Performance analysis (Phase 4)
 - `unit-tests` - Unit test generation
 - `code-coverage` - Coverage improvement
 - `final-report` - Consolidated report (Phase 6)
 
 ---
 
-**Version**: 1.0.0
-**Last Updated**: December 2025
-**Based on**: AI Templates code_review/testing_review/
+**Version**: 2.0.0
+**Last Updated**: February 2026
+**Based on**: DevAI-Hub code review methodology + code-review-expert
 
 
 ### Iterative Refinement Strategy

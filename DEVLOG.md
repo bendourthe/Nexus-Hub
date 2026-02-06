@@ -1,5 +1,30 @@
 # Development Log
 
+## [2026-02-06 14:00] - Merged code-review-expert into run-code-review
+
+*   **Goal**: Merge the methodology from `sanyuan0704/code-review-expert` (GitHub) into the existing `run-deep-review` command and rename to `run-code-review`, creating a unified, comprehensive code review system.
+*   **What Changed**:
+    *   **New Command**: Created `catalog/commands/run-code-review.md` replacing `run-deep-review.md`. Supports dual-mode (full codebase review and git-changes review), P0-P3 severity classification, review-first paradigm (no changes without user confirmation), and a structured next steps menu.
+    *   **New Reference Checklists** (4 files under `catalog/skills/code-review/references/`):
+        *   `solid-checklist.md`: SOLID diagnostic questions per principle, 12 code smells with thresholds, 7 refactor heuristics.
+        *   `security-checklist.md`: 10-domain security model with diagnostic questions, including race conditions deep-dive (shared state, TOCTOU, DB concurrency, distributed systems).
+        *   `code-quality-checklist.md`: Error handling anti-patterns, performance/caching analysis, boundary conditions (null, empty, numeric, string).
+        *   `removal-plan.md`: Dead code removal templates (safe-delete-now vs defer-with-plan), 7-item pre-removal checklist.
+    *   **Updated Skills** (all 6 SKILL.md files bumped to v2.0.0):
+        *   `context-analysis`: Added dual-mode support, git-changes preflight, edge case handling (>500 lines batching), critical path identification.
+        *   `code-quality`: Added SOLID analysis with diagnostic questions, dead code removal planning, expanded to 12 code smells, 7 refactor heuristics.
+        *   `security-review`: Restructured to 10-domain model, added race conditions deep-dive (4 sub-categories), exploitability + impact assessment, expanded language-specific vulnerability lists (C#, Go).
+        *   `performance-review`: Added caching strategy analysis (TTL, invalidation, stampede, key collisions), boundary conditions, 4 diagnostic questions.
+        *   `testing-review`: Added P0-P3 severity classification, git-changes mode gap analysis.
+        *   `final-report`: Added overall verdict (APPROVE/REQUEST_CHANGES/COMMENT), inline comment format, clean review protocol, next steps confirmation menu, review-first enforcement.
+    *   **Deleted**: `catalog/commands/run-deep-review.md` (replaced by `run-code-review.md`).
+*   **Key Design Decisions**:
+    *   Unified severity on P0-P3 scale (with CRITICAL/HIGH/MEDIUM/LOW as aliases) for consistency across all phases.
+    *   Adopted review-first paradigm from code-review-expert: findings are presented first, user must confirm before any changes are implemented.
+    *   Integrated SOLID analysis and dead code removal into the existing code-quality phase (Phase 2) rather than adding new phases, keeping the 6-phase structure intact.
+    *   Reference checklists are standalone files in `references/` to allow independent maintenance and reuse across skills.
+*   **Current Status**: Complete. All files verified. No functional stale references (only historical mentions in DEVLOG.md and CHANGELOG.md).
+
 ## [2026-02-04 15:32] - Release 0.5.3: Documentation Fixes & Command Cleanup
 
 *   **Goal**: Simplify the repository by removing deprecated legacy skill definitions, consolidating catalog commands, and fixing critical broken links.

@@ -20,6 +20,13 @@ Use this skill when you need to:
 
 **Trigger phrases**: "code review", "analyze codebase", "understand architecture", "project analysis", "technical due diligence", "codebase overview", "onboarding"
 
+## Review Mode Detection
+
+This skill supports two modes:
+
+- **Full Codebase**: Analyze the entire project structure, architecture, and dependencies
+- **Git Changes**: Scope analysis to current git changes and their surrounding context
+
 ## What This Skill Does
 
 ### Analysis Areas
@@ -51,8 +58,9 @@ Use this skill when you need to:
 
 ## Instructions
 
-### Step 1: Repository Discovery
+### Step 1: Determine Review Mode
 
+**Full Codebase Mode:**
 ```bash
 # Get directory structure
 tree -L 3 -I 'node_modules|venv|.venv|__pycache__|target|build'
@@ -64,6 +72,23 @@ ls -la
 cat README.md
 cat CONTRIBUTING.md
 ```
+
+**Git Changes Mode (Preflight):**
+```bash
+# Scope the changes
+git status -sb
+git diff --stat
+git diff
+
+# Find related modules and usages
+rg "function_name" --type-add 'src:*.{py,js,ts,java,go,cs,cpp}'
+```
+
+### Edge Case Handling
+
+- **No changes detected**: Inform the user and ask if they want to review staged changes (`git diff --cached`) or a specific commit range
+- **Large diff (>500 lines)**: Summarize changes by file first, then batch analysis by module or feature area
+- **Mixed concerns**: Group findings by logical feature rather than file order
 
 ### Step 2: Architecture Analysis
 
@@ -80,6 +105,12 @@ cat CONTRIBUTING.md
 3. **Trace Dependencies**
    - Internal module imports
    - External library usage
+
+4. **Identify Critical Paths**
+   - Authentication and authorization flows
+   - Payment or financial operations
+   - Data writes and mutations
+   - Network boundaries and external API calls
 
 ### Step 3: Dependency Health Check
 
@@ -114,6 +145,7 @@ Create a report with:
 **Project**: [Name]
 **Date**: [Date]
 **Reviewer**: [Name]
+**Mode**: [Full Codebase / Git Changes]
 
 ## Executive Summary
 - **Project Purpose**: [Description]
@@ -127,6 +159,7 @@ Create a report with:
 - Entry Points: [List]
 - Core Modules: [List]
 - External Interfaces: [APIs, CLI]
+- Critical Paths: [Auth, payments, data writes, network]
 
 ## Dependency Health
 - Total Dependencies: [Count]
@@ -151,22 +184,23 @@ Create a report with:
 - [ ] Architecture patterns recognized
 - [ ] Dependencies analyzed
 - [ ] Vulnerabilities checked
+- [ ] Critical paths mapped
 - [ ] Metrics collected
 - [ ] Context report generated
 
 ## Related Skills
 
-- `code-quality` - Code quality review (Phase 2)
-- `security-review` - Security analysis (Phase 3)
+- `code-quality` - Code quality + SOLID + dead code review (Phase 2)
+- `security-review` - Security analysis, 10-domain model (Phase 3)
 - `performance-review` - Performance analysis (Phase 4)
 - `testing-review` - Test assessment (Phase 5)
-- `final-report` - Consolidated report (Phase 6)
+- `final-report` - Consolidated report with verdict (Phase 6)
 
 ---
 
-**Version**: 1.0.0
-**Last Updated**: December 2025
-**Based on**: AI Templates code_review/context_analysis/
+**Version**: 2.0.0
+**Last Updated**: February 2026
+**Based on**: DevAI-Hub code review methodology + code-review-expert
 
 
 ### Iterative Refinement Strategy
