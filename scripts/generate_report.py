@@ -1,4 +1,4 @@
-# Version: 0.5.3
+# Version: 0.6.0
 
 import json
 import sys
@@ -527,20 +527,471 @@ def generate_docx_report(data, author, tree_structure, output_file="Codebase_Rep
     update_toc_via_word(output_file)
 
 
+# --- Code Review Report Generators ---
+
+def _build_redundancy_section(redundancy_data):
+    """Build the Redundancy & Trimming markdown from either a string or structured object."""
+    if not redundancy_data:
+        return "No redundancy identified."
+    if isinstance(redundancy_data, str):
+        return redundancy_data
+
+    # Structured format: { safe_removals, simplifications, trade_off_removals }
+    sections = []
+
+    safe = redundancy_data.get("safe_removals", "")
+    if safe:
+        sections.append(f"### Safe Removals (zero behavior impact)\n\n{safe}")
+
+    simplifications = redundancy_data.get("simplifications", "")
+    if simplifications:
+        sections.append(f"### Simplifications (same outcome, less complexity)\n\n{simplifications}")
+
+    trade_offs = redundancy_data.get("trade_off_removals", "")
+    if trade_offs:
+        sections.append(f"### Trade-off Removals (pros/cons analysis)\n\n{trade_offs}")
+
+    return "\n\n".join(sections) if sections else "No redundancy identified."
+
+
+def generate_code_review_markdown(data, author, tree_structure, output_file="Code_Review_Report.md"):
+    """Generates a Markdown code review report following the 4-section structure."""
+    title = data.get("title", "Code Review Report")
+    subtitle = data.get("subtitle", "")
+    review_date = data.get("review_date", datetime.now().strftime("%Y-%m-%d"))
+    mode = data.get("mode", "Full Codebase")
+    verdict = data.get("verdict", "COMMENT")
+    exec_summary = data.get("executive_summary", {})
+    stats = exec_summary.get("statistics", {})
+    total = stats.get("total", stats.get("p0", 0) + stats.get("p1", 0) + stats.get("p2", 0) + stats.get("p3", 0))
+
+    md = f"""# {title}
+
+**Subtitle**: {subtitle}
+**Author**: {author}
+**Review Date**: {review_date}
+**Mode**: {mode}
+**Overall Verdict**: {verdict}
+
+---
+
+## Table of Contents
+
+1. [Section 1: Codebase Overview](#section-1-codebase-overview)
+2. [Section 2: Executive Summary](#section-2-executive-summary)
+3. [Section 3: Detailed Report](#section-3-detailed-report)
+   - [Phase 1: By Feature/Functionality](#phase-1-grouped-by-featurefunctionality)
+   - [Phase 2: By Priority](#phase-2-grouped-by-priority)
+4. [Appendix: Project Architecture](#appendix-project-architecture)
+
+---
+
+# Section 1: Codebase Overview
+
+{data.get("codebase_overview", "N/A")}
+
+---
+
+# Section 2: Executive Summary
+
+## Verdict: {verdict}
+
+| Metric | Count |
+|--------|-------|
+| P0 (Critical) | {stats.get("p0", 0)} |
+| P1 (High) | {stats.get("p1", 0)} |
+| P2 (Medium) | {stats.get("p2", 0)} |
+| P3 (Low) | {stats.get("p3", 0)} |
+| **Total** | **{total}** |
+
+**Risk Level**: {exec_summary.get("risk_level", "N/A")} - {exec_summary.get("risk_justification", "")}
+
+## Critical Fixes
+
+{exec_summary.get("critical_fixes", "No critical fixes identified.")}
+
+## Functional Groupings
+
+{exec_summary.get("functional_groupings", "N/A")}
+
+## Redundancy & Trimming
+
+{_build_redundancy_section(exec_summary.get("redundancy_trimming"))}
+
+## Roadmap Perspective
+
+### Short-term (minimal effort, high value)
+
+{exec_summary.get("roadmap", {}).get("short_term", "N/A")}
+
+### Long-term (significant development required)
+
+{exec_summary.get("roadmap", {}).get("long_term", "N/A")}
+
+---
+
+# Section 3: Detailed Report
+
+## Phase 1: Grouped by Feature/Functionality
+
+"""
+
+    # Feature groups
+    for group in data.get("feature_groups", []):
+        group_name = group.get("name", "Unknown")
+        finding_count = group.get("finding_count", len(group.get("findings", [])))
+        md += f"### {group_name} ({finding_count} findings)\n\n"
+        md += f"{group.get('summary', '')}\n\n"
+
+        for finding in group.get("findings", []):
+            md += f"#### {finding.get('id', '')}. {finding.get('title', '')}\n"
+            md += f"**Severity**: {finding.get('severity', '')}\n"
+            md += f"**File**: {finding.get('file', '')}:{finding.get('line', '')}\n"
+            md += f"**Category**: {finding.get('category', '')}\n\n"
+            md += f"**Issue**: {finding.get('description', '')}\n\n"
+            md += f"**Impact**: {finding.get('impact', '')}\n\n"
+            md += f"**Fix**: {finding.get('fix', '')}\n\n"
+            md += f"**Effort**: {finding.get('effort', '')}\n\n"
+            md += "---\n\n"
+
+    # Priority view
+    md += "## Phase 2: Grouped by Priority\n\n"
+
+    priority_labels = [
+        ("p0", "P0 - Critical (must fix)"),
+        ("p1", "P1 - High (should fix)"),
+        ("p2", "P2 - Medium (recommended)"),
+        ("p3", "P3 - Low (optional)")
+    ]
+
+    for pkey, plabel in priority_labels:
+        findings = data.get("priority_findings", {}).get(pkey, [])
+        if not findings:
+            # Build from feature_groups if priority_findings not provided
+            findings = []
+            for group in data.get("feature_groups", []):
+                for f in group.get("findings", []):
+                    if f.get("severity", "").upper() == pkey.upper():
+                        f_copy = dict(f)
+                        f_copy["feature_group"] = group.get("name", "")
+                        findings.append(f_copy)
+
+        md += f"### {plabel}\n\n"
+        if findings:
+            md += "| # | Title | Feature Group | File | Impact | Fix |\n"
+            md += "|---|-------|---------------|------|--------|-----|\n"
+            for i, f in enumerate(findings, 1):
+                fg = f.get("feature_group", "")
+                md += f"| {i} | {f.get('title', '')} | {fg} | {f.get('file', '')}:{f.get('line', '')} | {f.get('impact', '')} | {f.get('fix', '')} |\n"
+            md += "\n"
+        else:
+            md += "No findings at this severity level.\n\n"
+
+    # Removal plan
+    removal = data.get("removal_plan", "")
+    if removal:
+        md += f"---\n\n## Removal/Iteration Plan\n\n{removal}\n\n"
+
+    # Methodology
+    md += f"---\n\n## Methodology\n\n{data.get('methodology', '6-phase code review')}\n\n"
+
+    # Appendix
+    md += f"## Appendix: Project Architecture\n\n```text\n{tree_structure}\n```\n"
+
+    with open(output_file, 'w', encoding='utf-8') as f:
+        f.write(md)
+    print(f"Generated Code Review Markdown: {output_file}")
+
+
+def generate_code_review_docx(data, author, tree_structure, output_file="Code_Review_Report.docx"):
+    """Generates a DOCX code review report following the 4-section structure."""
+    doc = Document()
+
+    title = data.get("title", "Code Review Report")
+    subtitle = data.get("subtitle", "Comprehensive Code Review")
+    header_subtitle = data.get("header_subtitle", "Code Review Report")
+    review_date = data.get("review_date", datetime.now().strftime("%Y-%m-%d"))
+    mode = data.get("mode", "Full Codebase")
+    verdict = data.get("verdict", "COMMENT")
+    exec_summary = data.get("executive_summary", {})
+    stats = exec_summary.get("statistics", {})
+    total = stats.get("total", stats.get("p0", 0) + stats.get("p1", 0) + stats.get("p2", 0) + stats.get("p3", 0))
+
+    # --- Section 0: Title Page ---
+    section0 = doc.sections[0]
+    section0.left_margin = Inches(1)
+    section0.right_margin = Inches(1)
+    section0.top_margin = Inches(1)
+    section0.bottom_margin = Inches(1)
+    section0.vertical_alignment = WD_ALIGN_VERTICAL_TOP
+
+    for _ in range(8):
+        doc.add_paragraph()
+
+    title_p = doc.add_heading(title, 0)
+    title_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+    subtitle_p = doc.add_paragraph(subtitle)
+    subtitle_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    subtitle_p.runs[0].italic = True
+
+    doc.add_paragraph()
+
+    meta_p = doc.add_paragraph()
+    meta_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    meta_p.add_run(f"Author: {author}\n")
+    meta_p.add_run(f"Date: {review_date}\n")
+    meta_p.add_run(f"Mode: {mode}\n")
+    meta_p.add_run(f"Verdict: {verdict}")
+
+    # --- Section 1: Main Content ---
+    doc.add_section(WD_SECTION.NEW_PAGE)
+    section1 = doc.sections[-1]
+    section1.vertical_alignment = WD_ALIGN_VERTICAL_TOP
+    section1.left_margin = Inches(1)
+    section1.right_margin = Inches(1)
+    section1.top_margin = Inches(1)
+    section1.bottom_margin = Inches(1)
+
+    # Header
+    header = section1.header
+    header.is_linked_to_previous = False
+    for p in header.paragraphs:
+        element = p._element
+        parent = element.getparent()
+        if parent is not None:
+            parent.remove(element)
+
+    htable = header.add_table(rows=1, cols=2, width=Inches(7.5))
+    htable.alignment = WD_TABLE_ALIGNMENT.CENTER
+    htable.autofit = False
+    htable.columns[0].width = Inches(3.75)
+    htable.columns[1].width = Inches(3.75)
+
+    cell_h_left = htable.cell(0, 0)
+    p_h_left = cell_h_left.paragraphs[0]
+    p_h_left.text = title
+    p_h_left.alignment = WD_ALIGN_PARAGRAPH.LEFT
+
+    cell_h_right = htable.cell(0, 1)
+    p_h_right = cell_h_right.paragraphs[0]
+    p_h_right.text = header_subtitle
+    p_h_right.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+
+    # Footer
+    footer = section1.footer
+    footer.is_linked_to_previous = False
+    for p in footer.paragraphs:
+        element = p._element
+        parent = element.getparent()
+        if parent is not None:
+            parent.remove(element)
+
+    ftable = footer.add_table(rows=1, cols=2, width=Inches(7.5))
+    ftable.alignment = WD_TABLE_ALIGNMENT.CENTER
+    ftable.autofit = False
+    ftable.columns[0].width = Inches(3.75)
+    ftable.columns[1].width = Inches(3.75)
+
+    cell_f_left = ftable.cell(0, 0)
+    p_f_left = cell_f_left.paragraphs[0]
+    p_f_left.text = author
+    p_f_left.alignment = WD_ALIGN_PARAGRAPH.LEFT
+
+    cell_f_right = ftable.cell(0, 1)
+    p_f_right = cell_f_right.paragraphs[0]
+    p_f_right.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    add_page_number(p_f_right)
+
+    # TOC
+    doc.add_heading("Table of Contents", level=1)
+    add_toc(doc)
+    doc.add_page_break()
+
+    # --- Section 1: Codebase Overview ---
+    doc.add_heading("Section 1: Codebase Overview", level=1)
+    add_markdown_paragraph(doc, data.get("codebase_overview", "N/A"))
+
+    # --- Section 2: Executive Summary ---
+    doc.add_heading("Section 2: Executive Summary", level=1)
+
+    doc.add_heading(f"Verdict: {verdict}", level=2)
+
+    # Statistics table
+    stats_table = doc.add_table(rows=6, cols=2)
+    stats_table.style = "Light Grid Accent 1"
+    stats_table.cell(0, 0).text = "Metric"
+    stats_table.cell(0, 1).text = "Count"
+    stats_table.cell(1, 0).text = "P0 (Critical)"
+    stats_table.cell(1, 1).text = str(stats.get("p0", 0))
+    stats_table.cell(2, 0).text = "P1 (High)"
+    stats_table.cell(2, 1).text = str(stats.get("p1", 0))
+    stats_table.cell(3, 0).text = "P2 (Medium)"
+    stats_table.cell(3, 1).text = str(stats.get("p2", 0))
+    stats_table.cell(4, 0).text = "P3 (Low)"
+    stats_table.cell(4, 1).text = str(stats.get("p3", 0))
+    stats_table.cell(5, 0).text = "Total"
+    stats_table.cell(5, 1).text = str(total)
+    # Bold the total row
+    for cell in stats_table.rows[5].cells:
+        for paragraph in cell.paragraphs:
+            for run in paragraph.runs:
+                run.bold = True
+
+    doc.add_paragraph()
+    risk_p = doc.add_paragraph()
+    risk_p.add_run("Risk Level: ").bold = True
+    risk_p.add_run(f"{exec_summary.get('risk_level', 'N/A')} - {exec_summary.get('risk_justification', '')}")
+
+    doc.add_heading("Critical Fixes", level=2)
+    add_markdown_paragraph(doc, exec_summary.get("critical_fixes", "No critical fixes identified."))
+
+    doc.add_heading("Functional Groupings", level=2)
+    add_markdown_paragraph(doc, exec_summary.get("functional_groupings", "N/A"))
+
+    doc.add_heading("Redundancy & Trimming", level=2)
+    add_markdown_paragraph(doc, _build_redundancy_section(exec_summary.get("redundancy_trimming")))
+
+    doc.add_heading("Roadmap Perspective", level=2)
+    doc.add_heading("Short-term (minimal effort, high value)", level=3)
+    add_markdown_paragraph(doc, exec_summary.get("roadmap", {}).get("short_term", "N/A"))
+    doc.add_heading("Long-term (significant development required)", level=3)
+    add_markdown_paragraph(doc, exec_summary.get("roadmap", {}).get("long_term", "N/A"))
+
+    # --- Section 3: Detailed Report ---
+    doc.add_page_break()
+    doc.add_heading("Section 3: Detailed Report", level=1)
+
+    # Phase 1: By Feature
+    doc.add_heading("Phase 1: Grouped by Feature/Functionality", level=2)
+
+    for group in data.get("feature_groups", []):
+        group_name = group.get("name", "Unknown")
+        finding_count = group.get("finding_count", len(group.get("findings", [])))
+        doc.add_heading(f"{group_name} ({finding_count} findings)", level=3)
+        add_markdown_paragraph(doc, group.get("summary", ""))
+
+        for finding in group.get("findings", []):
+            doc.add_heading(f"{finding.get('id', '')}. {finding.get('title', '')}", level=4)
+
+            meta = doc.add_paragraph()
+            meta.add_run("Severity: ").bold = True
+            meta.add_run(f"{finding.get('severity', '')}\n")
+            meta.add_run("File: ").bold = True
+            meta.add_run(f"{finding.get('file', '')}:{finding.get('line', '')}\n")
+            meta.add_run("Category: ").bold = True
+            meta.add_run(f"{finding.get('category', '')}\n")
+            meta.add_run("Effort: ").bold = True
+            meta.add_run(finding.get("effort", ""))
+
+            issue_p = doc.add_paragraph()
+            issue_p.add_run("Issue: ").bold = True
+            issue_p.add_run(finding.get("description", ""))
+
+            impact_p = doc.add_paragraph()
+            impact_p.add_run("Impact: ").bold = True
+            impact_p.add_run(finding.get("impact", ""))
+
+            fix_p = doc.add_paragraph()
+            fix_p.add_run("Fix: ").bold = True
+            fix_p.add_run(finding.get("fix", ""))
+
+    # Phase 2: By Priority
+    doc.add_page_break()
+    doc.add_heading("Phase 2: Grouped by Priority", level=2)
+
+    priority_labels = [
+        ("p0", "P0 - Critical (must fix)"),
+        ("p1", "P1 - High (should fix)"),
+        ("p2", "P2 - Medium (recommended)"),
+        ("p3", "P3 - Low (optional)")
+    ]
+
+    for pkey, plabel in priority_labels:
+        doc.add_heading(plabel, level=3)
+
+        findings = data.get("priority_findings", {}).get(pkey, [])
+        if not findings:
+            findings = []
+            for group in data.get("feature_groups", []):
+                for f in group.get("findings", []):
+                    if f.get("severity", "").upper() == pkey.upper():
+                        f_copy = dict(f)
+                        f_copy["feature_group"] = group.get("name", "")
+                        findings.append(f_copy)
+
+        if findings:
+            cols = 6
+            tbl = doc.add_table(rows=1 + len(findings), cols=cols)
+            tbl.style = "Light Grid Accent 1"
+            headers = ["#", "Title", "Feature Group", "File", "Impact", "Fix"]
+            for i, h in enumerate(headers):
+                tbl.cell(0, i).text = h
+                for paragraph in tbl.cell(0, i).paragraphs:
+                    for run in paragraph.runs:
+                        run.bold = True
+
+            for row_idx, f in enumerate(findings, 1):
+                tbl.cell(row_idx, 0).text = str(row_idx)
+                tbl.cell(row_idx, 1).text = f.get("title", "")
+                tbl.cell(row_idx, 2).text = f.get("feature_group", "")
+                tbl.cell(row_idx, 3).text = f"{f.get('file', '')}:{f.get('line', '')}"
+                tbl.cell(row_idx, 4).text = f.get("impact", "")
+                tbl.cell(row_idx, 5).text = f.get("fix", "")
+        else:
+            doc.add_paragraph("No findings at this severity level.")
+
+    # Removal plan
+    removal = data.get("removal_plan", "")
+    if removal:
+        doc.add_page_break()
+        doc.add_heading("Removal/Iteration Plan", level=1)
+        add_markdown_paragraph(doc, removal)
+
+    # Methodology
+    doc.add_heading("Methodology", level=1)
+    doc.add_paragraph(data.get("methodology", "6-phase code review"))
+
+    # Appendix
+    doc.add_page_break()
+    doc.add_heading("Appendix: Project Architecture", level=1)
+    p = doc.add_paragraph(tree_structure)
+    try:
+        p.style = doc.styles['Normal']
+    except:
+        pass
+    if p.runs:
+        p.runs[0].font.name = 'Courier New'
+        p.runs[0].font.size = Pt(9)
+
+    doc.save(output_file)
+    print(f"Generated Code Review DOCX: {output_file}")
+
+    update_toc_via_word(output_file)
+
+
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        data_file = sys.argv[1]
-        
-        with open(data_file, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-            
-        author = resolve_author(data.get("author"))
-        
-        root_dir = os.getcwd()
-        tree_str = f"{os.path.basename(root_dir)}/\n{generate_tree_structure(root_dir)}"
-        
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Generate reports from JSON data.")
+    parser.add_argument("json_file", help="Path to the JSON data file")
+    parser.add_argument("--type", dest="report_type", default="codebase",
+                        choices=["codebase", "code-review"],
+                        help="Report type: 'codebase' (default) or 'code-review'")
+
+    args = parser.parse_args()
+
+    with open(args.json_file, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+
+    author = resolve_author(data.get("author"))
+
+    root_dir = os.getcwd()
+    tree_str = f"{os.path.basename(root_dir)}/\n{generate_tree_structure(root_dir)}"
+
+    if args.report_type == "code-review":
+        generate_code_review_markdown(data, author, tree_str)
+        generate_code_review_docx(data, author, tree_str)
+    else:
         generate_markdown_report(data, author, tree_str)
         generate_docx_report(data, author, tree_str)
-        
-    else:
-        print("Usage: python generate_report.py <json_file>")

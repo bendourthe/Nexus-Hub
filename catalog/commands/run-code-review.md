@@ -106,51 +106,35 @@ Consolidate all findings into the unified output format (see below).
 
 ## Output Format
 
+The final report follows a 4-section structure. See `final-report` skill for the full template. Summary:
+
 ```markdown
-## Code Review Summary
+# Code Review Report
 
 **Project**: [Name]
 **Review Date**: [Date]
 **Mode**: [Full Codebase / Git Changes]
-**Files reviewed**: X files, Y lines changed
+**Files Reviewed**: [Count]
 **Overall Verdict**: [APPROVE / REQUEST_CHANGES / COMMENT]
 
 ---
 
-## Findings
+# Section 1: Codebase Overview
+[High-level description: what the codebase does, purpose, target users, core architecture]
 
-### P0 - Critical (must fix)
-- **[file:line]** Brief title
-  - Description of issue
-  - Suggested fix
+# Section 2: Executive Summary
+- **Verdict** with statistics table (P0/P1/P2/P3 counts)
+- **Critical Fixes** - All P0 items as brief one-liners in a table
+- **Functional Groupings** - Which areas need the most work, with finding counts
+- **Redundancy & Trimming** - What can be safely removed
+- **Roadmap Perspective** - Short-term quick wins and long-term improvements
 
-### P1 - High (should fix)
-...
+# Section 3: Detailed Report
+- **Phase 1 (By Feature)** - Findings grouped into logical feature areas (e.g., Authentication, Error Handling, CI/CD). Within each group, ordered critical to low.
+- **Phase 2 (By Priority)** - Same findings regrouped as P0/P1/P2/P3 tables across all features.
 
-### P2 - Medium (recommended)
-...
-
-### P3 - Low (optional)
-...
-
----
-
-## Removal/Iteration Plan
-(if applicable, from dead code analysis)
-
-## Prioritized Action Plan
-
-### Immediate (0-7 days) - P0 items
-- [ ] [Item]
-
-### Short-term (1-4 weeks) - P1 items
-- [ ] [Item]
-
-### Medium-term (1-3 months) - P2 items
-- [ ] [Item]
-
-### Backlog - P3 items
-- [ ] [Item]
+# Section 4: Export
+Offered via Next Steps menu option 5.
 
 ---
 
@@ -159,10 +143,11 @@ Consolidate all findings into the unified output format (see below).
 Found X issues (P0: _, P1: _, P2: _, P3: _).
 
 **How would you like to proceed?**
-1. **Fix all** - I'll implement all suggested fixes
-2. **Fix P0/P1 only** - Address critical and high priority issues
-3. **Fix specific items** - Tell me which issues to fix
+1. **Fix all** - I'll implement all suggested fixes across all severity levels
+2. **Fix P0/P1 only** - Address the critical and high priority issues
+3. **Fix specific items** - Tell me which issues to fix by number
 4. **No changes** - Review complete, no implementation needed
+5. **Export report** - Generate Markdown and Word (.docx) versions of this report
 ```
 
 ### Inline Comment Format

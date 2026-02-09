@@ -120,7 +120,7 @@ Detect these smells with their thresholds:
 | **Shotgun Surgery** | One change requires edits in many unrelated files |
 | **Divergent Change** | One module changes for multiple unrelated reasons |
 | **Duplicate Code** | Copy-paste patterns across files |
-| **Dead Code** | Unused functions, variables, imports |
+| **Dead Code** | Unused functions, classes, variables, arguments, imports |
 | **Speculative Generality** | Abstractions for features that don't exist |
 | **Magic Numbers/Strings** | Unexplained literal values in logic |
 | **Deep Nesting** | >3 levels of indentation |
@@ -129,12 +129,63 @@ Detect these smells with their thresholds:
 
 Reference: `references/removal-plan.md`
 
-1. **Identify candidates**: Scan for unused functions, unreachable branches, commented-out code, feature-flagged-off code
+1. **Identify candidates**: Scan for unused functions, classes, variables, arguments/parameters, imports, unreachable branches, commented-out code, feature-flagged-off code
 2. **Categorize each** as:
    - **Safe to remove now**: No callers, no dynamic references, clear evidence
    - **Defer with plan**: External consumers, reflection usage, or active experiment
 3. **Fill in the removal plan template** for each candidate
 4. **Run the pre-removal checklist** (7 items) for "safe to remove now" candidates
+
+### Step 5b: Redundancy & Simplification Analysis
+
+Go beyond dead code. Analyze the codebase for opportunities to reduce complexity, eliminate redundancy, and streamline the architecture. Evaluate each item across these categories:
+
+#### 5b.1 Redundant Dependencies
+- Libraries or packages that overlap in functionality (e.g., two HTTP clients, two date libraries)
+- Dependencies that are barely used (imported once for a trivial operation that could be done natively)
+- Outdated dependencies where the language/framework now provides built-in equivalents
+
+#### 5b.2 Duplicated or Overlapping Features
+- Multiple implementations of the same logic (not just copy-paste code, but separate features that achieve the same outcome)
+- Internal utilities that duplicate functionality already provided by an imported library
+- Configuration or wrapper layers that add no meaningful value over the underlying tool
+
+#### 5b.3 Unnecessary Architectural Complexity
+- Abstraction layers with only one implementation (no actual polymorphism benefit)
+- Middleware, decorators, or wrapper patterns that pass through without transformation
+- Over-engineered patterns (e.g., full pub/sub system for a single event, factory pattern for one class)
+- Services or modules that could be merged without loss of clarity
+
+#### 5b.4 Low-Value Features or Components
+- Features that appear unused or rarely exercised based on code paths and configuration
+- Components that add significant maintenance burden relative to their value
+- Experimental or legacy code that was never fully adopted
+
+#### Classification
+
+For each item found, classify it into one of three tiers:
+
+| Tier | Description | Action |
+|------|-------------|--------|
+| **Safe removal** | Removing this has zero impact on behavior or functionality | Remove directly |
+| **Simplification** | Removing/replacing this simplifies the codebase without changing outcomes | Remove with minor refactor |
+| **Trade-off removal** | Removing this alters behavior or drops a feature, but may be worth it | Document pros and cons |
+
+#### Pros/Cons Format (for Trade-off Removals)
+
+For items in the "Trade-off removal" tier, document:
+
+```markdown
+**[Item Name]**: [Brief description of what it is]
+
+| Aspect | Details |
+|--------|---------|
+| **What it does** | [Current function in the codebase] |
+| **Why consider removing** | [Complexity cost, maintenance burden, low usage] |
+| **Pros of removing** | [Simpler architecture, fewer dependencies, less maintenance] |
+| **Cons of removing** | [Lost functionality, migration effort, user impact] |
+| **Recommendation** | [Remove / Keep / Replace with simpler alternative] |
+```
 
 ### Step 6: Apply Refactor Heuristics
 
@@ -182,6 +233,8 @@ When proposing fixes, follow these 7 heuristics:
 - [ ] Code smells detected (full list)
 - [ ] Dead code candidates identified and categorized
 - [ ] Removal plan created for dead code
+- [ ] Redundancy analysis completed (dependencies, features, architecture, low-value components)
+- [ ] Trade-off removals documented with pros/cons
 - [ ] Refactor proposals follow the 7 heuristics
 - [ ] Findings documented with severity
 
