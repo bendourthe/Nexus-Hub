@@ -294,6 +294,12 @@
 **Languages**: Multi-language
 **Priority**: MEDIUM
 
+### devlog-generation
+**Path**: `workflow/devlog-generation/`
+**Description**: Generate comprehensive development logs from git history, documentation, and code artifacts. Use when creating project history, onboarding to unfamiliar codebases, recovering lost development context, or establishing a troubleshooting knowledge base.
+**Languages**: Multi-language
+**Priority**: MEDIUM
+
 ---
 
 ## Security Skills
@@ -422,20 +428,20 @@
 | Documentation | 6 | MEDIUM-HIGH |
 | Compliance | 8 | HIGH |
 | Project Setup | 4 | MEDIUM |
-| Workflow | 5 | HIGH |
+| Workflow | 6 | HIGH |
 | Security | 3 | HIGH |
 | Infrastructure | 4 | HIGH |
 | Orchestration | 3 | MEDIUM |
 | Developer Experience | 3 | MEDIUM |
 | Language Specialists | 3 | MEDIUM |
-| **Total** | **60** | **HIGH** |
+| **Total** | **61** | **HIGH** |
 
 ---
 
 ## Version
 
-- **Catalog Version**: 1.1.0
-- **Last Updated**: January 2026
+- **Catalog Version**: 1.2.0
+- **Last Updated**: February 2026
 
 
 ### Iterative Refinement Strategy

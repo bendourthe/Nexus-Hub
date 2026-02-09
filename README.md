@@ -76,5 +76,3 @@ Instructions for VS Code's Copilot Chat.
 
 ## 🤝 Contributing
 Found a better prompt? A smarter rule? Open a PR! We want to build the ultimate knowledge base for AI coding.
-
-**License**: MIT
