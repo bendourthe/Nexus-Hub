@@ -563,10 +563,171 @@ function Install-Workspace {
     }
 }
 
+function Install-VSCodeExtensions {
+    param ($RepoRoot)
+    Write-Host ""
+    Write-Host "----------------------------------------------------------------" -ForegroundColor Cyan
+    Write-Host "        PHASE 3: Claude Code Usage Monitor Installation          " -ForegroundColor Cyan
+    Write-Host "----------------------------------------------------------------" -ForegroundColor Cyan
+    Write-Host ""
+
+    Write-Item -Message "The Claude Usage Monitor is a VS Code extension that displays your Claude" -Color "White"
+    Write-Item -Message "Code usage limits in the status bar and recommends when to switch models" -Color "White"
+    Write-Item -Message "(e.g., Opus to Sonnet) to stay within your session and weekly limits." -Color "White"
+    Write-Host ""
+
+    $response = Read-Prompt "Install the Claude Usage Monitor VS Code extension? [Y]es / [N]o"
+    if ($response -notmatch "^[Yy]") {
+        Write-Item -Message "Skipped VS Code extension installation." -Color "Gray"
+        return
+    }
+
+    $extensionDir = Join-Path $RepoRoot "extensions\claude-usage-monitor"
+
+    if (-not (Test-Path $extensionDir)) {
+        Write-Item -Message "Extension source not found at: $extensionDir" -Color "Red"
+        return
+    }
+
+    # Check for Node.js
+    $nodeCmd = Get-Command "node" -ErrorAction SilentlyContinue
+    if (-not $nodeCmd) {
+        Write-Item -Message "Node.js is not installed (required to build the extension)." -Color "DarkYellow"
+        $installResp = Read-Prompt "Install Node.js LTS via winget? [Y]es / [N]o"
+        if ($installResp -match "^[Yy]") {
+            # Check for winget
+            $wingetCmd = Get-Command "winget" -ErrorAction SilentlyContinue
+            if (-not $wingetCmd) {
+                Write-Item -Message "winget is not available. Please install Node.js manually from https://nodejs.org" -Color "Red"
+                Write-Item -Message "After installing Node.js, re-run this installer to build the extension." -Color "Yellow"
+                return
+            }
+
+            Write-Item -Message "Installing Node.js LTS via winget..." -Color "White"
+            try {
+                & winget install OpenJS.NodeJS.LTS --accept-package-agreements --accept-source-agreements
+                # Refresh PATH for current session
+                $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path", "User")
+
+                $nodeCmd = Get-Command "node" -ErrorAction SilentlyContinue
+                if (-not $nodeCmd) {
+                    Write-Item -Message "Node.js was installed but is not yet available in this session." -Color "Yellow"
+                    Write-Item -Message "Please close this terminal, open a new one, and re-run the installer." -Color "Yellow"
+                    return
+                }
+                Write-Item -Message "✓ Node.js installed successfully." -Color "DarkGreen"
+            }
+            catch {
+                Write-Item -Message "Failed to install Node.js: $($_.Exception.Message)" -Color "Red"
+                Write-Item -Message "Please install Node.js manually from https://nodejs.org" -Color "Yellow"
+                return
+            }
+        }
+        else {
+            Write-Item -Message "Skipped. Install Node.js from https://nodejs.org and re-run to build the extension." -Color "Gray"
+            return
+        }
+    }
+    else {
+        $nodeVersion = & node --version
+        Write-Item -Message "Found Node.js $nodeVersion" -Color "DarkGreen"
+    }
+
+    # Check for npm
+    $npmCmd = Get-Command "npm" -ErrorAction SilentlyContinue
+    if (-not $npmCmd) {
+        Write-Item -Message "npm not found. Please ensure Node.js is properly installed." -Color "Red"
+        return
+    }
+
+    # Suspend strict error mode for native CLI tools (npm/npx write warnings to stderr
+    # which PowerShell converts to terminating errors under $ErrorActionPreference = "Stop")
+    $savedErrorPref = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+
+    # Build the extension
+    Write-Item -Message "Building Claude Usage Monitor extension..." -Color "White"
+    Push-Location $extensionDir
+
+    Write-Item -Message "  Installing dependencies..." -Color "Gray"
+    & npm install --silent 2>$null | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+        Write-Item -Message "Build failed: npm install failed" -Color "Red"
+        Pop-Location
+        $ErrorActionPreference = $savedErrorPref
+        return
+    }
+
+    Write-Item -Message "  Compiling TypeScript..." -Color "Gray"
+    & npm run compile 2>$null | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+        Write-Item -Message "Build failed: TypeScript compilation failed" -Color "Red"
+        Pop-Location
+        $ErrorActionPreference = $savedErrorPref
+        return
+    }
+
+    Write-Item -Message "✓ Extension built successfully." -Color "DarkGreen"
+    Pop-Location
+
+    # Package as VSIX (uses locally installed @vscode/vsce from devDependencies)
+    Write-Item -Message "Packaging extension as VSIX..." -Color "White"
+    Push-Location $extensionDir
+    & npx vsce package --no-dependencies 2>$null | Out-Null
+    $vsixExitCode = $LASTEXITCODE
+    Pop-Location
+
+    $vsixFile = Get-ChildItem $extensionDir -Filter "*.vsix" -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+
+    if (($vsixExitCode -ne 0) -or (-not $vsixFile)) {
+        Write-Item -Message "Packaging failed (exit code: $vsixExitCode)." -Color "Red"
+        Write-Item -Message "You can still use the extension in development mode (F5 in VS Code)." -Color "Yellow"
+        $ErrorActionPreference = $savedErrorPref
+        return
+    }
+
+    Write-Item -Message "✓ Packaged: $($vsixFile.Name)" -Color "DarkGreen"
+
+    # Install into VS Code
+    $codeCmd = Get-Command "code" -ErrorAction SilentlyContinue
+    if ($codeCmd) {
+        $installResp = Read-Prompt "Install extension into VS Code now? [Y]es / [N]o"
+        if ($installResp -match "^[Yy]") {
+            & code --install-extension $vsixFile.FullName 2>$null | Out-Null
+            if ($LASTEXITCODE -eq 0) {
+                Write-Item -Message "✓ Claude Usage Monitor extension installed in VS Code!" -Color "DarkGreen"
+                Write-Item -Message "  Restart VS Code to activate. Look for 'Claude: --%' in the status bar." -Color "White"
+            }
+            else {
+                Write-Item -Message "VS Code install failed. You can install manually:" -Color "Yellow"
+                Write-Item -Message "  code --install-extension `"$($vsixFile.FullName)`"" -Color "White"
+            }
+        }
+        else {
+            Write-Item -Message "VSIX saved at: $($vsixFile.FullName)" -Color "White"
+            Write-Item -Message "Install manually: code --install-extension `"$($vsixFile.FullName)`"" -Color "Gray"
+        }
+    }
+    else {
+        Write-Item -Message "VS Code CLI ('code') not found in PATH." -Color "Yellow"
+        Write-Item -Message "VSIX saved at: $($vsixFile.FullName)" -Color "White"
+        Write-Item -Message "Install manually via VS Code: Extensions > ... > Install from VSIX" -Color "Gray"
+    }
+
+    # Restore strict error mode
+    $ErrorActionPreference = $savedErrorPref
+
+    Write-Host ""
+    Write-Host "----------------------------------------------------------------" -ForegroundColor Green
+    Write-Host "           VS Code Extension Phase Complete.                    " -ForegroundColor Green
+    Write-Host "----------------------------------------------------------------" -ForegroundColor Green
+}
+
 # --- Main ---
 $repoRoot = Resolve-Path "$PSScriptRoot\.."
 Install-Global -RepoRoot $repoRoot
 Install-Workspace -RepoRoot $repoRoot
+Install-VSCodeExtensions -RepoRoot $repoRoot
 Write-Host ""
 Write-Host "================================================================" -ForegroundColor DarkCyan
 Write-Host "       Thank You For Using The DevAI-Hub Universal Installer    " -ForegroundColor DarkCyan

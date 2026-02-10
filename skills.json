@@ -6,11 +6,11 @@
     "description": "Comprehensive catalog of Claude Code skills for autonomous AI development"
   },
   "statistics": {
-    "total_skills": 48,
+    "total_skills": 49,
     "categories": {
       "Documentation": 6,
       "Code Cleanup": 7,
-      "Workflow": 5,
+      "Workflow": 6,
       "skills": 8,
       "Code Review": 6,
       "Configuration": 8,
@@ -1881,6 +1881,42 @@
         "lines": 90,
         "characters": 3500,
         "tokens_estimate": 800
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 100,
+        "validated": true
+      }
+    },
+    {
+      "name": "check-usage",
+      "title": "check-usage",
+      "description": "Check Claude Code usage limits and get smart model-switching recommendations based on current consumption",
+      "long_description": "Analyze current Claude Code usage limits (session, weekly all-models, weekly Sonnet-only) and provide actionable recommendations for model selection, usage optimization, and cost-effective task planning.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Workflow",
+      "language": "Multi-language",
+      "tags": [
+        "usage",
+        "monitoring",
+        "model-selection",
+        "optimization",
+        "workflow",
+        "recommendations"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/commands/",
+      "file": "catalog/commands/check-usage.md",
+      "size": {
+        "lines": 120,
+        "characters": 4500,
+        "tokens_estimate": 1200
       },
       "downloads": 0,
       "status": "production",

@@ -1,0 +1,6 @@
+node_modules/
+out/
+*.vsix
+fonts/*.ttf
+fonts/*.svg
+.fantasticonrc.json

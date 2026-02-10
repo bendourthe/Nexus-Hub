@@ -1,0 +1,109 @@
+{
+  "name": "claude-usage-monitor",
+  "displayName": "Claude Usage Monitor",
+  "description": "Monitor your Claude Code usage limits and get smart model-switching recommendations",
+  "version": "0.1.0",
+  "publisher": "devai-hub",
+  "icon": "icon.png",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "claude-usage.dashboard",
+        "title": "Claude Usage: Dashboard",
+        "category": "Claude Usage"
+      },
+      {
+        "command": "claude-usage.refresh",
+        "title": "Claude Usage: Refresh",
+        "category": "Claude Usage"
+      },
+      {
+        "command": "claude-usage.update",
+        "title": "Claude Usage: Manual Update",
+        "category": "Claude Usage"
+      },
+      {
+        "command": "claude-usage.recommend",
+        "title": "Claude Usage: Recommend Model",
+        "category": "Claude Usage"
+      },
+      {
+        "command": "claude-usage.reset",
+        "title": "Claude Usage: Clear Data",
+        "category": "Claude Usage"
+      }
+    ],
+    "icons": {
+      "claude-icon": {
+        "description": "Claude AI icon",
+        "default": {
+          "fontPath": "./fonts/claude-icons.woff2",
+          "fontCharacter": "\\E101"
+        }
+      }
+    },
+    "configuration": {
+      "title": "Claude Usage Monitor",
+      "properties": {
+        "claudeUsage.currentModel": {
+          "type": "string",
+          "default": "opus-4.6",
+          "enum": [
+            "opus-4.6",
+            "sonnet-4.5",
+            "haiku-4.5"
+          ],
+          "enumDescriptions": [
+            "Opus 4.6 - Best for architecture, complex reasoning, multi-file refactors",
+            "Sonnet 4.5 - Best for standard coding, debugging, refactoring, test writing",
+            "Haiku 4.5 - Best for simple lookups, formatting, small edits, explanations"
+          ],
+          "description": "The Claude model you're currently using"
+        },
+        "claudeUsage.autoFetch": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically fetch usage data from Claude API on startup and at regular intervals"
+        },
+        "claudeUsage.refreshInterval": {
+          "type": "number",
+          "default": 15,
+          "minimum": 5,
+          "maximum": 120,
+          "description": "Minutes between automatic usage data refreshes"
+        },
+        "claudeUsage.showInStatusBar": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show Claude usage in the status bar"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "package": "vsce package --no-dependencies"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^3.0.0",
+    "fantasticon": "^4.1.0",
+    "svg2ttf": "^6.0.3",
+    "svgpath": "^2.6.0",
+    "ttf2woff2": "^8.0.0",
+    "typescript": "^5.3.0"
+  }
+}

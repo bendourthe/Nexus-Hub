@@ -406,6 +406,146 @@ install_workspace() {
     done
 }
 
+install_vscode_extensions() {
+    local repo_root="$1"
+
+    echo ""
+    echo -e "${CYAN}----------------------------------------------------------------${RESET}"
+    echo -e "${CYAN}        PHASE 3: Claude Code Usage Monitor Installation          ${RESET}"
+    echo -e "${CYAN}----------------------------------------------------------------${RESET}"
+    echo ""
+
+    write_item "The Claude Usage Monitor is a VS Code extension that displays your Claude" "$RESET"
+    write_item "Code usage limits in the status bar and recommends when to switch models" "$RESET"
+    write_item "(e.g., Opus to Sonnet) to stay within your session and weekly limits." "$RESET"
+    echo ""
+
+    local response=$(read_prompt "Install the Claude Usage Monitor VS Code extension? [Y]es / [N]o")
+    if [[ ! "$response" =~ ^[Yy] ]]; then
+        write_item "Skipped VS Code extension installation." "$GRAY"
+        return
+    fi
+
+    local extension_dir="$repo_root/extensions/claude-usage-monitor"
+
+    if [ ! -d "$extension_dir" ]; then
+        write_item "Extension source not found at: $extension_dir" "$RED"
+        return
+    fi
+
+    # Check for Node.js
+    if ! command -v node >/dev/null 2>&1; then
+        write_item "Node.js is not installed (required to build the extension)." "$DARK_YELLOW"
+
+        # Detect platform and suggest install method
+        if command -v brew >/dev/null 2>&1; then
+            local install_resp=$(read_prompt "Install Node.js LTS via Homebrew? [Y]es / [N]o")
+            if [[ "$install_resp" =~ ^[Yy] ]]; then
+                write_item "Installing Node.js LTS via Homebrew..." "$RESET"
+                brew install node@22 || {
+                    write_item "Homebrew install failed. Please install Node.js from https://nodejs.org" "$RED"
+                    return
+                }
+                write_item "✓ Node.js installed successfully." "$GREEN"
+            else
+                write_item "Skipped. Install Node.js from https://nodejs.org and re-run." "$GRAY"
+                return
+            fi
+        elif command -v apt-get >/dev/null 2>&1; then
+            local install_resp=$(read_prompt "Install Node.js via apt? [Y]es / [N]o")
+            if [[ "$install_resp" =~ ^[Yy] ]]; then
+                write_item "Installing Node.js via apt..." "$RESET"
+                sudo apt-get update -qq && sudo apt-get install -y -qq nodejs npm || {
+                    write_item "apt install failed. Please install Node.js from https://nodejs.org" "$RED"
+                    return
+                }
+                write_item "✓ Node.js installed successfully." "$GREEN"
+            else
+                write_item "Skipped. Install Node.js from https://nodejs.org and re-run." "$GRAY"
+                return
+            fi
+        else
+            write_item "Please install Node.js from https://nodejs.org and re-run the installer." "$YELLOW"
+            return
+        fi
+    else
+        local node_version=$(node --version)
+        write_item "Found Node.js $node_version" "$GREEN"
+    fi
+
+    # Check for npm
+    if ! command -v npm >/dev/null 2>&1; then
+        write_item "npm not found. Please ensure Node.js is properly installed." "$RED"
+        return
+    fi
+
+    # Build the extension
+    write_item "Building Claude Usage Monitor extension..." "$RESET"
+
+    pushd "$extension_dir" > /dev/null || return
+
+    write_item "  Installing dependencies..." "$GRAY"
+    npm install --silent 2>/dev/null
+    if [ $? -ne 0 ]; then
+        write_item "npm install failed." "$RED"
+        popd > /dev/null
+        return
+    fi
+
+    write_item "  Compiling TypeScript..." "$GRAY"
+    npm run compile 2>/dev/null
+    if [ $? -ne 0 ]; then
+        write_item "TypeScript compilation failed." "$RED"
+        popd > /dev/null
+        return
+    fi
+
+    write_item "✓ Extension built successfully." "$GREEN"
+
+    # Package as VSIX (uses locally installed @vscode/vsce from devDependencies)
+    write_item "Packaging extension as VSIX..." "$RESET"
+    npx vsce package --no-dependencies 2>/dev/null
+    local vsix_file=$(ls -t "$extension_dir"/*.vsix 2>/dev/null | head -1)
+
+    if [ -z "$vsix_file" ]; then
+        write_item "VSIX packaging failed." "$RED"
+        write_item "You can still use the extension in development mode (F5 in VS Code)." "$YELLOW"
+        popd > /dev/null
+        return
+    fi
+
+    write_item "✓ Packaged: $(basename "$vsix_file")" "$GREEN"
+
+    popd > /dev/null
+
+    # Install into VS Code
+    if command -v code >/dev/null 2>&1; then
+        local install_resp=$(read_prompt "Install extension into VS Code now? [Y]es / [N]o")
+        if [[ "$install_resp" =~ ^[Yy] ]]; then
+            code --install-extension "$vsix_file" 2>/dev/null
+            if [ $? -eq 0 ]; then
+                write_item "✓ Claude Usage Monitor extension installed in VS Code!" "$GREEN"
+                write_item "  Restart VS Code to activate. Look for 'Claude: --%' in the status bar." "$RESET"
+            else
+                write_item "VS Code install failed. Install manually:" "$YELLOW"
+                write_item "  code --install-extension \"$vsix_file\"" "$RESET"
+            fi
+        else
+            write_item "VSIX saved at: $vsix_file" "$RESET"
+            write_item "Install manually: code --install-extension \"$vsix_file\"" "$GRAY"
+        fi
+    else
+        write_item "VS Code CLI ('code') not found in PATH." "$YELLOW"
+        write_item "VSIX saved at: $vsix_file" "$RESET"
+        write_item "Install manually via VS Code: Extensions > ... > Install from VSIX" "$GRAY"
+    fi
+
+    echo ""
+    echo -e "${GREEN}----------------------------------------------------------------${RESET}"
+    echo -e "${GREEN}           VS Code Extension Phase Complete.                    ${RESET}"
+    echo -e "${GREEN}----------------------------------------------------------------${RESET}"
+}
+
 # --- Main ---
 
 # Get directory of this script
@@ -414,6 +554,7 @@ REPO_ROOT="$(dirname "$SCRIPT_DIR")"
 
 install_global "$REPO_ROOT"
 install_workspace "$REPO_ROOT"
+install_vscode_extensions "$REPO_ROOT"
 
 echo ""
 echo -e "${DARK_CYAN}================================================================${RESET}"
