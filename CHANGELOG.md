@@ -7,7 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased]
+## [0.6.0] - 2026-02-10
+
+### Added
+- **Claude Usage Monitor VS Code Extension**: Full VS Code extension (`extensions/claude-usage-monitor/`) for monitoring Claude Code API usage limits with auto-fetch, custom Claude icon in status bar, SVG data URI tooltips with theme-aware progress bars, full dashboard WebviewPanel, and manual input fallback. Includes custom icon font generator, theme-aware tab icons, and installer integration (Phase 3 in both `installer.ps1` and `installer.sh`).
+- **New Commands**: `generate-readme`, `generate-devlog`, `check-usage`.
+- **New Skill**: `devlog-generation` added to `catalog/skills/workflow/`.
+- **Icon Assets**: `catalog/claude_icon.svg`, `catalog/claude_logo.png`.
+- **Code Review Reference Checklists**: 4 standalone reference files (`solid-checklist.md`, `security-checklist.md`, `code-quality-checklist.md`, `removal-plan.md`) under `catalog/skills/code-review/references/`.
+
+### Changed
+- **Code Review System**: Merged `code-review-expert` methodology into `run-code-review` command (replacing `run-deep-review`). Added dual-mode support (full codebase + git-changes), P0-P3 severity classification, review-first paradigm, SOLID analysis, dead code removal planning, race conditions deep-dive, and 4 reference checklists. All 6 code-review skills bumped to v2.0.0.
+- **Code Review Report**: Restructured final report into 4-section format with dual-view findings and export capability.
+- **Installers**: Both `scripts/installer.ps1` and `scripts/installer.sh` updated with Phase 3 (extension build, VSIX packaging, VS Code installation).
+- **Skills Registry**: Overhauled `skills.json` with 65 validated entries across 13 categories, fixed 34 stale paths, removed 15 deleted skills, and added 30 new entries.
+- **Documentation Consistency**: Fixed root `README.md` (removed Codex references, corrected paths, added extension section), updated `CHANGELOG.md` footer links, and corrected extension `README.md` to match current functionality.
 
 ---
 
@@ -2391,6 +2405,11 @@ repository_root/
 
 | Version | Date       | Description                                      |
 |---------|------------|--------------------------------------------------|
+| 0.6.0   | 2026-02-10 | **Claude Usage Monitor**: VS Code extension, code review overhaul, skills registry validation, documentation fixes |
+| 0.5.3   | 2026-02-04 | **Documentation Fixes**: Fixed broken paths, removed legacy `.codex`/`.gemini` artifacts, consolidated commands |
+| 0.5.2   | 2026-01-30 | **Enhanced Reporting**: DOCX report output, `/upgrade-version` auto-analysis, Claude Skills README section |
+| 0.5.1   | 2026-01-28 | **Cross-Platform**: macOS/Linux Bash installer (`install.sh`) |
+| 0.5.0   | 2026-01-28 | **Universal Catalog**: Single `catalog/` source of truth, Installer V5 rewrite, 6 new commands |
 | 0.4.0   | 2026-01-07 | **Repository Restructuring**: Simplified structure, kebab-case naming, skills catalog at root |
 | 0.3.3   | 2026-01-05 | **Expanded Skills**: 13 new specialist skills, subagents integration |
 | 0.3.2   | 2025-12-09 | **Simplified Templates**: Consolidated coding assistant templates, GitHub Copilot format |
@@ -2413,23 +2432,28 @@ repository_root/
 
 ---
 
-[Unreleased]: https://github.com/yourusername/devai-hub/compare/v0.4.0...HEAD
-[0.4.0]: https://github.com/yourusername/devai-hub/releases/tag/v0.4.0
-[0.3.3]: https://github.com/yourusername/devai-hub/releases/tag/v0.3.3
-[0.3.2]: https://github.com/yourusername/devai-hub/releases/tag/v0.3.2
-[0.3.1]: https://github.com/yourusername/devai-hub/releases/tag/v0.3.1
-[0.3.0]: https://github.com/yourusername/devai-hub/releases/tag/v0.3.0
-[0.2.9]: https://github.com/yourusername/devai-hub/releases/tag/v0.2.9
-[0.2.8]: https://github.com/yourusername/devai-hub/releases/tag/v0.2.8
-[0.2.7]: https://github.com/yourusername/devai-hub/releases/tag/v0.2.7
-[0.2.6]: https://github.com/yourusername/devai-hub/releases/tag/v0.2.6
-[0.2.5]: https://github.com/yourusername/devai-hub/releases/tag/v0.2.5
-[0.2.4]: https://github.com/yourusername/devai-hub/releases/tag/v0.2.4
-[0.2.3]: https://github.com/yourusername/devai-hub/releases/tag/v0.2.3
-[0.2.2]: https://github.com/yourusername/devai-hub/releases/tag/v0.2.2
-[0.2.1]: https://github.com/yourusername/devai-hub/releases/tag/v0.2.1
-[0.2.0]: https://github.com/yourusername/devai-hub/releases/tag/v0.2.0
-[0.1.5]: https://github.com/yourusername/devai-hub/releases/tag/v0.1.5
-[0.1.4]: https://github.com/yourusername/devai-hub/releases/tag/v0.1.4
-[0.1.2]: https://github.com/yourusername/devai-hub/releases/tag/v0.1.2
-[0.1.0]: https://github.com/yourusername/devai-hub/releases/tag/v0.1.0
+[Unreleased]: https://github.com/bdourthe/devai-hub/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/bdourthe/devai-hub/releases/tag/v0.6.0
+[0.5.3]: https://github.com/bdourthe/devai-hub/releases/tag/v0.5.3
+[0.5.2]: https://github.com/bdourthe/devai-hub/releases/tag/v0.5.2
+[0.5.1]: https://github.com/bdourthe/devai-hub/releases/tag/v0.5.1
+[0.5.0]: https://github.com/bdourthe/devai-hub/releases/tag/v0.5.0
+[0.4.0]: https://github.com/bdourthe/devai-hub/releases/tag/v0.4.0
+[0.3.3]: https://github.com/bdourthe/devai-hub/releases/tag/v0.3.3
+[0.3.2]: https://github.com/bdourthe/devai-hub/releases/tag/v0.3.2
+[0.3.1]: https://github.com/bdourthe/devai-hub/releases/tag/v0.3.1
+[0.3.0]: https://github.com/bdourthe/devai-hub/releases/tag/v0.3.0
+[0.2.9]: https://github.com/bdourthe/devai-hub/releases/tag/v0.2.9
+[0.2.8]: https://github.com/bdourthe/devai-hub/releases/tag/v0.2.8
+[0.2.7]: https://github.com/bdourthe/devai-hub/releases/tag/v0.2.7
+[0.2.6]: https://github.com/bdourthe/devai-hub/releases/tag/v0.2.6
+[0.2.5]: https://github.com/bdourthe/devai-hub/releases/tag/v0.2.5
+[0.2.4]: https://github.com/bdourthe/devai-hub/releases/tag/v0.2.4
+[0.2.3]: https://github.com/bdourthe/devai-hub/releases/tag/v0.2.3
+[0.2.2]: https://github.com/bdourthe/devai-hub/releases/tag/v0.2.2
+[0.2.1]: https://github.com/bdourthe/devai-hub/releases/tag/v0.2.1
+[0.2.0]: https://github.com/bdourthe/devai-hub/releases/tag/v0.2.0
+[0.1.5]: https://github.com/bdourthe/devai-hub/releases/tag/v0.1.5
+[0.1.4]: https://github.com/bdourthe/devai-hub/releases/tag/v0.1.4
+[0.1.2]: https://github.com/bdourthe/devai-hub/releases/tag/v0.1.2
+[0.1.0]: https://github.com/bdourthe/devai-hub/releases/tag/v0.1.0

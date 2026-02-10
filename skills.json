@@ -1,22 +1,26 @@
 {
   "metadata": {
     "version": "1.0.0",
-    "generated": "2025-10-21",
+    "generated": "2026-02-10",
     "repository": "https://github.com/bdourthe/devai-hub",
     "description": "Comprehensive catalog of Claude Code skills for autonomous AI development"
   },
   "statistics": {
-    "total_skills": 49,
+    "total_skills": 65,
     "categories": {
       "Documentation": 6,
       "Code Cleanup": 7,
-      "Workflow": 6,
-      "skills": 8,
+      "Workflow": 9,
       "Code Review": 6,
-      "Configuration": 8,
-      "Security": 2,
-      "Testing": 2,
-      "Project Initialization": 4
+      "Security": 3,
+      "Testing": 8,
+      "Project Initialization": 4,
+      "Research": 1,
+      "Compliance": 8,
+      "Developer Experience": 3,
+      "Infrastructure": 4,
+      "Language Specialists": 3,
+      "Orchestration": 3
     },
     "priorities": {
       "MEDIUM": 27,
@@ -35,8 +39,7 @@
       "C",
       "C++"
     ],
-    "repository": "https://github.com/bdourthe/devai-hub",
-    "last_updated": "2025-10-21"
+    "last_updated": "2026-02-10"
   },
   "skills": [
     {
@@ -63,8 +66,8 @@
         "Task",
         "Write"
       ],
-      "path": "agent_prompts/autonomous_agents/claude_code/skills/add-strategic-comments/",
-      "file": "agent_prompts/autonomous_agents/claude_code/skills/add-strategic-comments/SKILL.md",
+      "path": "catalog/skills/documentation/strategic-comments/",
+      "file": "catalog/skills/documentation/strategic-comments/SKILL.md",
       "size": {
         "lines": 800,
         "characters": 25884,
@@ -102,8 +105,8 @@
       "tools_required": [
         "Glob"
       ],
-      "path": "agent_prompts/autonomous_agents/claude_code/skills/cleanup-c/",
-      "file": "agent_prompts/autonomous_agents/claude_code/skills/cleanup-c/SKILL.md",
+      "path": "catalog/skills/code-cleanup/c-cleanup/",
+      "file": "catalog/skills/code-cleanup/c-cleanup/SKILL.md",
       "size": {
         "lines": 548,
         "characters": 12774,
@@ -140,8 +143,8 @@
       "priority": "MEDIUM",
       "based_on": "",
       "tools_required": [],
-      "path": "agent_prompts/autonomous_agents/claude_code/skills/cleanup-cpp/",
-      "file": "agent_prompts/autonomous_agents/claude_code/skills/cleanup-cpp/SKILL.md",
+      "path": "catalog/skills/code-cleanup/cpp-cleanup/",
+      "file": "catalog/skills/code-cleanup/cpp-cleanup/SKILL.md",
       "size": {
         "lines": 610,
         "characters": 14870,
@@ -183,8 +186,8 @@
         "Task",
         "Write"
       ],
-      "path": "agent_prompts/autonomous_agents/claude_code/skills/cleanup-csharp/",
-      "file": "agent_prompts/autonomous_agents/claude_code/skills/cleanup-csharp/SKILL.md",
+      "path": "catalog/skills/code-cleanup/csharp-cleanup/",
+      "file": "catalog/skills/code-cleanup/csharp-cleanup/SKILL.md",
       "size": {
         "lines": 546,
         "characters": 13969,
@@ -222,8 +225,8 @@
       "tools_required": [
         "Read"
       ],
-      "path": "agent_prompts/autonomous_agents/claude_code/skills/cleanup-go/",
-      "file": "agent_prompts/autonomous_agents/claude_code/skills/cleanup-go/SKILL.md",
+      "path": "catalog/skills/code-cleanup/go-cleanup/",
+      "file": "catalog/skills/code-cleanup/go-cleanup/SKILL.md",
       "size": {
         "lines": 552,
         "characters": 12629,
@@ -262,8 +265,8 @@
         "Edit",
         "Read"
       ],
-      "path": "agent_prompts/autonomous_agents/claude_code/skills/cleanup-java/",
-      "file": "agent_prompts/autonomous_agents/claude_code/skills/cleanup-java/SKILL.md",
+      "path": "catalog/skills/code-cleanup/java-cleanup/",
+      "file": "catalog/skills/code-cleanup/java-cleanup/SKILL.md",
       "size": {
         "lines": 721,
         "characters": 19519,
@@ -299,8 +302,8 @@
       "priority": "MEDIUM",
       "based_on": "",
       "tools_required": [],
-      "path": "agent_prompts/autonomous_agents/claude_code/skills/cleanup-javascript/",
-      "file": "agent_prompts/autonomous_agents/claude_code/skills/cleanup-javascript/SKILL.md",
+      "path": "catalog/skills/code-cleanup/javascript-cleanup/",
+      "file": "catalog/skills/code-cleanup/javascript-cleanup/SKILL.md",
       "size": {
         "lines": 602,
         "characters": 16450,
@@ -334,8 +337,8 @@
       "priority": "MEDIUM",
       "based_on": "",
       "tools_required": [],
-      "path": "agent_prompts/autonomous_agents/claude_code/skills/cleanup-python/",
-      "file": "agent_prompts/autonomous_agents/claude_code/skills/cleanup-python/SKILL.md",
+      "path": "catalog/skills/code-cleanup/python-cleanup/",
+      "file": "catalog/skills/code-cleanup/python-cleanup/SKILL.md",
       "size": {
         "lines": 464,
         "characters": 12590,
@@ -372,41 +375,12 @@
       "tools_required": [
         "Write"
       ],
-      "path": "agent_prompts/autonomous_agents/claude_code/skills/code-commit-workflow/",
-      "file": "agent_prompts/autonomous_agents/claude_code/skills/code-commit-workflow/SKILL.md",
+      "path": "catalog/skills/workflow/code-commit-workflow/",
+      "file": "catalog/skills/workflow/code-commit-workflow/SKILL.md",
       "size": {
         "lines": 783,
         "characters": 20471,
         "tokens_estimate": 2998
-      },
-      "downloads": 0,
-      "status": "production",
-      "security": {
-        "structural": 100,
-        "integrity": 100,
-        "semantic": 95,
-        "validated": true
-      }
-    },
-    {
-      "name": "code-complexity-analysis",
-      "title": "code-complexity-analysis",
-      "description": "",
-      "long_description": "---\ncategory: security-quality\npriority: MEDIUM\nlanguages: [python, javascript, typescript, java, csharp, go, rust]\nrequires_user_input: false\nestimated_duration: 30min-2 hours\n---",
-      "version": "1.0.0",
-      "author": "Benjamin Dourthe",
-      "category": "skills",
-      "language": "Generic",
-      "tags": "",
-      "priority": "MEDIUM",
-      "based_on": "",
-      "tools_required": [],
-      "path": "agent_prompts/autonomous_agents/claude_code/skills/code-complexity-analysis/",
-      "file": "agent_prompts/autonomous_agents/claude_code/skills/code-complexity-analysis/SKILL.md",
-      "size": {
-        "lines": 813,
-        "characters": 22256,
-        "tokens_estimate": 2266
       },
       "downloads": 0,
       "status": "production",
@@ -438,8 +412,8 @@
       "tools_required": [
         "Read"
       ],
-      "path": "agent_prompts/autonomous_agents/claude_code/skills/code-review-context-analysis/",
-      "file": "agent_prompts/autonomous_agents/claude_code/skills/code-review-context-analysis/SKILL.md",
+      "path": "catalog/skills/code-review/context-analysis/",
+      "file": "catalog/skills/code-review/context-analysis/SKILL.md",
       "size": {
         "lines": 809,
         "characters": 21071,
@@ -475,8 +449,8 @@
       "tools_required": [
         "Read"
       ],
-      "path": "agent_prompts/autonomous_agents/claude_code/skills/code-review-final-report/",
-      "file": "agent_prompts/autonomous_agents/claude_code/skills/code-review-final-report/SKILL.md",
+      "path": "catalog/skills/code-review/final-report/",
+      "file": "catalog/skills/code-review/final-report/SKILL.md",
       "size": {
         "lines": 1047,
         "characters": 30808,
@@ -513,8 +487,8 @@
         "Task",
         "Write"
       ],
-      "path": "agent_prompts/autonomous_agents/claude_code/skills/code-review-performance/",
-      "file": "agent_prompts/autonomous_agents/claude_code/skills/code-review-performance/SKILL.md",
+      "path": "catalog/skills/code-review/performance-review/",
+      "file": "catalog/skills/code-review/performance-review/SKILL.md",
       "size": {
         "lines": 1060,
         "characters": 28702,
@@ -550,8 +524,8 @@
       "tools_required": [
         "Read"
       ],
-      "path": "agent_prompts/autonomous_agents/claude_code/skills/code-review-quality/",
-      "file": "agent_prompts/autonomous_agents/claude_code/skills/code-review-quality/SKILL.md",
+      "path": "catalog/skills/code-review/code-quality/",
+      "file": "catalog/skills/code-review/code-quality/SKILL.md",
       "size": {
         "lines": 883,
         "characters": 22096,
@@ -587,8 +561,8 @@
       "tools_required": [
         "Read"
       ],
-      "path": "agent_prompts/autonomous_agents/claude_code/skills/code-review-security/",
-      "file": "agent_prompts/autonomous_agents/claude_code/skills/code-review-security/SKILL.md",
+      "path": "catalog/skills/code-review/security-review/",
+      "file": "catalog/skills/code-review/security-review/SKILL.md",
       "size": {
         "lines": 1108,
         "characters": 31827,
@@ -623,50 +597,12 @@
       "priority": "HIGH",
       "based_on": "AI Templates Code Review Workflow, Anthropic Claude Code Best Practices 2025",
       "tools_required": [],
-      "path": "agent_prompts/autonomous_agents/claude_code/skills/code-review-testing/",
-      "file": "agent_prompts/autonomous_agents/claude_code/skills/code-review-testing/SKILL.md",
+      "path": "catalog/skills/code-review/testing-review/",
+      "file": "catalog/skills/code-review/testing-review/SKILL.md",
       "size": {
         "lines": 1127,
         "characters": 32069,
         "tokens_estimate": 3698
-      },
-      "downloads": 0,
-      "status": "production",
-      "security": {
-        "structural": 100,
-        "integrity": 100,
-        "semantic": 95,
-        "validated": true
-      }
-    },
-    {
-      "name": "create-claude-md",
-      "title": "create-claude-md",
-      "description": "Generate comprehensive CLAUDE.md configuration file for optimal Claude Code performance",
-      "long_description": "Generate a comprehensive CLAUDE.md file - the single most important tool for guiding Claude Code's behavior in your project.",
-      "version": "1.0.0",
-      "author": "Benjamin Dourthe",
-      "category": "Configuration",
-      "language": "Multi-language",
-      "tags": [
-        "configuration",
-        "claude-md",
-        "setup",
-        "standards",
-        "best-practice"
-      ],
-      "priority": "CRITICAL",
-      "based_on": "Claude Code Best Practices 2025",
-      "tools_required": [
-        "Bash",
-        "Edit"
-      ],
-      "path": "agent_prompts/autonomous_agents/claude_code/skills/create-claude-md/",
-      "file": "agent_prompts/autonomous_agents/claude_code/skills/create-claude-md/SKILL.md",
-      "size": {
-        "lines": 722,
-        "characters": 16207,
-        "tokens_estimate": 2244
       },
       "downloads": 0,
       "status": "production",
@@ -700,44 +636,12 @@
         "Task",
         "Write"
       ],
-      "path": "agent_prompts/autonomous_agents/claude_code/skills/create-custom-command/",
-      "file": "agent_prompts/autonomous_agents/claude_code/skills/create-custom-command/SKILL.md",
+      "path": "catalog/skills/workflow/create-custom-command/",
+      "file": "catalog/skills/workflow/create-custom-command/SKILL.md",
       "size": {
         "lines": 3316,
         "characters": 75939,
         "tokens_estimate": 10755
-      },
-      "downloads": 0,
-      "status": "production",
-      "security": {
-        "structural": 100,
-        "integrity": 100,
-        "semantic": 95,
-        "validated": true
-      }
-    },
-    {
-      "name": "create-subagent-workflow",
-      "title": "create-subagent-workflow",
-      "description": "",
-      "long_description": "---\ncategory: security-quality\npriority: MEDIUM\nlanguages: [python, javascript, typescript, all]\nrequires_user_input: true\nestimated_duration: 2-6 hours\n---",
-      "version": "1.0.0",
-      "author": "Benjamin Dourthe",
-      "category": "skills",
-      "language": "Generic",
-      "tags": "",
-      "priority": "MEDIUM",
-      "based_on": "",
-      "tools_required": [
-        "Task",
-        "Write"
-      ],
-      "path": "agent_prompts/autonomous_agents/claude_code/skills/create-subagent-workflow/",
-      "file": "agent_prompts/autonomous_agents/claude_code/skills/create-subagent-workflow/SKILL.md",
-      "size": {
-        "lines": 1014,
-        "characters": 31378,
-        "tokens_estimate": 2697
       },
       "downloads": 0,
       "status": "production",
@@ -774,8 +678,8 @@
         "Task",
         "Write"
       ],
-      "path": "agent_prompts/autonomous_agents/claude_code/skills/create-technical-docs/",
-      "file": "agent_prompts/autonomous_agents/claude_code/skills/create-technical-docs/SKILL.md",
+      "path": "catalog/skills/documentation/technical-documentation/",
+      "file": "catalog/skills/documentation/technical-documentation/SKILL.md",
       "size": {
         "lines": 1409,
         "characters": 34464,
@@ -814,8 +718,8 @@
         "Read",
         "Write"
       ],
-      "path": "agent_prompts/autonomous_agents/claude_code/skills/create-user-documentation/",
-      "file": "agent_prompts/autonomous_agents/claude_code/skills/create-user-documentation/SKILL.md",
+      "path": "catalog/skills/documentation/user-documentation/",
+      "file": "catalog/skills/documentation/user-documentation/SKILL.md",
       "size": {
         "lines": 1111,
         "characters": 24542,
@@ -852,8 +756,8 @@
         "Read",
         "Write"
       ],
-      "path": "agent_prompts/autonomous_agents/claude_code/skills/debug-with-logs/",
-      "file": "agent_prompts/autonomous_agents/claude_code/skills/debug-with-logs/SKILL.md",
+      "path": "catalog/skills/workflow/debug-with-logs/",
+      "file": "catalog/skills/workflow/debug-with-logs/SKILL.md",
       "size": {
         "lines": 1566,
         "characters": 41260,
@@ -891,70 +795,12 @@
       "tools_required": [
         "Read"
       ],
-      "path": "agent_prompts/autonomous_agents/claude_code/skills/dependency-security-audit/",
-      "file": "agent_prompts/autonomous_agents/claude_code/skills/dependency-security-audit/SKILL.md",
+      "path": "catalog/skills/security/dependency-security-audit/",
+      "file": "catalog/skills/security/dependency-security-audit/SKILL.md",
       "size": {
         "lines": 1531,
         "characters": 40113,
         "tokens_estimate": 4935
-      },
-      "downloads": 0,
-      "status": "production",
-      "security": {
-        "structural": 100,
-        "integrity": 100,
-        "semantic": 95,
-        "validated": true
-      }
-    },
-    {
-      "name": "dependency-upgrade",
-      "title": "dependency-upgrade",
-      "description": "",
-      "long_description": "---\ncategory: migration-refactoring\npriority: MEDIUM\nlanguages: [python, javascript, typescript, java, csharp, go, rust]\nrequires_user_input: true\nestimated_duration: 1-4 hours\n---",
-      "version": "1.0.0",
-      "author": "Benjamin Dourthe",
-      "category": "skills",
-      "language": "Generic",
-      "tags": "",
-      "priority": "MEDIUM",
-      "based_on": "",
-      "tools_required": [],
-      "path": "agent_prompts/autonomous_agents/claude_code/skills/dependency-upgrade/",
-      "file": "agent_prompts/autonomous_agents/claude_code/skills/dependency-upgrade/SKILL.md",
-      "size": {
-        "lines": 754,
-        "characters": 18908,
-        "tokens_estimate": 2285
-      },
-      "downloads": 0,
-      "status": "production",
-      "security": {
-        "structural": 100,
-        "integrity": 100,
-        "semantic": 95,
-        "validated": true
-      }
-    },
-    {
-      "name": "extract-microservice",
-      "title": "extract-microservice",
-      "description": "",
-      "long_description": "---\ncategory: migration-refactoring\npriority: MEDIUM\nlanguages: [python, javascript, typescript, java, csharp, go]\nrequires_user_input: true\nestimated_duration: 4-16 hours\n---",
-      "version": "1.0.0",
-      "author": "Benjamin Dourthe",
-      "category": "skills",
-      "language": "Generic",
-      "tags": "",
-      "priority": "MEDIUM",
-      "based_on": "",
-      "tools_required": [],
-      "path": "agent_prompts/autonomous_agents/claude_code/skills/extract-microservice/",
-      "file": "agent_prompts/autonomous_agents/claude_code/skills/extract-microservice/SKILL.md",
-      "size": {
-        "lines": 1215,
-        "characters": 33394,
-        "tokens_estimate": 3130
       },
       "downloads": 0,
       "status": "production",
@@ -987,8 +833,8 @@
       "tools_required": [
         "Read"
       ],
-      "path": "agent_prompts/autonomous_agents/claude_code/skills/generate-api-docs/",
-      "file": "agent_prompts/autonomous_agents/claude_code/skills/generate-api-docs/SKILL.md",
+      "path": "catalog/skills/documentation/api-documentation/",
+      "file": "catalog/skills/documentation/api-documentation/SKILL.md",
       "size": {
         "lines": 527,
         "characters": 13973,
@@ -1028,8 +874,8 @@
       "tools_required": [
         "Write"
       ],
-      "path": "agent_prompts/autonomous_agents/claude_code/skills/generate-docstrings/",
-      "file": "agent_prompts/autonomous_agents/claude_code/skills/generate-docstrings/SKILL.md",
+      "path": "catalog/skills/documentation/docstrings/",
+      "file": "catalog/skills/documentation/docstrings/SKILL.md",
       "size": {
         "lines": 812,
         "characters": 23363,
@@ -1067,8 +913,8 @@
       "priority": "MEDIUM",
       "based_on": "",
       "tools_required": [],
-      "path": "agent_prompts/autonomous_agents/claude_code/skills/generate-sbom/",
-      "file": "agent_prompts/autonomous_agents/claude_code/skills/generate-sbom/SKILL.md",
+      "path": "catalog/skills/documentation/sbom-generation/",
+      "file": "catalog/skills/documentation/sbom-generation/SKILL.md",
       "size": {
         "lines": 1134,
         "characters": 28913,
@@ -1107,8 +953,8 @@
       "tools_required": [
         "Write"
       ],
-      "path": "agent_prompts/autonomous_agents/claude_code/skills/generate-test-cases/",
-      "file": "agent_prompts/autonomous_agents/claude_code/skills/generate-test-cases/SKILL.md",
+      "path": "catalog/skills/tests-generation/test-cases/",
+      "file": "catalog/skills/tests-generation/test-cases/SKILL.md",
       "size": {
         "lines": 1222,
         "characters": 33484,
@@ -1149,8 +995,8 @@
         "Task",
         "Write"
       ],
-      "path": "agent_prompts/autonomous_agents/claude_code/skills/init-csharp-project/",
-      "file": "agent_prompts/autonomous_agents/claude_code/skills/init-csharp-project/SKILL.md",
+      "path": "catalog/skills/project-setup/init-csharp-project/",
+      "file": "catalog/skills/project-setup/init-csharp-project/SKILL.md",
       "size": {
         "lines": 1226,
         "characters": 31800,
@@ -1191,8 +1037,8 @@
         "Task",
         "Write"
       ],
-      "path": "agent_prompts/autonomous_agents/claude_code/skills/init-java-project/",
-      "file": "agent_prompts/autonomous_agents/claude_code/skills/init-java-project/SKILL.md",
+      "path": "catalog/skills/project-setup/init-java-project/",
+      "file": "catalog/skills/project-setup/init-java-project/SKILL.md",
       "size": {
         "lines": 1298,
         "characters": 30526,
@@ -1235,8 +1081,8 @@
         "Task",
         "Write"
       ],
-      "path": "agent_prompts/autonomous_agents/claude_code/skills/init-javascript-project/",
-      "file": "agent_prompts/autonomous_agents/claude_code/skills/init-javascript-project/SKILL.md",
+      "path": "catalog/skills/project-setup/init-javascript-project/",
+      "file": "catalog/skills/project-setup/init-javascript-project/SKILL.md",
       "size": {
         "lines": 1201,
         "characters": 26162,
@@ -1274,8 +1120,8 @@
         "Task",
         "Write"
       ],
-      "path": "agent_prompts/autonomous_agents/claude_code/skills/init-python-project/",
-      "file": "agent_prompts/autonomous_agents/claude_code/skills/init-python-project/SKILL.md",
+      "path": "catalog/skills/project-setup/init-python-project/",
+      "file": "catalog/skills/project-setup/init-python-project/SKILL.md",
       "size": {
         "lines": 741,
         "characters": 16353,
@@ -1294,81 +1140,23 @@
       "name": "licensing-compliance-check",
       "title": "licensing-compliance-check",
       "description": "",
-      "long_description": "---\ncategory: security-quality\npriority: MEDIUM\nlanguages: [python, javascript, typescript, java, csharp, go, rust]\nrequires_user_input: true\nestimated_duration: 1-3 hours\n---",
+      "long_description": "",
       "version": "1.0.0",
       "author": "Benjamin Dourthe",
-      "category": "skills",
-      "language": "Generic",
-      "tags": "",
+      "category": "Security",
+      "language": "Multi-language",
+      "tags": [],
       "priority": "MEDIUM",
       "based_on": "",
       "tools_required": [
         "Write"
       ],
-      "path": "agent_prompts/autonomous_agents/claude_code/skills/licensing-compliance-check/",
-      "file": "agent_prompts/autonomous_agents/claude_code/skills/licensing-compliance-check/SKILL.md",
+      "path": "catalog/skills/security/licensing-compliance/",
+      "file": "catalog/skills/security/licensing-compliance/SKILL.md",
       "size": {
         "lines": 810,
         "characters": 25726,
         "tokens_estimate": 2251
-      },
-      "downloads": 0,
-      "status": "production",
-      "security": {
-        "structural": 100,
-        "integrity": 100,
-        "semantic": 95,
-        "validated": true
-      }
-    },
-    {
-      "name": "migrate-python-2-to-3",
-      "title": "migrate-python-2-to-3",
-      "description": "",
-      "long_description": "---\ncategory: migration-refactoring\npriority: MEDIUM\nlanguages: [python]\nrequires_user_input: true\nestimated_duration: 2-6 hours\n---",
-      "version": "1.0.0",
-      "author": "Benjamin Dourthe",
-      "category": "skills",
-      "language": "Generic",
-      "tags": "",
-      "priority": "MEDIUM",
-      "based_on": "",
-      "tools_required": [],
-      "path": "agent_prompts/autonomous_agents/claude_code/skills/migrate-python-2-to-3/",
-      "file": "agent_prompts/autonomous_agents/claude_code/skills/migrate-python-2-to-3/SKILL.md",
-      "size": {
-        "lines": 880,
-        "characters": 21576,
-        "tokens_estimate": 2930
-      },
-      "downloads": 0,
-      "status": "production",
-      "security": {
-        "structural": 100,
-        "integrity": 100,
-        "semantic": 95,
-        "validated": true
-      }
-    },
-    {
-      "name": "optimize-context-usage",
-      "title": "optimize-context-usage",
-      "description": "",
-      "long_description": "---\ncategory: security-quality\npriority: MEDIUM\nlanguages: [all]\nrequires_user_input: false\nestimated_duration: 1-3 hours\n---",
-      "version": "1.0.0",
-      "author": "Benjamin Dourthe",
-      "category": "skills",
-      "language": "Generic",
-      "tags": "",
-      "priority": "MEDIUM",
-      "based_on": "",
-      "tools_required": [],
-      "path": "agent_prompts/autonomous_agents/claude_code/skills/optimize-context-usage/",
-      "file": "agent_prompts/autonomous_agents/claude_code/skills/optimize-context-usage/SKILL.md",
-      "size": {
-        "lines": 938,
-        "characters": 29371,
-        "tokens_estimate": 2747
       },
       "downloads": 0,
       "status": "production",
@@ -1400,8 +1188,8 @@
       "tools_required": [
         "Read"
       ],
-      "path": "agent_prompts/autonomous_agents/claude_code/skills/plan-before-code/",
-      "file": "agent_prompts/autonomous_agents/claude_code/skills/plan-before-code/SKILL.md",
+      "path": "catalog/skills/workflow/plan-before-code/",
+      "file": "catalog/skills/workflow/plan-before-code/SKILL.md",
       "size": {
         "lines": 581,
         "characters": 15376,
@@ -1441,327 +1229,12 @@
         "Bash",
         "Task"
       ],
-      "path": "agent_prompts/autonomous_agents/claude_code/skills/pre-commit-checklist/",
-      "file": "agent_prompts/autonomous_agents/claude_code/skills/pre-commit-checklist/SKILL.md",
+      "path": "catalog/skills/security/pre-commit-checklist/",
+      "file": "catalog/skills/security/pre-commit-checklist/SKILL.md",
       "size": {
         "lines": 1787,
         "characters": 41197,
         "tokens_estimate": 4658
-      },
-      "downloads": 0,
-      "status": "production",
-      "security": {
-        "structural": 100,
-        "integrity": 100,
-        "semantic": 95,
-        "validated": true
-      }
-    },
-    {
-      "name": "refactor-for-testability",
-      "title": "refactor-for-testability",
-      "description": "",
-      "long_description": "---\ncategory: migration-refactoring\npriority: MEDIUM\nlanguages: [python, javascript, typescript, java, csharp, go]\nrequires_user_input: true\nestimated_duration: 2-8 hours\n---",
-      "version": "1.0.0",
-      "author": "Benjamin Dourthe",
-      "category": "skills",
-      "language": "Generic",
-      "tags": "",
-      "priority": "MEDIUM",
-      "based_on": "",
-      "tools_required": [
-        "Glob",
-        "Write"
-      ],
-      "path": "agent_prompts/autonomous_agents/claude_code/skills/refactor-for-testability/",
-      "file": "agent_prompts/autonomous_agents/claude_code/skills/refactor-for-testability/SKILL.md",
-      "size": {
-        "lines": 1236,
-        "characters": 34604,
-        "tokens_estimate": 3486
-      },
-      "downloads": 0,
-      "status": "production",
-      "security": {
-        "structural": 100,
-        "integrity": 100,
-        "semantic": 95,
-        "validated": true
-      }
-    },
-    {
-      "name": "setup-c-system-prompt",
-      "title": "setup-c-system-prompt",
-      "description": "Configure comprehensive C development system prompt for Claude Code with embedded systems focus, MISRA-C standards, and memory safety best practices",
-      "long_description": "Configure Claude Code with comprehensive C development standards, embedded systems best practices, and safety-critical development workflows optimized for production-quality C code generation.",
-      "version": "1.0.0",
-      "author": "Benjamin Dourthe",
-      "category": "Configuration",
-      "language": "C",
-      "tags": [
-        "c",
-        "setup",
-        "system-prompt",
-        "configuration",
-        "embedded",
-        "standards",
-        "misra"
-      ],
-      "priority": "HIGH",
-      "based_on": "",
-      "tools_required": [
-        "Task",
-        "Write"
-      ],
-      "path": "agent_prompts/autonomous_agents/claude_code/skills/setup-c-system-prompt/",
-      "file": "agent_prompts/autonomous_agents/claude_code/skills/setup-c-system-prompt/SKILL.md",
-      "size": {
-        "lines": 626,
-        "characters": 17682,
-        "tokens_estimate": 2200
-      },
-      "downloads": 0,
-      "status": "production",
-      "security": {
-        "structural": 100,
-        "integrity": 100,
-        "semantic": 95,
-        "validated": true
-      }
-    },
-    {
-      "name": "setup-cpp-system-prompt",
-      "title": "setup-cpp-system-prompt",
-      "description": "Configure comprehensive C++ development system prompt for Claude Code with modern C++ features, RAII, smart pointers, and exception safety best practices",
-      "long_description": "Configure Claude Code with comprehensive modern C++ development standards, best practices, and workflows optimized for production-quality C++ code generation with C++17/C++20 features.",
-      "version": "1.0.0",
-      "author": "Benjamin Dourthe",
-      "category": "Configuration",
-      "language": "C++",
-      "tags": [
-        "cpp",
-        "c++",
-        "setup",
-        "system-prompt",
-        "configuration",
-        "modern-cpp",
-        "standards",
-        "raii"
-      ],
-      "priority": "HIGH",
-      "based_on": "",
-      "tools_required": [
-        "Task"
-      ],
-      "path": "agent_prompts/autonomous_agents/claude_code/skills/setup-cpp-system-prompt/",
-      "file": "agent_prompts/autonomous_agents/claude_code/skills/setup-cpp-system-prompt/SKILL.md",
-      "size": {
-        "lines": 767,
-        "characters": 21156,
-        "tokens_estimate": 2519
-      },
-      "downloads": 0,
-      "status": "production",
-      "security": {
-        "structural": 100,
-        "integrity": 100,
-        "semantic": 95,
-        "validated": true
-      }
-    },
-    {
-      "name": "setup-csharp-system-prompt",
-      "title": "setup-csharp-system-prompt",
-      "description": "Configure comprehensive C#/.NET development system prompt for Claude Code with best practices, standards, and workflows",
-      "long_description": "Configure Claude Code with comprehensive C#/.NET development standards, best practices, and workflows optimized for production-quality enterprise applications.",
-      "version": "1.0.0",
-      "author": "Benjamin Dourthe",
-      "category": "Configuration",
-      "language": "C#",
-      "tags": [
-        "csharp",
-        "dotnet",
-        "setup",
-        "system-prompt",
-        "configuration",
-        "standards",
-        "aspnetcore",
-        "entityframework"
-      ],
-      "priority": "HIGH",
-      "based_on": "",
-      "tools_required": [
-        "Glob",
-        "Task",
-        "Write"
-      ],
-      "path": "agent_prompts/autonomous_agents/claude_code/skills/setup-csharp-system-prompt/",
-      "file": "agent_prompts/autonomous_agents/claude_code/skills/setup-csharp-system-prompt/SKILL.md",
-      "size": {
-        "lines": 591,
-        "characters": 18088,
-        "tokens_estimate": 2141
-      },
-      "downloads": 0,
-      "status": "production",
-      "security": {
-        "structural": 100,
-        "integrity": 100,
-        "semantic": 95,
-        "validated": true
-      }
-    },
-    {
-      "name": "setup-go-system-prompt",
-      "title": "setup-go-system-prompt",
-      "description": "Configure comprehensive Go development system prompt for Claude Code with idiomatic Go practices, standards, and workflows",
-      "long_description": "Configure Claude Code with comprehensive Go development standards, idiomatic Go practices, and workflows optimized for production-quality Go code generation.",
-      "version": "1.0.0",
-      "author": "Benjamin Dourthe",
-      "category": "Configuration",
-      "language": "Go",
-      "tags": [
-        "go",
-        "golang",
-        "setup",
-        "system-prompt",
-        "configuration",
-        "standards",
-        "idiomatic"
-      ],
-      "priority": "HIGH",
-      "based_on": "",
-      "tools_required": [
-        "Read",
-        "Write"
-      ],
-      "path": "agent_prompts/autonomous_agents/claude_code/skills/setup-go-system-prompt/",
-      "file": "agent_prompts/autonomous_agents/claude_code/skills/setup-go-system-prompt/SKILL.md",
-      "size": {
-        "lines": 1077,
-        "characters": 29771,
-        "tokens_estimate": 3694
-      },
-      "downloads": 0,
-      "status": "production",
-      "security": {
-        "structural": 100,
-        "integrity": 100,
-        "semantic": 95,
-        "validated": true
-      }
-    },
-    {
-      "name": "setup-java-system-prompt",
-      "title": "setup-java-system-prompt",
-      "description": "Configure comprehensive Java development system prompt for Claude Code with Spring Boot, Maven/Gradle, testing frameworks, and enterprise best practices",
-      "long_description": "Configure Claude Code with comprehensive Java development standards, best practices, and workflows optimized for enterprise-quality Spring Boot application development.",
-      "version": "1.0.0",
-      "author": "Benjamin Dourthe",
-      "category": "Configuration",
-      "language": "Java",
-      "tags": [
-        "java",
-        "spring-boot",
-        "setup",
-        "system-prompt",
-        "configuration",
-        "standards",
-        "maven",
-        "gradle",
-        "junit"
-      ],
-      "priority": "HIGH",
-      "based_on": "",
-      "tools_required": [
-        "Task",
-        "Write"
-      ],
-      "path": "agent_prompts/autonomous_agents/claude_code/skills/setup-java-system-prompt/",
-      "file": "agent_prompts/autonomous_agents/claude_code/skills/setup-java-system-prompt/SKILL.md",
-      "size": {
-        "lines": 753,
-        "characters": 22617,
-        "tokens_estimate": 2694
-      },
-      "downloads": 0,
-      "status": "production",
-      "security": {
-        "structural": 100,
-        "integrity": 100,
-        "semantic": 95,
-        "validated": true
-      }
-    },
-    {
-      "name": "setup-javascript-system-prompt",
-      "title": "setup-javascript-system-prompt",
-      "description": "Configure comprehensive JavaScript/TypeScript development standards for Claude Code with best practices, testing frameworks, and modern workflows",
-      "long_description": "Configure Claude Code with comprehensive JavaScript/TypeScript development standards, best practices, and workflows optimized for production-quality code generation across Node.js, React, and full-stack applications.",
-      "version": "1.0.0",
-      "author": "Benjamin Dourthe",
-      "category": "Configuration",
-      "language": "JavaScript, TypeScript",
-      "tags": [
-        "configuration",
-        "javascript",
-        "typescript",
-        "system-prompt",
-        "standards",
-        "node",
-        "react",
-        "jest",
-        "eslint"
-      ],
-      "priority": "HIGH",
-      "based_on": "",
-      "tools_required": [
-        "Glob",
-        "Task"
-      ],
-      "path": "agent_prompts/autonomous_agents/claude_code/skills/setup-javascript-system-prompt/",
-      "file": "agent_prompts/autonomous_agents/claude_code/skills/setup-javascript-system-prompt/SKILL.md",
-      "size": {
-        "lines": 732,
-        "characters": 24115,
-        "tokens_estimate": 2844
-      },
-      "downloads": 0,
-      "status": "production",
-      "security": {
-        "structural": 100,
-        "integrity": 100,
-        "semantic": 95,
-        "validated": true
-      }
-    },
-    {
-      "name": "setup-python-system-prompt",
-      "title": "setup-python-system-prompt",
-      "description": "Configure comprehensive Python development system prompt for Claude Code with best practices, standards, and workflows",
-      "long_description": "Configure Claude Code with comprehensive Python development standards, best practices, and workflows optimized for production-quality code generation.",
-      "version": "1.0.0",
-      "author": "Benjamin Dourthe",
-      "category": "Configuration",
-      "language": "Python",
-      "tags": [
-        "python",
-        "setup",
-        "system-prompt",
-        "configuration",
-        "standards"
-      ],
-      "priority": "MEDIUM",
-      "based_on": "",
-      "tools_required": [
-        "Task"
-      ],
-      "path": "agent_prompts/autonomous_agents/claude_code/skills/setup-python-system-prompt/",
-      "file": "agent_prompts/autonomous_agents/claude_code/skills/setup-python-system-prompt/SKILL.md",
-      "size": {
-        "lines": 259,
-        "characters": 8758,
-        "tokens_estimate": 1126
       },
       "downloads": 0,
       "status": "production",
@@ -1800,8 +1273,8 @@
         "Glob",
         "Write"
       ],
-      "path": "agent_prompts/autonomous_agents/claude_code/skills/setup-test-infrastructure/",
-      "file": "agent_prompts/autonomous_agents/claude_code/skills/setup-test-infrastructure/SKILL.md",
+      "path": "catalog/skills/tests-generation/test-structure/",
+      "file": "catalog/skills/tests-generation/test-structure/SKILL.md",
       "size": {
         "lines": 1190,
         "characters": 25745,
@@ -1838,8 +1311,8 @@
       "tools_required": [
         "Write"
       ],
-      "path": "agent_prompts/autonomous_agents/claude_code/skills/test-driven-development/",
-      "file": "agent_prompts/autonomous_agents/claude_code/skills/test-driven-development/SKILL.md",
+      "path": "catalog/skills/workflow/test-driven-development/",
+      "file": "catalog/skills/workflow/test-driven-development/SKILL.md",
       "size": {
         "lines": 881,
         "characters": 25205,
@@ -1875,8 +1348,8 @@
       "tools_required": [
         "Search"
       ],
-      "path": "claude-skills-catalog/research/trend-research/",
-      "file": "claude-skills-catalog/research/trend-research/SKILL.md",
+      "path": "catalog/skills/research/trend-research/",
+      "file": "catalog/skills/research/trend-research/SKILL.md",
       "size": {
         "lines": 90,
         "characters": 3500,
@@ -1890,6 +1363,606 @@
         "semantic": 100,
         "validated": true
       }
+    },
+    {
+      "name": "ai-agent-governance",
+      "title": "ai-agent-governance",
+      "description": "",
+      "long_description": "",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Compliance",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/compliance/ai-agent-governance/",
+      "file": "catalog/skills/compliance/ai-agent-governance/SKILL.md",
+      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "downloads": 0,
+      "status": "production",
+      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+    },
+    {
+      "name": "ccpa-compliance",
+      "title": "ccpa-compliance",
+      "description": "",
+      "long_description": "",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Compliance",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/compliance/ccpa-compliance/",
+      "file": "catalog/skills/compliance/ccpa-compliance/SKILL.md",
+      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "downloads": 0,
+      "status": "production",
+      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+    },
+    {
+      "name": "gdpr-compliance",
+      "title": "gdpr-compliance",
+      "description": "",
+      "long_description": "",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Compliance",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/compliance/gdpr-compliance/",
+      "file": "catalog/skills/compliance/gdpr-compliance/SKILL.md",
+      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "downloads": 0,
+      "status": "production",
+      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+    },
+    {
+      "name": "iso27001-compliance",
+      "title": "iso27001-compliance",
+      "description": "",
+      "long_description": "",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Compliance",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/compliance/iso27001-compliance/",
+      "file": "catalog/skills/compliance/iso27001-compliance/SKILL.md",
+      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "downloads": 0,
+      "status": "production",
+      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+    },
+    {
+      "name": "iso42001-ai-governance",
+      "title": "iso42001-ai-governance",
+      "description": "",
+      "long_description": "",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Compliance",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/compliance/iso42001-ai-governance/",
+      "file": "catalog/skills/compliance/iso42001-ai-governance/SKILL.md",
+      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "downloads": 0,
+      "status": "production",
+      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+    },
+    {
+      "name": "nist-ai-rmf",
+      "title": "nist-ai-rmf",
+      "description": "",
+      "long_description": "",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Compliance",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/compliance/nist-ai-rmf/",
+      "file": "catalog/skills/compliance/nist-ai-rmf/SKILL.md",
+      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "downloads": 0,
+      "status": "production",
+      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+    },
+    {
+      "name": "pci-dss-compliance",
+      "title": "pci-dss-compliance",
+      "description": "",
+      "long_description": "",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Compliance",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/compliance/pci-dss-compliance/",
+      "file": "catalog/skills/compliance/pci-dss-compliance/SKILL.md",
+      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "downloads": 0,
+      "status": "production",
+      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+    },
+    {
+      "name": "soc2-compliance",
+      "title": "soc2-compliance",
+      "description": "",
+      "long_description": "",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Compliance",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/compliance/soc2-compliance/",
+      "file": "catalog/skills/compliance/soc2-compliance/SKILL.md",
+      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "downloads": 0,
+      "status": "production",
+      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+    },
+    {
+      "name": "dependency-manager",
+      "title": "dependency-manager",
+      "description": "",
+      "long_description": "",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Developer Experience",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/developer-experience/dependency-manager/",
+      "file": "catalog/skills/developer-experience/dependency-manager/SKILL.md",
+      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "downloads": 0,
+      "status": "production",
+      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+    },
+    {
+      "name": "legacy-modernizer",
+      "title": "legacy-modernizer",
+      "description": "",
+      "long_description": "",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Developer Experience",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/developer-experience/legacy-modernizer/",
+      "file": "catalog/skills/developer-experience/legacy-modernizer/SKILL.md",
+      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "downloads": 0,
+      "status": "production",
+      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+    },
+    {
+      "name": "refactoring-expert",
+      "title": "refactoring-expert",
+      "description": "",
+      "long_description": "",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Developer Experience",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/developer-experience/refactoring-expert/",
+      "file": "catalog/skills/developer-experience/refactoring-expert/SKILL.md",
+      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "downloads": 0,
+      "status": "production",
+      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+    },
+    {
+      "name": "cicd-architect",
+      "title": "cicd-architect",
+      "description": "",
+      "long_description": "",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Infrastructure",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/infrastructure/cicd-architect/",
+      "file": "catalog/skills/infrastructure/cicd-architect/SKILL.md",
+      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "downloads": 0,
+      "status": "production",
+      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+    },
+    {
+      "name": "cloud-architect",
+      "title": "cloud-architect",
+      "description": "",
+      "long_description": "",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Infrastructure",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/infrastructure/cloud-architect/",
+      "file": "catalog/skills/infrastructure/cloud-architect/SKILL.md",
+      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "downloads": 0,
+      "status": "production",
+      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+    },
+    {
+      "name": "kubernetes-expert",
+      "title": "kubernetes-expert",
+      "description": "",
+      "long_description": "",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Infrastructure",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/infrastructure/kubernetes-expert/",
+      "file": "catalog/skills/infrastructure/kubernetes-expert/SKILL.md",
+      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "downloads": 0,
+      "status": "production",
+      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+    },
+    {
+      "name": "terraform-specialist",
+      "title": "terraform-specialist",
+      "description": "",
+      "long_description": "",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Infrastructure",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/infrastructure/terraform-specialist/",
+      "file": "catalog/skills/infrastructure/terraform-specialist/SKILL.md",
+      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "downloads": 0,
+      "status": "production",
+      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+    },
+    {
+      "name": "go-expert",
+      "title": "go-expert",
+      "description": "",
+      "long_description": "",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Language Specialists",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/language-specialists/go-expert/",
+      "file": "catalog/skills/language-specialists/go-expert/SKILL.md",
+      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "downloads": 0,
+      "status": "production",
+      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+    },
+    {
+      "name": "rust-expert",
+      "title": "rust-expert",
+      "description": "",
+      "long_description": "",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Language Specialists",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/language-specialists/rust-expert/",
+      "file": "catalog/skills/language-specialists/rust-expert/SKILL.md",
+      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "downloads": 0,
+      "status": "production",
+      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+    },
+    {
+      "name": "sql-expert",
+      "title": "sql-expert",
+      "description": "",
+      "long_description": "",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Language Specialists",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/language-specialists/sql-expert/",
+      "file": "catalog/skills/language-specialists/sql-expert/SKILL.md",
+      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "downloads": 0,
+      "status": "production",
+      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+    },
+    {
+      "name": "context-manager",
+      "title": "context-manager",
+      "description": "",
+      "long_description": "",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Orchestration",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/orchestration/context-manager/",
+      "file": "catalog/skills/orchestration/context-manager/SKILL.md",
+      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "downloads": 0,
+      "status": "production",
+      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+    },
+    {
+      "name": "task-coordinator",
+      "title": "task-coordinator",
+      "description": "",
+      "long_description": "",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Orchestration",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/orchestration/task-coordinator/",
+      "file": "catalog/skills/orchestration/task-coordinator/SKILL.md",
+      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "downloads": 0,
+      "status": "production",
+      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+    },
+    {
+      "name": "workflow-orchestrator",
+      "title": "workflow-orchestrator",
+      "description": "",
+      "long_description": "",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Orchestration",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/orchestration/workflow-orchestrator/",
+      "file": "catalog/skills/orchestration/workflow-orchestrator/SKILL.md",
+      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "downloads": 0,
+      "status": "production",
+      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+    },
+    {
+      "name": "cicd-integration",
+      "title": "cicd-integration",
+      "description": "",
+      "long_description": "",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Testing",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/tests-generation/cicd-integration/",
+      "file": "catalog/skills/tests-generation/cicd-integration/SKILL.md",
+      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "downloads": 0,
+      "status": "production",
+      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+    },
+    {
+      "name": "code-coverage",
+      "title": "code-coverage",
+      "description": "",
+      "long_description": "",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Testing",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/tests-generation/code-coverage/",
+      "file": "catalog/skills/tests-generation/code-coverage/SKILL.md",
+      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "downloads": 0,
+      "status": "production",
+      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+    },
+    {
+      "name": "mocks-fixtures",
+      "title": "mocks-fixtures",
+      "description": "",
+      "long_description": "",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Testing",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/tests-generation/mocks-fixtures/",
+      "file": "catalog/skills/tests-generation/mocks-fixtures/SKILL.md",
+      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "downloads": 0,
+      "status": "production",
+      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+    },
+    {
+      "name": "mutation-testing",
+      "title": "mutation-testing",
+      "description": "",
+      "long_description": "",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Testing",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/tests-generation/mutation-testing/",
+      "file": "catalog/skills/tests-generation/mutation-testing/SKILL.md",
+      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "downloads": 0,
+      "status": "production",
+      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+    },
+    {
+      "name": "performance-testing",
+      "title": "performance-testing",
+      "description": "",
+      "long_description": "",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Testing",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/tests-generation/performance-testing/",
+      "file": "catalog/skills/tests-generation/performance-testing/SKILL.md",
+      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "downloads": 0,
+      "status": "production",
+      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+    },
+    {
+      "name": "unit-tests",
+      "title": "unit-tests",
+      "description": "",
+      "long_description": "",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Testing",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/tests-generation/unit-tests/",
+      "file": "catalog/skills/tests-generation/unit-tests/SKILL.md",
+      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "downloads": 0,
+      "status": "production",
+      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+    },
+    {
+      "name": "documentation-consistency",
+      "title": "documentation-consistency",
+      "description": "",
+      "long_description": "",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Workflow",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/workflow/documentation-consistency/",
+      "file": "catalog/skills/workflow/documentation-consistency/SKILL.md",
+      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "downloads": 0,
+      "status": "production",
+      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+    },
+    {
+      "name": "version-upgrade",
+      "title": "version-upgrade",
+      "description": "",
+      "long_description": "",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Workflow",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/workflow/version-upgrade/",
+      "file": "catalog/skills/workflow/version-upgrade/SKILL.md",
+      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "downloads": 0,
+      "status": "production",
+      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+    },
+    {
+      "name": "devlog-generation",
+      "title": "devlog-generation",
+      "description": "",
+      "long_description": "",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Workflow",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/workflow/devlog-generation/",
+      "file": "catalog/skills/workflow/devlog-generation/SKILL.md",
+      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "downloads": 0,
+      "status": "production",
+      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
     },
     {
       "name": "check-usage",

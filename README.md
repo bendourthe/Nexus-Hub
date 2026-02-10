@@ -2,7 +2,7 @@
 **Production-Grade Brain Upgrades for Your AI Coding Assistant**
 
 > **Turn generic AI into a Senior Engineer.**
-> One-click setup for Claude Code (Anthropic), Gemini (Google), Codex (OpenAI), and GitHub Copilot (Microsoft).
+> One-click setup for Claude Code (Anthropic), Gemini (Google), and GitHub Copilot (Microsoft).
 
 ---
 
@@ -19,13 +19,13 @@ Don't want to copy-paste files manually? We made an installer.
 5.  **(Optional) Select a project** to configure workspace-specific rules.
 
 **Done.**
-*   **Globally**: Your user profile now has all 60+ Claude Skills, Gemini instructions, and OpenAI Codex setup.
+*   **Globally**: Your user profile now has all 63 Claude Skills and Gemini instructions.
 *   **Locally**: Your project has `copilot-instructions.md` tailored to your language.
 
 ---
 
 ## 📖 What is this?
-Most AI assistants (Claude, Copilot, ChatGPT) are "generic junkies"—they know everything but master nothing. They write okay code, but often forget edge cases, security, or your specific style.
+Most AI assistants (Claude, Copilot, ChatGPT) are "generic junkies", they know everything but master nothing. They write okay code, but often forget edge cases, security, or your specific style.
 
 **DevAI Hub** is a collection of **"System Instructions"** and **"Skills"** that you inject into your AI to make it smarter.
 
@@ -42,7 +42,7 @@ If you prefer to copy things yourself, here is how the repo is organized:
 
 ### 1. Claude Code (Anthropic)
 This is the most powerful integration. It adds **autonomous agent capabilities**.
-*   **CLAUDE.md**: The "Brain". Copy `templates/ai-instructions/claude-code/{LANG}/CLAUDE.md` to your project root.
+*   **CLAUDE.md**: The "Brain". Copy `catalog/CLAUDE.md` to your project root and customize it.
 *   **Skills**: The "Hands". Copy folders from `catalog/skills/` to your project's `.claude/skills/` folder.
     *   *Example*: Copy `catalog/skills/research/trend-research` to enable the "Trend Research" skill.
 
@@ -51,13 +51,9 @@ Optimized instructions for Google's Gemini models.
 *   **Gemini Instructions**: Copy `templates/ai-instructions/generic-instructions.md` to `.gemini/GEMINI.md` in your project or user profile.
 *   **Skills & Workflows**: The installer mirrors these to `.gemini/skills` and `.gemini/antigravity/global_workflows` so they appear globally in Antigravity.
 
-### 3. Codex (OpenAI)
-Setup for OpenAI's Codex agent in VS Code.
-*   **Skills & Commands**: The installer creates a `.codex` folder with standard skills and commands.
-
-### 4. GitHub Copilot (Microsoft)
+### 3. GitHub Copilot (Microsoft)
 Instructions for VS Code's Copilot Chat.
-*   Copy `templates/ai-instructions/coding-instructions/{LANG}.md` to `.github/copilot-instructions.md`.
+*   Copy `templates/ai-instructions/coding-instructions/{language}.md` to `.github/copilot-instructions.md`.
 
 ---
 
@@ -71,6 +67,19 @@ Instructions for VS Code's Copilot Chat.
 | **Compliance** | Checks code against SOC2, GDPR, and ISO standards. |
 
 [→ View Full Skills Catalog](catalog/skills/README.md)
+
+---
+
+## 🔌 VS Code Extension: Claude Usage Monitor
+
+Monitor your Claude Code API usage limits directly from VS Code.
+
+*   **Auto-fetch**: Reads your OAuth token and fetches live usage data from the Anthropic API.
+*   **Status bar**: Shows session and weekly usage percentages with a custom Claude icon.
+*   **SVG tooltip**: Hover for theme-aware progress bars with per-metric breakdown and reset timers.
+*   **Dashboard**: Click for a full usage dashboard with model recommendations and optimization tips.
+
+See [extensions/claude-usage-monitor/](extensions/claude-usage-monitor/) for setup instructions.
 
 ---
 

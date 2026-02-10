@@ -1,5 +1,60 @@
 # Development Log
 
+## [2026-02-10 18:00] - Release 0.6.0: Claude Usage Monitor, Code Review Overhaul, Documentation Fixes
+
+*   **Goal**: Release v0.6.0 encompassing the Claude Usage Monitor VS Code extension, merged code-review-expert methodology, skills registry validation, and comprehensive documentation consistency fixes.
+*   **What Changed**:
+    *   **Version Bump**: Updated `templates.json`, `scripts/installer.ps1`, `scripts/installer.sh` from 0.5.3 to 0.6.0. Installers renamed from V5 to V6.
+    *   **CHANGELOG.md**: Converted `[Unreleased]` section to `[0.6.0] - 2026-02-10` with full Added/Changed entries. Added 0.6.0 row to Version History Summary table. Updated footer compare links.
+    *   **Documentation Fixes** (22 issues resolved from `/update-documentation` audit):
+        *   Root `README.md`: Removed Codex (OpenAI) references, fixed CLAUDE.md path, fixed Copilot path casing, added VS Code Extension section, updated skill count to 63.
+        *   Extension `README.md`: Fully rewritten to match current functionality (5 commands, 4 settings, auto-fetch API, SVG tooltip, dashboard).
+        *   `skills.json`: Fixed 34 stale paths, removed 15 deleted skills, added 30 new entries, validated all 65 entries against disk.
+        *   `CHANGELOG.md`: Fixed 19 footer URLs (`yourusername` to `bdourthe`), added 4 missing version links.
+*   **Lessons Learned**: Running `/update-documentation` before a version release is an effective way to catch stale references and path inconsistencies across the project.
+*   **Current Status**: Verified. All version references consistent at 0.6.0.
+
+## [2026-02-10 12:00] - Created Claude Usage Monitor VS Code Extension
+
+*   **Goal**: Build a VS Code extension that monitors Claude Code API usage (session and weekly limits) with auto-fetching, a status bar indicator, rich tooltip, and a full dashboard panel.
+*   **Attempted Solutions**:
+    *   *Icon Font Generation (fantasticon)*:
+        *   *Result*: Failed. fantasticon v4.x reported "No SVGs found" regardless of path format, even in a temp directory without spaces. Version self-reported as "0.0.0".
+        *   *Analysis*: fantasticon's glob resolution is broken in v4.x on Windows.
+        *   *Solution*: Bypassed fantasticon entirely. Wrote custom `scripts/generate-icon-font.js` using `svgpath` + `svg2ttf` + `ttf2woff2`. Key insight: SVG fonts have Y-axis going UP (opposite of regular SVGs), requiring `svgpath(path).scale(64, -64).translate(0, 1024)` for 16px to 1024 unitsPerEm conversion.
+    *   *Tooltip Progress Bars (HTML divs)*:
+        *   *Result*: Failed. VS Code MarkdownString tooltips do not render `background` CSS on content-less `<div>` elements. `<table>` width attributes are also ignored.
+        *   *Analysis*: VS Code's tooltip renderer has a limited CSS subset. Properties like `background`, `color`, `opacity`, and `font-style` on arbitrary HTML elements are unreliable.
+        *   *Solution*: Switched to SVG data URI images via `<img src="data:image/svg+xml,${encodeURIComponent(svg)}">`. This renders reliably when `isTrusted` and `supportHtml` are true.
+    *   *Percentage Right-Alignment (HTML tables)*:
+        *   *Result*: Failed. HTML `<table width="260">` was not respected by VS Code's tooltip. Percentages appeared next to labels instead of at the far right edge.
+        *   *Solution*: Baked label, percentage, AND progress bar into a single SVG image using `text-anchor="end"` for guaranteed pixel-perfect right alignment.
+    *   *PowerShell Installer Phase 3*:
+        *   *Result*: Initially failed. `$ErrorActionPreference = "Stop"` converted npm/npx stderr output into terminating PowerShell exceptions.
+        *   *Solution*: Wrap native CLI tool sections with `$ErrorActionPreference = "Continue"` and restore afterward. Use `2>$null | Out-Null` instead of `2>&1 | Out-Null` for stderr suppression.
+*   **Changes**:
+    *   Created `extensions/claude-usage-monitor/` (full extension, 22 files):
+        *   `src/usageFetcher.ts`: Reads OAuth token from `~/.claude/.credentials.json`, calls `GET https://api.anthropic.com/api/oauth/usage` with `anthropic-beta: oauth-2025-04-20` header, maps response to internal types.
+        *   `src/statusBarManager.ts`: Status bar with `$(claude-icon)` custom icon, `X% (current) Y% (week)` format, SVG data URI tooltip with theme-aware colors via `activeColorTheme.kind`, auto-refresh timer.
+        *   `src/dashboardPanel.ts`: WebviewPanel with full usage breakdown, model recommendations, optimization tips, theme-aware tab icons via `{ light: Uri, dark: Uri }` iconPath.
+        *   `src/extension.ts`: Orchestrates auto-fetch on activation, registers commands (`dashboard`, `refresh`, `update`, `reset`), configures auto-refresh interval.
+        *   `src/inputCollector.ts`: Manual input fallback (4-step wizard) when API credentials are unavailable.
+        *   `src/recommendations.ts`: Usage-based model switching recommendations (Opus/Sonnet/Haiku).
+        *   `scripts/generate-icon-font.js`: Custom SVG-to-WOFF2 font generator.
+        *   `icons/claude.svg`, `icons/claude-dark.svg`, `icons/claude-light.svg`: Theme-aware icon variants.
+        *   `fonts/claude-icons.woff2`: Generated icon font at codepoint U+E101.
+    *   Modified `scripts/installer.ps1`: Added Phase 3 (extension build, VSIX packaging, VS Code installation with Node.js detection).
+    *   Modified `scripts/installer.sh`: Added Phase 3 (same logic for macOS/Linux with brew/apt detection).
+    *   Created `catalog/commands/check-usage.md`: CLI command for checking usage from the terminal.
+    *   Added `catalog/claude_icon.svg`, `catalog/claude_logo.png`: Icon assets.
+    *   Modified `skills.json`: Registered `check-usage` command.
+*   **Lessons Learned**:
+    *   VS Code MarkdownString tooltips support `<img>` tags with `data:image/svg+xml` URIs but do NOT reliably support CSS `background`, `color`, `opacity`, or `font-style` on HTML elements. Tables render but ignore width attributes. The most reliable approach for custom graphics in tooltips is inline SVG data URIs.
+    *   fantasticon v4.x is unusable on Windows. A custom script with `svgpath` + `svg2ttf` + `ttf2woff2` is more reliable and produces smaller output.
+    *   PowerShell `$ErrorActionPreference = "Stop"` must be temporarily disabled when invoking npm, npx, node, or any native CLI tool that writes to stderr as part of normal operation.
+    *   The Claude OAuth usage API lives at `https://api.anthropic.com/api/oauth/usage` (not `claude.ai`), requires the `anthropic-beta: oauth-2025-04-20` header, and returns `five_hour`, `seven_day`, `seven_day_sonnet`, `seven_day_opus`, and `extra_usage` fields each with `utilization` (0-100) and `resets_at` (ISO 8601).
+*   **Current Status**: Verified. Extension builds, packages, installs, and runs correctly. Auto-fetch populates status bar on activation. Tooltip shows SVG progress bars with theme-aware colors. Dashboard opens with Claude icon on tab. Manual fallback works when credentials are missing.
+
 ## [2026-02-06 14:00] - Merged code-review-expert into run-code-review
 
 *   **Goal**: Merge the methodology from `sanyuan0704/code-review-expert` (GitHub) into the existing `run-deep-review` command and rename to `run-code-review`, creating a unified, comprehensive code review system.
