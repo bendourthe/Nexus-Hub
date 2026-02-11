@@ -293,10 +293,9 @@ def generate_markdown_report(data, author, tree_structure, output_file="Codebase
 1. [Executive Summary](#1-executive-summary)
 2. [Component Analysis](#2-component-analysis)
 3. [Dependencies & Prerequisites](#3-dependencies--prerequisites)
-4. [Platform Support](#4-platform-support)
-5. [User Manual & Usage Guide](#5-user-manual--usage-guide)
-6. [Issues & Optimization](#6-issues--optimization)
-7. [Appendix A: Project Architecture](#appendix-a-project-architecture)
+4. [User Manual & Usage Guide](#4-user-manual--usage-guide)
+5. [Issues & Optimization](#5-issues--optimization)
+6. [Appendix A: Project Architecture](#appendix-a-project-architecture)
 
 ## 1. Executive Summary
 {data.get('executive_summary', 'N/A')}
@@ -310,23 +309,20 @@ def generate_markdown_report(data, author, tree_structure, output_file="Codebase
 
     md_content += "\n## 3. Dependencies & Prerequisites\n"
     deps = data.get("dependencies", [])
-    if isinstance(deps, list):
+    if isinstance(deps, dict):
+        for category, items in deps.items():
+            md_content += f"\n### {category}\n"
+            for item in items:
+                md_content += f"- {item}\n"
+    elif isinstance(deps, list):
         for d in deps:
             md_content += f"- {d}\n"
     else:
         md_content += f"{deps}\n"
 
-    md_content += "\n## 4. Platform Support\n"
-    platforms = data.get("platforms", [])
-    if isinstance(platforms, list):
-        for p in platforms:
-            md_content += f"- {p}\n"
-    else:
-        md_content += f"{platforms}\n"
+    md_content += f"\n## 4. User Manual & Usage Guide\n{data.get('user_manual', 'N/A')}\n"
 
-    md_content += f"\n## 5. User Manual & Usage Guide\n{data.get('user_manual', 'N/A')}\n"
-
-    md_content += "\n## 6. Issues & Optimization\n"
+    md_content += "\n## 5. Issues & Optimization\n"
     for issue in data.get("issues", []):
         md_content += f"- {issue}\n"
 
@@ -476,32 +472,27 @@ def generate_docx_report(data, author, tree_structure, output_file="Codebase_Rep
     doc.add_heading("3. Dependencies & Prerequisites", level=1)
     deps = data.get("dependencies", [])
     if deps:
-        if isinstance(deps, list):
+        if isinstance(deps, dict):
+            for category, items in deps.items():
+                doc.add_heading(category, level=2)
+                for item in items:
+                    add_list_item(doc, item)
+        elif isinstance(deps, list):
             for d in deps:
                 add_list_item(doc, d)
         else:
-             add_markdown_paragraph(doc, deps)
+            add_markdown_paragraph(doc, deps)
     else:
         doc.add_paragraph("No dependencies specified.")
 
-    doc.add_heading("4. Platform Support", level=1)
-    platforms = data.get("platforms", [])
-    if platforms:
-         if isinstance(platforms, list):
-            doc.add_paragraph(", ".join(platforms))
-         else:
-            add_markdown_paragraph(doc, platforms)
-    else:
-        doc.add_paragraph("No platform info specified.")
-
-    doc.add_heading("5. User Manual & Usage Guide", level=1)
+    doc.add_heading("4. User Manual & Usage Guide", level=1)
     manual = data.get("user_manual", "")
     if manual:
         add_markdown_paragraph(doc, manual)
     else:
         doc.add_paragraph("No user manual provided.")
 
-    doc.add_heading("6. Issues & Optimization", level=1)
+    doc.add_heading("5. Issues & Optimization", level=1)
     issues = data.get("issues", [])
     if issues:
         for issue in issues:
