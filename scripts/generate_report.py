@@ -294,7 +294,7 @@ def generate_markdown_report(data, author, tree_structure, output_file="Codebase
 2. [Component Analysis](#2-component-analysis)
 3. [Dependencies & Prerequisites](#3-dependencies--prerequisites)
 4. [User Manual & Usage Guide](#4-user-manual--usage-guide)
-5. [Issues & Optimization](#5-issues--optimization)
+5. [Improvements & Optimizations](#5-improvements--optimizations)
 6. [Appendix A: Project Architecture](#appendix-a-project-architecture)
 
 ## 1. Executive Summary
@@ -322,9 +322,18 @@ def generate_markdown_report(data, author, tree_structure, output_file="Codebase
 
     md_content += f"\n## 4. User Manual & Usage Guide\n{data.get('user_manual', 'N/A')}\n"
 
-    md_content += "\n## 5. Issues & Optimization\n"
-    for issue in data.get("issues", []):
-        md_content += f"- {issue}\n"
+    md_content += "\n## 5. Improvements & Optimizations\n"
+    issues = data.get("issues", [])
+    if isinstance(issues, dict):
+        for category, items in issues.items():
+            md_content += f"\n### {category}\n"
+            for item in items:
+                md_content += f"- {item}\n"
+    elif isinstance(issues, list):
+        for issue in issues:
+            md_content += f"- {issue}\n"
+    else:
+        md_content += f"{issues}\n"
 
     md_content += f"\n## Appendix A: Project Architecture\n```text\n{tree_structure}\n```\n"
 
@@ -492,11 +501,19 @@ def generate_docx_report(data, author, tree_structure, output_file="Codebase_Rep
     else:
         doc.add_paragraph("No user manual provided.")
 
-    doc.add_heading("5. Issues & Optimization", level=1)
+    doc.add_heading("5. Improvements & Optimizations", level=1)
     issues = data.get("issues", [])
     if issues:
-        for issue in issues:
-            add_list_item(doc, issue)
+        if isinstance(issues, dict):
+            for category, items in issues.items():
+                doc.add_heading(category, level=2)
+                for item in items:
+                    add_list_item(doc, item)
+        elif isinstance(issues, list):
+            for issue in issues:
+                add_list_item(doc, issue)
+        else:
+            add_markdown_paragraph(doc, issues)
     else:
         doc.add_paragraph("No issues identified.")
 
