@@ -374,6 +374,81 @@ function Install-GitGuardrails {
     }
 }
 
+function Install-UsageDisplay {
+    param(
+        [string]$RepoRoot,
+        [string]$TargetClaudeDir,
+        [string]$Scope  # "Global" or "Workspace"
+    )
+
+    # Copy hook script
+    $hooksDir = Join-Path $TargetClaudeDir "hooks"
+    if (-not (Test-Path $hooksDir)) { New-Item -ItemType Directory -Force -Path $hooksDir | Out-Null }
+    Safe-Copy -Source "$RepoRoot\catalog\hooks\usage-display.sh" -Destination (Join-Path $hooksDir "usage-display.sh") -Confirm:$true -CustomMessage "✓ $Scope usage display hook installed at: $hooksDir"
+
+    # Merge Stop hook config into settings.json
+    $settingsFile = Join-Path $TargetClaudeDir "settings.json"
+    $templateFile = "$RepoRoot\catalog\hooks\settings.json"
+
+    if (-not (Test-Path $templateFile)) {
+        Write-Item -Message "Skip: Hook template not found" -Color "DarkGray"
+        return
+    }
+
+    if (-not (Test-Path $settingsFile)) {
+        # No existing settings.json; install_git_guardrails will create it from the
+        # template (which now includes both PreToolUse and Stop hooks).
+        return
+    }
+
+    $templateJson = Get-Content $templateFile -Raw | ConvertFrom-Json
+
+    try {
+        $existingJson = Get-Content $settingsFile -Raw | ConvertFrom-Json
+
+        # Check if usage-display already installed
+        $alreadyInstalled = $false
+        if ($existingJson.hooks -and $existingJson.hooks.Stop) {
+            foreach ($hookEntry in $existingJson.hooks.Stop) {
+                foreach ($h in $hookEntry.hooks) {
+                    if ($h.command -and $h.command -like "*usage-display*") {
+                        $alreadyInstalled = $true
+                        break
+                    }
+                }
+            }
+        }
+
+        if ($alreadyInstalled) {
+            Write-Item -Message "✓ Usage display hook already configured in settings.json" -Color "DarkGreen"
+        }
+        else {
+            # Add hooks key if missing
+            if (-not $existingJson.hooks) {
+                $existingJson | Add-Member -NotePropertyName "hooks" -NotePropertyValue ([PSCustomObject]@{ Stop = $templateJson.hooks.Stop })
+            }
+            else {
+                if (-not $existingJson.hooks.Stop) {
+                    $existingJson.hooks | Add-Member -NotePropertyName "Stop" -NotePropertyValue $templateJson.hooks.Stop
+                }
+                else {
+                    # Append our hook entry to existing Stop array
+                    $existingArray = @($existingJson.hooks.Stop)
+                    $existingArray += $templateJson.hooks.Stop
+                    $existingJson.hooks.Stop = $existingArray
+                }
+            }
+
+            $existingJson | ConvertTo-Json -Depth 10 | Set-Content $settingsFile -Encoding UTF8
+            Write-Item -Message "✓ $Scope settings.json updated with usage display hook" -Color "DarkGreen"
+        }
+    }
+    catch {
+        Write-Item -Message "Warning: Could not merge usage display hook into settings.json ($($_.Exception.Message))" -Color "Yellow"
+        Write-Item -Message "  You may need to manually add the Stop hook config" -Color "Yellow"
+    }
+}
+
 # --- Install Functions ---
 
 function Install-Global {
@@ -414,6 +489,9 @@ function Install-Global {
 
         # Git Guardrails Hook
         Install-GitGuardrails -RepoRoot $RepoRoot -TargetClaudeDir $globalClaude -Scope "Global"
+
+        # Usage Display Hook
+        Install-UsageDisplay -RepoRoot $RepoRoot -TargetClaudeDir $globalClaude -Scope "Global"
     }
 
     # 2. Gemini / Antigravity
@@ -556,6 +634,9 @@ function Install-Workspace {
 
             # Git Guardrails Hook
             Install-GitGuardrails -RepoRoot $RepoRoot -TargetClaudeDir $claudeDir -Scope "Workspace"
+
+            # Usage Display Hook
+            Install-UsageDisplay -RepoRoot $RepoRoot -TargetClaudeDir $claudeDir -Scope "Workspace"
         }
 
         # 2. Gemini / Antigravity

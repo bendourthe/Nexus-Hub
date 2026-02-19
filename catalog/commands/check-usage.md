@@ -6,9 +6,32 @@ description: Check your Claude Code usage limits and get smart model-switching r
 
 Analyze your current Claude Code usage limits and provide actionable recommendations for model selection and usage optimization.
 
-## Phase 1: Collect Usage Data
+## Phase 0: Auto-Fetch Usage Data
 
-Ask the user to provide their current usage data from `claude.ai/settings/usage`. Collect the following:
+Before asking the user for manual input, attempt to fetch usage data automatically from the Anthropic API.
+
+1. Read the OAuth access token from `~/.claude/.credentials.json` (field: `claudeAiOauth.accessToken`).
+2. Fetch usage data using Bash:
+   ```bash
+   curl -s -H "Authorization: Bearer TOKEN" \
+        -H "anthropic-beta: oauth-2025-04-20" \
+        https://api.anthropic.com/api/oauth/usage
+   ```
+3. If the API call succeeds, parse the JSON response:
+   - `five_hour.utilization` → Session usage %
+   - `five_hour.resets_at` → Session reset time (ISO 8601)
+   - `seven_day.utilization` → Weekly (all models) usage %
+   - `seven_day.resets_at` → Weekly reset time
+   - `seven_day_sonnet.utilization` → Weekly (Sonnet only) usage %
+   - `seven_day_sonnet.resets_at` → Sonnet reset time
+4. Convert `resets_at` timestamps to human-readable relative times (e.g., "3 min", "Fri 1:59 PM").
+5. If auto-fetch succeeds, **skip Phase 1 entirely** and proceed to Phase 2 with the fetched data.
+
+If auto-fetch fails for any reason (no credentials file, expired token, network error, missing curl), fall back to Phase 1.
+
+## Phase 1: Manual Usage Data Collection (Fallback)
+
+Only use this phase if Phase 0 auto-fetch failed. Ask the user to provide their current usage data from `claude.ai/settings/usage`. Collect the following:
 
 1. **Current Session**:
    - Usage percentage (e.g., 92%)
@@ -104,7 +127,8 @@ Present the analysis in this format:
 - **All metrics are GREEN**: Congratulate the user and confirm they can continue freely. Still mention the model-to-task matching tip as a general best practice.
 - **Session is RED but weekly is GREEN**: Emphasize that this is temporary. Suggest waiting a few minutes for the session reset rather than switching models.
 - **Weekly is RED**: This is the most impactful scenario. Strongly recommend switching to a lighter model and provide specific task-matching guidance.
-- **User doesn't know their usage**: Direct them to `claude.ai/settings/usage` or suggest they run `/usage` in their Claude Code terminal session.
+- **User doesn't know their usage**: Auto-fetch should handle this automatically. If auto-fetch also fails, direct them to `claude.ai/settings/usage`.
+- **Auto-fetch returns expired token**: Inform the user their Claude Code session may need re-authentication and fall back to manual entry.
 
 ## Iterative Refinement
 
