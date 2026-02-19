@@ -296,6 +296,84 @@ function Safe-Folder-Copy {
     }
 }
 
+# --- Hook Installation ---
+
+function Install-GitGuardrails {
+    param(
+        [string]$RepoRoot,
+        [string]$TargetClaudeDir,
+        [string]$Scope  # "Global" or "Workspace"
+    )
+
+    # Copy hook script
+    $hooksDir = Join-Path $TargetClaudeDir "hooks"
+    if (-not (Test-Path $hooksDir)) { New-Item -ItemType Directory -Force -Path $hooksDir | Out-Null }
+    Safe-Copy -Source "$RepoRoot\catalog\hooks\git-guardrails.sh" -Destination (Join-Path $hooksDir "git-guardrails.sh") -Confirm:$true -CustomMessage "✓ $Scope git guardrails hook installed at: $hooksDir"
+
+    # Merge hook config into settings.json
+    $settingsFile = Join-Path $TargetClaudeDir "settings.json"
+    $templateFile = "$RepoRoot\catalog\hooks\settings.json"
+
+    if (-not (Test-Path $templateFile)) {
+        Write-Item -Message "Skip: Hook template not found" -Color "DarkGray"
+        return
+    }
+
+    $templateJson = Get-Content $templateFile -Raw | ConvertFrom-Json
+
+    if (Test-Path $settingsFile) {
+        try {
+            $existingJson = Get-Content $settingsFile -Raw | ConvertFrom-Json
+
+            # Check if hooks.PreToolUse already has our guardrail
+            $alreadyInstalled = $false
+            if ($existingJson.hooks -and $existingJson.hooks.PreToolUse) {
+                foreach ($hookEntry in $existingJson.hooks.PreToolUse) {
+                    foreach ($h in $hookEntry.hooks) {
+                        if ($h.command -and $h.command -like "*git-guardrails*") {
+                            $alreadyInstalled = $true
+                            break
+                        }
+                    }
+                }
+            }
+
+            if ($alreadyInstalled) {
+                Write-Item -Message "✓ Git guardrails hook already configured in settings.json" -Color "DarkGreen"
+            }
+            else {
+                # Add hooks key if missing
+                if (-not $existingJson.hooks) {
+                    $existingJson | Add-Member -NotePropertyName "hooks" -NotePropertyValue $templateJson.hooks
+                }
+                else {
+                    if (-not $existingJson.hooks.PreToolUse) {
+                        $existingJson.hooks | Add-Member -NotePropertyName "PreToolUse" -NotePropertyValue $templateJson.hooks.PreToolUse
+                    }
+                    else {
+                        # Append our hook entry to existing PreToolUse array
+                        $existingArray = @($existingJson.hooks.PreToolUse)
+                        $existingArray += $templateJson.hooks.PreToolUse
+                        $existingJson.hooks.PreToolUse = $existingArray
+                    }
+                }
+
+                $existingJson | ConvertTo-Json -Depth 10 | Set-Content $settingsFile -Encoding UTF8
+                Write-Item -Message "✓ $Scope settings.json updated with git guardrails hook" -Color "DarkGreen"
+            }
+        }
+        catch {
+            Write-Item -Message "Warning: Could not merge into existing settings.json ($($_.Exception.Message))" -Color "Yellow"
+            Write-Item -Message "  You may need to manually add the hook config" -Color "Yellow"
+        }
+    }
+    else {
+        # No existing settings.json, copy template
+        Copy-Item -Path $templateFile -Destination $settingsFile -Force
+        Write-Item -Message "✓ $Scope settings.json created with git guardrails hook" -Color "DarkGreen"
+    }
+}
+
 # --- Install Functions ---
 
 function Install-Global {
@@ -333,6 +411,9 @@ function Install-Global {
 
         # Global Commands
         Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $globalClaude "commands") -CustomMessage "✓ Global commands installed at: $(Join-Path $globalClaude "commands")"
+
+        # Git Guardrails Hook
+        Install-GitGuardrails -RepoRoot $RepoRoot -TargetClaudeDir $globalClaude -Scope "Global"
     }
 
     # 2. Gemini / Antigravity
@@ -472,6 +553,9 @@ function Install-Workspace {
             # Context & Memory
             Safe-Folder-Copy -Source "$RepoRoot\catalog\context" -Destination (Join-Path $claudeDir "context") -CustomMessage "✓ Workspace context installed at: $(Join-Path $claudeDir "context")"
             Safe-Folder-Copy -Source "$RepoRoot\catalog\memory" -Destination (Join-Path $claudeDir "memory") -CustomMessage "✓ Workspace memory installed at: $(Join-Path $claudeDir "memory")"
+
+            # Git Guardrails Hook
+            Install-GitGuardrails -RepoRoot $RepoRoot -TargetClaudeDir $claudeDir -Scope "Workspace"
         }
 
         # 2. Gemini / Antigravity

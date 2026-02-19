@@ -140,6 +140,69 @@ safe_folder_copy() {
     fi
 }
 
+# --- Hook Installation ---
+
+install_git_guardrails() {
+    local repo_root="$1"
+    local target_claude_dir="$2"
+    local scope="$3"  # "Global" or "Workspace"
+
+    # Copy hook script
+    local hooks_dir="$target_claude_dir/hooks"
+    mkdir -p "$hooks_dir"
+    safe_copy "$repo_root/catalog/hooks/git-guardrails.sh" "$hooks_dir/git-guardrails.sh" true "✓ $scope git guardrails hook installed at: $hooks_dir"
+    chmod +x "$hooks_dir/git-guardrails.sh" 2>/dev/null || true
+
+    # Merge hook config into settings.json
+    local settings_file="$target_claude_dir/settings.json"
+    local template_file="$repo_root/catalog/hooks/settings.json"
+
+    if [ ! -f "$template_file" ]; then
+        write_item "Skip: Hook template not found" "$GRAY"
+        return
+    fi
+
+    if [ -f "$settings_file" ]; then
+        # Check if guardrails already installed
+        if grep -q "git-guardrails" "$settings_file" 2>/dev/null; then
+            write_item "✓ Git guardrails hook already configured in settings.json" "$GREEN"
+            return
+        fi
+
+        # Merge using jq if available
+        if command -v jq >/dev/null 2>&1; then
+            local merged
+            merged=$(jq -s '
+                .[0] as $existing | .[1] as $template |
+                if $existing.hooks then
+                    if $existing.hooks.PreToolUse then
+                        $existing | .hooks.PreToolUse += $template.hooks.PreToolUse
+                    else
+                        $existing | .hooks.PreToolUse = $template.hooks.PreToolUse
+                    end
+                else
+                    $existing + {hooks: $template.hooks}
+                end
+            ' "$settings_file" "$template_file" 2>/dev/null)
+
+            if [ -n "$merged" ]; then
+                echo "$merged" > "$settings_file"
+                write_item "✓ $scope settings.json updated with git guardrails hook" "$GREEN"
+            else
+                write_item "Warning: Could not merge into existing settings.json" "$YELLOW"
+                write_item "  You may need to manually add the hook config" "$YELLOW"
+            fi
+        else
+            write_item "Warning: jq not found, cannot merge settings.json automatically" "$YELLOW"
+            write_item "  Please manually add hook config from: $template_file" "$YELLOW"
+        fi
+    else
+        # No existing settings.json, copy template
+        cp "$template_file" "$settings_file"
+        write_item "✓ $scope settings.json created with git guardrails hook" "$GREEN"
+    fi
+}
+
 # --- Install Functions ---
 
 install_global() {
@@ -172,6 +235,9 @@ install_global() {
 
     # Global Commands
     safe_folder_copy "$repo_root/catalog/commands" "$global_claude/commands" "✓ Global commands installed at: $global_claude/commands"
+
+    # Git Guardrails Hook
+    install_git_guardrails "$repo_root" "$global_claude" "Global"
 
     # 2. Gemini / Antigravity
     write_header "GEMINI"
@@ -322,6 +388,9 @@ install_workspace() {
         # Context & Memory
         safe_folder_copy "$repo_root/catalog/context" "$claude_dir/context" "✓ Workspace context installed at: $claude_dir/context"
         safe_folder_copy "$repo_root/catalog/memory" "$claude_dir/memory" "✓ Workspace memory installed at: $claude_dir/memory"
+
+        # Git Guardrails Hook
+        install_git_guardrails "$repo_root" "$claude_dir" "Workspace"
 
         # 2. Gemini / Antigravity
         write_header "GEMINI"

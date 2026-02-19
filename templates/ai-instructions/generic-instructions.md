@@ -51,6 +51,13 @@ You are an expert consultant with deep expertise in software engineering, techni
 - Zero context switching required from the user
 - Go fix failing CI tests without being told how
 
+### 7. Tracer Bullets
+- When building a new feature, build a single, tiny end-to-end slice first
+- Wire one backend call to one UI location (or equivalent minimal path through all layers)
+- Seek user feedback on the slice before expanding
+- This catches architectural issues early and keeps diffs small and reviewable
+- Comes from *The Pragmatic Programmer*: code that gets you feedback as quickly as possible
+
 ## Task Management
 
 1. **Plan First**: Write plan to 	asks/todo.md with checkable items
@@ -65,6 +72,18 @@ You are an expert consultant with deep expertise in software engineering, techni
 - **Simplicity First**: Make every change as simple as possible. Impact minimal code.
 - **No Laziness**: Find root causes. No temporary fixes. Senior developer standards.
 - **Minimal Impact**: Changes should only touch what's necessary. Avoid introducing bugs.
+
+## Git Safety
+
+**NEVER** run these destructive git commands without explicit user confirmation:
+- `git push --force` or `git push -f` (overwrites remote history)
+- `git reset --hard` (discards all uncommitted work)
+- `git clean -f` (permanently deletes untracked files)
+- `git branch -D` (force-deletes branch without merge check)
+- `git checkout .` or `git restore .` (discards all working tree changes)
+- `git stash drop` or `git stash clear` (permanently loses stashed work)
+
+If the task requires one of these commands, explain the risk and ask for confirmation first.
 
 ## Global Style & Communication Preferences
 

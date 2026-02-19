@@ -549,6 +549,104 @@ echo $HASH > ".cache/$HASH"
 
 ---
 
-*Hooks System v1.0.0 - Part of AI Templates v0.2.6*
+## Git Guardrails (PreToolUse Hook)
 
-*Last Updated: October 21, 2025*
+### Overview
+
+The git guardrails hook prevents AI agents from executing destructive git commands. It uses Claude Code's `PreToolUse` event to intercept Bash commands before execution and block dangerous patterns.
+
+**Installed by**: The DevAI-Hub installer (both global and workspace).
+
+**Location**: `.claude/hooks/git-guardrails.sh`
+
+**Configuration**: `.claude/settings.json` (hooks section)
+
+### How It Works
+
+1. Before each Bash tool call, Claude Code pipes JSON to `git-guardrails.sh` via stdin
+2. The script extracts the command from `tool_input.command`
+3. The command is checked against a list of dangerous regex patterns
+4. If matched: the script writes a `BLOCKED` message to stderr and exits with code 2
+5. If not matched: the script exits with code 0 (allow)
+
+Claude Code sees the `BLOCKED` message and adapts its approach automatically.
+
+### Blocked Commands (Defaults)
+
+| Command | Risk |
+|---------|------|
+| `git push --force` / `-f` | Overwrites remote history |
+| `git push --force-with-lease` | Overwrites remote history |
+| `git reset --hard` | Discards all uncommitted work |
+| `git clean -f` / `-fd` | Permanently deletes untracked files |
+| `git branch -D` | Force-deletes branch without merge check |
+| `git checkout .` / `git checkout -- .` | Discards all working tree changes |
+| `git restore .` | Discards all working tree changes |
+| `git stash drop` / `git stash clear` | Permanently loses stashed work |
+| `rm -rf .git` | Destroys the entire repository |
+
+### Customizing Blocked Patterns
+
+Edit `.claude/hooks/git-guardrails.sh` and modify the `DANGEROUS_PATTERNS` array:
+
+```bash
+DANGEROUS_PATTERNS=(
+  'git\s+push\s+.*--force:::Force push overwrites remote history'
+  # Add or remove patterns here
+  # Format: 'extended_regex:::description'
+)
+```
+
+For example, to allow `git push --force-with-lease` (some teams consider this safe enough):
+
+```bash
+# Remove this line from DANGEROUS_PATTERNS:
+# 'git\s+push\s+.*--force-with-lease:::Force-with-lease push overwrites remote history'
+```
+
+### Verifying It Works
+
+Ask Claude Code to run a blocked command:
+
+```
+> Run git push --force origin main
+```
+
+You should see:
+
+```
+BLOCKED: 'git push --force origin main' matches dangerous git pattern.
+Force push overwrites remote history. The user has prevented you from doing this.
+```
+
+### Settings Configuration
+
+The hook is configured in `.claude/settings.json`:
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/git-guardrails.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### Temporarily Disabling
+
+To temporarily disable the guardrails (e.g., for a legitimate force-push), remove the hook entry from `.claude/settings.json` and restore it after. Do not delete the hook script itself.
+
+---
+
+*Hooks System v1.1.0 - Part of DevAI-Hub v0.6.0*
+
+*Last Updated: February 19, 2026*
