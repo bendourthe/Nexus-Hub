@@ -1,5 +1,17 @@
 # Development Log
 
+## [2026-02-19] - Release 0.6.1: Git Guardrails, Tracer Bullets, Report Fixes
+
+*   **Goal**: Add deterministic safety enforcement for AI agents running destructive git commands, plus workflow improvements and report generation fixes.
+*   **What Changed**:
+    *   **Git Guardrails Hook**: Created `catalog/hooks/git-guardrails.sh` (PreToolUse hook) that intercepts Bash commands, matches against 12 dangerous git patterns, and blocks with exit code 2. Includes `catalog/hooks/settings.json` template for Claude Code integration.
+    *   **Installer Integration**: Added `Install-GitGuardrails` (PS1) and `install_git_guardrails` (Bash) functions. Both installers now install the hook in global (Phase 1) and workspace (Phase 2) with idempotent JSON merge into `.claude/settings.json`.
+    *   **AI Instructions**: Added `### 7. Tracer Bullets` workflow directive and `## Git Safety` soft enforcement section to `generic-instructions.md`, `catalog/CLAUDE.md`, and root `CLAUDE.md`.
+    *   **Hooks Documentation**: Added comprehensive "Git Guardrails (PreToolUse Hook)" section to `infrastructure/hooks/README.md` with customization guide and verification steps.
+    *   **Report Generation**: Fixed dependency categorization and platform support merging in `scripts/generate_report.py` and `catalog/commands/analyze-codebase.md`.
+    *   **Version Bump**: Updated `templates.json`, `scripts/installer.ps1`, `scripts/installer.sh` from 0.6.0 to 0.6.1.
+*   **Current Status**: Verified. All version references consistent at 0.6.1.
+
 ## [2026-02-10 18:00] - Release 0.6.0: Claude Usage Monitor, Code Review Overhaul, Documentation Fixes
 
 *   **Goal**: Release v0.6.0 encompassing the Claude Usage Monitor VS Code extension, merged code-review-expert methodology, skills registry validation, and comprehensive documentation consistency fixes.

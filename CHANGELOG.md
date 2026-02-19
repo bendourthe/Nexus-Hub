@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.6.1] - 2026-02-19
+
+### Added
+- **Git Guardrails PreToolUse Hook**: `catalog/hooks/git-guardrails.sh` blocks destructive git commands (force push, hard reset, clean -f, branch -D, checkout ., restore ., stash drop) before execution via Claude Code's PreToolUse mechanism.
+- **Hook Config Template**: `catalog/hooks/settings.json` for automatic Claude Code integration with idempotent settings.json merging.
+- **Tracer Bullets Workflow**: New workflow directive in AI instructions requiring agents to build a single, tiny end-to-end slice first before expanding (from *The Pragmatic Programmer*).
+- **Git Safety Soft Enforcement**: Cross-platform `## Git Safety` section added to AI instruction templates for Gemini, Codex, and Copilot.
+- **Git Guardrails Documentation**: Comprehensive section in `infrastructure/hooks/README.md` covering customization, verification, and disabling.
+
+### Changed
+- **Installers**: Both `scripts/installer.ps1` and `scripts/installer.sh` now install git guardrails hook in both global (Phase 1) and workspace (Phase 2) phases with JSON merge strategy for existing settings.
+- **Report Generation**: Categorize dependencies by type and merge platform support data in `scripts/generate_report.py` and `catalog/commands/analyze-codebase.md`.
+
+### Fixed
+- **Report Generation**: Fix dependency categorization and issue grouping logic for codebase analysis reports.
+
+---
+
 ## [0.6.0] - 2026-02-10
 
 ### Added
@@ -2405,6 +2423,7 @@ repository_root/
 
 | Version | Date       | Description                                      |
 |---------|------------|--------------------------------------------------|
+| 0.6.1   | 2026-02-19 | **Git Guardrails**: PreToolUse hook blocking destructive git commands, tracer bullets workflow, cross-platform git safety rules |
 | 0.6.0   | 2026-02-10 | **Claude Usage Monitor**: VS Code extension, code review overhaul, skills registry validation, documentation fixes |
 | 0.5.3   | 2026-02-04 | **Documentation Fixes**: Fixed broken paths, removed legacy `.codex`/`.gemini` artifacts, consolidated commands |
 | 0.5.2   | 2026-01-30 | **Enhanced Reporting**: DOCX report output, `/upgrade-version` auto-analysis, Claude Skills README section |
@@ -2432,7 +2451,8 @@ repository_root/
 
 ---
 
-[Unreleased]: https://github.com/bdourthe/devai-hub/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/bdourthe/devai-hub/compare/v0.6.1...HEAD
+[0.6.1]: https://github.com/bdourthe/devai-hub/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/bdourthe/devai-hub/releases/tag/v0.6.0
 [0.5.3]: https://github.com/bdourthe/devai-hub/releases/tag/v0.5.3
 [0.5.2]: https://github.com/bdourthe/devai-hub/releases/tag/v0.5.2

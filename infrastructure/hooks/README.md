@@ -647,6 +647,6 @@ To temporarily disable the guardrails (e.g., for a legitimate force-push), remov
 
 ---
 
-*Hooks System v1.1.0 - Part of DevAI-Hub v0.6.0*
+*Hooks System v1.1.0 - Part of DevAI-Hub v0.6.1*
 
 *Last Updated: February 19, 2026*
