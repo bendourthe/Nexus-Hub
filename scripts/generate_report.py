@@ -217,56 +217,165 @@ def add_list_item(doc, text, style='List Bullet'):
             
     add_formatted_text(p, text)
 
+def _apply_code_style(paragraph, doc):
+    """Apply monospace styling, preferring a template 'Code' style if available."""
+    try:
+        paragraph.style = doc.styles['Code']
+    except (KeyError, ValueError):
+        try:
+            paragraph.style = doc.styles['Normal']
+        except Exception:
+            pass
+        if paragraph.runs:
+            paragraph.runs[0].font.name = 'Courier New'
+            paragraph.runs[0].font.size = Pt(9)
+
+
 def add_markdown_paragraph(doc, text, style=None):
-    """Parses markdown (headers, lists, bold, code) and adds it to the document."""
+    """
+    Parses markdown and adds it to the document.
+
+    Handles: headers, lists, bold, code blocks, GFM tables, horizontal rules,
+    and Mermaid code blocks (replaced with figure placeholders).
+    """
     if not text:
         return
 
     lines = text.split('\n')
     in_code_block = False
-    
+    code_block_lang = ''
+    mermaid_lines = []
+    table_rows = []
+    figure_counter = [0]  # mutable for closure
+
+    def _flush_table(accumulated_rows):
+        """Render accumulated GFM table rows as a Word table."""
+        if not accumulated_rows:
+            return
+        # Filter out separator rows (|---|---|)
+        data_rows = [
+            row for row in accumulated_rows
+            if not re.match(r'^\|[\s\-:|]+\|$', row.strip())
+        ]
+        if not data_rows:
+            return
+        # Parse each row into cells
+        parsed = []
+        for row in data_rows:
+            stripped_row = row.strip().strip('|')
+            cells = [cell.strip() for cell in stripped_row.split('|')]
+            parsed.append(cells)
+        if not parsed:
+            return
+
+        num_cols = max(len(r) for r in parsed)
+        for row in parsed:
+            while len(row) < num_cols:
+                row.append('')
+
+        tbl = doc.add_table(rows=len(parsed), cols=num_cols)
+        try:
+            tbl.style = doc.styles['Light Grid Accent 1']
+        except (KeyError, ValueError):
+            try:
+                tbl.style = doc.styles['Table Grid']
+            except (KeyError, ValueError):
+                pass
+
+        for row_idx, row_cells in enumerate(parsed):
+            for col_idx, cell_text in enumerate(row_cells):
+                cell = tbl.cell(row_idx, col_idx)
+                cell.text = ''
+                p = cell.paragraphs[0]
+                add_formatted_text(p, cell_text)
+                if row_idx == 0:
+                    for run in p.runs:
+                        run.bold = True
+
+        doc.add_paragraph()  # spacing after table
+
     for line in lines:
         stripped = line.strip()
-        
-        # Code Blocks
-        if stripped.startswith("```"):
-            in_code_block = not in_code_block
-            continue
-        
-        if in_code_block:
-            p = doc.add_paragraph(line if line else " ")
-            try:
-                p.style = doc.styles['Normal']
-            except: pass
-            if p.runs:
-                font = p.runs[0].font
-                font.name = 'Courier New'
-                font.size = Pt(9)
+
+        # --- Horizontal rules: skip silently ---
+        if re.match(r'^-{3,}$', stripped) and not in_code_block:
+            _flush_table(table_rows)
+            table_rows = []
             continue
 
-        # Headers (### Title)
+        # --- Code block toggle ---
+        if stripped.startswith("```"):
+            if not in_code_block:
+                _flush_table(table_rows)
+                table_rows = []
+                in_code_block = True
+                code_block_lang = stripped[3:].strip().lower()
+                if code_block_lang == 'mermaid':
+                    mermaid_lines = []
+            else:
+                # Closing a code block
+                if code_block_lang == 'mermaid':
+                    figure_counter[0] += 1
+                    placeholder_p = doc.add_paragraph()
+                    run = placeholder_p.add_run(
+                        f"[Figure {figure_counter[0]}: See companion figures file]"
+                    )
+                    run.italic = True
+                    run.font.color.rgb = RGBColor(0x88, 0x88, 0x88)
+                    mermaid_lines = []
+                in_code_block = False
+                code_block_lang = ''
+            continue
+
+        if in_code_block:
+            if code_block_lang == 'mermaid':
+                mermaid_lines.append(line)
+            else:
+                p = doc.add_paragraph(line if line else " ")
+                _apply_code_style(p, doc)
+            continue
+
+        # --- Table rows ---
+        if stripped.startswith('|'):
+            table_rows.append(stripped)
+            continue
+        else:
+            if table_rows:
+                _flush_table(table_rows)
+                table_rows = []
+
+        # --- Skip empty lines ---
+        if not stripped:
+            continue
+
+        # --- Headers ---
         if stripped.startswith('#'):
             level = len(stripped.split(' ', 1)[0])
             content = stripped.split(' ', 1)[1] if ' ' in stripped else stripped
-            if level > 9: level = 9
+            if level > 9:
+                level = 9
             doc.add_heading(content, level=level)
             continue
 
-        # List Items (Bullets)
+        # --- List Items (Bullets) ---
         if stripped.startswith("- ") or stripped.startswith("* "):
             content = stripped[2:]
             add_list_item(doc, content, style='List Bullet')
             continue
-        
-        # List Items (Numbered)
-        if stripped and len(stripped) > 2 and stripped[0].isdigit() and stripped[1:3] in ['. ', ') ']:
-             content = stripped.split(' ', 1)[1] if ' ' in stripped else stripped
-             add_list_item(doc, content, style='List Number')
-             continue
 
-        # Normal Paragraph
+        # --- List Items (Numbered) ---
+        if stripped and len(stripped) > 2 and stripped[0].isdigit() and stripped[1:3] in ['. ', ') ']:
+            content = stripped.split(' ', 1)[1] if ' ' in stripped else stripped
+            add_list_item(doc, content, style='List Number')
+            continue
+
+        # --- Normal Paragraph ---
         p = doc.add_paragraph(style=style)
         add_formatted_text(p, line)
+
+    # Flush any table that ends at EOF
+    if table_rows:
+        _flush_table(table_rows)
 
 def generate_tree_structure(startpath, prefix=""):
     tree_str = ""
@@ -1012,6 +1121,27 @@ def _parse_markdown_title(content):
     return None
 
 
+def _strip_first_h1(content, document_title):
+    """
+    Removes the first H1 heading from content if it matches the document title.
+    This prevents a duplicate title (the title is already on the title page).
+    """
+    lines = content.split('\n')
+    for i, line in enumerate(lines):
+        stripped = line.strip()
+        if not stripped:
+            continue
+        if stripped.startswith('# ') and not stripped.startswith('## '):
+            heading_text = stripped[2:].strip()
+            # Strip if it matches the title or if it's the very first heading
+            if heading_text.lower() == document_title.lower() or i < 5:
+                lines.pop(i)
+                break
+        else:
+            break  # First non-empty line is not an H1, stop looking
+    return '\n'.join(lines)
+
+
 def generate_generic_markdown_report(md_files, title, subtitle, output_file):
     """Combines multiple Markdown files into a single structured Markdown report."""
     author = resolve_author(None)
@@ -1055,6 +1185,9 @@ def generate_generic_docx_report(md_files, title, subtitle, output_file, templat
         detected = _parse_markdown_title(combined_content)
         if detected:
             title = detected
+
+    # Strip the first H1 from content — it duplicates the title page heading
+    combined_content = _strip_first_h1(combined_content, title)
 
     # Open template or create blank document
     if template_path and os.path.exists(template_path):
@@ -1473,6 +1606,111 @@ def generate_generic_pptx_report(md_files, title, subtitle, output_file, templat
     print(f"Generated PPTX: {output_file}")
 
 
+# --- Companion Figures PPTX Generator ---
+
+def generate_companion_pptx(figures_json_path, title, output_file, template_path=None):
+    """
+    Generates a companion PowerPoint file from a figures manifest JSON.
+
+    Each figure becomes one slide with the figure title, description text,
+    and the raw Mermaid source in the slide notes for reference.
+    """
+    if not PPTX_AVAILABLE:
+        print("Error: python-pptx not installed. Please run: pip install python-pptx")
+        sys.exit(1)
+
+    with open(figures_json_path, 'r', encoding='utf-8') as f:
+        figures = json.load(f)
+
+    if not figures:
+        print("No figures in manifest; skipping companion PPTX generation.")
+        return
+
+    if template_path and os.path.exists(template_path):
+        prs = Presentation(template_path)
+    else:
+        prs = Presentation()
+        prs.slide_width = PptxInches(13.333)
+        prs.slide_height = PptxInches(7.5)
+
+    slide_layouts = prs.slide_layouts
+    layout_cover = slide_layouts[0]
+    layout_content = slide_layouts[1] if len(slide_layouts) > 1 else slide_layouts[0]
+
+    # Cover slide
+    cover_slide = prs.slides.add_slide(layout_cover)
+    if cover_slide.shapes.title:
+        cover_slide.shapes.title.text = title
+    for shape in cover_slide.placeholders:
+        if shape.placeholder_format.idx == 1:
+            shape.text = (
+                f"Companion figures file\n"
+                f"Generated: {datetime.now().strftime('%B %d, %Y')}\n"
+                f"{len(figures)} figure(s)\n\n"
+                "Instructions: For each slide, create a diagram based on the "
+                "Mermaid source in the slide notes. Then copy the diagram image "
+                "into the Word report at the corresponding [Figure N] placeholder."
+            )
+            break
+
+    # One slide per figure
+    for figure in figures:
+        fig_num = figure.get('figure_number', '?')
+        fig_title = figure.get('title', f'Figure {fig_num}')
+        fig_desc = figure.get('description', '')
+        mermaid_src = figure.get('mermaid_source', '')
+
+        slide = prs.slides.add_slide(layout_content)
+
+        if slide.shapes.title:
+            slide.shapes.title.text = f"Figure {fig_num}: {fig_title}"
+
+        # Body placeholder with description
+        body_shape = None
+        for shape in slide.placeholders:
+            if shape.placeholder_format.idx == 1:
+                body_shape = shape
+                break
+
+        if body_shape and body_shape.has_text_frame:
+            tf = body_shape.text_frame
+            tf.clear()
+            tf.text = fig_desc
+
+            p_spacer = tf.add_paragraph()
+            p_spacer.text = ''
+
+            p_instruction = tf.add_paragraph()
+            run = p_instruction.add_run()
+            run.text = "Create diagram here. See slide notes for Mermaid source."
+            run.font.italic = True
+            run.font.size = PptxPt(12)
+            run.font.color.rgb = PptxRGBColor(0x88, 0x88, 0x88)
+        else:
+            txBox = slide.shapes.add_textbox(
+                PptxInches(0.5), PptxInches(1.5),
+                PptxInches(12.0), PptxInches(5.0)
+            )
+            tf = txBox.text_frame
+            tf.word_wrap = True
+            tf.text = fig_desc
+
+        # Slide notes with Mermaid source
+        notes_slide = slide.notes_slide
+        notes_tf = notes_slide.notes_text_frame
+        notes_tf.text = (
+            f"Figure {fig_num}: {fig_title}\n\n"
+            f"Mermaid source:\n\n"
+            f"```mermaid\n{mermaid_src}\n```\n\n"
+            "To render: paste the Mermaid source into https://mermaid.live "
+            "or a Mermaid-compatible editor. Export as PNG/SVG and insert "
+            "into the Word document at the [Figure N] placeholder."
+        )
+
+    prs.save(output_file)
+    print(f"Generated companion figures PPTX: {output_file}")
+
+
 if __name__ == "__main__":
     import argparse
 
@@ -1480,8 +1718,8 @@ if __name__ == "__main__":
     parser.add_argument("json_file", nargs='?', default=None,
                         help="Path to JSON data file (required for codebase/code-review types)")
     parser.add_argument("--type", dest="report_type", default="codebase",
-                        choices=["codebase", "code-review", "generic-word", "generic-pptx"],
-                        help="Report type: 'codebase' (default), 'code-review', 'generic-word', or 'generic-pptx'")
+                        choices=["codebase", "code-review", "generic-word", "generic-pptx", "companion-pptx"],
+                        help="Report type: 'codebase', 'code-review', 'generic-word', 'generic-pptx', or 'companion-pptx'")
     parser.add_argument("--md-files", nargs='+', default=None,
                         help="Markdown file(s) to include (for generic-word/generic-pptx types)")
     parser.add_argument("--title", default="Report",
@@ -1490,12 +1728,24 @@ if __name__ == "__main__":
                         help="Document subtitle (for generic types)")
     parser.add_argument("--template", default=None,
                         help="Path to .docx or .pptx template file")
+    parser.add_argument("--figures-json", default=None,
+                        help="Path to figures manifest JSON (for companion-pptx or auto-generation with generic-word)")
     parser.add_argument("--output", default=None,
                         help="Output file path")
 
     args = parser.parse_args()
 
-    if args.report_type in ("generic-word", "generic-pptx"):
+    if args.report_type == "companion-pptx":
+        # Companion figures PPTX mode
+        if not args.figures_json:
+            parser.error("--figures-json is required for companion-pptx report type")
+        if not os.path.exists(args.figures_json):
+            parser.error(f"Figures JSON not found: {args.figures_json}")
+        output_pptx = args.output or "Figures.pptx"
+        generate_companion_pptx(args.figures_json, args.title, output_pptx,
+                                template_path=args.template)
+
+    elif args.report_type in ("generic-word", "generic-pptx"):
         # Generic report mode: requires --md-files
         if not args.md_files:
             parser.error("--md-files is required for generic-word and generic-pptx report types")
@@ -1512,6 +1762,12 @@ if __name__ == "__main__":
             generate_generic_markdown_report(args.md_files, args.title, args.subtitle, output_md)
             generate_generic_docx_report(args.md_files, args.title, args.subtitle,
                                          output_docx, template_path=args.template)
+
+            # Auto-generate companion figures PPTX if figures manifest provided
+            if args.figures_json and os.path.exists(args.figures_json):
+                figures_pptx = os.path.splitext(output_docx)[0] + "_Figures.pptx"
+                generate_companion_pptx(args.figures_json, args.title + " — Figures",
+                                        figures_pptx, template_path=args.template)
 
         elif args.report_type == "generic-pptx":
             output_pptx = args.output or "Report.pptx"

@@ -79,58 +79,108 @@ The selected template's file extension determines the output format:
      > "A report already exists at this path. [O]verwrite / [R]ename with timestamp / [C]ancel?"
    - If Rename: append `_YYYYMMDD_HHMMSS` before the extension.
 
-## Phase 4: Analyze Content and Plan Report Structure
+## Phase 4: Content Analysis and Synthesis
 
-Before generating, read and analyze the combined content of all input files:
+**CRITICAL**: This phase is the most important. You must do the intellectual work of merging, deduplicating, and restructuring content BEFORE passing anything to the script. The script is a mechanical formatter, not a content editor. Do NOT skip or rush this phase.
 
-1. **Identify the document title**: Use the first H1 heading (`#`) found across all input files.
-2. **Identify the subtitle**: Look for metadata patterns like `**Subtitle**:`, `**Version**:`, or derive from content context (e.g., "Codebase Analysis Report" if the content is an analysis).
-3. **Count sections**: Count H2 (`##`) headings to estimate document length and complexity.
-4. **Determine logical ordering** (if multiple files are being combined):
-   - Executive summaries and overviews first
-   - Detailed analysis sections in the middle
-   - Appendices, references, and supplementary material last
-   - If the files have a natural sequence (e.g., numbered sections), preserve that order
+### Step 4.1: Read All Input Files
 
-5. **For PowerPoint output**: Translate the document structure into a slide outline:
-   - Each H1 becomes a section divider slide
-   - Each H2 becomes a content slide (title + body)
-   - Bullet points map to slide body
-   - Code blocks render in monospace text boxes
-   - Large sections may need splitting across multiple slides
+Read every resolved input file completely. Hold all content in working memory.
 
-6. **Present the plan to the user**:
-   > "I will generate a [Word report / PowerPoint presentation] with the following structure:
-   > - **Title**: [detected title]
-   > - **Subtitle**: [detected subtitle]
-   > - **Sections**: [N] sections from [M] source file(s)
-   > - **Template**: [template name]
-   > - **Output**: [output path]
-   >
-   > Proceed? [Y]es / [N]o / [E]dit title/subtitle"
+### Step 4.2: Content Inventory
 
-## Phase 5: Generate the Document
+For each file, identify and track:
+- All H1 headings (document titles)
+- All H2 headings (major section names)
+- Executive summaries, introductions, or overview sections
+- All Markdown tables (lines starting with `|`)
+- All Mermaid diagram blocks (fenced with ` ```mermaid `)
+- All `---` separator lines (these will be removed)
 
-Execute the Python report generator script:
+Identify which sections appear in multiple files (duplicates). For example, if three files each have an "Executive Summary", note this overlap explicitly.
 
-### For Word (.docx):
+### Step 4.3: Synthesize a Single Merged Markdown Document
+
+Write a NEW Markdown document from scratch. Do NOT concatenate the original files. Instead, synthesize a clean, structured report following these rules:
+
+1. **Exactly one H1**: The report title. This is the ONLY H1 in the entire document.
+2. **Exactly one executive summary**: Synthesized from all sources. Write a fresh paragraph that combines the key points from every source's executive summary. Do NOT copy-paste from any single source.
+3. **Deduplicate all sections**: If "Architecture Overview" appears in three files, write it ONCE, drawing the best and most complete content from each source. Merge complementary information, resolve contradictions, and eliminate repetition.
+4. **Remove all `---` separator lines**: They do not render correctly in Word.
+5. **Preserve all Markdown tables**: Every table from every source must appear exactly once in the merged document, in GFM format (`| col | col |` with `|---|---|` separator rows). Do not duplicate tables that contain the same data.
+6. **Replace each Mermaid block with a figure placeholder**: For each ` ```mermaid ` code block found in any source file, extract the Mermaid source and replace it inline with:
+   ```
+   [Figure N: short description of what the diagram shows]
+   ```
+   Assign figure numbers sequentially starting from 1.
+7. **Use a clean heading hierarchy**: H1 for the title only, H2 for major sections, H3 for subsections, H4 for sub-subsections. Never use H1 for anything other than the report title.
+8. **Do not include YAML frontmatter** or metadata lines like `**Author**:` or `**Date**:` in the body (these are handled by the script's title page).
+9. **Target length**: The merged document should be significantly shorter than the sum of all inputs. If 5 files total 4,600 lines, the merged output should be roughly 1,000-2,000 lines (the unique, non-redundant content).
+
+### Step 4.4: Write the Figures Manifest
+
+Write a JSON file at: `<output_directory>/<ReportTitle>_figures.json`
+
+Format:
+```json
+[
+  {
+    "figure_number": 1,
+    "title": "Short human-readable title",
+    "description": "One-sentence description of what this diagram shows",
+    "mermaid_source": "graph TD\n  A --> B\n  ..."
+  }
+]
+```
+
+Include one entry per Mermaid diagram extracted in Step 4.3. If no Mermaid diagrams were found, write an empty array `[]`.
+
+### Step 4.5: Write the Merged Markdown File
+
+Save the synthesized document from Step 4.3 to: `<output_directory>/<ReportTitle>_merged.md`
+
+### Step 4.6: Present the Synthesis Plan
+
+Show the user a summary before proceeding:
+
+> "I have synthesized the content from [M] source files into a single merged report:
+> - **Title**: [detected title]
+> - **Subtitle**: [detected subtitle]
+> - **Sections**: [N] H2 sections (merged from [total H2s across all sources] original sections)
+> - **Duplicates removed**: [list of section names that appeared in multiple files and were merged]
+> - **Tables**: [N] tables preserved
+> - **Figures**: [N] Mermaid diagrams extracted (companion PPTX will contain [N] slides)
+> - **Template**: [template name]
+> - **Word output**: [output path]
+> - **Figures output**: [figures PPTX path]
+>
+> Proceed? [Y]es / [N]o / [E]dit title/subtitle"
+
+## Phase 5: Generate the Documents
+
+Call the Python report generator script with the SINGLE merged file from Step 4.5. **Never pass the original input files directly.**
+
+### Word Document:
 
 ```bash
 python ~/.devai-hub/scripts/generate_report.py \
   --type generic-word \
-  --md-files <file1.md> [<file2.md> ...] \
+  --md-files "<output_directory>/<ReportTitle>_merged.md" \
   --title "<title>" \
   --subtitle "<subtitle>" \
   --template "<template_path>" \
+  --figures-json "<output_directory>/<ReportTitle>_figures.json" \
   --output "<output_path>"
 ```
 
-### For PowerPoint (.pptx):
+This produces both the Word document AND a companion `<ReportTitle>_Figures.pptx` in the same directory (if the figures manifest is non-empty).
+
+### For PowerPoint output (if a .pptx template was selected):
 
 ```bash
 python ~/.devai-hub/scripts/generate_report.py \
   --type generic-pptx \
-  --md-files <file1.md> [<file2.md> ...] \
+  --md-files "<output_directory>/<ReportTitle>_merged.md" \
   --title "<title>" \
   --subtitle "<subtitle>" \
   --template "<template_path>" \
@@ -154,30 +204,36 @@ python ~/.devai-hub/scripts/generate_report.py \
 
 After successful generation, confirm:
 
-1. **Full path** of the file(s) written (both `.md` and `.docx`/`.pptx`).
-2. **Template used** (or "built-in default style" if none).
-3. **Sections included** (count of major sections).
-4. **Version detected** and how it was determined.
+1. **Word document path** (or PowerPoint path).
+2. **Companion figures PPTX path** (if figures were generated).
+3. **Merged Markdown source path** (`_merged.md`, useful for review or re-generation).
+4. **Template used** (or "built-in default style" if none).
+5. **Sections included** (count of H2 headings in the merged document).
+6. **Figures extracted** (count of Mermaid diagrams, with companion PPTX slide count).
+7. **Version detected** and how it was determined.
 
 Present next steps:
 
 ```
 What would you like to do next?
-1. Open the file (Windows: opens in Word/PowerPoint)
-2. Generate with a different template
-3. Generate with different files
-4. Regenerate with modifications
-5. Done
+1. Open the Word report
+2. Open the companion figures file (to create diagrams)
+3. Generate with a different template
+4. Generate with different files
+5. Regenerate with modifications
+6. Done
 ```
 
-- **Option 1**: On Windows, run `start "<output_path>"` to open the file in its default application. On macOS, use `open "<output_path>"`. On Linux, use `xdg-open "<output_path>"`.
+- **Option 1/2**: On Windows, run `start "<path>"`. On macOS, use `open "<path>"`. On Linux, use `xdg-open "<path>"`.
 - Do not take any action until the user selects an option.
 
 ## Phase: Iterative Refinement (Loop)
 
 **CRITICAL**: This is an iterative process. Perform the following refinement loop up to **3 times**:
 
-1. **Completeness**: Was all content from every specified input file included? Are any sections missing or truncated? Did the script exit successfully with no errors?
-2. **Structure**: Does the heading hierarchy in the output make sense? Are code blocks, tables, and lists rendered correctly?
-3. **Metadata**: Is the title, subtitle, author, and date correct? Does the output path match the expected version directory?
-4. **Stop**: If you are confident the result is correct, or if you have reached the maximum iteration count.
+1. **Completeness**: Does the merged document contain all unique content from every input file? Are any important sections, tables, or findings missing?
+2. **Deduplication**: Are there any remaining sections that say essentially the same thing? Did the executive summary get properly synthesized (not copy-pasted)?
+3. **Structure**: Does the heading hierarchy make sense? Is there exactly one H1? Do H2 sections flow logically?
+4. **Figures**: Were all Mermaid diagrams extracted? Do the figure placeholders in the Markdown match the figures manifest JSON?
+5. **Script output**: Did the script exit successfully? Were both the Word document and companion PPTX generated?
+6. **Stop**: If you are confident the result is correct, or if you have reached the maximum iteration count.
