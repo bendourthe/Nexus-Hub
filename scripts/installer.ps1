@@ -259,6 +259,10 @@ function Safe-Folder-Copy {
         [string]$Destination,
         [string]$CustomMessage
     )
+    if (-not (Test-Path $Source)) {
+        Write-Item -Message "Skip: Source folder not found ($(Split-Path $Source -Leaf))" -Color "DarkGray"
+        return
+    }
     if (Test-Path $Destination) {
         if ($script:OverwriteMode -eq "ALL") {
             # Proceed
@@ -284,9 +288,10 @@ function Safe-Folder-Copy {
         New-Item -ItemType Directory -Force -Path $Destination | Out-Null
     }
 
-    $logFile = "$env:TEMP\devai_install_v5.log"
-    # Suppress output to keep cleaner logs
-    & robocopy $Source $Destination /E /NFL /NDL /NJH /NJS | Out-Null
+    if (Test-Path $Destination) {
+        Write-Item -Message "Syncing (old files not in source will be removed)..." -Color "DarkGray"
+    }
+    & robocopy $Source $Destination /MIR /NFL /NDL /NJH /NJS | Out-Null
     
     if (-not [string]::IsNullOrEmpty($CustomMessage)) {
         Write-Item -Message $CustomMessage -Color "DarkGreen"

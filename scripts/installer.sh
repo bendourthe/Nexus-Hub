@@ -125,10 +125,14 @@ safe_folder_copy() {
     fi
 
     if [ "$do_copy" = true ]; then
+        if [ -d "$destination" ]; then
+            write_item "Syncing (old files not in source will be removed)..." "$GRAY"
+        fi
         # Use rsync if available, otherwise cp
         if command -v rsync >/dev/null 2>&1; then
-            rsync -a "$source/" "$destination/"
+            rsync -a --delete "$source/" "$destination/"
         else
+            rm -rf "$destination"/*
             cp -R "$source/"* "$destination/"
         fi
         
