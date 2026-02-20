@@ -133,39 +133,98 @@ Use the top 3-5 most significant items from the CHANGELOG for "What's New".
 
 ### Step 7: Update CHANGELOG.md
 
-Add the new version entry using the approved content from Step 4:
+Update the changelog following the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format:
+
+1. **If an `[Unreleased]` section exists**: Convert it to the new version header `## [NEW_VERSION] - YYYY-MM-DD` and create a fresh empty `[Unreleased]` section above it.
+2. **If no `[Unreleased]` section exists**: Insert the new version entry below the file header.
+3. Use the approved content from Step 4 for the entry body.
+4. Only include category subsections (`### Added`, `### Changed`, `### Fixed`, `### Removed`) that have entries. Do not include empty sections.
+5. Add `---` horizontal rules between version sections for readability.
+6. **Update footer comparison links** (if the project uses GitHub):
+   - Update the `[Unreleased]` link to compare from the new version tag to HEAD
+   - Add a new comparison link for the new version vs. the previous version
 
 ```markdown
+## [Unreleased]
+
+---
+
 ## [NEW_VERSION] - YYYY-MM-DD
 
 ### Added
-- [Features]
+- [Features from Step 4]
 
 ### Changed
-- [Modifications]
+- [Modifications from Step 4]
 
 ### Fixed
-- [Bug fixes]
+- [Bug fixes from Step 4]
 
-### Removed
-- [Deprecated items removed]
+---
+
+## [PREVIOUS_VERSION] - YYYY-MM-DD
+...
+```
+
+**Footer links** (if GitHub remote detected):
+```markdown
+[Unreleased]: https://github.com/owner/repo/compare/vNEW_VERSION...HEAD
+[NEW_VERSION]: https://github.com/owner/repo/compare/vPREVIOUS_VERSION...vNEW_VERSION
 ```
 
 Use today's date in YYYY-MM-DD format.
 
 ### Step 8: Update DEVLOG.md (if exists)
 
-Move completed tasks and update status:
+Add a comprehensive release entry to the top of `DEVLOG.md`, following the project's existing DEVLOG format. This should capture the "why" and "how" behind the release, not just a list of changes.
 
 ```markdown
-## Development History
+## [YYYY-MM-DD] - Release NEW_VERSION: [Short Descriptive Title]
 
-### [NEW_VERSION] Release - YYYY-MM-DD
-- Completed: [list of completed items]
-- Deferred: [items moved to next release]
+*   **Goal**: [One sentence describing the purpose of this release]
+*   **What Changed**:
+    *   **[Feature/Component Name]**: [Description of what was done, key files affected]
+    *   **[Feature/Component Name]**: [Description]
+    *   **[Installer/Config/Infra changes]**: [Description]
+    *   **Version Bump**: Updated [list of version files] from PREVIOUS_VERSION to NEW_VERSION.
+*   **Current Status**: Verified. All version references consistent at NEW_VERSION.
 ```
 
-### Step 9: Update Help/About Menus (if applicable)
+**How to generate this entry**:
+1. Read the approved CHANGELOG entries from Step 4
+2. Read the git log from Step 3 for context on what was built and why
+3. Group changes by logical component or feature area (not by commit)
+4. For each group, describe what was done and which key files were affected
+5. Match the tone and structure of existing DEVLOG entries (read the file first)
+
+If `DEVLOG.md` does not exist, skip this step.
+
+### Step 9: Update Documentation Files
+
+Update all documentation files (READMEs, guides, manuals) to reflect changes introduced in this version. This ensures documentation stays accurate at every release.
+
+**Process**:
+
+1. **Identify documentation files**: Find all `README.md` files (root and subdirectories), plus any files in `docs/`, `guides/`, or `infrastructure/` directories.
+   - **Exclude**: CHANGELOG.md, DEVLOG.md, command definitions, skill definitions, templates, AI instruction files (CLAUDE.md, GEMINI.md).
+
+2. **Compare against changes**: Using the git diff from Step 3, identify which documentation files may be affected by the changes in this release:
+   - New features or modules added? Check if the root README and relevant module READMEs mention them.
+   - Files or directories renamed/moved? Check if documentation references the old paths.
+   - Configuration or API changes? Check if guides and setup instructions are still accurate.
+   - New commands, hooks, or skills? Check if they are listed in the relevant documentation.
+
+3. **Update affected files**: For each documentation file that needs changes:
+   - Make targeted edits to fix inaccuracies (do not rewrite entire files)
+   - Add missing feature descriptions or sections
+   - Fix stale paths, broken links, and outdated references
+   - Preserve the existing structure, tone, and formatting
+
+4. **Report changes**: After updating, list each file that was modified and briefly describe what changed.
+
+If no documentation files need updating, explicitly state that all documentation is already accurate.
+
+### Step 10: Update Help/About Menus (if applicable)
 
 Check for version displays in:
 - CLI help messages
@@ -173,7 +232,7 @@ Check for version displays in:
 - API version endpoints
 - Documentation headers
 
-### Step 10: Deep Codebase Scan
+### Step 11: Deep Codebase Scan
 
 **CRITICAL**: Perform a comprehensive search for ALL version references that might have been missed.
 
@@ -201,7 +260,7 @@ grep -r "v[0-9]\+\.[0-9]\+\.[0-9]\+" --include="*.md"
 
 Report any files found that contain version references and whether they were updated.
 
-### Step 11: Validate Consistency
+### Step 12: Validate Consistency
 
 Verify all version references match:
 
@@ -218,7 +277,7 @@ Final Checklist:
 
 Report any mismatches found.
 
-### Step 12: Generate Summary
+### Step 13: Generate Summary
 
 Present the upgrade summary:
 
@@ -230,10 +289,11 @@ Present the upgrade summary:
 **Type**: MAJOR/MINOR/PATCH
 
 ### Files Updated
-- [ ] pyproject.toml
-- [ ] README.md
-- [ ] CHANGELOG.md
-- [ ] DEVLOG.md
+- [ ] pyproject.toml / package.json
+- [ ] CHANGELOG.md (new version entry + footer links)
+- [ ] DEVLOG.md (release entry)
+- [ ] README.md (version references + feature descriptions)
+- [ ] Documentation files (READMEs, guides updated to match changes)
 - [ ] Source code version
 - [ ] [Any additional files from deep scan]
 
@@ -247,7 +307,7 @@ Present the upgrade summary:
 All version references updated and consistent.
 ```
 
-### Step 13: Generate Commit Message
+### Step 14: Generate Commit Message
 
 Generate a ready-to-use commit message for the user:
 

@@ -647,6 +647,88 @@ To temporarily disable the guardrails (e.g., for a legitimate force-push), remov
 
 ---
 
-*Hooks System v1.1.0 - Part of DevAI-Hub v0.6.1*
+## Usage Display (Stop Hook)
+
+### Overview
+
+The usage display hook shows your Claude Code usage limits (session, weekly, and Sonnet-only percentages) directly in the CLI after each conversation turn. It uses Claude Code's `Stop` event to display a compact, color-coded summary when any metric exceeds 50%.
+
+This complements two other usage monitoring features:
+
+- **VS Code Extension** (`extensions/claude-usage-monitor/`): Dashboard and status bar for VS Code users.
+- **`/check-usage` Command** (`catalog/commands/check-usage.md`): On-demand detailed report with model-switching recommendations.
+
+**Installed by**: The DevAI-Hub installer (both global and workspace).
+
+**Location**: `.claude/hooks/usage-display.sh`
+
+**Requirements**: `curl` and `jq` (fails silently without them).
+
+### How It Works
+
+1. When Claude Code finishes a response (Stop event), it triggers `usage-display.sh`
+2. The script checks for a cached API response (`~/.claude/.usage-cache.json`)
+3. If the cache is stale (older than 5 minutes), it reads credentials from `~/.claude/.credentials.json` and calls the Anthropic usage API
+4. Usage percentages are parsed: session (`five_hour`), weekly all-models (`seven_day`), weekly Sonnet-only (`seven_day_sonnet`)
+5. If all metrics are below 50%, the hook exits silently
+6. Otherwise, it outputs a compact one-line summary to stderr with color-coded percentages
+
+### Example Output
+
+When usage is above the threshold:
+
+```
+Usage: Session 72% | Weekly 15% | Sonnet 3%  (Session resets in 28m)
+```
+
+Colors: green (<50%), yellow (50-75%), orange (75-90%), red (90%+).
+
+### Configuration
+
+The hook is configured in `.claude/settings.json` alongside other hooks:
+
+```json
+{
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/usage-display.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### Customizing Behavior
+
+Edit `.claude/hooks/usage-display.sh` to adjust:
+
+- **`DISPLAY_THRESHOLD`** (default: `50`): Minimum percentage before the hook displays output. Set to `0` to always show.
+- **`CACHE_TTL_SECONDS`** (default: `300`): How long to use cached data before fetching again.
+
+### Graceful Degradation
+
+The hook is designed to never interfere with your workflow:
+
+- **No curl or jq**: Exits silently (code 0)
+- **No credentials file**: Exits silently
+- **Expired token**: Exits silently
+- **Network error**: 3-second timeout, then exits silently
+- **API error**: Exits silently
+- **All metrics healthy**: Exits silently (below threshold)
+
+### Temporarily Disabling
+
+Remove the `Stop` hook entry from `.claude/settings.json`. The hook script can remain on disk.
+
+---
+
+*Hooks System v1.2.0 - Part of DevAI-Hub v0.6.1*
 
 *Last Updated: February 19, 2026*

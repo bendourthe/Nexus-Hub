@@ -1,5 +1,21 @@
 # Development Log
 
+## [2026-02-19] - CLI Usage Limits Display (Stop Hook)
+
+*   **Goal**: Address user feedback requesting token limit visibility in the CLI. Users could see tokens consumed but had to navigate to `claude.ai/settings/usage` to see how close they were to their cap.
+*   **What Changed**:
+    *   **Usage Display Hook**: Created `catalog/hooks/usage-display.sh` (Stop hook, 213 lines) that fetches from the Anthropic OAuth API, caches responses for 5 minutes, and displays a compact color-coded summary to stderr when any metric exceeds 50%. Includes graceful degradation (silent exit) for missing curl/jq, missing credentials, expired tokens, and network errors.
+    *   **Hook Config**: Updated `catalog/hooks/settings.json` with Stop hook entry alongside existing PreToolUse.
+    *   **Installer Integration**: Added `install_usage_display` (Bash) and `Install-UsageDisplay` (PowerShell) functions to both installers. Installed in both global (Phase 1) and workspace (Phase 2) with idempotent settings.json merge.
+    *   **Check-Usage Enhancement**: Added Phase 0 auto-fetch to `catalog/commands/check-usage.md`. The command now reads OAuth credentials and calls the API directly via curl before falling back to manual entry.
+    *   **Documentation**: Added "Usage Display (Stop Hook)" section to `infrastructure/hooks/README.md` with configuration, customization, and cross-references to the VS Code extension and `/check-usage` command.
+*   **Design Decisions**:
+    *   50% smart threshold (silent when healthy, visible when it matters)
+    *   5-minute cache TTL to prevent API spam
+    *   3-second curl timeout to never block the CLI
+    *   Reused the same Anthropic OAuth API endpoint as the VS Code extension (`usageFetcher.ts`)
+*   **Current Status**: Implemented. Three complementary usage monitoring features now exist: automatic CLI hook (passive), VS Code extension (visual), and `/check-usage` command (on-demand).
+
 ## [2026-02-19] - Release 0.6.1: Git Guardrails, Tracer Bullets, Report Fixes
 
 *   **Goal**: Add deterministic safety enforcement for AI agents running destructive git commands, plus workflow improvements and report generation fixes.

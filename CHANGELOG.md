@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### Added
+- **Usage Display Stop Hook**: `catalog/hooks/usage-display.sh` shows color-coded CLI usage limits (session, weekly, Sonnet-only) after each Claude Code response when any metric exceeds 50%. Fetches from Anthropic OAuth API with 5-minute caching and 3-second timeout. Fails silently when dependencies or credentials are unavailable.
+- **Hook Config Template**: Updated `catalog/hooks/settings.json` with Stop hook entry for usage-display alongside existing PreToolUse (git guardrails).
+- **Usage Display Documentation**: Added "Usage Display (Stop Hook)" section to `infrastructure/hooks/README.md` with configuration, customization, and graceful degradation details.
+
+### Changed
+- **Installers**: Both `scripts/installer.ps1` and `scripts/installer.sh` now install the usage-display hook in both global (Phase 1) and workspace (Phase 2) phases via `Install-UsageDisplay` / `install_usage_display` functions.
+- **Check-Usage Command**: `catalog/commands/check-usage.md` enhanced with Phase 0 auto-fetch from Anthropic OAuth API (reads credentials, calls API via curl) before falling back to manual entry.
+- **Analyze Codebase Command**: Fully rewritten `catalog/commands/analyze-codebase.md`. Now outputs a structured 12-section markdown analysis with Mermaid diagrams to `docs/<version>/analysis.md`. Replaces the old two-phase chat-then-DOCX workflow.
+
+---
+
 ## [0.6.1] - 2026-02-19
 
 ### Added

@@ -1967,9 +1967,9 @@
     {
       "name": "check-usage",
       "title": "check-usage",
-      "description": "Check Claude Code usage limits and get smart model-switching recommendations based on current consumption",
-      "long_description": "Analyze current Claude Code usage limits (session, weekly all-models, weekly Sonnet-only) and provide actionable recommendations for model selection, usage optimization, and cost-effective task planning.",
-      "version": "1.0.0",
+      "description": "Check Claude Code usage limits and get smart model-switching recommendations based on current consumption. Auto-fetches from the Anthropic API.",
+      "long_description": "Analyze current Claude Code usage limits (session, weekly all-models, weekly Sonnet-only) and provide actionable recommendations for model selection, usage optimization, and cost-effective task planning. Auto-fetches usage data from the Anthropic OAuth API via curl (falls back to manual entry if credentials are unavailable). Complements the usage-display Stop hook (passive CLI monitoring) and the VS Code extension (visual monitoring).",
+      "version": "1.1.0",
       "author": "Benjamin Dourthe",
       "category": "Workflow",
       "language": "Multi-language",
@@ -1979,7 +1979,9 @@
         "model-selection",
         "optimization",
         "workflow",
-        "recommendations"
+        "recommendations",
+        "auto-fetch",
+        "api"
       ],
       "priority": "MEDIUM",
       "based_on": "",
@@ -1990,6 +1992,43 @@
         "lines": 120,
         "characters": 4500,
         "tokens_estimate": 1200
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 100,
+        "validated": true
+      }
+    },
+    {
+      "name": "generate-changelog",
+      "title": "generate-changelog",
+      "description": "Generate a complete CHANGELOG.md from git history, tags, and commit messages following the Keep a Changelog format.",
+      "long_description": "Generate a comprehensive CHANGELOG.md by analyzing the full git history, version tags, and commit messages. Categorizes changes using conventional commit parsing and keyword inference into Added, Changed, Fixed, Removed, Deprecated, and Security sections. On first run, reconstructs the entire changelog from all tagged releases. On subsequent runs, offers to regenerate or update only the [Unreleased] section. Includes GitHub comparison links in the footer.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Workflow",
+      "language": "Multi-language",
+      "tags": [
+        "changelog",
+        "git",
+        "versioning",
+        "documentation",
+        "release",
+        "keep-a-changelog",
+        "semver"
+      ],
+      "priority": "HIGH",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/commands/",
+      "file": "catalog/commands/generate-changelog.md",
+      "size": {
+        "lines": 195,
+        "characters": 7800,
+        "tokens_estimate": 2100
       },
       "downloads": 0,
       "status": "production",

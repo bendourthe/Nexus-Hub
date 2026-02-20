@@ -130,6 +130,14 @@ Present the analysis in this format:
 - **User doesn't know their usage**: Auto-fetch should handle this automatically. If auto-fetch also fails, direct them to `claude.ai/settings/usage`.
 - **Auto-fetch returns expired token**: Inform the user their Claude Code session may need re-authentication and fall back to manual entry.
 
+## Related Features
+
+This command is one of three complementary usage monitoring features:
+
+- **CLI Usage Display** (`.claude/hooks/usage-display.sh`): Automatic Stop hook that shows a compact one-line usage summary after each Claude Code response when any metric exceeds 50%. Passive monitoring, no user action required.
+- **VS Code Extension** (`extensions/claude-usage-monitor/`): Status bar indicator, SVG tooltip, and full dashboard panel. Best for VS Code users who want persistent visual monitoring.
+- **This command** (`/check-usage`): On-demand detailed report with model-switching recommendations and optimization tips. Best for a comprehensive assessment at a specific point in time.
+
 ## Iterative Refinement
 
 If the user selects option 1 ("Get model guidance"), ask them to describe their upcoming task and recommend the most cost-effective model that can handle it well. Provide a brief rationale for the recommendation.

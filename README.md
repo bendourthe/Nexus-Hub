@@ -70,9 +70,21 @@ Instructions for VS Code's Copilot Chat.
 
 ---
 
-## 🔌 VS Code Extension: Claude Usage Monitor
+## 🔌 Usage Monitoring
 
-Monitor your Claude Code API usage limits directly from VS Code.
+Three complementary ways to track your Claude Code usage limits:
+
+### CLI Usage Display (Automatic)
+A Stop hook that shows your usage limits directly in the terminal after each Claude Code response. Color-coded and silent when usage is healthy (below 50%).
+
+```
+Usage: Session 72% | Weekly 15% | Sonnet 3%  (Session resets in 28m)
+```
+
+Installed automatically by the DevAI-Hub installer. Requires `curl` and `jq`.
+
+### VS Code Extension
+Monitor usage from the VS Code status bar with a full dashboard.
 
 *   **Auto-fetch**: Reads your OAuth token and fetches live usage data from the Anthropic API.
 *   **Status bar**: Shows session and weekly usage percentages with a custom Claude icon.
@@ -80,6 +92,9 @@ Monitor your Claude Code API usage limits directly from VS Code.
 *   **Dashboard**: Click for a full usage dashboard with model recommendations and optimization tips.
 
 See [extensions/claude-usage-monitor/](extensions/claude-usage-monitor/) for setup instructions.
+
+### `/check-usage` Command
+On-demand detailed usage report with model-switching recommendations. Auto-fetches from the API (falls back to manual entry if credentials are unavailable).
 
 ---
 
