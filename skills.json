@@ -6,9 +6,9 @@
     "description": "Comprehensive catalog of Claude Code skills for autonomous AI development"
   },
   "statistics": {
-    "total_skills": 65,
+    "total_skills": 66,
     "categories": {
-      "Documentation": 6,
+      "Documentation": 7,
       "Code Cleanup": 7,
       "Workflow": 9,
       "Code Review": 6,
@@ -2029,6 +2029,45 @@
         "lines": 195,
         "characters": 7800,
         "tokens_estimate": 2100
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 100,
+        "validated": true
+      }
+    },
+    {
+      "name": "generate-word-report",
+      "title": "generate-word-report",
+      "description": "Generate a professional Word (.docx) or PowerPoint (.pptx) report from one or more Markdown files, using a template from the project or global templates directory.",
+      "long_description": "Convert Markdown analysis files into polished Word documents or PowerPoint presentations. Discovers available templates in the project and global template directories, presents a selection menu, analyzes content to determine optimal report structure, then invokes the generate_report.py backend to produce a formatted document with title page, TOC, headers/footers, and page numbers. For PowerPoint, maps H1 headings to section dividers and H2 headings to content slides. Supports combining multiple Markdown files into a single report.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Documentation",
+      "language": "Multi-language",
+      "tags": [
+        "documentation",
+        "word",
+        "docx",
+        "pptx",
+        "powerpoint",
+        "report",
+        "template",
+        "markdown",
+        "export"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/commands/",
+      "file": "catalog/commands/generate-word-report.md",
+      "size": {
+        "lines": 183,
+        "characters": 8409,
+        "tokens_estimate": 2300
       },
       "downloads": 0,
       "status": "production",

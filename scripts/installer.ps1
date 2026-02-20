@@ -1,4 +1,4 @@
-﻿# DevAI-Hub Universal Installer V7 (v0.6.2)
+﻿# DevAI-Hub Universal Installer V8 (v0.7.0)
 # Installs AI Skills Globally and to Workspaces with Safe Overwrite and Modern UI
 $ErrorActionPreference = "Stop"
 
@@ -893,11 +893,134 @@ function Install-VSCodeExtensions {
     Write-Host "----------------------------------------------------------------" -ForegroundColor Green
 }
 
+# --- Template & Script Installation ---
+
+function Install-Templates {
+    param ($RepoRoot)
+    Write-Host ""
+    Write-Host "----------------------------------------------------------------" -ForegroundColor Cyan
+    Write-Host "     PHASE 4: Templates & Report Generator Installation         " -ForegroundColor Cyan
+    Write-Host "----------------------------------------------------------------" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Item -Message "DevAI-Hub can generate professional Word (.docx) and PowerPoint (.pptx)" -Color "White"
+    Write-Item -Message "reports from Markdown files using the /generate-word-report command." -Color "White"
+    Write-Host ""
+
+    # Ensure global directories exist
+    $devaiHome = Join-Path $env:USERPROFILE ".devai-hub"
+    $templatesDest = Join-Path $devaiHome "templates\documentation"
+    $scriptsDest = Join-Path $devaiHome "scripts"
+
+    if (-not (Test-Path $templatesDest)) { New-Item -ItemType Directory -Force -Path $templatesDest | Out-Null }
+    if (-not (Test-Path $scriptsDest)) { New-Item -ItemType Directory -Force -Path $scriptsDest | Out-Null }
+
+    # Copy bundled templates from repo
+    $builtinTemplates = Join-Path $RepoRoot "templates\documentation"
+    if (Test-Path $builtinTemplates) {
+        Safe-Folder-Copy -Source $builtinTemplates -Destination $templatesDest -CustomMessage "✓ Built-in templates installed at: $templatesDest"
+    }
+
+    # Copy report generator script
+    $scriptSource = Join-Path $RepoRoot "scripts\generate_report.py"
+    if (Test-Path $scriptSource) {
+        Safe-Copy -Source $scriptSource -Destination (Join-Path $scriptsDest "generate_report.py") -Confirm:$true -CustomMessage "✓ Report generator installed at: $scriptsDest\generate_report.py"
+    }
+
+    # Check Python availability
+    $pythonCmd = Get-Command "python" -ErrorAction SilentlyContinue
+    if (-not $pythonCmd) {
+        Write-Item -Message "Note: Python 3 is required to generate reports." -Color "Yellow"
+        Write-Item -Message "Install from https://www.python.org/downloads/ or via: winget install Python.Python.3.12" -Color "Yellow"
+    }
+    else {
+        # Check for python-docx and python-pptx
+        $savedErrorPref = $ErrorActionPreference
+        $ErrorActionPreference = "Continue"
+        & python -c "import docx; import pptx" 2>$null | Out-Null
+        $depCheck = $LASTEXITCODE
+        $ErrorActionPreference = $savedErrorPref
+
+        if ($depCheck -ne 0) {
+            Write-Item -Message "Note: Install report dependencies with: pip install python-docx python-pptx" -Color "Yellow"
+        }
+        else {
+            Write-Item -Message "✓ Python dependencies (python-docx, python-pptx) are available" -Color "DarkGreen"
+        }
+    }
+
+    Write-Host ""
+
+    # Custom template import
+    $response = Read-Prompt "Import custom Word/PowerPoint templates? [Y]es / [N]o"
+    if ($response -notmatch "^[Yy]") {
+        Write-Item -Message "Skipped custom template import." -Color "Gray"
+        Write-Host ""
+        Write-Host "----------------------------------------------------------------" -ForegroundColor Green
+        Write-Host "        Templates & Scripts Installation Complete.               " -ForegroundColor Green
+        Write-Host "----------------------------------------------------------------" -ForegroundColor Green
+        return
+    }
+
+    # Load Windows Forms for the file picker dialog
+    Add-Type -AssemblyName System.Windows.Forms
+
+    while ($true) {
+        Write-Item -Message "Opening file picker..." -Color "White"
+
+        $dialog = New-Object System.Windows.Forms.OpenFileDialog
+        $dialog.Multiselect = $true
+        $dialog.Filter = "Document Templates (*.docx;*.pptx)|*.docx;*.pptx|Word Templates (*.docx)|*.docx|PowerPoint Templates (*.pptx)|*.pptx|All files (*.*)|*.*"
+        $dialog.Title = "Select Document Templates to Import"
+
+        $result = $dialog.ShowDialog()
+
+        if ($result -ne [System.Windows.Forms.DialogResult]::OK -or $dialog.FileNames.Count -eq 0) {
+            Write-Item -Message "No files selected." -Color "Gray"
+            break
+        }
+
+        foreach ($filePath in $dialog.FileNames) {
+            $fileName = Split-Path $filePath -Leaf
+            $ext = [System.IO.Path]::GetExtension($filePath).ToLower()
+
+            if ($ext -notin @(".docx", ".pptx")) {
+                Write-Item -Message "Skipped: $fileName (only .docx and .pptx are supported)" -Color "Yellow"
+                continue
+            }
+
+            Safe-Copy -Source $filePath -Destination (Join-Path $templatesDest $fileName) -Confirm:$true -CustomMessage "✓ Template imported: $fileName"
+        }
+
+        Write-Host ""
+        $more = Read-Prompt "Import more templates? [Y]es / [N]o"
+        if ($more -notmatch "^[Yy]") { break }
+    }
+
+    # List installed templates
+    Write-Host ""
+    Write-Item -Message "Installed templates:" -Color "White"
+    $installed = Get-ChildItem $templatesDest -Include *.docx, *.pptx -Recurse -ErrorAction SilentlyContinue
+    if ($installed) {
+        foreach ($t in $installed) {
+            Write-Item -Message "  $($t.Name)" -Color "DarkGreen"
+        }
+    }
+    else {
+        Write-Item -Message "  (none)" -Color "Gray"
+    }
+
+    Write-Host ""
+    Write-Host "----------------------------------------------------------------" -ForegroundColor Green
+    Write-Host "        Templates & Scripts Installation Complete.               " -ForegroundColor Green
+    Write-Host "----------------------------------------------------------------" -ForegroundColor Green
+}
+
 # --- Main ---
 $repoRoot = Resolve-Path "$PSScriptRoot\.."
 Install-Global -RepoRoot $repoRoot
 Install-Workspace -RepoRoot $repoRoot
 Install-VSCodeExtensions -RepoRoot $repoRoot
+Install-Templates -RepoRoot $repoRoot
 Write-Host ""
 Write-Host "================================================================" -ForegroundColor DarkCyan
 Write-Host "       Thank You For Using The DevAI-Hub Universal Installer    " -ForegroundColor DarkCyan

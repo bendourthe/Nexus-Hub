@@ -1,4 +1,4 @@
-# Version: 0.6.0
+# Version: 0.7.0
 
 import json
 import sys
@@ -18,6 +18,17 @@ try:
 except ImportError:
     print("Error: python-docx not installed. Please run: pip install python-docx")
     sys.exit(1)
+
+# python-pptx is optional; only required for --type generic-pptx
+PPTX_AVAILABLE = False
+try:
+    from pptx import Presentation
+    from pptx.util import Inches as PptxInches, Pt as PptxPt, Emu
+    from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
+    from pptx.dml.color import RGBColor as PptxRGBColor
+    PPTX_AVAILABLE = True
+except ImportError:
+    pass
 
 # Manual constant definitions
 WD_ALIGN_VERTICAL_TOP = 0
@@ -223,13 +234,14 @@ def add_markdown_paragraph(doc, text, style=None):
             continue
         
         if in_code_block:
-            p = doc.add_paragraph(line)
+            p = doc.add_paragraph(line if line else " ")
             try:
                 p.style = doc.styles['Normal']
             except: pass
-            font = p.runs[0].font
-            font.name = 'Courier New'
-            font.size = Pt(9)
+            if p.runs:
+                font = p.runs[0].font
+                font.name = 'Courier New'
+                font.size = Pt(9)
             continue
 
         # Headers (### Title)
@@ -978,28 +990,549 @@ def generate_code_review_docx(data, author, tree_structure, output_file="Code_Re
     update_toc_via_word(output_file)
 
 
+# --- Generic Word Report Generators ---
+
+def _read_markdown_files(md_files):
+    """Reads and concatenates multiple Markdown files, separated by page-break markers."""
+    sections = []
+    for md_path in md_files:
+        with open(md_path, 'r', encoding='utf-8') as f:
+            content = f.read().strip()
+        if content:
+            sections.append(content)
+    return sections
+
+
+def _parse_markdown_title(content):
+    """Extracts the first H1 heading from Markdown content as the document title."""
+    for line in content.split('\n'):
+        stripped = line.strip()
+        if stripped.startswith('# ') and not stripped.startswith('## '):
+            return stripped[2:].strip()
+    return None
+
+
+def generate_generic_markdown_report(md_files, title, subtitle, output_file):
+    """Combines multiple Markdown files into a single structured Markdown report."""
+    author = resolve_author(None)
+    date_str = datetime.now().strftime("%Y-%m-%d")
+    sections = _read_markdown_files(md_files)
+
+    md_content = f"""# {title}
+
+**Subtitle**: {subtitle}
+**Author**: {author}
+**Date**: {date_str}
+
+---
+
+"""
+    for i, section in enumerate(sections):
+        md_content += section
+        if i < len(sections) - 1:
+            md_content += "\n\n---\n\n"
+
+    with open(output_file, 'w', encoding='utf-8') as f:
+        f.write(md_content)
+    print(f"Generated Markdown: {output_file}")
+
+
+def generate_generic_docx_report(md_files, title, subtitle, output_file, template_path=None):
+    """
+    Generates a Word document from one or more Markdown files.
+
+    If template_path is provided and points to a valid .docx, opens it as the
+    document base (inheriting styles, fonts, color schemes). Otherwise creates
+    a blank document with the standard DevAI-Hub formatting.
+    """
+    author = resolve_author(None)
+    header_subtitle = subtitle if subtitle else title
+    sections = _read_markdown_files(md_files)
+    combined_content = "\n\n".join(sections)
+
+    # Auto-detect title from content if not provided
+    if not title or title == "Report":
+        detected = _parse_markdown_title(combined_content)
+        if detected:
+            title = detected
+
+    # Open template or create blank document
+    if template_path and os.path.exists(template_path):
+        doc = Document(template_path)
+        # Clear placeholder content from template body (preserve styles)
+        for para in list(doc.paragraphs):
+            element = para._element
+            parent = element.getparent()
+            if parent is not None:
+                parent.remove(element)
+        # Clear any tables that may exist in template body
+        for table in list(doc.tables):
+            element = table._element
+            parent = element.getparent()
+            if parent is not None:
+                parent.remove(element)
+    else:
+        doc = Document()
+
+    # --- Section 0: Title Page ---
+    section0 = doc.sections[0]
+    section0.left_margin = Inches(1)
+    section0.right_margin = Inches(1)
+    section0.top_margin = Inches(1)
+    section0.bottom_margin = Inches(1)
+    section0.vertical_alignment = WD_ALIGN_VERTICAL_TOP
+
+    # Buffer lines for visual centering
+    for _ in range(8):
+        doc.add_paragraph()
+
+    title_p = doc.add_heading(title, 0)
+    title_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+    if subtitle:
+        subtitle_p = doc.add_paragraph(subtitle)
+        subtitle_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        subtitle_p.runs[0].italic = True
+
+    doc.add_paragraph()
+
+    meta_p = doc.add_paragraph()
+    meta_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    meta_p.add_run(f"Author: {author}\n")
+    meta_p.add_run(f"Date: {datetime.now().strftime('%B %d, %Y')}")
+
+    # --- Section 1: Main Content ---
+    doc.add_section(WD_SECTION.NEW_PAGE)
+    section1 = doc.sections[-1]
+    section1.vertical_alignment = WD_ALIGN_VERTICAL_TOP
+    section1.left_margin = Inches(1)
+    section1.right_margin = Inches(1)
+    section1.top_margin = Inches(1)
+    section1.bottom_margin = Inches(1)
+
+    # Header
+    header = section1.header
+    header.is_linked_to_previous = False
+    for p in header.paragraphs:
+        element = p._element
+        parent = element.getparent()
+        if parent is not None:
+            parent.remove(element)
+
+    htable = header.add_table(rows=1, cols=2, width=Inches(7.5))
+    htable.alignment = WD_TABLE_ALIGNMENT.CENTER
+    htable.autofit = False
+    htable.columns[0].width = Inches(3.75)
+    htable.columns[1].width = Inches(3.75)
+
+    cell_h_left = htable.cell(0, 0)
+    p_h_left = cell_h_left.paragraphs[0]
+    p_h_left.text = title
+    p_h_left.alignment = WD_ALIGN_PARAGRAPH.LEFT
+
+    cell_h_right = htable.cell(0, 1)
+    p_h_right = cell_h_right.paragraphs[0]
+    p_h_right.text = header_subtitle
+    p_h_right.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+
+    # Footer
+    footer = section1.footer
+    footer.is_linked_to_previous = False
+    for p in footer.paragraphs:
+        element = p._element
+        parent = element.getparent()
+        if parent is not None:
+            parent.remove(element)
+
+    ftable = footer.add_table(rows=1, cols=2, width=Inches(7.5))
+    ftable.alignment = WD_TABLE_ALIGNMENT.CENTER
+    ftable.autofit = False
+    ftable.columns[0].width = Inches(3.75)
+    ftable.columns[1].width = Inches(3.75)
+
+    cell_f_left = ftable.cell(0, 0)
+    p_f_left = cell_f_left.paragraphs[0]
+    p_f_left.text = author
+    p_f_left.alignment = WD_ALIGN_PARAGRAPH.LEFT
+
+    cell_f_right = ftable.cell(0, 1)
+    p_f_right = cell_f_right.paragraphs[0]
+    p_f_right.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    add_page_number(p_f_right)
+
+    # Table of Contents
+    doc.add_heading("Table of Contents", level=1)
+    add_toc(doc)
+    doc.add_page_break()
+
+    # --- Render Markdown Content ---
+    add_markdown_paragraph(doc, combined_content)
+
+    doc.save(output_file)
+    print(f"Generated DOCX: {output_file}")
+
+    update_toc_via_word(output_file)
+
+
+# --- Generic PowerPoint Report Generators ---
+
+def _split_markdown_into_slides(content):
+    """
+    Parses Markdown content into a slide-oriented structure.
+
+    Returns a list of slide dicts:
+    [
+        {"type": "title", "title": "...", "subtitle": "..."},
+        {"type": "section", "title": "..."},
+        {"type": "content", "title": "...", "body": "..."},
+    ]
+    """
+    slides = []
+    current_slide = None
+    body_lines = []
+
+    def flush_current():
+        nonlocal current_slide, body_lines
+        if current_slide:
+            if current_slide["type"] == "content":
+                current_slide["body"] = "\n".join(body_lines).strip()
+            slides.append(current_slide)
+            current_slide = None
+            body_lines = []
+
+    lines = content.split('\n')
+    title_found = False
+
+    for line in lines:
+        stripped = line.strip()
+
+        # Skip YAML frontmatter
+        if stripped == '---' and not title_found and not slides:
+            continue
+
+        # H1: Title slide (first) or Section divider (subsequent)
+        if stripped.startswith('# ') and not stripped.startswith('## '):
+            flush_current()
+            heading = stripped[2:].strip()
+            if not title_found:
+                title_found = True
+                current_slide = {"type": "title", "title": heading, "subtitle": ""}
+            else:
+                current_slide = {"type": "section", "title": heading}
+            continue
+
+        # H2: Content slide
+        if stripped.startswith('## ') and not stripped.startswith('### '):
+            flush_current()
+            heading = stripped[3:].strip()
+            current_slide = {"type": "content", "title": heading, "body": ""}
+            body_lines = []
+            continue
+
+        # H3+: Sub-heading within a content slide
+        if stripped.startswith('### '):
+            heading = stripped.lstrip('#').strip()
+            body_lines.append(f"\n{heading}")
+            continue
+
+        # Everything else: body content for current slide
+        if current_slide and current_slide["type"] in ("content",):
+            body_lines.append(line)
+        elif current_slide and current_slide["type"] == "title" and stripped:
+            # Capture subtitle-like content after the title
+            if stripped.startswith('**') and 'Subtitle' in stripped:
+                current_slide["subtitle"] = stripped.replace('**Subtitle**:', '').replace('**', '').strip()
+
+    flush_current()
+    return slides
+
+
+def _add_pptx_bullet_text(text_frame, text, level=0, bold=False, font_size=PptxPt(14) if PPTX_AVAILABLE else None):
+    """Adds a bullet-point paragraph to a PowerPoint text frame."""
+    if not PPTX_AVAILABLE:
+        return
+    p = text_frame.add_paragraph()
+    p.level = level
+    p.space_after = PptxPt(4)
+
+    # Handle basic Markdown formatting in the text
+    parts = re.split(r'(\*\*.*?\*\*)', text)
+    for part in parts:
+        if part.startswith('**') and part.endswith('**'):
+            run = p.add_run()
+            run.text = part[2:-2]
+            run.font.bold = True
+            if font_size:
+                run.font.size = font_size
+        elif part.strip():
+            run = p.add_run()
+            run.text = part
+            run.font.bold = bold
+            if font_size:
+                run.font.size = font_size
+
+
+def _add_pptx_code_block(slide, code_text, left=None, top=None, width=None, height=None):
+    """Adds a monospace code block as a text box to a PowerPoint slide."""
+    if not PPTX_AVAILABLE:
+        return
+
+    left = left or PptxInches(0.5)
+    top = top or PptxInches(2.0)
+    width = width or PptxInches(9.0)
+    height = height or PptxInches(4.5)
+
+    txBox = slide.shapes.add_textbox(left, top, width, height)
+    tf = txBox.text_frame
+    tf.word_wrap = True
+
+    # Style the text box with a light gray background
+    fill = txBox.shape.fill
+    fill.solid()
+    fill.fore_color.rgb = PptxRGBColor(0xF5, 0xF5, 0xF5)
+
+    p = tf.paragraphs[0]
+    p.text = code_text
+    p.font.name = 'Courier New'
+    p.font.size = PptxPt(10)
+    p.font.color.rgb = PptxRGBColor(0x33, 0x33, 0x33)
+
+
+def generate_generic_pptx_report(md_files, title, subtitle, output_file, template_path=None):
+    """
+    Generates a PowerPoint presentation from one or more Markdown files.
+
+    H1 headings become section divider slides, H2 headings become content slides.
+    If template_path is provided, the template's slide layouts are reused.
+    """
+    if not PPTX_AVAILABLE:
+        print("Error: python-pptx not installed. Please run: pip install python-pptx")
+        sys.exit(1)
+
+    author = resolve_author(None)
+    sections = _read_markdown_files(md_files)
+    combined_content = "\n\n".join(sections)
+
+    # Auto-detect title from content if not provided
+    if not title or title == "Report":
+        detected = _parse_markdown_title(combined_content)
+        if detected:
+            title = detected
+
+    # Open template or create blank presentation
+    if template_path and os.path.exists(template_path):
+        prs = Presentation(template_path)
+    else:
+        prs = Presentation()
+
+    # Set slide dimensions to widescreen 16:9
+    prs.slide_width = PptxInches(13.333)
+    prs.slide_height = PptxInches(7.5)
+
+    # Discover available layouts
+    slide_layouts = prs.slide_layouts
+    layout_title = slide_layouts[0]        # Title Slide
+    layout_section = slide_layouts[2] if len(slide_layouts) > 2 else slide_layouts[0]  # Section Header
+    layout_content = slide_layouts[1] if len(slide_layouts) > 1 else slide_layouts[0]  # Title and Content
+    layout_blank = slide_layouts[6] if len(slide_layouts) > 6 else slide_layouts[-1]   # Blank
+
+    # Parse content into slide structure
+    slide_data = _split_markdown_into_slides(combined_content)
+
+    # If no slides were parsed, create a simple title + content structure
+    if not slide_data:
+        slide_data = [
+            {"type": "title", "title": title, "subtitle": subtitle or ""},
+            {"type": "content", "title": "Content", "body": combined_content}
+        ]
+
+    for sd in slide_data:
+        if sd["type"] == "title":
+            slide = prs.slides.add_slide(layout_title)
+            # Set title
+            if slide.shapes.title:
+                slide.shapes.title.text = sd["title"]
+            # Set subtitle
+            for shape in slide.placeholders:
+                if shape.placeholder_format.idx == 1:  # Subtitle placeholder
+                    shape.text = sd.get("subtitle", subtitle or "")
+                    if shape.text_frame.paragraphs:
+                        p = shape.text_frame.paragraphs[0]
+                        run = p.add_run()
+                        run.text = f"\n{author} | {datetime.now().strftime('%B %d, %Y')}"
+                        run.font.size = PptxPt(14)
+                        run.font.color.rgb = PptxRGBColor(0x88, 0x88, 0x88)
+                    break
+
+        elif sd["type"] == "section":
+            slide = prs.slides.add_slide(layout_section)
+            if slide.shapes.title:
+                slide.shapes.title.text = sd["title"]
+
+        elif sd["type"] == "content":
+            body_text = sd.get("body", "")
+
+            # Check if the body is primarily a code block
+            stripped_body = body_text.strip()
+            if stripped_body.startswith("```") and stripped_body.endswith("```"):
+                # Render as a code slide
+                slide = prs.slides.add_slide(layout_blank)
+                # Add title as a text box
+                txBox = slide.shapes.add_textbox(PptxInches(0.5), PptxInches(0.3), PptxInches(9.0), PptxInches(0.8))
+                tf = txBox.text_frame
+                p = tf.paragraphs[0]
+                p.text = sd["title"]
+                p.font.size = PptxPt(24)
+                p.font.bold = True
+                # Add code block
+                code_lines = stripped_body.split('\n')
+                # Remove opening and closing ``` lines
+                code_lines = [l for l in code_lines if not l.strip().startswith('```')]
+                _add_pptx_code_block(slide, "\n".join(code_lines))
+                continue
+
+            # Regular content slide
+            slide = prs.slides.add_slide(layout_content)
+            if slide.shapes.title:
+                slide.shapes.title.text = sd["title"]
+
+            # Find the body placeholder
+            body_shape = None
+            for shape in slide.placeholders:
+                if shape.placeholder_format.idx == 1:  # Body placeholder
+                    body_shape = shape
+                    break
+
+            if body_shape and body_shape.has_text_frame:
+                tf = body_shape.text_frame
+                tf.clear()
+
+                # Parse body content into the text frame
+                in_code_block = False
+                code_lines = []
+                first_para = True
+
+                for line in body_text.split('\n'):
+                    stripped = line.strip()
+
+                    # Toggle code blocks
+                    if stripped.startswith("```"):
+                        if in_code_block:
+                            # End code block: add collected lines
+                            for cl in code_lines:
+                                _add_pptx_bullet_text(tf, cl, level=1,
+                                                       font_size=PptxPt(10))
+                            code_lines = []
+                        in_code_block = not in_code_block
+                        continue
+
+                    if in_code_block:
+                        code_lines.append(line)
+                        continue
+
+                    # Skip empty lines
+                    if not stripped:
+                        continue
+
+                    # Bullet points
+                    if stripped.startswith("- ") or stripped.startswith("* "):
+                        content_text = stripped[2:]
+                        _add_pptx_bullet_text(tf, content_text, level=0,
+                                               font_size=PptxPt(14))
+                    elif stripped.startswith("  - ") or stripped.startswith("  * "):
+                        content_text = stripped.strip()[2:]
+                        _add_pptx_bullet_text(tf, content_text, level=1,
+                                               font_size=PptxPt(12))
+                    elif len(stripped) > 2 and stripped[0].isdigit() and stripped[1:3] in ['. ', ') ']:
+                        content_text = stripped.split(' ', 1)[1] if ' ' in stripped else stripped
+                        _add_pptx_bullet_text(tf, content_text, level=0,
+                                               font_size=PptxPt(14))
+                    elif stripped.startswith('### ') or stripped.startswith('#### '):
+                        heading_text = stripped.lstrip('#').strip()
+                        _add_pptx_bullet_text(tf, heading_text, level=0, bold=True,
+                                               font_size=PptxPt(16))
+                    else:
+                        # Regular text paragraph
+                        _add_pptx_bullet_text(tf, stripped, level=0,
+                                               font_size=PptxPt(14))
+            else:
+                # No body placeholder found; use a text box
+                txBox = slide.shapes.add_textbox(
+                    PptxInches(0.5), PptxInches(1.5),
+                    PptxInches(9.0), PptxInches(5.5)
+                )
+                tf = txBox.text_frame
+                tf.word_wrap = True
+                for line in body_text.split('\n'):
+                    stripped = line.strip()
+                    if stripped:
+                        _add_pptx_bullet_text(tf, stripped, level=0,
+                                               font_size=PptxPt(14))
+
+    prs.save(output_file)
+    print(f"Generated PPTX: {output_file}")
+
+
 if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser(description="Generate reports from JSON data.")
-    parser.add_argument("json_file", help="Path to the JSON data file")
+    parser = argparse.ArgumentParser(description="Generate reports from JSON data or Markdown files.")
+    parser.add_argument("json_file", nargs='?', default=None,
+                        help="Path to JSON data file (required for codebase/code-review types)")
     parser.add_argument("--type", dest="report_type", default="codebase",
-                        choices=["codebase", "code-review"],
-                        help="Report type: 'codebase' (default) or 'code-review'")
+                        choices=["codebase", "code-review", "generic-word", "generic-pptx"],
+                        help="Report type: 'codebase' (default), 'code-review', 'generic-word', or 'generic-pptx'")
+    parser.add_argument("--md-files", nargs='+', default=None,
+                        help="Markdown file(s) to include (for generic-word/generic-pptx types)")
+    parser.add_argument("--title", default="Report",
+                        help="Document title (for generic types)")
+    parser.add_argument("--subtitle", default="",
+                        help="Document subtitle (for generic types)")
+    parser.add_argument("--template", default=None,
+                        help="Path to .docx or .pptx template file")
+    parser.add_argument("--output", default=None,
+                        help="Output file path")
 
     args = parser.parse_args()
 
-    with open(args.json_file, 'r', encoding='utf-8') as f:
-        data = json.load(f)
+    if args.report_type in ("generic-word", "generic-pptx"):
+        # Generic report mode: requires --md-files
+        if not args.md_files:
+            parser.error("--md-files is required for generic-word and generic-pptx report types")
 
-    author = resolve_author(data.get("author"))
+        # Validate all markdown files exist
+        for md_file in args.md_files:
+            if not os.path.exists(md_file):
+                parser.error(f"Markdown file not found: {md_file}")
 
-    root_dir = os.getcwd()
-    tree_str = f"{os.path.basename(root_dir)}/\n{generate_tree_structure(root_dir)}"
+        if args.report_type == "generic-word":
+            output_docx = args.output or "Report.docx"
+            output_md = os.path.splitext(output_docx)[0] + ".md"
 
-    if args.report_type == "code-review":
-        generate_code_review_markdown(data, author, tree_str)
-        generate_code_review_docx(data, author, tree_str)
+            generate_generic_markdown_report(args.md_files, args.title, args.subtitle, output_md)
+            generate_generic_docx_report(args.md_files, args.title, args.subtitle,
+                                         output_docx, template_path=args.template)
+
+        elif args.report_type == "generic-pptx":
+            output_pptx = args.output or "Report.pptx"
+            generate_generic_pptx_report(args.md_files, args.title, args.subtitle,
+                                          output_pptx, template_path=args.template)
     else:
-        generate_markdown_report(data, author, tree_str)
-        generate_docx_report(data, author, tree_str)
+        # JSON-based report mode (original behavior)
+        if not args.json_file:
+            parser.error("json_file is required for codebase and code-review report types")
+
+        with open(args.json_file, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+
+        author = resolve_author(data.get("author"))
+
+        root_dir = os.getcwd()
+        tree_str = f"{os.path.basename(root_dir)}/\n{generate_tree_structure(root_dir)}"
+
+        if args.report_type == "code-review":
+            generate_code_review_markdown(data, author, tree_str)
+            generate_code_review_docx(data, author, tree_str)
+        else:
+            generate_markdown_report(data, author, tree_str)
+            generate_docx_report(data, author, tree_str)

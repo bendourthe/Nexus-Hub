@@ -1,5 +1,5 @@
 #!/bin/bash
-# DevAI-Hub Universal Installer V7 (v0.6.2) (macOS/Linux)
+# DevAI-Hub Universal Installer V8 (v0.7.0) (macOS/Linux)
 # Installs AI Skills Globally and to Workspaces with Safe Overwrite
 
 set -e
@@ -684,6 +684,128 @@ install_vscode_extensions() {
     echo -e "${GREEN}----------------------------------------------------------------${RESET}"
 }
 
+# --- Template & Script Installation ---
+
+install_templates() {
+    local repo_root="$1"
+
+    echo ""
+    echo -e "${CYAN}----------------------------------------------------------------${RESET}"
+    echo -e "${CYAN}     PHASE 4: Templates & Report Generator Installation         ${RESET}"
+    echo -e "${CYAN}----------------------------------------------------------------${RESET}"
+    echo ""
+    write_item "DevAI-Hub can generate professional Word (.docx) and PowerPoint (.pptx)" "$RESET"
+    write_item "reports from Markdown files using the /generate-word-report command." "$RESET"
+    echo ""
+
+    # Ensure global directories exist
+    local devai_home="$HOME/.devai-hub"
+    local templates_dest="$devai_home/templates/documentation"
+    local scripts_dest="$devai_home/scripts"
+
+    mkdir -p "$templates_dest"
+    mkdir -p "$scripts_dest"
+
+    # Copy bundled templates from repo
+    local builtin_templates="$repo_root/templates/documentation"
+    if [ -d "$builtin_templates" ]; then
+        safe_folder_copy "$builtin_templates" "$templates_dest" "✓ Built-in templates installed at: $templates_dest"
+    fi
+
+    # Copy report generator script
+    local script_source="$repo_root/scripts/generate_report.py"
+    if [ -f "$script_source" ]; then
+        safe_copy "$script_source" "$scripts_dest/generate_report.py" true "✓ Report generator installed at: $scripts_dest/generate_report.py"
+    fi
+
+    # Check Python availability
+    if ! command -v python3 >/dev/null 2>&1 && ! command -v python >/dev/null 2>&1; then
+        write_item "Note: Python 3 is required to generate reports." "$YELLOW"
+        write_item "Install via your package manager (e.g., brew install python3, apt install python3)." "$YELLOW"
+    else
+        local python_cmd="python3"
+        if ! command -v python3 >/dev/null 2>&1; then python_cmd="python"; fi
+
+        if $python_cmd -c "import docx; import pptx" 2>/dev/null; then
+            write_item "✓ Python dependencies (python-docx, python-pptx) are available" "$GREEN"
+        else
+            write_item "Note: Install report dependencies with: pip install python-docx python-pptx" "$YELLOW"
+        fi
+    fi
+
+    echo ""
+
+    # Custom template import
+    local response=$(read_prompt "Import custom Word/PowerPoint templates? [Y]es / [N]o")
+    if [[ ! "$response" =~ ^[Yy] ]]; then
+        write_item "Skipped custom template import." "$GRAY"
+        echo ""
+        echo -e "${GREEN}----------------------------------------------------------------${RESET}"
+        echo -e "${GREEN}        Templates & Scripts Installation Complete.               ${RESET}"
+        echo -e "${GREEN}----------------------------------------------------------------${RESET}"
+        return
+    fi
+
+    # Terminal-based file import loop (no native GUI dialog on Linux/macOS terminal)
+    while true; do
+        echo ""
+        write_item "Enter the full path to a .docx or .pptx template file." "$RESET"
+        write_item "You can also drag and drop a file into this terminal." "$RESET"
+        local template_path=$(read_prompt "File path (or press Enter to finish)")
+
+        # User pressed Enter without input
+        if [ -z "$template_path" ]; then break; fi
+
+        # Remove surrounding quotes (from drag-and-drop)
+        template_path="${template_path%\"}"
+        template_path="${template_path#\"}"
+        template_path="${template_path%\'}"
+        template_path="${template_path#\'}"
+        # Expand tilde
+        template_path="${template_path/#\~/$HOME}"
+        # Trim trailing whitespace
+        template_path="$(echo -e "${template_path}" | sed -e 's/[[:space:]]*$//')"
+
+        if [ ! -f "$template_path" ]; then
+            write_item "File not found: $template_path" "$RED"
+            continue
+        fi
+
+        local ext="${template_path##*.}"
+        ext=$(echo "$ext" | tr '[:upper:]' '[:lower:]')
+
+        if [[ "$ext" != "docx" && "$ext" != "pptx" ]]; then
+            write_item "Only .docx and .pptx files are supported." "$YELLOW"
+            continue
+        fi
+
+        local file_name=$(basename "$template_path")
+        safe_copy "$template_path" "$templates_dest/$file_name" true "✓ Template imported: $file_name"
+
+        local more=$(read_prompt "Import more templates? [Y]es / [N]o")
+        if [[ ! "$more" =~ ^[Yy] ]]; then break; fi
+    done
+
+    # List installed templates
+    echo ""
+    write_item "Installed templates:" "$RESET"
+    local found_templates=false
+    for t in "$templates_dest"/*.docx "$templates_dest"/*.pptx; do
+        if [ -f "$t" ]; then
+            write_item "  $(basename "$t")" "$GREEN"
+            found_templates=true
+        fi
+    done
+    if [ "$found_templates" = false ]; then
+        write_item "  (none)" "$GRAY"
+    fi
+
+    echo ""
+    echo -e "${GREEN}----------------------------------------------------------------${RESET}"
+    echo -e "${GREEN}        Templates & Scripts Installation Complete.               ${RESET}"
+    echo -e "${GREEN}----------------------------------------------------------------${RESET}"
+}
+
 # --- Main ---
 
 # Get directory of this script
@@ -693,6 +815,7 @@ REPO_ROOT="$(dirname "$SCRIPT_DIR")"
 install_global "$REPO_ROOT"
 install_workspace "$REPO_ROOT"
 install_vscode_extensions "$REPO_ROOT"
+install_templates "$REPO_ROOT"
 
 echo ""
 echo -e "${DARK_CYAN}================================================================${RESET}"
