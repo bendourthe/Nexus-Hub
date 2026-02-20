@@ -9,15 +9,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+---
+
+## [0.6.2] - 2026-02-19
+
 ### Added
 - **Usage Display Stop Hook**: `catalog/hooks/usage-display.sh` shows color-coded CLI usage limits (session, weekly, Sonnet-only) after each Claude Code response when any metric exceeds 50%. Fetches from Anthropic OAuth API with 5-minute caching and 3-second timeout. Fails silently when dependencies or credentials are unavailable.
+- **Generate Changelog Command**: `catalog/commands/generate-changelog.md` reconstructs a full CHANGELOG.md from git tags, commit messages, and history following Keep a Changelog format.
+- **Review Codebase Command**: `catalog/commands/review-codebase.md` replaces `run-code-review` with a comprehensive senior-level review producing structured findings, remediation roadmap, and test coverage analysis.
 - **Hook Config Template**: Updated `catalog/hooks/settings.json` with Stop hook entry for usage-display alongside existing PreToolUse (git guardrails).
 - **Usage Display Documentation**: Added "Usage Display (Stop Hook)" section to `infrastructure/hooks/README.md` with configuration, customization, and graceful degradation details.
 
 ### Changed
-- **Installers**: Both `scripts/installer.ps1` and `scripts/installer.sh` now install the usage-display hook in both global (Phase 1) and workspace (Phase 2) phases via `Install-UsageDisplay` / `install_usage_display` functions.
-- **Check-Usage Command**: `catalog/commands/check-usage.md` enhanced with Phase 0 auto-fetch from Anthropic OAuth API (reads credentials, calls API via curl) before falling back to manual entry.
-- **Analyze Codebase Command**: Fully rewritten `catalog/commands/analyze-codebase.md`. Now outputs a structured 12-section markdown analysis with Mermaid diagrams to `docs/<version>/analysis.md`. Replaces the old two-phase chat-then-DOCX workflow.
+- **Installers**: Both `scripts/installer.ps1` and `scripts/installer.sh` now install the usage-display hook in both global (Phase 1) and workspace (Phase 2) phases via `Install-UsageDisplay` / `install_usage_display` functions. Version bumped from V6 (v0.6.1) to V7 (v0.6.2).
+- **Check-Usage Command**: Enhanced with Phase 0 auto-fetch from Anthropic OAuth API before falling back to manual entry. Added cross-references to related monitoring features.
+- **Update-Documentation Command**: Rewritten to focus exclusively on READMEs, guides, and manuals (excludes CHANGELOG/DEVLOG). Now discovers, compares against codebase, and updates files.
+- **Update-Version Command**: Enhanced CHANGELOG step (Keep a Changelog format, footer links), richer DEVLOG entries, and new documentation update step (14 steps total). Renamed from `updated-version` to `update-version`.
+- **Analyze-Codebase Command**: Rewritten with structured 12-section analysis and Mermaid diagram output.
+- **Root README**: Restructured usage monitoring into 3 complementary features (CLI hook, VS Code extension, /check-usage).
+
+### Removed
+- **run-code-review.md**: Replaced by `review-codebase.md` with expanded scope.
 
 ---
 
@@ -2437,6 +2449,7 @@ repository_root/
 
 | Version | Date       | Description                                      |
 |---------|------------|--------------------------------------------------|
+| 0.6.2   | 2026-02-19 | **CLI Usage Display**: Stop hook for usage limits, generate-changelog command, command catalog overhaul, documentation updates |
 | 0.6.1   | 2026-02-19 | **Git Guardrails**: PreToolUse hook blocking destructive git commands, tracer bullets workflow, cross-platform git safety rules |
 | 0.6.0   | 2026-02-10 | **Claude Usage Monitor**: VS Code extension, code review overhaul, skills registry validation, documentation fixes |
 | 0.5.3   | 2026-02-04 | **Documentation Fixes**: Fixed broken paths, removed legacy `.codex`/`.gemini` artifacts, consolidated commands |
@@ -2465,7 +2478,8 @@ repository_root/
 
 ---
 
-[Unreleased]: https://github.com/bdourthe/devai-hub/compare/v0.6.1...HEAD
+[Unreleased]: https://github.com/bdourthe/devai-hub/compare/v0.6.2...HEAD
+[0.6.2]: https://github.com/bdourthe/devai-hub/compare/v0.6.1...v0.6.2
 [0.6.1]: https://github.com/bdourthe/devai-hub/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/bdourthe/devai-hub/releases/tag/v0.6.0
 [0.5.3]: https://github.com/bdourthe/devai-hub/releases/tag/v0.5.3

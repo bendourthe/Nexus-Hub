@@ -1,5 +1,21 @@
 # Development Log
 
+## [2026-02-19] - Release 0.6.2: CLI Usage Display, Command Overhaul, Changelog Generator
+
+*   **Goal**: Add automatic CLI usage limits display, overhaul the command catalog for better separation of concerns, and add a changelog generation command.
+*   **What Changed**:
+    *   **Usage Display Hook**: Created `catalog/hooks/usage-display.sh` (Stop hook) that auto-fetches from the Anthropic OAuth API with 5-minute caching. Updated `catalog/hooks/settings.json`, both installers (`Install-UsageDisplay` / `install_usage_display`), and `infrastructure/hooks/README.md`.
+    *   **Command Catalog Overhaul**:
+        *   Added `generate-changelog.md` for full CHANGELOG.md reconstruction from git history.
+        *   Replaced `run-code-review.md` with `review-codebase.md` (expanded to 596-line senior-level review).
+        *   Rewritten `update-documentation.md` to focus on READMEs/guides only (excludes CHANGELOG/DEVLOG, defers to dedicated commands).
+        *   Enhanced `update-version.md` (renamed from `updated-version`) with Keep a Changelog formatting, richer DEVLOG entries, and documentation update step (14 steps).
+        *   Rewritten `analyze-codebase.md` with 12-section structured analysis and Mermaid diagrams.
+        *   Enhanced `check-usage.md` with auto-fetch Phase 0 and cross-references.
+    *   **Documentation**: Restructured root README usage monitoring section. Added cross-references across CLI hook, VS Code extension, and `/check-usage` command.
+    *   **Version Bump**: Updated `templates.json`, `scripts/installer.ps1`, `scripts/installer.sh` from 0.6.1 to 0.6.2. Installers bumped from V6 to V7.
+*   **Current Status**: Verified. All version references consistent at 0.6.2.
+
 ## [2026-02-19] - CLI Usage Limits Display (Stop Hook)
 
 *   **Goal**: Address user feedback requesting token limit visibility in the CLI. Users could see tokens consumed but had to navigate to `claude.ai/settings/usage` to see how close they were to their cap.
