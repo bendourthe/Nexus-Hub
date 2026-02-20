@@ -1,4 +1,4 @@
-﻿# DevAI-Hub Universal Installer V8 (v0.7.0)
+﻿# DevAI-Hub Universal Installer V8 (v0.6.3)
 # Installs AI Skills Globally and to Workspaces with Safe Overwrite and Modern UI
 $ErrorActionPreference = "Stop"
 

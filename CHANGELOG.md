@@ -11,6 +11,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.6.3] - 2026-02-20
+
+### Added
+- **Generate Word Report Command**: `catalog/commands/generate-word-report.md` produces professional Word (.docx) and PowerPoint (.pptx) documents from Markdown files with template discovery, content analysis, and structured output to `docs/<version>/reports/` or `docs/<version>/presentations/`.
+- **Generic Report Types**: `scripts/generate_report.py` now supports `--type generic-word` and `--type generic-pptx` with `--md-files`, `--title`, `--subtitle`, `--template`, and `--output` arguments. Existing codebase/code-review types unchanged.
+- **PowerPoint Generation**: `python-pptx` integration maps H1 headings to section divider slides, H2 headings to content slides, bullet points to body text, and code blocks to monospace text boxes with gray backgrounds.
+- **Installer Phase 4**: Templates and report generator installation to `~/.devai-hub/`. Includes native file picker dialog (Windows) for importing custom `.docx`/`.pptx` templates with import loop.
+- **Bundled Template**: `templates/documentation/generic-word-report-template.docx` serves as the default Word report template.
+
+### Changed
+- **Installers**: Version bumped from V7 (v0.6.2) to V8 (v0.6.3). Added `Install-Templates` (PS1) and `install_templates` (Bash) functions as Phase 4.
+
+### Fixed
+- **Report Generation**: `add_markdown_paragraph()` no longer crashes on empty lines inside Markdown code blocks (IndexError on `p.runs[0]`).
+- **Installer**: Stale files at destination are now removed during overwrite to prevent orphaned artifacts.
+
+---
+
 ## [0.6.2] - 2026-02-19
 
 ### Added
@@ -2449,6 +2467,7 @@ repository_root/
 
 | Version | Date       | Description                                      |
 |---------|------------|--------------------------------------------------|
+| 0.6.3   | 2026-02-20 | **Word/PPTX Reports**: Generate Word and PowerPoint documents from Markdown, template system, installer Phase 4 |
 | 0.6.2   | 2026-02-19 | **CLI Usage Display**: Stop hook for usage limits, generate-changelog command, command catalog overhaul, documentation updates |
 | 0.6.1   | 2026-02-19 | **Git Guardrails**: PreToolUse hook blocking destructive git commands, tracer bullets workflow, cross-platform git safety rules |
 | 0.6.0   | 2026-02-10 | **Claude Usage Monitor**: VS Code extension, code review overhaul, skills registry validation, documentation fixes |
@@ -2478,7 +2497,8 @@ repository_root/
 
 ---
 
-[Unreleased]: https://github.com/bdourthe/devai-hub/compare/v0.6.2...HEAD
+[Unreleased]: https://github.com/bdourthe/devai-hub/compare/v0.6.3...HEAD
+[0.6.3]: https://github.com/bdourthe/devai-hub/compare/v0.6.2...v0.6.3
 [0.6.2]: https://github.com/bdourthe/devai-hub/compare/v0.6.1...v0.6.2
 [0.6.1]: https://github.com/bdourthe/devai-hub/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/bdourthe/devai-hub/releases/tag/v0.6.0

@@ -1,4 +1,4 @@
-# Version: 0.7.0
+# Version: 0.6.3
 
 import json
 import sys

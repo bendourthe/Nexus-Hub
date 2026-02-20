@@ -1,5 +1,17 @@
 # Development Log
 
+## [2026-02-20] - Release 0.6.3: Word/PowerPoint Report Generation, Template System
+
+*   **Goal**: Enable users to generate professional Word and PowerPoint documents from Markdown analysis files via a single command, with custom template support.
+*   **What Changed**:
+    *   **Generate Word Report Command**: Created `catalog/commands/generate-word-report.md` (183 lines, 6-phase workflow) that reads Markdown files, discovers templates from project and global directories, analyzes content structure, and produces formatted .docx or .pptx output.
+    *   **Report Generator Extension**: Extended `scripts/generate_report.py` with `--type generic-word` and `--type generic-pptx`. Added ~550 lines covering Markdown-to-DOCX conversion (title page, TOC, headers/footers, page numbers) and Markdown-to-PPTX conversion (slide structure parser, section dividers, content slides, code block text boxes). Fixed existing bug in `add_markdown_paragraph()` where empty code block lines caused IndexError.
+    *   **python-pptx Integration**: Added optional `python-pptx` dependency. PowerPoint generation maps H1 headings to section divider slides, H2 headings to content slides with body text frames, code blocks to monospace text boxes with gray backgrounds, and bullet points to structured slide content.
+    *   **Installer Phase 4**: Added `Install-Templates` (PS1) and `install_templates` (Bash) as Phase 4 to both installers. Copies bundled templates and `generate_report.py` to `~/.devai-hub/`. PowerShell version uses `System.Windows.Forms.OpenFileDialog` for native multi-file template import. Bash version supports drag-and-drop file paths.
+    *   **Template System**: Dual-layer discovery (project `.claude/templates/documentation/` overrides global `~/.devai-hub/templates/documentation/`). Bundled `generic-word-report-template.docx` as default.
+    *   **Version Bump**: Updated `templates.json`, `scripts/installer.ps1`, `scripts/installer.sh`, `scripts/generate_report.py` from 0.6.2 to 0.6.3. Installers bumped from V7 to V8. Registered `generate-word-report` in `skills.json` (66 skills total).
+*   **Current Status**: Verified. Word and PowerPoint generation tested with single and multiple Markdown files, with and without templates. Backward compatibility confirmed for existing codebase/code-review report types.
+
 ## [2026-02-19] - Release 0.6.2: CLI Usage Display, Command Overhaul, Changelog Generator
 
 *   **Goal**: Add automatic CLI usage limits display, overhaul the command catalog for better separation of concerns, and add a changelog generation command.
