@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+---
+
+## [0.7.0] - 2026-02-27
+
 ### Added
 - **Context Engineering Skills**: 5 new skills adapted from [Agent-Skills-for-Context-Engineering](https://github.com/muratcankoylan/Agent-Skills-for-Context-Engineering) (MIT License):
   - `context-degradation` (Orchestration): Detect and mitigate context quality decay with 5 degradation patterns and 4-bucket mitigation approach
@@ -16,11 +20,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `tool-design` (Developer Experience): Design effective tools/APIs for AI agents (MCP servers, slash commands) with description engineering and consolidation principles
   - `filesystem-context-patterns` (Workflow): 6 filesystem patterns for agent context management (scratch pad, plan persistence, sub-agent communication, dynamic skill loading, terminal persistence, self-modification)
   - `ai-output-evaluation` (Developer Experience): LLM-as-judge evaluation with multi-dimensional rubrics, bias mitigation, and token economics
+- **Developer Experience Skills**: 3 new skills: `writing-editing`, `analysis-logic`, `creative-generation`
+- **Coding Snippets**: `templates/ai-instructions/coding-snippets/` directory for Copilot instruction assembly with per-language convention files
+- **Template Rendering System**: `base-claude.md` and `base-gemini.md` with `{{PLACEHOLDER}}` substitution for project-specific CLAUDE.md/GEMINI.md generation
+- **Generate Report Style Guide Command**: `catalog/commands/generate-report-style-guide.md` for report quality metrics and style enforcement
+- **Report Generator Enhancements**: Template-aware rendering, PRE-TOC marker support, Mermaid diagram detection, companion PPTX generation from Word reports
 
 ### Changed
 - **context-manager** (v1.1.0): Added Step 0 with context fundamentals (5-component model, attention budget, progressive disclosure, 70-80% compaction trigger)
 - **task-coordinator** (v1.1.0): Added multi-agent coordination patterns (supervisor, swarm, hierarchical), token multiplier economics, and handoff protocol template
 - **plan-before-code** (v1.1.0): Added Step 0 with LLM task suitability assessment, token cost estimation template, and 5-stage pipeline model
+- **Installer Overhaul**: `Render-Template` replaces static CLAUDE.md/GEMINI.md copy; auto-detects project metadata (language, package manager, build tool, test framework). Installer bumped from V8 to V9.
+- **Generate Report Command**: Renamed from `generate-word-report` to `generate-report` with 6-step synthesis-first workflow replacing Phase 4
+- **Skills Registry**: `skills.json` updated from 66 to 75 skills; `CATALOG.md` updated to v1.3.0
+- **Legacy Templates**: Moved old `coding-instructions/` to `templates/ai-instructions/legacy/`; deprecated `generic-instructions.md` in favour of `base-gemini.md`
+
+### Fixed
+- **Report Generator**: GFM table parsing, horizontal rule handling, Mermaid code block placeholders, `_strip_first_h1()` for title page extraction, companion PPTX generation pipeline
+- **Templates**: Fixed tab-corrupted paths and em-dash encoding across 7 language templates
 
 ---
 
@@ -2480,6 +2497,7 @@ repository_root/
 
 | Version | Date       | Description                                      |
 |---------|------------|--------------------------------------------------|
+| 0.7.0   | 2026-02-27 | **Context Engineering**: 8 new skills, template rendering system, coding snippets, installer V9, report generator overhaul |
 | 0.6.3   | 2026-02-20 | **Word/PPTX Reports**: Generate Word and PowerPoint documents from Markdown, template system, installer Phase 4 |
 | 0.6.2   | 2026-02-19 | **CLI Usage Display**: Stop hook for usage limits, generate-changelog command, command catalog overhaul, documentation updates |
 | 0.6.1   | 2026-02-19 | **Git Guardrails**: PreToolUse hook blocking destructive git commands, tracer bullets workflow, cross-platform git safety rules |
@@ -2510,7 +2528,8 @@ repository_root/
 
 ---
 
-[Unreleased]: https://github.com/bdourthe/devai-hub/compare/v0.6.3...HEAD
+[Unreleased]: https://github.com/bdourthe/devai-hub/compare/v0.7.0...HEAD
+[0.7.0]: https://github.com/bdourthe/devai-hub/compare/v0.6.3...v0.7.0
 [0.6.3]: https://github.com/bdourthe/devai-hub/compare/v0.6.2...v0.6.3
 [0.6.2]: https://github.com/bdourthe/devai-hub/compare/v0.6.1...v0.6.2
 [0.6.1]: https://github.com/bdourthe/devai-hub/compare/v0.6.0...v0.6.1

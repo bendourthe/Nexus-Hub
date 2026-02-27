@@ -1,5 +1,19 @@
 # Development Log
 
+## [2026-02-27] - Release 0.7.0: Context Engineering Skills, Template Rendering, Report Overhaul
+
+*   **Goal**: Expand the skill library with context engineering capabilities, modernize the installer with template rendering, and harden the report generator.
+*   **What Changed**:
+    *   **Context Engineering Skills**: Adapted 5 skills from Agent-Skills-for-Context-Engineering (MIT): `context-degradation`, `context-compression`, `tool-design`, `filesystem-context-patterns`, `ai-output-evaluation`. Added 3 developer experience skills: `writing-editing`, `analysis-logic`, `creative-generation`. Skills total now 75.
+    *   **Template Rendering System**: Created `base-claude.md` and `base-gemini.md` with `{{PLACEHOLDER}}` substitution. Installer now runs `Render-Template` instead of copying static instruction files, auto-detecting project language, package manager, build tool, and test framework.
+    *   **Coding Snippets**: New `templates/ai-instructions/coding-snippets/` directory with per-language convention files for Copilot instruction assembly. Deprecated monolithic language templates to `templates/ai-instructions/legacy/`.
+    *   **Skill Upgrades**: Upgraded `context-manager`, `task-coordinator`, `plan-before-code` to v1.1.0 with context fundamentals, multi-agent coordination patterns, and LLM task suitability assessment.
+    *   **Report Generator Overhaul**: Added GFM table parsing, horizontal rule handling, Mermaid code block placeholders, `_strip_first_h1()` for title page, PRE-TOC marker support. Renamed command from `generate-word-report` to `generate-report` with 6-step synthesis-first workflow.
+    *   **Generate Report Style Guide**: New `catalog/commands/generate-report-style-guide.md` command for report quality metrics.
+    *   **Template Fixes**: Fixed tab-corrupted paths and em-dash encoding across 7 language templates.
+    *   **Version Bump**: Updated `templates.json`, `scripts/installer.ps1`, `scripts/installer.sh`, `infrastructure/hooks/README.md` from 0.6.3 to 0.7.0. Installers bumped from V8 to V9.
+*   **Current Status**: Verified. All version references consistent at 0.7.0.
+
 ## [2026-02-20] - Release 0.6.3: Word/PowerPoint Report Generation, Template System
 
 *   **Goal**: Enable users to generate professional Word and PowerPoint documents from Markdown analysis files via a single command, with custom template support.
