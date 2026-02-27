@@ -1,6 +1,6 @@
 ---
 name: task-coordinator
-description: Coordinate complex multi-step tasks by breaking them down into manageable subtasks with dependency tracking. Use when implementing large features, coordinating parallel work streams, or managing complex workflows that span multiple files or components.
+description: Coordinate complex multi-step tasks by breaking them down into manageable subtasks with dependency tracking. Covers multi-agent architectural patterns (supervisor, swarm, hierarchical), token economics, and handoff protocols. Use when implementing large features, coordinating parallel work streams, designing multi-agent systems, or managing complex workflows.
 ---
 
 # Task Coordinator
@@ -18,7 +18,7 @@ Use this skill for:
 - Tracking progress across complex implementations
 - Ensuring no steps are missed in multi-phase work
 
-**Trigger phrases**: "coordinate tasks", "multi-step workflow", "complex implementation", "break down", "task dependencies", "parallel work", "large feature", "comprehensive implementation"
+**Trigger phrases**: "coordinate tasks", "multi-step workflow", "complex implementation", "break down", "task dependencies", "parallel work", "large feature", "comprehensive implementation", "multi-agent", "agent handoff", "agent coordination", "orchestrator pattern", "swarm pattern"
 
 ## What This Skill Does
 
@@ -361,6 +361,92 @@ Before breaking down work, understand the full scope:
 - [ ] Consider systemic improvements
 ```
 
+## Multi-Agent Coordination Patterns
+
+When a task is too large or complex for a single agent context window, distribute work across multiple agents. The primary benefit of multi-agent systems is **context isolation**, not role specialization.
+
+### Architectural Patterns
+
+#### Pattern A: Supervisor/Orchestrator
+
+A central agent decomposes tasks and routes them to specialized sub-agents.
+
+```
+                ┌──────────────┐
+                │  Supervisor  │  (Decomposes, routes, aggregates)
+                └──────┬───────┘
+           ┌───────────┼───────────┐
+     ┌─────▼─────┐ ┌───▼───┐ ┌────▼─────┐
+     │  Agent A  │ │ Agent B│ │ Agent C  │
+     │ (Research)│ │ (Code) │ │ (Review) │
+     └───────────┘ └───────┘ └──────────┘
+```
+
+**When to use**: Tasks with clear decomposition, well-defined sub-task boundaries, and a need for centralized quality control.
+
+**Trade-offs**: Strict control and consistent output; but the supervisor becomes a bottleneck and introduces the "telephone game problem" (summaries compound errors across handoffs).
+
+#### Pattern B: Peer-to-Peer / Swarm
+
+Agents communicate directly without a central controller.
+
+**When to use**: Exploratory tasks, parallel research, tasks where each agent can independently contribute results that are later merged.
+
+**Trade-offs**: No single point of failure and high parallelism; but coordination is complex, consensus is harder, and results may be inconsistent.
+
+#### Pattern C: Hierarchical
+
+Layered agents at different abstraction levels: strategy > planning > execution.
+
+**When to use**: Large-scale implementations where high-level decisions guide mid-level planning, which in turn drives low-level execution. Each layer has its own context budget.
+
+**Trade-offs**: Clean separation of concerns and scalable; but increased token cost and latency across layers.
+
+### Token Economics of Multi-Agent Systems
+
+| Configuration | Token Multiplier | When Justified |
+|---------------|-----------------|----------------|
+| Single-agent chat | 1x baseline | Simple tasks, short sessions |
+| Single-agent + tools | 3-5x | Tasks requiring file reads, searches |
+| Multi-agent (2-3 agents) | 5-10x | Tasks needing context isolation |
+| Multi-agent (5+ agents) | 10-15x | Complex pipelines with specialized agents |
+
+**Rule of thumb**: Only use multi-agent when the context isolation benefit outweighs the token cost. If a single agent can hold all relevant context, prefer that.
+
+### Agent Handoff Protocol
+
+When passing work between agents, use this structured handoff format:
+
+```markdown
+## Agent Handoff: [From Agent] → [To Agent]
+
+### Task Summary
+[One-sentence description of what the receiving agent should do]
+
+### Context Provided
+- Key findings: [Concise list]
+- Files modified: [Paths]
+- Decisions made: [With rationale]
+
+### Constraints
+- Must not modify: [Protected files/systems]
+- Must follow: [Patterns, conventions]
+
+### Expected Output
+- Deliverable: [What the receiving agent should produce]
+- Format: [How to structure the output]
+
+### State
+- Completed: [What is done]
+- Remaining: [What is left]
+```
+
+**Critical guidelines**:
+- Pass **structured state**, not raw conversation history
+- Each agent should be able to operate with only the handoff document (no implicit context)
+- Use file-based handoffs for large state (write findings to a shared file, reference the path)
+- Set time-to-live limits to prevent infinite loops between agents
+
 ## Integration with Other Skills
 
 When coordinating tasks, invoke related skills at appropriate phases:
@@ -394,9 +480,10 @@ When coordinating tasks, invoke related skills at appropriate phases:
 
 ---
 
-**Version**: 1.0.0
-**Last Updated**: January 2026
+**Version**: 1.1.0
+**Last Updated**: February 2026
 **Based on**: awesome-claude-code-subagents patterns, project management best practices
+**Attribution**: Multi-agent patterns adapted from [Agent-Skills-for-Context-Engineering](https://github.com/muratcankoylan/Agent-Skills-for-Context-Engineering) (MIT License)
 
 
 ### Iterative Refinement Strategy

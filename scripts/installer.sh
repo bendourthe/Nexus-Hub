@@ -290,8 +290,24 @@ install_global() {
     local global_claude="$user_home/.claude"
     mkdir -p "$global_claude"
 
-    # Global CLAUDE.md
-    safe_copy "$repo_root/catalog/CLAUDE.md" "$global_claude/CLAUDE.md" true "✓ Global instructions installed at: $global_claude/CLAUDE.md"
+    # Global CLAUDE.md (new concise template with WHAT/WHY/HOW structure)
+    PROJECT_NAME="Global"
+    OS_CONTEXT=""
+    case "$(uname -s)" in
+        Darwin*) OS_CONTEXT="I am a macOS user." ;;
+        Linux*)  OS_CONTEXT="I am a Linux user." ;;
+        *)       OS_CONTEXT="I am a Windows user." ;;
+    esac
+    PRIMARY_LANGUAGE=""
+    PACKAGE_MANAGER=""
+    BUILD_TOOL=""
+    TEST_FRAMEWORK=""
+    LINT_TOOL=""
+    BUILD_CMD="# specify build command"
+    TEST_CMD="# specify test command"
+    LINT_CMD="# specify lint command"
+    NON_OBVIOUS_TOOLING="- (configure per project with /setup-project)"
+    render_template "$repo_root/templates/ai-instructions/base-claude.md" "$global_claude/CLAUDE.md" "$repo_root" ""
 
     # Global Skills
     safe_folder_copy "$repo_root/catalog/skills" "$global_claude/skills" "✓ Global skills catalog installed at: $global_claude/skills"
@@ -314,8 +330,8 @@ install_global() {
     mkdir -p "$global_gemini_dir"
     mkdir -p "$global_agent_dir"
 
-    # Global GEMINI.md
-    safe_copy "$repo_root/templates/ai-instructions/generic-instructions.md" "$global_gemini_dir/GEMINI.md" true "✓ Global instructions installed at: $global_gemini_dir/GEMINI.md"
+    # Global GEMINI.md (concise template without Claude-specific concepts)
+    render_template "$repo_root/templates/ai-instructions/base-gemini.md" "$global_gemini_dir/GEMINI.md" "$repo_root" ""
 
     # Mirror Skills to Agent (Antigravity)
     safe_folder_copy "$repo_root/catalog/skills" "$global_agent_dir/skills" "✓ Global skills catalog installed at: $global_agent_dir/skills"
@@ -363,6 +379,201 @@ detect_languages() {
 
     # Remove trailing comma
     echo "${detected_langs%,}"
+}
+
+detect_project_metadata() {
+    local target_path="$1"
+    local languages="$2"
+
+    # Project name from directory
+    PROJECT_NAME=$(basename "$target_path")
+
+    # OS detection
+    case "$(uname -s)" in
+        Darwin*) OS_CONTEXT="I am a macOS user. Ensure shell commands are POSIX-compatible." ;;
+        Linux*)  OS_CONTEXT="I am a Linux user. Ensure shell commands are POSIX-compatible." ;;
+        *)       OS_CONTEXT="I am a Windows user. Ensure shell commands are PowerShell-compatible." ;;
+    esac
+
+    # Primary language (first detected)
+    PRIMARY_LANGUAGE=$(echo "$languages" | cut -d',' -f1)
+
+    # Package manager detection
+    PACKAGE_MANAGER=""
+    BUILD_TOOL=""
+    TEST_FRAMEWORK=""
+    LINT_TOOL=""
+    BUILD_CMD=""
+    TEST_CMD=""
+    LINT_CMD=""
+    NON_OBVIOUS_TOOLING=""
+
+    if [ -f "$target_path/pyproject.toml" ]; then
+        PACKAGE_MANAGER="uv (or pip with venv)"
+        BUILD_TOOL="uv"
+        TEST_FRAMEWORK="pytest"
+        LINT_TOOL="ruff"
+        BUILD_CMD="uv run python src/main.py"
+        TEST_CMD="uv run pytest tests/"
+        LINT_CMD="uv run ruff check . && uv run ruff format ."
+        NON_OBVIOUS_TOOLING="- Use \`uv\` not \`pip\` for Python package management (10-100x faster)"
+    elif [ -f "$target_path/requirements.txt" ]; then
+        PACKAGE_MANAGER="pip with venv"
+        BUILD_TOOL="pip"
+        TEST_FRAMEWORK="pytest"
+        LINT_TOOL="ruff"
+        BUILD_CMD="python src/main.py"
+        TEST_CMD="pytest tests/"
+        LINT_CMD="ruff check . && ruff format ."
+    fi
+
+    if [ -f "$target_path/package.json" ]; then
+        PACKAGE_MANAGER="npm"
+        if [ -f "$target_path/yarn.lock" ]; then PACKAGE_MANAGER="yarn"; fi
+        if [ -f "$target_path/pnpm-lock.yaml" ]; then PACKAGE_MANAGER="pnpm"; fi
+        if [ -f "$target_path/bun.lockb" ]; then
+            PACKAGE_MANAGER="bun"
+            NON_OBVIOUS_TOOLING="- Use \`bun\` not \`npm\` for package management and script execution"
+        fi
+        BUILD_TOOL="$PACKAGE_MANAGER"
+        TEST_FRAMEWORK="jest"
+        LINT_TOOL="eslint + prettier"
+        BUILD_CMD="$PACKAGE_MANAGER run build"
+        TEST_CMD="$PACKAGE_MANAGER test"
+        LINT_CMD="$PACKAGE_MANAGER run lint"
+    fi
+
+    if [ -f "$target_path/go.mod" ]; then
+        PACKAGE_MANAGER="go mod"
+        BUILD_TOOL="go"
+        TEST_FRAMEWORK="go test"
+        LINT_TOOL="golangci-lint"
+        BUILD_CMD="go build ./..."
+        TEST_CMD="go test ./..."
+        LINT_CMD="golangci-lint run"
+    fi
+
+    if [ -f "$target_path/pom.xml" ]; then
+        PACKAGE_MANAGER="Maven"
+        BUILD_TOOL="mvn"
+        TEST_FRAMEWORK="JUnit 5"
+        LINT_TOOL="Checkstyle"
+        BUILD_CMD="mvn compile"
+        TEST_CMD="mvn test"
+        LINT_CMD="mvn checkstyle:check"
+    elif [ -f "$target_path/build.gradle" ] || [ -f "$target_path/build.gradle.kts" ]; then
+        PACKAGE_MANAGER="Gradle"
+        BUILD_TOOL="gradle"
+        TEST_FRAMEWORK="JUnit 5"
+        LINT_TOOL="Checkstyle"
+        BUILD_CMD="./gradlew build"
+        TEST_CMD="./gradlew test"
+        LINT_CMD="./gradlew checkstyleMain"
+    fi
+
+    if ls "$target_path"/*.csproj >/dev/null 2>&1 || ls "$target_path"/*.sln >/dev/null 2>&1; then
+        PACKAGE_MANAGER="NuGet (dotnet)"
+        BUILD_TOOL="dotnet"
+        TEST_FRAMEWORK="xUnit"
+        LINT_TOOL="dotnet format"
+        BUILD_CMD="dotnet build"
+        TEST_CMD="dotnet test"
+        LINT_CMD="dotnet format"
+    fi
+
+    if [ -f "$target_path/CMakeLists.txt" ]; then
+        PACKAGE_MANAGER="CMake"
+        BUILD_TOOL="cmake"
+        TEST_FRAMEWORK="GoogleTest"
+        LINT_TOOL="clang-format"
+        BUILD_CMD="cmake --build build"
+        TEST_CMD="ctest --test-dir build"
+        LINT_CMD="clang-format -i src/*.cpp include/*.h"
+    fi
+
+    if [ -f "$target_path/Makefile" ] && [ -z "$BUILD_CMD" ]; then
+        BUILD_CMD="make"
+        TEST_CMD="make test"
+    fi
+
+    # Set defaults for unfilled values
+    [ -z "$PACKAGE_MANAGER" ] && PACKAGE_MANAGER="(detect or specify)"
+    [ -z "$BUILD_TOOL" ] && BUILD_TOOL="(detect or specify)"
+    [ -z "$TEST_FRAMEWORK" ] && TEST_FRAMEWORK="(detect or specify)"
+    [ -z "$LINT_TOOL" ] && LINT_TOOL="(detect or specify)"
+    [ -z "$BUILD_CMD" ] && BUILD_CMD="# specify build command"
+    [ -z "$TEST_CMD" ] && TEST_CMD="# specify test command"
+    [ -z "$LINT_CMD" ] && LINT_CMD="# specify lint command"
+    [ -z "$NON_OBVIOUS_TOOLING" ] && NON_OBVIOUS_TOOLING="- (add project-specific tooling notes here)"
+}
+
+render_template() {
+    local template="$1"
+    local output="$2"
+    local repo_root="$3"
+    local languages="$4"
+    local confirm="${5:-true}"
+
+    if [ ! -f "$template" ]; then
+        write_item "Skip: Template not found ($(basename "$template"))" "$GRAY"
+        return
+    fi
+
+    # Check for existing file (reuse safe_copy overwrite logic)
+    local do_write=true
+    if [ -f "$output" ]; then
+        if [ "$confirm" = true ] && [ "$OVERWRITE_ALL" = false ]; then
+            write_item "File exists: $output" "$YELLOW"
+            local resp=$(read_prompt "Overwrite? [Y]es / [N]o / [A]ll")
+            if [[ "$resp" =~ ^[Aa] ]]; then
+                OVERWRITE_ALL=true
+            elif [[ ! "$resp" =~ ^[Yy] ]]; then
+                write_item "Skipped by user." "$GRAY"
+                do_write=false
+            fi
+        fi
+    fi
+
+    if [ "$do_write" = true ]; then
+        mkdir -p "$(dirname "$output")"
+
+        # Replace placeholders with detected values
+        sed \
+            -e "s|{{PROJECT_NAME}}|$PROJECT_NAME|g" \
+            -e "s|{{PROJECT_DESCRIPTION}}|(Add a 2-3 sentence project description here, or run /setup-project)|g" \
+            -e "s|{{PRIMARY_LANGUAGE}}|$PRIMARY_LANGUAGE|g" \
+            -e "s|{{LANGUAGE_VERSION}}||g" \
+            -e "s|{{PACKAGE_MANAGER}}|$PACKAGE_MANAGER|g" \
+            -e "s|{{BUILD_TOOL}}|$BUILD_TOOL|g" \
+            -e "s|{{TEST_FRAMEWORK}}|$TEST_FRAMEWORK|g" \
+            -e "s|{{LINT_TOOL}}|$LINT_TOOL|g" \
+            -e "s|{{PROJECT_STRUCTURE_BRIEF}}|(Run /setup-project to generate project layout)|g" \
+            -e "s|{{BUILD_CMD}}|$BUILD_CMD|g" \
+            -e "s|{{TEST_CMD}}|$TEST_CMD|g" \
+            -e "s|{{LINT_CMD}}|$LINT_CMD|g" \
+            -e "s|{{NON_OBVIOUS_TOOLING}}|$NON_OBVIOUS_TOOLING|g" \
+            -e "s|{{LANGUAGE_CONVENTIONS}}|(See coding-snippets or run /setup-project)|g" \
+            -e "s|{{OS_CONTEXT}}|$OS_CONTEXT|g" \
+            "$template" > "$output"
+
+        # Append language-specific snippets if available
+        if [ -n "$languages" ]; then
+            IFS=',' read -ra LANGS <<< "$languages"
+            for lang in "${LANGS[@]}"; do
+                local lang_key=$(echo "$lang" | tr '[:upper:]' '[:lower:]')
+                if [ "$lang_key" == "c++" ]; then lang_key="cpp"; fi
+                if [ "$lang_key" == "c#" ]; then lang_key="csharp"; fi
+
+                local snippet="$repo_root/templates/ai-instructions/coding-snippets/${lang_key}.md"
+                if [ -f "$snippet" ]; then
+                    echo "" >> "$output"
+                    cat "$snippet" >> "$output"
+                fi
+            done
+        fi
+
+        write_item "✓ Installed to $output" "$GREEN"
+    fi
 }
 
 get_language_selection() {
@@ -434,6 +645,9 @@ install_workspace() {
         local languages=$(get_language_selection "$detected")
         write_item "Selected: $languages" "$YELLOW"
 
+        # Auto-detect project metadata for template rendering
+        detect_project_metadata "$target_path" "$languages"
+
         # --- Install Logic ---
 
         # 1. Claude
@@ -442,8 +656,8 @@ install_workspace() {
         local claude_dir="$target_path/.claude"
         mkdir -p "$claude_dir"
 
-        # CLAUDE.md
-        safe_copy "$repo_root/catalog/CLAUDE.md" "$target_path/CLAUDE.md" true "✓ Workspace instructions installed at: $target_path/CLAUDE.md"
+        # CLAUDE.md (rendered from template with detected project metadata)
+        render_template "$repo_root/templates/ai-instructions/base-claude.md" "$target_path/CLAUDE.md" "$repo_root" "$languages"
 
         # Skills
         safe_folder_copy "$repo_root/catalog/skills" "$claude_dir/skills" "✓ Workspace skills catalog installed at: $claude_dir/skills"
@@ -470,7 +684,8 @@ install_workspace() {
         mkdir -p "$gemini_dir"
         mkdir -p "$agent_dir"
 
-        safe_copy "$repo_root/templates/ai-instructions/generic-instructions.md" "$gemini_dir/GEMINI.md" true "✓ Workspace instructions installed at: $gemini_dir/GEMINI.md"
+        # GEMINI.md (rendered from template without Claude-specific concepts)
+        render_template "$repo_root/templates/ai-instructions/base-gemini.md" "$gemini_dir/GEMINI.md" "$repo_root" "$languages"
 
         # Mirror Skills to Agent
         safe_folder_copy "$repo_root/catalog/skills" "$agent_dir/skills" "✓ Workspace skills catalog installed at: $agent_dir/skills"
@@ -493,23 +708,26 @@ install_workspace() {
         # Commands
         safe_folder_copy "$repo_root/catalog/commands" "$codex_dir/commands" "✓ Workspace commands installed at: $codex_dir/commands"
 
-        # --- Prepare Rules for Copilot ---
-        local merged_content="# AI Coding Rules\n\n"
-        
+        # --- Prepare Rules for Copilot (using concise snippets) ---
+        local merged_content="# $PROJECT_NAME - Copilot Instructions\n\n"
+        merged_content+="## Tech Stack\n"
+        merged_content+="- **Language**: $PRIMARY_LANGUAGE\n"
+        merged_content+="- **Package Manager**: $PACKAGE_MANAGER\n"
+        merged_content+="- **Test**: $TEST_FRAMEWORK\n"
+        merged_content+="- **Lint**: $LINT_TOOL\n\n"
+
         IFS=',' read -ra LANGS <<< "$languages"
         for lang in "${LANGS[@]}"; do
             lang_key=$(echo "$lang" | tr '[:upper:]' '[:lower:]')
             if [ "$lang_key" == "c++" ]; then lang_key="cpp"; fi
-            
-            src="$repo_root/templates/ai-instructions/coding-instructions/${lang_key}.md"
-            if [ ! -f "$src" ]; then
-                # Try simple mapping fix if needed, e.g. c# -> csharp
-                if [ "$lang_key" == "c#" ]; then src="$repo_root/templates/ai-instructions/coding-instructions/csharp.md"; fi
-            fi
+            if [ "$lang_key" == "c#" ]; then lang_key="csharp"; fi
 
+            # Use concise snippets instead of full language templates
+            src="$repo_root/templates/ai-instructions/coding-snippets/${lang_key}.md"
             if [ -f "$src" ]; then
-                merged_content+="\n\n## Rules for $lang\n"
+                merged_content+="\n"
                 merged_content+=$(cat "$src")
+                merged_content+="\n"
             fi
         done
 
@@ -658,19 +876,13 @@ install_vscode_extensions() {
 
     # Install into VS Code
     if command -v code >/dev/null 2>&1; then
-        local install_resp=$(read_prompt "Install extension into VS Code now? [Y]es / [N]o")
-        if [[ "$install_resp" =~ ^[Yy] ]]; then
-            code --install-extension "$vsix_file" 2>/dev/null
-            if [ $? -eq 0 ]; then
-                write_item "✓ Claude Usage Monitor extension installed in VS Code!" "$GREEN"
-                write_item "  Restart VS Code to activate. Look for 'Claude: --%' in the status bar." "$RESET"
-            else
-                write_item "VS Code install failed. Install manually:" "$YELLOW"
-                write_item "  code --install-extension \"$vsix_file\"" "$RESET"
-            fi
+        code --install-extension "$vsix_file" 2>/dev/null
+        if [ $? -eq 0 ]; then
+            write_item "✓ Claude Usage Monitor extension installed in VS Code!" "$GREEN"
+            write_item "  Restart VS Code to activate. Look for 'Claude: --%' in the status bar." "$RESET"
         else
-            write_item "VSIX saved at: $vsix_file" "$RESET"
-            write_item "Install manually: code --install-extension \"$vsix_file\"" "$GRAY"
+            write_item "VS Code install failed. Install manually:" "$YELLOW"
+            write_item "  code --install-extension \"$vsix_file\"" "$RESET"
         fi
     else
         write_item "VS Code CLI ('code') not found in PATH." "$YELLOW"
@@ -695,7 +907,7 @@ install_templates() {
     echo -e "${CYAN}----------------------------------------------------------------${RESET}"
     echo ""
     write_item "DevAI-Hub can generate professional Word (.docx) and PowerPoint (.pptx)" "$RESET"
-    write_item "reports from Markdown files using the /generate-word-report command." "$RESET"
+    write_item "reports from Markdown files using the /generate-report command." "$RESET"
     echo ""
 
     # Ensure global directories exist

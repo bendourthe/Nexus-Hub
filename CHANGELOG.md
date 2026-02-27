@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Context Engineering Skills**: 5 new skills adapted from [Agent-Skills-for-Context-Engineering](https://github.com/muratcankoylan/Agent-Skills-for-Context-Engineering) (MIT License):
+  - `context-degradation` (Orchestration): Detect and mitigate context quality decay with 5 degradation patterns and 4-bucket mitigation approach
+  - `context-compression` (Orchestration): Minimize tokens per task with anchored summarization, observation masking, and session handoff procedures
+  - `tool-design` (Developer Experience): Design effective tools/APIs for AI agents (MCP servers, slash commands) with description engineering and consolidation principles
+  - `filesystem-context-patterns` (Workflow): 6 filesystem patterns for agent context management (scratch pad, plan persistence, sub-agent communication, dynamic skill loading, terminal persistence, self-modification)
+  - `ai-output-evaluation` (Developer Experience): LLM-as-judge evaluation with multi-dimensional rubrics, bias mitigation, and token economics
+
+### Changed
+- **context-manager** (v1.1.0): Added Step 0 with context fundamentals (5-component model, attention budget, progressive disclosure, 70-80% compaction trigger)
+- **task-coordinator** (v1.1.0): Added multi-agent coordination patterns (supervisor, swarm, hierarchical), token multiplier economics, and handoff protocol template
+- **plan-before-code** (v1.1.0): Added Step 0 with LLM task suitability assessment, token cost estimation template, and 5-stage pipeline model
+
 ---
 
 ## [0.6.3] - 2026-02-20

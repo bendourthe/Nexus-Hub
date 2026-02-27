@@ -483,8 +483,19 @@ function Install-Global {
         $globalClaude = Join-Path $env:USERPROFILE ".claude"
         if (-not (Test-Path $globalClaude)) { New-Item -ItemType Directory -Force -Path $globalClaude | Out-Null }
 
-        # Global CLAUDE.md
-        Safe-Copy -Source "$RepoRoot\catalog\CLAUDE.md" -Destination "$globalClaude\CLAUDE.md" -Confirm:$true -CustomMessage "✓ Global instructions installed at: $globalClaude\CLAUDE.md"
+        # Global CLAUDE.md (new concise template with WHAT/WHY/HOW structure)
+        $script:ProjectName = "Global"
+        $script:OSContext = "I am a Windows user. Ensure shell commands are PowerShell-compatible."
+        $script:PrimaryLanguage = ""
+        $script:PackageManager = ""
+        $script:BuildTool = ""
+        $script:TestFramework = ""
+        $script:LintTool = ""
+        $script:BuildCmd = "# specify build command"
+        $script:TestCmd = "# specify test command"
+        $script:LintCmd = "# specify lint command"
+        $script:NonObviousTooling = "- (configure per project with /setup-project)"
+        Render-Template -Template "$RepoRoot\templates\ai-instructions\base-claude.md" -Output "$globalClaude\CLAUDE.md" -RepoRoot $RepoRoot -Languages @()
 
         # Global Skills
         Safe-Folder-Copy -Source "$RepoRoot\catalog\skills" -Destination (Join-Path $globalClaude "skills") -CustomMessage "✓ Global skills catalog installed at: $(Join-Path $globalClaude "skills")"
@@ -509,8 +520,8 @@ function Install-Global {
         if (-not (Test-Path $globalGeminiDir)) { New-Item -ItemType Directory -Force -Path $globalGeminiDir | Out-Null }
         if (-not (Test-Path $globalAgentDir)) { New-Item -ItemType Directory -Force -Path $globalAgentDir | Out-Null }
         
-        # Global GEMINI.md
-        Safe-Copy -Source "$RepoRoot\templates\ai-instructions\generic-instructions.md" -Destination "$globalGeminiDir\GEMINI.md" -Confirm:$true -CustomMessage "✓ Global instructions installed at: $globalGeminiDir\GEMINI.md"
+        # Global GEMINI.md (concise template without Claude-specific concepts)
+        Render-Template -Template "$RepoRoot\templates\ai-instructions\base-gemini.md" -Output "$globalGeminiDir\GEMINI.md" -RepoRoot $RepoRoot -Languages @()
         
         # Mirror Skills to Agent (Antigravity)
         Safe-Folder-Copy -Source "$RepoRoot\catalog\skills" -Destination (Join-Path $globalAgentDir "skills") -CustomMessage "✓ Global skills catalog installed at: $(Join-Path $globalAgentDir "skills")"
@@ -591,6 +602,187 @@ function Detect-Languages {
     return ($counts.GetEnumerator() | Where-Object { $_.Value -gt 0 } | Sort-Object Value -Descending).Name
 }
 
+function Detect-ProjectMetadata {
+    param(
+        [string]$TargetPath,
+        [string[]]$Languages
+    )
+
+    $script:ProjectName = Split-Path $TargetPath -Leaf
+    $script:OSContext = "I am a Windows user. Ensure shell commands are PowerShell-compatible."
+    $script:PrimaryLanguage = if ($Languages.Count -gt 0) { $Languages[0] } else { "" }
+    $script:PackageManager = ""
+    $script:BuildTool = ""
+    $script:TestFramework = ""
+    $script:LintTool = ""
+    $script:BuildCmd = "# specify build command"
+    $script:TestCmd = "# specify test command"
+    $script:LintCmd = "# specify lint command"
+    $script:NonObviousTooling = "- (add project-specific tooling notes here)"
+
+    if (Test-Path (Join-Path $TargetPath "pyproject.toml")) {
+        $script:PackageManager = "uv (or pip with venv)"
+        $script:BuildTool = "uv"
+        $script:TestFramework = "pytest"
+        $script:LintTool = "ruff"
+        $script:BuildCmd = "uv run python src/main.py"
+        $script:TestCmd = "uv run pytest tests/"
+        $script:LintCmd = "uv run ruff check . && uv run ruff format ."
+        $script:NonObviousTooling = "- Use ``uv`` not ``pip`` for Python package management (10-100x faster)"
+    }
+    elseif (Test-Path (Join-Path $TargetPath "requirements.txt")) {
+        $script:PackageManager = "pip with venv"
+        $script:BuildTool = "pip"
+        $script:TestFramework = "pytest"
+        $script:LintTool = "ruff"
+        $script:BuildCmd = "python src/main.py"
+        $script:TestCmd = "pytest tests/"
+        $script:LintCmd = "ruff check . && ruff format ."
+    }
+
+    if (Test-Path (Join-Path $TargetPath "package.json")) {
+        $script:PackageManager = "npm"
+        if (Test-Path (Join-Path $TargetPath "yarn.lock")) { $script:PackageManager = "yarn" }
+        if (Test-Path (Join-Path $TargetPath "pnpm-lock.yaml")) { $script:PackageManager = "pnpm" }
+        if (Test-Path (Join-Path $TargetPath "bun.lockb")) {
+            $script:PackageManager = "bun"
+            $script:NonObviousTooling = "- Use ``bun`` not ``npm`` for package management and script execution"
+        }
+        $script:BuildTool = $script:PackageManager
+        $script:TestFramework = "jest"
+        $script:LintTool = "eslint + prettier"
+        $script:BuildCmd = "$($script:PackageManager) run build"
+        $script:TestCmd = "$($script:PackageManager) test"
+        $script:LintCmd = "$($script:PackageManager) run lint"
+    }
+
+    if (Test-Path (Join-Path $TargetPath "go.mod")) {
+        $script:PackageManager = "go mod"
+        $script:BuildTool = "go"
+        $script:TestFramework = "go test"
+        $script:LintTool = "golangci-lint"
+        $script:BuildCmd = "go build ./..."
+        $script:TestCmd = "go test ./..."
+        $script:LintCmd = "golangci-lint run"
+    }
+
+    if (Test-Path (Join-Path $TargetPath "pom.xml")) {
+        $script:PackageManager = "Maven"
+        $script:BuildTool = "mvn"
+        $script:TestFramework = "JUnit 5"
+        $script:LintTool = "Checkstyle"
+        $script:BuildCmd = "mvn compile"
+        $script:TestCmd = "mvn test"
+        $script:LintCmd = "mvn checkstyle:check"
+    }
+    elseif ((Test-Path (Join-Path $TargetPath "build.gradle")) -or (Test-Path (Join-Path $TargetPath "build.gradle.kts"))) {
+        $script:PackageManager = "Gradle"
+        $script:BuildTool = "gradle"
+        $script:TestFramework = "JUnit 5"
+        $script:LintTool = "Checkstyle"
+        $script:BuildCmd = "./gradlew build"
+        $script:TestCmd = "./gradlew test"
+        $script:LintCmd = "./gradlew checkstyleMain"
+    }
+
+    if ((Get-ChildItem $TargetPath -Filter *.csproj -ErrorAction SilentlyContinue) -or (Get-ChildItem $TargetPath -Filter *.sln -ErrorAction SilentlyContinue)) {
+        $script:PackageManager = "NuGet (dotnet)"
+        $script:BuildTool = "dotnet"
+        $script:TestFramework = "xUnit"
+        $script:LintTool = "dotnet format"
+        $script:BuildCmd = "dotnet build"
+        $script:TestCmd = "dotnet test"
+        $script:LintCmd = "dotnet format"
+    }
+
+    if (Test-Path (Join-Path $TargetPath "CMakeLists.txt")) {
+        $script:PackageManager = "CMake"
+        $script:BuildTool = "cmake"
+        $script:TestFramework = "GoogleTest"
+        $script:LintTool = "clang-format"
+        $script:BuildCmd = "cmake --build build"
+        $script:TestCmd = "ctest --test-dir build"
+        $script:LintCmd = "clang-format -i src/*.cpp include/*.h"
+    }
+
+    # Set defaults for unfilled values
+    if ([string]::IsNullOrEmpty($script:PackageManager)) { $script:PackageManager = "(detect or specify)" }
+    if ([string]::IsNullOrEmpty($script:BuildTool)) { $script:BuildTool = "(detect or specify)" }
+    if ([string]::IsNullOrEmpty($script:TestFramework)) { $script:TestFramework = "(detect or specify)" }
+    if ([string]::IsNullOrEmpty($script:LintTool)) { $script:LintTool = "(detect or specify)" }
+}
+
+function Render-Template {
+    param(
+        [string]$Template,
+        [string]$Output,
+        [string]$RepoRoot,
+        [string[]]$Languages
+    )
+
+    if (-not (Test-Path $Template)) {
+        Write-Item -Message "Skip: Template not found ($(Split-Path $Template -Leaf))" -Color "DarkGray"
+        return
+    }
+
+    # Check for existing file (reuse overwrite logic)
+    $doWrite = $true
+    if (Test-Path $Output) {
+        if ($script:OverwriteMode -eq "ALL") {
+            # Proceed
+        }
+        elseif ($script:OverwriteMode -eq "NONE") {
+            Write-Item -Message "File exists: $Output (Skipped)" -Color "DarkGray"
+            $doWrite = $false
+        }
+        else {
+            Write-Item -Message "File exists: $Output" -Color "Yellow"
+            $resp = Read-Prompt "Overwrite? [Y]es / [N]o / [A]ll"
+            if ($resp -match "^[Aa]") { $script:OverwriteMode = "ALL" }
+            elseif ($resp -notmatch "^[Yy]") { $doWrite = $false }
+        }
+    }
+
+    if ($doWrite) {
+        $parentDir = Split-Path $Output -Parent
+        if (-not (Test-Path $parentDir)) { New-Item -ItemType Directory -Force -Path $parentDir | Out-Null }
+
+        # Read template and replace placeholders
+        $content = Get-Content $Template -Raw
+        $content = $content.Replace("{{PROJECT_NAME}}", $script:ProjectName)
+        $content = $content.Replace("{{PROJECT_DESCRIPTION}}", "(Add a 2-3 sentence project description here, or run /setup-project)")
+        $content = $content.Replace("{{PRIMARY_LANGUAGE}}", $script:PrimaryLanguage)
+        $content = $content.Replace("{{LANGUAGE_VERSION}}", "")
+        $content = $content.Replace("{{PACKAGE_MANAGER}}", $script:PackageManager)
+        $content = $content.Replace("{{BUILD_TOOL}}", $script:BuildTool)
+        $content = $content.Replace("{{TEST_FRAMEWORK}}", $script:TestFramework)
+        $content = $content.Replace("{{LINT_TOOL}}", $script:LintTool)
+        $content = $content.Replace("{{PROJECT_STRUCTURE_BRIEF}}", "(Run /setup-project to generate project layout)")
+        $content = $content.Replace("{{BUILD_CMD}}", $script:BuildCmd)
+        $content = $content.Replace("{{TEST_CMD}}", $script:TestCmd)
+        $content = $content.Replace("{{LINT_CMD}}", $script:LintCmd)
+        $content = $content.Replace("{{NON_OBVIOUS_TOOLING}}", $script:NonObviousTooling)
+        $content = $content.Replace("{{LANGUAGE_CONVENTIONS}}", "(See coding-snippets or run /setup-project)")
+        $content = $content.Replace("{{OS_CONTEXT}}", $script:OSContext)
+
+        # Append language-specific snippets
+        if ($Languages -and $Languages.Count -gt 0) {
+            foreach ($lang in $Languages) {
+                $langKey = $lang.ToLower()
+                if ($langKey -eq "c++") { $langKey = "cpp" }
+                if ($langKey -eq "c#") { $langKey = "csharp" }
+                $snippet = Join-Path $RepoRoot "templates\ai-instructions\coding-snippets\${langKey}.md"
+                if (Test-Path $snippet) {
+                    $content += "`n`n" + (Get-Content $snippet -Raw)
+                }
+            }
+        }
+
+        $content | Set-Content $Output -Encoding UTF8
+        Write-Item -Message "✓ Installed to $Output" -Color "DarkGreen"
+    }
+}
+
 function Install-Workspace {
     param ($RepoRoot)
     Write-Host "----------------------------------------------------------------" -ForegroundColor Cyan
@@ -616,6 +808,9 @@ function Install-Workspace {
         $languages = Get-LanguageSelection -Detected $detected
         Write-Host "Selected Languages: $($languages -join ', ')" -ForegroundColor Yellow
 
+        # Auto-detect project metadata for template rendering
+        Detect-ProjectMetadata -TargetPath $targetPath -Languages $languages
+
         # --- Install Logic ---
 
         # 1. Claude
@@ -623,9 +818,9 @@ function Install-Workspace {
             Write-Header -Provider "CLAUDE"
             Write-Item -Message "Installing Workspace Configuration..."
             $claudeDir = Join-Path $targetPath ".claude"
-            
-            # CLAUDE.md
-            Safe-Copy -Source "$RepoRoot\catalog\CLAUDE.md" -Destination "$targetPath\CLAUDE.md" -Confirm:$true -CustomMessage "✓ Workspace instructions installed at: $targetPath\CLAUDE.md"
+
+            # CLAUDE.md (rendered from template with detected project metadata)
+            Render-Template -Template "$RepoRoot\templates\ai-instructions\base-claude.md" -Output "$targetPath\CLAUDE.md" -RepoRoot $RepoRoot -Languages $languages
 
             # Skills
             Safe-Folder-Copy -Source "$RepoRoot\catalog\skills" -Destination (Join-Path $claudeDir "skills") -CustomMessage "✓ Workspace skills catalog installed at: $(Join-Path $claudeDir "skills")"
@@ -654,7 +849,8 @@ function Install-Workspace {
             if (-not (Test-Path $geminiDir)) { New-Item -ItemType Directory -Force -Path $geminiDir | Out-Null }
             if (-not (Test-Path $agentDir)) { New-Item -ItemType Directory -Force -Path $agentDir | Out-Null }
 
-            Safe-Copy -Source "$RepoRoot\templates\ai-instructions\generic-instructions.md" -Destination "$geminiDir\GEMINI.md" -Confirm:$true -CustomMessage "✓ Workspace instructions installed at: $geminiDir\GEMINI.md"
+            # GEMINI.md (rendered from template without Claude-specific concepts)
+            Render-Template -Template "$RepoRoot\templates\ai-instructions\base-gemini.md" -Output "$geminiDir\GEMINI.md" -RepoRoot $RepoRoot -Languages $languages
             
             # Mirror Skills to Agent
             Safe-Folder-Copy -Source "$RepoRoot\catalog\skills" -Destination (Join-Path $agentDir "skills") -CustomMessage "✓ Workspace skills catalog installed at: $(Join-Path $agentDir "skills")"
@@ -680,14 +876,20 @@ function Install-Workspace {
             Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $codexDir "commands") -CustomMessage "✓ Workspace commands installed at: $(Join-Path $codexDir "commands")"
         }
 
-        # --- Prepare Rules for Copilot/Cursor ---
-        $mergedContent = "# AI Coding Rules`n`n"
+        # --- Prepare Rules for Copilot/Cursor (using concise snippets) ---
+        $mergedContent = "# $($script:ProjectName) - Copilot Instructions`n`n"
+        $mergedContent += "## Tech Stack`n"
+        $mergedContent += "- **Language**: $($script:PrimaryLanguage)`n"
+        $mergedContent += "- **Package Manager**: $($script:PackageManager)`n"
+        $mergedContent += "- **Test**: $($script:TestFramework)`n"
+        $mergedContent += "- **Lint**: $($script:LintTool)`n`n"
         foreach ($lang in $languages) {
             $langKey = $lang.ToLower()
             if ($langKey -eq "c++") { $langKey = "cpp" }
-            $src = "$RepoRoot\templates\ai-instructions\coding-instructions\${langKey}.md"
+            if ($langKey -eq "c#") { $langKey = "csharp" }
+            $src = "$RepoRoot\templates\ai-instructions\coding-snippets\${langKey}.md"
             if (Test-Path $src) {
-                $mergedContent += "`n`n## Rules for $lang`n" + (Get-Content $src -Raw)
+                $mergedContent += "`n" + (Get-Content $src -Raw) + "`n"
             }
         }
 
@@ -861,21 +1063,14 @@ function Install-VSCodeExtensions {
     # Install into VS Code
     $codeCmd = Get-Command "code" -ErrorAction SilentlyContinue
     if ($codeCmd) {
-        $installResp = Read-Prompt "Install extension into VS Code now? [Y]es / [N]o"
-        if ($installResp -match "^[Yy]") {
-            & code --install-extension $vsixFile.FullName 2>$null | Out-Null
-            if ($LASTEXITCODE -eq 0) {
-                Write-Item -Message "✓ Claude Usage Monitor extension installed in VS Code!" -Color "DarkGreen"
-                Write-Item -Message "  Restart VS Code to activate. Look for 'Claude: --%' in the status bar." -Color "White"
-            }
-            else {
-                Write-Item -Message "VS Code install failed. You can install manually:" -Color "Yellow"
-                Write-Item -Message "  code --install-extension `"$($vsixFile.FullName)`"" -Color "White"
-            }
+        & code --install-extension $vsixFile.FullName 2>$null | Out-Null
+        if ($LASTEXITCODE -eq 0) {
+            Write-Item -Message "✓ Claude Usage Monitor extension installed in VS Code!" -Color "DarkGreen"
+            Write-Item -Message "  Restart VS Code to activate. Look for 'Claude: --%' in the status bar." -Color "White"
         }
         else {
-            Write-Item -Message "VSIX saved at: $($vsixFile.FullName)" -Color "White"
-            Write-Item -Message "Install manually: code --install-extension `"$($vsixFile.FullName)`"" -Color "Gray"
+            Write-Item -Message "VS Code install failed. You can install manually:" -Color "Yellow"
+            Write-Item -Message "  code --install-extension `"$($vsixFile.FullName)`"" -Color "White"
         }
     }
     else {
@@ -903,7 +1098,7 @@ function Install-Templates {
     Write-Host "----------------------------------------------------------------" -ForegroundColor Cyan
     Write-Host ""
     Write-Item -Message "DevAI-Hub can generate professional Word (.docx) and PowerPoint (.pptx)" -Color "White"
-    Write-Item -Message "reports from Markdown files using the /generate-word-report command." -Color "White"
+    Write-Item -Message "reports from Markdown files using the /generate-report command." -Color "White"
     Write-Host ""
 
     # Ensure global directories exist

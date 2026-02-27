@@ -300,6 +300,12 @@
 **Languages**: Multi-language
 **Priority**: MEDIUM
 
+### filesystem-context-patterns
+**Path**: `workflow/filesystem-context-patterns/`
+**Description**: Use the filesystem as a first-class context management tool for AI agent sessions. Covers 6 patterns: scratch pads, plan persistence, sub-agent communication, dynamic skill loading, terminal persistence, and self-modification.
+**Languages**: Multi-language
+**Priority**: HIGH
+
 ---
 
 ## Security Skills
@@ -372,6 +378,18 @@
 **Languages**: Multi-language
 **Priority**: MEDIUM
 
+### context-degradation
+**Path**: `orchestration/context-degradation/`
+**Description**: Detect and mitigate context quality decay in long AI agent sessions. Covers 5 degradation patterns (Lost-in-Middle, Context Poisoning, Context Distraction, Context Confusion, Context Clash), severity assessment, and the 4-bucket mitigation approach (writing, selecting, compressing, isolating).
+**Languages**: Multi-language
+**Priority**: HIGH
+
+### context-compression
+**Path**: `orchestration/context-compression/`
+**Description**: Minimize tokens per task in long-running agent sessions while preserving critical information. Covers anchored iterative summarization, observation masking, regenerative full summary, session handoff procedures, and probe-based quality validation.
+**Languages**: Multi-language
+**Priority**: HIGH
+
 ---
 
 ## Developer Experience Skills
@@ -392,6 +410,36 @@
 **Path**: `developer-experience/dependency-manager/`
 **Description**: Manage and upgrade project dependencies safely. Use when upgrading packages, handling breaking changes, managing lock files, patching vulnerabilities, or auditing dependency health across your projects.
 **Languages**: Multi-language
+**Priority**: MEDIUM
+
+### tool-design
+**Path**: `developer-experience/tool-design/`
+**Description**: Design effective tools and APIs for AI agent consumption (MCP servers, slash commands, function schemas). Covers LLM-oriented design, the consolidation principle, 4-part description engineering, tool count management, and error messages for agent recovery.
+**Languages**: Multi-language
+**Priority**: HIGH
+
+### ai-output-evaluation
+**Path**: `developer-experience/ai-output-evaluation/`
+**Description**: Evaluate AI-generated output quality using LLM-as-judge techniques, multi-dimensional rubrics, and bias mitigation. Covers rubric design, end-state evaluation, and token economics for evaluation pipelines.
+**Languages**: Multi-language
+**Priority**: MEDIUM
+
+### writing-editing
+**Path**: `developer-experience/writing-editing/`
+**Description**: Professional writing and editing principles for clear, concise documentation and prose. Use when asked to write, edit, rewrite, or review documents, README files, reports, blog posts, or any non-code text content.
+**Languages**: All
+**Priority**: MEDIUM
+
+### analysis-logic
+**Path**: `developer-experience/analysis-logic/`
+**Description**: Structured analytical reasoning and data presentation principles. Use when asked to analyze data, compare options, evaluate trade-offs, create decision matrices, or present findings with tables and structured reasoning.
+**Languages**: All
+**Priority**: MEDIUM
+
+### creative-generation
+**Path**: `developer-experience/creative-generation/`
+**Description**: Creative direction for image prompts, presentation slides, and ideation. Use when asked to generate image prompts, design slide decks, brainstorm ideas, create visual concepts, or produce creative content.
+**Languages**: All
 **Priority**: MEDIUM
 
 ---
@@ -425,22 +473,23 @@
 | Tests Generation | 8 | HIGH |
 | Code Review | 6 | HIGH |
 | Code Cleanup | 7 | MEDIUM |
-| Documentation | 6 | MEDIUM-HIGH |
+| Documentation | 7 | MEDIUM-HIGH |
 | Compliance | 8 | HIGH |
 | Project Setup | 4 | MEDIUM |
-| Workflow | 6 | HIGH |
+| Workflow | 7 | HIGH |
 | Security | 3 | HIGH |
 | Infrastructure | 4 | HIGH |
-| Orchestration | 3 | MEDIUM |
-| Developer Experience | 3 | MEDIUM |
+| Orchestration | 5 | HIGH |
+| Developer Experience | 8 | MEDIUM-HIGH |
 | Language Specialists | 3 | MEDIUM |
-| **Total** | **61** | **HIGH** |
+| Research | 1 | MEDIUM |
+| **Total** | **71** | **HIGH** |
 
 ---
 
 ## Version
 
-- **Catalog Version**: 1.2.0
+- **Catalog Version**: 1.3.0
 - **Last Updated**: February 2026
 
 

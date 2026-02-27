@@ -1,6 +1,6 @@
 ---
 name: plan-before-code
-description: Guide exploration and planning phases before implementation (Anthropic best practice). Use when starting non-trivial features, fixing bugs that need root cause analysis, refactoring code, or working in unfamiliar codebases.
+description: Guide exploration and planning phases before implementation (Anthropic best practice). Includes LLM task suitability assessment, token cost estimation, and pipeline design. Use when starting non-trivial features, fixing bugs that need root cause analysis, refactoring code, or working in unfamiliar codebases.
 ---
 
 # Plan Before Code
@@ -19,7 +19,7 @@ Use this skill for:
 - Architecture decisions
 - Security-sensitive changes
 
-**Trigger phrases**: "plan before code", "explore first", "don't code yet", "planning phase", "investigation first", "research before implementing"
+**Trigger phrases**: "plan before code", "explore first", "don't code yet", "planning phase", "investigation first", "research before implementing", "should I use AI for this", "LLM suitability", "token cost estimate"
 
 ## What This Skill Does
 
@@ -44,6 +44,46 @@ Implements Anthropic's #1 recommended best practice: **Plan-Then-Execute**.
 - Test continuously
 
 ## Instructions
+
+### Step 0: Assess LLM Task Suitability
+
+Before planning the implementation, determine whether an LLM-assisted approach is the right fit for the task. Not every task benefits from AI assistance; some tasks are better handled with traditional tooling.
+
+**Suitability Decision Matrix**:
+
+| Factor | LLM-Appropriate | LLM-Unsuitable |
+|--------|-----------------|----------------|
+| **Precision** | Approximate answers acceptable | Exact math or deterministic output required |
+| **Creativity** | Synthesis, generation, summarization | Strict rule-following, lookup tables |
+| **Error tolerance** | Minor errors acceptable with review | Zero-error tolerance (financial, medical) |
+| **Domain** | General programming, writing, analysis | Proprietary algorithms, real-time systems |
+| **Volume** | Batch processing of similar items | Sequential dependencies between items |
+| **Knowledge** | Leverages broad training knowledge | Requires proprietary or very recent data |
+
+**Token Cost Estimation** (for batch/pipeline tasks):
+
+```
+Total Cost = (items x avg_tokens_per_item x price_per_token) + 20% buffer
+
+Example:
+- 50 files x 3,000 tokens each x $0.003/1K tokens (input)
+- = 50 x 3 x $0.003 = $0.45 input
+- + output tokens + 20% buffer
+- ≈ $1.00 total estimate
+```
+
+**Pipeline Mental Model** (5 stages for LLM-powered workflows):
+
+```
+Acquire → Prepare → Process → Parse → Render
+  │          │          │         │        │
+  ▼          ▼          ▼         ▼        ▼
+Get raw    Format     LLM call  Extract  Generate
+data       into       (non-     structured final
+           prompts    deterministic) results output
+```
+
+Use this model when planning any multi-step task that involves LLM processing. The key insight: isolate the non-deterministic LLM step (Process) from deterministic steps (Acquire, Parse, Render) to make the pipeline debuggable and retryable.
 
 ### Step 1: Request Exploration
 
@@ -289,9 +329,10 @@ The planning step takes 5-10 minutes but saves 30-60 minutes of iteration and de
 
 ---
 
-**Version**: 1.0.0
-**Last Updated**: December 2025
+**Version**: 1.1.0
+**Last Updated**: February 2026
 **Based on**: Anthropic Claude Code Best Practices 2025
+**Attribution**: LLM task suitability and pipeline model adapted from [Agent-Skills-for-Context-Engineering](https://github.com/muratcankoylan/Agent-Skills-for-Context-Engineering) (MIT License)
 
 
 ### Iterative Refinement Strategy
