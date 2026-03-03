@@ -96,15 +96,14 @@ docs: update installation instructions
 
 #### Body (Optional but Recommended)
 - Explain **what** and **why**, not how
-- Wrap at 72 characters
 - Separate from subject with blank line
+- Keep each bullet point on a single line (do not wrap mid-sentence)
 
 ```
 feat(auth): add password reset functionality
 
-Users can now request a password reset via email. The reset link
-expires after 24 hours. This implements the security requirement
-from ticket AUTH-234.
+- Users can now request a password reset via email with a link that expires after 24 hours
+- Implements the security requirement from ticket AUTH-234
 ```
 
 #### Footer (Optional)
