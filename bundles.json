@@ -1,0 +1,164 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "generated": "2026-03-03",
+    "description": "Role-based skill bundles for targeted installation. Each bundle groups skills by professional role or workflow."
+  },
+  "bundles": [
+    {
+      "id": "core-developer",
+      "name": "Core Developer",
+      "description": "Essential skills for any software developer: planning, testing, debugging, and code quality.",
+      "skills": [
+        "plan-before-code",
+        "test-driven-development",
+        "code-commit-workflow",
+        "debug-with-logs",
+        "refactoring-expert",
+        "unit-tests",
+        "code-quality",
+        "add-strategic-comments",
+        "pre-commit-checklist"
+      ]
+    },
+    {
+      "id": "frontend-engineer",
+      "name": "Frontend Engineer",
+      "description": "Skills for frontend and full-stack developers working with React, Next.js, and browser testing.",
+      "skills": [
+        "react-expert",
+        "nextjs-expert",
+        "cleanup-javascript",
+        "e2e-testing-automation",
+        "api-design",
+        "authentication-patterns",
+        "async-patterns",
+        "graphql-development"
+      ]
+    },
+    {
+      "id": "backend-engineer",
+      "name": "Backend Engineer",
+      "description": "Skills for backend developers building APIs, databases, and server-side systems.",
+      "skills": [
+        "api-design",
+        "fastapi-expert",
+        "database-design",
+        "authentication-patterns",
+        "microservices-patterns",
+        "async-patterns",
+        "performance-review",
+        "dependency-security-audit"
+      ]
+    },
+    {
+      "id": "ai-engineer",
+      "name": "AI Engineer",
+      "description": "Skills for developers building AI agents, RAG pipelines, and LLM-powered applications.",
+      "skills": [
+        "ai-agent-development",
+        "rag-implementation",
+        "prompt-engineering",
+        "tool-design",
+        "ai-output-evaluation",
+        "data-pipeline-design",
+        "async-patterns"
+      ]
+    },
+    {
+      "id": "architect",
+      "name": "Software Architect",
+      "description": "Skills for system design, architecture decisions, and large-scale patterns.",
+      "skills": [
+        "architecture-design",
+        "ddd-strategic-design",
+        "api-design",
+        "microservices-patterns",
+        "event-driven-architecture",
+        "database-design",
+        "cloud-architect",
+        "kubernetes-expert"
+      ]
+    },
+    {
+      "id": "devops-engineer",
+      "name": "DevOps Engineer",
+      "description": "Skills for CI/CD, containerization, infrastructure, and observability.",
+      "skills": [
+        "containerization",
+        "kubernetes-expert",
+        "terraform-specialist",
+        "cicd-architect",
+        "observability-setup",
+        "cloud-architect",
+        "release-management",
+        "cicd-integration"
+      ]
+    },
+    {
+      "id": "security-specialist",
+      "name": "Security Specialist",
+      "description": "Skills for application security, authentication, and compliance auditing.",
+      "skills": [
+        "security-review",
+        "authentication-patterns",
+        "dependency-security-audit",
+        "pre-commit-checklist",
+        "licensing-compliance",
+        "soc2-compliance",
+        "gdpr-compliance",
+        "pci-dss-compliance"
+      ]
+    },
+    {
+      "id": "compliance-auditor",
+      "name": "Compliance Auditor",
+      "description": "Full compliance and governance skill set for regulated industries.",
+      "skills": [
+        "soc2-compliance",
+        "iso27001-compliance",
+        "iso42001-ai-governance",
+        "nist-ai-rmf",
+        "pci-dss-compliance",
+        "gdpr-compliance",
+        "ccpa-compliance",
+        "ai-agent-governance",
+        "licensing-compliance",
+        "sbom-generation"
+      ]
+    },
+    {
+      "id": "qa-engineer",
+      "name": "QA Engineer",
+      "description": "Comprehensive testing skills from unit tests through E2E and mutation testing.",
+      "skills": [
+        "test-structure",
+        "unit-tests",
+        "test-cases",
+        "mocks-fixtures",
+        "e2e-testing-automation",
+        "performance-testing",
+        "code-coverage",
+        "mutation-testing",
+        "cicd-integration"
+      ]
+    },
+    {
+      "id": "tech-lead",
+      "name": "Tech Lead",
+      "description": "Skills for technical leadership: architecture, code review, documentation, and team workflows.",
+      "skills": [
+        "architecture-design",
+        "context-analysis",
+        "code-quality",
+        "security-review",
+        "performance-review",
+        "testing-review",
+        "final-report",
+        "technical-documentation",
+        "release-management",
+        "version-upgrade"
+      ]
+    }
+  ]
+}

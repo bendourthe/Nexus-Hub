@@ -19,7 +19,7 @@ Don't want to copy-paste files manually? We made an installer.
 5.  **(Optional) Select a project** to configure workspace-specific rules.
 
 **Done.**
-*   **Globally**: Your user profile now has all 75 Claude Skills and Gemini instructions.
+*   **Globally**: Your user profile now has all 94 Claude Skills and Gemini instructions.
 *   **Locally**: Your project has `copilot-instructions.md` tailored to your language.
 
 ---
@@ -61,10 +61,15 @@ Instructions for VS Code's Copilot Chat.
 
 | Skill | What it does |
 |-------|--------------|
-| **Trend Research** | Researches Reddit/X for the last 30 days to find trends & write prompts. |
+| **Architecture Design** | System decomposition, ADRs, C4 diagrams, and fitness functions. |
+| **AI Agent Development** | Build agents with tool use, memory systems, and multi-agent orchestration. |
+| **RAG Implementation** | End-to-end RAG pipelines with chunking, embeddings, and evaluation. |
+| **API Design** | REST, GraphQL, and gRPC design with versioning and error handling. |
 | **Code Review** | A 6-step deep dive (Security, Perf, Logic) before you merge. |
 | **Test Gen** | Writes comprehensive unit tests using AAA pattern and mocks. |
+| **E2E Testing** | Playwright/Cypress automation with page objects and CI integration. |
 | **Compliance** | Checks code against SOC2, GDPR, and ISO standards. |
+| **Trend Research** | Researches Reddit/X for the last 30 days to find trends & write prompts. |
 
 [→ View Full Skills Catalog](catalog/skills/README.md)
 

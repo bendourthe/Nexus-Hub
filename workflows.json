@@ -1,0 +1,165 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "generated": "2026-03-03",
+    "description": "Pre-built goal-based workflows that chain multiple skills in sequence for common development objectives."
+  },
+  "workflows": [
+    {
+      "id": "full-code-review",
+      "name": "Full Code Review",
+      "description": "Comprehensive 6-phase code review covering context, quality, security, performance, testing, and final report.",
+      "skills": [
+        "context-analysis",
+        "code-quality",
+        "security-review",
+        "performance-review",
+        "testing-review",
+        "final-report"
+      ],
+      "estimated_time": "45-90 minutes",
+      "trigger": "When you need a thorough review before merging a feature branch or preparing a release."
+    },
+    {
+      "id": "security-audit",
+      "name": "Security Audit",
+      "description": "End-to-end security assessment covering authentication, dependencies, compliance, and code-level vulnerabilities.",
+      "skills": [
+        "security-review",
+        "authentication-patterns",
+        "dependency-security-audit",
+        "licensing-compliance",
+        "pre-commit-checklist"
+      ],
+      "estimated_time": "30-60 minutes",
+      "trigger": "Before a production release, compliance audit, or after a security incident."
+    },
+    {
+      "id": "new-project-setup",
+      "name": "New Project Setup",
+      "description": "Initialize a new project with proper structure, testing, CI/CD, documentation, and containerization.",
+      "skills": [
+        "plan-before-code",
+        "architecture-design",
+        "database-design",
+        "test-structure",
+        "cicd-integration",
+        "containerization",
+        "user-documentation"
+      ],
+      "estimated_time": "60-120 minutes",
+      "trigger": "When starting a new project or microservice from scratch."
+    },
+    {
+      "id": "api-development",
+      "name": "API Development",
+      "description": "Design, build, test, and document an API from requirements to deployment.",
+      "skills": [
+        "api-design",
+        "authentication-patterns",
+        "database-design",
+        "unit-tests",
+        "test-cases",
+        "api-documentation",
+        "performance-testing"
+      ],
+      "estimated_time": "90-180 minutes",
+      "trigger": "When designing and implementing a new API or major API revision."
+    },
+    {
+      "id": "release-preparation",
+      "name": "Release Preparation",
+      "description": "Prepare a release with full review, version bump, changelog, testing, and documentation updates.",
+      "skills": [
+        "context-analysis",
+        "code-quality",
+        "security-review",
+        "code-coverage",
+        "version-upgrade",
+        "release-management",
+        "documentation-consistency"
+      ],
+      "estimated_time": "60-120 minutes",
+      "trigger": "When preparing a version release for staging or production."
+    },
+    {
+      "id": "legacy-modernization",
+      "name": "Legacy Modernization",
+      "description": "Assess, plan, and execute a legacy codebase modernization using strangler fig and incremental refactoring.",
+      "skills": [
+        "context-analysis",
+        "architecture-design",
+        "legacy-modernizer",
+        "refactoring-expert",
+        "test-structure",
+        "unit-tests",
+        "technical-documentation"
+      ],
+      "estimated_time": "120-240 minutes",
+      "trigger": "When modernizing a legacy system or migrating to a new architecture."
+    },
+    {
+      "id": "ai-agent-pipeline",
+      "name": "AI Agent Pipeline",
+      "description": "Build an AI agent or RAG system from design through implementation and evaluation.",
+      "skills": [
+        "prompt-engineering",
+        "ai-agent-development",
+        "rag-implementation",
+        "tool-design",
+        "ai-output-evaluation",
+        "unit-tests"
+      ],
+      "estimated_time": "120-240 minutes",
+      "trigger": "When building an AI agent, RAG pipeline, or LLM-powered application."
+    },
+    {
+      "id": "compliance-assessment",
+      "name": "Compliance Assessment",
+      "description": "Full compliance review across applicable regulatory frameworks with gap analysis and remediation plan.",
+      "skills": [
+        "soc2-compliance",
+        "iso27001-compliance",
+        "gdpr-compliance",
+        "pci-dss-compliance",
+        "ai-agent-governance",
+        "sbom-generation",
+        "licensing-compliance"
+      ],
+      "estimated_time": "120-180 minutes",
+      "trigger": "When preparing for an audit, onboarding an enterprise client, or reviewing regulatory readiness."
+    },
+    {
+      "id": "test-coverage-boost",
+      "name": "Test Coverage Boost",
+      "description": "Systematically increase test coverage from unit tests through E2E with mutation testing validation.",
+      "skills": [
+        "test-structure",
+        "unit-tests",
+        "mocks-fixtures",
+        "test-cases",
+        "e2e-testing-automation",
+        "code-coverage",
+        "mutation-testing"
+      ],
+      "estimated_time": "90-180 minutes",
+      "trigger": "When test coverage is below target or test quality is uncertain."
+    },
+    {
+      "id": "production-readiness",
+      "name": "Production Readiness",
+      "description": "Validate that a system is ready for production with observability, security, performance, and resilience checks.",
+      "skills": [
+        "containerization",
+        "observability-setup",
+        "security-review",
+        "performance-review",
+        "authentication-patterns",
+        "kubernetes-expert",
+        "cicd-architect"
+      ],
+      "estimated_time": "90-180 minutes",
+      "trigger": "Before deploying a new service to production for the first time."
+    }
+  ]
+}
