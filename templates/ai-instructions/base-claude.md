@@ -34,6 +34,8 @@
 - Verify work before marking complete
 - Find root causes; no temporary fixes
 - Destructive git commands require user confirmation (enforced by git-guardrails hook)
+- Never add `Co-Authored-By` lines, AI attribution footers, or AI-generated signatures to commit messages
+- When requesting approval for a shell or bash command, always include a one-sentence plain-language explanation of what the command does and what its impact will be
 - Ask clarifying questions before coding if requirements are ambiguous
 
 ## Context References

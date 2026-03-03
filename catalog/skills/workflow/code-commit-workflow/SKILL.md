@@ -110,7 +110,7 @@ from ticket AUTH-234.
 #### Footer (Optional)
 - Reference issues
 - Note breaking changes
-- Add co-authors
+- Add trailer metadata (e.g., `Fixes #123`)
 
 ```
 feat(api)!: change response format to JSON:API
@@ -119,8 +119,9 @@ BREAKING CHANGE: API responses now follow JSON:API specification.
 Clients must update their response parsing logic.
 
 Fixes #123
-Co-authored-by: Jane Doe <jane@example.com>
 ```
+
+> **Rule**: Do NOT add `Co-Authored-By` lines, AI attribution footers, or AI-generated signatures to commit messages.
 
 ### Step 4: Commit with Full Message
 
@@ -376,6 +377,7 @@ git commit -m "test: add auth integration tests"
 - [ ] No secrets in commit
 - [ ] Related files are grouped together
 - [ ] Breaking changes are clearly marked
+- [ ] No `Co-Authored-By` or AI attribution lines in commit message
 
 ## Related Skills
 

@@ -28,5 +28,7 @@
 ## Working Conventions
 - Verify solutions work before claiming completion
 - Find root causes; no temporary fixes
+- When requesting approval for a shell or bash command, always include a one-sentence plain-language explanation of what the command does and what its impact will be
+- Never add `Co-Authored-By` lines, AI attribution footers, or AI-generated signatures to commit messages
 - Place punctuation outside quotation marks; no em-dashes
 - Professional teaching tone

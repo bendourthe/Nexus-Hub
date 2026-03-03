@@ -23,6 +23,7 @@ Analyze the current git changes and generate a comprehensive, structured commit 
         - Description: Concise summary in imperative mood (e.g., "add feature" not "added feature").
     *   **Body**: Bullet points explaining *what* changed and *why*. Group by component.
     *   **Footer**: Note any breaking changes or issue references.
+        - **DO NOT** add `Co-Authored-By` lines or AI attribution footers
 
 ## Output
 Provide the commit message in a code block for easy copying.
@@ -36,6 +37,7 @@ feat(installer): add overwrite-all support to workspace phase
 - Standardized logging format across phases
 ```
 
+**Important**: The generated commit message must never include `Co-Authored-By` lines, AI attribution footers, or AI-generated signatures. The commit message represents the developer's work, not the tool that helped write it.
 
 ## Phase: Iterative Refinement (Loop)
 
