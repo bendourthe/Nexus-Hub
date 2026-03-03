@@ -11,6 +11,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.8.0] - 2026-03-03
+
+### Added
+- **Architecture Skills** (new category, 5 skills): `architecture-design`, `ddd-strategic-design`, `api-design`, `microservices-patterns`, `event-driven-architecture`
+- **AI Development Skills** (new category, 3 skills): `ai-agent-development`, `rag-implementation`, `prompt-engineering`
+- **Framework Specialist Skills** (new category, 3 skills): `react-expert`, `nextjs-expert`, `fastapi-expert`
+- **Infrastructure Skills** (4 new): `database-design`, `data-pipeline-design`, `observability-setup`, `containerization`
+- **Testing Skill**: `e2e-testing-automation` for Playwright/Cypress browser automation with page objects, visual regression, and CI integration
+- **Security Skill**: `authentication-patterns` for OAuth 2.0, OIDC, JWT, session management, MFA, and passkeys
+- **Developer Experience Skills** (2 new): `async-patterns`, `graphql-development`
+- **Skill Bundles**: `bundles.json` with 10 role-based skill collections (Core Developer, Frontend Engineer, Backend Engineer, AI Engineer, Architect, DevOps Engineer, Security Specialist, Compliance Auditor, QA Engineer, Tech Lead)
+- **Workflow Definitions**: `workflows.json` with 10 goal-based workflows (Full Code Review, Security Audit, New Project Setup, API Development, Release Preparation, Legacy Modernization, AI Agent Pipeline, Compliance Assessment, Test Coverage Boost, Production Readiness)
+
+### Changed
+- **Skills Registry**: `skills.json` updated from 75 to 94 skills across 16 categories (3 new categories added)
+- **README.md**: Updated skill count and featured skills table with Architecture, AI, and E2E highlights
+
+### Fixed
+- **Commit Message Templates**: Removed "Wrap at 72 characters" body rule from `code-commit-workflow` skill and `generate-commit-message` command; replaced with single-line bullet point rule
+
+---
+
 ## [0.7.1] - 2026-03-03
 
 ### Fixed
@@ -2506,6 +2528,7 @@ repository_root/
 
 | Version | Date       | Description                                      |
 |---------|------------|--------------------------------------------------|
+| 0.8.0   | 2026-03-03 | **Catalog Expansion**: 19 new skills (Architecture, AI Development, Framework Specialists), bundles, workflows |
 | 0.7.1   | 2026-03-03 | **Template Hygiene**: No-AI-attribution rules, shell command clarity across all instruction templates |
 | 0.7.0   | 2026-02-27 | **Context Engineering**: 8 new skills, template rendering system, coding snippets, installer V9, report generator overhaul |
 | 0.6.3   | 2026-02-20 | **Word/PPTX Reports**: Generate Word and PowerPoint documents from Markdown, template system, installer Phase 4 |
@@ -2538,7 +2561,8 @@ repository_root/
 
 ---
 
-[Unreleased]: https://github.com/bdourthe/devai-hub/compare/v0.7.1...HEAD
+[Unreleased]: https://github.com/bdourthe/devai-hub/compare/v0.8.0...HEAD
+[0.8.0]: https://github.com/bdourthe/devai-hub/compare/v0.7.1...v0.8.0
 [0.7.1]: https://github.com/bdourthe/devai-hub/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/bdourthe/devai-hub/compare/v0.6.3...v0.7.0
 [0.6.3]: https://github.com/bdourthe/devai-hub/compare/v0.6.2...v0.6.3

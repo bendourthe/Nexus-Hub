@@ -1,5 +1,20 @@
 # Development Log
 
+## [2026-03-03] - Release 0.8.0: 19 New Skills, Bundles, Workflows
+
+*   **Goal**: Close critical skill gaps identified by comparative analysis against antigravity-awesome-skills (970+ skills), adding architecture, AI development, and framework expertise while introducing role-based bundles and goal-based workflows.
+*   **What Changed**:
+    *   **Architecture Skills** (new category, 5 skills): `architecture-design` (C4, ADRs, fitness functions), `ddd-strategic-design` (bounded contexts, aggregates, event storming), `api-design` (REST/GraphQL/gRPC, versioning, RFC 7807), `microservices-patterns` (saga, circuit breaker, CQRS), `event-driven-architecture` (Kafka, event sourcing, outbox pattern).
+    *   **AI Development Skills** (new category, 3 skills): `ai-agent-development` (ReAct, tool use, memory systems, multi-agent), `rag-implementation` (chunking, embeddings, vector stores, evaluation), `prompt-engineering` (chain-of-thought, few-shot, versioning, cost optimization).
+    *   **Framework Specialist Skills** (new category, 3 skills): `react-expert` (hooks, state management, React 19), `nextjs-expert` (App Router, Server Components, server actions), `fastapi-expert` (Pydantic v2, dependency injection, async DB).
+    *   **Infrastructure Skills** (4 new): `database-design` (schema modeling, indexing, zero-downtime migrations), `data-pipeline-design` (ETL/ELT, Airflow, dbt, Kafka), `observability-setup` (OpenTelemetry, Prometheus, Grafana), `containerization` (multi-stage Dockerfiles, security scanning, BuildKit).
+    *   **Testing/Security/DevEx Skills** (4 new): `e2e-testing-automation` (Playwright, page objects, CI sharding), `authentication-patterns` (OAuth 2.0 + PKCE, JWT, passkeys, RBAC), `async-patterns` (async/await, channels, structured concurrency), `graphql-development` (DataLoader, federation, subscriptions).
+    *   **Bundles System**: Created `bundles.json` with 10 role-based collections (Core Developer, Frontend Engineer, Backend Engineer, AI Engineer, Architect, DevOps Engineer, Security Specialist, Compliance Auditor, QA Engineer, Tech Lead).
+    *   **Workflows System**: Created `workflows.json` with 10 goal-based workflows (Full Code Review, Security Audit, New Project Setup, API Development, Release Preparation, Legacy Modernization, AI Agent Pipeline, Compliance Assessment, Test Coverage Boost, Production Readiness).
+    *   **Commit Message Templates**: Removed "Wrap at 72 characters" body rule from `code-commit-workflow` and `generate-commit-message`; replaced with single-line bullet point rule.
+    *   **Version Bump**: Updated `templates.json`, `scripts/installer.ps1`, `scripts/installer.sh`, `infrastructure/hooks/README.md` from 0.7.1 to 0.8.0.
+*   **Current Status**: Verified. All version references consistent at 0.8.0. Skills total: 94 across 16 categories.
+
 ## [2026-03-03] - Release 0.7.1: No-AI-Attribution Rules, Shell Command Clarity
 
 *   **Goal**: Enforce a universal policy preventing AI coding assistants from adding `Co-Authored-By` lines or AI attribution footers to commit messages.
