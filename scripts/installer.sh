@@ -1,5 +1,5 @@
 #!/bin/bash
-# DevAI-Hub Universal Installer V9 (v0.7.0) (macOS/Linux)
+# DevAI-Hub Universal Installer V9 (v0.7.1) (macOS/Linux)
 # Installs AI Skills Globally and to Workspaces with Safe Overwrite
 
 set -e

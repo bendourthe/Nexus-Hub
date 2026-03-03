@@ -1,5 +1,17 @@
 # Development Log
 
+## [2026-03-03] - Release 0.7.1: No-AI-Attribution Rules, Shell Command Clarity
+
+*   **Goal**: Enforce a universal policy preventing AI coding assistants from adding `Co-Authored-By` lines or AI attribution footers to commit messages.
+*   **What Changed**:
+    *   **Code Commit Workflow Skill**: Removed conflicting `Co-authored-by: Jane Doe` example from footer section, replaced "Add co-authors" with "Add trailer metadata", added blockquote prohibition rule and quality checklist item.
+    *   **Generate Commit Message Command**: Added `DO NOT` rule under Footer step and bold warning after the output example.
+    *   **Instruction Templates**: Added "no AI attribution" rule to `base-claude.md` (Critical Rules), `base-gemini.md` (Working Conventions), and `generic-instructions.md` (Git Safety). Also added "Shell Command Clarity" rule to all three templates.
+    *   **Global/Project CLAUDE.md**: Added no-attribution rule to `~/.claude/CLAUDE.md`, project `CLAUDE.md`, and `catalog/CLAUDE.md` fallback template (gitignored, applied on disk).
+    *   **README Fix**: Corrected skills count from 63 to 75 (stale since v0.7.0).
+    *   **Version Bump**: Updated `templates.json`, `scripts/installer.ps1`, `scripts/installer.sh`, `infrastructure/hooks/README.md` from 0.7.0 to 0.7.1.
+*   **Current Status**: Verified. All version references consistent at 0.7.1.
+
 ## [2026-02-27] - Release 0.7.0: Context Engineering Skills, Template Rendering, Report Overhaul
 
 *   **Goal**: Expand the skill library with context engineering capabilities, modernize the installer with template rendering, and harden the report generator.

@@ -11,6 +11,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.7.1] - 2026-03-03
+
+### Fixed
+- Removed conflicting `Co-authored-by` example from `code-commit-workflow` skill footer; replaced with trailer metadata guidance
+- Added explicit "no AI attribution" prohibition to `generate-commit-message` command, `code-commit-workflow` skill, and all instruction templates (Claude, Gemini, generic)
+- Added "Shell Command Clarity" rule to `base-claude.md`, `base-gemini.md`, and `generic-instructions.md` templates
+
+---
+
 ## [0.7.0] - 2026-02-27
 
 ### Added
@@ -2497,6 +2506,7 @@ repository_root/
 
 | Version | Date       | Description                                      |
 |---------|------------|--------------------------------------------------|
+| 0.7.1   | 2026-03-03 | **Template Hygiene**: No-AI-attribution rules, shell command clarity across all instruction templates |
 | 0.7.0   | 2026-02-27 | **Context Engineering**: 8 new skills, template rendering system, coding snippets, installer V9, report generator overhaul |
 | 0.6.3   | 2026-02-20 | **Word/PPTX Reports**: Generate Word and PowerPoint documents from Markdown, template system, installer Phase 4 |
 | 0.6.2   | 2026-02-19 | **CLI Usage Display**: Stop hook for usage limits, generate-changelog command, command catalog overhaul, documentation updates |
@@ -2528,7 +2538,8 @@ repository_root/
 
 ---
 
-[Unreleased]: https://github.com/bdourthe/devai-hub/compare/v0.7.0...HEAD
+[Unreleased]: https://github.com/bdourthe/devai-hub/compare/v0.7.1...HEAD
+[0.7.1]: https://github.com/bdourthe/devai-hub/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/bdourthe/devai-hub/compare/v0.6.3...v0.7.0
 [0.6.3]: https://github.com/bdourthe/devai-hub/compare/v0.6.2...v0.6.3
 [0.6.2]: https://github.com/bdourthe/devai-hub/compare/v0.6.1...v0.6.2
