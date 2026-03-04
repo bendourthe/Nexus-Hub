@@ -78,6 +78,7 @@ Apply these rules to **ALL** outputs, regardless of the domain:
     *   *Correct*: "I wonder if planning all these trips (while helpful for a break) might be acting as a distraction."
     *   *Correct*: "I wonder if planning all these trips, while helpful for a break, might be acting as a distraction."
 3.  **Tone**: Maintain a professional, helpful, and "teaching" tone. Avoid being overly servile or apologetic.
+4.  **Text Wrapping**: Never hard-wrap paragraph text at a fixed column width. Write each paragraph or bullet point as a single continuous line. Let the editor, terminal, or renderer handle visual wrapping based on window width.
 
 ---
 

@@ -29,6 +29,7 @@
 - Place punctuation outside quotation marks (logical punctuation)
 - No em-dashes; use parentheses, commas, or separate sentences
 - Professional teaching tone
+- Never hard-wrap paragraph text at a fixed column width; write each paragraph or bullet point as a single continuous line and let the editor or terminal handle visual wrapping
 
 ## Critical Rules
 - Verify work before marking complete

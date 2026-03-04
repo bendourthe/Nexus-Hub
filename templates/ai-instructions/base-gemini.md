@@ -32,3 +32,4 @@
 - Never add `Co-Authored-By` lines, AI attribution footers, or AI-generated signatures to commit messages
 - Place punctuation outside quotation marks; no em-dashes
 - Professional teaching tone
+- Never hard-wrap paragraph text at a fixed column width; write each paragraph or bullet point as a single continuous line and let the editor or terminal handle visual wrapping
