@@ -21,7 +21,7 @@ Analyze the current git changes and generate a comprehensive, structured commit 
         - Types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`.
         - Scope: Optional, e.g., `(auth)`, `(api)`, `(installer)`.
         - Description: Concise summary in imperative mood (e.g., "add feature" not "added feature").
-    *   **Body**: Bullet points explaining *what* changed and *why*. Group by component. Keep each bullet on a single line (do not wrap mid-sentence).
+    *   **Body**: Bullet points explaining *what* changed and *why*. Group by component. Each bullet point must be a single line with no line breaks or continuation lines, regardless of length. Never hard-wrap bullet text.
     *   **Footer**: Note any breaking changes or issue references.
         - **DO NOT** add `Co-Authored-By` lines or AI attribution footers
 

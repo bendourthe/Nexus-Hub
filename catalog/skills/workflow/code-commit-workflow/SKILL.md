@@ -97,7 +97,7 @@ docs: update installation instructions
 #### Body (Optional but Recommended)
 - Explain **what** and **why**, not how
 - Separate from subject with blank line
-- Keep each bullet point on a single line (do not wrap mid-sentence)
+- Each bullet point must be a single line with no line breaks or continuation lines, regardless of length. Never hard-wrap bullet text.
 
 ```
 feat(auth): add password reset functionality
