@@ -1,5 +1,14 @@
 # Development Log
 
+## [2026-03-04] - Release 0.8.1: No-Hard-Wrap Output Formatting Rule
+
+*   **Goal**: Prevent AI assistants from hard-wrapping paragraph text at ~80 characters, which causes text not to reflow with window width in plans, PR descriptions, and other output.
+*   **What Changed**:
+    *   **Base Templates**: Added no-hard-wrap formatting rule to `base-claude.md` (Communication Style) and `base-gemini.md` (Working Conventions).
+    *   **Coding Instructions**: Added rule 4 (Text Wrapping) to the Global Style & Communication Preferences section in all 7 language templates (python, javascript, typescript, java, go, cpp, csharp).
+    *   **Version Bump**: Updated `templates.json`, `scripts/installer.ps1`, `scripts/installer.sh`, `infrastructure/hooks/README.md` from 0.8.0 to 0.8.1.
+*   **Current Status**: Verified. All version references consistent at 0.8.1.
+
 ## [2026-03-03] - Release 0.8.0: 19 New Skills, Bundles, Workflows
 
 *   **Goal**: Close critical skill gaps identified by comparative analysis against antigravity-awesome-skills (970+ skills), adding architecture, AI development, and framework expertise while introducing role-based bundles and goal-based workflows.

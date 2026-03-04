@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.8.1] - 2026-03-04
+
+### Fixed
+- **AI Output Formatting**: Added no-hard-wrap rule to base templates (base-claude.md, base-gemini.md) and all 7 coding-instructions templates, preventing ~80-character line breaks that don't reflow with window width in plans, PR descriptions, and other output
+
+---
+
 ## [0.8.0] - 2026-03-03
 
 ### Added
@@ -2528,6 +2535,7 @@ repository_root/
 
 | Version | Date       | Description                                      |
 |---------|------------|--------------------------------------------------|
+| 0.8.1   | 2026-03-04 | **Output Formatting**: No-hard-wrap rule across all AI instruction templates |
 | 0.8.0   | 2026-03-03 | **Catalog Expansion**: 19 new skills (Architecture, AI Development, Framework Specialists), bundles, workflows |
 | 0.7.1   | 2026-03-03 | **Template Hygiene**: No-AI-attribution rules, shell command clarity across all instruction templates |
 | 0.7.0   | 2026-02-27 | **Context Engineering**: 8 new skills, template rendering system, coding snippets, installer V9, report generator overhaul |
@@ -2561,7 +2569,8 @@ repository_root/
 
 ---
 
-[Unreleased]: https://github.com/bdourthe/devai-hub/compare/v0.8.0...HEAD
+[Unreleased]: https://github.com/bdourthe/devai-hub/compare/v0.8.1...HEAD
+[0.8.1]: https://github.com/bdourthe/devai-hub/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/bdourthe/devai-hub/compare/v0.7.1...v0.8.0
 [0.7.1]: https://github.com/bdourthe/devai-hub/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/bdourthe/devai-hub/compare/v0.6.3...v0.7.0
