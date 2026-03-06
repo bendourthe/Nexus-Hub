@@ -1,5 +1,18 @@
 # Development Log
 
+## [2026-03-05] - Release 0.8.2: 134 Skills, Codex Support, Usage Monitor Overhaul
+
+*   **Goal**: Package the catalog expansion (94 → 134 skills), Codex AGENTS.md installer support, 7 new workflows, 6 new hook templates, and a major usage monitor reliability overhaul under an official version marker.
+*   **What Changed**:
+    *   **Catalog**: Grew from 94 to 134 skills with new Bug Fixing category (5 skills), enriched all role bundles, added Bug Hunter bundle; 7 new workflows added to `workflows.json`.
+    *   **Hooks Catalog**: Added 6 new hook templates to `catalog/hooks/settings.json` (secret-scan, large-file-guard, escalation-trigger, auto-format-on-write, lint-on-write, notify-on-complete, session-summary).
+    *   **Codex Support**: `scripts/installer.ps1` and `scripts/installer.sh` now install commands to `prompts/` and render `AGENTS.md` from `templates/ai-instructions/base-codex.md` (open standard for Codex, Jules, Cursor, Aider).
+    *   **Usage Monitor**: Refactored `FetchError` to typed object; added retry/backoff for 429 and 5xx; suppressed rate-limit popups; added stale data indicator; added urgency escalation notifications; added concurrency guard (`fetchInFlight`); lowered default refresh from 15 to 5 min.
+    *   **Templates**: Strengthened mandatory bash command explanation rule in `base-claude.md` and `base-gemini.md`.
+    *   **Documentation**: Added custom agent configuration section to `guides/SUBAGENTS_GUIDE.md`.
+    *   **Version Bump**: Updated `templates.json`, `scripts/installer.ps1`, `scripts/installer.sh`, `infrastructure/hooks/README.md`, `README.md` from 0.8.1 to 0.8.2.
+*   **Current Status**: Verified. All version references consistent at 0.8.2. Skills total: 134 across 17 categories.
+
 ## [2026-03-04] - Release 0.8.1: No-Hard-Wrap Output Formatting Rule
 
 *   **Goal**: Prevent AI assistants from hard-wrapping paragraph text at ~80 characters, which causes text not to reflow with window width in plans, PR descriptions, and other output.

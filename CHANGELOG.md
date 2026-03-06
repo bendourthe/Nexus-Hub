@@ -11,6 +11,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.8.2] - 2026-03-05
+
+### Added
+- **Catalog Expansion**: 40 new skills growing catalog from 94 to 134 across 17 categories, with a new Bug Fixing category (5 skills: bug-localization, bug-to-patch-generator, regression-root-cause-analyzer, bug-reproduction-test-generator, semantic-bug-detector)
+- **Bug Hunter Bundle**: New role-based bundle targeting systematic bug diagnosis, reproduction, and root-cause analysis workflows
+- **7 New Workflows**: cross-model-orchestration, research-plan-implement, token-optimization, intent-based-code-review, adversarial-code-review, competitive-implementation, progressive-delivery
+- **Hooks Catalog**: 6 new hook templates — PreToolUse secret-scan, large-file-guard, escalation-trigger on Write/Edit; PostToolUse auto-format-on-write, lint-on-write; Stop session-summary, notify-on-complete
+- **Codex AGENTS.md Support**: Both installers now render AGENTS.md from base-codex.md template and install commands to prompts/ directory (compatible with Codex, Jules, Cursor, Aider)
+- **Custom Agent Configuration Guide**: New section in SUBAGENTS_GUIDE.md covering YAML frontmatter fields, memory scopes (user/project/local), and command-agent-skill orchestration pattern
+
+### Changed
+- **Role Bundles Enriched**: Existing AI Engineer, DevOps, Security Specialist, QA Engineer, and Tech Lead bundles expanded with newly cataloged skills
+- **Usage Monitor Reliability**: Overhaul of FetchError (now typed object with code/statusCode/statusText), fetch retry with exponential backoff for 429 and 5xx, rate-limit suppression, stale data indicator (warning badge + tooltip), concurrency guard, urgency escalation notifications
+- **Refresh Interval**: Default lowered from 15 min to 5 min, minimum from 5 to 1 min
+- **Installer UI**: Added Write-CenteredBanner helper and Restore-Title calls in PS1 installer after npm/robocopy operations
+
+### Fixed
+- **Commit Message Templates**: Strengthened no-hard-wrap rule to MANDATORY with no exceptions in base-claude.md, base-gemini.md, and commit-related templates
+
+---
+
 ## [0.8.1] - 2026-03-04
 
 ### Fixed
@@ -2569,7 +2590,8 @@ repository_root/
 
 ---
 
-[Unreleased]: https://github.com/bdourthe/devai-hub/compare/v0.8.1...HEAD
+[Unreleased]: https://github.com/bdourthe/devai-hub/compare/v0.8.2...HEAD
+[0.8.2]: https://github.com/bdourthe/devai-hub/compare/v0.8.1...v0.8.2
 [0.8.1]: https://github.com/bdourthe/devai-hub/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/bdourthe/devai-hub/compare/v0.7.1...v0.8.0
 [0.7.1]: https://github.com/bdourthe/devai-hub/compare/v0.7.0...v0.7.1

@@ -19,7 +19,7 @@ Don't want to copy-paste files manually? We made an installer.
 5.  **(Optional) Select a project** to configure workspace-specific rules.
 
 **Done.**
-*   **Globally**: Your user profile now has all 94 Claude Skills and Gemini instructions.
+*   **Globally**: Your user profile now has all 134 Claude Skills and Gemini instructions.
 *   **Locally**: Your project has `copilot-instructions.md` tailored to your language.
 
 ---
