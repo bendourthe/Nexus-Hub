@@ -1,17 +1,22 @@
 import * as vscode from "vscode";
 import { UsageStore } from "./usageStore";
 import { StatusBarManager } from "./statusBarManager";
-import { UsageFetcher } from "./usageFetcher";
+import { UsageFetcher, FetchError } from "./usageFetcher";
 import { DashboardPanel } from "./dashboardPanel";
 import { collectUsageData, collectResetTimers } from "./inputCollector";
 import { getRecommendation, getOverallUrgency } from "./recommendations";
-import { MODEL_DISPLAY_NAMES } from "./types";
+import { MODEL_DISPLAY_NAMES, UrgencyLevel } from "./types";
 
 const UPDATE_COMMAND = "claude-usage.update";
 const RECOMMEND_COMMAND = "claude-usage.recommend";
 const RESET_COMMAND = "claude-usage.reset";
 const DASHBOARD_COMMAND = "claude-usage.dashboard";
 const REFRESH_COMMAND = "claude-usage.refresh";
+
+let consecutiveFailures = 0;
+let lastFetchError: FetchError | undefined;
+let failureNotificationShown = false;
+let fetchInFlight = false;
 
 export function activate(context: vscode.ExtensionContext): void {
   const store = new UsageStore(context.globalState);
@@ -26,6 +31,9 @@ export function activate(context: vscode.ExtensionContext): void {
   // Wire up auto-refresh: when the timer fires, trigger a fetch
   statusBar.setAutoRefreshCallback(() => autoFetchAndUpdate(fetcher, store, statusBar));
 
+  // Wire up reset-expiry detection: when a cached reset timestamp passes, refetch
+  statusBar.setResetExpiredCallback(() => autoFetchAndUpdate(fetcher, store, statusBar));
+
   // Auto-fetch on activation (silent)
   if (config.get<boolean>("autoFetch", true)) {
     autoFetchAndUpdate(fetcher, store, statusBar);
@@ -33,15 +41,15 @@ export function activate(context: vscode.ExtensionContext): void {
 
   // Command: Show dashboard panel
   const dashboardCommand = vscode.commands.registerCommand(DASHBOARD_COMMAND, () => {
-    const data = store.get();
+    const data = store.getWithFreshCountdowns();
     const timeSince = store.getTimeSinceUpdate();
 
-    DashboardPanel.show(data, timeSince, {
+    DashboardPanel.show(data, timeSince, lastFetchError, {
       onRefresh: async () => {
         await autoFetchAndUpdate(fetcher, store, statusBar);
-        const updatedData = store.get();
+        const updatedData = store.getWithFreshCountdowns();
         const updatedTime = store.getTimeSinceUpdate();
-        DashboardPanel.show(updatedData, updatedTime, {
+        DashboardPanel.show(updatedData, updatedTime, lastFetchError, {
           onRefresh: () => vscode.commands.executeCommand(REFRESH_COMMAND),
           onManualInput: () => vscode.commands.executeCommand(UPDATE_COMMAND),
           onOpenUsagePage: () =>
@@ -58,17 +66,28 @@ export function activate(context: vscode.ExtensionContext): void {
   const refreshCommand = vscode.commands.registerCommand(REFRESH_COMMAND, async () => {
     const result = await fetcher.fetch(store.getCurrentModel());
     if (result.success) {
+      consecutiveFailures = 0;
+      lastFetchError = undefined;
+      failureNotificationShown = false;
+      statusBar.resetBackoff();
       await store.save(result.data);
       statusBar.refresh();
       vscode.window.showInformationMessage("Claude usage data refreshed.");
     } else {
-      const action = await vscode.window.showWarningMessage(
-        `Auto-fetch failed: ${UsageFetcher.getErrorMessage(result.error)}`,
-        "Enter Manually",
-        "Dismiss"
-      );
-      if (action === "Enter Manually") {
-        vscode.commands.executeCommand(UPDATE_COMMAND);
+      if (result.error.code === "rate-limited") {
+        // Don't alarm the user for rate-limiting (known upstream issue)
+        vscode.window.showInformationMessage(
+          "Usage API temporarily unavailable. Showing cached data."
+        );
+      } else {
+        const action = await vscode.window.showWarningMessage(
+          `Fetch failed: ${UsageFetcher.getErrorMessage(result.error)}`,
+          "Enter Manually",
+          "Dismiss"
+        );
+        if (action === "Enter Manually") {
+          vscode.commands.executeCommand(UPDATE_COMMAND);
+        }
       }
     }
   });
@@ -233,11 +252,73 @@ async function autoFetchAndUpdate(
   store: UsageStore,
   statusBar: StatusBarManager
 ): Promise<void> {
-  const result = await fetcher.fetch(store.getCurrentModel());
-  if (result.success) {
-    await store.save(result.data);
-    statusBar.refresh();
+  if (fetchInFlight) {
+    return;
   }
+  fetchInFlight = true;
+  try {
+    const result = await fetcher.fetch(store.getCurrentModel());
+    if (result.success) {
+      consecutiveFailures = 0;
+      lastFetchError = undefined;
+      failureNotificationShown = false;
+      statusBar.resetBackoff();
+
+      const previousUrgency = store.getLastUrgency();
+      await store.save(result.data);
+
+      const newUrgency = getOverallUrgency(result.data);
+      await store.saveLastUrgency(newUrgency);
+
+      // Only show recommendation notification when urgency escalates
+      if (previousUrgency && urgencyEscalated(previousUrgency, newUrgency)) {
+        const recommendation = getRecommendation(result.data);
+        vscode.window
+          .showWarningMessage(`Claude Usage: ${recommendation.message}`, "Show Dashboard")
+          .then((action) => {
+            if (action === "Show Dashboard") {
+              vscode.commands.executeCommand(DASHBOARD_COMMAND);
+            }
+          });
+      }
+
+      statusBar.refresh();
+    } else {
+      consecutiveFailures++;
+      lastFetchError = result.error;
+
+      if (result.error.code === "rate-limited") {
+        statusBar.applyBackoff();
+        // Don't show popup for rate-limiting (known upstream Anthropic issue)
+      } else if (consecutiveFailures >= 2 && !failureNotificationShown) {
+        // Only show popup for actionable errors (not rate-limiting)
+        failureNotificationShown = true;
+        const action = await vscode.window.showWarningMessage(
+          `Auto-fetch failed: ${UsageFetcher.getErrorMessage(result.error)}`,
+          "Enter Manually",
+          "Dismiss"
+        );
+        if (action === "Enter Manually") {
+          vscode.commands.executeCommand("claude-usage.update");
+        }
+      }
+
+      statusBar.refresh();
+    }
+  } finally {
+    fetchInFlight = false;
+  }
+}
+
+const URGENCY_ORDER: Record<UrgencyLevel, number> = {
+  low: 0,
+  moderate: 1,
+  high: 2,
+  critical: 3,
+};
+
+function urgencyEscalated(previous: UrgencyLevel, current: UrgencyLevel): boolean {
+  return URGENCY_ORDER[current] > URGENCY_ORDER[previous];
 }
 
 function showTipsPanel(tips: string[]): void {

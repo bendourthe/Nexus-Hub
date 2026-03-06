@@ -9,6 +9,64 @@
             "command": "bash .claude/hooks/git-guardrails.sh"
           }
         ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/secret-scan.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/large-file-guard.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/escalation-trigger.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/secret-scan.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/escalation-trigger.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/auto-format-on-write.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/lint-on-write.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/auto-format-on-write.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/lint-on-write.sh"
+          }
+        ]
       }
     ],
     "Stop": [
@@ -18,6 +76,14 @@
           {
             "type": "command",
             "command": "bash .claude/hooks/usage-display.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/notify-on-complete.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/session-summary.sh"
           }
         ]
       }

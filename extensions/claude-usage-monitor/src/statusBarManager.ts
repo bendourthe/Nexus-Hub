@@ -6,7 +6,10 @@ import { UsageStore } from "./usageStore";
 export class StatusBarManager {
   private readonly statusBarItem: vscode.StatusBarItem;
   private autoRefreshTimer: ReturnType<typeof setInterval> | undefined;
+  private displayTickTimer: ReturnType<typeof setInterval> | undefined;
   private onAutoRefresh: (() => void) | undefined;
+  private onResetExpired: (() => void) | undefined;
+  private backoffMultiplier = 1;
 
   constructor(
     private readonly store: UsageStore,
@@ -24,20 +27,56 @@ export class StatusBarManager {
     this.onAutoRefresh = callback;
   }
 
+  setResetExpiredCallback(callback: () => void): void {
+    this.onResetExpired = callback;
+  }
+
   show(): void {
     this.refresh();
     this.statusBarItem.show();
     this.startAutoRefreshTimer();
+    this.startDisplayTick();
   }
 
   hide(): void {
     this.statusBarItem.hide();
     this.stopAutoRefreshTimer();
+    this.stopDisplayTick();
   }
 
   refresh(): void {
-    const data = this.store.get();
+    const data = this.store.getWithFreshCountdowns();
+    this.updateDisplay(data);
+  }
 
+  applyBackoff(): void {
+    this.backoffMultiplier = Math.min(this.backoffMultiplier * 2, 4);
+    this.startAutoRefreshTimer();
+  }
+
+  resetBackoff(): void {
+    if (this.backoffMultiplier !== 1) {
+      this.backoffMultiplier = 1;
+      this.startAutoRefreshTimer();
+    }
+  }
+
+  dispose(): void {
+    this.stopAutoRefreshTimer();
+    this.stopDisplayTick();
+    this.statusBarItem.dispose();
+  }
+
+  private tick(): void {
+    const data = this.store.getWithFreshCountdowns();
+    this.updateDisplay(data);
+
+    if (this.onResetExpired && this.store.hasResetExpired()) {
+      this.onResetExpired();
+    }
+  }
+
+  private updateDisplay(data: UsageData | undefined): void {
     if (!data) {
       this.statusBarItem.text = "$(claude-icon) Claude Usage: --% (current) --% (week)";
       this.statusBarItem.tooltip = "Click to view Claude usage dashboard";
@@ -46,17 +85,20 @@ export class StatusBarManager {
     }
 
     const overallUrgency = getOverallUrgency(data);
+    const staleLabel = this.isDataStale(data) ? " $(warning)" : "";
 
     this.statusBarItem.text =
-      `$(claude-icon) Claude Usage: ${data.session.percent}% (current) ${data.weeklyAllModels.percent}% (week)`;
+      `$(claude-icon) Claude Usage: ${data.session.percent}% (current) ${data.weeklyAllModels.percent}% (week)${staleLabel}`;
 
     this.statusBarItem.tooltip = this.buildTooltip(data);
     this.statusBarItem.backgroundColor = this.getBackgroundColor(overallUrgency);
   }
 
-  dispose(): void {
-    this.stopAutoRefreshTimer();
-    this.statusBarItem.dispose();
+  private isDataStale(data: UsageData): boolean {
+    const config = vscode.workspace.getConfiguration("claudeUsage");
+    const intervalMinutes = config.get<number>("refreshInterval", 5);
+    const staleThresholdMs = intervalMinutes * 2 * 60_000;
+    return Date.now() - data.lastUpdated > staleThresholdMs;
   }
 
   private buildTooltip(data: UsageData): vscode.MarkdownString {
@@ -108,8 +150,13 @@ export class StatusBarManager {
       `<img src="${sectionImg(label, pct)}" width="${W}" height="${svgH}"><br>` +
       `<em>${resetLabel(resetsIn)}</em><br><br>`;
 
+    const staleWarning = this.isDataStale(data)
+      ? `<span style="color:#cca700">&#9888; Data may be stale (last updated ${timeSince})</span><br><br>`
+      : "";
+
     md.appendMarkdown(
       `<span style="opacity:0.6">Claude Usage</span><br><br>` +
+      staleWarning +
       section("Current Session", data.session.percent, data.session.resetsIn) +
       section("Weekly Limits", data.weeklyAllModels.percent, data.weeklyAllModels.resetsIn) +
       section("Sonnet only", data.weeklySonnet.percent, data.weeklySonnet.resetsIn) +
@@ -137,19 +184,32 @@ export class StatusBarManager {
     this.stopAutoRefreshTimer();
 
     const config = vscode.workspace.getConfiguration("claudeUsage");
-    const intervalMinutes = config.get<number>("refreshInterval", 15);
+    const intervalMinutes = config.get<number>("refreshInterval", 5);
+    const effectiveMs = intervalMinutes * 60_000 * this.backoffMultiplier;
 
     this.autoRefreshTimer = setInterval(() => {
       if (this.onAutoRefresh) {
         this.onAutoRefresh();
       }
-    }, intervalMinutes * 60_000);
+    }, effectiveMs);
   }
 
   private stopAutoRefreshTimer(): void {
     if (this.autoRefreshTimer) {
       clearInterval(this.autoRefreshTimer);
       this.autoRefreshTimer = undefined;
+    }
+  }
+
+  private startDisplayTick(): void {
+    this.stopDisplayTick();
+    this.displayTickTimer = setInterval(() => this.tick(), 60_000);
+  }
+
+  private stopDisplayTick(): void {
+    if (this.displayTickTimer) {
+      clearInterval(this.displayTickTimer);
+      this.displayTickTimer = undefined;
     }
   }
 }

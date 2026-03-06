@@ -1,0 +1,4 @@
+interface:
+  display_name: Observability Setup
+  short_description: Observability implementation including structured logging, metrics collection, distributed tracing, and alerting. Use when setting up monitoring, implementing OpenTelemetry, or designing
+    dashboards.

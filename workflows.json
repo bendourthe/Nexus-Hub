@@ -160,6 +160,101 @@
       ],
       "estimated_time": "90-180 minutes",
       "trigger": "Before deploying a new service to production for the first time."
+    },
+    {
+      "id": "cross-model-orchestration",
+      "name": "Cross-Model Orchestration",
+      "description": "Coordinate multiple AI coding assistants (Claude Code, Codex, Gemini, Copilot) in a structured workflow with planning, QA review, implementation, and verification phases.",
+      "skills": [
+        "cross-model-orchestrator",
+        "plan-before-code",
+        "quality-gate-definitions",
+        "task-coordinator",
+        "workflow-orchestrator"
+      ],
+      "estimated_time": "120-240 minutes",
+      "trigger": "When a complex task benefits from using multiple AI models for different phases (planning, review, implementation, verification)."
+    },
+    {
+      "id": "research-plan-implement",
+      "name": "Research-Plan-Implement (RPI)",
+      "description": "Structured RPI workflow with GO/NO-GO gates between research, planning, and implementation phases, producing persistent artifact files.",
+      "skills": [
+        "research-plan-implement",
+        "plan-before-code",
+        "quality-gate-definitions",
+        "context-manager",
+        "workflow-orchestrator"
+      ],
+      "estimated_time": "90-180 minutes",
+      "trigger": "When starting a feature that requires upfront research, multi-perspective planning, and phased implementation with formal approval gates."
+    },
+    {
+      "id": "token-optimization",
+      "name": "Token Optimization",
+      "description": "Audit and optimize token consumption across tool calls, context window usage, and prompt design to reduce cost and maximize effective context.",
+      "skills": [
+        "prompt-token-optimization",
+        "context-compression",
+        "context-manager",
+        "context-degradation"
+      ],
+      "estimated_time": "30-60 minutes",
+      "trigger": "When hitting context limits frequently, when token costs are too high, or when optimizing a workflow for efficiency."
+    },
+    {
+      "id": "intent-based-code-review",
+      "name": "Intent-Based Code Review",
+      "description": "Review AI-generated code by verifying acceptance criteria pass/fail status rather than line-by-line inspection. Detailed review triggered only for failed criteria.",
+      "skills": [
+        "requirement-enhancer",
+        "bdd-acceptance-tests",
+        "intent-based-review",
+        "security-review",
+        "final-report"
+      ],
+      "estimated_time": "20-45 minutes",
+      "trigger": "When reviewing AI-generated code at scale, when acceptance criteria are well-defined, or when PR volume exceeds human review capacity."
+    },
+    {
+      "id": "adversarial-code-review",
+      "name": "Adversarial Code Review",
+      "description": "Extend standard or intent-based review with an adversarial breaker agent that actively tries to break the implementation through edge cases, injection attacks, and contract violations.",
+      "skills": [
+        "intent-based-review",
+        "adversarial-verifier",
+        "edge-case-generator",
+        "security-review",
+        "final-report"
+      ],
+      "estimated_time": "45-90 minutes",
+      "trigger": "When reviewing high-stakes changes (security, payments, data integrity) that warrant independent adversarial testing before merge."
+    },
+    {
+      "id": "competitive-implementation",
+      "name": "Competitive Implementation",
+      "description": "Run multiple agents in parallel on the same task, score candidates objectively (test passage, diff size, dependencies, lint, complexity), and select the best implementation.",
+      "skills": [
+        "competitive-generation",
+        "quality-gate-definitions",
+        "intent-based-review",
+        "adversarial-verifier"
+      ],
+      "estimated_time": "60-120 minutes",
+      "trigger": "When a high-value or high-risk change justifies running multiple agent attempts to select the best implementation."
+    },
+    {
+      "id": "progressive-delivery",
+      "name": "Progressive Delivery",
+      "description": "Deploy with canary analysis and automated rollback. Chains deployment pipeline generation, observability setup, and rollback strategy into a single deploy-observe-revert workflow.",
+      "skills": [
+        "cd-pipeline-generator",
+        "observability-setup",
+        "rollback-strategy-advisor",
+        "quality-gate-definitions"
+      ],
+      "estimated_time": "60-120 minutes",
+      "trigger": "When deploying a change that requires canary analysis, staged rollout, and automated rollback triggers."
     }
   ]
 }

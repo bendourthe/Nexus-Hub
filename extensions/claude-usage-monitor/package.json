@@ -77,10 +77,10 @@
         },
         "claudeUsage.refreshInterval": {
           "type": "number",
-          "default": 15,
-          "minimum": 5,
+          "default": 5,
+          "minimum": 1,
           "maximum": 120,
-          "description": "Minutes between automatic usage data refreshes"
+          "description": "How often (in minutes) to fetch usage data from the API"
         },
         "claudeUsage.showInStatusBar": {
           "type": "boolean",

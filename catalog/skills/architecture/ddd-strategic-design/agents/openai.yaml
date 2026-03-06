@@ -1,0 +1,3 @@
+interface:
+  display_name: DDD Strategic Design
+  short_description: Domain-Driven Design strategic and tactical patterns for complex business domains. Use when modeling domains, defining bounded contexts, or designing aggregates and domain events.

@@ -1,0 +1,4 @@
+interface:
+  display_name: Licensing Compliance Check
+  short_description: Audit project dependencies for license compliance, identify legal issues, verify compatibility between licenses, and generate compliance reports. Use when releasing software, adding
+    dependencies, corp

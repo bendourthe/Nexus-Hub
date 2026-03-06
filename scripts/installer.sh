@@ -4,6 +4,9 @@
 
 set -e
 
+# --- Window Title ---
+printf '\033]0;DevAI-Hub Installer\007'
+
 # --- Colors ---
 RESET='\033[0m'
 RED='\033[0;31m'
@@ -349,8 +352,11 @@ install_global() {
     # Global Skills
     safe_folder_copy "$repo_root/catalog/skills" "$global_codex_dir/skills" "✓ Global skills catalog installed at: $global_codex_dir/skills"
     
-    # Global Commands
-    safe_folder_copy "$repo_root/catalog/commands" "$global_codex_dir/commands" "✓ Global commands installed at: $global_codex_dir/commands"
+    # Global Custom Prompts (Codex equivalent of commands)
+    safe_folder_copy "$repo_root/catalog/commands" "$global_codex_dir/prompts" "✓ Global custom prompts installed at: $global_codex_dir/prompts"
+
+    # Global AGENTS.md (open standard instruction file for Codex, Jules, Cursor, Aider)
+    render_template "$repo_root/templates/ai-instructions/base-codex.md" "$global_codex_dir/AGENTS.md" "$repo_root" ""
 
     # 4. Microsoft - Github Copilot
     write_header "COPILOT"
@@ -705,8 +711,11 @@ install_workspace() {
         # Skills
         safe_folder_copy "$repo_root/catalog/skills" "$codex_dir/skills" "✓ Workspace skills catalog installed at: $codex_dir/skills"
         
-        # Commands
-        safe_folder_copy "$repo_root/catalog/commands" "$codex_dir/commands" "✓ Workspace commands installed at: $codex_dir/commands"
+        # Custom Prompts (Codex equivalent of commands)
+        safe_folder_copy "$repo_root/catalog/commands" "$codex_dir/prompts" "✓ Workspace custom prompts installed at: $codex_dir/prompts"
+
+        # AGENTS.md at project root (open standard for Codex, Jules, Cursor, Aider)
+        render_template "$repo_root/templates/ai-instructions/base-codex.md" "$target_path/AGENTS.md" "$repo_root" "$languages"
 
         # --- Prepare Rules for Copilot (using concise snippets) ---
         local merged_content="# $PROJECT_NAME - Copilot Instructions\n\n"

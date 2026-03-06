@@ -1,0 +1,4 @@
+interface:
+  display_name: Framework Migration Assistant
+  short_description: 'Guide framework and library migrations (Express to Fastify, Angular to React, Spring MVC to Spring Boot, Django to FastAPI) with migration assessment, dependency mapping, API translation,
+    incremental '

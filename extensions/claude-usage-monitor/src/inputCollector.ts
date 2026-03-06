@@ -66,14 +66,17 @@ export async function collectUsageData(
     session: {
       percent: parseFloat(sessionInput),
       resetsIn: "a few minutes",
+      resetsAt: null,
     },
     weeklyAllModels: {
       percent: parseFloat(weeklyInput),
       resetsIn: "end of week",
+      resetsAt: null,
     },
     weeklySonnet: {
       percent: parseFloat(sonnetInput),
       resetsIn: "end of week",
+      resetsAt: null,
     },
     currentModel: modelKey,
     lastUpdated: Date.now(),

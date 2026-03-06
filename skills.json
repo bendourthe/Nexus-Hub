@@ -6,33 +6,34 @@
     "description": "Comprehensive catalog of Claude Code skills for autonomous AI development"
   },
   "statistics": {
-    "total_skills": 94,
+    "total_skills": 134,
     "categories": {
       "Documentation": 7,
       "Code Cleanup": 7,
-      "Workflow": 11,
-      "Code Review": 6,
-      "Security": 4,
-      "Testing": 9,
+      "Workflow": 14,
+      "Code Review": 8,
+      "Security": 7,
+      "Testing": 17,
       "Project Initialization": 4,
       "Research": 1,
-      "Compliance": 8,
-      "Developer Experience": 10,
-      "Infrastructure": 7,
+      "Compliance": 9,
+      "Developer Experience": 18,
+      "Infrastructure": 11,
       "Language Specialists": 3,
-      "Orchestration": 5,
-      "Architecture": 5,
+      "Orchestration": 8,
+      "Architecture": 6,
       "AI Development": 3,
-      "Framework Specialists": 3
+      "Framework Specialists": 3,
+      "Bug Fixing": 5
     },
     "priorities": {
-      "MEDIUM": 43,
-      "HIGH": 29,
-      "CRITICAL": 3
+      "HIGH": 44,
+      "MEDIUM": 88,
+      "CRITICAL": 2
     },
-    "total_lines": 62467,
-    "total_tokens_estimate": 275572,
-    "average_lines_per_skill": 847,
+    "total_lines": 78963,
+    "total_tokens_estimate": 410546,
+    "average_lines_per_skill": 589,
     "languages_supported": [
       "Python",
       "JavaScript",
@@ -42,7 +43,7 @@
       "C",
       "C++"
     ],
-    "last_updated": "2026-03-03"
+    "last_updated": "2026-03-05"
   },
   "skills": [
     {
@@ -1382,10 +1383,19 @@
       "tools_required": [],
       "path": "catalog/skills/compliance/ai-agent-governance/",
       "file": "catalog/skills/compliance/ai-agent-governance/SKILL.md",
-      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "size": {
+        "lines": 0,
+        "characters": 0,
+        "tokens_estimate": 0
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     },
     {
       "name": "ccpa-compliance",
@@ -1402,10 +1412,19 @@
       "tools_required": [],
       "path": "catalog/skills/compliance/ccpa-compliance/",
       "file": "catalog/skills/compliance/ccpa-compliance/SKILL.md",
-      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "size": {
+        "lines": 0,
+        "characters": 0,
+        "tokens_estimate": 0
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     },
     {
       "name": "gdpr-compliance",
@@ -1422,10 +1441,19 @@
       "tools_required": [],
       "path": "catalog/skills/compliance/gdpr-compliance/",
       "file": "catalog/skills/compliance/gdpr-compliance/SKILL.md",
-      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "size": {
+        "lines": 0,
+        "characters": 0,
+        "tokens_estimate": 0
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     },
     {
       "name": "iso27001-compliance",
@@ -1442,10 +1470,19 @@
       "tools_required": [],
       "path": "catalog/skills/compliance/iso27001-compliance/",
       "file": "catalog/skills/compliance/iso27001-compliance/SKILL.md",
-      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "size": {
+        "lines": 0,
+        "characters": 0,
+        "tokens_estimate": 0
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     },
     {
       "name": "iso42001-ai-governance",
@@ -1462,10 +1499,19 @@
       "tools_required": [],
       "path": "catalog/skills/compliance/iso42001-ai-governance/",
       "file": "catalog/skills/compliance/iso42001-ai-governance/SKILL.md",
-      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "size": {
+        "lines": 0,
+        "characters": 0,
+        "tokens_estimate": 0
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     },
     {
       "name": "nist-ai-rmf",
@@ -1482,10 +1528,19 @@
       "tools_required": [],
       "path": "catalog/skills/compliance/nist-ai-rmf/",
       "file": "catalog/skills/compliance/nist-ai-rmf/SKILL.md",
-      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "size": {
+        "lines": 0,
+        "characters": 0,
+        "tokens_estimate": 0
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     },
     {
       "name": "pci-dss-compliance",
@@ -1502,10 +1557,19 @@
       "tools_required": [],
       "path": "catalog/skills/compliance/pci-dss-compliance/",
       "file": "catalog/skills/compliance/pci-dss-compliance/SKILL.md",
-      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "size": {
+        "lines": 0,
+        "characters": 0,
+        "tokens_estimate": 0
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     },
     {
       "name": "soc2-compliance",
@@ -1522,10 +1586,19 @@
       "tools_required": [],
       "path": "catalog/skills/compliance/soc2-compliance/",
       "file": "catalog/skills/compliance/soc2-compliance/SKILL.md",
-      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "size": {
+        "lines": 0,
+        "characters": 0,
+        "tokens_estimate": 0
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     },
     {
       "name": "dependency-manager",
@@ -1542,10 +1615,19 @@
       "tools_required": [],
       "path": "catalog/skills/developer-experience/dependency-manager/",
       "file": "catalog/skills/developer-experience/dependency-manager/SKILL.md",
-      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "size": {
+        "lines": 0,
+        "characters": 0,
+        "tokens_estimate": 0
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     },
     {
       "name": "legacy-modernizer",
@@ -1562,10 +1644,19 @@
       "tools_required": [],
       "path": "catalog/skills/developer-experience/legacy-modernizer/",
       "file": "catalog/skills/developer-experience/legacy-modernizer/SKILL.md",
-      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "size": {
+        "lines": 0,
+        "characters": 0,
+        "tokens_estimate": 0
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     },
     {
       "name": "refactoring-expert",
@@ -1582,10 +1673,19 @@
       "tools_required": [],
       "path": "catalog/skills/developer-experience/refactoring-expert/",
       "file": "catalog/skills/developer-experience/refactoring-expert/SKILL.md",
-      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "size": {
+        "lines": 0,
+        "characters": 0,
+        "tokens_estimate": 0
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     },
     {
       "name": "cicd-architect",
@@ -1602,10 +1702,19 @@
       "tools_required": [],
       "path": "catalog/skills/infrastructure/cicd-architect/",
       "file": "catalog/skills/infrastructure/cicd-architect/SKILL.md",
-      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "size": {
+        "lines": 0,
+        "characters": 0,
+        "tokens_estimate": 0
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     },
     {
       "name": "cloud-architect",
@@ -1622,10 +1731,19 @@
       "tools_required": [],
       "path": "catalog/skills/infrastructure/cloud-architect/",
       "file": "catalog/skills/infrastructure/cloud-architect/SKILL.md",
-      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "size": {
+        "lines": 0,
+        "characters": 0,
+        "tokens_estimate": 0
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     },
     {
       "name": "kubernetes-expert",
@@ -1642,10 +1760,19 @@
       "tools_required": [],
       "path": "catalog/skills/infrastructure/kubernetes-expert/",
       "file": "catalog/skills/infrastructure/kubernetes-expert/SKILL.md",
-      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "size": {
+        "lines": 0,
+        "characters": 0,
+        "tokens_estimate": 0
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     },
     {
       "name": "terraform-specialist",
@@ -1662,10 +1789,19 @@
       "tools_required": [],
       "path": "catalog/skills/infrastructure/terraform-specialist/",
       "file": "catalog/skills/infrastructure/terraform-specialist/SKILL.md",
-      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "size": {
+        "lines": 0,
+        "characters": 0,
+        "tokens_estimate": 0
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     },
     {
       "name": "go-expert",
@@ -1682,10 +1818,19 @@
       "tools_required": [],
       "path": "catalog/skills/language-specialists/go-expert/",
       "file": "catalog/skills/language-specialists/go-expert/SKILL.md",
-      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "size": {
+        "lines": 0,
+        "characters": 0,
+        "tokens_estimate": 0
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     },
     {
       "name": "rust-expert",
@@ -1702,10 +1847,19 @@
       "tools_required": [],
       "path": "catalog/skills/language-specialists/rust-expert/",
       "file": "catalog/skills/language-specialists/rust-expert/SKILL.md",
-      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "size": {
+        "lines": 0,
+        "characters": 0,
+        "tokens_estimate": 0
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     },
     {
       "name": "sql-expert",
@@ -1722,10 +1876,19 @@
       "tools_required": [],
       "path": "catalog/skills/language-specialists/sql-expert/",
       "file": "catalog/skills/language-specialists/sql-expert/SKILL.md",
-      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "size": {
+        "lines": 0,
+        "characters": 0,
+        "tokens_estimate": 0
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     },
     {
       "name": "context-manager",
@@ -1742,10 +1905,19 @@
       "tools_required": [],
       "path": "catalog/skills/orchestration/context-manager/",
       "file": "catalog/skills/orchestration/context-manager/SKILL.md",
-      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "size": {
+        "lines": 0,
+        "characters": 0,
+        "tokens_estimate": 0
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     },
     {
       "name": "task-coordinator",
@@ -1762,10 +1934,19 @@
       "tools_required": [],
       "path": "catalog/skills/orchestration/task-coordinator/",
       "file": "catalog/skills/orchestration/task-coordinator/SKILL.md",
-      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "size": {
+        "lines": 0,
+        "characters": 0,
+        "tokens_estimate": 0
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     },
     {
       "name": "workflow-orchestrator",
@@ -1782,10 +1963,19 @@
       "tools_required": [],
       "path": "catalog/skills/orchestration/workflow-orchestrator/",
       "file": "catalog/skills/orchestration/workflow-orchestrator/SKILL.md",
-      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "size": {
+        "lines": 0,
+        "characters": 0,
+        "tokens_estimate": 0
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     },
     {
       "name": "context-degradation",
@@ -1796,16 +1986,36 @@
       "author": "Benjamin Dourthe",
       "category": "Orchestration",
       "language": "Multi-language",
-      "tags": ["context-engineering", "degradation", "mitigation", "quality", "agent-patterns", "long-sessions"],
+      "tags": [
+        "context-engineering",
+        "degradation",
+        "mitigation",
+        "quality",
+        "agent-patterns",
+        "long-sessions"
+      ],
       "priority": "HIGH",
       "based_on": "Agent-Skills-for-Context-Engineering (MIT License)",
-      "tools_required": ["Read", "Task", "Write"],
+      "tools_required": [
+        "Read",
+        "Task",
+        "Write"
+      ],
       "path": "catalog/skills/orchestration/context-degradation/",
       "file": "catalog/skills/orchestration/context-degradation/SKILL.md",
-      "size": { "lines": 400, "characters": 16000, "tokens_estimate": 4200 },
+      "size": {
+        "lines": 400,
+        "characters": 16000,
+        "tokens_estimate": 4200
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     },
     {
       "name": "context-compression",
@@ -1816,16 +2026,36 @@
       "author": "Benjamin Dourthe",
       "category": "Orchestration",
       "language": "Multi-language",
-      "tags": ["context-engineering", "compression", "summarization", "token-optimization", "session-handoff", "agent-patterns"],
+      "tags": [
+        "context-engineering",
+        "compression",
+        "summarization",
+        "token-optimization",
+        "session-handoff",
+        "agent-patterns"
+      ],
       "priority": "HIGH",
       "based_on": "Agent-Skills-for-Context-Engineering (MIT License)",
-      "tools_required": ["Read", "Task", "Write"],
+      "tools_required": [
+        "Read",
+        "Task",
+        "Write"
+      ],
       "path": "catalog/skills/orchestration/context-compression/",
       "file": "catalog/skills/orchestration/context-compression/SKILL.md",
-      "size": { "lines": 400, "characters": 16000, "tokens_estimate": 4200 },
+      "size": {
+        "lines": 400,
+        "characters": 16000,
+        "tokens_estimate": 4200
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     },
     {
       "name": "tool-design",
@@ -1836,16 +2066,36 @@
       "author": "Benjamin Dourthe",
       "category": "Developer Experience",
       "language": "Multi-language",
-      "tags": ["tool-design", "mcp", "api-design", "context-engineering", "description-engineering", "agent-patterns"],
+      "tags": [
+        "tool-design",
+        "mcp",
+        "api-design",
+        "context-engineering",
+        "description-engineering",
+        "agent-patterns"
+      ],
       "priority": "HIGH",
       "based_on": "Agent-Skills-for-Context-Engineering (MIT License)",
-      "tools_required": ["Read", "Task", "Write"],
+      "tools_required": [
+        "Read",
+        "Task",
+        "Write"
+      ],
       "path": "catalog/skills/developer-experience/tool-design/",
       "file": "catalog/skills/developer-experience/tool-design/SKILL.md",
-      "size": { "lines": 450, "characters": 18000, "tokens_estimate": 4700 },
+      "size": {
+        "lines": 450,
+        "characters": 18000,
+        "tokens_estimate": 4700
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     },
     {
       "name": "filesystem-context-patterns",
@@ -1856,16 +2106,37 @@
       "author": "Benjamin Dourthe",
       "category": "Workflow",
       "language": "Multi-language",
-      "tags": ["filesystem", "state-machine", "agent-patterns", "context-engineering", "persistence", "multi-agent"],
+      "tags": [
+        "filesystem",
+        "state-machine",
+        "agent-patterns",
+        "context-engineering",
+        "persistence",
+        "multi-agent"
+      ],
       "priority": "HIGH",
       "based_on": "Agent-Skills-for-Context-Engineering (MIT License)",
-      "tools_required": ["Read", "Task", "Write", "Bash"],
+      "tools_required": [
+        "Read",
+        "Task",
+        "Write",
+        "Bash"
+      ],
       "path": "catalog/skills/workflow/filesystem-context-patterns/",
       "file": "catalog/skills/workflow/filesystem-context-patterns/SKILL.md",
-      "size": { "lines": 500, "characters": 20000, "tokens_estimate": 5200 },
+      "size": {
+        "lines": 500,
+        "characters": 20000,
+        "tokens_estimate": 5200
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     },
     {
       "name": "ai-output-evaluation",
@@ -1876,16 +2147,36 @@
       "author": "Benjamin Dourthe",
       "category": "Developer Experience",
       "language": "Multi-language",
-      "tags": ["evaluation", "llm-as-judge", "quality", "rubric", "bias-mitigation", "agent-patterns"],
+      "tags": [
+        "evaluation",
+        "llm-as-judge",
+        "quality",
+        "rubric",
+        "bias-mitigation",
+        "agent-patterns"
+      ],
       "priority": "MEDIUM",
       "based_on": "Agent-Skills-for-Context-Engineering (MIT License)",
-      "tools_required": ["Read", "Task", "Write"],
+      "tools_required": [
+        "Read",
+        "Task",
+        "Write"
+      ],
       "path": "catalog/skills/developer-experience/ai-output-evaluation/",
       "file": "catalog/skills/developer-experience/ai-output-evaluation/SKILL.md",
-      "size": { "lines": 400, "characters": 16000, "tokens_estimate": 4200 },
+      "size": {
+        "lines": 400,
+        "characters": 16000,
+        "tokens_estimate": 4200
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     },
     {
       "name": "writing-editing",
@@ -1896,15 +2187,34 @@
       "author": "Benjamin Dourthe",
       "category": "Developer Experience",
       "language": "All",
-      "tags": ["writing", "editing", "documentation", "prose", "technical-writing"],
+      "tags": [
+        "writing",
+        "editing",
+        "documentation",
+        "prose",
+        "technical-writing"
+      ],
       "priority": "MEDIUM",
-      "tools_required": ["Read", "Write", "Edit"],
+      "tools_required": [
+        "Read",
+        "Write",
+        "Edit"
+      ],
       "path": "catalog/skills/developer-experience/writing-editing/",
       "file": "catalog/skills/developer-experience/writing-editing/SKILL.md",
-      "size": { "lines": 40, "characters": 1200, "tokens_estimate": 320 },
+      "size": {
+        "lines": 40,
+        "characters": 1200,
+        "tokens_estimate": 320
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 100, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 100,
+        "validated": true
+      }
     },
     {
       "name": "analysis-logic",
@@ -1915,15 +2225,32 @@
       "author": "Benjamin Dourthe",
       "category": "Developer Experience",
       "language": "All",
-      "tags": ["analysis", "logic", "data", "reasoning", "decision-making"],
+      "tags": [
+        "analysis",
+        "logic",
+        "data",
+        "reasoning",
+        "decision-making"
+      ],
       "priority": "MEDIUM",
-      "tools_required": ["Read"],
+      "tools_required": [
+        "Read"
+      ],
       "path": "catalog/skills/developer-experience/analysis-logic/",
       "file": "catalog/skills/developer-experience/analysis-logic/SKILL.md",
-      "size": { "lines": 35, "characters": 1000, "tokens_estimate": 280 },
+      "size": {
+        "lines": 35,
+        "characters": 1000,
+        "tokens_estimate": 280
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 100, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 100,
+        "validated": true
+      }
     },
     {
       "name": "creative-generation",
@@ -1934,15 +2261,33 @@
       "author": "Benjamin Dourthe",
       "category": "Developer Experience",
       "language": "All",
-      "tags": ["creative", "design", "ideation", "image-prompts", "presentations"],
+      "tags": [
+        "creative",
+        "design",
+        "ideation",
+        "image-prompts",
+        "presentations"
+      ],
       "priority": "MEDIUM",
-      "tools_required": ["Read", "Write"],
+      "tools_required": [
+        "Read",
+        "Write"
+      ],
       "path": "catalog/skills/developer-experience/creative-generation/",
       "file": "catalog/skills/developer-experience/creative-generation/SKILL.md",
-      "size": { "lines": 35, "characters": 1100, "tokens_estimate": 300 },
+      "size": {
+        "lines": 35,
+        "characters": 1100,
+        "tokens_estimate": 300
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 100, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 100,
+        "validated": true
+      }
     },
     {
       "name": "cicd-integration",
@@ -1959,10 +2304,19 @@
       "tools_required": [],
       "path": "catalog/skills/tests-generation/cicd-integration/",
       "file": "catalog/skills/tests-generation/cicd-integration/SKILL.md",
-      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "size": {
+        "lines": 0,
+        "characters": 0,
+        "tokens_estimate": 0
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     },
     {
       "name": "code-coverage",
@@ -1979,10 +2333,19 @@
       "tools_required": [],
       "path": "catalog/skills/tests-generation/code-coverage/",
       "file": "catalog/skills/tests-generation/code-coverage/SKILL.md",
-      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "size": {
+        "lines": 0,
+        "characters": 0,
+        "tokens_estimate": 0
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     },
     {
       "name": "mocks-fixtures",
@@ -1999,10 +2362,19 @@
       "tools_required": [],
       "path": "catalog/skills/tests-generation/mocks-fixtures/",
       "file": "catalog/skills/tests-generation/mocks-fixtures/SKILL.md",
-      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "size": {
+        "lines": 0,
+        "characters": 0,
+        "tokens_estimate": 0
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     },
     {
       "name": "mutation-testing",
@@ -2019,10 +2391,19 @@
       "tools_required": [],
       "path": "catalog/skills/tests-generation/mutation-testing/",
       "file": "catalog/skills/tests-generation/mutation-testing/SKILL.md",
-      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "size": {
+        "lines": 0,
+        "characters": 0,
+        "tokens_estimate": 0
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     },
     {
       "name": "performance-testing",
@@ -2039,10 +2420,19 @@
       "tools_required": [],
       "path": "catalog/skills/tests-generation/performance-testing/",
       "file": "catalog/skills/tests-generation/performance-testing/SKILL.md",
-      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "size": {
+        "lines": 0,
+        "characters": 0,
+        "tokens_estimate": 0
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     },
     {
       "name": "unit-tests",
@@ -2059,10 +2449,19 @@
       "tools_required": [],
       "path": "catalog/skills/tests-generation/unit-tests/",
       "file": "catalog/skills/tests-generation/unit-tests/SKILL.md",
-      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "size": {
+        "lines": 0,
+        "characters": 0,
+        "tokens_estimate": 0
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     },
     {
       "name": "documentation-consistency",
@@ -2079,10 +2478,19 @@
       "tools_required": [],
       "path": "catalog/skills/workflow/documentation-consistency/",
       "file": "catalog/skills/workflow/documentation-consistency/SKILL.md",
-      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "size": {
+        "lines": 0,
+        "characters": 0,
+        "tokens_estimate": 0
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     },
     {
       "name": "version-upgrade",
@@ -2099,10 +2507,19 @@
       "tools_required": [],
       "path": "catalog/skills/workflow/version-upgrade/",
       "file": "catalog/skills/workflow/version-upgrade/SKILL.md",
-      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "size": {
+        "lines": 0,
+        "characters": 0,
+        "tokens_estimate": 0
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     },
     {
       "name": "devlog-generation",
@@ -2119,10 +2536,19 @@
       "tools_required": [],
       "path": "catalog/skills/workflow/devlog-generation/",
       "file": "catalog/skills/workflow/devlog-generation/SKILL.md",
-      "size": { "lines": 0, "characters": 0, "tokens_estimate": 0 },
+      "size": {
+        "lines": 0,
+        "characters": 0,
+        "tokens_estimate": 0
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     },
     {
       "name": "architecture-design",
@@ -2133,16 +2559,38 @@
       "author": "Benjamin Dourthe",
       "category": "Architecture",
       "language": "Multi-language",
-      "tags": ["architecture", "system-design", "adr", "c4-model", "trade-offs", "decomposition", "fitness-functions"],
+      "tags": [
+        "architecture",
+        "system-design",
+        "adr",
+        "c4-model",
+        "trade-offs",
+        "decomposition",
+        "fitness-functions"
+      ],
       "priority": "HIGH",
       "based_on": "",
-      "tools_required": ["Read", "Write", "Task", "Glob"],
+      "tools_required": [
+        "Read",
+        "Write",
+        "Task",
+        "Glob"
+      ],
       "path": "catalog/skills/architecture/architecture-design/",
       "file": "catalog/skills/architecture/architecture-design/SKILL.md",
-      "size": { "lines": 715, "characters": 29627, "tokens_estimate": 7406 },
+      "size": {
+        "lines": 715,
+        "characters": 29627,
+        "tokens_estimate": 7406
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     },
     {
       "name": "ddd-strategic-design",
@@ -2153,16 +2601,37 @@
       "author": "Benjamin Dourthe",
       "category": "Architecture",
       "language": "Multi-language",
-      "tags": ["ddd", "domain-driven-design", "bounded-context", "aggregates", "event-storming", "context-mapping"],
+      "tags": [
+        "ddd",
+        "domain-driven-design",
+        "bounded-context",
+        "aggregates",
+        "event-storming",
+        "context-mapping"
+      ],
       "priority": "HIGH",
       "based_on": "",
-      "tools_required": ["Read", "Write", "Task", "Glob"],
+      "tools_required": [
+        "Read",
+        "Write",
+        "Task",
+        "Glob"
+      ],
       "path": "catalog/skills/architecture/ddd-strategic-design/",
       "file": "catalog/skills/architecture/ddd-strategic-design/SKILL.md",
-      "size": { "lines": 680, "characters": 25886, "tokens_estimate": 6471 },
+      "size": {
+        "lines": 680,
+        "characters": 25886,
+        "tokens_estimate": 6471
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     },
     {
       "name": "api-design",
@@ -2173,16 +2642,39 @@
       "author": "Benjamin Dourthe",
       "category": "Architecture",
       "language": "Multi-language",
-      "tags": ["api", "rest", "graphql", "grpc", "openapi", "versioning", "pagination", "error-handling"],
+      "tags": [
+        "api",
+        "rest",
+        "graphql",
+        "grpc",
+        "openapi",
+        "versioning",
+        "pagination",
+        "error-handling"
+      ],
       "priority": "HIGH",
       "based_on": "",
-      "tools_required": ["Read", "Write", "Task", "Glob"],
+      "tools_required": [
+        "Read",
+        "Write",
+        "Task",
+        "Glob"
+      ],
       "path": "catalog/skills/architecture/api-design/",
       "file": "catalog/skills/architecture/api-design/SKILL.md",
-      "size": { "lines": 967, "characters": 26716, "tokens_estimate": 6679 },
+      "size": {
+        "lines": 967,
+        "characters": 26716,
+        "tokens_estimate": 6679
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     },
     {
       "name": "microservices-patterns",
@@ -2193,16 +2685,38 @@
       "author": "Benjamin Dourthe",
       "category": "Architecture",
       "language": "Multi-language",
-      "tags": ["microservices", "distributed-systems", "saga", "circuit-breaker", "cqrs", "service-mesh", "api-gateway"],
+      "tags": [
+        "microservices",
+        "distributed-systems",
+        "saga",
+        "circuit-breaker",
+        "cqrs",
+        "service-mesh",
+        "api-gateway"
+      ],
       "priority": "HIGH",
       "based_on": "",
-      "tools_required": ["Read", "Write", "Task", "Glob"],
+      "tools_required": [
+        "Read",
+        "Write",
+        "Task",
+        "Glob"
+      ],
       "path": "catalog/skills/architecture/microservices-patterns/",
       "file": "catalog/skills/architecture/microservices-patterns/SKILL.md",
-      "size": { "lines": 924, "characters": 30104, "tokens_estimate": 7526 },
+      "size": {
+        "lines": 924,
+        "characters": 30104,
+        "tokens_estimate": 7526
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     },
     {
       "name": "event-driven-architecture",
@@ -2213,16 +2727,39 @@
       "author": "Benjamin Dourthe",
       "category": "Architecture",
       "language": "Multi-language",
-      "tags": ["event-driven", "event-sourcing", "cqrs", "kafka", "rabbitmq", "cloud-events", "saga", "outbox"],
+      "tags": [
+        "event-driven",
+        "event-sourcing",
+        "cqrs",
+        "kafka",
+        "rabbitmq",
+        "cloud-events",
+        "saga",
+        "outbox"
+      ],
       "priority": "MEDIUM",
       "based_on": "",
-      "tools_required": ["Read", "Write", "Task", "Glob"],
+      "tools_required": [
+        "Read",
+        "Write",
+        "Task",
+        "Glob"
+      ],
       "path": "catalog/skills/architecture/event-driven-architecture/",
       "file": "catalog/skills/architecture/event-driven-architecture/SKILL.md",
-      "size": { "lines": 895, "characters": 35333, "tokens_estimate": 8833 },
+      "size": {
+        "lines": 895,
+        "characters": 35333,
+        "tokens_estimate": 8833
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     },
     {
       "name": "ai-agent-development",
@@ -2233,16 +2770,39 @@
       "author": "Benjamin Dourthe",
       "category": "AI Development",
       "language": "Python",
-      "tags": ["ai-agents", "llm", "tool-use", "mcp", "memory-systems", "multi-agent", "guardrails", "evaluation"],
+      "tags": [
+        "ai-agents",
+        "llm",
+        "tool-use",
+        "mcp",
+        "memory-systems",
+        "multi-agent",
+        "guardrails",
+        "evaluation"
+      ],
       "priority": "HIGH",
       "based_on": "",
-      "tools_required": ["Read", "Write", "Task", "Glob"],
+      "tools_required": [
+        "Read",
+        "Write",
+        "Task",
+        "Glob"
+      ],
       "path": "catalog/skills/ai-development/ai-agent-development/",
       "file": "catalog/skills/ai-development/ai-agent-development/SKILL.md",
-      "size": { "lines": 999, "characters": 35382, "tokens_estimate": 8845 },
+      "size": {
+        "lines": 999,
+        "characters": 35382,
+        "tokens_estimate": 8845
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     },
     {
       "name": "rag-implementation",
@@ -2253,16 +2813,38 @@
       "author": "Benjamin Dourthe",
       "category": "AI Development",
       "language": "Python",
-      "tags": ["rag", "retrieval-augmented-generation", "embeddings", "vector-database", "chunking", "llm", "search"],
+      "tags": [
+        "rag",
+        "retrieval-augmented-generation",
+        "embeddings",
+        "vector-database",
+        "chunking",
+        "llm",
+        "search"
+      ],
       "priority": "HIGH",
       "based_on": "",
-      "tools_required": ["Read", "Write", "Task", "Glob"],
+      "tools_required": [
+        "Read",
+        "Write",
+        "Task",
+        "Glob"
+      ],
       "path": "catalog/skills/ai-development/rag-implementation/",
       "file": "catalog/skills/ai-development/rag-implementation/SKILL.md",
-      "size": { "lines": 1052, "characters": 35560, "tokens_estimate": 8890 },
+      "size": {
+        "lines": 1052,
+        "characters": 35560,
+        "tokens_estimate": 8890
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     },
     {
       "name": "prompt-engineering",
@@ -2273,16 +2855,37 @@
       "author": "Benjamin Dourthe",
       "category": "AI Development",
       "language": "Python",
-      "tags": ["prompt-engineering", "llm", "chain-of-thought", "few-shot", "evaluation", "prompt-templates", "cost-optimization"],
+      "tags": [
+        "prompt-engineering",
+        "llm",
+        "chain-of-thought",
+        "few-shot",
+        "evaluation",
+        "prompt-templates",
+        "cost-optimization"
+      ],
       "priority": "HIGH",
       "based_on": "",
-      "tools_required": ["Read", "Write", "Task"],
+      "tools_required": [
+        "Read",
+        "Write",
+        "Task"
+      ],
       "path": "catalog/skills/ai-development/prompt-engineering/",
       "file": "catalog/skills/ai-development/prompt-engineering/SKILL.md",
-      "size": { "lines": 983, "characters": 33982, "tokens_estimate": 8495 },
+      "size": {
+        "lines": 983,
+        "characters": 33982,
+        "tokens_estimate": 8495
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     },
     {
       "name": "react-expert",
@@ -2293,16 +2896,39 @@
       "author": "Benjamin Dourthe",
       "category": "Framework Specialists",
       "language": "JavaScript",
-      "tags": ["react", "hooks", "state-management", "performance", "testing", "typescript", "accessibility", "react-19"],
+      "tags": [
+        "react",
+        "hooks",
+        "state-management",
+        "performance",
+        "testing",
+        "typescript",
+        "accessibility",
+        "react-19"
+      ],
       "priority": "MEDIUM",
       "based_on": "",
-      "tools_required": ["Read", "Write", "Task", "Glob"],
+      "tools_required": [
+        "Read",
+        "Write",
+        "Task",
+        "Glob"
+      ],
       "path": "catalog/skills/framework-specialists/react-expert/",
       "file": "catalog/skills/framework-specialists/react-expert/SKILL.md",
-      "size": { "lines": 884, "characters": 25272, "tokens_estimate": 6318 },
+      "size": {
+        "lines": 884,
+        "characters": 25272,
+        "tokens_estimate": 6318
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     },
     {
       "name": "nextjs-expert",
@@ -2313,16 +2939,39 @@
       "author": "Benjamin Dourthe",
       "category": "Framework Specialists",
       "language": "JavaScript",
-      "tags": ["nextjs", "app-router", "server-components", "server-actions", "ssr", "ssg", "isr", "react"],
+      "tags": [
+        "nextjs",
+        "app-router",
+        "server-components",
+        "server-actions",
+        "ssr",
+        "ssg",
+        "isr",
+        "react"
+      ],
       "priority": "MEDIUM",
       "based_on": "",
-      "tools_required": ["Read", "Write", "Task", "Glob"],
+      "tools_required": [
+        "Read",
+        "Write",
+        "Task",
+        "Glob"
+      ],
       "path": "catalog/skills/framework-specialists/nextjs-expert/",
       "file": "catalog/skills/framework-specialists/nextjs-expert/SKILL.md",
-      "size": { "lines": 827, "characters": 23201, "tokens_estimate": 5800 },
+      "size": {
+        "lines": 827,
+        "characters": 23201,
+        "tokens_estimate": 5800
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     },
     {
       "name": "fastapi-expert",
@@ -2333,16 +2982,38 @@
       "author": "Benjamin Dourthe",
       "category": "Framework Specialists",
       "language": "Python",
-      "tags": ["fastapi", "python", "async", "pydantic", "dependency-injection", "sqlalchemy", "rest-api"],
+      "tags": [
+        "fastapi",
+        "python",
+        "async",
+        "pydantic",
+        "dependency-injection",
+        "sqlalchemy",
+        "rest-api"
+      ],
       "priority": "MEDIUM",
       "based_on": "",
-      "tools_required": ["Read", "Write", "Task", "Glob"],
+      "tools_required": [
+        "Read",
+        "Write",
+        "Task",
+        "Glob"
+      ],
       "path": "catalog/skills/framework-specialists/fastapi-expert/",
       "file": "catalog/skills/framework-specialists/fastapi-expert/SKILL.md",
-      "size": { "lines": 966, "characters": 29760, "tokens_estimate": 7440 },
+      "size": {
+        "lines": 966,
+        "characters": 29760,
+        "tokens_estimate": 7440
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     },
     {
       "name": "database-design",
@@ -2353,16 +3024,38 @@
       "author": "Benjamin Dourthe",
       "category": "Infrastructure",
       "language": "Multi-language",
-      "tags": ["database", "schema-design", "indexing", "query-optimization", "migrations", "postgresql", "normalization"],
+      "tags": [
+        "database",
+        "schema-design",
+        "indexing",
+        "query-optimization",
+        "migrations",
+        "postgresql",
+        "normalization"
+      ],
       "priority": "MEDIUM",
       "based_on": "",
-      "tools_required": ["Read", "Write", "Task", "Glob"],
+      "tools_required": [
+        "Read",
+        "Write",
+        "Task",
+        "Glob"
+      ],
       "path": "catalog/skills/infrastructure/database-design/",
       "file": "catalog/skills/infrastructure/database-design/SKILL.md",
-      "size": { "lines": 653, "characters": 23760, "tokens_estimate": 5940 },
+      "size": {
+        "lines": 653,
+        "characters": 23760,
+        "tokens_estimate": 5940
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     },
     {
       "name": "data-pipeline-design",
@@ -2373,16 +3066,39 @@
       "author": "Benjamin Dourthe",
       "category": "Infrastructure",
       "language": "Python",
-      "tags": ["data-pipeline", "etl", "elt", "airflow", "dbt", "kafka", "streaming", "data-quality"],
+      "tags": [
+        "data-pipeline",
+        "etl",
+        "elt",
+        "airflow",
+        "dbt",
+        "kafka",
+        "streaming",
+        "data-quality"
+      ],
       "priority": "MEDIUM",
       "based_on": "",
-      "tools_required": ["Read", "Write", "Task", "Glob"],
+      "tools_required": [
+        "Read",
+        "Write",
+        "Task",
+        "Glob"
+      ],
       "path": "catalog/skills/infrastructure/data-pipeline-design/",
       "file": "catalog/skills/infrastructure/data-pipeline-design/SKILL.md",
-      "size": { "lines": 768, "characters": 26255, "tokens_estimate": 6563 },
+      "size": {
+        "lines": 768,
+        "characters": 26255,
+        "tokens_estimate": 6563
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     },
     {
       "name": "observability-setup",
@@ -2393,16 +3109,39 @@
       "author": "Benjamin Dourthe",
       "category": "Infrastructure",
       "language": "Multi-language",
-      "tags": ["observability", "opentelemetry", "logging", "metrics", "tracing", "prometheus", "grafana", "alerting"],
+      "tags": [
+        "observability",
+        "opentelemetry",
+        "logging",
+        "metrics",
+        "tracing",
+        "prometheus",
+        "grafana",
+        "alerting"
+      ],
       "priority": "MEDIUM",
       "based_on": "",
-      "tools_required": ["Read", "Write", "Task", "Glob"],
+      "tools_required": [
+        "Read",
+        "Write",
+        "Task",
+        "Glob"
+      ],
       "path": "catalog/skills/infrastructure/observability-setup/",
       "file": "catalog/skills/infrastructure/observability-setup/SKILL.md",
-      "size": { "lines": 735, "characters": 25801, "tokens_estimate": 6450 },
+      "size": {
+        "lines": 735,
+        "characters": 25801,
+        "tokens_estimate": 6450
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     },
     {
       "name": "containerization",
@@ -2413,16 +3152,38 @@
       "author": "Benjamin Dourthe",
       "category": "Infrastructure",
       "language": "Multi-language",
-      "tags": ["docker", "containers", "dockerfile", "docker-compose", "multi-stage", "security-scanning", "buildkit"],
+      "tags": [
+        "docker",
+        "containers",
+        "dockerfile",
+        "docker-compose",
+        "multi-stage",
+        "security-scanning",
+        "buildkit"
+      ],
       "priority": "MEDIUM",
       "based_on": "",
-      "tools_required": ["Read", "Write", "Task", "Glob"],
+      "tools_required": [
+        "Read",
+        "Write",
+        "Task",
+        "Glob"
+      ],
       "path": "catalog/skills/infrastructure/containerization/",
       "file": "catalog/skills/infrastructure/containerization/SKILL.md",
-      "size": { "lines": 704, "characters": 20564, "tokens_estimate": 5141 },
+      "size": {
+        "lines": 704,
+        "characters": 20564,
+        "tokens_estimate": 5141
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     },
     {
       "name": "e2e-testing-automation",
@@ -2433,16 +3194,39 @@
       "author": "Benjamin Dourthe",
       "category": "Testing",
       "language": "JavaScript",
-      "tags": ["e2e", "playwright", "cypress", "selenium", "page-objects", "visual-regression", "ci-integration", "accessibility"],
+      "tags": [
+        "e2e",
+        "playwright",
+        "cypress",
+        "selenium",
+        "page-objects",
+        "visual-regression",
+        "ci-integration",
+        "accessibility"
+      ],
       "priority": "MEDIUM",
       "based_on": "",
-      "tools_required": ["Read", "Write", "Task", "Glob"],
+      "tools_required": [
+        "Read",
+        "Write",
+        "Task",
+        "Glob"
+      ],
       "path": "catalog/skills/testing/e2e-testing-automation/",
       "file": "catalog/skills/testing/e2e-testing-automation/SKILL.md",
-      "size": { "lines": 685, "characters": 22231, "tokens_estimate": 5557 },
+      "size": {
+        "lines": 685,
+        "characters": 22231,
+        "tokens_estimate": 5557
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     },
     {
       "name": "authentication-patterns",
@@ -2453,16 +3237,40 @@
       "author": "Benjamin Dourthe",
       "category": "Security",
       "language": "Multi-language",
-      "tags": ["authentication", "authorization", "oauth", "jwt", "session", "mfa", "passkeys", "rbac", "security"],
+      "tags": [
+        "authentication",
+        "authorization",
+        "oauth",
+        "jwt",
+        "session",
+        "mfa",
+        "passkeys",
+        "rbac",
+        "security"
+      ],
       "priority": "HIGH",
       "based_on": "",
-      "tools_required": ["Read", "Write", "Task", "Glob"],
+      "tools_required": [
+        "Read",
+        "Write",
+        "Task",
+        "Glob"
+      ],
       "path": "catalog/skills/security/authentication-patterns/",
       "file": "catalog/skills/security/authentication-patterns/SKILL.md",
-      "size": { "lines": 849, "characters": 29790, "tokens_estimate": 7447 },
+      "size": {
+        "lines": 849,
+        "characters": 29790,
+        "tokens_estimate": 7447
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     },
     {
       "name": "async-patterns",
@@ -2473,16 +3281,37 @@
       "author": "Benjamin Dourthe",
       "category": "Developer Experience",
       "language": "Multi-language",
-      "tags": ["async", "concurrency", "parallelism", "channels", "actors", "structured-concurrency", "race-conditions"],
+      "tags": [
+        "async",
+        "concurrency",
+        "parallelism",
+        "channels",
+        "actors",
+        "structured-concurrency",
+        "race-conditions"
+      ],
       "priority": "MEDIUM",
       "based_on": "",
-      "tools_required": ["Read", "Write", "Task"],
+      "tools_required": [
+        "Read",
+        "Write",
+        "Task"
+      ],
       "path": "catalog/skills/developer-experience/async-patterns/",
       "file": "catalog/skills/developer-experience/async-patterns/SKILL.md",
-      "size": { "lines": 957, "characters": 30783, "tokens_estimate": 7695 },
+      "size": {
+        "lines": 957,
+        "characters": 30783,
+        "tokens_estimate": 7695
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     },
     {
       "name": "graphql-development",
@@ -2493,16 +3322,38 @@
       "author": "Benjamin Dourthe",
       "category": "Developer Experience",
       "language": "Multi-language",
-      "tags": ["graphql", "schema-design", "resolvers", "dataloader", "federation", "subscriptions", "apollo"],
+      "tags": [
+        "graphql",
+        "schema-design",
+        "resolvers",
+        "dataloader",
+        "federation",
+        "subscriptions",
+        "apollo"
+      ],
       "priority": "MEDIUM",
       "based_on": "",
-      "tools_required": ["Read", "Write", "Task", "Glob"],
+      "tools_required": [
+        "Read",
+        "Write",
+        "Task",
+        "Glob"
+      ],
       "path": "catalog/skills/developer-experience/graphql-development/",
       "file": "catalog/skills/developer-experience/graphql-development/SKILL.md",
-      "size": { "lines": 843, "characters": 22702, "tokens_estimate": 5675 },
+      "size": {
+        "lines": 843,
+        "characters": 22702,
+        "tokens_estimate": 5675
+      },
       "downloads": 0,
       "status": "production",
-      "security": { "structural": 100, "integrity": 100, "semantic": 95, "validated": true }
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     },
     {
       "name": "check-usage",
@@ -2615,6 +3466,1543 @@
         "structural": 100,
         "integrity": 100,
         "semantic": 100,
+        "validated": true
+      }
+    },
+    {
+      "name": "bug-localization",
+      "title": "bug-localization",
+      "description": "Pinpoint bug locations using stack traces, error logs, code flow analysis, spectrum-based fault localization, and bisection techniques",
+      "long_description": "Pinpoint bug locations using stack traces, error logs, code flow analysis, spectrum-based fault localization, and bisection techniques. Use when debugging failures, analyzing stack traces, tracing error origins, or narrowing down faulty code regions.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Bug Fixing",
+      "language": "Multi-language (Python, JavaScript, Java)",
+      "tags": [
+        "debugging",
+        "bug-fixing",
+        "stack-trace",
+        "fault-localization",
+        "bisect"
+      ],
+      "priority": "HIGH",
+      "based_on": "Skills-4-SE",
+      "tools_required": [
+        "Read",
+        "Grep",
+        "Bash"
+      ],
+      "path": "catalog/skills/bug-fixing/bug-localization/",
+      "file": "catalog/skills/bug-fixing/bug-localization/SKILL.md",
+      "size": {
+        "lines": 782,
+        "characters": 29928,
+        "tokens_estimate": 4000
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "bug-to-patch-generator",
+      "title": "bug-to-patch-generator",
+      "description": "Generate code patches from bug reports, error messages, and failing tests",
+      "long_description": "Generate code patches from bug reports, error messages, and failing tests. Use when converting bug descriptions into fixes, creating patches from error output, or automating fix generation from test failures.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Bug Fixing",
+      "language": "Multi-language (Python, JavaScript, Java)",
+      "tags": [
+        "debugging",
+        "bug-fixing",
+        "patch-generation",
+        "automated-repair"
+      ],
+      "priority": "HIGH",
+      "based_on": "Skills-4-SE",
+      "tools_required": [
+        "Read",
+        "Edit",
+        "Bash"
+      ],
+      "path": "catalog/skills/bug-fixing/bug-to-patch-generator/",
+      "file": "catalog/skills/bug-fixing/bug-to-patch-generator/SKILL.md",
+      "size": {
+        "lines": 754,
+        "characters": 28522,
+        "tokens_estimate": 3800
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "regression-root-cause-analyzer",
+      "title": "regression-root-cause-analyzer",
+      "description": "Identify root causes of regressions using diff analysis, git bisect, test failure correlation, and change impact analysis",
+      "long_description": "Identify root causes of regressions using diff analysis, git bisect, test failure correlation, and change impact analysis. Use when a previously passing test fails, CI/CD pipelines break after a deployment, or recent changes introduce unexpected behavior.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Bug Fixing",
+      "language": "Multi-language (Python, JavaScript, Java)",
+      "tags": [
+        "debugging",
+        "regression",
+        "root-cause",
+        "ci-cd",
+        "bisect"
+      ],
+      "priority": "HIGH",
+      "based_on": "Skills-4-SE",
+      "tools_required": [
+        "Read",
+        "Bash",
+        "Grep"
+      ],
+      "path": "catalog/skills/bug-fixing/regression-root-cause-analyzer/",
+      "file": "catalog/skills/bug-fixing/regression-root-cause-analyzer/SKILL.md",
+      "size": {
+        "lines": 950,
+        "characters": 36527,
+        "tokens_estimate": 4900
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "bug-reproduction-test-generator",
+      "title": "bug-reproduction-test-generator",
+      "description": "Create minimal reproduction tests from bug reports and error descriptions",
+      "long_description": "Create minimal reproduction tests from bug reports and error descriptions. Use when writing failing tests from bug reports, creating minimal reproductions, isolating test cases, or building regression test suites from production incidents.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Bug Fixing",
+      "language": "Multi-language (Python, JavaScript, Java)",
+      "tags": [
+        "debugging",
+        "testing",
+        "reproduction",
+        "bug-report",
+        "isolation"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "Skills-4-SE",
+      "tools_required": [
+        "Read",
+        "Write",
+        "Bash"
+      ],
+      "path": "catalog/skills/bug-fixing/bug-reproduction-test-generator/",
+      "file": "catalog/skills/bug-fixing/bug-reproduction-test-generator/SKILL.md",
+      "size": {
+        "lines": 903,
+        "characters": 33273,
+        "tokens_estimate": 4400
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "semantic-bug-detector",
+      "title": "semantic-bug-detector",
+      "description": "Detect semantic bugs (logic errors, incorrect assumptions, race conditions) beyond syntactic checks",
+      "long_description": "Detect semantic bugs including logic errors, incorrect assumptions, race conditions, off-by-one errors, and invariant violations beyond what linters catch. Use when reviewing code for logic errors, identifying null safety issues, detecting race conditions, or verifying invariants.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Bug Fixing",
+      "language": "Multi-language (Python, JavaScript, Java)",
+      "tags": [
+        "debugging",
+        "logic-errors",
+        "race-conditions",
+        "null-safety",
+        "static-analysis"
+      ],
+      "priority": "HIGH",
+      "based_on": "Skills-4-SE",
+      "tools_required": [
+        "Read",
+        "Grep"
+      ],
+      "path": "catalog/skills/bug-fixing/semantic-bug-detector/",
+      "file": "catalog/skills/bug-fixing/semantic-bug-detector/SKILL.md",
+      "size": {
+        "lines": 1210,
+        "characters": 47606,
+        "tokens_estimate": 6400
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "edge-case-generator",
+      "title": "edge-case-generator",
+      "description": "Systematically generate edge case tests for boundary conditions, empty inputs, overflow, null values, and type coercion",
+      "long_description": "Systematically generate edge case tests for boundary conditions, empty inputs, overflow, null values, concurrency edges, and type coercion. Use when hardening code against unexpected inputs, finding boundary bugs, or stress-testing input validation.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Testing",
+      "language": "Multi-language (Python, JavaScript, Java)",
+      "tags": [
+        "testing",
+        "edge-cases",
+        "boundary-values",
+        "input-validation"
+      ],
+      "priority": "HIGH",
+      "based_on": "Skills-4-SE",
+      "tools_required": [
+        "Read",
+        "Write"
+      ],
+      "path": "catalog/skills/tests-generation/edge-case-generator/",
+      "file": "catalog/skills/tests-generation/edge-case-generator/SKILL.md",
+      "size": {
+        "lines": 854,
+        "characters": 32184,
+        "tokens_estimate": 4300
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "flaky-test-detector",
+      "title": "flaky-test-detector",
+      "description": "Identify and diagnose flaky tests in CI pipelines by analyzing timing dependencies, shared state, and ordering assumptions",
+      "long_description": "Identify and diagnose flaky tests in CI pipelines by analyzing timing dependencies, shared state, ordering assumptions, and network reliance. Use when tests intermittently fail, CI builds are unreliable, or you need to stabilize a test suite.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Testing",
+      "language": "Multi-language (Python, JavaScript, Java)",
+      "tags": [
+        "testing",
+        "flaky-tests",
+        "ci-cd",
+        "test-stability"
+      ],
+      "priority": "HIGH",
+      "based_on": "Skills-4-SE",
+      "tools_required": [
+        "Read",
+        "Bash",
+        "Grep"
+      ],
+      "path": "catalog/skills/tests-generation/flaky-test-detector/",
+      "file": "catalog/skills/tests-generation/flaky-test-detector/SKILL.md",
+      "size": {
+        "lines": 756,
+        "characters": 25871,
+        "tokens_estimate": 3500
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "integration-test-generator",
+      "title": "integration-test-generator",
+      "description": "Generate integration tests that verify component interactions across API boundaries, databases, and external services",
+      "long_description": "Generate integration tests that verify component interactions across API boundaries, databases, message queues, and external services. Use when testing service-to-service communication, database operations, contract testing, or using testcontainers.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Testing",
+      "language": "Multi-language (Python, JavaScript, Java)",
+      "tags": [
+        "testing",
+        "integration",
+        "api-testing",
+        "testcontainers",
+        "contract-testing"
+      ],
+      "priority": "HIGH",
+      "based_on": "Skills-4-SE",
+      "tools_required": [
+        "Read",
+        "Write",
+        "Bash"
+      ],
+      "path": "catalog/skills/tests-generation/integration-test-generator/",
+      "file": "catalog/skills/tests-generation/integration-test-generator/SKILL.md",
+      "size": {
+        "lines": 838,
+        "characters": 30420,
+        "tokens_estimate": 4100
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "property-based-test-generator",
+      "title": "property-based-test-generator",
+      "description": "Generate property-based tests using QuickCheck/Hypothesis-style frameworks that verify invariants over random inputs",
+      "long_description": "Generate property-based tests using QuickCheck/Hypothesis-style frameworks that verify invariants over randomly generated inputs. Use when testing mathematical properties, round-trip conversions, idempotent operations, or when you need to discover edge cases automatically.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Testing",
+      "language": "Multi-language (Python, JavaScript, Java)",
+      "tags": [
+        "testing",
+        "property-based",
+        "hypothesis",
+        "quickcheck",
+        "invariants"
+      ],
+      "priority": "HIGH",
+      "based_on": "Skills-4-SE",
+      "tools_required": [
+        "Read",
+        "Write"
+      ],
+      "path": "catalog/skills/tests-generation/property-based-test-generator/",
+      "file": "catalog/skills/tests-generation/property-based-test-generator/SKILL.md",
+      "size": {
+        "lines": 655,
+        "characters": 23484,
+        "tokens_estimate": 3100
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "fuzzing-input-generator",
+      "title": "fuzzing-input-generator",
+      "description": "Generate fuzz testing inputs for security and robustness using mutation-based, grammar-based, and coverage-guided techniques",
+      "long_description": "Generate fuzz testing inputs for security and robustness testing using mutation-based, grammar-based, and coverage-guided fuzzing techniques. Use when testing parsers, APIs, file format handlers, or discovering crashes through automated input generation.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Testing",
+      "language": "Multi-language (Python, JavaScript, Java)",
+      "tags": [
+        "testing",
+        "fuzzing",
+        "security",
+        "robustness",
+        "mutation"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "Skills-4-SE",
+      "tools_required": [
+        "Read",
+        "Write",
+        "Bash"
+      ],
+      "path": "catalog/skills/tests-generation/fuzzing-input-generator/",
+      "file": "catalog/skills/tests-generation/fuzzing-input-generator/SKILL.md",
+      "size": {
+        "lines": 798,
+        "characters": 28698,
+        "tokens_estimate": 3800
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "metamorphic-test-generator",
+      "title": "metamorphic-test-generator",
+      "description": "Generate metamorphic tests for systems without clear test oracles by defining transformation invariants",
+      "long_description": "Generate metamorphic tests for systems without clear test oracles by defining transformation invariants between inputs and outputs. Use when testing ML models, search engines, numerical computations, or any system where correct output is hard to specify directly.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Testing",
+      "language": "Multi-language (Python, JavaScript, Java)",
+      "tags": [
+        "testing",
+        "metamorphic",
+        "oracle-problem",
+        "ml-testing",
+        "invariants"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "Skills-4-SE",
+      "tools_required": [
+        "Read",
+        "Write"
+      ],
+      "path": "catalog/skills/tests-generation/metamorphic-test-generator/",
+      "file": "catalog/skills/tests-generation/metamorphic-test-generator/SKILL.md",
+      "size": {
+        "lines": 631,
+        "characters": 27875,
+        "tokens_estimate": 3700
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "directed-test-input-generator",
+      "title": "directed-test-input-generator",
+      "description": "Generate targeted test inputs to reach specific code paths using path condition analysis and constraint solving",
+      "long_description": "Generate targeted test inputs to reach specific code paths using path condition analysis, symbolic execution concepts, constraint solving, and coverage-directed generation. Use when testing hard-to-reach branches or achieving specific coverage targets.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Testing",
+      "language": "Multi-language (Python, JavaScript, Java)",
+      "tags": [
+        "testing",
+        "code-coverage",
+        "path-analysis",
+        "constraint-solving"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "Skills-4-SE",
+      "tools_required": [
+        "Read",
+        "Write",
+        "Bash"
+      ],
+      "path": "catalog/skills/tests-generation/directed-test-input-generator/",
+      "file": "catalog/skills/tests-generation/directed-test-input-generator/SKILL.md",
+      "size": {
+        "lines": 716,
+        "characters": 28656,
+        "tokens_estimate": 3800
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "test-suite-prioritizer",
+      "title": "test-suite-prioritizer",
+      "description": "Order and prioritize test suites for faster CI feedback using failure history and code change correlation",
+      "long_description": "Order and prioritize test suites for faster CI feedback using failure history analysis, code change correlation, coverage-based prioritization, risk-based ordering, and test selection strategies. Use when CI pipelines are slow or you need faster feedback loops.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Testing",
+      "language": "Multi-language (Python, JavaScript, Java)",
+      "tags": [
+        "testing",
+        "ci-cd",
+        "prioritization",
+        "test-selection",
+        "optimization"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "Skills-4-SE",
+      "tools_required": [
+        "Read",
+        "Bash"
+      ],
+      "path": "catalog/skills/tests-generation/test-suite-prioritizer/",
+      "file": "catalog/skills/tests-generation/test-suite-prioritizer/SKILL.md",
+      "size": {
+        "lines": 812,
+        "characters": 29740,
+        "tokens_estimate": 4000
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "code-smell-detector",
+      "title": "code-smell-detector",
+      "description": "Detect and categorize code smells using Martin Fowler's catalog with severity scoring and refactoring recommendations",
+      "long_description": "Detect and categorize code smells using Martin Fowler's catalog with severity scoring and refactoring recommendations. Use when reviewing code quality, identifying long methods, god classes, feature envy, data clumps, or other structural problems.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Code Review",
+      "language": "Multi-language (Python, JavaScript, Java)",
+      "tags": [
+        "code-review",
+        "code-smells",
+        "refactoring",
+        "quality"
+      ],
+      "priority": "HIGH",
+      "based_on": "Skills-4-SE",
+      "tools_required": [
+        "Read",
+        "Grep"
+      ],
+      "path": "catalog/skills/code-review/code-smell-detector/",
+      "file": "catalog/skills/code-review/code-smell-detector/SKILL.md",
+      "size": {
+        "lines": 475,
+        "characters": 23251,
+        "tokens_estimate": 3100
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "behavior-preservation-checker",
+      "title": "behavior-preservation-checker",
+      "description": "Verify that refactoring preserves existing behavior through before/after comparison and contract checking",
+      "long_description": "Verify that refactoring preserves existing behavior through before/after comparison, test coverage verification, contract checking, and semantic equivalence analysis. Use when refactoring code, reviewing refactoring PRs, or validating structural changes.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Code Review",
+      "language": "Multi-language (Python, JavaScript, Java)",
+      "tags": [
+        "code-review",
+        "refactoring",
+        "behavior-verification",
+        "testing"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "Skills-4-SE",
+      "tools_required": [
+        "Read",
+        "Bash"
+      ],
+      "path": "catalog/skills/code-review/behavior-preservation-checker/",
+      "file": "catalog/skills/code-review/behavior-preservation-checker/SKILL.md",
+      "size": {
+        "lines": 417,
+        "characters": 20947,
+        "tokens_estimate": 2800
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "technical-debt-analyzer",
+      "title": "technical-debt-analyzer",
+      "description": "Quantify, categorize, and prioritize technical debt using SQALE methodology with remediation planning",
+      "long_description": "Quantify, categorize, and prioritize technical debt using SQALE methodology with interest calculation and remediation planning. Use when assessing code debt, architecture debt, test debt, or planning debt reduction sprints.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Developer Experience",
+      "language": "Multi-language (Python, JavaScript, Java)",
+      "tags": [
+        "technical-debt",
+        "code-quality",
+        "sqale",
+        "remediation",
+        "planning"
+      ],
+      "priority": "HIGH",
+      "based_on": "Skills-4-SE",
+      "tools_required": [
+        "Read",
+        "Grep",
+        "Bash"
+      ],
+      "path": "catalog/skills/developer-experience/technical-debt-analyzer/",
+      "file": "catalog/skills/developer-experience/technical-debt-analyzer/SKILL.md",
+      "size": {
+        "lines": 526,
+        "characters": 24692,
+        "tokens_estimate": 3300
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "dead-code-eliminator",
+      "title": "dead-code-eliminator",
+      "description": "Find and safely remove dead code including unreachable functions, unused imports, and stale feature flags",
+      "long_description": "Find and safely remove dead code including unreachable functions, unused imports, obsolete features, and stale feature flags using static analysis and call graph techniques. Use when cleaning up codebases or eliminating dead imports.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Developer Experience",
+      "language": "Multi-language (Python, JavaScript, Java)",
+      "tags": [
+        "dead-code",
+        "cleanup",
+        "static-analysis",
+        "call-graph",
+        "refactoring"
+      ],
+      "priority": "HIGH",
+      "based_on": "Skills-4-SE",
+      "tools_required": [
+        "Read",
+        "Grep",
+        "Edit"
+      ],
+      "path": "catalog/skills/developer-experience/dead-code-eliminator/",
+      "file": "catalog/skills/developer-experience/dead-code-eliminator/SKILL.md",
+      "size": {
+        "lines": 525,
+        "characters": 23684,
+        "tokens_estimate": 3200
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "error-explanation-generator",
+      "title": "error-explanation-generator",
+      "description": "Explain cryptic error messages, stack traces, and compiler errors in plain language with fix suggestions",
+      "long_description": "Explain cryptic error messages, stack traces, and compiler errors in plain language with fix suggestions and prevention strategies. Use when encountering confusing errors, debugging stack traces, or diagnosing runtime exceptions.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Developer Experience",
+      "language": "Multi-language (Python, JavaScript, Java)",
+      "tags": [
+        "errors",
+        "debugging",
+        "stack-traces",
+        "developer-experience"
+      ],
+      "priority": "HIGH",
+      "based_on": "Skills-4-SE",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "catalog/skills/developer-experience/error-explanation-generator/",
+      "file": "catalog/skills/developer-experience/error-explanation-generator/SKILL.md",
+      "size": {
+        "lines": 461,
+        "characters": 21285,
+        "tokens_estimate": 2800
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "design-pattern-suggestor",
+      "title": "design-pattern-suggestor",
+      "description": "Analyze code structure and recommend applicable GoF and modern design patterns with implementation guides",
+      "long_description": "Analyze code structure and recommend applicable GoF and modern design patterns with implementation guides. Use when code has structural problems, excessive conditionals, tight coupling, or needs a proven architectural solution.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Developer Experience",
+      "language": "Multi-language (Python, JavaScript, Java)",
+      "tags": [
+        "design-patterns",
+        "architecture",
+        "gof",
+        "refactoring",
+        "best-practices"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "Skills-4-SE",
+      "tools_required": [
+        "Read",
+        "Grep"
+      ],
+      "path": "catalog/skills/developer-experience/design-pattern-suggestor/",
+      "file": "catalog/skills/developer-experience/design-pattern-suggestor/SKILL.md",
+      "size": {
+        "lines": 587,
+        "characters": 25592,
+        "tokens_estimate": 3400
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "code-translation",
+      "title": "code-translation",
+      "description": "Translate code between programming languages while preserving logic, idiomatic style, and test coverage",
+      "long_description": "Translate code between programming languages while preserving logic, idiomatic style, and test coverage. Use when porting code between languages, migrating projects, or adapting library examples from one language to another.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Developer Experience",
+      "language": "Multi-language (Python, JavaScript, Java, C#, Go)",
+      "tags": [
+        "code-translation",
+        "migration",
+        "porting",
+        "language-conversion"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "Skills-4-SE",
+      "tools_required": [
+        "Read",
+        "Write"
+      ],
+      "path": "catalog/skills/developer-experience/code-translation/",
+      "file": "catalog/skills/developer-experience/code-translation/SKILL.md",
+      "size": {
+        "lines": 436,
+        "characters": 21880,
+        "tokens_estimate": 2900
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "code-optimizer",
+      "title": "code-optimizer",
+      "description": "Performance-focused code optimization covering algorithmic complexity, memory usage, I/O efficiency, and caching",
+      "long_description": "Performance-focused code optimization covering algorithmic complexity, memory usage, I/O efficiency, caching, and concurrency. Use when code is slow, uses too much memory, has bottleneck hotspots, or needs performance tuning.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Developer Experience",
+      "language": "Multi-language (Python, JavaScript, Java)",
+      "tags": [
+        "performance",
+        "optimization",
+        "profiling",
+        "caching",
+        "algorithms"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "Skills-4-SE",
+      "tools_required": [
+        "Read",
+        "Edit",
+        "Bash"
+      ],
+      "path": "catalog/skills/developer-experience/code-optimizer/",
+      "file": "catalog/skills/developer-experience/code-optimizer/SKILL.md",
+      "size": {
+        "lines": 506,
+        "characters": 21644,
+        "tokens_estimate": 2900
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "ambiguity-detector",
+      "title": "ambiguity-detector",
+      "description": "Detect ambiguous, incomplete, or contradictory requirements and specifications with clarification templates",
+      "long_description": "Detect ambiguous, incomplete, or contradictory requirements and specifications with structured clarification templates. Use when reviewing requirements, user stories, API specifications, or any written specification before implementation.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Developer Experience",
+      "language": "Multi-language (Python, JavaScript, Java)",
+      "tags": [
+        "requirements",
+        "ambiguity",
+        "specification",
+        "quality-assurance"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "Skills-4-SE",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "catalog/skills/developer-experience/ambiguity-detector/",
+      "file": "catalog/skills/developer-experience/ambiguity-detector/SKILL.md",
+      "size": {
+        "lines": 437,
+        "characters": 22164,
+        "tokens_estimate": 3000
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "deprecated-api-updater",
+      "title": "deprecated-api-updater",
+      "description": "Detect and automatically update deprecated API calls with migration mappings and automated rewriting",
+      "long_description": "Detect and automatically update deprecated API calls across codebases with migration mappings, automated rewriting, and validation. Use when upgrading frameworks, updating deprecated method calls, or cleaning up deprecation warnings.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Developer Experience",
+      "language": "Multi-language (Python, JavaScript, Java)",
+      "tags": [
+        "migration",
+        "deprecated",
+        "api-update",
+        "framework-upgrade",
+        "codemod"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "Skills-4-SE",
+      "tools_required": [
+        "Read",
+        "Edit",
+        "Grep",
+        "Bash"
+      ],
+      "path": "catalog/skills/developer-experience/deprecated-api-updater/",
+      "file": "catalog/skills/developer-experience/deprecated-api-updater/SKILL.md",
+      "size": {
+        "lines": 639,
+        "characters": 26348,
+        "tokens_estimate": 3500
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "cd-pipeline-generator",
+      "title": "cd-pipeline-generator",
+      "description": "Generate continuous deployment pipelines for GitHub Actions, GitLab CI, Jenkins, and ArgoCD",
+      "long_description": "Generate continuous deployment pipelines for GitHub Actions, GitLab CI, Jenkins, and ArgoCD with deployment strategies, environment promotion, and rollback triggers. Use when creating CD pipelines or implementing blue-green and canary deployments.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Infrastructure",
+      "language": "YAML, Python, Bash",
+      "tags": [
+        "ci-cd",
+        "deployment",
+        "github-actions",
+        "argocd",
+        "canary",
+        "blue-green"
+      ],
+      "priority": "HIGH",
+      "based_on": "Skills-4-SE",
+      "tools_required": [
+        "Read",
+        "Write",
+        "Bash"
+      ],
+      "path": "catalog/skills/infrastructure/cd-pipeline-generator/",
+      "file": "catalog/skills/infrastructure/cd-pipeline-generator/SKILL.md",
+      "size": {
+        "lines": 843,
+        "characters": 29185,
+        "tokens_estimate": 3900
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "rollback-strategy-advisor",
+      "title": "rollback-strategy-advisor",
+      "description": "Plan and implement rollback strategies for production deployments including database and feature flag rollbacks",
+      "long_description": "Plan and implement rollback strategies for production deployments including database migration rollbacks, feature flag rollbacks, and incident response integration. Use when designing rollback procedures or building deployment runbooks.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Infrastructure",
+      "language": "YAML, Python, Bash",
+      "tags": [
+        "deployment",
+        "rollback",
+        "incident-response",
+        "feature-flags",
+        "database"
+      ],
+      "priority": "HIGH",
+      "based_on": "Skills-4-SE",
+      "tools_required": [
+        "Read",
+        "Write"
+      ],
+      "path": "catalog/skills/infrastructure/rollback-strategy-advisor/",
+      "file": "catalog/skills/infrastructure/rollback-strategy-advisor/SKILL.md",
+      "size": {
+        "lines": 842,
+        "characters": 32696,
+        "tokens_estimate": 4400
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "release-notes-writer",
+      "title": "release-notes-writer",
+      "description": "Generate professional release notes from git history, pull requests, and issues with audience-specific formatting",
+      "long_description": "Generate professional release notes from git history, pull requests, and issues with conventional commit parsing and audience-specific formatting. Use when preparing release notes, changelogs, or version summaries.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Infrastructure",
+      "language": "Python, Bash, Markdown",
+      "tags": [
+        "release-notes",
+        "changelog",
+        "git",
+        "documentation",
+        "versioning"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "Skills-4-SE",
+      "tools_required": [
+        "Read",
+        "Bash",
+        "Write"
+      ],
+      "path": "catalog/skills/infrastructure/release-notes-writer/",
+      "file": "catalog/skills/infrastructure/release-notes-writer/SKILL.md",
+      "size": {
+        "lines": 922,
+        "characters": 33882,
+        "tokens_estimate": 4500
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "config-consistency-checker",
+      "title": "config-consistency-checker",
+      "description": "Detect configuration drift and inconsistencies across environments by comparing dev, staging, and production configs",
+      "long_description": "Detect configuration drift and inconsistencies across environments by comparing dev, staging, and production configs, validating schemas, and reporting missing keys and type mismatches. Use when auditing environment configurations or debugging environment-specific failures.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Infrastructure",
+      "language": "Python, YAML, Bash",
+      "tags": [
+        "configuration",
+        "drift-detection",
+        "environment",
+        "devops",
+        "schema-validation"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "Skills-4-SE",
+      "tools_required": [
+        "Read",
+        "Bash",
+        "Grep"
+      ],
+      "path": "catalog/skills/infrastructure/config-consistency-checker/",
+      "file": "catalog/skills/infrastructure/config-consistency-checker/SKILL.md",
+      "size": {
+        "lines": 1072,
+        "characters": 38621,
+        "tokens_estimate": 5200
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "exploitability-analyzer",
+      "title": "exploitability-analyzer",
+      "description": "Assess whether discovered vulnerabilities are actually exploitable using CVSS scoring and attack path analysis",
+      "long_description": "Assess whether discovered vulnerabilities are actually exploitable in your application context using CVSS scoring, attack path analysis, reachability tracing, and compensating controls evaluation. Use when triaging vulnerability scan results or prioritizing remediation.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Security",
+      "language": "Multi-language (Python, JavaScript, Java)",
+      "tags": [
+        "security",
+        "vulnerability",
+        "cvss",
+        "risk-assessment",
+        "triage"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "Skills-4-SE",
+      "tools_required": [
+        "Read",
+        "Grep",
+        "Bash"
+      ],
+      "path": "catalog/skills/security/exploitability-analyzer/",
+      "file": "catalog/skills/security/exploitability-analyzer/SKILL.md",
+      "size": {
+        "lines": 550,
+        "characters": 20746,
+        "tokens_estimate": 2800
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "security-patch-advisor",
+      "title": "security-patch-advisor",
+      "description": "Recommend and generate security patches for vulnerabilities including XSS, SQL injection, SSRF, and CSRF",
+      "long_description": "Recommend and generate security patches for identified vulnerabilities including XSS, SQL injection, SSRF, CSRF, insecure deserialization, and misconfigurations. Use when remediating vulnerability findings or hardening application code.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Security",
+      "language": "Multi-language (Python, JavaScript, Java, C#)",
+      "tags": [
+        "security",
+        "patching",
+        "xss",
+        "sql-injection",
+        "remediation"
+      ],
+      "priority": "HIGH",
+      "based_on": "Skills-4-SE",
+      "tools_required": [
+        "Read",
+        "Edit"
+      ],
+      "path": "catalog/skills/security/security-patch-advisor/",
+      "file": "catalog/skills/security/security-patch-advisor/SKILL.md",
+      "size": {
+        "lines": 568,
+        "characters": 20324,
+        "tokens_estimate": 2700
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "cve-reachability-analyzer",
+      "title": "cve-reachability-analyzer",
+      "description": "Determine whether a CVE in a dependency actually affects your application by tracing call paths",
+      "long_description": "Determine whether a CVE in a dependency actually affects your application by tracing call paths from your code to vulnerable functions, analyzing transitive dependencies, and reducing false positives. Use when triaging dependency vulnerabilities or prioritizing patch upgrades.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Security",
+      "language": "Multi-language (Python, JavaScript, Java, Go)",
+      "tags": [
+        "security",
+        "cve",
+        "dependency",
+        "reachability",
+        "false-positive"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "Skills-4-SE",
+      "tools_required": [
+        "Read",
+        "Bash",
+        "Grep"
+      ],
+      "path": "catalog/skills/security/cve-reachability-analyzer/",
+      "file": "catalog/skills/security/cve-reachability-analyzer/SKILL.md",
+      "size": {
+        "lines": 623,
+        "characters": 22524,
+        "tokens_estimate": 3000
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "conflict-analyzer",
+      "title": "conflict-analyzer",
+      "description": "Analyze and resolve merge conflicts systematically using three-way merge analysis and conflict classification",
+      "long_description": "Analyze and resolve merge conflicts systematically using three-way merge analysis, conflict classification, resolution strategies, and prevention techniques. Use when encountering merge conflicts, planning branch integration, or establishing merge workflow policies.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Workflow",
+      "language": "Multi-language (Python, JavaScript, Java)",
+      "tags": [
+        "git",
+        "merge-conflicts",
+        "workflow",
+        "branching",
+        "collaboration"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "Skills-4-SE",
+      "tools_required": [
+        "Read",
+        "Bash"
+      ],
+      "path": "catalog/skills/workflow/conflict-analyzer/",
+      "file": "catalog/skills/workflow/conflict-analyzer/SKILL.md",
+      "size": {
+        "lines": 510,
+        "characters": 18710,
+        "tokens_estimate": 2500
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "git-bisect-assistant",
+      "title": "git-bisect-assistant",
+      "description": "Guide efficient bug-finding with git bisect using binary search across commit history and automated scripts",
+      "long_description": "Guide efficient bug-finding with git bisect using binary search across commit history, automated test scripts, skip strategies, and complex history handling. Use when tracking down the commit that introduced a regression or behavioral change.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Workflow",
+      "language": "Bash, Python, JavaScript",
+      "tags": [
+        "git",
+        "bisect",
+        "debugging",
+        "regression",
+        "binary-search"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "Skills-4-SE",
+      "tools_required": [
+        "Read",
+        "Bash"
+      ],
+      "path": "catalog/skills/workflow/git-bisect-assistant/",
+      "file": "catalog/skills/workflow/git-bisect-assistant/SKILL.md",
+      "size": {
+        "lines": 521,
+        "characters": 17128,
+        "tokens_estimate": 2300
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "component-boundary-identifier",
+      "title": "component-boundary-identifier",
+      "description": "Identify natural module and component boundaries for microservice extraction and modularization",
+      "long_description": "Identify natural module and component boundaries for microservice extraction, modularization, or monolith decomposition using coupling analysis, cohesion metrics, dependency graphs, and bounded context identification.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Architecture",
+      "language": "Multi-language (Python, JavaScript, Java)",
+      "tags": [
+        "architecture",
+        "microservices",
+        "modularization",
+        "coupling",
+        "cohesion",
+        "ddd"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "Skills-4-SE",
+      "tools_required": [
+        "Read",
+        "Bash",
+        "Grep"
+      ],
+      "path": "catalog/skills/architecture/component-boundary-identifier/",
+      "file": "catalog/skills/architecture/component-boundary-identifier/SKILL.md",
+      "size": {
+        "lines": 638,
+        "characters": 24982,
+        "tokens_estimate": 3300
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "traceability-matrix-generator",
+      "title": "traceability-matrix-generator",
+      "description": "Generate requirement-to-code traceability matrices for compliance audits and quality assurance",
+      "long_description": "Generate requirement-to-code traceability matrices for compliance audits, regulatory reporting, and quality assurance. Use when preparing for audits, validating test coverage against requirements, or ensuring all requirements are implemented.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Compliance",
+      "language": "Multi-language (Python, JavaScript, Java)",
+      "tags": [
+        "compliance",
+        "traceability",
+        "requirements",
+        "audit",
+        "quality-assurance"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "Skills-4-SE",
+      "tools_required": [
+        "Read",
+        "Grep",
+        "Write"
+      ],
+      "path": "catalog/skills/compliance/traceability-matrix-generator/",
+      "file": "catalog/skills/compliance/traceability-matrix-generator/SKILL.md",
+      "size": {
+        "lines": 713,
+        "characters": 28160,
+        "tokens_estimate": 3800
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "framework-migration-assistant",
+      "title": "framework-migration-assistant",
+      "description": "Guide framework and library migrations with assessment, dependency mapping, API translation, and incremental strategies",
+      "long_description": "Guide framework and library migrations (Express to Fastify, Flask to FastAPI, Spring MVC to Spring Boot) with migration assessment, dependency mapping, API translation, incremental strategies, and coexistence patterns.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Developer Experience",
+      "language": "Multi-language (Python, JavaScript, Java)",
+      "tags": [
+        "migration",
+        "framework",
+        "modernization",
+        "incremental",
+        "coexistence"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "Skills-4-SE",
+      "tools_required": [
+        "Read",
+        "Edit",
+        "Bash"
+      ],
+      "path": "catalog/skills/developer-experience/framework-migration-assistant/",
+      "file": "catalog/skills/developer-experience/framework-migration-assistant/SKILL.md",
+      "size": {
+        "lines": 681,
+        "characters": 24528,
+        "tokens_estimate": 3300
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "requirement-enhancer",
+      "title": "requirement-enhancer",
+      "description": "Improve the quality, completeness, and testability of software requirements with enhancement patterns",
+      "long_description": "Improve the quality, completeness, and testability of software requirements by applying quality attributes analysis, enhancement patterns, acceptance criteria generation, and user story refinement. Use when reviewing requirements or preparing for sprint planning.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Developer Experience",
+      "language": "Multi-language (Python, JavaScript, Java)",
+      "tags": [
+        "requirements",
+        "user-stories",
+        "acceptance-criteria",
+        "agile",
+        "quality"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "Skills-4-SE",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "catalog/skills/developer-experience/requirement-enhancer/",
+      "file": "catalog/skills/developer-experience/requirement-enhancer/SKILL.md",
+      "size": {
+        "lines": 568,
+        "characters": 28712,
+        "tokens_estimate": 3800
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "cross-model-orchestrator",
+      "title": "cross-model-orchestrator",
+      "description": "Orchestrate multiple AI coding assistants (Claude Code, Codex CLI, Gemini CLI, Copilot) in coordinated workflows with QA gates between models.",
+      "long_description": "Design and execute cross-model workflows that leverage multiple AI assistants for different phases (planning, implementation, review, verification). Includes model role assignment, artifact passing, and GO/NO-GO quality gates between phases.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Orchestration",
+      "language": "Multi-language (Python, JavaScript, Java, C#, Go, C, C++)",
+      "tags": [
+        "orchestration",
+        "multi-model",
+        "cross-model",
+        "workflow",
+        "qa-gates"
+      ],
+      "priority": "HIGH",
+      "based_on": "claude-code-best-practice cross-model workflow",
+      "tools_required": [
+        "Read",
+        "Task",
+        "Write",
+        "Bash"
+      ],
+      "path": "catalog/skills/orchestration/cross-model-orchestrator/",
+      "file": "catalog/skills/orchestration/cross-model-orchestrator/SKILL.md",
+      "size": {
+        "lines": 268,
+        "characters": 12652,
+        "tokens_estimate": 3163
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "prompt-token-optimization",
+      "title": "prompt-token-optimization",
+      "description": "Minimize token consumption and maximize effective context window usage through PTC, Dynamic Filtering, Tool Search, and context hygiene techniques.",
+      "long_description": "Audit and optimize token usage across tool calls, context windows, and prompt design. Covers Programmatic Tool Calling (37% reduction), Dynamic Filtering (24% fewer tokens), Tool Search (85% reduction), and context window hygiene.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Orchestration",
+      "language": "Multi-language (Python, JavaScript, Java, C#, Go, C, C++)",
+      "tags": [
+        "optimization",
+        "tokens",
+        "context-window",
+        "cost-reduction"
+      ],
+      "priority": "HIGH",
+      "based_on": "claude-code-best-practice advanced tool use report",
+      "tools_required": [
+        "Read",
+        "Task"
+      ],
+      "path": "catalog/skills/orchestration/prompt-token-optimization/",
+      "file": "catalog/skills/orchestration/prompt-token-optimization/SKILL.md",
+      "size": {
+        "lines": 279,
+        "characters": 11768,
+        "tokens_estimate": 2942
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "quality-gate-definitions",
+      "title": "quality-gate-definitions",
+      "description": "Define and enforce reusable GO/NO-GO quality gates for multi-phase workflows with configurable pass/fail criteria.",
+      "long_description": "Provide a library of predefined quality gates with configurable criteria and gate behavior (stop, retry, skip, escalate). Includes code-compiles, lint-passes, tests-pass, coverage-threshold, no-security-vulns, docs-complete, plan-approved, performance-budget gates.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Orchestration",
+      "language": "Multi-language (Python, JavaScript, Java, C#, Go, C, C++)",
+      "tags": [
+        "quality-gates",
+        "workflow",
+        "orchestration",
+        "validation"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "claude-code-best-practice orchestration workflows",
+      "tools_required": [
+        "Read",
+        "Task",
+        "Bash"
+      ],
+      "path": "catalog/skills/orchestration/quality-gate-definitions/",
+      "file": "catalog/skills/orchestration/quality-gate-definitions/SKILL.md",
+      "size": {
+        "lines": 373,
+        "characters": 13427,
+        "tokens_estimate": 3356
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "research-plan-implement",
+      "title": "research-plan-implement",
+      "description": "Structured RPI workflow with GO/NO-GO gates, multidisciplinary perspectives, and persistent artifact files (REQUEST.md, RESEARCH.md, PLAN.md, IMPLEMENT.md).",
+      "long_description": "Guide development through a formal Research-Plan-Implement workflow with research phase, multi-perspective planning, and tracked implementation with persistent artifacts.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Workflow",
+      "language": "Multi-language (Python, JavaScript, Java, C#, Go, C, C++)",
+      "tags": [
+        "workflow",
+        "rpi",
+        "research",
+        "planning",
+        "implementation",
+        "artifacts"
+      ],
+      "priority": "HIGH",
+      "based_on": "claude-code-best-practice RPI workflow",
+      "tools_required": [
+        "Read",
+        "Task",
+        "Write",
+        "Bash",
+        "Glob",
+        "Grep"
+      ],
+      "path": "catalog/skills/workflow/research-plan-implement/",
+      "file": "catalog/skills/workflow/research-plan-implement/SKILL.md",
+      "size": {
+        "lines": 387,
+        "characters": 12067,
+        "tokens_estimate": 3016
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
         "validated": true
       }
     }

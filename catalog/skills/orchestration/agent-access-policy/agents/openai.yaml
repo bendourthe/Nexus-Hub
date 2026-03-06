@@ -1,0 +1,3 @@
+interface:
+  display_name: Agent File Access Policy
+  short_description: Configure file-level access controls for AI coding agents using Claude Code's native permission system. Restrict which files each agent can modify based on task scope.

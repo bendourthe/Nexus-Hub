@@ -1,7 +1,7 @@
 {
   "metadata": {
     "version": "1.0.0",
-    "generated": "2026-03-03",
+    "generated": "2026-03-05",
     "description": "Role-based skill bundles for targeted installation. Each bundle groups skills by professional role or workflow."
   },
   "bundles": [
@@ -18,7 +18,8 @@
         "unit-tests",
         "code-quality",
         "add-strategic-comments",
-        "pre-commit-checklist"
+        "pre-commit-checklist",
+        "research-plan-implement"
       ]
     },
     {
@@ -62,7 +63,12 @@
         "tool-design",
         "ai-output-evaluation",
         "data-pipeline-design",
-        "async-patterns"
+        "async-patterns",
+        "cross-model-orchestrator",
+        "prompt-token-optimization",
+        "competitive-generation",
+        "adversarial-verifier",
+        "agent-access-policy"
       ]
     },
     {
@@ -77,18 +83,23 @@
         "event-driven-architecture",
         "database-design",
         "cloud-architect",
-        "kubernetes-expert"
+        "kubernetes-expert",
+        "quality-gate-definitions"
       ]
     },
     {
       "id": "devops-engineer",
       "name": "DevOps Engineer",
-      "description": "Skills for CI/CD, containerization, infrastructure, and observability.",
+      "description": "Skills for CI/CD, containerization, infrastructure, deployment, and observability.",
       "skills": [
         "containerization",
         "kubernetes-expert",
         "terraform-specialist",
         "cicd-architect",
+        "cd-pipeline-generator",
+        "rollback-strategy-advisor",
+        "release-notes-writer",
+        "config-consistency-checker",
         "observability-setup",
         "cloud-architect",
         "release-management",
@@ -98,16 +109,21 @@
     {
       "id": "security-specialist",
       "name": "Security Specialist",
-      "description": "Skills for application security, authentication, and compliance auditing.",
+      "description": "Skills for application security, authentication, vulnerability analysis, and compliance auditing.",
       "skills": [
         "security-review",
         "authentication-patterns",
         "dependency-security-audit",
+        "exploitability-analyzer",
+        "security-patch-advisor",
+        "cve-reachability-analyzer",
         "pre-commit-checklist",
         "licensing-compliance",
         "soc2-compliance",
         "gdpr-compliance",
-        "pci-dss-compliance"
+        "pci-dss-compliance",
+        "adversarial-verifier",
+        "domain-contract-validator"
       ]
     },
     {
@@ -130,17 +146,40 @@
     {
       "id": "qa-engineer",
       "name": "QA Engineer",
-      "description": "Comprehensive testing skills from unit tests through E2E and mutation testing.",
+      "description": "Comprehensive testing skills from unit tests through E2E, property-based, and mutation testing.",
       "skills": [
         "test-structure",
         "unit-tests",
         "test-cases",
         "mocks-fixtures",
         "e2e-testing-automation",
+        "integration-test-generator",
+        "edge-case-generator",
+        "property-based-test-generator",
+        "flaky-test-detector",
         "performance-testing",
         "code-coverage",
         "mutation-testing",
-        "cicd-integration"
+        "test-suite-prioritizer",
+        "cicd-integration",
+        "bdd-acceptance-tests",
+        "domain-contract-validator"
+      ]
+    },
+    {
+      "id": "bug-hunter",
+      "name": "Bug Hunter",
+      "description": "Skills for finding, diagnosing, and fixing bugs with systematic localization, reproduction, and root-cause analysis.",
+      "skills": [
+        "bug-localization",
+        "bug-to-patch-generator",
+        "regression-root-cause-analyzer",
+        "bug-reproduction-test-generator",
+        "semantic-bug-detector",
+        "debug-with-logs",
+        "git-bisect-assistant",
+        "edge-case-generator",
+        "flaky-test-detector"
       ]
     },
     {
@@ -149,15 +188,23 @@
       "description": "Skills for technical leadership: architecture, code review, documentation, and team workflows.",
       "skills": [
         "architecture-design",
+        "component-boundary-identifier",
         "context-analysis",
         "code-quality",
+        "code-smell-detector",
+        "technical-debt-analyzer",
         "security-review",
         "performance-review",
         "testing-review",
         "final-report",
         "technical-documentation",
         "release-management",
-        "version-upgrade"
+        "version-upgrade",
+        "cross-model-orchestrator",
+        "quality-gate-definitions",
+        "intent-based-review",
+        "adversarial-verifier",
+        "agent-access-policy"
       ]
     }
   ]

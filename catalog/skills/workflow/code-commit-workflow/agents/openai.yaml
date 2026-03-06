@@ -1,0 +1,4 @@
+interface:
+  display_name: Code Commit Workflow
+  short_description: Implement proper Git commit workflow with conventional commits, atomic changes, and meaningful messages. Use when committing changes, preparing pull requests, or establishing team commit
+    standards.

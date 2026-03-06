@@ -1,0 +1,4 @@
+interface:
+  display_name: Context Compression
+  short_description: Minimize tokens per task in long-running agent sessions while preserving critical information. Use when hitting context limits, preparing session handoffs, or managing verbose tool
+    outputs.

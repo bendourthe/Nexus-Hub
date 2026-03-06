@@ -1,0 +1,4 @@
+interface:
+  display_name: Code Review - Performance Review
+  short_description: Profile performance, detect bottlenecks, analyze resource usage, caching strategies, and boundary conditions. Use when addressing performance issues, optimizing hot paths, reducing
+    resource consumptio

@@ -5,6 +5,7 @@ export type UrgencyLevel = "low" | "moderate" | "high" | "critical";
 export interface UsageMetric {
   percent: number;
   resetsIn: string;
+  resetsAt: number | null;
 }
 
 export type DataSource = "api" | "manual";

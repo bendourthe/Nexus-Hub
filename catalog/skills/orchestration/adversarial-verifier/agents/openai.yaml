@@ -1,0 +1,3 @@
+interface:
+  display_name: Adversarial Verifier
+  short_description: Act as a breaker agent that actively tries to break an implementation by generating adversarial inputs, edge cases, and attack vectors. Every finding backed by a failing test.

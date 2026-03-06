@@ -1,0 +1,4 @@
+interface:
+  display_name: Rollback Strategy Advisor
+  short_description: Plans and implements rollback strategies for production deployments including database migration rollbacks, feature flag rollbacks, and incident response integration. Use when designing
+    rollback proce

@@ -1,0 +1,4 @@
+interface:
+  display_name: DevLog Generation
+  short_description: Generate comprehensive development logs from git history, documentation, and code artifacts. Use when creating project history, onboarding to unfamiliar codebases, recovering lost development
+    context,

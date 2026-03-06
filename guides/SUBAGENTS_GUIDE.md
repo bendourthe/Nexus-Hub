@@ -441,15 +441,113 @@ WORKFLOW:
 
 ---
 
+## Advanced: Custom Agent Configuration
+
+Claude Code supports creating custom agents with dedicated YAML frontmatter configuration. Agents are more powerful than skills because they run as independent subprocesses with their own tool allowlists, model selection, and memory scope.
+
+### Creating a Custom Agent
+
+Place agent definitions in `.claude/agents/`:
+
+```yaml
+---
+name: my-custom-agent
+description: Short description of what this agent does
+tools:
+  - Read
+  - Glob
+  - Grep
+  - Bash
+  - Write
+  - Edit
+model: claude-sonnet-4-6
+color: blue
+memory: project
+skills:
+  - plan-before-code
+  - code-quality
+---
+
+# Agent Instructions
+
+Detailed instructions for the agent go here in markdown.
+The agent receives these instructions as its system prompt.
+```
+
+### Agent Configuration Fields
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `name` | Yes | Unique agent identifier |
+| `description` | Yes | Short description (shown in agent list) |
+| `tools` | No | Allowed tools (defaults to all) |
+| `model` | No | Model override for this agent |
+| `color` | No | Status line color indicator |
+| `memory` | No | Memory scope: `user`, `project`, or `local` |
+| `skills` | No | Skills preloaded into the agent context |
+| `hooks` | No | Agent-specific lifecycle hooks |
+
+### Built-in vs Custom Agents
+
+| Built-in Agent | Purpose | Custom Alternative |
+|---------------|---------|-------------------|
+| `general-purpose` | Multi-step tasks with all tools | Full-access agent with project-specific instructions |
+| `Explore` | Fast codebase search (read-only) | Research agent with additional context skills |
+| `Plan` | Design implementation plans | Architecture agent with domain-specific patterns |
+
+### Memory Scopes
+
+Agents can maintain persistent memory across conversations:
+
+| Scope | Location | Shared | Use Case |
+|-------|----------|--------|----------|
+| `user` | `~/.claude/agent-memory/` | Across all projects | Personal preferences, global patterns |
+| `project` | `.claude/agent-memory/` | With team (committed) | Project conventions, architecture decisions |
+| `local` | `.claude/agent-memory-local/` | Not shared (gitignored) | Local experiments, temporary notes |
+
+Memory files follow the same 200-line auto-injection limit as CLAUDE.md. Agents automatically create topic-specific files when content exceeds this limit.
+
+### Command-Agent-Skill Orchestration Pattern
+
+The most powerful pattern for complex tasks chains three tiers:
+
+```
+Command (Entry Point)
+    |
+    v
+Agent (Orchestrator)
+    |
+    +---> Skill A (Specialist)
+    |
+    +---> Skill B (Specialist)
+    |
+    v
+Output (Artifacts)
+```
+
+**How it works**:
+1. A **command** (`.claude/commands/`) provides the entry point and user-facing interface
+2. The command triggers an **agent** (`.claude/agents/`) that orchestrates the workflow
+3. The agent activates **skills** (`.claude/skills/`) as specialized tools for each phase
+4. The agent produces output artifacts (code, docs, reports)
+
+**Example**: A "full feature" command triggers a planning agent that uses `plan-before-code`, `code-quality`, and `unit-tests` skills in sequence with quality gates between phases.
+
+This pattern is formalized in the `cross-model-orchestrator` and `workflow-orchestrator` skills.
+
+---
+
 ## Next Steps
 
 1. **Browse the catalog**: `catalog/skills/CATALOG.md`
 2. **Try a skill**: Copy `kubernetes-expert` and ask about K8s
 3. **Combine skills**: Use `task-coordinator` to plan complex work
-4. **Customize**: Modify skills for your specific needs
+4. **Create a custom agent**: Add a `.claude/agents/my-agent.md` file
+5. **Use RPI workflow**: Try `research-plan-implement` for structured feature development
+6. **Customize**: Modify skills for your specific needs
 
 ---
 
-**Version**: 1.0.0
-**Last Updated**: January 2026
+**Version**: 1.1.0
+**Last Updated**: March 2026
 **Part of**: [ai-templates](../README.md)

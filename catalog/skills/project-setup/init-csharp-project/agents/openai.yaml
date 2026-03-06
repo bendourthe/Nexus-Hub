@@ -1,0 +1,4 @@
+interface:
+  display_name: Initialize C#/.NET Project
+  short_description: Initialize a complete C#/.NET project with solution structure, testing framework, and configuration. Use when starting ASP.NET Core APIs, console applications, class libraries, or Blazor
+    applications.

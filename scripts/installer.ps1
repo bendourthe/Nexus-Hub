@@ -1,6 +1,9 @@
 ﻿# DevAI-Hub Universal Installer V9 (v0.8.1)
 # Installs AI Skills Globally and to Workspaces with Safe Overwrite and Modern UI
 $ErrorActionPreference = "Stop"
+$Host.UI.RawUI.WindowTitle = "DevAI-Hub Installer"
+$script:InstallerTitle = "DevAI-Hub Installer"
+function Restore-Title { $Host.UI.RawUI.WindowTitle = $script:InstallerTitle }
 
 # --- Modern Folder Picker (C# P-Invoke) ---
 $folderPickerCode = @'
@@ -112,6 +115,22 @@ catch { }
 
 # --- Formatting Helpers ---
 
+function Write-CenteredBanner {
+    param(
+        [string]$Text,
+        [string]$Color = "Cyan",
+        [string]$BorderChar = "-"
+    )
+    Restore-Title
+    $width = [Math]::Max($Host.UI.RawUI.WindowSize.Width, 40)
+    $border = $BorderChar * $width
+    $pad = [Math]::Max(0, [Math]::Floor(($width - $Text.Length) / 2))
+    $centered = (" " * $pad) + $Text
+    Write-Host $border -ForegroundColor $Color
+    Write-Host $centered -ForegroundColor $Color
+    Write-Host $border -ForegroundColor $Color
+}
+
 function Get-ProviderColor {
     param([string]$Provider)
     $color = switch ($Provider) {
@@ -127,8 +146,9 @@ function Get-ProviderColor {
 function Write-Header {
     param([string]$Provider)
     $color = Get-ProviderColor -Provider $Provider
+    $text = "[ ---------- $Provider ---------- ]"
     Write-Host ""
-    Write-Host "  [ ---------- $Provider ---------- ]" -ForegroundColor $color
+    Write-Host "  $text" -ForegroundColor $color
 }
 
 function Write-Item {
@@ -292,7 +312,8 @@ function Safe-Folder-Copy {
         Write-Item -Message "Syncing (old files not in source will be removed)..." -Color "DarkGray"
     }
     & robocopy $Source $Destination /MIR /NFL /NDL /NJH /NJS | Out-Null
-    
+    Restore-Title
+
     if (-not [string]::IsNullOrEmpty($CustomMessage)) {
         Write-Item -Message $CustomMessage -Color "DarkGreen"
     }
@@ -459,18 +480,15 @@ function Install-UsageDisplay {
 function Install-Global {
     param ($RepoRoot)
     Clear-Host
-    Write-Host "================================================================" -ForegroundColor DarkCyan
-    Write-Host "           Welcome to the DevAI-Hub Universal Installer         " -ForegroundColor DarkCyan
-    Write-Host "================================================================" -ForegroundColor DarkCyan
+    Restore-Title
+    Write-CenteredBanner -Text "Welcome to the DevAI-Hub Universal Installer" -Color "DarkCyan" -BorderChar "="
     Write-Host ""
     
     # Global Overwrite Preference
     $script:OverwriteMode = Get-Overwrite-Preference
     Write-Host ""
 
-    Write-Host "----------------------------------------------------------------" -ForegroundColor Cyan
-    Write-Host "                  PHASE 1: Global Installation                  " -ForegroundColor Cyan
-    Write-Host "----------------------------------------------------------------" -ForegroundColor Cyan
+    Write-CenteredBanner -Text "PHASE 1: Global Installation" -Color "Cyan"
     
     $platforms = Select-Platforms -PhaseName "Global Phase"
     Write-Host ""
@@ -549,8 +567,11 @@ function Install-Global {
         # Global Skills
         Safe-Folder-Copy -Source "$RepoRoot\catalog\skills" -Destination (Join-Path $globalCodexDir "skills") -CustomMessage "✓ Global skills catalog installed at: $(Join-Path $globalCodexDir "skills")"
         
-        # Global Commands
-        Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $globalCodexDir "commands") -CustomMessage "✓ Global commands installed at: $(Join-Path $globalCodexDir "commands")"
+        # Global Custom Prompts (Codex equivalent of commands)
+        Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $globalCodexDir "prompts") -CustomMessage "✓ Global custom prompts installed at: $(Join-Path $globalCodexDir "prompts")"
+
+        # Global AGENTS.md (open standard instruction file for Codex, Jules, Cursor, Aider)
+        Render-Template -Template "$RepoRoot\templates\ai-instructions\base-codex.md" -Output "$globalCodexDir\AGENTS.md" -RepoRoot $RepoRoot -Languages @()
     }
 
     # 4. Microsoft - Github Copilot
@@ -560,9 +581,7 @@ function Install-Global {
     }
  
     Write-Host ""
-    Write-Host "----------------------------------------------------------------" -ForegroundColor Green
-    Write-Host "              Global Installation Phase Complete.               " -ForegroundColor Green
-    Write-Host "----------------------------------------------------------------" -ForegroundColor Green
+    Write-CenteredBanner -Text "Global Installation Phase Complete." -Color "Green"
     Write-Host ""
 }
 
@@ -785,9 +804,7 @@ function Render-Template {
 
 function Install-Workspace {
     param ($RepoRoot)
-    Write-Host "----------------------------------------------------------------" -ForegroundColor Cyan
-    Write-Host "                PHASE 2: Workspace Installation                 " -ForegroundColor Cyan
-    Write-Host "----------------------------------------------------------------" -ForegroundColor Cyan
+    Write-CenteredBanner -Text "PHASE 2: Workspace Installation" -Color "Cyan"
     
     while ($true) {
         Write-Host ""
@@ -872,8 +889,11 @@ function Install-Workspace {
             # Skills
             Safe-Folder-Copy -Source "$RepoRoot\catalog\skills" -Destination (Join-Path $codexDir "skills") -CustomMessage "✓ Workspace skills catalog installed at: $(Join-Path $codexDir "skills")"
             
-            # Commands
-            Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $codexDir "commands") -CustomMessage "✓ Workspace commands installed at: $(Join-Path $codexDir "commands")"
+            # Custom Prompts (Codex equivalent of commands)
+            Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $codexDir "prompts") -CustomMessage "✓ Workspace custom prompts installed at: $(Join-Path $codexDir "prompts")"
+
+            # AGENTS.md at project root (open standard for Codex, Jules, Cursor, Aider)
+            Render-Template -Template "$RepoRoot\templates\ai-instructions\base-codex.md" -Output "$targetPath\AGENTS.md" -RepoRoot $RepoRoot -Languages $languages
         }
 
         # --- Prepare Rules for Copilot/Cursor (using concise snippets) ---
@@ -929,18 +949,14 @@ function Install-Workspace {
         }
         
         Write-Host ""
-        Write-Host "----------------------------------------------------------------" -ForegroundColor Green
-        Write-Host "      Project $(Split-Path $targetPath -Leaf) Configured!       " -ForegroundColor Green
-        Write-Host "----------------------------------------------------------------" -ForegroundColor Green
+        Write-CenteredBanner -Text "Project $(Split-Path $targetPath -Leaf) Configured!" -Color "Green"
     }
 }
 
 function Install-VSCodeExtensions {
     param ($RepoRoot)
     Write-Host ""
-    Write-Host "----------------------------------------------------------------" -ForegroundColor Cyan
-    Write-Host "        PHASE 3: Claude Code Usage Monitor Installation          " -ForegroundColor Cyan
-    Write-Host "----------------------------------------------------------------" -ForegroundColor Cyan
+    Write-CenteredBanner -Text "PHASE 3: Claude Code Usage Monitor Installation" -Color "Cyan"
     Write-Host ""
 
     Write-Item -Message "The Claude Usage Monitor is a VS Code extension that displays your Claude" -Color "White"
@@ -1023,6 +1039,7 @@ function Install-VSCodeExtensions {
 
     Write-Item -Message "  Installing dependencies..." -Color "Gray"
     & npm install --silent 2>$null | Out-Null
+    Restore-Title
     if ($LASTEXITCODE -ne 0) {
         Write-Item -Message "Build failed: npm install failed" -Color "Red"
         Pop-Location
@@ -1032,6 +1049,7 @@ function Install-VSCodeExtensions {
 
     Write-Item -Message "  Compiling TypeScript..." -Color "Gray"
     & npm run compile 2>$null | Out-Null
+    Restore-Title
     if ($LASTEXITCODE -ne 0) {
         Write-Item -Message "Build failed: TypeScript compilation failed" -Color "Red"
         Pop-Location
@@ -1046,6 +1064,7 @@ function Install-VSCodeExtensions {
     Write-Item -Message "Packaging extension as VSIX..." -Color "White"
     Push-Location $extensionDir
     & npx vsce package --no-dependencies 2>$null | Out-Null
+    Restore-Title
     $vsixExitCode = $LASTEXITCODE
     Pop-Location
 
@@ -1064,6 +1083,7 @@ function Install-VSCodeExtensions {
     $codeCmd = Get-Command "code" -ErrorAction SilentlyContinue
     if ($codeCmd) {
         & code --install-extension $vsixFile.FullName 2>$null | Out-Null
+        Restore-Title
         if ($LASTEXITCODE -eq 0) {
             Write-Item -Message "✓ Claude Usage Monitor extension installed in VS Code!" -Color "DarkGreen"
             Write-Item -Message "  Restart VS Code to activate. Look for 'Claude: --%' in the status bar." -Color "White"
@@ -1083,9 +1103,7 @@ function Install-VSCodeExtensions {
     $ErrorActionPreference = $savedErrorPref
 
     Write-Host ""
-    Write-Host "----------------------------------------------------------------" -ForegroundColor Green
-    Write-Host "           VS Code Extension Phase Complete.                    " -ForegroundColor Green
-    Write-Host "----------------------------------------------------------------" -ForegroundColor Green
+    Write-CenteredBanner -Text "VS Code Extension Phase Complete." -Color "Green"
 }
 
 # --- Template & Script Installation ---
@@ -1093,9 +1111,7 @@ function Install-VSCodeExtensions {
 function Install-Templates {
     param ($RepoRoot)
     Write-Host ""
-    Write-Host "----------------------------------------------------------------" -ForegroundColor Cyan
-    Write-Host "     PHASE 4: Templates & Report Generator Installation         " -ForegroundColor Cyan
-    Write-Host "----------------------------------------------------------------" -ForegroundColor Cyan
+    Write-CenteredBanner -Text "PHASE 4: Templates & Report Generator Installation" -Color "Cyan"
     Write-Host ""
     Write-Item -Message "DevAI-Hub can generate professional Word (.docx) and PowerPoint (.pptx)" -Color "White"
     Write-Item -Message "reports from Markdown files using the /generate-report command." -Color "White"
@@ -1150,9 +1166,7 @@ function Install-Templates {
     if ($response -notmatch "^[Yy]") {
         Write-Item -Message "Skipped custom template import." -Color "Gray"
         Write-Host ""
-        Write-Host "----------------------------------------------------------------" -ForegroundColor Green
-        Write-Host "        Templates & Scripts Installation Complete.               " -ForegroundColor Green
-        Write-Host "----------------------------------------------------------------" -ForegroundColor Green
+        Write-CenteredBanner -Text "Templates & Scripts Installation Complete." -Color "Green"
         return
     }
 
@@ -1205,9 +1219,7 @@ function Install-Templates {
     }
 
     Write-Host ""
-    Write-Host "----------------------------------------------------------------" -ForegroundColor Green
-    Write-Host "        Templates & Scripts Installation Complete.               " -ForegroundColor Green
-    Write-Host "----------------------------------------------------------------" -ForegroundColor Green
+    Write-CenteredBanner -Text "Templates & Scripts Installation Complete." -Color "Green"
 }
 
 # --- Main ---
@@ -1217,8 +1229,6 @@ Install-Workspace -RepoRoot $repoRoot
 Install-VSCodeExtensions -RepoRoot $repoRoot
 Install-Templates -RepoRoot $repoRoot
 Write-Host ""
-Write-Host "================================================================" -ForegroundColor DarkCyan
-Write-Host "       Thank You For Using The DevAI-Hub Universal Installer    " -ForegroundColor DarkCyan
-Write-Host "================================================================" -ForegroundColor DarkCyan
+Write-CenteredBanner -Text "Thank You For Using The DevAI-Hub Universal Installer" -Color "DarkCyan" -BorderChar "="
 Write-Host ""
 Pause

@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import { UsageData, MODEL_DISPLAY_NAMES } from "./types";
+import { FetchError, UsageFetcher } from "./usageFetcher";
 import {
   getRecommendation,
 } from "./recommendations";
@@ -19,6 +20,7 @@ export class DashboardPanel {
     panel: vscode.WebviewPanel,
     private data: UsageData | undefined,
     private timeSince: string,
+    private fetchError: FetchError | undefined,
     private callbacks: DashboardCallbacks
   ) {
     this.panel = panel;
@@ -49,12 +51,14 @@ export class DashboardPanel {
   static show(
     data: UsageData | undefined,
     timeSince: string,
+    fetchError: FetchError | undefined,
     callbacks: DashboardCallbacks,
     extensionUri?: vscode.Uri
   ): DashboardPanel {
     if (DashboardPanel.currentPanel) {
       DashboardPanel.currentPanel.data = data;
       DashboardPanel.currentPanel.timeSince = timeSince;
+      DashboardPanel.currentPanel.fetchError = fetchError;
       DashboardPanel.currentPanel.callbacks = callbacks;
       DashboardPanel.currentPanel.panel.webview.html =
         DashboardPanel.currentPanel.getHtml();
@@ -80,6 +84,7 @@ export class DashboardPanel {
       panel,
       data,
       timeSince,
+      fetchError,
       callbacks
     );
     return DashboardPanel.currentPanel;
@@ -94,11 +99,30 @@ export class DashboardPanel {
   private getHtml(): string {
     const data = this.data;
 
+    // Only show error banner for actionable errors when no cached data is available,
+    // or for non-rate-limit errors. Rate-limiting is a known upstream issue and should
+    // not alarm the user when cached data is displayed.
+    const showErrorBanner = this.fetchError &&
+      (this.fetchError.code !== "rate-limited" || !data);
+
+    const errorBanner = showErrorBanner
+      ? `<div class="error-banner">
+          <span class="error-icon">&#9888;</span>
+          <span>${escapeHtml(UsageFetcher.getErrorMessage(this.fetchError!))}</span>
+          <button onclick="send('refresh')" class="retry-btn">Retry</button>
+        </div>`
+      : "";
+
     if (!data) {
+      const emptyMessage = this.fetchError?.code === "rate-limited"
+        ? "Waiting for first successful fetch. The usage API may be temporarily unavailable."
+        : "Usage data will appear here once auto-fetch completes or you enter data manually.";
+
       return this.wrapHtml(`
+        ${errorBanner}
         <div class="empty-state">
           <h2>No Usage Data</h2>
-          <p>Usage data will appear here once auto-fetch completes or you enter data manually.</p>
+          <p>${escapeHtml(emptyMessage)}</p>
           <div class="actions">
             <button onclick="send('refresh')">Fetch Now</button>
             <button onclick="send('manualInput')" class="secondary">Enter Manually</button>
@@ -111,6 +135,7 @@ export class DashboardPanel {
     const sourceLabel = data.dataSource === "api" ? "Auto-fetched" : "Manually entered";
 
     return this.wrapHtml(`
+      ${errorBanner}
       <h2>Claude Usage Dashboard</h2>
 
       <div class="section">
@@ -207,6 +232,36 @@ export class DashboardPanel {
     .divider {
       border-top: 1px solid var(--vscode-widget-border, rgba(128,128,128,0.35));
       margin: 16px 0;
+    }
+    .error-banner {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      margin-bottom: 16px;
+      background: var(--vscode-inputValidation-warningBackground, rgba(255,204,0,0.1));
+      border: 1px solid var(--vscode-inputValidation-warningBorder, #cca700);
+      border-radius: 4px;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+    .error-icon {
+      flex-shrink: 0;
+      font-size: 14px;
+    }
+    .retry-btn {
+      flex-shrink: 0;
+      margin-left: auto;
+      padding: 3px 10px;
+      font-size: 11px;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      color: var(--vscode-button-foreground);
+      background: var(--vscode-button-background);
+    }
+    .retry-btn:hover {
+      background: var(--vscode-button-hoverBackground);
     }
     .progress-container {
       display: flex;
