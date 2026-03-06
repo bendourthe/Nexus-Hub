@@ -1,0 +1,139 @@
+# DevAI-Hub
+
+> Modular skill and instruction library that augments AI coding assistants (Claude Code, Gemini, GitHub Copilot, Codex) with enterprise-grade workflows, 134 curated skills, and cross-platform installers.
+
+## Installation
+
+### One-click (recommended)
+
+Windows: run `install.bat`
+macOS / Linux: run `./install.sh`
+
+The installer copies skills, hooks, and templates to your user profile (`~/.claude/skills/`, `~/.gemini/`, etc.) and optionally to a target project.
+
+### Manual
+
+Copy skill directories from `catalog/skills/<category>/<skill-name>/` to your project's `.claude/skills/` or `~/.claude/skills/`.
+
+## Content Types
+
+- **skill**: Behavioral instruction for an AI coding agent. Entry file: `SKILL.md`. Triggers automatically from context.
+- **command**: User-invocable slash command. Entry file: Markdown with YAML frontmatter. Invoked with `/command-name`.
+- **workflow**: Ordered chain of skills for a specific goal. Defined in `workflows.json`.
+- **bundle**: Curated skill collection for a developer role. Defined in `bundles.json`.
+- **template**: Base AI instruction file for a platform/language. Installed to `CLAUDE.md`, `GEMINI.md`, `copilot-instructions.md`, or `AGENTS.md`.
+- **hook**: Shell script that runs inside Claude Code sessions (PreToolUse, PostToolUse, Stop events).
+
+## Skills (134 total, 17 categories)
+
+### AI Development (3)
+ai-agent-development, prompt-engineering, rag-implementation
+
+### Architecture (6)
+architecture-design, api-design, ddd-strategic-design, microservices-patterns, event-driven-architecture, component-boundary-identifier
+
+### Bug Fixing (5)
+bug-localization, bug-to-patch-generator, regression-root-cause-analyzer, bug-reproduction-test-generator, semantic-bug-detector
+
+### Code Cleanup (7)
+cleanup-c, cleanup-cpp, cleanup-csharp, cleanup-go, cleanup-java, cleanup-javascript, cleanup-python
+
+### Code Review (8)
+code-review-context-analysis, code-review-quality, code-review-security, code-review-performance, code-review-testing, code-review-final-report, code-smell-detector, behavior-preservation-checker
+
+### Compliance (9)
+ai-agent-governance, ccpa-compliance, gdpr-compliance, iso27001-compliance, iso42001-ai-governance, nist-ai-rmf, pci-dss-compliance, soc2-compliance, traceability-matrix-generator
+
+### Developer Experience (18)
+dependency-manager, legacy-modernizer, refactoring-expert, tool-design, ai-output-evaluation, writing-editing, analysis-logic, creative-generation, technical-debt-analyzer, dead-code-eliminator, error-explanation-generator, design-pattern-suggestor, code-translation, code-optimizer, ambiguity-detector, deprecated-api-updater, framework-migration-assistant, requirement-enhancer
+
+### Documentation (7)
+add-strategic-comments, create-technical-docs, create-user-documentation, generate-api-docs, generate-docstrings, generate-sbom, generate-report
+
+### Framework Specialists (3)
+react-expert, nextjs-expert, fastapi-expert
+
+### Infrastructure (11)
+cicd-architect, cloud-architect, kubernetes-expert, terraform-specialist, database-design, data-pipeline-design, observability-setup, containerization, cd-pipeline-generator, rollback-strategy-advisor, config-consistency-checker
+
+### Language Specialists (3)
+go-expert, rust-expert, sql-expert
+
+### Orchestration (8)
+context-manager, task-coordinator, workflow-orchestrator, context-degradation, context-compression, cross-model-orchestrator, prompt-token-optimization, quality-gate-definitions
+
+### Project Initialization (4)
+init-csharp-project, init-java-project, init-javascript-project, init-python-project
+
+### Research (1)
+trend-research
+
+### Security (7)
+dependency-security-audit, pre-commit-checklist, licensing-compliance-check, exploitability-analyzer, security-patch-advisor, cve-reachability-analyzer, authentication-patterns
+
+### Testing (17)
+generate-test-cases, setup-test-infrastructure, cicd-integration, code-coverage, mocks-fixtures, mutation-testing, performance-testing, unit-tests, edge-case-generator, flaky-test-detector, integration-test-generator, property-based-test-generator, fuzzing-input-generator, metamorphic-test-generator, directed-test-input-generator, test-suite-prioritizer, e2e-testing-automation
+
+### Workflow (14)
+code-commit-workflow, plan-before-code, debug-with-logs, test-driven-development, create-custom-command, filesystem-context-patterns, documentation-consistency, version-upgrade, devlog-generation, conflict-analyzer, git-bisect-assistant, release-notes-writer, check-usage, research-plan-implement
+
+## Slash Commands (21)
+
+/analyze-codebase        Structured 12-section codebase analysis with Mermaid diagrams
+/check-usage             Claude Code usage limits with model-switching recommendations
+/compare-project         Gap analysis between current project and external source
+/create-skill-or-command Interactive wizard to create new skills or commands
+/generate-changelog      Full CHANGELOG.md from git history
+/generate-commit-message Structured commit message from staged changes
+/generate-devlog         Complete DEVLOG.md from git history
+/generate-readme         Production-quality README.md
+/generate-report-style-guide Report writing style guide
+/generate-report         Word (.docx) or PowerPoint (.pptx) from Markdown
+/generate-sbom           Software Bill of Materials
+/generate-tests          Comprehensive test coverage analysis and generation
+/generate-unit-tests     Detailed unit test plan for entire codebase
+/import-skills           Import skills from Hub catalog into project
+/manage-memory           Audit and prune CLAUDE.md and memory files
+/review-codebase         Senior-level codebase review with remediation roadmap
+/search-skills           Search the Hub catalog by keyword, category, or role
+/setup-project           Configure CLAUDE.md with project description
+/update-devlog           Generate new DEVLOG.md entry from recent changes
+/update-documentation    Discover and update all documentation files
+/update-version          Guide through semantic version upgrade
+
+## Workflows (17)
+
+Full Code Review, Security Audit, New Project Setup, API Development, Release Preparation, Legacy Modernization, AI Agent Pipeline, Compliance Assessment, Test Coverage Boost, Production Readiness, Cross-Model Orchestration, Research-Plan-Implement, Token Optimization, Intent-Based Code Review, Adversarial Code Review, Competitive Implementation, Progressive Delivery
+
+## Role Bundles (11)
+
+Core Developer, Frontend Engineer, Backend Engineer, AI Engineer, Software Architect, DevOps Engineer, Security Specialist, Compliance Auditor, QA Engineer, Bug Hunter, Tech Lead
+
+## Hooks (10 runtime hooks for Claude Code)
+
+PreToolUse:  git-guardrails.sh (Bash), secret-scan.sh (Write/Edit), large-file-guard.sh (Write), escalation-trigger.sh (Write/Edit)
+PostToolUse: auto-format-on-write.sh (Write/Edit), lint-on-write.sh (Write/Edit)
+Stop:        usage-display.sh, notify-on-complete.sh, session-summary.sh
+
+## Platform Support
+
+| Platform | Config File | Skills | Templates |
+|----------|-------------|--------|-----------|
+| Claude Code | CLAUDE.md + .claude/skills/ | Yes | base-claude.md |
+| Gemini | .gemini/GEMINI.md | Yes | base-gemini.md |
+| GitHub Copilot | .github/copilot-instructions.md | No | coding-snippets/ |
+| Codex / Jules / Cursor / Aider | AGENTS.md | No | base-codex.md |
+
+## Key Files
+
+catalog/skills/           134 skill directories organized by category
+catalog/commands/         21 slash command definition files
+catalog/hooks/            10 runtime hook shell scripts
+templates/ai-instructions/ Base instruction templates for each platform
+scripts/installer.ps1     Windows installer (PowerShell, no runtime required)
+scripts/installer.sh      macOS/Linux installer (Bash, no runtime required)
+scripts/generate_report.py Word/PowerPoint report generator (Python 3.8+)
+skills.json               Machine-readable catalog of all 134 skills
+workflows.json            17 goal-based workflow definitions
+bundles.json              11 role-based bundle definitions
+extensions/claude-usage-monitor/  VS Code extension for real-time usage monitoring

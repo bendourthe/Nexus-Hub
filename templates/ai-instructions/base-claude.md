@@ -39,6 +39,13 @@
 - **MANDATORY: Every Bash/shell command approval MUST be preceded by a one-sentence plain-language explanation** of what the command does and what its impact will be. This applies to ALL commands regardless of complexity. No exceptions.
 - Ask clarifying questions before coding if requirements are ambiguous
 
+## Output Minimization
+- Suppress verbose progress bars, banners, and informational logs from commands unless they indicate an error
+- Prefer `--quiet`, `--silent`, or `-q` flags when running package managers, build tools, and test runners
+- Summarize long command output rather than echoing it in full; report only counts, errors, and key results
+- When a command produces more than ~20 lines of output, summarize what happened rather than quoting the full log
+- For automated compression of all command output, see `guides/RTK_CONTEXT_COMPRESSION.md` (requires Rust/cargo)
+
 ## Context References
 - Skills: `.claude/skills/` (auto-activated by task context)
 - Architecture: `.claude/context/architecture.md`

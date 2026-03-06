@@ -33,3 +33,9 @@
 - Place punctuation outside quotation marks; no em-dashes
 - Professional teaching tone
 - Never hard-wrap paragraph text at a fixed column width; write each paragraph or bullet point as a single continuous line and let the editor or terminal handle visual wrapping
+
+## Output Minimization
+- Suppress verbose progress bars, banners, and informational logs from commands unless they indicate an error
+- Prefer `--quiet`, `--silent`, or `-q` flags when running package managers, build tools, and test runners
+- Summarize long command output rather than echoing it in full; report only counts, errors, and key results
+- When a command produces more than ~20 lines of output, summarize what happened rather than quoting the full log

@@ -4849,6 +4849,43 @@
       }
     },
     {
+      "name": "context-optimization",
+      "title": "Context Window Optimization",
+      "description": "Optimize AI coding session context window usage by compressing command output, minimizing verbose logs, and avoiding context bloat. Use when sessions are hitting token limits, commands produce excessive output, or you want to maximize effective session length. Covers rtk proxy setup for Claude Code and prompt-level output reduction for Gemini, Codex, and Copilot.",
+      "long_description": "Two-track approach to context efficiency: automated output compression via the rtk CLI proxy for Claude Code (hook-based, ~70% token reduction), and prompt-level output minimization instructions for Gemini, Codex, and Copilot. Includes installation, hook wiring, security considerations, quiet-flag patterns for common tools, and verification steps.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Developer Experience",
+      "language": "Multi-language",
+      "tags": [
+        "context",
+        "performance",
+        "rtk",
+        "tokens",
+        "output-compression",
+        "claude-code",
+        "hooks"
+      ],
+      "priority": "HIGH",
+      "based_on": "rtk context compression tool",
+      "tools_required": [],
+      "path": "catalog/skills/developer-experience/context-optimization/",
+      "file": "catalog/skills/developer-experience/context-optimization/SKILL.md",
+      "size": {
+        "lines": 130,
+        "characters": 5200,
+        "tokens_estimate": 900
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 90,
+        "validated": true
+      }
+    },
+    {
       "name": "cross-model-orchestrator",
       "title": "cross-model-orchestrator",
       "description": "Orchestrate multiple AI coding assistants (Claude Code, Codex CLI, Gemini CLI, Copilot) in coordinated workflows with QA gates between models.",
