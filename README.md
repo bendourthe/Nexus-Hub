@@ -6,6 +6,16 @@
 
 ---
 
+## What's New in v0.8.3
+
+- **Usage monitor updates automatically** — The Claude Code usage dashboard now refreshes on its own. No more clicking a button; your current usage always stays up to date.
+- **New skill: Context Optimization** — Teaches your AI to stay focused when working in large codebases, cutting out irrelevant information so responses are faster and more accurate.
+- **New command: Search Skills** — Type `/search-skills` followed by a keyword or role to instantly find the right skill from the 135-skill catalog without leaving your editor.
+- **Quieter command output** — AI assistants now suppress noisy installation logs and progress bars by default, showing only errors and key results so your terminal stays readable.
+- **Community standards** — Added a Code of Conduct and Security Policy to the repository.
+
+---
+
 ## 🚀 Quick Start (The 30-Second Setup)
 
 Don't want to copy-paste files manually? We made an installer.

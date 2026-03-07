@@ -11,6 +11,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.8.3] - 2026-03-06
+
+### Added
+- **Context Optimization Skill**: New `context-optimization` skill (`catalog/skills/context-optimization/SKILL.md`) for managing token budgets, pruning irrelevant context, and applying structured context engineering patterns
+- **Search Skills Command**: New `search-skills` command (`catalog/commands/search-skills.md`) for keyword, category, and role-based skill discovery from the Hub catalog
+- **OAuth Token Refresh**: Usage monitor now refreshes the OAuth access token automatically before each API call, reading from `~/.claude/.credentials.json` to prevent stale-token 401 errors
+- **Live Dashboard Auto-Polling**: Dashboard panel polls the usage API on a configurable interval without requiring manual refresh; added refresh indicator showing last-updated timestamp
+- **LLMs.txt**: Added `llms.txt` LLM crawler manifest (139 lines) for structured discovery of the Hub's content by AI crawlers
+- **RTK Context Compression Guide**: New `guides/RTK_CONTEXT_COMPRESSION.md` documenting automated context compression with Rust/cargo
+- **Governance Files**: Added `CODE_OF_CONDUCT.md` and `SECURITY.md` to the repository root
+- **v0.8.2 Design Docs**: Added `docs/v0.8.2/comparison-context-hub.md`, `docs/v0.8.2/content-guide.md`, and `docs/v0.8.2/design.md`
+
+### Changed
+- **Usage Monitor Refactored**: Extracted `usageFetcher.ts` module, removed `inputCollector.ts` (manual credential input eliminated), streamlined `extension.ts` (-121 lines), and enhanced `statusBarManager.ts` with live refresh indicator
+- **AI Instruction Templates**: Added output minimization rules (suppress verbose progress bars, prefer `--quiet` flags, summarize long output) to `base-claude.md`, `base-codex.md`, and `base-gemini.md`
+- **Skills Registry**: Updated `skills.json` with new skill entries
+
+---
+
 ## [0.8.2] - 2026-03-05
 
 ### Added
@@ -2590,7 +2609,8 @@ repository_root/
 
 ---
 
-[Unreleased]: https://github.com/bdourthe/devai-hub/compare/v0.8.2...HEAD
+[Unreleased]: https://github.com/bdourthe/devai-hub/compare/v0.8.3...HEAD
+[0.8.3]: https://github.com/bdourthe/devai-hub/compare/v0.8.2...v0.8.3
 [0.8.2]: https://github.com/bdourthe/devai-hub/compare/v0.8.1...v0.8.2
 [0.8.1]: https://github.com/bdourthe/devai-hub/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/bdourthe/devai-hub/compare/v0.7.1...v0.8.0

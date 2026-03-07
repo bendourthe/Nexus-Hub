@@ -1,5 +1,18 @@
 # Development Log
 
+## [2026-03-06] - Release 0.8.3: Context Optimization, Live Usage Monitor, Output Minimization
+
+*   **Goal**: Package post-0.8.2 additions under an official release: a new context-optimization skill, a search-skills command, live auto-polling in the usage monitor dashboard, output minimization rules for all AI templates, and supporting governance files and guides.
+*   **What Changed**:
+    *   **Context Optimization Skill**: Added `catalog/skills/context-optimization/SKILL.md` for token budget management, context pruning, and structured context engineering patterns.
+    *   **Search Skills Command**: Added `catalog/commands/search-skills.md` enabling keyword, category, and role-based discovery across the 135-skill catalog.
+    *   **Usage Monitor**: Extracted `usageFetcher.ts` module with OAuth token refresh (reads `~/.claude/.credentials.json`); removed `inputCollector.ts` (manual credential input eliminated); added live auto-polling with configurable interval; added refresh indicator to `statusBarManager.ts`; streamlined `extension.ts` (-121 lines).
+    *   **AI Instruction Templates**: Added output minimization rules (suppress verbose progress bars, prefer `--quiet` flags, summarize long output) to `base-claude.md`, `base-codex.md`, and `base-gemini.md`.
+    *   **Skills Registry**: Updated `skills.json` with new skill entries.
+    *   **Governance & Guides**: Added `CODE_OF_CONDUCT.md`, `SECURITY.md`, `guides/RTK_CONTEXT_COMPRESSION.md`, `llms.txt`, and `docs/v0.8.2/` design documentation.
+    *   **Version Bump**: Updated `templates.json`, `scripts/installer.ps1`, `scripts/installer.sh`, `infrastructure/hooks/README.md` from 0.8.2 to 0.8.3.
+*   **Current Status**: Verified. All version references consistent at 0.8.3.
+
 ## [2026-03-05] - Release 0.8.2: 134 Skills, Codex Support, Usage Monitor Overhaul
 
 *   **Goal**: Package the catalog expansion (94 → 134 skills), Codex AGENTS.md installer support, 7 new workflows, 6 new hook templates, and a major usage monitor reliability overhaul under an official version marker.
