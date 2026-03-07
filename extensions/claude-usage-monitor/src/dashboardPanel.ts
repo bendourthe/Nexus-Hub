@@ -7,7 +7,6 @@ import {
 
 export interface DashboardCallbacks {
   onRefresh: () => void;
-  onManualInput: () => void;
   onOpenUsagePage: () => void;
 }
 
@@ -31,10 +30,8 @@ export class DashboardPanel {
       (message: { command: string }) => {
         switch (message.command) {
           case "refresh":
+            this.panel.webview.postMessage({ command: "setLoading" });
             this.callbacks.onRefresh();
-            break;
-          case "manualInput":
-            this.callbacks.onManualInput();
             break;
           case "openUsagePage":
             this.callbacks.onOpenUsagePage();
@@ -90,10 +87,27 @@ export class DashboardPanel {
     return DashboardPanel.currentPanel;
   }
 
-  update(data: UsageData | undefined, timeSince: string): void {
+  update(data: UsageData | undefined, timeSince: string, fetchError?: FetchError): void {
     this.data = data;
     this.timeSince = timeSince;
+    if (fetchError !== undefined) {
+      this.fetchError = fetchError;
+    }
     this.panel.webview.html = this.getHtml();
+  }
+
+  static updateIfOpen(
+    data: UsageData | undefined,
+    timeSince: string,
+    fetchError: FetchError | undefined
+  ): void {
+    if (!DashboardPanel.currentPanel) {
+      return;
+    }
+    DashboardPanel.currentPanel.data = data;
+    DashboardPanel.currentPanel.timeSince = timeSince;
+    DashboardPanel.currentPanel.fetchError = fetchError;
+    DashboardPanel.currentPanel.panel.webview.html = DashboardPanel.currentPanel.getHtml();
   }
 
   private getHtml(): string {
@@ -124,8 +138,7 @@ export class DashboardPanel {
           <h2>No Usage Data</h2>
           <p>${escapeHtml(emptyMessage)}</p>
           <div class="actions">
-            <button onclick="send('refresh')">Fetch Now</button>
-            <button onclick="send('manualInput')" class="secondary">Enter Manually</button>
+            <button id="refreshBtn" onclick="send('refresh')">Fetch Now</button>
           </div>
         </div>
       `);
@@ -140,17 +153,17 @@ export class DashboardPanel {
 
       <div class="section">
         <h3>Current Session</h3>
-        ${this.renderProgressBar(data.session.percent, `Resets: ${data.session.resetsIn}`)}
+        ${this.renderProgressBar(data.session.percent, data.session.resetsIn, data.session.resetsAt)}
       </div>
 
       <div class="section">
         <h3>Weekly (All Models)</h3>
-        ${this.renderProgressBar(data.weeklyAllModels.percent, `Resets: ${data.weeklyAllModels.resetsIn}`)}
+        ${this.renderProgressBar(data.weeklyAllModels.percent, data.weeklyAllModels.resetsIn, data.weeklyAllModels.resetsAt)}
       </div>
 
       <div class="section">
         <h3>Weekly (Sonnet)</h3>
-        ${this.renderProgressBar(data.weeklySonnet.percent, `Resets: ${data.weeklySonnet.resetsIn}`)}
+        ${this.renderProgressBar(data.weeklySonnet.percent, data.weeklySonnet.resetsIn, data.weeklySonnet.resetsAt)}
       </div>
 
       <div class="divider"></div>
@@ -177,8 +190,7 @@ export class DashboardPanel {
       <div class="divider"></div>
 
       <div class="actions">
-        <button onclick="send('refresh')">Refresh Now</button>
-        <button onclick="send('manualInput')" class="secondary">Manual Input</button>
+        <button id="refreshBtn" onclick="send('refresh')">Refresh Now</button>
         <button onclick="send('openUsagePage')" class="secondary">Open Usage Page</button>
       </div>
 
@@ -186,7 +198,8 @@ export class DashboardPanel {
     `);
   }
 
-  private renderProgressBar(percent: number, subtitle: string): string {
+  private renderProgressBar(percent: number, resetsIn: string, resetsAt: number | null): string {
+    const attr = resetsAt != null ? ` data-resets-at="${resetsAt}"` : "";
     return `
       <div class="progress-container">
         <div class="progress-bar">
@@ -194,7 +207,7 @@ export class DashboardPanel {
         </div>
         <span class="progress-label">${percent}%</span>
       </div>
-      <span class="progress-subtitle">${escapeHtml(subtitle)}</span>
+      <span class="progress-subtitle"${attr}>Resets: ${escapeHtml(resetsIn)}</span>
     `;
   }
 
@@ -366,6 +379,27 @@ export class DashboardPanel {
     function send(command) {
       vscode.postMessage({ command });
     }
+    // Live countdown: recompute "Resets: Xh Ym" labels from embedded epoch timestamps
+    function fmtCountdown(epochMs) {
+      const diff = epochMs - Date.now();
+      if (diff <= 0) return "soon";
+      const h = Math.floor(diff / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      return h > 0 ? h + "h " + m + "m" : m + "m";
+    }
+    setInterval(function() {
+      document.querySelectorAll("[data-resets-at]").forEach(function(el) {
+        const epoch = Number(el.dataset.resetsAt);
+        if (epoch) { el.textContent = "Resets: " + fmtCountdown(epoch); }
+      });
+    }, 60000);
+    // Loading state: disable Refresh button when a fetch is in progress
+    window.addEventListener("message", function(event) {
+      if (event.data.command === "setLoading") {
+        const btn = document.getElementById("refreshBtn");
+        if (btn) { btn.textContent = "Refreshing\u2026"; btn.disabled = true; }
+      }
+    });
   </script>
 </body>
 </html>`;

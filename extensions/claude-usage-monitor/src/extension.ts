@@ -3,11 +3,9 @@ import { UsageStore } from "./usageStore";
 import { StatusBarManager } from "./statusBarManager";
 import { UsageFetcher, FetchError } from "./usageFetcher";
 import { DashboardPanel } from "./dashboardPanel";
-import { collectUsageData, collectResetTimers } from "./inputCollector";
 import { getRecommendation, getOverallUrgency } from "./recommendations";
 import { MODEL_DISPLAY_NAMES, UrgencyLevel } from "./types";
 
-const UPDATE_COMMAND = "claude-usage.update";
 const RECOMMEND_COMMAND = "claude-usage.recommend";
 const RESET_COMMAND = "claude-usage.reset";
 const DASHBOARD_COMMAND = "claude-usage.dashboard";
@@ -46,24 +44,17 @@ export function activate(context: vscode.ExtensionContext): void {
 
     DashboardPanel.show(data, timeSince, lastFetchError, {
       onRefresh: async () => {
+        statusBar.showLoading();
         await autoFetchAndUpdate(fetcher, store, statusBar);
-        const updatedData = store.getWithFreshCountdowns();
-        const updatedTime = store.getTimeSinceUpdate();
-        DashboardPanel.show(updatedData, updatedTime, lastFetchError, {
-          onRefresh: () => vscode.commands.executeCommand(REFRESH_COMMAND),
-          onManualInput: () => vscode.commands.executeCommand(UPDATE_COMMAND),
-          onOpenUsagePage: () =>
-            vscode.env.openExternal(vscode.Uri.parse("https://claude.ai/settings/usage")),
-        }, context.extensionUri);
       },
-      onManualInput: () => vscode.commands.executeCommand(UPDATE_COMMAND),
       onOpenUsagePage: () =>
         vscode.env.openExternal(vscode.Uri.parse("https://claude.ai/settings/usage")),
     }, context.extensionUri);
   });
 
-  // Command: Refresh (auto-fetch with manual fallback)
+  // Command: Refresh
   const refreshCommand = vscode.commands.registerCommand(REFRESH_COMMAND, async () => {
+    statusBar.showLoading();
     const result = await fetcher.fetch(store.getCurrentModel());
     if (result.success) {
       consecutiveFailures = 0;
@@ -72,67 +63,16 @@ export function activate(context: vscode.ExtensionContext): void {
       statusBar.resetBackoff();
       await store.save(result.data);
       statusBar.refresh();
+      DashboardPanel.updateIfOpen(store.getWithFreshCountdowns(), store.getTimeSinceUpdate(), lastFetchError);
       vscode.window.showInformationMessage("Claude usage data refreshed.");
     } else {
-      if (result.error.code === "rate-limited") {
-        // Don't alarm the user for rate-limiting (known upstream issue)
-        vscode.window.showInformationMessage(
-          "Usage API temporarily unavailable. Showing cached data."
-        );
-      } else {
-        const action = await vscode.window.showWarningMessage(
+      statusBar.refresh();
+      if (result.error.code !== "rate-limited") {
+        vscode.window.showWarningMessage(
           `Fetch failed: ${UsageFetcher.getErrorMessage(result.error)}`,
-          "Enter Manually",
           "Dismiss"
         );
-        if (action === "Enter Manually") {
-          vscode.commands.executeCommand(UPDATE_COMMAND);
-        }
       }
-    }
-  });
-
-  // Command: Update usage data (manual input)
-  const updateCommand = vscode.commands.registerCommand(UPDATE_COMMAND, async () => {
-    const currentModel = store.getCurrentModel();
-    const data = await collectUsageData(currentModel);
-
-    if (!data) {
-      return;
-    }
-
-    const withTimers = await vscode.window.showQuickPick(
-      [
-        { label: "Yes", description: "Enter reset timers for more accurate recommendations" },
-        { label: "Skip", description: "Use default reset estimates" },
-      ],
-      { title: "Add reset timers?" }
-    );
-
-    let finalData = data;
-    if (withTimers?.label === "Yes") {
-      const updated = await collectResetTimers(data);
-      if (updated) {
-        finalData = updated;
-      }
-    }
-
-    await store.save(finalData);
-    statusBar.refresh();
-
-    const recommendation = getRecommendation(finalData);
-    const urgency = getOverallUrgency(finalData);
-
-    if (urgency === "critical" || urgency === "high") {
-      vscode.window
-        .showWarningMessage(`Claude Usage: ${recommendation.message}`, "Show Tips")
-        .then((action) => {
-          if (action === "Show Tips") {
-            showTipsPanel(recommendation.tips);
-          }
-        });
-    } else {
-      vscode.window.showInformationMessage(`Claude Usage: ${recommendation.message}`);
     }
   });
 
@@ -235,7 +175,6 @@ export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(
     dashboardCommand,
     refreshCommand,
-    updateCommand,
     recommendCommand,
     resetCommand,
     configWatcher,
@@ -283,6 +222,7 @@ async function autoFetchAndUpdate(
       }
 
       statusBar.refresh();
+      DashboardPanel.updateIfOpen(store.getWithFreshCountdowns(), store.getTimeSinceUpdate(), lastFetchError);
     } else {
       consecutiveFailures++;
       lastFetchError = result.error;
@@ -291,19 +231,16 @@ async function autoFetchAndUpdate(
         statusBar.applyBackoff();
         // Don't show popup for rate-limiting (known upstream Anthropic issue)
       } else if (consecutiveFailures >= 2 && !failureNotificationShown) {
-        // Only show popup for actionable errors (not rate-limiting)
+        // Only show popup for actionable errors
         failureNotificationShown = true;
-        const action = await vscode.window.showWarningMessage(
+        vscode.window.showWarningMessage(
           `Auto-fetch failed: ${UsageFetcher.getErrorMessage(result.error)}`,
-          "Enter Manually",
           "Dismiss"
         );
-        if (action === "Enter Manually") {
-          vscode.commands.executeCommand("claude-usage.update");
-        }
       }
 
       statusBar.refresh();
+      DashboardPanel.updateIfOpen(store.getWithFreshCountdowns(), store.getTimeSinceUpdate(), lastFetchError);
     }
   } finally {
     fetchInFlight = false;
@@ -321,39 +258,3 @@ function urgencyEscalated(previous: UrgencyLevel, current: UrgencyLevel): boolea
   return URGENCY_ORDER[current] > URGENCY_ORDER[previous];
 }
 
-function showTipsPanel(tips: string[]): void {
-  const panel = vscode.window.createWebviewPanel(
-    "claudeUsageTips",
-    "Claude Usage Tips",
-    vscode.ViewColumn.Beside,
-    {}
-  );
-
-  const tipsHtml = tips
-    .map((tip) => `<li style="margin-bottom: 8px;">${escapeHtml(tip)}</li>`)
-    .join("\n");
-
-  panel.webview.html = `<!DOCTYPE html>
-<html>
-<head>
-  <style>
-    body { font-family: var(--vscode-font-family); padding: 16px; color: var(--vscode-foreground); }
-    h2 { color: var(--vscode-editor-foreground); }
-    ul { padding-left: 20px; }
-    li { line-height: 1.6; }
-  </style>
-</head>
-<body>
-  <h2>Usage Optimization Tips</h2>
-  <ul>${tipsHtml}</ul>
-</body>
-</html>`;
-}
-
-function escapeHtml(text: string): string {
-  return text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}

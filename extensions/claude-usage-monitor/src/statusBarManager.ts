@@ -49,6 +49,11 @@ export class StatusBarManager {
     this.updateDisplay(data);
   }
 
+  showLoading(): void {
+    this.statusBarItem.text = "$(sync~spin) Refreshing...";
+    this.statusBarItem.tooltip = "Fetching usage data\u2026";
+  }
+
   applyBackoff(): void {
     this.backoffMultiplier = Math.min(this.backoffMultiplier * 2, 4);
     this.startAutoRefreshTimer();

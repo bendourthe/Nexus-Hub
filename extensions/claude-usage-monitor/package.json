@@ -28,11 +28,6 @@
         "category": "Claude Usage"
       },
       {
-        "command": "claude-usage.update",
-        "title": "Claude Usage: Manual Update",
-        "category": "Claude Usage"
-      },
-      {
         "command": "claude-usage.recommend",
         "title": "Claude Usage: Recommend Model",
         "category": "Claude Usage"
