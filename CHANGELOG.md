@@ -11,6 +11,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.8.4] - 2026-03-09
+
+### Changed
+- **Usage Monitor: Dynamic Model Detection**: Replace the manual `claudeUsage.currentModel` VS Code setting with automatic detection from `claudeCode.selectedModel` (Claude Code's own model picker); eliminates the need for users to keep a separate setting in sync
+- **Usage Monitor: Open Model ID Support**: Replace `ClaudeModel` union type and static `MODEL_DISPLAY_NAMES` map with `formatModelName()` which parses any model ID string, including `[1m]` extended-context suffix variants; adds `baseModelId()` and `is1MContext()` helpers
+- **Usage Monitor: 1M Context Recommendation**: New recommendation rule that fires when session usage is high while the user is on a `[1m]` extended-context variant, suggesting they switch to the standard context model for non-large-file tasks
+- **Usage Monitor: Live Model Switch Response**: Extension now listens for `claudeCode.selectedModel` configuration changes and refreshes the status bar and dashboard immediately when the user switches models in Claude Code
+
+### Removed
+- **`claudeUsage.currentModel` Setting**: Removed the manual model selection setting from the extension's VS Code configuration (superseded by automatic detection from `claudeCode.selectedModel`)
+
+---
+
 ## [0.8.3] - 2026-03-06
 
 ### Added

@@ -1,5 +1,17 @@
 # Development Log
 
+## [2026-03-09] - Release 0.8.4: Dynamic Model Detection in Usage Monitor
+
+*   **Goal**: Remove the manual `claudeUsage.currentModel` VS Code setting and replace it with automatic detection from Claude Code's own model picker (`claudeCode.selectedModel`), while making the extension forward-compatible with any model ID format including 1M extended-context variants.
+*   **What Changed**:
+    *   **Dynamic Model Detection**: Rewrote `getCurrentModel()` in `usageStore.ts` to read `claudeCode.selectedModel` (the VS Code setting maintained by Claude Code's model picker) with a `"sonnet"` fallback. Users no longer need to manually update a second setting when switching models.
+    *   **Open Model ID Support**: Replaced the `ClaudeModel` union type and `MODEL_DISPLAY_NAMES` record in `types.ts` with a `string` type and three new utilities: `formatModelName()` (parses any model ID to a human-readable label, handles `[1m]` suffix), `baseModelId()`, and `is1MContext()`. Updated `dashboardPanel.ts`, `extension.ts`, and `recommendations.ts` to use these helpers.
+    *   **1M Context Recommendation**: Added a new rule to `recommendations.ts` that triggers when session usage is high and the active model is a `[1m]` extended-context variant, recommending the user switch to the standard context model for tasks that do not require processing large files.
+    *   **Live Model Switch Response**: Added a `onDidChangeConfiguration` listener in `extension.ts` for `claudeCode.selectedModel` so the status bar and open dashboard panel refresh immediately when the user switches models — no polling lag.
+    *   **Setting Removed**: Deleted the `claudeUsage.currentModel` configuration entry from `package.json`. The extension no longer exposes a manual model selector.
+    *   **Version Bump**: Updated `templates.json`, `scripts/installer.ps1`, `scripts/installer.sh`, `infrastructure/hooks/README.md`, `README.md`, and `extensions/claude-usage-monitor/package.json` from 0.8.3 / 0.1.0 to 0.8.4 / 0.2.0.
+*   **Current Status**: Verified. All version references consistent at 0.8.4.
+
 ## [2026-03-06] - Release 0.8.3: Context Optimization, Live Usage Monitor, Output Minimization
 
 *   **Goal**: Package post-0.8.2 additions under an official release: a new context-optimization skill, a search-skills command, live auto-polling in the usage monitor dashboard, output minimization rules for all AI templates, and supporting governance files and guides.

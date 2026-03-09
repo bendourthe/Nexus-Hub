@@ -6,13 +6,11 @@
 
 ---
 
-## What's New in v0.8.3
+## What's New in v0.8.4
 
-- **Usage monitor updates automatically** — The Claude Code usage dashboard now refreshes on its own. No more clicking a button; your current usage always stays up to date.
-- **New skill: Context Optimization** — Teaches your AI to stay focused when working in large codebases, cutting out irrelevant information so responses are faster and more accurate.
-- **New command: Search Skills** — Type `/search-skills` followed by a keyword or role to instantly find the right skill from the 135-skill catalog without leaving your editor.
-- **Quieter command output** — AI assistants now suppress noisy installation logs and progress bars by default, showing only errors and key results so your terminal stays readable.
-- **Community standards** — Added a Code of Conduct and Security Policy to the repository.
+- **Usage monitor reads your active model automatically** — The Claude Usage Monitor now detects which Claude model you are using directly from Claude Code's own model picker (`claudeCode.selectedModel`). No more keeping a separate setting in sync; switch models in Claude Code and the status bar updates instantly.
+- **Works with any model ID, including 1M context variants** — The extension now handles open-ended model identifiers like `sonnet[1m]`, `claude-opus-4-6`, and future models, displaying them correctly in the dashboard without requiring a code update.
+- **New recommendation for extended-context overuse** — If session usage is running high while you are on a 1M context variant, the monitor now suggests switching to the standard context model for tasks that do not involve large files.
 
 ---
 
