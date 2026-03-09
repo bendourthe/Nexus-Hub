@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { UsageData, UsageMetric, ClaudeModel, UrgencyLevel } from "./types";
+import { UsageData, UsageMetric, UrgencyLevel } from "./types";
 
 const STORAGE_KEY = "claudeUsageData";
 const URGENCY_KEY = "claudeLastUrgency";
@@ -33,9 +33,18 @@ export class UsageStore {
     await this.globalState.update(URGENCY_KEY, undefined);
   }
 
-  getCurrentModel(): ClaudeModel {
-    const config = vscode.workspace.getConfiguration("claudeUsage");
-    return config.get<ClaudeModel>("currentModel", "opus-4.6");
+  getCurrentModel(): string {
+    // Primary: read Claude Code's own VS Code setting — updated whenever the user switches
+    // models in Claude Code's model picker (claudeCode.selectedModel).
+    // Values: "sonnet[1m]", "sonnet", "opus[1m]", "opus", "haiku", "default"
+    const selected = vscode.workspace
+      .getConfiguration("claudeCode")
+      .get<string>("selectedModel");
+    if (selected && selected.length > 0) {
+      return selected;
+    }
+    // Fallback if claudeCode.selectedModel is not set
+    return "sonnet";
   }
 
   getLastUrgency(): UrgencyLevel | undefined {

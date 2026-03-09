@@ -1,4 +1,5 @@
-export type ClaudeModel = "opus-4.6" | "sonnet-4.5" | "haiku-4.5";
+/** Any Claude model ID string, e.g. "claude-sonnet-4-6" or "claude-sonnet-4-6[1m]". */
+export type ClaudeModel = string;
 
 export type UrgencyLevel = "low" | "moderate" | "high" | "critical";
 
@@ -71,11 +72,45 @@ export interface StatusBarState {
   tooltip: string;
 }
 
-export const MODEL_DISPLAY_NAMES: Record<ClaudeModel, string> = {
-  "opus-4.6": "Opus 4.6",
-  "sonnet-4.5": "Sonnet 4.5",
-  "haiku-4.5": "Haiku 4.5",
-};
+/**
+ * Parse any Claude model ID into a human-readable display name matching Claude Code's UI.
+ * Handles short aliases ("sonnet", "opus", "haiku", "default") and full IDs
+ * ("claude-sonnet-4-6"), plus the [1m] bracket suffix for extended-context variants.
+ * Examples:
+ *   "sonnet[1m]"            → "Sonnet (1M context)"
+ *   "sonnet"                → "Sonnet"
+ *   "default"               → "Opus"
+ *   "claude-opus-4-6"       → "Opus"
+ *   "claude-haiku-4-5"      → "Haiku"
+ *   "claude-opus-5-0"       → "Opus"  (future-proof)
+ */
+export function formatModelName(modelId: string): string {
+  const is1M = /\[1m\]/i.test(modelId);
+  const base = modelId.replace(/\[.*?\]/g, "").trim();
+  let family: string;
+  if (/opus|default/i.test(base)) {
+    family = "Opus";
+  } else if (/sonnet/i.test(base)) {
+    family = "Sonnet";
+  } else if (/haiku/i.test(base)) {
+    family = "Haiku";
+  } else {
+    // Unknown future model: strip prefix and version, capitalize
+    const cleaned = base.replace(/^claude-?/i, "").replace(/-\d.*/, "").replace(/-/g, " ").trim();
+    family = cleaned ? cleaned.charAt(0).toUpperCase() + cleaned.slice(1) : modelId;
+  }
+  return is1M ? `${family} (1M context)` : family;
+}
+
+/** Strip the [1m] or any bracket suffix to get the base model ID. */
+export function baseModelId(modelId: string): string {
+  return modelId.replace(/\[.*?\]/g, "").trim();
+}
+
+/** Returns true if the model ID indicates the 1M extended-context variant. */
+export function is1MContext(modelId: string): boolean {
+  return /\[1m\]/i.test(modelId);
+}
 
 /** Upper boundary for each level. At or above this value, you enter the next level. */
 export const URGENCY_THRESHOLDS = {

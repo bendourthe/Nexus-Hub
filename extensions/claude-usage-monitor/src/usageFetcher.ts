@@ -8,7 +8,6 @@ import {
   ApiUsageLimit,
   CredentialsFile,
   OAuthCredentials,
-  ClaudeModel,
 } from "./types";
 import { formatResetTime } from "./usageStore";
 
@@ -64,7 +63,7 @@ export class UsageFetcher {
     return Date.now() >= credentials.expiresAt;
   }
 
-  async fetch(currentModel?: ClaudeModel): Promise<FetchResult> {
+  async fetch(currentModel?: string): Promise<FetchResult> {
     const credentials = this.readCredentials();
     if (!credentials) {
       return { success: false, error: { code: "no-credentials-file" } };
@@ -146,7 +145,7 @@ export class UsageFetcher {
 
     return {
       success: true,
-      data: this.mapApiResponse(apiData, currentModel ?? "opus-4.6"),
+      data: this.mapApiResponse(apiData, currentModel ?? "claude-sonnet-4-6"),
     };
   }
 
@@ -248,7 +247,7 @@ export class UsageFetcher {
 
   private mapApiResponse(
     apiData: ApiUsageResponse,
-    currentModel: ClaudeModel
+    currentModel: string
   ): UsageData {
     return {
       session: this.mapLimit(apiData.five_hour),

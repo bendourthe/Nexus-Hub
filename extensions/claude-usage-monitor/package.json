@@ -50,21 +50,6 @@
     "configuration": {
       "title": "Claude Usage Monitor",
       "properties": {
-        "claudeUsage.currentModel": {
-          "type": "string",
-          "default": "opus-4.6",
-          "enum": [
-            "opus-4.6",
-            "sonnet-4.5",
-            "haiku-4.5"
-          ],
-          "enumDescriptions": [
-            "Opus 4.6 - Best for architecture, complex reasoning, multi-file refactors",
-            "Sonnet 4.5 - Best for standard coding, debugging, refactoring, test writing",
-            "Haiku 4.5 - Best for simple lookups, formatting, small edits, explanations"
-          ],
-          "description": "The Claude model you're currently using"
-        },
         "claudeUsage.autoFetch": {
           "type": "boolean",
           "default": true,

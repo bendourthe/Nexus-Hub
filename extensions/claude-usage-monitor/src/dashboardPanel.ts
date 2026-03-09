@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { UsageData, MODEL_DISPLAY_NAMES } from "./types";
+import { UsageData, formatModelName } from "./types";
 import { FetchError, UsageFetcher } from "./usageFetcher";
 import {
   getRecommendation,
@@ -169,13 +169,14 @@ export class DashboardPanel {
       <div class="divider"></div>
 
       <div class="section">
-        <div class="model-label">Current Model: <strong>${escapeHtml(MODEL_DISPLAY_NAMES[data.currentModel])}</strong></div>
+        <h3>Current Model</h3>
+        <div class="model-name">${escapeHtml(formatModelName(data.currentModel))}</div>
       </div>
 
       <div class="section">
         <h3>Recommendation</h3>
         <p class="recommendation urgency-${recommendation.urgency}">${escapeHtml(recommendation.message)}</p>
-        ${recommendation.suggestedModel ? `<p class="suggested-model">Suggested: <strong>${escapeHtml(MODEL_DISPLAY_NAMES[recommendation.suggestedModel])}</strong></p>` : ""}
+        ${recommendation.suggestedModel ? `<p class="suggested-model">Suggested: <strong>${escapeHtml(formatModelName(recommendation.suggestedModel))}</strong></p>` : ""}
       </div>
 
       ${recommendation.tips.length > 0 ? `
@@ -318,8 +319,9 @@ export class DashboardPanel {
       margin: 4px 0;
       font-size: 13px;
     }
-    .model-label {
-      font-size: 13px;
+    .model-name {
+      font-size: 14px;
+      font-weight: 600;
     }
     .tips {
       padding-left: 20px;

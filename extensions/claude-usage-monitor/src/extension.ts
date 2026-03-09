@@ -4,7 +4,7 @@ import { StatusBarManager } from "./statusBarManager";
 import { UsageFetcher, FetchError } from "./usageFetcher";
 import { DashboardPanel } from "./dashboardPanel";
 import { getRecommendation, getOverallUrgency } from "./recommendations";
-import { MODEL_DISPLAY_NAMES, UrgencyLevel } from "./types";
+import { formatModelName, UrgencyLevel } from "./types";
 
 const RECOMMEND_COMMAND = "claude-usage.recommend";
 const RESET_COMMAND = "claude-usage.reset";
@@ -106,7 +106,7 @@ export function activate(context: vscode.ExtensionContext): void {
 
     if (recommendation.suggestedModel) {
       items.push({
-        label: `$(arrow-right) Suggested: ${MODEL_DISPLAY_NAMES[recommendation.suggestedModel]}`,
+        label: `$(arrow-right) Suggested: ${formatModelName(recommendation.suggestedModel)}`,
         description: "Use this model for your current tasks",
       });
     }
@@ -169,6 +169,16 @@ export function activate(context: vscode.ExtensionContext): void {
     ) {
       statusBar.hide();
       statusBar.show();
+    }
+
+    // When the user switches models in Claude Code, update status bar and dashboard immediately
+    if (event.affectsConfiguration("claudeCode.selectedModel")) {
+      statusBar.refresh();
+      DashboardPanel.updateIfOpen(
+        store.getWithFreshCountdowns(),
+        store.getTimeSinceUpdate(),
+        lastFetchError
+      );
     }
   });
 
