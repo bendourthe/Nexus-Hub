@@ -5,6 +5,12 @@ import {
   getRecommendation,
 } from "./recommendations";
 
+function nextMonthlyResetLabel(): string {
+  const now = new Date();
+  const next = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+  return "on " + next.toLocaleDateString("en-US", { month: "long", day: "numeric" });
+}
+
 export interface DashboardCallbacks {
   onRefresh: () => void;
   onOpenUsagePage: () => void;
@@ -180,7 +186,7 @@ export class DashboardPanel {
       <div class="section">
         <h3>Extra Credits</h3>
         <div class="extra-credits-info">$${data.extraUsage.usedCredits.toFixed(2)} / $${data.extraUsage.monthlyLimit.toFixed(2)} used this month</div>
-        ${data.extraUsage.utilization != null ? this.renderProgressBar(Math.round(data.extraUsage.utilization), "monthly", null) : ""}
+        ${data.extraUsage.utilization != null ? this.renderProgressBar(Math.round(data.extraUsage.utilization), nextMonthlyResetLabel(), null) : ""}
       </div>
       ` : ""}
 

@@ -14,16 +14,23 @@ import { formatResetTime } from "./usageStore";
 const CREDENTIALS_PATH = path.join(os.homedir(), ".claude", ".credentials.json");
 const USAGE_API_URL = "https://api.anthropic.com/api/oauth/usage";
 const ANTHROPIC_BETA_HEADER = "oauth-2025-04-20";
+const TOKEN_REFRESH_URL = "https://console.anthropic.com/v1/oauth/token";
+const CLAUDE_CODE_CLIENT_ID = "9d1c250a-e61b-44d9-88ed-5944d1962f5e";
+
+// Prevents concurrent token refresh attempts (refresh tokens are one-time use)
+let tokenRefreshInProgress = false;
+// Tracks when we last refreshed the token to prevent runaway refresh loops
+let lastTokenRefreshAt = 0;
+const TOKEN_REFRESH_COOLDOWN_MS = 30 * 60 * 1_000; // 30 minutes
 
 const SERVER_ERROR_CODES = new Set([500, 502, 503, 504]);
 const RETRY_DELAYS_MS = [2_000, 5_000];
-const RATE_LIMIT_DELAYS_MS = [10_000, 30_000];
-const MAX_RETRY_AFTER_MS = 60_000;
 
 export type FetchErrorCode =
   | "no-credentials-file"
   | "invalid-credentials"
   | "token-expired"
+  | "token-refresh-failed"
   | "token-invalid"
   | "rate-limited"
   | "network-error"
@@ -62,13 +69,26 @@ export class UsageFetcher {
   }
 
   async fetch(currentModel?: string): Promise<FetchResult> {
-    const credentials = this.readCredentials();
+    let credentials = this.readCredentials();
     if (!credentials) {
       return { success: false, error: { code: "no-credentials-file" } };
     }
 
     if (this.isTokenExpired(credentials)) {
-      return { success: false, error: { code: "token-expired" } };
+      if (tokenRefreshInProgress) {
+        return { success: false, error: { code: "token-expired" } };
+      }
+      tokenRefreshInProgress = true;
+      try {
+        const fresh = await this.refreshAccessToken(credentials);
+        this.saveCredentials(fresh);
+        lastTokenRefreshAt = Date.now();
+        credentials = fresh;
+      } catch {
+        return { success: false, error: { code: "token-refresh-failed" } };
+      } finally {
+        tokenRefreshInProgress = false;
+      }
     }
 
     const headers = {
@@ -95,6 +115,43 @@ export class UsageFetcher {
         };
       }
       if (response.status === 429) {
+        // Attempt a token refresh to reset the per-token rate limit allocation
+        const canRefresh = !tokenRefreshInProgress &&
+          Date.now() - lastTokenRefreshAt > TOKEN_REFRESH_COOLDOWN_MS;
+
+        if (canRefresh) {
+          tokenRefreshInProgress = true;
+          try {
+            const fresh = await this.refreshAccessToken(credentials);
+            this.saveCredentials(fresh);
+            lastTokenRefreshAt = Date.now();
+            const newHeaders = {
+              Authorization: `Bearer ${fresh.accessToken}`,
+              "anthropic-beta": ANTHROPIC_BETA_HEADER,
+            };
+            let retryResponse: Response;
+            try {
+              retryResponse = await this.fetchWithRetry(USAGE_API_URL, newHeaders);
+            } catch {
+              return { success: false, error: { code: "network-error" } };
+            }
+            if (retryResponse.ok) {
+              let apiData: ApiUsageResponse;
+              try {
+                apiData = (await retryResponse.json()) as ApiUsageResponse;
+              } catch {
+                return { success: false, error: { code: "parse-error" } };
+              }
+              return { success: true, data: this.mapApiResponse(apiData, currentModel ?? "claude-sonnet-4-6") };
+            }
+            // Retry also failed — fall through to rate-limited
+          } catch {
+            // Token refresh failed — fall through to rate-limited
+          } finally {
+            tokenRefreshInProgress = false;
+          }
+        }
+
         return {
           success: false,
           error: {
@@ -147,36 +204,20 @@ export class UsageFetcher {
         return response;
       }
 
-      const isRateLimit = response.status === 429;
       const isServerError = SERVER_ERROR_CODES.has(response.status);
 
-      if (!isRateLimit && !isServerError) {
+      if (!isServerError) {
         return response;
       }
 
       lastResponse = response;
 
       if (attempt < RETRY_DELAYS_MS.length) {
-        const delayMs = isRateLimit
-          ? this.getRetryAfterMs(response) ?? RATE_LIMIT_DELAYS_MS[attempt]
-          : RETRY_DELAYS_MS[attempt];
-        await new Promise((resolve) => setTimeout(resolve, delayMs));
+        await new Promise((resolve) => setTimeout(resolve, RETRY_DELAYS_MS[attempt]));
       }
     }
 
     return lastResponse!;
-  }
-
-  private getRetryAfterMs(response: Response): number | undefined {
-    const header = response.headers.get("retry-after");
-    if (!header) {
-      return undefined;
-    }
-    const seconds = Number(header);
-    if (!Number.isFinite(seconds) || seconds <= 0) {
-      return undefined;
-    }
-    return Math.min(seconds * 1_000, MAX_RETRY_AFTER_MS);
   }
 
   private mapApiResponse(
@@ -192,8 +233,8 @@ export class UsageFetcher {
       dataSource: "api",
       extraUsage: apiData.extra_usage ? {
         isEnabled: apiData.extra_usage.is_enabled,
-        monthlyLimit: apiData.extra_usage.monthly_limit,
-        usedCredits: apiData.extra_usage.used_credits,
+        monthlyLimit: apiData.extra_usage.monthly_limit / 100,
+        usedCredits: apiData.extra_usage.used_credits / 100,
         utilization: apiData.extra_usage.utilization,
       } : undefined,
     };
@@ -211,6 +252,40 @@ export class UsageFetcher {
     };
   }
 
+  private async refreshAccessToken(credentials: OAuthCredentials): Promise<OAuthCredentials> {
+    const body = new URLSearchParams({
+      grant_type: "refresh_token",
+      refresh_token: credentials.refreshToken,
+      client_id: CLAUDE_CODE_CLIENT_ID,
+    });
+    const res = await fetch(TOKEN_REFRESH_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: body.toString(),
+    });
+    if (!res.ok) {
+      throw new Error(`Token refresh failed: ${res.status}`);
+    }
+    const json = await res.json() as { access_token: string; refresh_token: string; expires_in: number };
+    return {
+      ...credentials,
+      accessToken: json.access_token,
+      refreshToken: json.refresh_token,
+      expiresAt: Date.now() + json.expires_in * 1000,
+    };
+  }
+
+  private saveCredentials(credentials: OAuthCredentials): void {
+    try {
+      const raw = fs.readFileSync(CREDENTIALS_PATH, "utf-8");
+      const file: CredentialsFile = JSON.parse(raw);
+      file.claudeAiOauth = { ...file.claudeAiOauth, ...credentials };
+      fs.writeFileSync(CREDENTIALS_PATH, JSON.stringify(file, null, 2), "utf-8");
+    } catch {
+      // Non-fatal: extension will use the refreshed token for this session only
+    }
+  }
+
   static getErrorMessage(error: FetchError): string {
     const suffix =
       error.statusCode != null
@@ -224,6 +299,8 @@ export class UsageFetcher {
         return "Claude Code credentials are invalid.";
       case "token-expired":
         return "Claude Code session has expired. Re-authenticate in Claude Code.";
+      case "token-refresh-failed":
+        return "Could not refresh the Claude session token. Re-authenticate by running Claude Code.";
       case "token-invalid":
         return `Your Claude session token was rejected by the API${suffix}. Re-authenticate in Claude Code.`;
       case "rate-limited":

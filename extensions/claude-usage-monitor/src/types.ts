@@ -87,7 +87,7 @@ export interface StatusBarState {
  * Examples:
  *   "sonnet[1m]"            → "Sonnet (1M context)"
  *   "sonnet"                → "Sonnet"
- *   "default"               → "Default"  (Claude Code's "Default (recommended)", currently Sonnet)
+ *   "default"               → "Default (Sonnet)"  (Claude Code's "Default (recommended)", currently Sonnet)
  *   "claude-opus-4-6"       → "Opus"
  *   "claude-haiku-4-5"      → "Haiku"
  *   "claude-opus-5-0"       → "Opus"  (future-proof)
@@ -97,7 +97,7 @@ export function formatModelName(modelId: string): string {
   const base = modelId.replace(/\[.*?\]/g, "").trim();
   let family: string;
   if (/^default$/i.test(base)) {
-    family = "Default";
+    family = "Default (Sonnet)";
   } else if (/opus/i.test(base)) {
     family = "Opus";
   } else if (/sonnet/i.test(base)) {
