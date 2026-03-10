@@ -134,7 +134,14 @@ export class UsageFetcher {
     let lastResponse: Response | undefined;
 
     for (let attempt = 0; attempt <= RETRY_DELAYS_MS.length; attempt++) {
-      const response = await fetch(url, { method: "GET", headers });
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30_000);
+      let response: Response;
+      try {
+        response = await fetch(url, { method: "GET", headers, signal: controller.signal });
+      } finally {
+        clearTimeout(timeoutId);
+      }
 
       if (response.ok) {
         return response;

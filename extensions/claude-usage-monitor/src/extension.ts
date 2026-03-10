@@ -202,6 +202,9 @@ async function autoFetchAndUpdate(
   statusBar: StatusBarManager
 ): Promise<void> {
   if (fetchInFlight) {
+    // A fetch is already running; clear any loading states that the caller may have set
+    statusBar.refresh();
+    DashboardPanel.updateIfOpen(store.getWithFreshCountdowns(), store.getTimeSinceUpdate(), lastFetchError);
     return;
   }
   fetchInFlight = true;

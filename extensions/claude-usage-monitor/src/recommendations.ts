@@ -8,8 +8,8 @@ import {
   URGENCY_THRESHOLDS,
 } from "./types";
 
-const isOpus   = (m: string): boolean => /opus|default/i.test(m);
-const isSonnet = (m: string): boolean => /sonnet/i.test(m);
+const isOpus   = (m: string): boolean => /opus/i.test(m);
+const isSonnet = (m: string): boolean => /sonnet|default/i.test(m);
 
 export function classifyUrgency(percent: number): UrgencyLevel {
   if (percent >= URGENCY_THRESHOLDS.critical) {
