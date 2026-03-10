@@ -59,7 +59,7 @@ read_prompt() {
     local spaces=""
     for ((i=0; i<indent*2; i++)); do spaces+=" "; done
     
-    echo -ne "${spaces}${YELLOW}└─> ${message} ${RESET}"
+    echo -ne "${spaces}${YELLOW}└─> ${message} ${RESET}" >&2
     read -r response
     echo "$response"
 }
@@ -586,7 +586,7 @@ get_language_selection() {
     local detected="$1"
     
     if [ -n "$detected" ]; then
-        echo -e "${YELLOW}Detected languages: $detected${RESET}"
+        echo -e "${YELLOW}Detected languages: $detected${RESET}" >&2
         local resp=$(read_prompt "Use these? [Y]es / [N]o")
         if [[ "$resp" =~ ^[Yy] ]]; then
             echo "$detected"
@@ -594,8 +594,8 @@ get_language_selection() {
         fi
     fi
 
-    write_item "Select languages (comma separated):" "$RESET"
-    write_item "1. Python  2. JS  3. TS  4. Java  5. C#  6. Go  7. C++" "$RESET"
+    echo -e "  ${RESET}Select languages (comma separated):${RESET}" >&2
+    echo -e "  ${RESET}1. Python  2. JS  3. TS  4. Java  5. C#  6. Go  7. C++${RESET}" >&2
     local input_str=$(read_prompt "Selection")
     
     local result=""
@@ -850,16 +850,14 @@ install_vscode_extensions() {
     pushd "$extension_dir" > /dev/null || return
 
     write_item "  Installing dependencies..." "$GRAY"
-    npm install --silent 2>/dev/null
-    if [ $? -ne 0 ]; then
+    if ! npm install --silent 2>/dev/null; then
         write_item "npm install failed." "$RED"
         popd > /dev/null
         return
     fi
 
     write_item "  Compiling TypeScript..." "$GRAY"
-    npm run compile 2>/dev/null
-    if [ $? -ne 0 ]; then
+    if ! npm run compile 2>/dev/null; then
         write_item "TypeScript compilation failed." "$RED"
         popd > /dev/null
         return
@@ -885,8 +883,7 @@ install_vscode_extensions() {
 
     # Install into VS Code
     if command -v code >/dev/null 2>&1; then
-        code --install-extension "$vsix_file" 2>/dev/null
-        if [ $? -eq 0 ]; then
+        if code --install-extension "$vsix_file" 2>/dev/null; then
             write_item "✓ Claude Usage Monitor extension installed in VS Code!" "$GREEN"
             write_item "  Restart VS Code to activate. Look for 'Claude: --%' in the status bar." "$RESET"
         else
