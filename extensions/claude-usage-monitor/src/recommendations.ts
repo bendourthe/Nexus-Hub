@@ -48,6 +48,37 @@ export function getRecommendation(data: UsageData): Recommendation {
 
   const tips = getRelevantTips(data);
 
+  // 1M context models use extra credits — always recommend standard context unless necessary
+  if (is1MContext(data.currentModel)) {
+    const base = baseModelId(data.currentModel);
+    const familyName = formatModelName(base);
+
+    if (overallUrgency === "low") {
+      return {
+        urgency: "moderate",
+        message: `You are using ${formatModelName(data.currentModel)}, which consumes extra credits instead of your standard usage allowance. Switch to ${familyName} for most tasks. Use 1M context only when processing very large files or codebases.`,
+        suggestedModel: base,
+        tips: [
+          "1M context models draw from your extra credits balance, not the standard usage limit.",
+          `Switch to ${familyName} for everyday coding — it uses the same model with standard context.`,
+          "Reserve 1M context for tasks that genuinely require large file processing or full-codebase analysis.",
+          ...tips,
+        ],
+      };
+    }
+
+    return {
+      urgency: overallUrgency,
+      message: `You are using ${formatModelName(data.currentModel)}, which consumes extra credits (not your standard allowance). With usage already at ${Math.max(data.session.percent, data.weeklyAllModels.percent)}%, switch to ${familyName} immediately to preserve your extra credits balance.`,
+      suggestedModel: base,
+      tips: [
+        "1M context models draw from your extra credits balance, not the standard usage limit.",
+        `Switch to ${familyName} to use your standard allowance instead.`,
+        ...tips,
+      ],
+    };
+  }
+
   // Session is critical but weekly is fine: just wait
   if (
     sessionUrgency === "critical" &&
@@ -118,6 +149,17 @@ export function getRecommendation(data: UsageData): Recommendation {
 
   // Everything is low/moderate
   if (overallUrgency === "low") {
+    if (!isSonnet(data.currentModel)) {
+      return {
+        urgency: "low",
+        message: `All usage levels are healthy. Sonnet is the Anthropic default and handles most coding tasks effectively. Use Opus for complex architecture and reasoning.`,
+        suggestedModel: null,
+        tips: [
+          "Sonnet is the platform default — best balance of speed, quality, and usage efficiency.",
+          "Match model to task: Haiku for lookups, Sonnet for coding, Opus for architecture.",
+        ],
+      };
+    }
     return {
       urgency: "low",
       message: `All usage levels are healthy. Continue using ${formatModelName(data.currentModel)} freely.`,
@@ -154,6 +196,10 @@ function getRelevantTips(data: UsageData): string[] {
 
   if (overallUrgency === "low") {
     return ["Match model to task: Haiku for lookups, Sonnet for coding, Opus for architecture."];
+  }
+
+  if (is1MContext(data.currentModel)) {
+    tips.push("You are on a 1M context model which uses extra credits. Switch to standard context to use your normal allowance.");
   }
 
   tips.push("Use /compact to reduce context window consumption in long conversations.");

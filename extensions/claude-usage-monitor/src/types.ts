@@ -11,6 +11,13 @@ export interface UsageMetric {
 
 export type DataSource = "api" | "manual";
 
+export interface ExtraUsageInfo {
+  isEnabled: boolean;
+  monthlyLimit: number;
+  usedCredits: number;
+  utilization: number | null;
+}
+
 export interface UsageData {
   session: UsageMetric;
   weeklyAllModels: UsageMetric;
@@ -18,6 +25,7 @@ export interface UsageData {
   currentModel: ClaudeModel;
   lastUpdated: number;
   dataSource?: DataSource;
+  extraUsage?: ExtraUsageInfo;
 }
 
 /** Shape returned by https://api.anthropic.com/api/oauth/usage */

@@ -14,8 +14,6 @@ import { formatResetTime } from "./usageStore";
 const CREDENTIALS_PATH = path.join(os.homedir(), ".claude", ".credentials.json");
 const USAGE_API_URL = "https://api.anthropic.com/api/oauth/usage";
 const ANTHROPIC_BETA_HEADER = "oauth-2025-04-20";
-const TOKEN_REFRESH_URL = "https://console.anthropic.com/v1/oauth/token";
-const CLAUDE_CODE_CLIENT_ID = "9d1c250a-e61b-44d9-88ed-5944d1962f5e";
 
 const SERVER_ERROR_CODES = new Set([500, 502, 503, 504]);
 const RETRY_DELAYS_MS = [2_000, 5_000];
@@ -83,26 +81,6 @@ export class UsageFetcher {
       response = await this.fetchWithRetry(USAGE_API_URL, headers);
     } catch {
       return { success: false, error: { code: "network-error" } };
-    }
-
-    // On 429, attempt a token refresh and retry once with the new access token.
-    // Rate limits on this endpoint are per-access-token (~5 requests per token),
-    // so a fresh token resets the budget without requiring the user to do anything.
-    if (response.status === 429) {
-      const refreshed = await this.refreshAccessToken(credentials);
-      if (refreshed) {
-        this.saveCredentials(refreshed);
-        const retryHeaders = {
-          Authorization: `Bearer ${refreshed.accessToken}`,
-          "anthropic-beta": ANTHROPIC_BETA_HEADER,
-        };
-        try {
-          response = await fetch(USAGE_API_URL, { method: "GET", headers: retryHeaders });
-        } catch {
-          return { success: false, error: { code: "network-error" } };
-        }
-      }
-      // If refresh failed or retry still 429, fall through to the error handling below.
     }
 
     if (!response.ok) {
@@ -194,57 +172,6 @@ export class UsageFetcher {
     return Math.min(seconds * 1_000, MAX_RETRY_AFTER_MS);
   }
 
-  private async refreshAccessToken(
-    credentials: OAuthCredentials
-  ): Promise<OAuthCredentials | null> {
-    try {
-      const response = await fetch(TOKEN_REFRESH_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          grant_type: "refresh_token",
-          refresh_token: credentials.refreshToken,
-          client_id: CLAUDE_CODE_CLIENT_ID,
-        }),
-      });
-      if (!response.ok) {
-        return null;
-      }
-      const data = (await response.json()) as {
-        access_token: string;
-        refresh_token: string;
-        expires_in: number;
-      };
-      if (!data.access_token || !data.refresh_token) {
-        return null;
-      }
-      return {
-        ...credentials,
-        accessToken: data.access_token,
-        refreshToken: data.refresh_token,
-        expiresAt: Date.now() + data.expires_in * 1_000,
-      };
-    } catch {
-      return null;
-    }
-  }
-
-  private saveCredentials(credentials: OAuthCredentials): void {
-    try {
-      const raw = fs.readFileSync(CREDENTIALS_PATH, "utf-8");
-      const parsed = JSON.parse(raw) as { claudeAiOauth: OAuthCredentials; [key: string]: unknown };
-      parsed.claudeAiOauth = {
-        ...parsed.claudeAiOauth,
-        accessToken: credentials.accessToken,
-        refreshToken: credentials.refreshToken,
-        expiresAt: credentials.expiresAt,
-      };
-      fs.writeFileSync(CREDENTIALS_PATH, JSON.stringify(parsed, null, 2), "utf-8");
-    } catch {
-      // Non-fatal: the in-memory token is still valid for this fetch cycle.
-    }
-  }
-
   private mapApiResponse(
     apiData: ApiUsageResponse,
     currentModel: string
@@ -256,6 +183,12 @@ export class UsageFetcher {
       currentModel,
       lastUpdated: Date.now(),
       dataSource: "api",
+      extraUsage: apiData.extra_usage ? {
+        isEnabled: apiData.extra_usage.is_enabled,
+        monthlyLimit: apiData.extra_usage.monthly_limit,
+        usedCredits: apiData.extra_usage.used_credits,
+        utilization: apiData.extra_usage.utilization,
+      } : undefined,
     };
   }
 

@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { UsageData, formatModelName } from "./types";
+import { UsageData, formatModelName, is1MContext, baseModelId } from "./types";
 import { FetchError, UsageFetcher } from "./usageFetcher";
 import {
   getRecommendation,
@@ -144,11 +144,21 @@ export class DashboardPanel {
       `);
     }
 
+    const is1MModel = is1MContext(data.currentModel);
+    const extraCreditsBanner = is1MModel
+      ? `<div class="info-banner">
+          <span class="info-icon">&#9432;</span>
+          <span>1M context models use <strong>extra credits</strong> instead of your standard usage allowance.
+          Switch to ${escapeHtml(formatModelName(baseModelId(data.currentModel)))} for standard usage.</span>
+        </div>`
+      : "";
+
     const recommendation = getRecommendation(data);
     const sourceLabel = data.dataSource === "api" ? "Auto-fetched" : "Manually entered";
 
     return this.wrapHtml(`
       ${errorBanner}
+      ${extraCreditsBanner}
       <h2>Claude Usage Dashboard</h2>
 
       <div class="section">
@@ -165,6 +175,14 @@ export class DashboardPanel {
         <h3>Weekly (Sonnet)</h3>
         ${this.renderProgressBar(data.weeklySonnet.percent, data.weeklySonnet.resetsIn, data.weeklySonnet.resetsAt)}
       </div>
+
+      ${data.extraUsage && data.extraUsage.isEnabled ? `
+      <div class="section">
+        <h3>Extra Credits</h3>
+        <div class="extra-credits-info">$${data.extraUsage.usedCredits.toFixed(2)} / $${data.extraUsage.monthlyLimit.toFixed(2)} used this month</div>
+        ${data.extraUsage.utilization != null ? this.renderProgressBar(Math.round(data.extraUsage.utilization), "monthly", null) : ""}
+      </div>
+      ` : ""}
 
       <div class="divider"></div>
 
@@ -262,6 +280,26 @@ export class DashboardPanel {
     .error-icon {
       flex-shrink: 0;
       font-size: 14px;
+    }
+    .info-banner {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 8px 12px;
+      margin-bottom: 16px;
+      background: var(--vscode-inputValidation-infoBackground, rgba(0,102,204,0.1));
+      border: 1px solid var(--vscode-inputValidation-infoBorder, #007acc);
+      border-radius: 4px;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+    .info-icon {
+      flex-shrink: 0;
+      font-size: 14px;
+    }
+    .extra-credits-info {
+      font-size: 13px;
+      margin-bottom: 6px;
     }
     .retry-btn {
       flex-shrink: 0;
