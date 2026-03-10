@@ -1,5 +1,18 @@
 # Development Log
 
+## [2026-03-10] - Release 0.8.5: Extra Credits Tracking, OAuth Auto-Refresh, Auto-Devlog Hook
+
+*   **Goal**: Ship usage-monitor reliability and visibility improvements (extra credits, OAuth refresh, 1M warnings, model classification fixes) alongside the auto-devlog hook and generate-dev-history command, plus a bash installer correctness fix.
+*   **What Changed**:
+    *   **Extra Credits Dashboard**: Added `ExtraUsageInfo` interface and `extraUsage` field to `UsageData`; `usageFetcher.ts` maps `extra_usage` from the API; `dashboardPanel.ts` renders a progress bar with dollar amounts (fixed cents-to-dollars conversion) and a dynamic "on Month Day" reset label.
+    *   **1M Context Warnings**: Added info banner in `dashboardPanel.ts` and tooltip in `statusBarManager.ts` for users on 1M extended-context models; expanded `recommendations.ts` with Sonnet-as-default guidance.
+    *   **OAuth Token Auto-Refresh**: `usageFetcher.ts` now performs a token refresh on 401 expiry and 429 rate-limit responses using the `refresh_token` from `~/.claude/.credentials.json`; adds `token-refresh-failed` error code.
+    *   **Model Fixes**: `formatModelName` returns "Default (Sonnet)"; `recommendations.ts` treats "default" as Sonnet; 30-second `AbortController` timeout added to all fetch calls; in-flight guard fixed so UI refreshes even during an active fetch.
+    *   **Auto-Devlog Hook**: Added `infrastructure/hooks/auto-devlog.sh` (registered in `settings.json` Stop handler) and `catalog/commands/generate-dev-history.md`.
+    *   **Bash Installer Fixes**: `scripts/installer.sh` — `read_prompt` and language-selection menu redirected to stderr; npm/code error handling switched to `if !` pattern.
+    *   **Version Bump**: Updated `templates.json`, `scripts/installer.ps1`, `scripts/installer.sh`, `infrastructure/hooks/README.md`, `README.md`, and `extensions/claude-usage-monitor/package.json` from 0.8.4 / 0.2.0 to 0.8.5 / 0.3.0.
+*   **Current Status**: Verified. All version references consistent at 0.8.5.
+
 ## [2026-03-09] - Release 0.8.4: Dynamic Model Detection in Usage Monitor
 
 *   **Goal**: Remove the manual `claudeUsage.currentModel` VS Code setting and replace it with automatic detection from Claude Code's own model picker (`claudeCode.selectedModel`), while making the extension forward-compatible with any model ID format including 1M extended-context variants.

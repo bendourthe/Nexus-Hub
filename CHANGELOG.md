@@ -11,6 +11,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.8.5] - 2026-03-10
+
+### Added
+- **Auto-Devlog Hook**: New `infrastructure/hooks/auto-devlog.sh` stop hook that prepends a git-summary entry to `DEVLOG.md` at session end; opt-in via `AUTO_DEVLOG=1`, with optional AI enrichment via `AUTO_DEVLOG_AI=1`
+- **Generate Dev History Command**: New `generate-dev-history` command (`catalog/commands/generate-dev-history.md`) that reconstructs full project history organized by implementation phase from session logs, git history, DEVLOG.md, CHANGELOG.md, and planning docs
+- **Extra Credits Dashboard**: Extra credits progress bar and dollar amounts displayed in the usage monitor dashboard panel, tracking consumption against the monthly extra-credits limit
+- **1M Context Warnings**: Info banner in the dashboard and tooltip in the status bar warning users on 1M extended-context models about extra credit consumption
+
+### Changed
+- **OAuth Token Auto-Refresh**: Usage monitor now refreshes the OAuth access token automatically on expiry and on 429 rate-limit responses, replacing hard failure with seamless re-authentication; adds `token-refresh-failed` error code if refresh itself fails
+- **Extra Credits Display Fix**: Corrected credit amounts by dividing `monthly_limit` and `used_credits` by 100 (API returns cents, display now shows dollars); reset label changed from static "monthly" to "on Month Day" computed from next first-of-month date
+- **Model Recommendations**: Fixed default model classification so "default" is treated as Sonnet (not Opus) in switch recommendations; added Sonnet-as-default guidance when all usage levels are healthy and user is not already on Sonnet
+- **Model Name Display**: `formatModelName` now returns "Default (Sonnet)" instead of "Default" for the default model ID, making the active model unambiguous in the dashboard
+
+### Fixed
+- **Bash Installer Prompts**: Redirected `read_prompt` display text to stderr so prompts are visible when the function is called inside `$(...)` command substitution; same fix applied to the language selection menu
+- **Bash Installer Error Handling**: Replaced standalone npm/code commands followed by `$?` checks with `if ! <command>` pattern so `set -e` does not exit the script before the error handler fires
+- **Fetch Timeout**: Added 30-second `AbortController` timeout to all API fetch calls in `usageFetcher.ts` to prevent indefinitely hung requests
+- **In-Flight Fetch Guard**: Fixed stale UI state — when a fetch is already in progress, the status bar and dashboard now still refresh with the latest available data instead of silently skipping the update
+
+---
+
 ## [0.8.4] - 2026-03-09
 
 ### Changed
@@ -2622,7 +2644,9 @@ repository_root/
 
 ---
 
-[Unreleased]: https://github.com/bdourthe/devai-hub/compare/v0.8.3...HEAD
+[Unreleased]: https://github.com/bdourthe/devai-hub/compare/v0.8.5...HEAD
+[0.8.5]: https://github.com/bdourthe/devai-hub/compare/v0.8.4...v0.8.5
+[0.8.4]: https://github.com/bdourthe/devai-hub/compare/v0.8.3...v0.8.4
 [0.8.3]: https://github.com/bdourthe/devai-hub/compare/v0.8.2...v0.8.3
 [0.8.2]: https://github.com/bdourthe/devai-hub/compare/v0.8.1...v0.8.2
 [0.8.1]: https://github.com/bdourthe/devai-hub/compare/v0.8.0...v0.8.1

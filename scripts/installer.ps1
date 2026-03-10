@@ -1,4 +1,4 @@
-﻿# DevAI-Hub Universal Installer V9 (v0.8.4)
+﻿# DevAI-Hub Universal Installer V9 (v0.8.5)
 # Installs AI Skills Globally and to Workspaces with Safe Overwrite and Modern UI
 $ErrorActionPreference = "Stop"
 $Host.UI.RawUI.WindowTitle = "DevAI-Hub Installer"

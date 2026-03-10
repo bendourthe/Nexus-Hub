@@ -6,11 +6,12 @@
 
 ---
 
-## What's New in v0.8.4
+## What's New in v0.8.5
 
-- **Usage monitor reads your active model automatically** — The Claude Usage Monitor now detects which Claude model you are using directly from Claude Code's own model picker (`claudeCode.selectedModel`). No more keeping a separate setting in sync; switch models in Claude Code and the status bar updates instantly.
-- **Works with any model ID, including 1M context variants** — The extension now handles open-ended model identifiers like `sonnet[1m]`, `claude-opus-4-6`, and future models, displaying them correctly in the dashboard without requiring a code update.
-- **New recommendation for extended-context overuse** — If session usage is running high while you are on a 1M context variant, the monitor now suggests switching to the standard context model for tasks that do not involve large files.
+- **Extra credits tracking in the usage monitor** — The dashboard now shows a dedicated extra-credits progress bar with dollar amounts and a dynamic reset date, so you always know how much of your monthly extra budget remains.
+- **Automatic OAuth token refresh** — The usage monitor refreshes its API token silently on expiry and on rate-limit responses; no more manual re-authentication interruptions.
+- **Auto-devlog hook** — New `auto-devlog.sh` stop hook writes a git-summary entry to `DEVLOG.md` automatically at the end of each Claude Code session (opt-in via `AUTO_DEVLOG=1`).
+- **Bash installer fixes** — Prompts are now always visible and error handling no longer exits early when npm or VS Code commands fail.
 
 ---
 
