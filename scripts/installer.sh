@@ -318,6 +318,16 @@ install_global() {
     # Global Commands
     safe_folder_copy "$repo_root/catalog/commands" "$global_claude/commands" "✓ Global commands installed at: $global_claude/commands"
 
+    # Global Agents
+    safe_folder_copy "$repo_root/catalog/agents" "$global_claude/agents" "✓ Global agents installed at: $global_claude/agents"
+
+    # Global Rules
+    safe_folder_copy "$repo_root/catalog/rules" "$global_claude/rules" "✓ Global rules installed at: $global_claude/rules"
+
+    # Global MCP Server Config
+    mkdir -p "$global_claude/mcp-configs"
+    safe_copy "$repo_root/catalog/mcp-configs/mcp-servers.json" "$global_claude/mcp-configs/mcp-servers.json" false "✓ MCP server config installed at: $global_claude/mcp-configs"
+
     # Git Guardrails Hook
     install_git_guardrails "$repo_root" "$global_claude" "Global"
 
@@ -670,6 +680,16 @@ install_workspace() {
 
         # Commands
         safe_folder_copy "$repo_root/catalog/commands" "$claude_dir/commands" "✓ Workspace commands installed at: $claude_dir/commands"
+
+        # Agents
+        safe_folder_copy "$repo_root/catalog/agents" "$claude_dir/agents" "✓ Workspace agents installed at: $claude_dir/agents"
+
+        # Rules
+        safe_folder_copy "$repo_root/catalog/rules" "$claude_dir/rules" "✓ Workspace rules installed at: $claude_dir/rules"
+
+        # MCP Server Config
+        mkdir -p "$claude_dir/mcp-configs"
+        safe_copy "$repo_root/catalog/mcp-configs/mcp-servers.json" "$claude_dir/mcp-configs/mcp-servers.json" false "✓ MCP server config installed at: $claude_dir/mcp-configs"
 
         # Context & Memory
         safe_folder_copy "$repo_root/catalog/context" "$claude_dir/context" "✓ Workspace context installed at: $claude_dir/context"

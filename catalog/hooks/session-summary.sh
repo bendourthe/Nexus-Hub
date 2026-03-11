@@ -12,6 +12,14 @@
 # Never fail loudly - always exit 0
 trap 'exit 0' ERR
 
+# --- Runtime Controls ---
+# Disable by name: export DEVAI_DISABLED_HOOKS=session-summary
+# Skip all non-essential hooks: export DEVAI_HOOK_PROFILE=minimal
+_HOOK_NAME="session-summary"
+_DISABLED="${DEVAI_DISABLED_HOOKS:-}"
+if [[ ",$_DISABLED," == *",$_HOOK_NAME,"* ]]; then exit 0; fi
+if [[ "${DEVAI_HOOK_PROFILE:-full}" == "minimal" ]]; then exit 0; fi
+
 LOG_FILE="$HOME/.claude/session-log.md"
 
 # --- Ensure log file exists with headers ---
