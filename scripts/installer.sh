@@ -724,6 +724,11 @@ install_workspace() {
         merged_content+="- **Package Manager**: $PACKAGE_MANAGER\n"
         merged_content+="- **Test**: $TEST_FRAMEWORK\n"
         merged_content+="- **Lint**: $LINT_TOOL\n\n"
+        merged_content+="## Working Conventions\n"
+        merged_content+="- Destructive git commands require explicit user confirmation before running\n"
+        merged_content+="- Never add \`Co-Authored-By\` lines, AI attribution footers, or AI-generated signatures to commit messages\n"
+        merged_content+="- **MANDATORY: Every Bash/shell command approval MUST be preceded by a one-sentence plain-language explanation** of what the command does and what its impact will be. This applies to ALL commands regardless of complexity. No exceptions.\n"
+        merged_content+="- Ask clarifying questions before coding if requirements are ambiguous\n\n"
 
         IFS=',' read -ra LANGS <<< "$languages"
         for lang in "${LANGS[@]}"; do

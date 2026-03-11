@@ -40,12 +40,12 @@ project_name/
 │   ├── test_config.py     # Test configuration
 │   └── test_main.py       # Example tests
 ├── docs/                   # Documentation
+│   └── DEVLOG.md          # Development log
 ├── .gitignore             # Git ignore rules
 ├── .github/               # GitHub workflows
 │   └── workflows/
 │       └── ci.yml
 ├── CHANGELOG.md           # Version history
-├── DEVLOG.md              # Development log
 ├── README.md              # Project documentation
 ├── pyproject.toml         # Project configuration
 └── requirements.txt       # Dependencies

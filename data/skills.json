@@ -6,10 +6,10 @@
     "description": "Comprehensive catalog of Claude Code skills for autonomous AI development"
   },
   "statistics": {
-    "total_skills": 134,
+    "total_skills": 136,
     "categories": {
       "Documentation": 7,
-      "Code Cleanup": 7,
+      "Code Cleanup": 8,
       "Workflow": 14,
       "Code Review": 8,
       "Security": 7,
@@ -43,7 +43,7 @@
       "C",
       "C++"
     ],
-    "last_updated": "2026-03-05"
+    "last_updated": "2026-03-11"
   },
   "skills": [
     {
@@ -5033,6 +5033,49 @@
         "lines": 387,
         "characters": 12067,
         "tokens_estimate": 3016
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "project-layout-refactor",
+      "title": "project-layout-refactor",
+      "description": "Audit and refactor repository root directories to follow standard layout rules. Moves misplaced files, fixes all path references, and verifies nothing breaks.",
+      "long_description": "Systematically reorganize a repository file layout to follow declared conventions, with full impact analysis and reference repair before any file is moved. Supports Claude Code, Codex, Gemini, and Copilot.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Code Cleanup",
+      "language": "Multi-language",
+      "tags": [
+        "refactoring",
+        "project-structure",
+        "root-cleanup",
+        "layout-rules",
+        "file-organization",
+        "path-repair"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Bash",
+        "Edit",
+        "Glob",
+        "Grep",
+        "Read",
+        "Write"
+      ],
+      "path": "catalog/skills/code-cleanup/project-layout-refactor/",
+      "file": "catalog/skills/code-cleanup/project-layout-refactor/SKILL.md",
+      "size": {
+        "lines": 310,
+        "characters": 13200,
+        "tokens_estimate": 2640
       },
       "downloads": 0,
       "status": "production",

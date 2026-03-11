@@ -195,8 +195,8 @@ def main():
     print("Generating catalog with statistics...")
     catalog = generate_catalog(templates)
 
-    # Save to repository root
-    output_path = base_path / 'templates.json'
+    # Save to data/ directory
+    output_path = base_path / 'data' / 'templates.json'
     with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(catalog, f, indent=2, ensure_ascii=False)
 

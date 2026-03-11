@@ -15,7 +15,7 @@ python tools/build_skills_catalog.py
 
 **Output:**
 
-- Creates `catalogs/skills.json`
+- Creates `data/skills.json`
 
 - Contains metadata for all 48+ skills
 

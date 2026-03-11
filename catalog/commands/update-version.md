@@ -176,7 +176,7 @@ Use today's date in YYYY-MM-DD format.
 
 ### Step 8: Update DEVLOG.md (if exists)
 
-Add a comprehensive release entry to the top of `DEVLOG.md`, following the project's existing DEVLOG format. This should capture the "why" and "how" behind the release, not just a list of changes.
+Add a comprehensive release entry to the top of `docs/DEVLOG.md`, following the project's existing DEVLOG format. This should capture the "why" and "how" behind the release, not just a list of changes.
 
 ```markdown
 ## [YYYY-MM-DD] - Release NEW_VERSION: [Short Descriptive Title]
@@ -195,9 +195,9 @@ Add a comprehensive release entry to the top of `DEVLOG.md`, following the proje
 2. Read the git log from Step 3 for context on what was built and why
 3. Group changes by logical component or feature area (not by commit)
 4. For each group, describe what was done and which key files were affected
-5. Match the tone and structure of existing DEVLOG entries (read the file first)
+5. Match the tone and structure of existing DEVLOG entries (read `docs/DEVLOG.md` first)
 
-If `DEVLOG.md` does not exist, skip this step.
+If `docs/DEVLOG.md` does not exist, skip this step.
 
 ### Step 9: Update Documentation Files
 
@@ -206,7 +206,7 @@ Update all documentation files (READMEs, guides, manuals) to reflect changes int
 **Process**:
 
 1. **Identify documentation files**: Find all `README.md` files (root and subdirectories), plus any files in `docs/`, `guides/`, or `infrastructure/` directories.
-   - **Exclude**: CHANGELOG.md, DEVLOG.md, command definitions, skill definitions, templates, AI instruction files (CLAUDE.md, GEMINI.md).
+   - **Exclude**: CHANGELOG.md, docs/DEVLOG.md, command definitions, skill definitions, templates, AI instruction files (CLAUDE.md, GEMINI.md).
 
 2. **Compare against changes**: Using the git diff from Step 3, identify which documentation files may be affected by the changes in this release:
    - New features or modules added? Check if the root README and relevant module READMEs mention them.
@@ -291,7 +291,7 @@ Present the upgrade summary:
 ### Files Updated
 - [ ] pyproject.toml / package.json
 - [ ] CHANGELOG.md (new version entry + footer links)
-- [ ] DEVLOG.md (release entry)
+- [ ] docs/DEVLOG.md (release entry)
 - [ ] README.md (version references + feature descriptions)
 - [ ] Documentation files (READMEs, guides updated to match changes)
 - [ ] Source code version

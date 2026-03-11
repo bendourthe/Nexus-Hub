@@ -19,8 +19,8 @@ Copy skill directories from `catalog/skills/<category>/<skill-name>/` to your pr
 
 - **skill**: Behavioral instruction for an AI coding agent. Entry file: `SKILL.md`. Triggers automatically from context.
 - **command**: User-invocable slash command. Entry file: Markdown with YAML frontmatter. Invoked with `/command-name`.
-- **workflow**: Ordered chain of skills for a specific goal. Defined in `workflows.json`.
-- **bundle**: Curated skill collection for a developer role. Defined in `bundles.json`.
+- **workflow**: Ordered chain of skills for a specific goal. Defined in `data/workflows.json`.
+- **bundle**: Curated skill collection for a developer role. Defined in `data/bundles.json`.
 - **template**: Base AI instruction file for a platform/language. Installed to `CLAUDE.md`, `GEMINI.md`, `copilot-instructions.md`, or `AGENTS.md`.
 - **hook**: Shell script that runs inside Claude Code sessions (PreToolUse, PostToolUse, Stop events).
 
@@ -133,7 +133,7 @@ templates/ai-instructions/ Base instruction templates for each platform
 scripts/installer.ps1     Windows installer (PowerShell, no runtime required)
 scripts/installer.sh      macOS/Linux installer (Bash, no runtime required)
 scripts/generate_report.py Word/PowerPoint report generator (Python 3.8+)
-skills.json               Machine-readable catalog of all 134 skills
-workflows.json            17 goal-based workflow definitions
-bundles.json              11 role-based bundle definitions
+data/skills.json          Machine-readable catalog of all 134 skills
+data/workflows.json       17 goal-based workflow definitions
+data/bundles.json         11 role-based bundle definitions
 extensions/claude-usage-monitor/  VS Code extension for real-time usage monitoring

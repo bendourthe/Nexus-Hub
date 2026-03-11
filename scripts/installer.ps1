@@ -903,6 +903,11 @@ function Install-Workspace {
         $mergedContent += "- **Package Manager**: $($script:PackageManager)`n"
         $mergedContent += "- **Test**: $($script:TestFramework)`n"
         $mergedContent += "- **Lint**: $($script:LintTool)`n`n"
+        $mergedContent += "## Working Conventions`n"
+        $mergedContent += "- Destructive git commands require explicit user confirmation before running`n"
+        $mergedContent += "- Never add ``Co-Authored-By`` lines, AI attribution footers, or AI-generated signatures to commit messages`n"
+        $mergedContent += "- **MANDATORY: Every Bash/shell command approval MUST be preceded by a one-sentence plain-language explanation** of what the command does and what its impact will be. This applies to ALL commands regardless of complexity. No exceptions.`n"
+        $mergedContent += "- Ask clarifying questions before coding if requirements are ambiguous`n`n"
         foreach ($lang in $languages) {
             $langKey = $lang.ToLower()
             if ($langKey -eq "c++") { $langKey = "cpp" }

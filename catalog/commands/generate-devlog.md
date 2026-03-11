@@ -25,7 +25,7 @@ Unlike `update-devlog` (which appends a single entry for the most recent session
 2.  **Documentation Scan**:
     *   Read `CHANGELOG.md` (if present) for version-based change summaries.
     *   Read `README.md` for project context and evolution clues.
-    *   Read any existing `DEVLOG.md` to understand prior format and content.
+    *   Read any existing `docs/DEVLOG.md` to understand prior format and content.
     *   Read `tasks/todo.md` and `tasks/lessons.md` (if present) for planning history and captured lessons.
 
 3.  **Code Artifact Scan**:
@@ -120,8 +120,8 @@ Motivation, triggering issue, or requirement. Reference issue numbers or user re
     *   For entries where exact time is unknown, use `00:00` as placeholder.
 
 3.  **Write Output**:
-    *   Write the complete content to `DEVLOG.md` in the repository root.
-    *   If `DEVLOG.md` already exists, **warn the user** before overwriting. Offer to back up the existing file as `DEVLOG.backup.md`.
+    *   Write the complete content to `docs/DEVLOG.md`.
+    *   If `docs/DEVLOG.md` already exists, **warn the user** before overwriting. Offer to back up the existing file as `docs/DEVLOG.backup.md`.
 
 4.  **Handle Edge Cases**:
     *   **Very large repositories (1000+ commits)**: Focus on tagged releases and merge commits. Group maintenance commits into monthly summaries.

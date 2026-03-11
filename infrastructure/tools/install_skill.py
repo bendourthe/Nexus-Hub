@@ -30,8 +30,8 @@ class SkillInstaller:
             repository_root = Path(__file__).parent.parent.parent
 
         self.repo_root = repository_root
-        self.skills_source = repository_root / 'claude-skills-catalog'
-        self.catalog_path = repository_root / 'skills.json'
+        self.skills_source = repository_root / 'catalog' / 'skills'
+        self.catalog_path = repository_root / 'data' / 'skills.json'
 
         # Load catalog
         if not self.catalog_path.exists():

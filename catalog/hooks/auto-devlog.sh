@@ -4,7 +4,7 @@
 # Part of DevAI-Hub
 #
 # How it works:
-#   Fires on the Stop event. Checks whether DEVLOG.md exists in the repo root
+#   Fires on the Stop event. Checks whether DEVLOG.md exists in the docs/ directory
 #   and whether there are at least MIN_COMMITS new commits since the last
 #   recorded entry date. If so, prepends a structured summary block.
 #
@@ -37,7 +37,7 @@ command -v git >/dev/null 2>&1 || exit 0
 
 # --- Must be inside a git repo with a DEVLOG.md ---
 GIT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
-DEVLOG="$GIT_ROOT/DEVLOG.md"
+DEVLOG="$GIT_ROOT/docs/DEVLOG.md"
 [ -f "$DEVLOG" ] || exit 0
 
 # --- Consume stdin (Stop hooks receive JSON payload) ---
@@ -93,8 +93,8 @@ fi
 # Uses a compact inline prompt rather than the full update-devlog command, which
 # contains an iterative refinement loop unsuitable for non-interactive --print mode.
 if [ "${AUTO_DEVLOG_AI:-}" = "1" ] && command -v claude >/dev/null 2>&1; then
-    AI_PROMPT="You are updating DEVLOG.md for the '$(basename "$GIT_ROOT")' project.
-Read DEVLOG.md to understand its exact heading style and section format.
+    AI_PROMPT="You are updating docs/DEVLOG.md for the '$(basename "$GIT_ROOT")' project.
+Read docs/DEVLOG.md to understand its exact heading style and section format.
 Write ONE new entry to prepend above the first ## heading, using timestamp: $TIMESTAMP.
 Base it on these commits:
 $RECENT_COMMITS

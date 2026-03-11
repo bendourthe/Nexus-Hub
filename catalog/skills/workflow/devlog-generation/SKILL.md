@@ -73,7 +73,7 @@ Read all available documentation sources in the repository:
 -   **Primary sources**:
     -   `README.md`
     -   `CHANGELOG.md`
-    -   `DEVLOG.md` (existing, if any)
+    -   `docs/DEVLOG.md` (existing, if any)
     -   `tasks/todo.md`, `tasks/lessons.md`
 -   **Secondary sources**:
     -   `docs/` or `guides/` directories
@@ -180,7 +180,7 @@ Motivation, triggering issue, or requirement. Reference issue numbers or user re
 
 3.  Use consistent `## [YYYY-MM-DD HH:MM]` heading format. For entries where exact time is unknown, use `00:00` as placeholder.
 
-4.  If a `DEVLOG.md` already exists, **warn the user** before overwriting. Offer to create a backup as `DEVLOG.backup.md`.
+4.  If `docs/DEVLOG.md` already exists, **warn the user** before overwriting. Offer to create a backup as `docs/DEVLOG.backup.md`.
 
 ### Step 7: Validate and Report
 

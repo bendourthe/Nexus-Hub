@@ -7,7 +7,7 @@ description: Discover, audit, and update all documentation files (READMEs, guide
 Discover all documentation files in the codebase, compare their content against the actual implementation, and update them to reflect reality.
 
 **Scope**: READMEs, user guides, API docs, infrastructure docs, and other reference documentation.
-**Out of scope**: CHANGELOG.md (use `/generate-changelog`), DEVLOG.md (use `/update-devlog`), version strings (use `/updated-version`).
+**Out of scope**: CHANGELOG.md (use `/generate-changelog`), docs/DEVLOG.md (use `/update-devlog`), version strings (use `/updated-version`).
 
 ## Phase 1: Discover and Classify Documentation Files
 
@@ -31,7 +31,7 @@ These file types should be analyzed and updated:
 These are managed by other commands or are not user-facing documentation:
 
 - `CHANGELOG.md` (managed by `/generate-changelog`)
-- `DEVLOG.md` (managed by `/update-devlog`)
+- `docs/DEVLOG.md` (managed by `/update-devlog`)
 - `CLAUDE.md`, `GEMINI.md` (AI system instructions, not user docs)
 - Command definitions (`catalog/commands/*.md`)
 - Skill definitions (`catalog/skills/**/SKILL.md`)

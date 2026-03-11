@@ -43,7 +43,7 @@ find . -name "*.md" -type f | grep -v node_modules | grep -v .venv | grep -v __p
 # Common documentation files to check:
 # - README.md
 # - CHANGELOG.md
-# - DEVLOG.md
+# - docs/DEVLOG.md
 # - docs/*.md
 # - .claude/context/*.md
 # - guides/*.md

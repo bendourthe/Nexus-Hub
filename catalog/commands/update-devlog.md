@@ -1,9 +1,9 @@
 ---
-description: Analyze recent changes and generate a comprehensive entry for the DEVLOG.md file.
+description: Analyze recent changes and generate a comprehensive entry for docs/DEVLOG.md.
 ---
 # Update DEVLOG Command
 
-Analyze recent changes and generate a comprehensive entry for the `DEVLOG.md` file.
+Analyze recent changes and generate a comprehensive entry for the `docs/DEVLOG.md` file.
 
 ## Objective
 Maintain a detailed history of development to aid future AI agents in troubleshooting and context retrieval. This log serves as a persistent "memory" of challenges, failures, and solutions.
@@ -11,7 +11,7 @@ Maintain a detailed history of development to aid future AI agents in troublesho
 ## Process
 
 1.  **Analyze Context**:
-    *   Read the existing `DEVLOG.md` (if present) to identify the last recorded state.
+    *   Read the existing `docs/DEVLOG.md` (if present) to identify the last recorded state.
     *   Analyze git history/diffs since the last entry.
     *   Recall (or infer from code comments/commit messages) specific errors encountered.
 
@@ -33,8 +33,8 @@ Maintain a detailed history of development to aid future AI agents in troublesho
     *   **Current Status**: Verified/Pending/Broken.
 
 3.  **Action**:
-    *   Append this entry to the top (or chronological bottom, depending on existing file style) of `DEVLOG.md`.
-    *   If `DEVLOG.md` does not exist, create it.
+    *   Append this entry to the top (or chronological bottom, depending on existing file style) of `docs/DEVLOG.md`.
+    *   If `docs/DEVLOG.md` does not exist, create it.
 
 
 ## Phase: Iterative Refinement (Loop)

@@ -397,7 +397,7 @@ All contributions must meet these standards:
 ```bash
 # Add files
 git add catalog/skills/{category}/your-skill-name/
-git add skills.json  # If updated
+git add data/skills.json  # If updated
 
 # Commit with descriptive message
 git commit -m "feat: Add [skill-name] skill for [purpose]"
@@ -456,7 +456,7 @@ git push origin feature/your-skill-name
 
 - [ ] Tested on macOS
 
-- [ ] Updated skills.json
+- [ ] Updated data/skills.json
 
 - [ ] Documentation updated
 

@@ -143,7 +143,7 @@ def assign_category(skill_name: str, frontmatter: Dict) -> str:
 
 def build_catalog() -> List[Dict[str, Any]]:
     """Build complete skills catalog."""
-    skills_base = Path(__file__).parent.parent.parent / 'claude-skills-catalog'
+    skills_base = Path(__file__).parent.parent.parent / 'catalog' / 'skills'
 
     catalog = []
 
@@ -174,8 +174,8 @@ def build_catalog() -> List[Dict[str, Any]]:
             'priority': frontmatter.get('priority', 'MEDIUM'),
             'based_on': frontmatter.get('based_on', ''),
             'tools_required': extract_tools_required(skill_file),
-            'path': f'claude-skills-catalog/{skill_name}/',
-            'file': f'claude-skills-catalog/{skill_name}/SKILL.md',
+            'path': f'catalog/skills/{skill_name}/',
+            'file': f'catalog/skills/{skill_name}/SKILL.md',
             'size': calculate_skill_size(skill_file),
             'downloads': 0,
             'status': 'production',
@@ -247,9 +247,9 @@ def main():
         'skills': catalog
     }
 
-    # Save catalog to repository root
+    # Save catalog to data/ directory
     base_path = Path(__file__).parent.parent.parent
-    output_path = base_path / 'skills.json'
+    output_path = base_path / 'data' / 'skills.json'
     with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(output, f, indent=2, ensure_ascii=False)
 

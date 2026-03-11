@@ -15,12 +15,12 @@ If the user provided a query (e.g., `/search-skills security audit`), use that. 
 
 ### Step 2: Locate the Catalog
 
-Read `skills.json` from the DevAI-Hub root. Common locations:
-- Same directory as this command file: `../../skills.json`
-- `~/DevAI-Hub/skills.json`
+Read `skills.json` from the DevAI-Hub `data/` directory. Common locations:
+- Relative to this command file: `../../data/skills.json`
+- `~/DevAI-Hub/data/skills.json`
 - A path the user specifies
 
-If not found, ask the user for the path to the DevAI-Hub `skills.json`.
+If not found, ask the user for the path to the DevAI-Hub `data/skills.json`.
 
 ### Step 3: Search the Catalog
 
@@ -29,7 +29,7 @@ Parse the JSON and search for matches across these fields for each skill:
 - `description` — keyword matches
 - `category` — if the query matches a category name, return all skills in that category
 
-Also check `workflows.json` for relevant workflows, and `bundles.json` for relevant role bundles.
+Also check `data/workflows.json` for relevant workflows, and `data/bundles.json` for relevant role bundles.
 
 **Scoring priority (highest first):**
 1. Exact match on skill name

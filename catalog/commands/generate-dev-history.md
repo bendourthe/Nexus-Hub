@@ -41,7 +41,7 @@ Gather every available source before attempting synthesis. Do not skip sources b
     *   For merge commits and tagged commits, run `git show --stat <hash>` to understand scope.
 
 3.  **Existing Documentation**:
-    *   Read `DEVLOG.md` (if present) — richest source of troubleshooting trails and session summaries.
+    *   Read `docs/DEVLOG.md` (if present) — richest source of troubleshooting trails and session summaries.
     *   Read `CHANGELOG.md` (if present) — version boundaries and feature summaries.
     *   Read `README.md` — project context and stated feature scope.
     *   Search for ADR files in `docs/adr/`, `docs/decisions/`, `catalog/memory/decisions.md`, and `.claude/memory/decisions.md`.
