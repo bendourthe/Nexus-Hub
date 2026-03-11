@@ -983,7 +983,7 @@ function Install-Workspace {
 function Install-VSCodeExtensions {
     param ($RepoRoot)
     Write-Host ""
-    Write-CenteredBanner -Text "Claude Code Usage Monitor" -Color "DarkCyan"
+    Write-Host "  [ ---------- CLAUDE CODE USAGE MONITOR ---------- ]" -ForegroundColor DarkYellow
     Write-Host ""
 
     Write-Item -Message "The Claude Usage Monitor is a VS Code extension that displays your Claude" -Color "White"
@@ -1130,7 +1130,7 @@ function Install-VSCodeExtensions {
     $ErrorActionPreference = $savedErrorPref
 
     Write-Host ""
-    Write-CenteredBanner -Text "Claude Code Usage Monitor Installation Complete." -Color "Green"
+    Write-Host "  ✓ Claude Code Usage Monitor Installation Complete." -ForegroundColor Green
 }
 
 # --- Template & Script Installation ---
@@ -1254,7 +1254,7 @@ function Install-Templates {
 function Install-AuthMonitor {
     param ($RepoRoot)
     Write-Host ""
-    Write-CenteredBanner -Text "Claude Code Authentication Monitor" -Color "DarkCyan"
+    Write-Host "  [ ---------- CLAUDE CODE AUTHENTICATION MONITOR ---------- ]" -ForegroundColor DarkYellow
     Write-Host ""
     Write-Item -Message "The Authentication Monitor runs silently in the background and proactively" -Color "White"
     Write-Item -Message "refreshes your Claude Code OAuth token before it expires — no browser pop-up," -Color "White"
@@ -1333,7 +1333,7 @@ CreateObject("WScript.Shell").Run "powershell.exe -NonInteractive -ExecutionPoli
 
     $ErrorActionPreference = $savedErrorPref
     Write-Host ""
-    Write-CenteredBanner -Text "Claude Code Authentication Monitor Installation Complete." -Color "Green"
+    Write-Host "  ✓ Claude Code Authentication Monitor Installation Complete." -ForegroundColor Green
 }
 
 # --- Claude Code Utilities (Phase 4 wrapper) ---
