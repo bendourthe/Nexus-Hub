@@ -390,6 +390,52 @@
 **Languages**: Multi-language
 **Priority**: HIGH
 
+### temporal-orchestration
+**Path**: `orchestration/temporal-orchestration/`
+**Description**: Design and implement durable, fault-tolerant AI agent pipelines using Temporal workflow orchestration. Covers when to use Temporal vs simple async/await, TypeScript SDK setup, idempotent agent activity design, parallel agent fan-out, heartbeat configuration for long-running LLM calls, crash recovery, named workflow IDs, and Docker Compose deployment for Temporal server and worker containers. Use when building multi-agent AI systems that must survive failures, run agents in parallel, and resume after crashes.
+**Languages**: TypeScript / Node.js
+**Priority**: HIGH
+
+---
+
+## AI Development Skills
+
+### ai-agent-development
+**Path**: `ai-development/ai-agent-development/`
+**Description**: Comprehensive patterns for building AI agents that reason, plan, use tools, and collaborate. Covers ReAct, plan-and-execute, reflection, and multi-agent architectures; tool integration with function calling and MCP; memory systems; planning loops; guardrails; evaluation; and observability. Use when building AI agents in Python.
+**Languages**: Python
+**Priority**: HIGH
+
+### claude-agent-sdk
+**Path**: `ai-development/claude-agent-sdk/`
+**Description**: Production-grade Claude Agent SDK integration in TypeScript. Covers multi-provider routing (Anthropic, AWS Bedrock, Google Vertex AI, OpenRouter), retry logic with exponential backoff, hard spending cap enforcement at the SDK invocation layer, per-invocation audit logging, retryable vs fatal error classification, and MCP tool registration. Use when building autonomous Claude agents in Node.js/TypeScript.
+**Languages**: TypeScript / Node.js
+**Priority**: HIGH
+
+### multi-provider-ai
+**Path**: `ai-development/multi-provider-ai/`
+**Description**: Configure and route LLM requests across multiple AI providers without changing application code. Covers provider selection criteria (compliance, latency, cost, enterprise billing), credential and IAM setup for each provider, unified TypeScript and Python client interfaces, model ID reference table, cost comparison, and graceful failover routing. Use when building LLM applications that need provider flexibility or enterprise cloud integration.
+**Languages**: TypeScript / Python
+**Priority**: HIGH
+
+### ai-billing-safeguards
+**Path**: `ai-development/ai-billing-safeguards/`
+**Description**: Implement hard spending caps and billing safeguards for autonomous AI agent systems. Covers per-session and per-task budget limits, provider-level quota controls in Anthropic Console, AWS Bedrock, and GCP Billing, structured cost attribution with JSONL audit trails, graceful BudgetExceededError propagation, and aggregate budget guards for multi-agent pipelines. Distinct from usage monitoring: billing safeguards actively block execution when limits are reached.
+**Languages**: TypeScript / Python
+**Priority**: HIGH
+
+### prompt-engineering
+**Path**: `ai-development/prompt-engineering/`
+**Description**: Craft effective LLM prompts using techniques like system prompt design, few-shot examples, chain-of-thought reasoning, structured output, and temperature tuning. Use when designing prompts for agents, classification tasks, extraction pipelines, or any LLM-powered feature.
+**Languages**: Multi-language
+**Priority**: HIGH
+
+### rag-implementation
+**Path**: `ai-development/rag-implementation/`
+**Description**: Build retrieval-augmented generation (RAG) pipelines with vector stores, embedding models, chunking strategies, retrieval, and reranking. Use when building knowledge-grounded AI applications, document Q&A systems, or semantic search features.
+**Languages**: Multi-language
+**Priority**: HIGH
+
 ---
 
 ## Developer Experience Skills
@@ -479,18 +525,19 @@
 | Workflow | 7 | HIGH |
 | Security | 3 | HIGH |
 | Infrastructure | 4 | HIGH |
-| Orchestration | 5 | HIGH |
+| Orchestration | 6 | HIGH |
+| AI Development | 6 | HIGH |
 | Developer Experience | 8 | MEDIUM-HIGH |
 | Language Specialists | 3 | MEDIUM |
 | Research | 1 | MEDIUM |
-| **Total** | **71** | **HIGH** |
+| **Total** | **78** | **HIGH** |
 
 ---
 
 ## Version
 
-- **Catalog Version**: 1.3.0
-- **Last Updated**: February 2026
+- **Catalog Version**: 1.4.0
+- **Last Updated**: March 2026
 
 
 ### Iterative Refinement Strategy

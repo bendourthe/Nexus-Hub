@@ -50,3 +50,45 @@
 - Skills: `.claude/skills/` (auto-activated by task context)
 - Architecture: `.claude/context/architecture.md`
 - Decisions: `.claude/memory/decisions.md`
+
+## Agent Registry
+{{AGENT_REGISTRY}}
+<!-- Optional section for projects using autonomous AI agents. Remove if not applicable.
+Format:
+| Agent ID | Responsibility | Model Tier | Tool Access | Max Budget |
+|----------|----------------|------------|-------------|------------|
+| research-agent | Gather and summarize information | sonnet | web_search, read_document | $2.00 |
+| synthesis-agent | Combine findings into reports | opus | none | $5.00 |
+-->
+
+## Spending Controls
+{{SPENDING_CONTROLS}}
+<!-- Optional section for autonomous agent projects. Remove if not applicable.
+- Session budget cap: $XX.XX (set via MAX_BUDGET_USD env var)
+- Per-agent budget cap: $X.XX (configured in agent definition)
+- Hard stop behavior: BudgetExceededError terminates workflow cleanly
+- Alerts: warn at 80% of budget; halt at 100%
+- Cost tracking: audit-logs/session-*.jsonl (JSONL, one entry per invocation)
+-->
+
+## Environment Variables
+{{ENV_VARS_REFERENCE}}
+<!-- Optional section. List key env vars with purpose and required/optional status.
+| Variable | Purpose | Required |
+|----------|---------|----------|
+| ANTHROPIC_API_KEY | Anthropic API credentials | Yes |
+| AI_PROVIDER | LLM provider: anthropic / bedrock / vertex / openrouter | No (default: anthropic) |
+| MODEL_TIER | Model quality: haiku / sonnet / opus | No (default: sonnet) |
+| MAX_BUDGET_USD | Hard spending cap per session | Recommended |
+-->
+
+## MCP Integration
+{{MCP_STATUS}}
+<!-- Optional section. Document active MCP servers and their purpose.
+Active servers:
+- filesystem: Read/write workspace files (stdio)
+- playwright: Browser automation for web tasks (stdio, per-agent instance)
+
+Configuration: .mcp.json at project root
+Note: Each parallel agent should have its own Playwright instance to avoid session conflicts.
+-->

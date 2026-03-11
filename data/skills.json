@@ -6,7 +6,7 @@
     "description": "Comprehensive catalog of Claude Code skills for autonomous AI development"
   },
   "statistics": {
-    "total_skills": 136,
+    "total_skills": 140,
     "categories": {
       "Documentation": 7,
       "Code Cleanup": 8,
@@ -20,14 +20,14 @@
       "Developer Experience": 18,
       "Infrastructure": 11,
       "Language Specialists": 3,
-      "Orchestration": 8,
+      "Orchestration": 9,
       "Architecture": 6,
-      "AI Development": 3,
+      "AI Development": 6,
       "Framework Specialists": 3,
       "Bug Fixing": 5
     },
     "priorities": {
-      "HIGH": 44,
+      "HIGH": 48,
       "MEDIUM": 88,
       "CRITICAL": 2
     },
@@ -5076,6 +5076,175 @@
         "lines": 310,
         "characters": 13200,
         "tokens_estimate": 2640
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "claude-agent-sdk",
+      "title": "claude-agent-sdk",
+      "description": "Production-grade Claude Agent SDK integration in TypeScript: multi-provider routing, retry logic, spending cap enforcement, audit logging, error classification, and MCP tool registration",
+      "long_description": "Build production autonomous Claude agents in TypeScript/Node.js with the Anthropic Claude Agent SDK. Covers multi-provider routing (Anthropic, Bedrock, Vertex, OpenRouter), exponential backoff retry, hard spending cap enforcement, structured per-invocation audit logging, retryable vs fatal error taxonomy, and MCP tool registration patterns.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "AI Development",
+      "language": "TypeScript / Node.js",
+      "tags": [
+        "claude-sdk",
+        "agent",
+        "typescript",
+        "multi-provider",
+        "spending-cap",
+        "audit-logging",
+        "retry",
+        "mcp",
+        "autonomous-agent",
+        "production"
+      ],
+      "priority": "HIGH",
+      "based_on": "Shannon (KeygraphHQ)",
+      "tools_required": [
+        "Read",
+        "Write",
+        "Bash"
+      ],
+      "path": "catalog/skills/ai-development/claude-agent-sdk/",
+      "file": "catalog/skills/ai-development/claude-agent-sdk/SKILL.md",
+      "size": {
+        "lines": 400,
+        "characters": 16000,
+        "tokens_estimate": 4000
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "multi-provider-ai",
+      "title": "multi-provider-ai",
+      "description": "Configure and route LLM requests across Anthropic, AWS Bedrock, Google Vertex AI, and OpenRouter with provider selection criteria, credential patterns, unified client interfaces, and fallback routing",
+      "long_description": "Design provider-agnostic LLM integrations that route requests across Anthropic, AWS Bedrock, Google Vertex AI, and OpenRouter without changing application code. Covers selection criteria, IAM credential management, unified TypeScript and Python client patterns, model ID reference table, cost comparison, and graceful failover routing.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "AI Development",
+      "language": "TypeScript / Python",
+      "tags": [
+        "multi-provider",
+        "bedrock",
+        "vertex",
+        "openrouter",
+        "anthropic",
+        "llm-routing",
+        "enterprise-ai",
+        "cloud-ai",
+        "provider-abstraction"
+      ],
+      "priority": "HIGH",
+      "based_on": "Shannon (KeygraphHQ)",
+      "tools_required": [
+        "Read",
+        "Write"
+      ],
+      "path": "catalog/skills/ai-development/multi-provider-ai/",
+      "file": "catalog/skills/ai-development/multi-provider-ai/SKILL.md",
+      "size": {
+        "lines": 320,
+        "characters": 13000,
+        "tokens_estimate": 3200
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "ai-billing-safeguards",
+      "title": "ai-billing-safeguards",
+      "description": "Implement hard spending caps and billing safeguards for autonomous AI agents: per-session budget limits, provider-level quota controls, cost attribution audit trails, and graceful budget-exceeded termination",
+      "long_description": "Production patterns for enforcing hard budget limits in autonomous AI agent systems. Covers per-session spending caps, per-task cost limits, provider-level quota configuration, structured cost attribution with JSONL audit trails, and graceful BudgetExceededError propagation. Distinct from usage monitoring: billing safeguards actively block execution when limits are reached.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "AI Development",
+      "language": "TypeScript / Python",
+      "tags": [
+        "billing",
+        "spending-cap",
+        "budget-guard",
+        "cost-control",
+        "autonomous-agent",
+        "guardrails",
+        "cost-attribution",
+        "enterprise-ai"
+      ],
+      "priority": "HIGH",
+      "based_on": "Shannon (KeygraphHQ)",
+      "tools_required": [
+        "Read",
+        "Write"
+      ],
+      "path": "catalog/skills/ai-development/ai-billing-safeguards/",
+      "file": "catalog/skills/ai-development/ai-billing-safeguards/SKILL.md",
+      "size": {
+        "lines": 340,
+        "characters": 14000,
+        "tokens_estimate": 3500
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "temporal-orchestration",
+      "title": "temporal-orchestration",
+      "description": "Design and implement durable, fault-tolerant AI agent pipelines using Temporal: TypeScript SDK setup, idempotent activity design, parallel agent fan-out, crash recovery, and Docker Compose deployment",
+      "long_description": "Use Temporal workflow orchestration for AI agent pipelines that must survive crashes, run agents in parallel, and resume from the last completed step. Covers when to use Temporal vs simple async/await, TypeScript Temporal SDK initialization, designing retryable idempotent agent activities, parallel fan-out patterns, heartbeat configuration for long-running LLM calls, and Docker Compose topology.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Orchestration",
+      "language": "TypeScript / Node.js",
+      "tags": [
+        "temporal",
+        "workflow-orchestration",
+        "durable-execution",
+        "parallel-agents",
+        "crash-recovery",
+        "fan-out",
+        "ai-pipeline",
+        "fault-tolerant"
+      ],
+      "priority": "HIGH",
+      "based_on": "Shannon (KeygraphHQ)",
+      "tools_required": [
+        "Read",
+        "Write",
+        "Bash"
+      ],
+      "path": "catalog/skills/orchestration/temporal-orchestration/",
+      "file": "catalog/skills/orchestration/temporal-orchestration/SKILL.md",
+      "size": {
+        "lines": 380,
+        "characters": 15500,
+        "tokens_estimate": 3900
       },
       "downloads": 0,
       "status": "production",
