@@ -6,12 +6,13 @@
 
 ---
 
-## What's New in v0.8.5
+## What's New in v0.8.6
 
-- **Extra credits tracking in the usage monitor** — The dashboard now shows a dedicated extra-credits progress bar with dollar amounts and a dynamic reset date, so you always know how much of your monthly extra budget remains.
-- **Automatic OAuth token refresh** — The usage monitor refreshes its API token silently on expiry and on rate-limit responses; no more manual re-authentication interruptions.
-- **Auto-devlog hook** — New `auto-devlog.sh` stop hook writes a git-summary entry to `DEVLOG.md` automatically at the end of each Claude Code session (opt-in via `AUTO_DEVLOG=1`).
-- **Bash installer fixes** — Prompts are now always visible and error handling no longer exits early when npm or VS Code commands fail.
+- **10 specialist agents** — Architect, code-reviewer, security-reviewer, tdd-guide, and 6 more agent definitions are now in `catalog/agents/` and installable via the Phase 4 installer step.
+- **5 new skills** — `claude-agent-sdk`, `ai-billing-safeguards`, `temporal-orchestration`, `multi-provider-ai`, and `project-layout-refactor` added to the catalog.
+- **Language rule sets** — Coding-style, security, and testing rules for Bash, Go, Python, and TypeScript in `catalog/rules/`, installable via Phase 4.
+- **Claude Code logout fix** — Removed the Windows Task Scheduler auth monitor that was racing with Claude Code's own OAuth refresh and causing multiple daily logouts.
+- **Repository layout enforced** — JSON catalog files moved to `data/` and `DEVLOG.md` moved to `docs/`, matching the documented layout rules.
 
 ---
 

@@ -11,6 +11,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.8.6] - 2026-03-13
+
+### Added
+- **10 Specialist Agents**: New agent definitions in `catalog/agents/` covering architect, build-error-resolver, code-reviewer, doc-updater, harness-optimizer, loop-operator, planner, refactor-cleaner, security-reviewer, and tdd-guide roles; installable via the Phase 4 installer step
+- **Language Rule Sets**: New coding-style, security, and testing rules for Bash, Go, Python, and TypeScript in `catalog/rules/`, installable via the Phase 4 installer step
+- **MCP Server Configs**: New `catalog/mcp-configs/mcp-servers.json` with curated MCP server definitions installable via Phase 4
+- **5 New Skills**: `ai-billing-safeguards`, `claude-agent-sdk`, `multi-provider-ai`, `project-layout-refactor`, and `temporal-orchestration` added to the catalog
+- **4 New Commands**: `refactor-project-layout`, `run-penetration-test`, `tdd`, and `continue-session` added to the catalog
+- **5 New Hook Profiles**: `auto-format-on-write.sh`, `large-file-guard.sh`, `lint-on-write.sh`, `notify-on-complete.sh`, and `session-summary.sh` added to `catalog/hooks/`
+- **Project Examples**: Four real-world `CLAUDE.md` examples added in `examples/` (Django API, Go microservice, Next.js SaaS, Rust API) for reference during workspace setup
+- **Token Optimization Guide**: New `guides/TOKEN_OPTIMIZATION.md` covering context window strategies and cost-reduction techniques
+
+### Changed
+- **Repository Layout**: Moved JSON catalog files (`skills.json`, `bundles.json`, `templates.json`, `workflows.json`, `report_data.json`) from the repo root to `data/`, and moved `DEVLOG.md` from root to `docs/`, enforcing the documented layout rules
+- **Installer Phase 4**: Updated `scripts/installer.ps1` to install agents, language rules, and MCP server configs alongside the VS Code extension; added hook-profile selection step
+- **Usage Monitor Poll Interval**: Increased the default `claudeUsage.refreshInterval` from 5 to 10 minutes to reduce API call frequency
+
+### Fixed
+- **Claude Code Logout Bug**: Removed `scripts/claude-auth-monitor.ps1` and its Windows Task Scheduler integration; the 2-minute external token-refresh schedule was racing with Claude Code's own OAuth refresh, invalidating one-time-use refresh tokens and causing multiple forced logouts per day
+- **Installer Header Style**: Replaced `Write-CenteredBanner` calls with plain `Write-Host` headers in `scripts/installer.ps1` for cleaner phase output
+
+### Removed
+- **Auth Monitor**: `scripts/claude-auth-monitor.ps1` and `scripts/claude-auth-automate.ahk` removed; the VS Code extension's built-in token refresh handles all OAuth token renewal
+
+---
+
 ## [0.8.5] - 2026-03-10
 
 ### Added

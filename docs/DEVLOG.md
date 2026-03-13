@@ -1,5 +1,20 @@
 # Development Log
 
+## [2026-03-13] - Release 0.8.6: Specialist Agents, Language Rules, Auth Logout Fix, Repo Layout Enforcement
+
+*   **Goal**: Expand the catalog with 10 specialist agents, language-specific rule sets, 5 new skills, and 4 new commands; fix the Claude Code daily logout regression caused by the auth monitor's token-refresh race condition; and enforce the documented repository layout by moving catalog files to `data/` and `DEVLOG.md` to `docs/`.
+*   **What Changed**:
+    *   **Specialist Agents**: Added 10 agent definition files in `catalog/agents/` (architect, build-error-resolver, code-reviewer, doc-updater, harness-optimizer, loop-operator, planner, refactor-cleaner, security-reviewer, tdd-guide); installer Phase 4 updated in `scripts/installer.ps1` and `scripts/installer.sh` to install them.
+    *   **Language Rule Sets**: Added coding-style, security, and testing rules for Bash, Go, Python, and TypeScript in `catalog/rules/`; Phase 4 installer step offers rule-set selection.
+    *   **MCP Server Configs**: Added `catalog/mcp-configs/mcp-servers.json` with curated server definitions; Phase 4 installs them to `~/.claude/mcp-configs/`.
+    *   **New Skills**: Added `ai-billing-safeguards`, `claude-agent-sdk`, `multi-provider-ai`, `project-layout-refactor`, and `temporal-orchestration` to `catalog/skills/`; `data/skills.json` updated.
+    *   **New Commands**: Added `refactor-project-layout`, `run-penetration-test`, `tdd`, and `continue-session` to `catalog/commands/`.
+    *   **Hook Profiles**: Added `auto-format-on-write.sh`, `large-file-guard.sh`, `lint-on-write.sh`, `notify-on-complete.sh`, and `session-summary.sh` to `catalog/hooks/`.
+    *   **Auth Logout Fix**: Deleted `scripts/claude-auth-monitor.ps1` and `scripts/claude-auth-automate.ahk`; removed `Install-AuthMonitor` function from `scripts/installer.ps1`; increased `claudeUsage.refreshInterval` default from 5 to 10 minutes in `extensions/claude-usage-monitor/package.json`.
+    *   **Repository Layout**: Moved `skills.json`, `bundles.json`, `templates.json`, `workflows.json`, `report_data.json` to `data/`; moved `DEVLOG.md` to `docs/`.
+    *   **Version Bump**: Updated `data/templates.json`, `scripts/installer.ps1`, `scripts/installer.sh`, `docs/CATALOG-COVERAGE.md`, `README.md`, and `extensions/claude-usage-monitor/package.json` from 0.8.5 / 0.3.0 to 0.8.6 / 0.3.1.
+*   **Current Status**: Verified. All version references consistent at 0.8.6.
+
 ## [2026-03-10] - Release 0.8.5: Extra Credits Tracking, OAuth Auto-Refresh, Auto-Devlog Hook
 
 *   **Goal**: Ship usage-monitor reliability and visibility improvements (extra credits, OAuth refresh, 1M warnings, model classification fixes) alongside the auto-devlog hook and generate-dev-history command, plus a bash installer correctness fix.
