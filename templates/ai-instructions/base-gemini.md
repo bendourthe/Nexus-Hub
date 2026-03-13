@@ -29,6 +29,7 @@
 - Verify solutions work before claiming completion
 - Find root causes; no temporary fixes
 - **MANDATORY: Every Bash/shell command approval MUST be preceded by a one-sentence plain-language explanation** of what the command does and what its impact will be. This applies to ALL commands regardless of complexity. No exceptions.
+- **MANDATORY: Every Read, Glob, and Grep tool call MUST be preceded by a one-sentence plain-language explanation** of what file or path is being accessed and why. No exceptions.
 - Never add `Co-Authored-By` lines, AI attribution footers, or AI-generated signatures to commit messages
 - Place punctuation outside quotation marks; no em-dashes
 - Professional teaching tone

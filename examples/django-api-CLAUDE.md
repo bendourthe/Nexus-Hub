@@ -84,6 +84,7 @@ docker compose up -d
 - Destructive git commands require user confirmation
 - Never add `Co-Authored-By` lines, AI attribution footers, or AI-generated signatures to commit messages
 - **MANDATORY: Every Bash/shell command approval MUST be preceded by a one-sentence plain-language explanation** of what the command does and what its impact will be. This applies to ALL commands regardless of complexity. No exceptions.
+- **MANDATORY: Every Read, Glob, and Grep tool call MUST be preceded by a one-sentence plain-language explanation** of what file or path is being accessed and why. No exceptions.
 - Ask clarifying questions before coding if requirements are ambiguous
 - Never commit `.env` files or any file containing credentials
 
