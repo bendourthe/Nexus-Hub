@@ -1249,92 +1249,6 @@ function Install-Templates {
     Write-CenteredBanner -Text "Templates & Scripts Installation Complete." -Color "Green"
 }
 
-# --- Auth Monitor Installation ---
-
-function Install-AuthMonitor {
-    param ($RepoRoot)
-    Write-Host ""
-    Write-Host "  [ ---------- CLAUDE CODE AUTHENTICATION MONITOR ---------- ]" -ForegroundColor DarkYellow
-    Write-Host ""
-    Write-Item -Message "The Authentication Monitor runs silently in the background and proactively" -Color "White"
-    Write-Item -Message "refreshes your Claude Code OAuth token before it expires — no browser pop-up," -Color "White"
-    Write-Item -Message "no manual sign-in required. Uses the stored refresh token directly." -Color "White"
-    Write-Host ""
-
-    $response = Read-Prompt "Install Claude Code Authentication Monitor? [Y]es / [N]o"
-    if ($response -notmatch "^[Yy]") {
-        Write-Item -Message "Skipped authentication monitor installation." -Color "Gray"
-        Write-Host ""
-        Write-CenteredBanner -Text "Authentication Monitor Skipped." -Color "DarkGray"
-        return
-    }
-
-    # Ensure destination directory exists
-    $devaiScripts = Join-Path $env:USERPROFILE ".devai-hub\scripts"
-    if (-not (Test-Path $devaiScripts)) { New-Item -ItemType Directory -Force -Path $devaiScripts | Out-Null }
-
-    # Copy monitor script
-    $monitorSrc  = Join-Path $RepoRoot "scripts\claude-auth-monitor.ps1"
-    $monitorDst  = Join-Path $devaiScripts "claude-auth-monitor.ps1"
-    $vbsLauncher = Join-Path $devaiScripts "run-auth-monitor.vbs"
-
-    if (Test-Path $monitorSrc) {
-        Safe-Copy -Source $monitorSrc -Destination $monitorDst -Confirm:$true -CustomMessage "✓ Auth monitor script installed at: $monitorDst"
-    }
-
-    # Write a VBScript launcher so the scheduled task runs with no visible window.
-    # wscript.exe with window style 0 is truly hidden from the start; powershell.exe
-    # -WindowStyle Hidden still flashes a console briefly before Task Scheduler hides it.
-    $vbsContent = @"
-CreateObject("WScript.Shell").Run "powershell.exe -NonInteractive -ExecutionPolicy Bypass -WindowStyle Hidden -File ""$monitorDst""", 0, False
-"@
-    $vbsContent | Set-Content $vbsLauncher -Encoding ASCII
-    Write-Item -Message "✓ Silent launcher created at: $vbsLauncher" -Color "DarkGreen"
-
-    # Register Windows Task Scheduler task
-    Write-Item -Message "Registering Task Scheduler task (runs every 2 minutes)..." -Color "White"
-    $savedErrorPref = $ErrorActionPreference
-    $ErrorActionPreference = "Continue"
-
-    $taskName   = "Claude Code Auth Monitor"
-    $taskAction = New-ScheduledTaskAction `
-        -Execute "wscript.exe" `
-        -Argument "`"$vbsLauncher`""
-    $taskTrigger = New-ScheduledTaskTrigger -RepetitionInterval (New-TimeSpan -Minutes 2) -Once -At (Get-Date)
-    $taskSettings = New-ScheduledTaskSettingsSet `
-        -ExecutionTimeLimit (New-TimeSpan -Minutes 3) `
-        -MultipleInstances IgnoreNew `
-        -RunOnlyIfNetworkAvailable
-
-    try {
-        # Remove existing task if present
-        Unregister-ScheduledTask -TaskName $taskName -Confirm:$false -ErrorAction SilentlyContinue
-
-        Register-ScheduledTask `
-            -TaskName $taskName `
-            -Action $taskAction `
-            -Trigger $taskTrigger `
-            -Settings $taskSettings `
-            -RunLevel Limited `
-            -Description "Proactively refreshes the Claude Code OAuth access token before it expires, preventing mid-session login prompts." `
-            | Out-Null
-
-        Write-Item -Message "✓ Task Scheduler task registered: '$taskName'" -Color "DarkGreen"
-
-        # Start immediately so it activates without waiting for the first trigger
-        Start-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue
-        Write-Item -Message "✓ Auth monitor is now running." -Color "DarkGreen"
-    }
-    catch {
-        Write-Item -Message "Failed to register scheduled task: $($_.Exception.Message)" -Color "Red"
-        Write-Item -Message "You can register it manually by running:" -Color "Yellow"
-        Write-Item -Message "  powershell.exe -File `"$monitorDst`"" -Color "White"
-    }
-
-    $ErrorActionPreference = $savedErrorPref
-    Write-Host ""
-    Write-Host "  ✓ Claude Code Authentication Monitor Installation Complete." -ForegroundColor Green
-}
 
 # --- Claude Code Utilities (Phase 4 wrapper) ---
 
@@ -1343,7 +1257,6 @@ function Install-ClaudeUtilities {
     Write-Host ""
     Write-CenteredBanner -Text "PHASE 4: Claude Code Utilities" -Color "Cyan"
     Install-VSCodeExtensions -RepoRoot $RepoRoot
-    Install-AuthMonitor -RepoRoot $RepoRoot
     Write-Host ""
     Write-CenteredBanner -Text "Claude Code Utilities Installation Complete." -Color "Green"
 }
