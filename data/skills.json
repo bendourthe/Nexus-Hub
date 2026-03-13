@@ -5254,6 +5254,58 @@
         "semantic": 95,
         "validated": true
       }
+    },
+    {
+      "name": "run-security-audit",
+      "title": "run-security-audit",
+      "description": "Perform a comprehensive security audit and active remediation loop — scanning for exposed secrets, git hygiene failures, missing auth, unvalidated inputs, insecure installer credential handling, and dangerous code patterns, then fixing every finding until the report is clean.",
+      "long_description": "Audit the entire codebase across nine security phases (secret scanning, git hygiene, installer credential handling, input validation, authentication and authorization, dependency CVEs, configuration, SAST patterns, and report writing), save findings to docs/security/security-audit-<date>.md, then enter an iterative fix loop (--fix mode) that moves hardcoded secrets to environment variables, adds .gitignore guards, locks down unprotected routes, adds Zod/Pydantic input validation, hardens security headers, and patches CVEs — looping until no P0 or P1 findings remain. Distinct from /run-penetration-test, which is read-only; this command actually patches the code.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "Security",
+      "language": "Multi-language",
+      "tags": [
+        "security",
+        "audit",
+        "secrets",
+        "credentials",
+        "authentication",
+        "authorization",
+        "input-validation",
+        "sql-injection",
+        "xss",
+        "owasp",
+        "git-hygiene",
+        "remediation",
+        "installer-security",
+        "encryption",
+        "environment-variables"
+      ],
+      "priority": "CRITICAL",
+      "based_on": "OWASP WSTG, NIST SP 800-53, CWE Top 25",
+      "tools_required": [
+        "Read",
+        "Write",
+        "Edit",
+        "Grep",
+        "Glob",
+        "Bash"
+      ],
+      "path": "catalog/commands/",
+      "file": "catalog/commands/run-security-audit.md",
+      "size": {
+        "lines": 633,
+        "characters": 28500,
+        "tokens_estimate": 7200
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 100,
+        "validated": true
+      }
     }
   ]
 }
