@@ -11,6 +11,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.8.7] - 2026-03-16
+
+### Added
+- **`run-security-audit` Command**: New command (`catalog/commands/run-security-audit.md`) that performs a comprehensive 9-phase security audit covering secrets, git hygiene, installer security, input validation, auth/authz, dependency CVEs, configuration hardening, and dangerous code patterns; includes an active remediation loop (`--fix`) that applies fixes in P0→P3 priority order and re-audits until clean
+- **`commands-cheatsheet` Command**: New command (`catalog/commands/commands_cheatsheet.md`) that discovers all global and project slash commands, groups them by logical category, and renders a live Markdown cheatsheet table with descriptions and usage examples
+- **`update-gitignore` Command**: New command (`catalog/commands/update-gitignore.md`) that audits `.gitignore` against the codebase using a G0–G3 severity scale, identifies wrongly-tracked files and missing patterns, and applies cleanup and Git LFS recommendations after explicit user confirmation
+
+### Changed
+- **AI Instruction Templates**: Added mandatory file-access explanation rule (every Read, Glob, and Grep call must be preceded by a one-sentence plain-language explanation) to `templates/ai-instructions/base-claude.md`, `base-codex.md`, `base-gemini.md`, and all four project example CLAUDE.md files
+
+---
+
 ## [0.8.6] - 2026-03-13
 
 ### Added
@@ -2670,7 +2682,9 @@ repository_root/
 
 ---
 
-[Unreleased]: https://github.com/bdourthe/devai-hub/compare/v0.8.5...HEAD
+[Unreleased]: https://github.com/bdourthe/devai-hub/compare/v0.8.7...HEAD
+[0.8.7]: https://github.com/bdourthe/devai-hub/compare/v0.8.6...v0.8.7
+[0.8.6]: https://github.com/bdourthe/devai-hub/compare/v0.8.5...v0.8.6
 [0.8.5]: https://github.com/bdourthe/devai-hub/compare/v0.8.4...v0.8.5
 [0.8.4]: https://github.com/bdourthe/devai-hub/compare/v0.8.3...v0.8.4
 [0.8.3]: https://github.com/bdourthe/devai-hub/compare/v0.8.2...v0.8.3

@@ -6,13 +6,12 @@
 
 ---
 
-## What's New in v0.8.6
+## What's New in v0.8.7
 
-- **10 specialist agents** — Architect, code-reviewer, security-reviewer, tdd-guide, and 6 more agent definitions are now in `catalog/agents/` and installable via the Phase 4 installer step.
-- **5 new skills** — `claude-agent-sdk`, `ai-billing-safeguards`, `temporal-orchestration`, `multi-provider-ai`, and `project-layout-refactor` added to the catalog.
-- **Language rule sets** — Coding-style, security, and testing rules for Bash, Go, Python, and TypeScript in `catalog/rules/`, installable via Phase 4.
-- **Claude Code logout fix** — Removed the Windows Task Scheduler auth monitor that was racing with Claude Code's own OAuth refresh and causing multiple daily logouts.
-- **Repository layout enforced** — JSON catalog files moved to `data/` and `DEVLOG.md` moved to `docs/`, matching the documented layout rules.
+- **`/run-security-audit` command** — 9-phase security audit covering secrets, git hygiene, auth/authz, input validation, dependency CVEs, and dangerous code patterns; with an active `--fix` remediation loop that patches findings until clean.
+- **`/commands-cheatsheet` command** — Instantly renders a categorized Markdown cheatsheet of every available slash command with descriptions and usage examples.
+- **`/update-gitignore` command** — Audits `.gitignore` with G0–G3 severity ratings, proposes new patterns, removes wrongly-tracked files, and recommends Git LFS — all confirmed before any change is applied.
+- **Mandatory file-access rule** — All AI instruction templates now require a one-sentence explanation before every Read, Glob, or Grep call, keeping AI actions transparent and auditable.
 
 ---
 

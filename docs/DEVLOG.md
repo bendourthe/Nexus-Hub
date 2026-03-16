@@ -1,5 +1,16 @@
 # Development Log
 
+## [2026-03-16] - Release 0.8.7: Three New Commands and Mandatory File-Access Transparency Rule
+
+*   **Goal**: Expand the command catalog with three high-value utility commands (security audit, gitignore cleanup, and commands cheatsheet) and enforce transparent file-access behavior across all AI instruction templates.
+*   **What Changed**:
+    *   **`run-security-audit` Command**: Added `catalog/commands/run-security-audit.md` — a 9-phase static security audit (secrets, git hygiene, installer security, input validation, auth/authz, dependency CVEs, configuration hardening, dangerous code patterns) with a `--fix` active remediation loop that patches findings in P0→P3 priority order and re-audits until clean. `data/skills.json` updated with new command entry.
+    *   **`commands-cheatsheet` Command**: Added `catalog/commands/commands_cheatsheet.md` — discovers all global and project slash commands, assigns them to logical categories, and renders a live Markdown cheatsheet table with descriptions and usage examples.
+    *   **`update-gitignore` Command**: Added `catalog/commands/update-gitignore.md` — audits `.gitignore` against the full git index using a G0–G3 severity scale, identifies wrongly-tracked files and missing patterns, and applies index cleanup and Git LFS recommendations after explicit user confirmation.
+    *   **Mandatory File-Access Rule**: Added a one-sentence plain-language explanation requirement before every Read, Glob, and Grep tool call to `templates/ai-instructions/base-claude.md`, `base-codex.md`, `base-gemini.md`, and all four project example CLAUDE.md files (`examples/django-api-CLAUDE.md`, `go-microservice-CLAUDE.md`, `nextjs-saas-CLAUDE.md`, `rust-api-CLAUDE.md`).
+    *   **Version Bump**: Updated `data/templates.json`, `scripts/installer.ps1`, `scripts/installer.sh`, `docs/CATALOG-COVERAGE.md`, and `README.md` from 0.8.6 to 0.8.7.
+*   **Current Status**: Verified. All version references consistent at 0.8.7.
+
 ## [2026-03-13] - Release 0.8.6: Specialist Agents, Language Rules, Auth Logout Fix, Repo Layout Enforcement
 
 *   **Goal**: Expand the catalog with 10 specialist agents, language-specific rule sets, 5 new skills, and 4 new commands; fix the Claude Code daily logout regression caused by the auth monitor's token-refresh race condition; and enforce the documented repository layout by moving catalog files to `data/` and `DEVLOG.md` to `docs/`.
