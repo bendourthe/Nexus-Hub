@@ -11,6 +11,15 @@
         ]
       },
       {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/require-description.sh"
+          }
+        ]
+      },
+      {
         "matcher": "Write",
         "hooks": [
           {

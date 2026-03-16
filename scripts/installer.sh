@@ -269,6 +269,49 @@ install_usage_display() {
     # template (which now includes both PreToolUse and Stop hooks).
 }
 
+install_require_description() {
+    local repo_root="$1"
+    local target_claude_dir="$2"
+    local scope="$3"  # "Global" or "Workspace"
+
+    # Copy hook script
+    local hooks_dir="$target_claude_dir/hooks"
+    mkdir -p "$hooks_dir"
+    safe_copy "$repo_root/catalog/hooks/require-description.sh" "$hooks_dir/require-description.sh" true "✓ $scope require-description hook installed at: $hooks_dir"
+    chmod +x "$hooks_dir/require-description.sh" 2>/dev/null || true
+
+    # Merge hook config into settings.json
+    local settings_file="$target_claude_dir/settings.json"
+
+    if [ ! -f "$settings_file" ]; then
+        # install_git_guardrails will create it from the template (which includes require-description)
+        return
+    fi
+
+    # Check if require-description already installed
+    if grep -q "require-description" "$settings_file" 2>/dev/null; then
+        write_item "✓ Require-description hook already configured in settings.json" "$GREEN"
+        return
+    fi
+
+    # Merge using jq if available
+    if command -v jq >/dev/null 2>&1; then
+        local merged
+        merged=$(jq '.hooks.PreToolUse |= (. + [{"matcher": "Bash", "hooks": [{"type": "command", "command": "bash .claude/hooks/require-description.sh"}]}])' "$settings_file" 2>/dev/null)
+
+        if [ -n "$merged" ]; then
+            echo "$merged" > "$settings_file"
+            write_item "✓ $scope settings.json updated with require-description hook" "$GREEN"
+        else
+            write_item "Warning: Could not merge require-description hook into settings.json" "$YELLOW"
+            write_item "  You may need to manually add the Bash PreToolUse hook for require-description.sh" "$YELLOW"
+        fi
+    else
+        write_item "Warning: jq not found, cannot merge settings.json automatically" "$YELLOW"
+        write_item "  Please manually add the Bash PreToolUse hook for require-description.sh" "$YELLOW"
+    fi
+}
+
 # --- Install Functions ---
 
 install_global() {
@@ -333,6 +376,9 @@ install_global() {
 
     # Usage Display Hook
     install_usage_display "$repo_root" "$global_claude" "Global"
+
+    # Require Description Hook
+    install_require_description "$repo_root" "$global_claude" "Global"
 
     # 2. Gemini / Antigravity
     write_header "GEMINI"
@@ -700,6 +746,9 @@ install_workspace() {
 
         # Usage Display Hook
         install_usage_display "$repo_root" "$claude_dir" "Workspace"
+
+        # Require Description Hook
+        install_require_description "$repo_root" "$claude_dir" "Workspace"
 
         # 2. Gemini / Antigravity
         write_header "GEMINI"

@@ -475,6 +475,80 @@ function Install-UsageDisplay {
     }
 }
 
+function Install-RequireDescription {
+    param(
+        [string]$RepoRoot,
+        [string]$TargetClaudeDir,
+        [string]$Scope  # "Global" or "Workspace"
+    )
+
+    # Copy hook script
+    $hooksDir = Join-Path $TargetClaudeDir "hooks"
+    if (-not (Test-Path $hooksDir)) { New-Item -ItemType Directory -Force -Path $hooksDir | Out-Null }
+    Safe-Copy -Source "$RepoRoot\catalog\hooks\require-description.sh" -Destination (Join-Path $hooksDir "require-description.sh") -Confirm:$true -CustomMessage "✓ $Scope require-description hook installed at: $hooksDir"
+
+    # Merge hook config into settings.json
+    $settingsFile = Join-Path $TargetClaudeDir "settings.json"
+
+    if (-not (Test-Path $settingsFile)) {
+        # Install-GitGuardrails will create it from the template (which includes require-description)
+        return
+    }
+
+    try {
+        $existingJson = Get-Content $settingsFile -Raw | ConvertFrom-Json
+
+        # Check if require-description already installed
+        $alreadyInstalled = $false
+        if ($existingJson.hooks -and $existingJson.hooks.PreToolUse) {
+            foreach ($hookEntry in $existingJson.hooks.PreToolUse) {
+                foreach ($h in $hookEntry.hooks) {
+                    if ($h.command -and $h.command -like "*require-description*") {
+                        $alreadyInstalled = $true
+                        break
+                    }
+                }
+            }
+        }
+
+        if ($alreadyInstalled) {
+            Write-Item -Message "✓ Require-description hook already configured in settings.json" -Color "DarkGreen"
+        }
+        else {
+            $newEntry = [PSCustomObject]@{
+                matcher = "Bash"
+                hooks   = @(
+                    [PSCustomObject]@{
+                        type    = "command"
+                        command = "bash .claude/hooks/require-description.sh"
+                    }
+                )
+            }
+
+            if (-not $existingJson.hooks) {
+                $existingJson | Add-Member -NotePropertyName "hooks" -NotePropertyValue ([PSCustomObject]@{ PreToolUse = @($newEntry) })
+            }
+            else {
+                if (-not $existingJson.hooks.PreToolUse) {
+                    $existingJson.hooks | Add-Member -NotePropertyName "PreToolUse" -NotePropertyValue @($newEntry)
+                }
+                else {
+                    $existingArray = @($existingJson.hooks.PreToolUse)
+                    $existingArray += $newEntry
+                    $existingJson.hooks.PreToolUse = $existingArray
+                }
+            }
+
+            $existingJson | ConvertTo-Json -Depth 10 | Set-Content $settingsFile -Encoding UTF8
+            Write-Item -Message "✓ $Scope settings.json updated with require-description hook" -Color "DarkGreen"
+        }
+    }
+    catch {
+        Write-Item -Message "Warning: Could not merge require-description hook into settings.json ($($_.Exception.Message))" -Color "Yellow"
+        Write-Item -Message "  You may need to manually add the Bash PreToolUse hook for require-description.sh" -Color "Yellow"
+    }
+}
+
 # --- Install Functions ---
 
 function Install-Global {
@@ -537,6 +611,9 @@ function Install-Global {
 
         # Usage Display Hook
         Install-UsageDisplay -RepoRoot $RepoRoot -TargetClaudeDir $globalClaude -Scope "Global"
+
+        # Require Description Hook
+        Install-RequireDescription -RepoRoot $RepoRoot -TargetClaudeDir $globalClaude -Scope "Global"
     }
 
     # 2. Gemini / Antigravity
@@ -876,6 +953,9 @@ function Install-Workspace {
 
             # Usage Display Hook
             Install-UsageDisplay -RepoRoot $RepoRoot -TargetClaudeDir $claudeDir -Scope "Workspace"
+
+            # Require Description Hook
+            Install-RequireDescription -RepoRoot $RepoRoot -TargetClaudeDir $claudeDir -Scope "Workspace"
         }
 
         # 2. Gemini / Antigravity
