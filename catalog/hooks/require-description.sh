@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
 # require-description.sh - PreToolUse Hook for Claude Code
-# Advisory hook: reminds the model to describe Bash commands before execution.
+# Blocks Bash commands that lack a description block.
 #
 # Preferred behavior (direct conversation):
-#   Claude outputs a plain-text sentence in the chat BEFORE the tool call.
-#   The sentence appears in regular font; the command appears in the approval dialog.
+#   Claude outputs a plain-text sentence in the chat BEFORE the tool call,
+#   AND prefixes the command with the bordered description block.
 #
-# Fallback behavior (subagents / automated contexts):
-#   Claude includes "# ─── Description: ... ───" as the first line of the command.
+# Required behavior (all contexts including subagents):
+#   The command must begin with a bordered description block:
+#     # ------------------------------- Description ------------------------------- #
+#     # <one sentence>
+#     # --------------------------------------------------------------------------- #
 #
-# This hook warns (exit 0) when neither is detectable — it never blocks.
-# It cannot detect preceding chat output, so it only checks for the comment fallback.
-#
-# Part of DevAI-Hub
+# This hook blocks (exit 2) when no description block is detected.
 #
 # Part of DevAI-Hub
 
@@ -37,30 +37,38 @@ fi
 # --- Strip leading blank lines to find the first real line ---
 FIRST_LINE=$(printf '%s' "$COMMAND" | sed '/^[[:space:]]*$/d' | head -1)
 
-# --- Check for description comment (both formats accepted) ---
-# New format: # ─── Description: <text> ───
-# Legacy format: # Description: <text>
-if printf '%s' "$FIRST_LINE" | grep -qiE '^[[:space:]]*#.*description[[:space:]]*:'; then
+# --- Check for description block (all accepted formats) ---
+# New bordered format:  # ------------------------------- Description ------------------------------- #
+# Legacy single-line:   # ─── Description: <text> ───
+# Legacy plain:         # Description: <text>
+if printf '%s' "$FIRST_LINE" | grep -qi '^[[:space:]]*#.*Description'; then
   exit 0
 fi
 
-# --- Warn (advisory only — do not block) ---
-MSG="ADVISORY: No description detected for this command.
+# --- Block and instruct the model to reformat ---
+MSG="BLOCKED: Missing required description block.
 
-Preferred: output a plain-text sentence in the chat BEFORE this tool call.
-Fallback (subagents / automated contexts): add a description comment as line 1.
+Every Bash command must begin with a bordered description block.
+This block is visible in the approval dialog and documents intent before execution.
+Bash ignores lines starting with # so the block has no runtime effect.
 
-Fallback format:
-  # ─── Description: <one sentence — what the command does and its impact> ───
+Format:
+  # ------------------------------- Description ------------------------------- #
+  # <one sentence — what the command does and its impact>
+  # --------------------------------------------------------------------------- #
   <your command>
 
 Example:
-  # ─── Description: Lists all agent config files under the project directory ───
-  find /c/Users/BEDOURTHE/.claude -type f -name '*.md'"
+  # ------------------------------- Description ------------------------------- #
+  # Lists all agent config files under the project directory
+  # --------------------------------------------------------------------------- #
+  find /c/Users/BEDOURTHE/.claude -type f -name '*.md'
 
-# Send advisory to stdout (visible to the model) and stderr (visible in terminal)
+Rewrite your command with this block as the first 3 lines, then retry."
+
+# Send to stdout so the model receives the blocking reason and can retry
 printf '%s\n' "$MSG"
+# Also send to stderr so the user sees it in the terminal
 printf '%s\n' "$MSG" >&2
 
-# Exit 0: allow the command to proceed
-exit 0
+exit 2

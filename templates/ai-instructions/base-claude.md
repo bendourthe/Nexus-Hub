@@ -36,7 +36,7 @@
 - Find root causes; no temporary fixes
 - Destructive git commands require user confirmation (enforced by git-guardrails hook)
 - Never add `Co-Authored-By` lines, AI attribution footers, or AI-generated signatures to commit messages
-- **MANDATORY (two-tier): Before every Bash, Cmd, or PowerShell tool call, output a plain-text sentence in the chat describing what the command does and its impact.** This sentence appears in regular font above the approval dialog. In subagent or automated contexts where chat output is not possible, use `# ─── Description: <one sentence> ───` as the first line of the command instead. The `require-description.sh` hook will warn (not block) if the fallback comment is also absent.
+- **MANDATORY**: Every Bash, Cmd, or PowerShell command must begin with a bordered description block: `# ------------------------------- Description ------------------------------- #` on line 1, `# <description padded with trailing spaces to make the total line exactly 79 chars> #` on lines 2+ (if the description exceeds 75 characters, wrap across multiple lines at the same format, each exactly 79 chars wide), then `# --------------------------------------------------------------------------- #` on the closing line. Do not output a separate text sentence before the command — the block alone is sufficient. The `require-description.sh` hook blocks commands that omit this block.
 - **MANDATORY: Every Read, Glob, and Grep tool call MUST be preceded by a one-sentence plain-language explanation** of what file or path is being accessed and why. No exceptions.
 - Ask clarifying questions before coding if requirements are ambiguous
 

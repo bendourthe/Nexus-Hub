@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { UsageData, formatModelName, is1MContext, baseModelId } from "./types";
+import { UsageData, formatModelName } from "./types";
 import { FetchError, UsageFetcher } from "./usageFetcher";
 import {
   getRecommendation,
@@ -150,21 +150,11 @@ export class DashboardPanel {
       `);
     }
 
-    const is1MModel = is1MContext(data.currentModel);
-    const extraCreditsBanner = is1MModel
-      ? `<div class="info-banner">
-          <span class="info-icon">&#9432;</span>
-          <span>1M context models use <strong>extra credits</strong> instead of your standard usage allowance.
-          Switch to ${escapeHtml(formatModelName(baseModelId(data.currentModel)))} for standard usage.</span>
-        </div>`
-      : "";
-
     const recommendation = getRecommendation(data);
     const sourceLabel = data.dataSource === "api" ? "Auto-fetched" : "Manually entered";
 
     return this.wrapHtml(`
       ${errorBanner}
-      ${extraCreditsBanner}
       <h2>Claude Usage Dashboard</h2>
 
       <div class="section">

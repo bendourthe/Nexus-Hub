@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { UsageData, UrgencyLevel, is1MContext } from "./types";
+import { UsageData, UrgencyLevel } from "./types";
 import { getOverallUrgency } from "./recommendations";
 import { UsageStore } from "./usageStore";
 
@@ -159,17 +159,12 @@ export class StatusBarManager {
       ? `<span style="color:#cca700">&#9888; Data may be stale (last updated ${timeSince})</span><br><br>`
       : "";
 
-    const is1MWarning = is1MContext(data.currentModel)
-      ? `<br><span style="color:#cca700">&#9432; 1M context uses extra credits</span>`
-      : "";
-
     md.appendMarkdown(
       `<span style="opacity:0.6">Claude Usage</span><br><br>` +
       staleWarning +
       section("Current Session", data.session.percent, data.session.resetsIn) +
       section("Weekly Limits", data.weeklyAllModels.percent, data.weeklyAllModels.resetsIn) +
       section("Sonnet only", data.weeklySonnet.percent, data.weeklySonnet.resetsIn) +
-      is1MWarning +
       `<span style="opacity:0.6">Last updated: ${timeSince}</span>`
     );
 
