@@ -28,7 +28,7 @@
 ## Working Conventions
 - Verify solutions work before claiming completion
 - Find root causes; no temporary fixes
-- **MANDATORY**: Every Bash, Cmd, or PowerShell command must begin with a bordered description block: `# ------------------------------- Description ------------------------------- #` on line 1, `# <description padded with trailing spaces to make the total line exactly 79 chars> #` on lines 2+ (if the description exceeds 75 characters, wrap across multiple lines at the same format, each exactly 79 chars wide), then `# --------------------------------------------------------------------------- #` on the closing line. Do not output a separate text sentence before the command — the block alone is sufficient.
+- **MANDATORY**: Every Bash, Cmd, or PowerShell command must begin with a bordered description block: `# ------------------------------------- Description ------------------------------------- #` on line 1, `# <description text — no padding required; if the text is long, continue on additional `# <text>` lines>, then `# --------------------------------------------------------------------------------------- #` on the closing line. Do not output a separate text sentence before the command — the block alone is sufficient.
 - **MANDATORY: Every Read, Glob, and Grep tool call MUST be preceded by a one-sentence plain-language explanation** of what file or path is being accessed and why. No exceptions.
 - Never add `Co-Authored-By` lines, AI attribution footers, or AI-generated signatures to commit messages
 - Place punctuation outside quotation marks; no em-dashes
