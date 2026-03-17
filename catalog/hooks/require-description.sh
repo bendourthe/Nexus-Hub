@@ -1,12 +1,18 @@
 #!/usr/bin/env bash
 # require-description.sh - PreToolUse Hook for Claude Code
-# Requires every Bash command to begin with a "# Description: ..." comment.
-# The comment is visible in the approval dialog and documents intent before execution.
+# Advisory hook: reminds the model to describe Bash commands before execution.
 #
-# How it works:
-#   Claude Code pipes JSON to stdin before each Bash tool call.
-#   This script extracts the command, checks that the first non-empty
-#   line is a "# Description:" comment, and exits 0 (allow) or 2 (block).
+# Preferred behavior (direct conversation):
+#   Claude outputs a plain-text sentence in the chat BEFORE the tool call.
+#   The sentence appears in regular font; the command appears in the approval dialog.
+#
+# Fallback behavior (subagents / automated contexts):
+#   Claude includes "# ─── Description: ... ───" as the first line of the command.
+#
+# This hook warns (exit 0) when neither is detectable — it never blocks.
+# It cannot detect preceding chat output, so it only checks for the comment fallback.
+#
+# Part of DevAI-Hub
 #
 # Part of DevAI-Hub
 
@@ -31,31 +37,30 @@ fi
 # --- Strip leading blank lines to find the first real line ---
 FIRST_LINE=$(printf '%s' "$COMMAND" | sed '/^[[:space:]]*$/d' | head -1)
 
-# --- Check for # Description: prefix (case-insensitive) ---
-if printf '%s' "$FIRST_LINE" | grep -qiE '^[[:space:]]*#[[:space:]]*description[[:space:]]*:'; then
+# --- Check for description comment (both formats accepted) ---
+# New format: # ─── Description: <text> ───
+# Legacy format: # Description: <text>
+if printf '%s' "$FIRST_LINE" | grep -qiE '^[[:space:]]*#.*description[[:space:]]*:'; then
   exit 0
 fi
 
-# --- Block and instruct the model to reformat ---
-MSG="BLOCKED: Missing required description comment.
+# --- Warn (advisory only — do not block) ---
+MSG="ADVISORY: No description detected for this command.
 
-Every Bash command must start with a '# Description:' comment as its first line.
-This comment is visible in the approval dialog and documents intent before execution.
-Bash ignores lines starting with # so the comment has no runtime effect.
+Preferred: output a plain-text sentence in the chat BEFORE this tool call.
+Fallback (subagents / automated contexts): add a description comment as line 1.
 
-Format:
-  # Description: <one sentence — what the command does and its impact>
+Fallback format:
+  # ─── Description: <one sentence — what the command does and its impact> ───
   <your command>
 
 Example:
-  # Description: Lists all agent config files under the project directory
-  find /c/Users/BEDOURTHE/.claude -type f -name '*.md'
+  # ─── Description: Lists all agent config files under the project directory ───
+  find /c/Users/BEDOURTHE/.claude -type f -name '*.md'"
 
-Rewrite your command with this comment as line 1, then retry."
-
-# Send to stdout so the model receives the blocking reason and can retry
+# Send advisory to stdout (visible to the model) and stderr (visible in terminal)
 printf '%s\n' "$MSG"
-# Also send to stderr so the user sees it in the terminal
 printf '%s\n' "$MSG" >&2
 
-exit 2
+# Exit 0: allow the command to proceed
+exit 0
