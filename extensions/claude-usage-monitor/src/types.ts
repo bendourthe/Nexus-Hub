@@ -97,7 +97,7 @@ export function formatModelName(modelId: string): string {
   const base = modelId.replace(/\[.*?\]/g, "").trim();
   let family: string;
   if (/^default$/i.test(base)) {
-    family = "Default (Sonnet)";
+    family = "Default (Opus 1M)";
   } else if (/opus/i.test(base)) {
     family = "Opus";
   } else if (/sonnet/i.test(base)) {

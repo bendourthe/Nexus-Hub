@@ -142,7 +142,7 @@ export class UsageFetcher {
               } catch {
                 return { success: false, error: { code: "parse-error" } };
               }
-              return { success: true, data: this.mapApiResponse(apiData, currentModel ?? "claude-sonnet-4-6") };
+              return { success: true, data: this.mapApiResponse(apiData, currentModel ?? "claude-opus-4-6[1m]") };
             }
             // Retry also failed — fall through to rate-limited
           } catch {
@@ -180,7 +180,7 @@ export class UsageFetcher {
 
     return {
       success: true,
-      data: this.mapApiResponse(apiData, currentModel ?? "claude-sonnet-4-6"),
+      data: this.mapApiResponse(apiData, currentModel ?? "claude-opus-4-6[1m]"),
     };
   }
 
