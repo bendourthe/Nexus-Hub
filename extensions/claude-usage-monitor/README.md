@@ -9,7 +9,7 @@ A VS Code extension that automatically monitors your Claude Code API usage limit
 - **SVG tooltip**: Hover for theme-aware progress bars showing per-metric breakdown with reset timers
 - **Dashboard panel**: Click for a full usage dashboard with model recommendations and optimization tips
 - **Manual fallback**: Enter usage data manually when API credentials are unavailable
-- **Auto-refresh**: Configurable interval (default 15 min) to keep data current
+- **Auto-refresh**: Configurable interval (default 10 min) to keep data current
 
 ## Setup
 
@@ -50,7 +50,7 @@ $(claude-icon) Claude Usage: 12% (current) 5% (week)
 ```
 
 - The extension auto-fetches usage data on startup using your Claude OAuth credentials
-- **Hover** for a detailed SVG tooltip with progress bars for each metric (session, weekly all-models, weekly Sonnet-only) and reset timers
+- **Hover** for a detailed SVG tooltip with progress bars for each metric (session, weekly all-models, weekly Sonnet-only, weekly Opus, extra credits) and reset timers
 - **Click** to open the full usage dashboard panel
 
 The status bar background changes color based on urgency:
@@ -66,7 +66,6 @@ Open the Command Palette (`Ctrl+Shift+P`) and search:
 |---|---|
 | `Claude Usage: Dashboard` | Open the full usage dashboard panel |
 | `Claude Usage: Refresh` | Fetch latest usage data from the API |
-| `Claude Usage: Manual Update` | Enter usage percentages manually |
 | `Claude Usage: Recommend Model` | View model recommendation and tips |
 | `Claude Usage: Clear Data` | Reset all stored usage data |
 
@@ -76,9 +75,8 @@ Open Settings (`Ctrl+,`) and search "Claude Usage":
 
 | Setting | Default | Description |
 |---|---|---|
-| `claudeUsage.currentModel` | `opus-4.6` | Your default Claude model |
 | `claudeUsage.autoFetch` | `true` | Auto-fetch usage data from Claude API on startup and at intervals |
-| `claudeUsage.refreshInterval` | `15` | Minutes between automatic usage data refreshes (5-120) |
+| `claudeUsage.refreshInterval` | `10` | Minutes between automatic usage data refreshes (5-120) |
 | `claudeUsage.showInStatusBar` | `true` | Show/hide the status bar item |
 
 ## How It Works
@@ -95,7 +93,7 @@ anthropic-beta: oauth-2025-04-20
 
 The API returns `five_hour` (session), `seven_day` (weekly all-models), `seven_day_sonnet`, `seven_day_opus`, and `extra_usage` fields, each with `utilization` (0-100) and `resets_at` (ISO 8601 timestamp).
 
-If credentials are missing or expired, the extension falls back gracefully and you can use `Claude Usage: Manual Update` instead.
+If credentials are missing or expired, the extension falls back gracefully to cached data.
 
 ### Model Recommendations
 

@@ -2,7 +2,7 @@
 **Production-Grade Brain Upgrades for Your AI Coding Assistant**
 
 > **Turn generic AI into a Senior Engineer.**
-> One-click setup for Claude Code (Anthropic), Gemini (Google), and GitHub Copilot (Microsoft).
+> One-click setup for Claude Code (Anthropic), Gemini (Google), GitHub Copilot (Microsoft), and Codex (OpenAI).
 
 ---
 
@@ -28,7 +28,7 @@ Don't want to copy-paste files manually? We made an installer.
 5.  **(Optional) Select a project** to configure workspace-specific rules.
 
 **Done.**
-*   **Globally**: Your user profile now has all 134 Claude Skills and Gemini instructions.
+*   **Globally**: Your user profile now has all 162 Claude Skills, 29 Commands, 11 Hooks, 10 Agents, and Gemini instructions.
 *   **Locally**: Your project has `copilot-instructions.md` tailored to your language.
 
 ---
