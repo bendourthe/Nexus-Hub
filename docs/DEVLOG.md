@@ -1,5 +1,18 @@
 # Development Log
 
+## [2026-03-20] - Release 0.8.8: Specialist Skills Expansion and Full Catalog Sync
+
+*   **Goal**: Expand the skills catalog with 20 new specialist skills, enforce transparent Bash commands via the `require-description` hook, and fully synchronize all documentation and `skills.json` with the 162 on-disk skills.
+*   **What Changed**:
+    *   **`require-description` Hook**: Added `catalog/hooks/require-description.sh` (PreToolUse) that enforces bordered description blocks on all Bash, Cmd, and PowerShell commands; blocks execution (exit 2) when the block is absent. Standardized to wider no-pad format in a follow-up refactor.
+    *   **20 New Specialist Skills**: Added language specialists (C++, C#, Java, JavaScript, PowerShell, Python, TypeScript) in `catalog/skills/language-specialists/`, infrastructure specialists (Azure infra engineer, network engineer, platform engineer, SRE engineer) in `catalog/skills/infrastructure/`, orchestration (error-coordinator, multi-agent-coordinator) in `catalog/skills/orchestration/`, business-product (business-analyst, scrum-master, product-manager, technical-writer) in `catalog/skills/business-product/`, and fintech-engineer in `catalog/skills/specialized-domains/`.
+    *   **18 Category READMEs**: Added README.md files to every `catalog/skills/` subdirectory with skill listings and descriptions.
+    *   **Skills Catalog Rebuilt**: `data/skills.json` rebuilt to match all 162 on-disk skills — added 7 missing entries, removed 4 misplaced command entries, sorted by category then name.
+    *   **Documentation Sync**: Rewrote `catalog/skills/README.md` (47 to 162 skills, 8 to 20 categories). Updated root `README.md` (134 to 162 skills, added Codex support). Fixed `extensions/claude-usage-monitor/README.md` (corrected defaults, removed ghost settings). Added `CONTRIBUTING.md`.
+    *   **Usage Monitor Fix**: Default model updated from Sonnet to Opus 4.6 in usage-display hook.
+    *   **Version Bump**: Updated `data/templates.json`, `data/skills.json`, `scripts/installer.ps1`, `scripts/installer.sh`, `docs/CATALOG-COVERAGE.md`, `catalog/skills/README.md`, and `README.md` from 0.8.7 to 0.8.8.
+*   **Current Status**: Verified. All version references consistent at 0.8.8.
+
 ## [2026-03-16] - Release 0.8.7: Three New Commands and Mandatory File-Access Transparency Rule
 
 *   **Goal**: Expand the command catalog with three high-value utility commands (security audit, gitignore cleanup, and commands cheatsheet) and enforce transparent file-access behavior across all AI instruction templates.

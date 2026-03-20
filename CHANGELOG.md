@@ -11,6 +11,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.8.8] - 2026-03-20
+
+### Added
+- **`require-description` Hook**: New PreToolUse hook (`catalog/hooks/require-description.sh`) that enforces bordered description blocks on all Bash, Cmd, and PowerShell commands; blocks execution (exit 2) when the block is absent
+- **20 New Specialist Skills**: Language specialists (C++, C#, Java, JavaScript, PowerShell, Python, TypeScript), infrastructure (Azure infra engineer, network engineer, platform engineer, SRE engineer), orchestration (error-coordinator, multi-agent-coordinator), business-product (business-analyst, scrum-master, product-manager, technical-writer), and specialized-domains (fintech-engineer)
+- **18 Category README Files**: Every `catalog/skills/` subdirectory now has a README with skill listings and descriptions
+- **`CONTRIBUTING.md`**: New contribution guide covering skills, commands, hooks, agents, and templates
+- **Codex Subagents Comparison Report**: Added `docs/v0.8.7/comparison-awesome-codex-subagents.md`
+
+### Changed
+- **Skills Catalog Rebuilt**: `data/skills.json` rebuilt to match all 162 on-disk skills (added 7 missing entries, removed 4 misplaced command entries, sorted by category then name)
+- **Documentation Synced**: Updated `catalog/skills/README.md` (47 to 162 skills, 8 to 20 categories), root `README.md` (134 to 162 skills, added Codex support and component counts), and `extensions/claude-usage-monitor/README.md` (corrected defaults and removed ghost settings)
+- **Hook Format**: Standardized description-block hook to wider no-pad format
+
+### Fixed
+- **Usage Monitor**: Default model updated from Sonnet to Opus 4.6
+- **Extension README**: Corrected refresh interval default (15 to 10 min), removed non-existent `currentModel` setting and `Manual Update` command
+- **Root README**: Skill count corrected from 134 to 162 with component counts (29 Commands, 11 Hooks, 10 Agents)
+
+---
+
 ## [0.8.7] - 2026-03-16
 
 ### Added
@@ -2682,7 +2703,8 @@ repository_root/
 
 ---
 
-[Unreleased]: https://github.com/bdourthe/devai-hub/compare/v0.8.7...HEAD
+[Unreleased]: https://github.com/bdourthe/devai-hub/compare/v0.8.8...HEAD
+[0.8.8]: https://github.com/bdourthe/devai-hub/compare/v0.8.7...v0.8.8
 [0.8.7]: https://github.com/bdourthe/devai-hub/compare/v0.8.6...v0.8.7
 [0.8.6]: https://github.com/bdourthe/devai-hub/compare/v0.8.5...v0.8.6
 [0.8.5]: https://github.com/bdourthe/devai-hub/compare/v0.8.4...v0.8.5

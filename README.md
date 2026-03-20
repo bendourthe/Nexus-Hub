@@ -6,12 +6,12 @@
 
 ---
 
-## What's New in v0.8.7
+## What's New in v0.8.8
 
-- **`/run-security-audit` command** — 9-phase security audit covering secrets, git hygiene, auth/authz, input validation, dependency CVEs, and dangerous code patterns; with an active `--fix` remediation loop that patches findings until clean.
-- **`/commands-cheatsheet` command** — Instantly renders a categorized Markdown cheatsheet of every available slash command with descriptions and usage examples.
-- **`/update-gitignore` command** — Audits `.gitignore` with G0–G3 severity ratings, proposes new patterns, removes wrongly-tracked files, and recommends Git LFS — all confirmed before any change is applied.
-- **Mandatory file-access rule** — All AI instruction templates now require a one-sentence explanation before every Read, Glob, or Grep call, keeping AI actions transparent and auditable.
+- **20 new specialist skills** — Language specialists (C++, C#, Java, JavaScript, PowerShell, Python, TypeScript), infrastructure (Azure, network, platform, SRE), orchestration (error-coordinator, multi-agent-coordinator), business-product, and fintech-engineer.
+- **`require-description` hook** — Enforces bordered description blocks on all Bash commands, keeping AI tool calls transparent and auditable.
+- **Skills catalog fully synced** — `skills.json` rebuilt to match all 162 on-disk skills; 18 category README files added; documentation updated across the board.
+- **Usage monitor fix** — Default model updated from Sonnet to Opus 4.6; extension README corrected for refresh interval, removed ghost settings.
 
 ---
 

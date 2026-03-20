@@ -499,7 +499,7 @@ These advisory fields are stored in `data/skills.json` entries, not in SKILL.md 
 
 ## Version
 
-- **Collection Version**: 0.8.7
+- **Collection Version**: 0.8.8
 - **Last Updated**: March 2026
 - **Author**: Benjamin Dourthe
 
