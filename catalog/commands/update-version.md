@@ -1,15 +1,19 @@
 ---
-description: Guide the user through a comprehensive version upgrade following semantic versioning.
+description: Guide the user through a comprehensive version upgrade following semantic versioning, including project cleanup, layout refactoring, gitignore audit, documentation sync, and changelog generation.
 ---
 # Update Version Command
 
-Guide the user through a comprehensive version upgrade following semantic versioning.
+Guide the user through a comprehensive version upgrade following semantic versioning. This command acts as a release preparation orchestrator: it cleans up the project structure, audits tracked files, bumps the version, updates all documentation, and validates consistency before producing a ready-to-commit result.
 
 ## Instructions
 
-You are helping the user upgrade their project version. Follow these steps systematically.
+You are helping the user prepare a release. Follow these phases systematically. Each phase builds on the previous one; do not skip phases unless explicitly noted.
 
-### Step 1: Determine Target Version
+---
+
+## Phase A: Analysis and Planning (read-only, no changes yet)
+
+### Step A1: Determine Target Version
 
 Accept one of:
 - **Version type**: "PATCH", "MINOR", or "MAJOR"
@@ -30,7 +34,7 @@ Or specify a direct version number (e.g., "0.2.2")
 
 If user specifies a direct version, use that. If they specify a type, calculate the new version.
 
-### Step 2: Identify Current Version
+### Step A2: Identify Current Version
 
 Find the current version in the project:
 
@@ -50,7 +54,7 @@ git describe --tags --abbrev=0
 
 Tell the user: "Current version found: X.Y.Z. New version will be: A.B.C"
 
-### Step 3: Analyze Git Changes (Auto-Analysis)
+### Step A3: Analyze Git Changes (Auto-Analysis)
 
 **IMPORTANT**: Automatically analyze changes since the last release. Do NOT ask the user to describe changes.
 
@@ -72,7 +76,7 @@ git diff {last_tag}..HEAD --stat
 
 4. Generate proposed CHANGELOG entries from this analysis.
 
-### Step 4: Present Proposed Changes
+### Step A4: Present Proposed Changes
 
 Show the user the auto-generated CHANGELOG entries:
 
@@ -96,7 +100,86 @@ Ask: "Does this accurately reflect the changes? I can adjust any entries before 
 
 Wait for user confirmation before continuing.
 
-### Step 5: Update Configuration Files
+---
+
+## Phase B: Cleanup and Housekeeping (structural changes, pre-version-bump)
+
+These steps ensure the project structure and git tracking are clean before the version bump. This prevents the release commit from including misplaced files or artifacts.
+
+### Step B1: Refactor Project Layout
+
+Run the full `/refactor-project-layout` workflow to audit the root directory against declared layout rules and move misplaced files to their correct locations.
+
+**Process** (follows the refactor-project-layout command):
+
+1. **Load layout rules** from `CLAUDE.md`, `GEMINI.md`, or user global defaults.
+2. **Inventory root files** and classify each as Stay, Move, or Ambiguous.
+3. **Impact analysis**: For every file that will move, find all references across the codebase. Map old paths to new paths.
+4. **Present the refactor plan** to the user. Wait for explicit approval before moving any files.
+5. **Execute**: Move files, update all references, verify moves completed correctly.
+
+If no files need moving (layout is already clean), explicitly state this and proceed to B2.
+
+**Skip condition**: If the user says "skip layout refactor" or the project has no declared layout rules, skip this step.
+
+### Step B2: Verify Refactor Integrity
+
+After any file moves in B1, verify that nothing is broken:
+
+1. **Build/test check**: If the project defines build or test commands (in `CLAUDE.md` Key Commands, `package.json` scripts, `pyproject.toml`, `Makefile`, etc.), run them and confirm they pass.
+2. **Script executability**: For shell scripts (`.sh`, `.bash`) and PowerShell scripts (`.ps1`) that were moved or had references updated, confirm they exist at the new path and have correct permissions.
+3. **Internal link validation**: Scan all Markdown files for relative links (`](path)`, `](./path)`) and confirm each target file exists.
+4. **Import/require resolution**: For source code files that had path references updated, verify the imports or requires still resolve (language-dependent: check Python imports, JS/TS requires, Go imports, etc.).
+5. **Installer dry-run**: If the project has installers (`install.sh`, `install.bat`, `installer.ps1`), run a dry-run or syntax check to confirm they are not broken.
+
+**If any check fails**: Stop, report the failure with the specific file and error, fix the broken reference, and re-verify before proceeding.
+
+If B1 was skipped (no files moved), skip B2 as well.
+
+### Step B3: Update .gitignore
+
+Run the full `/update-gitignore --fix` workflow to audit tracked files and clean up the git index. The `--fix` flag tells the sub-command to apply approved changes automatically rather than producing a report-only audit.
+
+**Process** (follows the update-gitignore command):
+
+1. **Codebase fingerprinting**: Detect languages, frameworks, and build tools.
+2. **Audit current `.gitignore`**: Compare existing patterns against recommended patterns for the detected stack.
+3. **Tracked file analysis**: Identify files that should not be tracked (secrets G0, build artifacts G1, IDE/OS metadata G2, LFS candidates G3).
+4. **Untracked file analysis**: Identify untracked files that need ignore patterns.
+5. **Present findings** with severity classification.
+6. **Apply fixes** after user approval: Add missing `.gitignore` patterns, run `git rm --cached` for wrongly-tracked files.
+
+If the `.gitignore` is already comprehensive and no wrongly-tracked files are found, explicitly state this and proceed.
+
+**Skip condition**: If the user says "skip gitignore audit", skip this step.
+
+### User Confirmation Gate (after Phase B)
+
+After completing B1-B3, present a summary of all structural changes:
+
+```markdown
+## Phase B Summary: Cleanup Complete
+
+### Layout Refactor
+- Files moved: X (list each: old → new)
+- References updated: Y (across Z files)
+- Verification: PASSED / FAILED [details]
+
+### Gitignore Audit
+- Patterns added: X
+- Files removed from index: Y
+- Severity breakdown: G0: _, G1: _, G2: _, G3: _
+
+Proceed to version bump?
+```
+
+Wait for explicit user approval before continuing to Phase C.
+
+---
+
+## Phase C: Version Bump (the core version change)
+
+### Step C1: Update Configuration Files
 
 Update the version in all config files:
 
@@ -118,26 +201,15 @@ version = "NEW_VERSION"
 __version__ = "NEW_VERSION"
 ```
 
-### Step 6: Update README.md
+Update all locations identified in Step A2.
 
-Update version references in README:
-
-```markdown
-# Project Name - vNEW_VERSION
-
-## What's New
-- [Key highlights from CHANGELOG]
-```
-
-Use the top 3-5 most significant items from the CHANGELOG for "What's New".
-
-### Step 7: Update CHANGELOG.md
+### Step C2: Update CHANGELOG.md
 
 Update the changelog following the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format:
 
 1. **If an `[Unreleased]` section exists**: Convert it to the new version header `## [NEW_VERSION] - YYYY-MM-DD` and create a fresh empty `[Unreleased]` section above it.
 2. **If no `[Unreleased]` section exists**: Insert the new version entry below the file header.
-3. Use the approved content from Step 4 for the entry body.
+3. Use the approved content from Step A4 for the entry body.
 4. Only include category subsections (`### Added`, `### Changed`, `### Fixed`, `### Removed`) that have entries. Do not include empty sections.
 5. Add `---` horizontal rules between version sections for readability.
 6. **Update footer comparison links** (if the project uses GitHub):
@@ -152,13 +224,13 @@ Update the changelog following the [Keep a Changelog](https://keepachangelog.com
 ## [NEW_VERSION] - YYYY-MM-DD
 
 ### Added
-- [Features from Step 4]
+- [Features from Step A4]
 
 ### Changed
-- [Modifications from Step 4]
+- [Modifications from Step A4]
 
 ### Fixed
-- [Bug fixes from Step 4]
+- [Bug fixes from Step A4]
 
 ---
 
@@ -174,57 +246,20 @@ Update the changelog following the [Keep a Changelog](https://keepachangelog.com
 
 Use today's date in YYYY-MM-DD format.
 
-### Step 8: Update DEVLOG.md (if exists)
+### Step C3: Update README.md
 
-Add a comprehensive release entry to the top of `docs/DEVLOG.md`, following the project's existing DEVLOG format. This should capture the "why" and "how" behind the release, not just a list of changes.
+Update version references in README and add or update the "What's New" section:
 
 ```markdown
-## [YYYY-MM-DD] - Release NEW_VERSION: [Short Descriptive Title]
+# Project Name - vNEW_VERSION
 
-*   **Goal**: [One sentence describing the purpose of this release]
-*   **What Changed**:
-    *   **[Feature/Component Name]**: [Description of what was done, key files affected]
-    *   **[Feature/Component Name]**: [Description]
-    *   **[Installer/Config/Infra changes]**: [Description]
-    *   **Version Bump**: Updated [list of version files] from PREVIOUS_VERSION to NEW_VERSION.
-*   **Current Status**: Verified. All version references consistent at NEW_VERSION.
+## What's New in Version NEW_VERSION
+- [Key highlights from CHANGELOG — top 3-5 most significant items]
 ```
 
-**How to generate this entry**:
-1. Read the approved CHANGELOG entries from Step 4
-2. Read the git log from Step 3 for context on what was built and why
-3. Group changes by logical component or feature area (not by commit)
-4. For each group, describe what was done and which key files were affected
-5. Match the tone and structure of existing DEVLOG entries (read `docs/DEVLOG.md` first)
+Use the top 3-5 most significant items from the CHANGELOG for "What's New". If a "What's New" section already exists, replace its content. If it does not exist, add it in a prominent location (after the project description, before installation instructions).
 
-If `docs/DEVLOG.md` does not exist, skip this step.
-
-### Step 9: Update Documentation Files
-
-Update all documentation files (READMEs, guides, manuals) to reflect changes introduced in this version. This ensures documentation stays accurate at every release.
-
-**Process**:
-
-1. **Identify documentation files**: Find all `README.md` files (root and subdirectories), plus any files in `docs/`, `guides/`, or `infrastructure/` directories.
-   - **Exclude**: CHANGELOG.md, docs/DEVLOG.md, command definitions, skill definitions, templates, AI instruction files (CLAUDE.md, GEMINI.md).
-
-2. **Compare against changes**: Using the git diff from Step 3, identify which documentation files may be affected by the changes in this release:
-   - New features or modules added? Check if the root README and relevant module READMEs mention them.
-   - Files or directories renamed/moved? Check if documentation references the old paths.
-   - Configuration or API changes? Check if guides and setup instructions are still accurate.
-   - New commands, hooks, or skills? Check if they are listed in the relevant documentation.
-
-3. **Update affected files**: For each documentation file that needs changes:
-   - Make targeted edits to fix inaccuracies (do not rewrite entire files)
-   - Add missing feature descriptions or sections
-   - Fix stale paths, broken links, and outdated references
-   - Preserve the existing structure, tone, and formatting
-
-4. **Report changes**: After updating, list each file that was modified and briefly describe what changed.
-
-If no documentation files need updating, explicitly state that all documentation is already accurate.
-
-### Step 10: Update Help/About Menus (if applicable)
+### Step C4: Update Help/About Menus (if applicable)
 
 Check for version displays in:
 - CLI help messages
@@ -232,11 +267,62 @@ Check for version displays in:
 - API version endpoints
 - Documentation headers
 
-### Step 11: Deep Codebase Scan
+Update any found version references to the new version.
 
-**CRITICAL**: Perform a comprehensive search for ALL version references that might have been missed.
+---
 
-**Search patterns to use:**
+## Phase D: Documentation Sync (post-version-bump, reflects final state)
+
+These steps ensure all documentation reflects the new version, moved files, and new features.
+
+### Step D1: Update Documentation
+
+Run the full `/update-documentation` workflow to audit and fix all documentation files.
+
+**Process** (follows the update-documentation command):
+
+1. **Discover and classify** all documentation files (READMEs, guides, manuals). Exclude CHANGELOG.md, DEVLOG.md, command definitions, skill definitions, and templates.
+2. **Build ground truth** from the current codebase: project structure, dependencies, features, architecture.
+3. **Compare documentation vs. reality**: Check structure accuracy, feature accuracy, installation/setup accuracy, API/config accuracy, internal links, and stale references.
+4. **Present findings** with severity classification (Critical, High, Medium, Low).
+5. **Update affected files** after user approval: targeted edits to fix inaccuracies, add missing sections, fix stale paths and broken links.
+
+This step catches documentation that became stale due to:
+- Files moved in Phase B (new paths not reflected in docs)
+- New features added since the last release
+- Removed or renamed features
+- Changed configuration or API surfaces
+
+If all documentation is already accurate, explicitly state this.
+
+### Step D2: Update DEVLOG
+
+Run the full `/update-devlog` workflow to generate a comprehensive release entry.
+
+**Process** (follows the update-devlog command):
+
+1. **Analyze context**: Read existing `docs/DEVLOG.md`, analyze git history since the last entry, and review all changes made in this release preparation (Phases B through D1).
+2. **Synthesize entry**: Create a comprehensive entry that captures:
+   - The release goal and scope
+   - Structural changes (layout refactor, gitignore cleanup)
+   - Feature changes (from the CHANGELOG)
+   - Documentation updates
+   - Lessons learned and notable decisions
+3. **Append** the entry to `docs/DEVLOG.md`, matching the existing format and tone.
+
+The DEVLOG entry should capture the "why" and "how" behind the release, not just repeat the CHANGELOG. It should reference the cleanup work, structural changes, and documentation fixes performed during this release preparation.
+
+If `docs/DEVLOG.md` does not exist, create it.
+
+---
+
+## Phase E: Validation and Finalization
+
+### Step E1: Deep Codebase Scan
+
+**CRITICAL**: Perform a comprehensive search for ALL version references that might have been missed, plus any stale file paths from the layout refactor.
+
+**Version string search patterns:**
 ```bash
 # Find version strings in Python files
 grep -r "__version__" --include="*.py"
@@ -258,28 +344,36 @@ grep -r "v[0-9]\+\.[0-9]\+\.[0-9]\+" --include="*.md"
 - `.bumpversion.cfg`, `.version`
 - Documentation config files (`conf.py`, `mkdocs.yml`)
 
-Report any files found that contain version references and whether they were updated.
+**Stale path search** (if files were moved in Phase B):
+- Search for old file paths that should have been updated to new paths
+- Check Markdown links, script references, and config files
 
-### Step 12: Validate Consistency
+Report any files found that contain version references or stale paths and whether they were updated.
+
+### Step E2: Validate Consistency
 
 Verify all version references match:
 
 ```
 Final Checklist:
 - [ ] pyproject.toml / package.json
-- [ ] README.md header
+- [ ] README.md header and "What's New" section
 - [ ] CHANGELOG.md latest entry
 - [ ] Source code __version__
 - [ ] All nested __init__.py files
 - [ ] All sub-README files
+- [ ] Help/about menus
 - [ ] Any other version references found in deep scan
+- [ ] No stale file paths from layout refactor
+- [ ] No wrongly-tracked files in git index
+- [ ] All documentation links resolve to existing files
 ```
 
 Report any mismatches found.
 
-### Step 13: Generate Summary
+### Step E3: Generate Summary
 
-Present the upgrade summary:
+Present the upgrade summary covering all phases:
 
 ```markdown
 ## Version Upgrade Summary
@@ -288,14 +382,24 @@ Present the upgrade summary:
 **New Version**: A.B.C
 **Type**: MAJOR/MINOR/PATCH
 
-### Files Updated
-- [ ] pyproject.toml / package.json
+### Phase B: Cleanup
+- Layout refactor: [X files moved / no changes needed]
+- Refactor verification: [PASSED / N/A]
+- Gitignore audit: [X patterns added, Y files untracked / no changes needed]
+
+### Phase C: Version Bump
+- [ ] Configuration files updated
 - [ ] CHANGELOG.md (new version entry + footer links)
+- [ ] README.md (version references + "What's New in Version X.Y.Z")
+- [ ] Help/about menus (if applicable)
+
+### Phase D: Documentation
+- [ ] Documentation files audited and updated (X files)
 - [ ] docs/DEVLOG.md (release entry)
-- [ ] README.md (version references + feature descriptions)
-- [ ] Documentation files (READMEs, guides updated to match changes)
-- [ ] Source code version
-- [ ] [Any additional files from deep scan]
+
+### Phase E: Validation
+- Version consistency: [PASSED / X mismatches found]
+- Stale references: [NONE / X remaining]
 
 ### Changes Documented
 - Added: X items
@@ -307,7 +411,7 @@ Present the upgrade summary:
 All version references updated and consistent.
 ```
 
-### Step 14: Generate Commit Message
+### Step E4: Generate Commit Message
 
 Generate a ready-to-use commit message for the user:
 
@@ -327,28 +431,50 @@ Changes:
 - Blank line after the first line
 - "Changes:" header followed by bullet points
 - Include all significant changes from CHANGELOG (Added, Changed, Fixed, Removed)
-- Keep each bullet point concise
+- Include structural changes from Phase B if any files were moved or gitignore was updated
+- Keep each bullet point concise and on a single line
 - **DO NOT** add "Created by Claude Code" or any AI attribution footer
 - **DO NOT** add "Co-Authored-By" lines
 
 **Example:**
 ```
-v0.2.2: Add figure settings management and improve UI components
+v0.9.0: Add figure settings management and restructure project layout
 
 Changes:
 - Add FigureSettings class for figure configuration management
 - Add FigureSettingsDialog for user-friendly settings editing
-- Add ModernDateEdit widget for improved date selection
-- Improve Matplotlib theming with enhanced theme adapter
-- Update default parameters in calibration settings
+- Refactor project layout: move data files to data/, scripts to scripts/
+- Update .gitignore with Python and Node.js patterns
+- Update all documentation to reflect new structure
 - Fix color picker initialization bug
 ```
 
-Present this commit message in a code block so the user can easily copy/paste it:
+Present this commit message in a code block so the user can easily copy/paste it.
 
-```
-Here's your commit message (ready to copy/paste):
-```
+---
+
+## Phase: Iterative Refinement (Loop)
+
+**IMPORTANT**: This loop runs as part of Phase E, before presenting the final summary (E3) and commit message (E4). It is not a post-commit activity.
+
+**CRITICAL**: This is an iterative process. You cannot assume the first pass is perfect.
+Perform the following refinement loop up to **3 times** (or as specified by the user's input, e.g., "5 iterations"):
+
+1.  **Analyze**: Look at the generated output.
+    *   Is it complete?
+    *   Are there any obvious errors?
+    *   Does it meet the user's requirements?
+    *   Are there stale file paths from the layout refactor?
+    *   Are there wrongly-tracked files remaining after gitignore cleanup?
+    *   Do all documentation links resolve to existing files?
+    *   Do all version references match the new version?
+2.  **Refine**:
+    *   Fix any issues found.
+    *   Add missing components.
+    *   Re-verify affected files.
+3.  **Stop**:
+    *   If you are confident the result is excellent.
+    *   OR if you have reached the maximum iteration count.
 
 ## After the Upgrade
 
@@ -357,6 +483,8 @@ After presenting the commit message, ask:
 "Would you like me to create a git tag for this release? (The commit should be done manually using the message above)"
 
 Only proceed with tag creation if explicitly requested.
+
+---
 
 ## Language-Specific Notes
 
@@ -384,6 +512,8 @@ Only proceed with tag creation if explicitly requested.
 - Update version constant in source
 - Check `go.mod` module version
 
+---
+
 ## Guidelines
 
 - Never auto-commit or push without explicit user approval
@@ -394,20 +524,5 @@ Only proceed with tag creation if explicitly requested.
 - Auto-analyze git history instead of asking user to describe changes
 - Always perform deep codebase scan to catch missed version references
 - Always generate a copy-paste ready commit message
-
-
-## Phase: Iterative Refinement (Loop)
-
-**CRITICAL**: This is an iterative process. You cannot assume the first pass is perfect.
-Perform the following refinement loop up to **3 times** (or as specified by the user's input, e.g., "5 iterations"):
-
-1.  **Analyze**: Look at the generated output.
-    *   Is it complete?
-    *   Are there any obvious errors?
-    *   Does it meet the user's requirements?
-2.  **Refine**:
-    *   Fix any issues found.
-    *   Add missing components.
-3.  **Stop**:
-    *   If you are confident the result is excellent.
-    *   OR if you have reached the maximum iteration count.
+- Each sub-command (layout refactor, gitignore, documentation, devlog) runs its full workflow but defers user-confirmation prompts to the parent command's confirmation gates
+- If a phase has nothing to do (e.g., no files need moving, gitignore is already clean), state this explicitly and proceed to the next phase
