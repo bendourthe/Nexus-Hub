@@ -1,6 +1,8 @@
 ---
 name: behavior-preservation-checker
 description: Verify that refactoring preserves existing behavior through before/after comparison, test coverage verification, contract checking, and semantic equivalence analysis. Use when refactoring code, reviewing refactoring PRs, or validating that changes are purely structural.
+summary_l0: "Verify refactoring preserves behavior with before/after and contract analysis"
+overview_l1: "This skill provides systematic verification that code refactoring, restructuring, or migration preserves the existing observable behavior of the system. Use it when verifying that a refactoring PR introduces no behavioral changes, reviewing Extract Method, Move Class, or Rename refactorings, validating library migrations preserve API contracts, confirming performance optimizations do not alter output, checking dependency upgrades maintain backward compatibility, ensuring code cleanup has no side effects, or auditing automated refactoring tool output. Key capabilities include before/after state comparison, test coverage verification for changed code paths, interface contract checking, semantic equivalence analysis, side effect detection, API compatibility verification, and automated refactoring output auditing. The expected output is a preservation verdict (safe/unsafe) with evidence from test results, contract checks, and semantic analysis. Trigger phrases: behavior preservation, verify refactoring, check no behavior change, before and after, semantic equivalence, contract check, refactoring safety, does this change behavior, regression check, safe refactoring."
 ---
 
 # Behavior Preservation Checker

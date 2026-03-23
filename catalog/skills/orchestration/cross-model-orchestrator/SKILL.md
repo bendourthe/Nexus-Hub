@@ -1,6 +1,8 @@
 ---
 name: cross-model-orchestrator
 description: Orchestrate multiple AI coding assistants (Claude Code, Codex CLI, Gemini CLI, Copilot) in coordinated workflows with QA gates between models. Use when you want to leverage different model strengths for planning, implementation, review, and verification phases.
+summary_l0: "Orchestrate multiple AI assistants in coordinated workflows with cross-model QA gates"
+overview_l1: "This skill orchestrates multiple AI coding assistants (Claude Code, Codex CLI, Gemini CLI, Copilot) in coordinated workflows with QA gates between models. Use it when leveraging different model strengths for planning, implementation, review, and verification phases, when cross-model verification improves confidence, or when specific models excel at different task types. Key capabilities include model strength mapping (which model for which phase), cross-model workflow design, QA gate enforcement between model transitions, output format normalization across models, handoff protocol design, model-specific prompt adaptation, and cost optimization across providers. The expected output is a coordinated multi-model workflow with phase assignments, QA gates, and handoff protocols. Trigger phrases: cross-model, multi-model, orchestrate models, Claude and Codex, model strengths, cross-model review, multi-assistant, model coordination."
 ---
 
 # Cross-Model Orchestrator

@@ -1,6 +1,8 @@
 ---
 name: fastapi-expert
 description: Deep FastAPI expertise for async API development, dependency injection, Pydantic models, middleware, and testing. Use when building Python APIs with FastAPI, designing API schemas, or implementing authentication.
+summary_l0: "Build FastAPI applications with async patterns, Pydantic models, and dependency injection"
+overview_l1: "This skill provides specialized FastAPI expertise covering async API design, Pydantic v2 model patterns, dependency injection, middleware, background tasks, WebSocket support, async database integration, testing, OpenAPI customization, and production deployment. Use it when designing RESTful APIs with path, query, and body parameters, building Pydantic v2 models with validators, implementing dependency injection hierarchies, writing middleware for CORS, authentication, and rate limiting, running background tasks and WebSocket connections, integrating async databases (SQLAlchemy async, Tortoise ORM), testing with TestClient and dependency overrides, customizing OpenAPI documentation, or deploying with uvicorn and Docker. Key capabilities include async endpoint design, Pydantic v2 model architecture, DI hierarchy design, middleware chain implementation, WebSocket handler creation, async database integration, and comprehensive testing patterns. The expected output is a production-ready FastAPI application with proper async patterns, validation, dependency injection, and deployment configuration. Trigger phrases: fastapi, fast api, pydantic, python api, async api, uvicorn, python rest api, fastapi dependency injection, fastapi middleware, fastapi testing."
 ---
 
 # FastAPI Expert

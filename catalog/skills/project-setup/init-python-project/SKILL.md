@@ -1,6 +1,8 @@
 ---
 name: init-python-project
 description: Initialize a complete Python project with standard structure, pyproject.toml, testing framework, and documentation. Use when starting a new Python project, creating CLI tools, web APIs, libraries, or data science projects.
+summary_l0: "Initialize Python projects with pyproject.toml, pytest, and standard structure"
+overview_l1: "This skill initializes a complete Python project with standard structure, pyproject.toml, testing framework, and documentation. Use it when starting a new Python project, creating CLI tools, web APIs, libraries, or data science projects. Key capabilities include pyproject.toml configuration, pytest setup with fixtures, ruff linting and formatting, type checking with mypy, virtual environment setup, Docker support, CI/CD pipeline templates, and README generation. The expected output is a fully scaffolded Python project with build configuration, testing, linting, type checking, and documentation. Trigger phrases: new Python project, init Python, Python setup, Python CLI tool, FastAPI project, Python library, data science project."
 ---
 
 # Initialize Python Project

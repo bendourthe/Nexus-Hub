@@ -1,6 +1,8 @@
 ---
 name: terraform-specialist
 description: Infrastructure as Code expertise with Terraform/OpenTofu for cloud provisioning. Use when writing Terraform modules, managing state, configuring multi-environment setups, or implementing IaC best practices for AWS, Azure, or GCP.
+summary_l0: "Provision cloud infrastructure with Terraform modules, state management, and IaC patterns"
+overview_l1: "This skill provides specialized expertise in Infrastructure as Code using Terraform/OpenTofu, covering module design, state management, security practices, and production-grade infrastructure provisioning across major cloud providers. Use it when writing Terraform modules, managing state files and backends, configuring multi-environment setups, implementing IaC best practices, provisioning AWS, Azure, or GCP resources, or setting up Terraform CI/CD pipelines. Key capabilities include reusable module design, remote state management with locking, multi-environment workspace configuration, provider configuration, variable and output design, import and migration strategies, security hardening, and CI/CD integration with plan/apply workflows. The expected output is production-ready Terraform configurations with modular design, secure state management, and multi-environment support. Trigger phrases: terraform, OpenTofu, infrastructure as code, IaC, terraform module, terraform state, cloud provisioning, HCL."
 ---
 
 # Terraform Specialist

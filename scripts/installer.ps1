@@ -872,6 +872,16 @@ function Render-Template {
         $content = $content.Replace("{{LANGUAGE_CONVENTIONS}}", "(See coding-snippets or run /setup-project)")
         $content = $content.Replace("{{OS_CONTEXT}}", $script:OSContext)
 
+        # Replace {{SKILL_INDEX}} with actual skill index content (if available)
+        $skillIndexPath = Join-Path $RepoRoot "data\SKILL_INDEX.md"
+        if (Test-Path $skillIndexPath) {
+            $skillIndexContent = Get-Content $skillIndexPath -Raw
+            $content = $content.Replace("{{SKILL_INDEX}}", $skillIndexContent)
+        }
+        else {
+            $content = $content.Replace("{{SKILL_INDEX}}", "<!-- Skill index not available. Run the DevAI-Hub installer to generate it. -->")
+        }
+
         # Append language-specific snippets
         if ($Languages -and $Languages.Count -gt 0) {
             foreach ($lang in $Languages) {
@@ -1341,12 +1351,141 @@ function Install-ClaudeUtilities {
     Write-CenteredBanner -Text "Claude Code Utilities Installation Complete." -Color "Green"
 }
 
+# --- MCP Skill Server & Skill Index (Phase 5) ---
+
+function Install-SkillDiscovery {
+    param ($RepoRoot)
+    Write-Host ""
+    Write-CenteredBanner -Text "PHASE 5: Skill Discovery (All Platforms)" -Color "Cyan"
+
+    # --- Phase 5A: Skill Index (all platforms) ---
+    Write-Item -Message "Installing skill index for all platforms..." -Color "White"
+
+    $skillIndexSrc = Join-Path $RepoRoot "data\SKILL_INDEX.md"
+    $devaiHome = Join-Path $env:USERPROFILE ".devai-hub"
+    $devaiData = Join-Path $devaiHome "data"
+
+    if (-not (Test-Path $devaiData)) { New-Item -Path $devaiData -ItemType Directory -Force | Out-Null }
+
+    if (Test-Path $skillIndexSrc) {
+        Copy-Item -Path $skillIndexSrc -Destination (Join-Path $devaiData "SKILL_INDEX.md") -Force
+        Write-Item -Message "  Skill index copied to $devaiData" -Color "DarkGreen"
+    }
+    else {
+        Write-Item -Message "  SKILL_INDEX.md not found in data/. Run 'python infrastructure/tools/build_skills_catalog.py' first." -Color "Yellow"
+    }
+
+    # Copy skills.json and bundles.json to global data dir
+    $skillsJsonSrc = Join-Path $RepoRoot "data\skills.json"
+    $bundlesJsonSrc = Join-Path $RepoRoot "data\bundles.json"
+    if (Test-Path $skillsJsonSrc) { Copy-Item -Path $skillsJsonSrc -Destination (Join-Path $devaiData "skills.json") -Force }
+    if (Test-Path $bundlesJsonSrc) { Copy-Item -Path $bundlesJsonSrc -Destination (Join-Path $devaiData "bundles.json") -Force }
+
+    Write-Item -Message "  Skill data installed to $devaiData" -Color "DarkGreen"
+
+    # --- Phase 5B: MCP Skill Server (Claude Code only) ---
+    Write-Host ""
+    Write-Item -Message "MCP Skill Server (Claude Code integration)" -Color "White"
+
+    $installMcp = Read-Prompt "Install MCP Skill Server for Claude Code? [Y]es / [N]o"
+    if ($installMcp -notmatch "^[Yy]") {
+        Write-Item -Message "  Skipping MCP server installation." -Color "Gray"
+        Write-Host ""
+        Write-CenteredBanner -Text "Skill Discovery Installation Complete." -Color "Green"
+        return
+    }
+
+    # Check Python >= 3.10
+    $ErrorActionPreference = "Continue"
+    $pythonCmd = $null
+    foreach ($cmd in @("python", "python3")) {
+        try {
+            $ver = & $cmd --version 2>&1
+            if ($ver -match "Python\s+3\.(\d+)") {
+                $minor = [int]$Matches[1]
+                if ($minor -ge 10) {
+                    $pythonCmd = $cmd
+                    break
+                }
+            }
+        }
+        catch {}
+    }
+    $ErrorActionPreference = "Stop"
+
+    if (-not $pythonCmd) {
+        Write-Item -Message "  Python 3.10+ not found. MCP server requires Python 3.10 or newer." -Color "Yellow"
+        Write-Item -Message "  Install Python from https://python.org and re-run the installer." -Color "Yellow"
+        Write-Host ""
+        Write-CenteredBanner -Text "Skill Discovery Installation Complete (MCP server skipped)." -Color "Green"
+        return
+    }
+
+    Write-Item -Message "  Found $pythonCmd" -Color "DarkGreen"
+
+    # Copy MCP server source
+    $mcpServerSrc = Join-Path $RepoRoot "extensions\devai-skill-server"
+    $mcpServerDest = Join-Path $devaiHome "mcp-server"
+    if (Test-Path $mcpServerDest) { Remove-Item -Path $mcpServerDest -Recurse -Force }
+    Copy-Item -Path $mcpServerSrc -Destination $mcpServerDest -Recurse -Force
+    Write-Item -Message "  MCP server source copied to $mcpServerDest" -Color "DarkGreen"
+
+    # Create venv and install dependencies
+    $venvPath = Join-Path $devaiHome "mcp-server-venv"
+    $ErrorActionPreference = "Continue"
+
+    # Check for uv
+    $hasUv = $null -ne (Get-Command "uv" -ErrorAction SilentlyContinue)
+
+    if ($hasUv) {
+        Write-Item -Message "  Creating venv with uv..." -Color "White"
+        & uv venv $venvPath 2>$null | Out-Null
+        & uv pip install --python "$venvPath\Scripts\python.exe" -e $mcpServerDest 2>$null | Out-Null
+    }
+    else {
+        Write-Item -Message "  Creating venv with $pythonCmd..." -Color "White"
+        & $pythonCmd -m venv $venvPath 2>$null | Out-Null
+        & "$venvPath\Scripts\pip.exe" install -q -e $mcpServerDest 2>$null | Out-Null
+    }
+    $ErrorActionPreference = "Stop"
+
+    Write-Item -Message "  MCP server venv created at $venvPath" -Color "DarkGreen"
+
+    # Register MCP server in ~/.claude/settings.json
+    $claudeSettingsDir = Join-Path $env:USERPROFILE ".claude"
+    $claudeSettings = Join-Path $claudeSettingsDir "settings.json"
+
+    if (-not (Test-Path $claudeSettingsDir)) { New-Item -Path $claudeSettingsDir -ItemType Directory -Force | Out-Null }
+
+    $settings = @{}
+    if (Test-Path $claudeSettings) {
+        try { $settings = Get-Content $claudeSettings -Raw | ConvertFrom-Json -AsHashtable }
+        catch { $settings = @{} }
+    }
+
+    if (-not $settings.ContainsKey("mcpServers")) { $settings["mcpServers"] = @{} }
+
+    $settings["mcpServers"]["devai-skill-server"] = @{
+        command = "$venvPath\Scripts\python.exe"
+        args    = @("-m", "devai_skill_server")
+        env     = @{ DEVAI_HUB_ROOT = $devaiHome }
+    }
+
+    $settings | ConvertTo-Json -Depth 10 | Set-Content $claudeSettings -Encoding UTF8
+    Write-Item -Message "  MCP server registered in $claudeSettings" -Color "DarkGreen"
+    Write-Item -Message "  The server will auto-start with Claude Code. No manual steps needed." -Color "DarkGreen"
+
+    Write-Host ""
+    Write-CenteredBanner -Text "Skill Discovery Installation Complete." -Color "Green"
+}
+
 # --- Main ---
 $repoRoot = Resolve-Path "$PSScriptRoot\.."
 Install-Global -RepoRoot $repoRoot
 Install-Workspace -RepoRoot $repoRoot
 Install-Templates -RepoRoot $repoRoot
 Install-ClaudeUtilities -RepoRoot $repoRoot
+Install-SkillDiscovery -RepoRoot $repoRoot
 Write-Host ""
 Write-CenteredBanner -Text "Thank You For Using The DevAI-Hub Universal Installer" -Color "DarkCyan" -BorderChar "="
 Write-Host ""

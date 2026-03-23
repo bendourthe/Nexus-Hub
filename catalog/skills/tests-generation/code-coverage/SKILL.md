@@ -1,6 +1,8 @@
 ---
 name: code-coverage
 description: Analyze test coverage, identify gaps, and implement strategies for achieving 80%+ coverage targets. Use when measuring test effectiveness, identifying untested code paths, meeting coverage requirements, or improving overall test quality for Python, JavaScript, Java, C#, Go, C, or C++ codebases.
+summary_l0: "Analyze test coverage gaps and implement strategies for 80%+ coverage targets"
+overview_l1: "This skill analyzes test coverage, identifies gaps, and implements strategies for achieving 80%+ coverage targets across multiple languages. Use it when measuring test effectiveness, identifying untested code paths, meeting coverage requirements, or improving overall test quality. Key capabilities include line and branch coverage measurement, coverage gap identification by module and function, coverage target strategy design, untested code path detection, coverage tool configuration (pytest-cov, Istanbul/c8, JaCoCo, coverlet, go tool cover), coverage report generation and visualization, and CI/CD coverage gate enforcement. The expected output is coverage analysis with identified gaps, target achievement strategies, and configured coverage tooling. Trigger phrases: code coverage, coverage gaps, untested code, coverage target, 80% coverage, coverage report, branch coverage, test effectiveness."
 ---
 
 # Code Coverage Analysis

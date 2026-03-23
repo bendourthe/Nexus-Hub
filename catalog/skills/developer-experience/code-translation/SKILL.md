@@ -1,6 +1,8 @@
 ---
 name: code-translation
 description: Translate code between programming languages while preserving logic, idiomatic style, and test coverage. Use when porting code between languages, migrating projects, converting snippets, or adapting library examples from one language to another.
+summary_l0: "Translate code between programming languages preserving logic and idiomatic style"
+overview_l1: "This skill provides systematic translation of code between programming languages while preserving correctness, adapting to idiomatic conventions of the target language, mapping library equivalents, handling type system differences, and verifying through testing. Use it when porting a module or library between languages, converting documentation code examples, migrating technology stacks (Java to Kotlin, Python 2 to 3, JavaScript to TypeScript), adapting algorithm implementations, translating test cases alongside production code, or creating polyglot implementations. Key capabilities include semantic analysis of source code, idiomatic target language adaptation, library equivalent mapping, type system translation, error handling pattern conversion, test case co-translation, and correctness verification. The expected output is idiomatic target language code with equivalent behavior, mapped library dependencies, translated tests, and a translation notes document. Trigger phrases: translate this code, port to Python, convert to JavaScript, rewrite in Java, translate from, code migration, language conversion, port this function, equivalent in, same thing in Python."
 ---
 
 # Code Translation

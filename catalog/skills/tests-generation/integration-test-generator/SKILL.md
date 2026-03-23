@@ -1,6 +1,8 @@
 ---
 name: integration-test-generator
 description: Generate integration tests that verify component interactions across API boundaries, databases, message queues, and external services. Use when testing service-to-service communication, database operations, contract testing, REST/GraphQL endpoints, or using testcontainers for realistic environments.
+summary_l0: "Generate integration tests for APIs, databases, message queues, and service interactions"
+overview_l1: "This skill generates integration tests that verify component interactions across API boundaries, databases, message queues, and external services. Use it when testing service-to-service communication, database operations, contract testing, REST/GraphQL endpoints, or setting up testcontainers for realistic environments. Key capabilities include API boundary test generation, database integration testing with migration verification, message queue consumer/producer testing, external service integration with contract validation, testcontainers setup for realistic database and service environments, REST and GraphQL endpoint testing, and test data seeding strategies. The expected output is integration test suites with realistic environment setup, proper isolation, and cross-component verification. Trigger phrases: integration tests, API testing, database testing, testcontainers, service testing, contract testing, message queue testing, REST testing, GraphQL testing."
 ---
 
 # Integration Test Generator

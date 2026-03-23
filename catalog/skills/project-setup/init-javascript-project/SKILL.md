@@ -1,6 +1,8 @@
 ---
 name: init-javascript-project
 description: Initialize a complete JavaScript/TypeScript project with package.json, testing framework, bundler configuration, and documentation. Use when starting Node.js apps, React projects, Express APIs, or npm packages.
+summary_l0: "Initialize JavaScript/TypeScript projects with package.json, bundler, and testing"
+overview_l1: "This skill initializes a complete JavaScript/TypeScript project with package.json, testing framework, bundler configuration, and documentation. Use it when starting Node.js applications, React projects, Express APIs, or npm packages. Key capabilities include package.json configuration, TypeScript tsconfig setup, testing framework selection (Vitest, Jest), bundler configuration (Vite, esbuild, webpack), ESLint and Prettier setup, Docker support, CI/CD pipeline templates, and README generation. The expected output is a fully scaffolded JS/TS project with build tooling, test framework, linting, and documentation. Trigger phrases: new JavaScript project, init TypeScript, Node.js setup, React starter, Express API, npm package setup."
 ---
 
 # Initialize JavaScript/TypeScript Project

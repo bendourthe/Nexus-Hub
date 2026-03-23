@@ -1,6 +1,8 @@
 ---
 name: final-report
 description: Consolidate all review findings into a structured 4-section report with codebase overview, executive summary, dual-view detailed findings (by feature and by priority), and export capability. Phase 6 of the 6-phase code review methodology.
+summary_l0: "Consolidate review findings into structured reports with executive summary and action plan"
+overview_l1: "This skill consolidates all review findings into a comprehensive, structured report organized for readability and actionability, serving as Phase 6 of the 6-phase code review methodology. Use it when completing a comprehensive code review, consolidating findings from multiple phases, presenting findings grouped by functional area and by priority, delivering executive summaries with verdict and roadmap, exporting professional reports in Markdown and Word formats, or presenting next steps for user confirmation. Key capabilities include multi-phase finding consolidation, dual-view organization (by feature area and by priority), executive summary generation with overall verdict, remediation roadmap creation, effort estimation per finding, and Markdown/Word export formatting. The expected output is a structured review report with codebase overview, executive summary, detailed findings in dual-view format, and an actionable remediation plan. Trigger phrases: final report, code review report, consolidate findings, review summary, action plan, remediation plan."
 ---
 
 # Code Review - Final Report

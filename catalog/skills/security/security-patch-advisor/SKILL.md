@@ -1,6 +1,8 @@
 ---
 name: security-patch-advisor
 description: Recommend and generate security patches for identified vulnerabilities including XSS, SQL injection, SSRF, CSRF, insecure deserialization, and misconfigurations. Use when remediating vulnerability findings, hardening application code, or implementing security controls.
+summary_l0: "Generate security patches for XSS, SQL injection, SSRF, CSRF, and misconfigurations"
+overview_l1: "This skill recommends and generates security patches for identified vulnerabilities including XSS, SQL injection, SSRF, CSRF, insecure deserialization, and misconfigurations. Use it when remediating vulnerability findings, hardening application code, implementing security controls, or addressing penetration test results. Key capabilities include vulnerability-specific patch generation, input validation and sanitization code, parameterized query implementation, CSRF token integration, SSRF prevention with URL validation, secure deserialization patterns, security header configuration, and patch validation testing. The expected output is ready-to-apply security patches with explanation, validation tests, and hardening recommendations. Trigger phrases: security patch, fix XSS, fix SQL injection, SSRF prevention, CSRF protection, security remediation, vulnerability fix, harden application, security controls."
 ---
 
 # Security Patch Advisor

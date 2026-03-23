@@ -1,6 +1,8 @@
 ---
 name: javascript-cleanup
 description: Remove unused exports, fix ESLint issues, modernize to ES6+, and clean up JavaScript/TypeScript codebases. Use when cleaning up JS/TS projects, removing dead code, modernizing legacy JavaScript, or improving code maintainability.
+summary_l0: "Clean up JavaScript/TypeScript with ES6+ modernization, ESLint fixes, and dead code removal"
+overview_l1: "This skill systematically identifies and removes dead code, fixes ESLint issues, and modernizes legacy JavaScript patterns to maintain a clean, modern codebase. Use it when removing unused exports and dead code, fixing ESLint/TSLint issues, modernizing to ES6+ syntax, converting JavaScript to TypeScript, or preparing JS/TS code for review. Key capabilities include dead code and unused export detection, ESLint and TSLint warning resolution, ES6+ syntax migration (arrow functions, destructuring, template literals, async/await), TypeScript conversion, module system modernization (CommonJS to ESM), and import optimization. The expected output is a modernized JavaScript/TypeScript codebase with ES6+ syntax, resolved linter warnings, and removed dead code. Trigger phrases: cleanup JavaScript, cleanup TypeScript, remove dead code JS, fix ESLint, modernize JS, ES6 migration."
 ---
 
 # JavaScript/TypeScript Code Cleanup

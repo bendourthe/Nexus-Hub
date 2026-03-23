@@ -1,6 +1,8 @@
 ---
 name: java-expert
 description: Deep Java expertise for enterprise application development. Use when writing Java code, implementing concurrency patterns, designing with streams and generics, building Spring Boot services, or applying clean architecture principles.
+summary_l0: "Write enterprise Java with streams, concurrency, Spring Boot, and clean architecture"
+overview_l1: "This skill provides deep Java expertise for enterprise application development. Use it when writing Java code, implementing concurrency patterns (virtual threads, CompletableFuture), designing with streams and generics, building Spring Boot services, or applying clean architecture principles. Key capabilities include modern Java feature usage (records, sealed classes, pattern matching), Stream API design, concurrent programming with virtual threads, Spring Boot service architecture, JPA/Hibernate integration, generic type design, testing with JUnit 5 and Mockito, and clean architecture layering. The expected output is well-structured Java code with modern language features, proper concurrency handling, and enterprise architecture patterns. Trigger phrases: Java code, Spring Boot, Java streams, Java concurrency, virtual threads, JPA, Hibernate, Java generics, Java testing, clean architecture Java."
 ---
 
 # Java Expert

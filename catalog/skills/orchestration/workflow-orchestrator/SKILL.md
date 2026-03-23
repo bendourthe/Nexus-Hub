@@ -1,6 +1,8 @@
 ---
 name: workflow-orchestrator
 description: Design and execute end-to-end workflows by chaining multiple skills and managing quality gates between phases. Use for complete feature implementations, full testing cycles, comprehensive code reviews, or any multi-phase development process.
+summary_l0: "Orchestrate multi-phase workflows by chaining skills with quality gates"
+overview_l1: "This skill designs and executes complete development workflows by coordinating multiple specialized skills and managing quality gates between phases. Use it for end-to-end feature implementations, complete testing cycles, comprehensive code review workflows, release preparation, migration projects, or any work requiring coordinated skill usage. Key capabilities include workflow template selection, phase-based execution planning, skill chaining coordination, quality gate enforcement between phases, rollback planning for phase failures, progress monitoring, and outcome verification. The expected output is a phased workflow execution with quality gate checkpoints, progress tracking, and verified delivery. Trigger phrases: complete workflow, end-to-end, full implementation, comprehensive process, multi-phase, quality gates, release process."
 ---
 
 # Workflow Orchestrator

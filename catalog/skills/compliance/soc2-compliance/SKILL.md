@@ -1,6 +1,8 @@
 ---
 name: soc2-compliance
 description: Implement SOC 2 Type II controls covering Trust Services Criteria (Security, Availability, Confidentiality, Processing Integrity, Privacy). Use when preparing for SOC 2 audits, implementing controls, documenting compliance, or building enterprise SaaS.
+summary_l0: "Implement SOC 2 Type II controls across all five Trust Services Criteria"
+overview_l1: "This skill implements and documents SOC 2 Type II controls for Trust Services Criteria to achieve enterprise-ready compliance and customer trust. Use it when preparing for SOC 2 Type II audits, implementing Trust Services Criteria controls, documenting compliance evidence, building enterprise SaaS security, meeting customer security requirements, or establishing security governance. Key capabilities include control implementation across all five Trust Services Criteria (Security, Availability, Confidentiality, Processing Integrity, Privacy), evidence collection and documentation, control testing and monitoring, exception handling and remediation tracking, audit readiness assessment, and management assertion preparation. The expected output is SOC 2-compliant controls with evidence documentation, control matrices, testing results, and audit-ready packages. Trigger phrases: SOC 2 compliance, SOC 2 audit, Trust Services Criteria, enterprise security, security controls, audit preparation."
 ---
 
 # SOC 2 Type II Compliance

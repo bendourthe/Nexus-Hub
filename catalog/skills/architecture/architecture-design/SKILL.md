@@ -1,6 +1,8 @@
 ---
 name: architecture-design
 description: System architecture design including requirements analysis, trade-off evaluation, ADRs, and system decomposition. Use when designing new systems, evaluating architectures, or documenting design decisions.
+summary_l0: "Design software architectures with trade-off analysis, ADRs, and C4 decomposition"
+overview_l1: "This skill provides structured guidance for designing software architectures, from requirements elicitation through system decomposition, trade-off analysis, and decision documentation. Use it when designing a new system or major subsystem from scratch, evaluating competing architectural approaches, documenting architecture decisions with ADRs, decomposing monolithic systems into components, conducting architecture reviews, analyzing quality attribute trade-offs, creating C4 diagrams, or establishing architecture governance. Key capabilities include stakeholder identification, quality attribute scenario analysis, CAP theorem reasoning, C4 model creation at context, container, component, and code levels, Architecture Decision Record authoring, fitness function definition, and architecture review facilitation. The expected output is architecture documentation with C4 diagrams, ADRs, quality attribute matrices, and component dependency maps. Trigger phrases: architecture design, system design, ADR, architecture decision record, C4 model, trade-off analysis, system decomposition, quality attributes, architecture review, fitness function."
 ---
 
 # Architecture Design

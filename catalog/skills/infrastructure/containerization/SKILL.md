@@ -1,6 +1,8 @@
 ---
 name: containerization
 description: Container best practices including Dockerfile optimization, multi-stage builds, image security scanning, and Docker Compose patterns. Use when containerizing applications, optimizing image size, or setting up local development environments.
+summary_l0: "Containerize applications with optimized Dockerfiles, multi-stage builds, and security scanning"
+overview_l1: "This skill provides comprehensive guidance on building production-ready containers, including Dockerfile optimization, multi-stage builds, image security, Docker Compose patterns, and CI/CD integration. Use it when containerizing applications, optimizing image size, setting up local development environments, implementing multi-stage builds, scanning images for vulnerabilities, designing Docker Compose configurations, or integrating containers into CI/CD pipelines. Key capabilities include Dockerfile optimization (layer caching, multi-stage builds, minimal base images), security scanning and hardening, Docker Compose patterns for development and production, volume and network management, health check configuration, and CI/CD container workflow design. The expected output is optimized Dockerfiles, Docker Compose configurations, and security-scanned container images ready for production. Trigger phrases: Docker, Dockerfile, container, multi-stage build, Docker Compose, image optimization, container security, containerize."
 ---
 
 # Containerization

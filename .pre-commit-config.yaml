@@ -44,3 +44,16 @@ repos:
         files: '\.(json)$'
       - id: mixed-line-ending
         args: ['--fix=lf']
+
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.10.0.1
+    hooks:
+      - id: shellcheck
+        args: ['--severity=warning']
+        files: '^(scripts/installer\.sh|install\.sh|catalog/hooks/.*\.sh)$'
+
+  - repo: https://github.com/commitizen-tools/commitizen
+    rev: v3.29.0
+    hooks:
+      - id: commitizen
+        stages: [commit-msg]

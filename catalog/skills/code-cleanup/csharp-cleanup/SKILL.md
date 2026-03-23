@@ -1,6 +1,8 @@
 ---
 name: csharp-cleanup
 description: Modernize async patterns, optimize LINQ usage, update .NET APIs, and clean up C# codebases. Use when cleaning up C# projects, removing unused using directives, modernizing legacy .NET code, or improving code maintainability.
+summary_l0: "Clean up C# codebases with modern async patterns, LINQ optimization, and API updates"
+overview_l1: "This skill systematically identifies and removes dead code, updates deprecated APIs, and applies modern C# patterns to maintain a clean, maintainable .NET codebase. Use it when removing unused using directives and dead code, updating deprecated .NET API usage, applying modern C# features (6.0+), fixing ReSharper/Rider warnings, modernizing async/await patterns, optimizing LINQ usage, or preparing C# code for review. Key capabilities include dead code detection, deprecated API migration, modern C# feature adoption (nullable reference types, pattern matching, records, global usings), async/await modernization, LINQ query optimization, and ReSharper/Rider warning resolution. The expected output is a modernized C# codebase with updated APIs, optimized LINQ, proper async patterns, and resolved analyzer warnings. Trigger phrases: cleanup C#, remove dead code C#, modernize C#, fix ReSharper, .NET refactor, cleanup dotnet."
 ---
 
 # C# Code Cleanup

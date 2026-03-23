@@ -1,6 +1,8 @@
 ---
 name: context-analysis
 description: Establish comprehensive understanding of project structure, architecture, dependencies, and current state before conducting detailed code review. Use as the first phase of any code review, when onboarding to a new codebase, before proposing architectural changes, or for technical due diligence.
+summary_l0: "Analyze project structure, architecture, and dependencies as code review Phase 1"
+overview_l1: "This skill establishes comprehensive understanding of a project before conducting detailed code review, serving as Phase 1 of the 6-phase code review methodology. Use it when beginning a comprehensive code review, onboarding to an unfamiliar codebase, understanding project architecture and design decisions, identifying technical debt before detailed review, mapping dependencies and potential risks, or planning follow-up review phases. Key capabilities include project structure mapping, architecture pattern identification, dependency graph analysis, tech stack detection, technical debt cataloging, risk area identification, and review scope planning. The expected output is a context analysis report with project overview, architecture summary, dependency map, risk assessment, and recommended review focus areas. Trigger phrases: code review, analyze codebase, understand architecture, project analysis, technical due diligence, codebase overview, onboarding."
 ---
 
 # Code Review - Context Analysis

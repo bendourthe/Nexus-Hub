@@ -1,6 +1,8 @@
 ---
 name: filesystem-context-patterns
 description: Use the filesystem as a first-class context management tool for AI agent sessions. Covers scratch pads, plan persistence, sub-agent communication, dynamic skill loading, and self-modification patterns. Use when tool outputs are large, tasks span multiple sessions, or agents need to share state.
+summary_l0: "Use the filesystem for context management, scratch pads, and inter-agent communication"
+overview_l1: "This skill uses the filesystem as a first-class context management tool for AI agent sessions, covering scratch pads, plan persistence, sub-agent communication, dynamic skill loading, and self-modification patterns. Use it when tool outputs are large and would consume context, tasks span multiple sessions, agents need to share state, or you need persistent context across session boundaries. Key capabilities include scratch pad files for intermediate results, plan persistence across sessions, sub-agent communication via shared files, dynamic skill loading from filesystem, self-modification patterns, session state checkpointing, and large output offloading to files. The expected output is a filesystem-based context management setup with scratch pads, shared state files, and session persistence patterns. Trigger phrases: filesystem context, scratch pad, session persistence, agent communication, shared state, context across sessions, file-based context, agent state."
 ---
 
 # Filesystem Context Patterns

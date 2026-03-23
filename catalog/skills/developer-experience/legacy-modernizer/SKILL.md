@@ -1,6 +1,8 @@
 ---
 name: legacy-modernizer
 description: Modernize legacy codebases using proven migration strategies like Strangler Fig pattern. Use when upgrading frameworks, migrating to new architectures, replacing deprecated APIs, or incrementally modernizing old code without full rewrites.
+summary_l0: "Modernize legacy codebases incrementally with Strangler Fig and migration patterns"
+overview_l1: "This skill provides specialized expertise in modernizing legacy codebases using proven migration strategies and patterns. Use it when upgrading to new framework versions, migrating from monolith to microservices, replacing deprecated APIs, modernizing database access patterns, updating authentication/authorization, moving from on-premises to cloud, or incrementally improving without full rewrites. Key capabilities include Strangler Fig pattern implementation, framework version upgrade planning, monolith-to-microservices migration, deprecated API replacement, database access modernization, authentication system upgrades, cloud migration strategies, and incremental improvement with stability preservation. The expected output is a phased migration plan with code changes, compatibility layers, and rollback procedures. Trigger phrases: legacy code, modernize, migrate, upgrade framework, deprecated, technical debt, old codebase, outdated."
 ---
 
 # Legacy Modernizer

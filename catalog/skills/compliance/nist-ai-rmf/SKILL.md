@@ -1,6 +1,8 @@
 ---
 name: nist-ai-rmf
 description: Implement NIST AI Risk Management Framework (Govern, Map, Measure, Manage) for AI system risk management. Use when deploying AI in US federal contexts, implementing AI risk controls, or establishing comprehensive AI risk management.
+summary_l0: "Implement NIST AI RMF with Govern, Map, Measure, and Manage functions"
+overview_l1: "This skill implements the NIST AI Risk Management Framework 1.0 for comprehensive AI risk management following the Govern, Map, Measure, Manage framework. Use it when implementing AI risk management, meeting US federal AI requirements, establishing an AI governance framework, documenting AI risks and controls, preparing for AI audits, or deploying AI responsibly. Key capabilities include Govern function implementation (policies, roles, culture), Map function execution (context analysis, risk identification), Measure function application (metrics, testing, monitoring), Manage function deployment (risk response, communication), AI trustworthiness characteristics assessment, and framework integration with existing enterprise risk management. The expected output is a complete AI risk management program with governance policies, risk maps, measurement plans, and management procedures aligned to NIST AI RMF. Trigger phrases: NIST AI RMF, AI risk management, federal AI compliance, AI governance, AI risk framework, responsible AI."
 ---
 
 # NIST AI Risk Management Framework

@@ -1,6 +1,8 @@
 ---
 name: version-upgrade
 description: Comprehensive version upgrade workflow for releasing new versions. Automatically analyzes git history, updates version numbers across all files, documentation, changelogs, and generates commit messages. Use when upgrading app version, releasing new version, bumping version numbers, or preparing a release.
+summary_l0: "Automate version upgrades with changelog generation and cross-file version bumps"
+overview_l1: "This skill provides a comprehensive version upgrade workflow for releasing new versions, automatically analyzing git history, updating version numbers across all files, documentation, and changelogs, and generating commit messages. Use it when upgrading app version, releasing a new version, bumping version numbers, or preparing a release. Key capabilities include semantic version bump determination from git history, cross-file version number updates, changelog generation from conventional commits, documentation version synchronization, release commit message generation, and tag creation. The expected output is a complete version release with updated version numbers across all files, generated changelog, updated documentation, and a release commit. Trigger phrases: version upgrade, release version, bump version, prepare release, new version, version bump, changelog update."
 ---
 
 # Version Upgrade Workflow

@@ -1,6 +1,8 @@
 ---
 name: rag-implementation
 description: Retrieval-Augmented Generation implementation including document processing, chunking strategies, embedding, vector stores, and retrieval optimization. Use when building RAG pipelines, optimizing retrieval quality, or evaluating RAG systems.
+summary_l0: "Implement RAG pipelines with chunking, embeddings, vector stores, and retrieval optimization"
+overview_l1: "This skill provides end-to-end patterns for building Retrieval-Augmented Generation systems, from document ingestion through retrieval optimization to production deployment. Use it when building RAG pipelines from scratch, choosing and configuring vector databases, designing document chunking strategies, selecting embedding models, implementing hybrid retrieval (keyword plus semantic), optimizing retrieval quality with reranking, or evaluating RAG system performance. Key capabilities include document processing (PDF, HTML, code), chunking strategies (fixed-size, semantic, recursive), embedding model selection, vector store configuration, hybrid search implementation, reranking pipelines, and evaluation frameworks measuring faithfulness, relevance, and recall. The expected output is a production-ready RAG pipeline with optimized retrieval, caching, and cost controls. Trigger phrases: RAG pipeline, retrieval augmented generation, vector database, document chunking, embedding, semantic search, retrieval quality, vector store, document ingestion, reranking, hybrid search."
 ---
 
 # RAG Implementation

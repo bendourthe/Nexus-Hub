@@ -1,6 +1,8 @@
 ---
 name: api-documentation
 description: Create OpenAPI/Swagger specifications, API reference documentation, endpoint descriptions, and usage examples. Use when documenting REST APIs, GraphQL schemas, service interfaces, or generating interactive API documentation.
+summary_l0: "Create OpenAPI specs, API references, and endpoint documentation with examples"
+overview_l1: "This skill creates complete, accurate API documentation that enables developers to quickly understand and integrate with APIs. Use it when documenting REST API endpoints, creating OpenAPI/Swagger specifications, writing API reference documentation, documenting GraphQL schemas, adding request/response examples, or documenting authentication flows. Key capabilities include OpenAPI 3.x specification generation, endpoint description with parameters and responses, request/response example creation, authentication flow documentation, GraphQL schema documentation, error response cataloging, and interactive documentation generation. The expected output is standards-compliant API documentation with endpoint descriptions, parameter details, examples, and authentication guides. Trigger phrases: API documentation, OpenAPI spec, Swagger, endpoint documentation, API reference, REST docs."
 ---
 
 # API Documentation

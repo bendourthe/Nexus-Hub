@@ -1,6 +1,8 @@
 ---
 name: test-driven-development
 description: Implement Test-Driven Development (TDD) workflow - write tests first, then code. Use when implementing new features, fixing bugs, refactoring, or developing critical business logic.
+summary_l0: "Implement TDD workflow with red-green-refactor cycle and test-first development"
+overview_l1: "This skill implements Test-Driven Development (TDD) workflow where tests are written first, then code. Use it when implementing new features, fixing bugs, refactoring, or developing critical business logic. Key capabilities include red-green-refactor cycle execution, test-first requirement translation, minimal implementation to pass tests, refactoring with test safety net, TDD for bug fixes (write failing test, then fix), incremental feature development through test cycles, and TDD workflow integration with CI/CD. The expected output is code developed through the TDD cycle with comprehensive test coverage, clean implementation, and documented test progression. Trigger phrases: TDD, test-driven development, test first, red-green-refactor, write test first, test then code, failing test first."
 ---
 
 # Test-Driven Development (TDD)

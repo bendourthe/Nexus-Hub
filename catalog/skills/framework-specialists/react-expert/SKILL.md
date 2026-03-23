@@ -1,6 +1,8 @@
 ---
 name: react-expert
 description: Deep React expertise for component architecture, hooks, state management, performance optimization, and testing. Use when building React applications, optimizing rendering, or reviewing React code.
+summary_l0: "Build React apps with component architecture, hooks, state management, and optimization"
+overview_l1: "This skill provides specialized React expertise covering component architecture patterns, hooks design, state management strategies, performance optimization, testing, TypeScript integration, accessibility, and React 19 features. Use it when designing component architectures (composition, compound, render props), writing custom hooks, choosing state management (Context, Zustand, Redux Toolkit, Jotai), optimizing rendering (memoization, code splitting, Suspense), testing with React Testing Library and MSW, integrating TypeScript, building accessible UI with ARIA patterns, implementing error boundaries, or adopting React 19 features (Actions, use hook, Server Components). Key capabilities include component pattern selection, hook composition, state architecture design, render performance optimization, testing strategy implementation, TypeScript generics for components, and accessibility compliance. The expected output is well-architected React code with proper component boundaries, optimized rendering, comprehensive tests, and accessibility support. Trigger phrases: react component, react hooks, useEffect, useState, react performance, react testing, react typescript, react accessibility, zustand, redux toolkit, react memo, suspense, server components."
 ---
 
 # React Expert

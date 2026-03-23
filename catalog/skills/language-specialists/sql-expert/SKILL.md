@@ -1,6 +1,8 @@
 ---
 name: sql-expert
 description: Deep SQL expertise for query optimization and database design. Use when writing complex queries, optimizing slow queries, designing schemas, understanding execution plans, or working with PostgreSQL, MySQL, or SQL Server specific features.
+summary_l0: "Write optimized SQL queries with execution plan analysis and schema design"
+overview_l1: "This skill provides deep SQL expertise for query optimization and database design. Use it when writing complex queries, optimizing slow queries, designing schemas, understanding execution plans, or working with PostgreSQL, MySQL, or SQL Server specific features. Key capabilities include complex query construction (CTEs, window functions, subqueries), execution plan analysis and optimization, index strategy design, schema normalization and denormalization, stored procedure and function development, database-specific feature usage (PostgreSQL extensions, MySQL partitioning, SQL Server temporal tables), and migration script writing. The expected output is optimized SQL queries with execution plan analysis, schema designs, and database-specific implementation guidance. Trigger phrases: SQL query, query optimization, execution plan, PostgreSQL, MySQL, SQL Server, database design, slow query, index optimization, SQL performance."
 ---
 
 # SQL Expert

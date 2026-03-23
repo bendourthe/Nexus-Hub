@@ -1,6 +1,8 @@
 ---
 name: event-driven-architecture
 description: Event-driven architecture patterns including event sourcing, CQRS, message brokers, and event schema design. Use when designing asynchronous systems, implementing event stores, or choosing messaging infrastructure.
+summary_l0: "Build event-driven systems with event sourcing, CQRS, and message broker patterns"
+overview_l1: "This skill provides comprehensive guidance on building event-driven systems, covering event sourcing, CQRS, message broker selection, event schema design, saga patterns, idempotency, and event versioning. Use it when designing publish/subscribe or event streaming systems, implementing event sourcing with an event store, applying CQRS to separate read and write models, choosing between Kafka, RabbitMQ, AWS SNS/SQS, and NATS, implementing saga patterns (orchestration or choreography), designing event schemas with CloudEvents, Avro, or Protobuf, handling idempotency and exactly-once semantics, managing dead letter queues and event replay, or versioning events without breaking consumers. Key capabilities include core event patterns, broker comparison matrices, schema design with CloudEvents standard, saga coordination, idempotency key strategies, dead letter queue management, and event evolution techniques. The expected output is event schemas, broker configuration, saga implementations, and event store setup. Trigger phrases: event-driven, event sourcing, CQRS, message broker, Kafka, RabbitMQ, pub/sub, saga pattern, event store, dead letter queue, event schema, CloudEvents, eventual consistency."
 ---
 
 # Event-Driven Architecture

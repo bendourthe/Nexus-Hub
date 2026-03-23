@@ -1,6 +1,8 @@
 ---
 name: ai-agent-development
 description: AI agent architecture and development patterns including tool use, memory systems, planning loops, and multi-agent orchestration. Use when building AI agents, designing tool interfaces, or implementing agent evaluation.
+summary_l0: "Build AI agents with tool use, memory, planning loops, and multi-agent orchestration"
+overview_l1: "This skill provides comprehensive architecture and implementation guidance for building AI agents that reason, plan, use tools, and collaborate. Use it when designing agent architectures (ReAct, plan-and-execute, reflection), implementing tool-use patterns with function calling or MCP, building memory systems (short-term, long-term, episodic, semantic), creating planning and reasoning loops, orchestrating multi-agent systems, or adding guardrails and evaluation. Key capabilities include architecture pattern selection, tool integration schemas, memory system design, planning loop implementation, multi-agent topologies (supervisor, peer-to-peer, pipeline), guardrail enforcement, trajectory-based evaluation, and observability instrumentation. The expected output is production-grade agent code with structured logging, error handling, and cost tracking. Trigger phrases: build an agent, agent architecture, tool use, function calling, agent memory, planning loop, multi-agent, agent orchestration, agent evaluation, agent guardrails, ReAct pattern, MCP server."
 ---
 
 # AI Agent Development

@@ -1,6 +1,8 @@
 ---
 name: debug-with-logs
 description: Add strategic logging and use logs for debugging issues. Use when debugging production issues, implementing observability, adding tracing, or troubleshooting complex bugs.
+summary_l0: "Add strategic logging and use log analysis to debug production issues"
+overview_l1: "This skill adds strategic logging and uses logs for debugging issues. Use it when debugging production issues, implementing observability, adding tracing, troubleshooting complex bugs, or establishing logging standards. Key capabilities include strategic log placement at decision points and boundaries, structured logging with correlation IDs, log level selection guidance, trace context propagation, log analysis techniques for root cause identification, logging framework configuration, and performance-aware logging patterns. The expected output is strategically placed logging code with proper structure, levels, and correlation that enables efficient debugging. Trigger phrases: debug with logs, add logging, troubleshoot, production debugging, log analysis, structured logging, tracing, observability."
 ---
 
 # Debug with Logs

@@ -1,6 +1,8 @@
 ---
 name: bug-to-patch-generator
 description: Generate code patches from bug reports, error messages, and failing tests. Use when converting bug descriptions into fixes, creating patches from error output, or automating fix generation from test failures.
+summary_l0: "Generate targeted code patches from bug reports, errors, and failing tests"
+overview_l1: "This skill transforms bug reports, error messages, and failing test output into targeted code patches that fix the underlying issue while preserving all existing passing tests. Use it when converting a bug report from an issue tracker or user report into a concrete code fix, generating a patch from a failing test or assertion error, translating an error message or stack trace into the minimum required code change, producing a patch that fixes the bug while maintaining test suite integrity, automating the fix-validate-commit cycle for well-defined defects, or generating candidate patches for review. Key capabilities include bug report parsing, root cause identification, minimal diff generation, regression test creation, patch validation against existing test suites, and fix confidence scoring. The expected output is a validated code patch with an explanation of the fix, affected files, and a regression test. Trigger phrases: generate a patch, fix this bug, create a fix for, patch from error, convert bug report to fix, auto-fix, generate fix from test failure, bug to patch."
 ---
 
 # Bug-to-Patch Generator

@@ -1,6 +1,8 @@
 ---
 name: iso27001-compliance
 description: Implement ISO 27001:2022 Information Security Management System controls (114 controls across 14 domains). Use when establishing ISMS, preparing for ISO certification, implementing security controls, or achieving global security compliance.
+summary_l0: "Implement ISO 27001 ISMS controls across 14 security domains for certification"
+overview_l1: "This skill implements ISO 27001:2022 Information Security Management System (ISMS) with comprehensive controls for global security compliance. Use it when establishing an ISMS, preparing for ISO 27001 certification, implementing security controls across 14 domains, documenting security policies, achieving global compliance, or meeting enterprise customer security requirements. Key capabilities include ISMS scope definition and gap analysis, Annex A control implementation across all 14 domains, risk assessment and treatment planning, security policy and procedure documentation, Statement of Applicability generation, internal audit preparation, management review facilitation, and continuous improvement processes. The expected output is a complete ISMS package with policies, control implementations, risk treatment plans, and audit-ready documentation. Trigger phrases: ISO 27001, ISMS, information security, ISO certification, security management, Annex A controls."
 ---
 
 # ISO 27001:2022 Compliance

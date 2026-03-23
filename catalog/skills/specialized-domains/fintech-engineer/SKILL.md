@@ -1,6 +1,8 @@
 ---
 name: fintech-engineer
 description: Financial technology engineering expertise for building secure, compliant payment and banking systems. Use when implementing payment processing, designing ledger systems, building trading platforms, ensuring PCI-DSS compliance in code, implementing fraud detection pipelines, or working with financial APIs and protocols.
+summary_l0: "Build secure fintech systems with payment processing, ledgers, and fraud detection"
+overview_l1: "This skill provides financial technology engineering expertise for building secure, compliant payment and banking systems. Use it when implementing payment processing, designing ledger systems, building trading platforms, ensuring PCI-DSS compliance in code, implementing fraud detection pipelines, or working with financial APIs and protocols. Key capabilities include payment processing implementation (Stripe, Adyen, payment gateway integration), double-entry ledger system design, trading platform architecture, PCI-DSS compliance in application code, fraud detection pipeline implementation, financial API integration (banking APIs, market data feeds), money handling patterns (decimal precision, currency conversion), and regulatory compliance (KYC/AML). The expected output is secure, compliant fintech code with proper money handling, audit trails, and regulatory compliance. Trigger phrases: fintech, payment processing, ledger system, trading platform, PCI-DSS code, fraud detection, financial API, banking system, payment gateway, KYC/AML."
 ---
 
 # Fintech Engineer

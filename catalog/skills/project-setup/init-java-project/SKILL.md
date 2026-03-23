@@ -1,6 +1,8 @@
 ---
 name: init-java-project
 description: Initialize a complete Java project with Maven/Gradle build, testing framework, and standard structure. Use when starting Spring Boot applications, Maven libraries, Gradle projects, or enterprise Java applications.
+summary_l0: "Initialize Java projects with Maven/Gradle, Spring Boot, and testing frameworks"
+overview_l1: "This skill initializes a complete Java project with Maven/Gradle build system, testing framework, and standard directory structure. Use it when starting Spring Boot applications, Maven libraries, Gradle projects, or enterprise Java applications. Key capabilities include Maven/Gradle build configuration, Spring Boot starter selection, JUnit 5 and Mockito test setup, standard Java directory layout, Checkstyle/PMD configuration, Docker support, and CI/CD pipeline templates. The expected output is a fully scaffolded Java project with build configuration, test framework, code quality tools, and standard structure. Trigger phrases: new Java project, init Java, Spring Boot setup, Maven project, Gradle project, Java starter."
 ---
 
 # Initialize Java Project

@@ -1,6 +1,8 @@
 ---
 name: edge-case-generator
 description: Systematically generate edge case tests for boundary conditions, empty inputs, overflow, null values, concurrency edges, and type coercion. Use when hardening code against unexpected inputs, finding boundary bugs, testing defensive programming, validating error handling, or stress-testing input validation.
+summary_l0: "Generate edge case tests for boundaries, overflow, null values, and concurrency"
+overview_l1: "This skill systematically generates edge case tests for boundary conditions, empty inputs, overflow, null values, concurrency edges, and type coercion. Use it when hardening code against unexpected inputs, finding boundary bugs, testing defensive programming, validating error handling, or stress-testing input validation. Key capabilities include boundary value analysis, empty and null input testing, integer and buffer overflow testing, concurrency edge case generation, type coercion and implicit conversion testing, Unicode and encoding edge cases, resource exhaustion scenarios, and timing-dependent edge cases. The expected output is a comprehensive set of edge case test cases organized by category with expected behavior documentation. Trigger phrases: edge cases, boundary testing, null testing, overflow test, empty input, edge case generator, defensive testing, boundary conditions, unexpected input."
 ---
 
 # Edge Case Test Generator

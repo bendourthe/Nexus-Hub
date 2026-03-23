@@ -1,6 +1,8 @@
 ---
 name: bdd-acceptance-tests
 description: Generate executable BDD test files from Given/When/Then acceptance criteria using pytest-bdd (Python) or Cucumber.js (JavaScript). Bridges the gap between natural-language specifications and automated test suites. Use when acceptance criteria exist but are not yet automated as tests.
+summary_l0: "Generate executable BDD tests from Given/When/Then criteria with pytest-bdd and Cucumber"
+overview_l1: "This skill generates executable BDD test files from Given/When/Then acceptance criteria using pytest-bdd (Python) or Cucumber.js (JavaScript), bridging natural-language specifications and automated test suites. Use it when acceptance criteria exist but are not yet automated, when stakeholders need readable test specifications, or when aligning test coverage with business requirements. Key capabilities include Gherkin feature file generation from acceptance criteria, step definition scaffolding, pytest-bdd and Cucumber.js implementation, scenario outline creation for data-driven tests, background step extraction for shared setup, tag-based test organization, and step reuse across features. The expected output is executable BDD test files with feature files, step definitions, and configuration ready to run in CI. Trigger phrases: BDD tests, Given/When/Then, acceptance tests, Cucumber, pytest-bdd, Gherkin, feature file, acceptance criteria automation, behavior-driven development."
 ---
 
 # BDD Acceptance Test Generator

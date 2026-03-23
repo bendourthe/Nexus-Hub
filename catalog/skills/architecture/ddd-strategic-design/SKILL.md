@@ -1,6 +1,8 @@
 ---
 name: ddd-strategic-design
 description: Domain-Driven Design strategic and tactical patterns for complex business domains. Use when modeling domains, defining bounded contexts, or designing aggregates and domain events.
+summary_l0: "Model complex domains with bounded contexts, aggregates, and domain events"
+overview_l1: "This skill provides comprehensive guidance on Domain-Driven Design, covering both strategic patterns (bounded contexts, context mapping, ubiquitous language) and tactical patterns (aggregates, entities, value objects, domain events, repositories). Use it when modeling a complex business domain with multiple stakeholder groups, identifying and defining bounded contexts, drawing context maps, designing aggregates with correct consistency boundaries, implementing domain events for cross-context communication, running event storming workshops, establishing ubiquitous language, or refactoring anemic domain models into rich domain models. Key capabilities include context map relationship patterns (shared kernel, anti-corruption layer, published language, customer-supplier, conformist, open host service), aggregate design rules, event storming facilitation, and domain event implementation. The expected output is domain models with bounded context maps, aggregate specifications, event catalogs, and implementation code. Trigger phrases: domain-driven design, DDD, bounded context, aggregate, domain event, event storming, ubiquitous language, context map, value object, anti-corruption layer, shared kernel."
 ---
 
 # DDD Strategic Design

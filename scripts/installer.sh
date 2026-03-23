@@ -618,6 +618,21 @@ render_template() {
             -e "s|{{OS_CONTEXT}}|$OS_CONTEXT|g" \
             "$template" > "$output"
 
+        # Replace {{SKILL_INDEX}} with actual skill index content (multi-line, can't use sed)
+        local skill_index_file="$repo_root/data/SKILL_INDEX.md"
+        if [ -f "$skill_index_file" ] && grep -q '{{SKILL_INDEX}}' "$output" 2>/dev/null; then
+            python3 -c "
+import sys
+with open(sys.argv[1], 'r') as f:
+    content = f.read()
+with open(sys.argv[2], 'r') as f:
+    index = f.read()
+content = content.replace('{{SKILL_INDEX}}', index)
+with open(sys.argv[1], 'w') as f:
+    f.write(content)
+" "$output" "$skill_index_file" 2>/dev/null || true
+        fi
+
         # Append language-specific snippets if available
         if [ -n "$languages" ]; then
             IFS=',' read -ra LANGS <<< "$languages"
@@ -1098,6 +1113,130 @@ install_templates() {
     echo -e "${GREEN}----------------------------------------------------------------${RESET}"
 }
 
+# --- Skill Discovery (Phase 5) ---
+
+install_skill_discovery() {
+    local repo_root="$1"
+    echo ""
+    echo -e "${CYAN}================================================================${RESET}"
+    echo -e "${CYAN}       PHASE 5: Skill Discovery (All Platforms)                 ${RESET}"
+    echo -e "${CYAN}================================================================${RESET}"
+
+    # --- Phase 5A: Skill Index (all platforms) ---
+    write_item "Installing skill index for all platforms..." "$RESET"
+
+    local devai_home="$HOME/.devai-hub"
+    local devai_data="$devai_home/data"
+    mkdir -p "$devai_data"
+
+    local skill_index="$repo_root/data/SKILL_INDEX.md"
+    if [ -f "$skill_index" ]; then
+        cp "$skill_index" "$devai_data/SKILL_INDEX.md"
+        write_item "  Skill index copied to $devai_data" "$GREEN"
+    else
+        write_item "  SKILL_INDEX.md not found. Run 'python infrastructure/tools/build_skills_catalog.py' first." "$YELLOW"
+    fi
+
+    # Copy skills.json and bundles.json
+    [ -f "$repo_root/data/skills.json" ] && cp "$repo_root/data/skills.json" "$devai_data/skills.json"
+    [ -f "$repo_root/data/bundles.json" ] && cp "$repo_root/data/bundles.json" "$devai_data/bundles.json"
+    write_item "  Skill data installed to $devai_data" "$GREEN"
+
+    # --- Phase 5B: MCP Skill Server (Claude Code only) ---
+    echo ""
+    write_item "MCP Skill Server (Claude Code integration)" "$RESET"
+
+    printf "Install MCP Skill Server for Claude Code? [Y]es / [N]o: "
+    read -r install_mcp
+    if [[ ! "$install_mcp" =~ ^[Yy] ]]; then
+        write_item "  Skipping MCP server installation." "$GRAY"
+        echo ""
+        echo -e "${GREEN}        Skill Discovery Installation Complete.                   ${RESET}"
+        return
+    fi
+
+    # Check Python >= 3.10
+    local python_cmd=""
+    for cmd in python3 python; do
+        if command -v "$cmd" >/dev/null 2>&1; then
+            local ver
+            ver=$("$cmd" --version 2>&1 | grep -oP 'Python\s+3\.(\d+)' | grep -oP '\d+$')
+            if [ -n "$ver" ] && [ "$ver" -ge 10 ]; then
+                python_cmd="$cmd"
+                break
+            fi
+        fi
+    done
+
+    if [ -z "$python_cmd" ]; then
+        write_item "  Python 3.10+ not found. MCP server requires Python 3.10 or newer." "$YELLOW"
+        write_item "  Install Python and re-run the installer." "$YELLOW"
+        echo ""
+        echo -e "${GREEN}        Skill Discovery Installation Complete (MCP server skipped).${RESET}"
+        return
+    fi
+
+    write_item "  Found $python_cmd" "$GREEN"
+
+    # Copy MCP server source
+    local mcp_src="$repo_root/extensions/devai-skill-server"
+    local mcp_dest="$devai_home/mcp-server"
+    rm -rf "$mcp_dest"
+    cp -r "$mcp_src" "$mcp_dest"
+    write_item "  MCP server source copied to $mcp_dest" "$GREEN"
+
+    # Create venv and install
+    local venv_path="$devai_home/mcp-server-venv"
+
+    if command -v uv >/dev/null 2>&1; then
+        write_item "  Creating venv with uv..." "$RESET"
+        uv venv "$venv_path" >/dev/null 2>&1
+        uv pip install --python "$venv_path/bin/python" -e "$mcp_dest" >/dev/null 2>&1
+    else
+        write_item "  Creating venv with $python_cmd..." "$RESET"
+        "$python_cmd" -m venv "$venv_path" >/dev/null 2>&1
+        "$venv_path/bin/pip" install -q -e "$mcp_dest" >/dev/null 2>&1
+    fi
+
+    write_item "  MCP server venv created at $venv_path" "$GREEN"
+
+    # Register in ~/.claude/settings.json
+    local claude_dir="$HOME/.claude"
+    local claude_settings="$claude_dir/settings.json"
+    mkdir -p "$claude_dir"
+
+    if [ ! -f "$claude_settings" ]; then
+        echo '{}' > "$claude_settings"
+    fi
+
+    # Use python to safely merge MCP server config into settings.json
+    "$python_cmd" -c "
+import json, sys
+path = sys.argv[1]
+venv = sys.argv[2]
+hub = sys.argv[3]
+with open(path, 'r') as f:
+    data = json.load(f)
+if 'mcpServers' not in data:
+    data['mcpServers'] = {}
+data['mcpServers']['devai-skill-server'] = {
+    'command': venv + '/bin/python',
+    'args': ['-m', 'devai_skill_server'],
+    'env': {'DEVAI_HUB_ROOT': hub}
+}
+with open(path, 'w') as f:
+    json.dump(data, f, indent=2)
+" "$claude_settings" "$venv_path" "$devai_home"
+
+    write_item "  MCP server registered in $claude_settings" "$GREEN"
+    write_item "  The server will auto-start with Claude Code. No manual steps needed." "$GREEN"
+
+    echo ""
+    echo -e "${GREEN}----------------------------------------------------------------${RESET}"
+    echo -e "${GREEN}        Skill Discovery Installation Complete.                   ${RESET}"
+    echo -e "${GREEN}----------------------------------------------------------------${RESET}"
+}
+
 # --- Main ---
 
 # Get directory of this script
@@ -1108,6 +1247,7 @@ install_global "$REPO_ROOT"
 install_workspace "$REPO_ROOT"
 install_vscode_extensions "$REPO_ROOT"
 install_templates "$REPO_ROOT"
+install_skill_discovery "$REPO_ROOT"
 
 echo ""
 echo -e "${DARK_CYAN}================================================================${RESET}"

@@ -1,6 +1,8 @@
 ---
 name: config-consistency-checker
 description: Detects configuration drift and inconsistencies across environments by comparing dev, staging, and production configs, validating schemas, and reporting missing keys and type mismatches. Use when auditing environment configurations, debugging environment-specific failures, or enforcing configuration standards.
+summary_l0: "Detect configuration drift across environments with schema validation and diff reporting"
+overview_l1: "This skill detects, reports, and resolves configuration drift across deployment environments by comparing configuration files, environment variables, secret references, and infrastructure parameters across dev, staging, and production. Use it when auditing environment configurations, debugging environment-specific failures, enforcing configuration standards, validating configuration schemas, or integrating configuration checks into CI/CD pipelines. Key capabilities include cross-environment comparison (YAML, JSON, TOML, .env, Kubernetes ConfigMaps), missing key detection, type mismatch identification, schema validation, secret reference verification, actionable diff reporting with resolution guidance, and CI/CD pipeline integration for continuous enforcement. The expected output is a configuration consistency report with identified discrepancies, severity levels, and resolution steps. Trigger phrases: configuration drift, config consistency, environment mismatch, missing config, config audit, environment variables, config comparison, schema validation."
 ---
 
 # Config Consistency Checker

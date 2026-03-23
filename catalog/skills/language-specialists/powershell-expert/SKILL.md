@@ -1,6 +1,8 @@
 ---
 name: powershell-expert
 description: Deep PowerShell expertise for automation and systems administration. Use when writing PowerShell scripts, building modules, managing Windows/Azure infrastructure, implementing CI/CD pipelines, or working with .NET interop. Covers both PowerShell 5.1 (Windows) and PowerShell 7+ (cross-platform).
+summary_l0: "Write PowerShell scripts and modules for automation, Azure, and systems administration"
+overview_l1: "This skill provides deep PowerShell expertise for automation and systems administration, covering both PowerShell 5.1 (Windows) and PowerShell 7+ (cross-platform). Use it when writing PowerShell scripts, building modules, managing Windows/Azure infrastructure, implementing CI/CD pipelines, or working with .NET interop. Key capabilities include advanced function design with parameter validation, module architecture and manifest creation, pipeline processing and streaming, error handling with try/catch and ErrorActionPreference, Azure PowerShell and Az module usage, .NET type integration, Pester testing, DSC configuration, and CI/CD pipeline scripting. The expected output is well-structured PowerShell code with proper error handling, parameter validation, pipeline support, and module design. Trigger phrases: PowerShell, PowerShell script, PowerShell module, Azure PowerShell, Pester, PowerShell automation, Windows automation, PowerShell CI/CD, .NET interop PowerShell."
 ---
 
 # PowerShell Expert

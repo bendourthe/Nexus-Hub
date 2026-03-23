@@ -1,6 +1,8 @@
 ---
 name: python-cleanup
 description: Remove dead code, fix PEP 8 violations, add type hints, consolidate duplicates, and modernize Python codebases. Use when cleaning up Python projects, removing unused imports, upgrading legacy Python code, or improving code maintainability.
+summary_l0: "Clean up Python codebases with PEP 8 fixes, type hints, and dead code removal"
+overview_l1: "This skill systematically identifies and removes dead code, consolidates duplicate logic, and modernizes legacy Python patterns to maintain a lean, current, and maintainable codebase. Use it when removing unused imports and dead code, fixing PEP 8 style violations, adding type hints to functions, consolidating duplicate code, modernizing legacy Python (2 to 3 migration), or preparing Python code for review. Key capabilities include dead code detection with vulture and autoflake, PEP 8 compliance with ruff/black, type hint generation and insertion, duplicate code consolidation, Python 2 to 3 migration patterns, and import sorting and optimization. The expected output is a clean Python codebase with proper type hints, PEP 8 compliance, no dead code, and consolidated logic. Trigger phrases: cleanup Python, remove dead code, fix PEP 8, add type hints, Python modernization, refactor Python."
 ---
 
 # Python Code Cleanup

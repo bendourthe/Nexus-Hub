@@ -1,6 +1,8 @@
 ---
 name: iso42001-ai-governance
 description: Implement ISO 42001:2023 AI Management System requirements for responsible AI development and deployment. Use when governing AI systems, implementing AI ethics, preparing for AI-specific audits, or establishing AI risk management.
+summary_l0: "Implement ISO 42001 AI management system for responsible AI governance and auditing"
+overview_l1: "This skill implements ISO 42001:2023 requirements for responsible AI development, deployment, and governance. Use it when establishing an AI management system, implementing responsible AI practices, preparing for AI-specific audits, documenting AI governance, managing AI risks, or meeting AI regulatory requirements. Key capabilities include AI management system scope definition, responsible AI policy development, AI risk assessment and treatment, AI system lifecycle management, bias and fairness evaluation, transparency and explainability documentation, AI-specific audit preparation, and continuous improvement for AI systems. The expected output is a complete AI management system with governance policies, risk assessments, lifecycle documentation, and audit-ready evidence for ISO 42001 certification. Trigger phrases: ISO 42001, AI management, responsible AI, AI governance, AI ethics, AI certification."
 ---
 
 # ISO 42001:2023 AI Management System

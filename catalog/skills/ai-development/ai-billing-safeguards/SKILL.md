@@ -1,6 +1,8 @@
 ---
 name: ai-billing-safeguards
 description: Implement hard spending caps and billing safeguards for autonomous AI agent systems — per-session and per-task budget limits, provider-level quota controls, cost attribution audit trails, and graceful budget-exceeded termination. Use when deploying autonomous agents that run without continuous human oversight.
+summary_l0: "Enforce hard spending caps and billing safeguards for autonomous AI agent systems"
+overview_l1: "This skill provides production patterns for enforcing hard budget limits in autonomous AI agent systems, distinct from usage monitoring which only displays cost. Use it when deploying autonomous agents without continuous human oversight, running multi-agent pipelines where cost accumulates across parallel executions, managing production deployments where budget overruns have real financial consequences, or requiring cost attribution per team, project, or workflow. Key capabilities include hard session caps with automatic termination on breach, per-task cost limits, provider-level quota configuration, structured cost attribution audit trails, graceful budget-exceeded termination, and development environment loop protection. The expected output is SDK-layer billing enforcement code that blocks execution when limits are reached, with structured cost logging and clean termination. Trigger phrases: agent spending cap, LLM budget limit, AI cost guardrail, billing safeguard, prevent runaway agents, autonomous agent cost control, per-session budget."
 ---
 
 # AI Billing Safeguards

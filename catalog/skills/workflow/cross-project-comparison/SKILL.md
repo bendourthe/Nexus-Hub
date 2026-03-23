@@ -1,6 +1,8 @@
 ---
 name: cross-project-comparison
 description: Compare the current project with an external knowledge source (Git repo, web article, or local path) to produce a structured gap analysis and adoption plan
+summary_l0: "Compare projects with external sources to produce gap analysis and adoption plans"
+overview_l1: "This skill compares the current project with an external knowledge source (Git repo, web article, or local path) to produce a structured gap analysis and adoption plan. Use it when benchmarking your project against industry standards, evaluating open-source alternatives, identifying adoption opportunities from articles or repos, planning migrations based on external references, or producing structured comparison reports. Key capabilities include multi-source comparison (Git repos, web articles, local paths), structured gap analysis generation, adoption plan creation with prioritized recommendations, pattern and practice extraction from external sources, compatibility assessment, and migration effort estimation. The expected output is a structured gap analysis report with identified differences, adoption recommendations, and a prioritized implementation plan. Trigger phrases: compare projects, gap analysis, benchmarking, cross-project, adoption plan, compare with repo, compare with article, project comparison."
 version: 1.1.0
 author: Benjamin Dourthe
 category: Workflow

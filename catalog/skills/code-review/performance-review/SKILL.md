@@ -1,6 +1,8 @@
 ---
 name: performance-review
 description: Profile performance, detect bottlenecks, analyze resource usage, caching strategies, and boundary conditions. Use when addressing performance issues, optimizing hot paths, reducing resource consumption, or as Phase 4 of comprehensive code review.
+summary_l0: "Detect performance bottlenecks, resource issues, and caching optimization opportunities"
+overview_l1: "This skill identifies performance bottlenecks, caching issues, and optimization opportunities, serving as Phase 4 of the 6-phase code review methodology. Use it when identifying performance bottlenecks, optimizing critical code paths, reducing resource consumption, improving response times, addressing scalability concerns, profiling memory and CPU usage, or evaluating caching strategies. Key capabilities include hot path identification, algorithmic complexity analysis, memory allocation profiling, database query optimization, caching strategy evaluation, I/O bottleneck detection, resource leak identification, and scalability assessment. The expected output is a performance findings report with identified bottlenecks, profiling data, optimization recommendations with expected impact, and prioritized remediation steps. Trigger phrases: performance review, bottleneck, slow code, optimize, profiling, latency, throughput, memory usage, caching."
 ---
 
 # Code Review - Performance Review

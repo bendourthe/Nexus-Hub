@@ -1,6 +1,8 @@
 ---
 name: plan-before-code
 description: Guide exploration and planning phases before implementation (Anthropic best practice). Includes LLM task suitability assessment, token cost estimation, and pipeline design. Use when starting non-trivial features, fixing bugs that need root cause analysis, refactoring code, or working in unfamiliar codebases.
+summary_l0: "Plan before coding with exploration, task assessment, and implementation design"
+overview_l1: "This skill guides exploration and planning phases before implementation, following Anthropic best practices. Use it when starting non-trivial features, fixing bugs that need root cause analysis, refactoring code, or working in unfamiliar codebases. Key capabilities include LLM task suitability assessment, token cost estimation, codebase exploration strategies, root cause analysis planning, implementation plan creation, pipeline and workflow design, risk identification, and scope management. The expected output is a structured plan with exploration findings, implementation approach, risk assessment, and estimated effort before any code is written. Trigger phrases: plan before code, exploration phase, implementation plan, task assessment, root cause analysis, unfamiliar codebase, planning phase."
 ---
 
 # Plan Before Code

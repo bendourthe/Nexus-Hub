@@ -1,6 +1,8 @@
 ---
 name: typescript-expert
 description: Deep TypeScript expertise for type-safe application development. Use when writing TypeScript code, designing type systems, implementing generics, handling discriminated unions, configuring tsconfig, or building type-safe APIs and React components.
+summary_l0: "Write type-safe TypeScript with generics, discriminated unions, and strict configuration"
+overview_l1: "This skill provides deep TypeScript expertise for type-safe application development. Use it when writing TypeScript code, designing type systems, implementing generics, handling discriminated unions, configuring tsconfig, or building type-safe APIs and React components. Key capabilities include advanced type system design (mapped types, conditional types, template literal types), generic function and class implementation, discriminated union pattern usage, strict tsconfig configuration, type guard and assertion function writing, Zod schema integration for runtime validation, and type-safe API client design. The expected output is strictly-typed TypeScript code with proper generics, type narrowing, and compilation configuration. Trigger phrases: TypeScript code, generics, discriminated union, type guard, tsconfig, TypeScript strict, type-safe API, TypeScript React, mapped types, conditional types."
 ---
 
 # TypeScript Expert

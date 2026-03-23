@@ -1,6 +1,8 @@
 ---
 name: code-commit-workflow
 description: Implement proper Git commit workflow with conventional commits, atomic changes, and meaningful messages. Use when committing changes, preparing pull requests, or establishing team commit standards.
+summary_l0: "Implement Git commit workflows with conventional commits and atomic changes"
+overview_l1: "This skill implements proper Git commit workflow with conventional commits, atomic changes, and meaningful messages. Use it when committing changes, preparing pull requests, or establishing team commit standards. Key capabilities include conventional commit message formatting, atomic change grouping, meaningful commit message writing, interactive staging guidance, commit history organization, pull request preparation, branch strategy implementation, and team commit standard enforcement. The expected output is well-structured Git commits with conventional format, atomic scope, and meaningful messages that enable clear project history. Trigger phrases: commit workflow, conventional commits, commit message, atomic commit, pull request, Git workflow, commit standards, meaningful commits."
 ---
 
 # Code Commit Workflow

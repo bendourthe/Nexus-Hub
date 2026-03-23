@@ -1,6 +1,8 @@
 ---
 name: gdpr-compliance
 description: Implement GDPR requirements for EU data protection including data subject rights, consent management, and breach notification. Use when handling EU personal data, preparing for GDPR compliance, or implementing privacy controls.
+summary_l0: "Implement GDPR data protection with subject rights, consent, and breach notification"
+overview_l1: "This skill implements EU General Data Protection Regulation requirements for comprehensive data protection and privacy. Use it when handling EU personal data, implementing data subject rights, managing consent, conducting Data Protection Impact Assessments (DPIAs), handling data breaches, or documenting lawful processing bases. Key capabilities include data subject rights implementation (access, rectification, erasure, portability, restriction, objection), consent management with granular opt-in/opt-out, DPIA execution and documentation, breach notification workflows (72-hour supervisory authority notification), lawful processing basis documentation, data processing agreement templates, and cross-border transfer mechanisms (SCCs, adequacy decisions). The expected output is GDPR-compliant data processing controls with consent mechanisms, DPIA reports, breach response procedures, and processing records. Trigger phrases: GDPR compliance, data protection, EU privacy, data subject rights, DPIA, consent management, right to be forgotten."
 ---
 
 # GDPR Compliance

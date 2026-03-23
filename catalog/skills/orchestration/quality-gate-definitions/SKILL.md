@@ -1,6 +1,8 @@
 ---
 name: quality-gate-definitions
 description: Reusable GO/NO-GO quality gate definitions for multi-phase workflows. Provides predefined gate types, criteria templates, and behavior configuration for planning, implementation, testing, security, and deployment checkpoints.
+summary_l0: "Define reusable GO/NO-GO quality gates for multi-phase workflow checkpoints"
+overview_l1: "This skill provides reusable GO/NO-GO quality gate definitions for multi-phase workflows, including predefined gate types, criteria templates, and behavior configuration. Use it when establishing checkpoints between planning, implementation, testing, security, and deployment phases, enforcing quality standards before phase transitions, or designing automated quality enforcement. Key capabilities include predefined gate type selection (planning, implementation, testing, security, deployment), criteria template customization, pass/fail threshold configuration, automated gate evaluation, manual override policies, gate failure remediation guidance, and integration with workflow orchestration. The expected output is configured quality gate definitions with criteria, thresholds, and enforcement behavior for each workflow phase. Trigger phrases: quality gate, GO/NO-GO, checkpoint, gate criteria, phase gate, deployment gate, quality checkpoint, workflow gate."
 ---
 
 # Quality Gate Definitions

@@ -1,6 +1,8 @@
 ---
 name: bug-reproduction-test-generator
 description: Create minimal reproduction tests from bug reports and error descriptions. Use when writing failing tests from bug reports, creating minimal reproductions, isolating test cases, or building regression test suites from production incidents.
+summary_l0: "Create minimal reproduction tests from bug reports and error descriptions"
+overview_l1: "This skill transforms bug reports, error descriptions, and production incident logs into minimal, isolated reproduction tests that reliably demonstrate the defect. Use it when converting natural-language bug reports into failing test cases, creating minimal reproductions from complex failure scenarios, isolating bugs from surrounding context, generating regression tests from production incidents, building tests that fail before a fix and pass after, reducing large tests to the smallest triggering case, or setting up exact environment conditions for intermittent failures. Key capabilities include bug report parsing and condition extraction, test case minimization, environment condition setup, intermittent failure isolation, regression test scaffolding, and before/after validation patterns. The expected output is a minimal, self-contained test file that reliably reproduces the bug with clear assertions and setup instructions. Trigger phrases: write a reproduction test, create a failing test, reproduce this bug, minimal reproduction, write a test for this bug report, create regression test, isolate the failure, test case from bug report."
 ---
 
 # Bug Reproduction Test Generator

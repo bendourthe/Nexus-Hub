@@ -1,6 +1,8 @@
 ---
 name: task-coordinator
 description: Coordinate complex multi-step tasks by breaking them down into manageable subtasks with dependency tracking. Covers multi-agent architectural patterns (supervisor, swarm, hierarchical), token economics, and handoff protocols. Use when implementing large features, coordinating parallel work streams, designing multi-agent systems, or managing complex workflows.
+summary_l0: "Coordinate multi-step tasks with dependency tracking and multi-agent patterns"
+overview_l1: "This skill coordinates complex multi-step tasks by breaking them into manageable subtasks with dependency tracking, covering multi-agent architectural patterns, token economics, and handoff protocols. Use it when implementing large features, coordinating parallel work streams, designing multi-agent systems, managing complex workflows, or planning task decomposition. Key capabilities include task decomposition with dependency graphs, multi-agent pattern selection (supervisor, swarm, hierarchical), token budget allocation across subtasks, handoff protocol design between agents, parallel work stream coordination, progress tracking with dependency resolution, and failure recovery across subtask chains. The expected output is a task execution plan with dependency graph, agent assignments, token budgets, and handoff protocols. Trigger phrases: task coordination, multi-step task, dependency tracking, parallel work, multi-agent, task decomposition, handoff protocol, work streams."
 ---
 
 # Task Coordinator

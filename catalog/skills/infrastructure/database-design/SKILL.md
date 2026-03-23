@@ -1,6 +1,8 @@
 ---
 name: database-design
 description: Database design expertise including schema modeling, normalization, indexing strategies, migration patterns, and query optimization. Use when designing database schemas, optimizing queries, or planning data migrations.
+summary_l0: "Design database schemas with normalization, indexing, migrations, and query optimization"
+overview_l1: "This skill provides comprehensive guidance for designing relational and non-relational database schemas, applying normalization theory, building effective indexing strategies, writing performant queries, and executing safe schema migrations across PostgreSQL, MySQL, and document stores. Use it when designing new database schemas, optimizing slow queries, planning data migrations, choosing between relational and NoSQL databases, implementing indexing strategies, or normalizing/denormalizing data models. Key capabilities include schema modeling with ERD generation, normalization (1NF through BCNF), strategic index design, query plan analysis and optimization, safe migration patterns with zero-downtime strategies, and multi-database design (PostgreSQL, MySQL, MongoDB). The expected output is database schemas with migration scripts, indexing strategies, and query optimization recommendations. Trigger phrases: database design, schema design, normalization, indexing, query optimization, migration, PostgreSQL, MySQL, database schema."
 ---
 
 # Database Design

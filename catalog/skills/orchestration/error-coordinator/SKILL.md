@@ -1,6 +1,8 @@
 ---
 name: error-coordinator
 description: Cross-agent error resolution and recovery coordination. Use when multiple agents encounter related failures, errors cascade across task boundaries, partial results need reconciliation, or systematic diagnosis requires correlating failures from different execution contexts.
+summary_l0: "Coordinate cross-agent error resolution with failure correlation and recovery"
+overview_l1: "This skill provides cross-agent error resolution and recovery coordination. Use it when multiple agents encounter related failures, errors cascade across task boundaries, partial results need reconciliation, or systematic diagnosis requires correlating failures from different execution contexts. Key capabilities include cross-agent failure correlation, error cascade detection and containment, partial result reconciliation, systematic diagnosis across execution contexts, recovery strategy coordination, shared resource conflict resolution, and post-failure state reconstruction. The expected output is correlated error diagnosis with recovery plan, partial result reconciliation, and preventive recommendations. Trigger phrases: cross-agent error, cascading failure, agent recovery, error correlation, partial results, multi-agent failure, error coordination, agent reconciliation."
 ---
 
 # Error Coordinator

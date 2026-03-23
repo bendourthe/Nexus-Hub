@@ -1,6 +1,8 @@
 ---
 name: mocks-fixtures
 description: Build test doubles (mocks, stubs, spies, fakes), data factories, and fixtures for test isolation. Use when tests need external dependency isolation, consistent test data, complex setup scenarios, or when mocking APIs, databases, and services in Python, JavaScript, Java, C#, Go, C, or C++.
+summary_l0: "Build mocks, stubs, data factories, and fixtures for test isolation"
+overview_l1: "This skill builds test doubles (mocks, stubs, spies, fakes), data factories, and fixtures for test isolation across multiple languages. Use it when tests need external dependency isolation, consistent test data, complex setup scenarios, or when mocking APIs, databases, and services. Key capabilities include mock and stub creation for external dependencies, spy configuration for interaction verification, fake implementation for complex services, data factory design with realistic test data, fixture management with proper setup/teardown, HTTP mock servers (MSW, WireMock), and database fixture management. The expected output is reusable test doubles, data factories, and fixtures that provide consistent, isolated test environments. Trigger phrases: mocks, stubs, test fixtures, test doubles, data factory, mock API, test isolation, mock database, spy, fake."
 ---
 
 # Mocks & Fixtures

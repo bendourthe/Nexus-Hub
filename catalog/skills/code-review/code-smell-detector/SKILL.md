@@ -1,6 +1,8 @@
 ---
 name: code-smell-detector
 description: Detect and categorize code smells using Martin Fowler's catalog with severity scoring and refactoring recommendations. Use when reviewing code quality, identifying long methods, god classes, feature envy, data clumps, shotgun surgery, or other structural problems.
+summary_l0: "Detect code smells using Fowler's catalog with severity scoring and refactoring advice"
+overview_l1: "This skill provides systematic detection and categorization of code smells based on Martin Fowler's catalog and established software engineering literature. Use it when reviewing code for structural quality problems before merging, identifying methods, classes, or modules that have grown too large or complex, detecting coupling and cohesion issues, prioritizing refactoring efforts based on severity and impact, training developers to recognize anti-patterns, establishing code quality baselines, or preparing a codebase for new feature development. Key capabilities include smell detection across Fowler's full catalog (long method, god class, feature envy, data clumps, shotgun surgery, divergent change, primitive obsession, parallel inheritance), severity scoring with impact assessment, specific refactoring strategy recommendations per smell, and codebase-level smell density reporting. The expected output is a categorized smell report with location, severity, impact explanation, and recommended refactoring for each instance. Trigger phrases: code smell, detect smells, find code smells, code quality issues, long method, god class, feature envy, data clumps, shotgun surgery, code review quality, structural problems, anti-patterns."
 ---
 
 # Code Smell Detector

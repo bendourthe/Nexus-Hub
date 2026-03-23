@@ -1,6 +1,8 @@
 ---
 name: e2e-testing-automation
 description: End-to-end testing automation with Playwright, Cypress, and Selenium including page objects, visual regression, and CI integration. Use when implementing browser testing, setting up E2E pipelines, or debugging flaky tests.
+summary_l0: "Automate end-to-end testing with Playwright, Cypress, page objects, and CI integration"
+overview_l1: "This skill provides end-to-end testing automation with Playwright, Cypress, and Selenium, including page object patterns, visual regression testing, and CI integration. Use it when implementing browser testing, setting up E2E test pipelines, debugging flaky tests, implementing visual regression testing, or designing page object architectures. Key capabilities include Playwright, Cypress, and Selenium test authoring, page object model design, visual regression testing setup, CI/CD pipeline integration for E2E tests, flaky test debugging and stabilization, cross-browser testing configuration, test data management, and parallel test execution. The expected output is a complete E2E test suite with page objects, visual regression baselines, and CI pipeline configuration. Trigger phrases: E2E testing, Playwright, Cypress, Selenium, page objects, visual regression, browser testing, flaky tests, end-to-end tests, E2E pipeline."
 ---
 
 # E2E Testing Automation

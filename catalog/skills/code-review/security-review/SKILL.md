@@ -1,6 +1,8 @@
 ---
 name: security-review
 description: Identify security vulnerabilities across 10 domains including OWASP Top 10, race conditions, supply chain risks, and compliance gaps. Use for security audits, penetration test preparation, vulnerability assessment, or as Phase 3 of comprehensive code review.
+summary_l0: "Identify security vulnerabilities across OWASP Top 10 and supply chain domains"
+overview_l1: "This skill identifies security vulnerabilities and risks across 10 security domains, serving as Phase 3 of the 6-phase code review methodology. Use it when conducting security audits, identifying vulnerabilities across all attack surfaces, checking OWASP Top 10 compliance, assessing supply chain security, analyzing race conditions and concurrency risks, preparing for penetration testing, or meeting security compliance requirements. Key capabilities include OWASP Top 10 vulnerability scanning, injection attack detection, authentication and authorization review, sensitive data exposure analysis, race condition and concurrency risk assessment, supply chain dependency auditing, and compliance gap identification. The expected output is a security findings report with categorized vulnerabilities, severity ratings, exploitation scenarios, and remediation recommendations. Trigger phrases: security review, vulnerability scan, OWASP, security audit, penetration test prep, CVE check, security assessment, race condition."
 ---
 
 # Code Review - Security Review

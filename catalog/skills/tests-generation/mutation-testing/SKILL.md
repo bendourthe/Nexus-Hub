@@ -1,6 +1,8 @@
 ---
 name: mutation-testing
 description: Validate test quality through mutation testing to detect weak tests and reward hacking patterns. Use when verifying test suite effectiveness, improving test quality, detecting false-positive tests, or validating that tests catch real bugs in Python, JavaScript, Java, C#, Go, C, or C++ code.
+summary_l0: "Validate test quality through mutation testing to detect weak tests"
+overview_l1: "This skill validates test quality through mutation testing to detect weak tests and reward hacking patterns. Use it when verifying test suite effectiveness, improving test quality, detecting false-positive tests, or validating that tests catch real bugs. Key capabilities include mutation operator selection and configuration, mutation testing tool setup (mutmut, Stryker, PIT, dotnet-stryker), survived mutant analysis, weak test identification, mutation score interpretation, test improvement recommendations based on surviving mutants, and CI/CD integration for continuous mutation testing. The expected output is a mutation testing report with mutation score, survived mutants analysis, and specific test improvement recommendations. Trigger phrases: mutation testing, test quality, weak tests, mutation score, survived mutants, Stryker, PIT, mutmut, test effectiveness, reward hacking."
 ---
 
 # Mutation Testing

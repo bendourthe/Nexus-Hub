@@ -1,6 +1,8 @@
 ---
 name: fuzzing-input-generator
 description: Generate fuzz testing inputs for security and robustness testing using mutation-based, grammar-based, and coverage-guided fuzzing techniques. Use when testing parsers, APIs, file format handlers, network protocols, or when you need to discover crashes, hangs, and undefined behaviour through automated input generation.
+summary_l0: "Generate fuzz testing inputs with mutation, grammar, and coverage-guided techniques"
+overview_l1: "This skill generates fuzz testing inputs for security and robustness testing using mutation-based, grammar-based, and coverage-guided fuzzing techniques. Use it when testing parsers, APIs, file format handlers, network protocols, or when discovering crashes, hangs, and undefined behaviour through automated input generation. Key capabilities include mutation-based fuzzing (bit flipping, byte insertion, dictionary-based), grammar-based fuzzing with format-aware input generation, coverage-guided fuzzing with corpus management, crash triage and deduplication, harness design for target functions, seed corpus creation, and tool configuration (AFL++, libFuzzer, go-fuzz, Jazzer). The expected output is fuzzing harnesses, seed corpora, and crash reports with reproduction inputs. Trigger phrases: fuzzing, fuzz testing, fuzz inputs, AFL, libFuzzer, crash discovery, parser testing, protocol fuzzing, grammar fuzzing, coverage-guided fuzzing."
 ---
 
 # Fuzzing Input Generator

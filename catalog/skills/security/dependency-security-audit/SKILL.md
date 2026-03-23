@@ -1,6 +1,8 @@
 ---
 name: dependency-security-audit
 description: Audit project dependencies for known vulnerabilities (CVEs), license issues, and outdated packages with SBOM generation. Use when deploying to production, responding to CVEs, onboarding legacy code, preparing security audits, or establishing DevSecOps practices.
+summary_l0: "Audit dependencies for CVEs, license issues, and outdated packages with SBOM"
+overview_l1: "This skill audits project dependencies for known vulnerabilities (CVEs), license issues, and outdated packages with SBOM generation. Use it when deploying to production, responding to CVEs, onboarding legacy code, preparing security audits, or establishing DevSecOps practices. Key capabilities include CVE scanning across package ecosystems, license compatibility checking, outdated package detection, SBOM generation (CycloneDX, SPDX), vulnerability severity scoring, remediation recommendation generation, and CI/CD integration for continuous scanning. The expected output is a security audit report with CVE findings, license issues, outdated packages, and prioritized remediation recommendations. Trigger phrases: dependency audit, CVE scan, security audit, npm audit, pip audit, vulnerability scan, SBOM, dependency security, outdated packages."
 ---
 
 # Dependency Security Audit

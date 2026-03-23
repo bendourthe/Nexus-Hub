@@ -1,6 +1,8 @@
 ---
 name: code-optimizer
 description: Performance-focused code optimization covering algorithmic complexity, memory usage, I/O efficiency, caching, and concurrency. Use when code is slow, uses too much memory, has bottleneck hotspots, or needs performance tuning.
+summary_l0: "Optimize code performance through profiling, algorithmic improvement, and caching"
+overview_l1: "This skill provides systematic performance optimization through profiling, algorithmic improvement, memory optimization, I/O efficiency, caching strategies, and concurrency patterns, emphasizing measurement-driven optimization that targets verified bottlenecks. Use it when code is demonstrably too slow, functions have been identified as bottlenecks through profiling, memory consumption needs reduction, I/O-bound operations need optimization, response times need improvement, cloud costs need reduction through efficiency, code needs to handle higher scale, or batch jobs take too long. Key capabilities include profiling-guided bottleneck identification, algorithmic complexity reduction, memory allocation optimization, database query optimization, I/O batching and parallelization, caching strategy design, and concurrency pattern application. The expected output is optimized code with benchmark comparisons, profiling evidence, and performance improvement metrics. Trigger phrases: optimize, performance, slow code, speed up, bottleneck, reduce memory, cache, too slow, optimize query, improve performance, latency, throughput."
 ---
 
 # Code Optimizer

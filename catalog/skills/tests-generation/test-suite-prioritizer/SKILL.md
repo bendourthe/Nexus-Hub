@@ -1,6 +1,8 @@
 ---
 name: test-suite-prioritizer
 description: Order and prioritize test suites for faster CI feedback using failure history analysis, code change correlation, coverage-based prioritization, risk-based ordering, and test selection strategies. Use when CI pipelines are slow, you need faster feedback loops, or you want to run the most important tests first.
+summary_l0: "Prioritize test suites for faster CI feedback with failure history and risk analysis"
+overview_l1: "This skill orders and prioritizes test suites for faster CI feedback using failure history analysis, code change correlation, coverage-based prioritization, risk-based ordering, and test selection strategies. Use it when CI pipelines are slow, you need faster feedback loops, or you want to run the most important tests first. Key capabilities include failure history analysis for predictive ordering, code change correlation to run affected tests first, coverage-based prioritization for maximum impact, risk-based ordering for critical path testing, test selection to skip unaffected tests, execution time optimization, and CI pipeline integration for dynamic test ordering. The expected output is a prioritized test execution order with rationale, estimated time savings, and CI configuration. Trigger phrases: test prioritization, slow CI, faster feedback, test ordering, test selection, important tests first, CI optimization, failure prediction, risk-based testing."
 ---
 
 # Test Suite Prioritizer

@@ -1,6 +1,8 @@
 ---
 name: api-design
 description: API design principles for REST, GraphQL, and gRPC including versioning, pagination, error handling, and documentation. Use when designing new APIs, reviewing API contracts, or migrating between API styles.
+summary_l0: "Design REST, GraphQL, and gRPC APIs with versioning, pagination, and error handling"
+overview_l1: "This skill provides comprehensive guidance for designing, documenting, and evolving APIs across REST, GraphQL, and gRPC paradigms. Use it when designing a new API from scratch, reviewing an existing API contract, choosing between REST, GraphQL, and gRPC, implementing pagination, filtering, and sorting, designing error response formats (RFC 7807 Problem Details), planning API versioning and evolution, setting up rate limiting and authentication, writing OpenAPI, GraphQL schema, or protobuf definitions, or migrating between API styles. Key capabilities include resource naming and HTTP method mapping, GraphQL schema and resolver design, gRPC service and protobuf definition, pagination patterns (cursor, offset, keyset), error handling standards, versioning strategies (URL, header, content type), and contract-first development workflows. The expected output is API specifications (OpenAPI, GraphQL SDL, or proto files), implementation code, and documentation. Trigger phrases: API design, REST API, GraphQL schema, gRPC proto, API versioning, pagination, error handling, OpenAPI, API contract, rate limiting, HATEOAS."
 ---
 
 # API Design

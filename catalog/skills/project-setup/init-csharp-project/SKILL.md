@@ -1,6 +1,8 @@
 ---
 name: init-csharp-project
 description: Initialize a complete C#/.NET project with solution structure, testing framework, and configuration. Use when starting ASP.NET Core APIs, console applications, class libraries, or Blazor applications.
+summary_l0: "Initialize C#/.NET projects with solution structure, testing, and configuration"
+overview_l1: "This skill initializes a complete C#/.NET project with solution structure, testing framework, and configuration. Use it when starting ASP.NET Core APIs, console applications, class libraries, or Blazor applications. Key capabilities include solution and project scaffolding, NuGet package configuration, xUnit/NUnit test project setup, appsettings.json configuration, Docker support, CI/CD pipeline templates, and coding standards enforcement setup. The expected output is a fully scaffolded .NET solution with project structure, test projects, configuration, and build pipeline ready for development. Trigger phrases: new C# project, init dotnet, ASP.NET Core setup, Blazor project, .NET solution, C# starter, new .NET project."
 ---
 
 # Initialize C#/.NET Project

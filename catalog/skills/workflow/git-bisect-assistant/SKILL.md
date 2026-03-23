@@ -1,6 +1,8 @@
 ---
 name: git-bisect-assistant
 description: Guide efficient bug-finding with git bisect using binary search across commit history, automated test scripts, skip strategies, and complex history handling. Use when tracking down the commit that introduced a regression, performance degradation, or behavioral change.
+summary_l0: "Find regression-introducing commits with git bisect and automated test scripts"
+overview_l1: "This skill guides efficient bug-finding with git bisect using binary search across commit history, automated test scripts, skip strategies, and complex history handling. Use it when tracking down the commit that introduced a regression, performance degradation, or behavioral change. Key capabilities include git bisect workflow setup, automated test script creation for bisect run, skip strategy for untestable commits, complex merge history handling, performance regression bisection, bisect log analysis, and binary search optimization across large histories. The expected output is identification of the exact commit that introduced the regression with bisect log evidence and automated test script. Trigger phrases: git bisect, find regression, which commit broke, binary search commits, regression commit, bisect run, track down bug, commit that caused."
 ---
 
 # Git Bisect Assistant

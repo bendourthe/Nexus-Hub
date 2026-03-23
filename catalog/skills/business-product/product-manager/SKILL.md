@@ -1,6 +1,8 @@
 ---
 name: product-manager
 description: Product management analysis for engineering-informed decision framing. Use when a task needs product framing, feature prioritization based on user impact and engineering reality, scope control to prevent complexity creep, or structured now/next/later sequencing with explicit tradeoffs.
+summary_l0: "Frame product decisions with feature prioritization, scope control, and roadmap sequencing"
+overview_l1: "This skill provides product management analysis for engineering-informed decision framing. Use it when a task needs product framing, feature prioritization based on user impact and engineering reality, scope control to prevent complexity creep, or structured now/next/later sequencing with explicit tradeoffs. Key capabilities include feature prioritization using impact/effort frameworks, scope control and complexity prevention, now/next/later roadmap sequencing, tradeoff analysis with explicit documentation, user impact assessment, engineering feasibility integration into product decisions, and MVP scope definition. The expected output is structured product decisions with prioritized features, scope boundaries, sequencing plans, and documented tradeoffs. Trigger phrases: product framing, feature prioritization, scope control, roadmap, now/next/later, tradeoff analysis, MVP scope, product decision, user impact, complexity creep."
 ---
 
 # Product Manager

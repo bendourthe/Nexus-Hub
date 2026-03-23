@@ -1,6 +1,8 @@
 ---
 name: ambiguity-detector
 description: Detect ambiguous, incomplete, or contradictory requirements and specifications with structured clarification templates. Use when reviewing requirements, user stories, API specifications, or any written specification before implementation begins.
+summary_l0: "Detect ambiguous, incomplete, and contradictory requirements with clarification templates"
+overview_l1: "This skill provides systematic detection of ambiguous, incomplete, contradictory, and underspecified requirements in software specifications, user stories, API contracts, and design documents. Use it when reviewing user stories before sprint planning, analyzing API specifications for undefined edge cases, evaluating design documents for contradictory assumptions, checking acceptance criteria for testability, reviewing inter-team or inter-service contracts, preparing clarification questions for stakeholders, assessing requirement document quality, or preventing rework from misunderstood requirements. Key capabilities include ambiguity classification (lexical, syntactic, semantic, pragmatic), incompleteness detection, contradiction identification, edge case gap analysis, clarification question template generation, requirement quality scoring, and testability assessment. The expected output is an ambiguity report categorizing each issue with location, type, severity, and structured clarification questions. Trigger phrases: ambiguous requirement, unclear specification, what does this mean, requirements review, missing details, contradictory requirements, incomplete spec, ambiguity check, requirements quality, clarify this requirement, underspecified."
 ---
 
 # Ambiguity Detector

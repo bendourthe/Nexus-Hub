@@ -1,6 +1,8 @@
 ---
 name: scrum-master
 description: Scrum and agile facilitation expertise for engineering teams. Use when planning sprints, facilitating retrospectives, removing blockers, tracking velocity and burndown, improving team processes, or coaching teams on agile principles and practices.
+summary_l0: "Facilitate Scrum ceremonies, sprint planning, retrospectives, and agile coaching"
+overview_l1: "This skill provides Scrum and agile facilitation expertise for engineering teams. Use it when planning sprints, facilitating retrospectives, removing blockers, tracking velocity and burndown, improving team processes, or coaching teams on agile principles and practices. Key capabilities include sprint planning facilitation, backlog refinement guidance, daily standup optimization, retrospective design and facilitation, velocity and burndown tracking, blocker identification and resolution, agile metric interpretation, and team coaching on Scrum, Kanban, and scaled agile frameworks. The expected output is structured agile ceremony outputs (sprint plans, retrospective action items, velocity reports) and process improvement recommendations. Trigger phrases: sprint planning, retrospective, scrum master, agile coaching, velocity, burndown, blockers, scrum ceremony, backlog refinement, sprint review."
 ---
 
 # Scrum Master

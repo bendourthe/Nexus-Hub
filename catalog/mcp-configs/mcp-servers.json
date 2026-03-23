@@ -81,6 +81,14 @@
         "CLOUDFLARE_API_TOKEN": "${CLOUDFLARE_API_TOKEN}",
         "CLOUDFLARE_ACCOUNT_ID": "${CLOUDFLARE_ACCOUNT_ID}"
       }
+    },
+    "devai-skill-server": {
+      "command": "python",
+      "args": ["-m", "devai_skill_server"],
+      "env": {
+        "DEVAI_HUB_ROOT": "${DEVAI_HUB_ROOT}"
+      },
+      "_comment": "DevAI-Hub skill discovery MCP server. Provides search_skills, get_skill, list_categories, list_bundles, and get_bundle tools. Set DEVAI_HUB_ROOT to the DevAI-Hub repo root, or install via the DevAI-Hub installer. Falls back to ~/.devai-hub/. Requires Python 3.10+."
     }
   },
   "_usage": {

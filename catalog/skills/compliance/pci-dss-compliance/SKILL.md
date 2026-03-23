@@ -1,6 +1,8 @@
 ---
 name: pci-dss-compliance
 description: Implement PCI-DSS v4.0 requirements for payment card data security. Use when handling payment card data, preparing for PCI audits, securing payment systems, or meeting merchant compliance requirements.
+summary_l0: "Implement PCI-DSS v4.0 controls for payment card data security and audit readiness"
+overview_l1: "This skill implements PCI Data Security Standard v4.0 requirements for secure handling of payment card data. Use it when processing payment card data, preparing for PCI-DSS audits, implementing payment security controls, securing cardholder data environments, meeting merchant compliance requirements, or documenting PCI controls. Key capabilities include cardholder data environment scoping, network segmentation and firewall configuration, encryption and key management for card data, access control implementation, vulnerability management and patching, logging and monitoring setup, penetration testing guidance, and audit evidence preparation across all 12 PCI-DSS requirement domains. The expected output is PCI-DSS-compliant security controls with network diagrams, encryption configurations, access policies, and audit-ready documentation. Trigger phrases: PCI DSS, PCI compliance, payment security, card data, cardholder data, payment processing."
 ---
 
 # PCI-DSS v4.0 Compliance

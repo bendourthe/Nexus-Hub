@@ -1,6 +1,8 @@
 ---
 name: ccpa-compliance
 description: Implement CCPA/CPRA requirements for California consumer privacy including opt-out rights and data disclosure. Use when handling California resident data, preparing for CCPA compliance, or implementing consumer privacy rights.
+summary_l0: "Implement CCPA/CPRA consumer privacy rights, opt-out mechanisms, and data disclosure"
+overview_l1: "This skill implements California Consumer Privacy Act (CCPA) and California Privacy Rights Act (CPRA) requirements for consumer privacy protection. Use it when handling California resident data, implementing opt-out rights, processing consumer data requests, disclosing data practices, meeting privacy compliance requirements, or documenting data sales and sharing. Key capabilities include consumer rights implementation (right to know, delete, opt-out, correct, limit use), do-not-sell/share mechanism setup, data disclosure and privacy notice generation, consumer request processing workflows, data inventory and mapping for CCPA categories, and verification procedures for consumer requests. The expected output is CCPA/CPRA-compliant privacy controls with opt-out mechanisms, data request handling workflows, privacy notices, and compliance documentation. Trigger phrases: CCPA compliance, CPRA, California privacy, do not sell, opt-out, consumer rights, data disclosure."
 ---
 
 # CCPA/CPRA Compliance

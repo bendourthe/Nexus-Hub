@@ -1,6 +1,8 @@
 ---
 name: authentication-patterns
 description: Authentication and authorization patterns including OAuth 2.0, OIDC, JWT, session management, MFA, and passkeys. Use when implementing login flows, securing APIs, or reviewing auth architecture.
+summary_l0: "Implement authentication with OAuth 2.0, JWT, session management, MFA, and passkeys"
+overview_l1: "This skill provides authentication and authorization patterns including OAuth 2.0, OIDC, JWT, session management, MFA, and passkeys. Use it when implementing login flows, securing APIs, reviewing auth architecture, adding multi-factor authentication, or implementing modern passwordless patterns. Key capabilities include OAuth 2.0 flow implementation (authorization code, PKCE, client credentials), OIDC integration, JWT design and validation, session management with secure cookie configuration, MFA implementation, passkey/WebAuthn support, RBAC and ABAC authorization models, and token refresh and revocation strategies. The expected output is authentication implementation code with secure token handling, session management, and authorization policies. Trigger phrases: authentication, OAuth, OIDC, JWT, session management, MFA, passkeys, login flow, API security, authorization, RBAC."
 ---
 
 # Authentication Patterns

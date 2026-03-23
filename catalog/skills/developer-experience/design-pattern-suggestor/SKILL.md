@@ -1,6 +1,8 @@
 ---
 name: design-pattern-suggestor
 description: Analyze code structure and recommend applicable GoF and modern design patterns with implementation guides. Use when code has structural problems, excessive conditionals, tight coupling, inflexible object creation, or needs a proven architectural solution.
+summary_l0: "Recommend GoF and modern design patterns based on code structure analysis"
+overview_l1: "This skill analyzes code structure to identify situations where established design patterns (Gang of Four and modern patterns) can improve flexibility, maintainability, and readability. Use it when code has excessive conditional logic that could benefit from polymorphism, tight coupling between components, complex or scattered object creation logic, systems needing extension without modification, callback-heavy code, duplicated cross-cutting concerns, complex state machines, or multi-stage data processing pipelines. Key capabilities include code structure analysis for pattern applicability, GoF pattern recommendation (Strategy, Factory, Observer, Builder, Decorator, etc.), modern pattern suggestions, language-specific implementation guides, before/after code examples, and anti-pattern identification. The expected output is pattern recommendations with rationale, implementation guides, before/after code comparisons, and trade-off analysis. Trigger phrases: design pattern, suggest pattern, which pattern should I use, strategy pattern, factory pattern, observer pattern, builder pattern, too many if-else, tight coupling, hard to extend, code structure improvement."
 ---
 
 # Design Pattern Suggestor

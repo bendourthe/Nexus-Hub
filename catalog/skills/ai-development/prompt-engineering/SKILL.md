@@ -1,6 +1,8 @@
 ---
 name: prompt-engineering
 description: Prompt engineering principles and techniques for LLM applications including system prompts, chain-of-thought, few-shot learning, and prompt evaluation. Use when designing prompts, optimizing LLM outputs, or building prompt pipelines.
+summary_l0: "Design, test, and optimize prompts for LLM applications with structured evaluation"
+overview_l1: "This skill provides systematic techniques for designing, testing, and optimizing prompts that drive LLM-powered applications. Use it when designing system prompts, implementing chain-of-thought or structured reasoning, building few-shot learning examples, formatting LLM outputs as JSON or structured data, creating prompt templates with variable injection, evaluating prompt quality, managing prompt versions in production, or reducing token usage and API cost. Key capabilities include prompt anatomy design (system, user, assistant roles), reasoning techniques (zero-shot, few-shot, chain-of-thought, tree-of-thought), output formatting strategies, prompt evaluation scoring, version management, and token optimization. The expected output is well-structured, tested prompt templates with evaluation metrics and production deployment patterns. Trigger phrases: prompt design, system prompt, chain-of-thought, few-shot, prompt template, structured output, prompt evaluation, LLM-as-judge, prompt optimization, token reduction, output formatting, JSON mode."
 ---
 
 # Prompt Engineering

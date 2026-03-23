@@ -1,6 +1,8 @@
 ---
 name: microservices-patterns
 description: Microservices architecture patterns including service decomposition, inter-service communication, data management, and resilience. Use when designing distributed systems, migrating monoliths, or implementing service mesh.
+summary_l0: "Architect microservices with decomposition, resilience, and distributed data patterns"
+overview_l1: "This skill provides comprehensive guidance for designing, building, and operating microservices architectures. Use it when decomposing a monolith into microservices, choosing communication patterns (sync REST/gRPC, async messaging, event-driven), implementing distributed data patterns (database per service, saga, CQRS, event sourcing), adding resilience patterns (circuit breaker, bulkhead, retry, timeout), designing API gateway routing, setting up service discovery and load balancing, implementing distributed tracing, or planning strangler fig migrations. Key capabilities include decomposition strategies by business capability and subdomain, inter-service communication pattern selection, saga orchestration and choreography, circuit breaker implementation, API gateway configuration, service mesh setup (Istio, Linkerd), and observability instrumentation. The expected output is architecture documentation, service boundary definitions, communication contracts, and infrastructure configuration. Trigger phrases: microservices, service decomposition, circuit breaker, saga pattern, CQRS, event sourcing, API gateway, service mesh, distributed system, strangler fig, bulkhead, service discovery."
 ---
 
 # Microservices Patterns

@@ -1,6 +1,8 @@
 ---
 name: domain-contract-validator
 description: Define and enforce business rule assertions as automated checks using contract testing, schema validation, and invariant verification. Covers API contract testing, database schema contracts, event schema validation, and domain invariant checks. Use when you need automated enforcement of business rules beyond unit tests.
+summary_l0: "Enforce business rules with contract testing, schema validation, and invariant checks"
+overview_l1: "This skill defines and enforces business rule assertions as automated checks using contract testing, schema validation, and invariant verification. Use it when you need automated enforcement of business rules beyond unit tests, when validating API contracts between services, enforcing database schema contracts, validating event schemas, or checking domain invariants. Key capabilities include API contract testing (Pact, consumer-driven contracts), database schema contract enforcement, event schema validation (Avro, Protobuf, JSON Schema), domain invariant assertion definition, business rule check automation, cross-service contract verification, and CI/CD integration for continuous contract enforcement. The expected output is automated contract tests and invariant checks with CI integration that catch business rule violations before deployment. Trigger phrases: contract testing, schema validation, business rules, invariant check, API contract, Pact testing, domain contract, schema enforcement, business rule validation."
 ---
 
 # Domain Contract Validator

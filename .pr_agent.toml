@@ -1,0 +1,45 @@
+[config]
+reasoning_effort = "medium"
+response_language = "en-US"
+
+[config.ignore]
+glob = [
+    "*.lock",
+    "package-lock.json",
+    "node_modules/**",
+    "extensions/claude-usage-monitor/out/**",
+    "data/skills.json",
+    "data/templates.json",
+]
+
+[pr_reviewer]
+num_max_findings = 6
+require_score_review = true
+require_tests_review = true
+require_security_review = true
+require_todo_scan = true
+extra_instructions = """
+Review rules for DevAI-Hub:
+
+R1 - Skill Format: Every SKILL.md must start with valid YAML frontmatter containing at minimum `name` and `description` fields. The `description` field must be under 200 characters.
+
+R2 - Hook Safety: Shell hooks in `catalog/hooks/` must never use `eval`, `rm -rf` without quoted variables, or unquoted variable expansions in command positions. All hooks must use `set -euo pipefail`.
+
+R3 - Installer Parity: Changes to `scripts/installer.ps1` should have equivalent changes in `scripts/installer.sh` (and vice versa) unless the change is platform-specific by nature.
+
+R4 - Documentation Consistency: Adding or removing a skill must be accompanied by an update to the category README in `catalog/skills/<category>/README.md`.
+
+R5 - Catalog Sync: Adding or removing a skill on disk requires running `build_skills_catalog.py` to update `data/skills.json`. The PR must include the regenerated JSON.
+"""
+
+[pr_description]
+enable_pr_type = true
+enable_semantic_files_types = true
+collapsible_file_list = "adaptive"
+
+[pr_code_suggestions]
+num_code_suggestions = 4
+focus_only_on_problems = true
+extra_instructions = """
+Focus suggestions on: missing error handling in shell scripts, unquoted variables, inconsistent frontmatter fields, and missing platform parity between PS1 and SH installers.
+"""

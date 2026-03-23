@@ -1,6 +1,8 @@
 ---
 name: release-notes-writer
 description: Generates professional release notes from git history, pull requests, and issues with conventional commit parsing and audience-specific formatting. Use when preparing release notes, changelogs, or version summaries for any audience.
+summary_l0: "Generate release notes from git history with conventional commit parsing and formatting"
+overview_l1: "This skill generates clear, well-structured release notes from repository history by parsing conventional commits, categorizing pull requests, highlighting breaking changes, and formatting output for different audiences (end users, developers, internal stakeholders). Use it when preparing release notes, changelogs, or version summaries, automating release documentation in CI/CD pipelines, or communicating changes to specific audiences. Key capabilities include conventional commit parsing, pull request categorization, breaking change highlighting, audience-specific formatting (user-facing, developer, internal), machine-parseable changelog generation, and CI/CD automation scripts for fully automated release documentation. The expected output is professionally formatted release notes with categorized changes, breaking change callouts, and audience-appropriate language. Trigger phrases: release notes, changelog, version summary, what changed, breaking changes, release documentation, conventional commits, version release."
 ---
 
 # Release Notes Writer

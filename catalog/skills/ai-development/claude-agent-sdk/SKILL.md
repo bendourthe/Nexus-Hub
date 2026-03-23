@@ -1,6 +1,8 @@
 ---
 name: claude-agent-sdk
 description: Production-grade Claude Agent SDK integration in TypeScript — multi-provider routing, retry logic with exponential backoff, spending cap enforcement, per-invocation audit logging, error classification, and MCP tool registration. Use when building autonomous Claude agents in Node.js/TypeScript.
+summary_l0: "Integrate Claude Agent SDK in TypeScript with provider routing, spending caps, and audit logging"
+overview_l1: "This skill provides production patterns for integrating the Anthropic Claude Agent SDK in TypeScript/Node.js projects. Use it when building autonomous Claude agents, implementing multi-provider LLM routing (Anthropic, AWS Bedrock, Google Vertex AI, OpenRouter), adding spending cap enforcement, structuring per-invocation audit logging, classifying errors as retryable versus fatal, registering MCP tools, or designing agent identity via system prompts. Key capabilities include provider configuration and credential setup, exponential backoff retry logic with jitter, hard budget limits with automatic session termination, structured audit trails, error classification hierarchies, and MCP tool registration within the SDK context. The expected output is production-grade TypeScript agent code with full observability, cost controls, and multi-provider failover. Trigger phrases: Claude Agent SDK, Claude SDK TypeScript, autonomous agent Node.js, multi-provider Claude, agent spending cap, Claude SDK retry, Claude SDK audit, agent SDK production."
 ---
 
 # Claude Agent SDK (TypeScript)

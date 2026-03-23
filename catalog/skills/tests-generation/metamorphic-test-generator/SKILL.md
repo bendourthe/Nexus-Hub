@@ -1,6 +1,8 @@
 ---
 name: metamorphic-test-generator
 description: Generate metamorphic tests for systems without clear test oracles by defining transformation invariants between inputs and outputs. Use when testing ML models, search engines, numerical computations, compilers, data analytics pipelines, or any system where the correct output is hard to specify directly.
+summary_l0: "Generate metamorphic tests using transformation invariants for oracle-free testing"
+overview_l1: "This skill generates metamorphic tests for systems without clear test oracles by defining transformation invariants between inputs and outputs. Use it when testing ML models, search engines, numerical computations, compilers, data analytics pipelines, or any system where the correct output is hard to specify directly. Key capabilities include metamorphic relation identification, input transformation design, output relationship verification, domain-specific metamorphic patterns (ML model robustness, search engine consistency, numerical stability), composite metamorphic relation construction, and metamorphic test automation. The expected output is metamorphic test suites with defined relations, input transformations, and output verification logic. Trigger phrases: metamorphic testing, oracle problem, test without oracle, ML model testing, search engine testing, numerical testing, transformation invariant, metamorphic relation."
 ---
 
 # Metamorphic Test Generator

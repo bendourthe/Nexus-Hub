@@ -1,6 +1,8 @@
 ---
 name: nextjs-expert
 description: Deep Next.js expertise for App Router, Server Components, data fetching, middleware, and deployment. Use when building Next.js applications, migrating to App Router, or optimizing SSR/SSG.
+summary_l0: "Build Next.js apps with App Router, Server Components, and data fetching patterns"
+overview_l1: "This skill provides specialized Next.js expertise covering App Router architecture, Server and Client Components, data fetching with caching and revalidation, middleware, route handlers, authentication, optimization, streaming, and deployment. Use it when scaffolding new Next.js applications, migrating from Pages Router to App Router, designing layouts and error handling, implementing Server and Client Components, building data fetching pipelines with caching, writing server actions, creating middleware for auth and redirects, configuring ISR, streaming, and parallel routes, deploying to Vercel or Docker, or optimizing Core Web Vitals. Key capabilities include App Router architecture design, Server/Client Component selection, data fetching with revalidation strategies, server action implementation, middleware chain design, ISR and streaming configuration, and production deployment optimization. The expected output is a well-structured Next.js application with proper rendering strategies, caching, and deployment configuration. Trigger phrases: nextjs, next.js, app router, server component, server action, next middleware, next deployment, next.js routing, pages to app router, next.js caching, ISR, next image."
 ---
 
 # Next.js Expert

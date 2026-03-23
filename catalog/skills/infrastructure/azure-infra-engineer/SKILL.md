@@ -1,6 +1,8 @@
 ---
 name: azure-infra-engineer
 description: Azure-specific infrastructure expertise for designing and managing cloud environments. Use when provisioning Azure resources with Bicep or Terraform, configuring Azure AD and RBAC, designing Azure networking (VNets, NSGs, Private Endpoints), managing AKS clusters, or implementing Azure-native monitoring and security.
+summary_l0: "Design Azure infrastructure with Bicep, VNets, AKS, and Azure AD integration"
+overview_l1: "This skill provides specialized expertise in Microsoft Azure infrastructure design and operations, covering resource organization, networking, identity management, compute and containers, data services, monitoring, and infrastructure as code. Use it when provisioning Azure resources with Bicep or Terraform, configuring Azure AD and RBAC, designing Azure networking (VNets, NSGs, Private Endpoints), managing AKS clusters, implementing Azure-native monitoring and security, or organizing subscriptions and resource groups. Key capabilities include Bicep and Terraform Azure module design, Azure AD and Entra ID configuration, VNet architecture with NSGs and Private Endpoints, AKS cluster provisioning and management, Azure Monitor and Application Insights setup, Azure Key Vault integration, and subscription/resource group organization. The expected output is Azure infrastructure configurations with Bicep/Terraform templates, networking diagrams, RBAC policies, and monitoring setup. Trigger phrases: Azure, Bicep, Azure AD, Entra ID, VNet, NSG, AKS, Azure Monitor, Private Endpoint, Azure RBAC, Azure infrastructure."
 ---
 
 # Azure Infrastructure Engineer

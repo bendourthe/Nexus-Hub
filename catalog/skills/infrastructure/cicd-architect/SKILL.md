@@ -1,6 +1,8 @@
 ---
 name: cicd-architect
 description: CI/CD pipeline expertise for automated build, test, and deployment workflows. Use when setting up GitHub Actions, GitLab CI, Jenkins, or other CI/CD systems, implementing deployment strategies, or optimizing pipeline performance.
+summary_l0: "Design CI/CD pipelines with GitHub Actions, GitLab CI, and deployment strategies"
+overview_l1: "This skill provides specialized expertise in Continuous Integration and Continuous Deployment pipelines, covering workflow automation, deployment strategies, security scanning integration, and operational best practices for reliable software delivery. Use it when setting up GitHub Actions, GitLab CI, Jenkins, or other CI/CD systems, implementing deployment strategies (blue-green, canary, rolling), optimizing pipeline performance, integrating security scanning, or automating release processes. Key capabilities include pipeline design and optimization, multi-platform CI/CD configuration, deployment strategy implementation, security scan integration, artifact management, caching strategies, and pipeline monitoring. The expected output is production-ready CI/CD pipeline configurations with deployment strategies, security gates, and monitoring. Trigger phrases: CI/CD pipeline, GitHub Actions, GitLab CI, Jenkins, deployment strategy, build pipeline, automated deployment."
 ---
 
 # CI/CD Architect

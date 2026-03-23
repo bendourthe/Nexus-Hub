@@ -1,6 +1,8 @@
 ---
 name: deprecated-api-updater
 description: Detect and automatically update deprecated API calls across codebases with migration mappings, automated rewriting, and validation. Use when upgrading frameworks, updating deprecated method calls, migrating between library versions, or cleaning up deprecation warnings.
+summary_l0: "Detect and migrate deprecated API calls with automated rewriting and validation"
+overview_l1: "This skill provides systematic detection and migration of deprecated API calls across codebases, covering deprecation detection, migration mapping, automated rewriting, framework-specific update guides, and validation. Use it when upgrading a framework or library to a new major version, resolving deprecation warnings before they become errors, migrating between libraries (moment.js to date-fns, requests to httpx), updating code after language version upgrades, cleaning up accumulated deprecation technical debt, preparing for announced feature removals, or auditing for end-of-life dependency usage. Key capabilities include deprecation detection across languages and frameworks, migration mapping creation, automated rewrite rule application, framework-specific upgrade guides, behavior equivalence validation, and batch processing across large codebases. The expected output is updated code with deprecated calls replaced, migration mapping documentation, and validation results confirming behavioral equivalence. Trigger phrases: deprecated, deprecation warning, update API, migrate API, upgrade library, breaking changes, deprecated method, EOL, version upgrade, migration guide, update deprecated calls."
 ---
 
 # Deprecated API Updater

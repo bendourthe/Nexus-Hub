@@ -1,6 +1,8 @@
 ---
 name: intent-based-review
 description: Review AI-generated code by verifying acceptance criteria pass/fail status rather than reading implementation line-by-line. Triggers detailed code inspection only for failed criteria. Use when reviewing AI-generated PRs at scale, when acceptance criteria are well-defined, or when review volume exceeds human capacity.
+summary_l0: "Review AI-generated code by verifying acceptance criteria instead of line-by-line inspection"
+overview_l1: "This skill reviews code changes by verifying that acceptance criteria are met rather than inspecting every line of implementation, designed for AI-generated code at scale where volume exceeds human cognitive capacity for line-by-line review. Use it when reviewing AI-generated code with well-defined acceptance criteria, when PR volume exceeds team capacity, when changes were produced by structured workflows (research-plan-implement) with specifications, when shifting review effort from implementation correctness to requirements fulfillment, or when reviewing multi-model orchestration output. Key capabilities include acceptance criteria extraction from specifications, automated pass/fail verification, selective deep-dive triggering only for failed criteria, requirement-to-implementation traceability, and structured review reports with evidence. The expected output is a criteria-based review report showing pass/fail status per criterion with detailed inspection findings only for failures. Trigger phrases: intent-based review, acceptance criteria review, AI code review, verify acceptance criteria, criteria-based review, requirement verification."
 ---
 
 # Intent-Based Code Review

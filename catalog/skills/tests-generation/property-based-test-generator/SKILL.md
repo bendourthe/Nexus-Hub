@@ -1,6 +1,8 @@
 ---
 name: property-based-test-generator
 description: Generate property-based tests using QuickCheck/Hypothesis-style frameworks that verify invariants over randomly generated inputs. Use when testing mathematical properties, round-trip conversions, idempotent operations, model-based state machines, or when you need to discover edge cases automatically through shrinking.
+summary_l0: "Generate property-based tests with Hypothesis/QuickCheck for invariant verification"
+overview_l1: "This skill generates property-based tests using QuickCheck/Hypothesis-style frameworks that verify invariants over randomly generated inputs with automatic shrinking. Use it when testing mathematical properties, round-trip conversions (serialize/deserialize), idempotent operations, model-based state machines, or when discovering edge cases automatically. Key capabilities include property identification from code semantics, generator/strategy design for custom types, invariant assertion formulation, shrinking configuration for minimal failing examples, model-based testing with state machine specifications, round-trip property verification, and framework-specific implementation (Hypothesis, fast-check, QuickCheck, Proptest). The expected output is property-based test suites with well-defined properties, custom generators, and shrinking configuration. Trigger phrases: property-based testing, Hypothesis, QuickCheck, fast-check, invariant testing, random testing, shrinking, model-based testing, round-trip testing, property test."
 ---
 
 # Property-Based Test Generator

@@ -1,6 +1,8 @@
 ---
 name: flaky-test-detector
 description: Identify and diagnose flaky tests in CI pipelines by analyzing timing dependencies, shared state, ordering assumptions, and network reliance. Use when tests intermittently fail, CI builds are unreliable, test quarantine is needed, or you need to stabilize a test suite.
+summary_l0: "Identify and diagnose flaky tests by analyzing timing, state, and ordering issues"
+overview_l1: "This skill identifies and diagnoses flaky tests in CI pipelines by analyzing timing dependencies, shared state, ordering assumptions, and network reliance. Use it when tests intermittently fail, CI builds are unreliable, test quarantine is needed, or you need to stabilize a test suite. Key capabilities include flaky test detection through repeated execution analysis, timing dependency identification, shared state leak detection, test ordering assumption discovery, network dependency isolation, flakiness root cause classification, quarantine strategy implementation, and stabilization fix recommendations. The expected output is a flaky test diagnosis report with root causes, categorized flakiness types, and specific stabilization fixes. Trigger phrases: flaky tests, intermittent failure, test flakiness, CI unreliable, test quarantine, timing dependent, shared state, test ordering, stabilize tests."
 ---
 
 # Flaky Test Detector

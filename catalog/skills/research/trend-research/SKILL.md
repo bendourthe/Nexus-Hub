@@ -1,6 +1,8 @@
 ---
 name: trend-research
 description: Research any topic across Reddit, X (Twitter), and the web to identify recent trends (last 30 days) and generate production-ready prompts or recommendations
+summary_l0: "Research recent trends across Reddit, X, and the web with prompt generation"
+overview_l1: "This skill researches any topic across Reddit, X (Twitter), and the web to identify recent trends from the last 30 days and generate production-ready prompts or recommendations. Use it when exploring emerging trends in a technology area, generating up-to-date prompts based on community consensus, identifying best practices from recent discussions, or producing research summaries for decision-making. Key capabilities include multi-source trend research (Reddit, X/Twitter, web), last-30-day time window filtering, community consensus identification, best practice extraction, production-ready prompt generation from research findings, and structured recommendation reports. The expected output is a research report with identified trends, community consensus, and copy-paste-ready prompts or recommendations. Trigger phrases: research trends, latest trends, what is trending, community consensus, recent best practices, trend analysis, research topic."
 version: 1.0.0
 author: Benjamin Dourthe (ported from mvanhorn/last30days-skill)
 category: Research

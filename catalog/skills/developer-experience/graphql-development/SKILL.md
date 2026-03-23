@@ -1,6 +1,8 @@
 ---
 name: graphql-development
 description: GraphQL API development including schema design, resolvers, N+1 prevention, subscriptions, and federation. Use when building GraphQL APIs, optimizing query performance, or implementing real-time features.
+summary_l0: "Build GraphQL APIs with schema design, DataLoader, subscriptions, and federation"
+overview_l1: "This skill provides comprehensive guidance on building production-quality GraphQL APIs, covering schema design, resolver implementation, the N+1 problem with DataLoader, subscriptions, Apollo Federation, caching, security, and client-side patterns. Use it when designing GraphQL schemas (types, interfaces, unions, enums), implementing resolvers with batching and caching, preventing N+1 query problems, adding real-time features with subscriptions, implementing pagination (Relay cursor, offset-based), securing GraphQL APIs (authentication, authorization, query complexity), setting up Apollo Federation for microservices, or optimizing client-side data fetching. Key capabilities include schema-first design, resolver architecture, DataLoader batching, subscription implementation, Relay-compliant pagination, query complexity analysis, federation gateway setup, and client cache management. The expected output is a production-ready GraphQL API with optimized resolvers, proper security controls, and client integration patterns. Trigger phrases: GraphQL, schema, resolver, DataLoader, subscription, mutation, query complexity, N+1, federation, Apollo, SDL, GraphQL API."
 ---
 
 # GraphQL Development

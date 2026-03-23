@@ -1,6 +1,8 @@
 ---
 name: java-cleanup
 description: Remove dead code, update deprecated APIs, apply modern Java patterns, and clean up Java codebases. Use when cleaning up Java projects, removing unused imports, modernizing legacy Java code, or improving code maintainability.
+summary_l0: "Clean up Java codebases with modern patterns, deprecated API updates, and dead code removal"
+overview_l1: "This skill systematically identifies and removes dead code, updates deprecated APIs, and applies modern Java patterns to maintain a clean, maintainable codebase. Use it when removing unused imports and dead code, updating deprecated API usage, applying modern Java features (Java 8+), fixing Checkstyle/PMD issues, or preparing Java code for review. Key capabilities include dead code detection and removal, deprecated API migration, modern Java feature adoption (streams, Optional, records, sealed classes, pattern matching), Checkstyle and PMD integration, import optimization, and code duplication elimination. The expected output is a modernized Java codebase with updated APIs, modern language features, and resolved static analysis warnings. Trigger phrases: cleanup Java, remove dead code Java, modernize Java, fix Checkstyle, Java refactor."
 ---
 
 # Java Code Cleanup

@@ -1,6 +1,8 @@
 ---
 name: context-optimization
 description: Optimize AI coding session context window usage by compressing command output, minimizing verbose logs, and avoiding context bloat. Use when sessions are hitting token limits, commands produce excessive output, you want to maximize effective session length, or you notice the context window filling up quickly. Covers rtk proxy setup for Claude Code and prompt-level output reduction for Gemini, Codex, and Copilot.
+summary_l0: "Optimize AI session context windows by compressing output and reducing token bloat"
+overview_l1: "This skill provides techniques for controlling context window consumption in AI coding sessions through automated output compression and prompt-level output minimization. Use it when a session is consuming excessive tokens from command output, tests or builds dump full logs into context, you want to extend session length before hitting limits, you are configuring a new environment for context efficiency, or verbose output like progress bars is consuming context. Key capabilities include automated output compression via rtk (a Rust-based CLI proxy for Claude Code that reduces tokens from 150K to 45K per session), prompt-level output minimization with quiet flags, progress bar suppression, long output summarization, and cross-platform strategies for Claude Code, Gemini, Codex, and Copilot. The expected output is a configured environment with reduced context consumption and guidelines for maintaining context efficiency. Trigger phrases: context window, token limit, context bloat, compress output, reduce tokens, session length, verbose output, rtk setup, context optimization."
 ---
 
 # Context Window Optimization

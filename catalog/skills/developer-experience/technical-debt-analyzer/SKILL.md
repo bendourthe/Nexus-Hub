@@ -1,6 +1,8 @@
 ---
 name: technical-debt-analyzer
 description: Quantify, categorize, and prioritize technical debt using SQALE methodology with interest calculation and remediation planning. Use when assessing code debt, architecture debt, test debt, documentation debt, or planning debt reduction sprints.
+summary_l0: "Quantify and prioritize technical debt with SQALE methodology and remediation planning"
+overview_l1: "This skill provides systematic identification, quantification, and prioritization of technical debt across a codebase using the SQALE (Software Quality Assessment based on Lifecycle Expectations) methodology. Use it when assessing overall technical debt posture, quantifying debt in remediation effort and ongoing interest, categorizing debt by type (code, architecture, test, documentation, infrastructure, dependency), prioritizing debt items based on business impact and cost, planning debt reduction sprints, communicating debt status to non-technical stakeholders, establishing debt budgets, or evaluating whether to pay down or accept debt. Key capabilities include SQALE-based debt measurement, interest calculation (cost of delay), debt categorization across six dimensions, business impact scoring, remediation effort estimation, trend tracking over time, and stakeholder-friendly reporting. The expected output is a debt analysis report with categorized items, severity scores, interest calculations, and a prioritized remediation plan. Trigger phrases: technical debt, tech debt, debt analysis, debt assessment, code debt, architecture debt, test debt, documentation debt, debt prioritization, remediation plan, SQALE, debt budget, debt reduction."
 ---
 
 # Technical Debt Analyzer

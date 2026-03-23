@@ -1,6 +1,8 @@
 ---
 name: project-layout-refactor
 description: Audit and refactor repository root directories to follow standard layout rules. Moves misplaced files, fixes all path references, and verifies nothing breaks. Use when a repo has too many files in root, after adopting new layout conventions, or when preparing a project for public release.
+summary_l0: "Refactor repository layout to follow standard conventions with full reference repair"
+overview_l1: "This skill systematically reorganizes a repository's file layout to follow declared conventions, with full impact analysis and reference repair before any file is moved. Use it when cleaning up a cluttered project root, applying a standard layout ruleset to an existing project, migrating a repo after adopting new conventions, preparing a project for public release, enforcing layout consistency across a team, or auditing whether a repo matches its declared layout rules. Key capabilities include layout rule auditing, misplaced file detection, impact analysis before moves, path reference repair across all file types (imports, configs, CI pipelines, documentation links), and post-move verification to ensure nothing breaks. The expected output is a reorganized repository with all files in their correct directories, updated path references, and passing tests. Trigger phrases: refactor project layout, refactor repo layout, clean up root directory, too many files in root, organize project structure, apply layout rules, move files to correct directories, root is cluttered, layout conventions, project structure refactor."
 ---
 
 # Project Layout Refactor

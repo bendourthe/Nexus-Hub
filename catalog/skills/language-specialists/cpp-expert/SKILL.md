@@ -1,6 +1,8 @@
 ---
 name: cpp-expert
 description: Deep C++ expertise for systems and performance-critical development. Use when writing modern C++ code, implementing RAII and smart pointers, designing templates and concepts, optimizing memory layout, or building high-performance applications.
+summary_l0: "Write modern C++ with RAII, smart pointers, templates, and performance optimization"
+overview_l1: "This skill provides deep C++ expertise for systems and performance-critical development. Use it when writing modern C++ code, implementing RAII and smart pointers, designing templates and concepts (C++20), optimizing memory layout, or building high-performance applications. Key capabilities include RAII resource management, smart pointer design (unique_ptr, shared_ptr, weak_ptr), template metaprogramming and concepts, move semantics and perfect forwarding, memory layout optimization for cache performance, constexpr and compile-time computation, multi-threading with std::thread and atomics, and CMake build system design. The expected output is safe, performant C++ code with modern idioms, proper resource management, and optimized memory access patterns. Trigger phrases: C++ code, RAII, smart pointer, template, concepts, C++20, move semantics, C++ performance, memory layout, CMake."
 ---
 
 # C++ Expert

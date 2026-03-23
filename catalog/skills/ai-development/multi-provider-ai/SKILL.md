@@ -1,6 +1,8 @@
 ---
 name: multi-provider-ai
 description: Configure and route LLM requests across multiple AI providers — Anthropic direct, AWS Bedrock, Google Vertex AI, and OpenRouter. Covers provider selection criteria, environment variable patterns, unified client interfaces, fallback routing, and model ID conventions. Use when building LLM applications that need provider flexibility or enterprise cloud integration.
+summary_l0: "Route LLM requests across Anthropic, Bedrock, Vertex AI, and OpenRouter providers"
+overview_l1: "This skill provides patterns for building provider-agnostic LLM integrations that route requests across Anthropic, AWS Bedrock, Google Vertex AI, and OpenRouter without changing application code. Use it when choosing between AI providers, setting up credentials and environment variables, implementing a provider-agnostic client interface, designing fallback routing, comparing costs across providers, meeting enterprise cloud-native AI requirements, or avoiding vendor lock-in. Key capabilities include provider selection guides based on compliance, latency, cost, and features, credential and secret management patterns for each provider, unified TypeScript and Python client abstractions, failover routing strategies, cost comparison matrices, and model ID convention mapping. The expected output is a unified LLM client layer with automatic failover, per-provider credential management, and cost-aware routing. Trigger phrases: multi-provider Claude, AWS Bedrock Claude, Google Vertex Claude, OpenRouter setup, provider abstraction, fallback LLM, enterprise AI integration, Bedrock vs Anthropic."
 ---
 
 # Multi-Provider AI Configuration

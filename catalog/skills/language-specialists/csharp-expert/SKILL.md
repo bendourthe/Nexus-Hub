@@ -1,6 +1,8 @@
 ---
 name: csharp-expert
 description: Deep C# expertise for enterprise application development. Use when writing C# code, implementing async/await patterns, designing with LINQ, working with generics and delegates, building ASP.NET Core services, or applying SOLID design principles.
+summary_l0: "Write enterprise C# with async/await, LINQ, generics, and ASP.NET Core patterns"
+overview_l1: "This skill provides deep C# expertise for enterprise application development. Use it when writing C# code, implementing async/await patterns, designing with LINQ, working with generics and delegates, building ASP.NET Core services, or applying SOLID design principles. Key capabilities include async/await pattern design, LINQ query optimization, generic type and delegate design, ASP.NET Core middleware and DI configuration, Entity Framework Core usage, record and pattern matching (C# 10+), nullable reference type adoption, and SOLID principle application. The expected output is well-architected C# code with proper async patterns, LINQ usage, dependency injection, and enterprise design patterns. Trigger phrases: C# code, async await C#, LINQ, ASP.NET Core, Entity Framework, C# generics, C# delegates, SOLID C#, .NET, C# patterns."
 ---
 
 # C# Expert

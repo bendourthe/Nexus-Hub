@@ -1,6 +1,8 @@
 ---
 name: ai-output-evaluation
 description: Evaluate AI-generated output quality using LLM-as-judge techniques, multi-dimensional rubrics, and bias mitigation. Use when building AI-powered features that need quality assurance, evaluating generated code or documentation, or designing automated review pipelines.
+summary_l0: "Evaluate AI-generated output quality with rubrics, LLM-as-judge, and bias mitigation"
+overview_l1: "This skill provides specialized expertise in systematically evaluating the quality of AI-generated output (code, documentation, analysis, tests) using structured rubrics, LLM-as-judge patterns, and bias mitigation techniques. Use it when evaluating quality of AI-generated code before merging, building automated quality gates for AI-powered pipelines, designing review rubrics for generated documentation, comparing outputs from different models or prompts, setting up continuous evaluation for AI-assisted workflows, or assessing whether AI-generated tests provide real coverage. Key capabilities include multi-dimensional rubric design, LLM-as-judge implementation with calibration, output comparison across models, bias detection and mitigation in evaluations, automated quality gate creation, and evaluation pipeline design. The expected output is evaluation reports with dimensional scores, bias analysis, and pass/fail recommendations. Trigger phrases: evaluate AI output, quality rubric, LLM as judge, output evaluation, generated code quality, review AI work, evaluation pipeline, bias in evaluation."
 ---
 
 # AI Output Evaluation

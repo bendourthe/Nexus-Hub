@@ -1,6 +1,8 @@
 ---
 name: strategic-comments
 description: Add high-value comments explaining complex logic, business rules, design decisions, and non-obvious implementations. Use when clarifying code intent, documenting workarounds, explaining algorithms, or adding context that code alone cannot convey.
+summary_l0: "Add strategic comments explaining why, not what, for complex logic and decisions"
+overview_l1: "This skill adds meaningful comments that explain 'why' not 'what', focusing on business logic, design decisions, non-obvious implementations, and technical debt markers. Use it when explaining complex algorithms, documenting business rules, clarifying design decisions, documenting workarounds and technical debt, adding context that code alone cannot convey, or marking areas for future improvement. Key capabilities include business rule documentation, algorithm explanation, design decision rationale capture, workaround and technical debt annotation (TODO, FIXME, HACK), performance optimization justification, edge case documentation, and future improvement tracking. The expected output is strategically placed comments that provide essential context without cluttering the code, following the principle of explaining intent rather than restating implementation. Trigger phrases: add comments, explain code, document why, add TODO, clarify logic, document workaround."
 ---
 
 # Strategic Comments

@@ -1,6 +1,8 @@
 ---
 name: rollback-strategy-advisor
 description: Plans and implements rollback strategies for production deployments including database migration rollbacks, feature flag rollbacks, and incident response integration. Use when designing rollback procedures, recovering from failed deployments, or building deployment runbooks.
+summary_l0: "Plan rollback strategies for deployments with database, feature flag, and incident procedures"
+overview_l1: "This skill plans, implements, and tests rollback strategies across the full deployment stack, addressing real production complexity including database schema changes that cannot be naively reversed, stateful services with in-flight requests, feature flags gating partially-released functionality, and multi-service deployments. Use it when designing rollback procedures, recovering from failed deployments, building deployment runbooks, planning database migration rollbacks, implementing feature flag rollbacks, or integrating rollback into incident response. Key capabilities include application rollback strategy design, database migration rollback planning, feature flag rollback coordination, stateful service rollback handling, multi-service dependency rollback sequencing, rollback automation scripting, runbook template generation, and rollback testing procedures. The expected output is concrete rollback procedures, automation scripts, and runbook templates ready for incident response use. Trigger phrases: rollback, deployment rollback, failed deployment, database rollback, feature flag rollback, incident response, deployment runbook, recovery procedure."
 ---
 
 # Rollback Strategy Advisor

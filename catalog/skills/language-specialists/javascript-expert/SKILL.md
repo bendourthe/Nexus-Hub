@@ -1,6 +1,8 @@
 ---
 name: javascript-expert
 description: Deep JavaScript expertise for modern application development. Use when writing JavaScript code, implementing async patterns, working with closures and prototypes, optimizing runtime performance, or building Node.js services and browser applications.
+summary_l0: "Write modern JavaScript with async patterns, closures, and Node.js best practices"
+overview_l1: "This skill provides deep JavaScript expertise for modern application development. Use it when writing JavaScript code, implementing async patterns (Promises, async/await), working with closures and prototypes, optimizing runtime performance, or building Node.js services and browser applications. Key capabilities include ES2024+ feature usage, async/await and Promise composition, closure and scope management, prototype chain understanding, Node.js service architecture, browser API integration, module system design (ESM, CommonJS), event loop optimization, and memory leak detection. The expected output is modern, well-structured JavaScript code with proper async handling, modular design, and performance characteristics. Trigger phrases: JavaScript code, async await, Promise, Node.js, closure, prototype, ES6, JavaScript performance, event loop, module system."
 ---
 
 # JavaScript Expert

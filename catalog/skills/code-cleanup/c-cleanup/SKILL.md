@@ -1,6 +1,8 @@
 ---
 name: c-cleanup
 description: Fix memory leaks, apply MISRA guidelines, remove dead code, and clean up C codebases. Use when cleaning up C projects, embedded systems code, addressing memory safety, or improving code maintainability.
+summary_l0: "Clean up C codebases with memory leak fixes, MISRA compliance, and dead code removal"
+overview_l1: "This skill systematically identifies and removes dead code, fixes memory management issues, and applies best practices for safety-critical and embedded C codebases. Use it when removing unused includes and dead code, fixing memory leaks and resource management, applying MISRA-C or CERT-C guidelines, addressing static analysis warnings, cleaning up embedded systems code, or preparing C code for review. Key capabilities include dead code detection (unused includes, functions, variables, unreachable code), memory safety analysis (leaks, buffer overflows, use-after-free, double-free), MISRA-C and CERT-C compliance checking, and static analysis tool integration (cppcheck). The expected output is a cleaned C codebase with resolved memory issues, compliant coding style, and removed dead code. Trigger phrases: cleanup C, fix memory leaks, MISRA C, remove dead code C, embedded C cleanup, C refactor."
 ---
 
 # C Code Cleanup

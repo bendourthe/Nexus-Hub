@@ -1,6 +1,8 @@
 ---
 name: python-expert
 description: Deep Python expertise for production systems. Use when writing Python code, implementing async patterns, designing class hierarchies, handling exceptions idiomatically, optimizing performance, or working with Python packaging and typing.
+summary_l0: "Write production Python with async patterns, type hints, and packaging best practices"
+overview_l1: "This skill provides deep Python expertise for production systems. Use it when writing Python code, implementing async patterns with asyncio, designing class hierarchies, handling exceptions idiomatically, optimizing performance, or working with Python packaging and typing. Key capabilities include asyncio and async/await patterns, type hint design with mypy/pyright compliance, class and protocol design, exception handling hierarchies, performance optimization with profiling, packaging with pyproject.toml and uv/pip, dataclass and Pydantic model design, and testing with pytest. The expected output is production-grade Python code with proper type annotations, async patterns, exception handling, and packaging configuration. Trigger phrases: Python code, asyncio, type hints, Python packaging, Python performance, Python testing, pytest, Pydantic, Python async."
 ---
 
 # Python Expert

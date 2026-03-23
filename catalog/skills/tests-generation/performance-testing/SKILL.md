@@ -1,6 +1,8 @@
 ---
 name: performance-testing
 description: Implement load testing, stress testing, benchmarking, and performance validation. Use when validating system performance, identifying bottlenecks, establishing performance baselines, or testing under high load for Python, JavaScript, Java, C#, Go, C, or C++ applications.
+summary_l0: "Implement load testing, stress testing, and benchmarking for performance validation"
+overview_l1: "This skill implements load testing, stress testing, benchmarking, and performance validation across multiple languages. Use it when validating system performance, identifying bottlenecks, establishing performance baselines, or testing under high load. Key capabilities include load test scenario design, stress testing with gradual ramp-up, micro-benchmarking for critical paths, performance baseline establishment, bottleneck identification through profiling, tool configuration (k6, Locust, JMeter, Gatling, wrk), SLA validation, and performance regression detection in CI. The expected output is performance test suites with load scenarios, benchmark results, bottleneck analysis, and SLA compliance reports. Trigger phrases: load testing, stress testing, performance testing, benchmark, performance baseline, high load, k6, Locust, JMeter, throughput, latency."
 ---
 
 # Performance Testing

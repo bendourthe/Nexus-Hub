@@ -1,6 +1,8 @@
 ---
 name: unit-tests
 description: Generate comprehensive unit tests following FIRST principles (Fast, Independent, Repeatable, Self-validating, Timely) and AAA pattern (Arrange-Act-Assert). Use when creating tests, improving test coverage, writing test suites, implementing TDD, or testing functions and classes in Python, JavaScript, Java, C#, Go, C, or C++.
+summary_l0: "Generate unit tests following FIRST principles and AAA pattern across languages"
+overview_l1: "This skill generates comprehensive unit tests following FIRST principles (Fast, Independent, Repeatable, Self-validating, Timely) and AAA pattern (Arrange-Act-Assert) across multiple languages. Use it when creating tests, improving test coverage, writing test suites, implementing TDD, or testing functions and classes. Key capabilities include FIRST-compliant test generation, AAA pattern structuring, table-driven/parameterized test creation, assertion library usage, edge case coverage, test naming convention enforcement, and multi-language support (pytest, Jest/Vitest, JUnit, xUnit, Go testing, Google Test). The expected output is comprehensive unit test files with proper structure, clear naming, thorough assertions, and edge case coverage. Trigger phrases: unit tests, write tests, test generation, TDD, FIRST principles, AAA pattern, test coverage, test function, test class."
 ---
 
 # Unit Tests Generation

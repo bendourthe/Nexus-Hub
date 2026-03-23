@@ -1,6 +1,8 @@
 ---
 name: create-custom-command
 description: Create custom slash commands for Claude Code to automate repetitive tasks. Use when establishing team workflows, automating code reviews, creating project-specific commands, or standardizing development processes.
+summary_l0: "Create custom slash commands for Claude Code to automate repetitive workflows"
+overview_l1: "This skill creates custom slash commands for Claude Code to automate repetitive tasks. Use it when establishing team workflows, automating code reviews, creating project-specific commands, or standardizing development processes. Key capabilities include slash command YAML frontmatter design, phased command structure with instructions, argument and parameter configuration, command template creation, team workflow standardization, and command testing and validation. The expected output is ready-to-use custom slash command files with proper frontmatter, instructions, and parameter definitions. Trigger phrases: custom command, slash command, automate workflow, create command, Claude Code command, team workflow, standardize process."
 ---
 
 # Create Custom Commands

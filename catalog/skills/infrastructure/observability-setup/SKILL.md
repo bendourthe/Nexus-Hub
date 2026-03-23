@@ -1,6 +1,8 @@
 ---
 name: observability-setup
 description: Observability implementation including structured logging, metrics collection, distributed tracing, and alerting. Use when setting up monitoring, implementing OpenTelemetry, or designing dashboards.
+summary_l0: "Implement observability with structured logging, metrics, tracing, and SLO alerting"
+overview_l1: "This skill provides comprehensive guidance on implementing the three pillars of observability (logs, metrics, traces) with OpenTelemetry, structured logging, Prometheus metrics, distributed tracing, SLO-based alerting, and dashboard design. Use it when setting up monitoring infrastructure, implementing OpenTelemetry instrumentation, designing dashboards, configuring alerting, implementing structured logging, collecting Prometheus metrics, or setting up distributed tracing. Key capabilities include OpenTelemetry SDK integration, structured logging with correlation IDs, Prometheus metric design (counters, histograms, gauges), distributed trace propagation, SLO/SLI definition and alerting, dashboard design patterns, and alert fatigue reduction strategies. The expected output is observability infrastructure with instrumented services, dashboards, alert rules, and runbooks. Trigger phrases: observability, monitoring, OpenTelemetry, structured logging, metrics, distributed tracing, alerting, dashboard, SLO, Prometheus."
 ---
 
 # Observability Setup

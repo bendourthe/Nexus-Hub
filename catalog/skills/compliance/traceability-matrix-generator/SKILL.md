@@ -1,6 +1,8 @@
 ---
 name: traceability-matrix-generator
 description: Generate requirement-to-code traceability matrices for compliance audits, regulatory reporting, and quality assurance. Use when preparing for audits, validating test coverage against requirements, or ensuring all requirements are implemented and verified.
+summary_l0: "Generate requirement-to-code traceability matrices for audits and compliance reporting"
+overview_l1: "This skill generates comprehensive requirement-to-code traceability matrices that map every requirement to its implementing code, associated tests, and verification status. Use it when preparing for compliance audits (ISO 27001, SOC 2, PCI DSS, HIPAA), generating traceability evidence for regulatory submissions (FDA, DO-178C, IEC 62304), validating that all requirements have implementations and tests, identifying gaps where requirements lack coverage, producing requirements coverage reports, mapping user stories to code changes, or tracking requirement changes and their impact. Key capabilities include bi-directional traceability (requirement-to-code and code-to-requirement), gap analysis for missing implementations or tests, compliance framework mapping, coverage reporting with metrics, user story to code change tracking, and CI/CD pipeline integration for continuous traceability enforcement. The expected output is a traceability matrix with requirement IDs, implementation references, test mappings, coverage status, and gap analysis. Trigger phrases: traceability matrix, requirement traceability, requirements coverage, audit preparation, compliance mapping, requirement-to-code mapping, test coverage mapping, gap analysis, requirements tracking."
 ---
 
 # Traceability Matrix Generator

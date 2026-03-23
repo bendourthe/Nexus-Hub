@@ -1,6 +1,8 @@
 ---
 name: refactoring-expert
 description: Safe code refactoring using proven patterns from Martin Fowler's catalog. Use when restructuring code, extracting methods/classes, simplifying conditionals, improving naming, or reducing technical debt without changing behavior.
+summary_l0: "Refactor code safely using Fowler's patterns without changing behavior"
+overview_l1: "This skill provides specialized expertise in safe code refactoring using established patterns and techniques from Martin Fowler's catalog. Use it when restructuring code without changing behavior, extracting methods, classes, or modules, simplifying complex conditionals, improving variable and function naming, reducing code duplication, paying down technical debt, or preparing code for new features. Key capabilities include method and class extraction, conditional simplification, rename refactoring, duplication consolidation, pattern-based restructuring (Replace Conditional with Polymorphism, Introduce Parameter Object, Extract Superclass), and behavior preservation verification. The expected output is restructured code with improved readability and maintainability, verified to preserve all existing behavior through tests. Trigger phrases: refactor, clean up code, improve structure, extract method, rename, simplify, reduce duplication, technical debt."
 ---
 
 # Refactoring Expert

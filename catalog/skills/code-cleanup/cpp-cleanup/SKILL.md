@@ -1,6 +1,8 @@
 ---
 name: cpp-cleanup
 description: Modernize to C++17/20, apply RAII patterns, use smart pointers, and clean up C++ codebases. Use when cleaning up C++ projects, modernizing legacy C++ code, applying modern C++ idioms, or improving code maintainability.
+summary_l0: "Modernize C++ codebases with smart pointers, RAII patterns, and C++17/20 idioms"
+overview_l1: "This skill systematically identifies and removes dead code, applies modern C++ idioms, and uses RAII patterns to maintain a clean, safe, and maintainable C++ codebase. Use it when removing unused includes and dead code, converting raw pointers to smart pointers, applying modern C++ features (C++11/14/17/20), fixing clang-tidy warnings, applying RAII patterns, or preparing C++ code for review. Key capabilities include dead code removal, smart pointer migration (unique_ptr, shared_ptr), modern C++ feature adoption (auto, range-based for, structured bindings, std::optional), RAII resource management, clang-tidy integration, and move semantics optimization. The expected output is a modernized C++ codebase with smart pointers, RAII-compliant resource handling, and resolved static analysis warnings. Trigger phrases: cleanup C++, modernize C++, smart pointers, RAII, C++ refactor, fix clang-tidy."
 ---
 
 # C++ Code Cleanup

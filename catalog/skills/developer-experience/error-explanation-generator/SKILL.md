@@ -1,6 +1,8 @@
 ---
 name: error-explanation-generator
 description: Explain cryptic error messages, stack traces, and compiler errors in plain language with fix suggestions and prevention strategies. Use when encountering confusing errors, debugging stack traces, understanding compiler output, or diagnosing runtime exceptions.
+summary_l0: "Explain cryptic errors and stack traces in plain language with fix suggestions"
+overview_l1: "This skill transforms cryptic error messages, stack traces, and compiler diagnostics into plain-language explanations with actionable fix suggestions and prevention strategies. Use it when encountering a cryptic compiler error, parsing multi-frame stack traces to find root causes, diagnosing intermittent runtime exceptions, explaining build tool errors (Maven, Gradle, npm, pip, cargo), interpreting database error codes, understanding HTTP error responses, translating low-level system errors (segfaults, OOM, permission denied), or helping developers learn from errors. Key capabilities include multi-language error pattern recognition, stack trace parsing and root cause extraction, build tool error interpretation, database and HTTP error code lookup, system-level error translation, fix suggestion generation, and prevention strategy recommendations. The expected output is a plain-language explanation of the error, its root cause, concrete fix steps, and prevention strategies. Trigger phrases: explain this error, what does this error mean, help me understand this stack trace, fix this error, debug this exception, why am I getting this error, error explanation, stack trace help, compiler error, runtime exception."
 ---
 
 # Error Explanation Generator

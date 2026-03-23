@@ -1,6 +1,8 @@
 ---
 name: pre-commit-checklist
 description: Implement automated pre-commit quality checks including linting, formatting, type checking, tests, security scans, and commit message validation. Use when establishing team coding standards, preventing credential leaks, enforcing conventions, or implementing shift-left security.
+summary_l0: "Implement pre-commit hooks for linting, security scanning, and commit validation"
+overview_l1: "This skill implements automated pre-commit quality checks including linting, formatting, type checking, tests, security scans, and commit message validation. Use it when establishing team coding standards, preventing credential leaks, enforcing conventions, or implementing shift-left security. Key capabilities include pre-commit hook configuration, linter and formatter integration, type checking gates, test execution on staged files, secret detection and prevention, commit message convention enforcement (conventional commits), and multi-language hook orchestration. The expected output is a configured pre-commit setup with hooks for code quality, security, and convention enforcement. Trigger phrases: pre-commit, commit hooks, pre-commit checklist, credential leak prevention, commit validation, coding standards, shift-left security, git hooks."
 ---
 
 # Pre-Commit Security and Quality Checklist

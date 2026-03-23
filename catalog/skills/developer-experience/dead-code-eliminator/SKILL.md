@@ -1,6 +1,8 @@
 ---
 name: dead-code-eliminator
 description: Find and safely remove dead code including unreachable functions, unused imports, obsolete features, and stale feature flags using static analysis and call graph techniques. Use when cleaning up codebases, removing unused code, eliminating dead imports, or cleaning up feature flags.
+summary_l0: "Find and safely remove dead code with static analysis and call graph techniques"
+overview_l1: "This skill provides systematic detection and safe removal of dead code from codebases using static analysis, call graph construction, feature flag cleanup, and safe removal strategies. Use it when cleaning up a codebase before a major release or refactoring, removing code left behind after feature deprecation, eliminating unused imports, variables, functions, classes, and modules, cleaning up stale feature flags, reducing bundle size or compilation time, improving readability, or preparing a codebase for transfer or open-sourcing. Key capabilities include static analysis-based dead code detection, call graph construction for reachability analysis, feature flag lifecycle management, safe removal strategies that account for indirect references, reflection, and external integrations, and impact verification. The expected output is a prioritized list of dead code items with safe removal patches and verification steps. Trigger phrases: dead code, unused code, remove dead code, unused imports, unreachable code, unused functions, feature flag cleanup, stale code, code cleanup, eliminate dead code, unused variables, orphan code."
 ---
 
 # Dead Code Eliminator

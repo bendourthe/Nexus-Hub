@@ -1,6 +1,8 @@
 ---
 name: agent-access-policy
 description: Configure file-level access controls for AI coding agents using Claude Code's native permission system. Provides templates and configuration snippets for restricting which files and directories each agent can modify based on task scope. Use when delegating work to agents and wanting to enforce least-privilege access.
+summary_l0: "Configure least-privilege file access controls for AI coding agents"
+overview_l1: "This skill configures file-level access controls for AI coding agents using Claude Code's native permission system, providing templates and configuration snippets for restricting file and directory modification by task scope. Use it when delegating work to agents and wanting to enforce least-privilege access, preventing agents from modifying files outside their task scope, or setting up multi-agent environments with clear write boundaries. Key capabilities include permission policy template creation, directory-level access restriction, task-scope-based permission assignment, read-only versus read-write distinction, glob pattern-based path filtering, and multi-agent write-scope ownership configuration. The expected output is agent access policy configurations with file/directory permissions scoped to each agent's task. Trigger phrases: agent access, file permissions, agent scope, least privilege, write access, agent restrictions, permission policy, agent boundaries."
 ---
 
 # Agent File Access Policy

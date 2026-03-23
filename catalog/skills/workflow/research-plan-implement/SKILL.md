@@ -1,6 +1,8 @@
 ---
 name: research-plan-implement
 description: Execute a structured Research-Plan-Implement (RPI) workflow with GO/NO-GO gates and artifact generation at each phase. Use for non-trivial features that benefit from systematic exploration, multi-perspective planning, and tracked implementation.
+summary_l0: "Execute Research-Plan-Implement workflows with GO/NO-GO gates and artifact tracking"
+overview_l1: "This skill executes a structured Research-Plan-Implement (RPI) workflow with GO/NO-GO gates and artifact generation at each phase. Use it for non-trivial features that benefit from systematic exploration, multi-perspective planning, and tracked implementation. Key capabilities include research phase execution with finding documentation, multi-perspective plan generation with trade-off analysis, GO/NO-GO gate enforcement between phases, implementation tracking with plan adherence verification, artifact generation at each phase (research notes, plan documents, implementation logs), and deviation detection from the approved plan. The expected output is a complete RPI execution with research findings, approved plan, implemented code, and phase artifacts. Trigger phrases: research plan implement, RPI workflow, systematic exploration, phased development, GO/NO-GO gate, research phase, implementation plan."
 ---
 
 # Research-Plan-Implement (RPI) Workflow

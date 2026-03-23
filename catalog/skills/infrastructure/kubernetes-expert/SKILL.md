@@ -1,6 +1,8 @@
 ---
 name: kubernetes-expert
 description: Deep Kubernetes expertise for container orchestration, deployment patterns, and cluster management. Use when deploying to K8s, writing Helm charts, configuring RBAC, troubleshooting pods, or optimizing cluster resources.
+summary_l0: "Deploy and manage Kubernetes clusters with Helm, RBAC, and resource optimization"
+overview_l1: "This skill provides specialized expertise in Kubernetes container orchestration, covering deployment strategies, security hardening, resource optimization, and operational best practices for production-grade cluster management. Use it when deploying to Kubernetes, writing Helm charts, configuring RBAC, troubleshooting pods, optimizing cluster resources, implementing network policies, or setting up autoscaling. Key capabilities include deployment strategy design (rolling, blue-green, canary), Helm chart development, RBAC policy configuration, pod troubleshooting, resource request and limit optimization, network policy implementation, horizontal and vertical autoscaling, and cluster upgrade planning. The expected output is Kubernetes manifests, Helm charts, RBAC policies, and operational runbooks for production cluster management. Trigger phrases: kubernetes, K8s, Helm chart, kubectl, pod troubleshooting, RBAC, cluster management, deployment, autoscaling, network policy."
 ---
 
 # Kubernetes Expert

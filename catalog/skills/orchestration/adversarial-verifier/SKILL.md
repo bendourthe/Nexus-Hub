@@ -1,6 +1,8 @@
 ---
 name: adversarial-verifier
 description: Act as a "breaker" agent that actively tries to break another agent's implementation by generating adversarial inputs, edge cases, attack vectors, and contract violations. Produces ADVERSARIAL-REPORT.md as an independent verification artifact. Use after implementation and standard verification to stress-test code before merge.
+summary_l0: "Stress-test implementations with adversarial inputs, edge cases, and attack vectors"
+overview_l1: "This skill acts as a breaker agent that actively tries to break another agent's implementation by generating adversarial inputs, edge cases, attack vectors, and contract violations. Use it after implementation and standard verification to stress-test code before merge, when validating security-critical code, or when high-confidence correctness is required. Key capabilities include adversarial input generation, boundary condition exploration, security attack vector testing, contract and invariant violation detection, race condition provocation, resource exhaustion testing, and independent verification report generation. The expected output is an ADVERSARIAL-REPORT.md with categorized findings including discovered vulnerabilities, edge case failures, and contract violations with reproduction steps. Trigger phrases: adversarial testing, break the code, stress test, edge cases, attack vectors, security testing, contract violations, adversarial verification."
 ---
 
 # Adversarial Verifier

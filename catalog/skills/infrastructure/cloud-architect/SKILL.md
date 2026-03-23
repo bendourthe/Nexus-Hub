@@ -1,6 +1,8 @@
 ---
 name: cloud-architect
 description: Multi-cloud architecture expertise for AWS, Azure, and GCP. Use when designing cloud infrastructure, implementing Well-Architected Framework principles, optimizing costs, or building highly available and secure cloud solutions.
+summary_l0: "Design multi-cloud architectures with Well-Architected Framework and cost optimization"
+overview_l1: "This skill provides specialized expertise in cloud architecture across AWS, Azure, and GCP, covering Well-Architected Framework principles, high availability patterns, security best practices, cost optimization, and cloud-native design. Use it when designing cloud infrastructure, implementing Well-Architected Framework principles, optimizing cloud costs, building highly available solutions, implementing cloud security controls, or choosing between cloud services. Key capabilities include multi-cloud architecture design, Well-Architected Framework pillar assessment, high availability and disaster recovery patterns, security control implementation, cost optimization strategies, cloud service selection, and cloud-native application design. The expected output is cloud architecture documentation with service selection, network topology, security controls, cost estimates, and deployment guides. Trigger phrases: cloud architecture, AWS, Azure, GCP, Well-Architected, cloud security, cost optimization, high availability, cloud migration."
 ---
 
 # Cloud Architect

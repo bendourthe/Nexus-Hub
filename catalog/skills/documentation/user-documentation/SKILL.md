@@ -1,6 +1,8 @@
 ---
 name: user-documentation
 description: Create README files, installation guides, tutorials, quick starts, and user-facing documentation. Use when creating project documentation, onboarding guides, user manuals, or improving project discoverability.
+summary_l0: "Create READMEs, installation guides, tutorials, and user-facing documentation"
+overview_l1: "This skill creates clear, accessible documentation that enables users to quickly understand, install, configure, and effectively use software. Use it when creating a professional README, writing installation guides, building quick start tutorials, documenting configuration options, creating FAQ sections, or writing troubleshooting guides. Key capabilities include README generation with badges and structure, installation guide creation across platforms, quick start tutorial design, configuration documentation, FAQ section authoring, troubleshooting guide creation, and user manual generation. The expected output is polished user-facing documentation with clear installation steps, quick start guides, configuration references, and troubleshooting sections. Trigger phrases: write README, create documentation, installation guide, quick start, user guide, getting started."
 ---
 
 # User Documentation

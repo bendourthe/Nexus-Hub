@@ -1,6 +1,8 @@
 ---
 name: test-cases
 description: Create integration and end-to-end test scenarios covering workflows, API interactions, database operations, and system boundaries. Use when testing component interactions, API endpoints, user journeys, or full system flows for Python, JavaScript, Java, C#, Go, C, or C++ applications.
+summary_l0: "Create integration and E2E test scenarios for workflows, APIs, and system boundaries"
+overview_l1: "This skill creates integration and end-to-end test scenarios covering workflows, API interactions, database operations, and system boundaries. Use it when testing component interactions, API endpoints, user journeys, or full system flows. Key capabilities include integration test scenario design, API endpoint testing with request/response validation, database operation testing with setup/teardown, workflow testing across multiple components, user journey test creation, system boundary testing, and test data management for complex scenarios. The expected output is comprehensive test scenarios with setup, execution, and assertion steps for integration and E2E testing. Trigger phrases: test cases, integration tests, E2E tests, API testing, workflow testing, user journey, system testing, database testing, test scenarios."
 ---
 
 # Test Cases - Integration & E2E Tests

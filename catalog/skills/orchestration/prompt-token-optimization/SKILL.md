@@ -1,6 +1,8 @@
 ---
 name: prompt-token-optimization
 description: Minimize token consumption and maximize effective context window usage through programmatic tool calling, dynamic filtering, tool search deferral, and context hygiene. Use when sessions are hitting context limits, costs are too high, or tool-heavy workflows consume excessive tokens.
+summary_l0: "Minimize token consumption with programmatic tool calling and context hygiene"
+overview_l1: "This skill minimizes token consumption and maximizes effective context window usage through programmatic tool calling, dynamic filtering, tool search deferral, and context hygiene. Use it when sessions are hitting context limits, costs are too high, tool-heavy workflows consume excessive tokens, or you need to optimize AI coding session economics. Key capabilities include programmatic tool call optimization (batching, filtering, deferred execution), dynamic context filtering based on task relevance, tool search deferral to reduce unnecessary reads, context hygiene practices (summarizing instead of echoing, suppressing verbose output), token consumption tracking, and cost-per-task optimization. The expected output is optimized session workflows with reduced token consumption, cost metrics, and context hygiene guidelines. Trigger phrases: token optimization, reduce tokens, context window, tool tokens, session cost, programmatic tool calling, context hygiene, token budget."
 ---
 
 # Prompt and Token Optimization

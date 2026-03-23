@@ -1,6 +1,8 @@
 ---
 name: documentation-consistency
 description: Verify documentation is up-to-date and consistent across all files. Check for broken links, outdated references, deprecated content, and mismatched information. Use when auditing documentation, checking for stale content, verifying links, or ensuring docs match current codebase state.
+summary_l0: "Verify documentation consistency with link checking, staleness detection, and sync audits"
+overview_l1: "This skill verifies documentation is up-to-date and consistent across all files, checking for broken links, outdated references, deprecated content, and mismatched information. Use it when auditing documentation, checking for stale content, verifying links, or ensuring docs match current codebase state. Key capabilities include broken link detection (internal and external), outdated reference identification, deprecated content flagging, cross-file information consistency checking, code-to-documentation synchronization verification, version number consistency checking, and documentation freshness scoring. The expected output is a documentation consistency report with broken links, outdated references, mismatches, and recommended fixes. Trigger phrases: documentation audit, broken links, stale docs, outdated documentation, doc consistency, verify documentation, documentation sync, docs match code."
 ---
 
 # Documentation Consistency Check

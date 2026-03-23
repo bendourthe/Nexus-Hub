@@ -1,6 +1,8 @@
 ---
 name: data-pipeline-design
 description: Data pipeline design for ETL/ELT workflows, streaming architectures, data validation, and orchestration. Use when building data pipelines, choosing batch vs streaming, or implementing data quality checks.
+summary_l0: "Design data pipelines for ETL/ELT, streaming, validation, and orchestration"
+overview_l1: "This skill provides end-to-end guidance for designing, implementing, and operating data pipelines that move, transform, and validate data across systems. Use it when building data pipelines, choosing batch versus streaming architectures, implementing data quality checks, designing ETL/ELT workflows, setting up pipeline orchestration, or monitoring data processing. Key capabilities include batch and streaming architecture design, ETL/ELT workflow implementation, data validation and quality enforcement, orchestration framework configuration (Airflow, Dagster, Prefect), schema evolution handling, data lineage tracking, error handling and retry strategies, and production monitoring setup. The expected output is data pipeline architecture with transformation logic, validation rules, orchestration configuration, and monitoring dashboards. Trigger phrases: data pipeline, ETL, ELT, streaming, batch processing, data quality, Airflow, Kafka, data validation, pipeline orchestration."
 ---
 
 # Data Pipeline Design

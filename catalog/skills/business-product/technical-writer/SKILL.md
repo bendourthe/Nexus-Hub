@@ -1,6 +1,8 @@
 ---
 name: technical-writer
 description: Professional technical writing expertise for clear, audience-appropriate documentation. Use when producing user-facing docs, API guides, onboarding materials, release notes, or any content that requires structured information architecture, consistent voice and tone, and accessibility across skill levels.
+summary_l0: "Produce audience-appropriate technical documentation with structured information architecture"
+overview_l1: "This skill provides professional technical writing expertise for clear, audience-appropriate documentation. Use it when producing user-facing docs, API guides, onboarding materials, release notes, or any content requiring structured information architecture, consistent voice and tone, and accessibility across skill levels. Key capabilities include information architecture design, audience analysis and tone calibration, user-facing documentation authoring, API guide and reference writing, onboarding material creation, release notes composition, style guide enforcement, and accessibility review for different skill levels. The expected output is polished, well-structured technical documentation with appropriate voice, clear hierarchy, and audience-appropriate language. Trigger phrases: technical writing, documentation, API guide, user docs, onboarding materials, release notes, information architecture, documentation style, audience-appropriate writing."
 ---
 
 # Technical Writer

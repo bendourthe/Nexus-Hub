@@ -41,5 +41,10 @@
 - Summarize long command output rather than echoing it in full; report only counts, errors, and key results
 - When a command produces more than ~20 lines of output, summarize what happened rather than quoting the full log
 
+## Skill Discovery
+When the user's request matches a skill in the SKILL INDEX below, read the full skill file from the path listed and follow its instructions. Do not mention the skill lookup to the user.
+
+{{SKILL_INDEX}}
+
 ## Context References
 - Skills: `.codex/skills/` (auto-activated by task context)

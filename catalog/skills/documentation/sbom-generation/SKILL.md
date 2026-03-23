@@ -1,6 +1,8 @@
 ---
 name: sbom-generation
 description: Generate Software Bill of Materials (SBOM) for compliance with NTIA, EU CRA, and other regulatory requirements. Use when preparing for audits, compliance reporting, supply chain transparency, or security vulnerability tracking.
+summary_l0: "Generate SBOM documents in CycloneDX and SPDX for regulatory compliance"
+overview_l1: "This skill generates complete, standards-compliant Software Bill of Materials documentation for security, compliance, and supply chain management. Use it when meeting NTIA minimum element requirements, complying with the EU Cyber Resilience Act, tracking software dependencies, identifying vulnerable components, preparing for security audits, or establishing supply chain transparency. Key capabilities include SBOM generation in CycloneDX and SPDX formats, NTIA minimum element compliance, EU CRA alignment, dependency inventory creation across package ecosystems, vulnerability correlation with known CVEs, license identification and compliance checking, and supply chain risk assessment. The expected output is a standards-compliant SBOM document with component inventory, dependency relationships, license information, and vulnerability status. Trigger phrases: generate SBOM, software bill of materials, dependency inventory, NTIA compliance, EU CRA, CycloneDX, SPDX."
 ---
 
 # SBOM Generation

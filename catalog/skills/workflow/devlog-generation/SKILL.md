@@ -1,6 +1,8 @@
 ---
 name: devlog-generation
 description: Generate comprehensive development logs from git history, documentation, and code artifacts. Use when creating project history, onboarding to unfamiliar codebases, recovering lost development context, or establishing a troubleshooting knowledge base.
+summary_l0: "Generate development logs from git history, docs, and code artifacts"
+overview_l1: "This skill generates comprehensive development logs from git history, documentation, and code artifacts. Use it when creating project history, onboarding to unfamiliar codebases, recovering lost development context, or establishing a troubleshooting knowledge base. Key capabilities include git history analysis and summarization, documentation artifact extraction, development timeline reconstruction, decision context recovery, troubleshooting knowledge base creation, onboarding context generation, and version-by-version development narrative construction. The expected output is a structured development log (DEVLOG.md) with chronological entries covering key decisions, changes, and context. Trigger phrases: devlog, development log, project history, git history summary, onboarding context, development timeline, DEVLOG, recover context."
 ---
 
 # DevLog Generation

@@ -1,6 +1,8 @@
 ---
 name: regression-root-cause-analyzer
 description: Identify root causes of regressions using diff analysis, git bisect, test failure correlation, and change impact analysis. Use when a previously passing test fails, CI/CD pipelines break after a deployment, or recent changes introduce unexpected behavior.
+summary_l0: "Identify regression root causes with diff analysis, bisect, and change impact tracing"
+overview_l1: "This skill systematically identifies the root cause of regressions by combining diff analysis, git bisect integration, test failure correlation, change impact analysis, and timeline reconstruction. Use it when determining which commit or merge introduced a regression, analyzing CI/CD pipeline failures after a deployment, correlating multiple test failures to a single root cause change, performing change impact analysis to understand blast radius, reconstructing the timeline of events leading to a regression, distinguishing genuine regressions from flaky tests, or investigating performance regressions. Key capabilities include automated bisect-driven commit isolation, diff-to-failure correlation, blast radius mapping, timeline reconstruction, flaky test discrimination, and performance regression profiling. The expected output is a root cause report identifying the specific commit, the change that caused it, the mechanism of the regression, and recommended remediation. Trigger phrases: find the regression, what broke the build, which commit caused, regression analysis, CI pipeline broke, test started failing, root cause of regression, bisect the failure, what change caused this."
 ---
 
 # Regression Root Cause Analyzer

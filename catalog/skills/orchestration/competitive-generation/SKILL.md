@@ -1,6 +1,8 @@
 ---
 name: competitive-generation
 description: Run multiple AI agents in parallel on the same task, collect their outputs, and select the best implementation using an objective scoring rubric (test passage rate, diff size, dependency count, lint score, complexity). Use for high-stakes or high-value changes where the cost of multiple attempts is justified.
+summary_l0: "Run parallel agents on the same task and select the best output by scoring rubric"
+overview_l1: "This skill runs multiple AI agents in parallel on the same task, collects their outputs, and selects the best implementation using an objective scoring rubric. Use it for high-stakes or high-value changes where the cost of multiple attempts is justified, when comparing outputs from different models or prompts, or when maximum code quality is required. Key capabilities include parallel agent execution coordination, objective scoring rubric application (test passage rate, diff size, dependency count, lint score, complexity), output comparison and ranking, best-implementation selection with evidence, cost-benefit analysis of competitive generation, and winner explanation with scoring breakdown. The expected output is the best implementation selected from multiple candidates with a comparative scoring report. Trigger phrases: competitive generation, parallel agents, best-of-N, compare implementations, scoring rubric, multi-attempt, high-stakes change, best output."
 ---
 
 # Competitive Multi-Agent Generation

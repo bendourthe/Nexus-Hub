@@ -1,6 +1,8 @@
 ---
 name: context-compression
 description: Minimize tokens per task in long-running agent sessions while preserving critical information. Use when hitting context limits, preparing session handoffs, or managing verbose tool outputs.
+summary_l0: "Minimize tokens per task while preserving critical information in agent sessions"
+overview_l1: "This skill minimizes tokens per task in long-running agent sessions while preserving critical information. Use it when hitting context limits, preparing session handoffs, managing verbose tool outputs, or needing to extend effective session duration. Key capabilities include selective context retention (keeping decisions, discarding exploration), tool output compression and summarization, session handoff document generation, token budget tracking and forecasting, verbose log suppression strategies, critical information extraction from large outputs, and checkpoint-based context management. The expected output is compressed context with retained critical information, token usage reports, and session handoff documents. Trigger phrases: context compression, token limit, session handoff, compress context, reduce tokens, verbose output, session management, context budget."
 ---
 
 # Context Compression

@@ -1,6 +1,8 @@
 ---
 name: business-analyst
 description: Business analysis expertise for translating business needs into technical requirements. Use when eliciting requirements from stakeholders, modeling business processes, writing functional specifications, performing gap analysis, defining data dictionaries, or creating acceptance test scenarios from business rules.
+summary_l0: "Translate business needs into technical requirements with process modeling and gap analysis"
+overview_l1: "This skill provides business analysis expertise for translating business needs into technical requirements. Use it when eliciting requirements from stakeholders, modeling business processes, writing functional specifications, performing gap analysis, defining data dictionaries, or creating acceptance test scenarios from business rules. Key capabilities include stakeholder requirement elicitation, business process modeling (BPMN), functional specification writing, gap analysis between current and target states, data dictionary definition, acceptance test scenario creation from business rules, use case and user story development, and requirements traceability. The expected output is structured business analysis artifacts including requirements documents, process models, gap analyses, and acceptance criteria. Trigger phrases: business analysis, requirements gathering, business process, functional specification, gap analysis, data dictionary, stakeholder requirements, use cases, business rules."
 ---
 
 # Business Analyst

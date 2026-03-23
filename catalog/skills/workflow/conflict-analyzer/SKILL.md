@@ -1,6 +1,8 @@
 ---
 name: conflict-analyzer
 description: Analyze and resolve merge conflicts systematically using three-way merge analysis, conflict classification, resolution strategies, and prevention techniques. Use when encountering merge conflicts, planning branch integration, or establishing merge workflow policies.
+summary_l0: "Analyze and resolve merge conflicts with three-way analysis and resolution strategies"
+overview_l1: "This skill analyzes and resolves merge conflicts systematically using three-way merge analysis, conflict classification, resolution strategies, and prevention techniques. Use it when encountering merge conflicts, planning branch integration, establishing merge workflow policies, or preventing conflicts proactively. Key capabilities include three-way merge analysis (base, ours, theirs), conflict classification (textual, semantic, structural), resolution strategy selection, automated resolution where safe, conflict prevention through workflow design, branch integration planning, and merge policy establishment. The expected output is resolved conflicts with explanation of resolution choices, or proactive conflict prevention strategies. Trigger phrases: merge conflict, resolve conflict, three-way merge, branch integration, merge workflow, conflict resolution, rebase conflict, Git conflict."
 ---
 
 # Conflict Analyzer

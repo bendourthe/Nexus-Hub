@@ -1,6 +1,8 @@
 ---
 name: licensing-compliance
 description: Audit project dependencies for license compliance, identify legal issues, verify compatibility between licenses, and generate compliance reports. Use when releasing software, adding dependencies, corporate compliance requirements, mergers/acquisitions, or distributing code.
+summary_l0: "Audit dependency licenses for compliance, compatibility, and legal risk"
+overview_l1: "This skill audits project dependencies for license compliance, identifies legal issues, verifies compatibility between licenses, and generates compliance reports. Use it when releasing software, adding dependencies, meeting corporate compliance requirements, preparing for mergers/acquisitions, or distributing code. Key capabilities include license identification across dependency trees, license compatibility verification, copyleft contamination detection, license obligation cataloging, compliance report generation, corporate policy enforcement, and SPDX license expression parsing. The expected output is a license compliance report with identified issues, compatibility analysis, obligation summary, and remediation recommendations. Trigger phrases: license audit, license compliance, licensing issues, open source license, copyleft, license compatibility, legal compliance, dependency licenses."
 ---
 
 # Licensing Compliance Check

@@ -1,6 +1,8 @@
 ---
 name: sre-engineer
 description: Site reliability engineering expertise for building and maintaining reliable production systems. Use when defining SLOs/SLIs/error budgets, designing incident response runbooks, implementing observability pipelines, capacity planning, or conducting post-incident reviews.
+summary_l0: "Build reliable production systems with SLOs, incident response, and capacity planning"
+overview_l1: "This skill provides specialized expertise in site reliability engineering, covering service-level objectives, observability, incident management, capacity planning, reliability patterns, and toil reduction. Use it when defining SLOs/SLIs/error budgets, designing incident response runbooks, implementing observability pipelines, capacity planning, conducting post-incident reviews, reducing operational toil, or implementing chaos engineering. Key capabilities include SLO/SLI/error budget definition and tracking, incident response runbook creation, observability pipeline design, capacity planning and forecasting, post-incident review facilitation, toil identification and automation, reliability pattern implementation, and chaos engineering experiment design. The expected output is SLO definitions, incident runbooks, capacity plans, observability configurations, and toil reduction proposals. Trigger phrases: SRE, site reliability, SLO, SLI, error budget, incident response, runbook, capacity planning, post-incident review, toil reduction, chaos engineering."
 ---
 
 # SRE Engineer

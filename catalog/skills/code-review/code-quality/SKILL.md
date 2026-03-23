@@ -1,6 +1,8 @@
 ---
 name: code-quality
 description: Evaluate code style, maintainability, complexity metrics, SOLID principles, dead code removal candidates, and adherence to best practices. Use for code quality assessment, technical debt identification, maintainability improvement, or as Phase 2 of comprehensive code review.
+summary_l0: "Evaluate code quality, SOLID adherence, complexity metrics, and maintainability"
+overview_l1: "This skill evaluates code quality, maintainability, SOLID adherence, and dead code candidates, serving as Phase 2 of the 6-phase code review methodology. Use it when assessing code maintainability, identifying technical debt, reviewing coding standards compliance, measuring code complexity, finding code smells and anti-patterns, evaluating SOLID principle adherence, or identifying dead code removal candidates. Key capabilities include cyclomatic complexity measurement, SOLID principle verification (single responsibility, open-closed, Liskov substitution, interface segregation, dependency inversion), coding standards compliance checking, dead code detection, code duplication analysis, naming convention evaluation, and technical debt quantification. The expected output is a code quality report with complexity metrics, SOLID violations, code smell catalog, dead code candidates, and prioritized improvement recommendations. Trigger phrases: code quality, code review, technical debt, code smells, maintainability, complexity, best practices, clean code, SOLID, dead code."
 ---
 
 # Code Review - Code Quality

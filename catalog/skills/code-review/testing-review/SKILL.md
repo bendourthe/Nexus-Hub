@@ -1,6 +1,8 @@
 ---
 name: testing-review
 description: Assess test coverage, test quality, testing strategy effectiveness, and identify coverage gaps. Use when evaluating test suites, improving test strategy, preparing for releases, or as Phase 5 of comprehensive code review.
+summary_l0: "Assess test coverage, quality, and strategy effectiveness with gap identification"
+overview_l1: "This skill evaluates test coverage, quality, and effectiveness, serving as Phase 5 of the 6-phase code review methodology. Use it when evaluating test suite quality, identifying coverage gaps, assessing testing strategy, reviewing test maintainability, preparing for releases, or improving test effectiveness. Key capabilities include line and branch coverage analysis, test quality scoring (assertion density, test isolation, naming conventions), testing strategy assessment (unit, integration, E2E balance), coverage gap identification by feature and risk area, test maintainability review, flaky test detection, and test pyramid evaluation. The expected output is a testing review report with coverage metrics, quality scores, identified gaps, and recommendations for improving the test suite. Trigger phrases: testing review, test coverage, test quality, test assessment, coverage gaps, test strategy."
 ---
 
 # Code Review - Testing Review

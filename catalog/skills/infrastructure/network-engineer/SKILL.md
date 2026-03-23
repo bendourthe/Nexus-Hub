@@ -1,6 +1,8 @@
 ---
 name: network-engineer
 description: Network engineering expertise for designing and troubleshooting modern network architectures. Use when configuring VPCs, subnets, and routing tables, designing DNS and load balancing strategies, implementing network security with firewalls and NACLs, troubleshooting connectivity issues, or optimizing network performance.
+summary_l0: "Design and troubleshoot network architectures with VPCs, DNS, and load balancing"
+overview_l1: "This skill provides specialized expertise in network architecture and operations across cloud and hybrid environments, covering VPC design, DNS architecture, load balancing, network security, troubleshooting methodology, service mesh networking, and CDN/edge networking. Use it when configuring VPCs, subnets, and routing tables, designing DNS and load balancing strategies, implementing network security with firewalls and NACLs, troubleshooting connectivity issues, optimizing network performance, or designing service mesh topologies. Key capabilities include VPC and subnet architecture design, DNS resolution strategy, load balancer configuration (ALB, NLB, Envoy), firewall and NACL rule design, connectivity troubleshooting methodology, service mesh networking (Istio, Linkerd), CDN and edge networking, and network performance optimization. The expected output is network architecture diagrams, configuration files, security rules, and troubleshooting runbooks. Trigger phrases: VPC, subnet, routing, DNS, load balancer, firewall, NACL, network security, connectivity, service mesh, CDN, network troubleshooting."
 ---
 
 # Network Engineer

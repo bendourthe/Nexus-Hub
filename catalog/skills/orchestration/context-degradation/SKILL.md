@@ -1,6 +1,8 @@
 ---
 name: context-degradation
 description: Detect and mitigate context quality decay in long AI agent sessions. Use when an agent starts forgetting instructions, repeating mistakes, confusing files, or producing lower-quality output mid-session.
+summary_l0: "Detect and mitigate context quality decay in long AI agent sessions"
+overview_l1: "This skill detects and mitigates context quality decay in long AI agent sessions. Use it when an agent starts forgetting instructions, repeating mistakes, confusing files, producing lower-quality output mid-session, or when session length exceeds typical context window limits. Key capabilities include decay signal detection (instruction amnesia, file confusion, quality regression, repetitive errors), decay severity classification, mitigation strategy selection (context refresh, session split, checkpoint and restart, selective compaction), proactive decay prevention through session planning, and session health monitoring. The expected output is detection of degradation signals with recommended mitigation actions and session management strategies. Trigger phrases: context degradation, forgetting instructions, agent quality decay, session too long, repeating mistakes, context window full, agent confused, session health."
 ---
 
 # Context Degradation

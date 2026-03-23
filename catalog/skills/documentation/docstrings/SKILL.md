@@ -1,6 +1,8 @@
 ---
 name: docstrings
 description: Generate comprehensive function, class, and module docstrings following language conventions (JSDoc, PyDoc, JavaDoc, XML docs, godoc, Doxygen). Use when documenting APIs, adding inline documentation, improving code discoverability, or generating API reference documentation.
+summary_l0: "Generate standards-compliant docstrings in JSDoc, PyDoc, JavaDoc, and godoc formats"
+overview_l1: "This skill generates comprehensive, standards-compliant docstrings for all public interfaces including modules, classes, functions, and methods. Use it when documenting function parameters and return values, adding class and module documentation, generating API reference documentation, improving code discoverability, creating self-documenting code, or meeting documentation requirements. Key capabilities include multi-format docstring generation (JSDoc for JavaScript/TypeScript, PyDoc/Google/NumPy style for Python, JavaDoc for Java, XML docs for C#, godoc for Go, Doxygen for C/C++), parameter and return type documentation, exception documentation, usage example generation, and deprecation notice formatting. The expected output is properly formatted docstrings following language-specific conventions with parameter descriptions, return values, exceptions, and usage examples. Trigger phrases: add docstrings, document code, generate docstrings, API documentation, JSDoc, PyDoc, JavaDoc, godoc, Doxygen."
 ---
 
 # Docstring Generation

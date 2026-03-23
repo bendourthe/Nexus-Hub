@@ -1,6 +1,8 @@
 ---
 name: test-structure
 description: Set up testing infrastructure including framework selection, directory organization, configuration files, and initial test scaffolding. Use when starting a new project, adding tests to an existing codebase, restructuring test organization, or setting up pytest, Jest, JUnit, xUnit, or Go testing for Python, JavaScript, Java, C#, Go, C, or C++.
+summary_l0: "Set up testing infrastructure with framework selection, structure, and configuration"
+overview_l1: "This skill sets up testing infrastructure including framework selection, directory organization, configuration files, and initial test scaffolding. Use it when starting a new project, adding tests to an existing codebase, restructuring test organization, or configuring test frameworks (pytest, Jest/Vitest, JUnit, xUnit, Go testing). Key capabilities include test framework selection and comparison, directory structure design (unit, integration, E2E separation), configuration file creation, initial test scaffolding, fixture and helper organization, test runner configuration, and CI/CD test pipeline setup. The expected output is a complete testing infrastructure with framework configuration, directory structure, initial test scaffolding, and CI integration. Trigger phrases: test structure, testing setup, pytest config, Jest config, JUnit setup, test organization, testing infrastructure, test framework, test scaffold."
 ---
 
 # Test Structure Setup

@@ -1,6 +1,8 @@
 ---
 name: tool-design
 description: Design effective tools and APIs for AI agent consumption (MCP servers, slash commands, function schemas). Use when building MCP servers, creating custom tools, designing APIs that agents will call, or optimizing tool descriptions for better agent behavior.
+summary_l0: "Design tools and APIs for AI agent consumption with MCP and function schemas"
+overview_l1: "This skill provides specialized expertise in designing tools, APIs, and function interfaces that AI agents can use effectively. Use it when building MCP (Model Context Protocol) servers, creating custom Claude Code slash commands, designing APIs that AI agents will consume, optimizing tool descriptions for better agent selection, reducing tool confusion in multi-tool environments, or building function-calling interfaces for LLM applications. Key capabilities include MCP server design and implementation, slash command creation, agent-friendly API design principles, tool description optimization for disambiguation, function schema design with proper parameter annotations, error message design for agent recovery, and multi-tool environment orchestration. The expected output is well-designed tool interfaces with clear descriptions, proper schemas, and agent-optimized error handling. Trigger phrases: tool design, MCP server, design tools for agents, tool descriptions, agent tools, function schema, tool selection, tool confusion, API for AI."
 ---
 
 # Tool Design for AI Agents

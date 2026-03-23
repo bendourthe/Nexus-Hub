@@ -1,6 +1,8 @@
 ---
 name: multi-agent-coordinator
 description: Coordinate concurrent subagent execution with clear role separation, dependency tracking, and result integration. Use when a task benefits from parallel delegation to specialized agents, needs explicit write-scope ownership to prevent conflicts, or requires structured reconciliation of multiple agent outputs.
+summary_l0: "Coordinate concurrent subagents with role separation, scoping, and result integration"
+overview_l1: "This skill coordinates concurrent subagent execution with clear role separation, dependency tracking, and result integration. Use it when a task benefits from parallel delegation to specialized agents, needs explicit write-scope ownership to prevent file conflicts, or requires structured reconciliation of multiple agent outputs. Key capabilities include subagent role assignment and specialization, write-scope ownership allocation, dependency tracking between concurrent agents, result collection and reconciliation, conflict detection and resolution, parallel execution monitoring, and structured output integration. The expected output is coordinated agent execution with clear boundaries, conflict-free parallel work, and integrated results. Trigger phrases: multi-agent, concurrent agents, parallel delegation, subagent coordination, agent roles, write scope, result integration, agent conflict prevention."
 ---
 
 # Multi-Agent Coordinator

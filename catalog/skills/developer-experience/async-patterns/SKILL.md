@@ -1,6 +1,8 @@
 ---
 name: async-patterns
 description: Language-agnostic asynchronous and concurrency patterns including promises, futures, channels, actors, and structured concurrency. Use when implementing concurrent systems, debugging race conditions, or choosing concurrency models.
+summary_l0: "Implement async and concurrency patterns with channels, actors, and structured concurrency"
+overview_l1: "This skill provides comprehensive guidance on asynchronous programming and concurrency patterns across languages, covering async/await, channels, actors, structured concurrency, and strategies for avoiding common pitfalls like deadlocks and race conditions. Use it when implementing async/await in Python, JavaScript, Rust, or C#, choosing between concurrency models (threads, coroutines, actors, CSP), designing producer-consumer, fan-out/fan-in, or pipeline architectures, debugging race conditions, deadlocks, or resource starvation, adding backpressure handling, writing tests for asynchronous code, implementing structured concurrency with task groups, or converting callback-based code to async/await. Key capabilities include concurrency model selection, async/await pattern implementation, channel and actor design, structured concurrency with cancellation, backpressure strategies, deadlock detection, and async test patterns. The expected output is correct, well-structured concurrent code with proper error handling, cancellation support, and test coverage. Trigger phrases: async, await, concurrency, parallelism, race condition, deadlock, promise, future, channel, goroutine, tokio, asyncio, actor model, structured concurrency, backpressure."
 ---
 
 # Async Patterns

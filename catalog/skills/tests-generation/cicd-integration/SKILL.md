@@ -1,6 +1,8 @@
 ---
 name: cicd-integration
 description: Configure test automation in CI/CD pipelines with quality gates, parallel execution, and reporting. Use when setting up GitHub Actions, GitLab CI, Jenkins, Azure DevOps, or other CI/CD systems for automated testing, test parallelization, and continuous quality assurance.
+summary_l0: "Configure test automation in CI/CD with quality gates and parallel execution"
+overview_l1: "This skill configures test automation in CI/CD pipelines with quality gates, parallel execution, and reporting. Use it when setting up GitHub Actions, GitLab CI, Jenkins, Azure DevOps, or other CI/CD systems for automated testing, parallelizing test execution, or implementing continuous quality assurance. Key capabilities include CI/CD pipeline configuration for test execution, test parallelization across runners, quality gate enforcement (coverage thresholds, test pass rates), test result reporting and visualization, test artifact management, flaky test handling in CI, and multi-stage test pipelines (unit, integration, E2E). The expected output is CI/CD pipeline configurations with test automation, quality gates, and reporting integration. Trigger phrases: CI/CD testing, test automation pipeline, GitHub Actions tests, test parallelization, quality gates, test reporting, continuous testing."
 ---
 
 # CI/CD Integration for Testing

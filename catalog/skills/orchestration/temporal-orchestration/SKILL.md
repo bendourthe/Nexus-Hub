@@ -1,6 +1,8 @@
 ---
 name: temporal-orchestration
 description: Design and implement durable, fault-tolerant AI agent pipelines using Temporal workflow orchestration. Covers when to use Temporal vs simple async code, TypeScript SDK setup, AI agent activity design, parallel agent fan-out, crash recovery, and Docker Compose deployment. Use when building multi-agent AI systems that must survive failures, run in parallel, and resume after crashes.
+summary_l0: "Build durable AI agent pipelines with Temporal workflow orchestration and crash recovery"
+overview_l1: "This skill designs and implements durable, fault-tolerant AI agent pipelines using Temporal workflow orchestration. Use it when building multi-agent AI systems that must survive failures, run in parallel, and resume after crashes, or when simple async code cannot provide the durability guarantees needed. Key capabilities include Temporal vs async code decision framework, TypeScript SDK setup and configuration, AI agent activity design with retry policies, parallel agent fan-out and aggregation, crash recovery and workflow replay, Docker Compose deployment, signal and query handling, and workflow versioning. The expected output is Temporal workflow definitions with activity implementations, retry policies, deployment configuration, and operational runbooks. Trigger phrases: Temporal, durable workflow, fault-tolerant agents, agent pipeline, crash recovery, workflow orchestration, parallel agents, Temporal SDK."
 ---
 
 # Temporal Workflow Orchestration for AI Agents

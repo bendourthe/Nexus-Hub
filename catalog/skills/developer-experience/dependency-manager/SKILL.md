@@ -1,6 +1,8 @@
 ---
 name: dependency-manager
 description: Manage and upgrade project dependencies safely. Use when upgrading packages, handling breaking changes, managing lock files, patching vulnerabilities, or auditing dependency health across your projects.
+summary_l0: "Manage and upgrade project dependencies safely with vulnerability patching"
+overview_l1: "This skill provides specialized expertise in managing project dependencies, including safe upgrades, vulnerability patching, breaking change handling, and maintaining healthy dependency trees across different package ecosystems. Use it when upgrading project dependencies, handling breaking changes in updates, patching security vulnerabilities, managing lock files, auditing dependency health, resolving dependency conflicts, or planning major version upgrades. Key capabilities include safe upgrade strategies with rollback plans, breaking change detection and migration, vulnerability scanning and patching, lock file management across npm/pip/cargo/go ecosystems, dependency health auditing, conflict resolution, and major version upgrade planning. The expected output is upgraded dependencies with resolved conflicts, patched vulnerabilities, and updated lock files. Trigger phrases: upgrade dependencies, update packages, fix vulnerabilities, dependency audit, npm update, pip upgrade, breaking change."
 ---
 
 # Dependency Manager

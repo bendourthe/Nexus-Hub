@@ -1,6 +1,8 @@
 ---
 name: cd-pipeline-generator
 description: Generates continuous deployment pipelines for GitHub Actions, GitLab CI, Jenkins, and ArgoCD with deployment strategies, environment promotion, and rollback triggers. Use when creating CD pipelines, configuring deployment gates, or implementing blue-green and canary deployments.
+summary_l0: "Generate CD pipelines with deployment strategies, environment promotion, and rollback"
+overview_l1: "This skill generates production-grade continuous deployment pipelines across major CI/CD platforms, producing complete, ready-to-use configurations with industry-standard deployment strategies. Use it when creating CD pipelines for GitHub Actions, GitLab CI, Jenkins, or ArgoCD, configuring deployment gates and environment promotion, implementing blue-green or canary deployments, setting up automated rollback triggers, managing secrets in deployment pipelines, or configuring health checks. Key capabilities include platform-specific pipeline generation, deployment strategy implementation (blue-green, canary, rolling), environment promotion workflows, secret management integration, health check configuration, automated rollback trigger setup, and deployment gate enforcement. The expected output is complete, platform-idiomatic CD pipeline configurations with deployment strategies, rollback procedures, and monitoring integration. Trigger phrases: CD pipeline, continuous deployment, blue-green deployment, canary deployment, deployment gate, environment promotion, rollback trigger, ArgoCD, deployment pipeline."
 ---
 
 # CD Pipeline Generator

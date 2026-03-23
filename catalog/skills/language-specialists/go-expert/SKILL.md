@@ -1,6 +1,8 @@
 ---
 name: go-expert
 description: Deep Go expertise for concurrent systems programming. Use when writing Go code, implementing goroutines and channels, designing interfaces, handling errors idiomatically, or optimizing Go applications for performance.
+summary_l0: "Write idiomatic Go with goroutines, channels, interfaces, and error handling"
+overview_l1: "This skill provides deep Go expertise for concurrent systems programming. Use it when writing Go code, implementing goroutines and channels, designing interfaces, handling errors idiomatically, or optimizing Go applications for performance. Key capabilities include goroutine and channel design, interface-based polymorphism, idiomatic error handling with wrapping and sentinel errors, context propagation, struct embedding and composition, testing with table-driven tests, benchmarking, and profiling with pprof. The expected output is idiomatic, well-structured Go code with proper concurrency patterns, error handling, and test coverage. Trigger phrases: Go code, golang, goroutine, channel, Go interface, Go error handling, Go concurrency, Go performance, Go testing."
 ---
 
 # Go Expert

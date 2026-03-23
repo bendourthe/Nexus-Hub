@@ -1,6 +1,8 @@
 ---
 name: go-cleanup
 description: Apply gofmt, remove unused packages, improve error handling, and clean up Go codebases. Use when cleaning up Go projects, removing unused imports, applying idiomatic Go patterns, or improving code maintainability.
+summary_l0: "Clean up Go codebases with gofmt, idiomatic patterns, and improved error handling"
+overview_l1: "This skill systematically identifies and removes dead code, applies idiomatic Go patterns, and uses standard Go tooling to maintain a clean, maintainable codebase. Use it when removing unused imports and packages, applying gofmt and goimports, fixing go vet and staticcheck warnings, applying idiomatic Go patterns, improving error handling, or preparing Go code for review. Key capabilities include unused import and package removal, gofmt/goimports formatting, go vet and staticcheck integration, idiomatic Go pattern application (error wrapping, interface design, struct embedding), error handling improvement with proper wrapping and sentinel errors, and dead code elimination. The expected output is an idiomatic Go codebase with proper formatting, resolved linter warnings, and improved error handling. Trigger phrases: cleanup Go, gofmt, remove dead code Go, fix go vet, Go refactor, idiomatic Go."
 ---
 
 # Go Code Cleanup

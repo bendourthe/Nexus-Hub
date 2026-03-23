@@ -1,6 +1,8 @@
 ---
 name: rust-expert
 description: Deep Rust expertise for systems programming with ownership, borrowing, and lifetimes. Use when writing Rust code, understanding ownership errors, implementing traits, working with async/await, or optimizing performance-critical code.
+summary_l0: "Write Rust with ownership, borrowing, traits, async/await, and lifetime management"
+overview_l1: "This skill provides deep Rust expertise for systems programming with ownership, borrowing, and lifetimes. Use it when writing Rust code, understanding ownership and borrow checker errors, implementing traits and trait objects, working with async/await (tokio, async-std), optimizing performance-critical code, or designing safe abstractions. Key capabilities include ownership and lifetime management, trait design and implementation, error handling with Result and custom error types, async runtime selection and usage, unsafe code auditing, macro design, generic programming, and performance profiling. The expected output is safe, idiomatic Rust code with proper ownership patterns, trait implementations, error handling, and performance characteristics. Trigger phrases: Rust code, ownership, borrowing, lifetime, borrow checker, trait, async Rust, tokio, Rust error handling, Rust performance."
 ---
 
 # Rust Expert

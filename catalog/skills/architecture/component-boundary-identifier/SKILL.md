@@ -1,6 +1,8 @@
 ---
 name: component-boundary-identifier
 description: Identify natural module and component boundaries for microservice extraction, modularization, or monolith decomposition using coupling analysis, cohesion metrics, dependency graphs, and bounded context identification. Use when planning service extraction, reducing monolith complexity, or designing module boundaries.
+summary_l0: "Identify module boundaries for service extraction using coupling and cohesion analysis"
+overview_l1: "This skill analyzes a codebase to identify natural boundaries where modules, services, or components can be cleanly separated. Use it when decomposing a monolith into microservices, identifying parts of a codebase for extraction into separate packages, reducing coupling between modules, planning monolith-to-service migrations, identifying bounded contexts for DDD implementation, evaluating whether proposed module boundaries are clean, analyzing codebases before large-scale refactoring, or applying the strangler fig pattern. Key capabilities include coupling measurement between code regions, cohesion evaluation within modules, dependency graph construction and visualization, bounded context identification aligned with DDD, strangler fig migration planning, and cross-cutting concern detection. The expected output is a boundary analysis report with dependency graphs, coupling/cohesion metrics, recommended extraction points, and migration sequencing. Trigger phrases: find module boundaries, component boundaries, service extraction, decompose monolith, coupling analysis, cohesion analysis, bounded context, strangler fig, modularization, microservice boundaries."
 ---
 
 # Component Boundary Identifier

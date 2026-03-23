@@ -1,6 +1,8 @@
 ---
 name: directed-test-input-generator
 description: Generate targeted test inputs to reach specific code paths using path condition analysis, symbolic execution concepts, constraint solving, and coverage-directed generation. Use when you need to test hard-to-reach branches, achieve specific code coverage targets, exercise error handling paths, or generate inputs that satisfy complex preconditions.
+summary_l0: "Generate targeted test inputs to reach specific code paths via constraint analysis"
+overview_l1: "This skill generates targeted test inputs to reach specific code paths using path condition analysis, symbolic execution concepts, constraint solving, and coverage-directed generation. Use it when testing hard-to-reach branches, achieving specific code coverage targets, exercising error handling paths, or generating inputs that satisfy complex preconditions. Key capabilities include path condition extraction from control flow graphs, constraint solving for input generation, symbolic execution-inspired analysis, coverage-directed input optimization, error handling path targeting, complex precondition satisfaction, and multi-condition path input construction. The expected output is targeted test inputs with documentation of which code paths they exercise and the constraints they satisfy. Trigger phrases: directed testing, path coverage, reach specific branch, hard-to-reach code, symbolic execution, constraint solving, coverage-directed, target code path, test specific branch."
 ---
 
 # Directed Test Input Generator

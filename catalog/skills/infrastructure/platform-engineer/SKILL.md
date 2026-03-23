@@ -1,6 +1,8 @@
 ---
 name: platform-engineer
 description: Platform engineering expertise for building internal developer platforms and self-service infrastructure. Use when designing developer portals, creating golden paths, building platform APIs, standardizing deployment pipelines, or implementing infrastructure-as-code at scale.
+summary_l0: "Build internal developer platforms with self-service infrastructure and golden paths"
+overview_l1: "This skill provides specialized expertise in platform engineering, covering internal developer platforms, self-service infrastructure, standardized pipelines, developer experience metrics, service mesh networking, secrets management, and platform governance. Use it when designing developer portals, creating golden paths for common workflows, building platform APIs, standardizing deployment pipelines, implementing infrastructure-as-code at scale, or measuring developer productivity. Key capabilities include internal developer platform design, self-service infrastructure provisioning, golden path creation for common workflows, platform API development, standardized pipeline templates, developer experience metric tracking, service catalog management, and platform governance policies. The expected output is platform architecture with self-service interfaces, golden path templates, platform APIs, and governance documentation. Trigger phrases: platform engineering, internal developer platform, golden path, self-service infrastructure, developer portal, platform API, developer productivity, infrastructure at scale."
 ---
 
 # Platform Engineer
