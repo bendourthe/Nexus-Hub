@@ -6,12 +6,13 @@
 
 ---
 
-## What's New in v0.8.8
+## What's New in v0.8.9
 
-- **20 new specialist skills** — Language specialists (C++, C#, Java, JavaScript, PowerShell, Python, TypeScript), infrastructure (Azure, network, platform, SRE), orchestration (error-coordinator, multi-agent-coordinator), business-product, and fintech-engineer.
-- **`require-description` hook** — Enforces bordered description blocks on all Bash commands, keeping AI tool calls transparent and auditable.
-- **Skills catalog fully synced** — `skills.json` rebuilt to match all 162 on-disk skills; 18 category README files added; documentation updated across the board.
-- **Usage monitor fix** — Default model updated from Sonnet to Opus 4.6; extension README corrected for refresh interval, removed ghost settings.
+- **Tiered skill discovery** — Every skill now has L0 (one-liner) and L1 (full context) summaries, enabling hierarchical browsing without overwhelming context windows.
+- **MCP skill server** — New `devai-skill-server` Python extension with keyword search, category browsing, and bundle tools for programmatic skill discovery.
+- **Compiled skill index** — `data/SKILL_INDEX.md` and `{{SKILL_INDEX}}` template placeholder inject the full skill catalog into AI instruction files automatically.
+- **Phased release orchestrator** — `update-version` command restructured into five phases (A-E) with confirmation gates and sub-command delegation.
+- **Build tooling** — Added `Makefile`, `LICENSE` (MIT), `.pr_agent.toml`, and shellcheck/commitizen pre-commit hooks.
 
 ---
 

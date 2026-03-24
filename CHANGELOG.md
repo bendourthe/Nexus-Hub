@@ -11,6 +11,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.8.9] - 2026-03-23
+
+### Added
+- **Tiered Skill Summaries**: Added `summary_l0` and `overview_l1` frontmatter to all 162 SKILL.md files for hierarchical skill discovery
+- **MCP Skill Server**: New `devai-skill-server` Python extension with keyword search, category browsing, and bundle tools (`extensions/devai-skill-server/`)
+- **Compiled Skill Index**: Generated `data/SKILL_INDEX.md` for `{{SKILL_INDEX}}` template injection
+- **Skill Discovery Integration**: Added Skill Discovery section with `{{SKILL_INDEX}}` placeholder to all AI instruction templates
+- **Build Tooling**: Added `Makefile`, `LICENSE` (MIT), and `.pr_agent.toml`
+- **Pre-commit Hooks**: Added shellcheck and commitizen hooks to `.pre-commit-config.yaml`
+- **OpenViking Comparison Report**: Added `docs/v0.8.8/comparison-OpenViking.md`
+
+### Changed
+- **Release Orchestrator**: Restructured `update-version` command from linear steps into five-phase orchestrator (A-E) with user confirmation gates and sub-command delegation
+- **Skills Catalog Rebuilt**: `data/skills.json` rebuilt with L0/L1 summary fields and nested category/skill directory structure
+- **Build Script Enhanced**: `build_skills_catalog.py` updated for nested directory structure and tiered summary extraction
+- **Installer Scripts Updated**: Both `installer.ps1` and `installer.sh` updated for new catalog structure
+- **MCP Server Registration**: Registered `devai-skill-server` in `catalog/mcp-configs/mcp-servers.json`
+
+---
+
 ## [0.8.8] - 2026-03-20
 
 ### Added
@@ -2703,7 +2723,8 @@ repository_root/
 
 ---
 
-[Unreleased]: https://github.com/bdourthe/devai-hub/compare/v0.8.8...HEAD
+[Unreleased]: https://github.com/bdourthe/devai-hub/compare/v0.8.9...HEAD
+[0.8.9]: https://github.com/bdourthe/devai-hub/compare/v0.8.8...v0.8.9
 [0.8.8]: https://github.com/bdourthe/devai-hub/compare/v0.8.7...v0.8.8
 [0.8.7]: https://github.com/bdourthe/devai-hub/compare/v0.8.6...v0.8.7
 [0.8.6]: https://github.com/bdourthe/devai-hub/compare/v0.8.5...v0.8.6

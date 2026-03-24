@@ -1,5 +1,20 @@
 # Development Log
 
+## [2026-03-23] - Release 0.8.9: Tiered Skill Discovery, MCP Skill Server, and Phased Release Orchestrator
+
+*   **Goal**: Enable programmatic and hierarchical skill discovery by enriching all skills with tiered summaries, shipping an MCP skill server, and maturing the release process into a phased orchestrator.
+*   **What Changed**:
+    *   **Tiered Skill Summaries**: Added `summary_l0` (one-liner) and `overview_l1` (full context paragraph) frontmatter fields to all 162 SKILL.md files across 20 categories. These allow AI agents to browse skills at increasing detail levels without consuming full skill text, reducing context window pressure during skill selection.
+    *   **MCP Skill Server**: Created `extensions/devai-skill-server/`, a Python MCP extension providing `search_skills`, `get_skill`, `list_categories`, `list_bundles`, and `get_bundle` tools. Includes keyword-based and embedding-ready search backends, configuration via environment variables, and a test suite (`conftest.py`, `test_catalog.py`, `test_config.py`, `test_search_keyword.py`). Registered in `catalog/mcp-configs/mcp-servers.json`.
+    *   **Compiled Skill Index**: Generated `data/SKILL_INDEX.md` as a static skill catalog table. Added `{{SKILL_INDEX}}` placeholder and Skill Discovery section to `templates/ai-instructions/base-claude.md`, `base-codex.md`, `base-gemini.md`, and `generic-instructions.md` so installed instruction files include the full index automatically.
+    *   **Build Tooling**: Added `Makefile` for catalog build automation, `LICENSE` (MIT), and `.pr_agent.toml` for PR Agent configuration. Updated `build_skills_catalog.py` to support the nested `category/skill/` directory structure and extract L0/L1 summaries into `data/skills.json`.
+    *   **Pre-commit Hooks**: Added shellcheck and commitizen hooks to `.pre-commit-config.yaml`.
+    *   **Release Orchestrator**: Restructured `catalog/commands/update-version.md` from 14 linear steps into five phases (A: Analysis, B: Cleanup, C: Version Bump, D: Documentation Sync, E: Validation) with explicit user confirmation gates between phases and delegation to sub-commands (`/refactor-project-layout`, `/update-gitignore`, `/update-documentation`, `/update-devlog`).
+    *   **Installer Updates**: Both `scripts/installer.ps1` and `scripts/installer.sh` updated for the new nested catalog directory structure.
+    *   **Documentation Sync**: Updated `catalog/skills/README.md` version to 0.8.9. Updated `docs/CATALOG-COVERAGE.md` version, date, and skill counts (136 to 162, 18 to 20 categories). Added `docs/v0.8.8/comparison-OpenViking.md`.
+    *   **Version Bump**: Updated `data/templates.json`, `README.md`, `CHANGELOG.md`, `catalog/skills/README.md`, `docs/CATALOG-COVERAGE.md`, `scripts/installer.ps1`, and `scripts/installer.sh` from 0.8.8 to 0.8.9.
+*   **Current Status**: Verified. All version references consistent at 0.8.9.
+
 ## [2026-03-20] - Release 0.8.8: Specialist Skills Expansion and Full Catalog Sync
 
 *   **Goal**: Expand the skills catalog with 20 new specialist skills, enforce transparent Bash commands via the `require-description` hook, and fully synchronize all documentation and `skills.json` with the 162 on-disk skills.
