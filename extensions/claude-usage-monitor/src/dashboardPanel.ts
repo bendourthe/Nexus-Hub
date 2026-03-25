@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { UsageData, formatModelName } from "./types";
+import { UsageData, AutoSwitchState, formatModelName } from "./types";
 import { FetchError, UsageFetcher } from "./usageFetcher";
 import {
   getRecommendation,
@@ -26,7 +26,8 @@ export class DashboardPanel {
     private data: UsageData | undefined,
     private timeSince: string,
     private fetchError: FetchError | undefined,
-    private callbacks: DashboardCallbacks
+    private callbacks: DashboardCallbacks,
+    private autoSwitchState: AutoSwitchState | undefined = undefined,
   ) {
     this.panel = panel;
 
@@ -42,6 +43,15 @@ export class DashboardPanel {
           case "openUsagePage":
             this.callbacks.onOpenUsagePage();
             break;
+          case "toggleAutoSwitch": {
+            const cfg = vscode.workspace.getConfiguration("claudeUsage.autoSwitch");
+            const current = cfg.get<boolean>("enabled", true);
+            cfg.update("enabled", !current, vscode.ConfigurationTarget.Global).then(() => {
+              // Re-render to reflect the new state
+              this.panel.webview.html = this.getHtml();
+            });
+            break;
+          }
         }
       },
       null,
@@ -56,13 +66,15 @@ export class DashboardPanel {
     timeSince: string,
     fetchError: FetchError | undefined,
     callbacks: DashboardCallbacks,
-    extensionUri?: vscode.Uri
+    extensionUri?: vscode.Uri,
+    autoSwitchState?: AutoSwitchState,
   ): DashboardPanel {
     if (DashboardPanel.currentPanel) {
       DashboardPanel.currentPanel.data = data;
       DashboardPanel.currentPanel.timeSince = timeSince;
       DashboardPanel.currentPanel.fetchError = fetchError;
       DashboardPanel.currentPanel.callbacks = callbacks;
+      DashboardPanel.currentPanel.autoSwitchState = autoSwitchState;
       DashboardPanel.currentPanel.panel.webview.html =
         DashboardPanel.currentPanel.getHtml();
       DashboardPanel.currentPanel.panel.reveal(vscode.ViewColumn.Beside);
@@ -88,7 +100,8 @@ export class DashboardPanel {
       data,
       timeSince,
       fetchError,
-      callbacks
+      callbacks,
+      autoSwitchState,
     );
     return DashboardPanel.currentPanel;
   }
@@ -105,7 +118,8 @@ export class DashboardPanel {
   static updateIfOpen(
     data: UsageData | undefined,
     timeSince: string,
-    fetchError: FetchError | undefined
+    fetchError: FetchError | undefined,
+    autoSwitchState?: AutoSwitchState,
   ): void {
     if (!DashboardPanel.currentPanel) {
       return;
@@ -113,6 +127,9 @@ export class DashboardPanel {
     DashboardPanel.currentPanel.data = data;
     DashboardPanel.currentPanel.timeSince = timeSince;
     DashboardPanel.currentPanel.fetchError = fetchError;
+    if (autoSwitchState !== undefined) {
+      DashboardPanel.currentPanel.autoSwitchState = autoSwitchState;
+    }
     DashboardPanel.currentPanel.panel.webview.html = DashboardPanel.currentPanel.getHtml();
   }
 
@@ -187,10 +204,13 @@ export class DashboardPanel {
         <div class="model-name">${escapeHtml(formatModelName(data.currentModel))}</div>
       </div>
 
+      ${this.renderAutoSwitchSection()}
+
       <div class="section">
         <h3>Recommendation</h3>
         <p class="recommendation urgency-${recommendation.urgency}">${escapeHtml(recommendation.message)}</p>
         ${recommendation.suggestedModel ? `<p class="suggested-model">Suggested: <strong>${escapeHtml(formatModelName(recommendation.suggestedModel))}</strong></p>` : ""}
+        ${this.renderEffortSuggestion()}
       </div>
 
       ${recommendation.tips.length > 0 ? `
@@ -211,6 +231,81 @@ export class DashboardPanel {
 
       <p class="last-updated">${sourceLabel} ${escapeHtml(this.timeSince)}</p>
     `);
+  }
+
+  private renderAutoSwitchSection(): string {
+    const cfg = vscode.workspace.getConfiguration("claudeUsage.autoSwitch");
+    const enabled = cfg.get<boolean>("enabled", true);
+
+    const toggleHtml = `
+      <div class="auto-switch-header">
+        <h3>Auto-Switch</h3>
+        <label class="toggle-switch" title="${enabled ? "Disable" : "Enable"} auto-switch">
+          <input type="checkbox" ${enabled ? "checked" : ""} onchange="send('toggleAutoSwitch')">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>`;
+
+    if (!enabled) {
+      return `
+      <div class="section">
+        ${toggleHtml}
+        <div class="auto-switch-status disabled">Disabled</div>
+      </div>`;
+    }
+
+    const stateRaw = this.autoSwitchState;
+    const modelActive = stateRaw?.modelAutoSwitched ?? false;
+
+    const modelSub = cfg.get<boolean>("model", true);
+    const thresholds = [
+      modelSub ? `Model: Sonnet at ${cfg.get<number>("modelSonnetThreshold", 75)}%, Haiku at ${cfg.get<number>("modelHaikuThreshold", 95)}%` : null,
+    ].filter(Boolean);
+
+    // Only show model auto-switch status (effort suggestions appear in Recommendation)
+    const statusHtml = modelActive && stateRaw?.preAutoModel
+      ? `<div class="auto-switch-active">Model auto-switched (was ${escapeHtml(formatModelName(stateRaw.preAutoModel))})</div>`
+      : `<div class="auto-switch-status enabled">Active (no switches applied)</div>`;
+
+    return `
+    <div class="section">
+      ${toggleHtml}
+      ${statusHtml}
+      <div class="auto-switch-thresholds">${thresholds.map((t) => `<div>${escapeHtml(t!)}</div>`).join("")}</div>
+    </div>`;
+  }
+
+  /**
+   * Render an effort advice note in the Recommendation section based on
+   * the highest usage threshold that has been crossed.
+   */
+  private renderEffortSuggestion(): string {
+    const stateRaw = this.autoSwitchState;
+    if (!stateRaw) {
+      return "";
+    }
+
+    const notified = stateRaw.notifiedThresholds ?? [];
+    if (notified.length === 0) {
+      return "";
+    }
+
+    // Show advice for the highest notified threshold
+    const highest = Math.max(...notified);
+    let advice = "";
+    if (highest >= 95) {
+      advice = "Usage has passed 95%. Consider reducing the Effort setting to Low.";
+    } else if (highest >= 75) {
+      advice = "Usage has passed 75%. Consider reducing/maintaining the Effort setting to Medium or Low.";
+    } else if (highest >= 50) {
+      advice = "Usage has passed 50% of your current limit. Consider lowering the Effort setting (only if currently set to High or Max) to maximize capacity.";
+    }
+
+    if (!advice) {
+      return "";
+    }
+
+    return `<p class="effort-suggestion">${escapeHtml(advice)}</p>`;
   }
 
   private renderProgressBar(percent: number, resetsIn: string, resetsAt: number | null): string {
@@ -353,6 +448,12 @@ export class DashboardPanel {
       margin: 4px 0;
       font-size: 13px;
     }
+    .effort-suggestion {
+      margin: 8px 0 4px;
+      font-size: 12px;
+      color: #d29922;
+      line-height: 1.4;
+    }
     .model-name {
       font-size: 14px;
       font-weight: 600;
@@ -405,6 +506,76 @@ export class DashboardPanel {
     }
     .empty-state .actions {
       justify-content: center;
+    }
+    .auto-switch-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .auto-switch-header h3 {
+      margin: 0;
+    }
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 36px;
+      height: 20px;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .toggle-slider {
+      position: absolute;
+      inset: 0;
+      background: rgba(128,128,128,0.4);
+      border-radius: 10px;
+      transition: background 0.2s;
+    }
+    .toggle-slider::before {
+      content: "";
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      left: 3px;
+      bottom: 3px;
+      background: var(--vscode-editor-foreground);
+      border-radius: 50%;
+      transition: transform 0.2s;
+    }
+    .toggle-switch input:checked + .toggle-slider {
+      background: #3fb950;
+    }
+    .toggle-switch input:checked + .toggle-slider::before {
+      transform: translateX(16px);
+    }
+    .auto-switch-status {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .auto-switch-status.disabled {
+      opacity: 0.6;
+    }
+    .auto-switch-status.enabled {
+      color: #3fb950;
+    }
+    .auto-switch-active {
+      font-size: 13px;
+      color: #d29922;
+      margin-bottom: 2px;
+    }
+    .auto-switch-thresholds {
+      font-size: 11px;
+      opacity: 0.7;
+      margin-top: 6px;
+    }
+    .auto-switch-thresholds div {
+      margin-bottom: 2px;
     }
   </style>
 </head>

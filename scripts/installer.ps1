@@ -131,6 +131,22 @@ function Write-CenteredBanner {
     Write-Host $border -ForegroundColor $Color
 }
 
+function Write-SubSectionBanner {
+    param(
+        [string]$Text,
+        [string]$Color = "Yellow"
+    )
+    Restore-Title
+    $width = [Math]::Max($Host.UI.RawUI.WindowSize.Width, 40)
+    $textLen = $Text.Length + 2  # space on each side
+    $totalDashes = $width - $textLen
+    $leftDashes = [Math]::Floor($totalDashes / 2)
+    $rightDashes = $totalDashes - $leftDashes
+    $line = ("-" * $leftDashes) + " $Text " + ("-" * $rightDashes)
+    Write-Host ""
+    Write-Host $line -ForegroundColor $Color
+}
+
 function Get-ProviderColor {
     param([string]$Provider)
     $color = switch ($Provider) {
@@ -482,10 +498,11 @@ function Install-RequireDescription {
         [string]$Scope  # "Global" or "Workspace"
     )
 
-    # Copy hook script
+    # Copy hook scripts
     $hooksDir = Join-Path $TargetClaudeDir "hooks"
     if (-not (Test-Path $hooksDir)) { New-Item -ItemType Directory -Force -Path $hooksDir | Out-Null }
     Safe-Copy -Source "$RepoRoot\catalog\hooks\require-description.sh" -Destination (Join-Path $hooksDir "require-description.sh") -Confirm:$true -CustomMessage "✓ $Scope require-description hook installed at: $hooksDir"
+    Safe-Copy -Source "$RepoRoot\catalog\hooks\format-bash-description.py" -Destination (Join-Path $hooksDir "format-bash-description.py") -Confirm:$true -CustomMessage "✓ $Scope format-bash-description hook installed at: $hooksDir"
 
     # Merge hook config into settings.json
     $settingsFile = Join-Path $TargetClaudeDir "settings.json"
@@ -563,7 +580,9 @@ function Install-Global {
     Write-Host ""
 
     Write-CenteredBanner -Text "PHASE 1: Global Installation" -Color "Cyan"
-    
+
+    Write-SubSectionBanner -Text "Skills & Commands"
+
     $platforms = Select-Platforms -PhaseName "Global Phase"
     Write-Host ""
     Write-Host "Checking User Profile ($env:USERPROFILE)..." -ForegroundColor Gray
@@ -664,10 +683,18 @@ function Install-Global {
 
     # 4. Microsoft - Github Copilot
     if ($platforms -contains "COPILOT") {
-        Write-Header -Provider "COPILOT" 
+        Write-Header -Provider "COPILOT"
         Write-Item -Message "Check skipped (No global file support on Windows)." -Color "DarkGray"
     }
- 
+
+    # --- Claude Code Utilities sub-section ---
+    Write-SubSectionBanner -Text "Claude Code Utilities"
+    Install-VSCodeExtensions -RepoRoot $RepoRoot
+
+    # --- Skill Discovery sub-section ---
+    Write-SubSectionBanner -Text "Skill Discovery (All Platforms)"
+    Install-SkillDiscovery -RepoRoot $RepoRoot
+
     Write-Host ""
     Write-CenteredBanner -Text "Global Installation Phase Complete." -Color "Green"
     Write-Host ""
@@ -1073,19 +1100,13 @@ function Install-Workspace {
 function Install-VSCodeExtensions {
     param ($RepoRoot)
     Write-Host ""
-    Write-Host "  [ ---------- CLAUDE CODE USAGE MONITOR ---------- ]" -ForegroundColor DarkYellow
+    Write-Host "[ ---------- CLAUDE CODE USAGE MONITOR ---------- ]" -ForegroundColor DarkYellow
     Write-Host ""
 
     Write-Item -Message "The Claude Usage Monitor is a VS Code extension that displays your Claude" -Color "White"
     Write-Item -Message "Code usage limits in the status bar and recommends when to switch models" -Color "White"
     Write-Item -Message "(e.g., Opus to Sonnet) to stay within your session and weekly limits." -Color "White"
     Write-Host ""
-
-    $response = Read-Prompt "Install the Claude Usage Monitor VS Code extension? [Y]es / [N]o"
-    if ($response -notmatch "^[Yy]") {
-        Write-Item -Message "Skipped VS Code extension installation." -Color "Gray"
-        return
-    }
 
     $extensionDir = Join-Path $RepoRoot "extensions\claude-usage-monitor"
 
@@ -1340,25 +1361,13 @@ function Install-Templates {
 }
 
 
-# --- Claude Code Utilities (Phase 4 wrapper) ---
-
-function Install-ClaudeUtilities {
-    param ($RepoRoot)
-    Write-Host ""
-    Write-CenteredBanner -Text "PHASE 4: Claude Code Utilities" -Color "Cyan"
-    Install-VSCodeExtensions -RepoRoot $RepoRoot
-    Write-Host ""
-    Write-CenteredBanner -Text "Claude Code Utilities Installation Complete." -Color "Green"
-}
-
-# --- MCP Skill Server & Skill Index (Phase 5) ---
+# --- MCP Skill Server & Skill Index ---
 
 function Install-SkillDiscovery {
     param ($RepoRoot)
-    Write-Host ""
-    Write-CenteredBanner -Text "PHASE 5: Skill Discovery (All Platforms)" -Color "Cyan"
 
-    # --- Phase 5A: Skill Index (all platforms) ---
+    # --- Skill Index (all platforms) ---
+    Write-Host ""
     Write-Item -Message "Installing skill index for all platforms..." -Color "White"
 
     $skillIndexSrc = Join-Path $RepoRoot "data\SKILL_INDEX.md"
@@ -1383,17 +1392,9 @@ function Install-SkillDiscovery {
 
     Write-Item -Message "  Skill data installed to $devaiData" -Color "DarkGreen"
 
-    # --- Phase 5B: MCP Skill Server (Claude Code only) ---
+    # --- MCP Skill Server (Claude Code only) ---
     Write-Host ""
     Write-Item -Message "MCP Skill Server (Claude Code integration)" -Color "White"
-
-    $installMcp = Read-Prompt "Install MCP Skill Server for Claude Code? [Y]es / [N]o"
-    if ($installMcp -notmatch "^[Yy]") {
-        Write-Item -Message "  Skipping MCP server installation." -Color "Gray"
-        Write-Host ""
-        Write-CenteredBanner -Text "Skill Discovery Installation Complete." -Color "Green"
-        return
-    }
 
     # Check Python >= 3.10
     $ErrorActionPreference = "Continue"
@@ -1416,8 +1417,6 @@ function Install-SkillDiscovery {
     if (-not $pythonCmd) {
         Write-Item -Message "  Python 3.10+ not found. MCP server requires Python 3.10 or newer." -Color "Yellow"
         Write-Item -Message "  Install Python from https://python.org and re-run the installer." -Color "Yellow"
-        Write-Host ""
-        Write-CenteredBanner -Text "Skill Discovery Installation Complete (MCP server skipped)." -Color "Green"
         return
     }
 
@@ -1457,26 +1456,37 @@ function Install-SkillDiscovery {
 
     if (-not (Test-Path $claudeSettingsDir)) { New-Item -Path $claudeSettingsDir -ItemType Directory -Force | Out-Null }
 
-    $settings = @{}
+    # Read existing settings as PSCustomObject (NOT hashtable) to preserve
+    # nested structures like hooks arrays during the round-trip
+    $settings = $null
     if (Test-Path $claudeSettings) {
-        try { $settings = Get-Content $claudeSettings -Raw | ConvertFrom-Json -AsHashtable }
-        catch { $settings = @{} }
+        try { $settings = Get-Content $claudeSettings -Raw -Encoding UTF8 | ConvertFrom-Json }
+        catch { Write-Item -Message "  Warning: Could not parse existing settings.json, merging carefully" -Color "Yellow" }
     }
 
-    if (-not $settings.ContainsKey("mcpServers")) { $settings["mcpServers"] = @{} }
+    if ($null -eq $settings) {
+        $settings = [PSCustomObject]@{}
+    }
 
-    $settings["mcpServers"]["devai-skill-server"] = @{
+    # Add or update mcpServers without touching other keys (e.g., hooks)
+    $mcpEntry = [PSCustomObject]@{
         command = "$venvPath\Scripts\python.exe"
         args    = @("-m", "devai_skill_server")
-        env     = @{ DEVAI_HUB_ROOT = $devaiHome }
+        env     = [PSCustomObject]@{ DEVAI_HUB_ROOT = $devaiHome }
+    }
+    if ($settings.PSObject.Properties["mcpServers"]) {
+        if ($settings.mcpServers.PSObject.Properties["devai-skill-server"]) {
+            $settings.mcpServers."devai-skill-server" = $mcpEntry
+        } else {
+            $settings.mcpServers | Add-Member -NotePropertyName "devai-skill-server" -NotePropertyValue $mcpEntry
+        }
+    } else {
+        $settings | Add-Member -NotePropertyName "mcpServers" -NotePropertyValue ([PSCustomObject]@{ "devai-skill-server" = $mcpEntry })
     }
 
     $settings | ConvertTo-Json -Depth 10 | Set-Content $claudeSettings -Encoding UTF8
     Write-Item -Message "  MCP server registered in $claudeSettings" -Color "DarkGreen"
     Write-Item -Message "  The server will auto-start with Claude Code. No manual steps needed." -Color "DarkGreen"
-
-    Write-Host ""
-    Write-CenteredBanner -Text "Skill Discovery Installation Complete." -Color "Green"
 }
 
 # --- Main ---
@@ -1484,8 +1494,6 @@ $repoRoot = Resolve-Path "$PSScriptRoot\.."
 Install-Global -RepoRoot $repoRoot
 Install-Workspace -RepoRoot $repoRoot
 Install-Templates -RepoRoot $repoRoot
-Install-ClaudeUtilities -RepoRoot $repoRoot
-Install-SkillDiscovery -RepoRoot $repoRoot
 Write-Host ""
 Write-CenteredBanner -Text "Thank You For Using The DevAI-Hub Universal Installer" -Color "DarkCyan" -BorderChar "="
 Write-Host ""

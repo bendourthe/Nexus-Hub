@@ -1,8 +1,16 @@
 import * as vscode from "vscode";
-import { UsageData, UsageMetric, UrgencyLevel } from "./types";
+import {
+  UsageData,
+  UsageMetric,
+  UrgencyLevel,
+  AutoSwitchState,
+  AutoSwitchConfig,
+  DEFAULT_AUTO_SWITCH_STATE,
+} from "./types";
 
 const STORAGE_KEY = "claudeUsageData";
 const URGENCY_KEY = "claudeLastUrgency";
+const AUTO_SWITCH_KEY = "claudeAutoSwitchState";
 
 export class UsageStore {
   constructor(private readonly globalState: vscode.Memento) {}
@@ -31,6 +39,7 @@ export class UsageStore {
   async clear(): Promise<void> {
     await this.globalState.update(STORAGE_KEY, undefined);
     await this.globalState.update(URGENCY_KEY, undefined);
+    await this.globalState.update(AUTO_SWITCH_KEY, undefined);
   }
 
   getCurrentModel(): string {
@@ -90,6 +99,29 @@ export class UsageStore {
 
     return `${Math.floor(hours / 24)}d ago`;
   }
+
+  /* ---------------------------------------------------------------- */
+  /*  Auto-Switch state and config                                    */
+  /* ---------------------------------------------------------------- */
+
+  getAutoSwitchState(): AutoSwitchState {
+    return this.globalState.get<AutoSwitchState>(AUTO_SWITCH_KEY) ?? { ...DEFAULT_AUTO_SWITCH_STATE };
+  }
+
+  async saveAutoSwitchState(state: AutoSwitchState): Promise<void> {
+    await this.globalState.update(AUTO_SWITCH_KEY, state);
+  }
+
+  getAutoSwitchConfig(): AutoSwitchConfig {
+    const cfg = vscode.workspace.getConfiguration("claudeUsage.autoSwitch");
+    return {
+      enabled: cfg.get<boolean>("enabled", true),
+      model: cfg.get<boolean>("model", true),
+      modelSonnetThreshold: cfg.get<number>("modelSonnetThreshold", 75),
+      modelHaikuThreshold: cfg.get<number>("modelHaikuThreshold", 95),
+    };
+  }
+
 }
 
 function refreshMetricCountdown(metric: UsageMetric): UsageMetric {

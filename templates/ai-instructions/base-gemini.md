@@ -28,7 +28,7 @@
 ## Working Conventions
 - Verify solutions work before claiming completion
 - Find root causes; no temporary fixes
-- **MANDATORY**: Every Bash, Cmd, or PowerShell command must begin with a bordered description block: `# ------------------------------------- Description ------------------------------------- #` on line 1, `# <description text — no padding required; if the text is long, continue on additional `# <text>` lines>, then `# --------------------------------------------------------------------------------------- #` on the closing line. Do not output a separate text sentence before the command — the block alone is sufficient.
+- **MANDATORY**: When using the Bash tool, always provide a `description` as **plain text only** (a single sentence or short paragraph). Do NOT add borders, boxes, `#` characters, padding, or any manual formatting to the description. A PreToolUse hook (`format-bash-description.py`) handles all formatting automatically.
 - **MANDATORY: Every Read, Glob, and Grep tool call MUST be preceded by a one-sentence plain-language explanation** of what file or path is being accessed and why. No exceptions.
 - Never add `Co-Authored-By` lines, AI attribution footers, or AI-generated signatures to commit messages
 - Place punctuation outside quotation marks; no em-dashes

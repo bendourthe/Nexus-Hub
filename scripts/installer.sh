@@ -64,6 +64,21 @@ read_prompt() {
     echo "$response"
 }
 
+write_subsection_banner() {
+    local text="$1"
+    local color="${2:-$YELLOW}"
+    local width=${COLUMNS:-120}
+    if [ "$width" -lt 40 ]; then width=40; fi
+    local text_len=$(( ${#text} + 2 ))
+    local total_dashes=$(( width - text_len ))
+    local left_dashes=$(( total_dashes / 2 ))
+    local right_dashes=$(( total_dashes - left_dashes ))
+    local left=$(printf '%*s' "$left_dashes" '' | tr ' ' '-')
+    local right=$(printf '%*s' "$right_dashes" '' | tr ' ' '-')
+    echo ""
+    echo -e "${color}${left} ${text} ${right}${RESET}"
+}
+
 safe_copy() {
     local source="$1"
     local destination="$2"
@@ -274,11 +289,12 @@ install_require_description() {
     local target_claude_dir="$2"
     local scope="$3"  # "Global" or "Workspace"
 
-    # Copy hook script
+    # Copy hook scripts
     local hooks_dir="$target_claude_dir/hooks"
     mkdir -p "$hooks_dir"
     safe_copy "$repo_root/catalog/hooks/require-description.sh" "$hooks_dir/require-description.sh" true "✓ $scope require-description hook installed at: $hooks_dir"
     chmod +x "$hooks_dir/require-description.sh" 2>/dev/null || true
+    safe_copy "$repo_root/catalog/hooks/format-bash-description.py" "$hooks_dir/format-bash-description.py" true "✓ $scope format-bash-description hook installed at: $hooks_dir"
 
     # Merge hook config into settings.json
     local settings_file="$target_claude_dir/settings.json"
@@ -327,7 +343,9 @@ install_global() {
     echo -e "${CYAN}----------------------------------------------------------------${RESET}"
     echo -e "${CYAN}                  PHASE 1: Global Installation                  ${RESET}"
     echo -e "${CYAN}----------------------------------------------------------------${RESET}"
-    echo ""
+
+    write_subsection_banner "Skills & Commands"
+
     echo -e "${GRAY}Checking User Profile ($user_home)...${RESET}"
 
     # 1. Claude
@@ -418,6 +436,14 @@ install_global() {
     write_header "COPILOT"
     # Copilot usually doesn't have a global config file in the same way, skipped as per Windows version or add if known.
     write_item "Check skipped (No global file support standard)." "$GRAY"
+
+    # --- Claude Code Utilities sub-section ---
+    write_subsection_banner "Claude Code Utilities"
+    install_vscode_extensions "$repo_root"
+
+    # --- Skill Discovery sub-section ---
+    write_subsection_banner "Skill Discovery (All Platforms)"
+    install_skill_discovery "$repo_root"
 
     echo ""
     echo -e "${GREEN}----------------------------------------------------------------${RESET}"
@@ -864,21 +890,13 @@ install_vscode_extensions() {
     local repo_root="$1"
 
     echo ""
-    echo -e "${CYAN}----------------------------------------------------------------${RESET}"
-    echo -e "${CYAN}        PHASE 3: Claude Code Usage Monitor Installation          ${RESET}"
-    echo -e "${CYAN}----------------------------------------------------------------${RESET}"
+    echo -e "[ ${DARK_YELLOW}---------- CLAUDE CODE USAGE MONITOR ----------${RESET} ]"
     echo ""
 
     write_item "The Claude Usage Monitor is a VS Code extension that displays your Claude" "$RESET"
     write_item "Code usage limits in the status bar and recommends when to switch models" "$RESET"
     write_item "(e.g., Opus to Sonnet) to stay within your session and weekly limits." "$RESET"
     echo ""
-
-    local response=$(read_prompt "Install the Claude Usage Monitor VS Code extension? [Y]es / [N]o")
-    if [[ ! "$response" =~ ^[Yy] ]]; then
-        write_item "Skipped VS Code extension installation." "$GRAY"
-        return
-    fi
 
     local extension_dir="$repo_root/extensions/claude-usage-monitor"
 
@@ -986,9 +1004,7 @@ install_vscode_extensions() {
     fi
 
     echo ""
-    echo -e "${GREEN}----------------------------------------------------------------${RESET}"
-    echo -e "${GREEN}           VS Code Extension Phase Complete.                    ${RESET}"
-    echo -e "${GREEN}----------------------------------------------------------------${RESET}"
+    echo -e "  ${GREEN}✓ Claude Code Usage Monitor Installation Complete.${RESET}"
 }
 
 # --- Template & Script Installation ---
@@ -998,7 +1014,7 @@ install_templates() {
 
     echo ""
     echo -e "${CYAN}----------------------------------------------------------------${RESET}"
-    echo -e "${CYAN}     PHASE 4: Templates & Report Generator Installation         ${RESET}"
+    echo -e "${CYAN}     PHASE 3: Templates & Report Generator Installation         ${RESET}"
     echo -e "${CYAN}----------------------------------------------------------------${RESET}"
     echo ""
     write_item "DevAI-Hub can generate professional Word (.docx) and PowerPoint (.pptx)" "$RESET"
@@ -1113,16 +1129,13 @@ install_templates() {
     echo -e "${GREEN}----------------------------------------------------------------${RESET}"
 }
 
-# --- Skill Discovery (Phase 5) ---
+# --- Skill Discovery ---
 
 install_skill_discovery() {
     local repo_root="$1"
-    echo ""
-    echo -e "${CYAN}================================================================${RESET}"
-    echo -e "${CYAN}       PHASE 5: Skill Discovery (All Platforms)                 ${RESET}"
-    echo -e "${CYAN}================================================================${RESET}"
 
-    # --- Phase 5A: Skill Index (all platforms) ---
+    # --- Skill Index (all platforms) ---
+    echo ""
     write_item "Installing skill index for all platforms..." "$RESET"
 
     local devai_home="$HOME/.devai-hub"
@@ -1142,18 +1155,9 @@ install_skill_discovery() {
     [ -f "$repo_root/data/bundles.json" ] && cp "$repo_root/data/bundles.json" "$devai_data/bundles.json"
     write_item "  Skill data installed to $devai_data" "$GREEN"
 
-    # --- Phase 5B: MCP Skill Server (Claude Code only) ---
+    # --- MCP Skill Server (Claude Code only) ---
     echo ""
     write_item "MCP Skill Server (Claude Code integration)" "$RESET"
-
-    printf "Install MCP Skill Server for Claude Code? [Y]es / [N]o: "
-    read -r install_mcp
-    if [[ ! "$install_mcp" =~ ^[Yy] ]]; then
-        write_item "  Skipping MCP server installation." "$GRAY"
-        echo ""
-        echo -e "${GREEN}        Skill Discovery Installation Complete.                   ${RESET}"
-        return
-    fi
 
     # Check Python >= 3.10
     local python_cmd=""
@@ -1171,8 +1175,6 @@ install_skill_discovery() {
     if [ -z "$python_cmd" ]; then
         write_item "  Python 3.10+ not found. MCP server requires Python 3.10 or newer." "$YELLOW"
         write_item "  Install Python and re-run the installer." "$YELLOW"
-        echo ""
-        echo -e "${GREEN}        Skill Discovery Installation Complete (MCP server skipped).${RESET}"
         return
     fi
 
@@ -1230,11 +1232,6 @@ with open(path, 'w') as f:
 
     write_item "  MCP server registered in $claude_settings" "$GREEN"
     write_item "  The server will auto-start with Claude Code. No manual steps needed." "$GREEN"
-
-    echo ""
-    echo -e "${GREEN}----------------------------------------------------------------${RESET}"
-    echo -e "${GREEN}        Skill Discovery Installation Complete.                   ${RESET}"
-    echo -e "${GREEN}----------------------------------------------------------------${RESET}"
 }
 
 # --- Main ---
@@ -1245,9 +1242,7 @@ REPO_ROOT="$(dirname "$SCRIPT_DIR")"
 
 install_global "$REPO_ROOT"
 install_workspace "$REPO_ROOT"
-install_vscode_extensions "$REPO_ROOT"
 install_templates "$REPO_ROOT"
-install_skill_discovery "$REPO_ROOT"
 
 echo ""
 echo -e "${DARK_CYAN}================================================================${RESET}"

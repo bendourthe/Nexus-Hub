@@ -7,10 +7,10 @@
 #   AND prefixes the command with the bordered description block.
 #
 # Required behavior (all contexts including subagents):
-#   The command must begin with a bordered description block:
-#     # ------------------------------------- Description ------------------------------------- #
-#     # <one sentence>
-#     # --------------------------------------------------------------------------------------- #
+#   The command must begin with a description box:
+#     # —————————————————————————————————— Description —————————————————————————————————— #
+#     # <description text — no trailing #>
+#     # ————————————————————————————————————————————————————————————————————————————————— #
 #
 # This hook blocks (exit 2) when no description block is detected.
 #
@@ -38,7 +38,7 @@ fi
 FIRST_LINE=$(printf '%s' "$COMMAND" | sed '/^[[:space:]]*$/d' | head -1)
 
 # --- Check for description block (all accepted formats) ---
-# New bordered format:  # ------------------------------------- Description ------------------------------------- #
+# New bordered format:  # ——————————————————————————————— Description ——————————————————————————————— #
 # Legacy single-line:   # ─── Description: <text> ───
 # Legacy plain:         # Description: <text>
 if printf '%s' "$FIRST_LINE" | grep -qi '^[[:space:]]*#.*Description'; then
@@ -53,18 +53,24 @@ This block is visible in the approval dialog and documents intent before executi
 Bash ignores lines starting with # so the block has no runtime effect.
 
 Format:
-  # ------------------------------------- Description ------------------------------------- #
-  # <one sentence — what the command does and its impact>
-  # --------------------------------------------------------------------------------------- #
-  <your command>
+  Line 1 (top):    # —————————————————————————————————— Description —————————————————————————————————— #
+  Lines 2..N:      # <description text — no trailing #, no padding needed>
+  Last line (bot): # ————————————————————————————————————————————————————————————————————————————————— #
 
-Example:
-  # ------------------------------------- Description ------------------------------------- #
+Description lines start with '# ' and have NO trailing '#'. Just plain text.
+
+  CORRECT:
+  # —————————————————————————————————— Description —————————————————————————————————— #
   # Lists all agent config files under the project directory
-  # --------------------------------------------------------------------------------------- #
-  find /c/Users/BEDOURTHE/.claude -type f -name '*.md'
+  # ————————————————————————————————————————————————————————————————————————————————— #
+  find ~/.claude -type f -name '*.md'
 
-Rewrite your command with this block as the first 3 lines, then retry."
+  WRONG (trailing # on description lines — do NOT add these):
+  # —————————————————————————————————— Description —————————————————————————————————— #
+  # Lists all agent config files under the project directory                          #
+  # ————————————————————————————————————————————————————————————————————————————————— #
+
+Rewrite your command with this format, then retry."
 
 # Send to stdout so the model receives the blocking reason and can retry
 printf '%s\n' "$MSG"

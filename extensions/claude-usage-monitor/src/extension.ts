@@ -3,8 +3,9 @@ import { UsageStore } from "./usageStore";
 import { StatusBarManager } from "./statusBarManager";
 import { UsageFetcher, FetchError } from "./usageFetcher";
 import { DashboardPanel } from "./dashboardPanel";
+import { AutoSwitcher } from "./autoSwitcher";
 import { getRecommendation, getOverallUrgency } from "./recommendations";
-import { formatModelName, UrgencyLevel } from "./types";
+import { UrgencyLevel, AutoSwitchAction, formatModelName } from "./types";
 
 const RECOMMEND_COMMAND = "claude-usage.recommend";
 const RESET_COMMAND = "claude-usage.reset";
@@ -19,6 +20,7 @@ let fetchInFlight = false;
 export function activate(context: vscode.ExtensionContext): void {
   const store = new UsageStore(context.globalState);
   const fetcher = new UsageFetcher();
+  const autoSwitcher = new AutoSwitcher(store);
   const statusBar = new StatusBarManager(store, DASHBOARD_COMMAND);
 
   const config = vscode.workspace.getConfiguration("claudeUsage");
@@ -27,14 +29,14 @@ export function activate(context: vscode.ExtensionContext): void {
   }
 
   // Wire up auto-refresh: when the timer fires, trigger a fetch
-  statusBar.setAutoRefreshCallback(() => autoFetchAndUpdate(fetcher, store, statusBar));
+  statusBar.setAutoRefreshCallback(() => autoFetchAndUpdate(fetcher, store, statusBar, autoSwitcher));
 
   // Wire up reset-expiry detection: when a cached reset timestamp passes, refetch
-  statusBar.setResetExpiredCallback(() => autoFetchAndUpdate(fetcher, store, statusBar));
+  statusBar.setResetExpiredCallback(() => autoFetchAndUpdate(fetcher, store, statusBar, autoSwitcher));
 
   // Auto-fetch on activation (silent)
   if (config.get<boolean>("autoFetch", true)) {
-    autoFetchAndUpdate(fetcher, store, statusBar);
+    autoFetchAndUpdate(fetcher, store, statusBar, autoSwitcher);
   }
 
   // Command: Show dashboard panel
@@ -45,11 +47,11 @@ export function activate(context: vscode.ExtensionContext): void {
     DashboardPanel.show(data, timeSince, lastFetchError, {
       onRefresh: async () => {
         statusBar.showLoading();
-        await autoFetchAndUpdate(fetcher, store, statusBar);
+        await autoFetchAndUpdate(fetcher, store, statusBar, autoSwitcher);
       },
       onOpenUsagePage: () =>
         vscode.env.openExternal(vscode.Uri.parse("https://claude.ai/settings/usage")),
-    }, context.extensionUri);
+    }, context.extensionUri, store.getAutoSwitchState());
   });
 
   // Command: Refresh
@@ -63,7 +65,7 @@ export function activate(context: vscode.ExtensionContext): void {
       statusBar.resetBackoff();
       await store.save(result.data);
       statusBar.refresh();
-      DashboardPanel.updateIfOpen(store.getWithFreshCountdowns(), store.getTimeSinceUpdate(), lastFetchError);
+      DashboardPanel.updateIfOpen(store.getWithFreshCountdowns(), store.getTimeSinceUpdate(), lastFetchError, store.getAutoSwitchState());
       vscode.window.showInformationMessage("Claude usage data refreshed.");
     } else {
       statusBar.refresh();
@@ -171,15 +173,21 @@ export function activate(context: vscode.ExtensionContext): void {
       statusBar.show();
     }
 
-    // When the user switches models in Claude Code, update status bar and dashboard immediately
+    // When the model changes in Claude Code, update status bar and dashboard immediately.
+    // If the change was user-initiated (not from auto-switch), clear auto-switch model state.
     if (event.affectsConfiguration("claudeCode.selectedModel")) {
+      if (!autoSwitcher.isSwitching()) {
+        autoSwitcher.handleUserModelChange(store.getCurrentModel());
+      }
       statusBar.refresh();
       DashboardPanel.updateIfOpen(
         store.getWithFreshCountdowns(),
         store.getTimeSinceUpdate(),
-        lastFetchError
+        lastFetchError,
+        store.getAutoSwitchState(),
       );
     }
+
   });
 
   context.subscriptions.push(
@@ -199,12 +207,13 @@ export function deactivate(): void {
 async function autoFetchAndUpdate(
   fetcher: UsageFetcher,
   store: UsageStore,
-  statusBar: StatusBarManager
+  statusBar: StatusBarManager,
+  autoSwitcher: AutoSwitcher,
 ): Promise<void> {
   if (fetchInFlight) {
     // A fetch is already running; clear any loading states that the caller may have set
     statusBar.refresh();
-    DashboardPanel.updateIfOpen(store.getWithFreshCountdowns(), store.getTimeSinceUpdate(), lastFetchError);
+    DashboardPanel.updateIfOpen(store.getWithFreshCountdowns(), store.getTimeSinceUpdate(), lastFetchError, store.getAutoSwitchState());
     return;
   }
   fetchInFlight = true;
@@ -222,6 +231,12 @@ async function autoFetchAndUpdate(
       const newUrgency = getOverallUrgency(result.data);
       await store.saveLastUrgency(newUrgency);
 
+      // Evaluate auto-switch thresholds and apply model/effort changes
+      const switchActions = await autoSwitcher.evaluate(result.data);
+      for (const action of switchActions) {
+        showAutoSwitchNotification(action, autoSwitcher);
+      }
+
       // Only show recommendation notification when urgency escalates
       if (previousUrgency && urgencyEscalated(previousUrgency, newUrgency)) {
         const recommendation = getRecommendation(result.data);
@@ -235,7 +250,7 @@ async function autoFetchAndUpdate(
       }
 
       statusBar.refresh();
-      DashboardPanel.updateIfOpen(store.getWithFreshCountdowns(), store.getTimeSinceUpdate(), lastFetchError);
+      DashboardPanel.updateIfOpen(store.getWithFreshCountdowns(), store.getTimeSinceUpdate(), lastFetchError, store.getAutoSwitchState());
     } else {
       consecutiveFailures++;
       lastFetchError = result.error;
@@ -269,5 +284,36 @@ const URGENCY_ORDER: Record<UrgencyLevel, number> = {
 
 function urgencyEscalated(previous: UrgencyLevel, current: UrgencyLevel): boolean {
   return URGENCY_ORDER[current] > URGENCY_ORDER[previous];
+}
+
+function showAutoSwitchNotification(action: AutoSwitchAction, autoSwitcher: AutoSwitcher): void {
+  const pct = action.triggerPercent;
+
+  switch (action.kind) {
+    case "model-switched":
+      vscode.window
+        .showInformationMessage(
+          `Auto-switch: Model changed from ${action.from} to ${action.to} (usage at ${pct}%).`,
+          "Undo",
+        )
+        .then((choice) => {
+          if (choice === "Undo") {
+            autoSwitcher.undoModelSwitch();
+          }
+        });
+      break;
+
+    case "model-restored":
+      vscode.window.showInformationMessage(
+        `Auto-switch: Usage dropped to ${pct}%. Model restored to ${action.to}.`,
+      );
+      break;
+
+    case "usage-advisory":
+      if (action.message) {
+        vscode.window.showInformationMessage(action.message, "Dismiss");
+      }
+      break;
+  }
 }
 

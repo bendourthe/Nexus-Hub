@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash .claude/hooks/git-guardrails.sh"
+            "command": "python3 .claude/hooks/format-bash-description.py"
           }
         ]
       },
@@ -16,6 +16,15 @@
           {
             "type": "command",
             "command": "bash .claude/hooks/require-description.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/git-guardrails.sh"
           }
         ]
       },
