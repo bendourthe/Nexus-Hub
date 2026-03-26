@@ -1,0 +1,189 @@
+{
+  "plugin": {
+    "name": "devai-hub",
+    "version": "0.8.9",
+    "description": "Enterprise-grade skill library for AI coding assistants with 163+ curated skills, 29 commands, and cross-platform support",
+    "author": "Benjamin Dourthe",
+    "license": "MIT",
+    "repository": "https://github.com/bdourthe/devai-hub",
+    "homepage": "https://github.com/bdourthe/devai-hub",
+    "keywords": [
+      "ai-skills",
+      "claude-code",
+      "cursor",
+      "codex",
+      "gemini",
+      "copilot",
+      "opencode",
+      "developer-tools",
+      "code-review",
+      "testing",
+      "security",
+      "architecture",
+      "compliance"
+    ]
+  },
+  "platforms": {
+    "claude-code": {
+      "supported": true,
+      "install_method": "installer",
+      "config_path": "~/.claude/",
+      "instructions": "Run scripts/installer.ps1 (Windows) or scripts/installer.sh (macOS/Linux)"
+    },
+    "cursor": {
+      "supported": true,
+      "install_method": "template",
+      "config_path": ".cursor/",
+      "instructions": "Use the installer to generate Cursor-compatible instructions from templates/ai-instructions/base-cursor.md"
+    },
+    "codex": {
+      "supported": true,
+      "install_method": "installer",
+      "config_path": "~/.codex/",
+      "instructions": "Run scripts/installer.ps1 (Windows) or scripts/installer.sh (macOS/Linux)"
+    },
+    "gemini": {
+      "supported": true,
+      "install_method": "template",
+      "config_path": ".gemini/",
+      "instructions": "Use the installer to generate Gemini-compatible instructions from templates/ai-instructions/base-gemini.md"
+    },
+    "copilot": {
+      "supported": true,
+      "install_method": "template",
+      "config_path": ".github/",
+      "instructions": "Use the installer to generate Copilot-compatible instructions from templates/ai-instructions/coding-snippets/"
+    },
+    "opencode": {
+      "supported": true,
+      "install_method": "template",
+      "config_path": "~/.config/opencode/skills/",
+      "instructions": "Use the installer to generate OpenCode-compatible instructions from templates/ai-instructions/base-opencode.md"
+    }
+  },
+  "categories": [
+    {
+      "id": "ai-development",
+      "name": "AI Development",
+      "description": "Build and deploy AI agents, manage billing, route across providers",
+      "skill_count": 6
+    },
+    {
+      "id": "architecture",
+      "name": "Architecture",
+      "description": "Design APIs, microservices, event-driven systems, and domain models",
+      "skill_count": 6
+    },
+    {
+      "id": "bug-fixing",
+      "name": "Bug Fixing",
+      "description": "Localize, reproduce, and patch bugs with root cause analysis",
+      "skill_count": 5
+    },
+    {
+      "id": "business-product",
+      "name": "Business & Product",
+      "description": "Business analysis, product management, scrum, and technical writing",
+      "skill_count": 4
+    },
+    {
+      "id": "code-cleanup",
+      "name": "Code Cleanup",
+      "description": "Language-specific cleanup for C, C++, C#, Go, Java, JavaScript, Python",
+      "skill_count": 8
+    },
+    {
+      "id": "code-review",
+      "name": "Code Review",
+      "description": "Comprehensive code review with security, performance, and testing focus",
+      "skill_count": 9
+    },
+    {
+      "id": "compliance",
+      "name": "Compliance",
+      "description": "GDPR, SOC 2, PCI-DSS, ISO 27001, ISO 42001, NIST AI RMF compliance",
+      "skill_count": 9
+    },
+    {
+      "id": "developer-experience",
+      "name": "Developer Experience",
+      "description": "Code optimization, refactoring, migration, dependency management",
+      "skill_count": 21
+    },
+    {
+      "id": "documentation",
+      "name": "Documentation",
+      "description": "API docs, docstrings, SBOMs, strategic comments, technical writing",
+      "skill_count": 6
+    },
+    {
+      "id": "framework-specialists",
+      "name": "Framework Specialists",
+      "description": "Deep expertise in React, Next.js, FastAPI, Vue, Svelte, Astro",
+      "skill_count": 6
+    },
+    {
+      "id": "infrastructure",
+      "name": "Infrastructure",
+      "description": "Cloud, CI/CD, containers, Kubernetes, Terraform, observability, SRE",
+      "skill_count": 16
+    },
+    {
+      "id": "language-specialists",
+      "name": "Language Specialists",
+      "description": "Expert patterns for C++, C#, Go, Java, JavaScript, PowerShell, Python, Rust, SQL, TypeScript",
+      "skill_count": 10
+    },
+    {
+      "id": "orchestration",
+      "name": "Orchestration",
+      "description": "Multi-agent coordination, context management, workflow automation",
+      "skill_count": 14
+    },
+    {
+      "id": "project-setup",
+      "name": "Project Setup",
+      "description": "Initialize C#, Java, JavaScript, and Python projects with best practices",
+      "skill_count": 4
+    },
+    {
+      "id": "security",
+      "name": "Security",
+      "description": "Authentication, CVE analysis, dependency audit, licensing, penetration testing",
+      "skill_count": 7
+    },
+    {
+      "id": "specialized-domains",
+      "name": "Specialized Domains",
+      "description": "Fintech, mobile development, document generation, graphics programming",
+      "skill_count": 8
+    },
+    {
+      "id": "testing",
+      "name": "Testing",
+      "description": "Domain contract validation, E2E test automation",
+      "skill_count": 2
+    },
+    {
+      "id": "tests-generation",
+      "name": "Test Generation",
+      "description": "Unit, integration, E2E, property-based, mutation, fuzz, and BDD test generation",
+      "skill_count": 17
+    },
+    {
+      "id": "workflow",
+      "name": "Workflow",
+      "description": "Git workflows, TDD, debugging, session history, version management",
+      "skill_count": 14
+    }
+  ],
+  "discovery": {
+    "mcp_server": {
+      "name": "devai-skill-server",
+      "path": "extensions/devai-skill-server/",
+      "tools": ["search_skills", "browse_categories", "get_bundles"]
+    },
+    "skill_index": "data/SKILL_INDEX.md",
+    "catalog": "data/skills.json"
+  }
+}

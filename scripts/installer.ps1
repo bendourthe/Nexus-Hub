@@ -566,6 +566,268 @@ function Install-RequireDescription {
     }
 }
 
+# --- Permission Installation ---
+
+function Install-Permissions {
+    param(
+        [string]$RepoRoot,
+        [string]$Platform,          # "CLAUDE", "GEMINI", "CODEX", "COPILOT"
+        [string]$Scope              # "Global" or "Workspace"
+    )
+
+    $permDir = Join-Path $RepoRoot "configs\permissions"
+
+    switch ($Platform) {
+        "CLAUDE" {
+            $configDir = Join-Path $env:USERPROFILE ".claude"
+            $settingsFile = Join-Path $configDir "settings.json"
+            $templateFile = Join-Path $permDir "claude-permissions.json"
+
+            if (-not (Test-Path $templateFile)) {
+                Write-Item -Message "Skip: Claude permissions template not found" -Color "DarkGray"
+                return
+            }
+
+            $templateJson = Get-Content $templateFile -Raw | ConvertFrom-Json
+            $newEntries = @($templateJson.permissions.allow)
+
+            if (Test-Path $settingsFile) {
+                # Check if permissions already installed (spot-check for a distinctive entry)
+                $content = Get-Content $settingsFile -Raw
+                if ($content -match "WebFetch\(domain:github\.com\)") {
+                    Write-Item -Message "✓ Auto-approve permissions already configured in settings.json" -Color "DarkGreen"
+                    return
+                }
+
+                try {
+                    $existingJson = $content | ConvertFrom-Json
+
+                    # Backup before modifying
+                    $backupPath = "$settingsFile.bak.$(Get-Date -Format 'yyyyMMdd-HHmmss')"
+                    Copy-Item -Path $settingsFile -Destination $backupPath -Force
+                    Write-Item -Message "  Backup created: $backupPath" -Color "DarkGray"
+
+                    # Ensure permissions.allow exists
+                    if (-not $existingJson.permissions) {
+                        $existingJson | Add-Member -NotePropertyName "permissions" -NotePropertyValue ([PSCustomObject]@{ allow = @() })
+                    }
+                    elseif (-not $existingJson.permissions.allow) {
+                        $existingJson.permissions | Add-Member -NotePropertyName "allow" -NotePropertyValue @()
+                    }
+
+                    # Union merge (deduplicate)
+                    $existing = @($existingJson.permissions.allow)
+                    $merged = @($existing + $newEntries | Select-Object -Unique)
+                    $existingJson.permissions.allow = $merged
+
+                    $existingJson | ConvertTo-Json -Depth 10 | Set-Content $settingsFile -Encoding UTF8
+                    $addedCount = $merged.Count - $existing.Count
+                    Write-Item -Message "✓ $Scope auto-approve permissions added to settings.json ($addedCount new entries)" -Color "DarkGreen"
+                }
+                catch {
+                    Write-Item -Message "Warning: Could not merge permissions into settings.json ($($_.Exception.Message))" -Color "Yellow"
+                    return
+                }
+            }
+            else {
+                # No existing settings.json; create with permissions only
+                $newJson = [PSCustomObject]@{ permissions = [PSCustomObject]@{ allow = $newEntries } }
+                if (-not (Test-Path $configDir)) { New-Item -ItemType Directory -Force -Path $configDir | Out-Null }
+                $newJson | ConvertTo-Json -Depth 10 | Set-Content $settingsFile -Encoding UTF8
+                Write-Item -Message "✓ $Scope settings.json created with auto-approve permissions" -Color "DarkGreen"
+            }
+
+            Write-Item -Message "  Auto-approved: file reads, search (Glob/Grep), web search, git read-only commands" -Color "Gray"
+            Write-Item -Message "  WebFetch: scoped to trusted domains (see $settingsFile to customize)" -Color "Gray"
+            Write-Item -Message "  NOT auto-approved: file writes, destructive commands, git mutations, package installs" -Color "Gray"
+            Write-Item -Message "  Config: $settingsFile" -Color "Gray"
+        }
+
+        "GEMINI" {
+            $configDir = Join-Path $env:USERPROFILE ".gemini"
+            $settingsFile = Join-Path $configDir "settings.json"
+            $templateFile = Join-Path $permDir "gemini-permissions.json"
+
+            if (-not (Test-Path $templateFile)) {
+                Write-Item -Message "Skip: Gemini permissions template not found" -Color "DarkGray"
+                return
+            }
+
+            $templateJson = Get-Content $templateFile -Raw | ConvertFrom-Json
+            $newTools = @($templateJson.tools.allowed)
+            $newDomains = @($templateJson.allowedDomains)
+
+            if (Test-Path $settingsFile) {
+                $content = Get-Content $settingsFile -Raw
+                if ($content -match '"ReadFileTool"' -and $content -match '"allowedDomains"') {
+                    Write-Item -Message "✓ Auto-approve permissions already configured in settings.json" -Color "DarkGreen"
+                    return
+                }
+
+                try {
+                    $existingJson = $content | ConvertFrom-Json
+
+                    $backupPath = "$settingsFile.bak.$(Get-Date -Format 'yyyyMMdd-HHmmss')"
+                    Copy-Item -Path $settingsFile -Destination $backupPath -Force
+                    Write-Item -Message "  Backup created: $backupPath" -Color "DarkGray"
+
+                    # Merge tools.allowed
+                    if (-not $existingJson.tools) {
+                        $existingJson | Add-Member -NotePropertyName "tools" -NotePropertyValue ([PSCustomObject]@{ allowed = @() })
+                    }
+                    elseif (-not $existingJson.tools.allowed) {
+                        $existingJson.tools | Add-Member -NotePropertyName "allowed" -NotePropertyValue @()
+                    }
+                    $existingTools = @($existingJson.tools.allowed)
+                    $existingJson.tools.allowed = @($existingTools + $newTools | Select-Object -Unique)
+
+                    # Merge allowedDomains
+                    if (-not $existingJson.allowedDomains) {
+                        $existingJson | Add-Member -NotePropertyName "allowedDomains" -NotePropertyValue @()
+                    }
+                    $existingDomains = @($existingJson.allowedDomains)
+                    $existingJson.allowedDomains = @($existingDomains + $newDomains | Select-Object -Unique)
+
+                    $existingJson | ConvertTo-Json -Depth 10 | Set-Content $settingsFile -Encoding UTF8
+                    Write-Item -Message "✓ $Scope auto-approve permissions added to settings.json" -Color "DarkGreen"
+                }
+                catch {
+                    Write-Item -Message "Warning: Could not merge permissions into Gemini settings.json ($($_.Exception.Message))" -Color "Yellow"
+                    return
+                }
+            }
+            else {
+                if (-not (Test-Path $configDir)) { New-Item -ItemType Directory -Force -Path $configDir | Out-Null }
+                $newJson = [PSCustomObject]@{
+                    tools = [PSCustomObject]@{ allowed = $newTools }
+                    allowedDomains = $newDomains
+                }
+                $newJson | ConvertTo-Json -Depth 10 | Set-Content $settingsFile -Encoding UTF8
+                Write-Item -Message "✓ $Scope settings.json created with auto-approve permissions" -Color "DarkGreen"
+            }
+
+            Write-Item -Message "  Auto-approved: file reads, search, web search, git read-only shell commands" -Color "Gray"
+            Write-Item -Message "  Domains: scoped to trusted list (see $settingsFile to customize)" -Color "Gray"
+            Write-Item -Message "  Limitation: piped commands bypass allowlists (upstream issue)" -Color "Gray"
+            Write-Item -Message "  Config: $settingsFile" -Color "Gray"
+        }
+
+        "CODEX" {
+            $configDir = Join-Path $env:USERPROFILE ".codex"
+            $configFile = Join-Path $configDir "config.toml"
+            $templateFile = Join-Path $permDir "codex-permissions.toml"
+
+            if (-not (Test-Path $templateFile)) {
+                Write-Item -Message "Skip: Codex permissions template not found" -Color "DarkGray"
+                return
+            }
+
+            if (Test-Path $configFile) {
+                $content = Get-Content $configFile -Raw
+                if ($content -match 'permissions\.default\.network' -and $content -match 'allowed_domains') {
+                    Write-Item -Message "✓ Auto-approve permissions already configured in config.toml" -Color "DarkGreen"
+                    return
+                }
+
+                # Backup before modifying
+                $backupPath = "$configFile.bak.$(Get-Date -Format 'yyyyMMdd-HHmmss')"
+                Copy-Item -Path $configFile -Destination $backupPath -Force
+                Write-Item -Message "  Backup created: $backupPath" -Color "DarkGray"
+            }
+
+            # For TOML, use Python to merge if existing file, or copy template if new
+            if (-not (Test-Path $configDir)) { New-Item -ItemType Directory -Force -Path $configDir | Out-Null }
+
+            if (-not (Test-Path $configFile)) {
+                Copy-Item -Path $templateFile -Destination $configFile -Force
+                Write-Item -Message "✓ $Scope config.toml created with auto-approve permissions" -Color "DarkGreen"
+            }
+            else {
+                # Append permission sections if not present
+                $templateContent = Get-Content $templateFile -Raw
+                $existingContent = Get-Content $configFile -Raw
+
+                # Extract and append missing sections
+                $sectionsToAdd = @()
+                if ($existingContent -notmatch '\[permissions\.default\.filesystem\]') {
+                    $sectionsToAdd += ($templateContent | Select-String -Pattern '(?s)\[permissions\.default\.filesystem\].*?(?=\[|$)' -AllMatches).Matches.Value
+                }
+                if ($existingContent -notmatch '\[permissions\.default\.network\]') {
+                    $sectionsToAdd += ($templateContent | Select-String -Pattern '(?s)\[permissions\.default\.network\].*' -AllMatches).Matches.Value
+                }
+                if ($existingContent -notmatch 'approval_policy') {
+                    $sectionsToAdd = @("approval_policy = `"on-request`"") + $sectionsToAdd
+                }
+
+                if ($sectionsToAdd.Count -gt 0) {
+                    $appendContent = "`n`n# --- DevAI-Hub auto-approve permissions ---`n" + ($sectionsToAdd -join "`n`n")
+                    Add-Content -Path $configFile -Value $appendContent -Encoding UTF8
+                    Write-Item -Message "✓ $Scope config.toml updated with auto-approve permissions" -Color "DarkGreen"
+                }
+                else {
+                    Write-Item -Message "✓ Auto-approve permissions already present in config.toml" -Color "DarkGreen"
+                }
+            }
+
+            Write-Item -Message "  Auto-approved: filesystem read access to project roots, network access to trusted domains" -Color "Gray"
+            Write-Item -Message "  NOT auto-approved: file writes, arbitrary network access" -Color "Gray"
+            Write-Item -Message "  Note: Codex does not support per-command Bash allowlisting" -Color "Gray"
+            Write-Item -Message "  Config: $configFile" -Color "Gray"
+        }
+
+        "COPILOT" {
+            $templateFile = Join-Path $permDir "copilot-permissions.json"
+
+            if (-not (Test-Path $templateFile)) {
+                Write-Item -Message "Skip: Copilot permissions template not found" -Color "DarkGray"
+                return
+            }
+
+            # Locate VS Code settings.json
+            $vscodeSettingsFile = Join-Path $env:APPDATA "Code\User\settings.json"
+            if (-not (Test-Path $vscodeSettingsFile)) {
+                Write-Item -Message "Skip: VS Code settings.json not found at $vscodeSettingsFile" -Color "DarkGray"
+                Write-Item -Message "  Copilot permissions require VS Code. Install VS Code and retry." -Color "Gray"
+                return
+            }
+
+            try {
+                $content = Get-Content $vscodeSettingsFile -Raw
+                if ($content -match 'useInstructionFiles.*true') {
+                    Write-Item -Message "✓ Copilot useInstructionFiles already enabled in VS Code settings" -Color "DarkGreen"
+                    return
+                }
+
+                $existingJson = $content | ConvertFrom-Json
+
+                $backupPath = "$vscodeSettingsFile.bak.$(Get-Date -Format 'yyyyMMdd-HHmmss')"
+                Copy-Item -Path $vscodeSettingsFile -Destination $backupPath -Force
+                Write-Item -Message "  Backup created: $backupPath" -Color "DarkGray"
+
+                $key = "github.copilot.chat.codeGeneration.useInstructionFiles"
+                if (-not ($existingJson.PSObject.Properties.Name -contains $key)) {
+                    $existingJson | Add-Member -NotePropertyName $key -NotePropertyValue $true
+                }
+                else {
+                    $existingJson.$key = $true
+                }
+
+                $existingJson | ConvertTo-Json -Depth 10 | Set-Content $vscodeSettingsFile -Encoding UTF8
+                Write-Item -Message "✓ $Scope VS Code settings updated with Copilot instruction file support" -Color "DarkGreen"
+            }
+            catch {
+                Write-Item -Message "Warning: Could not merge Copilot settings into VS Code settings.json ($($_.Exception.Message))" -Color "Yellow"
+                return
+            }
+
+            Write-Item -Message "  Limitation: Copilot lacks per-command/per-domain auto-approve" -Color "Gray"
+            Write-Item -Message "  Only useInstructionFiles is enabled (behavioral guardrails via .github/copilot-instructions.md)" -Color "Gray"
+            Write-Item -Message "  Blanket auto-approve is NOT set (cannot distinguish reads from writes)" -Color "Gray"
+            Write-Item -Message "  Config: $vscodeSettingsFile" -Color "Gray"
+        }
+    }
+}
+
 # --- Install Functions ---
 
 function Install-Global {
@@ -685,6 +947,26 @@ function Install-Global {
     if ($platforms -contains "COPILOT") {
         Write-Header -Provider "COPILOT"
         Write-Item -Message "Check skipped (No global file support on Windows)." -Color "DarkGray"
+    }
+
+    # --- Auto-Approve Permissions sub-section ---
+    Write-SubSectionBanner -Text "Auto-Approve Permissions"
+
+    if ($platforms -contains "CLAUDE") {
+        Write-Header -Provider "CLAUDE"
+        Install-Permissions -RepoRoot $RepoRoot -Platform "CLAUDE" -Scope "Global"
+    }
+    if ($platforms -contains "GEMINI") {
+        Write-Header -Provider "GEMINI"
+        Install-Permissions -RepoRoot $RepoRoot -Platform "GEMINI" -Scope "Global"
+    }
+    if ($platforms -contains "CODEX") {
+        Write-Header -Provider "CODEX"
+        Install-Permissions -RepoRoot $RepoRoot -Platform "CODEX" -Scope "Global"
+    }
+    if ($platforms -contains "COPILOT") {
+        Write-Header -Provider "COPILOT"
+        Install-Permissions -RepoRoot $RepoRoot -Platform "COPILOT" -Scope "Global"
     }
 
     # --- Claude Code Utilities sub-section ---

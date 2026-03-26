@@ -80,9 +80,12 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | strategic-comments | documentation | "Add strategic comments explaining why, not what, for complex logic and decisions" | catalog/skills/documentation/strategic-comments/SKILL.md |
 | technical-documentation | documentation | "Generate architecture docs, ADRs, design documents, and technical specifications" | catalog/skills/documentation/technical-documentation/SKILL.md |
 | user-documentation | documentation | "Create READMEs, installation guides, tutorials, and user-facing documentation" | catalog/skills/documentation/user-documentation/SKILL.md |
+| astro-expert | framework-specialists | "Build Astro sites with content collections, island architecture, and multi-framework integration" | catalog/skills/framework-specialists/astro-expert/SKILL.md |
 | fastapi-expert | framework-specialists | "Build FastAPI applications with async patterns, Pydantic models, and dependency injection" | catalog/skills/framework-specialists/fastapi-expert/SKILL.md |
 | nextjs-expert | framework-specialists | "Build Next.js apps with App Router, Server Components, and data fetching patterns" | catalog/skills/framework-specialists/nextjs-expert/SKILL.md |
 | react-expert | framework-specialists | "Build React apps with component architecture, hooks, state management, and optimization" | catalog/skills/framework-specialists/react-expert/SKILL.md |
+| svelte-expert | framework-specialists | "Build Svelte apps with runes, SvelteKit routing, server-side rendering, and form actions" | catalog/skills/framework-specialists/svelte-expert/SKILL.md |
+| vue-expert | framework-specialists | "Build Vue 3 apps with Composition API, Pinia, Vue Router, and optimization" | catalog/skills/framework-specialists/vue-expert/SKILL.md |
 | azure-infra-engineer | infrastructure | "Design Azure infrastructure with Bicep, VNets, AKS, and Azure AD integration" | catalog/skills/infrastructure/azure-infra-engineer/SKILL.md |
 | cd-pipeline-generator | infrastructure | "Generate CD pipelines with deployment strategies, environment promotion, and rollback" | catalog/skills/infrastructure/cd-pipeline-generator/SKILL.md |
 | cicd-architect | infrastructure | "Design CI/CD pipelines with GitHub Actions, GitLab CI, and deployment strategies" | catalog/skills/infrastructure/cicd-architect/SKILL.md |
@@ -134,7 +137,15 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | licensing-compliance | security | "Audit dependency licenses for compliance, compatibility, and legal risk" | catalog/skills/security/licensing-compliance/SKILL.md |
 | pre-commit-checklist | security | "Implement pre-commit hooks for linting, security scanning, and commit validation" | catalog/skills/security/pre-commit-checklist/SKILL.md |
 | security-patch-advisor | security | "Generate security patches for XSS, SQL injection, SSRF, CSRF, and misconfigurations" | catalog/skills/security/security-patch-advisor/SKILL.md |
+| android-development | specialized-domains | "Build Android apps with Kotlin, Jetpack Compose, Material Design 3, and modern architecture" | catalog/skills/specialized-domains/android-development/SKILL.md |
+| docx-generation | specialized-domains | "Generate professional Word documents with templates, styles, and multi-library support" | catalog/skills/specialized-domains/docx-generation/SKILL.md |
 | fintech-engineer | specialized-domains | "Build secure fintech systems with payment processing, ledgers, and fraud detection" | catalog/skills/specialized-domains/fintech-engineer/SKILL.md |
+| gif-sticker-maker | specialized-domains | "Create animated GIFs and stickers with AI generation, video processing, and frame animation" | catalog/skills/specialized-domains/gif-sticker-maker/SKILL.md |
+| glsl-shader-development | specialized-domains | "Write GLSL shaders for visual effects, ray marching, procedural generation, and 3D graphics" | catalog/skills/specialized-domains/glsl-shader-development/SKILL.md |
+| ios-development | specialized-domains | "Build iOS apps with Swift, SwiftUI, UIKit, and modern Apple platform patterns" | catalog/skills/specialized-domains/ios-development/SKILL.md |
+| pdf-document-generation | specialized-domains | "Generate professional PDF documents with layout design, typography, and multi-library support" | catalog/skills/specialized-domains/pdf-document-generation/SKILL.md |
+| pptx-generation | specialized-domains | "Generate professional PowerPoint presentations with slide design, charts, and multi-library support" | catalog/skills/specialized-domains/pptx-generation/SKILL.md |
+| xlsx-generation | specialized-domains | "Generate and manipulate Excel spreadsheets with formulas, charts, and multi-library support" | catalog/skills/specialized-domains/xlsx-generation/SKILL.md |
 | domain-contract-validator | testing | "Enforce business rules with contract testing, schema validation, and invariant checks" | catalog/skills/testing/domain-contract-validator/SKILL.md |
 | e2e-testing-automation | testing | "Automate end-to-end testing with Playwright, Cypress, page objects, and CI integration" | catalog/skills/testing/e2e-testing-automation/SKILL.md |
 | bdd-acceptance-tests | tests-generation | "Generate executable BDD tests from Given/When/Then criteria with pytest-bdd and Cucumber" | catalog/skills/tests-generation/bdd-acceptance-tests/SKILL.md |
@@ -164,7 +175,8 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | git-bisect-assistant | workflow | "Find regression-introducing commits with git bisect and automated test scripts" | catalog/skills/workflow/git-bisect-assistant/SKILL.md |
 | plan-before-code | workflow | "Plan before coding with exploration, task assessment, and implementation design" | catalog/skills/workflow/plan-before-code/SKILL.md |
 | research-plan-implement | workflow | "Execute Research-Plan-Implement workflows with GO/NO-GO gates and artifact tracking" | catalog/skills/workflow/research-plan-implement/SKILL.md |
+| session-history | workflow | "Generate standalone session history documents capturing steps, troubleshooting, and next steps" | catalog/skills/workflow/session-history/SKILL.md |
 | test-driven-development | workflow | "Implement TDD workflow with red-green-refactor cycle and test-first development" | catalog/skills/workflow/test-driven-development/SKILL.md |
 | version-upgrade | workflow | "Automate version upgrades with changelog generation and cross-file version bumps" | catalog/skills/workflow/version-upgrade/SKILL.md |
 
-**Total: 162 skills across 22 categories**
+**Total: 174 skills across 22 categories**

@@ -1,0 +1,5 @@
+{
+  "_description": "GitHub Copilot auto-approve settings fragment. Merged into VS Code settings.json during installation. LIMITATION: Copilot lacks per-command and per-domain granularity. This config enables instruction-file-based guardrails only. Blanket auto-approve is NOT enabled because Copilot cannot distinguish read-only from write operations at the config level.",
+
+  "github.copilot.chat.codeGeneration.useInstructionFiles": true
+}

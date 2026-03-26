@@ -1,0 +1,111 @@
+{
+  "_description": "Trusted domains for auto-approved WebFetch/network access. Used by all platform configs at install time. Add or remove domains here to customize across all platforms.",
+
+  "domains": {
+    "code_hosting": [
+      "github.com",
+      "raw.githubusercontent.com",
+      "gist.github.com",
+      "gitlab.com",
+      "bitbucket.org"
+    ],
+
+    "package_registries": [
+      "npmjs.com",
+      "www.npmjs.com",
+      "registry.npmjs.org",
+      "pypi.org",
+      "docs.python.org",
+      "packaging.python.org",
+      "nuget.org",
+      "crates.io",
+      "pkg.go.dev"
+    ],
+
+    "language_and_framework_docs": [
+      "developer.mozilla.org",
+      "nodejs.org",
+      "docs.nodejs.org",
+      "tc39.es",
+      "typescriptlang.org",
+      "react.dev",
+      "nextjs.org",
+      "vuejs.org",
+      "angular.dev",
+      "fastapi.tiangolo.com",
+      "flask.palletsprojects.com",
+      "docs.djangoproject.com",
+      "docs.pytest.org",
+      "jestjs.io"
+    ],
+
+    "microsoft": [
+      "learn.microsoft.com",
+      "docs.microsoft.com",
+      "devblogs.microsoft.com",
+      "code.visualstudio.com",
+      "marketplace.visualstudio.com"
+    ],
+
+    "cloud_providers": [
+      "docs.aws.amazon.com",
+      "cloud.google.com",
+      "firebase.google.com",
+      "azure.microsoft.com"
+    ],
+
+    "ai_ml_documentation": [
+      "docs.anthropic.com",
+      "docs.claude.com",
+      "code.claude.com",
+      "support.claude.com",
+      "platform.openai.com",
+      "huggingface.co",
+      "pytorch.org",
+      "www.tensorflow.org"
+    ],
+
+    "devops_and_infrastructure": [
+      "www.jenkins.io",
+      "plugins.jenkins.io",
+      "docs.docker.com",
+      "hub.docker.com",
+      "kubernetes.io",
+      "docs.github.com",
+      "support.atlassian.com"
+    ],
+
+    "developer_qa": [
+      "stackoverflow.com",
+      "stackexchange.com",
+      "superuser.com",
+      "serverfault.com",
+      "en.wikipedia.org"
+    ],
+
+    "standards_bodies": [
+      "www.iso.org",
+      "www.iec.ch",
+      "webstore.iec.ch",
+      "standards.ieee.org",
+      "www.rfc-editor.org",
+      "datatracker.ietf.org"
+    ],
+
+    "security_advisories": [
+      "nvd.nist.gov",
+      "cve.org",
+      "security.snyk.io",
+      "osv.dev"
+    ],
+
+    "api_references": [
+      "jsonschema.dev",
+      "json-schema.org",
+      "swagger.io",
+      "spec.openapis.org",
+      "semver.org",
+      "yaml.org"
+    ]
+  }
+}

@@ -328,6 +328,235 @@ install_require_description() {
     fi
 }
 
+# --- Permission Installation ---
+
+install_permissions() {
+    local repo_root="$1"
+    local platform="$2"    # "CLAUDE", "GEMINI", "CODEX", "COPILOT"
+    local scope="$3"       # "Global" or "Workspace"
+    local user_home="$HOME"
+    local perm_dir="$repo_root/configs/permissions"
+
+    case "$platform" in
+        CLAUDE)
+            local config_dir="$user_home/.claude"
+            local settings_file="$config_dir/settings.json"
+            local template_file="$perm_dir/claude-permissions.json"
+
+            if [ ! -f "$template_file" ]; then
+                write_item "Skip: Claude permissions template not found" "$GRAY"
+                return
+            fi
+
+            if [ -f "$settings_file" ]; then
+                # Check if permissions already installed
+                if grep -q 'WebFetch(domain:github\.com)' "$settings_file" 2>/dev/null; then
+                    write_item "✓ Auto-approve permissions already configured in settings.json" "$GREEN"
+                    return
+                fi
+
+                # Backup before modifying
+                local backup_path="$settings_file.bak.$(date +%Y%m%d-%H%M%S)"
+                cp "$settings_file" "$backup_path"
+                write_item "  Backup created: $backup_path" "$GRAY"
+
+                if command -v jq >/dev/null 2>&1; then
+                    local merged
+                    merged=$(jq -s '
+                        .[0] as $existing | .[1] as $template |
+                        ($existing.permissions.allow // []) as $ea |
+                        ($template.permissions.allow // []) as $ta |
+                        $existing | .permissions.allow = ($ea + $ta | unique)
+                    ' "$settings_file" "$template_file" 2>/dev/null)
+
+                    if [ -n "$merged" ]; then
+                        echo "$merged" > "$settings_file"
+                        write_item "✓ $scope auto-approve permissions added to settings.json" "$GREEN"
+                    else
+                        write_item "Warning: Could not merge permissions into settings.json" "$YELLOW"
+                        return
+                    fi
+                else
+                    write_item "Warning: jq not found, cannot merge permissions automatically" "$YELLOW"
+                    write_item "  Copy permissions manually from: $template_file" "$YELLOW"
+                    return
+                fi
+            else
+                mkdir -p "$config_dir"
+                # Create settings.json with just the permissions key
+                if command -v jq >/dev/null 2>&1; then
+                    jq '{permissions: .permissions}' "$template_file" > "$settings_file"
+                else
+                    cp "$template_file" "$settings_file"
+                fi
+                write_item "✓ $scope settings.json created with auto-approve permissions" "$GREEN"
+            fi
+
+            write_item "  Auto-approved: file reads, search (Glob/Grep), web search, git read-only commands" "$GRAY"
+            write_item "  WebFetch: scoped to trusted domains (see $settings_file to customize)" "$GRAY"
+            write_item "  NOT auto-approved: file writes, destructive commands, git mutations, package installs" "$GRAY"
+            write_item "  Config: $settings_file" "$GRAY"
+            ;;
+
+        GEMINI)
+            local config_dir="$user_home/.gemini"
+            local settings_file="$config_dir/settings.json"
+            local template_file="$perm_dir/gemini-permissions.json"
+
+            if [ ! -f "$template_file" ]; then
+                write_item "Skip: Gemini permissions template not found" "$GRAY"
+                return
+            fi
+
+            if [ -f "$settings_file" ]; then
+                if grep -q '"ReadFileTool"' "$settings_file" 2>/dev/null && grep -q '"allowedDomains"' "$settings_file" 2>/dev/null; then
+                    write_item "✓ Auto-approve permissions already configured in settings.json" "$GREEN"
+                    return
+                fi
+
+                local backup_path="$settings_file.bak.$(date +%Y%m%d-%H%M%S)"
+                cp "$settings_file" "$backup_path"
+                write_item "  Backup created: $backup_path" "$GRAY"
+
+                if command -v jq >/dev/null 2>&1; then
+                    local merged
+                    merged=$(jq -s '
+                        .[0] as $existing | .[1] as $template |
+                        ($existing.tools.allowed // []) as $et |
+                        ($template.tools.allowed // []) as $tt |
+                        ($existing.allowedDomains // []) as $ed |
+                        ($template.allowedDomains // []) as $td |
+                        $existing
+                        | .tools.allowed = ($et + $tt | unique)
+                        | .allowedDomains = ($ed + $td | unique)
+                    ' "$settings_file" "$template_file" 2>/dev/null)
+
+                    if [ -n "$merged" ]; then
+                        echo "$merged" > "$settings_file"
+                        write_item "✓ $scope auto-approve permissions added to settings.json" "$GREEN"
+                    else
+                        write_item "Warning: Could not merge permissions into Gemini settings.json" "$YELLOW"
+                        return
+                    fi
+                else
+                    write_item "Warning: jq not found, cannot merge permissions automatically" "$YELLOW"
+                    return
+                fi
+            else
+                mkdir -p "$config_dir"
+                if command -v jq >/dev/null 2>&1; then
+                    jq '{tools: .tools, allowedDomains: .allowedDomains}' "$template_file" > "$settings_file"
+                else
+                    cp "$template_file" "$settings_file"
+                fi
+                write_item "✓ $scope settings.json created with auto-approve permissions" "$GREEN"
+            fi
+
+            write_item "  Auto-approved: file reads, search, web search, git read-only shell commands" "$GRAY"
+            write_item "  Domains: scoped to trusted list (see $settings_file to customize)" "$GRAY"
+            write_item "  Limitation: piped commands bypass allowlists (upstream issue)" "$GRAY"
+            write_item "  Config: $settings_file" "$GRAY"
+            ;;
+
+        CODEX)
+            local config_dir="$user_home/.codex"
+            local config_file="$config_dir/config.toml"
+            local template_file="$perm_dir/codex-permissions.toml"
+
+            if [ ! -f "$template_file" ]; then
+                write_item "Skip: Codex permissions template not found" "$GRAY"
+                return
+            fi
+
+            if [ -f "$config_file" ]; then
+                if grep -q 'permissions.default.network' "$config_file" 2>/dev/null && grep -q 'allowed_domains' "$config_file" 2>/dev/null; then
+                    write_item "✓ Auto-approve permissions already configured in config.toml" "$GREEN"
+                    return
+                fi
+
+                local backup_path="$config_file.bak.$(date +%Y%m%d-%H%M%S)"
+                cp "$config_file" "$backup_path"
+                write_item "  Backup created: $backup_path" "$GRAY"
+
+                # Append permission sections if not present
+                printf '\n\n# --- DevAI-Hub auto-approve permissions ---\n' >> "$config_file"
+                if ! grep -q 'approval_policy' "$config_file" 2>/dev/null; then
+                    printf 'approval_policy = "on-request"\n\n' >> "$config_file"
+                fi
+                if ! grep -q '\[permissions.default.filesystem\]' "$config_file" 2>/dev/null; then
+                    grep -A2 '\[permissions.default.filesystem\]' "$template_file" >> "$config_file"
+                    printf '\n' >> "$config_file"
+                fi
+                if ! grep -q '\[permissions.default.network\]' "$config_file" 2>/dev/null; then
+                    sed -n '/\[permissions.default.network\]/,$p' "$template_file" >> "$config_file"
+                fi
+                write_item "✓ $scope config.toml updated with auto-approve permissions" "$GREEN"
+            else
+                mkdir -p "$config_dir"
+                cp "$template_file" "$config_file"
+                write_item "✓ $scope config.toml created with auto-approve permissions" "$GREEN"
+            fi
+
+            write_item "  Auto-approved: filesystem read access to project roots, network access to trusted domains" "$GRAY"
+            write_item "  NOT auto-approved: file writes, arbitrary network access" "$GRAY"
+            write_item "  Note: Codex does not support per-command Bash allowlisting" "$GRAY"
+            write_item "  Config: $config_file" "$GRAY"
+            ;;
+
+        COPILOT)
+            local template_file="$perm_dir/copilot-permissions.json"
+
+            if [ ! -f "$template_file" ]; then
+                write_item "Skip: Copilot permissions template not found" "$GRAY"
+                return
+            fi
+
+            # Locate VS Code settings.json
+            local vscode_settings=""
+            case "$(uname -s)" in
+                Darwin*) vscode_settings="$user_home/Library/Application Support/Code/User/settings.json" ;;
+                Linux*)  vscode_settings="$user_home/.config/Code/User/settings.json" ;;
+                *)       write_item "Skip: Copilot permission config not supported on this OS via bash" "$GRAY"; return ;;
+            esac
+
+            if [ ! -f "$vscode_settings" ]; then
+                write_item "Skip: VS Code settings.json not found at $vscode_settings" "$GRAY"
+                write_item "  Copilot permissions require VS Code. Install VS Code and retry." "$GRAY"
+                return
+            fi
+
+            if grep -q 'useInstructionFiles.*true' "$vscode_settings" 2>/dev/null; then
+                write_item "✓ Copilot useInstructionFiles already enabled in VS Code settings" "$GREEN"
+                return
+            fi
+
+            local backup_path="$vscode_settings.bak.$(date +%Y%m%d-%H%M%S)"
+            cp "$vscode_settings" "$backup_path"
+            write_item "  Backup created: $backup_path" "$GRAY"
+
+            if command -v jq >/dev/null 2>&1; then
+                local merged
+                merged=$(jq '. + {"github.copilot.chat.codeGeneration.useInstructionFiles": true}' "$vscode_settings" 2>/dev/null)
+                if [ -n "$merged" ]; then
+                    echo "$merged" > "$vscode_settings"
+                    write_item "✓ $scope VS Code settings updated with Copilot instruction file support" "$GREEN"
+                else
+                    write_item "Warning: Could not merge Copilot settings into VS Code settings.json" "$YELLOW"
+                    return
+                fi
+            else
+                write_item "Warning: jq not found, cannot merge Copilot settings automatically" "$YELLOW"
+                return
+            fi
+
+            write_item "  Limitation: Copilot lacks per-command/per-domain auto-approve" "$GRAY"
+            write_item "  Only useInstructionFiles is enabled (behavioral guardrails via .github/copilot-instructions.md)" "$GRAY"
+            write_item "  Blanket auto-approve is NOT set (cannot distinguish reads from writes)" "$GRAY"
+            write_item "  Config: $vscode_settings" "$GRAY"
+            ;;
+    esac
+}
+
 # --- Install Functions ---
 
 install_global() {
@@ -436,6 +665,21 @@ install_global() {
     write_header "COPILOT"
     # Copilot usually doesn't have a global config file in the same way, skipped as per Windows version or add if known.
     write_item "Check skipped (No global file support standard)." "$GRAY"
+
+    # --- Auto-Approve Permissions sub-section ---
+    write_subsection_banner "Auto-Approve Permissions"
+
+    write_header "CLAUDE"
+    install_permissions "$repo_root" "CLAUDE" "Global"
+
+    write_header "GEMINI"
+    install_permissions "$repo_root" "GEMINI" "Global"
+
+    write_header "CODEX"
+    install_permissions "$repo_root" "CODEX" "Global"
+
+    write_header "COPILOT"
+    install_permissions "$repo_root" "COPILOT" "Global"
 
     # --- Claude Code Utilities sub-section ---
     write_subsection_banner "Claude Code Utilities"

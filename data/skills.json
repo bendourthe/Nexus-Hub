@@ -1,12 +1,12 @@
 {
   "metadata": {
     "version": "2.0.0",
-    "generated": "2026-03-23",
+    "generated": "2026-03-26",
     "repository": "https://github.com/bdourthe/devai-hub",
     "description": "Comprehensive catalog of DevAI-Hub skills with L0/L1 tiered summaries"
   },
   "statistics": {
-    "total_skills": 162,
+    "total_skills": 174,
     "categories": {
       "ai-development": 6,
       "architecture": 6,
@@ -18,25 +18,25 @@
       "developer-experience": 18,
       "Developer Experience": 3,
       "documentation": 6,
-      "framework-specialists": 3,
+      "framework-specialists": 6,
       "infrastructure": 16,
       "language-specialists": 10,
       "orchestration": 14,
       "project-setup": 4,
       "Research": 1,
       "security": 7,
-      "specialized-domains": 1,
+      "specialized-domains": 9,
       "testing": 2,
       "tests-generation": 17,
-      "workflow": 12,
+      "workflow": 13,
       "Workflow": 1
     },
     "priorities": {
-      "MEDIUM": 162
+      "MEDIUM": 174
     },
-    "total_lines": 94884,
-    "total_tokens_estimate": 387006,
-    "average_lines_per_skill": 585,
+    "total_lines": 115639,
+    "total_tokens_estimate": 460121,
+    "average_lines_per_skill": 664,
     "languages_supported": [
       "Python",
       "JavaScript",
@@ -2459,6 +2459,39 @@
       }
     },
     {
+      "name": "astro-expert",
+      "title": "astro-expert",
+      "description": "Deep Astro expertise for island architecture, content collections, multi-framework integration, and hybrid rendering. Use when building Astro sites, optimizing content-driven pages, or integrating React/Vue/Svelte components with partial hydration.",
+      "long_description": "Specialized expertise in Astro development, providing deep guidance on the island architecture, content collections with type-safe schemas, file-based routing with static/SSR/hybrid rendering, multi-framework component integration (React, Vue, Svelte, Solid), client hydration directives, data fetchi...",
+      "summary_l0": "\"Build Astro sites with content collections, island architecture, and multi-framework integration\"",
+      "overview_l1": "\"This skill provides specialized Astro expertise covering project structure, component syntax, content collections with Zod schemas, file-based routing with static and server-side rendering, island architecture with client directives, multi-framework component integration, data fetching patterns, API endpoints, middleware, image optimization, View Transitions, and deployment across adapters. Use it when scaffolding new Astro projects, building content-driven websites with collections, designing island-based hydration strategies, integrating React/Vue/Svelte/Solid components, implementing dynamic and static routes, creating API endpoints with SSR, optimizing images and performance with astro:assets, configuring View Transitions for SPA-like navigation, generating sitemaps and RSS feeds, or deploying to Vercel/Netlify/Cloudflare/Node.js. Key capabilities include content collection schema design, selective hydration with client directives, multi-framework component composition, hybrid rendering configuration, and adapter-based deployment. The expected output is a well-structured Astro site with proper content modeling, optimized hydration, and production-ready deployment configuration. Trigger phrases: astro, astro.build, content collections, island architecture, partial hydration, client:load, client:idle, client:visible, astro components, astro routing, astro deployment, astro adapter, view transitions, astro:assets, MDX astro.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "framework-specialists",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Glob"
+      ],
+      "path": "catalog/skills/framework-specialists/astro-expert/",
+      "file": "catalog/skills/framework-specialists/astro-expert/SKILL.md",
+      "size": {
+        "lines": 1582,
+        "characters": 42444,
+        "tokens_estimate": 4825
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
       "name": "fastapi-expert",
       "title": "fastapi-expert",
       "description": "Deep FastAPI expertise for async API development, dependency injection, Pydantic models, middleware, and testing. Use when building Python APIs with FastAPI, designing API schemas, or implementing authentication.",
@@ -2546,6 +2579,73 @@
         "lines": 887,
         "characters": 25775,
         "tokens_estimate": 3011
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "svelte-expert",
+      "title": "svelte-expert",
+      "description": "Deep Svelte 5 and SvelteKit expertise for runes reactivity, component patterns, server-side rendering, form actions, and deployment. Use when building Svelte applications, migrating to Svelte 5 runes, or optimizing SvelteKit projects.",
+      "long_description": "Specialized expertise in Svelte 5 and SvelteKit development, providing deep guidance on the runes reactivity system, component composition with snippets, SvelteKit file-based routing, server-side data loading, form actions with progressive enhancement, state management, hooks and middleware, perform...",
+      "summary_l0": "\"Build Svelte apps with runes, SvelteKit routing, server-side rendering, and form actions\"",
+      "overview_l1": "\"This skill provides specialized Svelte 5 and SvelteKit expertise covering runes reactivity ($state, $derived, $effect, $props, $bindable), component composition with snippets, SvelteKit file-based routing, data loading with load functions, form actions with progressive enhancement, state management with shared runes and context, hooks and middleware, error handling, performance optimization with fine-grained reactivity, transitions and animations, prerendering, adapter selection, and testing with Vitest and Playwright. Use it when scaffolding new SvelteKit applications, migrating from Svelte 4 stores to Svelte 5 runes, designing component architectures with snippets and two-way binding, implementing server-side data loading and form mutations, building shared state with rune-based stores and context, configuring hooks for authentication and request modification, optimizing rendering performance and bundle size, writing component tests with @testing-library/svelte, or creating end-to-end tests with Playwright. Key capabilities include runes-based reactivity design, component composition patterns, SvelteKit routing and layout architecture, load function and form action implementation, shared state management, hook and middleware configuration, performance tuning with prerendering and lazy loading, and comprehensive testing strategies. The expected output is a well-structured SvelteKit application with fine-grained reactivity, progressive enhancement, and production-ready deployment configuration. Trigger phrases: svelte, sveltekit, svelte 5, runes, $state, $derived, $effect, $props, svelte component, svelte routing, svelte form actions, svelte load function, svelte store, svelte hooks, svelte transition, svelte animation.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "framework-specialists",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Glob"
+      ],
+      "path": "catalog/skills/framework-specialists/svelte-expert/",
+      "file": "catalog/skills/framework-specialists/svelte-expert/SKILL.md",
+      "size": {
+        "lines": 1709,
+        "characters": 47144,
+        "tokens_estimate": 5378
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "vue-expert",
+      "title": "vue-expert",
+      "description": "Deep Vue 3 expertise for Composition API, component patterns, Pinia state management, Vue Router, performance optimization, and testing. Use when building Vue applications, designing composables, or reviewing Vue code.",
+      "long_description": "Specialized expertise in Vue 3 development, providing deep guidance on Composition API fundamentals, Single File Component architecture, composable design, Pinia state management, Vue Router patterns, performance optimization, testing with Vitest and Vue Test Utils, and advanced TypeScript integrati...",
+      "summary_l0": "\"Build Vue 3 apps with Composition API, Pinia, Vue Router, and optimization\"",
+      "overview_l1": "\"This skill provides specialized Vue 3 expertise covering Composition API fundamentals, component architecture with SFC and TypeScript, composable design for reusable logic, Pinia state management, Vue Router patterns, performance optimization, testing with Vitest and Vue Test Utils, and advanced TypeScript integration. Use it when designing Vue component architectures (SFC, slots, provide/inject), writing composables (useAsync, useFetch, form logic), managing state with Pinia (stores, getters, actions, plugins), configuring Vue Router (guards, lazy loading, nested routes, meta fields), optimizing rendering (shallowRef, v-once, v-memo, KeepAlive, async components), testing components and composables with Vitest and Vue Test Utils, or integrating TypeScript with typed props, emits, generic components, and typed slots. Key capabilities include Composition API mastery, composable extraction, Pinia store architecture, route guard design, render performance optimization, component and composable testing, and TypeScript generics for Vue components. The expected output is well-architected Vue 3 code with proper component boundaries, type-safe props and emits, optimized rendering, comprehensive tests, and idiomatic Composition API usage. Trigger phrases: vue component, vue composable, composition api, ref reactive, pinia store, vue router, vue performance, vue testing, vue typescript, defineProps, defineEmits, provide inject, v-model, shallowRef, keepalive, vue test utils.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "framework-specialists",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Glob",
+        "Read"
+      ],
+      "path": "catalog/skills/framework-specialists/vue-expert/",
+      "file": "catalog/skills/framework-specialists/vue-expert/SKILL.md",
+      "size": {
+        "lines": 1914,
+        "characters": 53216,
+        "tokens_estimate": 6044
       },
       "downloads": 0,
       "status": "production",
@@ -4299,6 +4399,73 @@
       }
     },
     {
+      "name": "android-development",
+      "title": "android-development",
+      "description": "Android native development expertise with Kotlin, Jetpack Compose, Material Design 3, and modern Android architecture. Use when building Android applications, designing UI with Compose, implementing MVVM/MVI patterns, or configuring Gradle builds.",
+      "long_description": "Structured guidance for building modern Android applications with Kotlin, Jetpack Compose, Material Design 3, and current Android architecture patterns. Covers project structure, Compose UI development, theming, navigation, architecture, data layer, lifecycle management, and testing strategies speci...",
+      "summary_l0": "\"Build Android apps with Kotlin, Jetpack Compose, Material Design 3, and modern architecture\"",
+      "overview_l1": "\"This skill provides Android native development expertise for building production-quality applications with Kotlin, Jetpack Compose, and modern Android architecture. Use it when creating new Android projects, designing UI with Jetpack Compose and Material Design 3, implementing MVVM or MVI architecture patterns, configuring Gradle builds with version catalogs, setting up Room databases or Retrofit networking, handling Android lifecycle and side effects, implementing navigation with type-safe routes, or writing Android tests with JUnit 5 and Compose testing. Key capabilities include project structure and multi-module Gradle configuration, Jetpack Compose UI development with state hoisting and recomposition optimization, Material Design 3 theming with dynamic color and Material You, type-safe Compose Navigation with nested graphs and deep links, MVVM architecture with ViewModel, UiState, Repository pattern, and Hilt dependency injection, data layer implementation with Room, DataStore, Retrofit, and Paging 3, lifecycle-aware coroutine collection and WorkManager background processing, and comprehensive testing with Compose test rules, Robolectric, and UI automation. The expected output is well-structured, testable Android application code following current Android development best practices. Trigger phrases: android app, kotlin android, jetpack compose, compose ui, material design 3, material you, android viewmodel, android navigation, room database, hilt injection, gradle version catalog, android testing, compose preview, android architecture, mvvm android, mvi pattern, datastore, paging 3, workmanager.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "specialized-domains",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Task"
+      ],
+      "path": "catalog/skills/specialized-domains/android-development/",
+      "file": "catalog/skills/specialized-domains/android-development/SKILL.md",
+      "size": {
+        "lines": 2525,
+        "characters": 85932,
+        "tokens_estimate": 7934
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "docx-generation",
+      "title": "docx-generation",
+      "description": "Word document generation and manipulation expertise for creating, editing, and templating professional DOCX files programmatically. Use when building document generators, automating contracts and reports, creating mail merge pipelines, or manipulating Word documents.",
+      "long_description": "Structured guidance for programmatic Word document creation, manipulation, and templating. Covers library selection, document structure fundamentals, template-based generation, JavaScript alternatives, professional design patterns, advanced formatting, mail merge pipelines, and testing strategies fo...",
+      "summary_l0": "\"Generate professional Word documents with templates, styles, and multi-library support\"",
+      "overview_l1": "\"This skill provides comprehensive expertise in programmatic Word document generation across Python, JavaScript, and .NET ecosystems. Use it when building automated document generators, creating template-driven reports, implementing mail merge pipelines, generating contracts with conditional clauses, producing batch documents from data sources, or manipulating existing DOCX files. Key capabilities include library selection and trade-off analysis (python-docx, docxtpl, Pandoc, officegen, docx for Node.js, OpenXML SDK), document structure fundamentals (paragraphs, runs, styles, sections, headers, footers), Jinja2-based DOCX templating with loops and conditionals, JavaScript DOCX generation with typed APIs, professional document design patterns (cover pages, table of contents, watermarks, page numbering), advanced formatting (custom styles, theme colors, section breaks, columns, footnotes), data-driven mail merge and batch generation, and document testing and validation strategies. The expected output is production-ready code that generates correctly formatted, cross-platform-compatible Word documents from structured data. Trigger phrases: docx generation, Word document, python-docx, docxtpl, mail merge, document template, report generator, contract automation, Word template, officegen, OpenXML, document builder, batch documents, DOCX manipulation.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "specialized-domains",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read",
+        "Write"
+      ],
+      "path": "catalog/skills/specialized-domains/docx-generation/",
+      "file": "catalog/skills/specialized-domains/docx-generation/SKILL.md",
+      "size": {
+        "lines": 2028,
+        "characters": 72836,
+        "tokens_estimate": 7797
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
       "name": "fintech-engineer",
       "title": "fintech-engineer",
       "description": "Financial technology engineering expertise for building secure, compliant payment and banking systems. Use when implementing payment processing, designing ledger systems, building trading platforms, ensuring PCI-DSS compliance in code, implementing fraud detection pipelines, or working with financial APIs and protocols.",
@@ -4319,6 +4486,208 @@
         "lines": 1186,
         "characters": 50030,
         "tokens_estimate": 5221
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "gif-sticker-maker",
+      "title": "gif-sticker-maker",
+      "description": "\"Animated GIF and sticker creation expertise using AI image generation, video processing, and frame animation. Use when creating animated stickers, converting images to GIFs, building avatar generators, or automating visual content pipelines.\"",
+      "long_description": "Structured guidance for creating animated GIFs and stickers using AI image generation, video processing, and programmatic frame animation. Covers the full pipeline from image generation through animation assembly to platform-specific optimization.",
+      "summary_l0": "\"Create animated GIFs and stickers with AI generation, video processing, and frame animation\"",
+      "overview_l1": "\"This skill provides end-to-end expertise for creating animated GIFs and stickers using AI image generation, video processing, and programmatic frame animation. Use it when generating animated stickers from text prompts, converting video clips to optimized GIFs, building sprite sheet animations, creating avatar generators with expression cycles, automating visual content pipelines for chat platforms, or applying animation effects like bounce, pulse, rotate, and fade. Key capabilities include AI image generation integration (DALL-E, Stable Diffusion, Midjourney API, and other providers), Python Pillow GIF assembly with palette optimization and transparency, ffmpeg video-to-GIF conversion with two-pass palette generation, animation techniques (tweening, easing functions, keyframe interpolation), sticker formatting for Telegram, Discord, Slack, and WhatsApp, and batch processing with file size optimization. The expected output is production-ready animated GIFs and stickers that meet platform size and format requirements. Trigger phrases: animated GIF, sticker maker, GIF creation, sticker generator, sprite animation, video to GIF, avatar animation, animated emoji, GIF optimization, sticker pack, frame animation, Pillow GIF, ffmpeg GIF, animated sticker.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "specialized-domains",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Glob"
+      ],
+      "path": "catalog/skills/specialized-domains/gif-sticker-maker/",
+      "file": "catalog/skills/specialized-domains/gif-sticker-maker/SKILL.md",
+      "size": {
+        "lines": 1455,
+        "characters": 52018,
+        "tokens_estimate": 5667
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "glsl-shader-development",
+      "title": "glsl-shader-development",
+      "description": "GLSL shader programming expertise for visual effects, 3D graphics, and GPU computing. Use when writing fragment/vertex shaders, implementing ray marching, building procedural generation, creating post-processing effects, or working with WebGL/Three.js shaders.",
+      "long_description": "Structured guidance for writing GLSL shaders that produce correct visual output, run efficiently on the GPU, and integrate cleanly with WebGL and Three.js pipelines. Covers shader fundamentals, signed distance functions, ray marching, lighting models, procedural generation, post-processing effects, ...",
+      "summary_l0": "\"Write GLSL shaders for visual effects, ray marching, procedural generation, and 3D graphics\"",
+      "overview_l1": "\"This skill provides GLSL shader programming expertise for visual effects, 3D graphics, and GPU computing. Use it when writing fragment or vertex shaders, implementing ray marching and sphere tracing, building procedural generation with noise functions, creating post-processing effects like bloom and depth of field, or working with WebGL and Three.js shader pipelines. Key capabilities include signed distance function (SDF) modeling with CSG operations, physically-based rendering with Cook-Torrance BRDF, procedural noise (Perlin, Simplex, Worley) and fractal brownian motion, camera and lighting setup for ray marched scenes, animation and mouse interaction in real-time shaders, and integration with Three.js ShaderMaterial and raw WebGL programs. The expected output is correct, performant GLSL shader code with proper precision qualifiers, optimized loops, and clean uniform interfaces. Trigger phrases: GLSL, shader, fragment shader, vertex shader, ray marching, SDF, signed distance function, procedural generation, noise function, post-processing, bloom, depth of field, ShaderToy, WebGL, Three.js shader, PBR shader, Cook-Torrance, Perlin noise, Simplex noise, domain warping, FBM.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "specialized-domains",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Write"
+      ],
+      "path": "catalog/skills/specialized-domains/glsl-shader-development/",
+      "file": "catalog/skills/specialized-domains/glsl-shader-development/SKILL.md",
+      "size": {
+        "lines": 1356,
+        "characters": 45822,
+        "tokens_estimate": 6813
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "ios-development",
+      "title": "ios-development",
+      "description": "iOS native development expertise with Swift, SwiftUI, UIKit, and modern Apple platform patterns. Use when building iOS applications, designing UI with SwiftUI, implementing MVVM architecture, or integrating Apple frameworks.",
+      "long_description": "Structured guidance for building native iOS applications with Swift, SwiftUI, UIKit, and modern Apple platform patterns. Covers project setup, declarative UI, navigation, UIKit interop, architecture, data persistence, networking, Apple framework integration, and testing strategies for production iOS...",
+      "summary_l0": "\"Build iOS apps with Swift, SwiftUI, UIKit, and modern Apple platform patterns\"",
+      "overview_l1": "\"This skill provides iOS native development expertise covering Swift, SwiftUI, UIKit, and modern Apple platform patterns. Use it when building iOS applications from scratch, designing declarative UI with SwiftUI, implementing MVVM or clean architecture, integrating Apple frameworks such as SwiftData, HealthKit, MapKit, StoreKit 2, or App Intents, persisting data with Core Data or SwiftData, networking with URLSession and async/await, writing tests with XCTest or the Swift Testing framework, or bridging UIKit and SwiftUI in brownfield projects. Key capabilities include Xcode project configuration and Swift Package Manager dependency management, SwiftUI view composition with property wrappers and state management, NavigationStack path-based routing and sheet presentation, UIKit view controller lifecycle and diffable data sources, MVVM architecture with @Observable and dependency injection, data persistence with SwiftData and Keychain, async/await networking with Codable serialization, Apple framework integration (notifications, background tasks, HealthKit, MapKit, StoreKit 2, App Intents), and comprehensive testing with XCTest, Swift Testing, and XCUITest. The expected output is production-quality Swift code following Apple Human Interface Guidelines with proper architecture, error handling, and test coverage. Trigger phrases: iOS app, SwiftUI view, UIKit controller, Swift Package Manager, MVVM iOS, SwiftData, Core Data, HealthKit, MapKit, StoreKit, App Intents, XCTest, XCUITest, NavigationStack, async await networking, Codable, property wrapper, @Observable, @State, @Binding, UICollectionView, diffable data source, Keychain, push notification, background task.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "specialized-domains",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Edit",
+        "Task"
+      ],
+      "path": "catalog/skills/specialized-domains/ios-development/",
+      "file": "catalog/skills/specialized-domains/ios-development/SKILL.md",
+      "size": {
+        "lines": 2191,
+        "characters": 76274,
+        "tokens_estimate": 7090
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "pdf-document-generation",
+      "title": "pdf-document-generation",
+      "description": "Generate professional PDF documents programmatically using Python and JavaScript libraries with precise layout control, typography, and multi-format support. Use when building invoice generators, report pipelines, contract templates, certificate systems, HTML-to-PDF converters, or any workflow that produces PDF output from structured data.",
+      "long_description": "Structured guidance for generating professional PDF documents programmatically using Python and JavaScript libraries. Covers library selection, document layout, typography, tables, images, HTML-to-PDF conversion, advanced features like form fields and digital signatures, and testing strategies for v...",
+      "summary_l0": "\"Generate professional PDF documents with layout design, typography, and multi-library support\"",
+      "overview_l1": "\"This skill provides comprehensive guidance for generating PDF documents programmatically across Python and JavaScript ecosystems. Use it when building invoice generators, report rendering pipelines, contract or certificate templates, HTML-to-PDF conversion services, or any system that produces PDF output from structured data. Key capabilities include library selection (ReportLab, WeasyPrint, PDFKit, Puppeteer, jsPDF), document layout design (page templates, margins, columns, headers/footers), typography management (font embedding, Unicode support, text wrapping), table rendering with cell spanning and overflow handling, image embedding and vector graphics, cover pages and table of contents generation, page numbering and watermarks, form fields and digital signatures, PDF/A archival compliance, accessibility tagging, encryption and permission controls, and testing strategies for PDF output validation. The expected output is production-quality PDF generation code with proper font handling, layout precision, and cross-viewer compatibility. Trigger phrases: PDF generation, generate PDF, create PDF, invoice PDF, report PDF, HTML to PDF, WeasyPrint, ReportLab, PDFKit, Puppeteer PDF, jsPDF, PDF template, PDF layout, PDF forms, digital signature PDF, PDF/A, accessible PDF.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "specialized-domains",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Glob",
+        "Read",
+        "Write"
+      ],
+      "path": "catalog/skills/specialized-domains/pdf-document-generation/",
+      "file": "catalog/skills/specialized-domains/pdf-document-generation/SKILL.md",
+      "size": {
+        "lines": 1726,
+        "characters": 56644,
+        "tokens_estimate": 6018
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "pptx-generation",
+      "title": "pptx-generation",
+      "description": "PowerPoint presentation generation expertise for creating, editing, and designing professional slide decks programmatically. Use when building presentation generators, automating report decks, or creating slide templates with consistent branding.",
+      "long_description": "Structured guidance for building systems that generate professional PowerPoint presentations programmatically. Covers library selection, slide layout design, chart integration, master slide management, template-based generation, batch processing, and quality assurance strategies for automated presen...",
+      "summary_l0": "\"Generate professional PowerPoint presentations with slide design, charts, and multi-library support\"",
+      "overview_l1": "\"This skill provides comprehensive expertise in programmatic PowerPoint presentation generation across multiple languages and libraries. Use it when building automated slide deck generators, creating report presentations from data, designing reusable slide templates with consistent branding, adding charts and data visualizations to slides, populating existing templates with dynamic content, or batch-generating presentations from datasets. Key capabilities include library selection and comparison (python-pptx, PptxGenJS, Apache POI, LibreOffice), slide layout design patterns (title slides, content slides, two-column layouts, section dividers), chart and data visualization integration (bar, line, pie, scatter, combo charts), master slide and theme management for brand consistency, template-based generation with placeholder population, batch deck generation from structured data sources, speaker notes and animation configuration, and testing strategies for slide content verification and visual quality assurance. The expected output is production-ready PowerPoint files with professional layouts, consistent branding, accurate data visualizations, and optimized file sizes. Trigger phrases: pptx generation, PowerPoint automation, slide deck generator, presentation builder, python-pptx, PptxGenJS, slide template, chart slides, automated reports, batch presentations, slide layouts, master slides, branding templates.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "specialized-domains",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "catalog/skills/specialized-domains/pptx-generation/",
+      "file": "catalog/skills/specialized-domains/pptx-generation/SKILL.md",
+      "size": {
+        "lines": 1978,
+        "characters": 61334,
+        "tokens_estimate": 6365
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "xlsx-generation",
+      "title": "xlsx-generation",
+      "description": "Excel spreadsheet generation and manipulation expertise for creating, reading, and automating XLSX files programmatically. Use when building report generators, automating financial models, creating data export pipelines, or manipulating spreadsheets.",
+      "long_description": "Structured guidance for generating, reading, and manipulating Excel XLSX files programmatically. Covers library selection, cell formatting, formulas, charts, advanced workbook features, and data pipeline integration across Python, JavaScript, and Java ecosystems.",
+      "summary_l0": "\"Generate and manipulate Excel spreadsheets with formulas, charts, and multi-library support\"",
+      "overview_l1": "\"This skill provides comprehensive expertise in generating, reading, and manipulating Excel XLSX files programmatically across Python, JavaScript, and Java ecosystems. Use it when building automated report generators, creating data export pipelines, producing financial models, formatting business dashboards as spreadsheets, converting database query results into styled Excel workbooks, or integrating spreadsheet output into ETL workflows. Key capabilities include library selection across openpyxl, xlsxwriter, ExcelJS, and Apache POI; workbook and worksheet creation with typed cell data; rich cell styling with fonts, borders, fills, alignment, and number formats; conditional formatting rules and data validation dropdowns; formula injection with named ranges, array formulas, and cross-sheet references; chart generation including bar, line, pie, scatter, and combo charts with data-driven configuration; advanced features such as autofilters, freeze panes, print layout, password protection, and VBA macro preservation; and Pandas integration for DataFrame-to-Excel pipelines with multi-sheet export and Styler-based formatting. The expected output is production-ready XLSX files with correct formatting, formulas, charts, and data integrity suitable for business stakeholders. Trigger phrases: xlsx, Excel generation, spreadsheet, openpyxl, xlsxwriter, ExcelJS, Apache POI, Excel report, data export, Excel automation, workbook, worksheet, cell formatting, Excel chart, pivot table, Excel formula, DataFrame to Excel, spreadsheet pipeline.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "specialized-domains",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read",
+        "Write"
+      ],
+      "path": "catalog/skills/specialized-domains/xlsx-generation/",
+      "file": "catalog/skills/specialized-domains/xlsx-generation/SKILL.md",
+      "size": {
+        "lines": 2011,
+        "characters": 60350,
+        "tokens_estimate": 6968
       },
       "downloads": 0,
       "status": "production",
@@ -5302,6 +5671,40 @@
         "lines": 390,
         "characters": 13093,
         "tokens_estimate": 1890
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "session-history",
+      "title": "session-history",
+      "description": "Generate a comprehensive, standalone session history document at the end of a development session capturing chronological steps, troubleshooting, assumptions, testing results, and next steps. Use when finishing a coding session, documenting a development phase, or creating handoff context for the next session.",
+      "long_description": "Generate a comprehensive, standalone session history document that captures everything accomplished in a development session: what was done, what was troubleshot, what assumptions were made, what was tested, and what remains.",
+      "summary_l0": "\"Generate standalone session history documents capturing steps, troubleshooting, and next steps\"",
+      "overview_l1": "\"This skill generates comprehensive session history documents at the end of a development session or retrospectively from archived sources. Use it when finishing a coding session, documenting a completed phase of an implementation plan, creating handoff context for the next session or developer, or reconstructing development history from git and past session files. Key capabilities include live conversation context mining, git delta analysis for the session window, implementation plan cross-referencing with TODO tracking, troubleshooting trail documentation with actual error messages, assumption tracking (explicit and implicit), structured verification gate tables, testing summary with manual testing suggestions, plan discrepancy detection, and next-steps generation. Operates in two modes: session mode (default, mines the live conversation as the primary source) and retrospective mode (reconstructs from archived AI session files, git history, DEVLOG, and planning documents). The expected output is a standalone Markdown file with 9 structured sections: Starting State, Chronological Steps, Verification Gate, Known Issues, Plan Discrepancies, Assumptions Made, Testing Summary, TODO Tracker, and Summary and Next Steps. Trigger phrases: session history, document session, session recap, end of session, session summary, what did we do, session log, development session, generate session history, document this phase.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "workflow",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Bash",
+        "Task"
+      ],
+      "path": "catalog/skills/workflow/session-history/",
+      "file": "catalog/skills/workflow/session-history/SKILL.md",
+      "size": {
+        "lines": 280,
+        "characters": 15232,
+        "tokens_estimate": 2216
       },
       "downloads": 0,
       "status": "production",

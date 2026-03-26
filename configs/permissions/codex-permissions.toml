@@ -1,0 +1,116 @@
+# OpenAI Codex CLI auto-approve permissions for safe, read-only operations.
+# Merged into ~/.codex/config.toml during installation.
+# See trusted-domains.json for the full domain allowlist.
+#
+# Codex uses filesystem + network scoping rather than per-command allowlisting.
+# Read access is granted to project roots; write access remains gated.
+# Network access is limited to a curated list of trusted domains.
+
+# Keep approval prompts for write operations and dangerous commands.
+# "on-request" means Codex will still ask before executing writes.
+approval_policy = "on-request"
+
+[permissions.default.filesystem]
+# Grant read access to project directories; write remains blocked by default.
+":project_roots" = "read"
+
+[permissions.default.network]
+# Limit network access to trusted documentation and registry domains.
+enabled = true
+mode = "limited"
+allowed_domains = [
+  # Code hosting
+  "github.com",
+  "raw.githubusercontent.com",
+  "gist.github.com",
+  "gitlab.com",
+  "bitbucket.org",
+
+  # Package registries
+  "npmjs.com",
+  "www.npmjs.com",
+  "registry.npmjs.org",
+  "pypi.org",
+  "docs.python.org",
+  "packaging.python.org",
+  "nuget.org",
+  "crates.io",
+  "pkg.go.dev",
+
+  # Language and framework docs
+  "developer.mozilla.org",
+  "nodejs.org",
+  "docs.nodejs.org",
+  "tc39.es",
+  "typescriptlang.org",
+  "react.dev",
+  "nextjs.org",
+  "vuejs.org",
+  "angular.dev",
+  "fastapi.tiangolo.com",
+  "flask.palletsprojects.com",
+  "docs.djangoproject.com",
+  "docs.pytest.org",
+  "jestjs.io",
+
+  # Microsoft
+  "learn.microsoft.com",
+  "docs.microsoft.com",
+  "devblogs.microsoft.com",
+  "code.visualstudio.com",
+  "marketplace.visualstudio.com",
+
+  # Cloud providers
+  "docs.aws.amazon.com",
+  "cloud.google.com",
+  "firebase.google.com",
+  "azure.microsoft.com",
+
+  # AI / ML documentation
+  "docs.anthropic.com",
+  "docs.claude.com",
+  "code.claude.com",
+  "support.claude.com",
+  "platform.openai.com",
+  "huggingface.co",
+  "pytorch.org",
+  "www.tensorflow.org",
+
+  # DevOps / CI-CD
+  "www.jenkins.io",
+  "plugins.jenkins.io",
+  "docs.docker.com",
+  "hub.docker.com",
+  "kubernetes.io",
+  "docs.github.com",
+  "support.atlassian.com",
+
+  # Developer Q&A
+  "stackoverflow.com",
+  "stackexchange.com",
+  "superuser.com",
+  "serverfault.com",
+  "en.wikipedia.org",
+
+  # Standards bodies
+  "www.iso.org",
+  "www.iec.ch",
+  "webstore.iec.ch",
+  "standards.ieee.org",
+  "www.rfc-editor.org",
+  "datatracker.ietf.org",
+
+  # Security advisories
+  "nvd.nist.gov",
+  "cve.org",
+  "security.snyk.io",
+  "osv.dev",
+
+  # API references
+  "jsonschema.dev",
+  "json-schema.org",
+  "swagger.io",
+  "spec.openapis.org",
+  "semver.org",
+  "yaml.org",
+]
