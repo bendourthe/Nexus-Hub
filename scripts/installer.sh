@@ -35,7 +35,8 @@ get_provider_color() {
 
 write_header() {
     local provider="$1"
-    local color=$(get_provider_color "$provider")
+    local color
+    color=$(get_provider_color "$provider")
     echo ""
     echo -e "  [ ${color}---------- $provider ----------${RESET} ]"
 }
@@ -73,8 +74,10 @@ write_subsection_banner() {
     local total_dashes=$(( width - text_len ))
     local left_dashes=$(( total_dashes / 2 ))
     local right_dashes=$(( total_dashes - left_dashes ))
-    local left=$(printf '%*s' "$left_dashes" '' | tr ' ' '-')
-    local right=$(printf '%*s' "$right_dashes" '' | tr ' ' '-')
+    local left
+    left=$(printf '%*s' "$left_dashes" '' | tr ' ' '-')
+    local right
+    right=$(printf '%*s' "$right_dashes" '' | tr ' ' '-')
     echo ""
     echo -e "${color}${left} ${text} ${right}${RESET}"
 }
@@ -95,7 +98,8 @@ safe_copy() {
     if [ -f "$destination" ]; then
         if [ "$confirm" = true ] && [ "$OVERWRITE_ALL" = false ]; then
             write_item "File exists: $destination" "$YELLOW"
-            local resp=$(read_prompt "Overwrite? [Y]es / [N]o / [A]ll")
+            local resp
+            resp=$(read_prompt "Overwrite? [Y]es / [N]o / [A]ll")
             if [[ "$resp" =~ ^[Aa] ]]; then
                 OVERWRITE_ALL=true
             elif [[ ! "$resp" =~ ^[Yy] ]]; then
@@ -130,7 +134,8 @@ safe_folder_copy() {
     if [ -d "$destination" ]; then
         if [ "$OVERWRITE_ALL" = false ]; then
             write_item "Folder exists: $destination" "$YELLOW"
-            local resp=$(read_prompt "Overwrite contents? [Y]es / [N]o / [A]ll")
+            local resp
+            resp=$(read_prompt "Overwrite contents? [Y]es / [N]o / [A]ll")
             if [[ "$resp" =~ ^[Aa] ]]; then
                 OVERWRITE_ALL=true
             elif [[ ! "$resp" =~ ^[Yy] ]]; then
@@ -150,7 +155,7 @@ safe_folder_copy() {
         if command -v rsync >/dev/null 2>&1; then
             rsync -a --delete "$source/" "$destination/"
         else
-            rm -rf "$destination"/*
+            rm -rf "${destination:?}"/*
             cp -R "$source/"* "$destination/"
         fi
         
@@ -356,7 +361,8 @@ install_permissions() {
                 fi
 
                 # Backup before modifying
-                local backup_path="$settings_file.bak.$(date +%Y%m%d-%H%M%S)"
+                local backup_path
+                backup_path="$settings_file.bak.$(date +%Y%m%d-%H%M%S)"
                 cp "$settings_file" "$backup_path"
                 write_item "  Backup created: $backup_path" "$GRAY"
 
@@ -414,7 +420,8 @@ install_permissions() {
                     return
                 fi
 
-                local backup_path="$settings_file.bak.$(date +%Y%m%d-%H%M%S)"
+                local backup_path
+                backup_path="$settings_file.bak.$(date +%Y%m%d-%H%M%S)"
                 cp "$settings_file" "$backup_path"
                 write_item "  Backup created: $backup_path" "$GRAY"
 
@@ -474,7 +481,8 @@ install_permissions() {
                     return
                 fi
 
-                local backup_path="$config_file.bak.$(date +%Y%m%d-%H%M%S)"
+                local backup_path
+                backup_path="$config_file.bak.$(date +%Y%m%d-%H%M%S)"
                 cp "$config_file" "$backup_path"
                 write_item "  Backup created: $backup_path" "$GRAY"
 
@@ -530,7 +538,8 @@ install_permissions() {
                 return
             fi
 
-            local backup_path="$vscode_settings.bak.$(date +%Y%m%d-%H%M%S)"
+            local backup_path
+            backup_path="$vscode_settings.bak.$(date +%Y%m%d-%H%M%S)"
             cp "$vscode_settings" "$backup_path"
             write_item "  Backup created: $backup_path" "$GRAY"
 
@@ -856,7 +865,8 @@ render_template() {
     if [ -f "$output" ]; then
         if [ "$confirm" = true ] && [ "$OVERWRITE_ALL" = false ]; then
             write_item "File exists: $output" "$YELLOW"
-            local resp=$(read_prompt "Overwrite? [Y]es / [N]o / [A]ll")
+            local resp
+            resp=$(read_prompt "Overwrite? [Y]es / [N]o / [A]ll")
             if [[ "$resp" =~ ^[Aa] ]]; then
                 OVERWRITE_ALL=true
             elif [[ ! "$resp" =~ ^[Yy] ]]; then
@@ -907,7 +917,8 @@ with open(sys.argv[1], 'w') as f:
         if [ -n "$languages" ]; then
             IFS=',' read -ra LANGS <<< "$languages"
             for lang in "${LANGS[@]}"; do
-                local lang_key=$(echo "$lang" | tr '[:upper:]' '[:lower:]')
+                local lang_key
+                lang_key=$(echo "$lang" | tr '[:upper:]' '[:lower:]')
                 if [ "$lang_key" == "c++" ]; then lang_key="cpp"; fi
                 if [ "$lang_key" == "c#" ]; then lang_key="csharp"; fi
 
@@ -928,7 +939,8 @@ get_language_selection() {
     
     if [ -n "$detected" ]; then
         echo -e "${YELLOW}Detected languages: $detected${RESET}" >&2
-        local resp=$(read_prompt "Use these? [Y]es / [N]o")
+        local resp
+        resp=$(read_prompt "Use these? [Y]es / [N]o")
         if [[ "$resp" =~ ^[Yy] ]]; then
             echo "$detected"
             return
@@ -937,7 +949,8 @@ get_language_selection() {
 
     echo -e "  ${RESET}Select languages (comma separated):${RESET}" >&2
     echo -e "  ${RESET}1. Python  2. JS  3. TS  4. Java  5. C#  6. Go  7. C++${RESET}" >&2
-    local input_str=$(read_prompt "Selection")
+    local input_str
+    input_str=$(read_prompt "Selection")
     
     local result=""
     IFS=',' read -ra ADDR <<< "$input_str"
@@ -970,10 +983,12 @@ install_workspace() {
     while true; do
         echo ""
         echo -e "${RESET}Do you want to configure a specific local project/repository?"
-        local response=$(read_prompt "Select Project? [Y]es / [N]o")
+        local response
+        response=$(read_prompt "Select Project? [Y]es / [N]o")
         if [[ ! "$response" =~ ^[Yy] ]]; then break; fi
 
-        local target_path=$(read_prompt "Enter absolute path to project")
+        local target_path
+        target_path=$(read_prompt "Enter absolute path to project")
         # remove quotes if user pasted them
         target_path="${target_path%\"}"
         target_path="${target_path#\"}"
@@ -988,8 +1003,10 @@ install_workspace() {
 
         write_item "Target: $target_path" "$DARK_YELLOW"
 
-        local detected=$(detect_languages "$target_path")
-        local languages=$(get_language_selection "$detected")
+        local detected
+        detected=$(detect_languages "$target_path")
+        local languages
+        languages=$(get_language_selection "$detected")
         write_item "Selected: $languages" "$YELLOW"
 
         # Auto-detect project metadata for template rendering
@@ -1109,7 +1126,8 @@ install_workspace() {
         local do_write=true
         if [ -f "$copilot_file" ] && [ "$OVERWRITE_ALL" = false ]; then
              write_item "File exists: copilot-instructions.md" "$YELLOW"
-             local resp=$(read_prompt "Overwrite? [Y]es / [N]o / [A]ll")
+             local resp
+             resp=$(read_prompt "Overwrite? [Y]es / [N]o / [A]ll")
              if [[ "$resp" =~ ^[Aa] ]]; then
                 OVERWRITE_ALL=true
              elif [[ ! "$resp" =~ ^[Yy] ]]; then
@@ -1155,7 +1173,8 @@ install_vscode_extensions() {
 
         # Detect platform and suggest install method
         if command -v brew >/dev/null 2>&1; then
-            local install_resp=$(read_prompt "Install Node.js LTS via Homebrew? [Y]es / [N]o")
+            local install_resp
+            install_resp=$(read_prompt "Install Node.js LTS via Homebrew? [Y]es / [N]o")
             if [[ "$install_resp" =~ ^[Yy] ]]; then
                 write_item "Installing Node.js LTS via Homebrew..." "$RESET"
                 brew install node@22 || {
@@ -1168,7 +1187,8 @@ install_vscode_extensions() {
                 return
             fi
         elif command -v apt-get >/dev/null 2>&1; then
-            local install_resp=$(read_prompt "Install Node.js via apt? [Y]es / [N]o")
+            local install_resp
+            install_resp=$(read_prompt "Install Node.js via apt? [Y]es / [N]o")
             if [[ "$install_resp" =~ ^[Yy] ]]; then
                 write_item "Installing Node.js via apt..." "$RESET"
                 sudo apt-get update -qq && sudo apt-get install -y -qq nodejs npm || {
@@ -1185,7 +1205,8 @@ install_vscode_extensions() {
             return
         fi
     else
-        local node_version=$(node --version)
+        local node_version
+        node_version=$(node --version)
         write_item "Found Node.js $node_version" "$GREEN"
     fi
 
@@ -1219,7 +1240,8 @@ install_vscode_extensions() {
     # Package as VSIX (uses locally installed @vscode/vsce from devDependencies)
     write_item "Packaging extension as VSIX..." "$RESET"
     npx vsce package --no-dependencies 2>/dev/null
-    local vsix_file=$(ls -t "$extension_dir"/*.vsix 2>/dev/null | head -1)
+    local vsix_file
+    vsix_file=$(ls -t "$extension_dir"/*.vsix 2>/dev/null | head -1)
 
     if [ -z "$vsix_file" ]; then
         write_item "VSIX packaging failed." "$RED"
@@ -1303,7 +1325,8 @@ install_templates() {
     echo ""
 
     # Custom template import
-    local response=$(read_prompt "Import custom Word/PowerPoint templates? [Y]es / [N]o")
+    local response
+    response=$(read_prompt "Import custom Word/PowerPoint templates? [Y]es / [N]o")
     if [[ ! "$response" =~ ^[Yy] ]]; then
         write_item "Skipped custom template import." "$GRAY"
         echo ""
@@ -1318,7 +1341,8 @@ install_templates() {
         echo ""
         write_item "Enter the full path to a .docx or .pptx template file." "$RESET"
         write_item "You can also drag and drop a file into this terminal." "$RESET"
-        local template_path=$(read_prompt "File path (or press Enter to finish)")
+        local template_path
+        template_path=$(read_prompt "File path (or press Enter to finish)")
 
         # User pressed Enter without input
         if [ -z "$template_path" ]; then break; fi
@@ -1346,10 +1370,12 @@ install_templates() {
             continue
         fi
 
-        local file_name=$(basename "$template_path")
+        local file_name
+        file_name=$(basename "$template_path")
         safe_copy "$template_path" "$templates_dest/$file_name" true "✓ Template imported: $file_name"
 
-        local more=$(read_prompt "Import more templates? [Y]es / [N]o")
+        local more
+        more=$(read_prompt "Import more templates? [Y]es / [N]o")
         if [[ ! "$more" =~ ^[Yy] ]]; then break; fi
     done
 
