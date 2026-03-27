@@ -483,7 +483,7 @@ def add_page_number(paragraph):
     """Adds 'Page X of Y' to a paragraph."""
     paragraph.alignment = WD_ALIGN_PARAGRAPH.RIGHT
     paragraph.add_run("Page ")
-    
+
     run1 = paragraph.add_run()
     fldChar1 = create_element('w:fldChar')
     create_attribute(fldChar1, 'w:fldCharType', 'begin')
@@ -522,28 +522,28 @@ def add_toc(doc):
     """Inserts a Native Word Table of Contents field."""
     paragraph = doc.add_paragraph()
     paragraph.alignment = WD_ALIGN_PARAGRAPH.LEFT
-    
+
     run = paragraph.add_run()
     fldChar = create_element('w:fldChar')
     create_attribute(fldChar, 'w:fldCharType', 'begin')
     # No dirty flag - we rely on PowerShell post-processing
     run._r.append(fldChar)
-    
+
     run2 = paragraph.add_run()
     instrText = create_element('w:instrText')
     create_attribute(instrText, 'xml:space', 'preserve')
     instrText.text = 'TOC \\o "1-3" \\h \\z \\u'
     run2._r.append(instrText)
-    
+
     run3 = paragraph.add_run()
     fldChar2 = create_element('w:fldChar')
     create_attribute(fldChar2, 'w:fldCharType', 'separate')
     run3._r.append(fldChar2)
-    
+
     # Placeholder text so it's not empty if PS fails
     run_placeholder = paragraph.add_run("Right-click to update Table of Contents")
     run_placeholder.italic = True
-    
+
     run4 = paragraph.add_run()
     fldChar3 = create_element('w:fldChar')
     create_attribute(fldChar3, 'w:fldCharType', 'end')
@@ -553,7 +553,7 @@ def update_toc_via_word(docx_path):
     """Uses PowerShell/Word Interop to update TOC fields."""
     abs_path = os.path.abspath(docx_path)
     print(f"Attempting to update TOC via Word Interop for: {abs_path}")
-    
+
     # PowerShell command to open Word, update TOC, save, and quit.
     ps_script = f"""
     $ErrorActionPreference = 'Stop'
@@ -573,7 +573,7 @@ def update_toc_via_word(docx_path):
         exit 1
     }}
     """
-    
+
     try:
         result = subprocess.run(["powershell", "-Command", ps_script], capture_output=True, text=True)
         if result.returncode == 0:
@@ -631,8 +631,8 @@ def add_list_item(doc, text, style='List Bullet'):
         if style == 'List Bullet':
             p.add_run("• ")
         elif style == 'List Number':
-            pass 
-            
+            pass
+
     add_formatted_text(p, text)
 
 def _apply_code_style(paragraph, doc):
@@ -830,7 +830,7 @@ def generate_tree_structure(startpath, prefix=""):
         items = os.listdir(startpath)
     except OSError:
         return ""
-    items = [i for i in items if not i.startswith('.')] 
+    items = [i for i in items if not i.startswith('.')]
     items.sort()
     for index, item in enumerate(items):
         path = os.path.join(startpath, item)
@@ -848,7 +848,7 @@ def generate_markdown_report(data, author, tree_structure, output_file="Codebase
     title = data.get("title", "Codebase Report")
     subtitle = data.get("subtitle", "")
     date_str = datetime.now().strftime("%Y-%m-%d")
-    
+
     md_content = f"""# {title}
 **Subtitle**: {subtitle}
 **Author**: {author}
@@ -912,7 +912,7 @@ def generate_markdown_report(data, author, tree_structure, output_file="Codebase
 
 def generate_docx_report(data, author, tree_structure, output_file="Codebase_Report.docx"):
     doc = Document()
-    
+
     # Title Logic
     raw_title = data.get("title", "Codebase Report")
     project_name = os.path.basename(os.getcwd())
@@ -921,7 +921,7 @@ def generate_docx_report(data, author, tree_structure, output_file="Codebase_Rep
         title = f"{project_name} Codebase Report"
     else:
         title = raw_title
-        
+
     subtitle = data.get("subtitle", "Detailed Codebase Analysis")
     header_subtitle = data.get("header_subtitle", subtitle) # Fallback to full subtitle if short one is missing
 
@@ -932,25 +932,25 @@ def generate_docx_report(data, author, tree_structure, output_file="Codebase_Rep
     section0.right_margin = Inches(1)
     section0.top_margin = Inches(1)
     section0.bottom_margin = Inches(1)
-    
-    # User reported vertical alignment property wasn't working reliably. 
+
+    # User reported vertical alignment property wasn't working reliably.
     # Using manual buffer lines to force visual centering.
-    section0.vertical_alignment = WD_ALIGN_VERTICAL_TOP 
-    
+    section0.vertical_alignment = WD_ALIGN_VERTICAL_TOP
+
     # Add buffer lines for vertical centering
     for _ in range(8):
         doc.add_paragraph()
-    
+
     # Title Content
     title_p = doc.add_heading(title, 0)
     title_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    
+
     subtitle_p = doc.add_paragraph(subtitle)
     subtitle_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
     subtitle_p.runs[0].italic = True
-    
-    doc.add_paragraph() 
-    
+
+    doc.add_paragraph()
+
     meta_p = doc.add_paragraph()
     meta_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
     meta_p.add_run(f"Author: {author}\n")
@@ -958,7 +958,7 @@ def generate_docx_report(data, author, tree_structure, output_file="Codebase_Rep
 
     # --- Section 1: Main Content (Top Aligned) ---
     section_break = doc.add_section(WD_SECTION.NEW_PAGE)
-    
+
     # Access the new section
     section1 = doc.sections[-1]
     section1.vertical_alignment = WD_ALIGN_VERTICAL_TOP
@@ -967,11 +967,11 @@ def generate_docx_report(data, author, tree_structure, output_file="Codebase_Rep
     section1.right_margin = Inches(1)
     section1.top_margin = Inches(1)
     section1.bottom_margin = Inches(1)
-    
+
     # -- Setup Header (Section 1) --
     header = section1.header
     header.is_linked_to_previous = False
-    
+
     for p in header.paragraphs:
          element = p._element
          if element.getparent():
@@ -983,12 +983,12 @@ def generate_docx_report(data, author, tree_structure, output_file="Codebase_Rep
     htable.autofit = False
     htable.columns[0].width = Inches(3.75)
     htable.columns[1].width = Inches(3.75)
-    
+
     cell_h_left = htable.cell(0, 0)
     p_h_left = cell_h_left.paragraphs[0]
     p_h_left.text = title
     p_h_left.alignment = WD_ALIGN_PARAGRAPH.LEFT
-    
+
     cell_h_right = htable.cell(0, 1)
     p_h_right = cell_h_right.paragraphs[0]
     p_h_right.text = header_subtitle
@@ -997,7 +997,7 @@ def generate_docx_report(data, author, tree_structure, output_file="Codebase_Rep
     # -- Setup Footer (Section 1) --
     footer = section1.footer
     footer.is_linked_to_previous = False
-    
+
     for p in footer.paragraphs:
          element = p._element
          if element.getparent():
@@ -1041,7 +1041,7 @@ def generate_docx_report(data, author, tree_structure, output_file="Codebase_Rep
             p = doc.add_paragraph()
             p.add_run("Description: ").bold = True
             p.add_run(desc)
-        
+
         details = comp.get("details", "")
         if details:
             add_markdown_paragraph(doc, details)
@@ -1088,7 +1088,7 @@ def generate_docx_report(data, author, tree_structure, output_file="Codebase_Rep
     # --- Appendix ---
     doc.add_page_break()
     doc.add_heading("Appendix A: Project Architecture", level=1)
-    
+
     p = doc.add_paragraph(tree_structure)
     try:
         p.style = doc.styles['Normal']
@@ -1098,7 +1098,7 @@ def generate_docx_report(data, author, tree_structure, output_file="Codebase_Rep
 
     doc.save(output_file)
     print(f"Generated DOCX: {output_file}")
-    
+
     # Run TOC Updater
     update_toc_via_word(output_file)
 

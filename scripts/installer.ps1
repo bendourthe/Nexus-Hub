@@ -28,7 +28,7 @@ namespace ModernFolderPicker
         {
             var dialog = (IFileOpenDialog)new FileOpenDialogImpl();
             dialog.SetOptions(FOS_PICKFOLDERS | FOS_FORCEFILESYSTEM);
-            
+
             try
             {
                 dialog.Show(GetActiveWindow());
@@ -198,13 +198,13 @@ function Select-Platforms {
     Write-Host "2 - Gemini (Google)"
     Write-Host "3 - Codex (OpenAI)"
     Write-Host "4 - GitHub Copilot (Microsoft)"
-    
+
     $inputStr = Read-Prompt "Selection [A, 1-4]"
     if ([string]::IsNullOrWhiteSpace($inputStr)) { return @("CLAUDE", "GEMINI", "CODEX", "COPILOT") }
 
     $map = @{ "1" = "CLAUDE"; "2" = "GEMINI"; "3" = "CODEX"; "4" = "COPILOT"; "A" = "ALL" }
     $selected = @()
-    
+
     $inputStr.Split(',') | ForEach-Object {
         $key = $_.Trim()
         if ($map.ContainsKey($key)) {
@@ -214,7 +214,7 @@ function Select-Platforms {
             $selected += $map[$key]
         }
     }
-    
+
     if ($selected.Count -eq 0) { return @("CLAUDE", "GEMINI", "CODEX", "COPILOT") }
     return $selected
 }
@@ -224,9 +224,9 @@ function Get-Overwrite-Preference {
     Write-Host "[O]verwrite All     - Replace everything without asking"
     Write-Host "[S]kip All          - Keep existing files without asking"
     Write-Host "[A]sk (Recommended) - Prompt for each conflict"
-    
+
     $resp = Read-Prompt "Selection [O/S/A]"
-    
+
     if ($resp -match "^[Oo]") { return "ALL" }
     if ($resp -match "^[Ss]") { return "NONE" }
     return "ASK"
@@ -241,7 +241,7 @@ function Safe-Copy {
         [boolean]$Confirm = $false,
         [string]$CustomMessage
     )
-    
+
     if (-not (Test-Path $Source)) {
         Write-Item -Message "Skip: Source not found ($(Split-Path $Source -Leaf))" -Color "DarkGray"
         return
@@ -275,7 +275,7 @@ function Safe-Copy {
     try {
         if (Test-Path $Destination) { Remove-Item $Destination -Force -ErrorAction Stop }
         Copy-Item -Path $Source -Destination $Destination -Force -ErrorAction Stop
-        
+
         if (-not [string]::IsNullOrEmpty($CustomMessage)) {
             Write-Item -Message $CustomMessage -Color "DarkGreen"
         }
@@ -836,7 +836,7 @@ function Install-Global {
     Restore-Title
     Write-CenteredBanner -Text "Welcome to the DevAI-Hub Universal Installer" -Color "DarkCyan" -BorderChar "="
     Write-Host ""
-    
+
     # Global Overwrite Preference
     $script:OverwriteMode = Get-Overwrite-Preference
     Write-Host ""
@@ -848,7 +848,7 @@ function Install-Global {
     $platforms = Select-Platforms -PhaseName "Global Phase"
     Write-Host ""
     Write-Host "Checking User Profile ($env:USERPROFILE)..." -ForegroundColor Gray
-    
+
     # 1. Claude
     if ($platforms -contains "CLAUDE") {
         Write-Header -Provider "CLAUDE"
@@ -903,22 +903,22 @@ function Install-Global {
         Write-Item -Message "Installing Global Configuration..."
         $globalGeminiDir = Join-Path $env:USERPROFILE ".gemini"
         $globalAgentDir = Join-Path $env:USERPROFILE ".agent"
-        
+
         if (-not (Test-Path $globalGeminiDir)) { New-Item -ItemType Directory -Force -Path $globalGeminiDir | Out-Null }
         if (-not (Test-Path $globalAgentDir)) { New-Item -ItemType Directory -Force -Path $globalAgentDir | Out-Null }
-        
+
         # Global GEMINI.md (concise template without Claude-specific concepts)
         Render-Template -Template "$RepoRoot\templates\ai-instructions\base-gemini.md" -Output "$globalGeminiDir\GEMINI.md" -RepoRoot $RepoRoot -Languages @()
-        
+
         # Mirror Skills to Agent (Antigravity)
         Safe-Folder-Copy -Source "$RepoRoot\catalog\skills" -Destination (Join-Path $globalAgentDir "skills") -CustomMessage "✓ Global skills catalog installed at: $(Join-Path $globalAgentDir "skills")"
-        
+
         # Mirror Commands to Agent Workflows
         Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $globalAgentDir "workflows") -CustomMessage "✓ Global workflows installed at: $(Join-Path $globalAgentDir "workflows")"
 
         # Mirror to .gemini (For Antigravity Global Context)
         Safe-Folder-Copy -Source "$RepoRoot\catalog\skills" -Destination (Join-Path $globalGeminiDir "skills") -CustomMessage "✓ Global skills catalog installed at: $(Join-Path $globalGeminiDir "skills")"
-        
+
         # Correct path for Antigravity Global Workflows
         $globalAntigravityWorkflows = Join-Path $globalGeminiDir "antigravity\global_workflows"
         if (-not (Test-Path $globalAntigravityWorkflows)) { New-Item -ItemType Directory -Force -Path $globalAntigravityWorkflows | Out-Null }
@@ -930,12 +930,12 @@ function Install-Global {
         Write-Header -Provider "CODEX"
         Write-Item -Message "Installing Global Configuration..."
         $globalCodexDir = Join-Path $env:USERPROFILE ".codex"
-        
+
         if (-not (Test-Path $globalCodexDir)) { New-Item -ItemType Directory -Force -Path $globalCodexDir | Out-Null }
-        
+
         # Global Skills
         Safe-Folder-Copy -Source "$RepoRoot\catalog\skills" -Destination (Join-Path $globalCodexDir "skills") -CustomMessage "✓ Global skills catalog installed at: $(Join-Path $globalCodexDir "skills")"
-        
+
         # Global Custom Prompts (Codex equivalent of commands)
         Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $globalCodexDir "prompts") -CustomMessage "✓ Global custom prompts installed at: $(Join-Path $globalCodexDir "prompts")"
 
@@ -985,7 +985,7 @@ function Install-Global {
 function Get-LanguageSelection {
     param([array]$Detected)
     $map = @{ "1" = "Python"; "2" = "JavaScript"; "3" = "TypeScript"; "4" = "Java"; "5" = "C#"; "6" = "Go"; "7" = "C++" }
-    
+
     if ($Detected.Count -gt 0) {
         Write-Host "Detected languages: $($Detected -join ', ')" -ForegroundColor Yellow
         $resp = Read-Host "└─> Use these? [Y]es / [N]o"
@@ -1212,7 +1212,7 @@ function Render-Template {
 function Install-Workspace {
     param ($RepoRoot)
     Write-CenteredBanner -Text "PHASE 2: Workspace Installation" -Color "Cyan"
-    
+
     while ($true) {
         Write-Host ""
         Write-Host "Do you want to configure a specific local project/repository?" -ForegroundColor White
@@ -1220,12 +1220,12 @@ function Install-Workspace {
         if ($response -notmatch "^[Yy]") { break }
 
         $targetPath = [ModernFolderPicker.FileOpenDialog]::ShowDialog()
-        if ([string]::IsNullOrWhiteSpace($targetPath)) { 
+        if ([string]::IsNullOrWhiteSpace($targetPath)) {
             Write-Host "No folder selected." -ForegroundColor Yellow
-            continue 
+            continue
         }
         Write-Host "Target: $targetPath" -ForegroundColor DarkYellow
-        
+
         $workspacePlatforms = Select-Platforms -PhaseName "Workspace Phase"
 
         $detected = Detect-Languages -Path $targetPath
@@ -1248,7 +1248,7 @@ function Install-Workspace {
 
             # Skills
             Safe-Folder-Copy -Source "$RepoRoot\catalog\skills" -Destination (Join-Path $claudeDir "skills") -CustomMessage "✓ Workspace skills catalog installed at: $(Join-Path $claudeDir "skills")"
-            
+
             # Commands
             Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $claudeDir "commands") -CustomMessage "✓ Workspace commands installed at: $(Join-Path $claudeDir "commands")"
 
@@ -1289,10 +1289,10 @@ function Install-Workspace {
 
             # GEMINI.md (rendered from template without Claude-specific concepts)
             Render-Template -Template "$RepoRoot\templates\ai-instructions\base-gemini.md" -Output "$geminiDir\GEMINI.md" -RepoRoot $RepoRoot -Languages $languages
-            
+
             # Mirror Skills to Agent
             Safe-Folder-Copy -Source "$RepoRoot\catalog\skills" -Destination (Join-Path $agentDir "skills") -CustomMessage "✓ Workspace skills catalog installed at: $(Join-Path $agentDir "skills")"
-            
+
             # Mirror Commands to Agent Workflows
             Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $agentDir "workflows") -CustomMessage "✓ Workspace workflows installed at: $(Join-Path $agentDir "workflows")"
 
@@ -1304,12 +1304,12 @@ function Install-Workspace {
             Write-Header -Provider "CODEX"
             Write-Item -Message "Installing Workspace Configuration..."
             $codexDir = Join-Path $targetPath ".codex"
-            
+
             if (-not (Test-Path $codexDir)) { New-Item -ItemType Directory -Force -Path $codexDir | Out-Null }
-            
+
             # Skills
             Safe-Folder-Copy -Source "$RepoRoot\catalog\skills" -Destination (Join-Path $codexDir "skills") -CustomMessage "✓ Workspace skills catalog installed at: $(Join-Path $codexDir "skills")"
-            
+
             # Custom Prompts (Codex equivalent of commands)
             Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $codexDir "prompts") -CustomMessage "✓ Workspace custom prompts installed at: $(Join-Path $codexDir "prompts")"
 
@@ -1346,7 +1346,7 @@ function Install-Workspace {
             $copilotDir = Join-Path $targetPath ".github"
             if (-not (Test-Path $copilotDir)) { New-Item -ItemType Directory -Force -Path $copilotDir | Out-Null }
             $copilotFile = Join-Path $copilotDir "copilot-instructions.md"
-            
+
             $doWrite = $true
             if ((Test-Path $copilotFile)) {
                 if ($script:OverwriteMode -eq "ALL") {
@@ -1363,8 +1363,8 @@ function Install-Workspace {
                     if ($resp -match "^[Aa]") {
                         $script:OverwriteMode = "ALL"
                     }
-                    elseif ($resp -notmatch "^[Yy]") { 
-                        $doWrite = $false 
+                    elseif ($resp -notmatch "^[Yy]") {
+                        $doWrite = $false
                     }
                 }
             }
@@ -1373,7 +1373,7 @@ function Install-Workspace {
                 Write-Item -Message "✓ Workspace instructions installed at: $copilotFile" -Color "DarkGreen"
             }
         }
-        
+
         Write-Host ""
         Write-CenteredBanner -Text "Project $(Split-Path $targetPath -Leaf) Configured!" -Color "Green"
     }

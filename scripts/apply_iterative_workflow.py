@@ -38,7 +38,7 @@ def update_file(filepath, app_text):
     try:
         with open(filepath, 'r', encoding='utf-8') as f:
             content = f.read()
-        
+
         if "Iterative Refinement" in content:
             print(f"Skipping {filepath} (already updated)")
             return
@@ -62,6 +62,6 @@ def process_dir(directory, text):
 if __name__ == "__main__":
     print("Updating Skills...")
     process_dir(skills_dir, SKILL_APPEND_TEXT)
-    
+
     print("\nUpdating Commands...")
     process_dir(commands_dir, COMMAND_APPEND_TEXT)

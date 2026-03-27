@@ -45,10 +45,10 @@ write_item() {
     local message="$1"
     local color_code="$2" # e.g., $GREEN
     local indent="${3:-1}"
-    
+
     local spaces=""
     for ((i=0; i<indent*2; i++)); do spaces+=" "; done
-    
+
     if [ -z "$color_code" ]; then color_code="${RESET}"; fi
     echo -e "${spaces}${color_code}${message}${RESET}"
 }
@@ -56,10 +56,10 @@ write_item() {
 read_prompt() {
     local message="$1"
     local indent="${2:-1}"
-    
+
     local spaces=""
     for ((i=0; i<indent*2; i++)); do spaces+=" "; done
-    
+
     echo -ne "${spaces}${YELLOW}└─> ${message} ${RESET}" >&2
     read -r response
     echo "$response"
@@ -158,7 +158,7 @@ safe_folder_copy() {
             rm -rf "${destination:?}"/*
             cp -R "$source/"* "$destination/"
         fi
-        
+
         if [ -n "$custom_message" ]; then
             write_item "$custom_message" "$GREEN"
         else
@@ -641,7 +641,7 @@ install_global() {
     write_item "Checking Global Configuration..."
     local global_gemini_dir="$user_home/.gemini"
     local global_agent_dir="$user_home/.agent"
-    
+
     mkdir -p "$global_gemini_dir"
     mkdir -p "$global_agent_dir"
 
@@ -658,12 +658,12 @@ install_global() {
     write_header "CODEX"
     write_item "Checking Global Configuration (OpenAI Codex)..."
     local global_codex_dir="$user_home/.codex"
-    
+
     mkdir -p "$global_codex_dir"
-    
+
     # Global Skills
     safe_folder_copy "$repo_root/catalog/skills" "$global_codex_dir/skills" "✓ Global skills catalog installed at: $global_codex_dir/skills"
-    
+
     # Global Custom Prompts (Codex equivalent of commands)
     safe_folder_copy "$repo_root/catalog/commands" "$global_codex_dir/prompts" "✓ Global custom prompts installed at: $global_codex_dir/prompts"
 
@@ -936,7 +936,7 @@ with open(sys.argv[1], 'w') as f:
 
 get_language_selection() {
     local detected="$1"
-    
+
     if [ -n "$detected" ]; then
         echo -e "${YELLOW}Detected languages: $detected${RESET}" >&2
         local resp
@@ -951,7 +951,7 @@ get_language_selection() {
     echo -e "  ${RESET}1. Python  2. JS  3. TS  4. Java  5. C#  6. Go  7. C++${RESET}" >&2
     local input_str
     input_str=$(read_prompt "Selection")
-    
+
     local result=""
     IFS=',' read -ra ADDR <<< "$input_str"
     for i in "${ADDR[@]}"; do
@@ -965,7 +965,7 @@ get_language_selection() {
             7|"C++"|CPP) result+="C++," ;;
         esac
     done
-    
+
     if [ -z "$result" ]; then
         echo "Python"
     else
@@ -992,9 +992,9 @@ install_workspace() {
         # remove quotes if user pasted them
         target_path="${target_path%\"}"
         target_path="${target_path#\"}"
-        
+
         # Expand tilde if present
-        target_path="${target_path/#\~/$HOME}" 
+        target_path="${target_path/#\~/$HOME}"
 
         if [ -z "$target_path" ] || [ ! -d "$target_path" ]; then
             write_item "Invalid directory: $target_path" "$YELLOW"
@@ -1071,17 +1071,17 @@ install_workspace() {
         safe_folder_copy "$repo_root/catalog/commands" "$agent_dir/workflows" "✓ Workspace workflows installed at: $agent_dir/workflows"
 
         write_item "✓ Copied Skills & Workflows structure" "$GREEN"
-        
+
         # 3. OpenAI Codex
         write_header "CODEX"
         write_item "Installing Workspace Resources..."
         local codex_dir="$target_path/.codex"
-        
+
         mkdir -p "$codex_dir"
-        
+
         # Skills
         safe_folder_copy "$repo_root/catalog/skills" "$codex_dir/skills" "✓ Workspace skills catalog installed at: $codex_dir/skills"
-        
+
         # Custom Prompts (Codex equivalent of commands)
         safe_folder_copy "$repo_root/catalog/commands" "$codex_dir/prompts" "✓ Workspace custom prompts installed at: $codex_dir/prompts"
 
