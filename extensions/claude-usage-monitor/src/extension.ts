@@ -316,4 +316,3 @@ function showAutoSwitchNotification(action: AutoSwitchAction, autoSwitcher: Auto
       break;
   }
 }
-
