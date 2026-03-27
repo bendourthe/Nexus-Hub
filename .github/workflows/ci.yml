@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install pre-commit
+        run: pip install pre-commit
+
+      - name: Run pre-commit hooks (standard checks only)
+        # Skip local Python hooks that require project-specific tooling.
+        # lint-templates and build-catalogs are enforced on commit locally.
+        run: SKIP=lint-templates,build-catalogs pre-commit run --all-files
+
+      - name: Validate skills.json
+        run: python -c "import json; d = json.load(open('data/skills.json')); print(f'skills.json OK — {len(d[\"skills\"])} skills')"
+
+      - name: Validate workflows.json
+        run: python -c "import json; d = json.load(open('data/workflows.json')); print(f'workflows.json OK — {len(d[\"workflows\"])} workflows')"
+
+      - name: Validate bundles.json
+        run: python -c "import json; d = json.load(open('data/bundles.json')); print(f'bundles.json OK — {len(d[\"bundles\"])} bundles')"
+
+  shellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install ShellCheck
+        run: sudo apt-get install -y shellcheck
+
+      - name: Lint installer scripts
+        run: |
+          shellcheck --severity=warning scripts/installer.sh install.sh
+
+      - name: Lint hook scripts
+        run: |
+          find catalog/hooks -name '*.sh' -print0 | xargs -0 shellcheck --severity=warning || true

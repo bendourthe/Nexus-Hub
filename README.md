@@ -6,13 +6,13 @@
 
 ---
 
-## What's New in v0.8.9
+## What's New in v0.9.0
 
-- **Tiered skill discovery** — Every skill now has L0 (one-liner) and L1 (full context) summaries, enabling hierarchical browsing without overwhelming context windows.
-- **MCP skill server** — New `devai-skill-server` Python extension with keyword search, category browsing, and bundle tools for programmatic skill discovery.
-- **Compiled skill index** — `data/SKILL_INDEX.md` and `{{SKILL_INDEX}}` template placeholder inject the full skill catalog into AI instruction files automatically.
-- **Phased release orchestrator** — `update-version` command restructured into five phases (A-E) with confirmation gates and sub-command delegation.
-- **Build tooling** — Added `Makefile`, `LICENSE` (MIT), `.pr_agent.toml`, and shellcheck/commitizen pre-commit hooks.
+- **12 new specialist skills** — Astro, Svelte, Vue experts; Android/iOS development; DOCX/XLSX/PPTX/PDF generation; GIF/sticker maker; GLSL shader development; session-history workflow (174 total skills).
+- **Permission configuration system** — Pre-built permission files for Claude, Codex, Copilot, Gemini with trusted domain allowlists and a one-click PowerShell installer.
+- **Auto-switcher extension** — Automatic model/plan switching in the VS Code usage monitor based on usage thresholds.
+- **IDE support expansion** — New instruction templates for Cursor and OpenCode IDEs, plus Chinese documentation (`README_zh.md`).
+- **Developer tooling** — Bash description formatting hook, skill validation script, marketplace metadata, and React expert reference docs.
 
 ---
 
@@ -29,7 +29,7 @@ Don't want to copy-paste files manually? We made an installer.
 5.  **(Optional) Select a project** to configure workspace-specific rules.
 
 **Done.**
-*   **Globally**: Your user profile now has all 162 Claude Skills, 29 Commands, 11 Hooks, 10 Agents, and Gemini instructions.
+*   **Globally**: Your user profile now has all 174 Claude Skills, 29 Commands, 12 Hooks, 10 Agents, and Gemini instructions.
 *   **Locally**: Your project has `copilot-instructions.md` tailored to your language.
 
 ---

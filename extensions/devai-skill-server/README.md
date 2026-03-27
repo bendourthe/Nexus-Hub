@@ -4,7 +4,7 @@ An MCP (Model Context Protocol) server that enables AI coding assistants to disc
 
 ## Features
 
-- **Semantic skill discovery**: Search 162+ skills by keyword or natural language
+- **Semantic skill discovery**: Search 174+ skills by keyword or natural language
 - **Tiered loading (L0/L1/L2)**: Fetch one-line summaries, paragraph overviews, or full skill content
 - **BM25 keyword search**: Zero-config, zero-dependency search engine
 - **Bundle support**: Query role-based skill bundles (e.g., "ai-engineer", "security-specialist")

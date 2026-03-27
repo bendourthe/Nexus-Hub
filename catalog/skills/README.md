@@ -192,15 +192,18 @@ Comprehensive documentation generation.
 | `technical-documentation` | Architecture, ADRs | Design docs |
 | `user-documentation` | README, tutorials, guides | Markdown docs |
 
-### [Framework Specialists](framework-specialists/) (3 skills)
+### [Framework Specialists](framework-specialists/) (6 skills)
 
 Deep expertise for specific web frameworks.
 
 | Skill | Framework | Focus |
 |-------|-----------|-------|
+| `astro-expert` | Astro | Content collections, island architecture, multi-framework integration |
 | `fastapi-expert` | FastAPI | Async APIs, Pydantic, dependency injection |
 | `nextjs-expert` | Next.js | App Router, Server Components, SSR/SSG |
 | `react-expert` | React | Hooks, state management, performance |
+| `svelte-expert` | Svelte | Runes, SvelteKit routing, SSR, form actions |
+| `vue-expert` | Vue 3 | Composition API, Pinia, Vue Router, optimization |
 
 ### [Infrastructure](infrastructure/) (16 skills)
 
@@ -296,13 +299,21 @@ Security-focused development practices and vulnerability analysis.
 | `pre-commit-checklist` | Linting, formatting, type checks, security scans |
 | `security-patch-advisor` | Patches for XSS, SQLi, SSRF, CSRF, misconfigurations |
 
-### [Specialized Domains](specialized-domains/) (1 skill)
+### [Specialized Domains](specialized-domains/) (9 skills)
 
 Domain-specific engineering expertise.
 
 | Skill | Description |
 |-------|-------------|
+| `android-development` | Kotlin, Jetpack Compose, Material Design 3, modern Android architecture |
+| `docx-generation` | Professional Word documents with templates, styles, multi-library support |
 | `fintech-engineer` | Payment processing, ledger systems, PCI-DSS, fraud detection |
+| `gif-sticker-maker` | Animated GIFs and stickers with AI generation, video processing, frame animation |
+| `glsl-shader-development` | GLSL shaders for visual effects, ray marching, procedural generation, 3D graphics |
+| `ios-development` | Swift, SwiftUI, UIKit, modern Apple platform patterns |
+| `pdf-document-generation` | Professional PDF documents with layout design, typography, multi-library support |
+| `pptx-generation` | Professional PowerPoint presentations with slide design, charts, multi-library support |
+| `xlsx-generation` | Excel spreadsheets with formulas, charts, multi-library support |
 
 ### [Testing](testing/) (2 skills)
 
@@ -337,7 +348,7 @@ Complete testing methodology from unit tests to mutation testing and edge-case g
 | `test-suite-prioritizer` | Order tests for faster CI feedback | All 7 |
 | `unit-tests` | FIRST principles, AAA pattern, isolation | All 7 |
 
-### [Workflow](workflow/) (13 skills)
+### [Workflow](workflow/) (14 skills)
 
 Development process, methodology, and session management.
 
@@ -354,6 +365,7 @@ Development process, methodology, and session management.
 | `git-bisect-assistant` | Efficient bug-finding with git bisect |
 | `plan-before-code` | Exploration and planning before implementation |
 | `research-plan-implement` | Structured RPI workflow with GO/NO-GO gates |
+| `session-history` | Standalone session history documents capturing steps and next steps |
 | `test-driven-development` | TDD workflow: write tests first, then code |
 | `version-upgrade` | Version bump, changelog, documentation updates |
 
@@ -433,7 +445,7 @@ These advisory fields are stored in `data/skills.json` entries, not in SKILL.md 
 
 | Metric | Value |
 |--------|-------|
-| Total Skills | 162 |
+| Total Skills | 174 |
 | Categories | 20 |
 | Languages | 7 |
 | Avg. Lines/Skill | 400-800 |
@@ -451,17 +463,17 @@ These advisory fields are stored in `data/skills.json` entries, not in SKILL.md 
 | Compliance | 9 |
 | Developer Experience | 21 |
 | Documentation | 6 |
-| Framework Specialists | 3 |
+| Framework Specialists | 6 |
 | Infrastructure | 16 |
 | Language Specialists | 10 |
 | Orchestration | 14 |
 | Project Setup | 4 |
 | Research | 1 |
 | Security | 7 |
-| Specialized Domains | 1 |
+| Specialized Domains | 9 |
 | Testing | 2 |
 | Tests Generation | 17 |
-| Workflow | 13 |
+| Workflow | 14 |
 
 ---
 
@@ -499,7 +511,7 @@ These advisory fields are stored in `data/skills.json` entries, not in SKILL.md 
 
 ## Version
 
-- **Collection Version**: 0.8.9
+- **Collection Version**: 0.9.0
 - **Last Updated**: March 2026
 - **Author**: Benjamin Dourthe
 

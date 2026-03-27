@@ -1,0 +1,32 @@
+version: 2
+
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    labels:
+      - dependencies
+      - github-actions
+
+  - package-ecosystem: npm
+    directory: /extensions/claude-usage-monitor
+    schedule:
+      interval: weekly
+    labels:
+      - dependencies
+      - npm
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: pip
+    directory: /extensions/devai-skill-server
+    schedule:
+      interval: weekly
+    labels:
+      - dependencies
+      - python
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]

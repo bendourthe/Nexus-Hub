@@ -1,5 +1,20 @@
 # Development Log
 
+## [2026-03-26] - Release 0.9.0: Specialist Skills Expansion, Permission System, and Multi-IDE Support
+
+*   **Goal**: Expand the skills catalog with 12 new specialist skills, introduce a permission configuration system for multi-AI-platform security management, add auto-switching capabilities to the VS Code extension, and broaden IDE support to Cursor and OpenCode.
+*   **What Changed**:
+    *   **12 New Specialist Skills**: Added framework specialists (Astro, Svelte, Vue) in `catalog/skills/framework-specialists/` and specialized domain skills (Android development, iOS development, DOCX/XLSX/PPTX/PDF generation, GIF/sticker maker, GLSL shader development) in `catalog/skills/specialized-domains/`. Added session-history workflow skill in `catalog/skills/workflow/`. Total skills now 174 across 20 categories.
+    *   **Permission Configuration System**: Created `configs/permissions/` with pre-built permission files for Claude (`claude-permissions.json`), Codex (`codex-permissions.toml`), Copilot (`copilot-permissions.json`), and Gemini (`gemini-permissions.json`). Added `trusted-domains.json` for cross-platform domain allowlists. Added `scripts/Install-DevAI-Permissions.ps1` for one-click permission deployment. Added supporting documentation in `docs/permissions-research.md` and `docs/permissions-setup.md`.
+    *   **Auto-Switcher Extension**: Added `extensions/claude-usage-monitor/src/autoSwitcher.ts` for automatic model/plan switching based on usage thresholds. Enhanced dashboard panel with improved session visualizations. Added TypeScript type definitions (`types.ts`) for session management.
+    *   **Developer Tooling**: Added `catalog/hooks/format-bash-description.py` (PreToolUse hook for Bash description formatting), `scripts/validate_skills.py` (automated SKILL.md validation), and React expert reference documents (dependency injection, data fetching, performance, testing patterns) in `catalog/skills/framework-specialists/react-expert/references/`.
+    *   **IDE Support**: Added instruction templates for Cursor (`templates/ai-instructions/base-cursor.md`) and OpenCode (`templates/ai-instructions/base-opencode.md`).
+    *   **Chinese Documentation**: Added `README_zh.md` with full Chinese translation of the main README.
+    *   **Marketplace Metadata**: Added `data/marketplace.json` for plugin registry compatibility with skill counts, platform support, and category metadata.
+    *   **Gitignore Cleanup**: Replaced blanket `.github/` ignore with targeted `.github/copilot-instructions.md` to allow tracking of GitHub workflows, PR templates, and dependabot configuration. Removed duplicate `dist/` entry.
+    *   **Version Bump**: Updated `data/templates.json`, `data/marketplace.json`, `scripts/installer.ps1`, `scripts/installer.sh`, `docs/CATALOG-COVERAGE.md`, `catalog/skills/README.md`, `README.md`, `README_zh.md`, and `CHANGELOG.md` from 0.8.9 to 0.9.0.
+*   **Current Status**: Verified. All version references consistent at 0.9.0.
+
 ## [2026-03-23] - Release 0.8.9: Tiered Skill Discovery, MCP Skill Server, and Phased Release Orchestrator
 
 *   **Goal**: Enable programmatic and hierarchical skill discovery by enriching all skills with tiered summaries, shipping an MCP skill server, and maturing the release process into a phased orchestrator.

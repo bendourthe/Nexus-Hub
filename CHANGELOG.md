@@ -11,6 +11,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.9.0] - 2026-03-26
+
+### Added
+- **12 new specialist skills**: Astro, Svelte, Vue experts (framework-specialists); Android/iOS development, DOCX/XLSX/PPTX/PDF generation, GIF/sticker maker, GLSL shader development (specialized-domains); session-history workflow (174 total skills)
+- **Permission configuration system**: `configs/permissions/` with profiles for Claude, Codex, Copilot, Gemini plus `trusted-domains.json`; new `Install-DevAI-Permissions.ps1` installer
+- **Auto-switcher module**: `autoSwitcher.ts` for automatic model/plan switching in VS Code usage monitor
+- **Bash description hook**: `format-bash-description.py` PreToolUse hook for automatic description formatting
+- **Skill validation**: `scripts/validate_skills.py` for automated SKILL.md structure validation
+- **IDE templates**: New instruction templates for Cursor (`base-cursor.md`) and OpenCode (`base-opencode.md`)
+- **Chinese documentation**: `README_zh.md` with full translation
+- **Marketplace metadata**: `data/marketplace.json` for plugin registry compatibility
+- **React expert references**: 4 reference docs (dependency injection, data fetching, performance, testing patterns)
+
+### Changed
+- **Session history command**: Replaced `generate-dev-history.md` with `generate-session-history.md`
+- **Setup project command**: Overhauled with expanded detection and configuration
+- **Dashboard panel**: Enhanced with improved visualizations and session management types
+- **Hook settings**: Updated `settings.json` and `require-description.sh`
+- **Skills catalog**: `data/skills.json` rebuilt with 174 skills (was 162)
+- **Installer scripts**: Both `installer.ps1` and `installer.sh` upgraded with permission installation support
+
+---
+
 ## [0.8.9] - 2026-03-23
 
 ### Added
@@ -2723,7 +2746,8 @@ repository_root/
 
 ---
 
-[Unreleased]: https://github.com/bdourthe/devai-hub/compare/v0.8.9...HEAD
+[Unreleased]: https://github.com/bdourthe/devai-hub/compare/v0.9.0...HEAD
+[0.9.0]: https://github.com/bdourthe/devai-hub/compare/v0.8.9...v0.9.0
 [0.8.9]: https://github.com/bdourthe/devai-hub/compare/v0.8.8...v0.8.9
 [0.8.8]: https://github.com/bdourthe/devai-hub/compare/v0.8.7...v0.8.8
 [0.8.7]: https://github.com/bdourthe/devai-hub/compare/v0.8.6...v0.8.7

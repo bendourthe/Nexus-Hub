@@ -8,13 +8,13 @@
 
 ---
 
-## v0.8.9 更新内容
+## v0.9.0 更新内容
 
-- **分层技能发现** — 每个技能现在都有 L0（一行摘要）和 L1（完整上下文）的分层摘要，支持层级浏览而不会占满上下文窗口。
-- **MCP 技能服务器** — 新增 `devai-skill-server` Python 扩展，支持关键词搜索、分类浏览和捆绑工具，实现程序化技能发现。
-- **编译技能索引** — `data/SKILL_INDEX.md` 和 `{{SKILL_INDEX}}` 模板占位符自动将完整技能目录注入到 AI 指令文件中。
-- **分阶段发布协调器** — `update-version` 命令重构为五个阶段（A-E），带确认关卡和子命令委派。
-- **构建工具** — 新增 `Makefile`、`LICENSE`（MIT）、`.pr_agent.toml`，以及 shellcheck/commitizen 预提交钩子。
+- **12 个新专家技能** — Astro、Svelte、Vue 框架专家；Android/iOS 开发；DOCX/XLSX/PPTX/PDF 生成；GIF/贴纸制作；GLSL 着色器开发；会话历史工作流（共 174 个技能）。
+- **权限配置系统** — 为 Claude、Codex、Copilot、Gemini 提供预置权限文件，包含可信域名允许列表和一键 PowerShell 安装器。
+- **自动切换扩展** — VS Code 使用量监控器中基于使用阈值的自动模型/计划切换。
+- **IDE 支持扩展** — 新增 Cursor 和 OpenCode IDE 的指令模板，以及中文文档（`README_zh.md`）。
+- **开发者工具** — Bash 描述格式化钩子、技能验证脚本、市场元数据和 React 专家参考文档。
 
 ---
 
@@ -31,7 +31,7 @@
 5. **（可选）选择项目** 配置工作区规则。
 
 **完成。**
-- **全局**：你的用户配置文件现在拥有所有 163+ Claude 技能、29 个命令、11 个钩子、10 个代理和 Gemini 指令。
+- **全局**：你的用户配置文件现在拥有所有 174 个 Claude 技能、29 个命令、12 个钩子、10 个代理和 Gemini 指令。
 - **本地**：你的项目有针对编程语言定制的 `copilot-instructions.md`。
 
 ---

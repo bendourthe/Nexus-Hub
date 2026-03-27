@@ -21,7 +21,6 @@ dist/
 
 # Maven
 target/
-dist/
 
 # JetBrains IDE
 .idea/
@@ -48,8 +47,8 @@ Thumbs.db
 *.mov
 *.wmv
 
-# Instruction files
-.github/
+# Copilot custom instructions (user-specific)
+.github/copilot-instructions.md
 
 # Claude Code settings (root only)
 /.claude/
