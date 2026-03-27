@@ -710,13 +710,13 @@ detect_languages() {
     local detected_langs=""
 
     # Simple count check
-    if [ $(find "$target_path" -maxdepth 3 -name "*.py" 2>/dev/null | wc -l) -gt 0 ]; then detected_langs+="Python,"; fi
-    if [ $(find "$target_path" -maxdepth 3 -name "*.js" -o -name "*.jsx" 2>/dev/null | wc -l) -gt 0 ]; then detected_langs+="JavaScript,"; fi
-    if [ $(find "$target_path" -maxdepth 3 -name "*.ts" -o -name "*.tsx" 2>/dev/null | wc -l) -gt 0 ]; then detected_langs+="TypeScript,"; fi
-    if [ $(find "$target_path" -maxdepth 3 -name "*.java" 2>/dev/null | wc -l) -gt 0 ]; then detected_langs+="Java,"; fi
-    if [ $(find "$target_path" -maxdepth 3 -name "*.cs" 2>/dev/null | wc -l) -gt 0 ]; then detected_langs+="C#,"; fi
-    if [ $(find "$target_path" -maxdepth 3 -name "*.go" 2>/dev/null | wc -l) -gt 0 ]; then detected_langs+="Go,"; fi
-    if [ $(find "$target_path" -maxdepth 3 -name "*.cpp" -o -name "*.h" -o -name "*.hpp" 2>/dev/null | wc -l) -gt 0 ]; then detected_langs+="C++,"; fi
+    if [ "$(find "$target_path" -maxdepth 3 -name "*.py" 2>/dev/null | wc -l)" -gt 0 ]; then detected_langs+="Python,"; fi
+    if [ "$(find "$target_path" -maxdepth 3 -name "*.js" -o -name "*.jsx" 2>/dev/null | wc -l)" -gt 0 ]; then detected_langs+="JavaScript,"; fi
+    if [ "$(find "$target_path" -maxdepth 3 -name "*.ts" -o -name "*.tsx" 2>/dev/null | wc -l)" -gt 0 ]; then detected_langs+="TypeScript,"; fi
+    if [ "$(find "$target_path" -maxdepth 3 -name "*.java" 2>/dev/null | wc -l)" -gt 0 ]; then detected_langs+="Java,"; fi
+    if [ "$(find "$target_path" -maxdepth 3 -name "*.cs" 2>/dev/null | wc -l)" -gt 0 ]; then detected_langs+="C#,"; fi
+    if [ "$(find "$target_path" -maxdepth 3 -name "*.go" 2>/dev/null | wc -l)" -gt 0 ]; then detected_langs+="Go,"; fi
+    if [ "$(find "$target_path" -maxdepth 3 -name "*.cpp" -o -name "*.h" -o -name "*.hpp" 2>/dev/null | wc -l)" -gt 0 ]; then detected_langs+="C++,"; fi
 
     # Remove trailing comma
     echo "${detected_langs%,}"

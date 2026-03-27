@@ -41,6 +41,7 @@ DEVLOG="$GIT_ROOT/docs/DEVLOG.md"
 [ -f "$DEVLOG" ] || exit 0
 
 # --- Consume stdin (Stop hooks receive JSON payload) ---
+# shellcheck disable=SC2034  # INPUT intentionally unused; drains stdin to prevent SIGPIPE
 INPUT=$(cat 2>/dev/null || true)
 
 # --- Double-run guard: skip if DEVLOG.md was modified recently ---
