@@ -361,7 +361,15 @@ function Install-GitGuardrails {
         return
     }
 
-    $templateJson = Get-Content $templateFile -Raw | ConvertFrom-Json
+    $templateRaw = Get-Content $templateFile -Raw
+
+    # Windows uses "python" not "python3"; global scope uses ~/.claude/ paths
+    $templateRaw = $templateRaw -replace 'python3 ', 'python '
+    if ($Scope -eq "Global") {
+        $templateRaw = $templateRaw -replace '(?<![~/.])\.claude/hooks/', '~/.claude/hooks/'
+    }
+
+    $templateJson = $templateRaw | ConvertFrom-Json
 
     if (Test-Path $settingsFile) {
         try {
@@ -443,7 +451,15 @@ function Install-UsageDisplay {
         return
     }
 
-    $templateJson = Get-Content $templateFile -Raw | ConvertFrom-Json
+    $templateRaw = Get-Content $templateFile -Raw
+
+    # Windows uses "python" not "python3"; global scope uses ~/.claude/ paths
+    $templateRaw = $templateRaw -replace 'python3 ', 'python '
+    if ($Scope -eq "Global") {
+        $templateRaw = $templateRaw -replace '(?<![~/.])\.claude/hooks/', '~/.claude/hooks/'
+    }
+
+    $templateJson = $templateRaw | ConvertFrom-Json
 
     try {
         $existingJson = Get-Content $settingsFile -Raw | ConvertFrom-Json
@@ -532,12 +548,13 @@ function Install-RequireDescription {
             Write-Item -Message "✓ Require-description hook already configured in settings.json" -Color "DarkGreen"
         }
         else {
+            $hookPath = if ($Scope -eq "Global") { "~/.claude/hooks" } else { ".claude/hooks" }
             $newEntry = [PSCustomObject]@{
                 matcher = "Bash"
                 hooks   = @(
                     [PSCustomObject]@{
                         type    = "command"
-                        command = "bash .claude/hooks/require-description.sh"
+                        command = "bash $hookPath/require-description.sh"
                     }
                 )
             }

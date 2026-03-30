@@ -107,6 +107,34 @@ For Copilot, per-command auto-approve is not supported. Use instruction files (`
 
 This removes only the entries added by DevAI-Hub. Any custom permissions you added manually are preserved.
 
+## Description Box and Permission Interaction
+
+DevAI-Hub uses a `format-bash-description.py` PreToolUse hook that conditionally prepends a bordered description box to Bash commands. Because PreToolUse hooks run before permission evaluation, prepending a description box to every command would cause `Bash(git log *)` style patterns to never match (the matcher would see `# === Description ===...` instead of the actual command).
+
+To solve this, the hook selectively adds the description box only to commands that are NOT in the auto-approve allow list:
+
+1. The hook strips any model-generated description box to recover the actual command
+2. It reads allow patterns from all settings levels (global, global-local, project-shared, project-local)
+3. For compound commands (`&&`, `||`, `;`), it checks each subcommand independently
+4. If ALL subcommands match a configured allow pattern: the hook returns the clean command without the description box, so the permission matcher sees the real command and auto-approves it
+5. If any subcommand is not in the allow list: the hook prepends the description box so it is visible in the approval dialog when the user is prompted
+
+### Windows Compatibility
+
+The hook configuration in `settings.json` must use `python` (not `python3`) on Windows, because Python on Windows does not provide a `python3` alias. The PowerShell installer handles this translation automatically. On macOS/Linux, the bash installer uses `python3`.
+
+### Pattern Syntax
+
+Claude Code permission patterns use glob matching with `*` as the wildcard:
+
+| Pattern | Matches |
+|---------|---------|
+| `Bash(git log *)` | Any command starting with `git log ` |
+| `Bash(pwd)` | Exactly `pwd` with no arguments |
+| `Bash(cd *)` | Any command starting with `cd ` |
+
+Use space before `*` (current syntax). The legacy colon syntax `Bash(cd:*)` is deprecated; the hook normalises it internally but new entries should use the space format.
+
 ## Per-Platform Notes and Limitations
 
 ### Claude Code
