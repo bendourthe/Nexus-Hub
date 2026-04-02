@@ -36,12 +36,18 @@ const EFFORT_ADVICE: Record<number, { withModelSwitch: (to: string) => string; w
 
 export class AutoSwitcher {
   private _switchInProgress = false;
+  private _lastSwitchTimestamp = 0;
 
   constructor(private readonly store: UsageStore) {}
 
-  /** True while the switcher is writing a VS Code setting (to distinguish from user changes). */
+  /**
+   * True while the switcher is writing a VS Code setting, or within a 2-second
+   * grace period after the write completes. The grace period guards against the
+   * onDidChangeConfiguration event firing asynchronously after the await resolves
+   * and _switchInProgress has already been reset to false.
+   */
   isSwitching(): boolean {
-    return this._switchInProgress;
+    return this._switchInProgress || (Date.now() - this._lastSwitchTimestamp < 2000);
   }
 
   /**
@@ -198,6 +204,7 @@ export class AutoSwitcher {
         .getConfiguration("claudeCode")
         .update("selectedModel", model, vscode.ConfigurationTarget.Global);
     } finally {
+      this._lastSwitchTimestamp = Date.now();
       this._switchInProgress = false;
     }
   }

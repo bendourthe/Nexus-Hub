@@ -5,7 +5,7 @@ import { UsageFetcher, FetchError } from "./usageFetcher";
 import { DashboardPanel } from "./dashboardPanel";
 import { AutoSwitcher } from "./autoSwitcher";
 import { getRecommendation, getOverallUrgency } from "./recommendations";
-import { UrgencyLevel, AutoSwitchAction, formatModelName } from "./types";
+import { UrgencyLevel, AutoSwitchAction, UsageData, formatModelName } from "./types";
 
 const RECOMMEND_COMMAND = "claude-usage.recommend";
 const RESET_COMMAND = "claude-usage.reset";
@@ -64,6 +64,7 @@ export function activate(context: vscode.ExtensionContext): void {
       failureNotificationShown = false;
       statusBar.resetBackoff();
       await store.save(result.data);
+      await evaluateAndNotify(result.data, store, autoSwitcher);
       statusBar.refresh();
       DashboardPanel.updateIfOpen(store.getWithFreshCountdowns(), store.getTimeSinceUpdate(), lastFetchError, store.getAutoSwitchState());
       vscode.window.showInformationMessage("Claude usage data refreshed.");
@@ -232,10 +233,7 @@ async function autoFetchAndUpdate(
       await store.saveLastUrgency(newUrgency);
 
       // Evaluate auto-switch thresholds and apply model/effort changes
-      const switchActions = await autoSwitcher.evaluate(result.data);
-      for (const action of switchActions) {
-        showAutoSwitchNotification(action, autoSwitcher);
-      }
+      await evaluateAndNotify(result.data, store, autoSwitcher);
 
       // Only show recommendation notification when urgency escalates
       if (previousUrgency && urgencyEscalated(previousUrgency, newUrgency)) {
@@ -272,6 +270,37 @@ async function autoFetchAndUpdate(
     }
   } finally {
     fetchInFlight = false;
+  }
+}
+
+/**
+ * Run auto-switch evaluation and show notifications. If a model switch occurred,
+ * re-save the stored data with the updated current model so the dashboard reflects it.
+ */
+async function evaluateAndNotify(
+  data: UsageData,
+  store: UsageStore,
+  autoSwitcher: AutoSwitcher,
+): Promise<void> {
+  let switchActions: AutoSwitchAction[] = [];
+  try {
+    switchActions = await autoSwitcher.evaluate(data);
+    for (const action of switchActions) {
+      showAutoSwitchNotification(action, autoSwitcher);
+    }
+  } catch (err) {
+    console.error("[Claude Usage Monitor] Auto-switch evaluation failed:", err);
+    return;
+  }
+
+  // Bug 3 fix: if a model switch or restore occurred, persist the updated model
+  // so the dashboard shows the actual current model instead of the stale fetch-time value
+  if (switchActions.some(a => a.kind === "model-switched" || a.kind === "model-restored")) {
+    const freshData = store.get();
+    if (freshData) {
+      freshData.currentModel = store.getCurrentModel();
+      await store.save(freshData);
+    }
   }
 }
 

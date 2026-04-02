@@ -52,8 +52,8 @@ export class UsageStore {
     if (selected && selected.length > 0) {
       return selected;
     }
-    // Fallback if claudeCode.selectedModel is not set
-    return "sonnet";
+    // Fallback if claudeCode.selectedModel is not set — Claude Code defaults to Opus 1M
+    return "default";
   }
 
   getLastUrgency(): UrgencyLevel | undefined {

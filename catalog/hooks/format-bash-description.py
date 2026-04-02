@@ -131,57 +131,195 @@ def load_allow_patterns() -> list[str]:
     return patterns
 
 
-def split_compound_command(cmd: str) -> list[str]:
-    """Split a command on shell operators (&&, ||, |, ;) outside quotes.
+# ── Shell-aware tokenizer and splitter ────────────────────────────────────
 
-    Respects single quotes, double quotes, and backslash escapes so
-    that operators inside quoted strings (e.g. grep "foo\\|bar") are
-    not treated as pipe operators.
+# Keywords that open/close shell block constructs
+_SHELL_OPENERS = frozenset({"for", "while", "until", "if", "case"})
+_SHELL_CLOSERS = frozenset({"done", "fi", "esac"})
+# Keywords that start the body inside a block (used by _extract_body_commands)
+_BODY_STARTERS = frozenset({"do", "then"})
+
+
+def _bare_keyword(token_value: str) -> str:
+    """Return the bare word if *token_value* is a simple shell keyword.
+
+    Ignores tokens that contain path separators, variable expansions,
+    or other characters that prove it is not a standalone keyword.
     """
-    parts: list[str] = []
-    current: list[str] = []
-    i = 0
-    in_single = False
-    in_double = False
+    stripped = token_value.strip()
+    if not stripped or not stripped.isalpha():
+        return ""
+    return stripped
 
-    while i < len(cmd):
+
+def _tokenize_shell(cmd: str) -> list[tuple[str, str]]:
+    """Tokenize a shell command string into (type, value) pairs.
+
+    Token types:
+      - ``'word'``  — a shell word (may include internal quotes/escapes)
+      - ``'op'``    — an operator: ``&&``, ``||``, ``;;``, ``|``, ``;``
+      - ``'ws'``    — whitespace (spaces, tabs, newlines)
+    """
+    tokens: list[tuple[str, str]] = []
+    i = 0
+    length = len(cmd)
+
+    while i < length:
         ch = cmd[i]
 
-        if ch == "'" and not in_double:
-            in_single = not in_single
-            current.append(ch)
-            i += 1
-        elif ch == '"' and not in_single:
-            in_double = not in_double
-            current.append(ch)
-            i += 1
-        elif ch == "\\" and not in_single and i + 1 < len(cmd):
-            current.append(ch)
-            current.append(cmd[i + 1])
-            i += 2
-        elif not in_single and not in_double:
-            two = cmd[i : i + 2]
-            if two in ("&&", "||"):
-                parts.append("".join(current))
-                current = []
-                i += 2
-            elif ch in ("|", ";"):
-                parts.append("".join(current))
-                current = []
+        # ── Whitespace ──
+        if ch in (" ", "\t", "\n"):
+            start = i
+            while i < length and cmd[i] in (" ", "\t", "\n"):
                 i += 1
-            else:
-                current.append(ch)
-                i += 1
-        else:
-            current.append(ch)
-            i += 1
+            tokens.append(("ws", cmd[start:i]))
+            continue
 
-    parts.append("".join(current))
+        # ── Two-character operators ──
+        if i + 1 < length and cmd[i : i + 2] in ("&&", "||", ";;"):
+            tokens.append(("op", cmd[i : i + 2]))
+            i += 2
+            continue
+
+        # ── Single-character operators ──
+        if ch in ("|", ";"):
+            tokens.append(("op", ch))
+            i += 1
+            continue
+
+        # ── Word (may contain quotes, escapes, $(), etc.) ──
+        start = i
+        while i < length:
+            ch = cmd[i]
+            # Break on whitespace or operators
+            if ch in (" ", "\t", "\n", ";", "|"):
+                break
+            if i + 1 < length and cmd[i : i + 2] in ("&&", "||", ";;"):
+                break
+            # Consume quoted strings
+            if ch == "'":
+                i += 1
+                while i < length and cmd[i] != "'":
+                    i += 1
+                if i < length:
+                    i += 1
+            elif ch == '"':
+                i += 1
+                while i < length:
+                    if cmd[i] == "\\" and i + 1 < length:
+                        i += 2
+                    elif cmd[i] == '"':
+                        i += 1
+                        break
+                    else:
+                        i += 1
+            elif ch == "\\" and i + 1 < length:
+                i += 2
+            else:
+                i += 1
+        tokens.append(("word", cmd[start:i]))
+
+    return tokens
+
+
+def split_compound_command(cmd: str) -> list[str]:
+    """Split a command on shell operators (&&, ||, |, ;) at the top level.
+
+    Respects single quotes, double quotes, backslash escapes, **and**
+    shell control structures (``for/while/until…done``,
+    ``if…then…fi``, ``case…esac``).  Operators that appear inside
+    these constructs are kept as part of the enclosing block rather
+    than causing a split.
+    """
+    tokens = _tokenize_shell(cmd)
+
+    parts: list[str] = []
+    current: list[str] = []
+    depth = 0
+
+    for tok_type, tok_value in tokens:
+        if tok_type == "word":
+            bare = _bare_keyword(tok_value)
+            if bare in _SHELL_OPENERS:
+                depth += 1
+            elif bare in _SHELL_CLOSERS and depth > 0:
+                depth -= 1
+            current.append(tok_value)
+        elif tok_type == "op" and depth == 0:
+            # Top-level operator → split here
+            parts.append("".join(current))
+            current = []
+        else:
+            # Operator inside a construct, or whitespace → keep
+            current.append(tok_value)
+
+    if current:
+        parts.append("".join(current))
+
     return [p.strip() for p in parts if p.strip()]
 
 
+# ── Shell-construct body extraction ───────────────────────────────────────
+
+def _is_shell_construct(cmd: str) -> bool:
+    """Return True if *cmd* starts with a shell control keyword."""
+    first = cmd.split(None, 1)[0] if cmd.strip() else ""
+    return first in _SHELL_OPENERS
+
+
+def _extract_body_commands(construct: str) -> list[str] | None:
+    """Extract the body commands from a shell control structure.
+
+    Supported forms:
+      - ``for/while/until … do BODY done``
+      - ``if … then BODY fi``
+
+    Returns a list of body subcommands (split at the top level within
+    the body), or ``None`` if the construct cannot be parsed.
+    """
+    tokens = _tokenize_shell(construct)
+
+    depth = 0
+    body_start_idx: int | None = None
+    body_end_idx: int | None = None
+
+    for idx, (tok_type, tok_value) in enumerate(tokens):
+        if tok_type != "word":
+            continue
+        bare = _bare_keyword(tok_value)
+        if bare in _SHELL_OPENERS:
+            depth += 1
+        elif bare in _SHELL_CLOSERS:
+            depth -= 1
+            if depth == 0:
+                body_end_idx = idx
+                break
+        elif bare in _BODY_STARTERS and depth == 1 and body_start_idx is None:
+            body_start_idx = idx
+
+    if body_start_idx is None or body_end_idx is None:
+        return None
+
+    # Collect everything between the body-starter and the closer
+    body_text = "".join(
+        v for _, v in tokens[body_start_idx + 1 : body_end_idx]
+    ).strip()
+
+    if not body_text:
+        return []
+
+    return split_compound_command(body_text)
+
+
 def command_is_allowed(cmd: str, patterns: list[str]) -> bool:
-    """Return True if every subcommand matches at least one allow pattern."""
+    """Return True if every subcommand matches at least one allow pattern.
+
+    Shell control structures (``for…done``, ``if…fi``, etc.) are kept
+    as single units by the splitter.  Their *body* commands are
+    extracted and checked recursively so that, for example,
+    ``for f in *.py; do wc -l "$f"; done`` is allowed when ``wc *``
+    is in the allow list.
+    """
     if not patterns:
         return False
 
@@ -190,7 +328,15 @@ def command_is_allowed(cmd: str, patterns: list[str]) -> bool:
         return False
 
     for sub in subcommands:
-        if not any(fnmatch.fnmatchcase(sub, pat) for pat in patterns):
+        if _is_shell_construct(sub):
+            body_cmds = _extract_body_commands(sub)
+            if body_cmds is None:
+                # Cannot parse the construct → treat as not allowed
+                return False
+            for body_cmd in body_cmds:
+                if not command_is_allowed(body_cmd, patterns):
+                    return False
+        elif not any(fnmatch.fnmatchcase(sub, pat) for pat in patterns):
             return False
     return True
 
@@ -257,7 +403,7 @@ def main() -> None:
             "hookEventName": "PreToolUse",
             "updatedInput": {
                 "command": updated_command,
-                "description": stripped if stripped else display_text,
+                "description": stripped,
             },
         }
     }
