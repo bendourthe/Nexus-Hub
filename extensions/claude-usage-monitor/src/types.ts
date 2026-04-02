@@ -146,6 +146,12 @@ export interface AutoSwitchState {
   lastSwitchAt: number;
   /** Usage thresholds (50, 75, 95) for which a notification has already been shown. */
   notifiedThresholds: number[];
+  /** Number of Claude Code terminals that received the /model command on last switch. */
+  terminalsSwitched?: number;
+  /** The model that auto-switch last targeted (for multi-window propagation). */
+  switchedToModel?: string | null;
+  /** Epoch ms of last evaluation (for cross-window dedup). */
+  lastEvaluatedAt?: number;
 }
 
 /** Runtime configuration read from VS Code settings. */
@@ -168,6 +174,8 @@ export interface AutoSwitchAction {
   triggerPercent: number;
   /** Human-readable notification/dashboard message for usage-advisory actions. */
   message?: string;
+  /** Number of Claude Code terminals that received the /model command. */
+  terminalCount?: number;
 }
 
 export const DEFAULT_AUTO_SWITCH_STATE: AutoSwitchState = {

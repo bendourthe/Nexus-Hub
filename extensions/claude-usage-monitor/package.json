@@ -2,7 +2,7 @@
   "name": "claude-usage-monitor",
   "displayName": "Claude Usage Monitor",
   "description": "Monitor your Claude Code usage limits and get smart model-switching recommendations",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "publisher": "devai-hub",
   "icon": "icon.png",
   "engines": {
@@ -90,6 +90,11 @@
           "minimum": 10,
           "maximum": 100,
           "description": "Usage % at which model switches to Haiku"
+        },
+        "claudeUsage.autoSwitch.lastSwitchedModel": {
+          "type": "string",
+          "default": "",
+          "description": "Internal: last model set by auto-switch (used for multi-window propagation)"
         }
       }
     }

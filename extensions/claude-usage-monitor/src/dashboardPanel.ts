@@ -170,6 +170,8 @@ export class DashboardPanel {
     const recommendation = getRecommendation(data);
     const sourceLabel = data.dataSource === "api" ? "Auto-fetched" : "Manually entered";
 
+    const actualModel = data.currentModel || "default";
+
     return this.wrapHtml(`
       ${errorBanner}
       <h2>Claude Usage Dashboard</h2>
@@ -201,7 +203,7 @@ export class DashboardPanel {
 
       <div class="section">
         <h3>Current Model</h3>
-        <div class="model-name">${escapeHtml(formatModelName(data.currentModel))}</div>
+        <div class="model-name">${escapeHtml(formatModelName(actualModel))}</div>
       </div>
 
       ${this.renderAutoSwitchSection()}
@@ -263,9 +265,18 @@ export class DashboardPanel {
     ].filter(Boolean);
 
     // Only show model auto-switch status (effort suggestions appear in Recommendation)
-    const statusHtml = modelActive && stateRaw?.preAutoModel
-      ? `<div class="auto-switch-active">Model auto-switched (was ${escapeHtml(formatModelName(stateRaw.preAutoModel))})</div>`
-      : `<div class="auto-switch-status enabled">Active (no switches applied)</div>`;
+    let statusHtml: string;
+    if (modelActive && stateRaw?.switchedToModel) {
+      const termCount = stateRaw.terminalsSwitched ?? 0;
+      const detail = termCount > 0
+        ? `sent to ${termCount} terminal${termCount > 1 ? "s" : ""}`
+        : "manual action needed";
+      statusHtml = `<div class="auto-switch-active">Auto-switched to ${escapeHtml(formatModelName(stateRaw.switchedToModel))} (${detail})</div>`;
+    } else if (modelActive && stateRaw?.preAutoModel) {
+      statusHtml = `<div class="auto-switch-active">Model auto-switched (was ${escapeHtml(formatModelName(stateRaw.preAutoModel))})</div>`;
+    } else {
+      statusHtml = `<div class="auto-switch-status enabled">Active (no switches applied)</div>`;
+    }
 
     return `
     <div class="section">

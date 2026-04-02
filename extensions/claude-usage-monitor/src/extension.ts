@@ -18,9 +18,10 @@ let failureNotificationShown = false;
 let fetchInFlight = false;
 
 export function activate(context: vscode.ExtensionContext): void {
+  const log = vscode.window.createOutputChannel("Claude Usage Monitor");
   const store = new UsageStore(context.globalState);
   const fetcher = new UsageFetcher();
-  const autoSwitcher = new AutoSwitcher(store);
+  const autoSwitcher = new AutoSwitcher(store, log);
   const statusBar = new StatusBarManager(store, DASHBOARD_COMMAND);
 
   const config = vscode.workspace.getConfiguration("claudeUsage");
@@ -29,14 +30,36 @@ export function activate(context: vscode.ExtensionContext): void {
   }
 
   // Wire up auto-refresh: when the timer fires, trigger a fetch
-  statusBar.setAutoRefreshCallback(() => autoFetchAndUpdate(fetcher, store, statusBar, autoSwitcher));
+  statusBar.setAutoRefreshCallback(() => autoFetchAndUpdate(fetcher, store, statusBar, autoSwitcher, log));
 
   // Wire up reset-expiry detection: when a cached reset timestamp passes, refetch
-  statusBar.setResetExpiredCallback(() => autoFetchAndUpdate(fetcher, store, statusBar, autoSwitcher));
+  statusBar.setResetExpiredCallback(() => autoFetchAndUpdate(fetcher, store, statusBar, autoSwitcher, log));
+
+  // Startup reminder: if a model switch is active from a previous session, notify once
+  const startupState = store.getAutoSwitchState();
+  if (startupState.modelAutoSwitched && startupState.switchedToModel) {
+    const switchedTo = formatModelName(startupState.switchedToModel);
+    const modelId = startupState.switchedToModel;
+    vscode.window
+      .showInformationMessage(
+        `Auto-switch active: New conversations will use ${switchedTo}. To apply in your current conversation, run /model ${modelId} (or use the "/" button > Switch model).`,
+        "Show Dashboard",
+      )
+      .then((choice) => {
+        if (choice === "Show Dashboard") {
+          vscode.commands.executeCommand(DASHBOARD_COMMAND);
+        }
+      });
+  }
+
+  // When new terminals open, apply pending model switch to Claude Code terminals
+  const terminalListener = vscode.window.onDidOpenTerminal((terminal) => {
+    autoSwitcher.applyPendingSwitchToTerminal(terminal);
+  });
 
   // Auto-fetch on activation (silent)
   if (config.get<boolean>("autoFetch", true)) {
-    autoFetchAndUpdate(fetcher, store, statusBar, autoSwitcher);
+    autoFetchAndUpdate(fetcher, store, statusBar, autoSwitcher, log);
   }
 
   // Command: Show dashboard panel
@@ -47,7 +70,7 @@ export function activate(context: vscode.ExtensionContext): void {
     DashboardPanel.show(data, timeSince, lastFetchError, {
       onRefresh: async () => {
         statusBar.showLoading();
-        await autoFetchAndUpdate(fetcher, store, statusBar, autoSwitcher);
+        await autoFetchAndUpdate(fetcher, store, statusBar, autoSwitcher, log);
       },
       onOpenUsagePage: () =>
         vscode.env.openExternal(vscode.Uri.parse("https://claude.ai/settings/usage")),
@@ -64,7 +87,7 @@ export function activate(context: vscode.ExtensionContext): void {
       failureNotificationShown = false;
       statusBar.resetBackoff();
       await store.save(result.data);
-      await evaluateAndNotify(result.data, store, autoSwitcher);
+      await evaluateAndNotify(result.data, store, autoSwitcher, log);
       statusBar.refresh();
       DashboardPanel.updateIfOpen(store.getWithFreshCountdowns(), store.getTimeSinceUpdate(), lastFetchError, store.getAutoSwitchState());
       vscode.window.showInformationMessage("Claude usage data refreshed.");
@@ -174,11 +197,17 @@ export function activate(context: vscode.ExtensionContext): void {
       statusBar.show();
     }
 
-    // When the model changes in Claude Code, update status bar and dashboard immediately.
-    // If the change was user-initiated (not from auto-switch), clear auto-switch model state.
-    if (event.affectsConfiguration("claudeCode.selectedModel")) {
+    // Multi-window auto-switch propagation: when another window writes
+    // lastSwitchedModel, apply the switch to local Claude Code terminals.
+    if (event.affectsConfiguration("claudeUsage.autoSwitch.lastSwitchedModel")) {
       if (!autoSwitcher.isSwitching()) {
-        autoSwitcher.handleUserModelChange(store.getCurrentModel());
+        const targetModel = vscode.workspace
+          .getConfiguration("claudeUsage.autoSwitch")
+          .get<string>("lastSwitchedModel", "");
+        if (targetModel) {
+          log.appendLine(`[Extension] Config change: lastSwitchedModel="${targetModel}" from another window`);
+          autoSwitcher.applyRemoteSwitch(targetModel);
+        }
       }
       statusBar.refresh();
       DashboardPanel.updateIfOpen(
@@ -197,6 +226,8 @@ export function activate(context: vscode.ExtensionContext): void {
     recommendCommand,
     resetCommand,
     configWatcher,
+    terminalListener,
+    log,
     { dispose: () => statusBar.dispose() }
   );
 }
@@ -210,6 +241,7 @@ async function autoFetchAndUpdate(
   store: UsageStore,
   statusBar: StatusBarManager,
   autoSwitcher: AutoSwitcher,
+  log: vscode.OutputChannel,
 ): Promise<void> {
   if (fetchInFlight) {
     // A fetch is already running; clear any loading states that the caller may have set
@@ -233,7 +265,7 @@ async function autoFetchAndUpdate(
       await store.saveLastUrgency(newUrgency);
 
       // Evaluate auto-switch thresholds and apply model/effort changes
-      await evaluateAndNotify(result.data, store, autoSwitcher);
+      await evaluateAndNotify(result.data, store, autoSwitcher, log);
 
       // Only show recommendation notification when urgency escalates
       if (previousUrgency && urgencyEscalated(previousUrgency, newUrgency)) {
@@ -281,6 +313,7 @@ async function evaluateAndNotify(
   data: UsageData,
   store: UsageStore,
   autoSwitcher: AutoSwitcher,
+  log: vscode.OutputChannel,
 ): Promise<void> {
   let switchActions: AutoSwitchAction[] = [];
   try {
@@ -289,19 +322,14 @@ async function evaluateAndNotify(
       showAutoSwitchNotification(action, autoSwitcher);
     }
   } catch (err) {
-    console.error("[Claude Usage Monitor] Auto-switch evaluation failed:", err);
+    const msg = err instanceof Error ? err.message : String(err);
+    log.appendLine(`[Extension] Auto-switch evaluation failed: ${msg}`);
+    vscode.window.showWarningMessage(
+      `Auto-switch evaluation failed: ${msg}. Check Output > "Claude Usage Monitor" for details.`,
+    );
     return;
   }
 
-  // Bug 3 fix: if a model switch or restore occurred, persist the updated model
-  // so the dashboard shows the actual current model instead of the stale fetch-time value
-  if (switchActions.some(a => a.kind === "model-switched" || a.kind === "model-restored")) {
-    const freshData = store.get();
-    if (freshData) {
-      freshData.currentModel = store.getCurrentModel();
-      await store.save(freshData);
-    }
-  }
 }
 
 const URGENCY_ORDER: Record<UrgencyLevel, number> = {
@@ -317,12 +345,18 @@ function urgencyEscalated(previous: UrgencyLevel, current: UrgencyLevel): boolea
 
 function showAutoSwitchNotification(action: AutoSwitchAction, autoSwitcher: AutoSwitcher): void {
   const pct = action.triggerPercent;
+  const termCount = action.terminalCount ?? 0;
 
   switch (action.kind) {
-    case "model-switched":
+    case "model-switched": {
+      // settings.json is always updated; terminal count indicates live sessions reached
+      const applied = termCount > 0
+        ? `Applied to ${termCount} active session${termCount > 1 ? "s" : ""}. `
+        : "";
+      const manual = `New conversations will use ${action.to} automatically. For your current conversation, run /model ${action.to} or use the "/" button > Switch model.`;
       vscode.window
         .showInformationMessage(
-          `Auto-switch: Model changed from ${action.from} to ${action.to} (usage at ${pct}%).`,
+          `Auto-switch: Model changed from ${action.from} to ${action.to} (usage at ${pct}%). ${applied}${manual}`,
           "Undo",
         )
         .then((choice) => {
@@ -331,12 +365,18 @@ function showAutoSwitchNotification(action: AutoSwitchAction, autoSwitcher: Auto
           }
         });
       break;
+    }
 
-    case "model-restored":
+    case "model-restored": {
+      const applied = termCount > 0
+        ? `Applied to ${termCount} active session${termCount > 1 ? "s" : ""}. `
+        : "";
+      const manual = `New conversations will use ${action.to} automatically. For your current conversation, run /model ${action.to} or use the "/" button > Switch model.`;
       vscode.window.showInformationMessage(
-        `Auto-switch: Usage dropped to ${pct}%. Model restored to ${action.to}.`,
+        `Auto-switch: Usage dropped to ${pct}%. Model restored to ${action.to}. ${applied}${manual}`,
       );
       break;
+    }
 
     case "usage-advisory":
       if (action.message) {

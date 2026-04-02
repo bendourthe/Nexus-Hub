@@ -1,4 +1,7 @@
 import * as vscode from "vscode";
+import * as fs from "fs";
+import * as path from "path";
+import * as os from "os";
 import {
   UsageData,
   UsageMetric,
@@ -7,6 +10,8 @@ import {
   AutoSwitchConfig,
   DEFAULT_AUTO_SWITCH_STATE,
 } from "./types";
+
+const CLAUDE_SETTINGS_PATH = path.join(os.homedir(), ".claude", "settings.json");
 
 const STORAGE_KEY = "claudeUsageData";
 const URGENCY_KEY = "claudeLastUrgency";
@@ -43,16 +48,23 @@ export class UsageStore {
   }
 
   getCurrentModel(): string {
-    // Primary: read Claude Code's own VS Code setting — updated whenever the user switches
-    // models in Claude Code's model picker (claudeCode.selectedModel).
-    // Values: "sonnet[1m]", "sonnet", "opus[1m]", "opus", "haiku", "default"
-    const selected = vscode.workspace
-      .getConfiguration("claudeCode")
-      .get<string>("selectedModel");
-    if (selected && selected.length > 0) {
-      return selected;
+    // If auto-switch changed the model, use the switched model as ground truth.
+    // This prevents re-triggering on every evaluation cycle.
+    const state = this.getAutoSwitchState();
+    if (state.modelAutoSwitched && state.switchedToModel) {
+      return state.switchedToModel;
     }
-    // Fallback if claudeCode.selectedModel is not set — Claude Code defaults to Opus 1M
+    // Read from Claude Code's own settings file (same source its UI reads)
+    try {
+      const raw = fs.readFileSync(CLAUDE_SETTINGS_PATH, "utf-8");
+      const settings = JSON.parse(raw);
+      if (typeof settings.model === "string" && settings.model.length > 0) {
+        return settings.model;
+      }
+    } catch {
+      // File missing or invalid; fall through to default
+    }
+    // Claude Code defaults to Opus 1M when no model key is set
     return "default";
   }
 
