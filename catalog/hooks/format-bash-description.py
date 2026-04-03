@@ -385,17 +385,20 @@ def main() -> None:
         json.dump(output, sys.stdout)
         sys.exit(0)
 
-    # ── Non-allowed commands: always add a description box so the
-    #    user can see context in the approval dialog. ──
+    # ── Non-allowed commands: require a real description.
+    #    If none is provided, exit silently so that require-description.sh
+    #    sees an empty description field and blocks the call, forcing
+    #    Claude to retry with a description.  Never add a placeholder. ──
     stripped = (description or "").strip()
     if stripped.startswith("#"):
         # Description already looks like a box; don't double-format
         sys.exit(0)
 
-    # Use a placeholder when the model omits a description
-    display_text = stripped if stripped else "(no description provided)"
+    if not stripped:
+        # No description — let require-description.sh block it
+        sys.exit(0)
 
-    box = format_description_box(display_text)
+    box = format_description_box(stripped)
     updated_command = box + "\n\n" + cleaned_command
 
     output = {

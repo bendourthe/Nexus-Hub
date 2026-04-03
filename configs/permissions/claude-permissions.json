@@ -76,6 +76,13 @@
       "Bash(git rev-parse *)",
       "Bash(git ls-files)",
       "Bash(git ls-files *)",
+      "Bash(git describe)",
+      "Bash(git describe *)",
+      "Bash(git blame *)",
+      "Bash(git shortlog)",
+      "Bash(git shortlog *)",
+      "Bash(git stash list)",
+      "Bash(git worktree list)",
 
       "WebFetch(domain:github.com)",
       "WebFetch(domain:raw.githubusercontent.com)",
