@@ -133,46 +133,18 @@ export const URGENCY_THRESHOLDS = {
 } as const;
 
 /* ------------------------------------------------------------------ */
-/*  Auto-Switch types and constants                                   */
+/*  Suggestion state                                                   */
 /* ------------------------------------------------------------------ */
 
-/** Persisted state tracking what the auto-switcher has changed. */
-export interface AutoSwitchState {
-  /** Model the user was on before auto-switch kicked in. */
-  preAutoModel: string | null;
-  /** Whether the current model was set by auto-switch (not by the user). */
-  modelAutoSwitched: boolean;
-  /** Timestamp of last auto-switch action. */
-  lastSwitchAt: number;
-  /** Usage thresholds (50, 75, 95) for which a notification has already been shown. */
+/**
+ * Persisted state tracking which threshold notifications have already been
+ * shown to the user in the current usage cycle.
+ */
+export interface SuggestionState {
+  /** Thresholds (50, 75, 90) for which a VS Code notification has been shown. */
   notifiedThresholds: number[];
 }
 
-/** Runtime configuration read from VS Code settings. */
-export interface AutoSwitchConfig {
-  enabled: boolean;
-  model: boolean;
-  modelSonnetThreshold: number;
-  modelHaikuThreshold: number;
-}
-
-export type AutoSwitchActionKind =
-  | "model-switched"
-  | "model-restored"
-  | "usage-advisory";
-
-export interface AutoSwitchAction {
-  kind: AutoSwitchActionKind;
-  from: string;
-  to: string;
-  triggerPercent: number;
-  /** Human-readable notification/dashboard message for usage-advisory actions. */
-  message?: string;
-}
-
-export const DEFAULT_AUTO_SWITCH_STATE: AutoSwitchState = {
-  preAutoModel: null,
-  modelAutoSwitched: false,
-  lastSwitchAt: 0,
+export const DEFAULT_SUGGESTION_STATE: SuggestionState = {
   notifiedThresholds: [],
 };

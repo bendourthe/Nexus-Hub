@@ -1474,6 +1474,12 @@ function Install-VSCodeExtensions {
     Write-Item -Message "Building Claude Usage Monitor extension..." -Color "White"
     Push-Location $extensionDir
 
+    # Clean compiled output so deleted source files don't linger as stale JS
+    $outDir = Join-Path $extensionDir "out"
+    if (Test-Path $outDir) {
+        Remove-Item -Path $outDir -Recurse -Force
+    }
+
     Write-Item -Message "  Installing dependencies..." -Color "Gray"
     & npm install --silent 2>$null | Out-Null
     Restore-Title
@@ -1519,7 +1525,11 @@ function Install-VSCodeExtensions {
     # Install into VS Code
     $codeCmd = Get-Command "code" -ErrorAction SilentlyContinue
     if ($codeCmd) {
-        & code --install-extension $vsixFile.FullName 2>$null | Out-Null
+        # Uninstall any existing version first so VS Code does not skip the reinstall
+        & code --uninstall-extension "devai-hub.claude-usage-monitor" 2>$null | Out-Null
+        Restore-Title
+        # --force ensures reinstall even when the version number has not changed
+        & code --install-extension $vsixFile.FullName --force 2>$null | Out-Null
         Restore-Title
         if ($LASTEXITCODE -eq 0) {
             Write-Item -Message "✓ Claude Usage Monitor extension installed in VS Code!" -Color "DarkGreen"

@@ -66,30 +66,6 @@
           "type": "boolean",
           "default": true,
           "description": "Show Claude usage in the status bar"
-        },
-        "claudeUsage.autoSwitch.enabled": {
-          "type": "boolean",
-          "default": true,
-          "description": "Automatically switch model when usage exceeds thresholds and show effort advisory notifications"
-        },
-        "claudeUsage.autoSwitch.model": {
-          "type": "boolean",
-          "default": true,
-          "description": "Allow auto-switch to change the Claude model (requires autoSwitch.enabled)"
-        },
-        "claudeUsage.autoSwitch.modelSonnetThreshold": {
-          "type": "number",
-          "default": 75,
-          "minimum": 10,
-          "maximum": 100,
-          "description": "Usage % at which model switches from Opus to Sonnet"
-        },
-        "claudeUsage.autoSwitch.modelHaikuThreshold": {
-          "type": "number",
-          "default": 95,
-          "minimum": 10,
-          "maximum": 100,
-          "description": "Usage % at which model switches to Haiku"
         }
       }
     }

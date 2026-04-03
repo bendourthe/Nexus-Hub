@@ -3,14 +3,13 @@ import {
   UsageData,
   UsageMetric,
   UrgencyLevel,
-  AutoSwitchState,
-  AutoSwitchConfig,
-  DEFAULT_AUTO_SWITCH_STATE,
+  SuggestionState,
+  DEFAULT_SUGGESTION_STATE,
 } from "./types";
 
 const STORAGE_KEY = "claudeUsageData";
 const URGENCY_KEY = "claudeLastUrgency";
-const AUTO_SWITCH_KEY = "claudeAutoSwitchState";
+const SUGGESTION_KEY = "claudeSuggestionState";
 
 export class UsageStore {
   constructor(private readonly globalState: vscode.Memento) {}
@@ -39,7 +38,7 @@ export class UsageStore {
   async clear(): Promise<void> {
     await this.globalState.update(STORAGE_KEY, undefined);
     await this.globalState.update(URGENCY_KEY, undefined);
-    await this.globalState.update(AUTO_SWITCH_KEY, undefined);
+    await this.globalState.update(SUGGESTION_KEY, undefined);
   }
 
   getCurrentModel(): string {
@@ -101,25 +100,15 @@ export class UsageStore {
   }
 
   /* ---------------------------------------------------------------- */
-  /*  Auto-Switch state and config                                    */
+  /*  Suggestion notification state                                   */
   /* ---------------------------------------------------------------- */
 
-  getAutoSwitchState(): AutoSwitchState {
-    return this.globalState.get<AutoSwitchState>(AUTO_SWITCH_KEY) ?? { ...DEFAULT_AUTO_SWITCH_STATE };
+  getSuggestionState(): SuggestionState {
+    return this.globalState.get<SuggestionState>(SUGGESTION_KEY) ?? { ...DEFAULT_SUGGESTION_STATE };
   }
 
-  async saveAutoSwitchState(state: AutoSwitchState): Promise<void> {
-    await this.globalState.update(AUTO_SWITCH_KEY, state);
-  }
-
-  getAutoSwitchConfig(): AutoSwitchConfig {
-    const cfg = vscode.workspace.getConfiguration("claudeUsage.autoSwitch");
-    return {
-      enabled: cfg.get<boolean>("enabled", true),
-      model: cfg.get<boolean>("model", true),
-      modelSonnetThreshold: cfg.get<number>("modelSonnetThreshold", 75),
-      modelHaikuThreshold: cfg.get<number>("modelHaikuThreshold", 95),
-    };
+  async saveSuggestionState(state: SuggestionState): Promise<void> {
+    await this.globalState.update(SUGGESTION_KEY, state);
   }
 
 }

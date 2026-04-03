@@ -3,9 +3,8 @@ import { UsageStore } from "./usageStore";
 import { StatusBarManager } from "./statusBarManager";
 import { UsageFetcher, FetchError } from "./usageFetcher";
 import { DashboardPanel } from "./dashboardPanel";
-import { AutoSwitcher } from "./autoSwitcher";
 import { getRecommendation, getOverallUrgency } from "./recommendations";
-import { UrgencyLevel, AutoSwitchAction, UsageData, formatModelName } from "./types";
+import { UrgencyLevel, UsageData, formatModelName } from "./types";
 
 const RECOMMEND_COMMAND = "claude-usage.recommend";
 const RESET_COMMAND = "claude-usage.reset";
@@ -17,10 +16,14 @@ let lastFetchError: FetchError | undefined;
 let failureNotificationShown = false;
 let fetchInFlight = false;
 
+// In-memory threshold tracker — intentionally not persisted so it resets on every
+// VS Code startup. This ensures the user sees a notification on startup when usage
+// is already above a threshold, while still avoiding duplicate popups within a session.
+const notifiedThresholds = new Set<number>();
+
 export function activate(context: vscode.ExtensionContext): void {
   const store = new UsageStore(context.globalState);
   const fetcher = new UsageFetcher();
-  const autoSwitcher = new AutoSwitcher(store);
   const statusBar = new StatusBarManager(store, DASHBOARD_COMMAND);
 
   const config = vscode.workspace.getConfiguration("claudeUsage");
@@ -29,14 +32,14 @@ export function activate(context: vscode.ExtensionContext): void {
   }
 
   // Wire up auto-refresh: when the timer fires, trigger a fetch
-  statusBar.setAutoRefreshCallback(() => autoFetchAndUpdate(fetcher, store, statusBar, autoSwitcher));
+  statusBar.setAutoRefreshCallback(() => autoFetchAndUpdate(fetcher, store, statusBar));
 
   // Wire up reset-expiry detection: when a cached reset timestamp passes, refetch
-  statusBar.setResetExpiredCallback(() => autoFetchAndUpdate(fetcher, store, statusBar, autoSwitcher));
+  statusBar.setResetExpiredCallback(() => autoFetchAndUpdate(fetcher, store, statusBar));
 
   // Auto-fetch on activation (silent)
   if (config.get<boolean>("autoFetch", true)) {
-    autoFetchAndUpdate(fetcher, store, statusBar, autoSwitcher);
+    autoFetchAndUpdate(fetcher, store, statusBar);
   }
 
   // Command: Show dashboard panel
@@ -47,11 +50,11 @@ export function activate(context: vscode.ExtensionContext): void {
     DashboardPanel.show(data, timeSince, lastFetchError, {
       onRefresh: async () => {
         statusBar.showLoading();
-        await autoFetchAndUpdate(fetcher, store, statusBar, autoSwitcher);
+        await autoFetchAndUpdate(fetcher, store, statusBar);
       },
       onOpenUsagePage: () =>
         vscode.env.openExternal(vscode.Uri.parse("https://claude.ai/settings/usage")),
-    }, context.extensionUri, store.getAutoSwitchState());
+    }, context.extensionUri);
   });
 
   // Command: Refresh
@@ -64,9 +67,9 @@ export function activate(context: vscode.ExtensionContext): void {
       failureNotificationShown = false;
       statusBar.resetBackoff();
       await store.save(result.data);
-      await evaluateAndNotify(result.data, store, autoSwitcher);
+      await evaluateAndNotify(result.data);
       statusBar.refresh();
-      DashboardPanel.updateIfOpen(store.getWithFreshCountdowns(), store.getTimeSinceUpdate(), lastFetchError, store.getAutoSwitchState());
+      DashboardPanel.updateIfOpen(store.getWithFreshCountdowns(), store.getTimeSinceUpdate(), lastFetchError);
       vscode.window.showInformationMessage("Claude usage data refreshed.");
     } else {
       statusBar.refresh();
@@ -174,18 +177,13 @@ export function activate(context: vscode.ExtensionContext): void {
       statusBar.show();
     }
 
-    // When the model changes in Claude Code, update status bar and dashboard immediately.
-    // If the change was user-initiated (not from auto-switch), clear auto-switch model state.
+    // When the model changes in Claude Code, refresh status bar and dashboard immediately.
     if (event.affectsConfiguration("claudeCode.selectedModel")) {
-      if (!autoSwitcher.isSwitching()) {
-        autoSwitcher.handleUserModelChange(store.getCurrentModel());
-      }
       statusBar.refresh();
       DashboardPanel.updateIfOpen(
         store.getWithFreshCountdowns(),
         store.getTimeSinceUpdate(),
         lastFetchError,
-        store.getAutoSwitchState(),
       );
     }
 
@@ -209,12 +207,11 @@ async function autoFetchAndUpdate(
   fetcher: UsageFetcher,
   store: UsageStore,
   statusBar: StatusBarManager,
-  autoSwitcher: AutoSwitcher,
 ): Promise<void> {
   if (fetchInFlight) {
     // A fetch is already running; clear any loading states that the caller may have set
     statusBar.refresh();
-    DashboardPanel.updateIfOpen(store.getWithFreshCountdowns(), store.getTimeSinceUpdate(), lastFetchError, store.getAutoSwitchState());
+    DashboardPanel.updateIfOpen(store.getWithFreshCountdowns(), store.getTimeSinceUpdate(), lastFetchError);
     return;
   }
   fetchInFlight = true;
@@ -232,11 +229,12 @@ async function autoFetchAndUpdate(
       const newUrgency = getOverallUrgency(result.data);
       await store.saveLastUrgency(newUrgency);
 
-      // Evaluate auto-switch thresholds and apply model/effort changes
-      await evaluateAndNotify(result.data, store, autoSwitcher);
+      // Evaluate suggestion thresholds and show one-time notifications.
+      // If a suggestion notification fired, skip the urgency-escalation notification
+      // — both describe the same event and would produce a duplicate popup.
+      const suggestionFired = await evaluateAndNotify(result.data);
 
-      // Only show recommendation notification when urgency escalates
-      if (previousUrgency && urgencyEscalated(previousUrgency, newUrgency)) {
+      if (!suggestionFired && previousUrgency && urgencyEscalated(previousUrgency, newUrgency)) {
         const recommendation = getRecommendation(result.data);
         vscode.window
           .showWarningMessage(`Claude Usage: ${recommendation.message}`, "Show Dashboard")
@@ -248,7 +246,7 @@ async function autoFetchAndUpdate(
       }
 
       statusBar.refresh();
-      DashboardPanel.updateIfOpen(store.getWithFreshCountdowns(), store.getTimeSinceUpdate(), lastFetchError, store.getAutoSwitchState());
+      DashboardPanel.updateIfOpen(store.getWithFreshCountdowns(), store.getTimeSinceUpdate(), lastFetchError);
     } else {
       consecutiveFailures++;
       lastFetchError = result.error;
@@ -274,34 +272,72 @@ async function autoFetchAndUpdate(
 }
 
 /**
- * Run auto-switch evaluation and show notifications. If a model switch occurred,
- * re-save the stored data with the updated current model so the dashboard reflects it.
+ * Evaluate usage against suggestion thresholds and show a one-time VS Code
+ * notification the first time each threshold is crossed in a usage cycle.
+ * Only the highest unnotified threshold fires a notification per evaluation.
  */
-async function evaluateAndNotify(
-  data: UsageData,
-  store: UsageStore,
-  autoSwitcher: AutoSwitcher,
-): Promise<void> {
-  let switchActions: AutoSwitchAction[] = [];
-  try {
-    switchActions = await autoSwitcher.evaluate(data);
-    for (const action of switchActions) {
-      showAutoSwitchNotification(action, autoSwitcher);
-    }
-  } catch (err) {
-    console.error("[Claude Usage Monitor] Auto-switch evaluation failed:", err);
-    return;
+/**
+ * Evaluate usage against suggestion thresholds and show a one-time VS Code
+ * notification the first time each threshold is crossed in a session.
+ * Uses an in-memory set so the state resets on every VS Code startup — this
+ * guarantees the user sees a notification on launch when usage is already high.
+ * Only the highest unnotified threshold fires a notification per evaluation.
+ * Returns true if a notification was shown, false otherwise.
+ */
+async function evaluateAndNotify(data: UsageData): Promise<boolean> {
+  const triggerPercent = Math.max(data.session.percent, data.weeklyAllModels.percent);
+
+  // Reset within-session tracking when usage drops below 50% (new cycle)
+  if (triggerPercent < 50) {
+    notifiedThresholds.clear();
+    return false;
   }
 
-  // Bug 3 fix: if a model switch or restore occurred, persist the updated model
-  // so the dashboard shows the actual current model instead of the stale fetch-time value
-  if (switchActions.some(a => a.kind === "model-switched" || a.kind === "model-restored")) {
-    const freshData = store.get();
-    if (freshData) {
-      freshData.currentModel = store.getCurrentModel();
-      await store.save(freshData);
+  const isOpus = /opus|default/i.test(data.currentModel);
+
+  // Reset time from whichever metric is driving the trigger percentage.
+  const resetIn = data.session.percent >= data.weeklyAllModels.percent
+    ? data.session.resetsIn
+    : data.weeklyAllModels.resetsIn;
+  const resetSuffix = ` Resets in ${resetIn}.`;
+
+  // Determine the single applicable threshold bucket and its message.
+  // Only one notification fires — the one that matches the current usage level.
+  let bucket: number;
+  let message: string;
+
+  if (triggerPercent >= 90) {
+    bucket = 90;
+    message = `\uD83D\uDD34 Claude usage at 90% \u2192 Switch to Haiku now to avoid hitting your limit.${resetSuffix}`;
+  } else if (triggerPercent >= 75) {
+    bucket = 75;
+    message = `\u26A0\uFE0F Claude usage at 75% \u2192 Set Effort to Medium or Low and disable Thinking mode.${resetSuffix}`;
+  } else {
+    // 50–74 %: only relevant when on Opus or Default
+    if (!isOpus) {
+      return false;
     }
+    bucket = 50;
+    message = `\u26A0\uFE0F Claude usage at 50% \u2192 Switch to Sonnet to preserve your remaining usage.${resetSuffix}`;
   }
+
+  // Already notified for this bucket in the current session — nothing to do.
+  if (notifiedThresholds.has(bucket)) {
+    return false;
+  }
+
+  // Mark this bucket and every lower one as notified so they never fire
+  // individually if usage continues to climb during the same session.
+  [90, 75, 50].filter(t => triggerPercent >= t).forEach(t => notifiedThresholds.add(t));
+
+  vscode.window
+    .showWarningMessage(message, "Open Dashboard")
+    .then((action) => {
+      if (action === "Open Dashboard") {
+        vscode.commands.executeCommand(DASHBOARD_COMMAND);
+      }
+    });
+  return true;
 }
 
 const URGENCY_ORDER: Record<UrgencyLevel, number> = {
@@ -313,35 +349,4 @@ const URGENCY_ORDER: Record<UrgencyLevel, number> = {
 
 function urgencyEscalated(previous: UrgencyLevel, current: UrgencyLevel): boolean {
   return URGENCY_ORDER[current] > URGENCY_ORDER[previous];
-}
-
-function showAutoSwitchNotification(action: AutoSwitchAction, autoSwitcher: AutoSwitcher): void {
-  const pct = action.triggerPercent;
-
-  switch (action.kind) {
-    case "model-switched":
-      vscode.window
-        .showInformationMessage(
-          `Auto-switch: Model changed from ${action.from} to ${action.to} (usage at ${pct}%).`,
-          "Undo",
-        )
-        .then((choice) => {
-          if (choice === "Undo") {
-            autoSwitcher.undoModelSwitch();
-          }
-        });
-      break;
-
-    case "model-restored":
-      vscode.window.showInformationMessage(
-        `Auto-switch: Usage dropped to ${pct}%. Model restored to ${action.to}.`,
-      );
-      break;
-
-    case "usage-advisory":
-      if (action.message) {
-        vscode.window.showInformationMessage(action.message, "Dismiss");
-      }
-      break;
-  }
 }

@@ -1221,6 +1221,11 @@ install_vscode_extensions() {
 
     pushd "$extension_dir" > /dev/null || return
 
+    # Clean compiled output so deleted source files don't linger as stale JS
+    if [ -d "$extension_dir/out" ]; then
+        rm -rf "$extension_dir/out"
+    fi
+
     write_item "  Installing dependencies..." "$GRAY"
     if ! npm install --silent 2>/dev/null; then
         write_item "npm install failed." "$RED"
@@ -1256,7 +1261,10 @@ install_vscode_extensions() {
 
     # Install into VS Code
     if command -v code >/dev/null 2>&1; then
-        if code --install-extension "$vsix_file" 2>/dev/null; then
+        # Uninstall any existing version first so VS Code does not skip the reinstall
+        code --uninstall-extension "devai-hub.claude-usage-monitor" 2>/dev/null || true
+        # --force ensures reinstall even when the version number has not changed
+        if code --install-extension "$vsix_file" --force 2>/dev/null; then
             write_item "✓ Claude Usage Monitor extension installed in VS Code!" "$GREEN"
             write_item "  Restart VS Code to activate. Look for 'Claude: --%' in the status bar." "$RESET"
         else
