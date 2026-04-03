@@ -1,7 +1,7 @@
 # DevAI-Hub Catalog Coverage Matrix
 
-**Version**: 0.9.0
-**Generated**: 2026-03-26
+**Version**: 0.9.1
+**Generated**: 2026-04-03
 **Skills Total**: 174 across 20 categories
 
 This matrix maps DevAI-Hub's skill catalog against user roles, AI platforms, and use case categories to help you find the right skills for your context. Inspired by [Shannon's COVERAGE.md](https://github.com/KeygraphHQ/shannon) pattern.

@@ -6,13 +6,12 @@
 
 ---
 
-## What's New in v0.9.0
+## What's New in v0.9.1
 
-- **12 new specialist skills** — Astro, Svelte, Vue experts; Android/iOS development; DOCX/XLSX/PPTX/PDF generation; GIF/sticker maker; GLSL shader development; session-history workflow (174 total skills).
-- **Permission configuration system** — Pre-built permission files for Claude, Codex, Copilot, Gemini with trusted domain allowlists and a one-click PowerShell installer.
-- **Auto-switcher extension** — Automatic model/plan switching in the VS Code usage monitor based on usage thresholds.
-- **IDE support expansion** — New instruction templates for Cursor and OpenCode IDEs, plus Chinese documentation (`README_zh.md`).
-- **Developer tooling** — Bash description formatting hook, skill validation script, marketplace metadata, and React expert reference docs.
+- **Hooks hardening** — Strict 2-case approval enforcement and expanded bash tool allowlist in the Bash description hook; description box now conditional on permission allow list.
+- **Shell parsing fix** — Fixed shell-construct parsing bug in `require-description.sh`.
+- **VS Code extension stability** — Auto-switch rewritten to use `settings.json`, eliminating repeated notifications; 50%/75% usage alerts suppressed when usage already exceeds 90%.
+- **Usage monitor fixes** — Corrected store and type definition bugs in the VS Code extension.
 
 ---
 

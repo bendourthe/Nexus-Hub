@@ -8,13 +8,12 @@
 
 ---
 
-## v0.9.0 更新内容
+## v0.9.1 更新内容
 
-- **12 个新专家技能** — Astro、Svelte、Vue 框架专家；Android/iOS 开发；DOCX/XLSX/PPTX/PDF 生成；GIF/贴纸制作；GLSL 着色器开发；会话历史工作流（共 174 个技能）。
-- **权限配置系统** — 为 Claude、Codex、Copilot、Gemini 提供预置权限文件，包含可信域名允许列表和一键 PowerShell 安装器。
-- **自动切换扩展** — VS Code 使用量监控器中基于使用阈值的自动模型/计划切换。
-- **IDE 支持扩展** — 新增 Cursor 和 OpenCode IDE 的指令模板，以及中文文档（`README_zh.md`）。
-- **开发者工具** — Bash 描述格式化钩子、技能验证脚本、市场元数据和 React 专家参考文档。
+- **钩子加固** — `format-bash-description.py` 强制执行严格的二阶段审批流程，扩展了工具允许列表；描述框现在根据权限允许列表按条件显示。
+- **Shell 解析修复** — 修复了 `require-description.sh` 中的 Shell 结构解析错误。
+- **VS Code 扩展稳定性** — 自动切换功能改为使用 `settings.json`，消除重复通知；当使用量超过 90% 时，50% 和 75% 的使用量通知将被抑制。
+- **使用量监控修复** — 修复了 VS Code 扩展中的存储和类型定义错误。
 
 ---
 

@@ -1,5 +1,20 @@
 # Development Log
 
+## [2026-04-03] - Release 0.9.1: Hooks Hardening and VS Code Extension Stability
+
+*   **Goal**: Ship a patch release that fixes bugs introduced or surfaced after the 0.9.0 release — primarily tightening the Bash description hook approval flow, fixing a shell-construct parsing regression, and stabilizing the VS Code usage monitor extension.
+*   **What Changed**:
+    *   **Bash Description Hook** (`catalog/hooks/format-bash-description.py`): Enforced strict 2-case approval logic so only explicit approvals pass through. Expanded the bash tool allowlist. Made the description box rendering conditional on the permission allow list to avoid spurious UI output when the hook is not applicable.
+    *   **Require-Description Hook** (`catalog/hooks/require-description.sh`): Fixed a shell-construct parsing bug that caused false negatives on certain bash command patterns, allowing undescribed commands to slip through.
+    *   **VS Code Extension — Auto-Switch** (`extensions/claude-usage-monitor/src/extension.ts`): Rewrote the auto-switch module to read and write `settings.json` directly instead of using a deprecated VS Code API, eliminating the repeated notification problem on every status-bar update.
+    *   **VS Code Extension — Usage Notifications**: Changed the notification logic so that when usage crosses 90%, only the 90% alert fires — the 50% and 75% notifications are suppressed to avoid alert fatigue.
+    *   **VS Code Extension — Store and Types** (`src/usageStore.ts`, `src/types.ts`, `src/dashboardPanel.ts`): Fixed type definition mismatches and store initialization bugs that caused the dashboard to display stale or incorrect session data.
+    *   **Permission Configuration** (`configs/permissions/claude-permissions.json`): Expanded the git command allowlist to cover additional legitimate patterns identified during hook hardening.
+    *   **Version Bump**: Updated `data/marketplace.json`, `data/templates.json`, `README.md`, and `CHANGELOG.md` from 0.9.0 to 0.9.1.
+*   **Current Status**: Verified. All version references consistent at 0.9.1.
+
+---
+
 ## [2026-03-26] - Release 0.9.0: Specialist Skills Expansion, Permission System, and Multi-IDE Support
 
 *   **Goal**: Expand the skills catalog with 12 new specialist skills, introduce a permission configuration system for multi-AI-platform security management, add auto-switching capabilities to the VS Code extension, and broaden IDE support to Cursor and OpenCode.

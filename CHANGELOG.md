@@ -11,6 +11,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.9.1] - 2026-04-03
+
+### Fixed
+- **Bash description hook**: Enforce strict 2-case approval flow and expand bash tool allowlist in `format-bash-description.py`
+- **Bash description hook**: Make description box conditional on permission allow list in `format-bash-description.py`
+- **Require-description hook**: Fix shell-construct parsing bug in `require-description.sh`
+- **VS Code extension**: Rewrite auto-switch to use `settings.json` instead of deprecated API, fixing repeated notifications
+- **VS Code extension**: Suppress 50% and 75% usage notifications when usage exceeds 90% threshold
+- **VS Code extension**: Fix usage monitor store and type definition bugs (`types.ts`, `usageStore.ts`, `dashboardPanel.ts`)
+
+---
+
 ## [0.9.0] - 2026-03-26
 
 ### Added
@@ -2746,7 +2758,8 @@ repository_root/
 
 ---
 
-[Unreleased]: https://github.com/bdourthe/devai-hub/compare/v0.9.0...HEAD
+[Unreleased]: https://github.com/bdourthe/devai-hub/compare/v0.9.1...HEAD
+[0.9.1]: https://github.com/bdourthe/devai-hub/compare/v0.9.0...v0.9.1
 [0.9.0]: https://github.com/bdourthe/devai-hub/compare/v0.8.9...v0.9.0
 [0.8.9]: https://github.com/bdourthe/devai-hub/compare/v0.8.8...v0.8.9
 [0.8.8]: https://github.com/bdourthe/devai-hub/compare/v0.8.7...v0.8.8

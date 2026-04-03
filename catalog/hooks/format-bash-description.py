@@ -187,22 +187,48 @@ def _tokenize_shell(cmd: str) -> list[tuple[str, str]]:
             i += 1
             continue
 
-        # ── Word (may contain quotes, escapes, $(), etc.) ──
+        # ── Word (may contain quotes, escapes, $(), backticks, etc.) ──
         start = i
+        subshell_depth = 0  # nesting depth inside $(…) or $((…))
+        in_backtick = False  # inside `…` command substitution
         while i < length:
             ch = cmd[i]
-            # Break on whitespace or operators
-            if ch in (" ", "\t", "\n", ";", "|"):
-                break
-            if i + 1 < length and cmd[i : i + 2] in ("&&", "||", ";;"):
-                break
-            # Consume quoted strings
+            # Only treat operators as word-boundaries when not inside a
+            # command substitution — $(…) and `…` create nested shells
+            # whose internal &&, ||, ; must not be treated as splits.
+            if subshell_depth == 0 and not in_backtick:
+                if ch in (" ", "\t", "\n", ";", "|"):
+                    break
+                if i + 1 < length and cmd[i : i + 2] in ("&&", "||", ";;"):
+                    break
+            # $( → open a command-substitution subshell
+            if ch == "$" and i + 1 < length and cmd[i + 1] == "(":
+                subshell_depth += 1
+                i += 2
+                continue
+            # ( inside an existing $() deepens the nesting
+            if ch == "(" and subshell_depth > 0:
+                subshell_depth += 1
+                i += 1
+                continue
+            # ) closes one level of $(…) nesting
+            if ch == ")" and subshell_depth > 0:
+                subshell_depth -= 1
+                i += 1
+                continue
+            # Backtick command substitution
+            if ch == "`":
+                in_backtick = not in_backtick
+                i += 1
+                continue
+            # Consume single-quoted strings
             if ch == "'":
                 i += 1
                 while i < length and cmd[i] != "'":
                     i += 1
                 if i < length:
                     i += 1
+            # Consume double-quoted strings
             elif ch == '"':
                 i += 1
                 while i < length:
