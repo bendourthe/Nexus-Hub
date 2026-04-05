@@ -2,7 +2,7 @@
 
 Development process skills including TDD, commit workflows, debugging, and version management.
 
-## Skills (13)
+## Skills (14)
 
 | Skill | Description |
 |-------|-------------|
@@ -15,6 +15,7 @@ Development process skills including TDD, commit workflows, debugging, and versi
 | `documentation-consistency` | Verify documentation is up-to-date and consistent across all files. Check for broken links, outdated references, depr... |
 | `filesystem-context-patterns` | Use the filesystem as a first-class context management tool for AI agent sessions. Covers scratch pads, plan persiste... |
 | `git-bisect-assistant` | Guide efficient bug-finding with git bisect using binary search across commit history, automated test scripts, skip s... |
+| `implementation-plan` | Guide the user through a structured discovery interview to generate a comprehensive v0.1.0 implementation plan with p... |
 | `plan-before-code` | Guide exploration and planning phases before implementation (Anthropic best practice). Includes LLM task suitability ... |
 | `research-plan-implement` | Execute a structured Research-Plan-Implement (RPI) workflow with GO/NO-GO gates and artifact generation at each phase... |
 | `test-driven-development` | Implement Test-Driven Development (TDD) workflow - write tests first, then code. Use when implementing new features, ... |
@@ -23,4 +24,4 @@ Development process skills including TDD, commit workflows, debugging, and versi
 ---
 
 **Category**: Workflow
-**Skills**: 13
+**Skills**: 14

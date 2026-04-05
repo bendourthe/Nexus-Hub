@@ -258,6 +258,19 @@ Perform the following refinement loop up to **3 times** (or as specified by the 
    - If you are confident all artifacts are excellent
    - OR if you have reached the maximum iteration count
 
+## Phase 9: Generate Implementation Plan (Optional)
+
+After all prior phases are complete, ask the user:
+
+> "Would you like to generate a v0.1.0 implementation plan for this project?
+> This will guide you through a short discovery interview and produce
+> `docs/v0.1.0/implementation-plan.md` — a phased build roadmap where every
+> sub-task includes a ready-to-use prompt for a future Claude Code session.
+> [Y]es / [N]o"
+
+- If the user answers **Yes** (or Y): invoke `/generate-implementation-plan`
+- If the user answers **No** (or N): skip this phase and conclude setup
+
 ## Guidelines
 
 - Keep all descriptions factual and clear
