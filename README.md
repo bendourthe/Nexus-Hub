@@ -6,12 +6,11 @@
 
 ---
 
-## What's New in v0.9.1
+## What's New in v0.9.2
 
-- **Hooks hardening** — Strict 2-case approval enforcement and expanded bash tool allowlist in the Bash description hook; description box now conditional on permission allow list.
-- **Shell parsing fix** — Fixed shell-construct parsing bug in `require-description.sh`.
-- **VS Code extension stability** — Auto-switch rewritten to use `settings.json`, eliminating repeated notifications; 50%/75% usage alerts suppressed when usage already exceeds 90%.
-- **Usage monitor fixes** — Corrected store and type definition bugs in the VS Code extension.
+- **Implementation plan workflow** — New `generate-implementation-plan` and `implement-phase` commands plus a dedicated `implementation-plan` skill for structured, phased AI-assisted development.
+- **Hook test suite** — 763-line test suite for the Bash description formatting hook, covering edge cases and approval flows.
+- **Permission expansion** — Extended `claude-permissions.json` bash allowlist with additional safe tool patterns.
 
 ---
 

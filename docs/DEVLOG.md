@@ -1,5 +1,20 @@
 # Development Log
 
+## [2026-04-06] - Release 0.9.2: Implementation Plan Workflow and Hook Test Suite
+
+*   **Goal**: Ship a patch release that adds structured implementation-plan tooling (two commands and a workflow skill) and establishes a test suite for the Bash description formatting hook.
+*   **What Changed**:
+    *   **`generate-implementation-plan` Command** (`catalog/commands/generate-implementation-plan.md`): New 199-line command that walks through a multi-phase planning workflow — research, design, and plan output — so AI agents can produce structured, phased implementation plans before writing any code.
+    *   **`implement-phase` Command** (`catalog/commands/implement-phase.md`): New 317-line command for executing a single named phase from a prior implementation plan, scoping context and tooling to just that phase to reduce cognitive load and token consumption.
+    *   **`implementation-plan` Skill** (`catalog/skills/workflow/implementation-plan/`): New 292-line workflow skill with an OpenAI agent YAML (`agents/openai.yaml`) providing the same planning capability as a reusable skill rather than a one-off command. Skill index and workflow category README updated accordingly (175 total skills).
+    *   **Hook Test Suite** (`catalog/hooks/tests/test_format_bash_description.py`): 763-line comprehensive test suite for the `format-bash-description.py` PreToolUse hook. Covers approval flow branches, description box rendering, allowlist matching edge cases, and multi-line command patterns. Added `catalog/hooks/tests/__init__.py` to make the directory a proper Python package.
+    *   **Permission Configuration** (`configs/permissions/claude-permissions.json`): Expanded the bash tool allowlist with additional safe patterns identified during hook hardening and test authoring.
+    *   **Setup Project Command** (`catalog/commands/setup-project.md`): Minor clarifications to 13 lines of the setup workflow.
+    *   **Version Bump**: Updated `CHANGELOG.md`, `README.md`, `README_zh.md`, and `docs/DEVLOG.md` from 0.9.1 to 0.9.2.
+*   **Current Status**: Verified. All version references consistent at 0.9.2.
+
+---
+
 ## [2026-04-03] - Release 0.9.1: Hooks Hardening and VS Code Extension Stability
 
 *   **Goal**: Ship a patch release that fixes bugs introduced or surfaced after the 0.9.0 release — primarily tightening the Bash description hook approval flow, fixing a shell-construct parsing regression, and stabilizing the VS Code usage monitor extension.

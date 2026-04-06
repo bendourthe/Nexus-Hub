@@ -8,12 +8,11 @@
 
 ---
 
-## v0.9.1 更新内容
+## v0.9.2 更新内容
 
-- **钩子加固** — `format-bash-description.py` 强制执行严格的二阶段审批流程，扩展了工具允许列表；描述框现在根据权限允许列表按条件显示。
-- **Shell 解析修复** — 修复了 `require-description.sh` 中的 Shell 结构解析错误。
-- **VS Code 扩展稳定性** — 自动切换功能改为使用 `settings.json`，消除重复通知；当使用量超过 90% 时，50% 和 75% 的使用量通知将被抑制。
-- **使用量监控修复** — 修复了 VS Code 扩展中的存储和类型定义错误。
+- **实现计划工作流** — 新增 `generate-implementation-plan` 和 `implement-phase` 命令，以及专用的 `implementation-plan` 技能，用于结构化、分阶段的 AI 辅助开发。
+- **钩子测试套件** — 763 行的 Bash 描述格式化钩子测试套件，覆盖边界情况和审批流程。
+- **权限扩展** — 扩展了 `claude-permissions.json` 中的 Bash 工具允许列表，添加更多安全工具模式。
 
 ---
 
