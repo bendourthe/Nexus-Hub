@@ -323,6 +323,25 @@ The planning step takes 5-10 minutes but saves 30-60 minutes of iteration and de
 - [ ] All tests passing
 - [ ] Documentation updated
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "Planning takes too long for a small feature" | The cost of planning a small feature is 15-30 minutes; the cost of rebuilding it after discovering a missed interface constraint or data model conflict is measured in days, and the rebuild introduces regression risk. |
+| "The AI will figure out the approach as it codes" | AI code generation without a plan produces locally coherent but globally inconsistent implementations — functions that work in isolation but conflict with existing module boundaries, naming conventions, or data flow assumptions. |
+| "We'll discover the edge cases during testing" | Edge cases discovered during testing require code changes, re-review, and re-testing; edge cases discovered during planning require only an updated plan. The earlier the discovery, the cheaper the fix. |
+| "The task is straightforward, no exploration needed" | "Straightforward" tasks that touch existing code regularly reveal unexpected constraints: deprecated APIs, circular dependencies, or config assumptions that are only visible through exploration of the actual codebase. |
+| "The plan will just become outdated" | A plan that guided implementation is still valuable after the fact as documentation of intent; even a partially outdated plan reduces onboarding time for the next developer who touches the same code. |
+
+## Verification
+
+- [ ] Exploration phase completed: relevant files, functions, and dependencies identified before any code is written
+- [ ] Implementation plan documented with specific file paths, function names, and step sequence
+- [ ] Plan reviewed and approved before implementation begins (no code written during planning phase)
+- [ ] Edge cases and constraints identified in the plan, not discovered during coding
+- [ ] Final implementation matches the approved plan (or deviations are documented with rationale)
+- [ ] All tests pass after implementation: test suite exits with code 0
+
 ## Related Skills
 
 - `test-driven-development` - Plan includes tests-first approach

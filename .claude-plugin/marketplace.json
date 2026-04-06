@@ -1,0 +1,51 @@
+{
+  "name": "devai-hub",
+  "displayName": "DevAI Hub",
+  "tagline": "Production-Grade Brain Upgrades for Your AI Coding Assistant",
+  "description": "Turn generic AI into a Senior Engineer. 182+ curated skills across 22 domains — architecture, security, compliance, testing, infrastructure, AI development, and more. 32 workflow commands. Cross-platform: Claude Code, Cursor, Gemini CLI, GitHub Copilot, OpenAI Codex.",
+  "version": "0.9.2",
+  "author": "Benjamin Dourthe",
+  "license": "MIT",
+  "repository": "https://github.com/bdourthe/devai-hub",
+  "homepage": "https://github.com/bdourthe/devai-hub",
+  "keywords": [
+    "ai-skills",
+    "claude-code",
+    "cursor",
+    "gemini",
+    "copilot",
+    "developer-tools",
+    "code-review",
+    "testing",
+    "security",
+    "architecture",
+    "compliance",
+    "infrastructure",
+    "multi-agent"
+  ],
+  "stats": {
+    "skills": 183,
+    "commands": 32,
+    "hooks": 13,
+    "agents": 10,
+    "categories": 22
+  },
+  "platforms": [
+    "claude-code",
+    "cursor",
+    "gemini-cli",
+    "github-copilot",
+    "openai-codex"
+  ],
+  "install": {
+    "claude-code": {
+      "method": "installer",
+      "command": "bash <(curl -fsSL https://raw.githubusercontent.com/bdourthe/devai-hub/main/install.sh)",
+      "note": "Also supports: claude plugin install devai-hub@bdourthe (requires claude plugin marketplace add)"
+    },
+    "windows": {
+      "method": "installer",
+      "command": "iex (iwr -UseBasicParsing https://raw.githubusercontent.com/bdourthe/devai-hub/main/install.bat).Content"
+    }
+  }
+}

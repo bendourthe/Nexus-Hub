@@ -2,7 +2,7 @@
   "plugin": {
     "name": "devai-hub",
     "version": "0.9.2",
-    "description": "Enterprise-grade skill library for AI coding assistants with 174+ curated skills, 29 commands, and cross-platform support",
+    "description": "Enterprise-grade skill library for AI coding assistants with 182+ curated skills, 32 commands, and cross-platform support",
     "author": "Benjamin Dourthe",
     "license": "MIT",
     "repository": "https://github.com/bdourthe/devai-hub",
@@ -66,7 +66,7 @@
       "id": "ai-development",
       "name": "AI Development",
       "description": "Build and deploy AI agents, manage billing, route across providers",
-      "skill_count": 6
+      "skill_count": 7
     },
     {
       "id": "architecture",
@@ -90,7 +90,7 @@
       "id": "code-cleanup",
       "name": "Code Cleanup",
       "description": "Language-specific cleanup for C, C++, C#, Go, Java, JavaScript, Python",
-      "skill_count": 8
+      "skill_count": 9
     },
     {
       "id": "code-review",
@@ -108,7 +108,7 @@
       "id": "developer-experience",
       "name": "Developer Experience",
       "description": "Code optimization, refactoring, migration, dependency management",
-      "skill_count": 21
+      "skill_count": 24
     },
     {
       "id": "documentation",
@@ -162,7 +162,7 @@
       "id": "testing",
       "name": "Testing",
       "description": "Domain contract validation, E2E test automation",
-      "skill_count": 2
+      "skill_count": 3
     },
     {
       "id": "tests-generation",
@@ -174,14 +174,18 @@
       "id": "workflow",
       "name": "Workflow",
       "description": "Git workflows, TDD, debugging, session history, version management",
-      "skill_count": 14
+      "skill_count": 16
     }
   ],
   "discovery": {
     "mcp_server": {
       "name": "devai-skill-server",
       "path": "extensions/devai-skill-server/",
-      "tools": ["search_skills", "browse_categories", "get_bundles"]
+      "tools": [
+        "search_skills",
+        "browse_categories",
+        "get_bundles"
+      ]
     },
     "skill_index": "data/SKILL_INDEX.md",
     "catalog": "data/skills.json"

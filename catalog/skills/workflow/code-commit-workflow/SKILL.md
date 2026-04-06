@@ -380,6 +380,25 @@ git commit -m "test: add auth integration tests"
 - [ ] Breaking changes are clearly marked
 - [ ] No `Co-Authored-By` or AI attribution lines in commit message
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "Commit messages don't matter for a solo project" | Solo project history becomes a multi-developer history the moment the project is open-sourced, onboarded a contractor, or diagnosed six months later by the original author; vague messages like "fix stuff" make git bisect useless. |
+| "Atomic commits slow down development" | Non-atomic commits that bundle unrelated changes make every future revert destructive — reverting a bug fix to unblock deployment also reverts an unrelated migration, causing data loss or schema mismatch. |
+| "We'll check for secrets in the PR review" | PR review catches secrets intermittently; pre-commit hooks (`detect-secrets`, `gitleaks`) catch them deterministically before they enter git history, where they persist even after force-push removal and require history rewriting. |
+| "Conventional commit format is rigid and unnecessary" | Automated changelog generation, semantic versioning bumps, and release notes tools (`standard-version`, `semantic-release`) all depend on conventional commit format; without it, every release requires manual changelog curation. |
+| "Breaking changes don't need special marking if reviewers are careful" | API consumers depend on automated tooling that parses `BREAKING CHANGE:` footers to block auto-updates; unmarked breaking changes bypass these safeguards and silently break downstream consumers. |
+
+## Verification
+
+- [ ] Commit message follows conventional commit format: `<type>(<scope>): <description>` with valid type
+- [ ] All tests pass at the commit point: `git stash && npm test` / `pytest -q` exits with code 0
+- [ ] `git diff --staged` shows only changes related to the single logical change described in the commit message
+- [ ] No secrets present: pre-commit hook (`detect-secrets` or `gitleaks`) exits with code 0
+- [ ] Breaking changes are marked with `BREAKING CHANGE:` footer or `!` in the type field
+- [ ] No `Co-Authored-By` or AI attribution lines appear in the commit message
+
 ## Related Skills
 
 - `pre-commit-checklist` - Pre-commit validation

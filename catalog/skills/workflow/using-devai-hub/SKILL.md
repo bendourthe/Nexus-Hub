@@ -1,0 +1,118 @@
+---
+name: using-devai-hub
+description: Orients a new AI session to the DevAI-Hub skill catalog — explains how skills are organized, how to find the right skill, how commands work, and how hooks protect the session. Loaded automatically at session start via the SessionStart hook. Also useful when a new agent session lacks catalog context. Trigger phrases: how do I use this, what skills are available, orient me, explain devai-hub, what can you do here.
+summary_l0: "Orient an AI session to DevAI-Hub's skill catalog, commands, and hooks in under 2 minutes"
+overview_l1: "This meta-skill orients an AI coding session to DevAI-Hub — explaining how 182 skills are organized, how to find the right skill, how 32 commands work, and what the hook system does. It is loaded automatically at session start via the SessionStart hook so every new session begins with catalog awareness. Use it manually when a session lacks context about the catalog, when onboarding a new AI assistant to the project, or when the agent needs a quick reminder of available capabilities. This skill does not teach how to use individual skills — it teaches how to navigate the catalog and trigger the right skill for the task at hand."
+---
+
+# Using DevAI Hub
+
+DevAI-Hub provides 182 curated skills, 32 commands, and 13 hooks for your AI coding assistant. This file explains how to navigate and use the catalog.
+
+## What Is a Skill?
+
+A **skill** is a structured instruction file (SKILL.md) that activates domain-specific expertise in the AI. Skills are not tools or scripts — they are high-quality prompts that guide the AI through a specific engineering task with best practices, step-by-step instructions, and quality gates.
+
+Skills are invoked implicitly (the AI recognizes the task type) or explicitly (you reference the skill by name or use a command).
+
+## How Skills Are Organized
+
+Skills are grouped into 22 domain categories:
+
+| Category | What's there |
+|---|---|
+| **ai-development** | Agent architecture, billing safeguards, context engineering, prompt engineering, RAG |
+| **architecture** | API design, C4 decomposition, DDD, event-driven, microservices |
+| **bug-fixing** | Bug localization, reproduction tests, root cause analysis, semantic bug detection |
+| **business-product** | Business analysis, product management, scrum, technical writing |
+| **code-cleanup** | Language-specific cleanup (C, C++, C#, Go, Java, JS, Python) + code simplification |
+| **code-review** | Security review, performance review, intent-based review, quality analysis |
+| **compliance** | GDPR, SOC2, ISO 27001, ISO 42001, NIST AI RMF, PCI DSS, CCPA |
+| **developer-experience** | Frontend UI, spec-driven development, idea refinement, refactoring, migration |
+| **documentation** | API docs, docstrings, SBOM, strategic comments, technical docs |
+| **framework-specialists** | React, Next.js, FastAPI, Vue, Svelte, Astro deep expertise |
+| **infrastructure** | Cloud, CI/CD, containers, Kubernetes, Terraform, SRE, observability |
+| **language-specialists** | C++, C#, Go, Java, JavaScript, PowerShell, Python, Rust, SQL, TypeScript |
+| **orchestration** | Multi-agent coordination, context management, workflow automation |
+| **project-setup** | Initialize C#, Java, JS, Python projects |
+| **research** | Trend research with Reddit, X, and web |
+| **security** | Auth patterns, CVE analysis, dependency audit, license compliance |
+| **specialized-domains** | Android, iOS, fintech, document generation, graphics |
+| **testing** | E2E automation, browser DevTools testing, domain contract validation |
+| **tests-generation** | Unit, integration, E2E, property-based, mutation, fuzz, BDD tests |
+| **workflow** | Spec-driven development, plan-before-code, TDD, incremental implementation, shipping |
+
+## How to Find the Right Skill
+
+**Option 1 — Use a command:**
+```
+/search-skills <keyword>
+```
+Searches the full skill catalog by keyword and returns the top matches with summaries.
+
+**Option 2 — Browse the index:**
+The full skill list is at `data/SKILL_INDEX.md`. Each row shows: skill name, category, and a one-line summary.
+
+**Option 3 — Describe the task:**
+If you describe what you want to accomplish, the AI will match it to the appropriate skill automatically. The skill descriptions include trigger phrases designed for this purpose.
+
+## How Commands Work
+
+Commands are slash commands (`.claude/commands/*.md`) that you invoke with a `/` prefix. They are distinct from skills — commands are workflows that often invoke one or more skills behind the scenes.
+
+Key commands:
+
+| Command | What it does |
+|---|---|
+| `/search-skills` | Find skills by keyword |
+| `/commands_cheatsheet` | List all available commands |
+| `/analyze-codebase` | Full codebase analysis with Mermaid diagrams |
+| `/review-codebase` | Senior-level code review |
+| `/implement-phase` | Execute one phase of an implementation plan |
+| `/wrap-up-session` | Capture session history and clean up |
+| `/generate-tests` | Generate comprehensive test coverage |
+| `/run-security-audit` | Full security audit with remediation |
+
+Run `/commands_cheatsheet` to see all 32 commands with descriptions.
+
+## How Hooks Protect the Session
+
+DevAI-Hub installs 13 hooks that run automatically around tool calls:
+
+| When | Hook | What it does |
+|---|---|---|
+| Session start | `session-start.sh` | Injects this catalog orientation |
+| Before any Bash command | `format-bash-description.py` | Enforces formatted tool descriptions |
+| Before any Bash command | `require-description.sh` | Blocks commands without descriptions |
+| Before any Bash command | `git-guardrails.sh` | Blocks destructive git commands without confirmation |
+| Before Write/Edit | `secret-scan.sh` | Blocks if secrets detected in output |
+| Before Write | `large-file-guard.sh` | Warns if writing large files |
+| Before Write/Edit | `escalation-trigger.sh` | Escalates risky changes to human |
+| After Write/Edit | `auto-format-on-write.sh` | Auto-formats code on save |
+| After Write/Edit | `lint-on-write.sh` | Auto-lints on save |
+| Session end | `usage-display.sh` | Shows token usage |
+| Session end | `notify-on-complete.sh` | Desktop notification |
+| Session end | `session-summary.sh` | Session summary |
+| Session end | `auto-devlog.sh` | Updates DEVLOG.md |
+
+You do not need to interact with hooks directly — they run in the background.
+
+## Recommended Starting Points by Task Type
+
+| Task | Start here |
+|---|---|
+| New feature from scratch | `idea-refine` → `spec-driven-development` → `plan-before-code` → `incremental-implementation` |
+| Code review | `review-codebase` command or `code-quality` + `security-review` skills |
+| Bug fix | `bug-localization` → `bug-to-patch-generator` |
+| Deployment | `shipping-and-launch` |
+| Security audit | `/run-security-audit` or `security-review` skill |
+| Test coverage | `/generate-tests` or `unit-tests` + `integration-test-generator` |
+| Refactoring | `plan-before-code` → `refactoring-expert` → `behavior-preservation-checker` |
+| AI agent development | `ai-agent-development` → `context-engineering` → `prompt-engineering` |
+
+## Related Skills
+
+- `plan-before-code` — start here for any non-trivial implementation
+- `idea-refine` — clarify before you specify
+- `spec-driven-development` — specify before you build
+- `incremental-implementation` — build one step at a time

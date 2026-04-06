@@ -980,6 +980,26 @@ def execute_research_agent(question: str) -> str:
 - [ ] Multi-agent communication protocol defined (if applicable)
 - [ ] Prompts versioned and stored alongside code
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "We don't need turn limits — the agent will stop when it's done" | Agents in infinite loops or with misconfigured tools have run for hours and incurred thousands of dollars in API costs before operators noticed; hard turn and cost limits are non-negotiable safety mechanisms, not optional guardrails. |
+| "Guardrails slow down the agent and hurt task performance" | Guardrails that reject invalid tool calls prevent irreversible side effects (deleting production data, sending emails to real users) that no subsequent action can undo; the performance cost of validation is orders of magnitude cheaper than remediation. |
+| "We'll add observability after we validate the agent works" | Agent failures in production are non-deterministic and context-dependent; without structured logs and trace IDs from the first deployment, diagnosing why the agent chose an unexpected action path is practically impossible. |
+| "A single monolithic agent is simpler than multi-agent orchestration" | A single agent with 50+ tools saturates the context window with tool descriptions, degrading routing accuracy; multi-agent systems with 5-10 focused tools per agent consistently outperform monolithic agents on complex tasks. |
+| "Memory is optional for agents that run on short tasks" | Short-task agents that interact with the same user across sessions without memory force users to re-explain context every time; compounding user friction is the primary reason real-world agent adoption stalls. |
+| "We'll handle planning failures by restarting the agent" | Restart without replanning repeats the same failure; agents need explicit failure detection and a replanning step that incorporates the failure as new context, not a blind retry of the same plan. |
+
+## Verification
+
+- [ ] Turn limit and cost limit are configured and enforced: agent stops and reports status when limits are reached
+- [ ] Input guardrail validates all tool call arguments before execution; invalid inputs are rejected with an error, not silently corrected
+- [ ] Structured logs with trace IDs exist for every agent run, covering tool calls, tool results, and planning decisions
+- [ ] Evaluation suite runs on at least three scenarios: happy path, tool failure, and ambiguous input
+- [ ] Memory layer (if applicable) persists and retrieves context across sessions: verified by running the same query in two separate sessions
+- [ ] Replanning logic is triggered on tool failure: confirmed by injecting a tool error and observing the agent adjusts its plan
+
 ## Related Skills
 
 - `tool-design` - Designing tools and APIs for agent consumption

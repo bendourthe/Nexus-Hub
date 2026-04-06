@@ -782,3 +782,21 @@ def delta_debug(changes: list, test_fn) -> list:
 - **Over-relying on a single technique.** No single localization method works for every bug type. Use stack trace analysis, log correlation, SBFL, and bisection as complementary tools, not alternatives.
 - **Neglecting to check environment differences.** A bug that manifests in CI but not locally may be caused by environment differences (timezone, locale, file system permissions) rather than code logic errors. Always compare environments before deep-diving into code.
 - **Failing to reproduce before localizing.** Attempting to localize a bug you cannot consistently reproduce leads to speculation. Establish a reliable reproduction first, then apply localization techniques.
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "I can find the bug faster by reading the code than by following a systematic process" | Intuition-based debugging that skips stack trace analysis and log correlation is effective only for familiar code; for unfamiliar or complex code, it routinely fixes the symptom at the wrong layer and leaves the root cause intact. |
+| "The stack trace shows line 42 is the problem, so I'll fix line 42" | Stack traces show where the exception was raised, not where the incorrect value originated; the null pointer at line 42 was introduced at line 8 where the object was constructed with a missing required field. |
+| "git bisect takes too long for simple regressions" | `git bisect` with an automated test script bisects a 1,000-commit history in 10 iterations (log2(1000)); manual inspection of the same history can take hours and introduces confirmation bias. |
+| "SBFL scores are too academic for practical debugging" | Tarantula suspiciousness scoring requires only a passing test suite and a failing test; it has been shown to localize the fault to the top-5 candidates in 70% of real-world bugs, making it faster than random code reading. |
+| "Environment differences can't cause code logic bugs" | Timezone, locale, and filesystem permission differences have caused real-world production bugs that appeared only in CI or only in specific regions; eliminating environmental hypotheses first prevents hours of misguided code investigation. |
+
+## Verification
+
+- [ ] Bug is reproducible with a deterministic reproduction script or test case before any localization begins
+- [ ] Stack trace analyzed from the correct end (bottom for Python, top for Java/JavaScript) and the true fault origin identified
+- [ ] At least two localization techniques applied (e.g., stack trace + log correlation, or SBFL + bisect) and results cross-checked
+- [ ] Fault location documented with exact file, line, and root cause explanation (not just symptom description)
+- [ ] Reproduction test added or identified that fails at the fault location and passes after the fix

@@ -948,6 +948,26 @@ HTTP/1.1 207 Multi-Status
 - [ ] Idempotency keys supported for state-changing POST operations
 - [ ] Request/response examples provided for every endpoint
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "We'll version the API when we need to break it" | Adding versioning to an unversioned API requires coordinating all consumers simultaneously; the Stripe API has never forced a breaking change on consumers precisely because versioning was built in from day one. |
+| "Error codes don't matter, clients just check HTTP status" | Undifferentiated 400 responses with no error code force clients to parse free-text error messages to distinguish "invalid email format" from "email already exists", creating brittle integrations that break when wording changes. |
+| "Cursor-based pagination is too complex; offset is fine" | Offset pagination silently skips or duplicates records when items are inserted or deleted between pages; this causes data loss in exports and duplicate processing in event consumers at any non-trivial insert rate. |
+| "The OpenAPI spec is documentation, not the source of truth" | When code and spec diverge, the spec becomes actively harmful — clients build to the spec and encounter runtime errors; contract-first development enforces equivalence at every build. |
+| "We'll add rate limiting after launch if it becomes a problem" | Unrated endpoints have been used in credential-stuffing attacks that generated millions of login attempts within minutes of launch; retroactively adding rate limiting to a live API requires coordinating with all existing integrations. |
+| "GraphQL means we don't need to worry about over-fetching" | GraphQL eliminates over-fetching at the field level but introduces N+1 query problems at the resolver level; without DataLoader or query depth limits, a single client request can trigger thousands of database queries. |
+
+## Verification
+
+- [ ] API versioning strategy is implemented (URL path, header, or content-type negotiation) and documented
+- [ ] All error responses conform to RFC 7807 Problem Details with a machine-readable `type` and `code` field
+- [ ] Pagination is implemented with cursor-based or keyset approach for all list endpoints (no raw offset on mutable collections)
+- [ ] OpenAPI, GraphQL SDL, or proto file is checked into source control and matches the deployed API behavior
+- [ ] Rate limiting headers (`X-RateLimit-Limit`, `X-RateLimit-Remaining`, `Retry-After`) are returned on throttled responses
+- [ ] All state-changing POST endpoints that may be retried support idempotency keys
+
 ## Related Skills
 
 - `architecture-design` - System-level architecture that APIs expose

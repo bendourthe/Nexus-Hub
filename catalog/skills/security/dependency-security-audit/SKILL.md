@@ -617,6 +617,26 @@ npm test
 - [ ] Continuous monitoring enabled (Dependabot/Snyk)
 - [ ] Comprehensive audit report generated
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "We scan direct dependencies, which covers the risk" | The Log4Shell (CVE-2021-44228) vulnerability was in a transitive dependency (log4j-core) that many teams did not know they had; transitive scanning is mandatory, not optional. |
+| "Low-severity CVEs are not worth fixing" | Chained exploits combine multiple low-severity issues; a CVSS 3.9 information-disclosure CVE paired with a CVSS 3.1 path-traversal has enabled full database exfiltration in documented incidents. |
+| "npm audit produces too many false positives to be useful" | Configuring a severity threshold (`--audit-level=moderate`) and suppressing accepted risks in `.auditignore` reduces noise without abandoning the scan; ignoring the entire tool leaves real P0 CVEs undetected. |
+| "We will scan once before the release, not continuously" | The Equifax breach (2017) exploited Apache Struts CVE-2017-5638, which had a published fix 2 months before the breach; continuous scanning with Dependabot or Snyk would have surfaced the CVE within hours of disclosure. |
+| "Pinning versions is too maintenance-heavy" | Unpinned ranges (`^1.0.0`) allowed the `event-stream` supply chain attack to push a malicious patch version to thousands of downstream packages without triggering a manual review. |
+| "SBOM generation is only needed for regulated industries" | SBOM enables incident response teams to determine within minutes whether a newly disclosed CVE affects any system; without it, identifying affected services can take days of manual dependency archaeology. |
+
+## Verification
+
+- [ ] Vulnerability scan completed for all package managers in the project with output saved (e.g., `pip-audit-report.json`, `npm-audit.json`)
+- [ ] Transitive dependencies scanned (e.g., `dotnet list package --vulnerable --include-transitive`)
+- [ ] All Critical (CVSS >= 9.0) and High (CVSS >= 7.0) findings have a documented remediation action or accepted-risk record
+- [ ] License compliance report generated and reviewed for GPL/AGPL conflicts with the project's license
+- [ ] SBOM generated in CycloneDX or SPDX format and stored as a build artifact
+- [ ] Automated scanning (Dependabot, Snyk, or equivalent) configured in CI/CD with at least weekly runs
+
 ## Related Skills
 
 - `security-review` - Application-level security audit

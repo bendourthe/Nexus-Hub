@@ -251,6 +251,26 @@ For each finding, document both **exploitability** (how easy to exploit) and **i
 - [ ] Language-specific vulnerabilities checked
 - [ ] Findings documented with severity (P0-P3)
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "We have no sensitive data, so security doesn't apply" | Injection flaws and SSRF can compromise the underlying server even when the application itself holds no sensitive data, giving attackers a foothold into the broader network. |
+| "The framework handles security for us" | Frameworks prevent common pitfalls but cannot prevent IDOR — a developer must still verify ownership before returning a record. Dozens of real-world breaches (e.g., Optus 2022) happened despite using secure frameworks. |
+| "We'll add security later before launch" | Security findings discovered post-architecture (e.g., algorithm confusion in JWT, hardcoded secrets) require far more rework than findings caught during initial development. |
+| "Our internal API isn't internet-facing so OWASP doesn't apply" | Insider threats and supply chain compromises mean internal APIs are regularly attacked; the Capital One breach in 2019 originated from an internal SSRF call. |
+| "We passed a pentest last quarter, so we're fine" | A pentest is a point-in-time snapshot; new code paths, dependency CVEs, and configuration changes introduced after the test are not covered. |
+| "Race conditions only matter at scale" | Check-Then-Act race conditions in balance deduction logic have been exploited at low request volumes via simple two-tab browser attacks, enabling duplicate payments and negative balances. |
+
+## Verification
+
+- [ ] All 10 security domains have been checked with their diagnostic questions and findings are documented
+- [ ] Dependency vulnerability scan completed and output saved (e.g., `pip-audit`, `npm audit`)
+- [ ] Static analysis tool run (bandit, eslint-plugin-security, or equivalent) with zero unreviewed findings
+- [ ] Every finding includes severity (P0-P3), exploitability assessment, and remediation code
+- [ ] OWASP Top 10 items are explicitly mapped to findings or marked "not applicable" with justification
+- [ ] Race condition sub-categories (9a shared state, 9b TOCTOU, 9c database, 9d distributed) each addressed
+
 ## Related Skills
 
 - `context-analysis` - Context understanding (Phase 1)

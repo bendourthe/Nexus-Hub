@@ -739,6 +739,26 @@ deploy:
 - [ ] Pipeline notifications configured
 - [ ] Branch protection rules enabled
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "Manual deployments are fine for our team size" | Manual deployments introduce human error at the exact moment of highest stress (production incidents); documented post-mortems at GitHub, GitLab, and Cloudflare cite manual deployment steps as contributing factors in outages that automated pipelines would have prevented. |
+| "We'll add rollback capability later when we have an incident" | Rollback procedures that are not tested before an incident are unreliable during an incident; runbooks executed for the first time under pressure have a high failure rate due to untested assumptions and outdated steps. |
+| "Secrets in CI environment variables are secure enough without a vault" | CI environment variables are visible to any job in the same repository (including PRs from forks), are logged in misconfigured pipelines, and are included in debugging artifacts; a secrets manager with scoped access prevents all three failure modes. |
+| "We don't need branch protection because the team is disciplined" | Branch protection rules enforce the same guarantees automatically for all team members including temporary contractors, bots, and accounts with compromised credentials — discipline cannot substitute for policy enforcement. |
+| "Caching makes the pipeline too complex to maintain" | Uncached pipelines that reinstall all dependencies on every run have 3-10x longer cycle times; longer cycle times correlate directly with reduced commit frequency and larger, harder-to-review changesets. |
+| "Approval gates for production are just ceremony" | Automated deployment without a production approval gate has caused mass incidents (Knight Capital 2012, Facebook 2021) where a bad deploy propagated to all regions before any human could intervene. |
+
+## Verification
+
+- [ ] Pipeline executes on every push to the main branch and on every pull request without manual intervention
+- [ ] Secrets are stored in a dedicated secrets manager (not in repository environment variables or source code)
+- [ ] Rollback mechanism is documented and has been tested by executing it in a staging environment
+- [ ] Branch protection rules are enabled: direct push to main is blocked and at least one status check is required
+- [ ] Dependency caching is configured and verified: consecutive runs with no dependency changes complete faster than the first run
+- [ ] Production deployment requires explicit approval from at least one team member before proceeding
+
 ## Related Skills
 
 - `kubernetes-expert` - Kubernetes deployment targets

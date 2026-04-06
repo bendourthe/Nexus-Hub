@@ -6,16 +6,16 @@
     "description": "Comprehensive catalog of DevAI-Hub skills with L0/L1 tiered summaries"
   },
   "statistics": {
-    "total_skills": 174,
+    "total_skills": 183,
     "categories": {
-      "ai-development": 6,
+      "ai-development": 7,
       "architecture": 6,
       "bug-fixing": 5,
       "business-product": 4,
-      "code-cleanup": 8,
+      "code-cleanup": 9,
       "code-review": 9,
       "compliance": 9,
-      "developer-experience": 18,
+      "developer-experience": 21,
       "Developer Experience": 3,
       "documentation": 6,
       "framework-specialists": 6,
@@ -26,9 +26,9 @@
       "Research": 1,
       "security": 7,
       "specialized-domains": 9,
-      "testing": 2,
+      "testing": 3,
       "tests-generation": 17,
-      "workflow": 13,
+      "workflow": 16,
       "Workflow": 1
     },
     "priorities": {
@@ -87,7 +87,7 @@
     {
       "name": "ai-billing-safeguards",
       "title": "ai-billing-safeguards",
-      "description": "Implement hard spending caps and billing safeguards for autonomous AI agent systems — per-session and per-task budget limits, provider-level quota controls, cost attribution audit trails, and graceful budget-exceeded termination. Use when deploying autonomous agents that run without continuous human oversight.",
+      "description": "Implement hard spending caps and billing safeguards for autonomous AI agent systems \u00e2\u20ac\u201d per-session and per-task budget limits, provider-level quota controls, cost attribution audit trails, and graceful budget-exceeded termination. Use when deploying autonomous agents that run without continuous human oversight.",
       "long_description": "Production patterns for enforcing hard budget limits in autonomous AI agent systems. Covers per-session spending caps, per-task cost limits, provider-level quota configuration, structured cost attribution, and graceful termination when budgets are exceeded. Distinct from usage monitoring (which disp...",
       "summary_l0": "\"Enforce hard spending caps and billing safeguards for autonomous AI agent systems\"",
       "overview_l1": "\"This skill provides production patterns for enforcing hard budget limits in autonomous AI agent systems, distinct from usage monitoring which only displays cost. Use it when deploying autonomous agents without continuous human oversight, running multi-agent pipelines where cost accumulates across parallel executions, managing production deployments where budget overruns have real financial consequences, or requiring cost attribution per team, project, or workflow. Key capabilities include hard session caps with automatic termination on breach, per-task cost limits, provider-level quota configuration, structured cost attribution audit trails, graceful budget-exceeded termination, and development environment loop protection. The expected output is SDK-layer billing enforcement code that blocks execution when limits are reached, with structured cost logging and clean termination. Trigger phrases: agent spending cap, LLM budget limit, AI cost guardrail, billing safeguard, prevent runaway agents, autonomous agent cost control, per-session budget.\"",
@@ -121,8 +121,8 @@
     {
       "name": "claude-agent-sdk",
       "title": "claude-agent-sdk",
-      "description": "Production-grade Claude Agent SDK integration in TypeScript — multi-provider routing, retry logic with exponential backoff, spending cap enforcement, per-invocation audit logging, error classification, and MCP tool registration. Use when building autonomous Claude agents in Node.js/TypeScript.",
-      "long_description": "Production patterns for integrating the Anthropic Claude Agent SDK in TypeScript/Node.js projects. Covers the full operational stack from provider routing and credential management to spending cap enforcement, structured audit logging, and MCP tool registration. Grounded in patterns from Shannon — a...",
+      "description": "Production-grade Claude Agent SDK integration in TypeScript \u00e2\u20ac\u201d multi-provider routing, retry logic with exponential backoff, spending cap enforcement, per-invocation audit logging, error classification, and MCP tool registration. Use when building autonomous Claude agents in Node.js/TypeScript.",
+      "long_description": "Production patterns for integrating the Anthropic Claude Agent SDK in TypeScript/Node.js projects. Covers the full operational stack from provider routing and credential management to spending cap enforcement, structured audit logging, and MCP tool registration. Grounded in patterns from Shannon \u00e2\u20ac\u201d a...",
       "summary_l0": "\"Integrate Claude Agent SDK in TypeScript with provider routing, spending caps, and audit logging\"",
       "overview_l1": "\"This skill provides production patterns for integrating the Anthropic Claude Agent SDK in TypeScript/Node.js projects. Use it when building autonomous Claude agents, implementing multi-provider LLM routing (Anthropic, AWS Bedrock, Google Vertex AI, OpenRouter), adding spending cap enforcement, structuring per-invocation audit logging, classifying errors as retryable versus fatal, registering MCP tools, or designing agent identity via system prompts. Key capabilities include provider configuration and credential setup, exponential backoff retry logic with jitter, hard budget limits with automatic session termination, structured audit trails, error classification hierarchies, and MCP tool registration within the SDK context. The expected output is production-grade TypeScript agent code with full observability, cost controls, and multi-provider failover. Trigger phrases: Claude Agent SDK, Claude SDK TypeScript, autonomous agent Node.js, multi-provider Claude, agent spending cap, Claude SDK retry, Claude SDK audit, agent SDK production.\"",
       "version": "1.0.0",
@@ -152,7 +152,7 @@
     {
       "name": "multi-provider-ai",
       "title": "multi-provider-ai",
-      "description": "Configure and route LLM requests across multiple AI providers — Anthropic direct, AWS Bedrock, Google Vertex AI, and OpenRouter. Covers provider selection criteria, environment variable patterns, unified client interfaces, fallback routing, and model ID conventions. Use when building LLM applications that need provider flexibility or enterprise cloud integration.",
+      "description": "Configure and route LLM requests across multiple AI providers \u00e2\u20ac\u201d Anthropic direct, AWS Bedrock, Google Vertex AI, and OpenRouter. Covers provider selection criteria, environment variable patterns, unified client interfaces, fallback routing, and model ID conventions. Use when building LLM applications that need provider flexibility or enterprise cloud integration.",
       "long_description": "Design and implement provider-agnostic LLM integrations that can route requests across Anthropic, AWS Bedrock, Google Vertex AI, and OpenRouter without changing application code. Covers selection criteria, credential management, unified client patterns, cost comparison, and failover routing. Grounde...",
       "summary_l0": "\"Route LLM requests across Anthropic, Bedrock, Vertex AI, and OpenRouter providers\"",
       "overview_l1": "\"This skill provides patterns for building provider-agnostic LLM integrations that route requests across Anthropic, AWS Bedrock, Google Vertex AI, and OpenRouter without changing application code. Use it when choosing between AI providers, setting up credentials and environment variables, implementing a provider-agnostic client interface, designing fallback routing, comparing costs across providers, meeting enterprise cloud-native AI requirements, or avoiding vendor lock-in. Key capabilities include provider selection guides based on compliance, latency, cost, and features, credential and secret management patterns for each provider, unified TypeScript and Python client abstractions, failover routing strategies, cost comparison matrices, and model ID convention mapping. The expected output is a unified LLM client layer with automatic failover, per-provider credential management, and cost-aware routing. Trigger phrases: multi-provider Claude, AWS Bedrock Claude, Google Vertex Claude, OpenRouter setup, provider abstraction, fallback LLM, enterprise AI integration, Bedrock vs Anthropic.\"",
@@ -5772,6 +5772,352 @@
         "lines": 493,
         "characters": 14263,
         "tokens_estimate": 2067
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "idea-refine",
+      "title": "idea-refine",
+      "description": "Refines raw ideas and vague requests into concrete, buildable problem statements before any planning or coding begins. Use when a task is described as a vague goal, a user story without acceptance criteria, or anything that starts without a clear definition of done.",
+      "long_description": "Transforms vague goals and ambiguous requests into concrete problem statements with observable success criteria and explicit scope bounds. Covers stakeholder intent extraction, assumption surfacing, scope bounding, and success criteria formulation.",
+      "summary_l0": "\"Refine vague ideas into concrete problem statements with clear success criteria\"",
+      "overview_l1": "\"This skill transforms vague goals and ambiguous requests into concrete, buildable problem statements. Use it before any planning work begins, especially when the task is described as a direction or a 'what if'. Key capabilities include stakeholder intent extraction, assumption surfacing, scope bounding, and success criteria formulation. Trigger phrases: refine this idea, thinking about building, help me figure out what to make.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "developer-experience",
+      "language": "Multi-language",
+      "tags": [
+        "ideation",
+        "requirements",
+        "scoping"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "addyosmani/agent-skills (MIT)",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "catalog/skills/developer-experience/idea-refine/",
+      "file": "catalog/skills/developer-experience/idea-refine/SKILL.md",
+      "size": {
+        "lines": 120,
+        "characters": 5200,
+        "tokens_estimate": 520
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "spec-driven-development",
+      "title": "spec-driven-development",
+      "description": "Writes a structured technical specification before any code is written. Use when starting a new project or feature with no written specification, especially when requirements are ambiguous or the change touches multiple files.",
+      "long_description": "Produces a written technical specification before implementation begins, following a four-phase gated workflow: Specify, Plan, Tasks, Implement. Covers assumption surfacing, success criteria formulation, project structure definition, and task breakdown.",
+      "summary_l0": "\"Write a structured specification before coding to prevent rework from misunderstood requirements\"",
+      "overview_l1": "\"This skill produces a written technical specification before implementation begins, following a four-phase gated workflow: Specify, Plan, Tasks, Implement. Use it when requirements are ambiguous or the change spans multiple files. Key capabilities include assumption surfacing, success criteria formulation, project structure definition, and boundaries definition. Trigger phrases: write a spec, spec this out, define requirements, spec before coding.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "developer-experience",
+      "language": "Multi-language",
+      "tags": [
+        "specification",
+        "requirements",
+        "planning"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "addyosmani/agent-skills (MIT)",
+      "tools_required": [
+        "Read",
+        "Write"
+      ],
+      "path": "catalog/skills/developer-experience/spec-driven-development/",
+      "file": "catalog/skills/developer-experience/spec-driven-development/SKILL.md",
+      "size": {
+        "lines": 160,
+        "characters": 7100,
+        "tokens_estimate": 710
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "incremental-implementation",
+      "title": "incremental-implementation",
+      "description": "Implements features one small, tested step at a time. Use when executing any implementation plan to prevent scope expansion, half-built states, and undebuggable large diffs.",
+      "long_description": "Enforces a disciplined one-task-at-a-time implementation cycle with test-after-each-step verification. Each cycle: scope the task, implement only that task, verify with tests, commit the working state, then move on.",
+      "summary_l0": "\"Implement features one tested step at a time to prevent scope creep and undebuggable diffs\"",
+      "overview_l1": "\"This skill enforces a disciplined one-task-at-a-time implementation discipline with a test-after-each-step cycle. Use it when executing any implementation plan. Key capabilities include task scoping, checkpoint verification, and rollback-ready commits. Trigger phrases: implement step by step, one task at a time, incremental changes.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "workflow",
+      "language": "Multi-language",
+      "tags": [
+        "implementation",
+        "incremental",
+        "scope-management"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "addyosmani/agent-skills (MIT)",
+      "tools_required": [
+        "Read",
+        "Edit",
+        "Bash"
+      ],
+      "path": "catalog/skills/workflow/incremental-implementation/",
+      "file": "catalog/skills/workflow/incremental-implementation/SKILL.md",
+      "size": {
+        "lines": 130,
+        "characters": 5800,
+        "tokens_estimate": 580
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "context-engineering",
+      "title": "context-engineering",
+      "description": "Designs and manages the information loaded into an AI session to maximize task effectiveness. Use when an AI agent produces poor results due to missing context, or when designing prompts for production AI systems. Distinct from token optimization.",
+      "long_description": "Provides deliberate, structured context shaping for AI coding sessions. Covers progressive context loading, information hierarchy design, task-scoped context pruning, and context refresh between session phases.",
+      "summary_l0": "\"Shape AI session context deliberately to maximize task effectiveness, not just reduce token count\"",
+      "overview_l1": "\"This skill teaches deliberate context shaping for AI coding sessions. Use it when AI agent output quality is limited by missing or noisy context, or when building production AI systems. Key capabilities include progressive context loading, information hierarchy design, and context refresh between phases. Trigger phrases: context engineering, load the right context, improve AI context quality.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "ai-development",
+      "language": "Multi-language",
+      "tags": [
+        "context",
+        "ai-engineering",
+        "prompt-design"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "addyosmani/agent-skills (MIT)",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "catalog/skills/ai-development/context-engineering/",
+      "file": "catalog/skills/ai-development/context-engineering/SKILL.md",
+      "size": {
+        "lines": 140,
+        "characters": 6300,
+        "tokens_estimate": 630
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "frontend-ui-engineering",
+      "title": "frontend-ui-engineering",
+      "description": "Implements production-quality frontend UIs with accessible components, responsive layout, and maintainable state management. Framework-agnostic. Use when building new UI features or reviewing frontend code for quality and accessibility.",
+      "long_description": "Guides production-quality frontend UI implementation across any framework. Covers component decomposition, accessibility-first (WCAG 2.1 AA), responsive layout, state management decisions, and Core Web Vitals.",
+      "summary_l0": "\"Build accessible, responsive frontend UIs with clean component architecture and maintainable state\"",
+      "overview_l1": "\"This skill guides production-quality frontend UI implementation across any framework. Use it when building new UI components or establishing frontend quality standards. Key capabilities include component decomposition, WCAG 2.1 AA accessibility, responsive layout, and Core Web Vitals optimization. Trigger phrases: build this UI, implement this design, frontend component, responsive layout, accessible UI.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "developer-experience",
+      "language": "JavaScript",
+      "tags": [
+        "frontend",
+        "accessibility",
+        "responsive",
+        "ui",
+        "wcag"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "addyosmani/agent-skills (MIT)",
+      "tools_required": [
+        "Read",
+        "Edit"
+      ],
+      "path": "catalog/skills/developer-experience/frontend-ui-engineering/",
+      "file": "catalog/skills/developer-experience/frontend-ui-engineering/SKILL.md",
+      "size": {
+        "lines": 170,
+        "characters": 7600,
+        "tokens_estimate": 760
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "browser-testing-with-devtools",
+      "title": "browser-testing-with-devtools",
+      "description": "Uses browser DevTools to test, debug, and verify frontend behavior during development. Covers network inspection, console debugging, performance profiling, and accessibility auditing with Lighthouse.",
+      "long_description": "Covers systematic browser DevTools usage for frontend testing and debugging. Includes Network panel analysis, Console log interpretation, Elements inspector, Lighthouse auditing, Application panel for storage inspection, and Performance panel.",
+      "summary_l0": "\"Test and debug frontend behavior using browser DevTools for network, console, performance, and accessibility\"",
+      "overview_l1": "\"This skill covers systematic browser DevTools usage for frontend testing and debugging. Use it when investigating bugs that only reproduce in the browser, verifying network requests, or auditing accessibility. Key capabilities include Network panel analysis, Console debugging, Lighthouse auditing, and Application panel inspection. Trigger phrases: check in the browser, use DevTools, browser debugging, inspect network.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "testing",
+      "language": "JavaScript",
+      "tags": [
+        "browser",
+        "devtools",
+        "debugging",
+        "accessibility"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "addyosmani/agent-skills (MIT)",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "catalog/skills/testing/browser-testing-with-devtools/",
+      "file": "catalog/skills/testing/browser-testing-with-devtools/SKILL.md",
+      "size": {
+        "lines": 160,
+        "characters": 7000,
+        "tokens_estimate": 700
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "code-simplification",
+      "title": "code-simplification",
+      "description": "Reduces code complexity by removing unnecessary abstraction, dead code, and over-engineering without changing behavior. Use when code has grown hard to understand or when simplification is the explicit goal.",
+      "long_description": "Provides a systematic process for reducing code complexity across any codebase. Covers complexity assessment, dead code removal, abstraction flattening, nesting reduction, and duplicate logic consolidation.",
+      "summary_l0": "\"Reduce structural complexity by eliminating over-abstraction and dead code without changing behavior\"",
+      "overview_l1": "\"This skill provides a systematic process for reducing code complexity \u2014 removing unnecessary abstraction layers, dead code, and over-engineering without changing observable behavior. Key capabilities include complexity assessment, abstraction necessity analysis, dead code detection, and safe refactoring sequences. Trigger phrases: simplify this code, too much abstraction, over-engineered, reduce complexity.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "code-cleanup",
+      "language": "Multi-language",
+      "tags": [
+        "simplification",
+        "refactoring",
+        "complexity",
+        "yagni"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "addyosmani/agent-skills (MIT)",
+      "tools_required": [
+        "Read",
+        "Edit",
+        "Bash"
+      ],
+      "path": "catalog/skills/code-cleanup/code-simplification/",
+      "file": "catalog/skills/code-cleanup/code-simplification/SKILL.md",
+      "size": {
+        "lines": 140,
+        "characters": 6200,
+        "tokens_estimate": 620
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "shipping-and-launch",
+      "title": "shipping-and-launch",
+      "description": "Confirms launch readiness and executes a safe, monitored deployment to production. Use at the end of any feature cycle before a production deployment. Covers go/no-go decisions, pre-flight checks, deployment execution, and post-deployment verification.",
+      "long_description": "Provides a structured launch process covering pre-flight readiness checks, go/no-go decision criteria, deployment execution, and post-deployment verification. Covers staged rollout, feature flag strategy, rollback planning, and post-launch monitoring.",
+      "summary_l0": "\"Execute safe production deployments with pre-flight checks, go/no-go decisions, and post-launch verification\"",
+      "overview_l1": "\"This skill provides a structured launch process covering pre-flight readiness checks, explicit go/no-go criteria, deployment execution, and post-deployment verification. Use it for any production deployment. Key capabilities include launch readiness assessment, staged rollout guidance, feature flag strategy, and rollback planning. Trigger phrases: ready to ship, deploy to production, launch checklist, go/no-go, time to deploy.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "workflow",
+      "language": "Multi-language",
+      "tags": [
+        "deployment",
+        "launch",
+        "shipping",
+        "production"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "addyosmani/agent-skills (MIT)",
+      "tools_required": [
+        "Read",
+        "Bash"
+      ],
+      "path": "catalog/skills/workflow/shipping-and-launch/",
+      "file": "catalog/skills/workflow/shipping-and-launch/SKILL.md",
+      "size": {
+        "lines": 170,
+        "characters": 7500,
+        "tokens_estimate": 750
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "using-devai-hub",
+      "title": "using-devai-hub",
+      "description": "Orients a new AI session to the DevAI-Hub skill catalog \u00e2\u20ac\u201d explains how skills are organized, how to find the right skill, how commands work, and how hooks protect the session. Loaded automatically at session start.",
+      "long_description": "Meta-skill that orients AI coding sessions to DevAI-Hub. Covers the 22-category skill taxonomy, how to search skills, how 32 commands work, and what the 13 hooks do. Loaded automatically at session start via the SessionStart hook.",
+      "summary_l0": "\"Orient an AI session to DevAI-Hub's skill catalog, commands, and hooks in under 2 minutes\"",
+      "overview_l1": "\"This meta-skill orients an AI coding session to DevAI-Hub \u00e2\u20ac\u201d explaining how 183 skills are organized, how to find the right skill, how 32 commands work, and what the hook system does. It is loaded automatically at session start. Use it manually when a session lacks catalog context or when onboarding a new AI assistant. Trigger phrases: how do I use this, what skills are available, orient me, explain devai-hub.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "workflow",
+      "language": "Multi-language",
+      "tags": [
+        "meta",
+        "orientation",
+        "catalog",
+        "onboarding"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "catalog/skills/workflow/using-devai-hub/",
+      "file": "catalog/skills/workflow/using-devai-hub/SKILL.md",
+      "size": {
+        "lines": 100,
+        "characters": 4500,
+        "tokens_estimate": 450
       },
       "downloads": 0,
       "status": "production",

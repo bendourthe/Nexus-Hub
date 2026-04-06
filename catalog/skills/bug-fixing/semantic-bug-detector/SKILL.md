@@ -1210,3 +1210,23 @@ def run_full_semantic_analysis(source_code: str, filename: str) -> dict:
 - **Relying on a single detection technique.** No single technique catches all semantic bugs. Logic flow analysis misses race conditions; null safety analysis misses off-by-one errors. Use all available techniques together for comprehensive coverage.
 - **Not verifying assumptions about external APIs.** If your code assumes that an API returns a non-null value but the documentation says it may return null, you have a semantic bug waiting to happen. Always verify your assumptions against documentation and test with edge-case inputs.
 - **Assuming that "it works on my machine" means correctness.** Semantic bugs often depend on data, timing, or environment. A function that works correctly with your test data may fail with different input values, larger datasets, or concurrent access.
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "The code compiles and passes linting, so it's correct" | Linters and type checkers verify syntax and type safety, not algorithmic correctness; a function that always returns the first element of a list instead of the minimum compiles cleanly and passes all linters. |
+| "Off-by-one errors are trivial and easy to spot" | Off-by-one errors in loop bounds and array indices are among the most common bugs in production systems; they are invisible to static analysis and often manifest only with specific input sizes or boundary values. |
+| "We run the test suite, which covers logic errors" | Tests cover paths explicitly written by developers; semantic bugs live in the paths developers did not think to test — null inputs, zero values, empty collections, and boundary conditions that were assumed impossible. |
+| "Race conditions only occur in high-throughput systems" | Check-Then-Act race conditions in balance checks and permission verifications have been exploited with two simultaneous browser tabs at zero scale; concurrency is not a prerequisite for race condition bugs. |
+| "Type coercion issues only matter in dynamically typed languages" | Static languages have their own coercion hazards: integer overflow in Java/C# silently wraps to negative values, implicit numeric promotions in C change signedness, and Go's integer division silently truncates decimals. |
+| "Invariant checking is theoretical and rarely finds bugs in practice" | Explicit precondition and postcondition assertions (even as comments) have been shown in code review studies to surface incorrect assumptions about function contracts that would otherwise remain latent bugs. |
+
+## Verification
+
+- [ ] All loop bounds and array index operations reviewed for off-by-one conditions with boundary inputs (0, 1, n-1, n)
+- [ ] Null/undefined propagation traced for all inputs that reach the reviewed code from external sources
+- [ ] Concurrency hazards checked: any shared state accessed from multiple goroutines/threads/async tasks is identified
+- [ ] Type coercion risk assessed: implicit conversions in conditions and arithmetic expressions reviewed
+- [ ] At least one property-based or parameterized test added for each logic-heavy function to cover non-obvious inputs
+- [ ] Semantic bug report produced with location, severity, explanation, and suggested fix for each detected issue

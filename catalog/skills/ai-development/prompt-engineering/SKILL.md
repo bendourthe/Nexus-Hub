@@ -965,6 +965,26 @@ def dynamic_few_shot(
 - [ ] Anti-patterns reviewed and eliminated
 - [ ] Production monitoring tracks output quality and cost per query
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "Our prompts are simple enough that we don't need an eval suite" | Without evals, prompt changes that improve one scenario routinely degrade another; this silent regression only surfaces in production when users report failures, at which point the causal prompt change is buried in history. |
+| "We'll just iterate on prompts manually until they feel right" | Manual iteration without scoring produces prompts optimized for the last test case seen; regression rates above 20% on previously working cases are common when iterating without systematic evals. |
+| "Few-shot examples aren't necessary if the instruction is clear" | For tasks with subtle output format requirements (JSON with specific fields, code in a specific style), few-shot examples reduce format errors by 40-60% compared to instruction-only prompts, as documented in multiple prompting studies. |
+| "Prompt injection is only a concern for chat applications" | Any prompt that incorporates user-supplied text — including RAG retrieved content, tool outputs, or API responses — is a prompt injection surface; a malicious document in a retrieved corpus can override system instructions. |
+| "We don't need to version prompts because they're just strings" | Unversioned prompts make A/B testing impossible, incident root-cause analysis unreliable, and rollback manual; prompt version control is as critical as code version control for reproducibility. |
+| "Token optimization is premature until cost is a problem" | At scale, a 30% token reduction compounds across millions of calls; prompts that include unnecessary context also degrade model performance by diluting signal with noise, not just by increasing cost. |
+
+## Verification
+
+- [ ] Eval suite exists with at least 10 test cases covering typical inputs and known edge cases
+- [ ] Automated scoring function defined and baseline score recorded before any prompt change
+- [ ] Few-shot examples cover at least one typical case and one edge case relevant to the task
+- [ ] Prompt injection mitigations in place for any prompt that incorporates external or user-supplied text
+- [ ] Prompt version stored with content hash and associated eval score in source control
+- [ ] Token count measured for representative inputs and documented in the prompt header
+
 ## Related Skills
 
 - `ai-agent-development` - Building agents that rely on well-designed prompts

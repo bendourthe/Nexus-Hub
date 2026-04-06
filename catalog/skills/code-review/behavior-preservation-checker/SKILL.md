@@ -417,3 +417,21 @@ Produce a structured report summarizing the verification results.
 - **Forgetting about performance contracts**: if the original code had O(n) time complexity and the refactored code has O(n^2), this may be considered a behavioral change in performance-sensitive contexts, even if the output is identical
 - **Not testing with production-like data**: unit tests with small inputs may not reveal behavioral differences that only manifest with large datasets, special characters, or unusual encodings
 - **Skipping integration-level verification**: even if all unit tests pass, the refactored code may behave differently when integrated with other components; run integration and end-to-end tests as well
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "The code looks the same functionally, so no formal verification is needed" | The PaymentProcessor audit example in this skill demonstrates that a syntactically similar refactoring can silently drop an audit log side effect — a behavioral change invisible to casual reading. |
+| "All unit tests pass, so behavior is preserved" | Unit tests only cover paths they were written for; if the original code had no test for null inputs and the refactored version handles null differently, the behavioral change is undetected until a production null value triggers it. |
+| "We used an automated IDE refactoring tool, so it's safe" | IDE tools are correct for simple renames and extractions but fail with reflection, dynamic dispatch, metaprogramming, and complex generics; automated tools produce incorrect results in these cases and must still be verified. |
+| "Refactoring and bug fixing can be done in the same commit" | Mixing behavioral changes with structural changes makes preservation verification impossible — you cannot isolate which delta introduced the behavioral difference. Industry practice (e.g., Fowler's refactoring discipline) requires separate commits. |
+| "We don't have time to write characterization tests before refactoring" | Characterization tests are written once and serve as the golden master for all future refactoring of the same code; the investment is amortized across every subsequent change. Skipping them means each refactoring starts from zero. |
+
+## Verification
+
+- [ ] All existing tests pass before and after the refactoring: test suite exits with code 0 at both commits
+- [ ] Line coverage of the refactored code paths is equal to or greater than pre-refactoring coverage
+- [ ] Public interface contract is unchanged: method signatures, declared exceptions, and return types verified by diff
+- [ ] Side effect audit completed: every I/O operation, event emission, and log statement in the original is present in the refactored code
+- [ ] Preservation report generated with APPROVE / APPROVE WITH CONDITIONS / REJECT verdict and supporting evidence

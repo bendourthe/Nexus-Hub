@@ -174,10 +174,19 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | filesystem-context-patterns | workflow | "Use the filesystem for context management, scratch pads, and inter-agent communication" | catalog/skills/workflow/filesystem-context-patterns/SKILL.md |
 | git-bisect-assistant | workflow | "Find regression-introducing commits with git bisect and automated test scripts" | catalog/skills/workflow/git-bisect-assistant/SKILL.md |
 | implementation-plan | workflow | "Generate a phased v0.1.0 implementation plan through guided discovery questions" | catalog/skills/workflow/implementation-plan/SKILL.md |
+| incremental-implementation | workflow | "Implement features one tested step at a time to prevent scope creep and undebuggable diffs" | catalog/skills/workflow/incremental-implementation/SKILL.md |
 | plan-before-code | workflow | "Plan before coding with exploration, task assessment, and implementation design" | catalog/skills/workflow/plan-before-code/SKILL.md |
 | research-plan-implement | workflow | "Execute Research-Plan-Implement workflows with GO/NO-GO gates and artifact tracking" | catalog/skills/workflow/research-plan-implement/SKILL.md |
 | session-history | workflow | "Generate standalone session history documents capturing steps, troubleshooting, and next steps" | catalog/skills/workflow/session-history/SKILL.md |
+| shipping-and-launch | workflow | "Execute safe production deployments with pre-flight checks, go/no-go decisions, and post-launch verification" | catalog/skills/workflow/shipping-and-launch/SKILL.md |
+| using-devai-hub | workflow | "Orient an AI session to DevAI-Hub's skill catalog, commands, and hooks in under 2 minutes" | catalog/skills/workflow/using-devai-hub/SKILL.md |
 | test-driven-development | workflow | "Implement TDD workflow with red-green-refactor cycle and test-first development" | catalog/skills/workflow/test-driven-development/SKILL.md |
 | version-upgrade | workflow | "Automate version upgrades with changelog generation and cross-file version bumps" | catalog/skills/workflow/version-upgrade/SKILL.md |
+| idea-refine | developer-experience | "Refine vague ideas into concrete problem statements with clear success criteria" | catalog/skills/developer-experience/idea-refine/SKILL.md |
+| spec-driven-development | developer-experience | "Write a structured specification before coding to prevent rework from misunderstood requirements" | catalog/skills/developer-experience/spec-driven-development/SKILL.md |
+| frontend-ui-engineering | developer-experience | "Build accessible, responsive frontend UIs with clean component architecture and maintainable state" | catalog/skills/developer-experience/frontend-ui-engineering/SKILL.md |
+| context-engineering | ai-development | "Shape AI session context deliberately to maximize task effectiveness, not just reduce token count" | catalog/skills/ai-development/context-engineering/SKILL.md |
+| browser-testing-with-devtools | testing | "Test and debug frontend behavior using browser DevTools for network, console, performance, and accessibility" | catalog/skills/testing/browser-testing-with-devtools/SKILL.md |
+| code-simplification | code-cleanup | "Reduce structural complexity by eliminating over-abstraction and dead code without changing behavior" | catalog/skills/code-cleanup/code-simplification/SKILL.md |
 
-**Total: 175 skills across 22 categories**
+**Total: 183 skills across 22 categories**

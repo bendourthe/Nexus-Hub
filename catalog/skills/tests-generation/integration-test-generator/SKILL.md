@@ -838,3 +838,21 @@ class TestOrderEventMessaging:
 - **Hardcoding URLs and ports**: Tests that bind to `localhost:5432` fail when that port is in use; use dynamic port allocation from testcontainers
 - **Not testing idempotency**: Integration tests should verify that retrying an operation (e.g., creating the same order twice) produces the correct result, not a duplicate
 - **Skipping error response body assertions**: Verifying that an API returns 400 is not enough; assert that the error response body contains a meaningful error code and message
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "Unit tests are enough — integration tests duplicate coverage" | Unit tests verify individual functions with mocked dependencies; integration tests verify that the wiring between those functions works correctly; the Therac-25 radiation overdose incidents involved components that each worked correctly in isolation but failed catastrophically when integrated. |
+| "Integration tests are too slow to run in CI" | Testcontainers starts a real database in 2-5 seconds and tears it down after the suite; the total overhead for a 50-test integration suite using containers is typically under 60 seconds, well within CI time budgets. |
+| "We'll catch integration issues in the staging environment" | Staging environments are shared, have stale data, and are expensive to reproduce deterministically; an integration test suite that runs on every PR catches integration regressions at the point of introduction, not after merge. |
+| "Sharing a database across integration tests is fine if tests are careful" | Test isolation via shared state fails when tests run in parallel or when a failing test leaves the database in an unexpected state; each test must own its data setup and teardown to be deterministic. |
+| "Integration tests should cover the full end-to-end flow" | Tests that span the entire system are end-to-end tests, not integration tests; keeping integration tests scoped to 2-3 components produces tests that are fast, reliable, and unambiguous when they fail. |
+
+## Verification
+
+- [ ] Each integration test creates its own test data and does not depend on data from another test (verified by running tests in random order)
+- [ ] All database and service containers are started and torn down per test module (not shared across the entire suite)
+- [ ] Integration tests cover both success and error paths for each tested boundary
+- [ ] Test suite completes in under 120 seconds on a standard CI runner
+- [ ] All tests pass deterministically on three consecutive runs: `pytest tests/integration -q` exits with code 0 each time

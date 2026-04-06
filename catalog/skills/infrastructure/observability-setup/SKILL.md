@@ -717,6 +717,26 @@ def on_order_created(order):
 - [ ] Runbook links included in all alert annotations
 - [ ] Traces propagate across service boundaries via W3C Trace Context headers
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "We'll add monitoring after launch when we see what breaks" | The first outage without observability in place is diagnosed by guesswork; the Facebook 2021 outage demonstrated that without distributed tracing, engineers spent hours identifying a BGP configuration change as the root cause of a 6-hour global outage. |
+| "Logs are enough — we don't need metrics or traces" | Logs answer "what happened"; metrics answer "how often and how bad"; traces answer "where in the call chain"; any one of the three alone leaves a class of incidents undiagnosable. The 2020 SolarWinds response required all three pillars to understand blast radius. |
+| "High-cardinality labels are fine; storage is cheap" | High-cardinality metric labels (user IDs, request IDs as label values) cause Prometheus cardinality explosions that have taken down monitoring infrastructure at scale; the observability layer fails exactly when it is most needed. |
+| "Alerts on every metric prevent incidents" | Alert fatigue from over-alerting causes on-call engineers to mute or ignore alerts, which was a contributing factor in the 2017 Equifax breach where critical alerts went unnoticed; alert only on SLO breaches and actionable conditions. |
+| "Health check endpoints are optional if the service is up" | Liveness and readiness probes are how orchestrators (Kubernetes, ECS) distinguish "running but broken" from "healthy"; without them, a deadlocked process continues to receive traffic because the orchestrator believes it is healthy. |
+| "We don't need runbooks if the alerts are self-explanatory" | Alert annotations without runbook links require on-call engineers to reconstruct diagnostic steps from memory under pressure; runbooks reduce mean-time-to-resolve even for experienced engineers by eliminating recall errors. |
+
+## Verification
+
+- [ ] Structured logs emitted for every request with correlation ID, service name, and log level (verified by running a request and checking log output)
+- [ ] Prometheus metrics endpoint (`/metrics`) returns data for request rate, error rate, and latency (p50, p95, p99)
+- [ ] At least one Grafana dashboard exists displaying the four golden signals (latency, traffic, errors, saturation)
+- [ ] Distributed traces propagate across service boundaries: a single user request produces a linked trace visible in the tracing backend
+- [ ] SLO-based alerts are configured with runbook links in annotations; no alert fires without a linked runbook
+- [ ] Metric label cardinality reviewed and no label uses user ID, request ID, or other unbounded values
+
 ## Related Skills
 
 - `cicd-architect` - Integrating observability into CI/CD pipelines

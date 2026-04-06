@@ -787,6 +787,25 @@ After using this skill, you should have:
 - [ ] Clear test documentation and naming
 - [ ] No anti-patterns in test code
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "Unit tests slow down development for simple functions" | Simple functions stay simple until they don't; a utility function with no tests grows into a 300-line module with 12 callers, at which point adding tests requires understanding all 12 callers before writing a single assertion. |
+| "80% coverage is arbitrary — we only test the important parts" | Without a measurable threshold, "important parts" expands to mean "whatever was easy to test"; the 20% uncovered code is disproportionately the error handling paths and edge cases where real-world bugs concentrate. |
+| "Mocking makes tests too fragile and tied to implementation" | Tests that do not mock external dependencies (databases, HTTP APIs) are integration tests, not unit tests; they are orders of magnitude slower, require infrastructure setup, and fail for infrastructure reasons unrelated to the logic under test. |
+| "Test names don't matter as long as the assertion is correct" | When a test fails in CI, the test name is the first and often only information visible before opening the test file; descriptive names like `test_transfer_fails_when_balance_insufficient` eliminate the need to read the test body to understand the failure. |
+| "We don't need tests for code that's about to be rewritten" | Code that is "about to be rewritten" typically remains in production for 6-18 months while the rewrite is deprioritized; during that period it receives changes and bug fixes without any regression protection. |
+
+## Verification
+
+- [ ] All new functions have corresponding test files with at least one test per public method
+- [ ] Test suite passes with code 0: `pytest -q` / `npm test` / `go test ./...` exits cleanly
+- [ ] Code coverage is 80% or above: `pytest --cov --cov-fail-under=80` or equivalent passes
+- [ ] No test uses `time.sleep`, real HTTP calls, or filesystem writes to non-temp paths
+- [ ] Every test function has a descriptive name following `test_<scenario>_<expected_outcome>` or equivalent convention
+- [ ] All tests run in under 1 second for the unit test suite (verified by timing output)
+
 ## Related Skills
 
 - `test-structure` - Set up test infrastructure (Phase 1)

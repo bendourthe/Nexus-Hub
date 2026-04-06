@@ -696,6 +696,26 @@ class LegacyCustomerAdapter:
 - [ ] Data flow diagrams created for sensitive data paths
 - [ ] Architecture reviewed by at least one peer
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "We can design architecture as we go" | Systems built without upfront architecture routinely encounter the distributed monolith anti-pattern — services that are physically separate but logically coupled, requiring synchronized deployments and producing more downtime than a true monolith. |
+| "ADRs are just documentation overhead" | Without recorded decisions, teams revisit the same trade-offs repeatedly; the hidden cost is re-litigating choices (e.g., sync vs. async, SQL vs. NoSQL) in every planning session instead of once. |
+| "We can scale later when it's needed" | Adding horizontal scalability after the fact requires changing session management, introducing distributed caches, and splitting state — changes that can take months for an established system (e.g., Reddit's years-long migration from a non-distributed architecture). |
+| "C4 diagrams are too formal for our team size" | Diagrams are primarily for onboarding and incident response, not the team that built the system; teams that skip them consistently report longer mean-time-to-diagnose during outages. |
+| "Quality attributes are implicit in good code" | Performance, availability, and security have conflicting implementation strategies; without explicit quality attribute scenarios (e.g., "99.9% uptime during region failure"), teams optimize for the wrong constraints and discover the conflict in production. |
+| "We'll document the architecture after we build it" | Post-hoc documentation captures what was built, not why; ADRs written retroactively cannot capture the rejected alternatives and constraints that motivated each decision. |
+
+## Verification
+
+- [ ] C4 context and container diagrams exist and show all external systems and inter-container communication
+- [ ] At least one ADR exists per major architectural decision (data store choice, sync/async boundary, deployment target)
+- [ ] Quality attribute scenarios are documented with measurable targets (e.g., "p99 latency < 200 ms at 1,000 RPS")
+- [ ] CAP theorem trade-offs are documented for every data store that participates in multi-node deployment
+- [ ] Failure mode analysis covers what happens when each external dependency or service is unavailable
+- [ ] Security threat model (STRIDE or equivalent) identifies at least the top three attack surfaces
+
 ## Related Skills
 
 - `ddd-strategic-design` - Domain modeling and bounded context identification

@@ -1,0 +1,140 @@
+---
+name: idea-refine
+description: Refines raw ideas and vague requests into concrete, buildable problem statements before any planning or coding begins. Use when a task is described as a vague goal, a user story without acceptance criteria, a "what if we..." conversation, or anything that starts without a clear definition of done. Trigger phrases: refine this idea, I'm thinking about, help me figure out what to build, is this worth building, what should I actually make.
+summary_l0: "Refine vague ideas into concrete problem statements with clear success criteria"
+overview_l1: "This skill transforms vague goals, rough ideas, and ambiguous requests into concrete, buildable problem statements. Use it before any planning or specification work begins, especially when the task is described as a feeling, a direction, or a 'what if' rather than a clear requirement. Key capabilities include stakeholder intent extraction, assumption surfacing, scope bounding, success criteria formulation, and build-vs-buy-vs-wait decision framing. The expected output is a single refined problem statement with: the core user need, explicit constraints, definition of done in observable terms, and identified open questions. Without this skill, planning and implementation risk solving the wrong problem with the right code. Trigger phrases: refine this idea, I'm thinking about building, help me figure out what to make, is this worth building, what should I actually build."
+---
+
+# Idea Refine
+
+Transform a vague direction into a concrete problem statement before any design, planning, or code is written. The most expensive mistake in software is building the right solution to the wrong problem.
+
+## When to Use This Skill
+
+Use when:
+- The request is a goal, direction, or desire rather than a requirement ("make it faster", "add AI to the dashboard", "we should do something about onboarding")
+- There is no clear definition of done
+- Multiple interpretations of the request are plausible
+- The request is for a new feature with no existing specification
+- You are about to invest significant time and want to confirm alignment first
+
+**When NOT to use:** When requirements are already specific and testable. If the task has explicit acceptance criteria and a clear scope, skip directly to `spec-driven-development` or `plan-before-code`.
+
+## Instructions
+
+### Step 1: Restate the Idea Neutrally
+
+Echo back the idea in your own words without interpreting it yet. This confirms your understanding and gives the human a chance to correct misreadings before you invest in analysis.
+
+```
+I hear: "You want to [X] so that [Y]. Is that right?"
+```
+
+If the idea is multi-part, list each component separately and confirm which is the priority.
+
+### Step 2: Surface the Real Problem
+
+Ask one focused clarifying question at a time. Do not interrogate with a list of 10 questions. Common areas where vague ideas hide real problems:
+
+**User**: Who specifically experiences this problem? In what context?
+**Pain**: What happens today without this? How painful is that, concretely?
+**Frequency**: How often does this occur? For how many people?
+**Previous attempts**: Has this been tried before? Why did it fail or not get built?
+
+Reframe from "what to build" to "what problem to solve":
+
+```
+Instead of: "We want a notification system"
+Ask: "What is the user failing to do today because they don't get notified?"
+```
+
+### Step 3: Bound the Scope
+
+Vague ideas are infinite. Good problem statements are bounded. Explicitly define:
+
+- **In scope**: What this must do for the problem to be considered solved
+- **Out of scope**: What it explicitly does not need to do (prevents scope creep)
+- **Later**: Good ideas that are real, but belong in a future iteration
+
+Use the following test: "If we shipped X and nothing else, would the core problem be solved?" If no, X is not the minimal scope. If yes, add nothing more.
+
+### Step 4: Define Success in Observable Terms
+
+Convert every "it should feel better" or "users will like it" statement into something you can measure or observe:
+
+| Vague goal | Observable success criterion |
+|---|---|
+| "Make it faster" | Dashboard LCP < 2.5s on 4G |
+| "Improve onboarding" | User activates within 24h of signup (activation = first core action taken) |
+| "Add AI" | The AI suggestion is accepted by users ≥ 40% of the time |
+| "Better error messages" | Support tickets mentioning error X drop by 50% |
+
+At least one success criterion must be binary (either it happened or it did not).
+
+### Step 5: Identify Open Questions
+
+List what is genuinely unknown and must be resolved before design or planning can begin. Separate these from "nice to know" questions that do not block progress.
+
+Format:
+```
+BLOCKING (must resolve before planning):
+- [ ] Does the backend support real-time events, or do we need to add infrastructure?
+- [ ] What is the target release date?
+
+NON-BLOCKING (can assume for now, revisit later):
+- [ ] Exact visual design of the notification panel
+- [ ] Whether to support push notifications (mobile)
+```
+
+### Step 6: Write the Problem Statement
+
+Synthesize the above into one page or less:
+
+```markdown
+## Problem Statement: <Name>
+
+**User**: <Who>
+**Context**: <In what situation>
+**Problem**: <What fails today>
+**Impact**: <Why this matters, quantified if possible>
+
+**In Scope**
+- <Observable thing this must do>
+
+**Out of Scope**
+- <What we are deliberately not solving>
+
+**Success Criteria**
+- [ ] <Observable criterion 1>
+- [ ] <Observable criterion 2>
+
+**Open Questions (blocking)**
+- [ ] <Question>
+```
+
+Once the human approves this statement, hand off to `spec-driven-development` or `plan-before-code`.
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "The idea is obvious — let's just build it" | The idea is obvious to you; the user's actual need is still unverified. 30 minutes of clarification prevents 2 weeks of wrong implementation. |
+| "We'll figure out the details as we go" | That's not agility — that's guessing. Scope defined during coding inflates scope by 3–5x. |
+| "I've built this before, I know what they want" | Every context is different. The user's situation, constraints, and definition of success may not match your mental model. |
+| "We don't have time for this" | You don't have time to rebuild after shipping the wrong thing. A problem statement takes under an hour. |
+| "The user knows what they want" | Users know what outcome they want; they rarely know which solution will deliver it. That gap is the job. |
+
+## Verification
+
+- [ ] A written problem statement exists (not just a verbal agreement)
+- [ ] Success criteria are stated in observable, testable terms (not "users will be happy")
+- [ ] Scope is explicitly bounded: at least one thing is declared out of scope
+- [ ] Blocking open questions are listed; none are quietly assumed away
+- [ ] The human has reviewed and confirmed the problem statement in writing
+
+## Related Skills
+
+- `spec-driven-development` — next step after a confirmed problem statement; writes the full technical spec
+- `ambiguity-detector` — detects ambiguous, incomplete, or contradictory requirements in existing specs
+- `requirement-enhancer` — improves an existing requirement's quality, testability, and completeness
+- `plan-before-code` — planning phase after the spec is confirmed

@@ -240,6 +240,26 @@ When proposing fixes, follow these 7 heuristics:
 - [ ] Refactor proposals follow the 7 heuristics
 - [ ] Findings documented with severity
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "High cyclomatic complexity is fine if the code works" | Functions with cyclomatic complexity above 10 have statistically higher defect rates and significantly longer mean-time-to-diagnose during incidents, as found in Microsoft Research studies on Windows Vista defect density. |
+| "We'll refactor when we have time" | Technical debt accumulates compound interest; a module with 5 SOLID violations today routinely becomes the highest-change-rate module next quarter, where each new feature requires touching (and risks breaking) the same fragile code. |
+| "Naming doesn't matter, only logic does" | Ambiguous names (`data`, `tmp`, `obj`) are the primary cause of incorrect assumptions during maintenance; studies of code comprehension show 60-70% of debugging time is spent understanding intent, not finding the error. |
+| "Dead code doesn't hurt anything" | Dead code increases cognitive load for every future reader, causes incorrect grep results, and is regularly reactivated with copy-paste edits — producing bugs from code that was intentionally disabled. |
+| "SOLID principles are academic and slow development" | The Open-Closed Principle specifically exists to prevent the scenario where adding a new payment method requires modifying and re-testing existing payment method code — a scenario most teams experience repeatedly before adopting it. |
+| "Duplication is easier to understand than abstraction" | Duplicated validation logic diverges over time; security-relevant duplicated code (email validation, permission checks) has caused real vulnerabilities when one copy was patched and others were missed. |
+
+## Verification
+
+- [ ] Cyclomatic complexity measured for all functions; no function exceeds the project threshold (default: 10)
+- [ ] No SOLID violations of severity HIGH or above remain without a documented refactor plan
+- [ ] Dead code candidates identified and either removed or explicitly marked with a `TODO` linking to a tracking issue
+- [ ] Naming conventions pass linter rules (`ruff`, `eslint`, `golangci-lint`, or equivalent) with zero violations
+- [ ] Duplication analysis completed (e.g., `jscpd`, `pylint --duplicate-code`) with no blocks above the threshold
+- [ ] All findings documented with severity ratings and prioritized improvement recommendations
+
 ## Related Skills
 
 - `context-analysis` - Context understanding (Phase 1)

@@ -213,6 +213,25 @@ Switch to the traditional `full-code-review` workflow (or individual review skil
 - **Track criteria-to-test ratios**: if you consistently find criteria without evidence (NO EVIDENCE), the team needs better test generation practices
 - **Use for AI-generated code, not human code**: human-authored code benefits from mentoring, knowledge sharing, and design discussion that intent-based review deliberately skips
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "Line-by-line review is more thorough than intent-based review" | Line-by-line review of AI-generated code is slower and still misses behavioral correctness — reviewers can read syntactically clean code and miss that it satisfies none of the acceptance criteria, as seen in many AI-assisted PR audits. |
+| "We don't write acceptance criteria because requirements are in the tickets" | Tickets describe what was requested, not what was accepted; without explicit acceptance criteria, any implementation can be argued to be correct, making review a matter of opinion rather than evidence. |
+| "If tests pass, there's nothing more to check" | Tests pass against themselves; if tests were written to match a wrong implementation rather than the original requirement, intent-based review is the only layer that catches the mismatch between requirement and test intent. |
+| "This skill only applies to AI-generated code" | Intent-based review applies whenever code is reviewed against requirements; it is most valuable for AI-generated code because AI output is fluent and syntactically clean, making line-by-line review less discriminating. |
+| "NO EVIDENCE status just means the test suite is incomplete" | NO EVIDENCE is a flag that triggers investigation, not an automatic failure; but consistently accepting NO EVIDENCE results normalizes shipping untested requirements — the gap accumulates until a critical acceptance criterion has no coverage. |
+
+## Verification
+
+- [ ] REQUEST.md or equivalent file exists with explicit, testable acceptance criteria for every deliverable
+- [ ] Every acceptance criterion is mapped to at least one test, code section, or documented rationale (no unreviewed NO EVIDENCE items)
+- [ ] All mapped tests pass: `pytest -q` / `npm test` / equivalent exits with code 0
+- [ ] PARTIAL EVIDENCE items have a documented risk assessment and explicit owner sign-off
+- [ ] Final verdict (APPROVED / APPROVED WITH CONDITIONS / REJECTED) is recorded with supporting evidence
+- [ ] Any REJECTED items have a specific gap description that can be used to generate a targeted fix
+
 ## Related Skills
 
 - `requirement-enhancer` - Generate acceptance criteria when none exist

@@ -381,6 +381,24 @@ def test_returns_user_by_id():
 - [ ] All tests **pass** before committing
 - [ ] Refactoring done while keeping tests green
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "Writing tests first takes longer" | TDD studies (including research at Microsoft and IBM) consistently show TDD reduces post-release defect rates by 40-90% while increasing development time by only 15-35%; the defect reduction more than compensates for the extra upfront time. |
+| "We'll write tests after the implementation when we know the shape of the code" | Tests written after implementation test the implementation, not the requirement; they systematically miss the behavior the implementation got wrong because the wrong behavior looks correct from inside the implementation. |
+| "TDD doesn't work for UI or integration code" | TDD applies at every layer; for UI, tests assert component render output and user interaction behavior; for integration, tests use test containers or mocks to assert request/response contracts. |
+| "The red phase is just extra work — I know what the test should pass" | Skipping the red phase means you never confirm the test can fail; a test that never fails is not a test — it is decorative code that provides false coverage metrics. |
+| "Refactoring in the green phase is fine without running tests again" | Refactoring without re-running the suite is not TDD; it is coding with a net that you chose not to deploy. The suite must be green before and after every refactoring step. |
+
+## Verification
+
+- [ ] Every new function or behavior has a failing test written before any implementation code (red phase documented)
+- [ ] All tests pass after implementation: `pytest -q` / `npm test` / equivalent exits with code 0 (green phase)
+- [ ] Code coverage is 80% or above: `pytest --cov` or equivalent coverage report shows >= 80%
+- [ ] No test is skipped or marked `xfail` without a linked issue explaining why
+- [ ] Refactoring was performed with the test suite green before and after each step
+
 ## Related Skills
 
 - `plan-before-code` - Plan TDD approach before starting
