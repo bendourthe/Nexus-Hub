@@ -1,5 +1,5 @@
 #!/bin/bash
-# DevAI-Hub Universal Installer V10 (v0.9.0) (macOS/Linux)
+# DevAI-Hub Universal Installer V10 (v0.9.3) (macOS/Linux)
 # Installs AI Skills Globally and to Workspaces with Safe Overwrite
 
 set -e
@@ -131,32 +131,42 @@ safe_folder_copy() {
 
     local do_copy=true
 
+    local full_sync=true
+
     if [ -d "$destination" ]; then
         if [ "$OVERWRITE_ALL" = false ]; then
             write_item "Folder exists: $destination" "$YELLOW"
             local resp
-            resp=$(read_prompt "Overwrite contents? [Y]es / [N]o / [A]ll")
+            resp=$(read_prompt "Full sync? [Y]es (delete stale files) / [N]o (add/update only) / [A]ll")
             if [[ "$resp" =~ ^[Aa] ]]; then
                 OVERWRITE_ALL=true
-            elif [[ ! "$resp" =~ ^[Yy] ]]; then
-                write_item "Skipped." "$GRAY"
-                do_copy=false
+            elif [[ "$resp" =~ ^[Nn] ]]; then
+                # Merge-only: copy new/updated files but do not remove extras
+                full_sync=false
             fi
+            # Any other response (including Y) proceeds with full_sync=true
         fi
     else
         mkdir -p "$destination"
     fi
 
     if [ "$do_copy" = true ]; then
-        if [ -d "$destination" ]; then
-            write_item "Syncing (old files not in source will be removed)..." "$GRAY"
-        fi
-        # Use rsync if available, otherwise cp
-        if command -v rsync >/dev/null 2>&1; then
-            rsync -a --delete "$source/" "$destination/"
+        if [ "$full_sync" = true ]; then
+            write_item "Syncing (stale files in destination will be removed)..." "$GRAY"
+            # Use rsync if available, otherwise cp
+            if command -v rsync >/dev/null 2>&1; then
+                rsync -a --delete "$source/" "$destination/"
+            else
+                rm -rf "${destination:?}"/*
+                cp -R "$source/"* "$destination/"
+            fi
         else
-            rm -rf "${destination:?}"/*
-            cp -R "$source/"* "$destination/"
+            write_item "Merging (adding/updating files, keeping extras)..." "$GRAY"
+            if command -v rsync >/dev/null 2>&1; then
+                rsync -a "$source/" "$destination/"
+            else
+                cp -R "$source/"* "$destination/"
+            fi
         fi
 
         if [ -n "$custom_message" ]; then
