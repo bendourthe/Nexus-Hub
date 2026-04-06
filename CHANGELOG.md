@@ -11,6 +11,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.9.3] - 2026-04-06
+
+### Added
+- **9 new skills**: `idea-refine`, `spec-driven-development`, `incremental-implementation`, `context-engineering`, `frontend-ui-engineering`, `browser-testing-with-devtools`, `code-simplification`, `shipping-and-launch`, and `using-devai-hub` (meta-skill) — closing SDLC coverage gaps identified in the agent-skills comparison (183 total skills)
+- **`wrap-up-session` command**: 7-phase session close-out workflow covering session history capture, gitignore hygiene, documentation sync, devlog update, memory refresh, version assessment, and commit message generation (`/wrap-up-session` or `/wrap-up-session --quick`)
+- **SessionStart hook**: `catalog/hooks/session-start.sh` auto-loads the `using-devai-hub` meta-skill at every new session to guarantee skill catalog awareness; registered in `catalog/hooks/settings.json`
+- **`AGENTS.md`**: Comprehensive guidance document for AI coding agents contributing to DevAI-Hub — documents project structure, skill anatomy requirements, and registration workflow
+- **4 reference checklists**: API design, architecture, security, and testing patterns (`catalog/checklists/`)
+- **Plugin marketplace manifests**: `.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json` for one-command Claude Code plugin distribution
+- **Cross-project comparison report**: 12-section analysis of DevAI-Hub vs. agent-skills with adoption roadmap (`docs/v0.9.2/comparison-agent-skills.md`)
+
+### Changed
+- **Skill anatomy**: Added Common Rationalizations tables and binary Verification checklists to 19 priority skills (ai-agent-development, prompt-engineering, api-design, architecture-design, bug-localization, semantic-bug-detector, behavior-preservation-checker, code-quality, intent-based-review, security-review, cicd-architect, observability-setup, authentication-patterns, dependency-security-audit, integration-test-generator, unit-tests, code-commit-workflow, plan-before-code, test-driven-development)
+- **Permissions**: Expanded `configs/permissions/claude-permissions.json` bash allowlist with 40+ additional safe tool patterns (binary inspection: `od`, `hexdump`, `xxd`, `strings`; checksums: `sha256sum`, `sha1sum`, `md5sum`; archive listing: `tar -tf`, `unzip -l`; system info: `uptime`, `hostname`, `id`)
+- **Hook tests**: Added 61 new test cases to `catalog/hooks/tests/test_format_bash_description.py` covering expanded allowlist patterns and pipeline regression cases
+- **Infrastructure docs**: Overhauled `infrastructure/tools/README.md` with current project metrics; fixed stale version footers in `infrastructure/hooks/README.md` and `infrastructure/integrations/README.md`
+- **VS Code extension**: Removed emoji from usage-monitor notification messages for cross-platform compatibility
+- **Skill count**: 175 → 183
+- **Hook count**: 12 → 13
+
+---
+
 ## [0.9.2] - 2026-04-06
 
 ### Added

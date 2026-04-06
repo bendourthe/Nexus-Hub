@@ -8,11 +8,13 @@
 
 ---
 
-## v0.9.2 更新内容
+## v0.9.3 更新内容
 
-- **实现计划工作流** — 新增 `generate-implementation-plan` 和 `implement-phase` 命令，以及专用的 `implementation-plan` 技能，用于结构化、分阶段的 AI 辅助开发。
-- **钩子测试套件** — 763 行的 Bash 描述格式化钩子测试套件，覆盖边界情况和审批流程。
-- **权限扩展** — 扩展了 `claude-permissions.json` 中的 Bash 工具允许列表，添加更多安全工具模式。
+- **9 个新技能** — `idea-refine`、`spec-driven-development`、`incremental-implementation`、`context-engineering`、`frontend-ui-engineering`、`browser-testing-with-devtools`、`code-simplification`、`shipping-and-launch` 和 `using-devai-hub`（元技能），覆盖完整的 SDLC 生命周期（共 183 个技能）。
+- **`wrap-up-session` 命令** — 7 阶段会话收尾工作流，涵盖历史记录捕获、gitignore 清理、文档同步、开发日志更新、内存刷新、版本评估和提交消息生成。
+- **SessionStart 钩子** — 每次新会话自动加载 `using-devai-hub` 元技能，确保技能目录的可见性无需任何手动操作。
+- **技能解剖改进** — 为 19 个优先技能添加了常见借口（Common Rationalizations）表格和二进制验证（Verification）清单，提升执行质量。
+- **插件市场支持** — `.claude-plugin/` 清单文件支持通过 `claude plugin install devai-hub` 一键安装。
 
 ---
 
@@ -29,7 +31,7 @@
 5. **（可选）选择项目** 配置工作区规则。
 
 **完成。**
-- **全局**：你的用户配置文件现在拥有所有 174 个 Claude 技能、29 个命令、12 个钩子、10 个代理和 Gemini 指令。
+- **全局**：你的用户配置文件现在拥有所有 183 个 Claude 技能、32 个命令、13 个钩子、10 个代理和 Gemini 指令。
 - **本地**：你的项目有针对编程语言定制的 `copilot-instructions.md`。
 
 ---

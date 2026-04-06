@@ -6,11 +6,13 @@
 
 ---
 
-## What's New in v0.9.2
+## What's New in v0.9.3
 
-- **Implementation plan workflow** — New `generate-implementation-plan` and `implement-phase` commands plus a dedicated `implementation-plan` skill for structured, phased AI-assisted development.
-- **Hook test suite** — 763-line test suite for the Bash description formatting hook, covering edge cases and approval flows.
-- **Permission expansion** — Extended `claude-permissions.json` bash allowlist with additional safe tool patterns.
+- **9 new skills** — `idea-refine`, `spec-driven-development`, `incremental-implementation`, `context-engineering`, `frontend-ui-engineering`, `browser-testing-with-devtools`, `code-simplification`, `shipping-and-launch`, and `using-devai-hub` (meta-skill) — closing full SDLC coverage gaps (183 total skills).
+- **`wrap-up-session` command** — 7-phase session close-out workflow covering session history capture, gitignore hygiene, doc sync, devlog update, memory refresh, version assessment, and commit message generation.
+- **SessionStart hook** — Auto-loads `using-devai-hub` at every new session to guarantee skill catalog awareness without any manual steps.
+- **Skill anatomy improvements** — Common Rationalizations tables and binary Verification checklists added to 19 priority skills to raise execution quality.
+- **Plugin marketplace support** — `.claude-plugin/` manifests enable one-command installation via `claude plugin install devai-hub`.
 
 ---
 
@@ -27,7 +29,7 @@ Don't want to copy-paste files manually? We made an installer.
 5.  **(Optional) Select a project** to configure workspace-specific rules.
 
 **Done.**
-*   **Globally**: Your user profile now has all 174 Claude Skills, 32 Commands, 12 Hooks, 10 Agents, and Gemini instructions.
+*   **Globally**: Your user profile now has all 183 Claude Skills, 32 Commands, 13 Hooks, 10 Agents, and Gemini instructions.
 *   **Locally**: Your project has `copilot-instructions.md` tailored to your language.
 
 ---
