@@ -1,0 +1,3 @@
+interface:
+  display_name: Implementation Plan
+  short_description: Guide the user through a structured discovery interview to generate a comprehensive v0.1.0 implementation plan with phased sub-tasks and executable prompts.
