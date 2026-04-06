@@ -13,7 +13,7 @@
 # Min commits:   AUTO_DEVLOG_MIN_COMMITS=2 (default; override as needed).
 #
 # Requirements: git, grep, awk, date (jq optional)
-# Exit code: always 0 — Stop hooks must never block.
+# Exit code: always 0 - Stop hooks must never block.
 
 # Never fail loudly
 trap 'exit 0' ERR
@@ -103,7 +103,7 @@ $RECENT_COMMITS
 Files changed:
 $FILES_CHANGED
 
-Write ONLY the entry block — no preamble, no commentary. Then write the updated file."
+Write ONLY the entry block - no preamble, no commentary. Then write the updated file."
 
     if command -v timeout >/dev/null 2>&1; then
         timeout 30 claude --print --max-turns 1 "$AI_PROMPT" >/dev/null 2>&1 && \
@@ -113,11 +113,11 @@ Write ONLY the entry block — no preamble, no commentary. Then write the update
             echo -e "${COLOR_CYAN}[auto-devlog]${COLOR_RESET} ${COLOR_GREEN}AI entry written to DEVLOG.md${COLOR_RESET}" >&2 && exit 0
     fi
     # Fall through to shell-only entry on failure
-    echo -e "${COLOR_YELLOW}[auto-devlog]${COLOR_RESET} AI enrichment failed — writing shell summary instead." >&2
+    echo -e "${COLOR_YELLOW}[auto-devlog]${COLOR_RESET} AI enrichment failed - writing shell summary instead." >&2
 fi
 
 # --- Build shell-only entry ---
-ENTRY="## [$TIMESTAMP] — Session auto-summary [auto]\n\n"
+ENTRY="## [$TIMESTAMP] - Session auto-summary [auto]\n\n"
 ENTRY+="### What Changed\n\n"
 while IFS= read -r line; do
     [ -n "$line" ] && ENTRY+="- $line\n"

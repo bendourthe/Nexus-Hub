@@ -33,7 +33,7 @@ import textwrap
 
 # ── Configuration ──────────────────────────────────────────────────────────
 BOX_WIDTH = 79
-BORDER_CHAR = "="  # Plain ASCII — maximum compatibility across all terminals
+BORDER_CHAR = "="  # Plain ASCII - maximum compatibility across all terminals
 # ──────────────────────────────────────────────────────────────────────────
 
 
@@ -156,9 +156,9 @@ def _tokenize_shell(cmd: str) -> list[tuple[str, str]]:
     """Tokenize a shell command string into (type, value) pairs.
 
     Token types:
-      - ``'word'``  — a shell word (may include internal quotes/escapes)
-      - ``'op'``    — an operator: ``&&``, ``||``, ``;;``, ``|``, ``;``
-      - ``'ws'``    — whitespace (spaces, tabs, newlines)
+      - ``'word'``  - a shell word (may include internal quotes/escapes)
+      - ``'op'``    - an operator: ``&&``, ``||``, ``;;``, ``|``, ``;``
+      - ``'ws'``    - whitespace (spaces, tabs, newlines)
     """
     tokens: list[tuple[str, str]] = []
     i = 0
@@ -194,7 +194,7 @@ def _tokenize_shell(cmd: str) -> list[tuple[str, str]]:
         while i < length:
             ch = cmd[i]
             # Only treat operators as word-boundaries when not inside a
-            # command substitution — $(…) and `…` create nested shells
+            # command substitution - $(...) and `...` create nested shells
             # whose internal &&, ||, ; must not be treated as splits.
             if subshell_depth == 0 and not in_backtick:
                 if ch in (" ", "\t", "\n", ";", "|"):
@@ -421,7 +421,7 @@ def main() -> None:
         sys.exit(0)
 
     if not stripped:
-        # No description — let require-description.sh block it
+        # No description - let require-description.sh block it
         sys.exit(0)
 
     box = format_description_box(stripped)

@@ -115,7 +115,7 @@ safe_copy() {
         if [ -n "$custom_message" ]; then
             write_item "$custom_message" "$GREEN"
         else
-            write_item "✓ Installed to $destination" "$GREEN"
+            write_item "[OK] Installed to $destination" "$GREEN"
         fi
     fi
 }
@@ -172,7 +172,7 @@ safe_folder_copy() {
         if [ -n "$custom_message" ]; then
             write_item "$custom_message" "$GREEN"
         else
-            write_item "✓ Installed to $destination" "$GREEN"
+            write_item "[OK] Installed to $destination" "$GREEN"
         fi
     fi
 }
@@ -187,7 +187,7 @@ install_git_guardrails() {
     # Copy hook script
     local hooks_dir="$target_claude_dir/hooks"
     mkdir -p "$hooks_dir"
-    safe_copy "$repo_root/catalog/hooks/git-guardrails.sh" "$hooks_dir/git-guardrails.sh" true "✓ $scope git guardrails hook installed at: $hooks_dir"
+    safe_copy "$repo_root/catalog/hooks/git-guardrails.sh" "$hooks_dir/git-guardrails.sh" true "[OK] $scope git guardrails hook installed at: $hooks_dir"
     chmod +x "$hooks_dir/git-guardrails.sh" 2>/dev/null || true
 
     # Merge hook config into settings.json
@@ -202,7 +202,7 @@ install_git_guardrails() {
     if [ -f "$settings_file" ]; then
         # Check if guardrails already installed
         if grep -q "git-guardrails" "$settings_file" 2>/dev/null; then
-            write_item "✓ Git guardrails hook already configured in settings.json" "$GREEN"
+            write_item "[OK] Git guardrails hook already configured in settings.json" "$GREEN"
             return
         fi
 
@@ -224,7 +224,7 @@ install_git_guardrails() {
 
             if [ -n "$merged" ]; then
                 echo "$merged" > "$settings_file"
-                write_item "✓ $scope settings.json updated with git guardrails hook" "$GREEN"
+                write_item "[OK] $scope settings.json updated with git guardrails hook" "$GREEN"
             else
                 write_item "Warning: Could not merge into existing settings.json" "$YELLOW"
                 write_item "  You may need to manually add the hook config" "$YELLOW"
@@ -236,7 +236,7 @@ install_git_guardrails() {
     else
         # No existing settings.json, copy template
         cp "$template_file" "$settings_file"
-        write_item "✓ $scope settings.json created with git guardrails hook" "$GREEN"
+        write_item "[OK] $scope settings.json created with git guardrails hook" "$GREEN"
     fi
 }
 
@@ -248,7 +248,7 @@ install_usage_display() {
     # Copy hook script
     local hooks_dir="$target_claude_dir/hooks"
     mkdir -p "$hooks_dir"
-    safe_copy "$repo_root/catalog/hooks/usage-display.sh" "$hooks_dir/usage-display.sh" true "✓ $scope usage display hook installed at: $hooks_dir"
+    safe_copy "$repo_root/catalog/hooks/usage-display.sh" "$hooks_dir/usage-display.sh" true "[OK] $scope usage display hook installed at: $hooks_dir"
     chmod +x "$hooks_dir/usage-display.sh" 2>/dev/null || true
 
     # Merge Stop hook config into settings.json
@@ -263,7 +263,7 @@ install_usage_display() {
     if [ -f "$settings_file" ]; then
         # Check if usage-display already installed
         if grep -q "usage-display" "$settings_file" 2>/dev/null; then
-            write_item "✓ Usage display hook already configured in settings.json" "$GREEN"
+            write_item "[OK] Usage display hook already configured in settings.json" "$GREEN"
             return
         fi
 
@@ -285,7 +285,7 @@ install_usage_display() {
 
             if [ -n "$merged" ]; then
                 echo "$merged" > "$settings_file"
-                write_item "✓ $scope settings.json updated with usage display hook" "$GREEN"
+                write_item "[OK] $scope settings.json updated with usage display hook" "$GREEN"
             else
                 write_item "Warning: Could not merge usage display hook into settings.json" "$YELLOW"
                 write_item "  You may need to manually add the Stop hook config" "$YELLOW"
@@ -307,9 +307,9 @@ install_require_description() {
     # Copy hook scripts
     local hooks_dir="$target_claude_dir/hooks"
     mkdir -p "$hooks_dir"
-    safe_copy "$repo_root/catalog/hooks/require-description.sh" "$hooks_dir/require-description.sh" true "✓ $scope require-description hook installed at: $hooks_dir"
+    safe_copy "$repo_root/catalog/hooks/require-description.sh" "$hooks_dir/require-description.sh" true "[OK] $scope require-description hook installed at: $hooks_dir"
     chmod +x "$hooks_dir/require-description.sh" 2>/dev/null || true
-    safe_copy "$repo_root/catalog/hooks/format-bash-description.py" "$hooks_dir/format-bash-description.py" true "✓ $scope format-bash-description hook installed at: $hooks_dir"
+    safe_copy "$repo_root/catalog/hooks/format-bash-description.py" "$hooks_dir/format-bash-description.py" true "[OK] $scope format-bash-description hook installed at: $hooks_dir"
 
     # Merge hook config into settings.json
     local settings_file="$target_claude_dir/settings.json"
@@ -321,7 +321,7 @@ install_require_description() {
 
     # Check if require-description already installed
     if grep -q "require-description" "$settings_file" 2>/dev/null; then
-        write_item "✓ Require-description hook already configured in settings.json" "$GREEN"
+        write_item "[OK] Require-description hook already configured in settings.json" "$GREEN"
         return
     fi
 
@@ -332,7 +332,7 @@ install_require_description() {
 
         if [ -n "$merged" ]; then
             echo "$merged" > "$settings_file"
-            write_item "✓ $scope settings.json updated with require-description hook" "$GREEN"
+            write_item "[OK] $scope settings.json updated with require-description hook" "$GREEN"
         else
             write_item "Warning: Could not merge require-description hook into settings.json" "$YELLOW"
             write_item "  You may need to manually add the Bash PreToolUse hook for require-description.sh" "$YELLOW"
@@ -366,7 +366,7 @@ install_permissions() {
             if [ -f "$settings_file" ]; then
                 # Check if permissions already installed
                 if grep -q 'WebFetch(domain:github\.com)' "$settings_file" 2>/dev/null; then
-                    write_item "✓ Auto-approve permissions already configured in settings.json" "$GREEN"
+                    write_item "[OK] Auto-approve permissions already configured in settings.json" "$GREEN"
                     return
                 fi
 
@@ -387,7 +387,7 @@ install_permissions() {
 
                     if [ -n "$merged" ]; then
                         echo "$merged" > "$settings_file"
-                        write_item "✓ $scope auto-approve permissions added to settings.json" "$GREEN"
+                        write_item "[OK] $scope auto-approve permissions added to settings.json" "$GREEN"
                     else
                         write_item "Warning: Could not merge permissions into settings.json" "$YELLOW"
                         return
@@ -405,7 +405,7 @@ install_permissions() {
                 else
                     cp "$template_file" "$settings_file"
                 fi
-                write_item "✓ $scope settings.json created with auto-approve permissions" "$GREEN"
+                write_item "[OK] $scope settings.json created with auto-approve permissions" "$GREEN"
             fi
 
             write_item "  Auto-approved: file reads, search (Glob/Grep), web search, git read-only commands" "$GRAY"
@@ -426,7 +426,7 @@ install_permissions() {
 
             if [ -f "$settings_file" ]; then
                 if grep -q '"ReadFileTool"' "$settings_file" 2>/dev/null && grep -q '"allowedDomains"' "$settings_file" 2>/dev/null; then
-                    write_item "✓ Auto-approve permissions already configured in settings.json" "$GREEN"
+                    write_item "[OK] Auto-approve permissions already configured in settings.json" "$GREEN"
                     return
                 fi
 
@@ -450,7 +450,7 @@ install_permissions() {
 
                     if [ -n "$merged" ]; then
                         echo "$merged" > "$settings_file"
-                        write_item "✓ $scope auto-approve permissions added to settings.json" "$GREEN"
+                        write_item "[OK] $scope auto-approve permissions added to settings.json" "$GREEN"
                     else
                         write_item "Warning: Could not merge permissions into Gemini settings.json" "$YELLOW"
                         return
@@ -466,7 +466,7 @@ install_permissions() {
                 else
                     cp "$template_file" "$settings_file"
                 fi
-                write_item "✓ $scope settings.json created with auto-approve permissions" "$GREEN"
+                write_item "[OK] $scope settings.json created with auto-approve permissions" "$GREEN"
             fi
 
             write_item "  Auto-approved: file reads, search, web search, git read-only shell commands" "$GRAY"
@@ -487,7 +487,7 @@ install_permissions() {
 
             if [ -f "$config_file" ]; then
                 if grep -q 'permissions.default.network' "$config_file" 2>/dev/null && grep -q 'allowed_domains' "$config_file" 2>/dev/null; then
-                    write_item "✓ Auto-approve permissions already configured in config.toml" "$GREEN"
+                    write_item "[OK] Auto-approve permissions already configured in config.toml" "$GREEN"
                     return
                 fi
 
@@ -508,11 +508,11 @@ install_permissions() {
                 if ! grep -q '\[permissions.default.network\]' "$config_file" 2>/dev/null; then
                     sed -n '/\[permissions.default.network\]/,$p' "$template_file" >> "$config_file"
                 fi
-                write_item "✓ $scope config.toml updated with auto-approve permissions" "$GREEN"
+                write_item "[OK] $scope config.toml updated with auto-approve permissions" "$GREEN"
             else
                 mkdir -p "$config_dir"
                 cp "$template_file" "$config_file"
-                write_item "✓ $scope config.toml created with auto-approve permissions" "$GREEN"
+                write_item "[OK] $scope config.toml created with auto-approve permissions" "$GREEN"
             fi
 
             write_item "  Auto-approved: filesystem read access to project roots, network access to trusted domains" "$GRAY"
@@ -544,7 +544,7 @@ install_permissions() {
             fi
 
             if grep -q 'useInstructionFiles.*true' "$vscode_settings" 2>/dev/null; then
-                write_item "✓ Copilot useInstructionFiles already enabled in VS Code settings" "$GREEN"
+                write_item "[OK] Copilot useInstructionFiles already enabled in VS Code settings" "$GREEN"
                 return
             fi
 
@@ -558,7 +558,7 @@ install_permissions() {
                 merged=$(jq '. + {"github.copilot.chat.codeGeneration.useInstructionFiles": true}' "$vscode_settings" 2>/dev/null)
                 if [ -n "$merged" ]; then
                     echo "$merged" > "$vscode_settings"
-                    write_item "✓ $scope VS Code settings updated with Copilot instruction file support" "$GREEN"
+                    write_item "[OK] $scope VS Code settings updated with Copilot instruction file support" "$GREEN"
                 else
                     write_item "Warning: Could not merge Copilot settings into VS Code settings.json" "$YELLOW"
                     return
@@ -622,20 +622,20 @@ install_global() {
     render_template "$repo_root/templates/ai-instructions/base-claude.md" "$global_claude/CLAUDE.md" "$repo_root" ""
 
     # Global Skills
-    safe_folder_copy "$repo_root/catalog/skills" "$global_claude/skills" "✓ Global skills catalog installed at: $global_claude/skills"
+    safe_folder_copy "$repo_root/catalog/skills" "$global_claude/skills" "[OK] Global skills catalog installed at: $global_claude/skills"
 
     # Global Commands
-    safe_folder_copy "$repo_root/catalog/commands" "$global_claude/commands" "✓ Global commands installed at: $global_claude/commands"
+    safe_folder_copy "$repo_root/catalog/commands" "$global_claude/commands" "[OK] Global commands installed at: $global_claude/commands"
 
     # Global Agents
-    safe_folder_copy "$repo_root/catalog/agents" "$global_claude/agents" "✓ Global agents installed at: $global_claude/agents"
+    safe_folder_copy "$repo_root/catalog/agents" "$global_claude/agents" "[OK] Global agents installed at: $global_claude/agents"
 
     # Global Rules
-    safe_folder_copy "$repo_root/catalog/rules" "$global_claude/rules" "✓ Global rules installed at: $global_claude/rules"
+    safe_folder_copy "$repo_root/catalog/rules" "$global_claude/rules" "[OK] Global rules installed at: $global_claude/rules"
 
     # Global MCP Server Config
     mkdir -p "$global_claude/mcp-configs"
-    safe_copy "$repo_root/catalog/mcp-configs/mcp-servers.json" "$global_claude/mcp-configs/mcp-servers.json" false "✓ MCP server config installed at: $global_claude/mcp-configs"
+    safe_copy "$repo_root/catalog/mcp-configs/mcp-servers.json" "$global_claude/mcp-configs/mcp-servers.json" false "[OK] MCP server config installed at: $global_claude/mcp-configs"
 
     # Git Guardrails Hook
     install_git_guardrails "$repo_root" "$global_claude" "Global"
@@ -659,10 +659,10 @@ install_global() {
     render_template "$repo_root/templates/ai-instructions/base-gemini.md" "$global_gemini_dir/GEMINI.md" "$repo_root" ""
 
     # Mirror Skills to Agent (Antigravity)
-    safe_folder_copy "$repo_root/catalog/skills" "$global_agent_dir/skills" "✓ Global skills catalog installed at: $global_agent_dir/skills"
+    safe_folder_copy "$repo_root/catalog/skills" "$global_agent_dir/skills" "[OK] Global skills catalog installed at: $global_agent_dir/skills"
 
     # Mirror Commands to Agent Workflows
-    safe_folder_copy "$repo_root/catalog/commands" "$global_agent_dir/workflows" "✓ Global workflows installed at: $global_agent_dir/workflows"
+    safe_folder_copy "$repo_root/catalog/commands" "$global_agent_dir/workflows" "[OK] Global workflows installed at: $global_agent_dir/workflows"
 
     # 3. OpenAI Codex
     write_header "CODEX"
@@ -672,10 +672,10 @@ install_global() {
     mkdir -p "$global_codex_dir"
 
     # Global Skills
-    safe_folder_copy "$repo_root/catalog/skills" "$global_codex_dir/skills" "✓ Global skills catalog installed at: $global_codex_dir/skills"
+    safe_folder_copy "$repo_root/catalog/skills" "$global_codex_dir/skills" "[OK] Global skills catalog installed at: $global_codex_dir/skills"
 
     # Global Custom Prompts (Codex equivalent of commands)
-    safe_folder_copy "$repo_root/catalog/commands" "$global_codex_dir/prompts" "✓ Global custom prompts installed at: $global_codex_dir/prompts"
+    safe_folder_copy "$repo_root/catalog/commands" "$global_codex_dir/prompts" "[OK] Global custom prompts installed at: $global_codex_dir/prompts"
 
     # Global AGENTS.md (open standard instruction file for Codex, Jules, Cursor, Aider)
     render_template "$repo_root/templates/ai-instructions/base-codex.md" "$global_codex_dir/AGENTS.md" "$repo_root" ""
@@ -940,7 +940,7 @@ with open(sys.argv[1], 'w') as f:
             done
         fi
 
-        write_item "✓ Installed to $output" "$GREEN"
+        write_item "[OK] Installed to $output" "$GREEN"
     fi
 }
 
@@ -1034,24 +1034,24 @@ install_workspace() {
         render_template "$repo_root/templates/ai-instructions/base-claude.md" "$target_path/CLAUDE.md" "$repo_root" "$languages"
 
         # Skills
-        safe_folder_copy "$repo_root/catalog/skills" "$claude_dir/skills" "✓ Workspace skills catalog installed at: $claude_dir/skills"
+        safe_folder_copy "$repo_root/catalog/skills" "$claude_dir/skills" "[OK] Workspace skills catalog installed at: $claude_dir/skills"
 
         # Commands
-        safe_folder_copy "$repo_root/catalog/commands" "$claude_dir/commands" "✓ Workspace commands installed at: $claude_dir/commands"
+        safe_folder_copy "$repo_root/catalog/commands" "$claude_dir/commands" "[OK] Workspace commands installed at: $claude_dir/commands"
 
         # Agents
-        safe_folder_copy "$repo_root/catalog/agents" "$claude_dir/agents" "✓ Workspace agents installed at: $claude_dir/agents"
+        safe_folder_copy "$repo_root/catalog/agents" "$claude_dir/agents" "[OK] Workspace agents installed at: $claude_dir/agents"
 
         # Rules
-        safe_folder_copy "$repo_root/catalog/rules" "$claude_dir/rules" "✓ Workspace rules installed at: $claude_dir/rules"
+        safe_folder_copy "$repo_root/catalog/rules" "$claude_dir/rules" "[OK] Workspace rules installed at: $claude_dir/rules"
 
         # MCP Server Config
         mkdir -p "$claude_dir/mcp-configs"
-        safe_copy "$repo_root/catalog/mcp-configs/mcp-servers.json" "$claude_dir/mcp-configs/mcp-servers.json" false "✓ MCP server config installed at: $claude_dir/mcp-configs"
+        safe_copy "$repo_root/catalog/mcp-configs/mcp-servers.json" "$claude_dir/mcp-configs/mcp-servers.json" false "[OK] MCP server config installed at: $claude_dir/mcp-configs"
 
         # Context & Memory
-        safe_folder_copy "$repo_root/catalog/context" "$claude_dir/context" "✓ Workspace context installed at: $claude_dir/context"
-        safe_folder_copy "$repo_root/catalog/memory" "$claude_dir/memory" "✓ Workspace memory installed at: $claude_dir/memory"
+        safe_folder_copy "$repo_root/catalog/context" "$claude_dir/context" "[OK] Workspace context installed at: $claude_dir/context"
+        safe_folder_copy "$repo_root/catalog/memory" "$claude_dir/memory" "[OK] Workspace memory installed at: $claude_dir/memory"
 
         # Git Guardrails Hook
         install_git_guardrails "$repo_root" "$claude_dir" "Workspace"
@@ -1075,12 +1075,12 @@ install_workspace() {
         render_template "$repo_root/templates/ai-instructions/base-gemini.md" "$gemini_dir/GEMINI.md" "$repo_root" "$languages"
 
         # Mirror Skills to Agent
-        safe_folder_copy "$repo_root/catalog/skills" "$agent_dir/skills" "✓ Workspace skills catalog installed at: $agent_dir/skills"
+        safe_folder_copy "$repo_root/catalog/skills" "$agent_dir/skills" "[OK] Workspace skills catalog installed at: $agent_dir/skills"
 
         # Mirror Commands to Agent Workflows
-        safe_folder_copy "$repo_root/catalog/commands" "$agent_dir/workflows" "✓ Workspace workflows installed at: $agent_dir/workflows"
+        safe_folder_copy "$repo_root/catalog/commands" "$agent_dir/workflows" "[OK] Workspace workflows installed at: $agent_dir/workflows"
 
-        write_item "✓ Copied Skills & Workflows structure" "$GREEN"
+        write_item "[OK] Copied Skills & Workflows structure" "$GREEN"
 
         # 3. OpenAI Codex
         write_header "CODEX"
@@ -1090,10 +1090,10 @@ install_workspace() {
         mkdir -p "$codex_dir"
 
         # Skills
-        safe_folder_copy "$repo_root/catalog/skills" "$codex_dir/skills" "✓ Workspace skills catalog installed at: $codex_dir/skills"
+        safe_folder_copy "$repo_root/catalog/skills" "$codex_dir/skills" "[OK] Workspace skills catalog installed at: $codex_dir/skills"
 
         # Custom Prompts (Codex equivalent of commands)
-        safe_folder_copy "$repo_root/catalog/commands" "$codex_dir/prompts" "✓ Workspace custom prompts installed at: $codex_dir/prompts"
+        safe_folder_copy "$repo_root/catalog/commands" "$codex_dir/prompts" "[OK] Workspace custom prompts installed at: $codex_dir/prompts"
 
         # AGENTS.md at project root (open standard for Codex, Jules, Cursor, Aider)
         render_template "$repo_root/templates/ai-instructions/base-codex.md" "$target_path/AGENTS.md" "$repo_root" "$languages"
@@ -1147,7 +1147,7 @@ install_workspace() {
 
         if [ "$do_write" = true ]; then
             echo -e "$merged_content" > "$copilot_file"
-            write_item "✓ Workspace instructions installed at: $copilot_file" "$GREEN"
+            write_item "[OK] Workspace instructions installed at: $copilot_file" "$GREEN"
         fi
 
         echo ""
@@ -1191,7 +1191,7 @@ install_vscode_extensions() {
                     write_item "Homebrew install failed. Please install Node.js from https://nodejs.org" "$RED"
                     return
                 }
-                write_item "✓ Node.js installed successfully." "$GREEN"
+                write_item "[OK] Node.js installed successfully." "$GREEN"
             else
                 write_item "Skipped. Install Node.js from https://nodejs.org and re-run." "$GRAY"
                 return
@@ -1205,7 +1205,7 @@ install_vscode_extensions() {
                     write_item "apt install failed. Please install Node.js from https://nodejs.org" "$RED"
                     return
                 }
-                write_item "✓ Node.js installed successfully." "$GREEN"
+                write_item "[OK] Node.js installed successfully." "$GREEN"
             else
                 write_item "Skipped. Install Node.js from https://nodejs.org and re-run." "$GRAY"
                 return
@@ -1250,7 +1250,7 @@ install_vscode_extensions() {
         return
     fi
 
-    write_item "✓ Extension built successfully." "$GREEN"
+    write_item "[OK] Extension built successfully." "$GREEN"
 
     # Package as VSIX (uses locally installed @vscode/vsce from devDependencies)
     write_item "Packaging extension as VSIX..." "$RESET"
@@ -1265,7 +1265,7 @@ install_vscode_extensions() {
         return
     fi
 
-    write_item "✓ Packaged: $(basename "$vsix_file")" "$GREEN"
+    write_item "[OK] Packaged: $(basename "$vsix_file")" "$GREEN"
 
     popd > /dev/null
 
@@ -1275,7 +1275,7 @@ install_vscode_extensions() {
         code --uninstall-extension "devai-hub.claude-usage-monitor" 2>/dev/null || true
         # --force ensures reinstall even when the version number has not changed
         if code --install-extension "$vsix_file" --force 2>/dev/null; then
-            write_item "✓ Claude Usage Monitor extension installed in VS Code!" "$GREEN"
+            write_item "[OK] Claude Usage Monitor extension installed in VS Code!" "$GREEN"
             write_item "  Restart VS Code to activate. Look for 'Claude: --%' in the status bar." "$RESET"
         else
             write_item "VS Code install failed. Install manually:" "$YELLOW"
@@ -1288,7 +1288,7 @@ install_vscode_extensions() {
     fi
 
     echo ""
-    echo -e "  ${GREEN}✓ Claude Code Usage Monitor Installation Complete.${RESET}"
+    echo -e "  ${GREEN}[OK] Claude Code Usage Monitor Installation Complete.${RESET}"
 }
 
 # --- Template & Script Installation ---
@@ -1316,13 +1316,13 @@ install_templates() {
     # Copy bundled templates from repo
     local builtin_templates="$repo_root/templates/documentation"
     if [ -d "$builtin_templates" ]; then
-        safe_folder_copy "$builtin_templates" "$templates_dest" "✓ Built-in templates installed at: $templates_dest"
+        safe_folder_copy "$builtin_templates" "$templates_dest" "[OK] Built-in templates installed at: $templates_dest"
     fi
 
     # Copy report generator script
     local script_source="$repo_root/scripts/generate_report.py"
     if [ -f "$script_source" ]; then
-        safe_copy "$script_source" "$scripts_dest/generate_report.py" true "✓ Report generator installed at: $scripts_dest/generate_report.py"
+        safe_copy "$script_source" "$scripts_dest/generate_report.py" true "[OK] Report generator installed at: $scripts_dest/generate_report.py"
     fi
 
     # Check Python availability
@@ -1334,7 +1334,7 @@ install_templates() {
         if ! command -v python3 >/dev/null 2>&1; then python_cmd="python"; fi
 
         if $python_cmd -c "import docx; import pptx" 2>/dev/null; then
-            write_item "✓ Python dependencies (python-docx, python-pptx) are available" "$GREEN"
+            write_item "[OK] Python dependencies (python-docx, python-pptx) are available" "$GREEN"
         else
             write_item "Note: Install report dependencies with: pip install python-docx python-pptx" "$YELLOW"
         fi
@@ -1390,7 +1390,7 @@ install_templates() {
 
         local file_name
         file_name=$(basename "$template_path")
-        safe_copy "$template_path" "$templates_dest/$file_name" true "✓ Template imported: $file_name"
+        safe_copy "$template_path" "$templates_dest/$file_name" true "[OK] Template imported: $file_name"
 
         local more
         more=$(read_prompt "Import more templates? [Y]es / [N]o")
