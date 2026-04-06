@@ -729,6 +729,6 @@ Remove the `Stop` hook entry from `.claude/settings.json`. The hook script can r
 
 ---
 
-*Hooks System v1.2.0 - Part of DevAI-Hub v0.8.5*
+*Hooks System - Part of DevAI-Hub v0.9.2*
 
-*Last Updated: February 20, 2026*
+*Last Updated: April 2026*

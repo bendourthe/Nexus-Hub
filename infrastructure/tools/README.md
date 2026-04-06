@@ -1,6 +1,6 @@
-# AI Templates - Tools
+# DevAI-Hub Tools
 
-Utilities for managing, installing, and working with Claude Code skills from the AI Templates repository.
+Utilities for managing, installing, and working with Claude Code skills from the DevAI-Hub repository.
 
 ## Available Tools
 
@@ -17,7 +17,7 @@ python tools/build_skills_catalog.py
 
 - Creates `data/skills.json`
 
-- Contains metadata for all 48+ skills
+- Contains metadata for all 174+ skills
 
 - Includes statistics, categories, and security validation
 
@@ -104,66 +104,92 @@ python tools/install_skill.py --category "Code Review"
 
 # Project initialization
 python tools/install_skill.py --skill init-python-project
-python tools/install_skill.py --skill create-claude-md
+python tools/install_skill.py --skill setup-project
 ```
+
+---
+
+### 3. validate_skills.py
+
+Validate skill file integrity — checks for required frontmatter fields, correct directory structure, and schema compliance.
+
+**Usage:**
+```bash
+python scripts/validate_skills.py
+```
+
+**When to Run:**
+
+- After adding or modifying a skill
+
+- Before submitting a pull request
+
+- As part of CI (`make validate`)
 
 ---
 
 ## Installation Workflow
 
+> **Recommended**: Use the DevAI-Hub installer for first-time setup. It installs all skills, commands, hooks, agents, and permissions globally and per-project in one step:
+> - **Windows**: double-click `install.bat` at the repository root
+> - **macOS / Linux**: run `./install.sh` at the repository root
+>
+> Use `install_skill.py` only when you need to selectively add or refresh individual skills after the initial install.
+
 ### For New Projects
 
-1. **Install critical workflow skills:**
-   ```bash
-   python tools/install_skill.py --priority CRITICAL
-   ```
+1. **Run the installer** (see above) — installs everything globally and configures your project.
 
-2. **Add project-specific skills:**
+2. **Add extra project-specific skills** (optional, post-install):
    ```bash
    python tools/install_skill.py --skill init-python-project
-   python tools/install_skill.py --skill setup-python-system-prompt
+   python tools/install_skill.py --skill setup-project
    ```
 
 3. **Configure project:**
    ```bash
    # Use the installed skills in Claude Code
-   "Use the create-claude-md skill to configure this project"
+   "Use the setup-project skill to configure this project"
    ```
 
 ### For Existing Projects
 
-1. **Audit and cleanup:**
-   ```bash
-   python tools/install_skill.py --category "Code Cleanup"
-   python tools/install_skill.py --category "Code Review"
-   ```
+1. **Re-run the installer** to pick up new skills and commands added since your last install.
 
-2. **Enhance testing:**
+2. **Or selectively add skills** with `install_skill.py`:
    ```bash
-   python tools/install_skill.py --category Testing
-   ```
-
-3. **Improve documentation:**
-   ```bash
-   python tools/install_skill.py --category Documentation
+   python tools/install_skill.py --category "code-cleanup"
+   python tools/install_skill.py --category "code-review"
+   python tools/install_skill.py --category testing
+   python tools/install_skill.py --category documentation
    ```
 
 ---
 
 ## Skill Categories
 
-| Category | Skills | Focus |
-|----------|--------|-------|
-| **Workflow** | 5 | Development processes and best practices |
-| **Configuration** | 10 | Project setup and Claude customization |
-| **Code Cleanup** | 7 | Remove dead code, modernize codebases |
-| **Code Review** | 6 | Comprehensive code analysis workflow |
-| **Documentation** | 6 | API docs, docstrings, user guides, technical docs |
-| **Testing** | 2 | Test infrastructure and generation |
-| **Project Init** | 4 | Initialize new projects (Python, JS, Java, C#) |
-| **Security** | 3 | Audits, compliance, pre-commit checks |
-| **Migration** | 4 | Upgrade dependencies, refactor, extract services |
-| **Analysis** | 1 | Code complexity and quality metrics |
+| Category | Focus |
+|----------|-------|
+| **ai-development** | AI agents, RAG pipelines, prompt engineering, multi-provider routing |
+| **architecture** | System design, DDD, event-driven, microservices, API design |
+| **bug-fixing** | Bug localization, patch generation, regression analysis |
+| **business-product** | Product management, technical writing, business analysis, Scrum |
+| **code-cleanup** | Language-specific dead code removal and modernization (Python, JS, Go, Java, C#, C, C++) |
+| **code-review** | Quality, security, performance, and testing review phases |
+| **compliance** | Regulatory frameworks (GDPR, SOC2, ISO27001, PCI-DSS, CCPA, NIST AI RMF) |
+| **developer-experience** | Refactoring, legacy modernization, async patterns, tooling |
+| **documentation** | API docs, docstrings, strategic comments, technical and user documentation |
+| **framework-specialists** | React, Next.js, Vue, Svelte, Astro, FastAPI |
+| **infrastructure** | Cloud, containers, Kubernetes, CI/CD, observability, SRE, database design |
+| **language-specialists** | Python, TypeScript, Go, Rust, Java, C#, C++, SQL, PowerShell |
+| **orchestration** | Context management, multi-agent coordination, task orchestration |
+| **project-setup** | Initialize new projects (Python, JS, Java, C#) |
+| **research** | Trend research across Reddit, X, and the web |
+| **security** | Dependency audits, authentication patterns, exploit and CVE analysis |
+| **specialized-domains** | Android, iOS, fintech, PDF/DOCX/PPTX/XLSX generation, GLSL shaders |
+| **testing** | E2E testing automation and domain contract validation |
+| **tests-generation** | Unit tests, integration tests, mocks, coverage, mutation testing, fuzzing |
+| **workflow** | TDD, commit workflow, debugging, session history, implementation planning |
 
 ---
 
@@ -204,7 +230,7 @@ python tools/install_skill.py --skill test-driven-development --force
 python tools/install_skill.py --skill debug-with-logs --force
 
 # Project setup
-python tools/install_skill.py --skill create-claude-md --force
+python tools/install_skill.py --skill setup-project --force
 python tools/install_skill.py --skill init-python-project --force
 
 # Code quality
@@ -293,8 +319,6 @@ echo "Installation complete!"
 
 Planned tool additions:
 
-- [ ] `validate_skill.py` - Verify skill integrity and security
-
 - [ ] `update_skill.py` - Update installed skills to latest versions
 
 - [ ] `remove_skill.py` - Uninstall skills cleanly
@@ -307,6 +331,6 @@ Planned tool additions:
 
 ---
 
-*Tools v1.0.0 - Part of AI Templates v0.2.6*
+*Tools - Part of DevAI-Hub v0.9.2*
 
-*Last Updated: October 21, 2025*
+*Last Updated: April 2026*

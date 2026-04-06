@@ -308,17 +308,17 @@ async function evaluateAndNotify(data: UsageData): Promise<boolean> {
 
   if (triggerPercent >= 90) {
     bucket = 90;
-    message = `\uD83D\uDD34 Claude usage at 90% \u2192 Switch to Haiku now to avoid hitting your limit.${resetSuffix}`;
+    message = `Claude usage at 90% \u2192 Switch to Haiku now to avoid hitting your limit.${resetSuffix}`;
   } else if (triggerPercent >= 75) {
     bucket = 75;
-    message = `\u26A0\uFE0F Claude usage at 75% \u2192 Set Effort to Medium or Low and disable Thinking mode.${resetSuffix}`;
+    message = `Claude usage at 75% \u2192 Set Effort to Medium or Low and disable Thinking mode.${resetSuffix}`;
   } else {
     // 50–74 %: only relevant when on Opus or Default
     if (!isOpus) {
       return false;
     }
     bucket = 50;
-    message = `\u26A0\uFE0F Claude usage at 50% \u2192 Switch to Sonnet to preserve your remaining usage.${resetSuffix}`;
+    message = `Claude usage at 50% \u2192 Switch to Sonnet to preserve your remaining usage.${resetSuffix}`;
   }
 
   // Already notified for this bucket in the current session — nothing to do.

@@ -595,6 +595,6 @@ Load different MCPs based on project type:
 
 ---
 
-*MCP Integration Guide v1.0.0 - Part of AI Templates v0.2.6*
+*MCP Integration Guide - Part of DevAI-Hub v0.9.2*
 
-*Last Updated: October 21, 2025*
+*Last Updated: April 2026*

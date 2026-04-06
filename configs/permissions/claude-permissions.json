@@ -86,6 +86,34 @@
 
       "Bash(sed -n *)",
 
+      "Bash(od)",
+      "Bash(od *)",
+      "Bash(hexdump)",
+      "Bash(hexdump *)",
+      "Bash(xxd)",
+      "Bash(xxd *)",
+      "Bash(strings)",
+      "Bash(strings *)",
+
+      "Bash(tar -tf *)",
+      "Bash(unzip -l *)",
+
+      "Bash(md5sum *)",
+      "Bash(md5 *)",
+      "Bash(sha1sum *)",
+      "Bash(sha256sum *)",
+      "Bash(sha512sum *)",
+      "Bash(shasum *)",
+      "Bash(cksum *)",
+
+      "Bash(zcat *)",
+      "Bash(gzip -l *)",
+
+      "Bash(uptime)",
+      "Bash(hostname)",
+      "Bash(id)",
+      "Bash(groups)",
+
       "Bash(xargs grep)",
       "Bash(xargs grep *)",
       "Bash(xargs wc)",
@@ -102,6 +130,10 @@
       "Bash(xargs realpath *)",
       "Bash(xargs basename *)",
       "Bash(xargs dirname *)",
+      "Bash(xargs od *)",
+      "Bash(xargs hexdump *)",
+      "Bash(xargs sort)",
+      "Bash(xargs sort *)",
 
       "Bash(jq)",
       "Bash(jq *)",

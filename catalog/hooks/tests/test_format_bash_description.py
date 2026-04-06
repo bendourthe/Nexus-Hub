@@ -442,6 +442,67 @@ class TestCommandIsAllowed:
     def test_df(self):
         assert command_is_allowed("df -h", REAL_PATTERNS)
 
+    # ── Binary inspection ─────────────────────────────────────────────────
+
+    def test_od_basic(self):
+        assert command_is_allowed("od -c file.bin", REAL_PATTERNS)
+
+    def test_od_hex(self):
+        assert command_is_allowed("od -x data.bin", REAL_PATTERNS)
+
+    def test_hexdump(self):
+        assert command_is_allowed("hexdump -C file.bin", REAL_PATTERNS)
+
+    def test_xxd(self):
+        assert command_is_allowed("xxd file.bin", REAL_PATTERNS)
+
+    def test_strings(self):
+        assert command_is_allowed("strings binary", REAL_PATTERNS)
+
+    # ── Archive inspection ────────────────────────────────────────────────
+
+    def test_tar_list(self):
+        assert command_is_allowed("tar -tf archive.tar.gz", REAL_PATTERNS)
+
+    def test_unzip_list(self):
+        assert command_is_allowed("unzip -l archive.zip", REAL_PATTERNS)
+
+    # ── Checksums ─────────────────────────────────────────────────────────
+
+    def test_sha256sum(self):
+        assert command_is_allowed("sha256sum file.txt", REAL_PATTERNS)
+
+    def test_md5sum(self):
+        assert command_is_allowed("md5sum file.txt", REAL_PATTERNS)
+
+    def test_shasum(self):
+        assert command_is_allowed("shasum -a 256 file.txt", REAL_PATTERNS)
+
+    def test_cksum(self):
+        assert command_is_allowed("cksum file.txt", REAL_PATTERNS)
+
+    # ── Compression read ──────────────────────────────────────────────────
+
+    def test_zcat(self):
+        assert command_is_allowed("zcat file.gz", REAL_PATTERNS)
+
+    def test_gzip_list(self):
+        assert command_is_allowed("gzip -l archive.gz", REAL_PATTERNS)
+
+    # ── System info ───────────────────────────────────────────────────────
+
+    def test_uptime(self):
+        assert command_is_allowed("uptime", REAL_PATTERNS)
+
+    def test_hostname(self):
+        assert command_is_allowed("hostname", REAL_PATTERNS)
+
+    def test_id(self):
+        assert command_is_allowed("id", REAL_PATTERNS)
+
+    def test_groups(self):
+        assert command_is_allowed("groups", REAL_PATTERNS)
+
     # ── Compound positive cases ───────────────────────────────────────────
 
     def test_cd_and_git_log(self):
@@ -488,6 +549,15 @@ class TestCommandIsAllowed:
         assert command_is_allowed(
             "find . -name '*.py' | xargs wc -l", REAL_PATTERNS
         )
+
+    def test_od_pipeline_auto_approved(self):
+        """Regression: cd && sed -n … | od -c | head must be auto-approved."""
+        cmd = (
+            "cd /c/Users/BEDOURTHE/OneDrive\\ -\\ Supira/Documents/Supira/software/DevAI-Hub"
+            " && sed -n '309,322p' extensions/claude-usage-monitor/src/extension.ts"
+            " | od -c | head -50"
+        )
+        assert command_is_allowed(cmd, REAL_PATTERNS)
 
     # ── Negative: commands that must NOT be auto-approved ─────────────────
 
@@ -545,6 +615,14 @@ class TestCommandIsAllowed:
         """An empty / whitespace-only command should not be auto-approved."""
         assert not command_is_allowed("", REAL_PATTERNS)
         assert not command_is_allowed("   ", REAL_PATTERNS)
+
+    def test_tar_extract_not_allowed(self):
+        """tar -xf extracts files — destructive, must not be auto-approved."""
+        assert not command_is_allowed("tar -xf archive.tar.gz", REAL_PATTERNS)
+
+    def test_tar_czf_not_allowed(self):
+        """tar -czf creates archives — destructive, must not be auto-approved."""
+        assert not command_is_allowed("tar -czf out.tar.gz dir/", REAL_PATTERNS)
 
 
 # ══════════════════════════════════════════════════════════════════════════
