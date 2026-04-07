@@ -29,6 +29,7 @@
 - Verify solutions work before claiming completion
 - Find root causes; no temporary fixes
 - Never add AI attribution footers or AI-generated signatures to commit messages
+- Commit messages must be ASCII-only: no em-dashes, en-dashes, curly quotes, ellipsis characters, or other Unicode punctuation. Use hyphens, straight quotes, and `...` instead. This prevents encoding corruption on Windows.
 - Place punctuation outside quotation marks; no em-dashes
 - Professional teaching tone
 - Never hard-wrap paragraph text at a fixed column width; write each paragraph or bullet point as a single continuous line and let the editor or terminal handle visual wrapping

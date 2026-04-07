@@ -100,6 +100,7 @@ docs: update installation instructions
 - Explain **what** and **why**, not how
 - Separate from subject with blank line
 - Each bullet point must be a single line with no line breaks or continuation lines, regardless of length. Never hard-wrap bullet text.
+- Use ASCII characters only: no em-dashes, en-dashes, curly quotes, ellipsis characters, or other Unicode punctuation. Use hyphens, straight quotes, and `...` instead. This prevents encoding corruption on Windows.
 
 ```
 feat(auth): add password reset functionality
@@ -379,6 +380,7 @@ git commit -m "test: add auth integration tests"
 - [ ] Related files are grouped together
 - [ ] Breaking changes are clearly marked
 - [ ] No `Co-Authored-By` or AI attribution lines in commit message
+- [ ] Commit message is ASCII-only (no em-dashes, en-dashes, curly quotes, ellipsis, or other Unicode punctuation)
 
 ## Common Rationalizations
 
@@ -398,6 +400,7 @@ git commit -m "test: add auth integration tests"
 - [ ] No secrets present: pre-commit hook (`detect-secrets` or `gitleaks`) exits with code 0
 - [ ] Breaking changes are marked with `BREAKING CHANGE:` footer or `!` in the type field
 - [ ] No `Co-Authored-By` or AI attribution lines appear in the commit message
+- [ ] No Unicode punctuation in commit message (no em-dashes, en-dashes, curly quotes, ellipsis): these cause encoding corruption on Windows
 
 ## Related Skills
 

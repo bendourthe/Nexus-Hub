@@ -22,6 +22,7 @@ Analyze the current git changes and generate a comprehensive, structured commit 
         - Scope: Optional, e.g., `(auth)`, `(api)`, `(installer)`.
         - Description: Concise summary in imperative mood (e.g., "add feature" not "added feature").
     *   **Body**: Bullet points explaining *what* changed and *why*. Group by component. Each bullet point must be a single line with no line breaks or continuation lines, regardless of length. Never hard-wrap bullet text.
+    *   **Encoding**: Use ASCII characters only. No em-dashes, en-dashes, curly quotes, ellipsis characters, or other Unicode punctuation. Use hyphens, straight quotes, and `...` instead. This prevents encoding corruption on Windows.
     *   **Footer**: Note any breaking changes or issue references.
         - **DO NOT** add `Co-Authored-By` lines or AI attribution footers
 

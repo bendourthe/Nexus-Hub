@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+# commit-msg hook: replace Unicode punctuation with ASCII equivalents.
+# Prevents CP1252 mojibake on Windows (e.g., em-dash becoming "â€"").
+# Silent and non-blocking — fixes in place without failing the commit.
+set -euo pipefail
+
+COMMIT_MSG_FILE="$1"
+
+python3 - "$COMMIT_MSG_FILE" <<'EOF'
+import sys
+
+REPLACEMENTS = [
+    ("\u2014", " - "),   # em-dash — -> space-hyphen-space
+    ("\u2013", "-"),     # en-dash – -> hyphen
+    ("\u201c", '"'),     # left double quote " -> "
+    ("\u201d", '"'),     # right double quote " -> "
+    ("\u2018", "'"),     # left single quote ' -> '
+    ("\u2019", "'"),     # right single quote ' -> '
+    ("\u2026", "..."),   # ellipsis … -> ...
+    ("\u00a0", " "),     # non-breaking space -> regular space
+    ("\u2192", "->"),    # rightwards arrow → -> ->
+    ("\u2190", "<-"),    # leftwards arrow <- -> <-
+]
+
+path = sys.argv[1]
+with open(path, "r", encoding="utf-8", errors="replace") as f:
+    text = f.read()
+
+for src, dst in REPLACEMENTS:
+    text = text.replace(src, dst)
+
+with open(path, "w", encoding="utf-8") as f:
+    f.write(text)
+EOF

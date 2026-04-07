@@ -583,6 +583,32 @@ function Install-RequireDescription {
     }
 }
 
+# --- Git Commit-Msg Hook ---
+
+function Install-GitCommitMsgHook {
+    param([string]$RepoRoot)
+
+    $hookSrc = Join-Path $RepoRoot "catalog\hooks\commit-msg"
+    $templateHooksDir = Join-Path $env:USERPROFILE ".git-templates\hooks"
+
+    if (-not (Test-Path $hookSrc)) {
+        Write-Item -Message "Skip: catalog/hooks/commit-msg not found" -Color "DarkGray"
+        return
+    }
+
+    if (-not (Test-Path $templateHooksDir)) {
+        New-Item -ItemType Directory -Force -Path $templateHooksDir | Out-Null
+    }
+
+    Copy-Item -Path $hookSrc -Destination (Join-Path $templateHooksDir "commit-msg") -Force
+    Write-Item -Message "[OK] Git commit-msg hook installed at: $templateHooksDir\commit-msg" -Color "Green"
+
+    # Register the template directory so all future repos inherit the hook
+    git config --global init.templateDir "~/.git-templates" 2>$null
+    Write-Item -Message "[OK] git config --global init.templateDir set to ~/.git-templates" -Color "Green"
+    Write-Item -Message "  Note: run 'git init' in existing repos to apply the hook there too" -Color "DarkGray"
+}
+
 # --- Permission Installation ---
 
 function Install-Permissions {
@@ -993,6 +1019,10 @@ function Install-Global {
     # --- Skill Discovery sub-section ---
     Write-SubSectionBanner -Text "Skill Discovery (All Platforms)"
     Install-SkillDiscovery -RepoRoot $RepoRoot
+
+    # --- Git Commit-Msg Hook sub-section ---
+    Write-SubSectionBanner -Text "Git Commit-Msg Hook (All Platforms)"
+    Install-GitCommitMsgHook -RepoRoot $RepoRoot
 
     Write-Host ""
     Write-CenteredBanner -Text "Global Installation Phase Complete." -Color "Green"

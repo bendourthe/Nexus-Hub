@@ -576,6 +576,30 @@ install_permissions() {
     esac
 }
 
+# --- Git Commit-Msg Hook ---
+
+install_git_commit_msg_hook() {
+    local repo_root="$1"
+    local user_home="$HOME"
+    local hook_src="$repo_root/catalog/hooks/commit-msg"
+    local template_hooks_dir="$user_home/.git-templates/hooks"
+
+    if [ ! -f "$hook_src" ]; then
+        write_item "Skip: catalog/hooks/commit-msg not found" "$GRAY"
+        return
+    fi
+
+    mkdir -p "$template_hooks_dir"
+    cp "$hook_src" "$template_hooks_dir/commit-msg"
+    chmod +x "$template_hooks_dir/commit-msg"
+    write_item "[OK] Git commit-msg hook installed at: $template_hooks_dir/commit-msg" "$GREEN"
+
+    # Register the template directory so all future repos inherit the hook
+    git config --global init.templateDir "~/.git-templates" 2>/dev/null || true
+    write_item "[OK] git config --global init.templateDir set to ~/.git-templates" "$GREEN"
+    write_item "  Note: run 'git init' in existing repos to apply the hook there too" "$GRAY"
+}
+
 # --- Install Functions ---
 
 install_global() {
@@ -707,6 +731,10 @@ install_global() {
     # --- Skill Discovery sub-section ---
     write_subsection_banner "Skill Discovery (All Platforms)"
     install_skill_discovery "$repo_root"
+
+    # --- Git Commit-Msg Hook sub-section ---
+    write_subsection_banner "Git Commit-Msg Hook (All Platforms)"
+    install_git_commit_msg_hook "$repo_root"
 
     echo ""
     echo -e "${GREEN}----------------------------------------------------------------${RESET}"

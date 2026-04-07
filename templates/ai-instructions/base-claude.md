@@ -36,6 +36,7 @@
 - Find root causes; no temporary fixes
 - Destructive git commands require user confirmation (enforced by git-guardrails hook)
 - Never add `Co-Authored-By` lines, AI attribution footers, or AI-generated signatures to commit messages
+- Commit messages must be ASCII-only: no em-dashes, en-dashes, curly quotes, ellipsis characters, or other Unicode punctuation. Use hyphens, straight quotes, and `...` instead. This prevents encoding corruption on Windows.
 - **MANDATORY**: When using the Bash tool, always provide a `description` as **plain text only** (a single sentence or short paragraph). Do NOT add borders, boxes, `#` characters, padding, or any manual formatting to the description. A PreToolUse hook (`format-bash-description.py`) handles all formatting automatically. The `require-description.sh` hook blocks commands that omit a description.
 - **MANDATORY: Every Read, Glob, and Grep tool call MUST be preceded by a one-sentence plain-language explanation** of what file or path is being accessed and why. No exceptions.
 - Ask clarifying questions before coding if requirements are ambiguous
