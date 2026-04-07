@@ -595,8 +595,8 @@ install_git_commit_msg_hook() {
     write_item "[OK] Git commit-msg hook installed at: $template_hooks_dir/commit-msg" "$GREEN"
 
     # Register the template directory so all future repos inherit the hook
-    git config --global init.templateDir "~/.git-templates" 2>/dev/null || true
-    write_item "[OK] git config --global init.templateDir set to ~/.git-templates" "$GREEN"
+    git config --global init.templateDir "$HOME/.git-templates" 2>/dev/null || true
+    write_item "[OK] git config --global init.templateDir set to $HOME/.git-templates" "$GREEN"
     write_item "  Note: run 'git init' in existing repos to apply the hook there too" "$GRAY"
 }
 
