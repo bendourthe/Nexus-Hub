@@ -182,6 +182,7 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | using-devai-hub | workflow | "Orient an AI session to DevAI-Hub's skill catalog, commands, and hooks in under 2 minutes" | catalog/skills/workflow/using-devai-hub/SKILL.md |
 | test-driven-development | workflow | "Implement TDD workflow with red-green-refactor cycle and test-first development" | catalog/skills/workflow/test-driven-development/SKILL.md |
 | version-upgrade | workflow | "Automate version upgrades with changelog generation and cross-file version bumps" | catalog/skills/workflow/version-upgrade/SKILL.md |
+| dev-progress-tracker | workflow | "Maintain docs/todos.md as a living project progress tracker across sessions" | catalog/skills/workflow/dev-progress-tracker/SKILL.md |
 | idea-refine | developer-experience | "Refine vague ideas into concrete problem statements with clear success criteria" | catalog/skills/developer-experience/idea-refine/SKILL.md |
 | spec-driven-development | developer-experience | "Write a structured specification before coding to prevent rework from misunderstood requirements" | catalog/skills/developer-experience/spec-driven-development/SKILL.md |
 | frontend-ui-engineering | developer-experience | "Build accessible, responsive frontend UIs with clean component architecture and maintainable state" | catalog/skills/developer-experience/frontend-ui-engineering/SKILL.md |
@@ -189,4 +190,4 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | browser-testing-with-devtools | testing | "Test and debug frontend behavior using browser DevTools for network, console, performance, and accessibility" | catalog/skills/testing/browser-testing-with-devtools/SKILL.md |
 | code-simplification | code-cleanup | "Reduce structural complexity by eliminating over-abstraction and dead code without changing behavior" | catalog/skills/code-cleanup/code-simplification/SKILL.md |
 
-**Total: 183 skills across 22 categories**
+**Total: 184 skills across 22 categories**

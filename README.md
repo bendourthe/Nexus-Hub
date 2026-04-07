@@ -6,13 +6,12 @@
 
 ---
 
-## What's New in v0.9.3
+## What's New in v0.9.4
 
-- **9 new skills** — `idea-refine`, `spec-driven-development`, `incremental-implementation`, `context-engineering`, `frontend-ui-engineering`, `browser-testing-with-devtools`, `code-simplification`, `shipping-and-launch`, and `using-devai-hub` (meta-skill) — closing full SDLC coverage gaps (183 total skills).
-- **`wrap-up-session` command** — 7-phase session close-out workflow covering session history capture, gitignore hygiene, doc sync, devlog update, memory refresh, version assessment, and commit message generation.
-- **SessionStart hook** — Auto-loads `using-devai-hub` at every new session to guarantee skill catalog awareness without any manual steps.
-- **Skill anatomy improvements** — Common Rationalizations tables and binary Verification checklists added to 19 priority skills to raise execution quality.
-- **Plugin marketplace support** — `.claude-plugin/` manifests enable one-command installation via `claude plugin install devai-hub`.
+- **`dev-progress-tracker` skill** - maintains `docs/todos.md` as a living project progress tracker across sessions and AI platforms; reads at session start, checks off completed tasks, updates dashboard metrics (184 total skills).
+- **ASCII-only commit messages** - new cross-platform rule in all 5 base templates prevents Unicode punctuation (em-dashes, curly quotes, ellipsis) from causing CP1252 mojibake on Windows; enforced by a new `commit-msg` git hook deployed automatically at install time.
+- **`docs/todos.md` convention** - all platform instruction files now direct agents to read, update, and maintain the project progress tracker file automatically.
+- **Installer commit-msg hook** - both `installer.sh` and `installer.ps1` now deploy the commit-msg hook to `~/.git-templates/hooks/` and configure `git init.templateDir` globally so all future repos inherit it.
 
 ---
 

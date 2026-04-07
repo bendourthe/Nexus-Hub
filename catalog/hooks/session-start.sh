@@ -4,11 +4,11 @@
 # Keeps output under 200 tokens to avoid context overhead.
 set -euo pipefail
 
-SKILL_COUNT=183
+SKILL_COUNT=184
 COMMAND_COUNT=32
 
 cat <<EOF
-DevAI-Hub is active (v0.9.3) - $SKILL_COUNT skills, $COMMAND_COUNT commands.
+DevAI-Hub is active (v0.9.4) - $SKILL_COUNT skills, $COMMAND_COUNT commands.
 
 Quick navigation:
   /search-skills <keyword>   Find the right skill for your task

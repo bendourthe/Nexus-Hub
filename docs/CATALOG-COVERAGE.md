@@ -1,6 +1,6 @@
 # DevAI-Hub Catalog Coverage Matrix
 
-**Version**: 0.9.3
+**Version**: 0.9.4
 **Generated**: 2026-04-06
 **Skills Total**: 174 across 20 categories
 

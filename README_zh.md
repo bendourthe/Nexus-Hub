@@ -8,13 +8,12 @@
 
 ---
 
-## v0.9.3 更新内容
+## v0.9.4 更新内容
 
-- **9 个新技能** — `idea-refine`、`spec-driven-development`、`incremental-implementation`、`context-engineering`、`frontend-ui-engineering`、`browser-testing-with-devtools`、`code-simplification`、`shipping-and-launch` 和 `using-devai-hub`（元技能），覆盖完整的 SDLC 生命周期（共 183 个技能）。
-- **`wrap-up-session` 命令** — 7 阶段会话收尾工作流，涵盖历史记录捕获、gitignore 清理、文档同步、开发日志更新、内存刷新、版本评估和提交消息生成。
-- **SessionStart 钩子** — 每次新会话自动加载 `using-devai-hub` 元技能，确保技能目录的可见性无需任何手动操作。
-- **技能解剖改进** — 为 19 个优先技能添加了常见借口（Common Rationalizations）表格和二进制验证（Verification）清单，提升执行质量。
-- **插件市场支持** — `.claude-plugin/` 清单文件支持通过 `claude plugin install devai-hub` 一键安装。
+- **`dev-progress-tracker` 技能** - 将 `docs/todos.md` 作为跨会话和 AI 平台的活动项目进度跟踪器；在会话开始时自动读取，勾选完成任务，更新仪表盘指标（共 184 个技能）。
+- **仅 ASCII 提交信息** - 所有 5 个平台基础模板中的新规则，防止 Unicode 标点（em 破折号、弯引号、省略号）在 Windows 上造成 CP1252 乱码；通过安装时自动部署的新 `commit-msg` git 钩子强制执行。
+- **`docs/todos.md` 惯例** - 所有平台指令文件现在指导 AI 代理自动读取、更新和维护项目进度跟踪文件。
+- **安装程序 commit-msg 钩子** - `installer.sh` 和 `installer.ps1` 现在将 commit-msg 钩子部署到 `~/.git-templates/hooks/` 并全局配置 `git init.templateDir`，使所有未来的仓库自动继承该钩子。
 
 ---
 

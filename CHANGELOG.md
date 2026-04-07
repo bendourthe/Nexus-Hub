@@ -11,6 +11,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.9.4] - 2026-04-07
+
+### Added
+- **`dev-progress-tracker` skill** - new workflow skill (`catalog/skills/workflow/dev-progress-tracker/SKILL.md`) that maintains `docs/todos.md` as a living project progress tracker across sessions and AI platforms; includes session-start read behavior, task checkbox management, dashboard metrics, sprint roadmap structure, and functionality matrix template (184 total skills)
+- **`catalog/hooks/commit-msg`** - new git commit-msg hook that silently auto-replaces Unicode punctuation (em-dashes, en-dashes, curly quotes, ellipsis, arrows) with ASCII equivalents at commit time, preventing CP1252 encoding corruption on Windows
+- **Global commit-msg hook deployment** - `install_git_commit_msg_hook` (bash) and `Install-GitCommitMsgHook` (PowerShell) added to both installers; copies the hook to `~/.git-templates/hooks/` and sets `git config --global init.templateDir` so all future repos on the machine inherit it automatically
+
+### Changed
+- **All 5 platform base templates** (`base-claude.md`, `base-gemini.md`, `base-codex.md`, `base-cursor.md`, `base-opencode.md`) - added two new cross-platform rules: ASCII-only commit messages and `docs/todos.md` progress tracking convention; both rules are now distributed to Claude, Gemini, Codex, Cursor, and OpenCode instruction files at install time
+- **`generate-commit-message` command** and **`code-commit-workflow` skill** - added explicit ASCII encoding requirement to body formatting rules, quality checklist, and verification items
+- **`format-bash-description.py`** and **`session-start.sh`** - replaced Unicode punctuation in comments with plain ASCII hyphens; updated version display; corrected file permissions
+- **Guides** (`CLAUDE_CODE_PROJECT_SETUP.md`, `SUBAGENTS_GUIDE.md`) - replaced stale `ai-templates` references with `DevAI-Hub`; updated version footer
+- **Skill count**: 183 -> 184
+
+### Fixed
+- Non-ASCII characters (em-dashes, en-dashes, curly quotes) in commit messages causing CP1252 mojibake on Windows (e.g., `--` appearing as `â€"`)
+- Missing final newlines in `data/marketplace.json` and `data/skills.json`
+- Permissions configuration, stale documentation references, and installer sync issues (issues #1-#4)
+
+---
+
 ## [0.9.3] - 2026-04-06
 
 ### Added
