@@ -1,10 +1,11 @@
 import * as vscode from "vscode";
-import { UsageData, UrgencyLevel } from "./types";
+import { UsageData, UrgencyLevel, ColorConfig, getColorConfig } from "./types";
 import { getOverallUrgency } from "./recommendations";
 import { UsageStore } from "./usageStore";
 
 export class StatusBarManager {
   private readonly statusBarItem: vscode.StatusBarItem;
+  private readonly gearItem: vscode.StatusBarItem;
   private autoRefreshTimer: ReturnType<typeof setInterval> | undefined;
   private displayTickTimer: ReturnType<typeof setInterval> | undefined;
   private onAutoRefresh: (() => void) | undefined;
@@ -13,7 +14,8 @@ export class StatusBarManager {
 
   constructor(
     private readonly store: UsageStore,
-    private readonly dashboardCommandId: string
+    private readonly dashboardCommandId: string,
+    private readonly settingsCommandId: string
   ) {
     this.statusBarItem = vscode.window.createStatusBarItem(
       vscode.StatusBarAlignment.Right,
@@ -21,6 +23,15 @@ export class StatusBarManager {
     );
     this.statusBarItem.command = dashboardCommandId;
     this.statusBarItem.name = "Claude Usage Monitor";
+
+    this.gearItem = vscode.window.createStatusBarItem(
+      vscode.StatusBarAlignment.Right,
+      99
+    );
+    this.gearItem.text = "$(gear)";
+    this.gearItem.tooltip = "Claude Usage: Settings";
+    this.gearItem.command = settingsCommandId;
+    this.gearItem.name = "Claude Usage Settings";
   }
 
   setAutoRefreshCallback(callback: () => void): void {
@@ -34,12 +45,14 @@ export class StatusBarManager {
   show(): void {
     this.refresh();
     this.statusBarItem.show();
+    this.gearItem.show();
     this.startAutoRefreshTimer();
     this.startDisplayTick();
   }
 
   hide(): void {
     this.statusBarItem.hide();
+    this.gearItem.hide();
     this.stopAutoRefreshTimer();
     this.stopDisplayTick();
   }
@@ -70,6 +83,7 @@ export class StatusBarManager {
     this.stopAutoRefreshTimer();
     this.stopDisplayTick();
     this.statusBarItem.dispose();
+    this.gearItem.dispose();
   }
 
   private tick(): void {
@@ -174,14 +188,15 @@ export class StatusBarManager {
   private getBackgroundColor(
     urgency: UrgencyLevel
   ): vscode.ThemeColor | undefined {
-    switch (urgency) {
-      case "critical":
-      case "high":
-        return new vscode.ThemeColor("statusBarItem.errorBackground");
-      case "moderate":
-        return new vscode.ThemeColor("statusBarItem.warningBackground");
-      default:
-        return undefined;
+    if (urgency === "low") {
+      return undefined;
+    }
+    const colors = getColorConfig();
+    const colorOption = colors[urgency as keyof ColorConfig];
+    switch (colorOption) {
+      case "warning": return new vscode.ThemeColor("statusBarItem.warningBackground");
+      case "error":   return new vscode.ThemeColor("statusBarItem.errorBackground");
+      default:        return undefined;
     }
   }
 

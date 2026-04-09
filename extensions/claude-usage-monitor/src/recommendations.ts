@@ -5,20 +5,21 @@ import {
   formatModelName,
   baseModelId,
   is1MContext,
-  URGENCY_THRESHOLDS,
+  getThresholdConfig,
 } from "./types";
 
 const isOpus   = (m: string): boolean => /opus|default/i.test(m);
 const isSonnet = (m: string): boolean => /sonnet/i.test(m);
 
 export function classifyUrgency(percent: number): UrgencyLevel {
-  if (percent >= URGENCY_THRESHOLDS.critical) {
+  const t = getThresholdConfig();
+  if (percent >= t.critical) {
     return "critical";
   }
-  if (percent >= URGENCY_THRESHOLDS.high) {
+  if (percent >= t.high) {
     return "high";
   }
-  if (percent >= URGENCY_THRESHOLDS.moderate) {
+  if (percent >= t.moderate) {
     return "moderate";
   }
   return "low";

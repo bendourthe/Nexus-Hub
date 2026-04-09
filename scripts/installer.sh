@@ -364,8 +364,8 @@ install_permissions() {
             fi
 
             if [ -f "$settings_file" ]; then
-                # Check if permissions already installed
-                if grep -q 'WebFetch(domain:github\.com)' "$settings_file" 2>/dev/null; then
+                # Check if permissions already installed (sentinel: api.github.com was added in v0.9.5+)
+                if grep -q 'WebFetch(domain:api\.github\.com)' "$settings_file" 2>/dev/null; then
                     write_item "[OK] Auto-approve permissions already configured in settings.json" "$GREEN"
                     return
                 fi

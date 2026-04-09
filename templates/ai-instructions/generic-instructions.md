@@ -124,7 +124,8 @@ Apply these rules to **ALL** outputs, regardless of the domain:
     *   **Security**: Sanitize inputs, avoid hardcoded secrets.
     *   **Modernity**: Prefer modern language features (async/await, type hints) unless restricted.
 *   **Process**:
-    *   Ask clarifying questions *before* coding if requirements are ambiguous.
+    *   Ask clarifying questions *before* coding if requirements are ambiguous; state assumptions explicitly before acting and surface multiple interpretations rather than choosing silently.
+    *   Every changed line must trace directly to the user's request; do not clean up adjacent code, pre-existing dead code, or style issues outside the stated scope.
     *   Edit existing files in place. Do not create `_v2` copies.
     *   Explain *why* a solution works, not just *what* it is.
 

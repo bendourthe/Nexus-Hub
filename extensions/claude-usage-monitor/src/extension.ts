@@ -3,13 +3,15 @@ import { UsageStore } from "./usageStore";
 import { StatusBarManager } from "./statusBarManager";
 import { UsageFetcher, FetchError } from "./usageFetcher";
 import { DashboardPanel } from "./dashboardPanel";
+import { SettingsPanel } from "./settingsPanel";
 import { getRecommendation, getOverallUrgency } from "./recommendations";
-import { UrgencyLevel, UsageData, formatModelName } from "./types";
+import { UrgencyLevel, UsageData, formatModelName, getThresholdConfig } from "./types";
 
 const RECOMMEND_COMMAND = "claude-usage.recommend";
 const RESET_COMMAND = "claude-usage.reset";
 const DASHBOARD_COMMAND = "claude-usage.dashboard";
 const REFRESH_COMMAND = "claude-usage.refresh";
+const SETTINGS_COMMAND = "claude-usage.settings";
 
 let consecutiveFailures = 0;
 let lastFetchError: FetchError | undefined;
@@ -24,7 +26,7 @@ const notifiedThresholds = new Set<number>();
 export function activate(context: vscode.ExtensionContext): void {
   const store = new UsageStore(context.globalState);
   const fetcher = new UsageFetcher();
-  const statusBar = new StatusBarManager(store, DASHBOARD_COMMAND);
+  const statusBar = new StatusBarManager(store, DASHBOARD_COMMAND, SETTINGS_COMMAND);
 
   const config = vscode.workspace.getConfiguration("claudeUsage");
   if (config.get<boolean>("showInStatusBar", true)) {
@@ -141,6 +143,11 @@ export function activate(context: vscode.ExtensionContext): void {
       });
   });
 
+  // Command: Open settings panel
+  const settingsCommand = vscode.commands.registerCommand(SETTINGS_COMMAND, () => {
+    SettingsPanel.show(context.extensionUri);
+  });
+
   // Command: Clear stored data
   const resetCommand = vscode.commands.registerCommand(RESET_COMMAND, async () => {
     const confirm = await vscode.window.showWarningMessage(
@@ -187,6 +194,19 @@ export function activate(context: vscode.ExtensionContext): void {
       );
     }
 
+    // When threshold or color settings change, re-evaluate the status bar immediately.
+    if (
+      event.affectsConfiguration("claudeUsage.thresholds") ||
+      event.affectsConfiguration("claudeUsage.colors")
+    ) {
+      statusBar.refresh();
+      DashboardPanel.updateIfOpen(
+        store.getWithFreshCountdowns(),
+        store.getTimeSinceUpdate(),
+        lastFetchError,
+      );
+    }
+
   });
 
   context.subscriptions.push(
@@ -194,6 +214,7 @@ export function activate(context: vscode.ExtensionContext): void {
     refreshCommand,
     recommendCommand,
     resetCommand,
+    settingsCommand,
     configWatcher,
     { dispose: () => statusBar.dispose() }
   );
@@ -285,10 +306,11 @@ async function autoFetchAndUpdate(
  * Returns true if a notification was shown, false otherwise.
  */
 async function evaluateAndNotify(data: UsageData): Promise<boolean> {
+  const t = getThresholdConfig();
   const triggerPercent = Math.max(data.session.percent, data.weeklyAllModels.percent);
 
-  // Reset within-session tracking when usage drops below 50% (new cycle)
-  if (triggerPercent < 50) {
+  // Reset within-session tracking when usage drops below the moderate threshold.
+  if (triggerPercent < t.moderate) {
     notifiedThresholds.clear();
     return false;
   }
@@ -306,19 +328,19 @@ async function evaluateAndNotify(data: UsageData): Promise<boolean> {
   let bucket: number;
   let message: string;
 
-  if (triggerPercent >= 90) {
-    bucket = 90;
-    message = `Claude usage at 90% \u2192 Switch to Haiku now to avoid hitting your limit.${resetSuffix}`;
-  } else if (triggerPercent >= 75) {
-    bucket = 75;
-    message = `Claude usage at 75% \u2192 Set Effort to Medium or Low and disable Thinking mode.${resetSuffix}`;
+  if (triggerPercent >= t.critical) {
+    bucket = t.critical;
+    message = `Claude usage at ${t.critical}% \u2192 Switch to Haiku now to avoid hitting your limit.${resetSuffix}`;
+  } else if (triggerPercent >= t.high) {
+    bucket = t.high;
+    message = `Claude usage at ${t.high}% \u2192 Set Effort to Medium or Low and disable Thinking mode.${resetSuffix}`;
   } else {
-    // 50–74 %: only relevant when on Opus or Default
+    // moderate–(high-1)%: only relevant when on Opus or Default
     if (!isOpus) {
       return false;
     }
-    bucket = 50;
-    message = `Claude usage at 50% \u2192 Switch to Sonnet to preserve your remaining usage.${resetSuffix}`;
+    bucket = t.moderate;
+    message = `Claude usage at ${t.moderate}% \u2192 Switch to Sonnet to preserve your remaining usage.${resetSuffix}`;
   }
 
   // Already notified for this bucket in the current session — nothing to do.
@@ -328,7 +350,7 @@ async function evaluateAndNotify(data: UsageData): Promise<boolean> {
 
   // Mark this bucket and every lower one as notified so they never fire
   // individually if usage continues to climb during the same session.
-  [90, 75, 50].filter(t => triggerPercent >= t).forEach(t => notifiedThresholds.add(t));
+  [t.critical, t.high, t.moderate].filter(thresh => triggerPercent >= thresh).forEach(thresh => notifiedThresholds.add(thresh));
 
   vscode.window
     .showWarningMessage(message, "Open Dashboard")

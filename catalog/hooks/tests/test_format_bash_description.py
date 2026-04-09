@@ -626,6 +626,106 @@ class TestCommandIsAllowed:
 
 
 # ══════════════════════════════════════════════════════════════════════════
+# B2.  Edge-case fixes: variable assignments, else/elif, select
+# ══════════════════════════════════════════════════════════════════════════
+
+
+class TestVariableAssignmentAllowance:
+    """Variable assignments of the form VAR=$(cmd) must be unwrapped so that
+    the embedded command is checked against the allow list, not the raw
+    assignment string.  Regression tests for the for-loop false-negative.
+    """
+
+    def test_var_assign_with_command_substitution(self):
+        """count=$(ls -d */) should be allowed when ls * is in the list."""
+        assert command_is_allowed(
+            'count=$(ls -d "dir"/*/ 2>/dev/null | wc -l)', REAL_PATTERNS
+        )
+
+    def test_var_assign_with_simple_substitution(self):
+        """result=$(git log --oneline) should be allowed."""
+        assert command_is_allowed("result=$(git log --oneline)", REAL_PATTERNS)
+
+    def test_plain_var_assign_allowed(self):
+        """FOO=bar (plain literal assignment, no command) should be allowed."""
+        assert command_is_allowed("FOO=bar", REAL_PATTERNS)
+
+    def test_prefix_var_assign_followed_by_command(self):
+        """FOO=bar echo hello -- prefix assignment before allowed command."""
+        assert command_is_allowed("FOO=bar echo hello", REAL_PATTERNS)
+
+    def test_for_loop_with_var_assign_body(self):
+        """The exact command that triggered the original false-negative."""
+        cmd = (
+            "for category in catalog/skills/*/; do "
+            'count=$(ls -d "$category"*/ 2>/dev/null | wc -l); '
+            'echo "$(basename "$category"): $count"; '
+            "done"
+        )
+        assert command_is_allowed(cmd, REAL_PATTERNS)
+
+    def test_cd_then_for_loop_with_var_assign(self):
+        """Full compound command from the bug report."""
+        cmd = (
+            r"cd /c/Users/BEDOURTHE/OneDrive\ -\ Supira/Documents/DevAI-Hub"
+            " && for category in catalog/skills/*/; do"
+            ' count=$(ls -d "$category"*/ 2>/dev/null | wc -l);'
+            ' echo "$(basename "$category"): $count";'
+            " done"
+        )
+        assert command_is_allowed(cmd, REAL_PATTERNS)
+
+    def test_var_assign_with_dangerous_inner_cmd_blocked(self):
+        """OUT=$(rm -rf /tmp) must still be blocked despite the assignment wrapper."""
+        assert not command_is_allowed("OUT=$(rm -rf /tmp)", REAL_PATTERNS)
+
+    def test_var_assign_inner_git_push_blocked(self):
+        """Dangerous command inside $() must be blocked."""
+        assert not command_is_allowed("RESULT=$(git push origin main)", REAL_PATTERNS)
+
+
+class TestIfElseAllowance:
+    """if/else blocks must be auto-approved when all branches are safe."""
+
+    def test_simple_if_then(self):
+        assert command_is_allowed(
+            "if [ -f foo.txt ]; then echo yes; fi", REAL_PATTERNS
+        )
+
+    def test_if_then_else(self):
+        """else branch must also be checked and not cause a false negative."""
+        assert command_is_allowed(
+            "if [ -f foo.txt ]; then echo yes; else echo no; fi", REAL_PATTERNS
+        )
+
+    def test_if_elif_else(self):
+        assert command_is_allowed(
+            "if [ -f a ]; then echo a; elif [ -f b ]; then echo b; else echo c; fi",
+            REAL_PATTERNS,
+        )
+
+    def test_if_else_with_dangerous_branch_blocked(self):
+        """Dangerous command in else branch must block the whole construct."""
+        assert not command_is_allowed(
+            "if [ -f foo ]; then echo ok; else rm -rf /tmp/x; fi", REAL_PATTERNS
+        )
+
+
+class TestSelectConstruct:
+    """select is a valid bash loop and should be treated as a shell opener."""
+
+    def test_select_loop_allowed(self):
+        assert command_is_allowed(
+            "select opt in a b c; do echo \"$opt\"; done", REAL_PATTERNS
+        )
+
+    def test_select_with_dangerous_body_blocked(self):
+        assert not command_is_allowed(
+            "select opt in a b; do rm -rf /tmp; done", REAL_PATTERNS
+        )
+
+
+# ══════════════════════════════════════════════════════════════════════════
 # C.  format_description_box
 # ══════════════════════════════════════════════════════════════════════════
 

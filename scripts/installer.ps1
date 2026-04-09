@@ -635,9 +635,9 @@ function Install-Permissions {
             $newEntries = @($templateJson.permissions.allow)
 
             if (Test-Path $settingsFile) {
-                # Check if permissions already installed (spot-check for a distinctive entry)
+                # Check if permissions already installed (sentinel: api.github.com was added in v0.9.5+)
                 $content = Get-Content $settingsFile -Raw
-                if ($content -match "WebFetch\(domain:github\.com\)") {
+                if ($content -match "WebFetch\(domain:api\.github\.com\)") {
                     Write-Item -Message "✓ Auto-approve permissions already configured in settings.json" -Color "DarkGreen"
                     return
                 }

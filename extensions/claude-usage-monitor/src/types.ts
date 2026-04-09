@@ -1,3 +1,5 @@
+import * as vscode from "vscode";
+
 /** Any Claude model ID string, e.g. "claude-sonnet-4-6" or "claude-sonnet-4-6[1m]". */
 export type ClaudeModel = string;
 
@@ -131,6 +133,41 @@ export const URGENCY_THRESHOLDS = {
   /** At or above 90% → critical */
   critical: 90,
 } as const;
+
+/** Status bar color option for a given urgency level. */
+export type ColorOption = "warning" | "error" | "none";
+
+export interface ThresholdConfig {
+  moderate: number;
+  high: number;
+  critical: number;
+}
+
+export interface ColorConfig {
+  moderate: ColorOption;
+  high: ColorOption;
+  critical: ColorOption;
+}
+
+/** Read threshold settings from VS Code configuration, falling back to hardcoded defaults. */
+export function getThresholdConfig(): ThresholdConfig {
+  const c = vscode.workspace.getConfiguration("claudeUsage");
+  return {
+    moderate: c.get<number>("thresholds.moderate", URGENCY_THRESHOLDS.moderate),
+    high:     c.get<number>("thresholds.high",     URGENCY_THRESHOLDS.high),
+    critical: c.get<number>("thresholds.critical", URGENCY_THRESHOLDS.critical),
+  };
+}
+
+/** Read color settings from VS Code configuration, falling back to defaults. */
+export function getColorConfig(): ColorConfig {
+  const c = vscode.workspace.getConfiguration("claudeUsage");
+  return {
+    moderate: c.get<ColorOption>("colors.moderate", "warning"),
+    high:     c.get<ColorOption>("colors.high",     "error"),
+    critical: c.get<ColorOption>("colors.critical", "error"),
+  };
+}
 
 /* ------------------------------------------------------------------ */
 /*  Suggestion state                                                   */

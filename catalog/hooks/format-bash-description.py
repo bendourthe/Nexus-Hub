@@ -134,10 +134,14 @@ def load_allow_patterns() -> list[str]:
 # ── Shell-aware tokenizer and splitter ────────────────────────────────────
 
 # Keywords that open/close shell block constructs
-_SHELL_OPENERS = frozenset({"for", "while", "until", "if", "case"})
+_SHELL_OPENERS = frozenset({"for", "while", "until", "if", "case", "select"})
 _SHELL_CLOSERS = frozenset({"done", "fi", "esac"})
 # Keywords that start the body inside a block (used by _extract_body_commands)
 _BODY_STARTERS = frozenset({"do", "then"})
+# Keywords that are clause separators inside if/elif/else bodies.
+# They may appear as the first word of a split fragment and must be stripped
+# before the remainder is treated as a command.
+_CLAUSE_KEYWORDS = frozenset({"else", "elif", "then"})
 
 
 def _bare_keyword(token_value: str) -> str:
@@ -297,8 +301,16 @@ def _extract_body_commands(construct: str) -> list[str] | None:
     """Extract the body commands from a shell control structure.
 
     Supported forms:
-      - ``for/while/until … do BODY done``
-      - ``if … then BODY fi``
+      - ``for/while/until/select … do BODY done``
+      - ``if … then BODY [elif … then BODY] [else BODY] fi``
+
+    ``else``, ``elif``, and ``then`` may appear as the leading word of a
+    split fragment because the semicolon-based splitter doesn't know about
+    shell clause structure.  For example:
+      ``if …; then echo yes; else echo no; fi``
+    produces body fragments ``["echo yes", "else echo no"]``.
+    The ``else`` prefix is stripped so the actual command ``echo no`` is
+    what gets checked.  All branches (then/elif/else) are checked together.
 
     Returns a list of body subcommands (split at the top level within
     the body), or ``None`` if the construct cannot be parsed.
@@ -334,7 +346,81 @@ def _extract_body_commands(construct: str) -> list[str] | None:
     if not body_text:
         return []
 
-    return split_compound_command(body_text)
+    raw_cmds = split_compound_command(body_text)
+
+    # Strip leading clause keywords (``else``, ``elif``, ``then``) from each
+    # fragment.  These appear because the semicolon splitter treats them as
+    # the start of a new fragment.  We strip the keyword and keep the rest
+    # as the actual command to check.  Empty remainders are dropped.
+    result: list[str] = []
+    for c in raw_cmds:
+        parts = c.split(None, 1)
+        if parts and _bare_keyword(parts[0]) in _CLAUSE_KEYWORDS:
+            if len(parts) == 2 and parts[1].strip():
+                result.append(parts[1].strip())
+            # else: bare "else" / "then" with no body -- skip
+        else:
+            result.append(c)
+    return result
+
+
+# Regex: matches a shell variable assignment prefix, e.g. "count=" or "FOO="
+_VAR_ASSIGN_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*=(.*)", re.DOTALL)
+
+
+def _unwrap_var_assignment(sub: str) -> list[str] | None:
+    """If *sub* is a shell variable assignment, return the commands inside it.
+
+    Returns:
+      - ``None``  if *sub* is not a variable assignment.
+      - ``[]``    if the assignment RHS is a plain literal (nothing to check).
+      - A list of command strings to check when the RHS contains ``$(cmd)``
+        and/or a trailing command (e.g. ``VAR=$(subcmd) actual_cmd``).
+
+    Examples::
+
+        "count=$(ls -d */)"      → ["ls -d */"]
+        "FOO=bar"                → []
+        "FOO=bar echo hello"     → ["echo hello"]
+        "X=$(cmd) extra args"    → ["cmd", "extra args"]
+    """
+    m = _VAR_ASSIGN_RE.match(sub)
+    if not m:
+        return None
+
+    rhs = m.group(1)
+
+    if not rhs.startswith("$("):
+        # Plain assignment: VAR=literal [trailing_cmd]
+        # Anything after whitespace is a prefix-assigned command.
+        parts = rhs.split(None, 1)
+        if len(parts) == 2:
+            # e.g. "bar echo hello" → trailing command is "echo hello"
+            return [parts[1]]
+        return []
+
+    # RHS is $(inner_cmd) [trailing]
+    # Walk character by character to find the matching closing paren.
+    depth = 0
+    close_idx = len(rhs) - 1
+    for i, ch in enumerate(rhs):
+        if ch == "(":
+            depth += 1
+        elif ch == ")":
+            depth -= 1
+            if depth == 0:
+                close_idx = i
+                break
+
+    inner = rhs[2:close_idx]          # strip leading $( and closing )
+    trailing = rhs[close_idx + 1:].strip()
+
+    cmds: list[str] = []
+    if inner.strip():
+        cmds.append(inner.strip())
+    if trailing:
+        cmds.append(trailing)
+    return cmds
 
 
 def command_is_allowed(cmd: str, patterns: list[str]) -> bool:
@@ -345,6 +431,15 @@ def command_is_allowed(cmd: str, patterns: list[str]) -> bool:
     extracted and checked recursively so that, for example,
     ``for f in *.py; do wc -l "$f"; done`` is allowed when ``wc *``
     is in the allow list.
+
+    Variable assignments of the form ``VAR=$(cmd)`` or ``VAR=val cmd`` are
+    unwrapped so that the embedded command is checked rather than the raw
+    assignment string.
+
+    Note: output redirections (``cmd > file``) are not stripped before
+    pattern matching, so ``ls > /tmp/out`` will match ``ls *`` and be
+    auto-approved.  This is acceptable for the current threat model --
+    ``git-guardrails.sh`` blocks genuinely destructive patterns.
     """
     if not patterns:
         return False
@@ -362,8 +457,15 @@ def command_is_allowed(cmd: str, patterns: list[str]) -> bool:
             for body_cmd in body_cmds:
                 if not command_is_allowed(body_cmd, patterns):
                     return False
-        elif not any(fnmatch.fnmatchcase(sub, pat) for pat in patterns):
-            return False
+        else:
+            unwrapped = _unwrap_var_assignment(sub)
+            if unwrapped is not None:
+                # Variable assignment: check any embedded commands recursively
+                for inner_cmd in unwrapped:
+                    if not command_is_allowed(inner_cmd, patterns):
+                        return False
+            elif not any(fnmatch.fnmatchcase(sub, pat) for pat in patterns):
+                return False
     return True
 
 

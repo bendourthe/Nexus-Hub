@@ -40,7 +40,8 @@
 - Use `docs/todos.md` as the project progress tracker: read it at session start if it exists, check off completed tasks, add newly identified work, and update dashboard metrics after relevant milestones. Use the dev-progress-tracker skill to create or maintain it.
 - **MANDATORY**: When using the Bash tool, always provide a `description` as **plain text only** (a single sentence or short paragraph). Do NOT add borders, boxes, `#` characters, padding, or any manual formatting to the description. A PreToolUse hook (`format-bash-description.py`) handles all formatting automatically. The `require-description.sh` hook blocks commands that omit a description.
 - **MANDATORY: Every Read, Glob, and Grep tool call MUST be preceded by a one-sentence plain-language explanation** of what file or path is being accessed and why. No exceptions.
-- Ask clarifying questions before coding if requirements are ambiguous
+- Ask clarifying questions before coding if requirements are ambiguous; state assumptions explicitly before acting and surface multiple interpretations when a request is unclear rather than choosing silently
+- Every changed line must trace directly to the user's request; do not clean up adjacent code, pre-existing dead code, or style issues outside the stated scope
 
 ## Output Minimization
 - Suppress verbose progress bars, banners, and informational logs from commands unless they indicate an error

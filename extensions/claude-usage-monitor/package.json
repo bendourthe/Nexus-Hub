@@ -36,6 +36,11 @@
         "command": "claude-usage.reset",
         "title": "Claude Usage: Clear Data",
         "category": "Claude Usage"
+      },
+      {
+        "command": "claude-usage.settings",
+        "title": "Claude Usage: Settings",
+        "category": "Claude Usage"
       }
     ],
     "icons": {
@@ -66,6 +71,60 @@
           "type": "boolean",
           "default": true,
           "description": "Show Claude usage in the status bar"
+        },
+        "claudeUsage.thresholds.moderate": {
+          "type": "number",
+          "default": 50,
+          "minimum": 1,
+          "maximum": 99,
+          "description": "Usage percentage at which the Moderate urgency level is triggered"
+        },
+        "claudeUsage.thresholds.high": {
+          "type": "number",
+          "default": 75,
+          "minimum": 1,
+          "maximum": 99,
+          "description": "Usage percentage at which the High urgency level is triggered"
+        },
+        "claudeUsage.thresholds.critical": {
+          "type": "number",
+          "default": 90,
+          "minimum": 1,
+          "maximum": 99,
+          "description": "Usage percentage at which the Critical urgency level is triggered"
+        },
+        "claudeUsage.colors.moderate": {
+          "type": "string",
+          "default": "warning",
+          "enum": ["warning", "error", "none"],
+          "enumDescriptions": [
+            "Yellow/orange highlight (statusBarItem.warningBackground)",
+            "Red highlight (statusBarItem.errorBackground)",
+            "No status bar highlight"
+          ],
+          "description": "Status bar background color when usage is at the Moderate level"
+        },
+        "claudeUsage.colors.high": {
+          "type": "string",
+          "default": "error",
+          "enum": ["warning", "error", "none"],
+          "enumDescriptions": [
+            "Yellow/orange highlight (statusBarItem.warningBackground)",
+            "Red highlight (statusBarItem.errorBackground)",
+            "No status bar highlight"
+          ],
+          "description": "Status bar background color when usage is at the High level"
+        },
+        "claudeUsage.colors.critical": {
+          "type": "string",
+          "default": "error",
+          "enum": ["warning", "error", "none"],
+          "enumDescriptions": [
+            "Yellow/orange highlight (statusBarItem.warningBackground)",
+            "Red highlight (statusBarItem.errorBackground)",
+            "No status bar highlight"
+          ],
+          "description": "Status bar background color when usage is at the Critical level"
         }
       }
     }

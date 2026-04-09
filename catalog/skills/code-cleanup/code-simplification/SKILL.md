@@ -41,6 +41,11 @@ Is this layer doing something the layers above and below it cannot?
 If not, it can be removed.
 ```
 
+**Simplicity heuristic** (human-readable gut check):
+- Would a senior engineer reading this code immediately see it as unnecessarily complex?
+- Could this be rewritten in half the lines without losing clarity? If yes, it should be.
+- If you needed to explain what this code does to a new team member, would the explanation be shorter than the code itself? If not, the code is too complex.
+
 ## Instructions
 
 ### Step 1: Understand Before Changing
