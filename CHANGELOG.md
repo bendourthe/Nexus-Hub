@@ -11,6 +11,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.9.5] - 2026-04-10
+
+### Added
+- **`generate-todos` command** - bootstraps `docs/todos.md` for inherited projects by analyzing git history, existing docs, and code annotations, then writing a structured progress tracker (`catalog/commands/generate-todos.md`)
+- **claude-usage-monitor Settings Panel** - new `Claude Usage: Settings` command and webview UI for configuring urgency thresholds, status bar colors, and threshold metric without editing `settings.json` directly
+
+### Changed
+- **claude-usage-monitor extension (v0.4.0)** - urgency thresholds (moderate/high/critical) and status bar colors are now fully user-configurable via VS Code settings (`claudeUsage.thresholds.*`, `claudeUsage.colors.*`) or through the new settings panel; `claudeUsage.thresholdMetric` setting controls which usage metric is evaluated against the thresholds
+
+### Fixed
+- SC2088 tilde expansion and missing trailing newline in hook/CI scripts
+
+---
+
 ## [0.9.4] - 2026-04-07
 
 ### Added

@@ -4,8 +4,8 @@ import { StatusBarManager } from "./statusBarManager";
 import { UsageFetcher, FetchError } from "./usageFetcher";
 import { DashboardPanel } from "./dashboardPanel";
 import { SettingsPanel } from "./settingsPanel";
-import { getRecommendation, getOverallUrgency } from "./recommendations";
-import { UrgencyLevel, UsageData, formatModelName, getThresholdConfig } from "./types";
+import { getRecommendation, getOverallUrgency, getActiveUrgency } from "./recommendations";
+import { UrgencyLevel, UsageData, formatModelName, getThresholdConfig, getThresholdMetric, syncColorsToWorkbench, getColorConfig } from "./types";
 
 const RECOMMEND_COMMAND = "claude-usage.recommend";
 const RESET_COMMAND = "claude-usage.reset";
@@ -38,6 +38,9 @@ export function activate(context: vscode.ExtensionContext): void {
 
   // Wire up reset-expiry detection: when a cached reset timestamp passes, refetch
   statusBar.setResetExpiredCallback(() => autoFetchAndUpdate(fetcher, store, statusBar));
+
+  // Apply user color settings to workbench.colorCustomizations on startup
+  syncColorsToWorkbench(getColorConfig());
 
   // Auto-fetch on activation (silent)
   if (config.get<boolean>("autoFetch", true)) {
@@ -194,10 +197,11 @@ export function activate(context: vscode.ExtensionContext): void {
       );
     }
 
-    // When threshold or color settings change, re-evaluate the status bar immediately.
+    // When threshold, color, or metric settings change, re-evaluate the status bar immediately.
     if (
       event.affectsConfiguration("claudeUsage.thresholds") ||
-      event.affectsConfiguration("claudeUsage.colors")
+      event.affectsConfiguration("claudeUsage.colors") ||
+      event.affectsConfiguration("claudeUsage.thresholdMetric")
     ) {
       statusBar.refresh();
       DashboardPanel.updateIfOpen(
@@ -247,7 +251,7 @@ async function autoFetchAndUpdate(
       const previousUrgency = store.getLastUrgency();
       await store.save(result.data);
 
-      const newUrgency = getOverallUrgency(result.data);
+      const newUrgency = getActiveUrgency(result.data);
       await store.saveLastUrgency(newUrgency);
 
       // Evaluate suggestion thresholds and show one-time notifications.
@@ -307,7 +311,35 @@ async function autoFetchAndUpdate(
  */
 async function evaluateAndNotify(data: UsageData): Promise<boolean> {
   const t = getThresholdConfig();
-  const triggerPercent = Math.max(data.session.percent, data.weeklyAllModels.percent);
+  const metric = getThresholdMetric();
+
+  let triggerPercent: number;
+  let resetIn: string;
+  switch (metric) {
+    case "highest": {
+      const candidates = [
+        { percent: data.session.percent,          resetsIn: data.session.resetsIn },
+        { percent: data.weeklyAllModels.percent,  resetsIn: data.weeklyAllModels.resetsIn },
+        { percent: data.weeklySonnet.percent,     resetsIn: data.weeklySonnet.resetsIn },
+      ];
+      const top = candidates.reduce((a, b) => a.percent >= b.percent ? a : b);
+      triggerPercent = top.percent;
+      resetIn        = top.resetsIn;
+      break;
+    }
+    case "weekly":
+      triggerPercent = data.weeklyAllModels.percent;
+      resetIn = data.weeklyAllModels.resetsIn;
+      break;
+    case "sonnet":
+      triggerPercent = data.weeklySonnet.percent;
+      resetIn = data.weeklySonnet.resetsIn;
+      break;
+    default:
+      triggerPercent = data.session.percent;
+      resetIn = data.session.resetsIn;
+      break;
+  }
 
   // Reset within-session tracking when usage drops below the moderate threshold.
   if (triggerPercent < t.moderate) {
@@ -316,11 +348,6 @@ async function evaluateAndNotify(data: UsageData): Promise<boolean> {
   }
 
   const isOpus = /opus|default/i.test(data.currentModel);
-
-  // Reset time from whichever metric is driving the trigger percentage.
-  const resetIn = data.session.percent >= data.weeklyAllModels.percent
-    ? data.session.resetsIn
-    : data.weeklyAllModels.resetsIn;
   const resetSuffix = ` Resets in ${resetIn}.`;
 
   // Determine the single applicable threshold bucket and its message.

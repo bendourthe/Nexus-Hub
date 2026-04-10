@@ -134,8 +134,35 @@ export const URGENCY_THRESHOLDS = {
   critical: 90,
 } as const;
 
-/** Status bar color option for a given urgency level. */
-export type ColorOption = "warning" | "error" | "none";
+/**
+ * Status bar color for a given urgency level.
+ * Either a CSS hex color string (e.g. "#cca700") or "none" to disable highlighting.
+ */
+export type ColorOption = string;
+
+/** Which usage metric the urgency thresholds are evaluated against. */
+export type ThresholdMetric = "highest" | "session" | "weekly" | "sonnet";
+
+/** Default hex colors matching the badge colors in the settings panel. */
+export const DEFAULT_URGENCY_COLORS = {
+  moderate: "#cca700",
+  high:     "#f0643c",
+  critical: "#e05555",
+} as const;
+
+/**
+ * Maps each urgency level to the VS Code standard ThemeColor ID used as the
+ * status bar item background.
+ * IMPORTANT: VS Code's allowlist for StatusBarItem.backgroundColor contains only two IDs:
+ *   "statusBarItem.warningBackground" and "statusBarItem.errorBackground".
+ * Both "moderate" and "high" share warningBackground; the correct hex is written
+ * dynamically by syncActiveColorToWorkbench() so each level still shows its own color.
+ */
+export const WORKBENCH_COLOR_KEYS = {
+  moderate: "statusBarItem.warningBackground",
+  high:     "statusBarItem.warningBackground",  // same key; hex updated per active urgency
+  critical: "statusBarItem.errorBackground",
+} as const;
 
 export interface ThresholdConfig {
   moderate: number;
@@ -159,14 +186,120 @@ export function getThresholdConfig(): ThresholdConfig {
   };
 }
 
-/** Read color settings from VS Code configuration, falling back to defaults. */
+/**
+ * Migrate old enum values ("warning", "error") stored by previous versions to hex.
+ * Returns the hex string, or "none" as-is, falling back to the provided default.
+ */
+function migrateColorValue(raw: string | undefined, defaultHex: string): string {
+  if (!raw || raw === "warning" || raw === "error") {
+    return defaultHex;
+  }
+  return raw;
+}
+
+/** Read color settings from VS Code configuration, migrating legacy enum values. */
 export function getColorConfig(): ColorConfig {
   const c = vscode.workspace.getConfiguration("claudeUsage");
   return {
-    moderate: c.get<ColorOption>("colors.moderate", "warning"),
-    high:     c.get<ColorOption>("colors.high",     "error"),
-    critical: c.get<ColorOption>("colors.critical", "error"),
+    moderate: migrateColorValue(c.get<string>("colors.moderate"), DEFAULT_URGENCY_COLORS.moderate),
+    high:     migrateColorValue(c.get<string>("colors.high"),     DEFAULT_URGENCY_COLORS.high),
+    critical: migrateColorValue(c.get<string>("colors.critical"), DEFAULT_URGENCY_COLORS.critical),
   };
+}
+
+/** Read which usage metric the thresholds should be evaluated against. */
+export function getThresholdMetric(): ThresholdMetric {
+  return vscode.workspace
+    .getConfiguration("claudeUsage")
+    .get<ThresholdMetric>("thresholdMetric", "highest");
+}
+
+/**
+ * Write user-chosen hex colors into workbench.colorCustomizations for the three
+ * standard VS Code status bar ThemeColor IDs, so they take effect immediately.
+ * Only writes entries whose value has actually changed; removes entries for "none".
+ * Old contributed-color entries (claudeUsageMonitor.*) from a previous build are
+ * cleaned up automatically.
+ */
+export async function syncColorsToWorkbench(colors: ColorConfig): Promise<void> {
+  const hexRegex = /^#[0-9a-fA-F]{6}$/i;
+  const wbConfig = vscode.workspace.getConfiguration("workbench");
+  const existing: Record<string, string> = {
+    ...(wbConfig.get<Record<string, string>>("colorCustomizations") ?? {}),
+  };
+
+  let changed = false;
+
+  // Remove any stale keys from the previous contributed-color implementation
+  for (const stale of [
+    "claudeUsageMonitor.moderateBackground",
+    "claudeUsageMonitor.highBackground",
+    "claudeUsageMonitor.criticalBackground",
+  ]) {
+    if (stale in existing) { delete existing[stale]; changed = true; }
+  }
+
+  const levels: Array<keyof typeof WORKBENCH_COLOR_KEYS> = ["moderate", "high", "critical"];
+  for (const level of levels) {
+    const key = WORKBENCH_COLOR_KEYS[level];
+    const hex = colors[level];
+    if (hex === "none") {
+      if (key in existing) { delete existing[key]; changed = true; }
+    } else if (hexRegex.test(hex) && existing[key] !== hex) {
+      existing[key] = hex;
+      changed = true;
+    }
+    // Non-hex legacy values ("warning"/"error") are already migrated by getColorConfig();
+    // no workbench write needed for them — the theme's default colors will show.
+  }
+
+  if (changed) {
+    await wbConfig.update(
+      "colorCustomizations",
+      existing,
+      vscode.ConfigurationTarget.Global
+    );
+  }
+}
+
+/**
+ * Called on every status bar update to ensure the warningBackground hex reflects the
+ * current urgency level.  Moderate and high both use statusBarItem.warningBackground,
+ * so we swap the hex value whenever urgency toggles between those two levels.
+ * Critical always uses statusBarItem.errorBackground (set by syncColorsToWorkbench).
+ */
+export async function syncActiveColorToWorkbench(urgency: UrgencyLevel, colors: ColorConfig): Promise<void> {
+  const hexRegex = /^#[0-9a-fA-F]{6}$/i;
+  const wbConfig = vscode.workspace.getConfiguration("workbench");
+  const existing: Record<string, string> = {
+    ...(wbConfig.get<Record<string, string>>("colorCustomizations") ?? {}),
+  };
+
+  const warnKey = "statusBarItem.warningBackground";
+  let changed = false;
+
+  if (urgency === "high") {
+    const hex = colors.high;
+    if (hex === "none") {
+      if (warnKey in existing) { delete existing[warnKey]; changed = true; }
+    } else if (hexRegex.test(hex) && existing[warnKey] !== hex) {
+      existing[warnKey] = hex;
+      changed = true;
+    }
+  } else {
+    // moderate, low, or critical: restore warningBackground to moderate's hex
+    const hex = colors.moderate;
+    if (hex === "none") {
+      if (warnKey in existing) { delete existing[warnKey]; changed = true; }
+    } else if (hexRegex.test(hex) && existing[warnKey] !== hex) {
+      existing[warnKey] = hex;
+      changed = true;
+    }
+  }
+
+  if (changed) {
+    await wbConfig.update("colorCustomizations", existing, vscode.ConfigurationTarget.Global);
+  }
 }
 
 /* ------------------------------------------------------------------ */

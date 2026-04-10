@@ -2,7 +2,7 @@
   "name": "claude-usage-monitor",
   "displayName": "Claude Usage Monitor",
   "description": "Monitor your Claude Code usage limits and get smart model-switching recommendations",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "publisher": "devai-hub",
   "icon": "icon.png",
   "engines": {
@@ -95,36 +95,30 @@
         },
         "claudeUsage.colors.moderate": {
           "type": "string",
-          "default": "warning",
-          "enum": ["warning", "error", "none"],
-          "enumDescriptions": [
-            "Yellow/orange highlight (statusBarItem.warningBackground)",
-            "Red highlight (statusBarItem.errorBackground)",
-            "No status bar highlight"
-          ],
-          "description": "Status bar background color when usage is at the Moderate level"
+          "default": "#cca700",
+          "description": "Status bar background color when usage is at the Moderate level. Use a hex color (e.g. #cca700) or 'none' to disable highlighting."
         },
         "claudeUsage.colors.high": {
           "type": "string",
-          "default": "error",
-          "enum": ["warning", "error", "none"],
-          "enumDescriptions": [
-            "Yellow/orange highlight (statusBarItem.warningBackground)",
-            "Red highlight (statusBarItem.errorBackground)",
-            "No status bar highlight"
-          ],
-          "description": "Status bar background color when usage is at the High level"
+          "default": "#f0643c",
+          "description": "Status bar background color when usage is at the High level. Use a hex color (e.g. #f0643c) or 'none' to disable highlighting."
         },
         "claudeUsage.colors.critical": {
           "type": "string",
-          "default": "error",
-          "enum": ["warning", "error", "none"],
+          "default": "#e05555",
+          "description": "Status bar background color when usage is at the Critical level. Use a hex color (e.g. #e05555) or 'none' to disable highlighting."
+        },
+        "claudeUsage.thresholdMetric": {
+          "type": "string",
+          "default": "highest",
+          "enum": ["highest", "session", "weekly", "sonnet"],
           "enumDescriptions": [
-            "Yellow/orange highlight (statusBarItem.warningBackground)",
-            "Red highlight (statusBarItem.errorBackground)",
-            "No status bar highlight"
+            "Automatically evaluate thresholds against whichever metric is currently highest",
+            "Evaluate thresholds against the Current Session usage",
+            "Evaluate thresholds against the Weekly (All Models) usage",
+            "Evaluate thresholds against the Weekly (Sonnet) usage"
           ],
-          "description": "Status bar background color when usage is at the Critical level"
+          "description": "Which usage metric the urgency thresholds and notifications are evaluated against"
         }
       }
     }

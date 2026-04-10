@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
-import { UsageData, UrgencyLevel, ColorConfig, getColorConfig } from "./types";
-import { getOverallUrgency } from "./recommendations";
+import { UsageData, UrgencyLevel, ColorConfig, getColorConfig, WORKBENCH_COLOR_KEYS, syncActiveColorToWorkbench } from "./types";
+import { getActiveUrgency } from "./recommendations";
 import { UsageStore } from "./usageStore";
 
 export class StatusBarManager {
@@ -103,7 +103,7 @@ export class StatusBarManager {
       return;
     }
 
-    const overallUrgency = getOverallUrgency(data);
+    const overallUrgency = getActiveUrgency(data);
     const staleLabel = this.isDataStale(data) ? " $(warning)" : "";
 
     this.statusBarItem.text =
@@ -111,6 +111,8 @@ export class StatusBarManager {
 
     this.statusBarItem.tooltip = this.buildTooltip(data);
     this.statusBarItem.backgroundColor = this.getBackgroundColor(overallUrgency);
+    // Swap warningBackground hex between moderate and high colors (they share the same ThemeColor ID)
+    void syncActiveColorToWorkbench(overallUrgency, getColorConfig());
   }
 
   private isDataStale(data: UsageData): boolean {
@@ -177,8 +179,8 @@ export class StatusBarManager {
       `<span style="opacity:0.6">Claude Usage</span><br><br>` +
       staleWarning +
       section("Current Session", data.session.percent, data.session.resetsIn) +
-      section("Weekly Limits", data.weeklyAllModels.percent, data.weeklyAllModels.resetsIn) +
-      section("Sonnet only", data.weeklySonnet.percent, data.weeklySonnet.resetsIn) +
+      section("Weekly (All Models)", data.weeklyAllModels.percent, data.weeklyAllModels.resetsIn) +
+      section("Weekly (Sonnet)", data.weeklySonnet.percent, data.weeklySonnet.resetsIn) +
       `<span style="opacity:0.6">Last updated: ${timeSince}</span>`
     );
 
@@ -193,11 +195,14 @@ export class StatusBarManager {
     }
     const colors = getColorConfig();
     const colorOption = colors[urgency as keyof ColorConfig];
-    switch (colorOption) {
-      case "warning": return new vscode.ThemeColor("statusBarItem.warningBackground");
-      case "error":   return new vscode.ThemeColor("statusBarItem.errorBackground");
-      default:        return undefined;
+    if (!colorOption || colorOption === "none") {
+      return undefined;
     }
+    // Use VS Code's standard ThemeColor IDs, which are in the allowed list for
+    // StatusBarItem.backgroundColor. Custom hex values are written to
+    // workbench.colorCustomizations for these same keys by syncColorsToWorkbench().
+    const colorId = WORKBENCH_COLOR_KEYS[urgency as keyof ColorConfig];
+    return new vscode.ThemeColor(colorId);
   }
 
   private startAutoRefreshTimer(): void {

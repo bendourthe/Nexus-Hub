@@ -1,14 +1,33 @@
 import * as vscode from "vscode";
-import { ColorOption, getThresholdConfig, getColorConfig } from "./types";
+import {
+  getThresholdConfig,
+  getColorConfig,
+  getThresholdMetric,
+  DEFAULT_URGENCY_COLORS,
+  URGENCY_THRESHOLDS,
+  syncColorsToWorkbench,
+  ColorConfig,
+  ThresholdMetric,
+} from "./types";
 
 type Level = "moderate" | "high" | "critical";
 
-interface SettingsMessage {
-  command: "updateThreshold" | "updateColor" | "resetDefaults";
-  level?: Level;
-  value?: number;
-  color?: ColorOption;
+interface DraftState {
+  metric: ThresholdMetric;
+  thresholds: { moderate: number; high: number; critical: number };
+  colors: { moderate: string; high: string; critical: string };
 }
+
+interface SettingsMessage {
+  command: "save" | "reset";
+  draft?: DraftState;
+}
+
+const FACTORY_DEFAULTS: DraftState = {
+  metric: "highest",
+  thresholds: { moderate: URGENCY_THRESHOLDS.moderate, high: URGENCY_THRESHOLDS.high, critical: URGENCY_THRESHOLDS.critical },
+  colors: { moderate: DEFAULT_URGENCY_COLORS.moderate, high: DEFAULT_URGENCY_COLORS.high, critical: DEFAULT_URGENCY_COLORS.critical },
+};
 
 export class SettingsPanel {
   private static currentPanel: SettingsPanel | undefined;
@@ -17,43 +36,40 @@ export class SettingsPanel {
 
   private constructor(panel: vscode.WebviewPanel) {
     this.panel = panel;
-
     this.panel.onDidDispose(() => this.dispose(), null, this.disposables);
 
     this.panel.webview.onDidReceiveMessage(
       async (message: SettingsMessage) => {
         const config = vscode.workspace.getConfiguration("claudeUsage");
-        switch (message.command) {
-          case "updateThreshold":
-            if (message.level !== undefined && message.value !== undefined) {
-              await config.update(
-                `thresholds.${message.level}`,
-                message.value,
-                vscode.ConfigurationTarget.Global
-              );
-            }
-            break;
-          case "updateColor":
-            if (message.level !== undefined && message.color !== undefined) {
-              await config.update(
-                `colors.${message.level}`,
-                message.color,
-                vscode.ConfigurationTarget.Global
-              );
-            }
-            break;
-          case "resetDefaults":
-            await Promise.all([
-              config.update("thresholds.moderate", undefined, vscode.ConfigurationTarget.Global),
-              config.update("thresholds.high",     undefined, vscode.ConfigurationTarget.Global),
-              config.update("thresholds.critical", undefined, vscode.ConfigurationTarget.Global),
-              config.update("colors.moderate",     undefined, vscode.ConfigurationTarget.Global),
-              config.update("colors.high",         undefined, vscode.ConfigurationTarget.Global),
-              config.update("colors.critical",     undefined, vscode.ConfigurationTarget.Global),
-            ]);
-            // Reload the webview with restored defaults
-            this.panel.webview.html = this.getHtml();
-            break;
+        const target = vscode.ConfigurationTarget.Global;
+
+        if (message.command === "save" && message.draft) {
+          const d = message.draft;
+          await Promise.all([
+            config.update("thresholdMetric",      d.metric,              target),
+            config.update("thresholds.moderate",  d.thresholds.moderate, target),
+            config.update("thresholds.high",       d.thresholds.high,     target),
+            config.update("thresholds.critical",   d.thresholds.critical, target),
+            config.update("colors.moderate",       d.colors.moderate,     target),
+            config.update("colors.high",           d.colors.high,         target),
+            config.update("colors.critical",       d.colors.critical,     target),
+          ]);
+          await syncColorsToWorkbench(d.colors as ColorConfig);
+        }
+
+        if (message.command === "reset") {
+          await Promise.all([
+            config.update("thresholdMetric",     undefined, target),
+            config.update("thresholds.moderate", undefined, target),
+            config.update("thresholds.high",     undefined, target),
+            config.update("thresholds.critical", undefined, target),
+            config.update("colors.moderate",     undefined, target),
+            config.update("colors.high",         undefined, target),
+            config.update("colors.critical",     undefined, target),
+          ]);
+          await syncColorsToWorkbench(FACTORY_DEFAULTS.colors as ColorConfig);
+          // Push default values into the webview DOM directly — more reliable than re-setting .html
+          this.panel.webview.postMessage({ command: "loadSettings", settings: FACTORY_DEFAULTS });
         }
       },
       null,
@@ -80,7 +96,7 @@ export class SettingsPanel {
     if (extensionUri) {
       panel.iconPath = {
         light: vscode.Uri.joinPath(extensionUri, "icons", "claude-dark.svg"),
-        dark: vscode.Uri.joinPath(extensionUri, "icons", "claude-light.svg"),
+        dark:  vscode.Uri.joinPath(extensionUri, "icons", "claude-light.svg"),
       };
     }
 
@@ -91,26 +107,34 @@ export class SettingsPanel {
   private dispose(): void {
     SettingsPanel.currentPanel = undefined;
     this.panel.dispose();
-    for (const d of this.disposables) {
-      d.dispose();
-    }
+    for (const d of this.disposables) { d.dispose(); }
     this.disposables = [];
   }
 
   private getHtml(): string {
     const thresholds = getThresholdConfig();
     const colors = getColorConfig();
+    const metric = getThresholdMetric();
 
-    const levelRow = (
+    const initialJson = JSON.stringify({
+      metric,
+      thresholds,
+      colors,
+    });
+
+    const defaultsJson = JSON.stringify(FACTORY_DEFAULTS);
+
+    const levelSection = (
       level: Level,
       label: string,
       description: string,
       threshold: number,
-      color: ColorOption
+      color: string
     ): string => {
-      const warnActive  = color === "warning" ? " active" : "";
-      const errActive   = color === "error"   ? " active" : "";
-      const noneActive  = color === "none"    ? " active" : "";
+      const isNone = color === "none";
+      const pickerValue = isNone || !color.startsWith("#") ? DEFAULT_URGENCY_COLORS[level] : color;
+      const hexDisplay = isNone ? "" : pickerValue;
+
       return `
         <div class="level-section">
           <div class="level-header">
@@ -121,9 +145,7 @@ export class SettingsPanel {
             <label class="field-label">Threshold</label>
             <div class="slider-group">
               <input
-                type="range"
-                min="1"
-                max="99"
+                type="range" min="1" max="99"
                 value="${threshold}"
                 class="threshold-slider"
                 data-level="${level}"
@@ -135,15 +157,35 @@ export class SettingsPanel {
           <div class="field-row">
             <label class="field-label">Status bar color</label>
             <div class="color-group">
-              <button class="color-btn warning-btn${warnActive}" data-level="${level}" data-color="warning" onclick="onColor(this)">
-                <span class="color-swatch warning-swatch"></span> Warning
-              </button>
-              <button class="color-btn error-btn${errActive}" data-level="${level}" data-color="error" onclick="onColor(this)">
-                <span class="color-swatch error-swatch"></span> Error
-              </button>
-              <button class="color-btn none-btn${noneActive}" data-level="${level}" data-color="none" onclick="onColor(this)">
-                <span class="color-swatch none-swatch"></span> None
-              </button>
+              <div class="picker-wrapper${isNone ? " dimmed" : ""}" id="wrapper-${level}">
+                <input
+                  type="color"
+                  class="color-input"
+                  id="picker-${level}"
+                  data-level="${level}"
+                  value="${pickerValue}"
+                  oninput="onColorPick(this)"
+                  ${isNone ? "disabled" : ""}
+                />
+              </div>
+              <input
+                type="text"
+                class="hex-input${isNone ? " dimmed" : ""}"
+                id="hex-${level}"
+                data-level="${level}"
+                value="${hexDisplay}"
+                placeholder="${isNone ? "none" : "#rrggbb"}"
+                maxlength="7"
+                oninput="onHexInput(this)"
+                onblur="onHexBlur(this)"
+                ${isNone ? "disabled" : ""}
+              />
+              <button
+                class="none-btn${isNone ? " active" : ""}"
+                id="none-${level}"
+                data-level="${level}"
+                onclick="onNone(this)"
+              >None</button>
             </div>
           </div>
         </div>`;
@@ -164,28 +206,51 @@ export class SettingsPanel {
     color: var(--vscode-foreground);
     background: var(--vscode-editor-background);
     padding: 24px;
-    max-width: 600px;
+    max-width: 620px;
   }
 
-  h1 {
-    font-size: 18px;
-    font-weight: 600;
-    margin-bottom: 6px;
-    color: var(--vscode-foreground);
-  }
+  h1 { font-size: 18px; font-weight: 600; margin-bottom: 6px; }
 
   .subtitle {
     font-size: 12px;
     color: var(--vscode-descriptionForeground);
-    margin-bottom: 28px;
+    margin-bottom: 24px;
   }
 
+  /* Metric selector */
+  .metric-section {
+    border: 1px solid var(--vscode-panel-border);
+    border-radius: 6px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .metric-label {
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  .metric-select {
+    flex: 1;
+    background: var(--vscode-dropdown-background);
+    color: var(--vscode-dropdown-foreground);
+    border: 1px solid var(--vscode-dropdown-border);
+    border-radius: 3px;
+    padding: 4px 8px;
+    font-family: var(--vscode-font-family);
+    font-size: 12px;
+    cursor: pointer;
+  }
+
+  /* Level sections */
   .level-section {
     border: 1px solid var(--vscode-panel-border);
     border-radius: 6px;
     padding: 16px;
     margin-bottom: 16px;
-    background: var(--vscode-editor-background);
   }
 
   .level-header {
@@ -196,167 +261,321 @@ export class SettingsPanel {
   }
 
   .level-badge {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    padding: 2px 8px;
-    border-radius: 3px;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    padding: 2px 8px; border-radius: 3px;
   }
-
   .level-moderate { background: rgba(204,167,0,0.18); color: #cca700; }
   .level-high     { background: rgba(240,100,60,0.18); color: #f0643c; }
   .level-critical { background: rgba(220,50,50,0.22);  color: #e05555; }
 
-  .level-desc {
-    font-size: 12px;
-    color: var(--vscode-descriptionForeground);
-  }
+  .level-desc { font-size: 12px; color: var(--vscode-descriptionForeground); }
 
   .field-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+    display: flex; align-items: center; gap: 12px;
     margin-bottom: 12px;
   }
-
   .field-row:last-child { margin-bottom: 0; }
 
-  .field-label {
+  .field-label { font-size: 12px; min-width: 120px; flex-shrink: 0; }
+
+  /* Slider */
+  .slider-group { display: flex; align-items: center; gap: 10px; flex: 1; }
+  .threshold-slider { flex: 1; accent-color: var(--vscode-button-background); cursor: pointer; }
+  .slider-value { font-size: 13px; font-weight: 600; min-width: 38px; }
+
+  /* Color row */
+  .color-group { display: flex; align-items: center; gap: 8px; }
+
+  .picker-wrapper {
+    width: 34px; height: 22px; border-radius: 3px; overflow: hidden;
+    border: 1px solid var(--vscode-panel-border); flex-shrink: 0;
+    transition: opacity 0.15s;
+  }
+  .picker-wrapper.dimmed { opacity: 0.3; }
+
+  .color-input {
+    width: 46px; height: 30px; border: none; padding: 0; cursor: pointer;
+    background: none; margin-top: -4px; margin-left: -6px;
+  }
+  .color-input:disabled { cursor: not-allowed; }
+
+  .hex-input {
+    font-family: var(--vscode-editor-font-family, monospace);
     font-size: 12px;
-    color: var(--vscode-foreground);
-    min-width: 120px;
-    flex-shrink: 0;
+    width: 72px;
+    padding: 3px 6px;
+    background: var(--vscode-input-background);
+    color: var(--vscode-input-foreground);
+    border: 1px solid var(--vscode-input-border, var(--vscode-panel-border));
+    border-radius: 3px;
   }
+  .hex-input:disabled { opacity: 0.35; cursor: not-allowed; }
+  .hex-input.invalid { border-color: #e05555; }
 
-  .slider-group {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex: 1;
-  }
-
-  .threshold-slider {
-    flex: 1;
-    accent-color: var(--vscode-button-background);
-    cursor: pointer;
-    height: 4px;
-  }
-
-  .slider-value {
-    font-size: 13px;
-    font-weight: 600;
-    min-width: 38px;
-    color: var(--vscode-foreground);
-  }
-
-  .color-group {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-
-  .color-btn {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 5px 12px;
-    border-radius: 4px;
+  .none-btn {
+    padding: 3px 10px; border-radius: 3px;
     border: 1px solid var(--vscode-button-secondaryBorder, var(--vscode-panel-border));
     background: var(--vscode-button-secondaryBackground);
     color: var(--vscode-button-secondaryForeground);
-    font-family: var(--vscode-font-family);
-    font-size: 12px;
-    cursor: pointer;
-    transition: border-color 0.1s, background 0.1s;
+    font-family: var(--vscode-font-family); font-size: 12px; cursor: pointer;
   }
-
-  .color-btn:hover {
-    background: var(--vscode-button-secondaryHoverBackground);
-  }
-
-  .color-btn.active {
+  .none-btn:hover { background: var(--vscode-button-secondaryHoverBackground); }
+  .none-btn.active {
     border-color: var(--vscode-focusBorder);
     background: var(--vscode-button-background);
     color: var(--vscode-button-foreground);
   }
 
-  .color-swatch {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-
-  .warning-swatch { background: #cca700; }
-  .error-swatch   { background: #e05555; }
-  .none-swatch    { background: var(--vscode-panel-border); }
-
+  /* Footer buttons */
   .footer {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 8px;
+    display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px;
   }
 
-  .reset-btn {
-    padding: 6px 16px;
-    border-radius: 4px;
-    border: 1px solid var(--vscode-button-secondaryBorder, var(--vscode-panel-border));
+  .footer-btn {
+    padding: 6px 16px; border-radius: 4px;
+    font-family: var(--vscode-font-family); font-size: 12px;
+    cursor: pointer; border: 1px solid transparent;
+    transition: opacity 0.15s, background 0.1s;
+  }
+  .footer-btn:disabled { opacity: 0.38; cursor: not-allowed; }
+
+  #resetBtn {
     background: var(--vscode-button-secondaryBackground);
     color: var(--vscode-button-secondaryForeground);
-    font-family: var(--vscode-font-family);
-    font-size: 12px;
-    cursor: pointer;
+    border-color: var(--vscode-button-secondaryBorder, var(--vscode-panel-border));
   }
+  #resetBtn:not(:disabled):hover { background: var(--vscode-button-secondaryHoverBackground); }
+  #resetBtn.dirty {
+    background: #5a1a1a;
+    color: #f48080;
+    border-color: #e05555;
+  }
+  #resetBtn.dirty:hover { background: #6e1f1f; }
 
-  .reset-btn:hover {
-    background: var(--vscode-button-secondaryHoverBackground);
+  #saveBtn {
+    background: var(--vscode-button-secondaryBackground);
+    color: var(--vscode-button-secondaryForeground);
+    border-color: var(--vscode-button-secondaryBorder, var(--vscode-panel-border));
   }
+  #saveBtn:not(:disabled):hover { background: var(--vscode-button-secondaryHoverBackground); }
+  #saveBtn.dirty {
+    background: var(--vscode-button-background);
+    color: var(--vscode-button-foreground);
+    border-color: var(--vscode-button-background);
+  }
+  #saveBtn.dirty:hover { background: var(--vscode-button-hoverBackground); }
 </style>
 </head>
 <body>
 <h1>Claude Usage Settings</h1>
-<p class="subtitle">Configure urgency thresholds and status bar highlight colors. Changes take effect immediately.</p>
+<p class="subtitle">Adjust thresholds and colors. Click <strong>Save changes</strong> to apply.</p>
 
-${levelRow("moderate", "Moderate", "First alert level", thresholds.moderate, colors.moderate)}
-${levelRow("high",     "High",     "Elevated alert level", thresholds.high, colors.high)}
-${levelRow("critical", "Critical", "Maximum alert level", thresholds.critical, colors.critical)}
+<div class="metric-section">
+  <label class="metric-label" for="metric-select">Apply thresholds to</label>
+  <select id="metric-select" class="metric-select" onchange="onMetric(this)">
+    <option value="highest" ${metric === "highest" ? "selected" : ""}>Highest (auto)</option>
+    <option value="session" ${metric === "session" ? "selected" : ""}>Current Session</option>
+    <option value="weekly"  ${metric === "weekly"  ? "selected" : ""}>Weekly (All Models)</option>
+    <option value="sonnet"  ${metric === "sonnet"  ? "selected" : ""}>Weekly (Sonnet)</option>
+  </select>
+</div>
+
+${levelSection("moderate", "Moderate", "First alert level",    thresholds.moderate, colors.moderate)}
+${levelSection("high",     "High",     "Elevated alert level", thresholds.high,     colors.high)}
+${levelSection("critical", "Critical", "Maximum alert level",  thresholds.critical, colors.critical)}
 
 <div class="footer">
-  <button class="reset-btn" onclick="onReset()">Reset to Defaults</button>
+  <button id="resetBtn" class="footer-btn" onclick="onReset()" disabled>Reset to Defaults</button>
+  <button id="saveBtn"  class="footer-btn" onclick="onSave()"  disabled>Save changes</button>
 </div>
 
 <script>
   const vscode = acquireVsCodeApi();
+  const HEX_RE = /^#[0-9a-fA-F]{6}$/;
 
-  function send(msg) {
-    vscode.postMessage(msg);
+  const DEFAULTS = ${defaultsJson};
+  const original = ${initialJson};
+  // Deep copy
+  let draft = JSON.parse(JSON.stringify(original));
+
+  function isDirty() {
+    return JSON.stringify(draft) !== JSON.stringify(original);
   }
 
+  function isNotDefault() {
+    return JSON.stringify(draft) !== JSON.stringify(DEFAULTS);
+  }
+
+  function updateButtons() {
+    const hasDraft   = isDirty();
+    const notDefault = isNotDefault();
+    const saveBtn  = document.getElementById('saveBtn');
+    const resetBtn = document.getElementById('resetBtn');
+
+    saveBtn.disabled  = !hasDraft;
+    resetBtn.disabled = !notDefault;
+    saveBtn.classList.toggle('dirty',  hasDraft);
+    resetBtn.classList.toggle('dirty', notDefault);
+  }
+
+  // --- Metric ---
+  function onMetric(el) {
+    draft.metric = el.value;
+    updateButtons();
+  }
+
+  // --- Threshold slider ---
   function onSlider(el) {
     const level = el.dataset.level;
     const value = parseInt(el.value, 10);
     document.getElementById('val-' + level).textContent = value + '%';
-    send({ command: 'updateThreshold', level, value });
+    draft.thresholds[level] = value;
+    updateButtons();
   }
 
-  function onColor(el) {
+  // --- Color picker (swatch) ---
+  function onColorPick(el) {
     const level = el.dataset.level;
-    const color = el.dataset.color;
+    const hex   = el.value;
+    const hexInput = document.getElementById('hex-' + level);
+    hexInput.value = hex;
+    hexInput.classList.remove('invalid');
+    draft.colors[level] = hex;
+    updateButtons();
+  }
 
-    // Update active state within this level's color group
-    el.closest('.color-group').querySelectorAll('.color-btn').forEach(function(btn) {
+  // --- Hex text input (live) ---
+  function onHexInput(el) {
+    const level = el.dataset.level;
+    const raw   = el.value.trim();
+    const hex   = raw.startsWith('#') ? raw : '#' + raw;
+    if (HEX_RE.test(hex)) {
+      el.classList.remove('invalid');
+      document.getElementById('picker-' + level).value = hex;
+      draft.colors[level] = hex;
+      updateButtons();
+    } else {
+      el.classList.add('invalid');
+    }
+  }
+
+  // --- Hex blur: restore if still invalid ---
+  function onHexBlur(el) {
+    if (el.classList.contains('invalid')) {
+      const level = el.dataset.level;
+      el.value = draft.colors[level];
+      el.classList.remove('invalid');
+    }
+  }
+
+  // --- None toggle ---
+  function onNone(btn) {
+    const level   = btn.dataset.level;
+    const isNone  = btn.classList.contains('active');
+    const picker  = document.getElementById('picker-' + level);
+    const wrapper = document.getElementById('wrapper-' + level);
+    const hexInp  = document.getElementById('hex-' + level);
+
+    if (isNone) {
+      // Re-enable color
       btn.classList.remove('active');
-    });
-    el.classList.add('active');
-
-    send({ command: 'updateColor', level, color });
+      picker.disabled = false;
+      hexInp.disabled = false;
+      wrapper.classList.remove('dimmed');
+      hexInp.classList.remove('dimmed');
+      hexInp.placeholder = '#rrggbb';
+      const restored = picker.value;
+      hexInp.value    = restored;
+      draft.colors[level] = restored;
+    } else {
+      // Disable (none)
+      btn.classList.add('active');
+      picker.disabled = true;
+      hexInp.disabled = true;
+      wrapper.classList.add('dimmed');
+      hexInp.classList.add('dimmed');
+      hexInp.value       = '';
+      hexInp.placeholder = 'none';
+      draft.colors[level] = 'none';
+    }
+    updateButtons();
   }
 
+  // --- Save ---
+  function onSave() {
+    vscode.postMessage({ command: 'save', draft: JSON.parse(JSON.stringify(draft)) });
+    // Optimistically mark as clean so buttons disable immediately
+    Object.assign(original, JSON.parse(JSON.stringify(draft)));
+    updateButtons();
+  }
+
+  // --- Reset ---
   function onReset() {
-    send({ command: 'resetDefaults' });
+    vscode.postMessage({ command: 'reset' });
+    // Extension will postMessage back with { command: 'loadSettings', settings: DEFAULTS }
   }
+
+  // --- Apply settings to DOM (used by loadSettings message from extension) ---
+  function applySettings(settings) {
+    // Metric selector
+    document.getElementById('metric-select').value = settings.metric;
+    draft.metric = settings.metric;
+
+    for (const level of ['moderate', 'high', 'critical']) {
+      const threshold = settings.thresholds[level];
+      const color     = settings.colors[level];
+      const isNone    = color === 'none';
+
+      // Slider + readout
+      const slider = document.querySelector('.threshold-slider[data-level="' + level + '"]');
+      slider.value = threshold;
+      document.getElementById('val-' + level).textContent = threshold + '%';
+      draft.thresholds[level] = threshold;
+
+      // Color controls
+      const picker  = document.getElementById('picker-'  + level);
+      const hexInp  = document.getElementById('hex-'     + level);
+      const wrapper = document.getElementById('wrapper-' + level);
+      const noneBtn = document.getElementById('none-'    + level);
+
+      if (isNone) {
+        picker.disabled = true;
+        hexInp.disabled = true;
+        wrapper.classList.add('dimmed');
+        hexInp.classList.add('dimmed');
+        hexInp.value       = '';
+        hexInp.placeholder = 'none';
+        noneBtn.classList.add('active');
+      } else {
+        picker.disabled = false;
+        hexInp.disabled = false;
+        wrapper.classList.remove('dimmed');
+        hexInp.classList.remove('dimmed');
+        picker.value       = color;
+        hexInp.value       = color;
+        hexInp.placeholder = '#rrggbb';
+        hexInp.classList.remove('invalid');
+        noneBtn.classList.remove('active');
+      }
+      draft.colors[level] = color;
+    }
+
+    // Mark as clean so buttons disable
+    Object.assign(original, JSON.parse(JSON.stringify(draft)));
+    updateButtons();
+  }
+
+  // --- Receive messages from the extension ---
+  window.addEventListener('message', event => {
+    const msg = event.data;
+    if (msg.command === 'loadSettings') {
+      applySettings(msg.settings);
+    }
+  });
+
+  // Set initial button states based on whether current settings differ from defaults
+  updateButtons();
 </script>
 </body>
 </html>`;

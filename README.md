@@ -6,12 +6,12 @@
 
 ---
 
-## What's New in v0.9.4
+## What's New in v0.9.5
 
-- **`dev-progress-tracker` skill** - maintains `docs/todos.md` as a living project progress tracker across sessions and AI platforms; reads at session start, checks off completed tasks, updates dashboard metrics (184 total skills).
-- **ASCII-only commit messages** - new cross-platform rule in all 5 base templates prevents Unicode punctuation (em-dashes, curly quotes, ellipsis) from causing CP1252 mojibake on Windows; enforced by a new `commit-msg` git hook deployed automatically at install time.
-- **`docs/todos.md` convention** - all platform instruction files now direct agents to read, update, and maintain the project progress tracker file automatically.
-- **Installer commit-msg hook** - both `installer.sh` and `installer.ps1` now deploy the commit-msg hook to `~/.git-templates/hooks/` and configure `git init.templateDir` globally so all future repos inherit it.
+- **`generate-todos` command** - bootstraps `docs/todos.md` for inherited projects by analyzing git history, existing docs, and code annotations; produces a structured progress tracker in one command.
+- **claude-usage-monitor Settings Panel** - new `Claude Usage: Settings` command opens a webview UI to configure urgency thresholds, status bar colors, and threshold metric without touching `settings.json`.
+- **Configurable thresholds and colors** - urgency levels (moderate/high/critical) and their status bar colors are now fully user-configurable via `claudeUsage.thresholds.*` and `claudeUsage.colors.*` settings.
+- **`thresholdMetric` setting** - choose which usage metric (highest, session, weekly, or Sonnet) drives urgency evaluation and notifications.
 
 ---
 

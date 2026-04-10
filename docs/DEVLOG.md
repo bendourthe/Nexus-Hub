@@ -1,5 +1,21 @@
 # Development Log
 
+## [2026-04-10] - Release 0.9.5: generate-todos Command and Configurable Extension Thresholds
+
+*   **Goal**: Ship a patch release that adds a new catalog command for project progress bootstrapping and delivers a significant UX upgrade to the claude-usage-monitor VS Code extension — making thresholds, colors, and metric selection fully user-configurable without editing raw JSON.
+*   **What Changed**:
+    *   **`generate-todos` Command** (`catalog/commands/generate-todos.md`): New command that analyzes git history, existing docs, and code annotations to bootstrap a structured `docs/todos.md` progress tracker for inherited or under-documented projects. Complements the `dev-progress-tracker` skill added in 0.9.4 by providing the initial population step.
+    *   **claude-usage-monitor Settings Panel** (`extensions/claude-usage-monitor/src/settingsPanel.ts`): New `Claude Usage: Settings` command opens a dedicated webview panel with form controls for all configurable urgency thresholds, status bar colors, and the threshold metric. Settings are written directly to the global VS Code configuration without requiring the user to open `settings.json`.
+    *   **Configurable Thresholds and Colors** (`extensions/claude-usage-monitor/src/types.ts`, `src/statusBarManager.ts`, `src/recommendations.ts`, `src/extension.ts`): Urgency thresholds (moderate/high/critical percentages) and status bar background colors are now read from VS Code settings (`claudeUsage.thresholds.*`, `claudeUsage.colors.*`) with hardcoded defaults as fallback. Legacy enum values (`"warning"`, `"error"`) stored by older builds are auto-migrated to hex on read.
+    *   **`thresholdMetric` Setting**: New `claudeUsage.thresholdMetric` setting (`"highest"` | `"session"` | `"weekly"` | `"sonnet"`) controls which usage metric drives urgency evaluation and threshold notifications. Defaults to `"highest"` (previous hardcoded behavior) for zero-config backwards compatibility.
+    *   **Extension Version Bump**: claude-usage-monitor bumped from 0.3.2 to 0.4.0 (minor bump warranted by the addition of the settings panel command and fully configurable threshold/color system).
+    *   **CI Fix** (`catalog/hooks/`): Corrected SC2088 tilde-expansion issue and missing trailing newline in hook/CI scripts that caused ShellCheck warnings.
+    *   **Main Version Bump**: Updated `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`, `CHANGELOG.md`, and `README.md` from 0.9.4 to 0.9.5.
+*   **Design Rationale**: The hardcoded 50/75/90 thresholds and fixed status bar colors were the top friction point for users whose usage patterns didn't align with the defaults. A settings panel was preferred over raw settings.json because it provides immediate color preview and eliminates JSON syntax errors. The `generate-todos` command closes the gap between having the `dev-progress-tracker` skill (which maintains an existing `todos.md`) and having no `todos.md` to start from in an inherited codebase.
+*   **Current Status**: Verified. All version references consistent at 0.9.5.
+
+---
+
 ## [2026-04-06] - Release 0.9.3: Agent-Skills Adoption, 9 New Skills, and Session Workflows
 
 *   **Goal**: Ship a minor-content patch release that closes SDLC coverage gaps surfaced by the agent-skills cross-project comparison, introduces a session lifecycle command, and standardizes skill anatomy across 19 priority skills.

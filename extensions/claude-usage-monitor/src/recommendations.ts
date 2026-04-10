@@ -6,6 +6,7 @@ import {
   baseModelId,
   is1MContext,
   getThresholdConfig,
+  getThresholdMetric,
 } from "./types";
 
 const isOpus   = (m: string): boolean => /opus|default/i.test(m);
@@ -39,6 +40,23 @@ export function getOverallUrgency(data: UsageData): UrgencyLevel {
     }
   }
   return "low";
+}
+
+/**
+ * Returns the urgency level for the metric selected by the user in settings.
+ * Used for the status bar highlight and threshold notifications.
+ * `getOverallUrgency` (max of all metrics) is still used internally for recommendations.
+ */
+export function getActiveUrgency(data: UsageData): UrgencyLevel {
+  const metric = getThresholdMetric();
+  let percent: number;
+  switch (metric) {
+    case "highest": percent = Math.max(data.session.percent, data.weeklyAllModels.percent, data.weeklySonnet.percent); break;
+    case "weekly":  percent = data.weeklyAllModels.percent; break;
+    case "sonnet":  percent = data.weeklySonnet.percent; break;
+    default:        percent = data.session.percent; break;
+  }
+  return classifyUrgency(percent);
 }
 
 export function getRecommendation(data: UsageData): Recommendation {
