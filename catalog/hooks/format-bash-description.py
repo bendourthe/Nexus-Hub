@@ -364,6 +364,48 @@ def _extract_body_commands(construct: str) -> list[str] | None:
     return result
 
 
+# ── Output-redirect detection ─────────────────────────────────────────────
+
+def _has_output_redirect(cmd: str) -> bool:
+    """Return True if *cmd* contains a top-level unquoted output redirect.
+
+    Detects ``>``, ``>>``, and ``>file`` (no-space) token forms so that
+    commands like ``cat > out.txt`` or ``echo text >> log`` are not
+    auto-approved.  Input redirects (``<``, ``<<``) are intentionally
+    ignored because they do not write to the filesystem.
+    """
+    tokens = _tokenize_shell(cmd)
+    for tok_type, tok_value in tokens:
+        if tok_type == "word" and tok_value.startswith(">"):
+            return True
+    return False
+
+
+# ── bash/sh -c script extraction ─────────────────────────────────────────
+
+def _find_bash_c_script(cmd: str) -> str | None:
+    """Detect ``bash -c SCRIPT`` or ``sh -c SCRIPT`` anywhere in *cmd*.
+
+    Handles invocations like ``xargs -I {} bash -c '...'`` where ``bash``
+    is not the first word.  Returns the inner script string with outer
+    single- or double-quotes stripped, or ``None`` if no match.
+    """
+    tokens = _tokenize_shell(cmd)
+    words = [v for t, v in tokens if t == "word"]
+    for i, word in enumerate(words):
+        if word not in ("bash", "sh"):
+            continue
+        if i + 1 >= len(words) or words[i + 1] != "-c":
+            continue
+        if i + 2 >= len(words):
+            continue
+        arg = words[i + 2]
+        if len(arg) >= 2 and arg[0] == arg[-1] and arg[0] in ("'", '"'):
+            return arg[1:-1]
+        return arg  # unquoted argument (rare but valid)
+    return None
+
+
 # Regex: matches a shell variable assignment prefix, e.g. "count=" or "FOO="
 _VAR_ASSIGN_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*=(.*)", re.DOTALL)
 
@@ -436,10 +478,14 @@ def command_is_allowed(cmd: str, patterns: list[str]) -> bool:
     unwrapped so that the embedded command is checked rather than the raw
     assignment string.
 
-    Note: output redirections (``cmd > file``) are not stripped before
-    pattern matching, so ``ls > /tmp/out`` will match ``ls *`` and be
-    auto-approved.  This is acceptable for the current threat model --
-    ``git-guardrails.sh`` blocks genuinely destructive patterns.
+    Output redirections (``>`` / ``>>``) always require manual approval
+    regardless of allowlist patterns, preventing broad patterns like ``cat *``
+    from matching file-write operations such as ``cat > sensitive_file``.
+
+    ``bash -c '...'`` and ``sh -c '...'`` invocations are handled by
+    extracting and recursively checking the inner script, so commands like
+    ``xargs -I {} bash -c 'basename {}; wc -l ...'`` can be auto-approved
+    when every inner command is in the allow list.
     """
     if not patterns:
         return False
@@ -458,6 +504,12 @@ def command_is_allowed(cmd: str, patterns: list[str]) -> bool:
                 if not command_is_allowed(body_cmd, patterns):
                     return False
         else:
+            # Output redirects (>, >>) are never safe to auto-approve,
+            # regardless of what the allowlist says.  This prevents broad
+            # patterns like "cat *" from matching "cat > sensitive_file".
+            if _has_output_redirect(sub):
+                return False
+
             unwrapped = _unwrap_var_assignment(sub)
             if unwrapped is not None:
                 # Variable assignment: check any embedded commands recursively
@@ -465,7 +517,16 @@ def command_is_allowed(cmd: str, patterns: list[str]) -> bool:
                     if not command_is_allowed(inner_cmd, patterns):
                         return False
             elif not any(fnmatch.fnmatchcase(sub, pat) for pat in patterns):
-                return False
+                # No allowlist pattern matched.  Check whether this subcommand
+                # invokes bash/sh -c with a safe inner script — e.g.
+                # ``xargs -I {} bash -c 'basename {}; wc -l ...'``.
+                inner = _find_bash_c_script(sub)
+                if inner is not None:
+                    if not command_is_allowed(inner, patterns):
+                        return False
+                    # All inner commands are allowed → this subcommand passes
+                else:
+                    return False
     return True
 
 

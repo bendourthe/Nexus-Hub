@@ -315,29 +315,34 @@ async function evaluateAndNotify(data: UsageData): Promise<boolean> {
 
   let triggerPercent: number;
   let resetIn: string;
+  let triggerLabel: string;
   switch (metric) {
     case "highest": {
       const candidates = [
-        { percent: data.session.percent,          resetsIn: data.session.resetsIn },
-        { percent: data.weeklyAllModels.percent,  resetsIn: data.weeklyAllModels.resetsIn },
-        { percent: data.weeklySonnet.percent,     resetsIn: data.weeklySonnet.resetsIn },
+        { percent: data.session.percent,          resetsIn: data.session.resetsIn,          label: "Current Session" },
+        { percent: data.weeklyAllModels.percent,  resetsIn: data.weeklyAllModels.resetsIn,  label: "Weekly (All Models)" },
+        { percent: data.weeklySonnet.percent,     resetsIn: data.weeklySonnet.resetsIn,     label: "Weekly (Sonnet)" },
       ];
       const top = candidates.reduce((a, b) => a.percent >= b.percent ? a : b);
       triggerPercent = top.percent;
       resetIn        = top.resetsIn;
+      triggerLabel   = top.label;
       break;
     }
     case "weekly":
       triggerPercent = data.weeklyAllModels.percent;
       resetIn = data.weeklyAllModels.resetsIn;
+      triggerLabel = "Weekly (All Models)";
       break;
     case "sonnet":
       triggerPercent = data.weeklySonnet.percent;
       resetIn = data.weeklySonnet.resetsIn;
+      triggerLabel = "Weekly (Sonnet)";
       break;
     default:
       triggerPercent = data.session.percent;
       resetIn = data.session.resetsIn;
+      triggerLabel = "Current Session";
       break;
   }
 
@@ -355,19 +360,20 @@ async function evaluateAndNotify(data: UsageData): Promise<boolean> {
   let bucket: number;
   let message: string;
 
+  const pct = Math.round(triggerPercent);
   if (triggerPercent >= t.critical) {
     bucket = t.critical;
-    message = `Claude usage at ${t.critical}% \u2192 Switch to Haiku now to avoid hitting your limit.${resetSuffix}`;
+    message = `${triggerLabel} usage at ${pct}% \u2192 Switch to Haiku now to avoid hitting your limit.${resetSuffix}`;
   } else if (triggerPercent >= t.high) {
     bucket = t.high;
-    message = `Claude usage at ${t.high}% \u2192 Set Effort to Medium or Low and disable Thinking mode.${resetSuffix}`;
+    message = `${triggerLabel} usage at ${pct}% \u2192 Set Effort to Medium or Low and disable Thinking mode.${resetSuffix}`;
   } else {
     // moderate–(high-1)%: only relevant when on Opus or Default
     if (!isOpus) {
       return false;
     }
     bucket = t.moderate;
-    message = `Claude usage at ${t.moderate}% \u2192 Switch to Sonnet to preserve your remaining usage.${resetSuffix}`;
+    message = `${triggerLabel} usage at ${pct}% \u2192 Switch to Sonnet to preserve your remaining usage.${resetSuffix}`;
   }
 
   // Already notified for this bucket in the current session — nothing to do.
