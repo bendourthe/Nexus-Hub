@@ -45,30 +45,35 @@ export class SettingsPanel {
 
         if (message.command === "save" && message.draft) {
           const d = message.draft;
-          await Promise.all([
-            config.update("thresholdMetric",      d.metric,              target),
-            config.update("thresholds.moderate",  d.thresholds.moderate, target),
-            config.update("thresholds.high",       d.thresholds.high,     target),
-            config.update("thresholds.critical",   d.thresholds.critical, target),
-            config.update("colors.moderate",       d.colors.moderate,     target),
-            config.update("colors.high",           d.colors.high,         target),
-            config.update("colors.critical",       d.colors.critical,     target),
-          ]);
+          // Sequential writes to avoid race conditions — concurrent config.update()
+          // calls can overwrite each other when modifying the same settings file.
+          await config.update("thresholdMetric",     d.metric,              target);
+          await config.update("thresholds.moderate", d.thresholds.moderate, target);
+          await config.update("thresholds.high",     d.thresholds.high,     target);
+          await config.update("thresholds.critical", d.thresholds.critical, target);
+          await config.update("colors.moderate",     d.colors.moderate,     target);
+          await config.update("colors.high",         d.colors.high,         target);
+          await config.update("colors.critical",     d.colors.critical,     target);
           await syncColorsToWorkbench(d.colors as ColorConfig);
+
+          // Confirm persisted values back to the webview so it shows actual state
+          const persisted: DraftState = {
+            metric: getThresholdMetric(),
+            thresholds: getThresholdConfig(),
+            colors: getColorConfig(),
+          };
+          this.panel.webview.postMessage({ command: "loadSettings", settings: persisted });
         }
 
         if (message.command === "reset") {
-          await Promise.all([
-            config.update("thresholdMetric",     undefined, target),
-            config.update("thresholds.moderate", undefined, target),
-            config.update("thresholds.high",     undefined, target),
-            config.update("thresholds.critical", undefined, target),
-            config.update("colors.moderate",     undefined, target),
-            config.update("colors.high",         undefined, target),
-            config.update("colors.critical",     undefined, target),
-          ]);
+          await config.update("thresholdMetric",     undefined, target);
+          await config.update("thresholds.moderate", undefined, target);
+          await config.update("thresholds.high",     undefined, target);
+          await config.update("thresholds.critical", undefined, target);
+          await config.update("colors.moderate",     undefined, target);
+          await config.update("colors.high",         undefined, target);
+          await config.update("colors.critical",     undefined, target);
           await syncColorsToWorkbench(FACTORY_DEFAULTS.colors as ColorConfig);
-          // Push default values into the webview DOM directly — more reliable than re-setting .html
           this.panel.webview.postMessage({ command: "loadSettings", settings: FACTORY_DEFAULTS });
         }
       },
@@ -505,9 +510,8 @@ ${levelSection("critical", "Critical", "Maximum alert level",  thresholds.critic
   // --- Save ---
   function onSave() {
     vscode.postMessage({ command: 'save', draft: JSON.parse(JSON.stringify(draft)) });
-    // Optimistically mark as clean so buttons disable immediately
-    Object.assign(original, JSON.parse(JSON.stringify(draft)));
-    updateButtons();
+    // Extension will postMessage back with { command: 'loadSettings', settings: ... }
+    // to confirm persisted values — do not optimistically mark as clean here.
   }
 
   // --- Reset ---
