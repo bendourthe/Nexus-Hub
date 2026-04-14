@@ -343,6 +343,44 @@ install_require_description() {
     fi
 }
 
+install_core_settings() {
+    local repo_root="$1"
+    local target_claude_dir="$2"
+    local scope="$3"
+
+    local settings_file="$target_claude_dir/settings.json"
+    local template_file="$repo_root/catalog/hooks/settings.json"
+
+    if [ ! -f "$settings_file" ]; then
+        write_item "Skip: settings.json not found, will be created by hook installer" "$GRAY"
+        return
+    fi
+
+    # Idempotency: skip if effortLevel already set
+    if grep -q '"effortLevel"' "$settings_file" 2>/dev/null; then
+        write_item "[OK] effortLevel already configured in settings.json" "$GREEN"
+        return
+    fi
+
+    if command -v jq >/dev/null 2>&1; then
+        local merged
+        merged=$(jq -s '
+            .[0] as $existing | .[1] as $template |
+            $existing + {effortLevel: $template.effortLevel}
+        ' "$settings_file" "$template_file" 2>/dev/null)
+
+        if [ -n "$merged" ]; then
+            echo "$merged" > "$settings_file"
+            write_item "[OK] $scope settings.json updated with effortLevel: high" "$GREEN"
+        else
+            write_item "Warning: Could not merge effortLevel into settings.json" "$YELLOW"
+        fi
+    else
+        write_item "Warning: jq not found, cannot set effortLevel" "$YELLOW"
+        write_item "  Manually add: \"effortLevel\": \"high\" to $settings_file" "$YELLOW"
+    fi
+}
+
 # --- Permission Installation ---
 
 install_permissions() {
@@ -669,6 +707,9 @@ install_global() {
 
     # Require Description Hook
     install_require_description "$repo_root" "$global_claude" "Global"
+
+    # Core Settings (effortLevel)
+    install_core_settings "$repo_root" "$global_claude" "Global"
 
     # 2. Gemini / Antigravity
     write_header "GEMINI"

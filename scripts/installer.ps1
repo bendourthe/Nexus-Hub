@@ -583,6 +583,42 @@ function Install-RequireDescription {
     }
 }
 
+function Install-CoreSettings {
+    param(
+        [string]$RepoRoot,
+        [string]$TargetClaudeDir,
+        [string]$Scope  # "Global" or "Workspace"
+    )
+
+    $settingsFile = Join-Path $TargetClaudeDir "settings.json"
+    $templateFile = "$RepoRoot\catalog\hooks\settings.json"
+
+    if (-not (Test-Path $settingsFile)) {
+        Write-Item -Message "Skip: settings.json not found, will be created by hook installer" -Color "DarkGray"
+        return
+    }
+
+    # Idempotency: skip if effortLevel already set
+    $content = Get-Content $settingsFile -Raw
+    if ($content -like "*effortLevel*") {
+        Write-Item -Message "✓ effortLevel already configured in settings.json" -Color "DarkGreen"
+        return
+    }
+
+    try {
+        $existingJson = $content | ConvertFrom-Json
+        $templateJson = Get-Content $templateFile -Raw | ConvertFrom-Json
+
+        $existingJson | Add-Member -NotePropertyName "effortLevel" -NotePropertyValue $templateJson.effortLevel
+        $existingJson | ConvertTo-Json -Depth 10 | Set-Content $settingsFile -Encoding UTF8
+        Write-Item -Message "✓ $Scope settings.json updated with effortLevel: high" -Color "DarkGreen"
+    }
+    catch {
+        Write-Item -Message "Warning: Could not set effortLevel ($($_.Exception.Message))" -Color "Yellow"
+        Write-Item -Message "  Manually add: `"effortLevel`": `"high`" to $settingsFile" -Color "Yellow"
+    }
+}
+
 # --- Git Commit-Msg Hook ---
 
 function Install-GitCommitMsgHook {
@@ -938,6 +974,9 @@ function Install-Global {
 
         # Require Description Hook
         Install-RequireDescription -RepoRoot $RepoRoot -TargetClaudeDir $globalClaude -Scope "Global"
+
+        # Core Settings (effortLevel)
+        Install-CoreSettings -RepoRoot $RepoRoot -TargetClaudeDir $globalClaude -Scope "Global"
     }
 
     # 2. Gemini / Antigravity
