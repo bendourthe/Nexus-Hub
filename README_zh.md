@@ -8,12 +8,12 @@
 
 ---
 
-## v0.9.4 更新内容
+## v0.9.6 更新内容
 
-- **`dev-progress-tracker` 技能** - 将 `docs/todos.md` 作为跨会话和 AI 平台的活动项目进度跟踪器；在会话开始时自动读取，勾选完成任务，更新仪表盘指标（共 184 个技能）。
-- **仅 ASCII 提交信息** - 所有 5 个平台基础模板中的新规则，防止 Unicode 标点（em 破折号、弯引号、省略号）在 Windows 上造成 CP1252 乱码；通过安装时自动部署的新 `commit-msg` git 钩子强制执行。
-- **`docs/todos.md` 惯例** - 所有平台指令文件现在指导 AI 代理自动读取、更新和维护项目进度跟踪文件。
-- **安装程序 commit-msg 钩子** - `installer.sh` 和 `installer.ps1` 现在将 commit-msg 钩子部署到 `~/.git-templates/hooks/` 并全局配置 `git init.templateDir`，使所有未来的仓库自动继承该钩子。
+- **更智能的命令分类** - 钩子分类器现在处理 git 全局选项（`-C`、`--no-pager`）、绝对二进制路径、`env`/`time`/`command` 包装器和子 shell，使只读命令可靠地自动批准。
+- **115+ 新自动批准模式** - macOS 工具、Linux 诊断、包管理器检查、Docker 只读和 GitHub CLI 命令已添加到 Claude 和 Gemini 权限配置中。
+- **设置面板修复** - 阈值指标下拉菜单现在保存后正确保持；用顺序调用替换并发配置写入以消除竞态条件。
+- **跨平台一致性** - Gemini 权限从 47 个扩展到 170 个 shell 命令条目，匹配 Claude 允许列表覆盖范围。
 
 ---
 

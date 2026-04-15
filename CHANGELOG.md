@@ -11,6 +11,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.9.6] - 2026-04-14
+
+### Added
+- **Command classification normalization** (`format-bash-description.py`) - four new normalization passes: git global option stripping (`-C`, `--no-pager`, `--git-dir`, `-c key=val`), absolute binary path stripping (`/usr/bin/head` matches `head`), prefix command unwrapping (`env`, `time`, `command`, `nice`), and subshell/brace group handling with recursive inner command checking
+- **115 new Claude Bash patterns** (`claude-permissions.json`) - macOS tools (sw_vers, xcrun, mdfind, defaults read), Linux tools (free, lscpu, ip, ss, systemctl status, journalctl), package manager introspection (npm/pip/yarn/pnpm/go/rust/dotnet/java), Docker read-only (ps, images, logs, inspect), and GitHub CLI read-only (pr/issue/run/release list/view)
+- **123 new Gemini shell command patterns** (`gemini-permissions.json`) - same expanded categories translated to `run_shell_command()` format for cross-platform parity
+- **Classification audit test suite** (`test_classification_audit.py`) - 160 edge cases across 18 categories covering all platforms (macOS, Linux, Windows), git global options, compound commands, subshells, prefix wrappers, and absolute paths
+
+### Changed
+- **Installer sentinel checks** - Claude sentinel updated from `api.github.com` to `gh pr list`; Gemini sentinel updated from `ReadFileTool` to `docker ps` -- existing installations now pick up the new patterns on re-install
+
+### Fixed
+- **Settings panel thresholdMetric persistence** (`settingsPanel.ts`) - replaced `Promise.all` with sequential `config.update()` calls to eliminate race condition where concurrent writes to the same settings file caused the metric value to be silently lost; added post-save confirmation via `loadSettings` message and removed the optimistic update in the webview `onSave()` handler
+- **Installer effortLevel default** - `effortLevel` now defaults to `high` during install
+
+---
+
 ## [0.9.5] - 2026-04-10
 
 ### Added

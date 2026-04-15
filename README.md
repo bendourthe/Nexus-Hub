@@ -6,12 +6,12 @@
 
 ---
 
-## What's New in v0.9.5
+## What's New in v0.9.6
 
-- **`generate-todos` command** - bootstraps `docs/todos.md` for inherited projects by analyzing git history, existing docs, and code annotations; produces a structured progress tracker in one command.
-- **claude-usage-monitor Settings Panel** - new `Claude Usage: Settings` command opens a webview UI to configure urgency thresholds, status bar colors, and threshold metric without touching `settings.json`.
-- **Configurable thresholds and colors** - urgency levels (moderate/high/critical) and their status bar colors are now fully user-configurable via `claudeUsage.thresholds.*` and `claudeUsage.colors.*` settings.
-- **`thresholdMetric` setting** - choose which usage metric (highest, session, weekly, or Sonnet) drives urgency evaluation and notifications.
+- **Smarter command classification** - the hook classifier now handles git global options (`-C`, `--no-pager`), absolute binary paths, `env`/`time`/`command` wrappers, and subshells so read-only commands auto-approve reliably.
+- **115+ new auto-approve patterns** - macOS tools, Linux diagnostics, package manager introspection, Docker read-only, and GitHub CLI commands added to both Claude and Gemini permission configs.
+- **Settings panel fix** - the threshold metric dropdown now persists correctly after save; replaced concurrent config writes with sequential calls to eliminate the race condition.
+- **Cross-platform parity** - Gemini permissions expanded from 47 to 170 shell command entries, matching the Claude allowlist coverage.
 
 ---
 
