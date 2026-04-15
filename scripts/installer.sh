@@ -402,8 +402,8 @@ install_permissions() {
             fi
 
             if [ -f "$settings_file" ]; then
-                # Check if permissions already installed (sentinel: api.github.com was added in v0.9.5+)
-                if grep -q 'WebFetch(domain:api\.github\.com)' "$settings_file" 2>/dev/null; then
+                # Check if permissions already installed (sentinel: gh pr list was added in v0.10+)
+                if grep -q 'Bash(gh pr list)' "$settings_file" 2>/dev/null; then
                     write_item "[OK] Auto-approve permissions already configured in settings.json" "$GREEN"
                     return
                 fi
@@ -463,7 +463,8 @@ install_permissions() {
             fi
 
             if [ -f "$settings_file" ]; then
-                if grep -q '"ReadFileTool"' "$settings_file" 2>/dev/null && grep -q '"allowedDomains"' "$settings_file" 2>/dev/null; then
+                # Sentinel: docker ps was added in v0.10+ with the expanded command set
+                if grep -q 'run_shell_command(docker ps)' "$settings_file" 2>/dev/null; then
                     write_item "[OK] Auto-approve permissions already configured in settings.json" "$GREEN"
                     return
                 fi

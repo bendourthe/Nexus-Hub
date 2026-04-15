@@ -406,6 +406,165 @@ def _find_bash_c_script(cmd: str) -> str | None:
     return None
 
 
+# ── Command normalization helpers ────────────────────────────────────────
+
+# Git global options that consume one following argument
+_GIT_GLOBAL_ARG_OPTS = frozenset({"-C", "-c", "--git-dir", "--work-tree",
+                                   "--namespace", "--config-env"})
+# Git global flags (no following argument consumed)
+_GIT_GLOBAL_FLAGS = frozenset({"--no-pager", "--no-replace-objects", "--bare",
+                                "--literal-pathspecs", "--glob-pathspecs",
+                                "--noglob-pathspecs", "--icase-pathspecs",
+                                "--no-optional-locks", "--no-lazy-fetch",
+                                "--paginate", "-p"})
+
+
+def _normalize_git_command(sub: str) -> str | None:
+    """Strip git global options so pattern matching sees the subcommand.
+
+    ``git -C /repo --no-pager log -5`` becomes ``git log -5`` for
+    matching purposes.  Returns ``None`` if the command does not start
+    with ``git`` or no global options were found (no normalization needed).
+    """
+    tokens = _tokenize_shell(sub)
+    words = [(i, v) for i, (t, v) in enumerate(tokens) if t == "word"]
+    if not words or words[0][1] != "git":
+        return None
+
+    drop_indices: set[int] = set()
+    j = 1  # start after "git"
+    while j < len(words):
+        _, word = words[j]
+        bare = word.split("=", 1)[0]  # handle --git-dir=/path
+
+        if bare in _GIT_GLOBAL_ARG_OPTS:
+            drop_indices.add(words[j][0])
+            if "=" not in word and j + 1 < len(words):
+                # Consumes the next word as argument
+                drop_indices.add(words[j + 1][0])
+                j += 2
+            else:
+                j += 1
+        elif word in _GIT_GLOBAL_FLAGS:
+            drop_indices.add(words[j][0])
+            j += 1
+        else:
+            break  # reached the actual subcommand
+        j = min(j, len(words))
+
+    if not drop_indices:
+        return None
+
+    # Rebuild, skipping dropped tokens and collapsing adjacent whitespace.
+    # Critically, dropping a token must NOT reset the whitespace tracker,
+    # otherwise ``git [ws] -C [ws] /repo [ws] log`` collapses to
+    # ``git   log`` instead of ``git log``.
+    parts: list[str] = []
+    prev_was_ws = False
+    for idx, (tok_type, tok_value) in enumerate(tokens):
+        if idx in drop_indices:
+            continue  # keep prev_was_ws unchanged
+        if tok_type == "ws":
+            if prev_was_ws:
+                continue
+            prev_was_ws = True
+        else:
+            prev_was_ws = False
+        parts.append(tok_value)
+    return "".join(parts).strip()
+
+
+def _strip_binary_path(sub: str) -> str | None:
+    """Strip an absolute directory prefix from the command binary.
+
+    ``/usr/bin/head -20 file.txt`` becomes ``head -20 file.txt``.
+    Returns ``None`` if no absolute path prefix was found.
+    """
+    if not sub.startswith("/"):
+        return None
+    # Split on first whitespace to get the binary path
+    parts = sub.split(None, 1)
+    binary = parts[0]
+    # Verify it looks like a path to a binary (not just "/")
+    if "/" not in binary[1:]:
+        return None
+    basename = binary.rsplit("/", 1)[-1]
+    if not basename:
+        return None
+    rest = parts[1] if len(parts) > 1 else ""
+    return f"{basename} {rest}".strip() if rest else basename
+
+
+# Known read-only prefix commands that don't change the safety profile
+_PREFIX_COMMANDS = frozenset({"time", "command", "builtin", "exec"})
+# Prefix commands that consume optional flags before the inner command
+_PREFIX_WITH_FLAGS = {
+    "nice": {"-n"},     # nice -n 19 cmd
+    "timeout": set(),   # timeout 30 cmd  (first arg is always the duration)
+}
+
+
+def _unwrap_prefix_command(sub: str) -> str | None:
+    """Strip known read-only prefix commands.
+
+    ``env TERM=dumb git diff`` becomes ``git diff``.
+    ``time git log`` becomes ``git log``.
+    ``nice -n 19 find .`` becomes ``find .``.
+    Returns ``None`` if no prefix was stripped.
+    """
+    tokens = _tokenize_shell(sub)
+    words = [(i, v) for i, (t, v) in enumerate(tokens) if t == "word"]
+    if not words:
+        return None
+
+    first = words[0][1]
+
+    # env [VAR=val...] [flags...] command
+    if first == "env":
+        j = 1
+        while j < len(words):
+            w = words[j][1]
+            # Skip env flags like -i, -u, -0, --
+            if w.startswith("-"):
+                j += 1
+                # -u requires an argument
+                if w == "-u" and j < len(words):
+                    j += 1
+                continue
+            # Skip VAR=value assignments
+            if "=" in w and not w.startswith("="):
+                j += 1
+                continue
+            break
+        if j >= len(words):
+            return None
+        # Rebuild from the inner command onward
+        start_tok_idx = words[j][0]
+        return "".join(v for _, v in tokens[start_tok_idx:]).strip() or None
+
+    # Simple prefix commands: time, command, builtin, exec
+    if first in _PREFIX_COMMANDS:
+        if len(words) < 2:
+            return None
+        start_tok_idx = words[1][0]
+        return "".join(v for _, v in tokens[start_tok_idx:]).strip() or None
+
+    # nice -n N command
+    if first == "nice":
+        j = 1
+        while j < len(words) and words[j][1].startswith("-"):
+            w = words[j][1]
+            j += 1
+            if w == "-n" and j < len(words):
+                j += 1  # skip the priority number
+        if j >= len(words):
+            return None
+        start_tok_idx = words[j][0]
+        return "".join(v for _, v in tokens[start_tok_idx:]).strip() or None
+
+    return None
+
+
 # Regex: matches a shell variable assignment prefix, e.g. "count=" or "FOO="
 _VAR_ASSIGN_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*=(.*)", re.DOTALL)
 
@@ -468,27 +627,34 @@ def _unwrap_var_assignment(sub: str) -> list[str] | None:
 def command_is_allowed(cmd: str, patterns: list[str]) -> bool:
     """Return True if every subcommand matches at least one allow pattern.
 
-    Shell control structures (``for…done``, ``if…fi``, etc.) are kept
-    as single units by the splitter.  Their *body* commands are
-    extracted and checked recursively so that, for example,
-    ``for f in *.py; do wc -l "$f"; done`` is allowed when ``wc *``
-    is in the allow list.
+    The matching pipeline applies these steps in order for each subcommand:
 
-    Variable assignments of the form ``VAR=$(cmd)`` or ``VAR=val cmd`` are
-    unwrapped so that the embedded command is checked rather than the raw
-    assignment string.
-
-    Output redirections (``>`` / ``>>``) always require manual approval
-    regardless of allowlist patterns, preventing broad patterns like ``cat *``
-    from matching file-write operations such as ``cat > sensitive_file``.
-
-    ``bash -c '...'`` and ``sh -c '...'`` invocations are handled by
-    extracting and recursively checking the inner script, so commands like
-    ``xargs -I {} bash -c 'basename {}; wc -l ...'`` can be auto-approved
-    when every inner command is in the allow list.
+    1. **Shell constructs** (``for...done``, ``if...fi``) and
+       **subshells** ``(...)`` / **brace groups** ``{ ...; }``: body
+       commands are extracted and checked recursively.
+    2. **Output redirects** (``>``, ``>>``): always blocked.
+    3. **Variable assignments** (``VAR=$(cmd)``): inner commands checked.
+    4. **Direct pattern match** via ``fnmatch``.
+    5. **Git global option normalization**: ``git -C /repo log`` is
+       matched as ``git log``.
+    6. **Absolute binary path stripping**: ``/usr/bin/head`` is matched
+       as ``head``.
+    7. **Prefix command unwrapping**: ``env``, ``time``, ``command``,
+       ``nice`` wrappers are stripped and the inner command is checked.
+    8. **bash/sh -c extraction**: inner script is checked recursively.
     """
     if not patterns:
         return False
+
+    # Subshells (...) and brace groups { ...; } must be detected before
+    # splitting because the tokenizer doesn't treat ( ) as block
+    # delimiters, so split_compound_command would break them apart.
+    trimmed = cmd.strip()
+    if trimmed.startswith("(") and trimmed.endswith(")"):
+        return command_is_allowed(trimmed[1:-1].strip(), patterns)
+    if trimmed.startswith("{") and trimmed.endswith("}"):
+        inner = trimmed[1:-1].strip().rstrip(";").strip()
+        return command_is_allowed(inner, patterns) if inner else True
 
     subcommands = split_compound_command(cmd)
     if not subcommands:
@@ -498,35 +664,57 @@ def command_is_allowed(cmd: str, patterns: list[str]) -> bool:
         if _is_shell_construct(sub):
             body_cmds = _extract_body_commands(sub)
             if body_cmds is None:
-                # Cannot parse the construct → treat as not allowed
                 return False
             for body_cmd in body_cmds:
                 if not command_is_allowed(body_cmd, patterns):
                     return False
-        else:
-            # Output redirects (>, >>) are never safe to auto-approve,
-            # regardless of what the allowlist says.  This prevents broad
-            # patterns like "cat *" from matching "cat > sensitive_file".
-            if _has_output_redirect(sub):
-                return False
+            continue
 
-            unwrapped = _unwrap_var_assignment(sub)
-            if unwrapped is not None:
-                # Variable assignment: check any embedded commands recursively
-                for inner_cmd in unwrapped:
-                    if not command_is_allowed(inner_cmd, patterns):
-                        return False
-            elif not any(fnmatch.fnmatchcase(sub, pat) for pat in patterns):
-                # No allowlist pattern matched.  Check whether this subcommand
-                # invokes bash/sh -c with a safe inner script — e.g.
-                # ``xargs -I {} bash -c 'basename {}; wc -l ...'``.
-                inner = _find_bash_c_script(sub)
-                if inner is not None:
-                    if not command_is_allowed(inner, patterns):
-                        return False
-                    # All inner commands are allowed → this subcommand passes
-                else:
+        # Output redirects (>, >>) are never safe to auto-approve.
+        if _has_output_redirect(sub):
+            return False
+
+        unwrapped = _unwrap_var_assignment(sub)
+        if unwrapped is not None:
+            for inner_cmd in unwrapped:
+                if not command_is_allowed(inner_cmd, patterns):
                     return False
+            continue
+
+        # Direct pattern match
+        if any(fnmatch.fnmatchcase(sub, pat) for pat in patterns):
+            continue
+
+        # Normalization fallbacks — try each in turn.
+        # A1: Git global options (git -C /repo log → git log)
+        normalized = _normalize_git_command(sub)
+        if normalized is not None and any(
+            fnmatch.fnmatchcase(normalized, pat) for pat in patterns
+        ):
+            continue
+
+        # A2: Absolute binary paths (/usr/bin/head → head)
+        stripped_bin = _strip_binary_path(sub)
+        if stripped_bin is not None and any(
+            fnmatch.fnmatchcase(stripped_bin, pat) for pat in patterns
+        ):
+            continue
+
+        # A3: Prefix commands (env, time, nice, command)
+        unwrapped_prefix = _unwrap_prefix_command(sub)
+        if unwrapped_prefix is not None:
+            if command_is_allowed(unwrapped_prefix, patterns):
+                continue
+
+        # bash/sh -c inner script extraction
+        inner = _find_bash_c_script(sub)
+        if inner is not None:
+            if not command_is_allowed(inner, patterns):
+                return False
+            continue
+
+        # Nothing matched — this subcommand is not allowed
+        return False
     return True
 
 
