@@ -104,6 +104,20 @@ def main() -> None:
         ("cat file.txt > output.txt", False, "REDIRECT", "stdout redirect to file (WRITE!)"),
         ("echo test >> log.txt", False, "REDIRECT", "stdout append to file (WRITE!)"),
 
+        # ── Agent-internal writes (safe — agent's own workspace) ──
+        ("cat > /home/user/.claude/plans/plan.md << 'EOF'\ncontent\nEOF", True, "AGENT-WRITE", "Claude plan file (Linux)"),
+        ("cat > /Users/user/.claude/plans/plan.md << 'EOF'\ncontent\nEOF", True, "AGENT-WRITE", "Claude plan file (macOS)"),
+        ("cat > /c/Users/user/.claude/plans/plan.md << 'EOF'\ncontent\nEOF", True, "AGENT-WRITE", "Claude plan file (Windows Git Bash)"),
+        ("cat > /home/user/.claude/memory/note.md << 'EOF'\ncontent\nEOF", True, "AGENT-WRITE", "Claude memory file (Linux)"),
+        ("cat > /home/user/.claude/projects/abc123/memory/mem.md << 'EOF'\ncontent\nEOF", True, "AGENT-WRITE", "Claude project memory (Linux)"),
+        ("cat > .claude/plans/plan.md << 'EOF'\ncontent\nEOF", True, "AGENT-WRITE", "Claude plan file (relative path)"),
+        ("cat > .claude/memory/note.md << 'EOF'\ncontent\nEOF", True, "AGENT-WRITE", "Claude memory file (relative)"),
+        ("cat > /home/user/.gemini/memory/note.md << 'EOF'\ncontent\nEOF", True, "AGENT-WRITE", "Gemini memory file"),
+        ("cat > /home/user/.codex/memory/note.md << 'EOF'\ncontent\nEOF", True, "AGENT-WRITE", "Codex memory file"),
+        ("cat > /home/user/.claude/settings.json << 'EOF'\n{}\nEOF", False, "AGENT-WRITE", "Claude settings (NOT safe)"),
+        ("cat > /home/user/.claude/hooks/hook.sh << 'EOF'\n#!/bin/bash\nEOF", False, "AGENT-WRITE", "Claude hooks (NOT safe)"),
+        ("echo secret > /tmp/output.txt", False, "AGENT-WRITE", "regular file write (NOT safe)"),
+
         # ── macOS read-only commands ──
         ("sw_vers", True, "MACOS", "macOS version info"),
         ("sw_vers -productVersion", True, "MACOS", "macOS product version"),

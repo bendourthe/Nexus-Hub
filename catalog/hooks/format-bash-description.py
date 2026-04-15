@@ -366,6 +366,68 @@ def _extract_body_commands(construct: str) -> list[str] | None:
 
 # ── Output-redirect detection ─────────────────────────────────────────────
 
+# Agent-internal directories where writes are safe to auto-approve.
+# These are the agent's own workspace, not user source code.
+# Patterns use forward slashes and match as substrings, covering all platforms:
+#   Linux:       /home/user/.claude/plans/file.md
+#   macOS:       /Users/user/.claude/plans/file.md
+#   Windows:     /c/Users/user/.claude/plans/file.md
+#   Relative:    .claude/plans/file.md
+_AGENT_INTERNAL_DIRS = (
+    # Claude Code
+    "/.claude/plans/",
+    "/.claude/memory/",
+    "/.claude/projects/",
+    # Gemini CLI
+    "/.gemini/memory/",
+    "/.gemini/projects/",
+    # OpenAI Codex
+    "/.codex/memory/",
+    "/.codex/projects/",
+)
+
+
+def _is_agent_internal_write(cmd: str) -> bool:
+    """Return True if the redirect target is inside an agent-internal directory.
+
+    Handles all platform path variants by normalizing backslashes to forward
+    slashes and checking for known agent directory substrings.  Also handles
+    relative paths like ``.claude/plans/file.md``.
+    """
+    tokens = _tokenize_shell(cmd)
+    words = [v for t, v in tokens if t == "word"]
+
+    for i, word in enumerate(words):
+        if not word.startswith(">"):
+            continue
+        # Redirect found — extract the target path.
+        # Forms: ">file", "> file" (next word), ">>file", ">> file"
+        target = word.lstrip(">").strip()
+        if not target and i + 1 < len(words):
+            target = words[i + 1]
+        if not target:
+            continue
+
+        # Normalize: backslashes to forward slashes, strip quotes
+        normalized = target.replace("\\", "/").strip("'\"")
+
+        # Check absolute agent-internal dirs
+        for agent_dir in _AGENT_INTERNAL_DIRS:
+            if agent_dir in normalized:
+                return True
+
+        # Check relative .claude/, .gemini/, .codex/ project-level dirs
+        if normalized.startswith(".claude/") or normalized.startswith(".gemini/") or normalized.startswith(".codex/"):
+            # Only allow writes to plans/, memory/, projects/ subdirs
+            for agent_dir in _AGENT_INTERNAL_DIRS:
+                # Extract the relative portion: ".claude/plans/" from "/.claude/plans/"
+                rel_dir = agent_dir.lstrip("/")
+                if normalized.startswith(rel_dir):
+                    return True
+
+    return False
+
+
 def _has_output_redirect(cmd: str) -> bool:
     """Return True if *cmd* contains a top-level unquoted output redirect.
 
@@ -670,8 +732,11 @@ def command_is_allowed(cmd: str, patterns: list[str]) -> bool:
                     return False
             continue
 
-        # Output redirects (>, >>) are never safe to auto-approve.
-        if _has_output_redirect(sub):
+        # Output redirects (>, >>) are never safe to auto-approve,
+        # UNLESS the target is an agent-internal directory (plan files,
+        # memory, session state) where the agent writes as part of
+        # normal operation.
+        if _has_output_redirect(sub) and not _is_agent_internal_write(sub):
             return False
 
         unwrapped = _unwrap_var_assignment(sub)
