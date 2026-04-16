@@ -41,6 +41,8 @@ split_compound_command = _fbd.split_compound_command
 command_is_allowed = _fbd.command_is_allowed
 format_description_box = _fbd.format_description_box
 strip_description_box = _fbd.strip_description_box
+_BOX_HEADER = _fbd._BOX_HEADER
+_BOX_FOOTER = _fbd._BOX_FOOTER
 
 
 # ── Helpers ────────────────────────────────────────────────────────────────
@@ -731,48 +733,56 @@ class TestSelectConstruct:
 
 
 class TestFormatDescriptionBox:
-    BOX_WIDTH = 79
+    _WRAP_WIDTH = 40  # fixed wrap width for predictable assertions
 
-    def _assert_line_width(self, line: str) -> None:
-        assert len(line) == self.BOX_WIDTH, (
-            f"Expected width {self.BOX_WIDTH}, got {len(line)}: {line!r}"
-        )
-
-    def test_all_lines_are_79_chars_wide(self):
-        box = format_description_box("Short description.")
-        for line in box.splitlines():
-            self._assert_line_width(line)
+    def test_header_and_footer_are_fixed(self):
+        box = format_description_box("Short description.", width=self._WRAP_WIDTH)
+        lines = box.splitlines()
+        assert lines[0] == _BOX_HEADER
+        assert lines[-1] == _BOX_FOOTER
 
     def test_title_line_contains_word_description(self):
-        first_line = format_description_box("Any text").splitlines()[0]
+        first_line = format_description_box("Any text", width=self._WRAP_WIDTH).splitlines()[0]
         assert "Description" in first_line
 
     def test_short_text_produces_three_lines(self):
-        """title + 1 content + border = 3 lines for short text."""
-        lines = format_description_box("Short.").splitlines()
+        """header + 1 content line + footer = 3 lines for short text."""
+        lines = format_description_box("Short.", width=self._WRAP_WIDTH).splitlines()
         assert len(lines) == 3
 
     def test_long_text_wraps_across_multiple_lines(self):
         long_text = (
             "This is a very long description that definitely exceeds the "
-            "content width of seventy-five characters and must be wrapped "
-            "across multiple content lines inside the box."
+            "content width and must be wrapped across multiple content "
+            "lines inside the box."
         )
-        lines = format_description_box(long_text).splitlines()
+        lines = format_description_box(long_text, width=self._WRAP_WIDTH).splitlines()
         assert len(lines) > 3
-        for line in lines:
-            self._assert_line_width(line)
+        for line in lines[1:-1]:  # content lines only (not header/footer)
+            assert len(line) <= self._WRAP_WIDTH + 2  # "# " prefix + wrapped text
 
     def test_starts_with_hash(self):
-        assert format_description_box("Test").startswith("#")
+        assert format_description_box("Test", width=self._WRAP_WIDTH).startswith("#")
 
     def test_ends_with_hash(self):
-        box = format_description_box("Test")
+        box = format_description_box("Test", width=self._WRAP_WIDTH)
         assert box.splitlines()[-1].endswith("#")
 
     def test_content_is_present_in_box(self):
-        box = format_description_box("Read files from disk")
+        box = format_description_box("Read files from disk", width=self._WRAP_WIDTH)
         assert "Read files from disk" in box
+
+    def test_wide_terminal_preserves_fixed_header_footer(self):
+        box = format_description_box("Test", width=77)
+        lines = box.splitlines()
+        assert lines[0] == _BOX_HEADER
+        assert lines[-1] == _BOX_FOOTER
+
+    def test_narrow_terminal_preserves_fixed_header_footer(self):
+        box = format_description_box("Test", width=30)
+        lines = box.splitlines()
+        assert lines[0] == _BOX_HEADER
+        assert lines[-1] == _BOX_FOOTER
 
 
 # ══════════════════════════════════════════════════════════════════════════

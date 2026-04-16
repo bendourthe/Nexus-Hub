@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 PreToolUse hook for Claude Code: formats Bash tool descriptions
-into a 79-character bordered box for commands that require user
+into a fixed-header/footer block for commands that require user
 approval, and passes through allowed commands unchanged so that
 the permission system can auto-approve them.
 
@@ -28,38 +28,39 @@ import fnmatch
 import json
 import pathlib
 import re
+import shutil
 import sys
 import textwrap
 
 # ── Configuration ──────────────────────────────────────────────────────────
-BOX_WIDTH = 79
-BORDER_CHAR = "="  # Plain ASCII - maximum compatibility across all terminals
+_BOX_HEADER = "# ===== Description ===== #"
+_BOX_FOOTER = "# ======================= #"
+_MIN_CONTENT_WIDTH = 30   # floor for very narrow terminals
+_MAX_CONTENT_WIDTH = 77   # cap for very wide terminals
 # ──────────────────────────────────────────────────────────────────────────
 
 
 # ── Description box formatting ─────────────────────────────────────────────
 
-def format_description_box(text: str) -> str:
-    """Wrap plain text into a bordered box, 79 chars wide."""
-    content_width = BOX_WIDTH - 4  # subtract "# " prefix and " #" suffix
+def format_description_box(text: str, *, width: int | None = None) -> str:
+    """Format description text between fixed header/footer rules.
 
-    border = f"# {BORDER_CHAR * content_width} #"
+    Header and footer are always 27 characters wide so they fit any
+    terminal. Content lines carry a '# ' prefix and wrap at *width*
+    (defaults to terminal width clamped to [_MIN_CONTENT_WIDTH,
+    _MAX_CONTENT_WIDTH]). Pass *width* explicitly to override terminal
+    detection (useful in tests).
+    """
+    if width is None:
+        cols = shutil.get_terminal_size(fallback=(_MAX_CONTENT_WIDTH + 2, 24)).columns
+        width = max(_MIN_CONTENT_WIDTH, min(_MAX_CONTENT_WIDTH, cols - 2))
 
-    title = " Description "
-    padding = content_width - len(title)
-    left_pad = padding // 2
-    right_pad = padding - left_pad
-    title_line = (
-        f"# {BORDER_CHAR * left_pad}{title}{BORDER_CHAR * right_pad} #"
-    )
-
-    wrapped = textwrap.wrap(text.strip(), width=content_width)
+    wrapped = textwrap.wrap(text.strip(), width=width)
     if not wrapped:
         wrapped = ["(no description)"]
 
-    content_lines = [f"# {line:<{content_width}} #" for line in wrapped]
-
-    return "\n".join([title_line] + content_lines + [border])
+    content_lines = [f"# {line}" for line in wrapped]
+    return "\n".join([_BOX_HEADER] + content_lines + [_BOX_FOOTER])
 
 
 # ── Command cleaning ──────────────────────────────────────────────────────

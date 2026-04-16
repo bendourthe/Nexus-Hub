@@ -598,24 +598,29 @@ function Install-CoreSettings {
         return
     }
 
-    # Idempotency: skip if effortLevel already set
+    # Idempotency: skip if effortLevel already matches the template value
     $content = Get-Content $settingsFile -Raw
-    if ($content -like "*effortLevel*") {
-        Write-Item -Message "✓ effortLevel already configured in settings.json" -Color "DarkGreen"
-        return
-    }
-
     try {
         $existingJson = $content | ConvertFrom-Json
         $templateJson = Get-Content $templateFile -Raw | ConvertFrom-Json
+        $templateEffort = $templateJson.effortLevel
 
-        $existingJson | Add-Member -NotePropertyName "effortLevel" -NotePropertyValue $templateJson.effortLevel
+        if ($existingJson.PSObject.Properties["effortLevel"] -and $existingJson.effortLevel -eq $templateEffort) {
+            Write-Item -Message "✓ effortLevel already set to $templateEffort in settings.json" -Color "DarkGreen"
+            return
+        }
+
+        if ($existingJson.PSObject.Properties["effortLevel"]) {
+            $existingJson.effortLevel = $templateEffort
+        } else {
+            $existingJson | Add-Member -NotePropertyName "effortLevel" -NotePropertyValue $templateEffort
+        }
         $existingJson | ConvertTo-Json -Depth 10 | Set-Content $settingsFile -Encoding UTF8
-        Write-Item -Message "✓ $Scope settings.json updated with effortLevel: high" -Color "DarkGreen"
+        Write-Item -Message "✓ $Scope settings.json updated with effortLevel: $templateEffort" -Color "DarkGreen"
     }
     catch {
         Write-Item -Message "Warning: Could not set effortLevel ($($_.Exception.Message))" -Color "Yellow"
-        Write-Item -Message "  Manually add: `"effortLevel`": `"high`" to $settingsFile" -Color "Yellow"
+        Write-Item -Message "  Manually add: `"effortLevel`": `"xhigh`" to $settingsFile" -Color "Yellow"
     }
 }
 

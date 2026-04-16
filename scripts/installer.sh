@@ -356,9 +356,11 @@ install_core_settings() {
         return
     fi
 
-    # Idempotency: skip if effortLevel already set
-    if grep -q '"effortLevel"' "$settings_file" 2>/dev/null; then
-        write_item "[OK] effortLevel already configured in settings.json" "$GREEN"
+    # Idempotency: skip if effortLevel already matches the template value
+    local template_effort
+    template_effort=$(jq -r '.effortLevel' "$template_file" 2>/dev/null)
+    if jq -e --arg v "$template_effort" '.effortLevel == $v' "$settings_file" >/dev/null 2>&1; then
+        write_item "[OK] effortLevel already set to ${template_effort} in settings.json" "$GREEN"
         return
     fi
 
@@ -371,13 +373,13 @@ install_core_settings() {
 
         if [ -n "$merged" ]; then
             echo "$merged" > "$settings_file"
-            write_item "[OK] $scope settings.json updated with effortLevel: high" "$GREEN"
+            write_item "[OK] $scope settings.json updated with effortLevel: ${template_effort}" "$GREEN"
         else
             write_item "Warning: Could not merge effortLevel into settings.json" "$YELLOW"
         fi
     else
         write_item "Warning: jq not found, cannot set effortLevel" "$YELLOW"
-        write_item "  Manually add: \"effortLevel\": \"high\" to $settings_file" "$YELLOW"
+        write_item "  Manually add: \"effortLevel\": \"${template_effort}\" to $settings_file" "$YELLOW"
     fi
 }
 
