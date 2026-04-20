@@ -12,7 +12,7 @@ DevAI-Hub is active (v0.9.6) - $SKILL_COUNT skills, $COMMAND_COUNT commands.
 
 Quick navigation:
   /search-skills <keyword>   Find the right skill for your task
-  /commands_cheatsheet       List all available commands
+  /commands-cheatsheet       List all available commands
 
 Full index: data/SKILL_INDEX.md
 EOF

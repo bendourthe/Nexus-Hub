@@ -65,7 +65,7 @@ Key commands:
 | Command | What it does |
 |---|---|
 | `/search-skills` | Find skills by keyword |
-| `/commands_cheatsheet` | List all available commands |
+| `/commands-cheatsheet` | List all available commands |
 | `/analyze-codebase` | Full codebase analysis with Mermaid diagrams |
 | `/review-codebase` | Senior-level code review |
 | `/implement-phase` | Execute one phase of an implementation plan |
@@ -73,7 +73,7 @@ Key commands:
 | `/generate-tests` | Generate comprehensive test coverage |
 | `/run-security-audit` | Full security audit with remediation |
 
-Run `/commands_cheatsheet` to see all 32 commands with descriptions.
+Run `/commands-cheatsheet` to see all 32 commands with descriptions.
 
 ## How Hooks Protect the Session
 

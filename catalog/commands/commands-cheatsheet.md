@@ -55,7 +55,7 @@ Rules:
 - The **What it does** column is the frontmatter `description` value, verbatim or lightly trimmed to one sentence
 - The **When to use** column gives a concrete, practical trigger (e.g., "Before opening a PR", "After finishing a feature branch", "`/search-skills security`")
 - Sort rows alphabetically by command name within each table
-- This command (`commands_cheatsheet`) belongs in the **Utility** category
+- This command (`commands-cheatsheet`) belongs in the **Utility** category
 
 ### Step 5: Print a Summary Line
 
