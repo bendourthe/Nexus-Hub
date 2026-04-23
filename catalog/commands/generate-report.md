@@ -53,38 +53,68 @@ Determine what content to include in the report:
 
 ## Phase 2: Discover and Select Template
 
-**CRITICAL RULE**: You MUST always present the available templates to the user and get their explicit selection. NEVER auto-select a template without asking, even if only one template is found.
+**CRITICAL RULE**: You MUST always present the template-source gate first and then list templates from the chosen source. NEVER auto-select a template without asking, even if only one bundled template is found.
 
-Scan for available document templates in the following locations, in priority order:
+### Step 2.1: Gate - generic (bundled) or custom?
 
-1. `<project_root>/.claude/templates/documentation/` (project-specific, version-controlled)
-2. `~/.devai-hub/templates/documentation/` (globally installed by the DevAI-Hub installer)
+Ask the user this binary question FIRST. As of v0.9.7, the installer no longer prompts for custom template imports at install time; the generic templates are always bundled at `~/.devai-hub/templates/documentation/`, and custom templates are selected by path here.
 
-Merge the two lists, deduplicating by filename (project-level wins on conflict).
+```
+Which template source should I use?
+  [G] Generic  - use a template bundled with DevAI-Hub (recommended for most reports)
+  [C] Custom   - specify the full path to your own .docx or .pptx template
 
-**Template selection logic:**
+Select [G]eneric / [C]ustom (default: G):
+```
 
-- **Always present the discovered templates to the user**, regardless of how many are found:
+- **Wait for the user to respond.** Do NOT proceed until the user answers.
+- If the answer is `G` / `Generic` / empty (default): continue to Step 2.2 (Generic picker).
+- If the answer is `C` / `Custom`: continue to Step 2.3 (Custom path).
 
-  ```
-  Available templates:
-  Word (.docx):
-    1. generic-word-report-template.docx (global)
-    2. company-branded-template.docx (project)
-  PowerPoint (.pptx):
-    3. Presentation Template.pptx (global)
+### Step 2.2: Generic picker (default)
 
-  [0] No template (blank document)
+Scan for bundled / project templates in this priority order:
 
-  Which template should I use? Enter a number:
-  ```
+1. `<project_root>/.claude/templates/documentation/` (project-specific, version-controlled; optional)
+2. `~/.devai-hub/templates/documentation/` (installed by the DevAI-Hub installer; always present on a standard install)
 
-- **Wait for the user to respond.** Do NOT proceed until the user has selected a template.
-- **If no templates are found at all**: Inform the user that no templates were discovered and offer to proceed with a blank document style, or ask if they have a template file they'd like to use.
+Merge the two lists, deduplicating by filename (project-level wins on conflict). Present them numerically:
+
+```
+Available generic templates:
+Word (.docx):
+  1. generic-word-report-template.docx (global)
+  2. branded-report-template.docx (global)
+PowerPoint (.pptx):
+  3. Presentation Template.pptx (global)
+
+[0] No template (blank document)
+
+Which template should I use? Enter a number:
+```
+
+- Wait for the user to respond.
+- If the user enters `0`, generate a blank-style document (no template base).
+- If no templates are found at either path, inform the user that DevAI-Hub's bundled templates are missing (suggest re-running the installer) and offer to proceed with a blank document or fall back to Step 2.3 (Custom path).
+
+### Step 2.3: Custom path
+
+Prompt the user:
+
+```
+Enter the full path to your template file (.docx or .pptx):
+```
+
+- Validate that the path exists and is a file, and that the extension is `.docx` or `.pptx`. If either check fails, report the problem and re-prompt (or offer to fall back to Step 2.2).
+- Tilde (`~`) and relative paths are resolved against the current working directory; drag-and-drop surrounding quotes are stripped.
+- The custom template is NOT copied into `~/.devai-hub/templates/documentation/` - it is used in place. Re-running `/generate-report` will prompt again; if the user expects the template to persist for future runs, they can manually copy it into the global templates directory.
+
+### Template file-extension determines output format
 
 The selected template's file extension determines the output format:
 - `.docx` template produces a Word document
 - `.pptx` template produces a PowerPoint presentation
+- Blank (Step 2.2 option `[0]`) defaults to `.docx`.
 
 ## Phase 3: Determine Version and Output Path
 

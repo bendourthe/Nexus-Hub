@@ -595,6 +595,6 @@ Load different MCPs based on project type:
 
 ---
 
-*MCP Integration Guide - Part of DevAI-Hub v0.9.6*
+*MCP Integration Guide - Part of DevAI-Hub v0.9.7*
 
 *Last Updated: April 2026*

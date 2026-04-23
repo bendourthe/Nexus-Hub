@@ -11,6 +11,81 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.9.7] - 2026-04-22
+
+Closes 22 deduplicated recommendations from the three v0.9.6 gap analyses (session management / 1M context, Opus 4.7 best practices, red-team security audit). Six planned phases shipped; Phase 5 (VS Code extension effort-level integration) is partially deferred - see **Deferred** below.
+
+### Added
+
+**New skills**:
+- **`catalog/skills/security/business-logic-abuse/SKILL.md`** - domain-aware audit covering race conditions, TOCTOU, double-spending, workflow-state bypass, idempotency violations, and check-sequence abuse. Includes a rule-elicitation step that refuses to proceed on unspecified domains and produces a findings table keyed by attack class, invariant violated, and architectural remediation.
+- **`catalog/skills/security/advanced-attack-patterns/SKILL.md`** - architecture-level attack classes gated on applicability checks: state desynchronization, cache poisoning, replay attacks, and timing-attack surfaces beyond password comparison. Each class has applicability / patterns / remediation / indicators-in-code sections.
+- **`catalog/skills/specialized-domains/deep-research-compilation/SKILL.md`** - compile multiple research reports across 7 input formats (.docx, .md, .pdf, .pptx, .html, raw URLs, .txt) into a single unified document in .docx, .pdf, or .md form, with deduplicated inline [N] citations linking to a References section. Reference dedup via DOI -> normalized URL -> rapidfuzz fuzzy title match.
+
+**New guides**:
+- **`guides/SESSION_LIFECYCLE_DECISIONS.md`** - five-branch decision tree (continue / `/rewind` / `/clear` / `/compact` / delegate to subagent) with ASCII decision flowchart, trigger criteria per branch, `/compact focus on X, drop Y` steerable-compaction examples, and three worked examples. Cross-linked from `TOKEN_OPTIMIZATION.md`, 4 orchestration SKILLs, `session-history/SKILL.md`, and `SUBAGENTS_GUIDE.md`.
+- **`docs/v0.9.6/opus-4-7-migration.md`** - operator migration guide synthesizing the Opus 4.6 -> 4.7 behavioral deltas. TL;DR with four must-do items (reconfirm effortLevel, explicit fan-out, remove fixed thinking budgets, batch clarifying questions), 13-row cross-reference table indexing each delta to its canonical catalog location, what-to-remove list, and a migration checklist. Filed under `v0.9.6/` to co-locate with the comparison document that drove the work.
+
+**New checklists**:
+- **`catalog/checklists/file-upload-security.md`** - defense checklist against polyglot files, MIME confusion, archive path traversal, zip-bomb signatures, resource-limit bypasses, AV pipeline gaps, and unsafe serving of user-uploaded content. Cross-linked from `security-patch-advisor/SKILL.md` Related Resources.
+
+**New commands**:
+- **`/run-penetration-test --depth=deep`** - optional 6th hunter (Business Logic & Advanced Attacks) that wires in both new security skills. Gated behind the flag because aggregate cost increases by ~20%; base 5-hunter run remains the default.
+- **`/compile-deep-research`** (`catalog/commands/compile-deep-research.md` + companion `compile-deep-research-style-guide.md`) - 9-phase command that ingests multiple research reports and emits a unified document. Backed by `scripts/compile_deep_research.py` (~1700 lines, 4 sub-commands: extract / dedupe / generate / validate).
+
+**New supporting scripts and templates**:
+- **`scripts/compile_deep_research.py`** - multi-format input parser (python-docx + zipfile XML, pypdf, python-pptx, beautifulsoup4 + httpx, stdlib regex), reference deduplication (DOI -> normalized URL -> rapidfuzz title match with difflib fallback), citation renumbering, output emission to Word (styled), PDF (docx2pdf primary / LibreOffice fallback), or Markdown with clickable anchor links. Installed to `~/.devai-hub/scripts/compile_deep_research.py` by the installer.
+- **`templates/documentation/branded-report-template.docx`** - branded Word template with teal #215868 Consolas title, Calibri Light small-caps headings, auto-TOC, superscript [N] citation styling, and hanging-indent references. Ships alongside the existing generic template and is auto-selected by `/compile-deep-research` when no user template is provided.
+
+**Repo-scoped AI agent instruction set** (covers installer-aware contribution rules across all 6 agentic platforms):
+- **`AGENTS.md`** extended with a new **"Installer-Aware Changes (Cross-Platform)"** section (canonical; read by Codex / OpenCode / Aider / Jules).
+- **`CLAUDE.md`** (Claude Code) and **`GEMINI.md`** (Gemini CLI / Antigravity) - thin pointer files using `@AGENTS.md` import + quick reference.
+- **`.github/copilot-instructions.md`** (GitHub Copilot, inline summary - Copilot cannot use `@` imports).
+- **`.cursor/rules/devai-hub.mdc`** (Cursor IDE, with `alwaysApply: true` frontmatter).
+- All six files enforce the same rules: any new `scripts/*.py` MUST be registered in both `scripts/installer.sh` and `scripts/installer.ps1`; any new skill MUST update the three registry files (`data/SKILL_INDEX.md`, `data/skills.json`, `data/marketplace.json`); platform instruction templates (`templates/ai-instructions/base-*.md`) MUST be edited in lockstep across all five platforms.
+
+### Changed
+
+**Installer / defaults**:
+- **Installer `effortLevel` default reduced from `xhigh` to `high`** (`catalog/hooks/settings.json`, `scripts/installer.ps1`) - both now write `effortLevel: high` to generated user settings. Operators who prefer deeper reasoning can raise it back manually in `~/.claude/settings.json` or via `/effort xhigh` during a session. Rationale: `high` preserves strong reasoning at lower aggregate cost, matches parallel-fan-out guidance, and is a safer default for loop-operator and temporal-orchestration workloads. Current-state documentation across `guides/CLAUDE_CODE_SETTINGS_REFERENCE.md`, `catalog/skills/ai-development/prompt-engineering/SKILL.md` (Effort-Level Strategy), `docs/v0.9.6/opus-4-7-migration.md`, and the `claude-usage-monitor` extension README has been updated to match.
+
+**Platform templates**:
+- **Batched clarifying-questions rule** applied to all 5 platform base templates (`base-claude.md`, `base-gemini.md`, `base-codex.md`, `base-cursor.md`, `base-opencode.md`) plus the global `CLAUDE.md`. Replaces the unbounded 4.6-era variant with the Opus 4.7 batched-first-turn variant: ambiguous requirements must surface multiple interpretations + acceptance criteria in one round-trip instead of one-question-per-turn ping-pong.
+
+**Opus 4.7 behavioral skill extensions**:
+- **`prompt-engineering`** (`catalog/skills/ai-development/prompt-engineering/SKILL.md`) - new `## Effort-Level Strategy` section (all 5 tiers, default rationale, escalation/de-escalation rules, anti-patterns, 8-row decision table) and new `## Opus 4.7 Practices` section (positive-examples-over-negative, explicit-tool-invocation, adaptive-thinking-without-fixed-budgets, first-turn-specification-checklists).
+- **`ai-agent-development`** (`catalog/skills/ai-development/ai-agent-development/SKILL.md`) - new `## Anti-Patterns (Opus 4.7)` table (fixed thinking budgets, excessive tool-calling as "thorough investigation", `max` effort on extended runs) mirroring the existing Common Rationalizations pattern.
+- **`multi-agent-coordinator`** (`catalog/skills/orchestration/multi-agent-coordinator/SKILL.md`) - new `### Step 0: Should I delegate to a subagent?` section with the "will I need this tool output again?" reuse test and three worked delegation patterns; Pattern A "Opus 4.7 behavior - explicit fan-out required" callout with three concrete fan-out prompt templates (research, code generation, verification).
+- **`context-compression`** (`catalog/skills/orchestration/context-compression/SKILL.md`) - new `#### Proactive steering with /compact focus on X, drop Y` subsection inside Step 2 with six directly-usable directives and `/clear` vs `/compact` guidance.
+- **`context-degradation`** (`catalog/skills/orchestration/context-degradation/SKILL.md`) - 1M-token window Lost-in-Middle calibration table in Step 1 (Green/Yellow/Orange/Red at 100k/300k/500k boundaries) with task-dependency caveat; Step 2 cross-link added to proactive-steering and SESSION_LIFECYCLE_DECISIONS.
+- **`session-history`** (`catalog/skills/workflow/session-history/SKILL.md`) - new "Summarize from here (mid-session handoff)" operating mode with purpose, trigger, 4-step usage pattern, and paste-ready handoff template.
+
+**Guides**:
+- **`guides/TOKEN_OPTIMIZATION.md`** - new "When NOT to compact" subsection under Auto-Compaction covering the bad-compact failure mode, three recognition signals (70-80% capacity on long task; mid-tool-use chain; recently loaded large files still needed), proactive `/compact focus on X, drop Y` remedy, and `/clear` vs `/compact` decision.
+- **`guides/CLAUDE_CODE_SETTINGS_REFERENCE.md`** - Effort Levels table expanded from 3 tiers to the full 5 (xhigh / high / max / medium / low) with `high` marked as the v0.9.7 shipped default and `xhigh` reframed as an escalation option.
+
+**Security command**:
+- **`/run-penetration-test`** (`catalog/commands/run-penetration-test.md`) - "Attack Paths" renamed to "Attack Paths / Chains" in the report template with expanded narrative on exploit-chain composition. New `### Secure Design Recommendations` subsection between per-finding remediation and the project-wide Roadmap (architectural patterns: centralize authorization, typed query layer, server-authoritative state machine, constant-time comparators, idempotency middleware, CDN boundary hardening). WSTG Coverage Matrix expanded with WSTG-BUSL (business logic), cache poisoning, replay & token binding, and timing side channel rows - all gated on `--depth=deep`. Hunter agents default to shipped `effortLevel: high` (not `xhigh`) - parallel fan-out compounds cost; Phase 2 header cross-links to Effort-Level Strategy and multi-agent-coordinator explicit fan-out.
+- **`catalog/skills/security/security-patch-advisor/SKILL.md`** - new `## Related Resources` footer cross-linking to the file-upload-security checklist and the two new security skills (previously had no "Related" section).
+
+**Planning workflow generalization** (unrelated to Opus 4.7 adaptation but shipped in the same release):
+- **`/generate-implementation-plan` renamed to `/generate-plan`** (`catalog/commands/generate-plan.md`) - scope broadened beyond v0.1.0 greenfield builds to cover feature additions, UX enhancements, refactors, and bug-fix campaigns. A plan-type selector (Initial Implementation / Feature / Refactor / Other) routes the discovery interview to either the full 11-question greenfield set or a shorter 7-question scope-focused set. Old command name preserved as a deprecation alias (`catalog/commands/generate-implementation-plan.md`).
+- **Plan output path generalized to `docs/<version>/plans/<slug>.md`** - plans now live in a dedicated `plans/` subfolder per version instead of the hardcoded `docs/v0.1.0/implementation-plan.md`. Version resolves from git tags, CHANGELOG.md, or package manifests (falling back to `v0.1.0`). Filename slug auto-suggested from a one-sentence scope statement; collision handling via `<slug>-2`, `<slug>-3`.
+- **`/implement-phase` discovery updated to match the new layout** (`catalog/commands/implement-phase.md`) - searches `docs/**/plans/*.md` as primary location and `docs/**/implementation-plan.md` as legacy fallback. Supports `/implement-phase <slug>`, `/implement-phase <path/to/plan.md>`, `/implement-phase <slug> <phase>` in addition to version-only and phase-only forms.
+- **`setup-project` Phase 9** invokes `/generate-plan` (plan type 1) instead of `/generate-implementation-plan`; advertises `docs/v0.1.0/plans/v0.1.0-initial.md` as the default output path.
+- **`generate-session-history`** plan-file discovery searches both new and legacy layouts.
+- **`implementation-plan` skill** (`catalog/skills/workflow/implementation-plan/SKILL.md`) - frontmatter description, overview, question-set header, and quality checklist updated for the broader plan-type coverage and the new output path. Version bumped to 1.1.0.
+
+### Fixed
+
+- **Correction (v0.9.6 CHANGELOG)** - the v0.9.6 entry line stating the installer `effortLevel` default was changed to `high` was inaccurate; v0.9.6 actually shipped `xhigh` (matching the then-current `catalog/hooks/settings.json` template and `scripts/installer.ps1` fallback). The v0.9.6 entry has been rewritten to describe the actual v0.9.6 shipped behavior. Separately, v0.9.7 now reduces the shipped default to `high` (see Changed above).
+
+### Deferred
+
+- **VS Code extension effort-level integration** (planned Phase 5) - shipped as a documentation roadmap in the `claude-usage-monitor` extension README rather than as the originally planned `markdownDescription` hover-help integration. Two upstream blockers remain unresolved in Claude Code as of April 2026: (a) the statusline hook JSON does not carry the current effort level (tracked in `anthropics/claude-code#31415`), so an extension cannot reliably observe mid-session `/effort` changes; (b) edits to `~/.claude/settings.json` do not propagate live to running sessions (tracked in `anthropics/claude-code#17127`), so auto-switching by usage band cannot take effect without a session restart. The configured-value display and usage-banded auto-switch features are documented as roadmap items in the extension README and will be reconsidered when the upstream primitives exist. See [docs/v0.9.7/development/history/2026-04_phase-5-vscode-extension-deferred.md](docs/v0.9.7/development/history/2026-04_phase-5-vscode-extension-deferred.md) for full context including the research refresh addendum.
+
+---
+
 ## [0.9.6] - 2026-04-14
 
 ### Added
@@ -24,7 +99,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - **Settings panel thresholdMetric persistence** (`settingsPanel.ts`) - replaced `Promise.all` with sequential `config.update()` calls to eliminate race condition where concurrent writes to the same settings file caused the metric value to be silently lost; added post-save confirmation via `loadSettings` message and removed the optimistic update in the webview `onSave()` handler
-- **Installer effortLevel default** - `effortLevel` now defaults to `high` during install
+- **Installer effortLevel default** - installer writes `effortLevel: xhigh` to generated user settings, matching the shipped `catalog/hooks/settings.json` template and aligning with current Opus 4.7 best-practice guidance
 
 ---
 

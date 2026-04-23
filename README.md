@@ -6,12 +6,15 @@
 
 ---
 
-## What's New in v0.9.6
+## What's New in v0.9.7
 
-- **Smarter command classification** - the hook classifier now handles git global options (`-C`, `--no-pager`), absolute binary paths, `env`/`time`/`command` wrappers, and subshells so read-only commands auto-approve reliably.
-- **115+ new auto-approve patterns** - macOS tools, Linux diagnostics, package manager introspection, Docker read-only, and GitHub CLI commands added to both Claude and Gemini permission configs.
-- **Settings panel fix** - the threshold metric dropdown now persists correctly after save; replaced concurrent config writes with sequential calls to eliminate the race condition.
-- **Cross-platform parity** - Gemini permissions expanded from 47 to 170 shell command entries, matching the Claude allowlist coverage.
+- **Opus 4.7 alignment** - new `guides/SESSION_LIFECYCLE_DECISIONS.md` (continue / `/rewind` / `/clear` / `/compact` / delegate decision tree), full Effort-Level Strategy section in `prompt-engineering`, batched clarifying-questions rule across all 5 platform templates + global `CLAUDE.md`, and a consolidated [Opus 4.6 -> 4.7 migration guide](docs/v0.9.6/opus-4-7-migration.md) with a 13-row cross-reference table.
+- **Lower-cost installer default** - `effortLevel` reduced from `xhigh` to `high` in `catalog/hooks/settings.json` and the installer fallback. Operators who prefer deeper reasoning can raise back with `/effort xhigh`. Aggregate cost is lower without sacrificing reasoning quality for most interactive work.
+- **Security expansion** - two new skills (`business-logic-abuse` covering race conditions, TOCTOU, double-spending, workflow bypass, idempotency; `advanced-attack-patterns` covering state desync, cache poisoning, replay, and timing side channels) plus a 6th `--depth=deep` hunter in `/run-penetration-test` that wires them in, and a new `file-upload-security` checklist.
+- **Context calibrations** - 1M-token window Lost-in-Middle calibration table (Green/Yellow/Orange/Red at 100k/300k/500k boundaries) in `context-degradation`, proactive `/compact focus on X, drop Y` steering in `context-compression`, and a "Summarize from here" mid-session handoff mode in `session-history`.
+- **Planning workflow generalized** - `/generate-implementation-plan` renamed to `/generate-plan` (legacy alias preserved) with plan-type selector (Initial / Feature / Refactor / Other) and a generalized `docs/<version>/plans/<slug>.md` output path. `/implement-phase` discovers both the new layout and the legacy `docs/**/implementation-plan.md` pattern.
+- **Deep-research compilation** - new `/compile-deep-research` command + `deep-research-compilation` skill + backing `scripts/compile_deep_research.py` ingests multiple research reports (.docx / .md / .pdf / .pptx / .html / URL / .txt), deduplicates references (DOI -> normalized URL -> fuzzy title match), renumbers inline [N] citations, and emits a single unified .docx / .pdf / .md with anchored References. New bundled `templates/documentation/branded-report-template.docx` for styled output.
+- **Repo-scoped AI agent instructions** - new `AGENTS.md` section "Installer-Aware Changes (Cross-Platform)" plus thin pointer files for all 6 platforms (`CLAUDE.md`, `GEMINI.md`, `.github/copilot-instructions.md`, `.cursor/rules/devai-hub.mdc`, existing `AGENTS.md`) - enforce that new `scripts/*.py` are registered in both installers, new skills update all three registry files, and platform instruction templates stay in lockstep.
 
 ---
 

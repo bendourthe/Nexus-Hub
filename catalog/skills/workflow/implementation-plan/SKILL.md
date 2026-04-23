@@ -2,62 +2,68 @@
 name: implementation-plan
 description: >-
   Guide the user through a structured discovery interview to generate a comprehensive
-  implementation plan (docs/v0.1.0/implementation-plan.md) for their project. Asks
-  targeted questions about core functionality, key features, installation/distribution,
-  UI/UX, platform support, app behavior, integrations, performance requirements,
-  definition of done, and testing strategy. Then generates a phased plan where each
-  phase contains sub-tasks with detailed executable prompts, ends with test generation
-  and troubleshooting, and closes with a session-history entry. Use when starting a
+  phased plan (docs/<version>/plans/<slug>.md) for their project. Works for initial
+  v0.1.0 builds, feature additions, UX enhancements, refactors, and bug-fix campaigns.
+  Asks targeted questions appropriate to the plan type, then generates a phased plan
+  where each phase contains sub-tasks with detailed executable prompts, ends with test
+  generation and troubleshooting, and closes with a session-history entry. Invoked via
+  /generate-plan (or legacy alias /generate-implementation-plan). Use when starting a
   new project, when setup-project has just finished, or when a user asks to create an
-  implementation plan, v0.1.0 plan, or roadmap for what they want to build.
-summary_l0: "Generate a phased v0.1.0 implementation plan through guided discovery questions"
+  implementation plan, v0.1.0 plan, enhancement plan, refactor plan, or roadmap.
+summary_l0: "Generate a phased plan through guided discovery, saved to docs/<version>/plans/<slug>.md"
 overview_l1: >-
   This skill conducts a structured discovery interview — asking one question at a
-  time — to collect everything needed to write a comprehensive implementation plan.
-  Topics covered: core purpose, key features, installation/distribution method, UI
-  type, platform targets, runtime behavior, external integrations, performance
-  constraints, definition of done for v0.1.0, and testing expectations. After the
-  interview the skill produces docs/v0.1.0/implementation-plan.md structured into
-  numbered phases, each containing numbered sub-tasks. Every sub-task includes a
-  self-contained executable prompt so the user can hand the prompt directly to
-  Claude Code to perform that sub-task in a future session. Each phase ends with a
-  dedicated testing and troubleshooting sub-task and a generate-session-history call.
-  Phases do not advance until the current phase is stable. Use websearch when
-  research on libraries, toolchains, or distribution packaging is needed.
+  time — to collect everything needed to write a comprehensive phased plan. The first
+  step establishes plan type (initial implementation, feature/enhancement, refactor,
+  other), target version, and an auto-suggested filename slug derived from a
+  one-sentence scope statement. For initial implementation plans the interview covers
+  core purpose, key features, installation/distribution, UI type, platform targets,
+  runtime behavior, integrations, performance, definition of done, and testing. For
+  enhancements/refactors the interview uses a shorter scope-focused question set:
+  goal, in/out scope, affected areas, constraints, definition of done, and testing.
+  After the interview the skill writes the plan to docs/<version>/plans/<slug>.md
+  structured into numbered phases with numbered sub-tasks. Every sub-task includes a
+  self-contained executable prompt that can be handed directly to Claude Code in a
+  future session. Each phase ends with a dedicated testing and troubleshooting
+  sub-task and a generate-session-history call. Phases do not advance until the
+  current phase is stable. Use websearch when research on libraries, toolchains, or
+  distribution packaging is needed.
   Trigger phrases: implementation plan, v0.1.0 plan, build plan, project roadmap,
-  what should I build first, create a plan, generate implementation plan, how do I
-  build this, phased development plan.
+  enhancement plan, refactor plan, what should I build first, create a plan,
+  generate plan, generate implementation plan, how do I build this, phased
+  development plan.
 ---
 
 # Implementation Plan
 
-Guide the user through a structured discovery interview, then generate a comprehensive
-`docs/v0.1.0/implementation-plan.md` broken into phased sub-tasks — each with an
-executable prompt — so the full build can be completed session by session.
+Guide the user through a structured discovery interview, then generate a comprehensive plan at `docs/<version>/plans/<slug>.md` broken into phased sub-tasks — each with an executable prompt — so the full effort can be completed session by session. The command entry point is `/generate-plan` (the legacy `/generate-implementation-plan` name is still accepted as an alias).
 
 ## When to Use This Skill
 
-- Immediately after running `/setup-project` on a new project
+- Immediately after running `/setup-project` on a new project (for the initial v0.1.0 plan)
 - When the user asks to create a roadmap or implementation plan for what they want to build
-- When starting v0.1.0 of any application and a structured build sequence is needed
+- When planning a feature addition, UX enhancement, refactor, or bug-fix campaign
 - When the user provides a high-level vision but has not yet broken it down into steps
 
 **Trigger phrases**: "implementation plan", "v0.1.0 plan", "build plan", "project roadmap",
-"what should I build first", "create a plan", "generate implementation plan",
-"how do I build this", "phased development plan", "plan for this project"
+"what should I build first", "create a plan", "generate plan", "generate implementation plan",
+"enhancement plan", "refactor plan", "how do I build this", "phased development plan", "plan for this project"
 
 ## What This Skill Does
 
 ### Phase A: Discovery Interview
 
-Ask the questions below **one at a time**, waiting for each answer before continuing.
-Do not batch multiple questions into one message.
+Before the main interview, determine the **plan type**: Initial Implementation (v0.1.0-style greenfield build), Feature/Enhancement, Refactor, or Other. Then also collect a one-sentence scope statement that anchors both the interview and the filename slug.
+
+The question set below is the full **Initial Implementation** interview. For Feature/Enhancement/Refactor/Other plans, use the shorter scope-focused question set documented in [`/generate-plan`](../../../commands/generate-plan.md) Step 1 (Goal, Scope In/Out, Affected Areas, Constraints, Definition of Done, Testing, Additional Context).
+
+Ask the questions below **one at a time**, waiting for each answer before continuing. Do not batch multiple questions into one message.
 
 #### Q1 — Core Purpose
 > "What is the core purpose of this application? What problem does it solve, and for whom?"
 
-#### Q2 — Key Features for v0.1.0
-> "What are the 5–10 key features or capabilities you want in v0.1.0? (Bullet points are fine.)"
+#### Q2 — Key Features for this Release
+> "What are the 5–10 key features or capabilities you want in this release? (Bullet points are fine.)"
 
 #### Q3 — Installation and Distribution
 > "How should users install or access the final product?
@@ -91,8 +97,8 @@ Do not batch multiple questions into one message.
 > Examples: must run on low-end hardware (8 GB RAM), sub-200 ms response times,
 > handle N concurrent users, bundle size under X MB, offline-only."
 
-#### Q9 — Definition of Done for v0.1.0
-> "What does a successful v0.1.0 look like? What would you demo to a user or stakeholder
+#### Q9 — Definition of Done
+> "What does successful delivery of this scope look like? What would you demo to a user or stakeholder
 > to show it works end-to-end?"
 
 #### Q10 — Testing and Quality Expectations
@@ -121,24 +127,29 @@ Research areas to consider:
 
 ---
 
-### Phase C: Generate the Implementation Plan
+### Phase C: Generate the Plan File
 
-Create `docs/v0.1.0/implementation-plan.md` following the structure below.
+Resolve the target version (from git tags, CHANGELOG, or package manifests; default `v0.1.0` for fresh greenfield projects) and derive a slug from the one-sentence scope statement collected at the start of the interview (lowercase, hyphen-separated, ~5 words, sanitized to `[a-z0-9-]+`). Confirm both with the user before writing.
+
+Create `docs/<version>/plans/` if it does not exist and write to `docs/<version>/plans/<slug>.md` following the structure below.
 
 #### File Header
 
 ```markdown
-# Implementation Plan — v0.1.0
+# Plan — [Plan Title]
 
 **Project**: [Project Name]
-**Version**: 0.1.0
+**Version**: [version, e.g. v0.1.0]
+**Slug**: [slug]
+**Plan Type**: [Initial Implementation / Feature / Refactor / Other]
 **Created**: [Date]
-**Goal**: [One-sentence definition of done from Q9]
+**Goal**: [One-sentence definition of done from the discovery interview]
 
 ## Overview
 
-[2–3 paragraph summary covering: what is being built, how it will be distributed,
-what the UI and runtime behavior look like, and what success looks like at v0.1.0.]
+[2–3 paragraph summary covering: what is being built or changed, how it will be
+delivered, what the UI and runtime impact look like, and what success looks like
+for this scope.]
 
 ## Phases at a Glance
 
@@ -226,7 +237,7 @@ Apply these rules when deciding how many phases to create and how to split them:
 | UI and backend separated | If there is a UI, give it its own phase rather than mixing it with business logic |
 | Integration phase | If external APIs or local models are involved, create a dedicated integration phase with clear mocking/stubbing strategies for early phases |
 | Testing continuous | Every phase ends with a testing sub-task — not a single final QA phase |
-| Phase count | Target 4–8 phases for a v0.1.0 plan; very simple projects may have 3, complex ones up to 10 |
+| Phase count | Target 4–8 phases for most plans; very small scopes may have 2–3; major refactors up to 10 |
 
 ---
 
@@ -253,8 +264,7 @@ Before writing the file, outline the phases mentally:
 
 ### Step 4: Write the Plan
 
-Create `docs/v0.1.0/` if it does not exist, then write `implementation-plan.md`
-following the structure above.
+Create `docs/<version>/plans/` if it does not exist, then write `<slug>.md` inside it following the structure above. If the target file already exists, ask the user whether to **Regenerate** (overwrite), **Append** (add phases), or **Rename** (pick a new slug).
 
 ### Step 5: Review and Confirm
 
@@ -268,15 +278,16 @@ Incorporate feedback, then write the final file.
 
 ## Quality Checklist
 
-- [ ] All 11 discovery questions answered (Q11 may be skipped)
+- [ ] Plan type, version, and slug all resolved and confirmed with the user
+- [ ] All discovery questions answered (optional "additional context" question may be skipped)
 - [ ] Research performed for unfamiliar technical areas
-- [ ] Every feature from Q2 appears in at least one sub-task
-- [ ] Phase 1 establishes toolchain and produces a runnable build
-- [ ] Installation/packaging step appears before the halfway point
+- [ ] Every feature or goal from the interview appears in at least one sub-task
+- [ ] Phase 1 establishes the foundation needed for subsequent phases (toolchain + runnable build for initial implementations; test harness or scaffolding for enhancements/refactors)
+- [ ] For initial implementations: installation/packaging step appears before the halfway point
 - [ ] Every phase ends with a testing and stabilization sub-task
 - [ ] Every sub-task has a complete, self-contained executable prompt
 - [ ] Every phase has a stability gate and exit checklist
-- [ ] File written to `docs/v0.1.0/implementation-plan.md`
+- [ ] File written to `docs/<version>/plans/<slug>.md`
 - [ ] User confirmed the phase breakdown before final generation
 
 ## Related Skills
@@ -288,5 +299,5 @@ Incorporate feedback, then write the final file.
 
 ---
 
-**Version**: 1.0.0
+**Version**: 1.1.0
 **Last Updated**: April 2026

@@ -93,9 +93,11 @@ Gather every available source before attempting synthesis. Do not skip sources b
     *   Search for ADR files in `docs/adr/`, `docs/decisions/`, `catalog/memory/decisions.md`, and `.claude/memory/decisions.md`
 
 5.  **Planning and phase files**:
-    *   Search for: `PLAN.md`, `implementation-plan.md`, `roadmap.md`, any file matching `*plan*`, `*phase*`, or `*milestone*` under `docs/`, `tasks/`, or the project root
-    *   Read any `docs/*/analysis.md` files (output of the `analyze-codebase` command)
-    *   Note each planning file found — these are primary inputs to Phase 3
+    *   Primary location: plans produced by `/generate-plan` live at `docs/<version>/plans/<slug>.md`. Search `docs/**/plans/*.md`.
+    *   Legacy location: pre-rename plans live at `docs/<version>/implementation-plan.md`. Search `docs/**/implementation-plan.md` for backwards compatibility.
+    *   Other planning artifacts: `PLAN.md`, `roadmap.md`, and any file matching `*plan*`, `*phase*`, or `*milestone*` under `docs/`, `tasks/`, or the project root.
+    *   Read any `docs/*/analysis.md` files (output of the `analyze-codebase` command).
+    *   Note each planning file found — these are primary inputs to Phase 3.
 
 6.  **Code annotations**:
     *   **Session mode**: Search for `TODO`, `FIXME`, `HACK`, `WORKAROUND`, `XXX` in files modified during the session (`git diff --name-only` as the file list)

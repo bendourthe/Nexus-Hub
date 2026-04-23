@@ -47,6 +47,40 @@ Use this skill when you need to:
 
 **Retrospective mode**: Reconstruct history from archived AI session files (Claude Code, Codex, Gemini, Copilot), git history, DEVLOG.md, CHANGELOG.md, and planning documents. Can produce one file per phase. Use this when the session has already ended and the conversation context is no longer available.
 
+**Summarize from here (mid-session handoff)**: Produce a compact handoff message *just before* invoking `/rewind` or `/clear`, so the next session starts with the current session's learnings as its opening context. Distinct from the full session-history file - this mode emits a short paste-ready message, not a 9-section document. Use when the current session is about to reset but the work is still live.
+
+- **Purpose**: Carry decisions and the next concrete step across a `/rewind` or `/clear` boundary, without the raw tool outputs and exploration noise that made the reset necessary.
+- **Trigger**: The user says "summarize from here" or invokes the skill with a `--handoff` intent.
+- **Output**: 5-10 bullets capturing (1) current task goal, (2) decisions made and why, (3) files touched with one-line purpose each, (4) known blockers or open questions, (5) next concrete step. No verification tables, no TODO tracker - those belong in the full session-history file, not the handoff.
+- **Usage pattern** (four steps):
+  1. Ask the AI to "summarize from here" while the session is still healthy (before degradation sets in - see [context-degradation](../../orchestration/context-degradation/SKILL.md) for the 1M-window threshold table).
+  2. AI outputs the 5-10 bullet handoff message.
+  3. User runs `/rewind` (to drop recent noise) or `/clear` (to fully reset).
+  4. User pastes the handoff as the opening message of the new turn; work resumes with the learnings but without the noise.
+- **Cross-link**: see [SESSION_LIFECYCLE_DECISIONS.md](../../../../guides/SESSION_LIFECYCLE_DECISIONS.md) section 2 ("When to `/rewind`") for the decision logic on when this handoff is the right choice vs a full `/clear` or proactive `/compact focus on X, drop Y`.
+
+**Template for the handoff message**:
+
+```markdown
+## Handoff from prior session
+
+**Task goal**: <one sentence - what "done" looks like>
+**Live thread**: <one sentence - where we are right now>
+
+**Decisions made**:
+- <decision + one-line rationale>
+- <decision + one-line rationale>
+
+**Files touched**:
+- `path/to/file.ext` - <one-line purpose>
+- `path/to/other.ext` - <one-line purpose>
+
+**Blockers / open questions**:
+- <blocker or unresolved question>
+
+**Next concrete step**: <one sentence - the exact next action>
+```
+
 ## Output Template
 
 Each session history file follows this structure. All 9 sections must be present; sections with no content should state "None identified" or "N/A" rather than being omitted.
@@ -264,6 +298,7 @@ Before finalizing the output file, verify:
 -   `research-plan-implement` — RPI workflow with artifact generation and quality gates
 -   `code-commit-workflow` — Commit conventions that feed into session history timestamps
 -   `documentation-consistency` — Verifying documentation stays in sync with code changes
+-   See also: [SESSION_LIFECYCLE_DECISIONS](../../../../guides/SESSION_LIFECYCLE_DECISIONS.md) — the "summarize from here" handoff pattern and when to pair session-history output with `/rewind` or `/clear`
 
 ---
 

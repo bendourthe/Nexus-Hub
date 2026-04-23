@@ -48,3 +48,24 @@ jobs:
       - name: Lint hook scripts
         run: |
           find catalog/hooks -name '*.sh' -print0 | xargs -0 shellcheck --severity=warning || true
+
+  tests:
+    # Runs the Python test suite: platform-parity checks across the 5 base
+    # templates, installer smoke tests (structural + artifact assertions), and
+    # the pre-existing classification-audit + format-bash-description tests.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install pytest
+        run: pip install pytest
+
+      - name: Platform-parity + installer-smoke tests
+        run: pytest catalog/hooks/tests/test_platform_parity.py catalog/hooks/tests/test_installer_smoke.py -v
+
+      - name: Full hooks + skill-server test suite
+        run: pytest catalog/hooks/tests/ extensions/devai-skill-server/tests/ -v

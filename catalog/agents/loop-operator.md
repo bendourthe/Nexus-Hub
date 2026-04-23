@@ -39,6 +39,8 @@ Before starting, confirm with the user:
 - **Acceptance condition**: what "done" looks like in the verification output (e.g., "0 failures", "exit 0")
 - **Max iterations**: default is 10; increase for large codebases
 
+**Effort level**: default to `high` for multi-iteration runs; **never** use `max` - aggregate cost compounds per iteration without matching quality gains. See the **Effort-Level Strategy** section of [catalog/skills/ai-development/prompt-engineering/SKILL.md](../skills/ai-development/prompt-engineering/SKILL.md) for the full rationale.
+
 ## Progress Reporting
 
 After each iteration, report:

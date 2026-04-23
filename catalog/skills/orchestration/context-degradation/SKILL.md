@@ -70,6 +70,17 @@ Context degradation manifests in 5 distinct patterns. Identifying the correct pa
    → If unaware of contradictions: Context Clash
 ```
 
+**1M-window calibration (Opus 4.7 / Sonnet 4.6+)**: Lost-in-Middle degradation becomes noticeable around **300-400k tokens** of conversation history on the 1M-token context window, and accelerates past 500k. Below 100k, degradation is usually task-related (the five patterns above) rather than window-related. This is task-dependent and model-dependent; use the table below as guidance, not a hard threshold.
+
+| Session size | Degradation risk | Recommended action |
+|--------------|------------------|---------------------|
+| < 100k tokens | Green - low risk | Continue normally; degradation here is usually task-shaped, not window-shaped |
+| 100-300k | Yellow - monitor | Watch for repeat clarifications, dropped references, generic responses |
+| 300-500k | Orange - mitigate | Proactive `/compact focus on X, drop Y` (see Step 3 and context-compression Step 2); consider a summarize-then-handoff |
+| 500k+ | Red - high risk | `/compact` or `/rewind` with a handoff summary; delegate new subtasks to subagents rather than loading them into the main session |
+
+**Caveat**: Tasks with dense context (many files, long tool outputs) hit Orange earlier; tasks with mostly conversational context hit Orange later. The Five Patterns above are the ground truth - use the table to decide when to start actively monitoring for them.
+
 ### Step 2: Assess Degradation Severity
 
 **Severity Indicators**:
@@ -90,6 +101,8 @@ Context degradation manifests in 5 distinct patterns. Identifying the correct pa
 | 50-70% | Moderate | Begin planning compression |
 | 70-85% | High | Active compression recommended |
 | 85-100% | Critical | Immediate session handoff or compression |
+
+**Companion guidance for compression and handoff decisions**: the percentages above describe *severity*; deciding which tool to reach for when you hit Orange or Red is a separate call. See the **Proactive steering with `/compact focus on X, drop Y`** subsection of [context-compression/SKILL.md](../context-compression/SKILL.md) for the steerable-compaction syntax used at the Orange threshold, and [guides/SESSION_LIFECYCLE_DECISIONS.md](../../../../guides/SESSION_LIFECYCLE_DECISIONS.md) for the continue / `/rewind` / `/clear` / `/compact` / delegate decision tree that decides when compression is the wrong tool.
 
 ### Step 3: Apply Mitigation
 
@@ -254,6 +267,7 @@ After applying mitigation, verify that context quality has been restored.
 - `context-compression` - Detailed compression procedures and summary templates
 - `plan-before-code` - Structured planning that prevents some degradation
 - `task-coordinator` - Task isolation that reduces context overload
+- See also: [SESSION_LIFECYCLE_DECISIONS](../../../../guides/SESSION_LIFECYCLE_DECISIONS.md) - decision tree for continue vs `/rewind` vs `/clear` vs `/compact` when degradation sets in
 
 ---
 

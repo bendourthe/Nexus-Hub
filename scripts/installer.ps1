@@ -1,6 +1,12 @@
-﻿# DevAI-Hub Universal Installer V10 (v0.9.6)
-# Installs AI Skills Globally and to Workspaces with Safe Overwrite and Modern UI
+﻿# DevAI-Hub Universal Installer V10 (Windows)
+# Installs AI Skills Globally OR to a Workspace with Safe Overwrite and Modern UI
 $ErrorActionPreference = "Stop"
+
+# --- Version ---
+# Single source of truth for the installer banner version label.
+# Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
+$script:DevAIHubVersion = "0.9.7"
+
 $Host.UI.RawUI.WindowTitle = "DevAI-Hub Installer"
 $script:InstallerTitle = "DevAI-Hub Installer"
 function Restore-Title { $Host.UI.RawUI.WindowTitle = $script:InstallerTitle }
@@ -620,7 +626,7 @@ function Install-CoreSettings {
     }
     catch {
         Write-Item -Message "Warning: Could not set effortLevel ($($_.Exception.Message))" -Color "Yellow"
-        Write-Item -Message "  Manually add: `"effortLevel`": `"xhigh`" to $settingsFile" -Color "Yellow"
+        Write-Item -Message "  Manually add: `"effortLevel`": `"high`" to $settingsFile" -Color "Yellow"
     }
 }
 
@@ -1301,21 +1307,20 @@ function Render-Template {
 }
 
 function Install-Workspace {
-    param ($RepoRoot)
-    Write-CenteredBanner -Text "PHASE 2: Workspace Installation" -Color "Cyan"
+    param (
+        $RepoRoot,
+        $TargetPath  # pre-validated by main (v0.9.7+)
+    )
+    Write-CenteredBanner -Text "Workspace Installation" -Color "Cyan"
 
-    while ($true) {
-        Write-Host ""
-        Write-Host "Do you want to configure a specific local project/repository?" -ForegroundColor White
-        $response = Read-Host "Select Project? [Y]es / [N]o"
-        if ($response -notmatch "^[Yy]") { break }
+    if ([string]::IsNullOrWhiteSpace($TargetPath) -or -not (Test-Path $TargetPath)) {
+        Write-Host "Invalid target path: $TargetPath" -ForegroundColor Red
+        return
+    }
 
-        $targetPath = [ModernFolderPicker.FileOpenDialog]::ShowDialog()
-        if ([string]::IsNullOrWhiteSpace($targetPath)) {
-            Write-Host "No folder selected." -ForegroundColor Yellow
-            continue
-        }
-        Write-Host "Target: $targetPath" -ForegroundColor DarkYellow
+    # Single-pass workspace install. To install into multiple workspaces, re-run the installer.
+    $targetPath = $TargetPath
+    Write-Host "Target: $targetPath" -ForegroundColor DarkYellow
 
         $workspacePlatforms = Select-Platforms -PhaseName "Workspace Phase"
 
@@ -1467,7 +1472,6 @@ function Install-Workspace {
 
         Write-Host ""
         Write-CenteredBanner -Text "Project $(Split-Path $targetPath -Leaf) Configured!" -Color "Green"
-    }
 }
 
 function Install-VSCodeExtensions {
@@ -1658,6 +1662,12 @@ function Install-Templates {
         Safe-Copy -Source $scriptSource -Destination (Join-Path $scriptsDest "generate_report.py") -Confirm:$true -CustomMessage "✓ Report generator installed at: $scriptsDest\generate_report.py"
     }
 
+    # Copy deep-research compiler script (powers /compile-deep-research)
+    $compileScriptSource = Join-Path $RepoRoot "scripts\compile_deep_research.py"
+    if (Test-Path $compileScriptSource) {
+        Safe-Copy -Source $compileScriptSource -Destination (Join-Path $scriptsDest "compile_deep_research.py") -Confirm:$true -CustomMessage "✓ Deep-research compiler installed at: $scriptsDest\compile_deep_research.py"
+    }
+
     # Check Python availability
     $pythonCmd = Get-Command "python" -ErrorAction SilentlyContinue
     if (-not $pythonCmd) {
@@ -1682,49 +1692,10 @@ function Install-Templates {
 
     Write-Host ""
 
-    # Custom template import
-    $response = Read-Prompt "Import custom Word/PowerPoint templates? [Y]es / [N]o"
-    if ($response -notmatch "^[Yy]") {
-        Write-Item -Message "Skipped custom template import." -Color "Gray"
-        Write-Host ""
-        Write-CenteredBanner -Text "Templates & Scripts Installation Complete." -Color "Green"
-        return
-    }
-
-    # Load Windows Forms for the file picker dialog
-    Add-Type -AssemblyName System.Windows.Forms
-
-    while ($true) {
-        Write-Item -Message "Opening file picker..." -Color "White"
-
-        $dialog = New-Object System.Windows.Forms.OpenFileDialog
-        $dialog.Multiselect = $true
-        $dialog.Filter = "Document Templates (*.docx;*.pptx)|*.docx;*.pptx|Word Templates (*.docx)|*.docx|PowerPoint Templates (*.pptx)|*.pptx|All files (*.*)|*.*"
-        $dialog.Title = "Select Document Templates to Import"
-
-        $result = $dialog.ShowDialog()
-
-        if ($result -ne [System.Windows.Forms.DialogResult]::OK -or $dialog.FileNames.Count -eq 0) {
-            Write-Item -Message "No files selected." -Color "Gray"
-            break
-        }
-
-        foreach ($filePath in $dialog.FileNames) {
-            $fileName = Split-Path $filePath -Leaf
-            $ext = [System.IO.Path]::GetExtension($filePath).ToLower()
-
-            if ($ext -notin @(".docx", ".pptx")) {
-                Write-Item -Message "Skipped: $fileName (only .docx and .pptx are supported)" -Color "Yellow"
-                continue
-            }
-
-            Safe-Copy -Source $filePath -Destination (Join-Path $templatesDest $fileName) -Confirm:$true -CustomMessage "✓ Template imported: $fileName"
-        }
-
-        Write-Host ""
-        $more = Read-Prompt "Import more templates? [Y]es / [N]o"
-        if ($more -notmatch "^[Yy]") { break }
-    }
+    # v0.9.7: The interactive "Import custom Word/PowerPoint templates?" prompt has been
+    # removed. Custom template selection is now handled at report-generation time by the
+    # `/generate-report` command (generic vs custom path gate). Bundled generic templates
+    # are still copied silently above so the command has a default to offer.
 
     # List installed templates
     Write-Host ""
@@ -1872,12 +1843,58 @@ function Install-SkillDiscovery {
     Write-Item -Message "  The server will auto-start with Claude Code. No manual steps needed." -Color "DarkGreen"
 }
 
+# --- Banner ---
+
+function Show-WelcomeBanner {
+    $banner = "=" * 120
+    Write-Host ""
+    Write-Host $banner -ForegroundColor DarkCyan
+    Write-Host "                                      Welcome to the DevAI-Hub Universal Installer" -ForegroundColor DarkCyan
+    Write-Host "                                                     (version $script:DevAIHubVersion)" -ForegroundColor DarkCyan
+    Write-Host $banner -ForegroundColor DarkCyan
+    Write-Host ""
+}
+
+function Show-FarewellBanner {
+    $banner = "=" * 120
+    Write-Host ""
+    Write-Host $banner -ForegroundColor DarkCyan
+    Write-Host "                              Thank You For Using The DevAI-Hub Universal Installer" -ForegroundColor DarkCyan
+    Write-Host "                                                     (version $script:DevAIHubVersion)" -ForegroundColor DarkCyan
+    Write-Host $banner -ForegroundColor DarkCyan
+    Write-Host ""
+}
+
 # --- Main ---
 $repoRoot = Resolve-Path "$PSScriptRoot\.."
-Install-Global -RepoRoot $repoRoot
-Install-Workspace -RepoRoot $repoRoot
+
+Show-WelcomeBanner
+
+# Ask whether to install globally (recommended, user-scope) or to a specific workspace.
+Write-Host "Where would you like to install DevAI-Hub?"
+Write-Host "  [G] Global (recommended) - applies to all projects on this machine (~/.claude/, ~/.gemini/, ~/.codex/, ~/.devai-hub/)" -ForegroundColor Green
+Write-Host "  [W] Workspace           - scoped to a specific project directory" -ForegroundColor Yellow
+Write-Host ""
+$scopeChoice = Read-Host "Select [G]lobal / [W]orkspace (default: G)"
+
+if ($scopeChoice -match "^[Ww]") {
+    # Workspace install: prompt for project path via folder picker, then run the workspace phase once.
+    do {
+        $workspaceTarget = [ModernFolderPicker.FileOpenDialog]::ShowDialog()
+        if ([string]::IsNullOrWhiteSpace($workspaceTarget)) {
+            Write-Host "No folder selected. Please choose a workspace directory." -ForegroundColor Yellow
+        }
+    } while ([string]::IsNullOrWhiteSpace($workspaceTarget))
+    Install-Workspace -RepoRoot $repoRoot -TargetPath $workspaceTarget
+}
+else {
+    # Default + explicit [Gg] both route here.
+    Install-Global -RepoRoot $repoRoot
+}
+
+# Bundled report-generator templates + scripts are user-scope and always install silently.
+# Interactive custom-template import moved to /generate-report at use time (v0.9.7).
 Install-Templates -RepoRoot $repoRoot
-Write-Host ""
-Write-CenteredBanner -Text "Thank You For Using The DevAI-Hub Universal Installer" -Color "DarkCyan" -BorderChar "="
-Write-Host ""
+
+Show-FarewellBanner
 Pause

@@ -414,6 +414,7 @@ For concerns that span multiple areas:
 - `plan-before-code` - Initial exploration and planning
 - `context-analysis` - Deep codebase analysis
 - `workflow-orchestrator` - Managing complete workflows
+- See also: [SESSION_LIFECYCLE_DECISIONS](../../../../guides/SESSION_LIFECYCLE_DECISIONS.md) - when to continue, `/rewind`, `/clear`, `/compact`, or delegate to a subagent
 
 ---
 

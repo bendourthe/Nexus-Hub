@@ -77,6 +77,35 @@ Is this an emergency (context at 90%+)?
     │           └── NO → Combine A + B
 ```
 
+#### Proactive steering with `/compact focus on X, drop Y`
+
+See also: [SESSION_LIFECYCLE_DECISIONS.md](../../../../guides/SESSION_LIFECYCLE_DECISIONS.md) for the companion decision tree on continue vs `/rewind` vs `/clear` vs `/compact`.
+
+The approaches A / B / C above choose *how* to compress. The decision of *when and how aggressively* to compress also matters. Default posture: **steer compaction proactively rather than waiting for autocompact**.
+
+**When to steer proactively** (before engaging any of the A/B/C approaches):
+
+- You are approaching **70-80% of the context window** on a long, still-on-topic task.
+- Recent turns include large tool outputs or file reads you no longer need, but the overall goal is unchanged.
+- You want to shed closed-thread content while keeping the live thread fully intact.
+
+Waiting for autocompact is the **bad-compact failure mode**: the automatic trigger fires mid-reasoning, drops context Claude was about to use, and quality tanks for the next several turns. See `guides/TOKEN_OPTIMIZATION.md` for the recognition signals.
+
+**Syntax**: `/compact focus on <current work>, drop <closed threads>`
+
+Plain `/compact` lets the model decide what to keep; the steerable variant is strictly better on long tasks because *you* know which thread is live.
+
+**Common pre-compaction directives** (each is a directly-usable example):
+
+- `/compact focus on the auth middleware refactor, drop the database schema exploration`
+- `/compact focus on the failing integration tests, drop the feature-spec discussion`
+- `/compact focus on the latest 3 files touched, drop earlier unrelated analysis`
+- `/compact focus on the plan, drop the research outputs I no longer need`
+- `/compact focus on the current test failures, drop the earlier green runs and exploration`
+- `/compact focus on the error trace and the hypothesis we are testing, drop the initial reconnaissance`
+
+**When `/clear` beats `/compact`**: if the live task is actually *done* and the next work is unrelated, `/clear` removes the compaction summary entirely rather than carrying it forward as dead weight.
+
 ### Step 3: Execute Compression
 
 #### Approach A: Anchored Iterative Summarization
@@ -303,6 +332,7 @@ After compressing, verify no critical information was lost.
 - `context-degradation` - Detecting when compression is needed
 - `plan-before-code` - Structured planning that reduces context bloat
 - `filesystem-context-patterns` - File-based context management patterns
+- See also: [SESSION_LIFECYCLE_DECISIONS](../../../../guides/SESSION_LIFECYCLE_DECISIONS.md) - when to compact vs `/rewind`, `/clear`, or delegate to a subagent
 
 ---
 

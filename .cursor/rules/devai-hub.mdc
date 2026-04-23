@@ -1,0 +1,41 @@
+---
+description: DevAI-Hub project rules — installer-aware changes, registries, platform-agnostic edits.
+globs: ["**/*"]
+alwaysApply: true
+---
+
+# DevAI-Hub Project Rules
+
+Canonical source: `AGENTS.md` at repo root. Cursor reads this `.mdc` file plus `AGENTS.md` automatically; the essentials are summarized here for quick reference.
+
+## Golden rule: installer-aware changes
+
+DevAI-Hub is a **template repository**. Nothing is "live" until a user runs `scripts/installer.sh` (macOS/Linux) or `scripts/installer.ps1` (Windows). Every change must be shaped so that after the next installer run, it reaches every supported platform (Claude Code, Cursor, Codex, Gemini, OpenCode, Copilot) on Windows, macOS, and Linux, without any manual step.
+
+## Quick reference
+
+1. **New file under `scripts/<name>.{py,js}`**: MUST be registered in BOTH `scripts/installer.sh` (near line 1395, next to `generate_report.py`) AND `scripts/installer.ps1` (near line 1656). The installer copies scripts by explicit name, never by folder. Pattern: see the existing `generate_report.py` and `compile_deep_research.py` blocks.
+
+2. **New skill** (`catalog/skills/<cat>/<name>/SKILL.md`): update three registry files — `data/SKILL_INDEX.md`, `data/skills.json`, `data/marketplace.json`. The skill folder is auto-copied.
+
+3. **New command** (`catalog/commands/<name>.md`): no registry update; folder auto-copied. Pair with a `<name>-style-guide.md` when the command produces user-visible artifacts.
+
+4. **New hook** (`catalog/hooks/<name>.{sh,py}`): register in `catalog/hooks/settings.json`; add tests under `catalog/hooks/tests/`.
+
+5. **Platform instruction templates** (`templates/ai-instructions/base-*.md`): edit all five (claude/codex/cursor/gemini/opencode) in lockstep — changes must be platform-agnostic.
+
+6. **Document template** (`templates/documentation/<name>.{docx,pptx,xlsx,...}`): folder auto-copied; no installer change.
+
+7. **Never edit `data/*.json` manually** except the three registry files in rule 2.
+
+8. **Never commit secrets.** Respected by the `secret-scan.sh` hook.
+
+9. **Validate** after any change: `make validate`, `make lint`, `make test` (for new hooks). Dry-run the installer when you touch installer code.
+
+10. **Document** user-visible changes under `## [Unreleased]` in `CHANGELOG.md`.
+
+## Platform coverage caveat
+
+The installer currently deploys per-file skill/command/agent trees only to Claude Code, Gemini, and Codex. Cursor, OpenCode, and Copilot receive behavioral guardrails only. New slash commands are not reachable as `/...` on those three platforms — note this in the CHANGELOG.
+
+These rules apply only to work inside this repo.

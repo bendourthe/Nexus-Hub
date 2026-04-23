@@ -2,6 +2,8 @@
 
 Practical strategies for reducing Claude Code token consumption and cost without sacrificing output quality. Drawn from production usage patterns in high-throughput development workflows.
 
+> **See also**: [SESSION_LIFECYCLE_DECISIONS.md](SESSION_LIFECYCLE_DECISIONS.md) for the companion decision guide on when to continue, `/rewind`, `/clear`, `/compact`, or delegate to a subagent.
+
 ---
 
 ## Quick Start: Environment Variables
@@ -53,6 +55,28 @@ export CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=50
 ```
 
 **Trade-off:** Earlier compaction means older context (e.g., files read at session start) may be summarized rather than retained verbatim. Use `/continue-session` to restore critical context across sessions.
+
+#### When NOT to compact
+
+> See also: [SESSION_LIFECYCLE_DECISIONS.md](SESSION_LIFECYCLE_DECISIONS.md) for the companion decision tree covering `/compact`, `/rewind`, `/clear`, and subagent delegation.
+
+Autocompact is a safety net, not a strategy. Letting it fire on its own is the **bad-compact failure mode**: Claude Code summarizes mid-reasoning, drops context that was about to be used, and quality tanks for the next several turns. Symptoms you paid this tax: sudden drop in response quality, Claude re-reads files it already read, or recovery turns like "what were we working on" appear.
+
+**Three recognition signals** that you are about to hit a bad compact:
+
+1. **70-80% of the window used on a long, still-open task.** You are crowding the autocompact threshold while the work is still live. Do not wait for the trigger.
+2. **Mid-tool-use chain.** You just kicked off a multi-step tool sequence (exploration, then synthesis, then edit). Autocompact firing between steps can drop the exploration output the synthesis step was going to use. Example: three `Read` calls followed by a planned refactor - compact now and the refactor loses the reads.
+3. **Recently loaded large files or web fetches you still need.** You pulled in a 4k-line file or a long web-fetch result *for* the current task. Autocompact will summarize it away before you use it.
+
+**Proactive remedy**: use the steerable variant of `/compact` *before* you hit the autocompact threshold, naming what to keep and what to drop:
+
+```
+/compact focus on the auth middleware refactor, drop the database schema exploration
+```
+
+You choose what the live thread is; Claude compresses the rest. Strictly better than reactive autocompact because you know which files and turns are still load-bearing.
+
+**When to `/clear` instead**: if the current task is complete and the next task is unrelated, `/clear` beats `/compact`. Compaction keeps a summary in context that you will not use; clearing removes it entirely and the next task gets a clean first-turn specification.
 
 ### Reduce Tool Call Overhead
 

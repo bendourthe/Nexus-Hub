@@ -546,8 +546,10 @@ This pattern is formalized in the `cross-model-orchestrator` and `workflow-orche
 5. **Use RPI workflow**: Try `research-plan-implement` for structured feature development
 6. **Customize**: Modify skills for your specific needs
 
+**See also**: [SESSION_LIFECYCLE_DECISIONS.md](SESSION_LIFECYCLE_DECISIONS.md) - the "will I need this tool output again?" test for deciding when to delegate to a subagent vs run in the main session.
+
 ---
 
-**Version**: v0.9.6
+**Version**: v0.9.7
 **Last Updated**: April 2026
 **Part of**: [DevAI-Hub](../README.md)

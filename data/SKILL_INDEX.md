@@ -138,6 +138,7 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | pre-commit-checklist | security | "Implement pre-commit hooks for linting, security scanning, and commit validation" | catalog/skills/security/pre-commit-checklist/SKILL.md |
 | security-patch-advisor | security | "Generate security patches for XSS, SQL injection, SSRF, CSRF, and misconfigurations" | catalog/skills/security/security-patch-advisor/SKILL.md |
 | android-development | specialized-domains | "Build Android apps with Kotlin, Jetpack Compose, Material Design 3, and modern architecture" | catalog/skills/specialized-domains/android-development/SKILL.md |
+| deep-research-compilation | specialized-domains | "Compile multi-source research into one document (.docx/.pdf/.md) with managed citations" | catalog/skills/specialized-domains/deep-research-compilation/SKILL.md |
 | docx-generation | specialized-domains | "Generate professional Word documents with templates, styles, and multi-library support" | catalog/skills/specialized-domains/docx-generation/SKILL.md |
 | fintech-engineer | specialized-domains | "Build secure fintech systems with payment processing, ledgers, and fraud detection" | catalog/skills/specialized-domains/fintech-engineer/SKILL.md |
 | gif-sticker-maker | specialized-domains | "Create animated GIFs and stickers with AI generation, video processing, and frame animation" | catalog/skills/specialized-domains/gif-sticker-maker/SKILL.md |
@@ -190,4 +191,4 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | browser-testing-with-devtools | testing | "Test and debug frontend behavior using browser DevTools for network, console, performance, and accessibility" | catalog/skills/testing/browser-testing-with-devtools/SKILL.md |
 | code-simplification | code-cleanup | "Reduce structural complexity by eliminating over-abstraction and dead code without changing behavior" | catalog/skills/code-cleanup/code-simplification/SKILL.md |
 
-**Total: 184 skills across 22 categories**
+**Total: 185 skills across 22 categories**

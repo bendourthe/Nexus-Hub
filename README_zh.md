@@ -8,12 +8,15 @@
 
 ---
 
-## v0.9.6 更新内容
+## v0.9.7 更新内容
 
-- **更智能的命令分类** - 钩子分类器现在处理 git 全局选项（`-C`、`--no-pager`）、绝对二进制路径、`env`/`time`/`command` 包装器和子 shell，使只读命令可靠地自动批准。
-- **115+ 新自动批准模式** - macOS 工具、Linux 诊断、包管理器检查、Docker 只读和 GitHub CLI 命令已添加到 Claude 和 Gemini 权限配置中。
-- **设置面板修复** - 阈值指标下拉菜单现在保存后正确保持；用顺序调用替换并发配置写入以消除竞态条件。
-- **跨平台一致性** - Gemini 权限从 47 个扩展到 170 个 shell 命令条目，匹配 Claude 允许列表覆盖范围。
+- **Opus 4.7 对齐** - 新增 `guides/SESSION_LIFECYCLE_DECISIONS.md`（continue / `/rewind` / `/clear` / `/compact` / 委派决策树），`prompt-engineering` 中完整的 Effort-Level Strategy 章节，跨全部 5 个平台模板 + 全局 `CLAUDE.md` 的批处理澄清问题规则，以及一份合并的 [Opus 4.6 -> 4.7 迁移指南](docs/v0.9.6/opus-4-7-migration.md)（含 13 行交叉引用表）。
+- **更低成本的安装器默认值** - `effortLevel` 从 `xhigh` 降至 `high`（`catalog/hooks/settings.json` 和安装器回退值）。偏好深度推理的操作者可通过 `/effort xhigh` 提升。对大多数交互式工作而言，聚合成本更低且不牺牲推理质量。
+- **安全扩展** - 两个新技能（`business-logic-abuse` 覆盖竞态条件、TOCTOU、重复支付、工作流绕过、幂等性；`advanced-attack-patterns` 覆盖状态失同步、缓存投毒、重放攻击、时序侧信道），并通过 `/run-penetration-test` 的第 6 个 `--depth=deep` 猎手接入，以及新的 `file-upload-security` 清单。
+- **上下文校准** - `context-degradation` 中 1M 令牌窗口 Lost-in-Middle 校准表（Green/Yellow/Orange/Red 在 100k/300k/500k 边界），`context-compression` 中的主动式 `/compact focus on X, drop Y` 引导，以及 `session-history` 中的 "Summarize from here" 中途会话交接模式。
+- **规划工作流泛化** - `/generate-implementation-plan` 重命名为 `/generate-plan`（保留旧别名），提供规划类型选择器（Initial / Feature / Refactor / Other）和通用的 `docs/<version>/plans/<slug>.md` 输出路径。`/implement-phase` 可发现新旧两种布局。
+- **深度研究编译** - 新的 `/compile-deep-research` 命令 + `deep-research-compilation` 技能 + `scripts/compile_deep_research.py` 脚本可以摄取多个研究报告（.docx / .md / .pdf / .pptx / .html / URL / .txt），对引用进行去重（DOI -> 规范化 URL -> 模糊标题匹配），重新编号内联 [N] 引用，并输出单个统一的 .docx / .pdf / .md 文件（带锚定参考文献）。新增 `templates/documentation/branded-report-template.docx` 用于样式化输出。
+- **面向仓库的 AI 代理指令** - 新增 `AGENTS.md` 章节 "Installer-Aware Changes (Cross-Platform)"，加上覆盖全部 6 个平台的薄指针文件（`CLAUDE.md`、`GEMINI.md`、`.github/copilot-instructions.md`、`.cursor/rules/devai-hub.mdc`、已有的 `AGENTS.md`）- 强制要求新 `scripts/*.py` 在两个安装器中注册，新技能更新全部三个注册文件，并且平台指令模板保持同步。
 
 ---
 

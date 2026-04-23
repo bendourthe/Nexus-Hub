@@ -1,41 +1,63 @@
 ---
-description: Implement one phase of an implementation-plan.md end-to-end — from plan discovery and pre-implementation review through coding, linting, testing, troubleshooting, and the full post-phase documentation and commit sequence.
+description: Implement one phase of a plan end-to-end — from plan discovery and pre-implementation review through coding, linting, testing, troubleshooting, and the full post-phase documentation and commit sequence. Supports plans produced by /generate-plan under docs/<version>/plans/, plus legacy docs/<version>/implementation-plan.md files.
 ---
 
 # Implement Phase Command
 
-Implement one phase of an `implementation-plan.md` end-to-end. The command discovers the right plan and phase, implements the code, lints, tests, troubleshoots failures, augments missing tests, and runs the full post-phase documentation and commit sequence when everything passes.
+Implement one phase of a plan end-to-end. The command discovers the right plan and phase, implements the code, lints, tests, troubleshoots failures, augments missing tests, and runs the full post-phase documentation and commit sequence when everything passes.
+
+Plans are expected at `docs/<version>/plans/<slug>.md` (produced by `/generate-plan`). Legacy plans at `docs/<version>/implementation-plan.md` are still discovered automatically for backwards compatibility.
 
 ## Invocation
 
 ```
-/implement-phase                          # interactive — prompts for plan and phase
-/implement-phase v0.2.0 phase-3           # direct — skips discovery questions
-/implement-phase v0.2.0 "Authentication"  # direct — phase by name
+/implement-phase                                       # interactive — prompts for plan and phase
+/implement-phase <slug>                                # resolve to docs/**/plans/<slug>.md
+/implement-phase <path/to/plan.md>                     # direct file path
+/implement-phase <slug> phase-3                        # slug + phase number
+/implement-phase <slug> "Authentication"               # slug + phase name
+/implement-phase v0.2.0                                # version only (picks the single plan under that version, or prompts)
+/implement-phase v0.2.0 phase-3                        # legacy-compatible form
+/implement-phase v0.2.0 "Authentication"               # legacy-compatible form
 ```
 
 ---
 
 ## Phase 0: Resolve Plan, Version, and Phase
 
-1.  **Parse the invocation** for optional positional arguments: `[version]` and `[phase]`.
-    *   Accept version as `v0.1.0`, `0.1.0`, or a directory name under `docs/development/`.
+1.  **Parse the invocation** for optional positional arguments. The first positional argument is **either** a plan slug, a plan file path, or a version label; the second (if present) is the phase. Disambiguate as follows:
+    *   If the first argument contains a `/` or ends in `.md` → treat as a file path.
+    *   Else if it matches `v?\d+\.\d+\.\d+` → treat as a version label.
+    *   Else → treat as a plan slug.
     *   Accept phase as a number (`3`), a slug (`phase-3`), or a quoted name (`"User Authentication"`).
 
-2.  **Search for implementation plans** — look for files matching `**/implementation-plan.md` under `docs/development/`, `docs/`, and the project root.
+2.  **Search for plans**:
+    *   Primary location: `docs/**/plans/*.md` (the layout produced by `/generate-plan`).
+    *   Legacy fallback: `docs/**/implementation-plan.md` (the pre-rename layout — still supported so old projects keep working).
+    *   Also search `docs/development/` and the project root for both patterns.
+    *   Dedupe by absolute path.
 
 3.  **Plan selection**:
-    *   If **no plan found**: report the paths searched and ask the user to provide the plan path.
-    *   If **one plan found**: use it automatically and confirm in chat.
-    *   If **multiple plans found and no version was given**: list them with their version labels and ask which to use:
+    *   If a **file path** was given: resolve it directly; error if the file does not exist.
+    *   If a **slug** was given: filter matches to `docs/**/plans/<slug>.md`. If a single match remains, use it. If multiple (different versions), ask which version.
+    *   If a **version** was given (or derived from a slug that matched one version): filter to plans under that version. If one plan, use it. If multiple, ask which slug.
+    *   If **no argument** was given and one plan total is found: use it automatically and confirm in chat.
+    *   If **no argument** was given and multiple plans are found: list them grouped by version, most-recent first:
 
         ```
-        Found multiple implementation plans:
-        1. docs/development/v0.1.0/implementation-plan.md
-        2. docs/development/v0.2.0/implementation-plan.md
+        Found multiple plans:
+
+        docs/v0.2.0/plans/
+          1. authentication.md
+          2. payment-integration.md
+        docs/v0.1.0/plans/
+          3. v0.1.0-initial.md
+        docs/v0.1.0/implementation-plan.md          (legacy)
 
         Which plan should I work from?
         ```
+
+    *   If **no plan found anywhere**: report the paths searched and suggest running `/generate-plan` first.
 
 4.  **Parse the selected plan** to extract the phase list (numbers, names, and completion status).
 
@@ -65,7 +87,7 @@ Implement one phase of an `implementation-plan.md` end-to-end. The command disco
     ```
     Ready to implement:
 
-    Plan:    docs/development/v0.2.0/implementation-plan.md
+    Plan:    docs/v0.2.0/plans/authentication.md
     Phase:   3 — Authentication
     Status:  Not started
     Prior phases complete: ✓ (phases 1–2)
@@ -284,7 +306,7 @@ After the post-phase sequence, print a final summary:
 ```
 Phase implementation complete:
 
-Plan:           docs/development/v0.2.0/implementation-plan.md
+Plan:           docs/v0.2.0/plans/authentication.md
 Phase:          3 — Authentication
 Subtasks done:  5/5
 Tests:          42 passed, 0 failed (coverage: 84%)

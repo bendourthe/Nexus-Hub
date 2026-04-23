@@ -369,6 +369,7 @@ services:
 - **Separate worker and client processes**: The client (which starts workflows) and the worker (which executes them) should be separate Node.js processes. This allows scaling workers independently.
 - **Use PostgreSQL in production**: The default `sqlite` backend is for development only. Use the PostgreSQL or MySQL backend for production deployments.
 - **Test workflows with Temporal's test environment**: The `@temporalio/testing` package provides a test environment that runs workflows synchronously without a live Temporal server.
+- **Default agent `effortLevel` to `high`, never `max`**: Long-running Temporal workflows multiply effort-level cost across iterations and parallel activities. `max` on an iterative pipeline compounds cost without matching quality gains. See the **Effort-Level Strategy** section of [catalog/skills/ai-development/prompt-engineering/SKILL.md](../../ai-development/prompt-engineering/SKILL.md) for the decision table.
 
 ## Common Patterns
 

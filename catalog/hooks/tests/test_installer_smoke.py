@@ -1,0 +1,294 @@
+"""Installer smoke test - structural + artifact assertions for the v0.9.7 installer.
+
+This test does NOT run the installer end-to-end (a sandboxed full-install test
+is deferred to v0.9.8 and tracked as a follow-up). Instead it verifies:
+
+1. The installer scripts carry the expected v0.9.7 banner + version + main-flow
+   refactor (global-vs-workspace upfront choice, no template-import prompt).
+2. The source artifacts the installer will copy exist at their expected paths
+   (new v0.9.7 skills, guides, checklist, templates).
+3. The canonical template (`catalog/hooks/settings.json`) has `effortLevel: high`
+   which is what the installer writes into `~/.claude/settings.json` on a fresh
+   install.
+4. The installer scripts are syntactically valid (bash -n for .sh; PowerShell
+   AST parse for .ps1 if pwsh/powershell is available).
+
+Run with: pytest catalog/hooks/tests/test_installer_smoke.py
+Also runnable directly: python catalog/hooks/tests/test_installer_smoke.py
+"""
+from __future__ import annotations
+
+import json
+import pathlib
+import shutil
+import subprocess
+import sys
+
+REPO_ROOT = pathlib.Path(__file__).resolve().parents[3]
+INSTALLER_SH = REPO_ROOT / "scripts" / "installer.sh"
+INSTALLER_PS1 = REPO_ROOT / "scripts" / "installer.ps1"
+SETTINGS_TEMPLATE = REPO_ROOT / "catalog" / "hooks" / "settings.json"
+
+
+# --- (1) Installer script structural assertions ------------------------------
+
+def test_installer_sh_exists():
+    assert INSTALLER_SH.is_file(), f"Missing: {INSTALLER_SH}"
+
+
+def test_installer_ps1_exists():
+    assert INSTALLER_PS1.is_file(), f"Missing: {INSTALLER_PS1}"
+
+
+def test_installer_sh_carries_version_constant():
+    body = INSTALLER_SH.read_text(encoding="utf-8")
+    assert 'DEVAI_HUB_VERSION="0.9.7"' in body, \
+        "installer.sh is missing the DEVAI_HUB_VERSION='0.9.7' constant"
+
+
+def test_installer_ps1_carries_version_constant():
+    body = INSTALLER_PS1.read_text(encoding="utf-8")
+    assert '$script:DevAIHubVersion = "0.9.7"' in body, \
+        "installer.ps1 is missing the $script:DevAIHubVersion = '0.9.7' constant"
+
+
+def test_installer_sh_has_welcome_banner_function():
+    body = INSTALLER_SH.read_text(encoding="utf-8")
+    assert "print_banner()" in body, "installer.sh is missing print_banner()"
+    assert "Welcome to the DevAI-Hub Universal Installer" in body, \
+        "installer.sh banner text missing"
+    # Accept either ${DEVAI_HUB_VERSION} or $DEVAI_HUB_VERSION interpolation form
+    assert "${DEVAI_HUB_VERSION}" in body or "$DEVAI_HUB_VERSION" in body, \
+        "installer.sh banner must interpolate the DEVAI_HUB_VERSION variable"
+
+
+def test_installer_ps1_has_welcome_banner_function():
+    body = INSTALLER_PS1.read_text(encoding="utf-8")
+    assert "function Show-WelcomeBanner" in body, \
+        "installer.ps1 is missing Show-WelcomeBanner"
+    assert "Welcome to the DevAI-Hub Universal Installer" in body, \
+        "installer.ps1 banner text missing"
+    assert "$script:DevAIHubVersion" in body, \
+        "installer.ps1 banner must interpolate $script:DevAIHubVersion"
+
+
+def test_installer_sh_asks_global_vs_workspace_first():
+    body = INSTALLER_SH.read_text(encoding="utf-8")
+    # The upfront scope choice prompt (v0.9.7 refactor)
+    assert "Select [G]lobal / [W]orkspace" in body, \
+        "installer.sh is missing the upfront global-vs-workspace choice"
+    # Global must be the default (recommended) branch
+    assert "Global (recommended)" in body, \
+        "installer.sh should present Global as the recommended option"
+
+
+def test_installer_ps1_asks_global_vs_workspace_first():
+    body = INSTALLER_PS1.read_text(encoding="utf-8")
+    assert "Select [G]lobal / [W]orkspace" in body, \
+        "installer.ps1 is missing the upfront global-vs-workspace choice"
+    assert "Global (recommended)" in body, \
+        "installer.ps1 should present Global as the recommended option"
+
+
+def test_installer_sh_removed_template_import_prompt():
+    """The v0.9.6 interactive prompt `read_prompt "Import custom Word/PowerPoint templates? ..."`
+    must be gone. A comment referencing the removal is fine; the live read_prompt call is not."""
+    body = INSTALLER_SH.read_text(encoding="utf-8")
+    # Match the specific interactive construct, not mere mentions in comments.
+    assert 'read_prompt "Import custom Word/PowerPoint templates?' not in body, \
+        "installer.sh still calls read_prompt for custom-template import; remove the prompt"
+    # Also ensure the file-picker loop is gone
+    assert 'read_prompt "File path (or press Enter to finish)"' not in body, \
+        "installer.sh still prompts for a template file path; that loop must be removed"
+
+
+def test_installer_ps1_removed_template_import_prompt():
+    """Same as the .sh test but targeting PowerShell's Read-Prompt and OpenFileDialog flow."""
+    body = INSTALLER_PS1.read_text(encoding="utf-8")
+    assert 'Read-Prompt "Import custom Word/PowerPoint templates?' not in body, \
+        "installer.ps1 still calls Read-Prompt for custom-template import; remove the prompt"
+    # The System.Windows.Forms.OpenFileDialog file picker for templates must be gone too
+    assert "Select Document Templates to Import" not in body, \
+        "installer.ps1 still opens the document-templates file picker; remove it"
+
+
+# --- (2) Canonical template settings assertion -------------------------------
+
+def test_catalog_hooks_settings_effort_level_is_high():
+    """Regression guard for the v0.9.7 xhigh -> high default reduction.
+
+    Anything that flips this back to 'xhigh' without a deliberate release
+    should trip this test.
+    """
+    assert SETTINGS_TEMPLATE.is_file(), f"Missing: {SETTINGS_TEMPLATE}"
+    data = json.loads(SETTINGS_TEMPLATE.read_text(encoding="utf-8"))
+    assert "effortLevel" in data, "catalog/hooks/settings.json is missing 'effortLevel'"
+    assert data["effortLevel"] == "high", (
+        f"Expected effortLevel='high' (v0.9.7 default), got {data['effortLevel']!r}. "
+        "If this was a deliberate change, update the CHANGELOG + test and remove "
+        "this assertion's tag."
+    )
+
+
+def test_installer_ps1_fallback_literal_matches_template():
+    """If jq/PowerShell merge fails, installer.ps1 prints a manual-add hint.
+
+    That hint MUST reference the same value as catalog/hooks/settings.json.
+    """
+    body = INSTALLER_PS1.read_text(encoding="utf-8")
+    assert '"effortLevel`": `"high`"' in body, (
+        "installer.ps1 manual-add fallback must reference \"high\" to match "
+        "catalog/hooks/settings.json. Update both together if the default changes."
+    )
+
+
+def test_installers_copy_compile_deep_research_script():
+    """Regression guard for the installer-gap lesson codified in AGENTS.md:
+    scripts/*.py files are copied BY NAME, not by folder. Any new script must
+    be explicitly added to both installers or it will be silently missed on
+    fresh installs.
+    """
+    sh_body = INSTALLER_SH.read_text(encoding="utf-8")
+    ps1_body = INSTALLER_PS1.read_text(encoding="utf-8")
+    assert "compile_deep_research.py" in sh_body, (
+        "installer.sh must copy scripts/compile_deep_research.py to ~/.devai-hub/scripts/"
+    )
+    assert "compile_deep_research.py" in ps1_body, (
+        "installer.ps1 must copy scripts/compile_deep_research.py to ~/.devai-hub/scripts/"
+    )
+    # Also confirm the paired generate_report.py is still there (original pattern)
+    assert "generate_report.py" in sh_body and "generate_report.py" in ps1_body, (
+        "installer.sh and installer.ps1 must still copy scripts/generate_report.py"
+    )
+
+
+# --- (3) Bundled v0.9.7 artifacts must exist at source paths -----------------
+
+V0_9_7_ARTIFACTS = [
+    # New skills (Phase 3)
+    "catalog/skills/security/business-logic-abuse/SKILL.md",
+    "catalog/skills/security/advanced-attack-patterns/SKILL.md",
+    # New skill (parallel-session deep-research work)
+    "catalog/skills/specialized-domains/deep-research-compilation/SKILL.md",
+    # New commands (parallel-session deep-research work)
+    "catalog/commands/compile-deep-research.md",
+    "catalog/commands/compile-deep-research-style-guide.md",
+    # New guides (Phase 1 + 4)
+    "guides/SESSION_LIFECYCLE_DECISIONS.md",
+    "docs/v0.9.6/opus-4-7-migration.md",
+    # New checklist (Phase 3)
+    "catalog/checklists/file-upload-security.md",
+    # Bundled report templates (copied silently by installer)
+    "templates/documentation/generic-word-report-template.docx",
+    "templates/documentation/branded-report-template.docx",
+    # Report generator scripts (copied by installer to ~/.devai-hub/scripts/)
+    "scripts/generate_report.py",
+    "scripts/compile_deep_research.py",
+    # Repo-scoped AI agent instructions (parallel-session work)
+    "AGENTS.md",
+    "CLAUDE.md",
+    "GEMINI.md",
+    ".github/copilot-instructions.md",
+    ".cursor/rules/devai-hub.mdc",
+]
+
+
+def test_all_v0_9_7_source_artifacts_exist():
+    missing = []
+    for rel in V0_9_7_ARTIFACTS:
+        path = REPO_ROOT / rel
+        if not path.exists():
+            missing.append(rel)
+    if missing:
+        raise AssertionError(
+            "v0.9.7 source artifacts missing (installer cannot copy what is not there):\n  "
+            + "\n  ".join(missing)
+        )
+
+
+# --- (4) Syntax validation ---------------------------------------------------
+
+def test_installer_sh_bash_syntax_clean():
+    """Fast syntax check via bash -n. Fails fast if the refactor broke parsing."""
+    bash = shutil.which("bash")
+    if bash is None:
+        print("SKIP: bash not available on PATH", file=sys.stderr)
+        return  # Treat as skip rather than fail on Windows without bash
+    result = subprocess.run(
+        [bash, "-n", str(INSTALLER_SH)],
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    assert result.returncode == 0, (
+        f"bash -n failed on installer.sh:\n{result.stderr}"
+    )
+
+
+def test_installer_ps1_ast_parse_clean():
+    """Parse installer.ps1 via PowerShell's language AST. Skips if no pwsh/powershell."""
+    ps = shutil.which("pwsh") or shutil.which("powershell")
+    if ps is None:
+        print("SKIP: PowerShell not available on PATH", file=sys.stderr)
+        return
+    script = (
+        "$errs = $null; $tokens = $null; "
+        f"$null = [System.Management.Automation.Language.Parser]::ParseFile("
+        f"'{INSTALLER_PS1}', [ref]$tokens, [ref]$errs); "
+        "if ($errs -and $errs.Count -gt 0) { "
+        "$errs | ForEach-Object { "
+        "Write-Host \"Line $($_.Extent.StartLineNumber): $($_.Message)\" }; "
+        "exit 1 } else { exit 0 }"
+    )
+    result = subprocess.run(
+        [ps, "-NoProfile", "-Command", script],
+        capture_output=True,
+        text=True,
+        timeout=60,
+    )
+    assert result.returncode == 0, (
+        f"PowerShell AST parse failed on installer.ps1:\n{result.stdout}\n{result.stderr}"
+    )
+
+
+# --- Manual runner ----------------------------------------------------------
+
+def _run_all():
+    tests = [
+        test_installer_sh_exists,
+        test_installer_ps1_exists,
+        test_installer_sh_carries_version_constant,
+        test_installer_ps1_carries_version_constant,
+        test_installer_sh_has_welcome_banner_function,
+        test_installer_ps1_has_welcome_banner_function,
+        test_installer_sh_asks_global_vs_workspace_first,
+        test_installer_ps1_asks_global_vs_workspace_first,
+        test_installer_sh_removed_template_import_prompt,
+        test_installer_ps1_removed_template_import_prompt,
+        test_catalog_hooks_settings_effort_level_is_high,
+        test_installer_ps1_fallback_literal_matches_template,
+        test_installers_copy_compile_deep_research_script,
+        test_all_v0_9_7_source_artifacts_exist,
+        test_installer_sh_bash_syntax_clean,
+        test_installer_ps1_ast_parse_clean,
+    ]
+    failures = 0
+    for t in tests:
+        try:
+            t()
+        except AssertionError as e:
+            failures += 1
+            print(f"FAIL: {t.__name__}\n{e}")
+        except Exception as e:
+            failures += 1
+            print(f"ERROR: {t.__name__}: {e}")
+        else:
+            print(f"OK: {t.__name__}")
+    if failures:
+        print(f"\n{failures} test(s) failed.")
+        sys.exit(1)
+    print(f"\nAll {len(tests)} installer-smoke tests passed.")
+
+
+if __name__ == "__main__":
+    _run_all()

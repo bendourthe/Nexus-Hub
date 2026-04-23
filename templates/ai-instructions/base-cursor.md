@@ -31,7 +31,7 @@
 - Never add AI attribution footers or AI-generated signatures to commit messages
 - Commit messages must be ASCII-only: no em-dashes, en-dashes, curly quotes, ellipsis characters, or other Unicode punctuation. Use hyphens, straight quotes, and `...` instead. This prevents encoding corruption on Windows.
 - Use `docs/todos.md` as the project progress tracker: read it at session start if it exists, check off completed tasks, add newly identified work, and update dashboard metrics after relevant milestones. Use the dev-progress-tracker skill to create or maintain it.
-- Ask clarifying questions before coding if requirements are ambiguous; state assumptions explicitly before acting and surface multiple interpretations when a request is unclear rather than choosing silently
+- If requirements are ambiguous, batch all clarifying questions into the first turn rather than asking one question per turn. Surface multiple interpretations and acceptance criteria together so the user can answer them in a single round-trip. State any assumptions explicitly before acting. Avoid unbounded per-question ping-pong - it wastes context and Opus 4.7's reasoning budget.
 - Every changed line must trace directly to the user's request; do not clean up adjacent code, pre-existing dead code, or style issues outside the stated scope
 - Place punctuation outside quotation marks; no em-dashes
 - Professional teaching tone

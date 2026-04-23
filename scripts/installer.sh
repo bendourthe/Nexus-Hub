@@ -1,8 +1,13 @@
 #!/bin/bash
-# DevAI-Hub Universal Installer V10 (v0.9.6) (macOS/Linux)
-# Installs AI Skills Globally and to Workspaces with Safe Overwrite
+# DevAI-Hub Universal Installer V10 (macOS/Linux)
+# Installs AI Skills Globally OR to a Workspace with Safe Overwrite
 
 set -e
+
+# --- Version ---
+# Single source of truth for the installer banner version label.
+# Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
+DEVAI_HUB_VERSION="0.9.7"
 
 # --- Window Title ---
 printf '\033]0;DevAI-Hub Installer\007'
@@ -1057,33 +1062,19 @@ get_language_selection() {
 
 install_workspace() {
     local repo_root="$1"
+    local target_path="$2"  # pre-validated by main() in v0.9.7+
 
     echo -e "${CYAN}----------------------------------------------------------------${RESET}"
-    echo -e "${CYAN}                PHASE 2: Workspace Installation                 ${RESET}"
+    echo -e "${CYAN}                Workspace Installation                          ${RESET}"
     echo -e "${CYAN}----------------------------------------------------------------${RESET}"
 
-    while true; do
-        echo ""
-        echo -e "${RESET}Do you want to configure a specific local project/repository?"
-        local response
-        response=$(read_prompt "Select Project? [Y]es / [N]o")
-        if [[ ! "$response" =~ ^[Yy] ]]; then break; fi
+    if [ -z "$target_path" ] || [ ! -d "$target_path" ]; then
+        write_item "Invalid target path: $target_path" "$RED"
+        return 1
+    fi
 
-        local target_path
-        target_path=$(read_prompt "Enter absolute path to project")
-        # remove quotes if user pasted them
-        target_path="${target_path%\"}"
-        target_path="${target_path#\"}"
-
-        # Expand tilde if present
-        target_path="${target_path/#\~/$HOME}"
-
-        if [ -z "$target_path" ] || [ ! -d "$target_path" ]; then
-            write_item "Invalid directory: $target_path" "$YELLOW"
-            continue
-        fi
-
-        write_item "Target: $target_path" "$DARK_YELLOW"
+    # Single-pass workspace install. To install into multiple workspaces, re-run the installer.
+    write_item "Target: $target_path" "$DARK_YELLOW"
 
         local detected
         detected=$(detect_languages "$target_path")
@@ -1226,8 +1217,6 @@ install_workspace() {
         echo -e "${GREEN}----------------------------------------------------------------${RESET}"
         echo -e "${GREEN}      Project $(basename "$target_path") Configured!       ${RESET}"
         echo -e "${GREEN}----------------------------------------------------------------${RESET}"
-
-    done
 }
 
 install_vscode_extensions() {
@@ -1397,6 +1386,12 @@ install_templates() {
         safe_copy "$script_source" "$scripts_dest/generate_report.py" true "[OK] Report generator installed at: $scripts_dest/generate_report.py"
     fi
 
+    # Copy deep-research compiler script (powers /compile-deep-research)
+    local compile_script_source="$repo_root/scripts/compile_deep_research.py"
+    if [ -f "$compile_script_source" ]; then
+        safe_copy "$compile_script_source" "$scripts_dest/compile_deep_research.py" true "[OK] Deep-research compiler installed at: $scripts_dest/compile_deep_research.py"
+    fi
+
     # Check Python availability
     if ! command -v python3 >/dev/null 2>&1 && ! command -v python >/dev/null 2>&1; then
         write_item "Note: Python 3 is required to generate reports." "$YELLOW"
@@ -1414,60 +1409,10 @@ install_templates() {
 
     echo ""
 
-    # Custom template import
-    local response
-    response=$(read_prompt "Import custom Word/PowerPoint templates? [Y]es / [N]o")
-    if [[ ! "$response" =~ ^[Yy] ]]; then
-        write_item "Skipped custom template import." "$GRAY"
-        echo ""
-        echo -e "${GREEN}----------------------------------------------------------------${RESET}"
-        echo -e "${GREEN}        Templates & Scripts Installation Complete.               ${RESET}"
-        echo -e "${GREEN}----------------------------------------------------------------${RESET}"
-        return
-    fi
-
-    # Terminal-based file import loop (no native GUI dialog on Linux/macOS terminal)
-    while true; do
-        echo ""
-        write_item "Enter the full path to a .docx or .pptx template file." "$RESET"
-        write_item "You can also drag and drop a file into this terminal." "$RESET"
-        local template_path
-        template_path=$(read_prompt "File path (or press Enter to finish)")
-
-        # User pressed Enter without input
-        if [ -z "$template_path" ]; then break; fi
-
-        # Remove surrounding quotes (from drag-and-drop)
-        template_path="${template_path%\"}"
-        template_path="${template_path#\"}"
-        template_path="${template_path%\'}"
-        template_path="${template_path#\'}"
-        # Expand tilde
-        template_path="${template_path/#\~/$HOME}"
-        # Trim trailing whitespace
-        template_path="$(echo -e "${template_path}" | sed -e 's/[[:space:]]*$//')"
-
-        if [ ! -f "$template_path" ]; then
-            write_item "File not found: $template_path" "$RED"
-            continue
-        fi
-
-        local ext="${template_path##*.}"
-        ext=$(echo "$ext" | tr '[:upper:]' '[:lower:]')
-
-        if [[ "$ext" != "docx" && "$ext" != "pptx" ]]; then
-            write_item "Only .docx and .pptx files are supported." "$YELLOW"
-            continue
-        fi
-
-        local file_name
-        file_name=$(basename "$template_path")
-        safe_copy "$template_path" "$templates_dest/$file_name" true "[OK] Template imported: $file_name"
-
-        local more
-        more=$(read_prompt "Import more templates? [Y]es / [N]o")
-        if [[ ! "$more" =~ ^[Yy] ]]; then break; fi
-    done
+    # v0.9.7: The interactive "Import custom Word/PowerPoint templates?" prompt has been
+    # removed. Custom template selection is now handled at report-generation time by the
+    # `/generate-report` command (generic vs custom path gate). Bundled generic templates
+    # are still copied silently above so the command has a default to offer.
 
     # List installed templates
     echo ""
@@ -1594,18 +1539,62 @@ with open(path, 'w') as f:
     write_item "  The server will auto-start with Claude Code. No manual steps needed." "$GREEN"
 }
 
+# --- Banner ---
+
+print_banner() {
+    echo ""
+    echo -e "${DARK_CYAN}========================================================================================================================${RESET}"
+    echo -e "${DARK_CYAN}                                      Welcome to the DevAI-Hub Universal Installer${RESET}"
+    echo -e "${DARK_CYAN}                                                     (version ${DEVAI_HUB_VERSION})${RESET}"
+    echo -e "${DARK_CYAN}========================================================================================================================${RESET}"
+    echo ""
+}
+
 # --- Main ---
 
 # Get directory of this script
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 REPO_ROOT="$(dirname "$SCRIPT_DIR")"
 
-install_global "$REPO_ROOT"
-install_workspace "$REPO_ROOT"
+print_banner
+
+# Ask whether to install globally (recommended, user-scope) or to a specific workspace.
+echo -e "${RESET}Where would you like to install DevAI-Hub?"
+echo -e "  ${GREEN}[G]${RESET} Global (recommended) - applies to all projects on this machine (~/.claude/, ~/.gemini/, ~/.codex/, ~/.devai-hub/)"
+echo -e "  ${YELLOW}[W]${RESET} Workspace           - scoped to a specific project directory"
+echo ""
+SCOPE_CHOICE=$(read_prompt "Select [G]lobal / [W]orkspace (default: G)")
+
+case "$SCOPE_CHOICE" in
+    [Ww]*)
+        # Workspace install: prompt for project path, then run the workspace phase once.
+        while true; do
+            TARGET_PATH=$(read_prompt "Enter absolute path to project")
+            # Remove surrounding quotes if user pasted them
+            TARGET_PATH="${TARGET_PATH%\"}"
+            TARGET_PATH="${TARGET_PATH#\"}"
+            # Expand tilde if present
+            TARGET_PATH="${TARGET_PATH/#\~/$HOME}"
+            if [ -n "$TARGET_PATH" ] && [ -d "$TARGET_PATH" ]; then
+                break
+            fi
+            write_item "Invalid directory: $TARGET_PATH" "$YELLOW"
+        done
+        install_workspace "$REPO_ROOT" "$TARGET_PATH"
+        ;;
+    *)
+        # Default + explicit [Gg] both route here.
+        install_global "$REPO_ROOT"
+        ;;
+esac
+
+# Bundled report-generator templates + scripts are user-scope and always install silently.
+# Interactive custom-template import moved to /generate-report at use time (v0.9.7).
 install_templates "$REPO_ROOT"
 
 echo ""
-echo -e "${DARK_CYAN}================================================================${RESET}"
-echo -e "${DARK_CYAN}       Thank You For Using The DevAI-Hub Universal Installer    ${RESET}"
-echo -e "${DARK_CYAN}================================================================${RESET}"
+echo -e "${DARK_CYAN}========================================================================================================================${RESET}"
+echo -e "${DARK_CYAN}                              Thank You For Using The DevAI-Hub Universal Installer${RESET}"
+echo -e "${DARK_CYAN}                                                     (version ${DEVAI_HUB_VERSION})${RESET}"
+echo -e "${DARK_CYAN}========================================================================================================================${RESET}"
 echo ""

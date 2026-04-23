@@ -568,3 +568,10 @@ After applying any security patch, verify with this checklist:
 - **Hardcoding secrets in patches**: When adding authentication or encryption to fix a vulnerability, use environment variables or a secrets manager, never hardcoded values.
 - **Breaking error handling**: Security patches that convert detailed error messages to generic ones may mask legitimate application errors. Log the details server-side while returning generic messages to the client.
 - **Not testing with edge cases**: Patches that work for obvious attack payloads may fail against encoded, double-encoded, or Unicode-normalized variants. Test with a comprehensive set of bypass techniques.
+
+## Related Resources
+
+- [catalog/checklists/file-upload-security.md](../../../checklists/file-upload-security.md) - Defense checklist for file-upload-specific exploits (polyglots, MIME confusion, archive path traversal, resource limits, content scanning, serving hardening). Pairs with Strategy 7 (Path Traversal) and Strategy 8 (Insecure Deserialization) above.
+- [catalog/skills/security/business-logic-abuse/SKILL.md](../business-logic-abuse/SKILL.md) - Domain-aware invariant-violation audit covering race conditions, TOCTOU, idempotency, and workflow bypass. Remediation patches for these classes live here.
+- [catalog/skills/security/advanced-attack-patterns/SKILL.md](../advanced-attack-patterns/SKILL.md) - State desynchronization, cache poisoning, replay, and timing-attack remediation patterns.
+- [catalog/commands/run-penetration-test.md](../../../commands/run-penetration-test.md) - The pen-test command that surfaces findings this skill patches.

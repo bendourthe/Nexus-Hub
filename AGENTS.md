@@ -149,6 +149,43 @@ The hook registration template is `catalog/hooks/settings.json`. Supported event
 
 **Write tests for any new hook** following the pytest pattern in `catalog/hooks/tests/test_format_bash_description.py`. Run with `make test`.
 
+## Installer-Aware Changes (Cross-Platform)
+
+DevAI-Hub is a **template repository**. Nothing you add is "live" until a user runs `scripts/installer.sh` (macOS/Linux) or `scripts/installer.ps1` (Windows). The installer is what distributes your changes across every supported agentic platform.
+
+**Golden rule**: every change you propose must be shaped so that after the next installer run, it reaches Claude Code, Cursor, Codex, Gemini/Antigravity, OpenCode, and Copilot — on Windows, macOS, and Linux — without any manual step on the user's part.
+
+### Distribution channels the installer uses
+
+| Artifact you add/modify | Installer edit required? | Platforms reached |
+|---|---|---|
+| `catalog/skills/<cat>/<name>/SKILL.md` | No — folder auto-copied | Claude, Gemini, Codex (under `skills/`); Cursor/OpenCode/Copilot via the `{{SKILL_INDEX}}` block in their instruction file |
+| `catalog/commands/<name>.md` (+ companion style guide) | No — folder auto-copied | Claude (`commands/`), Gemini (`workflows/`), Codex (`prompts/`). Cursor / OpenCode / Copilot do not get a slash surface — they see the command body only if the user invokes it manually. |
+| `catalog/agents/<name>.md` | No — folder auto-copied | Claude, Gemini, Codex |
+| `catalog/hooks/<name>.{sh,py}` | No for the file; **you must register it** in `catalog/hooks/settings.json` | Platforms that honor Claude-style hooks |
+| `catalog/rules/<lang>/<name>.md` | No — folder auto-copied | Claude, Gemini, Codex |
+| `templates/documentation/<name>.{docx,pptx,xlsx,...}` | No — folder auto-copied to `~/.devai-hub/templates/documentation/` | All platforms (shared) |
+| `templates/ai-instructions/base-*.md` | **Yes — edit all 5 in lockstep** (claude, codex, cursor, gemini, opencode) | The respective platform |
+| `scripts/<name>.py` or `scripts/<name>.js` | **Yes — MUST add a copy step** in BOTH `scripts/installer.sh` AND `scripts/installer.ps1`, modeled after existing entries (`generate_report.py`, `compile_deep_research.py`). The installer copies scripts by **explicit name**, never by folder. | All platforms (shared under `~/.devai-hub/scripts/`) |
+| `data/SKILL_INDEX.md`, `data/skills.json`, `data/marketplace.json` | No — the installer reads these to fill `{{SKILL_INDEX}}` placeholders in every platform's instruction file. Updating them is mandatory when adding a skill. | All platforms whose instruction template embeds the index |
+
+### Required steps for any change
+
+Walk this checklist before proposing a PR:
+
+1. **Is your change inside a folder already copied recursively by the installer?** (`catalog/skills/`, `catalog/commands/`, `catalog/agents/`, `catalog/rules/`, `catalog/hooks/`, `templates/documentation/`.) If yes, no installer edit needed.
+2. **Is your change a standalone script in `scripts/`?** If yes, add a copy line in `scripts/installer.sh` (next to the existing `generate_report.py` block, around line 1395) AND a `Safe-Copy` line in `scripts/installer.ps1` (around line 1656). Both must reference the same destination under `~/.devai-hub/scripts/`.
+3. **Does your change introduce a new Python or Node dependency?** Prefer a lazy import with a clear `pip install <pkg>` hint on failure (see the `_require()` helper in `scripts/compile_deep_research.py`). If a hard requirement is unavoidable, add a dependency check in both installers next to the existing `python-docx`/`python-pptx` check.
+4. **Does your change touch a platform-specific instruction template?** If you edit any of `templates/ai-instructions/base-*.md`, apply the same change to all five (claude/codex/cursor/gemini/opencode). This is the "platform-agnostic" constraint.
+5. **Validate**: run `make validate` (JSON integrity) and `make lint` (ShellCheck) after edits. For new hooks, run `make test`. For installer changes, do a dry-run install into a throwaway directory and confirm the new artifact lands at the expected path.
+6. **Document**: add an entry under `## [Unreleased]` in `CHANGELOG.md`.
+
+### Platform coverage caveats (current state)
+
+The installer currently deploys **skills, commands, agents, hooks, and rules as separate files** only to Claude Code, Gemini/Antigravity, and Codex. Cursor, OpenCode, and Copilot receive **behavioral guardrails only** via their respective instruction files (`AGENTS.md`, `.github/copilot-instructions.md`, `.cursor/rules/`), not a per-command file-tree copy. If your change is a new slash command, call this out in the CHANGELOG so users on those three platforms know they need to either invoke the underlying skill by name or follow the command body as a prompt.
+
+If broader per-file distribution to Cursor/OpenCode/Copilot is needed, that is a cross-cutting installer change — not something to bolt on inside a single feature PR.
+
 ## Running Validation
 
 ```bash

@@ -1,8 +1,8 @@
 {
   "plugin": {
     "name": "devai-hub",
-    "version": "0.9.6",
-    "description": "Enterprise-grade skill library for AI coding assistants with 184+ curated skills, 32 commands, and cross-platform support",
+    "version": "0.9.7",
+    "description": "Enterprise-grade skill library for AI coding assistants with 185+ curated skills, 36 commands, and cross-platform support",
     "author": "Benjamin Dourthe",
     "license": "MIT",
     "repository": "https://github.com/bdourthe/devai-hub",
@@ -156,7 +156,7 @@
       "id": "specialized-domains",
       "name": "Specialized Domains",
       "description": "Fintech, mobile development, document generation, graphics programming",
-      "skill_count": 8
+      "skill_count": 9
     },
     {
       "id": "testing",

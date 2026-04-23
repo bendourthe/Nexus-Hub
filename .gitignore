@@ -57,3 +57,18 @@ CLAUDE.md
 
 # Temporary working directory
 temp/
+
+# Python caches (pytest, mypy, ruff) - not covered by *.py[cod]
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Python virtual environments (developer-local)
+.venv/
+venv/
+env/
+
+# VS Code extension build output
+*.vsix
+extensions/**/out/

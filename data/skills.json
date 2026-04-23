@@ -4432,6 +4432,41 @@
       }
     },
     {
+      "name": "deep-research-compilation",
+      "title": "deep-research-compilation",
+      "description": "Compile multiple research reports (.docx/.md/.pdf/.pptx/.html/.txt/URLs) into one unified document (.docx, .pdf, or .md) with deduplicated inline [N] citations linking to a References section.",
+      "long_description": "Structured guidance for compiling multi-source research into a single unified document with managed citations. Covers multi-format ingestion, reference deduplication (DOI, normalized URL, fuzzy title match), citation renumbering, unified outline synthesis, and multi-format output (Word, PDF, Markdown).",
+      "summary_l0": "\"Compile multi-source research into one document with managed citations\"",
+      "overview_l1": "\"This skill compiles multiple research reports into a single unified document. Use it when combining deep-research output from multiple runs, consolidating literature reviews, merging partial reports from different contributors, or assembling a branded reference document from heterogeneous sources. Key capabilities include multi-format ingestion (.docx/.md/.pdf/.pptx/.html/URLs/.txt), reference extraction and deduplication by DOI, normalized URL, or fuzzy title match, citation renumbering against a single canonical reference list, unified outline synthesis that merges overlapping sections across inputs, and output emission in Word (branded template with superscript [N] bookmark hyperlinks), PDF (converted from the Word output), or Markdown (with clickable anchor links). The expected output is a single, well-structured document whose inline citations all resolve to a References section whose entries are clickable. Trigger phrases: compile research, merge reports, consolidate literature review, combine research documents, deep research compilation, unified report with citations, branded word report, reference deduplication, citation renumbering.\"",
+      "version": "0.9.7",
+      "author": "Benjamin Dourthe",
+      "category": "specialized-domains",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read",
+        "Write",
+        "Bash"
+      ],
+      "path": "catalog/skills/specialized-domains/deep-research-compilation/",
+      "file": "catalog/skills/specialized-domains/deep-research-compilation/SKILL.md",
+      "size": {
+        "lines": 120,
+        "characters": 9500,
+        "tokens_estimate": 2400
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
       "name": "docx-generation",
       "title": "docx-generation",
       "description": "Word document generation and manipulation expertise for creating, editing, and templating professional DOCX files programmatically. Use when building document generators, automating contracts and reports, creating mail merge pipelines, or manipulating Word documents.",

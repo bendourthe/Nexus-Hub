@@ -264,11 +264,11 @@ After all prior phases are complete, ask the user:
 
 > "Would you like to generate a v0.1.0 implementation plan for this project?
 > This will guide you through a short discovery interview and produce
-> `docs/v0.1.0/implementation-plan.md` — a phased build roadmap where every
+> `docs/v0.1.0/plans/v0.1.0-initial.md` — a phased build roadmap where every
 > sub-task includes a ready-to-use prompt for a future Claude Code session.
 > [Y]es / [N]o"
 
-- If the user answers **Yes** (or Y): invoke `/generate-implementation-plan`
+- If the user answers **Yes** (or Y): invoke `/generate-plan` and pick plan type 1 (Initial project implementation) when prompted
 - If the user answers **No** (or N): skip this phase and conclude setup
 
 ## Guidelines

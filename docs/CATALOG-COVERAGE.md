@@ -1,10 +1,50 @@
 # DevAI-Hub Catalog Coverage Matrix
 
-**Version**: 0.9.6
-**Generated**: 2026-04-06
-**Skills Total**: 174 across 20 categories
+**Version**: 0.9.7
+**Generated**: 2026-04-22
+**Skills Total**: 177 across 20 categories
 
 This matrix maps DevAI-Hub's skill catalog against user roles, AI platforms, and use case categories to help you find the right skills for your context. Inspired by [Shannon's COVERAGE.md](https://github.com/KeygraphHQ/shannon) pattern.
+
+---
+
+## v0.9.7 Release Additions
+
+**New skills (3)**:
+- `business-logic-abuse` (Security) - domain-aware invariant-violation audit covering race conditions, TOCTOU, double-spending, workflow bypass, idempotency, check-sequence abuse.
+- `advanced-attack-patterns` (Security) - state desynchronization, cache poisoning, replay attacks, and timing side channels beyond password comparison.
+- `deep-research-compilation` (Specialized Domains) - compile multiple research reports across 7 input formats into a single unified document with deduplicated citations; emits .docx / .pdf / .md.
+
+**New commands (1)**:
+- `/compile-deep-research` (+ companion `compile-deep-research-style-guide.md`) - 9-phase command that drives the deep-research-compilation skill, backed by `scripts/compile_deep_research.py` (~1700 lines, 4 sub-commands).
+
+**New AI agent instruction set (5 files)**:
+- `AGENTS.md` extended with "Installer-Aware Changes (Cross-Platform)" section; `CLAUDE.md` and `GEMINI.md` use `@AGENTS.md` import; `.github/copilot-instructions.md` inlines the summary (Copilot cannot import); `.cursor/rules/devai-hub.mdc` uses `alwaysApply: true`.
+
+**New bundled template (1)**:
+- `templates/documentation/branded-report-template.docx` - styled Word template (teal Consolas title, Calibri Light small-caps headings, auto-TOC, hanging-indent references) that ships alongside the existing generic template.
+
+**New guides (2)**:
+- [guides/SESSION_LIFECYCLE_DECISIONS.md](../guides/SESSION_LIFECYCLE_DECISIONS.md) - five-branch decision tree (continue / `/rewind` / `/clear` / `/compact` / delegate to subagent).
+- [docs/v0.9.6/opus-4-7-migration.md](v0.9.6/opus-4-7-migration.md) - operator migration guide with TL;DR, four must-do items, and a 13-row cross-reference table indexing every Opus 4.6 -> 4.7 behavioral delta.
+
+**New checklists (1)**:
+- [catalog/checklists/file-upload-security.md](../catalog/checklists/file-upload-security.md) - defense checklist against polyglot files, MIME confusion, archive path traversal, zip bombs, and unsafe upload serving.
+
+**Extended skills** (content additions; skill count unchanged):
+- `prompt-engineering` - Effort-Level Strategy section (all 5 tiers + decision table + anti-patterns); Opus 4.7 Practices section (positive examples, explicit tool-invocation, adaptive thinking, first-turn checklists).
+- `ai-agent-development` - Anti-Patterns (Opus 4.7) table (fixed thinking budgets, excessive tool-calling, `max` on extended runs).
+- `multi-agent-coordinator` - Step 0 delegation gate ("will I need this tool output again?"), Pattern A explicit fan-out callout with three worked prompt templates.
+- `context-compression` - Proactive steering subsection with six `/compact focus on X, drop Y` directives.
+- `context-degradation` - 1M-token window calibration table (Green/Yellow/Orange/Red at 100k/300k/500k boundaries).
+- `session-history` - "Summarize from here (mid-session handoff)" operating mode with paste-ready template.
+- `security-patch-advisor` - Related Resources footer cross-linking to the file-upload-security checklist and the two new security skills.
+
+**Extended commands**:
+- `/run-penetration-test` - optional 6th hunter (Business Logic & Advanced Attacks) gated behind `--depth=deep`; Attack Paths renamed to "Attack Paths / Chains"; new Secure Design Recommendations subsection; WSTG Coverage Matrix expanded with BUSL, cache poisoning, replay, and timing rows; hunter agents use shipped default `high` effort level.
+
+**Configuration change (operator-facing)**:
+- Installer default `effortLevel` reduced from `xhigh` to `high` (`catalog/hooks/settings.json`, `scripts/installer.ps1`). Full details in [CHANGELOG.md](../CHANGELOG.md) and [docs/v0.9.6/opus-4-7-migration.md](v0.9.6/opus-4-7-migration.md).
 
 ---
 
@@ -208,7 +248,7 @@ This matrix maps DevAI-Hub's skill catalog against user roles, AI platforms, and
 |-------|-------------|-----------------|-----------|
 | trend-research | Technology trend analysis and synthesis | Technology evaluation | C G K X |
 
-### Security (7 skills) — `C` `G` `K` `X`
+### Security (9 skills) — `C` `G` `K` `X`
 
 | Skill | Description | Primary Use Case | Platforms |
 |-------|-------------|-----------------|-----------|
@@ -219,6 +259,8 @@ This matrix maps DevAI-Hub's skill catalog against user roles, AI platforms, and
 | security-patch-advisor | Recommend and apply security patches | Patch management | C G K X |
 | cve-reachability-analyzer | Determine if a CVE affects reachable code paths | Risk assessment | C G K X |
 | authentication-patterns | OAuth 2.0, JWT, session management, MFA patterns | Auth implementation | C G K X |
+| business-logic-abuse | Race conditions, TOCTOU, double-spending, workflow bypass, idempotency, check-sequence abuse | Domain-aware deep audits (powers `/run-penetration-test --depth=deep`) | C G K X |
+| advanced-attack-patterns | State desynchronization, cache poisoning, replay attacks, timing side channels | Architecture-level attack classes beyond baseline OWASP | C G K X |
 
 ### Testing — Tests Generation (8 skills) — `C` `G` `K` `X`
 

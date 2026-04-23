@@ -1,10 +1,10 @@
 ---
-description: Perform a deep, Shannon-inspired static security audit using 5 parallel specialist vulnerability hunters, OWASP WSTG-aligned, producing a full penetration test report with code-level findings, proof-of-concept snippets, and remediation guidance.
+description: Perform a deep, Shannon-inspired static security audit using 5 parallel specialist vulnerability hunters (or 6 with --depth=deep to add business-logic and advanced-attack coverage), OWASP WSTG-aligned, producing a full penetration test report with code-level findings, proof-of-concept snippets, and remediation guidance.
 ---
 
 # Run Penetration Test
 
-Perform a focused, parallel security audit of the codebase using five specialized vulnerability hunters running simultaneously — one per OWASP attack class. Each hunter has full analysis time for its domain, unlike `/review-codebase` which covers security as one of eight concerns in a general health check.
+Perform a focused, parallel security audit of the codebase using five specialized vulnerability hunters running simultaneously — one per OWASP attack class — with an optional 6th hunter for business-logic and advanced-attack coverage under `--depth=deep`. Each hunter has full analysis time for its domain, unlike `/review-codebase` which covers security as one of eight concerns in a general health check.
 
 **This command vs `/review-codebase`**: `/review-codebase` produces a comprehensive code health report across quality, architecture, performance, testing, and security. `/run-penetration-test` is security-only, with deeper OWASP coverage, parallel specialist analysis, STRIDE threat modeling, and a Shannon-style penetration test report. Use this command when you need a dedicated security audit rather than a general review.
 
@@ -23,6 +23,11 @@ Check whether the user provided an `--output` argument specifying a custom repor
 
 - **`--output` provided**: Write the report to that path.
 - **No `--output`**: Write to `docs/security/penetration-test-<YYYY-MM-DD>.md` where the date is today's date.
+
+Check whether the user provided a `--depth` argument.
+
+- **`--depth=deep`**: Spawn the optional 6th hunter (Business Logic & Advanced Attacks - see Hunter 6 below) alongside the five standard hunters. Aggregate cost increases by roughly 20%. Required to populate WSTG-BUSL coverage and the advanced-attack rows of the WSTG Coverage Matrix.
+- **No `--depth` or `--depth=standard`**: Run the five standard hunters only. WSTG-BUSL and the advanced-attack rows remain marked "Not covered" in the final matrix.
 
 Create the output directory if it does not exist.
 
@@ -116,7 +121,9 @@ Scope restriction: <"full codebase" or path if --scope was used>
 
 ## Phase 2: Parallel Vulnerability Hunters
 
-Launch all 5 hunters simultaneously using 5 concurrent Agent tool calls. Each hunter receives the full Attack Surface Brief from Phase 1 as context. Wait for all 5 to complete before proceeding to Phase 3.
+Launch the hunters simultaneously using concurrent Agent tool calls. The five standard hunters (Injection, XSS/Client-Side, Auth/Session, Access Control, Infrastructure/Configuration) always run. The optional 6th hunter (Business Logic & Advanced Attacks) runs only if `--depth=deep` was supplied. Each hunter receives the full Attack Surface Brief from Phase 1 as context. Wait for all hunters to complete before proceeding to Phase 3.
+
+**Effort level**: Hunter agents run at the shipped default `high`. Do not bump individual hunters to `xhigh` - parallel fan-out multiplies per-agent cost and `high` preserves the reasoning quality needed for vulnerability hunting. If a specific hunter is hitting a dense area that genuinely rewards extra reasoning, escalate that single hunter rather than the whole fan-out. Reserve `max` for the Phase 3 synthesis if the finding set is complex, not for the parallel hunting phase. See the **Effort-Level Strategy** section of [catalog/skills/ai-development/prompt-engineering/SKILL.md](../skills/ai-development/prompt-engineering/SKILL.md) for the decision table and the **explicit parallel fan-out** callout in [catalog/skills/orchestration/multi-agent-coordinator/SKILL.md](../skills/orchestration/multi-agent-coordinator/SKILL.md) for the prompting shape.
 
 **Critical instruction for all hunters**: Before every Bash or file read tool call, output a one-sentence plain-language explanation of what the command does and what its impact will be. This is a hard requirement with no exceptions.
 
@@ -479,13 +486,70 @@ Return ALL findings as a single structured Markdown block.
 
 ---
 
+### Hunter 6: Business Logic & Advanced Attacks Hunter (optional, `--depth=deep` only)
+
+**Activation**: This hunter is spawned only when the user invoked the command with `--depth=deep`. If `--depth` is absent or set to `standard`, skip Hunter 6 and proceed directly to Phase 3 with the five hunters above. Running Hunter 6 increases aggregate cost by approximately 20% (one additional parallel agent with its own attack-surface context).
+
+**Agent prompt**:
+
+```
+You are the Business Logic & Advanced Attacks Hunter in a deep static security audit. You cover two skill areas: business-logic-abuse (domain-aware invariant violations) and advanced-attack-patterns (architecture-level attack classes). These are flaws that generic vulnerability scanners miss because they depend on domain rules or architectural properties rather than input validation.
+
+ATTACK SURFACE BRIEF:
+<inject attack surface brief here>
+
+## Your Scope
+
+### Part A - Business-Logic Abuse
+
+Apply the `business-logic-abuse` skill (see `catalog/skills/security/business-logic-abuse/SKILL.md`). The skill begins with a rule-elicitation step. If the operator has not provided the business rules (high-value workflows, critical invariants, idempotency guarantees, trust boundaries, state transitions), the hunter should:
+
+1. Attempt to infer the rules from the codebase: look for ledger tables, reservation/quota models, multi-step workflow status columns, webhook handlers, idempotency-key infrastructure, payment integrations.
+2. Document each inferred rule explicitly as an **assumption** in the findings table so the operator can confirm or correct.
+3. Audit against the inferred rules using the six attack classes (race conditions, TOCTOU, double-spending, workflow bypass, idempotency violations, check-sequence abuse) documented in the skill.
+
+### Part B - Advanced Attack Patterns
+
+Apply the `advanced-attack-patterns` skill (see `catalog/skills/security/advanced-attack-patterns/SKILL.md`). Each of its four classes is gated on an applicability check:
+
+1. **State desynchronization** - applicable if the system has distributed components, eventual-consistency stores, cache-vs-DB divergence, or multi-step workflow state.
+2. **Cache poisoning** - applicable if any HTTP caching layer exists (CDN, reverse proxy, application cache).
+3. **Replay attacks** - applicable if the system accepts signed requests or state-changing endpoints.
+4. **Timing attack surfaces** - applicable if any branch depends on a secret or user-enumeration-sensitive input.
+
+For each class, either produce findings or mark the class "Not applicable" with a one-line justification.
+
+## Output Format
+
+Return findings in the same structured Markdown format as the other 5 hunters. Use these finding-class headings in order:
+
+- **Race Conditions (business logic)**
+- **TOCTOU (business logic)**
+- **Double-Spending / Replay-Within-Window (business logic)**
+- **Workflow-State Bypass (business logic)**
+- **Idempotency Violations (business logic)**
+- **Check-Sequence Abuse (business logic)**
+- **State Desynchronization (advanced)**
+- **Cache Poisoning (advanced)**
+- **Replay Attacks (advanced)**
+- **Timing Attack Surfaces (advanced)**
+
+For each class, either list findings or include a one-line "Not applicable because X" line. Every finding must cite a specific `file:line` and include a reproduction sketch or exploit trace.
+
+Cross-link remediations to `catalog/skills/security/security-patch-advisor/SKILL.md` where a pattern patch exists.
+
+Return ALL findings as a single structured Markdown block.
+```
+
+---
+
 ## Phase 3: Threat Model Synthesis
 
-Once all 5 hunters have returned their findings, synthesize the results.
+Once all hunters have returned their findings (5 standard hunters, or 6 when `--depth=deep` was used), synthesize the results.
 
 ### 3.1 Deduplicate and Normalize
 
-Review all findings across all 5 hunters. Remove exact duplicates. Where two hunters found overlapping issues at the same location, merge into a single finding that credits both OWASP categories.
+Review all findings across all hunters. Remove exact duplicates. Where two hunters found overlapping issues at the same location, merge into a single finding that credits both OWASP categories. Under `--depth=deep`, watch for overlap between Hunter 4 (Access Control) and Hunter 6's workflow-bypass findings, and between Hunter 3 (Auth/Session) and Hunter 6's replay-attack findings - merge with dual-category credit where they cover the same `file:line`.
 
 ### 3.2 Severity Normalization
 
@@ -687,9 +751,22 @@ Compile all findings from all phases into the report file.
 | **Denial of Service** | Yes / No | [finding reference] |
 | **Elevation of Privilege** | Yes / No | [finding reference] |
 
-### Attack Paths
+### Attack Paths / Chains
 
-[Attack narratives for CRITICAL and HIGH findings, as constructed in Phase 3.4]
+[Attack narratives for CRITICAL and HIGH findings, as constructed in Phase 3.4. Where multiple findings compose into a single end-to-end exploit (for example, an information-disclosure finding that enables a privilege-escalation finding), describe the chain explicitly: each link in the chain, each required precondition, and the ultimate impact.]
+
+### Secure Design Recommendations
+
+Architectural and design-level mitigations that prevent entire classes of vulnerabilities, distinct from the per-finding Remediation fields above and from the project-wide Remediation Roadmap below. Scope these recommendations to patterns the development team should adopt structurally rather than to one-off fixes. Typical shapes:
+
+- **Centralize authorization in a policy middleware** rather than scattering `if user.role == 'admin':` checks across handlers.
+- **Replace string-interpolated SQL with a single typed query layer** (ORM + parameterized statements) enforced by a lint rule.
+- **Adopt a server-authoritative state machine** for any workflow where the UI walks a user through sequential steps.
+- **Constant-time comparators for every secret comparison** (`hmac.compare_digest`, `crypto.timingSafeEqual`) - add a lint rule rejecting `==` on tokens.
+- **Single idempotency-key middleware** applied to every state-changing endpoint rather than per-endpoint ad-hoc.
+- **CDN / proxy boundary hardening**: strip client-sent `X-Forwarded-*` headers; whitelist cache-key inputs; audit `Vary` per response class.
+
+Each recommendation should cite the findings it would preempt (e.g., "Preempts F-12, F-19, F-24") so the team can weigh architectural investment against the specific exploit paths it closes.
 
 ---
 
@@ -727,10 +804,13 @@ Priority-ordered action list for the development team:
 | WSTG-CLNT — Client-Side | CLNT-01, 04, 07 | _ | Partial |
 | WSTG-ERRH — Error Handling | ERRH-01, 02 | _ | Full |
 | WSTG-CRYP — Cryptography | CRYP-04 | _ | Partial |
-| WSTG-BUSL — Business Logic | *(not covered — requires domain knowledge)* | — | Not covered |
+| WSTG-BUSL — Business Logic | *(static-audit coverage requires `--depth=deep`; see below)* BUSL-01, 03, 05, 06, 07, 09 | _ | Full (with `--depth=deep`); Not covered otherwise |
+| WSTG-ATHZ — Cache Poisoning & Cache Deception | Cache-key hygiene, `Vary` correctness, header-injection, path-normalization differences | _ | Full (with `--depth=deep`); Not covered otherwise |
+| WSTG-SESS — Replay & Token Binding | Nonce enforcement, timestamp-window validation, token-audience / token-binding checks | _ | Full (with `--depth=deep`); Partial otherwise |
+| WSTG-CRYP — Timing Side Channels | User-enumeration timing, token-lookup timing, crypto-branch timing, regex backtracking | _ | Full (with `--depth=deep`); Partial otherwise |
 | WSTG-INFO — Information Gathering | *(dynamic/network — not covered by static analysis)* | — | Not covered |
 
-**Note**: This assessment covers static code analysis only. WSTG categories requiring live application testing (WSTG-INFO, WSTG-BUSL) and dynamic analysis (active DAST scanning, network-level testing) are out of scope for this command.
+**Note**: This assessment covers static code analysis only. WSTG categories requiring live application testing (WSTG-INFO) and dynamic analysis (active DAST scanning, network-level testing) are out of scope for this command. WSTG-BUSL and the advanced-attack rows above are covered statically by the optional 6th hunter activated with `--depth=deep` (see Hunter 6 below); without the flag these rows are marked Not covered.
 ```
 
 ---
@@ -739,7 +819,7 @@ Priority-ordered action list for the development team:
 
 Before writing the report, verify:
 
-- [ ] All 5 hunters completed and returned findings (or explicit "no findings" notes per class)
+- [ ] All active hunters completed and returned findings (5 standard; 6 when `--depth=deep` was used) (or explicit "no findings" notes per class)
 - [ ] Every finding cites at least one specific `file:line` location
 - [ ] Every finding has a Proof of Concept showing the actual vulnerable code
 - [ ] Every finding has a concrete remediation step (not just "validate input")

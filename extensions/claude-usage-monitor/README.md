@@ -116,3 +116,44 @@ Based on your current model and usage level, it recommends:
 ## Data Storage
 
 Usage data is stored in VS Code's `globalState` (persists across sessions, local to your machine). The only external call is to the Anthropic API to fetch your own usage data. Use `Claude Usage: Clear Data` to remove all stored data.
+
+## Effort Level - Current State & Roadmap
+
+The Claude Code effort level (`xhigh` / `high` / `max` / `medium` / `low`) is a separate configuration surface owned by the Claude Code harness (`~/.claude/settings.json`), not by this extension. As of v0.9.7, this extension **does not** read, display, or manage the effort level.
+
+### Where the effort level is configured today
+
+- Harness template: [catalog/hooks/settings.json](../../catalog/hooks/settings.json) (`effortLevel: high` is the shipped default as of v0.9.7; v0.9.6 shipped `xhigh`)
+- User override: `~/.claude/settings.json` (written by the installer on first run; edit directly or via the `/model` slash command in a Claude Code session)
+- Decision guidance: [prompt-engineering/SKILL.md - Effort-Level Strategy](../../catalog/skills/ai-development/prompt-engineering/SKILL.md#effort-level-strategy)
+- Setting reference: [guides/CLAUDE_CODE_SETTINGS_REFERENCE.md - Effort Levels](../../guides/CLAUDE_CODE_SETTINGS_REFERENCE.md)
+
+### Why this extension does not yet surface the effort level
+
+Two concrete blockers were hit in prior attempts:
+
+1. **Cannot read the current effort level reliably.** The Claude Code process does not expose the currently-active effort level through a stable API, file watch, or IPC channel that a VS Code extension can observe. Reading `~/.claude/settings.json` directly returns the configured value but not the value Claude Code has loaded into the current session (they can differ after a `/model` command or mid-session override).
+2. **Edits to `~/.claude/settings.json` do not propagate live** to a running Claude Code session. Claude Code reads the file on session start; mid-session edits have no effect. An auto-switching implementation that writes to the file would change the next session's default but not the current session.
+
+Until both blockers are resolved, surfacing the effort level in this extension would be misleading - operators would see a value that may not match what Claude Code is actually using, and an "auto-switch" that writes to `settings.json` would produce no visible change until the next session.
+
+### Intended future behavior (roadmap, not yet implemented)
+
+Target design if the read/live-update blockers are resolved in a future Claude Code release:
+
+- **Display** the current effort level in the status bar tooltip and dashboard.
+- **Auto-band switching** based on current usage percentage (opt-in; PROMOTES above the installed `high` default when usage is low, then reduces as usage rises):
+
+  | Usage % | Effort Level |
+  |---------|--------------|
+  | 0-50%   | `xhigh`      |
+  | 51-75%  | `high`       |
+  | 76-95%  | `medium`     |
+  | 96-100% | `low`        |
+
+  Note: the top-of-band `xhigh` is deliberately *above* the installed default (`high` as of v0.9.7). The intent is cost-aware burst reasoning - boost effort when usage headroom is plentiful, then step down as the budget tightens. This is exactly why the feature is opt-in: it intentionally exceeds the conservative default.
+
+- **Manual override** via a settings-panel control and a Command Palette entry.
+- **Opt-in only** - auto-switching is off by default; operators enable it explicitly.
+
+This section will be updated when the upstream blockers have a known path forward.

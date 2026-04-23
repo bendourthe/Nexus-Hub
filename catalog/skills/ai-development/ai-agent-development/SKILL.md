@@ -9,6 +9,8 @@ overview_l1: "This skill provides comprehensive architecture and implementation 
 
 Comprehensive patterns and implementation guidance for building AI agents that reason, plan, use tools, and collaborate. Covers the full spectrum from single-agent architectures to multi-agent orchestration, with production-grade error handling, observability, and evaluation.
 
+> **Effort-level note**: when agents run inside loops or parallel fan-out, default the `effortLevel` to `high`, not `max`. Iterative and concurrent runs compound effort-level cost without matching quality gains. See the **Effort-Level Strategy** section of [prompt-engineering/SKILL.md](../prompt-engineering/SKILL.md) for the decision table. A full Opus 4.7 Anti-Patterns table for agent workloads is maintained alongside this skill.
+
 ## When to Use This Skill
 
 Use this skill for:
@@ -990,6 +992,20 @@ def execute_research_agent(question: str) -> str:
 | "A single monolithic agent is simpler than multi-agent orchestration" | A single agent with 50+ tools saturates the context window with tool descriptions, degrading routing accuracy; multi-agent systems with 5-10 focused tools per agent consistently outperform monolithic agents on complex tasks. |
 | "Memory is optional for agents that run on short tasks" | Short-task agents that interact with the same user across sessions without memory force users to re-explain context every time; compounding user friction is the primary reason real-world agent adoption stalls. |
 | "We'll handle planning failures by restarting the agent" | Restart without replanning repeats the same failure; agents need explicit failure detection and a replanning step that incorporates the failure as new context, not a blind retry of the same plan. |
+
+## Anti-Patterns (Opus 4.7)
+
+Three anti-patterns that specifically hurt Opus 4.7 agent workloads. These are distinct from the Common Rationalizations above: they are patterns that feel correct and used to be correct for Opus 4.6, but compound cost without matching quality gains on 4.7.
+
+| Anti-pattern | Why it feels right | Why it's wrong in Opus 4.7 | What to do instead |
+|---|---|---|---|
+| Fixed thinking budgets (`max_thinking_tokens=20000`) | Predictable cost per turn; easy to reason about. | Opus 4.7 scales thinking adaptively per turn. A fixed budget truncates reasoning on hard turns and wastes budget on easy ones. | Omit `max_thinking_tokens`; set `effortLevel` instead. Drop one tier (e.g., `xhigh` -> `high`) for cost control. |
+| Excessive tool-calling as "thorough investigation" | "The agent looked at everything, so the answer is well-grounded." | Opus 4.7 prefers reasoning; too many tool calls burn tokens without adding signal and can crowd out the actual problem solving. | Reason first; invoke tools only when external state is needed. Explicit tool-invocation prompts beat implicit "check everything." |
+| `max` effort level on extended runs (loop-operator, temporal workflows, multi-iteration agents) | "Best results always." | `max` compounds per iteration - 20 loop turns at `max` can 2-3x cost vs `high` / `xhigh` with no observable quality win on routine subtasks. | Keep runs at the shipped default `high`; reserve `max` for single hard one-shot analyses. Only raise to `xhigh` when the extra reasoning budget is genuinely worth the per-iteration cost; do not bump individual agents in a parallel fan-out. |
+
+Cross-links:
+- Full decision guidance: [prompt-engineering - Effort-Level Strategy](../prompt-engineering/SKILL.md) and the [Opus 4.7 Practices](../prompt-engineering/SKILL.md#opus-47-practices) section.
+- Output-side token optimization (distinct from tool-call frequency): [prompt-token-optimization](../../orchestration/prompt-token-optimization/SKILL.md).
 
 ## Verification
 

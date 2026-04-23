@@ -41,6 +41,29 @@ Provides a complete coordination framework including:
 
 ## Instructions
 
+### Step 0: Should I delegate to a subagent?
+
+Before designing a multi-agent plan, ask the one question that decides whether delegation is worth it at all:
+
+> **"Will I need this tool output again later in the session, or just the conclusion?"**
+
+| If... | Run it... |
+|-------|-----------|
+| Only the conclusion matters going forward | In a subagent - the raw exploration stays in the subagent context; your main session keeps just the answer. |
+| The raw output will be re-referenced for further reasoning | In the main session - delegation would throw away exactly what you need. |
+| The task is highly interactive (many clarifying rounds with the user) | In the main session - delegation blocks the back-and-forth. |
+| The task is cheap (single grep, single file read) | In the main session - subagent overhead outweighs the win. |
+
+**Three worked delegation patterns** (conclusion-only, kept by the main session):
+
+1. **Verify-with-subagent**: "Have an agent run `pytest tests/integration/` and report pass/fail plus the first failing test name. I keep only the conclusion - raw stack traces stay in the subagent context."
+2. **Summarize an external codebase**: "Spawn an Explore agent to scan the `legacy-monolith/` repo (10k files) and return a 1-page architectural summary identifying the module that owns quote expiration. I keep only the summary; the file-by-file reads never enter my context."
+3. **Write docs from diff**: "Have an agent read the full `git diff main..HEAD`, draft the CHANGELOG entry following Keep a Changelog 1.1.0, and return only the entry text. I keep only the entry."
+
+If the test says "run in main session," skip the rest of this skill - delegation is not the right tool. If it says "delegate," continue to Step 1 to design the task graph.
+
+See also: [SESSION_LIFECYCLE_DECISIONS](../../../../guides/SESSION_LIFECYCLE_DECISIONS.md) section "When to delegate to a subagent" for the paired session-lifecycle perspective.
+
 ### Step 1: Analyze and Decompose the Task Graph
 
 Before launching any agents, map the full task into a dependency graph. The goal is to identify the critical path (the longest sequential chain) and all opportunities for parallel sidecar work.
@@ -223,6 +246,16 @@ When an agent returns incomplete work, apply this decision framework:
 Use Claude Code's Agent tool to launch subagents. The key patterns are parallel launch for independent work and sequential launch for dependent work.
 
 **Pattern A: Parallel Launch for Independent Agents**
+
+> **Opus 4.7 behavior - explicit fan-out required.** Unlike Opus 4.6, Opus 4.7 does not volunteer concurrent subagent spawning. If you want N agents to work in parallel, prompt explicitly: `"Spawn 3 subagents in parallel: one to do X, one to do Y, one to do Z. Send them in a single message."` An ambiguous instruction like "explore these areas" will typically sequentialize. For parallel fan-out, keep per-agent `effortLevel` at the shipped default `high`; avoid bumping individual agents to `xhigh` - aggregate cost compounds across the fan-out. See [Effort-Level Strategy](../../ai-development/prompt-engineering/SKILL.md#effort-level-strategy).
+
+**Three concrete fan-out prompt patterns**:
+
+1. **Research fan-out**: "Spawn 3 Explore agents in parallel: agent A searches for existing auth implementations in `src/`; agent B searches for JWT-related tests in `tests/`; agent C greps for `session_token` references across the repo. Send all three in a single message."
+2. **Code generation fan-out**: "Run 2 implementation agents in parallel on separate branches - branch-a implements the REST controller, branch-b implements the GraphQL resolver. Both target the same service layer contract. Send both in a single message."
+3. **Verification fan-out**: "Run an adversarial-verifier agent and a code-reviewer agent in parallel on the pending diff. The adversarial agent hunts for edge cases; the reviewer audits SOLID / maintainability. Send both in a single message."
+
+See also: [competitive-generation](../competitive-generation/SKILL.md) for the variant where multiple agents tackle the same task and you pick the best output.
 
 When agents have no dependencies on each other, launch them in the same tool-call block so they execute concurrently:
 
@@ -587,6 +620,7 @@ Invoke related skills at the appropriate coordination phase:
 - `context-manager` - Managing information across agent boundaries
 - `workflow-orchestrator` - End-to-end workflow management
 - `code-quality` - Quality standards for agent-produced implementations
+- See also: [SESSION_LIFECYCLE_DECISIONS](../../../../guides/SESSION_LIFECYCLE_DECISIONS.md) - the "will I need this tool output again?" test for deciding when to delegate to a subagent
 
 ---
 
