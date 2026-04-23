@@ -1072,6 +1072,7 @@ function Install-Global {
 
     # --- Git Commit-Msg Hook sub-section ---
     Write-SubSectionBanner -Text "Git Commit-Msg Hook (All Platforms)"
+    Write-Host ""
     Install-GitCommitMsgHook -RepoRoot $RepoRoot
     # Install-Templates below calls Write-SubSectionBanner which prepends its own blank;
     # no trailing Write-Host "" needed here.
@@ -1701,8 +1702,6 @@ function Install-Templates {
             Write-Item -Message "✓ Python dependencies (python-docx, python-pptx) are available" -Color "DarkGreen"
         }
     }
-
-    Write-Host ""
 
     # v0.9.7: The interactive "Import custom Word/PowerPoint templates?" prompt has been
     # removed. Custom template selection is now handled at report-generation time by the

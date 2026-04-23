@@ -780,6 +780,7 @@ install_global() {
 
     # --- Git Commit-Msg Hook sub-section ---
     write_subsection_banner "Git Commit-Msg Hook (All Platforms)"
+    echo ""
     install_git_commit_msg_hook "$repo_root"
     echo ""
 }
@@ -1394,8 +1395,6 @@ install_templates() {
             write_item "Note: Install report dependencies with: pip install python-docx python-pptx" "$YELLOW"
         fi
     fi
-
-    echo ""
 
     # v0.9.7: The interactive "Import custom Word/PowerPoint templates?" prompt has been
     # removed. Custom template selection is now handled at report-generation time by the
