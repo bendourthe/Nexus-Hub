@@ -120,10 +120,11 @@ class BM25Index:
 
                 total_score += field_score * weight
 
-            # Priority boost
-            total_score += PRIORITY_BOOST.get(doc.priority, 0.0)
-
+            # Priority boost only applies when at least one query token matched.
+            # Otherwise an unrelated query (e.g. "xyzzyplugh") would return every
+            # high-priority doc with priority_boost as its score.
             if total_score > 0:
+                total_score += PRIORITY_BOOST.get(doc.priority, 0.0)
                 scores[doc.name] = total_score
 
         ranked = sorted(scores.items(), key=lambda x: x[1], reverse=True)

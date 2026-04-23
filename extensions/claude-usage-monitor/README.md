@@ -123,7 +123,7 @@ The Claude Code effort level (`xhigh` / `high` / `max` / `medium` / `low`) is a 
 
 ### Where the effort level is configured today
 
-- Harness template: [catalog/hooks/settings.json](../../catalog/hooks/settings.json) (`effortLevel: high` is the shipped default as of v0.9.7; v0.9.6 shipped `xhigh`)
+- Harness template: [catalog/hooks/settings.json](../../catalog/hooks/settings.json) (`effortLevel: xhigh` is the shipped default)
 - User override: `~/.claude/settings.json` (written by the installer on first run; edit directly or via the `/model` slash command in a Claude Code session)
 - Decision guidance: [prompt-engineering/SKILL.md - Effort-Level Strategy](../../catalog/skills/ai-development/prompt-engineering/SKILL.md#effort-level-strategy)
 - Setting reference: [guides/CLAUDE_CODE_SETTINGS_REFERENCE.md - Effort Levels](../../guides/CLAUDE_CODE_SETTINGS_REFERENCE.md)
@@ -151,7 +151,7 @@ Target design if the read/live-update blockers are resolved in a future Claude C
   | 76-95%  | `medium`     |
   | 96-100% | `low`        |
 
-  Note: the top-of-band `xhigh` is deliberately *above* the installed default (`high` as of v0.9.7). The intent is cost-aware burst reasoning - boost effort when usage headroom is plentiful, then step down as the budget tightens. This is exactly why the feature is opt-in: it intentionally exceeds the conservative default.
+  Note: the top-of-band `xhigh` matches the installed DevAI-Hub default. The intent is cost-aware de-escalation - keep the default when usage headroom is plentiful, then step down as the budget tightens. The feature is opt-in so operators who keep `xhigh` across the board are never surprised by automatic de-escalation.
 
 - **Manual override** via a settings-panel control and a Command Palette entry.
 - **Opt-in only** - auto-switching is off by default; operators enable it explicitly.

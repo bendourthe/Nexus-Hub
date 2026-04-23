@@ -5,6 +5,16 @@
   "version": "0.4.0",
   "publisher": "devai-hub",
   "icon": "icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bendourthe/DevAI-Hub.git",
+    "directory": "extensions/claude-usage-monitor"
+  },
+  "homepage": "https://github.com/bendourthe/DevAI-Hub/tree/main/extensions/claude-usage-monitor#readme",
+  "bugs": {
+    "url": "https://github.com/bendourthe/DevAI-Hub/issues"
+  },
+  "license": "MIT",
   "engines": {
     "vscode": "^1.85.0"
   },

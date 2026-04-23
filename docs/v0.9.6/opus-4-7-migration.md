@@ -12,7 +12,7 @@
 
 Four things to do today, in order:
 
-1. Reconfirm your `effortLevel`. The DevAI-Hub v0.9.7+ default is `high` (v0.9.6 and earlier shipped `xhigh`); `max` is almost never correct on iterative or parallel workloads. Raise back to `xhigh` only when the extra reasoning budget is genuinely worth the cost.
+1. Reconfirm your `effortLevel`. The DevAI-Hub default is `xhigh`; `max` is almost never correct on iterative or parallel workloads.
 2. Adopt explicit parallel-fan-out prompting. 4.7 does not volunteer concurrency; you must ask for it.
 3. Remove any `max_thinking_tokens=N` settings you still have. Let 4.7 scale thinking adaptively.
 4. Update your clarifying-questions habit to batch into the first turn rather than drip one question per turn.
@@ -27,12 +27,11 @@ These are operator-side changes: habits, configuration, and prompt shape you nee
 
 ### 1. Reconfirm `effortLevel`
 
-**What changed**: 4.7 exposes a five-tier effort hierarchy (`xhigh` / `high` / `max` / `medium` / `low`). The DevAI-Hub installer writes `effortLevel: high` by default as of v0.9.7 (v0.9.6 and earlier shipped `xhigh`; the default was reduced to control aggregate cost while preserving strong reasoning). On 4.6, `max` was often the reflex choice for hard problems; on 4.7, `max` compounds cost on iterative or parallel workloads without matching quality gains.
+**What changed**: 4.7 exposes a five-tier effort hierarchy (`xhigh` / `high` / `max` / `medium` / `low`). The DevAI-Hub installer writes `effortLevel: xhigh` by default. On 4.6, `max` was often the reflex choice for hard problems; on 4.7, `max` compounds cost on iterative or parallel workloads without matching quality gains.
 
 **Action**:
-- Verify `effortLevel` in your `~/.claude/settings.json` or the DevAI-Hub catalog template (`catalog/hooks/settings.json`) is `high`. Do not leave it at `max`.
-- If you upgraded from a v0.9.6 install, your existing `~/.claude/settings.json` still has `xhigh`. The v0.9.7 installer will migrate it to `high`; confirm or override to taste. Raise back to `xhigh` via `/effort xhigh`, `--effort xhigh`, or the `CLAUDE_CODE_EFFORT_LEVEL` environment variable if you prefer the deeper reasoning.
-- For loop-operator runs, temporal-orchestration workflows, and multi-agent fan-out: keep per-context effort at the default `high`. Aggregate cost matters.
+- Verify `effortLevel` in your `~/.claude/settings.json` or the DevAI-Hub catalog template (`catalog/hooks/settings.json`) is `xhigh`. Do not leave it at `max`.
+- For loop-operator runs, temporal-orchestration workflows, and multi-agent fan-out: set per-context effort to `high`, not `xhigh`. Aggregate cost matters.
 - Reserve `max` for single-turn deep analyses (security audits, architectural review, root-cause investigations) where you want one-shot depth without caring about latency.
 
 **Canonical location**: [catalog/skills/ai-development/prompt-engineering/SKILL.md - Effort-Level Strategy section](../../catalog/skills/ai-development/prompt-engineering/SKILL.md#effort-level-strategy).

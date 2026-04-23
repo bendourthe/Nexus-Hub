@@ -7,8 +7,7 @@
 
 ## Highlights
 
-- **Opus 4.7 alignment across the stack.** New `guides/SESSION_LIFECYCLE_DECISIONS.md` codifies when to continue, `/rewind`, `/clear`, `/compact`, or delegate to a subagent. A full `## Effort-Level Strategy` section in `prompt-engineering/SKILL.md` documents all five tiers with a decision table and explicit anti-patterns. The "Opus 4.7 Practices" section captures four prompting habits specific to 4.7 (positive examples, explicit tool-invocation, adaptive thinking without fixed budgets, first-turn specification checklists). The batched clarifying-questions rule replaces the unbounded 4.6-era variant in all 5 platform base templates plus the global `CLAUDE.md`.
-- **Lower installer default: `effortLevel: xhigh -> high`.** v0.9.6 shipped `xhigh` as the default; v0.9.7 reduces it to `high` for aggregate cost control. Operators who prefer deeper reasoning can raise it via `/effort xhigh` or the `CLAUDE_CODE_EFFORT_LEVEL` environment variable. Safer default for iterative and parallel workloads where `xhigh` cost compounded.
+- **Opus 4.7 alignment across the stack.** New `guides/SESSION_LIFECYCLE_DECISIONS.md` codifies when to continue, `/rewind`, `/clear`, `/compact`, or delegate to a subagent. A full `## Effort-Level Strategy` section in `prompt-engineering/SKILL.md` documents all five tiers with a decision table and explicit anti-patterns. The "Opus 4.7 Practices" section captures four prompting habits specific to 4.7 (positive examples, explicit tool-invocation, adaptive thinking without fixed budgets, first-turn specification checklists). The batched clarifying-questions rule replaces the unbounded 4.6-era variant in all 5 platform base templates plus the global `CLAUDE.md`. Installer default `effortLevel` remains `xhigh`.
 - **Security expansion: two new skills + a deeper pen-test mode.** `business-logic-abuse` (domain-aware race conditions, TOCTOU, double-spending, workflow bypass, idempotency, check-sequence abuse) and `advanced-attack-patterns` (state desynchronization, cache poisoning, replay attacks, timing side channels) now power an optional 6th hunter in `/run-penetration-test --depth=deep`. Plus a new `file-upload-security` checklist covering polyglot files, archive path traversal, zip-bomb defenses, and safe serving.
 - **Context engineering for the 1M window.** The `context-degradation` skill now carries a 1M-token calibration table with action thresholds at 100k / 300k / 500k. `context-compression` documents the proactive `/compact focus on X, drop Y` steering pattern with six directly-usable directives. `session-history` gains a "Summarize from here (mid-session handoff)" mode with a paste-ready template.
 - **Consolidated migration guide.** `docs/v0.9.6/opus-4-7-migration.md` is the single document to read when upgrading from a 4.6-era project. TL;DR captures four must-do items; a 13-row cross-reference table indexes every behavioral delta to its canonical catalog location.
@@ -64,8 +63,8 @@
 
 ### Configuration changes (operator-facing)
 
-- Installer default `effortLevel` reduced from `xhigh` to `high`.
 - Batched clarifying-questions rule applied across all 5 platform base templates plus the global `CLAUDE.md`.
+- Installer default `effortLevel` remains `xhigh` (unchanged).
 
 ---
 
@@ -74,7 +73,7 @@
 Upgrading from v0.9.6? Read [`docs/v0.9.6/opus-4-7-migration.md`](v0.9.6/opus-4-7-migration.md) - the TL;DR's four must-do items capture most of the value.
 
 - **No breaking API changes.** No data migration.
-- **`~/.claude/settings.json` effortLevel**: if you installed v0.9.6, your existing settings.json has `xhigh`. The v0.9.7 installer will update it to `high` on next run; confirm or raise back to `xhigh` via `/effort xhigh` at taste.
+- **`~/.claude/settings.json` effortLevel**: v0.9.7 keeps `xhigh` as the shipped default, unchanged from v0.9.6. De-escalate to `high` for cost-sensitive concurrent work via `/effort high` or the `CLAUDE_CODE_EFFORT_LEVEL` environment variable.
 - **Platform templates**: if you customized any of the `templates/ai-instructions/base-*.md` files locally, re-merge the new batched clarifying-questions rule (replaces the prior "Ask clarifying questions before coding..." variant).
 - **Plan file layout**: if you have existing plans at `docs/**/implementation-plan.md`, they still work - `/implement-phase` retains legacy discovery. New plans authored with `/generate-plan` will land at `docs/<version>/plans/<slug>.md`.
 
@@ -89,7 +88,7 @@ Upgrading from v0.9.6? Read [`docs/v0.9.6/opus-4-7-migration.md`](v0.9.6/opus-4-
 ## Known issues
 
 - Pre-v0.9.6 CHANGELOG entries contain legacy non-ASCII characters (em-dashes, curly quotes) from early releases. v0.9.6 and v0.9.7 entries are ASCII-clean. An older-entries scrub was deferred as non-blocking.
-- The `claude-usage-monitor` extension README documents an auto-switch usage-band roadmap that is opt-in and not yet implemented. The top-of-band `xhigh` is deliberately above the installed default `high` - the intent is burst-upward behavior when the operator explicitly enables the feature.
+- The `claude-usage-monitor` extension README documents an auto-switch usage-band roadmap that is opt-in and not yet implemented. The top-of-band `xhigh` matches the installed default; the auto-switch de-escalates as usage rises.
 
 ---
 

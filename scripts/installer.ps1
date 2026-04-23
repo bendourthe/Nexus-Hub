@@ -626,7 +626,7 @@ function Install-CoreSettings {
     }
     catch {
         Write-Item -Message "Warning: Could not set effortLevel ($($_.Exception.Message))" -Color "Yellow"
-        Write-Item -Message "  Manually add: `"effortLevel`": `"high`" to $settingsFile" -Color "Yellow"
+        Write-Item -Message "  Manually add: `"effortLevel`": `"xhigh`" to $settingsFile" -Color "Yellow"
     }
 }
 
@@ -925,13 +925,13 @@ function Install-Global {
     Restore-Title
     Write-Host ""
     Write-CenteredBanner -Text "Global Installation" -Color "Cyan"
-    Write-Host ""
+    # Write-SubSectionBanner below prepends its own blank line; no explicit Write-Host "" needed.
 
     # Global Overwrite Preference
     Write-SubSectionBanner -Text "Overwrite Request"
     Write-Host ""
     $script:OverwriteMode = Get-Overwrite-Preference
-    Write-Host ""
+    # Write-SubSectionBanner below prepends its own blank line; no explicit Write-Host "" needed.
 
     Write-SubSectionBanner -Text "Skills & Commands"
 
@@ -1073,7 +1073,8 @@ function Install-Global {
     # --- Git Commit-Msg Hook sub-section ---
     Write-SubSectionBanner -Text "Git Commit-Msg Hook (All Platforms)"
     Install-GitCommitMsgHook -RepoRoot $RepoRoot
-    Write-Host ""
+    # Install-Templates below calls Write-SubSectionBanner which prepends its own blank;
+    # no trailing Write-Host "" needed here.
 }
 
 function Get-LanguageSelection {
@@ -1310,7 +1311,7 @@ function Install-Workspace {
     )
     Write-Host ""
     Write-CenteredBanner -Text "Workspace Installation" -Color "Cyan"
-    Write-Host ""
+    # Write-SubSectionBanner below prepends its own blank; no explicit Write-Host "" needed here.
 
     if ([string]::IsNullOrWhiteSpace($TargetPath) -or -not (Test-Path $TargetPath)) {
         Write-Host "Invalid target path: $TargetPath" -ForegroundColor Red
@@ -1319,13 +1320,14 @@ function Install-Workspace {
 
     # Single-pass workspace install. To install into multiple workspaces, re-run the installer.
     $targetPath = $TargetPath
-    Write-Host "Target: $targetPath" -ForegroundColor DarkYellow
     Write-Host ""
+    Write-Host "Target: $targetPath" -ForegroundColor DarkYellow
 
     # Workspace Overwrite Preference (mirrors Install-Global UX)
     Write-SubSectionBanner -Text "Overwrite Request"
     Write-Host ""
     $script:OverwriteMode = Get-Overwrite-Preference
+    # Next line is Select-Platforms (plain content); one blank line via Write-Host "" for separation.
     Write-Host ""
 
         $workspacePlatforms = Select-Platforms -PhaseName "Workspace Phase"
@@ -1645,7 +1647,7 @@ function Install-VSCodeExtensions {
 
 function Install-Templates {
     param ($RepoRoot)
-    Write-Host ""
+    # Write-SubSectionBanner prepends its own blank line; no leading Write-Host "" needed.
     Write-SubSectionBanner -Text "Templates & Report Generator Installation"
     Write-Host ""
     Write-Item -Message "DevAI-Hub can generate professional Word (.docx) and PowerPoint (.pptx)" -Color "White"

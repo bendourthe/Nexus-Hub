@@ -206,17 +206,18 @@ def test_installer_ps1_removed_template_import_prompt():
 
 # --- (2) Canonical template settings assertion -------------------------------
 
-def test_catalog_hooks_settings_effort_level_is_high():
-    """Regression guard for the v0.9.7 xhigh -> high default reduction.
+def test_catalog_hooks_settings_effort_level_is_xhigh():
+    """Regression guard for the shipped v0.9.7 default `xhigh`.
 
-    Anything that flips this back to 'xhigh' without a deliberate release
-    should trip this test.
+    A mid-release interlude briefly reduced this to `high`; the reduction
+    was reverted before tag. If a future change wants to reduce the default
+    again, update the CHANGELOG + this test together so the intent is explicit.
     """
     assert SETTINGS_TEMPLATE.is_file(), f"Missing: {SETTINGS_TEMPLATE}"
     data = json.loads(SETTINGS_TEMPLATE.read_text(encoding="utf-8"))
     assert "effortLevel" in data, "catalog/hooks/settings.json is missing 'effortLevel'"
-    assert data["effortLevel"] == "high", (
-        f"Expected effortLevel='high' (v0.9.7 default), got {data['effortLevel']!r}. "
+    assert data["effortLevel"] == "xhigh", (
+        f"Expected effortLevel='xhigh' (v0.9.7 shipped default), got {data['effortLevel']!r}. "
         "If this was a deliberate change, update the CHANGELOG + test and remove "
         "this assertion's tag."
     )
@@ -228,8 +229,8 @@ def test_installer_ps1_fallback_literal_matches_template():
     That hint MUST reference the same value as catalog/hooks/settings.json.
     """
     body = INSTALLER_PS1.read_text(encoding="utf-8")
-    assert '"effortLevel`": `"high`"' in body, (
-        "installer.ps1 manual-add fallback must reference \"high\" to match "
+    assert '"effortLevel`": `"xhigh`"' in body, (
+        "installer.ps1 manual-add fallback must reference \"xhigh\" to match "
         "catalog/hooks/settings.json. Update both together if the default changes."
     )
 
@@ -363,7 +364,7 @@ def _run_all():
         test_installer_ps1_has_overwrite_request_subsection,
         test_installer_sh_removed_template_import_prompt,
         test_installer_ps1_removed_template_import_prompt,
-        test_catalog_hooks_settings_effort_level_is_high,
+        test_catalog_hooks_settings_effort_level_is_xhigh,
         test_installer_ps1_fallback_literal_matches_template,
         test_installers_copy_compile_deep_research_script,
         test_all_v0_9_7_source_artifacts_exist,

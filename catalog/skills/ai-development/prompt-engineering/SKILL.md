@@ -853,13 +853,11 @@ Claude Code surfaces an `effortLevel` control that governs how much reasoning th
 | `medium` | Balanced reasoning and speed | Moderate | Fast |
 | `low` | Minimal reasoning, fastest turn-around | Low | Fastest |
 
-### Default: `high`
+### Default: `xhigh`
 
-DevAI-Hub ships `"effortLevel": "high"` as the installer default (see `catalog/hooks/settings.json`). v0.9.6 and earlier shipped `xhigh`; v0.9.7 reduced the default to `high` for aggregate cost control while preserving strong reasoning. `high` is the right starting point for interactive sessions where you want careful reasoning at a moderate cost and do not need the latency or cost of `max`. Operators who want to raise the ceiling back to `xhigh` can do so via `/effort xhigh`, the `--effort xhigh` CLI flag, or the `CLAUDE_CODE_EFFORT_LEVEL` environment variable.
+DevAI-Hub ships `"effortLevel": "xhigh"` as the installer default (see `catalog/hooks/settings.json`). `xhigh` matches Anthropic's Opus 4.7 guidance for general coding work and is the right starting point for interactive sessions where you want Claude to reason carefully but do not need the latency or cost of `max`. Operators who want to de-escalate to `high` for cost-sensitive concurrent runs can do so via `/effort high`, the `--effort high` CLI flag, or the `CLAUDE_CODE_EFFORT_LEVEL` environment variable.
 
-### When to escalate to `xhigh` or `max`
-
-Escalate to `xhigh` for interactive work that genuinely rewards extended reasoning - dense refactors, design sessions, tricky debugging sessions where the extra reasoning budget is worth the cost. `xhigh` is the right first escalation above the `high` default; reserve `max` for the hardest one-shot cases.
+### When to escalate to `max`
 
 Use `max` for **one-shot** hard problems: deep architectural analysis, gnarly debugging with many interacting variables, security-critical reviews, root-cause investigations across dense code. Typical characteristics:
 
@@ -873,11 +871,11 @@ Use `max` for **one-shot** hard problems: deep architectural analysis, gnarly de
 - Temporal-orchestration workflows spanning many turns.
 - Interactive sessions where a human is waiting per turn.
 
-### When to stay at `high` (the default) or de-escalate
+### When to de-escalate to `high`
 
-Stay at `high` for most work - it is already the shipped default because it covers cost-sensitive concurrent work and multi-agent fan-out well:
+Use `high` for cost-sensitive concurrent work and multi-agent fan-out:
 
-- Running several subagents in parallel (multi-agent-coordinator fan-out). Aggregate cost = per-agent cost x N; starting at `high` is cheaper than `xhigh` with minimal quality impact on independent subtasks.
+- Running several subagents in parallel (multi-agent-coordinator fan-out). Aggregate cost = per-agent cost x N; de-escalating one tier per agent saves ~30-50% with minimal quality impact on independent subtasks.
 - Long-running loops where each iteration benefits from real reasoning but `xhigh` would be excessive.
 - Concurrent operators working the same repo - the cost compounds across operators, not just across turns.
 
@@ -891,9 +889,8 @@ Use `medium` or `low` for latency-sensitive, tightly-scoped tasks where reasonin
 
 ### Anti-patterns
 
-- **Defaulting to `max`.** It is not "the best setting always." On routine coding work `max` produces output indistinguishable from `high` or `xhigh` at 2-3x the cost.
-- **Leaving `max` on for loop-operator / temporal runs.** The cost compounds per iteration. Stay at the default `high` for anything iterative; only bump to `xhigh` if a specific iteration genuinely needs it.
-- **Bumping every session to `xhigh` by reflex.** v0.9.7 reduced the shipped default to `high` deliberately. Raise to `xhigh` when the work warrants it, not as a standing override.
+- **Defaulting to `max`.** It is not "the best setting always." On routine coding work `max` produces output indistinguishable from `xhigh` at 2-3x the cost.
+- **Leaving `max` on for loop-operator / temporal runs.** The cost compounds per iteration. Switch to `high` (or at most `xhigh`) for anything iterative.
 - **Mixing tiers within a single session without reason.** If you bump the tier for one turn, bump it back. Unplanned tier drift makes cost modeling impossible.
 - **Setting fixed thinking-budget tokens alongside `effortLevel`.** Opus 4.7 scales thinking adaptively - fixed budgets truncate reasoning. Set `effortLevel` and let the model manage the budget.
 
@@ -901,10 +898,9 @@ Use `medium` or `low` for latency-sensitive, tightly-scoped tasks where reasonin
 
 | Task shape | Recommended tier |
 |------------|------------------|
-| Interactive coding on a familiar codebase | `high` (default) |
-| Interactive coding on dense / tricky code where extra reasoning pays off | `xhigh` |
+| Interactive coding on a familiar codebase | `xhigh` (default) |
 | One-shot deep architecture / root-cause analysis | `max` |
-| Multi-agent parallel fan-out (N >= 2 subagents) | `high` per agent (default) |
+| Multi-agent parallel fan-out (N >= 2 subagents) | `high` per agent |
 | Long-running loop-operator / temporal workflow | `high` (never `max`) |
 | Mechanical edits, formatting, renames | `medium` or `low` |
 | Short classification / lookup | `low` |
@@ -951,7 +947,7 @@ Do not set fixed thinking-budget tokens alongside `effortLevel`. Opus 4.7 scales
 **Prompt pattern**: "Think through this carefully." is the right shape.
 **Anti-pattern**: "Use 20k thinking tokens." or `max_thinking_tokens=20000`.
 
-If you *do* need to cap reasoning for cost reasons, drop one effort tier (e.g., `high` to `medium`) rather than clamping thinking tokens directly.
+If you *do* need to cap reasoning for cost reasons, drop one effort tier (e.g., `xhigh` to `high`) rather than clamping thinking tokens directly.
 
 ### First-turn specification checklists
 

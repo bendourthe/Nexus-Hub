@@ -46,9 +46,6 @@ Closes 22 deduplicated recommendations from the three v0.9.6 gap analyses (sessi
 
 ### Changed
 
-**Installer / defaults**:
-- **Installer `effortLevel` default reduced from `xhigh` to `high`** (`catalog/hooks/settings.json`, `scripts/installer.ps1`) - both now write `effortLevel: high` to generated user settings. Operators who prefer deeper reasoning can raise it back manually in `~/.claude/settings.json` or via `/effort xhigh` during a session. Rationale: `high` preserves strong reasoning at lower aggregate cost, matches parallel-fan-out guidance, and is a safer default for loop-operator and temporal-orchestration workloads. Current-state documentation across `guides/CLAUDE_CODE_SETTINGS_REFERENCE.md`, `catalog/skills/ai-development/prompt-engineering/SKILL.md` (Effort-Level Strategy), `docs/v0.9.6/opus-4-7-migration.md`, and the `claude-usage-monitor` extension README has been updated to match.
-
 **Platform templates**:
 - **Batched clarifying-questions rule** applied to all 5 platform base templates (`base-claude.md`, `base-gemini.md`, `base-codex.md`, `base-cursor.md`, `base-opencode.md`) plus the global `CLAUDE.md`. Replaces the unbounded 4.6-era variant with the Opus 4.7 batched-first-turn variant: ambiguous requirements must surface multiple interpretations + acceptance criteria in one round-trip instead of one-question-per-turn ping-pong.
 
@@ -78,7 +75,7 @@ Closes 22 deduplicated recommendations from the three v0.9.6 gap analyses (sessi
 
 ### Fixed
 
-- **Correction (v0.9.6 CHANGELOG)** - the v0.9.6 entry line stating the installer `effortLevel` default was changed to `high` was inaccurate; v0.9.6 actually shipped `xhigh` (matching the then-current `catalog/hooks/settings.json` template and `scripts/installer.ps1` fallback). The v0.9.6 entry has been rewritten to describe the actual v0.9.6 shipped behavior. Separately, v0.9.7 now reduces the shipped default to `high` (see Changed above).
+- **Correction (v0.9.6 CHANGELOG)** - the v0.9.6 entry line stating the installer `effortLevel` default was changed to `high` was inaccurate; v0.9.6 actually shipped `xhigh` (matching the then-current `catalog/hooks/settings.json` template and `scripts/installer.ps1` fallback). The v0.9.6 entry has been rewritten to describe the actual v0.9.6 shipped behavior. v0.9.7 keeps the shipped default at `xhigh`.
 
 ### Deferred
 
