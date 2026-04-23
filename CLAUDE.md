@@ -8,7 +8,7 @@ This repository uses `AGENTS.md` at the repo root as the canonical source of pro
 
 Highest-priority rules when working inside this repo (these all trace back to the full rules in AGENTS.md):
 
-1. **Installer-aware changes**: every new file under `scripts/<name>.py` MUST be registered in BOTH `scripts/installer.sh` and `scripts/installer.ps1`. The installer copies scripts by explicit name, never by folder. Model after the existing entries for `generate_report.py` and `compile_deep_research.py`. See the "Installer-Aware Changes (Cross-Platform)" section in AGENTS.md.
+1. **Installer-aware changes**: every new file under `scripts/<name>.py` MUST be registered in BOTH `scripts/installer.sh` and `scripts/installer.ps1`. The installer copies scripts by explicit name, never by folder. Model after the existing `generate_report.py` copy block. See the "Installer-Aware Changes (Cross-Platform)" section in AGENTS.md.
 2. **New skill** (`catalog/skills/<cat>/<name>/SKILL.md`): must update `data/SKILL_INDEX.md`, `data/skills.json`, and `data/marketplace.json`.
 3. **New command** (`catalog/commands/<name>.md`): no registry update needed, but pair with a `<name>-style-guide.md` in the same folder when the command produces user-visible artifacts.
 4. **Platform templates** (`templates/ai-instructions/base-*.md`): edit all five (claude/codex/cursor/gemini/opencode) in lockstep — changes must be platform-agnostic.

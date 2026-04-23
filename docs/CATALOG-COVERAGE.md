@@ -16,7 +16,7 @@ This matrix maps DevAI-Hub's skill catalog against user roles, AI platforms, and
 - `deep-research-compilation` (Specialized Domains) - compile multiple research reports across 7 input formats into a single unified document with deduplicated citations; emits .docx / .pdf / .md.
 
 **New commands (1)**:
-- `/compile-deep-research` (+ companion `compile-deep-research-style-guide.md`) - 9-phase command that drives the deep-research-compilation skill, backed by `scripts/compile_deep_research.py` (~1700 lines, 4 sub-commands).
+- `/compile-deep-research` (+ companion `compile-deep-research-style-guide.md`) - 9-phase command that drives the deep-research-compilation skill. Agent-driven per invocation: the agent inspects the user-selected template, builds a style profile, synthesizes content, and writes a throwaway python-docx generator tailored to that template — no persistent generator script.
 
 **New AI agent instruction set (5 files)**:
 - `AGENTS.md` extended with "Installer-Aware Changes (Cross-Platform)" section; `CLAUDE.md` and `GEMINI.md` use `@AGENTS.md` import; `.github/copilot-instructions.md` inlines the summary (Copilot cannot import); `.cursor/rules/devai-hub.mdc` uses `alwaysApply: true`.

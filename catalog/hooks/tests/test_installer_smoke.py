@@ -235,24 +235,57 @@ def test_installer_ps1_fallback_literal_matches_template():
     )
 
 
-def test_installers_copy_compile_deep_research_script():
+# Scripts under scripts/ that are developer/maintainer tooling and must NOT
+# ship to end users via the installer. Each entry needs a one-line justification
+# so a future contributor can tell whether a new script belongs here or in the
+# installer copy blocks.
+DEV_ONLY_SCRIPTS = {
+    # Repo validator: walks catalog/ for frontmatter + secret scans. Runs in CI
+    # and by maintainers; not useful in an end-user ~/.devai-hub/scripts/.
+    "validate_skills.py",
+    # One-shot cross-catalog maintenance utility that injects iterative-refinement
+    # text into SKILL.md / command .md files. Maintainer tool only.
+    "apply_iterative_workflow.py",
+}
+
+
+def test_installers_copy_every_scripts_dir_py_file():
     """Regression guard for the installer-gap lesson codified in AGENTS.md:
-    scripts/*.py files are copied BY NAME, not by folder. Any new script must
-    be explicitly added to both installers or it will be silently missed on
-    fresh installs.
+    scripts/*.py files are copied BY NAME, not by folder. Any new user-facing
+    script must be explicitly added to both installers or it will be silently
+    missed on fresh installs.
+
+    Generalized form: scans scripts/ for every *.py file, drops the
+    DEV_ONLY_SCRIPTS allowlist, and asserts each remaining basename appears in
+    BOTH installer.sh and installer.ps1. Auto-adapts when user-facing scripts
+    are added or removed.
     """
+    scripts_dir = REPO_ROOT / "scripts"
+    all_py = sorted(p.name for p in scripts_dir.glob("*.py") if p.is_file())
+    assert all_py, (
+        f"No *.py files found under {scripts_dir} — the glob is wrong or the "
+        "scripts directory is empty."
+    )
+    user_facing = [n for n in all_py if n not in DEV_ONLY_SCRIPTS]
     sh_body = INSTALLER_SH.read_text(encoding="utf-8")
     ps1_body = INSTALLER_PS1.read_text(encoding="utf-8")
-    assert "compile_deep_research.py" in sh_body, (
-        "installer.sh must copy scripts/compile_deep_research.py to ~/.devai-hub/scripts/"
-    )
-    assert "compile_deep_research.py" in ps1_body, (
-        "installer.ps1 must copy scripts/compile_deep_research.py to ~/.devai-hub/scripts/"
-    )
-    # Also confirm the paired generate_report.py is still there (original pattern)
-    assert "generate_report.py" in sh_body and "generate_report.py" in ps1_body, (
-        "installer.sh and installer.ps1 must still copy scripts/generate_report.py"
-    )
+    missing_sh = [n for n in user_facing if n not in sh_body]
+    missing_ps1 = [n for n in user_facing if n not in ps1_body]
+    if missing_sh or missing_ps1:
+        msg_lines = [
+            "User-facing scripts/*.py files are not referenced by both installers.",
+            "AGENTS.md rule: the installer copies scripts by EXPLICIT NAME, not",
+            "by folder — every new user-facing script in scripts/ must be added",
+            "to BOTH scripts/installer.sh (near the generate_report.py block)",
+            "AND scripts/installer.ps1 (Safe-Copy near the same location).",
+            "If a new script is developer-only (not meant for end users), add",
+            "it to DEV_ONLY_SCRIPTS in this test file with a one-line reason.",
+        ]
+        if missing_sh:
+            msg_lines.append(f"  missing from installer.sh:  {missing_sh}")
+        if missing_ps1:
+            msg_lines.append(f"  missing from installer.ps1: {missing_ps1}")
+        raise AssertionError("\n".join(msg_lines))
 
 
 # --- (3) Bundled v0.9.7 artifacts must exist at source paths -----------------
@@ -276,7 +309,6 @@ V0_9_7_ARTIFACTS = [
     "templates/documentation/branded-report-template.docx",
     # Report generator scripts (copied by installer to ~/.devai-hub/scripts/)
     "scripts/generate_report.py",
-    "scripts/compile_deep_research.py",
     # Repo-scoped AI agent instructions (parallel-session work)
     "AGENTS.md",
     "CLAUDE.md",
@@ -366,7 +398,7 @@ def _run_all():
         test_installer_ps1_removed_template_import_prompt,
         test_catalog_hooks_settings_effort_level_is_xhigh,
         test_installer_ps1_fallback_literal_matches_template,
-        test_installers_copy_compile_deep_research_script,
+        test_installers_copy_every_scripts_dir_py_file,
         test_all_v0_9_7_source_artifacts_exist,
         test_installer_sh_bash_syntax_clean,
         test_installer_ps1_ast_parse_clean,
