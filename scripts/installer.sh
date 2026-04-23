@@ -1375,12 +1375,6 @@ install_templates() {
         safe_copy "$script_source" "$scripts_dest/generate_report.py" true "[OK] Report generator installed at: $scripts_dest/generate_report.py"
     fi
 
-    # Copy deep-research compiler script (powers /compile-deep-research)
-    local compile_script_source="$repo_root/scripts/compile_deep_research.py"
-    if [ -f "$compile_script_source" ]; then
-        safe_copy "$compile_script_source" "$scripts_dest/compile_deep_research.py" true "[OK] Deep-research compiler installed at: $scripts_dest/compile_deep_research.py"
-    fi
-
     # Check Python availability
     if ! command -v python3 >/dev/null 2>&1 && ! command -v python >/dev/null 2>&1; then
         write_item "Note: Python 3 is required to generate reports." "$YELLOW"

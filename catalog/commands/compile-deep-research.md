@@ -1,221 +1,225 @@
 ---
-description: Compile multiple research reports (.docx/.md/.pdf/.pptx/.html/URL/.txt) into one unified document (.docx/.pdf/.md) with deduplicated inline [N] citations linking to a References section.
+description: Compile multiple research reports (.docx/.md/.pdf/.pptx/.html/URL/.txt) into one unified document (.docx/.pdf/.md) matching a user-selected template, with deduplicated inline [N] citations linking to a References section. The agent inspects the template at runtime and writes a throwaway python-docx program tailored to that template's styles -- no persistent generator script.
 ---
 
 # Compile Deep Research Command
 
-Compile multiple research reports into a single unified document. The command ingests `.docx`, `.md`, `.pdf`, `.pptx`, `.html`, raw URLs, or `.txt` files; extracts their content and references; deduplicates references; renumbers inline `[N]` citations against a single canonical list; synthesizes a unified outline; and emits the result in Word, PDF, Markdown, or all three formats. The Word variant uses a branded template with a teal `#215868` Consolas small-caps title page, Calibri Light small-caps headings, an auto-refreshing Table of Contents, and superscript `[N]` bookmark hyperlinks. The Markdown variant substitutes a title heading for the title page and uses `<sup>[[N]](#refN)</sup>` clickable citations with `<a id="refN">` anchor targets.
+Compile multiple research reports into a single unified document. You (the agent) ingest heterogeneous inputs, inspect the user-selected template to build a style profile, synthesize content with deduplicated inline `[N]` citations, and author a one-shot python-docx program per invocation that produces a `.docx` whose appearance is driven entirely by that style profile. Also emits `.md` (with clickable anchor citations) and `.pdf` (via `docx2pdf` or `libreoffice --headless`).
 
-**BEFORE WRITING ANY CONTENT**: Read the style guide at `catalog/commands/compile-deep-research-style-guide.md` in the project root (or `~/.devai-hub/catalog/commands/compile-deep-research-style-guide.md` for global installs).
+**BEFORE ANYTHING ELSE**: activate the `deep-research-compilation` skill. The skill contains the full playbook -- proven OOXML patterns, template inspection procedure, synthesis rules, reference deduplication, validation checks. This command is the orchestrator; the skill is the how-to.
+
+Also read `catalog/commands/compile-deep-research-style-guide.md` in the project root (or `~/.devai-hub/catalog/commands/compile-deep-research-style-guide.md` for global installs) for target metrics and the merged-markdown style rules.
 
 ## Phase 1: Resolve Input Sources
 
-**CRITICAL RULE**: You MUST get explicit user confirmation on the input list before proceeding. Never silently auto-discover inputs.
+**CRITICAL RULE**: get explicit user confirmation on the input list before proceeding. Never silently auto-discover inputs.
 
 Accepted source types:
 - `.docx`, `.md`, `.markdown`, `.pdf`, `.pptx`, `.html`, `.htm`, `.txt`
 - Raw URLs beginning with `http://` or `https://`
 
 Workflow:
-1. **If inputs were provided after the command invocation** (e.g. `/compile-deep-research report_a.docx report_b.pdf https://example.com/post`), resolve each one:
-   - For paths, verify they exist relative to the project root. Search `docs/`, `reports/`, or common subdirs if the exact path is not found.
-   - For URLs, accept as-is (no existence check at this stage; `httpx` will fetch during extract).
-2. **If no inputs were provided**, ask the user:
+
+1. **If inputs were provided after the command invocation** (e.g. `/compile-deep-research a.docx b.md https://example.com/article`), resolve each:
+   - For paths, verify they exist relative to the project root. If not found, search `docs/`, `reports/`, and common subdirs.
+   - For URLs, accept as-is (no existence check now; fetched during Phase 4).
+2. **If no inputs were provided**, ask:
    > "Which reports should I compile? Paste paths (relative to the project root) or URLs, one per line."
-3. **Present the resolved input list** and ask for confirmation:
+3. **Present the resolved input list** for confirmation:
    > I will compile these sources:
    > 1. `reports/market-analysis.docx`
    > 2. `reports/clinical-context.md`
    > 3. https://example.com/deep-research-output
    >
    > Proceed? [Y]es / [E]dit list / [C]ancel
-
 4. **Reject unknown extensions** with a clear message: "Unsupported format: `.xyz`. Accepted: docx, md, pdf, pptx, html, txt, or a raw URL."
+5. **Scope check**: local paths must resolve inside the project root. URLs are always allowed.
 
-5. **Scope check**: all local paths must resolve inside the project root. URLs are always allowed.
+## Phase 2: Select Template
 
-## Phase 2: Select Output Format
+**CRITICAL RULE**: always present templates to the user and wait for an explicit selection. Never silently default -- this was the v1 bug.
 
-Ask the user explicitly:
+1. Scan template directories in priority order:
+   - `<project_root>/.claude/templates/documentation/` (project-scoped)
+   - `~/.devai-hub/templates/documentation/` (global, installed by DevAI-Hub installer)
+   - Accept a user-supplied absolute or relative path as an override.
+2. Present the discovered templates, with the default marker on `branded-report-template.docx`:
+   > Available templates:
+   >   1. **branded-report-template.docx** (global, default) -- teal Consolas title, Calibri Light headings
+   >   2. company-branded-template.docx (project) -- if present
+   >   3. Provide my own path
+   >   4. No template (blank document -- minimal styling)
+   >
+   > Which template should I use? Enter a number or a path:
+3. **Wait for user input.** Do not proceed without it.
+4. If the user provides a custom path, validate it exists and is a `.docx`; reject otherwise.
+5. Store the resolved template path for Phase 5.
 
-> Which format should I produce?
-> 1. Word (.docx) — branded title page, full style fidelity
-> 2. PDF (.pdf) — same Word output, exported to PDF
-> 3. Markdown (.md) — same structure, title heading instead of title page
-> 4. All three — produce all formats in one run
+## Phase 3: Select Output Format
+
+Ask explicitly:
+
+> Which format(s) should I produce?
+>
+> 1. Word (.docx) -- branded title page, full style fidelity to the template
+> 2. PDF (.pdf) -- same as Word, exported to PDF via docx2pdf / libreoffice
+> 3. Markdown (.md) -- title heading instead of title page; clickable anchor citations
+> 4. All three -- produce all formats in one run
 >
 > Enter a number:
 
-Map the choice to `--format docx|pdf|md|all`. If the user picks PDF or "all", verify `docx2pdf` or LibreOffice is available (`which libreoffice` or `pip show docx2pdf`); warn but do not block — the script will fall back or emit a clear error.
+If PDF is in the selection, verify converters are available (`python -c "import docx2pdf"` or `which libreoffice`). Warn but do not block -- the generator handles the fallback and emits a clear error if neither is available.
 
-## Phase 3: Ingest and Extract
+## Phase 4: Ingest + Extract
 
-Create an output directory: `docs/<version>/reports/` (use the version from `CHANGELOG.md` first line, or `package.json`/`pyproject.toml`/`Cargo.toml`, or `vUnknown`).
+**Output layout** (resolve these paths now; every subsequent phase writes to one of them):
 
-Invoke the extractor:
+- `<final_dir>` = `<project_root>/docs/compiled/` -- the user-facing final outputs (`.docx`, `.pdf`, `.md`). Create if missing.
+- `<cache_dir>` = `<project_root>/.cache/compile-deep-research/<ReportTitle>/` -- intermediate artifacts (`merged.md`, `refs.json`, `style_profile.json`, `generate.py`, `ingest.json`). Create if missing. Recommend to the user that this path be gitignored; if `<project_root>/.gitignore` exists and does not already ignore `.cache/`, offer to add the entry (do not modify it without confirmation).
 
-```bash
-python scripts/compile_deep_research.py --mode extract \
-    --inputs <path1> <path2> <url3> ... \
-    --out "<out_dir>/ingest.json"
+`<ReportTitle>` is sanitized for filesystem use: spaces -> underscores, strip `\/:*?"<>|`.
+
+For each input in the list, extract a normalized record per the `deep-research-compilation` skill, **Step 2** (per-format recipes). Do not call any persistent script -- invoke Python inline via Bash or small helper files as needed.
+
+Build an in-memory (or on-disk as `<cache_dir>/ingest.json`) array of:
+
+```
+[
+  {"source": "...", "title": "...", "sections": [...], "references": [...], "citations": [...]},
+  ...
+]
 ```
 
-Read `ingest.json` and present a summary to the user:
+Present a summary:
 
-> Extracted content from 3 sources:
+> Extracted content:
 > - `reports/market-analysis.docx`: 7 sections, 12 references, 18 inline citations
 > - `reports/clinical-context.md`: 5 sections, 8 references, 11 inline citations
 > - https://example.com/deep-research-output: 9 sections, 14 references, 23 inline citations
 >
-> Total: 34 references across 21 sections, 52 inline citations.
+> Total: 21 sections, 34 references, 52 inline citations.
 
-If any source extracted 0 sections or yielded parsing errors, stop and ask the user how to handle it (skip the source, provide a clean copy, or abort).
+If a source extracts 0 sections or raises a parse error, stop and ask the user how to handle it (skip, provide a clean copy, or abort).
 
-## Phase 4: Deduplicate References
+## Phase 5: Analyze the Template
 
-```bash
-python scripts/compile_deep_research.py --mode dedupe \
-    --in "<out_dir>/ingest.json" \
-    --out "<out_dir>/refs.json"
-```
+Per the skill's **Step 1**. Open the chosen template's `word/styles.xml`, `theme/theme1.xml`, `header*.xml`, `footer*.xml`, `settings.xml`, `numbering.xml`. Extract resolved properties for every style you will apply (Title, Subtitle, Heading1-4, Normal, Hyperlink, TableGrid, ListParagraph, TOCHeading). Detect header/footer structure (empty first page? bottom border? SDT-bound title/creator?).
 
-Present the dedupe summary:
+Save the profile as `<cache_dir>/style_profile.json`. Summarize to the user in plain language:
 
-> Reference deduplication:
-> - Total input refs: 34
-> - Canonical refs: 28
-> - Duplicates collapsed: 6
+> Template analyzed: `branded-report-template.docx`
+> - Title: Consolas 32 pt `#215868` smallCaps, centered, with navy bottom rule.
+> - Body: Calibri 11 pt, 1.15 line spacing.
+> - H1-4: Calibri Light smallCaps `#215868`; H1 has a 1 pt teal underline.
+> - Hyperlinks: `#2E74B5` underlined.
+> - Metadata table: borderless sides, `#BFBFBF` horizontal row rules.
+> - TOC: levels 1-3, dots leader.
+> - Title page: empty header/footer; body uses `dc:title` in left header and `Page X of Y` in right footer.
 >
-> Proceed with 28 canonical references? [Y]es / [R]eview collapses / [C]ancel
+> Output will match this styling exactly.
 
-**If the user chooses [R]eview**: open `refs.json`, show any canonical entry that collapsed 2+ input refs with side-by-side diff of the merged texts, and let the user split merges they disagree with (re-run dedupe with a higher fuzzy threshold or an explicit `--skip-fuzzy` flag in a future version; for now, manual edits to `refs.json` are acceptable).
+If the user notices the profile misread the template, allow them to point out specifics and re-inspect.
 
-## Phase 5: Synthesize the Unified Outline
+## Phase 6: Synthesize Unified Content
 
-This is AI work, not scripted. Read every section from `ingest.json` and produce the unified structure:
+Per the skill's **Step 3** (synthesis rules) and **Step 4** (reference deduplication + renumbering).
 
-1. **Title page / title heading** — one canonical title for the compiled document (ask the user if none of the input titles is obviously correct).
-2. **Document's Purpose** (H1) — 1-2 paragraphs explaining what the compiled document covers, why it was assembled, and who the audience is. Followed by a metadata table (Authors, Last Updated).
-3. **Table of Contents** — inserted by the script; do not emit a `# Table of Contents` heading.
-4. **Executive Summary** (H1) — one opening paragraph + one H2 per topic covered in the body. Self-contained (a reader should understand the document's conclusions from this section alone). 300-500 words.
-5. **3-7 body H1 sections** — one per major theme in the merged material. Name them after the actual topics (e.g. "Clinical Evidence", "Competitive Landscape", "Regulatory Roadmap") — not generic labels.
-6. **Conclusion** (H1) — 1-3 paragraphs synthesizing takeaways and recommended next steps. No new content.
-7. **References** (H1) — emitted by the script from `refs.json`; do not hand-author this section in the merged markdown.
+1. Propose an outline: Title -> Document's Purpose -> Executive Summary (H2 per topic) -> 3-7 body H1s (named after real themes in the material) -> Conclusion -> References.
+2. Build the canonical reference list and renumbering map. Save as `<cache_dir>/refs.json`.
+3. Write the merged markdown with citations renumbered: `<cache_dir>/merged.md`. Wrap the Document's Purpose + metadata prose in `<!-- PRE-TOC -->...<!-- /PRE-TOC -->`.
+4. Emit a `# References` section in the merged markdown listing canonical references in order (the generator will strip this and re-emit it with proper hanging-indent + bookmark styling).
+5. Apply the style-guide metrics (target 700-1300 lines, 5-9 body H1s, 3-8 H2s per body H1, max 15 tables, 60-150 bullets).
 
-Merge overlapping sections across inputs. If three inputs each have an "Executive Summary" and a "Competitive Landscape" section, the compiled document has one of each — not three.
-
-## Phase 6: Write the Merged Markdown
-
-Write to `<out_dir>/<ReportTitle>_merged.md`:
-
-- Every sentence that cited a source keeps its citation, but with the canonical `[N]` number (use the `renumbering` map in `refs.json` to rewrite local numbers).
-- No `# Table of Contents` heading.
-- Wrap the Document's Purpose + metadata prose in `<!-- PRE-TOC -->...<!-- /PRE-TOC -->` so it renders before the TOC.
-- Emit a `# References` section listing canonical references as `[N] <text>. <URL>` (the script strips this section and re-emits it with hanging-indent + bookmark styling).
-
-**Writing rules**:
-- Every H1 and H2 opens with 1-3 sentences of prose. Never start with a table, list, or sub-heading.
-- Paragraphs 3-5 sentences max.
-- Every analytical claim that came with a citation retains its citation.
-- `<ReportTitle>` is sanitized: spaces → underscores, strip `\/:*?"<>|`.
-
-## Phase 7: Preview and Confirm
+## Phase 7: Preview + Confirm
 
 Parse the merged markdown for H1/H2/H3 headings and present:
 
 > Compiled document structure:
 >
 > **Metadata:**
-> - Title: `[title]`
-> - Subtitle: `[subtitle]`
-> - Author: `[author]`
-> - Date: `[date]`
-> - Format(s): `[format]`
-> - Canonical references: `[N]`
-> - Inline citations: `[M]`
+> - Title: `<title>`
+> - Subtitle: `<subtitle>`
+> - Author: `<author>`
+> - Date: `<date>`
+> - Format(s): docx
+> - Template: `branded-report-template.docx`
+> - Canonical references: 28 (6 duplicates collapsed)
+> - Inline citations: 52 placements across 21 unique references
 >
 > **Table of Contents (preview):**
 > ```
 > 1. Document's Purpose
 > 2. Executive Summary
->    2.1. [Topic Area 1]
->    2.2. [Topic Area 2]
-> 3. [Body Section 1]
->    3.1. [Subtopic]
->    3.2. [Subtopic]
-> 4. [Body Section 2]
+>    2.1. Topic A
+>    2.2. Topic B
+> 3. <Body Section 1>
+>    3.1. <Subtopic>
+>    3.2. <Subtopic>
+> 4. <Body Section 2>
 >    ...
 > N. Conclusion
-> N+1. References (`[R]` entries)
+> N+1. References (28 entries)
 > ```
 >
 > Does this structure look good?
-> [Y]es, generate now / [E]dit / [C]ancel
+> [Y]es, generate / [E]dit / [C]ancel
 
-If [E]dit, ask which sections to modify and loop back to Phase 5. **Maximum 3 edit iterations.**
+On **[E]dit**, ask which sections to modify and loop back to Phase 6. **Maximum 3 edit iterations.**
 
 ## Phase 8: Generate the Output(s)
 
-Invoke the generator:
+Per the skill's **Steps 5-7**. The key architectural rule: **no persistent script**. Per invocation, you write `<cache_dir>/generate.py` that implements the OOXML patterns from the skill tailored to the current style profile + content, then run it via Bash. The generator writes its output to `<final_dir>/<ReportTitle>.docx`.
 
-```bash
-python scripts/compile_deep_research.py --mode generate \
-    --md-file "<out_dir>/<ReportTitle>_merged.md" \
-    --refs-file "<out_dir>/refs.json" \
-    --template "templates/documentation/branded-report-template.docx" \
-    --title "<title>" \
-    --subtitle "<subtitle>" \
-    --date "<YYYY-MM-DD>" \
-    --author "<Author Name>" \
-    --format docx|pdf|md|all \
-    --output-dir "<out_dir>"
-```
+### For .docx (and .pdf, which requires .docx first)
 
-**Path resolution**:
-- On Windows, expand `~` to `%USERPROFILE%`.
-- Check `<project_root>/scripts/compile_deep_research.py` first; fall back to `~/.devai-hub/scripts/compile_deep_research.py`.
-- Same for `templates/documentation/branded-report-template.docx`.
+1. Author `<cache_dir>/generate.py`. Use the proven OOXML patterns from the skill's **Step 5** (sections A-M). Inline the canonical refs + style profile as literals at the top of the script, or have it read them from sibling `refs.json` and `style_profile.json`. Either is fine; inlining gives the user a self-contained file.
+2. Run it:
+   ```bash
+   python "<cache_dir>/generate.py"
+   ```
+3. Verify `<final_dir>/<ReportTitle>.docx` exists and is non-zero bytes.
 
-**Error handling**:
-- Missing `python-docx`: `pip install python-docx`.
-- Missing `pypdf`, `python-pptx`, `beautifulsoup4`, `httpx`, or `rapidfuzz`: the script prints the exact install command for each.
-- PDF conversion fails: the script tries `docx2pdf` first, then `libreoffice --headless`; if both fail, it prints a clear error and leaves the `.docx` in place for manual export.
+### For .pdf
 
-## Phase 9: Validate and Confirm
+After the `.docx` is built, convert per the skill's **Step 7**. The PDF lands at `<final_dir>/<ReportTitle>.pdf`:
+- Primary: `docx2pdf.convert(<final_dir>/<ReportTitle>.docx, <final_dir>/<ReportTitle>.pdf)` if the package imports.
+- Fallback: `libreoffice --headless --convert-to pdf --outdir <final_dir> <final_dir>/<ReportTitle>.docx`.
+- If neither works, emit a clear error and leave the `.docx` in place.
 
-Run validation on each produced file:
+If only `.pdf` was requested, delete the intermediate `.docx` from `<final_dir>` after successful conversion.
 
-```bash
-python scripts/compile_deep_research.py --mode validate --file "<out_dir>/<ReportTitle>.docx"
-python scripts/compile_deep_research.py --mode validate --file "<out_dir>/<ReportTitle>.md"
-python scripts/compile_deep_research.py --mode validate --file "<out_dir>/<ReportTitle>.pdf"
-```
+### For .md
 
-The validator reports:
-- Citations found (inline `[N]` anchors).
-- Bookmarks found (`_RefN` in docx, `<a id="refN">` in md).
-- Broken anchors (citation points nowhere).
-- Orphan bookmarks (reference unused by any citation).
+Per the skill's **Step 6**. Write directly with the Write tool to `<final_dir>/<ReportTitle>.md` -- no Python. Structure: title heading, italic subtitle + date, metadata table, manual linked TOC, body with `<sup>[[N]](#refN)</sup>` citations, References with `<a id="refN">` anchors and URL links.
 
-**If broken anchors are reported**: the merged markdown has a citation to a number not present in `refs.json`. Inspect the mismatch and re-run from Phase 6 with a fix.
+## Phase 9: Validate + Iterate
 
-Present the result to the user:
+Per the skill's **Step 8**. For each emitted file:
 
-> Compiled document(s):
-> - `<out_dir>/<ReportTitle>.docx` (N pages, validated: ok)
-> - `<out_dir>/<ReportTitle>.pdf` (N pages)
-> - `<out_dir>/<ReportTitle>.md` (validated: ok)
+- `.docx`: inspect `word/document.xml` via zipfile; verify every `w:hyperlink w:anchor="_RefN"` has a matching `bookmarkStart`; verify heading paragraphs have `<w:pStyle>` referencing a heading style; verify the TOC SDT is present and well-formed.
+- `.md`: regex-scan for `#refN` usages and `<a id="refN">` definitions; all must pair.
+- `.pdf`: open with `pypdf.PdfReader`, confirm page count > 0.
+
+If any **fatal** issue is reported (broken citation anchors, missing heading styles, missing TOC field), diagnose, edit `<cache_dir>/generate.py`, and re-run. **Maximum 3 iterations.** If still failing, stop and surface the raw issue list to the user.
+
+Present the final result:
+
+> **Compiled document(s)** (in `docs/compiled/`):
+> - `<ReportTitle>.docx` (N pages, validated: ok)
+> - `<ReportTitle>.pdf` (N pages)
+> - `<ReportTitle>.md` (validated: ok)
 >
-> Source artifacts (kept for re-generation):
-> - `<out_dir>/<ReportTitle>_merged.md`
-> - `<out_dir>/ingest.json`
-> - `<out_dir>/refs.json`
+> **Intermediate artifacts** (in `.cache/compile-deep-research/<ReportTitle>/`, safe to gitignore):
+> - `merged.md` -- synthesized master with `[N]` placeholders, feeds both the `.docx` generator and the final `.md` output.
+> - `refs.json` -- canonical references + per-input renumbering map.
+> - `style_profile.json` -- extracted template styles.
+> - `generate.py` -- re-runnable standalone Python; produces the `.docx` without going through this command again.
 >
 > What next?
 > 1. Open the Word document
 > 2. Open the PDF
 > 3. Open the Markdown
-> 4. Regenerate with edits
+> 4. Regenerate with edits (loops back to Phase 6)
 > 5. Done
 
-On Windows, open via `start "<path>"`; on macOS via `open`; on Linux via `xdg-open`. Only open after explicit user selection.
+Open via `start "<path>"` (Windows), `open` (macOS), or `xdg-open` (Linux). Only open after explicit user selection.

@@ -254,6 +254,42 @@ Potential conflicts, limitations of applying article recommendations to this spe
   2. The external source (URL or path) and its type.
   3. A headline summary: total adoption candidates found, top 3 P0 items, and overall recommendation.
 
+### 8. Offer to Generate Implementation Plan
+
+After cleanup, always offer to chain into `/generate-plan` so the user can immediately operationalize the adoption items without a separate command invocation.
+
+1. **Count adoption items** by reading the Adoption Plan section (Section 10 for repo/local reports, Section 5 for article reports) of the report just written:
+   - `count_p0` — rows in the P0 (Immediate) table
+   - `count_p1` — rows in the P1 table
+   - `count_p2` — rows in the P2 table
+   - `count_p3` — rows in the P3 table
+   - `total` = sum of the above
+
+2. **Ask the user** (always; no silent threshold):
+
+   > "The adoption plan identified **N total items** (P0: *a*, P1: *b*, P2: *c*, P3: *d*). Would you like to generate an implementation plan now?
+   >
+   > 1. Critical + High priority only (P0 + P1) — ***a+b*** items
+   > 2. Critical + High + Medium (P0 + P1 + P2) — ***a+b+c*** items
+   > 3. All items (P0 + P1 + P2 + P3) — ***N*** items
+   > N. No, skip plan generation.
+   >
+   > Reply 1 / 2 / 3 / N."
+
+   Substitute the actual counts. Suppress any scope option whose filtered total is zero (e.g. if `count_p2 == 0 && count_p3 == 0`, option 2 and 3 collapse into option 1).
+
+3. **If the user answers N**: print a one-line pointer and stop:
+   > "You can generate the plan later by running: `/generate-plan <full-comparison-file-path>`"
+
+4. **If the user answers 1, 2, or 3**: invoke `/generate-plan` in the same session, passing two pieces of state:
+   - The **comparison file path** as a positional argument (e.g. `docs/v0.9.7/comparison-shannon.md`).
+   - The **scope-tier filter** resolved from the user's choice: `p0p1`, `p0p1p2`, or `all`.
+
+   Hand the invocation off with an explicit directive block:
+   > "Invoking `/generate-plan` in from-comparison mode. Source: `<full-comparison-file-path>`. Scope filter: `<p0p1|p0p1p2|all>`."
+
+   This follows the existing `/setup-project` -> `/generate-plan` chaining precedent. The `/generate-plan` command recognizes the comparison-path argument via its Phase 0.5 (*From-comparison mode*) and will pre-seed the discovery interview from the Adoption Plan section, skipping questions the report already answers.
+
 ---
 
 ## Quality Checks

@@ -11,7 +11,7 @@ This command works for initial v0.1.0 greenfield builds, feature additions, UX e
 
 - At the end of `/setup-project` (Phase 9 invokes it automatically for initial v0.1.0 plans)
 - Standalone at any time: `/generate-plan`
-- Former name `/generate-implementation-plan` still works as a deprecation alias
+- **From a comparison report**: `/generate-plan <path/to/comparison-*.md>` triggers *From-comparison mode* (Step 0.5) and pre-seeds the interview from the report's Adoption Plan section. Also reached automatically when `/compare-project` chains into this command.
 - When the user asks to "create a plan", "build a roadmap", "plan this refactor", or similar
 
 ---
@@ -79,6 +79,65 @@ Rules:
 - Sanitize user overrides to `[a-z0-9-]+` (lowercase; spaces and underscores become hyphens; other characters are dropped)
 - If `docs/<version>/plans/<slug>.md` already exists, propose `<slug>-2`, `<slug>-3`, ... or ask whether to overwrite
 - Reserved slugs to reject: `index`, `readme`, `template`
+
+---
+
+## Step 0.5: From-Comparison Mode
+
+**Trigger**: the command was invoked with a single positional argument whose path matches `**/comparison-*.md` (for example `/generate-plan docs/v0.9.7/comparison-shannon.md`). This mode is also reached when `/compare-project` Step 8 chains into `/generate-plan` and hands off the comparison path plus a scope filter.
+
+**If the trigger is not met, skip this step entirely and proceed to Step 1.**
+
+When triggered, this step overrides Step 0 defaults and short-circuits redundant parts of Step 1.
+
+### 0.5a. Read and parse the comparison report
+
+Read the comparison file at the supplied path. Parse the Adoption Plan section (Section 10 for repo/local reports; Section 5 for article reports) into a flat list of adoption items, each tagged with its tier (P0 / P1 / P2 / P3) and carrying its `What | Source | Target | Effort | Dependencies | Risk` columns.
+
+If the file cannot be found or no adoption items can be parsed, fall back to the standard flow and announce the fallback:
+> "Could not parse adoption items from `<path>` — proceeding with the standard discovery interview."
+
+### 0.5b. Resolve the scope-tier filter
+
+If the caller (e.g. `/compare-project` Step 8) handed off an explicit scope filter (`p0p1`, `p0p1p2`, or `all`), use it directly.
+
+Otherwise, ask inline:
+> "Which adoption scope should this plan cover?
+> 1. P0 + P1 only (Critical + High)
+> 2. P0 + P1 + P2 (through Medium)
+> 3. All items (P0 + P1 + P2 + P3)"
+
+Filter the parsed adoption items according to the selected tier. Items below the cutoff become the plan's *"explicitly out of scope"* section.
+
+### 0.5c. Inherit version; derive slug and plan type
+
+- **Version**: inherit from the comparison file's path (`docs/<version>/comparison-*.md`). Do not re-resolve from git tags — the comparison file is authoritative for the scope it represents, and its version may lag behind the current project version.
+- **Slug (default)**: `adoption-<name>`, where `<name>` is the trailing segment of the comparison filename (e.g. `comparison-shannon.md` -> `adoption-shannon`).
+- **Plan type (default)**: `2 — Feature/Enhancement` (adoption items are additive, neither greenfield nor pure refactor).
+
+Confirm all three in a single consolidated question:
+> "Proposed output: `docs/<version>/plans/adoption-<name>.md` as a Feature/Enhancement plan. Press Enter to accept, or reply with any override (different version, slug, or plan type)."
+
+### 0.5d. Abbreviated discovery interview
+
+Skip the interview questions already answered by the comparison report. Specifically, do **not** re-ask:
+
+- **Q1 Goal** — derive as: *"Adopt `<scope-filter>` items from `<comparison-name>`"*
+- **Q2 Scope In/Out** — in-scope items are the filtered Adoption Plan rows; out-of-scope items are the rows below the filter cutoff. State both explicitly in the generated plan.
+- **Q3 Affected Areas** — derive from the `Target` column across the filtered items.
+- **Q4 Constraints/Risks (partial)** — seed from the `Risk` column; still ask for any *additional* constraints not captured in the report.
+
+Still ask (the report does not answer these):
+
+- **Q5 Definition of Done** — observable success criteria for the adoption as a whole.
+- **Q6 Testing Expectations** — what level of testing the adoption requires.
+- **Additional constraints / timeline** — any deadline, ownership, or environmental constraint the report did not capture.
+
+### 0.5e. Phase design seeded from adoption items
+
+When the plan advances to Step 3 (*Design the Phase Breakdown*), group the filtered adoption items into phases by dependency order: P0 items and items with no `Dependencies` entry go to Phase 1; items that depend on earlier items — or sit in lower tiers — fill subsequent phases. Each adoption item (or tightly coupled cluster of items) becomes one sub-task whose *Objective* and *Prompt* draw directly from the report's `What`, `Source`, `Target`, `Effort`, and `Risk` columns.
+
+After completing Step 0.5, resume the standard flow at Step 2 (*Research, if needed*).
 
 ---
 

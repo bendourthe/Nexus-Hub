@@ -13,24 +13,24 @@ For a document compiled from 2-5 source reports covering a substantial topic:
 | H3 headings per H2 | 0-5 | Never exceed 6 |
 | Total tables | 5-15 | Never exceed 20 |
 | Bullet points (total) | 60-150 | Minimum 30 |
-| Total lines in `_merged.md` | 700-1300 | Never exceed 1600 |
+| Total lines in `merged.md` | 700-1300 | Never exceed 1600 |
 | Canonical references | 10-80 | — |
 | Inline citations (per body paragraph average) | 0.5-2.0 | Never exceed 4 per sentence |
 
-If your merged markdown exceeds any hard limit, fix it before calling the script.
+If your merged markdown exceeds any hard limit, fix it before calling the generator.
 
 ---
 
 ## Heading Hierarchy Template
 
 ```
-(Title page -- emitted by the script from --title/--subtitle/--date, not in markdown)
+(Title page -- emitted by the generator from title/subtitle/date, not in markdown)
 
 <!-- PRE-TOC -->
 # Document's Purpose                       <- 1-2 paragraphs, then metadata table
 <!-- /PRE-TOC -->
 
-(Table of Contents -- emitted by the script as an auto-refreshing SDT field)
+(Table of Contents -- emitted by the generator as an auto-refreshing SDT field)
 
 # Executive Summary                        <- 300-500 words, self-contained
   ## [Topic Area 1]                        <- one H2 per body section
@@ -46,7 +46,7 @@ If your merged markdown exceeds any hard limit, fix it before calling the script
 
 # Conclusion                               <- 1-3 paragraphs
 
-# References                               <- stripped by the script, re-emitted from refs.json
+# References                               <- stripped by the generator, re-emitted from refs.json
 ```
 
 Use **real topic names** ("Clinical Evidence", "Competitive Landscape", "Regulatory Roadmap") rather than generic labels ("Background", "Analysis", "Findings"). The reader must be able to identify the contents of a section from its name.
@@ -56,7 +56,7 @@ Use **real topic names** ("Clinical Evidence", "Competitive Landscape", "Regulat
 ## Citation Rules
 
 - Inline citations use the format `[N]` where `N` is the canonical number from `refs.json`.
-- Multi-citations: `[N,M]` (comma-separated, no spaces). The script renders these as `[N, M]` with a superscript comma.
+- Multi-citations: `[N,M]` (comma-separated, no spaces). The generator renders these as `[N, M]` with a superscript comma between hyperlinks.
 - Every citation must correspond to a canonical reference in `refs.json`. Citations that point nowhere become "broken anchors" in the validator output.
 - Citations always go **at the end of the relevant sentence**, before the period or comma. Example:
 
@@ -96,20 +96,20 @@ When the same topic appears in multiple inputs:
 - Tables: max 15 rows, max 5 columns. Each table is preceded by a context sentence and followed by a takeaway sentence.
 - Bullet lists for enumerable items (features, findings, counterexamples). Numbered lists for sequenced steps.
 - Never put implementation steps in a table — use `### Step N:` sub-headings with objective, sub-steps, and verification.
-- Never include `# Table of Contents` — the script inserts the TOC.
-- Never hand-author `# References` entries with styling; the script re-emits References from `refs.json`. Your `# References` block in the merged markdown is a hint to the parser only.
+- Never include `# Table of Contents` — the generator inserts the TOC.
+- Never hand-author `# References` entries with styling; the generator re-emits References from `refs.json`. Your `# References` block in the merged markdown is a hint to the parser only.
 
 ---
 
 ## Metadata Table
 
-The script inserts the metadata table automatically from `--author` and `--date`. Your merged markdown should not contain a hand-authored metadata table — but if it does, the script will render it as a regular table (the auto-emitted one is styled with the borderless-row-rules look from the template).
+The generator inserts the metadata table automatically from the confirmed Author and Date. Your merged markdown should not contain a hand-authored metadata table — but if it does, the generator will render it as a regular table (the auto-emitted one is styled with the borderless-row-rules look derived from the template's style profile).
 
 ---
 
 ## Self-Check Before Generation
 
-Count in your merged markdown before invoking the script:
+Count in your merged markdown before invoking the generator:
 
 1. **H1 headings**: should be 5-9 body H1s (Purpose + Exec Summary + 3-5 body + Conclusion). Plus `# References` if you emit one. Fix if outside this range.
 2. **H2 headings per body H1**: 3-8. Fewer than 3 means the section lacks depth; more than 10 means break it.
@@ -120,4 +120,4 @@ Count in your merged markdown before invoking the script:
 7. **PRE-TOC markers**: the Document's Purpose section is wrapped in `<!-- PRE-TOC -->...<!-- /PRE-TOC -->`.
 8. **Citation format**: all citations are `[N]` or `[N,M]` — no `[N; M]`, `[N and M]`, or other variants.
 
-If any check fails, fix the merged markdown before calling the script.
+If any check fails, fix the merged markdown before calling the generator.

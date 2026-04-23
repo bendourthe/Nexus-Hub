@@ -13,7 +13,7 @@
 - **Opus 4.7 对齐** - 新增 `guides/SESSION_LIFECYCLE_DECISIONS.md`（continue / `/rewind` / `/clear` / `/compact` / 委派决策树），`prompt-engineering` 中完整的 Effort-Level Strategy 章节，跨全部 5 个平台模板 + 全局 `CLAUDE.md` 的批处理澄清问题规则，以及一份合并的 [Opus 4.6 -> 4.7 迁移指南](docs/v0.9.6/opus-4-7-migration.md)（含 13 行交叉引用表）。
 - **安全扩展** - 两个新技能（`business-logic-abuse` 覆盖竞态条件、TOCTOU、重复支付、工作流绕过、幂等性；`advanced-attack-patterns` 覆盖状态失同步、缓存投毒、重放攻击、时序侧信道），并通过 `/run-penetration-test` 的第 6 个 `--depth=deep` 猎手接入，以及新的 `file-upload-security` 清单。
 - **上下文校准** - `context-degradation` 中 1M 令牌窗口 Lost-in-Middle 校准表（Green/Yellow/Orange/Red 在 100k/300k/500k 边界），`context-compression` 中的主动式 `/compact focus on X, drop Y` 引导，以及 `session-history` 中的 "Summarize from here" 中途会话交接模式。
-- **规划工作流泛化** - `/generate-implementation-plan` 重命名为 `/generate-plan`（保留旧别名），提供规划类型选择器（Initial / Feature / Refactor / Other）和通用的 `docs/<version>/plans/<slug>.md` 输出路径。`/implement-phase` 可发现新旧两种布局。
+- **规划工作流泛化** - `/generate-implementation-plan` 重命名为 `/generate-plan`，提供规划类型选择器（Initial / Feature / Refactor / Other）和通用的 `docs/<version>/plans/<slug>.md` 输出路径。`/implement-phase` 可发现新旧两种布局。
 - **深度研究编译** - 新的 `/compile-deep-research` 命令 + `deep-research-compilation` 技能 + `scripts/compile_deep_research.py` 脚本可以摄取多个研究报告（.docx / .md / .pdf / .pptx / .html / URL / .txt），对引用进行去重（DOI -> 规范化 URL -> 模糊标题匹配），重新编号内联 [N] 引用，并输出单个统一的 .docx / .pdf / .md 文件（带锚定参考文献）。新增 `templates/documentation/branded-report-template.docx` 用于样式化输出。
 - **面向仓库的 AI 代理指令** - 新增 `AGENTS.md` 章节 "Installer-Aware Changes (Cross-Platform)"，加上覆盖全部 6 个平台的薄指针文件（`CLAUDE.md`、`GEMINI.md`、`.github/copilot-instructions.md`、`.cursor/rules/devai-hub.mdc`、已有的 `AGENTS.md`）- 强制要求新 `scripts/*.py` 在两个安装器中注册，新技能更新全部三个注册文件，并且平台指令模板保持同步。
 

@@ -7,9 +7,10 @@ description: >-
   Asks targeted questions appropriate to the plan type, then generates a phased plan
   where each phase contains sub-tasks with detailed executable prompts, ends with test
   generation and troubleshooting, and closes with a session-history entry. Invoked via
-  /generate-plan (or legacy alias /generate-implementation-plan). Use when starting a
-  new project, when setup-project has just finished, or when a user asks to create an
-  implementation plan, v0.1.0 plan, enhancement plan, refactor plan, or roadmap.
+  /generate-plan. Use when starting a new project, when setup-project has just finished,
+  when /compare-project hands off a comparison report to operationalize, or when a user
+  asks to create an implementation plan, v0.1.0 plan, enhancement plan, refactor plan,
+  or roadmap.
 summary_l0: "Generate a phased plan through guided discovery, saved to docs/<version>/plans/<slug>.md"
 overview_l1: >-
   This skill conducts a structured discovery interview — asking one question at a
@@ -36,11 +37,12 @@ overview_l1: >-
 
 # Implementation Plan
 
-Guide the user through a structured discovery interview, then generate a comprehensive plan at `docs/<version>/plans/<slug>.md` broken into phased sub-tasks — each with an executable prompt — so the full effort can be completed session by session. The command entry point is `/generate-plan` (the legacy `/generate-implementation-plan` name is still accepted as an alias).
+Guide the user through a structured discovery interview, then generate a comprehensive plan at `docs/<version>/plans/<slug>.md` broken into phased sub-tasks — each with an executable prompt — so the full effort can be completed session by session. The command entry point is `/generate-plan`. When invoked with a comparison report path (`/generate-plan docs/<version>/comparison-<name>.md`), the command enters *From-comparison mode* (Step 0.5): it pre-seeds the interview from the report's Adoption Plan section, skipping questions the report already answers, and writes the plan to `docs/<version>/plans/adoption-<name>.md`.
 
 ## When to Use This Skill
 
 - Immediately after running `/setup-project` on a new project (for the initial v0.1.0 plan)
+- When `/compare-project` hands off a comparison report whose Adoption Plan should be operationalized (Step 0.5 *From-comparison mode* pre-seeds the interview)
 - When the user asks to create a roadmap or implementation plan for what they want to build
 - When planning a feature addition, UX enhancement, refactor, or bug-fix campaign
 - When the user provides a high-level vision but has not yet broken it down into steps
@@ -299,5 +301,5 @@ Incorporate feedback, then write the final file.
 
 ---
 
-**Version**: 1.1.0
+**Version**: 1.2.0
 **Last Updated**: April 2026

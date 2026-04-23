@@ -1675,12 +1675,6 @@ function Install-Templates {
         Safe-Copy -Source $scriptSource -Destination (Join-Path $scriptsDest "generate_report.py") -Confirm:$true -CustomMessage "✓ Report generator installed at: $scriptsDest\generate_report.py"
     }
 
-    # Copy deep-research compiler script (powers /compile-deep-research)
-    $compileScriptSource = Join-Path $RepoRoot "scripts\compile_deep_research.py"
-    if (Test-Path $compileScriptSource) {
-        Safe-Copy -Source $compileScriptSource -Destination (Join-Path $scriptsDest "compile_deep_research.py") -Confirm:$true -CustomMessage "✓ Deep-research compiler installed at: $scriptsDest\compile_deep_research.py"
-    }
-
     # Check Python availability
     $pythonCmd = Get-Command "python" -ErrorAction SilentlyContinue
     if (-not $pythonCmd) {
