@@ -1213,7 +1213,7 @@ install_vscode_extensions() {
     local repo_root="$1"
 
     echo ""
-    echo -e "[ ${DARK_YELLOW}---------- CLAUDE CODE USAGE MONITOR ----------${RESET} ]"
+    echo -e "[ ${DARK_YELLOW}---------- CLAUDE USAGE MONITOR ----------${RESET} ]"
     echo ""
 
     write_item "The Claude Usage Monitor is a VS Code extension that displays your Claude" "$RESET"
@@ -1339,7 +1339,7 @@ install_vscode_extensions() {
     fi
 
     echo ""
-    echo -e "  ${GREEN}[OK] Claude Code Usage Monitor Installation Complete.${RESET}"
+    echo -e "  ${GREEN}[OK] Claude Usage Monitor Installation Complete.${RESET}"
 }
 
 # --- Template & Script Installation ---

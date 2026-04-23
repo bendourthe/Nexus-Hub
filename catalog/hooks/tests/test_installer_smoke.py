@@ -122,6 +122,66 @@ def test_installer_ps1_does_not_clear_host_after_scope_choice():
     )
 
 
+def test_installer_sh_does_not_clear_after_scope_choice():
+    """Mirror of test_installer_ps1_does_not_clear_host_after_scope_choice for bash."""
+    body = INSTALLER_SH.read_text(encoding="utf-8")
+    # Find the install_global function body and assert no `clear` call inside
+    install_global_idx = body.index("install_global() {")
+    next_fn_idx = body.index("\ninstall_vscode_extensions()", install_global_idx)
+    install_global_body = body[install_global_idx:next_fn_idx]
+    # Match 'clear' as a whole word, either at start of line or after a semicolon/pipe.
+    # Avoid false positives from words containing 'clear'.
+    lines = [ln.strip() for ln in install_global_body.splitlines()]
+    offending = [ln for ln in lines if ln == "clear" or ln.startswith("clear ") or ln.startswith("clear;")]
+    assert not offending, (
+        f"install_global must not call `clear` (v0.9.7 UX). Offending lines: {offending}"
+    )
+
+
+def test_installers_use_claude_usage_monitor_banner():
+    """Banner text must read 'CLAUDE USAGE MONITOR', not the old 'CLAUDE CODE USAGE MONITOR'.
+    The product name is 'Claude Usage Monitor' (per its own README + package.json).
+    """
+    for path in (INSTALLER_SH, INSTALLER_PS1):
+        body = path.read_text(encoding="utf-8")
+        assert "CLAUDE CODE USAGE MONITOR" not in body, (
+            f"{path.name} must use 'CLAUDE USAGE MONITOR' as the section banner text"
+        )
+        assert "CLAUDE USAGE MONITOR" in body, (
+            f"{path.name} is missing the 'CLAUDE USAGE MONITOR' section banner"
+        )
+
+
+def test_installer_ps1_surfaces_vsce_errors():
+    """When `vsce package` fails, the installer must surface the captured output
+    rather than silently hiding it with `2>$null | Out-Null`. This was a real
+    operator-reported gap ('Packaging failed (exit code: 1)' with no context).
+    """
+    body = INSTALLER_PS1.read_text(encoding="utf-8")
+    # The old silent-failure pattern must be gone
+    assert "vsce package --no-dependencies 2>$null | Out-Null" not in body, (
+        "installer.ps1 must capture vsce output (2>&1 into a variable), not swallow it"
+    )
+    # The new capture-and-echo-on-failure pattern must be present
+    assert "$vsceOutput = & npx vsce package" in body and "2>&1" in body, (
+        "installer.ps1 must capture vsce output into $vsceOutput using 2>&1 redirection"
+    )
+
+
+def test_installer_ps1_has_overwrite_request_subsection():
+    """Both Install-Global and Install-Workspace must render an 'Overwrite Request'
+    subsection banner before calling Get-Overwrite-Preference, so the preamble
+    prompt is framed consistently with the other subsections.
+    """
+    body = INSTALLER_PS1.read_text(encoding="utf-8")
+    # Must appear at least twice (Install-Global + Install-Workspace)
+    count = body.count('Write-SubSectionBanner -Text "Overwrite Request"')
+    assert count >= 2, (
+        f"installer.ps1 must render an 'Overwrite Request' subsection in both "
+        f"Install-Global and Install-Workspace (found {count} occurrences)"
+    )
+
+
 def test_installer_sh_removed_template_import_prompt():
     """The v0.9.6 interactive prompt `read_prompt "Import custom Word/PowerPoint templates? ..."`
     must be gone. A comment referencing the removal is fine; the live read_prompt call is not."""
@@ -297,6 +357,10 @@ def _run_all():
         test_installer_ps1_asks_global_vs_workspace_first,
         test_installers_have_no_phase_labels,
         test_installer_ps1_does_not_clear_host_after_scope_choice,
+        test_installer_sh_does_not_clear_after_scope_choice,
+        test_installers_use_claude_usage_monitor_banner,
+        test_installer_ps1_surfaces_vsce_errors,
+        test_installer_ps1_has_overwrite_request_subsection,
         test_installer_sh_removed_template_import_prompt,
         test_installer_ps1_removed_template_import_prompt,
         test_catalog_hooks_settings_effort_level_is_high,

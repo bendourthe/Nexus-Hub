@@ -923,9 +923,13 @@ function Install-Permissions {
 function Install-Global {
     param ($RepoRoot)
     Restore-Title
+    Write-Host ""
     Write-CenteredBanner -Text "Global Installation" -Color "Cyan"
+    Write-Host ""
 
     # Global Overwrite Preference
+    Write-SubSectionBanner -Text "Overwrite Request"
+    Write-Host ""
     $script:OverwriteMode = Get-Overwrite-Preference
     Write-Host ""
 
@@ -1304,7 +1308,9 @@ function Install-Workspace {
         $RepoRoot,
         $TargetPath  # pre-validated by main (v0.9.7+)
     )
+    Write-Host ""
     Write-CenteredBanner -Text "Workspace Installation" -Color "Cyan"
+    Write-Host ""
 
     if ([string]::IsNullOrWhiteSpace($TargetPath) -or -not (Test-Path $TargetPath)) {
         Write-Host "Invalid target path: $TargetPath" -ForegroundColor Red
@@ -1314,6 +1320,13 @@ function Install-Workspace {
     # Single-pass workspace install. To install into multiple workspaces, re-run the installer.
     $targetPath = $TargetPath
     Write-Host "Target: $targetPath" -ForegroundColor DarkYellow
+    Write-Host ""
+
+    # Workspace Overwrite Preference (mirrors Install-Global UX)
+    Write-SubSectionBanner -Text "Overwrite Request"
+    Write-Host ""
+    $script:OverwriteMode = Get-Overwrite-Preference
+    Write-Host ""
 
         $workspacePlatforms = Select-Platforms -PhaseName "Workspace Phase"
 
@@ -1468,7 +1481,7 @@ function Install-Workspace {
 function Install-VSCodeExtensions {
     param ($RepoRoot)
     Write-Host ""
-    Write-Host "[ ---------- CLAUDE CODE USAGE MONITOR ---------- ]" -ForegroundColor DarkYellow
+    Write-Host "[ ---------- CLAUDE USAGE MONITOR ---------- ]" -ForegroundColor DarkYellow
     Write-Host ""
 
     Write-Item -Message "The Claude Usage Monitor is a VS Code extension that displays your Claude" -Color "White"
@@ -1575,7 +1588,9 @@ function Install-VSCodeExtensions {
     # Package as VSIX (uses locally installed @vscode/vsce from devDependencies)
     Write-Item -Message "Packaging extension as VSIX..." -Color "White"
     Push-Location $extensionDir
-    & npx vsce package --no-dependencies 2>$null | Out-Null
+    # Capture stdout + stderr so failures surface the real vsce diagnostic
+    # (previously swallowed by 2>$null | Out-Null, leaving operators with no clue).
+    $vsceOutput = & npx vsce package --no-dependencies 2>&1
     Restore-Title
     $vsixExitCode = $LASTEXITCODE
     Pop-Location
@@ -1584,6 +1599,10 @@ function Install-VSCodeExtensions {
 
     if (($vsixExitCode -ne 0) -or (-not $vsixFile)) {
         Write-Item -Message "Packaging failed (exit code: $vsixExitCode)." -Color "Red"
+        if ($vsceOutput) {
+            Write-Item -Message "vsce output:" -Color "Gray"
+            $vsceOutput | ForEach-Object { Write-Item -Message "    $_" -Color "Gray" }
+        }
         Write-Item -Message "You can still use the extension in development mode (F5 in VS Code)." -Color "Yellow"
         $ErrorActionPreference = $savedErrorPref
         return
@@ -1619,7 +1638,7 @@ function Install-VSCodeExtensions {
     $ErrorActionPreference = $savedErrorPref
 
     Write-Host ""
-    Write-Host "  ✓ Claude Code Usage Monitor Installation Complete." -ForegroundColor Green
+    Write-Host "  ✓ Claude Usage Monitor Installation Complete." -ForegroundColor Green
 }
 
 # --- Template & Script Installation ---
