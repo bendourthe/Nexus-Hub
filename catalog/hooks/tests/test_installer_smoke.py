@@ -74,8 +74,8 @@ def test_installer_ps1_has_welcome_banner_function():
 
 def test_installer_sh_asks_global_vs_workspace_first():
     body = INSTALLER_SH.read_text(encoding="utf-8")
-    # The upfront scope choice prompt (v0.9.7 refactor)
-    assert "Select [G]lobal / [W]orkspace" in body, \
+    # The upfront scope choice prompt (v0.9.7 refactor, terse form in post-release fix)
+    assert "Select [G/W]" in body, \
         "installer.sh is missing the upfront global-vs-workspace choice"
     # Global must be the default (recommended) branch
     assert "Global (recommended)" in body, \
@@ -84,10 +84,42 @@ def test_installer_sh_asks_global_vs_workspace_first():
 
 def test_installer_ps1_asks_global_vs_workspace_first():
     body = INSTALLER_PS1.read_text(encoding="utf-8")
-    assert "Select [G]lobal / [W]orkspace" in body, \
+    assert "Select [G/W]" in body, \
         "installer.ps1 is missing the upfront global-vs-workspace choice"
     assert "Global (recommended)" in body, \
         "installer.ps1 should present Global as the recommended option"
+
+
+def test_installers_have_no_phase_labels():
+    """The v0.9.7 single-phase refactor removed the legacy 'PHASE 1/2/3' banners.
+    Keeping them out prevents regression to the old three-phase UX.
+    """
+    sh_body = INSTALLER_SH.read_text(encoding="utf-8")
+    ps1_body = INSTALLER_PS1.read_text(encoding="utf-8")
+    for pattern in ("PHASE 1:", "PHASE 2:", "PHASE 3:", "Installation Phase Complete"):
+        assert pattern not in sh_body, (
+            f"installer.sh must not contain '{pattern}' (legacy three-phase UX)"
+        )
+        assert pattern not in ps1_body, (
+            f"installer.ps1 must not contain '{pattern}' (legacy three-phase UX)"
+        )
+
+
+def test_installer_ps1_does_not_clear_host_after_scope_choice():
+    """The previous flow cleared the screen at the start of Install-Global, losing
+    the welcome banner + user's scope selection from scrollback. The v0.9.7
+    post-release fix removes the Clear-Host call inside Install-Global.
+    """
+    body = INSTALLER_PS1.read_text(encoding="utf-8")
+    # Find the Install-Global function body and assert no Clear-Host inside
+    install_global_idx = body.index("function Install-Global")
+    # Find the end of Install-Global: the next top-level 'function ' declaration
+    next_fn_idx = body.index("\nfunction ", install_global_idx + len("function Install-Global"))
+    install_global_body = body[install_global_idx:next_fn_idx]
+    assert "Clear-Host" not in install_global_body, (
+        "Install-Global must not call Clear-Host (v0.9.7 keeps the welcome banner "
+        "and scope choice visible in scrollback)."
+    )
 
 
 def test_installer_sh_removed_template_import_prompt():
@@ -263,6 +295,8 @@ def _run_all():
         test_installer_ps1_has_welcome_banner_function,
         test_installer_sh_asks_global_vs_workspace_first,
         test_installer_ps1_asks_global_vs_workspace_first,
+        test_installers_have_no_phase_labels,
+        test_installer_ps1_does_not_clear_host_after_scope_choice,
         test_installer_sh_removed_template_import_prompt,
         test_installer_ps1_removed_template_import_prompt,
         test_catalog_hooks_settings_effort_level_is_high,

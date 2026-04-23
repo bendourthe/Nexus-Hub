@@ -922,16 +922,12 @@ function Install-Permissions {
 
 function Install-Global {
     param ($RepoRoot)
-    Clear-Host
     Restore-Title
-    Write-CenteredBanner -Text "Welcome to the DevAI-Hub Universal Installer" -Color "DarkCyan" -BorderChar "="
-    Write-Host ""
+    Write-CenteredBanner -Text "Global Installation" -Color "Cyan"
 
     # Global Overwrite Preference
     $script:OverwriteMode = Get-Overwrite-Preference
     Write-Host ""
-
-    Write-CenteredBanner -Text "PHASE 1: Global Installation" -Color "Cyan"
 
     Write-SubSectionBanner -Text "Skills & Commands"
 
@@ -1073,9 +1069,6 @@ function Install-Global {
     # --- Git Commit-Msg Hook sub-section ---
     Write-SubSectionBanner -Text "Git Commit-Msg Hook (All Platforms)"
     Install-GitCommitMsgHook -RepoRoot $RepoRoot
-
-    Write-Host ""
-    Write-CenteredBanner -Text "Global Installation Phase Complete." -Color "Green"
     Write-Host ""
 }
 
@@ -1469,9 +1462,7 @@ function Install-Workspace {
                 Write-Item -Message "✓ Workspace instructions installed at: $copilotFile" -Color "DarkGreen"
             }
         }
-
         Write-Host ""
-        Write-CenteredBanner -Text "Project $(Split-Path $targetPath -Leaf) Configured!" -Color "Green"
 }
 
 function Install-VSCodeExtensions {
@@ -1636,7 +1627,7 @@ function Install-VSCodeExtensions {
 function Install-Templates {
     param ($RepoRoot)
     Write-Host ""
-    Write-CenteredBanner -Text "PHASE 3: Templates & Report Generator Installation" -Color "Cyan"
+    Write-SubSectionBanner -Text "Templates & Report Generator Installation"
     Write-Host ""
     Write-Item -Message "DevAI-Hub can generate professional Word (.docx) and PowerPoint (.pptx)" -Color "White"
     Write-Item -Message "reports from Markdown files using the /generate-report command." -Color "White"
@@ -1709,9 +1700,7 @@ function Install-Templates {
     else {
         Write-Item -Message "  (none)" -Color "Gray"
     }
-
     Write-Host ""
-    Write-CenteredBanner -Text "Templates & Scripts Installation Complete." -Color "Green"
 }
 
 
@@ -1873,11 +1862,13 @@ Show-WelcomeBanner
 # Ask whether to install globally (recommended, user-scope) or to a specific workspace.
 Write-Host "Where would you like to install DevAI-Hub?"
 Write-Host "  [G] Global (recommended) - applies to all projects on this machine (~/.claude/, ~/.gemini/, ~/.codex/, ~/.devai-hub/)" -ForegroundColor Green
-Write-Host "  [W] Workspace           - scoped to a specific project directory" -ForegroundColor Yellow
+Write-Host "  [W] Workspace            - scoped to a specific project directory" -ForegroundColor Yellow
 Write-Host ""
-$scopeChoice = Read-Host "Select [G]lobal / [W]orkspace (default: G)"
+$scopeChoice = Read-Host "Select [G/W]"
 
+$scopeLabel = "Global"
 if ($scopeChoice -match "^[Ww]") {
+    $scopeLabel = "Workspace"
     # Workspace install: prompt for project path via folder picker, then run the workspace phase once.
     do {
         $workspaceTarget = [ModernFolderPicker.FileOpenDialog]::ShowDialog()
@@ -1895,6 +1886,8 @@ else {
 # Bundled report-generator templates + scripts are user-scope and always install silently.
 # Interactive custom-template import moved to /generate-report at use time (v0.9.7).
 Install-Templates -RepoRoot $repoRoot
+
+Write-CenteredBanner -Text "$scopeLabel Installation Complete." -Color "Green"
 
 Show-FarewellBanner
 Pause

@@ -47,13 +47,11 @@ Thumbs.db
 *.mov
 *.wmv
 
-# Copilot custom instructions (user-specific)
-.github/copilot-instructions.md
-
 # Claude Code settings (root only)
+# Note: CLAUDE.md and .github/copilot-instructions.md are now tracked repo-scoped
+# pointer files (v0.9.7+) documenting installer-aware contribution rules.
 /.claude/
 settings.local.json
-CLAUDE.md
 
 # Temporary working directory
 temp/

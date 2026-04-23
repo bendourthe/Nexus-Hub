@@ -652,15 +652,12 @@ install_global() {
     local repo_root="$1"
     local user_home="$HOME"
 
-    clear
     OVERWRITE_ALL=false
-    echo -e "${DARK_CYAN}================================================================${RESET}"
-    echo -e "${DARK_CYAN}                   DevAI-Hub Universal Installer                ${RESET}"
-    echo -e "${DARK_CYAN}================================================================${RESET}"
     echo ""
-    echo -e "${CYAN}----------------------------------------------------------------${RESET}"
-    echo -e "${CYAN}                  PHASE 1: Global Installation                  ${RESET}"
-    echo -e "${CYAN}----------------------------------------------------------------${RESET}"
+    echo -e "${CYAN}------------------------------------------------------------------------------------------------------------------------${RESET}"
+    echo -e "${CYAN}                                                  Global Installation${RESET}"
+    echo -e "${CYAN}------------------------------------------------------------------------------------------------------------------------${RESET}"
+    echo ""
 
     write_subsection_banner "Skills & Commands"
 
@@ -784,11 +781,6 @@ install_global() {
     # --- Git Commit-Msg Hook sub-section ---
     write_subsection_banner "Git Commit-Msg Hook (All Platforms)"
     install_git_commit_msg_hook "$repo_root"
-
-    echo ""
-    echo -e "${GREEN}----------------------------------------------------------------${RESET}"
-    echo -e "${GREEN}              Global Installation Phase Complete.               ${RESET}"
-    echo -e "${GREEN}----------------------------------------------------------------${RESET}"
     echo ""
 }
 
@@ -1064,9 +1056,11 @@ install_workspace() {
     local repo_root="$1"
     local target_path="$2"  # pre-validated by main() in v0.9.7+
 
-    echo -e "${CYAN}----------------------------------------------------------------${RESET}"
-    echo -e "${CYAN}                Workspace Installation                          ${RESET}"
-    echo -e "${CYAN}----------------------------------------------------------------${RESET}"
+    echo ""
+    echo -e "${CYAN}------------------------------------------------------------------------------------------------------------------------${RESET}"
+    echo -e "${CYAN}                                                  Workspace Installation${RESET}"
+    echo -e "${CYAN}------------------------------------------------------------------------------------------------------------------------${RESET}"
+    echo ""
 
     if [ -z "$target_path" ] || [ ! -d "$target_path" ]; then
         write_item "Invalid target path: $target_path" "$RED"
@@ -1212,11 +1206,7 @@ install_workspace() {
             echo -e "$merged_content" > "$copilot_file"
             write_item "[OK] Workspace instructions installed at: $copilot_file" "$GREEN"
         fi
-
         echo ""
-        echo -e "${GREEN}----------------------------------------------------------------${RESET}"
-        echo -e "${GREEN}      Project $(basename "$target_path") Configured!       ${RESET}"
-        echo -e "${GREEN}----------------------------------------------------------------${RESET}"
 }
 
 install_vscode_extensions() {
@@ -1358,9 +1348,7 @@ install_templates() {
     local repo_root="$1"
 
     echo ""
-    echo -e "${CYAN}----------------------------------------------------------------${RESET}"
-    echo -e "${CYAN}     PHASE 3: Templates & Report Generator Installation         ${RESET}"
-    echo -e "${CYAN}----------------------------------------------------------------${RESET}"
+    write_subsection_banner "Templates & Report Generator Installation"
     echo ""
     write_item "DevAI-Hub can generate professional Word (.docx) and PowerPoint (.pptx)" "$RESET"
     write_item "reports from Markdown files using the /generate-report command." "$RESET"
@@ -1427,11 +1415,7 @@ install_templates() {
     if [ "$found_templates" = false ]; then
         write_item "  (none)" "$GRAY"
     fi
-
     echo ""
-    echo -e "${GREEN}----------------------------------------------------------------${RESET}"
-    echo -e "${GREEN}        Templates & Scripts Installation Complete.               ${RESET}"
-    echo -e "${GREEN}----------------------------------------------------------------${RESET}"
 }
 
 # --- Skill Discovery ---
@@ -1561,12 +1545,14 @@ print_banner
 # Ask whether to install globally (recommended, user-scope) or to a specific workspace.
 echo -e "${RESET}Where would you like to install DevAI-Hub?"
 echo -e "  ${GREEN}[G]${RESET} Global (recommended) - applies to all projects on this machine (~/.claude/, ~/.gemini/, ~/.codex/, ~/.devai-hub/)"
-echo -e "  ${YELLOW}[W]${RESET} Workspace           - scoped to a specific project directory"
+echo -e "  ${YELLOW}[W]${RESET} Workspace            - scoped to a specific project directory"
 echo ""
-SCOPE_CHOICE=$(read_prompt "Select [G]lobal / [W]orkspace (default: G)")
+SCOPE_CHOICE=$(read_prompt "Select [G/W]")
 
+SCOPE_LABEL="Global"
 case "$SCOPE_CHOICE" in
     [Ww]*)
+        SCOPE_LABEL="Workspace"
         # Workspace install: prompt for project path, then run the workspace phase once.
         while true; do
             TARGET_PATH=$(read_prompt "Enter absolute path to project")
@@ -1591,6 +1577,11 @@ esac
 # Bundled report-generator templates + scripts are user-scope and always install silently.
 # Interactive custom-template import moved to /generate-report at use time (v0.9.7).
 install_templates "$REPO_ROOT"
+
+echo ""
+echo -e "${GREEN}------------------------------------------------------------------------------------------------------------------------${RESET}"
+echo -e "${GREEN}                                             ${SCOPE_LABEL} Installation Complete.${RESET}"
+echo -e "${GREEN}------------------------------------------------------------------------------------------------------------------------${RESET}"
 
 echo ""
 echo -e "${DARK_CYAN}========================================================================================================================${RESET}"
