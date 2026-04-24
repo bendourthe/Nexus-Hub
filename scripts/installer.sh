@@ -1493,7 +1493,22 @@ install_skill_discovery() {
         echo '{}' > "$claude_settings"
     fi
 
-    # Use python to safely merge MCP server config into settings.json
+    # Install devai-code-search into the same venv (v1.0.0+).
+    # Local-only code-search MCP. Zero outbound calls. See AGENTS.md MCP Registry Policy.
+    local code_search_src="$repo_root/extensions/devai-code-search"
+    local code_search_dest="$devai_home/code-search"
+    if [ -d "$code_search_src" ]; then
+        rm -rf "$code_search_dest"
+        cp -r "$code_search_src" "$code_search_dest"
+        if command -v uv >/dev/null 2>&1; then
+            uv pip install --python "$venv_path/bin/python" -e "$code_search_dest" >/dev/null 2>&1
+        else
+            "$venv_path/bin/pip" install -q -e "$code_search_dest" >/dev/null 2>&1
+        fi
+        write_item "  devai-code-search installed at $code_search_dest" "$GREEN"
+    fi
+
+    # Use python to safely merge MCP server config into settings.json (both servers).
     "$python_cmd" -c "
 import json, sys
 path = sys.argv[1]
@@ -1508,12 +1523,17 @@ data['mcpServers']['devai-skill-server'] = {
     'args': ['-m', 'devai_skill_server'],
     'env': {'DEVAI_HUB_ROOT': hub}
 }
+data['mcpServers']['devai-code-search'] = {
+    'command': venv + '/bin/python',
+    'args': ['-m', 'devai_code_search'],
+    'env': {'DEVAI_HUB_ROOT': hub}
+}
 with open(path, 'w') as f:
     json.dump(data, f, indent=2)
 " "$claude_settings" "$venv_path" "$devai_home"
 
-    write_item "  MCP server registered in $claude_settings" "$GREEN"
-    write_item "  The server will auto-start with Claude Code. No manual steps needed." "$GREEN"
+    write_item "  MCP servers registered in $claude_settings (devai-skill-server, devai-code-search)" "$GREEN"
+    write_item "  Servers will auto-start with Claude Code. No manual steps needed." "$GREEN"
 }
 
 # --- Banner ---

@@ -76,3 +76,9 @@ jobs:
 
       - name: Skill-server tests
         run: pytest extensions/devai-skill-server/tests/ -v
+
+      - name: Install code-search MCP server (v1.0.0+)
+        run: pip install -e "extensions/devai-code-search/[dev]"
+
+      - name: Code-search tests
+        run: pytest extensions/devai-code-search/tests/ -v

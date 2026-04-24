@@ -1825,25 +1825,55 @@ function Install-SkillDiscovery {
         $settings = [PSCustomObject]@{}
     }
 
+    # Install devai-code-search into the same venv (v1.0.0+).
+    # Local-only code-search MCP. Zero outbound calls. See AGENTS.md MCP Registry Policy.
+    $codeSearchSrc = Join-Path $RepoRoot "extensions\devai-code-search"
+    $codeSearchDest = Join-Path $devaiHome "code-search"
+    $ErrorActionPreference = "Continue"
+    if (Test-Path $codeSearchSrc) {
+        if (Test-Path $codeSearchDest) { Remove-Item -Path $codeSearchDest -Recurse -Force }
+        Copy-Item -Path $codeSearchSrc -Destination $codeSearchDest -Recurse -Force
+        if ($hasUv) {
+            & uv pip install --python "$venvPath\Scripts\python.exe" -e $codeSearchDest 2>$null | Out-Null
+        } else {
+            & "$venvPath\Scripts\pip.exe" install -q -e $codeSearchDest 2>$null | Out-Null
+        }
+        Write-Item -Message "  devai-code-search installed at $codeSearchDest" -Color "DarkGreen"
+    }
+    $ErrorActionPreference = "Stop"
+
     # Add or update mcpServers without touching other keys (e.g., hooks)
-    $mcpEntry = [PSCustomObject]@{
+    $skillServerEntry = [PSCustomObject]@{
         command = "$venvPath\Scripts\python.exe"
         args    = @("-m", "devai_skill_server")
         env     = [PSCustomObject]@{ DEVAI_HUB_ROOT = $devaiHome }
     }
-    if ($settings.PSObject.Properties["mcpServers"]) {
-        if ($settings.mcpServers.PSObject.Properties["devai-skill-server"]) {
-            $settings.mcpServers."devai-skill-server" = $mcpEntry
+    $codeSearchEntry = [PSCustomObject]@{
+        command = "$venvPath\Scripts\python.exe"
+        args    = @("-m", "devai_code_search")
+        env     = [PSCustomObject]@{ DEVAI_HUB_ROOT = $devaiHome }
+    }
+
+    if (-not $settings.PSObject.Properties["mcpServers"]) {
+        $settings | Add-Member -NotePropertyName "mcpServers" -NotePropertyValue ([PSCustomObject]@{})
+    }
+
+    foreach ($pair in @(
+        @{ Name = "devai-skill-server"; Entry = $skillServerEntry },
+        @{ Name = "devai-code-search"; Entry = $codeSearchEntry }
+    )) {
+        $name = $pair.Name
+        $entry = $pair.Entry
+        if ($settings.mcpServers.PSObject.Properties[$name]) {
+            $settings.mcpServers.$name = $entry
         } else {
-            $settings.mcpServers | Add-Member -NotePropertyName "devai-skill-server" -NotePropertyValue $mcpEntry
+            $settings.mcpServers | Add-Member -NotePropertyName $name -NotePropertyValue $entry
         }
-    } else {
-        $settings | Add-Member -NotePropertyName "mcpServers" -NotePropertyValue ([PSCustomObject]@{ "devai-skill-server" = $mcpEntry })
     }
 
     $settings | ConvertTo-Json -Depth 10 | Set-Content $claudeSettings -Encoding UTF8
-    Write-Item -Message "  MCP server registered in $claudeSettings" -Color "DarkGreen"
-    Write-Item -Message "  The server will auto-start with Claude Code. No manual steps needed." -Color "DarkGreen"
+    Write-Item -Message "  MCP servers registered in $claudeSettings (devai-skill-server, devai-code-search)" -Color "DarkGreen"
+    Write-Item -Message "  Servers will auto-start with Claude Code. No manual steps needed." -Color "DarkGreen"
 }
 
 # --- Banner ---
