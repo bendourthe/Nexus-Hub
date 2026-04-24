@@ -1,78 +1,59 @@
 {
-  "_comment": "DevAI-Hub curated MCP server configurations for Claude Code. Copy the servers you need into your .claude/settings.json under the 'mcpServers' key. Keep active MCPs under 10 to preserve context window. Set required env vars before enabling a server.",
+  "_comment": "DevAI-Hub curated MCP registry. Governed by the MCP Registry Policy in AGENTS.md and the Reverse-Engineering Matrix at docs/v1.0.0/mcp-reverse-engineering-matrix.md. Every entry's _comment field answers the 5-question audit (who runs, outbound calls, API keys, data transmitted, vendor relationship). Copy the servers you need into your .claude/settings.json under the 'mcpServers' key. Set required env vars before enabling a server.",
   "mcpServers": {
     "github": {
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-github"],
       "env": {
         "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
-      }
+      },
+      "_comment": "GitHub vendor wrapper (Anthropic-maintained). Classification: vendor-intrinsic. 5-question audit: (1) user's agent spawns npx subprocess locally; (2) outbound HTTPS to api.github.com scoped by the user's PAT; (3) requires GITHUB_TOKEN / PAT; (4) transmits whatever the agent supplies (issue bodies, queries, repo context); (5) the user already has a GitHub account and repo. Vendor-intrinsic: GitHub is the intended data destination."
     },
     "filesystem": {
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/your/project"],
-      "_comment": "Replace /path/to/your/project with your actual project root"
+      "_comment": "Local filesystem access (Anthropic-maintained). Classification: already-local. 5-question audit: (1) npx subprocess locally; (2) no outbound calls; (3) no API keys; (4) transmits no data to any third party (file contents reach Claude via tool results, which is standard Claude Code behavior); (5) no vendor relationship. Replace /path/to/your/project with your actual project root."
     },
     "memory": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-memory"]
+      "args": ["-y", "@modelcontextprotocol/server-memory"],
+      "_comment": "Persistent memory store (Anthropic-maintained). Classification: already-local. 5-question audit: (1) npx subprocess; (2) no outbound calls (local JSON store); (3) no API keys; (4) no third-party transmission; (5) no vendor relationship."
     },
     "sequential-thinking": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
-    },
-    "context7": {
-      "command": "npx",
-      "args": ["-y", "@upstash/context7-mcp"],
-      "_comment": "Up-to-date library documentation and code examples"
-    },
-    "exa-web-search": {
-      "command": "npx",
-      "args": ["-y", "exa-mcp-server"],
-      "env": {
-        "EXA_API_KEY": "${EXA_API_KEY}"
-      }
-    },
-    "firecrawl": {
-      "command": "npx",
-      "args": ["-y", "firecrawl-mcp"],
-      "env": {
-        "FIRECRAWL_API_KEY": "${FIRECRAWL_API_KEY}"
-      }
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
+      "_comment": "Structured step-by-step reasoning scaffold (Anthropic-maintained). Classification: already-local. 5-question audit: (1) npx subprocess; (2) no outbound calls; (3) no API keys; (4) no third-party transmission; (5) no vendor relationship."
     },
     "supabase": {
       "command": "npx",
-      "args": ["-y", "@supabase/mcp-server-supabase@latest", "--access-token", "${SUPABASE_ACCESS_TOKEN}"]
+      "args": ["-y", "@supabase/mcp-server-supabase@latest", "--access-token", "${SUPABASE_ACCESS_TOKEN}"],
+      "_comment": "Supabase vendor wrapper (Supabase-official). Classification: vendor-intrinsic. 5-question audit: (1) npx subprocess locally; (2) outbound HTTPS to supabase.com API with the user's access token; (3) requires SUPABASE_ACCESS_TOKEN; (4) transmits user-provided queries / rows; (5) the user is a Supabase customer. Vendor-intrinsic: Supabase is the user's backend."
     },
     "postgres": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-postgres", "${DATABASE_URL}"]
+      "args": ["-y", "@modelcontextprotocol/server-postgres", "${DATABASE_URL}"],
+      "_comment": "Postgres wrapper (Anthropic-maintained). Classification: vendor-intrinsic. 5-question audit: (1) npx subprocess locally; (2) Postgres wire protocol to the user's own database at DATABASE_URL; (3) requires DATABASE_URL; (4) query results flow to Claude (not a new third party); (5) the user owns the DB. Vendor-intrinsic: the DB IS the data destination."
     },
     "sqlite": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-sqlite", "--db-path", "${SQLITE_DB_PATH}"]
-    },
-    "magic-ui": {
-      "command": "npx",
-      "args": ["-y", "@21st-dev/magic@latest"],
-      "env": {
-        "API_KEY": "${MAGIC_API_KEY}"
-      },
-      "_comment": "UI component generation"
+      "args": ["-y", "@modelcontextprotocol/server-sqlite", "--db-path", "${SQLITE_DB_PATH}"],
+      "_comment": "SQLite wrapper (Anthropic-maintained). Classification: already-local. 5-question audit: (1) npx subprocess; (2) no outbound calls (SQLite is a local file); (3) requires SQLITE_DB_PATH; (4) query results flow to Claude only; (5) no vendor relationship."
     },
     "railway": {
       "command": "npx",
       "args": ["-y", "@railway/mcp-server"],
       "env": {
         "RAILWAY_API_TOKEN": "${RAILWAY_API_TOKEN}"
-      }
+      },
+      "_comment": "Railway vendor wrapper (Railway-official). Classification: vendor-intrinsic. 5-question audit: (1) npx subprocess; (2) outbound HTTPS to railway.app API with the user's token; (3) requires RAILWAY_API_TOKEN; (4) transmits deployment metadata and user commands; (5) the user is a Railway customer."
     },
     "vercel": {
       "command": "npx",
       "args": ["-y", "@vercel/mcp-adapter"],
       "env": {
         "VERCEL_TOKEN": "${VERCEL_TOKEN}"
-      }
+      },
+      "_comment": "Vercel vendor wrapper (Vercel-official). Classification: vendor-intrinsic. 5-question audit: (1) npx subprocess; (2) outbound HTTPS to vercel.com API with the user's token; (3) requires VERCEL_TOKEN; (4) transmits deployment metadata and user commands; (5) the user is a Vercel customer."
     },
     "cloudflare": {
       "command": "npx",
@@ -80,7 +61,8 @@
       "env": {
         "CLOUDFLARE_API_TOKEN": "${CLOUDFLARE_API_TOKEN}",
         "CLOUDFLARE_ACCOUNT_ID": "${CLOUDFLARE_ACCOUNT_ID}"
-      }
+      },
+      "_comment": "Cloudflare vendor wrapper (Cloudflare-official). Classification: vendor-intrinsic. 5-question audit: (1) npx subprocess; (2) outbound HTTPS to api.cloudflare.com with the user's token; (3) requires CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID; (4) transmits resource queries and user commands; (5) the user is a Cloudflare customer."
     },
     "devai-skill-server": {
       "command": "python",
@@ -88,7 +70,7 @@
       "env": {
         "DEVAI_HUB_ROOT": "${DEVAI_HUB_ROOT}"
       },
-      "_comment": "DevAI-Hub skill discovery MCP server. Provides search_skills, get_skill, list_categories, list_bundles, and get_bundle tools. Set DEVAI_HUB_ROOT to the DevAI-Hub repo root, or install via the DevAI-Hub installer. Falls back to ~/.devai-hub/. Requires Python 3.10+."
+      "_comment": "DevAI-Hub skill discovery MCP server (internal). Classification: already-local. Tools: search_skills, get_skill, list_categories, list_bundles, get_bundle. 5-question audit: (1) Python subprocess locally; (2) no outbound calls (reads data/skills.json from disk); (3) no API keys; (4) transmits no source code or prompts to any third party; (5) no vendor relationship. Set DEVAI_HUB_ROOT to the DevAI-Hub repo root, or install via the DevAI-Hub installer. Falls back to ~/.devai-hub/. Requires Python 3.10+."
     }
   },
   "_usage": {
@@ -96,6 +78,7 @@
     "format": "The 'mcpServers' key at root of settings.json accepts an object where each key is the server name and each value is its config.",
     "env_vars": "Set required environment variables in your shell profile or .env file before starting Claude Code. Never hardcode tokens.",
     "limit": "Keep the total number of enabled MCP servers under 10 to preserve context window capacity.",
-    "disable_per_project": "To disable a server for a specific project, add its name to the 'disabledMcpServers' array in the project's .claude/settings.json."
+    "disable_per_project": "To disable a server for a specific project, add its name to the 'disabledMcpServers' array in the project's .claude/settings.json.",
+    "policy": "Additions to this registry must satisfy the MCP Registry Policy in AGENTS.md and be documented in docs/v1.0.0/mcp-reverse-engineering-matrix.md. Every entry's _comment answers the 5-question audit."
   }
 }

@@ -1,22 +1,32 @@
-# External Integrations & MCPs
+# External Integrations and MCPs
 
-Model Context Protocol (MCP) integrations and external service configurations for Claude Code skills.
+Model Context Protocol (MCP) integrations for DevAI-Hub skills and workflows.
+
+---
+
+## Policy Compliance Notice
+
+Integrations documented here are **governed by the MCP Registry Policy** in [AGENTS.md](../../AGENTS.md) and classified in [docs/v1.0.0/mcp-reverse-engineering-matrix.md](../../docs/v1.0.0/mcp-reverse-engineering-matrix.md). This guide lists only servers that satisfy the policy's decision tree:
+
+1. Local-only (internal or zero-outbound Anthropic-official)
+2. LLM-native skill (no MCP needed)
+3. Reverse-engineered internal MCP under `extensions/`
+4. Trusted vendor wrapper where the vendor is the intrinsic data destination AND the capability cannot be reverse-engineered AND the feature is extremely worth it
+5. Otherwise: drop
+
+Third-party search-as-service, embeddings-as-service, scraping-as-service, and generation-as-service MCPs are **hard-no** under the policy. Previously-common servers like context7, exa, firecrawl, magic-ui, claude-context, tavily, and hosted LLM proxies (OpenAI / Anthropic / etc. via MCP) are NOT shipped in `catalog/mcp-configs/mcp-servers.json` and NOT documented below. See [MCP_DEVELOPMENT_SERVERS.md](../../guides/MCP_DEVELOPMENT_SERVERS.md) "Reverse-engineered replacements" for the DevAI-Hub equivalents.
+
+---
 
 ## What are MCPs?
 
-**Model Context Protocol (MCP)** is Anthropic's standard for connecting Claude to external tools, services, and data sources. MCPs enable Claude Code to:
+Model Context Protocol (MCP) is Anthropic's standard for connecting Claude to external tools, services, and data sources. An MCP server runs as a local subprocess; the agent calls its exposed tools via stdio. The server may be purely local (no network) or wrap an outbound API. Under the policy, outbound-calling MCPs are acceptable only when the vendor is the intrinsic data destination (your own GitHub repo, your own database, your own Railway project).
 
-- Access external APIs (GitHub, databases, cloud services)
-
-- Read/write to specialized data stores
-
-- Interact with development tools
-
-- Retrieve real-time information
+---
 
 ## MCP Configuration
 
-MCPs are configured in `.mcp.json` at your project root:
+MCPs are configured in `.mcp.json` at your project root or `~/.claude/.mcp.json` for user-scope. The canonical registry DevAI-Hub ships is `catalog/mcp-configs/mcp-servers.json`; copy the entries you need. See [MCP_DEVELOPMENT_SERVERS.md](../../guides/MCP_DEVELOPMENT_SERVERS.md) for recommendation ordering by workflow stage.
 
 ```json
 {
@@ -24,9 +34,7 @@ MCPs are configured in `.mcp.json` at your project root:
     "server-name": {
       "command": "command-to-run",
       "args": ["arg1", "arg2"],
-      "env": {
-        "API_KEY": "your-key-here"
-      }
+      "env": { "API_KEY": "${ENV_VAR_NAME}" }
     }
   }
 }
@@ -34,365 +42,108 @@ MCPs are configured in `.mcp.json` at your project root:
 
 ---
 
-## Available MCP Templates
+## DevAI-Hub Internal MCPs
 
-### Development Tools
+Three servers shipped in this repo. All pure-local, zero outbound calls, zero API keys.
 
-#### 1. GitHub Integration
+| Server | Purpose | Install | Tool surface |
+|---|---|---|---|
+| `devai-skill-server` | Skill catalog retrieval | `pip install -e extensions/devai-skill-server` | `search_skills`, `get_skill`, `list_categories`, `list_bundles`, `get_bundle` |
+| `devai-code-search` | Local keyword code search with incremental indexing (v1.0.0 keyword-only; dense/hybrid planned for v1.1.0) | `pip install -e extensions/devai-code-search` | `index_codebase`, `search_code`, `clear_index`, `get_indexing_status` |
+| `devai-web-fetch` | Single-URL HTTPS fetch + readability extraction (SSRF-guarded) | `pip install -e extensions/devai-web-fetch` | `fetch_url(url, render_js=False, extract_mode="readability")` |
 
-**Purpose:** Access GitHub repositories, issues, PRs, and code
+All three are installed by the DevAI-Hub installer under `~/.devai-hub/`. Their registry entries in `catalog/mcp-configs/mcp-servers.json` carry the full 5-question audit.
 
-**Configuration:**
+---
+
+## Anthropic-Official Local MCPs
+
+| Server | Purpose | Outbound calls |
+|---|---|---|
+| `filesystem` | Scoped file read/write | None |
+| `memory` | Persistent entity / fact store | None |
+| `sequential-thinking` | Step-by-step reasoning scaffold | None |
+| `sqlite` | Query a SQLite database file | None |
+
+See `catalog/mcp-configs/mcp-servers.json` for the config snippets.
+
+---
+
+## Vendor-Intrinsic Wrappers (Your-Own-Account)
+
+Acceptable **only if you are already a customer of the vendor**. The vendor is the intrinsic data destination. Each entry in `catalog/mcp-configs/mcp-servers.json` carries the 5-question audit in its `_comment`.
+
+### GitHub
+
 ```json
 {
   "mcpServers": {
     "github": {
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-github"],
-      "env": {
-        "GITHUB_PERSONAL_ACCESS_TOKEN": "your_github_token_here"
-      }
+      "env": { "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}" }
     }
   }
 }
 ```
 
-**Setup:**
+Setup:
+1. Generate a GitHub Personal Access Token at Settings > Developer settings > Personal access tokens. Minimum scopes: `repo`, `read:org`, `read:user`.
+2. Export `GITHUB_TOKEN=<token>` in your shell profile or `.env`.
 
-1. Generate GitHub Personal Access Token:
+### PostgreSQL (your own database)
 
-   - Go to GitHub Settings > Developer settings > Personal access tokens
-
-   - Generate new token (classic)
-
-   - Select scopes: `repo`, `read:org`, `read:user`
-
-2. Add token to `.mcp.json`
-
-3. Restart Claude Code
-
-**Skills that use this:**
-
-- `code-commit-workflow`
-
-- `dependency-security-audit`
-
-- `code-review-*` (for remote repos)
-
----
-
-#### 2. GitLab Integration
-
-**Purpose:** Access GitLab repositories and CI/CD pipelines
-
-**Configuration:**
-```json
-{
-  "mcpServers": {
-    "gitlab": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-gitlab"],
-      "env": {
-        "GITLAB_PERSONAL_ACCESS_TOKEN": "your_gitlab_token_here",
-        "GITLAB_API_URL": "https://gitlab.com/api/v4"
-      }
-    }
-  }
-}
-```
-
----
-
-### Database Integrations
-
-#### 3. PostgreSQL
-
-**Purpose:** Query and analyze database schemas and data
-
-**Configuration:**
 ```json
 {
   "mcpServers": {
     "postgres": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-postgres"],
-      "env": {
-        "POSTGRES_CONNECTION_STRING": "postgresql://user:password@localhost:5432/dbname"
-      }
+      "args": ["-y", "@modelcontextprotocol/server-postgres", "${DATABASE_URL}"]
     }
   }
 }
 ```
 
-**Skills that use this:**
+### Supabase, Railway, Vercel, Cloudflare
 
-- `generate-api-docs` (for database-backed APIs)
-
-- `code-review-performance` (for query optimization)
-
----
-
-#### 4. MySQL/MariaDB
-
-**Configuration:**
-```json
-{
-  "mcpServers": {
-    "mysql": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-mysql"],
-      "env": {
-        "MYSQL_CONNECTION_STRING": "mysql://user:password@localhost:3306/dbname"
-      }
-    }
-  }
-}
-```
-
----
-
-#### 5. MongoDB
-
-**Configuration:**
-```json
-{
-  "mcpServers": {
-    "mongodb": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-mongodb"],
-      "env": {
-        "MONGODB_CONNECTION_STRING": "mongodb://user:password@localhost:27017/dbname"
-      }
-    }
-  }
-}
-```
-
----
-
-### Cloud Services
-
-#### 6. AWS
-
-**Purpose:** Access AWS resources (S3, Lambda, DynamoDB, etc.)
-
-**Configuration:**
-```json
-{
-  "mcpServers": {
-    "aws": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-aws"],
-      "env": {
-        "AWS_ACCESS_KEY_ID": "your_access_key",
-        "AWS_SECRET_ACCESS_KEY": "your_secret_key",
-        "AWS_REGION": "us-east-1"
-      }
-    }
-  }
-}
-```
-
----
-
-#### 7. Google Cloud Platform
-
-**Configuration:**
-```json
-{
-  "mcpServers": {
-    "gcp": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-gcp"],
-      "env": {
-        "GOOGLE_APPLICATION_CREDENTIALS": "/path/to/credentials.json"
-      }
-    }
-  }
-}
-```
-
----
-
-#### 8. Azure
-
-**Configuration:**
-```json
-{
-  "mcpServers": {
-    "azure": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-azure"],
-      "env": {
-        "AZURE_CLIENT_ID": "your_client_id",
-        "AZURE_CLIENT_SECRET": "your_client_secret",
-        "AZURE_TENANT_ID": "your_tenant_id"
-      }
-    }
-  }
-}
-```
-
----
-
-### AI Services
-
-#### 9. OpenAI
-
-**Purpose:** Use OpenAI models for specialized tasks
-
-**Configuration:**
-```json
-{
-  "mcpServers": {
-    "openai": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-openai"],
-      "env": {
-        "OPENAI_API_KEY": "your_openai_api_key"
-      }
-    }
-  }
-}
-```
-
----
-
-### Documentation & Knowledge
-
-#### 10. Confluence
-
-**Purpose:** Access company documentation and knowledge bases
-
-**Configuration:**
-```json
-{
-  "mcpServers": {
-    "confluence": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-confluence"],
-      "env": {
-        "CONFLUENCE_URL": "https://your-company.atlassian.net",
-        "CONFLUENCE_EMAIL": "your.email@company.com",
-        "CONFLUENCE_API_TOKEN": "your_confluence_token"
-      }
-    }
-  }
-}
-```
-
----
-
-#### 11. Notion
-
-**Configuration:**
-```json
-{
-  "mcpServers": {
-    "notion": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-notion"],
-      "env": {
-        "NOTION_API_KEY": "your_notion_integration_token"
-      }
-    }
-  }
-}
-```
-
----
-
-## MCP Setup Guide
-
-### Step 1: Identify Required MCPs
-
-Review your skills and determine which MCPs are needed:
-
-```bash
-# Check which skills require external services
-python tools/install_skill.py --info skill-name
-# Look for "Tools Required" or "External Services" sections
-```
-
-### Step 2: Create .mcp.json
-
-Create `.mcp.json` in your project root:
-
-```json
-{
-  "mcpServers": {}
-}
-```
-
-### Step 3: Add Configurations
-
-Copy relevant configurations from templates above.
-
-### Step 4: Obtain API Keys
-
-For each MCP:
-
-1. Visit the service's developer portal
-
-2. Generate API keys/tokens
-
-3. Add to `.mcp.json` env section
-
-### Step 5: Test Configuration
-
-```bash
-# Restart Claude Code
-# Test MCP access by using a skill that requires it
-"Use the code-review-security skill to audit dependencies"
-```
+See `catalog/mcp-configs/mcp-servers.json` for ready-to-use snippets with the 5-question audit in each `_comment` field. All require a user-supplied API token set as an environment variable.
 
 ---
 
 ## Security Best Practices
 
-### Never Commit Secrets
+### Never commit secrets
 
-**Bad:**
+Use `${ENV_VAR}` references in `.mcp.json`; never hardcode tokens. Set values in your shell profile or a `.env` file that is in `.gitignore`.
+
 ```json
 {
   "mcpServers": {
     "github": {
-      "env": {
-        "GITHUB_PERSONAL_ACCESS_TOKEN": "ghp_abc123..."
-      }
+      "env": { "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}" }
     }
   }
 }
 ```
 
-**Good:**
-```json
-{
-  "mcpServers": {
-    "github": {
-      "env": {
-        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
-      }
-    }
-  }
-}
-```
-
-Then set environment variable:
 ```bash
-# Linux/Mac
+# Linux / macOS
 export GITHUB_TOKEN="ghp_abc123..."
 
 # Windows PowerShell
 $env:GITHUB_TOKEN="ghp_abc123..."
-
-# Windows CMD
-set GITHUB_TOKEN=ghp_abc123...
 ```
 
-### Use .gitignore
+### Rotate keys regularly
+
+- Rotate API keys every 90 days.
+- Use short-lived tokens where possible.
+- Revoke unused keys immediately.
+
+### Gitignore
 
 Add to `.gitignore`:
+
 ```
 .mcp.json
 .env
@@ -400,201 +151,53 @@ Add to `.gitignore`:
 credentials.json
 ```
 
-### Use Environment Files
-
-Create `.env` file (add to .gitignore):
-```
-GITHUB_TOKEN=ghp_abc123...
-OPENAI_API_KEY=sk-abc123...
-AWS_ACCESS_KEY_ID=AKIA...
-```
-
-Load in `.mcp.json`:
-```json
-{
-  "mcpServers": {
-    "github": {
-      "env": {
-        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
-      }
-    }
-  }
-}
-```
-
-### Rotate Keys Regularly
-
-- Change API keys every 90 days
-
-- Use short-lived tokens when possible
-
-- Revoke unused keys immediately
-
 ---
 
 ## Troubleshooting
 
-### MCP Not Found
+### MCP not found
 
-**Problem:** `Cannot find module '@modelcontextprotocol/server-github'`
-
-**Solution:**
-```bash
-# Install MCP package globally
-npm install -g @modelcontextprotocol/server-github
-
-# Or use npx (auto-installs)
-# Already used in configuration examples above
+```
+Cannot find module '@modelcontextprotocol/server-github'
 ```
 
-### Authentication Failed
+Use `npx -y <package>` in the args (as in every snippet above) so the package auto-installs on first run. Alternatively `npm install -g <package>`.
 
-**Problem:** `401 Unauthorized` or `403 Forbidden`
+### Authentication failed (401 / 403)
 
-**Solution:**
+- Verify the API key is correct.
+- Confirm the key has the required scopes.
+- Confirm the key hasn't expired.
+- Test the credential directly against the vendor API with `curl`.
 
-1. Verify API key is correct
+### Connection timeout
 
-2. Check key has required permissions
+- Check network connectivity.
+- Verify the service URL.
+- Check firewall and proxy settings.
 
-3. Ensure key hasn't expired
+### Rate limiting (429)
 
-4. Test key directly with service API
-
-### Connection Timeout
-
-**Problem:** `ETIMEDOUT` or connection errors
-
-**Solution:**
-
-1. Check network connectivity
-
-2. Verify service URL is correct
-
-3. Check firewall settings
-
-4. Test with curl/wget:
-   ```bash
-   curl -H "Authorization: token YOUR_TOKEN" https://api.github.com/user
-   ```
-
-### Rate Limiting
-
-**Problem:** `429 Too Many Requests`
-
-**Solution:**
-
-1. Reduce API call frequency
-
-2. Implement caching in your workflows
-
-3. Upgrade to higher rate limit tier
-
-4. Use authenticated requests (higher limits)
+- Reduce call frequency.
+- Cache within your workflow.
+- Use authenticated requests where possible (higher limits).
 
 ---
 
-## MCP Development
+## Custom MCPs
 
-Want to create custom MCPs? See:
+To build a new MCP server for DevAI-Hub:
 
-- [Anthropic MCP Documentation](https://docs.anthropic.com/model-context-protocol)
+1. Walk the MCP Registry Policy decision tree in [AGENTS.md](../../AGENTS.md). Prefer local-only or skill-native before reaching for external wrappers.
+2. If building a new local-only MCP, mirror the layout of `extensions/devai-skill-server/` or `extensions/devai-code-search/`.
+3. Add a row to `docs/v1.0.0/mcp-reverse-engineering-matrix.md` before opening the PR.
+4. Update `catalog/mcp-configs/mcp-servers.json` with a `_comment` that answers the 5-question audit.
+5. Register the package in both installer scripts per the `AGENTS.md` Installer-Aware Changes section.
 
-- [MCP SDK](https://github.com/anthropics/mcp-sdk)
-
-- [Example MCPs](https://github.com/anthropics/mcp-examples)
-
----
-
-## Common MCP Patterns
-
-### Pattern 1: Multi-Service Setup
-
-```json
-{
-  "mcpServers": {
-    "github": { ... },
-    "postgres": { ... },
-    "aws": { ... }
-  }
-}
-```
-
-### Pattern 2: Environment-Specific
-
-```json
-{
-  "mcpServers": {
-    "database": {
-      "env": {
-        "DB_URL": "${DATABASE_URL}",
-        "ENVIRONMENT": "${NODE_ENV}"
-      }
-    }
-  }
-}
-```
-
-### Pattern 3: Conditional Loading
-
-Load different MCPs based on project type:
-
-**For web projects:**
-
-- GitHub
-
-- PostgreSQL/MySQL
-
-- AWS/GCP
-
-- OpenAI
-
-**For data science projects:**
-
-- GitHub
-
-- MongoDB
-
-- AWS S3
-
-- OpenAI
-
-**For enterprise projects:**
-
-- GitLab
-
-- Oracle/SQL Server
-
-- Azure
-
-- Confluence
+External references:
+- [Anthropic MCP Documentation](https://docs.anthropic.com/en/docs/agents-and-tools/mcp)
+- [MCP SDK](https://github.com/modelcontextprotocol)
 
 ---
 
-## Skills by MCP Requirement
-
-### Requires GitHub MCP:
-- `code-commit-workflow`
-
-- `dependency-security-audit` (for remote repos)
-
-### Requires Database MCP:
-- `generate-api-docs` (for DB-backed APIs)
-
-- `code-review-performance` (for query analysis)
-
-### Requires Cloud MCP:
-- `dependency-security-audit` (for cloud dependencies)
-
-- `generate-sbom` (for cloud resources)
-
-### No MCP Required:
-- Most skills work with local files only
-
-- MCP is optional enhancement for additional functionality
-
----
-
-*MCP Integration Guide - Part of DevAI-Hub v0.9.7*
-
-*Last Updated: April 2026*
+*Part of DevAI-Hub v1.0.0. Governed by the MCP Registry Policy in `AGENTS.md`.*
