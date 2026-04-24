@@ -1,5 +1,24 @@
 # Plan — Adopt `zilliztech/claude-context` Patterns into DevAI-Hub
 
+> **STATUS: ABANDONED (2026-04-24) — SUPERSEDED BY v1.0.0 SECURITY-HARDENING PLAN**
+>
+> This plan was started and halted after Phase 2. The user flagged a policy concern: DevAI-Hub must not ship MCP registry entries that point users at third-party data processors (in a regulated medtech context, proprietary source code, prompts, and query text cannot leak to external APIs). Phase 2 had added exactly such an entry (`@zilliz/claude-context-mcp`), which has now been **reverted** before any commit.
+>
+> **Outcomes**:
+>
+> - **Phase 1** (merged as commit `3e9a202`): the `rag-implementation/SKILL.md` content additions are kept as reverse-engineered pattern knowledge, but every external-source attribution (`zilliztech/claude-context`, `Zilliz Cloud`, `voyage-code-3`, SWE-bench metric citations, upstream repo file paths) is being **de-branded** under v1.0.0 Phase 4. Generic descriptive names replace specific product/repo references.
+> - **Phase 2**: fully reverted. The `claude-context` entry in `catalog/mcp-configs/mcp-servers.json` is gone, the Phase 2 DEVLOG entry is removed, and the Phase 2 session-history file has been deleted (none of the Phase 2 work was ever committed, so the revert is clean).
+> - **Phases 3–5** (original: new `code-semantic-search` skill, cross-links, skill-server benchmark): reverse-engineered into v1.0.0 Phases 8–10. Every new artifact is de-branded (no external attribution) and re-points references at DevAI-Hub's own internal MCPs (`devai-code-search`, to be built in v1.0.0 Phase 6).
+> - **Phase 6** (original release): absorbed into v1.0.0 Phase 11.
+>
+> **Release retarget**: the work originally scoped for v0.9.8 grew into a major-version event (MCP Registry Policy bake-in, a new authoritative reverse-engineering matrix, 2 new internal MCPs, 3 new skills, `/compare-project` command-level workflow change, breaking registry removals). It now targets **v1.0.0** as the first stable release milestone. The version-bump sweep therefore goes `0.9.7 → 1.0.0`, skipping the intermediate 0.9.8.
+>
+> **Successor plan**: [`docs/v1.0.0/plans/security-hardening-v100.md`](../../v1.0.0/plans/security-hardening-v100.md) (generated via `/generate-plan` from the v1.0.0 scratch plan — see that file's Phase 0 for the authoring trail).
+>
+> This file is kept unchanged below for historical record. The body content does NOT reflect current project direction; refer to the successor plan.
+
+---
+
 **Project**: DevAI-Hub
 **Version**: v0.9.7 (target release: v0.9.8)
 **Slug**: adoption-claude-context
