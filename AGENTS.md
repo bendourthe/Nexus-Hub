@@ -128,6 +128,46 @@ After creating SKILL.md, update these three files:
 
 Run `make validate` to check JSON catalog integrity. Run `make lint` to check shell scripts with ShellCheck.
 
+## MCP Registry Policy
+
+DevAI-Hub ships `catalog/mcp-configs/mcp-servers.json` as a curated registry of MCP server configurations. Users copy the entries they need into their own `.claude/settings.json`. Because these snippets cause users' agents to spawn local subprocesses that may reach out to external APIs, every registry entry is a security decision. This section defines what qualifies a server for inclusion.
+
+**Guiding principle**: priority is always to reverse-engineer and recreate locally. Trusted vendors are accepted only for parts that cannot be reverse-engineered AND where the feature is extremely worth it.
+
+### Decision Tree (stop at the first bucket that fits)
+
+1. **Local-only**: internal DevAI-Hub servers (`devai-skill-server`, `devai-code-search`, `devai-web-fetch`) or Anthropic-official servers that make zero outbound calls (`filesystem`, `memory`, `sequential-thinking`, `sqlite`). **Always allowed.**
+2. **LLM-native skill** (zero code, zero MCP): if the capability can be achieved by instructing the agent's own LLM (e.g. "generate a React component with these props", "explain this stack trace"), ship a skill in `catalog/skills/`, not an MCP. **Preferred over any external wrapper.**
+3. **Reverse-engineerable into a local internal MCP**: if the external project wraps logic that can run locally (HTTP fetch + HTML parsing, tree-sitter chunking, BM25 keyword search, local embeddings), **build the internal equivalent** under `extensions/`. Strip external-source attribution from the implementation and documentation; use generic descriptive names for the package, the registry key, and the tool names.
+4. **Trusted vendor wrapper (your-own-account)**: acceptable only when **all three** conditions hold:
+   1. The third party is the intrinsic data destination — you are already a customer of the vendor (GitHub, Supabase, Railway, Vercel, Cloudflare, your own Postgres).
+   2. The capability cannot be reverse-engineered locally (or reverse-engineering duplicates effort without reducing data-flow surface).
+   3. The feature is extremely worth it.
+   The `_comment` field on the registry entry must explicitly justify each of the three conditions.
+5. **Otherwise**: drop. Do not ship the entry.
+
+### Five-Question Audit Checklist
+
+Every registry entry's `_comment` field must answer these five questions (one sentence each):
+
+1. Who runs the process?
+2. What outbound calls does it make and where?
+3. What API keys does it require?
+4. Does it transmit source code, prompts, or query text to a third party?
+5. Does the user already have a commercial relationship with the destination?
+
+### Hard-No List
+
+Search-as-service, embeddings-as-service, scraping-as-service, and generation-as-service are categorically not allowed. Explicit examples that have been considered and rejected: Upstash/context7, Exa, Firecrawl, 21st.dev/magic-ui, Zilliz/claude-context. If a capability in this class has value, reverse-engineer the pattern into an internal MCP or skill (see tiers 2 and 3 above).
+
+### Matrix Requirement
+
+Every MCP listed in `catalog/mcp-configs/mcp-servers.json` must have a corresponding row in `docs/v1.0.0/mcp-reverse-engineering-matrix.md`. The matrix is the authoritative classification document for the registry. Future additions require a matrix row with upstream evidence and a decision-tree classification.
+
+### Reverse-Engineering Attribution Rule
+
+When reverse-engineering an external pattern into DevAI-Hub content (a skill, a command, an internal MCP), do not name the specific external repo, product, or evaluation metric in the user-facing artifact. Use generic descriptive names (e.g. "code-semantic-search" instead of naming a specific upstream implementation). Attribution belongs in the reverse-engineering matrix row's `Rationale` column, not in the distributed artifact.
+
 ## Adding a New Command
 
 Commands are Markdown files in `catalog/commands/`. Each file is a slash command that Claude Code users can invoke with `/<filename-without-extension>`.

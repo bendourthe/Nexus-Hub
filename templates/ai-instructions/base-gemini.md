@@ -45,6 +45,18 @@
 - Summarize long command output rather than echoing it in full; report only counts, errors, and key results
 - When a command produces more than ~20 lines of output, summarize what happened rather than quoting the full log
 
+## MCP Registry Policy
+
+DevAI-Hub's MCP registry (`catalog/mcp-configs/mcp-servers.json`) is governed by a strict decision tree. When proposing a new entry, walk it in order and stop at the first bucket that fits:
+
+1. **Local-only** (internal DevAI-Hub servers or zero-outbound Anthropic-official servers) - always allowed.
+2. **LLM-native skill** (capability achievable by instructing the agent directly) - ship a skill, not an MCP.
+3. **Reverse-engineer into a local internal MCP** - if the external project's logic can run locally, build the internal equivalent under `extensions/`. Strip external-source attribution; use generic descriptive names.
+4. **Trusted vendor wrapper (your-own-account)** - acceptable only when the vendor is the intrinsic data destination, reverse-engineering isn't viable, AND the feature is extremely worth it. Justify all three in the `_comment`.
+5. **Otherwise** - drop.
+
+Hard no: search-as-service, embeddings-as-service, scraping-as-service, generation-as-service. Full policy + 5-question audit in `AGENTS.md`. Matrix at `docs/v1.0.0/mcp-reverse-engineering-matrix.md`.
+
 ## Skill Discovery
 When the user's request matches a skill in the SKILL INDEX below, read the full skill file from the path listed and follow its instructions. Do not mention the skill lookup to the user.
 

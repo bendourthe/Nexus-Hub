@@ -30,8 +30,20 @@ DevAI-Hub is a **template repository**. Nothing is "live" until a user runs `scr
 
 10. **Document** every user-visible change under `## [Unreleased]` in `CHANGELOG.md`.
 
+## MCP Registry Policy
+
+DevAI-Hub's MCP registry (`catalog/mcp-configs/mcp-servers.json`) is governed by a strict decision tree. When proposing a new entry, walk it in order and stop at the first bucket that fits:
+
+1. **Local-only** (internal DevAI-Hub servers or zero-outbound Anthropic-official servers) - always allowed.
+2. **LLM-native skill** (capability achievable by instructing the agent directly) - ship a skill, not an MCP.
+3. **Reverse-engineer into a local internal MCP** - if the external project's logic can run locally, build the internal equivalent under `extensions/`. Strip external-source attribution; use generic descriptive names.
+4. **Trusted vendor wrapper (your-own-account)** - acceptable only when the vendor is the intrinsic data destination, reverse-engineering isn't viable, AND the feature is extremely worth it. Justify all three in the `_comment`.
+5. **Otherwise** - drop.
+
+Hard no: search-as-service, embeddings-as-service, scraping-as-service, generation-as-service. Full policy + 5-question audit in `AGENTS.md`. Matrix at `docs/v1.0.0/mcp-reverse-engineering-matrix.md`.
+
 ## Platform coverage caveat
 
-The installer deploys skills, commands, agents, hooks, and rules as per-file trees only to Claude Code, Gemini/Antigravity, and Codex. Cursor, OpenCode, and Copilot receive behavioral guardrails only via their respective instruction files. New slash commands are not reachable as `/...` on those three platforms — note that explicitly in the CHANGELOG when adding one.
+The installer deploys skills, commands, agents, hooks, and rules as per-file trees only to Claude Code, Gemini/Antigravity, and Codex. Cursor, OpenCode, and Copilot receive behavioral guardrails only via their respective instruction files. New slash commands are not reachable as `/...` on those three platforms - note that explicitly in the CHANGELOG when adding one.
 
 These rules apply only to work inside this repo.
