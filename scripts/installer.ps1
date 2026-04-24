@@ -1840,6 +1840,21 @@ function Install-SkillDiscovery {
         }
         Write-Item -Message "  devai-code-search installed at $codeSearchDest" -Color "DarkGreen"
     }
+
+    # Install devai-web-fetch into the same venv (v1.0.0+).
+    # Local-only web-fetch MCP (fetches user-specified URLs only). See AGENTS.md.
+    $webFetchSrc = Join-Path $RepoRoot "extensions\devai-web-fetch"
+    $webFetchDest = Join-Path $devaiHome "web-fetch"
+    if (Test-Path $webFetchSrc) {
+        if (Test-Path $webFetchDest) { Remove-Item -Path $webFetchDest -Recurse -Force }
+        Copy-Item -Path $webFetchSrc -Destination $webFetchDest -Recurse -Force
+        if ($hasUv) {
+            & uv pip install --python "$venvPath\Scripts\python.exe" -e $webFetchDest 2>$null | Out-Null
+        } else {
+            & "$venvPath\Scripts\pip.exe" install -q -e $webFetchDest 2>$null | Out-Null
+        }
+        Write-Item -Message "  devai-web-fetch installed at $webFetchDest" -Color "DarkGreen"
+    }
     $ErrorActionPreference = "Stop"
 
     # Add or update mcpServers without touching other keys (e.g., hooks)
@@ -1853,6 +1868,11 @@ function Install-SkillDiscovery {
         args    = @("-m", "devai_code_search")
         env     = [PSCustomObject]@{ DEVAI_HUB_ROOT = $devaiHome }
     }
+    $webFetchEntry = [PSCustomObject]@{
+        command = "$venvPath\Scripts\python.exe"
+        args    = @("-m", "devai_web_fetch")
+        env     = [PSCustomObject]@{ DEVAI_HUB_ROOT = $devaiHome }
+    }
 
     if (-not $settings.PSObject.Properties["mcpServers"]) {
         $settings | Add-Member -NotePropertyName "mcpServers" -NotePropertyValue ([PSCustomObject]@{})
@@ -1860,7 +1880,8 @@ function Install-SkillDiscovery {
 
     foreach ($pair in @(
         @{ Name = "devai-skill-server"; Entry = $skillServerEntry },
-        @{ Name = "devai-code-search"; Entry = $codeSearchEntry }
+        @{ Name = "devai-code-search"; Entry = $codeSearchEntry },
+        @{ Name = "devai-web-fetch"; Entry = $webFetchEntry }
     )) {
         $name = $pair.Name
         $entry = $pair.Entry
@@ -1872,7 +1893,7 @@ function Install-SkillDiscovery {
     }
 
     $settings | ConvertTo-Json -Depth 10 | Set-Content $claudeSettings -Encoding UTF8
-    Write-Item -Message "  MCP servers registered in $claudeSettings (devai-skill-server, devai-code-search)" -Color "DarkGreen"
+    Write-Item -Message "  MCP servers registered in $claudeSettings (devai-skill-server, devai-code-search, devai-web-fetch)" -Color "DarkGreen"
     Write-Item -Message "  Servers will auto-start with Claude Code. No manual steps needed." -Color "DarkGreen"
 }
 

@@ -1,0 +1,31 @@
+[project]
+name = "devai-web-fetch"
+version = "1.0.0"
+description = "DevAI-Hub local-only web-fetch MCP server (HTTPS fetch + readability extraction, SSRF-guarded)"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [{name = "Benjamin Dourthe"}]
+dependencies = [
+    "mcp>=1.0.0",
+    "httpx>=0.27.0",
+    "beautifulsoup4>=4.12.0",
+    "readability-lxml>=0.8.1",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0", "pytest-asyncio>=0.21"]
+
+[project.scripts]
+devai-web-fetch = "devai_web_fetch.__main__:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/devai_web_fetch"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"

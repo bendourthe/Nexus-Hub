@@ -82,3 +82,9 @@ jobs:
 
       - name: Code-search tests
         run: pytest extensions/devai-code-search/tests/ -v
+
+      - name: Install web-fetch MCP server (v1.0.0+)
+        run: pip install -e "extensions/devai-web-fetch/[dev]"
+
+      - name: Web-fetch tests
+        run: pytest extensions/devai-web-fetch/tests/ -v

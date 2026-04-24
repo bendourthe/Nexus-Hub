@@ -1508,7 +1508,22 @@ install_skill_discovery() {
         write_item "  devai-code-search installed at $code_search_dest" "$GREEN"
     fi
 
-    # Use python to safely merge MCP server config into settings.json (both servers).
+    # Install devai-web-fetch into the same venv (v1.0.0+).
+    # Local-only web-fetch MCP (fetches user-specified URLs only). See AGENTS.md.
+    local web_fetch_src="$repo_root/extensions/devai-web-fetch"
+    local web_fetch_dest="$devai_home/web-fetch"
+    if [ -d "$web_fetch_src" ]; then
+        rm -rf "$web_fetch_dest"
+        cp -r "$web_fetch_src" "$web_fetch_dest"
+        if command -v uv >/dev/null 2>&1; then
+            uv pip install --python "$venv_path/bin/python" -e "$web_fetch_dest" >/dev/null 2>&1
+        else
+            "$venv_path/bin/pip" install -q -e "$web_fetch_dest" >/dev/null 2>&1
+        fi
+        write_item "  devai-web-fetch installed at $web_fetch_dest" "$GREEN"
+    fi
+
+    # Use python to safely merge MCP server config into settings.json (all three internal servers).
     "$python_cmd" -c "
 import json, sys
 path = sys.argv[1]
@@ -1528,11 +1543,16 @@ data['mcpServers']['devai-code-search'] = {
     'args': ['-m', 'devai_code_search'],
     'env': {'DEVAI_HUB_ROOT': hub}
 }
+data['mcpServers']['devai-web-fetch'] = {
+    'command': venv + '/bin/python',
+    'args': ['-m', 'devai_web_fetch'],
+    'env': {'DEVAI_HUB_ROOT': hub}
+}
 with open(path, 'w') as f:
     json.dump(data, f, indent=2)
 " "$claude_settings" "$venv_path" "$devai_home"
 
-    write_item "  MCP servers registered in $claude_settings (devai-skill-server, devai-code-search)" "$GREEN"
+    write_item "  MCP servers registered in $claude_settings (devai-skill-server, devai-code-search, devai-web-fetch)" "$GREEN"
     write_item "  Servers will auto-start with Claude Code. No manual steps needed." "$GREEN"
 }
 
