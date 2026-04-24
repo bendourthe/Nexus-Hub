@@ -1,0 +1,126 @@
+# MCP Reverse-Engineering Matrix
+
+**Version**: v1.0.0
+**Source policy**: [AGENTS.md](../../AGENTS.md) `## MCP Registry Policy`
+**Status**: authoritative
+
+This matrix classifies every MCP server referenced by DevAI-Hub (both those kept in `catalog/mcp-configs/mcp-servers.json` and those dropped or reverted) under the MCP Registry Policy decision tree. The matrix is the permanent record of why each entry sits where it does; future registry additions must add a row here with upstream evidence.
+
+The v1.0.0 release was driven off this matrix: drops (Phase 3) and new internal MCP builds (Phases 6 and 7) flow from the `v1.0.0 action` column; deferred rebuilds flow from the `v1.1.0+ action` column into the backlog.
+
+---
+
+## Classification Legend
+
+Listed in decision-tree order (from the policy in `AGENTS.md`). An entry gets the highest-precedence classification that applies:
+
+| Classification | Meaning |
+|---|---|
+| `already-local` | No outbound calls. Internal DevAI-Hub or zero-outbound Anthropic-official. No action needed. |
+| `skill-native` | Capability is achievable by instructing the agent's own LLM; the correct replacement is a skill, not an MCP. |
+| `re-full` | Fully reverse-engineerable into a local internal MCP with no loss of function. |
+| `re-partial` | Partially reverse-engineerable; some capability depends on a third-party data source; ship what's local, document the gap. |
+| `vendor-intrinsic` | The third party IS the data destination (the user is already a customer). Rebuild-as-internal-MCP improves audit and supply-chain posture but does not reduce data flow. Defer to v1.1.0+ unless the audit argument is urgent. |
+| `drop-outright` | Capability requires a third-party service that cannot be recreated (for example: "the web"). No local equivalent possible; not worth the trust cost. |
+
+---
+
+## Row Schema
+
+Each row answers:
+
+| Column | What it captures |
+|---|---|
+| MCP key | The key used in `mcp-servers.json`. |
+| Current source | Who maintains the upstream code; package or repo. |
+| What it does | One sentence on the capability. |
+| Outbound-call surface | Where data goes at runtime, cited with evidence. |
+| Classification | Per the legend above. |
+| Effort if RE'd | Small / Medium / Large, for the `re-*` rows. |
+| v1.0.0 action | What this release does. |
+| v1.1.0+ action | What later releases should consider. |
+| Rationale / citation | The upstream evidence that supports the classification. External source names appear only in this column (per the policy's Reverse-Engineering Attribution Rule). |
+
+---
+
+## Matrix
+
+### Internal and Local-Only (Always Allowed)
+
+| MCP key | Current source | What it does | Outbound-call surface | Classification | Effort if RE'd | v1.0.0 action | v1.1.0+ action | Rationale / citation |
+|---|---|---|---|---|---|---|---|---|
+| `devai-skill-server` | DevAI-Hub internal (`extensions/devai-skill-server/`, Python 3.10+) | Skill catalog retrieval: `search_skills`, `get_skill`, `list_categories`, `list_bundles`, `get_bundle` | None - reads `data/skills.json` from local disk | `already-local` | n/a | Keep | Expand benchmark coverage in Phase 10; continue keyword-only search | Maintained in-repo; direct filesystem access only. |
+| `filesystem` | Anthropic official (`@modelcontextprotocol/server-filesystem`) | Scoped read/write of files in a user-specified directory | None at the MCP layer; file contents flow to Claude as tool results (standard Claude Code behavior, not MCP-specific) | `already-local` | n/a | Keep | Keep | Anthropic-maintained reference server; no network activity. |
+| `memory` | Anthropic official (`@modelcontextprotocol/server-memory`) | Persistent per-session memory store over a local file | None | `already-local` | n/a | Keep | Keep | Anthropic-maintained. Local JSON store. |
+| `sequential-thinking` | Anthropic official (`@modelcontextprotocol/server-sequential-thinking`) | Structured step-by-step reasoning scaffold | None | `already-local` | n/a | Keep | Keep | Anthropic-maintained. No I/O beyond the tool call. |
+| `sqlite` | Anthropic official (`@modelcontextprotocol/server-sqlite`) | Query a SQLite database file | None at the MCP layer; query results flow to Claude | `already-local` | n/a | Keep | Keep | Anthropic-maintained. SQLite is a local file. |
+
+---
+
+### Dropped in v1.0.0 (Reverse-Engineered or Drop-Outright)
+
+| MCP key | Current source | What it does | Outbound-call surface | Classification | Effort if RE'd | v1.0.0 action | v1.1.0+ action | Rationale / citation |
+|---|---|---|---|---|---|---|---|---|
+| `context7` | Upstash (`@upstash/context7-mcp`) | Up-to-date library documentation lookup | Every query goes to Upstash servers; library names and search queries leave the local machine | `re-partial` | Medium | **Drop.** Ship the `local-docs-lookup` skill (Phase 7.3) covering local pydoc / go doc / vendored README patterns. Continuously-updated library index capability is documented as a gap. | Consider a local documentation cache MCP only if demand materializes; accept the staleness tradeoff explicitly. | Upstash runs a hosted indexed library corpus; the freshness aspect cannot be fully replicated locally without re-crawling and re-indexing upstream sources. Query text (often generated by the agent from local context) is the leak vector. |
+| `exa-web-search` | Exa (`exa-mcp-server`) | Neural web search | Every query goes to exa.ai; full search queries (often agent-composed from local context) leave the machine | `drop-outright` | n/a | **Drop.** No replacement ships in v1.0.0; users who need web search can add the entry back to their own settings, aware of the cost. | None planned. Web search by definition requires a third-party service; the trust cost exceeds the benefit for the target regulated-medtech profile. | The web is not reverse-engineerable. Query-to-third-party is the entire capability. |
+| `firecrawl` | Firecrawl (`firecrawl-mcp`) | Web scraping / site crawl with HTML extraction | URLs and optional auth sent to firecrawl.dev; scraped content returned via that intermediary | `re-full` | Medium | **Drop and replace** with the internal `devai-web-fetch` MCP (Phase 7.1). HTTPS fetch goes directly to the target URL; no third-party intermediary. RFC 1918 blocked by default for SSRF safety. | Add optional Playwright-based JS rendering (currently raises `NotImplementedError`). | Scraping is fundamentally HTTP fetch + HTML extraction. Both are standard stdlib + well-known open-source libraries (`httpx`, `beautifulsoup4`, `readability-lxml`). Eliminating the Firecrawl intermediary is a strict improvement. |
+| `magic-ui` | 21st.dev (`@21st-dev/magic@latest`) | UI component generation via an external LLM call | Component specs and design intent sent to 21st.dev's generation service | `skill-native` | Small | **Drop and replace** with the `ui-component-generation` skill (Phase 7.2). Zero code - the skill instructs the agent to generate components directly using its own LLM. | None planned. | The capability is "ask an LLM to generate UI code." The agent is already an LLM. The correct replacement is skill documentation, not an MCP. |
+
+---
+
+### Kept as Vendor-Intrinsic Wrappers (Your-Own-Account)
+
+For each row below, the v1.0.0 `_comment` field (Phase 3) must inline the 5-question audit from the **Rationale** column.
+
+| MCP key | Current source | What it does | Outbound-call surface | Classification | Effort if RE'd | v1.0.0 action | v1.1.0+ action | Rationale / citation |
+|---|---|---|---|---|---|---|---|---|
+| `github` | Anthropic-maintained GitHub MCP (`@modelcontextprotocol/server-github`) | Interact with GitHub repositories, issues, PRs | GitHub API with a user-supplied PAT; PAT scope gates reach | `vendor-intrinsic` | Medium | Keep as vendor wrapper. `_comment` audit: (1) user's agent spawns `npx` subprocess; (2) calls github.com/api with user's PAT; (3) requires GITHUB_TOKEN / PAT; (4) transmits whatever the agent supplies (issue bodies, queries) which may include repo context; (5) user already has a GitHub account and repo. Vendor-intrinsic: GitHub is the intended destination. | Build `devai-github` internal wrapper using `gh` CLI or `PyGithub` for audit/supply-chain improvement. Data flow unchanged. | GitHub is where the user's code already lives. The MCP gives a typed tool surface over an API the user is already paying for / bound to. Reverse-engineering changes the implementer but not the data destination. |
+| `postgres` | Anthropic-maintained (`@modelcontextprotocol/server-postgres`) | Query a Postgres database via user-supplied connection string | Postgres wire protocol to the user's own database | `vendor-intrinsic` | Small | Keep. `_comment` audit: (1) `npx` subprocess; (2) Postgres connection to the user's DB at DATABASE_URL; (3) requires DATABASE_URL; (4) query results flow to Claude (not to a new third party); (5) user owns the DB. Vendor-intrinsic: the DB IS the destination. | Build `devai-postgres` internal wrapper over `psycopg` if audit-posture demand emerges. | The DB belongs to the user. No third-party data processor is introduced. Wrapping is a convenience over the wire protocol. |
+| `supabase` | Supabase official (`@supabase/mcp-server-supabase`) | Interact with a user's Supabase project | Supabase API with the user's access token | `vendor-intrinsic` | Medium | Keep. `_comment` audit: (1) `npx`; (2) supabase.com/api with user's access token; (3) requires SUPABASE_ACCESS_TOKEN; (4) transmits user-provided queries / rows; (5) user is a Supabase customer. | Build `devai-supabase` internal wrapper over `supabase-py`. Data flow unchanged. | Supabase is the user's backend. Vendor-intrinsic. |
+| `railway` | Railway official (`@railway/mcp-server`) | Manage Railway deployments | Railway API with RAILWAY_API_TOKEN | `vendor-intrinsic` | Medium | Keep. `_comment` audit: (1) `npx`; (2) railway.app/api with token; (3) RAILWAY_API_TOKEN; (4) deployment metadata and user commands; (5) user is a Railway customer. | Build `devai-railway` internal wrapper if demand. | Vendor-intrinsic per the decision tree. |
+| `vercel` | Vercel official (`@vercel/mcp-adapter`) | Interact with Vercel deployments | Vercel API with VERCEL_TOKEN | `vendor-intrinsic` | Medium | Keep. `_comment` audit: (1) `npx`; (2) vercel.com/api with token; (3) VERCEL_TOKEN; (4) deployment metadata and user commands; (5) user is a Vercel customer. | Build `devai-vercel` internal wrapper if demand. | Vendor-intrinsic. |
+| `cloudflare` | Cloudflare official (`@cloudflare/mcp-server-cloudflare`) | Manage Cloudflare resources | Cloudflare API with CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID | `vendor-intrinsic` | Medium | Keep. `_comment` audit: (1) `npx`; (2) api.cloudflare.com with token; (3) CLOUDFLARE_API_TOKEN + CLOUDFLARE_ACCOUNT_ID; (4) resource queries and user commands; (5) user is a Cloudflare customer. | Build `devai-cloudflare` internal wrapper if demand. | Vendor-intrinsic. |
+
+---
+
+### New in v1.0.0 (Reverse-Engineered Internal MCPs)
+
+These land via Phases 6 and 7 of the plan. Registry entries are added by Phase 3 (for the `_comment` audit template structure) and Phase 6/7 (for the entry body itself).
+
+| MCP key | Current source | What it does | Outbound-call surface | Classification | Effort if RE'd | v1.0.0 action | v1.1.0+ action | Rationale / citation |
+|---|---|---|---|---|---|---|---|---|
+| `devai-code-search` | DevAI-Hub internal (new; `extensions/devai-code-search/`, Python 3.10+) | Local code search over a repo: `index_codebase`, `search_code`, `clear_index`, `get_indexing_status`. Keyword-only in v1.0.0 (inverted index + rapidfuzz). Content-hash incremental re-indexing. | None. Indexes are persisted under `<repo>/.devai/code-index/`. No network. | `already-local` | n/a (this IS the reverse-engineering target) | Build and ship as keyword-only MVP. | Add dense retrieval (ONNX embeddings via `fastembed` + `sqlite-vec` vector store) + RRF hybrid mode; add tree-sitter AST chunking; upgrade the flat manifest to a directory-keyed Merkle tree. | Reverse-engineers one common "semantic code search" pattern into fully local code. No external attribution in the shipped artifact per the policy. |
+| `devai-web-fetch` | DevAI-Hub internal (new; `extensions/devai-web-fetch/`, Python 3.10+) | Local web fetch: `fetch_url(url, render_js, extract_mode)`. `httpx` for fetch; `beautifulsoup4` + `readability-lxml` for extraction. SSRF guard blocks RFC 1918 / loopback / link-local / `file://` by default. | HTTPS only, to user-specified URLs. No third-party intermediary. | `already-local` (as reverse-engineered target; see also: `firecrawl` row above) | n/a (this IS the reverse-engineering target) | Build and ship. `render_js=True` reserved for v1.1.0 (raises `NotImplementedError`). | Add optional Playwright-based JS rendering. Consider adding per-domain rate limiting. | Scraping-as-service is replaced with fetch-to-target-URL. Data destination is the URL itself, not a third-party processor. |
+
+---
+
+### Reverted in v1.0.0
+
+| MCP key | Current source | What it does | Outbound-call surface | Classification | Effort if RE'd | v1.0.0 action | v1.1.0+ action | Rationale / citation |
+|---|---|---|---|---|---|---|---|---|
+| `claude-context` | Zilliz (`@zilliz/claude-context-mcp`) | Semantic code search over a user's codebase | Ships code chunks to OpenAI's embedding API; vectors stored in Milvus (local) or Zilliz Cloud (managed) | `re-partial` | Large | **Reverted** (was added in an aborted v0.9.8 Phase 2, now undone). The knowledge pattern is reverse-engineered into `devai-code-search` (Phase 6) + the `code-semantic-search` skill (Phase 8). | v1.1.0 adds dense/hybrid retrieval to `devai-code-search` using a fully-local embedding backend (`fastembed` ONNX), closing the capability gap without the upstream's third-party data flow. | This entry is the entire reason the v1.0.0 plan exists. The upstream is an 8.4k-star MIT project whose default flow ships source code to OpenAI for embedding; that is the hard-no case. The knowledge is valuable and can be reverse-engineered; the external MCP cannot be shipped. |
+
+---
+
+## Summary
+
+| Bucket | Count | Notes |
+|---|---:|---|
+| Kept: internal or local-only | 5 | `devai-skill-server`, `filesystem`, `memory`, `sequential-thinking`, `sqlite` |
+| Kept: vendor-intrinsic (your-own-account) | 6 | `github`, `postgres`, `supabase`, `railway`, `vercel`, `cloudflare` - each with a 5-question audit in its `_comment` |
+| Dropped in v1.0.0 | 4 | `context7` (replaced by `local-docs-lookup` skill), `exa-web-search` (drop-outright), `firecrawl` (replaced by `devai-web-fetch`), `magic-ui` (replaced by `ui-component-generation` skill) |
+| New internal MCPs in v1.0.0 | 2 | `devai-code-search` (keyword-only MVP), `devai-web-fetch` (SSRF-guarded HTTP fetch + readability) |
+| Reverted in v1.0.0 | 1 | `claude-context` (reverse-engineered into `devai-code-search` + the `code-semantic-search` skill) |
+| Deferred to v1.1.0+ | 5+ | dense/hybrid retrieval on `devai-code-search`; Playwright rendering in `devai-web-fetch`; vendor-wrapper rebuilds (`devai-github`, `devai-postgres`, `devai-supabase`, `devai-railway`, `devai-vercel`, `devai-cloudflare`) |
+
+**Post-v1.0.0 registry size**: 13 entries (5 already-local + 6 vendor-intrinsic + 2 new internal).
+
+---
+
+## How to Add a New Row
+
+1. Walk the [decision tree](../../AGENTS.md#decision-tree-stop-at-the-first-bucket-that-fits) in `AGENTS.md` and pick the highest-precedence bucket that applies.
+2. Cite upstream evidence in the Rationale column (a file path in the upstream repo, a docs URL, or a README section).
+3. For `re-full` / `re-partial` classifications, name the internal deliverable (package name, skill name) and the target release.
+4. For `vendor-intrinsic` classifications, write the 5-question audit paragraph that Phase 3 copies into the entry's `_comment`.
+5. Record the row before opening a PR that touches `catalog/mcp-configs/mcp-servers.json`. No MCP is added without a matrix row.
