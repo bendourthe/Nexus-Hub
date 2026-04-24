@@ -130,17 +130,42 @@ Low Val    P2 (If easy)  P3 (Backlog)     Skip
 - Medium: Adapt a pattern to fit existing conventions, create new files, or update multiple locations
 - High: Requires architectural changes, new dependencies, or significant refactoring
 
-### Step 5: Sequence Adoption Items
+### Step 5: Security and Reverse-Engineering Assessment (MANDATORY)
 
-Order the adoption items accounting for dependencies. Items that enable other items come first. Group items that can be done in parallel.
+Before sequencing any adoption items, run every candidate through the [MCP Registry Policy](../../../../AGENTS.md) decision tree. This gate prevents the common failure mode where a plausible-looking pattern would introduce a new third-party data processor, new outbound calls, or credential sprawl. The assessment has three parts:
 
-### Step 6: Document Risks and Conflicts
+**5.1 Threat model comparison** - for both projects, document: new runtime dependencies, outbound-call destinations, credentials/API keys required, whether source code / prompts / query text leaves the local machine, whether a new commercial relationship with a third party is required.
+
+**5.2 Per-item risk scorecard** - assign each adoption candidate a risk tier: **None / Low / Medium / High**. High-risk items are gated on the viability analysis in 5.3 before they can appear in the adoption plan.
+
+**5.3 Reverse-engineering viability** - classify every candidate per the decision tree:
+- `re-full` - fully reverse-engineerable into a local internal artifact
+- `re-partial` - partially reverse-engineerable; ship what's local, document the gap
+- `skill-native` - achievable by instructing the agent's own LLM; replace with a skill, not an MCP / external integration
+- `vendor-intrinsic` - third party IS the intended destination; defer rebuild to later unless audit posture is urgent
+- `drop-outright` - no local equivalent possible and not worth the trust cost
+
+**5.4 Recommendation ordering** - re-sequence all adoption candidates in this order before they enter the plan:
+1. `skill-native` (zero-code wins first)
+2. `re-full` / `re-partial` (build internal equivalents)
+3. `vendor-intrinsic` (only when intrinsic AND non-RE'able AND extremely worth it; justify inline)
+4. `drop-outright` (moves to the NOT-recommended list, not the plan)
+
+This ordering IS the adoption plan. P-tier (value/effort from Step 4) operates WITHIN each RE bucket, not across buckets.
+
+### Step 6: Sequence Adoption Items
+
+Order the (RE-re-sequenced) adoption items accounting for dependencies. Items that enable other items come first. Group items that can be done in parallel. When chaining into `/generate-plan`, always pass `reverse-engineer-first=true` so the generated plan sequences phases per the RE ordering.
+
+### Step 7: Document Risks and Conflicts
 
 For each adoption item, explicitly document:
 - Whether it conflicts with an existing pattern in the current project
 - Whether it introduces a new dependency or maintenance burden
 - Whether it requires changes to existing files (higher risk) vs. adding new files (lower risk)
 - Any items explicitly NOT recommended for adoption, with reasoning
+
+Items classified as `drop-outright` in Step 5 belong in the NOT-recommended list, with the policy grounds for rejection cited by name.
 
 ## Best Practices
 
@@ -160,6 +185,10 @@ For each adoption item, explicitly document:
 - [ ] Priority assignments are consistent with the value/effort matrix
 - [ ] Conflicts with existing conventions are explicitly flagged
 - [ ] Items NOT recommended for adoption include reasoning
+- [ ] **Step 5 Security and Reverse-Engineering Assessment is complete** - threat model table, per-item risk scorecard, and per-item RE classification are all present
+- [ ] **Step 5.4 ordering is used to sequence the adoption plan** - skill-native first, then RE builds, then vendor-intrinsic (justified), then drops moved to NOT-recommended
+- [ ] **MCP Registry Policy is cited by name** in the Rationale column for every adoption item that involves an outbound call, new API key, new third-party data processor, or new runtime dependency
+- [ ] Reports missing Step 5 fail this checklist
 
 ### Iterative Refinement Strategy
 

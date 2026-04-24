@@ -135,7 +135,23 @@ Still ask (the report does not answer these):
 
 ### 0.5e. Phase design seeded from adoption items
 
-When the plan advances to Step 3 (*Design the Phase Breakdown*), group the filtered adoption items into phases by dependency order: P0 items and items with no `Dependencies` entry go to Phase 1; items that depend on earlier items — or sit in lower tiers — fill subsequent phases. Each adoption item (or tightly coupled cluster of items) becomes one sub-task whose *Objective* and *Prompt* draw directly from the report's `What`, `Source`, `Target`, `Effort`, and `Risk` columns.
+When the plan advances to Step 3 (*Design the Phase Breakdown*), group the filtered adoption items into phases by dependency order: P0 items and items with no `Dependencies` entry go to Phase 1; items that depend on earlier items - or sit in lower tiers - fill subsequent phases. Each adoption item (or tightly coupled cluster of items) becomes one sub-task whose *Objective* and *Prompt* draw directly from the report's `What`, `Source`, `Target`, `Effort`, and `Risk` columns.
+
+### 0.5f. Reverse-engineer-first ordering (when flag is set)
+
+`/compare-project` always passes `reverse-engineer-first=true` when chaining into this command (see the MCP Registry Policy in `AGENTS.md`). Manual invocations may also pass the flag. When set, Step 0.5e's dependency-ordered phase grouping is overlaid with the ordering from the comparison report's Section 9.4 (repo/local) or Section 6 (article) Security and Reverse-Engineering Assessment:
+
+1. **Phase 1 contains `skill-native` items only** - zero-code skill replacements that ship immediately. These must come first because they close capability gaps without any code change.
+2. **Phases 2-N contain `re-full` / `re-partial` items** - internal MCP or skill builds. Group by dependency and by target package (e.g. one phase per new package under `extensions/`). These are the largest phases and often include scaffolding sub-tasks (package layout, pyproject.toml, tests skeleton).
+3. **Phases after the RE builds contain `vendor-intrinsic` items** - adoptions that introduce a trusted vendor wrapper. Each must carry the justification inline: `(a)` vendor is the intrinsic data destination, `(b)` cannot be reverse-engineered locally, `(c)` extremely worth it. Cite the MCP Registry Policy by name.
+4. **`drop-outright` items DO NOT appear in the plan** - they go to an out-of-scope appendix titled **"Items explicitly NOT adopted (security / policy reasons)"** following the N-item convention (N1, N2, ...). Each entry cites the policy grounds for rejection.
+
+The generated plan's Overview section must state: *"Phase sequencing follows the MCP Registry Policy decision tree (reverse-engineer-first). See Section 9.4 / Section 6 of the source comparison for the ordering rationale."*
+
+When the flag is NOT set (manual invocation with `/generate-plan <path>` not originating from `/compare-project`), ask the user:
+> "This comparison report includes a Section 9 Security and Risk Assessment. Should the generated plan sequence phases in reverse-engineer-first order (recommended, matches the MCP Registry Policy default), or by P-tier only (legacy behavior)?"
+
+Default to RE-first if the user declines to answer.
 
 After completing Step 0.5, resume the standard flow at Step 2 (*Research, if needed*).
 
