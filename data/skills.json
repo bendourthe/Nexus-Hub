@@ -6,9 +6,9 @@
     "description": "Comprehensive catalog of DevAI-Hub skills with L0/L1 tiered summaries"
   },
   "statistics": {
-    "total_skills": 186,
+    "total_skills": 187,
     "categories": {
-      "ai-development": 7,
+      "ai-development": 8,
       "architecture": 6,
       "bug-fixing": 5,
       "business-product": 4,
@@ -6239,6 +6239,48 @@
       "size": {
         "lines": 158,
         "tokens_estimate": 553
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
+      }
+    },
+    {
+      "name": "code-semantic-search",
+      "title": "code-semantic-search",
+      "description": "Semantic search over source-code corpora using code-specialized embeddings, AST-aware chunking, and hybrid BM25+dense retrieval with incremental re-indexing. Specialized sibling of rag-implementation for code corpora.",
+      "long_description": "Comprehensive treatment of semantic search for source-code corpora: code-specialized embeddings, AST-aware chunking via tree-sitter with a recursive-character fallback, hybrid BM25 + dense retrieval combined via reciprocal rank fusion, incremental re-indexing via content-hash manifest or Merkle tree, and optional rerank (cross-encoder, rule-based, or LLM-assisted). Under the MCP Registry Policy the reference implementation is DevAI-Hub's internal devai-code-search MCP. Third-party semantic-code-search services are drop-class because they ship source code to an external embedding endpoint.",
+      "summary_l0": "\"Retrieve relevant code from large repositories using hybrid semantic search and AST-aware chunking\"",
+      "overview_l1": "\"This skill covers semantic search specifically for source-code corpora, which differs from general RAG in three ways: code-specialized embedding models outperform generic text embeddings on identifier-heavy queries; AST-aware chunking preserves function and class boundaries that character-based splitters shred; and incremental re-indexing via content-hash or Merkle trees avoids re-embedding unchanged subtrees on each commit. Use this skill when the agent must answer questions about a codebase larger than the model's context window, when grep or ripgrep produces too many false positives for natural-language queries, or when a team wants to eliminate 'where do we handle X?' spelunking. Under the MCP Registry Policy the reference implementation is DevAI-Hub's internal devai-code-search MCP - keyword-only in v1.0.0, hybrid retrieval planned for v1.1.0 with local ONNX embeddings and a sqlite-vec vector store. Third-party semantic-code-search services are drop-class under the policy because their default flow ships source code to an external embedding endpoint.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "ai-development",
+      "language": "Multi-language",
+      "tags": [
+        "rag",
+        "retrieval",
+        "embeddings",
+        "code-search",
+        "mcp",
+        "ast-chunking",
+        "incremental-indexing"
+      ],
+      "priority": "MEDIUM",
+      "based_on": [],
+      "tools_required": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Bash"
+      ],
+      "path": "catalog/skills/ai-development/code-semantic-search/",
+      "file": "catalog/skills/ai-development/code-semantic-search/SKILL.md",
+      "size": {
+        "lines": 136,
+        "tokens_estimate": 476
       },
       "downloads": 0,
       "status": "production",
