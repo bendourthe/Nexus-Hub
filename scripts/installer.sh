@@ -1375,6 +1375,13 @@ install_templates() {
         safe_copy "$script_source" "$scripts_dest/generate_report.py" true "[OK] Report generator installed at: $scripts_dest/generate_report.py"
     fi
 
+    # Copy MCP benchmark script (v1.0.0+). Benchmarks the three internal MCPs
+    # (devai-skill-server, devai-code-search, devai-web-fetch). Pure-local.
+    local benchmark_source="$repo_root/scripts/devai_mcp_benchmark.py"
+    if [ -f "$benchmark_source" ]; then
+        safe_copy "$benchmark_source" "$scripts_dest/devai_mcp_benchmark.py" true "[OK] MCP benchmark installed at: $scripts_dest/devai_mcp_benchmark.py"
+    fi
+
     # Check Python availability
     if ! command -v python3 >/dev/null 2>&1 && ! command -v python >/dev/null 2>&1; then
         write_item "Note: Python 3 is required to generate reports." "$YELLOW"

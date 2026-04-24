@@ -70,3 +70,10 @@ env/
 # VS Code extension build output
 *.vsix
 extensions/**/out/
+
+# MCP benchmark output (v1.0.0+)
+data/benchmarks/
+
+# devai-code-search local index (v1.0.0+)
+.devai/
+.devaiignore

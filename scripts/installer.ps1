@@ -1675,6 +1675,13 @@ function Install-Templates {
         Safe-Copy -Source $scriptSource -Destination (Join-Path $scriptsDest "generate_report.py") -Confirm:$true -CustomMessage "✓ Report generator installed at: $scriptsDest\generate_report.py"
     }
 
+    # Copy MCP benchmark script (v1.0.0+). Benchmarks the three internal MCPs
+    # (devai-skill-server, devai-code-search, devai-web-fetch). Pure-local.
+    $benchmarkSource = Join-Path $RepoRoot "scripts\devai_mcp_benchmark.py"
+    if (Test-Path $benchmarkSource) {
+        Safe-Copy -Source $benchmarkSource -Destination (Join-Path $scriptsDest "devai_mcp_benchmark.py") -Confirm:$true -CustomMessage "✓ MCP benchmark installed at: $scriptsDest\devai_mcp_benchmark.py"
+    }
+
     # Check Python availability
     $pythonCmd = Get-Command "python" -ErrorAction SilentlyContinue
     if (-not $pythonCmd) {
