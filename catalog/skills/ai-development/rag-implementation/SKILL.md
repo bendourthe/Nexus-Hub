@@ -200,6 +200,15 @@ Chunking determines what units of text the retriever can find. The right strateg
 | **Recursive** | Prose documents | Respects hierarchy | Needs separator tuning |
 | **Semantic** | Mixed-format docs | Meaning-preserving | Slower, needs embeddings |
 | **Document-aware** | Structured docs (code, markdown) | Preserves structure | Format-specific logic |
+| **AST-aware** | Source code corpora | Preserves function/class boundaries | Needs per-language grammar; falls back to recursive for unsupported languages |
+
+**AST-Aware Chunking for Source Code**:
+
+Character-based splitters shred function and class bodies across chunk boundaries, which degrades retrieval quality on code-specific queries because the dense vector for the fragment stops representing the original unit. An AST-aware splitter walks the parse tree and emits one chunk per function, method, or class, preserving the semantic unit the embedder is supposed to vectorize. The reference implementation in [`zilliztech/claude-context`](https://github.com/zilliztech/claude-context) (`packages/core/src/splitter/ast-splitter.ts`) uses `tree-sitter` with grammars for **9 languages** — JavaScript, TypeScript, Python, Java, C++, Go, Rust, C#, and Scala — and falls back to LangChain's recursive character splitter (`packages/core/src/splitter/langchain-splitter.ts`) for file types without an AST grammar. Adopt this layered approach whenever the corpus is code: AST for supported languages, recursive for the long tail.
+
+**Incremental Re-Indexing with Content-Hash Merkle Trees**:
+
+Re-embedding an entire corpus on every commit is wasteful — most files do not change between commits, and embedding costs (both dollars and latency) compound quickly. The production-tested pattern is a **content-hash Merkle tree** over the file set: each leaf is a file-hash, interior nodes aggregate children, and the root fingerprints the whole corpus. On change, diff the old and new trees to identify the leaves that actually changed, and re-embed only the chunks under those leaves. The reference implementation is `zilliztech/claude-context`'s `packages/core/src/sync/merkle.ts` and `packages/core/src/sync/synchronizer.ts`, which together cut re-index cost to the delta on every commit regardless of repo size. For non-code corpora the same pattern works with document-level hashes; the only requirement is that the chunk-to-source mapping is stable so you can invalidate precisely the chunks whose source changed.
 
 **Fixed-Size Chunking with Overlap**:
 
@@ -366,8 +375,15 @@ def cosine_similarity(a: list[float], b: list[float]) -> float:
 | `text-embedding-3-small` (OpenAI) | 1536 | Fast | Good | $0.02/1M tokens |
 | `text-embedding-3-large` (OpenAI) | 3072 | Medium | Excellent | $0.13/1M tokens |
 | `embed-english-v3.0` (Cohere) | 1024 | Fast | Excellent | $0.10/1M tokens |
+| `voyage-code-3` (VoyageAI) | 1024 | Fast | Excellent (code-specialized) | Metered |
+| `gemini-embedding-001` (Google) | Up to 3072 (Matryoshka) | Fast | Excellent | Metered |
+| Ollama (`nomic-embed-text`, `mxbai-embed-large`, ...) | Typical 768 | Self-hosted | Good | Free (compute) |
 | `BAAI/bge-large-en-v1.5` (open-source) | 1024 | Self-hosted | Very Good | Free (compute) |
 | `nomic-embed-text-v1.5` (open-source) | 768 | Self-hosted | Good | Free (compute) |
+
+**Code-Specialized Embeddings**:
+
+When the corpus is source code rather than prose, prefer a code-specialized embedding model over a generic one: natural-language embeddings struggle with identifier tokens, operator sequences, and language-specific syntax that dominate code chunks. `voyage-code-3` (VoyageAI, 1024 dim) is the current default for code retrieval and the embedding model `zilliztech/claude-context` documents first in its provider list; OpenAI's `text-embedding-3-large`, Google's `gemini-embedding-001`, and local Ollama models are the other production-tested options claude-context integrates. See the `code-semantic-search` sibling skill for a deeper treatment of when to reach for each.
 
 **Embedding Client Implementation**:
 
@@ -439,6 +455,8 @@ class CohereEmbedding(EmbeddingModel):
 | **Pinecone** | Managed cloud | Serverless | Rich | Production SaaS |
 | **pgvector** | Postgres extension | Postgres scaling | SQL | Existing Postgres stacks |
 | **Qdrant** | Self-hosted / cloud | Horizontal | Rich | High-performance production |
+| **Milvus** | Self-hosted (gRPC + REST clients) | Horizontal | Rich | Open-source production; used in `zilliztech/claude-context` |
+| **Zilliz Cloud** | Managed Milvus (free tier) | Horizontal | Rich | Same client API as Milvus with managed ops |
 
 **Chroma (Local Prototyping)**:
 
@@ -656,6 +674,10 @@ def hybrid_search(
 
     return [all_docs[doc_id] for doc_id, _ in ranked[:top_k] if doc_id in all_docs]
 ```
+
+**Canonical OSS Reference**:
+
+A production reference implementation of hybrid BM25 + dense retrieval with rerank strategies is [`zilliztech/claude-context`](https://github.com/zilliztech/claude-context) (8.4k stars, MIT, MCP server + VS Code extension). Its core package implements the pattern end-to-end and exposes `hybridSearch` as a boolean flag on its `search_code` MCP tool, letting clients toggle BM25-augmented retrieval at call time. The upstream SWE-bench evaluation (`evaluation/run_evaluation.py`, `analyze_and_plot_mcp_efficiency.py`) reports a **39.4% token reduction** and **36.3% tool-call reduction** vs. a grep baseline on real agent workloads — concrete evidence that hybrid retrieval plus reranking outperforms keyword-only search at agent-grade task volumes. When implementing this pattern yourself, that repository is the clearest example of the full stack: BM25 index, dense embeddings, RRF fusion, and optional cross-encoder rerank.
 
 **Two-Stage Reranking**:
 
