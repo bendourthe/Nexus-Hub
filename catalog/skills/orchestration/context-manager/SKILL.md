@@ -414,6 +414,7 @@ For concerns that span multiple areas:
 - `plan-before-code` - Initial exploration and planning
 - `context-analysis` - Deep codebase analysis
 - `workflow-orchestrator` - Managing complete workflows
+- [`code-semantic-search`](../../ai-development/code-semantic-search/SKILL.md) - when the repo exceeds the model's context window, retrieval over code chunks is the primary escape valve. Use `code-semantic-search` to produce a ranked chunk set and feed the top-K into the session. DevAI-Hub's internal [`devai-code-search`](../../../../extensions/devai-code-search/) MCP is the reference implementation (local-only, zero outbound calls).
 - See also: [SESSION_LIFECYCLE_DECISIONS](../../../../guides/SESSION_LIFECYCLE_DECISIONS.md) - when to continue, `/rewind`, `/clear`, `/compact`, or delegate to a subagent
 
 ---

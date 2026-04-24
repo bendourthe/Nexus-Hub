@@ -146,3 +146,4 @@ Information at the bottom of the context window has less influence on output tha
 - `context-manager` — manages context across large codebases with attention budgeting
 - `plan-before-code` — defines the task structure that determines what context each step needs
 - `incremental-implementation` — executes one step at a time, enabling scoped context loads
+- [`code-semantic-search`](../code-semantic-search/SKILL.md) — retrieval-based context shaping for source-code corpora; specialized over the general `rag-implementation` skill. Paired with DevAI-Hub's internal [`devai-code-search`](../../../../extensions/devai-code-search/) MCP.
