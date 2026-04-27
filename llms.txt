@@ -87,8 +87,7 @@ code-commit-workflow, plan-before-code, debug-with-logs, test-driven-development
 /generate-commit-message Structured commit message from staged changes
 /generate-devlog         Complete DEVLOG.md from git history
 /generate-readme         Production-quality README.md
-/generate-report-style-guide Report writing style guide
-/generate-report         Word (.docx) or PowerPoint (.pptx) from Markdown
+/generate-report         Word (.docx) or PowerPoint (.pptx) from Markdown (style guide at catalog/style-guides/generate-report.md, not a slash command)
 /generate-sbom           Software Bill of Materials
 /generate-tests          Comprehensive test coverage analysis and generation
 /generate-unit-tests     Detailed unit test plan for entire codebase

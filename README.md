@@ -6,7 +6,7 @@
 
 ---
 
-## What's New in v0.9.7
+## What's New in v1.0.0
 
 - **Opus 4.7 alignment** - new `guides/SESSION_LIFECYCLE_DECISIONS.md` (continue / `/rewind` / `/clear` / `/compact` / delegate decision tree), full Effort-Level Strategy section in `prompt-engineering`, batched clarifying-questions rule across all 5 platform templates + global `CLAUDE.md`, and a consolidated [Opus 4.6 -> 4.7 migration guide](docs/v0.9.6/opus-4-7-migration.md) with a 13-row cross-reference table.
 - **Security expansion** - two new skills (`business-logic-abuse` covering race conditions, TOCTOU, double-spending, workflow bypass, idempotency; `advanced-attack-patterns` covering state desync, cache poisoning, replay, and timing side channels) plus a 6th `--depth=deep` hunter in `/run-penetration-test` that wires them in, and a new `file-upload-security` checklist.

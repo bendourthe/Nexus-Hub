@@ -7,6 +7,7 @@ rules.
 """
 from __future__ import annotations
 
+import contextlib
 import ipaddress
 import logging
 import re
@@ -55,7 +56,7 @@ class GuardConfig:
         )
 
 
-def validate_url(url: str, config: GuardConfig | None = None) -> None:
+def validate_url(url: str, config: GuardConfig | None = None) -> str:
     """Raise SSRFError if the URL violates the SSRF policy.
 
     Checks:
@@ -63,6 +64,11 @@ def validate_url(url: str, config: GuardConfig | None = None) -> None:
       2. Hostname must resolve to a non-private address (unless
          `allow_private_networks` is True in config).
       3. Hostname must not match any `block_urls` pattern.
+
+    Returns:
+      The validated IP address as a string. Callers can pass this IP to
+      a DNS-pinning context manager to prevent rebinding between this
+      validation and the actual HTTP fetch.
     """
     config = config or GuardConfig.load()
 
@@ -82,13 +88,15 @@ def validate_url(url: str, config: GuardConfig | None = None) -> None:
     if _is_blocked(host, config.block_urls):
         raise SSRFError(f"Hostname '{host}' matches a block_urls pattern in user config")
 
-    # Resolve hostname to IP(s) and check each.
+    # Resolve hostname to IP(s) and check each. The first valid (and policy-
+    # passing) IP is returned so the caller can pin DNS for the actual fetch.
     try:
         infos = socket.getaddrinfo(host, parsed.port or (443 if scheme == "https" else 80))
     except socket.gaierror as exc:
         raise SSRFError(f"Could not resolve hostname '{host}': {exc}") from exc
 
-    for family, _type, _proto, _canon, sockaddr in infos:
+    safe_ip: str | None = None
+    for _family, _type, _proto, _canon, sockaddr in infos:
         ip_str = sockaddr[0]
         try:
             ip = ipaddress.ip_address(ip_str)
@@ -98,6 +106,42 @@ def validate_url(url: str, config: GuardConfig | None = None) -> None:
             raise SSRFError(
                 f"Hostname '{host}' resolves to private/reserved address {ip}"
             )
+        if safe_ip is None:
+            safe_ip = ip_str
+
+    if safe_ip is None:
+        raise SSRFError(f"Hostname '{host}' did not resolve to any usable address")
+
+    return safe_ip
+
+
+@contextlib.contextmanager
+def pin_hostname_to_ip(hostname: str, ip: str):
+    """Monkeypatch socket.getaddrinfo so `hostname` resolves to `ip` only.
+
+    Used between `validate_url` and the actual HTTP fetch to prevent DNS
+    rebinding attacks: an attacker who controls authoritative DNS for
+    `hostname` could otherwise return a public IP during validation and a
+    private IP during the fetch.
+
+    All other hostnames continue to resolve normally. This patches a
+    process-global; if multiple `fetch_url` calls run concurrently for
+    different hostnames the pins stack safely (the dispatch is by hostname).
+    Concurrent calls for the SAME hostname race - documented behavior. Use
+    a serializing lock at the caller if that matters in your deployment.
+    """
+    original = socket.getaddrinfo
+
+    def pinned(host, *args, **kwargs):
+        if host == hostname:
+            return original(ip, *args, **kwargs)
+        return original(host, *args, **kwargs)
+
+    socket.getaddrinfo = pinned  # type: ignore[assignment]
+    try:
+        yield
+    finally:
+        socket.getaddrinfo = original  # type: ignore[assignment]
 
 
 def _is_private(ip: ipaddress.IPv4Address | ipaddress.IPv6Address) -> bool:

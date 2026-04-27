@@ -42,13 +42,13 @@ def test_installer_ps1_exists():
 
 def test_installer_sh_carries_version_constant():
     body = INSTALLER_SH.read_text(encoding="utf-8")
-    assert 'DEVAI_HUB_VERSION="0.9.7"' in body, \
+    assert 'DEVAI_HUB_VERSION="1.0.0"' in body, \
         "installer.sh is missing the DEVAI_HUB_VERSION='0.9.7' constant"
 
 
 def test_installer_ps1_carries_version_constant():
     body = INSTALLER_PS1.read_text(encoding="utf-8")
-    assert '$script:DevAIHubVersion = "0.9.7"' in body, \
+    assert '$script:DevAIHubVersion = "1.0.0"' in body, \
         "installer.ps1 is missing the $script:DevAIHubVersion = '0.9.7' constant"
 
 
@@ -298,7 +298,10 @@ V0_9_7_ARTIFACTS = [
     "catalog/skills/specialized-domains/deep-research-compilation/SKILL.md",
     # New commands (parallel-session deep-research work)
     "catalog/commands/compile-deep-research.md",
-    "catalog/commands/compile-deep-research-style-guide.md",
+    # Style guides relocated out of catalog/commands/ in v1.0.0 so they no
+    # longer surface as slash commands. They live alongside the matching
+    # command name minus the -style-guide suffix.
+    "catalog/style-guides/compile-deep-research.md",
     # New guides (Phase 1 + 4)
     "guides/SESSION_LIFECYCLE_DECISIONS.md",
     "docs/v0.9.6/opus-4-7-migration.md",

@@ -39,6 +39,26 @@ class _Handler(BaseHTTPRequestHandler):
             self.send_header("Content-Type", "text/plain")
             self.end_headers()
             self.wfile.write(b"missing")
+        elif self.path == "/redirect-to-ok":
+            # Single-hop relative redirect to /ok (legitimate, should succeed).
+            self.send_response(302)
+            self.send_header("Location", "/ok")
+            self.end_headers()
+        elif self.path == "/redirect-to-private":
+            # Attempts to redirect to a private RFC 1918 address. The SSRF
+            # guard MUST reject this hop. Use a literal IP so DNS doesn't
+            # mask the attack at validate time.
+            self.send_response(302)
+            self.send_header("Location", "http://10.0.0.1/internal")
+            self.end_headers()
+        elif self.path == "/redirect-to-loopback":
+            self.send_response(302)
+            self.send_header("Location", "http://127.0.0.1:1/admin")
+            self.end_headers()
+        elif self.path.startswith("/redirect-loop"):
+            self.send_response(302)
+            self.send_header("Location", "/redirect-loop-2")
+            self.end_headers()
         else:
             self.send_response(200)
             self.send_header("Content-Type", "text/plain")

@@ -2,8 +2,12 @@
 
 Two artifacts are written to the index directory:
 
-- `chunks.pickle` - the pickled list of Chunk objects (one per file+chunk).
+- `chunks.json` - the JSON-serialized list of Chunk records (one entry per chunk).
 - `manifest.json` - the JSON IndexManifest describing the indexed files.
+
+JSON is used (not pickle) so a maliciously-crafted index file cannot execute
+arbitrary code at load time. Chunk records are plain string + int fields and
+serialize trivially. See the v1.0.0 security review for context.
 
 A lockfile `index.lock` guards concurrent indexers. On Windows `msvcrt.locking`
 is used; on POSIX `fcntl.flock`. Both are advisory.
@@ -13,7 +17,6 @@ from __future__ import annotations
 import json
 import logging
 import os
-import pickle
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Iterator
@@ -22,9 +25,27 @@ from devai_code_search.types import Chunk, IndexManifest
 
 logger = logging.getLogger("devai-code-search")
 
-CHUNKS_FILENAME = "chunks.pickle"
+CHUNKS_FILENAME = "chunks.json"
 MANIFEST_FILENAME = "manifest.json"
 LOCK_FILENAME = "index.lock"
+
+
+def _chunk_to_dict(chunk: Chunk) -> dict:
+    return {
+        "file_path": chunk.file_path,
+        "start_line": chunk.start_line,
+        "end_line": chunk.end_line,
+        "text": chunk.text,
+    }
+
+
+def _chunk_from_dict(data: dict) -> Chunk:
+    return Chunk(
+        file_path=str(data["file_path"]),
+        start_line=int(data["start_line"]),
+        end_line=int(data["end_line"]),
+        text=str(data["text"]),
+    )
 
 
 def save_index(index_dir: Path, chunks: list[Chunk], manifest: IndexManifest) -> None:
@@ -37,8 +58,8 @@ def save_index(index_dir: Path, chunks: list[Chunk], manifest: IndexManifest) ->
     chunks_tmp = chunks_path.with_suffix(chunks_path.suffix + ".tmp")
     manifest_tmp = manifest_path.with_suffix(manifest_path.suffix + ".tmp")
 
-    with open(chunks_tmp, "wb") as f:
-        pickle.dump(chunks, f, protocol=pickle.HIGHEST_PROTOCOL)
+    with open(chunks_tmp, "w", encoding="utf-8") as f:
+        json.dump([_chunk_to_dict(c) for c in chunks], f)
 
     with open(manifest_tmp, "w", encoding="utf-8") as f:
         json.dump(manifest.to_dict(), f, indent=2)
@@ -50,8 +71,13 @@ def save_index(index_dir: Path, chunks: list[Chunk], manifest: IndexManifest) ->
 def load_index(index_dir: Path) -> tuple[list[Chunk], IndexManifest | None]:
     """Load chunks + manifest.
 
-    Returns ([], None) if the index does not exist. On corruption, logs a
-    warning and returns ([], None) so the caller can fall back to a full re-index.
+    Returns ([], None) if the index does not exist. On corruption, missing
+    keys, or any decode error, logs a warning and returns ([], None) so the
+    caller can fall back to a full re-index.
+
+    Uses JSON (not pickle) - a malicious chunks.json cannot execute code at
+    load time. The schema is validated by `_chunk_from_dict` which casts
+    every field to its expected type.
     """
     chunks_path = index_dir / CHUNKS_FILENAME
     manifest_path = index_dir / MANIFEST_FILENAME
@@ -60,11 +86,14 @@ def load_index(index_dir: Path) -> tuple[list[Chunk], IndexManifest | None]:
         return [], None
 
     try:
-        with open(chunks_path, "rb") as f:
-            chunks = pickle.load(f)
+        with open(chunks_path, "r", encoding="utf-8") as f:
+            raw = json.load(f)
+        if not isinstance(raw, list):
+            raise ValueError("chunks.json must contain a JSON array")
+        chunks = [_chunk_from_dict(item) for item in raw]
         with open(manifest_path, "r", encoding="utf-8") as f:
             manifest = IndexManifest.from_dict(json.load(f))
-    except (pickle.UnpicklingError, json.JSONDecodeError, KeyError, OSError) as exc:
+    except (json.JSONDecodeError, KeyError, ValueError, TypeError, OSError) as exc:
         logger.warning("Index at %s is corrupt (%s); treating as empty", index_dir, exc)
         return [], None
 
@@ -72,11 +101,16 @@ def load_index(index_dir: Path) -> tuple[list[Chunk], IndexManifest | None]:
 
 
 def clear_index(index_dir: Path) -> bool:
-    """Remove the index directory. Returns True if anything was removed."""
+    """Remove the index directory. Returns True if anything was removed.
+
+    Also removes any legacy `chunks.pickle` file from pre-1.0.0 installs so
+    `load_index` cannot accidentally read an old (potentially attacker-
+    controlled) pickle from disk.
+    """
     if not index_dir.exists():
         return False
 
-    for name in (CHUNKS_FILENAME, MANIFEST_FILENAME, LOCK_FILENAME):
+    for name in (CHUNKS_FILENAME, MANIFEST_FILENAME, LOCK_FILENAME, "chunks.pickle"):
         target = index_dir / name
         if target.exists():
             try:

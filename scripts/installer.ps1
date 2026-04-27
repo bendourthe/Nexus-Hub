@@ -5,7 +5,7 @@ $ErrorActionPreference = "Stop"
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-$script:DevAIHubVersion = "0.9.7"
+$script:DevAIHubVersion = "1.0.0"
 
 $Host.UI.RawUI.WindowTitle = "DevAI-Hub Installer"
 $script:InstallerTitle = "DevAI-Hub Installer"
@@ -1680,6 +1680,15 @@ function Install-Templates {
     $benchmarkSource = Join-Path $RepoRoot "scripts\devai_mcp_benchmark.py"
     if (Test-Path $benchmarkSource) {
         Safe-Copy -Source $benchmarkSource -Destination (Join-Path $scriptsDest "devai_mcp_benchmark.py") -Confirm:$true -CustomMessage "✓ MCP benchmark installed at: $scriptsDest\devai_mcp_benchmark.py"
+    }
+
+    # Copy style-guides (v1.0.0+). Reference content for /compile-deep-research
+    # and /generate-report; deliberately not in catalog\commands so the files
+    # do not surface as slash commands.
+    $styleGuidesSrc = Join-Path $RepoRoot "catalog\style-guides"
+    $styleGuidesDest = Join-Path $devaiHome "style-guides"
+    if (Test-Path $styleGuidesSrc) {
+        Safe-Folder-Copy -Source $styleGuidesSrc -Destination $styleGuidesDest -CustomMessage "✓ Style guides installed at: $styleGuidesDest"
     }
 
     # Check Python availability

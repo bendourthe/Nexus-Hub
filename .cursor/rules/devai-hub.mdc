@@ -18,7 +18,7 @@ DevAI-Hub is a **template repository**. Nothing is "live" until a user runs `scr
 
 2. **New skill** (`catalog/skills/<cat>/<name>/SKILL.md`): update three registry files — `data/SKILL_INDEX.md`, `data/skills.json`, `data/marketplace.json`. The skill folder is auto-copied.
 
-3. **New command** (`catalog/commands/<name>.md`): no registry update; folder auto-copied. Pair with a `<name>-style-guide.md` when the command produces user-visible artifacts.
+3. **New command** (`catalog/commands/<name>.md`): no registry update; folder auto-copied. If the command needs a style-guide reference, place it at `catalog/style-guides/<name>.md` (NOT in `catalog/commands/`, otherwise it surfaces as a slash command).
 
 4. **New hook** (`catalog/hooks/<name>.{sh,py}`): register in `catalog/hooks/settings.json`; add tests under `catalog/hooks/tests/`.
 

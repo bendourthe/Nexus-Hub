@@ -7,7 +7,7 @@ set -e
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-DEVAI_HUB_VERSION="0.9.7"
+DEVAI_HUB_VERSION="1.0.0"
 
 # --- Window Title ---
 printf '\033]0;DevAI-Hub Installer\007'
@@ -1380,6 +1380,15 @@ install_templates() {
     local benchmark_source="$repo_root/scripts/devai_mcp_benchmark.py"
     if [ -f "$benchmark_source" ]; then
         safe_copy "$benchmark_source" "$scripts_dest/devai_mcp_benchmark.py" true "[OK] MCP benchmark installed at: $scripts_dest/devai_mcp_benchmark.py"
+    fi
+
+    # Copy style-guides (v1.0.0+). Reference content for /compile-deep-research
+    # and /generate-report; deliberately not in catalog/commands/ so the files
+    # do not surface as slash commands.
+    local style_guides_src="$repo_root/catalog/style-guides"
+    local style_guides_dest="$devai_home/style-guides"
+    if [ -d "$style_guides_src" ]; then
+        safe_folder_copy "$style_guides_src" "$style_guides_dest" "[OK] Style guides installed at: $style_guides_dest"
     fi
 
     # Check Python availability

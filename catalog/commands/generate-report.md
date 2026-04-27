@@ -6,7 +6,7 @@ description: Generate a professional Word (.docx) or PowerPoint (.pptx) report f
 
 Generate a professional Word document or PowerPoint presentation from one or more Markdown files. The command discovers available templates (preserving branded title pages, logos, headers, footers, and margins), analyzes your content for optimal structure, and produces a formatted report saved to the project's `docs/<version>/` directory. If diagrams are found, a companion PPTX with editable shapes is also generated.
 
-**BEFORE WRITING ANY CONTENT**: Read the style guide at `catalog/commands/generate-report-style-guide.md` in the project root (or `~/.devai-hub/catalog/commands/generate-report-style-guide.md` for global installs). This guide contains concrete examples of good vs. bad output and the target metrics you must hit.
+**BEFORE WRITING ANY CONTENT**: Read the style guide at `catalog/style-guides/generate-report.md` in the project root (or `~/.devai-hub/style-guides/generate-report.md` for global installs). This guide contains concrete examples of good vs. bad output and the target metrics you must hit. The style guide is reference content, not a slash command - it lives outside `catalog/commands/` so it does not surface in the slash menu.
 
 ## Phase 1: Resolve Input Files
 
@@ -141,7 +141,7 @@ The selected template's file extension determines the output format:
 
 **SCOPE RULE**: Your ONLY source material is the files the user selected in Phase 1. Do NOT reference, quote, or draw content from any other files in the project (e.g., previously generated reports in `reports/` directories, `_merged.md` files from past runs, or output `.docx`/`.pptx` files). The report must be generated entirely from the user's selected input files. Each report generation is a fresh, independent synthesis.
 
-**MANDATORY**: Before starting, read the style guide at `catalog/commands/generate-report-style-guide.md`. It contains concrete good-vs-bad examples, target metrics, and the self-check checklist you must verify against.
+**MANDATORY**: Before starting, read the style guide at `catalog/style-guides/generate-report.md`. It contains concrete good-vs-bad examples, target metrics, and the self-check checklist you must verify against.
 
 ### Step 4.1: Read All Input Files
 

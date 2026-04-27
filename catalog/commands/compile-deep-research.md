@@ -8,7 +8,7 @@ Compile multiple research reports into a single unified document. You (the agent
 
 **BEFORE ANYTHING ELSE**: activate the `deep-research-compilation` skill. The skill contains the full playbook -- proven OOXML patterns, template inspection procedure, synthesis rules, reference deduplication, validation checks. This command is the orchestrator; the skill is the how-to.
 
-Also read `catalog/commands/compile-deep-research-style-guide.md` in the project root (or `~/.devai-hub/catalog/commands/compile-deep-research-style-guide.md` for global installs) for target metrics and the merged-markdown style rules.
+Also read `catalog/style-guides/compile-deep-research.md` in the project root (or `~/.devai-hub/style-guides/compile-deep-research.md` for global installs) for target metrics and the merged-markdown style rules. This style guide is reference content, not a slash command - it lives outside `catalog/commands/` so it does not surface in the slash menu.
 
 ## Phase 1: Resolve Input Sources
 
