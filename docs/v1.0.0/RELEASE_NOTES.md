@@ -99,6 +99,29 @@ Section 9 gates the adoption recommendations in Section 11. The chain into `/gen
 
 `make benchmark` runs [`scripts/devai_mcp_benchmark.py`](../../scripts/devai_mcp_benchmark.py) against all 3 internal MCPs (`devai-skill-server`, `devai-code-search`, `devai-web-fetch`). The harness includes a no-network-guard context manager that monkeypatches `socket.socket.connect` to raise on any outbound attempt during the local-only MCP phases. Results are appended to `data/benchmarks/mcp.json` (gitignored; last 10 runs retained).
 
+### `/run-deep-review` - Pre-Release Deep Review Orchestrator
+
+[`/run-deep-review`](../../catalog/commands/run-deep-review.md) is the new release-readiness command. It chains every individual review/audit/pentest command DevAI-Hub ships, layers in pre-release readiness checks (known gaps from CHANGELOG / DEVLOG / plans / matrix / TODOs / memory / GitHub issues; health gates; dependency CVEs; docs and git hygiene; project validators), and synthesizes everything into a single severity-ranked report with a GO / GO-WITH-CONDITIONS / NO-GO verdict.
+
+**12-phase run** (~30-90 minutes depending on codebase size):
+
+| Phase | Output |
+|---|---|
+| 1 - Known gaps collection | `00-known-gaps.md` |
+| 2 - Health gates | `01-health-gates.md` |
+| 3 - Dependency scan | `02-dependency-scan.md` |
+| 4 - Docs + git hygiene | `03-docs-and-git-hygiene.md` |
+| 5 - Project validators | `04-project-validators.md` |
+| 6 - `/analyze-codebase` | `05-analysis.md` |
+| 7 - `/run-security-audit` | `06-security-audit.md` (report-only) |
+| 8 - `/run-penetration-test --depth=deep` | `07-penetration-test.md` |
+| 9 - `/review-codebase` | `08-code-review.md` |
+| 10 - Synthesis | `SYNTHESIS.md` (P0/P1/P2/P3 + GO verdict) |
+| 11 - `/generate-plan` | `../plans/pre-release-deep-review-remediation.md` |
+| 12 - Index | `INDEX.md` |
+
+All artifacts land under `docs/<next-version>/review/`. The synthesis dedupes findings across phases (e.g. an issue flagged by both `/run-security-audit` and `/run-penetration-test` is reported once with cross-references). Use `--scope <path>` to restrict; use `--target-version` to override the auto-computed next version. Use this command before cutting a major or minor release; use the individual review commands during day-to-day development.
+
 ### Style-Guide Files Relocated
 
 `compile-deep-research-style-guide.md` and `generate-report-style-guide.md` were both surfacing as slash commands (`/compile-deep-research-style-guide`, `/generate-report-style-guide`), confusing users about which to invoke. Both files moved to `catalog/style-guides/` (sibling of `catalog/commands/`); installer ships them to `~/.devai-hub/style-guides/`. After v1.0.0 install, neither appears in the slash menu.

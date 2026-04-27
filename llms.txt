@@ -94,6 +94,7 @@ code-commit-workflow, plan-before-code, debug-with-logs, test-driven-development
 /import-skills           Import skills from Hub catalog into project
 /manage-memory           Audit and prune CLAUDE.md and memory files
 /review-codebase         Senior-level codebase review with remediation roadmap
+/run-deep-review         Pre-release deep review: chains analyze-codebase + security-audit + penetration-test + review-codebase into a 12-phase orchestrated run with synthesis and GO / GO-WITH-CONDITIONS / NO-GO verdict
 /search-skills           Search the Hub catalog by keyword, category, or role
 /setup-project           Configure CLAUDE.md with project description
 /update-devlog           Generate new DEVLOG.md entry from recent changes

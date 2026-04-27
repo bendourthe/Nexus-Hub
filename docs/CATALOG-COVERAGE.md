@@ -26,6 +26,9 @@ This matrix maps DevAI-Hub's skill catalog against user roles, AI platforms, and
 **Command extensions**:
 - [`/compare-project`](../catalog/commands/compare-project.md) gained a mandatory **Section 9: Security and Risk Assessment** with four subsections (threat model, per-item risk, RE viability, recommendation ordering). The `/generate-plan` chain always passes `reverse-engineer-first=true`.
 
+**New commands (1)**:
+- [`/run-deep-review`](../catalog/commands/run-deep-review.md) - 12-phase pre-release deep-review orchestrator. Chains known-gaps collection, health gates, dependency scan, docs/git hygiene, project validators, `/analyze-codebase`, `/run-security-audit`, `/run-penetration-test --depth=deep`, and `/review-codebase`, then synthesizes everything into a single P0/P1/P2/P3-ranked report with a GO / GO-WITH-CONDITIONS / NO-GO verdict. Ends with `/generate-plan` to produce a remediation roadmap. All artifacts land under `docs/<next-version>/review/`. Run before cutting a major or minor release.
+
 **Removed (BREAKING)**:
 - 4 third-party MCP registry entries dropped: `context7`, `exa-web-search`, `firecrawl`, `magic-ui`. Users who relied on these can re-add them to their own `.claude/settings.json`; DevAI-Hub no longer ships the snippets.
 
