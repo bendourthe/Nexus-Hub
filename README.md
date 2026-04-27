@@ -1,8 +1,10 @@
 # DevAI Hub
-**Production-Grade Brain Upgrades for Your AI Coding Assistant**
+**Brain Upgrades for Your AI Agents**
 
-> **Turn generic AI into a Senior Engineer.**
-> One-click setup for Claude Code (Anthropic), Gemini (Google), GitHub Copilot (Microsoft), and Codex (OpenAI).
+*A cross-platform layer of prompt, context, and harness engineering. Skills, commands, hooks, and rules that work the same across Claude Code, Codex, Gemini, Cursor, and GitHub Copilot.*
+
+> **Turn any AI agent into a senior engineer.**
+> One-click setup. Local-first by default. No data leaves your machine.
 
 ---
 
