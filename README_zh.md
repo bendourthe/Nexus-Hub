@@ -8,14 +8,26 @@
 
 ---
 
-## v0.9.7 更新内容
+## v1.0.0 更新内容
 
-- **Opus 4.7 对齐** - 新增 `guides/SESSION_LIFECYCLE_DECISIONS.md`（continue / `/rewind` / `/clear` / `/compact` / 委派决策树），`prompt-engineering` 中完整的 Effort-Level Strategy 章节，跨全部 5 个平台模板 + 全局 `CLAUDE.md` 的批处理澄清问题规则，以及一份合并的 [Opus 4.6 -> 4.7 迁移指南](docs/v0.9.6/opus-4-7-migration.md)（含 13 行交叉引用表）。
-- **安全扩展** - 两个新技能（`business-logic-abuse` 覆盖竞态条件、TOCTOU、重复支付、工作流绕过、幂等性；`advanced-attack-patterns` 覆盖状态失同步、缓存投毒、重放攻击、时序侧信道），并通过 `/run-penetration-test` 的第 6 个 `--depth=deep` 猎手接入，以及新的 `file-upload-security` 清单。
-- **上下文校准** - `context-degradation` 中 1M 令牌窗口 Lost-in-Middle 校准表（Green/Yellow/Orange/Red 在 100k/300k/500k 边界），`context-compression` 中的主动式 `/compact focus on X, drop Y` 引导，以及 `session-history` 中的 "Summarize from here" 中途会话交接模式。
-- **规划工作流泛化** - `/generate-implementation-plan` 重命名为 `/generate-plan`，提供规划类型选择器（Initial / Feature / Refactor / Other）和通用的 `docs/<version>/plans/<slug>.md` 输出路径。`/implement-phase` 可发现新旧两种布局。
-- **深度研究编译** - 新的 `/compile-deep-research` 命令 + `deep-research-compilation` 技能可以摄取多个研究报告（.docx / .md / .pdf / .pptx / .html / URL / .txt），对引用进行去重（DOI -> 规范化 URL -> 模糊标题匹配），重新编号内联 [N] 引用，并输出单个统一的 .docx / .pdf / .md 文件（带锚定参考文献）。每次调用均由代理驱动：代理检查用户选择的模板、构建样式配置文件，并编写针对该模板定制的一次性 python-docx 生成器（无持久化生成脚本）。新增 `templates/documentation/branded-report-template.docx` 用于样式化输出。
-- **面向仓库的 AI 代理指令** - 新增 `AGENTS.md` 章节 "Installer-Aware Changes (Cross-Platform)"，加上覆盖全部 6 个平台的薄指针文件（`CLAUDE.md`、`GEMINI.md`、`.github/copilot-instructions.md`、`.cursor/rules/devai-hub.mdc`、已有的 `AGENTS.md`）- 强制要求新 `scripts/*.py` 在两个安装器中注册，新技能更新全部三个注册文件，并且平台指令模板保持同步。
+**首个稳定版本。** 以"反向工程优先"为核心的安全加固 - DevAI-Hub 现在可在受监管环境中安全使用，专有源代码、提示词和查询文本不会泄露给第三方数据处理服务。版本号从 0.9.7 直接跳至 1.0.0（跳过 0.9.8），反映此次政策层变更的广度。
+
+- **MCP 注册表政策（含反向工程优先决策树）** ([AGENTS.md](AGENTS.md) + 7 个平台指令文件同步内联)。每个 MCP 注册条目的 `_comment` 现在必须回答 5 问审计（谁运行该进程、出站调用、API 密钥、传输数据、供应商关系）。硬性禁止：搜索即服务、嵌入即服务、抓取即服务、生成即服务。
+- **反向工程矩阵** ([docs/v1.0.0/mcp-reverse-engineering-matrix.md](docs/v1.0.0/mcp-reverse-engineering-matrix.md)) - 对每个曾经考虑过的 MCP 进行权威分类（共 18 行）。驱动保留 / 移除 / 重建决策。
+- **两个全新内部 MCP 服务器**（零出站调用、零 API 密钥、零模型下载）：
+  - [`devai-code-search`](extensions/devai-code-search/) - 本地代码搜索，关键字检索（倒排索引 + rapidfuzz）、内容哈希增量索引、`.gitignore` + `.devaiignore` 支持、符号链接安全的遍历器。v1.1.0 计划加入密集 / 混合检索。
+  - [`devai-web-fetch`](extensions/devai-web-fetch/) - 本地 HTTP 抓取 + 可读性提取，含逐跳 SSRF 防护（屏蔽 RFC 1918 / 回环 / 链路本地地址）、DNS 钉扎防止重绑定攻击、手动重定向处理（每次重新校验 `Location` 目标）。
+- **三个新技能**：
+  - `code-semantic-search` - `rag-implementation` 的代码语料专门化版本，引用内部 `devai-code-search` MCP 作为参考实现（无外部归属）。
+  - `ui-component-generation` - LLM 原生方式替代外部 UI 组件生成服务（替代 `magic-ui` 类 MCP）。
+  - `local-docs-lookup` - 库 / API 问题的 7 步本地查找序列。替代 `context7` 类 MCP 的部分用例。
+- **`/compare-project` 安全与风险评估** - 新增强制性第 9 节，包含四个子节（威胁建模、逐项风险评分、反向工程可行性、推荐排序），在生成任何采纳计划之前完成。链入 `/generate-plan` 时始终传递 `reverse-engineer-first=true`，使生成的计划按 skill-native 优先 -> RE 重建 -> 受信任供应商封装（含合理化论证）的顺序排序。
+- **内部 MCP 基准测试套件** - `make benchmark` 运行 `scripts/devai_mcp_benchmark.py` 测试三个内部 MCP 的延迟。本地 MCP 测试阶段会拒绝任何出站套接字连接。
+- **样式指南文件迁出 `catalog/commands/`** - 它们不再出现在用户的斜杠菜单中。移至 `catalog/style-guides/`（与 `catalog/commands/` 同级）；安装器将其分发至 `~/.devai-hub/style-guides/`。
+- **破坏性变更：移除 4 个第三方 MCP 注册条目** - `context7`（Upstash 搜索即服务）、`exa-web-search`（Exa 搜索即服务）、`firecrawl`（抓取即服务）、`magic-ui`（21st.dev 生成即服务）。仍依赖这些条目的用户可手动添加到自己的 `.claude/settings.json` 中；DevAI-Hub 不再提供这些片段。
+- **安全审查** - 发布前发现 3 个 HIGH 和 1 个 MEDIUM 等级的安全问题，全部修复并附带回归测试。详见 [docs/security/penetration-test-2026-04-27.md](docs/security/penetration-test-2026-04-27.md)。
+
+完整计划：[docs/v1.0.0/plans/security-hardening-v100.md](docs/v1.0.0/plans/security-hardening-v100.md)。详细发布说明：[docs/v1.0.0/RELEASE_NOTES.md](docs/v1.0.0/RELEASE_NOTES.md)。
 
 ---
 
@@ -32,7 +44,7 @@
 5. **（可选）选择项目** 配置工作区规则。
 
 **完成。**
-- **全局**：你的用户配置文件现在拥有所有 183 个 Claude 技能、32 个命令、13 个钩子、10 个代理和 Gemini 指令。
+- **全局**：你的用户配置文件现在拥有所有 187 个 Claude 技能、32 个命令、13 个钩子、10 个代理，以及 Gemini 和 Codex 指令。
 - **本地**：你的项目有针对编程语言定制的 `copilot-instructions.md`。
 
 ---

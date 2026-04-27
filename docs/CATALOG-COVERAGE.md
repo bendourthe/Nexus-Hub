@@ -1,10 +1,40 @@
 # DevAI-Hub Catalog Coverage Matrix
 
-**Version**: 0.9.7
-**Generated**: 2026-04-22
-**Skills Total**: 177 across 20 categories
+**Version**: 1.0.0
+**Generated**: 2026-04-27
+**Skills Total**: 187 across 22 categories
 
 This matrix maps DevAI-Hub's skill catalog against user roles, AI platforms, and use case categories to help you find the right skills for your context. Inspired by [Shannon's COVERAGE.md](https://github.com/KeygraphHQ/shannon) pattern.
+
+---
+
+## v1.0.0 Release Additions
+
+**Internal MCP servers (2 new)** - both zero outbound calls, zero API keys:
+- [`devai-code-search`](../extensions/devai-code-search/) - local code search with keyword retrieval, content-hash incremental indexing, symlink-safe walker. Tools: `index_codebase`, `search_code`, `clear_index`, `get_indexing_status`. Dense / hybrid retrieval planned for v1.1.0.
+- [`devai-web-fetch`](../extensions/devai-web-fetch/) - HTTP fetch + `readability-lxml` extraction with per-hop SSRF guard, DNS pinning, manual redirect re-validation. Tool: `fetch_url(url, render_js, extract_mode)`.
+
+**New skills (3)**:
+- `code-semantic-search` (ai-development) - specialized sibling of `rag-implementation` for code corpora; pairs with `devai-code-search`.
+- `ui-component-generation` (developer-experience) - LLM-native replacement for external component-generation services.
+- `local-docs-lookup` (research) - 7-step grounding sequence for library / API questions; partial replacement for `context7`-class MCPs.
+
+**Policy and governance**:
+- New [MCP Registry Policy](../AGENTS.md#mcp-registry-policy) section in `AGENTS.md` with reverse-engineering-first decision tree + 5-question audit checklist. Distributed diff-identical to all 7 platform-instruction surfaces.
+- New [Reverse-Engineering Matrix](v1.0.0/mcp-reverse-engineering-matrix.md) at `docs/v1.0.0/mcp-reverse-engineering-matrix.md` - authoritative classification of every MCP shipped or considered (18 rows).
+
+**Command extensions**:
+- [`/compare-project`](../catalog/commands/compare-project.md) gained a mandatory **Section 9: Security and Risk Assessment** with four subsections (threat model, per-item risk, RE viability, recommendation ordering). The `/generate-plan` chain always passes `reverse-engineer-first=true`.
+
+**Removed (BREAKING)**:
+- 4 third-party MCP registry entries dropped: `context7`, `exa-web-search`, `firecrawl`, `magic-ui`. Users who relied on these can re-add them to their own `.claude/settings.json`; DevAI-Hub no longer ships the snippets.
+
+**Tooling**:
+- New `make benchmark` target + `scripts/devai_mcp_benchmark.py` exercising all 3 internal MCPs with a no-network guard.
+- Style-guide companion files relocated to `catalog/style-guides/` so they no longer surface as slash commands.
+
+**Skill content de-branding**:
+- `rag-implementation` skill stripped of external-source attribution (zilliztech / claude-context, voyage-code-3, SWE-bench metrics) while preserving the technical patterns. Concrete references now point at the internal `devai-code-search` MCP.
 
 ---
 

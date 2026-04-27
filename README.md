@@ -8,12 +8,24 @@
 
 ## What's New in v1.0.0
 
-- **Opus 4.7 alignment** - new `guides/SESSION_LIFECYCLE_DECISIONS.md` (continue / `/rewind` / `/clear` / `/compact` / delegate decision tree), full Effort-Level Strategy section in `prompt-engineering`, batched clarifying-questions rule across all 5 platform templates + global `CLAUDE.md`, and a consolidated [Opus 4.6 -> 4.7 migration guide](docs/v0.9.6/opus-4-7-migration.md) with a 13-row cross-reference table.
-- **Security expansion** - two new skills (`business-logic-abuse` covering race conditions, TOCTOU, double-spending, workflow bypass, idempotency; `advanced-attack-patterns` covering state desync, cache poisoning, replay, and timing side channels) plus a 6th `--depth=deep` hunter in `/run-penetration-test` that wires them in, and a new `file-upload-security` checklist.
-- **Context calibrations** - 1M-token window Lost-in-Middle calibration table (Green/Yellow/Orange/Red at 100k/300k/500k boundaries) in `context-degradation`, proactive `/compact focus on X, drop Y` steering in `context-compression`, and a "Summarize from here" mid-session handoff mode in `session-history`.
-- **Planning workflow generalized** - `/generate-implementation-plan` renamed to `/generate-plan` with plan-type selector (Initial / Feature / Refactor / Other) and a generalized `docs/<version>/plans/<slug>.md` output path. `/implement-phase` discovers both the new layout and the legacy `docs/**/implementation-plan.md` pattern.
-- **Deep-research compilation** - new `/compile-deep-research` command + `deep-research-compilation` skill ingests multiple research reports (.docx / .md / .pdf / .pptx / .html / URL / .txt), deduplicates references (DOI -> normalized URL -> fuzzy title match), renumbers inline [N] citations, and emits a single unified .docx / .pdf / .md with anchored References. Agent-driven per invocation: inspects the user-selected template, builds a style profile, and writes a throwaway python-docx generator tailored to that template (no persistent generator script). New bundled `templates/documentation/branded-report-template.docx` for styled output.
-- **Repo-scoped AI agent instructions** - new `AGENTS.md` section "Installer-Aware Changes (Cross-Platform)" plus thin pointer files for all 6 platforms (`CLAUDE.md`, `GEMINI.md`, `.github/copilot-instructions.md`, `.cursor/rules/devai-hub.mdc`, existing `AGENTS.md`) - enforce that new `scripts/*.py` are registered in both installers, new skills update all three registry files, and platform instruction templates stay in lockstep.
+**First stable release.** Reverse-engineering-first security hardening - DevAI-Hub is now safe for use in regulated environments where proprietary source code, prompts, and query text must not leak to third-party data processors. Major-version cut from 0.9.7 (skipping 0.9.8) reflects the breadth of policy-level changes.
+
+- **MCP Registry Policy with reverse-engineering-first decision tree** ([AGENTS.md](AGENTS.md) + 7 platform-surface inlines). Every MCP entry now answers a 5-question audit (who runs the process, outbound calls, API keys, data transmitted, vendor relationship) in its `_comment`. Hard-no list: search-as-service, embeddings-as-service, scraping-as-service, generation-as-service.
+- **Reverse-Engineering Matrix** ([docs/v1.0.0/mcp-reverse-engineering-matrix.md](docs/v1.0.0/mcp-reverse-engineering-matrix.md)) - authoritative classification of every MCP shipped or considered (18 rows). Drives keep / strip / rebuild decisions.
+- **Two new internal MCP servers** (zero outbound calls, zero API keys, zero model downloads):
+  - [`devai-code-search`](extensions/devai-code-search/) - local-only code search with keyword retrieval (inverted index + rapidfuzz), content-hash incremental indexing, `.gitignore` + `.devaiignore` respect, symlink-safe walker. Dense / hybrid retrieval planned for v1.1.0.
+  - [`devai-web-fetch`](extensions/devai-web-fetch/) - local-only HTTP fetch + readability extraction with per-hop SSRF guard (RFC 1918 / loopback / link-local blocked), DNS pinning to prevent rebinding, and manual redirect handling that re-validates each `Location` target.
+- **Three new skills**:
+  - `code-semantic-search` - specialized sibling of `rag-implementation` for code corpora; references the internal `devai-code-search` MCP as the reference implementation (no external attribution).
+  - `ui-component-generation` - LLM-native replacement for external component-generation services (replaces `magic-ui`-class MCPs).
+  - `local-docs-lookup` - 7-step grounding sequence for library / API questions (introspect -> vendored README -> shipped docs -> type stubs -> project docs -> man pages -> user-approved single URL via `devai-web-fetch`). Replaces `context7`-class MCPs.
+- **`/compare-project` Security and Risk Assessment** - new mandatory Section 9 evaluates threat model, per-item risk scorecard, reverse-engineering viability, and recommendation ordering BEFORE producing any adoption plan. The chain into `/generate-plan` always passes `reverse-engineer-first=true` so generated plans sequence skill-native first, then RE builds, then vendor-intrinsic with justification.
+- **Internal MCP benchmark harness** - `make benchmark` runs `scripts/devai_mcp_benchmark.py` against all three internal MCPs (`devai-skill-server`, `devai-code-search`, `devai-web-fetch`). No-network guard refuses outbound sockets during the local-only benchmark phases.
+- **Style-guide files relocated out of `catalog/commands/`** - they no longer appear in the user's slash menu. Moved to `catalog/style-guides/` (sibling of `catalog/commands/`); installer ships them to `~/.devai-hub/style-guides/`.
+- **Breaking removals** - 4 third-party MCP registry entries dropped: `context7` (Upstash search-as-service), `exa-web-search` (Exa search-as-service), `firecrawl` (scraping-as-service), `magic-ui` (21st.dev generation-as-service). Users who relied on these can re-add them to their own `.claude/settings.json`; DevAI-Hub no longer ships the snippets.
+- **Security review** - 3 HIGH and 1 MEDIUM findings identified during pre-release review, all fixed with regression tests. See [docs/security/penetration-test-2026-04-27.md](docs/security/penetration-test-2026-04-27.md) for the full assessment.
+
+See the full plan at [docs/v1.0.0/plans/security-hardening-v100.md](docs/v1.0.0/plans/security-hardening-v100.md) and detailed release notes at [docs/v1.0.0/RELEASE_NOTES.md](docs/v1.0.0/RELEASE_NOTES.md).
 
 ---
 
@@ -30,7 +42,7 @@ Don't want to copy-paste files manually? We made an installer.
 5.  **(Optional) Select a project** to configure workspace-specific rules.
 
 **Done.**
-*   **Globally**: Your user profile now has all 183 Claude Skills, 32 Commands, 13 Hooks, 10 Agents, and Gemini instructions.
+*   **Globally**: Your user profile now has all 187 Claude Skills, 32 Commands, 13 Hooks, 10 Agents, plus Gemini and Codex instructions.
 *   **Locally**: Your project has `copilot-instructions.md` tailored to your language.
 
 ---

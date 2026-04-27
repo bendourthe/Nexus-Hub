@@ -445,8 +445,8 @@ These advisory fields are stored in `data/skills.json` entries, not in SKILL.md 
 
 | Metric | Value |
 |--------|-------|
-| Total Skills | 174 |
-| Categories | 20 |
+| Total Skills | 187 |
+| Categories | 22 |
 | Languages | 7 |
 | Avg. Lines/Skill | 400-800 |
 
