@@ -2,7 +2,7 @@
   "name": "claude-usage-monitor",
   "displayName": "Claude Usage Monitor",
   "description": "Monitor your Claude Code usage limits and get smart model-switching recommendations",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "publisher": "devai-hub",
   "icon": "icon.png",
   "repository": {
@@ -98,10 +98,17 @@
         },
         "claudeUsage.thresholds.critical": {
           "type": "number",
-          "default": 90,
+          "default": 95,
           "minimum": 1,
           "maximum": 99,
           "description": "Usage percentage at which the Critical urgency level is triggered"
+        },
+        "claudeUsage.notificationTimeoutSeconds": {
+          "type": "number",
+          "default": 12,
+          "minimum": 3,
+          "maximum": 60,
+          "description": "How long (in seconds) Claude Usage notifications stay on screen before auto-dismissing. Set this so notifications never stack while VS Code is in the background. Manual dismiss via the X button is always available."
         },
         "claudeUsage.colors.moderate": {
           "type": "string",

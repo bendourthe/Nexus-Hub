@@ -100,6 +100,7 @@ export class StatusBarManager {
       this.statusBarItem.text = "$(claude-icon) Claude Usage: --% (current) --% (week)";
       this.statusBarItem.tooltip = "Click to view Claude usage dashboard";
       this.statusBarItem.backgroundColor = undefined;
+      this.gearItem.backgroundColor = undefined;
       return;
     }
 
@@ -110,7 +111,11 @@ export class StatusBarManager {
       `$(claude-icon) Claude Usage: ${data.session.percent}% (current) ${data.weeklyAllModels.percent}% (week)${staleLabel}`;
 
     this.statusBarItem.tooltip = this.buildTooltip(data);
-    this.statusBarItem.backgroundColor = this.getBackgroundColor(overallUrgency);
+    const bgColor = this.getBackgroundColor(overallUrgency);
+    this.statusBarItem.backgroundColor = bgColor;
+    // Mirror the urgency color on the gear so the user sees that the gear icon
+    // belongs to the Claude Usage Monitor, and not to some unrelated extension.
+    this.gearItem.backgroundColor = bgColor;
     // Swap warningBackground hex between moderate and high colors (they share the same ThemeColor ID)
     void syncActiveColorToWorkbench(overallUrgency, getColorConfig());
   }

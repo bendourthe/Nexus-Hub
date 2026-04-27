@@ -5,7 +5,40 @@ import { UsageFetcher, FetchError } from "./usageFetcher";
 import { DashboardPanel } from "./dashboardPanel";
 import { SettingsPanel } from "./settingsPanel";
 import { getRecommendation, getOverallUrgency, getActiveUrgency } from "./recommendations";
-import { UrgencyLevel, UsageData, formatModelName, getThresholdConfig, getThresholdMetric, syncColorsToWorkbench, getColorConfig } from "./types";
+import { UrgencyLevel, UsageData, formatModelName, getThresholdConfig, getThresholdMetric, getNotificationTimeoutMs, syncColorsToWorkbench, getColorConfig } from "./types";
+
+type NotificationSeverity = "info" | "warning";
+
+/**
+ * Show a non-blocking, self-dismissing notification. Uses
+ * `vscode.window.withProgress` because `showWarningMessage` cannot be
+ * programmatically dismissed - if VS Code is in the background, those popups
+ * stack indefinitely until the user clicks each X.
+ *
+ * The timeout is clamped to a sane range; the user can also click the X (cancel)
+ * to dismiss early. The "_severity" parameter is reserved for future styling;
+ * `withProgress` itself does not support a severity color, but we honor the
+ * argument so call-sites read consistently.
+ */
+function showAutoDismissNotification(message: string, _severity: NotificationSeverity = "warning"): void {
+  const timeoutMs = getNotificationTimeoutMs();
+  void vscode.window.withProgress(
+    {
+      location: vscode.ProgressLocation.Notification,
+      title: message,
+      cancellable: true,
+    },
+    async (_progress, token) => {
+      return new Promise<void>((resolve) => {
+        const timer = setTimeout(resolve, timeoutMs);
+        token.onCancellationRequested(() => {
+          clearTimeout(timer);
+          resolve();
+        });
+      });
+    }
+  );
+}
 
 const RECOMMEND_COMMAND = "claude-usage.recommend";
 const RESET_COMMAND = "claude-usage.reset";
@@ -59,6 +92,7 @@ export function activate(context: vscode.ExtensionContext): void {
       },
       onOpenUsagePage: () =>
         vscode.env.openExternal(vscode.Uri.parse("https://claude.ai/settings/usage")),
+      onOpenSettings: () => vscode.commands.executeCommand(SETTINGS_COMMAND),
     }, context.extensionUri);
   });
 
@@ -75,13 +109,13 @@ export function activate(context: vscode.ExtensionContext): void {
       await evaluateAndNotify(result.data);
       statusBar.refresh();
       DashboardPanel.updateIfOpen(store.getWithFreshCountdowns(), store.getTimeSinceUpdate(), lastFetchError);
-      vscode.window.showInformationMessage("Claude usage data refreshed.");
+      showAutoDismissNotification("Claude Usage: usage data refreshed.", "info");
     } else {
       statusBar.refresh();
       if (result.error.code !== "rate-limited") {
-        vscode.window.showWarningMessage(
-          `Fetch failed: ${UsageFetcher.getErrorMessage(result.error)}`,
-          "Dismiss"
+        showAutoDismissNotification(
+          `Claude Usage: fetch failed - ${UsageFetcher.getErrorMessage(result.error)}`,
+          "warning"
         );
       }
     }
@@ -261,13 +295,7 @@ async function autoFetchAndUpdate(
 
       if (!suggestionFired && previousUrgency && urgencyEscalated(previousUrgency, newUrgency)) {
         const recommendation = getRecommendation(result.data);
-        vscode.window
-          .showWarningMessage(`Claude Usage: ${recommendation.message}`, "Show Dashboard")
-          .then((action) => {
-            if (action === "Show Dashboard") {
-              vscode.commands.executeCommand(DASHBOARD_COMMAND);
-            }
-          });
+        showAutoDismissNotification(`Claude Usage: ${recommendation.message}`, "warning");
       }
 
       statusBar.refresh();
@@ -282,9 +310,9 @@ async function autoFetchAndUpdate(
       } else if (consecutiveFailures >= 2 && !failureNotificationShown) {
         // Only show popup for actionable errors
         failureNotificationShown = true;
-        vscode.window.showWarningMessage(
-          `Auto-fetch failed: ${UsageFetcher.getErrorMessage(result.error)}`,
-          "Dismiss"
+        showAutoDismissNotification(
+          `Claude Usage: auto-fetch failed - ${UsageFetcher.getErrorMessage(result.error)}`,
+          "warning"
         );
       }
 
@@ -363,17 +391,16 @@ async function evaluateAndNotify(data: UsageData): Promise<boolean> {
   const pct = Math.round(triggerPercent);
   if (triggerPercent >= t.critical) {
     bucket = t.critical;
-    message = `${triggerLabel} usage at ${pct}% \u2192 Switch to Haiku now to avoid hitting your limit.${resetSuffix}`;
+    message = `${triggerLabel} usage at ${pct}% \u2192 Switch to Haiku 4.5 and set Effort to Low to avoid hitting your limit.${resetSuffix}`;
   } else if (triggerPercent >= t.high) {
     bucket = t.high;
-    message = `${triggerLabel} usage at ${pct}% \u2192 Set Effort to Medium or Low and disable Thinking mode.${resetSuffix}`;
+    message = isOpus
+      ? `${triggerLabel} usage at ${pct}% \u2192 Switch to Sonnet 4.6 and reduce Effort to High or Medium.${resetSuffix}`
+      : `${triggerLabel} usage at ${pct}% \u2192 Reduce Effort to High or Medium.${resetSuffix}`;
   } else {
-    // moderate–(high-1)%: only relevant when on Opus or Default
-    if (!isOpus) {
-      return false;
-    }
+    // Moderate band: nudge Effort down regardless of model. No model swap yet.
     bucket = t.moderate;
-    message = `${triggerLabel} usage at ${pct}% \u2192 Switch to Sonnet to preserve your remaining usage.${resetSuffix}`;
+    message = `${triggerLabel} usage at ${pct}% \u2192 Reduce Effort to High or Medium to extend your remaining usage.${resetSuffix}`;
   }
 
   // Already notified for this bucket in the current session — nothing to do.
@@ -385,13 +412,7 @@ async function evaluateAndNotify(data: UsageData): Promise<boolean> {
   // individually if usage continues to climb during the same session.
   [t.critical, t.high, t.moderate].filter(thresh => triggerPercent >= thresh).forEach(thresh => notifiedThresholds.add(thresh));
 
-  vscode.window
-    .showWarningMessage(message, "Open Dashboard")
-    .then((action) => {
-      if (action === "Open Dashboard") {
-        vscode.commands.executeCommand(DASHBOARD_COMMAND);
-      }
-    });
+  showAutoDismissNotification(`Claude Usage: ${message}`, "warning");
   return true;
 }
 

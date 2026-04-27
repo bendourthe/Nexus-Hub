@@ -95,28 +95,38 @@ export function getRecommendation(data: UsageData): Recommendation {
     };
   }
 
-  // Weekly all-models is high/critical while using Opus
-  if ((weeklyUrgency === "critical" || weeklyUrgency === "high") && isOpus(data.currentModel)) {
+  // Critical anywhere: switch to Haiku and drop Effort to Low (matches the toast notification policy).
+  if (sessionUrgency === "critical" || weeklyUrgency === "critical" || sonnetUrgency === "critical") {
     return {
       urgency: overallUrgency,
-      message: `Weekly usage is ${data.weeklyAllModels.percent}% (resets ${data.weeklyAllModels.resetsIn}). Switch from ${formatModelName(data.currentModel)} to Sonnet 4.6 until the weekly reset. Sonnet handles most coding tasks effectively.`,
-      suggestedModel: "claude-sonnet-4-6",
-      tips,
-    };
-  }
-
-  // Weekly all-models is high/critical while using Sonnet
-  if ((weeklyUrgency === "critical" || weeklyUrgency === "high") && isSonnet(data.currentModel)) {
-    return {
-      urgency: overallUrgency,
-      message: `Weekly usage is ${data.weeklyAllModels.percent}% (resets ${data.weeklyAllModels.resetsIn}). Switch to Haiku 4.5 for simple tasks. Save Sonnet for complex logic only.`,
+      message: `Usage is critical (${getHighestMetricSummary(data)}). Switch to Haiku 4.5 and set Effort to Low to avoid hitting your limit.`,
       suggestedModel: "claude-haiku-4-5",
       tips,
     };
   }
 
+  // Weekly all-models is high while using Opus: drop to Sonnet and reduce Effort.
+  if (weeklyUrgency === "high" && isOpus(data.currentModel)) {
+    return {
+      urgency: overallUrgency,
+      message: `Weekly usage is ${data.weeklyAllModels.percent}% (resets ${data.weeklyAllModels.resetsIn}). Switch from ${formatModelName(data.currentModel)} to Sonnet 4.6 and reduce Effort to High or Medium until the weekly reset.`,
+      suggestedModel: "claude-sonnet-4-6",
+      tips,
+    };
+  }
+
+  // Weekly all-models is high while using Sonnet/Haiku: keep the model, reduce Effort.
+  if (weeklyUrgency === "high" && !isOpus(data.currentModel)) {
+    return {
+      urgency: overallUrgency,
+      message: `Weekly usage is ${data.weeklyAllModels.percent}% (resets ${data.weeklyAllModels.resetsIn}). Reduce Effort to High or Medium until the weekly reset.`,
+      suggestedModel: null,
+      tips,
+    };
+  }
+
   // Sonnet-only limit is high while using Sonnet
-  if ((sonnetUrgency === "critical" || sonnetUrgency === "high") && isSonnet(data.currentModel)) {
+  if (sonnetUrgency === "high" && isSonnet(data.currentModel)) {
     return {
       urgency: overallUrgency,
       message: `Sonnet-only limit is ${data.weeklySonnet.percent}% (resets ${data.weeklySonnet.resetsIn}). Switch to Opus for complex tasks or Haiku for simple ones. Neither counts against the Sonnet-only limit.`,
@@ -125,12 +135,22 @@ export function getRecommendation(data: UsageData): Recommendation {
     };
   }
 
-  // Session is high while using Opus (non-1M, already handled above)
+  // Session is high while using Opus (non-1M, already handled above): drop to Sonnet and reduce Effort.
   if (sessionUrgency === "high" && isOpus(data.currentModel)) {
     return {
       urgency: overallUrgency,
-      message: `Session usage is ${data.session.percent}% (resets in ${data.session.resetsIn}). Consider switching to Sonnet 4.6 for routine tasks. Reserve Opus for architecture and complex reasoning.`,
+      message: `Session usage is ${data.session.percent}% (resets in ${data.session.resetsIn}). Switch to Sonnet 4.6 and reduce Effort to High or Medium.`,
       suggestedModel: "claude-sonnet-4-6",
+      tips,
+    };
+  }
+
+  // Session is high while using Sonnet/Haiku: keep the model, reduce Effort.
+  if (sessionUrgency === "high" && !isOpus(data.currentModel)) {
+    return {
+      urgency: overallUrgency,
+      message: `Session usage is ${data.session.percent}% (resets in ${data.session.resetsIn}). Reduce Effort to High or Medium.`,
+      suggestedModel: null,
       tips,
     };
   }
@@ -158,10 +178,10 @@ export function getRecommendation(data: UsageData): Recommendation {
     };
   }
 
-  // Moderate catch-all
+  // Moderate catch-all: nudge Effort down regardless of model. No model swap yet.
   return {
     urgency: overallUrgency,
-    message: `Usage is moderate. Be mindful of task complexity. ${getHighestMetricSummary(data)}`,
+    message: `Usage is moderate. Reduce Effort to High or Medium to extend your remaining usage. ${getHighestMetricSummary(data)}`,
     suggestedModel: null,
     tips,
   };

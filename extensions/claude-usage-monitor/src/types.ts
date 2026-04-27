@@ -130,9 +130,12 @@ export const URGENCY_THRESHOLDS = {
   moderate: 50,
   /** At or above 75% → high */
   high: 75,
-  /** At or above 90% → critical */
-  critical: 90,
+  /** At or above 95% → critical */
+  critical: 95,
 } as const;
+
+/** Default notification timeout (seconds) before a threshold popup auto-dismisses. */
+export const DEFAULT_NOTIFICATION_TIMEOUT_SECONDS = 12;
 
 /**
  * Status bar color for a given urgency level.
@@ -212,6 +215,19 @@ export function getThresholdMetric(): ThresholdMetric {
   return vscode.workspace
     .getConfiguration("claudeUsage")
     .get<ThresholdMetric>("thresholdMetric", "highest");
+}
+
+/**
+ * Read the notification auto-dismiss timeout (in milliseconds), clamped to the
+ * range advertised in package.json so a corrupt user setting never produces a
+ * popup that stays on screen forever or one that disappears before it can be read.
+ */
+export function getNotificationTimeoutMs(): number {
+  const seconds = vscode.workspace
+    .getConfiguration("claudeUsage")
+    .get<number>("notificationTimeoutSeconds", DEFAULT_NOTIFICATION_TIMEOUT_SECONDS);
+  const clamped = Math.max(3, Math.min(60, seconds));
+  return clamped * 1000;
 }
 
 /**

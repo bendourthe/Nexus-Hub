@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { UsageData, formatModelName } from "./types";
+import { UsageData, formatModelName, getThresholdConfig } from "./types";
 import { FetchError, UsageFetcher } from "./usageFetcher";
 import {
   getRecommendation,
@@ -14,6 +14,7 @@ function nextMonthlyResetLabel(): string {
 export interface DashboardCallbacks {
   onRefresh: () => void;
   onOpenUsagePage: () => void;
+  onOpenSettings: () => void;
 }
 
 export class DashboardPanel {
@@ -41,6 +42,9 @@ export class DashboardPanel {
             break;
           case "openUsagePage":
             this.callbacks.onOpenUsagePage();
+            break;
+          case "openSettings":
+            this.callbacks.onOpenSettings();
             break;
         }
       },
@@ -208,6 +212,11 @@ export class DashboardPanel {
       <div class="actions">
         <button id="refreshBtn" onclick="send('refresh')">Refresh Now</button>
         <button onclick="send('openUsagePage')" class="secondary">Open Usage Page</button>
+        <button onclick="send('openSettings')" class="icon-btn" title="Claude Usage: Settings" aria-label="Claude Usage Settings">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+            <path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.687.706-1.99 1.99l.169.31a1.464 1.464 0 0 1-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.697 1.283.707 2.687 1.99 1.99l.311-.17a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.687-.706 1.99-1.99l-.169-.31a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.697-1.283-.707-2.687-1.99-1.99l-.311.17a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/>
+          </svg>
+        </button>
       </div>
 
       <p class="last-updated">${sourceLabel} ${escapeHtml(this.timeSince)}</p>
@@ -391,6 +400,22 @@ export class DashboardPanel {
     button.secondary:hover {
       background: var(--vscode-button-secondaryHoverBackground);
     }
+    button.icon-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px;
+      width: 28px;
+      height: 28px;
+      color: var(--vscode-button-secondaryForeground);
+      background: var(--vscode-button-secondaryBackground);
+    }
+    button.icon-btn:hover {
+      background: var(--vscode-button-secondaryHoverBackground);
+    }
+    button.icon-btn svg {
+      display: block;
+    }
     .last-updated {
       font-size: 11px;
       opacity: 0.6;
@@ -454,19 +479,25 @@ export class DashboardPanel {
 
 /**
  * Returns the single most urgent suggestion message based on current usage,
- * or null when no threshold has been crossed.
+ * or null when no threshold has been crossed. Thresholds and wording mirror
+ * the toast-notification policy in extension.ts so the dashboard and the
+ * popup agree under the same conditions.
  */
 function activeSuggestion(data: UsageData): string | null {
+  const t = getThresholdConfig();
   const highest = Math.max(data.session.percent, data.weeklyAllModels.percent);
   const isOpus = /opus|default/i.test(data.currentModel);
-  if (highest >= 90) {
-    return "Usage has reached 90% — consider switching to Haiku to avoid hitting your limit.";
+  const pct = Math.round(highest);
+  if (highest >= t.critical) {
+    return `Usage has reached ${pct}% - switch to Haiku 4.5 and set Effort to Low to avoid hitting your limit.`;
   }
-  if (highest >= 75) {
-    return "Usage has reached 75% — consider lowering your Effort level to Medium or Low and turning off Thinking mode.";
+  if (highest >= t.high) {
+    return isOpus
+      ? `Usage has reached ${pct}% - switch to Sonnet 4.6 and reduce Effort to High or Medium.`
+      : `Usage has reached ${pct}% - reduce Effort to High or Medium.`;
   }
-  if (highest >= 50 && isOpus) {
-    return "Usage has reached 50% — consider switching to Sonnet to preserve your quota.";
+  if (highest >= t.moderate) {
+    return `Usage has reached ${pct}% - reduce Effort to High or Medium to extend your remaining usage.`;
   }
   return null;
 }

@@ -102,13 +102,15 @@ The extension classifies your usage into four levels:
 | Usage % | Level | Action |
 |---|---|---|
 | 0-50% | Low | Continue current model freely |
-| 51-75% | Moderate | Be mindful of task complexity |
-| 76-90% | High | Model switch recommended |
-| 91-100% | Critical | Immediate switch or wait for reset |
+| 51-75% | Moderate | Reduce Effort to High or Medium (no model swap yet) |
+| 76-95% | High | Switch to Sonnet 4.6 if on Opus, and reduce Effort to High or Medium |
+| 95-100% | Critical | Switch to Haiku 4.5 and set Effort to Low to avoid hitting your limit |
 
-Based on your current model and usage level, it recommends:
+The thresholds (50 / 75 / 95) and the per-bucket guidance can be customized in `Claude Usage: Settings`. Notifications auto-dismiss after `claudeUsage.notificationTimeoutSeconds` (default 12 seconds) so they never stack while VS Code is in the background.
 
-- **Opus users at high usage**: Switch to Sonnet 4.5 for routine tasks
+Based on your current model and usage level, the dashboard also shows model-specific guidance:
+
+- **Opus users at high usage**: Switch to Sonnet 4.6 for routine tasks
 - **Sonnet users at high usage**: Switch to Haiku 4.5 for simple tasks
 - **Sonnet-only limit high**: Switch to Opus or Haiku (neither counts against Sonnet limit)
 - **Session near capacity**: Wait for the session reset (typically a few minutes)
