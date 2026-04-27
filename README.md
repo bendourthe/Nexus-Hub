@@ -72,10 +72,15 @@ Build from scratch with an AI coding agent as your primary partner.
 **2. Project Setup** - Create the Git repo and a three-tier branching model (`main` / `develop` / `feature/*`). Install the DevAI-Hub toolkit (`./install.sh` or `install.bat`). In Claude Code, run `/setup-project` - bootstraps `CLAUDE.md`, directory structure, `.gitignore`, `README.md`, `DEVLOG.md`, and `CHANGELOG.md` in 8 guided phases. Save the implementation plan from step 1 to `docs/<version>/plans/<slug>.md`. Commit with `/generate-commit-message`.
 
 **3. Development (Core Loop)** - For each plan phase:
+
 1. Create a feature branch (`feature/phase-N-short-description`).
+
 2. Open a fresh Claude Code session.
+
 3. Run `/implement-phase <slug> <phase>` - walks every subtask, generates and runs tests, applies fixes, runs `/update-gitignore` + `/update-documentation`, generates a session-history file, and produces a commit message.
+
 4. Commit and push the feature branch.
+
 5. Merge into `develop`. Repeat for the next phase.
 
 **4. Quality Assurance (pre-release)** - Run `/run-deep-review` - a 12-phase orchestrator that chains known-gaps collection, health gates, dependency scan, docs/git hygiene, project validators, `/analyze-codebase`, `/run-security-audit`, `/run-penetration-test --depth=deep`, and `/review-codebase`, then synthesizes everything into a P0/P1/P2/P3-ranked report with a GO / GO-WITH-CONDITIONS / NO-GO verdict. Address P0/P1 findings before release. Run `/generate-sbom` for compliance documentation.
@@ -89,14 +94,19 @@ For projects you've inherited or need to audit.
 **1. Primary Analysis & Deep Review** - Clone the repo, open it in VS Code, start a Claude Code session. Run `/run-deep-review` - the same 12-phase orchestrator from Phase 4 above. The synthesis report's prioritized roadmap (P0/P1/P2/P3) becomes your initial backlog. If documentation is sparse, backfill it: `/generate-readme` (if missing), `/generate-changelog` (from git history), `/generate-devlog`, `/refactor-project-layout` (if structural issues exist). Establish the `develop` branch if not already present. Commit the analysis artifacts.
 
 **2. Making Changes** - For each change:
+
 1. Brainstorm in a chatbot, then run `/generate-plan` to produce a structured implementation plan saved to `docs/<version>/plans/<slug>.md`.
+
 2. Run `/implement-phase <slug> <phase>` per phase - identical to the New Project Workflow's development loop.
+
 3. (Optional) Use git worktrees for parallel work (e.g. critical security fix while developing a feature):
-   ```bash
-   git worktree add ../project-fix feature/security-fix
-   # Work in a separate Claude Code session, then:
-   git worktree remove ../project-fix
-   ```
+
+    ```bash
+    git worktree add ../project-fix feature/security-fix
+    # Work in a separate Claude Code session, then:
+    git worktree remove ../project-fix
+    ```
+
 4. After all changes land on `develop`, run `/run-deep-review` again to verify nothing regressed, then `/update-version` and merge to `main`.
 
 The QA and release steps are identical to the New Project Workflow.

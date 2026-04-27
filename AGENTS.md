@@ -168,6 +168,29 @@ Every MCP listed in `catalog/mcp-configs/mcp-servers.json` must have a correspon
 
 When reverse-engineering an external pattern into DevAI-Hub content (a skill, a command, an internal MCP), do not name the specific external repo, product, or evaluation metric in the user-facing artifact. Use generic descriptive names (e.g. "code-semantic-search" instead of naming a specific upstream implementation). Attribution belongs in the reverse-engineering matrix row's `Rationale` column, not in the distributed artifact.
 
+## Markdown Style for Generated Documentation
+
+Every Markdown file DevAI-Hub generates or modifies (READMEs, CHANGELOG, DEVLOG, RELEASE_NOTES, plans, comparison reports, pen test reports, session histories, skills, commands, generated `/generate-report` and `/compile-deep-research` outputs) must follow the conventions in [`catalog/style-guides/markdown.md`](catalog/style-guides/markdown.md). The guide is also installed at `~/.devai-hub/style-guides/markdown.md` for global reference.
+
+The most common rendering bugs that the style guide prevents:
+
+- **No blank line before a list** - the list runs into the preceding paragraph in some renderers
+- **Tight lists with multi-sentence items** - the list looks compressed; loose lists (blank lines between items) read better when items have body content
+- **2-space indent for nested lists** - fragile across renderers; use 4-space indent
+- **Code blocks inside list items without blank lines around the fence** - render as inline preformatted text instead of a code block
+
+Quick reference (full rules and examples in the style guide):
+
+- Blank line before AND after every list, code block, table, and heading.
+- `-` for unordered lists, `1. 2. 3.` for ordered. Single space after the marker.
+- Nested lists use 4-space indent.
+- Code blocks inside list items: blank line before/after the fence; 4-space indent for the fence (top-level item) or 8-space (nested item).
+- Headings are ATX-style (`#`), one H1 per document, no level skipping.
+- Each paragraph or list item is a single continuous line in source - never hard-wrap.
+- English Markdown is ASCII-only (hyphens, straight quotes, `...`). Other-language Markdown uses the language's native punctuation.
+
+Before committing any generated Markdown, the agent should run a quick self-check against the verification list at the end of `catalog/style-guides/markdown.md`.
+
 ## Adding a New Command
 
 Commands are Markdown files in `catalog/commands/`. Each file is a slash command that Claude Code users can invoke with `/<filename-without-extension>`.

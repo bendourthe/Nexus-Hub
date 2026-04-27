@@ -75,10 +75,15 @@ DevAI-Hub 提供两个有主张的端到端工作流。可作为起点，再根�
 **2. 项目设置** - 创建 Git 仓库与三层分支模型（`main` / `develop` / `feature/*`）。安装 DevAI-Hub 工具包（`./install.sh` 或 `install.bat`）。在 Claude Code 中运行 `/setup-project` - 通过 8 个引导阶段自动生成 `CLAUDE.md`、目录结构、`.gitignore`、`README.md`、`DEVLOG.md` 和 `CHANGELOG.md`。将第 1 步生成的实施计划保存至 `docs/<version>/plans/<slug>.md`。运行 `/generate-commit-message` 提交。
 
 **3. 开发（核心循环）** - 对计划中的每个阶段：
+
 1. 创建特性分支（`feature/phase-N-short-description`）。
+
 2. 开启全新的 Claude Code 会话。
+
 3. 运行 `/implement-phase <slug> <phase>` - 该命令会逐个执行子任务、生成并运行测试、修复问题、运行 `/update-gitignore` + `/update-documentation`、生成会话历史文件并产出提交消息。
+
 4. 提交并推送特性分支。
+
 5. 合并到 `develop`。然后进入下一个阶段。
 
 **4. 质量保证（发布前）** - 运行 `/run-deep-review` - 一个 12 阶段的协调器，串联已知缺陷收集、健康检查、依赖扫描、文档与 git 卫生检查、项目验证器、`/analyze-codebase`、`/run-security-audit`、`/run-penetration-test --depth=deep` 和 `/review-codebase`，然后将所有结果合并为一份按 P0/P1/P2/P3 严重度排序的报告，附带 GO / GO-WITH-CONDITIONS / NO-GO 的发布判断。在发布前修复 P0/P1 级别问题。运行 `/generate-sbom` 生成合规文档。
@@ -92,14 +97,19 @@ DevAI-Hub 提供两个有主张的端到端工作流。可作为起点，再根�
 **1. 初步分析与深度审查** - 克隆仓库，在 VS Code 中打开，开启 Claude Code 会话。运行 `/run-deep-review` - 与上方第 4 阶段相同的 12 阶段协调器。综合报告中的优先级路线图（P0/P1/P2/P3）即成为你的初始任务积压。如果文档稀缺，可补全：`/generate-readme`（如缺失）、`/generate-changelog`（基于 git 历史）、`/generate-devlog`、`/refactor-project-layout`（仅当存在结构性问题）。如尚未存在则建立 `develop` 分支。提交分析产出。
 
 **2. 进行变更** - 对每次变更：
+
 1. 在聊天工具中头脑风暴，然后运行 `/generate-plan` 生成结构化实施计划，保存至 `docs/<version>/plans/<slug>.md`。
+
 2. 对每个阶段运行 `/implement-phase <slug> <phase>` - 与全新项目工作流的开发循环完全相同。
-3.（可选）使用 git worktree 进行并行工作（例如：在开发新特性的同时修复关键安全 bug）：
-   ```bash
-   git worktree add ../project-fix feature/security-fix
-   # 在另一个 Claude Code 会话中工作，完成后：
-   git worktree remove ../project-fix
-   ```
+
+3. （可选）使用 git worktree 进行并行工作（例如：在开发新特性的同时修复关键安全 bug）：
+
+    ```bash
+    git worktree add ../project-fix feature/security-fix
+    # 在另一个 Claude Code 会话中工作，完成后：
+    git worktree remove ../project-fix
+    ```
+
 4. 当所有变更合入 `develop` 后，再次运行 `/run-deep-review` 验证未发生回归，然后运行 `/update-version` 并合并到 `main`。
 
 QA 与发布步骤与全新项目工作流完全相同。
