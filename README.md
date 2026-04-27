@@ -10,20 +10,55 @@
 
 **First stable release.** Reverse-engineering-first security hardening - DevAI-Hub is now safe for use in regulated environments where proprietary source code, prompts, and query text must not leak to third-party data processors. Major-version cut from 0.9.7 (skipping 0.9.8) reflects the breadth of policy-level changes.
 
+### 🛡️ Enhanced Security
+
 - **MCP Registry Policy with reverse-engineering-first decision tree** ([AGENTS.md](AGENTS.md) + 7 platform-surface inlines). Every MCP entry now answers a 5-question audit (who runs the process, outbound calls, API keys, data transmitted, vendor relationship) in its `_comment`. Hard-no list: search-as-service, embeddings-as-service, scraping-as-service, generation-as-service.
+
 - **Reverse-Engineering Matrix** ([docs/v1.0.0/mcp-reverse-engineering-matrix.md](docs/v1.0.0/mcp-reverse-engineering-matrix.md)) - authoritative classification of every MCP shipped or considered (18 rows). Drives keep / strip / rebuild decisions.
-- **Two new internal MCP servers** (zero outbound calls, zero API keys, zero model downloads):
-  - [`devai-code-search`](extensions/devai-code-search/) - local-only code search with keyword retrieval (inverted index + rapidfuzz), content-hash incremental indexing, `.gitignore` + `.devaiignore` respect, symlink-safe walker. Dense / hybrid retrieval planned for v1.1.0.
-  - [`devai-web-fetch`](extensions/devai-web-fetch/) - local-only HTTP fetch + readability extraction with per-hop SSRF guard (RFC 1918 / loopback / link-local blocked), DNS pinning to prevent rebinding, and manual redirect handling that re-validates each `Location` target.
-- **Three new skills**:
-  - `code-semantic-search` - specialized sibling of `rag-implementation` for code corpora; references the internal `devai-code-search` MCP as the reference implementation (no external attribution).
-  - `ui-component-generation` - LLM-native replacement for external component-generation services (replaces `magic-ui`-class MCPs).
-  - `local-docs-lookup` - 7-step grounding sequence for library / API questions (introspect -> vendored README -> shipped docs -> type stubs -> project docs -> man pages -> user-approved single URL via `devai-web-fetch`). Replaces `context7`-class MCPs.
-- **`/compare-project` Security and Risk Assessment** - new mandatory Section 9 evaluates threat model, per-item risk scorecard, reverse-engineering viability, and recommendation ordering BEFORE producing any adoption plan. The chain into `/generate-plan` always passes `reverse-engineer-first=true` so generated plans sequence skill-native first, then RE builds, then vendor-intrinsic with justification.
+
+- **Pre-release security review** found 3 HIGH and 1 MEDIUM-severity findings - all fixed with regression tests before tag. See [docs/security/penetration-test-2026-04-27.md](docs/security/penetration-test-2026-04-27.md) for the full assessment.
+
+- **Pickle deserialization eliminated.** `devai-code-search` now persists indexes as JSON. A maliciously-crafted index file cannot execute code at load time.
+
+- **SSRF defense in depth** in `devai-web-fetch`: per-hop validation on every redirect target, DNS pinning to prevent rebinding, RFC 1918 / loopback / link-local blocked by default.
+
+- **Symlink-safe codebase walker** in `devai-code-search`: indexing an untrusted repository cannot leak files outside the indexed root through symlink-following.
+
+### 🧰 New Internal MCP Servers
+
+Zero outbound calls, zero API keys, zero model downloads. Both ship with the installer.
+
+- [`devai-code-search`](extensions/devai-code-search/) - local-only code search. Keyword retrieval (inverted index + rapidfuzz), content-hash incremental indexing, `.gitignore` + `.devaiignore` respect, symlink-safe walker. Dense / hybrid retrieval planned for v1.1.0.
+
+- [`devai-web-fetch`](extensions/devai-web-fetch/) - local-only HTTP fetch + readability extraction. Per-hop SSRF guard, DNS pinning, manual redirect handling. Single-URL scope; no third-party intermediary.
+
+### 📚 New Skills
+
+- `code-semantic-search` - specialized sibling of `rag-implementation` for code corpora. References the internal `devai-code-search` MCP as the reference implementation (no external attribution).
+
+- `ui-component-generation` - LLM-native replacement for external component-generation services (replaces `magic-ui`-class MCPs).
+
+- `local-docs-lookup` - 7-step grounding sequence for library / API questions (introspect -> vendored README -> shipped docs -> type stubs -> project docs -> man pages -> user-approved single URL via `devai-web-fetch`). Replaces `context7`-class MCPs.
+
+### ⚙️ Command and Workflow Improvements
+
+- **`/run-deep-review` command** - new 12-phase pre-release deep-review orchestrator. Chains known-gaps collection, health gates (test execution + 80% line-coverage threshold), dependency scan, docs / git / CI/CD / release-readiness hygiene, project validators, `/analyze-codebase`, `/run-security-audit`, `/run-penetration-test --depth=deep`, and `/review-codebase`. Synthesizes findings (P0/P1/P2/P3) into one severity-ranked report with a GO / GO-WITH-CONDITIONS / NO-GO verdict.
+
+- **`/compare-project` Section 9 "Security and Risk Assessment"** - mandatory section evaluating threat model, per-item risk scorecard, reverse-engineering viability, and recommendation ordering BEFORE producing any adoption plan. The chain into `/generate-plan` always passes `reverse-engineer-first=true` so generated plans sequence skill-native first, then RE builds, then vendor-intrinsic with justification.
+
 - **Internal MCP benchmark harness** - `make benchmark` runs `scripts/devai_mcp_benchmark.py` against all three internal MCPs (`devai-skill-server`, `devai-code-search`, `devai-web-fetch`). No-network guard refuses outbound sockets during the local-only benchmark phases.
-- **Style-guide files relocated out of `catalog/commands/`** - they no longer appear in the user's slash menu. Moved to `catalog/style-guides/` (sibling of `catalog/commands/`); installer ships them to `~/.devai-hub/style-guides/`.
-- **Breaking removals** - 4 third-party MCP registry entries dropped: `context7` (Upstash search-as-service), `exa-web-search` (Exa search-as-service), `firecrawl` (scraping-as-service), `magic-ui` (21st.dev generation-as-service). Users who relied on these can re-add them to their own `.claude/settings.json`; DevAI-Hub no longer ships the snippets.
-- **Security review** - 3 HIGH and 1 MEDIUM findings identified during pre-release review, all fixed with regression tests. See [docs/security/penetration-test-2026-04-27.md](docs/security/penetration-test-2026-04-27.md) for the full assessment.
+
+- **Style-guide files relocated** out of `catalog/commands/` to `catalog/style-guides/` (sibling). They no longer surface in the slash menu, removing visual noise from `/compile-deep-research-style-guide` and `/generate-report-style-guide` showing up alongside their parent commands.
+
+- **Markdown style guide for generated documentation** ([catalog/style-guides/markdown.md](catalog/style-guides/markdown.md)) - canonical formatting reference (blank-line rules, nested-indent rules, code-in-list rules, ASCII rule). Referenced from `AGENTS.md` so the agent picks up the rule on every session.
+
+### 💥 Breaking Changes
+
+- **4 third-party MCP registry entries removed**: `context7` (Upstash search-as-service), `exa-web-search` (Exa search-as-service), `firecrawl` (scraping-as-service), `magic-ui` (21st.dev generation-as-service). Users who relied on these can re-add them to their own `.claude/settings.json`; DevAI-Hub no longer ships the snippets.
+
+- **Two slash commands removed from the menu**: `/compile-deep-research-style-guide` and `/generate-report-style-guide`. The parent commands `/compile-deep-research` and `/generate-report` are unaffected.
+
+- **`/generate-implementation-plan` deprecation alias removed**. Use `/generate-plan` directly.
 
 See the full plan at [docs/v1.0.0/plans/security-hardening-v100.md](docs/v1.0.0/plans/security-hardening-v100.md) and detailed release notes at [docs/v1.0.0/RELEASE_NOTES.md](docs/v1.0.0/RELEASE_NOTES.md).
 
@@ -156,19 +191,46 @@ The QA and release steps are identical to the New Project Workflow.
 If you prefer to copy things yourself, here is how the repo is organized:
 
 ### 1. Claude Code (Anthropic)
-This is the most powerful integration. It adds **autonomous agent capabilities**.
-*   **CLAUDE.md**: The "Brain". Copy `catalog/CLAUDE.md` to your project root and customize it.
-*   **Skills**: The "Hands". Copy folders from `catalog/skills/` to your project's `.claude/skills/` folder.
-    *   *Example*: Copy `catalog/skills/research/trend-research` to enable the "Trend Research" skill.
 
-### 2. Gemini (Google)
-Optimized instructions for Google's Gemini models.
-*   **Gemini Instructions**: Copy `templates/ai-instructions/generic-instructions.md` to `.gemini/GEMINI.md` in your project or user profile.
-*   **Skills & Workflows**: The installer mirrors these to `.gemini/skills` and `.gemini/antigravity/global_workflows` so they appear globally in Antigravity.
+This is the most powerful integration. It adds **autonomous agent capabilities**.
+
+- **CLAUDE.md**: The "Brain". Copy `catalog/CLAUDE.md` to your project root and customize it.
+- **Skills**: The "Hands". Copy folders from `catalog/skills/` to your project's `.claude/skills/` folder.
+
+    *Example*: Copy `catalog/skills/research/trend-research` to enable the "Trend Research" skill.
+
+### 2. Gemini (Google) and Antigravity
+
+Optimized instructions for Google's Gemini models, including the Antigravity workspace layout.
+
+- **Gemini Instructions**: Copy `templates/ai-instructions/base-gemini.md` (or `templates/ai-instructions/generic-instructions.md` for the legacy template) to `.gemini/GEMINI.md` in your project or user profile.
+- **Skills & Workflows**: The installer mirrors these to `.gemini/skills/` and `.gemini/antigravity/global_workflows/` so they appear globally in Antigravity.
 
 ### 3. GitHub Copilot (Microsoft)
+
 Instructions for VS Code's Copilot Chat.
-*   Copy `templates/ai-instructions/coding-instructions/{language}.md` to `.github/copilot-instructions.md`.
+
+- Copy `templates/ai-instructions/coding-instructions/{language}.md` to `.github/copilot-instructions.md`.
+
+### 4. Codex (OpenAI)
+
+OpenAI Codex CLI integration. Codex reads `AGENTS.md` at the project root (the open standard, also honored by Cursor / Aider / Jules) plus its user-level config in `~/.codex/`.
+
+- **AGENTS.md**: Copy `templates/ai-instructions/base-codex.md` content into your project's `AGENTS.md`.
+- **Skills & Prompts**: The installer mirrors `catalog/skills/` to `~/.codex/skills/` and `catalog/commands/` to `~/.codex/prompts/`. For manual setup, copy each tree to those destinations.
+
+### 5. Cursor
+
+Cursor IDE integration.
+
+- **Project rules**: Copy `templates/ai-instructions/base-cursor.md` content into `.cursor/rules/devai-hub.mdc` at your project root. Use `alwaysApply: true` in the frontmatter so Cursor applies the rule on every prompt.
+- **Open-standard `AGENTS.md`**: Cursor also reads `AGENTS.md` at the project root, so the Codex setup above covers Cursor too.
+
+### 6. OpenCode
+
+OpenCode IDE integration. OpenCode reads `AGENTS.md` per the open standard.
+
+- Copy `templates/ai-instructions/base-opencode.md` content into your project's `AGENTS.md`.
 
 ---
 
@@ -218,5 +280,11 @@ On-demand detailed usage report with model-switching recommendations. Auto-fetch
 
 ---
 
-## 🤝 Contributing
-Found a better prompt? A smarter rule? Open a PR! We want to build the ultimate knowledge base for AI coding.
+## 🤝 Collaboration
+
+DevAI-Hub is a curated open-source project. While Pull Requests (PRs) are typically not accepted from outside contributors, suggestions, feedback and recommendations are more than welcomed. If you have a better prompt, a smarter rule, or a pattern you'd like to see in the catalog, please reach out directly:
+
+- **Email**: [benjamin@supiramedical.com](mailto:benjamin@supiramedical.com)
+- **GitHub**: [@bendourthe](https://github.com/bendourthe)
+
+I'm happy to discuss skill / command / hook proposals, integration ideas for new platforms, or specific use cases - especially when the proposal aligns with the policy direction of this project (reverse-engineering-first, no third-party data leaks).

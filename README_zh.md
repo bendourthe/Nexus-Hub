@@ -12,20 +12,55 @@
 
 **首个稳定版本。** 以"反向工程优先"为核心的安全加固 - DevAI-Hub 现在可在受监管环境中安全使用，专有源代码、提示词和查询文本不会泄露给第三方数据处理服务。版本号从 0.9.7 直接跳至 1.0.0（跳过 0.9.8），反映此次政策层变更的广度。
 
+### 🛡️ 增强的安全能力
+
 - **MCP 注册表政策（含反向工程优先决策树）** ([AGENTS.md](AGENTS.md) + 7 个平台指令文件同步内联)。每个 MCP 注册条目的 `_comment` 现在必须回答 5 问审计（谁运行该进程、出站调用、API 密钥、传输数据、供应商关系）。硬性禁止：搜索即服务、嵌入即服务、抓取即服务、生成即服务。
+
 - **反向工程矩阵** ([docs/v1.0.0/mcp-reverse-engineering-matrix.md](docs/v1.0.0/mcp-reverse-engineering-matrix.md)) - 对每个曾经考虑过的 MCP 进行权威分类（共 18 行）。驱动保留 / 移除 / 重建决策。
-- **两个全新内部 MCP 服务器**（零出站调用、零 API 密钥、零模型下载）：
-  - [`devai-code-search`](extensions/devai-code-search/) - 本地代码搜索，关键字检索（倒排索引 + rapidfuzz）、内容哈希增量索引、`.gitignore` + `.devaiignore` 支持、符号链接安全的遍历器。v1.1.0 计划加入密集 / 混合检索。
-  - [`devai-web-fetch`](extensions/devai-web-fetch/) - 本地 HTTP 抓取 + 可读性提取，含逐跳 SSRF 防护（屏蔽 RFC 1918 / 回环 / 链路本地地址）、DNS 钉扎防止重绑定攻击、手动重定向处理（每次重新校验 `Location` 目标）。
-- **三个新技能**：
-  - `code-semantic-search` - `rag-implementation` 的代码语料专门化版本，引用内部 `devai-code-search` MCP 作为参考实现（无外部归属）。
-  - `ui-component-generation` - LLM 原生方式替代外部 UI 组件生成服务（替代 `magic-ui` 类 MCP）。
-  - `local-docs-lookup` - 库 / API 问题的 7 步本地查找序列。替代 `context7` 类 MCP 的部分用例。
-- **`/compare-project` 安全与风险评估** - 新增强制性第 9 节，包含四个子节（威胁建模、逐项风险评分、反向工程可行性、推荐排序），在生成任何采纳计划之前完成。链入 `/generate-plan` 时始终传递 `reverse-engineer-first=true`，使生成的计划按 skill-native 优先 -> RE 重建 -> 受信任供应商封装（含合理化论证）的顺序排序。
+
+- **发布前安全审查** 发现 3 个 HIGH 和 1 个 MEDIUM 等级的安全问题，全部修复并附带回归测试。详见 [docs/security/penetration-test-2026-04-27.md](docs/security/penetration-test-2026-04-27.md)。
+
+- **消除 pickle 反序列化风险**。`devai-code-search` 现以 JSON 形式持久化索引；恶意构造的索引文件无法在加载时执行任意代码。
+
+- **`devai-web-fetch` 中的纵深 SSRF 防御**：每跳重新校验重定向目标、DNS 钉扎防止重绑定攻击、默认屏蔽 RFC 1918 / 回环 / 链路本地地址。
+
+- **`devai-code-search` 中的符号链接安全遍历器**：索引不可信仓库时，符号链接不会泄露索引根之外的文件。
+
+### 🧰 新内部 MCP 服务器
+
+零出站调用、零 API 密钥、零模型下载。两者均随安装器分发。
+
+- [`devai-code-search`](extensions/devai-code-search/) - 本地代码搜索。关键字检索（倒排索引 + rapidfuzz）、内容哈希增量索引、`.gitignore` + `.devaiignore` 支持、符号链接安全的遍历器。v1.1.0 计划加入密集 / 混合检索。
+
+- [`devai-web-fetch`](extensions/devai-web-fetch/) - 本地 HTTP 抓取 + 可读性提取。每跳 SSRF 防护、DNS 钉扎、手动重定向处理。仅支持单 URL；无第三方中介。
+
+### 📚 新技能
+
+- `code-semantic-search` - `rag-implementation` 的代码语料专门化版本，引用内部 `devai-code-search` MCP 作为参考实现（无外部归属）。
+
+- `ui-component-generation` - LLM 原生方式替代外部 UI 组件生成服务（替代 `magic-ui` 类 MCP）。
+
+- `local-docs-lookup` - 库 / API 问题的 7 步本地查找序列（自省 -> vendored README -> 内置文档 -> 类型存根 -> 项目文档 -> man pages -> 用户批准的单一 URL，通过 `devai-web-fetch`）。替代 `context7` 类 MCP。
+
+### ⚙️ 命令与工作流改进
+
+- **`/run-deep-review` 命令** - 全新的 12 阶段发布前深度审查协调器。串联已知缺陷收集、健康检查（测试执行 + 80% 行覆盖率阈值）、依赖扫描、文档 / git / CI/CD / 发布就绪卫生检查、项目验证器、`/analyze-codebase`、`/run-security-audit`、`/run-penetration-test --depth=deep` 和 `/review-codebase`。将所有结果合并为一份按 P0/P1/P2/P3 严重度排序的报告，附带 GO / GO-WITH-CONDITIONS / NO-GO 的发布判断。
+
+- **`/compare-project` 第 9 节"安全与风险评估"** - 强制性章节，在生成任何采纳计划之前评估威胁建模、逐项风险评分、反向工程可行性与推荐排序。链入 `/generate-plan` 时始终传递 `reverse-engineer-first=true`，使生成的计划按 skill-native 优先 -> RE 重建 -> 受信任供应商封装（含合理化论证）的顺序排序。
+
 - **内部 MCP 基准测试套件** - `make benchmark` 运行 `scripts/devai_mcp_benchmark.py` 测试三个内部 MCP 的延迟。本地 MCP 测试阶段会拒绝任何出站套接字连接。
-- **样式指南文件迁出 `catalog/commands/`** - 它们不再出现在用户的斜杠菜单中。移至 `catalog/style-guides/`（与 `catalog/commands/` 同级）；安装器将其分发至 `~/.devai-hub/style-guides/`。
-- **破坏性变更：移除 4 个第三方 MCP 注册条目** - `context7`（Upstash 搜索即服务）、`exa-web-search`（Exa 搜索即服务）、`firecrawl`（抓取即服务）、`magic-ui`（21st.dev 生成即服务）。仍依赖这些条目的用户可手动添加到自己的 `.claude/settings.json` 中；DevAI-Hub 不再提供这些片段。
-- **安全审查** - 发布前发现 3 个 HIGH 和 1 个 MEDIUM 等级的安全问题，全部修复并附带回归测试。详见 [docs/security/penetration-test-2026-04-27.md](docs/security/penetration-test-2026-04-27.md)。
+
+- **样式指南文件迁出 `catalog/commands/`** 移至 `catalog/style-guides/`（同级目录）。它们不再出现在斜杠菜单中，避免 `/compile-deep-research-style-guide` 与 `/generate-report-style-guide` 与各自的父命令并列时造成视觉干扰。
+
+- **生成文档的 Markdown 样式指南** ([catalog/style-guides/markdown.md](catalog/style-guides/markdown.md)) - 规范化的格式参考（空行规则、嵌套缩进规则、列表中代码块规则、ASCII 规则）。从 `AGENTS.md` 引用，代理在每次会话开始时即可获得该规则。
+
+### 💥 破坏性变更
+
+- **移除 4 个第三方 MCP 注册条目**：`context7`（Upstash 搜索即服务）、`exa-web-search`（Exa 搜索即服务）、`firecrawl`（抓取即服务）、`magic-ui`（21st.dev 生成即服务）。仍依赖这些条目的用户可手动添加到自己的 `.claude/settings.json` 中；DevAI-Hub 不再提供这些片段。
+
+- **从斜杠菜单移除两个命令**：`/compile-deep-research-style-guide` 与 `/generate-report-style-guide`。父命令 `/compile-deep-research` 与 `/generate-report` 不受影响。
+
+- **`/generate-implementation-plan` 弃用别名已移除**。请直接使用 `/generate-plan`。
 
 完整计划：[docs/v1.0.0/plans/security-hardening-v100.md](docs/v1.0.0/plans/security-hardening-v100.md)。详细发布说明：[docs/v1.0.0/RELEASE_NOTES.md](docs/v1.0.0/RELEASE_NOTES.md)。
 
@@ -171,11 +206,18 @@ QA 与发布步骤与全新项目工作流完全相同。
 VS Code Copilot Chat 的指令。
 - 将 `templates/ai-instructions/coding-instructions/{language}.md` 复制到 `.github/copilot-instructions.md`。
 
-### 4. Cursor
+### 4. Codex (OpenAI)
+
+OpenAI Codex CLI 集成。Codex 读取项目根目录的 `AGENTS.md`（开放标准，Cursor / Aider / Jules 也遵循该约定）以及位于 `~/.codex/` 的用户级配置。
+
+- **AGENTS.md**：将 `templates/ai-instructions/base-codex.md` 的内容复制到项目的 `AGENTS.md`。
+- **技能与提示词**：安装器会将 `catalog/skills/` 镜像到 `~/.codex/skills/`，并将 `catalog/commands/` 镜像到 `~/.codex/prompts/`。手动配置时，将这两个目录树复制到对应位置即可。
+
+### 5. Cursor
 Cursor IDE 集成。
 - 使用安装器从 `templates/ai-instructions/base-cursor.md` 生成 Cursor 兼容指令。
 
-### 5. OpenCode
+### 6. OpenCode
 OpenCode IDE 集成。
 - 使用安装器从 `templates/ai-instructions/base-opencode.md` 生成 OpenCode 兼容指令。
 
