@@ -44,7 +44,19 @@ def walk_files(root: Path, config: CodeSearchConfig) -> Iterator[Path]:
 
 
 def _iter_files(root: Path, config: CodeSearchConfig) -> Iterator[Path]:
-    """Walk the tree skipping excluded directory names."""
+    """Walk the tree skipping excluded directory names.
+
+    Symlinks are skipped entirely (both directory and file symlinks) to
+    prevent information disclosure when indexing untrusted repositories.
+    A malicious repo containing `secrets -> /etc/passwd` or similar would
+    otherwise have its target read, hashed, and persisted to the index.
+    See the v1.0.0 penetration test (docs/security/penetration-test-
+    2026-04-27.md) for the threat model.
+
+    If symlink-following is required for a specific use case (e.g., vendored
+    submodules), expose it as an explicit `follow_symlinks` opt-in on
+    CodeSearchConfig in a future release.
+    """
     stack = [root]
     while stack:
         current = stack.pop()
@@ -53,6 +65,10 @@ def _iter_files(root: Path, config: CodeSearchConfig) -> Iterator[Path]:
         except OSError:
             continue
         for entry in entries:
+            if entry.is_symlink():
+                # Symlinks can point outside the indexed root; skip to
+                # prevent unintended file disclosure.
+                continue
             if entry.is_dir():
                 if entry.name in config.exclude_dirs:
                     continue

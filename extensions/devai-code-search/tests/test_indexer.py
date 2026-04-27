@@ -100,6 +100,42 @@ def test_force_rebuild_reindexes_all(
     assert manifest1.total_chunks == manifest2.total_chunks
 
 
+def test_symlinks_are_not_followed(
+    tmp_path: Path, default_config: CodeSearchConfig
+) -> None:
+    """Regression for the v1.0.0 penetration test MEDIUM finding.
+
+    A symlink in the indexed root pointing OUTSIDE the root must NOT be
+    followed - otherwise a malicious repository could leak files like
+    ~/.ssh/id_rsa or /etc/passwd into the index when the user invokes
+    index_codebase on a freshly-cloned untrusted repo.
+    """
+    import sys
+
+    # Create a sensitive file outside the indexed root.
+    secret = tmp_path / "outside" / "private.txt"
+    secret.parent.mkdir()
+    secret.write_text("PRIVATE_KEY_PLACEHOLDER", encoding="utf-8")
+
+    # Create the indexed root with one legitimate file and one symlink to
+    # the sensitive file outside the root.
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    (repo / "README.md").write_text("hello", encoding="utf-8")
+    leak = repo / "leak"
+    try:
+        leak.symlink_to(secret)
+    except OSError:
+        # Windows requires elevated privilege OR developer mode for
+        # creating symlinks. Skip on systems where we cannot create one.
+        pytest.skip("symlink creation not permitted on this system")
+
+    files = list(walk_files(repo, default_config))
+    rels = [p.relative_to(repo).as_posix() for p in files]
+    assert "leak" not in rels, "symlink target must not be indexed"
+    assert "README.md" in rels, "non-symlink files should still be indexed"
+
+
 def test_large_file_is_skipped(
     tmp_path: Path, default_config: CodeSearchConfig
 ) -> None:
