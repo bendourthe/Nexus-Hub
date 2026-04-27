@@ -1,10 +1,10 @@
 ---
-description: Orchestrate a comprehensive pre-release deep review by chaining known-gaps collection, health gates, dependency scan, docs/git hygiene, project validators, /analyze-codebase, /run-security-audit, /run-penetration-test --depth=deep, /review-codebase, a synthesis report, and /generate-plan. Centralizes every artifact under docs/<next-version>/review/.
+description: Orchestrate a comprehensive pre-release deep review by chaining known-gaps collection, health gates (test execution + coverage), dependency scan, docs / git / CI/CD / release-readiness hygiene, project validators, /analyze-codebase, /run-security-audit, /run-penetration-test --depth=deep, /review-codebase, a synthesis report, and /generate-plan. Centralizes every artifact under docs/<next-version>/review/.
 ---
 
 # Run Deep Review
 
-Run a comprehensive pre-release deep review of the current codebase. This is the command to run before a major or minor version jump: it chains the existing review, audit, and pentest commands together, layers in pre-release readiness checks (health gates, dependency CVEs, docs/git hygiene, project validators), synthesizes every finding into a single severity-ranked report, and ends by generating a remediation plan.
+Run a comprehensive pre-release deep review of the current codebase. This is the command to run before a major or minor version jump: it chains the existing review, audit, and pentest commands together, layers in pre-release readiness checks (health gates with coverage thresholds, dependency CVEs, broken-links / CHANGELOG-vs-commits / working-tree state, CI/CD workflow file audit, CI run history, branch protection, version-bump consistency and tag hygiene, project validators), synthesizes every finding into a single severity-ranked report, and ends by generating a remediation plan.
 
 **This command vs the individual review commands**: `/analyze-codebase`, `/run-security-audit`, `/run-penetration-test`, and `/review-codebase` each cover one slice of code health. `/run-deep-review` runs all of them, plus the surrounding release-readiness checks, plus a deduplicated cross-phase synthesis with a GO / GO-WITH-CONDITIONS / NO-GO verdict. Use the individual commands during day-to-day development. Use this command before cutting a release.
 
@@ -72,7 +72,7 @@ Deep review plan for docs/<next-version>/review/:
   Phase 1  Known gaps           -> 00-known-gaps.md
   Phase 2  Health gates         -> 01-health-gates.md
   Phase 3  Dependency scan      -> 02-dependency-scan.md
-  Phase 4  Docs + git hygiene   -> 03-docs-and-git-hygiene.md
+  Phase 4  Docs / git / CI/CD   -> 03-docs-git-cicd-hygiene.md
   Phase 5  Project validators   -> 04-project-validators.md
   Phase 6  /analyze-codebase    -> 05-analysis.md
   Phase 7  /run-security-audit  -> 06-security-audit.md         [report-only]
@@ -253,7 +253,7 @@ Map CVSS to project severity scale: 9.0+ → P0, 7.0–8.9 → P1, 4.0–6.9 →
 
 ---
 
-## Phase 4: Documentation + Git Hygiene → `03-docs-and-git-hygiene.md`
+## Phase 4: Documentation, Git, and CI/CD Hygiene → `03-docs-git-cicd-hygiene.md`
 
 ### 4.1 Broken Links
 
@@ -291,10 +291,57 @@ Cap at 50 most-affected files; spill the rest into an appendix.
 
 Generate a Keep-a-Changelog formatted preview of `[Unreleased]` (Added / Changed / Deprecated / Removed / Fixed / Security buckets). Embed it in the report.
 
-### 4.6 Output Format
+### 4.6 Workflow File Audit
+
+Scan `.github/workflows/*.yml` and `.gitlab-ci.yml` (and equivalent for other CI providers) for configuration health.
+
+- **YAML validity**: each file must parse. A YAML parse error in a workflow file is P0 - CI is broken at the syntax level.
+- **Required top-level keys**: each workflow must declare `name`, `on`, and `jobs`. Missing any of these = P1.
+- **Trigger appropriateness**: every workflow should fire on at least one of `push` to `main`, `pull_request` targeting `main`, or `schedule`. A workflow with only manual `workflow_dispatch` triggers and no automated trigger is P2 (advisory: probably orphaned).
+- **Cross-check against Phase 2 health gates**: the test, lint, and build commands invoked by CI must include the same commands the Phase 2 health gates ran locally. If `make test` runs locally but `pytest -q` runs on CI (different scope), or if CI skips a gate that local runs (e.g. `make lint` not invoked), report P1: "CI configuration drift - CI runs a different test surface than local validation."
+- **Job count and runtime budgets**: flag workflows whose total estimated runtime exceeds 30 minutes as P3 advisory (likely a candidate for splitting or caching).
+- **Outdated action versions**: any `uses: actions/<name>@v1` or older when current is `v3+` is P2 (deprecated; likely to break or has known security issues).
+
+### 4.7 CI Run History
+
+Requires the `gh` CLI authenticated for the current repo. Skip with a P3 advisory note if `gh` is not available.
+
+- `gh run list --branch main --limit 20 --json status,conclusion,name,workflowName,createdAt`. Capture:
+  - **Last run on main**: if `conclusion == failure` or `status == in_progress` longer than 60 minutes → P0 (release-blocker; main is red).
+  - **Failure rate over last 20 runs**: count `conclusion: failure`. If > 30%, mark P1 ("CI is unreliable on main").
+  - **Flaky-test detection**: identify workflows whose `failure → success` retry pattern within 24h indicates flakiness. Count distinct workflows with retry-induced passes. If > 1 workflow shows this pattern, mark P2 ("flaky CI; investigate").
+  - **Runtime trend**: if the median runtime of the last 5 runs exceeds the median of runs 6-20 by more than 50%, mark P2 ("CI runtime regressing").
+
+### 4.8 Branch Protection
+
+Requires `gh` CLI authenticated. Skip with a P3 advisory if not available.
+
+- `gh api /repos/{owner}/{repo}/branches/main/protection 2>/dev/null` (gracefully handle 404 = no protection rules).
+- **Required status checks**: missing on `main` is P1 for shared / multi-contributor projects, P3 for solo projects (detect by counting unique committers in the last 50 commits).
+- **Required PR review**: missing on `main` is P2 for shared projects, P3 for solo.
+- **Force-push allowed on main**: P1 (any project).
+- **Linear history not enforced**: P3 advisory.
+- **Admin bypass enabled**: P2 (any project where the protection itself is meaningful).
+
+### 4.9 Release Readiness
+
+The release readiness pass verifies that the working tree is in a tag-able state. This is the most release-blocker-prone subsection - findings here are typically P0 or P1.
+
+- **Version-bump consistency**: parse the most recent version from `CHANGELOG.md` (e.g. `## [1.0.0]` → `1.0.0`). Build the canonical version-holding file list:
+  - If `~/.claude/projects/<project-slug>/memory/project_release_v*.md` exists, read the most recent entry and use its file list (this is how DevAI-Hub itself defines the 14-canonical-file list).
+  - Otherwise default to: `package.json`, `pyproject.toml`, `Cargo.toml`, `setup.py`, `pom.xml`, `go.mod`, `README.md` (for "What's New in vX.Y.Z" headings), `CHANGELOG.md`.
+  - For each file in the list, grep for the current version string and any other recent version strings. Report mismatches: "File X says vA.B.C but CHANGELOG says vX.Y.Z" → P0.
+- **Tag hygiene**: `git tag --sort=-v:refname | head -n 5`. For the latest tag:
+  - Annotated, not lightweight: `git cat-file -t <tag>` must return `tag`, not `commit`. Lightweight tag = P2.
+  - On main: `git merge-base --is-ancestor <tag> main` must succeed. Tag not on main = P0 (the release was tagged on a non-main branch).
+  - Signed: `git tag -v <tag>` (advisory only; missing signature = P3, unless the project has a documented signing policy in which case P1).
+- **Pending GitHub release drafts**: `gh release list --limit 5 --json tagName,isDraft,isPrerelease`. If a draft exists for the current `<next-version>` that has not been published, mark P2 ("draft release exists; publish or discard before tagging the new version").
+- **Tag-vs-CHANGELOG match**: if the latest tag is `v1.0.0` but `CHANGELOG.md` most recent version heading is `[1.0.1]`, report P1 ("tag and CHANGELOG out of sync; either tag is missing or CHANGELOG is ahead").
+
+### 4.10 Output Format
 
 ```markdown
-# Documentation + Git Hygiene — Pre-release deep review for <next-version>
+# Documentation, Git, and CI/CD Hygiene — Pre-release deep review for <next-version>
 
 ## Summary
 | Check | Status | Severity |
@@ -305,6 +352,15 @@ Generate a Keep-a-Changelog formatted preview of `[Unreleased]` (Added / Changed
 | Uncommitted changes | <n files> | P0 |
 | Stale branches | <n> | P3 |
 | Missing docstrings | <n public symbols> | P2 |
+| Workflow file YAML validity | <n parse errors> | P0 |
+| CI / local gate parity | <n drifts> | P1 |
+| Last CI run on main | green / red / in-progress | P0 if red |
+| CI failure rate (last 20) | <pct> | P1 if > 30% |
+| Flaky workflows | <count> | P2 if > 1 |
+| Branch protection on main | configured / missing | P1 |
+| Version-bump consistency | <n mismatches> | P0 |
+| Tag hygiene | annotated / lightweight / not-on-main | P0 if not-on-main |
+| Pending draft release | <n> | P2 if exists for current version |
 
 ## Findings (detail per check)
 ...
