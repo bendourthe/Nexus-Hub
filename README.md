@@ -67,13 +67,27 @@ DevAI-Hub provides two opinionated end-to-end workflows. Use these as a starting
 
 Build from scratch with an AI coding agent as your primary partner.
 
-**1. Planning** - Open an AI chatbot (Claude.ai or ChatGPT) and brainstorm: problem, users, core features, tech stack, constraints. End the session by asking the chatbot to produce a structured Markdown implementation plan - phases with subtasks, each subtask carrying a self-contained prompt the agent can execute.
+#### 1. Planning
 
-**2. Project Setup** - Create the Git repo and a three-tier branching model (`main` / `develop` / `feature/*`). Install the DevAI-Hub toolkit (`./install.sh` or `install.bat`). In Claude Code, run `/setup-project` - bootstraps `CLAUDE.md`, directory structure, `.gitignore`, `README.md`, `DEVLOG.md`, and `CHANGELOG.md` in 8 guided phases. Save the implementation plan from step 1 to `docs/<version>/plans/<slug>.md`. Commit with `/generate-commit-message`.
+Open an AI chatbot (Claude.ai or ChatGPT) and brainstorm: problem, users, core features, tech stack, constraints. End the session by asking the chatbot to produce a structured Markdown implementation plan - phases with subtasks, each subtask carrying a self-contained prompt the agent can execute.
 
-**3. Development (Core Loop)** - For each plan phase:
+#### 2. Project Setup
 
-1. Create a feature branch (`feature/phase-N-short-description`).
+1. Create the Git repo with a three-tier branching model: `main` / `develop` / `feature/*`.
+
+2. Install the DevAI-Hub toolkit: `./install.sh` (macOS / Linux) or `install.bat` (Windows).
+
+3. In Claude Code, run `/setup-project` - bootstraps `CLAUDE.md`, the directory structure, `.gitignore`, `README.md`, `DEVLOG.md`, and `CHANGELOG.md` in 8 guided phases.
+
+4. Save the implementation plan from step 1 to `docs/<version>/plans/<slug>.md`.
+
+5. Commit with `/generate-commit-message`.
+
+#### 3. Development (Core Loop)
+
+For each plan phase:
+
+1. Create a feature branch: `feature/phase-N-short-description`.
 
 2. Open a fresh Claude Code session.
 
@@ -83,17 +97,41 @@ Build from scratch with an AI coding agent as your primary partner.
 
 5. Merge into `develop`. Repeat for the next phase.
 
-**4. Quality Assurance (pre-release)** - Run `/run-deep-review` - a 12-phase orchestrator that chains known-gaps collection, health gates, dependency scan, docs/git hygiene, project validators, `/analyze-codebase`, `/run-security-audit`, `/run-penetration-test --depth=deep`, and `/review-codebase`, then synthesizes everything into a P0/P1/P2/P3-ranked report with a GO / GO-WITH-CONDITIONS / NO-GO verdict. Address P0/P1 findings before release. Run `/generate-sbom` for compliance documentation.
+#### 4. Quality Assurance (pre-release)
 
-**5. Release** - Run `/update-version` - orchestrates version detection, layout cleanup, `.gitignore` audit, version-bump across all configuration files, CHANGELOG migration, doc sync, and DEVLOG entry. Merge `develop` into `main`, tag the release, and push.
+1. Run `/run-deep-review` - a 12-phase orchestrator that chains known-gaps collection, health gates, dependency scan, docs / git hygiene, project validators, `/analyze-codebase`, `/run-security-audit`, `/run-penetration-test --depth=deep`, and `/review-codebase`.
+
+2. Read the synthesis report - it produces a P0 / P1 / P2 / P3 ranked list of findings with a GO / GO-WITH-CONDITIONS / NO-GO verdict.
+
+3. Address all P0 and P1 findings before release. P2 findings can be deferred to a follow-up patch release; P3 findings are advisory.
+
+4. Run `/generate-sbom` for compliance documentation.
+
+#### 5. Release
+
+1. Run `/update-version` - orchestrates version detection, layout cleanup, `.gitignore` audit, version-bump across all configuration files, CHANGELOG migration, doc sync, and DEVLOG entry.
+
+2. Merge `develop` into `main`, tag the release, and push.
 
 ### Inherited Project Workflow (2 phases)
 
 For projects you've inherited or need to audit.
 
-**1. Primary Analysis & Deep Review** - Clone the repo, open it in VS Code, start a Claude Code session. Run `/run-deep-review` - the same 12-phase orchestrator from Phase 4 above. The synthesis report's prioritized roadmap (P0/P1/P2/P3) becomes your initial backlog. If documentation is sparse, backfill it: `/generate-readme` (if missing), `/generate-changelog` (from git history), `/generate-devlog`, `/refactor-project-layout` (if structural issues exist). Establish the `develop` branch if not already present. Commit the analysis artifacts.
+#### 1. Primary Analysis & Deep Review
 
-**2. Making Changes** - For each change:
+1. Clone the repo, open it in VS Code, start a Claude Code session.
+
+2. Run `/run-deep-review` - the same 12-phase orchestrator from Phase 4 of the New Project Workflow. The synthesis report's prioritized roadmap (P0 / P1 / P2 / P3) becomes your initial backlog.
+
+3. If documentation is sparse, backfill it: `/generate-readme` (if missing), `/generate-changelog` (from git history), `/generate-devlog`, `/refactor-project-layout` (only when the repo has structural issues).
+
+4. Establish the `develop` branch if not already present.
+
+5. Commit the analysis artifacts.
+
+#### 2. Making Changes
+
+For each change:
 
 1. Brainstorm in a chatbot, then run `/generate-plan` to produce a structured implementation plan saved to `docs/<version>/plans/<slug>.md`.
 
