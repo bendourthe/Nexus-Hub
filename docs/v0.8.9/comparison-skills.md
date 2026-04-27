@@ -19,7 +19,7 @@ DevAI-Hub (v0.8.9) and MiniMax-AI/skills (v1.0.0 beta) both serve as skill libra
 | Attribute | DevAI-Hub | MiniMax-AI/skills |
 |-----------|-----------|-------------------|
 | **Purpose** | Modular skill/instruction library for AI coding assistants | Plug-and-play skills for AI coding tools with deep domain expertise |
-| **Author** | Benjamin Dourthe / Supira | MiniMax |
+| **Author** | Benjamin Dourthe ([benjamin.dourthe@gmail.com](mailto:benjamin.dourthe@gmail.com)) | MiniMax |
 | **Version** | 0.8.9 (2026-03-23) | 1.0.0 (Beta) |
 | **License** | MIT | MIT |
 | **Maturity** | Pre-1.0, rapid iteration (v0.8.1 to v0.8.9) | Beta, actively under development |

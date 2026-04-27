@@ -19,7 +19,7 @@ DevAI-Hub (v0.8.8) and OpenViking (v0.2.9) serve fundamentally different purpose
 | Attribute | DevAI-Hub | OpenViking |
 |-----------|-----------|------------|
 | **Purpose** | Skill/instruction library for AI coding assistants | Context database for AI agents |
-| **Author** | Benjamin Dourthe / Supira | ByteDance / VolcEngine |
+| **Author** | Benjamin Dourthe ([benjamin.dourthe@gmail.com](mailto:benjamin.dourthe@gmail.com)) | ByteDance / VolcEngine |
 | **Version** | 0.8.8 (2026-03-20) | 0.2.9 (2026-03-19) |
 | **License** | Not specified (no LICENSE file) | Apache 2.0 |
 | **Stars** | Private/internal | 18,400+ |

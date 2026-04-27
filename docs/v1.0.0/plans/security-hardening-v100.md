@@ -7,13 +7,13 @@
 **Created**: 2026-04-24
 **Source scratch plan**: `~/.claude/plans/recursive-yawning-willow.md`
 **Supersedes**: [docs/v0.9.7/plans/adoption-claude-context.md](../../v0.9.7/plans/adoption-claude-context.md) (ABANDONED — Phases 3–5 reverse-engineered into this plan's Phases 8–10; Phase 6 absorbed here)
-**Goal**: Ship a DevAI-Hub v1.0.0 that is audit-clean and safe for a regulated medtech environment — local-only MCP registry, reverse-engineering-first governance policy, 2 new internal MCPs that replace dropped third-party servers, 3 new skills that capture reverse-engineered knowledge without external attribution, and a `/compare-project` command that enforces the same ordering on every future comparison.
+**Goal**: Ship a DevAI-Hub v1.0.0 that is audit-clean and safe for regulated-industry / high-trust environments — local-only MCP registry, reverse-engineering-first governance policy, 2 new internal MCPs that replace dropped third-party servers, 3 new skills that capture reverse-engineered knowledge without external attribution, and a `/compare-project` command that enforces the same ordering on every future comparison.
 
 ---
 
 ## Overview
 
-The v0.9.7 adoption plan `adoption-claude-context.md` was halted after Phase 2 when the user flagged that DevAI-Hub must not ship MCP registry entries pointing users at third-party data processors (proprietary source code, prompts, and queries must not leak to external APIs in a regulated medtech context). Phase 2 had added exactly such an entry (`@zilliz/claude-context-mcp`), which has now been reverted. On follow-up the user asked that the response go further than a simple drop list — apply a **reverse-engineering-first** lens to every registry entry, produce a structured matrix driving keep/strip/rebuild decisions, and bake that ordering into `/compare-project` so future adoption exercises default to "rebuild locally first."
+The v0.9.7 adoption plan `adoption-claude-context.md` was halted after Phase 2 when the user flagged that DevAI-Hub must not ship MCP registry entries pointing users at third-party data processors (proprietary source code, prompts, and queries must not leak to external APIs in any regulated-industry / high-trust context). Phase 2 had added exactly such an entry (`@zilliz/claude-context-mcp`), which has now been reverted. On follow-up the user asked that the response go further than a simple drop list — apply a **reverse-engineering-first** lens to every registry entry, produce a structured matrix driving keep/strip/rebuild decisions, and bake that ordering into `/compare-project` so future adoption exercises default to "rebuild locally first."
 
 The accumulated scope (policy bake-in with new authoritative matrix, 2 new internal MCPs, 3 new skills, breaking removals of 4 registry entries, command-level workflow change, new governance section in `AGENTS.md`) is a major-version event. The work therefore targets **v1.0.0** as the first stable release milestone. The version-bump sweep goes `0.9.7 → 1.0.0`, skipping the intermediate 0.9.8.
 
@@ -1160,7 +1160,7 @@ A Plan-agent validation earlier in the planning session flagged that shipping fu
 **Objective**: Add `project_release_v100` entry; forward-link from `project_release_v097`.
 
 **Prompt**:
-> In `~/.claude/projects/c--Users-BEDOURTHE-OneDrive---Supira-Documents-Supira-software-DevAI-Hub/memory/`:
+> In `~/.claude/projects/<project-key>/memory/` (the auto-memory directory for this project):
 >
 > 1. Create `project_release_v100.md` following the existing memory-file schema (frontmatter: name, description, type: project). Body summarizes this release: reverse-engineering-first security hardening; breaking removal of 4 registry entries; 2 new internal MCPs; 3 new skills; 14-file version-bump; release notes path.
 > 2. Update `project_release_v097.md` with a forward-link noting v0.9.8 was skipped and v1.0.0 absorbed all v0.9.8 scope.

@@ -22,7 +22,7 @@ DevAI-Hub (a template catalog distributing 186 skills, 32 commands, 13 hooks, 10
 | **Shipped as** | Installer scripts (Bash + PowerShell) that distribute files into user `.claude/` / `.cursor/` / etc. profiles | npm package (`@zilliz/claude-context-mcp`), VS Code Marketplace extension (`semanticcodesearch`), Chrome extension |
 | **Runtime** | None — template-only repository | Node.js ≥20, <24; Milvus or Zilliz Cloud backend |
 | **Version** | v0.9.7 (2026-04-22) | v0.1.7 |
-| **License** | MIT (Benjamin Dourthe / Supira) | MIT (Zilliz) |
+| **License** | MIT (Benjamin Dourthe, [benjamin.dourthe@gmail.com](mailto:benjamin.dourthe@gmail.com)) | MIT (Zilliz) |
 | **Scale signal** | 186 skills across 22 categories, 32 commands, 13 hooks, 10 agents | 8.4k stars, 660 forks, 165 commits; ~34 MB repo |
 | **Primary consumer** | AI coding assistants (Claude Code, Cursor, Copilot, Gemini/Antigravity, OpenCode, Codex) | AI coding assistants that speak MCP (Claude Code, Claude Desktop, Windsurf, VS Code, Cherry Studio, Cline) |
 | **Cited evidence** | `README.md`, `CHANGELOG.md` line 26, `data/SKILL_INDEX.md` (187 rows) | `README.md`, `package.json`, `LICENSE` |

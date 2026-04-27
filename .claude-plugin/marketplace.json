@@ -6,8 +6,8 @@
   "version": "1.0.0",
   "author": "Benjamin Dourthe",
   "license": "MIT",
-  "repository": "https://github.com/bdourthe/devai-hub",
-  "homepage": "https://github.com/bdourthe/devai-hub",
+  "repository": "https://github.com/bendourthe/DevAI-Hub",
+  "homepage": "https://github.com/bendourthe/DevAI-Hub",
   "keywords": [
     "ai-skills",
     "claude-code",
@@ -40,12 +40,12 @@
   "install": {
     "claude-code": {
       "method": "installer",
-      "command": "bash <(curl -fsSL https://raw.githubusercontent.com/bdourthe/devai-hub/main/install.sh)",
-      "note": "Also supports: claude plugin install devai-hub@bdourthe (requires claude plugin marketplace add)"
+      "command": "bash <(curl -fsSL https://raw.githubusercontent.com/bendourthe/DevAI-Hub/main/install.sh)",
+      "note": "Also supports: claude plugin install devai-hub@bendourthe (requires claude plugin marketplace add)"
     },
     "windows": {
       "method": "installer",
-      "command": "iex (iwr -UseBasicParsing https://raw.githubusercontent.com/bdourthe/devai-hub/main/install.bat).Content"
+      "command": "iex (iwr -UseBasicParsing https://raw.githubusercontent.com/bendourthe/DevAI-Hub/main/install.bat).Content"
     }
   }
 }

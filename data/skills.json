@@ -2,7 +2,7 @@
   "metadata": {
     "version": "2.0.0",
     "generated": "2026-03-26",
-    "repository": "https://github.com/bdourthe/devai-hub",
+    "repository": "https://github.com/bendourthe/DevAI-Hub",
     "description": "Comprehensive catalog of DevAI-Hub skills with L0/L1 tiered summaries"
   },
   "statistics": {
@@ -46,7 +46,7 @@
       "C",
       "C++"
     ],
-    "repository": "https://github.com/bdourthe/devai-hub",
+    "repository": "https://github.com/bendourthe/DevAI-Hub",
     "last_updated": "2025-10-21"
   },
   "skills": [

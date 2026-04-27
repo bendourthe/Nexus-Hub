@@ -22,7 +22,7 @@ DevAI-Hub's infrastructure, breadth, and tooling are decisively stronger across 
 
 | Attribute | DevAI-Hub | andrej-karpathy-skills |
 |---|---|---|
-| **Author/Owner** | Benjamin Dourthe / Supira | forrestchang |
+| **Author/Owner** | Benjamin Dourthe ([benjamin.dourthe@gmail.com](mailto:benjamin.dourthe@gmail.com)) | forrestchang |
 | **Version** | 0.9.4 (2026-04-07) | 1.0.0 |
 | **License** | MIT | MIT |
 | **Stars** | N/A (private/early) | 10.3k |

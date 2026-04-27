@@ -40,7 +40,7 @@ The program you write in step 4 is saved to `<cache_dir>/generate.py` for user r
 Never mix the two. The final outputs must not share the directory with intermediates, and the `<Title>_` filename prefix is dropped on artifacts since the subdirectory scopes them.
 
 The anti-patterns that will wreck the output:
-- Using a hardcoded Supira color (`#215868`), font (Consolas), or size -- these must come from the template's own styles.xml.
+- Using a hardcoded brand color (e.g., `#215868`), font (Consolas), or size from one specific source template -- every value must come from the template's own styles.xml.
 - Using `paragraph.style = doc.styles["Heading 1"]` in python-docx -- this silently fails on templates where the style isn't already applied in the body. Always write `<w:pStyle w:val="StyleId">` directly into the paragraph's `<w:pPr>`.
 - Flattening `[N]` citations to plain text -- they must be the 3-run superscript + internal-hyperlink pattern or Word won't navigate.
 - Skipping the post-generation validation -- "Word found unreadable content" warnings and empty TOCs are caught here.
@@ -134,7 +134,7 @@ Read `a:clrScheme` from `theme1.xml` to resolve any `w:themeColor="accentN"` ref
 }
 ```
 
-Every number here must come from the template. A different template (e.g. a plain corporate white/blue) will produce a profile with different values, and your generated `.docx` must follow those values -- not the Supira ones above.
+Every number here must come from the template. A different template (e.g. a plain corporate white/blue) will produce a profile with different values, and your generated `.docx` must follow those values -- not the example values above.
 
 ### Summarize to the user
 
@@ -937,7 +937,7 @@ Edit `<cache_dir>/generate.py` and re-run. Maximum 3 iterations; if still failin
 | Citation hyperlinks don't navigate | Anchor name doesn't match bookmark name | Ensure bookmark is exactly `_RefN` and anchor is exactly `_RefN`; validate post-generation |
 | Citation anchors valid but not clickable | Citation emitted as plain text run, not hyperlink | Use the 3-run pattern in Section K |
 | References section URLs are blue text but not clickable | External hyperlink created without `RT.HYPERLINK` rel | Always use `paragraph.part.relate_to(url, RT.HYPERLINK, is_external=True)` |
-| Metadata table has Supira look even with non-Supira template | Hardcoded `#BFBFBF` instead of profile value | Pull border colors from `profile["metadata_table"]` |
+| Metadata table keeps the source-template look when applied to a different target template | Hardcoded `#BFBFBF` instead of profile value | Pull border colors from `profile["metadata_table"]` |
 | Title page text is the wrong font/size/color | Style profile not used; hardcoded Consolas/Calibri/32pt | Every run-level property must come from `profile[<style_name>]` |
 | Page 1 shows the header/footer that should only appear page 2+ | sectPr's `<w:titlePg/>` was dropped during body clearing | `clear_body` must preserve the final `<w:sectPr>` byte-for-byte |
 | Duplicate bookmark IDs (Word opens but TOC is broken) | Bookmark ID counter collides with Word's auto-generated IDs | Use IDs >= 1000 for your own bookmarks; never reuse IDs |

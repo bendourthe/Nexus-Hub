@@ -4,10 +4,10 @@
   "version": "1.0.0",
   "author": {
     "name": "Benjamin Dourthe",
-    "url": "https://github.com/bdourthe"
+    "url": "https://github.com/bendourthe"
   },
-  "homepage": "https://github.com/bdourthe/devai-hub",
-  "repository": "https://github.com/bdourthe/devai-hub",
+  "homepage": "https://github.com/bendourthe/DevAI-Hub",
+  "repository": "https://github.com/bendourthe/DevAI-Hub",
   "license": "MIT",
   "commands": "./.claude/commands",
   "skills": "./catalog/skills"

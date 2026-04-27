@@ -8,7 +8,7 @@
 
 ## Executive Summary
 
-v1.0.0 is the first stable release of DevAI-Hub. The release theme is **"reverse-engineer locally first; trusted vendor wrappers only when reverse-engineering is infeasible AND the feature is extremely worth it."** The driving constraint was that the registry's existing third-party MCP entries (search-as-service, embeddings-as-service, scraping-as-service, generation-as-service) caused users' agents to ship proprietary source code, prompts, and queries to external data processors - unacceptable for the regulated medtech profile this release primarily targets.
+v1.0.0 is the first stable release of DevAI-Hub. The release theme is **"reverse-engineer locally first; trusted vendor wrappers only when reverse-engineering is infeasible AND the feature is extremely worth it."** The driving constraint was that the registry's existing third-party MCP entries (search-as-service, embeddings-as-service, scraping-as-service, generation-as-service) caused users' agents to ship proprietary source code, prompts, and queries to external data processors - unacceptable for the regulated-industry / high-trust profile this release primarily targets.
 
 **Version note**: 0.9.8 is intentionally skipped. What started as a small v0.9.8 patch (an MCP registry entry addition) accumulated into a major-version security retrofit. The breadth of changes - new policy section in AGENTS.md, two new internal MCP servers, three new skills, breaking removals of 4 registry entries, command-level workflow change in /compare-project - is a major-version event.
 

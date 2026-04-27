@@ -289,7 +289,7 @@ def generate_statistics(catalog: List[Dict]) -> Dict[str, Any]:
         'total_tokens_estimate': total_tokens,
         'average_lines_per_skill': total_lines // len(catalog) if catalog else 0,
         'languages_supported': ['Python', 'JavaScript', 'Java', 'C#', 'Go', 'C', 'C++'],
-        'repository': 'https://github.com/bdourthe/devai-hub',
+        'repository': 'https://github.com/bendourthe/DevAI-Hub',
         'last_updated': '2025-10-21'
     }
 
@@ -336,7 +336,7 @@ def main():
         'metadata': {
             'version': '2.0.0',
             'generated': now,
-            'repository': 'https://github.com/bdourthe/devai-hub',
+            'repository': 'https://github.com/bendourthe/DevAI-Hub',
             'description': 'Comprehensive catalog of DevAI-Hub skills with L0/L1 tiered summaries'
         },
         'statistics': stats,

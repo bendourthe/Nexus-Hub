@@ -849,7 +849,7 @@ Total: **31 sub-tasks** (including testing/stabilization checkpoints). VS Code e
 > 1. Confirm all 5 base templates in `templates/ai-instructions/` have the batched clarifying-questions rule (1.5).
 > 2. Confirm no rule, skill, command, or hook change introduced in this release is platform-specific without an equivalent in the other four templates.
 > 3. Run `diff -r` style comparisons on the five base templates and confirm only intentional deltas remain.
-> 4. Check the memory note `C:\Users\BEDOURTHE\.claude\projects\c--Users-BEDOURTHE-OneDrive---Supira-Documents-Supira-software-DevAI-Hub\memory\project_platform_agnostic.md` and confirm the guidance is still accurate; update if the parity model has evolved.
+> 4. Check the memory note `~/.claude/projects/<project-key>/memory/project_platform_agnostic.md` (the auto-memory directory for this project) and confirm the guidance is still accurate; update if the parity model has evolved.
 >
 > Acceptance: zero unintended drift across the 5 base templates.
 

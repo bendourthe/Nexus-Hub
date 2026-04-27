@@ -1,6 +1,6 @@
 # .gitignore Audit - DevAI-Hub - 2026-04-22
 
-**Repository:** c:\Users\BEDOURTHE\OneDrive - Supira\Documents\Supira\software\DevAI-Hub
+**Repository:** `<project_root>` (DevAI-Hub)
 **Scope:** full repo
 **Mode:** --fix (user-invoked via /update-gitignore during v0.9.7 post-implementation docs phase)
 **History scan:** no

@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.0] - 2026-04-24
 
-**First stable release.** Reverse-engineering-first security hardening: DevAI-Hub is now safe for use in regulated medtech environments where proprietary source code, prompts, and query text must not leak to third-party data processors. 12-phase plan at [docs/v1.0.0/plans/security-hardening-v100.md](docs/v1.0.0/plans/security-hardening-v100.md). Version-bump skipped 0.9.8 because the accumulated scope (policy bake-in, new authoritative matrix, 2 new internal MCPs, 3 new skills, breaking registry removals, command-level workflow change, new governance section in AGENTS.md) is a major-version event.
+**First stable release.** Reverse-engineering-first security hardening: DevAI-Hub is now safe for use in regulated industries and other high-trust environments where proprietary source code, prompts, and query text must not leak to third-party data processors. 12-phase plan at [docs/v1.0.0/plans/security-hardening-v100.md](docs/v1.0.0/plans/security-hardening-v100.md). Version-bump skipped 0.9.8 because the accumulated scope (policy bake-in, new authoritative matrix, 2 new internal MCPs, 3 new skills, breaking registry removals, command-level workflow change, new governance section in AGENTS.md) is a major-version event.
 
 ### Added
 - **MCP Registry Policy** in `AGENTS.md` with a reverse-engineering-first decision tree (local-only -> LLM-native skill -> reverse-engineered internal MCP -> trusted vendor wrapper -> drop), 5-question audit checklist required on every registry entry's `_comment`, and an explicit hard-no list (search-as-service, embeddings-as-service, scraping-as-service, generation-as-service). Condensed summary distributed diff-identical across 7 platform surfaces (5 base-*.md templates + `.github/copilot-instructions.md` + `.cursor/rules/devai-hub.mdc`).
@@ -2958,46 +2958,46 @@ repository_root/
 
 ---
 
-[Unreleased]: https://github.com/bdourthe/devai-hub/compare/v0.9.2...HEAD
-[0.9.2]: https://github.com/bdourthe/devai-hub/compare/v0.9.1...v0.9.2
-[0.9.1]: https://github.com/bdourthe/devai-hub/compare/v0.9.0...v0.9.1
-[0.9.0]: https://github.com/bdourthe/devai-hub/compare/v0.8.9...v0.9.0
-[0.8.9]: https://github.com/bdourthe/devai-hub/compare/v0.8.8...v0.8.9
-[0.8.8]: https://github.com/bdourthe/devai-hub/compare/v0.8.7...v0.8.8
-[0.8.7]: https://github.com/bdourthe/devai-hub/compare/v0.8.6...v0.8.7
-[0.8.6]: https://github.com/bdourthe/devai-hub/compare/v0.8.5...v0.8.6
-[0.8.5]: https://github.com/bdourthe/devai-hub/compare/v0.8.4...v0.8.5
-[0.8.4]: https://github.com/bdourthe/devai-hub/compare/v0.8.3...v0.8.4
-[0.8.3]: https://github.com/bdourthe/devai-hub/compare/v0.8.2...v0.8.3
-[0.8.2]: https://github.com/bdourthe/devai-hub/compare/v0.8.1...v0.8.2
-[0.8.1]: https://github.com/bdourthe/devai-hub/compare/v0.8.0...v0.8.1
-[0.8.0]: https://github.com/bdourthe/devai-hub/compare/v0.7.1...v0.8.0
-[0.7.1]: https://github.com/bdourthe/devai-hub/compare/v0.7.0...v0.7.1
-[0.7.0]: https://github.com/bdourthe/devai-hub/compare/v0.6.3...v0.7.0
-[0.6.3]: https://github.com/bdourthe/devai-hub/compare/v0.6.2...v0.6.3
-[0.6.2]: https://github.com/bdourthe/devai-hub/compare/v0.6.1...v0.6.2
-[0.6.1]: https://github.com/bdourthe/devai-hub/compare/v0.6.0...v0.6.1
-[0.6.0]: https://github.com/bdourthe/devai-hub/releases/tag/v0.6.0
-[0.5.3]: https://github.com/bdourthe/devai-hub/releases/tag/v0.5.3
-[0.5.2]: https://github.com/bdourthe/devai-hub/releases/tag/v0.5.2
-[0.5.1]: https://github.com/bdourthe/devai-hub/releases/tag/v0.5.1
-[0.5.0]: https://github.com/bdourthe/devai-hub/releases/tag/v0.5.0
-[0.4.0]: https://github.com/bdourthe/devai-hub/releases/tag/v0.4.0
-[0.3.3]: https://github.com/bdourthe/devai-hub/releases/tag/v0.3.3
-[0.3.2]: https://github.com/bdourthe/devai-hub/releases/tag/v0.3.2
-[0.3.1]: https://github.com/bdourthe/devai-hub/releases/tag/v0.3.1
-[0.3.0]: https://github.com/bdourthe/devai-hub/releases/tag/v0.3.0
-[0.2.9]: https://github.com/bdourthe/devai-hub/releases/tag/v0.2.9
-[0.2.8]: https://github.com/bdourthe/devai-hub/releases/tag/v0.2.8
-[0.2.7]: https://github.com/bdourthe/devai-hub/releases/tag/v0.2.7
-[0.2.6]: https://github.com/bdourthe/devai-hub/releases/tag/v0.2.6
-[0.2.5]: https://github.com/bdourthe/devai-hub/releases/tag/v0.2.5
-[0.2.4]: https://github.com/bdourthe/devai-hub/releases/tag/v0.2.4
-[0.2.3]: https://github.com/bdourthe/devai-hub/releases/tag/v0.2.3
-[0.2.2]: https://github.com/bdourthe/devai-hub/releases/tag/v0.2.2
-[0.2.1]: https://github.com/bdourthe/devai-hub/releases/tag/v0.2.1
-[0.2.0]: https://github.com/bdourthe/devai-hub/releases/tag/v0.2.0
-[0.1.5]: https://github.com/bdourthe/devai-hub/releases/tag/v0.1.5
-[0.1.4]: https://github.com/bdourthe/devai-hub/releases/tag/v0.1.4
-[0.1.2]: https://github.com/bdourthe/devai-hub/releases/tag/v0.1.2
-[0.1.0]: https://github.com/bdourthe/devai-hub/releases/tag/v0.1.0
+[Unreleased]: https://github.com/bendourthe/DevAI-Hub/compare/v0.9.2...HEAD
+[0.9.2]: https://github.com/bendourthe/DevAI-Hub/compare/v0.9.1...v0.9.2
+[0.9.1]: https://github.com/bendourthe/DevAI-Hub/compare/v0.9.0...v0.9.1
+[0.9.0]: https://github.com/bendourthe/DevAI-Hub/compare/v0.8.9...v0.9.0
+[0.8.9]: https://github.com/bendourthe/DevAI-Hub/compare/v0.8.8...v0.8.9
+[0.8.8]: https://github.com/bendourthe/DevAI-Hub/compare/v0.8.7...v0.8.8
+[0.8.7]: https://github.com/bendourthe/DevAI-Hub/compare/v0.8.6...v0.8.7
+[0.8.6]: https://github.com/bendourthe/DevAI-Hub/compare/v0.8.5...v0.8.6
+[0.8.5]: https://github.com/bendourthe/DevAI-Hub/compare/v0.8.4...v0.8.5
+[0.8.4]: https://github.com/bendourthe/DevAI-Hub/compare/v0.8.3...v0.8.4
+[0.8.3]: https://github.com/bendourthe/DevAI-Hub/compare/v0.8.2...v0.8.3
+[0.8.2]: https://github.com/bendourthe/DevAI-Hub/compare/v0.8.1...v0.8.2
+[0.8.1]: https://github.com/bendourthe/DevAI-Hub/compare/v0.8.0...v0.8.1
+[0.8.0]: https://github.com/bendourthe/DevAI-Hub/compare/v0.7.1...v0.8.0
+[0.7.1]: https://github.com/bendourthe/DevAI-Hub/compare/v0.7.0...v0.7.1
+[0.7.0]: https://github.com/bendourthe/DevAI-Hub/compare/v0.6.3...v0.7.0
+[0.6.3]: https://github.com/bendourthe/DevAI-Hub/compare/v0.6.2...v0.6.3
+[0.6.2]: https://github.com/bendourthe/DevAI-Hub/compare/v0.6.1...v0.6.2
+[0.6.1]: https://github.com/bendourthe/DevAI-Hub/compare/v0.6.0...v0.6.1
+[0.6.0]: https://github.com/bendourthe/DevAI-Hub/releases/tag/v0.6.0
+[0.5.3]: https://github.com/bendourthe/DevAI-Hub/releases/tag/v0.5.3
+[0.5.2]: https://github.com/bendourthe/DevAI-Hub/releases/tag/v0.5.2
+[0.5.1]: https://github.com/bendourthe/DevAI-Hub/releases/tag/v0.5.1
+[0.5.0]: https://github.com/bendourthe/DevAI-Hub/releases/tag/v0.5.0
+[0.4.0]: https://github.com/bendourthe/DevAI-Hub/releases/tag/v0.4.0
+[0.3.3]: https://github.com/bendourthe/DevAI-Hub/releases/tag/v0.3.3
+[0.3.2]: https://github.com/bendourthe/DevAI-Hub/releases/tag/v0.3.2
+[0.3.1]: https://github.com/bendourthe/DevAI-Hub/releases/tag/v0.3.1
+[0.3.0]: https://github.com/bendourthe/DevAI-Hub/releases/tag/v0.3.0
+[0.2.9]: https://github.com/bendourthe/DevAI-Hub/releases/tag/v0.2.9
+[0.2.8]: https://github.com/bendourthe/DevAI-Hub/releases/tag/v0.2.8
+[0.2.7]: https://github.com/bendourthe/DevAI-Hub/releases/tag/v0.2.7
+[0.2.6]: https://github.com/bendourthe/DevAI-Hub/releases/tag/v0.2.6
+[0.2.5]: https://github.com/bendourthe/DevAI-Hub/releases/tag/v0.2.5
+[0.2.4]: https://github.com/bendourthe/DevAI-Hub/releases/tag/v0.2.4
+[0.2.3]: https://github.com/bendourthe/DevAI-Hub/releases/tag/v0.2.3
+[0.2.2]: https://github.com/bendourthe/DevAI-Hub/releases/tag/v0.2.2
+[0.2.1]: https://github.com/bendourthe/DevAI-Hub/releases/tag/v0.2.1
+[0.2.0]: https://github.com/bendourthe/DevAI-Hub/releases/tag/v0.2.0
+[0.1.5]: https://github.com/bendourthe/DevAI-Hub/releases/tag/v0.1.5
+[0.1.4]: https://github.com/bendourthe/DevAI-Hub/releases/tag/v0.1.4
+[0.1.2]: https://github.com/bendourthe/DevAI-Hub/releases/tag/v0.1.2
+[0.1.0]: https://github.com/bendourthe/DevAI-Hub/releases/tag/v0.1.0

@@ -24,8 +24,8 @@ DevAI-Hub (140 skills, 29 commands, 12 hooks) and awesome-codex-subagents (139 a
 | **Distribution** | PowerShell/Bash installers with dry-run verification | Manual file copy to `~/.codex/agents/` |
 | **Config Format** | YAML frontmatter + phased Markdown (avg 589 lines/skill) | TOML (avg 40 lines/agent) |
 | **Maturity** | v0.8.7, active development, structured DEVLOG | Unversioned, community-driven (1,452 stars) |
-| **License** | Proprietary (Supira) | MIT |
-| **Author** | Benjamin Dourthe / Supira | VoltAgent (community) |
+| **License** | MIT | MIT |
+| **Author** | Benjamin Dourthe ([benjamin.dourthe@gmail.com](mailto:benjamin.dourthe@gmail.com)) | VoltAgent (community) |
 | **CI/CD** | Git hooks, JSON validation, pre-commit enforcement | None |
 | **VS Code Extension** | Claude Usage Monitor | None |
 

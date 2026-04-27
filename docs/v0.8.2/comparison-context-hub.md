@@ -23,7 +23,7 @@ The overall recommendation is **selective adoption**: the two projects are large
 | Property | DevAI-Hub | Context Hub |
 |---|---|---|
 | **Name** | DevAI-Hub | Context Hub (`@aisuite/chub`) |
-| **Author** | bendourthe (Supira) | andrewyng (Andrew Ng) |
+| **Author** | Benjamin Dourthe ([benjamin.dourthe@gmail.com](mailto:benjamin.dourthe@gmail.com)) | andrewyng (Andrew Ng) |
 | **Version** | v0.8.2 | v0.1.1 |
 | **License** | (not specified in repo root) | MIT |
 | **Purpose** | Modular behavioral skill + workflow library for AI coding assistants (Claude Code, Gemini, Copilot, Codex) | Curated, versioned API documentation registry for AI coding agents |

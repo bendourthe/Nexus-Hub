@@ -255,10 +255,15 @@ class TestSplitCompoundCommand:
     # ── Real-world user-reported commands ────────────────────────────────
 
     def test_screenshot1_git_log_with_subshell_or(self):
-        """Exact pattern from screenshot 1: cd && git log ... $(… || …)..HEAD."""
+        """Exact pattern from screenshot 1: cd && git log ... $(… || …)..HEAD.
+
+        Uses a generic Windows path containing spaces and dashes
+        (OneDrive-style sync folder) -- the test verifies the splitter
+        handles whitespace inside a quoted cd target.
+        """
         cmd = (
-            'cd "c:\\Users\\BEDOURTHE\\OneDrive - Supira\\Documents\\Supira'
-            '\\software\\DevAI-Hub" && git log --oneline --no-merges '
+            'cd "c:\\Users\\testuser\\OneDrive - Acme Corp\\Documents'
+            '\\workspace\\demo-repo" && git log --oneline --no-merges '
             "$(git describe --tags --abbrev=0 2>/dev/null"
             " || git rev-list --max-parents=0 HEAD)..HEAD"
             ' --format="%H %s" 2>/dev/null'
@@ -524,8 +529,8 @@ class TestCommandIsAllowed:
     def test_screenshot1_full_command(self):
         """cd && git log … $(… || …)..HEAD must be auto-approved."""
         cmd = (
-            'cd "c:\\Users\\BEDOURTHE\\OneDrive - Supira\\Documents\\Supira'
-            '\\software\\DevAI-Hub" && git log --oneline --no-merges '
+            'cd "c:\\Users\\testuser\\OneDrive - Acme Corp\\Documents'
+            '\\workspace\\demo-repo" && git log --oneline --no-merges '
             "$(git describe --tags --abbrev=0 2>/dev/null"
             " || git rev-list --max-parents=0 HEAD)..HEAD"
             ' --format="%H %s" 2>/dev/null'
@@ -536,9 +541,26 @@ class TestCommandIsAllowed:
         """sed -n full command from screenshot 3 must be auto-approved."""
         cmd = (
             "sed -n '162,195p' "
-            '"c:/Users/BEDOURTHE/OneDrive - Supira/Documents/Supira/'
-            'software/rd-data-dev/src/core/common/file_extraction.py"'
+            '"c:/Users/testuser/OneDrive - Acme Corp/Documents/workspace/'
+            'demo-repo/src/core/common/file_extraction.py"'
             " 2>/dev/null"
+        )
+        assert command_is_allowed(cmd, REAL_PATTERNS)
+
+    def test_cd_then_sed_linux_path_with_spaces(self):
+        """Linux-style absolute path with embedded spaces must be auto-approved."""
+        cmd = (
+            "cd '/home/testuser/Projects - 2026/demo-repo'"
+            " && sed -n '20,40p' src/main.py"
+        )
+        assert command_is_allowed(cmd, REAL_PATTERNS)
+
+    def test_cd_then_git_log_macos_path_with_spaces(self):
+        """macOS-style absolute path with spaces (iCloud-Drive convention) must be auto-approved."""
+        cmd = (
+            "cd '/Users/testuser/Library/Mobile Documents/"
+            "com~apple~CloudDocs/Projects/demo-repo'"
+            " && git log --oneline -n 20"
         )
         assert command_is_allowed(cmd, REAL_PATTERNS)
 
@@ -553,10 +575,15 @@ class TestCommandIsAllowed:
         )
 
     def test_od_pipeline_auto_approved(self):
-        """Regression: cd && sed -n … | od -c | head must be auto-approved."""
+        """Regression: cd && sed -n … | od -c | head must be auto-approved.
+
+        Uses Git-Bash-style escaped-space syntax (`\\ `) to confirm the
+        tokenizer handles backslash-escaped whitespace inside an unquoted
+        cd target.
+        """
         cmd = (
-            "cd /c/Users/BEDOURTHE/OneDrive\\ -\\ Supira/Documents/Supira/software/DevAI-Hub"
-            " && sed -n '309,322p' extensions/claude-usage-monitor/src/extension.ts"
+            "cd /c/Users/testuser/OneDrive\\ -\\ Acme\\ Corp/Documents/workspace/demo-repo"
+            " && sed -n '309,322p' extensions/example-extension/src/extension.ts"
             " | od -c | head -50"
         )
         assert command_is_allowed(cmd, REAL_PATTERNS)
@@ -669,7 +696,7 @@ class TestVariableAssignmentAllowance:
     def test_cd_then_for_loop_with_var_assign(self):
         """Full compound command from the bug report."""
         cmd = (
-            r"cd /c/Users/BEDOURTHE/OneDrive\ -\ Supira/Documents/DevAI-Hub"
+            r"cd /c/Users/testuser/OneDrive\ -\ Acme\ Corp/Documents/demo-repo"
             " && for category in catalog/skills/*/; do"
             ' count=$(ls -d "$category"*/ 2>/dev/null | wc -l);'
             ' echo "$(basename "$category"): $count";'
@@ -905,8 +932,8 @@ class TestMainIntegration:
 
     def test_screenshot1_command_auto_approved(self):
         cmd = (
-            'cd "c:\\Users\\BEDOURTHE\\OneDrive - Supira\\Documents\\Supira'
-            '\\software\\DevAI-Hub" && git log --oneline --no-merges '
+            'cd "c:\\Users\\testuser\\OneDrive - Acme Corp\\Documents'
+            '\\workspace\\demo-repo" && git log --oneline --no-merges '
             "$(git describe --tags --abbrev=0 2>/dev/null"
             " || git rev-list --max-parents=0 HEAD)..HEAD"
             ' --format="%H %s" 2>/dev/null'
@@ -937,8 +964,8 @@ class TestMainIntegration:
     def test_screenshot3_command_auto_approved(self):
         cmd = (
             "sed -n '162,195p' "
-            '"c:/Users/BEDOURTHE/OneDrive - Supira/Documents/Supira/'
-            'software/rd-data-dev/src/core/common/file_extraction.py"'
+            '"c:/Users/testuser/OneDrive - Acme Corp/Documents/workspace/'
+            'demo-repo/src/core/common/file_extraction.py"'
             " 2>/dev/null"
         )
         stdout, rc = _run_hook(_make_payload(cmd))

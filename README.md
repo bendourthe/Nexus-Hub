@@ -280,11 +280,29 @@ On-demand detailed usage report with model-switching recommendations. Auto-fetch
 
 ---
 
+## 🔒 Safety and Use in Regulated Industries
+
+DevAI-Hub is built on a **reverse-engineering-first** principle: the catalog ships zero third-party data processors, zero outbound calls from skills / commands / hooks, and zero telemetry. The full threat-model breakdown, industry compatibility matrix, and reporting policy is in [SECURITY.md](SECURITY.md).
+
+Short version:
+
+- **Open-source / hobby / internal commercial software**: green. No restrictions.
+- **Regulated industries (healthcare, finance, government, life sciences, automotive, industrial)**: green WITH caveats. DevAI-Hub itself is safe; the caveat is that your chosen LLM provider is where prompts go (use a regulated-cloud option like AWS Bedrock, GCP Vertex AI, Azure OpenAI, or a self-hosted model consistent with your data-protection obligations).
+- **Defense / classified / air-gapped**: outside DevAI-Hub's threat model. Do your own assessment.
+
+What DevAI-Hub does NOT do: telemetry, analytics, phone-home, third-party data processors, model downloads, API-key requirements. The MCP Registry Policy in [AGENTS.md](AGENTS.md) categorically rejects search-as-service, embeddings-as-service, scraping-as-service, and generation-as-service. The authoritative classification of every MCP server ever shipped or considered is at [docs/v1.0.0/mcp-reverse-engineering-matrix.md](docs/v1.0.0/mcp-reverse-engineering-matrix.md).
+
+What is OUT of DevAI-Hub's control: your chosen LLM provider, any MCP server you add outside the DevAI-Hub registry, user-initiated outbound calls (`gh`, `git push`, `curl`), and your own user-authored hooks and rules. See [SECURITY.md](SECURITY.md) section 3 for the full caveats.
+
+To report a security issue: email [benjamin.dourthe@gmail.com](mailto:benjamin.dourthe@gmail.com) or open a private security advisory at [github.com/bendourthe/DevAI-Hub/security](https://github.com/bendourthe/DevAI-Hub/security).
+
+---
+
 ## 🤝 Collaboration
 
 DevAI-Hub is a curated open-source project. While Pull Requests (PRs) are typically not accepted from outside contributors, suggestions, feedback and recommendations are more than welcomed. If you have a better prompt, a smarter rule, or a pattern you'd like to see in the catalog, please reach out directly:
 
-- **Email**: [benjamin@supiramedical.com](mailto:benjamin@supiramedical.com)
+- **Email**: [benjamin.dourthe@gmail.com](mailto:benjamin.dourthe@gmail.com)
 - **GitHub**: [@bendourthe](https://github.com/bendourthe)
 
 I'm happy to discuss skill / command / hook proposals, integration ideas for new platforms, or specific use cases - especially when the proposal aligns with the policy direction of this project (reverse-engineering-first, no third-party data leaks).

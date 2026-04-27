@@ -2,7 +2,7 @@
 
 > **STATUS: ABANDONED (2026-04-24) — SUPERSEDED BY v1.0.0 SECURITY-HARDENING PLAN**
 >
-> This plan was started and halted after Phase 2. The user flagged a policy concern: DevAI-Hub must not ship MCP registry entries that point users at third-party data processors (in a regulated medtech context, proprietary source code, prompts, and query text cannot leak to external APIs). Phase 2 had added exactly such an entry (`@zilliz/claude-context-mcp`), which has now been **reverted** before any commit.
+> This plan was started and halted after Phase 2. The user flagged a policy concern: DevAI-Hub must not ship MCP registry entries that point users at third-party data processors (in any regulated-industry / high-trust context, proprietary source code, prompts, and query text cannot leak to external APIs). Phase 2 had added exactly such an entry (`@zilliz/claude-context-mcp`), which has now been **reverted** before any commit.
 >
 > **Outcomes**:
 >

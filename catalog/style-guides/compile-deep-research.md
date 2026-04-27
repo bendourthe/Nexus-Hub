@@ -74,7 +74,15 @@ Use **real topic names** ("Clinical Evidence", "Competitive Landscape", "Regulat
 
 ### GOOD (specific, cited, mined from source material)
 
-> The US market for percutaneous mechanical circulatory support reached $1.1B in 2024 and is projected to exceed $2.3B by 2030 [8]. Impella remains the dominant platform with an estimated 65% share of HRPCI procedures [12,14], but Supira's 14 Fr access profile and in-situ unloading algorithm target the 20-25% of patients for whom Impella's 14-21 Fr delivery catheter is contraindicated [6,23].
+Two example domains -- the same discipline applies regardless of subject matter.
+
+**Medical device example (anonymized):**
+
+> The US market for the target device class reached $1.1B in 2024 and is projected to exceed $2.3B by 2030 [8]. Company A remains the dominant platform with an estimated 65% share of the relevant procedures [12,14], but Company B's smaller-profile access strategy and in-situ unloading algorithm target the 20-25% of patients for whom Company A's larger delivery catheter is contraindicated [6,23].
+
+**Open-source library benchmark example:**
+
+> Library X processed 1.2M requests/sec on the reference benchmark hardware in v3.1 -- a 38% improvement over v2.4 [3]. Library Y, the closest functional equivalent, plateaued at 740K requests/sec in its 4.0 release and has not shipped a new major version in 14 months [5,9]. Library Z (added to the benchmark in March 2026) hit 1.05M requests/sec on the same hardware while consuming 22% less memory than X [11].
 
 ---
 

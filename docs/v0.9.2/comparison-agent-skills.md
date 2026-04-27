@@ -22,7 +22,7 @@ DevAI-Hub's strengths — depth of domain coverage, MCP discoverability, VS Code
 
 | Attribute | DevAI-Hub | agent-skills |
 |---|---|---|
-| **Author/Owner** | Benjamin Dourthe / Supira | Addy Osmani |
+| **Author/Owner** | Benjamin Dourthe ([benjamin.dourthe@gmail.com](mailto:benjamin.dourthe@gmail.com)) | Addy Osmani |
 | **Version** | 0.9.2 (2026-04-06) | 1.0.0 (2026-04-06) |
 | **License** | MIT | MIT |
 | **Tagline** | "Production-Grade Brain Upgrades for Your AI Coding Assistant" | "Production-grade engineering skills for AI coding agents — covering the full software development lifecycle from spec to ship" |
