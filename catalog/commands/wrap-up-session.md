@@ -32,6 +32,7 @@ Close out a development session cleanly. The command triages what happened in th
    | `refactor-project-layout` | **OFF** | enable only if explicitly requested |
    | `update-documentation` | ON | always |
    | `update-devlog` | ON | always |
+   | `known-gaps sweep` | ON | always (skill: `known-gaps-tracker`) |
    | `manage-memory` | ON | always |
    | `update-version` | ON if commits exist since last tag, OFF otherwise | based on git tags |
    | `generate-commit-message` | ON | always |
@@ -51,6 +52,7 @@ Close out a development session cleanly. The command triages what happened in th
      [OFF] refactor-project-layout    (opt-in — enable if layout cleanup is needed)
      [ON]  update-documentation       
      [ON]  update-devlog              
+     [ON]  known-gaps sweep           (mine session for uncaptured deferred work / bugs / warnings)
      [ON]  manage-memory              (refresh project memory for next session)
      [ON]  update-version             (recommend: PATCH — 4 commits since v0.9.2)
      [ON]  generate-commit-message    (produce a wrap-up commit message for review)
@@ -115,11 +117,24 @@ Run `/update-documentation`.
 
 ## Phase 4: History and Logs
 
-Run `/update-devlog`.
+### Step 4a: `/update-devlog`
 
 - Document: what changed this session, key decisions, any troubleshooting trail, current project status.
 - Prepend to the top of `docs/DEVLOG.md` (or append if the existing file uses chronological bottom order — match the existing style).
 - Create `docs/DEVLOG.md` if it does not exist.
+
+### Step 4b: Known-gaps sweep (apply the `known-gaps-tracker` skill in Sweep mode)
+
+Resolve the active version (most recent semver tag, or the version that owns the current plan). Open or create `docs/<version>/known-gaps.md` with `Status: in-progress`.
+
+Mine the live session conversation for items not already captured during `/implement-phase`. Look for:
+
+- "we'll come back to", "TODO", "deferred", "skipped", "good enough for now"
+- Suppressed warnings, hand-rolled mocks left in production code, stubbed-out functions, commented-out tests
+- Partial implementations the user verbally acknowledged as such
+- Bugs reproduced but not fixed during the session
+
+Append any new items using the category prefixes `NI` / `DF` / `BG` / `WN` / `MT` / `QG` and the four required fields (`Source phase`, `Plan reference`, `Reason`, `Suggested next step`). Cite the originating session date in `Reason` when an item came from chat rather than a plan deviation. Recompute the Summary table and update `Last updated`. **Do not finalize here** — that happens in Phase 6 only on a version bump.
 
 ---
 
@@ -155,6 +170,19 @@ Skip this phase if `update-version` was toggled OFF in Phase 0.
 4. If confirmed, run `/update-version`.
 5. If the user says N or types "skip", record the decision in the devlog entry and continue.
 
+### Step 6b: Finalize known-gaps (only if `/update-version` ran successfully)
+
+Apply the `known-gaps-tracker` skill in Finalize mode against `docs/<old-version>/known-gaps.md`:
+
+- Edit the `Status:` line from `in-progress` to `finalized`.
+- Append a one-line note immediately after the Summary table:
+
+  > Finalized on `<YYYY-MM-DD>` at the `<new-version>` bump. Open items will be ingested by `/generate-plan` when the next version's plan is created.
+
+- Do not delete or move resolved items — the file is now an archived record. Anything still in `## Open Items` remains there for the next-version ingest step.
+
+If the version bump was skipped, leave `Status: in-progress` so the file is picked up by the next `/generate-plan` even before the formal version bump.
+
 ---
 
 ## Phase 7: Final Commit
@@ -180,6 +208,7 @@ Session wrap-up complete:
   Devlog:           docs/DEVLOG.md (updated)
   Documentation:    README.md, docs/architecture.md (synced)
   Gitignore:        2 patterns added
+  Known gaps:       docs/v0.9.2/known-gaps.md (3 added, status: finalized)
   Memory:           3 entries updated, 1 removed
   Version:          v0.9.2 → v0.10.0  (or: no bump — skipped)
   Commit message:   ready for your review

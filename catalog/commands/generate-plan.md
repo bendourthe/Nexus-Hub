@@ -153,7 +153,85 @@ When the flag is NOT set (manual invocation with `/generate-plan <path>` not ori
 
 Default to RE-first if the user declines to answer.
 
-After completing Step 0.5, resume the standard flow at Step 2 (*Research, if needed*).
+After completing Step 0.5, resume the standard flow at Step 0.6 (*Prior-Version Known-Gaps Ingest*).
+
+---
+
+## Step 0.6: Prior-Version Known-Gaps Ingest
+
+**Always run this step**, regardless of whether Step 0.5 (From-comparison mode) executed. The goal is to surface any unfinished work, deferred items, bugs, warnings, or coverage gaps recorded by `/implement-phase` and `/wrap-up-session` during the previous version, so they are pulled forward into the new plan instead of being silently dropped.
+
+This step applies the `known-gaps-tracker` skill in **Ingest mode**.
+
+### 0.6a. Resolve the prior version
+
+Determine the immediately previous semver from the version selected in Step 0b. Examples:
+
+| New version | Prior version |
+|---|---|
+| `v0.2.0` | `v0.1.0` |
+| `v1.1.0` | `v1.0.0` |
+| `v0.1.1` | `v0.1.0` |
+
+If the version selected in Step 0b is the project's **first** version (no prior tag and no prior `docs/v*` directory), skip directly to Step 1 — there is nothing to ingest.
+
+### 0.6b. Build the candidate file list
+
+Search for all of these files and aggregate the ones that exist:
+
+1. `docs/<prior-version>/known-gaps.md` — always include if it exists, regardless of `Status`.
+2. `docs/v*/known-gaps.md` for **any** older version where the file's `Status:` line is still `in-progress` — these are gaps that have lingered across more than one version and must not be dropped.
+
+Skip any file whose `Status:` is `finalized` *and* that is not the immediately prior version.
+
+### 0.6c. Parse and merge
+
+Parse every candidate file. Merge their `## Open Items` sections into a single in-memory list, tagging each item with its originating version (e.g., `[v0.1.0:NI-2]`). Preserve the four fields per item: `Source phase`, `Plan reference`, `Reason`, `Suggested next step`.
+
+If the merged list is empty, announce *"No open items found in prior known-gaps files; proceeding to the discovery interview."* and skip to Step 1.
+
+### 0.6d. Present and ask
+
+If the merged list is non-empty, show the user a compact summary grouped by originating version:
+
+```
+Found N open items from prior versions:
+
+From v0.1.0 (finalized):
+  [NI-2] Settings panel keyboard shortcuts not wired (Phase 4)
+  [BG-1] Token refresh race condition (Phase 6)
+
+From v0.0.5 (still in-progress):
+  [MT-3] tests/integration/payment_flow.py below 60% coverage
+
+How should I treat these in the new plan?
+  A. Ingest all open items as scope (recommended)
+  B. Pick a subset to ingest
+  C. Skip - I will handle them outside this plan
+```
+
+Wait for the user's answer before continuing.
+
+### 0.6e. Seed the discovery interview
+
+Selected items become **inputs** to the rest of the plan-generation flow:
+
+- **Q2 (Scope)**: pre-fill the in-scope list with the ingested items (the user can still edit).
+- **Q3 (Affected Areas)**: union the `Plan reference` paths and any module names mentioned in `Reason` fields with whatever the user adds.
+- **Step 3 (Phase Breakdown)**: each ingested item (or tightly-coupled cluster of items) becomes one sub-task. Tag the sub-task title with the prefix `[from <prior-version> known-gaps: <ID>]`. The sub-task `Prompt` block must restate the original `Reason` and `Suggested next step` so the executable prompt is self-contained.
+- **Plan Overview**: state explicitly *"This plan ingests N item(s) carried forward from prior known-gaps files: see sub-tasks tagged `[from … known-gaps: …]`."*
+
+### 0.6f. Update source files after writing the plan
+
+After Step 4 successfully writes the new plan file, edit each ingested item in its source `known-gaps.md`:
+
+- Move it from `## Open Items` to the `## Resolved` table.
+- Set `Resolved in: transferred to <new-version> plan`.
+- Recompute the Summary table counts in the source file.
+
+The ingested items are *not yet fixed* — they have only been transferred to a different tracking surface (the new plan). Resolution happens later when the relevant sub-task is implemented and `/implement-phase` records it as resolved in the new version's own `known-gaps.md`.
+
+After completing Step 0.6, proceed to Step 1 (or, if Step 0.5 ran, to Step 2 with the abbreviated discovery applied).
 
 ---
 

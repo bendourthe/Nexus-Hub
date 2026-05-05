@@ -278,23 +278,36 @@ B. Stop here — I will resolve this manually
 
 ## Phase 8: Post-Phase Completion Sequence
 
-Run each command in strict order. Wait for each to fully complete before starting the next.
+Run each step in strict order. Wait for each to fully complete before starting the next.
 
 1.  **`/update-gitignore`**
     *   Ensures any new build artifacts, cache directories, or generated files created during this phase are correctly ignored.
 
-2.  **`/update-devlog`**
-    *   Documents: what was implemented, key decisions, deviations from the plan, test results, and any known issues.
+2.  **Update `docs/<version>/known-gaps.md`** (apply the `known-gaps-tracker` skill in Append mode)
+    *   Locate or create `docs/<version>/known-gaps.md`. The version is the one that owns the active plan (`docs/<version>/plans/<slug>.md`).
+    *   Walk the artifacts produced by Phases 2–7 and append every gap discovered during this phase, classified by category prefix:
+        *   `# DEVIATION:` markers from Phase 2 → `NI` (skipped subtask), `DF` (intentionally deferred), or `BG` (deviation revealed a bug).
+        *   Unresolved test failures from Phase 6 when the user picked option A "Skip failing tests" → `BG`.
+        *   Coverage shortfalls from Phases 4 and 5 → `MT`.
+        *   Suppressed lint rules or runtime warnings observed during Phase 3 → `WN`.
+        *   Any gate the user bypassed with "Proceed anyway" in Phase 7 → `QG`.
+    *   Each item must include all four fields: `Source phase`, `Plan reference`, `Reason`, `Suggested next step`.
+    *   If this phase resolved any earlier open item from the same file, move it from `## Open Items` to the `## Resolved` table with `Resolved in: Phase N`.
+    *   Recompute the `## Summary` table counts and update `Last updated`. **Do not finalize the file** — that happens at version bump in `/wrap-up-session` Phase 6.
 
-3.  **`/update-documentation`**
+3.  **`/update-devlog`**
+    *   Documents: what was implemented, key decisions, deviations from the plan, test results, and any known issues.
+    *   Reference `docs/<version>/known-gaps.md` for the structured gap list rather than re-listing items inline.
+
+4.  **`/update-documentation`**
     *   Syncs README, API docs, architecture docs, and inline guides with the new code.
 
-4.  **`/generate-session-history`**
+5.  **`/generate-session-history`**
     *   Produces a standalone session history file for this phase in `docs/<version>/development/history/`.
     *   Include: plan reference, subtasks completed, test results, deviations, and next steps.
 
-5.  **`/generate-commit-message`**
-    *   Generates a structured commit message scoped to this phase.
+6.  **`/generate-commit-message`**
+    *   Generates a structured commit message scoped to this phase. Include `docs/<version>/known-gaps.md` in the file list so the gap log is committed alongside the phase work.
     *   The user reviews the message and commits manually — this command does **not** commit automatically.
 
 ---
@@ -312,8 +325,10 @@ Subtasks done:  5/5
 Tests:          42 passed, 0 failed (coverage: 84%)
 Lint:           ✓ clean
 Deviations:     1 (see devlog)
+Known gaps:     2 added, 1 resolved (see docs/v0.2.0/known-gaps.md)
 Files written:
   - docs/DEVLOG.md (updated)
+  - docs/v0.2.0/known-gaps.md (updated)
   - docs/v0.2.0/development/history/2026-04_phase-3-authentication.md
 Commit message: ready for your review
 

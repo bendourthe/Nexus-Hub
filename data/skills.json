@@ -6,7 +6,7 @@
     "description": "Comprehensive catalog of DevAI-Hub skills with L0/L1 tiered summaries"
   },
   "statistics": {
-    "total_skills": 187,
+    "total_skills": 188,
     "categories": {
       "ai-development": 8,
       "architecture": 6,
@@ -28,7 +28,7 @@
       "specialized-domains": 9,
       "testing": 3,
       "tests-generation": 17,
-      "workflow": 16,
+      "workflow": 17,
       "Workflow": 1
     },
     "priorities": {
@@ -6288,6 +6288,49 @@
         "structural": 100,
         "integrity": 100,
         "semantic": 95
+      }
+    },
+    {
+      "name": "known-gaps-tracker",
+      "title": "known-gaps-tracker",
+      "description": "Maintain docs/<version>/known-gaps.md - a per-version log of items that were not implemented, deferred, buggy, suppressed, or left without coverage at the end of each phase. /implement-phase appends, /wrap-up-session sweeps and finalizes, /generate-plan ingests open items into the next plan.",
+      "long_description": "Per-version, append-only tracker that records gaps surfaced during /implement-phase (skipped subtasks, intentionally deferred work, bugs found but not fixed, suppressed warnings, coverage shortfalls, and quality gates the user opted to bypass). /wrap-up-session sweeps the live conversation for additional gaps and finalizes the file at version bump. /generate-plan reads the immediately prior version's known-gaps.md plus any older still-in-progress files and seeds the discovery interview so unfinished work is automatically pulled forward. Complements the dev-progress-tracker (forward-looking todos.md) and feeds into /run-deep-review's known-gaps aggregation.",
+      "summary_l0": "\"Track per-version unfinished work, deferred items, bugs, warnings, and coverage gaps so the next plan picks them up automatically\"",
+      "overview_l1": "\"This skill maintains docs/<version>/known-gaps.md as a per-version, append-only log of items that did not reach a clean state by the end of a phase: subtasks not implemented, work intentionally deferred, bugs found but not fixed, warnings suppressed, missing tests or coverage gaps, and quality gates the user opted to bypass. /implement-phase appends to it after each phase; /wrap-up-session sweeps the live conversation for any uncaptured gaps and finalizes the file when the version is bumped; /generate-plan reads the immediately prior version's known-gaps.md (and any older still-in-progress files) to seed the discovery interview for the next plan, so unfinished work is automatically pulled forward. Trigger phrases: known gaps, deferred work, carryover, unfinished items, what was left over, prior version gaps, docs/<version>/known-gaps.md.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "workflow",
+      "language": "Multi-language",
+      "tags": [
+        "tracking",
+        "known-gaps",
+        "carryover",
+        "version-lifecycle",
+        "deferred-work",
+        "implementation-plan",
+        "session-wrap-up"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read",
+        "Write",
+        "Edit",
+        "Glob"
+      ],
+      "path": "catalog/skills/workflow/known-gaps-tracker/",
+      "file": "catalog/skills/workflow/known-gaps-tracker/SKILL.md",
+      "size": {
+        "lines": 150,
+        "tokens_estimate": 1100
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
       }
     }
   ]
