@@ -11,6 +11,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.1.3] - 2026-05-06
+
+Patch release. Breaks the v1.1.2 Claude-only pre-commit review design out into four parallel, fully-independent hooks - one per supported AI CLI. Removes the implicit coupling that forced every user to install Anthropic's `claude` CLI to use the v1.1.2 hook regardless of their primary AI platform. Each user now picks the hook variant matching the AI service they already pay for; Cursor and GitHub Copilot are explicitly out of scope (no usable headless review CLI). Safe to upgrade from v1.1.2: existing v1.1.2 installations of `~/.devai-hub/hooks/claude-diff-review.sh` keep working unchanged, and re-running the installer simply adds three sibling files alongside it.
+
+### Added
+
+- **Three new platform-parallel pre-commit review hooks** in `catalog/hooks/`. Each hook is a fully self-contained ~125-line bash script that calls only its own CLI - no shared library dependency, no cross-platform fallbacks. Bypass paths (`DEVAI_DIFF_REVIEW_DISABLE=1`, `git commit -n`, `DEVAI_DIFF_REVIEW_MAX_BYTES`), merge / cherry-pick / rebase short-circuit, fail-open behavior, and `VERDICT: PASS|WARN|BLOCK` parsing are duplicated across all four hooks so each can be copied to `.git/hooks/pre-commit` standalone.
+    - `gemini-diff-review.sh` calls `gemini -p` (Google Gemini CLI / Antigravity).
+    - `codex-diff-review.sh` calls `codex exec` (OpenAI Codex CLI). Combines prompt + diff into a single argument because Codex's `exec` subcommand does not consistently read context from stdin across versions.
+    - `opencode-diff-review.sh` calls `opencode run` (OpenCode CLI). Same combined-argument pattern as the Codex variant for the same reason.
+- **`/install-pre-commit-review-hook` slash command** at `catalog/commands/install-pre-commit-review-hook.md`. Replaces the v1.1.2 `/install-claude-pre-commit-hook`. Auto-detects which of the four supported CLIs are on PATH and either auto-selects (exactly one), asks the user to choose (multiple), or asks the user to install one (zero) - with `--platform=<claude|gemini|codex|opencode>` and `--force` flag overrides. Same backup / chain / abort logic as v1.1.2 for pre-existing pre-commit hooks. The marker-comment detection now matches any of the four hook variants so a re-run can detect which platform is currently installed and offer to switch / re-install cleanly.
+- **`TestPlatformIndependence` parametrized test class** in `catalog/hooks/tests/test_diff_review_hooks.py`. Asserts that no hook script contains `command -v <other-cli>` or invokes any sibling CLI, so a Gemini user's hook can never silently fall back to Claude (or any other vendor) and vice versa. The test inspects the source file directly rather than the runtime behavior, so it catches accidental cross-references at edit time.
+- **Hook source distribution loop** in both `scripts/installer.sh` and `scripts/installer.ps1`. The single `safe_copy` / `Safe-Copy` line from v1.1.2 was replaced by a 4-element loop that copies all four `*-diff-review.sh` variants to `~/.devai-hub/hooks/`. Loop body deliberately silent on missing files (the `[ -f ]` / `Test-Path` guard) so a partial catalog still installs cleanly.
+
+### Changed
+
+- **v1.1.2 test file `test_claude_diff_review.py` renamed to `test_diff_review_hooks.py`** (plural) and parametrized over all four hook variants via `pytest.mark.parametrize` on a `(hook_filename, cli_binary_name)` tuple list. Each of the 11 logical scenarios from v1.1.2 (bash syntax, env-var bypass, empty diff, missing CLI, merge skip, rebase skip, diff-size cap, PASS / WARN / BLOCK / unparseable verdict) now runs four times, once per variant - 44 logical tests, plus 4 platform-independence assertions, total 48 tests. Combined hook test suite: **310 tests passing** (262 v1.1.1 baseline + 48 new diff-review tests, with the v1.1.2 11 absorbed into the parametrized set).
+
+### Removed (Breaking, but no v1.1.2-installed users likely affected)
+
+- **v1.1.2 `/install-claude-pre-commit-hook` slash command deleted.** Users who started typing `/install-claude-...` after v1.1.2 will need to switch to `/install-pre-commit-review-hook` or pass `/install-pre-commit-review-hook --platform=claude` for the same result. v1.1.2 was released earlier the same day as v1.1.3, so the migration window is effectively zero hours; no deprecation alias was added.
+
+---
+
 ## [1.1.2] - 2026-05-06
 
 Patch release. Adds an opt-in git pre-commit hook (`claude-diff-review.sh`) and a new slash command (`/install-claude-pre-commit-hook`) that wires the hook into a target repository on demand. Nothing changes in any existing repository unless the user explicitly runs the new command - the hook is distributed to `~/.devai-hub/hooks/` but is never auto-wired into any `.git/hooks/pre-commit`. Safe to upgrade from v1.1.1 with no migration steps and no installer-rerun side effects beyond picking up the new hook source file.
@@ -3021,7 +3045,8 @@ repository_root/
 
 ---
 
-[Unreleased]: https://github.com/bendourthe/DevAI-Hub/compare/v1.1.2...HEAD
+[Unreleased]: https://github.com/bendourthe/DevAI-Hub/compare/v1.1.3...HEAD
+[1.1.3]: https://github.com/bendourthe/DevAI-Hub/compare/v1.1.2...v1.1.3
 [1.1.2]: https://github.com/bendourthe/DevAI-Hub/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/bendourthe/DevAI-Hub/compare/v1.1.0...v1.1.1
 [0.9.2]: https://github.com/bendourthe/DevAI-Hub/compare/v0.9.1...v0.9.2

@@ -5,7 +5,7 @@ $ErrorActionPreference = "Stop"
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-$script:DevAIHubVersion = "1.1.2"
+$script:DevAIHubVersion = "1.1.3"
 
 $Host.UI.RawUI.WindowTitle = "DevAI-Hub Installer"
 $script:InstallerTitle = "DevAI-Hub Installer"
@@ -1731,15 +1731,19 @@ function Install-Templates {
         Safe-Folder-Copy -Source $styleGuidesSrc -Destination $styleGuidesDest -CustomMessage "✓ Style guides installed at: $styleGuidesDest"
     }
 
-    # Copy opt-in git pre-commit hook source (v1.1.2+). The hook itself is NEVER
-    # auto-wired into a repository; users opt in by running the
-    # /install-claude-pre-commit-hook slash command from inside the target repo,
-    # which copies this script to that repo's .git\hooks\pre-commit.
+    # Copy opt-in git pre-commit hook sources (v1.1.2+; expanded to four
+    # platform-parallel variants in v1.1.3). Each hook calls only its own
+    # CLI - they are independent of each other. The hooks themselves are
+    # NEVER auto-wired into a repository; users opt in by running the
+    # /install-pre-commit-review-hook slash command from inside the target
+    # repo, which copies the chosen platform's script to .git\hooks\pre-commit.
     $devaiHooksDest = Join-Path $devaiHome "hooks"
     if (-not (Test-Path $devaiHooksDest)) { New-Item -ItemType Directory -Force -Path $devaiHooksDest | Out-Null }
-    $diffReviewSrc = Join-Path $RepoRoot "catalog\hooks\claude-diff-review.sh"
-    if (Test-Path $diffReviewSrc) {
-        Safe-Copy -Source $diffReviewSrc -Destination (Join-Path $devaiHooksDest "claude-diff-review.sh") -Confirm:$true -CustomMessage "✓ Pre-commit review hook source installed at: $devaiHooksDest\claude-diff-review.sh"
+    foreach ($variant in @("claude-diff-review.sh", "gemini-diff-review.sh", "codex-diff-review.sh", "opencode-diff-review.sh")) {
+        $diffReviewSrc = Join-Path $RepoRoot "catalog\hooks\$variant"
+        if (Test-Path $diffReviewSrc) {
+            Safe-Copy -Source $diffReviewSrc -Destination (Join-Path $devaiHooksDest $variant) -Confirm:$true -CustomMessage "✓ Pre-commit review hook source installed at: $devaiHooksDest\$variant"
+        }
     }
 
     # Check Python availability

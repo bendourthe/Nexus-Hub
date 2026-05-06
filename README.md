@@ -8,22 +8,39 @@
 
 ---
 
-## What's New in v1.1.2
+## What's New in v1.1.3
 
-**Opt-in pre-commit Claude review.** Patch release adding one new command (`/install-claude-pre-commit-hook`) and one new opt-in hook script (`claude-diff-review.sh`). Nothing changes in any existing repository unless the user explicitly runs the new command. Safe to upgrade from v1.1.1 with no migration steps.
+**Platform-independent pre-commit review hooks.** Patch release that breaks the v1.1.2 Claude-only design out into four parallel, fully-independent hooks - one per supported AI CLI (Claude, Gemini, Codex, OpenCode). The single Claude-only slash command is replaced by an auto-detecting variant that picks (or asks) which hook to install based on which CLIs are on PATH. Existing v1.1.2 installations of `~/.devai-hub/hooks/claude-diff-review.sh` keep working unchanged.
 
-### Pre-commit Claude review hook (opt-in, per-repository)
+### Why the rework?
 
-- New slash command `/install-claude-pre-commit-hook` wires up `.git/hooks/pre-commit` in the current repository so that every `git commit` runs the staged diff through `claude -p` for a quick LLM review of hardcoded secrets, debug artifacts (console.log, print, debugger), unfinished TODOs, and large commented-out code blocks. The hook responds with one of three verdicts: `BLOCK` (clear credentials, refuses the commit with exit 1), `WARN` (debug / TODO findings, prints to stderr but allows the commit), or `PASS` (silent allow). Errors are fail-open, so a transient API hiccup never blocks a commit.
-- The hook (`catalog/hooks/claude-diff-review.sh`) is distributed to `~/.devai-hub/hooks/claude-diff-review.sh` at install time but is **never auto-wired** into any repository. The slash command is the only path to activation, and it asks before overwriting an existing `pre-commit` hook (offering replace / abort / chain-manually paths plus a backup of the prior hook).
-- Three bypass paths baked in: per-commit env-var override (`DEVAI_DIFF_REVIEW_DISABLE=1 git commit ...`), git's standard `--no-verify` flag, and a 50 KB diff-size cap (configurable via `DEVAI_DIFF_REVIEW_MAX_BYTES`) so large commits skip review automatically. The hook also short-circuits during merge / cherry-pick / rebase to avoid blocking workflow operations.
-- Why a *git* hook on top of the existing `secret-scan.sh` Claude Code hook? They cover disjoint surfaces. `secret-scan.sh` (regex-based) only fires when Claude Code itself writes a file; the new pre-commit hook (LLM-based) fires on every `git commit` regardless of whether the change came from Claude, Cursor, Copilot, Codex, Gemini, or a human typing in the editor. The two layers are complementary, not redundant.
+v1.1.2 forced every user to install Anthropic's `claude` CLI to use the pre-commit review hook, regardless of whether their primary AI agent was Claude Code, Gemini, Codex, or OpenCode. v1.1.3 removes that coupling. Each platform now has its own hook script that calls only its own CLI; users pick the one matching the AI service they already pay for.
+
+### Four parallel hook variants
+
+| AI Platform | Hook script | CLI required |
+|---|---|---|
+| Claude Code | `claude-diff-review.sh` | `claude -p` |
+| Gemini / Antigravity | `gemini-diff-review.sh` | `gemini -p` |
+| Codex (OpenAI) | `codex-diff-review.sh` | `codex exec` |
+| OpenCode | `opencode-diff-review.sh` | `opencode run` |
+
+All four ship to `~/.devai-hub/hooks/` at installer time. Each is self-contained: bypass paths, diff-size cap, fail-open behavior, merge / rebase short-circuit, and PASS / WARN / BLOCK verdict parsing are duplicated across all four scripts so each can be copied to `.git/hooks/pre-commit` standalone with no shared library dependency. A new pytest test (`TestPlatformIndependence`) asserts that no hook contains a `command -v <other-cli>` check or invokes any sibling CLI.
+
+### Renamed and upgraded slash command
+
+- v1.1.2 `/install-claude-pre-commit-hook` is **removed** (it was Claude-only).
+- New `/install-pre-commit-review-hook` replaces it. Auto-detects which CLIs are on PATH; if exactly one is found, uses it; if multiple, asks the user; if none, asks the user to install one (or skip via `--platform=<name>` flag to install the hook anyway). Optional `--force` flag skips existing-hook prompts. Same backup / chain / abort logic as v1.1.2 for pre-existing pre-commit hooks.
+
+### Cursor and GitHub Copilot are explicitly out of scope
+
+Cursor has no public headless CLI. GitHub Copilot's `gh copilot suggest` / `gh copilot explain` are targeted to single-command synthesis, not arbitrary diff review. Users on those platforms can either install one of the four supported CLIs as a side dependency, or skip this hook and rely on CI-side review instead.
 
 ### Test coverage
 
-- 11 new pytest tests in `catalog/hooks/tests/test_claude_diff_review.py` covering bash syntax, env-var bypass, empty-diff short-circuit, missing-CLI fail-open, merge / rebase state skip, diff-size-cap warning, and PASS / WARN / BLOCK / unparseable verdict parsing. Combined hook test suite: **273 tests passing**.
+- The v1.1.2 test file (`test_claude_diff_review.py`) was renamed to `test_diff_review_hooks.py` and parametrized over all four hook variants. **48 tests** total (11 logical scenarios x 4 variants, plus a 4-variant platform-independence assertion). Combined hook test suite: **310 tests passing** (262 prior, less 11 v1.1.2 dropped, plus 48 new + 11 carried over).
 
-See [CHANGELOG.md](CHANGELOG.md) for the full v1.1.2 entry and [docs/v1.0.0/RELEASE_NOTES.md](docs/v1.0.0/RELEASE_NOTES.md) for the v1.0.0 baseline.
+See [CHANGELOG.md](CHANGELOG.md) for the full v1.1.3 entry and [docs/v1.0.0/RELEASE_NOTES.md](docs/v1.0.0/RELEASE_NOTES.md) for the v1.0.0 baseline.
 
 ---
 
