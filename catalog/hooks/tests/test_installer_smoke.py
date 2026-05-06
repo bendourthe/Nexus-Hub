@@ -28,6 +28,16 @@ REPO_ROOT = pathlib.Path(__file__).resolve().parents[3]
 INSTALLER_SH = REPO_ROOT / "scripts" / "installer.sh"
 INSTALLER_PS1 = REPO_ROOT / "scripts" / "installer.ps1"
 SETTINGS_TEMPLATE = REPO_ROOT / "catalog" / "hooks" / "settings.json"
+PLUGIN_MANIFEST = REPO_ROOT / ".claude-plugin" / "plugin.json"
+
+
+def _canonical_version() -> str:
+    """Return the canonical DevAI-Hub version from .claude-plugin/plugin.json.
+
+    Used as the single source of truth for the installer banner-version
+    assertions so that future version bumps do not require editing this test.
+    """
+    return json.loads(PLUGIN_MANIFEST.read_text(encoding="utf-8"))["version"]
 
 
 # --- (1) Installer script structural assertions ------------------------------
@@ -41,15 +51,31 @@ def test_installer_ps1_exists():
 
 
 def test_installer_sh_carries_version_constant():
+    """installer.sh's DEVAI_HUB_VERSION must match .claude-plugin/plugin.json.
+
+    The canonical project version lives in `.claude-plugin/plugin.json`. The
+    installer banner reads its label from a `DEVAI_HUB_VERSION="X.Y.Z"`
+    constant near the top of the script. The two must stay in lockstep so the
+    installer's "Thank You" banner always advertises the correct release.
+    Reading the expected value from the manifest (rather than hardcoding it
+    in the test) prevents the test from silently lagging the real version.
+    """
+    expected = f'DEVAI_HUB_VERSION="{_canonical_version()}"'
     body = INSTALLER_SH.read_text(encoding="utf-8")
-    assert 'DEVAI_HUB_VERSION="1.0.0"' in body, \
-        "installer.sh is missing the DEVAI_HUB_VERSION='0.9.7' constant"
+    assert expected in body, \
+        f"installer.sh is missing the {expected} constant"
 
 
 def test_installer_ps1_carries_version_constant():
+    """installer.ps1's $script:DevAIHubVersion must match .claude-plugin/plugin.json.
+
+    Same contract as test_installer_sh_carries_version_constant, mirrored for
+    the PowerShell installer.
+    """
+    expected = f'$script:DevAIHubVersion = "{_canonical_version()}"'
     body = INSTALLER_PS1.read_text(encoding="utf-8")
-    assert '$script:DevAIHubVersion = "1.0.0"' in body, \
-        "installer.ps1 is missing the $script:DevAIHubVersion = '0.9.7' constant"
+    assert expected in body, \
+        f"installer.ps1 is missing the {expected} constant"
 
 
 def test_installer_sh_has_welcome_banner_function():
