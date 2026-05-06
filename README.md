@@ -8,21 +8,22 @@
 
 ---
 
-## What's New in v1.1.1
+## What's New in v1.1.2
 
-**Tightened the commit-message no-hard-wrap rule, plus a small test-quality fix.** Patch release. No behavioral or schema changes; safe to upgrade from v1.1.0 with no migration steps.
+**Opt-in pre-commit Claude review.** Patch release adding one new command (`/install-claude-pre-commit-hook`) and one new opt-in hook script (`claude-diff-review.sh`). Nothing changes in any existing repository unless the user explicitly runs the new command. Safe to upgrade from v1.1.1 with no migration steps.
 
-### Commit-message generation no longer wraps body paragraphs
+### Pre-commit Claude review hook (opt-in, per-repository)
 
-- `/generate-commit-message` and the `code-commit-workflow` skill now require every paragraph and every bullet point in the commit body and footer to be a single continuous source line, regardless of length. Previously the rule applied only to bullet points; long body paragraphs were still silently hard-wrapped at ~72 columns by the agent. The wrap-column callouts (50, 72, 80, 100) are now explicit so the agent cannot rationalize one of them as "the convention."
-- Three "Good Examples" in the skill were unwrapped so they demonstrate the rule, a hard-wrapped "Bad Example" was added so the failure mode is visible, and two new Common Rationalizations entries cover the "72-column convention" and "split for readability" excuses. Quality Checklist and Verification gain a no-wrap item, with a `git show --no-patch HEAD` spot-check.
-- Cross-platform: the command file reaches Claude Code, Gemini / Antigravity, and Codex via the installer's recursive copy of `catalog/commands/`; the skill file reaches all five platforms via the skill index in their respective `base-*.md` instruction files. No installer changes were needed for either file.
+- New slash command `/install-claude-pre-commit-hook` wires up `.git/hooks/pre-commit` in the current repository so that every `git commit` runs the staged diff through `claude -p` for a quick LLM review of hardcoded secrets, debug artifacts (console.log, print, debugger), unfinished TODOs, and large commented-out code blocks. The hook responds with one of three verdicts: `BLOCK` (clear credentials, refuses the commit with exit 1), `WARN` (debug / TODO findings, prints to stderr but allows the commit), or `PASS` (silent allow). Errors are fail-open, so a transient API hiccup never blocks a commit.
+- The hook (`catalog/hooks/claude-diff-review.sh`) is distributed to `~/.devai-hub/hooks/claude-diff-review.sh` at install time but is **never auto-wired** into any repository. The slash command is the only path to activation, and it asks before overwriting an existing `pre-commit` hook (offering replace / abort / chain-manually paths plus a backup of the prior hook).
+- Three bypass paths baked in: per-commit env-var override (`DEVAI_DIFF_REVIEW_DISABLE=1 git commit ...`), git's standard `--no-verify` flag, and a 50 KB diff-size cap (configurable via `DEVAI_DIFF_REVIEW_MAX_BYTES`) so large commits skip review automatically. The hook also short-circuits during merge / cherry-pick / rebase to avoid blocking workflow operations.
+- Why a *git* hook on top of the existing `secret-scan.sh` Claude Code hook? They cover disjoint surfaces. `secret-scan.sh` (regex-based) only fires when Claude Code itself writes a file; the new pre-commit hook (LLM-based) fires on every `git commit` regardless of whether the change came from Claude, Cursor, Copilot, Codex, Gemini, or a human typing in the editor. The two layers are complementary, not redundant.
 
-### Installer-smoke test no longer breaks on every version bump
+### Test coverage
 
-- `catalog/hooks/tests/test_installer_smoke.py` now reads the canonical version string from `.claude-plugin/plugin.json` at test time instead of hard-coding it. Future PATCH / MINOR / MAJOR bumps will not require a follow-up commit to keep the smoke test green.
+- 11 new pytest tests in `catalog/hooks/tests/test_claude_diff_review.py` covering bash syntax, env-var bypass, empty-diff short-circuit, missing-CLI fail-open, merge / rebase state skip, diff-size-cap warning, and PASS / WARN / BLOCK / unparseable verdict parsing. Combined hook test suite: **273 tests passing**.
 
-See [CHANGELOG.md](CHANGELOG.md) for the full v1.1.1 entry and [docs/v1.0.0/RELEASE_NOTES.md](docs/v1.0.0/RELEASE_NOTES.md) for the v1.0.0 baseline.
+See [CHANGELOG.md](CHANGELOG.md) for the full v1.1.2 entry and [docs/v1.0.0/RELEASE_NOTES.md](docs/v1.0.0/RELEASE_NOTES.md) for the v1.0.0 baseline.
 
 ---
 

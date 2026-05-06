@@ -5,10 +5,10 @@
 set -euo pipefail
 
 SKILL_COUNT=184
-COMMAND_COUNT=32
+COMMAND_COUNT=33
 
 cat <<EOF
-DevAI-Hub is active (v1.1.1) - $SKILL_COUNT skills, $COMMAND_COUNT commands.
+DevAI-Hub is active (v1.1.2) - $SKILL_COUNT skills, $COMMAND_COUNT commands.
 
 Quick navigation:
   /search-skills <keyword>   Find the right skill for your task

@@ -7,7 +7,7 @@ set -e
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-DEVAI_HUB_VERSION="1.1.1"
+DEVAI_HUB_VERSION="1.1.2"
 
 # --- Window Title ---
 printf '\033]0;DevAI-Hub Installer\007'
@@ -1421,6 +1421,18 @@ install_templates() {
     local style_guides_dest="$devai_home/style-guides"
     if [ -d "$style_guides_src" ]; then
         safe_folder_copy "$style_guides_src" "$style_guides_dest" "[OK] Style guides installed at: $style_guides_dest"
+    fi
+
+    # Copy opt-in git pre-commit hook source (v1.1.2+). The hook itself is NEVER
+    # auto-wired into a repository; users opt in by running the
+    # /install-claude-pre-commit-hook slash command from inside the target repo,
+    # which copies this script to that repo's .git/hooks/pre-commit.
+    local devai_hooks_dest="$devai_home/hooks"
+    mkdir -p "$devai_hooks_dest"
+    local diff_review_src="$repo_root/catalog/hooks/claude-diff-review.sh"
+    if [ -f "$diff_review_src" ]; then
+        safe_copy "$diff_review_src" "$devai_hooks_dest/claude-diff-review.sh" true "[OK] Pre-commit review hook source installed at: $devai_hooks_dest/claude-diff-review.sh"
+        chmod +x "$devai_hooks_dest/claude-diff-review.sh" 2>/dev/null || true
     fi
 
     # Check Python availability

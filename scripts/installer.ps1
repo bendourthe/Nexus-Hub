@@ -5,7 +5,7 @@ $ErrorActionPreference = "Stop"
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-$script:DevAIHubVersion = "1.1.1"
+$script:DevAIHubVersion = "1.1.2"
 
 $Host.UI.RawUI.WindowTitle = "DevAI-Hub Installer"
 $script:InstallerTitle = "DevAI-Hub Installer"
@@ -1729,6 +1729,17 @@ function Install-Templates {
     $styleGuidesDest = Join-Path $devaiHome "style-guides"
     if (Test-Path $styleGuidesSrc) {
         Safe-Folder-Copy -Source $styleGuidesSrc -Destination $styleGuidesDest -CustomMessage "✓ Style guides installed at: $styleGuidesDest"
+    }
+
+    # Copy opt-in git pre-commit hook source (v1.1.2+). The hook itself is NEVER
+    # auto-wired into a repository; users opt in by running the
+    # /install-claude-pre-commit-hook slash command from inside the target repo,
+    # which copies this script to that repo's .git\hooks\pre-commit.
+    $devaiHooksDest = Join-Path $devaiHome "hooks"
+    if (-not (Test-Path $devaiHooksDest)) { New-Item -ItemType Directory -Force -Path $devaiHooksDest | Out-Null }
+    $diffReviewSrc = Join-Path $RepoRoot "catalog\hooks\claude-diff-review.sh"
+    if (Test-Path $diffReviewSrc) {
+        Safe-Copy -Source $diffReviewSrc -Destination (Join-Path $devaiHooksDest "claude-diff-review.sh") -Confirm:$true -CustomMessage "✓ Pre-commit review hook source installed at: $devaiHooksDest\claude-diff-review.sh"
     }
 
     # Check Python availability

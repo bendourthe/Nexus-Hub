@@ -11,6 +11,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.1.2] - 2026-05-06
+
+Patch release. Adds an opt-in git pre-commit hook (`claude-diff-review.sh`) and a new slash command (`/install-claude-pre-commit-hook`) that wires the hook into a target repository on demand. Nothing changes in any existing repository unless the user explicitly runs the new command - the hook is distributed to `~/.devai-hub/hooks/` but is never auto-wired into any `.git/hooks/pre-commit`. Safe to upgrade from v1.1.1 with no migration steps and no installer-rerun side effects beyond picking up the new hook source file.
+
+### Added
+
+- **`/install-claude-pre-commit-hook` slash command** (`catalog/commands/install-claude-pre-commit-hook.md`). When invoked from inside a target repo, copies `~/.devai-hub/hooks/claude-diff-review.sh` to that repo's `.git/hooks/pre-commit` after detecting and asking about any pre-existing pre-commit hook (replace / abort / chain-manually options, with a `.git/hooks/pre-commit.devai-backup-<timestamp>` backup written before any overwrite). Cross-platform: works on Linux, macOS, and Windows (Git for Windows runs hooks via its bundled bash, so the bash hook source runs natively without a Windows-specific port).
+- **`catalog/hooks/claude-diff-review.sh`** opt-in git pre-commit hook. Pipes `git diff --cached` through `claude -p` with a strict review prompt covering: hardcoded credentials, debug artifacts (console.log / print / debugger / pdb / dd / dump / fmt.Println in production code), unfinished TODOs / FIXMEs / placeholder values, and commented-out code blocks larger than 3 contiguous lines. Parses Claude's response on the first line (`VERDICT: PASS|WARN|BLOCK`) and exits accordingly: `PASS` silent allow, `WARN` prints findings to stderr but allows the commit, `BLOCK` refuses the commit with exit 1. Fail-open on every error path (CLI absent, response empty, verdict unparseable, oversized diff, merge / cherry-pick / rebase in progress) so the hook can never permanently brick a workflow. Three bypass paths baked in: `DEVAI_DIFF_REVIEW_DISABLE=1 git commit ...` env-var override, git's standard `--no-verify` flag, and the configurable `DEVAI_DIFF_REVIEW_MAX_BYTES` cap (default 50 KB) so large commits skip review automatically.
+- **Installer wiring** in both `scripts/installer.sh` and `scripts/installer.ps1`. New `safe_copy` / `Safe-Copy` line in the existing `install_templates` function copies `catalog/hooks/claude-diff-review.sh` to `~/.devai-hub/hooks/claude-diff-review.sh` (Linux/macOS) or `%USERPROFILE%\.devai-hub\hooks\claude-diff-review.sh` (Windows), with `chmod +x` on POSIX. The hook is shared cross-platform under `~/.devai-hub/`, not per-platform under `~/.claude/hooks/`, because it is a git hook (not a Claude Code PreToolUse hook) that fires on `git commit` regardless of which AI assistant the user runs.
+- **11 new pytest tests** in `catalog/hooks/tests/test_claude_diff_review.py` covering: bash syntax (`bash -n`), env-var bypass short-circuit, empty-diff exit, missing-CLI fail-open with warning to stderr, merge-state skip, rebase-state skip, diff-size-cap warning, and PASS / WARN / BLOCK / unparseable verdict parsing. Tests stub the `claude` CLI by creating a fake bash binary on PATH that emits a fixed response. Combined hook test suite: **273 tests passing** (262 prior + 11 new).
+- **Command count incremented** from 32 to 33 in `catalog/hooks/session-start.sh` (the value displayed in the SessionStart orientation banner).
+
+---
+
 ## [1.1.1] - 2026-05-06
 
 Patch release. Tightens the commit-message no-hard-wrap rule so it covers body paragraphs and footers, not just bullet points, and makes the installer-smoke test resilient to future version bumps. No behavioral or schema changes; safe to upgrade from v1.1.0 with no migration steps and no installer-rerun side effects (the installer's distributed artifacts are content-only).
@@ -3007,7 +3021,8 @@ repository_root/
 
 ---
 
-[Unreleased]: https://github.com/bendourthe/DevAI-Hub/compare/v1.1.1...HEAD
+[Unreleased]: https://github.com/bendourthe/DevAI-Hub/compare/v1.1.2...HEAD
+[1.1.2]: https://github.com/bendourthe/DevAI-Hub/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/bendourthe/DevAI-Hub/compare/v1.1.0...v1.1.1
 [0.9.2]: https://github.com/bendourthe/DevAI-Hub/compare/v0.9.1...v0.9.2
 [0.9.1]: https://github.com/bendourthe/DevAI-Hub/compare/v0.9.0...v0.9.1
