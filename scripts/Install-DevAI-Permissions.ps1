@@ -116,14 +116,11 @@ function Install-ClaudePermissions {
     $newEntries = @($templateJson.permissions.allow)
 
     if (Test-Path $settingsFile) {
-        $content = Get-Content $settingsFile -Raw
-        if ($content -match "WebFetch\(domain:github\.com\)") {
-            Write-Status "  Already configured. Skipping." "DarkGreen"
-            return
-        }
-
-        $existingJson = $content | ConvertFrom-Json
-        Backup-Config $settingsFile | Out-Null
+        # Counting new entries BEFORE merging avoids the stale-sentinel bug
+        # where a single fixed marker (e.g. WebFetch github.com) made the
+        # installer skip merging entries that were added in later versions
+        # of the template.
+        $existingJson = Get-Content $settingsFile -Raw | ConvertFrom-Json
 
         if (-not $existingJson.permissions) {
             $existingJson | Add-Member -NotePropertyName "permissions" -NotePropertyValue ([PSCustomObject]@{ allow = @() })
@@ -136,7 +133,13 @@ function Install-ClaudePermissions {
         $merged = @($existing + $newEntries | Select-Object -Unique)
         $addedCount = $merged.Count - $existing.Count
 
+        if ($addedCount -eq 0) {
+            Write-Status "  Up to date (0 new entries)." "DarkGreen"
+            return
+        }
+
         if ($PSCmdlet.ShouldProcess($settingsFile, "Add $addedCount permission entries")) {
+            Backup-Config $settingsFile | Out-Null
             $existingJson.permissions.allow = $merged
             $existingJson | ConvertTo-Json -Depth 10 | Set-Content $settingsFile -Encoding UTF8
             Write-Status "  Added $addedCount entries to permissions.allow" "Green"

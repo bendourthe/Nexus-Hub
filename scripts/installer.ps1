@@ -5,7 +5,7 @@ $ErrorActionPreference = "Stop"
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-$script:DevAIHubVersion = "1.0.0"
+$script:DevAIHubVersion = "1.1.0"
 
 $Host.UI.RawUI.WindowTitle = "DevAI-Hub Installer"
 $script:InstallerTitle = "DevAI-Hub Installer"
@@ -525,37 +525,47 @@ function Install-RequireDescription {
     if (-not (Test-Path $hooksDir)) { New-Item -ItemType Directory -Force -Path $hooksDir | Out-Null }
     Safe-Copy -Source "$RepoRoot\catalog\hooks\require-description.sh" -Destination (Join-Path $hooksDir "require-description.sh") -Confirm:$true -CustomMessage "✓ $Scope require-description hook installed at: $hooksDir"
     Safe-Copy -Source "$RepoRoot\catalog\hooks\format-bash-description.py" -Destination (Join-Path $hooksDir "format-bash-description.py") -Confirm:$true -CustomMessage "✓ $Scope format-bash-description hook installed at: $hooksDir"
+    Safe-Copy -Source "$RepoRoot\catalog\hooks\require-powershell-description.sh" -Destination (Join-Path $hooksDir "require-powershell-description.sh") -Confirm:$true -CustomMessage "✓ $Scope require-powershell-description hook installed at: $hooksDir"
+    Safe-Copy -Source "$RepoRoot\catalog\hooks\format-powershell-description.py" -Destination (Join-Path $hooksDir "format-powershell-description.py") -Confirm:$true -CustomMessage "✓ $Scope format-powershell-description hook installed at: $hooksDir"
 
     # Merge hook config into settings.json
     $settingsFile = Join-Path $TargetClaudeDir "settings.json"
 
     if (-not (Test-Path $settingsFile)) {
-        # Install-GitGuardrails will create it from the template (which includes require-description)
+        # Install-GitGuardrails will create it from the template (which includes both Bash and PowerShell description hooks)
         return
     }
 
     try {
         $existingJson = Get-Content $settingsFile -Raw | ConvertFrom-Json
 
-        # Check if require-description already installed
-        $alreadyInstalled = $false
+        # Check Bash and PowerShell hooks separately so that an existing
+        # install with only the Bash hook still picks up the PowerShell pair.
+        $bashInstalled = $false
+        $powershellInstalled = $false
         if ($existingJson.hooks -and $existingJson.hooks.PreToolUse) {
             foreach ($hookEntry in $existingJson.hooks.PreToolUse) {
                 foreach ($h in $hookEntry.hooks) {
-                    if ($h.command -and $h.command -like "*require-description*") {
-                        $alreadyInstalled = $true
-                        break
+                    if ($h.command) {
+                        if ($h.command -like "*require-powershell-description*") {
+                            $powershellInstalled = $true
+                        }
+                        elseif ($h.command -like "*require-description*") {
+                            $bashInstalled = $true
+                        }
                     }
                 }
             }
         }
 
-        if ($alreadyInstalled) {
-            Write-Item -Message "✓ Require-description hook already configured in settings.json" -Color "DarkGreen"
+        $hookPath = if ($Scope -eq "Global") { "~/.claude/hooks" } else { ".claude/hooks" }
+        $entriesToAdd = @()
+
+        if ($bashInstalled) {
+            Write-Item -Message "✓ Require-description (Bash) hook already configured in settings.json" -Color "DarkGreen"
         }
         else {
-            $hookPath = if ($Scope -eq "Global") { "~/.claude/hooks" } else { ".claude/hooks" }
-            $newEntry = [PSCustomObject]@{
+            $entriesToAdd += [PSCustomObject]@{
                 matcher = "Bash"
                 hooks   = @(
                     [PSCustomObject]@{
@@ -564,28 +574,55 @@ function Install-RequireDescription {
                     }
                 )
             }
+        }
 
+        if ($powershellInstalled) {
+            Write-Item -Message "✓ Description hooks (PowerShell) already configured in settings.json" -Color "DarkGreen"
+        }
+        else {
+            $entriesToAdd += [PSCustomObject]@{
+                matcher = "PowerShell"
+                hooks   = @(
+                    [PSCustomObject]@{
+                        type    = "command"
+                        command = "python3 $hookPath/format-powershell-description.py"
+                    }
+                )
+            }
+            $entriesToAdd += [PSCustomObject]@{
+                matcher = "PowerShell"
+                hooks   = @(
+                    [PSCustomObject]@{
+                        type    = "command"
+                        command = "bash $hookPath/require-powershell-description.sh"
+                    }
+                )
+            }
+        }
+
+        if ($entriesToAdd.Count -gt 0) {
             if (-not $existingJson.hooks) {
-                $existingJson | Add-Member -NotePropertyName "hooks" -NotePropertyValue ([PSCustomObject]@{ PreToolUse = @($newEntry) })
+                $existingJson | Add-Member -NotePropertyName "hooks" -NotePropertyValue ([PSCustomObject]@{ PreToolUse = @($entriesToAdd) })
             }
             else {
                 if (-not $existingJson.hooks.PreToolUse) {
-                    $existingJson.hooks | Add-Member -NotePropertyName "PreToolUse" -NotePropertyValue @($newEntry)
+                    $existingJson.hooks | Add-Member -NotePropertyName "PreToolUse" -NotePropertyValue @($entriesToAdd)
                 }
                 else {
                     $existingArray = @($existingJson.hooks.PreToolUse)
-                    $existingArray += $newEntry
+                    $existingArray += $entriesToAdd
                     $existingJson.hooks.PreToolUse = $existingArray
                 }
             }
 
             $existingJson | ConvertTo-Json -Depth 10 | Set-Content $settingsFile -Encoding UTF8
-            Write-Item -Message "✓ $Scope settings.json updated with require-description hook" -Color "DarkGreen"
+            $added = ($entriesToAdd | ForEach-Object { $_.matcher }) -join ", "
+            Write-Item -Message "✓ $Scope settings.json updated with description hooks ($added)" -Color "DarkGreen"
         }
     }
     catch {
-        Write-Item -Message "Warning: Could not merge require-description hook into settings.json ($($_.Exception.Message))" -Color "Yellow"
-        Write-Item -Message "  You may need to manually add the Bash PreToolUse hook for require-description.sh" -Color "Yellow"
+        Write-Item -Message "Warning: Could not merge description hooks into settings.json ($($_.Exception.Message))" -Color "Yellow"
+        Write-Item -Message "  You may need to manually add the Bash and PowerShell PreToolUse hooks for require-description.sh, format-powershell-description.py, and require-powershell-description.sh" -Color "Yellow"
     }
 }
 
@@ -682,20 +719,12 @@ function Install-Permissions {
             $newEntries = @($templateJson.permissions.allow)
 
             if (Test-Path $settingsFile) {
-                # Check if permissions already installed (sentinel: api.github.com was added in v0.9.5+)
-                $content = Get-Content $settingsFile -Raw
-                if ($content -match "WebFetch\(domain:api\.github\.com\)") {
-                    Write-Item -Message "✓ Auto-approve permissions already configured in settings.json" -Color "DarkGreen"
-                    return
-                }
-
+                # Counting new entries BEFORE merging avoids the stale-sentinel
+                # bug where a single fixed marker (e.g. WebFetch api.github.com)
+                # made the installer think permissions were "already installed"
+                # and skip merging new entries shipped in later versions.
                 try {
-                    $existingJson = $content | ConvertFrom-Json
-
-                    # Backup before modifying
-                    $backupPath = "$settingsFile.bak.$(Get-Date -Format 'yyyyMMdd-HHmmss')"
-                    Copy-Item -Path $settingsFile -Destination $backupPath -Force
-                    Write-Item -Message "  Backup created: $backupPath" -Color "DarkGray"
+                    $existingJson = Get-Content $settingsFile -Raw | ConvertFrom-Json
 
                     # Ensure permissions.allow exists
                     if (-not $existingJson.permissions) {
@@ -705,13 +734,24 @@ function Install-Permissions {
                         $existingJson.permissions | Add-Member -NotePropertyName "allow" -NotePropertyValue @()
                     }
 
-                    # Union merge (deduplicate)
+                    # Union merge (deduplicate). Only write the file (and create
+                    # a backup) if the merge actually adds something new.
                     $existing = @($existingJson.permissions.allow)
                     $merged = @($existing + $newEntries | Select-Object -Unique)
-                    $existingJson.permissions.allow = $merged
-
-                    $existingJson | ConvertTo-Json -Depth 10 | Set-Content $settingsFile -Encoding UTF8
                     $addedCount = $merged.Count - $existing.Count
+
+                    if ($addedCount -eq 0) {
+                        Write-Item -Message "✓ Auto-approve permissions up to date in settings.json (0 new entries)" -Color "DarkGreen"
+                        return
+                    }
+
+                    # Backup before modifying
+                    $backupPath = "$settingsFile.bak.$(Get-Date -Format 'yyyyMMdd-HHmmss')"
+                    Copy-Item -Path $settingsFile -Destination $backupPath -Force
+                    Write-Item -Message "  Backup created: $backupPath" -Color "DarkGray"
+
+                    $existingJson.permissions.allow = $merged
+                    $existingJson | ConvertTo-Json -Depth 10 | Set-Content $settingsFile -Encoding UTF8
                     Write-Item -Message "✓ $Scope auto-approve permissions added to settings.json ($addedCount new entries)" -Color "DarkGreen"
                 }
                 catch {
@@ -1969,6 +2009,11 @@ else {
 Install-Templates -RepoRoot $repoRoot
 
 Write-CenteredBanner -Text "$scopeLabel Installation Complete." -Color "Green"
+
+Write-Host ""
+Write-Host "IMPORTANT: Restart any running Claude Code, Cursor, Gemini CLI, Codex, or Copilot sessions." -ForegroundColor Yellow
+Write-Host "  Settings files (settings.json, AGENTS.md, .cursor/rules/) are read at session start and not hot-reloaded." -ForegroundColor Yellow
+Write-Host "  New hooks, commands, skills, and permission entries will not take effect in already-running sessions until they restart." -ForegroundColor Yellow
 
 Show-FarewellBanner
 Pause

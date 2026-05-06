@@ -8,7 +8,7 @@ SKILL_COUNT=184
 COMMAND_COUNT=32
 
 cat <<EOF
-DevAI-Hub is active (v1.0.0) - $SKILL_COUNT skills, $COMMAND_COUNT commands.
+DevAI-Hub is active (v1.1.0) - $SKILL_COUNT skills, $COMMAND_COUNT commands.
 
 Quick navigation:
   /search-skills <keyword>   Find the right skill for your task

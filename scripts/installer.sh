@@ -7,7 +7,7 @@ set -e
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-DEVAI_HUB_VERSION="1.0.0"
+DEVAI_HUB_VERSION="1.1.0"
 
 # --- Window Title ---
 printf '\033]0;DevAI-Hub Installer\007'
@@ -315,36 +315,56 @@ install_require_description() {
     safe_copy "$repo_root/catalog/hooks/require-description.sh" "$hooks_dir/require-description.sh" true "[OK] $scope require-description hook installed at: $hooks_dir"
     chmod +x "$hooks_dir/require-description.sh" 2>/dev/null || true
     safe_copy "$repo_root/catalog/hooks/format-bash-description.py" "$hooks_dir/format-bash-description.py" true "[OK] $scope format-bash-description hook installed at: $hooks_dir"
+    safe_copy "$repo_root/catalog/hooks/require-powershell-description.sh" "$hooks_dir/require-powershell-description.sh" true "[OK] $scope require-powershell-description hook installed at: $hooks_dir"
+    chmod +x "$hooks_dir/require-powershell-description.sh" 2>/dev/null || true
+    safe_copy "$repo_root/catalog/hooks/format-powershell-description.py" "$hooks_dir/format-powershell-description.py" true "[OK] $scope format-powershell-description hook installed at: $hooks_dir"
 
     # Merge hook config into settings.json
     local settings_file="$target_claude_dir/settings.json"
 
     if [ ! -f "$settings_file" ]; then
-        # install_git_guardrails will create it from the template (which includes require-description)
+        # install_git_guardrails will create it from the template (which includes both Bash and PowerShell description hooks)
         return
     fi
 
-    # Check if require-description already installed
-    if grep -q "require-description" "$settings_file" 2>/dev/null; then
-        write_item "[OK] Require-description hook already configured in settings.json" "$GREEN"
+    if ! command -v jq >/dev/null 2>&1; then
+        write_item "Warning: jq not found, cannot merge description hooks into settings.json automatically" "$YELLOW"
+        write_item "  Please manually add the PreToolUse hooks for require-description.sh and require-powershell-description.sh" "$YELLOW"
         return
     fi
 
-    # Merge using jq if available
-    if command -v jq >/dev/null 2>&1; then
-        local merged
-        merged=$(jq '.hooks.PreToolUse |= (. + [{"matcher": "Bash", "hooks": [{"type": "command", "command": "bash .claude/hooks/require-description.sh"}]}])' "$settings_file" 2>/dev/null)
-
-        if [ -n "$merged" ]; then
-            echo "$merged" > "$settings_file"
-            write_item "[OK] $scope settings.json updated with require-description hook" "$GREEN"
-        else
-            write_item "Warning: Could not merge require-description hook into settings.json" "$YELLOW"
-            write_item "  You may need to manually add the Bash PreToolUse hook for require-description.sh" "$YELLOW"
-        fi
+    # Bash require-description: check uses a more specific pattern so it does
+    # not match require-powershell-description.
+    if grep -qE 'require-description\.sh|require-description"' "$settings_file" 2>/dev/null; then
+        write_item "[OK] Require-description (Bash) hook already configured in settings.json" "$GREEN"
     else
-        write_item "Warning: jq not found, cannot merge settings.json automatically" "$YELLOW"
-        write_item "  Please manually add the Bash PreToolUse hook for require-description.sh" "$YELLOW"
+        local merged_bash
+        merged_bash=$(jq '.hooks.PreToolUse |= (. + [{"matcher": "Bash", "hooks": [{"type": "command", "command": "bash .claude/hooks/require-description.sh"}]}])' "$settings_file" 2>/dev/null)
+        if [ -n "$merged_bash" ]; then
+            echo "$merged_bash" > "$settings_file"
+            write_item "[OK] $scope settings.json updated with require-description (Bash) hook" "$GREEN"
+        else
+            write_item "Warning: Could not merge require-description (Bash) hook into settings.json" "$YELLOW"
+        fi
+    fi
+
+    # PowerShell require + format hooks: registered independently from Bash so
+    # an upgrade path that already has the Bash hook still picks these up.
+    if grep -q "require-powershell-description" "$settings_file" 2>/dev/null; then
+        write_item "[OK] Require-description (PowerShell) hook already configured in settings.json" "$GREEN"
+    else
+        local merged_ps
+        merged_ps=$(jq '.hooks.PreToolUse |= (. + [
+            {"matcher": "PowerShell", "hooks": [{"type": "command", "command": "python3 .claude/hooks/format-powershell-description.py"}]},
+            {"matcher": "PowerShell", "hooks": [{"type": "command", "command": "bash .claude/hooks/require-powershell-description.sh"}]}
+        ])' "$settings_file" 2>/dev/null)
+        if [ -n "$merged_ps" ]; then
+            echo "$merged_ps" > "$settings_file"
+            write_item "[OK] $scope settings.json updated with PowerShell description hooks" "$GREEN"
+        else
+            write_item "Warning: Could not merge PowerShell description hooks into settings.json" "$YELLOW"
+            write_item "  You may need to manually add the PowerShell PreToolUse hooks" "$YELLOW"
+        fi
     fi
 }
 
@@ -409,9 +429,27 @@ install_permissions() {
             fi
 
             if [ -f "$settings_file" ]; then
-                # Check if permissions already installed (sentinel: gh pr list was added in v0.10+)
-                if grep -q 'Bash(gh pr list)' "$settings_file" 2>/dev/null; then
-                    write_item "[OK] Auto-approve permissions already configured in settings.json" "$GREEN"
+                if ! command -v jq >/dev/null 2>&1; then
+                    write_item "Warning: jq not found, cannot merge permissions automatically" "$YELLOW"
+                    write_item "  Copy permissions manually from: $template_file" "$YELLOW"
+                    return
+                fi
+
+                # Compute how many template entries are not already present.
+                # Counting BEFORE merging avoids the stale-sentinel bug where a
+                # single fixed marker (e.g. 'Bash(gh pr list)') made the
+                # installer think permissions were "already installed" and skip
+                # merging new entries shipped in later versions.
+                local new_count
+                new_count=$(jq -sr '
+                    .[0] as $existing | .[1] as $template |
+                    ($existing.permissions.allow // []) as $ea |
+                    ($template.permissions.allow // []) as $ta |
+                    (($ea + $ta | unique) | length) - ($ea | length)
+                ' "$settings_file" "$template_file" 2>/dev/null)
+
+                if [ "$new_count" = "0" ]; then
+                    write_item "[OK] Auto-approve permissions up to date in settings.json (0 new entries)" "$GREEN"
                     return
                 fi
 
@@ -421,25 +459,19 @@ install_permissions() {
                 cp "$settings_file" "$backup_path"
                 write_item "  Backup created: $backup_path" "$GRAY"
 
-                if command -v jq >/dev/null 2>&1; then
-                    local merged
-                    merged=$(jq -s '
-                        .[0] as $existing | .[1] as $template |
-                        ($existing.permissions.allow // []) as $ea |
-                        ($template.permissions.allow // []) as $ta |
-                        $existing | .permissions.allow = ($ea + $ta | unique)
-                    ' "$settings_file" "$template_file" 2>/dev/null)
+                local merged
+                merged=$(jq -s '
+                    .[0] as $existing | .[1] as $template |
+                    ($existing.permissions.allow // []) as $ea |
+                    ($template.permissions.allow // []) as $ta |
+                    $existing | .permissions.allow = ($ea + $ta | unique)
+                ' "$settings_file" "$template_file" 2>/dev/null)
 
-                    if [ -n "$merged" ]; then
-                        echo "$merged" > "$settings_file"
-                        write_item "[OK] $scope auto-approve permissions added to settings.json" "$GREEN"
-                    else
-                        write_item "Warning: Could not merge permissions into settings.json" "$YELLOW"
-                        return
-                    fi
+                if [ -n "$merged" ]; then
+                    echo "$merged" > "$settings_file"
+                    write_item "[OK] $scope auto-approve permissions added to settings.json (${new_count} new entries)" "$GREEN"
                 else
-                    write_item "Warning: jq not found, cannot merge permissions automatically" "$YELLOW"
-                    write_item "  Copy permissions manually from: $template_file" "$YELLOW"
+                    write_item "Warning: Could not merge permissions into settings.json" "$YELLOW"
                     return
                 fi
             else
@@ -1631,6 +1663,11 @@ echo ""
 echo -e "${GREEN}------------------------------------------------------------------------------------------------------------------------${RESET}"
 echo -e "${GREEN}                                             ${SCOPE_LABEL} Installation Complete.${RESET}"
 echo -e "${GREEN}------------------------------------------------------------------------------------------------------------------------${RESET}"
+
+echo ""
+echo -e "${YELLOW}IMPORTANT: Restart any running Claude Code, Cursor, Gemini CLI, Codex, or Copilot sessions.${RESET}"
+echo -e "${YELLOW}  Settings files (settings.json, AGENTS.md, .cursor/rules/) are read at session start and not hot-reloaded.${RESET}"
+echo -e "${YELLOW}  New hooks, commands, skills, and permission entries will not take effect in already-running sessions until they restart.${RESET}"
 
 echo ""
 echo -e "${DARK_CYAN}========================================================================================================================${RESET}"

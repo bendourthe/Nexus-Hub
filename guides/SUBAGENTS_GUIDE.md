@@ -550,6 +550,6 @@ This pattern is formalized in the `cross-model-orchestrator` and `workflow-orche
 
 ---
 
-**Version**: v1.0.0
-**Last Updated**: April 2026
+**Version**: v1.1.0
+**Last Updated**: May 2026
 **Part of**: [DevAI-Hub](../README.md)

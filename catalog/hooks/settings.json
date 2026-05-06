@@ -41,6 +41,24 @@
         ]
       },
       {
+        "matcher": "PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 .claude/hooks/format-powershell-description.py"
+          }
+        ]
+      },
+      {
+        "matcher": "PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/require-powershell-description.sh"
+          }
+        ]
+      },
+      {
         "matcher": "Write",
         "hooks": [
           {

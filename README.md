@@ -8,61 +8,31 @@
 
 ---
 
-## What's New in v1.0.0
+## What's New in v1.1.0
 
-**First stable release.** Reverse-engineering-first security hardening - DevAI-Hub is now safe for use in regulated environments where proprietary source code, prompts, and query text must not leak to third-party data processors. Major-version cut from 0.9.7 (skipping 0.9.8) reflects the breadth of policy-level changes.
+**Description-and-auto-approve parity for the PowerShell tool**, plus the per-version known-gaps tracker introduced earlier in the cycle. Minor bump - the changes are additive and existing Bash-only configurations continue to work without modification.
 
-### 🛡️ Enhanced Security
+> ⚠️ **Upgrade note**: Claude Code (and most other AI agents) read `settings.json`, `AGENTS.md`, and `.cursor/rules/` at session start and do not hot-reload them. After running the v1.1.0 installer, restart any running Claude Code / Cursor / Gemini / Codex / Copilot sessions for the new hooks and permission entries to take effect. The installer prints this reminder at the end of every run.
 
-- **MCP Registry Policy with reverse-engineering-first decision tree** ([AGENTS.md](AGENTS.md) + 7 platform-surface inlines). Every MCP entry now answers a 5-question audit (who runs the process, outbound calls, API keys, data transmitted, vendor relationship) in its `_comment`. Hard-no list: search-as-service, embeddings-as-service, scraping-as-service, generation-as-service.
+> 📋 **Known limitation**: Claude Code's PowerShell approval dialog hides the hook-prepended description block inside the collapsible `Details ▾` panel rather than rendering it under the dialog header (unlike the Bash dialog, which renders it visibly). The description is still delivered and visible in three places: the chat `IN` block, the `Details ▾` expanded panel, and the executed-command audit trail. Click `Details ▾` to see the description on a non-auto-approved PowerShell command. This is a Claude Code rendering inconsistency between the Bash and PowerShell tools, not a DevAI-Hub bug.
 
-- **Reverse-Engineering Matrix** ([docs/v1.0.0/mcp-reverse-engineering-matrix.md](docs/v1.0.0/mcp-reverse-engineering-matrix.md)) - authoritative classification of every MCP shipped or considered (18 rows). Drives keep / strip / rebuild decisions.
+### 🪟 PowerShell Tool Parity
 
-- **Pre-release security review** found 3 HIGH and 1 MEDIUM-severity findings - all fixed with regression tests before tag. See [docs/security/penetration-test-2026-04-27.md](docs/security/penetration-test-2026-04-27.md) for the full assessment.
+- **PowerShell description hooks** (`require-powershell-description.sh` + `format-powershell-description.py`) - mirror the existing Bash description pipeline for Claude Code's PowerShell tool. The format hook prepends a `# ===== Description ===== #` comment block to the script body so the description stays visible in the truncated approval-dialog preview, and the require hook hard-blocks calls without a description. Both register under `"matcher": "PowerShell"`.
 
-- **Pickle deserialization eliminated.** `devai-code-search` now persists indexes as JSON. A maliciously-crafted index file cannot execute code at load time.
+- **PowerShell auto-approve allow-list** in `configs/permissions/claude-permissions.json` covering ~100 read-only patterns: `Get-*`, `Test-*`, `Resolve-*`, `Format-*`, `Select-*`, `Sort-*`, `Group-*`, `Measure-*`, `ConvertFrom-*` / `ConvertTo-*`, `Where-Object` (comparison-statement form only), CIM/WMI getters, network info getters, hashing, plus the common aliases (`ls`, `dir`, `cat`, `pwd`, `gci`, `gc`, `gm`, `sls`, ...).
 
-- **SSRF defense in depth** in `devai-web-fetch`: per-hop validation on every redirect target, DNS pinning to prevent rebinding, RFC 1918 / loopback / link-local blocked by default.
+- **Conservative-by-default safety model.** Any command containing `;`, `{`, `}`, `>`, `<`, `` ` ``, `$(`, `@(`, `@{`, or `&` outside single-quoted literals is rejected. `$(...)` and backticks are also rejected inside double-quoted strings because PowerShell interpolates and escapes there. Multi-line scripts are never auto-approved. `ForEach-Object` is intentionally excluded because its property-access form (`ForEach-Object Name`) and method-invocation form (`ForEach-Object Delete`) are syntactically indistinguishable.
 
-- **Symlink-safe codebase walker** in `devai-code-search`: indexing an untrusted repository cannot leak files outside the indexed root through symlink-following.
+### 🗂️ Per-Version Known-Gaps Tracker
 
-### 🧰 New Internal MCP Servers
+- **`known-gaps-tracker` skill** + integrations across `/implement-phase`, `/wrap-up-session`, and `/generate-plan` - per-version, append-only log at `docs/<version>/known-gaps.md` recording items that did not reach a clean state by the end of each phase: subtasks not implemented (`NI`), intentionally deferred (`DF`), bugs found but not fixed (`BG`), suppressed warnings (`WN`), missing-test / coverage gaps (`MT`), and quality-gate gaps the user bypassed with "Proceed anyway" (`QG`). On version bump, files flip from `in-progress` to `finalized`. The next `/generate-plan` ingests open items and seeds them into the discovery interview.
 
-Zero outbound calls, zero API keys, zero model downloads. Both ship with the installer.
+### 🧪 Test Coverage
 
-- [`devai-code-search`](extensions/devai-code-search/) - local-only code search. Keyword retrieval (inverted index + rapidfuzz), content-hash incremental indexing, `.gitignore` + `.devaiignore` respect, symlink-safe walker. Dense / hybrid retrieval planned for v1.1.0.
+- **80 new pytest tests** in `catalog/hooks/tests/test_format_powershell_description.py`. Combined hook test suite: 261 tests passing.
 
-- [`devai-web-fetch`](extensions/devai-web-fetch/) - local-only HTTP fetch + readability extraction. Per-hop SSRF guard, DNS pinning, manual redirect handling. Single-URL scope; no third-party intermediary.
-
-### 📚 New Skills
-
-- `code-semantic-search` - specialized sibling of `rag-implementation` for code corpora. References the internal `devai-code-search` MCP as the reference implementation (no external attribution).
-
-- `ui-component-generation` - LLM-native replacement for external component-generation services (replaces `magic-ui`-class MCPs).
-
-- `local-docs-lookup` - 7-step grounding sequence for library / API questions (introspect -> vendored README -> shipped docs -> type stubs -> project docs -> man pages -> user-approved single URL via `devai-web-fetch`). Replaces `context7`-class MCPs.
-
-### ⚙️ Command and Workflow Improvements
-
-- **`/run-deep-review` command** - new 12-phase pre-release deep-review orchestrator. Chains known-gaps collection, health gates (test execution + 80% line-coverage threshold), dependency scan, docs / git / CI/CD / release-readiness hygiene, project validators, `/analyze-codebase`, `/run-security-audit`, `/run-penetration-test --depth=deep`, and `/review-codebase`. Synthesizes findings (P0/P1/P2/P3) into one severity-ranked report with a GO / GO-WITH-CONDITIONS / NO-GO verdict.
-
-- **`/compare-project` Section 9 "Security and Risk Assessment"** - mandatory section evaluating threat model, per-item risk scorecard, reverse-engineering viability, and recommendation ordering BEFORE producing any adoption plan. The chain into `/generate-plan` always passes `reverse-engineer-first=true` so generated plans sequence skill-native first, then RE builds, then vendor-intrinsic with justification.
-
-- **Internal MCP benchmark harness** - `make benchmark` runs `scripts/devai_mcp_benchmark.py` against all three internal MCPs (`devai-skill-server`, `devai-code-search`, `devai-web-fetch`). No-network guard refuses outbound sockets during the local-only benchmark phases.
-
-- **Style-guide files relocated** out of `catalog/commands/` to `catalog/style-guides/` (sibling). They no longer surface in the slash menu, removing visual noise from `/compile-deep-research-style-guide` and `/generate-report-style-guide` showing up alongside their parent commands.
-
-- **Markdown style guide for generated documentation** ([catalog/style-guides/markdown.md](catalog/style-guides/markdown.md)) - canonical formatting reference (blank-line rules, nested-indent rules, code-in-list rules, ASCII rule). Referenced from `AGENTS.md` so the agent picks up the rule on every session.
-
-### 💥 Breaking Changes
-
-- **4 third-party MCP registry entries removed**: `context7` (Upstash search-as-service), `exa-web-search` (Exa search-as-service), `firecrawl` (scraping-as-service), `magic-ui` (21st.dev generation-as-service). Users who relied on these can re-add them to their own `.claude/settings.json`; DevAI-Hub no longer ships the snippets.
-
-- **Two slash commands removed from the menu**: `/compile-deep-research-style-guide` and `/generate-report-style-guide`. The parent commands `/compile-deep-research` and `/generate-report` are unaffected.
-
-- **`/generate-implementation-plan` deprecation alias removed**. Use `/generate-plan` directly.
-
-See the full plan at [docs/v1.0.0/plans/security-hardening-v100.md](docs/v1.0.0/plans/security-hardening-v100.md) and detailed release notes at [docs/v1.0.0/RELEASE_NOTES.md](docs/v1.0.0/RELEASE_NOTES.md).
+See the full release detail at [docs/v1.0.0/RELEASE_NOTES.md](docs/v1.0.0/RELEASE_NOTES.md) (v1.0.0 baseline) and [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
