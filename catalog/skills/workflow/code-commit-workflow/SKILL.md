@@ -99,7 +99,7 @@ docs: update installation instructions
 #### Body (Optional but Recommended)
 - Explain **what** and **why**, not how
 - Separate from subject with blank line
-- Each bullet point must be a single line with no line breaks or continuation lines, regardless of length. Never hard-wrap bullet text.
+- **No hard-wrapping (CRITICAL)**: every paragraph and every bullet point in the body and footer MUST be written as a single continuous line in the source, regardless of length. Do NOT insert line breaks at any column width (50, 72, 80, 100, etc.). Let the editor or terminal handle visual wrapping. Blank lines still separate paragraphs, bullets, and section headings; the rule applies *within* each paragraph or bullet, never *between* them. The subject line is the only exception (its 50-character cap is a hard limit, not a wrap).
 - Use ASCII characters only: no em-dashes, en-dashes, curly quotes, ellipsis characters, or other Unicode punctuation. Use hyphens, straight quotes, and `...` instead. This prevents encoding corruption on Windows.
 
 ```
@@ -160,8 +160,7 @@ git status
 ```
 feat(user): add profile photo upload
 
-Allow users to upload profile photos. Supports JPEG, PNG, and GIF
-formats up to 5MB. Photos are automatically resized to 200x200px.
+Allow users to upload profile photos. Supports JPEG, PNG, and GIF formats up to 5MB. Photos are automatically resized to 200x200px.
 
 Implements user story US-789
 ```
@@ -169,8 +168,7 @@ Implements user story US-789
 ```
 fix(cart): prevent duplicate items when adding quickly
 
-Race condition caused duplicate items when users clicked "Add to Cart"
-rapidly. Added debounce and server-side idempotency check.
+Race condition caused duplicate items when users clicked "Add to Cart" rapidly. Added debounce and server-side idempotency check.
 
 Fixes #234
 ```
@@ -178,8 +176,7 @@ Fixes #234
 ```
 refactor(payment): extract card validation to separate module
 
-Move credit card validation logic from PaymentService to CardValidator
-class. This improves testability and allows reuse in other contexts.
+Move credit card validation logic from PaymentService to CardValidator class. This improves testability and allows reuse in other contexts.
 
 No functional changes.
 ```
@@ -213,6 +210,19 @@ update user model
 
 # Doesn't explain why
 refactor code
+
+# Hard-wrapped paragraph (every body paragraph and bullet must be a single source line)
+feat(api): add rate limiting middleware
+
+Introduce a token-bucket rate limiter that runs ahead of the auth
+middleware so unauthenticated traffic is throttled before any
+database lookup. Defaults are 60 req/min per IP and 600 req/min per
+authenticated user.
+
+- Added the rate-limit middleware and registered it before the auth
+  middleware so anonymous traffic is throttled cheaply.
+- Exposed `X-RateLimit-Remaining` and `Retry-After` headers on every
+  response so clients can self-throttle.
 ```
 
 ## Pre-Commit Checklist
@@ -381,6 +391,7 @@ git commit -m "test: add auth integration tests"
 - [ ] Breaking changes are clearly marked
 - [ ] No `Co-Authored-By` or AI attribution lines in commit message
 - [ ] Commit message is ASCII-only (no em-dashes, en-dashes, curly quotes, ellipsis, or other Unicode punctuation)
+- [ ] No hard-wrapping in the body or footer: every paragraph and every bullet is a single continuous source line, with no mid-paragraph or mid-bullet line breaks at any column width
 
 ## Common Rationalizations
 
@@ -391,6 +402,8 @@ git commit -m "test: add auth integration tests"
 | "We'll check for secrets in the PR review" | PR review catches secrets intermittently; pre-commit hooks (`detect-secrets`, `gitleaks`) catch them deterministically before they enter git history, where they persist even after force-push removal and require history rewriting. |
 | "Conventional commit format is rigid and unnecessary" | Automated changelog generation, semantic versioning bumps, and release notes tools (`standard-version`, `semantic-release`) all depend on conventional commit format; without it, every release requires manual changelog curation. |
 | "Breaking changes don't need special marking if reviewers are careful" | API consumers depend on automated tooling that parses `BREAKING CHANGE:` footers to block auto-updates; unmarked breaking changes bypass these safeguards and silently break downstream consumers. |
+| "Wrapping the commit body at 72 columns is the standard convention" | Hard-wrapping was a workaround for terminals that could not soft-wrap; modern Git tooling, GitHub, GitLab, IDE diff views, and `git log` all soft-wrap on display, and hard-wrapped source breaks copy-paste into changelogs and review comments because the line breaks survive the round-trip. The user's rule is one source line per paragraph or bullet; the renderer handles visual wrapping. |
+| "This bullet is too long, I should break it into two lines for readability" | Visual readability is the renderer's job, not the source's. A bullet broken into a continuation line stops being a single bullet to most Markdown and Git UIs; the second line is parsed as a new paragraph or as part of the bullet's "looser" rendering. Keep the source as one line; if it is genuinely too long to follow, split it into two separate bullets with distinct points. |
 
 ## Verification
 
@@ -401,6 +414,7 @@ git commit -m "test: add auth integration tests"
 - [ ] Breaking changes are marked with `BREAKING CHANGE:` footer or `!` in the type field
 - [ ] No `Co-Authored-By` or AI attribution lines appear in the commit message
 - [ ] No Unicode punctuation in commit message (no em-dashes, en-dashes, curly quotes, ellipsis): these cause encoding corruption on Windows
+- [ ] No hard-wrapped paragraphs or bullets in body/footer: spot-check by viewing the message with `git show --no-patch HEAD` and confirming each paragraph and bullet renders as one source line (no mid-paragraph newlines except blank-line paragraph separators)
 
 ## Related Skills
 

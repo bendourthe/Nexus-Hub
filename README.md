@@ -8,31 +8,21 @@
 
 ---
 
-## What's New in v1.1.0
+## What's New in v1.1.1
 
-**Description-and-auto-approve parity for the PowerShell tool**, plus the per-version known-gaps tracker introduced earlier in the cycle. Minor bump - the changes are additive and existing Bash-only configurations continue to work without modification.
+**Tightened the commit-message no-hard-wrap rule, plus a small test-quality fix.** Patch release. No behavioral or schema changes; safe to upgrade from v1.1.0 with no migration steps.
 
-> ⚠️ **Upgrade note**: Claude Code (and most other AI agents) read `settings.json`, `AGENTS.md`, and `.cursor/rules/` at session start and do not hot-reload them. After running the v1.1.0 installer, restart any running Claude Code / Cursor / Gemini / Codex / Copilot sessions for the new hooks and permission entries to take effect. The installer prints this reminder at the end of every run.
+### Commit-message generation no longer wraps body paragraphs
 
-> 📋 **Known limitation**: Claude Code's PowerShell approval dialog hides the hook-prepended description block inside the collapsible `Details ▾` panel rather than rendering it under the dialog header (unlike the Bash dialog, which renders it visibly). The description is still delivered and visible in three places: the chat `IN` block, the `Details ▾` expanded panel, and the executed-command audit trail. Click `Details ▾` to see the description on a non-auto-approved PowerShell command. This is a Claude Code rendering inconsistency between the Bash and PowerShell tools, not a DevAI-Hub bug.
+- `/generate-commit-message` and the `code-commit-workflow` skill now require every paragraph and every bullet point in the commit body and footer to be a single continuous source line, regardless of length. Previously the rule applied only to bullet points; long body paragraphs were still silently hard-wrapped at ~72 columns by the agent. The wrap-column callouts (50, 72, 80, 100) are now explicit so the agent cannot rationalize one of them as "the convention."
+- Three "Good Examples" in the skill were unwrapped so they demonstrate the rule, a hard-wrapped "Bad Example" was added so the failure mode is visible, and two new Common Rationalizations entries cover the "72-column convention" and "split for readability" excuses. Quality Checklist and Verification gain a no-wrap item, with a `git show --no-patch HEAD` spot-check.
+- Cross-platform: the command file reaches Claude Code, Gemini / Antigravity, and Codex via the installer's recursive copy of `catalog/commands/`; the skill file reaches all five platforms via the skill index in their respective `base-*.md` instruction files. No installer changes were needed for either file.
 
-### 🪟 PowerShell Tool Parity
+### Installer-smoke test no longer breaks on every version bump
 
-- **PowerShell description hooks** (`require-powershell-description.sh` + `format-powershell-description.py`) - mirror the existing Bash description pipeline for Claude Code's PowerShell tool. The format hook prepends a `# ===== Description ===== #` comment block to the script body so the description stays visible in the truncated approval-dialog preview, and the require hook hard-blocks calls without a description. Both register under `"matcher": "PowerShell"`.
+- `catalog/hooks/tests/test_installer_smoke.py` now reads the canonical version string from `.claude-plugin/plugin.json` at test time instead of hard-coding it. Future PATCH / MINOR / MAJOR bumps will not require a follow-up commit to keep the smoke test green.
 
-- **PowerShell auto-approve allow-list** in `configs/permissions/claude-permissions.json` covering ~100 read-only patterns: `Get-*`, `Test-*`, `Resolve-*`, `Format-*`, `Select-*`, `Sort-*`, `Group-*`, `Measure-*`, `ConvertFrom-*` / `ConvertTo-*`, `Where-Object` (comparison-statement form only), CIM/WMI getters, network info getters, hashing, plus the common aliases (`ls`, `dir`, `cat`, `pwd`, `gci`, `gc`, `gm`, `sls`, ...).
-
-- **Conservative-by-default safety model.** Any command containing `;`, `{`, `}`, `>`, `<`, `` ` ``, `$(`, `@(`, `@{`, or `&` outside single-quoted literals is rejected. `$(...)` and backticks are also rejected inside double-quoted strings because PowerShell interpolates and escapes there. Multi-line scripts are never auto-approved. `ForEach-Object` is intentionally excluded because its property-access form (`ForEach-Object Name`) and method-invocation form (`ForEach-Object Delete`) are syntactically indistinguishable.
-
-### 🗂️ Per-Version Known-Gaps Tracker
-
-- **`known-gaps-tracker` skill** + integrations across `/implement-phase`, `/wrap-up-session`, and `/generate-plan` - per-version, append-only log at `docs/<version>/known-gaps.md` recording items that did not reach a clean state by the end of each phase: subtasks not implemented (`NI`), intentionally deferred (`DF`), bugs found but not fixed (`BG`), suppressed warnings (`WN`), missing-test / coverage gaps (`MT`), and quality-gate gaps the user bypassed with "Proceed anyway" (`QG`). On version bump, files flip from `in-progress` to `finalized`. The next `/generate-plan` ingests open items and seeds them into the discovery interview.
-
-### 🧪 Test Coverage
-
-- **80 new pytest tests** in `catalog/hooks/tests/test_format_powershell_description.py`. Combined hook test suite: 261 tests passing.
-
-See the full release detail at [docs/v1.0.0/RELEASE_NOTES.md](docs/v1.0.0/RELEASE_NOTES.md) (v1.0.0 baseline) and [CHANGELOG.md](CHANGELOG.md).
+See [CHANGELOG.md](CHANGELOG.md) for the full v1.1.1 entry and [docs/v1.0.0/RELEASE_NOTES.md](docs/v1.0.0/RELEASE_NOTES.md) for the v1.0.0 baseline.
 
 ---
 

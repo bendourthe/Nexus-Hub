@@ -11,6 +11,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.1.1] - 2026-05-06
+
+Patch release. Tightens the commit-message no-hard-wrap rule so it covers body paragraphs and footers, not just bullet points, and makes the installer-smoke test resilient to future version bumps. No behavioral or schema changes; safe to upgrade from v1.1.0 with no migration steps and no installer-rerun side effects (the installer's distributed artifacts are content-only).
+
+### Changed
+
+- **Commit-message no-hard-wrap rule extended from bullets to all body content.** Previously `/generate-commit-message` and the `code-commit-workflow` skill forbade hard-wrapping only on bullet points; long body paragraphs were still being silently wrapped at ~72 columns. Both files now require every paragraph and every bullet point in the commit body and footer to be a single continuous source line, regardless of length, with the common wrap columns (50, 72, 80, 100) called out explicitly so the agent cannot rationalize one of them as "the convention." The subject line's 50-character cap is the only exception (it is a hard limit, not a wrap). Cross-platform reach: command file via `catalog/commands/` recursive copy (Claude Code, Gemini / Antigravity, Codex); skill file via the skill index in `base-*.md` instruction files (all five platforms). No installer edits needed for either file.
+- **Three "Good Examples" in the `code-commit-workflow` skill unwrapped** so they demonstrate the new rule instead of silently contradicting it. A hard-wrapped "Bad Example" was added so the failure mode is visible side-by-side with a Good Example. Two new entries in the Common Rationalizations table rebut the "72-column convention" excuse (modern Git tooling, GitHub, GitLab, IDE diff views, and `git log` all soft-wrap on display; hard-wrapped source breaks copy-paste round-trips into changelogs and review comments) and the "split for readability" excuse (visual readability is the renderer's job; if a bullet is genuinely too long to follow, split it into two distinct bullets, not into a continuation line that breaks the bullet's identity in Markdown and Git UIs).
+- **Quality Checklist and Verification in `code-commit-workflow` gain a no-wrap item** with a `git show --no-patch HEAD` spot-check so the rule is enforceable post-commit, not just a generation-time intent.
+
+### Fixed
+
+- **Installer-smoke test no longer hard-codes the canonical version string.** `catalog/hooks/tests/test_installer_smoke.py` now reads the canonical version from `.claude-plugin/plugin.json` at test time instead of asserting against a hard-coded `"1.1.0"`. Every prior version bump required a follow-up commit to keep the smoke test green; future PATCH / MINOR / MAJOR bumps will not need that follow-up.
+
+---
+
 ## [1.1.0] - 2026-05-05
 
 PowerShell-tool parity for the description-and-auto-approve pipeline that was previously Bash-only, plus the per-version known-gaps tracker introduced earlier in the cycle. Minor bump because the changes are additive: existing Bash-only configurations continue to work without modification.
@@ -2991,7 +3007,8 @@ repository_root/
 
 ---
 
-[Unreleased]: https://github.com/bendourthe/DevAI-Hub/compare/v0.9.2...HEAD
+[Unreleased]: https://github.com/bendourthe/DevAI-Hub/compare/v1.1.1...HEAD
+[1.1.1]: https://github.com/bendourthe/DevAI-Hub/compare/v1.1.0...v1.1.1
 [0.9.2]: https://github.com/bendourthe/DevAI-Hub/compare/v0.9.1...v0.9.2
 [0.9.1]: https://github.com/bendourthe/DevAI-Hub/compare/v0.9.0...v0.9.1
 [0.9.0]: https://github.com/bendourthe/DevAI-Hub/compare/v0.8.9...v0.9.0
