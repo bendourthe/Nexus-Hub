@@ -8,25 +8,38 @@
 
 ---
 
-## What's New in v1.1.4
+## What's New in v1.1.5
 
-**Commit-message no-hard-wrap rule reaches the commands that actually generate commit messages.** Patch release closing a gap missed by v1.1.1: the rule was added to `/generate-commit-message` and the `code-commit-workflow` skill, but the commands that mention `/generate-commit-message` as a sub-step (`/implement-phase`, `/wrap-up-session`) and the one with its own inline rules (`/update-version`) never picked it up. The agent's training on the obsolete "72-char convention" overrode the global no-wrap rule unless each command body had an explicit override in context. Fixed by inlining the rule into all three commands.
+**Sectioned-bullet structure for commit messages.** Patch release adding an explicit "labeled sections with bullets" structure rule to every command and workflow that generates commit messages, so multi-component commits stop coming out as long flowing paragraphs separated by blank lines. Reported live against a v1.1.4-generated commit. Restart your AI agent sessions after re-installing.
 
-### Why this is a separate patch
+### What changed in the rule
 
-A reference like "Then run `/generate-commit-message`" inside another command body is just text - the agent does NOT auto-load that file's content when it sees the reference. So the v1.1.1 fix to `/generate-commit-message` only applied when the user typed that command directly. Every other code path that ended in a commit-message generation (every `/implement-phase` run, every `/wrap-up-session`, every `/update-version`) kept producing wrapped output. Reported by a user against a v0.3.0 phase-implementation commit shortly after a v1.1.3 install.
+Before this release, the canonical commit-message guidance enforced **no hard-wrapping** (v1.1.1) and inlined the rule into the commands that actually generate messages (v1.1.4). What it did NOT enforce was structure: the body could still be multiple flowing paragraphs separated by blank lines, which forces reviewers to read every paragraph linearly to find a specific component.
 
-### Three command bodies patched
+v1.1.5 adds a sectioned-bullet structure rule:
 
-- `/implement-phase` post-phase sub-step 6 ("Final Commit Message") now carries the explicit no-hard-wrap rule with the wrap-column callouts (50, 72, 80, 100) so the agent cannot rationalize one as "the convention."
-- `/wrap-up-session` Phase 7 ("Final Commit") gets the same rule before its scope-and-format guidance.
-- `/update-version` Phase E4 ("Generate Commit Message") replaces the v1.1.1 "Keep each bullet point concise and on a single line" with the full paragraph-and-bullet no-wrap rule, with the 72-char subject-line cap explicitly called out as a hard limit (not a wrap).
+- After the subject line and a 1-2 sentence intro paragraph, organize the body as **labeled sections with bullets**, NOT as multiple flowing paragraphs.
+- Each section header ends in a colon and groups bullets by component, module, or theme (e.g., `Reporting package (`src/reporting/`):`, `Packaging and paths:`, `Desktop UI:`).
+- Always treat **Tests** and **Known gaps** / **Deviations** as their own dedicated sections at the end.
+- Whitespace: exactly one blank line between sections; never two or more. Within a section, bullets are contiguous.
+
+Trivial 1-2 file commits keep the simple paragraph body; only multi-component commits get the sectioned structure.
+
+### Five files patched in lockstep
+
+The same rule is now inlined in all five files that generate commit messages, with consistent wording so a regression in any one will look identical to the others:
+
+- `/generate-commit-message` (canonical command, with full sectioned example and counter-example)
+- `code-commit-workflow` skill (canonical skill, with sectioned example added to Good Examples)
+- `/implement-phase` sub-step 6 (per-phase commit; suggests `Reporting package:`, `Packaging:`, `Desktop UI:`, `Tests:`, `Known gaps:`-style headers)
+- `/wrap-up-session` Phase 7 (wrap-up commit; suggests `Session history:`, `DEVLOG:`, `Documentation:`, `Gitignore:`, `Memory:`, `Version bump:` headers)
+- `/update-version` Phase E4 (release commit; uses CHANGELOG section names directly: `Added:`, `Changed:`, `Fixed:`, `Removed:`, `Tests:`)
 
 ### Cross-platform reach
 
-All three command files are auto-distributed via the installer's recursive copy of `catalog/commands/` to Claude Code (`commands/`), Gemini / Antigravity (`workflows/`), and Codex (`prompts/`). Cursor / OpenCode / Copilot users do not get a slash surface but inherit the rule via their global `base-*.md` "Never hard-wrap paragraph text" rule. After running the v1.1.4 installer, restart any running AI agent sessions for the new command bodies to take effect (settings.json / AGENTS.md / .cursor/rules/ are read at session start and not hot-reloaded).
+All five files are auto-distributed via the installer's recursive copy of `catalog/commands/` and `catalog/skills/` to Claude Code, Gemini / Antigravity, and Codex. Cursor / OpenCode / Copilot inherit the rule via the canonical skill referenced in their `base-*.md` instruction files. **After running the v1.1.5 installer, restart any running AI agent sessions** for the new command bodies to take effect (settings.json / AGENTS.md / .cursor/rules/ are read at session start, not hot-reloaded).
 
-See [CHANGELOG.md](CHANGELOG.md) for the full v1.1.4 entry and [docs/v1.0.0/RELEASE_NOTES.md](docs/v1.0.0/RELEASE_NOTES.md) for the v1.0.0 baseline.
+See [CHANGELOG.md](CHANGELOG.md) for the full v1.1.5 entry and [docs/v1.0.0/RELEASE_NOTES.md](docs/v1.0.0/RELEASE_NOTES.md) for the v1.0.0 baseline.
 
 ---
 

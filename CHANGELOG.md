@@ -11,6 +11,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.1.5] - 2026-05-06
+
+Patch release. Adds an explicit **sectioned-bullet structure** rule to every command and workflow that generates commit messages, so multi-component commits stop coming out as long flowing paragraphs separated by blank lines. Reported live against a v1.1.4-generated commit message - the v1.1.4 fix had stopped hard-wrapping at the column level but did nothing about the flowing-paragraph shape, which still forces reviewers to read every paragraph linearly to find a specific component. Five files patched in lockstep with consistent wording. Safe to upgrade from v1.1.4; no migration steps. Restart any running AI-agent sessions after re-installing so the patched command bodies take effect.
+
+### Changed
+
+- **`catalog/commands/generate-commit-message.md` body rules expanded.** Adds a "Body structure (CRITICAL for non-trivial commits)" rule that requires labeled sections with bullets after the subject line and a 1-2 sentence intro paragraph; section headers end in a colon and group bullets by component, module, or theme; **Tests** and **Known gaps** / **Deviations** are dedicated sections at the end. The example block was rewritten to demonstrate the sectioned style on a realistic multi-component commit (Reporting package / Packaging and paths / Desktop UI / Tests / Known gaps), and a counter-example was added showing the multi-paragraph flowing-prose body shape that the agent must NOT produce.
+- **`catalog/skills/workflow/code-commit-workflow/SKILL.md` Body subsection expanded.** Adds the same sectioned-bullet rule. New realistic Good Example demonstrating the sectioned style. New Bad Example demonstrating the multi-paragraph flowing-prose body shape. New row in the Common Rationalizations table rebutting "flowing paragraphs read better than bulleted lists for prose-heavy commits" (reviewers don't read commit bodies linearly; they scan for the component or theme they care about, and section headers put scannable anchors in the right place). Quality Checklist gains a sectioned-structure item.
+- **`catalog/commands/implement-phase.md` post-phase sub-step 6 inline rule expanded.** Adds the sectioned-bullet rule with implementation-specific suggested headers (`Reporting package:` / `Packaging:` / `Desktop UI:` / `Tests:` / `Known gaps:`-style, scoped to each phase's actual components). Whitespace constraint added (exactly one blank line between sections; bullets contiguous within a section).
+- **`catalog/commands/wrap-up-session.md` Phase 7 inline rule expanded.** Adds the sectioned-bullet rule with wrap-up-specific suggested headers (`Session history:` / `DEVLOG:` / `Documentation:` / `Gitignore:` / `Memory:` / `Version bump:` - only the ones that actually changed in this session).
+- **`catalog/commands/update-version.md` Phase E4 inline rule and example replaced.** Format and rules block now requires the sectioned-bullet structure using CHANGELOG section names as headers directly (`Added:` / `Changed:` / `Fixed:` / `Removed:` / `Tests:`). The example was rewritten to map CHANGELOG entries to the matching section headers; a counter-example showing the previous flat `Changes:` bullet-soup style was added so the agent cannot fall back to that shape.
+
+### Why a separate patch and not a v1.2.0
+
+Same diagnosis as v1.1.4: slash command bodies are not transitively imported. A reference like "Run `/generate-commit-message`" inside another command body is just text. So even with the v1.1.4 fix patching the no-hard-wrap rule into all three downstream commands, the structure rule had to be patched into all five files (canonical command + canonical skill + three downstream commands) the same way. Strictly additive content-only changes; no schema, no installer, no test changes; safe PATCH bump.
+
+---
+
 ## [1.1.4] - 2026-05-06
 
 Patch release. Closes a gap missed by v1.1.1: the no-hard-wrap rule was added to `/generate-commit-message` and the `code-commit-workflow` skill, but the commands that mention `/generate-commit-message` as a sub-step (`/implement-phase`, `/wrap-up-session`) and the one with its own inline commit-message rules (`/update-version`) never picked it up. A reference like "Then run `/generate-commit-message`" inside another command body is just text - the agent does NOT auto-load that file's content when it sees the reference. So the v1.1.1 fix only applied when the user typed `/generate-commit-message` directly; every other code path ending in a commit-message generation kept producing wrapped output. Reported against a v0.3.0 phase-implementation commit shortly after the v1.1.3 install. Safe to upgrade from v1.1.3; no migration steps. Restart any running AI-agent sessions after re-running the installer so the patched command bodies take effect.
@@ -3061,7 +3079,8 @@ repository_root/
 
 ---
 
-[Unreleased]: https://github.com/bendourthe/DevAI-Hub/compare/v1.1.4...HEAD
+[Unreleased]: https://github.com/bendourthe/DevAI-Hub/compare/v1.1.5...HEAD
+[1.1.5]: https://github.com/bendourthe/DevAI-Hub/compare/v1.1.4...v1.1.5
 [1.1.4]: https://github.com/bendourthe/DevAI-Hub/compare/v1.1.3...v1.1.4
 [1.1.3]: https://github.com/bendourthe/DevAI-Hub/compare/v1.1.2...v1.1.3
 [1.1.2]: https://github.com/bendourthe/DevAI-Hub/compare/v1.1.1...v1.1.2

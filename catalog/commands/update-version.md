@@ -415,38 +415,68 @@ All version references updated and consistent.
 
 Generate a ready-to-use commit message for the user:
 
-**Format:**
+**Format (sectioned-bullet style for any release that touches multiple categories):**
 ```
 vX.X.X: [One sentence summarizing the main changes]
 
-Changes:
-- [Bullet point from Added]
-- [Bullet point from Changed]
-- [Bullet point from Fixed]
-- [etc.]
+[1-2 sentence intro paragraph stating what this release delivers and why.]
+
+Added:
+- [Bullet from CHANGELOG Added]
+- [Bullet from CHANGELOG Added]
+
+Changed:
+- [Bullet from CHANGELOG Changed]
+
+Fixed:
+- [Bullet from CHANGELOG Fixed]
+
+Tests:
+- [Test counts and coverage if relevant]
 ```
+
+For a small PATCH that only changes one category (e.g., only `Fixed:`), it's fine to use a single section header instead of all four.
 
 **Rules:**
 - First line: `vX.X.X:` followed by a concise summary (under 72 chars). The 72-char cap on the subject line is a hard limit, not a wrap.
-- Blank line after the first line
-- "Changes:" header followed by bullet points
-- Include all significant changes from CHANGELOG (Added, Changed, Fixed, Removed)
-- Include structural changes from Phase B if any files were moved or gitignore was updated
-- **No hard-wrapping (CRITICAL)**: every paragraph and every bullet point in the body MUST be a single continuous line in the source, regardless of length. Do NOT insert line breaks at any column width (50, 72, 80, 100, etc.). The 72-char "convention" from older git tooling docs is obsolete - modern Git, GitHub, GitLab, and `git log` all soft-wrap on display. Blank lines still separate paragraphs and bullets; the rule applies *within* each paragraph or bullet, not *between* them. The subject line is the only exception.
+- Blank line after the first line, then a 1-2 sentence intro paragraph stating what the release delivers and why, then another blank line before the first section header.
+- **Sectioned-bullet structure (CRITICAL)**: organize the body as **labeled sections with bullets**, NOT as multiple flowing paragraphs. Use the CHANGELOG section names (`Added:`, `Changed:`, `Fixed:`, `Removed:`) as headers, each ending in a colon. Add a `Tests:` section if the release affects test coverage. Add structural changes from Phase B (`Layout:`, `Gitignore:`) as their own sections if relevant.
+- Include all significant changes from CHANGELOG (Added, Changed, Fixed, Removed). Map each CHANGELOG entry to one bullet under the matching section header.
+- **No hard-wrapping (CRITICAL)**: every paragraph and every bullet point in the body MUST be a single continuous line in the source, regardless of length. Do NOT insert line breaks at any column width (50, 72, 80, 100, etc.). The 72-char "convention" from older git tooling docs is obsolete - modern Git, GitHub, GitLab, and `git log` all soft-wrap on display. The subject line is the only exception.
+- **Whitespace**: exactly one blank line between sections; never two or more. Within a section, bullets are contiguous (no blank lines between them).
 - **DO NOT** add "Created by Claude Code" or any AI attribution footer
 - **DO NOT** add "Co-Authored-By" lines
 
-**Example:**
+**Example (sectioned-bullet style for a release touching multiple categories):**
+```
+v0.9.0: figure settings management and project layout refactor
+
+Adds figure-level settings management (a new dataclass plus a Qt dialog for editing them) and refactors the repo layout so data files live under `data/` and scripts under `scripts/`. Documentation and `.gitignore` updated to match the new structure.
+
+Added:
+- `FigureSettings` class for figure configuration management.
+- `FigureSettingsDialog` for user-friendly settings editing.
+
+Changed:
+- Project layout refactor: move data files to `data/`, scripts to `scripts/`.
+- `.gitignore` updated with Python and Node.js patterns.
+- Documentation updated to reflect the new layout.
+
+Fixed:
+- Color picker initialization bug.
+```
+
+**Counter-example (do not produce a single flat `Changes:` section that mixes Added / Changed / Fixed bullets together):**
 ```
 v0.9.0: Add figure settings management and restructure project layout
 
 Changes:
-- Add FigureSettings class for figure configuration management
-- Add FigureSettingsDialog for user-friendly settings editing
-- Refactor project layout: move data files to data/, scripts to scripts/
-- Update .gitignore with Python and Node.js patterns
-- Update all documentation to reflect new structure
-- Fix color picker initialization bug
+- Add FigureSettings class
+- Add FigureSettingsDialog
+- Refactor project layout: move data to data/, scripts to scripts/
+- Update .gitignore
+- Update documentation
+- Fix color picker bug
 ```
 
 Present this commit message in a code block so the user can easily copy/paste it.

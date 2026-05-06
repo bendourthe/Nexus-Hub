@@ -189,10 +189,11 @@ If the version bump was skipped, leave `Status: in-progress` so the file is pick
 
 Run `/generate-commit-message`.
 
-- **No hard-wrapping (CRITICAL)**: every paragraph and every bullet point in the commit body and footer MUST be written as a single continuous line in the source, regardless of length. Do NOT insert line breaks at any column width (50, 72, 80, 100, etc.). The 72-char "convention" from older git tooling docs is obsolete - modern Git, GitHub, GitLab, and `git log` all soft-wrap on display. The subject line's 50-char cap is the only exception (a hard limit, not a wrap). Blank lines still separate paragraphs and bullets; the rule applies *within* each paragraph or bullet, not *between* them.
+- **Sectioned-bullet structure (CRITICAL)**: a wrap-up commit usually touches multiple artifact types (session history, devlog, documentation, gitignore, memory, optional version bump), so the body MUST use **labeled sections with bullets**, NOT multiple flowing paragraphs. After the subject line and a 1-2 sentence intro paragraph, organize the body as named sections with headers ending in a colon, each followed by contiguous bullets. Suggested section headers for a wrap-up commit: `Session history:`, `DEVLOG:`, `Documentation:`, `Gitignore:`, `Memory:`, `Version bump:` (only the ones that actually changed). If a version bump happened, add a `Tests:` section after.
+- **No hard-wrapping (CRITICAL)**: every paragraph and every bullet point in the commit body and footer MUST be written as a single continuous line in the source, regardless of length. Do NOT insert line breaks at any column width (50, 72, 80, 100, etc.). The 72-char "convention" from older git tooling docs is obsolete - modern Git, GitHub, GitLab, and `git log` all soft-wrap on display. The subject line's 50-char cap is the only exception (a hard limit, not a wrap).
+- **Whitespace**: exactly one blank line between sections; never two or more. Within a section, bullets are contiguous.
 - Scope the message to the wrap-up artifacts produced by this command: session history file, devlog entry, documentation changes, gitignore additions, memory updates, and optional version bump.
 - Suggest a commit subject in this format: `chore: wrap-up session <YYYY-MM-DD>`
-- List all files changed by the wrap-up sequence in the commit body.
 
 The user reviews the generated message and runs `git commit` manually. This command does **not** commit automatically.
 

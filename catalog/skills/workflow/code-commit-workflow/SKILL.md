@@ -99,7 +99,10 @@ docs: update installation instructions
 #### Body (Optional but Recommended)
 - Explain **what** and **why**, not how
 - Separate from subject with blank line
-- **No hard-wrapping (CRITICAL)**: every paragraph and every bullet point in the body and footer MUST be written as a single continuous line in the source, regardless of length. Do NOT insert line breaks at any column width (50, 72, 80, 100, etc.). Let the editor or terminal handle visual wrapping. Blank lines still separate paragraphs, bullets, and section headings; the rule applies *within* each paragraph or bullet, never *between* them. The subject line is the only exception (its 50-character cap is a hard limit, not a wrap).
+- **Sectioned-bullet structure (CRITICAL for non-trivial commits)**: After the subject line and a 1-2 sentence intro paragraph, organize the body as **labeled sections with bullets**, NOT as multiple flowing paragraphs separated by blank lines. Each section header ends in a colon and groups bullets by component, module, or theme (e.g., `Reporting package (`src/reporting/`):`, `Packaging and paths:`, `Desktop UI:`). Always treat **Tests** and **Known gaps** / **Deviations** as their own dedicated sections at the end. For trivial 1-2 file commits, a single short paragraph body is fine; for any commit touching multiple components, use sectioned bullets.
+- **Why grouped sections beat flowing paragraphs**: a multi-paragraph body forces reviewers to scan dense prose to find the change for a specific component. Grouped bullets put section headers in scannable position, let reviewers jump to the package they care about, and make the structure of the change visible at a glance.
+- **No hard-wrapping (CRITICAL)**: every paragraph and every bullet point in the body and footer MUST be written as a single continuous line in the source, regardless of length. Do NOT insert line breaks at any column width (50, 72, 80, 100, etc.). Let the editor or terminal handle visual wrapping. Blank lines still separate sections, paragraphs, and bullets; the rule applies *within* each paragraph or bullet, never *between* them. The subject line is the only exception (its 50-character cap is a hard limit, not a wrap).
+- **Whitespace**: exactly one blank line between sections; never two or more. Within a section, bullets are contiguous (no blank lines between them).
 - Use ASCII characters only: no em-dashes, en-dashes, curly quotes, ellipsis characters, or other Unicode punctuation. Use hyphens, straight quotes, and `...` instead. This prevents encoding corruption on Windows.
 
 ```
@@ -193,6 +196,35 @@ Add comprehensive tests covering:
 Coverage increased from 72% to 89%
 ```
 
+For multi-component commits, use the sectioned-bullet structure (labeled headers, contiguous bullets, no flowing-paragraph body):
+
+```
+feat(v0.3.0): phase 6 docxtpl report engine and Analyze page
+
+Lands the Phase 6 deliverables: a docxtpl-driven report engine, a desktop Analyze page that picks ingest runs and generates Supira-branded docx files, and a Settings tab for swapping in a custom template.
+
+Reporting package (`src/reporting/`):
+- `snapshot.py`: immutable Pydantic snapshot of confirmed extractions, plus a `build_snapshot` walker over `ingest_runs` / `source_artifacts` / `ingest_units` / `extractions`.
+- `renderer.py`: `ReportRenderer.render(snapshot, template_path)` runs `docxtpl.DocxTemplate.render` against a full context dict, then appends deterministic per-run / per-artifact / per-unit sections via python-docx so reports stay populated even when the template carries no Jinja placeholders.
+
+Packaging and paths:
+- Bundles `assets/report_template_default.docx` (verbatim copy of the branding template).
+- Adds `default_report_template_path` / `user_report_template_path` / `report_template_path` / `reports_dir` / `run_report_dir` helpers in `installer/gui/utils/paths.py`.
+- PyInstaller spec collects `docxtpl` and `docx` and ships the bundled template under `<bundle>/assets/`.
+
+Desktop UI:
+- Replaces the `AnalyzePage` stub with the run-picker plus Generate report flow.
+- Adds `ReportTab` in `installer/gui/settings_qt.py` that browses for a `.docx`, copies it on Save, and offers Reset to bundled default.
+
+Tests:
+- 51 new tests across `tests/reporting/` and `tests/installer/`.
+- Total suite: 495 passed, 4 skipped, coverage 86.99%.
+
+Known gaps (tracked as DF in `docs/v0.3.0/known-gaps.md`):
+- Bundled template ships without `{{ jinja }}` placeholders; renderer falls back to python-docx append pass.
+- `AnalyzePage` not yet wired into `MainWindow`'s engine and run providers (deferred to Phase 8).
+```
+
 ### Bad Examples
 
 ```
@@ -223,6 +255,21 @@ authenticated user.
   middleware so anonymous traffic is throttled cheaply.
 - Exposed `X-RateLimit-Remaining` and `Retry-After` headers on every
   response so clients can self-throttle.
+
+# Multi-paragraph flowing-prose body for a multi-component commit (use sectioned bullets instead)
+feat(v0.3.0): phase 6 docxtpl report engine and analyze page
+
+Lands the Phase 6 deliverables: a docxtpl-driven report engine, a desktop Analyze page that picks ingest runs and generates Supira-branded docx files, and a Settings tab for swapping in a custom template.
+
+Adds the `src/reporting/` package with `snapshot.py` and `renderer.py`. Output paths follow `%LOCALAPPDATA%\...\reports\<report_id>\YYYYMMDD-HHMMSS.docx`.
+
+Bundles `assets/report_template_default.docx` and adds path helpers in `installer/gui/utils/paths.py`. The PyInstaller spec collects `docxtpl` + `docx`.
+
+Replaces the `AnalyzePage` stub with the run-picker plus Generate report flow and the new `ReportTab` in `installer/gui/settings_qt.py`.
+
+Test suite expansion: 51 new tests across `tests/reporting/` and `tests/installer/`. Total suite: 495 passed, 4 skipped, coverage 86.99%.
+
+Three deviations tracked as DF in `docs/v0.3.0/known-gaps.md`.
 ```
 
 ## Pre-Commit Checklist
@@ -392,6 +439,7 @@ git commit -m "test: add auth integration tests"
 - [ ] No `Co-Authored-By` or AI attribution lines in commit message
 - [ ] Commit message is ASCII-only (no em-dashes, en-dashes, curly quotes, ellipsis, or other Unicode punctuation)
 - [ ] No hard-wrapping in the body or footer: every paragraph and every bullet is a single continuous source line, with no mid-paragraph or mid-bullet line breaks at any column width
+- [ ] For any commit touching multiple components, the body uses **labeled sections with bullets** (not flowing paragraphs); section headers end in a colon and group bullets by component, module, or theme; **Tests** and **Known gaps** / **Deviations** are dedicated sections at the end
 
 ## Common Rationalizations
 
@@ -404,6 +452,7 @@ git commit -m "test: add auth integration tests"
 | "Breaking changes don't need special marking if reviewers are careful" | API consumers depend on automated tooling that parses `BREAKING CHANGE:` footers to block auto-updates; unmarked breaking changes bypass these safeguards and silently break downstream consumers. |
 | "Wrapping the commit body at 72 columns is the standard convention" | Hard-wrapping was a workaround for terminals that could not soft-wrap; modern Git tooling, GitHub, GitLab, IDE diff views, and `git log` all soft-wrap on display, and hard-wrapped source breaks copy-paste into changelogs and review comments because the line breaks survive the round-trip. The user's rule is one source line per paragraph or bullet; the renderer handles visual wrapping. |
 | "This bullet is too long, I should break it into two lines for readability" | Visual readability is the renderer's job, not the source's. A bullet broken into a continuation line stops being a single bullet to most Markdown and Git UIs; the second line is parsed as a new paragraph or as part of the bullet's "looser" rendering. Keep the source as one line; if it is genuinely too long to follow, split it into two separate bullets with distinct points. |
+| "Flowing paragraphs read better than bulleted lists for prose-heavy commits" | Reviewers don't read commit bodies linearly - they scan for the component or theme they care about. A multi-paragraph flowing body forces them to read every paragraph to find the part touching their package; a sectioned-bullet body lets them jump straight to the labeled header. The "prose-heavy" framing also fights against `git log --oneline` follow-up reads where only the section headers fit on screen. Use sectioned bullets for any commit touching multiple components; a single short paragraph is fine only for trivial 1-2 file commits. |
 
 ## Verification
 
