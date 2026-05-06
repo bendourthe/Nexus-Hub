@@ -427,12 +427,12 @@ Changes:
 ```
 
 **Rules:**
-- First line: `vX.X.X:` followed by a concise summary (under 72 chars)
+- First line: `vX.X.X:` followed by a concise summary (under 72 chars). The 72-char cap on the subject line is a hard limit, not a wrap.
 - Blank line after the first line
 - "Changes:" header followed by bullet points
 - Include all significant changes from CHANGELOG (Added, Changed, Fixed, Removed)
 - Include structural changes from Phase B if any files were moved or gitignore was updated
-- Keep each bullet point concise and on a single line
+- **No hard-wrapping (CRITICAL)**: every paragraph and every bullet point in the body MUST be a single continuous line in the source, regardless of length. Do NOT insert line breaks at any column width (50, 72, 80, 100, etc.). The 72-char "convention" from older git tooling docs is obsolete - modern Git, GitHub, GitLab, and `git log` all soft-wrap on display. Blank lines still separate paragraphs and bullets; the rule applies *within* each paragraph or bullet, not *between* them. The subject line is the only exception.
 - **DO NOT** add "Created by Claude Code" or any AI attribution footer
 - **DO NOT** add "Co-Authored-By" lines
 

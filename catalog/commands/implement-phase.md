@@ -308,6 +308,7 @@ Run each step in strict order. Wait for each to fully complete before starting t
 
 6.  **`/generate-commit-message`**
     *   Generates a structured commit message scoped to this phase. Include `docs/<version>/known-gaps.md` in the file list so the gap log is committed alongside the phase work.
+    *   **No hard-wrapping (CRITICAL)**: every paragraph and every bullet point in the commit body and footer MUST be written as a single continuous line in the source, regardless of length. Do NOT insert line breaks at any column width (50, 72, 80, 100, etc.). The 72-char "convention" from older git tooling docs is obsolete - modern Git, GitHub, GitLab, and `git log` all soft-wrap on display. The subject line's 50-char cap is the only exception (a hard limit, not a wrap). Blank lines still separate paragraphs and bullets; the rule applies *within* each paragraph or bullet, not *between* them.
     *   The user reviews the message and commits manually — this command does **not** commit automatically.
 
 ---

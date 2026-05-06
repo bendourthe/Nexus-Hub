@@ -331,6 +331,6 @@ Planned tool additions:
 
 ---
 
-*Tools - Part of DevAI-Hub v1.1.3*
+*Tools - Part of DevAI-Hub v1.1.4*
 
 *Last Updated: May 2026*

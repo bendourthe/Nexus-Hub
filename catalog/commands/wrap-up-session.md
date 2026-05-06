@@ -189,6 +189,7 @@ If the version bump was skipped, leave `Status: in-progress` so the file is pick
 
 Run `/generate-commit-message`.
 
+- **No hard-wrapping (CRITICAL)**: every paragraph and every bullet point in the commit body and footer MUST be written as a single continuous line in the source, regardless of length. Do NOT insert line breaks at any column width (50, 72, 80, 100, etc.). The 72-char "convention" from older git tooling docs is obsolete - modern Git, GitHub, GitLab, and `git log` all soft-wrap on display. The subject line's 50-char cap is the only exception (a hard limit, not a wrap). Blank lines still separate paragraphs and bullets; the rule applies *within* each paragraph or bullet, not *between* them.
 - Scope the message to the wrap-up artifacts produced by this command: session history file, devlog entry, documentation changes, gitignore additions, memory updates, and optional version bump.
 - Suggest a commit subject in this format: `chore: wrap-up session <YYYY-MM-DD>`
 - List all files changed by the wrap-up sequence in the commit body.

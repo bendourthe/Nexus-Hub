@@ -8,39 +8,25 @@
 
 ---
 
-## What's New in v1.1.3
+## What's New in v1.1.4
 
-**Platform-independent pre-commit review hooks.** Patch release that breaks the v1.1.2 Claude-only design out into four parallel, fully-independent hooks - one per supported AI CLI (Claude, Gemini, Codex, OpenCode). The single Claude-only slash command is replaced by an auto-detecting variant that picks (or asks) which hook to install based on which CLIs are on PATH. Existing v1.1.2 installations of `~/.devai-hub/hooks/claude-diff-review.sh` keep working unchanged.
+**Commit-message no-hard-wrap rule reaches the commands that actually generate commit messages.** Patch release closing a gap missed by v1.1.1: the rule was added to `/generate-commit-message` and the `code-commit-workflow` skill, but the commands that mention `/generate-commit-message` as a sub-step (`/implement-phase`, `/wrap-up-session`) and the one with its own inline rules (`/update-version`) never picked it up. The agent's training on the obsolete "72-char convention" overrode the global no-wrap rule unless each command body had an explicit override in context. Fixed by inlining the rule into all three commands.
 
-### Why the rework?
+### Why this is a separate patch
 
-v1.1.2 forced every user to install Anthropic's `claude` CLI to use the pre-commit review hook, regardless of whether their primary AI agent was Claude Code, Gemini, Codex, or OpenCode. v1.1.3 removes that coupling. Each platform now has its own hook script that calls only its own CLI; users pick the one matching the AI service they already pay for.
+A reference like "Then run `/generate-commit-message`" inside another command body is just text - the agent does NOT auto-load that file's content when it sees the reference. So the v1.1.1 fix to `/generate-commit-message` only applied when the user typed that command directly. Every other code path that ended in a commit-message generation (every `/implement-phase` run, every `/wrap-up-session`, every `/update-version`) kept producing wrapped output. Reported by a user against a v0.3.0 phase-implementation commit shortly after a v1.1.3 install.
 
-### Four parallel hook variants
+### Three command bodies patched
 
-| AI Platform | Hook script | CLI required |
-|---|---|---|
-| Claude Code | `claude-diff-review.sh` | `claude -p` |
-| Gemini / Antigravity | `gemini-diff-review.sh` | `gemini -p` |
-| Codex (OpenAI) | `codex-diff-review.sh` | `codex exec` |
-| OpenCode | `opencode-diff-review.sh` | `opencode run` |
+- `/implement-phase` post-phase sub-step 6 ("Final Commit Message") now carries the explicit no-hard-wrap rule with the wrap-column callouts (50, 72, 80, 100) so the agent cannot rationalize one as "the convention."
+- `/wrap-up-session` Phase 7 ("Final Commit") gets the same rule before its scope-and-format guidance.
+- `/update-version` Phase E4 ("Generate Commit Message") replaces the v1.1.1 "Keep each bullet point concise and on a single line" with the full paragraph-and-bullet no-wrap rule, with the 72-char subject-line cap explicitly called out as a hard limit (not a wrap).
 
-All four ship to `~/.devai-hub/hooks/` at installer time. Each is self-contained: bypass paths, diff-size cap, fail-open behavior, merge / rebase short-circuit, and PASS / WARN / BLOCK verdict parsing are duplicated across all four scripts so each can be copied to `.git/hooks/pre-commit` standalone with no shared library dependency. A new pytest test (`TestPlatformIndependence`) asserts that no hook contains a `command -v <other-cli>` check or invokes any sibling CLI.
+### Cross-platform reach
 
-### Renamed and upgraded slash command
+All three command files are auto-distributed via the installer's recursive copy of `catalog/commands/` to Claude Code (`commands/`), Gemini / Antigravity (`workflows/`), and Codex (`prompts/`). Cursor / OpenCode / Copilot users do not get a slash surface but inherit the rule via their global `base-*.md` "Never hard-wrap paragraph text" rule. After running the v1.1.4 installer, restart any running AI agent sessions for the new command bodies to take effect (settings.json / AGENTS.md / .cursor/rules/ are read at session start and not hot-reloaded).
 
-- v1.1.2 `/install-claude-pre-commit-hook` is **removed** (it was Claude-only).
-- New `/install-pre-commit-review-hook` replaces it. Auto-detects which CLIs are on PATH; if exactly one is found, uses it; if multiple, asks the user; if none, asks the user to install one (or skip via `--platform=<name>` flag to install the hook anyway). Optional `--force` flag skips existing-hook prompts. Same backup / chain / abort logic as v1.1.2 for pre-existing pre-commit hooks.
-
-### Cursor and GitHub Copilot are explicitly out of scope
-
-Cursor has no public headless CLI. GitHub Copilot's `gh copilot suggest` / `gh copilot explain` are targeted to single-command synthesis, not arbitrary diff review. Users on those platforms can either install one of the four supported CLIs as a side dependency, or skip this hook and rely on CI-side review instead.
-
-### Test coverage
-
-- The v1.1.2 test file (`test_claude_diff_review.py`) was renamed to `test_diff_review_hooks.py` and parametrized over all four hook variants. **48 tests** total (11 logical scenarios x 4 variants, plus a 4-variant platform-independence assertion). Combined hook test suite: **310 tests passing** (262 prior, less 11 v1.1.2 dropped, plus 48 new + 11 carried over).
-
-See [CHANGELOG.md](CHANGELOG.md) for the full v1.1.3 entry and [docs/v1.0.0/RELEASE_NOTES.md](docs/v1.0.0/RELEASE_NOTES.md) for the v1.0.0 baseline.
+See [CHANGELOG.md](CHANGELOG.md) for the full v1.1.4 entry and [docs/v1.0.0/RELEASE_NOTES.md](docs/v1.0.0/RELEASE_NOTES.md) for the v1.0.0 baseline.
 
 ---
 

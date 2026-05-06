@@ -11,6 +11,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.1.4] - 2026-05-06
+
+Patch release. Closes a gap missed by v1.1.1: the no-hard-wrap rule was added to `/generate-commit-message` and the `code-commit-workflow` skill, but the commands that mention `/generate-commit-message` as a sub-step (`/implement-phase`, `/wrap-up-session`) and the one with its own inline commit-message rules (`/update-version`) never picked it up. A reference like "Then run `/generate-commit-message`" inside another command body is just text - the agent does NOT auto-load that file's content when it sees the reference. So the v1.1.1 fix only applied when the user typed `/generate-commit-message` directly; every other code path ending in a commit-message generation kept producing wrapped output. Reported against a v0.3.0 phase-implementation commit shortly after the v1.1.3 install. Safe to upgrade from v1.1.3; no migration steps. Restart any running AI-agent sessions after re-running the installer so the patched command bodies take effect.
+
+### Fixed
+
+- **`/implement-phase` post-phase sub-step 6 now carries the no-hard-wrap rule.** `catalog/commands/implement-phase.md` line 311 (sub-step 6 "Final Commit Message", the one that says "Run `/generate-commit-message`") now inlines the rule with explicit wrap-column callouts (50, 72, 80, 100), the 72-char subject-line cap exception, and the blank-line-still-separates-paragraphs clarification. Resolves the user-reported bug where /implement-phase produced commit messages with paragraph bodies and bullets hard-wrapped at ~70 columns even after a fresh v1.1.3 install.
+- **`/wrap-up-session` Phase 7 now carries the no-hard-wrap rule.** `catalog/commands/wrap-up-session.md` line 192 ("Final Commit") gets the same explicit rule injection, just before the existing scope-and-format guidance.
+- **`/update-version` Phase E4 commit-message rules extended.** `catalog/commands/update-version.md` lines 430-437 previously said "Keep each bullet point concise and on a single line" - bullets only. Replaced with the full paragraph-and-bullet rule, with the 72-char subject-line cap explicitly called out as a hard limit (not a wrap) and the obsolete "72-char convention" rebutted inline so the agent cannot fall back to it.
+
+### Why three patches and not one upstream rule
+
+Slash command bodies are not transitively imported. The agent reads the body of the command the user typed, but textual references to other commands (e.g. "Run `/generate-commit-message`") do NOT cause the referenced file's body to be loaded. Every command that produces a commit message must therefore carry the no-hard-wrap rule in its own body to keep it in the agent's context window when generation happens. This release patches the three currently-affected commands; future commands with commit-message generation steps must follow the same pattern (an enforcement test could be added in a future release if regressions recur).
+
+---
+
 ## [1.1.3] - 2026-05-06
 
 Patch release. Breaks the v1.1.2 Claude-only pre-commit review design out into four parallel, fully-independent hooks - one per supported AI CLI. Removes the implicit coupling that forced every user to install Anthropic's `claude` CLI to use the v1.1.2 hook regardless of their primary AI platform. Each user now picks the hook variant matching the AI service they already pay for; Cursor and GitHub Copilot are explicitly out of scope (no usable headless review CLI). Safe to upgrade from v1.1.2: existing v1.1.2 installations of `~/.devai-hub/hooks/claude-diff-review.sh` keep working unchanged, and re-running the installer simply adds three sibling files alongside it.
@@ -3045,7 +3061,8 @@ repository_root/
 
 ---
 
-[Unreleased]: https://github.com/bendourthe/DevAI-Hub/compare/v1.1.3...HEAD
+[Unreleased]: https://github.com/bendourthe/DevAI-Hub/compare/v1.1.4...HEAD
+[1.1.4]: https://github.com/bendourthe/DevAI-Hub/compare/v1.1.3...v1.1.4
 [1.1.3]: https://github.com/bendourthe/DevAI-Hub/compare/v1.1.2...v1.1.3
 [1.1.2]: https://github.com/bendourthe/DevAI-Hub/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/bendourthe/DevAI-Hub/compare/v1.1.0...v1.1.1
