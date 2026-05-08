@@ -3,19 +3,19 @@
 This file tracks per-version unfinished work, deferred items, deviations from plan, and bugs discovered during phase implementation. The next phase plan and the version-bump checklist read this file to decide what carries forward.
 
 **Plan**: [docs/v1.1.5/plans/adoption-skills.md](plans/adoption-skills.md)
-**Last updated**: 2026-05-08 (Phase 2 complete)
+**Last updated**: 2026-05-08 (Phase 3 complete)
 
 ## Summary
 
 | Category | Open | Resolved this version |
 |---|---|---|
 | NI -- Not implemented (skipped subtask) | 0 | 0 |
-| DF -- Deferred (intentionally) | 3 | 0 |
+| DF -- Deferred (intentionally) | 4 | 0 |
 | BG -- Bug or unresolved test failure | 0 | 0 |
 | MT -- Missing tests / coverage gap | 0 | 0 |
-| WN -- Warning or suppressed lint rule | 0 | 0 |
+| WN -- Warning or suppressed lint rule | 1 | 0 |
 | QG -- Quality gate bypassed | 1 | 0 |
-| **Total** | **4** | **0** |
+| **Total** | **6** | **0** |
 
 ## Open Items
 
@@ -40,7 +40,7 @@ This file tracks per-version unfinished work, deferred items, deviations from pl
 **Source phase**: Phase 2, sub-task 2.3 (cross-platform installer verification).
 **Plan reference**: [docs/v1.1.5/plans/adoption-skills.md](plans/adoption-skills.md) lines 148-153 (sub-task 2.3) and the cross-cutting constraint at lines 535-543.
 **Reason**: Verification was performed on Windows + Git Bash (the work-environment constraint -- the user runs Windows 11 with PowerShell as the primary shell). Both installers were confirmed to use recursive-copy primitives (`rsync -a --delete` / `cp -R "$source/"*` for `installer.sh`; `robocopy ... /MIR` for `installer.ps1`) that auto-distribute new skill files without an installer edit. `bash -n` syntax check passed; ShellCheck warnings clean. Actual `bash scripts/installer.sh` execution on a real macOS or Linux host was not run.
-**Suggested next step**: Defer the cross-OS smoke run to either (a) a CI matrix step (Linux runner + macOS runner each performing a `bash scripts/installer.sh --dry-run` if `--dry-run` is added in Phase 3, since 3.3's PowerShell counterpart already mentions adding such a flag if missing) or (b) a periodic "release-readiness" smoke task before any v1.x.x version bump. Phase 3's A13 work explicitly adds dry-run capability, after which this gap can be closed by running the dry-run on at least one Unix host.
+**Suggested next step**: Defer the cross-OS smoke run to either (a) a CI matrix step (Linux runner + macOS runner each performing a real `bash scripts/installer.sh` workspace install into a throwaway directory) or (b) a periodic "release-readiness" smoke task before any v1.x.x version bump. **Updated 2026-05-08 (Phase 3)**: Phase 3 elected NOT to add a `--dry-run` flag to either installer (see DF-004), so this gap remains open and tracks the Linux/macOS real-install verification rather than a dry-run.
 
 ### QG-001 -- Cross-OS verification gate ran on one OS only
 
@@ -48,6 +48,22 @@ This file tracks per-version unfinished work, deferred items, deviations from pl
 **Plan reference**: [docs/v1.1.5/plans/adoption-skills.md](plans/adoption-skills.md) lines 113-117 (Phase 2 Stability Gate clause "installer dry-run on at least one OS includes the new skill in the recursive copy").
 **Reason**: The Phase 2 Stability Gate explicitly says "at least one OS", and Windows + Git Bash satisfies that minimum. However, the cross-cutting constraint at the top of the plan asks for cross-OS parity verification at minimum once per phase that adds bundled scripts. Phase 2 does not add bundled scripts (the new skill is a single SKILL.md file), so the cross-cutting constraint is satisfied by the recursive-copy primitive analysis. Recording this as QG rather than DF because the user opted to proceed under the minimum gate language rather than reach for the cross-OS coverage now.
 **Suggested next step**: Same as DF-003. The cross-OS smoke run for v1.1.5 cumulative state should happen before the v1.1.5 → v1.2.0 version bump, not as a Phase 2 blocker.
+
+### DF-004 -- `--dry-run` flag NOT added to either installer
+
+**Source phase**: Phase 3, sub-task 3.3 (`installer.ps1` recursive copy of per-skill subdirs).
+**Plan reference**: [docs/v1.1.5/plans/adoption-skills.md](plans/adoption-skills.md) lines 204-209 (sub-task 3.3) and the Phase 3 Stability Gate at lines 180-182.
+**Reason**: Sub-task 3.3 contains a conditional clause: "if `--dry-run` does not exist, add it as a no-op flag that prints what would be copied without touching the filesystem." Neither installer currently has a `--dry-run` flag (verified via grep). Adding a real, fully-functional `--dry-run` mode to a 1693-line bash installer plus a 2034-line PowerShell installer would require gating every filesystem write in both files behind a flag check -- that is a substantive feature, not a sub-task tweak, and was assessed out of scope for Phase 3's narrow A13 goal (per-skill bundled-resources convention). Adding a "no-op flag that doesn't actually skip writes" would be misleading. The Phase 3 smoke test (sub-task 3.5) was therefore performed by a real `cp -R catalog/skills <tmp>` on Git Bash and a real `robocopy /MIR catalog\skills <tmp>` on PowerShell, both of which exercise the same recursive-copy primitives the real installers use. This is a faithful smoke test of the copy mechanism without needing dry-run.
+**Resolution applied in Phase 3**: None -- intentionally deferred. The smoke test verified that the existing `cp -R` / `robocopy /MIR` primitives preserve per-skill `scripts/.gitkeep` correctly on both Windows shells.
+**Suggested next step**: If a future plan wants real dry-run capability (e.g., for CI matrix verification), add the flag as a coordinated multi-line refactor across both installers. Alternative: keep relying on `--target <throwaway-dir>` style throwaway-install verification, which works without code changes.
+
+### WN-001 -- 4 pre-existing per-skill bundled-resources orphan warnings
+
+**Source phase**: Phase 3, sub-task 3.4 (`make validate` orphan-bundle detection).
+**Plan reference**: [docs/v1.1.5/plans/adoption-skills.md](plans/adoption-skills.md) lines 213-218 (sub-task 3.4).
+**Reason**: The new `validate_skill_bundles` audit -- newly added in Phase 3 and wired into `make validate` via the `--bundles-only` flag -- detects 4 pre-existing orphan files that were tracked into the catalog before the convention was formalized: `catalog/skills/framework-specialists/fastapi-expert/references/dependency-injection-patterns.md`, `catalog/skills/framework-specialists/nextjs-expert/references/data-fetching-patterns.md`, `catalog/skills/framework-specialists/react-expert/references/performance-patterns.md`, `catalog/skills/framework-specialists/react-expert/references/testing-recipes.md`. None of these four files are referenced from their parent SKILL.md or from any other reference file in the same bundle, so by the new convention they qualify as orphans. They are warnings (not errors) so `make validate` continues to exit 0; the 4 reports surface only when `--verbose` is passed.
+**Resolution applied in Phase 3**: None -- detection added, reporting verified, but the 4 orphan files themselves are out of Phase 3's scope (they belong to existing framework-specialist skills and the appropriate fix is a per-skill body-edit to add a `## References` block that links to the orphan, not a Phase 3 layout-convention task).
+**Suggested next step**: Add a small follow-up task to the next plan (or as a v1.2.x patch): for each of the 4 framework-specialist skills, add a brief `## References` section to SKILL.md that links to the per-skill `references/*.md` files. Alternative if any of the 4 reference files turn out to be genuinely abandoned: delete them. Either action makes the orphan warning go away without touching the audit logic.
 
 ## Resolved
 

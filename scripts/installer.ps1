@@ -295,6 +295,15 @@ function Safe-Copy {
     }
 }
 
+# Recursively copies an entire folder tree from $Source to $Destination via robocopy /MIR.
+#
+# Per-skill bundled resources (scripts/, references/, assets/) under
+# catalog\skills\<cat>\<name>\ are copied recursively as part of the parent
+# skill folder copy - robocopy /MIR mirrors arbitrary subdirectory depth.
+# This is the auto-distribution behavior documented in AGENTS.md
+# "Per-skill Bundled Resources"; no per-skill explicit-name copy step is
+# needed for skill-bundled content. Lockstep parity with the bash installer's
+# safe_folder_copy (rsync -a / cp -R).
 function Safe-Folder-Copy {
     param(
         [string]$Source,

@@ -31,6 +31,11 @@ SCANNABLE_EXTENSIONS = {
     ".txt", ".toml", ".cfg", ".ini", ".ps1", ".bash",
 }
 
+# Per-skill bundled-resource subdirectories per the AGENTS.md
+# "Per-skill Bundled Resources" convention.
+BUNDLED_SUBDIRS = ("scripts", "references", "assets")
+BUNDLE_EXEMPT_FILENAMES = {".gitkeep"}
+
 SECRET_PATTERNS: list[tuple[str, re.Pattern[str]]] = [
     ("OpenAI API key", re.compile(r"sk-[A-Za-z0-9]{20,}")),
     ("AWS Access Key", re.compile(r"AKIA[0-9A-Z]{16}")),
@@ -106,7 +111,63 @@ def validate_skill_dir(skill_dir: Path) -> tuple[list[str], list[str]]:
     secret_errors = scan_for_secrets(skill_dir)
     errors.extend(secret_errors)
 
+    # Soft rule: per-skill bundled-resource orphan detection
+    bundle_warnings = validate_skill_bundles(skill_dir, content)
+    warnings.extend(bundle_warnings)
+
     return errors, warnings
+
+
+def validate_skill_bundles(skill_dir: Path, skill_md_content: str) -> list[str]:
+    """Detect orphan files under per-skill scripts/, references/, assets/ subdirs.
+
+    Per the AGENTS.md "Per-skill Bundled Resources" convention, every file
+    under these subdirectories must be referenced at least once from SKILL.md
+    (or from another reference file in the same bundle that is itself
+    referenced from SKILL.md). Files named `.gitkeep` are exempt because they
+    are placeholders for future expansion.
+
+    Returns a list of warning strings (never errors -- a work-in-progress
+    branch may legitimately have an unreferenced file). The caller is
+    responsible for printing them when --verbose is requested.
+    """
+    warnings: list[str] = []
+
+    # Build the "haystack" of text we search for filename references:
+    # SKILL.md plus every references/*.md file (because references can
+    # cross-link to scripts/ or assets/).
+    haystack = skill_md_content
+    references_dir = skill_dir / "references"
+    if references_dir.is_dir():
+        for ref_file in references_dir.rglob("*.md"):
+            try:
+                haystack += "\n" + ref_file.read_text(encoding="utf-8", errors="replace")
+            except OSError:
+                continue
+
+    for subdir_name in BUNDLED_SUBDIRS:
+        subdir = skill_dir / subdir_name
+        if not subdir.is_dir():
+            continue
+        for entry in subdir.rglob("*"):
+            if not entry.is_file():
+                continue
+            if entry.name in BUNDLE_EXEMPT_FILENAMES:
+                continue
+            # Reference check: look for the basename anywhere in the haystack.
+            # We deliberately check basename rather than the full path so that
+            # SKILL.md can write `references/schemas.md` or just `schemas.md`
+            # and either form satisfies the audit.
+            basename = entry.name
+            if basename not in haystack:
+                rel = entry.relative_to(skill_dir).as_posix()
+                warnings.append(
+                    f"{skill_dir / 'SKILL.md'}: bundled file '{rel}' is not "
+                    f"referenced from SKILL.md or any references/*.md "
+                    f"(either reference this file from SKILL.md or remove it)"
+                )
+
+    return warnings
 
 
 def scan_for_secrets(directory: Path) -> list[str]:
@@ -160,6 +221,16 @@ def main() -> int:
         action="store_true",
         help="Show warnings in addition to errors",
     )
+    parser.add_argument(
+        "--bundles-only",
+        action="store_true",
+        help=(
+            "Run only the per-skill bundled-resources orphan audit (skip "
+            "frontmatter and secret-scan checks). Used by `make validate` so "
+            "the default target stays narrow; the unflagged invocation runs "
+            "the full strict validator for manual audits."
+        ),
+    )
     args = parser.parse_args()
 
     scan_root = args.path
@@ -176,12 +247,22 @@ def main() -> int:
     total_warnings: list[str] = []
 
     for skill_dir in skill_dirs:
-        errs, warns = validate_skill_dir(skill_dir)
-        total_errors.extend(errs)
-        total_warnings.extend(warns)
+        if args.bundles_only:
+            skill_file = skill_dir / "SKILL.md"
+            try:
+                content = skill_file.read_text(encoding="utf-8", errors="replace")
+            except OSError as exc:
+                total_errors.append(f"{skill_file}: cannot read ({exc})")
+                continue
+            total_warnings.extend(validate_skill_bundles(skill_dir, content))
+        else:
+            errs, warns = validate_skill_dir(skill_dir)
+            total_errors.extend(errs)
+            total_warnings.extend(warns)
 
     # Report results
-    print(f"Scanned {len(skill_dirs)} skills under {scan_root}")
+    mode = "bundle audit" if args.bundles_only else "full validator"
+    print(f"Scanned {len(skill_dirs)} skills under {scan_root} ({mode})")
 
     if args.verbose and total_warnings:
         print(f"\n--- {len(total_warnings)} WARNING(S) ---")

@@ -112,3 +112,7 @@ Binary checklist - each item must describe an observable artifact or state.
 - `business-product/internal-comms` - structured templates for internal communication formats (3P updates, status reports, leadership briefings); use in place of this skill when the doc is short and the format is fixed.
 - `developer-experience/idea-refine` - refine vague ideas into concrete problem statements; an upstream pre-Stage-1 step when the user is not yet sure what they want to document.
 - `developer-experience/spec-driven-development` - turn an accepted spec into implementation; the downstream consumer when this workflow's output is a spec.
+
+## Bundled Resources
+
+Future bundled scripts for this skill go under `scripts/`. None present at v1.2.0; the directory is reserved as a sentinel proving the per-skill bundled-resources convention (AGENTS.md "Per-skill Bundled Resources") survives an installer copy.

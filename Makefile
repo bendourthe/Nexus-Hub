@@ -2,12 +2,14 @@
 
 all: validate lint ## Run validation and linting
 
-validate: ## Validate all JSON catalog files
+validate: ## Validate all JSON catalog files and skill bundles
 	@echo "Validating JSON catalogs..."
 	@python -c "import json; d = json.load(open('data/skills.json')); print(f'  skills.json OK — {len(d[\"skills\"])} skills')"
 	@python -c "import json; d = json.load(open('data/bundles.json')); print(f'  bundles.json OK — {len(d[\"bundles\"])} bundles')"
 	@python -c "import json; d = json.load(open('data/workflows.json')); print(f'  workflows.json OK — {len(d[\"workflows\"])} workflows')"
 	@python -c "import json; d = json.load(open('data/templates.json')); print(f'  templates.json OK')"
+	@echo "Auditing per-skill bundled resources (scripts/, references/, assets/) for orphans..."
+	@python scripts/validate_skills.py --bundles-only
 	@echo "All catalogs valid."
 
 lint: ## Lint shell scripts with ShellCheck

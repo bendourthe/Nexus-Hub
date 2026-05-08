@@ -125,6 +125,14 @@ safe_copy() {
     fi
 }
 
+# Recursively copies an entire folder tree from source to destination.
+#
+# Per-skill bundled resources (scripts/, references/, assets/) under
+# catalog/skills/<cat>/<name>/ are copied recursively as part of the parent
+# skill folder copy - both the rsync -a path and the cp -R fallback preserve
+# arbitrary subdirectory depth. This is the auto-distribution behavior
+# documented in AGENTS.md "Per-skill Bundled Resources"; no per-skill
+# explicit-name copy step is needed for skill-bundled content.
 safe_folder_copy() {
     local source="$1"
     local destination="$2"
