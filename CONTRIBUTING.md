@@ -125,9 +125,9 @@ This skill is optimized for an iterative approach:
 
 ### 3. Quality Standards
 
-- **Depth**: Target 400-800 lines per skill. Each step should include multiple code examples.
+- **Depth**: Target ≤500 lines per skill body; soft cap 800 lines. Beyond 500 lines, add a `references/` subdirectory and link to it from SKILL.md rather than expanding the body. Beyond 800 lines, the skill MUST be split or refactored before merge. Existing skills above 500 lines are grandfathered. Each step should include multiple code examples.
 - **Specificity**: One capability per skill. Do not create generic "do everything" skills.
-- **Triggers**: Include trigger phrases in the description so Claude can auto-activate the skill.
+- **Triggers (pushy descriptions)**: Lead the description with the action; then list trigger phrases verbatim ("build me a dashboard", "show internal metrics", "visualize the data"); then add a `SKIP:` clause fencing off look-alike requests this skill should NOT handle. Cover synonyms and adjacent intents, not just the literal capability name. Claude under-triggers on narrow descriptions, so the description must be pushy. See `AGENTS.md` "Adding a New Skill -> Write SKILL.md" for the before / after example and full rule.
 - **Cross-references**: Link related skills in the "Related Skills" section.
 - **Code examples**: Use realistic, production-quality code. Include both positive examples and anti-patterns.
 - **Language**: Use professional teaching tone. Place punctuation outside quotation marks. No em-dashes.

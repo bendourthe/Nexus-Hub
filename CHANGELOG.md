@@ -9,6 +9,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+Phase 1 of the v1.1.5 `adoption-skills` plan (`docs/v1.1.5/plans/adoption-skills.md`). Five doc-only edits that institutionalize patterns observed in upstream skill-authoring guidance, without adding any new file to the catalog file tree. All edits land in tracked Markdown files that the existing installer recursive-copy logic already distributes to all 5 supported AI-IDE platforms (Claude Code, Cursor, Codex, Gemini, OpenCode) on Windows, macOS, and Linux. No installer edit, no `data/` registry edit, no version bump (per the user-supplied constraint that the version bump waits until Phase 7 of the plan).
+
+### Changed
+
+Skill-authoring guidance in AGENTS.md:
+
+- **A14 - Pushy description guidance.** New "Description style: combat undertriggering" block under "Adding a New Skill -> Write SKILL.md". Documents that Claude under-triggers on narrow descriptions; the fix is a pushy description that lists trigger phrases AND skip phrases (`SKIP:` / `Do NOT use for:`) explicitly, covers synonyms and adjacent intents, and leads with the action then the trigger surface. Includes a before / after example contrasting "How to build a dashboard." (6 words, narrow) with the pushy form (60 words, explicit triggers + explicit skips).
+- **A17 - Three-Tier Loading Model.** New `#### Three-Tier Loading Model` subsection under "Write SKILL.md". Documents the three tiers: tier 1 (always loaded) = `name` + `description` + `summary_l0` + `overview_l1`, ~150-300 tokens, determines triggering; tier 2 (on trigger) = SKILL.md body, target ≤500 lines; tier 3 (on demand) = bundled `scripts/`, `references/`, `assets/` per the A13 convention from Phase 3, with the critical affordance that scripts EXECUTE without their source being loaded into context. Includes practical authoring implications: push some-of-the-time content to references, push deterministic steps to scripts, keep tier 1 fields tight because they pay tokens on every catalog read across every session.
+- **A15 - SKILL.md size norm reconciled.** "Keep SKILL.md under 800 lines." replaced with "Target ≤500 lines for the SKILL.md body. Soft cap 800 lines." Beyond 500 lines, add a `references/` subdirectory with a TOC and link to it. Beyond 800 lines, the skill MUST be split or refactored before merge. Existing skills that exceed 500 lines are explicitly grandfathered - the norm is forward-looking and applies to new and substantially-rewritten skills only.
+
+Skill body edits:
+
+- **A14 (cont.) - `catalog/skills/workflow/create-custom-command/SKILL.md`.** Adds a new "Description Style: Combat Undertriggering" section between "Step 5: Team-Wide Commands" and "Command Best Practices", with the same pushy-description rules (verbatim trigger phrases, `SKIP:` clauses, synonym coverage, action-then-trigger structure) and the same before / after example adapted for command descriptions. Adds a Common Rationalizations table (which the file did not previously have) with three rebuttals targeting the most common reasons authors leave descriptions narrow. Cross-links to the equivalent rule in AGENTS.md so skill authors and command authors see the same guidance from either entry point.
+- **A11 - `catalog/skills/developer-experience/frontend-ui-engineering/SKILL.md`.** Adds an "Aesthetic Distinctiveness" section after "Step 7: Component Testing". Documents the AI-default aesthetic that production-grade UI must avoid (centered hero + three-card grid + gradient button + Inter typeface + uniform padding + 12px border-radius), six countermeasures (custom typography pairing, asymmetric layout, intentional density, distinctive accent color, motion that means something, copy with a voice), three reference patterns the agent can pick one of (editorial multi-column, brutalist over-borders, restrained motion), and a process step (write a one-page direction note up-front, not as a polish pass). Adds a Common Rationalizations row rebutting "the agent's default looks fine, we can polish later." Adds a Verification entry requiring the project to deviate from the AI-default in at least 2-3 dimensions.
+- **A12 - `catalog/skills/developer-experience/creative-generation/SKILL.md`.** Adds a "Static Poster / Print Workflow" section after the existing "Ideation" section. Documents a deliberate two-step approach: step 1 writes a 30-80 line Markdown design philosophy fixing color palette, typography, composition principles, and 1-2 reference movements; step 2 renders the actual `.png` / `.pdf` output via `pptx-generation` / `docx-generation` / `pdf-document-generation` for standard formats or a single-purpose Pillow / matplotlib script for one-off bespoke layouts. Explicitly scopes p5.js / interactive-canvas outputs OUT (those belong to the `generative-art` skill being added in Phase 4 / A1). Adds a Common Rationalizations table (which the file did not previously have) with three rebuttals targeting the most common reasons authors skip the philosophy step.
+
+Tests:
+
+- All four test suites passing: 37 (devai-skill-server) + 36 (devai-code-search, 1 skipped) + 23 (devai-web-fetch) + 310 (catalog/hooks/tests) = 406 passed, 1 skipped, 0 failures. ShellCheck clean against `scripts/installer.sh` and `install.sh`. JSON catalogs valid: 188 skills, 11 bundles, 17 workflows, templates OK.
+
+Known gaps:
+
+- See `docs/v1.1.5/known-gaps.md` for the full Phase 1 gap log. One DEVIATION to flag here: the plan referenced `catalog/skills/workflow/create-skill-or-command/SKILL.md` for sub-task 1.1, but only `create-custom-command` exists in the catalog (skill-creation guidance for skills lives in AGENTS.md "Adding a New Skill", not in a dedicated catalog skill). A14 was applied to both `create-custom-command/SKILL.md` and the equivalent location in AGENTS.md, achieving the original intent without inventing a new skill file.
+
 ---
 
 ## [1.1.5] - 2026-05-06

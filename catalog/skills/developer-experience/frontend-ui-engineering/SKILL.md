@@ -119,6 +119,37 @@ Testable components are built with testing in mind from the start:
 - Test loading, error, and empty states — not just the happy path
 - Test keyboard interactions for interactive components
 
+## Aesthetic Distinctiveness
+
+Accessibility, responsiveness, and performance are necessary but not sufficient. AI-generated frontends overwhelmingly default to a single recognizable aesthetic — centered hero section, three-column feature grid, gradient call-to-action button, Inter typeface, subtle shadow on every card, generic stock-photo hero image. Production-grade UI is what users associate with the product, not what the agent's defaults associate with "modern web app". Distinctiveness is a deliberate decision made up-front, not a polish pass at the end.
+
+### What the AI default looks like (avoid)
+
+The pattern shows up across hundreds of agent-generated landing pages and dashboards: a 1280px-wide content column, hero text centered with a small subhead, a row of three feature cards with icon+title+two-line body, a primary button with a subtle gradient, neutral grays on white, Inter or system-ui everywhere, generous-but-uniform padding, ~12px border-radius on every container. Each piece is competent. The combination is invisible — it reads as "AI generated" before it reads as anything else.
+
+### Countermeasures
+
+Pick at least 2-3 of these per project, not all of them:
+
+- **Custom typography pairing.** Replace the default sans-everywhere with a deliberate two- or three-face system: a serif for display, a humanist sans for body, a monospace for tabular data. Inter is fine for body, never for hero.
+- **Asymmetric layout.** Drop the centered hero. Push the headline to one side and let it bleed past the gutter; offset the imagery; use a 12-column grid where columns 1-2 are negative space.
+- **Intentional density.** AI defaults trend toward whitespace. A dashboard that respects the user's screen size shows more, in tighter rows, with smaller-but-still-accessible type. Density signals seriousness for power-user products.
+- **Distinctive accent color.** One non-neutral, non-obvious color owned by the product — not the framework's primary, not blue. Use it consistently and sparingly so it becomes recognizable.
+- **Motion that means something.** Replace generic fade-ins with motion that carries information: a list-reorder that animates from old position to new, a stat that counts up to draw the eye, a panel that slides from the side that owns its data.
+- **Copy with a voice.** UI text is part of the aesthetic. Replace "Submit" with the verb the product would use; replace "Welcome back, User!" with whatever the product's actual character would say.
+
+### Reference patterns to consider
+
+Pick one direction, not a mash-up. Three patterns that consistently read as non-AI:
+
+- **Editorial multi-column** — a layout that borrows from print magazines: a wide first column for narrative copy, narrower side columns for callouts and pull-quotes, headlines in a serif display face. Strong for content-heavy products.
+- **Brutalist over-borders** — heavy 2-3px borders, monospace headings, flat fills, no shadows, intentionally hard edges. Strong for developer tools and data products.
+- **Restrained motion** — almost-no-animation as a deliberate choice; one or two motion details that carry meaning, everything else snaps. Reads as confident and fast.
+
+### Process
+
+Make the aesthetic decision before writing the first component, not after. Capture it as a one-page direction note: typography pairing, accent color, layout posture (symmetric / asymmetric / dense / spacious), motion philosophy, copy voice. Reference the note from each component file's header comment until the patterns are internalized in the codebase.
+
 ## Common Rationalizations
 
 | Rationalization | Reality |
@@ -128,6 +159,7 @@ Testable components are built with testing in mind from the start:
 | "This is just a `div` with `onClick`" | Screen reader users cannot discover or activate that element. Use a `<button>`. |
 | "Color contrast is a design concern, not engineering" | Engineers ship code that can fail contrast checks. Verify before merge, not after a11y audit. |
 | "We'll optimize performance later" | Core Web Vitals affect SEO and user retention immediately. Each 100ms of LCP improvement is measurable conversion impact. |
+| "The agent's default visual style looks fine, we can polish later" | The agent's default IS the AI-slop default — centered hero, three-card grid, Inter, gradient button. Pick a distinctive direction up-front; "polish" applied to a generic foundation produces a polished generic foundation. |
 
 ## Verification
 
@@ -138,6 +170,7 @@ Testable components are built with testing in mind from the start:
 - [ ] Components have tests that cover loading, error, and empty states
 - [ ] No `outline: none` without a visible focus replacement
 - [ ] Core Web Vitals measured in staging (Lighthouse score ≥ 80 for Performance + Accessibility)
+- [ ] Aesthetic direction note exists for the project (typography pairing, accent color, layout posture, motion philosophy, copy voice) and the shipped UI deviates from the AI-default "centered hero + three-card grid + gradient button + Inter" pattern in at least 2-3 of those dimensions
 
 ## Related Skills
 

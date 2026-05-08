@@ -391,6 +391,41 @@ Prepare release notes and checklist:
 - [ ] Stakeholders notified
 ```
 
+## Description Style: Combat Undertriggering
+
+The description field at the top of a command's Markdown file (or, equivalently, the description that goes into a skill's YAML frontmatter) is what the AI agent scans when deciding whether to trigger this command. Claude has a measurable tendency to **under-trigger** when the description is narrow, clean, or implicit. The fix is not a longer description — it is a **pushy** description: list the trigger phrases AND the skip phrases explicitly so the agent cannot rationalize its way past them.
+
+### Rules
+
+- **List trigger phrases verbatim.** If the user is likely to say "build me a dashboard", "show internal metrics", "visualize the data", put those exact phrases in the description.
+- **Add a SKIP clause.** Use `SKIP: ...` or `Do NOT use for: ...` to fence off look-alike requests the command should not handle. This is what stops over-triggering after you make the description pushier.
+- **Cover synonyms and adjacent intents.** A description for a "dashboard" command should also cover "internal metrics", "data visualization", "company data display" — not just the literal word "dashboard".
+- **Lead with the action, then the trigger surface.** First sentence states what the command does; second sentence lists when to invoke it; third sentence (if needed) lists when to skip.
+
+### Before / After example
+
+**Before** (narrow, agent under-triggers):
+
+> "How to build a dashboard."
+
+**After** (pushy, agent triggers reliably without false positives):
+
+> "How to build a dashboard. Make sure to use this command whenever the user mentions dashboards, data visualization, internal metrics, or wants to display any kind of company data, even if they don't explicitly ask for a 'dashboard'. SKIP: standalone chart generation (use chart-builder), one-off data exports (use data-export), or read-only status pages without filtering controls."
+
+The "After" form trades 6 words for 60. Those 60 words pay for themselves the first time the agent would have skipped a relevant invocation under the "Before" form.
+
+### Cross-reference
+
+This rule applies identically to **skill descriptions** in `catalog/skills/<cat>/<name>/SKILL.md` frontmatter. See AGENTS.md "Adding a New Skill -> Write SKILL.md" for the same rule applied to skills.
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "The description is short and clean, so it'll trigger fine." | Claude undertriggers on narrow descriptions. Explicit trigger phrases beat poetic brevity. The agent reads the description literally; it does not infer adjacent intents. |
+| "Listing skip phrases is overkill." | Without `SKIP:` clauses, every pushier description widens the false-positive surface. Skip clauses are how you make the description pushier without making it noisier. |
+| "The agent will figure out from the body what the command does." | The body is tier 2 (loaded after the trigger fires). The description is tier 1 (always loaded). If the description does not trigger, the body never gets read. |
+
 ## Command Best Practices
 
 ### Do's
