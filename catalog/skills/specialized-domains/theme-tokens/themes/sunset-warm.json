@@ -1,0 +1,24 @@
+{
+  "name": "sunset-warm",
+  "label": "Sunset Warm",
+  "description": "Warm primaries (terracotta, amber), serif heading, cream background; suits storytelling decks, retros, and creative-team material.",
+  "palette": {
+    "primary": "#b04a2f",
+    "secondary": "#d98b3d",
+    "accent": "#c2452f",
+    "background": "#faf3ea",
+    "foreground": "#2c1d14",
+    "muted": "#8a6f5b"
+  },
+  "fonts": {
+    "heading": "'Cormorant Garamond', 'EB Garamond', Georgia, serif",
+    "body": "'Source Serif Pro', 'EB Garamond', Georgia, serif",
+    "mono": "'IBM Plex Mono', 'JetBrains Mono', ui-monospace, monospace"
+  },
+  "spacing": {
+    "base": 8,
+    "scale": [0.5, 1, 1.5, 2.5, 3.5, 5, 7, 10]
+  },
+  "radius": 6,
+  "shadow": "0 2px 6px rgba(176, 74, 47, 0.12)"
+}

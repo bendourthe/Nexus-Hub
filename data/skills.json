@@ -6,16 +6,16 @@
     "description": "Comprehensive catalog of DevAI-Hub skills with L0/L1 tiered summaries"
   },
   "statistics": {
-    "total_skills": 189,
+    "total_skills": 193,
     "categories": {
       "ai-development": 8,
       "architecture": 6,
       "bug-fixing": 5,
-      "business-product": 4,
+      "business-product": 5,
       "code-cleanup": 9,
       "code-review": 9,
       "compliance": 9,
-      "developer-experience": 22,
+      "developer-experience": 23,
       "Developer Experience": 3,
       "documentation": 6,
       "framework-specialists": 6,
@@ -25,7 +25,7 @@
       "project-setup": 4,
       "Research": 2,
       "security": 7,
-      "specialized-domains": 9,
+      "specialized-domains": 11,
       "testing": 3,
       "tests-generation": 17,
       "workflow": 18,
@@ -6367,6 +6367,184 @@
       "size": {
         "lines": 114,
         "tokens_estimate": 2200
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "generative-art",
+      "title": "generative-art",
+      "description": "Produce algorithmic / generative-art artifacts (p5.js sketches, HTML viewers, deterministic image exports) through a two-step Algorithmic Philosophy + Generator-and-Viewer process. Use whenever the user asks for generative art, an algorithmic sketch, a p5.js visual, a flow field, a particle system, an L-system, a procedural pattern, a creative-coding piece, an interactive visualization, a generative wallpaper, a code-driven aesthetic experiment, or 'make me an art piece in code', even if they don't explicitly say 'generative art'. The skill ALWAYS produces a Markdown philosophy manifesto first and a parameter-driven sketch second; never one without the other. SKIP: data dashboards (use ui-component-generation), static posters / .pdf print-output (use creative-generation Static Poster workflow), 3D shader work (use glsl-shader-development), one-off chart rendering, or any visual where the output is fixed rather than parameter-driven.",
+      "long_description": "Two-step generative-art workflow. Step 1 - Algorithmic Philosophy is a Markdown manifesto that fixes movement reference, underlying principle, color and density behavior, motion behavior, parameter surface, and what the piece is NOT. Step 2 - Generator + Viewer ships a p5.js sketch with seeded randomness and an HTML viewer with sliders mapped to the manifesto's parameter surface. Three starter templates (flow-field, particle-system, l-system) bundled under assets/. Outputs are deterministic given a fixed seed; the artifact runs by opening the .html directly with no build step.",
+      "summary_l0": "\"Produce p5.js generative art with a philosophy manifesto, parameter-driven sketch, and HTML viewer\"",
+      "overview_l1": "\"This skill produces generative-art artifacts through a strict two-step process. Step 1 - Algorithmic Philosophy is a Markdown manifesto that fixes the aesthetic movement, the underlying principle (flow, repetition, decay, emergence, tension), the color and density behavior, and 1-2 reference movements (suprematism, op-art, Vera Molnar, Casey Reas, James Paterson). Step 2 - Generator + Viewer ships a p5.js sketch with seeded randomness and exposes the parameters that drive its aesthetic via an HTML viewer with sliders. Default templates cover three foundational families: flow fields (vector-field traced particles), particle systems (force-directed swarms with optional noise perturbation), and L-systems (recursive grammar-driven branching). Outputs are deterministic given a fixed seed, so re-running the same sketch produces the same image. Trigger phrases: generative art, p5.js, creative coding, algorithmic art, flow field, particle system, L-system, procedural pattern, generative wallpaper, parametric sketch, seeded randomness, code-driven art, generative design.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "specialized-domains",
+      "language": "JavaScript",
+      "tags": [
+        "generative-art",
+        "p5js",
+        "creative-coding",
+        "algorithmic-art",
+        "flow-field",
+        "particle-system",
+        "l-system",
+        "seeded-randomness",
+        "philosophy-manifesto"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read",
+        "Write",
+        "Edit"
+      ],
+      "path": "catalog/skills/specialized-domains/generative-art/",
+      "file": "catalog/skills/specialized-domains/generative-art/SKILL.md",
+      "size": {
+        "lines": 130,
+        "tokens_estimate": 2900
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "theme-tokens",
+      "title": "theme-tokens",
+      "description": "Apply curated visual themes (palette + typography + spacing + radius + shadow tokens) to slide decks, Word docs, PDFs, web artifacts, and any other generated visual artifact - via 10 generic curated theme JSON files OR a user-supplied custom theme. Use whenever the user asks for 'a theme', 'a palette', 'fonts that go together', 'make this look <adjective> (editorial / brutalist / corporate / mid-century / cyber / etc.)', 'set up theming', 'tokenize the look', or wants consistent styling across multiple generated artifacts. Pairs with pptx-generation, docx-generation, pdf-document-generation, web-artifacts-builder, and brand-styling. SKIP: one-off styling decisions inside a single file (just inline the colors), CSS-only refactors of existing apps (no JSON intermediation needed), and brand-applied work where the user already has tokens (use brand-styling directly with their tokens).",
+      "long_description": "Ten curated brand-neutral themes plus a stable token schema. Each theme bundles palette (primary, secondary, accent, background, foreground, muted), font triple (heading, body, mono), spacing (base + scale), radius, and shadow. Themes span editorial-serif, brutalist-sans, pastel-soft, terminal-mono, corporate-slate, sunset-warm, forest-cool, mid-century-modern, neon-cyber, and newsprint-mono. Downstream consumers (pptx-generation, docx-generation, pdf-document-generation, web-artifacts-builder, generative-art) read the theme JSON and map tokens to whatever the underlying engine expects. User-supplied custom themes follow the same schema via brand-styling.",
+      "summary_l0": "\"Apply curated theme tokens (palette, fonts, spacing) to slides, docs, PDFs, and web artifacts\"",
+      "overview_l1": "\"This skill provides 10 generic curated themes plus a token schema so generators (pptx-generation, docx-generation, pdf-document-generation, web-artifacts-builder) consume a single JSON contract instead of inlining colors and font choices. Each theme bundles a palette (primary, secondary, accent, background, foreground, muted), a font triple (heading, body, mono), spacing base + scale, radius, and shadow. The 10 themes span editorial-serif, brutalist-sans, pastel-soft, terminal-mono, corporate-slate, sunset-warm, forest-cool, mid-century-modern, neon-cyber, and newsprint-mono - chosen to cover the range of common asks without overlap. Custom themes follow the same schema. Trigger phrases: theme, palette, color scheme, theming tokens, design tokens, typography pairing, brand-neutral theme, editorial theme, brutalist theme, mid-century theme, cyber theme, newsprint theme, consistent styling, tokenize the look, set up theming.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "specialized-domains",
+      "language": "Multi-language",
+      "tags": [
+        "theme",
+        "design-tokens",
+        "palette",
+        "typography",
+        "spacing-scale",
+        "brand-neutral",
+        "json-schema",
+        "editorial",
+        "brutalist",
+        "mid-century",
+        "cyber"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read",
+        "Write"
+      ],
+      "path": "catalog/skills/specialized-domains/theme-tokens/",
+      "file": "catalog/skills/specialized-domains/theme-tokens/SKILL.md",
+      "size": {
+        "lines": 175,
+        "tokens_estimate": 3200
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "internal-comms",
+      "title": "internal-comms",
+      "description": "Draft structured internal communications using six named templates - 3P Update (Progress / Plans / Problems), Weekly Status Report, Leadership Update, Company FAQ entry, Incident Report, Project Update. Use whenever the user asks to write a status update, weekly summary, leadership briefing, exec brief, FAQ, post-mortem, incident write-up, project update, one-pager, or any internal-audience message that needs structure to land. The skill always picks the right template before drafting and resists the urge to free-form. SKIP: external-audience marketing copy (use writing-editing), long-form decision docs / RFCs / ADRs (use doc-coauthoring), single-paragraph Slack messages, or commit messages.",
+      "long_description": "Six structured templates for internal-audience writing: 3P Update (Progress / Plans / Problems), Weekly Status Report, Leadership Update (executive briefing), Company FAQ entry, Incident Report (timeline + root cause + remediation), Project Update (one-pager). Each template fixes the section headers, expected length, and 3-5 common pitfalls. Six worked examples ship under examples/ using placeholder organizations (Project Aurora, Team Phoenix, Apex Logistics) so the patterns are reusable across companies. The skill picks the template before the prose so structure carries the message.",
+      "summary_l0": "\"Draft internal comms using six structured templates (3P, status, leadership, FAQ, incident, project)\"",
+      "overview_l1": "\"This skill provides six named templates for structured internal communications - 3P Update (Progress / Plans / Problems), Weekly Status Report, Leadership Update (executive briefing format), Company FAQ entry, Incident Report (timeline + root cause + remediation), and Project Update (one-pager). Each template specifies when to use it, the exact section headers, expected length, and 3-5 common pitfalls. Worked examples use placeholder organizations (Project Aurora, Team Phoenix) so the patterns are reusable across companies. The skill picks the template before the prose so structure carries the message and the writer focuses on content. Trigger phrases: 3P update, weekly status, status report, leadership update, exec brief, executive summary, internal FAQ, company FAQ, incident report, post-mortem, project update, one-pager, internal memo, weekly digest, project status.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "business-product",
+      "language": "Multi-language",
+      "tags": [
+        "internal-comms",
+        "status-report",
+        "3p-update",
+        "leadership-update",
+        "faq",
+        "incident-report",
+        "post-mortem",
+        "project-update",
+        "templates",
+        "structured-writing"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read",
+        "Write",
+        "Edit"
+      ],
+      "path": "catalog/skills/business-product/internal-comms/",
+      "file": "catalog/skills/business-product/internal-comms/SKILL.md",
+      "size": {
+        "lines": 240,
+        "tokens_estimate": 4400
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "web-artifacts-builder",
+      "title": "web-artifacts-builder",
+      "description": "Scaffold multi-component HTML artifacts (Vite + React + TypeScript + Tailwind v4 + shadcn/ui) for any in-browser deployable target - product demos, internal tools, prototypes, embedded widgets, single-page apps, dashboards, configurators. Use whenever the user asks to 'build a web app / web artifact / single-page app / interactive demo / prototype', needs state management or routing, requires shadcn/ui components, or wants to scaffold a Vite-React-Tailwind project from zero. Bundles cross-platform init scripts (init-artifact.sh + init-artifact.ps1) so Windows / macOS / Linux all reach the same scaffold. SKIP: simple single-file HTML / JSX (just write the file inline), static landing pages without state, generative-art p5.js sketches (use generative-art), or any artifact that does not need a build step.",
+      "long_description": "Cross-platform scaffolder for multi-component HTML artifacts. Stack: Vite (build), React 18+ with TypeScript strict, Tailwind v4 via @tailwindcss/vite plugin, shadcn/ui (New York + Slate). Two parallel init scripts (init-artifact.sh for macOS / Linux, init-artifact.ps1 for Windows) produce the same scaffold and follow the v1.1.3 four-hook precedent: each is self-contained with no cross-reference to the other. Tailwind v4 theme tokens land in src/App.css inside a @theme block, which is the integration point for the theme-tokens skill.",
+      "summary_l0": "\"Scaffold Vite + React + TypeScript + Tailwind v4 + shadcn/ui multi-component web artifacts\"",
+      "overview_l1": "\"This skill scaffolds multi-component HTML artifacts for any in-browser deployable target - product demos, internal tools, interactive prototypes, embedded widgets, single-page apps, dashboards, configurators. The scaffold pairs Vite + React + TypeScript + Tailwind v4 + shadcn/ui, the stack that minimizes version-mismatch debugging while supporting state management, routing, and accessible component primitives out of the box. The skill ships a cross-platform pair of init scripts (init-artifact.sh for macOS / Linux, init-artifact.ps1 for Windows) so the same scaffold lands on every supported OS. Trigger phrases: web artifact, web app, SPA, single-page app, interactive demo, prototype, internal tool, dashboard, Vite React, Tailwind shadcn, scaffold a frontend, build a web app, multi-component HTML.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "developer-experience",
+      "language": "TypeScript",
+      "tags": [
+        "vite",
+        "react",
+        "typescript",
+        "tailwind-v4",
+        "shadcn-ui",
+        "scaffolder",
+        "spa",
+        "web-artifact",
+        "cross-platform-script"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read",
+        "Write",
+        "Bash"
+      ],
+      "path": "catalog/skills/developer-experience/web-artifacts-builder/",
+      "file": "catalog/skills/developer-experience/web-artifacts-builder/SKILL.md",
+      "size": {
+        "lines": 145,
+        "tokens_estimate": 2900
       },
       "downloads": 0,
       "status": "production",

@@ -195,5 +195,9 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | code-simplification | code-cleanup | "Reduce structural complexity by eliminating over-abstraction and dead code without changing behavior" | catalog/skills/code-cleanup/code-simplification/SKILL.md |
 | known-gaps-tracker | workflow | "Track per-version unfinished work, deferred items, bugs, warnings, and coverage gaps so the next plan picks them up automatically" | catalog/skills/workflow/known-gaps-tracker/SKILL.md |
 | doc-coauthoring | workflow | "Guide users through a 3-stage workflow for co-authoring documentation" | catalog/skills/workflow/doc-coauthoring/SKILL.md |
+| generative-art | specialized-domains | "Produce p5.js generative art with a philosophy manifesto, parameter-driven sketch, and HTML viewer" | catalog/skills/specialized-domains/generative-art/SKILL.md |
+| theme-tokens | specialized-domains | "Apply curated theme tokens (palette, fonts, spacing) to slides, docs, PDFs, and web artifacts" | catalog/skills/specialized-domains/theme-tokens/SKILL.md |
+| internal-comms | business-product | "Draft internal comms using six structured templates (3P, status, leadership, FAQ, incident, project)" | catalog/skills/business-product/internal-comms/SKILL.md |
+| web-artifacts-builder | developer-experience | "Scaffold Vite + React + TypeScript + Tailwind v4 + shadcn/ui multi-component web artifacts" | catalog/skills/developer-experience/web-artifacts-builder/SKILL.md |
 
-**Total: 187 skills across 22 categories**
+**Total: 191 skills across 22 categories**

@@ -1,0 +1,24 @@
+{
+  "name": "pastel-soft",
+  "label": "Pastel Soft",
+  "description": "Low-contrast pastel palette with generous radius and soft shadow; suits wellness, education, and friendly internal docs.",
+  "palette": {
+    "primary": "#7a8fb5",
+    "secondary": "#c4a8c0",
+    "accent": "#e8a09a",
+    "background": "#fdf6ef",
+    "foreground": "#2f2a3a",
+    "muted": "#8e8898"
+  },
+  "fonts": {
+    "heading": "'Fraunces', 'Recoleta', Georgia, serif",
+    "body": "'Inter', 'DM Sans', system-ui, sans-serif",
+    "mono": "'JetBrains Mono', 'Fira Code', ui-monospace, monospace"
+  },
+  "spacing": {
+    "base": 8,
+    "scale": [0.75, 1, 1.5, 2.5, 3.5, 5, 7, 10]
+  },
+  "radius": 12,
+  "shadow": "0 2px 12px rgba(122, 143, 181, 0.18)"
+}

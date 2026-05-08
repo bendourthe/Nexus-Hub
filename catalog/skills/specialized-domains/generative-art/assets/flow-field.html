@@ -1,0 +1,98 @@
+<!doctype html>
+<!--
+  Flow-field starter template.
+  Reference movement: Casey Reas's process compendiums + curl-noise field traversals.
+  Underlying principle: flow as accumulated intent.
+  Replace this comment block, the philosophy below, and the sketch logic with
+  whatever the new manifesto specifies. Templates are starting points, not
+  final output.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Flow field starter</title>
+  <script src="https://cdn.jsdelivr.net/npm/p5@1/lib/p5.min.js"></script>
+  <style>
+    body { margin: 0; background: #111; color: #eee; font-family: ui-monospace, monospace; }
+    #canvas-host { display: block; }
+    #panel { position: fixed; bottom: 12px; left: 12px; background: rgba(0,0,0,0.6); padding: 10px 12px; border: 1px solid #333; }
+    #panel label { display: block; font-size: 11px; margin-bottom: 6px; }
+    #panel input[type=range] { width: 180px; }
+    #panel button { margin-top: 6px; background: #222; color: #eee; border: 1px solid #444; padding: 4px 8px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div id="canvas-host"></div>
+  <div id="panel">
+    <label>noiseScale <input type="range" id="noiseScale" min="0.001" max="0.05" step="0.001" value="0.008"></label>
+    <label>noiseStrength <input type="range" id="noiseStrength" min="0.5" max="6" step="0.1" value="2.5"></label>
+    <label>particleCount <input type="range" id="particleCount" min="100" max="3000" step="50" value="1200"></label>
+    <label>traceAlpha <input type="range" id="traceAlpha" min="2" max="40" step="1" value="8"></label>
+    <label>seed <input type="range" id="seed" min="0" max="9999" step="1" value="42"></label>
+    <button onclick="regenerate()">Re-roll</button>
+    <span style="font-size: 10px; opacity: 0.6;">Press 's' to export PNG.</span>
+  </div>
+<script>
+let particles = [];
+let cfg = { noiseScale: 0.008, noiseStrength: 2.5, particleCount: 1200, traceAlpha: 8, seed: 42 };
+
+function readSliders() {
+  for (const k of Object.keys(cfg)) {
+    const el = document.getElementById(k);
+    if (el) cfg[k] = parseFloat(el.value);
+  }
+}
+
+function regenerate() {
+  readSliders();
+  randomSeed(cfg.seed);
+  noiseSeed(cfg.seed);
+  particles = [];
+  for (let i = 0; i < cfg.particleCount; i++) {
+    particles.push({ x: random(width), y: random(height), vx: 0, vy: 0 });
+  }
+  background(17);
+}
+
+function setup() {
+  const c = createCanvas(windowWidth, windowHeight);
+  c.parent('canvas-host');
+  document.querySelectorAll('#panel input[type=range]').forEach(el => el.addEventListener('change', regenerate));
+  regenerate();
+}
+
+function draw() {
+  noStroke();
+  fill(17, 17, 17, cfg.traceAlpha);
+  rect(0, 0, width, height);
+  stroke(220, 200, 160, 120);
+  strokeWeight(0.7);
+  for (const p of particles) {
+    const a = noise(p.x * cfg.noiseScale, p.y * cfg.noiseScale) * TWO_PI * 2;
+    p.vx += cos(a) * 0.05 * cfg.noiseStrength;
+    p.vy += sin(a) * 0.05 * cfg.noiseStrength;
+    p.vx *= 0.94;
+    p.vy *= 0.94;
+    const nx = p.x + p.vx;
+    const ny = p.y + p.vy;
+    line(p.x, p.y, nx, ny);
+    p.x = nx;
+    p.y = ny;
+    if (p.x < 0 || p.x > width || p.y < 0 || p.y > height) {
+      p.x = random(width);
+      p.y = random(height);
+    }
+  }
+}
+
+function keyPressed() {
+  if (key === 's' || key === 'S') saveCanvas('flow-field-' + cfg.seed, 'png');
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+  regenerate();
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,101 @@
+<!doctype html>
+<!--
+  L-system starter template.
+  Reference movement: Aristid Lindenmayer's grammar-driven plant grammars; Yoichiro Kawaguchi's recursive forms.
+  Underlying principle: growth as recursion under a bounded grammar.
+  Replace this comment block, the axiom, and the rule set when adapting to a new manifesto.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>L-system starter</title>
+  <script src="https://cdn.jsdelivr.net/npm/p5@1/lib/p5.min.js"></script>
+  <style>
+    body { margin: 0; background: #fafaf7; color: #222; font-family: ui-monospace, monospace; }
+    #canvas-host { display: block; }
+    #panel { position: fixed; bottom: 12px; left: 12px; background: rgba(255,255,255,0.9); padding: 10px 12px; border: 1px solid #ccc; max-width: 260px; }
+    #panel label { display: block; font-size: 11px; margin-bottom: 6px; }
+    #panel input[type=range], #panel input[type=text] { width: 220px; font-family: ui-monospace, monospace; font-size: 11px; }
+    #panel button { margin-top: 6px; background: #fff; color: #222; border: 1px solid #888; padding: 4px 8px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div id="canvas-host"></div>
+  <div id="panel">
+    <label>axiom <input type="text" id="axiom" value="F"></label>
+    <label>rule F &rarr; <input type="text" id="ruleF" value="FF+[+F-F-F]-[-F+F+F]"></label>
+    <label>iterations <input type="range" id="iterations" min="1" max="6" step="1" value="4"></label>
+    <label>angle <input type="range" id="angle" min="10" max="50" step="0.5" value="22.5"></label>
+    <label>seed <input type="range" id="seed" min="0" max="9999" step="1" value="3"></label>
+    <button onclick="regenerate()">Re-roll</button>
+    <span style="font-size: 10px; opacity: 0.6;">Press 's' to export PNG.</span>
+  </div>
+<script>
+let cfg = { axiom: 'F', ruleF: 'FF+[+F-F-F]-[-F+F+F]', iterations: 4, angle: 22.5, seed: 3 };
+let sentence = '';
+
+function readSliders() {
+  cfg.axiom = document.getElementById('axiom').value;
+  cfg.ruleF = document.getElementById('ruleF').value;
+  cfg.iterations = parseInt(document.getElementById('iterations').value, 10);
+  cfg.angle = parseFloat(document.getElementById('angle').value);
+  cfg.seed = parseInt(document.getElementById('seed').value, 10);
+}
+
+function expand() {
+  let s = cfg.axiom;
+  for (let i = 0; i < cfg.iterations; i++) {
+    let next = '';
+    for (const ch of s) next += (ch === 'F') ? cfg.ruleF : ch;
+    s = next;
+  }
+  return s;
+}
+
+function regenerate() {
+  readSliders();
+  randomSeed(cfg.seed);
+  noiseSeed(cfg.seed);
+  sentence = expand();
+  redraw();
+}
+
+function setup() {
+  const c = createCanvas(windowWidth, windowHeight);
+  c.parent('canvas-host');
+  noLoop();
+  document.querySelectorAll('#panel input').forEach(el => el.addEventListener('change', regenerate));
+  regenerate();
+}
+
+function draw() {
+  background(250, 250, 247);
+  resetMatrix();
+  translate(width / 2, height - 40);
+  stroke(34, 34, 34, 200);
+  strokeWeight(0.7);
+  const len = max(1.5, 6 - cfg.iterations);
+  const ang = radians(cfg.angle);
+  for (const ch of sentence) {
+    if (ch === 'F') {
+      const jitter = (random() - 0.5) * 0.3;
+      line(0, 0, 0, -len);
+      translate(0, -len + jitter);
+    } else if (ch === '+') rotate(ang);
+    else if (ch === '-') rotate(-ang);
+    else if (ch === '[') push();
+    else if (ch === ']') pop();
+  }
+}
+
+function keyPressed() {
+  if (key === 's' || key === 'S') saveCanvas('l-system-' + cfg.seed, 'png');
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+  regenerate();
+}
+</script>
+</body>
+</html>

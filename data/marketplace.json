@@ -83,8 +83,8 @@
     {
       "id": "business-product",
       "name": "Business & Product",
-      "description": "Business analysis, product management, scrum, and technical writing",
-      "skill_count": 4
+      "description": "Business analysis, product management, scrum, technical writing, and internal communications",
+      "skill_count": 5
     },
     {
       "id": "code-cleanup",
@@ -107,8 +107,8 @@
     {
       "id": "developer-experience",
       "name": "Developer Experience",
-      "description": "Code optimization, refactoring, migration, dependency management",
-      "skill_count": 25
+      "description": "Code optimization, refactoring, migration, dependency management, web artifact scaffolding",
+      "skill_count": 26
     },
     {
       "id": "documentation",
@@ -155,8 +155,8 @@
     {
       "id": "specialized-domains",
       "name": "Specialized Domains",
-      "description": "Fintech, mobile development, document generation, graphics programming",
-      "skill_count": 9
+      "description": "Fintech, mobile development, document generation, graphics programming, generative art, theme tokens",
+      "skill_count": 11
     },
     {
       "id": "testing",

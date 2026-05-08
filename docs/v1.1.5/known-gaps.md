@@ -3,19 +3,19 @@
 This file tracks per-version unfinished work, deferred items, deviations from plan, and bugs discovered during phase implementation. The next phase plan and the version-bump checklist read this file to decide what carries forward.
 
 **Plan**: [docs/v1.1.5/plans/adoption-skills.md](plans/adoption-skills.md)
-**Last updated**: 2026-05-08 (Phase 3 complete)
+**Last updated**: 2026-05-08 (Phase 4 complete)
 
 ## Summary
 
 | Category | Open | Resolved this version |
 |---|---|---|
 | NI -- Not implemented (skipped subtask) | 0 | 0 |
-| DF -- Deferred (intentionally) | 4 | 0 |
+| DF -- Deferred (intentionally) | 5 | 0 |
 | BG -- Bug or unresolved test failure | 0 | 0 |
 | MT -- Missing tests / coverage gap | 0 | 0 |
 | WN -- Warning or suppressed lint rule | 1 | 0 |
 | QG -- Quality gate bypassed | 1 | 0 |
-| **Total** | **6** | **0** |
+| **Total** | **7** | **0** |
 
 ## Open Items
 
@@ -64,6 +64,13 @@ This file tracks per-version unfinished work, deferred items, deviations from pl
 **Reason**: The new `validate_skill_bundles` audit -- newly added in Phase 3 and wired into `make validate` via the `--bundles-only` flag -- detects 4 pre-existing orphan files that were tracked into the catalog before the convention was formalized: `catalog/skills/framework-specialists/fastapi-expert/references/dependency-injection-patterns.md`, `catalog/skills/framework-specialists/nextjs-expert/references/data-fetching-patterns.md`, `catalog/skills/framework-specialists/react-expert/references/performance-patterns.md`, `catalog/skills/framework-specialists/react-expert/references/testing-recipes.md`. None of these four files are referenced from their parent SKILL.md or from any other reference file in the same bundle, so by the new convention they qualify as orphans. They are warnings (not errors) so `make validate` continues to exit 0; the 4 reports surface only when `--verbose` is passed.
 **Resolution applied in Phase 3**: None -- detection added, reporting verified, but the 4 orphan files themselves are out of Phase 3's scope (they belong to existing framework-specialist skills and the appropriate fix is a per-skill body-edit to add a `## References` block that links to the orphan, not a Phase 3 layout-convention task).
 **Suggested next step**: Add a small follow-up task to the next plan (or as a v1.2.x patch): for each of the 4 framework-specialist skills, add a brief `## References` section to SKILL.md that links to the per-skill `references/*.md` files. Alternative if any of the 4 reference files turn out to be genuinely abandoned: delete them. Either action makes the orphan warning go away without touching the audit logic.
+
+### DF-005 -- Phase 4 cross-OS installer dry-run deferred (extends DF-003)
+
+**Source phase**: Phase 4, sub-task 4.5 (cross-platform installer verification).
+**Plan reference**: [docs/v1.1.5/plans/adoption-skills.md](plans/adoption-skills.md) lines 297-302 (sub-task 4.5) and the cross-cutting constraint at lines 535-543.
+**Reason**: Phase 4 added four new skills, three of which ship bundled subdirectories (`assets/` for `generative-art`, `themes/` for `theme-tokens`, `examples/` for `internal-comms`, `scripts/` for `web-artifacts-builder` -- the latter is the standard `BUNDLED_SUBDIRS` name and the others are auto-distributed by the installer's recursive copy without orphan-validation overhead). Cross-platform parity verification was performed on Windows only: `bash -n catalog/skills/developer-experience/web-artifacts-builder/scripts/init-artifact.sh` (clean), and PowerShell parser-check on `init-artifact.ps1` via `[System.Management.Automation.Language.Parser]::ParseFile` (clean). The four new SKILL.md files validate independently (`python scripts/validate_skills.py --path` returns 0 errors, 5 optional-field warnings each). The full `make validate` passes with the same 4 pre-existing orphan warnings carried forward from WN-001. A real install on macOS / Linux to confirm the bundled subdirs land at the expected paths under each platform target was not run (work-environment constraint -- Windows 11 with PowerShell as the primary shell). The recursive-copy primitives (`rsync -a --delete` / `cp -R` for `installer.sh`; `robocopy ... /MIR` for `installer.ps1`) are the same ones validated end-to-end in Phase 3, so the smoke-test analysis carries over.
+**Suggested next step**: Same as DF-003 -- defer the cross-OS smoke run to either a CI matrix step (Linux runner + macOS runner each performing a real `bash scripts/installer.sh` workspace install into a throwaway directory) or a periodic "release-readiness" smoke task before any v1.x.x version bump. Phase 5 (skill-eval-loop) will add repo-level scripts that DO require explicit installer registration in both `installer.sh` and `installer.ps1`, so the cross-OS smoke run becomes more important then.
 
 ## Resolved
 

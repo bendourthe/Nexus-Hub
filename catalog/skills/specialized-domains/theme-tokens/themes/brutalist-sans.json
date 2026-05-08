@@ -1,0 +1,24 @@
+{
+  "name": "brutalist-sans",
+  "label": "Brutalist Sans",
+  "description": "Heavy sans, hard corners, no shadow, deliberate over-borders for manifestos and statement decks.",
+  "palette": {
+    "primary": "#000000",
+    "secondary": "#1a1a1a",
+    "accent": "#ff3b00",
+    "background": "#ffffff",
+    "foreground": "#000000",
+    "muted": "#555555"
+  },
+  "fonts": {
+    "heading": "'Space Grotesk', 'Inter Tight', 'Helvetica Neue', sans-serif",
+    "body": "'Space Grotesk', 'Inter', system-ui, sans-serif",
+    "mono": "'IBM Plex Mono', 'JetBrains Mono', ui-monospace, monospace"
+  },
+  "spacing": {
+    "base": 8,
+    "scale": [0.5, 1, 2, 3, 4, 6, 8, 12]
+  },
+  "radius": 0,
+  "shadow": "none"
+}
