@@ -199,5 +199,6 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | theme-tokens | specialized-domains | "Apply curated theme tokens (palette, fonts, spacing) to slides, docs, PDFs, and web artifacts" | catalog/skills/specialized-domains/theme-tokens/SKILL.md |
 | internal-comms | business-product | "Draft internal comms using six structured templates (3P, status, leadership, FAQ, incident, project)" | catalog/skills/business-product/internal-comms/SKILL.md |
 | web-artifacts-builder | developer-experience | "Scaffold Vite + React + TypeScript + Tailwind v4 + shadcn/ui multi-component web artifacts" | catalog/skills/developer-experience/web-artifacts-builder/SKILL.md |
+| skill-eval-loop | workflow | "Iterate on any skill via paired with-skill/baseline runs, assertion-graded outputs, and a browser-reviewed benchmark loop" | catalog/skills/workflow/skill-eval-loop/SKILL.md |
 
-**Total: 191 skills across 22 categories**
+**Total: 192 skills across 22 categories**

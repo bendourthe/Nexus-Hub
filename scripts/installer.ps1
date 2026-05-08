@@ -1731,6 +1731,26 @@ function Install-Templates {
         Safe-Copy -Source $benchmarkSource -Destination (Join-Path $scriptsDest "devai_mcp_benchmark.py") -Confirm:$true -CustomMessage "✓ MCP benchmark installed at: $scriptsDest\devai_mcp_benchmark.py"
     }
 
+    # Copy skill-eval-loop dispatcher scripts (v1.2.0-wip / Phase 5 / A6 + A7).
+    # Three repo-level scripts that work alongside the catalog/skills/workflow/
+    # skill-eval-loop/ skill: the iteration aggregator, the browser-based
+    # viewer, and the description optimizer. All three follow the v1.1.3
+    # four-hook precedent for CLI dispatch (single dispatcher with --cli
+    # flag, no cross-CLI fallback, parity-test enforced via pytest). Lockstep
+    # with the same block in scripts/installer.sh.
+    $evalAggregatorSource = Join-Path $RepoRoot "scripts\aggregate_benchmark.py"
+    if (Test-Path $evalAggregatorSource) {
+        Safe-Copy -Source $evalAggregatorSource -Destination (Join-Path $scriptsDest "aggregate_benchmark.py") -Confirm:$true -CustomMessage "✓ Eval-loop benchmark aggregator installed at: $scriptsDest\aggregate_benchmark.py"
+    }
+    $evalViewerSource = Join-Path $RepoRoot "scripts\skill_eval_viewer.py"
+    if (Test-Path $evalViewerSource) {
+        Safe-Copy -Source $evalViewerSource -Destination (Join-Path $scriptsDest "skill_eval_viewer.py") -Confirm:$true -CustomMessage "✓ Eval-loop browser viewer installed at: $scriptsDest\skill_eval_viewer.py"
+    }
+    $evalOptimizerSource = Join-Path $RepoRoot "scripts\optimize_skill_description.py"
+    if (Test-Path $evalOptimizerSource) {
+        Safe-Copy -Source $evalOptimizerSource -Destination (Join-Path $scriptsDest "optimize_skill_description.py") -Confirm:$true -CustomMessage "✓ Skill-description optimizer installed at: $scriptsDest\optimize_skill_description.py"
+    }
+
     # Copy style-guides (v1.0.0+). Reference content for /compile-deep-research
     # and /generate-report; deliberately not in catalog\commands so the files
     # do not surface as slash commands.

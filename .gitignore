@@ -77,3 +77,11 @@ data/benchmarks/
 # devai-code-search local index (v1.0.0+)
 .devai/
 .devaiignore
+
+# skill-eval-loop user workspaces (v1.2.0-wip / Phase 5). Users running the
+# eval loop produce <skill-name>-workspace/ directories at the repo root with
+# per-iteration outputs, benchmarks, and feedback. Ignore them so iteration
+# artifacts do not leak into commits. Pattern matches the convention from
+# catalog/skills/workflow/skill-eval-loop/SKILL.md step 1.
+*-workspace/
+

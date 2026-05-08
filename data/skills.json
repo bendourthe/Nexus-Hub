@@ -6,7 +6,7 @@
     "description": "Comprehensive catalog of DevAI-Hub skills with L0/L1 tiered summaries"
   },
   "statistics": {
-    "total_skills": 193,
+    "total_skills": 194,
     "categories": {
       "ai-development": 8,
       "architecture": 6,
@@ -28,7 +28,7 @@
       "specialized-domains": 11,
       "testing": 3,
       "tests-generation": 17,
-      "workflow": 18,
+      "workflow": 19,
       "Workflow": 1
     },
     "priorities": {
@@ -6545,6 +6545,51 @@
       "size": {
         "lines": 145,
         "tokens_estimate": 2900
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "skill-eval-loop",
+      "title": "skill-eval-loop",
+      "description": "Drive a structured evaluation iteration loop for any DevAI-Hub skill - capture user intent, write test prompts, run the skill against a baseline (no-skill) control, grade outputs against assertions, aggregate to a benchmark, view in a browser, collect feedback, and improve the skill across iterations until pass-rate stabilizes. Use whenever the user wants to evaluate a skill, benchmark a skill, A/B test a skill, optimize a skill description, run an eval set, score a skill against test prompts, iterate on a skill, or \"make this skill actually work\" - even if they don't say the word \"eval\". Covers workspace layout, eval-prompt authoring, with-skill / without-skill paired runs, grading via assertions, browser-based human review, feedback capture, and the description-optimizer integration. SKIP one-off prompt tests with no comparison, ad-hoc skill drafting that does not need iteration, or simple unit-test runs against deterministic code.",
+      "long_description": "Closed-loop workflow for evolving any DevAI-Hub skill from draft to data-confirmed: each iteration spawns paired with_skill / without_skill runs against an eval set, grades outputs via assertion checks, aggregates to a benchmark, presents the runs side-by-side in a browser viewer, collects feedback, and feeds the next iteration via five named improvement heuristics (pushy descriptions, explain-the-why, repeated-work elimination, negative-space coverage, assertion calibration). CLI-agnostic by design (claude / gemini / codex / opencode); the parity invariant is enforced by a parametrized pytest. Bundled with three repo-level scripts (aggregate_benchmark.py, skill_eval_viewer.py, optimize_skill_description.py) registered in both installers, plus three sub-agent prompts (grader, comparator, analyzer) under agents/.",
+      "summary_l0": "\"Iterate on any skill via paired with-skill/baseline runs, assertion-graded outputs, and a browser-reviewed benchmark loop\"",
+      "overview_l1": "\"This skill drives a closed-loop evaluation workflow for any DevAI-Hub skill. Each iteration writes 2-3 realistic test prompts to evals/evals.json, spawns paired runs (with-skill vs baseline), captures outputs + tokens + duration, grades each output against per-eval assertions, and aggregates a benchmark. A browser viewer presents the runs side-by-side and collects structured feedback. The next iteration consumes the feedback, applies improvement heuristics (pushy descriptions, explain-the-why, repeated-work elimination), and re-runs - producing a measurable pass-rate trajectory rather than a vibes-based revision history. The loop is CLI-agnostic by design: a single dispatcher routes to claude / gemini / codex / opencode with a parity invariant enforced by pytest. Trigger phrases: evaluate a skill, benchmark a skill, A/B test a skill, optimize a skill description, run eval set, score a skill, iterate on a skill, skill regression, prompt eval, with-skill vs without-skill, eval harness, eval workspace, paired runs, eval iteration.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "workflow",
+      "language": "Python",
+      "tags": [
+        "skill-evaluation",
+        "ab-testing",
+        "benchmark",
+        "eval-harness",
+        "paired-runs",
+        "iteration-loop",
+        "description-optimizer",
+        "cli-agnostic",
+        "held-out-test"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read",
+        "Write",
+        "Edit",
+        "Bash"
+      ],
+      "path": "catalog/skills/workflow/skill-eval-loop/",
+      "file": "catalog/skills/workflow/skill-eval-loop/SKILL.md",
+      "size": {
+        "lines": 197,
+        "tokens_estimate": 4400
       },
       "downloads": 0,
       "status": "production",

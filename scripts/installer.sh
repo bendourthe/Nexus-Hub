@@ -1422,6 +1422,25 @@ install_templates() {
         safe_copy "$benchmark_source" "$scripts_dest/devai_mcp_benchmark.py" true "[OK] MCP benchmark installed at: $scripts_dest/devai_mcp_benchmark.py"
     fi
 
+    # Copy skill-eval-loop dispatcher scripts (v1.2.0-wip / Phase 5 / A6 + A7).
+    # Three repo-level scripts that work alongside the catalog/skills/workflow/
+    # skill-eval-loop/ skill: the iteration aggregator, the browser-based
+    # viewer, and the description optimizer. All three follow the v1.1.3
+    # four-hook precedent for CLI dispatch (single dispatcher with --cli
+    # flag, no cross-CLI fallback, parity-test enforced via pytest).
+    local eval_aggregator_source="$repo_root/scripts/aggregate_benchmark.py"
+    if [ -f "$eval_aggregator_source" ]; then
+        safe_copy "$eval_aggregator_source" "$scripts_dest/aggregate_benchmark.py" true "[OK] Eval-loop benchmark aggregator installed at: $scripts_dest/aggregate_benchmark.py"
+    fi
+    local eval_viewer_source="$repo_root/scripts/skill_eval_viewer.py"
+    if [ -f "$eval_viewer_source" ]; then
+        safe_copy "$eval_viewer_source" "$scripts_dest/skill_eval_viewer.py" true "[OK] Eval-loop browser viewer installed at: $scripts_dest/skill_eval_viewer.py"
+    fi
+    local eval_optimizer_source="$repo_root/scripts/optimize_skill_description.py"
+    if [ -f "$eval_optimizer_source" ]; then
+        safe_copy "$eval_optimizer_source" "$scripts_dest/optimize_skill_description.py" true "[OK] Skill-description optimizer installed at: $scripts_dest/optimize_skill_description.py"
+    fi
+
     # Copy style-guides (v1.0.0+). Reference content for /compile-deep-research
     # and /generate-report; deliberately not in catalog/commands/ so the files
     # do not surface as slash commands.
