@@ -174,7 +174,7 @@
       "id": "workflow",
       "name": "Workflow",
       "description": "Git workflows, TDD, debugging, session history, version management",
-      "skill_count": 18
+      "skill_count": 19
     }
   ],
   "discovery": {

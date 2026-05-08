@@ -194,5 +194,6 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | browser-testing-with-devtools | testing | "Test and debug frontend behavior using browser DevTools for network, console, performance, and accessibility" | catalog/skills/testing/browser-testing-with-devtools/SKILL.md |
 | code-simplification | code-cleanup | "Reduce structural complexity by eliminating over-abstraction and dead code without changing behavior" | catalog/skills/code-cleanup/code-simplification/SKILL.md |
 | known-gaps-tracker | workflow | "Track per-version unfinished work, deferred items, bugs, warnings, and coverage gaps so the next plan picks them up automatically" | catalog/skills/workflow/known-gaps-tracker/SKILL.md |
+| doc-coauthoring | workflow | "Guide users through a 3-stage workflow for co-authoring documentation" | catalog/skills/workflow/doc-coauthoring/SKILL.md |
 
-**Total: 186 skills across 22 categories**
+**Total: 187 skills across 22 categories**

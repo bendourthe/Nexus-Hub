@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-Phase 1 of the v1.1.5 `adoption-skills` plan (`docs/v1.1.5/plans/adoption-skills.md`). Five doc-only edits that institutionalize patterns observed in upstream skill-authoring guidance, without adding any new file to the catalog file tree. All edits land in tracked Markdown files that the existing installer recursive-copy logic already distributes to all 5 supported AI-IDE platforms (Claude Code, Cursor, Codex, Gemini, OpenCode) on Windows, macOS, and Linux. No installer edit, no `data/` registry edit, no version bump (per the user-supplied constraint that the version bump waits until Phase 7 of the plan).
+Phases 1 and 2 of the v1.1.5 `adoption-skills` plan (`docs/v1.1.5/plans/adoption-skills.md`). Phase 1 shipped five doc-only edits that institutionalize patterns observed in upstream skill-authoring guidance. Phase 2 closes the A4 cleanup item (the `claude-api` row was already fully de-listed across all three `data/` registries before Phase 2 began, so A4 needed no code change beyond verifying state) and adds the new A9 `doc-coauthoring` workflow skill - a 3-stage co-authoring workflow (Context Gathering -> Refinement and Structure -> Reader Testing) for specs, proposals, decision docs, RFCs, ADRs, and long-form internal writeups. All edits land in tracked Markdown / JSON files that the existing installer recursive-copy logic already distributes to all 5 supported AI-IDE platforms (Claude Code, Cursor, Codex, Gemini, OpenCode) on Windows, macOS, and Linux. No installer edit, no version bump (per the user-supplied constraint that the version bump waits until Phase 7 of the plan).
 
 ### Changed
 
@@ -25,13 +25,39 @@ Skill body edits:
 - **A11 - `catalog/skills/developer-experience/frontend-ui-engineering/SKILL.md`.** Adds an "Aesthetic Distinctiveness" section after "Step 7: Component Testing". Documents the AI-default aesthetic that production-grade UI must avoid (centered hero + three-card grid + gradient button + Inter typeface + uniform padding + 12px border-radius), six countermeasures (custom typography pairing, asymmetric layout, intentional density, distinctive accent color, motion that means something, copy with a voice), three reference patterns the agent can pick one of (editorial multi-column, brutalist over-borders, restrained motion), and a process step (write a one-page direction note up-front, not as a polish pass). Adds a Common Rationalizations row rebutting "the agent's default looks fine, we can polish later." Adds a Verification entry requiring the project to deviate from the AI-default in at least 2-3 dimensions.
 - **A12 - `catalog/skills/developer-experience/creative-generation/SKILL.md`.** Adds a "Static Poster / Print Workflow" section after the existing "Ideation" section. Documents a deliberate two-step approach: step 1 writes a 30-80 line Markdown design philosophy fixing color palette, typography, composition principles, and 1-2 reference movements; step 2 renders the actual `.png` / `.pdf` output via `pptx-generation` / `docx-generation` / `pdf-document-generation` for standard formats or a single-purpose Pillow / matplotlib script for one-off bespoke layouts. Explicitly scopes p5.js / interactive-canvas outputs OUT (those belong to the `generative-art` skill being added in Phase 4 / A1). Adds a Common Rationalizations table (which the file did not previously have) with three rebuttals targeting the most common reasons authors skip the philosophy step.
 
-Tests:
+### Added
 
-- All four test suites passing: 37 (devai-skill-server) + 36 (devai-code-search, 1 skipped) + 23 (devai-web-fetch) + 310 (catalog/hooks/tests) = 406 passed, 1 skipped, 0 failures. ShellCheck clean against `scripts/installer.sh` and `install.sh`. JSON catalogs valid: 188 skills, 11 bundles, 17 workflows, templates OK.
+New skills (Phase 2):
 
-Known gaps:
+- **A9 - `catalog/skills/workflow/doc-coauthoring/SKILL.md`.** New 114-line workflow skill that drives a 3-stage co-authoring workflow for any non-trivial written artifact (specs, proposals, decision docs, RFCs, ADRs, technical memos, long-form internal writeups). Stage 1 - Context Gathering surfaces audience, purpose, prior art, and constraints in a single batched turn before any prose is written. Stage 2 - Refinement and Structure produces an outline first, then a draft against the accepted outline, with explicit checkpoints to detect drift from the Stage 1 Purpose. Stage 3 - Reader Testing simulates a fresh reader who has not seen the conversation, surfaces a gap list (unbacked claims / missing antecedents / lost-thread transitions) the user resolves or accepts. Frontmatter follows the v1.1.5 pushy-description rule from A14 (lists trigger phrases and a SKIP clause explicitly). Common Rationalizations table covers the six most common reasons agents skip stages (especially Stage 1 inference and Stage 3 omission). Verification section is binary and observable. Cross-links to `business-product/technical-writer`, `developer-experience/writing-editing`, `documentation/technical-documentation`, `business-product/internal-comms`, `developer-experience/idea-refine`, and `developer-experience/spec-driven-development`.
 
-- See `docs/v1.1.5/known-gaps.md` for the full Phase 1 gap log. One DEVIATION to flag here: the plan referenced `catalog/skills/workflow/create-skill-or-command/SKILL.md` for sub-task 1.1, but only `create-custom-command` exists in the catalog (skill-creation guidance for skills lives in AGENTS.md "Adding a New Skill", not in a dedicated catalog skill). A14 was applied to both `create-custom-command/SKILL.md` and the equivalent location in AGENTS.md, achieving the original intent without inventing a new skill file.
+Registry updates (Phase 2):
+
+- **`data/SKILL_INDEX.md`** gets a new `doc-coauthoring` row in the workflow category; total updated from 186 to 187.
+- **`data/skills.json`** gets a new entry following the full schema (name, title, description, long_description, summary_l0, overview_l1, version=1.0.0, author, category=workflow, language=Multi-language, tags, priority=MEDIUM, based_on, tools_required, path, file, size, downloads, status=production, security 100/100/95). `statistics.total_skills` and `statistics.categories.workflow` incremented; `total_lines` and `total_tokens_estimate` adjusted for the new skill.
+- **`data/marketplace.json`** workflow category `skill_count` incremented from 18 to 19.
+
+### Removed
+
+Phase 2 cleanup (A4):
+
+- **`claude-api` skill index drift resolved.** The comparison report (`docs/v1.1.5/comparison-skills.md` Section 5a A4) flagged the `claude-api` row as present in all three `data/` registry files while the file `catalog/skills/ai-development/claude-api/SKILL.md` did not exist. State at the start of Phase 2 was that the row had already been removed from `data/SKILL_INDEX.md`, `data/skills.json`, and `data/marketplace.json` between the comparison report and Phase 2 - the de-list path (option C in the plan's 2.1 question) was effectively already executed. Verified consistency: zero matches for `claude-api` in any `data/` file; no orphan rows. No code change required for A4 beyond this confirmation; recorded in the Phase 2 known-gaps DF entry for traceability.
+
+### Verified
+
+Cross-platform installer parity (Phase 2):
+
+- **Both installers' recursive-copy logic auto-distributes the new skill** without requiring an installer edit. `scripts/installer.sh::safe_folder_copy` uses `rsync -a --delete` (or `cp -R "$source/"*` fallback) on `catalog/skills/`; `scripts/installer.ps1::Safe-Folder-Copy` uses `robocopy ... /MIR`. Both primitives are recursive and pick up new skill folders automatically.
+- **All 5 platform templates pick up the new SKILL_INDEX row at install time.** `templates/ai-instructions/base-{claude,cursor,codex,gemini,opencode}.md` and `generic-instructions.md` each contain a `{{SKILL_INDEX}}` placeholder that the installer substitutes from `data/SKILL_INDEX.md`. Updating the index file once distributes the new row to all 5 supported IDEs.
+- **`bash -n scripts/installer.sh`** clean; ShellCheck clean against `scripts/installer.sh` and `install.sh`.
+
+### Tests
+
+- All four test suites passing across Phases 1 and 2: 37 (devai-skill-server) + 36 (devai-code-search, 1 skipped) + 23 (devai-web-fetch) + 310 (catalog/hooks/tests) = 406 passed, 1 skipped, 0 failures. ShellCheck clean against `scripts/installer.sh` and `install.sh`. JSON catalogs valid: 189 skills (was 188; +1 doc-coauthoring), 11 bundles, 17 workflows, templates and marketplace OK.
+
+### Known gaps
+
+- See `docs/v1.1.5/known-gaps.md` for the cumulative gap log. Phase 1 surfaced one DEVIATION (the plan referenced `catalog/skills/workflow/create-skill-or-command/SKILL.md` for sub-task 1.1, but only `create-custom-command` exists in the catalog - skill-creation guidance for skills lives in AGENTS.md "Adding a New Skill", not in a dedicated catalog skill; A14 was applied to both `create-custom-command/SKILL.md` and the equivalent AGENTS.md location, achieving the original intent without inventing a new skill file). Phase 2 surfaced one DEVIATION (A4's plan-described starting state - claude-api row present across all three registries - did not match the actual repo state at Phase 2 start; the row was already absent everywhere, so the de-list work was a no-op verification rather than an edit). Phase 2 also accepted one cross-OS coverage gap: the cross-platform installer parity verification was performed on Windows / Git Bash only (the work-environment constraint); macOS / Linux dry-run is deferred to a later cross-platform smoke run.
 
 ---
 

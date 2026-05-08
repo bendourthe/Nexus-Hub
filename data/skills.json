@@ -6,7 +6,7 @@
     "description": "Comprehensive catalog of DevAI-Hub skills with L0/L1 tiered summaries"
   },
   "statistics": {
-    "total_skills": 188,
+    "total_skills": 189,
     "categories": {
       "ai-development": 8,
       "architecture": 6,
@@ -28,15 +28,15 @@
       "specialized-domains": 9,
       "testing": 3,
       "tests-generation": 17,
-      "workflow": 17,
+      "workflow": 18,
       "Workflow": 1
     },
     "priorities": {
-      "MEDIUM": 174
+      "MEDIUM": 175
     },
-    "total_lines": 115639,
-    "total_tokens_estimate": 460121,
-    "average_lines_per_skill": 664,
+    "total_lines": 115753,
+    "total_tokens_estimate": 462321,
+    "average_lines_per_skill": 612,
     "languages_supported": [
       "Python",
       "JavaScript",
@@ -6323,6 +6323,50 @@
       "size": {
         "lines": 150,
         "tokens_estimate": 1100
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "doc-coauthoring",
+      "title": "doc-coauthoring",
+      "description": "Guide users through a structured 3-stage workflow for co-authoring documentation - specs, proposals, decision docs, RFCs, ADRs, technical writeups, and long-form internal memos. Use whenever the user wants to co-write a doc, draft a proposal, refine documentation iteratively, brainstorm a writeup, or pair on a longer-form written artifact, even if they don't explicitly say \"co-author\". Covers Stage 1 (Context Gathering), Stage 2 (Refinement and Structure), and Stage 3 (Reader Testing). SKIP: simple READMEs that don't need a workflow, single-paragraph commit messages, one-line code comments, or quick inline questions that resolve in one turn.",
+      "long_description": "Drives a 3-stage co-authoring workflow for any non-trivial written artifact (specs, proposals, decision docs, RFCs, ADRs, technical memos, long-form internal writeups). Stage 1 - Context Gathering surfaces the audience, the purpose, prior art, and constraints before any prose is written. Stage 2 - Refinement and Structure produces an outline, then a draft, then iterates on shape until the structure carries the argument. Stage 3 - Reader Testing simulates a fresh reader who has not seen the conversation, identifies the gaps that drop them, and closes those gaps. Output is a doc that holds together for someone who reads it cold, not just for the author. Cross-links to technical-writer, writing-editing, technical-documentation, internal-comms, idea-refine, and spec-driven-development.",
+      "summary_l0": "\"Guide users through a 3-stage workflow for co-authoring documentation\"",
+      "overview_l1": "\"This skill drives a 3-stage co-authoring workflow for any non-trivial written artifact: specs, proposals, decision docs, RFCs, ADRs, technical memos, and long-form internal writeups. Stage 1 - Context Gathering surfaces the audience, the purpose, prior art, and constraints before any prose is written. Stage 2 - Refinement and Structure produces an outline, then a draft, then iterates on shape until the structure carries the argument. Stage 3 - Reader Testing simulates a fresh reader who has not seen the conversation, identifies the gaps that drop them, and closes those gaps. The output is a doc that holds together for someone who reads it cold, not just for the author who already knows the answer. Trigger phrases: co-author, co-write, draft a proposal, write a spec, write an RFC, write an ADR, decision doc, technical writeup, internal memo, refine documentation, iterate on a doc.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "workflow",
+      "language": "Multi-language",
+      "tags": [
+        "documentation",
+        "co-authoring",
+        "spec-writing",
+        "rfc",
+        "adr",
+        "decision-doc",
+        "technical-writeup",
+        "iterative-drafting",
+        "reader-testing"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read",
+        "Write",
+        "Edit"
+      ],
+      "path": "catalog/skills/workflow/doc-coauthoring/",
+      "file": "catalog/skills/workflow/doc-coauthoring/SKILL.md",
+      "size": {
+        "lines": 114,
+        "tokens_estimate": 2200
       },
       "downloads": 0,
       "status": "production",
