@@ -65,8 +65,8 @@
     {
       "id": "ai-development",
       "name": "AI Development",
-      "description": "Build and deploy AI agents, manage billing, route across providers",
-      "skill_count": 8
+      "description": "Build and deploy AI agents, manage billing, route across providers, build MCP servers",
+      "skill_count": 9
     },
     {
       "id": "architecture",
@@ -155,8 +155,8 @@
     {
       "id": "specialized-domains",
       "name": "Specialized Domains",
-      "description": "Fintech, mobile development, document generation, graphics programming, generative art, theme tokens",
-      "skill_count": 11
+      "description": "Fintech, mobile development, document generation, graphics programming, generative art, theme tokens, brand styling",
+      "skill_count": 12
     },
     {
       "id": "testing",

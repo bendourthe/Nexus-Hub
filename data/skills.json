@@ -6,9 +6,9 @@
     "description": "Comprehensive catalog of DevAI-Hub skills with L0/L1 tiered summaries"
   },
   "statistics": {
-    "total_skills": 194,
+    "total_skills": 196,
     "categories": {
-      "ai-development": 8,
+      "ai-development": 9,
       "architecture": 6,
       "bug-fixing": 5,
       "business-product": 5,
@@ -25,7 +25,7 @@
       "project-setup": 4,
       "Research": 2,
       "security": 7,
-      "specialized-domains": 11,
+      "specialized-domains": 12,
       "testing": 3,
       "tests-generation": 17,
       "workflow": 19,
@@ -6590,6 +6590,94 @@
       "size": {
         "lines": 197,
         "tokens_estimate": 4400
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "brand-styling",
+      "title": "brand-styling",
+      "description": "Apply user-supplied brand tokens (palette, typography, logo, voice) to generated artifacts (slides, docs, PDFs, web artifacts) via a per-brand token JSON at ~/.devai-hub/brand/<brand-name>/. Use whenever the user mentions 'our brand', 'company colors', 'brand guidelines', 'brand kit', 'house style', 'match the brand', 'use our typography', 'apply our logo', 'stay on-brand', or wants generated artifacts (decks, reports, PDFs, web pages, internal comms) to reflect their organization's visual identity. ALWAYS ask the user for their brand tokens before picking colors or fonts; offer to scaffold an empty ~/.devai-hub/brand/default/tokens.json if the user has no brand yet. SKIP: brand-neutral / agnostic artifacts (use theme-tokens directly with one of the 10 curated themes), one-off styling decisions inside a single file, vendor-specific brands the user does NOT own (this skill ships ZERO vendor assets - no Anthropic / OpenAI / Google / Tailwind / Material colors, fonts, or logos).",
+      "long_description": "Token-pattern skill that applies the user's own brand to any generated artifact. Extends the theme-tokens schema with brand-specific fields (logo with primary / secondary / wordmark variants, voice with tone / do / dont rules, assets_dir for self-hosted fonts). Stores each brand under ~/.devai-hub/brand/<slug>/{tokens.json, fonts/, logo.{svg,png}}. The skill ships with ZERO vendor assets - the bundled template is empty placeholders, and the user MUST supply their own brand. If no brand exists yet, the skill offers to scaffold an empty default at ~/.devai-hub/brand/default/tokens.json. Downstream consumers (pptx-generation, docx-generation, pdf-document-generation, web-artifacts-builder, internal-comms, writing-editing) read the brand JSON and apply both visual tokens and voice rules.",
+      "summary_l0": "\"Apply user-supplied brand tokens (palette, fonts, logo) to generated artifacts via a per-brand token JSON\"",
+      "overview_l1": "\"This skill applies the user's own brand tokens to any artifact a generator emits (pptx, docx, pdf, web). It extends the theme-tokens schema with brand-specific fields (logo, voice rules, asset paths) and stores each brand under ~/.devai-hub/brand/<brand-name>/{tokens.json, fonts/, logo.{svg,png}}. The skill SHIPS WITH ZERO vendor-specific colors, fonts, or logos - the bundled template is empty placeholders, and the user MUST supply their own brand. If the user has no brand yet, the skill offers to scaffold an empty default brand at ~/.devai-hub/brand/default/tokens.json for them to fill. Downstream consumers (pptx-generation, docx-generation, pdf-document-generation, web-artifacts-builder) read the brand JSON and map the tokens to whatever the underlying engine expects. Trigger phrases: brand, brand kit, brand guidelines, company colors, our brand, house style, match the brand, on-brand, brand tokens, apply our logo, our typography, brand consistency.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "specialized-domains",
+      "language": "Multi-language",
+      "tags": [
+        "brand",
+        "brand-tokens",
+        "brand-kit",
+        "design-tokens",
+        "brand-styling",
+        "house-style",
+        "user-supplied",
+        "logo",
+        "voice",
+        "no-vendor-assets"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read",
+        "Write"
+      ],
+      "path": "catalog/skills/specialized-domains/brand-styling/",
+      "file": "catalog/skills/specialized-domains/brand-styling/SKILL.md",
+      "size": {
+        "lines": 180,
+        "tokens_estimate": 3500
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "mcp-builder",
+      "title": "mcp-builder",
+      "description": "Build a local MCP (Model Context Protocol) server in Python (FastMCP) or TypeScript / Node (the official MCP SDK) - tool definitions, structured output, auth, transports, and registration into Claude Code, Cursor, Codex, Gemini, and OpenCode. Use whenever the user wants to 'build an MCP', 'write an MCP server', 'expose tools to the agent', 'wrap an API as an MCP', 'create a custom MCP', 'MCP tool', 'MCP transport', 'register an MCP', or asks how to integrate a service the agent can call as a tool. Bundles cross-platform scaffolding scripts (init-mcp-fastmcp.{sh,ps1} and init-mcp-ts.{sh,ps1}) so Windows / macOS / Linux all reach the same starter. SKIP: capabilities the agent's LLM can already do (use a skill instead - per the AGENTS.md MCP Registry Policy decision tree); third-party search-as-service / embeddings-as-service / scraping-as-service wrappers (categorically rejected by policy); user wants to CONSUME an existing MCP (this skill is for BUILDING one - to consume, edit settings.json directly).",
+      "long_description": "Skill walks the agent through building a local MCP server in either Python (FastMCP) or Node / TypeScript (official @modelcontextprotocol/sdk), then registering it across all five DevAI-Hub-supported AI CLIs (Claude Code, Cursor, Codex, Gemini, OpenCode). Enforces the AGENTS.md MCP Registry Policy decision tree before scaffolding - many requests for 'an MCP' are better served by a skill (LLM-native, zero infrastructure). When an MCP is the right shape, the bundled scaffolding scripts (init-mcp-fastmcp.{sh,ps1} for Python, init-mcp-ts.{sh,ps1} for Node / TS) generate a one-tool hello-world server in under 30 seconds. Reference docs (references/fastmcp.md, references/ts-sdk.md) cover the deeper API surface for tool definitions, structured output, transports, auth, and testing.",
+      "summary_l0": "\"Build local MCP servers (FastMCP Python or MCP SDK Node/TS) with cross-platform scaffolding scripts\"",
+      "overview_l1": "\"This skill walks the agent through building a local MCP server in either Python (FastMCP) or Node / TypeScript (the official MCP SDK), then registering it across all five DevAI-Hub-supported AI CLIs (Claude Code, Cursor, Codex, Gemini, OpenCode). The skill enforces the AGENTS.md MCP Registry Policy decision tree before building - many capabilities should be a skill (LLM-native), not an MCP. When an MCP is the right shape, the bundled scaffolding scripts (init-mcp-fastmcp.{sh,ps1} for Python, init-mcp-ts.{sh,ps1} for Node / TS) generate a one-tool hello-world server in under 30 seconds, with tool definitions, structured output, auth stubs, and transport configuration ready to extend. Reference docs (references/fastmcp.md, references/ts-sdk.md) cover the deeper API surface. Trigger phrases: build an MCP, MCP server, FastMCP, MCP SDK, MCP tool, expose tools to the agent, wrap an API as an MCP, custom MCP, MCP transport, register an MCP, model context protocol, hello-world MCP.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "ai-development",
+      "language": "Multi-language",
+      "tags": [
+        "mcp",
+        "model-context-protocol",
+        "fastmcp",
+        "mcp-sdk",
+        "tool-server",
+        "stdio-transport",
+        "scaffolding",
+        "cross-platform",
+        "registry-policy"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read",
+        "Write",
+        "Bash"
+      ],
+      "path": "catalog/skills/ai-development/mcp-builder/",
+      "file": "catalog/skills/ai-development/mcp-builder/SKILL.md",
+      "size": {
+        "lines": 242,
+        "tokens_estimate": 5200
       },
       "downloads": 0,
       "status": "production",

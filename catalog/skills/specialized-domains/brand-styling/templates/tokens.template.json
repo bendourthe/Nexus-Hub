@@ -1,0 +1,37 @@
+{
+  "name": "",
+  "label": "",
+  "description": "",
+  "palette": {
+    "primary": "",
+    "secondary": "",
+    "accent": "",
+    "background": "",
+    "foreground": "",
+    "muted": ""
+  },
+  "fonts": {
+    "heading": "",
+    "body": "",
+    "mono": ""
+  },
+  "spacing": {
+    "base": null,
+    "scale": []
+  },
+  "radius": null,
+  "shadow": "",
+  "logo": {
+    "primary": null,
+    "secondary": null,
+    "wordmark": null,
+    "min_height_px": null,
+    "clear_space_factor": null
+  },
+  "voice": {
+    "tone": "",
+    "do": [],
+    "dont": []
+  },
+  "assets_dir": null
+}

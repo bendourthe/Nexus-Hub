@@ -3,19 +3,19 @@
 This file tracks per-version unfinished work, deferred items, deviations from plan, and bugs discovered during phase implementation. The next phase plan and the version-bump checklist read this file to decide what carries forward.
 
 **Plan**: [docs/v1.1.5/plans/adoption-skills.md](plans/adoption-skills.md)
-**Last updated**: 2026-05-08 (Phase 5 complete)
+**Last updated**: 2026-05-08 (Phase 6 complete)
 
 ## Summary
 
 | Category | Open | Resolved this version |
 |---|---|---|
 | NI -- Not implemented (skipped subtask) | 0 | 0 |
-| DF -- Deferred (intentionally) | 6 | 0 |
+| DF -- Deferred (intentionally) | 7 | 0 |
 | BG -- Bug or unresolved test failure | 0 | 0 |
 | MT -- Missing tests / coverage gap | 1 | 0 |
 | WN -- Warning or suppressed lint rule | 1 | 0 |
 | QG -- Quality gate bypassed | 1 | 0 |
-| **Total** | **9** | **0** |
+| **Total** | **10** | **0** |
 
 ## Open Items
 
@@ -86,6 +86,14 @@ This file tracks per-version unfinished work, deferred items, deviations from pl
 **Plan reference**: [docs/v1.1.5/plans/adoption-skills.md](plans/adoption-skills.md) lines 367-374 (sub-task 5.4).
 **Reason**: The pytest module `catalog/hooks/tests/test_eval_loop.py` covers three things in the optimizer: (a) the CLI-adapter parity invariant (per-CLI source-inspection across the four supported CLIs); (b) the dry-run schema (output shape, deterministic split under fixed seed, no-CLI-invocation under empty PATH); (c) the aggregator and viewer end-to-end on a fixture iteration directory. What the suite does NOT cover is a full optimizer run with a stub CLI binary on PATH. The dry-run gate exercises the train/test-split + prompt-template + selection-rule logic without calling out; the parity test exercises the dispatch surface; but `run_iteration()` -- the function that calls `invoke_cli` repeatedly to estimate trigger rates and then asks the CLI to PROPOSE candidates -- has no equivalent of the v1.1.3 hooks' "stub binary on PATH" smoke test. Adding such a stub would require a fake CLI that responds with deterministic JSON arrays of candidate strings, which is feasible but was not in scope for Phase 5's narrow A6/A7 goal.
 **Suggested next step**: Add a new test class `TestOptimizerWithStubCLI` to `catalog/hooks/tests/test_eval_loop.py` that creates a fake `claude` binary on PATH (modeled on `test_diff_review_hooks.py::_make_stub_cli`) which returns `["candidate-1", "candidate-2", "candidate-3"]` for the candidate-generation prompt and an empty string for trigger-detection probes, then runs the optimizer for 1 iteration and asserts that `optimizer/iteration-1.json` has the right shape and that `best_description` was selected by `test_trigger_rate`. Out of scope for v1.1.5 if Phase 7 ships before this can be added; otherwise pick it up before v1.2.0 bump.
+
+### DF-007 -- Phase 6 mcp-builder bundled scaffolders not exercised end-to-end
+
+**Source phase**: Phase 6, sub-task 6.3 (cross-platform installer verification).
+**Plan reference**: [docs/v1.1.5/plans/adoption-skills.md](plans/adoption-skills.md) lines 445-451 (sub-task 6.3) and the cross-cutting constraint at lines 535-543.
+**Reason**: Phase 6 added two new skills (`brand-styling` in specialized-domains, `mcp-builder` in ai-development) and four bundled scaffolding scripts under `mcp-builder/scripts/`: `init-mcp-fastmcp.sh`, `init-mcp-fastmcp.ps1`, `init-mcp-ts.sh`, `init-mcp-ts.ps1`. Static validation was performed and is clean: `bash -n` clean on both `.sh` files; ShellCheck (`--severity=warning`) clean on both; PowerShell parser (`[System.Management.Automation.Language.Parser]::ParseFile`) clean on both `.ps1` files. The existing recursive-copy primitives (`safe_folder_copy` / `Safe-Folder-Copy`) auto-distribute the bundled subdirs without an installer edit (the same machinery validated in Phase 3 / WN-001). However, end-to-end execution of the four scaffolders against a real Python 3.10+ / Node 20+ host -- actually running `init-mcp-fastmcp.sh hello-server` to scaffold a working FastMCP server, then `mcp dev server.py` to confirm the inspector loads, and the equivalent for the TS path -- was NOT performed in this session. The work-environment constraint (Windows 11 + PowerShell + this conversation's tool surface) does not include a way to spin up Python venvs and full Node installs to verify a complete scaffold-and-launch cycle for both stacks.
+**Resolution applied in Phase 6**: None -- intentionally deferred. The scaffolders are syntactically valid and follow the same shape as the validated Phase 4 `init-artifact.{sh,ps1}` precedent. The risk surface is "the scaffolded server actually starts under `mcp dev` / `npm run dev`", which is not catchable by static syntax validation.
+**Suggested next step**: Add a CI matrix step (or a manual release-readiness smoke task before the v1.1.5 -> v1.2.0 bump) that, on a Linux runner with Python 3.10+ and Node 20+ installed, executes each of the four scaffolders against a clean fixture directory and verifies: (a) the scaffold step exits 0; (b) the resulting `server.py` (FastMCP) or `src/server.ts` (TS SDK) file exists with the expected shape; (c) `python -m py_compile server.py` (FastMCP) or `tsc --noEmit` (TS SDK) returns 0; (d) optionally, `mcp dev server.py` / `npm run dev` starts and responds to a stdio handshake from a test client. This gap rolls up into the cumulative DF-003 / DF-005 / DF-006 cross-OS verification queue scheduled for Phase 7's `/update-version` step.
 
 ## Resolved
 
