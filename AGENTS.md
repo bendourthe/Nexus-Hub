@@ -6,7 +6,7 @@ This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, G
 
 DevAI-Hub is a production-grade skill catalog for AI coding assistants. It is a **template repository** — skills, commands, hooks, agents, and rules are distributed via installer scripts into users' `.claude/` directories. The repo itself is the source of truth; it is not deployed as a running application.
 
-Current catalog: **187 skills** across 22 categories, 32 commands, 13 hooks, 10 agents.
+Current catalog: **196 skills** across 22 categories, 32 commands, 13 hooks, 10 agents.
 
 ## Project Structure
 
@@ -22,7 +22,7 @@ DevAI-Hub/
 │   ├── mcp-configs/          # MCP server registry
 │   ├── memory/               # Memory template files
 │   ├── rules/                # Code style/security rules (4 languages)
-│   └── skills/               # 187 skills across 22 categories
+│   └── skills/               # 196 skills across 22 categories
 │       └── <category>/
 │           └── <skill-name>/
 │               └── SKILL.md

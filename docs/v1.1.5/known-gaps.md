@@ -3,7 +3,8 @@
 This file tracks per-version unfinished work, deferred items, deviations from plan, and bugs discovered during phase implementation. The next phase plan and the version-bump checklist read this file to decide what carries forward.
 
 **Plan**: [docs/v1.1.5/plans/adoption-skills.md](plans/adoption-skills.md)
-**Last updated**: 2026-05-11 (Phase 7 complete)
+**Status**: finalized
+**Last updated**: 2026-05-11 (v1.1.5 -> v1.2.0 bump; file finalized at wrap-up)
 
 ## Summary
 
@@ -16,6 +17,8 @@ This file tracks per-version unfinished work, deferred items, deviations from pl
 | WN -- Warning or suppressed lint rule | 1 | 0 |
 | QG -- Quality gate bypassed | 1 | 0 |
 | **Total** | **11** | **0** |
+
+> Finalized on 2026-05-11 at the v1.2.0 bump. Open items will be ingested by `/generate-plan` when the next version's plan is created.
 
 ## Open Items
 

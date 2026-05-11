@@ -85,3 +85,9 @@ data/benchmarks/
 # catalog/skills/workflow/skill-eval-loop/SKILL.md step 1.
 *-workspace/
 
+# .skill archives produced by scripts/package_skill.py (v1.2.0 / Phase 7 / A16).
+# These are portable ZIP archives intended for upload to Claude.ai or the
+# Anthropic API skill-upload endpoint - they should not land in the catalog
+# tree. Default output path is ./<skill-name>.skill in the current directory.
+*.skill
+

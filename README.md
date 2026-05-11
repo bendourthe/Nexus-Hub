@@ -8,38 +8,43 @@
 
 ---
 
-## What's New in v1.1.5
+## What's New in v1.2.0
 
-**Sectioned-bullet structure for commit messages.** Patch release adding an explicit "labeled sections with bullets" structure rule to every command and workflow that generates commit messages, so multi-component commits stop coming out as long flowing paragraphs separated by blank lines. Reported live against a v1.1.4-generated commit. Restart your AI agent sessions after re-installing.
+**Adoption of `anthropics/skills` patterns -- 9 new skills, 4 new repo-level scripts, A13 per-skill bundled-resources layout, A16 `.skill` packager.** MINOR release closing the seven-phase v1.1.5 `adoption-skills` plan ([docs/v1.1.5/plans/adoption-skills.md](docs/v1.1.5/plans/adoption-skills.md)). Strictly additive: zero breaking changes, no removals, no schema changes. Catalog grows from 187 -> 196 user-facing skills. Restart your AI agent sessions after re-installing so the new skills and commands become callable.
 
-### What changed in the rule
+### 9 new skills
 
-Before this release, the canonical commit-message guidance enforced **no hard-wrapping** (v1.1.1) and inlined the rule into the commands that actually generate messages (v1.1.4). What it did NOT enforce was structure: the body could still be multiple flowing paragraphs separated by blank lines, which forces reviewers to read every paragraph linearly to find a specific component.
+- **`doc-coauthoring`** (workflow) -- 3-stage co-authoring workflow (Context Gathering -> Refinement and Structure -> Reader Testing) for specs, proposals, decision docs, RFCs, ADRs, and long-form internal writeups.
+- **`generative-art`** (specialized-domains) -- algorithmic / generative-art workflow: write a Markdown philosophy manifesto, then ship a p5.js sketch with `randomSeed()` and an HTML viewer with parameter sliders. Three starter templates bundled (flow-field, particle-system, l-system).
+- **`theme-tokens`** (specialized-domains) -- stable design-token schema (palette, fonts, spacing, radius, shadow) plus 10 brand-neutral curated theme JSONs consumable by the four document-generator skills.
+- **`internal-comms`** (business-product) -- six structured templates for internal-audience writing (3P Update, Weekly Status, Leadership Update, Company FAQ, Incident Report, Project Update) with worked placeholder examples.
+- **`web-artifacts-builder`** (developer-experience) -- multi-component HTML artifact scaffolder using Vite + React + TypeScript + Tailwind v4 + shadcn/ui. Cross-platform `init-artifact.sh` + `init-artifact.ps1` parallel scripts.
+- **`skill-eval-loop`** (workflow) -- closed-loop evaluation workflow against any DevAI-Hub skill (paired with-skill / without-skill runs, assertion-graded outputs, browser-reviewed benchmarks, five named improvement heuristics).
+- **`brand-styling`** (specialized-domains) -- token-pattern skill that applies user-supplied brand tokens (palette, typography, logo, voice) to generated artifacts via per-brand `~/.devai-hub/brand/<slug>/tokens.json`. Ships empty placeholders only -- the user MUST supply their own brand.
+- **`mcp-builder`** (ai-development) -- walks the agent through building a local MCP server in Python (FastMCP) or Node / TypeScript (the official MCP SDK), with bundled cross-platform scaffolders and reference docs. Enforces the AGENTS.md MCP Registry Policy decision tree before scaffolding.
 
-v1.1.5 adds a sectioned-bullet structure rule:
+### 4 new repo-level scripts
 
-- After the subject line and a 1-2 sentence intro paragraph, organize the body as **labeled sections with bullets**, NOT as multiple flowing paragraphs.
-- Each section header ends in a colon and groups bullets by component, module, or theme (e.g., `Reporting package (`src/reporting/`):`, `Packaging and paths:`, `Desktop UI:`).
-- Always treat **Tests** and **Known gaps** / **Deviations** as their own dedicated sections at the end.
-- Whitespace: exactly one blank line between sections; never two or more. Within a section, bullets are contiguous.
+- **`scripts/aggregate_benchmark.py`** -- post-processes paired eval runs into `benchmark.json` + `benchmark.md`.
+- **`scripts/skill_eval_viewer.py`** -- browser-based eval viewer with server and `--static` modes (for headless CI environments).
+- **`scripts/optimize_skill_description.py`** -- description optimizer with 60/40 train-test split and held-out-test selection that prevents overfitting. CLI-agnostic across claude / gemini / codex / opencode (parity invariant enforced by pytest).
+- **`scripts/package_skill.py`** -- packages a catalog skill into a portable `.skill` ZIP archive for upload to Claude.ai or the Anthropic API skill-upload endpoint.
 
-Trivial 1-2 file commits keep the simple paragraph body; only multi-component commits get the sectioned structure.
+All four scripts are registered in BOTH `scripts/installer.sh` and `scripts/installer.ps1` per the AGENTS.md "Installer-Aware Changes" rule.
 
-### Five files patched in lockstep
+### A13 per-skill bundled-resources layout
 
-The same rule is now inlined in all five files that generate commit messages, with consistent wording so a regression in any one will look identical to the others:
+Skill folders MAY now ship `scripts/`, `references/`, `assets/` subdirectories alongside SKILL.md. The recursive-copy installer primitives auto-distribute them; a new `--bundles-only` audit in `scripts/validate_skills.py` flags any bundled file the parent SKILL.md never references. Documented in AGENTS.md; smoke-tested through both installer copy primitives on Windows.
 
-- `/generate-commit-message` (canonical command, with full sectioned example and counter-example)
-- `code-commit-workflow` skill (canonical skill, with sectioned example added to Good Examples)
-- `/implement-phase` sub-step 6 (per-phase commit; suggests `Reporting package:`, `Packaging:`, `Desktop UI:`, `Tests:`, `Known gaps:`-style headers)
-- `/wrap-up-session` Phase 7 (wrap-up commit; suggests `Session history:`, `DEVLOG:`, `Documentation:`, `Gitignore:`, `Memory:`, `Version bump:` headers)
-- `/update-version` Phase E4 (release commit; uses CHANGELOG section names directly: `Added:`, `Changed:`, `Fixed:`, `Removed:`, `Tests:`)
+### Five doc-only edits institutionalizing upstream skill-authoring patterns
 
-### Cross-platform reach
+A14 pushy descriptions (lists trigger phrases AND skip phrases verbatim), A17 three-tier loading model (tier 1 metadata always loaded, tier 2 SKILL.md body on trigger, tier 3 bundled resources on demand -- scripts execute without their source being loaded into context), A15 500-line SKILL.md target with 800-line soft cap, A11 aesthetic-distinctiveness lens in `frontend-ui-engineering`, A12 static-poster workflow in `creative-generation`.
 
-All five files are auto-distributed via the installer's recursive copy of `catalog/commands/` and `catalog/skills/` to Claude Code, Gemini / Antigravity, and Codex. Cursor / OpenCode / Copilot inherit the rule via the canonical skill referenced in their `base-*.md` instruction files. **After running the v1.1.5 installer, restart any running AI agent sessions** for the new command bodies to take effect (settings.json / AGENTS.md / .cursor/rules/ are read at session start, not hot-reloaded).
+### Migration
 
-See [CHANGELOG.md](CHANGELOG.md) for the full v1.1.5 entry and [docs/v1.0.0/RELEASE_NOTES.md](docs/v1.0.0/RELEASE_NOTES.md) for the v1.0.0 baseline.
+Re-run the installer. Skills, scripts, and instruction-template `{{SKILL_INDEX}}` blocks all update automatically. Settings.json / AGENTS.md / .cursor/rules/ are read at session start, not hot-reloaded -- restart any already-running Claude Code / Cursor / Gemini / Codex / OpenCode sessions for the new skills and commands to take effect.
+
+See [CHANGELOG.md](CHANGELOG.md) for the full v1.2.0 entry (Added / Changed / Removed / Verified / Tests / Known gaps subsections) and [docs/v1.0.0/RELEASE_NOTES.md](docs/v1.0.0/RELEASE_NOTES.md) for the v1.0.0 baseline.
 
 ---
 
@@ -56,7 +61,7 @@ Don't want to copy-paste files manually? We made an installer.
 5.  **(Optional) Select a project** to configure workspace-specific rules.
 
 **Done.**
-*   **Globally**: Your user profile now has all 187 Claude Skills, 34 Commands, 13 Hooks, 10 Agents, plus Gemini and Codex instructions.
+*   **Globally**: Your user profile now has all 196 Claude Skills, 34 Commands, 13 Hooks, 10 Agents, plus Gemini and Codex instructions.
 *   **Locally**: Your project has `copilot-instructions.md` tailored to your language.
 
 ---
