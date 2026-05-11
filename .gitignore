@@ -90,4 +90,3 @@ data/benchmarks/
 # Anthropic API skill-upload endpoint - they should not land in the catalog
 # tree. Default output path is ./<skill-name>.skill in the current directory.
 *.skill
-
