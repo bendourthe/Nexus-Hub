@@ -1751,6 +1751,16 @@ function Install-Templates {
         Safe-Copy -Source $evalOptimizerSource -Destination (Join-Path $scriptsDest "optimize_skill_description.py") -Confirm:$true -CustomMessage "✓ Skill-description optimizer installed at: $scriptsDest\optimize_skill_description.py"
     }
 
+    # Copy .skill packager script (v1.2.0-wip / Phase 7 / A16). Produces a
+    # portable .skill ZIP archive from a catalog\skills\<cat>\<name>\ directory
+    # for distribution to Claude.ai or the Anthropic API skill-upload endpoint
+    # - delivery channels DevAI-Hub does not currently reach. Lockstep with
+    # the same block in scripts\installer.sh.
+    $skillPackagerSource = Join-Path $RepoRoot "scripts\package_skill.py"
+    if (Test-Path $skillPackagerSource) {
+        Safe-Copy -Source $skillPackagerSource -Destination (Join-Path $scriptsDest "package_skill.py") -Confirm:$true -CustomMessage "✓ Skill packager installed at: $scriptsDest\package_skill.py"
+    }
+
     # Copy style-guides (v1.0.0+). Reference content for /compile-deep-research
     # and /generate-report; deliberately not in catalog\commands so the files
     # do not surface as slash commands.

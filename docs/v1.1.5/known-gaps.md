@@ -3,19 +3,19 @@
 This file tracks per-version unfinished work, deferred items, deviations from plan, and bugs discovered during phase implementation. The next phase plan and the version-bump checklist read this file to decide what carries forward.
 
 **Plan**: [docs/v1.1.5/plans/adoption-skills.md](plans/adoption-skills.md)
-**Last updated**: 2026-05-08 (Phase 6 complete)
+**Last updated**: 2026-05-11 (Phase 7 complete)
 
 ## Summary
 
 | Category | Open | Resolved this version |
 |---|---|---|
 | NI -- Not implemented (skipped subtask) | 0 | 0 |
-| DF -- Deferred (intentionally) | 7 | 0 |
+| DF -- Deferred (intentionally) | 8 | 0 |
 | BG -- Bug or unresolved test failure | 0 | 0 |
 | MT -- Missing tests / coverage gap | 1 | 0 |
 | WN -- Warning or suppressed lint rule | 1 | 0 |
 | QG -- Quality gate bypassed | 1 | 0 |
-| **Total** | **10** | **0** |
+| **Total** | **11** | **0** |
 
 ## Open Items
 
@@ -86,6 +86,14 @@ This file tracks per-version unfinished work, deferred items, deviations from pl
 **Plan reference**: [docs/v1.1.5/plans/adoption-skills.md](plans/adoption-skills.md) lines 367-374 (sub-task 5.4).
 **Reason**: The pytest module `catalog/hooks/tests/test_eval_loop.py` covers three things in the optimizer: (a) the CLI-adapter parity invariant (per-CLI source-inspection across the four supported CLIs); (b) the dry-run schema (output shape, deterministic split under fixed seed, no-CLI-invocation under empty PATH); (c) the aggregator and viewer end-to-end on a fixture iteration directory. What the suite does NOT cover is a full optimizer run with a stub CLI binary on PATH. The dry-run gate exercises the train/test-split + prompt-template + selection-rule logic without calling out; the parity test exercises the dispatch surface; but `run_iteration()` -- the function that calls `invoke_cli` repeatedly to estimate trigger rates and then asks the CLI to PROPOSE candidates -- has no equivalent of the v1.1.3 hooks' "stub binary on PATH" smoke test. Adding such a stub would require a fake CLI that responds with deterministic JSON arrays of candidate strings, which is feasible but was not in scope for Phase 5's narrow A6/A7 goal.
 **Suggested next step**: Add a new test class `TestOptimizerWithStubCLI` to `catalog/hooks/tests/test_eval_loop.py` that creates a fake `claude` binary on PATH (modeled on `test_diff_review_hooks.py::_make_stub_cli`) which returns `["candidate-1", "candidate-2", "candidate-3"]` for the candidate-generation prompt and an empty string for trigger-detection probes, then runs the optimizer for 1 iteration and asserts that `optimizer/iteration-1.json` has the right shape and that `best_description` was selected by `test_trigger_rate`. Out of scope for v1.1.5 if Phase 7 ships before this can be added; otherwise pick it up before v1.2.0 bump.
+
+### DF-008 -- Phase 7 packager installer registration not exercised on macOS / Linux
+
+**Source phase**: Phase 7, sub-task 7.1 (`scripts/package_skill.py` + installer registration) and 7.2 (cross-platform installer verification).
+**Plan reference**: [docs/v1.1.5/plans/adoption-skills.md](plans/adoption-skills.md) lines 487-501 (sub-tasks 7.1 and 7.2) and the cross-cutting constraint at lines 535-543.
+**Reason**: Phase 7 added one new repo-level Python script (`scripts/package_skill.py`) and registered it in BOTH `scripts/installer.sh` (after the eval-loop dispatcher block) and `scripts/installer.ps1` (matching `Safe-Copy` block at the same logical position) per the AGENTS.md "Installer-Aware Changes" rule. Verification on Windows + Git Bash was performed: `python -m py_compile scripts/package_skill.py` clean; `bash -n scripts/installer.sh` clean; ShellCheck (`--severity=warning`) clean on `scripts/installer.sh` and `install.sh`; PowerShell parser (`[System.Management.Automation.Language.Parser]::ParseFile`) clean on `installer.ps1`; the new pytest module (`catalog/hooks/tests/test_package_skill.py`) passes 14/14; round-trip pack-and-extract works against a real Phase 5 skill bundle (`catalog/skills/workflow/skill-eval-loop/`, 8 files preserved at original relative paths). Real `bash scripts/installer.sh` execution into a throwaway directory on a real macOS or Linux host to confirm the new copy line lands `package_skill.py` at `~/.devai-hub/scripts/package_skill.py` was not run.
+**Resolution applied in Phase 7**: None - intentionally deferred per the same rationale as DF-003 / DF-005 / DF-006 / DF-007 (the work-environment constraint is Windows 11 + PowerShell). The new copy line piggybacks on the same already-validated `safe_copy` / `Safe-Copy` primitives used for the four prior repo-level scripts in the same block (`generate_report.py`, `aggregate_benchmark.py`, `skill_eval_viewer.py`, `optimize_skill_description.py`). The packager itself is stdlib-only Python so the runtime risk surface is minimal once the file lands at the right path.
+**Suggested next step**: Roll into the cumulative cross-OS smoke run scheduled for the v1.1.5 -> v1.2.0 bump in `/wrap-up-session` -> `/update-version`. The smoke task should now cover: Phase 2 (`doc-coauthoring` SKILL.md), Phase 4 (four bundled skill folders + two scaffolder scripts), Phase 5 (three eval-loop dispatcher scripts), Phase 6 (two skill folders + four bundled scaffolders), and Phase 7 (one packager script). CI matrix coverage (Linux + macOS GitHub Actions runners performing a real `bash scripts/installer.sh` workspace install) remains the durable fix.
 
 ### DF-007 -- Phase 6 mcp-builder bundled scaffolders not exercised end-to-end
 

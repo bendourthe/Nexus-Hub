@@ -1441,6 +1441,16 @@ install_templates() {
         safe_copy "$eval_optimizer_source" "$scripts_dest/optimize_skill_description.py" true "[OK] Skill-description optimizer installed at: $scripts_dest/optimize_skill_description.py"
     fi
 
+    # Copy .skill packager script (v1.2.0-wip / Phase 7 / A16). Produces a
+    # portable .skill ZIP archive from a catalog/skills/<cat>/<name>/ directory
+    # for distribution to Claude.ai or the Anthropic API skill-upload endpoint
+    # - delivery channels DevAI-Hub does not currently reach. Lockstep with
+    # the same block in scripts/installer.ps1.
+    local skill_packager_source="$repo_root/scripts/package_skill.py"
+    if [ -f "$skill_packager_source" ]; then
+        safe_copy "$skill_packager_source" "$scripts_dest/package_skill.py" true "[OK] Skill packager installed at: $scripts_dest/package_skill.py"
+    fi
+
     # Copy style-guides (v1.0.0+). Reference content for /compile-deep-research
     # and /generate-report; deliberately not in catalog/commands/ so the files
     # do not surface as slash commands.
