@@ -351,21 +351,31 @@ class TestStripDescriptionBox:
         full = prefix + "\n___\n" + "Get-Process"
         assert strip_description_box(full).strip() == "Get-Process"
 
-    def test_strips_commented_divider(self):
-        """The current `# Description: <text>\\n# ___\\n<command>` shape
-        (with the divider commented out so PowerShell does not execute it)
-        must strip cleanly. The commented divider line is dropped by the
-        leading-`#` rule."""
+    def test_strips_commented_underscore_divider(self):
+        """The intermediate `# Description: <text>\\n# ___\\n<command>` shape
+        (with an underscore divider commented out so PowerShell does not
+        execute it) must still strip cleanly. The commented divider line is
+        dropped by the leading-`#` rule. Back-compat for sessions formatted
+        before the divider switched to dashes."""
         prefix = format_description_prefix("Show running processes")
         full = prefix + "\n# ___\n" + "Get-Process"
         assert strip_description_box(full).strip() == "Get-Process"
 
+    def test_strips_commented_dash_divider(self):
+        """The current `# Description: <text>\\n# ---\\n<command>` shape
+        (with a dash divider commented out so PowerShell does not execute it)
+        must strip cleanly. The commented divider line is dropped by the
+        leading-`#` rule."""
+        prefix = format_description_prefix("Show running processes")
+        full = prefix + "\n# ---\n" + "Get-Process"
+        assert strip_description_box(full).strip() == "Get-Process"
+
     def test_strips_full_current_shape_roundtrip(self):
-        """Exact round-trip: format the prefix, prepend with `\\n# ___\\n`,
+        """Exact round-trip: format the prefix, prepend with `\\n# ---\\n`,
         then strip. Original command must come back byte-identical."""
         original = "Get-Process | Select-Object Name"
         prefix = format_description_prefix("Show process names")
-        full = prefix + "\n# ___\n" + original
+        full = prefix + "\n# ---\n" + original
         assert strip_description_box(full) == original
 
     def test_no_prefix_returns_unchanged(self):
@@ -410,13 +420,13 @@ class TestMainIntegration:
         assert "Stop-Process -Name explorer" in updated["command"]
         assert updated["command"].startswith("# Description: ")
         assert "Stops the Explorer process" in updated["command"]
-        # Two newlines added: prefix line + `# ___` separator line +
+        # Two newlines added: prefix line + `# ---` separator line +
         # single-line command body. Body is "Stop-Process -Name explorer"
         # with zero newlines, so total newline count = 2.
         assert updated["command"].count("\n") == 2
-        # The commented `# ___` separator line is present between prefix
+        # The commented `# ---` separator line is present between prefix
         # and command; the leading `#` keeps PowerShell from executing it.
-        assert "\n# ___\n" in updated["command"]
+        assert "\n# ---\n" in updated["command"]
         assert hso.get("permissionDecision") == "ask", (
             "Non-allowlisted commands MUST set permissionDecision='ask' "
             "or Claude Code's PowerShell tool will auto-execute them"

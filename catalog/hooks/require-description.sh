@@ -62,7 +62,7 @@ Alternatively, the command may begin with a single-line description
 prefix:
 
   # Description: Lists all agent config files under the project directory
-  ___
+  # ---
   find ~/.claude -type f -name '*.md'
 
 Add a description, then retry."

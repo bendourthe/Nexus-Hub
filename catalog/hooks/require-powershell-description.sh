@@ -62,7 +62,7 @@ Alternatively, the command may begin with a single-line description
 prefix:
 
   # Description: Lists running processes whose name matches a pattern
-  ___
+  # ---
   Get-Process | Where-Object Name -like 'explorer*'
 
 Add a description, then retry."
