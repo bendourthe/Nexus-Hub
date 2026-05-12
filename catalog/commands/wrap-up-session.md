@@ -30,6 +30,7 @@ Close out a development session cleanly. The command triages what happened in th
    | `generate-session-history` | ON | always |
    | `update-gitignore` | ON | always |
    | `refactor-project-layout` | **OFF** | enable only if explicitly requested |
+   | `refactor-docs` (audit only) | ON | always; never auto-applies in wrap-up context |
    | `update-documentation` | ON | always |
    | `update-devlog` | ON | always |
    | `known-gaps sweep` | ON | always (skill: `known-gaps-tracker`) |
@@ -50,6 +51,7 @@ Close out a development session cleanly. The command triages what happened in th
      [ON]  generate-session-history   (captures live conversation context — do this first)
      [ON]  update-gitignore           (new artifacts detected: dist/, .cache/)
      [OFF] refactor-project-layout    (opt-in — enable if layout cleanup is needed)
+     [ON]  refactor-docs              (audit-only; surfaces stale docs artifacts in a report)
      [ON]  update-documentation       
      [ON]  update-devlog              
      [ON]  known-gaps sweep           (mine session for uncaptured deferred work / bugs / warnings)
@@ -102,6 +104,13 @@ Run each enabled step in order. Wait for each to fully complete before starting 
 - Reorganize root-level files according to standard layout conventions.
 - Repair all cross-file references after any moves.
 - **Safety check**: if the operation would move more than 10 files, pause and present the full list of proposed moves before executing. Wait for confirmation.
+
+### Step 2c: `/refactor-docs --mode audit` (runs if enabled)
+
+- Audit `docs/` for stale, redundant, or misfiled artifacts created during the session.
+- Produce `docs/<next-version>/docs-cleanup-report.md` with Cat 1 / 2 / 3 / 4 dispositions.
+- **Audit-only**: never auto-apply in wrap-up context. The report surfaces the work for the next session or for `/update-version` to execute under a confirmation gate.
+- Skip if Phase 0 toggled it OFF; default ON.
 
 ---
 
@@ -210,6 +219,7 @@ Session wrap-up complete:
   Devlog:           docs/DEVLOG.md (updated)
   Documentation:    README.md, docs/architecture.md (synced)
   Gitignore:        2 patterns added
+  Docs cleanup:     docs/v0.9.2/docs-cleanup-report.md (audit-only: 3 Cat 1, 7 Cat 2, 2 Cat 3)
   Known gaps:       docs/v0.9.2/known-gaps.md (3 added, status: finalized)
   Memory:           3 entries updated, 1 removed
   Version:          v0.9.2 → v0.10.0  (or: no bump — skipped)

@@ -13,6 +13,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.3.0] - 2026-05-12
+
+### Added
+
+- **New skill `docs-layout-refactor` (code-cleanup category)** with companion command `/refactor-docs` for auditing and reorganizing a project's `docs/` folder. The workflow walks the docs tree, scores every file with eight weighted heuristics (version-vs-active, external reference count, filename pattern, age, sha256 duplication, CHANGELOG citation, body keywords, inbound link count from other docs), assigns one of four explicit categories (Cat 1 delete / Cat 2 archive / Cat 3 stale-flag / Cat 4 active), and proposes a version-first reorganization with a dedicated `docs/archive/<source-version>/<topic>/` subtree. Default mode is propose-only; the `--apply` flag turns on a confirmation gate before any file moves or deletes. Signals 2 (external references) and 6 (CHANGELOG citation) are hard floors that can only raise a category, never lower it.
+- **Stdlib-only Python helper `catalog/skills/code-cleanup/docs-layout-refactor/scripts/audit-docs.py`** (with PowerShell sibling for Windows users without Python on PATH) ships as a Tier-3 bundled resource. The agent invokes it via the shell and consumes NDJSON inventory and JSON reference-graph output without reading the script's source into context. Two subcommands: `inventory` (one record per file with size, mtime age, sha256 prefix, version dir, topic dir, line count, binary detection) and `refgraph` (inbound reference map from outside `docs/`).
+- **Per-skill bundled `references/archive-layout.md`** documents the canonical `docs/archive/` tree shape (version-keyed for `docs/v*/` content, date-keyed wholesale for top-level subdirs like `docs/git/` or `docs/security/`), the `docs/archive/README.md` template, and the archive-path collision rule (suffix with `-<source-version>`, never silently overwrite).
+- **New PreToolUse hook `catalog/hooks/old-version-docs-guard.sh`** (with PowerShell sibling) warns when Write or Edit targets a historical `docs/v<old-version>/` path. Non-blocking by default; the `DEVAI_OLD_DOCS_GUARD=block` env var upgrades it to a hard block (exit 1). Honors the existing `DEVAI_DISABLED_HOOKS` and `DEVAI_HOOK_PROFILE=minimal` runtime controls. Registered under `PreToolUse` for both `Write` and `Edit` tool matchers. Active-version detection walks docs/v*/ directories with semver comparison; if no `docs/v*/` exist, the hook is a silent no-op.
+- **New `release-prep` bundle in `data/bundles.json`** groups seven skills for a one-click pre-release skill install: `docs-layout-refactor`, `project-layout-refactor`, `documentation-consistency`, `version-upgrade`, `release-notes-writer`, `known-gaps-tracker`, `code-commit-workflow`.
+- **`--migrate-known-gaps` flag on `/refactor-docs`** auto-promotes Cat 3 (stale but load-bearing) findings into `docs/<next-version>/known-gaps.md` under a `## Stale documentation flagged by /refactor-docs` section, deduplicating by file path against existing entries. Bridges the gap between the docs-layout-refactor and known-gaps-tracker skills.
+- **Pytest test `catalog/hooks/tests/test_old_version_docs_guard.py`** covers nine cases for the new hook: warns on historical docs/v*/ writes, silent on active version, hard block under `DEVAI_OLD_DOCS_GUARD=block`, silent for non-docs paths, silent for top-level docs files, silent when no version dirs exist, silent when disabled via `DEVAI_DISABLED_HOOKS`, silent under `DEVAI_HOOK_PROFILE=minimal`, and Windows path separator normalization. Tests requiring stderr output skip cleanly when `jq` is not installed (matching the existing pattern in `large-file-guard.sh` and `secret-scan.sh`).
+
+### Changed
+
+- **`/wrap-up-session`** Phase 2 (Codebase Hygiene) adds a new Step 2c that runs `/refactor-docs --mode audit` to produce a docs-cleanup report in audit-only mode (never auto-applies in wrap-up context). Triage table and completion-report template updated to surface the new step.
+- **`/update-version`** Phase B (Cleanup) adds a new Step B4 that runs the full `/refactor-docs` workflow (propose-only by default with the command's own confirmation gate). The Phase B Summary template now includes a `Docs Cleanup` block with moved / deleted / flagged counts.
+- **`/run-deep-review`** Phase 4 (Docs / Git / CI/CD Hygiene) adds a new subsection 4.11 that invokes `/refactor-docs --mode audit` and promotes Cat 1 findings to P2 and Cat 3 findings to P1 in the synthesis report. Cat 2 (archive candidates) flows in as informational only. The 4.10 summary table gets a new row for the docs cleanup signal.
+- **`/review-codebase`** Phase 6f (Workflow and Developer Experience) adds an advisory bullet that triggers `/refactor-docs --mode audit` when `docs/` has more than 3 version directories.
+- **`catalog/skills/code-cleanup/` description in `data/marketplace.json`** updated from "Language-specific cleanup for C, C++, C#, Go, Java, JavaScript, Python" to "Code, layout, and docs cleanup: per-language modernization plus repo and docs structural refactoring" to reflect that the category now covers both code modernization and structural refactoring (project layout + docs layout).
+- **Skill total bumped from 196 to 197** (`data/SKILL_INDEX.md`, `data/skills.json`, `data/marketplace.json` `skill_count` for `code-cleanup` from 9 to 10). Command total bumped to reflect `/refactor-docs`. Hook total bumped to reflect `old-version-docs-guard`. Surface updates in `AGENTS.md`, `README.md`, `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`.
+- **Installer banner version** in `scripts/installer.sh` and `scripts/installer.ps1` bumped to `1.3.0`.
+
+### Tests
+
+- 364 hook pytest tests pass (3 skipped: the warning-path tests in `test_old_version_docs_guard.py` that require `jq` on PATH; consistent with the existing pattern). The new `test_old_version_docs_guard.py` adds 9 cases (6 pass without jq, 3 skip without jq).
+- `python scripts/validate_skills.py --bundles-only` passes with 0 errors, 4 warnings (all pre-existing orphan-bundle warnings on `fastapi-expert`, `nextjs-expert`, `react-expert`; carried from WN-001). Total skills scanned: 201 (197 catalog + 4 fixtures).
+- Smoke tests of `audit-docs.py`: `inventory` against this repo's `docs/` emits valid NDJSON for every file; `refgraph` against the repo correctly identifies inbound references to `docs/DEVLOG.md` from `README.md`, `AGENTS.md`, and skills under `catalog/skills/workflow/`.
+
+### Migration Impact
+
+Users re-run the installer. The new skill bundle (under `catalog/skills/code-cleanup/docs-layout-refactor/`), command (`catalog/commands/refactor-docs.md`), hook script and PowerShell sibling (`catalog/hooks/old-version-docs-guard.{sh,ps1}`), and bundle entry (`data/bundles.json` `release-prep`) all land at their expected target paths via existing recursive-copy logic. The hook is registered under `PreToolUse` for `Write` and `Edit` in `catalog/hooks/settings.json`. No installer flow change, no schema change, no `settings.json` structural change for existing users. The four chained commands (`wrap-up-session`, `update-version`, `run-deep-review`, `review-codebase`) gain optional integration steps that default to safe modes (audit-only or with a confirmation gate).
+
+---
+
 ## [1.2.1] - 2026-05-12
 
 ### Changed
@@ -3253,7 +3287,9 @@ repository_root/
 
 ---
 
-[Unreleased]: https://github.com/bendourthe/DevAI-Hub/compare/v1.1.5...HEAD
+[Unreleased]: https://github.com/bendourthe/DevAI-Hub/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/bendourthe/DevAI-Hub/compare/v1.2.1...v1.3.0
+[1.2.1]: https://github.com/bendourthe/DevAI-Hub/compare/v1.2.0...v1.2.1
 [1.1.5]: https://github.com/bendourthe/DevAI-Hub/compare/v1.1.4...v1.1.5
 [1.1.4]: https://github.com/bendourthe/DevAI-Hub/compare/v1.1.3...v1.1.4
 [1.1.3]: https://github.com/bendourthe/DevAI-Hub/compare/v1.1.2...v1.1.3

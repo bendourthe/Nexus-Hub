@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "version": "1.2.1",
+    "version": "1.3.0",
     "generated": "2026-05-12",
     "description": "Role-based skill bundles for targeted installation. Each bundle groups skills by professional role or workflow."
   },
@@ -180,6 +180,20 @@
         "git-bisect-assistant",
         "edge-case-generator",
         "flaky-test-detector"
+      ]
+    },
+    {
+      "id": "release-prep",
+      "name": "Release Prep",
+      "description": "End-to-end pre-release workflow: clean docs and root layout, bump the version, sync documentation, and write release notes.",
+      "skills": [
+        "docs-layout-refactor",
+        "project-layout-refactor",
+        "documentation-consistency",
+        "version-upgrade",
+        "release-notes-writer",
+        "known-gaps-tracker",
+        "code-commit-workflow"
       ]
     },
     {

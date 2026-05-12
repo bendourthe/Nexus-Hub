@@ -323,6 +323,20 @@ Requires `gh` CLI authenticated. Skip with a P3 advisory if not available.
 - **Linear history not enforced**: P3 advisory.
 - **Admin bypass enabled**: P2 (any project where the protection itself is meaningful).
 
+### 4.11 Documentation Tree Hygiene
+
+Audit `docs/` for stale, redundant, or misfiled artifacts that would confuse external reviewers. This subsection contributes findings to `03-docs-git-cicd-hygiene.md` rather than producing a separate top-level artifact.
+
+Invoke `/refactor-docs --mode audit --output docs/<next-version>/review/03b-docs-cleanup.md`. Audit-only: deep-review never mutates the working tree. Remediation flows into the synthesis and the generated remediation plan.
+
+Promote findings into the deep-review severity scale:
+
+- Every Cat 1 (safe-to-delete) finding -> P2 ("clutter that confuses reviewers but blocks nothing").
+- Every Cat 3 (stale but load-bearing) finding -> P1 ("documentation actively referenced but out of date; readers may be misled").
+- Cat 2 (archive candidates) are informational only; reference the count in the synthesis without a per-row P-rating.
+
+If `docs/` has fewer than 3 version directories AND no top-level docs subdirs (`docs/git/`, `docs/security/`, etc.), skip the sub-invocation entirely and record a single advisory note: "docs tree is small enough that the cleanup audit is not informative yet."
+
 ### 4.9 Release Readiness
 
 The release readiness pass verifies that the working tree is in a tag-able state. This is the most release-blocker-prone subsection - findings here are typically P0 or P1.
@@ -361,6 +375,7 @@ The release readiness pass verifies that the working tree is in a tag-able state
 | Version-bump consistency | <n mismatches> | P0 |
 | Tag hygiene | annotated / lightweight / not-on-main | P0 if not-on-main |
 | Pending draft release | <n> | P2 if exists for current version |
+| Docs tree cleanup (Cat 1 / Cat 3) | <n> / <n> | P2 / P1 |
 
 ## Findings (detail per check)
 ...

@@ -262,6 +262,7 @@ This phase produces recommendations for structural changes that would reduce com
 - Is the CI/CD pipeline efficient? Are there slow steps that could be parallelized or cached?
 - Are there repeated manual processes that should be scripted or automated?
 - Is the project's documentation sufficient for a new contributor to become productive?
+- If `docs/` contains more than 3 version directories, run `/refactor-docs --mode audit` and incorporate its Cat 1 and Cat 3 counts as P2 and P1 findings respectively. Cat 2 (archive candidates) is informational only.
 
 ---
 

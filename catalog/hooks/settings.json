@@ -72,6 +72,10 @@
           {
             "type": "command",
             "command": "bash .claude/hooks/escalation-trigger.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/old-version-docs-guard.sh"
           }
         ]
       },
@@ -85,6 +89,10 @@
           {
             "type": "command",
             "command": "bash .claude/hooks/escalation-trigger.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/old-version-docs-guard.sh"
           }
         ]
       }

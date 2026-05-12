@@ -1,7 +1,7 @@
 {
   "name": "devai-hub",
-  "description": "Enterprise-grade skill library for AI coding assistants with 196+ curated skills, 32 commands, and cross-platform support - covering the full engineering lifecycle from architecture and security to testing, compliance, and infrastructure.",
-  "version": "1.2.1",
+  "description": "Enterprise-grade skill library for AI coding assistants with 197+ curated skills, 33 commands, and cross-platform support - covering the full engineering lifecycle from architecture and security to testing, compliance, and infrastructure.",
+  "version": "1.3.0",
   "author": {
     "name": "Benjamin Dourthe",
     "url": "https://github.com/bendourthe"

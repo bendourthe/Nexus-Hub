@@ -935,6 +935,50 @@
       }
     },
     {
+      "name": "docs-layout-refactor",
+      "title": "docs-layout-refactor",
+      "description": "Audit and reorganize a project's docs/ folder by categorizing every file (Cat 1 delete / Cat 2 archive / Cat 3 stale-flag / Cat 4 active), proposing a version-first layout with a docs/archive/ subtree, and applying changes only after explicit user confirmation. Use whenever the user says 'clean up docs', 'reorganize docs', 'archive old docs', 'docs folder is messy', 'audit docs', 'refactor docs structure', or before a version bump. SKIP for content accuracy fixes (use update-documentation), repo-root layout changes (use refactor-project-layout), or CHANGELOG generation (use generate-changelog).",
+      "long_description": "Walk the docs/ tree, score every file with eight weighted heuristics, classify each as Cat 1 / Cat 2 / Cat 3 / Cat 4, and propose a version-first reorganization with a dedicated docs/archive/<version>/<topic>/ subtree. Propose-only by default; applies changes only after explicit user confirmation at the gate. Ships an audit-docs.py helper for stdlib-only inventory and reference-graph extraction.",
+      "summary_l0": "\"Audit, categorize, and reorganize docs/ folders with a propose-then-apply workflow and a versioned archive subtree\"",
+      "overview_l1": "\"Walk the docs/ tree, score every file with eight weighted heuristics (age, inbound refs, CHANGELOG citation, filename patterns, duplication, body keywords), classify each as Cat 1 (delete), Cat 2 (archive), Cat 3 (stale but load-bearing), or Cat 4 (active). Propose a version-first reorganization with topical subdirs mirroring the active layout, plus a docs/archive/<version>/<topic>/ subtree for Cat 2 items. Default mode is propose-only: no files move until the user explicitly confirms at the gate. Ships an audit-docs.py helper that emits a JSON inventory and reference graph without being read into context. Trigger phrases: clean up docs, reorganize docs, archive old docs, docs folder is messy, audit docs, refactor docs structure, docs are cluttered, review docs before release, docs cleanup, prune docs.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "code-cleanup",
+      "language": "Multi-language",
+      "tags": [
+        "docs",
+        "cleanup",
+        "archive",
+        "refactor",
+        "audit"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Bash",
+        "Edit",
+        "Glob",
+        "Grep",
+        "Read",
+        "Write"
+      ],
+      "path": "catalog/skills/code-cleanup/docs-layout-refactor/",
+      "file": "catalog/skills/code-cleanup/docs-layout-refactor/SKILL.md",
+      "size": {
+        "lines": 280,
+        "characters": 17000,
+        "tokens_estimate": 4200
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
       "name": "project-layout-refactor",
       "title": "project-layout-refactor",
       "description": "Audit and refactor repository root directories to follow standard layout rules. Moves misplaced files, fixes all path references, and verifies nothing breaks. Use when a repo has too many files in root, after adopting new layout conventions, or when preparing a project for public release.",

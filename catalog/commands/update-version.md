@@ -153,9 +153,28 @@ If the `.gitignore` is already comprehensive and no wrongly-tracked files are fo
 
 **Skip condition**: If the user says "skip gitignore audit", skip this step.
 
+### Step B4: Reorganize `docs/`
+
+Run the full `/refactor-docs` workflow (propose-only by default; the command's own confirmation gate decides what gets applied).
+
+**Process** (follows the refactor-docs command):
+
+1. **Inventory**: walk `docs/` and emit a per-file manifest (path, size, mtime, sha256 prefix, version dir, topic dir).
+2. **Reference graph**: scan the repo outside `docs/` for inbound references to each docs file.
+3. **Categorize**: assign Cat 1 (delete) / Cat 2 (archive) / Cat 3 (stale-flag) / Cat 4 (active) using eight weighted heuristics. Signals 2 (external references) and 6 (CHANGELOG citation) are hard floors.
+4. **Propose**: build a target tree under `docs/archive/<source-version>/<topic>/` for Cat 2 items.
+5. **Confirm**: present the plan at the gate. User picks Y / Partial / N.
+6. **Execute** (on approval): create `docs/archive/`, move Cat 2 with copy-verify-delete, delete Cat 1, leave Cat 3 in place with a refresh flag.
+7. **Repair references**: rewrite inbound links to moved files.
+8. **Verify**: seven binary checks; loop up to 3 times on residual breakage.
+
+The report lands at `docs/<next-version>/docs-cleanup-report.md` regardless of whether the apply step ran. On user rejection at the gate, skip Step B4's apply and continue to the Phase B summary; the audit report is still preserved.
+
+**Skip condition**: If the user says "skip docs cleanup", skip this step.
+
 ### User Confirmation Gate (after Phase B)
 
-After completing B1-B3, present a summary of all structural changes:
+After completing B1-B4, present a summary of all structural changes:
 
 ```markdown
 ## Phase B Summary: Cleanup Complete
@@ -169,6 +188,13 @@ After completing B1-B3, present a summary of all structural changes:
 - Patterns added: X
 - Files removed from index: Y
 - Severity breakdown: G0: _, G1: _, G2: _, G3: _
+
+### Docs Cleanup
+- Cat 1 deleted: X
+- Cat 2 archived: Y (under docs/archive/)
+- Cat 3 flagged for refresh: Z (no file action)
+- Reference repairs: W (across V files)
+- Verification: PASSED / FAILED [details]
 
 Proceed to version bump?
 ```

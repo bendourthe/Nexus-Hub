@@ -8,21 +8,22 @@
 
 ---
 
-## What's New in v1.2.1
+## What's New in v1.3.0
 
-**Cross-surface shell-tool description format.** PATCH release that fixes a rendering bug introduced by the v1.1.0 description-box format: the four-line `# ===== Description ===== #` comment block rendered legibly in the VS Code Claude Code extension and the Claude Code terminal, but it rendered as unreadable escaped `\n` characters in the Claude Desktop app and on any other approval-dialog surface that displays the tool input as raw JSON. The fix is a single-line `# description: <text>` prefix that degrades gracefully on every surface, plus a unified description-discipline rule rolled out across all five platform briefings (Claude, Codex, Gemini, Cursor, OpenCode) so every agent learns to provide a clean single-line `description` parameter on shell tool calls.
+**Docs folder cleanup workflow.** MINOR release that introduces a structured way to audit and reorganize a project's `docs/` folder. Every file gets classified into one of four explicit categories (Cat 1 delete / Cat 2 archive / Cat 3 stale-flag / Cat 4 active), the agent proposes a version-first reorganization with a dedicated `docs/archive/` subtree, and changes only apply after explicit user confirmation. The workflow is wired into the existing release commands so docs hygiene happens routinely rather than only at major releases.
 
 ### What changed
 
-- **Both `format-bash-description.py` and `format-powershell-description.py`** now prepend a single-line `# description: <text>` (max 135 chars: 15 chars of marker + up to 120 chars of content, truncated with `...`) instead of the four-line box. Same text is mirrored into `updatedInput.description` (universal channel) and, for PowerShell, into `permissionDecisionReason` (the v1.1.0 visible-body channel - load-bearing `permissionDecision: "ask"` preserved verbatim).
-- **`strip_description_box`** cleanly removes BOTH the legacy four-line box AND the new `# description:` prefix, so mid-conversation retries on legacy-formatted commands continue to round-trip cleanly. A regression test guards this.
-- **All five platform briefings** ([base-claude.md](templates/ai-instructions/base-claude.md), [base-codex.md](templates/ai-instructions/base-codex.md), [base-gemini.md](templates/ai-instructions/base-gemini.md), [base-cursor.md](templates/ai-instructions/base-cursor.md), [base-opencode.md](templates/ai-instructions/base-opencode.md)) carry a unified `MANDATORY` rule for shell-style tools: `description` is a single plain-text sentence (<=120 chars, no newlines, no formatting); prefer single-line commands, reserve multi-line bodies for here-strings and heredocs. base-cursor and base-opencode previously had no shell-tool description rule; this is new discipline for users on those two platforms.
+- **New skill `docs-layout-refactor` and command `/refactor-docs`**: audit-then-confirm-then-apply workflow with eight weighted heuristics for file classification, plus a stdlib-only Python helper ([`audit-docs.py`](catalog/skills/code-cleanup/docs-layout-refactor/scripts/audit-docs.py)) that emits a JSON inventory and reference graph without inflating the agent's context window. Default is propose-only; the `--apply` flag turns on the confirmation gate.
+- **New PreToolUse hook [`old-version-docs-guard`](catalog/hooks/old-version-docs-guard.sh)**: warns when Write or Edit targets a historical `docs/v<old-version>/` path. Non-blocking by default; opt-in hard block via `DEVAI_OLD_DOCS_GUARD=block`. Ships with a PowerShell sibling for Windows parity.
+- **New `release-prep` bundle**: groups `docs-layout-refactor`, `project-layout-refactor`, `documentation-consistency`, `version-upgrade`, `release-notes-writer`, `known-gaps-tracker`, and `code-commit-workflow` for one-click release-prep skill installation.
+- **Integrations into existing commands**: `/wrap-up-session` Step 2c (audit-only), `/update-version` Step B4 (full apply with gate), `/run-deep-review` subsection 4.11 (audit-only), `/review-codebase` Phase 6f (advisory reference). The `--migrate-known-gaps` flag on `/refactor-docs` auto-promotes Cat 3 findings into `docs/<next-version>/known-gaps.md` via the `known-gaps-tracker` skill.
 
 ### Migration
 
-Re-run the installer. The hook scripts and platform briefings land at their existing paths. No `settings.json` change, no schema change, no installer-flow change. **Breaking only for external tooling** that grepped shell history for the literal `=====` box header - switch to matching `^# description:` (the strip function still removes the legacy shape during the transition).
+Re-run the installer. The new skill, command, hook, and bundle land at their target paths automatically (the skill bundle is recursively copied; the hook is registered in `catalog/hooks/settings.json` under `PreToolUse` for Write and Edit). No schema change, no installer-flow change. **No breaking changes**: existing user customizations are preserved.
 
-See [CHANGELOG.md](CHANGELOG.md) for the full entry and [docs/DEVLOG.md](docs/DEVLOG.md) for the cross-surface investigation and design rationale.
+See [CHANGELOG.md](CHANGELOG.md) for the full entry and [docs/v1.3.0/RELEASE_NOTES.md](docs/v1.3.0/RELEASE_NOTES.md) for the release summary.
 
 ---
 
@@ -39,7 +40,7 @@ Don't want to copy-paste files manually? We made an installer.
 5.  **(Optional) Select a project** to configure workspace-specific rules.
 
 **Done.**
-*   **Globally**: Your user profile now has all 196 Claude Skills, 34 Commands, 13 Hooks, 10 Agents, plus Gemini and Codex instructions.
+*   **Globally**: Your user profile now has all 197 Claude Skills, 35 Commands, 14 Hooks, 10 Agents, plus Gemini and Codex instructions.
 *   **Locally**: Your project has `copilot-instructions.md` tailored to your language.
 
 ---

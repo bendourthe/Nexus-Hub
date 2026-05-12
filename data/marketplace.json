@@ -1,8 +1,8 @@
 {
   "plugin": {
     "name": "devai-hub",
-    "version": "1.2.1",
-    "description": "Enterprise-grade skill library for AI coding assistants with 196+ curated skills, 36 commands, and cross-platform support",
+    "version": "1.3.0",
+    "description": "Enterprise-grade skill library for AI coding assistants with 197+ curated skills, 37 commands, and cross-platform support",
     "author": "Benjamin Dourthe",
     "license": "MIT",
     "repository": "https://github.com/bendourthe/DevAI-Hub",
@@ -89,8 +89,8 @@
     {
       "id": "code-cleanup",
       "name": "Code Cleanup",
-      "description": "Language-specific cleanup for C, C++, C#, Go, Java, JavaScript, Python",
-      "skill_count": 9
+      "description": "Code, layout, and docs cleanup: per-language modernization plus repo and docs structural refactoring",
+      "skill_count": 10
     },
     {
       "id": "code-review",

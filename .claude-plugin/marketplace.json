@@ -2,8 +2,8 @@
   "name": "devai-hub",
   "displayName": "DevAI Hub",
   "tagline": "Production-Grade Brain Upgrades for Your AI Coding Assistant",
-  "description": "Turn generic AI into a Senior Engineer. 196+ curated skills across 22 domains - architecture, security, compliance, testing, infrastructure, AI development, and more. 32 workflow commands. Cross-platform: Claude Code, Cursor, Gemini CLI, GitHub Copilot, OpenAI Codex.",
-  "version": "1.2.1",
+  "description": "Turn generic AI into a Senior Engineer. 197+ curated skills across 22 domains - architecture, security, compliance, testing, infrastructure, AI development, and more. 33 workflow commands. Cross-platform: Claude Code, Cursor, Gemini CLI, GitHub Copilot, OpenAI Codex.",
+  "version": "1.3.0",
   "author": "Benjamin Dourthe",
   "license": "MIT",
   "repository": "https://github.com/bendourthe/DevAI-Hub",
@@ -24,9 +24,9 @@
     "multi-agent"
   ],
   "stats": {
-    "skills": 186,
-    "commands": 33,
-    "hooks": 13,
+    "skills": 197,
+    "commands": 34,
+    "hooks": 14,
     "agents": 10,
     "categories": 22
   },
