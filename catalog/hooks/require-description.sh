@@ -4,11 +4,12 @@
 #
 # Accepts EITHER of these as proof that a description exists:
 #   1. A non-empty "description" field in the tool input JSON
-#   2. A bordered description block at the top of the command
-#      (legacy format, still accepted for backwards compatibility)
+#   2. A description comment at the top of the command
+#      (matches the new "# Description: ..." prefix and the legacy
+#      bordered block; both are kept for backwards compatibility)
 #
 # The format-bash-description.py hook (which runs before this hook)
-# only adds the description box to commands that are NOT in the
+# only adds the description prefix to commands that are NOT in the
 # auto-approve allow list. Auto-approved commands carry their
 # description in the "description" field instead.
 #
@@ -36,10 +37,15 @@ if [ -n "${DESCRIPTION:-}" ]; then
   exit 0
 fi
 
-# --- Check 2: Description block in command (legacy / non-allowed commands) ---
+# --- Check 2: Description comment in command (legacy / non-allowed commands) ---
+# Matches both the new "# Description: ..." prefix and the legacy
+# "# ===== Description ===== #" box header (case-insensitive via -i).
+# The regex alternation accepts "desc:" too so any session formatted
+# with the v1.2.1-rc "# desc:" prefix (a brief intermediate shape)
+# still satisfies the check.
 if [ -n "${COMMAND:-}" ]; then
   FIRST_LINE=$(printf '%s' "$COMMAND" | sed '/^[[:space:]]*$/d' | head -1)
-  if printf '%s' "$FIRST_LINE" | grep -qi '^[[:space:]]*#.*Description'; then
+  if printf '%s' "$FIRST_LINE" | grep -qi '^[[:space:]]*#.*\(desc:\|description\)'; then
     exit 0
   fi
 fi
@@ -49,14 +55,14 @@ MSG="BLOCKED: Missing required description.
 
 Every Bash command must include a description. Provide it as the
 \"description\" parameter in the Bash tool call (plain text, one
-sentence or short paragraph). The format-bash-description.py hook
-formats it automatically.
+sentence, <=120 chars, no newlines). The format-bash-description.py
+hook formats it automatically.
 
-Alternatively, the command may begin with a bordered description block:
+Alternatively, the command may begin with a single-line description
+prefix:
 
-  # ================================ Description ================================ #
-  # Lists all agent config files under the project directory                      #
-  # ============================================================================= #
+  # Description: Lists all agent config files under the project directory
+  ___
   find ~/.claude -type f -name '*.md'
 
 Add a description, then retry."

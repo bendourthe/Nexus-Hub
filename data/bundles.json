@@ -1,7 +1,7 @@
 {
   "metadata": {
-    "version": "1.2.0",
-    "generated": "2026-05-11",
+    "version": "1.2.1",
+    "generated": "2026-05-12",
     "description": "Role-based skill bundles for targeted installation. Each bundle groups skills by professional role or workflow."
   },
   "bundles": [

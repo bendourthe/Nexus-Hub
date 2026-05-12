@@ -28,7 +28,7 @@
 ## Working Conventions
 - Verify solutions work before claiming completion
 - Find root causes; no temporary fixes
-- **MANDATORY**: When using the Bash tool, always provide a `description` as **plain text only** (a single sentence or short paragraph). Do NOT add borders, boxes, `#` characters, padding, or any manual formatting to the description. A PreToolUse hook (`format-bash-description.py`) handles all formatting automatically.
+- **MANDATORY**: When invoking a shell-style tool (Bash, PowerShell, `run_shell_command`, `shell`, etc.), provide the `description` parameter as a single plain-text sentence (<=120 chars, no newlines, no formatting, no `#` characters or borders). Prefer single-line commands; use multi-line bodies only when a here-string or heredoc is genuinely required (e.g. commit messages, file content). The `description` field is the universally-rendered surface across all approval-dialog implementations - keep it precise and scannable.
 - **MANDATORY: Every Read, Glob, and Grep tool call MUST be preceded by a one-sentence plain-language explanation** of what file or path is being accessed and why. No exceptions.
 - Never add `Co-Authored-By` lines, AI attribution footers, or AI-generated signatures to commit messages
 - Commit messages must be ASCII-only: no em-dashes, en-dashes, curly quotes, ellipsis characters, or other Unicode punctuation. Use hyphens, straight quotes, and `...` instead. This prevents encoding corruption on Windows.

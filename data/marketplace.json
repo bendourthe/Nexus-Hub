@@ -1,7 +1,7 @@
 {
   "plugin": {
     "name": "devai-hub",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "description": "Enterprise-grade skill library for AI coding assistants with 196+ curated skills, 36 commands, and cross-platform support",
     "author": "Benjamin Dourthe",
     "license": "MIT",

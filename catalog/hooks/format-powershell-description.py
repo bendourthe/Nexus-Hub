@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
 PreToolUse hook for Claude Code: formats PowerShell tool descriptions
-into a fixed-header/footer comment block for commands that require
-user approval, and passes through allowed read-only commands unchanged
-so that the permission system can auto-approve them.
+into a single-line `# Description:` prefix for commands that require user
+approval, and passes through allowed read-only commands unchanged so
+that the permission system can auto-approve them.
 
 Install:
   1. Copy this file to ~/.claude/hooks/format-powershell-description.py
@@ -24,9 +24,10 @@ Behavior:
       * contains no I/O redirection (> < or backtick line continuation)
       * contains no subexpression ($(...) or @(...)) or call operator (&)
       * each pipe-separated segment matches a configured allow pattern
-  - If ANY check fails, the description is rendered as a comment box
-    at the top of the command so it stays visible in the truncated
-    approval-dialog preview, and the call is NOT auto-approved.
+  - If ANY check fails, the description is rendered as a single-line
+    `# Description: <text>` prefix on top of the command AND mirrored to
+    `permissionDecisionReason`, so the dialog body shows the description
+    even when the surface renders the tool input as raw JSON.
 
 Part of DevAI-Hub.
 """
@@ -37,50 +38,70 @@ import fnmatch
 import json
 import pathlib
 import re
-import shutil
 import sys
-import textwrap
 
 # Configuration
-_BOX_HEADER = "# ===== Description ===== #"
-_BOX_FOOTER = "# ======================= #"
-_MIN_CONTENT_WIDTH = 30
-_MAX_CONTENT_WIDTH = 77
+_PREFIX_MAX_LEN = 120
 
 _PERMISSION_PREFIX = "PowerShell("
 
 
-# Description box formatting
+# Description prefix formatting
 
-def format_description_box(text: str, *, width: int | None = None) -> str:
-    """Format description text between fixed header/footer rules.
+def _collapse_to_single_line(text: str) -> str:
+    """Collapse newlines, tabs, and runs of whitespace into single spaces."""
+    return re.sub(r"\s+", " ", text).strip()
 
-    Header and footer are fixed-width so they fit any terminal. Content
-    lines carry a '# ' prefix and wrap at *width* (defaults to terminal
-    width clamped to [_MIN_CONTENT_WIDTH, _MAX_CONTENT_WIDTH]). Pass
-    *width* explicitly to override terminal detection (useful in tests).
+
+def format_description_prefix(text: str) -> str:
+    """Format description text into a single-line `# Description:` comment.
+
+    The prefix is one line so it renders cleanly on every approval-dialog
+    surface, including those that show the tool input as raw JSON (where
+    embedded ``\\n`` characters would otherwise appear as literal escape
+    sequences). Input newlines, tabs, and whitespace runs collapse to
+    single spaces; the result is truncated to ``_PREFIX_MAX_LEN`` with a
+    trailing ``...`` when it exceeds that length.
     """
-    if width is None:
-        cols = shutil.get_terminal_size(fallback=(_MAX_CONTENT_WIDTH + 2, 24)).columns
-        width = max(_MIN_CONTENT_WIDTH, min(_MAX_CONTENT_WIDTH, cols - 2))
+    cleaned = _collapse_to_single_line(text)
+    if not cleaned:
+        return "# Description: (none provided)"
+    if len(cleaned) > _PREFIX_MAX_LEN:
+        cleaned = cleaned[: _PREFIX_MAX_LEN - 3].rstrip() + "..."
+    return f"# Description: {cleaned}"
 
-    wrapped = textwrap.wrap(text.strip(), width=width)
-    if not wrapped:
-        wrapped = ["(no description)"]
 
-    content_lines = [f"# {line}" for line in wrapped]
-    return "\n".join([_BOX_HEADER] + content_lines + [_BOX_FOOTER])
+# One-release-cycle alias for any external caller that imported the
+# previous name. Removed in the next minor release.
+format_description_box = format_description_prefix
 
 
 def strip_description_box(command: str) -> str:
-    """Remove any description-box comment lines from the top of a command."""
+    """Remove description comment lines from the top of a command.
+
+    Drops every leading ``#``-prefixed line, every leading underscore-only
+    separator line (e.g. ``___``), and any blank lines between them. This
+    absorbs every shape the hook has shipped so far: the legacy four-line
+    ``# ===== Description =====`` box, the intermediate ``# desc: <text>``
+    prefix, and the current ``# Description: <text>\\n___\\n<command>``
+    shape. A hook running mid-conversation on a command formatted with any
+    prior shape still strips cleanly so the new prefix can be re-applied
+    without doubling up.
+    """
     lines = command.split("\n")
     cleaned_lines = []
     past_box = False
     for line in lines:
-        if not past_box and line.strip().startswith("#"):
+        if past_box:
+            cleaned_lines.append(line)
             continue
-        if not past_box and line.strip() == "":
+        stripped = line.strip()
+        if stripped.startswith("#"):
+            continue
+        if stripped == "":
+            continue
+        if set(stripped) == {"_"}:
+            # Underscore-only separator line (the ``___`` divider)
             continue
         past_box = True
         cleaned_lines.append(line)
@@ -328,10 +349,10 @@ def main() -> None:
         is_allowed = False
 
     # Allowed: ask Claude Code to auto-approve and pass the clean
-    # command (without a comment box) so the permission matcher sees
-    # the real command.
+    # command (without a description prefix) so the permission matcher
+    # sees the real command.
     if is_allowed:
-        stripped = (description or "").strip()
+        description_text = _collapse_to_single_line(description or "")
         output = {
             "hookSpecificOutput": {
                 "hookEventName": "PreToolUse",
@@ -339,17 +360,16 @@ def main() -> None:
                 "permissionDecisionReason": "All pipeline segments match configured allow patterns",
                 "updatedInput": {
                     "command": cleaned_command,
-                    "description": stripped if stripped else "(auto-approved)",
+                    "description": description_text or "(auto-approved)",
                 },
             }
         }
         json.dump(output, sys.stdout)
         sys.exit(0)
 
-    # Not allowed: render description as a comment box on top of the
-    # command AND surface it in permissionDecisionReason so it shows
-    # directly under the dialog header instead of being hidden in
-    # the collapsible "Details" panel.
+    # Not allowed: render description as a single-line `# Description:` prefix
+    # on top of the command AND surface the same text in
+    # permissionDecisionReason. Both channels are needed:
     #
     # Why "ask" is required for the PowerShell tool: Claude Code's
     # PowerShell tool defaults to running a tool_use as soon as a
@@ -361,21 +381,27 @@ def main() -> None:
     # tool_use that this hook does not auto-approve would still execute
     # silently because the absence of a decision is treated as approval.
     #
-    # Why permissionDecisionReason carries the description: Claude
-    # Code's PowerShell approval dialog hides the body of updatedInput
-    # behind a collapsed "Details" panel, unlike the Bash dialog which
-    # renders the comment-box prepend visibly. Putting the description
-    # into permissionDecisionReason surfaces it under the dialog header
-    # so the user sees it without expanding Details.
+    # Why permissionDecisionReason carries the description: the
+    # PowerShell approval dialog on some surfaces hides the body of
+    # updatedInput behind a collapsed "Details" panel. Mirroring the
+    # description into permissionDecisionReason ensures the user sees
+    # it without expanding Details.
+    #
+    # Why a single-line `# Description:` prefix (instead of a multi-line box):
+    # some surfaces (notably the Claude Desktop app) render the tool
+    # input as raw JSON, so embedded `\n` becomes literal escape text.
+    # A one-line prefix degrades gracefully there because the first
+    # readable token is still `# Description: <text>`.
     stripped = (description or "").strip()
     if stripped.startswith("#"):
-        # Description already looks like a box; pass through unchanged
-        # but still force user approval.
+        # Description already looks like a comment line; pass through
+        # unchanged but still force user approval.
+        reason = _collapse_to_single_line(stripped.lstrip("#"))
         output = {
             "hookSpecificOutput": {
                 "hookEventName": "PreToolUse",
                 "permissionDecision": "ask",
-                "permissionDecisionReason": stripped.lstrip("#").strip()
+                "permissionDecisionReason": reason
                 or "PowerShell command not in auto-approve allow-list",
             }
         }
@@ -389,17 +415,27 @@ def main() -> None:
         # don't double-emit user-visible output.
         sys.exit(0)
 
-    box = format_description_box(stripped)
-    updated_command = box + "\n\n" + cleaned_command
+    # Normalize the description once: collapse any embedded newlines /
+    # tabs so the field-level description and the inline prefix are
+    # both single-line. The prefix additionally truncates to
+    # _PREFIX_MAX_LEN; the field and permissionDecisionReason carry the
+    # full normalized text.
+    description_text = _collapse_to_single_line(stripped)
+    prefix = format_description_prefix(description_text)
+    # `\n___\n` between the prefix and the command renders as a Markdown
+    # horizontal rule on surfaces that parse Markdown and as a visible
+    # underscore divider on plain-text surfaces. Two newlines added; the
+    # `___` line is dropped on retry by strip_description_box.
+    updated_command = prefix + "\n___\n" + cleaned_command
 
     output = {
         "hookSpecificOutput": {
             "hookEventName": "PreToolUse",
             "permissionDecision": "ask",
-            "permissionDecisionReason": stripped,
+            "permissionDecisionReason": description_text,
             "updatedInput": {
                 "command": updated_command,
-                "description": stripped,
+                "description": description_text,
             },
         }
     }

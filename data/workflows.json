@@ -1,7 +1,7 @@
 {
   "metadata": {
-    "version": "1.2.0",
-    "generated": "2026-05-11",
+    "version": "1.2.1",
+    "generated": "2026-05-12",
     "description": "Pre-built goal-based workflows that chain multiple skills in sequence for common development objectives."
   },
   "workflows": [

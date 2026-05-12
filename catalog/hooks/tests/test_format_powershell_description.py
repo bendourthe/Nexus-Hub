@@ -34,10 +34,9 @@ _fpd = _load_module()
 split_powershell_pipeline = _fpd.split_powershell_pipeline
 command_is_allowed = _fpd.command_is_allowed
 _has_disallowed_syntax = _fpd._has_disallowed_syntax
-format_description_box = _fpd.format_description_box
+format_description_prefix = _fpd.format_description_prefix
 strip_description_box = _fpd.strip_description_box
-_BOX_HEADER = _fpd._BOX_HEADER
-_BOX_FOOTER = _fpd._BOX_FOOTER
+_PREFIX_MAX_LEN = _fpd._PREFIX_MAX_LEN
 
 
 def _load_real_patterns() -> list[str]:
@@ -293,43 +292,75 @@ class TestRealConfigIntegration:
         )
 
 
-# ── Description box ────────────────────────────────────────────────────────
+# ── Description prefix ─────────────────────────────────────────────────────
 
 
-class TestFormatDescriptionBox:
-    def test_basic_box_shape(self):
-        out = format_description_box("Hello world", width=40)
-        lines = out.split("\n")
-        assert lines[0] == _BOX_HEADER
-        assert lines[-1] == _BOX_FOOTER
-        assert any("Hello world" in line for line in lines)
-        # Each content line starts with "# "
-        for line in lines[1:-1]:
-            assert line.startswith("# ")
+class TestFormatDescriptionPrefix:
+    """The prefix is the single-line replacement for the legacy 4-line box.
+
+    Single-line shape is load-bearing for cross-surface rendering:
+    surfaces that show the tool input as raw JSON would otherwise turn
+    embedded ``\\n`` into literal escape text.
+    """
+
+    def test_no_newline_in_prefix(self):
+        out = format_description_prefix("Hello world")
+        assert "\n" not in out
+
+    def test_starts_with_desc_marker(self):
+        assert format_description_prefix("Anything").startswith("# Description: ")
 
     def test_empty_text_uses_placeholder(self):
-        out = format_description_box("", width=40)
-        assert "(no description)" in out
+        assert format_description_prefix("") == "# Description: (none provided)"
 
-    def test_long_text_wraps(self):
-        long_text = "word " * 50
-        out = format_description_box(long_text, width=40)
-        for line in out.split("\n")[1:-1]:
-            assert len(line) <= 42  # "# " + 40-col content
+    def test_collapses_internal_newlines_to_single_space(self):
+        out = format_description_prefix("line one\nline two")
+        assert out == "# Description: line one line two"
+
+    def test_long_input_truncates_with_ellipsis(self):
+        long_text = "x" * (_PREFIX_MAX_LEN + 50)
+        out = format_description_prefix(long_text)
+        assert "\n" not in out
+        assert out.endswith("...")
+        assert len(out) - len("# Description: ") <= _PREFIX_MAX_LEN
 
 
 class TestStripDescriptionBox:
-    def test_strips_top_comments(self):
-        cmd = (
-            f"{_BOX_HEADER}\n"
+    def test_strips_new_prefix(self):
+        cmd = format_description_prefix("This explains the command") + "\n" + "Get-Process"
+        assert strip_description_box(cmd).strip() == "Get-Process"
+
+    def test_strips_legacy_box_format(self):
+        """Mid-conversation safety net: legacy 4-line box must still strip
+        cleanly so a command formatted by the previous hook version can be
+        re-formatted with the new prefix without doubling up."""
+        legacy = (
+            "# ===== Description ===== #\n"
             "# This explains the command\n"
-            f"{_BOX_FOOTER}\n"
+            "# ======================= #\n"
             "\n"
             "Get-Process"
         )
-        assert strip_description_box(cmd).strip() == "Get-Process"
+        assert strip_description_box(legacy).strip() == "Get-Process"
 
-    def test_no_box_returns_unchanged(self):
+    def test_strips_underscore_separator(self):
+        """The current `# Description: <text>\\n___\\n<command>` shape must
+        strip cleanly. The underscore-only separator line is dropped along
+        with the description comment, otherwise a retry would double-wrap
+        with `___\\n___\\n` between two prefixes."""
+        prefix = format_description_prefix("Show running processes")
+        full = prefix + "\n___\n" + "Get-Process"
+        assert strip_description_box(full).strip() == "Get-Process"
+
+    def test_strips_full_current_shape_roundtrip(self):
+        """Exact round-trip: format the prefix, prepend with `\\n___\\n`,
+        then strip. Original command must come back byte-identical."""
+        original = "Get-Process | Select-Object Name"
+        prefix = format_description_prefix("Show process names")
+        full = prefix + "\n___\n" + original
+        assert strip_description_box(full) == original
+
+    def test_no_prefix_returns_unchanged(self):
         assert strip_description_box("Get-Process").strip() == "Get-Process"
 
     def test_preserves_command_with_trailing_comments(self):
@@ -349,14 +380,14 @@ class TestMainIntegration:
         assert rc == 0
         assert stdout.strip() == ""
 
-    def test_with_description_renders_box_and_asks(self):
-        """A description-bearing non-allowlisted command must (a) render
-        the comment-block envelope into the script body, (b) explicitly
+    def test_with_description_renders_prefix_and_asks(self):
+        """A description-bearing non-allowlisted command must (a) prepend a
+        single-line `# Description:` prefix to the script body, (b) explicitly
         return permissionDecision='ask' so Claude Code's PowerShell tool
         falls through to a user-approval dialog instead of executing
         silently, and (c) set permissionDecisionReason to the description
-        so the dialog body surfaces it without forcing the user to
-        expand the collapsible Details panel."""
+        so the dialog body surfaces it without forcing the user to expand
+        the collapsible Details panel."""
         stdout, rc = _run_hook(
             _make_payload(
                 "Stop-Process -Name explorer",
@@ -369,8 +400,14 @@ class TestMainIntegration:
         hso = out["hookSpecificOutput"]
         updated = hso["updatedInput"]
         assert "Stop-Process -Name explorer" in updated["command"]
-        assert _BOX_HEADER in updated["command"]
+        assert updated["command"].startswith("# Description: ")
         assert "Stops the Explorer process" in updated["command"]
+        # Two newlines added: prefix line + `___` separator line + single-line
+        # command body. Body is "Stop-Process -Name explorer" with zero
+        # newlines, so total newline count = 2.
+        assert updated["command"].count("\n") == 2
+        # The `___` separator line is present between prefix and command
+        assert "\n___\n" in updated["command"]
         assert hso.get("permissionDecision") == "ask", (
             "Non-allowlisted commands MUST set permissionDecision='ask' "
             "or Claude Code's PowerShell tool will auto-execute them"
@@ -382,15 +419,15 @@ class TestMainIntegration:
             "Details panel, so reason is the only reliably-visible surface)"
         )
 
-    def test_description_already_boxed_still_asks(self):
+    def test_description_already_prefixed_still_asks(self):
         """If the model passes a description that already starts with '#',
-        we don't re-box, but we still force user approval and surface a
+        we don't re-format, but we still force user approval and surface a
         useful permissionDecisionReason."""
-        boxed_desc = "# already preformatted description"
+        prefixed_desc = "# already preformatted description"
         stdout, rc = _run_hook(
             _make_payload(
                 "Stop-Process -Name explorer",
-                description=boxed_desc,
+                description=prefixed_desc,
             )
         )
         assert rc == 0
@@ -398,7 +435,6 @@ class TestMainIntegration:
         out = json.loads(stdout)
         hso = out["hookSpecificOutput"]
         assert hso.get("permissionDecision") == "ask"
-        # Strips leading '#' but still surfaces the description text
         reason = hso.get("permissionDecisionReason", "")
         assert "already preformatted description" in reason
 

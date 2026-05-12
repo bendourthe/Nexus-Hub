@@ -39,10 +39,9 @@ _fbd = _load_module()
 
 split_compound_command = _fbd.split_compound_command
 command_is_allowed = _fbd.command_is_allowed
-format_description_box = _fbd.format_description_box
+format_description_prefix = _fbd.format_description_prefix
 strip_description_box = _fbd.strip_description_box
-_BOX_HEADER = _fbd._BOX_HEADER
-_BOX_FOOTER = _fbd._BOX_FOOTER
+_PREFIX_MAX_LEN = _fbd._PREFIX_MAX_LEN
 
 
 # ── Helpers ────────────────────────────────────────────────────────────────
@@ -755,61 +754,61 @@ class TestSelectConstruct:
 
 
 # ══════════════════════════════════════════════════════════════════════════
-# C.  format_description_box
+# C.  format_description_prefix
 # ══════════════════════════════════════════════════════════════════════════
 
 
-class TestFormatDescriptionBox:
-    _WRAP_WIDTH = 40  # fixed wrap width for predictable assertions
+class TestFormatDescriptionPrefix:
+    """The prefix is the single-line replacement for the legacy 4-line box.
 
-    def test_header_and_footer_are_fixed(self):
-        box = format_description_box("Short description.", width=self._WRAP_WIDTH)
-        lines = box.splitlines()
-        assert lines[0] == _BOX_HEADER
-        assert lines[-1] == _BOX_FOOTER
+    The single-line shape is load-bearing for cross-surface rendering:
+    surfaces that show the tool input as raw JSON would otherwise turn
+    embedded ``\\n`` into literal escape text. Every assertion below
+    guards a property the rendering depends on.
+    """
 
-    def test_title_line_contains_word_description(self):
-        first_line = format_description_box("Any text", width=self._WRAP_WIDTH).splitlines()[0]
-        assert "Description" in first_line
+    def test_no_newline_in_prefix(self):
+        """A single-line prefix MUST contain no `\\n` so it renders cleanly
+        even on surfaces that escape JSON string newlines."""
+        out = format_description_prefix("Short description.")
+        assert "\n" not in out
 
-    def test_short_text_produces_three_lines(self):
-        """header + 1 content line + footer = 3 lines for short text."""
-        lines = format_description_box("Short.", width=self._WRAP_WIDTH).splitlines()
-        assert len(lines) == 3
+    def test_starts_with_desc_marker(self):
+        assert format_description_prefix("Anything").startswith("# Description: ")
 
-    def test_long_text_wraps_across_multiple_lines(self):
-        long_text = (
-            "This is a very long description that definitely exceeds the "
-            "content width and must be wrapped across multiple content "
-            "lines inside the box."
-        )
-        lines = format_description_box(long_text, width=self._WRAP_WIDTH).splitlines()
-        assert len(lines) > 3
-        for line in lines[1:-1]:  # content lines only (not header/footer)
-            assert len(line) <= self._WRAP_WIDTH + 2  # "# " prefix + wrapped text
+    def test_empty_input_uses_placeholder(self):
+        assert format_description_prefix("") == "# Description: (none provided)"
 
-    def test_starts_with_hash(self):
-        assert format_description_box("Test", width=self._WRAP_WIDTH).startswith("#")
+    def test_whitespace_only_input_uses_placeholder(self):
+        assert format_description_prefix("   \t  ") == "# Description: (none provided)"
 
-    def test_ends_with_hash(self):
-        box = format_description_box("Test", width=self._WRAP_WIDTH)
-        assert box.splitlines()[-1].endswith("#")
+    def test_content_is_present_in_prefix(self):
+        out = format_description_prefix("Read files from disk")
+        assert "Read files from disk" in out
 
-    def test_content_is_present_in_box(self):
-        box = format_description_box("Read files from disk", width=self._WRAP_WIDTH)
-        assert "Read files from disk" in box
+    def test_collapses_internal_newlines_to_single_space(self):
+        out = format_description_prefix("line one\nline two\nline three")
+        assert "\n" not in out
+        assert "line one line two line three" in out
 
-    def test_wide_terminal_preserves_fixed_header_footer(self):
-        box = format_description_box("Test", width=77)
-        lines = box.splitlines()
-        assert lines[0] == _BOX_HEADER
-        assert lines[-1] == _BOX_FOOTER
+    def test_collapses_internal_tabs_and_runs(self):
+        out = format_description_prefix("a\t\tb   c\n\nd")
+        assert out == "# Description: a b c d"
 
-    def test_narrow_terminal_preserves_fixed_header_footer(self):
-        box = format_description_box("Test", width=30)
-        lines = box.splitlines()
-        assert lines[0] == _BOX_HEADER
-        assert lines[-1] == _BOX_FOOTER
+    def test_long_input_truncates_with_ellipsis(self):
+        long_text = "x" * (_PREFIX_MAX_LEN + 50)
+        out = format_description_prefix(long_text)
+        assert "\n" not in out
+        assert out.startswith("# Description: ")
+        assert out.endswith("...")
+        # Total length: "# Description: " (8 chars) + at most _PREFIX_MAX_LEN
+        assert len(out) - len("# Description: ") <= _PREFIX_MAX_LEN
+
+    def test_input_at_max_length_not_truncated(self):
+        text = "x" * _PREFIX_MAX_LEN
+        out = format_description_prefix(text)
+        assert not out.endswith("...")
+        assert text in out
 
 
 # ══════════════════════════════════════════════════════════════════════════
@@ -819,33 +818,88 @@ class TestFormatDescriptionBox:
 
 class TestStripDescriptionBox:
 
-    def test_command_without_box_unchanged(self):
+    def test_command_without_prefix_unchanged(self):
         cmd = "git status"
         assert strip_description_box(cmd) == cmd
 
-    def test_box_prefix_removed_leaving_command(self):
-        box = format_description_box("List files")
-        full = box + "\n\ngit status"
+    def test_prefix_removed_leaving_command(self):
+        prefix = format_description_prefix("List files")
+        full = prefix + "\n" + "git status"
         assert strip_description_box(full) == "git status"
 
-    def test_extra_blank_lines_between_box_and_command_stripped(self):
-        box = format_description_box("List files")
-        full = box + "\n\n\n\ngit status"
+    def test_extra_blank_lines_between_prefix_and_command_stripped(self):
+        prefix = format_description_prefix("List files")
+        full = prefix + "\n\n\n\ngit status"
         assert strip_description_box(full) == "git status"
 
-    def test_multiline_command_preserved_after_stripping_box(self):
-        box = format_description_box("Run two echoes")
+    def test_multiline_command_preserved_after_stripping_prefix(self):
+        prefix = format_description_prefix("Run two echoes")
         cmd = "echo foo\necho bar"
-        result = strip_description_box(box + "\n\n" + cmd)
+        result = strip_description_box(prefix + "\n" + cmd)
         assert "echo foo" in result
         assert "echo bar" in result
 
-    def test_roundtrip_box_then_strip(self):
+    def test_roundtrip_prefix_then_strip(self):
         """format then strip must recover the original command."""
         original = "find . -name '*.py' | head -10"
-        box = format_description_box("Find Python files")
-        full = box + "\n\n" + original
+        prefix = format_description_prefix("Find Python files")
+        full = prefix + "\n" + original
         assert strip_description_box(full) == original
+
+    def test_strips_legacy_box_format(self):
+        """Mid-conversation safety net: a command still carrying the legacy
+        four-line `# ===== Description ===== #` box from a previous hook
+        version MUST strip cleanly so the new prefix can be applied on top
+        without doubling up."""
+        legacy = (
+            "# ===== Description ===== #\n"
+            "# Old box-style description\n"
+            "# ======================= #\n"
+            "\n"
+            "git status"
+        )
+        assert strip_description_box(legacy) == "git status"
+
+    def test_strips_legacy_box_with_multiline_content(self):
+        """Legacy box could wrap descriptions across multiple `# ` lines."""
+        legacy = (
+            "# ===== Description ===== #\n"
+            "# First wrapped line\n"
+            "# Second wrapped line\n"
+            "# ======================= #\n"
+            "\n"
+            "echo hello"
+        )
+        assert strip_description_box(legacy) == "echo hello"
+
+    def test_strips_underscore_separator(self):
+        """The current `# Description: <text>\\n___\\n<command>` shape must
+        strip cleanly. The underscore-only separator line is dropped along
+        with the description comment, otherwise a retry would double-wrap
+        with `___\\n___\\n` between two prefixes."""
+        prefix = format_description_prefix("List Python files")
+        full = prefix + "\n___\n" + "find . -name '*.py'"
+        assert strip_description_box(full) == "find . -name '*.py'"
+
+    def test_strips_full_current_shape_roundtrip(self):
+        """Exact round-trip: format the prefix as `main()` does it, prepend
+        with `\\n___\\n`, then strip. The original command must come back
+        byte-identical."""
+        original = "find . -name '*.py' | head -10"
+        prefix = format_description_prefix("Find Python files")
+        full = prefix + "\n___\n" + original
+        assert strip_description_box(full) == original
+
+    def test_strips_underscore_separator_of_varying_widths(self):
+        """The strip rule matches any underscore-only line, not just three
+        underscores. This is defensive: if a future hook bumps the divider
+        to `_____` (or a user crafts a longer line) the strip still drops it."""
+        for divider in ("__", "___", "_____", "_" * 40):
+            prefix = format_description_prefix("Show status")
+            full = prefix + "\n" + divider + "\n" + "git status"
+            assert strip_description_box(full) == "git status", (
+                f"Failed to strip divider {divider!r}"
+            )
 
 
 # ══════════════════════════════════════════════════════════════════════════
@@ -875,7 +929,7 @@ class TestMainIntegration:
         decision = data.get("hookSpecificOutput", {}).get("permissionDecision", "")
         assert decision == "allow"
 
-    def test_allowed_command_has_no_description_box(self):
+    def test_allowed_command_has_no_description_prefix(self):
         stdout, rc = _run_hook(_make_payload("git log --oneline"))
         assert rc == 0
         updated_cmd = (
@@ -884,9 +938,9 @@ class TestMainIntegration:
             .get("updatedInput", {})
             .get("command", "")
         )
-        assert "Description" not in updated_cmd
+        assert not updated_cmd.startswith("# Description:")
 
-    def test_non_allowed_with_description_prepends_box(self):
+    def test_non_allowed_with_description_prepends_prefix(self):
         payload = _make_payload("npm install", description="Install project dependencies")
         stdout, rc = _run_hook(payload)
         assert rc == 0
@@ -896,8 +950,14 @@ class TestMainIntegration:
             .get("updatedInput", {})
             .get("command", "")
         )
-        assert "Description" in updated_cmd
+        assert updated_cmd.startswith("# Description: ")
         assert "Install project dependencies" in updated_cmd
+        # Two newlines added by the hook: prefix line + `___` separator
+        # line + original command body. The command body here is
+        # "npm install" with zero newlines, so total newline count = 2.
+        assert updated_cmd.count("\n") == 2
+        # The `___` separator line is present between prefix and command
+        assert "\n___\n" in updated_cmd
 
     def test_non_allowed_without_description_produces_no_json(self):
         """No description → hook exits 0 with no JSON so require-description.sh blocks."""
@@ -905,9 +965,9 @@ class TestMainIntegration:
         assert rc == 0
         assert stdout.strip() == ""
 
-    def test_command_already_has_box_not_double_wrapped(self):
-        box = format_description_box("Already formatted")
-        cmd = box + "\n\nnpm install"
+    def test_command_already_has_prefix_not_double_wrapped(self):
+        prefix = format_description_prefix("Already formatted")
+        cmd = prefix + "\n" + "npm install"
         payload = _make_payload(cmd, description="Already formatted")
         stdout, rc = _run_hook(payload)
         assert rc == 0
@@ -918,7 +978,7 @@ class TestMainIntegration:
                 .get("updatedInput", {})
                 .get("command", cmd)
             )
-            assert updated_cmd.count("Description") <= 1
+            assert updated_cmd.count("# Description:") <= 1
 
     def test_malformed_json_exits_cleanly(self):
         result = subprocess.run(

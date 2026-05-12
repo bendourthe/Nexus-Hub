@@ -7,7 +7,7 @@ set -e
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-DEVAI_HUB_VERSION="1.2.0"
+DEVAI_HUB_VERSION="1.2.1"
 
 # --- Window Title ---
 printf '\033]0;DevAI-Hub Installer\007'

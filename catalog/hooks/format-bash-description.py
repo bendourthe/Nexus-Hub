@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
 PreToolUse hook for Claude Code: formats Bash tool descriptions
-into a fixed-header/footer block for commands that require user
-approval, and passes through allowed commands unchanged so that
-the permission system can auto-approve them.
+into a single-line `# Description:` prefix for commands that require user
+approval, and passes through allowed commands unchanged so that the
+permission system can auto-approve them.
 
 Install:
   1. Copy this file to ~/.claude/hooks/format-bash-description.py
@@ -14,10 +14,14 @@ Behavior:
   - Reads allow patterns from all settings levels
   - For compound commands (&&, ||, ;), checks each subcommand
   - If ALL subcommands match an allow pattern: returns the clean
-    command without the description box, so the permission matcher
+    command without the description prefix, so the permission matcher
     sees the real command and auto-approves it
-  - If ANY subcommand is not in the allow list: prepends the
-    description box so it is visible in the approval dialog
+  - If ANY subcommand is not in the allow list: prepends a single-line
+    `# Description: <text>` so the description stays readable across every
+    approval-dialog surface (Claude Desktop, VS Code extension, terminal).
+    The same text is mirrored to `updatedInput.description` so surfaces
+    that render the description field as a dialog subtitle always have
+    a clean copy, regardless of how they render the command body.
 
 Part of DevAI-Hub.
 """
@@ -28,52 +32,71 @@ import fnmatch
 import json
 import pathlib
 import re
-import shutil
 import sys
-import textwrap
 
 # ── Configuration ──────────────────────────────────────────────────────────
-_BOX_HEADER = "# ===== Description ===== #"
-_BOX_FOOTER = "# ======================= #"
-_MIN_CONTENT_WIDTH = 30   # floor for very narrow terminals
-_MAX_CONTENT_WIDTH = 77   # cap for very wide terminals
+_PREFIX_MAX_LEN = 120   # max chars in the inline `# Description:` prefix
 # ──────────────────────────────────────────────────────────────────────────
 
 
-# ── Description box formatting ─────────────────────────────────────────────
+# ── Description prefix formatting ─────────────────────────────────────────
 
-def format_description_box(text: str, *, width: int | None = None) -> str:
-    """Format description text between fixed header/footer rules.
+def _collapse_to_single_line(text: str) -> str:
+    """Collapse newlines, tabs, and runs of whitespace into single spaces."""
+    return re.sub(r"\s+", " ", text).strip()
 
-    Header and footer are always 27 characters wide so they fit any
-    terminal. Content lines carry a '# ' prefix and wrap at *width*
-    (defaults to terminal width clamped to [_MIN_CONTENT_WIDTH,
-    _MAX_CONTENT_WIDTH]). Pass *width* explicitly to override terminal
-    detection (useful in tests).
+
+def format_description_prefix(text: str) -> str:
+    """Format description text into a single-line `# Description:` comment.
+
+    The prefix is one line so it renders cleanly on every approval-dialog
+    surface, including those that show the tool input as raw JSON (where
+    embedded ``\\n`` characters would otherwise appear as literal escape
+    sequences). Input newlines, tabs, and whitespace runs collapse to
+    single spaces; the result is truncated to ``_PREFIX_MAX_LEN`` with a
+    trailing ``...`` when it exceeds that length.
     """
-    if width is None:
-        cols = shutil.get_terminal_size(fallback=(_MAX_CONTENT_WIDTH + 2, 24)).columns
-        width = max(_MIN_CONTENT_WIDTH, min(_MAX_CONTENT_WIDTH, cols - 2))
+    cleaned = _collapse_to_single_line(text)
+    if not cleaned:
+        return "# Description: (none provided)"
+    if len(cleaned) > _PREFIX_MAX_LEN:
+        cleaned = cleaned[: _PREFIX_MAX_LEN - 3].rstrip() + "..."
+    return f"# Description: {cleaned}"
 
-    wrapped = textwrap.wrap(text.strip(), width=width)
-    if not wrapped:
-        wrapped = ["(no description)"]
 
-    content_lines = [f"# {line}" for line in wrapped]
-    return "\n".join([_BOX_HEADER] + content_lines + [_BOX_FOOTER])
+# One-release-cycle alias for any external caller that imported the
+# previous name. Removed in the next minor release.
+format_description_box = format_description_prefix
 
 
 # ── Command cleaning ──────────────────────────────────────────────────────
 
 def strip_description_box(command: str) -> str:
-    """Remove any description-box comment lines from the top of a command."""
+    """Remove description comment lines from the top of a command.
+
+    Drops every leading ``#``-prefixed line, every leading underscore-only
+    separator line (e.g. ``___``), and any blank lines between them. This
+    absorbs every shape the hook has shipped so far: the legacy four-line
+    ``# ===== Description =====`` box, the intermediate ``# desc: <text>``
+    prefix, and the current ``# Description: <text>\\n___\\n<command>``
+    shape. A hook running mid-conversation on a command formatted with any
+    prior shape still strips cleanly so the new prefix can be re-applied
+    without doubling up.
+    """
     lines = command.split("\n")
     cleaned_lines = []
     past_box = False
     for line in lines:
-        if not past_box and line.strip().startswith("#"):
+        if past_box:
+            cleaned_lines.append(line)
             continue
-        if not past_box and line.strip() == "":
+        stripped = line.strip()
+        if stripped.startswith("#"):
+            continue
+        if stripped == "":
+            continue
+        if set(stripped) == {"_"}:
+            # Underscore-only separator line (the ``___`` divider)
             continue
         past_box = True
         cleaned_lines.append(line)
@@ -807,13 +830,13 @@ def main() -> None:
         print(f"[format-bash-description] WARNING: pattern check failed: {exc}", file=sys.stderr)
         is_allowed = False
 
-    # ── Allowed commands: return clean command (no box) and tell
+    # ── Allowed commands: return clean command (no prefix) and tell
     #    Claude Code to auto-approve via permissionDecision. We set
     #    this explicitly because Claude Code's own pattern matcher
     #    may mis-parse shell metacharacters inside quoted strings
     #    (e.g. grep "foo\|bar" looks like a pipe to the matcher). ──
     if is_allowed:
-        stripped = (description or "").strip()
+        description_text = _collapse_to_single_line(description or "")
         output = {
             "hookSpecificOutput": {
                 "hookEventName": "PreToolUse",
@@ -821,7 +844,7 @@ def main() -> None:
                 "permissionDecisionReason": "All subcommands match configured allow patterns",
                 "updatedInput": {
                     "command": cleaned_command,
-                    "description": stripped if stripped else "(auto-approved)",
+                    "description": description_text or "(auto-approved)",
                 },
             }
         }
@@ -834,22 +857,30 @@ def main() -> None:
     #    Claude to retry with a description.  Never add a placeholder. ──
     stripped = (description or "").strip()
     if stripped.startswith("#"):
-        # Description already looks like a box; don't double-format
+        # Description already looks like a comment line; don't double-format
         sys.exit(0)
 
     if not stripped:
         # No description - let require-description.sh block it
         sys.exit(0)
 
-    box = format_description_box(stripped)
-    updated_command = box + "\n\n" + cleaned_command
+    # Normalize the description once: collapse any embedded newlines /
+    # tabs so the field-level description and the inline prefix are both
+    # single-line. The prefix additionally truncates to _PREFIX_MAX_LEN.
+    description_text = _collapse_to_single_line(stripped)
+    prefix = format_description_prefix(description_text)
+    # `\n___\n` between the prefix and the command renders as a Markdown
+    # horizontal rule on surfaces that parse Markdown and as a visible
+    # underscore divider on plain-text surfaces. Two newlines added; the
+    # `___` line is dropped on retry by strip_description_box.
+    updated_command = prefix + "\n___\n" + cleaned_command
 
     output = {
         "hookSpecificOutput": {
             "hookEventName": "PreToolUse",
             "updatedInput": {
                 "command": updated_command,
-                "description": stripped,
+                "description": description_text,
             },
         }
     }

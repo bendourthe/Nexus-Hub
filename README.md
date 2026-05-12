@@ -8,43 +8,21 @@
 
 ---
 
-## What's New in v1.2.0
+## What's New in v1.2.1
 
-**Adoption of `anthropics/skills` patterns -- 9 new skills, 4 new repo-level scripts, A13 per-skill bundled-resources layout, A16 `.skill` packager.** MINOR release closing the seven-phase v1.1.5 `adoption-skills` plan ([docs/v1.1.5/plans/adoption-skills.md](docs/v1.1.5/plans/adoption-skills.md)). Strictly additive: zero breaking changes, no removals, no schema changes. Catalog grows from 187 -> 196 user-facing skills. Restart your AI agent sessions after re-installing so the new skills and commands become callable.
+**Cross-surface shell-tool description format.** PATCH release that fixes a rendering bug introduced by the v1.1.0 description-box format: the four-line `# ===== Description ===== #` comment block rendered legibly in the VS Code Claude Code extension and the Claude Code terminal, but it rendered as unreadable escaped `\n` characters in the Claude Desktop app and on any other approval-dialog surface that displays the tool input as raw JSON. The fix is a single-line `# description: <text>` prefix that degrades gracefully on every surface, plus a unified description-discipline rule rolled out across all five platform briefings (Claude, Codex, Gemini, Cursor, OpenCode) so every agent learns to provide a clean single-line `description` parameter on shell tool calls.
 
-### 9 new skills
+### What changed
 
-- **`doc-coauthoring`** (workflow) -- 3-stage co-authoring workflow (Context Gathering -> Refinement and Structure -> Reader Testing) for specs, proposals, decision docs, RFCs, ADRs, and long-form internal writeups.
-- **`generative-art`** (specialized-domains) -- algorithmic / generative-art workflow: write a Markdown philosophy manifesto, then ship a p5.js sketch with `randomSeed()` and an HTML viewer with parameter sliders. Three starter templates bundled (flow-field, particle-system, l-system).
-- **`theme-tokens`** (specialized-domains) -- stable design-token schema (palette, fonts, spacing, radius, shadow) plus 10 brand-neutral curated theme JSONs consumable by the four document-generator skills.
-- **`internal-comms`** (business-product) -- six structured templates for internal-audience writing (3P Update, Weekly Status, Leadership Update, Company FAQ, Incident Report, Project Update) with worked placeholder examples.
-- **`web-artifacts-builder`** (developer-experience) -- multi-component HTML artifact scaffolder using Vite + React + TypeScript + Tailwind v4 + shadcn/ui. Cross-platform `init-artifact.sh` + `init-artifact.ps1` parallel scripts.
-- **`skill-eval-loop`** (workflow) -- closed-loop evaluation workflow against any DevAI-Hub skill (paired with-skill / without-skill runs, assertion-graded outputs, browser-reviewed benchmarks, five named improvement heuristics).
-- **`brand-styling`** (specialized-domains) -- token-pattern skill that applies user-supplied brand tokens (palette, typography, logo, voice) to generated artifacts via per-brand `~/.devai-hub/brand/<slug>/tokens.json`. Ships empty placeholders only -- the user MUST supply their own brand.
-- **`mcp-builder`** (ai-development) -- walks the agent through building a local MCP server in Python (FastMCP) or Node / TypeScript (the official MCP SDK), with bundled cross-platform scaffolders and reference docs. Enforces the AGENTS.md MCP Registry Policy decision tree before scaffolding.
-
-### 4 new repo-level scripts
-
-- **`scripts/aggregate_benchmark.py`** -- post-processes paired eval runs into `benchmark.json` + `benchmark.md`.
-- **`scripts/skill_eval_viewer.py`** -- browser-based eval viewer with server and `--static` modes (for headless CI environments).
-- **`scripts/optimize_skill_description.py`** -- description optimizer with 60/40 train-test split and held-out-test selection that prevents overfitting. CLI-agnostic across claude / gemini / codex / opencode (parity invariant enforced by pytest).
-- **`scripts/package_skill.py`** -- packages a catalog skill into a portable `.skill` ZIP archive for upload to Claude.ai or the Anthropic API skill-upload endpoint.
-
-All four scripts are registered in BOTH `scripts/installer.sh` and `scripts/installer.ps1` per the AGENTS.md "Installer-Aware Changes" rule.
-
-### A13 per-skill bundled-resources layout
-
-Skill folders MAY now ship `scripts/`, `references/`, `assets/` subdirectories alongside SKILL.md. The recursive-copy installer primitives auto-distribute them; a new `--bundles-only` audit in `scripts/validate_skills.py` flags any bundled file the parent SKILL.md never references. Documented in AGENTS.md; smoke-tested through both installer copy primitives on Windows.
-
-### Five doc-only edits institutionalizing upstream skill-authoring patterns
-
-A14 pushy descriptions (lists trigger phrases AND skip phrases verbatim), A17 three-tier loading model (tier 1 metadata always loaded, tier 2 SKILL.md body on trigger, tier 3 bundled resources on demand -- scripts execute without their source being loaded into context), A15 500-line SKILL.md target with 800-line soft cap, A11 aesthetic-distinctiveness lens in `frontend-ui-engineering`, A12 static-poster workflow in `creative-generation`.
+- **Both `format-bash-description.py` and `format-powershell-description.py`** now prepend a single-line `# description: <text>` (max 135 chars: 15 chars of marker + up to 120 chars of content, truncated with `...`) instead of the four-line box. Same text is mirrored into `updatedInput.description` (universal channel) and, for PowerShell, into `permissionDecisionReason` (the v1.1.0 visible-body channel - load-bearing `permissionDecision: "ask"` preserved verbatim).
+- **`strip_description_box`** cleanly removes BOTH the legacy four-line box AND the new `# description:` prefix, so mid-conversation retries on legacy-formatted commands continue to round-trip cleanly. A regression test guards this.
+- **All five platform briefings** ([base-claude.md](templates/ai-instructions/base-claude.md), [base-codex.md](templates/ai-instructions/base-codex.md), [base-gemini.md](templates/ai-instructions/base-gemini.md), [base-cursor.md](templates/ai-instructions/base-cursor.md), [base-opencode.md](templates/ai-instructions/base-opencode.md)) carry a unified `MANDATORY` rule for shell-style tools: `description` is a single plain-text sentence (<=120 chars, no newlines, no formatting); prefer single-line commands, reserve multi-line bodies for here-strings and heredocs. base-cursor and base-opencode previously had no shell-tool description rule; this is new discipline for users on those two platforms.
 
 ### Migration
 
-Re-run the installer. Skills, scripts, and instruction-template `{{SKILL_INDEX}}` blocks all update automatically. Settings.json / AGENTS.md / .cursor/rules/ are read at session start, not hot-reloaded -- restart any already-running Claude Code / Cursor / Gemini / Codex / OpenCode sessions for the new skills and commands to take effect.
+Re-run the installer. The hook scripts and platform briefings land at their existing paths. No `settings.json` change, no schema change, no installer-flow change. **Breaking only for external tooling** that grepped shell history for the literal `=====` box header - switch to matching `^# description:` (the strip function still removes the legacy shape during the transition).
 
-See [CHANGELOG.md](CHANGELOG.md) for the full v1.2.0 entry (Added / Changed / Removed / Verified / Tests / Known gaps subsections) and [docs/v1.0.0/RELEASE_NOTES.md](docs/v1.0.0/RELEASE_NOTES.md) for the v1.0.0 baseline.
+See [CHANGELOG.md](CHANGELOG.md) for the full entry and [docs/DEVLOG.md](docs/DEVLOG.md) for the cross-surface investigation and design rationale.
 
 ---
 
