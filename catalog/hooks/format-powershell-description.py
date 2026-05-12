@@ -83,10 +83,11 @@ def strip_description_box(command: str) -> str:
     separator line (e.g. ``___``), and any blank lines between them. This
     absorbs every shape the hook has shipped so far: the legacy four-line
     ``# ===== Description =====`` box, the intermediate ``# desc: <text>``
-    prefix, and the current ``# Description: <text>\\n___\\n<command>``
-    shape. A hook running mid-conversation on a command formatted with any
-    prior shape still strips cleanly so the new prefix can be re-applied
-    without doubling up.
+    prefix, the ``# Description: <text>\\n___\\n<command>`` shape, and
+    the current ``# Description: <text>\\n# ___\\n<command>`` shape with
+    the divider commented out. A hook running mid-conversation on a
+    command formatted with any prior shape still strips cleanly so the
+    new prefix can be re-applied without doubling up.
     """
     lines = command.split("\n")
     cleaned_lines = []
@@ -422,11 +423,12 @@ def main() -> None:
     # full normalized text.
     description_text = _collapse_to_single_line(stripped)
     prefix = format_description_prefix(description_text)
-    # `\n___\n` between the prefix and the command renders as a Markdown
-    # horizontal rule on surfaces that parse Markdown and as a visible
-    # underscore divider on plain-text surfaces. Two newlines added; the
-    # `___` line is dropped on retry by strip_description_box.
-    updated_command = prefix + "\n___\n" + cleaned_command
+    # `\n# ___\n` between the prefix and the command is a PowerShell
+    # comment so it does not execute when the command runs, while the
+    # underscores still read as a divider on plain-text surfaces. Two
+    # newlines added; the `# ___` line is dropped on retry by
+    # strip_description_box.
+    updated_command = prefix + "\n# ___\n" + cleaned_command
 
     output = {
         "hookSpecificOutput": {

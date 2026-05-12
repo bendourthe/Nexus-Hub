@@ -873,21 +873,29 @@ class TestStripDescriptionBox:
         assert strip_description_box(legacy) == "echo hello"
 
     def test_strips_underscore_separator(self):
-        """The current `# Description: <text>\\n___\\n<command>` shape must
-        strip cleanly. The underscore-only separator line is dropped along
-        with the description comment, otherwise a retry would double-wrap
-        with `___\\n___\\n` between two prefixes."""
+        """The legacy `# Description: <text>\\n___\\n<command>` shape must
+        still strip cleanly. The underscore-only separator line is dropped
+        along with the description comment so retries do not double-wrap."""
         prefix = format_description_prefix("List Python files")
         full = prefix + "\n___\n" + "find . -name '*.py'"
         assert strip_description_box(full) == "find . -name '*.py'"
 
+    def test_strips_commented_divider(self):
+        """The current `# Description: <text>\\n# ___\\n<command>` shape
+        (with the divider commented out so bash does not execute it) must
+        strip cleanly. The commented divider line is dropped by the
+        leading-`#` rule."""
+        prefix = format_description_prefix("List Python files")
+        full = prefix + "\n# ___\n" + "find . -name '*.py'"
+        assert strip_description_box(full) == "find . -name '*.py'"
+
     def test_strips_full_current_shape_roundtrip(self):
         """Exact round-trip: format the prefix as `main()` does it, prepend
-        with `\\n___\\n`, then strip. The original command must come back
+        with `\\n# ___\\n`, then strip. The original command must come back
         byte-identical."""
         original = "find . -name '*.py' | head -10"
         prefix = format_description_prefix("Find Python files")
-        full = prefix + "\n___\n" + original
+        full = prefix + "\n# ___\n" + original
         assert strip_description_box(full) == original
 
     def test_strips_underscore_separator_of_varying_widths(self):
@@ -952,12 +960,13 @@ class TestMainIntegration:
         )
         assert updated_cmd.startswith("# Description: ")
         assert "Install project dependencies" in updated_cmd
-        # Two newlines added by the hook: prefix line + `___` separator
+        # Two newlines added by the hook: prefix line + `# ___` separator
         # line + original command body. The command body here is
         # "npm install" with zero newlines, so total newline count = 2.
         assert updated_cmd.count("\n") == 2
-        # The `___` separator line is present between prefix and command
-        assert "\n___\n" in updated_cmd
+        # The commented `# ___` separator line is present between prefix
+        # and command; the leading `#` keeps bash from executing it.
+        assert "\n# ___\n" in updated_cmd
 
     def test_non_allowed_without_description_produces_no_json(self):
         """No description → hook exits 0 with no JSON so require-description.sh blocks."""

@@ -10,6 +10,8 @@
 
       "Bash(ls)",
       "Bash(ls *)",
+      "Bash(dir)",
+      "Bash(dir *)",
       "Bash(find)",
       "Bash(find *)",
       "Bash(cat)",

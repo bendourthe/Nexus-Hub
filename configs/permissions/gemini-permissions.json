@@ -9,6 +9,7 @@
       "web_search",
 
       "run_shell_command(ls)",
+      "run_shell_command(dir)",
       "run_shell_command(find)",
       "run_shell_command(cat)",
       "run_shell_command(head)",
