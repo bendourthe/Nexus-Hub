@@ -58,11 +58,12 @@ def _make_payload(file_path: str) -> dict[str, Any]:
 def _run_hook(payload: dict[str, Any], cwd: Path, env_overrides: dict[str, str] | None = None) -> tuple[str, str, int]:
     """Invoke the hook via bash with the given JSON payload and working dir."""
     env = os.environ.copy()
-    if env_overrides:
-        env.update(env_overrides)
-    # Strip any external profile overrides so the test environment is deterministic.
+    # Strip any inherited profile overrides FIRST so the test environment is deterministic.
+    # Apply env_overrides AFTER the pop so test-supplied vars are not silently removed.
     env.pop("DEVAI_HOOK_PROFILE", None)
     env.pop("DEVAI_DISABLED_HOOKS", None)
+    if env_overrides:
+        env.update(env_overrides)
 
     result = subprocess.run(
         [_BASH, str(_HOOK_FILE)],

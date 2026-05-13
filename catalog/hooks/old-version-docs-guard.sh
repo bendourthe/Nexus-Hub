@@ -85,8 +85,9 @@ DOCS_ROOT="$(find_docs_root || true)"
 # Returns 0 if $1 > $2, 1 otherwise.
 semver_gt() {
   local a="$1" b="$2"
-  local IFS=.
-  local -a A=($a) B=($b)
+  local -a A B
+  IFS=. read -ra A <<< "$a"
+  IFS=. read -ra B <<< "$b"
   local i
   for ((i = 0; i < 3; i++)); do
     local av="${A[i]:-0}" bv="${B[i]:-0}"
