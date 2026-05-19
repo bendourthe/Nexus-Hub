@@ -126,7 +126,7 @@
       "id": "infrastructure",
       "name": "Infrastructure",
       "description": "Cloud, CI/CD, containers, Kubernetes, Terraform, observability, SRE",
-      "skill_count": 16
+      "skill_count": 19
     },
     {
       "id": "language-specialists",
@@ -174,7 +174,7 @@
       "id": "workflow",
       "name": "Workflow",
       "description": "Git workflows, TDD, debugging, session history, skill evaluation, version management",
-      "skill_count": 20
+      "skill_count": 21
     }
   ],
   "discovery": {

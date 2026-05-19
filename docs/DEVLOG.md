@@ -1,5 +1,44 @@
 # Development Log
 
+## [2026-05-19] - v1.3.0 adoption-pm-claude-skills Phase 2: P0 skill-native adoptions (4 engineering doc-template skills)
+
+*   **Goal**: Ship the 4 P0 skill-native adoptions from the [`adoption-pm-claude-skills`](v1.3.0/plans/adoption-pm-claude-skills.md) plan -- `incident-postmortem`, `runbook-writer`, `oncall-runbook`, `pr-description-writer` -- as fully DevAI-Hub-schema-compliant SKILL.md files. These four close the "advisor vs. document-producer" gap that the [pm-claude-skills comparison report](v1.3.0/comparison-pm-claude-skills.md) surfaced: DevAI-Hub already had advisor skills (`sre-engineer`, `code-quality`, `intent-based-review`) that conceptually covered postmortems, runbooks, on-call, and PR review, but no dedicated artifact-producing skill for each. The plan placed three of the four under `infrastructure/` (alongside `sre-engineer`, `release-notes-writer`, `observability-setup`, `rollback-strategy-advisor`) and one under `workflow/` (alongside `code-commit-workflow`, `intent-based-review`'s adjacent workflow neighbors).
+
+*   **What landed**:
+    *   [catalog/skills/infrastructure/incident-postmortem/SKILL.md](../catalog/skills/infrastructure/incident-postmortem/SKILL.md) -- 227 lines. Produces a complete blameless postmortem with 8 mandatory sections (Summary / Impact / Timeline / Root Cause / Contributing Factors / What Went Well / What Went Poorly / Action Items). Enforces UTC-timestamped timelines built from artifacts (not memory), Five-Whys root-cause derivation that terminates at a system or process (never an individual), and tracked action items with required owner + due date + ticket reference. Cross-links to `sre-engineer`, `runbook-writer`, `oncall-runbook`, `rollback-strategy-advisor`, `observability-setup`.
+    *   [catalog/skills/infrastructure/runbook-writer/SKILL.md](../catalog/skills/infrastructure/runbook-writer/SKILL.md) -- 176 lines. Produces operational runbooks across 4 types (Deployment / Incident Response / Maintenance / Disaster Recovery). Enforces copy-pasteable commands with expected outputs (not prose descriptions), reversible rollback sections with stated rollback duration, troubleshooting tables paired symptom-to-resolution, explicit escalation criteria with numeric time thresholds, and dated review metadata. Cross-links to `sre-engineer`, `incident-postmortem`, `oncall-runbook`, `rollback-strategy-advisor`, `cd-pipeline-generator`.
+    *   [catalog/skills/infrastructure/oncall-runbook/SKILL.md](../catalog/skills/infrastructure/oncall-runbook/SKILL.md) -- 254 lines. Produces per-alert response runbooks (one short page per paging alert) plus the team's Escalation Matrix and On-Call Handoff Template. Enforces "mitigation command at the top" (Quick Reference appears before diagnostics so on-call does not scroll during an active page), placeholder-page acceptable for alerts without a known dominant cause, and explicit per-alert-class escalation entries with numeric time thresholds and specific contact methods. Cross-links to `sre-engineer`, `runbook-writer`, `incident-postmortem`, `observability-setup`.
+    *   [catalog/skills/workflow/pr-description-writer/SKILL.md](../catalog/skills/workflow/pr-description-writer/SKILL.md) -- 257 lines. Produces reviewer-friendly PR descriptions with 8 sections (Title / Summary / Changes Made / Screenshots / How to Test / Testing Checklist / Risk and Rollout / Reviewer Notes). Enforces 72-character imperative-mood titles, reviewer-runnable How-to-Test sections (not "run the test suite"), mandatory Risk-and-Rollout for any PR touching production code paths or migrations, and explicit Reviewer Notes that direct attention. Cross-links to `code-commit-workflow`, `code-quality`, `intent-based-review`, `release-notes-writer`, and the `/generate-changelog` command.
+
+*   **Registry edits** (the 3-file pattern from [AGENTS.md](../AGENTS.md) "Adding a New Skill -> Register the skill"):
+    *   `data/SKILL_INDEX.md`: 4 new rows inserted alphabetically within their category sections (3 infrastructure rows between `database-design`/`kubernetes-expert`, between `observability-setup`/`platform-engineer`, and between `rollback-strategy-advisor`/`sre-engineer`; 1 workflow row between `plan-before-code` and `research-plan-implement`).
+    *   `data/skills.json`: 4 new entries with full schema (security defaults 100/100/95, computed size metadata, complete `description` / `long_description` / `summary_l0` / `overview_l1`). Total skill count moved from 197 -> 201.
+    *   `data/marketplace.json`: `skill_count` for Infrastructure bumped 16 -> 19 (+3); `skill_count` for Workflow bumped 20 -> 21 (+1). Per-category structure preserved; no top-level `total_skills` field present in this schema so none added.
+
+*   **Schema spot-checks (per Phase 2.5 plan)**: all 4 skills pass binary verification.
+    *   Frontmatter parses clean (no missing required fields, no malformed quoting).
+    *   `summary_l0` word counts: 14, 9, 10, 11 (all <=15 limit).
+    *   `overview_l1` word counts: 124, 126, 106, 126 (all <=150 limit).
+    *   `description` field has explicit trigger phrases AND an explicit SKIP clause on every skill.
+    *   All 5 mandatory body sections present in correct order on every skill.
+    *   Body line counts 176-257 (well inside the 100-500 target, far below the 800-line hard cap).
+    *   Common Rationalizations table rows: 6, 6, 5, 6 (all >=4 minimum).
+    *   Verification checklist items: 10, 11, 11, 12 (all >=4 minimum).
+    *   All 22 backtick-quoted `Related Skills` cross-links (9 + 5 + 4 + 4) resolve to existing rows in `data/SKILL_INDEX.md`; the only references with no resolution are the intentional command references (e.g. `/generate-changelog`).
+
+*   **Validators (Phase 2 close)**: all green vs. the Phase 1 baseline.
+    *   `python scripts/validate_skills.py --bundles-only` -- PASS (0 errors, 4 warnings; the warnings are the 4 pre-existing WN-001 framework-specialist orphans carried from v1.1.5, unchanged). 205 skills scanned (201 + 4 new directories on disk).
+    *   JSON catalogs parse clean: `skills.json` 201, `bundles.json` 12, `workflows.json` 17, `templates.json` 5 categories, `marketplace.json` 19 categories.
+    *   ShellCheck: `shellcheck --severity=warning scripts/installer.sh install.sh` exits 0.
+    *   MCP pytest suites: `devai-skill-server` 37/37, `devai-code-search` 36/36 (1 skipped), `devai-web-fetch` 23/23. No regressions.
+    *   Hook pytest suite: **366 passed, 3 skipped** -- exact baseline match (no new hooks shipped this phase so no new tests were required).
+
+*   **Distribution / installer impact**: zero. Per the [AGENTS.md installer-aware-changes table](../AGENTS.md) row 1, skill folders under `catalog/skills/<category>/<name>/` are auto-copied by both `scripts/installer.sh` (`safe_folder_copy` via `rsync -a` / `cp -R`) and `scripts/installer.ps1` (`Safe-Folder-Copy` via `robocopy /MIR`). No installer copy step needed for the 4 new SKILL.md files. The new entries reach Claude / Gemini / Codex as separate files and reach Cursor / OpenCode / Copilot via the `{{SKILL_INDEX}}` placeholder in their instruction templates (since `data/SKILL_INDEX.md` is the source). No new scripts under repo-level `scripts/`, no new bundled `scripts/` / `references/` / `assets/` subdirs, no per-skill installer dependencies introduced.
+
+*   **Known gaps**: still 2 open (WN-001 / WN-002 from Phase 1). 0 new gaps introduced in Phase 2. No deviations from plan, no skipped subtasks, no test-failure tolerations, no coverage shortfalls, no suppressed lint rules, no bypassed quality gates. See [docs/v1.3.0/known-gaps.md](v1.3.0/known-gaps.md).
+
+*   **Cumulative for v1.4.0 (in flight)**: 4 of 6 new skills landed. Remaining for the v1.4.0 release: Phase 3 (the 2 P1 adoptions `architecture-decision-record` and `test-strategy-doc`), Phase 4 (engineering bundle expansion in `data/bundles.json`), Phase 5 (README roadmap section + narrative DEVLOG entry), Phase 6 (CHANGELOG `[1.4.0]` block + final validators + version-bump prep). Cumulative skill count target at v1.4.0 ship: 203 (197 baseline + 6).
+
 ## [2026-05-19] - v1.3.0 adoption-pm-claude-skills Phase 1: pre-flight schema and naming audit
 
 *   **Goal**: Lock in the catalog category placement and slug uniqueness for the 6 new engineering document-template skills that the [`adoption-pm-claude-skills`](v1.3.0/plans/adoption-pm-claude-skills.md) plan will create in Phases 2 and 3, and confirm the project's baseline validators (`make validate` / `make lint` / `make test`) are green before any new skill content lands. Phase 1 is a defensive pre-flight; no SKILL.md files, no registry edits, no installer changes.

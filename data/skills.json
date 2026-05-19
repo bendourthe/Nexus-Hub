@@ -6731,6 +6731,138 @@
         "semantic": 95,
         "validated": true
       }
+    },
+    {
+      "name": "incident-postmortem",
+      "title": "incident-postmortem",
+      "description": "Produce a complete, blameless incident postmortem document for production outages and degradations. Make sure to use this skill whenever the user mentions postmortem, post-incident review, RCA, root cause analysis, outage report, P1 review, SEV1 review, post-event writeup, or asks to document what happened after an incident has been resolved. SKIP: live incident command (use the runbook directly), status-page authoring, non-incident retrospectives (sprint retros, project retros).",
+      "long_description": "Specialized skill for producing complete, blameless incident postmortems after production outages and degradations. Collects timeline artifacts, drives Five-Whys root-cause analysis, separates root cause from contributing factors, captures lessons learned, and turns every lesson into a tracked action item with an owner and a due date.",
+      "summary_l0": "\"Author blameless incident postmortems with timeline, root cause, contributing factors, and tracked action items\"",
+      "overview_l1": "\"This skill produces a complete blameless incident postmortem after a production incident has been mitigated. It collects the facts (timeline, impact, detection, mitigation), drives a root-cause analysis via Five-Whys, separates root cause from contributing factors, captures lessons learned, and turns every lesson into a tracked action item with an owner and due date. Use it for SEV1 / SEV2 outages, customer-impacting degradations, near-misses with broad blast radius, and any incident where leadership requires a written writeup. The skill enforces blameless framing (systems and processes, never individuals), an 8-section output structure, and a verification checklist that catches missing owners, unscheduled action items, and individual-blame phrasing before the document leaves draft. Trigger phrases: postmortem, post-incident review, RCA, root cause analysis, outage report, P1 review, SEV1 review.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "infrastructure",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Write"
+      ],
+      "path": "catalog/skills/infrastructure/incident-postmortem/",
+      "file": "catalog/skills/infrastructure/incident-postmortem/SKILL.md",
+      "size": {
+        "lines": 227,
+        "characters": 16756,
+        "tokens_estimate": 4189
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "runbook-writer",
+      "title": "runbook-writer",
+      "description": "Produce an operational runbook for a service, incident type, or deployment procedure. Make sure to use this skill whenever the user mentions runbook, operational runbook, ops guide, deployment runbook, maintenance procedure, disaster recovery runbook, DR runbook, ops playbook, or asks for a step-by-step procedure that another engineer can follow at 3am. SKIP: incident postmortems (use `incident-postmortem`), per-alert paging response runbooks (use `oncall-runbook`), customer-facing how-to guides (use `user-documentation`).",
+      "long_description": "Specialized skill for producing operational runbooks across four runbook types (Deployment, Incident Response, Maintenance, Disaster Recovery). Every step is a copy-pasteable command with an expected output; every runbook has reversible rollback steps and a structured troubleshooting table; every runbook is stamped with owner and review date.",
+      "summary_l0": "\"Write copy-pasteable operational runbooks with rollback, troubleshooting, and escalation\"",
+      "overview_l1": "\"This skill produces an operational runbook -- a step-by-step procedural document an on-call engineer can follow at 3am with no prior context. It supports four runbook types (Deployment, Incident Response, Maintenance, Disaster Recovery), each with a tailored output structure that always includes Overview, Prerequisites, Step-by-Step Procedures, Rollback Steps, Troubleshooting Table, and Escalation Paths. Every procedure step is an exact command or click-path (not a description); every step has a verification check; every runbook has reversible rollback steps; every troubleshooting row has a specific symptom and a specific resolution. Use it for new service onboarding, deploy procedures, planned maintenance windows, DR drills, and any operational procedure that more than one engineer needs to execute. Trigger phrases: runbook, operational runbook, ops guide, deployment runbook, maintenance procedure, DR runbook.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "infrastructure",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Write"
+      ],
+      "path": "catalog/skills/infrastructure/runbook-writer/",
+      "file": "catalog/skills/infrastructure/runbook-writer/SKILL.md",
+      "size": {
+        "lines": 176,
+        "characters": 14497,
+        "tokens_estimate": 3624
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "oncall-runbook",
+      "title": "oncall-runbook",
+      "description": "Produce a per-alert on-call response runbook. Make sure to use this skill whenever the user mentions on-call runbook, on-call guide, alert runbook, paging runbook, escalation procedure, on-call handoff, alert response, or asks for a one-pager that an on-call engineer can follow when a specific alert pages them. SKIP: general operational runbooks (use `runbook-writer`), incident postmortems (use `incident-postmortem`), customer-facing status guides (use `user-documentation`).",
+      "long_description": "Specialized skill for producing per-alert on-call response runbooks. Each per-alert page follows a fixed structure (Quick Reference, Diagnostic Commands, Remediation Options, Rollback, Service Dependencies). The skill also produces the team Escalation Matrix and the On-Call Handoff Template.",
+      "summary_l0": "\"Write per-alert on-call response runbooks with diagnostics, remediation, and escalation\"",
+      "overview_l1": "\"This skill produces a per-alert on-call response runbook -- one short page per paging alert, designed for an on-call engineer reading it during an active page. Each entry follows a fixed structure: Alert summary, Quick Reference (mitigation command at the top), Diagnostic Commands, Remediation Options, Rollback, Service Dependencies. The skill also produces the Escalation Matrix (when, who, how) and the On-Call Handoff Template (what the outgoing on-call tells the incoming on-call at shift change). Every alert that pages should have an entry; entries without a known cause carry a placeholder with the diagnostic-first procedure. Trigger phrases: on-call runbook, alert runbook, paging runbook, escalation procedure, on-call handoff.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "infrastructure",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Write"
+      ],
+      "path": "catalog/skills/infrastructure/oncall-runbook/",
+      "file": "catalog/skills/infrastructure/oncall-runbook/SKILL.md",
+      "size": {
+        "lines": 254,
+        "characters": 14240,
+        "tokens_estimate": 3560
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "pr-description-writer",
+      "title": "pr-description-writer",
+      "description": "Produce a reviewer-friendly pull request description for any code change. Make sure to use this skill whenever the user mentions PR description, pull request description, draft PR, document code changes, merge request description, change summary for review, MR description, or asks for help writing the body of a pull request before opening it. SKIP: commit message generation (use `code-commit-workflow`), release notes (use `release-notes-writer`), changelog generation (use `/generate-changelog`).",
+      "long_description": "Specialized skill for authoring reviewer-friendly pull request descriptions. Enforces an 8-section structure (Title, Summary, Changes Made, Screenshots, How to Test, Testing Checklist, Risk and Rollout, Reviewer Notes) with imperative-mood 72-character titles and explicit risk-and-rollout language for production-touching PRs.",
+      "summary_l0": "\"Author reviewer-friendly PR descriptions with summary, how-to-test, risk, and reviewer notes\"",
+      "overview_l1": "\"This skill produces a pull request description that a reviewer can read in 60-90 seconds and walk away knowing what changed, why, how to test it, what the risk is, and what the author wants reviewed. It enforces a fixed 8-section output (Title, Summary, Changes Made, Screenshots, How to Test, Testing Checklist, Risk and Rollout, Reviewer Notes), with a 72-character imperative-mood title, a per-PR-type tailoring (feature / bugfix / refactor / docs / chore), and explicit risk-and-rollout language for anything that touches data, migrations, or production behavior. Use it whenever a PR is about to open and the author wants the description to support the review rather than substitute for it. Trigger phrases: PR description, pull request description, draft PR, merge request description, document code changes.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "workflow",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Write"
+      ],
+      "path": "catalog/skills/workflow/pr-description-writer/",
+      "file": "catalog/skills/workflow/pr-description-writer/SKILL.md",
+      "size": {
+        "lines": 257,
+        "characters": 16501,
+        "tokens_estimate": 4125
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     }
   ]
 }

@@ -98,12 +98,15 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | containerization | infrastructure | "Containerize applications with optimized Dockerfiles, multi-stage builds, and security scanning" | catalog/skills/infrastructure/containerization/SKILL.md |
 | data-pipeline-design | infrastructure | "Design data pipelines for ETL/ELT, streaming, validation, and orchestration" | catalog/skills/infrastructure/data-pipeline-design/SKILL.md |
 | database-design | infrastructure | "Design database schemas with normalization, indexing, migrations, and query optimization" | catalog/skills/infrastructure/database-design/SKILL.md |
+| incident-postmortem | infrastructure | "Author blameless incident postmortems with timeline, root cause, contributing factors, and tracked action items" | catalog/skills/infrastructure/incident-postmortem/SKILL.md |
 | kubernetes-expert | infrastructure | "Deploy and manage Kubernetes clusters with Helm, RBAC, and resource optimization" | catalog/skills/infrastructure/kubernetes-expert/SKILL.md |
 | network-engineer | infrastructure | "Design and troubleshoot network architectures with VPCs, DNS, and load balancing" | catalog/skills/infrastructure/network-engineer/SKILL.md |
 | observability-setup | infrastructure | "Implement observability with structured logging, metrics, tracing, and SLO alerting" | catalog/skills/infrastructure/observability-setup/SKILL.md |
+| oncall-runbook | infrastructure | "Write per-alert on-call response runbooks with diagnostics, remediation, and escalation" | catalog/skills/infrastructure/oncall-runbook/SKILL.md |
 | platform-engineer | infrastructure | "Build internal developer platforms with self-service infrastructure and golden paths" | catalog/skills/infrastructure/platform-engineer/SKILL.md |
 | release-notes-writer | infrastructure | "Generate release notes from git history with conventional commit parsing and formatting" | catalog/skills/infrastructure/release-notes-writer/SKILL.md |
 | rollback-strategy-advisor | infrastructure | "Plan rollback strategies for deployments with database, feature flag, and incident procedures" | catalog/skills/infrastructure/rollback-strategy-advisor/SKILL.md |
+| runbook-writer | infrastructure | "Write copy-pasteable operational runbooks with rollback, troubleshooting, and escalation" | catalog/skills/infrastructure/runbook-writer/SKILL.md |
 | sre-engineer | infrastructure | "Build reliable production systems with SLOs, incident response, and capacity planning" | catalog/skills/infrastructure/sre-engineer/SKILL.md |
 | terraform-specialist | infrastructure | "Provision cloud infrastructure with Terraform modules, state management, and IaC patterns" | catalog/skills/infrastructure/terraform-specialist/SKILL.md |
 | cpp-expert | language-specialists | "Write modern C++ with RAII, smart pointers, templates, and performance optimization" | catalog/skills/language-specialists/cpp-expert/SKILL.md |
@@ -181,6 +184,7 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | implementation-plan | workflow | "Generate a phased v0.1.0 implementation plan through guided discovery questions" | catalog/skills/workflow/implementation-plan/SKILL.md |
 | incremental-implementation | workflow | "Implement features one tested step at a time to prevent scope creep and undebuggable diffs" | catalog/skills/workflow/incremental-implementation/SKILL.md |
 | plan-before-code | workflow | "Plan before coding with exploration, task assessment, and implementation design" | catalog/skills/workflow/plan-before-code/SKILL.md |
+| pr-description-writer | workflow | "Author reviewer-friendly PR descriptions with summary, how-to-test, risk, and reviewer notes" | catalog/skills/workflow/pr-description-writer/SKILL.md |
 | research-plan-implement | workflow | "Execute Research-Plan-Implement workflows with GO/NO-GO gates and artifact tracking" | catalog/skills/workflow/research-plan-implement/SKILL.md |
 | session-history | workflow | "Generate standalone session history documents capturing steps, troubleshooting, and next steps" | catalog/skills/workflow/session-history/SKILL.md |
 | shipping-and-launch | workflow | "Execute safe production deployments with pre-flight checks, go/no-go decisions, and post-launch verification" | catalog/skills/workflow/shipping-and-launch/SKILL.md |
