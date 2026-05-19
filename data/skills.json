@@ -276,6 +276,39 @@
       }
     },
     {
+      "name": "architecture-decision-record",
+      "title": "architecture-decision-record",
+      "description": "Produce a single Architecture Decision Record (ADR) capturing one architecturally-significant decision, its context, the options considered, the chosen option, and the consequences. Make sure to use this skill whenever the user mentions ADR, architecture decision record, architecture decision, record this decision, document this decision, MADR, Nygard ADR, decision log, design decision writeup, or asks to capture the rationale behind a choice with long-term architectural impact. SKIP: full architecture design from scratch (use `architecture-design`), general technical documentation (use `technical-documentation`), API contract design narrower than architecture-level (use `api-design`), product or feature requirements (use `business-analyst` or `product-manager`).",
+      "long_description": "Specialized skill for producing one Architecture Decision Record per file. Documents context, decision drivers, at least two alternatives with rejection rationale, the chosen option, and two-sided consequences (positive AND negative). Supports both MADR and Nygard templates and enforces a status lifecycle (Proposed -> Accepted -> Deprecated -> Superseded) with reciprocal Supersedes links between replacement records.",
+      "summary_l0": "\"Author one architecturally-significant decision record with context, options, decision, status, and consequences\"",
+      "overview_l1": "\"This skill produces one Architecture Decision Record -- a short, durable document that captures a single architecturally-significant decision and its rationale. It supports both MADR (Markdown Any Decision Records) and Nygard templates, helps the user pick between them based on team conventions, and enforces a status lifecycle (Proposed -> Accepted -> Deprecated -> Superseded). The output documents the context that forced the decision, at least two alternatives with rejection rationale, the chosen option, the consequences (positive AND negative), the risks, and metadata (date, author, ID). It is for decisions you want a future engineer to be able to look up six months from now -- not for routine implementation choices. Trigger phrases: ADR, architecture decision record, architecture decision, MADR, Nygard ADR, decision log.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "architecture",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Write"
+      ],
+      "path": "catalog/skills/architecture/architecture-decision-record/",
+      "file": "catalog/skills/architecture/architecture-decision-record/SKILL.md",
+      "size": {
+        "lines": 235,
+        "characters": 20980,
+        "tokens_estimate": 5245
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
       "name": "architecture-design",
       "title": "architecture-design",
       "description": "System architecture design including requirements analysis, trade-off evaluation, ADRs, and system decomposition. Use when designing new systems, evaluating architectures, or documenting design decisions.",
@@ -5276,6 +5309,39 @@
         "lines": 484,
         "characters": 14499,
         "tokens_estimate": 1448
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "test-strategy-doc",
+      "title": "test-strategy-doc",
+      "description": "Produce a complete test strategy document for a project, feature, or release with scope, risk assessment, test types, coverage targets, P0/P1 case index, tooling, schedule, and entry/exit criteria. Make sure to use this skill whenever the user mentions test strategy, test plan, testing strategy doc, QA strategy, test approach document, risk-based testing plan, test charter, or asks to write the upfront test planning artifact (not the tests themselves). SKIP: writing specific test cases (use `test-cases`), generating unit tests (use `unit-tests` or `/generate-unit-tests`), reviewing existing test coverage (use `testing-review`), setting up the test framework or harness (use `test-structure`).",
+      "long_description": "Specialized skill for producing a risk-based test strategy document. Builds a likelihood-by-impact risk matrix, maps each risk class to one or more test types, sets explicit numeric coverage targets, indexes P0 / P1 test cases with traceability to requirements, and authors named entry and exit criteria with sign-off owners. Designed for releases that require QA, security, or compliance sign-off.",
+      "summary_l0": "\"Author a risk-based test strategy with scope, coverage targets, P0/P1 cases, tooling, and entry-exit criteria\"",
+      "overview_l1": "\"This skill produces a test strategy document -- the upfront planning artifact that defines what will be tested, at what depth, with what tools, against what risk profile, and by which entry-exit criteria. It enforces risk-based prioritization (a likelihood-by-impact matrix), explicit coverage targets (numbers, not adjectives), a test-type matrix mapping each risk class to a test type, a P0/P1 test case index that traces to requirements, a test data and environment plan, and named entry and exit criteria. The output is the document a release manager reads before sign-off and a tester reads at the start of a cycle. Use it for new features, releases, audits, contractual quality reviews, or any project where 'we have tests' is not a sufficient answer. Trigger phrases: test strategy, test plan, QA strategy, test approach, risk-based testing plan.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "tests-generation",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Write"
+      ],
+      "path": "catalog/skills/tests-generation/test-strategy-doc/",
+      "file": "catalog/skills/tests-generation/test-strategy-doc/SKILL.md",
+      "size": {
+        "lines": 243,
+        "characters": 20599,
+        "tokens_estimate": 5149
       },
       "downloads": 0,
       "status": "production",

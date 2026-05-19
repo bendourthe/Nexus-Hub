@@ -72,7 +72,7 @@
       "id": "architecture",
       "name": "Architecture",
       "description": "Design APIs, microservices, event-driven systems, and domain models",
-      "skill_count": 6
+      "skill_count": 7
     },
     {
       "id": "bug-fixing",
@@ -168,7 +168,7 @@
       "id": "tests-generation",
       "name": "Test Generation",
       "description": "Unit, integration, E2E, property-based, mutation, fuzz, and BDD test generation",
-      "skill_count": 17
+      "skill_count": 18
     },
     {
       "id": "workflow",

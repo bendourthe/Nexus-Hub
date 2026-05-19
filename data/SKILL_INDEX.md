@@ -19,6 +19,7 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | prompt-engineering | ai-development | "Design, test, and optimize prompts for LLM applications with structured evaluation" | catalog/skills/ai-development/prompt-engineering/SKILL.md |
 | rag-implementation | ai-development | "Implement RAG pipelines with chunking, embeddings, vector stores, and retrieval optimization" | catalog/skills/ai-development/rag-implementation/SKILL.md |
 | api-design | architecture | "Design REST, GraphQL, and gRPC APIs with versioning, pagination, and error handling" | catalog/skills/architecture/api-design/SKILL.md |
+| architecture-decision-record | architecture | "Author one architecturally-significant decision record with context, options, decision, status, and consequences" | catalog/skills/architecture/architecture-decision-record/SKILL.md |
 | architecture-design | architecture | "Design software architectures with trade-off analysis, ADRs, and C4 decomposition" | catalog/skills/architecture/architecture-design/SKILL.md |
 | component-boundary-identifier | architecture | "Identify module boundaries for service extraction using coupling and cohesion analysis" | catalog/skills/architecture/component-boundary-identifier/SKILL.md |
 | ddd-strategic-design | architecture | "Model complex domains with bounded contexts, aggregates, and domain events" | catalog/skills/architecture/ddd-strategic-design/SKILL.md |
@@ -170,6 +171,7 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | performance-testing | tests-generation | "Implement load testing, stress testing, and benchmarking for performance validation" | catalog/skills/tests-generation/performance-testing/SKILL.md |
 | property-based-test-generator | tests-generation | "Generate property-based tests with Hypothesis/QuickCheck for invariant verification" | catalog/skills/tests-generation/property-based-test-generator/SKILL.md |
 | test-cases | tests-generation | "Create integration and E2E test scenarios for workflows, APIs, and system boundaries" | catalog/skills/tests-generation/test-cases/SKILL.md |
+| test-strategy-doc | tests-generation | "Author a risk-based test strategy with scope, coverage targets, P0/P1 cases, tooling, and entry-exit criteria" | catalog/skills/tests-generation/test-strategy-doc/SKILL.md |
 | test-structure | tests-generation | "Set up testing infrastructure with framework selection, structure, and configuration" | catalog/skills/tests-generation/test-structure/SKILL.md |
 | test-suite-prioritizer | tests-generation | "Prioritize test suites for faster CI feedback with failure history and risk analysis" | catalog/skills/tests-generation/test-suite-prioritizer/SKILL.md |
 | unit-tests | tests-generation | "Generate unit tests following FIRST principles and AAA pattern across languages" | catalog/skills/tests-generation/unit-tests/SKILL.md |

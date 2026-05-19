@@ -1,5 +1,41 @@
 # Development Log
 
+## [2026-05-19] - v1.3.0 adoption-pm-claude-skills Phase 3: P1 skill-native adoptions (2 engineering doc-template skills)
+
+*   **Goal**: Ship the 2 P1 skill-native adoptions from the [`adoption-pm-claude-skills`](v1.3.0/plans/adoption-pm-claude-skills.md) plan -- `architecture-decision-record` and `test-strategy-doc` -- as fully DevAI-Hub-schema-compliant SKILL.md files. Together with Phase 2's 4 P0 skills, Phase 3 completes the 6-skill engineering doc-template adoption set. The two land at the category placements confirmed in [Phase 1.1's audit](v1.3.0/plans/audit-category-placement.md): `architecture-decision-record` under `architecture/` (next to `architecture-design`, `api-design`, `ddd-strategic-design`, `component-boundary-identifier`) and `test-strategy-doc` under `tests-generation/` (next to `test-cases`, `test-structure`, `code-coverage`, `testing-review`).
+
+*   **What landed**:
+    *   [catalog/skills/architecture/architecture-decision-record/SKILL.md](../catalog/skills/architecture/architecture-decision-record/SKILL.md) -- 235 lines. Produces one Architecture Decision Record (ADR) per file. Supports both MADR (Markdown Any Decision Records) and Nygard templates with an explicit comparison table so the user can choose; defaults to MADR for greenfield repos and Nygard for repos with an existing `docs/adr/` directory. Enforces a status lifecycle (Proposed -> Accepted -> Deprecated -> Superseded) with reciprocal `Supersedes` / `Superseded by` links between replacement records; at least two alternatives documented with comparable depth (symmetric pros and cons, not biased toward the chosen option); two-sided consequences (positive AND negative outcomes captured); explicit metadata block (ID, date, author, template, related ADRs). Cross-links to `architecture-design`, `technical-documentation`, `api-design`, `ddd-strategic-design`, `component-boundary-identifier`.
+    *   [catalog/skills/tests-generation/test-strategy-doc/SKILL.md](../catalog/skills/tests-generation/test-strategy-doc/SKILL.md) -- 243 lines. Produces a risk-based test strategy document with 9 required sections (Scope / Risk Assessment / Test Types / Coverage Targets / P0-P1 Test Case Index / Test Data and Environments / Tooling / Schedule / Entry and Exit Criteria). Enforces a likelihood-by-impact risk matrix with at least 5 rows and named owners; explicit numeric coverage targets (not "high" or "comprehensive"); per-risk mapping to specific test types with one-sentence justification; P0 cases traced back to requirements with named owners and status fields; binary observable entry and exit criteria with named sign-off owners (QA lead, security reviewer, release manager). Cross-links to `test-structure`, `test-cases`, `code-coverage`, `testing-review`, `integration-test-generator`, `e2e-testing-automation`, `performance-testing`.
+
+*   **Registry edits** (the 3-file pattern from [AGENTS.md](../AGENTS.md) "Adding a New Skill -> Register the skill"):
+    *   `data/SKILL_INDEX.md`: 2 new rows inserted alphabetically -- `architecture-decision-record` between `api-design` and `architecture-design`; `test-strategy-doc` between `test-cases` and `test-structure`.
+    *   `data/skills.json`: 2 new entries with full schema (security defaults 100/100/95, computed size metadata, complete `description` / `long_description` / `summary_l0` / `overview_l1`). Total skill count moved from 201 -> 203 (matches the v1.4.0 ship target: 197 baseline + 6).
+    *   `data/marketplace.json`: `skill_count` for Architecture bumped 6 -> 7 (+1); `skill_count` for Tests Generation bumped 17 -> 18 (+1). Per-category structure preserved; no top-level `total_skills` field present in this schema so none added.
+
+*   **Schema spot-checks (per Phase 3.3 plan)**: both skills pass binary verification.
+    *   Frontmatter parses clean (no missing required fields, no malformed quoting).
+    *   `summary_l0` word counts: 14, 14 (both <=15 limit).
+    *   `overview_l1` word counts: 132, 128 (both <=150 limit).
+    *   `description` field has explicit trigger phrases AND an explicit SKIP clause on both skills.
+    *   All 5 mandatory body sections present in correct order on both skills (When to Use -> Instructions -> Common Rationalizations -> Verification -> Related Skills, preceded by intro paragraphs and a "What This Skill Does" matrix per Phase 2 convention).
+    *   Body line counts 235 and 243 (well inside the 100-500 target, far below the 800-line hard cap).
+    *   Common Rationalizations table rows: 6, 6 (both >=4 minimum).
+    *   Verification checklist items: 12, 12 (both >=4 minimum).
+    *   All 12 backtick-quoted `Related Skills` cross-links (5 + 7) resolve to existing rows in `data/SKILL_INDEX.md`.
+
+*   **Validators (Phase 3 close)**: all green vs. the Phase 2 baseline.
+    *   `python scripts/validate_skills.py --bundles-only` -- PASS (0 errors, 4 warnings; the warnings are the 4 pre-existing WN-001 framework-specialist orphans carried from v1.1.5, unchanged). 207 skills scanned (205 from Phase 2 plus the two new directories on disk).
+    *   JSON catalogs parse clean: `skills.json` 203, `bundles.json` 12, `workflows.json` 17, `templates.json` 5 categories, `marketplace.json` 19 categories.
+    *   Each new skill appears exactly once in each of the three registry files (verified by Python count).
+    *   Cumulative marketplace category sum: architecture 7, infrastructure 19, tests-generation 18, workflow 21 (Phase 2 totals preserved + Phase 3 increments).
+
+*   **Distribution / installer impact**: zero. Per the [AGENTS.md installer-aware-changes table](../AGENTS.md) row 1, skill folders under `catalog/skills/<category>/<name>/` are auto-copied by both `scripts/installer.sh` (`safe_folder_copy` via `rsync -a` / `cp -R`) and `scripts/installer.ps1` (`Safe-Folder-Copy` via `robocopy /MIR`). No installer copy step needed for the 2 new SKILL.md files. The new entries reach Claude / Gemini / Codex as separate files and reach Cursor / OpenCode / Copilot via the `{{SKILL_INDEX}}` placeholder in their instruction templates (since `data/SKILL_INDEX.md` is the source). No new scripts under repo-level `scripts/`, no new bundled `scripts/` / `references/` / `assets/` subdirs, no per-skill installer dependencies introduced.
+
+*   **Known gaps**: still 2 open (WN-001 / WN-002 from Phase 1). 0 new gaps introduced in Phase 3. No deviations from plan, no skipped subtasks, no test-failure tolerations, no coverage shortfalls, no suppressed lint rules, no bypassed quality gates. See [docs/v1.3.0/known-gaps.md](v1.3.0/known-gaps.md).
+
+*   **Cumulative for v1.4.0 (in flight)**: 6 of 6 new skills landed (Phases 2 and 3 complete). Remaining for the v1.4.0 release: Phase 4 (engineering bundle expansion in `data/bundles.json`: `incident-response`, `pr-workflow`, optional `architecture-docs`), Phase 5 (README roadmap section + narrative DEVLOG entry covering the whole adoption arc), Phase 6 (CHANGELOG `[1.4.0]` block + cumulative validator pass + version-bump prep). Cumulative skill count at this point: 203 -- on target for the v1.4.0 ship.
+
 ## [2026-05-19] - v1.3.0 adoption-pm-claude-skills Phase 2: P0 skill-native adoptions (4 engineering doc-template skills)
 
 *   **Goal**: Ship the 4 P0 skill-native adoptions from the [`adoption-pm-claude-skills`](v1.3.0/plans/adoption-pm-claude-skills.md) plan -- `incident-postmortem`, `runbook-writer`, `oncall-runbook`, `pr-description-writer` -- as fully DevAI-Hub-schema-compliant SKILL.md files. These four close the "advisor vs. document-producer" gap that the [pm-claude-skills comparison report](v1.3.0/comparison-pm-claude-skills.md) surfaced: DevAI-Hub already had advisor skills (`sre-engineer`, `code-quality`, `intent-based-review`) that conceptually covered postmortems, runbooks, on-call, and PR review, but no dedicated artifact-producing skill for each. The plan placed three of the four under `infrastructure/` (alongside `sre-engineer`, `release-notes-writer`, `observability-setup`, `rollback-strategy-advisor`) and one under `workflow/` (alongside `code-commit-workflow`, `intent-based-review`'s adjacent workflow neighbors).
