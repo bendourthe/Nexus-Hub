@@ -261,6 +261,22 @@ To report a security issue: email [benjamin.dourthe@gmail.com](mailto:benjamin.d
 
 ---
 
+## 🗺️ Roadmap
+
+DevAI-Hub evolves in versioned slices. Each upcoming line item below traces to a concrete plan file under `docs/<version>/plans/` (the durable source) and resolves once its `[<version>]` block lands in [CHANGELOG.md](CHANGELOG.md). No star gates, no sponsor tiers, no paid features - the catalog is reverse-engineering-first and stays that way.
+
+| Focus | Target | Status | Source |
+|-------|--------|--------|--------|
+| Engineering document-template skills (incident postmortems, runbooks, on-call runbooks, PR descriptions, ADRs, test strategies) | v1.4.0 | Shipped | [docs/v1.3.0/plans/adoption-pm-claude-skills.md](docs/v1.3.0/plans/adoption-pm-claude-skills.md) |
+| Engineering bundles (`incident-response`, `pr-workflow`, `architecture-docs`) grouping new + existing skills for one-click install | v1.4.0 | Shipped | [docs/v1.3.0/plans/adoption-pm-claude-skills.md](docs/v1.3.0/plans/adoption-pm-claude-skills.md) Phase 4 |
+| Cross-OS CI matrix for installer smoke tests (closes the cumulative DF-003 / DF-005 / DF-006 / DF-007 / DF-008 cluster from v1.1.5 known-gaps) | v1.5.0 | Planned | [docs/v1.1.5/](docs/v1.1.5/) known-gaps cluster |
+| Skill-eval-loop integration into pre-commit (assertion-graded regression guard for high-traffic skills before they ship) | v1.5.0 | Planned | [catalog/skills/workflow/skill-eval-loop/SKILL.md](catalog/skills/workflow/skill-eval-loop/SKILL.md) |
+| MCP registry expansion under the existing 5-step policy (reverse-engineer-first; hard-no on search / embeddings / scraping / generation as a service) | continuous | In progress | [docs/v1.0.0/mcp-reverse-engineering-matrix.md](docs/v1.0.0/mcp-reverse-engineering-matrix.md) |
+
+For narrative-style updates on what changed and why, see [docs/DEVLOG.md](docs/DEVLOG.md). For the formal Keep-a-Changelog log of every release, see [CHANGELOG.md](CHANGELOG.md). For the per-version unfinished-work tracker that the next plan reads to decide what carries forward, see `docs/<version>/known-gaps.md`.
+
+---
+
 ## 🤝 Collaboration
 
 DevAI-Hub is a curated open-source project. While Pull Requests (PRs) are typically not accepted from outside contributors, suggestions, feedback and recommendations are more than welcomed. If you have a better prompt, a smarter rule, or a pattern you'd like to see in the catalog, please reach out directly:
