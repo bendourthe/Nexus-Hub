@@ -197,6 +197,46 @@
       ]
     },
     {
+      "id": "incident-response",
+      "name": "Incident Response",
+      "description": "One-click skill set for incident response: SRE patterns, postmortems, operational runbooks, on-call runbooks, rollback strategy, observability, and log-based debugging.",
+      "skills": [
+        "sre-engineer",
+        "incident-postmortem",
+        "runbook-writer",
+        "oncall-runbook",
+        "rollback-strategy-advisor",
+        "observability-setup",
+        "debug-with-logs"
+      ]
+    },
+    {
+      "id": "pr-workflow",
+      "name": "PR Workflow",
+      "description": "Pull request authoring and review: commit hygiene, PR description authoring, multi-axis code review (quality, intent, testing, security).",
+      "skills": [
+        "code-commit-workflow",
+        "pr-description-writer",
+        "code-quality",
+        "intent-based-review",
+        "testing-review",
+        "security-review"
+      ]
+    },
+    {
+      "id": "architecture-docs",
+      "name": "Architecture Docs",
+      "description": "Architecture decision-making and documentation: design, ADRs, technical docs, API contracts, domain-driven design, and component boundaries.",
+      "skills": [
+        "architecture-design",
+        "architecture-decision-record",
+        "technical-documentation",
+        "api-design",
+        "ddd-strategic-design",
+        "component-boundary-identifier"
+      ]
+    },
+    {
       "id": "tech-lead",
       "name": "Tech Lead",
       "description": "Skills for technical leadership: architecture, code review, documentation, and team workflows.",

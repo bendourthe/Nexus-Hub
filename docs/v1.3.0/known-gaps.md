@@ -4,7 +4,7 @@ This file tracks per-version unfinished work, deferred items, deviations from pl
 
 **Plan**: [docs/v1.3.0/plans/adoption-pm-claude-skills.md](plans/adoption-pm-claude-skills.md)
 **Status**: in-progress
-**Last updated**: 2026-05-19 (Phase 3 close -- no new gaps introduced)
+**Last updated**: 2026-05-19 (Phase 4 close -- no new gaps introduced)
 
 ## Summary
 
