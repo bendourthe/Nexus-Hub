@@ -40,7 +40,7 @@ Don't want to copy-paste files manually? We made an installer.
 5.  **(Optional) Select a project** to configure workspace-specific rules.
 
 **Done.**
-*   **Globally**: Your user profile now has all 197 Claude Skills, 35 Commands, 14 Hooks, 10 Agents, plus Gemini and Codex instructions.
+*   **Globally**: Your user profile now has all 203 Claude Skills, 35 Commands, 14 Hooks, 10 Agents, plus Gemini and Codex instructions.
 *   **Locally**: Your project has `copilot-instructions.md` tailored to your language.
 
 ---

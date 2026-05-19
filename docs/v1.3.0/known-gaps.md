@@ -3,8 +3,8 @@
 This file tracks per-version unfinished work, deferred items, deviations from plan, and bugs discovered during phase implementation. The next phase plan and the version-bump checklist read this file to decide what carries forward.
 
 **Plan**: [docs/v1.3.0/plans/adoption-pm-claude-skills.md](plans/adoption-pm-claude-skills.md)
-**Status**: in-progress
-**Last updated**: 2026-05-19 (Phase 5 close -- no new gaps introduced)
+**Status**: finalized
+**Last updated**: 2026-05-19 (v1.3.0 -> v1.4.0 bump; Phase 6 close; CHANGELOG [1.4.0] block published; version literals bumped in 5 surface files)
 
 ## Summary
 
@@ -18,7 +18,7 @@ This file tracks per-version unfinished work, deferred items, deviations from pl
 | QG -- Quality gate bypassed | 0 | 0 |
 | **Total** | **2** | **0** |
 
-> Status `in-progress`. File will be finalized at the v1.3.0 -> v1.4.0 version bump (per the known-gaps-tracker convention).
+> Status `finalized` at v1.3.0 -> v1.4.0 bump. The 2 open WN items are carry-overs (WN-001 is a long-standing framework-specialists hygiene task; WN-002 is a Windows-dev-environment workaround note). Neither blocks the v1.4.0 release. Both will be re-evaluated when authoring the next plan under v1.4.0+ via `/generate-plan` Step 0.6.
 
 ## Open Items
 
