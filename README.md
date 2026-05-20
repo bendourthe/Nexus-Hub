@@ -12,9 +12,11 @@ Nexus-Hub is the upstream skill catalog for AI coding assistants: 203 skills, 36
 
 ## How Nexus-Hub fits with Nexus
 
-<p align="center"><a href="https://github.com/bendourthe/Nexus-Hub"><img src="assets/nexus_hub_banner.png" alt="Nexus-Hub" width="420" /></a></p>
-
-<p align="center"><a href="https://github.com/bendourthe/Nexus-AI"><img src="assets/nexus_banner.png" alt="Nexus" width="420" /></a></p>
+<table align="center"><tr>
+<td align="center" valign="middle"><a href="https://github.com/bendourthe/Nexus-Hub"><img src="assets/nexus_hub_banner.png" alt="Nexus-Hub" width="360" /></a></td>
+<td align="center" valign="middle">&nbsp;&nbsp;<strong>&harr;</strong>&nbsp;&nbsp;</td>
+<td align="center" valign="middle"><a href="https://github.com/bendourthe/Nexus-AI"><img src="assets/nexus_banner.png" alt="Nexus" width="360" /></a></td>
+</tr></table>
 
 Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of the same idea, split along a deliberate seam.
 
