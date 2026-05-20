@@ -855,7 +855,7 @@ Claude Code surfaces an `effortLevel` control that governs how much reasoning th
 
 ### Default: `xhigh`
 
-DevAI-Hub ships `"effortLevel": "xhigh"` as the installer default (see `catalog/hooks/settings.json`). `xhigh` matches Anthropic's Opus 4.7 guidance for general coding work and is the right starting point for interactive sessions where you want Claude to reason carefully but do not need the latency or cost of `max`. Operators who want to de-escalate to `high` for cost-sensitive concurrent runs can do so via `/effort high`, the `--effort high` CLI flag, or the `CLAUDE_CODE_EFFORT_LEVEL` environment variable.
+Nexus-Hub ships `"effortLevel": "xhigh"` as the installer default (see `catalog/hooks/settings.json`). `xhigh` matches Anthropic's Opus 4.7 guidance for general coding work and is the right starting point for interactive sessions where you want Claude to reason carefully but do not need the latency or cost of `max`. Operators who want to de-escalate to `high` for cost-sensitive concurrent runs can do so via `/effort high`, the `--effort high` CLI flag, or the `CLAUDE_CODE_EFFORT_LEVEL` environment variable.
 
 ### When to escalate to `max`
 

@@ -63,7 +63,7 @@ Note: Copilot cannot move files directly. This skill will generate a shell scrip
 
 ## What This Skill Does
 
-1. **Rule Loading** — reads layout rules from CLAUDE.md, GEMINI.md, or project config; falls back to DevAI-Hub defaults
+1. **Rule Loading** — reads layout rules from CLAUDE.md, GEMINI.md, or project config; falls back to Nexus-Hub defaults
 2. **Root Inventory** — classifies every root file as Stay / Move / Ambiguous against the loaded rules
 3. **Impact Analysis** — finds every reference to each file that will move, across all file types, before touching anything
 4. **Safe Move Protocol** — copy → verify → delete (never deletes without confirming the copy succeeded)
@@ -72,7 +72,7 @@ Note: Copilot cannot move files directly. This skill will generate a shell scrip
 
 ## Standard Layout Rules Reference
 
-These are the DevAI-Hub canonical defaults. Use these when no project-specific rules are declared, or as the baseline when customizing.
+These are the Nexus-Hub canonical defaults. Use these when no project-specific rules are declared, or as the baseline when customizing.
 
 | Rule | What | Where | Rationale |
 |------|------|-------|-----------|

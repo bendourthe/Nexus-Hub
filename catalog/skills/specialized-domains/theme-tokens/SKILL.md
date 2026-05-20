@@ -89,12 +89,12 @@ Each theme ships as `themes/<slug>.json` under this skill directory. The list sp
 | `neon-cyber` | Black background, neon magenta + electric cyan, glow shadow, mono body. | Cyberpunk decks, hacker-aesthetic landing pages, demo-day visuals. |
 | `newsprint-mono` | Cream background, ink-black ink, two weights of serif, no accent. | Op-ed style writeups, FAQs, single-column newsletter PDFs. |
 
-The 10 are deliberate generic precedents. Do not extend the bundled list inside this skill - new themes go into `~/.devai-hub/brand/<name>/tokens.json` (via `specialized-domains/brand-styling`) so user-specific themes do not pollute the curated set.
+The 10 are deliberate generic precedents. Do not extend the bundled list inside this skill - new themes go into `~/.nexus-hub/brand/<name>/tokens.json` (via `specialized-domains/brand-styling`) so user-specific themes do not pollute the curated set.
 
 ## Instructions
 
 1. **Pick or ask**. If the user names an aesthetic that maps to one of the 10 slugs, use that file directly. If the aesthetic is unclear, batch a single question: "Which of these 10 is closest, or do you have brand tokens I should use instead?" Show the table. Pick once; iterate later if needed.
-2. **Load the theme JSON**. Read the bundled file from `~/.devai-hub/skills/specialized-domains/theme-tokens/themes/<slug>.json` (post-installer location) or from `catalog/skills/specialized-domains/theme-tokens/themes/<slug>.json` (in-repo location).
+2. **Load the theme JSON**. Read the bundled file from `~/.nexus-hub/skills/specialized-domains/theme-tokens/themes/<slug>.json` (post-installer location) or from `catalog/skills/specialized-domains/theme-tokens/themes/<slug>.json` (in-repo location).
 3. **Map to the downstream generator**:
 
     | Generator | Mapping |
@@ -149,7 +149,7 @@ The 10 curated themes ship under `themes/` as JSON files. Each is a self-contain
 - `themes/neon-cyber.json`
 - `themes/newsprint-mono.json`
 
-User-supplied themes go under `~/.devai-hub/brand/<name>/tokens.json` (via `specialized-domains/brand-styling`), not into this skill's `themes/` folder. The bundled set is closed.
+User-supplied themes go under `~/.nexus-hub/brand/<name>/tokens.json` (via `specialized-domains/brand-styling`), not into this skill's `themes/` folder. The bundled set is closed.
 
 ## Related Skills
 

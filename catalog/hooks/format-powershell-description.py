@@ -29,7 +29,7 @@ Behavior:
     `permissionDecisionReason`, so the dialog body shows the description
     even when the surface renders the tool input as raw JSON.
 
-Part of DevAI-Hub.
+Part of Nexus-Hub.
 """
 
 from __future__ import annotations

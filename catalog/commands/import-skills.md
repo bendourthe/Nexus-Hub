@@ -11,11 +11,11 @@ You are helping the user import Claude Code skills from the Hub catalog into the
 
 ### Step 1: Locate the Skills Catalog
 
-Ask the user: "Where is your DevAI-Hub catalog located? Please provide the path to the `catalog/skills/` directory."
+Ask the user: "Where is your Nexus-Hub catalog located? Please provide the path to the `catalog/skills/` directory."
 
 **Common locations:**
-- `~/DevAI-Hub/catalog/skills/`
-- `../DevAI-Hub/catalog/skills/`
+- `~/Nexus-Hub/catalog/skills/`
+- `../Nexus-Hub/catalog/skills/`
 - A custom path the user specifies
 
 Wait for the user's response before proceeding.

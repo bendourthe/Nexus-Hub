@@ -49,7 +49,7 @@ Across iterations, the baseline of iteration `N+1` is the `best_description` fro
 The optimizer asks the chosen CLI to rewrite the description by sending a prompt of roughly this shape (the actual text lives inline in `optimize_skill_description.py` and is editable):
 
 ```
-You are rewriting the `description` field of a DevAI-Hub skill so it triggers
+You are rewriting the `description` field of a Nexus-Hub skill so it triggers
 more reliably on the skill's intended use cases without over-triggering on
 look-alike intents.
 

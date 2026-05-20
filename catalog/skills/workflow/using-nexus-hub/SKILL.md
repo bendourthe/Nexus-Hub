@@ -1,13 +1,13 @@
 ---
-name: using-devai-hub
-description: Orients a new AI session to the DevAI-Hub skill catalog — explains how skills are organized, how to find the right skill, how commands work, and how hooks protect the session. Loaded automatically at session start via the SessionStart hook. Also useful when a new agent session lacks catalog context. Trigger phrases: how do I use this, what skills are available, orient me, explain devai-hub, what can you do here.
-summary_l0: "Orient an AI session to DevAI-Hub's skill catalog, commands, and hooks in under 2 minutes"
-overview_l1: "This meta-skill orients an AI coding session to DevAI-Hub — explaining how 182 skills are organized, how to find the right skill, how 32 commands work, and what the hook system does. It is loaded automatically at session start via the SessionStart hook so every new session begins with catalog awareness. Use it manually when a session lacks context about the catalog, when onboarding a new AI assistant to the project, or when the agent needs a quick reminder of available capabilities. This skill does not teach how to use individual skills — it teaches how to navigate the catalog and trigger the right skill for the task at hand."
+name: using-nexus-hub
+description: Orient an AI session to Nexus-Hub's skill catalog, commands, and hooks in under 2 minutes. Use whenever a session starts in a Nexus-Hub repo, when a user asks "how do I find a skill?" or "what can you do here?", when orienting a new agent platform (Claude Code, OpenAI Codex, Gemini, GitHub Copilot, Cursor, GitHub CLI) to the catalog, or when the SessionStart hook fires. Loaded automatically by SessionStart but also worth triggering on demand whenever an agent appears unaware of the local skill set. SKIP: external skill marketplaces unrelated to this repo, generic "how do I use AI?" questions, or onboarding to a different catalog.
+summary_l0: "Orient an AI session to Nexus-Hub's skill catalog, commands, and hooks in under 2 minutes"
+overview_l1: "This meta-skill orients an AI coding session to Nexus-Hub — explaining how 182 skills are organized, how to find the right skill, how 32 commands work, and what the hook system does. It is loaded automatically at session start via the SessionStart hook so every new session begins with catalog awareness. Use it manually when a session lacks context about the catalog, when onboarding a new AI assistant to the project, or when the agent needs a quick reminder of available capabilities. This skill does not teach how to use individual skills — it teaches how to navigate the catalog and trigger the right skill for the task at hand."
 ---
 
-# Using DevAI Hub
+# Using Nexus Hub
 
-DevAI-Hub provides 182 curated skills, 32 commands, and 13 hooks for your AI coding assistant. This file explains how to navigate and use the catalog.
+Nexus-Hub provides 182 curated skills, 32 commands, and 13 hooks for your AI coding assistant. This file explains how to navigate and use the catalog.
 
 ## What Is a Skill?
 
@@ -77,7 +77,7 @@ Run `/commands-cheatsheet` to see all 32 commands with descriptions.
 
 ## How Hooks Protect the Session
 
-DevAI-Hub installs 13 hooks that run automatically around tool calls:
+Nexus-Hub installs 13 hooks that run automatically around tool calls:
 
 | When | Hook | What it does |
 |---|---|---|

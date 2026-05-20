@@ -519,4 +519,4 @@ These advisory fields are stored in `data/skills.json` entries, not in SKILL.md 
 
 ## License
 
-These skills are provided under the same license as the parent DevAI-Hub repository. See [LICENSE](../../LICENSE) for details.
+These skills are provided under the same license as the parent Nexus-Hub repository. See [LICENSE](../../LICENSE) for details.

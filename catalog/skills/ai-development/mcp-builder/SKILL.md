@@ -2,12 +2,12 @@
 name: mcp-builder
 description: Build a local MCP (Model Context Protocol) server in Python (FastMCP) or TypeScript / Node (the official MCP SDK) - tool definitions, structured output, auth, transports, and registration into Claude Code, Cursor, Codex, Gemini, and OpenCode. Use whenever the user wants to "build an MCP", "write an MCP server", "expose tools to the agent", "wrap an API as an MCP", "create a custom MCP", "MCP tool", "MCP transport", "register an MCP", or asks how to integrate a service the agent can call as a tool. Bundles cross-platform scaffolding scripts (init-mcp-fastmcp.{sh,ps1} and init-mcp-ts.{sh,ps1}) so Windows / macOS / Linux all reach the same starter. SKIP: capabilities the agent's LLM can already do (use a skill instead - per the AGENTS.md MCP Registry Policy decision tree); third-party search-as-service / embeddings-as-service / scraping-as-service wrappers (categorically rejected by policy); user wants to CONSUME an existing MCP (this skill is for BUILDING one - to consume, edit settings.json directly).
 summary_l0: "Build local MCP servers (FastMCP Python or MCP SDK Node/TS) with cross-platform scaffolding scripts"
-overview_l1: "This skill walks the agent through building a local MCP server in either Python (FastMCP) or Node / TypeScript (the official MCP SDK), then registering it across all five DevAI-Hub-supported AI CLIs (Claude Code, Cursor, Codex, Gemini, OpenCode). The skill enforces the AGENTS.md MCP Registry Policy decision tree before building - many capabilities should be a skill (LLM-native), not an MCP. When an MCP is the right shape, the bundled scaffolding scripts (init-mcp-fastmcp.{sh,ps1} for Python, init-mcp-ts.{sh,ps1} for Node / TS) generate a one-tool hello-world server in under 30 seconds, with tool definitions, structured output, auth stubs, and transport configuration ready to extend. Reference docs (references/fastmcp.md, references/ts-sdk.md) cover the deeper API surface. Trigger phrases: build an MCP, MCP server, FastMCP, MCP SDK, MCP tool, expose tools to the agent, wrap an API as an MCP, custom MCP, MCP transport, register an MCP, model context protocol, hello-world MCP."
+overview_l1: "This skill walks the agent through building a local MCP server in either Python (FastMCP) or Node / TypeScript (the official MCP SDK), then registering it across all five Nexus-Hub-supported AI CLIs (Claude Code, Cursor, Codex, Gemini, OpenCode). The skill enforces the AGENTS.md MCP Registry Policy decision tree before building - many capabilities should be a skill (LLM-native), not an MCP. When an MCP is the right shape, the bundled scaffolding scripts (init-mcp-fastmcp.{sh,ps1} for Python, init-mcp-ts.{sh,ps1} for Node / TS) generate a one-tool hello-world server in under 30 seconds, with tool definitions, structured output, auth stubs, and transport configuration ready to extend. Reference docs (references/fastmcp.md, references/ts-sdk.md) cover the deeper API surface. Trigger phrases: build an MCP, MCP server, FastMCP, MCP SDK, MCP tool, expose tools to the agent, wrap an API as an MCP, custom MCP, MCP transport, register an MCP, model context protocol, hello-world MCP."
 ---
 
 # MCP Builder
 
-Build a local MCP server in Python (FastMCP) or Node / TypeScript (the official MCP SDK), then register it across all five DevAI-Hub-supported AI CLIs. The skill is opinionated about WHAT to build before HOW: many requests for "an MCP that does X" are better served by a skill (LLM-native, zero infrastructure) per the AGENTS.md MCP Registry Policy. When an MCP is the right shape, the bundled scaffolding scripts get a working server up in under 30 seconds.
+Build a local MCP server in Python (FastMCP) or Node / TypeScript (the official MCP SDK), then register it across all five Nexus-Hub-supported AI CLIs. The skill is opinionated about WHAT to build before HOW: many requests for "an MCP that does X" are better served by a skill (LLM-native, zero infrastructure) per the AGENTS.md MCP Registry Policy. When an MCP is the right shape, the bundled scaffolding scripts get a working server up in under 30 seconds.
 
 ## When to Use This Skill
 
@@ -88,18 +88,18 @@ Run the bundled init script for the chosen stack:
 
 ```bash
 # Python (FastMCP) - macOS / Linux
-bash ~/.devai-hub/skills/ai-development/mcp-builder/scripts/init-mcp-fastmcp.sh <server-name>
+bash ~/.nexus-hub/skills/ai-development/mcp-builder/scripts/init-mcp-fastmcp.sh <server-name>
 
 # Node / TS (MCP SDK) - macOS / Linux
-bash ~/.devai-hub/skills/ai-development/mcp-builder/scripts/init-mcp-ts.sh <server-name>
+bash ~/.nexus-hub/skills/ai-development/mcp-builder/scripts/init-mcp-ts.sh <server-name>
 ```
 
 ```powershell
 # Python (FastMCP) - Windows
-& "$HOME\.devai-hub\skills\ai-development\mcp-builder\scripts\init-mcp-fastmcp.ps1" -ServerName <server-name>
+& "$HOME\.nexus-hub\skills\ai-development\mcp-builder\scripts\init-mcp-fastmcp.ps1" -ServerName <server-name>
 
 # Node / TS (MCP SDK) - Windows
-& "$HOME\.devai-hub\skills\ai-development\mcp-builder\scripts\init-mcp-ts.ps1" -ServerName <server-name>
+& "$HOME\.nexus-hub\skills\ai-development\mcp-builder\scripts\init-mcp-ts.ps1" -ServerName <server-name>
 ```
 
 The Python script: (a) verifies Python 3.10+; (b) creates a venv; (c) installs `mcp[cli]`; (d) writes `<name>/server.py` with one example `@mcp.tool()` and a `__main__` block running stdio transport; (e) writes a minimal `pyproject.toml`; (f) prints next-step commands.
@@ -177,7 +177,7 @@ For Node / TS:
 }
 ```
 
-If your server is intended for the curated DevAI-Hub registry (`catalog/mcp-configs/mcp-servers.json`), follow the AGENTS.md MCP Registry Policy: the `_comment` field MUST answer the five-question audit, and the `docs/v1.0.0/mcp-reverse-engineering-matrix.md` MUST get a row classifying the bucket. Do NOT add to the registry without walking the policy.
+If your server is intended for the curated Nexus-Hub registry (`catalog/mcp-configs/mcp-servers.json`), follow the AGENTS.md MCP Registry Policy: the `_comment` field MUST answer the five-question audit, and the `docs/v1.0.0/mcp-reverse-engineering-matrix.md` MUST get a row classifying the bucket. Do NOT add to the registry without walking the policy.
 
 ### Step 7 - Verify cross-CLI
 

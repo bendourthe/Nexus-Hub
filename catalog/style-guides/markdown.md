@@ -1,12 +1,12 @@
 # Markdown Style Guide for Generated Documentation
 
-This file is the canonical style reference for every Markdown file DevAI-Hub generates or modifies. Read it before producing any new documentation. The conventions below address the most common cross-renderer rendering bugs (GitHub, VS Code preview, Cursor preview, JetBrains preview, npm-rendered READMEs, marketplace listings).
+This file is the canonical style reference for every Markdown file Nexus-Hub generates or modifies. Read it before producing any new documentation. The conventions below address the most common cross-renderer rendering bugs (GitHub, VS Code preview, Cursor preview, JetBrains preview, npm-rendered READMEs, marketplace listings).
 
 The rules are not stylistic preferences. They are concrete fixes for rendering inconsistencies that appear across CommonMark, GitHub-Flavored Markdown (GFM), and the various preview implementations.
 
 ## Files Governed
 
-This style applies to every Markdown artifact produced by DevAI-Hub commands and skills, including:
+This style applies to every Markdown artifact produced by Nexus-Hub commands and skills, including:
 
 - `README.md`, `README_zh.md`, and any subdirectory READMEs
 - `CHANGELOG.md`, `DEVLOG.md`

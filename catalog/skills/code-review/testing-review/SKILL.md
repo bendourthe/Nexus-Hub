@@ -162,7 +162,7 @@ Immediate (before next release)
 
 **Version**: 2.0.0
 **Last Updated**: February 2026
-**Based on**: DevAI-Hub code review methodology + code-review-expert
+**Based on**: Nexus-Hub code review methodology + code-review-expert
 
 
 ### Iterative Refinement Strategy

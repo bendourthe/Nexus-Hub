@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Usage Display - Stop Hook for Claude Code
 # Shows a compact usage limits summary after each conversation turn.
-# Part of DevAI-Hub
+# Part of Nexus-Hub
 #
 # How it works:
 #   Fires on the Stop event (after Claude finishes responding).

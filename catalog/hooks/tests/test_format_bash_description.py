@@ -5,7 +5,7 @@ Run from the repo root:
     python -m pytest catalog/hooks/tests/ -v
 
 Integration tests (class TestMainIntegration) require ~/.claude/settings.json
-to be installed with the DevAI-Hub permission list so the hook can load allow
+to be installed with the Nexus-Hub permission list so the hook can load allow
 patterns.  Unit tests (all other classes) are fully self-contained.
 """
 from __future__ import annotations
@@ -929,7 +929,7 @@ class TestMainIntegration:
     """End-to-end tests that invoke the hook as a subprocess.
 
     These tests require ~/.claude/settings.json to be installed with the
-    DevAI-Hub permission list.  They will be skipped automatically if that
+    Nexus-Hub permission list.  They will be skipped automatically if that
     file is not found.
     """
 

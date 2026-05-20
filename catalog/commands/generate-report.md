@@ -6,7 +6,7 @@ description: Generate a professional Word (.docx) or PowerPoint (.pptx) report f
 
 Generate a professional Word document or PowerPoint presentation from one or more Markdown files. The command discovers available templates (preserving branded title pages, logos, headers, footers, and margins), analyzes your content for optimal structure, and produces a formatted report saved to the project's `docs/<version>/` directory. If diagrams are found, a companion PPTX with editable shapes is also generated.
 
-**BEFORE WRITING ANY CONTENT**: Read the style guide at `catalog/style-guides/generate-report.md` in the project root (or `~/.devai-hub/style-guides/generate-report.md` for global installs). This guide contains concrete examples of good vs. bad output and the target metrics you must hit. The style guide is reference content, not a slash command - it lives outside `catalog/commands/` so it does not surface in the slash menu.
+**BEFORE WRITING ANY CONTENT**: Read the style guide at `catalog/style-guides/generate-report.md` in the project root (or `~/.nexus-hub/style-guides/generate-report.md` for global installs). This guide contains concrete examples of good vs. bad output and the target metrics you must hit. The style guide is reference content, not a slash command - it lives outside `catalog/commands/` so it does not surface in the slash menu.
 
 ## Phase 1: Resolve Input Files
 
@@ -57,11 +57,11 @@ Determine what content to include in the report:
 
 ### Step 2.1: Gate - generic (bundled) or custom?
 
-Ask the user this binary question FIRST. As of v0.9.7, the installer no longer prompts for custom template imports at install time; the generic templates are always bundled at `~/.devai-hub/templates/documentation/`, and custom templates are selected by path here.
+Ask the user this binary question FIRST. As of v0.9.7, the installer no longer prompts for custom template imports at install time; the generic templates are always bundled at `~/.nexus-hub/templates/documentation/`, and custom templates are selected by path here.
 
 ```
 Which template source should I use?
-  [G] Generic  - use a template bundled with DevAI-Hub (recommended for most reports)
+  [G] Generic  - use a template bundled with Nexus-Hub (recommended for most reports)
   [C] Custom   - specify the full path to your own .docx or .pptx template
 
 Select [G]eneric / [C]ustom (default: G):
@@ -76,7 +76,7 @@ Select [G]eneric / [C]ustom (default: G):
 Scan for bundled / project templates in this priority order:
 
 1. `<project_root>/.claude/templates/documentation/` (project-specific, version-controlled; optional)
-2. `~/.devai-hub/templates/documentation/` (installed by the DevAI-Hub installer; always present on a standard install)
+2. `~/.nexus-hub/templates/documentation/` (installed by the Nexus-Hub installer; always present on a standard install)
 
 Merge the two lists, deduplicating by filename (project-level wins on conflict). Present them numerically:
 
@@ -95,7 +95,7 @@ Which template should I use? Enter a number:
 
 - Wait for the user to respond.
 - If the user enters `0`, generate a blank-style document (no template base).
-- If no templates are found at either path, inform the user that DevAI-Hub's bundled templates are missing (suggest re-running the installer) and offer to proceed with a blank document or fall back to Step 2.3 (Custom path).
+- If no templates are found at either path, inform the user that Nexus-Hub's bundled templates are missing (suggest re-running the installer) and offer to proceed with a blank document or fall back to Step 2.3 (Custom path).
 
 ### Step 2.3: Custom path
 
@@ -107,7 +107,7 @@ Enter the full path to your template file (.docx or .pptx):
 
 - Validate that the path exists and is a file, and that the extension is `.docx` or `.pptx`. If either check fails, report the problem and re-prompt (or offer to fall back to Step 2.2).
 - Tilde (`~`) and relative paths are resolved against the current working directory; drag-and-drop surrounding quotes are stripped.
-- The custom template is NOT copied into `~/.devai-hub/templates/documentation/` - it is used in place. Re-running `/generate-report` will prompt again; if the user expects the template to persist for future runs, they can manually copy it into the global templates directory.
+- The custom template is NOT copied into `~/.nexus-hub/templates/documentation/` - it is used in place. Re-running `/generate-report` will prompt again; if the user expects the template to persist for future runs, they can manually copy it into the global templates directory.
 
 ### Template file-extension determines output format
 
@@ -561,7 +561,7 @@ Call the Python report generator script with the SINGLE merged file from Step 4.
 ### Word Document:
 
 ```bash
-python ~/.devai-hub/scripts/generate_report.py \
+python ~/.nexus-hub/scripts/generate_report.py \
   --type generic-word \
   --md-files "<output_directory>/<ReportTitle>_merged.md" \
   --title "<title>" \
@@ -582,7 +582,7 @@ This produces both the Word document AND a companion `<ReportTitle>_Figures.pptx
 ### For PowerPoint output (if a .pptx template was selected):
 
 ```bash
-python ~/.devai-hub/scripts/generate_report.py \
+python ~/.nexus-hub/scripts/generate_report.py \
   --type generic-pptx \
   --md-files "<output_directory>/<ReportTitle>_merged.md" \
   --title "<title>" \
@@ -593,9 +593,9 @@ python ~/.devai-hub/scripts/generate_report.py \
 
 ### Path resolution:
 
-- On Windows, expand `~` to `%USERPROFILE%` (e.g., `C:\Users\<username>\.devai-hub\scripts\generate_report.py`).
+- On Windows, expand `~` to `%USERPROFILE%` (e.g., `C:\Users\<username>\.nexus-hub\scripts\generate_report.py`).
 - On macOS/Linux, `~` expands normally.
-- If the script is not found at the global location, check the project's own `scripts/generate_report.py` as a fallback (for development use within the DevAI-Hub repo itself).
+- If the script is not found at the global location, check the project's own `scripts/generate_report.py` as a fallback (for development use within the Nexus-Hub repo itself).
 
 ### Error handling:
 
@@ -671,7 +671,7 @@ The figure review process has two stages: programmatic validation (stderr warnin
 After generating the companion PPTX, export slides as images for visual inspection:
 
 ```bash
-python ~/.devai-hub/scripts/generate_report.py \
+python ~/.nexus-hub/scripts/generate_report.py \
   --type companion-pptx \
   --figures-json "<figures_json_path>" \
   --title "<title>" \

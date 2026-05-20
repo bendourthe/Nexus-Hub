@@ -276,7 +276,7 @@ When the user selects **option 5 (Export report)**, follow these steps:
   "title": "Code Review Report",
   "subtitle": "[Project Name] - Comprehensive Code Review",
   "header_subtitle": "Code Review Report",
-  "author": "DevAI-Hub Agent",
+  "author": "Nexus-Hub Agent",
   "review_date": "[Date]",
   "mode": "[Full Codebase / Git Changes]",
   "verdict": "[APPROVE / REQUEST_CHANGES / COMMENT]",
@@ -359,7 +359,7 @@ After presenting the report, always end with the Next Steps menu. Wait for the u
 
 **Version**: 3.0.0
 **Last Updated**: February 2026
-**Based on**: DevAI-Hub code review methodology + code-review-expert
+**Based on**: Nexus-Hub code review methodology + code-review-expert
 
 
 ### Iterative Refinement Strategy

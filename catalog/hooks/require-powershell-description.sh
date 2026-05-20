@@ -15,7 +15,7 @@
 #
 # This hook blocks (exit 2) when neither is present.
 #
-# Part of DevAI-Hub
+# Part of Nexus-Hub
 
 set -euo pipefail
 

@@ -2,7 +2,7 @@
 name: local-docs-lookup
 description: Ground agent answers in local library documentation (pydoc, go doc, vendored READMEs, help() in REPLs) rather than routing queries through a third-party documentation lookup service
 summary_l0: "Answer library and API questions from locally-available documentation sources instead of routing queries through a third-party service"
-overview_l1: "This skill establishes a lookup sequence for grounding agent answers in locally-available documentation - vendored README files in node_modules or site-packages, introspection tools (python -m pydoc, help(), go doc), project-shipped docs/ trees, and local man pages - before considering any external documentation-lookup service. In regulated environments library names, API signatures, and query text are sensitive because they reveal architectural intent and internal naming; a documentation-lookup-as-service MCP leaks each query to a third party. The correct replacement is a disciplined local lookup flow that exhausts on-disk sources first. When the corpus is genuinely not on-disk (e.g. a service's REST API documentation that the user explicitly approves fetching), the agent can call devai-web-fetch on a single user-approved URL - the MCP Registry Policy permits that because the data destination is the URL itself, not a third-party intermediary. This skill replaces one specific use case of popular library-documentation MCPs (cached local docs) and does not recreate a continuously-updated library index; that gap is acknowledged and accepted."
+overview_l1: "This skill establishes a lookup sequence for grounding agent answers in locally-available documentation - vendored README files in node_modules or site-packages, introspection tools (python -m pydoc, help(), go doc), project-shipped docs/ trees, and local man pages - before considering any external documentation-lookup service. In regulated environments library names, API signatures, and query text are sensitive because they reveal architectural intent and internal naming; a documentation-lookup-as-service MCP leaks each query to a third party. The correct replacement is a disciplined local lookup flow that exhausts on-disk sources first. When the corpus is genuinely not on-disk (e.g. a service's REST API documentation that the user explicitly approves fetching), the agent can call nexus-web-fetch on a single user-approved URL - the MCP Registry Policy permits that because the data destination is the URL itself, not a third-party intermediary. This skill replaces one specific use case of popular library-documentation MCPs (cached local docs) and does not recreate a continuously-updated library index; that gap is acknowledged and accepted."
 version: 1.0.0
 author: Benjamin Dourthe
 category: Research
@@ -26,9 +26,9 @@ Use this skill when:
 
 **When NOT to use**:
 
-- The question is about the user's own code - use direct file reads or `devai-code-search` instead.
+- The question is about the user's own code - use direct file reads or `nexus-code-search` instead.
 - The question is about a runtime error in the user's code - use `bug-localization` or `error-explanation-generator`.
-- The documentation you need is genuinely online-only and the user has explicitly approved fetching a specific public URL - fetch it via `devai-web-fetch` with the one URL (policy-compliant per the decision tree in `AGENTS.md`).
+- The documentation you need is genuinely online-only and the user has explicitly approved fetching a specific public URL - fetch it via `nexus-web-fetch` with the one URL (policy-compliant per the decision tree in `AGENTS.md`).
 
 ## Instructions
 
@@ -120,13 +120,13 @@ man <command>
 <command> --help
 ```
 
-### Step 7 (last resort, with user approval): `devai-web-fetch` a single URL
+### Step 7 (last resort, with user approval): `nexus-web-fetch` a single URL
 
 If the prior steps did not answer the question AND the official documentation is online, ask the user:
 
-> "The information is not in any local source I can find. Would you like me to fetch the official docs page at `<URL>` via `devai-web-fetch`? This makes one outbound HTTPS call to the URL you approve; no third-party intermediary is involved."
+> "The information is not in any local source I can find. Would you like me to fetch the official docs page at `<URL>` via `nexus-web-fetch`? This makes one outbound HTTPS call to the URL you approve; no third-party intermediary is involved."
 
-If the user approves, call `devai-web-fetch` with the single URL. Do not perform follow-up fetches without re-asking.
+If the user approves, call `nexus-web-fetch` with the single URL. Do not perform follow-up fetches without re-asking.
 
 ## Common Rationalizations
 
@@ -140,7 +140,7 @@ If the user approves, call `devai-web-fetch` with the single URL. Do not perform
 ## Verification
 
 - [ ] The answer cites at least one local source (file path or introspection command output).
-- [ ] If `devai-web-fetch` was used, the user explicitly approved the URL.
+- [ ] If `nexus-web-fetch` was used, the user explicitly approved the URL.
 - [ ] The answer matches the installed version of the package (not a newer API the user does not have).
 - [ ] No documentation-as-service MCP was invoked.
 - [ ] Library names and query text did not leave the local machine except to the user-approved URL (if any).
@@ -154,4 +154,4 @@ If the user approves, call `devai-web-fetch` with the single URL. Do not perform
 
 ## Notes on the Gap
 
-This skill covers **cached / installed-version** documentation. It does NOT recreate a continuously-updated library index such as a search-engine-style lookup over every package version on PyPI / npm / crates.io. That gap is real; under the MCP Registry Policy, closing it requires either (a) running a local mirror of the documentation corpus, which is large and infrequently needed, or (b) accepting the single-URL user-approved fetch via `devai-web-fetch` for the rare case where the locally-installed version is genuinely insufficient. Document both as a known limitation rather than papering over it with a third-party service.
+This skill covers **cached / installed-version** documentation. It does NOT recreate a continuously-updated library index such as a search-engine-style lookup over every package version on PyPI / npm / crates.io. That gap is real; under the MCP Registry Policy, closing it requires either (a) running a local mirror of the documentation corpus, which is large and infrequently needed, or (b) accepting the single-URL user-approved fetch via `nexus-web-fetch` for the rare case where the locally-installed version is genuinely insufficient. Document both as a known limitation rather than papering over it with a third-party service.

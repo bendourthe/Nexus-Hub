@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Lint on Write - PostToolUse Hook for Claude Code
 # Runs the appropriate linter after Write/Edit tool calls.
-# Part of DevAI-Hub
+# Part of Nexus-Hub
 #
 # How it works:
 #   Claude Code pipes JSON to stdin after each Write/Edit tool call.

@@ -124,15 +124,15 @@ def test_installer_ps1_has_nexus_ascii_banner():
         "installer.ps1 must invoke Write-NexusBanner and Show-WelcomeBanner"
 
 
-def test_installer_sh_migrates_legacy_devai_hub_dir():
+def test_installer_sh_migrates_legacy_nexus_hub_dir():
     """v2.0.0 Phase 3 sub-task 3.3: installer.sh must carry a migration
-    function that relocates ~/.devai-hub/ to ~/.nexus-hub/ on first run.
+    function that relocates ~/.nexus-hub/ to ~/.nexus-hub/ on first run.
     """
     body = INSTALLER_SH.read_text(encoding="utf-8")
     assert "migrate_legacy_install()" in body, \
         "installer.sh is missing migrate_legacy_install()"
-    assert '"$HOME/.devai-hub"' in body, \
-        "installer.sh migration must reference the legacy ~/.devai-hub path"
+    assert '"$HOME/.nexus-hub"' in body, \
+        "installer.sh migration must reference the legacy ~/.nexus-hub path"
     assert '"$HOME/.nexus-hub"' in body, \
         "installer.sh migration must reference the new ~/.nexus-hub path"
     # The one-way move (legacy-only branch) and the co-existence branch must both be present.
@@ -140,13 +140,13 @@ def test_installer_sh_migrates_legacy_devai_hub_dir():
         "installer.sh migration must perform the one-way rename"
 
 
-def test_installer_ps1_migrates_legacy_devai_hub_dir():
-    """Mirror of test_installer_sh_migrates_legacy_devai_hub_dir for PowerShell."""
+def test_installer_ps1_migrates_legacy_nexus_hub_dir():
+    """Mirror of test_installer_sh_migrates_legacy_nexus_hub_dir for PowerShell."""
     body = INSTALLER_PS1.read_text(encoding="utf-8")
     assert "function Invoke-LegacyInstallMigration" in body, \
         "installer.ps1 is missing Invoke-LegacyInstallMigration"
-    assert '".devai-hub"' in body, \
-        "installer.ps1 migration must reference the legacy .devai-hub directory"
+    assert '".nexus-hub"' in body, \
+        "installer.ps1 migration must reference the legacy .nexus-hub directory"
     assert '".nexus-hub"' in body, \
         "installer.ps1 migration must reference the new .nexus-hub directory"
     assert "Move-Item -Path $legacy -Destination $current" in body, \
@@ -327,6 +327,10 @@ DEV_ONLY_SCRIPTS = {
     # One-shot cross-catalog maintenance utility that injects iterative-refinement
     # text into SKILL.md / command .md files. Maintainer tool only.
     "apply_iterative_workflow.py",
+    # One-shot v2.0.0 brand-rename helper that walks catalog/, templates/, and
+    # .cursor/ applying the legacy-name to Nexus-Hub variant table. Maintainer
+    # tool only; idempotent and useless on an end-user install.
+    "apply_rename.py",
 }
 
 
@@ -398,7 +402,7 @@ V0_9_7_ARTIFACTS = [
     "CLAUDE.md",
     "GEMINI.md",
     ".github/copilot-instructions.md",
-    ".cursor/rules/devai-hub.mdc",
+    ".cursor/rules/nexus-hub.mdc",
 ]
 
 
@@ -472,8 +476,8 @@ def _run_all():
         test_installer_ps1_has_welcome_banner_function,
         test_installer_sh_has_nexus_ascii_banner,
         test_installer_ps1_has_nexus_ascii_banner,
-        test_installer_sh_migrates_legacy_devai_hub_dir,
-        test_installer_ps1_migrates_legacy_devai_hub_dir,
+        test_installer_sh_migrates_legacy_nexus_hub_dir,
+        test_installer_ps1_migrates_legacy_nexus_hub_dir,
         test_installer_sh_asks_global_vs_workspace_first,
         test_installer_ps1_asks_global_vs_workspace_first,
         test_installers_have_no_phase_labels,

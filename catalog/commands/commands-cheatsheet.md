@@ -32,7 +32,7 @@ Group commands into logical categories by reading each command's name and descri
 - **Security** — commands that audit, scan, penetration-test, or harden the project
 - **Git & Versioning** — commands that assist with commit messages, version bumps, or release preparation
 - **Project Setup & Maintenance** — commands that configure, refactor, or maintain project structure, layout, and memory
-- **Hub Management** — commands that manage the DevAI-Hub skill/command catalog (searching, importing, creating)
+- **Hub Management** — commands that manage the Nexus-Hub skill/command catalog (searching, importing, creating)
 - **Utility** — session helpers, usage monitoring, and meta commands like this one
 
 Adapt or add categories as needed if the installed command set includes commands that do not fit the suggestions above.

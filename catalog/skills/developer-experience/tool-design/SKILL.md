@@ -274,7 +274,7 @@ Tools should be tested with actual agent interactions, not just unit tests.
 
 **Version**: 1.0.0
 **Last Updated**: February 2026
-**Author**: DevAI-Hub
+**Author**: Nexus-Hub
 **Attribution**: Adapted from [Agent-Skills-for-Context-Engineering](https://github.com/muratcankoylan/Agent-Skills-for-Context-Engineering) (MIT License)
 
 

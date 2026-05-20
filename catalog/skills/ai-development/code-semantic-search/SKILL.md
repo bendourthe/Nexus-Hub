@@ -2,7 +2,7 @@
 name: code-semantic-search
 description: Semantic search over source-code corpora using code-specialized embeddings, AST-aware chunking, and hybrid BM25+dense retrieval with incremental re-indexing
 summary_l0: "Retrieve relevant code from large repositories using hybrid semantic search and AST-aware chunking"
-overview_l1: "This skill covers semantic search specifically for source-code corpora, which differs from general RAG in three ways: code-specialized embedding models outperform generic text embeddings on identifier-heavy queries; AST-aware chunking preserves function and class boundaries that character-based splitters shred; and incremental re-indexing via content-hash or Merkle trees avoids re-embedding unchanged subtrees on each commit. Use this skill when the agent must answer questions about a codebase larger than the model's context window, when grep or ripgrep produces too many false positives for natural-language queries, or when a team wants to eliminate 'where do we handle X?' spelunking. Under the MCP Registry Policy the reference implementation is DevAI-Hub's internal devai-code-search MCP - keyword-only in v1.0.0, hybrid retrieval planned for v1.1.0 with local ONNX embeddings and a sqlite-vec vector store. Third-party semantic-code-search services are drop-class under the policy because their default flow ships source code to an external embedding endpoint."
+overview_l1: "This skill covers semantic search specifically for source-code corpora, which differs from general RAG in three ways: code-specialized embedding models outperform generic text embeddings on identifier-heavy queries; AST-aware chunking preserves function and class boundaries that character-based splitters shred; and incremental re-indexing via content-hash or Merkle trees avoids re-embedding unchanged subtrees on each commit. Use this skill when the agent must answer questions about a codebase larger than the model's context window, when grep or ripgrep produces too many false positives for natural-language queries, or when a team wants to eliminate 'where do we handle X?' spelunking. Under the MCP Registry Policy the reference implementation is Nexus-Hub's internal nexus-code-search MCP - keyword-only in v1.0.0, hybrid retrieval planned for v1.1.0 with local ONNX embeddings and a sqlite-vec vector store. Third-party semantic-code-search services are drop-class under the policy because their default flow ships source code to an external embedding endpoint."
 version: 1.0.0
 author: Benjamin Dourthe
 category: ai-development
@@ -15,7 +15,7 @@ tools_required: [Read, Glob, Grep, Bash]
 
 Semantic search over source-code corpora. This skill is the specialized sibling of the general-purpose `rag-implementation` skill: same RAG mental model, but adapted for the three properties that make code corpora different from prose corpora.
 
-DevAI-Hub's reference implementation is the internal [`devai-code-search`](../../../../extensions/devai-code-search/) MCP. v1.0.0 ships keyword-only search (inverted index + rapidfuzz, zero API keys, zero model downloads, zero outbound calls). v1.1.0 adds dense retrieval with local ONNX embeddings and a sqlite-vec vector store. Under the MCP Registry Policy in `AGENTS.md`, third-party semantic-code-search services are drop-class because their default flow ships source code to an external embedding endpoint.
+Nexus-Hub's reference implementation is the internal [`nexus-code-search`](../../../../extensions/nexus-code-search/) MCP. v1.0.0 ships keyword-only search (inverted index + rapidfuzz, zero API keys, zero model downloads, zero outbound calls). v1.1.0 adds dense retrieval with local ONNX embeddings and a sqlite-vec vector store. Under the MCP Registry Policy in `AGENTS.md`, third-party semantic-code-search services are drop-class because their default flow ships source code to an external embedding endpoint.
 
 ## When to Use This Skill
 
@@ -40,7 +40,7 @@ Use this skill when:
 
 Under the MCP Registry Policy decision tree in [`AGENTS.md`](../../../../AGENTS.md), the preference order for embedding backends is:
 
-1. **Local ONNX / self-hosted Ollama** - zero outbound calls, zero API keys. DevAI-Hub's `devai-code-search` will ship an ONNX embedding backend in v1.1.0. In regulated environments this is the only acceptable option.
+1. **Local ONNX / self-hosted Ollama** - zero outbound calls, zero API keys. Nexus-Hub's `nexus-code-search` will ship an ONNX embedding backend in v1.1.0. In regulated environments this is the only acceptable option.
 2. **Commercial code-specialized embedding provider via your-own-account** - acceptable only if the vendor passes all three conditions of the decision tree (intrinsic destination, non-RE'able, extremely worth it). Most projects do not meet the third condition; skip this tier unless you have explicitly justified it in writing.
 3. **Anything else** - drop.
 
@@ -54,7 +54,7 @@ Code-specialized embedding families outperform generic prose embeddings on ident
 | **Recursive character splitter with language separators** | Long-tail languages without a tree-sitter grammar, or configurations where a tree-sitter runtime is not available (e.g. restricted wheels-only install on Windows). Prefer separators: `\n\nclass `, `\n\ndef `, `\nfunction `, `\npublic `, `\n\n`, `\n`. 600-char target window, 80-char overlap works well for most code. |
 | **Fixed-size with overlap** | Emergency fallback only. Do not ship this in production. |
 
-DevAI-Hub's `devai-code-search` ships the recursive character splitter with language separators in v1.0.0 to keep the install path wheels-only on Windows; v1.1.0 adds tree-sitter starting with Python.
+Nexus-Hub's `nexus-code-search` ships the recursive character splitter with language separators in v1.0.0 to keep the install path wheels-only on Windows; v1.1.0 adds tree-sitter starting with Python.
 
 ### Step 3: Choose the vector store
 
@@ -64,7 +64,7 @@ Under the policy, the store must be local and self-hostable. Acceptable options:
 - **Self-hosted daemon**: Milvus (open-source, heavier), Qdrant (open-source), pgvector (if the team already runs Postgres).
 - **Not acceptable under the policy**: any managed vector-DB service (Pinecone and similar hosted offerings from the Milvus / Qdrant / other-open-source ecosystems).
 
-For a v1.0.0-style MVP, prefer in-process. DevAI-Hub's `devai-code-search` uses sqlite-vec in v1.1.0 because it ships prebuilt Windows wheels and needs no daemon.
+For a v1.0.0-style MVP, prefer in-process. Nexus-Hub's `nexus-code-search` uses sqlite-vec in v1.1.0 because it ships prebuilt Windows wheels and needs no daemon.
 
 ### Step 4: Wire up hybrid retrieval
 
@@ -88,7 +88,7 @@ Re-embedding the entire corpus on every commit is wasteful - most files do not c
 - SHA-256 each file on first index; store in the manifest.
 - On re-index, hash each file again; skip unchanged ones; re-chunk modified ones; drop entries for deleted files.
 
-For very large repos, upgrade the flat manifest to a directory-keyed Merkle tree so entire subtrees can be skipped when no descendant changed. DevAI-Hub's `devai-code-search` ships the flat manifest in v1.0.0 and upgrades in v1.1.0.
+For very large repos, upgrade the flat manifest to a directory-keyed Merkle tree so entire subtrees can be skipped when no descendant changed. Nexus-Hub's `nexus-code-search` ships the flat manifest in v1.0.0 and upgrades in v1.1.0.
 
 ### Step 6: Rerank strategies
 
@@ -132,4 +132,4 @@ After RRF, the top 20-50 candidates can be reranked for higher precision:
 - [`context-manager`](../../orchestration/context-manager/SKILL.md) - for session-level context budgeting. Use `code-semantic-search` as the escape valve when the repo exceeds the context window.
 - [`context-engineering`](../context-engineering/SKILL.md) - deliberate context shaping. Semantic search is one of the primary retrieval-based context sources.
 - [`local-docs-lookup`](../../research/local-docs-lookup/SKILL.md) - for library-docs grounding. This skill is for the user's own code.
-- DevAI-Hub's internal [`devai-code-search`](../../../../extensions/devai-code-search/) MCP - the reference implementation referenced throughout. Install via `pip install -e extensions/devai-code-search` or the DevAI-Hub installer.
+- Nexus-Hub's internal [`nexus-code-search`](../../../../extensions/nexus-code-search/) MCP - the reference implementation referenced throughout. Install via `pip install -e extensions/nexus-code-search` or the Nexus-Hub installer.

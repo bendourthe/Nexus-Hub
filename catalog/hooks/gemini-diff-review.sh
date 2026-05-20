@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# gemini-diff-review.sh - opt-in git pre-commit hook (DevAI-Hub).
+# gemini-diff-review.sh - opt-in git pre-commit hook (Nexus-Hub).
 # Pipes the staged diff through `gemini -p` (Google Gemini CLI) for an LLM review of
 # hardcoded secrets, debug artifacts (console.log, print, debugger),
 # unfinished TODOs, and large commented-out code blocks.

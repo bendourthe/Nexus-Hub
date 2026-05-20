@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Auto DevLog - Stop Hook for Claude Code
 # Automatically prepends a git-summary entry to DEVLOG.md at session end.
-# Part of DevAI-Hub
+# Part of Nexus-Hub
 #
 # How it works:
 #   Fires on the Stop event. Checks whether DEVLOG.md exists in the docs/ directory
@@ -19,7 +19,7 @@
 trap 'exit 0' ERR
 set -uo pipefail 2>/dev/null || true
 
-# --- Colors (consistent with other DevAI-Hub hooks) ---
+# --- Colors (consistent with other Nexus-Hub hooks) ---
 COLOR_RESET='\033[0m'
 COLOR_GREEN='\033[0;32m'
 COLOR_YELLOW='\033[0;33m'

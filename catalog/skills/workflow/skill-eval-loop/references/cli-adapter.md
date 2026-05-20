@@ -1,6 +1,6 @@
 # CLI-agnostic adapter design
 
-The eval loop must work on whichever AI CLI the user has installed. DevAI-Hub supports four: `claude`, `gemini`, `codex`, `opencode`. The shape of "load a skill and run a prompt" differs per CLI, but the loop's bookkeeping (paired runs, grading, aggregation) does not. This file documents the design rationale, the per-CLI invocation patterns, and the parity-test specification.
+The eval loop must work on whichever AI CLI the user has installed. Nexus-Hub supports four: `claude`, `gemini`, `codex`, `opencode`. The shape of "load a skill and run a prompt" differs per CLI, but the loop's bookkeeping (paired runs, grading, aggregation) does not. This file documents the design rationale, the per-CLI invocation patterns, and the parity-test specification.
 
 ## The two design options
 

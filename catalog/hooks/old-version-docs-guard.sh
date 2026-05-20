@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Old Version Docs Guard - PreToolUse Hook for Claude Code
 # Warns when Write or Edit targets a historical docs/v<old-version>/ path.
-# Part of DevAI-Hub
+# Part of Nexus-Hub
 #
 # How it works:
 #   Claude Code pipes JSON to stdin before each Write/Edit tool call.

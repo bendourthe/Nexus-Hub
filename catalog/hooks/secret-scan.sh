@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Secret Scan - PreToolUse Hook for Claude Code
 # Scans file content for potential secrets before writing.
-# Part of DevAI-Hub
+# Part of Nexus-Hub
 #
 # How it works:
 #   Claude Code pipes JSON to stdin before each Write/Edit tool call.

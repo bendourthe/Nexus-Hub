@@ -43,7 +43,7 @@ skills source → catalog/skills/
 
 ### 1b. Apply Defaults If No Rules Found
 
-If no "Repository Layout Rules" section is found, present these DevAI-Hub defaults and ask the user to confirm or modify before continuing:
+If no "Repository Layout Rules" section is found, present these Nexus-Hub defaults and ask the user to confirm or modify before continuing:
 
 ```
 Proposed default layout rules:

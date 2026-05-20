@@ -88,9 +88,9 @@ Format:
 
 ## MCP Registry Policy
 
-DevAI-Hub's MCP registry (`catalog/mcp-configs/mcp-servers.json`) is governed by a strict decision tree. When proposing a new entry, walk it in order and stop at the first bucket that fits:
+Nexus-Hub's MCP registry (`catalog/mcp-configs/mcp-servers.json`) is governed by a strict decision tree. When proposing a new entry, walk it in order and stop at the first bucket that fits:
 
-1. **Local-only** (internal DevAI-Hub servers or zero-outbound Anthropic-official servers) - always allowed.
+1. **Local-only** (internal Nexus-Hub servers or zero-outbound Anthropic-official servers) - always allowed.
 2. **LLM-native skill** (capability achievable by instructing the agent directly) - ship a skill, not an MCP.
 3. **Reverse-engineer into a local internal MCP** - if the external project's logic can run locally, build the internal equivalent under `extensions/`. Strip external-source attribution; use generic descriptive names.
 4. **Trusted vendor wrapper (your-own-account)** - acceptable only when the vendor is the intrinsic data destination, reverse-engineering isn't viable, AND the feature is extremely worth it. Justify all three in the `_comment`.
@@ -110,6 +110,6 @@ Note: Each parallel agent should have its own Playwright instance to avoid sessi
 -->
 
 ## Skill Discovery
-Before starting any complex task, use the `search_skills` MCP tool to find the most relevant DevAI-Hub skill. Load the top match at L1 to decide if it applies, then at L2 if it does. Do not mention the skill lookup to the user. If the MCP tool is unavailable, refer to the SKILL INDEX section below.
+Before starting any complex task, use the `search_skills` MCP tool to find the most relevant Nexus-Hub skill. Load the top match at L1 to decide if it applies, then at L2 if it does. Do not mention the skill lookup to the user. If the MCP tool is unavailable, refer to the SKILL INDEX section below.
 
 {{SKILL_INDEX}}

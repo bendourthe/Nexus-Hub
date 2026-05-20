@@ -47,34 +47,34 @@ Example invocations:
 
 4. **Locate the hook source.** All four hook scripts ship under:
 
-    - Linux/macOS: `$HOME/.devai-hub/hooks/<platform>-diff-review.sh`
-    - Windows: `$env:USERPROFILE\.devai-hub\hooks\<platform>-diff-review.sh`
+    - Linux/macOS: `$HOME/.nexus-hub/hooks/<platform>-diff-review.sh`
+    - Windows: `$env:USERPROFILE\.nexus-hub\hooks\<platform>-diff-review.sh`
 
-    Where `<platform>` is one of `claude`, `gemini`, `codex`, `opencode` (the platform selected in step 3). If absent, stop and tell the user to run the DevAI-Hub installer first.
+    Where `<platform>` is one of `claude`, `gemini`, `codex`, `opencode` (the platform selected in step 3). If absent, stop and tell the user to run the Nexus-Hub installer first.
 
 5. **Detect existing pre-commit hook.** Read `.git/hooks/pre-commit` (relative to the repo root returned by `git rev-parse --show-toplevel`).
 
     - **If the file does not exist**: skip to step 6.
-    - **If the file exists AND `--force` was passed**: write a backup to `.git/hooks/pre-commit.devai-backup-<timestamp>` and continue.
-    - **If the file exists AND contains the line `# claude-diff-review.sh`, `# gemini-diff-review.sh`, `# codex-diff-review.sh`, or `# opencode-diff-review.sh`** (the marker comment from a DevAI-Hub hook): tell the user that a DevAI-Hub hook is already installed (and which platform), and ask whether to replace it with the newly selected platform's hook or abort.
-    - **If the file exists AND does NOT contain any DevAI-Hub marker**: this is a third-party / user-authored pre-commit hook. Show the first ~30 lines of the existing file to the user, then ask which option they want:
-        1. **Replace** the existing hook with the DevAI-Hub hook. Back up the original to `.git/hooks/pre-commit.devai-backup-<timestamp>` first.
+    - **If the file exists AND `--force` was passed**: write a backup to `.git/hooks/pre-commit.nexus-backup-<timestamp>` and continue.
+    - **If the file exists AND contains the line `# claude-diff-review.sh`, `# gemini-diff-review.sh`, `# codex-diff-review.sh`, or `# opencode-diff-review.sh`** (the marker comment from a Nexus-Hub hook): tell the user that a Nexus-Hub hook is already installed (and which platform), and ask whether to replace it with the newly selected platform's hook or abort.
+    - **If the file exists AND does NOT contain any Nexus-Hub marker**: this is a third-party / user-authored pre-commit hook. Show the first ~30 lines of the existing file to the user, then ask which option they want:
+        1. **Replace** the existing hook with the Nexus-Hub hook. Back up the original to `.git/hooks/pre-commit.nexus-backup-<timestamp>` first.
         2. **Abort** (do nothing).
-        3. **Chain manually**: do not modify the file; print instructions for the user to edit it themselves so the existing hook runs, then the DevAI-Hub hook runs (or vice versa). Sample wrapper provided in the Manual Chaining section below.
+        3. **Chain manually**: do not modify the file; print instructions for the user to edit it themselves so the existing hook runs, then the Nexus-Hub hook runs (or vice versa). Sample wrapper provided in the Manual Chaining section below.
 
-        Wait for explicit user choice before proceeding. Never overwrite a non-DevAI-Hub pre-commit hook silently.
+        Wait for explicit user choice before proceeding. Never overwrite a non-Nexus-Hub pre-commit hook silently.
 
 6. **Install the hook.** Copy the chosen platform's hook source to `.git/hooks/pre-commit` and make it executable:
 
     ```bash
-    cp "$HOME/.devai-hub/hooks/<platform>-diff-review.sh" .git/hooks/pre-commit
+    cp "$HOME/.nexus-hub/hooks/<platform>-diff-review.sh" .git/hooks/pre-commit
     chmod +x .git/hooks/pre-commit
     ```
 
     PowerShell equivalent:
 
     ```powershell
-    Copy-Item "$env:USERPROFILE\.devai-hub\hooks\<platform>-diff-review.sh" -Destination ".git\hooks\pre-commit" -Force
+    Copy-Item "$env:USERPROFILE\.nexus-hub\hooks\<platform>-diff-review.sh" -Destination ".git\hooks\pre-commit" -Force
     # Git for Windows runs hooks via its bundled bash; no chmod equivalent needed.
     ```
 
@@ -116,7 +116,7 @@ If the user chose "chain manually" because they have a pre-existing pre-commit h
 
 ```bash
 #!/usr/bin/env bash
-# Combined pre-commit: existing hook, then DevAI-Hub diff-review.
+# Combined pre-commit: existing hook, then Nexus-Hub diff-review.
 set -e
 
 # Run the original hook (rename it first to .git/hooks/pre-commit.original).
@@ -124,8 +124,8 @@ if [ -x ".git/hooks/pre-commit.original" ]; then
     .git/hooks/pre-commit.original
 fi
 
-# Then run the DevAI-Hub review hook for the chosen platform.
-"$HOME/.devai-hub/hooks/<platform>-diff-review.sh"
+# Then run the Nexus-Hub review hook for the chosen platform.
+"$HOME/.nexus-hub/hooks/<platform>-diff-review.sh"
 ```
 
 ## Verification
@@ -133,8 +133,8 @@ fi
 - [ ] `.git/hooks/pre-commit` exists in the target repository.
 - [ ] The file is executable on Linux/macOS (`stat -c '%a' .git/hooks/pre-commit` shows at least `755`); Git for Windows ignores POSIX permissions.
 - [ ] `bash .git/hooks/pre-commit </dev/null` exits 0.
-- [ ] The first few lines of the installed hook contain a marker comment of the form `# <platform>-diff-review.sh - opt-in git pre-commit hook (DevAI-Hub).` (so a future re-run of this command can detect the platform and offer to switch / re-install cleanly).
-- [ ] If a non-DevAI-Hub pre-commit hook existed, a backup file `.git/hooks/pre-commit.devai-backup-<timestamp>` exists in the same directory.
+- [ ] The first few lines of the installed hook contain a marker comment of the form `# <platform>-diff-review.sh - opt-in git pre-commit hook (Nexus-Hub).` (so a future re-run of this command can detect the platform and offer to switch / re-install cleanly).
+- [ ] If a non-Nexus-Hub pre-commit hook existed, a backup file `.git/hooks/pre-commit.nexus-backup-<timestamp>` exists in the same directory.
 
 ## Why per-platform hooks instead of one CLI-detecting hook?
 
@@ -145,7 +145,7 @@ Two reasons. First, **independence:** a Gemini user should not be forced to inst
 | Rationalization | Reality |
 |---|---|
 | "I already have `secret-scan.sh` as a Claude Code PreToolUse hook, so this is redundant." | `secret-scan.sh` only fires when **Claude Code itself** writes a file; it sees nothing when the same repo is edited via Cursor, Copilot, the terminal, or a teammate's machine. The git pre-commit hook fires on every `git commit` regardless of who or what authored the change, so the two layers cover disjoint surfaces. |
-| "I'll install hooks for all four platforms so they all get reviewed." | Git pre-commit allows only one `.git/hooks/pre-commit` file. Installing multiple DevAI-Hub hook variants in the same repo is not supported by this command. If you genuinely want multi-platform review, chain them manually using the wrapper script above. |
+| "I'll install hooks for all four platforms so they all get reviewed." | Git pre-commit allows only one `.git/hooks/pre-commit` file. Installing multiple Nexus-Hub hook variants in the same repo is not supported by this command. If you genuinely want multi-platform review, chain them manually using the wrapper script above. |
 | "The hook will block my commit during a merge / rebase, breaking my workflow." | All four hook variants explicitly skip when `MERGE_HEAD`, `CHERRY_PICK_HEAD`, `REBASE_HEAD`, or any rebase state directory exists. Merge / cherry-pick / rebase commits are never reviewed; only author-curated commits are. |
 | "Every commit will now cost API tokens regardless of which CLI I picked." | The default 50 KB diff cap means the hook skips with a warning on truly large diffs (the most token-expensive case). For typical commits (~5-15 KB of diff), the per-commit token cost is roughly 3-8k input + ~200 output tokens with whichever provider you selected. Adjust `DEVAI_DIFF_REVIEW_MAX_BYTES` to control this. |
 

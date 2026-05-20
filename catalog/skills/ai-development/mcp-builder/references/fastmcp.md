@@ -142,6 +142,6 @@ The `init-mcp-fastmcp.{sh,ps1}` script ships a one-tool hello-world. Extending p
 
 1. **Multiple tools**: add additional `@mcp.tool()` decorated functions. Group by domain (e.g., `query_*`, `mutate_*`, `health_*`).
 2. **Configuration**: load secrets and config from environment variables at startup; never hardcode.
-3. **Logging**: use Python's `logging` module to write to a file under `~/.devai-hub/logs/<server-name>/`. NOT stderr (stdio transport conflict).
+3. **Logging**: use Python's `logging` module to write to a file under `~/.nexus-hub/logs/<server-name>/`. NOT stderr (stdio transport conflict).
 4. **Lifespan hooks**: use FastMCP's lifespan context for setup / teardown (DB connections, etc.).
 5. **Distribution**: package the server as a console script in `pyproject.toml` so users can `pipx install` it.

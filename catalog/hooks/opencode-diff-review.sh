@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# opencode-diff-review.sh - opt-in git pre-commit hook (DevAI-Hub).
+# opencode-diff-review.sh - opt-in git pre-commit hook (Nexus-Hub).
 # Pipes the staged diff through `opencode run` (OpenCode CLI) for an LLM review of
 # hardcoded secrets, debug artifacts (console.log, print, debugger),
 # unfinished TODOs, and large commented-out code blocks.

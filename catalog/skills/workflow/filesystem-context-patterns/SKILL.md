@@ -183,7 +183,7 @@ tasks/agents/
    - The previous skill's content naturally ages out of active attention
 
 ## Skill Discovery Paths
-~/.claude/skills/                  # Global skills (installed by DevAI-Hub)
+~/.claude/skills/                  # Global skills (installed by Nexus-Hub)
 .claude/skills/                    # Project-specific skills
 catalog/skills/[category]/[name]/ # Skill catalog (development reference)
 ```
@@ -333,7 +333,7 @@ Each skill enters context fresh, at the point of maximum attention.
 
 **Version**: 1.0.0
 **Last Updated**: February 2026
-**Author**: DevAI-Hub
+**Author**: Nexus-Hub
 **Attribution**: Adapted from [Agent-Skills-for-Context-Engineering](https://github.com/muratcankoylan/Agent-Skills-for-Context-Engineering) (MIT License)
 
 

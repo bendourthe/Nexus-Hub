@@ -30,7 +30,7 @@ _HOOK_FILE = Path(__file__).parent.parent / "old-version-docs-guard.sh"
 _BASH = shutil.which("bash")
 _JQ = shutil.which("jq")
 
-# The hook follows the existing DevAI-Hub pattern of relying on jq for stdin
+# The hook follows the existing Nexus-Hub pattern of relying on jq for stdin
 # JSON parsing. Without jq, the hook silently exits 0 (consistent with
 # large-file-guard.sh and secret-scan.sh). Cases that expect a warning are
 # only meaningful when jq is available; skip them otherwise.

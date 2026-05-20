@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Session Summary - Stop Hook for Claude Code
 # Appends a one-line summary to ~/.claude/session-log.md after each session.
-# Part of DevAI-Hub
+# Part of Nexus-Hub
 #
 # How it works:
 #   Fires on the Stop event. Records timestamp, project name, and

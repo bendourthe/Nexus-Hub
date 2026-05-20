@@ -49,16 +49,16 @@ The stack is opinionated on purpose. Each substitution costs roughly 30 minutes 
 ## Instructions
 
 1. **Confirm fit first**. Read the "When NOT to use" list above. If the artifact is single-file or static, do not scaffold. Push back: "This is one HTML file; we don't need Vite for it."
-2. **Run the bundled init script**. The script lives at `~/.devai-hub/skills/developer-experience/web-artifacts-builder/scripts/init-artifact.{sh,ps1}` after the installer runs (or `catalog/skills/developer-experience/web-artifacts-builder/scripts/` in this repo). Pick the script for the host OS:
+2. **Run the bundled init script**. The script lives at `~/.nexus-hub/skills/developer-experience/web-artifacts-builder/scripts/init-artifact.{sh,ps1}` after the installer runs (or `catalog/skills/developer-experience/web-artifacts-builder/scripts/` in this repo). Pick the script for the host OS:
 
     ```bash
     # macOS / Linux
-    bash ~/.devai-hub/skills/developer-experience/web-artifacts-builder/scripts/init-artifact.sh <project-name>
+    bash ~/.nexus-hub/skills/developer-experience/web-artifacts-builder/scripts/init-artifact.sh <project-name>
     ```
 
     ```powershell
     # Windows
-    & "$HOME\.devai-hub\skills\developer-experience\web-artifacts-builder\scripts\init-artifact.ps1" -ProjectName <project-name>
+    & "$HOME\.nexus-hub\skills\developer-experience\web-artifacts-builder\scripts\init-artifact.ps1" -ProjectName <project-name>
     ```
 
     The script: (a) verifies Node + npm exist; (b) runs `npm create vite@latest <name> -- --template react-ts`; (c) installs and configures Tailwind v4 (`@tailwindcss/vite` plugin + `@theme` in `src/app.css`); (d) initializes `shadcn` with sensible defaults; (e) prints the next-step instructions (`cd <name> && npm run dev`).

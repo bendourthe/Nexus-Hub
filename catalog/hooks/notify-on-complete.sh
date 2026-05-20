@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Notify on Complete - Stop Hook for Claude Code
 # Sends a desktop notification when Claude Code finishes a task.
-# Part of DevAI-Hub
+# Part of Nexus-Hub
 #
 # How it works:
 #   Fires on the Stop event (after Claude finishes responding).

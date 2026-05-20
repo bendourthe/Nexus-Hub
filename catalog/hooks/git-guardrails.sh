@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Git Guardrails - PreToolUse Hook for Claude Code
 # Blocks dangerous git commands before execution.
-# Part of DevAI-Hub
+# Part of Nexus-Hub
 #
 # How it works:
 #   Claude Code pipes JSON to stdin before each Bash tool call.

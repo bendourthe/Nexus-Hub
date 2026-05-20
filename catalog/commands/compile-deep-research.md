@@ -8,7 +8,7 @@ Compile multiple research reports into a single unified document. You (the agent
 
 **BEFORE ANYTHING ELSE**: activate the `deep-research-compilation` skill. The skill contains the full playbook -- proven OOXML patterns, template inspection procedure, synthesis rules, reference deduplication, validation checks. This command is the orchestrator; the skill is the how-to.
 
-Also read `catalog/style-guides/compile-deep-research.md` in the project root (or `~/.devai-hub/style-guides/compile-deep-research.md` for global installs) for target metrics and the merged-markdown style rules. This style guide is reference content, not a slash command - it lives outside `catalog/commands/` so it does not surface in the slash menu.
+Also read `catalog/style-guides/compile-deep-research.md` in the project root (or `~/.nexus-hub/style-guides/compile-deep-research.md` for global installs) for target metrics and the merged-markdown style rules. This style guide is reference content, not a slash command - it lives outside `catalog/commands/` so it does not surface in the slash menu.
 
 ## Phase 1: Resolve Input Sources
 
@@ -41,7 +41,7 @@ Workflow:
 
 1. Scan template directories in priority order:
    - `<project_root>/.claude/templates/documentation/` (project-scoped)
-   - `~/.devai-hub/templates/documentation/` (global, installed by DevAI-Hub installer)
+   - `~/.nexus-hub/templates/documentation/` (global, installed by Nexus-Hub installer)
    - Accept a user-supplied absolute or relative path as an override.
 2. Present the discovered templates, with the default marker on `branded-report-template.docx`:
    > Available templates:

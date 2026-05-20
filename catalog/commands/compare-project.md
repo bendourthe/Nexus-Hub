@@ -69,7 +69,7 @@ For each project, collect findings across these **11 dimensions**:
 | 2 | **Technology Stack** | Languages, frameworks, build tools, test runners, linters, package managers (from manifest files) |
 | 3 | **AI Assistant Configuration** | Presence and structure of `.claude/`, `.github/copilot-instructions.md`, `.gemini/`, `.cursor/`, or equivalent. Count of skills, commands, context files, hooks |
 | 4 | **Project Structure** | Top-level directory layout, organizational pattern, depth, file count |
-| 5 | **Skills and Capabilities Inventory** | For DevAI-Hub-style projects: enumerate all skills by category. For non-Hub projects: infer equivalent capabilities from config files, scripts, CI workflows, instruction files |
+| 5 | **Skills and Capabilities Inventory** | For Nexus-Hub-style projects: enumerate all skills by category. For non-Hub projects: infer equivalent capabilities from config files, scripts, CI workflows, instruction files |
 | 6 | **Commands and Automation** | Slash commands, custom scripts, Makefiles, task runners, npm scripts |
 | 7 | **CI/CD and Hooks** | GitHub Actions, GitLab CI, Jenkinsfiles, pre-commit hooks, automated checks |
 | 8 | **Documentation** | README quality, API docs, architecture docs, ADRs, changelogs, guides |
@@ -175,7 +175,7 @@ Side-by-side overview of both projects: identity, purpose, maturity, scale, tech
 Table: Layer | Current Project | External Project | Notes
 
 **Section 4: AI Assistant Configuration Comparison**
-Detailed comparison of `.claude/` (or equivalent), skills, commands, hooks, context files, instruction templates. This is the highest-signal section for DevAI-Hub-style comparisons.
+Detailed comparison of `.claude/` (or equivalent), skills, commands, hooks, context files, instruction templates. This is the highest-signal section for Nexus-Hub-style comparisons.
 
 **Section 5: Skills and Capabilities Gap Analysis**
 - **5a. Present in External, Missing in Current** (adoption candidates, grouped by category)

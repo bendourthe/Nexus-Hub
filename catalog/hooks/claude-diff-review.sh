@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# claude-diff-review.sh - opt-in git pre-commit hook (DevAI-Hub).
+# claude-diff-review.sh - opt-in git pre-commit hook (Nexus-Hub).
 # Pipes the staged diff through `claude -p` for a quick LLM review of
 # hardcoded secrets, debug artifacts (console.log, print, debugger),
 # unfinished TODOs, and large commented-out code blocks.

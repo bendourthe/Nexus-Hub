@@ -89,7 +89,7 @@ Match the framework's idiomatic patterns:
 | Rationalization | Reality |
 |---|---|
 | "We need the external service for good components" | The agent is the same class of LLM that powers most external component generators. The external service adds a network hop, a new data processor for your design intent, and usually a recurring cost. Direct prompting gives you equal or better output with zero data leak. |
-| "The external service has pre-tuned prompts" | You can write a reusable prompt template in your own repo (a markdown file, a snippet, a /command in DevAI-Hub). The external service's advantage is a first-draft prompt; that prompt can be reverse-engineered once and reused forever. |
+| "The external service has pre-tuned prompts" | You can write a reusable prompt template in your own repo (a markdown file, a snippet, a /command in Nexus-Hub). The external service's advantage is a first-draft prompt; that prompt can be reverse-engineered once and reused forever. |
 | "The external service gives us a UI library" | The external service gives you a generator, not a maintained UI library. Real UI libraries (shadcn/ui, Radix, Headless UI) are separate artifacts with versioned source code; adopt those as open-source deps without going through a generation service. |
 
 ## Verification

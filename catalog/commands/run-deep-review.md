@@ -342,7 +342,7 @@ If `docs/` has fewer than 3 version directories AND no top-level docs subdirs (`
 The release readiness pass verifies that the working tree is in a tag-able state. This is the most release-blocker-prone subsection - findings here are typically P0 or P1.
 
 - **Version-bump consistency**: parse the most recent version from `CHANGELOG.md` (e.g. `## [1.0.0]` → `1.0.0`). Build the canonical version-holding file list:
-  - If `~/.claude/projects/<project-slug>/memory/project_release_v*.md` exists, read the most recent entry and use its file list (this is how DevAI-Hub itself defines the 14-canonical-file list).
+  - If `~/.claude/projects/<project-slug>/memory/project_release_v*.md` exists, read the most recent entry and use its file list (this is how Nexus-Hub itself defines the 14-canonical-file list).
   - Otherwise default to: `package.json`, `pyproject.toml`, `Cargo.toml`, `setup.py`, `pom.xml`, `go.mod`, `README.md` (for "What's New in vX.Y.Z" headings), `CHANGELOG.md`.
   - For each file in the list, grep for the current version string and any other recent version strings. Report mismatches: "File X says vA.B.C but CHANGELOG says vX.Y.Z" → P0.
 - **Tag hygiene**: `git tag --sort=-v:refname | head -n 5`. For the latest tag:
@@ -395,7 +395,7 @@ Auto-detect and execute repo-defined validators. Capture stdout, stderr, exit co
 
 ### 5.1 Detection
 
-- **Makefile**: parse with `make -pn 2>/dev/null | grep -E '^(validate|lint|test|check|ci):'` and run the matching targets in order: `validate`, `lint`, `test`, `check`, `ci`. **For DevAI-Hub specifically: run `make validate`, `make lint`, `make test` regardless of detection.**
+- **Makefile**: parse with `make -pn 2>/dev/null | grep -E '^(validate|lint|test|check|ci):'` and run the matching targets in order: `validate`, `lint`, `test`, `check`, `ci`. **For Nexus-Hub specifically: run `make validate`, `make lint`, `make test` regardless of detection.**
 - **`package.json` scripts**: parse `"scripts"` and run `validate`, `lint`, `test`, `check`, `ci` if defined.
 - **`tox.ini`**: run `tox` (all envs) if present.
 - **Pre-commit**: run `pre-commit run --all-files` if `.pre-commit-config.yaml` is present.
@@ -437,7 +437,7 @@ mv docs/<current-version>/analysis.md docs/<next-version>/review/05-analysis.md
 
 If `docs/<current-version>/analysis.md` already existed and was overwritten, note this in `INDEX.md` under "regenerated artifacts".
 
-If `--scope` was passed to `/run-deep-review`, propagate it into the prompt to `/analyze-codebase` (e.g. "Analyze only `extensions/devai-code-search/` per the supplied scope").
+If `--scope` was passed to `/run-deep-review`, propagate it into the prompt to `/analyze-codebase` (e.g. "Analyze only `extensions/nexus-code-search/` per the supplied scope").
 
 ---
 
@@ -558,7 +558,7 @@ The deduplicated working set, sorted by severity descending then by phase origin
 
 | # | Severity | Phase(s) | Location | Description | Recommended fix | Effort | Source |
 |---|---|---|---|---|---|---|---|
-| 1 | P0 | known-gaps + security-audit | extensions/devai-code-search/server.py:142 | Hardcoded fallback API key in error path | Move to env var with required-at-startup check | S | [00](00-known-gaps.md), [06](06-security-audit.md) |
+| 1 | P0 | known-gaps + security-audit | extensions/nexus-code-search/server.py:142 | Hardcoded fallback API key in error path | Move to env var with required-at-startup check | S | [00](00-known-gaps.md), [06](06-security-audit.md) |
 | 2 | P1 | dependency-scan | requirements.txt: cryptography==41.0.0 | CVE-2024-XXXX (CVSS 8.1, exploit available) | Bump to >=42.0.4 | S | [02](02-dependency-scan.md) |
 | ... |
 
@@ -589,7 +589,7 @@ For every finding from `00-known-gaps.md`, indicate whether subsequent phases co
 If verdict is GO-WITH-CONDITIONS or NO-GO, list the explicit conditions that must be met before release. Each condition cites the finding rows in section 3.
 
 1. **All P0 findings closed**: rows 1, 4, 7
-2. **Coverage >= 80% in `extensions/devai-code-search/`**: rows 12, 13
+2. **Coverage >= 80% in `extensions/nexus-code-search/`**: rows 12, 13
 3. ...
 ```
 

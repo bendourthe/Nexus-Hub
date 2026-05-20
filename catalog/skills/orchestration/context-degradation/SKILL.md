@@ -273,7 +273,7 @@ After applying mitigation, verify that context quality has been restored.
 
 **Version**: 1.0.0
 **Last Updated**: February 2026
-**Author**: DevAI-Hub
+**Author**: Nexus-Hub
 **Attribution**: Adapted from [Agent-Skills-for-Context-Engineering](https://github.com/muratcankoylan/Agent-Skills-for-Context-Engineering) (MIT License)
 
 

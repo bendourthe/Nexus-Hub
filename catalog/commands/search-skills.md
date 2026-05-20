@@ -3,11 +3,11 @@ description: Search the Hub catalog by keyword, category, or role to find releva
 ---
 # Search Skills Catalog
 
-Search the DevAI-Hub catalog to find skills, workflows, and bundles relevant to your current task.
+Search the Nexus-Hub catalog to find skills, workflows, and bundles relevant to your current task.
 
 ## Instructions
 
-You are helping the user discover relevant skills from the DevAI-Hub catalog.
+You are helping the user discover relevant skills from the Nexus-Hub catalog.
 
 ### Step 1: Get the Search Query
 
@@ -15,12 +15,12 @@ If the user provided a query (e.g., `/search-skills security audit`), use that. 
 
 ### Step 2: Locate the Catalog
 
-Read `skills.json` from the DevAI-Hub `data/` directory. Common locations:
+Read `skills.json` from the Nexus-Hub `data/` directory. Common locations:
 - Relative to this command file: `../../data/skills.json`
-- `~/DevAI-Hub/data/skills.json`
+- `~/Nexus-Hub/data/skills.json`
 - A path the user specifies
 
-If not found, ask the user for the path to the DevAI-Hub `data/skills.json`.
+If not found, ask the user for the path to the Nexus-Hub `data/skills.json`.
 
 ### Step 3: Search the Catalog
 

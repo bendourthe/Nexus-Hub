@@ -23,7 +23,7 @@ Behavior:
     that render the description field as a dialog subtitle always have
     a clean copy, regardless of how they render the command body.
 
-Part of DevAI-Hub.
+Part of Nexus-Hub.
 """
 
 from __future__ import annotations

@@ -1,16 +1,16 @@
 ---
-description: DevAI-Hub project rules — installer-aware changes, registries, platform-agnostic edits.
+description: Nexus-Hub project rules — installer-aware changes, registries, platform-agnostic edits.
 globs: ["**/*"]
 alwaysApply: true
 ---
 
-# DevAI-Hub Project Rules
+# Nexus-Hub Project Rules
 
 Canonical source: `AGENTS.md` at repo root. Cursor reads this `.mdc` file plus `AGENTS.md` automatically; the essentials are summarized here for quick reference.
 
 ## Golden rule: installer-aware changes
 
-DevAI-Hub is a **template repository**. Nothing is "live" until a user runs `scripts/installer.sh` (macOS/Linux) or `scripts/installer.ps1` (Windows). Every change must be shaped so that after the next installer run, it reaches every supported platform (Claude Code, Cursor, Codex, Gemini, OpenCode, Copilot) on Windows, macOS, and Linux, without any manual step.
+Nexus-Hub is a **template repository**. Nothing is "live" until a user runs `scripts/installer.sh` (macOS/Linux) or `scripts/installer.ps1` (Windows). Every change must be shaped so that after the next installer run, it reaches every supported platform (Claude Code, Cursor, Codex, Gemini, OpenCode, Copilot) on Windows, macOS, and Linux, without any manual step.
 
 ## Quick reference
 
@@ -36,9 +36,9 @@ DevAI-Hub is a **template repository**. Nothing is "live" until a user runs `scr
 
 ## MCP Registry Policy
 
-DevAI-Hub's MCP registry (`catalog/mcp-configs/mcp-servers.json`) is governed by a strict decision tree. When proposing a new entry, walk it in order and stop at the first bucket that fits:
+Nexus-Hub's MCP registry (`catalog/mcp-configs/mcp-servers.json`) is governed by a strict decision tree. When proposing a new entry, walk it in order and stop at the first bucket that fits:
 
-1. **Local-only** (internal DevAI-Hub servers or zero-outbound Anthropic-official servers) - always allowed.
+1. **Local-only** (internal Nexus-Hub servers or zero-outbound Anthropic-official servers) - always allowed.
 2. **LLM-native skill** (capability achievable by instructing the agent directly) - ship a skill, not an MCP.
 3. **Reverse-engineer into a local internal MCP** - if the external project's logic can run locally, build the internal equivalent under `extensions/`. Strip external-source attribution; use generic descriptive names.
 4. **Trusted vendor wrapper (your-own-account)** - acceptable only when the vendor is the intrinsic data destination, reverse-engineering isn't viable, AND the feature is extremely worth it. Justify all three in the `_comment`.
