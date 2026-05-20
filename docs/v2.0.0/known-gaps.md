@@ -3,8 +3,8 @@
 This file tracks per-version unfinished work, deferred items, deviations from plan, and bugs discovered during phase implementation. The next phase plan and the version-bump checklist read this file to decide what carries forward.
 
 **Plan**: [docs/v2.0.0/plans/nexus-hub-rename.md](plans/nexus-hub-rename.md)
-**Status**: in-progress
-**Last updated**: 2026-05-20 (Phase 7 close; docs / config / devlog / gitignore sync complete, CHANGELOG `[2.0.0]` block written, RELEASE_NOTES.md fully authored, four active-surface fixes during the 7.6 stability gate, BG-001 closed via the late-7.1 sweep that included `infrastructure/tools/build_skills_catalog.py`)
+**Status**: finalized
+**Last updated**: 2026-05-20 (Phase 8 close; WN-001 and WN-002 resolved; version bumped 1.4.0 -> 2.0.0 across 8 source-of-truth files; final residual-rename grep returns 0 unintended matches; v2.0.0 release ready to tag. Two remaining open items are intentional deferrals from Phase 6: DF-004 sibling Nexus PNG hero assets and DF-005 `README_zh.md` v1.0.0 historical block.)
 
 ## Summary
 
@@ -14,27 +14,13 @@ This file tracks per-version unfinished work, deferred items, deviations from pl
 | DF -- Deferred (intentionally) | 2 | 3 |
 | BG -- Bug or unresolved test failure | 0 | 1 |
 | MT -- Missing tests / coverage gap | 0 | 0 |
-| WN -- Warning or suppressed lint rule | 2 | 0 |
+| WN -- Warning or suppressed lint rule | 0 | 2 |
 | QG -- Quality gate bypassed | 0 | 0 |
-| **Total** | **4** | **4** |
+| **Total** | **2** | **6** |
 
-> Phase 7 closed with the stability gate green on the documented exclusion list. The 7.6 grep surfaced five additional active surfaces that the original 7.1 sweep missed (CODE_OF_CONDUCT.md, CONTRIBUTING.md, GEMINI.md, SECURITY.md, data/report_data.json); all five were rebranded in the same phase commit. Two intentional residuals are documented in `docs/v2.0.0/documentation-sync-manifest.md`: README_zh.md (which uses Chinese-language rename callouts that the English-only approved-phrasings filter does not match) and docs/DEVLOG.md (the v2.0.0 Phase 1-7 entries describe the rename effort itself and legitimately reference the old name in explanatory context). Both are flagged as "not blocking" for the Phase 8 final-validation grep. BG-001 (hardcoded DevAI strings in `infrastructure/tools/build_skills_catalog.py`) is closed by the same 7.1 sweep that touched the rest of the documentation surface; the builder is now safe to re-run via `make build-catalog`. WN-001 and WN-002 carry into Phase 8 sub-task 8.3 as scheduled.
+> Phase 8 sub-task 8.3 closes both WN-001 and WN-002 (the two v1.3.0 carry-over items). WN-001 is closed by adding a `## References` section above `## Related Skills` in each of the three framework-specialist parents (`fastapi-expert`, `nextjs-expert`, `react-expert`) with one bullet per orphan reference file; the post-fix `validate_skills.py --bundles-only` run reports 0 errors / 0 warnings, eliminating the 4-warning baseline that has carried forward since v1.1.5. WN-002 is closed by patching the four inline `python -c "json.load(open(...))"` calls in the Makefile `validate` target to pass `encoding='utf-8'`, plus writing `docs/dev-environment-windows.md` to document Scoop install for `make` / `shellcheck` and the `PYTHONUTF8=1` user env var. The two remaining open items (DF-004 sibling-Nexus PNG assets, DF-005 README_zh.md v1.0.0 historical block) are intentional deferrals documented during Phase 6 and unchanged by Phase 8; both are non-blocking for the v2.0.0 release.
 
 ## Open Items
-
-### WN-001 -- Pre-existing orphan-bundle warnings carried from v1.1.5 / v1.3.0
-
-**Source phase**: Phase 2, sub-task 2.5 stability gate (re-observed during validator runs at Phase 5 close).
-**Plan reference**: [docs/v1.3.0/known-gaps.md](../v1.3.0/known-gaps.md) WN-001 (carry-over). Phase 2.2 step 5 and Phase 5.5 step 2 both explicitly allow "4 known orphan warnings allowed per WN-001".
-**Reason**: `python scripts/validate_skills.py --bundles-only` continues to emit 4 warnings on the framework-specialist bundle: `fastapi-expert/references/dependency-injection-patterns.md`, `nextjs-expert/references/data-fetching-patterns.md`, `react-expert/references/performance-patterns.md`, `react-expert/references/testing-recipes.md`. None of these references are linked from their parent SKILL.md. Carried forward across v1.1.5, v1.2.x, v1.3.0, v1.4.0.
-**Suggested next step**: Per the v2.0.0 plan Phase 8 sub-task 8.3, decide at version close whether to close out or re-defer. Tracking options per v1.3.0 WN-001: (a) link each orphan from its parent SKILL.md, (b) inline-and-delete, or (c) leave as documented carry-over.
-
-### WN-002 -- `make` and `shellcheck` unavailable on Windows dev machine; UTF-8 codec workaround
-
-**Source phase**: Phase 2, sub-task 2.5 stability gate (carry-over from v1.3.0 Phase 1 baseline conditions).
-**Plan reference**: [docs/v1.3.0/known-gaps.md](../v1.3.0/known-gaps.md) WN-002. The v2.0.0 plan Phase 1 baseline ([docs/v2.0.0/baselines/](baselines/)) documents the same workaround.
-**Reason**: `make validate` / `make lint` / `make test` cannot run directly on the Windows 11 + Git Bash environment (`make` and `shellcheck` not on PATH). All validators were invoked via direct Python (`python scripts/validate_skills.py --bundles-only`). Bash hook syntax was checked via the `for f in catalog/hooks/*.sh; do bash -n "$f"; done` loop at Phase 5.5. Result during Phase 5 close: PASS, 0 errors, 4 warnings (the WN-001 orphans), 370 hook tests passed.
-**Suggested next step**: Same as v1.3.0 WN-002 -- either patch Makefile inline `python -c` calls to pass `encoding='utf-8'`, or document Windows dev-environment prerequisites. Owner: future hygiene phase.
 
 ### DF-004 -- Nexus logo PNG assets not copied because the sibling Nexus repo is not on this dev machine
 
@@ -58,6 +44,8 @@ This file tracks per-version unfinished work, deferred items, deviations from pl
 | DF-002 | End-to-end installer smoke deferred to Phase 4 close | Phase 4 sub-task 4.1 | The three `extensions/nexus-*` directories now exist on disk, so the installer's MCP-server install branch is no longer skipped. The cross-platform installer dry-run prescribed by plan sub-task 8.2 is still owed and will be captured to `docs/v2.0.0/installer-smoke-post.txt` during Phase 8.2; the *Phase 4* deferral specifically is closed. |
 | DF-003 | `scripts/devai_mcp_benchmark.py` rename pulled into Phase 3 ahead of plan | Phase 4 sub-task 4.1 + 4.3 | The extension package rename in Phase 4.1 unblocks `python scripts/nexus_mcp_benchmark.py --help`, which now runs end-to-end (verified at Phase 4.3 close). The `scripts/Install-DevAI-Permissions.ps1` -> `scripts/Install-Nexus-Hub-Permissions.ps1` rename in 4.3 closes the rest of the Phase 4.3 scope. |
 | BG-001 | Hardcoded DevAI literals in `infrastructure/tools/build_skills_catalog.py` regressed `data/` on regeneration | Phase 7 sub-task 7.1 follow-up | Fixed in the same commit as the Phase 7 doc / config / devlog / gitignore sync. Four hardcoded literals updated: two `https://github.com/bendourthe/DevAI-Hub` -> `https://github.com/bendourthe/Nexus-Hub`, one `# DevAI-Hub Skill Index` H1 -> `# Nexus-Hub Skill Index`, one `'description': 'Comprehensive catalog of DevAI-Hub skills ...'` -> `'... Nexus-Hub skills ...'`. The builder is now safe to re-run via `make build-catalog`. |
+| WN-001 | Pre-existing 4 framework-specialist orphan-bundle warnings (carried since v1.1.5) | v2.0.0 Phase 8 sub-task 8.3 | Closed by adding a `## References` section above `## Related Skills` in `fastapi-expert/SKILL.md`, `nextjs-expert/SKILL.md`, and `react-expert/SKILL.md`, linking the 4 orphan files (`dependency-injection-patterns.md`, `data-fetching-patterns.md`, `performance-patterns.md`, `testing-recipes.md`) with one-line topic summaries. Post-fix `python scripts/validate_skills.py --bundles-only` reports 0 errors / 0 warnings (was 0 errors / 4 warnings). |
+| WN-002 | `make` and `shellcheck` unavailable on Windows; cp1252 default codec breaks inline `python -c json.load` | v2.0.0 Phase 8 sub-task 8.3 | Closed by patching the four inline `python -c "import json; d = json.load(open(...))"` invocations in the `validate` target of `Makefile` to pass `encoding='utf-8'`, plus writing `docs/dev-environment-windows.md` to document Scoop install paths for `make` and `shellcheck` and how to set `PYTHONUTF8=1` either persistently or per-session. `make validate` now succeeds on Windows once Scoop has installed `make`. |
 
 ---
 

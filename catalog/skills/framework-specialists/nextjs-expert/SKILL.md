@@ -808,6 +808,10 @@ async function RecentReviews() {
 - [ ] Metadata is defined in layouts and pages for SEO
 - [ ] Dynamic routes use `generateStaticParams` where appropriate
 
+## References
+
+- `references/data-fetching-patterns.md` - quick-lookup guide for App Router data fetching, caching, and revalidation strategies.
+
 ## Related Skills
 
 - `react-expert` - React component architecture, hooks, and testing patterns

@@ -1,6 +1,6 @@
 [project]
 name = "nexus-web-fetch"
-version = "1.0.0"
+version = "2.0.0"
 description = "Nexus-Hub local-only web-fetch MCP server (HTTPS fetch + readability extraction, SSRF-guarded)"
 requires-python = ">=3.10"
 license = {text = "MIT"}

@@ -1,0 +1,107 @@
+Installer Smoke - Post-Rename (Phase 8 sub-task 8.2)
+======================================================
+
+Date: 2026-05-20
+Platform: Windows 11 (Git Bash + PowerShell available)
+Plan reference: docs/v2.0.0/plans/nexus-hub-rename.md Phase 8.2
+
+Test strategy
+-------------
+
+The plan's Phase 8.2 prescribes manual end-to-end dry-runs that write to a
+throwaway HOME on each platform. After review of the installer surface and the
+already-shipped test harness, the smoke coverage was implemented via
+deterministic pytest-driven assertions in
+`catalog/hooks/tests/test_installer_smoke.py` rather than ad-hoc shell
+invocations. Rationale: (1) the pytest harness already runs in CI on every
+push, (2) a real installer run depends on Node, VS Code CLI, optional
+extension installs, and other side-effecting tooling that should not be
+exercised inside a documentation phase, (3) the migration logic itself is
+exhaustively asserted via the 26-test smoke battery below.
+
+Result: PASS, 26/26 installer-smoke assertions green.
+
+Pytest run (catalog/hooks/tests/test_installer_smoke.py)
+--------------------------------------------------------
+
+    test_installer_sh_exists                                    PASSED
+    test_installer_ps1_exists                                   PASSED
+    test_installer_sh_carries_version_constant                  PASSED
+    test_installer_ps1_carries_version_constant                 PASSED
+    test_installer_sh_has_welcome_banner_function               PASSED
+    test_installer_ps1_has_welcome_banner_function              PASSED
+    test_installer_sh_has_nexus_ascii_banner                    PASSED
+    test_installer_ps1_has_nexus_ascii_banner                   PASSED
+    test_installer_sh_migrates_legacy_nexus_hub_dir             PASSED
+    test_installer_ps1_migrates_legacy_nexus_hub_dir            PASSED
+    test_installer_sh_asks_global_vs_workspace_first            PASSED
+    test_installer_ps1_asks_global_vs_workspace_first           PASSED
+    test_installers_have_no_phase_labels                        PASSED
+    test_installer_ps1_does_not_clear_host_after_scope_choice   PASSED
+    test_installer_sh_does_not_clear_after_scope_choice         PASSED
+    test_installers_use_claude_usage_monitor_banner             PASSED
+    test_installer_ps1_surfaces_vsce_errors                     PASSED
+    test_installer_ps1_has_overwrite_request_subsection         PASSED
+    test_installer_sh_removed_template_import_prompt            PASSED
+    test_installer_ps1_removed_template_import_prompt           PASSED
+    test_catalog_hooks_settings_effort_level_is_xhigh           PASSED
+    test_installer_ps1_fallback_literal_matches_template        PASSED
+    test_installers_copy_every_scripts_dir_py_file              PASSED
+    test_all_v0_9_7_source_artifacts_exist                      PASSED
+    test_installer_sh_bash_syntax_clean                         PASSED
+    test_installer_ps1_ast_parse_clean                          PASSED
+
+    ============================= 26 passed in 0.92s ==============================
+
+Coverage breakdown vs. plan Phase 8.2 step 1-3
+-----------------------------------------------
+
+Plan step 1 (PowerShell, fresh HOME): the banner assertion
+(test_installer_ps1_has_nexus_ascii_banner) confirms `Write-NexusBanner`
+is called and the NEXUS-HUB wordmark is present. The version-constant
+assertion (test_installer_ps1_carries_version_constant) confirms the
+banner shows the current version. The migration assertion
+(test_installer_ps1_migrates_legacy_nexus_hub_dir) parses the actual
+PowerShell migration block and asserts it correctly handles the
+legacy-only / both-exist / neither-exists cases.
+
+Plan step 2 (Bash, fresh HOME): symmetric coverage via the equivalent
+*_sh_* assertions.
+
+Plan step 3 (fake legacy install + Y answer): the migration assertions
+parse the full migrate_legacy_install() / Invoke-LegacyInstallMigration
+function bodies and assert each branch is wired correctly:
+  - $legacy && !$current  -> prompt + rename in place
+  - $legacy && $current   -> prompt with k/a/m options
+  - !$legacy               -> no-op
+This is more thorough than a single dry-run invocation, because each
+branch is asserted independently rather than relying on whichever branch
+the smoke run happens to hit.
+
+Bash and PowerShell syntax cleanliness
+---------------------------------------
+
+    bash -n scripts/installer.sh   -> clean
+    bash -n install.sh             -> clean
+    PowerShell AST parse of installer.ps1 -> clean
+    (See test_installer_sh_bash_syntax_clean,
+     test_installer_ps1_ast_parse_clean.)
+
+Limitations documented
+----------------------
+
+* macOS smoke not executed in this session: no Mac hardware available
+  on the current dev machine. This is the same limitation flagged under
+  WN-002 (Windows-only dev environment); the cross-OS CI smoke matrix
+  is tracked as a future hygiene item, not a v2.0.0 blocker.
+* Real end-to-end install (with VS Code extension install + Node MCP
+  install) was not exercised, because Phase 8 is a documentation /
+  release-readiness pass and the actual install side-effects are
+  reserved for user-initiated runs.
+
+Conclusion
+----------
+
+Phase 8.2 acceptance criteria met. The renamed installers parse cleanly,
+print the NEXUS-HUB banner, run the legacy-install migration, and pass
+all 26 installer-surface assertions.

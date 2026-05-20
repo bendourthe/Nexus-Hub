@@ -865,6 +865,11 @@ function useFormValidation<T extends Record<string, string>>(
 - [ ] Bundle size is audited; heavy dependencies are lazy loaded
 - [ ] No prop drilling beyond two levels (use context or composition)
 
+## References
+
+- `references/performance-patterns.md` - quick-lookup guide for React rendering optimization patterns, including memoization decision matrices.
+- `references/testing-recipes.md` - quick-lookup guide for common React testing patterns with React Testing Library, Vitest, and MSW.
+
 ## Related Skills
 
 - `nextjs-expert` - React framework with SSR, routing, and server components

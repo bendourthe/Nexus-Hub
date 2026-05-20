@@ -1,6 +1,6 @@
 [project]
 name = "nexus-code-search"
-version = "1.0.0"
+version = "2.0.0"
 description = "Nexus-Hub local-only code-search MCP server (keyword-only in v1.0.0; dense/hybrid planned for v1.1.0)"
 requires-python = ">=3.10"
 license = {text = "MIT"}

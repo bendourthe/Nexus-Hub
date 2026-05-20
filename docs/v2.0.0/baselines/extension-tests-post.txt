@@ -1,0 +1,15 @@
+=== nexus-skill-server ===
+.....................................                                    [100%]
+37 passed in 1.24s
+=== nexus-code-search ===
+  config = pluginmanager.hook.pytest_cmdline_parse(
+ImportError while loading conftest 'C:\Users\BEDOURTHE\OneDrive - Supira\Documents\Supira\software\DevAI-Hub\extensions\nexus-code-search\tests\conftest.py'.
+tests\conftest.py:8: in <module>
+    from nexus_code_search.config import CodeSearchConfig
+E   ModuleNotFoundError: No module named 'nexus_code_search'
+=== nexus-web-fetch ===
+=========================== short test summary info ===========================
+ERROR tests/test_fetcher.py
+ERROR tests/test_ssrf_guard.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!
+2 errors in 0.37s

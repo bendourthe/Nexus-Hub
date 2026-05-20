@@ -3,7 +3,7 @@
   "displayName": "Nexus Hub",
   "tagline": "Production-Grade Brain Upgrades for Your AI Coding Assistant",
   "description": "Enterprise-grade skill harness for AI coding assistants -- the upstream catalog for the Nexus desktop app and every major agent (Claude Code, OpenAI Codex, Gemini, GitHub Copilot, Cursor, GitHub CLI). 203+ curated skills, 33 commands, 14 hooks, cross-platform.",
-  "version": "1.4.0",
+  "version": "2.0.0",
   "author": "Benjamin Dourthe",
   "license": "MIT",
   "repository": "https://github.com/bendourthe/Nexus-Hub",

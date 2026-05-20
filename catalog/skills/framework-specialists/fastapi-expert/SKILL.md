@@ -947,6 +947,10 @@ class PaginatedResponse(BaseModel, Generic[T]):
 - [ ] OpenAPI schema is reviewed and reflects actual API contract
 - [ ] Rate limiting is applied to authentication endpoints
 
+## References
+
+- `references/dependency-injection-patterns.md` - quick-lookup guide for FastAPI dependency injection patterns covering database sessions, authentication, pagination, and testing.
+
 ## Related Skills
 
 - `python-cleanup` - Python code quality and cleanup patterns

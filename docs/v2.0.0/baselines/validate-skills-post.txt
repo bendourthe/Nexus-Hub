@@ -1,0 +1,9 @@
+Scanned 207 skills under catalog\skills (bundle audit)
+
+--- 4 WARNING(S) ---
+  WARN: catalog\skills\framework-specialists\fastapi-expert\SKILL.md: bundled file 'references/dependency-injection-patterns.md' is not referenced from SKILL.md or any references/*.md (either reference this file from SKILL.md or remove it)
+  WARN: catalog\skills\framework-specialists\nextjs-expert\SKILL.md: bundled file 'references/data-fetching-patterns.md' is not referenced from SKILL.md or any references/*.md (either reference this file from SKILL.md or remove it)
+  WARN: catalog\skills\framework-specialists\react-expert\SKILL.md: bundled file 'references/performance-patterns.md' is not referenced from SKILL.md or any references/*.md (either reference this file from SKILL.md or remove it)
+  WARN: catalog\skills\framework-specialists\react-expert\SKILL.md: bundled file 'references/testing-recipes.md' is not referenced from SKILL.md or any references/*.md (either reference this file from SKILL.md or remove it)
+
+RESULT: PASS (0 errors, 4 warnings)
