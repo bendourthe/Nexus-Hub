@@ -1,14 +1,14 @@
 <p align="center">
-  <strong>Nexus-Hub</strong>
+  <a href="https://github.com/bendourthe/Nexus-Hub">
+    <img src="assets/nexus_hub_banner.png" alt="Nexus-Hub" width="640" />
+  </a>
 </p>
 
 <p align="center">
-  <em>The skill harness for every AI coding assistant.</em>
+  <em>The Skill Harness for Every AI Coding Assistant.</em>
 </p>
 
 # Nexus-Hub
-
-**The Skill Harness for Every AI Coding Assistant.**
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 203 skills, 36 commands, 14 hooks, 10 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -17,6 +17,16 @@ Nexus-Hub is the upstream skill catalog for AI coding assistants: 203 skills, 36
 ---
 
 ## How Nexus-Hub fits with Nexus
+
+<p align="center">
+  <a href="https://github.com/bendourthe/Nexus-Hub">
+    <img src="assets/nexus_hub_primary.png" alt="Nexus-Hub" width="120" />
+  </a>
+  &nbsp;&nbsp;&nbsp;&nbsp;
+  <a href="https://github.com/bendourthe/Nexus-AI">
+    <img src="assets/nexus_primary.png" alt="Nexus" width="120" />
+  </a>
+</p>
 
 Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of the same idea, split along a deliberate seam.
 
