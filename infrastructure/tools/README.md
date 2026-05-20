@@ -1,6 +1,6 @@
-# DevAI-Hub Tools
+# Nexus-Hub Tools
 
-Utilities for managing, installing, and working with Claude Code skills from the DevAI-Hub repository.
+Utilities for managing, installing, and working with Claude Code skills from the Nexus-Hub repository.
 
 ## Available Tools
 
@@ -130,7 +130,7 @@ python scripts/validate_skills.py
 
 ## Installation Workflow
 
-> **Recommended**: Use the DevAI-Hub installer for first-time setup. It installs all skills, commands, hooks, agents, and permissions globally and per-project in one step:
+> **Recommended**: Use the Nexus-Hub installer for first-time setup. It installs all skills, commands, hooks, agents, and permissions globally and per-project in one step:
 > - **Windows**: double-click `install.bat` at the repository root
 > - **macOS / Linux**: run `./install.sh` at the repository root
 >
@@ -331,6 +331,6 @@ Planned tool additions:
 
 ---
 
-*Tools - Part of DevAI-Hub v1.1.5*
+*Tools - Part of Nexus-Hub (v1.1.5 origin; rebranded at v2.0.0).*
 
 *Last Updated: May 2026*

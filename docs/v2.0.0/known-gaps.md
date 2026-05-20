@@ -4,21 +4,21 @@ This file tracks per-version unfinished work, deferred items, deviations from pl
 
 **Plan**: [docs/v2.0.0/plans/nexus-hub-rename.md](plans/nexus-hub-rename.md)
 **Status**: open
-**Last updated**: 2026-05-20 (Phase 5 close; catalog bulk rename complete, using-devai-hub skill renamed, .cursor/rules/devai-hub.mdc renamed, build-catalog source-of-truth defect discovered)
+**Last updated**: 2026-05-20 (Phase 6 close; README modernized around Nexus-Hub brand, nested READMEs synced, RELEASE_NOTES.md stub created, hero PNG asset deferred because the sibling Nexus repo is not on this machine)
 
 ## Summary
 
 | Category | Open | Resolved this version |
 |---|---|---|
 | NI -- Not implemented (skipped subtask) | 0 | 0 |
-| DF -- Deferred (intentionally) | 1 | 3 |
+| DF -- Deferred (intentionally) | 2 | 3 |
 | BG -- Bug or unresolved test failure | 1 | 0 |
 | MT -- Missing tests / coverage gap | 0 | 0 |
 | WN -- Warning or suppressed lint rule | 2 | 0 |
 | QG -- Quality gate bypassed | 0 | 0 |
-| **Total** | **4** | **3** |
+| **Total** | **5** | **3** |
 
-> Phase 5 closed with all stability gates green: `grep -rn "DevAI-Hub\|DevAI Hub\|devai-hub\|devai_hub\|DEVAI_HUB\|DEVAI-HUB" catalog/ templates/ .cursor/` returns NOTHING; `python scripts/validate_skills.py --bundles-only` returns PASS (0 errors, 4 WN-001 carry-over warnings); `python -m pytest catalog/hooks/tests -q` returns 370 passed, 3 skipped (above the 366 baseline because Phase 3.3 added installer-migration smoke tests and Phase 4 added MCP-rename guards). The single new gap opened this phase is BG-001 (build-catalog regression). DF-001 from Phase 2 is resolved by the Phase 5.1 catalog sweep but its follow-up rerun is parked behind BG-001 -- see DF-001 in the Resolved table and BG-001 below. WN-001 and WN-002 remain as documented v1.3.0 carry-overs scheduled for closeout in Phase 8 sub-task 8.3.
+> Phase 6 closed with all stability gates green except the hero-image gate: residual `grep "DevAI-Hub\|devai-hub" README.md` returns only the 7 matches inside the explicit "Renamed from DevAI-Hub" / "What's New v2.0.0 breaking changes" / migration / roadmap callouts the plan permits; `README_zh.md` residual matches are confined to the explicit "v1.0.0 历史发布说明（当时项目名为 DevAI-Hub）" historical block prefixed by an explicit rename notice. The three nested `extensions/nexus-*/README.md` files now carry the cross-link line per plan sub-task 6.3, and the four other nested READMEs (`extensions/claude-usage-monitor/`, `infrastructure/hooks/`, `infrastructure/integrations/`, `infrastructure/tools/`) have been swept clean. Two new gaps opened this phase: DF-004 (sibling-repo Nexus logo PNG assets not on this dev machine, so the README ships a text-based hero block) and DF-005 (v1.0.0 historical block in `README_zh.md` preserves the old name intentionally per the rename-decisions policy). Phase 6 sub-task 6.1's `LICENSE-ASSETS.md` step is folded into DF-004 because the asset transfer it documents has not occurred yet.
 
 ## Open Items
 
@@ -42,6 +42,20 @@ This file tracks per-version unfinished work, deferred items, deviations from pl
 **Plan reference**: [docs/v1.3.0/known-gaps.md](../v1.3.0/known-gaps.md) WN-002. The v2.0.0 plan Phase 1 baseline ([docs/v2.0.0/baselines/](baselines/)) documents the same workaround.
 **Reason**: `make validate` / `make lint` / `make test` cannot run directly on the Windows 11 + Git Bash environment (`make` and `shellcheck` not on PATH). All validators were invoked via direct Python (`python scripts/validate_skills.py --bundles-only`). Bash hook syntax was checked via the `for f in catalog/hooks/*.sh; do bash -n "$f"; done` loop at Phase 5.5. Result during Phase 5 close: PASS, 0 errors, 4 warnings (the WN-001 orphans), 370 hook tests passed.
 **Suggested next step**: Same as v1.3.0 WN-002 -- either patch Makefile inline `python -c` calls to pass `encoding='utf-8'`, or document Windows dev-environment prerequisites. Owner: future hygiene phase.
+
+### DF-004 -- Nexus logo PNG assets not copied because the sibling Nexus repo is not on this dev machine
+
+**Source phase**: Phase 6, sub-task 6.1 (asset transfer step).
+**Plan reference**: [docs/v2.0.0/plans/nexus-hub-rename.md](plans/nexus-hub-rename.md) sub-task 6.1 -- the plan instructs copying `C:\Users\bdour\Documents\Projects\Development\Nexus-AI\assets\nexus_primary.png` and `nexus_monochrome.png` into `assets/`. The current dev machine is the `BEDOURTHE` Windows account; the path on `bdour` is on a different account and is not reachable from this session. A targeted search across `C:\Users\BEDOURTHE` for any `nexus*.png` returned zero matches.
+**Reason**: Without the PNGs, Phase 6.1 cannot transfer the brand assets, and Phase 6.2 cannot render an `<img src="assets/nexus_primary.png">` hero block. The README now ships a plain-text hero (centered title + tagline) until the assets land. `assets/` directory is intentionally NOT created in this commit so that the future asset transfer happens cleanly. `LICENSE-ASSETS.md` is likewise not authored yet because there are no assets to attribute.
+**Suggested next step**: Before the Phase 8 final-validation sweep, retrieve `nexus_primary.png` and `nexus_monochrome.png` from the sibling Nexus repo (whichever machine has it -- `C:\Users\bdour\...` per the planning context), copy both into `assets/`, write `LICENSE-ASSETS.md` per Phase 6.1, and patch the README hero block to use the PNG. Re-run Phase 6.4 stability gate after the swap. If the sibling repo remains unreachable, drop the asset requirement explicitly in CHANGELOG `[2.0.0]` and keep the text hero as the v2.0.0 shipped state.
+
+### DF-005 -- `README_zh.md` v1.0.0 historical block preserves the old "DevAI-Hub" name intentionally
+
+**Source phase**: Phase 6, sub-task 6.3 (nested-READMEs sync).
+**Plan reference**: [docs/v2.0.0/plans/nexus-hub-rename.md](plans/nexus-hub-rename.md) sub-task 6.3 and Phase 6.4 stability gate step 1 ("matches are allowed only inside an explicit 'renamed from' / migration callout block"). [docs/v2.0.0/rename-decisions.md](rename-decisions.md) version-semantics rule -- historical CHANGELOG-style content is preserved as-is to reflect the release as it happened.
+**Reason**: `README_zh.md` is a Chinese-language snapshot of the v1.0.0 README (no v1.1+ content was ever translated). Its "v1.0.0 更新内容" block is a historical release-notes snapshot describing the v1.0.0 release when the project was still named DevAI-Hub. The Phase 6 sync renamed the H1 (DevAI Hub -> Nexus-Hub), the immediate tagline, the three live-prose sentences ("DevAI-Hub 提供两个", "**DevAI Hub** 是一套", "安装 DevAI-Hub 工具包"), and added an explicit `> v2.0.0 起原 DevAI-Hub 已重命名为 Nexus-Hub` notice at the top. The 5 remaining `DevAI-Hub` references inside the v1.0.0 historical block are intentional under the same policy that keeps `CHANGELOG.md` historical blocks unchanged.
+**Suggested next step**: No action for v2.0.0. If a future release retranslates `README_zh.md` from scratch to align with the new English README, the historical block migrates to a separate `docs/v1.0.0/RELEASE_NOTES_zh.md` (the same shape v0.x history follows). Until then, the explicit rename notice at the top satisfies the Phase 6.4 callout rule.
 
 ## Resolved
 

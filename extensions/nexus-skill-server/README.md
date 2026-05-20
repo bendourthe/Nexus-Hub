@@ -1,5 +1,7 @@
 # Nexus Skill Server (MCP)
 
+> Part of [Nexus-Hub](../../README.md), the skill harness for AI coding assistants. See the parent README for installation and platform coverage.
+
 An MCP (Model Context Protocol) server that enables AI coding assistants to discover and retrieve Nexus-Hub skills through semantic search and tiered content loading.
 
 ## Features

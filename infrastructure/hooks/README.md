@@ -555,7 +555,7 @@ echo $HASH > ".cache/$HASH"
 
 The git guardrails hook prevents AI agents from executing destructive git commands. It uses Claude Code's `PreToolUse` event to intercept Bash commands before execution and block dangerous patterns.
 
-**Installed by**: The DevAI-Hub installer (both global and workspace).
+**Installed by**: The Nexus-Hub installer (both global and workspace).
 
 **Location**: `.claude/hooks/git-guardrails.sh`
 
@@ -658,7 +658,7 @@ This complements two other usage monitoring features:
 - **VS Code Extension** (`extensions/claude-usage-monitor/`): Dashboard and status bar for VS Code users.
 - **`/check-usage` Command** (`catalog/commands/check-usage.md`): On-demand detailed report with model-switching recommendations.
 
-**Installed by**: The DevAI-Hub installer (both global and workspace).
+**Installed by**: The Nexus-Hub installer (both global and workspace).
 
 **Location**: `.claude/hooks/usage-display.sh`
 
@@ -729,6 +729,6 @@ Remove the `Stop` hook entry from `.claude/settings.json`. The hook script can r
 
 ---
 
-*Hooks System - Part of DevAI-Hub v1.1.5*
+*Hooks System - Part of Nexus-Hub (v1.1.5 origin; rebranded at v2.0.0).*
 
 *Last Updated: May 2026*

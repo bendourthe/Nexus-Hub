@@ -153,7 +153,7 @@ Target design if the read/live-update blockers are resolved in a future Claude C
   | 76-95%  | `medium`     |
   | 96-100% | `low`        |
 
-  Note: the top-of-band `xhigh` matches the installed DevAI-Hub default. The intent is cost-aware de-escalation - keep the default when usage headroom is plentiful, then step down as the budget tightens. The feature is opt-in so operators who keep `xhigh` across the board are never surprised by automatic de-escalation.
+  Note: the top-of-band `xhigh` matches the installed Nexus-Hub default. The intent is cost-aware de-escalation - keep the default when usage headroom is plentiful, then step down as the budget tightens. The feature is opt-in so operators who keep `xhigh` across the board are never surprised by automatic de-escalation.
 
 - **Manual override** via a settings-panel control and a Command Palette entry.
 - **Opt-in only** - auto-switching is off by default; operators enable it explicitly.

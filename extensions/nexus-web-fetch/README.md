@@ -1,5 +1,7 @@
 # nexus-web-fetch
 
+> Part of [Nexus-Hub](../../README.md), the skill harness for AI coding assistants. See the parent README for installation and platform coverage.
+
 Nexus-Hub local-only web-fetch MCP server. Fetches a single URL over HTTPS, extracts readable text from the HTML response, and returns it to the agent. No third-party intermediary - data destination is the URL itself.
 
 **Policy compliance**: governed by the [MCP Registry Policy](../../AGENTS.md) in the repo root. Classified `re-full` in the [Reverse-Engineering Matrix](../../docs/v1.0.0/mcp-reverse-engineering-matrix.md) as the internal replacement for external web-scraping services that route fetches through their own infrastructure.

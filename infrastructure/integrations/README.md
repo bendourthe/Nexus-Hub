@@ -1,6 +1,6 @@
 # External Integrations and MCPs
 
-Model Context Protocol (MCP) integrations for DevAI-Hub skills and workflows.
+Model Context Protocol (MCP) integrations for Nexus-Hub skills and workflows.
 
 ---
 
@@ -14,7 +14,7 @@ Integrations documented here are **governed by the MCP Registry Policy** in [AGE
 4. Trusted vendor wrapper where the vendor is the intrinsic data destination AND the capability cannot be reverse-engineered AND the feature is extremely worth it
 5. Otherwise: drop
 
-Third-party search-as-service, embeddings-as-service, scraping-as-service, and generation-as-service MCPs are **hard-no** under the policy. Previously-common servers like context7, exa, firecrawl, magic-ui, claude-context, tavily, and hosted LLM proxies (OpenAI / Anthropic / etc. via MCP) are NOT shipped in `catalog/mcp-configs/mcp-servers.json` and NOT documented below. See [MCP_DEVELOPMENT_SERVERS.md](../../guides/MCP_DEVELOPMENT_SERVERS.md) "Reverse-engineered replacements" for the DevAI-Hub equivalents.
+Third-party search-as-service, embeddings-as-service, scraping-as-service, and generation-as-service MCPs are **hard-no** under the policy. Previously-common servers like context7, exa, firecrawl, magic-ui, claude-context, tavily, and hosted LLM proxies (OpenAI / Anthropic / etc. via MCP) are NOT shipped in `catalog/mcp-configs/mcp-servers.json` and NOT documented below. See [MCP_DEVELOPMENT_SERVERS.md](../../guides/MCP_DEVELOPMENT_SERVERS.md) "Reverse-engineered replacements" for the Nexus-Hub equivalents.
 
 ---
 
@@ -26,7 +26,7 @@ Model Context Protocol (MCP) is Anthropic's standard for connecting Claude to ex
 
 ## MCP Configuration
 
-MCPs are configured in `.mcp.json` at your project root or `~/.claude/.mcp.json` for user-scope. The canonical registry DevAI-Hub ships is `catalog/mcp-configs/mcp-servers.json`; copy the entries you need. See [MCP_DEVELOPMENT_SERVERS.md](../../guides/MCP_DEVELOPMENT_SERVERS.md) for recommendation ordering by workflow stage.
+MCPs are configured in `.mcp.json` at your project root or `~/.claude/.mcp.json` for user-scope. The canonical registry Nexus-Hub ships is `catalog/mcp-configs/mcp-servers.json`; copy the entries you need. See [MCP_DEVELOPMENT_SERVERS.md](../../guides/MCP_DEVELOPMENT_SERVERS.md) for recommendation ordering by workflow stage.
 
 ```json
 {
@@ -42,17 +42,17 @@ MCPs are configured in `.mcp.json` at your project root or `~/.claude/.mcp.json`
 
 ---
 
-## DevAI-Hub Internal MCPs
+## Nexus-Hub Internal MCPs
 
 Three servers shipped in this repo. All pure-local, zero outbound calls, zero API keys.
 
 | Server | Purpose | Install | Tool surface |
 |---|---|---|---|
-| `devai-skill-server` | Skill catalog retrieval | `pip install -e extensions/devai-skill-server` | `search_skills`, `get_skill`, `list_categories`, `list_bundles`, `get_bundle` |
-| `devai-code-search` | Local keyword code search with incremental indexing (v1.0.0 keyword-only; dense/hybrid planned for v1.1.0) | `pip install -e extensions/devai-code-search` | `index_codebase`, `search_code`, `clear_index`, `get_indexing_status` |
-| `devai-web-fetch` | Single-URL HTTPS fetch + readability extraction (SSRF-guarded) | `pip install -e extensions/devai-web-fetch` | `fetch_url(url, render_js=False, extract_mode="readability")` |
+| `nexus-skill-server` | Skill catalog retrieval | `pip install -e extensions/nexus-skill-server` | `search_skills`, `get_skill`, `list_categories`, `list_bundles`, `get_bundle` |
+| `nexus-code-search` | Local keyword code search with incremental indexing (v1.0.0 keyword-only; dense/hybrid planned for v1.1.0) | `pip install -e extensions/nexus-code-search` | `index_codebase`, `search_code`, `clear_index`, `get_indexing_status` |
+| `nexus-web-fetch` | Single-URL HTTPS fetch + readability extraction (SSRF-guarded) | `pip install -e extensions/nexus-web-fetch` | `fetch_url(url, render_js=False, extract_mode="readability")` |
 
-All three are installed by the DevAI-Hub installer under `~/.devai-hub/`. Their registry entries in `catalog/mcp-configs/mcp-servers.json` carry the full 5-question audit.
+All three are installed by the Nexus-Hub installer under `~/.nexus-hub/`. Their registry entries in `catalog/mcp-configs/mcp-servers.json` carry the full 5-question audit.
 
 ---
 
@@ -186,10 +186,10 @@ Use `npx -y <package>` in the args (as in every snippet above) so the package au
 
 ## Custom MCPs
 
-To build a new MCP server for DevAI-Hub:
+To build a new MCP server for Nexus-Hub:
 
 1. Walk the MCP Registry Policy decision tree in [AGENTS.md](../../AGENTS.md). Prefer local-only or skill-native before reaching for external wrappers.
-2. If building a new local-only MCP, mirror the layout of `extensions/devai-skill-server/` or `extensions/devai-code-search/`.
+2. If building a new local-only MCP, mirror the layout of `extensions/nexus-skill-server/` or `extensions/nexus-code-search/`.
 3. Add a row to `docs/v1.0.0/mcp-reverse-engineering-matrix.md` before opening the PR.
 4. Update `catalog/mcp-configs/mcp-servers.json` with a `_comment` that answers the 5-question audit.
 5. Register the package in both installer scripts per the `AGENTS.md` Installer-Aware Changes section.
@@ -200,4 +200,4 @@ External references:
 
 ---
 
-*Part of DevAI-Hub v1.0.0. Governed by the MCP Registry Policy in `AGENTS.md`.*
+*Part of Nexus-Hub (v1.0.0 origin; rebranded at v2.0.0). Governed by the MCP Registry Policy in `AGENTS.md`.*
