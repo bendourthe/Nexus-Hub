@@ -176,7 +176,7 @@ Add the following section to your `GEMINI.md`, `AGENTS.md`, or `.github/copilot-
 - When a command produces more than ~20 lines of output, summarize what happened rather than quoting the full log
 ```
 
-The DevAI-Hub installer automatically includes this section in all generated `GEMINI.md`, `AGENTS.md`, and Copilot instruction files when you run the installer.
+The Nexus-Hub installer automatically includes this section in all generated `GEMINI.md`, `AGENTS.md`, and Copilot instruction files when you run the installer.
 
 ---
 

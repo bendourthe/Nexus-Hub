@@ -1,6 +1,6 @@
-# Contributing to DevAI-Hub
+# Contributing to Nexus-Hub
 
-Thank you for your interest in contributing to DevAI-Hub. This guide explains how to add new skills, commands, hooks, and templates to the project.
+Thank you for your interest in contributing to Nexus-Hub. This guide explains how to add new skills, commands, hooks, and templates to the project.
 
 ## Getting Started
 

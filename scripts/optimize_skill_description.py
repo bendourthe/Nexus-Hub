@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Iteratively optimize a DevAI-Hub skill's `description` frontmatter field.
+"""Iteratively optimize a Nexus-Hub skill's `description` frontmatter field.
 
 The optimizer evaluates the current description on a 60/40 train-test split
 of an eval set, asks the chosen CLI to PROPOSE 3 candidate rewrites based on
@@ -228,7 +228,7 @@ def _detect_trigger(stdout: str, description: str) -> bool:
 
 
 _CANDIDATE_PROMPT_TEMPLATE = """\
-You are rewriting the `description` field of a DevAI-Hub skill so it triggers
+You are rewriting the `description` field of a Nexus-Hub skill so it triggers
 more reliably on the skill's intended use cases without over-triggering on
 look-alike intents.
 

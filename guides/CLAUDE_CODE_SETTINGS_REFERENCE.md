@@ -125,13 +125,13 @@ Permissions control which tools Claude Code can use and what operations it can p
 
 | Level | Behavior | Use Case |
 |-------|----------|----------|
-| `xhigh` | Extended reasoning with adaptive thinking (DevAI-Hub shipped default) | Most interactive coding work, balanced intelligence and cost |
+| `xhigh` | Extended reasoning with adaptive thinking (Nexus-Hub shipped default) | Most interactive coding work, balanced intelligence and cost |
 | `high` | Strong reasoning at lower aggregate cost than `xhigh` | Multi-agent fan-out, cost-sensitive concurrent runs, long-running loops |
 | `max` | Deepest reasoning at highest cost | One-shot hard problems, off-peak analysis - never on loops |
 | `medium` | Balanced speed and quality | Tightly scoped tasks, general development |
 | `low` | Fastest responses | Simple edits, formatting, latency-sensitive interactive work |
 
-The DevAI-Hub installer writes `effortLevel: xhigh` by default (see `catalog/hooks/settings.json`). Override via the `/effort` command (interactive slider or direct set, e.g. `/effort high`), the `/model` command, the `--effort` CLI flag for a single session, or the `CLAUDE_CODE_EFFORT_LEVEL` environment variable. For the full decision guidance, see the **Effort-Level Strategy** section of [catalog/skills/ai-development/prompt-engineering/SKILL.md](../catalog/skills/ai-development/prompt-engineering/SKILL.md).
+The Nexus-Hub installer writes `effortLevel: xhigh` by default (see `catalog/hooks/settings.json`). Override via the `/effort` command (interactive slider or direct set, e.g. `/effort high`), the `/model` command, the `--effort` CLI flag for a single session, or the `CLAUDE_CODE_EFFORT_LEVEL` environment variable. For the full decision guidance, see the **Effort-Level Strategy** section of [catalog/skills/ai-development/prompt-engineering/SKILL.md](../catalog/skills/ai-development/prompt-engineering/SKILL.md).
 
 ---
 

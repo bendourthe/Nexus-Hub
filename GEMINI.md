@@ -1,4 +1,4 @@
-# Gemini CLI Instructions — DevAI-Hub
+# Gemini CLI Instructions — Nexus-Hub
 
 This repository uses `AGENTS.md` at the repo root as the canonical source of project-specific AI agent guidance. The `@` import below inlines that file; read it in full before proposing changes.
 

@@ -1,10 +1,10 @@
 {
-    "title": "DevAI-Hub Codebase Report",
-    "subtitle": "A Comprehensive Evaluation of DevAI-Hub’s Capabilities, Architectural Patterns, and Deployment Systems",
+    "title": "Nexus-Hub Codebase Report",
+    "subtitle": "A Comprehensive Evaluation of Nexus-Hub’s Capabilities, Architectural Patterns, and Deployment Systems",
     "header_subtitle": "Capabilities, Architecture, and Deployment Evaluation",
-    "author": "DevAI-Hub Agent",
-    "purpose": "This report provides a detailed analysis of the DevAI-Hub codebase, facilitating understanding for onboarding, technical review, and deployment of AI-assisted development workflows.",
-    "executive_summary": "DevAI-Hub is a production-grade configuration hub designed to upgrade generic AI coding assistants (Claude, Gemini, Codex, Copilot) into 'Senior Engineer' level partners. It acts as a central repository for system instructions ('Brain'), autonomous skills ('Hands'), and workflow definitions. The system encompasses robust installation scripts for cross-platform deployment, a vast catalog of over 60 skills, and templates for various development environments.",
+    "author": "Nexus-Hub Agent",
+    "purpose": "This report provides a detailed analysis of the Nexus-Hub codebase, facilitating understanding for onboarding, technical review, and deployment of AI-assisted development workflows.",
+    "executive_summary": "Nexus-Hub is a production-grade configuration hub designed to upgrade generic AI coding assistants (Claude, Gemini, Codex, Copilot) into 'Senior Engineer' level partners. It acts as a central repository for system instructions ('Brain'), autonomous skills ('Hands'), and workflow definitions. The system encompasses robust installation scripts for cross-platform deployment, a vast catalog of over 60 skills, and templates for various development environments.",
     "components": [
         {
             "name": "Skill Catalog",

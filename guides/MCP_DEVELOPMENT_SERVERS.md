@@ -8,21 +8,21 @@
 
 ## Overview
 
-Model Context Protocol (MCP) servers extend Claude Code with local tool surfaces. This guide covers DevAI-Hub's recommended servers - all of which comply with the **MCP Registry Policy** in [AGENTS.md](../AGENTS.md). Every server listed here has a corresponding row in the [Reverse-Engineering Matrix](../docs/v1.0.0/mcp-reverse-engineering-matrix.md) documenting its classification and data-flow audit.
+Model Context Protocol (MCP) servers extend Claude Code with local tool surfaces. This guide covers Nexus-Hub's recommended servers - all of which comply with the **MCP Registry Policy** in [AGENTS.md](../AGENTS.md). Every server listed here has a corresponding row in the [Reverse-Engineering Matrix](../docs/v1.0.0/mcp-reverse-engineering-matrix.md) documenting its classification and data-flow audit.
 
-**What this guide deliberately does NOT include**: search-as-service, embeddings-as-service, scraping-as-service, and generation-as-service MCPs (context7, exa, firecrawl, magic-ui, claude-context, deepwiki, tavily, and similar). These are hard-no under the policy because they transmit query text, source code, or prompts to third-party data processors that the user has no pre-existing commercial relationship with. Where the capability is genuinely useful, DevAI-Hub reverse-engineers the pattern into an internal MCP or a skill - see the "Reverse-engineered replacements" section below.
+**What this guide deliberately does NOT include**: search-as-service, embeddings-as-service, scraping-as-service, and generation-as-service MCPs (context7, exa, firecrawl, magic-ui, claude-context, deepwiki, tavily, and similar). These are hard-no under the policy because they transmit query text, source code, or prompts to third-party data processors that the user has no pre-existing commercial relationship with. Where the capability is genuinely useful, Nexus-Hub reverse-engineers the pattern into an internal MCP or a skill - see the "Reverse-engineered replacements" section below.
 
 ---
 
 ## Recommended servers by workflow stage
 
-All recommendations below fall into three policy buckets: **internal** (DevAI-Hub ships the server), **already-local** (Anthropic-official, zero outbound), and **vendor-intrinsic** (your-own-account wrapper). See the matrix for each entry's full audit.
+All recommendations below fall into three policy buckets: **internal** (Nexus-Hub ships the server), **already-local** (Anthropic-official, zero outbound), and **vendor-intrinsic** (your-own-account wrapper). See the matrix for each entry's full audit.
 
 ### Research and code navigation
 
-#### `devai-skill-server` (internal)
+#### `nexus-skill-server` (internal)
 
-**Purpose**: Retrieval over DevAI-Hub's skill catalog. Lets the agent match a user request to the most relevant skill and load its full instructions on demand.
+**Purpose**: Retrieval over Nexus-Hub's skill catalog. Lets the agent match a user request to the most relevant skill and load its full instructions on demand.
 
 **Tools**: `search_skills`, `get_skill`, `list_categories`, `list_bundles`, `get_bundle`.
 
@@ -32,21 +32,21 @@ All recommendations below fall into three policy buckets: **internal** (DevAI-Hu
 
 ---
 
-#### `devai-code-search` (internal, new in v1.0.0)
+#### `nexus-code-search` (internal, new in v1.0.0)
 
 **Purpose**: Local code search over a proprietary repo. Keyword-based inverted index + rapidfuzz scoring in v1.0.0; dense / hybrid retrieval planned for v1.1.0.
 
 **Tools**: `index_codebase`, `search_code`, `clear_index`, `get_indexing_status`.
 
-**Data flow**: 100% local. Index stored at `<repo>/.devai/code-index/`. No API keys required. No model downloads. No outbound calls.
+**Data flow**: 100% local. Index stored at `<repo>/.nexus/code-index/`. No API keys required. No model downloads. No outbound calls.
 
 **When to use**: when the repo exceeds the model's context window and the agent needs to retrieve relevant chunks. Replaces the need for external semantic-code-search services.
 
-**Reverse-engineering note**: this is the DevAI-Hub internal equivalent of the "semantic code search" category. See the [matrix row](../docs/v1.0.0/mcp-reverse-engineering-matrix.md) for the RE pedigree.
+**Reverse-engineering note**: this is the Nexus-Hub internal equivalent of the "semantic code search" category. See the [matrix row](../docs/v1.0.0/mcp-reverse-engineering-matrix.md) for the RE pedigree.
 
 ---
 
-#### `devai-web-fetch` (internal, new in v1.0.0)
+#### `nexus-web-fetch` (internal, new in v1.0.0)
 
 **Purpose**: Direct HTTPS fetch + readability extraction against a user-specified URL. Replaces third-party web-scraping services that route fetches through their own infrastructure.
 
@@ -115,14 +115,14 @@ The following servers wrap a vendor API that the user already has a commercial r
 
 ## Reverse-engineered replacements
 
-The following capabilities were popular in the wider MCP ecosystem but are **not** shipped in DevAI-Hub's registry because they would introduce a new third-party data processor. Each has a policy-compliant replacement:
+The following capabilities were popular in the wider MCP ecosystem but are **not** shipped in Nexus-Hub's registry because they would introduce a new third-party data processor. Each has a policy-compliant replacement:
 
-| Popular pattern | DevAI-Hub replacement | Type |
+| Popular pattern | Nexus-Hub replacement | Type |
 |---|---|---|
 | Library documentation lookup (context7 and similar) | `local-docs-lookup` skill | Skill (no MCP) |
 | UI component generation (magic-ui and similar) | `ui-component-generation` skill | Skill (no MCP) |
-| Web scraping / crawling (firecrawl and similar) | `devai-web-fetch` MCP (single-URL scope, SSRF-guarded) | Internal MCP |
-| Semantic code search (claude-context and similar) | `devai-code-search` MCP (keyword in v1.0.0, dense in v1.1.0) + `code-semantic-search` skill | Internal MCP + skill |
+| Web scraping / crawling (firecrawl and similar) | `nexus-web-fetch` MCP (single-URL scope, SSRF-guarded) | Internal MCP |
+| Semantic code search (claude-context and similar) | `nexus-code-search` MCP (keyword in v1.0.0, dense in v1.1.0) + `code-semantic-search` skill | Internal MCP + skill |
 | Neural web search (exa, tavily, and similar) | Not replaced. Drop-outright under the policy: the web itself cannot be recreated locally, and the trust cost of routing agent-composed queries through a third-party search service exceeds the benefit for a regulated-data profile. | n/a |
 
 See the [Reverse-Engineering Matrix](../docs/v1.0.0/mcp-reverse-engineering-matrix.md) for the full classification per capability.
@@ -138,15 +138,15 @@ Example (keep active MCPs under 10 to preserve context window):
 ```json
 {
   "mcpServers": {
-    "devai-skill-server": {
+    "nexus-skill-server": {
       "command": "python",
-      "args": ["-m", "devai_skill_server"],
-      "env": {"DEVAI_HUB_ROOT": "${DEVAI_HUB_ROOT}"}
+      "args": ["-m", "nexus_skill_server"],
+      "env": {"NEXUS_HUB_ROOT": "${NEXUS_HUB_ROOT}"}
     },
-    "devai-code-search": {
+    "nexus-code-search": {
       "command": "python",
-      "args": ["-m", "devai_code_search"],
-      "env": {"DEVAI_HUB_ROOT": "${DEVAI_HUB_ROOT}"}
+      "args": ["-m", "nexus_code_search"],
+      "env": {"NEXUS_HUB_ROOT": "${NEXUS_HUB_ROOT}"}
     },
     "filesystem": {
       "command": "npx",
@@ -164,14 +164,14 @@ Add MCP tool permissions to `.claude/settings.json`:
 {
   "permissions": {
     "allow": [
-      "mcp__devai-skill-server__*",
-      "mcp__devai-code-search__*",
+      "mcp__nexus-skill-server__*",
+      "mcp__nexus-code-search__*",
       "mcp__filesystem__*",
       "mcp__memory__*",
       "mcp__sequential-thinking__*"
     ],
     "ask": [
-      "mcp__devai-web-fetch__*",
+      "mcp__nexus-web-fetch__*",
       "mcp__github__*",
       "mcp__postgres__*",
       "mcp__supabase__*"
@@ -186,9 +186,9 @@ Vendor wrappers default to `ask` because they make outbound calls with user cred
 
 | Server | Scope | Rationale |
 |---|---|---|
-| `devai-skill-server` | User | Catalog is shared across projects |
-| `devai-code-search` | Project | Index is repo-specific |
-| `devai-web-fetch` | User | URL fetch is cross-project |
+| `nexus-skill-server` | User | Catalog is shared across projects |
+| `nexus-code-search` | Project | Index is repo-specific |
+| `nexus-web-fetch` | User | URL fetch is cross-project |
 | `filesystem` | Project | Scoped to the project root |
 | `memory` / `sequential-thinking` / `sqlite` | User | Cross-project |
 | Vendor wrappers (`github`, `supabase`, `postgres`, `railway`, `vercel`, `cloudflare`) | User | Credentials are account-level |

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate all DevAI-Hub skills for structural compliance and security.
+"""Validate all Nexus-Hub skills for structural compliance and security.
 
 Checks YAML frontmatter, required fields, directory naming, and scans for
 hardcoded secrets. Returns exit code 0 if all checks pass (warnings OK),
@@ -209,7 +209,7 @@ def find_skill_dirs(root: Path) -> list[Path]:
 # ---------------------------------------------------------------------------
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Validate DevAI-Hub skills")
+    parser = argparse.ArgumentParser(description="Validate Nexus-Hub skills")
     parser.add_argument(
         "--path",
         type=Path,

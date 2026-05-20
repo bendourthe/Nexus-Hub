@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Package a DevAI-Hub skill into a portable ``.skill`` archive.
+"""Package a Nexus-Hub skill into a portable ``.skill`` archive.
 
 A ``.skill`` file is a plain ZIP archive whose root contains the skill's
 ``SKILL.md`` plus any of the per-skill bundled subdirectories that follow the
@@ -11,7 +11,7 @@ alongside SKILL.md, e.g. ``themes/``, ``templates/``, ``examples/``,
 The packager validates the SKILL.md frontmatter before zipping. It refuses to
 emit an archive if ``name`` or ``description`` are missing - those are the two
 fields any downstream consumer (Claude.ai upload, Anthropic API skill upload,
-or another DevAI-Hub installation) needs at minimum to display and dispatch
+or another Nexus-Hub installation) needs at minimum to display and dispatch
 the skill.
 
 Phase 7 / A16 of docs/v1.1.5/plans/adoption-skills.md. The ``.skill`` archive
@@ -40,8 +40,8 @@ from pathlib import Path
 
 # Frontmatter fields the consumer absolutely needs. ``summary_l0`` /
 # ``overview_l1`` are validated as warnings (they are required by the
-# DevAI-Hub catalog convention but a packaged ``.skill`` upload to a
-# non-DevAI-Hub consumer does not strictly need them).
+# Nexus-Hub catalog convention but a packaged ``.skill`` upload to a
+# non-Nexus-Hub consumer does not strictly need them).
 REQUIRED_FRONTMATTER_FIELDS = ("name", "description")
 RECOMMENDED_FRONTMATTER_FIELDS = ("summary_l0", "overview_l1")
 
@@ -186,7 +186,7 @@ def package_skill(
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
-        description="Package a DevAI-Hub skill into a portable .skill archive.",
+        description="Package a Nexus-Hub skill into a portable .skill archive.",
     )
     parser.add_argument(
         "skill_dir",

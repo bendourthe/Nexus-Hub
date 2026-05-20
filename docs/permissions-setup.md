@@ -2,7 +2,7 @@
 
 ## Purpose
 
-DevAI-Hub ships pre-built permission configs that auto-approve safe, read-only operations for four AI coding platforms. This eliminates repetitive approval prompts for file reads, code searches, web lookups, and git history commands, while keeping write operations, destructive commands, and git mutations gated behind approval prompts.
+Nexus-Hub ships pre-built permission configs that auto-approve safe, read-only operations for four AI coding platforms. This eliminates repetitive approval prompts for file reads, code searches, web lookups, and git history commands, while keeping write operations, destructive commands, and git mutations gated behind approval prompts.
 
 ## What Is Auto-Approved
 
@@ -29,7 +29,7 @@ These operations always require explicit approval:
 
 ## Installation
 
-### Via the DevAI-Hub Installer (Recommended)
+### Via the Nexus-Hub Installer (Recommended)
 
 Permissions are automatically configured during Phase 1 (Global Installation) of the standard installer. No additional steps needed.
 
@@ -47,16 +47,16 @@ To install or update permissions independently of the full installer:
 
 ```powershell
 # Preview what would change (no files modified)
-.\scripts\Install-DevAI-Permissions.ps1 -DryRun
+.\scripts\Install-Nexus-Hub-Permissions.ps1 -DryRun
 
 # Install permissions for all detected platforms
-.\scripts\Install-DevAI-Permissions.ps1
+.\scripts\Install-Nexus-Hub-Permissions.ps1
 
 # Install for specific platforms only
-.\scripts\Install-DevAI-Permissions.ps1 -Platforms CLAUDE,GEMINI
+.\scripts\Install-Nexus-Hub-Permissions.ps1 -Platforms CLAUDE,GEMINI
 
 # Revert to pre-installation state
-.\scripts\Install-DevAI-Permissions.ps1 -Uninstall
+.\scripts\Install-Nexus-Hub-Permissions.ps1 -Uninstall
 ```
 
 ## Config Locations After Installation
@@ -72,7 +72,7 @@ To install or update permissions independently of the full installer:
 
 ### Adding or Removing Trusted Domains
 
-Edit `configs/permissions/trusted-domains.json` in the DevAI-Hub repo, then re-run the installer or standalone bootstrap. Domains are organized by category (code hosting, package registries, language docs, cloud providers, AI/ML, DevOps, Q&A, standards bodies, security advisories, API specs).
+Edit `configs/permissions/trusted-domains.json` in the Nexus-Hub repo, then re-run the installer or standalone bootstrap. Domains are organized by category (code hosting, package registries, language docs, cloud providers, AI/ML, DevOps, Q&A, standards bodies, security advisories, API specs).
 
 To add a domain to a single platform without re-running the installer, edit the platform's config file directly. For Claude Code:
 
@@ -99,17 +99,17 @@ For Codex CLI, filesystem and network scoping are configured in `~/.codex/config
 
 For Copilot, per-command auto-approve is not supported. Use instruction files (`.github/copilot-instructions.md`) for behavioral guidance.
 
-### Removing All DevAI-Hub Permissions
+### Removing All Nexus-Hub Permissions
 
 ```powershell
-.\scripts\Install-DevAI-Permissions.ps1 -Uninstall
+.\scripts\Install-Nexus-Hub-Permissions.ps1 -Uninstall
 ```
 
-This removes only the entries added by DevAI-Hub. Any custom permissions you added manually are preserved.
+This removes only the entries added by Nexus-Hub. Any custom permissions you added manually are preserved.
 
 ## Description Box and Permission Interaction
 
-DevAI-Hub uses a `format-bash-description.py` PreToolUse hook that conditionally prepends a bordered description box to Bash commands. Because PreToolUse hooks run before permission evaluation, prepending a description box to every command would cause `Bash(git log *)` style patterns to never match (the matcher would see `# === Description ===...` instead of the actual command).
+Nexus-Hub uses a `format-bash-description.py` PreToolUse hook that conditionally prepends a bordered description box to Bash commands. Because PreToolUse hooks run before permission evaluation, prepending a description box to every command would cause `Bash(git log *)` style patterns to never match (the matcher would see `# === Description ===...` instead of the actual command).
 
 To solve this, the hook selectively adds the description box only to commands that are NOT in the auto-approve allow list:
 
@@ -153,5 +153,5 @@ Most limited. Copilot lacks per-command, per-path, and per-domain allowlisting i
 
 The installer creates timestamped backups before modifying any config file (e.g., `settings.json.bak.20260326-143000`). To revert:
 
-1. Run `.\scripts\Install-DevAI-Permissions.ps1 -Uninstall` to remove DevAI-Hub permission entries.
+1. Run `.\scripts\Install-Nexus-Hub-Permissions.ps1 -Uninstall` to remove Nexus-Hub permission entries.
 2. Alternatively, restore from backup: copy the `.bak.*` file back to the original filename.

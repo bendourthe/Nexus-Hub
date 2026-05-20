@@ -33,7 +33,7 @@ This guide walks you through setting up a new project with the optimized, modula
 
 **Prerequisites:**
 - Claude Code installed and configured
-- Access to this DevAI-Hub repository
+- Access to this Nexus-Hub repository
 - Basic familiarity with Claude Code's `.claude` directory structure
 
 ---
@@ -48,7 +48,7 @@ For experienced users who want to get started immediately:
 cd your-project
 
 # 2. Copy the language-specific template (e.g., Python)
-cp -r /path/to/DevAI-Hub/templates/ai-instructions/CLAUDE_MD/python/* .
+cp -r /path/to/Nexus-Hub/templates/ai-instructions/CLAUDE_MD/python/* .
 # Or for other languages: javascript/, java/, csharp/, go/, c/, cpp/
 
 # 3. Start Claude Code
@@ -63,7 +63,7 @@ Then in Claude Code, run these commands:
 
 The `/setup-project` wizard guides you through 5 questions to generate a polished project description for your `CLAUDE.md`.
 
-The `/import-skills` command lets you interactively select and import skills from the DevAI-Hub catalog - choose all, by category, or specific skills.
+The `/import-skills` command lets you interactively select and import skills from the Nexus-Hub catalog - choose all, by category, or specific skills.
 
 ### Available Slash Commands
 
@@ -72,7 +72,7 @@ Each template includes four pre-configured slash commands:
 | Command | Description |
 |---------|-------------|
 | `/setup-project` | Interactive wizard to configure your CLAUDE.md with project name, description, features, and target users |
-| `/import-skills` | Import skills from the DevAI-Hub catalog (select all, by category, or specific skills) |
+| `/import-skills` | Import skills from the Nexus-Hub catalog (select all, by category, or specific skills) |
 | `/update-documentation` | 8-step documentation consistency audit (checks links, versions, structure, deprecated references) |
 | `/upgrade-version` | 11-step semantic version upgrade assistant (updates all version references across files) |
 
@@ -868,7 +868,7 @@ Try these prompts to verify skills activate:
 
 - [Claude Code Guide](CLAUDE_CODE_GUIDE.md) - General Claude Code usage
 - [Subagents Guide](SUBAGENTS_GUIDE.md) - Using specialist skills effectively
-- [Contributing Guide](CONTRIBUTING.md) - How to contribute to DevAI-Hub
+- [Contributing Guide](CONTRIBUTING.md) - How to contribute to Nexus-Hub
 
 ---
 

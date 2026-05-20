@@ -1,4 +1,4 @@
-# DevAI-Hub
+# Nexus-Hub
 
 > Modular skill and instruction library that augments AI coding assistants (Claude Code, Gemini, GitHub Copilot, Codex) with enterprise-grade workflows, 134 curated skills, and cross-platform installers.
 

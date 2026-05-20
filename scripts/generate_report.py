@@ -50,9 +50,9 @@ def resolve_author(data_author):
     git_user = get_git_user_name()
     if git_user:
         return git_user
-    if data_author and data_author != "DevAI-Hub Agent":
+    if data_author and data_author != "Nexus-Hub Agent":
         return data_author
-    return "DevAI-Hub Agent"
+    return "Nexus-Hub Agent"
 
 # --- Template-Aware Helpers ---
 

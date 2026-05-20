@@ -96,7 +96,7 @@ Focus only on the changed files. Skip unchanged files unless directly relevant.
 Summarize rather than quote long outputs — report counts, errors, and key results only.
 ```
 
-The DevAI-Hub CLAUDE.md template includes an "Output Minimization" section that enforces this automatically via the installed instructions.
+The Nexus-Hub CLAUDE.md template includes an "Output Minimization" section that enforces this automatically via the installed instructions.
 
 ---
 
@@ -117,14 +117,14 @@ Set the budget in your shell profile and override per-session if a task demands 
 
 ## Hook-Level Optimization
 
-DevAI-Hub hooks themselves consume tokens during PostToolUse events. If you are on a tight budget, disable non-essential hooks using the runtime controls:
+Nexus-Hub hooks themselves consume tokens during PostToolUse events. If you are on a tight budget, disable non-essential hooks using the runtime controls:
 
 ```bash
 # Disable formatting and lint hooks (saves 2-4 tool call cycles per file write)
-export DEVAI_DISABLED_HOOKS=auto-format-on-write,lint-on-write
+export NEXUS_DISABLED_HOOKS=auto-format-on-write,lint-on-write
 
 # Use the minimal hook profile (only secret-scan and git-guardrails remain active)
-export DEVAI_HOOK_PROFILE=minimal
+export NEXUS_HOOK_PROFILE=minimal
 ```
 
 Available profiles:
@@ -149,7 +149,7 @@ Available profiles:
 
 ## Cost Estimation Reference
 
-Approximate token costs (input + output) for common DevAI-Hub tasks on Sonnet 4.6:
+Approximate token costs (input + output) for common Nexus-Hub tasks on Sonnet 4.6:
 
 | Task | Estimated Tokens | Cost Tier |
 |------|-----------------|-----------|
@@ -169,5 +169,5 @@ Use `/check-usage` to monitor your 5-hour session and 7-day rolling limits in re
 |----------|---------|-------------|--------|
 | `MAX_THINKING_TOKENS` | Uncapped | `10000` | Caps extended thinking budget per turn |
 | `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` | ~85 | `50` | Triggers context compaction earlier |
-| `DEVAI_HOOK_PROFILE` | `full` | `minimal` (tight budget) | Selects hook activation profile |
-| `DEVAI_DISABLED_HOOKS` | None | `auto-format-on-write,lint-on-write` | Disables specific hooks by name |
+| `NEXUS_HOOK_PROFILE` | `full` | `minimal` (tight budget) | Selects hook activation profile |
+| `NEXUS_DISABLED_HOOKS` | None | `auto-format-on-write,lint-on-write` | Disables specific hooks by name |

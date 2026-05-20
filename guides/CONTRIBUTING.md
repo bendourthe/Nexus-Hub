@@ -45,8 +45,8 @@ By participating in this project, you agree to:
 1. **Fork the repository**
    ```bash
    # Click "Fork" on GitHub
-   git clone https://github.com/[your-username]/devai-hub.git
-   cd devai-hub
+   git clone https://github.com/[your-username]/nexus-hub.git
+   cd nexus-hub
    ```
 
 2. **Create a branch**

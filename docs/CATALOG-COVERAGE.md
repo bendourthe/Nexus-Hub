@@ -1,21 +1,21 @@
-# DevAI-Hub Catalog Coverage Matrix
+# Nexus-Hub Catalog Coverage Matrix
 
 **Version**: 1.0.0
 **Generated**: 2026-04-27
 **Skills Total**: 187 across 22 categories
 
-This matrix maps DevAI-Hub's skill catalog against user roles, AI platforms, and use case categories to help you find the right skills for your context. Inspired by [Shannon's COVERAGE.md](https://github.com/KeygraphHQ/shannon) pattern.
+This matrix maps Nexus-Hub's skill catalog against user roles, AI platforms, and use case categories to help you find the right skills for your context. Inspired by [Shannon's COVERAGE.md](https://github.com/KeygraphHQ/shannon) pattern.
 
 ---
 
 ## v1.0.0 Release Additions
 
 **Internal MCP servers (2 new)** - both zero outbound calls, zero API keys:
-- [`devai-code-search`](../extensions/devai-code-search/) - local code search with keyword retrieval, content-hash incremental indexing, symlink-safe walker. Tools: `index_codebase`, `search_code`, `clear_index`, `get_indexing_status`. Dense / hybrid retrieval planned for v1.1.0.
-- [`devai-web-fetch`](../extensions/devai-web-fetch/) - HTTP fetch + `readability-lxml` extraction with per-hop SSRF guard, DNS pinning, manual redirect re-validation. Tool: `fetch_url(url, render_js, extract_mode)`.
+- [`nexus-code-search`](../extensions/nexus-code-search/) - local code search with keyword retrieval, content-hash incremental indexing, symlink-safe walker. Tools: `index_codebase`, `search_code`, `clear_index`, `get_indexing_status`. Dense / hybrid retrieval planned for v1.1.0.
+- [`nexus-web-fetch`](../extensions/nexus-web-fetch/) - HTTP fetch + `readability-lxml` extraction with per-hop SSRF guard, DNS pinning, manual redirect re-validation. Tool: `fetch_url(url, render_js, extract_mode)`.
 
 **New skills (3)**:
-- `code-semantic-search` (ai-development) - specialized sibling of `rag-implementation` for code corpora; pairs with `devai-code-search`.
+- `code-semantic-search` (ai-development) - specialized sibling of `rag-implementation` for code corpora; pairs with `nexus-code-search`.
 - `ui-component-generation` (developer-experience) - LLM-native replacement for external component-generation services.
 - `local-docs-lookup` (research) - 7-step grounding sequence for library / API questions; partial replacement for `context7`-class MCPs.
 
@@ -30,14 +30,14 @@ This matrix maps DevAI-Hub's skill catalog against user roles, AI platforms, and
 - [`/run-deep-review`](../catalog/commands/run-deep-review.md) - 12-phase pre-release deep-review orchestrator. Chains known-gaps collection, health gates (with 80% line-coverage threshold), dependency scan, docs / git / CI/CD / release-readiness hygiene, project validators, `/analyze-codebase`, `/run-security-audit`, `/run-penetration-test --depth=deep`, and `/review-codebase`, then synthesizes everything into a single P0/P1/P2/P3-ranked report with a GO / GO-WITH-CONDITIONS / NO-GO verdict. Phase 4 covers CI/CD workflow file audit, CI run history, branch protection, version-bump consistency, tag hygiene, and pending draft releases. Ends with `/generate-plan` to produce a remediation roadmap. All artifacts land under `docs/<next-version>/review/`. Run before cutting a major or minor release.
 
 **Removed (BREAKING)**:
-- 4 third-party MCP registry entries dropped: `context7`, `exa-web-search`, `firecrawl`, `magic-ui`. Users who relied on these can re-add them to their own `.claude/settings.json`; DevAI-Hub no longer ships the snippets.
+- 4 third-party MCP registry entries dropped: `context7`, `exa-web-search`, `firecrawl`, `magic-ui`. Users who relied on these can re-add them to their own `.claude/settings.json`; Nexus-Hub no longer ships the snippets.
 
 **Tooling**:
-- New `make benchmark` target + `scripts/devai_mcp_benchmark.py` exercising all 3 internal MCPs with a no-network guard.
+- New `make benchmark` target + `scripts/nexus_mcp_benchmark.py` exercising all 3 internal MCPs with a no-network guard.
 - Style-guide companion files relocated to `catalog/style-guides/` so they no longer surface as slash commands.
 
 **Skill content de-branding**:
-- `rag-implementation` skill stripped of external-source attribution (zilliztech / claude-context, voyage-code-3, SWE-bench metrics) while preserving the technical patterns. Concrete references now point at the internal `devai-code-search` MCP.
+- `rag-implementation` skill stripped of external-source attribution (zilliztech / claude-context, voyage-code-3, SWE-bench metrics) while preserving the technical patterns. Concrete references now point at the internal `nexus-code-search` MCP.
 
 ---
 
@@ -52,7 +52,7 @@ This matrix maps DevAI-Hub's skill catalog against user roles, AI platforms, and
 - `/compile-deep-research` (+ companion `catalog/style-guides/compile-deep-research.md`) - 9-phase command that drives the deep-research-compilation skill. Agent-driven per invocation: the agent inspects the user-selected template, builds a style profile, synthesizes content, and writes a throwaway python-docx generator tailored to that template - no persistent generator script. The style guide is reference content located outside `catalog/commands/` so it does not surface as a slash command.
 
 **New AI agent instruction set (5 files)**:
-- `AGENTS.md` extended with "Installer-Aware Changes (Cross-Platform)" section; `CLAUDE.md` and `GEMINI.md` use `@AGENTS.md` import; `.github/copilot-instructions.md` inlines the summary (Copilot cannot import); `.cursor/rules/devai-hub.mdc` uses `alwaysApply: true`.
+- `AGENTS.md` extended with "Installer-Aware Changes (Cross-Platform)" section; `CLAUDE.md` and `GEMINI.md` use `@AGENTS.md` import; `.github/copilot-instructions.md` inlines the summary (Copilot cannot import); `.cursor/rules/nexus-hub.mdc` uses `alwaysApply: true`.
 
 **New bundled template (1)**:
 - `templates/documentation/branded-report-template.docx` - styled Word template (teal Consolas title, Calibri Light small-caps headings, auto-TOC, hanging-indent references) that ships alongside the existing generic template.

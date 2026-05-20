@@ -552,4 +552,4 @@ This pattern is formalized in the `cross-model-orchestrator` and `workflow-orche
 
 **Version**: v1.1.5
 **Last Updated**: May 2026
-**Part of**: [DevAI-Hub](../README.md)
+**Part of**: [Nexus-Hub](../README.md)

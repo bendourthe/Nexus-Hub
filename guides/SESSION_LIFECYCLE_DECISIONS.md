@@ -219,4 +219,4 @@ Subagents run a scoped sub-task in their own context, return a result, and do no
 
 - Anthropic - "Managing Claude Code sessions on the 1M context window" (official blog post; no canonical URL maintained in this repo).
 - Anthropic - "Best practices for using Claude Opus 4.7 with Claude Code" (official blog post).
-- DevAI-Hub comparison notes: `docs/v0.9.6/comparison-claude-code-session-management-1m-context.md`.
+- Nexus-Hub comparison notes: `docs/v0.9.6/comparison-claude-code-session-management-1m-context.md`.

@@ -3,8 +3,8 @@
 This file tracks per-version unfinished work, deferred items, deviations from plan, and bugs discovered during phase implementation. The next phase plan and the version-bump checklist read this file to decide what carries forward.
 
 **Plan**: [docs/v2.0.0/plans/nexus-hub-rename.md](plans/nexus-hub-rename.md)
-**Status**: open
-**Last updated**: 2026-05-20 (Phase 6 close; README modernized around Nexus-Hub brand, nested READMEs synced, RELEASE_NOTES.md stub created, hero PNG asset deferred because the sibling Nexus repo is not on this machine)
+**Status**: in-progress
+**Last updated**: 2026-05-20 (Phase 7 close; docs / config / devlog / gitignore sync complete, CHANGELOG `[2.0.0]` block written, RELEASE_NOTES.md fully authored, four active-surface fixes during the 7.6 stability gate, BG-001 closed via the late-7.1 sweep that included `infrastructure/tools/build_skills_catalog.py`)
 
 ## Summary
 
@@ -12,22 +12,15 @@ This file tracks per-version unfinished work, deferred items, deviations from pl
 |---|---|---|
 | NI -- Not implemented (skipped subtask) | 0 | 0 |
 | DF -- Deferred (intentionally) | 2 | 3 |
-| BG -- Bug or unresolved test failure | 1 | 0 |
+| BG -- Bug or unresolved test failure | 0 | 1 |
 | MT -- Missing tests / coverage gap | 0 | 0 |
 | WN -- Warning or suppressed lint rule | 2 | 0 |
 | QG -- Quality gate bypassed | 0 | 0 |
-| **Total** | **5** | **3** |
+| **Total** | **4** | **4** |
 
-> Phase 6 closed with all stability gates green except the hero-image gate: residual `grep "DevAI-Hub\|devai-hub" README.md` returns only the 7 matches inside the explicit "Renamed from DevAI-Hub" / "What's New v2.0.0 breaking changes" / migration / roadmap callouts the plan permits; `README_zh.md` residual matches are confined to the explicit "v1.0.0 历史发布说明（当时项目名为 DevAI-Hub）" historical block prefixed by an explicit rename notice. The three nested `extensions/nexus-*/README.md` files now carry the cross-link line per plan sub-task 6.3, and the four other nested READMEs (`extensions/claude-usage-monitor/`, `infrastructure/hooks/`, `infrastructure/integrations/`, `infrastructure/tools/`) have been swept clean. Two new gaps opened this phase: DF-004 (sibling-repo Nexus logo PNG assets not on this dev machine, so the README ships a text-based hero block) and DF-005 (v1.0.0 historical block in `README_zh.md` preserves the old name intentionally per the rename-decisions policy). Phase 6 sub-task 6.1's `LICENSE-ASSETS.md` step is folded into DF-004 because the asset transfer it documents has not occurred yet.
+> Phase 7 closed with the stability gate green on the documented exclusion list. The 7.6 grep surfaced five additional active surfaces that the original 7.1 sweep missed (CODE_OF_CONDUCT.md, CONTRIBUTING.md, GEMINI.md, SECURITY.md, data/report_data.json); all five were rebranded in the same phase commit. Two intentional residuals are documented in `docs/v2.0.0/documentation-sync-manifest.md`: README_zh.md (which uses Chinese-language rename callouts that the English-only approved-phrasings filter does not match) and docs/DEVLOG.md (the v2.0.0 Phase 1-7 entries describe the rename effort itself and legitimately reference the old name in explanatory context). Both are flagged as "not blocking" for the Phase 8 final-validation grep. BG-001 (hardcoded DevAI strings in `infrastructure/tools/build_skills_catalog.py`) is closed by the same 7.1 sweep that touched the rest of the documentation surface; the builder is now safe to re-run via `make build-catalog`. WN-001 and WN-002 carry into Phase 8 sub-task 8.3 as scheduled.
 
 ## Open Items
-
-### BG-001 -- `infrastructure/tools/build_skills_catalog.py` has hardcoded DevAI strings that regress data/ on regeneration
-
-**Source phase**: Phase 5, post-sweep DF-001 follow-up.
-**Plan reference**: [docs/v2.0.0/plans/nexus-hub-rename.md](plans/nexus-hub-rename.md) sub-task 2.2 step 4 and DF-001 (the deferred re-run of `make build-catalog` after the Phase 5 catalog sweep).
-**Reason**: When the Phase 5.1 sweep completed, DF-001 prescribed running the catalog builder to confirm `data/skills.json` and `data/SKILL_INDEX.md` agree with the regenerated source-of-truth. Running `python infrastructure/tools/build_skills_catalog.py` produced 1149 insertions / 1156 deletions across `data/skills.json` and `data/SKILL_INDEX.md` -- including reverting `# Nexus-Hub Skill Index` back to `# DevAI-Hub Skill Index`. Root cause: the builder script itself carries four hardcoded DevAI strings (lines 292, 300, 339, 340 of `infrastructure/tools/build_skills_catalog.py`: two GitHub URLs, the SKILL_INDEX title literal, and the catalog `description` field). The regeneration was reverted via `git checkout -- data/SKILL_INDEX.md data/skills.json` so Phase 2's manual edits remain intact. Until the builder is renamed, `make build-catalog` is unsafe to run.
-**Suggested next step**: In Phase 7 (`/update-documentation` + `/update-config` sweep) extend the rename surface to `infrastructure/tools/build_skills_catalog.py`. The fix is a four-line edit -- two GitHub URL strings, one Markdown H1, one description string. After the builder is renamed, re-run `python infrastructure/tools/build_skills_catalog.py` and diff against the manually-edited `data/` files; resolve any drift in the same commit.
 
 ### WN-001 -- Pre-existing orphan-bundle warnings carried from v1.1.5 / v1.3.0
 
@@ -64,6 +57,7 @@ This file tracks per-version unfinished work, deferred items, deviations from pl
 | DF-001 | `data/skills.json` and `data/SKILL_INDEX.md` regeneration deferred until after Phase 5 | Phase 5 sub-task 5.1 (sweep) + BG-001 (parked follow-up) | The Phase 5.1 catalog sweep removed every DevAI string from `catalog/`, which was the precondition DF-001 named. The downstream re-run of `make build-catalog` is parked behind BG-001 because the builder source itself still carries DevAI literals; the data/ files manually edited in Phase 2 remain the source-of-truth until the builder is renamed in Phase 7. |
 | DF-002 | End-to-end installer smoke deferred to Phase 4 close | Phase 4 sub-task 4.1 | The three `extensions/nexus-*` directories now exist on disk, so the installer's MCP-server install branch is no longer skipped. The cross-platform installer dry-run prescribed by plan sub-task 8.2 is still owed and will be captured to `docs/v2.0.0/installer-smoke-post.txt` during Phase 8.2; the *Phase 4* deferral specifically is closed. |
 | DF-003 | `scripts/devai_mcp_benchmark.py` rename pulled into Phase 3 ahead of plan | Phase 4 sub-task 4.1 + 4.3 | The extension package rename in Phase 4.1 unblocks `python scripts/nexus_mcp_benchmark.py --help`, which now runs end-to-end (verified at Phase 4.3 close). The `scripts/Install-DevAI-Permissions.ps1` -> `scripts/Install-Nexus-Hub-Permissions.ps1` rename in 4.3 closes the rest of the Phase 4.3 scope. |
+| BG-001 | Hardcoded DevAI literals in `infrastructure/tools/build_skills_catalog.py` regressed `data/` on regeneration | Phase 7 sub-task 7.1 follow-up | Fixed in the same commit as the Phase 7 doc / config / devlog / gitignore sync. Four hardcoded literals updated: two `https://github.com/bendourthe/DevAI-Hub` -> `https://github.com/bendourthe/Nexus-Hub`, one `# DevAI-Hub Skill Index` H1 -> `# Nexus-Hub Skill Index`, one `'description': 'Comprehensive catalog of DevAI-Hub skills ...'` -> `'... Nexus-Hub skills ...'`. The builder is now safe to re-run via `make build-catalog`. |
 
 ---
 

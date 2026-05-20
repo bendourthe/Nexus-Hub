@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to the DevAI Hub repository will be documented in this file.
+All notable changes to the Nexus-Hub repository (formerly DevAI-Hub through v1.4.0) will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -10,6 +10,81 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 (none)
+
+---
+
+## [2.0.0] - 2026-05-20
+
+**The Rename**: v2.0.0 renames the project from **DevAI-Hub** to **Nexus-Hub** and modernizes the brand to align with the sibling project [Nexus](https://github.com/bendourthe/Nexus-AI), a local-first desktop AI Studio that consumes Nexus-Hub as its upstream skill harness. The rename touches every artifact category that carries the brand: the installed root, the plugin metadata, the three internal MCP servers, the extension package layout, the brand-bearing scripts, the on-disk `using-devai-hub` skill directory, the cursor rule file, every documentation surface that names the project, and all five per-platform AI-instruction templates. The installer now opens with a NEXUS-HUB ASCII banner and performs a one-shot in-place migration of any existing `~/.devai-hub/` directory to `~/.nexus-hub/`. The README is rewritten around the new brand with explicit linkage to the sibling Nexus project.
+
+This is a SemVer **major** bump because every public-facing identifier changes: the installed root path, the plugin name, the MCP server names, the env-var prefix, the extension Python package names, the brand-bearing skill name, and the canonical GitHub URL. There is no compatibility shim or symlink. Users with an existing install get a single migration prompt on first run after upgrade; the rationale and lifecycle for the no-shim decision are recorded in [`docs/v2.0.0/rename-decisions.md`](docs/v2.0.0/rename-decisions.md).
+
+### Renamed
+
+- **Project name**: `DevAI-Hub` -> `Nexus-Hub` (display); `DevAI Hub` -> `Nexus Hub` (marketing two-word); `devai-hub` -> `nexus-hub` (kebab id); `devai_hub` -> `nexus_hub` (snake id); `DEVAI_HUB` -> `NEXUS_HUB` (env-var prefix); `NEXUS-HUB` is the ASCII-banner wordmark form.
+- **Installed root**: `~/.devai-hub/` -> `~/.nexus-hub/`.
+- **Plugin name** (in `.claude-plugin/plugin.json` and `marketplace.json`): `devai-hub` -> `nexus-hub`.
+- **GitHub repo URL**: `https://github.com/bendourthe/DevAI-Hub` -> `https://github.com/bendourthe/Nexus-Hub`. GitHub's automatic rename redirect handles the transition window for any links still pointing at the old URL.
+- **Internal MCP servers** (`catalog/mcp-configs/mcp-servers.json` keys, `command`/`args`, and `_comment` audit text): `devai-skill-server` -> `nexus-skill-server`, `devai-code-search` -> `nexus-code-search`, `devai-web-fetch` -> `nexus-web-fetch`. The matching Python package names (`devai_skill_server` etc.) become `nexus_skill_server` etc.
+- **Extension directories** (renamed with `git mv` so blame is preserved): `extensions/devai-skill-server/` -> `extensions/nexus-skill-server/`, `extensions/devai-code-search/` -> `extensions/nexus-code-search/`, `extensions/devai-web-fetch/` -> `extensions/nexus-web-fetch/`. Each nested `src/devai_*` package directory renamed in lockstep.
+- **Brand-bearing scripts**: `scripts/devai_mcp_benchmark.py` -> `scripts/nexus_mcp_benchmark.py`, `scripts/Install-DevAI-Permissions.ps1` -> `scripts/Install-Nexus-Hub-Permissions.ps1`.
+- **Brand-bearing skill directory**: `catalog/skills/workflow/using-devai-hub/` -> `catalog/skills/workflow/using-nexus-hub/`. Frontmatter `name` field and the description / summary_l0 / overview_l1 fields updated; `data/SKILL_INDEX.md`, `data/skills.json`, and `data/marketplace.json` updated in lockstep.
+- **Cursor rule file**: `.cursor/rules/devai-hub.mdc` -> `.cursor/rules/nexus-hub.mdc`.
+- **Extension storage paths**: `.devai/code-index/` -> `.nexus/code-index/`; `~/.devai/web-fetch.yaml` -> `~/.nexus/web-fetch.yaml`. The `.gitignore` retains the legacy `.devai/` and `.devaiignore` patterns through v2.0.x as a courtesy to users mid-upgrade; both are scheduled for removal at v2.1.0.
+
+### Breaking changes
+
+Each entry below is one-sentence actionable. The list is exhaustive for v2.0.0 -- anything not listed here is unchanged.
+
+- **Rerun the installer** (`bash scripts/installer.sh` on macOS/Linux, `pwsh scripts/installer.ps1` on Windows). On first run after upgrade, the installer detects `~/.devai-hub/` and offers an in-place rename to `~/.nexus-hub/`; answer Y at the prompt.
+- **Update any `DEVAI_*` environment variables** in your shell rc files (`~/.bashrc`, `~/.zshrc`, `$PROFILE`) to `NEXUS_*`. The installer prints a hint listing the detected `DEVAI_*` exports it found; the rename of the env vars themselves is left to you because the installer does not modify shell rc files.
+- **Update any direct path references to `~/.devai-hub/`** in your own scripts, automation, dotfiles, or third-party tooling to `~/.nexus-hub/`. The installer migrates the directory itself but cannot rewrite your downstream references.
+- **Re-pin the plugin** if you reference it by name (`devai-hub`) in a GitHub Action, marketplace integration, or `.claude-plugin/` consumer. The new name is `nexus-hub`.
+- **Update any MCP server references** in your `~/.claude/settings.json` (or per-project `.mcp.json`) that pointed at `devai-skill-server` / `devai-code-search` / `devai-web-fetch`. The new keys are `nexus-skill-server` / `nexus-code-search` / `nexus-web-fetch`; the matching Python module names also changed to `nexus_*`.
+- **Update any extension storage paths** if you scripted backups or cleanup against `<repo>/.devai/code-index/` or `~/.devai/web-fetch.yaml`. The new paths are `.nexus/` and `~/.nexus/`. The legacy paths still appear in `.gitignore` through v2.0.x for in-flight upgrades.
+- **Re-clone if the path matters**: the GitHub repo URL is now `https://github.com/bendourthe/Nexus-Hub`. GitHub's automatic redirect keeps the old URL working in most cases, but pinned CI references and bookmarks should be updated.
+
+### Added
+
+- **NEXUS-HUB ASCII banner** in both `scripts/installer.sh` and `scripts/installer.ps1`. Printed at the top of every installer run, in cyan, with a tagline and a version + GitHub URL line.
+- **One-shot legacy-install migration** in both installers. Detects `~/.devai-hub/`, prompts the user, and renames in place to `~/.nexus-hub/`. Handles the both-exist case with a three-way choice (keep-new-delete-old / abort / merge). The migration is one-way and one-shot; users who want a backup should copy `~/.devai-hub/` to a safe place before running the installer.
+- **Nexus brand assets** under `assets/`: `nexus_primary.png` (hero logo for the README) and `nexus_monochrome.png` (dark-mode variant, reserved for future use). Reused with the author's permission from the sibling `bendourthe/Nexus-AI` repo. See `LICENSE-ASSETS.md` at the repo root.
+- **Cross-link block to the sibling Nexus project** in `README.md` ("How Nexus-Hub fits with Nexus"). Names Nexus as the local-first desktop AI Studio that consumes this repo as its skill harness, with the explicit `bendourthe/Nexus-AI` link.
+- **Updated platform compatibility matrix** in `README.md` ("Supported Agentic Platforms"). Eight rows covering Claude Code, OpenAI Codex, Gemini (Antigravity), GitHub Copilot, Cursor, GitHub CLI, the Nexus desktop app, and the Nexus VS Code extension. Each row includes the install target and the per-platform coverage tier (skills + commands vs. instructions-only) per the AGENTS.md "Platform coverage caveats" section.
+- **`docs/v2.0.0/RELEASE_NOTES.md`** with the migration story, old-path / new-path reference table, and cross-links to the CHANGELOG block and the plan.
+
+### Changed
+
+- **README** rewritten from the ground up around the Nexus-Hub brand. Hero block, one-paragraph pitch, "Renamed from DevAI-Hub" callout, "How Nexus-Hub fits with Nexus" cross-link block, "What's New in v2.0.0" three subsections, Quick Start (now writes to `~/.nexus-hub/`), platform matrix.
+- **Installer prose** -- every "DevAI-Hub Installer" status banner, section header, color-coded prompt, and trailing "Installation complete" message updated to read "Nexus-Hub". Window title (`printf '\033]0;...\007'` on bash, `$Host.UI.RawUI.WindowTitle` on PowerShell) updated.
+- **Top-level agent instruction files** (`AGENTS.md`, `CLAUDE.md`) carry the new positioning paragraph -- "the upstream catalog consumed by Nexus and by every other major agent platform" -- and the `~/.nexus-hub/` path examples.
+- **Five per-platform instruction templates** (`templates/ai-instructions/base-claude.md`, `base-codex.md`, `base-cursor.md`, `base-gemini.md`, `base-opencode.md`) updated in lockstep per the AGENTS.md "Platform templates ... edit all five in lockstep" invariant. Generic instructions and coding-snippets under `templates/ai-instructions/` updated alongside.
+- **Catalog content sweep** across `catalog/hooks/`, `catalog/commands/` (33 commands), `catalog/skills/` (203 SKILL.md files), `catalog/rules/`, `catalog/style-guides/`, `catalog/checklists/`, `catalog/agents/` (10 agents), `catalog/context/`, `catalog/memory/`. Every brand variant and every `DEVAI_*` env-var reference rewritten via the `scripts/apply_rename.py` helper documented in `docs/v2.0.0/rename-manifest.txt`.
+- **Active operator documentation** (`docs/CATALOG-COVERAGE.md`, `docs/permissions-setup.md`, all eight guides under `guides/`) rebranded. Historical snapshots under `docs/security/`, `docs/git/`, `docs/v0.*/`, `docs/v1.*/`, and the rename meta-docs under `docs/v2.0.0/` (the plan, the inventory, the decisions, the baselines, the phase history) are intentionally preserved with the old names per the documentation-sync manifest at `docs/v2.0.0/documentation-sync-manifest.md`.
+
+### Tests
+
+- All extension test suites still pass under the renamed packages: `extensions/nexus-skill-server` (37 passed), `extensions/nexus-code-search` (36 passed + 1 skipped), `extensions/nexus-web-fetch` (23 passed). Counts unchanged from the pre-rename v1.4.0 baseline.
+- `catalog/hooks/tests/` 370 passed + 3 skipped, matching the post-Phase-3 baseline (the +4 vs. v1.4.0 is the new installer-migration smoke suite added in Phase 3.3).
+- `python scripts/validate_skills.py --bundles-only` exits 0 with the same 4 expected WN-001 carry-over warnings as v1.4.0 (no new orphan warnings introduced).
+- All metadata JSON files parse cleanly: `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`, `data/skills.json` (203 entries), `data/marketplace.json`, `data/bundles.json`, `catalog/mcp-configs/mcp-servers.json`.
+
+### Migration
+
+A user upgrading from v1.4.0 runs the new installer once. On first run, the installer prints the NEXUS-HUB banner, detects `~/.devai-hub/`, and offers in-place migration to `~/.nexus-hub/`. The default answer is Y; on N the installer aborts and leaves the legacy install untouched. If both `~/.devai-hub/` and `~/.nexus-hub/` exist (e.g. a partial migration attempt), the installer offers a three-way choice: keep-new-delete-old, abort, or merge (best effort).
+
+The migration is one-way and one-shot. There is no compatibility shim or symlink between the two paths -- the no-shim decision is recorded in `docs/v2.0.0/rename-decisions.md` with the rationale (a major bump permits breaking changes; a shim doubles the maintenance surface; an installer migration is a single user-visible event). Users who want a backup of the old install should copy `~/.devai-hub/` to a safe location before running the v2.0.0 installer.
+
+User-level surfaces the installer does NOT modify: shell rc files (`~/.bashrc`, `~/.zshrc`, `$PROFILE`) carrying user-set `DEVAI_*` env-var exports, per-user `~/.claude/settings.json` / `~/.codex/config.toml` / `~/.gemini/settings.json` entries that reference legacy paths in env: blocks. The installer prints a hint listing detected `DEVAI_*` env-var exports so the user knows where to update; the per-user platform config files are rewritten on the next installer pass for the parts the installer owns, and any user-customized blocks are left alone.
+
+### Carry-overs
+
+Two open items from `docs/v1.3.0/known-gaps.md` carry into v2.0.0 and are scheduled for closeout in Phase 8 sub-task 8.3 of the rename plan:
+
+- **WN-001**: 4 pre-existing framework-specialist orphan-bundle warnings (`fastapi-expert/references/dependency-injection-patterns.md`, `nextjs-expert/references/data-fetching-patterns.md`, `react-expert/references/performance-patterns.md`, `react-expert/references/testing-recipes.md`). Suggested fix: link each into the parent SKILL.md as a "see references/<file>.md for ..." pointer.
+- **WN-002**: Windows `make` and `shellcheck` unavailable on stock Python store distribution; cp1252 default codec breaks inline `python -c "import json; json.load(open(...))"`. Suggested fix: pass `encoding='utf-8'` in the inline JSON-load invocations in the Makefile; document Windows-developer prerequisites (`scoop install make`, `scoop install shellcheck`, `PYTHONUTF8=1`).
+
+The full v2.0.0 known-gaps file is at [`docs/v2.0.0/known-gaps.md`](docs/v2.0.0/known-gaps.md).
 
 ---
 

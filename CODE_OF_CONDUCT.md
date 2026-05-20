@@ -32,7 +32,7 @@ This Code of Conduct applies within all community spaces, and also applies when 
 
 ## Enforcement
 
-Instances of abusive, harassing, or otherwise unacceptable behavior may be reported by [opening a GitHub issue](https://github.com/bendourthe/DevAI-Hub/issues/new) with the label `conduct`.
+Instances of abusive, harassing, or otherwise unacceptable behavior may be reported by [opening a GitHub issue](https://github.com/bendourthe/Nexus-Hub/issues/new) with the label `conduct`.
 
 All complaints will be reviewed and investigated promptly and fairly.
 
