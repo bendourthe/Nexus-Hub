@@ -1,0 +1,30 @@
+﻿Pre-rename extension-test baseline -- captured 2026-05-19 on Windows 11 / Python 3.12
+Environment: PYTHONUTF8=1
+Prereq: pip install -e ".[dev]" applied to each extension before the run.
+Counts match the v1.3.0 expected baseline:
+  - devai-skill-server: 37 passed
+  - devai-code-search:  36 passed + 1 skipped
+  - devai-web-fetch:    23 passed
+=== extensions/devai-skill-server ===
+.....................................                                    [100%]
+37 passed in 0.37s
+
+=== extensions/devai-code-search ===
+................s....................                                    [100%]
+============================== warnings summary ===============================
+tests/test_indexer.py: 18 warnings
+tests/test_server_integration.py: 8 warnings
+  C:\Users\bdour\AppData\Local\Programs\Python\Python312\Lib\site-packages\pathspec\pathspec.py:326: DeprecationWarning: GitWildMatchPattern ('gitwildmatch') is deprecated. Use 'gitignore' for GitIgnoreBasicPattern or GitIgnoreSpecPattern instead.
+    patterns = [use_factory(__line) for __line in lines if __line]  # type: ignore[arg-type]
+
+tests/test_indexer.py: 18 warnings
+tests/test_server_integration.py: 8 warnings
+  C:\Users\bdour\AppData\Local\Programs\Python\Python312\Lib\site-packages\pathspec\pattern.py:125: DeprecationWarning: GitWildMatchPattern ('gitwildmatch') is deprecated. Use 'gitignore' for GitIgnoreBasicPattern or GitIgnoreSpecPattern instead.
+    raw_regex, include = self.pattern_to_regex(pattern)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+36 passed, 1 skipped, 52 warnings in 1.06s
+
+=== extensions/devai-web-fetch ===
+.......................                                                  [100%]
+23 passed in 2.62s

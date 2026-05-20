@@ -1,0 +1,14 @@
+﻿Pre-rename hook-test baseline -- captured 2026-05-19 on Windows 11 / Python 3.12
+Environment: PYTHONUTF8=1
+Command: python -m pytest catalog/hooks/tests -q
+
+Note: v1.3.0 known-gaps documented baseline as "366 passed, 3 skipped". This run
+shows 360 passed, 9 skipped -- 6 tests reclassified from passing to skipped
+between v1.3.0 and v1.4.0. No new failures. Captured as the v1.4.0 head baseline.
+........................................................................ [ 19%]
+........................................................................ [ 39%]
+........................................................................ [ 58%]
+........................................................................ [ 78%]
+..............................................sssssssss................. [ 97%]
+.........                                                                [100%]
+360 passed, 9 skipped in 20.74s

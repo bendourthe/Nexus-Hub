@@ -1,0 +1,6 @@
+﻿Pre-rename validator baseline -- captured 2026-05-19 on Windows 11 / Python 3.12
+Environment: PYTHONUTF8=1
+Command: python scripts/validate_skills.py --bundles-only
+Scanned 207 skills under catalog\skills (bundle audit)
+
+RESULT: PASS (0 errors, 4 warnings)
