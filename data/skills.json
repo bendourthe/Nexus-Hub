@@ -6,7 +6,7 @@
     "description": "Comprehensive catalog of Nexus-Hub skills with L0/L1 tiered summaries"
   },
   "statistics": {
-    "total_skills": 196,
+    "total_skills": 197,
     "categories": {
       "ai-development": 9,
       "architecture": 6,
@@ -28,7 +28,7 @@
       "specialized-domains": 12,
       "testing": 3,
       "tests-generation": 17,
-      "workflow": 19,
+      "workflow": 20,
       "Workflow": 1
     },
     "priorities": {
@@ -6920,6 +6920,50 @@
         "lines": 257,
         "characters": 16501,
         "tokens_estimate": 4125
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "project-constitution",
+      "title": "project-constitution",
+      "description": "Author and maintain a versioned project constitution - a governance document declaring the MUST / SHOULD principles that every plan, spec, and implementation MUST align with. Use whenever the user wants to ratify project principles, write a constitution, define non-negotiable rules, set governance for a codebase, declare architectural invariants, or amend an existing constitution. Trigger phrases include 'draft a constitution', 'ratify principles', 'project governance', 'MUST rules', 'set the ground rules', 'amend the constitution', 'what are our non-negotiables', 'principle 4 says...', 'constitution check'. SKIP: CLAUDE.md / AGENTS.md agent-instructions edits, single-feature READMEs, ADRs that record one decision, or commit-message conventions.",
+      "long_description": "Produces and amends a project constitution at docs/<version>/constitution.md (recommended) or CONSTITUTION.md at the repo root. Distinct from CLAUDE.md / AGENTS.md (agent-instructions for AI tools), the constitution is project-governance for humans and machines alike, listing the MUST and SHOULD principles that every downstream artifact (specs, plans, ADRs, code) must align with. Defines the constitution structure (preamble, numbered principles with Statement / Rationale / Applies to subsections, governance section, ratified / last-amended dates), the amendment workflow (SemVer increment: MAJOR for principle removals or redefinitions, MINOR for principle additions, PATCH for clarifications), and the Sync Impact Report emitted as an HTML comment at the top of the file (version change, modified principles, added or removed sections, downstream templates requiring updates). Paired with the /constitution command (interactive author and amender) and catalog/templates/constitution-template.md skeleton. Enforces a 3-principle [NEEDS CLARIFICATION] marker cap with priority order scope > security/privacy > UX > technical.",
+      "summary_l0": "\"Author and maintain a versioned project constitution that declares MUST / SHOULD principles every plan, spec, and implementation aligns with\"",
+      "overview_l1": "\"This skill produces and amends a project constitution at docs/<version>/constitution.md (the recommended Nexus-Hub-aligned location) or CONSTITUTION.md at the repo root. A constitution is distinct from CLAUDE.md / AGENTS.md (which are agent-instructions for AI tools): the constitution is project-governance for humans and machines alike, listing the MUST and SHOULD principles that every downstream artifact (specs, plans, ADRs, code) must align with. The skill defines the constitution structure (preamble, numbered principles, governance section, ratified / last-amended date line), the amendment workflow (detect old version, increment per SemVer - MAJOR for principle removals / redefinitions, MINOR for principle additions, PATCH for clarifications / wording fixes), and the Sync Impact Report emitted as an HTML comment at the top of the file (version change, modified principles, added or removed sections, downstream templates requiring updates). It is paired with the /constitution command (interactive author + amender) and the catalog/templates/constitution-template.md skeleton. Use it when establishing project principles for the first time, amending an existing constitution, or running a propagation check after constitution edits. Trigger phrases: draft a constitution, ratify principles, project governance, MUST rules, amend the constitution, set the ground rules, constitution check, what are our non-negotiables.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "workflow",
+      "language": "Multi-language",
+      "tags": [
+        "governance",
+        "constitution",
+        "principles",
+        "project-rules",
+        "must-should",
+        "amendment-workflow",
+        "sync-impact-report",
+        "spec-driven-development"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read",
+        "Write",
+        "Edit",
+        "Glob"
+      ],
+      "path": "catalog/skills/workflow/project-constitution/",
+      "file": "catalog/skills/workflow/project-constitution/SKILL.md",
+      "size": {
+        "lines": 159,
+        "tokens_estimate": 2400
       },
       "downloads": 0,
       "status": "production",

@@ -416,6 +416,30 @@ Testability = (Requirements with measurable acceptance criteria) / (Total requir
 1. {Priority action items}
 ```
 
+### Step 7: Emit `[NEEDS CLARIFICATION]` Markers Aligned with the Project Convention
+
+When the detector outputs go back into the spec text itself (rather than into a separate report), use the project-wide `[NEEDS CLARIFICATION: <specific question>]` marker convention rather than free-form prose. The marker is the contract between the detector and the human reviewer; the reviewer is expected to resolve every marker before the spec advances.
+
+Rules:
+
+- **Hard limit: 3 markers total per spec.** If the detector finds more candidates, prioritize per `scope > security/privacy > UX > technical` and demote the rest to assumptions with informed defaults (write them into an `## Assumptions` section of the spec). Rationale: a spec with 12 markers signals scope confusion, not careful analysis. The cap forces triage.
+- **Be specific in the marker question**: `[NEEDS CLARIFICATION: which auth method - session cookies or JWT?]` is actionable. `[NEEDS CLARIFICATION: auth?]` is not.
+- **Marker placement**: inline at the exact phrase that is ambiguous, not in a separate block at the end of the spec. The reviewer sees the marker in the same context as the ambiguity.
+- **Surface the priority**: when the cap forces a triage decision, write a one-line `Priority:` note next to the marker explaining why it earned a slot (e.g., `Priority: security/privacy (PII handling drives compliance scope)`).
+
+Before / after:
+
+```
+Before (free-form prose, no contract with reviewer):
+The system should be fast. (Note: "fast" is ambiguous; ask the product owner.)
+
+After (marker within the 3-cap, specific question, priority justification):
+The system MUST respond to user actions in [NEEDS CLARIFICATION: target P95 latency - 200ms (matches current SLA) or 100ms (matches mobile-app aspiration)?].
+Priority: scope (target latency drives caching layer and deploy-shape choices).
+```
+
+Cross-link: `[[spec-driven-development]]` writes the spec; `[[idea-refine]]` produces the problem statement that bounds the spec; both honor the same 3-marker cap and priority order.
+
 ## Best Practices
 
 - **Review requirements before implementation begins**: the cost of fixing an ambiguous requirement is 10-100x higher after code is written; invest time in clarification upfront

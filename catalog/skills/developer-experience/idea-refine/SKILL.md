@@ -86,6 +86,8 @@ NON-BLOCKING (can assume for now, revisit later):
 - [ ] Whether to support push notifications (mobile)
 ```
 
+**3-marker cap aligned with `[[spec-driven-development]]` and `[[ambiguity-detector]]`**: when the problem statement carries open questions that would persist into the spec phase, format them as inline `[NEEDS CLARIFICATION: <specific question>]` markers and apply a hard cap of 3 total. Refinement of vague ideas should produce no more than 3 outstanding markers; resolve the rest via informed defaults (write them into the BLOCKING vs NON-BLOCKING split above, or as an `## Assumptions` subsection of the problem statement). Prioritize markers per `scope > security/privacy > UX > technical` - the same priority order downstream skills use. A problem statement that surfaces 8 markers signals the refinement is not done; force triage and resolve at least 5 of them through informed defaults before handing off to `[[spec-driven-development]]`.
+
 ### Step 6: Write the Problem Statement
 
 Synthesize the above into one page or less:

@@ -20,6 +20,34 @@ Use when:
 
 **When NOT to use:** Single-line fixes, typo corrections, or changes where requirements are unambiguous and self-contained. If you already have a well-defined spec, move directly to `plan-before-code`.
 
+### Marking uncertainty with `[NEEDS CLARIFICATION]`
+
+When the spec author cannot resolve an ambiguity from the conversation alone, surface it inline with the `[NEEDS CLARIFICATION: <specific question>]` marker rather than guessing. The marker is a hard contract between the spec author and the human reviewer: every marker is an item the reviewer is expected to resolve before the spec advances to the Plan phase.
+
+Rules:
+
+- **Hard limit: 3 markers total per spec**. If more candidates surface, prioritize per `scope > security/privacy > UX > technical` and demote the rest to assumptions with informed defaults. The cap forces triage; a spec carrying 12 markers signals scope confusion, not detail.
+- **Make informed guesses for the rest**. For every candidate ambiguity below the 3-marker cap, write the most plausible interpretation as an explicit assumption in an `## Assumptions` section. The reviewer can override the assumption with one line; an unanswered marker requires a full back-and-forth.
+- **Be specific in the marker question**. `[NEEDS CLARIFICATION: which auth method - OAuth2, JWT, or session cookies?]` is actionable. `[NEEDS CLARIFICATION: auth?]` is not.
+
+Before / after:
+
+```
+Before (vague, no marker, no assumption):
+The system should authenticate users somehow.
+
+After (specific marker within the 3-cap, with priority justification):
+The system MUST authenticate users.
+[NEEDS CLARIFICATION: which auth method - session cookies (matches existing stack) or JWT (matches the mobile-app plan)?]
+Priority: scope (which auth method drives data-model and deploy-shape choices downstream).
+
+After (below the 3-cap, demoted to assumption):
+The system MUST authenticate users via session cookies (matches the existing stack).
+See ## Assumptions for the override path if JWT is required instead.
+```
+
+Cross-link: `[[ambiguity-detector]]` emits markers in this same format when it scans an existing spec; `[[idea-refine]]` produces no more than 3 outstanding markers in the problem statement.
+
 ## The Gated Workflow
 
 Spec-driven development has four phases. Do not advance to the next phase until the human has reviewed and approved the current one.
