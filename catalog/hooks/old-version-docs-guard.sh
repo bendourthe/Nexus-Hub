@@ -9,7 +9,7 @@
 #   a docs/v<version>/ directory older than the active version, and
 #   emits an advisory warning to stderr if so.
 #
-#   Non-blocking by default (always exits 0). Set DEVAI_OLD_DOCS_GUARD=block
+#   Non-blocking by default (always exits 0). Set NEXUS_OLD_DOCS_GUARD=block
 #   to upgrade to a hard block (exit 1).
 #
 # Active-version detection:
@@ -25,15 +25,15 @@ set -euo pipefail
 trap 'exit 0' ERR
 
 # --- Runtime Controls ---
-# Disable by name:           export DEVAI_DISABLED_HOOKS=old-version-docs-guard
-# Skip all non-essential:    export DEVAI_HOOK_PROFILE=minimal
-# Upgrade warning to block:  export DEVAI_OLD_DOCS_GUARD=block
+# Disable by name:           export NEXUS_DISABLED_HOOKS=old-version-docs-guard
+# Skip all non-essential:    export NEXUS_HOOK_PROFILE=minimal
+# Upgrade warning to block:  export NEXUS_OLD_DOCS_GUARD=block
 _HOOK_NAME="old-version-docs-guard"
-_DISABLED="${DEVAI_DISABLED_HOOKS:-}"
+_DISABLED="${NEXUS_DISABLED_HOOKS:-}"
 if [[ ",$_DISABLED," == *",$_HOOK_NAME,"* ]]; then exit 0; fi
-if [[ "${DEVAI_HOOK_PROFILE:-full}" == "minimal" ]]; then exit 0; fi
+if [[ "${NEXUS_HOOK_PROFILE:-full}" == "minimal" ]]; then exit 0; fi
 
-_BLOCKING="${DEVAI_OLD_DOCS_GUARD:-warn}"
+_BLOCKING="${NEXUS_OLD_DOCS_GUARD:-warn}"
 
 # --- ANSI colors ---
 COLOR_YELLOW='\033[0;33m'
@@ -123,7 +123,7 @@ MSG="[old-version-docs-guard] Writing to historical version dir docs/v${TARGET_V
 
 if [ "$_BLOCKING" = "block" ]; then
   echo -e "${COLOR_RED}${MSG}${COLOR_RESET}" >&2
-  echo -e "${COLOR_RED}[old-version-docs-guard] Blocked by DEVAI_OLD_DOCS_GUARD=block. Set it to 'warn' or unset to bypass.${COLOR_RESET}" >&2
+  echo -e "${COLOR_RED}[old-version-docs-guard] Blocked by NEXUS_OLD_DOCS_GUARD=block. Set it to 'warn' or unset to bypass.${COLOR_RESET}" >&2
   exit 1
 fi
 

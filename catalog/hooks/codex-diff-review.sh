@@ -10,11 +10,11 @@
 #   /install-pre-commit-review-hook --platform=codex   (run from inside the target repo)
 #
 # Per-commit bypass:
-#   DEVAI_DIFF_REVIEW_DISABLE=1 git commit -m "..."
+#   NEXUS_DIFF_REVIEW_DISABLE=1 git commit -m "..."
 #   git commit -n -m "..."   (--no-verify; skips ALL pre-commit hooks)
 #
 # Diff-size cap (default 50 KB, raise to allow larger commits):
-#   DEVAI_DIFF_REVIEW_MAX_BYTES=204800 git commit -m "..."
+#   NEXUS_DIFF_REVIEW_MAX_BYTES=204800 git commit -m "..."
 #
 # Disable globally for a repo:
 #   rm .git/hooks/pre-commit
@@ -22,7 +22,7 @@
 set -euo pipefail
 
 # --- Bypass paths --------------------------------------------------------
-if [ "${DEVAI_DIFF_REVIEW_DISABLE:-0}" = "1" ]; then
+if [ "${NEXUS_DIFF_REVIEW_DISABLE:-0}" = "1" ]; then
     exit 0
 fi
 
@@ -42,7 +42,7 @@ fi
 # --- Locate codex CLI ----------------------------------------------------
 if ! command -v codex >/dev/null 2>&1; then
     echo "[codex-diff-review] WARNING: codex CLI not found on PATH; skipping review." >&2
-    echo "[codex-diff-review] Install OpenAI Codex CLI (https://github.com/openai/codex) or set DEVAI_DIFF_REVIEW_DISABLE=1 to silence this warning." >&2
+    echo "[codex-diff-review] Install OpenAI Codex CLI (https://github.com/openai/codex) or set NEXUS_DIFF_REVIEW_DISABLE=1 to silence this warning." >&2
     exit 0
 fi
 
@@ -53,11 +53,11 @@ if [ -z "$DIFF" ]; then
 fi
 
 # --- Cap diff size -------------------------------------------------------
-MAX_BYTES="${DEVAI_DIFF_REVIEW_MAX_BYTES:-51200}"
+MAX_BYTES="${NEXUS_DIFF_REVIEW_MAX_BYTES:-51200}"
 DIFF_BYTES=${#DIFF}
 if [ "$DIFF_BYTES" -gt "$MAX_BYTES" ]; then
     echo "[codex-diff-review] WARNING: staged diff is ${DIFF_BYTES} bytes (cap=${MAX_BYTES}); skipping review." >&2
-    echo "[codex-diff-review] Raise the cap with DEVAI_DIFF_REVIEW_MAX_BYTES=N or commit fewer files at a time." >&2
+    echo "[codex-diff-review] Raise the cap with NEXUS_DIFF_REVIEW_MAX_BYTES=N or commit fewer files at a time." >&2
     exit 0
 fi
 
@@ -122,7 +122,7 @@ case "$VERDICT" in
         echo "[codex-diff-review] BLOCK:" >&2
         echo "$RESPONSE" | tail -n +2 >&2
         echo "" >&2
-        echo "[codex-diff-review] Commit refused. Fix the issue, or bypass this commit with: DEVAI_DIFF_REVIEW_DISABLE=1 git commit ..." >&2
+        echo "[codex-diff-review] Commit refused. Fix the issue, or bypass this commit with: NEXUS_DIFF_REVIEW_DISABLE=1 git commit ..." >&2
         exit 1
         ;;
     *)

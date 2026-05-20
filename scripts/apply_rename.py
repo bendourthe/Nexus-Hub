@@ -29,6 +29,8 @@ VARIANTS: list[tuple[str, str]] = [
     ("devai_web_fetch", "nexus_web_fetch"),
     ("devai_mcp_benchmark", "nexus_mcp_benchmark"),
     ("devai-backup", "nexus-backup"),
+    ("DEVAI_", "NEXUS_"),
+    ("DEVAI-", "NEXUS-"),
 ]
 
 TARGET_ROOTS: list[str] = [

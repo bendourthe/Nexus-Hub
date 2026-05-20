@@ -18,14 +18,14 @@
 trap 'exit 0' ERR
 
 # --- Runtime Controls ---
-# Disable by name: export DEVAI_DISABLED_HOOKS=lint-on-write
-# Skip all non-essential hooks: export DEVAI_HOOK_PROFILE=minimal
-# Skip format/lint hooks only: export DEVAI_HOOK_PROFILE=no-format
+# Disable by name: export NEXUS_DISABLED_HOOKS=lint-on-write
+# Skip all non-essential hooks: export NEXUS_HOOK_PROFILE=minimal
+# Skip format/lint hooks only: export NEXUS_HOOK_PROFILE=no-format
 _HOOK_NAME="lint-on-write"
-_DISABLED="${DEVAI_DISABLED_HOOKS:-}"
+_DISABLED="${NEXUS_DISABLED_HOOKS:-}"
 if [[ ",$_DISABLED," == *",$_HOOK_NAME,"* ]]; then exit 0; fi
-if [[ "${DEVAI_HOOK_PROFILE:-full}" == "minimal" ]]; then exit 0; fi
-if [[ "${DEVAI_HOOK_PROFILE:-full}" == "no-format" ]]; then exit 0; fi
+if [[ "${NEXUS_HOOK_PROFILE:-full}" == "minimal" ]]; then exit 0; fi
+if [[ "${NEXUS_HOOK_PROFILE:-full}" == "no-format" ]]; then exit 0; fi
 
 # --- Read JSON from stdin ---
 INPUT=$(cat)

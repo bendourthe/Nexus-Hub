@@ -116,8 +116,8 @@ class TestBypassEnvVar:
     def test_disable_env_var_short_circuits(
         self, hook: str, cli: str, tmp_git_repo: Path
     ) -> None:
-        """DEVAI_DIFF_REVIEW_DISABLE=1 must exit 0 immediately for every variant."""
-        env = {"DEVAI_DIFF_REVIEW_DISABLE": "1", "PATH": ""}
+        """NEXUS_DIFF_REVIEW_DISABLE=1 must exit 0 immediately for every variant."""
+        env = {"NEXUS_DIFF_REVIEW_DISABLE": "1", "PATH": ""}
         _stdout, _stderr, code = _run_hook(hook, tmp_git_repo, env)
         assert code == 0
 
@@ -187,7 +187,7 @@ class TestDiffSizeCap:
     def test_oversized_diff_skips_with_warning(
         self, hook: str, cli: str, tmp_git_repo: Path, tmp_path: Path
     ) -> None:
-        """A diff above DEVAI_DIFF_REVIEW_MAX_BYTES must be skipped for every variant."""
+        """A diff above NEXUS_DIFF_REVIEW_MAX_BYTES must be skipped for every variant."""
         big_file = tmp_git_repo / "big.txt"
         big_file.write_text("X" * 5000 + "\n", encoding="utf-8")
         subprocess.run(["git", "add", "big.txt"], cwd=tmp_git_repo, check=True)
@@ -196,7 +196,7 @@ class TestDiffSizeCap:
         _make_stub_cli(stub_dir, cli, "VERDICT: BLOCK\n\nShould be skipped due to size cap.")
         env = {
             "PATH": f"{stub_dir}{os.pathsep}{os.environ.get('PATH', '')}",
-            "DEVAI_DIFF_REVIEW_MAX_BYTES": "100",
+            "NEXUS_DIFF_REVIEW_MAX_BYTES": "100",
         }
         _stdout, stderr, code = _run_hook(hook, tmp_git_repo, env)
         assert code == 0

@@ -7,7 +7,7 @@
     whether the target file path is inside a docs/v<old-version>/ directory
     that is older than the active version, and emits an advisory warning.
 
-    Non-blocking by default. Set $env:DEVAI_OLD_DOCS_GUARD = 'block' to upgrade
+    Non-blocking by default. Set $env:NEXUS_OLD_DOCS_GUARD = 'block' to upgrade
     to a hard block (exit 1).
 
     This script mirrors the .sh implementation so Windows users who run hooks
@@ -23,11 +23,11 @@ $ErrorActionPreference = "Continue"
 
 # --- Runtime controls ---
 $hookName = "old-version-docs-guard"
-$disabled = $env:DEVAI_DISABLED_HOOKS
+$disabled = $env:NEXUS_DISABLED_HOOKS
 if ($disabled -and $disabled.Split(',') -contains $hookName) { exit 0 }
-if ($env:DEVAI_HOOK_PROFILE -eq "minimal") { exit 0 }
+if ($env:NEXUS_HOOK_PROFILE -eq "minimal") { exit 0 }
 
-$blocking = if ($env:DEVAI_OLD_DOCS_GUARD) { $env:DEVAI_OLD_DOCS_GUARD } else { "warn" }
+$blocking = if ($env:NEXUS_OLD_DOCS_GUARD) { $env:NEXUS_OLD_DOCS_GUARD } else { "warn" }
 
 # --- Read JSON from stdin ---
 $input = [Console]::In.ReadToEnd()
@@ -105,7 +105,7 @@ $msg = "[old-version-docs-guard] Writing to historical version dir docs/v$target
 
 if ($blocking -eq "block") {
     [Console]::Error.WriteLine($msg)
-    [Console]::Error.WriteLine("[old-version-docs-guard] Blocked by DEVAI_OLD_DOCS_GUARD=block. Set it to 'warn' or unset to bypass.")
+    [Console]::Error.WriteLine("[old-version-docs-guard] Blocked by NEXUS_OLD_DOCS_GUARD=block. Set it to 'warn' or unset to bypass.")
     exit 1
 }
 

@@ -96,11 +96,11 @@ Example invocations:
         Verdict PASS or any error: silent allow (fail-open).
 
     Per-commit bypass:
-        DEVAI_DIFF_REVIEW_DISABLE=1 git commit -m "..."
+        NEXUS_DIFF_REVIEW_DISABLE=1 git commit -m "..."
         git commit -n -m "..."     (--no-verify; skips ALL pre-commit hooks)
 
     Diff-size cap (default 50 KB; raise to allow larger commits):
-        DEVAI_DIFF_REVIEW_MAX_BYTES=204800 git commit -m "..."
+        NEXUS_DIFF_REVIEW_MAX_BYTES=204800 git commit -m "..."
 
     Switch to a different platform:
         rm .git/hooks/pre-commit
@@ -147,7 +147,7 @@ Two reasons. First, **independence:** a Gemini user should not be forced to inst
 | "I already have `secret-scan.sh` as a Claude Code PreToolUse hook, so this is redundant." | `secret-scan.sh` only fires when **Claude Code itself** writes a file; it sees nothing when the same repo is edited via Cursor, Copilot, the terminal, or a teammate's machine. The git pre-commit hook fires on every `git commit` regardless of who or what authored the change, so the two layers cover disjoint surfaces. |
 | "I'll install hooks for all four platforms so they all get reviewed." | Git pre-commit allows only one `.git/hooks/pre-commit` file. Installing multiple Nexus-Hub hook variants in the same repo is not supported by this command. If you genuinely want multi-platform review, chain them manually using the wrapper script above. |
 | "The hook will block my commit during a merge / rebase, breaking my workflow." | All four hook variants explicitly skip when `MERGE_HEAD`, `CHERRY_PICK_HEAD`, `REBASE_HEAD`, or any rebase state directory exists. Merge / cherry-pick / rebase commits are never reviewed; only author-curated commits are. |
-| "Every commit will now cost API tokens regardless of which CLI I picked." | The default 50 KB diff cap means the hook skips with a warning on truly large diffs (the most token-expensive case). For typical commits (~5-15 KB of diff), the per-commit token cost is roughly 3-8k input + ~200 output tokens with whichever provider you selected. Adjust `DEVAI_DIFF_REVIEW_MAX_BYTES` to control this. |
+| "Every commit will now cost API tokens regardless of which CLI I picked." | The default 50 KB diff cap means the hook skips with a warning on truly large diffs (the most token-expensive case). For typical commits (~5-15 KB of diff), the per-commit token cost is roughly 3-8k input + ~200 output tokens with whichever provider you selected. Adjust `NEXUS_DIFF_REVIEW_MAX_BYTES` to control this. |
 
 ## Related Skills and Commands
 

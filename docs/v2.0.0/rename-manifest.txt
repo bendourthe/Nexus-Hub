@@ -2,48 +2,22 @@
 
 Per-file changed-line / replacement counts from `scripts/apply_rename.py`.
 
-The script was run twice during Phase 5.1:
-
-- **Pass 1** applied variants 1-6 from `docs/v2.0.0/rename-inventory.md` (`DevAI-Hub`, `DEVAI-HUB`, `DEVAI_HUB`, `DevAI Hub`, `devai-hub`, `devai_hub`) across `catalog/`, `templates/`, `.cursor/`.
-- **Pass 2** added variants 7-14 (`devai-skill-server`, `devai-code-search`, `devai-web-fetch`, the snake-case package ids, `devai_mcp_benchmark`, `devai-backup`) and re-ran the sweep to catch the MCP-server keys and pre-commit-backup pattern that pass 1 left in place.
-
-The script is idempotent; pass 2 only touched files that still held an unrenamed token after pass 1.
-
-## Pass 1 totals (variants 1-6)
-
-- Files rewritten: **66**
-- Total replacements: **177**
-- Total changed lines: **170**
-
-## Pass 2 totals (variants 7-14)
-
-- Files rewritten: **7**
-- Total replacements: **32**
-- Total changed lines: **25**
-
-## Pass 2 per-file detail
-
 | File | Lines changed | Replacements |
 |------|---------------|--------------|
 | `catalog/commands/install-pre-commit-review-hook.md` | 3 | 3 |
-| `catalog/commands/run-deep-review.md` | 3 | 3 |
-| `catalog/skills/ai-development/code-semantic-search/SKILL.md` | 7 | 10 |
-| `catalog/skills/ai-development/context-engineering/SKILL.md` | 1 | 2 |
-| `catalog/skills/ai-development/rag-implementation/SKILL.md` | 2 | 4 |
-| `catalog/skills/orchestration/context-manager/SKILL.md` | 1 | 2 |
-| `catalog/skills/research/local-docs-lookup/SKILL.md` | 8 | 8 |
+| `catalog/hooks/auto-format-on-write.sh` | 6 | 6 |
+| `catalog/hooks/claude-diff-review.sh` | 7 | 7 |
+| `catalog/hooks/codex-diff-review.sh` | 7 | 7 |
+| `catalog/hooks/gemini-diff-review.sh` | 7 | 7 |
+| `catalog/hooks/large-file-guard.sh` | 4 | 4 |
+| `catalog/hooks/lint-on-write.sh` | 6 | 6 |
+| `catalog/hooks/notify-on-complete.sh` | 4 | 4 |
+| `catalog/hooks/old-version-docs-guard.ps1` | 5 | 6 |
+| `catalog/hooks/old-version-docs-guard.sh` | 8 | 8 |
+| `catalog/hooks/opencode-diff-review.sh` | 7 | 7 |
+| `catalog/hooks/session-summary.sh` | 4 | 4 |
+| `catalog/hooks/tests/test_diff_review_hooks.py` | 4 | 4 |
+| `catalog/hooks/tests/test_old_version_docs_guard.py` | 10 | 10 |
 
-Pass 1 per-file detail was overwritten when pass 2 wrote a fresh manifest; the
-authoritative source of the pass 1 file list is the git diff for the Phase 5.1
-commit. The verification grep `grep -rn "DevAI-Hub\|DevAI Hub\|devai-hub\|devai_hub\|DEVAI_HUB\|DEVAI-HUB" catalog/ templates/ .cursor/` returns NOTHING after both passes complete.
+**Totals**: 14 files, 82 lines, 83 replacements.
 
-## Combined totals
-
-- Files rewritten: **66** unique files (pass 2 touched a subset of pass 1's files).
-- Total replacements: **209**
-- Total changed lines: approximately **195**
-
-## Standalone `devai` audit
-
-After both passes, `grep -rn "devai" catalog/ templates/ .cursor/` returns NOTHING.
-No standalone `devai` references survived the variants 1-14 sweep.

@@ -7,7 +7,7 @@ Run from the repo root:
 Tests invoke the bash hook via subprocess against a synthetic docs/ tree in a
 tmp directory. Each case asserts on (stdout, stderr, exit_code). The hook is
 designed to be non-blocking by default and to upgrade to a hard block only
-when DEVAI_OLD_DOCS_GUARD=block.
+when NEXUS_OLD_DOCS_GUARD=block.
 
 If bash is not on PATH (e.g. a Windows runner without Git Bash), all tests
 skip rather than fail.
@@ -60,8 +60,8 @@ def _run_hook(payload: dict[str, Any], cwd: Path, env_overrides: dict[str, str] 
     env = os.environ.copy()
     # Strip any inherited profile overrides FIRST so the test environment is deterministic.
     # Apply env_overrides AFTER the pop so test-supplied vars are not silently removed.
-    env.pop("DEVAI_HOOK_PROFILE", None)
-    env.pop("DEVAI_DISABLED_HOOKS", None)
+    env.pop("NEXUS_HOOK_PROFILE", None)
+    env.pop("NEXUS_DISABLED_HOOKS", None)
     if env_overrides:
         env.update(env_overrides)
 
@@ -115,14 +115,14 @@ def test_silent_when_writing_to_active_version(tmp_path: Path) -> None:
 
 @_REQUIRES_JQ
 def test_blocks_when_env_set_to_block(tmp_path: Path) -> None:
-    """DEVAI_OLD_DOCS_GUARD=block upgrades the warning to a hard block."""
+    """NEXUS_OLD_DOCS_GUARD=block upgrades the warning to a hard block."""
     _make_docs_tree(tmp_path, ["0.8.1", "1.0.0"])
     payload = _make_payload("docs/v0.8.1/foo.md")
 
-    stdout, stderr, code = _run_hook(payload, cwd=tmp_path, env_overrides={"DEVAI_OLD_DOCS_GUARD": "block"})
+    stdout, stderr, code = _run_hook(payload, cwd=tmp_path, env_overrides={"NEXUS_OLD_DOCS_GUARD": "block"})
 
     assert code == 1, f"hook should block (got exit {code})"
-    assert "Blocked by DEVAI_OLD_DOCS_GUARD=block" in stderr
+    assert "Blocked by NEXUS_OLD_DOCS_GUARD=block" in stderr
 
 
 def test_silent_for_non_docs_path(tmp_path: Path) -> None:
@@ -159,14 +159,14 @@ def test_silent_when_no_version_dirs_exist(tmp_path: Path) -> None:
 
 
 def test_disabled_via_env(tmp_path: Path) -> None:
-    """DEVAI_DISABLED_HOOKS containing old-version-docs-guard short-circuits silently."""
+    """NEXUS_DISABLED_HOOKS containing old-version-docs-guard short-circuits silently."""
     _make_docs_tree(tmp_path, ["0.8.1", "1.0.0"])
     payload = _make_payload("docs/v0.8.1/foo.md")
 
     stdout, stderr, code = _run_hook(
         payload,
         cwd=tmp_path,
-        env_overrides={"DEVAI_DISABLED_HOOKS": "old-version-docs-guard"},
+        env_overrides={"NEXUS_DISABLED_HOOKS": "old-version-docs-guard"},
     )
 
     assert code == 0
@@ -174,14 +174,14 @@ def test_disabled_via_env(tmp_path: Path) -> None:
 
 
 def test_minimal_profile_short_circuits(tmp_path: Path) -> None:
-    """DEVAI_HOOK_PROFILE=minimal skips advisory hooks like this one."""
+    """NEXUS_HOOK_PROFILE=minimal skips advisory hooks like this one."""
     _make_docs_tree(tmp_path, ["0.8.1", "1.0.0"])
     payload = _make_payload("docs/v0.8.1/foo.md")
 
     stdout, stderr, code = _run_hook(
         payload,
         cwd=tmp_path,
-        env_overrides={"DEVAI_HOOK_PROFILE": "minimal"},
+        env_overrides={"NEXUS_HOOK_PROFILE": "minimal"},
     )
 
     assert code == 0
