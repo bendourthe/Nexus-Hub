@@ -12,6 +12,7 @@ This file documents the licensing and attribution of the brand assets shipped un
 | `assets/nexus_primary.png` | Nexus | PNG, RGBA | 430 x 430 | Sibling-project square mark, reserved for compact contexts where the banner would be too wide |
 | `assets/nexus_monochrome.png` | Shared mark (Nexus / Nexus-Hub) | PNG, RGBA | 507 x 477 | Monochrome variant for dark contexts, print, single-color displays |
 | `assets/nexus_monochrome_full.png` | Shared mark (Nexus / Nexus-Hub) | PNG, RGBA | 620 x 596 | Monochrome variant with full square treatment |
+| `assets/sibling_arrow.svg` | Generated graphic | SVG, vector | 160 x 60 (viewBox) | Decorative double-headed arrow rendered between the Nexus-Hub and Nexus banners in the README cross-link block. Neutral-gray stroke (#9aa4ad) reads on both light and dark GitHub themes. |
 
 ## License
 
