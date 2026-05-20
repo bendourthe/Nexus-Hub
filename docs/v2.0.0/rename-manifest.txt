@@ -20,4 +20,3 @@ Per-file changed-line / replacement counts from `scripts/apply_rename.py`.
 | `catalog/hooks/tests/test_old_version_docs_guard.py` | 10 | 10 |
 
 **Totals**: 14 files, 82 lines, 83 replacements.
-

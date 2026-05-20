@@ -21,7 +21,7 @@ updates:
         update-types: ["version-update:semver-major"]
 
   - package-ecosystem: pip
-    directory: /extensions/devai-skill-server
+    directory: /extensions/nexus-skill-server
     schedule:
       interval: weekly
     labels:

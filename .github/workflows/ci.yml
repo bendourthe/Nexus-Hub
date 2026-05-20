@@ -53,7 +53,7 @@ jobs:
     # Runs the Python test suite. Each pytest invocation is scoped to its own
     # tree so pytest does not accidentally adopt a nested `pyproject.toml` as
     # the rootdir (which previously broke module discovery when combining
-    # `catalog/hooks/tests/` with `extensions/devai-skill-server/tests/`).
+    # `catalog/hooks/tests/` with `extensions/nexus-skill-server/tests/`).
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -72,19 +72,19 @@ jobs:
         run: pytest catalog/hooks/tests/ -v
 
       - name: Install skill-server (and transitive deps like pydantic via mcp)
-        run: pip install -e "extensions/devai-skill-server/[dev]"
+        run: pip install -e "extensions/nexus-skill-server/[dev]"
 
       - name: Skill-server tests
-        run: pytest extensions/devai-skill-server/tests/ -v
+        run: pytest extensions/nexus-skill-server/tests/ -v
 
       - name: Install code-search MCP server (v1.0.0+)
-        run: pip install -e "extensions/devai-code-search/[dev]"
+        run: pip install -e "extensions/nexus-code-search/[dev]"
 
       - name: Code-search tests
-        run: pytest extensions/devai-code-search/tests/ -v
+        run: pytest extensions/nexus-code-search/tests/ -v
 
       - name: Install web-fetch MCP server (v1.0.0+)
-        run: pip install -e "extensions/devai-web-fetch/[dev]"
+        run: pip install -e "extensions/nexus-web-fetch/[dev]"
 
       - name: Web-fetch tests
-        run: pytest extensions/devai-web-fetch/tests/ -v
+        run: pytest extensions/nexus-web-fetch/tests/ -v
