@@ -1,13 +1,13 @@
 {
-  "name": "devai-hub",
-  "displayName": "DevAI Hub",
+  "name": "nexus-hub",
+  "displayName": "Nexus Hub",
   "tagline": "Production-Grade Brain Upgrades for Your AI Coding Assistant",
-  "description": "Turn generic AI into a Senior Engineer. 203+ curated skills across 22 domains - architecture, security, compliance, testing, infrastructure, AI development, and more. 33 workflow commands. Cross-platform: Claude Code, Cursor, Gemini CLI, GitHub Copilot, OpenAI Codex.",
+  "description": "Enterprise-grade skill harness for AI coding assistants -- the upstream catalog for the Nexus desktop app and every major agent (Claude Code, OpenAI Codex, Gemini, GitHub Copilot, Cursor, GitHub CLI). 203+ curated skills, 33 commands, 14 hooks, cross-platform.",
   "version": "1.4.0",
   "author": "Benjamin Dourthe",
   "license": "MIT",
-  "repository": "https://github.com/bendourthe/DevAI-Hub",
-  "homepage": "https://github.com/bendourthe/DevAI-Hub",
+  "repository": "https://github.com/bendourthe/Nexus-Hub",
+  "homepage": "https://github.com/bendourthe/Nexus-Hub",
   "keywords": [
     "ai-skills",
     "claude-code",
@@ -40,12 +40,12 @@
   "install": {
     "claude-code": {
       "method": "installer",
-      "command": "bash <(curl -fsSL https://raw.githubusercontent.com/bendourthe/DevAI-Hub/main/install.sh)",
-      "note": "Also supports: claude plugin install devai-hub@bendourthe (requires claude plugin marketplace add)"
+      "command": "bash <(curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh)",
+      "note": "Also supports: claude plugin install nexus-hub@bendourthe (requires claude plugin marketplace add)"
     },
     "windows": {
       "method": "installer",
-      "command": "iex (iwr -UseBasicParsing https://raw.githubusercontent.com/bendourthe/DevAI-Hub/main/install.bat).Content"
+      "command": "iex (iwr -UseBasicParsing https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.bat).Content"
     }
   }
 }

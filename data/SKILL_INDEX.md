@@ -1,4 +1,4 @@
-# DevAI-Hub Skill Index
+# Nexus-Hub Skill Index
 
 Quick-reference index of all available skills. Use the skill name or summary to find the right skill for your task.
 
@@ -190,7 +190,7 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | research-plan-implement | workflow | "Execute Research-Plan-Implement workflows with GO/NO-GO gates and artifact tracking" | catalog/skills/workflow/research-plan-implement/SKILL.md |
 | session-history | workflow | "Generate standalone session history documents capturing steps, troubleshooting, and next steps" | catalog/skills/workflow/session-history/SKILL.md |
 | shipping-and-launch | workflow | "Execute safe production deployments with pre-flight checks, go/no-go decisions, and post-launch verification" | catalog/skills/workflow/shipping-and-launch/SKILL.md |
-| using-devai-hub | workflow | "Orient an AI session to DevAI-Hub's skill catalog, commands, and hooks in under 2 minutes" | catalog/skills/workflow/using-devai-hub/SKILL.md |
+| using-nexus-hub | workflow | "Orient an AI session to Nexus-Hub's skill catalog, commands, and hooks in under 2 minutes" | catalog/skills/workflow/using-nexus-hub/SKILL.md |
 | test-driven-development | workflow | "Implement TDD workflow with red-green-refactor cycle and test-first development" | catalog/skills/workflow/test-driven-development/SKILL.md |
 | version-upgrade | workflow | "Automate version upgrades with changelog generation and cross-file version bumps" | catalog/skills/workflow/version-upgrade/SKILL.md |
 | dev-progress-tracker | workflow | "Maintain docs/todos.md as a living project progress tracker across sessions" | catalog/skills/workflow/dev-progress-tracker/SKILL.md |

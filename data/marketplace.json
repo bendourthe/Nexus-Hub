@@ -1,12 +1,12 @@
 {
   "plugin": {
-    "name": "devai-hub",
+    "name": "nexus-hub",
     "version": "1.4.0",
     "description": "Enterprise-grade skill library for AI coding assistants with 203+ curated skills, 37 commands, and cross-platform support",
     "author": "Benjamin Dourthe",
     "license": "MIT",
-    "repository": "https://github.com/bendourthe/DevAI-Hub",
-    "homepage": "https://github.com/bendourthe/DevAI-Hub",
+    "repository": "https://github.com/bendourthe/Nexus-Hub",
+    "homepage": "https://github.com/bendourthe/Nexus-Hub",
     "keywords": [
       "ai-skills",
       "claude-code",
@@ -179,8 +179,8 @@
   ],
   "discovery": {
     "mcp_server": {
-      "name": "devai-skill-server",
-      "path": "extensions/devai-skill-server/",
+      "name": "nexus-skill-server",
+      "path": "extensions/nexus-skill-server/",
       "tools": [
         "search_skills",
         "browse_categories",

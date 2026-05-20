@@ -1,10 +1,10 @@
-# GitHub Copilot Instructions — DevAI-Hub
+# GitHub Copilot Instructions — Nexus-Hub
 
 This repository uses `AGENTS.md` at the repo root as the canonical source of project-specific AI agent guidance. Read it in full before proposing changes. Copilot cannot auto-import other files, so the essential rules are repeated below; the full workflow is in AGENTS.md.
 
 ## Golden rule: installer-aware changes
 
-DevAI-Hub is a **template repository**. Nothing is "live" until a user runs `scripts/installer.sh` (macOS/Linux) or `scripts/installer.ps1` (Windows). The installer is what distributes changes to every supported platform (Claude Code, Cursor, Codex, Gemini/Antigravity, OpenCode, Copilot).
+Nexus-Hub is a **template repository**. Nothing is "live" until a user runs `scripts/installer.sh` (macOS/Linux) or `scripts/installer.ps1` (Windows). The installer is what distributes changes to every supported platform (Claude Code, Cursor, Codex, Gemini/Antigravity, OpenCode, Copilot).
 
 **Every change must be shaped so that after the next installer run, it reaches every supported platform on Windows, macOS, and Linux without any manual step on the user's part.**
 
@@ -14,7 +14,7 @@ DevAI-Hub is a **template repository**. Nothing is "live" until a user runs `scr
 
 2. **New skill** (`catalog/skills/<cat>/<name>/SKILL.md`): update three registry files — `data/SKILL_INDEX.md`, `data/skills.json`, `data/marketplace.json`. The folder itself is auto-copied by the installer.
 
-3. **New command** (`catalog/commands/<name>.md`): no registry update needed; the folder is auto-copied. If the command needs a style-guide reference, place it at `catalog/style-guides/<name>.md` (NOT in `catalog/commands/`, otherwise it surfaces as a slash command). The installer copies `catalog/style-guides/` to `~/.devai-hub/style-guides/`.
+3. **New command** (`catalog/commands/<name>.md`): no registry update needed; the folder is auto-copied. If the command needs a style-guide reference, place it at `catalog/style-guides/<name>.md` (NOT in `catalog/commands/`, otherwise it surfaces as a slash command). The installer copies `catalog/style-guides/` to `~/.nexus-hub/style-guides/`.
 
 4. **New hook** (`catalog/hooks/<name>.{sh,py}`): register in `catalog/hooks/settings.json`; write tests in `catalog/hooks/tests/`.
 
@@ -32,9 +32,9 @@ DevAI-Hub is a **template repository**. Nothing is "live" until a user runs `scr
 
 ## MCP Registry Policy
 
-DevAI-Hub's MCP registry (`catalog/mcp-configs/mcp-servers.json`) is governed by a strict decision tree. When proposing a new entry, walk it in order and stop at the first bucket that fits:
+Nexus-Hub's MCP registry (`catalog/mcp-configs/mcp-servers.json`) is governed by a strict decision tree. When proposing a new entry, walk it in order and stop at the first bucket that fits:
 
-1. **Local-only** (internal DevAI-Hub servers or zero-outbound Anthropic-official servers) - always allowed.
+1. **Local-only** (internal Nexus-Hub servers or zero-outbound Anthropic-official servers) - always allowed.
 2. **LLM-native skill** (capability achievable by instructing the agent directly) - ship a skill, not an MCP.
 3. **Reverse-engineer into a local internal MCP** - if the external project's logic can run locally, build the internal equivalent under `extensions/`. Strip external-source attribution; use generic descriptive names.
 4. **Trusted vendor wrapper (your-own-account)** - acceptable only when the vendor is the intrinsic data destination, reverse-engineering isn't viable, AND the feature is extremely worth it. Justify all three in the `_comment`.

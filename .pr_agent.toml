@@ -19,7 +19,7 @@ require_tests_review = true
 require_security_review = true
 require_todo_scan = true
 extra_instructions = """
-Review rules for DevAI-Hub:
+Review rules for Nexus-Hub:
 
 R1 - Skill Format: Every SKILL.md must start with valid YAML frontmatter containing at minimum `name` and `description` fields. The `description` field must be under 200 characters.
 

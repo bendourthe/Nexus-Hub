@@ -1,13 +1,13 @@
 {
-  "name": "devai-hub",
-  "description": "Enterprise-grade skill library for AI coding assistants with 203+ curated skills, 33 commands, and cross-platform support - covering the full engineering lifecycle from architecture and security to testing, compliance, and infrastructure.",
+  "name": "nexus-hub",
+  "description": "Enterprise-grade skill harness for AI coding assistants -- the upstream catalog for the Nexus desktop app and every major agent (Claude Code, OpenAI Codex, Gemini, GitHub Copilot, Cursor, GitHub CLI). 203+ curated skills, 33 commands, 14 hooks, cross-platform.",
   "version": "1.4.0",
   "author": {
     "name": "Benjamin Dourthe",
     "url": "https://github.com/bendourthe"
   },
-  "homepage": "https://github.com/bendourthe/DevAI-Hub",
-  "repository": "https://github.com/bendourthe/DevAI-Hub",
+  "homepage": "https://github.com/bendourthe/Nexus-Hub",
+  "repository": "https://github.com/bendourthe/Nexus-Hub",
   "license": "MIT",
   "commands": "./.claude/commands",
   "skills": "./catalog/skills"

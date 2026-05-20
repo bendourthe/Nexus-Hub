@@ -25,14 +25,14 @@ build-catalog: ## Rebuild skills.json and templates.json from source
 
 test: ## Run MCP skill server tests
 	@echo "Running tests..."
-	@cd extensions/devai-skill-server && python -m pytest -q
-	@cd extensions/devai-code-search && python -m pytest -q
-	@cd extensions/devai-web-fetch && python -m pytest -q
+	@cd extensions/nexus-skill-server && python -m pytest -q
+	@cd extensions/nexus-code-search && python -m pytest -q
+	@cd extensions/nexus-web-fetch && python -m pytest -q
 	@echo "Tests complete."
 
 benchmark: ## Benchmark internal MCP servers
 	@echo "Benchmarking internal MCPs..."
-	@python scripts/devai_mcp_benchmark.py --append --quiet
+	@python scripts/nexus_mcp_benchmark.py --append --quiet
 	@echo "Benchmark complete. Results: data/benchmarks/mcp.json"
 
 clean: ## Remove build artifacts and caches
