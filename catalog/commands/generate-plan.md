@@ -14,6 +14,8 @@ This command works for initial v0.1.0 greenfield builds, feature additions, UX e
 - **From a comparison report**: `/generate-plan <path/to/comparison-*.md>` triggers *From-comparison mode* (Step 0.5) and pre-seeds the interview from the report's Adoption Plan section. Also reached automatically when `/compare-project` chains into this command.
 - When the user asks to "create a plan", "build a roadmap", "plan this refactor", or similar
 
+**Constitution-aware generation**: every plan written by this command includes a `## Constitution Check` section (between `## Overview` and `## Phases at a Glance`) and a `## Complexity Tracking` section near the end of the file. When a constitution file is found at `docs/<version>/constitution.md` (or `CONSTITUTION.md` at the repo root), the Constitution Check section enumerates each MUST principle with a PASS / FAIL / N/A verdict and a one-sentence justification. When no constitution file is found, the section emits an informational note recommending `/constitution` without blocking plan generation. Both behaviors are non-blocking by design - the constitution itself is opt-in, and a project that has not adopted one still gets a usable plan. See `[[project-constitution]]` for how the constitution is authored and amended.
+
 ---
 
 ## Step 0: Resolve Plan Type, Version, and Slug
@@ -346,6 +348,15 @@ Create the directory `docs/<version>/plans/` if it does not exist. Write the pla
 [2–3 paragraphs covering what is being built or changed, how it will be delivered,
 what the UI and runtime impact look like, and what success looks like.]
 
+## Constitution Check
+
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+
+[List each MUST principle from docs/<version>/constitution.md and state PASS / FAIL / N/A
+per principle, with a one-sentence justification. If constitution.md does not exist, state
+"No constitution file found at docs/<version>/constitution.md - skipping check. Recommend
+running /constitution to establish project principles." - this is informational, not blocking.]
+
 ## Phases at a Glance
 
 | Phase | Title | Outcome |
@@ -400,6 +411,16 @@ what the UI and runtime impact look like, and what success looks like.]
 
 ---
 
+## Complexity Tracking
+
+> **Fill ONLY if Constitution Check has violations that must be justified**
+
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
+
+---
+
 ### Phase N Exit Checklist
 
 - [ ] All sub-tasks completed
@@ -408,6 +429,23 @@ what the UI and runtime impact look like, and what success looks like.]
 - [ ] Session history generated for this phase
 - [ ] Ready to advance to Phase N+1
 ```
+
+### Constitution Check + Complexity Tracking (required sections)
+
+Every generated plan MUST include both sections shown in the file-format template above:
+
+1. **Constitution Check** - inserted between `## Overview` and `## Phases at a Glance`. Resolution rules:
+    - Look for a constitution file in this order: `docs/<version>/constitution.md`, then `CONSTITUTION.md` at the repo root.
+    - **If found**: parse the file's `## Principles` section; for each principle marked MUST (or stated as a MUST clause in its `**Statement**:` line), emit one bullet `- **<Principle ID> <Title>**: PASS | FAIL | N/A - <one-sentence justification tied to the plan's scope>`. `N/A` is correct when the principle does not apply to the plan's scope (e.g., a UX-only principle on a backend-only refactor); `FAIL` requires a corresponding row in the Complexity Tracking table.
+    - **If not found**: emit the informational note verbatim - `No constitution file found at docs/<version>/constitution.md - skipping check. Recommend running /constitution to establish project principles.` - and do not block plan generation.
+    - The check is opt-in by design; the gate's purpose is to surface principle alignment, not to halt planning when a project has not yet ratified principles.
+    - The header line `*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*` is required verbatim so downstream tooling (`/analyze-spec`, code review) can locate the gate.
+
+2. **Complexity Tracking** - inserted near the end of the file, between the last phase's `## Phase N: Testing and Stabilization` block (or the final phase content) and that phase's `### Phase N Exit Checklist`. Resolution rules:
+    - When every Constitution Check bullet is PASS or N/A, leave the table empty (keep the header, the blockquote rationale, and the column headers; the example row may be removed). Future amendments can populate it without reshaping the section.
+    - When any Constitution Check bullet is FAIL, every failing principle MUST have a corresponding row that states the violation, why it is needed, and why the simpler alternative was rejected.
+
+Treat both sections as part of the plan's contract with `[[project-constitution]]` and `/analyze-spec` - they are not optional adornment.
 
 ---
 

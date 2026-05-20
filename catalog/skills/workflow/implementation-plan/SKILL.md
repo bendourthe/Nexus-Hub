@@ -153,6 +153,15 @@ Create `docs/<version>/plans/` if it does not exist and write to `docs/<version>
 delivered, what the UI and runtime impact look like, and what success looks like
 for this scope.]
 
+## Constitution Check
+
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+
+[List each MUST principle from docs/<version>/constitution.md and state PASS / FAIL / N/A
+per principle, with a one-sentence justification. If constitution.md does not exist, state
+"No constitution file found at docs/<version>/constitution.md - skipping check. Recommend
+running /constitution to establish project principles." - this is informational, not blocking.]
+
 ## Phases at a Glance
 
 | Phase | Title | Outcome |
@@ -161,6 +170,8 @@ for this scope.]
 | 2 | [Title] | [One-line outcome] |
 | ... | ... | ... |
 ```
+
+The `## Constitution Check` block is **required** in every generated plan. When `docs/<version>/constitution.md` exists, enumerate each MUST principle with PASS / FAIL / N/A and a one-sentence justification tied to the plan's scope. When the file does not exist, emit the informational note verbatim - the check is opt-in by design and does not block plan generation. See `[[project-constitution]]` for how principles are authored, amended, and propagated; failures here mean either the plan needs to change or the constitution itself needs an amendment (a `MAJOR` / `MINOR` / `PATCH` decision made through the constitution skill, not silently inside the plan).
 
 #### Phase Structure
 
@@ -217,6 +228,16 @@ stable before advancing to Phase N+1.
 
 ---
 
+## Complexity Tracking
+
+> **Fill ONLY if Constitution Check has violations that must be justified**
+
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
+
+---
+
 ### Phase N Exit Checklist
 
 - [ ] All sub-tasks completed
@@ -225,6 +246,8 @@ stable before advancing to Phase N+1.
 - [ ] Session history generated for this phase
 - [ ] Ready to advance to Phase N+1
 ```
+
+The `## Complexity Tracking` block sits near the end of the file, between the last phase's content and that phase's `### Phase N Exit Checklist`. Leave the row blank (keep only the header, blockquote, and column titles) when every Constitution Check bullet is PASS or N/A. Populate one row per FAIL principle, stating the violation, why it is needed, and why the simpler alternative was rejected. Treat the section as part of the plan's contract with `[[project-constitution]]` and `/analyze-spec`.
 
 #### Phase Design Guidelines
 
@@ -289,11 +312,14 @@ Incorporate feedback, then write the final file.
 - [ ] Every phase ends with a testing and stabilization sub-task
 - [ ] Every sub-task has a complete, self-contained executable prompt
 - [ ] Every phase has a stability gate and exit checklist
+- [ ] `## Constitution Check` section present between `## Overview` and `## Phases at a Glance` (with PASS / FAIL / N/A per MUST principle, or the informational note when no constitution file exists)
+- [ ] `## Complexity Tracking` section present near the end of the file (empty table when no FAIL bullets; populated row per FAIL otherwise)
 - [ ] File written to `docs/<version>/plans/<slug>.md`
 - [ ] User confirmed the phase breakdown before final generation
 
 ## Related Skills
 
+- `[[project-constitution]]` - authors and amends the constitution that the Constitution Check section enforces; FAIL verdicts here lead either to plan edits or to a constitution amendment via that skill
 - `plan-before-code` - Lightweight planning for individual features within a phase
 - `research-plan-implement` - Structured RPI workflow for a single complex feature
 - `session-history` - Document each completed phase

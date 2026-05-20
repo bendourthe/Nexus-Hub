@@ -4,7 +4,7 @@ This file tracks per-version unfinished work, deferred items, deviations from pl
 
 **Plan**: [docs/v2.0.0/plans/adoption-spec-kit.md](../v2.0.0/plans/adoption-spec-kit.md)
 **Status**: in-progress
-**Last updated**: 2026-05-20 (Phase 1 close)
+**Last updated**: 2026-05-20 (Phase 2 close -- no new gaps, no resolved items; Phase 2 was a pure-additive template change to `catalog/commands/generate-plan.md` and `catalog/skills/workflow/implementation-plan/SKILL.md` introducing the Constitution Check + Complexity Tracking sections with no DEVIATION markers, no test failures, no suppressed lint rules, and no bypassed gates)
 
 ## Summary
 
