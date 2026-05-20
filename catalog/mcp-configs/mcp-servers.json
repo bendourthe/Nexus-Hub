@@ -1,5 +1,5 @@
 {
-  "_comment": "DevAI-Hub curated MCP registry. Governed by the MCP Registry Policy in AGENTS.md and the Reverse-Engineering Matrix at docs/v1.0.0/mcp-reverse-engineering-matrix.md. Every entry's _comment field answers the 5-question audit (who runs, outbound calls, API keys, data transmitted, vendor relationship). Copy the servers you need into your .claude/settings.json under the 'mcpServers' key. Set required env vars before enabling a server.",
+  "_comment": "Nexus-Hub curated MCP registry. Governed by the MCP Registry Policy in AGENTS.md and the Reverse-Engineering Matrix at docs/v1.0.0/mcp-reverse-engineering-matrix.md. Every entry's _comment field answers the 5-question audit (who runs, outbound calls, API keys, data transmitted, vendor relationship). Copy the servers you need into your .claude/settings.json under the 'mcpServers' key. Set required env vars before enabling a server.",
   "mcpServers": {
     "github": {
       "command": "npx",
@@ -64,29 +64,29 @@
       },
       "_comment": "Cloudflare vendor wrapper (Cloudflare-official). Classification: vendor-intrinsic. 5-question audit: (1) npx subprocess; (2) outbound HTTPS to api.cloudflare.com with the user's token; (3) requires CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID; (4) transmits resource queries and user commands; (5) the user is a Cloudflare customer."
     },
-    "devai-skill-server": {
+    "nexus-skill-server": {
       "command": "python",
-      "args": ["-m", "devai_skill_server"],
+      "args": ["-m", "nexus_skill_server"],
       "env": {
-        "DEVAI_HUB_ROOT": "${DEVAI_HUB_ROOT}"
+        "NEXUS_HUB_ROOT": "${NEXUS_HUB_ROOT}"
       },
-      "_comment": "DevAI-Hub skill discovery MCP server (internal). Classification: already-local. Tools: search_skills, get_skill, list_categories, list_bundles, get_bundle. 5-question audit: (1) Python subprocess locally; (2) no outbound calls (reads data/skills.json from disk); (3) no API keys; (4) transmits no source code or prompts to any third party; (5) no vendor relationship. Set DEVAI_HUB_ROOT to the DevAI-Hub repo root, or install via the DevAI-Hub installer. Falls back to ~/.devai-hub/. Requires Python 3.10+."
+      "_comment": "Nexus-Hub skill discovery MCP server (internal). Classification: already-local. Tools: search_skills, get_skill, list_categories, list_bundles, get_bundle. 5-question audit: (1) Python subprocess locally; (2) no outbound calls (reads data/skills.json from disk); (3) no API keys; (4) transmits no source code or prompts to any third party; (5) no vendor relationship. Set NEXUS_HUB_ROOT to the Nexus-Hub repo root, or install via the Nexus-Hub installer. Falls back to ~/.nexus-hub/. Requires Python 3.10+."
     },
-    "devai-code-search": {
+    "nexus-code-search": {
       "command": "python",
-      "args": ["-m", "devai_code_search"],
+      "args": ["-m", "nexus_code_search"],
       "env": {
-        "DEVAI_HUB_ROOT": "${DEVAI_HUB_ROOT}"
+        "NEXUS_HUB_ROOT": "${NEXUS_HUB_ROOT}"
       },
-      "_comment": "DevAI-Hub local-only code-search MCP server (internal). Classification: already-local. Tools: index_codebase, search_code, clear_index, get_indexing_status. v1.0.0 ships keyword-only search via inverted index + rapidfuzz; dense / hybrid retrieval planned for v1.1.0 with local ONNX embeddings. Index stored at <repo>/.devai/code-index/. 5-question audit: (1) Python subprocess locally; (2) no outbound calls; (3) no API keys; (4) transmits no source code or prompts to any third party (chunks live on disk and reach the agent via stdio); (5) no vendor relationship. Requires Python 3.10+. Reverse-engineered local equivalent for the 'semantic code search' category - the upstream attribution is recorded in docs/v1.0.0/mcp-reverse-engineering-matrix.md."
+      "_comment": "Nexus-Hub local-only code-search MCP server (internal). Classification: already-local. Tools: index_codebase, search_code, clear_index, get_indexing_status. v1.0.0 ships keyword-only search via inverted index + rapidfuzz; dense / hybrid retrieval planned for v1.1.0 with local ONNX embeddings. Index stored at <repo>/.nexus/code-index/. 5-question audit: (1) Python subprocess locally; (2) no outbound calls; (3) no API keys; (4) transmits no source code or prompts to any third party (chunks live on disk and reach the agent via stdio); (5) no vendor relationship. Requires Python 3.10+. Reverse-engineered local equivalent for the 'semantic code search' category - the upstream attribution is recorded in docs/v1.0.0/mcp-reverse-engineering-matrix.md."
     },
-    "devai-web-fetch": {
+    "nexus-web-fetch": {
       "command": "python",
-      "args": ["-m", "devai_web_fetch"],
+      "args": ["-m", "nexus_web_fetch"],
       "env": {
-        "DEVAI_HUB_ROOT": "${DEVAI_HUB_ROOT}"
+        "NEXUS_HUB_ROOT": "${NEXUS_HUB_ROOT}"
       },
-      "_comment": "DevAI-Hub local-only web-fetch MCP server (internal). Classification: re-full (reverse-engineered replacement for scraping-as-service patterns). Tool: fetch_url(url, render_js=False, extract_mode='readability'|'text'|'raw'). SSRF-guarded: RFC 1918, loopback, link-local, file:// blocked by default; YAML override at ~/.devai/web-fetch.yaml. 30s timeout, 5 MB max body, no cookies, no auth headers. 5-question audit: (1) Python subprocess locally; (2) outbound HTTP/HTTPS to user-specified URL only, no third-party intermediary; (3) no API keys; (4) transmits only the URL itself (no prompts, no source code, no query text beyond the URL); (5) no vendor relationship required. Requires Python 3.10+. Upstream attribution recorded in docs/v1.0.0/mcp-reverse-engineering-matrix.md."
+      "_comment": "Nexus-Hub local-only web-fetch MCP server (internal). Classification: re-full (reverse-engineered replacement for scraping-as-service patterns). Tool: fetch_url(url, render_js=False, extract_mode='readability'|'text'|'raw'). SSRF-guarded: RFC 1918, loopback, link-local, file:// blocked by default; YAML override at ~/.nexus/web-fetch.yaml. 30s timeout, 5 MB max body, no cookies, no auth headers. 5-question audit: (1) Python subprocess locally; (2) outbound HTTP/HTTPS to user-specified URL only, no third-party intermediary; (3) no API keys; (4) transmits only the URL itself (no prompts, no source code, no query text beyond the URL); (5) no vendor relationship required. Requires Python 3.10+. Upstream attribution recorded in docs/v1.0.0/mcp-reverse-engineering-matrix.md."
     }
   },
   "_usage": {

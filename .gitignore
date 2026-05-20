@@ -74,7 +74,10 @@ extensions/**/out/
 # MCP benchmark output (v1.0.0+)
 data/benchmarks/
 
-# devai-code-search local index (v1.0.0+)
+# nexus-code-search local index (v1.0.0+; renamed from .devai/ at v2.0.0)
+.nexus/
+.nexusignore
+# Legacy v1.x patterns retained for in-flight upgrades; safe to remove after v2.1.0
 .devai/
 .devaiignore
 
