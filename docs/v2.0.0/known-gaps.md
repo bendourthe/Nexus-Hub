@@ -4,21 +4,21 @@ This file tracks per-version unfinished work, deferred items, deviations from pl
 
 **Plan**: [docs/v2.0.0/plans/nexus-hub-rename.md](plans/nexus-hub-rename.md)
 **Status**: open
-**Last updated**: 2026-05-19 (Phase 2 close; catalog metadata and `data/` registries renamed)
+**Last updated**: 2026-05-19 (Phase 3 close; installer rebrand, ASCII banner, legacy-install migration)
 
 ## Summary
 
 | Category | Open | Resolved this version |
 |---|---|---|
 | NI -- Not implemented (skipped subtask) | 0 | 0 |
-| DF -- Deferred (intentionally) | 1 | 0 |
+| DF -- Deferred (intentionally) | 3 | 0 |
 | BG -- Bug or unresolved test failure | 0 | 0 |
 | MT -- Missing tests / coverage gap | 0 | 0 |
 | WN -- Warning or suppressed lint rule | 2 | 0 |
 | QG -- Quality gate bypassed | 0 | 0 |
-| **Total** | **3** | **0** |
+| **Total** | **5** | **0** |
 
-> Phase 2 closed with all stability gates green. The two WN items are carry-overs from v1.3.0; the new DF-001 entry records the deliberate post-Phase-5 `make build-catalog` regeneration that the Phase 2 prompt explicitly authorizes.
+> Phase 3 closed with all stability gates green. The two WN items are carry-overs from v1.3.0; DF-001 carries forward from Phase 2; DF-002 records the Phase 4 deferral of the end-to-end installer smoke run; DF-003 records the cross-phase pull-forward of `scripts/devai_mcp_benchmark.py` rename into Phase 3 (the script's internal extension-package imports cannot be exercised until Phase 4's extension rename lands).
 
 ## Open Items
 
@@ -28,6 +28,20 @@ This file tracks per-version unfinished work, deferred items, deviations from pl
 **Plan reference**: [docs/v2.0.0/plans/nexus-hub-rename.md](plans/nexus-hub-rename.md) sub-task 2.2 step 4 ("If `make build-catalog` works in this environment, run it and diff the output against the manually-edited files; any drift indicates the source-of-truth is `catalog/`, not `data/`, and the manual edits must be re-applied AFTER the Phase 5 catalog sweep. In that case, defer this sub-task to after Phase 5 and document the deferral here.").
 **Reason**: `infrastructure/tools/build_skills_catalog.py` regenerates `data/skills.json` and `data/SKILL_INDEX.md` from `catalog/skills/**/SKILL.md`. The catalog SKILL.md bodies still carry DevAI strings until Phase 5's bulk textual rename. Running `make build-catalog` now would overwrite Phase 2's manual data/ edits with DevAI-named content. The Phase 2 textual edits keep validators and downstream consumers reading the new name during Phases 3-4.
 **Suggested next step**: After Phase 5 sub-task 5.1 catalog sweep completes, run `make build-catalog` (or invoke the two build scripts directly under `infrastructure/tools/`) and diff the output against the Phase 2 manual edits. Re-commit the regenerated `data/skills.json` and `data/SKILL_INDEX.md` if they differ. Track as part of Phase 5 stability gate.
+
+### DF-002 -- End-to-end installer smoke deferred to Phase 4 close
+
+**Source phase**: Phase 3, sub-task 3.4.
+**Plan reference**: [docs/v2.0.0/plans/nexus-hub-rename.md](plans/nexus-hub-rename.md) sub-task 3.4 step 3 ("Manual smoke (Linux/macOS): `HOME=$(mktemp -d) bash scripts/installer.sh` ... Confirm: banner prints, no legacy dir means migration is skipped, target directory `$HOME/.nexus-hub/` is created and populated.").
+**Reason**: Phase 3 updated the installer text to reference the future `extensions/nexus-skill-server`, `extensions/nexus-code-search`, and `extensions/nexus-web-fetch` directories. Those directories do not exist yet; they are renamed in Phase 4 sub-task 4.1. A full end-to-end install run today would skip the MCP-server install branch because the `Test-Path` / `[ -d ... ]` guards return false. Banner, migration, syntax, and contract tests were verified via pytest assertions in [docs/v2.0.0/installer-smoke-pre.txt](installer-smoke-pre.txt).
+**Suggested next step**: After Phase 4 sub-task 4.1 lands the renamed extension directories, run the cross-platform installer dry-runs prescribed by plan sub-task 8.2 and capture output to `docs/v2.0.0/installer-smoke-post.txt`. Until then this deferral is the documented gap.
+
+### DF-003 -- `scripts/devai_mcp_benchmark.py` rename pulled into Phase 3 ahead of plan
+
+**Source phase**: Phase 3, sub-task 3.2 (rename of installer copy lines forced the file rename via the `test_installers_copy_every_scripts_dir_py_file` contract).
+**Plan reference**: [docs/v2.0.0/plans/nexus-hub-rename.md](plans/nexus-hub-rename.md) sub-task 4.3 originally scheduled this rename for Phase 4. The smoke-test contract scans every `scripts/*.py` filename on disk and asserts it appears in both installers; updating only the installer references in Phase 3 broke that test until the file itself was renamed.
+**Reason**: Resolving the test contract requires the file rename and installer-reference update in the same commit. The script's internal imports (`devai_skill_server`, `devai_code_search`, `devai_web_fetch`) were also updated to `nexus_*` to keep textual references consistent, but those module names do not yet exist on disk - the actual extension packages are renamed in Phase 4 sub-task 4.1. End-to-end execution of `python scripts/nexus_mcp_benchmark.py` is therefore blocked until Phase 4 completes.
+**Suggested next step**: Drop the explicit "rename `scripts/devai_mcp_benchmark.py`" bullet from Phase 4 sub-task 4.3 (it is already done) and treat the remaining Phase 4.3 work (rename `scripts/Install-DevAI-Permissions.ps1` and verify both installers still reference the renamed scripts after the extension packages land) as the actual Phase 4 scope.
 
 ### WN-001 -- Pre-existing orphan-bundle warnings carried from v1.1.5 / v1.3.0
 

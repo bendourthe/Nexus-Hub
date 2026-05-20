@@ -1,14 +1,14 @@
-﻿# DevAI-Hub Universal Installer V10 (Windows)
+﻿# Nexus-Hub Universal Installer V10 (Windows)
 # Installs AI Skills Globally OR to a Workspace with Safe Overwrite and Modern UI
 $ErrorActionPreference = "Stop"
 
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-$script:DevAIHubVersion = "1.4.0"
+$script:NexusHubVersion = "1.4.0"
 
-$Host.UI.RawUI.WindowTitle = "DevAI-Hub Installer"
-$script:InstallerTitle = "DevAI-Hub Installer"
+$Host.UI.RawUI.WindowTitle = "Nexus-Hub Installer"
+$script:InstallerTitle = "Nexus-Hub Installer"
 function Restore-Title { $Host.UI.RawUI.WindowTitle = $script:InstallerTitle }
 
 # --- Modern Folder Picker (C# P-Invoke) ---
@@ -899,7 +899,7 @@ function Install-Permissions {
                 }
 
                 if ($sectionsToAdd.Count -gt 0) {
-                    $appendContent = "`n`n# --- DevAI-Hub auto-approve permissions ---`n" + ($sectionsToAdd -join "`n`n")
+                    $appendContent = "`n`n# --- Nexus-Hub auto-approve permissions ---`n" + ($sectionsToAdd -join "`n`n")
                     Add-Content -Path $configFile -Value $appendContent -Encoding UTF8
                     Write-Item -Message "✓ $Scope config.toml updated with auto-approve permissions" -Color "DarkGreen"
                 }
@@ -1333,7 +1333,7 @@ function Render-Template {
             $content = $content.Replace("{{SKILL_INDEX}}", $skillIndexContent)
         }
         else {
-            $content = $content.Replace("{{SKILL_INDEX}}", "<!-- Skill index not available. Run the DevAI-Hub installer to generate it. -->")
+            $content = $content.Replace("{{SKILL_INDEX}}", "<!-- Skill index not available. Run the Nexus-Hub installer to generate it. -->")
         }
 
         # Append language-specific snippets
@@ -1666,7 +1666,7 @@ function Install-VSCodeExtensions {
     $codeCmd = Get-Command "code" -ErrorAction SilentlyContinue
     if ($codeCmd) {
         # Uninstall any existing version first so VS Code does not skip the reinstall
-        & code --uninstall-extension "devai-hub.claude-usage-monitor" 2>$null | Out-Null
+        & code --uninstall-extension "nexus-hub.claude-usage-monitor" 2>$null | Out-Null
         Restore-Title
         # --force ensures reinstall even when the version number has not changed
         & code --install-extension $vsixFile.FullName --force 2>$null | Out-Null
@@ -1700,14 +1700,14 @@ function Install-Templates {
     # Write-SubSectionBanner prepends its own blank line; no leading Write-Host "" needed.
     Write-SubSectionBanner -Text "Templates & Report Generator Installation"
     Write-Host ""
-    Write-Item -Message "DevAI-Hub can generate professional Word (.docx) and PowerPoint (.pptx)" -Color "White"
+    Write-Item -Message "Nexus-Hub can generate professional Word (.docx) and PowerPoint (.pptx)" -Color "White"
     Write-Item -Message "reports from Markdown files using the /generate-report command." -Color "White"
     Write-Host ""
 
     # Ensure global directories exist
-    $devaiHome = Join-Path $env:USERPROFILE ".devai-hub"
-    $templatesDest = Join-Path $devaiHome "templates\documentation"
-    $scriptsDest = Join-Path $devaiHome "scripts"
+    $nexusHome = Join-Path $env:USERPROFILE ".nexus-hub"
+    $templatesDest = Join-Path $nexusHome "templates\documentation"
+    $scriptsDest = Join-Path $nexusHome "scripts"
 
     if (-not (Test-Path $templatesDest)) { New-Item -ItemType Directory -Force -Path $templatesDest | Out-Null }
     if (-not (Test-Path $scriptsDest)) { New-Item -ItemType Directory -Force -Path $scriptsDest | Out-Null }
@@ -1725,10 +1725,10 @@ function Install-Templates {
     }
 
     # Copy MCP benchmark script (v1.0.0+). Benchmarks the three internal MCPs
-    # (devai-skill-server, devai-code-search, devai-web-fetch). Pure-local.
-    $benchmarkSource = Join-Path $RepoRoot "scripts\devai_mcp_benchmark.py"
+    # (nexus-skill-server, nexus-code-search, nexus-web-fetch). Pure-local.
+    $benchmarkSource = Join-Path $RepoRoot "scripts\nexus_mcp_benchmark.py"
     if (Test-Path $benchmarkSource) {
-        Safe-Copy -Source $benchmarkSource -Destination (Join-Path $scriptsDest "devai_mcp_benchmark.py") -Confirm:$true -CustomMessage "✓ MCP benchmark installed at: $scriptsDest\devai_mcp_benchmark.py"
+        Safe-Copy -Source $benchmarkSource -Destination (Join-Path $scriptsDest "nexus_mcp_benchmark.py") -Confirm:$true -CustomMessage "✓ MCP benchmark installed at: $scriptsDest\nexus_mcp_benchmark.py"
     }
 
     # Copy skill-eval-loop dispatcher scripts (v1.2.0-wip / Phase 5 / A6 + A7).
@@ -1754,7 +1754,7 @@ function Install-Templates {
     # Copy .skill packager script (v1.2.0-wip / Phase 7 / A16). Produces a
     # portable .skill ZIP archive from a catalog\skills\<cat>\<name>\ directory
     # for distribution to Claude.ai or the Anthropic API skill-upload endpoint
-    # - delivery channels DevAI-Hub does not currently reach. Lockstep with
+    # - delivery channels Nexus-Hub does not currently reach. Lockstep with
     # the same block in scripts\installer.sh.
     $skillPackagerSource = Join-Path $RepoRoot "scripts\package_skill.py"
     if (Test-Path $skillPackagerSource) {
@@ -1765,7 +1765,7 @@ function Install-Templates {
     # and /generate-report; deliberately not in catalog\commands so the files
     # do not surface as slash commands.
     $styleGuidesSrc = Join-Path $RepoRoot "catalog\style-guides"
-    $styleGuidesDest = Join-Path $devaiHome "style-guides"
+    $styleGuidesDest = Join-Path $nexusHome "style-guides"
     if (Test-Path $styleGuidesSrc) {
         Safe-Folder-Copy -Source $styleGuidesSrc -Destination $styleGuidesDest -CustomMessage "✓ Style guides installed at: $styleGuidesDest"
     }
@@ -1776,12 +1776,12 @@ function Install-Templates {
     # NEVER auto-wired into a repository; users opt in by running the
     # /install-pre-commit-review-hook slash command from inside the target
     # repo, which copies the chosen platform's script to .git\hooks\pre-commit.
-    $devaiHooksDest = Join-Path $devaiHome "hooks"
-    if (-not (Test-Path $devaiHooksDest)) { New-Item -ItemType Directory -Force -Path $devaiHooksDest | Out-Null }
+    $nexusHooksDest = Join-Path $nexusHome "hooks"
+    if (-not (Test-Path $nexusHooksDest)) { New-Item -ItemType Directory -Force -Path $nexusHooksDest | Out-Null }
     foreach ($variant in @("claude-diff-review.sh", "gemini-diff-review.sh", "codex-diff-review.sh", "opencode-diff-review.sh")) {
         $diffReviewSrc = Join-Path $RepoRoot "catalog\hooks\$variant"
         if (Test-Path $diffReviewSrc) {
-            Safe-Copy -Source $diffReviewSrc -Destination (Join-Path $devaiHooksDest $variant) -Confirm:$true -CustomMessage "✓ Pre-commit review hook source installed at: $devaiHooksDest\$variant"
+            Safe-Copy -Source $diffReviewSrc -Destination (Join-Path $nexusHooksDest $variant) -Confirm:$true -CustomMessage "✓ Pre-commit review hook source installed at: $nexusHooksDest\$variant"
         }
     }
 
@@ -1838,14 +1838,14 @@ function Install-SkillDiscovery {
     Write-Item -Message "Installing skill index for all platforms..." -Color "White"
 
     $skillIndexSrc = Join-Path $RepoRoot "data\SKILL_INDEX.md"
-    $devaiHome = Join-Path $env:USERPROFILE ".devai-hub"
-    $devaiData = Join-Path $devaiHome "data"
+    $nexusHome = Join-Path $env:USERPROFILE ".nexus-hub"
+    $nexusData = Join-Path $nexusHome "data"
 
-    if (-not (Test-Path $devaiData)) { New-Item -Path $devaiData -ItemType Directory -Force | Out-Null }
+    if (-not (Test-Path $nexusData)) { New-Item -Path $nexusData -ItemType Directory -Force | Out-Null }
 
     if (Test-Path $skillIndexSrc) {
-        Copy-Item -Path $skillIndexSrc -Destination (Join-Path $devaiData "SKILL_INDEX.md") -Force
-        Write-Item -Message "  Skill index copied to $devaiData" -Color "DarkGreen"
+        Copy-Item -Path $skillIndexSrc -Destination (Join-Path $nexusData "SKILL_INDEX.md") -Force
+        Write-Item -Message "  Skill index copied to $nexusData" -Color "DarkGreen"
     }
     else {
         Write-Item -Message "  SKILL_INDEX.md not found in data/. Run 'python infrastructure/tools/build_skills_catalog.py' first." -Color "Yellow"
@@ -1854,10 +1854,10 @@ function Install-SkillDiscovery {
     # Copy skills.json and bundles.json to global data dir
     $skillsJsonSrc = Join-Path $RepoRoot "data\skills.json"
     $bundlesJsonSrc = Join-Path $RepoRoot "data\bundles.json"
-    if (Test-Path $skillsJsonSrc) { Copy-Item -Path $skillsJsonSrc -Destination (Join-Path $devaiData "skills.json") -Force }
-    if (Test-Path $bundlesJsonSrc) { Copy-Item -Path $bundlesJsonSrc -Destination (Join-Path $devaiData "bundles.json") -Force }
+    if (Test-Path $skillsJsonSrc) { Copy-Item -Path $skillsJsonSrc -Destination (Join-Path $nexusData "skills.json") -Force }
+    if (Test-Path $bundlesJsonSrc) { Copy-Item -Path $bundlesJsonSrc -Destination (Join-Path $nexusData "bundles.json") -Force }
 
-    Write-Item -Message "  Skill data installed to $devaiData" -Color "DarkGreen"
+    Write-Item -Message "  Skill data installed to $nexusData" -Color "DarkGreen"
 
     # --- MCP Skill Server (Claude Code only) ---
     Write-Host ""
@@ -1890,14 +1890,14 @@ function Install-SkillDiscovery {
     Write-Item -Message "  Found $pythonCmd" -Color "DarkGreen"
 
     # Copy MCP server source
-    $mcpServerSrc = Join-Path $RepoRoot "extensions\devai-skill-server"
-    $mcpServerDest = Join-Path $devaiHome "mcp-server"
+    $mcpServerSrc = Join-Path $RepoRoot "extensions\nexus-skill-server"
+    $mcpServerDest = Join-Path $nexusHome "mcp-server"
     if (Test-Path $mcpServerDest) { Remove-Item -Path $mcpServerDest -Recurse -Force }
     Copy-Item -Path $mcpServerSrc -Destination $mcpServerDest -Recurse -Force
     Write-Item -Message "  MCP server source copied to $mcpServerDest" -Color "DarkGreen"
 
     # Create venv and install dependencies
-    $venvPath = Join-Path $devaiHome "mcp-server-venv"
+    $venvPath = Join-Path $nexusHome "mcp-server-venv"
     $ErrorActionPreference = "Continue"
 
     # Check for uv
@@ -1935,10 +1935,10 @@ function Install-SkillDiscovery {
         $settings = [PSCustomObject]@{}
     }
 
-    # Install devai-code-search into the same venv (v1.0.0+).
+    # Install nexus-code-search into the same venv (v1.0.0+).
     # Local-only code-search MCP. Zero outbound calls. See AGENTS.md MCP Registry Policy.
-    $codeSearchSrc = Join-Path $RepoRoot "extensions\devai-code-search"
-    $codeSearchDest = Join-Path $devaiHome "code-search"
+    $codeSearchSrc = Join-Path $RepoRoot "extensions\nexus-code-search"
+    $codeSearchDest = Join-Path $nexusHome "code-search"
     $ErrorActionPreference = "Continue"
     if (Test-Path $codeSearchSrc) {
         if (Test-Path $codeSearchDest) { Remove-Item -Path $codeSearchDest -Recurse -Force }
@@ -1948,13 +1948,13 @@ function Install-SkillDiscovery {
         } else {
             & "$venvPath\Scripts\pip.exe" install -q -e $codeSearchDest 2>$null | Out-Null
         }
-        Write-Item -Message "  devai-code-search installed at $codeSearchDest" -Color "DarkGreen"
+        Write-Item -Message "  nexus-code-search installed at $codeSearchDest" -Color "DarkGreen"
     }
 
-    # Install devai-web-fetch into the same venv (v1.0.0+).
+    # Install nexus-web-fetch into the same venv (v1.0.0+).
     # Local-only web-fetch MCP (fetches user-specified URLs only). See AGENTS.md.
-    $webFetchSrc = Join-Path $RepoRoot "extensions\devai-web-fetch"
-    $webFetchDest = Join-Path $devaiHome "web-fetch"
+    $webFetchSrc = Join-Path $RepoRoot "extensions\nexus-web-fetch"
+    $webFetchDest = Join-Path $nexusHome "web-fetch"
     if (Test-Path $webFetchSrc) {
         if (Test-Path $webFetchDest) { Remove-Item -Path $webFetchDest -Recurse -Force }
         Copy-Item -Path $webFetchSrc -Destination $webFetchDest -Recurse -Force
@@ -1963,25 +1963,25 @@ function Install-SkillDiscovery {
         } else {
             & "$venvPath\Scripts\pip.exe" install -q -e $webFetchDest 2>$null | Out-Null
         }
-        Write-Item -Message "  devai-web-fetch installed at $webFetchDest" -Color "DarkGreen"
+        Write-Item -Message "  nexus-web-fetch installed at $webFetchDest" -Color "DarkGreen"
     }
     $ErrorActionPreference = "Stop"
 
     # Add or update mcpServers without touching other keys (e.g., hooks)
     $skillServerEntry = [PSCustomObject]@{
         command = "$venvPath\Scripts\python.exe"
-        args    = @("-m", "devai_skill_server")
-        env     = [PSCustomObject]@{ DEVAI_HUB_ROOT = $devaiHome }
+        args    = @("-m", "nexus_skill_server")
+        env     = [PSCustomObject]@{ NEXUS_HUB_ROOT = $nexusHome }
     }
     $codeSearchEntry = [PSCustomObject]@{
         command = "$venvPath\Scripts\python.exe"
-        args    = @("-m", "devai_code_search")
-        env     = [PSCustomObject]@{ DEVAI_HUB_ROOT = $devaiHome }
+        args    = @("-m", "nexus_code_search")
+        env     = [PSCustomObject]@{ NEXUS_HUB_ROOT = $nexusHome }
     }
     $webFetchEntry = [PSCustomObject]@{
         command = "$venvPath\Scripts\python.exe"
-        args    = @("-m", "devai_web_fetch")
-        env     = [PSCustomObject]@{ DEVAI_HUB_ROOT = $devaiHome }
+        args    = @("-m", "nexus_web_fetch")
+        env     = [PSCustomObject]@{ NEXUS_HUB_ROOT = $nexusHome }
     }
 
     if (-not $settings.PSObject.Properties["mcpServers"]) {
@@ -1989,9 +1989,9 @@ function Install-SkillDiscovery {
     }
 
     foreach ($pair in @(
-        @{ Name = "devai-skill-server"; Entry = $skillServerEntry },
-        @{ Name = "devai-code-search"; Entry = $codeSearchEntry },
-        @{ Name = "devai-web-fetch"; Entry = $webFetchEntry }
+        @{ Name = "nexus-skill-server"; Entry = $skillServerEntry },
+        @{ Name = "nexus-code-search"; Entry = $codeSearchEntry },
+        @{ Name = "nexus-web-fetch"; Entry = $webFetchEntry }
     )) {
         $name = $pair.Name
         $entry = $pair.Entry
@@ -2003,18 +2003,93 @@ function Install-SkillDiscovery {
     }
 
     $settings | ConvertTo-Json -Depth 10 | Set-Content $claudeSettings -Encoding UTF8
-    Write-Item -Message "  MCP servers registered in $claudeSettings (devai-skill-server, devai-code-search, devai-web-fetch)" -Color "DarkGreen"
+    Write-Item -Message "  MCP servers registered in $claudeSettings (nexus-skill-server, nexus-code-search, nexus-web-fetch)" -Color "DarkGreen"
     Write-Item -Message "  Servers will auto-start with Claude Code. No manual steps needed." -Color "DarkGreen"
 }
 
 # --- Banner ---
 
+# ASCII-art NEXUS-HUB wordmark. Printed at startup ahead of the welcome banner.
+# Constraints: <=80 columns wide, <=8 rows tall, ASCII-only (no Unicode block
+# characters - commit messages and source files are ASCII-only on Windows per
+# project rules). Modeled after the Claude Code CLI banner style.
+function Write-NexusBanner {
+    $bannerLines = @(
+        ' _   _ _____  __  __ _   _ ____       _   _ _   _ ____',
+        '| \ | | ____| \ \/ /| | | / ___|     | | | | | | | __ )',
+        '|  \| |  _|    \  / | | | \___ \  -  | |_| | | | |  _ \',
+        '| |\  | |___   /  \ | |_| |___) |    |  _  | |_| | |_) |',
+        '|_| \_|_____| /_/\_\ \___/|____/     |_| |_|\___/|____/'
+    )
+    Write-Host ""
+    foreach ($line in $bannerLines) {
+        Write-Host $line -ForegroundColor Cyan
+    }
+    Write-Host ""
+    Write-Host "  The Skill Harness for Claude Code, Codex, Gemini, Copilot, Cursor, and Nexus"
+    Write-Host "  v$script:NexusHubVersion  |  https://github.com/bendourthe/Nexus-Hub"
+    Write-Host ""
+}
+
+# Detects an existing ~/.devai-hub/ install and migrates it to ~/.nexus-hub/.
+# One-shot, one-way per the backward-compat decision in
+# docs/v2.0.0/rename-decisions.md. The installer does NOT ship a symlink or
+# compatibility shim. Three branches:
+#   1. legacy only             -> prompt to migrate (default Y), then Move-Item.
+#   2. legacy AND new co-exist -> ask user: keep-new, abort, or merge.
+#   3. neither / new only      -> no-op (fresh or already-migrated install).
+function Invoke-LegacyInstallMigration {
+    $legacy = Join-Path $env:USERPROFILE ".devai-hub"
+    $current = Join-Path $env:USERPROFILE ".nexus-hub"
+
+    $legacyExists = Test-Path $legacy
+    $currentExists = Test-Path $current
+
+    if ($legacyExists -and -not $currentExists) {
+        Write-Host ""
+        Write-Host "  Detected existing DevAI-Hub install at $legacy" -ForegroundColor Yellow
+        $ans = Read-Host "  Migrate to Nexus-Hub ($current)? [Y/n]"
+        if ([string]::IsNullOrWhiteSpace($ans)) { $ans = "Y" }
+        if ($ans -match "^[Yy]") {
+            Move-Item -Path $legacy -Destination $current
+            Write-Host "  Migrated $legacy -> $current" -ForegroundColor Green
+        }
+        else {
+            Write-Host "  Migration declined. Remove $legacy manually or rerun and accept." -ForegroundColor Red
+            exit 1
+        }
+        Write-Host ""
+    }
+    elseif ($legacyExists -and $currentExists) {
+        Write-Host ""
+        Write-Host "  Both $legacy and $current exist." -ForegroundColor Yellow
+        Write-Host "  Choose: [k]eep new + delete old, [a]bort + handle manually, [m]erge (best effort)"
+        $ans = Read-Host "  Selection [k/a/m]"
+        switch -Regex ($ans) {
+            "^[Kk]" {
+                Remove-Item -Path $legacy -Recurse -Force
+                Write-Host "  Removed $legacy. Keeping $current." -ForegroundColor Green
+            }
+            "^[Mm]" {
+                Copy-Item -Path (Join-Path $legacy "*") -Destination $current -Recurse -Force
+                Remove-Item -Path $legacy -Recurse -Force
+                Write-Host "  Merged $legacy into $current (best effort)." -ForegroundColor Green
+            }
+            default {
+                Write-Host "  Aborted. Resolve $legacy and $current manually before rerunning." -ForegroundColor Red
+                exit 1
+            }
+        }
+        Write-Host ""
+    }
+}
+
 function Show-WelcomeBanner {
     $banner = "=" * 120
     Write-Host ""
     Write-Host $banner -ForegroundColor DarkCyan
-    Write-Host "                                      Welcome to the DevAI-Hub Universal Installer" -ForegroundColor DarkCyan
-    Write-Host "                                                     (version $script:DevAIHubVersion)" -ForegroundColor DarkCyan
+    Write-Host "                                      Welcome to the Nexus-Hub Universal Installer" -ForegroundColor DarkCyan
+    Write-Host "                                                     (version $script:NexusHubVersion)" -ForegroundColor DarkCyan
     Write-Host $banner -ForegroundColor DarkCyan
     Write-Host ""
 }
@@ -2023,8 +2098,8 @@ function Show-FarewellBanner {
     $banner = "=" * 120
     Write-Host ""
     Write-Host $banner -ForegroundColor DarkCyan
-    Write-Host "                              Thank You For Using The DevAI-Hub Universal Installer" -ForegroundColor DarkCyan
-    Write-Host "                                                     (version $script:DevAIHubVersion)" -ForegroundColor DarkCyan
+    Write-Host "                              Thank You For Using The Nexus-Hub Universal Installer" -ForegroundColor DarkCyan
+    Write-Host "                                                     (version $script:NexusHubVersion)" -ForegroundColor DarkCyan
     Write-Host $banner -ForegroundColor DarkCyan
     Write-Host ""
 }
@@ -2032,11 +2107,13 @@ function Show-FarewellBanner {
 # --- Main ---
 $repoRoot = Resolve-Path "$PSScriptRoot\.."
 
+Write-NexusBanner
+Invoke-LegacyInstallMigration
 Show-WelcomeBanner
 
 # Ask whether to install globally (recommended, user-scope) or to a specific workspace.
-Write-Host "Where would you like to install DevAI-Hub?"
-Write-Host "  [G] Global (recommended) - applies to all projects on this machine (~/.claude/, ~/.gemini/, ~/.codex/, ~/.devai-hub/)" -ForegroundColor Green
+Write-Host "Where would you like to install Nexus-Hub?"
+Write-Host "  [G] Global (recommended) - applies to all projects on this machine (~/.claude/, ~/.gemini/, ~/.codex/, ~/.nexus-hub/)" -ForegroundColor Green
 Write-Host "  [W] Workspace            - scoped to a specific project directory" -ForegroundColor Yellow
 Write-Host ""
 $scopeChoice = Read-Host "Select [G/W]"

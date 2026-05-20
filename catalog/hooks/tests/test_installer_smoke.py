@@ -32,7 +32,7 @@ PLUGIN_MANIFEST = REPO_ROOT / ".claude-plugin" / "plugin.json"
 
 
 def _canonical_version() -> str:
-    """Return the canonical DevAI-Hub version from .claude-plugin/plugin.json.
+    """Return the canonical Nexus-Hub version from .claude-plugin/plugin.json.
 
     Used as the single source of truth for the installer banner-version
     assertions so that future version bumps do not require editing this test.
@@ -51,28 +51,28 @@ def test_installer_ps1_exists():
 
 
 def test_installer_sh_carries_version_constant():
-    """installer.sh's DEVAI_HUB_VERSION must match .claude-plugin/plugin.json.
+    """installer.sh's NEXUS_HUB_VERSION must match .claude-plugin/plugin.json.
 
     The canonical project version lives in `.claude-plugin/plugin.json`. The
-    installer banner reads its label from a `DEVAI_HUB_VERSION="X.Y.Z"`
+    installer banner reads its label from a `NEXUS_HUB_VERSION="X.Y.Z"`
     constant near the top of the script. The two must stay in lockstep so the
     installer's "Thank You" banner always advertises the correct release.
     Reading the expected value from the manifest (rather than hardcoding it
     in the test) prevents the test from silently lagging the real version.
     """
-    expected = f'DEVAI_HUB_VERSION="{_canonical_version()}"'
+    expected = f'NEXUS_HUB_VERSION="{_canonical_version()}"'
     body = INSTALLER_SH.read_text(encoding="utf-8")
     assert expected in body, \
         f"installer.sh is missing the {expected} constant"
 
 
 def test_installer_ps1_carries_version_constant():
-    """installer.ps1's $script:DevAIHubVersion must match .claude-plugin/plugin.json.
+    """installer.ps1's $script:NexusHubVersion must match .claude-plugin/plugin.json.
 
     Same contract as test_installer_sh_carries_version_constant, mirrored for
     the PowerShell installer.
     """
-    expected = f'$script:DevAIHubVersion = "{_canonical_version()}"'
+    expected = f'$script:NexusHubVersion = "{_canonical_version()}"'
     body = INSTALLER_PS1.read_text(encoding="utf-8")
     assert expected in body, \
         f"installer.ps1 is missing the {expected} constant"
@@ -81,21 +81,76 @@ def test_installer_ps1_carries_version_constant():
 def test_installer_sh_has_welcome_banner_function():
     body = INSTALLER_SH.read_text(encoding="utf-8")
     assert "print_banner()" in body, "installer.sh is missing print_banner()"
-    assert "Welcome to the DevAI-Hub Universal Installer" in body, \
+    assert "Welcome to the Nexus-Hub Universal Installer" in body, \
         "installer.sh banner text missing"
-    # Accept either ${DEVAI_HUB_VERSION} or $DEVAI_HUB_VERSION interpolation form
-    assert "${DEVAI_HUB_VERSION}" in body or "$DEVAI_HUB_VERSION" in body, \
-        "installer.sh banner must interpolate the DEVAI_HUB_VERSION variable"
+    # Accept either ${NEXUS_HUB_VERSION} or $NEXUS_HUB_VERSION interpolation form
+    assert "${NEXUS_HUB_VERSION}" in body or "$NEXUS_HUB_VERSION" in body, \
+        "installer.sh banner must interpolate the NEXUS_HUB_VERSION variable"
 
 
 def test_installer_ps1_has_welcome_banner_function():
     body = INSTALLER_PS1.read_text(encoding="utf-8")
     assert "function Show-WelcomeBanner" in body, \
         "installer.ps1 is missing Show-WelcomeBanner"
-    assert "Welcome to the DevAI-Hub Universal Installer" in body, \
+    assert "Welcome to the Nexus-Hub Universal Installer" in body, \
         "installer.ps1 banner text missing"
-    assert "$script:DevAIHubVersion" in body, \
-        "installer.ps1 banner must interpolate $script:DevAIHubVersion"
+    assert "$script:NexusHubVersion" in body, \
+        "installer.ps1 banner must interpolate $script:NexusHubVersion"
+
+
+def test_installer_sh_has_nexus_ascii_banner():
+    """v2.0.0 Phase 3 sub-task 3.1: a `print_nexus_banner` ASCII-art wordmark
+    must precede the welcome banner. Verifies the function exists, references
+    the version variable, and contains at least one literal banner row.
+    """
+    body = INSTALLER_SH.read_text(encoding="utf-8")
+    assert "print_nexus_banner()" in body, \
+        "installer.sh is missing print_nexus_banner() (v2.0.0 ASCII banner)"
+    # Sanity check that the banner is wired into main flow before the welcome banner.
+    assert "print_nexus_banner\nmigrate_legacy_install\nprint_banner" in body or \
+           ("print_nexus_banner" in body and "migrate_legacy_install" in body), \
+        "installer.sh must invoke print_nexus_banner and migrate_legacy_install at startup"
+
+
+def test_installer_ps1_has_nexus_ascii_banner():
+    """Mirror of test_installer_sh_has_nexus_ascii_banner for PowerShell."""
+    body = INSTALLER_PS1.read_text(encoding="utf-8")
+    assert "function Write-NexusBanner" in body, \
+        "installer.ps1 is missing Write-NexusBanner (v2.0.0 ASCII banner)"
+    assert "Invoke-LegacyInstallMigration" in body, \
+        "installer.ps1 is missing Invoke-LegacyInstallMigration"
+    # Startup invocations must be present in main flow
+    assert "Write-NexusBanner" in body and "Show-WelcomeBanner" in body, \
+        "installer.ps1 must invoke Write-NexusBanner and Show-WelcomeBanner"
+
+
+def test_installer_sh_migrates_legacy_devai_hub_dir():
+    """v2.0.0 Phase 3 sub-task 3.3: installer.sh must carry a migration
+    function that relocates ~/.devai-hub/ to ~/.nexus-hub/ on first run.
+    """
+    body = INSTALLER_SH.read_text(encoding="utf-8")
+    assert "migrate_legacy_install()" in body, \
+        "installer.sh is missing migrate_legacy_install()"
+    assert '"$HOME/.devai-hub"' in body, \
+        "installer.sh migration must reference the legacy ~/.devai-hub path"
+    assert '"$HOME/.nexus-hub"' in body, \
+        "installer.sh migration must reference the new ~/.nexus-hub path"
+    # The one-way move (legacy-only branch) and the co-existence branch must both be present.
+    assert 'mv "$legacy" "$current"' in body, \
+        "installer.sh migration must perform the one-way rename"
+
+
+def test_installer_ps1_migrates_legacy_devai_hub_dir():
+    """Mirror of test_installer_sh_migrates_legacy_devai_hub_dir for PowerShell."""
+    body = INSTALLER_PS1.read_text(encoding="utf-8")
+    assert "function Invoke-LegacyInstallMigration" in body, \
+        "installer.ps1 is missing Invoke-LegacyInstallMigration"
+    assert '".devai-hub"' in body, \
+        "installer.ps1 migration must reference the legacy .devai-hub directory"
+    assert '".nexus-hub"' in body, \
+        "installer.ps1 migration must reference the new .nexus-hub directory"
+    assert "Move-Item -Path $legacy -Destination $current" in body, \
+        "installer.ps1 migration must perform the one-way Move-Item"
 
 
 def test_installer_sh_asks_global_vs_workspace_first():
@@ -267,7 +322,7 @@ def test_installer_ps1_fallback_literal_matches_template():
 # installer copy blocks.
 DEV_ONLY_SCRIPTS = {
     # Repo validator: walks catalog/ for frontmatter + secret scans. Runs in CI
-    # and by maintainers; not useful in an end-user ~/.devai-hub/scripts/.
+    # and by maintainers; not useful in an end-user ~/.nexus-hub/scripts/.
     "validate_skills.py",
     # One-shot cross-catalog maintenance utility that injects iterative-refinement
     # text into SKILL.md / command .md files. Maintainer tool only.
@@ -301,7 +356,7 @@ def test_installers_copy_every_scripts_dir_py_file():
         msg_lines = [
             "User-facing scripts/*.py files are not referenced by both installers.",
             "AGENTS.md rule: the installer copies scripts by EXPLICIT NAME, not",
-            "by folder — every new user-facing script in scripts/ must be added",
+            "by folder - every new user-facing script in scripts/ must be added",
             "to BOTH scripts/installer.sh (near the generate_report.py block)",
             "AND scripts/installer.ps1 (Safe-Copy near the same location).",
             "If a new script is developer-only (not meant for end users), add",
@@ -336,7 +391,7 @@ V0_9_7_ARTIFACTS = [
     # Bundled report templates (copied silently by installer)
     "templates/documentation/generic-word-report-template.docx",
     "templates/documentation/branded-report-template.docx",
-    # Report generator scripts (copied by installer to ~/.devai-hub/scripts/)
+    # Report generator scripts (copied by installer to ~/.nexus-hub/scripts/)
     "scripts/generate_report.py",
     # Repo-scoped AI agent instructions (parallel-session work)
     "AGENTS.md",
@@ -415,6 +470,10 @@ def _run_all():
         test_installer_ps1_carries_version_constant,
         test_installer_sh_has_welcome_banner_function,
         test_installer_ps1_has_welcome_banner_function,
+        test_installer_sh_has_nexus_ascii_banner,
+        test_installer_ps1_has_nexus_ascii_banner,
+        test_installer_sh_migrates_legacy_devai_hub_dir,
+        test_installer_ps1_migrates_legacy_devai_hub_dir,
         test_installer_sh_asks_global_vs_workspace_first,
         test_installer_ps1_asks_global_vs_workspace_first,
         test_installers_have_no_phase_labels,

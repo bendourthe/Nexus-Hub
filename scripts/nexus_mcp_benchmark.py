@@ -1,14 +1,14 @@
-"""Benchmark DevAI-Hub's internal MCP servers.
+"""Benchmark Nexus-Hub's internal MCP servers.
 
 Measures round-trip latency for the handler functions of the three
-internal MCPs (devai-skill-server, devai-code-search, devai-web-fetch).
+internal MCPs (nexus-skill-server, nexus-code-search, nexus-web-fetch).
 Pure-internal; policy-compliant; the harness itself refuses to open
 outbound sockets during the skill-server and code-search phases.
 
 Usage:
-    python scripts/devai_mcp_benchmark.py
-    python scripts/devai_mcp_benchmark.py --append --quiet --iterations 3
-    python scripts/devai_mcp_benchmark.py --server code-search
+    python scripts/nexus_mcp_benchmark.py
+    python scripts/nexus_mcp_benchmark.py --append --quiet --iterations 3
+    python scripts/nexus_mcp_benchmark.py --server code-search
 """
 from __future__ import annotations
 
@@ -29,7 +29,7 @@ from pathlib import Path
 from statistics import median
 from typing import Any, Callable, Iterable
 
-logger = logging.getLogger("devai-mcp-benchmark")
+logger = logging.getLogger("nexus-mcp-benchmark")
 
 
 DEFAULT_ITERATIONS = 5
@@ -52,7 +52,7 @@ def _forbid_connect(self, address) -> None:
     """Replacement for socket.socket.connect that refuses any outbound attempt."""
     raise NetworkCalledDuringLocalBenchmarkError(
         f"Local-only MCP benchmark attempted an outbound connection to {address!r}. "
-        "This is a policy violation: devai-skill-server and devai-code-search must "
+        "This is a policy violation: nexus-skill-server and nexus-code-search must "
         "make zero outbound calls."
     )
 
@@ -95,11 +95,11 @@ def _summarize(timings_ms: Iterable[float]) -> dict:
 # --- Per-server benchmark drivers --------------------------------------
 
 def _benchmark_skill_server(repo_root: Path, iterations: int) -> dict:
-    """Benchmark devai-skill-server handlers. Zero outbound calls expected."""
-    from devai_skill_server.catalog import SkillCatalog
-    from devai_skill_server.config import ServerConfig
-    from devai_skill_server.search import SearchEngine
-    from devai_skill_server.types import DetailLevel
+    """Benchmark nexus-skill-server handlers. Zero outbound calls expected."""
+    from nexus_skill_server.catalog import SkillCatalog
+    from nexus_skill_server.config import ServerConfig
+    from nexus_skill_server.search import SearchEngine
+    from nexus_skill_server.types import DetailLevel
 
     config = ServerConfig(
         hub_root=repo_root,
@@ -133,16 +133,16 @@ def _benchmark_skill_server(repo_root: Path, iterations: int) -> dict:
             results[name] = _summarize(timings)
 
     return {
-        "server": "devai-skill-server",
+        "server": "nexus-skill-server",
         "skill_count": len(catalog.get_all_skills_metadata()) if catalog.is_loaded else 0,
         "results": results,
     }
 
 
 def _benchmark_code_search(repo_root: Path, iterations: int) -> dict:
-    """Benchmark devai-code-search handlers against a tmp fixture tree."""
-    from devai_code_search.config import resolve_config, index_dir_for
-    from devai_code_search.server import (
+    """Benchmark nexus-code-search handlers against a tmp fixture tree."""
+    from nexus_code_search.config import resolve_config, index_dir_for
+    from nexus_code_search.server import (
         _handle_clear,
         _handle_index,
         _handle_search,
@@ -150,7 +150,7 @@ def _benchmark_code_search(repo_root: Path, iterations: int) -> dict:
     )
 
     # Use a small fixture root to keep the benchmark fast and deterministic.
-    fixture_root = Path(tempfile.mkdtemp(prefix="devai-mcp-bench-"))
+    fixture_root = Path(tempfile.mkdtemp(prefix="nexus-mcp-bench-"))
     (fixture_root / "src").mkdir()
     for i in range(10):
         (fixture_root / "src" / f"mod_{i}.py").write_text(
@@ -192,7 +192,7 @@ def _benchmark_code_search(repo_root: Path, iterations: int) -> dict:
         shutil.rmtree(fixture_root, ignore_errors=True)
 
     return {
-        "server": "devai-code-search",
+        "server": "nexus-code-search",
         "fixture_files": 10,
         "indexed_files_at_last_run": file_count,
         "results": results,
@@ -200,15 +200,15 @@ def _benchmark_code_search(repo_root: Path, iterations: int) -> dict:
 
 
 def _benchmark_web_fetch(iterations: int) -> dict:
-    """Benchmark devai-web-fetch against a local HTTP fixture server.
+    """Benchmark nexus-web-fetch against a local HTTP fixture server.
 
     The no-network-guard is NOT applied here because web-fetch legitimately
     opens a socket to the fixture server on 127.0.0.1.
     """
     import asyncio
 
-    from devai_web_fetch.fetcher import fetch_url
-    from devai_web_fetch.ssrf_guard import GuardConfig
+    from nexus_web_fetch.fetcher import fetch_url
+    from nexus_web_fetch.ssrf_guard import GuardConfig
 
     class _Handler(BaseHTTPRequestHandler):
         def do_GET(self) -> None:  # noqa: N802
@@ -241,7 +241,7 @@ def _benchmark_web_fetch(iterations: int) -> dict:
         thread.join(timeout=2)
 
     return {
-        "server": "devai-web-fetch",
+        "server": "nexus-web-fetch",
         "results": results,
     }
 
@@ -255,7 +255,7 @@ def _detect_repo_root(start: Path | None = None) -> Path:
         if (current / "AGENTS.md").exists() and (current / "data").exists():
             return current
         current = current.parent
-    raise RuntimeError("Could not detect DevAI-Hub repo root")
+    raise RuntimeError("Could not detect Nexus-Hub repo root")
 
 
 def run_benchmarks(servers: list[str], iterations: int, repo_root: Path) -> dict:
@@ -269,11 +269,11 @@ def run_benchmarks(servers: list[str], iterations: int, repo_root: Path) -> dict
     }
 
     if "skill-server" in servers:
-        payload["results"]["devai-skill-server"] = _benchmark_skill_server(repo_root, iterations)
+        payload["results"]["nexus-skill-server"] = _benchmark_skill_server(repo_root, iterations)
     if "code-search" in servers:
-        payload["results"]["devai-code-search"] = _benchmark_code_search(repo_root, iterations)
+        payload["results"]["nexus-code-search"] = _benchmark_code_search(repo_root, iterations)
     if "web-fetch" in servers:
-        payload["results"]["devai-web-fetch"] = _benchmark_web_fetch(iterations)
+        payload["results"]["nexus-web-fetch"] = _benchmark_web_fetch(iterations)
 
     return payload
 
@@ -306,7 +306,7 @@ def append_run(output_path: Path, payload: dict, retain: int = RETAIN_LAST_N) ->
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Benchmark DevAI-Hub's internal MCPs")
+    parser = argparse.ArgumentParser(description="Benchmark Nexus-Hub's internal MCPs")
     parser.add_argument(
         "--server",
         choices=VALID_SERVERS,
@@ -350,7 +350,7 @@ def main(argv: list[str] | None = None) -> int:
     servers = resolve_servers(args.server)
 
     if not args.quiet:
-        print(f"devai-mcp-benchmark: root={repo_root}, servers={servers}, iterations={args.iterations}")
+        print(f"nexus-mcp-benchmark: root={repo_root}, servers={servers}, iterations={args.iterations}")
 
     payload = run_benchmarks(servers, args.iterations, repo_root)
 

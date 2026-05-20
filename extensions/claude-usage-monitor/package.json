@@ -3,16 +3,16 @@
   "displayName": "Claude Usage Monitor",
   "description": "Monitor your Claude Code usage limits and get smart model-switching recommendations",
   "version": "0.5.0",
-  "publisher": "devai-hub",
+  "publisher": "nexus-hub",
   "icon": "icon.png",
   "repository": {
     "type": "git",
-    "url": "https://github.com/bendourthe/DevAI-Hub.git",
+    "url": "https://github.com/bendourthe/Nexus-Hub.git",
     "directory": "extensions/claude-usage-monitor"
   },
-  "homepage": "https://github.com/bendourthe/DevAI-Hub/tree/main/extensions/claude-usage-monitor#readme",
+  "homepage": "https://github.com/bendourthe/Nexus-Hub/tree/main/extensions/claude-usage-monitor#readme",
   "bugs": {
-    "url": "https://github.com/bendourthe/DevAI-Hub/issues"
+    "url": "https://github.com/bendourthe/Nexus-Hub/issues"
   },
   "license": "MIT",
   "engines": {

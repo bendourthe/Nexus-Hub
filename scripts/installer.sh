@@ -1,5 +1,5 @@
 #!/bin/bash
-# DevAI-Hub Universal Installer V10 (macOS/Linux)
+# Nexus-Hub Universal Installer V10 (macOS/Linux)
 # Installs AI Skills Globally OR to a Workspace with Safe Overwrite
 
 set -e
@@ -7,10 +7,10 @@ set -e
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-DEVAI_HUB_VERSION="1.4.0"
+NEXUS_HUB_VERSION="1.4.0"
 
 # --- Window Title ---
-printf '\033]0;DevAI-Hub Installer\007'
+printf '\033]0;Nexus-Hub Installer\007'
 
 # --- Colors ---
 RESET='\033[0m'
@@ -583,7 +583,7 @@ install_permissions() {
                 write_item "  Backup created: $backup_path" "$GRAY"
 
                 # Append permission sections if not present
-                printf '\n\n# --- DevAI-Hub auto-approve permissions ---\n' >> "$config_file"
+                printf '\n\n# --- Nexus-Hub auto-approve permissions ---\n' >> "$config_file"
                 if ! grep -q 'approval_policy' "$config_file" 2>/dev/null; then
                     printf 'approval_policy = "on-request"\n\n' >> "$config_file"
                 fi
@@ -1364,7 +1364,7 @@ install_vscode_extensions() {
     # Install into VS Code
     if command -v code >/dev/null 2>&1; then
         # Uninstall any existing version first so VS Code does not skip the reinstall
-        code --uninstall-extension "devai-hub.claude-usage-monitor" 2>/dev/null || true
+        code --uninstall-extension "nexus-hub.claude-usage-monitor" 2>/dev/null || true
         # --force ensures reinstall even when the version number has not changed
         if code --install-extension "$vsix_file" --force 2>/dev/null; then
             write_item "[OK] Claude Usage Monitor extension installed in VS Code!" "$GREEN"
@@ -1391,14 +1391,14 @@ install_templates() {
     echo ""
     write_subsection_banner "Templates & Report Generator Installation"
     echo ""
-    write_item "DevAI-Hub can generate professional Word (.docx) and PowerPoint (.pptx)" "$RESET"
+    write_item "Nexus-Hub can generate professional Word (.docx) and PowerPoint (.pptx)" "$RESET"
     write_item "reports from Markdown files using the /generate-report command." "$RESET"
     echo ""
 
     # Ensure global directories exist
-    local devai_home="$HOME/.devai-hub"
-    local templates_dest="$devai_home/templates/documentation"
-    local scripts_dest="$devai_home/scripts"
+    local nexus_home="$HOME/.nexus-hub"
+    local templates_dest="$nexus_home/templates/documentation"
+    local scripts_dest="$nexus_home/scripts"
 
     mkdir -p "$templates_dest"
     mkdir -p "$scripts_dest"
@@ -1416,10 +1416,10 @@ install_templates() {
     fi
 
     # Copy MCP benchmark script (v1.0.0+). Benchmarks the three internal MCPs
-    # (devai-skill-server, devai-code-search, devai-web-fetch). Pure-local.
-    local benchmark_source="$repo_root/scripts/devai_mcp_benchmark.py"
+    # (nexus-skill-server, nexus-code-search, nexus-web-fetch). Pure-local.
+    local benchmark_source="$repo_root/scripts/nexus_mcp_benchmark.py"
     if [ -f "$benchmark_source" ]; then
-        safe_copy "$benchmark_source" "$scripts_dest/devai_mcp_benchmark.py" true "[OK] MCP benchmark installed at: $scripts_dest/devai_mcp_benchmark.py"
+        safe_copy "$benchmark_source" "$scripts_dest/nexus_mcp_benchmark.py" true "[OK] MCP benchmark installed at: $scripts_dest/nexus_mcp_benchmark.py"
     fi
 
     # Copy skill-eval-loop dispatcher scripts (v1.2.0-wip / Phase 5 / A6 + A7).
@@ -1444,7 +1444,7 @@ install_templates() {
     # Copy .skill packager script (v1.2.0-wip / Phase 7 / A16). Produces a
     # portable .skill ZIP archive from a catalog/skills/<cat>/<name>/ directory
     # for distribution to Claude.ai or the Anthropic API skill-upload endpoint
-    # - delivery channels DevAI-Hub does not currently reach. Lockstep with
+    # - delivery channels Nexus-Hub does not currently reach. Lockstep with
     # the same block in scripts/installer.ps1.
     local skill_packager_source="$repo_root/scripts/package_skill.py"
     if [ -f "$skill_packager_source" ]; then
@@ -1455,7 +1455,7 @@ install_templates() {
     # and /generate-report; deliberately not in catalog/commands/ so the files
     # do not surface as slash commands.
     local style_guides_src="$repo_root/catalog/style-guides"
-    local style_guides_dest="$devai_home/style-guides"
+    local style_guides_dest="$nexus_home/style-guides"
     if [ -d "$style_guides_src" ]; then
         safe_folder_copy "$style_guides_src" "$style_guides_dest" "[OK] Style guides installed at: $style_guides_dest"
     fi
@@ -1466,13 +1466,13 @@ install_templates() {
     # NEVER auto-wired into a repository; users opt in by running the
     # /install-pre-commit-review-hook slash command from inside the target
     # repo, which copies the chosen platform's script to .git/hooks/pre-commit.
-    local devai_hooks_dest="$devai_home/hooks"
-    mkdir -p "$devai_hooks_dest"
+    local nexus_hooks_dest="$nexus_home/hooks"
+    mkdir -p "$nexus_hooks_dest"
     for diff_review_variant in claude-diff-review.sh gemini-diff-review.sh codex-diff-review.sh opencode-diff-review.sh; do
         local diff_review_src="$repo_root/catalog/hooks/$diff_review_variant"
         if [ -f "$diff_review_src" ]; then
-            safe_copy "$diff_review_src" "$devai_hooks_dest/$diff_review_variant" true "[OK] Pre-commit review hook source installed at: $devai_hooks_dest/$diff_review_variant"
-            chmod +x "$devai_hooks_dest/$diff_review_variant" 2>/dev/null || true
+            safe_copy "$diff_review_src" "$nexus_hooks_dest/$diff_review_variant" true "[OK] Pre-commit review hook source installed at: $nexus_hooks_dest/$diff_review_variant"
+            chmod +x "$nexus_hooks_dest/$diff_review_variant" 2>/dev/null || true
         fi
     done
 
@@ -1521,22 +1521,22 @@ install_skill_discovery() {
     echo ""
     write_item "Installing skill index for all platforms..." "$RESET"
 
-    local devai_home="$HOME/.devai-hub"
-    local devai_data="$devai_home/data"
-    mkdir -p "$devai_data"
+    local nexus_home="$HOME/.nexus-hub"
+    local nexus_data="$nexus_home/data"
+    mkdir -p "$nexus_data"
 
     local skill_index="$repo_root/data/SKILL_INDEX.md"
     if [ -f "$skill_index" ]; then
-        cp "$skill_index" "$devai_data/SKILL_INDEX.md"
-        write_item "  Skill index copied to $devai_data" "$GREEN"
+        cp "$skill_index" "$nexus_data/SKILL_INDEX.md"
+        write_item "  Skill index copied to $nexus_data" "$GREEN"
     else
         write_item "  SKILL_INDEX.md not found. Run 'python infrastructure/tools/build_skills_catalog.py' first." "$YELLOW"
     fi
 
     # Copy skills.json and bundles.json
-    [ -f "$repo_root/data/skills.json" ] && cp "$repo_root/data/skills.json" "$devai_data/skills.json"
-    [ -f "$repo_root/data/bundles.json" ] && cp "$repo_root/data/bundles.json" "$devai_data/bundles.json"
-    write_item "  Skill data installed to $devai_data" "$GREEN"
+    [ -f "$repo_root/data/skills.json" ] && cp "$repo_root/data/skills.json" "$nexus_data/skills.json"
+    [ -f "$repo_root/data/bundles.json" ] && cp "$repo_root/data/bundles.json" "$nexus_data/bundles.json"
+    write_item "  Skill data installed to $nexus_data" "$GREEN"
 
     # --- MCP Skill Server (Claude Code only) ---
     echo ""
@@ -1564,14 +1564,14 @@ install_skill_discovery() {
     write_item "  Found $python_cmd" "$GREEN"
 
     # Copy MCP server source
-    local mcp_src="$repo_root/extensions/devai-skill-server"
-    local mcp_dest="$devai_home/mcp-server"
+    local mcp_src="$repo_root/extensions/nexus-skill-server"
+    local mcp_dest="$nexus_home/mcp-server"
     rm -rf "$mcp_dest"
     cp -r "$mcp_src" "$mcp_dest"
     write_item "  MCP server source copied to $mcp_dest" "$GREEN"
 
     # Create venv and install
-    local venv_path="$devai_home/mcp-server-venv"
+    local venv_path="$nexus_home/mcp-server-venv"
 
     if command -v uv >/dev/null 2>&1; then
         write_item "  Creating venv with uv..." "$RESET"
@@ -1594,10 +1594,10 @@ install_skill_discovery() {
         echo '{}' > "$claude_settings"
     fi
 
-    # Install devai-code-search into the same venv (v1.0.0+).
+    # Install nexus-code-search into the same venv (v1.0.0+).
     # Local-only code-search MCP. Zero outbound calls. See AGENTS.md MCP Registry Policy.
-    local code_search_src="$repo_root/extensions/devai-code-search"
-    local code_search_dest="$devai_home/code-search"
+    local code_search_src="$repo_root/extensions/nexus-code-search"
+    local code_search_dest="$nexus_home/code-search"
     if [ -d "$code_search_src" ]; then
         rm -rf "$code_search_dest"
         cp -r "$code_search_src" "$code_search_dest"
@@ -1606,13 +1606,13 @@ install_skill_discovery() {
         else
             "$venv_path/bin/pip" install -q -e "$code_search_dest" >/dev/null 2>&1
         fi
-        write_item "  devai-code-search installed at $code_search_dest" "$GREEN"
+        write_item "  nexus-code-search installed at $code_search_dest" "$GREEN"
     fi
 
-    # Install devai-web-fetch into the same venv (v1.0.0+).
+    # Install nexus-web-fetch into the same venv (v1.0.0+).
     # Local-only web-fetch MCP (fetches user-specified URLs only). See AGENTS.md.
-    local web_fetch_src="$repo_root/extensions/devai-web-fetch"
-    local web_fetch_dest="$devai_home/web-fetch"
+    local web_fetch_src="$repo_root/extensions/nexus-web-fetch"
+    local web_fetch_dest="$nexus_home/web-fetch"
     if [ -d "$web_fetch_src" ]; then
         rm -rf "$web_fetch_dest"
         cp -r "$web_fetch_src" "$web_fetch_dest"
@@ -1621,7 +1621,7 @@ install_skill_discovery() {
         else
             "$venv_path/bin/pip" install -q -e "$web_fetch_dest" >/dev/null 2>&1
         fi
-        write_item "  devai-web-fetch installed at $web_fetch_dest" "$GREEN"
+        write_item "  nexus-web-fetch installed at $web_fetch_dest" "$GREEN"
     fi
 
     # Use python to safely merge MCP server config into settings.json (all three internal servers).
@@ -1634,36 +1634,108 @@ with open(path, 'r') as f:
     data = json.load(f)
 if 'mcpServers' not in data:
     data['mcpServers'] = {}
-data['mcpServers']['devai-skill-server'] = {
+data['mcpServers']['nexus-skill-server'] = {
     'command': venv + '/bin/python',
-    'args': ['-m', 'devai_skill_server'],
-    'env': {'DEVAI_HUB_ROOT': hub}
+    'args': ['-m', 'nexus_skill_server'],
+    'env': {'NEXUS_HUB_ROOT': hub}
 }
-data['mcpServers']['devai-code-search'] = {
+data['mcpServers']['nexus-code-search'] = {
     'command': venv + '/bin/python',
-    'args': ['-m', 'devai_code_search'],
-    'env': {'DEVAI_HUB_ROOT': hub}
+    'args': ['-m', 'nexus_code_search'],
+    'env': {'NEXUS_HUB_ROOT': hub}
 }
-data['mcpServers']['devai-web-fetch'] = {
+data['mcpServers']['nexus-web-fetch'] = {
     'command': venv + '/bin/python',
-    'args': ['-m', 'devai_web_fetch'],
-    'env': {'DEVAI_HUB_ROOT': hub}
+    'args': ['-m', 'nexus_web_fetch'],
+    'env': {'NEXUS_HUB_ROOT': hub}
 }
 with open(path, 'w') as f:
     json.dump(data, f, indent=2)
-" "$claude_settings" "$venv_path" "$devai_home"
+" "$claude_settings" "$venv_path" "$nexus_home"
 
-    write_item "  MCP servers registered in $claude_settings (devai-skill-server, devai-code-search, devai-web-fetch)" "$GREEN"
+    write_item "  MCP servers registered in $claude_settings (nexus-skill-server, nexus-code-search, nexus-web-fetch)" "$GREEN"
     write_item "  Servers will auto-start with Claude Code. No manual steps needed." "$GREEN"
 }
 
 # --- Banner ---
 
+# ASCII-art NEXUS-HUB wordmark. Printed at startup ahead of the welcome banner.
+# Constraints: <=80 columns wide, <=8 rows tall, ASCII-only (no Unicode block
+# characters - commit messages and source files are ASCII-only on Windows per
+# project rules). Modeled after the Claude Code CLI banner style.
+print_nexus_banner() {
+    echo ""
+    echo -e "${CYAN}"
+    cat <<'NEXUS_BANNER_EOF'
+ _   _ _____  __  __ _   _ ____       _   _ _   _ ____
+| \ | | ____| \ \/ /| | | / ___|     | | | | | | | __ )
+|  \| |  _|    \  / | | | \___ \  -  | |_| | | | |  _ \
+| |\  | |___   /  \ | |_| |___) |    |  _  | |_| | |_) |
+|_| \_|_____| /_/\_\ \___/|____/     |_| |_|\___/|____/
+NEXUS_BANNER_EOF
+    echo -e "${RESET}"
+    echo "  The Skill Harness for Claude Code, Codex, Gemini, Copilot, Cursor, and Nexus"
+    echo "  v${NEXUS_HUB_VERSION}  |  https://github.com/bendourthe/Nexus-Hub"
+    echo ""
+}
+
+# Detects an existing ~/.devai-hub/ install and migrates it to ~/.nexus-hub/.
+# One-shot, one-way per the backward-compat decision in
+# docs/v2.0.0/rename-decisions.md. The installer does NOT ship a symlink or
+# compatibility shim. Three branches:
+#   1. legacy only            -> prompt to migrate (default Y), then `mv`.
+#   2. legacy AND new co-exist -> ask user: keep-new, abort, or merge.
+#   3. neither / new only      -> no-op (fresh or already-migrated install).
+migrate_legacy_install() {
+    local legacy="$HOME/.devai-hub"
+    local current="$HOME/.nexus-hub"
+
+    if [ -d "$legacy" ] && [ ! -d "$current" ]; then
+        echo ""
+        echo -e "  ${YELLOW}Detected existing DevAI-Hub install at $legacy${RESET}"
+        echo -ne "  ${YELLOW}Migrate to Nexus-Hub ($current)? [Y/n]: ${RESET}"
+        local ans
+        read -r ans
+        ans=${ans:-Y}
+        if [[ "$ans" =~ ^[Yy] ]]; then
+            mv "$legacy" "$current"
+            echo -e "  ${GREEN}Migrated $legacy -> $current${RESET}"
+        else
+            echo -e "  ${RED}Migration declined. Remove $legacy manually or rerun and accept.${RESET}"
+            exit 1
+        fi
+        echo ""
+    elif [ -d "$legacy" ] && [ -d "$current" ]; then
+        echo ""
+        echo -e "  ${YELLOW}Both $legacy and $current exist.${RESET}"
+        echo -e "  Choose: [k]eep new + delete old, [a]bort + handle manually, [m]erge (best effort)"
+        echo -ne "  ${YELLOW}Selection [k/a/m]: ${RESET}"
+        local ans
+        read -r ans
+        case "$ans" in
+            [Kk]*)
+                rm -rf "$legacy"
+                echo -e "  ${GREEN}Removed $legacy. Keeping $current.${RESET}"
+                ;;
+            [Mm]*)
+                cp -R "$legacy"/. "$current"/
+                rm -rf "$legacy"
+                echo -e "  ${GREEN}Merged $legacy into $current (best effort).${RESET}"
+                ;;
+            *)
+                echo -e "  ${RED}Aborted. Resolve $legacy and $current manually before rerunning.${RESET}"
+                exit 1
+                ;;
+        esac
+        echo ""
+    fi
+}
+
 print_banner() {
     echo ""
     echo -e "${DARK_CYAN}========================================================================================================================${RESET}"
-    echo -e "${DARK_CYAN}                                      Welcome to the DevAI-Hub Universal Installer${RESET}"
-    echo -e "${DARK_CYAN}                                                     (version ${DEVAI_HUB_VERSION})${RESET}"
+    echo -e "${DARK_CYAN}                                      Welcome to the Nexus-Hub Universal Installer${RESET}"
+    echo -e "${DARK_CYAN}                                                     (version ${NEXUS_HUB_VERSION})${RESET}"
     echo -e "${DARK_CYAN}========================================================================================================================${RESET}"
     echo ""
 }
@@ -1674,11 +1746,13 @@ print_banner() {
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 REPO_ROOT="$(dirname "$SCRIPT_DIR")"
 
+print_nexus_banner
+migrate_legacy_install
 print_banner
 
 # Ask whether to install globally (recommended, user-scope) or to a specific workspace.
-echo -e "${RESET}Where would you like to install DevAI-Hub?"
-echo -e "  ${GREEN}[G]${RESET} Global (recommended) - applies to all projects on this machine (~/.claude/, ~/.gemini/, ~/.codex/, ~/.devai-hub/)"
+echo -e "${RESET}Where would you like to install Nexus-Hub?"
+echo -e "  ${GREEN}[G]${RESET} Global (recommended) - applies to all projects on this machine (~/.claude/, ~/.gemini/, ~/.codex/, ~/.nexus-hub/)"
 echo -e "  ${YELLOW}[W]${RESET} Workspace            - scoped to a specific project directory"
 echo ""
 SCOPE_CHOICE=$(read_prompt "Select [G/W]")
@@ -1724,7 +1798,7 @@ echo -e "${YELLOW}  New hooks, commands, skills, and permission entries will not
 
 echo ""
 echo -e "${DARK_CYAN}========================================================================================================================${RESET}"
-echo -e "${DARK_CYAN}                              Thank You For Using The DevAI-Hub Universal Installer${RESET}"
-echo -e "${DARK_CYAN}                                                     (version ${DEVAI_HUB_VERSION})${RESET}"
+echo -e "${DARK_CYAN}                              Thank You For Using The Nexus-Hub Universal Installer${RESET}"
+echo -e "${DARK_CYAN}                                                     (version ${NEXUS_HUB_VERSION})${RESET}"
 echo -e "${DARK_CYAN}========================================================================================================================${RESET}"
 echo ""
