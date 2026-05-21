@@ -135,7 +135,39 @@ See [`known-gaps.md`](known-gaps.md) for the full v2.1.0 gap log. With Phase 9 P
 
 - **Push the `v2.1.0` tag** to the remote. Cut locally at the close of Phase 8 sub-task 8.3; the push is deferred to explicit user action per the CLAUDE.md global rule that destructive / remote-mutating git operations require user confirmation.
 - ~~**Phase 9 P3 polish**~~ shipped against the v2.1.0 baseline; no separate patch release needed. See the Phase 9 DEVLOG entry for the rationale.
-- **Phase 10 G12 re-full refactor** targets v2.2.0 after ADR-001 lands.
+- ~~**Phase 10 G12 re-full refactor**~~ pulled forward to v2.1.0 (additive integration registry; legacy installer copy paths retained for the original 4 platforms). Byte-identical parity migration of the original 4 platforms into the registry is deferred to v2.2.0 as DF-001 in known-gaps.
+
+## Phase 10 addendum: Integration Registry + expanded platform support
+
+The v2.1.0 final release pulls **Phase 10 (G12 Integration Registry refactor)** forward from its original v2.2.0 target. The motivation is the user's request to expand supported platforms from the original 5 to 9+ in a single release, which the lock-step `base-*.md` editing convention could not absorb without 50+ correlated file edits. The ADR-001 architecture (`docs/v2.1.0/adr/adr-001-integration-registry.md`) introduces a Python class hierarchy under `scripts/lib/integrations/` -- `IntegrationBase` plus four mixin specializations (`MarkdownIntegration`, `TomlIntegration`, `YamlIntegration`, `SkillsIntegration`) -- with one subclass per supported platform.
+
+**Platforms now supported by the installer (v2.1.0 ship state)**:
+
+| Platform | Install path (workspace) | Install path (global) | Path |
+|---|---|---|---|
+| Claude Code (Anthropic) | `.claude/` | `~/.claude/` | legacy installer + registry subclass |
+| Codex (OpenAI) | `.codex/` | `~/.codex/` | legacy installer + registry subclass |
+| Cursor | `.cursor/rules/*.mdc` + `AGENTS.md` | n/a | registry subclass |
+| Gemini (Google) | `.gemini/` | `~/.gemini/` | legacy installer + registry subclass |
+| **Gemini CLI** (Google) | `.gemini/commands/*.toml` | `~/.gemini/commands/*.toml` | **registry subclass (new in v2.1.0)** |
+| OpenCode | `.opencode/` | `~/.opencode/` | registry subclass |
+| **Windsurf** (Codeium) | `.windsurf/{rules,workflows,skills}` | n/a | **registry subclass (new in v2.1.0)** |
+| Antigravity 1.0 (Google) | `.gemini/antigravity/` | `~/.gemini/antigravity/` | legacy installer + registry subclass |
+| **Antigravity 2.0** (Google) | `.agent/` | `~/.agent/` | **registry subclass (new in v2.1.0)** |
+| GitHub Copilot (Microsoft) | `.github/copilot-instructions.md` | n/a | legacy installer + registry subclass |
+| **Nexus-AI** (Local Desktop Studio) | `.nexus-ai/` | `~/.nexus-ai/` | **registry subclass (new in v2.1.0)** |
+
+**Cross-platform seamlessness**: a user who installs Nexus-Hub via `bash scripts/installer.sh` or `pwsh scripts/installer.ps1` now lands the catalog into 11 distinct AI-coding-platform locations. Switching from Claude Code to Antigravity 2.0 (or to Nexus-AI, or to Gemini CLI, etc.) means the same skills, commands, agents, and rules are already on disk in the platform's expected directory layout. No re-install or re-configuration is needed when switching assistants.
+
+The runner CLI is also usable standalone:
+
+```bash
+python scripts/lib/integrations/runner.py list
+python scripts/lib/integrations/runner.py install --scope workspace --target /path/to/project --integrations windsurf,antigravity2,gemini-cli,nexus-ai
+python scripts/lib/integrations/runner.py teardown --target /path/to/project
+```
+
+The runner is also installed at `~/.nexus-hub/scripts/lib/integrations/runner.py` after running the installer, so users can re-target additional projects without re-cloning the repo.
 
 ## Cross-references
 

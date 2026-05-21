@@ -1091,6 +1091,9 @@ function Install-Global {
         Write-Item -Message "Check skipped (No global file support on Windows)." -Color "DarkGray"
     }
 
+    # 5. Extended Platforms (Windsurf, Antigravity 2.0, Gemini CLI, Nexus-AI)
+    Install-ExtendedPlatformsGlobal -RepoRoot $RepoRoot
+
     # --- Auto-Approve Permissions sub-section ---
     Write-SubSectionBanner -Text "Auto-Approve Permissions"
 
@@ -1528,6 +1531,58 @@ function Install-Workspace {
             }
         }
         Write-Host ""
+
+        Install-ExtendedPlatformsWorkspace -RepoRoot $RepoRoot -TargetPath $targetPath
+}
+
+function Install-ExtendedPlatformsWorkspace {
+    param ($RepoRoot, $TargetPath)
+    $runner = Join-Path $RepoRoot "scripts\lib\integrations\runner.py"
+    if (-not (Test-Path $runner)) {
+        return
+    }
+    $py = $null
+    if (Get-Command python -ErrorAction SilentlyContinue) { $py = "python" }
+    elseif (Get-Command py -ErrorAction SilentlyContinue) { $py = "py" }
+    elseif (Get-Command python3 -ErrorAction SilentlyContinue) { $py = "python3" }
+    if (-not $py) {
+        Write-Item -Message "Python not found -- skipping extended platforms (Windsurf, Antigravity 2.0, Gemini CLI, Nexus-AI)." -Color "DarkYellow"
+        return
+    }
+    Write-Header -Provider "EXTENDED PLATFORMS"
+    Write-Item -Message "Installing extended platforms via integration registry..."
+    $extended = "windsurf,antigravity2,gemini-cli,nexus-ai"
+    $argsList = @($runner, "install", "--scope", "workspace", "--target", $TargetPath, "--integrations", $extended)
+    if ($script:OverwriteMode -eq "ALL") { $argsList += "--overwrite" }
+    & $py @argsList
+    if ($LASTEXITCODE -ne 0) {
+        Write-Item -Message "Extended-platform install reported non-zero exit; continuing." -Color "Yellow"
+    }
+}
+
+function Install-ExtendedPlatformsGlobal {
+    param ($RepoRoot)
+    $runner = Join-Path $RepoRoot "scripts\lib\integrations\runner.py"
+    if (-not (Test-Path $runner)) {
+        return
+    }
+    $py = $null
+    if (Get-Command python -ErrorAction SilentlyContinue) { $py = "python" }
+    elseif (Get-Command py -ErrorAction SilentlyContinue) { $py = "py" }
+    elseif (Get-Command python3 -ErrorAction SilentlyContinue) { $py = "python3" }
+    if (-not $py) {
+        Write-Item -Message "Python not found -- skipping global extended platforms." -Color "DarkYellow"
+        return
+    }
+    Write-Header -Provider "EXTENDED PLATFORMS (Global)"
+    Write-Item -Message "Installing global extended platforms via integration registry..."
+    $extended = "windsurf,antigravity2,gemini-cli,nexus-ai"
+    $argsList = @($runner, "install", "--scope", "global", "--integrations", $extended)
+    if ($script:OverwriteMode -eq "ALL") { $argsList += "--overwrite" }
+    & $py @argsList
+    if ($LASTEXITCODE -ne 0) {
+        Write-Item -Message "Global extended-platform install reported non-zero exit; continuing." -Color "Yellow"
+    }
 }
 
 function Install-VSCodeExtensions {
@@ -1775,6 +1830,20 @@ function Install-Templates {
     $newFeaturePs1Source = Join-Path $RepoRoot "scripts\new-feature.ps1"
     if (Test-Path $newFeaturePs1Source) {
         Safe-Copy -Source $newFeaturePs1Source -Destination (Join-Path $scriptsDest "new-feature.ps1") -Confirm:$true -CustomMessage "✓ Feature directory bootstrap (PowerShell) installed at: $scriptsDest\new-feature.ps1"
+    }
+
+    # Copy integration registry module (v2.1.0+). Mirror of the bash block
+    # in scripts\installer.sh. Lands the per-platform install hierarchy under
+    # ~\.nexus-hub\scripts\lib\integrations\ so users can invoke the runner
+    # standalone post-install.
+    $integrationsSrc = Join-Path $RepoRoot "scripts\lib\integrations"
+    $integrationsDest = Join-Path $scriptsDest "lib\integrations"
+    if (Test-Path $integrationsSrc) {
+        Safe-Folder-Copy -Source $integrationsSrc -Destination $integrationsDest -CustomMessage "✓ Integration registry installed at: $integrationsDest"
+    }
+    $libInit = Join-Path $scriptsDest "lib\__init__.py"
+    if ((Test-Path (Split-Path $libInit -Parent)) -and -not (Test-Path $libInit)) {
+        New-Item -ItemType File -Force -Path $libInit | Out-Null
     }
 
     # Copy style-guides (v1.0.0+). Reference content for /compile-deep-research

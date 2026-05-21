@@ -795,6 +795,9 @@ install_global() {
     # Copilot usually doesn't have a global config file in the same way, skipped as per Windows version or add if known.
     write_item "Check skipped (No global file support standard)." "$GRAY"
 
+    # 5. Extended Platforms (Windsurf, Antigravity 2.0, Gemini CLI, Nexus-AI)
+    install_extended_platforms_global "$repo_root"
+
     # --- Auto-Approve Permissions sub-section ---
     write_subsection_banner "Auto-Approve Permissions"
 
@@ -1248,6 +1251,67 @@ install_workspace() {
             write_item "[OK] Workspace instructions installed at: $copilot_file" "$GREEN"
         fi
         echo ""
+
+        install_extended_platforms_workspace "$repo_root" "$target_path"
+}
+
+install_extended_platforms_workspace() {
+    local repo_root="$1"
+    local target_path="$2"
+    local runner="$repo_root/scripts/lib/integrations/runner.py"
+
+    if [ ! -f "$runner" ]; then
+        return 0
+    fi
+
+    local py
+    if command -v python3 >/dev/null 2>&1; then
+        py="python3"
+    elif command -v python >/dev/null 2>&1; then
+        py="python"
+    else
+        write_item "Python not found -- skipping extended platforms (Windsurf, Antigravity 2.0, Gemini CLI, Nexus-AI)." "$DARK_YELLOW"
+        return 0
+    fi
+
+    write_header "EXTENDED PLATFORMS"
+    write_item "Installing extended platforms via integration registry..." "$RESET"
+    local extended="windsurf,antigravity2,gemini-cli,nexus-ai"
+    local extra_flags=""
+    if [ "$OVERWRITE_ALL" = true ]; then
+        extra_flags="--overwrite"
+    fi
+    "$py" "$runner" install --scope workspace --target "$target_path" --integrations "$extended" $extra_flags || \
+        write_item "Extended-platform install reported non-zero exit; continuing." "$YELLOW"
+}
+
+install_extended_platforms_global() {
+    local repo_root="$1"
+    local runner="$repo_root/scripts/lib/integrations/runner.py"
+
+    if [ ! -f "$runner" ]; then
+        return 0
+    fi
+
+    local py
+    if command -v python3 >/dev/null 2>&1; then
+        py="python3"
+    elif command -v python >/dev/null 2>&1; then
+        py="python"
+    else
+        write_item "Python not found -- skipping global extended platforms." "$DARK_YELLOW"
+        return 0
+    fi
+
+    write_header "EXTENDED PLATFORMS (Global)"
+    write_item "Installing global extended platforms via integration registry..." "$RESET"
+    local extended="windsurf,antigravity2,gemini-cli,nexus-ai"
+    local extra_flags=""
+    if [ "$OVERWRITE_ALL" = true ]; then
+        extra_flags="--overwrite"
+    fi
+    "$py" "$runner" install --scope global --integrations "$extended" $extra_flags || \
+        write_item "Global extended-platform install reported non-zero exit; continuing." "$YELLOW"
 }
 
 install_vscode_extensions() {
@@ -1466,6 +1530,20 @@ install_templates() {
     local new_feature_ps1_source="$repo_root/scripts/new-feature.ps1"
     if [ -f "$new_feature_ps1_source" ]; then
         safe_copy "$new_feature_ps1_source" "$scripts_dest/new-feature.ps1" true "[OK] Feature directory bootstrap (PowerShell) installed at: $scripts_dest/new-feature.ps1"
+    fi
+
+    # Copy integration registry module (v2.1.0+). The integrations registrar
+    # ships the per-platform install logic for the extended platforms (Windsurf,
+    # Antigravity 2.0, Gemini CLI, Nexus-AI). The recursive folder copy lands
+    # the whole class hierarchy under ~/.nexus-hub/scripts/lib/integrations/.
+    local integrations_src="$repo_root/scripts/lib/integrations"
+    local integrations_dest="$scripts_dest/lib/integrations"
+    if [ -d "$integrations_src" ]; then
+        safe_folder_copy "$integrations_src" "$integrations_dest" "[OK] Integration registry installed at: $integrations_dest"
+    fi
+    # Empty package markers so the module can be imported from the installed location.
+    if [ -d "$scripts_dest/lib" ]; then
+        : > "$scripts_dest/lib/__init__.py" 2>/dev/null || true
     fi
 
     # Copy style-guides (v1.0.0+). Reference content for /compile-deep-research
