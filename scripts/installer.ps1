@@ -1,5 +1,40 @@
 ﻿# Nexus-Hub Universal Installer V10 (Windows)
 # Installs AI Skills Globally OR to a Workspace with Safe Overwrite and Modern UI
+#
+# Supported flags (v2.2.0+):
+#   -Enterprise   Opt in to the standalone Gemini CLI install path. After
+#                 2026-06-18 (per the 2026-05-21 Google Developers Blog
+#                 announcement), Gemini CLI stops serving free / Google AI Pro
+#                 / Ultra / GitHub-installed users; this switch is the only way
+#                 to keep the integration after that date (requires a paid
+#                 Gemini API key). Default: the installer prints a sunset
+#                 warning and skips Gemini CLI, but still installs Antigravity
+#                 CLI (which covers the same functionality via the
+#                 antigravity2 integration).
+#   -Help         Show usage and exit.
+[CmdletBinding()]
+param(
+    [switch]$Enterprise,
+    [switch]$Help
+)
+
+if ($Help) {
+    @"
+Usage: pwsh scripts/installer.ps1 [-Enterprise] [-Help]
+
+Options:
+  -Enterprise   Install the standalone Gemini CLI integration. Requires a paid
+                Gemini API key. After 2026-06-18 (per the 2026-05-21 Google
+                Developers Blog announcement), Gemini CLI stops serving free /
+                Google AI Pro / Ultra / GitHub-installed users; this switch is
+                the only way to keep the integration after that date.
+                Default (without -Enterprise): the installer prints a sunset
+                warning and skips Gemini CLI but still installs Antigravity CLI.
+  -Help         Show this help and exit.
+"@ | Write-Host
+    exit 0
+}
+
 $ErrorActionPreference = "Stop"
 
 # --- Version ---
@@ -1084,10 +1119,15 @@ function Install-Global {
         }
 
         if ($platforms -contains "ANTIGRAVITY2") {
-            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "antigravity2" -DisplayName "Antigravity 2.0"
+            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "antigravity2" -DisplayName "Antigravity 2.0 + CLI"
         }
         if ($platforms -contains "GEMINI_CLI") {
-            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "gemini-cli" -DisplayName "Gemini CLI"
+            if ($Enterprise) {
+                Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "gemini-cli" -DisplayName "Gemini CLI (enterprise)"
+            }
+            else {
+                Write-Item -Message "Gemini CLI: skipped (sunset on 2026-06-18 for free / Google AI Pro / Ultra / GitHub-installed users). Re-run with -Enterprise to install (requires paid Gemini API key); Antigravity CLI above covers the same functionality." -Color "Yellow"
+            }
         }
     }
 
@@ -1478,10 +1518,15 @@ function Install-Workspace {
             }
 
             if ($workspacePlatforms -contains "ANTIGRAVITY2") {
-                Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "antigravity2" -DisplayName "Antigravity 2.0"
+                Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "antigravity2" -DisplayName "Antigravity 2.0 + CLI"
             }
             if ($workspacePlatforms -contains "GEMINI_CLI") {
-                Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "gemini-cli" -DisplayName "Gemini CLI"
+                if ($Enterprise) {
+                    Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "gemini-cli" -DisplayName "Gemini CLI (enterprise)"
+                }
+                else {
+                    Write-Item -Message "Gemini CLI: skipped (sunset on 2026-06-18 for free / Google AI Pro / Ultra / GitHub-installed users). Re-run with -Enterprise to install (requires paid Gemini API key); Antigravity CLI above covers the same functionality." -Color "Yellow"
+                }
             }
         }
 
@@ -1877,7 +1922,15 @@ function Install-Templates {
     # repo, which copies the chosen platform's script to .git\hooks\pre-commit.
     $nexusHooksDest = Join-Path $nexusHome "hooks"
     if (-not (Test-Path $nexusHooksDest)) { New-Item -ItemType Directory -Force -Path $nexusHooksDest | Out-Null }
-    foreach ($variant in @("claude-diff-review.sh", "gemini-diff-review.sh", "codex-diff-review.sh", "opencode-diff-review.sh")) {
+    $diffReviewVariants = @(
+        "claude-diff-review.sh",
+        "gemini-diff-review.sh",
+        "antigravity-cli-diff-review.sh",
+        "antigravity-cli-diff-review.ps1",
+        "codex-diff-review.sh",
+        "opencode-diff-review.sh"
+    )
+    foreach ($variant in $diffReviewVariants) {
         $diffReviewSrc = Join-Path $RepoRoot "catalog\hooks\$variant"
         if (Test-Path $diffReviewSrc) {
             Safe-Copy -Source $diffReviewSrc -Destination (Join-Path $nexusHooksDest $variant) -Confirm:$true -CustomMessage "✓ Pre-commit review hook source installed at: $nexusHooksDest\$variant"

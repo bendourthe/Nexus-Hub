@@ -9,7 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-(none)
+### Added
+
+- **Antigravity CLI pre-commit diff-review hook** (`catalog/hooks/antigravity-cli-diff-review.sh` and `.ps1`) -- new sibling alongside the existing Claude / Gemini / Codex / OpenCode variants. Calls `antigravity -p` for an LLM review of staged diffs (hardcoded secrets, debug artifacts, unfinished TODOs, large commented-out code blocks). Both installers copy the new hook to `~/.nexus-hub/hooks/`. Added in v2.2.0 Phase 2 (T009).
+- **Per-surface Google instruction templates** (`templates/ai-instructions/base-google-shared.md`, `base-gemini-ide.md`, `base-gemini-cli.md`, `base-antigravity-10.md`, `base-antigravity-20.md`, `base-antigravity-cli.md`). The shared body lives in `base-google-shared.md`; each surface has a thin wrapper that imports the shared body via the `@` import idiom and adds 3-10 lines of surface-specific guidance (binary name, invocation, surface-specific permissions). Added in v2.2.0 Phase 2 (T011).
+- **Antigravity CLI install-path probe** (`docs/v2.2.0/antigravity-cli-probe.md`) -- empirical / inferred record of the Antigravity CLI on-disk conventions, confirming the existing `Antigravity20Integration` covers both the desktop IDE and the CLI without a separate class. Added in v2.2.0 Phase 2 (T007).
+- **Antigravity 2.0 + CLI integration tests** (`tests/integrations/test_antigravity.py`) -- 6 new test cases asserting both Antigravity 1.0 and Antigravity 2.0 + CLI install correctly, surface dual-coverage in the display_name, point at their dedicated templates, and converge to `unchanged` on a second install. Added in v2.2.0 Phase 2 (T008).
+
+### Changed
+
+- **`Antigravity20Integration` display_name** in `scripts/lib/integrations/antigravity.py` renamed from "Antigravity 2.0 (Google)" to "Antigravity 2.0 + CLI (Google)" reflecting dual desktop + CLI coverage per the 2026-05-21 Google Developers Blog announcement (Gemini CLI transitions to Antigravity CLI before the 2026-06-18 sunset). The class docstring now explicitly states the CLI coverage. Changed in v2.2.0 Phase 2 (T008).
+- **Google-family integration `instruction_template` fields** updated from the shared `base-gemini.md` to dedicated wrappers: `gemini.py` -> `base-gemini-ide.md`, `gemini_cli.py` -> `base-gemini-cli.md`, `antigravity.py` `Antigravity10Integration` -> `base-antigravity-10.md`, `Antigravity20Integration` -> `base-antigravity-20.md`. The legacy `base-gemini.md` remains in place for the legacy installer copy blocks until the DF-001 parity migration ships in Phase 3. Changed in v2.2.0 Phase 2 (T011).
 
 ---
 

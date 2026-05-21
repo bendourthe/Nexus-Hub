@@ -766,8 +766,12 @@ install_global() {
     safe_folder_copy "$repo_root/catalog/skills"   "$global_agent_dir/skills"    "[OK] Skills catalog mirrored to: $global_agent_dir/skills"
     safe_folder_copy "$repo_root/catalog/commands" "$global_agent_dir/workflows" "[OK] Workflows mirrored to: $global_agent_dir/workflows"
 
-    invoke_registry_platform "$repo_root" "global" "" "antigravity2" "Antigravity 2.0"
-    invoke_registry_platform "$repo_root" "global" "" "gemini-cli"   "Gemini CLI"
+    invoke_registry_platform "$repo_root" "global" "" "antigravity2" "Antigravity 2.0 + CLI"
+    if [ "${ENTERPRISE:-0}" = "1" ]; then
+        invoke_registry_platform "$repo_root" "global" "" "gemini-cli"   "Gemini CLI (enterprise)"
+    else
+        write_item "Gemini CLI: skipped (sunset on 2026-06-18 for free / Google AI Pro / Ultra / GitHub-installed users). Re-run with --enterprise to install (requires paid Gemini API key); Antigravity CLI above covers the same functionality." "$DARK_YELLOW"
+    fi
 
     # --- Microsoft -- GitHub Copilot -----------------------------------
     write_header "MICROSOFT"
@@ -1159,8 +1163,12 @@ install_workspace() {
         safe_folder_copy "$repo_root/catalog/skills"   "$agent_dir/skills"    "[OK] Skills catalog mirrored to: $agent_dir/skills"
         safe_folder_copy "$repo_root/catalog/commands" "$agent_dir/workflows" "[OK] Workflows mirrored to: $agent_dir/workflows"
 
-        invoke_registry_platform "$repo_root" "workspace" "$target_path" "antigravity2" "Antigravity 2.0"
-        invoke_registry_platform "$repo_root" "workspace" "$target_path" "gemini-cli"   "Gemini CLI"
+        invoke_registry_platform "$repo_root" "workspace" "$target_path" "antigravity2" "Antigravity 2.0 + CLI"
+        if [ "${ENTERPRISE:-0}" = "1" ]; then
+            invoke_registry_platform "$repo_root" "workspace" "$target_path" "gemini-cli"   "Gemini CLI (enterprise)"
+        else
+            write_item "Gemini CLI: skipped (sunset on 2026-06-18 for free / Google AI Pro / Ultra / GitHub-installed users). Re-run with --enterprise to install (requires paid Gemini API key); Antigravity CLI above covers the same functionality." "$DARK_YELLOW"
+        fi
 
         # --- Prepare Copilot/Cursor instruction body (used below) --
         local merged_content="# $PROJECT_NAME - Copilot Instructions\n\n"
@@ -1520,7 +1528,7 @@ install_templates() {
     # repo, which copies the chosen platform's script to .git/hooks/pre-commit.
     local nexus_hooks_dest="$nexus_home/hooks"
     mkdir -p "$nexus_hooks_dest"
-    for diff_review_variant in claude-diff-review.sh gemini-diff-review.sh codex-diff-review.sh opencode-diff-review.sh; do
+    for diff_review_variant in claude-diff-review.sh gemini-diff-review.sh antigravity-cli-diff-review.sh codex-diff-review.sh opencode-diff-review.sh; do
         local diff_review_src="$repo_root/catalog/hooks/$diff_review_variant"
         if [ -f "$diff_review_src" ]; then
             safe_copy "$diff_review_src" "$nexus_hooks_dest/$diff_review_variant" true "[OK] Pre-commit review hook source installed at: $nexus_hooks_dest/$diff_review_variant"
@@ -1826,6 +1834,50 @@ print_banner() {
 # Get directory of this script
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 REPO_ROOT="$(dirname "$SCRIPT_DIR")"
+
+# --- Flag parsing (v2.2.0+) ----------------------------------------------
+# Currently supported:
+#   --enterprise        Opt in to the standalone Gemini CLI install path. After
+#                       2026-06-18, Gemini CLI only serves enterprise tenants
+#                       with a paid Gemini API key (per the 2026-05-21 Google
+#                       Developers Blog announcement). Non-enterprise users
+#                       install Antigravity CLI instead.
+#   -h | --help         Show usage and exit.
+ENTERPRISE=0
+show_installer_usage() {
+    cat <<EOF
+Usage: bash scripts/installer.sh [--enterprise] [-h | --help]
+
+Options:
+  --enterprise   Install the standalone Gemini CLI integration. Requires a paid
+                 Gemini API key. After 2026-06-18 (per the 2026-05-21 Google
+                 Developers Blog announcement), Gemini CLI stops serving free /
+                 Google AI Pro / Ultra / GitHub-installed users; this flag is
+                 the only way to keep the integration after that date.
+                 Default (without --enterprise): the installer prints a sunset
+                 warning and skips the Gemini CLI install, but still installs
+                 Antigravity CLI (which covers the same functionality via the
+                 antigravity2 integration).
+  -h, --help     Show this help and exit.
+EOF
+}
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --enterprise)
+            ENTERPRISE=1
+            shift
+            ;;
+        -h|--help)
+            show_installer_usage
+            exit 0
+            ;;
+        *)
+            echo "Unknown installer flag: $1" >&2
+            show_installer_usage >&2
+            exit 2
+            ;;
+    esac
+done
 
 print_nexus_banner
 migrate_legacy_install

@@ -313,10 +313,12 @@ Walk this checklist before proposing a PR:
 
 ### Platform coverage caveats (current state)
 
+> **Gemini CLI sunset**: per the 2026-05-21 Google Developers Blog announcement, Gemini CLI stops serving free / Google AI Pro / Ultra / GitHub-installed users on 2026-06-18. The standalone `gemini-cli` integration is now opt-in via the `--enterprise` installer flag (Bash: `scripts/installer.sh --enterprise`; PowerShell: `scripts/installer.ps1 -Enterprise`) and installs only when the user explicitly requests it. Non-enterprise users transition to Antigravity CLI, which is covered by the `antigravity2` integration (the desktop IDE and CLI share a backend per the same announcement; see [docs/v2.2.0/antigravity-cli-probe.md](docs/v2.2.0/antigravity-cli-probe.md)).
+
 The installer deploys **skills, commands, agents, hooks, and rules as separate files** to the following platforms:
 
 - **Original 4 (legacy installer copy blocks)**: Claude Code, Gemini/Antigravity 1.0, Codex, GitHub Copilot (Copilot receives behavioral guardrails via `.github/copilot-instructions.md` rather than a full file-tree copy).
-- **Extended 3 (v2.1.0+, via integration registry)**: Antigravity 2.0 (Google), Gemini CLI (Google), Nexus-AI (https://github.com/bendourthe/Nexus-AI).
+- **Extended 4 (v2.2.0+, via integration registry)**: Antigravity 2.0 + CLI (Google -- single integration covers both surfaces since they share the `~/.agent/` convention), Antigravity CLI (Google -- transition target for Gemini CLI before 2026-06-18; covered by the `antigravity2` integration), Gemini CLI (Google, ENTERPRISE-ONLY post-2026-06-18, opt-in via `--enterprise` installer flag), Nexus-AI (https://github.com/bendourthe/Nexus-AI).
 - **Behavioral-guardrails only**: Cursor (`.cursor/rules/*.mdc` + repo-root `AGENTS.md`), OpenCode (`AGENTS.md`).
 
 Each of these has a corresponding `IntegrationBase` subclass under `scripts/lib/integrations/` (added in Phase 10 of v2.1.0); the original 4 continue to install via the legacy installer copy blocks, with the registry subclasses standing by for the future v2.2.0 parity migration documented in `docs/v2.1.0/known-gaps.md` (DF-001).

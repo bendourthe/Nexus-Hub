@@ -21,7 +21,7 @@ class GeminiIntegration(MarkdownIntegration, SkillsIntegration):
         "global_dir": "~/.gemini",
         "workspace_dir": ".gemini",
         "instruction_file": "GEMINI.md",
-        "instruction_template": "templates/ai-instructions/base-gemini.md",
+        "instruction_template": "templates/ai-instructions/base-gemini-ide.md",
         "skills_subdir": "skills",
         "commands_subdir": "workflows",
         "agents_subdir": "agents",

@@ -25,13 +25,13 @@ from .result import WriteResult
 
 class GeminiCliIntegration(MarkdownIntegration, SkillsIntegration, TomlIntegration):
     key = "gemini-cli"
-    display_name = "Gemini CLI (Google)"
+    display_name = "Gemini CLI (Google, ENTERPRISE-ONLY post-2026-06-18)"
     instruction_mode = "shared"
     config = {
         "global_dir": "~/.gemini",
         "workspace_dir": ".gemini",
         "instruction_file": "GEMINI.md",
-        "instruction_template": "templates/ai-instructions/base-gemini.md",
+        "instruction_template": "templates/ai-instructions/base-gemini-cli.md",
         "skills_subdir": "skills",
         "agents_subdir": "agents",
         "rules_subdir": "rules",
