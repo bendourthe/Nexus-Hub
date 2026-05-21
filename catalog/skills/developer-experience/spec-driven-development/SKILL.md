@@ -74,6 +74,20 @@ A spec with a single user story still uses the format: `### User Story 1 - [Titl
 
 Acceptance Scenarios use the Given / When / Then format. Each scenario maps directly to one of the FR-### items - the scenario is the FR's executable verification.
 
+### Auto-validating the spec
+
+A spec is not "done" the moment the template's slots are filled. Run the spec through the spec-quality-checklist as a final gate before handoff to `/generate-plan` or `/clarify-spec`.
+
+The mechanism: copy `catalog/templates/spec-quality-checklist.md` (installed at `~/.nexus-hub/templates/spec-quality-checklist.md`) into the feature directory as `checklists/requirements.md`. Iterate up to **3 passes** through the checklist, ticking items that already pass and editing the spec to make the remaining items pass:
+
+1. **Pass 1 - Content Quality**: confirm no implementation details leak into the spec (frameworks, languages, APIs), and that the spec reads correctly for a non-technical stakeholder. If implementation details appear, move them to the plan or to a `### Technical Notes` subsection that the analyzer ignores.
+2. **Pass 2 - Requirement Completeness**: confirm every `[NEEDS CLARIFICATION]` marker is either resolved or moved to `## Assumptions` per the 3-marker cap. Confirm SC-### IDs are measurable (numeric thresholds, boolean conditions, or explicit pass/fail signals). Confirm acceptance scenarios cover every FR-###.
+3. **Pass 3 - Feature Readiness**: confirm every functional requirement has at least one acceptance scenario, and that user scenarios cover the primary flows end-to-end.
+
+After 3 iterations, document any remaining unchecked items in the spec's `## Assumptions` section and warn the user before advancing. Unchecked items are a contract with the reviewer - they tell the next stage exactly which corners of the spec are still soft.
+
+The checklist is "unit tests for English": it validates the spec's prose, not the implementation. Implementation correctness is validated separately by tests against FR-### / SC-### IDs in `[[cross-artifact-analyzer]]`'s coverage matrix.
+
 ## The Gated Workflow
 
 Spec-driven development has four phases. Do not advance to the next phase until the human has reviewed and approved the current one.
@@ -242,3 +256,4 @@ Execute tasks following `incremental-implementation` (one task at a time, test a
 - `ambiguity-detector` — detect gaps in an existing spec before implementation
 - `cross-artifact-analyzer` — verify the FR-### / SC-### IDs in the spec have matching tasks in the plan via the Coverage Summary table emitted by `/analyze-spec`
 - `project-constitution` — establish the MUST/SHOULD principles that the `Constitution Check` section of every plan validates against
+- `/clarify-spec` (Phase 5 command) — sequential 5-question loop that resolves spec ambiguities after the template's slots are filled; pairs with the spec-quality-checklist for the final readiness gate before `/generate-plan`

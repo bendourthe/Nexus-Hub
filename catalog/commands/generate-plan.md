@@ -447,6 +447,21 @@ Every generated plan MUST include both sections shown in the file-format templat
 
 Treat both sections as part of the plan's contract with `[[project-constitution]]` and `/analyze-spec` - they are not optional adornment.
 
+### Spec-quality-checklist companion (feature-level plans only)
+
+When the plan being generated is **plan type 2** (feature addition or enhancement) AND a `spec.md` exists in the same directory as the plan output (`docs/<version>/plans/` for the default layout, or `specs/<NNN>-<slug>/` for the opt-in layout from Phase 7 of the adoption-spec-kit plan), write a companion checklist alongside the plan:
+
+1. Resolve the target directory:
+    - Default layout: `docs/<version>/plans/<slug>/checklists/requirements.md` (a `<slug>` subdirectory under `plans/` is acceptable when the plan needs a directory companion).
+    - `specs/<NNN>-<slug>/` layout: `specs/<NNN>-<slug>/checklists/requirements.md`.
+2. Copy the contents of `catalog/templates/spec-quality-checklist.md` (installed at `~/.nexus-hub/templates/spec-quality-checklist.md`) into the resolved path. Replace `[FEATURE NAME]` with the plan title, `[DATE]` with today's UTC date, and `[Link to spec.md]` with a relative link to the sibling `spec.md`.
+3. If a checklist file already exists at the target path, do not overwrite. Announce: `Spec-quality-checklist already exists at <path> - leaving in place. Re-run /clarify-spec or edit the checklist directly to refresh.`
+4. Tell the user the checklist was written and recommend the next step:
+    - If unchecked items remain after the user reviews: run `/clarify-spec` to resolve them.
+    - If all items pass: run `/analyze-spec` to verify cross-artifact coverage, then `/implement-phase <slug> phase-1`.
+
+Skip the checklist companion entirely for plan types 1 (initial greenfield build), 3 (refactor), and 4 (other) - the checklist's value is feature-spec quality validation, and those plan types do not produce a feature spec. The Constitution Check section above is still emitted for all plan types.
+
 ---
 
 ## Step 5: Confirm with the User
