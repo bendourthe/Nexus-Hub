@@ -85,7 +85,7 @@ The secondary rate limit is not surfaced by `gh api rate_limit` -- there is no p
 
 ```sh
 gh label create nexus-hub --color 8B4FFF --description "Filed by Nexus-Hub /tasks-to-issues"
-gh label create spec-kit-task --color 6F42C1 --description "Spec-driven development task"
+gh label create spec-driven-task --color 6F42C1 --description "Spec-driven development task"
 gh label create parallel --color 0E8A16 --description "Safe to work in parallel"
 gh label create user-story-1 --color 0366D6 --description "Belongs to User Story 1 (P1)"
 gh label create user-story-2 --color 5319E7 --description "Belongs to User Story 2 (P2)"
@@ -99,7 +99,7 @@ Add more `user-story-N` labels as your plans grow. The colors above are suggesti
 After a `/tasks-to-issues` run completes, audit the new issues:
 
 ```sh
-gh issue list --label "spec-kit-task" --state open --limit 100
+gh issue list --label "spec-driven-task" --state open --limit 100
 ```
 
 Cross-reference the printed issue URLs against the `[gh#<num>]` markers in the source `tasks.md` / `plan.md` to confirm 1:1 coverage. If the counts diverge, run:
@@ -108,7 +108,7 @@ Cross-reference the printed issue URLs against the `[gh#<num>]` markers in the s
 grep -E '^- \[ \] T[0-9]+' <source-file> | grep -c '\[gh#'
 ```
 
-This counts how many task lines have an idempotency marker. The number should match the open `spec-kit-task` issues filed since the last clean run.
+This counts how many task lines have an idempotency marker. The number should match the open `spec-driven-task` issues filed since the last clean run.
 
 ## Related Files
 

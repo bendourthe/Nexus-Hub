@@ -27,6 +27,24 @@ The two projects are designed to be useful independently: you can install Nexus-
 
 ---
 
+## What's New in v2.1.0
+
+v2.1.0 makes **Spec-Driven Development (SDD)** a first-class workflow in Nexus-Hub by adopting 11 capabilities surfaced by the v2.0.0 cross-project comparison with [GitHub Spec Kit](https://github.com/github/spec-kit). The release is fully additive -- every change is opt-in, and pre-existing command and skill behavior is preserved.
+
+Highlights:
+
+- **4 new slash commands**: `/constitution` (project-governance file with versioned MUST / SHOULD principles), `/analyze-spec` (read-only cross-artifact analyzer with severity-tagged findings), `/clarify-spec` (sequential 5-question ambiguity-reduction loop), `/tasks-to-issues` (convert strict-format task lines into linked GitHub issues via the local `gh` CLI).
+- **3 new skills**: `project-constitution`, `cross-artifact-analyzer`, `tasks-to-issues`.
+- **3 new templates**: `constitution-template.md`, `spec-template.md` (with P1 / P2 / P3 user stories + FR-### / SC-### IDs), `spec-quality-checklist.md`.
+- **`/generate-plan` updates**: opt-in `--specs-layout` flag for the `specs/<NNN>-<slug>/` directory layout, strict `- [ ] T### [P?] [US?] file_path` task-line format with phase organization (Setup / Foundational / User-Story / Polish), Constitution Check + Complexity Tracking sections in every generated plan.
+- **`[NEEDS CLARIFICATION]` marker discipline** with a 3-marker hard cap prioritized `scope > security/privacy > UX > technical`, wired into `spec-driven-development`, `ambiguity-detector`, and `idea-refine` skills.
+
+All 11 adoption items are classified `skill-native` under the MCP Registry Policy -- no new outbound calls, no new credentials, no new third-party data processors, no new runtime dependencies. The 12th candidate (G12 Integration Registry pattern) is a re-full Python refactor scheduled for v2.2.0.
+
+See [CHANGELOG.md](CHANGELOG.md) and [docs/v2.1.0/RELEASE_NOTES.md](docs/v2.1.0/RELEASE_NOTES.md) for the full v2.1.0 entry, and [docs/v2.1.0/plans/adoption-spec-kit.md](docs/v2.1.0/plans/adoption-spec-kit.md) for the 10-phase plan.
+
+---
+
 ## What's New in v2.0.0
 
 v2.0.0 is a **rename + brand modernization** release. There are three headline changes:

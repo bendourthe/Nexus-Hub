@@ -229,7 +229,7 @@ while IFS= read -r raw; do
     }')"
 
     # Build labels.
-    labels="nexus-hub,spec-kit-task"
+    labels="nexus-hub,spec-driven-task"
     [ "$parallel" = "true" ] && labels="${labels},parallel"
     [ -n "$user_story" ] && labels="${labels},user-story-${user_story}"
 

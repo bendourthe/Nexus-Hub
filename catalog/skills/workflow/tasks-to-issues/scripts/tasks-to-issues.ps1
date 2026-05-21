@@ -215,7 +215,7 @@ foreach ($cand in $candidates) {
         if ($token -match '[\/.]') { $filePath = $token }
     }
 
-    $labels = @('nexus-hub', 'spec-kit-task')
+    $labels = @('nexus-hub', 'spec-driven-task')
     if ($parallel) { $labels += 'parallel' }
     if (-not [string]::IsNullOrWhiteSpace($userStory)) { $labels += "user-story-$userStory" }
     $labelStr = ($labels -join ',')
