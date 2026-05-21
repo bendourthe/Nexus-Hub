@@ -8,7 +8,7 @@ Usage:
     python scripts/lib/integrations/runner.py list
     python scripts/lib/integrations/runner.py install \\
         --scope workspace --target /path/to/project \\
-        --integrations claude,gemini,windsurf
+        --integrations claude,gemini,cursor
     python scripts/lib/integrations/runner.py install \\
         --scope global --integrations all
     python scripts/lib/integrations/runner.py teardown --target /path/to/project

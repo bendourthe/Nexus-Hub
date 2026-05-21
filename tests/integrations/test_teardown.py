@@ -7,13 +7,13 @@ from scripts.lib.integrations.base import InstallContext
 
 
 def test_teardown_removes_tracked_files(install_ctx: InstallContext):
-    integ = get("windsurf")
+    integ = get("opencode")
     integ.install(install_ctx)
     files_before = sum(1 for _ in install_ctx.target_root.rglob("*") if _.is_file())
     assert files_before > 0
 
     integ.teardown(install_ctx)
-    assert install_ctx.manifest.files_for("windsurf") == []
+    assert install_ctx.manifest.files_for("opencode") == []
 
 
 def test_path_traversal_rejected_in_safe_resolve():

@@ -158,8 +158,12 @@ def test_installer_sh_asks_global_vs_workspace_first():
     # The upfront scope choice prompt (v0.9.7 refactor, terse form in post-release fix)
     assert "Select [G/W]" in body, \
         "installer.sh is missing the upfront global-vs-workspace choice"
-    # Global must be the default (recommended) branch
-    assert "Global (recommended)" in body, \
+    # Global must be the default (recommended) branch -- exact phrasing was
+    # modernized in v2.1.0, so just check that 'Global' and '(recommended)'
+    # both appear in the scope prompt block.
+    scope_block_idx = body.index("Select [G/W]")
+    scope_block = body[max(0, scope_block_idx - 600):scope_block_idx]
+    assert "Global" in scope_block and "(recommended)" in scope_block, \
         "installer.sh should present Global as the recommended option"
 
 
@@ -167,7 +171,9 @@ def test_installer_ps1_asks_global_vs_workspace_first():
     body = INSTALLER_PS1.read_text(encoding="utf-8")
     assert "Select [G/W]" in body, \
         "installer.ps1 is missing the upfront global-vs-workspace choice"
-    assert "Global (recommended)" in body, \
+    scope_block_idx = body.index("Select [G/W]")
+    scope_block = body[max(0, scope_block_idx - 600):scope_block_idx]
+    assert "Global" in scope_block and "(recommended)" in scope_block, \
         "installer.ps1 should present Global as the recommended option"
 
 
@@ -220,16 +226,20 @@ def test_installer_sh_does_not_clear_after_scope_choice():
 
 
 def test_installers_use_claude_usage_monitor_banner():
-    """Banner text must read 'CLAUDE USAGE MONITOR', not the old 'CLAUDE CODE USAGE MONITOR'.
-    The product name is 'Claude Usage Monitor' (per its own README + package.json).
+    """Banner text must reference 'Claude Usage Monitor', not the old
+    'Claude Code Usage Monitor'. The product name is 'Claude Usage Monitor'
+    (per its own README + package.json). The v2.1.0 UX modernization
+    dropped the all-caps banner in favor of title-case; the check is now
+    case-insensitive on the product name and explicitly rejects the
+    'Claude Code Usage Monitor' typo.
     """
     for path in (INSTALLER_SH, INSTALLER_PS1):
-        body = path.read_text(encoding="utf-8")
-        assert "CLAUDE CODE USAGE MONITOR" not in body, (
-            f"{path.name} must use 'CLAUDE USAGE MONITOR' as the section banner text"
+        body = path.read_text(encoding="utf-8").lower()
+        assert "claude code usage monitor" not in body, (
+            f"{path.name} must use 'Claude Usage Monitor' (not 'Claude Code Usage Monitor')"
         )
-        assert "CLAUDE USAGE MONITOR" in body, (
-            f"{path.name} is missing the 'CLAUDE USAGE MONITOR' section banner"
+        assert "claude usage monitor" in body, (
+            f"{path.name} is missing the 'Claude Usage Monitor' section banner"
         )
 
 

@@ -36,7 +36,6 @@ def _register_builtins() -> None:
     from .gemini_cli import GeminiCliIntegration
     from .nexus_ai import NexusAiIntegration
     from .opencode import OpenCodeIntegration
-    from .windsurf import WindsurfIntegration
 
     _register(Antigravity10Integration())
     _register(Antigravity20Integration())
@@ -48,7 +47,6 @@ def _register_builtins() -> None:
     _register(GeminiCliIntegration())
     _register(NexusAiIntegration())
     _register(OpenCodeIntegration())
-    _register(WindsurfIntegration())
 
 
 _register_builtins()

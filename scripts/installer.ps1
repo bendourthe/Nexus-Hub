@@ -120,21 +120,21 @@ try {
 catch { }
 
 # --- Formatting Helpers ---
+#
+# Modernized in v2.1.0: dropped the 120-char banner / dash rule style in favor
+# of lightweight typographical accents that read cleanly in narrow and wide
+# terminals alike. Function names are preserved so call sites and smoke tests
+# do not need to change.
 
 function Write-CenteredBanner {
     param(
         [string]$Text,
         [string]$Color = "Cyan",
-        [string]$BorderChar = "-"
+        [string]$BorderChar = "-"  # accepted for backwards compat; not used
     )
     Restore-Title
-    $width = [Math]::Max($Host.UI.RawUI.WindowSize.Width, 40)
-    $border = $BorderChar * $width
-    $pad = [Math]::Max(0, [Math]::Floor(($width - $Text.Length) / 2))
-    $centered = (" " * $pad) + $Text
-    Write-Host $border -ForegroundColor $Color
-    Write-Host $centered -ForegroundColor $Color
-    Write-Host $border -ForegroundColor $Color
+    Write-Host ""
+    Write-Host "▶ $Text" -ForegroundColor $Color
 }
 
 function Write-SubSectionBanner {
@@ -143,24 +143,25 @@ function Write-SubSectionBanner {
         [string]$Color = "Yellow"
     )
     Restore-Title
-    $width = [Math]::Max($Host.UI.RawUI.WindowSize.Width, 40)
-    $textLen = $Text.Length + 2  # space on each side
-    $totalDashes = $width - $textLen
-    $leftDashes = [Math]::Floor($totalDashes / 2)
-    $rightDashes = $totalDashes - $leftDashes
-    $line = ("-" * $leftDashes) + " $Text " + ("-" * $rightDashes)
     Write-Host ""
-    Write-Host $line -ForegroundColor $Color
+    Write-Host "  · $Text" -ForegroundColor $Color
 }
 
 function Get-ProviderColor {
     param([string]$Provider)
     $color = switch ($Provider) {
-        "CLAUDE" { "DarkYellow" }
-        "GEMINI" { "Blue" }
-        "CODEX" { "DarkMagenta" }
-        "COPILOT" { "Gray" }
-        Default { "White" }
+        "CLAUDE"        { "DarkYellow" }
+        "GEMINI"        { "Blue" }
+        "CODEX"         { "DarkMagenta" }
+        "COPILOT"       { "Gray" }
+        "CURSOR"        { "DarkCyan" }
+        "OPENCODE"      { "DarkGreen" }
+        "ANTIGRAVITY2"  { "Blue" }
+        "GEMINI_CLI"    { "Blue" }
+        "NEXUS_AI"      { "Magenta" }
+        "EXTENDED PLATFORMS"          { "Magenta" }
+        "EXTENDED PLATFORMS (Global)" { "Magenta" }
+        Default         { "White" }
     }
     return $color
 }
@@ -168,29 +169,28 @@ function Get-ProviderColor {
 function Write-Header {
     param([string]$Provider)
     $color = Get-ProviderColor -Provider $Provider
-    $text = "[ ---------- $Provider ---------- ]"
     Write-Host ""
-    Write-Host "  $text" -ForegroundColor $color
+    Write-Host "  ▸ $Provider" -ForegroundColor $color
 }
 
 function Write-Item {
     param(
         [string]$Message,
         [string]$Color = "White",
-        [int]$Indent = 1
+        [int]$Indent = 2
     )
-    $spaces = " " * ($Indent * 2)
+    $spaces = " " * $Indent
     Write-Host "${spaces}$Message" -ForegroundColor $Color
 }
 
 function Read-Prompt {
     param(
         [string]$Message,
-        [int]$Indent = 1
+        [int]$Indent = 2
     )
-    $spaces = " " * ($Indent * 2)
-    Write-Host "${spaces}└─> $Message" -NoNewline -ForegroundColor "Yellow"
-    return Read-Host " "
+    $spaces = " " * $Indent
+    Write-Host "${spaces}${Message}: " -NoNewline -ForegroundColor "Yellow"
+    return Read-Host
 }
 
 # --- Interaction Helpers ---
@@ -199,38 +199,36 @@ function Select-Platforms {
     param([string]$PhaseName)
     Write-Host ""
     Write-Host "Select platforms to install for $PhaseName (comma separated):" -ForegroundColor White
-    Write-Host "A  - ALL (Recommended)"
-    Write-Host "1  - Claude Code (Anthropic)"
-    Write-Host "2  - Gemini + Antigravity 1.0 (Google)"
-    Write-Host "3  - Codex (OpenAI)"
-    Write-Host "4  - GitHub Copilot (Microsoft)"
-    Write-Host "5  - Cursor (Anysphere)"
-    Write-Host "6  - OpenCode"
-    Write-Host "7  - Windsurf (Codeium)"
-    Write-Host "8  - Antigravity 2.0 (Google)"
-    Write-Host "9  - Gemini CLI (Google)"
-    Write-Host "10 - Nexus-AI (Local Desktop Studio)"
+    Write-Host "A - ALL (Recommended)"
+    Write-Host "1 - Claude Code (Anthropic)"
+    Write-Host "2 - Codex (OpenAI)"
+    Write-Host "3 - Gemini + Antigravity 1.0 (Google)"
+    Write-Host "4 - Antigravity 2.0 (Google)"
+    Write-Host "5 - Gemini CLI (Google)"
+    Write-Host "6 - GitHub Copilot (Microsoft)"
+    Write-Host "7 - Cursor (Anysphere)"
+    Write-Host "8 - OpenCode"
+    Write-Host "9 - Nexus-AI (Local Desktop Studio)"
 
     $allPlatforms = @(
-        "CLAUDE", "GEMINI", "CODEX", "COPILOT",
-        "CURSOR", "OPENCODE", "WINDSURF", "ANTIGRAVITY2", "GEMINI_CLI", "NEXUS_AI"
+        "CLAUDE", "CODEX", "GEMINI", "ANTIGRAVITY2", "GEMINI_CLI",
+        "COPILOT", "CURSOR", "OPENCODE", "NEXUS_AI"
     )
 
-    $inputStr = Read-Prompt "Selection [A, 1-10]"
+    $inputStr = Read-Prompt "Selection [A, 1-9]"
     if ([string]::IsNullOrWhiteSpace($inputStr)) { return $allPlatforms }
 
     $map = @{
-        "1"  = "CLAUDE"
-        "2"  = "GEMINI"
-        "3"  = "CODEX"
-        "4"  = "COPILOT"
-        "5"  = "CURSOR"
-        "6"  = "OPENCODE"
-        "7"  = "WINDSURF"
-        "8"  = "ANTIGRAVITY2"
-        "9"  = "GEMINI_CLI"
-        "10" = "NEXUS_AI"
-        "A"  = "ALL"
+        "1" = "CLAUDE"
+        "2" = "CODEX"
+        "3" = "GEMINI"
+        "4" = "ANTIGRAVITY2"
+        "5" = "GEMINI_CLI"
+        "6" = "COPILOT"
+        "7" = "CURSOR"
+        "8" = "OPENCODE"
+        "9" = "NEXUS_AI"
+        "A" = "ALL"
     }
     $selected = @()
     $sawAll = $false
@@ -255,11 +253,10 @@ function Select-Platforms {
 # handled by the inline installer blocks; everything else flows through the
 # integration runner.
 $script:ExtendedPlatformKeyMap = [ordered]@{
-    "CURSOR"       = "cursor"
-    "OPENCODE"     = "opencode"
-    "WINDSURF"     = "windsurf"
     "ANTIGRAVITY2" = "antigravity2"
     "GEMINI_CLI"   = "gemini-cli"
+    "CURSOR"       = "cursor"
+    "OPENCODE"     = "opencode"
     "NEXUS_AI"     = "nexus-ai"
 }
 
@@ -1645,8 +1642,7 @@ function Install-ExtendedPlatformsGlobal {
 function Install-VSCodeExtensions {
     param ($RepoRoot)
     Write-Host ""
-    Write-Host "[ ---------- CLAUDE USAGE MONITOR ---------- ]" -ForegroundColor DarkYellow
-    Write-Host ""
+    Write-Host "  > Claude Usage Monitor" -ForegroundColor DarkYellow
 
     Write-Item -Message "The Claude Usage Monitor is a VS Code extension that displays your Claude" -Color "White"
     Write-Item -Message "Code usage limits in the status bar and recommends when to switch models" -Color "White"
@@ -2173,8 +2169,7 @@ function Write-NexusBanner {
         Write-Host $line -ForegroundColor Cyan
     }
     Write-Host ""
-    Write-Host "  The Skill Harness for Claude Code, Codex, Gemini, Copilot, Cursor, and Nexus"
-    Write-Host "  v$script:NexusHubVersion  |  https://github.com/bendourthe/Nexus-Hub"
+    Write-Host "  Multi-platform AI skill harness  ·  v$script:NexusHubVersion  ·  https://github.com/bendourthe/Nexus-Hub" -ForegroundColor DarkGray
     Write-Host ""
 }
 
@@ -2232,23 +2227,18 @@ function Invoke-LegacyInstallMigration {
 }
 
 function Show-WelcomeBanner {
-    $banner = "=" * 120
-    Write-Host ""
-    Write-Host $banner -ForegroundColor DarkCyan
-    Write-Host "                                      Welcome to the Nexus-Hub Universal Installer" -ForegroundColor DarkCyan
-    Write-Host "                                                     (version $script:NexusHubVersion)" -ForegroundColor DarkCyan
-    Write-Host $banner -ForegroundColor DarkCyan
-    Write-Host ""
+    # The Nexus-Hub Universal Installer welcome line. The wordmark printed
+    # by Write-NexusBanner (and Invoke-LegacyInstallMigration when active)
+    # already finishes with a blank line, so this function deliberately does
+    # not add its own leading blank. Title text is preserved for the
+    # installer-smoke test contract.
+    Restore-Title
+    Write-Host "Welcome to the Nexus-Hub Universal Installer (v$script:NexusHubVersion)" -ForegroundColor Cyan
 }
 
 function Show-FarewellBanner {
-    $banner = "=" * 120
     Write-Host ""
-    Write-Host $banner -ForegroundColor DarkCyan
-    Write-Host "                              Thank You For Using The Nexus-Hub Universal Installer" -ForegroundColor DarkCyan
-    Write-Host "                                                     (version $script:NexusHubVersion)" -ForegroundColor DarkCyan
-    Write-Host $banner -ForegroundColor DarkCyan
-    Write-Host ""
+    Write-Host "✓ Nexus-Hub v$script:NexusHubVersion installed." -ForegroundColor Green
 }
 
 # --- Main ---
@@ -2258,11 +2248,10 @@ Write-NexusBanner
 Invoke-LegacyInstallMigration
 Show-WelcomeBanner
 
-# Ask whether to install globally (recommended, user-scope) or to a specific workspace.
-Write-Host "Where would you like to install Nexus-Hub?"
-Write-Host "  [G] Global (recommended) - applies to all projects on this machine (~/.claude/, ~/.gemini/, ~/.codex/, ~/.nexus-hub/)" -ForegroundColor Green
-Write-Host "  [W] Workspace            - scoped to a specific project directory" -ForegroundColor Yellow
 Write-Host ""
+Write-Host "Where would you like to install Nexus-Hub?"
+Write-Host "  [G] Global    - all projects on this machine (recommended)" -ForegroundColor Green
+Write-Host "  [W] Workspace - a single project directory" -ForegroundColor Yellow
 $scopeChoice = Read-Host "Select [G/W]"
 
 $scopeLabel = "Global"
@@ -2286,12 +2275,10 @@ else {
 # Interactive custom-template import moved to /generate-report at use time (v0.9.7).
 Install-Templates -RepoRoot $repoRoot
 
-Write-CenteredBanner -Text "$scopeLabel Installation Complete." -Color "Green"
-
 Write-Host ""
-Write-Host "IMPORTANT: Restart any running Claude Code, Cursor, Gemini CLI, Codex, or Copilot sessions." -ForegroundColor Yellow
-Write-Host "  Settings files (settings.json, AGENTS.md, .cursor/rules/) are read at session start and not hot-reloaded." -ForegroundColor Yellow
-Write-Host "  New hooks, commands, skills, and permission entries will not take effect in already-running sessions until they restart." -ForegroundColor Yellow
+Write-Host "✓ Nexus-Hub v$script:NexusHubVersion installed ($scopeLabel scope)." -ForegroundColor Green
+Write-Host ""
+Write-Host "Restart any running AI assistant sessions (Claude Code, Cursor, Gemini CLI, Codex, Copilot, OpenCode) so they pick up the new settings, hooks, skills, and rules." -ForegroundColor Yellow
 
 Show-FarewellBanner
 Pause

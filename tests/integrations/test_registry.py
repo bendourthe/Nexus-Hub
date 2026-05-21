@@ -7,7 +7,7 @@ from scripts.lib.integrations import INTEGRATION_REGISTRY, get, list_keys
 
 def test_registry_is_populated():
     keys = list_keys()
-    assert len(keys) >= 11, f"expected >=11 integrations, got {len(keys)}: {keys}"
+    assert len(keys) >= 10, f"expected >=10 integrations, got {len(keys)}: {keys}"
 
 
 def test_registry_contains_required_platforms():
@@ -18,7 +18,6 @@ def test_registry_contains_required_platforms():
         "gemini",
         "gemini-cli",
         "opencode",
-        "windsurf",
         "antigravity",
         "antigravity2",
         "copilot",

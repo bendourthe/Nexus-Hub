@@ -298,7 +298,7 @@ Nexus-Hub is a **template repository**. Nothing you add is "live" until a user r
 | `templates/ai-instructions/base-*.md` | **Yes — edit all 5 in lockstep** (claude, codex, cursor, gemini, opencode) | The respective platform |
 | `scripts/<name>.py` or `scripts/<name>.js` | **Yes — MUST add a copy step** in BOTH `scripts/installer.sh` AND `scripts/installer.ps1`, modeled after the existing `generate_report.py` entry. The installer copies scripts by **explicit name**, never by folder. | All platforms (shared under `~/.nexus-hub/scripts/`) |
 | `data/SKILL_INDEX.md`, `data/skills.json`, `data/marketplace.json` | No — the installer reads these to fill `{{SKILL_INDEX}}` placeholders in every platform's instruction file. Updating them is mandatory when adding a skill. | All platforms whose instruction template embeds the index |
-| `scripts/lib/integrations/<platform>.py` (v2.1.0+) | No file-copy edit; **MUST** import + `_register()` the subclass in `scripts/lib/integrations/__init__.py::_register_builtins()`. The runner is invoked automatically by both installers for the extended-platform set. | The platform configured by the subclass (e.g., Windsurf, Antigravity 2.0, Gemini CLI, Nexus-AI for the v2.1.0 extended set; Claude / Codex / Cursor / Gemini / OpenCode / Copilot subclasses also exist for future v2.2.0 parity migration). |
+| `scripts/lib/integrations/<platform>.py` (v2.1.0+) | No file-copy edit; **MUST** import + `_register()` the subclass in `scripts/lib/integrations/__init__.py::_register_builtins()`. The runner is invoked automatically by both installers for the extended-platform set. | The platform configured by the subclass (e.g., Antigravity 2.0, Gemini CLI, Nexus-AI for the v2.1.0 extended set; Claude / Codex / Cursor / Gemini / OpenCode / Copilot subclasses also exist for future v2.2.0 parity migration). |
 
 ### Required steps for any change
 
@@ -316,7 +316,7 @@ Walk this checklist before proposing a PR:
 The installer deploys **skills, commands, agents, hooks, and rules as separate files** to the following platforms:
 
 - **Original 4 (legacy installer copy blocks)**: Claude Code, Gemini/Antigravity 1.0, Codex, GitHub Copilot (Copilot receives behavioral guardrails via `.github/copilot-instructions.md` rather than a full file-tree copy).
-- **Extended 4 (v2.1.0+, via integration registry)**: Windsurf (Codeium), Antigravity 2.0 (Google), Gemini CLI (Google), Nexus-AI (https://github.com/bendourthe/Nexus-AI).
+- **Extended 3 (v2.1.0+, via integration registry)**: Antigravity 2.0 (Google), Gemini CLI (Google), Nexus-AI (https://github.com/bendourthe/Nexus-AI).
 - **Behavioral-guardrails only**: Cursor (`.cursor/rules/*.mdc` + repo-root `AGENTS.md`), OpenCode (`AGENTS.md`).
 
 Each of these has a corresponding `IntegrationBase` subclass under `scripts/lib/integrations/` (added in Phase 10 of v2.1.0); the original 4 continue to install via the legacy installer copy blocks, with the registry subclasses standing by for the future v2.2.0 parity migration documented in `docs/v2.1.0/known-gaps.md` (DF-001).

@@ -28,13 +28,23 @@ OVERWRITE_ALL=false
 
 # --- Formatting Helpers ---
 
+# Modernized in v2.1.0: dropped the 120-char dash rules in favor of light
+# typographical accents. Function names are preserved so call sites and smoke
+# tests do not need to change.
+
 get_provider_color() {
     case "$1" in
-        "CLAUDE") echo -ne "${DARK_YELLOW}" ;;
-        "GEMINI") echo -ne "${BLUE}" ;;
-        "CODEX") echo -ne "${MAGENTA}" ;;
-        "COPILOT") echo -ne "${GRAY}" ;;
-        *) echo -ne "${RESET}" ;;
+        "CLAUDE")       echo -ne "${DARK_YELLOW}" ;;
+        "GEMINI")       echo -ne "${BLUE}" ;;
+        "CODEX")        echo -ne "${MAGENTA}" ;;
+        "COPILOT")      echo -ne "${GRAY}" ;;
+        "CURSOR")       echo -ne "${CYAN}" ;;
+        "OPENCODE")     echo -ne "${GREEN}" ;;
+        "ANTIGRAVITY2") echo -ne "${BLUE}" ;;
+        "GEMINI_CLI")   echo -ne "${BLUE}" ;;
+        "NEXUS_AI")     echo -ne "${MAGENTA}" ;;
+        "EXTENDED PLATFORMS"|"EXTENDED PLATFORMS (Global)") echo -ne "${MAGENTA}" ;;
+        *)              echo -ne "${RESET}" ;;
     esac
 }
 
@@ -43,16 +53,16 @@ write_header() {
     local color
     color=$(get_provider_color "$provider")
     echo ""
-    echo -e "  [ ${color}---------- $provider ----------${RESET} ]"
+    echo -e "  ${color}> ${provider}${RESET}"
 }
 
 write_item() {
     local message="$1"
     local color_code="$2" # e.g., $GREEN
-    local indent="${3:-1}"
+    local indent="${3:-2}"
 
     local spaces=""
-    for ((i=0; i<indent*2; i++)); do spaces+=" "; done
+    for ((i=0; i<indent; i++)); do spaces+=" "; done
 
     if [ -z "$color_code" ]; then color_code="${RESET}"; fi
     echo -e "${spaces}${color_code}${message}${RESET}"
@@ -60,12 +70,12 @@ write_item() {
 
 read_prompt() {
     local message="$1"
-    local indent="${2:-1}"
+    local indent="${2:-2}"
 
     local spaces=""
-    for ((i=0; i<indent*2; i++)); do spaces+=" "; done
+    for ((i=0; i<indent; i++)); do spaces+=" "; done
 
-    echo -ne "${spaces}${YELLOW}└─> ${message} ${RESET}" >&2
+    echo -ne "${spaces}${YELLOW}${message}: ${RESET}" >&2
     read -r response
     echo "$response"
 }
@@ -73,18 +83,8 @@ read_prompt() {
 write_subsection_banner() {
     local text="$1"
     local color="${2:-$YELLOW}"
-    local width=${COLUMNS:-120}
-    if [ "$width" -lt 40 ]; then width=40; fi
-    local text_len=$(( ${#text} + 2 ))
-    local total_dashes=$(( width - text_len ))
-    local left_dashes=$(( total_dashes / 2 ))
-    local right_dashes=$(( total_dashes - left_dashes ))
-    local left
-    left=$(printf '%*s' "$left_dashes" '' | tr ' ' '-')
-    local right
-    right=$(printf '%*s' "$right_dashes" '' | tr ' ' '-')
     echo ""
-    echo -e "${color}${left} ${text} ${right}${RESET}"
+    echo -e "  ${color}- ${text}${RESET}"
 }
 
 safe_copy() {
@@ -694,10 +694,7 @@ install_global() {
 
     OVERWRITE_ALL=false
     echo ""
-    echo -e "${CYAN}------------------------------------------------------------------------------------------------------------------------${RESET}"
-    echo -e "${CYAN}                                                  Global Installation${RESET}"
-    echo -e "${CYAN}------------------------------------------------------------------------------------------------------------------------${RESET}"
-    echo ""
+    echo -e "${CYAN}> Global install${RESET}"
 
     write_subsection_banner "Skills & Commands"
 
@@ -1101,10 +1098,7 @@ install_workspace() {
     local target_path="$2"  # pre-validated by main() in v0.9.7+
 
     echo ""
-    echo -e "${CYAN}------------------------------------------------------------------------------------------------------------------------${RESET}"
-    echo -e "${CYAN}                                                  Workspace Installation${RESET}"
-    echo -e "${CYAN}------------------------------------------------------------------------------------------------------------------------${RESET}"
-    echo ""
+    echo -e "${CYAN}> Workspace install${RESET}"
 
     if [ -z "$target_path" ] || [ ! -d "$target_path" ]; then
         write_item "Invalid target path: $target_path" "$RED"
@@ -1270,13 +1264,13 @@ install_extended_platforms_workspace() {
     elif command -v python >/dev/null 2>&1; then
         py="python"
     else
-        write_item "Python not found -- skipping extended platforms (Cursor, OpenCode, Windsurf, Antigravity 2.0, Gemini CLI, Nexus-AI)." "$DARK_YELLOW"
+        write_item "Python not found -- skipping extended platforms (Antigravity 2.0, Gemini CLI, Cursor, OpenCode, Nexus-AI)." "$DARK_YELLOW"
         return 0
     fi
 
     write_header "EXTENDED PLATFORMS"
     write_item "Installing extended platforms via integration registry..." "$RESET"
-    local extended="cursor,opencode,windsurf,antigravity2,gemini-cli,nexus-ai"
+    local extended="antigravity2,gemini-cli,cursor,opencode,nexus-ai"
     local extra_flags=""
     if [ "$OVERWRITE_ALL" = true ]; then
         extra_flags="--overwrite"
@@ -1305,7 +1299,7 @@ install_extended_platforms_global() {
 
     write_header "EXTENDED PLATFORMS (Global)"
     write_item "Installing global extended platforms via integration registry..." "$RESET"
-    local extended="cursor,opencode,windsurf,antigravity2,gemini-cli,nexus-ai"
+    local extended="antigravity2,gemini-cli,cursor,opencode,nexus-ai"
     local extra_flags=""
     if [ "$OVERWRITE_ALL" = true ]; then
         extra_flags="--overwrite"
@@ -1318,8 +1312,7 @@ install_vscode_extensions() {
     local repo_root="$1"
 
     echo ""
-    echo -e "[ ${DARK_YELLOW}---------- CLAUDE USAGE MONITOR ----------${RESET} ]"
-    echo ""
+    echo -e "  ${DARK_YELLOW}> Claude Usage Monitor${RESET}"
 
     write_item "The Claude Usage Monitor is a VS Code extension that displays your Claude" "$RESET"
     write_item "Code usage limits in the status bar and recommends when to switch models" "$RESET"
@@ -1770,8 +1763,7 @@ print_nexus_banner() {
 ╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝      ╚═╝  ╚═╝ ╚═════╝ ╚═════╝
 NEXUS_BANNER_EOF
     echo -e "${RESET}"
-    echo "  The Skill Harness for Claude Code, Codex, Gemini, Copilot, Cursor, and Nexus"
-    echo "  v${NEXUS_HUB_VERSION}  |  https://github.com/bendourthe/Nexus-Hub"
+    echo -e "  ${GRAY}Multi-platform AI skill harness  -  v${NEXUS_HUB_VERSION}  -  https://github.com/bendourthe/Nexus-Hub${RESET}"
     echo ""
 }
 
@@ -1828,12 +1820,11 @@ migrate_legacy_install() {
 }
 
 print_banner() {
-    echo ""
-    echo -e "${DARK_CYAN}========================================================================================================================${RESET}"
-    echo -e "${DARK_CYAN}                                      Welcome to the Nexus-Hub Universal Installer${RESET}"
-    echo -e "${DARK_CYAN}                                                     (version ${NEXUS_HUB_VERSION})${RESET}"
-    echo -e "${DARK_CYAN}========================================================================================================================${RESET}"
-    echo ""
+    # The Nexus-Hub Universal Installer welcome line. The ASCII wordmark above
+    # (and migrate_legacy_install when active) already produces a trailing
+    # blank line, so this function deliberately does not add its own leading
+    # blank. Title text is preserved for the installer-smoke test contract.
+    echo -e "${CYAN}Welcome to the Nexus-Hub Universal Installer (v${NEXUS_HUB_VERSION})${RESET}"
 }
 
 # --- Main ---
@@ -1846,11 +1837,10 @@ print_nexus_banner
 migrate_legacy_install
 print_banner
 
-# Ask whether to install globally (recommended, user-scope) or to a specific workspace.
-echo -e "${RESET}Where would you like to install Nexus-Hub?"
-echo -e "  ${GREEN}[G]${RESET} Global (recommended) - applies to all projects on this machine (~/.claude/, ~/.gemini/, ~/.codex/, ~/.nexus-hub/)"
-echo -e "  ${YELLOW}[W]${RESET} Workspace            - scoped to a specific project directory"
 echo ""
+echo -e "Where would you like to install Nexus-Hub?"
+echo -e "  ${GREEN}[G]${RESET} Global    - all projects on this machine (recommended)"
+echo -e "  ${YELLOW}[W]${RESET} Workspace - a single project directory"
 SCOPE_CHOICE=$(read_prompt "Select [G/W]")
 
 SCOPE_LABEL="Global"
@@ -1883,18 +1873,7 @@ esac
 install_templates "$REPO_ROOT"
 
 echo ""
-echo -e "${GREEN}------------------------------------------------------------------------------------------------------------------------${RESET}"
-echo -e "${GREEN}                                             ${SCOPE_LABEL} Installation Complete.${RESET}"
-echo -e "${GREEN}------------------------------------------------------------------------------------------------------------------------${RESET}"
-
+echo -e "${GREEN}✓ Nexus-Hub v${NEXUS_HUB_VERSION} installed (${SCOPE_LABEL} scope).${RESET}"
 echo ""
-echo -e "${YELLOW}IMPORTANT: Restart any running Claude Code, Cursor, Gemini CLI, Codex, or Copilot sessions.${RESET}"
-echo -e "${YELLOW}  Settings files (settings.json, AGENTS.md, .cursor/rules/) are read at session start and not hot-reloaded.${RESET}"
-echo -e "${YELLOW}  New hooks, commands, skills, and permission entries will not take effect in already-running sessions until they restart.${RESET}"
-
-echo ""
-echo -e "${DARK_CYAN}========================================================================================================================${RESET}"
-echo -e "${DARK_CYAN}                              Thank You For Using The Nexus-Hub Universal Installer${RESET}"
-echo -e "${DARK_CYAN}                                                     (version ${NEXUS_HUB_VERSION})${RESET}"
-echo -e "${DARK_CYAN}========================================================================================================================${RESET}"
+echo -e "${YELLOW}Restart any running AI assistant sessions (Claude Code, Cursor, Gemini CLI, Codex, Copilot, OpenCode) so they pick up the new settings, hooks, skills, and rules.${RESET}"
 echo ""

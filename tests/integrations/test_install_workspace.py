@@ -17,7 +17,6 @@ from scripts.lib.integrations.base import InstallContext
         ("codex", [".codex/AGENTS.md", ".codex/skills", ".codex/prompts"]),
         ("gemini", [".gemini/GEMINI.md", ".gemini/skills", ".gemini/workflows"]),
         ("opencode", [".opencode/AGENTS.md", ".opencode/skills", ".opencode/commands"]),
-        ("windsurf", [".windsurf/rules/nexus-hub-rules.md", ".windsurf/skills", ".windsurf/workflows"]),
         ("antigravity", [".gemini/antigravity/rules.md", ".gemini/antigravity/skills"]),
         ("antigravity2", [".agent/AGENT.md", ".agent/skills", ".agent/workflows"]),
         ("nexus-ai", [".nexus-ai/NEXUS_AI.md", ".nexus-ai/skills", ".nexus-ai/commands"]),
