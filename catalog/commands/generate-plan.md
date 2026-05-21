@@ -12,6 +12,7 @@ This command works for initial v0.1.0 greenfield builds, feature additions, UX e
 - At the end of `/setup-project` (Phase 9 invokes it automatically for initial v0.1.0 plans)
 - Standalone at any time: `/generate-plan`
 - **From a comparison report**: `/generate-plan <path/to/comparison-*.md>` triggers *From-comparison mode* (Step 0.5) and pre-seeds the interview from the report's Adoption Plan section. Also reached automatically when `/compare-project` chains into this command.
+- **Opt-in feature directory layout**: append `--specs-layout` to write the plan into a self-contained feature directory at `specs/<NNN>-<slug>/` (with sibling `spec.md` and optional `tasks.md`) instead of the default single `docs/<version>/plans/<slug>.md` file. The default behavior is unchanged when the flag is absent. See Step 0d below for the prefix-resolution rules and Step 4 for the directory contents.
 - When the user asks to "create a plan", "build a roadmap", "plan this refactor", or similar
 
 **Constitution-aware generation**: every plan written by this command includes a `## Constitution Check` section (between `## Overview` and `## Phases at a Glance`) and a `## Complexity Tracking` section near the end of the file. When a constitution file is found at `docs/<version>/constitution.md` (or `CONSTITUTION.md` at the repo root), the Constitution Check section enumerates each MUST principle with a PASS / FAIL / N/A verdict and a one-sentence justification. When no constitution file is found, the section emits an informational note recommending `/constitution` without blocking plan generation. Both behaviors are non-blocking by design - the constitution itself is opt-in, and a project that has not adopted one still gets a usable plan. See `[[project-constitution]]` for how the constitution is authored and amended.
@@ -81,6 +82,24 @@ Rules:
 - Sanitize user overrides to `[a-z0-9-]+` (lowercase; spaces and underscores become hyphens; other characters are dropped)
 - If `docs/<version>/plans/<slug>.md` already exists, propose `<slug>-2`, `<slug>-3`, ... or ask whether to overwrite
 - Reserved slugs to reject: `index`, `readme`, `template`
+
+### 0d.1. Opt-in `--specs-layout` directory mode
+
+When the invocation includes the flag `--specs-layout`, the plan is written into a self-contained feature directory at `specs/<prefix>-<slug>/` instead of a single Markdown file under `docs/<version>/plans/`. The flag is fully opt-in - omitting it produces the default layout exactly as today.
+
+When `--specs-layout` is active:
+
+1. **Resolve the prefix style** from `.specify/init-options.json` at the repo root. Read the key `branch_numbering`; accepted values are `sequential` (default) or `timestamp`. If the file does not exist, default to `sequential` and announce: `No .specify/init-options.json found - defaulting to sequential numbering.`
+2. **Sequential mode**: scan `specs/*/` for existing directories matching `^[0-9]{3}-` and pick the next available three-digit number (start at `001` when the directory is empty). Pad to three digits.
+3. **Timestamp mode**: use the current UTC time formatted as `YYYYMMDD-HHMMSS`.
+4. **Directory name**: `specs/<prefix>-<slug>/` (e.g., `specs/003-user-auth/` or `specs/20260520-143022-user-auth/`).
+5. **Helper script**: invoke `scripts/new-feature.sh` (POSIX) or `scripts/new-feature.ps1` (Windows) to perform the prefix-resolution + `mkdir -p` atomically. Both scripts print the resolved directory path on stdout, exit non-zero on collision, and are kept in lockstep parity per the cross-platform rule in `AGENTS.md`. The scripts are installed at `~/.nexus-hub/scripts/new-feature.{sh,ps1}` via the installer copy block.
+6. **Persistence**: after the directory is created, write `.specify/feature.json` at the repo root with the contents `{"feature_directory": "specs/<prefix>-<slug>"}`. Downstream commands (`/clarify-spec`, `/analyze-spec`, `/tasks-to-issues`) read this file to locate the active feature directory without relying on git-branch coupling.
+7. **Reserved slugs**: same set as the default layout (`index`, `readme`, `template`). Reject and re-prompt.
+8. **Collision handling**: if `specs/<prefix>-<slug>/` already exists, propose `<slug>-2`, `<slug>-3`, ... or ask whether to overwrite. The prefix is preserved (do not re-resolve when re-numbering the slug).
+
+Show:
+> "Suggested feature directory: `specs/<prefix>-<slug>/` - press Enter to accept, or type a new slug."
 
 ---
 
@@ -346,7 +365,22 @@ Show the user the proposed phases-at-a-glance table and ask for confirmation or 
 
 ## Step 4: Generate the Plan File
 
+### Default layout
+
 Create the directory `docs/<version>/plans/` if it does not exist. Write the plan to `docs/<version>/plans/<slug>.md`.
+
+### Opt-in `--specs-layout` directory layout
+
+When the invocation passed `--specs-layout` (Step 0d.1), write into the resolved `specs/<prefix>-<slug>/` directory instead of the default single file. The directory contents are:
+
+1. **`specs/<prefix>-<slug>/spec.md`** - a skeleton spec produced by copying `~/.nexus-hub/templates/spec-template.md` (the installed copy of `catalog/templates/spec-template.md` from Phase 4 of `docs/v2.1.0/plans/adoption-spec-kit.md`) into the new directory. The skeleton retains all eight mandatory sections (Header block, User Scenarios & Testing, Edge Cases, Requirements, Key Entities, Success Criteria, Assumptions). Replace `$ARGUMENTS` in the Input line with the one-sentence scope statement from Step 0c.
+2. **`specs/<prefix>-<slug>/plan.md`** - the same phased plan file produced for the default layout, named `plan.md` instead of `<slug>.md`. Constitution Check + Complexity Tracking sections are still required.
+3. **`specs/<prefix>-<slug>/tasks.md`** (optional) - when the plan organizes tasks by user story (see Step 3 user-story shape) and the user requests a standalone task list during Step 5, extract every task line from the plan into `tasks.md` preserving the strict `- [ ] T### [P?] [US?] file_path` format. The task list inside `plan.md` remains canonical; `tasks.md` is a flat view that downstream tools (`/tasks-to-issues`) consume.
+4. **`.specify/feature.json`** at the repo root - persisted in Step 0d.1 step 6. The file must exist before Step 5 reports completion.
+
+Cross-link the three files: the header of `plan.md` references the sibling `spec.md` and (when present) `tasks.md` via relative links. The header of `spec.md` includes a `Branch slot` line referencing the directory name. The Constitution Check section's path reference is unchanged (`docs/<version>/constitution.md`) - the constitution itself lives outside the feature directory.
+
+When the user did NOT pass `--specs-layout`, skip the directory layout entirely and use the default single-file output described above.
 
 ### File Format
 

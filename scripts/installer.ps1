@@ -1761,6 +1761,22 @@ function Install-Templates {
         Safe-Copy -Source $skillPackagerSource -Destination (Join-Path $scriptsDest "package_skill.py") -Confirm:$true -CustomMessage "✓ Skill packager installed at: $scriptsDest\package_skill.py"
     }
 
+    # Copy feature-directory bootstrap scripts (v2.1.0 / adoption-spec-kit
+    # Phase 7 / G5). The two scripts resolve the next specs\<NNN>-<slug>\
+    # prefix (sequential or timestamp per .specify\init-options.json),
+    # create the directory, and persist .specify\feature.json so downstream
+    # commands (/clarify-spec, /analyze-spec, /tasks-to-issues) can locate
+    # the active feature directory without git-branch coupling. Lockstep
+    # with the same block in scripts\installer.sh.
+    $newFeatureShSource = Join-Path $RepoRoot "scripts\new-feature.sh"
+    if (Test-Path $newFeatureShSource) {
+        Safe-Copy -Source $newFeatureShSource -Destination (Join-Path $scriptsDest "new-feature.sh") -Confirm:$true -CustomMessage "✓ Feature directory bootstrap (bash) installed at: $scriptsDest\new-feature.sh"
+    }
+    $newFeaturePs1Source = Join-Path $RepoRoot "scripts\new-feature.ps1"
+    if (Test-Path $newFeaturePs1Source) {
+        Safe-Copy -Source $newFeaturePs1Source -Destination (Join-Path $scriptsDest "new-feature.ps1") -Confirm:$true -CustomMessage "✓ Feature directory bootstrap (PowerShell) installed at: $scriptsDest\new-feature.ps1"
+    }
+
     # Copy style-guides (v1.0.0+). Reference content for /compile-deep-research
     # and /generate-report; deliberately not in catalog\commands so the files
     # do not surface as slash commands.

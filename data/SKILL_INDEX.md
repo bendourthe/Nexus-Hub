@@ -211,5 +211,6 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | mcp-builder | ai-development | "Build local MCP servers (FastMCP Python or MCP SDK Node/TS) with cross-platform scaffolding scripts" | catalog/skills/ai-development/mcp-builder/SKILL.md |
 | project-constitution | workflow | "Author and maintain a versioned project constitution that declares MUST / SHOULD principles every plan, spec, and implementation aligns with" | catalog/skills/workflow/project-constitution/SKILL.md |
 | cross-artifact-analyzer | code-review | "Read-only cross-artifact analyzer for feature directories; emits severity-tagged findings, coverage matrix, and constitution-alignment verdicts" | catalog/skills/code-review/cross-artifact-analyzer/SKILL.md |
+| tasks-to-issues | workflow | "Convert strict-format tasks.md / plan.md task lines into linked GitHub issues via the local gh CLI - dry-run or execute sequentially" | catalog/skills/workflow/tasks-to-issues/SKILL.md |
 
-**Total: 205 skills across 22 categories**
+**Total: 206 skills across 22 categories**

@@ -1451,6 +1451,23 @@ install_templates() {
         safe_copy "$skill_packager_source" "$scripts_dest/package_skill.py" true "[OK] Skill packager installed at: $scripts_dest/package_skill.py"
     fi
 
+    # Copy feature-directory bootstrap scripts (v2.1.0 / adoption-spec-kit
+    # Phase 7 / G5). The two scripts resolve the next specs/<NNN>-<slug>/
+    # prefix (sequential or timestamp per .specify/init-options.json),
+    # create the directory, and persist .specify/feature.json so downstream
+    # commands (/clarify-spec, /analyze-spec, /tasks-to-issues) can locate
+    # the active feature directory without git-branch coupling. Lockstep
+    # with the same block in scripts/installer.ps1.
+    local new_feature_sh_source="$repo_root/scripts/new-feature.sh"
+    if [ -f "$new_feature_sh_source" ]; then
+        safe_copy "$new_feature_sh_source" "$scripts_dest/new-feature.sh" true "[OK] Feature directory bootstrap (bash) installed at: $scripts_dest/new-feature.sh"
+        chmod +x "$scripts_dest/new-feature.sh" 2>/dev/null || true
+    fi
+    local new_feature_ps1_source="$repo_root/scripts/new-feature.ps1"
+    if [ -f "$new_feature_ps1_source" ]; then
+        safe_copy "$new_feature_ps1_source" "$scripts_dest/new-feature.ps1" true "[OK] Feature directory bootstrap (PowerShell) installed at: $scripts_dest/new-feature.ps1"
+    fi
+
     # Copy style-guides (v1.0.0+). Reference content for /compile-deep-research
     # and /generate-report; deliberately not in catalog/commands/ so the files
     # do not surface as slash commands.
