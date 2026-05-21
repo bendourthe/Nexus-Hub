@@ -87,7 +87,7 @@ Copy-Item -Recurse ~\.devai-hub ~\.devai-hub.backup
 
 ## Known carry-overs
 
-Two open items from `docs/v1.3.0/known-gaps.md` carry forward into v2.0.0 and are scheduled for closeout in Phase 8 of the rename plan:
+Two open items from `docs/archive/v1/v1.3.0/known-gaps.md` carry forward into v2.0.0 and are scheduled for closeout in Phase 8 of the rename plan:
 
 - **WN-001**: 4 pre-existing framework-specialist orphan-bundle warnings (FastAPI / Next.js / React reference files not linked from their parent SKILL.md). Fix planned: link each `references/<file>.md` from its parent SKILL.md.
 - **WN-002**: Windows `make` and `shellcheck` unavailable on stock Python store distribution; cp1252 default codec breaks inline `python -c "import json; json.load(open(...))"` in the Makefile. Fix planned: pass `encoding='utf-8'` in the inline JSON-load invocations; document the Windows-developer prerequisites (`scoop install make`, `scoop install shellcheck`, `PYTHONUTF8=1`).

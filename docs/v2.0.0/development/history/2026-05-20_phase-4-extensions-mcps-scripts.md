@@ -34,7 +34,7 @@ Rename the three internal MCP extensions on disk (directories and nested Python 
 ### 4.2 MCP server registry updated
 
 - `catalog/mcp-configs/mcp-servers.json`: the three internal entries (`devai-skill-server`, `devai-code-search`, `devai-web-fetch`) renamed to `nexus-*`; each `command` / `args` rewritten to spawn the renamed module; each `env` key (`DEVAI_HUB_ROOT`) became `NEXUS_HUB_ROOT`; each `_comment` retained the full five-question audit text with brand strings replaced.
-- `docs/v1.0.0/mcp-reverse-engineering-matrix.md` (frozen older-version doc, edited per AGENTS.md "MCP Registry Policy" sync invariant): three rows renamed, plus Rationale columns annotated `Renamed from \`devai-*\` at v2.0.0`. Summary table counts and prefatory paragraph updated. Deferred-future vendor-wrapper names (`devai-github`, `devai-postgres`, `devai-supabase`, `devai-railway`, `devai-vercel`, `devai-cloudflare`) also renamed to `nexus-*` for forward-looking consistency.
+- `docs/policy/mcp-reverse-engineering-matrix.md` (frozen older-version doc, edited per AGENTS.md "MCP Registry Policy" sync invariant): three rows renamed, plus Rationale columns annotated `Renamed from \`devai-*\` at v2.0.0`. Summary table counts and prefatory paragraph updated. Deferred-future vendor-wrapper names (`devai-github`, `devai-postgres`, `devai-supabase`, `devai-railway`, `devai-vercel`, `devai-cloudflare`) also renamed to `nexus-*` for forward-looking consistency.
 - The `old-version-docs-guard` hook emits a warn (non-blocking) when writing to historical version dirs; the edit was intentional and is documented here.
 
 ### 4.3 `scripts/Install-DevAI-Permissions.ps1` -> `scripts/Install-Nexus-Hub-Permissions.ps1`
@@ -69,7 +69,7 @@ Baselines captured under `docs/v2.0.0/baselines/`:
 
 ## Assumptions Made
 
-- The matrix rows in `docs/v1.0.0/mcp-reverse-engineering-matrix.md` MAY be edited despite the `old-version-docs-guard` hook, because:
+- The matrix rows in `docs/policy/mcp-reverse-engineering-matrix.md` MAY be edited despite the `old-version-docs-guard` hook, because:
     - The hook is non-blocking by default ("warn" mode) and the warning is documented here in the session history.
     - The AGENTS.md "MCP Registry Policy" explicitly mandates that the matrix stay in sync with the registry; the policy invariant takes precedence over the soft-guard hook.
     - The edits are renames only (preserving the rationale and classification), not historical revisions of the v1.0.0 decisions.

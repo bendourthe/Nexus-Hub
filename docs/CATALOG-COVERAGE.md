@@ -21,7 +21,7 @@ This matrix maps Nexus-Hub's skill catalog against user roles, AI platforms, and
 
 **Policy and governance**:
 - New [MCP Registry Policy](../AGENTS.md#mcp-registry-policy) section in `AGENTS.md` with reverse-engineering-first decision tree + 5-question audit checklist. Distributed diff-identical to all 7 platform-instruction surfaces.
-- New [Reverse-Engineering Matrix](v1.0.0/mcp-reverse-engineering-matrix.md) at `docs/v1.0.0/mcp-reverse-engineering-matrix.md` - authoritative classification of every MCP shipped or considered (18 rows).
+- New [Reverse-Engineering Matrix](v1.0.0/mcp-reverse-engineering-matrix.md) at `docs/policy/mcp-reverse-engineering-matrix.md` - authoritative classification of every MCP shipped or considered (18 rows).
 
 **Command extensions**:
 - [`/compare-project`](../catalog/commands/compare-project.md) gained a mandatory **Section 9: Security and Risk Assessment** with four subsections (threat model, per-item risk, RE viability, recommendation ordering). The `/generate-plan` chain always passes `reverse-engineer-first=true`.

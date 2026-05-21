@@ -95,7 +95,7 @@ G12 (Integration Registry pattern re-full refactor) is scheduled for v2.2.0 as a
 
 - **G12 -- Integration Registry refactor** (Phase 10 of the plan). Replaces the lock-step per-platform `base-*.md` template editing with a Python class hierarchy. Targets v2.2.0; ADR-001 will land first.
 - ~~**P3 polish items** (Phase 9 of the plan)~~: shipped against the v2.1.0 baseline rather than deferred. See Phase 9 entry in `docs/DEVLOG.md`. Items landed: the `docs/v2.1.0/spec-driven-methodology.md` essay (2679 words), the `.devcontainer/` first-touch setup with `devcontainer.json` and `post-create.sh`, the `catalog/style-guides/markdownlint-cli2.jsonc` config (auto-distributed alongside `markdown.md`), and the `tests/installer/test_registrar_path_traversal.py` defensive test (19 assertions; OS-agnostic).
-- **Cross-OS installer matrix carry-overs from v1.1.5** (DF-003 / DF-005 / DF-006 in `docs/v1.1.5/known-gaps.md`). Orthogonal to spec-kit adoption; remain tracked for a future CI-matrix plan.
+- **Cross-OS installer matrix carry-overs from v1.1.5** (DF-003 / DF-005 / DF-006 in `docs/archive/v1/v1.1.5/known-gaps.md`). Orthogonal to spec-kit adoption; remain tracked for a future CI-matrix plan.
 
 ## Migration
 

@@ -150,7 +150,7 @@ The rename touches several files outside the bulk `catalog/` sweep that require 
 - `AGENTS.md`, `CLAUDE.md` -- top-level agent instructions (Phase 2 sub-task 2.4).
 - `scripts/installer.sh`, `scripts/installer.ps1`, `install.sh`, `install.bat` -- installer entry points (Phase 3).
 - `catalog/mcp-configs/mcp-servers.json` -- MCP registry (Phase 4 sub-task 4.2).
-- `docs/v1.0.0/mcp-reverse-engineering-matrix.md` -- MCP reverse-engineering matrix (Phase 4 sub-task 4.2).
+- `docs/policy/mcp-reverse-engineering-matrix.md` -- MCP reverse-engineering matrix (Phase 4 sub-task 4.2).
 - `templates/ai-instructions/base-claude.md`, `base-codex.md`, `base-cursor.md`, `base-gemini.md`, `base-opencode.md` -- five AI-instruction templates updated in lockstep (Phase 5 sub-task 5.2).
 - `.github/dependabot.yml`, `.github/workflows/ci.yml` -- CI references to extension dirs.
 - `CHANGELOG.md` -- new v2.0.0 block (Phase 7 sub-task 7.5).
@@ -160,7 +160,7 @@ The rename touches several files outside the bulk `catalog/` sweep that require 
 
 ## 8. Baseline drift notes (informational)
 
-The pre-rename hook-test baseline (`docs/v2.0.0/baselines/hook-tests-pre.txt`) reports **360 passed, 9 skipped** rather than the **366 passed, 3 skipped** count quoted in `docs/v1.3.0/known-gaps.md`. The delta is 6 tests that moved from passing to skipped between v1.3.0 and v1.4.0; no new failures. Post-rename phases (Phase 5 sub-task 5.5, Phase 8 sub-task 8.1) MUST match the new pre-rename baseline of 360 passed / 9 skipped, not the v1.3.0 historical count. Extension counts (37 / 36+1s / 23) match the v1.3.0 baseline exactly.
+The pre-rename hook-test baseline (`docs/v2.0.0/baselines/hook-tests-pre.txt`) reports **360 passed, 9 skipped** rather than the **366 passed, 3 skipped** count quoted in `docs/archive/v1/v1.3.0/known-gaps.md`. The delta is 6 tests that moved from passing to skipped between v1.3.0 and v1.4.0; no new failures. Post-rename phases (Phase 5 sub-task 5.5, Phase 8 sub-task 8.1) MUST match the new pre-rename baseline of 360 passed / 9 skipped, not the v1.3.0 historical count. Extension counts (37 / 36+1s / 23) match the v1.3.0 baseline exactly.
 
 The skill validator reports **207 skills** (the plan body refers to "203+", consistent with the catalog having grown between v1.3.0 and v1.4.0). The 4 framework-specialist orphan-bundle warnings (WN-001) are present in the baseline as expected and are addressed in Phase 8 sub-task 8.3.
 

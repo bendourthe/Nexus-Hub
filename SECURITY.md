@@ -2,7 +2,7 @@
 
 Nexus-Hub is built on a **reverse-engineering-first** principle: the catalog ships zero third-party data processors, zero outbound calls from skills / commands / hooks, and zero telemetry. This document describes what Nexus-Hub does and does not do at the data-flow layer, who can safely use it, and what stays out of its threat model.
 
-For the formal MCP Registry Policy that drives every governance decision, see [`AGENTS.md`](AGENTS.md). For the authoritative classification of every MCP server ever shipped or considered, see [`docs/v1.0.0/mcp-reverse-engineering-matrix.md`](docs/v1.0.0/mcp-reverse-engineering-matrix.md).
+For the formal MCP Registry Policy that drives every governance decision, see [`AGENTS.md`](AGENTS.md). For the authoritative classification of every MCP server ever shipped or considered, see [`docs/policy/mcp-reverse-engineering-matrix.md`](docs/policy/mcp-reverse-engineering-matrix.md).
 
 ## 1. Industry Compatibility Matrix
 
@@ -26,7 +26,7 @@ These are properties of the catalog as shipped. Every change to the catalog is g
 - **No API keys collected, stored, or required by Nexus-Hub.** The internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`) all run locally with zero credentials.
 - **No model downloads.** No embeddings models, no scoring models, no anything. The internal MCPs use deterministic local algorithms (inverted index + rapidfuzz for code search; readability-lxml for web extraction).
 - **No source code, no prompts, no query text leaves the local machine through the Nexus-Hub layer.** The only network surface from any internal MCP is `nexus-web-fetch`'s direct HTTPS call to a user-specified URL (single-URL scope, SSRF-guarded by default).
-- **The MCP Registry Policy is enforced.** Every `mcp-servers.json` entry must answer five audit questions (who runs the process, outbound destinations, API keys required, data transmitted, vendor relationship) in its `_comment` field, and each entry must have a corresponding row in [`docs/v1.0.0/mcp-reverse-engineering-matrix.md`](docs/v1.0.0/mcp-reverse-engineering-matrix.md).
+- **The MCP Registry Policy is enforced.** Every `mcp-servers.json` entry must answer five audit questions (who runs the process, outbound destinations, API keys required, data transmitted, vendor relationship) in its `_comment` field, and each entry must have a corresponding row in [`docs/policy/mcp-reverse-engineering-matrix.md`](docs/policy/mcp-reverse-engineering-matrix.md).
 
 ## 3. What Is OUT of Nexus-Hub's Control (Caveats)
 

@@ -7,7 +7,7 @@ set -e
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-NEXUS_HUB_VERSION="2.0.0"
+NEXUS_HUB_VERSION="2.1.0"
 
 # --- Window Title ---
 printf '\033]0;Nexus-Hub Installer\007'
@@ -1762,11 +1762,12 @@ print_nexus_banner() {
     echo ""
     echo -e "${CYAN}"
     cat <<'NEXUS_BANNER_EOF'
- _   _ _____  __  __ _   _ ____       _   _ _   _ ____
-| \ | | ____| \ \/ /| | | / ___|     | | | | | | | __ )
-|  \| |  _|    \  / | | | \___ \  -  | |_| | | | |  _ \
-| |\  | |___   /  \ | |_| |___) |    |  _  | |_| | |_) |
-|_| \_|_____| /_/\_\ \___/|____/     |_| |_|\___/|____/
+███╗   ██╗███████╗██╗  ██╗██╗   ██╗███████╗      ██╗  ██╗██╗   ██╗██████╗
+████╗  ██║██╔════╝╚██╗██╔╝██║   ██║██╔════╝      ██║  ██║██║   ██║██╔══██╗
+██╔██╗ ██║█████╗   ╚███╔╝ ██║   ██║███████╗█████╗███████║██║   ██║██████╔╝
+██║╚██╗██║██╔══╝   ██╔██╗ ██║   ██║╚════██║╚════╝██╔══██║██║   ██║██╔══██╗
+██║ ╚████║███████╗██╔╝ ██╗╚██████╔╝███████║      ██║  ██║╚██████╔╝██████╔╝
+╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝      ╚═╝  ╚═╝ ╚═════╝ ╚═════╝
 NEXUS_BANNER_EOF
     echo -e "${RESET}"
     echo "  The Skill Harness for Claude Code, Codex, Gemini, Copilot, Cursor, and Nexus"

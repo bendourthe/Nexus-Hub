@@ -8,7 +8,7 @@
 
 ## Overview
 
-Model Context Protocol (MCP) servers extend Claude Code with local tool surfaces. This guide covers Nexus-Hub's recommended servers - all of which comply with the **MCP Registry Policy** in [AGENTS.md](../AGENTS.md). Every server listed here has a corresponding row in the [Reverse-Engineering Matrix](../docs/v1.0.0/mcp-reverse-engineering-matrix.md) documenting its classification and data-flow audit.
+Model Context Protocol (MCP) servers extend Claude Code with local tool surfaces. This guide covers Nexus-Hub's recommended servers - all of which comply with the **MCP Registry Policy** in [AGENTS.md](../AGENTS.md). Every server listed here has a corresponding row in the [Reverse-Engineering Matrix](../docs/policy/mcp-reverse-engineering-matrix.md) documenting its classification and data-flow audit.
 
 **What this guide deliberately does NOT include**: search-as-service, embeddings-as-service, scraping-as-service, and generation-as-service MCPs (context7, exa, firecrawl, magic-ui, claude-context, deepwiki, tavily, and similar). These are hard-no under the policy because they transmit query text, source code, or prompts to third-party data processors that the user has no pre-existing commercial relationship with. Where the capability is genuinely useful, Nexus-Hub reverse-engineers the pattern into an internal MCP or a skill - see the "Reverse-engineered replacements" section below.
 
@@ -42,7 +42,7 @@ All recommendations below fall into three policy buckets: **internal** (Nexus-Hu
 
 **When to use**: when the repo exceeds the model's context window and the agent needs to retrieve relevant chunks. Replaces the need for external semantic-code-search services.
 
-**Reverse-engineering note**: this is the Nexus-Hub internal equivalent of the "semantic code search" category. See the [matrix row](../docs/v1.0.0/mcp-reverse-engineering-matrix.md) for the RE pedigree.
+**Reverse-engineering note**: this is the Nexus-Hub internal equivalent of the "semantic code search" category. See the [matrix row](../docs/policy/mcp-reverse-engineering-matrix.md) for the RE pedigree.
 
 ---
 
@@ -125,7 +125,7 @@ The following capabilities were popular in the wider MCP ecosystem but are **not
 | Semantic code search (claude-context and similar) | `nexus-code-search` MCP (keyword in v1.0.0, dense in v1.1.0) + `code-semantic-search` skill | Internal MCP + skill |
 | Neural web search (exa, tavily, and similar) | Not replaced. Drop-outright under the policy: the web itself cannot be recreated locally, and the trust cost of routing agent-composed queries through a third-party search service exceeds the benefit for a regulated-data profile. | n/a |
 
-See the [Reverse-Engineering Matrix](../docs/v1.0.0/mcp-reverse-engineering-matrix.md) for the full classification per capability.
+See the [Reverse-Engineering Matrix](../docs/policy/mcp-reverse-engineering-matrix.md) for the full classification per capability.
 
 ---
 
@@ -201,6 +201,6 @@ Vendor wrappers default to `ask` because they make outbound calls with user cred
 ## Related Resources
 
 - [AGENTS.md](../AGENTS.md) - MCP Registry Policy (decision tree + 5-question audit)
-- [Reverse-Engineering Matrix](../docs/v1.0.0/mcp-reverse-engineering-matrix.md) - Per-server classification + audit
+- [Reverse-Engineering Matrix](../docs/policy/mcp-reverse-engineering-matrix.md) - Per-server classification + audit
 - [Claude Code Guide](CLAUDE_CODE_GUIDE.md) - Complete Claude Code setup
 - [Subagents Guide](SUBAGENTS_GUIDE.md) - Agent configuration

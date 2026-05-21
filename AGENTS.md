@@ -89,7 +89,7 @@ Every Nexus-Hub skill is consumed by the agent in three tiers of progressive dis
 
 1. **Tier 1 — always loaded** (~150-300 tokens total): `name`, `description`, `summary_l0`, `overview_l1`. Every active session has these in context for every catalog skill, all the time. They determine whether the skill triggers. Tier 1 is the only tier under direct token-budget pressure across the catalog.
 2. **Tier 2 — loaded on trigger**: the SKILL.md body. Loaded once the agent decides this skill is relevant to the current task. Target ≤500 lines; soft cap 800 lines (see the size-norm rule below). Tier 2 is the agent's working manual for the skill — instructions, rationalizations, verification, related-skills cross-links.
-3. **Tier 3 — loaded on demand**: bundled resources under per-skill `scripts/`, `references/`, `assets/` subdirectories (the convention introduced in Phase 3 of `docs/v1.1.5/plans/adoption-skills.md`, item A13). Two access patterns:
+3. **Tier 3 — loaded on demand**: bundled resources under per-skill `scripts/`, `references/`, `assets/` subdirectories (the convention introduced in Phase 3 of `docs/archive/v1/v1.1.5/plans/adoption-skills.md`, item A13). Two access patterns:
     - **Reference files** (`references/<topic>.md`) load into context only when the agent reads them. The body should link to a reference file the way it would link to an external doc — "see `references/fastmcp-runbook.md` for the full setup steps" — so the agent only pays for it when needed.
     - **Scripts** (`scripts/<name>.{py,sh,js}`) execute via the Bash / shell tool **without their source code being loaded** into the context window. This is the critical performance affordance: a skill can bundle a 2000-line generator script that runs deterministically on demand, and the agent never reads a single line of it. Scripts are how a skill ships heavy capability without inflating Tier 2.
 
@@ -228,7 +228,7 @@ Search-as-service, embeddings-as-service, scraping-as-service, and generation-as
 
 ### Matrix Requirement
 
-Every MCP listed in `catalog/mcp-configs/mcp-servers.json` must have a corresponding row in `docs/v1.0.0/mcp-reverse-engineering-matrix.md`. The matrix is the authoritative classification document for the registry. Future additions require a matrix row with upstream evidence and a decision-tree classification.
+Every MCP listed in `catalog/mcp-configs/mcp-servers.json` must have a corresponding row in `docs/policy/mcp-reverse-engineering-matrix.md`. The matrix is the authoritative classification document for the registry. Future additions require a matrix row with upstream evidence and a decision-tree classification.
 
 ### Reverse-Engineering Attribution Rule
 

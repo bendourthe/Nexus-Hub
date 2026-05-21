@@ -18,7 +18,7 @@
 
 - **MCP 注册表政策（含反向工程优先决策树）** ([AGENTS.md](AGENTS.md) + 7 个平台指令文件同步内联)。每个 MCP 注册条目的 `_comment` 现在必须回答 5 问审计（谁运行该进程、出站调用、API 密钥、传输数据、供应商关系）。硬性禁止：搜索即服务、嵌入即服务、抓取即服务、生成即服务。
 
-- **反向工程矩阵** ([docs/v1.0.0/mcp-reverse-engineering-matrix.md](docs/v1.0.0/mcp-reverse-engineering-matrix.md)) - 对每个曾经考虑过的 MCP 进行权威分类（共 18 行）。驱动保留 / 移除 / 重建决策。
+- **反向工程矩阵** ([docs/policy/mcp-reverse-engineering-matrix.md](docs/policy/mcp-reverse-engineering-matrix.md)) - 对每个曾经考虑过的 MCP 进行权威分类（共 18 行）。驱动保留 / 移除 / 重建决策。
 
 - **发布前安全审查** 发现 3 个 HIGH 和 1 个 MEDIUM 等级的安全问题，全部修复并附带回归测试。详见 [docs/security/penetration-test-2026-04-27.md](docs/security/penetration-test-2026-04-27.md)。
 
@@ -64,7 +64,7 @@
 
 - **`/generate-implementation-plan` 弃用别名已移除**。请直接使用 `/generate-plan`。
 
-完整计划：[docs/v1.0.0/plans/security-hardening-v100.md](docs/v1.0.0/plans/security-hardening-v100.md)。详细发布说明：[docs/v1.0.0/RELEASE_NOTES.md](docs/v1.0.0/RELEASE_NOTES.md)。
+完整计划：[docs/archive/v1/v1.0.0/plans/security-hardening-v100.md](docs/archive/v1/v1.0.0/plans/security-hardening-v100.md)。详细发布说明：[docs/archive/v1/v1.0.0/RELEASE_NOTES.md](docs/archive/v1/v1.0.0/RELEASE_NOTES.md)。
 
 ---
 

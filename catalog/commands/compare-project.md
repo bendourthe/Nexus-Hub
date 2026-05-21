@@ -327,7 +327,7 @@ After cleanup, always offer to chain into `/generate-plan` so the user can immed
    Hand the invocation off with an explicit directive block:
    > "Invoking `/generate-plan` in from-comparison mode. Source: `<full-comparison-file-path>`. Scope filter: `<p0p1|p0p1p2|all>`. Reverse-engineer-first: true."
 
-   This follows the existing `/setup-project` -> `/generate-plan` chaining precedent. The `/generate-plan` command recognizes the comparison-path argument via its Phase 0.5 (*From-comparison mode*) and reads the RE-first flag to sequence phases per the MCP Registry Policy decision tree. References: [AGENTS.md](../AGENTS.md) MCP Registry Policy; [docs/v1.0.0/mcp-reverse-engineering-matrix.md](../../docs/v1.0.0/mcp-reverse-engineering-matrix.md) for classification precedent.
+   This follows the existing `/setup-project` -> `/generate-plan` chaining precedent. The `/generate-plan` command recognizes the comparison-path argument via its Phase 0.5 (*From-comparison mode*) and reads the RE-first flag to sequence phases per the MCP Registry Policy decision tree. References: [AGENTS.md](../AGENTS.md) MCP Registry Policy; [docs/policy/mcp-reverse-engineering-matrix.md](../../docs/policy/mcp-reverse-engineering-matrix.md) for classification precedent.
 
 ---
 

@@ -106,4 +106,4 @@ A single runner CLI (`python scripts/lib/integrations/runner.py install --target
 
 - `docs/v2.1.0/plans/adoption-spec-kit.md` -- the plan that introduced Phase 10
 - `AGENTS.md` -- "Installer-Aware Changes (Cross-Platform)" section (the convention being superseded for new platforms)
-- `docs/v1.0.0/mcp-reverse-engineering-matrix.md` -- the reverse-engineering policy that informed Alternative 2's rejection
+- `docs/policy/mcp-reverse-engineering-matrix.md` -- the reverse-engineering policy that informed Alternative 2's rejection

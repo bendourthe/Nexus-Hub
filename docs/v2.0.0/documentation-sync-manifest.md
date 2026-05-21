@@ -27,7 +27,7 @@ Audit every documentation surface outside the `catalog/`, `templates/`, `extensi
 
 | File | Reason |
 |---|---|
-| `docs/security/penetration-test-2026-04-27.md` | Dated security assessment of v1.0.0 release candidate; reflects the codebase state at 2026-04-27 with the old artifact names. Falsifying historical security findings would break audit chain-of-custody. Treated like frozen `docs/v1.0.0/` content. |
+| `docs/security/penetration-test-2026-04-27.md` | Dated security assessment of v1.0.0 release candidate; reflects the codebase state at 2026-04-27 with the old artifact names. Falsifying historical security findings would break audit chain-of-custody. Treated like frozen `docs/archive/v1/v1.0.0/` content. |
 | `docs/git/gitignore-audit-2026-04-22.md` | Dated gitignore audit; same rationale. |
 | `docs/v0.*/*` | Historical version directories; per the plan, frozen and not edited. |
 | `docs/v1.*/*` | Same. |

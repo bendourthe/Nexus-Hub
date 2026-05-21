@@ -54,7 +54,7 @@ Nexus-Hub's MCP registry (`catalog/mcp-configs/mcp-servers.json`) is governed by
 4. **Trusted vendor wrapper (your-own-account)** - acceptable only when the vendor is the intrinsic data destination, reverse-engineering isn't viable, AND the feature is extremely worth it. Justify all three in the `_comment`.
 5. **Otherwise** - drop.
 
-Hard no: search-as-service, embeddings-as-service, scraping-as-service, generation-as-service. Full policy + 5-question audit in `AGENTS.md`. Matrix at `docs/v1.0.0/mcp-reverse-engineering-matrix.md`.
+Hard no: search-as-service, embeddings-as-service, scraping-as-service, generation-as-service. Full policy + 5-question audit in `AGENTS.md`. Matrix at `docs/policy/mcp-reverse-engineering-matrix.md`.
 
 ## Skill Discovery
 When the user's request matches a skill in the SKILL INDEX below, read the full skill file from the path listed and follow its instructions. Do not mention the skill lookup to the user.

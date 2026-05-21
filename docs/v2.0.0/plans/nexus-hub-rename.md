@@ -13,7 +13,7 @@ DevAI-Hub is being renamed to **Nexus-Hub** to align with the sibling product **
 
 The rename is a **breaking change**: the installed root moves from `~/.devai-hub/` to `~/.nexus-hub/`, the plugin name in `.claude-plugin/plugin.json` changes from `devai-hub` to `nexus-hub`, internal MCP server names change (`devai-skill-server` to `nexus-skill-server`, etc.), all environment-variable prefixes change (`DEVAI_HUB_*` to `NEXUS_HUB_*`), and the four catalog skill/extension directory names that carry the brand are renamed on disk. Because none of those surfaces have a SemVer-stable contract today, the migration is handled by the installer itself - a one-shot detect-and-relocate pass at the top of both `installer.sh` and `installer.ps1` moves a user's existing global install in place and prints a single notice. The installer's modernized header includes an ASCII-art "NEXUS-HUB" wordmark (in the spirit of the Claude Code CLI banner), a tagline, version label, and the four supported-agent badges.
 
-The README is rewritten from scratch around the new brand: a hero block with the Nexus logo (sourced from `C:\Users\bdour\Documents\Projects\Development\Nexus-AI\assets\nexus_primary.png`), a clear "What is Nexus-Hub?" positioning paragraph, a "Why two projects" callout that links to Nexus, an updated platform compatibility matrix, the modernized Quick Start, and a v2.0.0 What's New entry that frames the rename as the headline change. Every `/update-*` slash command listed in the user's request (`/update-documentation`, `/update-config`, `/update-devlog`, `/update-gitignore`) is invoked as part of Phase 7 to fan the rename through the rest of the documentation, configuration, devlog, and gitignore surfaces. This plan also ingests 2 carry-forward items from `docs/v1.3.0/known-gaps.md` (WN-001 framework-specialist orphan-bundle warnings, WN-002 Windows `make`/`shellcheck` environment workaround) and closes them out in Phase 8 hygiene.
+The README is rewritten from scratch around the new brand: a hero block with the Nexus logo (sourced from `C:\Users\bdour\Documents\Projects\Development\Nexus-AI\assets\nexus_primary.png`), a clear "What is Nexus-Hub?" positioning paragraph, a "Why two projects" callout that links to Nexus, an updated platform compatibility matrix, the modernized Quick Start, and a v2.0.0 What's New entry that frames the rename as the headline change. Every `/update-*` slash command listed in the user's request (`/update-documentation`, `/update-config`, `/update-devlog`, `/update-gitignore`) is invoked as part of Phase 7 to fan the rename through the rest of the documentation, configuration, devlog, and gitignore surfaces. This plan also ingests 2 carry-forward items from `docs/archive/v1/v1.3.0/known-gaps.md` (WN-001 framework-specialist orphan-bundle warnings, WN-002 Windows `make`/`shellcheck` environment workaround) and closes them out in Phase 8 hygiene.
 
 Success is defined as: a clean installer run on a fresh machine produces `~/.nexus-hub/` with every skill, command, hook, agent, and rule landing at the new paths; an existing `~/.devai-hub/` install is migrated in place with one user-visible prompt; `grep -rn "DevAI-Hub\|devai-hub\|devai_hub\|DEVAI_HUB" --include="*"` returns zero matches outside `docs/archive/` and `CHANGELOG.md` historical blocks; `make validate`, `make lint`, and `make test` are all green; the new README opens with the Nexus logo and an obvious link to the Nexus sibling repo; and a fresh `git tag v2.0.0` has been cut.
 
@@ -51,8 +51,8 @@ This plan ingests 2 items carried forward from prior known-gaps files: see sub-t
 >
 > 1. Confirm the current branch is clean (`git status` shows no modifications). If dirty, stop and ask for instructions.
 > 2. Run `python scripts/validate_skills.py --bundles-only` and capture the full output to `docs/v2.0.0/baselines/validate-skills-pre.txt`. On Windows the user's environment has `PYTHONUTF8=1` mismatch issues (carry-over WN-002); if `make validate` fails with cp1252 errors, fall back to direct `python` invocation with `set PYTHONUTF8=1` (PowerShell: `$env:PYTHONUTF8=1`) and document this in the baseline file.
-> 3. Run `python -m pytest catalog/hooks/tests -q` and capture to `docs/v2.0.0/baselines/hook-tests-pre.txt`. Expected baseline per `docs/v1.3.0/known-gaps.md`: **366 passed, 3 skipped**.
-> 4. For each of `extensions/devai-skill-server`, `extensions/devai-code-search`, `extensions/devai-web-fetch`, run the project's test command (see the per-extension `pyproject.toml` for the entry point - typically `python -m pytest -q`) and capture to `docs/v2.0.0/baselines/extension-tests-pre.txt`. Expected per `docs/v1.3.0/known-gaps.md`: **37 + 36(1s) + 23 passed**.
+> 3. Run `python -m pytest catalog/hooks/tests -q` and capture to `docs/v2.0.0/baselines/hook-tests-pre.txt`. Expected baseline per `docs/archive/v1/v1.3.0/known-gaps.md`: **366 passed, 3 skipped**.
+> 4. For each of `extensions/devai-skill-server`, `extensions/devai-code-search`, `extensions/devai-web-fetch`, run the project's test command (see the per-extension `pyproject.toml` for the entry point - typically `python -m pytest -q`) and capture to `docs/v2.0.0/baselines/extension-tests-pre.txt`. Expected per `docs/archive/v1/v1.3.0/known-gaps.md`: **37 + 36(1s) + 23 passed**.
 > 5. Commit all three baseline files in a single commit with message `chore(v2.0.0): capture pre-rename validator baselines`.
 >
 > **Constraints**: Do not modify any catalog, extension, installer, or doc file in this sub-task. The point is a frozen baseline. If any validator fails, document the failure in the baseline file and stop - the rename cannot start from a broken baseline.
@@ -417,7 +417,7 @@ This plan ingests 2 items carried forward from prior known-gaps files: see sub-t
 > Validation per extension:
 >
 > 1. `cd extensions/nexus-<name> && pip install -e . --quiet` (or the project's equivalent install) -- must succeed.
-> 2. `cd extensions/nexus-<name> && python -m pytest -q` -- expected counts per `docs/v1.3.0/known-gaps.md`: skill-server 37 passed, code-search 36 passed + 1 skipped, web-fetch 23 passed.
+> 2. `cd extensions/nexus-<name> && python -m pytest -q` -- expected counts per `docs/archive/v1/v1.3.0/known-gaps.md`: skill-server 37 passed, code-search 36 passed + 1 skipped, web-fetch 23 passed.
 >
 > Commit per extension as `refactor(v2.0.0): rename extensions/<old> to extensions/<new>`.
 
@@ -433,9 +433,9 @@ This plan ingests 2 items carried forward from prior known-gaps files: see sub-t
 > 1. Rename the JSON key (e.g. `"devai-skill-server"` -> `"nexus-skill-server"`).
 > 2. Update the `command` and `args` fields so the spawn invocation points at the new package (typically `python -m nexus_skill_server` or equivalent).
 > 3. Update any `_comment` fields per the **Five-Question Audit Checklist** in `AGENTS.md` (the existing comments should already pass; just replace brand strings).
-> 4. Update any cross-reference to `docs/v1.0.0/mcp-reverse-engineering-matrix.md` if that matrix references the old names by JSON key.
+> 4. Update any cross-reference to `docs/policy/mcp-reverse-engineering-matrix.md` if that matrix references the old names by JSON key.
 >
-> Edit `docs/v1.0.0/mcp-reverse-engineering-matrix.md` (or whichever version's matrix is current): rename the rows for the three internal servers to use the new keys. Per `AGENTS.md` MCP Registry Policy, the matrix is the authoritative classification document and must stay in sync with the registry.
+> Edit `docs/policy/mcp-reverse-engineering-matrix.md` (or whichever version's matrix is current): rename the rows for the three internal servers to use the new keys. Per `AGENTS.md` MCP Registry Policy, the matrix is the authoritative classification document and must stay in sync with the registry.
 >
 > Validate: `python -c "import json; json.load(open('catalog/mcp-configs/mcp-servers.json'))"`. Commit as `feat(v2.0.0): rename internal MCP server registry to nexus-*`.
 
@@ -661,7 +661,7 @@ This plan ingests 2 items carried forward from prior known-gaps files: see sub-t
 **Objective**: Modernize the README around the new brand. Hero, positioning, Nexus connection, updated platform matrix, Quick Start, What's New for v2.0.0.
 
 **Prompt**:
-> Rewrite `README.md` from the ground up using the structure below. The current README is 287 lines and contains a `What's New in v1.3.0` section -- that section becomes historical and is moved to `docs/v1.3.0/RELEASE_NOTES.md` (verify it is already there; if not, copy it before deleting from README).
+> Rewrite `README.md` from the ground up using the structure below. The current README is 287 lines and contains a `What's New in v1.3.0` section -- that section becomes historical and is moved to `docs/archive/v1/v1.3.0/RELEASE_NOTES.md` (verify it is already there; if not, copy it before deleting from README).
 >
 > New README structure (use the style and tone of the existing one as the template -- engineering-clear, no marketing fluff, no emoji except the existing minimal use of the rocket/book emojis if you choose to keep them):
 >
@@ -932,10 +932,10 @@ This plan ingests 2 items carried forward from prior known-gaps files: see sub-t
 
 #### 8.3 -- Address or re-defer carry-forward known-gaps `[from v1.3.0 known-gaps: WN-001, WN-002]`
 
-**Objective**: Close out or explicitly re-defer the two open items from `docs/v1.3.0/known-gaps.md`.
+**Objective**: Close out or explicitly re-defer the two open items from `docs/archive/v1/v1.3.0/known-gaps.md`.
 
 **Prompt**:
-> The v1.3.0 known-gaps file (`docs/v1.3.0/known-gaps.md`) carries two open items into v2.0.0:
+> The v1.3.0 known-gaps file (`docs/archive/v1/v1.3.0/known-gaps.md`) carries two open items into v2.0.0:
 >
 > **WN-001 -- Pre-existing 4 framework-specialist orphan-bundle warnings**.
 > Reason: `fastapi-expert/references/dependency-injection-patterns.md`, `nextjs-expert/references/data-fetching-patterns.md`, `react-expert/references/performance-patterns.md`, `react-expert/references/testing-recipes.md` are not referenced from their parent SKILL.md. Per `AGENTS.md` reference-rule audit, every file under per-skill `references/` MUST be referenced. The suggested-next-step is one of: (a) wire each into the parent SKILL.md as a "see references/<file>.md for ..." link; (b) inline if short; (c) leave as carry-over with explicit annotation.

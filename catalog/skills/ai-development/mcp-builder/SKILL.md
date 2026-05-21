@@ -177,7 +177,7 @@ For Node / TS:
 }
 ```
 
-If your server is intended for the curated Nexus-Hub registry (`catalog/mcp-configs/mcp-servers.json`), follow the AGENTS.md MCP Registry Policy: the `_comment` field MUST answer the five-question audit, and the `docs/v1.0.0/mcp-reverse-engineering-matrix.md` MUST get a row classifying the bucket. Do NOT add to the registry without walking the policy.
+If your server is intended for the curated Nexus-Hub registry (`catalog/mcp-configs/mcp-servers.json`), follow the AGENTS.md MCP Registry Policy: the `_comment` field MUST answer the five-question audit, and the `docs/policy/mcp-reverse-engineering-matrix.md` MUST get a row classifying the bucket. Do NOT add to the registry without walking the policy.
 
 ### Step 7 - Verify cross-CLI
 

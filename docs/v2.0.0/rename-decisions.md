@@ -60,7 +60,7 @@ The three internal MCP servers are renamed:
 | `devai-code-search` | `nexus-code-search` | `nexus_code_search` |
 | `devai-web-fetch` | `nexus-web-fetch` | `nexus_web_fetch` |
 
-The MCP `command` and `args` fields in each registry entry update accordingly (e.g. `python -m nexus_skill_server`). The `docs/v1.0.0/mcp-reverse-engineering-matrix.md` rows that classify the three internal servers as Decision-Tree bucket 1 ("Local-only") update their `Key` and `Path` columns to the new names.
+The MCP `command` and `args` fields in each registry entry update accordingly (e.g. `python -m nexus_skill_server`). The `docs/policy/mcp-reverse-engineering-matrix.md` rows that classify the three internal servers as Decision-Tree bucket 1 ("Local-only") update their `Key` and `Path` columns to the new names.
 
 External MCP entries in the registry are unaffected by this rename.
 

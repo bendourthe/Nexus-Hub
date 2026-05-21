@@ -68,7 +68,7 @@ Both pushed to `origin/main`.
 **Moved (docs archival)**:
 
 - `docs/v0.8.1/` through `docs/v0.9.7/` → `docs/archive/v0/<version>/` (11 version folders preserved with full git history via `git mv`)
-- `docs/v1.0.0/`, `v1.1.5/`, `v1.3.0/` LEFT at the top level because they contain the active `mcp-reverse-engineering-matrix.md` referenced in 32 files (AGENTS.md, README.md, CLAUDE.md, all base-*.md instruction templates, multiple skills). Archiving the v1.x folders would require moving the matrix to a stable `docs/policy/` location first, which is a separate cleanup deferred to a future maintenance pass.
+- `docs/archive/v1/v1.0.0/`, `v1.1.5/`, `v1.3.0/` LEFT at the top level because they contain the active `mcp-reverse-engineering-matrix.md` referenced in 32 files (AGENTS.md, README.md, CLAUDE.md, all base-*.md instruction templates, multiple skills). Archiving the v1.x folders would require moving the matrix to a stable `docs/policy/` location first, which is a separate cleanup deferred to a future maintenance pass.
 
 ## Known gaps recorded
 
@@ -78,5 +78,5 @@ Both pushed to `origin/main`.
 ## Next steps for the user
 
 1. **Push the re-cut v2.1.0 tag** (blocked above) using the destructive force-push, OR cut v2.1.1 as a non-destructive alternative.
-2. **Optionally**: revisit the v1.x docs archive. The blocker is the 32-file matrix-reference rewrite; if a future session moves `docs/v1.0.0/mcp-reverse-engineering-matrix.md` to `docs/policy/mcp-reverse-engineering-matrix.md` first, the v1.x archive becomes a one-step move.
+2. **Optionally**: revisit the v1.x docs archive. The blocker is the 32-file matrix-reference rewrite; if a future session moves `docs/policy/mcp-reverse-engineering-matrix.md` to `docs/policy/mcp-reverse-engineering-matrix.md` first, the v1.x archive becomes a one-step move.
 3. **v2.2.0**: implement DF-001 -- write `tests/integrations/test_parity_with_legacy_installer.py` that diffs the legacy installer output against the registry output for the original 4 platforms, then refactor the installers to delegate those four through the runner. ADR-001 (`docs/v2.1.0/adr/adr-001-integration-registry.md`) sketches the migration plan in its alternatives section.

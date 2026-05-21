@@ -5,7 +5,7 @@ $ErrorActionPreference = "Stop"
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-$script:NexusHubVersion = "2.0.0"
+$script:NexusHubVersion = "2.1.0"
 
 $Host.UI.RawUI.WindowTitle = "Nexus-Hub Installer"
 $script:InstallerTitle = "Nexus-Hub Installer"
@@ -2094,18 +2094,23 @@ function Install-SkillDiscovery {
 
 # --- Banner ---
 
-# ASCII-art NEXUS-HUB wordmark. Printed at startup ahead of the welcome banner.
-# Constraints: <=80 columns wide, <=8 rows tall, ASCII-only (no Unicode block
-# characters - commit messages and source files are ASCII-only on Windows per
-# project rules). Modeled after the Claude Code CLI banner style.
+# NEXUS-HUB wordmark. Printed at startup ahead of the welcome banner.
+# The banner uses Unicode block characters for a clean wordmark; the
+# `@'...'@` here-string preserves the literal glyphs verbatim. installer.ps1
+# is saved as UTF-8 with BOM so PowerShell renders these characters in both
+# Windows PowerShell 5.1 and PowerShell 7+. Modeled after the Claude Code
+# CLI banner style.
 function Write-NexusBanner {
-    $bannerLines = @(
-        ' _   _ _____  __  __ _   _ ____       _   _ _   _ ____',
-        '| \ | | ____| \ \/ /| | | / ___|     | | | | | | | __ )',
-        '|  \| |  _|    \  / | | | \___ \  -  | |_| | | | |  _ \',
-        '| |\  | |___   /  \ | |_| |___) |    |  _  | |_| | |_) |',
-        '|_| \_|_____| /_/\_\ \___/|____/     |_| |_|\___/|____/'
-    )
+    $banner = @'
+███╗   ██╗███████╗██╗  ██╗██╗   ██╗███████╗      ██╗  ██╗██╗   ██╗██████╗
+████╗  ██║██╔════╝╚██╗██╔╝██║   ██║██╔════╝      ██║  ██║██║   ██║██╔══██╗
+██╔██╗ ██║█████╗   ╚███╔╝ ██║   ██║███████╗█████╗███████║██║   ██║██████╔╝
+██║╚██╗██║██╔══╝   ██╔██╗ ██║   ██║╚════██║╚════╝██╔══██║██║   ██║██╔══██╗
+██║ ╚████║███████╗██╔╝ ██╗╚██████╔╝███████║      ██║  ██║╚██████╔╝██████╔╝
+╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝      ╚═╝  ╚═╝ ╚═════╝ ╚═════╝
+'@
+
+    $bannerLines = $banner -split "`r?`n"
     Write-Host ""
     foreach ($line in $bannerLines) {
         Write-Host $line -ForegroundColor Cyan

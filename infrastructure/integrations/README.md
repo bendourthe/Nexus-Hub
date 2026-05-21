@@ -6,7 +6,7 @@ Model Context Protocol (MCP) integrations for Nexus-Hub skills and workflows.
 
 ## Policy Compliance Notice
 
-Integrations documented here are **governed by the MCP Registry Policy** in [AGENTS.md](../../AGENTS.md) and classified in [docs/v1.0.0/mcp-reverse-engineering-matrix.md](../../docs/v1.0.0/mcp-reverse-engineering-matrix.md). This guide lists only servers that satisfy the policy's decision tree:
+Integrations documented here are **governed by the MCP Registry Policy** in [AGENTS.md](../../AGENTS.md) and classified in [docs/policy/mcp-reverse-engineering-matrix.md](../../docs/policy/mcp-reverse-engineering-matrix.md). This guide lists only servers that satisfy the policy's decision tree:
 
 1. Local-only (internal or zero-outbound Anthropic-official)
 2. LLM-native skill (no MCP needed)
@@ -190,7 +190,7 @@ To build a new MCP server for Nexus-Hub:
 
 1. Walk the MCP Registry Policy decision tree in [AGENTS.md](../../AGENTS.md). Prefer local-only or skill-native before reaching for external wrappers.
 2. If building a new local-only MCP, mirror the layout of `extensions/nexus-skill-server/` or `extensions/nexus-code-search/`.
-3. Add a row to `docs/v1.0.0/mcp-reverse-engineering-matrix.md` before opening the PR.
+3. Add a row to `docs/policy/mcp-reverse-engineering-matrix.md` before opening the PR.
 4. Update `catalog/mcp-configs/mcp-servers.json` with a `_comment` that answers the 5-question audit.
 5. Register the package in both installer scripts per the `AGENTS.md` Installer-Aware Changes section.
 

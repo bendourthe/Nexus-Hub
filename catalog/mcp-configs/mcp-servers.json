@@ -1,5 +1,5 @@
 {
-  "_comment": "Nexus-Hub curated MCP registry. Governed by the MCP Registry Policy in AGENTS.md and the Reverse-Engineering Matrix at docs/v1.0.0/mcp-reverse-engineering-matrix.md. Every entry's _comment field answers the 5-question audit (who runs, outbound calls, API keys, data transmitted, vendor relationship). Copy the servers you need into your .claude/settings.json under the 'mcpServers' key. Set required env vars before enabling a server.",
+  "_comment": "Nexus-Hub curated MCP registry. Governed by the MCP Registry Policy in AGENTS.md and the Reverse-Engineering Matrix at docs/policy/mcp-reverse-engineering-matrix.md. Every entry's _comment field answers the 5-question audit (who runs, outbound calls, API keys, data transmitted, vendor relationship). Copy the servers you need into your .claude/settings.json under the 'mcpServers' key. Set required env vars before enabling a server.",
   "mcpServers": {
     "github": {
       "command": "npx",
@@ -78,7 +78,7 @@
       "env": {
         "NEXUS_HUB_ROOT": "${NEXUS_HUB_ROOT}"
       },
-      "_comment": "Nexus-Hub local-only code-search MCP server (internal). Classification: already-local. Tools: index_codebase, search_code, clear_index, get_indexing_status. v1.0.0 ships keyword-only search via inverted index + rapidfuzz; dense / hybrid retrieval planned for v1.1.0 with local ONNX embeddings. Index stored at <repo>/.nexus/code-index/. 5-question audit: (1) Python subprocess locally; (2) no outbound calls; (3) no API keys; (4) transmits no source code or prompts to any third party (chunks live on disk and reach the agent via stdio); (5) no vendor relationship. Requires Python 3.10+. Reverse-engineered local equivalent for the 'semantic code search' category - the upstream attribution is recorded in docs/v1.0.0/mcp-reverse-engineering-matrix.md."
+      "_comment": "Nexus-Hub local-only code-search MCP server (internal). Classification: already-local. Tools: index_codebase, search_code, clear_index, get_indexing_status. v1.0.0 ships keyword-only search via inverted index + rapidfuzz; dense / hybrid retrieval planned for v1.1.0 with local ONNX embeddings. Index stored at <repo>/.nexus/code-index/. 5-question audit: (1) Python subprocess locally; (2) no outbound calls; (3) no API keys; (4) transmits no source code or prompts to any third party (chunks live on disk and reach the agent via stdio); (5) no vendor relationship. Requires Python 3.10+. Reverse-engineered local equivalent for the 'semantic code search' category - the upstream attribution is recorded in docs/policy/mcp-reverse-engineering-matrix.md."
     },
     "nexus-web-fetch": {
       "command": "python",
@@ -86,7 +86,7 @@
       "env": {
         "NEXUS_HUB_ROOT": "${NEXUS_HUB_ROOT}"
       },
-      "_comment": "Nexus-Hub local-only web-fetch MCP server (internal). Classification: re-full (reverse-engineered replacement for scraping-as-service patterns). Tool: fetch_url(url, render_js=False, extract_mode='readability'|'text'|'raw'). SSRF-guarded: RFC 1918, loopback, link-local, file:// blocked by default; YAML override at ~/.nexus/web-fetch.yaml. 30s timeout, 5 MB max body, no cookies, no auth headers. 5-question audit: (1) Python subprocess locally; (2) outbound HTTP/HTTPS to user-specified URL only, no third-party intermediary; (3) no API keys; (4) transmits only the URL itself (no prompts, no source code, no query text beyond the URL); (5) no vendor relationship required. Requires Python 3.10+. Upstream attribution recorded in docs/v1.0.0/mcp-reverse-engineering-matrix.md."
+      "_comment": "Nexus-Hub local-only web-fetch MCP server (internal). Classification: re-full (reverse-engineered replacement for scraping-as-service patterns). Tool: fetch_url(url, render_js=False, extract_mode='readability'|'text'|'raw'). SSRF-guarded: RFC 1918, loopback, link-local, file:// blocked by default; YAML override at ~/.nexus/web-fetch.yaml. 30s timeout, 5 MB max body, no cookies, no auth headers. 5-question audit: (1) Python subprocess locally; (2) outbound HTTP/HTTPS to user-specified URL only, no third-party intermediary; (3) no API keys; (4) transmits only the URL itself (no prompts, no source code, no query text beyond the URL); (5) no vendor relationship required. Requires Python 3.10+. Upstream attribution recorded in docs/policy/mcp-reverse-engineering-matrix.md."
     }
   },
   "_usage": {
@@ -95,6 +95,6 @@
     "env_vars": "Set required environment variables in your shell profile or .env file before starting Claude Code. Never hardcode tokens.",
     "limit": "Keep the total number of enabled MCP servers under 10 to preserve context window capacity.",
     "disable_per_project": "To disable a server for a specific project, add its name to the 'disabledMcpServers' array in the project's .claude/settings.json.",
-    "policy": "Additions to this registry must satisfy the MCP Registry Policy in AGENTS.md and be documented in docs/v1.0.0/mcp-reverse-engineering-matrix.md. Every entry's _comment answers the 5-question audit."
+    "policy": "Additions to this registry must satisfy the MCP Registry Policy in AGENTS.md and be documented in docs/policy/mcp-reverse-engineering-matrix.md. Every entry's _comment answers the 5-question audit."
   }
 }
