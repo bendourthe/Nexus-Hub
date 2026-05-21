@@ -323,6 +323,23 @@ Before writing the file, plan the phases:
 6. **Every goal appears**: every feature or requirement from Step 1 must be covered by at least one sub-task.
 7. **Phase count**: 4–8 phases for most plans; very small scopes may be 2–3; major refactors up to 10.
 
+### Phase organization for user-story-driven plans
+
+When the plan is feature-driven (plan type 2) AND a sibling `spec.md` exists with user stories authored against `catalog/templates/spec-template.md` (P1 / P2 / P3 priorities, FR-### / SC-### IDs), organize phases by user story so each user-story phase ships an independently testable MVP increment. Use the following fixed shape:
+
+| Phase | Title | Story labels on tasks? | Purpose |
+|-------|-------|-----------------------|---------|
+| Phase 1 | **Setup** | No | Project initialization, scaffolding, toolchain, distribution pipeline smoke. Blocking prerequisites for every user story. |
+| Phase 2 | **Foundational** | No | Cross-cutting building blocks shared by all user stories (database schema, auth middleware, base service layer, shared test harness). |
+| Phase 3 | **User Story 1 (P1)** | `[US1]` on every task | First independently testable increment. Implementing only this phase delivers a viable MVP. |
+| Phase 4 | **User Story 2 (P2)** | `[US2]` on every task | Second priority story. Builds on Phases 1-2 but does not block US1. |
+| Phase N-1 | **User Story K (P3)** | `[USK]` on every task | Lowest-priority story. Subsequent priorities follow this same template. |
+| Phase N | **Polish & Cross-Cutting Concerns** | No | Performance tuning, documentation polish, accessibility passes, observability, follow-up cleanups deferred during US phases. |
+
+Within each user-story phase, sequence sub-tasks `Tests (if requested) -> Models -> Services -> Endpoints -> Integration` so the phase produces a vertical slice in dependency order. Cross-link the phase title back to the spec by appending `(implements <FR-IDs>, <SC-IDs>)` to the phase header when the user-story IDs map to specific Functional Requirements / Success Criteria.
+
+When the plan is plan type 1 (initial greenfield), 3 (refactor), or 4 (other) - or feature-driven but **no** spec with user stories exists - skip the user-story phase shape and fall back to the 7 general rules above. The strict task-line format in Step 4 still applies in both cases; only the `[US#]` label is conditional on having user stories.
+
 Show the user the proposed phases-at-a-glance table and ask for confirmation or changes before writing the full plan.
 
 ---
@@ -376,6 +393,8 @@ running /constitution to establish project principles." - this is informational,
 
 #### N.1 — [Sub-task Title]
 
+- [ ] T### [P?] [US?] [Description with exact file path, e.g. src/services/user_service.py]
+
 **Objective**: [What this sub-task accomplishes.]
 
 **Prompt**:
@@ -386,6 +405,8 @@ running /constitution to establish project principles." - this is informational,
 ---
 
 #### N.2 — [Sub-task Title]
+
+- [ ] T### [P?] [US?] [Description with exact file path]
 
 **Objective**: [...]
 
@@ -399,6 +420,8 @@ running /constitution to establish project principles." - this is informational,
 ---
 
 #### N.X — Testing and Stabilization
+
+- [ ] T### Run and stabilize Phase N tests
 
 **Objective**: Generate and run all tests for this phase. Iterate until stable.
 
@@ -429,6 +452,62 @@ running /constitution to establish project principles." - this is informational,
 - [ ] Session history generated for this phase
 - [ ] Ready to advance to Phase N+1
 ```
+
+### Task line format (required for every sub-task)
+
+Every sub-task MUST begin with a single Markdown checkbox line immediately after the `#### N.M — [Sub-task Title]` heading and before the `**Objective**:` line. This line is the summary line for downstream tooling (the strict-format grep validator in Step 5, `/analyze-spec` coverage matrix, `/tasks-to-issues` conversion); the existing executable `**Prompt**:` block underneath remains the actionable detail and is never replaced by the summary line.
+
+Task line components (in left-to-right order):
+
+1. **Checkbox**: ALWAYS start with `- [ ]` (an unchecked Markdown checkbox followed by exactly one space).
+2. **Task ID**: Sequential `T001`, `T002`, ..., counted across the entire plan in execution order (not reset per phase). Pad to at least three digits; four digits (`T1234`) are allowed once a plan exceeds 999 tasks. IDs MUST be globally unique within a single plan file.
+3. **`[P]` parallel marker**: Include ONLY when the task is safely parallelizable - it touches different files than every other task lacking a dependency on it and depends on no incomplete task. Omit otherwise. The marker is exactly `[P]` (capital P, square brackets, single space on either side).
+4. **`[US#]` story label**: REQUIRED for every task whose containing phase is a User-Story phase from the Step 3 organization table. Format is `[US1]`, `[US2]`, `[US3]`, ... mapping to the corresponding `### User Story N` heading in the sibling `spec.md` (priority order from the spec template: US1 = P1, US2 = P2, ...). Setup, Foundational, and Polish phases MUST omit the story label. When both `[P]` and `[US#]` apply, `[P]` precedes `[US#]`.
+5. **Description**: Clear imperative action followed by the exact file path the task creates or modifies. Use forward slashes for path separators (`src/models/user.py`, not `src\models\user.py`) for cross-platform consistency. When a task touches multiple files, name the primary file in the description and list the rest in the underlying executable prompt.
+
+#### Examples
+
+Correct - Setup phase task (no story label):
+
+```
+- [ ] T001 Create project structure per implementation plan
+```
+
+Correct - Foundational phase task with parallel marker (no story label):
+
+```
+- [ ] T005 [P] Implement authentication middleware in src/middleware/auth.py
+```
+
+Correct - User Story 1 phase task with both parallel marker and story label:
+
+```
+- [ ] T012 [P] [US1] Create User model in src/models/user.py
+```
+
+Correct - User Story 1 phase task with story label but no parallel marker (depends on T012):
+
+```
+- [ ] T014 [US1] Implement UserService in src/services/user_service.py
+```
+
+Correct - Polish phase task (no story label):
+
+```
+- [ ] T042 Add release notes section to CHANGELOG.md
+```
+
+#### Anti-patterns
+
+These all fail Step 5 format validation:
+
+- `[ ] T001 ...` - missing the leading `- ` hyphen-space
+- `- [ ] 001 ...` - missing the `T` prefix on the task ID
+- `- [ ] T01 ...` - task ID under three digits
+- `- [ ] T001 [US1] Create User model` (Setup phase) - story label on a non-user-story phase
+- `- [ ] T012 Create User model in src/models/user.py` (User Story 1 phase) - missing required `[US1]` label
+- `- [ ] T012 [US1] [P] Create User model in src/models/user.py` - marker order reversed (`[P]` must precede `[US#]`)
+- `- [ ] T012 [US1] Create User model` - missing exact file path in description
 
 ### Constitution Check + Complexity Tracking (required sections)
 
@@ -466,9 +545,28 @@ Skip the checklist companion entirely for plan types 1 (initial greenfield build
 
 ## Step 5: Confirm with the User
 
-After writing the file, tell the user:
+After writing the file, run the **Task Format Validation** pass below before reporting to the user. If the pass surfaces any violations, fix them in-place (re-numbering, adding missing labels, normalizing marker order) and re-run the validator. Do not announce the plan to the user until the validator reports zero violations.
+
+### Task Format Validation
+
+Read the freshly written plan file and identify every task line. A task line is any line that starts with `- [ ]` followed by a `T###` token; the closing-checklist lines (Phase N Exit Checklist) and template placeholders do not count.
+
+For each task line, verify the regex `^- \[ \] T[0-9]{3,}( \[P\])?( \[US[0-9]+\])? .+$` matches. Additionally verify:
+
+- Task IDs are sequential starting at `T001` with no gaps and no duplicates across the entire plan.
+- Story labels appear **only** on tasks inside User-Story phases as defined by the Step 3 organization table. Tasks inside Setup, Foundational, and Polish phases MUST NOT carry a `[US#]` label.
+- Every task inside a User-Story phase carries the matching `[US#]` label (US1 for Phase 3 in the canonical shape, US2 for Phase 4, ...).
+- When both markers appear on the same task, `[P]` precedes `[US#]`.
+- Every description contains at least one path-like token (heuristic: a substring matching `[\w./-]+\.[\w]+` or referencing a known directory such as `src/`, `tests/`, `docs/`, `catalog/`). Tasks that legitimately have no file (e.g., "Run `/generate-session-history` to document Phase N") are allowed when they sit in the Testing and Stabilization sub-task.
+
+Emit a one-line summary back to your working context: `Task format validation: <N> tasks total, <M> with [P] marker, <K> mapped to user stories. ALL tasks match the required format.` When violations are detected instead, list each violating line with its line number and the specific rule it broke, then fix in-place and re-run. Hard cap at three repair iterations; if violations persist after three iterations, surface the remaining offenders to the user and ask whether to relax a specific rule.
+
+### Report to the user
+
+After validation passes, tell the user:
 - Where the file was saved (`docs/<version>/plans/<slug>.md`)
 - How many phases and sub-tasks were generated
+- Task format counts from the validation summary above (total tasks, parallelizable tasks, user-story-mapped tasks)
 - How to begin: run `/implement-phase <slug>` (or paste the prompt from sub-task 1.1 into a fresh Claude Code session)
 
 ---
