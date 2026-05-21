@@ -150,15 +150,14 @@ function Write-SubSectionBanner {
 function Get-ProviderColor {
     param([string]$Provider)
     $color = switch ($Provider) {
-        "CLAUDE"          { "DarkYellow" }
-        "GEMINI"          { "Blue" }
-        "ANTIGRAVITY 2.0" { "Blue" }
-        "GEMINI CLI"      { "Blue" }
-        "CODEX"           { "DarkMagenta" }
-        "COPILOT"         { "Gray" }
-        "CURSOR"          { "DarkCyan" }
+        # Provider-level headers (v2.1.0+)
+        "ANTHROPIC"       { "DarkYellow" }
+        "OPENAI"          { "DarkMagenta" }
+        "GOOGLE"          { "Blue" }
+        "MICROSOFT"       { "Gray" }
+        "ANYSPHERE"       { "DarkCyan" }
         "OPENCODE"        { "DarkGreen" }
-        "NEXUS-AI"        { "Magenta" }
+        "NEXUS"           { "Magenta" }
         Default           { "White" }
     }
     return $color
@@ -240,30 +239,6 @@ function Select-Platforms {
 
     if ($sawAll -or $selected.Count -eq 0) { return $allPlatforms }
     return $selected
-}
-
-# Map menu keys for the registry-driven extended platforms to runner.py
-# integration keys. The 4 legacy platforms (CLAUDE / GEMINI / CODEX /
-# COPILOT) are handled by the inline installer blocks; everything else
-# flows through the integration runner one platform at a time so each
-# extended platform gets its own colored Write-Header line in the output.
-$script:ExtendedPlatformKeyMap = [ordered]@{
-    "ANTIGRAVITY2" = @{ Key = "antigravity2"; Header = "ANTIGRAVITY 2.0" }
-    "GEMINI_CLI"   = @{ Key = "gemini-cli";   Header = "GEMINI CLI" }
-    "CURSOR"       = @{ Key = "cursor";       Header = "CURSOR" }
-    "OPENCODE"     = @{ Key = "opencode";     Header = "OPENCODE" }
-    "NEXUS_AI"     = @{ Key = "nexus-ai";     Header = "NEXUS-AI" }
-}
-
-function Get-SelectedExtendedEntries {
-    param([string[]]$Platforms)
-    $entries = @()
-    foreach ($name in $script:ExtendedPlatformKeyMap.Keys) {
-        if ($Platforms -contains $name) {
-            $entries += $script:ExtendedPlatformKeyMap[$name]
-        }
-    }
-    return $entries
 }
 
 function Get-Overwrite-Preference {
@@ -1029,10 +1004,16 @@ function Install-Global {
     Write-Host ""
     Write-Host "Checking User Profile ($env:USERPROFILE)..." -ForegroundColor Gray
 
-    # 1. Claude
+    # Per-provider install blocks. The Select-Platforms menu groups by
+    # organization (Anthropic / OpenAI / Google / Microsoft / Anysphere /
+    # OpenCode / Nexus); the install output mirrors that grouping so each
+    # provider has a single colored Write-Header line and its platforms
+    # listed underneath.
+
+    # --- Anthropic -- Claude Code ----------------------------------------
     if ($platforms -contains "CLAUDE") {
-        Write-Header -Provider "CLAUDE"
-        Write-Item -Message "Installing Global Configuration..."
+        Write-Header -Provider "ANTHROPIC"
+        Write-Item -Message "Claude Code" -Color "Gray"
         $globalClaude = Join-Path $env:USERPROFILE ".claude"
         if (-not (Test-Path $globalClaude)) { New-Item -ItemType Directory -Force -Path $globalClaude | Out-Null }
 
@@ -1050,112 +1031,112 @@ function Install-Global {
         $script:NonObviousTooling = "- (configure per project with /setup-project)"
         Render-Template -Template "$RepoRoot\templates\ai-instructions\base-claude.md" -Output "$globalClaude\CLAUDE.md" -RepoRoot $RepoRoot -Languages @()
 
-        # Global Skills
-        Safe-Folder-Copy -Source "$RepoRoot\catalog\skills" -Destination (Join-Path $globalClaude "skills") -CustomMessage "✓ Global skills catalog installed at: $(Join-Path $globalClaude "skills")"
+        Safe-Folder-Copy -Source "$RepoRoot\catalog\skills"   -Destination (Join-Path $globalClaude "skills")   -CustomMessage "✓ Skills catalog installed at: $(Join-Path $globalClaude "skills")"
+        Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $globalClaude "commands") -CustomMessage "✓ Commands installed at: $(Join-Path $globalClaude "commands")"
+        Safe-Folder-Copy -Source "$RepoRoot\catalog\agents"   -Destination (Join-Path $globalClaude "agents")   -CustomMessage "✓ Agents installed at: $(Join-Path $globalClaude "agents")"
+        Safe-Folder-Copy -Source "$RepoRoot\catalog\rules"    -Destination (Join-Path $globalClaude "rules")    -CustomMessage "✓ Rules installed at: $(Join-Path $globalClaude "rules")"
 
-        # Global Commands
-        Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $globalClaude "commands") -CustomMessage "✓ Global commands installed at: $(Join-Path $globalClaude "commands")"
-
-        # Global Agents
-        Safe-Folder-Copy -Source "$RepoRoot\catalog\agents" -Destination (Join-Path $globalClaude "agents") -CustomMessage "✓ Global agents installed at: $(Join-Path $globalClaude "agents")"
-
-        # Global Rules
-        Safe-Folder-Copy -Source "$RepoRoot\catalog\rules" -Destination (Join-Path $globalClaude "rules") -CustomMessage "✓ Global rules installed at: $(Join-Path $globalClaude "rules")"
-
-        # Global MCP Server Config
         $mcpConfigDest = Join-Path $globalClaude "mcp-configs"
         if (-not (Test-Path $mcpConfigDest)) { New-Item -ItemType Directory -Force -Path $mcpConfigDest | Out-Null }
         Safe-Copy -Source "$RepoRoot\catalog\mcp-configs\mcp-servers.json" -Destination (Join-Path $mcpConfigDest "mcp-servers.json") -Confirm:$false -CustomMessage "✓ MCP server config installed at: $mcpConfigDest"
 
-        # Git Guardrails Hook
-        Install-GitGuardrails -RepoRoot $RepoRoot -TargetClaudeDir $globalClaude -Scope "Global"
-
-        # Usage Display Hook
-        Install-UsageDisplay -RepoRoot $RepoRoot -TargetClaudeDir $globalClaude -Scope "Global"
-
-        # Require Description Hook
+        Install-GitGuardrails    -RepoRoot $RepoRoot -TargetClaudeDir $globalClaude -Scope "Global"
+        Install-UsageDisplay     -RepoRoot $RepoRoot -TargetClaudeDir $globalClaude -Scope "Global"
         Install-RequireDescription -RepoRoot $RepoRoot -TargetClaudeDir $globalClaude -Scope "Global"
-
-        # Core Settings (effortLevel)
-        Install-CoreSettings -RepoRoot $RepoRoot -TargetClaudeDir $globalClaude -Scope "Global"
+        Install-CoreSettings     -RepoRoot $RepoRoot -TargetClaudeDir $globalClaude -Scope "Global"
     }
 
-    # 2. Gemini / Antigravity
-    if ($platforms -contains "GEMINI") {
-        Write-Header -Provider "GEMINI"
-        Write-Item -Message "Installing Global Configuration..."
-        $globalGeminiDir = Join-Path $env:USERPROFILE ".gemini"
-        $globalAgentDir = Join-Path $env:USERPROFILE ".agent"
-
-        if (-not (Test-Path $globalGeminiDir)) { New-Item -ItemType Directory -Force -Path $globalGeminiDir | Out-Null }
-        if (-not (Test-Path $globalAgentDir)) { New-Item -ItemType Directory -Force -Path $globalAgentDir | Out-Null }
-
-        # Global GEMINI.md (concise template without Claude-specific concepts)
-        Render-Template -Template "$RepoRoot\templates\ai-instructions\base-gemini.md" -Output "$globalGeminiDir\GEMINI.md" -RepoRoot $RepoRoot -Languages @()
-
-        # Mirror Skills to Agent (Antigravity)
-        Safe-Folder-Copy -Source "$RepoRoot\catalog\skills" -Destination (Join-Path $globalAgentDir "skills") -CustomMessage "✓ Global skills catalog installed at: $(Join-Path $globalAgentDir "skills")"
-
-        # Mirror Commands to Agent Workflows
-        Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $globalAgentDir "workflows") -CustomMessage "✓ Global workflows installed at: $(Join-Path $globalAgentDir "workflows")"
-
-        # Mirror to .gemini (For Antigravity Global Context)
-        Safe-Folder-Copy -Source "$RepoRoot\catalog\skills" -Destination (Join-Path $globalGeminiDir "skills") -CustomMessage "✓ Global skills catalog installed at: $(Join-Path $globalGeminiDir "skills")"
-
-        # Correct path for Antigravity Global Workflows
-        $globalAntigravityWorkflows = Join-Path $globalGeminiDir "antigravity\global_workflows"
-        if (-not (Test-Path $globalAntigravityWorkflows)) { New-Item -ItemType Directory -Force -Path $globalAntigravityWorkflows | Out-Null }
-        Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination $globalAntigravityWorkflows -CustomMessage "✓ Global workflows installed at: $globalAntigravityWorkflows"
-    }
-
-    # 3. OpenAI Codex
+    # --- OpenAI -- Codex --------------------------------------------------
     if ($platforms -contains "CODEX") {
-        Write-Header -Provider "CODEX"
-        Write-Item -Message "Installing Global Configuration..."
+        Write-Header -Provider "OPENAI"
+        Write-Item -Message "Codex" -Color "Gray"
         $globalCodexDir = Join-Path $env:USERPROFILE ".codex"
-
         if (-not (Test-Path $globalCodexDir)) { New-Item -ItemType Directory -Force -Path $globalCodexDir | Out-Null }
 
-        # Global Skills
-        Safe-Folder-Copy -Source "$RepoRoot\catalog\skills" -Destination (Join-Path $globalCodexDir "skills") -CustomMessage "✓ Global skills catalog installed at: $(Join-Path $globalCodexDir "skills")"
+        Safe-Folder-Copy -Source "$RepoRoot\catalog\skills"   -Destination (Join-Path $globalCodexDir "skills")   -CustomMessage "✓ Skills catalog installed at: $(Join-Path $globalCodexDir "skills")"
+        Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $globalCodexDir "prompts")  -CustomMessage "✓ Custom prompts installed at: $(Join-Path $globalCodexDir "prompts")"
 
-        # Global Custom Prompts (Codex equivalent of commands)
-        Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $globalCodexDir "prompts") -CustomMessage "✓ Global custom prompts installed at: $(Join-Path $globalCodexDir "prompts")"
-
-        # Global AGENTS.md (open standard instruction file for Codex, Jules, Cursor, Aider)
+        # AGENTS.md (open standard read by Codex, Jules, Cursor, Aider, OpenCode)
         Render-Template -Template "$RepoRoot\templates\ai-instructions\base-codex.md" -Output "$globalCodexDir\AGENTS.md" -RepoRoot $RepoRoot -Languages @()
     }
 
-    # 4. Microsoft - Github Copilot
-    if ($platforms -contains "COPILOT") {
-        Write-Header -Provider "COPILOT"
-        Write-Item -Message "Check skipped (No global file support on Windows)." -Color "DarkGray"
+    # --- Google -- Gemini / Antigravity 1.0 + 2.0 / Gemini CLI -----------
+    $googleHas = ($platforms -contains "GEMINI") -or ($platforms -contains "ANTIGRAVITY2") -or ($platforms -contains "GEMINI_CLI")
+    if ($googleHas) {
+        Write-Header -Provider "GOOGLE"
+
+        if ($platforms -contains "GEMINI") {
+            Write-Item -Message "Gemini IDE + Antigravity 1.0" -Color "Gray"
+            $globalGeminiDir = Join-Path $env:USERPROFILE ".gemini"
+            $globalAgentDir  = Join-Path $env:USERPROFILE ".agent"
+            if (-not (Test-Path $globalGeminiDir)) { New-Item -ItemType Directory -Force -Path $globalGeminiDir | Out-Null }
+            if (-not (Test-Path $globalAgentDir))  { New-Item -ItemType Directory -Force -Path $globalAgentDir  | Out-Null }
+
+            Render-Template -Template "$RepoRoot\templates\ai-instructions\base-gemini.md" -Output "$globalGeminiDir\GEMINI.md" -RepoRoot $RepoRoot -Languages @()
+
+            Safe-Folder-Copy -Source "$RepoRoot\catalog\skills"   -Destination (Join-Path $globalAgentDir  "skills")    -CustomMessage "✓ Skills catalog mirrored to: $(Join-Path $globalAgentDir "skills")"
+            Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $globalAgentDir  "workflows") -CustomMessage "✓ Workflows mirrored to: $(Join-Path $globalAgentDir "workflows")"
+            Safe-Folder-Copy -Source "$RepoRoot\catalog\skills"   -Destination (Join-Path $globalGeminiDir "skills")    -CustomMessage "✓ Skills catalog installed at: $(Join-Path $globalGeminiDir "skills")"
+
+            $globalAntigravityWorkflows = Join-Path $globalGeminiDir "antigravity\global_workflows"
+            if (-not (Test-Path $globalAntigravityWorkflows)) { New-Item -ItemType Directory -Force -Path $globalAntigravityWorkflows | Out-Null }
+            Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination $globalAntigravityWorkflows -CustomMessage "✓ Antigravity workflows installed at: $globalAntigravityWorkflows"
+        }
+
+        if ($platforms -contains "ANTIGRAVITY2") {
+            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "antigravity2" -DisplayName "Antigravity 2.0"
+        }
+        if ($platforms -contains "GEMINI_CLI") {
+            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "gemini-cli" -DisplayName "Gemini CLI"
+        }
     }
 
-    # 5. Extended Platforms (Antigravity 2.0, Gemini CLI, Cursor, OpenCode, Nexus-AI)
-    # Filtered by the user's Select-Platforms response; platforms whose registry
-    # config has no global_dir (Cursor, OpenCode) no-op in global scope.
-    # Each platform gets its own colored Write-Header line instead of being
-    # bundled under a single "EXTENDED PLATFORMS" group header.
-    Install-ExtendedPlatformsGlobal -RepoRoot $RepoRoot -ExtendedEntries (Get-SelectedExtendedEntries -Platforms $platforms)
+    # --- Microsoft -- GitHub Copilot -------------------------------------
+    if ($platforms -contains "COPILOT") {
+        Write-Header -Provider "MICROSOFT"
+        Write-Item -Message "GitHub Copilot" -Color "Gray"
+        Write-Item -Message "Check skipped (no global file support on Windows)." -Color "DarkGray"
+    }
+
+    # --- Anysphere -- Cursor ---------------------------------------------
+    if ($platforms -contains "CURSOR") {
+        Write-Header -Provider "ANYSPHERE"
+        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "cursor" -DisplayName "Cursor"
+    }
+
+    # --- OpenCode --------------------------------------------------------
+    if ($platforms -contains "OPENCODE") {
+        Write-Header -Provider "OPENCODE"
+        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "opencode" -DisplayName "OpenCode"
+    }
+
+    # --- Nexus -- Nexus-AI (Local Desktop Studio) ------------------------
+    if ($platforms -contains "NEXUS_AI") {
+        Write-Header -Provider "NEXUS"
+        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "nexus-ai" -DisplayName "Nexus-AI (Local Desktop Studio)"
+    }
 
     # --- Auto-Approve Permissions sub-section ---
+    # Permissions only apply to the legacy 4 (CLAUDE / GEMINI / CODEX /
+    # COPILOT); the registry-driven platforms do not ship their own
+    # auto-approve configs yet. Mirrored to provider headers for visual
+    # consistency with the install-skills section above.
     Write-SubSectionBanner -Text "Auto-Approve Permissions"
 
     if ($platforms -contains "CLAUDE") {
-        Write-Header -Provider "CLAUDE"
+        Write-Header -Provider "ANTHROPIC"
         Install-Permissions -RepoRoot $RepoRoot -Platform "CLAUDE" -Scope "Global"
     }
-    if ($platforms -contains "GEMINI") {
-        Write-Header -Provider "GEMINI"
-        Install-Permissions -RepoRoot $RepoRoot -Platform "GEMINI" -Scope "Global"
-    }
     if ($platforms -contains "CODEX") {
-        Write-Header -Provider "CODEX"
+        Write-Header -Provider "OPENAI"
         Install-Permissions -RepoRoot $RepoRoot -Platform "CODEX" -Scope "Global"
     }
+    if ($platforms -contains "GEMINI") {
+        Write-Header -Provider "GOOGLE"
+        Install-Permissions -RepoRoot $RepoRoot -Platform "GEMINI" -Scope "Global"
+    }
     if ($platforms -contains "COPILOT") {
-        Write-Header -Provider "COPILOT"
+        Write-Header -Provider "MICROSOFT"
         Install-Permissions -RepoRoot $RepoRoot -Platform "COPILOT" -Scope "Global"
     }
 
@@ -1437,89 +1418,74 @@ function Install-Workspace {
         # Auto-detect project metadata for template rendering
         Detect-ProjectMetadata -TargetPath $targetPath -Languages $languages
 
-        # --- Install Logic ---
+        # --- Install Logic (provider-grouped) ---
 
-        # 1. Claude
+        # --- Anthropic -- Claude Code ------------------------------------
         if ($workspacePlatforms -contains "CLAUDE") {
-            Write-Header -Provider "CLAUDE"
-            Write-Item -Message "Installing Workspace Configuration..."
+            Write-Header -Provider "ANTHROPIC"
+            Write-Item -Message "Claude Code" -Color "Gray"
             $claudeDir = Join-Path $targetPath ".claude"
 
-            # CLAUDE.md (rendered from template with detected project metadata)
             Render-Template -Template "$RepoRoot\templates\ai-instructions\base-claude.md" -Output "$targetPath\CLAUDE.md" -RepoRoot $RepoRoot -Languages $languages
 
-            # Skills
-            Safe-Folder-Copy -Source "$RepoRoot\catalog\skills" -Destination (Join-Path $claudeDir "skills") -CustomMessage "✓ Workspace skills catalog installed at: $(Join-Path $claudeDir "skills")"
+            Safe-Folder-Copy -Source "$RepoRoot\catalog\skills"   -Destination (Join-Path $claudeDir "skills")   -CustomMessage "✓ Skills catalog installed at: $(Join-Path $claudeDir "skills")"
+            Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $claudeDir "commands") -CustomMessage "✓ Commands installed at: $(Join-Path $claudeDir "commands")"
+            Safe-Folder-Copy -Source "$RepoRoot\catalog\agents"   -Destination (Join-Path $claudeDir "agents")   -CustomMessage "✓ Agents installed at: $(Join-Path $claudeDir "agents")"
+            Safe-Folder-Copy -Source "$RepoRoot\catalog\rules"    -Destination (Join-Path $claudeDir "rules")    -CustomMessage "✓ Rules installed at: $(Join-Path $claudeDir "rules")"
 
-            # Commands
-            Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $claudeDir "commands") -CustomMessage "✓ Workspace commands installed at: $(Join-Path $claudeDir "commands")"
-
-            # Agents
-            Safe-Folder-Copy -Source "$RepoRoot\catalog\agents" -Destination (Join-Path $claudeDir "agents") -CustomMessage "✓ Workspace agents installed at: $(Join-Path $claudeDir "agents")"
-
-            # Rules
-            Safe-Folder-Copy -Source "$RepoRoot\catalog\rules" -Destination (Join-Path $claudeDir "rules") -CustomMessage "✓ Workspace rules installed at: $(Join-Path $claudeDir "rules")"
-
-            # MCP Server Config
             $mcpConfigDestWs = Join-Path $claudeDir "mcp-configs"
             if (-not (Test-Path $mcpConfigDestWs)) { New-Item -ItemType Directory -Force -Path $mcpConfigDestWs | Out-Null }
             Safe-Copy -Source "$RepoRoot\catalog\mcp-configs\mcp-servers.json" -Destination (Join-Path $mcpConfigDestWs "mcp-servers.json") -Confirm:$false -CustomMessage "✓ MCP server config installed at: $mcpConfigDestWs"
 
-            # Context & Memory
-            Safe-Folder-Copy -Source "$RepoRoot\catalog\context" -Destination (Join-Path $claudeDir "context") -CustomMessage "✓ Workspace context installed at: $(Join-Path $claudeDir "context")"
-            Safe-Folder-Copy -Source "$RepoRoot\catalog\memory" -Destination (Join-Path $claudeDir "memory") -CustomMessage "✓ Workspace memory installed at: $(Join-Path $claudeDir "memory")"
+            Safe-Folder-Copy -Source "$RepoRoot\catalog\context" -Destination (Join-Path $claudeDir "context") -CustomMessage "✓ Context installed at: $(Join-Path $claudeDir "context")"
+            Safe-Folder-Copy -Source "$RepoRoot\catalog\memory"  -Destination (Join-Path $claudeDir "memory")  -CustomMessage "✓ Memory installed at: $(Join-Path $claudeDir "memory")"
 
-            # Git Guardrails Hook
-            Install-GitGuardrails -RepoRoot $RepoRoot -TargetClaudeDir $claudeDir -Scope "Workspace"
-
-            # Usage Display Hook
-            Install-UsageDisplay -RepoRoot $RepoRoot -TargetClaudeDir $claudeDir -Scope "Workspace"
-
-            # Require Description Hook
+            Install-GitGuardrails    -RepoRoot $RepoRoot -TargetClaudeDir $claudeDir -Scope "Workspace"
+            Install-UsageDisplay     -RepoRoot $RepoRoot -TargetClaudeDir $claudeDir -Scope "Workspace"
             Install-RequireDescription -RepoRoot $RepoRoot -TargetClaudeDir $claudeDir -Scope "Workspace"
         }
 
-        # 2. Gemini / Antigravity
-        if ($workspacePlatforms -contains "GEMINI") {
-            Write-Header -Provider "GEMINI"
-            Write-Item -Message "Installing Workspace Configuration..."
-            $geminiDir = Join-Path $targetPath ".gemini"
-            $agentDir = Join-Path $targetPath ".agent"
-
-            if (-not (Test-Path $geminiDir)) { New-Item -ItemType Directory -Force -Path $geminiDir | Out-Null }
-            if (-not (Test-Path $agentDir)) { New-Item -ItemType Directory -Force -Path $agentDir | Out-Null }
-
-            # GEMINI.md (rendered from template without Claude-specific concepts)
-            Render-Template -Template "$RepoRoot\templates\ai-instructions\base-gemini.md" -Output "$geminiDir\GEMINI.md" -RepoRoot $RepoRoot -Languages $languages
-
-            # Mirror Skills to Agent
-            Safe-Folder-Copy -Source "$RepoRoot\catalog\skills" -Destination (Join-Path $agentDir "skills") -CustomMessage "✓ Workspace skills catalog installed at: $(Join-Path $agentDir "skills")"
-
-            # Mirror Commands to Agent Workflows
-            Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $agentDir "workflows") -CustomMessage "✓ Workspace workflows installed at: $(Join-Path $agentDir "workflows")"
-
-            Write-Item -Message "✓ Copied Skills & Workflows structure" -Color "DarkGreen"
-        }
-
-        # 3. OpenAI Codex
+        # --- OpenAI -- Codex ---------------------------------------------
         if ($workspacePlatforms -contains "CODEX") {
-            Write-Header -Provider "CODEX"
-            Write-Item -Message "Installing Workspace Configuration..."
+            Write-Header -Provider "OPENAI"
+            Write-Item -Message "Codex" -Color "Gray"
             $codexDir = Join-Path $targetPath ".codex"
-
             if (-not (Test-Path $codexDir)) { New-Item -ItemType Directory -Force -Path $codexDir | Out-Null }
 
-            # Skills
-            Safe-Folder-Copy -Source "$RepoRoot\catalog\skills" -Destination (Join-Path $codexDir "skills") -CustomMessage "✓ Workspace skills catalog installed at: $(Join-Path $codexDir "skills")"
+            Safe-Folder-Copy -Source "$RepoRoot\catalog\skills"   -Destination (Join-Path $codexDir "skills")  -CustomMessage "✓ Skills catalog installed at: $(Join-Path $codexDir "skills")"
+            Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $codexDir "prompts") -CustomMessage "✓ Custom prompts installed at: $(Join-Path $codexDir "prompts")"
 
-            # Custom Prompts (Codex equivalent of commands)
-            Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $codexDir "prompts") -CustomMessage "✓ Workspace custom prompts installed at: $(Join-Path $codexDir "prompts")"
-
-            # AGENTS.md at project root (open standard for Codex, Jules, Cursor, Aider)
+            # AGENTS.md at project root (open standard read by Codex, Jules, Cursor, Aider, OpenCode)
             Render-Template -Template "$RepoRoot\templates\ai-instructions\base-codex.md" -Output "$targetPath\AGENTS.md" -RepoRoot $RepoRoot -Languages $languages
         }
 
-        # --- Prepare Rules for Copilot/Cursor (using concise snippets) ---
+        # --- Google -- Gemini / Antigravity 1.0 + 2.0 / Gemini CLI ------
+        $googleWsHas = ($workspacePlatforms -contains "GEMINI") -or ($workspacePlatforms -contains "ANTIGRAVITY2") -or ($workspacePlatforms -contains "GEMINI_CLI")
+        if ($googleWsHas) {
+            Write-Header -Provider "GOOGLE"
+
+            if ($workspacePlatforms -contains "GEMINI") {
+                Write-Item -Message "Gemini IDE + Antigravity 1.0" -Color "Gray"
+                $geminiDir = Join-Path $targetPath ".gemini"
+                $agentDir  = Join-Path $targetPath ".agent"
+                if (-not (Test-Path $geminiDir)) { New-Item -ItemType Directory -Force -Path $geminiDir | Out-Null }
+                if (-not (Test-Path $agentDir))  { New-Item -ItemType Directory -Force -Path $agentDir  | Out-Null }
+
+                Render-Template -Template "$RepoRoot\templates\ai-instructions\base-gemini.md" -Output "$geminiDir\GEMINI.md" -RepoRoot $RepoRoot -Languages $languages
+
+                Safe-Folder-Copy -Source "$RepoRoot\catalog\skills"   -Destination (Join-Path $agentDir "skills")    -CustomMessage "✓ Skills catalog mirrored to: $(Join-Path $agentDir "skills")"
+                Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $agentDir "workflows") -CustomMessage "✓ Workflows mirrored to: $(Join-Path $agentDir "workflows")"
+            }
+
+            if ($workspacePlatforms -contains "ANTIGRAVITY2") {
+                Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "antigravity2" -DisplayName "Antigravity 2.0"
+            }
+            if ($workspacePlatforms -contains "GEMINI_CLI") {
+                Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "gemini-cli" -DisplayName "Gemini CLI"
+            }
+        }
+
+        # --- Prepare Copilot/Cursor instruction body (used below) -------
         $mergedContent = "# $($script:ProjectName) - Copilot Instructions`n`n"
         $mergedContent += "## Tech Stack`n"
         $mergedContent += "- **Language**: $($script:PrimaryLanguage)`n"
@@ -1541,10 +1507,10 @@ function Install-Workspace {
             }
         }
 
-        # 4. Microsoft - Github Copilot
+        # --- Microsoft -- GitHub Copilot --------------------------------
         if ($workspacePlatforms -contains "COPILOT") {
-            Write-Header -Provider "COPILOT"
-            Write-Item -Message "Installing Workspace Configuration..."
+            Write-Header -Provider "MICROSOFT"
+            Write-Item -Message "GitHub Copilot" -Color "Gray"
             $copilotDir = Join-Path $targetPath ".github"
             if (-not (Test-Path $copilotDir)) { New-Item -ItemType Directory -Force -Path $copilotDir | Out-Null }
             $copilotFile = Join-Path $copilotDir "copilot-instructions.md"
@@ -1555,11 +1521,10 @@ function Install-Workspace {
                     # Overwrite
                 }
                 elseif ($script:OverwriteMode -eq "NONE") {
-                    Write-Item -Message "File exists: copilot-instructions.md (Skipped)" -Color "DarkGray"
+                    Write-Item -Message "File exists: copilot-instructions.md (skipped)" -Color "DarkGray"
                     $doWrite = $false
                 }
                 else {
-                    # ASK
                     Write-Item -Message "File exists: copilot-instructions.md" -Color "Yellow"
                     $resp = Read-Prompt "Overwrite? [Y]es / [N]o / [A]ll"
                     if ($resp -match "^[Aa]") {
@@ -1575,9 +1540,26 @@ function Install-Workspace {
                 Write-Item -Message "✓ Workspace instructions installed at: $copilotFile" -Color "DarkGreen"
             }
         }
-        Write-Host ""
 
-        Install-ExtendedPlatformsWorkspace -RepoRoot $RepoRoot -TargetPath $targetPath -ExtendedEntries (Get-SelectedExtendedEntries -Platforms $workspacePlatforms)
+        # --- Anysphere -- Cursor ----------------------------------------
+        if ($workspacePlatforms -contains "CURSOR") {
+            Write-Header -Provider "ANYSPHERE"
+            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "cursor" -DisplayName "Cursor"
+        }
+
+        # --- OpenCode ---------------------------------------------------
+        if ($workspacePlatforms -contains "OPENCODE") {
+            Write-Header -Provider "OPENCODE"
+            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "opencode" -DisplayName "OpenCode"
+        }
+
+        # --- Nexus -- Nexus-AI ------------------------------------------
+        if ($workspacePlatforms -contains "NEXUS_AI") {
+            Write-Header -Provider "NEXUS"
+            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "nexus-ai" -DisplayName "Nexus-AI (Local Desktop Studio)"
+        }
+
+        Write-Host ""
 }
 
 function Resolve-PythonExecutable {
@@ -1587,71 +1569,34 @@ function Resolve-PythonExecutable {
     return $null
 }
 
-function Install-ExtendedPlatform {
+function Invoke-RegistryPlatform {
     param(
         [string]$RepoRoot,
         [string]$Scope,            # "global" or "workspace"
         [string]$TargetPath,       # used for workspace scope only
         [string]$IntegrationKey,   # registry key, e.g. "antigravity2"
-        [string]$HeaderProvider,   # display name, e.g. "ANTIGRAVITY 2.0"
-        [string]$Py
+        [string]$DisplayName       # human-readable label printed as a sub-item
     )
     $runner = Join-Path $RepoRoot "scripts\lib\integrations\runner.py"
-    Write-Header -Provider $HeaderProvider
+    if (-not (Test-Path $runner)) { return }
+    $py = Resolve-PythonExecutable
+    if (-not $py) {
+        Write-Item -Message "Python not found -- skipping $DisplayName." -Color "DarkYellow"
+        return
+    }
 
+    Write-Item -Message "$DisplayName" -Color "Gray"
     $argsList = @($runner, "install", "--scope", $Scope, "--integrations", $IntegrationKey, "--quiet")
     if ($Scope -eq "workspace") {
         $argsList += @("--target", $TargetPath)
     }
     if ($script:OverwriteMode -eq "ALL") { $argsList += "--overwrite" }
 
-    & $Py @argsList
+    & $py @argsList
     if ($LASTEXITCODE -ne 0) {
-        Write-Item -Message "$HeaderProvider install reported non-zero exit; continuing." -Color "Yellow"
+        Write-Item -Message "$DisplayName install reported non-zero exit; continuing." -Color "Yellow"
     } else {
         Write-Item -Message "✓ Installed ($Scope scope)" -Color "DarkGreen"
-    }
-}
-
-function Install-ExtendedPlatformsWorkspace {
-    param ($RepoRoot, $TargetPath, [array]$ExtendedEntries)
-    if (-not $ExtendedEntries -or $ExtendedEntries.Count -eq 0) {
-        return
-    }
-    $runner = Join-Path $RepoRoot "scripts\lib\integrations\runner.py"
-    if (-not (Test-Path $runner)) {
-        return
-    }
-    $py = Resolve-PythonExecutable
-    if (-not $py) {
-        $skipped = ($ExtendedEntries | ForEach-Object { $_.Header }) -join ', '
-        Write-Item -Message "Python not found -- skipping extended platforms ($skipped)." -Color "DarkYellow"
-        return
-    }
-    foreach ($entry in $ExtendedEntries) {
-        Install-ExtendedPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $TargetPath `
-            -IntegrationKey $entry.Key -HeaderProvider $entry.Header -Py $py
-    }
-}
-
-function Install-ExtendedPlatformsGlobal {
-    param ($RepoRoot, [array]$ExtendedEntries)
-    if (-not $ExtendedEntries -or $ExtendedEntries.Count -eq 0) {
-        return
-    }
-    $runner = Join-Path $RepoRoot "scripts\lib\integrations\runner.py"
-    if (-not (Test-Path $runner)) {
-        return
-    }
-    $py = Resolve-PythonExecutable
-    if (-not $py) {
-        $skipped = ($ExtendedEntries | ForEach-Object { $_.Header }) -join ', '
-        Write-Item -Message "Python not found -- skipping global extended platforms ($skipped)." -Color "DarkYellow"
-        return
-    }
-    foreach ($entry in $ExtendedEntries) {
-        Install-ExtendedPlatform -RepoRoot $RepoRoot -Scope "global" `
-            -IntegrationKey $entry.Key -HeaderProvider $entry.Header -Py $py
     }
 }
 
@@ -2189,6 +2134,32 @@ function Write-NexusBanner {
     Write-Host ""
 }
 
+# Uninstalls the legacy DevAI-Hub VS Code extension if present. The
+# Claude Usage Monitor was published under `devai-hub.claude-usage-monitor`
+# before the rename; the current build ships as `nexus-hub.claude-usage-monitor`.
+# Leaving both installed produces a duplicate entry in VS Code's Extensions
+# pane and two status-bar items. Called from Invoke-LegacyInstallMigration so
+# it runs as part of the same "you have a DevAI-Hub install" cleanup.
+function Remove-LegacyVSCodeExtensions {
+    $codeCmd = Get-Command "code" -ErrorAction SilentlyContinue
+    if (-not $codeCmd) { return }
+    $installed = & code --list-extensions 2>$null
+    if ($LASTEXITCODE -ne 0 -or -not $installed) { return }
+
+    $legacyIds = @("devai-hub.claude-usage-monitor")
+    foreach ($id in $legacyIds) {
+        if ($installed -contains $id) {
+            Write-Host "  Removing legacy VS Code extension: $id" -ForegroundColor Yellow
+            & code --uninstall-extension $id 2>$null | Out-Null
+            if ($LASTEXITCODE -eq 0) {
+                Write-Host "  ✓ Removed $id" -ForegroundColor Green
+            } else {
+                Write-Host "  ⚠ Could not auto-remove $id (uninstall it manually from VS Code)" -ForegroundColor Yellow
+            }
+        }
+    }
+}
+
 # Detects an existing ~/.devai-hub/ install and migrates it to ~/.nexus-hub/.
 # One-shot, one-way per the backward-compat decision in
 # docs/v2.0.0/rename-decisions.md. The installer does NOT ship a symlink or
@@ -2196,6 +2167,8 @@ function Write-NexusBanner {
 #   1. legacy only             -> prompt to migrate (default Y), then Move-Item.
 #   2. legacy AND new co-exist -> ask user: keep-new, abort, or merge.
 #   3. neither / new only      -> no-op (fresh or already-migrated install).
+# When the legacy directory is detected, also uninstall the legacy VS Code
+# extension (devai-hub.claude-usage-monitor) so the rename is complete.
 function Invoke-LegacyInstallMigration {
     $legacy = Join-Path $env:USERPROFILE ".devai-hub"
     $current = Join-Path $env:USERPROFILE ".nexus-hub"
@@ -2239,6 +2212,12 @@ function Invoke-LegacyInstallMigration {
             }
         }
         Write-Host ""
+    }
+
+    # Whenever a legacy DevAI-Hub install was detected (either branch above),
+    # also clean up the legacy VS Code extension so the rename is complete.
+    if ($legacyExists) {
+        Remove-LegacyVSCodeExtensions
     }
 }
 

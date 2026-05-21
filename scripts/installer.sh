@@ -33,16 +33,15 @@ OVERWRITE_ALL=false
 # tests do not need to change.
 
 get_provider_color() {
+    # Provider-level headers (v2.1.0+)
     case "$1" in
-        "CLAUDE")           echo -ne "${DARK_YELLOW}" ;;
-        "GEMINI")           echo -ne "${BLUE}" ;;
-        "ANTIGRAVITY 2.0")  echo -ne "${BLUE}" ;;
-        "GEMINI CLI")       echo -ne "${BLUE}" ;;
-        "CODEX")            echo -ne "${MAGENTA}" ;;
-        "COPILOT")          echo -ne "${GRAY}" ;;
-        "CURSOR")           echo -ne "${CYAN}" ;;
+        "ANTHROPIC")        echo -ne "${DARK_YELLOW}" ;;
+        "OPENAI")           echo -ne "${MAGENTA}" ;;
+        "GOOGLE")           echo -ne "${BLUE}" ;;
+        "MICROSOFT")        echo -ne "${GRAY}" ;;
+        "ANYSPHERE")        echo -ne "${CYAN}" ;;
         "OPENCODE")         echo -ne "${GREEN}" ;;
-        "NEXUS-AI")         echo -ne "${MAGENTA}" ;;
+        "NEXUS")            echo -ne "${MAGENTA}" ;;
         *)                  echo -ne "${RESET}" ;;
     esac
 }
@@ -699,13 +698,18 @@ install_global() {
 
     echo -e "${GRAY}Checking User Profile ($user_home)...${RESET}"
 
-    # 1. Claude
-    write_header "CLAUDE"
-    write_item "Checking Global Configuration..."
+    # Per-provider install blocks. The Select-Platforms menu groups by
+    # organization (Anthropic / OpenAI / Google / Microsoft / Anysphere /
+    # OpenCode / Nexus); the install output mirrors that grouping so each
+    # provider has a single colored write_header line and its platforms
+    # listed underneath.
+
+    # --- Anthropic -- Claude Code ---------------------------------------
+    write_header "ANTHROPIC"
+    write_item "Claude Code" "$GRAY"
     local global_claude="$user_home/.claude"
     mkdir -p "$global_claude"
 
-    # Global CLAUDE.md (new concise template with WHAT/WHY/HOW structure)
     PROJECT_NAME="Global"
     OS_CONTEXT=""
     case "$(uname -s)" in
@@ -724,89 +728,79 @@ install_global() {
     NON_OBVIOUS_TOOLING="- (configure per project with /setup-project)"
     render_template "$repo_root/templates/ai-instructions/base-claude.md" "$global_claude/CLAUDE.md" "$repo_root" ""
 
-    # Global Skills
-    safe_folder_copy "$repo_root/catalog/skills" "$global_claude/skills" "[OK] Global skills catalog installed at: $global_claude/skills"
+    safe_folder_copy "$repo_root/catalog/skills"   "$global_claude/skills"   "[OK] Skills catalog installed at: $global_claude/skills"
+    safe_folder_copy "$repo_root/catalog/commands" "$global_claude/commands" "[OK] Commands installed at: $global_claude/commands"
+    safe_folder_copy "$repo_root/catalog/agents"   "$global_claude/agents"   "[OK] Agents installed at: $global_claude/agents"
+    safe_folder_copy "$repo_root/catalog/rules"    "$global_claude/rules"    "[OK] Rules installed at: $global_claude/rules"
 
-    # Global Commands
-    safe_folder_copy "$repo_root/catalog/commands" "$global_claude/commands" "[OK] Global commands installed at: $global_claude/commands"
-
-    # Global Agents
-    safe_folder_copy "$repo_root/catalog/agents" "$global_claude/agents" "[OK] Global agents installed at: $global_claude/agents"
-
-    # Global Rules
-    safe_folder_copy "$repo_root/catalog/rules" "$global_claude/rules" "[OK] Global rules installed at: $global_claude/rules"
-
-    # Global MCP Server Config
     mkdir -p "$global_claude/mcp-configs"
     safe_copy "$repo_root/catalog/mcp-configs/mcp-servers.json" "$global_claude/mcp-configs/mcp-servers.json" false "[OK] MCP server config installed at: $global_claude/mcp-configs"
 
-    # Git Guardrails Hook
-    install_git_guardrails "$repo_root" "$global_claude" "Global"
-
-    # Usage Display Hook
-    install_usage_display "$repo_root" "$global_claude" "Global"
-
-    # Require Description Hook
+    install_git_guardrails    "$repo_root" "$global_claude" "Global"
+    install_usage_display     "$repo_root" "$global_claude" "Global"
     install_require_description "$repo_root" "$global_claude" "Global"
+    install_core_settings     "$repo_root" "$global_claude" "Global"
 
-    # Core Settings (effortLevel)
-    install_core_settings "$repo_root" "$global_claude" "Global"
+    # --- OpenAI -- Codex ------------------------------------------------
+    write_header "OPENAI"
+    write_item "Codex" "$GRAY"
+    local global_codex_dir="$user_home/.codex"
+    mkdir -p "$global_codex_dir"
 
-    # 2. Gemini / Antigravity
-    write_header "GEMINI"
-    write_item "Checking Global Configuration..."
+    safe_folder_copy "$repo_root/catalog/skills"   "$global_codex_dir/skills"  "[OK] Skills catalog installed at: $global_codex_dir/skills"
+    safe_folder_copy "$repo_root/catalog/commands" "$global_codex_dir/prompts" "[OK] Custom prompts installed at: $global_codex_dir/prompts"
+
+    # AGENTS.md (open standard read by Codex, Jules, Cursor, Aider, OpenCode)
+    render_template "$repo_root/templates/ai-instructions/base-codex.md" "$global_codex_dir/AGENTS.md" "$repo_root" ""
+
+    # --- Google -- Gemini / Antigravity 1.0 + 2.0 / Gemini CLI ---------
+    write_header "GOOGLE"
+    write_item "Gemini IDE + Antigravity 1.0" "$GRAY"
     local global_gemini_dir="$user_home/.gemini"
     local global_agent_dir="$user_home/.agent"
-
     mkdir -p "$global_gemini_dir"
     mkdir -p "$global_agent_dir"
 
-    # Global GEMINI.md (concise template without Claude-specific concepts)
     render_template "$repo_root/templates/ai-instructions/base-gemini.md" "$global_gemini_dir/GEMINI.md" "$repo_root" ""
 
-    # Mirror Skills to Agent (Antigravity)
-    safe_folder_copy "$repo_root/catalog/skills" "$global_agent_dir/skills" "[OK] Global skills catalog installed at: $global_agent_dir/skills"
+    safe_folder_copy "$repo_root/catalog/skills"   "$global_agent_dir/skills"    "[OK] Skills catalog mirrored to: $global_agent_dir/skills"
+    safe_folder_copy "$repo_root/catalog/commands" "$global_agent_dir/workflows" "[OK] Workflows mirrored to: $global_agent_dir/workflows"
 
-    # Mirror Commands to Agent Workflows
-    safe_folder_copy "$repo_root/catalog/commands" "$global_agent_dir/workflows" "[OK] Global workflows installed at: $global_agent_dir/workflows"
+    invoke_registry_platform "$repo_root" "global" "" "antigravity2" "Antigravity 2.0"
+    invoke_registry_platform "$repo_root" "global" "" "gemini-cli"   "Gemini CLI"
 
-    # 3. OpenAI Codex
-    write_header "CODEX"
-    write_item "Checking Global Configuration (OpenAI Codex)..."
-    local global_codex_dir="$user_home/.codex"
+    # --- Microsoft -- GitHub Copilot -----------------------------------
+    write_header "MICROSOFT"
+    write_item "GitHub Copilot" "$GRAY"
+    write_item "Check skipped (no global file support standard)." "$GRAY"
 
-    mkdir -p "$global_codex_dir"
+    # --- Anysphere -- Cursor -------------------------------------------
+    write_header "ANYSPHERE"
+    invoke_registry_platform "$repo_root" "global" "" "cursor" "Cursor"
 
-    # Global Skills
-    safe_folder_copy "$repo_root/catalog/skills" "$global_codex_dir/skills" "[OK] Global skills catalog installed at: $global_codex_dir/skills"
+    # --- OpenCode ------------------------------------------------------
+    write_header "OPENCODE"
+    invoke_registry_platform "$repo_root" "global" "" "opencode" "OpenCode"
 
-    # Global Custom Prompts (Codex equivalent of commands)
-    safe_folder_copy "$repo_root/catalog/commands" "$global_codex_dir/prompts" "[OK] Global custom prompts installed at: $global_codex_dir/prompts"
+    # --- Nexus -- Nexus-AI (Local Desktop Studio) ----------------------
+    write_header "NEXUS"
+    invoke_registry_platform "$repo_root" "global" "" "nexus-ai" "Nexus-AI (Local Desktop Studio)"
 
-    # Global AGENTS.md (open standard instruction file for Codex, Jules, Cursor, Aider)
-    render_template "$repo_root/templates/ai-instructions/base-codex.md" "$global_codex_dir/AGENTS.md" "$repo_root" ""
-
-    # 4. Microsoft - Github Copilot
-    write_header "COPILOT"
-    # Copilot usually doesn't have a global config file in the same way, skipped as per Windows version or add if known.
-    write_item "Check skipped (No global file support standard)." "$GRAY"
-
-    # 5. Extended Platforms (Windsurf, Antigravity 2.0, Gemini CLI, Nexus-AI)
-    install_extended_platforms_global "$repo_root"
-
-    # --- Auto-Approve Permissions sub-section ---
+    # --- Auto-Approve Permissions sub-section --------------------------
+    # Permissions only apply to the legacy 4 (CLAUDE / GEMINI / CODEX /
+    # COPILOT). Mirrored to provider headers for visual consistency.
     write_subsection_banner "Auto-Approve Permissions"
 
-    write_header "CLAUDE"
+    write_header "ANTHROPIC"
     install_permissions "$repo_root" "CLAUDE" "Global"
 
-    write_header "GEMINI"
-    install_permissions "$repo_root" "GEMINI" "Global"
-
-    write_header "CODEX"
+    write_header "OPENAI"
     install_permissions "$repo_root" "CODEX" "Global"
 
-    write_header "COPILOT"
+    write_header "GOOGLE"
+    install_permissions "$repo_root" "GEMINI" "Global"
+
+    write_header "MICROSOFT"
     install_permissions "$repo_root" "COPILOT" "Global"
 
     # --- Claude Code Utilities sub-section ---
@@ -1116,83 +1110,59 @@ install_workspace() {
         # Auto-detect project metadata for template rendering
         detect_project_metadata "$target_path" "$languages"
 
-        # --- Install Logic ---
+        # --- Install Logic (provider-grouped) ---
 
-        # 1. Claude
-        write_header "CLAUDE"
-        write_item "Installing Workspace Resources..."
+        # --- Anthropic -- Claude Code -------------------------------
+        write_header "ANTHROPIC"
+        write_item "Claude Code" "$GRAY"
         local claude_dir="$target_path/.claude"
         mkdir -p "$claude_dir"
 
-        # CLAUDE.md (rendered from template with detected project metadata)
         render_template "$repo_root/templates/ai-instructions/base-claude.md" "$target_path/CLAUDE.md" "$repo_root" "$languages"
 
-        # Skills
-        safe_folder_copy "$repo_root/catalog/skills" "$claude_dir/skills" "[OK] Workspace skills catalog installed at: $claude_dir/skills"
+        safe_folder_copy "$repo_root/catalog/skills"   "$claude_dir/skills"   "[OK] Skills catalog installed at: $claude_dir/skills"
+        safe_folder_copy "$repo_root/catalog/commands" "$claude_dir/commands" "[OK] Commands installed at: $claude_dir/commands"
+        safe_folder_copy "$repo_root/catalog/agents"   "$claude_dir/agents"   "[OK] Agents installed at: $claude_dir/agents"
+        safe_folder_copy "$repo_root/catalog/rules"    "$claude_dir/rules"    "[OK] Rules installed at: $claude_dir/rules"
 
-        # Commands
-        safe_folder_copy "$repo_root/catalog/commands" "$claude_dir/commands" "[OK] Workspace commands installed at: $claude_dir/commands"
-
-        # Agents
-        safe_folder_copy "$repo_root/catalog/agents" "$claude_dir/agents" "[OK] Workspace agents installed at: $claude_dir/agents"
-
-        # Rules
-        safe_folder_copy "$repo_root/catalog/rules" "$claude_dir/rules" "[OK] Workspace rules installed at: $claude_dir/rules"
-
-        # MCP Server Config
         mkdir -p "$claude_dir/mcp-configs"
         safe_copy "$repo_root/catalog/mcp-configs/mcp-servers.json" "$claude_dir/mcp-configs/mcp-servers.json" false "[OK] MCP server config installed at: $claude_dir/mcp-configs"
 
-        # Context & Memory
-        safe_folder_copy "$repo_root/catalog/context" "$claude_dir/context" "[OK] Workspace context installed at: $claude_dir/context"
-        safe_folder_copy "$repo_root/catalog/memory" "$claude_dir/memory" "[OK] Workspace memory installed at: $claude_dir/memory"
+        safe_folder_copy "$repo_root/catalog/context" "$claude_dir/context" "[OK] Context installed at: $claude_dir/context"
+        safe_folder_copy "$repo_root/catalog/memory"  "$claude_dir/memory"  "[OK] Memory installed at: $claude_dir/memory"
 
-        # Git Guardrails Hook
-        install_git_guardrails "$repo_root" "$claude_dir" "Workspace"
-
-        # Usage Display Hook
-        install_usage_display "$repo_root" "$claude_dir" "Workspace"
-
-        # Require Description Hook
+        install_git_guardrails    "$repo_root" "$claude_dir" "Workspace"
+        install_usage_display     "$repo_root" "$claude_dir" "Workspace"
         install_require_description "$repo_root" "$claude_dir" "Workspace"
 
-        # 2. Gemini / Antigravity
-        write_header "GEMINI"
-        write_item "Installing Workspace Resources..."
+        # --- OpenAI -- Codex ----------------------------------------
+        write_header "OPENAI"
+        write_item "Codex" "$GRAY"
+        local codex_dir="$target_path/.codex"
+        mkdir -p "$codex_dir"
+
+        safe_folder_copy "$repo_root/catalog/skills"   "$codex_dir/skills"  "[OK] Skills catalog installed at: $codex_dir/skills"
+        safe_folder_copy "$repo_root/catalog/commands" "$codex_dir/prompts" "[OK] Custom prompts installed at: $codex_dir/prompts"
+
+        # AGENTS.md (open standard read by Codex, Jules, Cursor, Aider, OpenCode)
+        render_template "$repo_root/templates/ai-instructions/base-codex.md" "$target_path/AGENTS.md" "$repo_root" "$languages"
+
+        # --- Google -- Gemini / Antigravity 1.0 + 2.0 / Gemini CLI -
+        write_header "GOOGLE"
+        write_item "Gemini IDE + Antigravity 1.0" "$GRAY"
         local gemini_dir="$target_path/.gemini"
         local agent_dir="$target_path/.agent"
-
         mkdir -p "$gemini_dir"
         mkdir -p "$agent_dir"
 
-        # GEMINI.md (rendered from template without Claude-specific concepts)
         render_template "$repo_root/templates/ai-instructions/base-gemini.md" "$gemini_dir/GEMINI.md" "$repo_root" "$languages"
+        safe_folder_copy "$repo_root/catalog/skills"   "$agent_dir/skills"    "[OK] Skills catalog mirrored to: $agent_dir/skills"
+        safe_folder_copy "$repo_root/catalog/commands" "$agent_dir/workflows" "[OK] Workflows mirrored to: $agent_dir/workflows"
 
-        # Mirror Skills to Agent
-        safe_folder_copy "$repo_root/catalog/skills" "$agent_dir/skills" "[OK] Workspace skills catalog installed at: $agent_dir/skills"
+        invoke_registry_platform "$repo_root" "workspace" "$target_path" "antigravity2" "Antigravity 2.0"
+        invoke_registry_platform "$repo_root" "workspace" "$target_path" "gemini-cli"   "Gemini CLI"
 
-        # Mirror Commands to Agent Workflows
-        safe_folder_copy "$repo_root/catalog/commands" "$agent_dir/workflows" "[OK] Workspace workflows installed at: $agent_dir/workflows"
-
-        write_item "[OK] Copied Skills & Workflows structure" "$GREEN"
-
-        # 3. OpenAI Codex
-        write_header "CODEX"
-        write_item "Installing Workspace Resources..."
-        local codex_dir="$target_path/.codex"
-
-        mkdir -p "$codex_dir"
-
-        # Skills
-        safe_folder_copy "$repo_root/catalog/skills" "$codex_dir/skills" "[OK] Workspace skills catalog installed at: $codex_dir/skills"
-
-        # Custom Prompts (Codex equivalent of commands)
-        safe_folder_copy "$repo_root/catalog/commands" "$codex_dir/prompts" "[OK] Workspace custom prompts installed at: $codex_dir/prompts"
-
-        # AGENTS.md at project root (open standard for Codex, Jules, Cursor, Aider)
-        render_template "$repo_root/templates/ai-instructions/base-codex.md" "$target_path/AGENTS.md" "$repo_root" "$languages"
-
-        # --- Prepare Rules for Copilot (using concise snippets) ---
+        # --- Prepare Copilot/Cursor instruction body (used below) --
         local merged_content="# $PROJECT_NAME - Copilot Instructions\n\n"
         merged_content+="## Tech Stack\n"
         merged_content+="- **Language**: $PRIMARY_LANGUAGE\n"
@@ -1210,8 +1180,6 @@ install_workspace() {
             lang_key=$(echo "$lang" | tr '[:upper:]' '[:lower:]')
             if [ "$lang_key" == "c++" ]; then lang_key="cpp"; fi
             if [ "$lang_key" == "c#" ]; then lang_key="csharp"; fi
-
-            # Use concise snippets instead of full language templates
             src="$repo_root/templates/ai-instructions/coding-snippets/${lang_key}.md"
             if [ -f "$src" ]; then
                 merged_content+="\n"
@@ -1220,9 +1188,9 @@ install_workspace() {
             fi
         done
 
-        # 4. Microsoft - Github Copilot
-        write_header "COPILOT"
-        write_item "Installing Workspace Instructions..."
+        # --- Microsoft -- GitHub Copilot ----------------------------
+        write_header "MICROSOFT"
+        write_item "GitHub Copilot" "$GRAY"
         local copilot_dir="$target_path/.github"
         mkdir -p "$copilot_dir"
         local copilot_file="$copilot_dir/copilot-instructions.md"
@@ -1238,27 +1206,25 @@ install_workspace() {
                 do_write=false
              fi
         fi
-
         if [ "$do_write" = true ]; then
             echo -e "$merged_content" > "$copilot_file"
             write_item "[OK] Workspace instructions installed at: $copilot_file" "$GREEN"
         fi
+
+        # --- Anysphere -- Cursor ------------------------------------
+        write_header "ANYSPHERE"
+        invoke_registry_platform "$repo_root" "workspace" "$target_path" "cursor" "Cursor"
+
+        # --- OpenCode -----------------------------------------------
+        write_header "OPENCODE"
+        invoke_registry_platform "$repo_root" "workspace" "$target_path" "opencode" "OpenCode"
+
+        # --- Nexus -- Nexus-AI --------------------------------------
+        write_header "NEXUS"
+        invoke_registry_platform "$repo_root" "workspace" "$target_path" "nexus-ai" "Nexus-AI (Local Desktop Studio)"
+
         echo ""
-
-        install_extended_platforms_workspace "$repo_root" "$target_path"
 }
-
-# Extended platforms shipped via the integration registry. Each entry is
-# "<runner-key>|<display header>". The bash installer iterates one platform
-# at a time so each gets its own colored write_header line, matching the
-# legacy CLAUDE/GEMINI/CODEX/COPILOT blocks instead of being bundled.
-EXTENDED_PLATFORMS=(
-    "antigravity2|ANTIGRAVITY 2.0"
-    "gemini-cli|GEMINI CLI"
-    "cursor|CURSOR"
-    "opencode|OPENCODE"
-    "nexus-ai|NEXUS-AI"
-)
 
 resolve_python_executable() {
     if command -v python3 >/dev/null 2>&1; then
@@ -1270,16 +1236,28 @@ resolve_python_executable() {
     return 1
 }
 
-install_extended_platform() {
-    # $1=repo_root  $2=runner  $3=scope  $4=target_path  $5=key  $6=header  $7=py
-    local runner="$2"
-    local scope="$3"
-    local target_path="$4"
-    local key="$5"
-    local header="$6"
-    local py="$7"
+# Run runner.py for a single registry-backed integration. Caller is
+# responsible for printing the provider header (write_header). This
+# function prints a sub-item label for the platform display name and
+# the [OK] / error line.
+# Args: $1=repo_root  $2=scope (global|workspace)  $3=target_path (workspace only)
+#       $4=integration_key  $5=display_name
+invoke_registry_platform() {
+    local repo_root="$1"
+    local scope="$2"
+    local target_path="$3"
+    local key="$4"
+    local display="$5"
 
-    write_header "$header"
+    local runner="$repo_root/scripts/lib/integrations/runner.py"
+    if [ ! -f "$runner" ]; then return 0; fi
+    local py
+    if ! py=$(resolve_python_executable); then
+        write_item "Python not found -- skipping $display." "$DARK_YELLOW"
+        return 0
+    fi
+
+    write_item "$display" "$GRAY"
     local args=("$runner" "install" "--scope" "$scope" "--integrations" "$key" "--quiet")
     if [ "$scope" = "workspace" ]; then
         args+=("--target" "$target_path")
@@ -1290,53 +1268,8 @@ install_extended_platform() {
     if "$py" "${args[@]}"; then
         write_item "[OK] Installed (${scope} scope)" "$GREEN"
     else
-        write_item "${header} install reported non-zero exit; continuing." "$YELLOW"
+        write_item "${display} install reported non-zero exit; continuing." "$YELLOW"
     fi
-}
-
-install_extended_platforms_workspace() {
-    local repo_root="$1"
-    local target_path="$2"
-    local runner="$repo_root/scripts/lib/integrations/runner.py"
-
-    if [ ! -f "$runner" ]; then
-        return 0
-    fi
-
-    local py
-    if ! py=$(resolve_python_executable); then
-        write_item "Python not found -- skipping extended platforms (Antigravity 2.0, Gemini CLI, Cursor, OpenCode, Nexus-AI)." "$DARK_YELLOW"
-        return 0
-    fi
-
-    local entry key header
-    for entry in "${EXTENDED_PLATFORMS[@]}"; do
-        key="${entry%%|*}"
-        header="${entry#*|}"
-        install_extended_platform "$repo_root" "$runner" "workspace" "$target_path" "$key" "$header" "$py"
-    done
-}
-
-install_extended_platforms_global() {
-    local repo_root="$1"
-    local runner="$repo_root/scripts/lib/integrations/runner.py"
-
-    if [ ! -f "$runner" ]; then
-        return 0
-    fi
-
-    local py
-    if ! py=$(resolve_python_executable); then
-        write_item "Python not found -- skipping global extended platforms (Antigravity 2.0, Gemini CLI, Cursor, OpenCode, Nexus-AI)." "$DARK_YELLOW"
-        return 0
-    fi
-
-    local entry key header
-    for entry in "${EXTENDED_PLATFORMS[@]}"; do
-        key="${entry%%|*}"
-        header="${entry#*|}"
-        install_extended_platform "$repo_root" "$runner" "global" "" "$key" "$header" "$py"
-    done
 }
 
 install_vscode_extensions() {
@@ -1805,11 +1738,37 @@ NEXUS_BANNER_EOF
 #   1. legacy only            -> prompt to migrate (default Y), then `mv`.
 #   2. legacy AND new co-exist -> ask user: keep-new, abort, or merge.
 #   3. neither / new only      -> no-op (fresh or already-migrated install).
+# Uninstalls the legacy DevAI-Hub VS Code extension if present. The
+# Claude Usage Monitor was published under `devai-hub.claude-usage-monitor`
+# before the rename; the current build ships as `nexus-hub.claude-usage-monitor`.
+# Leaving both installed produces a duplicate entry in VS Code's Extensions
+# pane and two status-bar items.
+remove_legacy_vscode_extensions() {
+    command -v code >/dev/null 2>&1 || return 0
+    local installed
+    installed=$(code --list-extensions 2>/dev/null) || return 0
+
+    local legacy_ids=("devai-hub.claude-usage-monitor")
+    local id
+    for id in "${legacy_ids[@]}"; do
+        if printf '%s\n' "$installed" | grep -qx "$id"; then
+            echo -e "  ${YELLOW}Removing legacy VS Code extension: $id${RESET}"
+            if code --uninstall-extension "$id" >/dev/null 2>&1; then
+                echo -e "  ${GREEN}[OK] Removed $id${RESET}"
+            else
+                echo -e "  ${YELLOW}Could not auto-remove $id (uninstall it manually from VS Code)${RESET}"
+            fi
+        fi
+    done
+}
+
 migrate_legacy_install() {
     local legacy="$HOME/.devai-hub"
     local current="$HOME/.nexus-hub"
+    local legacy_found=0
 
     if [ -d "$legacy" ] && [ ! -d "$current" ]; then
+        legacy_found=1
         echo ""
         echo -e "  ${YELLOW}Detected existing DevAI-Hub install at $legacy${RESET}"
         echo -ne "  ${YELLOW}Migrate to Nexus-Hub ($current)? [Y/n]: ${RESET}"
@@ -1825,6 +1784,7 @@ migrate_legacy_install() {
         fi
         echo ""
     elif [ -d "$legacy" ] && [ -d "$current" ]; then
+        legacy_found=1
         echo ""
         echo -e "  ${YELLOW}Both $legacy and $current exist.${RESET}"
         echo -e "  Choose: [k]eep new + delete old, [a]bort + handle manually, [m]erge (best effort)"
@@ -1847,6 +1807,12 @@ migrate_legacy_install() {
                 ;;
         esac
         echo ""
+    fi
+
+    # Whenever a legacy DevAI-Hub install was detected (either branch above),
+    # also clean up the legacy VS Code extension so the rename is complete.
+    if [ "$legacy_found" -eq 1 ]; then
+        remove_legacy_vscode_extensions
     fi
 }
 
