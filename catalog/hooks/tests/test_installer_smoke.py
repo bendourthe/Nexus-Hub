@@ -387,9 +387,12 @@ V0_9_7_ARTIFACTS = [
     # longer surface as slash commands. They live alongside the matching
     # command name minus the -style-guide suffix.
     "catalog/style-guides/compile-deep-research.md",
-    # New guides (Phase 1 + 4)
+    # New guides (Phase 1 + 4). The v0.9.6 migration note was archived
+    # into docs/archive/v0/ during v2.1.0 post-Phase-10 maintenance
+    # (commit 590ea5a). The test continues to assert it exists at its new
+    # canonical path so the historical record stays reachable.
     "guides/SESSION_LIFECYCLE_DECISIONS.md",
-    "docs/v0.9.6/opus-4-7-migration.md",
+    "docs/archive/v0/v0.9.6/opus-4-7-migration.md",
     # New checklist (Phase 3)
     "catalog/checklists/file-upload-security.md",
     # Bundled report templates (copied silently by installer)
