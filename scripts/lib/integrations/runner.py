@@ -77,15 +77,17 @@ def cmd_install(args: argparse.Namespace) -> int:
     for key in keys:
         try:
             integ = get(key)
-            print(f"[install:{args.scope}] {integ.display_name}")
+            if not args.quiet:
+                print(f"[install:{args.scope}] {integ.display_name}")
             integ.install(ctx)
         except Exception as exc:  # noqa: BLE001
             print(f"[error:{key}] {exc}", file=sys.stderr)
             failures.append(key)
     if not args.dry_run:
         manifest.save(manifest_path)
-        print(f"Manifest written to: {manifest_path}")
-    else:
+        if not args.quiet:
+            print(f"Manifest written to: {manifest_path}")
+    elif not args.quiet:
         print("(dry-run: manifest not written)")
     if failures:
         print(f"Failed integrations: {failures}", file=sys.stderr)
@@ -133,6 +135,11 @@ def build_parser() -> argparse.ArgumentParser:
     p_install.add_argument("--overwrite", action="store_true")
     p_install.add_argument("--dry-run", action="store_true")
     p_install.add_argument("--project-name", help="Template token PROJECT_NAME.")
+    p_install.add_argument(
+        "--quiet",
+        action="store_true",
+        help="Suppress informational output. The installer uses this so it can print its own per-platform headers; errors still go to stderr.",
+    )
     p_install.set_defaults(func=cmd_install)
 
     p_teardown = sub.add_parser("teardown", help="Remove integration files based on the manifest.")

@@ -34,17 +34,16 @@ OVERWRITE_ALL=false
 
 get_provider_color() {
     case "$1" in
-        "CLAUDE")       echo -ne "${DARK_YELLOW}" ;;
-        "GEMINI")       echo -ne "${BLUE}" ;;
-        "CODEX")        echo -ne "${MAGENTA}" ;;
-        "COPILOT")      echo -ne "${GRAY}" ;;
-        "CURSOR")       echo -ne "${CYAN}" ;;
-        "OPENCODE")     echo -ne "${GREEN}" ;;
-        "ANTIGRAVITY2") echo -ne "${BLUE}" ;;
-        "GEMINI_CLI")   echo -ne "${BLUE}" ;;
-        "NEXUS_AI")     echo -ne "${MAGENTA}" ;;
-        "EXTENDED PLATFORMS"|"EXTENDED PLATFORMS (Global)") echo -ne "${MAGENTA}" ;;
-        *)              echo -ne "${RESET}" ;;
+        "CLAUDE")           echo -ne "${DARK_YELLOW}" ;;
+        "GEMINI")           echo -ne "${BLUE}" ;;
+        "ANTIGRAVITY 2.0")  echo -ne "${BLUE}" ;;
+        "GEMINI CLI")       echo -ne "${BLUE}" ;;
+        "CODEX")            echo -ne "${MAGENTA}" ;;
+        "COPILOT")          echo -ne "${GRAY}" ;;
+        "CURSOR")           echo -ne "${CYAN}" ;;
+        "OPENCODE")         echo -ne "${GREEN}" ;;
+        "NEXUS-AI")         echo -ne "${MAGENTA}" ;;
+        *)                  echo -ne "${RESET}" ;;
     esac
 }
 
@@ -1249,6 +1248,52 @@ install_workspace() {
         install_extended_platforms_workspace "$repo_root" "$target_path"
 }
 
+# Extended platforms shipped via the integration registry. Each entry is
+# "<runner-key>|<display header>". The bash installer iterates one platform
+# at a time so each gets its own colored write_header line, matching the
+# legacy CLAUDE/GEMINI/CODEX/COPILOT blocks instead of being bundled.
+EXTENDED_PLATFORMS=(
+    "antigravity2|ANTIGRAVITY 2.0"
+    "gemini-cli|GEMINI CLI"
+    "cursor|CURSOR"
+    "opencode|OPENCODE"
+    "nexus-ai|NEXUS-AI"
+)
+
+resolve_python_executable() {
+    if command -v python3 >/dev/null 2>&1; then
+        echo "python3"; return 0
+    fi
+    if command -v python >/dev/null 2>&1; then
+        echo "python"; return 0
+    fi
+    return 1
+}
+
+install_extended_platform() {
+    # $1=repo_root  $2=runner  $3=scope  $4=target_path  $5=key  $6=header  $7=py
+    local runner="$2"
+    local scope="$3"
+    local target_path="$4"
+    local key="$5"
+    local header="$6"
+    local py="$7"
+
+    write_header "$header"
+    local args=("$runner" "install" "--scope" "$scope" "--integrations" "$key" "--quiet")
+    if [ "$scope" = "workspace" ]; then
+        args+=("--target" "$target_path")
+    fi
+    if [ "$OVERWRITE_ALL" = true ]; then
+        args+=("--overwrite")
+    fi
+    if "$py" "${args[@]}"; then
+        write_item "[OK] Installed (${scope} scope)" "$GREEN"
+    else
+        write_item "${header} install reported non-zero exit; continuing." "$YELLOW"
+    fi
+}
+
 install_extended_platforms_workspace() {
     local repo_root="$1"
     local target_path="$2"
@@ -1259,24 +1304,17 @@ install_extended_platforms_workspace() {
     fi
 
     local py
-    if command -v python3 >/dev/null 2>&1; then
-        py="python3"
-    elif command -v python >/dev/null 2>&1; then
-        py="python"
-    else
+    if ! py=$(resolve_python_executable); then
         write_item "Python not found -- skipping extended platforms (Antigravity 2.0, Gemini CLI, Cursor, OpenCode, Nexus-AI)." "$DARK_YELLOW"
         return 0
     fi
 
-    write_header "EXTENDED PLATFORMS"
-    write_item "Installing extended platforms via integration registry..." "$RESET"
-    local extended="antigravity2,gemini-cli,cursor,opencode,nexus-ai"
-    local extra_flags=""
-    if [ "$OVERWRITE_ALL" = true ]; then
-        extra_flags="--overwrite"
-    fi
-    "$py" "$runner" install --scope workspace --target "$target_path" --integrations "$extended" $extra_flags || \
-        write_item "Extended-platform install reported non-zero exit; continuing." "$YELLOW"
+    local entry key header
+    for entry in "${EXTENDED_PLATFORMS[@]}"; do
+        key="${entry%%|*}"
+        header="${entry#*|}"
+        install_extended_platform "$repo_root" "$runner" "workspace" "$target_path" "$key" "$header" "$py"
+    done
 }
 
 install_extended_platforms_global() {
@@ -1288,24 +1326,17 @@ install_extended_platforms_global() {
     fi
 
     local py
-    if command -v python3 >/dev/null 2>&1; then
-        py="python3"
-    elif command -v python >/dev/null 2>&1; then
-        py="python"
-    else
-        write_item "Python not found -- skipping global extended platforms." "$DARK_YELLOW"
+    if ! py=$(resolve_python_executable); then
+        write_item "Python not found -- skipping global extended platforms (Antigravity 2.0, Gemini CLI, Cursor, OpenCode, Nexus-AI)." "$DARK_YELLOW"
         return 0
     fi
 
-    write_header "EXTENDED PLATFORMS (Global)"
-    write_item "Installing global extended platforms via integration registry..." "$RESET"
-    local extended="antigravity2,gemini-cli,cursor,opencode,nexus-ai"
-    local extra_flags=""
-    if [ "$OVERWRITE_ALL" = true ]; then
-        extra_flags="--overwrite"
-    fi
-    "$py" "$runner" install --scope global --integrations "$extended" $extra_flags || \
-        write_item "Global extended-platform install reported non-zero exit; continuing." "$YELLOW"
+    local entry key header
+    for entry in "${EXTENDED_PLATFORMS[@]}"; do
+        key="${entry%%|*}"
+        header="${entry#*|}"
+        install_extended_platform "$repo_root" "$runner" "global" "" "$key" "$header" "$py"
+    done
 }
 
 install_vscode_extensions() {
