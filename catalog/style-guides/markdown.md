@@ -219,6 +219,28 @@ For commands and skills that need a short summary instead of the full guide:
 | No hard wrap | Each paragraph or bullet is one continuous line |
 | ASCII | English Markdown is ASCII-only (hyphens, straight quotes, `...`) |
 
+## Automated enforcement (markdownlint-cli2)
+
+The prose rules in this guide have an executable counterpart at `catalog/style-guides/markdownlint-cli2.jsonc`. The installer copies the entire `catalog/style-guides/` tree to `~/.nexus-hub/style-guides/` via the recursive `safe_folder_copy` / `Safe-Folder-Copy` primitives in `scripts/installer.sh` and `scripts/installer.ps1`, so the JSON config lands automatically alongside this guide.
+
+To enable enforcement in a downstream project bootstrapping from Nexus-Hub:
+
+1. Copy the file to the project root as `.markdownlint-cli2.jsonc`:
+
+    ```bash
+    cp ~/.nexus-hub/style-guides/markdownlint-cli2.jsonc .markdownlint-cli2.jsonc
+    ```
+
+2. Run the linter (no global install required - `npx` fetches `markdownlint-cli2` on demand):
+
+    ```bash
+    npx markdownlint-cli2 "**/*.md"
+    ```
+
+3. Optionally wire the linter into CI or a pre-commit hook. The config disables MD013 (line length) and MD036 (emphasis-as-heading) intentionally - those rules conflict with the no-hard-wrap and table-card conventions used across the Nexus-Hub catalog.
+
+The JSON config is documented inline (JSONC comments). If you want to tighten a rule for a specific project (e.g. enforce MD040 for fenced code-block languages on a repo with strict editorial standards), edit the `config` block directly; the catalog version is a starting baseline, not a frozen contract.
+
 ## Verification
 
 Before committing any generated Markdown, the agent should self-check:

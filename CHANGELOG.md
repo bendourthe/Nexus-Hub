@@ -35,6 +35,10 @@ The plan covers adoption candidates G1 through G11 from Section 9.4 of the compa
 - **`catalog/skills/workflow/tasks-to-issues/scripts/tasks-to-issues.sh + .ps1`** -- per-skill helper scripts that drive the `/tasks-to-issues` flow under the hood. Auto-distributed by the recursive `safe_folder_copy` / `Safe-Folder-Copy` installer primitives (no installer edit needed for per-skill bundled subdirectories).
 - **`catalog/skills/workflow/tasks-to-issues/references/gh-cli-auth-runbook.md`** -- one-page runbook on `gh auth setup-git`, rate-limit handling, recommended label pre-creation (`gh label create spec-driven-task`, `parallel`, `user-story-N`), and audit queries for filed issues.
 - **`docs/v2.1.0/RELEASE_NOTES.md`** with the SDD adoption narrative, the per-candidate map (G1-G11 -> shipped artifacts), and cross-links to the plan, the CHANGELOG block, and the known-gaps file.
+- **`docs/v2.1.0/spec-driven-methodology.md`** (Phase 9) -- a 2679-word methodology essay covering the power inversion (specs lead, code follows), the seven-station Nexus-Hub SDD workflow, why-now arguments, six core principles, three implementation approaches scaled to change size, template-driven quality, anti-patterns, and a closing. Linked from the `spec-driven-development` SKILL.md.
+- **`.devcontainer/devcontainer.json` + `.devcontainer/post-create.sh`** (Phase 9) -- opt-in VS Code Dev Containers scaffolding for first-touch contributors. Python 3.11 base image with `gh` CLI feature and Node LTS; post-create installs pytest, ruff, gh (safety-net), and the Claude Code CLI idempotently via `command -v` guards. README `## Development setup` section added with a one-paragraph pointer; Quick Start unchanged.
+- **`catalog/style-guides/markdownlint-cli2.jsonc`** (Phase 9) -- executable companion to `catalog/style-guides/markdown.md`. 21 rule overrides aligned with the prose guide (ATX headings, hyphen bullets, 4-space nested indent, blank lines around blocks, fenced backtick code, asterisk emphasis / strong); MD013 and MD036 disabled per the no-hard-wrap and table-card conventions. Auto-distributed by `safe_folder_copy` to `~/.nexus-hub/style-guides/`. Downstream projects copy to repo root as `.markdownlint-cli2.jsonc` and run `npx markdownlint-cli2 "**/*.md"`.
+- **`tests/installer/test_registrar_path_traversal.py` + `tests/installer/_path_safety.py`** (Phase 9) -- 19-assertion pytest suite codifying the path-resolution invariant the installer scripts assume. Rejects `..` traversal, POSIX absolute paths, Windows drive-letter paths, UNC paths (backslash and forward-slash), null bytes, and malformed inputs (empty / whitespace / None / non-string); accepts legitimate kebab-case skill names and nested category / skill paths. OS-agnostic by design.
 
 ### Changed
 
@@ -44,6 +48,10 @@ The plan covers adoption candidates G1 through G11 from Section 9.4 of the compa
 - **`/generate-plan`** Step 0d gains the `--specs-layout` opt-in flag; Step 3 enforces the strict task-line format and phase organization (Setup / Foundational / User-Story / Polish); Step 4 emits Constitution Check + Complexity Tracking sections; Step 5 adds a Format Validation pass that re-prompts on violations.
 - **`implementation-plan` skill** body updated with the Constitution Check + Complexity Tracking template sections and a `[[project-constitution]]` cross-link.
 - **`data/skills.json` statistics block rebaselined** -- the pre-existing drift between `statistics.total_skills` (was 197) and the actual `skills` array length (now 206) is closed. The statistics block is now recomputed from the array. This resolves WN-1 from `docs/v2.1.0/known-gaps.md`.
+- **`catalog/style-guides/markdown.md`** (Phase 9) -- new `## Automated enforcement (markdownlint-cli2)` section explaining the copy-and-run pattern for the new JSONC config in downstream projects.
+- **`catalog/skills/developer-experience/spec-driven-development/SKILL.md`** (Phase 9) -- new `## Methodology essay` Related-Skills addendum linking to `docs/v2.1.0/spec-driven-methodology.md`.
+- **`Makefile`** (Phase 9) -- `test:` target appends `if [ -d tests ]; then python -m pytest -q tests; fi` so the new `tests/installer/` suite runs alongside the extension tests. Backwards-compatible (conditional on the `tests/` directory existing). Logged as a deviation in `docs/v2.1.0/known-gaps.md` against the Phase 9.4 plan prompt's no-Makefile-change assertion.
+- **`README.md`** (Phase 9) -- new `## Development setup` section between `## Manual setup` and `## Featured Skills` pointing at the `.devcontainer/` scaffold.
 
 ### Security
 
@@ -59,7 +67,7 @@ All v2.1.0 adoption items pass the MCP Registry Policy review per Section 9 of t
 
 ### Known gaps
 
-See [`docs/v2.1.0/known-gaps.md`](docs/v2.1.0/known-gaps.md) for the full per-version gap log. v2.1.0 closes WN-1 (skills.json statistics drift) during Phase 8.1 and defers the four P3 polish items (methodology essay, `.devcontainer/`, `markdownlint-cli2.jsonc`, installer path-traversal test) to v2.1.x patches per Phase 9 of the plan.
+See [`docs/v2.1.0/known-gaps.md`](docs/v2.1.0/known-gaps.md) for the full per-version gap log. v2.1.0 closes WN-1 (skills.json statistics drift) during Phase 8.1 and the four P3 polish items (methodology essay, `.devcontainer/`, `markdownlint-cli2.jsonc`, installer path-traversal test) shipped against the v2.1.0 baseline in Phase 9 rather than being deferred to a v2.1.x patch -- see the Phase 9 entry in `docs/DEVLOG.md` for the rationale (non-functional polish; no version-string change required).
 
 ### Migration
 

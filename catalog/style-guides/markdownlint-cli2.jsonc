@@ -1,0 +1,108 @@
+// markdownlint-cli2 configuration for Nexus-Hub-generated Markdown.
+//
+// This file is the executable companion to catalog/style-guides/markdown.md.
+// Downstream projects bootstrapping from Nexus-Hub can drop this file at the
+// repo root as `.markdownlint-cli2.jsonc` and run `npx markdownlint-cli2 "**/*.md"`
+// to enforce the same rules without re-reading the prose guide.
+//
+// Rule schema: https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md
+// Glob behavior: globs and ignores follow the markdownlint-cli2 conventions
+// documented at https://github.com/DavidAnson/markdownlint-cli2#readme
+{
+  "config": {
+    "default": true,
+
+    // MD003 - Heading style: ATX (single H1, # ## ### only)
+    "MD003": { "style": "atx" },
+
+    // MD004 - Unordered list style: hyphens only
+    "MD004": { "style": "dash" },
+
+    // MD007 - Unordered list indent: 4 spaces (fragile across renderers at 2)
+    "MD007": { "indent": 4 },
+
+    // MD013 - Line length: disabled (each paragraph is one continuous line by rule)
+    "MD013": false,
+
+    // MD022 - Headings surrounded by blank lines
+    "MD022": { "lines_above": 1, "lines_below": 1 },
+
+    // MD024 - Multiple headings with same content: allow at different nesting depths
+    "MD024": { "siblings_only": true },
+
+    // MD025 - Single H1 per document
+    "MD025": { "front_matter_title": "" },
+
+    // MD026 - Trailing punctuation in headings: allow ? and ! (common in FAQs)
+    "MD026": { "punctuation": ".,;:" },
+
+    // MD029 - Ordered list item prefix: sequential (1. 2. 3.)
+    "MD029": { "style": "ordered" },
+
+    // MD031 - Code blocks surrounded by blank lines
+    "MD031": true,
+
+    // MD032 - Lists surrounded by blank lines
+    "MD032": true,
+
+    // MD033 - Inline HTML: allow common tags used in catalog Markdown
+    "MD033": {
+      "allowed_elements": [
+        "br",
+        "details",
+        "summary",
+        "sub",
+        "sup",
+        "kbd",
+        "img",
+        "a",
+        "p",
+        "div",
+        "span",
+        "table",
+        "thead",
+        "tbody",
+        "tr",
+        "td",
+        "th"
+      ]
+    },
+
+    // MD034 - Bare URLs: allow them in code blocks and reference contexts
+    "MD034": false,
+
+    // MD036 - Emphasis used as heading: warn (sometimes intentional in tables / cards)
+    "MD036": false,
+
+    // MD040 - Fenced code blocks should have a language: enforce
+    "MD040": true,
+
+    // MD041 - First line in file should be a top-level heading
+    "MD041": { "front_matter_title": "^\\s*name:" },
+
+    // MD046 - Code block style: fenced (consistent with catalog)
+    "MD046": { "style": "fenced" },
+
+    // MD048 - Code fence style: backtick (consistent with catalog)
+    "MD048": { "style": "backtick" },
+
+    // MD049 - Emphasis style: underscore-free (asterisks)
+    "MD049": { "style": "asterisk" },
+
+    // MD050 - Strong style: asterisks (consistent with catalog)
+    "MD050": { "style": "asterisk" }
+  },
+  "globs": [
+    "**/*.md",
+    "**/*.markdown"
+  ],
+  "ignores": [
+    "node_modules/**",
+    ".venv/**",
+    "venv/**",
+    ".tox/**",
+    "**/CHANGELOG.md",
+    "docs/archive/**",
+    "docs/**/development/history/**"
+  ]
+}

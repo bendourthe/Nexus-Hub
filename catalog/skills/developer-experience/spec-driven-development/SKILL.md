@@ -257,3 +257,7 @@ Execute tasks following `incremental-implementation` (one task at a time, test a
 - `cross-artifact-analyzer` — verify the FR-### / SC-### IDs in the spec have matching tasks in the plan via the Coverage Summary table emitted by `/analyze-spec`
 - `project-constitution` — establish the MUST/SHOULD principles that the `Constitution Check` section of every plan validates against
 - `/clarify-spec` (Phase 5 command) — sequential 5-question loop that resolves spec ambiguities after the template's slots are filled; pairs with the spec-quality-checklist for the final readiness gate before `/generate-plan`
+
+## Methodology essay
+
+For the broader motivation behind treating the specification as the source of truth that code compiles from, see `docs/v2.1.0/spec-driven-methodology.md`. The essay covers the power inversion (specs lead, code follows), the seven-station Nexus-Hub SDD workflow, the six core principles, and the pitfalls / anti-patterns (over-specifying the trivial, hiding behind the gate, treating the analyzer as a linter).

@@ -94,7 +94,7 @@ G12 (Integration Registry pattern re-full refactor) is scheduled for v2.2.0 as a
 ## What's out of scope here (tracked separately)
 
 - **G12 -- Integration Registry refactor** (Phase 10 of the plan). Replaces the lock-step per-platform `base-*.md` template editing with a Python class hierarchy. Targets v2.2.0; ADR-001 will land first.
-- **P3 polish items** (Phase 9 of the plan): the `docs/v2.1.0/spec-driven-methodology.md` essay, the `.devcontainer/` first-touch setup, the `catalog/style-guides/markdownlint-cli2.jsonc` config, and the `tests/installer/test_registrar_path_traversal.py` defensive test. These ship as v2.1.x patches without blocking v2.1.0.
+- ~~**P3 polish items** (Phase 9 of the plan)~~: shipped against the v2.1.0 baseline rather than deferred. See Phase 9 entry in `docs/DEVLOG.md`. Items landed: the `docs/v2.1.0/spec-driven-methodology.md` essay (2679 words), the `.devcontainer/` first-touch setup with `devcontainer.json` and `post-create.sh`, the `catalog/style-guides/markdownlint-cli2.jsonc` config (auto-distributed alongside `markdown.md`), and the `tests/installer/test_registrar_path_traversal.py` defensive test (19 assertions; OS-agnostic).
 - **Cross-OS installer matrix carry-overs from v1.1.5** (DF-003 / DF-005 / DF-006 in `docs/v1.1.5/known-gaps.md`). Orthogonal to spec-kit adoption; remain tracked for a future CI-matrix plan.
 
 ## Migration
@@ -129,12 +129,12 @@ The installer copies the new commands, skills, templates, and helper scripts und
 
 ## Known carry-overs
 
-See [`known-gaps.md`](known-gaps.md) for the full v2.1.0 gap log. The four P3 polish items above are the only open items at v2.1.0 ship; they are deferred to v2.1.x patches.
+See [`known-gaps.md`](known-gaps.md) for the full v2.1.0 gap log. With Phase 9 P3 polish now landed against the v2.1.0 baseline, no items are open at v2.1.0 ship.
 
 ## Coordinated follow-up
 
 - **Push the `v2.1.0` tag** to the remote. Cut locally at the close of Phase 8 sub-task 8.3; the push is deferred to explicit user action per the CLAUDE.md global rule that destructive / remote-mutating git operations require user confirmation.
-- **Phase 9 P3 polish** can ship as v2.1.1 once the four artifacts are landed.
+- ~~**Phase 9 P3 polish**~~ shipped against the v2.1.0 baseline; no separate patch release needed. See the Phase 9 DEVLOG entry for the rationale.
 - **Phase 10 G12 re-full refactor** targets v2.2.0 after ADR-001 lands.
 
 ## Cross-references

@@ -23,11 +23,12 @@ build-catalog: ## Rebuild skills.json and templates.json from source
 	@python infrastructure/tools/build_templates_catalog.py
 	@echo "Catalogs rebuilt."
 
-test: ## Run MCP skill server tests
+test: ## Run MCP skill server + repo-level pytest suites
 	@echo "Running tests..."
 	@cd extensions/nexus-skill-server && python -m pytest -q
 	@cd extensions/nexus-code-search && python -m pytest -q
 	@cd extensions/nexus-web-fetch && python -m pytest -q
+	@if [ -d tests ]; then python -m pytest -q tests; else echo "  (no tests/ directory -- skipping repo-level suite)"; fi
 	@echo "Tests complete."
 
 benchmark: ## Benchmark internal MCP servers
