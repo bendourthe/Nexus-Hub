@@ -199,30 +199,79 @@ function Select-Platforms {
     param([string]$PhaseName)
     Write-Host ""
     Write-Host "Select platforms to install for $PhaseName (comma separated):" -ForegroundColor White
-    Write-Host "A - ALL (Recommended)"
-    Write-Host "1 - Claude Code (Anthropic)"
-    Write-Host "2 - Gemini (Google)"
-    Write-Host "3 - Codex (OpenAI)"
-    Write-Host "4 - GitHub Copilot (Microsoft)"
+    Write-Host "A  - ALL (Recommended)"
+    Write-Host "1  - Claude Code (Anthropic)"
+    Write-Host "2  - Gemini + Antigravity 1.0 (Google)"
+    Write-Host "3  - Codex (OpenAI)"
+    Write-Host "4  - GitHub Copilot (Microsoft)"
+    Write-Host "5  - Cursor (Anysphere)"
+    Write-Host "6  - OpenCode"
+    Write-Host "7  - Windsurf (Codeium)"
+    Write-Host "8  - Antigravity 2.0 (Google)"
+    Write-Host "9  - Gemini CLI (Google)"
+    Write-Host "10 - Nexus-AI (Local Desktop Studio)"
 
-    $inputStr = Read-Prompt "Selection [A, 1-4]"
-    if ([string]::IsNullOrWhiteSpace($inputStr)) { return @("CLAUDE", "GEMINI", "CODEX", "COPILOT") }
+    $allPlatforms = @(
+        "CLAUDE", "GEMINI", "CODEX", "COPILOT",
+        "CURSOR", "OPENCODE", "WINDSURF", "ANTIGRAVITY2", "GEMINI_CLI", "NEXUS_AI"
+    )
 
-    $map = @{ "1" = "CLAUDE"; "2" = "GEMINI"; "3" = "CODEX"; "4" = "COPILOT"; "A" = "ALL" }
+    $inputStr = Read-Prompt "Selection [A, 1-10]"
+    if ([string]::IsNullOrWhiteSpace($inputStr)) { return $allPlatforms }
+
+    $map = @{
+        "1"  = "CLAUDE"
+        "2"  = "GEMINI"
+        "3"  = "CODEX"
+        "4"  = "COPILOT"
+        "5"  = "CURSOR"
+        "6"  = "OPENCODE"
+        "7"  = "WINDSURF"
+        "8"  = "ANTIGRAVITY2"
+        "9"  = "GEMINI_CLI"
+        "10" = "NEXUS_AI"
+        "A"  = "ALL"
+    }
     $selected = @()
+    $sawAll = $false
 
-    $inputStr.Split(',') | ForEach-Object {
-        $key = $_.Trim()
+    foreach ($token in $inputStr.Split(',')) {
+        $key = $token.Trim()
         if ($map.ContainsKey($key)) {
             if ($map[$key] -eq "ALL") {
-                return @("CLAUDE", "GEMINI", "CODEX", "COPILOT")
+                $sawAll = $true
+            } else {
+                $selected += $map[$key]
             }
-            $selected += $map[$key]
         }
     }
 
-    if ($selected.Count -eq 0) { return @("CLAUDE", "GEMINI", "CODEX", "COPILOT") }
+    if ($sawAll -or $selected.Count -eq 0) { return $allPlatforms }
     return $selected
+}
+
+# Map menu keys for the registry-driven extended platforms to runner.py
+# integration keys. The 4 legacy platforms (CLAUDE/GEMINI/CODEX/COPILOT) are
+# handled by the inline installer blocks; everything else flows through the
+# integration runner.
+$script:ExtendedPlatformKeyMap = [ordered]@{
+    "CURSOR"       = "cursor"
+    "OPENCODE"     = "opencode"
+    "WINDSURF"     = "windsurf"
+    "ANTIGRAVITY2" = "antigravity2"
+    "GEMINI_CLI"   = "gemini-cli"
+    "NEXUS_AI"     = "nexus-ai"
+}
+
+function Get-SelectedExtendedKeys {
+    param([string[]]$Platforms)
+    $keys = @()
+    foreach ($name in $script:ExtendedPlatformKeyMap.Keys) {
+        if ($Platforms -contains $name) {
+            $keys += $script:ExtendedPlatformKeyMap[$name]
+        }
+    }
+    return $keys
 }
 
 function Get-Overwrite-Preference {
@@ -1091,8 +1140,10 @@ function Install-Global {
         Write-Item -Message "Check skipped (No global file support on Windows)." -Color "DarkGray"
     }
 
-    # 5. Extended Platforms (Windsurf, Antigravity 2.0, Gemini CLI, Nexus-AI)
-    Install-ExtendedPlatformsGlobal -RepoRoot $RepoRoot
+    # 5. Extended Platforms (Cursor, OpenCode, Windsurf, Antigravity 2.0, Gemini CLI, Nexus-AI)
+    # Filtered by the user's Select-Platforms response; platforms whose registry
+    # config has no global_dir (Cursor, OpenCode) no-op in global scope.
+    Install-ExtendedPlatformsGlobal -RepoRoot $RepoRoot -ExtendedKeys (Get-SelectedExtendedKeys -Platforms $platforms)
 
     # --- Auto-Approve Permissions sub-section ---
     Write-SubSectionBanner -Text "Auto-Approve Permissions"
@@ -1532,11 +1583,14 @@ function Install-Workspace {
         }
         Write-Host ""
 
-        Install-ExtendedPlatformsWorkspace -RepoRoot $RepoRoot -TargetPath $targetPath
+        Install-ExtendedPlatformsWorkspace -RepoRoot $RepoRoot -TargetPath $targetPath -ExtendedKeys (Get-SelectedExtendedKeys -Platforms $workspacePlatforms)
 }
 
 function Install-ExtendedPlatformsWorkspace {
-    param ($RepoRoot, $TargetPath)
+    param ($RepoRoot, $TargetPath, [string[]]$ExtendedKeys)
+    if (-not $ExtendedKeys -or $ExtendedKeys.Count -eq 0) {
+        return
+    }
     $runner = Join-Path $RepoRoot "scripts\lib\integrations\runner.py"
     if (-not (Test-Path $runner)) {
         return
@@ -1546,12 +1600,12 @@ function Install-ExtendedPlatformsWorkspace {
     elseif (Get-Command py -ErrorAction SilentlyContinue) { $py = "py" }
     elseif (Get-Command python3 -ErrorAction SilentlyContinue) { $py = "python3" }
     if (-not $py) {
-        Write-Item -Message "Python not found -- skipping extended platforms (Windsurf, Antigravity 2.0, Gemini CLI, Nexus-AI)." -Color "DarkYellow"
+        Write-Item -Message "Python not found -- skipping extended platforms ($($ExtendedKeys -join ', '))." -Color "DarkYellow"
         return
     }
     Write-Header -Provider "EXTENDED PLATFORMS"
-    Write-Item -Message "Installing extended platforms via integration registry..."
-    $extended = "windsurf,antigravity2,gemini-cli,nexus-ai"
+    Write-Item -Message "Installing extended platforms via integration registry: $($ExtendedKeys -join ', ')"
+    $extended = $ExtendedKeys -join ","
     $argsList = @($runner, "install", "--scope", "workspace", "--target", $TargetPath, "--integrations", $extended)
     if ($script:OverwriteMode -eq "ALL") { $argsList += "--overwrite" }
     & $py @argsList
@@ -1561,7 +1615,10 @@ function Install-ExtendedPlatformsWorkspace {
 }
 
 function Install-ExtendedPlatformsGlobal {
-    param ($RepoRoot)
+    param ($RepoRoot, [string[]]$ExtendedKeys)
+    if (-not $ExtendedKeys -or $ExtendedKeys.Count -eq 0) {
+        return
+    }
     $runner = Join-Path $RepoRoot "scripts\lib\integrations\runner.py"
     if (-not (Test-Path $runner)) {
         return
@@ -1571,12 +1628,12 @@ function Install-ExtendedPlatformsGlobal {
     elseif (Get-Command py -ErrorAction SilentlyContinue) { $py = "py" }
     elseif (Get-Command python3 -ErrorAction SilentlyContinue) { $py = "python3" }
     if (-not $py) {
-        Write-Item -Message "Python not found -- skipping global extended platforms." -Color "DarkYellow"
+        Write-Item -Message "Python not found -- skipping global extended platforms ($($ExtendedKeys -join ', '))." -Color "DarkYellow"
         return
     }
     Write-Header -Provider "EXTENDED PLATFORMS (Global)"
-    Write-Item -Message "Installing global extended platforms via integration registry..."
-    $extended = "windsurf,antigravity2,gemini-cli,nexus-ai"
+    Write-Item -Message "Installing global extended platforms via integration registry: $($ExtendedKeys -join ', ')"
+    $extended = $ExtendedKeys -join ","
     $argsList = @($runner, "install", "--scope", "global", "--integrations", $extended)
     if ($script:OverwriteMode -eq "ALL") { $argsList += "--overwrite" }
     & $py @argsList

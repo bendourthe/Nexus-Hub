@@ -1270,13 +1270,13 @@ install_extended_platforms_workspace() {
     elif command -v python >/dev/null 2>&1; then
         py="python"
     else
-        write_item "Python not found -- skipping extended platforms (Windsurf, Antigravity 2.0, Gemini CLI, Nexus-AI)." "$DARK_YELLOW"
+        write_item "Python not found -- skipping extended platforms (Cursor, OpenCode, Windsurf, Antigravity 2.0, Gemini CLI, Nexus-AI)." "$DARK_YELLOW"
         return 0
     fi
 
     write_header "EXTENDED PLATFORMS"
     write_item "Installing extended platforms via integration registry..." "$RESET"
-    local extended="windsurf,antigravity2,gemini-cli,nexus-ai"
+    local extended="cursor,opencode,windsurf,antigravity2,gemini-cli,nexus-ai"
     local extra_flags=""
     if [ "$OVERWRITE_ALL" = true ]; then
         extra_flags="--overwrite"
@@ -1305,7 +1305,7 @@ install_extended_platforms_global() {
 
     write_header "EXTENDED PLATFORMS (Global)"
     write_item "Installing global extended platforms via integration registry..." "$RESET"
-    local extended="windsurf,antigravity2,gemini-cli,nexus-ai"
+    local extended="cursor,opencode,windsurf,antigravity2,gemini-cli,nexus-ai"
     local extra_flags=""
     if [ "$OVERWRITE_ALL" = true ]; then
         extra_flags="--overwrite"
