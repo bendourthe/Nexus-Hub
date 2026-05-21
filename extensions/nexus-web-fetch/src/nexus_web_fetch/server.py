@@ -13,6 +13,32 @@ from nexus_web_fetch.ssrf_guard import GuardConfig, SSRFError
 
 logger = logging.getLogger("nexus-web-fetch")
 
+SERVER_INSTRUCTIONS = """\
+nexus-web-fetch: SSRF-guarded HTTP(S) fetcher with readable extraction.
+
+Tools (what / when):
+  fetch_url   Fetch the URL itself (the data destination is the URL; no
+              third-party intermediary) and extract readable content.
+              extract_mode='readability' (default, main article body),
+              'text' (full plain text), or 'raw' (raw HTML).
+              render_js=True is reserved for v1.1.0 and currently raises
+              NotImplementedError.
+
+MCP Registry Policy:
+  This server is `already-local` per the MCP Registry Policy
+  (catalog/mcp-configs/mcp-servers.json). The only outbound call is to
+  the URL the user asked for; there is no scraping-as-service vendor
+  involved. SSRF guard (RFC 1918, loopback, link-local) blocks
+  exfiltration to private ranges by default.
+
+Related skills:
+  - trend-research (research category) -- when you are gathering signals
+    across multiple sources before answering.
+  - local-docs-lookup (research category) -- prefer this for library /
+    API questions; only fall through to fetch_url when local docs are
+    insufficient.
+"""
+
 
 async def run_server() -> None:
     server = Server("nexus-web-fetch")
@@ -75,4 +101,7 @@ async def run_server() -> None:
 
     logger.info("Starting nexus-web-fetch (stdio transport)")
     async with stdio_server() as (read_stream, write_stream):
-        await server.run(read_stream, write_stream, server.create_initialization_options())
+        init_options = server.create_initialization_options().model_copy(
+            update={"instructions": SERVER_INSTRUCTIONS}
+        )
+        await server.run(read_stream, write_stream, init_options)

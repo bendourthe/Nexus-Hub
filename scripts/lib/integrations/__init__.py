@@ -14,6 +14,7 @@ from __future__ import annotations
 from typing import Dict
 
 from .base import IntegrationBase
+from .result import FileAction, VALID_ACTIONS, WriteResult
 
 INTEGRATION_REGISTRY: Dict[str, IntegrationBase] = {}
 
@@ -65,4 +66,12 @@ def list_keys() -> list[str]:
     return sorted(INTEGRATION_REGISTRY)
 
 
-__all__ = ["INTEGRATION_REGISTRY", "IntegrationBase", "get", "list_keys"]
+__all__ = [
+    "INTEGRATION_REGISTRY",
+    "FileAction",
+    "IntegrationBase",
+    "VALID_ACTIONS",
+    "WriteResult",
+    "get",
+    "list_keys",
+]

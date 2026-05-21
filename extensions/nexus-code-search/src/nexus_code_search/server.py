@@ -26,6 +26,32 @@ from nexus_code_search.types import IndexState, IndexStatus
 
 logger = logging.getLogger("nexus-code-search")
 
+SERVER_INSTRUCTIONS = """\
+nexus-code-search: AST-aware semantic search over a local codebase.
+
+Tools (what / when):
+  index_codebase        Walk a repo, chunk source files, persist a content-hash
+                        index. Run once per fresh checkout; subsequent calls
+                        skip unchanged files. Set force=True to rebuild.
+  search_code           Keyword search (mode='keyword' in v1.0.0). Returns
+                        ranked chunks with file paths and line ranges.
+                        Hybrid retrieval (dense + sparse) lands in v1.1.0.
+  clear_index           Remove the on-disk index for a given repo root.
+  get_indexing_status   Report current state (IDLE / RUNNING) and counts.
+
+MCP Registry Policy:
+  This server is `already-local` per the MCP Registry Policy
+  (catalog/mcp-configs/mcp-servers.json). Zero outbound calls; zero
+  credentials; chunks + index live entirely on the local filesystem
+  under <repo>/.nexus/code-index/.
+
+Related skill:
+  The `code-semantic-search` skill (ai-development category) covers
+  retrieval strategy: when to use semantic vs keyword search, how to
+  scope queries, and how to consume the ranked results. Load it via
+  the nexus-skill-server with search_skills(query="code-semantic-search").
+"""
+
 
 def _dataclass_to_dict(obj) -> dict:
     """Serialize dataclass + enum to a JSON-safe dict."""
@@ -139,7 +165,10 @@ async def run_server() -> None:
 
     logger.info("Starting nexus-code-search (stdio transport)")
     async with stdio_server() as (read_stream, write_stream):
-        await server.run(read_stream, write_stream, server.create_initialization_options())
+        init_options = server.create_initialization_options().model_copy(
+            update={"instructions": SERVER_INSTRUCTIONS}
+        )
+        await server.run(read_stream, write_stream, init_options)
 
 
 def _resolve_root(arguments: dict) -> Path:

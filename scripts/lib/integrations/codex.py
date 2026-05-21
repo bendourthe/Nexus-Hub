@@ -12,6 +12,7 @@ from .base import MarkdownIntegration, SkillsIntegration
 class CodexIntegration(MarkdownIntegration, SkillsIntegration):
     key = "codex"
     display_name = "Codex (OpenAI)"
+    instruction_mode = "shared"
     config = {
         "global_dir": "~/.codex",
         "workspace_dir": ".codex",

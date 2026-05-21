@@ -20,11 +20,13 @@ from .base import (
     SkillsIntegration,
     TomlIntegration,
 )
+from .result import WriteResult
 
 
 class GeminiCliIntegration(MarkdownIntegration, SkillsIntegration, TomlIntegration):
     key = "gemini-cli"
     display_name = "Gemini CLI (Google)"
+    instruction_mode = "shared"
     config = {
         "global_dir": "~/.gemini",
         "workspace_dir": ".gemini",
@@ -37,12 +39,14 @@ class GeminiCliIntegration(MarkdownIntegration, SkillsIntegration, TomlIntegrati
         "permissions_file": "configs/permissions/gemini-permissions.json",
     }
 
-    def install_global(self, ctx: InstallContext) -> None:
-        super().install_global(ctx)
+    def install_global(self, ctx: InstallContext) -> WriteResult:
+        result = super().install_global(ctx)
         commands_dst = (Path.home() / ".gemini" / "commands").resolve()
-        self._write_toml_commands(commands_dst, ctx)
+        result.files.extend(self._write_toml_commands(commands_dst, ctx))
+        return result
 
-    def install_workspace(self, ctx: InstallContext) -> None:
-        super().install_workspace(ctx)
+    def install_workspace(self, ctx: InstallContext) -> WriteResult:
+        result = super().install_workspace(ctx)
         commands_dst = (ctx.target_root / ".gemini" / "commands").resolve()
-        self._write_toml_commands(commands_dst, ctx)
+        result.files.extend(self._write_toml_commands(commands_dst, ctx))
+        return result

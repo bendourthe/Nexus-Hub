@@ -21,11 +21,13 @@ from __future__ import annotations
 from pathlib import Path
 
 from .base import InstallContext, MarkdownIntegration, SkillsIntegration
+from .result import WriteResult
 
 
 class NexusAiIntegration(MarkdownIntegration, SkillsIntegration):
     key = "nexus-ai"
     display_name = "Nexus-AI (Local Desktop Studio)"
+    instruction_mode = "dedicated"
     config = {
         "global_dir": "~/.nexus-ai",
         "workspace_dir": ".nexus-ai",
@@ -40,12 +42,13 @@ class NexusAiIntegration(MarkdownIntegration, SkillsIntegration):
         "permissions_file": "configs/permissions/claude-permissions.json",
     }
 
-    def install_global(self, ctx: InstallContext) -> None:
-        super().install_global(ctx)
+    def install_global(self, ctx: InstallContext) -> WriteResult:
+        result = super().install_global(ctx)
         target = (Path.home() / ".nexus-ai").resolve()
         mcp_src = ctx.repo_root / "catalog" / "mcp-configs"
         mcp_dst = target / "mcp-configs"
-        self._copy_tree(mcp_src, mcp_dst, ctx, self.key)
+        result.files.append(self._copy_tree(mcp_src, mcp_dst, ctx, self.key))
         tpl_src = ctx.repo_root / "templates"
         tpl_dst = target / "templates"
-        self._copy_tree(tpl_src, tpl_dst, ctx, self.key)
+        result.files.append(self._copy_tree(tpl_src, tpl_dst, ctx, self.key))
+        return result

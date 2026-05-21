@@ -14,6 +14,9 @@ from .base import MarkdownIntegration, SkillsIntegration
 class GeminiIntegration(MarkdownIntegration, SkillsIntegration):
     key = "gemini"
     display_name = "Gemini (Google)"
+    # `~/.gemini/GEMINI.md` is shared with Gemini CLI (gemini_cli.py); use
+    # shared marker mode so both integrations can coexist without clobbering.
+    instruction_mode = "shared"
     config = {
         "global_dir": "~/.gemini",
         "workspace_dir": ".gemini",

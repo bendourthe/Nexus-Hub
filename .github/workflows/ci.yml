@@ -71,6 +71,9 @@ jobs:
       - name: Full catalog/hooks test suite
         run: pytest catalog/hooks/tests/ -v
 
+      - name: Repo-level integration-registry + installer tests (v2.2.0+)
+        run: pytest tests/integrations tests/installer -v
+
       - name: Install skill-server (and transitive deps like pydantic via mcp)
         run: pip install -e "extensions/nexus-skill-server/[dev]"
 

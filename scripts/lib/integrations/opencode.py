@@ -12,6 +12,7 @@ from .base import MarkdownIntegration, SkillsIntegration
 class OpenCodeIntegration(MarkdownIntegration, SkillsIntegration):
     key = "opencode"
     display_name = "OpenCode"
+    instruction_mode = "shared"
     config = {
         "global_dir": "~/.opencode",
         "workspace_dir": ".opencode",

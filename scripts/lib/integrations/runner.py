@@ -32,6 +32,31 @@ if str(REPO_ROOT) not in sys.path:
 from scripts.lib.integrations import INTEGRATION_REGISTRY, get, list_keys  # noqa: E402
 from scripts.lib.integrations.base import InstallContext  # noqa: E402
 from scripts.lib.integrations.manifest import InstallManifest  # noqa: E402
+from scripts.lib.integrations.result import WriteResult  # noqa: E402
+
+
+_ACTION_PREFIX = {
+    "created": "[+]",
+    "updated": "[~]",
+    "unchanged": "[=]",
+    "removed": "[-]",
+    "not-found": "[!]",
+    "kept": "[k]",
+}
+
+
+def _render_write_result(integration_key: str, result: WriteResult, quiet: bool) -> None:
+    """Print one summary line per FileAction, plus any notes.
+
+    Suppressed entirely when `quiet=True` (the installer uses its own headers).
+    """
+    if quiet:
+        return
+    for fa in result.files:
+        prefix = _ACTION_PREFIX.get(fa.action, "[?]")
+        print(f"  {prefix} {fa.action:<10} {fa.path}")
+    for note in result.notes:
+        print(f"  (note) {note}")
 
 
 def _resolve_integration_keys(arg: str) -> List[str]:
@@ -79,7 +104,8 @@ def cmd_install(args: argparse.Namespace) -> int:
             integ = get(key)
             if not args.quiet:
                 print(f"[install:{args.scope}] {integ.display_name}")
-            integ.install(ctx)
+            result = integ.install(ctx)
+            _render_write_result(key, result, args.quiet)
         except Exception as exc:  # noqa: BLE001
             print(f"[error:{key}] {exc}", file=sys.stderr)
             failures.append(key)
@@ -112,7 +138,8 @@ def cmd_teardown(args: argparse.Namespace) -> int:
         try:
             integ = get(key)
             print(f"[teardown] {integ.display_name}")
-            integ.teardown(ctx)
+            result = integ.teardown(ctx)
+            _render_write_result(key, result, quiet=False)
         except KeyError:
             print(f"[skip:{key}] not in registry", file=sys.stderr)
     if not args.dry_run:

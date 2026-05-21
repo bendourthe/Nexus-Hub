@@ -18,6 +18,7 @@ from .base import MarkdownIntegration, SkillsIntegration
 class Antigravity10Integration(MarkdownIntegration, SkillsIntegration):
     key = "antigravity"
     display_name = "Antigravity 1.0 (Google)"
+    instruction_mode = "shared"
     config = {
         "global_dir": "~/.gemini/antigravity",
         "workspace_dir": ".gemini/antigravity",
@@ -33,6 +34,7 @@ class Antigravity10Integration(MarkdownIntegration, SkillsIntegration):
 class Antigravity20Integration(MarkdownIntegration, SkillsIntegration):
     key = "antigravity2"
     display_name = "Antigravity 2.0 (Google)"
+    instruction_mode = "shared"
     config = {
         "global_dir": "~/.agent",
         "workspace_dir": ".agent",

@@ -8,6 +8,7 @@ from .base import MarkdownIntegration, SkillsIntegration
 class ClaudeIntegration(MarkdownIntegration, SkillsIntegration):
     key = "claude"
     display_name = "Claude Code (Anthropic)"
+    instruction_mode = "shared"
     config = {
         "global_dir": "~/.claude",
         "workspace_dir": ".claude",

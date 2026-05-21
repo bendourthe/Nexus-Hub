@@ -20,6 +20,33 @@ NOT_LOADED_MSG = (
     "or run the Nexus-Hub installer (install.sh / install.bat)."
 )
 
+SERVER_INSTRUCTIONS = """\
+nexus-skill-server: Nexus-Hub skill catalog over MCP.
+
+Tools (what / when):
+  search_skills      Keyword + natural-language search across the Nexus-Hub
+                     skill index. Use when you need to find skills that match
+                     a task ("how do I write integration tests?", "FastAPI
+                     async patterns"). Level: l0 / l1 / l2 progressive disclosure.
+  get_skill          Fetch a specific skill by exact kebab-case name. Use when
+                     you already know the skill name and need its full body
+                     (level=l2).
+  list_categories    Enumerate the 22 skill categories with counts.
+  list_bundles       Enumerate the role-based skill bundles.
+  get_bundle         Inspect one bundle by id; returns the contained skill list.
+
+MCP Registry Policy:
+  This server is `already-local` per the MCP Registry Policy
+  (catalog/mcp-configs/mcp-servers.json). Zero outbound calls; zero
+  credentials; the skill catalog is read directly off disk from the
+  repository root pointed to by NEXUS_HUB_ROOT.
+
+Related skill:
+  The `using-nexus-hub` skill (workflow category) orients you to the
+  catalog structure, common discovery patterns, and the L0 -> L2 loading
+  model. Load it via search_skills(query="using-nexus-hub", level="l1").
+"""
+
 
 def _level_from_str(s: str) -> DetailLevel:
     try:
@@ -142,7 +169,10 @@ async def run_server() -> None:
 
     logger.info("Starting nexus-skill-server (stdio transport)")
     async with stdio_server() as (read_stream, write_stream):
-        await server.run(read_stream, write_stream, server.create_initialization_options())
+        init_options = server.create_initialization_options().model_copy(
+            update={"instructions": SERVER_INSTRUCTIONS}
+        )
+        await server.run(read_stream, write_stream, init_options)
 
 
 def _handle_search(args: dict, catalog: SkillCatalog, engine: SearchEngine) -> list[TextContent]:

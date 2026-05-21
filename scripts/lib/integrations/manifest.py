@@ -24,6 +24,7 @@ class InstallManifest:
 
     def __init__(self) -> None:
         self._tracked: Dict[str, List[str]] = {}
+        self._shared: Dict[str, List[str]] = {}
         self._logs: List[str] = []
 
     def track(self, integration_key: str, path: str) -> None:
@@ -38,6 +39,27 @@ class InstallManifest:
             bucket.remove(path)
         self._logs.append(f"[{integration_key}] untrack: {path}")
 
+    def track_shared(self, integration_key: str, path: str) -> None:
+        """Track a marker-managed shared file.
+
+        Files registered via `track_shared` are NOT unlinked during teardown;
+        instead the integration's own teardown removes its marker-delimited
+        section while preserving any user content elsewhere in the file.
+        """
+        bucket = self._shared.setdefault(integration_key, [])
+        if path not in bucket:
+            bucket.append(path)
+        self._logs.append(f"[{integration_key}] track-shared: {path}")
+
+    def untrack_shared(self, integration_key: str, path: str) -> None:
+        bucket = self._shared.get(integration_key, [])
+        if path in bucket:
+            bucket.remove(path)
+        self._logs.append(f"[{integration_key}] untrack-shared: {path}")
+
+    def shared_for(self, integration_key: str) -> List[str]:
+        return list(self._shared.get(integration_key, []))
+
     def log(self, integration_key: str, message: str) -> None:
         self._logs.append(f"[{integration_key}] {message}")
 
@@ -50,6 +72,7 @@ class InstallManifest:
     def to_dict(self) -> Dict[str, object]:
         return {
             "tracked": self._tracked,
+            "shared": self._shared,
             "logs": self._logs,
         }
 
@@ -57,6 +80,7 @@ class InstallManifest:
     def from_dict(cls, data: Dict[str, object]) -> "InstallManifest":
         m = cls()
         m._tracked = dict(data.get("tracked", {}))
+        m._shared = dict(data.get("shared", {}))
         m._logs = list(data.get("logs", []))
         return m
 
