@@ -1742,33 +1742,37 @@ NEXUS_BANNER_EOF
 # Claude Usage Monitor was published under `devai-hub.claude-usage-monitor`
 # before the rename; the current build ships as `nexus-hub.claude-usage-monitor`.
 # Leaving both installed produces a duplicate entry in VS Code's Extensions
-# pane and two status-bar items.
+# pane and two status-bar items. Called unconditionally at startup -- the
+# function silently no-ops when nothing legacy is installed, so it is safe
+# (and necessary) to re-run on every install, including for users who
+# migrated ~/.devai-hub/ in an earlier installer run.
 remove_legacy_vscode_extensions() {
     command -v code >/dev/null 2>&1 || return 0
     local installed
     installed=$(code --list-extensions 2>/dev/null) || return 0
 
     local legacy_ids=("devai-hub.claude-usage-monitor")
-    local id
+    local id emitted=0
     for id in "${legacy_ids[@]}"; do
         if printf '%s\n' "$installed" | grep -qx "$id"; then
+            if [ "$emitted" -eq 0 ]; then echo ""; fi
             echo -e "  ${YELLOW}Removing legacy VS Code extension: $id${RESET}"
             if code --uninstall-extension "$id" >/dev/null 2>&1; then
                 echo -e "  ${GREEN}[OK] Removed $id${RESET}"
             else
                 echo -e "  ${YELLOW}Could not auto-remove $id (uninstall it manually from VS Code)${RESET}"
             fi
+            emitted=1
         fi
     done
+    if [ "$emitted" -eq 1 ]; then echo ""; fi
 }
 
 migrate_legacy_install() {
     local legacy="$HOME/.devai-hub"
     local current="$HOME/.nexus-hub"
-    local legacy_found=0
 
     if [ -d "$legacy" ] && [ ! -d "$current" ]; then
-        legacy_found=1
         echo ""
         echo -e "  ${YELLOW}Detected existing DevAI-Hub install at $legacy${RESET}"
         echo -ne "  ${YELLOW}Migrate to Nexus-Hub ($current)? [Y/n]: ${RESET}"
@@ -1784,7 +1788,6 @@ migrate_legacy_install() {
         fi
         echo ""
     elif [ -d "$legacy" ] && [ -d "$current" ]; then
-        legacy_found=1
         echo ""
         echo -e "  ${YELLOW}Both $legacy and $current exist.${RESET}"
         echo -e "  Choose: [k]eep new + delete old, [a]bort + handle manually, [m]erge (best effort)"
@@ -1808,12 +1811,6 @@ migrate_legacy_install() {
         esac
         echo ""
     fi
-
-    # Whenever a legacy DevAI-Hub install was detected (either branch above),
-    # also clean up the legacy VS Code extension so the rename is complete.
-    if [ "$legacy_found" -eq 1 ]; then
-        remove_legacy_vscode_extensions
-    fi
 }
 
 print_banner() {
@@ -1832,6 +1829,10 @@ REPO_ROOT="$(dirname "$SCRIPT_DIR")"
 
 print_nexus_banner
 migrate_legacy_install
+# Idempotent cleanup -- safe to run every install. Catches the case where the
+# user already migrated ~/.devai-hub/ in an earlier run (before this cleanup
+# existed) but still has devai-hub.claude-usage-monitor installed in VS Code.
+remove_legacy_vscode_extensions
 print_banner
 
 echo ""

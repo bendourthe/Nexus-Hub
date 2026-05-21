@@ -2138,8 +2138,10 @@ function Write-NexusBanner {
 # Claude Usage Monitor was published under `devai-hub.claude-usage-monitor`
 # before the rename; the current build ships as `nexus-hub.claude-usage-monitor`.
 # Leaving both installed produces a duplicate entry in VS Code's Extensions
-# pane and two status-bar items. Called from Invoke-LegacyInstallMigration so
-# it runs as part of the same "you have a DevAI-Hub install" cleanup.
+# pane and two status-bar items. Called unconditionally at startup -- the
+# function silently no-ops when nothing legacy is installed, so it is safe
+# (and necessary) to re-run on every install, including for users who
+# migrated ~/.devai-hub/ in an earlier installer run.
 function Remove-LegacyVSCodeExtensions {
     $codeCmd = Get-Command "code" -ErrorAction SilentlyContinue
     if (-not $codeCmd) { return }
@@ -2147,8 +2149,10 @@ function Remove-LegacyVSCodeExtensions {
     if ($LASTEXITCODE -ne 0 -or -not $installed) { return }
 
     $legacyIds = @("devai-hub.claude-usage-monitor")
+    $emitted = $false
     foreach ($id in $legacyIds) {
         if ($installed -contains $id) {
+            if (-not $emitted) { Write-Host "" }
             Write-Host "  Removing legacy VS Code extension: $id" -ForegroundColor Yellow
             & code --uninstall-extension $id 2>$null | Out-Null
             if ($LASTEXITCODE -eq 0) {
@@ -2156,8 +2160,10 @@ function Remove-LegacyVSCodeExtensions {
             } else {
                 Write-Host "  ⚠ Could not auto-remove $id (uninstall it manually from VS Code)" -ForegroundColor Yellow
             }
+            $emitted = $true
         }
     }
+    if ($emitted) { Write-Host "" }
 }
 
 # Detects an existing ~/.devai-hub/ install and migrates it to ~/.nexus-hub/.
@@ -2213,12 +2219,6 @@ function Invoke-LegacyInstallMigration {
         }
         Write-Host ""
     }
-
-    # Whenever a legacy DevAI-Hub install was detected (either branch above),
-    # also clean up the legacy VS Code extension so the rename is complete.
-    if ($legacyExists) {
-        Remove-LegacyVSCodeExtensions
-    }
 }
 
 function Show-WelcomeBanner {
@@ -2241,6 +2241,10 @@ $repoRoot = Resolve-Path "$PSScriptRoot\.."
 
 Write-NexusBanner
 Invoke-LegacyInstallMigration
+# Idempotent cleanup -- safe to run every install. Catches the case where the
+# user already migrated ~/.devai-hub/ in an earlier run (before this cleanup
+# existed) but still has devai-hub.claude-usage-monitor installed in VS Code.
+Remove-LegacyVSCodeExtensions
 Show-WelcomeBanner
 
 Write-Host ""
