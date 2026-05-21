@@ -22,7 +22,7 @@ MAGENTA='\033[0;35m'
 CYAN='\033[0;36m'
 GRAY='\033[0;90m'
 DARK_YELLOW='\033[0;33m' # Approximate
-DARK_CYAN='\033[0;36m'   # Approximate
+# DARK_CYAN removed in v2.1.0 - only used by the legacy 120-char banner rules.
 
 OVERWRITE_ALL=false
 
