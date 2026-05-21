@@ -1,9 +1,11 @@
 ---
-description: Generate a comprehensive, phased plan through a guided discovery interview. Works for initial v0.1.0 builds, feature additions, enhancements, refactors, and any other multi-step workflow. Produces docs/<version>/plans/<slug>.md with phased sub-tasks and self-contained executable prompts.
+description: Generate a comprehensive, phased plan through a guided discovery interview. Works for initial v0.1.0 builds, feature additions, enhancements, refactors, and any other multi-step workflow. Produces docs/versions/<vMAJOR>/<vSEMVER>/plans/<slug>.md with phased sub-tasks and self-contained executable prompts.
 ---
 # Generate Plan
 
-Create a comprehensive, phased plan at `docs/<version>/plans/<slug>.md` through a structured discovery interview, then generate phased sub-tasks where every sub-task includes an executable prompt that can be run in a future Claude Code session.
+Create a comprehensive, phased plan at `<version_dir>/plans/<slug>.md` through a structured discovery interview, then generate phased sub-tasks where every sub-task includes an executable prompt that can be run in a future Claude Code session.
+
+`<version_dir>` is resolved per Step 0b.5 below. The canonical convention is `docs/versions/<vMAJOR>/<vSEMVER>/` (e.g., `docs/versions/v2/v2.1.0/`). Projects using the legacy flat layout (`docs/<vSEMVER>/`) are auto-detected and the command continues to write into the existing layout to avoid mid-version path churn.
 
 This command works for initial v0.1.0 greenfield builds, feature additions, UX enhancements, refactors, bug-fix campaigns, and any other multi-step effort.
 
@@ -45,9 +47,45 @@ Determine the target version in this order:
 5. Otherwise ask the user explicitly; use `vUnknown` only on explicit user confirmation
 
 Show the detected version and source, and ask:
-> "Writing this plan under `docs/<version>/plans/`. Is that correct, or would you like a different version folder?"
+> "Writing this plan under the version directory for `<version>`. Is that correct, or would you like a different version folder?"
 
 Accept any `v`-prefixed or bare semver string. Normalize to the `v` prefix form (e.g. `0.2.0` → `v0.2.0`).
+
+### 0b.5. Resolve Version Directory (`<version_dir>`)
+
+After the semver string is settled in Step 0b, resolve `<version_dir>` — the on-disk root for every artifact this plan generates (`plans/`, `known-gaps.md`, `development/history/`, `comparison-*.md`, `analysis.md`, `review.md`, the constitution, etc.).
+
+**Canonical layout** (used for all new projects and for new versions in existing projects):
+
+```
+docs/
+  versions/
+    v<MAJOR>/                         # e.g. v0, v1, v2 - the leading major-version bucket
+      v<MAJOR>.<MINOR>.<PATCH>/       # e.g. v2.1.0 - the per-release directory
+        plans/
+        development/history/
+        known-gaps.md
+        analysis.md
+        review.md
+        constitution.md
+```
+
+The major-version segment is derived from the resolved semver: `v2.1.0` -> `v2`. The per-release segment is the full `v<MAJOR>.<MINOR>.<PATCH>` string. Pre-1.0 versions still use `v0` as the major bucket (e.g. `docs/versions/v0/v0.1.0/`, `docs/versions/v0/v0.2.0/`).
+
+**Resolution algorithm** (apply in order, stop at the first that produces a directory):
+
+1. **Canonical exists**: if `docs/versions/<vMAJOR>/<vSEMVER>/` already exists, use it as `<version_dir>`.
+2. **Legacy exists**: if `docs/<vSEMVER>/` already exists and is non-empty (and the canonical does not exist), use it as `<version_dir>`. This preserves continuity for projects that started before the versioned layout was introduced. Surface a one-line notice: `Detected legacy version directory at docs/<vSEMVER>/. Continuing in place; run /refactor-docs to migrate to the canonical docs/versions/<vMAJOR>/<vSEMVER>/ layout.`
+3. **Canonical sibling exists**: if any other `docs/versions/v<MAJOR>/v*/` directory exists for the project (i.e., the project has already adopted the canonical layout for at least one version), use the canonical path `docs/versions/<vMAJOR>/<vSEMVER>/` and create it if missing.
+4. **Greenfield default**: when neither layout is present anywhere under `docs/`, default to the canonical path `docs/versions/<vMAJOR>/<vSEMVER>/`. Create the directory chain. Announce: `Creating canonical version directory at docs/versions/<vMAJOR>/<vSEMVER>/.`
+
+After resolution, store `<version_dir>` (the absolute or repo-relative path) and use it everywhere the rest of this command refers to `docs/<version>/...`. The legacy notation `docs/<version>/...` in the templates below maps to `<version_dir>/...` at write time.
+
+**Safety rules**:
+
+- Never move or rename existing legacy directories during plan generation. Migration is `refactor-docs`' job.
+- Never write the same plan into both layouts. The resolution step picks exactly one `<version_dir>` per plan.
+- When a plan is regenerated for an existing version that has both layouts (an inconsistent state), prefer the canonical path and report the inconsistency: `Inconsistent layout: both docs/<vSEMVER>/ and docs/versions/<vMAJOR>/<vSEMVER>/ exist. Writing to the canonical path; please run /refactor-docs to consolidate.`
 
 ### 0c. One-Sentence Scope Statement
 
@@ -75,12 +113,12 @@ Examples:
 | "Fix the P0 bugs surfaced in the Q2 review" | `q2-review-bug-fixes` |
 
 Show:
-> "Suggested filename: `docs/<version>/plans/<slug>.md` — press Enter to accept, or type a new slug."
+> "Suggested filename: `<version_dir>/plans/<slug>.md` — press Enter to accept, or type a new slug." (with `<version_dir>` rendered as the resolved path, e.g., `docs/versions/v2/v2.1.0/plans/<slug>.md`)
 
 Rules:
 - Reject empty or whitespace-only slugs and re-prompt
 - Sanitize user overrides to `[a-z0-9-]+` (lowercase; spaces and underscores become hyphens; other characters are dropped)
-- If `docs/<version>/plans/<slug>.md` already exists, propose `<slug>-2`, `<slug>-3`, ... or ask whether to overwrite
+- If `<version_dir>/plans/<slug>.md` already exists, propose `<slug>-2`, `<slug>-3`, ... or ask whether to overwrite
 - Reserved slugs to reject: `index`, `readme`, `template`
 
 ### 0d.1. Opt-in `--specs-layout` directory mode
@@ -367,7 +405,7 @@ Show the user the proposed phases-at-a-glance table and ask for confirmation or 
 
 ### Default layout
 
-Create the directory `docs/<version>/plans/` if it does not exist. Write the plan to `docs/<version>/plans/<slug>.md`.
+Create the directory `<version_dir>/plans/` if it does not exist (where `<version_dir>` is the path resolved in Step 0b.5 — canonically `docs/versions/<vMAJOR>/<vSEMVER>/`, with the legacy `docs/<vSEMVER>/` honored when already present). Write the plan to `<version_dir>/plans/<slug>.md`.
 
 ### Opt-in `--specs-layout` directory layout
 
@@ -598,7 +636,8 @@ Emit a one-line summary back to your working context: `Task format validation: <
 ### Report to the user
 
 After validation passes, tell the user:
-- Where the file was saved (`docs/<version>/plans/<slug>.md`)
+- Where the file was saved (resolved `<version_dir>/plans/<slug>.md`, e.g., `docs/versions/v2/v2.1.0/plans/<slug>.md`)
+- Which layout was used (canonical `docs/versions/<vMAJOR>/<vSEMVER>/` vs. legacy `docs/<vSEMVER>/`); if legacy was retained, hint at running `/refactor-docs` to migrate
 - How many phases and sub-tasks were generated
 - Task format counts from the validation summary above (total tasks, parallelizable tasks, user-story-mapped tasks)
 - How to begin: run `/implement-phase <slug>` (or paste the prompt from sub-task 1.1 into a fresh Claude Code session)
@@ -609,5 +648,6 @@ After validation passes, tell the user:
 
 - Keep each sub-task prompt self-contained — a user should be able to copy it directly into a fresh session without needing additional context
 - Use websearch freely for any technical areas that need research
-- If `docs/<version>/plans/<slug>.md` already exists, ask the user: **Regenerate** (overwrite), **Append** (add phases), or **Rename** (pick a new slug) before proceeding
+- If `<version_dir>/plans/<slug>.md` already exists, ask the user: **Regenerate** (overwrite), **Append** (add phases), or **Rename** (pick a new slug) before proceeding
 - Report progress to the user after the interview, after the phase design confirmation, and after writing the file
+- `<version_dir>` is always the path resolved by Step 0b.5. Never hard-code `docs/<version>/...` in generated paths; render the resolved path so the plan stays consistent with whichever layout the project currently uses

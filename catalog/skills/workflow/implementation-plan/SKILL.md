@@ -2,8 +2,8 @@
 name: implementation-plan
 description: >-
   Guide the user through a structured discovery interview to generate a comprehensive
-  phased plan (docs/<version>/plans/<slug>.md) for their project. Works for initial
-  v0.1.0 builds, feature additions, UX enhancements, refactors, and bug-fix campaigns.
+  phased plan (docs/versions/<vMAJOR>/<vSEMVER>/plans/<slug>.md) for their project. Works
+  for initial v0.1.0 builds, feature additions, UX enhancements, refactors, and bug-fix campaigns.
   Asks targeted questions appropriate to the plan type, then generates a phased plan
   where each phase contains sub-tasks with detailed executable prompts, ends with test
   generation and troubleshooting, and closes with a session-history entry. Invoked via
@@ -11,7 +11,7 @@ description: >-
   when /compare-project hands off a comparison report to operationalize, or when a user
   asks to create an implementation plan, v0.1.0 plan, enhancement plan, refactor plan,
   or roadmap.
-summary_l0: "Generate a phased plan through guided discovery, saved to docs/<version>/plans/<slug>.md"
+summary_l0: "Generate a phased plan through guided discovery, saved to docs/versions/<vMAJOR>/<vSEMVER>/plans/<slug>.md"
 overview_l1: >-
   This skill conducts a structured discovery interview — asking one question at a
   time — to collect everything needed to write a comprehensive phased plan. The first
@@ -22,8 +22,10 @@ overview_l1: >-
   runtime behavior, integrations, performance, definition of done, and testing. For
   enhancements/refactors the interview uses a shorter scope-focused question set:
   goal, in/out scope, affected areas, constraints, definition of done, and testing.
-  After the interview the skill writes the plan to docs/<version>/plans/<slug>.md
-  structured into numbered phases with numbered sub-tasks. Every sub-task includes a
+  After the interview the skill writes the plan to docs/versions/<vMAJOR>/<vSEMVER>/plans/<slug>.md
+  (the legacy flat layout docs/<vSEMVER>/plans/<slug>.md is honored when already present;
+  see /generate-plan Step 0b.5 for the path-resolution algorithm) structured into numbered
+  phases with numbered sub-tasks. Every sub-task includes a
   self-contained executable prompt that can be handed directly to Claude Code in a
   future session. Each phase ends with a dedicated testing and troubleshooting
   sub-task and a generate-session-history call. Phases do not advance until the
@@ -37,7 +39,11 @@ overview_l1: >-
 
 # Implementation Plan
 
-Guide the user through a structured discovery interview, then generate a comprehensive plan at `docs/<version>/plans/<slug>.md` broken into phased sub-tasks — each with an executable prompt — so the full effort can be completed session by session. The command entry point is `/generate-plan`. When invoked with a comparison report path (`/generate-plan docs/<version>/comparison-<name>.md`), the command enters *From-comparison mode* (Step 0.5): it pre-seeds the interview from the report's Adoption Plan section, skipping questions the report already answers, and writes the plan to `docs/<version>/plans/adoption-<name>.md`.
+Guide the user through a structured discovery interview, then generate a comprehensive plan at `<version_dir>/plans/<slug>.md` broken into phased sub-tasks — each with an executable prompt — so the full effort can be completed session by session.
+
+`<version_dir>` is resolved per `/generate-plan` Step 0b.5. The canonical layout is `docs/versions/<vMAJOR>/<vSEMVER>/` (e.g., `docs/versions/v2/v2.1.0/`); legacy projects using the flat `docs/<vSEMVER>/` layout are auto-detected and respected to avoid mid-version path churn. Use `/refactor-docs` to migrate a legacy project to the canonical layout.
+
+The command entry point is `/generate-plan`. When invoked with a comparison report path (`/generate-plan <version_dir>/comparison-<name>.md`), the command enters *From-comparison mode* (Step 0.5): it pre-seeds the interview from the report's Adoption Plan section, skipping questions the report already answers, and writes the plan to `<version_dir>/plans/adoption-<name>.md`.
 
 ## When to Use This Skill
 
@@ -131,9 +137,9 @@ Research areas to consider:
 
 ### Phase C: Generate the Plan File
 
-Resolve the target version (from git tags, CHANGELOG, or package manifests; default `v0.1.0` for fresh greenfield projects) and derive a slug from the one-sentence scope statement collected at the start of the interview (lowercase, hyphen-separated, ~5 words, sanitized to `[a-z0-9-]+`). Confirm both with the user before writing.
+Resolve the target version (from git tags, CHANGELOG, or package manifests; default `v0.1.0` for fresh greenfield projects), then resolve `<version_dir>` per `/generate-plan` Step 0b.5 (canonical `docs/versions/<vMAJOR>/<vSEMVER>/` for new content; legacy `docs/<vSEMVER>/` preserved when already present). Derive a slug from the one-sentence scope statement collected at the start of the interview (lowercase, hyphen-separated, ~5 words, sanitized to `[a-z0-9-]+`). Confirm both with the user before writing.
 
-Create `docs/<version>/plans/` if it does not exist and write to `docs/<version>/plans/<slug>.md` following the structure below.
+Create `<version_dir>/plans/` if it does not exist and write to `<version_dir>/plans/<slug>.md` following the structure below.
 
 #### File Header
 
@@ -289,7 +295,7 @@ Before writing the file, outline the phases mentally:
 
 ### Step 4: Write the Plan
 
-Create `docs/<version>/plans/` if it does not exist, then write `<slug>.md` inside it following the structure above. If the target file already exists, ask the user whether to **Regenerate** (overwrite), **Append** (add phases), or **Rename** (pick a new slug).
+Create `<version_dir>/plans/` if it does not exist (where `<version_dir>` is the path resolved earlier — canonically `docs/versions/<vMAJOR>/<vSEMVER>/`, with legacy `docs/<vSEMVER>/` honored when already present), then write `<slug>.md` inside it following the structure above. If the target file already exists, ask the user whether to **Regenerate** (overwrite), **Append** (add phases), or **Rename** (pick a new slug).
 
 ### Step 5: Review and Confirm
 
@@ -314,7 +320,7 @@ Incorporate feedback, then write the final file.
 - [ ] Every phase has a stability gate and exit checklist
 - [ ] `## Constitution Check` section present between `## Overview` and `## Phases at a Glance` (with PASS / FAIL / N/A per MUST principle, or the informational note when no constitution file exists)
 - [ ] `## Complexity Tracking` section present near the end of the file (empty table when no FAIL bullets; populated row per FAIL otherwise)
-- [ ] File written to `docs/<version>/plans/<slug>.md`
+- [ ] File written to the resolved `<version_dir>/plans/<slug>.md` (canonical `docs/versions/<vMAJOR>/<vSEMVER>/plans/<slug>.md` or legacy `docs/<vSEMVER>/plans/<slug>.md`)
 - [ ] User confirmed the phase breakdown before final generation
 
 ## Related Skills
@@ -327,5 +333,5 @@ Incorporate feedback, then write the final file.
 
 ---
 
-**Version**: 1.2.0
-**Last Updated**: April 2026
+**Version**: 1.3.0
+**Last Updated**: May 2026

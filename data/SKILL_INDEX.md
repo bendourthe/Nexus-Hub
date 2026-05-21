@@ -40,8 +40,8 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | go-cleanup | code-cleanup | "Clean up Go codebases with gofmt, idiomatic patterns, and improved error handling" | catalog/skills/code-cleanup/go-cleanup/SKILL.md |
 | java-cleanup | code-cleanup | "Clean up Java codebases with modern patterns, deprecated API updates, and dead code removal" | catalog/skills/code-cleanup/java-cleanup/SKILL.md |
 | javascript-cleanup | code-cleanup | "Clean up JavaScript/TypeScript with ES6+ modernization, ESLint fixes, and dead code removal" | catalog/skills/code-cleanup/javascript-cleanup/SKILL.md |
-| project-layout-refactor | code-cleanup | "Refactor repository layout to follow standard conventions with full reference repair" | catalog/skills/code-cleanup/project-layout-refactor/SKILL.md |
-| docs-layout-refactor | code-cleanup | "Audit, categorize, and reorganize docs/ folders with a propose-then-apply workflow and a versioned archive subtree" | catalog/skills/code-cleanup/docs-layout-refactor/SKILL.md |
+| project-refactor | code-cleanup | "Refactor repository project artifacts (root, scripts, configs, CI/CD) and archive prior-version artifacts with full reference repair" | catalog/skills/code-cleanup/project-refactor/SKILL.md |
+| docs-layout-refactor | code-cleanup | "Audit, categorize, and reorganize docs/ folders with a propose-then-apply workflow and a docs/versions/v<MAJOR>/ + docs/archive/versions/v<MAJOR>/ archive subtree" | catalog/skills/code-cleanup/docs-layout-refactor/SKILL.md |
 | python-cleanup | code-cleanup | "Clean up Python codebases with PEP 8 fixes, type hints, and dead code removal" | catalog/skills/code-cleanup/python-cleanup/SKILL.md |
 | behavior-preservation-checker | code-review | "Verify refactoring preserves behavior with before/after and contract analysis" | catalog/skills/code-review/behavior-preservation-checker/SKILL.md |
 | code-quality | code-review | "Evaluate code quality, SOLID adherence, complexity metrics, and maintainability" | catalog/skills/code-review/code-quality/SKILL.md |

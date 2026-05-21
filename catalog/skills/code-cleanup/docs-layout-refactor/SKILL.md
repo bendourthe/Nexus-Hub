@@ -1,6 +1,6 @@
 ---
 name: docs-layout-refactor
-description: Audit and reorganize a project's docs/ folder by categorizing every file (Cat 1 delete / Cat 2 archive / Cat 3 stale-flag / Cat 4 active), proposing a version-first layout with a docs/archive/ subtree, and applying changes only after explicit user confirmation. Use whenever the user says "clean up docs", "reorganize docs", "archive old docs", "docs folder is messy", "audit docs", "refactor docs structure", "the docs are cluttered", "review docs before release", or before a version bump. SKIP for content accuracy fixes (use update-documentation), repo-root layout changes (use refactor-project-layout), or CHANGELOG generation (use generate-changelog).
+description: Audit and reorganize a project's docs/ folder by categorizing every file (Cat 1 delete / Cat 2 archive / Cat 3 stale-flag / Cat 4 active), proposing a version-first layout with a docs/versions/v<MAJOR>/ active tree and a docs/archive/versions/v<MAJOR>/ archive subtree, and applying changes only after explicit user confirmation. Use whenever the user says "clean up docs", "reorganize docs", "archive old docs", "docs folder is messy", "audit docs", "refactor docs structure", "the docs are cluttered", "review docs before release", "archive prior major version", or before a version bump. SKIP for content accuracy fixes (use update-documentation), repo-root / scripts / CI/CD reorganization (use refactor-project, formerly refactor-project-layout), or CHANGELOG generation (use generate-changelog).
 summary_l0: "Audit, categorize, and reorganize docs/ folders with a propose-then-apply workflow and a versioned archive subtree"
 overview_l1: "Walk the docs/ tree, score every file with eight weighted heuristics (age, inbound refs, CHANGELOG citation, filename patterns, duplication, body keywords), classify each as Cat 1 (delete), Cat 2 (archive), Cat 3 (stale but load-bearing), or Cat 4 (active). Propose a version-first reorganization with topical subdirs mirroring the active layout, plus a docs/archive/<version>/<topic>/ subtree for Cat 2 items. Default mode is propose-only: no files move until the user explicitly confirms at the gate. Ships an audit-docs.py helper that emits a JSON inventory and reference graph without being read into context. Trigger phrases: clean up docs, reorganize docs, archive old docs, docs folder is messy, audit docs, refactor docs structure, docs are cluttered, review docs before release, docs cleanup, prune docs."
 ---
@@ -26,7 +26,7 @@ Use this skill when you need to:
 | Want to ... | Use this instead |
 |---|---|
 | Check whether docs are factually accurate against the code | `update-documentation` |
-| Reorganize repo root files (README, CHANGELOG, DEVLOG at root) | `project-layout-refactor` |
+| Reorganize repo root files, scripts, configs, CI/CD (broader than docs) | `project-refactor` (formerly `project-layout-refactor`) |
 | Generate release notes from changes | `generate-changelog` |
 | Migrate Cat 3 findings into a per-version gap tracker | `known-gaps-tracker` (use `--migrate-known-gaps` to invoke from this skill) |
 
@@ -147,15 +147,23 @@ Aggregate the weighted signals, then apply the hard floors. The four categories:
 
 ### Step 5 - Target-layout proposal
 
-For each Cat 2 file, compute the archive destination:
+For each Cat 2 file, compute the archive destination using the canonical layout:
 
 ```
-docs/archive/<source-version>/<topic>/<file>.md
+docs/archive/versions/v<MAJOR>/v<MAJOR>.<MINOR>.<PATCH>/<topic>/<file>.md
 ```
 
-`<source-version>` is the file's `version_dir`. `<topic>` is its `topic_dir`, or `misc` if it sits directly at the version-dir root. Resolve archive-path collisions by suffixing with `-<source-version>` (e.g., `plans/implementation-plan-v0.8.1.md`).
+- `v<MAJOR>` is the leading major segment of the file's `version_dir` (e.g., `v2.1.0` -> `v2`).
+- `v<MAJOR>.<MINOR>.<PATCH>` is the full source version directory name.
+- `<topic>` is its `topic_dir`, or `misc` if it sits directly at the version-dir root.
 
-For the active tree, propose any renames or topical regroupings that bring older version dirs in line with the active layout. Mirror the active version's directory shape (e.g., if `docs/<active>/` uses `plans/` and `review/` subdirs, propose the same subdirs inside each archived version).
+Legacy projects that already use the flat layout `docs/archive/v<SEMVER>/<topic>/...` are honored (no `versions/` segment); a future canonicalization pass via `/refactor-docs --canonicalize-layout` migrates them when the user opts in. Mixed layouts within the same project are flagged in the *Layout Inconsistencies* section of the report.
+
+Resolve archive-path collisions by suffixing with `-<source-version>` (e.g., `plans/implementation-plan-v0.8.1.md`).
+
+For the active tree, the canonical layout is `docs/versions/v<MAJOR>/v<MAJOR>.<MINOR>.<PATCH>/`. Propose any renames or topical regroupings that bring older version dirs in line with the active layout. Mirror the active version's directory shape (e.g., if `<active_version_dir>/` uses `plans/` and `review/` subdirs, propose the same subdirs inside each archived version).
+
+**Working-version awareness**: when the active major version is `vN`, this skill treats any major bucket `v<M>` with `M < N` as a candidate for *whole-major archival* into `docs/archive/versions/v<M>/`. Whole-major archival is triggered only via `/refactor-docs --auto-archive-older-versions` or explicit user opt-in at the Phase 7 gate; never implicitly. The current (in-flight) version directory is always preserved per `--keep-current-version`.
 
 Build a target-tree preview as a Markdown tree block for the report.
 
@@ -202,11 +210,16 @@ docs/
 ├── DEVLOG.md
 ├── archive/
 │   ├── README.md
-│   ├── v0.8.1/
-│   │   └── comparison-foo.md
-│   └── ...
-├── v1.0.0/                # kept (active - 1)
-└── v1.1.5/                # kept (active)
+│   └── versions/
+│       ├── v0/
+│       │   └── v0.8.1/
+│       │       └── misc/comparison-foo.md
+│       └── v1/
+│           └── v1.0.0/
+└── versions/
+    └── v2/
+        ├── v2.0.0/        # kept (active - 1)
+        └── v2.1.0/        # kept (active)
 \`\`\`
 
 ## Self-classification
@@ -244,11 +257,13 @@ Wait for explicit Y / Partial / N. On Partial, walk the user through Cat 1 and C
 
 In this order:
 
-1. **Create archive root**: ensure `docs/archive/` exists. Create `docs/archive/README.md` if absent, using the template from [`references/archive-layout.md`](references/archive-layout.md). Append rows to the existing index if the README already exists.
-2. **Move Cat 2 files**: for each, use the **copy + verify + delete** protocol from `project-layout-refactor` - never use atomic move across directories.
+1. **Create archive root**: ensure `docs/archive/` and `docs/archive/versions/` exist. Create `docs/archive/README.md` if absent, using the template from [`references/archive-layout.md`](references/archive-layout.md). Append rows to the existing index if the README already exists.
+2. **Move Cat 2 files**: for each, use the **copy + verify + delete** protocol from `project-refactor` - never use atomic move across directories.
 3. **Delete Cat 1 files**: one by one. Empty version directories left after a sweep require a second explicit user confirmation before removal.
 4. **Cat 3**: take no file action. The report already lists them for refresh.
-5. **`--migrate-known-gaps`** (only when flag was set): append a `## Stale documentation flagged by /refactor-docs` section to `docs/<next-version>/known-gaps.md`, one bullet per Cat 3 entry. Match by file path to avoid duplicates.
+5. **Canonicalize layout** (only when `--canonicalize-layout` was set): migrate legacy `docs/v<SEMVER>/` directories into the canonical `docs/versions/v<MAJOR>/v<SEMVER>/` layout, and legacy `docs/archive/v<SEMVER>/` into `docs/archive/versions/v<MAJOR>/v<SEMVER>/`. Per-file copy + verify + delete. Queue reference-repair entries for step 9.
+6. **Whole-major archival** (only when `--auto-archive-older-versions` was set): move entire `docs/versions/v<M>/` buckets (where `M < active_major` and the bucket has at least one tag or CHANGELOG entry) into `docs/archive/versions/v<M>/`. Never include the in-flight version.
+7. **`--migrate-known-gaps`** (only when flag was set): append a `## Stale documentation flagged by /refactor-docs` section to `<next_version_dir>/known-gaps.md`, one bullet per Cat 3 entry. Match by file path to avoid duplicates.
 
 ### Step 9 - Reference repair
 
@@ -316,7 +331,7 @@ Run after step 9. Each check is binary; FAIL on any item loops back up to three 
 
 ## Related Skills
 
-- [`project-layout-refactor`](../project-layout-refactor/SKILL.md) - reorganize files at the repo root (not under `docs/`). Run this before `docs-layout-refactor` if root layout is also messy.
+- [`project-refactor`](../project-refactor/SKILL.md) (formerly `project-layout-refactor`) - reorganize repo root files, scripts, configs, and CI/CD artifacts (not under `docs/`). Run this before `docs-layout-refactor` if root layout is also messy.
 - `update-documentation` - check whether docs are factually accurate against the code. Complementary: that skill checks **content**, this skill checks **structure**.
 - `known-gaps-tracker` - per-version unfinished work tracker. Invoke with `--migrate-known-gaps` to auto-promote Cat 3 findings.
 - `documentation-consistency` - link-integrity sweep. Run after this skill's apply phase to catch any references that survived `refgraph`.
@@ -324,5 +339,5 @@ Run after step 9. Each check is binary; FAIL on any item loops back up to three 
 
 ---
 
-**Version**: 1.0.0
+**Version**: 1.1.0
 **Last Updated**: May 2026

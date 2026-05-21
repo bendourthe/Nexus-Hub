@@ -520,5 +520,5 @@ If the repository contains multiple packages under a single root (e.g., `package
 ## Related Commands
 
 - `/run-security-audit` — broader security scan that includes secret detection, dependency CVEs, and auth hardening
-- `/refactor-project-layout` — reorganize files into correct directories after gitignore cleanup
+- `/refactor-project` — reorganize root files, scripts, configs, and CI/CD (formerly `/refactor-project-layout`) after gitignore cleanup
 - `/generate-sbom` — inventory all tracked dependencies

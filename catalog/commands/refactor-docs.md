@@ -8,7 +8,41 @@ Audit the project's `docs/` folder, categorize every file by disposition, propos
 
 This command is safe-first: it **never** moves, deletes, or renames a file until the user explicitly confirms the plan in Phase 7. Propose-only is the default mode.
 
-This command activates the `docs-layout-refactor` skill. The skill carries the categorization heuristics, archive convention, and bundled helper script. The command file carries the phased orchestration and the integration contracts with `/wrap-up-session`, `/update-version`, `/run-deep-review`, and `/review-codebase`.
+This command activates the `docs-layout-refactor` skill. The skill carries the categorization heuristics, archive convention, and bundled helper script. The command file carries the phased orchestration and the integration contracts with `/wrap-up-session`, `/update-version`, `/run-deep-review`, `/review-codebase`, and `/implement-phase`.
+
+## Canonical Layout
+
+This command operates against (and produces) the following two layouts. Both are recognized; canonical is preferred for new work.
+
+**Canonical (preferred)**:
+
+```
+docs/
+  versions/
+    v<MAJOR>/                                 # e.g., v0, v1, v2
+      v<MAJOR>.<MINOR>.<PATCH>/               # e.g., v2.1.0
+        plans/
+        known-gaps.md
+        development/history/
+  archive/
+    versions/
+      v<MAJOR>/                               # archived major-version bucket
+        v<MAJOR>.<MINOR>.<PATCH>/             # archived per-release directory
+          <topic>/                            # mirrors active layout
+            <file>.md
+  DEVLOG.md
+```
+
+**Legacy (auto-detected, never auto-migrated)**:
+
+```
+docs/
+  v<MAJOR>.<MINOR>.<PATCH>/                    # flat per-release directory
+  archive/
+    v<MAJOR>.<MINOR>.<PATCH>/<topic>/<file>.md
+```
+
+When `/refactor-docs` runs on a project that mixes the two layouts (some versions canonical, some legacy), the command surfaces the inconsistency in the report's *Layout Inconsistencies* section and offers a one-shot **canonicalize** option during Phase 7 that moves legacy version directories into the canonical tree as part of the same approval gate. Migration is opt-in (off by default) and never runs implicitly.
 
 ## Platform Invocation
 
@@ -31,7 +65,9 @@ This command activates the `docs-layout-refactor` skill. The skill carries the c
 | `--scope <subpath>` | Restrict analysis to `docs/<subpath>` (e.g., `--scope v0.8.1`). |
 | `--output <path>` | Override the report path. Default: `docs/<next-version>/docs-cleanup-report.md`. |
 | `--keep-current-version` | Never touch the in-flight version directory. **Default ON.** |
-| `--migrate-known-gaps` | After Phase 8, append Cat 3 entries to `docs/<next-version>/known-gaps.md`. |
+| `--migrate-known-gaps` | After Phase 8, append Cat 3 entries to `<next_version_dir>/known-gaps.md`. |
+| `--canonicalize-layout` | Migrate legacy `docs/<vSEMVER>/` directories into the canonical `docs/versions/<vMAJOR>/<vSEMVER>/` layout as part of Phase 8. Off by default; opt-in. When omitted, layout inconsistencies are reported but never auto-moved. |
+| `--auto-archive-older-versions` | After Phase 8 moves Cat 2 files, also archive entire prior-major version directories into `docs/archive/versions/v<MAJOR>/`. The current major bucket is preserved; the current in-flight version is always preserved (per `--keep-current-version`). Off by default. |
 
 ---
 
@@ -89,14 +125,20 @@ Try in order, stop at the first that succeeds:
 
 1. Most recent version heading in `CHANGELOG.md` (`## [1.2.1]` -> `v1.2.1`). Skip `## [Unreleased]`.
 2. Latest git tag: `git tag --sort=-v:refname | head -n 1`.
-3. Latest `docs/v*/` directory by mtime.
-4. Fallback `vUnknown` only with explicit user confirmation.
+3. Latest canonical version directory by mtime: walk `docs/versions/v*/v*/` and pick the most recent.
+4. Latest legacy version directory by mtime: `docs/v*/`.
+5. Fallback `vUnknown` only with explicit user confirmation.
 
 Compute the next version: bump MINOR, reset PATCH to 0 (e.g., `v1.2.1` -> `v1.3.0`).
 
+Then resolve the active and next *version directories* against the canonical-vs-legacy rule:
+
+- `<active_version_dir>` = canonical `docs/versions/<vMAJOR>/<vSEMVER>/` if it exists, else legacy `docs/<vSEMVER>/` if non-empty, else canonical (created on demand by downstream commands).
+- `<next_version_dir>` = same algorithm for the resolved next version. If the next version's canonical directory does not exist yet, use the canonical path (this command may create it for the report write below).
+
 ### 0.3 Resolve Output Path
 
-Default: `docs/<next-version>/docs-cleanup-report.md`. If `<next-version>` cannot be resolved, fall back to `docs/docs-cleanup-<YYYY-MM-DD>.md`.
+Default: `<next_version_dir>/docs-cleanup-report.md`. If `<next-version>` cannot be resolved, fall back to `docs/docs-cleanup-<YYYY-MM-DD>.md`.
 
 Create the output directory if it does not exist.
 
@@ -174,19 +216,38 @@ For each record, compute weights, apply the hard floors, and assign Cat 1 / 2 / 
 
 ## Phase 4: Target-Layout Proposal
 
-For each Cat 2 file, compute the archive destination per the convention documented in [references/archive-layout.md](../skills/code-cleanup/docs-layout-refactor/references/archive-layout.md):
+For each Cat 2 file, compute the archive destination per the convention documented in [references/archive-layout.md](../skills/code-cleanup/docs-layout-refactor/references/archive-layout.md). The canonical archive layout mirrors the canonical active layout:
 
 ```
-docs/archive/<source-version>/<topic>/<file>.md
+docs/archive/versions/v<MAJOR>/v<MAJOR>.<MINOR>.<PATCH>/<topic>/<file>.md
 ```
 
-- `<source-version>` = `version_dir` from the inventory.
+- `<vMAJOR>` is the leading major segment of the file's `version_dir` (e.g., `v2.1.0` -> `v2`).
+- `v<MAJOR>.<MINOR>.<PATCH>` is the full source version directory name.
 - `<topic>` = `topic_dir`, or `misc` if the file sits at the version-dir root.
-- For top-level docs subdirs (`docs/git/`, `docs/security/`, etc.), the layout is `docs/archive/<top-level-subdir>/<file>.md` (date-keyed exception).
+- For top-level docs subdirs that are not version-scoped (`docs/git/`, `docs/security/`, etc.), the layout is `docs/archive/<top-level-subdir>/<file>.md` (date-keyed exception, unchanged from legacy).
+
+**Legacy archive paths**: when the project already uses the flat legacy archive layout `docs/archive/v<SEMVER>/...` (no `versions/` segment), continue writing into it for that project unless `--canonicalize-layout` is set. Mixing canonical and legacy archive paths inside the same repo is reported in *Layout Inconsistencies* and resolved by the canonicalize step in Phase 8.
 
 Resolve collisions by suffixing with `-<source-version>` (e.g., `plans/implementation-plan-v0.8.1.md`). Never silently overwrite.
 
 For the active tree, propose any renames or topical regroupings that bring older version dirs in line with the active layout. Mirror the active version's directory shape.
+
+### Active-version archival (working-version awareness)
+
+When the project's active major version is `vN`, treat any `docs/versions/v<M>/` (or legacy `docs/v<M>.*` directory) with `M < N` as a candidate for *whole-major* archival to `docs/archive/versions/v<M>/`. Conditions:
+
+- The major bucket must contain at least one fully released version (a git tag matching `v<M>.*` exists, or `CHANGELOG.md` has a heading for that version).
+- The bucket must not contain `<active_version_dir>`. The in-flight version is always preserved.
+- The user enabled `--auto-archive-older-versions`, or selected the option at the Phase 7 gate.
+
+Whole-major archival emits a single bullet in the report:
+
+```
+docs/versions/v0/ -> docs/archive/versions/v0/         (N files, M directories)
+```
+
+rather than enumerating every file individually. Reference repair (Phase 9) still walks every moved file.
 
 Build a target-tree preview as a Markdown tree block for the report.
 
@@ -236,12 +297,25 @@ docs/
 ├── DEVLOG.md
 ├── archive/
 │   ├── README.md
-│   ├── v0.8.1/
-│   │   └── misc/comparison-foo.md
-│   └── ...
-├── v1.0.0/                # kept (active - 1)
-└── v1.1.5/                # kept (active)
+│   └── versions/
+│       ├── v0/
+│       │   ├── v0.1.0/
+│       │   │   └── misc/comparison-foo.md
+│       │   └── v0.2.0/
+│       └── v1/
+│           └── v1.0.0/
+└── versions/
+    └── v2/
+        ├── v2.0.0/        # kept (active - 1)
+        └── v2.1.0/        # kept (active)
 \`\`\`
+
+## Layout Inconsistencies
+
+| Path | Inconsistency | Suggested resolution |
+|---|---|---|
+| docs/v0.9.1/ | legacy flat layout (canonical sibling exists for newer version) | move to docs/versions/v0/v0.9.1/ via --canonicalize-layout |
+| docs/archive/v0.8.1/ | legacy archive path under flat archive root | move to docs/archive/versions/v0/v0.8.1/ via --canonicalize-layout |
 
 ## Self-classification
 
@@ -292,18 +366,25 @@ Present the full plan to the user. Do not apply any changes until explicit appro
    (no change)
 
 ### 5. Archive root
-   <create docs/archive/ and docs/archive/README.md if absent>
+   <create docs/archive/ and docs/archive/versions/ and docs/archive/README.md if absent>
 
-### 6. Reference repair
+### 6. Canonicalize layout (only when --canonicalize-layout is set OR user selects it here)
+   Legacy version dirs to migrate: docs/v0.9.1/, docs/v1.0.0/  -> docs/versions/v0/v0.9.1/, docs/versions/v1/v1.0.0/
+   Legacy archive dirs to migrate: docs/archive/v0.8.1/  -> docs/archive/versions/v0/v0.8.1/
+
+### 7. Whole-major archive (only when --auto-archive-older-versions is set OR user selects it here)
+   Whole-major archival: docs/versions/v0/  -> docs/archive/versions/v0/   (N files)
+
+### 8. Reference repair
    Inbound references to be rewritten: N (across M files outside docs/)
 
 Proceed?
   1. Yes - apply all changes
-  2. Partial - let me select which categories to apply (Cat 1 / Cat 2 separately)
+  2. Partial - let me select which categories to apply (Cat 1 / Cat 2 / canonicalize / whole-major separately)
   3. No  - cancel (report already written)
 ```
 
-Wait for explicit user approval. On Partial, walk Cat 1 and Cat 2 separately.
+Wait for explicit user approval. On Partial, walk Cat 1, Cat 2, canonicalization, and whole-major archival separately.
 
 ---
 
@@ -313,7 +394,7 @@ Apply changes in this order:
 
 ### 8a. Create archive root
 
-If `docs/archive/` does not exist, create it. If `docs/archive/README.md` does not exist, write it from the template in [references/archive-layout.md](../skills/code-cleanup/docs-layout-refactor/references/archive-layout.md). If it exists, append new rows to its index table.
+If `docs/archive/` does not exist, create it. If `docs/archive/versions/` does not exist (canonical layout), create it. If `docs/archive/README.md` does not exist, write it from the template in [references/archive-layout.md](../skills/code-cleanup/docs-layout-refactor/references/archive-layout.md). If it exists, append new rows to its index table.
 
 ### 8b. Move Cat 2 files
 
@@ -338,9 +419,31 @@ If a version directory becomes empty after deletions, **ask for a second explici
 
 No file actions. The report already lists them.
 
-### 8e. `--migrate-known-gaps` (only when flag was set)
+### 8e. Canonicalize legacy layout (only when --canonicalize-layout was set OR selected at Phase 7)
 
-Append a `## Stale documentation flagged by /refactor-docs` section to `docs/<next-version>/known-gaps.md`. If the file does not exist, create it from the `known-gaps-tracker` skill's template. One bullet per Cat 3 entry, in the format:
+For each legacy `docs/v<SEMVER>/` directory (excluding `<active_version_dir>`):
+
+1. Derive the canonical destination: `docs/versions/v<MAJOR>/v<SEMVER>/`.
+2. Use the **copy + verify + delete** protocol on a per-file basis (never use bulk `mv` across directories — networked filesystems may report success without persisting).
+3. Walk every reference to `docs/v<SEMVER>/...` paths across the repo and add them to Phase 9's reference-repair queue.
+4. Log: `✓ Canonicalized: docs/v<SEMVER>/ -> docs/versions/v<MAJOR>/v<SEMVER>/`.
+
+For each legacy `docs/archive/v<SEMVER>/` directory, same protocol, destination `docs/archive/versions/v<MAJOR>/v<SEMVER>/`.
+
+### 8f. Whole-major archival (only when --auto-archive-older-versions was set OR selected at Phase 7)
+
+For each major-version bucket `docs/versions/v<M>/` where `M < active_major` AND the bucket does not contain `<active_version_dir>`:
+
+1. Confirm the bucket has at least one git tag or CHANGELOG entry (per the Phase 4 conditions).
+2. Move `docs/versions/v<M>/` to `docs/archive/versions/v<M>/`.
+3. Walk every reference to `docs/versions/v<M>/...` paths across the repo and add to Phase 9's reference-repair queue.
+4. Log: `✓ Archived major: docs/versions/v<M>/ -> docs/archive/versions/v<M>/`.
+
+Whole-major archival is a coarse operation; if any file inside the bucket has external inbound refs that cannot be repaired automatically, the entire move is reverted and the discrepancy is surfaced. Never leave dangling references.
+
+### 8g. `--migrate-known-gaps` (only when flag was set)
+
+Append a `## Stale documentation flagged by /refactor-docs` section to `<next_version_dir>/known-gaps.md`. If the file does not exist, create it from the `known-gaps-tracker` skill's template. One bullet per Cat 3 entry, in the format:
 
 ```markdown
 - **DF-<n>**: `<path>` is stale (signals: <list>). Suggested action: <action from Cat 3 refresh queue>.
@@ -354,9 +457,11 @@ Match by file path to avoid duplicates. Recompute the Summary table at the top o
 
 Re-run `audit-docs.py refgraph` against the new tree.
 
-For every Cat 2 file that moved, rewrite inbound references:
+For every Cat 2 file that moved, every canonicalization move, and every whole-major archival, rewrite inbound references:
 
-- Markdown links: `[label](docs/v0.8.1/foo.md)` -> `[label](docs/archive/v0.8.1/misc/foo.md)`.
+- Markdown links: `[label](docs/v0.8.1/foo.md)` -> `[label](docs/archive/versions/v0/v0.8.1/misc/foo.md)`.
+- Canonicalization: `[label](docs/v0.9.1/plans/foo.md)` -> `[label](docs/versions/v0/v0.9.1/plans/foo.md)`.
+- Whole-major: `docs/versions/v0/v0.1.0/...` -> `docs/archive/versions/v0/v0.1.0/...`.
 - Raw paths in `.json`, `.yaml`, `.toml`, `.sh`, `.ps1`, `.py`, `.md`: same substitution.
 
 For Cat 1 deletions: refgraph should report zero remaining inbound references. If any persist, surface them and **revert the deletion**. Never leave dangling references.
@@ -437,6 +542,6 @@ Refgraph still works (it scans files directly, not git index). But the "git stat
 - `/update-version` — invokes `/refactor-docs` (propose-only) as Step B4.
 - `/run-deep-review` — invokes `/refactor-docs --mode audit` as subsection 4.11.
 - `/review-codebase` — optional reference if `docs/` has more than 3 version directories.
-- `/refactor-project-layout` — reorganize repo root files; complementary, not overlapping.
+- `/refactor-project` — reorganize repo root files, scripts, configs, and CI/CD artifacts; complementary, not overlapping. (Formerly `/refactor-project-layout` — the broader name reflects the expanded scope.)
 - `/update-documentation` — content accuracy; complementary, not overlapping.
 - `/generate-changelog` — generate release notes; complementary.

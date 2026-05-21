@@ -108,9 +108,9 @@ These steps ensure the project structure and git tracking are clean before the v
 
 ### Step B1: Refactor Project Layout
 
-Run the full `/refactor-project-layout` workflow to audit the root directory against declared layout rules and move misplaced files to their correct locations.
+Run the full `/refactor-project` workflow (formerly `/refactor-project-layout`) to audit the root directory, scripts, configs, and CI/CD against declared layout rules, move misplaced files, and (when a major version bump is in progress) archive prior-major-version artifacts via `--archive-prior-versions`.
 
-**Process** (follows the refactor-project-layout command):
+**Process** (follows the refactor-project command):
 
 1. **Load layout rules** from `CLAUDE.md`, `GEMINI.md`, or user global defaults.
 2. **Inventory root files** and classify each as Stay, Move, or Ambiguous.

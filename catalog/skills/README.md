@@ -116,7 +116,7 @@ Language-specific dead code removal and modernization.
 | `go-cleanup` | Go | gofmt, error handling |
 | `java-cleanup` | Java | Dead code, deprecated APIs |
 | `javascript-cleanup` | JavaScript/TypeScript | ESLint, unused exports |
-| `project-layout-refactor` | Any | Repository root audit, file moves, reference fixes |
+| `project-refactor` | Any | Repository project artifact audit (root, scripts, configs, CI/CD), file moves, reference fixes, prior-major-version archival |
 | `python-cleanup` | Python | PEP 8, type hints, dead code |
 
 ### [Code Review](code-review/) (9 skills)

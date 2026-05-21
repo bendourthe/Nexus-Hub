@@ -10,7 +10,7 @@ Close out a development session cleanly. The command triages what happened in th
 
 ```
 /wrap-up-session             # interactive — triage runs first
-/wrap-up-session --quick     # skip refactor-project-layout and version prompt
+/wrap-up-session --quick     # skip refactor-project and version prompt
 ```
 
 ---
@@ -29,7 +29,7 @@ Close out a development session cleanly. The command triages what happened in th
    |------|---------|-----------|
    | `generate-session-history` | ON | always |
    | `update-gitignore` | ON | always |
-   | `refactor-project-layout` | **OFF** | enable only if explicitly requested |
+   | `refactor-project` | **OFF** | enable only if explicitly requested |
    | `refactor-docs` (audit only) | ON | always; never auto-applies in wrap-up context |
    | `update-documentation` | ON | always |
    | `update-devlog` | ON | always |
@@ -50,7 +50,7 @@ Close out a development session cleanly. The command triages what happened in th
    Steps to run:
      [ON]  generate-session-history   (captures live conversation context — do this first)
      [ON]  update-gitignore           (new artifacts detected: dist/, .cache/)
-     [OFF] refactor-project-layout    (opt-in — enable if layout cleanup is needed)
+     [OFF] refactor-project    (opt-in — enable if layout cleanup is needed)
      [ON]  refactor-docs              (audit-only; surfaces stale docs artifacts in a report)
      [ON]  update-documentation       
      [ON]  update-devlog              
@@ -99,11 +99,12 @@ Run each enabled step in order. Wait for each to fully complete before starting 
 - Add any missing ignore patterns.
 - Report a summary: N patterns added, N already covered.
 
-### Step 2b: `/refactor-project-layout` (runs only if enabled in Phase 0)
+### Step 2b: `/refactor-project` (runs only if enabled in Phase 0)
 
-- Reorganize root-level files according to standard layout conventions.
+- Reorganize root files, scripts, configs, and CI/CD according to standard layout conventions.
 - Repair all cross-file references after any moves.
-- **Safety check**: if the operation would move more than 10 files, pause and present the full list of proposed moves before executing. Wait for confirmation.
+- When wrap-up coincides with a major-version boundary, also pass `--archive-prior-versions` to archive prior-major artifacts (release notes, deploy checklists, version-scoped workflows) into `archive/versions/v<M>/`.
+- **Safety check**: if the operation would move or archive more than 10 files, pause and present the full list before executing. Wait for confirmation.
 
 ### Step 2c: `/refactor-docs --mode audit` (runs if enabled)
 

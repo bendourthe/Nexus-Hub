@@ -12,7 +12,7 @@ Language-specific dead code removal, modernization, and style enforcement.
 | `go-cleanup` | Apply gofmt, remove unused packages, improve error handling, and clean up Go codebases. Use when cleaning up Go proje... |
 | `java-cleanup` | Remove dead code, update deprecated APIs, apply modern Java patterns, and clean up Java codebases. Use when cleaning ... |
 | `javascript-cleanup` | Remove unused exports, fix ESLint issues, modernize to ES6+, and clean up JavaScript/TypeScript codebases. Use when c... |
-| `project-layout-refactor` | Audit and refactor repository root directories to follow standard layout rules. Moves misplaced files, fixes all path... |
+| `project-refactor` | Audit and refactor repository project artifacts (root, scripts, configs, CI/CD) to follow standard layout rules, archive prior-major-version artifacts, and fix all path references. Formerly `project-layout-refactor`. |
 | `python-cleanup` | Remove dead code, fix PEP 8 violations, add type hints, consolidate duplicates, and modernize Python codebases. Use w... |
 
 ---

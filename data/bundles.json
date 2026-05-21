@@ -188,7 +188,7 @@
       "description": "End-to-end pre-release workflow: clean docs and root layout, bump the version, sync documentation, and write release notes.",
       "skills": [
         "docs-layout-refactor",
-        "project-layout-refactor",
+        "project-refactor",
         "documentation-consistency",
         "version-upgrade",
         "release-notes-writer",

@@ -13,6 +13,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.1.1] - 2026-05-21
+
+**Workflow refinements**: v2.1.1 is a patch release that tightens four catalog workflows surfaced by adoption-spec-kit usage during v2.1.0: versioned plan output, version-aware docs archival, broader project-refactor scope, and a consistent end-of-phase commit flow inside `/implement-phase`. All changes are additive or backward-compatible. Legacy projects continue to work without any migration; the canonical layouts are opt-in for new content and opt-in (via explicit flags) for migration.
+
+### Added
+
+- **Canonical versioned docs layout** in `/generate-plan` (`catalog/commands/generate-plan.md`) and the `implementation-plan` skill (`catalog/skills/workflow/implementation-plan/SKILL.md`). New Step 0b.5 resolves `<version_dir>` to `docs/versions/v<MAJOR>/v<SEMVER>/` (e.g., `docs/versions/v2/v2.1.0/`) for new plans. Legacy flat layout `docs/<vSEMVER>/` is auto-detected and preserved to avoid mid-version path churn. Mixed-layout repos surface an inconsistency notice and a migration hint pointing at `/refactor-docs --canonicalize-layout`.
+- **Version-aware archival in `/refactor-docs`** (`catalog/commands/refactor-docs.md`, `catalog/skills/code-cleanup/docs-layout-refactor/SKILL.md`). Cat 2 archive destination is now `docs/archive/versions/v<MAJOR>/v<SEMVER>/<topic>/<file>.md`, mirroring the canonical active tree. Two new flags: `--canonicalize-layout` migrates legacy `docs/<vSEMVER>/` and `docs/archive/<vSEMVER>/` paths into the canonical tree; `--auto-archive-older-versions` performs whole-major archival of `docs/versions/v<M>/` buckets (M < active_major). Phase 7 confirmation gate and Phase 8 execute step expanded with canonicalization and whole-major archival sub-steps. Reference repair (Phase 9) rewrites paths for canonicalization and whole-major moves. Skill bumped to 1.1.0.
+- **Final-phase detection and release-readiness workflow** in `/implement-phase` (`catalog/commands/implement-phase.md`). New Phase 0 step 6 detects whether the target phase is the final phase using phase ordering, title heuristics, completion status of prior phases, plan metadata, and adjacent-plan inspection. When `is_final_phase = true`, Phase 9 runs five sub-phases (A: resolve known gaps and deferred work, B: verify tests and CI/CD readiness, C: docs and project layout cleanup audits, D: standard `/update-*` checks, E: prepare version bump + tag + release). Hold conditions block tag creation when release blockers, failing tests, or unresolved `/update-*` failures remain. The Completion Report includes a release-readiness block summarizing 9A through 9E.
+
+### Changed
+
+- **`/implement-phase` Phase 8 made consistent across every phase** (`catalog/commands/implement-phase.md`). Replaced the prior 6-step post-phase sequence with a strict 10-sub-step sequence (`8.1` through `8.10`) that runs at the end of every phase, not just the final one. New sub-steps: post-phase test review (`8.2`), per-phase CI/CD readiness check (`8.3`), docs cleanup audit via `/refactor-docs --mode audit` (`8.5`), and an explicit commit-and-push prompt (`8.10`) with four options (Commit only / Commit and push / Amend / Stop). The commit-and-push prompt is non-negotiable: a phase is not done until the user has had the explicit choice, which addresses the inconsistency observed in v2.1.0 where some phase implementations ended without a clear commit signal. `/generate-commit-message`'s sectioned-bullet structure now treats Tests, CI/CD, and Known gaps as required final sections.
+- **`project-layout-refactor` renamed to `project-refactor` with broadened scope** (`catalog/skills/code-cleanup/project-refactor/SKILL.md`, `catalog/commands/refactor-project.md`). Scope expanded from "repo root files only" to "root + scripts + configs + CI/CD + source layout" -- everything outside the `docs/` tree. New `--archive-prior-versions` flag detects prior-major-version artifacts (release notes, deploy checklists, generated reports, snapshot bundles, version-scoped CI workflows) and archives them under `archive/versions/v<MAJOR>/v<SEMVER>/<topic>/`. Filename version, body banner, and path-segment heuristics drive the prior-version detection; root community files (README, CHANGELOG, SECURITY) are never auto-archived. CI/CD references are flagged HIGH risk and always require manual approval. Skill bumped to 2.0.0; based_on `project-layout-refactor`.
+- **`/wrap-up-session` Phase 2b** (`catalog/commands/wrap-up-session.md`) updated to invoke `/refactor-project` instead of `/refactor-project-layout`, with optional `--archive-prior-versions` for wrap-ups at major-version boundaries.
+- **`/update-version` Step B1** (`catalog/commands/update-version.md`) updated to invoke `/refactor-project` and pass `--archive-prior-versions` when a major version bump is in progress.
+- **`/update-gitignore` Related Commands** (`catalog/commands/update-gitignore.md`) updated to point at `/refactor-project`.
+- **`/refactor-docs` Related Commands** (`catalog/commands/refactor-docs.md`) updated to point at `/refactor-project`.
+
+### Removed
+
+- **`catalog/commands/refactor-project-layout.md`** -- superseded by `catalog/commands/refactor-project.md`. The new command document is broader in scope and includes the prior-version archival workflow.
+- **`catalog/skills/code-cleanup/project-layout-refactor/`** -- superseded by `catalog/skills/code-cleanup/project-refactor/`. Skill `based_on: project-layout-refactor` preserves the lineage.
+
+### Registry
+
+- `data/SKILL_INDEX.md` -- row renamed `project-layout-refactor` -> `project-refactor`; description updated. `docs-layout-refactor` row description updated to mention the canonical `docs/versions/` + `docs/archive/versions/` layout.
+- `data/skills.json` -- entry renamed `project-layout-refactor` -> `project-refactor` with v2.0.0 metadata; `docs-layout-refactor` entry description and overview updated and bumped to v1.1.0.
+- `data/bundles.json` -- `release-prep` bundle updated to reference `project-refactor`.
+- `data/marketplace.json` -- plugin version bumped to 2.1.1.
+
+### Path conventions (cheat sheet)
+
+| Artifact | Canonical (v2.1.1+) | Legacy (preserved) |
+|---|---|---|
+| Active version directory | `docs/versions/v<MAJOR>/v<SEMVER>/` | `docs/<vSEMVER>/` |
+| Archived version directory | `docs/archive/versions/v<MAJOR>/v<SEMVER>/<topic>/` | `docs/archive/<vSEMVER>/<topic>/` |
+| Project artifact archive (outside docs/) | `archive/versions/v<MAJOR>/v<SEMVER>/<topic>/` | n/a (new) |
+
+Use `/refactor-docs --canonicalize-layout` to migrate the docs tree; `/refactor-project --archive-prior-versions` for project artifacts.
+
+---
+
 ## [2.1.0] - 2026-05-20
 
 **Spec-Driven Development adoption**: v2.1.0 implements 11 capabilities surfaced by the v2.0.0 cross-project comparison with GitHub's Spec Kit (see [`docs/v2.0.0/comparison-spec-kit.md`](docs/v2.0.0/comparison-spec-kit.md)). The headline narrative is that Nexus-Hub already had overlapping skills (`spec-driven-development`, `idea-refine`, `ambiguity-detector`, `generate-plan`, `quality-gate-definitions`) but lacked the gating discipline, the project-governance file, and the cross-artifact analyzer that make SDD enforceable rather than aspirational. v2.1.0 closes that gap with 3 new skills, 4 new slash commands, 3 new templates, and discipline updates to 5 existing skills. All adoption items are classified `skill-native` under the MCP Registry Policy -- no new outbound calls, no new credentials, no new third-party data processors, no new runtime dependencies. This is a SemVer **minor** bump because every change is additive; the default behavior of every pre-existing command and skill is preserved when the new opt-ins are not used.
