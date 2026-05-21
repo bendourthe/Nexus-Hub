@@ -48,6 +48,32 @@ See ## Assumptions for the override path if JWT is required instead.
 
 Cross-link: `[[ambiguity-detector]]` emits markers in this same format when it scans an existing spec; `[[idea-refine]]` produces no more than 3 outstanding markers in the problem statement.
 
+### Spec template
+
+Use `catalog/templates/spec-template.md` (installed at `~/.nexus-hub/templates/spec-template.md`) as the starting skeleton for every feature spec. The template enforces the convention that downstream tooling depends on - in particular, the `**FR-###**: System MUST <capability>` format for functional requirements and the `**SC-###**: <measurable outcome>` format for success criteria.
+
+Why the FR-### / SC-### IDs matter: the `[[cross-artifact-analyzer]]` skill (run via `/analyze-spec`) builds a Coverage Summary table by matching each FR-### and SC-### in the spec against the task descriptions in the plan or tasks.md. A spec written with prose bullets instead of FR-### / SC-### IDs produces an empty coverage matrix and the analyzer cannot flag missing tasks. The IDs are the contract between the spec and the analyzer.
+
+Stability rules for IDs:
+
+- IDs are sequential within their category (FR-001, FR-002, ...; SC-001, SC-002, ...).
+- IDs are stable - once an FR or SC is assigned an ID, do not renumber on edits. Removing a requirement leaves a gap in the sequence; do not backfill.
+- IDs are unique within the spec but not globally across the project - FR-001 in `specs/003-auth/spec.md` is a different requirement from FR-001 in `specs/004-billing/spec.md`.
+
+The template also reserves three additional mandatory blocks: User Scenarios & Testing, Requirements (with FR-### IDs and an optional Key Entities subsection), and Success Criteria (with SC-### IDs). An Assumptions section is mandatory whenever any candidate ambiguity was demoted below the 3-marker hard limit.
+
+### User stories with priorities
+
+Every spec MUST include at least one user story under `## User Scenarios & Testing`, formatted as `### User Story N - [Title] (Priority: PN)`. The story format enforces three disciplines that the rest of the workflow depends on:
+
+1. **Priority labels (P1 / P2 / P3 / ...)**: priorities are assigned by user value, not by implementation order. P1 is the story that delivers the most value with the smallest scope. P2 and P3 add value but are not required to ship a viable MVP. The Phase 6 task discipline (the `[US#]` label on every user-story-phase task) is keyed off these priority IDs - tasks for P1 stories carry `[US1]`, tasks for P2 carry `[US2]`, and so on.
+2. **Independent Test paragraph**: each story declares the smallest end-to-end test that proves it is delivered. The test MUST be runnable without implementing any other story. This is the MVP contract: if you implement only the P1 story, the Independent Test for P1 must pass even though P2 and P3 are untouched. Stories that cannot be tested in isolation fail this contract and must be re-scoped.
+3. **MVP rule**: implementing just the P1 story must deliver value to a real user. A spec where P1 is "set up the database schema" violates the rule - that is an enabler, not a user story. Re-scope until P1 names an outcome a user observes.
+
+A spec with a single user story still uses the format: `### User Story 1 - [Title] (Priority: P1)` with the full Independent Test and Acceptance Scenarios subsections. The single-story case is the most common; the format exists so that `/analyze-spec` can find the story regardless of count.
+
+Acceptance Scenarios use the Given / When / Then format. Each scenario maps directly to one of the FR-### items - the scenario is the FR's executable verification.
+
 ## The Gated Workflow
 
 Spec-driven development has four phases. Do not advance to the next phase until the human has reviewed and approved the current one.
@@ -196,6 +222,8 @@ Execute tasks following `incremental-implementation` (one task at a time, test a
 | "The spec will slow us down" | A 15-minute spec prevents hours of rework. The spec itself is not the slowdown; vague requirements are. |
 | "Requirements will change anyway" | That's why the spec is a living document. An outdated spec is still better than no spec — it shows the intent at the time. |
 | "The user knows what they want" | Users know what outcome they want; they rarely know which implementation delivers it. The spec surfaces that gap before code is written. |
+| "I'll just use bullet points instead of FR/SC IDs" | The IDs are not decoration - they are the join key the `[[cross-artifact-analyzer]]` skill uses to build the Coverage Summary table in `/analyze-spec`. A spec written with prose bullets produces an empty matrix and the analyzer cannot flag missing tasks. Use the format from `catalog/templates/spec-template.md`. |
+| "This feature only has one user story" | Still write it as `### User Story 1 - [Title] (Priority: P1)` with the full Independent Test paragraph and Acceptance Scenarios. The single-story case is the most common; `/analyze-spec` and the Phase 6 task discipline both key off the story heading regardless of count. A spec with no `## User Stories` block fails the analyzer's underspecification pass. |
 
 ## Verification
 
@@ -212,3 +240,5 @@ Execute tasks following `incremental-implementation` (one task at a time, test a
 - `plan-before-code` — detailed implementation planning once the spec is approved
 - `incremental-implementation` — execute the plan one task at a time
 - `ambiguity-detector` — detect gaps in an existing spec before implementation
+- `cross-artifact-analyzer` — verify the FR-### / SC-### IDs in the spec have matching tasks in the plan via the Coverage Summary table emitted by `/analyze-spec`
+- `project-constitution` — establish the MUST/SHOULD principles that the `Constitution Check` section of every plan validates against
