@@ -38,8 +38,10 @@ Highlights:
 - **3 new templates**: `constitution-template.md`, `spec-template.md` (with P1 / P2 / P3 user stories + FR-### / SC-### IDs), `spec-quality-checklist.md`.
 - **`/generate-plan` updates**: opt-in `--specs-layout` flag for the `specs/<NNN>-<slug>/` directory layout, strict `- [ ] T### [P?] [US?] file_path` task-line format with phase organization (Setup / Foundational / User-Story / Polish), Constitution Check + Complexity Tracking sections in every generated plan.
 - **`[NEEDS CLARIFICATION]` marker discipline** with a 3-marker hard cap prioritized `scope > security/privacy > UX > technical`, wired into `spec-driven-development`, `ambiguity-detector`, and `idea-refine` skills.
+- **Integration Registry (G12, pulled forward from v2.2.0)**: a Python class hierarchy under `scripts/lib/integrations/` that owns per-platform install logic. Adding a new AI assistant is now one ~30-line subclass + one register line instead of editing 5+ instruction templates in lockstep. See [docs/v2.1.0/adr/adr-001-integration-registry.md](docs/v2.1.0/adr/adr-001-integration-registry.md) for the architecture decision record.
+- **Expanded platform support (4 new platforms)**: Windsurf (Codeium), Antigravity 2.0 (Google), Gemini CLI (Google), and Nexus-AI ([https://github.com/bendourthe/Nexus-AI](https://github.com/bendourthe/Nexus-AI)) join the existing Claude Code / Codex / Cursor / Gemini / Antigravity 1.0 / GitHub Copilot / OpenCode list. The installer auto-dispatches to all 11 platforms so switching assistants is seamless.
 
-All 11 adoption items are classified `skill-native` under the MCP Registry Policy -- no new outbound calls, no new credentials, no new third-party data processors, no new runtime dependencies. The 12th candidate (G12 Integration Registry pattern) is a re-full Python refactor scheduled for v2.2.0.
+All 11 SDD adoption items are classified `skill-native` under the MCP Registry Policy -- no new outbound calls, no new credentials, no new third-party data processors, no new runtime dependencies. The Integration Registry is also stdlib-only Python.
 
 See [CHANGELOG.md](CHANGELOG.md) and [docs/v2.1.0/RELEASE_NOTES.md](docs/v2.1.0/RELEASE_NOTES.md) for the full v2.1.0 entry, and [docs/v2.1.0/plans/adoption-spec-kit.md](docs/v2.1.0/plans/adoption-spec-kit.md) for the 10-phase plan.
 
@@ -75,19 +77,23 @@ See [CHANGELOG.md](CHANGELOG.md) and [docs/v2.0.0/RELEASE_NOTES.md](docs/v2.0.0/
 
 ## Supported Agentic Platforms
 
-| Platform | Install target | Per-platform surface |
-|---|---|---|
-| Claude Code (Anthropic) | `~/.claude/` + project `.claude/` | Full: skills, commands, hooks, agents, rules, MCP configs |
-| OpenAI Codex CLI | `~/.codex/` + project `AGENTS.md` | Full: skills (under `skills/`), commands (under `prompts/`), agents, rules |
-| Gemini (Antigravity) | `~/.gemini/` + project `.gemini/GEMINI.md` | Full: skills, commands (under `workflows/`), agents, rules |
-| GitHub Copilot (VS Code) | project `.github/copilot-instructions.md` | Behavioral guardrails (skill index embedded as text) |
-| Cursor | project `.cursor/rules/nexus-hub.mdc` + `AGENTS.md` | Behavioral guardrails (skill index embedded as text) |
-| OpenCode | project `AGENTS.md` | Behavioral guardrails (skill index embedded as text) |
-| GitHub CLI (`gh`) | n/a | Skill / command references via `AGENTS.md` open standard |
-| Nexus desktop app | upstream consumer | Reads the same catalog as its skill feed |
-| Nexus VS Code extension | upstream consumer | Reads the same catalog as its skill feed |
+| Platform | Install target | Path | Per-platform surface |
+|---|---|---|---|
+| Claude Code (Anthropic) | `~/.claude/` + project `.claude/` | legacy + registry | Full: skills, commands, hooks, agents, rules, MCP configs |
+| OpenAI Codex CLI | `~/.codex/` + project `.codex/` + `AGENTS.md` | legacy + registry | Full: skills (under `skills/`), commands (under `prompts/`), agents, rules |
+| Gemini (IDE / Antigravity 1.0) | `~/.gemini/` + project `.gemini/GEMINI.md` | legacy + registry | Full: skills, commands (under `workflows/`), agents, rules |
+| **Gemini CLI (Google)** | `~/.gemini/commands/*.toml` + project `.gemini/commands/*.toml` | **registry (new in v2.1.0)** | TOML-format custom commands generated from `catalog/commands/*.md` |
+| **Antigravity 2.0 (Google)** | `~/.agent/` + project `.agent/` | **registry (new in v2.1.0)** | Full: skills, commands (under `workflows/`), subagents, rules |
+| GitHub Copilot (VS Code) | project `.github/copilot-instructions.md` | legacy + registry | Behavioral guardrails (skill index embedded as text); merge semantics if the file already exists |
+| Cursor | project `.cursor/rules/*.mdc` + `AGENTS.md` | registry | Per-rule `.mdc` files + behavioral guardrails (skill index embedded as text) |
+| OpenCode | project `AGENTS.md` + `.opencode/` | registry | Behavioral guardrails + skills mirror |
+| **Windsurf (Codeium)** | project `.windsurf/{rules,workflows,skills}/` | **registry (new in v2.1.0)** | Full: skills, workflows, rule library |
+| **Nexus-AI (Local Studio)** | `~/.nexus-ai/` + project `.nexus-ai/` | **registry (new in v2.1.0)** | Full mirror: skills, commands, agents, rules, hooks, MCP configs, templates |
+| GitHub CLI (`gh`) | via `gh copilot` extension | indirect | Skill / command references via `AGENTS.md` open standard |
+| Nexus desktop app | upstream consumer | indirect | Reads the same catalog as its skill feed |
+| Nexus VS Code extension | upstream consumer | indirect | Reads the same catalog as its skill feed |
 
-**Coverage caveat**: Claude Code, Codex, and Gemini get the full per-file file-tree copy. Cursor, OpenCode, and Copilot receive the behavioral guardrails and the skill index embedded into their instruction file, but not a per-command file-tree copy -- on those three platforms, invoke a skill by name or follow the command body as a prompt. The per-platform installer logic lives in [`scripts/installer.sh`](scripts/installer.sh) and [`scripts/installer.ps1`](scripts/installer.ps1).
+**Coverage caveat**: the **registry** path (introduced in v2.1.0 Phase 10) dispatches install / teardown through `scripts/lib/integrations/runner.py` and supports a `--dry-run` mode. The **legacy** path (the long-standing in-installer copy blocks) continues to be the canonical install for Claude / Gemini / Codex / Copilot until v2.2.0 parity migration (tracked as DF-001 in `docs/v2.1.0/known-gaps.md`). Both paths produce the same end-state on disk for those platforms; the per-platform installer logic lives in [`scripts/installer.sh`](scripts/installer.sh), [`scripts/installer.ps1`](scripts/installer.ps1), and the per-platform subclasses under [`scripts/lib/integrations/`](scripts/lib/integrations/).
 
 ---
 

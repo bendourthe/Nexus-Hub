@@ -81,6 +81,12 @@ data/benchmarks/
 .devai/
 .devaiignore
 
+# Integration registry manifest written by scripts/lib/integrations/runner.py (v2.1.0+)
+# into target install directories; should never appear inside the Nexus-Hub repo itself
+# but listed defensively in case a developer runs the runner with --target=. during testing.
+.nexus-hub/install-manifest.json
+.nexus-hub/
+
 # skill-eval-loop user workspaces (v1.2.0-wip / Phase 5). Users running the
 # eval loop produce <skill-name>-workspace/ directories at the repo root with
 # per-iteration outputs, benchmarks, and feedback. Ignore them so iteration
