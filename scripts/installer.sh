@@ -1480,6 +1480,16 @@ install_templates() {
         safe_copy "$skill_packager_source" "$scripts_dest/package_skill.py" true "[OK] Skill packager installed at: $scripts_dest/package_skill.py"
     fi
 
+    # Copy nexus-hub affected CLI dispatcher (v2.2.0 / codegraph Phase 5 /
+    # T032). Thin wrapper around the nexus-code-search code_affected_tests
+    # graph query so users can pipe `git diff --name-only` into a test-impact
+    # query without booting the MCP server. Lockstep with the same block in
+    # scripts/installer.ps1.
+    local affected_source="$repo_root/scripts/nexus_hub_affected.py"
+    if [ -f "$affected_source" ]; then
+        safe_copy "$affected_source" "$scripts_dest/nexus_hub_affected.py" true "[OK] Affected-tests CLI installed at: $scripts_dest/nexus_hub_affected.py"
+    fi
+
     # Copy feature-directory bootstrap scripts (v2.1.0 / adoption-spec-kit
     # Phase 7 / G5). The two scripts resolve the next specs/<NNN>-<slug>/
     # prefix (sequential or timestamp per .specify/init-options.json),

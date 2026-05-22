@@ -1,4 +1,4 @@
-.PHONY: all validate lint build-catalog test benchmark clean help
+.PHONY: all validate lint build-catalog test eval benchmark clean help
 
 all: validate lint ## Run validation and linting
 
@@ -30,6 +30,11 @@ test: ## Run MCP skill server + repo-level pytest suites
 	@cd extensions/nexus-web-fetch && python -m pytest -q
 	@if [ -d tests ]; then python -m pytest -q tests; else echo "  (no tests/ directory -- skipping repo-level suite)"; fi
 	@echo "Tests complete."
+
+eval: ## Run the nexus-code-search synthetic-codebase eval harness
+	@echo "Running nexus-code-search eval harness..."
+	@cd extensions/nexus-code-search && python -m nexus_code_search.eval --out ../../docs/v2.2.0/eval-baseline.md
+	@echo "Eval complete. Report: docs/v2.2.0/eval-baseline.md"
 
 benchmark: ## Benchmark internal MCP servers
 	@echo "Benchmarking internal MCPs..."

@@ -1,0 +1,16 @@
+name: fastapi_app
+description: FastAPI handlers - tests the framework resolver emits route nodes that are searchable.
+questions:
+  - tool: code_search
+    query: create_item
+    expect: [create_item]
+  - tool: code_search
+    query: delete_item
+    expect: [delete_item]
+  - tool: code_callees
+    symbol: root
+    expect_callees: []
+  - tool: code_context
+    symbol: create_item
+    expect_callers: []
+    expect_callees: []

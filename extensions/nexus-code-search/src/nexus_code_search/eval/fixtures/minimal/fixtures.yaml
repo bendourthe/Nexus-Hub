@@ -1,0 +1,20 @@
+name: minimal
+description: 5-question smoke fixture across all five graph tools.
+questions:
+  - tool: code_search
+    query: helper
+    expect: [helper]
+  - tool: code_callers
+    symbol: helper
+    expect_callers: [main]
+  - tool: code_callees
+    symbol: main
+    expect_callees: [helper]
+  - tool: code_impact
+    symbol: helper
+    depth: 2
+    expect_in_radius: [main]
+  - tool: code_context
+    symbol: helper
+    expect_callers: [main]
+    expect_callees: []

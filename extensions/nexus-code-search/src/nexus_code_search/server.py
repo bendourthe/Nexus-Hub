@@ -31,7 +31,7 @@ from mcp.types import TextContent, Tool
 from nexus_code_search.config import CodeSearchConfig, index_dir_for, resolve_config
 from nexus_code_search.db.schema import open_database
 from nexus_code_search.extraction import ExtractionOrchestrator
-from nexus_code_search.graph import GraphQueryManager
+from nexus_code_search.graph import GraphQueryManager, affected_tests
 from nexus_code_search.indexer import index_codebase
 from nexus_code_search.search_keyword import KeywordIndex
 from nexus_code_search.store import clear_index as store_clear_index
@@ -65,6 +65,9 @@ Tools (what / when):
   code_explore          v2.0: combined search + traversal in a single call.
   watch_for_changes     v2.0: start a debounced file watcher in a background
                         thread that re-indexes changed files.
+  code_affected_tests   v2.0: given a list of changed files, return every
+                        test file in the index whose code transitively
+                        imports any of them. CI-friendly impact analysis.
 
 MCP Registry Policy:
   This server is `already-local` per the MCP Registry Policy
@@ -113,6 +116,8 @@ async def run_server() -> None:
                 return _handle_graph_query(name, arguments, config)
             if name == "watch_for_changes":
                 return _handle_watch(arguments, config)
+            if name == "code_affected_tests":
+                return _handle_affected_tests(arguments, config)
             return [
                 TextContent(
                     type="text", text=json.dumps({"error": f"Unknown tool: {name}"})
@@ -306,6 +311,36 @@ def _all_tools() -> list[Tool]:
                     },
                 },
                 "required": ["root", "symbol"],
+            },
+        ),
+        Tool(
+            name="code_affected_tests",
+            description=(
+                "Given a list of changed files, return every test file in the index whose "
+                "code transitively imports any of them. Conservative (false-positives favored "
+                "over false-negatives)."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    **root_arg,
+                    "changed_files": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "Paths of files that were changed (relative to root or absolute).",
+                    },
+                    "depth": {
+                        "type": "integer",
+                        "default": 5,
+                        "minimum": 1,
+                        "maximum": 20,
+                    },
+                    "test_glob": {
+                        "type": "string",
+                        "description": "Optional POSIX glob to filter test files (e.g. 'tests/**/*.py').",
+                    },
+                },
+                "required": ["root", "changed_files"],
             },
         ),
         Tool(
@@ -526,6 +561,37 @@ def _handle_watch(arguments: dict, config: CodeSearchConfig) -> list[TextContent
         "watcher_id": id(watcher),
         "debounce_ms": debounce_ms,
         "status": "watching",
+    }
+    return [TextContent(type="text", text=json.dumps(payload))]
+
+
+def _handle_affected_tests(
+    arguments: dict, config: CodeSearchConfig
+) -> list[TextContent]:
+    root = _resolve_root(arguments)
+    changed = arguments.get("changed_files", [])
+    if not isinstance(changed, list):
+        raise ValueError("`changed_files` must be a list of file paths")
+    depth = int(arguments.get("depth", 5))
+    test_glob = arguments.get("test_glob")
+    index_dir = index_dir_for(root, config)
+    conn = open_database(index_dir)
+    try:
+        results = affected_tests(
+            conn,
+            repo_root=root,
+            changed_files=changed,
+            depth=depth,
+            test_glob=test_glob,
+        )
+    finally:
+        conn.close()
+    payload = {
+        "root": str(root),
+        "changed_files": changed,
+        "depth": depth,
+        "test_glob": test_glob,
+        "affected_tests": results,
     }
     return [TextContent(type="text", text=json.dumps(payload))]
 

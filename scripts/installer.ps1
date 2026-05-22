@@ -1898,6 +1898,16 @@ function Install-Templates {
         Safe-Copy -Source $skillPackagerSource -Destination (Join-Path $scriptsDest "package_skill.py") -Confirm:$true -CustomMessage "✓ Skill packager installed at: $scriptsDest\package_skill.py"
     }
 
+    # Copy nexus-hub affected CLI dispatcher (v2.2.0 / codegraph Phase 5 /
+    # T032). Mirror of the bash block in scripts\installer.sh. Wraps the
+    # nexus-code-search code_affected_tests graph query so users can pipe
+    # `git diff --name-only` into a test-impact query without booting the
+    # MCP server.
+    $affectedSource = Join-Path $RepoRoot "scripts\nexus_hub_affected.py"
+    if (Test-Path $affectedSource) {
+        Safe-Copy -Source $affectedSource -Destination (Join-Path $scriptsDest "nexus_hub_affected.py") -Confirm:$true -CustomMessage "✓ Affected-tests CLI installed at: $scriptsDest\nexus_hub_affected.py"
+    }
+
     # Copy feature-directory bootstrap scripts (v2.1.0 / adoption-spec-kit
     # Phase 7 / G5). The two scripts resolve the next specs\<NNN>-<slug>\
     # prefix (sequential or timestamp per .specify\init-options.json),

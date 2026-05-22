@@ -45,10 +45,29 @@ The installer ships with the repo. Alternatively install via the Nexus-Hub insta
 | `code_context(symbol)` | One-shot context window: node + callers + callees + module-siblings. |
 | `code_explore(symbol, depth=2)` | Combined search + traversal payload (matches + callers + callees + impact). |
 | `watch_for_changes(root, debounce_ms=2000)` | Start a debounced filesystem watcher that re-indexes the graph as files change. Returns immediately; the watcher runs in a background thread. |
+| `code_affected_tests(changed_files, depth=5, test_glob=None)` | Reverse-import BFS: given a list of changed files, return every test file in the index whose code transitively imports any of them. Conservative -- false positives favored over false negatives. Companion CLI: `nexus-hub affected` (see "CLI dispatcher" below). |
 
 ## NodeKind / EdgeKind taxonomy
 
-The v2 graph stores 22 node kinds (`file`, `module`, `class`, `struct`, `interface`, `trait`, `protocol`, `function`, `method`, `property`, `field`, `variable`, `constant`, `enum`, `enum_member`, `type_alias`, `namespace`, `parameter`, `import`, `export`, `route`, `component`) and 12 edge kinds (`contains`, `calls`, `imports`, `exports`, `extends`, `implements`, `references`, `type_of`, `returns`, `instantiates`, `overrides`, `decorates`). Python and TypeScript extractors emit a subset suited to each grammar; framework extractors (Django, FastAPI, Express in Phase 5) will add `route` nodes and `decorates` / `references` edges.
+The v2 graph stores 22 node kinds (`file`, `module`, `class`, `struct`, `interface`, `trait`, `protocol`, `function`, `method`, `property`, `field`, `variable`, `constant`, `enum`, `enum_member`, `type_alias`, `namespace`, `parameter`, `import`, `export`, `route`, `component`) and 12 edge kinds (`contains`, `calls`, `imports`, `exports`, `extends`, `implements`, `references`, `type_of`, `returns`, `instantiates`, `overrides`, `decorates`). Python and TypeScript extractors emit a subset suited to each grammar. Three framework resolvers (Django for `urls.py` files, FastAPI / Flask for decorator-driven handlers, Express for `app.<method>` / `router.<method>` calls) run after AST extraction and emit `route` nodes plus `decorates` / `references` edges so URL handlers and middleware chains are searchable through the same `code_search` / `code_context` tools.
+
+## CLI dispatcher
+
+The `nexus-hub affected` CLI dispatcher (installed at `~/.nexus-hub/scripts/nexus_hub_affected.py` by the Nexus-Hub installer) wraps `code_affected_tests` for shell use:
+
+```bash
+# Pipe `git diff` into the test-impact query.
+git diff --name-only HEAD~1 | nexus-hub affected --root . -
+
+# Or pass files as positional args; emit JSON for downstream tooling.
+nexus-hub affected --root /repo --depth 3 --json src/foo.py src/bar.py
+```
+
+The dispatcher exits with code 2 if no graph index is found at `<root>/.nexus/code-index/codegraph.db` (run `index_graph` via the MCP server first).
+
+## Eval harness
+
+`make eval` (or `python -m nexus_code_search.eval` from this directory) runs the synthetic-codebase harness under `src/nexus_code_search/eval/`. The harness ships four fixture codebases (minimal / python_app / fastapi_app / ts_express) with 18 questions per run, scores recall + precision against the answer keys, and writes a Markdown report. The v2.2.0 baseline is captured at `docs/v2.2.0/eval-baseline.md`.
 
 ## Data flow
 

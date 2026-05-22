@@ -1,0 +1,16 @@
+name: ts_express
+description: TypeScript Express app - tests handler discovery and route extraction.
+questions:
+  - tool: code_search
+    query: listUsers
+    expect: [listUsers]
+  - tool: code_search
+    query: getUser
+    expect: [getUser]
+  - tool: code_search
+    query: createUser
+    expect: [createUser]
+  - tool: code_context
+    symbol: listUsers
+    expect_callers: []
+    expect_callees: []

@@ -17,6 +17,7 @@ from nexus_code_search.config import CodeSearchConfig
 from nexus_code_search.db.schema import open_database
 from nexus_code_search.extraction.languages import LANGUAGE_EXTRACTORS
 from nexus_code_search.extraction.parse_worker import parse_file
+from nexus_code_search.frameworks import FRAMEWORK_RESOLVERS
 from nexus_code_search.indexer import hash_file, walk_files
 from nexus_code_search.types import Edge, EdgeKind, Node, NodeKind
 
@@ -140,14 +141,19 @@ class ExtractionOrchestrator:
             )
             file_id = cur.lastrowid
 
-            nodes, edges = parse_file(path, source)
-            # Rewrite the per-file node list so file_path is repo-relative.
-            nodes = [_node_with_file(n, rel) for n in nodes]
-            local_to_db = self._insert_nodes(cur, nodes, file_id)
-            self._insert_file_node(cur, nodes, local_to_db, file_id, rel, language)
-            self._insert_edges(cur, edges, local_to_db)
-            stats.nodes_inserted += len(nodes)
-            stats.edges_inserted += len(edges)
+            ast_nodes, ast_edges = parse_file(path, source)
+            framework_nodes, framework_edges = self._run_framework_resolvers(
+                path, source, ast_nodes
+            )
+            all_nodes = [
+                _node_with_file(n, rel) for n in (*ast_nodes, *framework_nodes)
+            ]
+            all_edges = [*ast_edges, *framework_edges]
+            local_to_db = self._insert_nodes(cur, all_nodes, file_id)
+            self._insert_file_node(cur, all_nodes, local_to_db, file_id, rel, language)
+            self._insert_edges(cur, all_edges, local_to_db)
+            stats.nodes_inserted += len(all_nodes)
+            stats.edges_inserted += len(all_edges)
             stats.files_indexed += 1
 
             if progress_cb is not None:
@@ -155,6 +161,41 @@ class ExtractionOrchestrator:
 
         self.conn.commit()
         return stats
+
+    def _run_framework_resolvers(
+        self,
+        path: Path,
+        source: bytes,
+        ast_nodes: list[Node],
+    ) -> tuple[list[Node], list[Edge]]:
+        """Invoke every registered framework resolver whose `applies_to` matches.
+
+        Each resolver is passed the running `ast_nodes + prior framework
+        nodes` list and emits new framework nodes with local indices that
+        continue from `len(existing)`. Because the orchestrator merges every
+        resolver's output into the same combined list (ast first, then each
+        resolver's output in registration order), the indices remain valid in
+        the final combined list without any rebasing.
+        """
+        extra_nodes: list[Node] = []
+        extra_edges: list[Edge] = []
+        for resolver in FRAMEWORK_RESOLVERS:
+            if not resolver.applies_to(path):
+                continue
+            try:
+                existing = ast_nodes + extra_nodes
+                r_nodes, r_edges = resolver.resolve(path, source, existing)
+            except Exception:  # noqa: BLE001
+                logger.debug(
+                    "Framework resolver %s failed for %s",
+                    resolver.name,
+                    path,
+                    exc_info=True,
+                )
+                continue
+            extra_nodes.extend(r_nodes)
+            extra_edges.extend(r_edges)
+        return extra_nodes, extra_edges
 
     def _read_bytes(self, path: Path) -> bytes | None:
         # Reuse the safe text path's size guard for binary content.

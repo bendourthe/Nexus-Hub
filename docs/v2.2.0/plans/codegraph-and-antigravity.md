@@ -436,7 +436,7 @@ No constitution file found at docs/v2.2.0/constitution.md - skipping check. Reco
 
 #### 5.1 - Django framework route extractor
 
-- [ ] T029 [P] Add extensions/nexus-code-search/src/nexus_code_search/frameworks/django.py emitting `route` nodes and `references` edges from urls.py files
+- [x] T029 [P] Add extensions/nexus-code-search/src/nexus_code_search/frameworks/django.py emitting `route` nodes and `references` edges from urls.py files
 
 **Objective**: First of three framework extractors (C3 from the comparison, starter set).
 
@@ -447,7 +447,7 @@ No constitution file found at docs/v2.2.0/constitution.md - skipping check. Reco
 
 #### 5.2 - FastAPI framework route extractor
 
-- [ ] T030 [P] Add extensions/nexus-code-search/src/nexus_code_search/frameworks/fastapi.py emitting `route` nodes from `@app.get()` / `@router.post()` decorators
+- [x] T030 [P] Add extensions/nexus-code-search/src/nexus_code_search/frameworks/fastapi.py emitting `route` nodes from `@app.get()` / `@router.post()` decorators
 
 **Objective**: Second framework extractor (C3 starter set).
 
@@ -458,7 +458,7 @@ No constitution file found at docs/v2.2.0/constitution.md - skipping check. Reco
 
 #### 5.3 - Express framework route extractor
 
-- [ ] T031 [P] Add extensions/nexus-code-search/src/nexus_code_search/frameworks/express.py emitting `route` nodes from `app.get()` / `router.post()` calls
+- [x] T031 [P] Add extensions/nexus-code-search/src/nexus_code_search/frameworks/express.py emitting `route` nodes from `app.get()` / `router.post()` calls
 
 **Objective**: Third framework extractor (C3 starter set complete).
 
@@ -469,7 +469,7 @@ No constitution file found at docs/v2.2.0/constitution.md - skipping check. Reco
 
 #### 5.4 - affected_tests MCP tool and nexus-hub affected CLI
 
-- [ ] T032 Add a `code_affected_tests` MCP tool to extensions/nexus-code-search/src/nexus_code_search/server.py and a `nexus-hub affected <files>` CLI subcommand
+- [x] T032 Add a `code_affected_tests` MCP tool to extensions/nexus-code-search/src/nexus_code_search/server.py and a `nexus-hub affected <files>` CLI subcommand
 
 **Objective**: Test-impact analysis via graph traversal (C8 from the comparison).
 
@@ -480,7 +480,7 @@ No constitution file found at docs/v2.2.0/constitution.md - skipping check. Reco
 
 #### 5.5 - Synthetic-codebase MCP eval harness
 
-- [ ] T033 Add extensions/nexus-code-search/eval/ with a synthetic-codebase fixture set and a runner that scores each tool's answers against ground truth
+- [x] T033 Add extensions/nexus-code-search/eval/ with a synthetic-codebase fixture set and a runner that scores each tool's answers against ground truth
 
 **Objective**: Match CodeGraph's `__tests__/evaluation/` pattern (C10 from the comparison).
 
@@ -491,7 +491,7 @@ No constitution file found at docs/v2.2.0/constitution.md - skipping check. Reco
 
 #### 5.6 - Phase 5 tests and stabilization
 
-- [ ] T034 Run and stabilize Phase 5 tests; run the eval harness end-to-end and capture baseline scores
+- [x] T034 Run and stabilize Phase 5 tests; run the eval harness end-to-end and capture baseline scores
 
 **Objective**: Verify the framework / affected / eval layers integrate cleanly with Phase 4.
 
@@ -502,11 +502,11 @@ No constitution file found at docs/v2.2.0/constitution.md - skipping check. Reco
 
 ### Phase 5 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] All tests passing
-- [ ] Eval baseline >= 80% across all fixtures
-- [ ] Session history generated for this phase
-- [ ] Ready to advance to Phase 6
+- [x] All sub-tasks completed
+- [x] All tests passing
+- [x] Eval baseline >= 80% across all fixtures
+- [x] Session history generated for this phase
+- [x] Ready to advance to Phase 6
 
 ---
 
