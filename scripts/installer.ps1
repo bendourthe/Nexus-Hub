@@ -15,12 +15,35 @@
 [CmdletBinding()]
 param(
     [switch]$Enterprise,
-    [switch]$Help
+    [switch]$Help,
+    [string]$PrintConfig,
+    [switch]$Check,
+    [Parameter(Position = 0)]
+    [string]$Subcommand,
+    [Parameter(ValueFromRemainingArguments = $true)]
+    [string[]]$SubcommandArgs
 )
 
 if ($Help) {
     @"
-Usage: pwsh scripts/installer.ps1 [-Enterprise] [-Help]
+Usage:
+  pwsh scripts/installer.ps1 [-Enterprise] [-Help]
+  pwsh scripts/installer.ps1 init [-Target PATH] [-DryRun]
+  pwsh scripts/installer.ps1 -PrintConfig <integration-key>
+  pwsh scripts/installer.ps1 -Check
+
+Subcommands:
+  init          Bootstrap project-local surfaces (Cursor rules, Claude
+                settings.json stub) from a global install. Walks every
+                registered integration that defines wire_project_surfaces()
+                and writes the corresponding files. Defaults Target to the
+                current directory.
+
+Read-only modes (no disk writes):
+  -PrintConfig <key>  Dump the Markdown readout of what the given integration
+                      would install.
+  -Check              Dry-run every integration and exit non-zero if any action
+                      would create / update / remove a file. Useful in CI.
 
 Options:
   -Enterprise   Install the standalone Gemini CLI integration. Requires a paid
@@ -2291,6 +2314,32 @@ function Show-FarewellBanner {
 
 # --- Main ---
 $repoRoot = Resolve-Path "$PSScriptRoot\.."
+
+# Read-only subcommand dispatch (init / -PrintConfig / -Check) - bypass the
+# interactive scope menu and proxy to the Python runner so they are pipeable /
+# scriptable.
+if ($Subcommand -eq "init" -or $PrintConfig -or $Check) {
+    $runner = Join-Path $repoRoot "scripts\lib\integrations\runner.py"
+    if (-not (Test-Path $runner)) {
+        Write-Error "Runner not found at $runner"
+        exit 2
+    }
+    $py = Resolve-PythonExecutable
+    if (-not $py) {
+        Write-Error "Python not found on PATH; cannot run read-only subcommand."
+        exit 2
+    }
+    if ($Subcommand -eq "init") {
+        $passthrough = @("init")
+        if ($SubcommandArgs) { $passthrough += $SubcommandArgs }
+        & $py $runner @passthrough
+    } elseif ($PrintConfig) {
+        & $py $runner print-config $PrintConfig
+    } else {
+        & $py $runner check
+    }
+    exit $LASTEXITCODE
+}
 
 Write-NexusBanner
 Invoke-LegacyInstallMigration

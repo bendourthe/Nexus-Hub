@@ -1844,9 +1844,30 @@ REPO_ROOT="$(dirname "$SCRIPT_DIR")"
 #                       install Antigravity CLI instead.
 #   -h | --help         Show usage and exit.
 ENTERPRISE=0
+SUBCOMMAND=""
+SUBCOMMAND_ARGS=()
 show_installer_usage() {
     cat <<EOF
-Usage: bash scripts/installer.sh [--enterprise] [-h | --help]
+Usage:
+  bash scripts/installer.sh [--enterprise] [-h | --help]
+  bash scripts/installer.sh init [--target PATH] [--dry-run]
+  bash scripts/installer.sh --print-config <integration-key>
+  bash scripts/installer.sh --check
+
+Subcommands:
+  init           Bootstrap project-local surfaces (Cursor rules, Claude
+                 settings.json stub) from a global install. Walks every
+                 registered integration that defines wire_project_surfaces()
+                 and writes the corresponding files. --target defaults to the
+                 current directory.
+
+Read-only modes (no disk writes):
+  --print-config <key>  Dump the Markdown readout of what the given integration
+                        would install. Use --print-config=<key> or
+                        --print-config <key>.
+  --check               Dry-run every integration and exit non-zero if any
+                        action would create / update / remove a file. Useful in
+                        CI to detect install drift.
 
 Options:
   --enterprise   Install the standalone Gemini CLI integration. Requires a paid
@@ -1861,15 +1882,39 @@ Options:
   -h, --help     Show this help and exit.
 EOF
 }
+PRINT_CONFIG_KEY=""
+CHECK_MODE=0
 while [ $# -gt 0 ]; do
     case "$1" in
         --enterprise)
             ENTERPRISE=1
             shift
             ;;
+        --print-config)
+            PRINT_CONFIG_KEY="${2:-}"
+            if [ -z "$PRINT_CONFIG_KEY" ]; then
+                echo "--print-config requires an integration key" >&2
+                exit 2
+            fi
+            shift 2
+            ;;
+        --print-config=*)
+            PRINT_CONFIG_KEY="${1#--print-config=}"
+            shift
+            ;;
+        --check|--dry-run)
+            CHECK_MODE=1
+            shift
+            ;;
         -h|--help)
             show_installer_usage
             exit 0
+            ;;
+        init)
+            SUBCOMMAND="init"
+            shift
+            SUBCOMMAND_ARGS=("$@")
+            break
             ;;
         *)
             echo "Unknown installer flag: $1" >&2
@@ -1878,6 +1923,27 @@ while [ $# -gt 0 ]; do
             ;;
     esac
 done
+
+# Dispatch read-only subcommands BEFORE the interactive banner so they remain
+# pipeable / scriptable.
+if [ "$SUBCOMMAND" = "init" ] || [ -n "$PRINT_CONFIG_KEY" ] || [ "$CHECK_MODE" = "1" ]; then
+    runner="$REPO_ROOT/scripts/lib/integrations/runner.py"
+    if [ ! -f "$runner" ]; then
+        echo "Runner not found at $runner" >&2
+        exit 2
+    fi
+    if ! py=$(resolve_python_executable); then
+        echo "Python not found on PATH; cannot run read-only subcommand." >&2
+        exit 2
+    fi
+    if [ "$SUBCOMMAND" = "init" ]; then
+        exec "$py" "$runner" init "${SUBCOMMAND_ARGS[@]}"
+    elif [ -n "$PRINT_CONFIG_KEY" ]; then
+        exec "$py" "$runner" print-config "$PRINT_CONFIG_KEY"
+    else
+        exec "$py" "$runner" check
+    fi
+fi
 
 print_nexus_banner
 migrate_legacy_install

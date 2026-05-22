@@ -147,8 +147,12 @@ def remove_marker_section(
 def _replace_between_markers(
     text: str, new_block: str, start_marker: str, end_marker: str
 ) -> str:
+    # Use rindex so the marker block can quote itself in body text without
+    # accidentally truncating at the first nested mention. (The shared
+    # base-gemini-ide.md template literally references both markers when
+    # explaining the merge mechanism to the user.)
     start = text.index(start_marker)
-    end = text.index(end_marker, start) + len(end_marker)
+    end = text.rindex(end_marker, start) + len(end_marker)
     # Preserve the trailing newline after the end marker if it existed; otherwise
     # add one so the new block is line-terminated.
     trailing = ""
@@ -208,8 +212,10 @@ def _migrate_legacy_header(text: str, legacy_header: str, new_block: str) -> str
 
 
 def _strip_between_markers(text: str, start_marker: str, end_marker: str) -> str:
+    # Mirror the rindex semantics from _replace_between_markers so the
+    # uninstall path agrees with the install path on where the block ends.
     start = text.index(start_marker)
-    end = text.index(end_marker, start) + len(end_marker)
+    end = text.rindex(end_marker, start) + len(end_marker)
     # Eat one trailing newline that bracketed the block.
     if end < len(text) and text[end] == "\n":
         end += 1

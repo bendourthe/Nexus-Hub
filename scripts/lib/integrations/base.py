@@ -83,12 +83,28 @@ class IntegrationBase:
             self.display_name = self.key.capitalize()
 
     def install(self, ctx: InstallContext) -> WriteResult:
-        """Dispatch to install_global or install_workspace based on ctx.scope."""
+        """Dispatch to install_global or install_workspace based on ctx.scope.
+
+        Runs the per-integration legacy-state cleanups from
+        ``scripts/lib/integrations/legacy.py`` first so any old artifacts are
+        removed before the new content is written. Cleanups that return
+        ``None`` (nothing to clean) are silently skipped.
+        """
+        # Import locally to break the legacy <-> base import cycle.
+        from .legacy import run_cleanups
+
+        cleanup_actions = run_cleanups(self.key, ctx)
         if ctx.scope == "global":
-            return self.install_global(ctx)
-        if ctx.scope == "workspace":
-            return self.install_workspace(ctx)
-        raise ValueError(f"Unknown scope: {ctx.scope!r}")
+            result = self.install_global(ctx)
+        elif ctx.scope == "workspace":
+            result = self.install_workspace(ctx)
+        else:
+            raise ValueError(f"Unknown scope: {ctx.scope!r}")
+        if cleanup_actions:
+            # Cleanups happened before the install, so prepend them so the
+            # rendered output reads top-to-bottom in execution order.
+            result.files = list(cleanup_actions) + list(result.files)
+        return result
 
     def install_global(self, ctx: InstallContext) -> WriteResult:
         """Cooperative-super root. Subclasses extend via super().install_global(ctx)."""
@@ -136,6 +152,93 @@ class IntegrationBase:
                 result.add(path_str, "not-found")
             ctx.manifest.untrack(self.key, path_str)
         return result
+
+    def dry_run(self, ctx: InstallContext) -> WriteResult:
+        """Return a ``WriteResult`` for what ``install(ctx)`` would do, no writes.
+
+        Default implementation flips ``ctx.dry_run=True`` and re-uses the
+        existing install machinery. Helpers in this module (``_copy_file``,
+        ``_copy_tree``, ``_write_instruction``, ``merge_marker_section``) all
+        honor ``ctx.dry_run``, so the resulting ``WriteResult.files`` array is
+        guaranteed to reflect the on-disk delta without touching disk.
+
+        Subclasses with bespoke ``install_workspace`` / ``install_global``
+        bodies inherit dry-run support for free as long as they gate every
+        ``write_bytes`` / ``write_text`` / ``shutil.copytree`` on
+        ``ctx.dry_run``.
+        """
+        from dataclasses import replace
+
+        forced = replace(ctx, dry_run=True)
+        return self.install(forced)
+
+    def print_config(self, ctx: InstallContext) -> str:
+        """Return a Markdown readout of what install would write, no writes.
+
+        The output has three sections:
+
+        1. Header with display name, scope, and target root.
+        2. A FileActions table summarizing every file the install would touch
+           (action + path, sourced from ``dry_run``).
+        3. For ``MarkdownIntegration`` subclasses, the rendered body of the
+           instruction template so the user can paste the block manually.
+
+        Tree contents (skills/, commands/, etc.) are summarized by directory
+        path rather than enumerating thousands of files; the FileActions table
+        already names the destination.
+        """
+        result = self.dry_run(ctx)
+        lines: List[str] = []
+        lines.append(f"# {self.display_name} ({self.key})")
+        lines.append("")
+        lines.append(f"- Scope: `{ctx.scope}`")
+        lines.append(f"- Target root: `{ctx.target_root}`")
+        lines.append("")
+        lines.append("## File actions")
+        lines.append("")
+        if not result.files:
+            lines.append("_(no files would be written)_")
+        else:
+            lines.append("| Action | Path |")
+            lines.append("|--------|------|")
+            for fa in result.files:
+                lines.append(f"| `{fa.action}` | `{fa.path}` |")
+        lines.append("")
+        template_rel = self.config.get("instruction_template")
+        instruction_file = self.config.get("instruction_file")
+        if (
+            isinstance(self, MarkdownIntegration)
+            and template_rel
+            and instruction_file
+        ):
+            tpl_path = ctx.repo_root / template_rel
+            if tpl_path.exists():
+                rendered = self._render(tpl_path, ctx)
+                lines.append(f"## Rendered instruction body ({instruction_file})")
+                lines.append("")
+                lines.append("```markdown")
+                lines.append(rendered.rstrip())
+                lines.append("```")
+                lines.append("")
+        for note in result.notes:
+            lines.append(f"> {note}")
+        return "\n".join(lines) + "\n"
+
+    def wire_project_surfaces(self, ctx: InstallContext) -> Optional[WriteResult]:
+        """Bootstrap project-local surfaces from a *global* install.
+
+        Some platforms (Cursor with ``.cursor/rules/*.mdc``, Claude Code with a
+        per-project ``.claude/settings.json``) gain functionality from a
+        project-scoped file even when the catalog itself lives at
+        ``~/.<platform>/``. ``nexus-hub init`` walks every registered
+        integration and calls this hook so users can opt into the project
+        surfaces without re-running the full workspace install.
+
+        Returns ``None`` (the default) when the integration has no project-
+        local surface. Override on the relevant subclass to return a
+        ``WriteResult`` describing the files written.
+        """
+        return None
 
     def describe(self) -> Dict[str, Any]:
         """Return a JSON-serializable description for `runner.py list`."""

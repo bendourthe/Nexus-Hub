@@ -54,12 +54,17 @@ class CopilotIntegration(MarkdownIntegration):
             result.files.append(FileAction(path=str(template), action="not-found"))
             return result
         rendered = self._render(template, ctx)
-        rendered_bytes = rendered.encode("utf-8")
         marker = "## Nexus-Hub Harness"
+        # Always emit the marker so a subsequent install can detect prior
+        # ownership and short-circuit to `kept`. The first install on a fresh
+        # workspace writes `<marker>\n\n<rendered>\n`; the same shape is what
+        # later installs see and skip.
+        managed_block = marker + "\n\n" + rendered.rstrip() + "\n"
+        managed_bytes = managed_block.encode("utf-8")
         if dst.exists() and not ctx.overwrite:
             existing = dst.read_text(encoding="utf-8")
             if marker not in existing:
-                merged = existing.rstrip() + "\n\n" + marker + "\n\n" + rendered
+                merged = existing.rstrip() + "\n\n" + managed_block
                 merged_bytes = merged.encode("utf-8")
                 if existing.encode("utf-8") == merged_bytes:
                     ctx.manifest.track(self.key, str(dst))
@@ -75,7 +80,7 @@ class CopilotIntegration(MarkdownIntegration):
         else:
             existed = dst.exists()
             if not ctx.dry_run:
-                dst.write_bytes(rendered_bytes)
+                dst.write_bytes(managed_bytes)
             ctx.manifest.track(self.key, str(dst))
             result.files.append(
                 FileAction(path=str(dst), action="updated" if existed else "created")

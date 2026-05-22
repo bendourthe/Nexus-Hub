@@ -78,3 +78,43 @@ class CursorIntegration(MarkdownIntegration, YamlIntegration):
                 FileAction(path=str(dst), action="updated" if existed else "created")
             )
         return result
+
+    def wire_project_surfaces(self, ctx: InstallContext) -> WriteResult:
+        """Write a single `.cursor/rules/nexus-hub.mdc` to the project root.
+
+        Distilled from the workspace install: a global Cursor user keeps the
+        catalog at `~/.cursor/` but each project still needs the rules file
+        Cursor scans. This hook lets `nexus-hub init` drop only that file
+        without rendering AGENTS.md or re-mirroring every catalog rule.
+        """
+        result = WriteResult()
+        rules_dst = (ctx.target_root / self.config["workspace_dir"] / self.config["rules_subdir"]).resolve()
+        if not ctx.dry_run:
+            rules_dst.mkdir(parents=True, exist_ok=True)
+        dst = rules_dst / "nexus-hub.mdc"
+        body = (
+            "---\n"
+            "name: nexus-hub\n"
+            "scope: auto\n"
+            "---\n\n"
+            "# Nexus-Hub project rules\n\n"
+            "This project participates in the Nexus-Hub catalog. The agent\n"
+            "should defer to the skills, commands, and rules installed under\n"
+            "`~/.cursor/` for catalog-level guidance.\n"
+        )
+        body_bytes = body.encode("utf-8")
+        if dst.exists():
+            if dst.read_bytes() == body_bytes:
+                ctx.manifest.track(self.key, str(dst))
+                result.files.append(FileAction(path=str(dst), action="unchanged"))
+                return result
+            if not ctx.dry_run:
+                dst.write_bytes(body_bytes)
+            ctx.manifest.track(self.key, str(dst))
+            result.files.append(FileAction(path=str(dst), action="updated"))
+            return result
+        if not ctx.dry_run:
+            dst.write_bytes(body_bytes)
+        ctx.manifest.track(self.key, str(dst))
+        result.files.append(FileAction(path=str(dst), action="created"))
+        return result

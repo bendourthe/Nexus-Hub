@@ -147,6 +147,116 @@ def cmd_teardown(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_print_config(args: argparse.Namespace) -> int:
+    """Dump the Markdown readout of what one integration would install.
+
+    Calls ``integration.print_config(ctx)`` against a dry-run context so no
+    disk writes occur. Exit codes: 0 success, 1 unknown key.
+    """
+    try:
+        integ = get(args.integration)
+    except KeyError as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
+    target_root = Path(args.target).expanduser().resolve() if args.target else Path.cwd().resolve()
+    ctx = InstallContext(
+        repo_root=REPO_ROOT,
+        target_root=target_root,
+        scope=args.scope,
+        overwrite=False,
+        dry_run=True,
+        manifest=InstallManifest(),
+        template_vars={"PROJECT_NAME": args.project_name or target_root.name},
+    )
+    sys.stdout.write(integ.print_config(ctx))
+    return 0
+
+
+def cmd_check(args: argparse.Namespace) -> int:
+    """Run every integration's dry_run() and exit non-zero on drift.
+
+    Walks ``list_keys()`` (or ``--integrations``) and accumulates the
+    ``FileAction`` records each ``dry_run`` returns. Exit 0 if every action
+    is ``unchanged`` or ``kept``; exit 1 if any action would create / update
+    / remove. Always prints a per-integration summary unless ``--quiet``.
+    """
+    keys = _resolve_integration_keys(args.integrations) if args.integrations else list_keys()
+    target_root = Path(args.target).expanduser().resolve() if args.target else Path.cwd().resolve()
+    manifest_path = _manifest_path(target_root)
+    manifest = InstallManifest.load(manifest_path)
+    ctx = InstallContext(
+        repo_root=REPO_ROOT,
+        target_root=target_root,
+        scope=args.scope,
+        overwrite=False,
+        dry_run=True,
+        manifest=manifest,
+        template_vars={"PROJECT_NAME": args.project_name or target_root.name},
+    )
+    drift_actions = {"created", "updated", "removed", "not-found"}
+    drift_found = False
+    for key in keys:
+        try:
+            integ = get(key)
+            result = integ.dry_run(ctx)
+        except Exception as exc:  # noqa: BLE001
+            print(f"[error:{key}] {exc}", file=sys.stderr)
+            drift_found = True
+            continue
+        kinds = result.actions_by_kind()
+        if any(k in drift_actions for k in kinds):
+            drift_found = True
+        if not args.quiet:
+            label = ", ".join(f"{k}:{v}" for k, v in sorted(kinds.items())) or "(empty)"
+            print(f"[check:{key}] {integ.display_name} -> {label}")
+            for fa in result.files:
+                if fa.action in drift_actions:
+                    print(f"  [drift] {fa.action:<10} {fa.path}")
+    if drift_found:
+        if not args.quiet:
+            print("drift detected", file=sys.stderr)
+        return 1
+    if not args.quiet:
+        print("no drift; install matches catalog.")
+    return 0
+
+
+def cmd_init(args: argparse.Namespace) -> int:
+    """Walk every registered integration and call wire_project_surfaces(ctx).
+
+    Used by `nexus-hub init` to bootstrap project-local surfaces (Cursor's
+    .cursor/rules/nexus-hub.mdc, Claude's .claude/settings.json stub, etc.)
+    from a *global* install without re-running the full workspace install.
+    """
+    target_root = Path(args.target).expanduser().resolve() if args.target else Path.cwd().resolve()
+    manifest_path = _manifest_path(target_root)
+    manifest = InstallManifest.load(manifest_path)
+    ctx = InstallContext(
+        repo_root=REPO_ROOT,
+        target_root=target_root,
+        scope="workspace",
+        overwrite=args.overwrite,
+        dry_run=args.dry_run,
+        manifest=manifest,
+        template_vars={"PROJECT_NAME": args.project_name or target_root.name},
+    )
+    any_surfaces = False
+    for key in list_keys():
+        integ = get(key)
+        result = integ.wire_project_surfaces(ctx)
+        if result is None:
+            continue
+        any_surfaces = True
+        if not args.quiet:
+            print(f"[init] {integ.display_name}")
+        _render_write_result(key, result, args.quiet)
+    if not any_surfaces and not args.quiet:
+        print("No integration provides a project-local surface.")
+    if not args.dry_run:
+        manifest.save(manifest_path)
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="nexus-hub-integrations")
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -168,6 +278,41 @@ def build_parser() -> argparse.ArgumentParser:
         help="Suppress informational output. The installer uses this so it can print its own per-platform headers; errors still go to stderr.",
     )
     p_install.set_defaults(func=cmd_install)
+
+    p_print = sub.add_parser(
+        "print-config",
+        help="Dump the Markdown readout of what one integration would install.",
+    )
+    p_print.add_argument("integration", help="Integration key (e.g., claude).")
+    p_print.add_argument("--scope", choices=["global", "workspace"], default="workspace")
+    p_print.add_argument("--target", help="Workspace root (defaults to CWD).")
+    p_print.add_argument("--project-name", help="Template token PROJECT_NAME.")
+    p_print.set_defaults(func=cmd_print_config)
+
+    p_check = sub.add_parser(
+        "check",
+        help="Dry-run every integration; exit non-zero if anything would change.",
+    )
+    p_check.add_argument("--scope", choices=["global", "workspace"], default="workspace")
+    p_check.add_argument("--target", help="Workspace root (defaults to CWD).")
+    p_check.add_argument("--integrations", help="Comma-separated keys, or 'all'. Default: all.")
+    p_check.add_argument("--project-name", help="Template token PROJECT_NAME.")
+    p_check.add_argument("--quiet", action="store_true")
+    p_check.set_defaults(func=cmd_check)
+
+    p_init = sub.add_parser(
+        "init",
+        help="Bootstrap project-local surfaces (Cursor rules, Claude settings stub, ...).",
+    )
+    p_init.add_argument(
+        "--target",
+        help="Project root (defaults to CWD).",
+    )
+    p_init.add_argument("--overwrite", action="store_true")
+    p_init.add_argument("--dry-run", action="store_true")
+    p_init.add_argument("--project-name", help="Template token PROJECT_NAME.")
+    p_init.add_argument("--quiet", action="store_true")
+    p_init.set_defaults(func=cmd_init)
 
     p_teardown = sub.add_parser("teardown", help="Remove integration files based on the manifest.")
     p_teardown.add_argument("--target", required=True)
