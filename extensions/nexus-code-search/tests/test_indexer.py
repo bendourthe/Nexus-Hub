@@ -110,7 +110,6 @@ def test_symlinks_are_not_followed(
     ~/.ssh/id_rsa or /etc/passwd into the index when the user invokes
     index_codebase on a freshly-cloned untrusted repo.
     """
-    import sys
 
     # Create a sensitive file outside the indexed root.
     secret = tmp_path / "outside" / "private.txt"

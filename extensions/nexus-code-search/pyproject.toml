@@ -1,7 +1,7 @@
 [project]
 name = "nexus-code-search"
 version = "2.0.0"
-description = "Nexus-Hub local-only code-search MCP server (keyword-only in v1.0.0; dense/hybrid planned for v1.1.0)"
+description = "Nexus-Hub local-only code-search MCP server (v2.0 adds tree-sitter AST graph + call-graph + file-watcher; keyword search kept for back-compat)"
 requires-python = ">=3.10"
 license = {text = "MIT"}
 authors = [{name = "Benjamin Dourthe"}]
@@ -9,6 +9,10 @@ dependencies = [
     "mcp>=1.0.0",
     "rapidfuzz>=3.5.0",
     "pathspec>=0.12.0",
+    "tree-sitter>=0.24,<0.26",
+    "tree-sitter-python>=0.23,<0.26",
+    "tree-sitter-typescript>=0.23,<0.26",
+    "watchdog>=4.0.0",
 ]
 
 [project.optional-dependencies]

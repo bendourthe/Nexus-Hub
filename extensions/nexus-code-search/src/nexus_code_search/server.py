@@ -1,14 +1,25 @@
-"""FastMCP server exposing the four code-search tools.
+"""FastMCP server exposing the code-search and graph tools.
 
-Tools: index_codebase, search_code, clear_index, get_indexing_status.
-All tool handlers are synchronous wrappers over the underlying logic;
-indexing large trees runs inline (the MCP client can poll
-get_indexing_status; background-thread indexing is reserved for v1.1.0
-when the dense-embedding path makes inline indexing expensive).
+v1.0 tools (keyword chunk index):
+    index_codebase, search_code, clear_index, get_indexing_status
+
+v2.0 tools (tree-sitter AST graph):
+    index_graph              Build / refresh the SQLite AST graph for a repo.
+    code_search              FTS5 search over graph nodes (name + docstring).
+    code_callers             Direct callers of a symbol.
+    code_callees             Direct callees of a symbol.
+    code_impact              Blast-radius traversal.
+    code_node                Resolve a symbol by name / qualified_name.
+    code_context             Node + callers + callees + siblings in one call.
+    code_explore             Combined search + traversal payload.
+    watch_for_changes        Start a debounced file watcher (background thread).
+
+All handlers are synchronous wrappers over the underlying logic; indexing
+runs inline (clients can poll get_indexing_status).
 """
+
 from __future__ import annotations
 
-import datetime as _dt
 import json
 import logging
 from pathlib import Path
@@ -18,6 +29,9 @@ from mcp.server.stdio import stdio_server
 from mcp.types import TextContent, Tool
 
 from nexus_code_search.config import CodeSearchConfig, index_dir_for, resolve_config
+from nexus_code_search.db.schema import open_database
+from nexus_code_search.extraction import ExtractionOrchestrator
+from nexus_code_search.graph import GraphQueryManager
 from nexus_code_search.indexer import index_codebase
 from nexus_code_search.search_keyword import KeywordIndex
 from nexus_code_search.store import clear_index as store_clear_index
@@ -30,19 +44,32 @@ SERVER_INSTRUCTIONS = """\
 nexus-code-search: AST-aware semantic search over a local codebase.
 
 Tools (what / when):
-  index_codebase        Walk a repo, chunk source files, persist a content-hash
+  index_codebase        Walk a repo, chunk source files, persist a keyword
                         index. Run once per fresh checkout; subsequent calls
                         skip unchanged files. Set force=True to rebuild.
-  search_code           Keyword search (mode='keyword' in v1.0.0). Returns
-                        ranked chunks with file paths and line ranges.
-                        Hybrid retrieval (dense + sparse) lands in v1.1.0.
-  clear_index           Remove the on-disk index for a given repo root.
+  search_code           Keyword search over the chunk index. Returns ranked
+                        chunks with file paths and line ranges.
+  clear_index           Remove the keyword + graph indices for a repo root.
   get_indexing_status   Report current state (IDLE / RUNNING) and counts.
+  index_graph           v2.0: build the tree-sitter AST graph (nodes / edges
+                        / FTS5) for Python + TypeScript source files.
+  code_search           v2.0: full-text search over graph node names and
+                        docstrings; returns symbol records.
+  code_callers          v2.0: every node that has a `calls` edge into this
+                        symbol. Useful for "who calls X" questions.
+  code_callees          v2.0: every node this symbol has a `calls` edge to.
+  code_impact           v2.0: BFS over calls + references + extends +
+                        implements + overrides edges up to `depth` hops.
+  code_node             v2.0: resolve a symbol by name or qualified_name.
+  code_context          v2.0: one-shot node + callers + callees + siblings.
+  code_explore          v2.0: combined search + traversal in a single call.
+  watch_for_changes     v2.0: start a debounced file watcher in a background
+                        thread that re-indexes changed files.
 
 MCP Registry Policy:
   This server is `already-local` per the MCP Registry Policy
   (catalog/mcp-configs/mcp-servers.json). Zero outbound calls; zero
-  credentials; chunks + index live entirely on the local filesystem
+  credentials; chunks + AST graph live entirely on the local filesystem
   under <repo>/.nexus/code-index/.
 
 Related skill:
@@ -53,99 +80,13 @@ Related skill:
 """
 
 
-def _dataclass_to_dict(obj) -> dict:
-    """Serialize dataclass + enum to a JSON-safe dict."""
-    if hasattr(obj, "to_dict"):
-        return obj.to_dict()
-    raise TypeError(f"Not serializable: {type(obj)!r}")
-
-
 async def run_server() -> None:
     config = resolve_config()
     server = Server("nexus-code-search")
 
     @server.list_tools()
     async def list_tools() -> list[Tool]:
-        return [
-            Tool(
-                name="index_codebase",
-                description=(
-                    "Walk a codebase, chunk source files, and persist a content-hash index. "
-                    "Skips unchanged files on re-index (set force=True to rebuild from scratch). "
-                    "Local-only; no network calls."
-                ),
-                inputSchema={
-                    "type": "object",
-                    "properties": {
-                        "root": {
-                            "type": "string",
-                            "description": "Absolute or relative path to the codebase root",
-                        },
-                        "force": {
-                            "type": "boolean",
-                            "default": False,
-                            "description": "If True, re-chunk every file regardless of prior hashes",
-                        },
-                    },
-                    "required": ["root"],
-                },
-            ),
-            Tool(
-                name="search_code",
-                description=(
-                    "Search the indexed codebase for a query. v1.0.0 accepts mode='keyword' "
-                    "only; mode='hybrid' is reserved for v1.1.0 when dense retrieval lands."
-                ),
-                inputSchema={
-                    "type": "object",
-                    "properties": {
-                        "root": {
-                            "type": "string",
-                            "description": "Codebase root that was previously indexed",
-                        },
-                        "query": {
-                            "type": "string",
-                            "description": "Search query (natural language or keywords)",
-                        },
-                        "mode": {
-                            "type": "string",
-                            "enum": ["keyword"],
-                            "default": "keyword",
-                            "description": "Retrieval mode. Only 'keyword' in v1.0.0.",
-                        },
-                        "limit": {
-                            "type": "integer",
-                            "default": 10,
-                            "minimum": 1,
-                            "maximum": 50,
-                        },
-                    },
-                    "required": ["root", "query"],
-                },
-            ),
-            Tool(
-                name="clear_index",
-                description="Remove the on-disk index for a given codebase root.",
-                inputSchema={
-                    "type": "object",
-                    "properties": {
-                        "root": {"type": "string"},
-                    },
-                    "required": ["root"],
-                },
-            ),
-            Tool(
-                name="get_indexing_status",
-                description="Return the current indexing state for a given codebase root.",
-                inputSchema={
-                    "type": "object",
-                    "properties": {
-                        "root": {"type": "string"},
-                    },
-                    "required": ["root"],
-                },
-            ),
-        ]
+        return _all_tools()
 
     @server.call_tool()
     async def call_tool(name: str, arguments: dict) -> list[TextContent]:
@@ -158,7 +99,25 @@ async def run_server() -> None:
                 return _handle_clear(arguments, config)
             if name == "get_indexing_status":
                 return _handle_status(arguments, config)
-            return [TextContent(type="text", text=json.dumps({"error": f"Unknown tool: {name}"}))]
+            if name == "index_graph":
+                return _handle_index_graph(arguments, config)
+            if name in (
+                "code_search",
+                "code_callers",
+                "code_callees",
+                "code_impact",
+                "code_node",
+                "code_context",
+                "code_explore",
+            ):
+                return _handle_graph_query(name, arguments, config)
+            if name == "watch_for_changes":
+                return _handle_watch(arguments, config)
+            return [
+                TextContent(
+                    type="text", text=json.dumps({"error": f"Unknown tool: {name}"})
+                )
+            ]
         except Exception as exc:  # noqa: BLE001
             logger.exception("Tool %s failed", name)
             return [TextContent(type="text", text=json.dumps({"error": str(exc)}))]
@@ -169,6 +128,208 @@ async def run_server() -> None:
             update={"instructions": SERVER_INSTRUCTIONS}
         )
         await server.run(read_stream, write_stream, init_options)
+
+
+def _all_tools() -> list[Tool]:
+    root_arg = {
+        "root": {
+            "type": "string",
+            "description": "Absolute or relative path to the codebase root",
+        }
+    }
+    symbol_arg = {
+        "root": root_arg["root"],
+        "symbol": {
+            "type": "string",
+            "description": "Symbol name or qualified_name (e.g. `helper` or `module.Class.method`).",
+        },
+    }
+    return [
+        Tool(
+            name="index_codebase",
+            description=(
+                "Walk a codebase, chunk source files, and persist a content-hash index. "
+                "Skips unchanged files on re-index (set force=True to rebuild from scratch). "
+                "Local-only; no network calls."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    **root_arg,
+                    "force": {"type": "boolean", "default": False},
+                },
+                "required": ["root"],
+            },
+        ),
+        Tool(
+            name="search_code",
+            description="Keyword search over the indexed chunk corpus.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    **root_arg,
+                    "query": {"type": "string"},
+                    "mode": {
+                        "type": "string",
+                        "enum": ["keyword"],
+                        "default": "keyword",
+                    },
+                    "limit": {
+                        "type": "integer",
+                        "default": 10,
+                        "minimum": 1,
+                        "maximum": 50,
+                    },
+                },
+                "required": ["root", "query"],
+            },
+        ),
+        Tool(
+            name="clear_index",
+            description="Remove the on-disk indices (keyword + graph) for a given codebase root.",
+            inputSchema={
+                "type": "object",
+                "properties": root_arg,
+                "required": ["root"],
+            },
+        ),
+        Tool(
+            name="get_indexing_status",
+            description="Return the current indexing state for a given codebase root.",
+            inputSchema={
+                "type": "object",
+                "properties": root_arg,
+                "required": ["root"],
+            },
+        ),
+        Tool(
+            name="index_graph",
+            description=(
+                "Build the tree-sitter AST graph (nodes + edges + FTS) for Python and "
+                "TypeScript files under `root`. Idempotent; unchanged files are skipped."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    **root_arg,
+                    "force": {"type": "boolean", "default": False},
+                },
+                "required": ["root"],
+            },
+        ),
+        Tool(
+            name="code_search",
+            description="FTS5 search over graph node names, qualified_names, and docstrings.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    **root_arg,
+                    "query": {"type": "string"},
+                    "limit": {
+                        "type": "integer",
+                        "default": 20,
+                        "minimum": 1,
+                        "maximum": 200,
+                    },
+                },
+                "required": ["root", "query"],
+            },
+        ),
+        Tool(
+            name="code_callers",
+            description="Return every node that has a `calls` edge into the named symbol.",
+            inputSchema={
+                "type": "object",
+                "properties": symbol_arg,
+                "required": ["root", "symbol"],
+            },
+        ),
+        Tool(
+            name="code_callees",
+            description="Return every node the named symbol has a `calls` edge to.",
+            inputSchema={
+                "type": "object",
+                "properties": symbol_arg,
+                "required": ["root", "symbol"],
+            },
+        ),
+        Tool(
+            name="code_impact",
+            description=(
+                "BFS over impact-bearing edges (calls + references + extends + implements + "
+                "overrides) up to `depth` hops out and in. Use for change blast-radius."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    **symbol_arg,
+                    "depth": {
+                        "type": "integer",
+                        "default": 2,
+                        "minimum": 1,
+                        "maximum": 6,
+                    },
+                },
+                "required": ["root", "symbol"],
+            },
+        ),
+        Tool(
+            name="code_node",
+            description="Resolve a symbol by name or qualified_name. Returns matching nodes.",
+            inputSchema={
+                "type": "object",
+                "properties": symbol_arg,
+                "required": ["root", "symbol"],
+            },
+        ),
+        Tool(
+            name="code_context",
+            description="Return node + callers + callees + siblings (one-shot context window).",
+            inputSchema={
+                "type": "object",
+                "properties": symbol_arg,
+                "required": ["root", "symbol"],
+            },
+        ),
+        Tool(
+            name="code_explore",
+            description="Combined search + callers + callees + impact in one payload.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    **symbol_arg,
+                    "depth": {
+                        "type": "integer",
+                        "default": 2,
+                        "minimum": 1,
+                        "maximum": 6,
+                    },
+                },
+                "required": ["root", "symbol"],
+            },
+        ),
+        Tool(
+            name="watch_for_changes",
+            description=(
+                "Start a debounced file watcher in a background thread. Re-indexes changed "
+                "source files into the graph. Returns immediately; the watcher runs until "
+                "the server stops or `stop_watching` is called."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    **root_arg,
+                    "debounce_ms": {
+                        "type": "integer",
+                        "default": 2000,
+                        "minimum": 100,
+                        "maximum": 60000,
+                    },
+                },
+                "required": ["root"],
+            },
+        ),
+    ]
 
 
 def _resolve_root(arguments: dict) -> Path:
@@ -219,9 +380,8 @@ def _handle_search(arguments: dict, config: CodeSearchConfig) -> list[TextConten
 
     if mode != "keyword":
         raise NotImplementedError(
-            "nexus-code-search v1.0.0 supports mode='keyword' only. "
-            "Hybrid retrieval (mode='hybrid') is planned for v1.1.0 with a local ONNX "
-            "embedding backend and a sqlite-vec vector store."
+            "search_code currently supports mode='keyword' only. Use code_search for "
+            "the v2.0 AST graph full-text surface."
         )
 
     index_dir = index_dir_for(root, config)
@@ -233,7 +393,7 @@ def _handle_search(arguments: dict, config: CodeSearchConfig) -> list[TextConten
                 text=json.dumps(
                     {
                         "results": [],
-                        "note": f"No index found at {index_dir}. Run index_codebase first.",
+                        "note": f"No keyword index found at {index_dir}. Run index_codebase first.",
                     }
                 ),
             )
@@ -265,6 +425,14 @@ def _handle_clear(arguments: dict, config: CodeSearchConfig) -> list[TextContent
     root = _resolve_root(arguments)
     index_dir = index_dir_for(root, config)
     removed = store_clear_index(index_dir)
+    # Also drop the graph database file if present.
+    db_path = index_dir / "codegraph.db"
+    if db_path.exists():
+        try:
+            db_path.unlink()
+            removed = True
+        except OSError:
+            pass
     payload = {"root": str(root), "cleared": removed}
     return [TextContent(type="text", text=json.dumps(payload))]
 
@@ -285,3 +453,92 @@ def _handle_status(arguments: dict, config: CodeSearchConfig) -> list[TextConten
             last_updated=manifest.indexed_at,
         )
     return [TextContent(type="text", text=json.dumps(status.to_dict()))]
+
+
+def _handle_index_graph(arguments: dict, config: CodeSearchConfig) -> list[TextContent]:
+    root = _resolve_root(arguments)
+    if not root.exists() or not root.is_dir():
+        raise ValueError(f"root path does not exist or is not a directory: {root}")
+    force = bool(arguments.get("force", False))
+    index_dir = index_dir_for(root, config)
+    with ExtractionOrchestrator(root, config, index_dir) as orch:
+        stats = orch.run(force=force)
+    payload = {"root": str(root), **stats.to_dict()}
+    return [TextContent(type="text", text=json.dumps(payload))]
+
+
+def _handle_graph_query(
+    name: str, arguments: dict, config: CodeSearchConfig
+) -> list[TextContent]:
+    root = _resolve_root(arguments)
+    index_dir = index_dir_for(root, config)
+    conn = open_database(index_dir)
+    try:
+        qm = GraphQueryManager(conn)
+        if name == "code_search":
+            query = arguments.get("query", "")
+            limit = int(arguments.get("limit", 20))
+            payload = {
+                "root": str(root),
+                "query": query,
+                "results": qm.search(query, limit=limit),
+            }
+        elif name == "code_callers":
+            symbol = arguments.get("symbol", "")
+            payload = {"root": str(root), **qm.callers_of(symbol)}
+        elif name == "code_callees":
+            symbol = arguments.get("symbol", "")
+            payload = {"root": str(root), **qm.callees_of(symbol)}
+        elif name == "code_impact":
+            symbol = arguments.get("symbol", "")
+            depth = int(arguments.get("depth", 2))
+            payload = {"root": str(root), **qm.impact_of(symbol, depth=depth)}
+        elif name == "code_node":
+            symbol = arguments.get("symbol", "")
+            matches = qm._resolve_symbol(symbol, None)
+            payload = {
+                "root": str(root),
+                "symbol": symbol,
+                "matches": [_node_to_payload(n) for n in matches],
+            }
+        elif name == "code_context":
+            symbol = arguments.get("symbol", "")
+            payload = {"root": str(root), **qm.context_for(symbol)}
+        elif name == "code_explore":
+            symbol = arguments.get("symbol", "")
+            depth = int(arguments.get("depth", 2))
+            payload = {"root": str(root), **qm.explore(symbol, depth=depth)}
+        else:
+            payload = {"error": f"Unknown graph tool: {name}"}
+    finally:
+        conn.close()
+    return [TextContent(type="text", text=json.dumps(payload))]
+
+
+def _handle_watch(arguments: dict, config: CodeSearchConfig) -> list[TextContent]:
+    from nexus_code_search.watch import start_watcher_for_graph
+
+    root = _resolve_root(arguments)
+    debounce_ms = int(arguments.get("debounce_ms", 2000))
+    watcher = start_watcher_for_graph(root, config, debounce_ms=debounce_ms)
+    payload = {
+        "root": str(root),
+        "watcher_id": id(watcher),
+        "debounce_ms": debounce_ms,
+        "status": "watching",
+    }
+    return [TextContent(type="text", text=json.dumps(payload))]
+
+
+def _node_to_payload(node) -> dict:
+    return {
+        "id": node.id,
+        "name": node.name,
+        "kind": node.kind.value,
+        "qualified_name": node.qualified_name,
+        "file_path": node.file_path,
+        "start_line": node.start_line,
+        "end_line": node.end_line,
+        "signature": node.signature,
+        "docstring": node.docstring,
+    }

@@ -62,6 +62,12 @@ __pycache__/
 .mypy_cache/
 .ruff_cache/
 
+# Python coverage artifacts (added in v2.2.0 when phase tests started running with --cov)
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
 # Python virtual environments (developer-local)
 .venv/
 venv/
