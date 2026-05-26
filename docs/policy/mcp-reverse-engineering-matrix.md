@@ -57,6 +57,16 @@ Each row answers:
 
 ---
 
+### Skill-native adoptions (no MCP, no outbound calls)
+
+These rows record catalog content adopted from an external project under the `skill-native` classification: pure Markdown skills with zero code and zero runtime dependencies added to Nexus-Hub. Per the Reverse-Engineering Attribution Rule, the upstream repo is named only here, never in the distributed artifact. The action columns are version-scoped to the adopting release.
+
+| MCP key | Current source | What it does | Outbound-call surface | Classification | Effort if RE'd | v2.2.0 action | v2.3.0+ action | Rationale / citation |
+|---|---|---|---|---|---|---|---|---|
+| n/a (skill, not MCP) | external SDK skill at google-antigravity/antigravity-sdk-python skills/google-antigravity-sdk/ (pinned to v0.1.1 commit observed on 2026-05-21) | Builds autonomous AI agents on the Google Antigravity backend with async agent loop, hooks, policies, MCP integration, multimodal ingestion, triggers, subagents, structured output | None at the Nexus-Hub catalog layer. The SDK itself reaches the Gemini API at user runtime, but Nexus-Hub does not execute the SDK -- the skill teaches the user to install it in their own project | `skill-native` | n/a (already skill-native) | Adopted as catalog/skills/ai-development/google-antigravity-sdk/ in this plan (sub-tasks 1.1-1.3). Source content rewritten to Nexus-Hub tone; upstream repo stripped from every user-facing line per the Reverse-Engineering Attribution Rule | Track upstream SDK releases for material changes (default-model bump, new lifecycle hooks, breaking API changes); refresh the references and examples when meaningful | Source skill at github.com/google-antigravity/antigravity-sdk-python (skills/google-antigravity-sdk/SKILL.md + 7 reference docs + 12 example docs). Apache-2.0 licensed. Classified skill-native because the entire artifact is Markdown content in Anthropic's Agent Skill format -- zero code, zero runtime dependencies in Nexus-Hub. Hard-no items (google-genai runtime dep, bundled Go local-harness binary, Vercel/Context7 skills CLI distribution) explicitly NOT adopted; see docs/v2.2.0/comparison-antigravity-sdk-python.md Section 13 N1-N4 |
+
+---
+
 ### Dropped in v1.0.0 (Reverse-Engineered or Drop-Outright)
 
 | MCP key | Current source | What it does | Outbound-call surface | Classification | Effort if RE'd | v1.0.0 action | v1.1.0+ action | Rationale / citation |

@@ -8,6 +8,8 @@ This document is the empirical record sub-task 2.1 (T007) of [the codegraph-and-
 
 Because the Antigravity CLI binary is not available in the authoring environment (it is only being rolled out to users transitioning from Gemini CLI), this probe captures **the documented and inferable conventions** from Google's announcement and from the existing Antigravity 2.0 desktop installer that the CLI shares a backend with. Any inferred field is tagged with `(inferred)`. Any field confirmed by Google's public documentation is tagged `(documented)`. Fields still requiring empirical confirmation on a live VM are tagged `(open)` and tracked in `<version_dir>/known-gaps.md`.
 
+**Update 2026-05-26**: four backend-runtime fields (default model, application data directory, MCP transport, default tool-call policy) are pinned to `(documented, SDK v0.1.1)` in the new Section 7 below, using the Antigravity SDK as the authoritative source for the shared Antigravity backend. See [docs/v2.2.0/plans/adoption-antigravity-sdk-python.md](plans/adoption-antigravity-sdk-python.md) sub-task 1.4 for the source citations. These four fields were not previously present in this probe (the probe's existing `(inferred)` fields are the binary name, command file format, and auth flow, which the SDK cannot pin and which remain tracked as WN-2 / WN-3 / WN-4); they are added rather than replaced. The binary-name and auth fields stay `(inferred)` / `(open)` pending a live-VM probe.
+
 ## 1. Binary name and PATH location
 
 | Field | Value | Source |
@@ -65,7 +67,20 @@ Because the Antigravity CLI binary is not available in the authoring environment
 
 **Decision for T008**: Nexus-Hub never reads, writes, or validates these credentials. The integration only installs instructions and catalog content; auth is the user's responsibility. No code path inspects credentials.json.
 
-## 7. Divergence summary vs. `scripts/lib/integrations/antigravity.py`
+## 7. Backend-runtime details pinned from the Antigravity SDK (documented, v0.1.1)
+
+The Antigravity SDK is the official client for the same Antigravity backend the CLI targets, so its documented runtime defaults are authoritative for the backend the CLI shares. The four fields below are pinned `(documented, SDK v0.1.1)` and de-risk Phase 2 sub-tasks T007 / T008 / T012 of [the codegraph-and-antigravity plan](plans/codegraph-and-antigravity.md). Citations point at the new `google-antigravity-sdk` skill's reference docs (the canonical in-repo record of these facts).
+
+| Field | Value | Source |
+|---|---|---|
+| Default model | `gemini-3.5-flash` | (documented, SDK v0.1.1) - [google-antigravity-sdk references/agent_configuration.md](../../catalog/skills/ai-development/google-antigravity-sdk/references/agent_configuration.md) "Default model" section: the SDK's default model is `gemini-3.5-flash` |
+| Application data directory | `~/.gemini/antigravity/brain/` | (documented, SDK v0.1.1) - [google-antigravity-sdk references/agent_configuration.md](../../catalog/skills/ai-development/google-antigravity-sdk/references/agent_configuration.md) "Application Data Directory Override" section |
+| MCP transport | stdio + SSE | (documented, SDK v0.1.1) - [google-antigravity-sdk references/mcp_integration.md](../../catalog/skills/ai-development/google-antigravity-sdk/references/mcp_integration.md): both the stdio (`McpStdioServer`) and SSE transports are supported |
+| Default tool-call policy | `confirm_run_command()` (denies `run_command`, allows other tools) | (documented, SDK v0.1.1) - [google-antigravity-sdk references/safety_policies.md](../../catalog/skills/ai-development/google-antigravity-sdk/references/safety_policies.md) "Default Behavior" section |
+
+**Note on scope**: the application data directory (`~/.gemini/antigravity/brain/`) is the agent's working-artifact directory and is distinct from the CLI's config directory (`~/.agent/`, Section 2). Both are correct; they serve different purposes. The default model and default policy describe backend behavior the CLI inherits; they do not change any path in `scripts/lib/integrations/antigravity.py`.
+
+## 8. Divergence summary vs. `scripts/lib/integrations/antigravity.py`
 
 Every documented field above matches the existing `Antigravity20Integration` config dict (lines 36-47). No path divergence detected; the existing integration is the canonical Antigravity CLI integration.
 
@@ -77,7 +92,7 @@ The only update sub-task 2.2 (T008) needs to make is:
 
 This is the (a) branch of the T008 prompt: "if Antigravity CLI uses the same `~/.agent/` paths as Antigravity 2.0 desktop, update the `Antigravity20Integration` display_name to 'Antigravity 2.0 + CLI (Google)' and add a docstring note confirming dual coverage".
 
-## 8. Open items (tracked in `<version_dir>/known-gaps.md`)
+## 9. Open items (tracked in `<version_dir>/known-gaps.md`)
 
 The following empirical confirmations remain `(open)` until a live Antigravity CLI install is available:
 
@@ -87,7 +102,7 @@ The following empirical confirmations remain `(open)` until a live Antigravity C
 
 All three are flagged `WN` (warning, not blocker) in known-gaps.md per the v2.2.0 known-gaps-tracker convention; the Antigravity CLI integration ships unblocked because the path conventions are documented.
 
-## 9. References
+## 10. References
 
 - Google Developers Blog, "An important update: transitioning Gemini CLI to Antigravity CLI" (2026-05-21): https://developers.googleblog.com/an-important-update-transitioning-gemini-cli-to-antigravity-cli/
 - Existing integration: [scripts/lib/integrations/antigravity.py](../../scripts/lib/integrations/antigravity.py) lines 34-49

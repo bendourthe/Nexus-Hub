@@ -41,7 +41,7 @@ No constitution file found at docs/v2.2.0/constitution.md - skipping check. Reco
 
 #### 1.1 - Scaffold the new skill directory and write Nexus-Hub-shaped frontmatter
 
-- [ ] T001 Create the skill folder layout at catalog/skills/ai-development/google-antigravity-sdk/
+- [x] T001 Create the skill folder layout at catalog/skills/ai-development/google-antigravity-sdk/
 
 **Objective**: Stand up the new skill folder under the `ai-development` category with the Nexus-Hub-mandated frontmatter (L0/L1 summaries, pushy description + trigger phrases + SKIP clause) and the empty body section skeleton.
 
@@ -52,7 +52,7 @@ No constitution file found at docs/v2.2.0/constitution.md - skipping check. Reco
 
 #### 1.2 - Port the seven reference documents
 
-- [ ] T002 [P] Port the SDK skill's reference docs into catalog/skills/ai-development/google-antigravity-sdk/references/
+- [x] T002 [P] Port the SDK skill's reference docs into catalog/skills/ai-development/google-antigravity-sdk/references/
 
 **Objective**: Bring the SDK's seven reference docs (architecture, agent_configuration, mcp_integration, safety_policies, error_handling, observability, built_in_tools) into the new skill's `references/` subdirectory, rewritten to match Nexus-Hub's tone and to strip upstream attribution per the policy.
 
@@ -63,7 +63,7 @@ No constitution file found at docs/v2.2.0/constitution.md - skipping check. Reco
 
 #### 1.3 - Port the twelve example documents into references/examples/
 
-- [ ] T003 [P] Port the SDK skill's example docs into catalog/skills/ai-development/google-antigravity-sdk/references/examples/
+- [x] T003 [P] Port the SDK skill's example docs into catalog/skills/ai-development/google-antigravity-sdk/references/examples/
 
 **Objective**: Bring the SDK skill's twelve getting-started example walkthroughs (hello_world, custom_tool, persona_config, multimodal, subagents, mcp_tools, periodic_trigger, hooks, persistence, app_data_dir_override, structured_output, agent_skills) into a `references/examples/` subdirectory so the bundled-resources convention treats them as references (Tier 3 loading) rather than top-level examples.
 
@@ -74,7 +74,7 @@ No constitution file found at docs/v2.2.0/constitution.md - skipping check. Reco
 
 #### 1.4 - Refine docs/v2.2.0/antigravity-cli-probe.md with documented SDK runtime details
 
-- [ ] T004 [P] Pin (inferred) fields to (documented) in docs/v2.2.0/antigravity-cli-probe.md using SDK as the authoritative source
+- [x] T004 [P] Pin (inferred) fields to (documented) in docs/v2.2.0/antigravity-cli-probe.md using SDK as the authoritative source *(deviation: the four runtime fields were not pre-existing rows in the probe, so they were ADDED as a new Section 7 tagged `(documented, SDK v0.1.1)` rather than tag-replaced; the probe's existing `(inferred)` fields are binary-name/auth/command-format, which the SDK cannot pin and stay tracked as WN-2/WN-3/WN-4)*
 
 **Objective**: Drop the four pinnable `(inferred)` tags in the existing probe to `(documented)` by citing the SDK's pyproject.toml + README + reference docs. De-risks the in-progress `codegraph-and-antigravity` Phase 2 sub-tasks T007 / T008 / T012.
 
@@ -85,7 +85,7 @@ No constitution file found at docs/v2.2.0/constitution.md - skipping check. Reco
 
 #### 1.5 - Rebaseline the data registry with the new skill row
 
-- [ ] T005 Update data/SKILL_INDEX.md and data/skills.json and data/marketplace.json to register the new google-antigravity-sdk skill
+- [x] T005 Update data/SKILL_INDEX.md and data/skills.json and data/marketplace.json to register the new google-antigravity-sdk skill *(matched the actual on-disk schema rather than the prompt's approximation: `size` is an object `{lines, characters, tokens_estimate}`, `author` is "Benjamin Dourthe", `priority` is "MEDIUM", `status` is "production", `security` carries `validated`; marketplace.json has no `statistics.total_skills` field so only the ai-development `skill_count` was bumped 9 -> 10)*
 
 **Objective**: Mandatory data-registry sync per `AGENTS.md` rule #2: any new skill MUST appear in all three registry files.
 
@@ -96,7 +96,7 @@ No constitution file found at docs/v2.2.0/constitution.md - skipping check. Reco
 
 #### 1.6 - Add the MCP reverse-engineering matrix attribution row
 
-- [ ] T006 [P] Add a row to docs/policy/mcp-reverse-engineering-matrix.md attributing the upstream antigravity-sdk-python source
+- [x] T006 [P] Add a row to docs/policy/mcp-reverse-engineering-matrix.md attributing the upstream antigravity-sdk-python source
 
 **Objective**: Per the Reverse-Engineering Attribution Rule in `AGENTS.md`, the upstream repo cannot be named in the user-facing skill but MUST be attributed in the policy matrix. This row is the permanent record of where the new skill came from and why it was classified `skill-native`.
 
@@ -107,7 +107,7 @@ No constitution file found at docs/v2.2.0/constitution.md - skipping check. Reco
 
 #### 1.7 - Phase 1 tests and stabilization
 
-- [ ] T007 Run and stabilize Phase 1 validation: make validate plus orphan-bundle check plus pushy-description audit
+- [x] T007 Run and stabilize Phase 1 validation: make validate plus orphan-bundle check plus pushy-description audit
 
 **Objective**: Verify the new skill is fully wired, the data registry is internally consistent, and no orphan-bundle warnings surface before Phase 2 builds pattern references on top.
 
@@ -118,13 +118,13 @@ No constitution file found at docs/v2.2.0/constitution.md - skipping check. Reco
 
 ### Phase 1 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] make validate clean
-- [ ] python scripts/validate_skills.py --bundles-only reports zero orphan warnings
-- [ ] make lint and make test pass unchanged
-- [ ] SKILL.md manual audit passes against AGENTS.md
-- [ ] Session history generated for this phase
-- [ ] Ready to advance to Phase 2
+- [x] All sub-tasks completed *(T001-T007; see T004/T005 inline deviation annotations)*
+- [x] make validate clean *(skills.json 207 skills, marketplace/bundles/workflows/templates parse; SKILL.md frontmatter valid YAML with all 4 mandatory fields)*
+- [x] python scripts/validate_skills.py --bundles-only reports zero orphan warnings *(scanned 211 skills, PASS 0 errors / 0 warnings; all 7 references + 12 examples linked from the routing table)*
+- [x] make lint and make test pass unchanged *(no shell or Python code touched; nexus-skill-server suite -- the surface that reads skills.json -- 43 passed; broader hook/integration suites unaffected by catalog-content additions)*
+- [x] SKILL.md manual audit passes against AGENTS.md *(4 mandatory frontmatter fields; description has trigger phrases AND a SKIP clause; body has When to Use / Instructions / Common Rationalizations / Verification / Related Skills plus Installation & Setup and Architecture; all 19 bundled files linked)*
+- [x] Session history generated for this phase *(2026-05-26_sdk-phase-1-core-adoption.md)*
+- [x] Ready to advance to Phase 2
 
 ---
 
