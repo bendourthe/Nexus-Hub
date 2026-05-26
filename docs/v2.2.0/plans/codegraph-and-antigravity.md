@@ -591,7 +591,7 @@ No constitution file found at docs/v2.2.0/constitution.md - skipping check. Reco
 - [x] RELEASE_NOTES, CHANGELOG, known-gaps all finalized *(plus the adoption-antigravity-sdk-python additions folded in during the combined release-prep sweep)*
 - [x] Cross-OS smoke results recorded *(Windows clean; macOS / Linux deferred as WN-8 -- source release)*
 - [x] Version-bump commit message printed and staged
-- [ ] User has run `git tag v2.2.0 && git push origin v2.2.0` (manual) *(prepared in the combined release-prep sweep; awaiting the tag step)*
+- [x] User has run `git tag v2.2.0 && git push origin v2.2.0` *(annotated tag cut on commit 352f8be and pushed to origin on 2026-05-26)*
 - [x] Session history generated for this phase *(2026-05-22 implementation history + the 2026-05-26 checkbox-sync history)*
 
 ---
