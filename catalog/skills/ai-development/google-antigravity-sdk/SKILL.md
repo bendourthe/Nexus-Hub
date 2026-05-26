@@ -124,5 +124,6 @@ Read the reference doc that matches the task, then the matching example for a co
 
 - `claude-agent-sdk` -- the Anthropic-side equivalent (Claude Agent SDK in TypeScript); use it when building on Claude instead of Gemini.
 - `mcp-builder` -- build the MCP servers an Antigravity agent consumes (this skill covers the consumer side; `mcp-builder` covers the author side).
-- `ai-agent-development` -- general agent architecture patterns (planning loops, memory, lifecycle hooks) independent of any one SDK.
+- `ai-development/ai-agent-development` -- general agent architecture patterns (planning loops, memory) independent of any one SDK; the canonical home for the agent lifecycle-hook pattern ([references/lifecycle-hooks.md](../ai-agent-development/references/lifecycle-hooks.md)) and the multimodal-ingestion pattern ([references/multimodal-ingestion.md](../ai-agent-development/references/multimodal-ingestion.md)) this skill implements.
+- `security/authentication-patterns` -- declarative tool-call authorization patterns; the canonical home for the policy resolution-order doctrine ([references/agent-policy-resolution.md](../../security/authentication-patterns/references/agent-policy-resolution.md)) that this skill's [safety_policies.md](references/safety_policies.md) implements concretely.
 - `multi-provider-ai` -- provider routing for standalone model calls without an agent loop (one of the SKIP destinations above).

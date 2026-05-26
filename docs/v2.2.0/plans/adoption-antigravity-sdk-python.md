@@ -138,7 +138,7 @@ No constitution file found at docs/v2.2.0/constitution.md - skipping check. Reco
 
 #### 2.1 - Author policy resolution-order reference under security/authentication-patterns
 
-- [ ] T008 [P] Create catalog/skills/security/authentication-patterns/references/agent-policy-resolution.md
+- [x] T008 [P] Create catalog/skills/security/authentication-patterns/references/agent-policy-resolution.md
 
 **Objective**: Document the SDK's declarative-policy resolution doctrine (Specific Deny > Specific Ask > Specific Allow > Wildcard Deny > Wildcard Ask > Wildcard Allow; predicates fail closed) as a pattern reference inside Nexus-Hub's existing `authentication-patterns` skill (adoption candidate A3).
 
@@ -149,7 +149,7 @@ No constitution file found at docs/v2.2.0/constitution.md - skipping check. Reco
 
 #### 2.2 - Author lifecycle-hooks reference under ai-development/ai-agent-development
 
-- [ ] T009 [P] Create catalog/skills/ai-development/ai-agent-development/references/lifecycle-hooks.md
+- [x] T009 [P] Create catalog/skills/ai-development/ai-agent-development/references/lifecycle-hooks.md
 
 **Objective**: Document the agent-being-built lifecycle hook pattern (pre/post turn, pre/post tool execution, on-error) inside `ai-agent-development`, with use-case examples (audit log, retry, persona shift, cost-cap) drawn from the SDK's `examples/getting_started/hooks.md` and `examples/deep_dives/agent_middleware.py` (adoption candidate A4).
 
@@ -160,7 +160,7 @@ No constitution file found at docs/v2.2.0/constitution.md - skipping check. Reco
 
 #### 2.3 - Author multimodal-ingestion reference under ai-development/ai-agent-development
 
-- [ ] T010 [P] Create catalog/skills/ai-development/ai-agent-development/references/multimodal-ingestion.md
+- [x] T010 [P] Create catalog/skills/ai-development/ai-agent-development/references/multimodal-ingestion.md
 
 **Objective**: Document the agent multimodal input pattern (images, PDFs, audio, in-memory bytes vs. filesystem-path) at the SDK layer, inside `ai-agent-development` (adoption candidate A5).
 
@@ -171,7 +171,7 @@ No constitution file found at docs/v2.2.0/constitution.md - skipping check. Reco
 
 #### 2.4 - Update Phase 1 skill's Related Skills section to point at the three host skills
 
-- [ ] T011 Update catalog/skills/ai-development/google-antigravity-sdk/SKILL.md Related Skills section
+- [x] T011 Update catalog/skills/ai-development/google-antigravity-sdk/SKILL.md Related Skills section
 
 **Objective**: Phase 2's three references all cite back to the Phase 1 skill. Reciprocate the link by expanding the Phase 1 skill's `## Related Skills` section to surface the three host skills as the canonical entry points for the patterns it implements.
 
@@ -182,7 +182,7 @@ No constitution file found at docs/v2.2.0/constitution.md - skipping check. Reco
 
 #### 2.5 - Phase 2 tests and stabilization
 
-- [ ] T012 Run and stabilize Phase 2 validation: orphan-bundle check across four skills
+- [x] T012 Run and stabilize Phase 2 validation: orphan-bundle check across four skills
 
 **Objective**: Verify all four touched skills (the new Phase 1 skill plus the three Phase 2 host skills) have clean orphan-bundle status and no cross-document link rot.
 
@@ -193,12 +193,12 @@ No constitution file found at docs/v2.2.0/constitution.md - skipping check. Reco
 
 ### Phase 2 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] Orphan-bundle check clean across all four touched skills
-- [ ] make validate clean
-- [ ] Bidirectional links verified (Phase 1 skill <-> three Phase 2 host skills)
-- [ ] Session history generated for this phase
-- [ ] Ready to advance to Phase 3
+- [x] All sub-tasks completed *(T008-T012)*
+- [x] Orphan-bundle check clean across all four touched skills *(PASS 0 errors / 0 warnings across 211 scanned skills; the three new references are linked from their parent SKILL.md)*
+- [x] make validate clean *(orphan audit clean; no data/ registry change this phase -- references are bundled resources of existing skills)*
+- [x] Bidirectional links verified (Phase 1 skill <-> three Phase 2 host skills) *(each new reference links back to google-antigravity-sdk; the Phase 1 skill deeplinks all three references; 50 relative links resolve)*
+- [x] Session history generated for this phase *(2026-05-26_sdk-phase-2-pattern-references.md)*
+- [x] Ready to advance to Phase 3
 
 ---
 

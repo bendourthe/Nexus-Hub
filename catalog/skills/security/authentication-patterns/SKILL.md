@@ -851,6 +851,10 @@ app.post('/api/orders', requireScope('orders:write'), createOrder);
 - [ ] JWT validation explicitly checks `iss`, `aud`, `exp`, and `alg` — no `none` algorithm accepted
 - [ ] Rate limiting is applied to the login endpoint (verified by attempting >10 requests/minute)
 
+## References
+
+- [references/agent-policy-resolution.md](references/agent-policy-resolution.md) - Declarative tool-call authorization for AI agents being built: the deterministic resolution priority order (Specific Deny > Specific Ask > Specific Allow > Wildcard Deny > Wildcard Ask > Wildcard Allow), fail-closed predicates, and convenience presets. Distinct from human / service authentication; applies when an agent grants tools.
+
 ## Related Skills
 
 - `security-review` - Application security assessment including auth review

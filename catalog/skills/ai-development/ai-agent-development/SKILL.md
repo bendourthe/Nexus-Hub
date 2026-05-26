@@ -1016,6 +1016,11 @@ Cross-links:
 - [ ] Memory layer (if applicable) persists and retrieves context across sessions: verified by running the same query in two separate sessions
 - [ ] Replanning logic is triggered on tool failure: confirmed by injecting a tool error and observing the agent adjusts its plan
 
+## References
+
+- [references/lifecycle-hooks.md](references/lifecycle-hooks.md) - The agent-being-built lifecycle hook pattern (on_turn_start / on_turn_end / on_tool_call_pre / on_tool_call_post / on_error) for audit logging, retries, persona shifts, cost caps, and structured error recovery. Distinct from AI-assistant runtime hooks.
+- [references/multimodal-ingestion.md](references/multimodal-ingestion.md) - Agent multimodal input patterns: the two ingestion shapes (in-memory bytes vs. filesystem path), supported media families, and mixed prompt lists. Agent input, as distinct from output evaluation.
+
 ## Related Skills
 
 - `tool-design` - Designing tools and APIs for agent consumption
