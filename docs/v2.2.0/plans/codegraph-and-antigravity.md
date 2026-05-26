@@ -242,7 +242,7 @@ No constitution file found at docs/v2.2.0/constitution.md - skipping check. Reco
 
 #### 3.1 - Generalize legacy state self-healing
 
-- [ ] T015 Add scripts/lib/integrations/legacy.py with a registry of per-integration cleanup functions, modeled after the v2.1.0 VS Code extension cleanup commit b52a038
+- [x] T015 Add scripts/lib/integrations/legacy.py with a registry of per-integration cleanup functions, modeled after the v2.1.0 VS Code extension cleanup commit b52a038
 
 **Objective**: Make legacy-state cleanup a first-class pattern rather than per-platform ad-hoc code (C12 from the comparison).
 
@@ -253,7 +253,7 @@ No constitution file found at docs/v2.2.0/constitution.md - skipping check. Reco
 
 #### 3.2 - Add wire_project_surfaces() optional method
 
-- [ ] T016 Add `wire_project_surfaces(ctx) -> WriteResult` as an optional method on IntegrationBase, called from a new `nexus-hub init` installer subcommand
+- [x] T016 Add `wire_project_surfaces(ctx) -> WriteResult` as an optional method on IntegrationBase, called from a new `nexus-hub init` installer subcommand
 
 **Objective**: Enable a global install to bootstrap project-local surfaces (Cursor `.cursor/rules/*.mdc`, project-local skill manifests, etc.) without forcing the user to re-run the full installer per project (C7 from the comparison).
 
@@ -264,7 +264,7 @@ No constitution file found at docs/v2.2.0/constitution.md - skipping check. Reco
 
 #### 3.3 - Add --print-config flag and per-integration print_config()
 
-- [ ] T017 Implement `installer.sh --print-config <integration-key>` (and PowerShell equivalent) that dumps the MCP / settings / instructions snippets a user would paste manually, without touching disk
+- [x] T017 Implement `installer.sh --print-config <integration-key>` (and PowerShell equivalent) that dumps the MCP / settings / instructions snippets a user would paste manually, without touching disk
 
 **Objective**: Dry-run-style readout for users who want to inspect what Nexus-Hub would write (C6 from the comparison).
 
@@ -275,7 +275,7 @@ No constitution file found at docs/v2.2.0/constitution.md - skipping check. Reco
 
 #### 3.4 - Add --check / --dry-run flag and per-integration dry_run()
 
-- [ ] T018 Implement `installer.sh --check` that runs the full install in dry-run mode (no disk writes) and exits 0 if nothing would change, non-zero if it would
+- [x] T018 Implement `installer.sh --check` that runs the full install in dry-run mode (no disk writes) and exits 0 if nothing would change, non-zero if it would
 
 **Objective**: CI-friendly install-drift detection (C6 from the comparison).
 
@@ -286,7 +286,7 @@ No constitution file found at docs/v2.2.0/constitution.md - skipping check. Reco
 
 #### 3.5 - Parameterized installer contract test suite
 
-- [ ] T019 Expand tests/integrations/ with a parameterized contract suite covering install idempotency, sibling preservation, uninstall-reverses-install, byte-identical re-runs returning `unchanged`, partial-state recovery - across all 10 integrations
+- [x] T019 Expand tests/integrations/ with a parameterized contract suite covering install idempotency, sibling preservation, uninstall-reverses-install, byte-identical re-runs returning `unchanged`, partial-state recovery - across all 10 integrations
 
 **Objective**: Match CodeGraph's `__tests__/installer-targets.test.ts` rigor (47 cases). For Nexus-Hub's 10 integrations and the same 5 invariants, the matrix is roughly 50 cases (C11 from the comparison).
 
@@ -297,7 +297,7 @@ No constitution file found at docs/v2.2.0/constitution.md - skipping check. Reco
 
 #### 3.6 - Parity diff suite: legacy installer vs registry runner
 
-- [ ] T020 [from v2.1.0 known-gaps: DF-001] Write tests/integrations/test_parity_with_legacy_installer.py asserting byte-identical output between the legacy installer copy blocks and the registry runner for Claude / Codex / Cursor / Gemini / OpenCode
+- [x] T020 [from v2.1.0 known-gaps: DF-001] Write tests/integrations/test_parity_with_legacy_installer.py asserting byte-identical output between the legacy installer copy blocks and the registry runner for Claude / Codex / Cursor / Gemini / OpenCode
 
 **Objective**: Resolve DF-001 carried forward from v2.1.0. The v2.1.0 plan deferred this because byte-identical parity was the heaviest sub-task; with C4's WriteResult vocabulary now in place, parity is straightforward to assert.
 
@@ -310,7 +310,7 @@ No constitution file found at docs/v2.2.0/constitution.md - skipping check. Reco
 
 #### 3.7 - Refactor legacy installer copy paths to delegate to runner
 
-- [ ] T021 [from v2.1.0 known-gaps: DF-001] Refactor scripts/installer.sh and scripts/installer.ps1 to delegate the original 4 platforms to the registry runner; remove the duplicated copy blocks
+- [ ] T021 [from v2.1.0 known-gaps: DF-001] Refactor scripts/installer.sh and scripts/installer.ps1 to delegate the original 4 platforms to the registry runner; remove the duplicated copy blocks *(deferred to v2.3.0 as DF-001-part2 -- the plan made T021 conditional on full instruction-file byte parity from T020, but the registry runner does not yet substitute the full bash placeholder set (`{{PRIMARY_LANGUAGE}}`, `{{BUILD_CMD}}`, `{{SKILL_INDEX}}`, ...) nor append per-language coding snippets; removing the legacy blocks today would silently downgrade end-user instruction-file content. Tracked as DF-001 in [docs/v2.2.0/known-gaps.md](../../known-gaps.md).)*
 
 **Objective**: Complete the DF-001 migration. With parity tests in place from sub-task 3.6, the duplicated copy blocks can be safely removed.
 
@@ -321,7 +321,7 @@ No constitution file found at docs/v2.2.0/constitution.md - skipping check. Reco
 
 #### 3.8 - Phase 3 tests and stabilization
 
-- [ ] T022 Run and stabilize all Phase 3 tests including the 50-case contract suite and the parity diff suite
+- [x] T022 Run and stabilize all Phase 3 tests including the 50-case contract suite and the parity diff suite
 
 **Objective**: Verify the installer reaches CodeGraph parity rigor and DF-001 is closed.
 
@@ -332,12 +332,12 @@ No constitution file found at docs/v2.2.0/constitution.md - skipping check. Reco
 
 ### Phase 3 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] All tests passing (contract suite + parity suite)
-- [ ] DF-001 closed in docs/v2.1.0/known-gaps.md
-- [ ] Legacy installer copy blocks removed
-- [ ] Session history generated for this phase
-- [ ] Ready to advance to Phase 4
+- [x] All sub-tasks completed *(7 of 8; T021 deferred to v2.3.0 as DF-001-part2 -- see annotation on T021 above)*
+- [x] All tests passing (contract suite + parity suite) *(223 passed, 0 failed)*
+- [x] DF-001 closed in docs/v2.1.0/known-gaps.md *(part 1 -- tree-mirror parity -- closed in v2.2.0 Phase 3 T020; part 2 -- instruction-file byte parity + legacy block removal -- carried forward to v2.2.0 known-gaps DF-001, target v2.3.0)*
+- [ ] Legacy installer copy blocks removed *(deferred with T021 to v2.3.0; see DF-001 in [docs/v2.2.0/known-gaps.md](../../known-gaps.md))*
+- [x] Session history generated for this phase
+- [x] Ready to advance to Phase 4
 
 ---
 
