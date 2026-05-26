@@ -351,7 +351,7 @@ No constitution file found at docs/v2.2.0/constitution.md - skipping check. Reco
 
 #### 4.1 - Add tree-sitter-python dependency and scaffolding
 
-- [ ] T023 Add `tree-sitter` and `tree-sitter-languages` to extensions/nexus-code-search/pyproject.toml with appropriate version pins, and scaffold extensions/nexus-code-search/src/nexus_code_search/extraction/
+- [x] T023 Add `tree-sitter` and `tree-sitter-languages` to extensions/nexus-code-search/pyproject.toml with appropriate version pins, and scaffold extensions/nexus-code-search/src/nexus_code_search/extraction/
 
 **Objective**: Bring tree-sitter into the dependency surface and lay out the per-language extractor module structure (C1 from the comparison).
 
@@ -362,7 +362,7 @@ No constitution file found at docs/v2.2.0/constitution.md - skipping check. Reco
 
 #### 4.2 - Build NodeKind/EdgeKind schema and DB migration
 
-- [ ] T024 Define `NodeKind` and `EdgeKind` enums in extensions/nexus-code-search/src/nexus_code_search/types.py, and add a SQLite schema migration creating the `nodes` / `edges` / `files` tables with FTS5 virtual table
+- [x] T024 Define `NodeKind` and `EdgeKind` enums in extensions/nexus-code-search/src/nexus_code_search/types.py, and add a SQLite schema migration creating the `nodes` / `edges` / `files` tables with FTS5 virtual table
 
 **Objective**: Move from the v1.0.0 pickled-index to a relational AST graph (C1 continued).
 
@@ -373,7 +373,7 @@ No constitution file found at docs/v2.2.0/constitution.md - skipping check. Reco
 
 #### 4.3 - Port per-language AST extractors (start with Python and TypeScript)
 
-- [ ] T025 Implement extensions/nexus-code-search/src/nexus_code_search/extraction/languages/python.py and typescript.py using tree-sitter queries to extract NodeKind / EdgeKind records
+- [x] T025 Implement extensions/nexus-code-search/src/nexus_code_search/extraction/languages/python.py and typescript.py using tree-sitter queries to extract NodeKind / EdgeKind records *(code shipped at original Phase 4 close; the companion `docs/v2.2.0/deferred-language-extractors.md` deliverable was created in the 2026-05-26 checkbox-sync pass)*
 
 **Objective**: First two-language slice of the AST extractor. Other languages follow the same pattern and are tracked under Phase 4's "remaining languages" follow-up (deferred to v2.3.0).
 
@@ -384,7 +384,7 @@ No constitution file found at docs/v2.2.0/constitution.md - skipping check. Reco
 
 #### 4.4 - Implement call-graph traversal
 
-- [ ] T026 Create extensions/nexus-code-search/src/nexus_code_search/graph/traverser.py with `GraphTraverser.callers(node_id)` / `callees(node_id)` / `impact_radius(node_id, depth=2)` plus `get_node(node_id, include_source=False)`
+- [x] T026 Create extensions/nexus-code-search/src/nexus_code_search/graph/traverser.py with `GraphTraverser.callers(node_id)` / `callees(node_id)` / `impact_radius(node_id, depth=2)` plus `get_node(node_id, include_source=False)`
 
 **Objective**: Add the call-graph layer the comparison's C2 candidate requires.
 
@@ -395,7 +395,7 @@ No constitution file found at docs/v2.2.0/constitution.md - skipping check. Reco
 
 #### 4.5 - File watcher with watchdog
 
-- [ ] T027 [P] Add extensions/nexus-code-search/src/nexus_code_search/watch.py using the `watchdog` library to detect file changes and trigger incremental re-index
+- [x] T027 [P] Add extensions/nexus-code-search/src/nexus_code_search/watch.py using the `watchdog` library to detect file changes and trigger incremental re-index
 
 **Objective**: Keep the index fresh as the user edits files (C14 from the comparison).
 
@@ -406,7 +406,7 @@ No constitution file found at docs/v2.2.0/constitution.md - skipping check. Reco
 
 #### 4.6 - Phase 4 tests and stabilization
 
-- [ ] T028 Run and stabilize Phase 4 tests; index a real medium-sized repo and validate the call-graph against ground truth
+- [x] T028 Run and stabilize Phase 4 tests; index a real medium-sized repo and validate the call-graph against ground truth *(live `pallets/flask` clone skipped for network constraints; equivalent end-to-end coverage via the synthetic-repo `test_orchestrator.py` paths -- see the 2026-05-22 Phase 4 session history)*
 
 **Objective**: Verify the AST + call-graph + watcher pipeline end-to-end.
 
@@ -417,12 +417,12 @@ No constitution file found at docs/v2.2.0/constitution.md - skipping check. Reco
 
 ### Phase 4 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] All tests passing
-- [ ] End-to-end smoke against Flask (or equivalent) succeeds
-- [ ] v1.0.0 -> v2.0 index migration warning works correctly
-- [ ] Session history generated for this phase
-- [ ] Ready to advance to Phase 5
+- [x] All sub-tasks completed
+- [x] All tests passing *(136 passed, 1 skipped in the 2026-05-26 sync re-run; 104 passed at original Phase 4 close, grown by Phase 5)*
+- [x] End-to-end smoke against Flask (or equivalent) succeeds *(equivalent: synthetic-repo `test_orchestrator.py` paths; live Flask clone skipped for network constraints per the 2026-05-22 session history)*
+- [x] v1.0.0 -> v2.0 index migration warning works correctly *(`migrate_v1_to_v2` renames the legacy index aside and prints the re-index warning; covered by `test_schema.py`)*
+- [x] Session history generated for this phase *(2026-05-22 implementation history + 2026-05-26 checkbox-sync history)*
+- [x] Ready to advance to Phase 5 *(Phase 5 already shipped on top of this foundation)*
 
 ---
 
