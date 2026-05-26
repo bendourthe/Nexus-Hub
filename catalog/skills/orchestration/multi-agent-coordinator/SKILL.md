@@ -613,6 +613,10 @@ Invoke related skills at the appropriate coordination phase:
 - [ ] Post-integration verification covers build, tests, and security
 - [ ] Delegation audit trail is documented for cost tracking
 
+## References
+
+- [references/sdk-subagents.md](references/sdk-subagents.md) - In-process subagent spawning (the agent-SDK pattern) vs. process-level multi-agent coordination (this skill): when to pick each, and how they compose.
+
 ## Related Skills
 
 - `task-coordinator` - General task decomposition and dependency management

@@ -140,6 +140,10 @@ When `docs/todos.md` does not exist:
 - Status emoji: ✅ Done, ❌ Missing, ✅ Partial (for functionality matrices only)
 - No hard line wrapping inside table cells or bullet points
 
+## References
+
+- [references/sdk-triggers.md](references/sdk-triggers.md) — background-task triggers in agent SDKs (time-based and event-based) as prior art for the `/loop` and `/schedule` workflows: the same "work that fires without a human prompt" mental model at a different runtime layer.
+
 ## Related Skills
 
 - `session-history` — captures what happened in a session (retrospective); todos.md is forward-looking
