@@ -132,7 +132,7 @@ No constitution file found at docs/v2.2.0/constitution.md - skipping check. Reco
 
 #### 2.1 - Probe and verify Antigravity CLI paths empirically
 
-- [ ] T007 Document the actual Antigravity CLI install paths, config dir, command schema, and auth flow in docs/v2.2.0/antigravity-cli-probe.md
+- [x] T007 Document the actual Antigravity CLI install paths, config dir, command schema, and auth flow in docs/v2.2.0/antigravity-cli-probe.md
 
 **Objective**: The current `antigravity2` integration in scripts/lib/integrations/antigravity.py assumes `~/.agent/` / `AGENT.md` / `workflows/` / `subagents/`. The 2026-05-21 Google Developers Blog announcement confirmed only that the new CLI shares the Antigravity 2.0 backend; it did not confirm directory conventions. This sub-task pins the assumption to evidence.
 
@@ -143,7 +143,7 @@ No constitution file found at docs/v2.2.0/constitution.md - skipping check. Reco
 
 #### 2.2 - Reconcile / register the canonical Antigravity CLI integration
 
-- [ ] T008 Update scripts/lib/integrations/antigravity.py to match the probe findings, and register a new `antigravity-cli` key in scripts/lib/integrations/__init__.py if the probe shows the CLI uses different paths from Antigravity 2.0 desktop
+- [x] T008 Update scripts/lib/integrations/antigravity.py to match the probe findings, and register a new `antigravity-cli` key in scripts/lib/integrations/__init__.py if the probe shows the CLI uses different paths from Antigravity 2.0 desktop
 
 **Objective**: Make the integration honest about what it installs. Either the existing `antigravity2` key absorbs the CLI (if paths match), or a new `antigravity-cli` subclass is added.
 
@@ -154,7 +154,7 @@ No constitution file found at docs/v2.2.0/constitution.md - skipping check. Reco
 
 #### 2.3 - Add antigravity-cli-diff-review hook variant
 
-- [ ] T009 [P] Author catalog/hooks/antigravity-cli-diff-review.sh and catalog/hooks/antigravity-cli-diff-review.ps1 mirroring the existing Claude/Gemini/Codex/OpenCode variants
+- [x] T009 [P] Author catalog/hooks/antigravity-cli-diff-review.sh and catalog/hooks/antigravity-cli-diff-review.ps1 mirroring the existing Claude/Gemini/Codex/OpenCode variants
 
 **Objective**: The installer copy loop at scripts/installer.sh:1523 iterates over claude/gemini/codex/opencode diff-review variants. Add the Antigravity CLI sibling so the new platform gets the same pre-commit AI review affordance.
 
@@ -165,7 +165,7 @@ No constitution file found at docs/v2.2.0/constitution.md - skipping check. Reco
 
 #### 2.4 - Update AGENTS.md "Platform coverage caveats"
 
-- [ ] T010 Rewrite the "Platform coverage caveats (current state)" subsection in AGENTS.md to reflect the Gemini-CLI sunset and the new Antigravity CLI integration
+- [x] T010 Rewrite the "Platform coverage caveats (current state)" subsection in AGENTS.md to reflect the Gemini-CLI sunset and the new Antigravity CLI integration
 
 **Objective**: AGENTS.md currently lists Gemini CLI as one of the Extended 3. After 2026-06-18 that line is stale for non-enterprise users.
 
@@ -176,7 +176,7 @@ No constitution file found at docs/v2.2.0/constitution.md - skipping check. Reco
 
 #### 2.5 - Split the shared base-gemini template
 
-- [ ] T011 Refactor templates/ai-instructions/base-gemini.md into templates/ai-instructions/base-google-shared.md plus dedicated per-surface variants for Gemini-IDE / Antigravity-1.0 / Antigravity-2.0 / Antigravity-CLI / Gemini-CLI
+- [x] T011 Refactor templates/ai-instructions/base-gemini.md into templates/ai-instructions/base-google-shared.md plus dedicated per-surface variants for Gemini-IDE / Antigravity-1.0 / Antigravity-2.0 / Antigravity-CLI / Gemini-CLI
 
 **Objective**: One template currently serves five Google-side surfaces (scripts/lib/integrations/antigravity.py:25,40; scripts/lib/integrations/gemini.py; scripts/lib/integrations/gemini_cli.py:32). Splitting lets the sunset Gemini CLI surface be archived cleanly without affecting Antigravity.
 
@@ -187,7 +187,7 @@ No constitution file found at docs/v2.2.0/constitution.md - skipping check. Reco
 
 #### 2.6 - Validate TOML commands convention compatibility
 
-- [ ] T012 Verify the Gemini CLI TOML commands schema (scripts/lib/integrations/gemini_cli.py:42-48 `_write_toml_commands`) still applies to Antigravity CLI, and document the result in docs/v2.2.0/antigravity-cli-commands-schema.md
+- [x] T012 Verify the Gemini CLI TOML commands schema (scripts/lib/integrations/gemini_cli.py:42-48 `_write_toml_commands`) still applies to Antigravity CLI, and document the result in docs/v2.2.0/antigravity-cli-commands-schema.md
 
 **Objective**: Antigravity CLI inherited Gemini CLI's Agent Skills / Hooks / Subagents / Extensions per the blog post, but the on-disk command file format was not confirmed. If it differs, sub-task 2.2's integration needs an Antigravity variant of `_write_toml_commands`.
 
@@ -198,7 +198,7 @@ No constitution file found at docs/v2.2.0/constitution.md - skipping check. Reco
 
 #### 2.7 - Deprecate the standalone Gemini CLI install path
 
-- [ ] T013 Gate scripts/installer.sh:770,1163 (and the PowerShell equivalents) Gemini CLI dispatch behind an `--enterprise` flag, and print a sunset warning when the flag is absent
+- [x] T013 Gate scripts/installer.sh:770,1163 (and the PowerShell equivalents) Gemini CLI dispatch behind an `--enterprise` flag, and print a sunset warning when the flag is absent
 
 **Objective**: After 2026-06-18, the unconditional `invoke_registry_platform ... gemini-cli` calls become silent no-ops for non-enterprise users. Switching to opt-in prevents confusion.
 
@@ -209,7 +209,7 @@ No constitution file found at docs/v2.2.0/constitution.md - skipping check. Reco
 
 #### 2.8 - Phase 2 tests and stabilization
 
-- [ ] T014 Run and stabilize all Phase 2 tests in tests/integrations/, tests/installer/, and verify the sunset warning + --enterprise gating end-to-end
+- [x] T014 Run and stabilize all Phase 2 tests in tests/integrations/, tests/installer/, and verify the sunset warning + --enterprise gating end-to-end
 
 **Objective**: Phase 2 is time-critical. Confirm it is shippable in isolation before continuing.
 
@@ -222,13 +222,13 @@ No constitution file found at docs/v2.2.0/constitution.md - skipping check. Reco
 
 ### Phase 2 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] All tests passing
-- [ ] Antigravity CLI installs and functions on a clean VM
-- [ ] Gemini CLI is gated behind --enterprise with a working sunset warning
-- [ ] AGENTS.md and CHANGELOG reflect the new state
-- [ ] Session history generated for this phase
-- [ ] Phase 2 is independently shippable before 2026-06-18
+- [x] All sub-tasks completed
+- [x] All tests passing
+- [ ] Antigravity CLI installs and functions on a clean VM *(deferred: no VM available at authoring time; documented as WN-2/WN-3/WN-4 in `<version_dir>/known-gaps.md` per the static-probe approach in `docs/v2.2.0/antigravity-cli-probe.md`)*
+- [x] Gemini CLI is gated behind --enterprise with a working sunset warning
+- [x] AGENTS.md and CHANGELOG reflect the new state
+- [x] Session history generated for this phase
+- [x] Phase 2 is independently shippable before 2026-06-18
 
 ---
 
