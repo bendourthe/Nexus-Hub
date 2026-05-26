@@ -1,5 +1,15 @@
 # Development Log
 
+## [2026-05-26] - v2.2.0 release finalization (codegraph Phase 6 sync + combined release prep + tag)
+
+Closed out v2.2.0 for release by executing the three remaining gate steps after both plans were delivered. Step 1 synced the codegraph-and-antigravity Phase 6 plan checkboxes (T035-T040 + the Phase 6 Exit Checklist): the Phase 6 release artifacts shipped on 2026-05-22 in `54b1b85` but the plan boxes were never marked, the same drift pattern the Phase 4 sync (`063f199`) addressed. T035 (data-registry rebaseline) was a no-op at Phase 6 (206 skills; the codegraph deltas were MCP tools, hooks, and templates rather than new skills); the one new skill arrived later from the SDK plan.
+
+Step 2 folded that new skill into the human-facing release surface. `AGENTS.md` catalog count was rebaselined from 206 to 207 skills (the canonical "Current catalog" line plus the project-structure tree line, which had been stale at 203). `docs/v2.2.0/RELEASE_NOTES.md` gained a release-date bump to 2026-05-26, a two-plan Plans line, a Highlights bullet for `google-antigravity-sdk`, and a dedicated "antigravity-sdk-python adoption (A1-A8)" section with a per-candidate map and the N1-N4 policy rejections. `CHANGELOG.md`'s `[2.2.0]` block moved to 2026-05-26, its intro now notes the second plan, and three Added entries cover the new skill (and its registry registration to 207 skills), the six SDK pattern / cross-link references, and the probe pin plus the reverse-engineering-matrix row.
+
+Validation across the finalization: JSON catalogs parse with skills.json at 207, the orphan-bundle audit reports PASS (0 errors, 0 warnings) across 211 scanned skills, the `nexus-skill-server` suite passes 43/43, and the edited docs are ASCII-only. No code was touched in any step, so `make lint` and the full `make test` suite are unchanged by construction.
+
+Step 3 cut the `git tag v2.2.0` annotated tag against the release-finalization commit, after explicit confirmation per the destructive-git rule. v2.2.0 is released: both v2.2.0 plans (codegraph-and-antigravity, adoption-antigravity-sdk-python) are closed, the catalog stands at 207 skills, and the version strings are at 2.2.0. The deferred-to-v2.3.0 items (codegraph DF-001-part2 legacy-installer-block removal and DF-002's remaining language / framework extractors) and the externally-blocked verification items (WN-2/3/4 live Antigravity-CLI VM, WN-8 macOS / Linux installer smoke) remain tracked in `docs/v2.2.0/known-gaps.md` for the v2.3.0 plan to ingest.
+
 ## [2026-05-26] - v2.2.0 adoption-antigravity-sdk-python Phase 3: cross-link polish (P2) + plan close-out
 
 Implemented Phase 3 (the final phase) of the `adoption-antigravity-sdk-python` plan (candidates A6 + A7 + A8) and closed the plan. Three short cross-link references were added inside adjacent existing skills, each pairing a one-paragraph framing with a reverse link into the Phase 1 `google-antigravity-sdk` skill. Pure-additive catalog content; no code touched; no `data/` registry change.

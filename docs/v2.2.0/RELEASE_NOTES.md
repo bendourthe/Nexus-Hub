@@ -1,8 +1,8 @@
 # Nexus-Hub v2.2.0 -- CodeGraph adoption + Antigravity CLI transition
 
-**Release date**: 2026-05-22
+**Release date**: 2026-05-26
 **Type**: SemVer **minor** (additive; no breaking changes)
-**Plan**: [`plans/codegraph-and-antigravity.md`](plans/codegraph-and-antigravity.md)
+**Plans**: [`plans/codegraph-and-antigravity.md`](plans/codegraph-and-antigravity.md), [`plans/adoption-antigravity-sdk-python.md`](plans/adoption-antigravity-sdk-python.md)
 **CHANGELOG block**: [`CHANGELOG.md` -> `## [2.2.0]`](../../CHANGELOG.md)
 
 ## Highlights
@@ -28,6 +28,7 @@ The release ships:
 - **MCP `initialize` server-instructions** on all three internal MCPs (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`). The instructions string lists the server's tools, cites the MCP Registry Policy (`already-local`), and points at the corresponding Nexus-Hub skill so agents connecting cold see authoritative tool guidance.
 - **`affected_tests` MCP tool + `nexus-hub affected` CLI** -- reverse-import + reverse-call BFS over the AST graph identifies the test files transitively touched by a source change. Surfaces at the MCP layer (`code_affected_tests`) and via a thin CLI dispatcher (`scripts/nexus_hub_affected.py`) registered in both `installer.sh` and `installer.ps1`.
 - **Synthetic-codebase MCP eval harness** -- `extensions/nexus-code-search/eval/` with four fixture codebases (minimal / python_app / fastapi_app / ts_express), 18 questions total, and a `make eval` target. v2.2.0 baseline: **100% aggregate recall**, **63.3% aggregate precision** -- all four fixtures clear the 80% per-fixture recall gate. Baseline preserved at [`docs/v2.2.0/eval-baseline.md`](eval-baseline.md). The 63.3% precision figure is documented in known-gaps WN-7 and tracked for v2.3.0.
+- **`google-antigravity-sdk` skill** -- a new `ai-development` catalog skill for building autonomous agents on the Google Antigravity backend (async agent loop, declarative tool-call policies, lifecycle hooks, MCP integration, multimodal ingestion, triggers, subagents, structured output), with 7 reference docs and 12 example walkthroughs. Adopted from the `adoption-antigravity-sdk-python` plan alongside three pattern references and three cross-links woven into existing skills. See the dedicated section below.
 
 Every change is additive. Users upgrading from v2.1.1 rerun the installer to pick up the new artifacts; pre-existing behavior is preserved for every integration. The Gemini CLI deprecation is gated behind `--enterprise` so users who upgrade ahead of 2026-06-18 keep working until the cutover.
 
@@ -160,6 +161,32 @@ The Gemini CLI sunset is orthogonal to CodeGraph adoption but ran on the same v2
 | **C14** | File watcher with native OS events + debounce for index freshness | `extensions/nexus-code-search/src/nexus_code_search/watch.py` + `watch_for_changes` MCP tool | Phase 4 -- T027 |
 
 **Adoption coverage**: 12 of 14 candidates shipped (C1, C2, C3, C4, C5, C6, C7, C8, C9, C10, C11, C12, C14). C13 deferred. C3's framework set is starter-only (3 of 13 frameworks); the remaining 10 are tracked under DF-002 in [`docs/v2.2.0/known-gaps.md`](known-gaps.md).
+
+## antigravity-sdk-python adoption (A1-A8)
+
+A second v2.2.0 plan, [`plans/adoption-antigravity-sdk-python.md`](plans/adoption-antigravity-sdk-python.md), adopts 8 skill-native candidates (A1-A8) from a cross-project comparison against an external Google Antigravity SDK skill. Every candidate is pure catalog content under the MCP Registry Policy `skill-native` classification: zero code, zero runtime dependencies added to Nexus-Hub, zero outbound calls. The skill teaches users to `pip install google-antigravity` in their own project; Nexus-Hub never executes the SDK. Per the Reverse-Engineering Attribution Rule, no user-facing line names the upstream repo -- attribution lives only in [`docs/policy/mcp-reverse-engineering-matrix.md`](../policy/mcp-reverse-engineering-matrix.md).
+
+### What ships
+
+- **New skill `ai-development/google-antigravity-sdk/`** (A1) -- `SKILL.md` plus 7 reference docs (`architecture`, `agent_configuration`, `mcp_integration`, `safety_policies`, `error_handling`, `observability`, `built_in_tools`) and 12 example walkthroughs under `references/examples/`. Covers the SDK's three-layer Agent / Conversation / Connection architecture, the async-first API, the declarative tool-call policy with its six-tier resolution order and fail-closed predicates, lifecycle hooks, MCP stdio + SSE integration, multimodal ingestion, triggers, subagents, and Pydantic structured output.
+- **Antigravity CLI probe pinned** (A2) -- four backend-runtime fields (default model `gemini-3.5-flash`, app data dir `~/.gemini/antigravity/brain/`, MCP transport stdio + SSE, default policy `confirm_run_command()`) pinned to `(documented, SDK v0.1.1)` in a new Section 7 of [`docs/v2.2.0/antigravity-cli-probe.md`](antigravity-cli-probe.md), de-risking the Phase 2 probe assumptions.
+- **Three pattern references** (A3, A4, A5) -- `agent-policy-resolution.md` under `security/authentication-patterns`, `lifecycle-hooks.md` and `multimodal-ingestion.md` under `ai-development/ai-agent-development`, each cross-linked bidirectionally with the new skill.
+- **Three cross-link references** (A6, A7, A8) -- `sdk-triggers.md` under `workflow/dev-progress-tracker` (prior art for `/loop` + `/schedule`), `sdk-subagents.md` under `orchestration/multi-agent-coordinator`, `sdk-structured-output.md` under `ai-development/ai-agent-development`.
+
+### Per-candidate adoption map (A1 -- A8)
+
+| Candidate | What | Shipped as |
+|---|---|---|
+| A1 | google-antigravity-sdk skill | `catalog/skills/ai-development/google-antigravity-sdk/` (SKILL.md + 7 references + 12 examples) -- SDK plan T001-T003 |
+| A2 | Antigravity runtime details pinned | `docs/v2.2.0/antigravity-cli-probe.md` Section 7 -- SDK plan T004 |
+| A3 | Declarative policy resolution order | `security/authentication-patterns/references/agent-policy-resolution.md` -- SDK plan T008 |
+| A4 | Agent lifecycle hooks | `ai-development/ai-agent-development/references/lifecycle-hooks.md` -- SDK plan T009 |
+| A5 | Multimodal ingestion | `ai-development/ai-agent-development/references/multimodal-ingestion.md` -- SDK plan T010 |
+| A6 | Triggers prior art | `workflow/dev-progress-tracker/references/sdk-triggers.md` -- SDK plan T013 |
+| A7 | Subagents prior art | `orchestration/multi-agent-coordinator/references/sdk-subagents.md` -- SDK plan T014 |
+| A8 | Structured output via Pydantic | `ai-development/ai-agent-development/references/sdk-structured-output.md` -- SDK plan T015 |
+
+Four items were explicitly rejected per the MCP Registry Policy (N1 `google-genai` runtime dep, N2 bundled Go local-harness binary, N3 Vercel/Context7 skills-CLI distribution, N4 CONTRIBUTING/SECURITY stubs); these are policy rejections, not deferrals.
 
 ## Gemini-to-Antigravity CLI transition (Phase 2)
 
