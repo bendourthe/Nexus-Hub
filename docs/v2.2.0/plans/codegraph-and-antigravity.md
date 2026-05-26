@@ -48,7 +48,7 @@ No constitution file found at docs/v2.2.0/constitution.md - skipping check. Reco
 
 #### 1.1 - Define WriteResult dataclass and action vocabulary
 
-- [ ] T001 Define `WriteResult` dataclass with `files: list[FileAction]` and `notes: list[str]` in scripts/lib/integrations/result.py
+- [x] T001 Define `WriteResult` dataclass with `files: list[FileAction]` and `notes: list[str]` in scripts/lib/integrations/result.py
 
 **Objective**: Introduce the typed return shape that every per-integration install / uninstall call will adopt (C4 from the comparison).
 
@@ -59,7 +59,7 @@ No constitution file found at docs/v2.2.0/constitution.md - skipping check. Reco
 
 #### 1.2 - Refactor IntegrationBase to return WriteResult
 
-- [ ] T002 Make `install_global`, `install_workspace`, `uninstall_global`, `uninstall_workspace` return `WriteResult` from scripts/lib/integrations/base.py
+- [x] T002 Make `install_global`, `install_workspace`, `uninstall_global`, `uninstall_workspace` return `WriteResult` from scripts/lib/integrations/base.py
 
 **Objective**: Replace the current console-only side-effecting methods with typed returns so the orchestrator can render per-file results and assert on them in tests (C4 continued).
 
@@ -70,7 +70,7 @@ No constitution file found at docs/v2.2.0/constitution.md - skipping check. Reco
 
 #### 1.3 - Marker-delimited section replacement helper
 
-- [ ] T003 [P] Create scripts/lib/installer/instruction_merge.py with `merge_marker_section(path, content, start, end)` helper
+- [x] T003 [P] Create scripts/lib/installer/instruction_merge.py with `merge_marker_section(path, content, start, end)` helper
 
 **Objective**: Add the non-destructive instruction-file merge primitive used by every shared-file platform (CLAUDE.md, AGENTS.md, .cursor/rules/*.mdc) (C5 from the comparison).
 
@@ -81,7 +81,7 @@ No constitution file found at docs/v2.2.0/constitution.md - skipping check. Reco
 
 #### 1.4 - Migrate MarkdownIntegration writes to use marker-delimited merge
 
-- [ ] T004 Replace `render_template` calls in scripts/lib/integrations/base.py `MarkdownIntegration` with `merge_marker_section` for shared instruction files
+- [x] T004 Replace `render_template` calls in scripts/lib/integrations/base.py `MarkdownIntegration` with `merge_marker_section` for shared instruction files
 
 **Objective**: Make Nexus-Hub's instruction-file writes stop clobbering user edits to CLAUDE.md / AGENTS.md / .cursor/rules/*.mdc (C5 applied).
 
@@ -92,7 +92,7 @@ No constitution file found at docs/v2.2.0/constitution.md - skipping check. Reco
 
 #### 1.5 - Add MCP `initialize` server-instructions to the 3 internal MCPs
 
-- [ ] T005 [P] Set the `instructions` field on the MCP `initialize` response in extensions/nexus-skill-server/src/nexus_skill_server/server.py, extensions/nexus-code-search/src/nexus_code_search/server.py, and extensions/nexus-web-fetch/src/nexus_web_fetch/server.py
+- [x] T005 [P] Set the `instructions` field on the MCP `initialize` response in extensions/nexus-skill-server/src/nexus_skill_server/server.py, extensions/nexus-code-search/src/nexus_code_search/server.py, and extensions/nexus-web-fetch/src/nexus_web_fetch/server.py
 
 **Objective**: Mirror CodeGraph's `server-instructions.ts` pattern so any agent connecting to a Nexus-Hub MCP sees authoritative tool guidance even without the platform's installed CLAUDE.md / AGENTS.md template (C9 from the comparison).
 
@@ -103,7 +103,7 @@ No constitution file found at docs/v2.2.0/constitution.md - skipping check. Reco
 
 #### 1.6 - Phase 1 tests and stabilization
 
-- [ ] T006 Run and stabilize all Phase 1 tests in tests/integrations/, tests/installer/, and extensions/*/tests/
+- [x] T006 Run and stabilize all Phase 1 tests in tests/integrations/, tests/installer/, and extensions/*/tests/
 
 **Objective**: Verify the foundation before Phase 2 builds on it.
 
@@ -114,11 +114,11 @@ No constitution file found at docs/v2.2.0/constitution.md - skipping check. Reco
 
 ### Phase 1 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] All tests passing
-- [ ] No known regressions from prior phases
-- [ ] Session history generated for this phase
-- [ ] Ready to advance to Phase 2
+- [x] All sub-tasks completed
+- [x] All tests passing
+- [x] No known regressions from prior phases
+- [x] Session history generated for this phase
+- [x] Ready to advance to Phase 2
 
 ---
 
