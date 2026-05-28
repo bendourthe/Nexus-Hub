@@ -31,7 +31,7 @@ The de facto governing document for adoption decisions in this plan is the **MCP
 |-------|-------|---------|
 | 1 | Skill-native foundations | `context-modes` skill + cross-framework mapping convention and `security-framework-mapping` skill shipped (zero code) |
 | 2 | Security & quality CI validators | Four local static validators wired into `make validate` and both installers |
-| 3 | Runtime learning | Memory-persistence session hooks + a local-only continuous-learning skill and capture hooks |
+| 3 (done) | Runtime learning | Memory-persistence session hooks + a local-only continuous-learning skill and capture hooks |
 | 4 | Installer lifecycle & selective install | Install-state manifest, `doctor`/`repair`/`list-installed`, profiles/modules + `consult` advisor, harness audit scoring |
 | 5 | Skill quality tooling | `skill-stocktake` audit, `validate_skills.py` quality pass, `skill-create` from git history |
 | 6 | Framework coverage + defensive security content | Coverage-matrix generator + two re-authored defensive security skill packs + their helper scripts |
@@ -153,7 +153,7 @@ The de facto governing document for adoption decisions in this plan is the **MCP
 
 #### 3.1 — Memory-persistence session hooks
 
-- [ ] T007 Enrich catalog/hooks/session-start.sh and session-summary.sh (+ .ps1 siblings) to persist and restore a local context digest
+- [x] T007 Enrich catalog/hooks/session-start.sh and session-summary.sh (+ .ps1 siblings) to persist and restore a local context digest
 
 **Objective**: Add cross-session context persistence that ECC's lifecycle hooks provide and Nexus-Hub's current session hooks lack.
 
@@ -164,7 +164,7 @@ The de facto governing document for adoption decisions in this plan is the **MCP
 
 #### 3.2 — Continuous-learning local-subset skill + capture hooks
 
-- [ ] T008 Create catalog/skills/workflow/continuous-learning/SKILL.md and local capture hooks (depends on T007)
+- [x] T008 Create catalog/skills/workflow/continuous-learning/SKILL.md and local capture hooks (depends on T007)
 
 **Objective**: Reproduce ECC's instinct-based continuous learning as a local-only skill: capture observations, mint confidence-scored instincts as local YAML, and evolve clusters into skills via the agent (no background external model).
 
@@ -175,7 +175,7 @@ The de facto governing document for adoption decisions in this plan is the **MCP
 
 #### 3.3 — Testing and Stabilization
 
-- [ ] T009 Run and stabilize Phase 3 hooks and skill in catalog/hooks/tests/
+- [x] T009 Run and stabilize Phase 3 hooks and skill in catalog/hooks/tests/
 
 **Objective**: Verify persistence round-trips, observation capture, and instinct file creation, all local.
 
@@ -186,11 +186,11 @@ The de facto governing document for adoption decisions in this plan is the **MCP
 
 ### Phase 3 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] All tests passing
-- [ ] No known regressions from prior phases
-- [ ] Session history generated for this phase
-- [ ] Ready to advance to Phase 4
+- [x] All sub-tasks completed
+- [x] All tests passing
+- [x] No known regressions from prior phases
+- [x] Session history generated for this phase
+- [x] Ready to advance to Phase 4
 
 ---
 

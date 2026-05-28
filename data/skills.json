@@ -7181,6 +7181,44 @@
         "semantic": 95,
         "validated": true
       }
+    },
+    {
+      "name": "continuous-learning",
+      "title": "continuous-learning",
+      "description": "Capture in-session observations, mint confidence-scored 'instincts' as local YAML files, and evolve clusters of instincts into draft skills or commands - all local, in-process, with no external observer model. Make sure to use this skill whenever the user says 'learn from this session', 'what patterns are we seeing', 'promote that to an instinct', 'should this become a skill', 'review our recent corrections', 'what should we automate', 'draft a skill from these observations', or otherwise asks the agent to look across its own recent behavior for patterns worth promoting into reusable content. Also trigger when the user repeatedly corrects the agent in the same direction and the right response is 'let me record this so we stop making the same mistake'. SKIP, do NOT use for, single-session todo tracking (use dev-progress-tracker), one-off rule-saving requests that the agent's own memory system already handles, or any flow that proposes wiring an external observer model or sending observations off-device (that is explicitly out of scope per the MCP Registry Policy).",
+      "long_description": "Defines a local-only continuous-learning loop. The learning-capture hook records user prompts, tool calls, and corrections to a project-scoped .nexus/observations.jsonl while the session is running. This skill teaches the agent how, on demand, to read that observations file, cluster it into atomic candidate instincts (one finding each, with a confidence score and domain tags), persist each as a local .nexus/instincts/<slug>.yaml file, and - when a cluster of instincts becomes strong - draft a new SKILL.md or command for maintainer review. The hard constraint is that the only observer is the agent itself, in this session: no background model, no upload, no cross-project sharing.",
+      "summary_l0": "\"Capture observations, mint local YAML instincts, evolve clusters into draft skills - all in-process, zero outbound\"",
+      "overview_l1": "\"Defines a local-only continuous-learning loop. The learning-capture hook (catalog/hooks/learning-capture.sh / .ps1) records user prompts, tool calls, and corrections to a project-scoped .nexus/observations.jsonl while the session is running. This skill teaches the agent how, on demand, to read that observations file, cluster it into atomic candidate instincts (one finding each, with a confidence score and domain tags), persist each as a local .nexus/instincts/<slug>.yaml file, and - when a cluster of instincts becomes strong - draft a new SKILL.md or command for maintainer review. The hard constraint is that the only observer is the agent itself, in this session: no background model, no upload, no cross-project sharing. Trigger phrases: learn from this session, mint an instinct, promote to skill, what patterns are we seeing, draft a skill from observations, continuous learning.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "workflow",
+      "language": "Multi-language",
+      "tags": [
+        "learning",
+        "observations",
+        "instincts",
+        "skill-evolution",
+        "local-only",
+        "memory-persistence"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "reverse-engineered local subset of ECC's continuous-learning-v2 pattern (see docs/v2.2.0/comparison-ECC.md Section 11 Bucket B (B4) and Section 13)",
+      "tools_required": [],
+      "path": "catalog/skills/workflow/continuous-learning/",
+      "file": "catalog/skills/workflow/continuous-learning/SKILL.md",
+      "size": {
+        "lines": 130,
+        "characters": 10850,
+        "tokens_estimate": 1400
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     }
   ]
 }

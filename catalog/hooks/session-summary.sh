@@ -1,20 +1,31 @@
 #!/usr/bin/env bash
-# Session Summary - Stop Hook for Claude Code
-# Appends a one-line summary to ~/.claude/session-log.md after each session.
-# Part of Nexus-Hub
+# Session Summary - Stop / PreCompact / SessionEnd Hook for Claude Code
+# Part of Nexus-Hub.
 #
-# How it works:
-#   Fires on the Stop event. Records timestamp, project name, and
-#   files changed (from git diff) to a persistent session log.
+# Two jobs:
+#   1. Append a one-line entry to ~/.claude/session-log.md (existing behavior).
+#   2. Persist a compact, project-scoped context digest at
+#      `.nexus/context/last-session.md` (relative to the git root, or cwd
+#      when not in a repo) so the next SessionStart can read it back.
 #
-# Log format: | YYYY-MM-DD HH:MM | project-name | duration | files-changed |
+# The digest is the local-only reverse-engineered subset of ECC's
+# memory-persistence pattern (see docs/v2.3.0/plans/adoption-ecc-cybersec-skills.md
+# T007). It contains:
+#   - Timestamp + project name + duration
+#   - Active branch and short git status
+#   - Last 5 commits (oneline)
+#   - Files touched during the session (git diff HEAD)
+#
+# Runtime controls:
+#   NEXUS_DISABLED_HOOKS=session-summary   skip both jobs
+#   NEXUS_HOOK_PROFILE=minimal             skip both jobs
+#   NEXUS_SESSION_DIGEST=off               skip digest write only
+#   NEXUS_SESSION_DIGEST_PATH=<path>       override digest path (project-relative)
 
 # Never fail loudly - always exit 0
 trap 'exit 0' ERR
 
 # --- Runtime Controls ---
-# Disable by name: export NEXUS_DISABLED_HOOKS=session-summary
-# Skip all non-essential hooks: export NEXUS_HOOK_PROFILE=minimal
 _HOOK_NAME="session-summary"
 _DISABLED="${NEXUS_DISABLED_HOOKS:-}"
 if [[ ",$_DISABLED," == *",$_HOOK_NAME,"* ]]; then exit 0; fi
@@ -47,8 +58,9 @@ if [ -n "$INPUT" ] && command -v jq >/dev/null 2>&1; then
   fi
 fi
 
-# Count files changed via git
+# Count files changed via git, and capture the file list for the digest
 FILES_CHANGED="N/A"
+CHANGED_FILES=""
 if command -v git >/dev/null 2>&1; then
   DIFF_STAT=$(git diff --stat HEAD 2>/dev/null | tail -1)
   if [ -n "$DIFF_STAT" ]; then
@@ -59,9 +71,79 @@ if command -v git >/dev/null 2>&1; then
   else
     FILES_CHANGED="0"
   fi
+  CHANGED_FILES=$(git diff --name-only HEAD 2>/dev/null | head -30 || true)
 fi
 
-# --- Append entry ---
+# --- Append entry to global session log ---
 echo "| $TIMESTAMP | $PROJECT_NAME | $DURATION | $FILES_CHANGED |" >> "$LOG_FILE"
+
+# --- Write project-scoped context digest ---
+if [[ "${NEXUS_SESSION_DIGEST:-on}" == "off" ]]; then
+  exit 0
+fi
+
+# Project root: prefer git toplevel, fall back to cwd.
+PROJECT_ROOT="$(pwd)"
+if command -v git >/dev/null 2>&1; then
+  GIT_TOPLEVEL=$(git rev-parse --show-toplevel 2>/dev/null || true)
+  if [ -n "$GIT_TOPLEVEL" ]; then
+    PROJECT_ROOT="$GIT_TOPLEVEL"
+  fi
+fi
+
+DIGEST_REL="${NEXUS_SESSION_DIGEST_PATH:-.nexus/context/last-session.md}"
+DIGEST_PATH="$PROJECT_ROOT/$DIGEST_REL"
+DIGEST_DIR="$(dirname "$DIGEST_PATH")"
+
+mkdir -p "$DIGEST_DIR" 2>/dev/null || exit 0
+
+BRANCH="unknown"
+GIT_STATUS_LINE="not a git repo"
+RECENT_COMMITS=""
+if command -v git >/dev/null 2>&1 && git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || git rev-parse --short HEAD 2>/dev/null || echo "unknown")
+  staged=$(git diff --cached --name-only 2>/dev/null | wc -l | tr -d ' ')
+  modified=$(git diff --name-only 2>/dev/null | wc -l | tr -d ' ')
+  untracked=$(git ls-files --others --exclude-standard 2>/dev/null | wc -l | tr -d ' ')
+  if [ "$staged" = "0" ] && [ "$modified" = "0" ] && [ "$untracked" = "0" ]; then
+    GIT_STATUS_LINE="clean"
+  else
+    GIT_STATUS_LINE="${staged} staged, ${modified} modified, ${untracked} untracked"
+  fi
+  RECENT_COMMITS=$(git log --oneline -5 2>/dev/null || true)
+fi
+
+# Use a temp file + atomic rename so a partial write never leaves a corrupt digest.
+TMP_DIGEST="$(mktemp "${DIGEST_DIR}/.last-session.XXXXXX" 2>/dev/null || echo "${DIGEST_PATH}.tmp.$$")"
+{
+  echo "# Last session digest"
+  echo ""
+  echo "Generated: $TIMESTAMP"
+  echo "Project: $PROJECT_NAME"
+  echo "Duration: $DURATION"
+  echo ""
+  echo "## Git context"
+  echo ""
+  echo "- Branch: \`$BRANCH\`"
+  echo "- Status: $GIT_STATUS_LINE"
+  echo ""
+  if [ -n "$RECENT_COMMITS" ]; then
+    echo "## Recent commits"
+    echo ""
+    echo '```'
+    echo "$RECENT_COMMITS"
+    echo '```'
+    echo ""
+  fi
+  if [ -n "$CHANGED_FILES" ]; then
+    echo "## Files touched this session"
+    echo ""
+    echo '```'
+    echo "$CHANGED_FILES"
+    echo '```'
+    echo ""
+  fi
+} > "$TMP_DIGEST" 2>/dev/null || { rm -f "$TMP_DIGEST" 2>/dev/null; exit 0; }
+mv -f "$TMP_DIGEST" "$DIGEST_PATH" 2>/dev/null || true
 
 exit 0

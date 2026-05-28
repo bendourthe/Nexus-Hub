@@ -76,7 +76,7 @@ Four new entries appended to `docs/v2.3.0/known-gaps.md`:
 
 - **WN-v23-2** (warning): 15 `.md` files under `templates/ai-instructions/` start with a UTF-8 BOM. The validator correctly flags them; the Makefile excludes the directory to unblock the gate. Strip the BOMs in a future cleanup.
 - **WN-v23-3** (warning): em-dashes and curly quotes in `templates/development/compliance-review/`. The validator emits ~1034 warnings (non-blocking). Bulk-replace in a future cleanup.
-- **DF-v23-1** (deferred): `catalog/hooks/tests/test_classification_audit.py` test fixtures record real user-reported paths containing `/Users/bdour/...`. Replacing the real username would require coordinated test-data changes; deferred behind a Makefile exclude.
+- **DF-v23-1** (deferred): `catalog/hooks/tests/test_classification_audit.py` test fixtures record real user-reported paths containing `/Users/<user>/...` (real username redacted). Replacing the real username would require coordinated test-data changes; deferred behind a Makefile exclude.
 
 (The existing BG-v23-1 and WN-v23-1 from Phase 1 carry forward unchanged.)
 
