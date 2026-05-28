@@ -31,6 +31,16 @@ if str(REPO_ROOT) not in sys.path:
 
 from scripts.lib.integrations import INTEGRATION_REGISTRY, get, list_keys  # noqa: E402
 from scripts.lib.integrations.base import InstallContext  # noqa: E402
+from scripts.lib.integrations.lifecycle import (  # noqa: E402
+    DIAGNOSTIC_DRIFTED,
+    DIAGNOSTIC_MISSING,
+    DIAGNOSTIC_OK,
+    DIAGNOSTIC_UNKNOWN,
+    DoctorReport,
+    doctor as lifecycle_doctor,
+    list_installed as lifecycle_list_installed,
+    repair as lifecycle_repair,
+)
 from scripts.lib.integrations.manifest import InstallManifest  # noqa: E402
 from scripts.lib.integrations.result import WriteResult  # noqa: E402
 
@@ -105,6 +115,11 @@ def cmd_install(args: argparse.Namespace) -> int:
             if not args.quiet:
                 print(f"[install:{args.scope}] {integ.display_name}")
             result = integ.install(ctx)
+            # v2.3.0 / Phase 4 / T010 -- record the per-file actions for
+            # doctor / repair / list-installed. Skipped on dry-run since
+            # the manifest is not saved in that case.
+            if not args.dry_run:
+                manifest.record_actions(key, result.files)
             _render_write_result(key, result, args.quiet)
         except Exception as exc:  # noqa: BLE001
             print(f"[error:{key}] {exc}", file=sys.stderr)
@@ -257,6 +272,156 @@ def cmd_init(args: argparse.Namespace) -> int:
     return 0
 
 
+_DIAGNOSTIC_PREFIX = {
+    DIAGNOSTIC_OK: "[ok]      ",
+    DIAGNOSTIC_MISSING: "[missing] ",
+    DIAGNOSTIC_DRIFTED: "[drifted] ",
+    DIAGNOSTIC_UNKNOWN: "[unknown] ",
+}
+
+
+def _render_doctor_report(report: DoctorReport, json_mode: bool, quiet: bool) -> None:
+    if json_mode:
+        payload = {
+            "integrations_checked": report.integrations_checked,
+            "integrations_unknown": report.integrations_unknown,
+            "counts": report.counts(),
+            "findings": [
+                {
+                    "integration": f.integration_key,
+                    "path": f.path,
+                    "recorded_action": f.recorded_action,
+                    "diagnostic": f.diagnostic,
+                    "recorded_sha256": f.recorded_sha256,
+                    "current_sha256": f.current_sha256,
+                }
+                for f in report.findings
+            ],
+        }
+        print(json.dumps(payload, indent=2, default=str))
+        return
+    if quiet:
+        return
+    counts = report.counts()
+    summary = ", ".join(f"{k}:{v}" for k, v in sorted(counts.items())) or "(no records)"
+    print(f"[doctor] checked {len(report.integrations_checked)} integration(s) -> {summary}")
+    for f in report.findings:
+        if f.diagnostic == DIAGNOSTIC_OK:
+            continue
+        prefix = _DIAGNOSTIC_PREFIX.get(f.diagnostic, "[?]")
+        print(f"  {prefix}{f.integration_key:<14} {f.path}")
+    if report.integrations_unknown:
+        print(
+            "[doctor] requested but unknown to manifest: "
+            + ", ".join(report.integrations_unknown),
+            file=sys.stderr,
+        )
+
+
+def cmd_doctor(args: argparse.Namespace) -> int:
+    """Diagnose drift / missing managed files against the recorded manifest.
+
+    Exits 0 when everything is `ok` (or `unknown` -- the latter being tree
+    summaries that lack a content hash). Exits 1 on any `missing` or
+    `drifted` finding so CI can gate on the result.
+    """
+    target_root = Path(args.target).expanduser().resolve() if args.target else Path.cwd().resolve()
+    manifest_path = _manifest_path(target_root)
+    if not manifest_path.exists():
+        if args.json:
+            print(json.dumps({"error": "no manifest", "manifest_path": str(manifest_path)}))
+        else:
+            print(
+                f"[doctor] no manifest at {manifest_path} -- run install first",
+                file=sys.stderr,
+            )
+        return 1
+    manifest = InstallManifest.load(manifest_path)
+    requested = (
+        [k.strip() for k in args.integrations.split(",") if k.strip()]
+        if args.integrations
+        else None
+    )
+    report = lifecycle_doctor(manifest, requested)
+    _render_doctor_report(report, args.json, args.quiet)
+    return 1 if report.has_issues() else 0
+
+
+def cmd_repair(args: argparse.Namespace) -> int:
+    """Re-run install for every integration the manifest reports as drifted
+    or missing. Files marked `ok` are left untouched (`unchanged` action).
+    """
+    target_root = Path(args.target).expanduser().resolve() if args.target else Path.cwd().resolve()
+    manifest_path = _manifest_path(target_root)
+    if not manifest_path.exists():
+        print(
+            f"[repair] no manifest at {manifest_path} -- run install first",
+            file=sys.stderr,
+        )
+        return 1
+    manifest = InstallManifest.load(manifest_path)
+    ctx = InstallContext(
+        repo_root=REPO_ROOT,
+        target_root=target_root,
+        scope=args.scope,
+        overwrite=True,
+        dry_run=args.dry_run,
+        manifest=manifest,
+        template_vars={"PROJECT_NAME": args.project_name or target_root.name},
+    )
+    requested = (
+        [k.strip() for k in args.integrations.split(",") if k.strip()]
+        if args.integrations
+        else None
+    )
+    result = lifecycle_repair(ctx, requested)
+    if not args.quiet:
+        if not result.files and not result.notes:
+            print("[repair] no integrations needed repair")
+        else:
+            print(f"[repair] {len(result.files)} action(s)")
+            for fa in result.files:
+                prefix = _ACTION_PREFIX.get(fa.action, "[?]")
+                print(f"  {prefix} {fa.action:<10} {fa.path}")
+            for note in result.notes:
+                print(f"  (note) {note}")
+    if not args.dry_run:
+        manifest.save(manifest_path)
+    return 0
+
+
+def cmd_list_installed(args: argparse.Namespace) -> int:
+    """Enumerate what every integration wrote according to the manifest.
+
+    JSON mode dumps the raw `{integration_key: [action_record, ...]}` map;
+    text mode prints one line per recorded file.
+    """
+    target_root = Path(args.target).expanduser().resolve() if args.target else Path.cwd().resolve()
+    manifest_path = _manifest_path(target_root)
+    if not manifest_path.exists():
+        if args.json:
+            print(json.dumps({}, indent=2))
+        else:
+            print(f"(no manifest at {manifest_path})")
+        return 0
+    manifest = InstallManifest.load(manifest_path)
+    data = lifecycle_list_installed(manifest)
+    if args.json:
+        print(json.dumps(data, indent=2, default=str))
+        return 0
+    if not data:
+        print("(manifest contains no recorded actions)")
+        return 0
+    for key in sorted(data):
+        records = data[key]
+        print(f"[{key}] {len(records)} file(s)")
+        for rec in records:
+            action = str(rec.get("action", "?"))
+            prefix = _ACTION_PREFIX.get(action, "[?]")
+            print(f"  {prefix} {action:<10} {rec.get('path', '')}")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="nexus-hub-integrations")
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -319,6 +484,43 @@ def build_parser() -> argparse.ArgumentParser:
     p_teardown.add_argument("--integrations", help="Comma-separated keys; default: all tracked.")
     p_teardown.add_argument("--dry-run", action="store_true")
     p_teardown.set_defaults(func=cmd_teardown)
+
+    # v2.3.0 / Phase 4 / T010 lifecycle subcommands.
+    p_doctor = sub.add_parser(
+        "doctor",
+        help="Diagnose drift / missing managed files against the install manifest.",
+    )
+    p_doctor.add_argument("--target", help="Workspace root (defaults to CWD).")
+    p_doctor.add_argument(
+        "--integrations",
+        help="Comma-separated keys; default: every integration in the manifest.",
+    )
+    p_doctor.add_argument("--json", action="store_true", help="Emit JSON output.")
+    p_doctor.add_argument("--quiet", action="store_true")
+    p_doctor.set_defaults(func=cmd_doctor)
+
+    p_repair = sub.add_parser(
+        "repair",
+        help="Re-install integrations that doctor reports as drifted or missing.",
+    )
+    p_repair.add_argument("--scope", choices=["global", "workspace"], default="workspace")
+    p_repair.add_argument("--target", help="Workspace root (defaults to CWD).")
+    p_repair.add_argument(
+        "--integrations",
+        help="Comma-separated keys; default: every integration in the manifest.",
+    )
+    p_repair.add_argument("--project-name", help="Template token PROJECT_NAME.")
+    p_repair.add_argument("--dry-run", action="store_true")
+    p_repair.add_argument("--quiet", action="store_true")
+    p_repair.set_defaults(func=cmd_repair)
+
+    p_list_installed = sub.add_parser(
+        "list-installed",
+        help="Enumerate the files recorded in the install manifest.",
+    )
+    p_list_installed.add_argument("--target", help="Workspace root (defaults to CWD).")
+    p_list_installed.add_argument("--json", action="store_true", help="Emit JSON output.")
+    p_list_installed.set_defaults(func=cmd_list_installed)
 
     return parser
 

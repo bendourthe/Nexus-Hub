@@ -1518,6 +1518,20 @@ install_templates() {
         safe_copy "$workflow_source" "$scripts_dest/validate_workflow_security.py" true "[OK] Workflow-security validator installed at: $scripts_dest/validate_workflow_security.py"
     fi
 
+    # Copy v2.3.0 Phase 4 lifecycle scripts (T011 consult advisor + T012
+    # harness audit). The doctor / repair / list-installed surface itself
+    # lives on `scripts/lib/integrations/runner.py` so it ships via the
+    # registry copy step further down; no separate file is needed for it.
+    # Lockstep with the matching block in scripts/installer.ps1.
+    local consult_source="$repo_root/scripts/nexus_hub_consult.py"
+    if [ -f "$consult_source" ]; then
+        safe_copy "$consult_source" "$scripts_dest/nexus_hub_consult.py" true "[OK] Consult advisor installed at: $scripts_dest/nexus_hub_consult.py"
+    fi
+    local audit_source="$repo_root/scripts/harness_audit.py"
+    if [ -f "$audit_source" ]; then
+        safe_copy "$audit_source" "$scripts_dest/harness_audit.py" true "[OK] Harness audit installed at: $scripts_dest/harness_audit.py"
+    fi
+
     # Copy feature-directory bootstrap scripts (v2.1.0 / adoption-spec-kit
     # Phase 7 / G5). The two scripts resolve the next specs/<NNN>-<slug>/
     # prefix (sequential or timestamp per .specify/init-options.json),

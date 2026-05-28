@@ -32,7 +32,7 @@ The de facto governing document for adoption decisions in this plan is the **MCP
 | 1 | Skill-native foundations | `context-modes` skill + cross-framework mapping convention and `security-framework-mapping` skill shipped (zero code) |
 | 2 | Security & quality CI validators | Four local static validators wired into `make validate` and both installers |
 | 3 (done) | Runtime learning | Memory-persistence session hooks + a local-only continuous-learning skill and capture hooks |
-| 4 | Installer lifecycle & selective install | Install-state manifest, `doctor`/`repair`/`list-installed`, profiles/modules + `consult` advisor, harness audit scoring |
+| 4 (done) | Installer lifecycle & selective install | Install-state manifest, `doctor`/`repair`/`list-installed`, profiles/modules + `consult` advisor, harness audit scoring |
 | 5 | Skill quality tooling | `skill-stocktake` audit, `validate_skills.py` quality pass, `skill-create` from git history |
 | 6 | Framework coverage + defensive security content | Coverage-matrix generator + two re-authored defensive security skill packs + their helper scripts |
 | 7 | [known-gaps] Installer instruction-file parity | DF-001 / MT-2 / MT-1 closed; legacy bash blocks removable |
@@ -204,7 +204,7 @@ The de facto governing document for adoption decisions in this plan is the **MCP
 
 #### 4.1 — Install-state manifest + doctor/repair/list-installed
 
-- [ ] T010 Add an install-state manifest and doctor/repair/list-installed subcommands to scripts/lib/integrations/ and both installers
+- [x] T010 Add an install-state manifest and doctor/repair/list-installed subcommands to scripts/lib/integrations/ and both installers
 
 **Objective**: Reproduce ECC's `doctor.js`/`repair.js`/`list-installed.js` + `lib/install-lifecycle.js` as a Nexus-Hub install-state layer (confirmed missing: grep for doctor/repair/list-installed/install_state in scripts/ returned zero matches).
 
@@ -215,7 +215,7 @@ The de facto governing document for adoption decisions in this plan is the **MCP
 
 #### 4.2 — Selective install profiles/modules + consult advisor
 
-- [ ] T011 Add profile/module/capability tags to data/bundles.json and a nexus-hub consult matcher (depends on T010)
+- [x] T011 Add profile/module/capability tags to data/bundles.json and a nexus-hub consult matcher (depends on T010)
 
 **Objective**: Reproduce ECC's `install-plan.js`/`install-apply.js` selective install and `consult.js` advisor using Nexus-Hub's existing bundle + SKILL_INDEX surfaces.
 
@@ -226,7 +226,7 @@ The de facto governing document for adoption decisions in this plan is the **MCP
 
 #### 4.3 — Harness audit scoring
 
-- [ ] T012 Add scripts/harness_audit.py read-only scoring over installed surfaces (depends on T010)
+- [x] T012 Add scripts/harness_audit.py read-only scoring over installed surfaces (depends on T010)
 
 **Objective**: Reproduce ECC's `harness-audit.js`/`harness-adapter-compliance.js` deterministic scoring as a local Python script.
 
@@ -237,7 +237,7 @@ The de facto governing document for adoption decisions in this plan is the **MCP
 
 #### 4.4 — Testing and Stabilization
 
-- [ ] T013 Run and stabilize Phase 4 lifecycle, selective install, and audit in tests/integrations/
+- [x] T013 Run and stabilize Phase 4 lifecycle, selective install, and audit in tests/integrations/
 
 **Objective**: Verify install-state, doctor/repair/list-installed, profiles, consult, and harness audit, with the contract suite intact.
 
@@ -248,11 +248,11 @@ The de facto governing document for adoption decisions in this plan is the **MCP
 
 ### Phase 4 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] All tests passing
-- [ ] No known regressions from prior phases
-- [ ] Session history generated for this phase
-- [ ] Ready to advance to Phase 5
+- [x] All sub-tasks completed
+- [x] All tests passing
+- [x] No known regressions from prior phases
+- [x] Session history generated for this phase
+- [x] Ready to advance to Phase 5
 
 ---
 

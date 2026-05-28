@@ -1932,6 +1932,20 @@ function Install-Templates {
         Safe-Copy -Source $workflowSource -Destination (Join-Path $scriptsDest "validate_workflow_security.py") -Confirm:$true -CustomMessage "✓ Workflow-security validator installed at: $scriptsDest\validate_workflow_security.py"
     }
 
+    # Copy v2.3.0 Phase 4 lifecycle scripts (T011 consult advisor + T012
+    # harness audit). Mirror of the matching block in scripts\installer.sh.
+    # The doctor / repair / list-installed surface itself lives on
+    # scripts\lib\integrations\runner.py and ships via the registry copy
+    # step further down.
+    $consultSource = Join-Path $RepoRoot "scripts\nexus_hub_consult.py"
+    if (Test-Path $consultSource) {
+        Safe-Copy -Source $consultSource -Destination (Join-Path $scriptsDest "nexus_hub_consult.py") -Confirm:$true -CustomMessage "✓ Consult advisor installed at: $scriptsDest\nexus_hub_consult.py"
+    }
+    $auditSource = Join-Path $RepoRoot "scripts\harness_audit.py"
+    if (Test-Path $auditSource) {
+        Safe-Copy -Source $auditSource -Destination (Join-Path $scriptsDest "harness_audit.py") -Confirm:$true -CustomMessage "✓ Harness audit installed at: $scriptsDest\harness_audit.py"
+    }
+
     # Copy feature-directory bootstrap scripts (v2.1.0 / adoption-spec-kit
     # Phase 7 / G5). The two scripts resolve the next specs\<NNN>-<slug>\
     # prefix (sequential or timestamp per .specify\init-options.json),

@@ -55,7 +55,7 @@ Two implementation choices worth recording, neither substantive:
 
 1. **JSON parsing in `learning-capture.sh` prefers Python over `jq`.** The plan implied `jq` (typical for ECC's lifecycle hooks), but `jq` is not universally on PATH on Windows + Git Bash and was missing from the test environment. Switched to a `python3` / `python` primary path with a `jq` fallback (and a minimal sentinel fallback when neither is available). The bash + Python pattern uses `env`-var passing instead of stdin so the heredoc / pipe collision is avoided. Net effect: the hook works in any environment with Python OR jq, which is functionally every environment.
 
-2. **Pre-existing personal-path findings in two Phase 2 docs were sanitized.** `python scripts/validate_no_personal_paths.py` (with the standard Makefile exclusions) flagged two `/Users/bdour/...` occurrences inside `docs/v2.3.0/known-gaps.md` and `docs/v2.3.0/development/history/2026-05-28_phase-2-security-quality-ci-validators.md`. Both lines were Phase 2 documentation *of* the DF-v23-1 deferred item. They became validator findings after Phase 2 wrote the history. Per the Phase 3 prerequisite ("validators ensure no personal paths leak into persisted artifacts"), the username was redacted to the `<user>` placeholder in both spots. This is in-scope: Phase 3 is the natural moment to enforce that the new validators stay clean against the v2.3.0 docs we ourselves are extending. No semantic content was lost.
+2. **Pre-existing personal-path findings in two Phase 2 docs were sanitized.** `python scripts/validate_no_personal_paths.py` (with the standard Makefile exclusions) flagged two `/Users/<user>/...` occurrences inside `docs/v2.3.0/known-gaps.md` and `docs/v2.3.0/development/history/2026-05-28_phase-2-security-quality-ci-validators.md`. Both lines were Phase 2 documentation *of* the DF-v23-1 deferred item. They became validator findings after Phase 2 wrote the history. Per the Phase 3 prerequisite ("validators ensure no personal paths leak into persisted artifacts"), the username was redacted to the `<user>` placeholder in both spots. This is in-scope: Phase 3 is the natural moment to enforce that the new validators stay clean against the v2.3.0 docs we ourselves are extending. No semantic content was lost.
 
 ## Known gaps added
 
@@ -86,8 +86,8 @@ Modified:
 - `data/SKILL_INDEX.md` (added continuous-learning row, total 208 -> 209)
 - `data/skills.json` (added continuous-learning entry, total 209 -> 210 entries)
 - `data/marketplace.json` (workflow skill_count 24 -> 25, description extended)
-- `docs/v2.3.0/known-gaps.md` (updated header status + Last updated line; redacted two `/Users/bdour/...` occurrences to use the `<user>` placeholder)
-- `docs/v2.3.0/development/history/2026-05-28_phase-2-security-quality-ci-validators.md` (redacted one `/Users/bdour/...` occurrence)
+- `docs/v2.3.0/known-gaps.md` (updated header status + Last updated line; redacted two `/Users/<user>/...` occurrences to use the `<user>` placeholder)
+- `docs/v2.3.0/development/history/2026-05-28_phase-2-security-quality-ci-validators.md` (redacted one `/Users/<user>/...` occurrence)
 - `docs/v2.3.0/plans/adoption-ecc-cybersec-skills.md` (checked T007/T008/T009 off and the Phase 3 Exit Checklist; flagged Phase 3 as "done" in Phases at a Glance)
 - `CHANGELOG.md` (added two Unreleased entries: T007 memory-persistence hooks, T008 continuous-learning skill + capture hooks)
 
