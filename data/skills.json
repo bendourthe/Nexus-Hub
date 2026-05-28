@@ -6,7 +6,7 @@
     "description": "Comprehensive catalog of Nexus-Hub skills with L0/L1 tiered summaries"
   },
   "statistics": {
-    "total_skills": 206,
+    "total_skills": 208,
     "categories": {
       "Developer Experience": 3,
       "Research": 2,
@@ -25,11 +25,11 @@
       "language-specialists": 10,
       "orchestration": 14,
       "project-setup": 4,
-      "security": 7,
+      "security": 8,
       "specialized-domains": 13,
       "testing": 3,
       "tests-generation": 18,
-      "workflow": 22
+      "workflow": 23
     },
     "priorities": {
       "MEDIUM": 175
@@ -7094,6 +7094,84 @@
       "size": {
         "lines": 110,
         "tokens_estimate": 2300
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "context-modes",
+      "title": "context-modes",
+      "description": "Switch the agent's working posture by adopting a named mode (dev, review, research) that retunes priorities, tool preferences, and stopping conditions. Make sure to use this skill whenever the user says 'switch to dev mode', 'switch to review mode', 'switch to research mode', 'enter review posture', 'act as a reviewer', 'we are researching', 'research mode', 'code-first mode', or otherwise asks the agent to behave like a different specialist for the rest of the session, even when the word 'mode' is not used. Also trigger when the user pivots from one phase of work to another (e.g., from designing to reviewing, or from researching to implementing) and the prior posture would now be wrong. SKIP, do NOT use for, one-off tone changes, single-message rephrasing requests, persona role-plays unrelated to engineering work, or selecting between competing implementation approaches (use plan-before-code for that).",
+      "long_description": "Defines three named working modes (dev, review, research) and the explicit rules for entering, exiting, and switching between them. Each mode retunes the agent's defaults: dev favors writing code and tight commit loops; review favors careful reading with file:line citations and refuses to write code; research favors evidence-gathering and option comparison. Per-mode rules live in references/dev.md, references/review.md, references/research.md so the body stays terse.",
+      "summary_l0": "\"Switch the agent's working posture (dev, review, research) with explicit entry, exit, and reset rules\"",
+      "overview_l1": "\"This skill defines three named working modes for the agent (dev, review, research) and the explicit rules for entering, exiting, and switching between them. Each mode retunes the agent's defaults: dev favors writing code, running tests, and small atomic commits; review favors reading carefully, citing line numbers, and refusing to write code; research favors fetching evidence, comparing options, and producing a written report. The skill teaches the agent to recognize when a user has implicitly switched modes, to announce the mode change, to scope its own behavior accordingly until the user asks for something the current mode forbids, and to refuse silent mode drift. Each mode is defined in a referenced fragment under references/ (references/dev.md, references/review.md, references/research.md) so the body stays terse. Trigger phrases: dev mode, review mode, research mode, switch modes, enter review, act as reviewer.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "workflow",
+      "language": "Multi-language",
+      "tags": [
+        "context",
+        "modes",
+        "agent-posture",
+        "dev-mode",
+        "review-mode",
+        "research-mode"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "reverse-engineered from ECC contexts/{dev,review,research}.md pattern (see docs/v2.2.0/comparison-ECC.md Section 11 Bucket A)",
+      "tools_required": [],
+      "path": "catalog/skills/workflow/context-modes/",
+      "file": "catalog/skills/workflow/context-modes/SKILL.md",
+      "size": {
+        "lines": 104,
+        "characters": 8786,
+        "tokens_estimate": 1100
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "security-framework-mapping",
+      "title": "security-framework-mapping",
+      "description": "Map a security skill, finding, detection, or control to its identifiers across MITRE ATT&CK, MITRE ATLAS, MITRE D3FEND, NIST CSF, and NIST AI RMF, then optionally tag the skill's frontmatter so a coverage matrix can be generated. Make sure to use this skill whenever the user asks 'what ATT&CK technique is this', 'tag this skill with the framework', 'which NIST control covers X', 'map this finding to ATT&CK / D3FEND / ATLAS', 'build a framework coverage matrix', 'what AI RMF measure applies here', or otherwise asks to align a security artifact with a published taxonomy, even when the framework name is implied (e.g., 'what's the technique ID for credential dumping' implies ATT&CK). SKIP, do NOT use for, threat modeling a new system end-to-end (use architecture-design + a dedicated threat model), running an actual security audit (use run-security-audit), or generating compliance evidence for a specific regulation (use the per-regulation compliance skills like gdpr-compliance, soc2-compliance, iso27001-compliance).",
+      "long_description": "Teaches the agent how to cross-map a security artifact to identifiers from five public taxonomies (MITRE ATT&CK, MITRE ATLAS, MITRE D3FEND, NIST CSF, NIST AI RMF), record the mapping in optional frontmatter fields documented in AGENTS.md, and ship a references/standards.md companion that documents each ID with framework name, short title, rationale, and a deep link to the public source.",
+      "summary_l0": "\"Map security skills and findings across MITRE ATT&CK, ATLAS, D3FEND, NIST CSF, and NIST AI RMF\"",
+      "overview_l1": "\"This skill teaches the agent how to cross-map a security artifact (a skill, a finding, a detection, a control) to identifiers from five public taxonomies: MITRE ATT&CK (offensive technique catalog), MITRE ATLAS (adversarial machine learning), MITRE D3FEND (defensive countermeasures), NIST Cybersecurity Framework (Identify / Protect / Detect / Respond / Recover categories), and NIST AI Risk Management Framework (Govern / Map / Measure / Manage subcategories). It covers (a) which framework fits which kind of artifact, (b) how to find the right identifier in each taxonomy, (c) how to record the mapping in a Nexus-Hub skill's optional frontmatter fields (mitre_attack, atlas_techniques, d3fend_techniques, nist_csf, nist_ai_rmf) and a companion references/standards.md, and (d) how the optional tags enable the framework coverage-matrix generator. Trigger phrases: ATT&CK technique, D3FEND countermeasure, NIST CSF mapping, AI RMF measure, ATLAS technique, framework coverage matrix.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security",
+      "language": "Multi-language",
+      "tags": [
+        "security",
+        "compliance",
+        "mitre-attack",
+        "mitre-atlas",
+        "d3fend",
+        "nist-csf",
+        "nist-ai-rmf",
+        "framework-mapping"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "reverse-engineered from Anthropic Cybersecurity Skills framework-tag pattern (see docs/v2.2.0/comparison-Anthropic-Cybersecurity-Skills.md Section 11 Bucket A)",
+      "tools_required": [],
+      "path": "catalog/skills/security/security-framework-mapping/",
+      "file": "catalog/skills/security/security-framework-mapping/SKILL.md",
+      "size": {
+        "lines": 143,
+        "characters": 13049,
+        "tokens_estimate": 1700
       },
       "downloads": 0,
       "status": "production",

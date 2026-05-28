@@ -213,5 +213,7 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | project-constitution | workflow | "Author and maintain a versioned project constitution that declares MUST / SHOULD principles every plan, spec, and implementation aligns with" | catalog/skills/workflow/project-constitution/SKILL.md |
 | cross-artifact-analyzer | code-review | "Read-only cross-artifact analyzer for feature directories; emits severity-tagged findings, coverage matrix, and constitution-alignment verdicts" | catalog/skills/code-review/cross-artifact-analyzer/SKILL.md |
 | tasks-to-issues | workflow | "Convert strict-format tasks.md / plan.md task lines into linked GitHub issues via the local gh CLI - dry-run or execute sequentially" | catalog/skills/workflow/tasks-to-issues/SKILL.md |
+| context-modes | workflow | "Switch the agent's working posture (dev, review, research) with explicit entry, exit, and reset rules" | catalog/skills/workflow/context-modes/SKILL.md |
+| security-framework-mapping | security | "Map security skills and findings across MITRE ATT&CK, ATLAS, D3FEND, NIST CSF, and NIST AI RMF" | catalog/skills/security/security-framework-mapping/SKILL.md |
 
-**Total: 206 skills across 22 categories**
+**Total: 208 skills across 22 categories**

@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-Nexus-Hub is the upstream skill catalog for AI coding assistants: 206 skills, 40 commands, 22 hooks, 10 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
+Nexus-Hub is the upstream skill catalog for AI coding assistants: 208 skills, 40 commands, 22 hooks, 10 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
 > **Renamed from DevAI-Hub at v2.0.0** to align with the sibling project [Nexus](https://github.com/bendourthe/Nexus-AI), a local-first desktop AI Studio that consumes Nexus-Hub as its upstream skill feed. Existing `~/.devai-hub/` installs are migrated in place by the v2.0.0 installer on first run; see [docs/v2.0.0/RELEASE_NOTES.md](docs/v2.0.0/RELEASE_NOTES.md) for the full migration story.
 
@@ -20,7 +20,7 @@ Nexus-Hub is the upstream skill catalog for AI coding assistants: 206 skills, 40
 
 Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of the same idea, split along a deliberate seam.
 
-- **Nexus-Hub (this repo)** is the catalog: 206 curated skills, 40 commands, 22 hooks, 10 agents, 4 rule families, plus 3 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`). It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
+- **Nexus-Hub (this repo)** is the catalog: 208 curated skills, 40 commands, 22 hooks, 10 agents, 4 rule families, plus 3 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`). It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
 - **Nexus** is a local-first desktop AI Studio that consumes Nexus-Hub as its skill feed. Nexus's `AGENTS.md` names this repo as "the only external project we deliberately link to" -- the upstream feed for its skill harness.
 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
@@ -110,7 +110,7 @@ See [CHANGELOG.md](CHANGELOG.md) and [docs/v2.0.0/RELEASE_NOTES.md](docs/v2.0.0/
 
 After the installer completes:
 
-- **Globally**: your user profile has all 206 skills, 40 commands, 22 hooks, 10 agents, plus Gemini and Codex instructions.
+- **Globally**: your user profile has all 208 skills, 40 commands, 22 hooks, 10 agents, plus Gemini and Codex instructions.
 - **Locally**: your project has `copilot-instructions.md` and `AGENTS.md` tailored to your language.
 
 ---
@@ -122,7 +122,7 @@ Most AI assistants are generic by default: they know a lot but specialize in not
 It does three things:
 
 1. **Behavioral rules** -- per-language code-style and security rules that tell the assistant how to write code in your project (not just whether the code compiles).
-2. **Autonomous skills** -- 206 curated capability prompts grouped into 22 categories. Each skill has a 3-tier loading model (always-loaded summary, body on trigger, deeper references on demand) so context cost stays proportional to what the agent actually needs.
+2. **Autonomous skills** -- 208 curated capability prompts grouped into 22 categories. Each skill has a 3-tier loading model (always-loaded summary, body on trigger, deeper references on demand) so context cost stays proportional to what the agent actually needs.
 3. **Workflow awareness** -- 36 slash commands that chain skills into multi-step processes (plan generation, phase implementation, deep review, version bump, release notes, session history).
 
 The catalog itself is content; the harness around it is the per-platform installer plus a small set of local MCP servers that surface the catalog to any agent that speaks MCP.

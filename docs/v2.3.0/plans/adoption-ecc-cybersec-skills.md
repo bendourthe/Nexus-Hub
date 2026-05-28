@@ -51,7 +51,7 @@ The de facto governing document for adoption decisions in this plan is the **MCP
 
 #### 1.1 — context-modes skill
 
-- [ ] T001 [P] Create context-modes skill at catalog/skills/workflow/context-modes/SKILL.md
+- [x] T001 [P] Create context-modes skill at catalog/skills/workflow/context-modes/SKILL.md
 
 **Objective**: Reproduce ECC's `contexts/{dev,review,research}.md` dynamic system-prompt injection as a Nexus-Hub skill that lets the agent adopt a named working mode.
 
@@ -62,7 +62,7 @@ The de facto governing document for adoption decisions in this plan is the **MCP
 
 #### 1.2 — Cross-framework mapping convention + security-framework-mapping skill
 
-- [ ] T002 [P] Create security-framework-mapping skill at catalog/skills/security/security-framework-mapping/SKILL.md and document the optional frontmatter convention in AGENTS.md
+- [x] T002 [P] Create security-framework-mapping skill at catalog/skills/security/security-framework-mapping/SKILL.md and document the optional frontmatter convention in AGENTS.md
 
 **Objective**: Adopt the cybersecurity library's standout pattern — tag security/compliance skills with framework identifiers (MITRE ATT&CK / ATLAS / D3FEND / NIST CSF / NIST AI RMF) and document the convention.
 
@@ -73,7 +73,7 @@ The de facto governing document for adoption decisions in this plan is the **MCP
 
 #### 1.3 — Testing and Stabilization
 
-- [ ] T003 Run and stabilize Phase 1 validation in scripts/validate_skills.py and data/
+- [x] T003 Run and stabilize Phase 1 validation in scripts/validate_skills.py and data/
 
 **Objective**: Verify both skills pass structural validation and registry integrity.
 
@@ -84,11 +84,11 @@ The de facto governing document for adoption decisions in this plan is the **MCP
 
 ### Phase 1 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] All tests passing (`make validate` green)
-- [ ] No known regressions from prior phases
-- [ ] Session history generated for this phase
-- [ ] Ready to advance to Phase 2
+- [x] All sub-tasks completed
+- [x] All tests passing (`make validate` green)
+- [x] No known regressions from prior phases
+- [x] Session history generated for this phase
+- [x] Ready to advance to Phase 2
 
 ---
 

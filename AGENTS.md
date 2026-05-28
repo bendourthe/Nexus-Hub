@@ -6,7 +6,7 @@ This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, G
 
 Nexus-Hub is a production-grade skill harness for AI coding assistants. It is the **upstream catalog** consumed by Nexus (the local-first desktop AI Studio, see `https://github.com/bendourthe/Nexus-AI`) and by every other major agent platform: Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, and GitHub CLI. Skills, commands, hooks, agents, and rules are distributed via installer scripts into users' `~/.nexus-hub/` directory and into their AI assistant's per-platform config locations.
 
-Current catalog: **207 skills** across 22 categories, 40 commands, 22 hooks, 10 agents.
+Current catalog: **208 skills** across 22 categories, 40 commands, 22 hooks, 10 agents.
 
 ## Project Structure
 
@@ -22,7 +22,7 @@ Nexus-Hub/
 │   ├── mcp-configs/          # MCP server registry
 │   ├── memory/               # Memory template files
 │   ├── rules/                # Code style/security rules (4 languages)
-│   └── skills/               # 207 skills across 22 categories
+│   └── skills/               # 208 skills across 22 categories
 │       └── <category>/
 │           └── <skill-name>/
 │               └── SKILL.md
@@ -100,6 +100,38 @@ Practical implications for SKILL.md authoring:
 - Keep Tier 1 fields tight (especially `description` and `summary_l0`); they cost tokens on every catalog read across every session. Tier 2 / Tier 3 budgets are per-trigger, not per-session.
 
 Cross-links: the body-size targets sit in the size-norm rule immediately below. The bundled-subdir convention is documented separately in the "Per-skill Bundled Resources" subsection further down.
+
+#### Optional Security and Compliance Framework Mapping
+
+Security and compliance skills MAY declare an optional set of cross-framework mapping fields in their YAML frontmatter. These fields are **non-required**, do **not** count toward Tier-1 token budget pressure for skills that omit them, and are validated as **optional** by `scripts/validate_skills.py` (their absence is never an error; their presence is checked for list shape only).
+
+Available optional fields:
+
+| Field | Framework | Example value |
+|---|---|---|
+| `mitre_attack` | MITRE ATT&CK techniques | `[T1071, T1003.001]` |
+| `atlas_techniques` | MITRE ATLAS (adversarial ML) | `[AML.T0047, AML.T0049]` |
+| `d3fend_techniques` | MITRE D3FEND defensive countermeasures | `[D3-NTA, D3-PA]` |
+| `nist_csf` | NIST Cybersecurity Framework categories | `[DE.CM, RS.AN]` |
+| `nist_ai_rmf` | NIST AI Risk Management Framework controls | `[MEASURE-2.6, GOVERN-1.1]` |
+
+Example frontmatter for a defensive security skill:
+
+```yaml
+---
+name: hunting-credential-dumping
+description: <pushy description with trigger phrases and SKIP clause>
+summary_l0: "Hunt for LSASS credential-dumping behavior across endpoint telemetry"
+overview_l1: "<overview>"
+mitre_attack: [T1003.001]
+d3fend_techniques: [D3-PA, D3-PSA]
+nist_csf: [DE.CM, DE.AE]
+---
+```
+
+Companion file: when a skill declares any of these fields, it SHOULD ship a `references/standards.md` that documents the mapping (what each ID means, why it applies to this skill, and the public source URL for the framework definition). The orphan-bundle audit will warn if `references/standards.md` exists but is not referenced from `SKILL.md`; otherwise the file is purely additive.
+
+These fields exist so a downstream generator (e.g. `scripts/build_framework_coverage.py`) can emit a coverage matrix across Nexus-Hub's security skills. They are NOT a substitute for the skill body — the body must still teach the agent what to do, with binary Verification and Common Rationalizations.
 
 Required body sections (in order):
 
