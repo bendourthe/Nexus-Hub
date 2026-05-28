@@ -33,6 +33,28 @@ jobs:
       - name: Validate bundles.json
         run: python -c "import json; d = json.load(open('data/bundles.json')); print(f'bundles.json OK — {len(d[\"bundles\"])} bundles')"
 
+      - name: Validate no personal paths leaked (v2.3.0 Phase 2)
+        run: |
+          python scripts/validate_no_personal_paths.py \
+            --exclude docs/v2.0.0 \
+            --exclude docs/v2.1.0 \
+            --exclude docs/v2.2.0 \
+            --exclude catalog/hooks/tests
+
+      - name: Validate Unicode safety (v2.3.0 Phase 2)
+        run: |
+          python scripts/validate_unicode_safety.py \
+            --exclude docs/v2.0.0 \
+            --exclude docs/v2.1.0 \
+            --exclude docs/v2.2.0 \
+            --exclude templates/ai-instructions
+
+      - name: Scan supply-chain IOCs (v2.3.0 Phase 2)
+        run: python scripts/scan_supply_chain_iocs.py
+
+      - name: Validate GitHub Actions workflow security (v2.3.0 Phase 2)
+        run: python scripts/validate_workflow_security.py
+
   shellcheck:
     runs-on: ubuntu-latest
     steps:
@@ -73,6 +95,9 @@ jobs:
 
       - name: Repo-level integration-registry + installer tests (v2.2.0+)
         run: pytest tests/integrations tests/installer -v
+
+      - name: CI validator tests (v2.3.0 Phase 2)
+        run: pytest tests/validators -v
 
       - name: Install skill-server (and transitive deps like pydantic via mcp)
         run: pip install -e "extensions/nexus-skill-server/[dev]"

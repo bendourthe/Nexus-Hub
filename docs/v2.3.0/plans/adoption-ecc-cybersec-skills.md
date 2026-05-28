@@ -102,7 +102,7 @@ The de facto governing document for adoption decisions in this plan is the **MCP
 
 #### 2.1 — Implement the four CI validators
 
-- [ ] T004 [P] Implement scripts/validate_no_personal_paths.py, validate_unicode_safety.py, scan_supply_chain_iocs.py, validate_workflow_security.py
+- [x] T004 [P] Implement scripts/validate_no_personal_paths.py, validate_unicode_safety.py, scan_supply_chain_iocs.py, validate_workflow_security.py
 
 **Objective**: Port ECC's `scripts/ci/{validate-no-personal-paths,check-unicode-safety,scan-supply-chain-iocs,validate-workflow-security}.js` to local Python validators.
 
@@ -113,7 +113,7 @@ The de facto governing document for adoption decisions in this plan is the **MCP
 
 #### 2.2 — Wire validators into make validate and both installers
 
-- [ ] T005 Wire the four validators into Makefile and register copy steps in scripts/installer.sh and scripts/installer.ps1
+- [x] T005 Wire the four validators into Makefile and register copy steps in scripts/installer.sh and scripts/installer.ps1
 
 **Objective**: Make the validators part of the standard validation gate and distribute them cross-platform.
 
@@ -124,7 +124,7 @@ The de facto governing document for adoption decisions in this plan is the **MCP
 
 #### 2.3 — Testing and Stabilization
 
-- [ ] T006 Run and stabilize Phase 2 validators and tests
+- [x] T006 Run and stabilize Phase 2 validators and tests
 
 **Objective**: Confirm validators pass clean and fail dirty, with green CI.
 
@@ -135,11 +135,11 @@ The de facto governing document for adoption decisions in this plan is the **MCP
 
 ### Phase 2 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] All tests passing
-- [ ] No known regressions from prior phases
-- [ ] Session history generated for this phase
-- [ ] Ready to advance to Phase 3
+- [x] All sub-tasks completed
+- [x] All tests passing
+- [x] No known regressions from prior phases
+- [x] Session history generated for this phase
+- [x] Ready to advance to Phase 3
 
 ---
 

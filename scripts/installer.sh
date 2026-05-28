@@ -1490,6 +1490,34 @@ install_templates() {
         safe_copy "$affected_source" "$scripts_dest/nexus_hub_affected.py" true "[OK] Affected-tests CLI installed at: $scripts_dest/nexus_hub_affected.py"
     fi
 
+    # Copy v2.3.0 CI validators (Phase 2 / T004-T005). Four standalone static
+    # validators that run on the clean tree and fail non-zero on a finding:
+    # validate_no_personal_paths.py scans distributed docs for leaked
+    # /Users/<name> or C:\Users\<name> paths; validate_unicode_safety.py
+    # flags unsafe / confusable Unicode (Trojan Source, zero-width chars);
+    # scan_supply_chain_iocs.py inspects dependency manifests and installers
+    # for curl-pipe-bash, lifecycle shell-outs, floating GitHub Action refs,
+    # and known typosquats; validate_workflow_security.py audits
+    # .github/workflows/*.yml for pull_request_target + head checkout,
+    # ${{ github.event.* }} injection in run: blocks, and write-all
+    # permissions. Lockstep with the same block in scripts/installer.ps1.
+    local no_paths_source="$repo_root/scripts/validate_no_personal_paths.py"
+    if [ -f "$no_paths_source" ]; then
+        safe_copy "$no_paths_source" "$scripts_dest/validate_no_personal_paths.py" true "[OK] No-personal-paths validator installed at: $scripts_dest/validate_no_personal_paths.py"
+    fi
+    local unicode_source="$repo_root/scripts/validate_unicode_safety.py"
+    if [ -f "$unicode_source" ]; then
+        safe_copy "$unicode_source" "$scripts_dest/validate_unicode_safety.py" true "[OK] Unicode-safety validator installed at: $scripts_dest/validate_unicode_safety.py"
+    fi
+    local iocs_source="$repo_root/scripts/scan_supply_chain_iocs.py"
+    if [ -f "$iocs_source" ]; then
+        safe_copy "$iocs_source" "$scripts_dest/scan_supply_chain_iocs.py" true "[OK] Supply-chain IOC scanner installed at: $scripts_dest/scan_supply_chain_iocs.py"
+    fi
+    local workflow_source="$repo_root/scripts/validate_workflow_security.py"
+    if [ -f "$workflow_source" ]; then
+        safe_copy "$workflow_source" "$scripts_dest/validate_workflow_security.py" true "[OK] Workflow-security validator installed at: $scripts_dest/validate_workflow_security.py"
+    fi
+
     # Copy feature-directory bootstrap scripts (v2.1.0 / adoption-spec-kit
     # Phase 7 / G5). The two scripts resolve the next specs/<NNN>-<slug>/
     # prefix (sequential or timestamp per .specify/init-options.json),

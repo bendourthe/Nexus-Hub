@@ -1908,6 +1908,30 @@ function Install-Templates {
         Safe-Copy -Source $affectedSource -Destination (Join-Path $scriptsDest "nexus_hub_affected.py") -Confirm:$true -CustomMessage "✓ Affected-tests CLI installed at: $scriptsDest\nexus_hub_affected.py"
     }
 
+    # Copy v2.3.0 CI validators (Phase 2 / T004-T005). Mirror of the bash
+    # block in scripts\installer.sh. Four standalone static validators:
+    # validate_no_personal_paths.py (leaked /Users/<name> or C:\Users\<name>
+    # paths), validate_unicode_safety.py (Trojan Source + zero-width chars),
+    # scan_supply_chain_iocs.py (curl-pipe-bash, lifecycle shell-outs,
+    # floating GitHub Action refs, typosquats), validate_workflow_security.py
+    # (pull_request_target abuse, github.event injection, write-all perms).
+    $noPathsSource = Join-Path $RepoRoot "scripts\validate_no_personal_paths.py"
+    if (Test-Path $noPathsSource) {
+        Safe-Copy -Source $noPathsSource -Destination (Join-Path $scriptsDest "validate_no_personal_paths.py") -Confirm:$true -CustomMessage "✓ No-personal-paths validator installed at: $scriptsDest\validate_no_personal_paths.py"
+    }
+    $unicodeSource = Join-Path $RepoRoot "scripts\validate_unicode_safety.py"
+    if (Test-Path $unicodeSource) {
+        Safe-Copy -Source $unicodeSource -Destination (Join-Path $scriptsDest "validate_unicode_safety.py") -Confirm:$true -CustomMessage "✓ Unicode-safety validator installed at: $scriptsDest\validate_unicode_safety.py"
+    }
+    $iocsSource = Join-Path $RepoRoot "scripts\scan_supply_chain_iocs.py"
+    if (Test-Path $iocsSource) {
+        Safe-Copy -Source $iocsSource -Destination (Join-Path $scriptsDest "scan_supply_chain_iocs.py") -Confirm:$true -CustomMessage "✓ Supply-chain IOC scanner installed at: $scriptsDest\scan_supply_chain_iocs.py"
+    }
+    $workflowSource = Join-Path $RepoRoot "scripts\validate_workflow_security.py"
+    if (Test-Path $workflowSource) {
+        Safe-Copy -Source $workflowSource -Destination (Join-Path $scriptsDest "validate_workflow_security.py") -Confirm:$true -CustomMessage "✓ Workflow-security validator installed at: $scriptsDest\validate_workflow_security.py"
+    }
+
     # Copy feature-directory bootstrap scripts (v2.1.0 / adoption-spec-kit
     # Phase 7 / G5). The two scripts resolve the next specs\<NNN>-<slug>\
     # prefix (sequential or timestamp per .specify\init-options.json),

@@ -10,6 +10,19 @@ validate: ## Validate all JSON catalog files and skill bundles
 	@python -c "import json; d = json.load(open('data/templates.json', encoding='utf-8')); print(f'  templates.json OK')"
 	@echo "Auditing per-skill bundled resources (scripts/, references/, assets/) for orphans..."
 	@python scripts/validate_skills.py --bundles-only
+	@echo "Running v2.3.0 CI validators (no-personal-paths, unicode-safety, supply-chain-iocs, workflow-security)..."
+	@python scripts/validate_no_personal_paths.py \
+	    --exclude docs/v2.0.0 \
+	    --exclude docs/v2.1.0 \
+	    --exclude docs/v2.2.0 \
+	    --exclude catalog/hooks/tests
+	@python scripts/validate_unicode_safety.py \
+	    --exclude docs/v2.0.0 \
+	    --exclude docs/v2.1.0 \
+	    --exclude docs/v2.2.0 \
+	    --exclude templates/ai-instructions
+	@python scripts/scan_supply_chain_iocs.py
+	@python scripts/validate_workflow_security.py
 	@echo "All catalogs valid."
 
 lint: ## Lint shell scripts with ShellCheck
