@@ -6,7 +6,7 @@
     "description": "Comprehensive catalog of Nexus-Hub skills with L0/L1 tiered summaries"
   },
   "statistics": {
-    "total_skills": 208,
+    "total_skills": 223,
     "categories": {
       "Developer Experience": 3,
       "Research": 2,
@@ -29,7 +29,8 @@
       "specialized-domains": 13,
       "testing": 3,
       "tests-generation": 18,
-      "workflow": 23
+      "workflow": 23,
+      "security-operations": 15
     },
     "priorities": {
       "MEDIUM": 175
@@ -7284,6 +7285,579 @@
         "lines": 111,
         "characters": 9299,
         "tokens_estimate": 1200
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "memory-forensics",
+      "title": "memory-forensics",
+      "description": "Analyze a volatile-memory image (RAM capture) to detect injected code, hidden processes, malicious network connections, and credential-theft artifacts using a fixed Volatility 3 triage plugin workflow. Make sure to use this skill whenever the user says \"analyze a memory dump\", \"RAM forensics\", \"run volatility\", \"find injected processes in a memory image\", \"memory image triage\", or \"extract processes and network connections from a capture\", even when they only hand you a .raw / .lime / .vmem path and ask what is in it. SKIP, do NOT use for: live response on a running host (use [[endpoint-edr-detection]]) or disk-image forensics over an .E01 / .dd filesystem image (use [[disk-artifact-forensics]]).",
+      "long_description": "This skill drives defensive analysis of a captured volatile-memory image (RAM dump) to reconstruct what was running at acquisition time. It teaches a deterministic Volatility 3 triage sequence: enumerate the process tree, diff visible processes against carved/hidden ones, list network connections, hunt for process-injection and reflectively-loaded code, and extract credential-theft indicators such as LSASS access residue. The workflow is read-only against an immutable image, hashes the image before and after, and never executes carved samples. It maps the findings to ATT&CK credential-access and defense-evasion techniques and to D3FEND process-analysis countermeasures so an analyst can route each indicator into an incident record. A bundled helper script wraps a locally-installed vol binary to run the fixed plugin set against an image path with no network symbol fetches.",
+      "summary_l0": "\"Triage a RAM image for injected code, hidden processes, and credential artifacts\"",
+      "overview_l1": "\"This skill drives defensive analysis of a captured volatile-memory image (RAM dump) to reconstruct what was running at acquisition time. It teaches a deterministic Volatility 3 triage sequence: enumerate the process tree, diff visible processes against carved/hidden ones, list network connections, hunt for process-injection and reflectively-loaded code, and extract credential-theft indicators such as LSASS access residue. The workflow is read-only against an immutable image, hashes the image before and after, and never executes carved samples. It maps the findings to ATT&CK credential-access and defense-evasion techniques and to D3FEND process-analysis countermeasures so an analyst can route each indicator into an incident record. A bundled helper script wraps a locally-installed vol binary to run the fixed plugin set against an image path with no network symbol fetches.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security-operations",
+      "language": "Multi-language",
+      "tags": [
+        "security",
+        "security-operations",
+        "dfir",
+        "memory-forensics",
+        "volatility",
+        "incident-response",
+        "mitre-attack"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/v2.3.0/plans/adoption-ecc-cybersec-skills.md Phase 6)",
+      "tools_required": [],
+      "path": "catalog/skills/security-operations/memory-forensics/",
+      "file": "catalog/skills/security-operations/memory-forensics/SKILL.md",
+      "size": {
+        "lines": 157,
+        "characters": 14951,
+        "tokens_estimate": 1993
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "hunting-credential-dumping",
+      "title": "hunting-credential-dumping",
+      "description": "Hunt for OS credential-dumping behavior - LSASS memory access, SAM/SECURITY hive theft, and NTDS.dit extraction - across endpoint telemetry and SIEM logs, and turn the patterns into durable detections. Make sure to use this skill whenever the user says \"hunt for credential dumping\", \"detect LSASS access\", \"detect credential theft\", \"SAM/NTDS extraction detection\", \"credential access hunting\", or \"detect handle access to lsass\", even when they only describe the symptom (an unexpected process reading lsass). SKIP, do NOT use for: rotating already-compromised credentials (use [[authentication-patterns]] plus your IR runbook) or any offensive credential-dumping technique - this skill is detection only.",
+      "long_description": "This skill drives a defensive threat hunt for OS credential-dumping behavior across the three canonical access paths: LSASS process-memory access, SAM/SECURITY registry-hive theft, and NTDS.dit Active Directory database extraction. It teaches the analyst what telemetry to query (process handle-access events, sensitive-file access, volume-shadow-copy creation, suspicious parent/child chains), how to write detection logic that survives common benign noise, how to seed a known test event so the query is proven to fire, and how to tune for false positives from backup agents and security tooling. Every step is framed from the defender's seat - the skill writes detections and hunt queries, never dumping tooling. Findings map to ATT&CK credential-access techniques and D3FEND process-analysis countermeasures so each detection routes cleanly into a SIEM rule and an incident record.",
+      "summary_l0": "\"Hunt LSASS, SAM/SECURITY, and NTDS.dit credential theft across endpoint and SIEM telemetry\"",
+      "overview_l1": "\"This skill drives a defensive threat hunt for OS credential-dumping behavior across the three canonical access paths: LSASS process-memory access, SAM/SECURITY registry-hive theft, and NTDS.dit Active Directory database extraction. It teaches the analyst what telemetry to query (process handle-access events, sensitive-file access, volume-shadow-copy creation, suspicious parent/child chains), how to write detection logic that survives common benign noise, how to seed a known test event so the query is proven to fire, and how to tune for false positives from backup agents and security tooling. Every step is framed from the defender's seat - the skill writes detections and hunt queries, never dumping tooling. Findings map to ATT&CK credential-access techniques and D3FEND process-analysis countermeasures so each detection routes cleanly into a SIEM rule and an incident record.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security-operations",
+      "language": "Multi-language",
+      "tags": [
+        "security",
+        "security-operations",
+        "threat-hunting",
+        "credential-access",
+        "lsass",
+        "detection",
+        "mitre-attack"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/v2.3.0/plans/adoption-ecc-cybersec-skills.md Phase 6)",
+      "tools_required": [],
+      "path": "catalog/skills/security-operations/hunting-credential-dumping/",
+      "file": "catalog/skills/security-operations/hunting-credential-dumping/SKILL.md",
+      "size": {
+        "lines": 143,
+        "characters": 13268,
+        "tokens_estimate": 1769
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "disk-artifact-forensics",
+      "title": "disk-artifact-forensics",
+      "description": "Reconstruct attacker activity from a forensic disk image using filesystem and OS artifacts (MFT, $UsnJrnl, registry hives, prefetch, shimcache/amcache, event logs, browser history) and build a defensible host timeline. Make sure to use this skill whenever the user says \"disk forensics\", \"analyze the MFT\", \"registry hive forensics\", \"prefetch analysis\", \"build a host timeline\", \"examine a forensic disk image\", or \"amcache/shimcache analysis\", even when they only hand you an .E01 / .dd / .vmdk image and ask what happened on the host. SKIP, do NOT use for: volatile-memory analysis of a RAM capture (use [[memory-forensics]]) or live triage of a still-running endpoint (use [[endpoint-edr-detection]]).",
+      "long_description": "This skill drives defensive reconstruction of attacker activity from a forensic disk image. It teaches which artifacts answer which question - the MFT and $UsnJrnl for file create/modify/delete, registry hives for persistence and configuration, prefetch and amcache/shimcache for program-execution evidence, Windows event logs for logon and service activity, and browser history for initial-access and download evidence - and how to fuse them into a single super-timeline. The workflow runs read-only against a verified, hashed image, distinguishes indicators of anti-forensic activity (log clearing, timestomping) from normal churn, and produces a defensible chronological narrative an investigator can defend. Findings map to ATT&CK indicator-removal, persistence, and execution techniques and to D3FEND file/system-artifact analysis countermeasures, and they feed directly into an incident timeline and postmortem.",
+      "summary_l0": "\"Reconstruct host activity and a timeline from disk-image filesystem and OS artifacts\"",
+      "overview_l1": "\"This skill drives defensive reconstruction of attacker activity from a forensic disk image. It teaches which artifacts answer which question - the MFT and $UsnJrnl for file create/modify/delete, registry hives for persistence and configuration, prefetch and amcache/shimcache for program-execution evidence, Windows event logs for logon and service activity, and browser history for initial-access and download evidence - and how to fuse them into a single super-timeline. The workflow runs read-only against a verified, hashed image, distinguishes indicators of anti-forensic activity (log clearing, timestomping) from normal churn, and produces a defensible chronological narrative an investigator can defend. Findings map to ATT&CK indicator-removal, persistence, and execution techniques and to D3FEND file/system-artifact analysis countermeasures, and they feed directly into an incident timeline and postmortem.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security-operations",
+      "language": "Multi-language",
+      "tags": [
+        "security",
+        "security-operations",
+        "dfir",
+        "disk-forensics",
+        "timeline",
+        "mitre-attack"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/v2.3.0/plans/adoption-ecc-cybersec-skills.md Phase 6)",
+      "tools_required": [],
+      "path": "catalog/skills/security-operations/disk-artifact-forensics/",
+      "file": "catalog/skills/security-operations/disk-artifact-forensics/SKILL.md",
+      "size": {
+        "lines": 151,
+        "characters": 13512,
+        "tokens_estimate": 1802
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "siem-detection-engineering",
+      "title": "siem-detection-engineering",
+      "description": "Author, tune, and test SIEM detection rules and correlation logic as portable Sigma-style rules and platform-native queries, with a disciplined false-positive-management and seeded-test-event workflow that proves each rule fires before it ships. Make sure to use this skill whenever the user says \"write a detection rule\", \"author a Sigma rule\", \"build a correlation rule\", \"SIEM correlation search\", \"tune this alert\", \"reduce false positives\", \"do detection engineering\", \"lower the noise on this alert\", or otherwise asks to create or refine analytics that watch security telemetry. SKIP, do NOT use for, standing log-pipeline or observability infrastructure (use observability-setup) and one-off hypothesis hunting that does not produce a durable rule (use log-threat-hunting).",
+      "long_description": "This skill teaches the agent how to engineer durable SIEM detections defensively: translate an adversary behavior into a hypothesis, express it as a portable Sigma-style rule plus a platform-native query (Splunk SPL, Elastic, Sentinel KQL), and prove the rule fires by replaying a seeded benign test event before it ships. It covers selecting the right log source and required fields, writing precise selection-plus-condition logic, scoping with allow-lists instead of broad exclusions, measuring and driving down false positives with a tracked tuning loop, versioning rules with metadata (author, references, MITRE technique, severity), and gating promotion on a binary test-fires check. The defender's seat only: building detection content and noise control, never evasion or offensive use. Trigger phrases: detection engineering, Sigma rule, correlation search, alert tuning, reduce false positives, SIEM analytics.",
+      "summary_l0": "\"Author, tune, and test portable SIEM detection rules with seeded-event proof and FP management\"",
+      "overview_l1": "\"This skill teaches the agent how to engineer durable SIEM detections defensively: translate an adversary behavior into a hypothesis, express it as a portable Sigma-style rule plus a platform-native query (Splunk SPL, Elastic, Sentinel KQL), and prove the rule fires by replaying a seeded benign test event before it ships. It covers selecting the right log source and required fields, writing precise selection-plus-condition logic, scoping with allow-lists instead of broad exclusions, measuring and driving down false positives with a tracked tuning loop, versioning rules with metadata (author, references, MITRE technique, severity), and gating promotion on a binary test-fires check. The defender's seat only: building detection content and noise control, never evasion or offensive use. Trigger phrases: detection engineering, Sigma rule, correlation search, alert tuning, reduce false positives, SIEM analytics.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security-operations",
+      "language": "Multi-language",
+      "tags": [
+        "security",
+        "security-operations",
+        "detection-engineering",
+        "siem",
+        "sigma",
+        "mitre-attack"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/v2.3.0/plans/adoption-ecc-cybersec-skills.md Phase 6)",
+      "tools_required": [],
+      "path": "catalog/skills/security-operations/siem-detection-engineering/",
+      "file": "catalog/skills/security-operations/siem-detection-engineering/SKILL.md",
+      "size": {
+        "lines": 121,
+        "characters": 10203,
+        "tokens_estimate": 1360
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "log-threat-hunting",
+      "title": "log-threat-hunting",
+      "description": "Run hypothesis-driven threat hunts across host, network, and cloud logs to surface adversary behavior that signature-based detection misses, then promote confirmed findings into durable detections. Make sure to use this skill whenever the user says \"threat hunt\", \"hunt through these logs\", \"do an IOC sweep across logs\", \"run a hypothesis-driven hunt\", \"find suspicious activity in logs\", \"scan logs for indicators of compromise\", \"look for an adversary in our telemetry\", or otherwise asks to proactively search telemetry for compromise rather than wait for an alert. SKIP, do NOT use for, building standing detection rules from a known pattern (use siem-detection-engineering) and debugging application errors or performance from logs (use debug-with-logs).",
+      "long_description": "This skill teaches the agent how to run a defensive, hypothesis-driven threat hunt across host, network, and cloud telemetry to find adversary behavior that signature detection missed. It covers framing a falsifiable hunt hypothesis from a threat model or intel, scoping the data sources and time window, running iterative queries that pivot on suspicious entities, sweeping a curated indicator-of-compromise (IOC) list with a local read-only scanner, separating true findings from benign baseline activity, and the critical last step: promoting any confirmed finding into a durable SIEM detection so the same behavior is caught automatically next time. It ships a deterministic local helper (ioc-log-scan) that matches an IOC list against a log file with counts and never makes a network call. Defender's seat only - proactive detection and triage, never offensive use. Trigger phrases: threat hunt, IOC sweep, hypothesis-driven hunt, hunt the logs.",
+      "summary_l0": "\"Run hypothesis-driven hunts across logs to surface adversary behavior, then promote findings to detections\"",
+      "overview_l1": "\"This skill teaches the agent how to run a defensive, hypothesis-driven threat hunt across host, network, and cloud telemetry to find adversary behavior that signature detection missed. It covers framing a falsifiable hunt hypothesis from a threat model or intel, scoping the data sources and time window, running iterative queries that pivot on suspicious entities, sweeping a curated indicator-of-compromise (IOC) list with a local read-only scanner, separating true findings from benign baseline activity, and the critical last step: promoting any confirmed finding into a durable SIEM detection so the same behavior is caught automatically next time. It ships a deterministic local helper (ioc-log-scan) that matches an IOC list against a log file with counts and never makes a network call. Defender's seat only - proactive detection and triage, never offensive use. Trigger phrases: threat hunt, IOC sweep, hypothesis-driven hunt, hunt the logs.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security-operations",
+      "language": "Multi-language",
+      "tags": [
+        "security",
+        "security-operations",
+        "threat-hunting",
+        "log-analysis",
+        "ioc",
+        "mitre-attack"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/v2.3.0/plans/adoption-ecc-cybersec-skills.md Phase 6)",
+      "tools_required": [],
+      "path": "catalog/skills/security-operations/log-threat-hunting/",
+      "file": "catalog/skills/security-operations/log-threat-hunting/SKILL.md",
+      "size": {
+        "lines": 98,
+        "characters": 9554,
+        "tokens_estimate": 1274
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "lateral-movement-detection",
+      "title": "lateral-movement-detection",
+      "description": "Detect adversary lateral movement (RDP, SMB and admin-share access, WMI, remote-service creation, and pass-the-hash or pass-the-ticket) by correlating authentication events and network telemetry across multiple hosts. Make sure to use this skill whenever the user says \"detect lateral movement\", \"pass-the-hash detection\", \"RDP/SMB lateral movement\", \"detect remote service creation\", \"find lateral movement in auth logs\", \"detect PsExec-style activity\", \"spot an attacker moving between hosts\", or otherwise asks to find an adversary spreading across an internal network. SKIP, do NOT use for, initial-access or phishing analysis (use phishing-analysis-and-defense) and identity-provider or cloud sign-in anomalies (use identity-threat-detection).",
+      "long_description": "This skill teaches the agent how to detect adversary lateral movement defensively by correlating authentication logs and network telemetry across hosts. It covers the common movement vectors (remote desktop, SMB and administrative shares, WMI, remote-service creation in the style of remote-exec tools, and authentication-material reuse such as pass-the-hash and pass-the-ticket), the specific Windows event IDs and network signals that betray each, and how to correlate a source host, destination host, account, and logon type into a single movement story. It builds source-to-destination authentication graphs, flags anomalous service-account interactive logons and many-to-one or one-to-many fan-out patterns, and validates every detection against a seeded benign remote-admin event. Defender's seat only - detection and triage of movement, never how to perform or evade it. Trigger phrases: lateral movement, pass-the-hash, RDP/SMB movement, remote service creation, PsExec-style activity.",
+      "summary_l0": "\"Detect RDP/SMB/WMI/PsExec lateral movement by correlating auth events and network telemetry across hosts\"",
+      "overview_l1": "\"This skill teaches the agent how to detect adversary lateral movement defensively by correlating authentication logs and network telemetry across hosts. It covers the common movement vectors (remote desktop, SMB and administrative shares, WMI, remote-service creation in the style of remote-exec tools, and authentication-material reuse such as pass-the-hash and pass-the-ticket), the specific Windows event IDs and network signals that betray each, and how to correlate a source host, destination host, account, and logon type into a single movement story. It builds source-to-destination authentication graphs, flags anomalous service-account interactive logons and many-to-one or one-to-many fan-out patterns, and validates every detection against a seeded benign remote-admin event. Defender's seat only - detection and triage of movement, never how to perform or evade it. Trigger phrases: lateral movement, pass-the-hash, RDP/SMB movement, remote service creation, PsExec-style activity.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security-operations",
+      "language": "Multi-language",
+      "tags": [
+        "security",
+        "security-operations",
+        "threat-hunting",
+        "lateral-movement",
+        "detection",
+        "mitre-attack"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/v2.3.0/plans/adoption-ecc-cybersec-skills.md Phase 6)",
+      "tools_required": [],
+      "path": "catalog/skills/security-operations/lateral-movement-detection/",
+      "file": "catalog/skills/security-operations/lateral-movement-detection/SKILL.md",
+      "size": {
+        "lines": 99,
+        "characters": 9943,
+        "tokens_estimate": 1326
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "ransomware-incident-response",
+      "title": "ransomware-incident-response",
+      "description": "Execute a ransomware incident-response runbook end to end - detect and contain active encryption, preserve forensic evidence, identify the strain and entry vector, eradicate, recover from clean backups, and run the post-incident review. Make sure to use this skill whenever the user says \"ransomware response\", \"respond to ransomware\", \"files are being encrypted\", \"ransomware incident\", \"contain a ransomware outbreak\", \"ransomware recovery\", or describes mass file encryption, ransom notes, or shadow-copy deletion in progress. SKIP, do NOT use for: generic incident-response theory with no active ransomware, pre-incident proactive threat hunting (use log-threat-hunting), or backup architecture design and capacity planning.",
+      "long_description": "This skill walks the agent through a full defensive ransomware incident-response lifecycle: rapid detection and triage of active encryption, network and host containment to stop lateral spread, forensic preservation of volatile and disk evidence before any cleanup, identification of the ransomware family and the initial entry vector, eradication of attacker footholds, recovery from validated clean backups, and a blameless post-incident review that captures timeline, root cause, and tracked action items. It is purely defensive: it never advises paying a ransom, never decrypts via attacker tooling, and never performs offensive actions. The runbook emphasizes evidence-first ordering (preserve before you wipe), backup integrity verification before restore, and explicit go/no-go gates between phases. Trigger phrases: ransomware response, files are being encrypted, contain a ransomware outbreak, ransomware recovery.",
+      "summary_l0": "\"Run a ransomware incident-response runbook from containment through recovery and post-incident review\"",
+      "overview_l1": "\"This skill walks the agent through a full defensive ransomware incident-response lifecycle: rapid detection and triage of active encryption, network and host containment to stop lateral spread, forensic preservation of volatile and disk evidence before any cleanup, identification of the ransomware family and the initial entry vector, eradication of attacker footholds, recovery from validated clean backups, and a blameless post-incident review that captures timeline, root cause, and tracked action items. It is purely defensive: it never advises paying a ransom, never decrypts via attacker tooling, and never performs offensive actions. The runbook emphasizes evidence-first ordering (preserve before you wipe), backup integrity verification before restore, and explicit go/no-go gates between phases. Trigger phrases: ransomware response, files are being encrypted, contain a ransomware outbreak, ransomware recovery.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security-operations",
+      "language": "Multi-language",
+      "tags": [
+        "security",
+        "security-operations",
+        "incident-response",
+        "ransomware",
+        "recovery",
+        "mitre-attack"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/v2.3.0/plans/adoption-ecc-cybersec-skills.md Phase 6)",
+      "tools_required": [],
+      "path": "catalog/skills/security-operations/ransomware-incident-response/",
+      "file": "catalog/skills/security-operations/ransomware-incident-response/SKILL.md",
+      "size": {
+        "lines": 120,
+        "characters": 11177,
+        "tokens_estimate": 1490
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "persistence-mechanism-hunting",
+      "title": "persistence-mechanism-hunting",
+      "description": "Hunt for attacker persistence across endpoints - autostart entries, scheduled tasks, services, WMI event subscriptions, registry run keys, and startup folders - then triage each finding as benign or malicious with concrete enrichment criteria. Make sure to use this skill whenever the user says \"hunt for persistence\", \"find malicious autoruns\", \"detect scheduled-task persistence\", \"WMI event subscription persistence\", \"registry run-key persistence\", \"detect malicious services\", or asks how an attacker survives a reboot or maintains a foothold. SKIP, do NOT use for: eradicating persistence during a live ransomware incident (use ransomware-incident-response), or firmware, UEFI, and bootkit forensics, which need specialized low-level tooling.",
+      "long_description": "This skill teaches the agent to proactively hunt for attacker persistence mechanisms on endpoints and triage each finding. It covers the major persistence surfaces - registry run keys and startup folders, scheduled tasks, Windows services, WMI permanent event subscriptions, and other autostart extensibility points - and gives a repeatable workflow: enumerate from host or EDR telemetry, baseline against known-good, enrich each candidate (signature, path, parent, prevalence, creation time), and classify as benign, suspicious, or malicious. It is detection and triage only: it identifies and explains persistence so a responder can act, and never installs persistence or performs offensive actions. The skill stresses prevalence and signing as primary triage levers, masquerading detection (legit names in odd paths), and documenting each verdict with evidence. Trigger phrases: hunt for persistence, find malicious autoruns, scheduled-task persistence, WMI event subscription persistence, registry run-key persistence.",
+      "summary_l0": "\"Hunt and triage attacker persistence across autostart, scheduled tasks, services, WMI, and run keys\"",
+      "overview_l1": "\"This skill teaches the agent to proactively hunt for attacker persistence mechanisms on endpoints and triage each finding. It covers the major persistence surfaces - registry run keys and startup folders, scheduled tasks, Windows services, WMI permanent event subscriptions, and other autostart extensibility points - and gives a repeatable workflow: enumerate from host or EDR telemetry, baseline against known-good, enrich each candidate (signature, path, parent, prevalence, creation time), and classify as benign, suspicious, or malicious. It is detection and triage only: it identifies and explains persistence so a responder can act, and never installs persistence or performs offensive actions. The skill stresses prevalence and signing as primary triage levers, masquerading detection (legit names in odd paths), and documenting each verdict with evidence. Trigger phrases: hunt for persistence, find malicious autoruns, scheduled-task persistence, WMI event subscription persistence, registry run-key persistence.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security-operations",
+      "language": "Multi-language",
+      "tags": [
+        "security",
+        "security-operations",
+        "threat-hunting",
+        "persistence",
+        "detection",
+        "mitre-attack"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/v2.3.0/plans/adoption-ecc-cybersec-skills.md Phase 6)",
+      "tools_required": [],
+      "path": "catalog/skills/security-operations/persistence-mechanism-hunting/",
+      "file": "catalog/skills/security-operations/persistence-mechanism-hunting/SKILL.md",
+      "size": {
+        "lines": 97,
+        "characters": 8951,
+        "tokens_estimate": 1193
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "endpoint-edr-detection",
+      "title": "endpoint-edr-detection",
+      "description": "Detect malicious endpoint behavior from EDR and host telemetry - process injection, suspicious process trees, living-off-the-land binary (LOLBin) abuse, and script-interpreter misuse - then build or tune behavioral detections with low false-positive rates. Make sure to use this skill whenever the user says \"EDR detection\", \"detect process injection\", \"suspicious process tree\", \"LOLBin abuse detection\", \"endpoint behavioral detection\", \"hunt EDR telemetry\", or asks to write, tune, or validate a behavioral rule over host process and command-line data. SKIP, do NOT use for: memory-image forensics (use memory-forensics), or SIEM-wide multi-source correlation engineering (use siem-detection-engineering).",
+      "long_description": "This skill teaches the agent to detect malicious endpoint behavior from EDR and host telemetry and to build or tune behavioral detections. It covers the highest-signal behaviors - process injection, anomalous parent-child process trees, abuse of trusted living-off-the-land binaries (LOLBins), and suspicious script-interpreter and command-line activity - and gives a workflow to model normal behavior, write a hypothesis-driven detection, validate it against benign and malicious samples, and tune for an acceptable false-positive rate. It is detection engineering only: it produces analytic logic and triage guidance over host telemetry, never offensive tooling or evasion advice. The skill emphasizes behavior over static signatures, parent-child and command-line context as primary features, and measuring precision before deployment so a noisy rule does not bury responders. Trigger phrases: EDR detection, detect process injection, suspicious process tree, LOLBin abuse detection, endpoint behavioral detection, hunt EDR telemetry.",
+      "summary_l0": "\"Detect process injection, suspicious process trees, and LOLBin abuse from EDR host telemetry\"",
+      "overview_l1": "\"This skill teaches the agent to detect malicious endpoint behavior from EDR and host telemetry and to build or tune behavioral detections. It covers the highest-signal behaviors - process injection, anomalous parent-child process trees, abuse of trusted living-off-the-land binaries (LOLBins), and suspicious script-interpreter and command-line activity - and gives a workflow to model normal behavior, write a hypothesis-driven detection, validate it against benign and malicious samples, and tune for an acceptable false-positive rate. It is detection engineering only: it produces analytic logic and triage guidance over host telemetry, never offensive tooling or evasion advice. The skill emphasizes behavior over static signatures, parent-child and command-line context as primary features, and measuring precision before deployment so a noisy rule does not bury responders. Trigger phrases: EDR detection, detect process injection, suspicious process tree, LOLBin abuse detection, endpoint behavioral detection, hunt EDR telemetry.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security-operations",
+      "language": "Multi-language",
+      "tags": [
+        "security",
+        "security-operations",
+        "detection",
+        "edr",
+        "endpoint",
+        "mitre-attack"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/v2.3.0/plans/adoption-ecc-cybersec-skills.md Phase 6)",
+      "tools_required": [],
+      "path": "catalog/skills/security-operations/endpoint-edr-detection/",
+      "file": "catalog/skills/security-operations/endpoint-edr-detection/SKILL.md",
+      "size": {
+        "lines": 90,
+        "characters": 8669,
+        "tokens_estimate": 1156
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "cloud-security-posture-detection",
+      "title": "cloud-security-posture-detection",
+      "description": "Detect risky cloud misconfigurations and posture drift across AWS, Azure, and GCP by inventorying resources and flagging public storage, over-permissive IAM, exposed compute or management ports, and disabled logging, then ranking findings for remediation. Make sure to use this skill whenever the user says \"cloud misconfiguration detection\", \"CSPM\", \"public storage bucket detection\", \"over-permissive IAM\", \"cloud posture review\", \"detect exposed cloud resources\", or \"find risky cloud settings\", including synonyms like \"open S3 bucket\", \"wildcard IAM policy\", \"security group 0.0.0.0/0\", or \"is my cloud account hardened\". SKIP, do NOT use for: cloud sign-in or identity anomaly detection (use identity-threat-detection), cloud audit-log hunting for active attacker behavior (use cloud-audit-log-detection), or infrastructure provisioning and IaC authoring (use terraform-specialist).",
+      "long_description": "This skill teaches the agent to detect and prioritize cloud security posture weaknesses across AWS, Azure, and GCP without changing infrastructure. It covers building a resource inventory from read-only APIs, evaluating each resource against a defensive baseline (publicly readable or writable storage, IAM principals with wildcard or administrative permissions, security groups and firewall rules that expose compute or management ports such as SSH, RDP, and database ports to the internet, and accounts where control-plane or flow logging is disabled), detecting drift from a previously approved baseline, and ranking findings by exposure and blast radius. The output is a triaged list of misconfigurations with the resource identifier, the rule violated, the evidence, and a remediation owner. This is a read-only assessment lens; it does not provision, modify, or delete resources, and it does not analyze runtime or sign-in telemetry.",
+      "summary_l0": "\"Detect risky cloud misconfigurations and posture drift across AWS, Azure, and GCP\"",
+      "overview_l1": "\"This skill teaches the agent to detect and prioritize cloud security posture weaknesses across AWS, Azure, and GCP without changing infrastructure. It covers building a resource inventory from read-only APIs, evaluating each resource against a defensive baseline (publicly readable or writable storage, IAM principals with wildcard or administrative permissions, security groups and firewall rules that expose compute or management ports such as SSH, RDP, and database ports to the internet, and accounts where control-plane or flow logging is disabled), detecting drift from a previously approved baseline, and ranking findings by exposure and blast radius. The output is a triaged list of misconfigurations with the resource identifier, the rule violated, the evidence, and a remediation owner. This is a read-only assessment lens; it does not provision, modify, or delete resources, and it does not analyze runtime or sign-in telemetry.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security-operations",
+      "language": "Multi-language",
+      "tags": [
+        "security",
+        "security-operations",
+        "cloud-security",
+        "cspm",
+        "misconfiguration",
+        "mitre-attack"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/v2.3.0/plans/adoption-ecc-cybersec-skills.md Phase 6)",
+      "tools_required": [],
+      "path": "catalog/skills/security-operations/cloud-security-posture-detection/",
+      "file": "catalog/skills/security-operations/cloud-security-posture-detection/SKILL.md",
+      "size": {
+        "lines": 95,
+        "characters": 8837,
+        "tokens_estimate": 1178
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "cloud-audit-log-detection",
+      "title": "cloud-audit-log-detection",
+      "description": "Detect malicious activity in cloud control-plane audit logs across AWS CloudTrail, Azure Activity and Entra audit logs, and GCP Audit Logs by building detections for privilege escalation, IAM-based persistence, logging tamper, and unauthorized data-store access. Make sure to use this skill whenever the user says \"CloudTrail detection\", \"analyze cloud audit logs\", \"detect cloud privilege escalation\", \"Azure activity log hunting\", \"GCP audit log threats\", or \"detect IAM persistence in cloud logs\", including synonyms like \"who created this admin role\", \"find suspicious AssumeRole\", \"detect disabled logging events\", or \"control-plane threat hunting\". SKIP, do NOT use for: posture or misconfiguration scanning of static resource state (use cloud-security-posture-detection), or identity-provider sign-in anomaly detection such as impossible travel and MFA fatigue (use identity-threat-detection).",
+      "long_description": "This skill teaches the agent to detect malicious activity inside cloud control-plane audit logs: AWS CloudTrail, Azure Activity and Entra audit logs, and GCP Audit Logs. It covers normalizing each provider's event schema to a common shape (actor, action, target, source, outcome, time), then building detection logic for the high-value control-plane abuse patterns: privilege escalation through policy and role manipulation, persistence created through new IAM principals, access keys, or trust relationships, tampering that disables or deletes logging, and unauthorized access to data stores. The skill emphasizes corroboration across events, suppression of known-good automation, and producing alerts with the actor, action, evidence event IDs, and a triage verdict. It is a detection-engineering and hunting lens over already-collected logs; it does not scan static resource configuration and does not analyze identity-provider sign-in telemetry.",
+      "summary_l0": "\"Detect malicious activity in AWS, Azure, and GCP control-plane audit logs\"",
+      "overview_l1": "\"This skill teaches the agent to detect malicious activity inside cloud control-plane audit logs: AWS CloudTrail, Azure Activity and Entra audit logs, and GCP Audit Logs. It covers normalizing each provider's event schema to a common shape (actor, action, target, source, outcome, time), then building detection logic for the high-value control-plane abuse patterns: privilege escalation through policy and role manipulation, persistence created through new IAM principals, access keys, or trust relationships, tampering that disables or deletes logging, and unauthorized access to data stores. The skill emphasizes corroboration across events, suppression of known-good automation, and producing alerts with the actor, action, evidence event IDs, and a triage verdict. It is a detection-engineering and hunting lens over already-collected logs; it does not scan static resource configuration and does not analyze identity-provider sign-in telemetry.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security-operations",
+      "language": "Multi-language",
+      "tags": [
+        "security",
+        "security-operations",
+        "cloud-security",
+        "cloudtrail",
+        "detection",
+        "mitre-attack"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/v2.3.0/plans/adoption-ecc-cybersec-skills.md Phase 6)",
+      "tools_required": [],
+      "path": "catalog/skills/security-operations/cloud-audit-log-detection/",
+      "file": "catalog/skills/security-operations/cloud-audit-log-detection/SKILL.md",
+      "size": {
+        "lines": 95,
+        "characters": 8772,
+        "tokens_estimate": 1170
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "container-runtime-detection",
+      "title": "container-runtime-detection",
+      "description": "Detect runtime threats in containers and Kubernetes by analyzing runtime and orchestrator telemetry for container escape to the host, malicious or crypto-mining workloads, suspicious exec-into-pod activity, and privileged-pod abuse, then alerting with evidence. Make sure to use this skill whenever the user says \"container runtime threats\", \"Kubernetes runtime security detection\", \"detect container escape\", \"pod runtime anomaly\", \"detect malicious container\", or \"kubectl exec detection\", including synonyms like \"crypto miner in a pod\", \"privileged container abuse\", \"host namespace breakout\", or \"suspicious process inside a container\". SKIP, do NOT use for: container image scanning or software composition analysis of dependencies and CVEs (use dependency-security-audit), or cluster provisioning, configuration, and Helm or manifest authoring (use kubernetes-expert).",
+      "long_description": "This skill teaches the agent to detect runtime threats in containers and Kubernetes from runtime and orchestrator telemetry rather than from static image scans. It covers identifying the telemetry sources (container runtime syscall and process events, kernel security events, and Kubernetes audit and orchestrator events), then building detections for the highest-value runtime threats: container escape to the host through privileged mounts, host namespaces, or capability abuse, malicious or crypto-mining workloads, suspicious interactive exec-into-pod sessions, and abuse of privileged or host-networked pods. The skill emphasizes establishing a baseline of expected process and network behavior per workload, correlating runtime events with the Kubernetes audit trail to attribute actions to a user or service account, and emitting alerts with the pod, node, process, and evidence. It is a runtime detection lens; it does not scan images for vulnerabilities and does not provision or configure clusters.",
+      "summary_l0": "\"Detect runtime threats in containers and Kubernetes from runtime and orchestrator telemetry\"",
+      "overview_l1": "\"This skill teaches the agent to detect runtime threats in containers and Kubernetes from runtime and orchestrator telemetry rather than from static image scans. It covers identifying the telemetry sources (container runtime syscall and process events, kernel security events, and Kubernetes audit and orchestrator events), then building detections for the highest-value runtime threats: container escape to the host through privileged mounts, host namespaces, or capability abuse, malicious or crypto-mining workloads, suspicious interactive exec-into-pod sessions, and abuse of privileged or host-networked pods. The skill emphasizes establishing a baseline of expected process and network behavior per workload, correlating runtime events with the Kubernetes audit trail to attribute actions to a user or service account, and emitting alerts with the pod, node, process, and evidence. It is a runtime detection lens; it does not scan images for vulnerabilities and does not provision or configure clusters.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security-operations",
+      "language": "Multi-language",
+      "tags": [
+        "security",
+        "security-operations",
+        "cloud-security",
+        "kubernetes",
+        "container",
+        "detection",
+        "mitre-attack"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/v2.3.0/plans/adoption-ecc-cybersec-skills.md Phase 6)",
+      "tools_required": [],
+      "path": "catalog/skills/security-operations/container-runtime-detection/",
+      "file": "catalog/skills/security-operations/container-runtime-detection/SKILL.md",
+      "size": {
+        "lines": 92,
+        "characters": 9017,
+        "tokens_estimate": 1202
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "phishing-analysis-and-defense",
+      "title": "phishing-analysis-and-defense",
+      "description": "Analyze a suspected phishing email from the defender's seat (headers and authentication results, sender reputation, defanged URLs, attachment indicators) and drive the response: block the sender and payload, hunt for who clicked or replied, and reinforce user reporting. Make sure to use this skill whenever the user says \"analyze a phishing email\", \"is this email phishing\", \"phishing investigation\", \"examine suspicious email headers\", \"check this URL for phishing\", \"phishing response\", or \"investigate a reported email\", even when they only paste a raw header block or a suspicious link. SKIP, do NOT use for: spam-filter tuning or email infrastructure setup (use [[network-engineer]]) or credential reset after a confirmed compromise (use [[authentication-patterns]]).",
+      "long_description": "This skill drives defensive triage of a reported or suspected phishing email and the response that follows. It teaches a deterministic sequence: read the full headers and authentication results (SPF, DKIM, DMARC, Authentication-Results, Received hops), assess sender and reply-to reputation, defang and inspect every URL and redirect, and characterize attachments by type and indicators without opening or executing them. Findings drive a graded verdict (benign, suspicious, confirmed phishing) and a response: block the sender and payload at the gateway, hunt the mail logs for every other recipient and for who clicked or replied, and reinforce the user-reporting loop. All URL and attachment handling is done defanged and in isolation; the skill never visits a live malicious link, never opens an attachment outside a sandbox owned by another workflow, and maps each indicator to ATT&CK phishing techniques for the incident record.",
+      "summary_l0": "\"Analyze a suspected phishing email and drive block, hunt, and report response\"",
+      "overview_l1": "\"This skill drives defensive triage of a reported or suspected phishing email and the response that follows. It teaches a deterministic sequence: read the full headers and authentication results (SPF, DKIM, DMARC, Authentication-Results, Received hops), assess sender and reply-to reputation, defang and inspect every URL and redirect, and characterize attachments by type and indicators without opening or executing them. Findings drive a graded verdict (benign, suspicious, confirmed phishing) and a response: block the sender and payload at the gateway, hunt the mail logs for every other recipient and for who clicked or replied, and reinforce the user-reporting loop. All URL and attachment handling is done defanged and in isolation; the skill never visits a live malicious link, never opens an attachment outside a sandbox owned by another workflow, and maps each indicator to ATT&CK phishing techniques for the incident record.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security-operations",
+      "language": "Multi-language",
+      "tags": [
+        "security",
+        "security-operations",
+        "phishing",
+        "email-security",
+        "detection",
+        "mitre-attack"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/v2.3.0/plans/adoption-ecc-cybersec-skills.md Phase 6)",
+      "tools_required": [],
+      "path": "catalog/skills/security-operations/phishing-analysis-and-defense/",
+      "file": "catalog/skills/security-operations/phishing-analysis-and-defense/SKILL.md",
+      "size": {
+        "lines": 105,
+        "characters": 10114,
+        "tokens_estimate": 1349
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "identity-threat-detection",
+      "title": "identity-threat-detection",
+      "description": "Detect identity-based attacks across IdP and SSO logs (Entra ID, Okta, Google Workspace, Active Directory) - impossible travel, MFA fatigue or push bombing, password spraying and brute force, token or session theft, and authentication-process tampering. Make sure to use this skill whenever the user says \"detect account takeover\", \"impossible travel detection\", \"MFA fatigue detection\", \"password spray detection\", \"brute force detection\", \"sign-in anomaly detection\", \"identity threat detection\", or \"Okta/Entra/Azure AD anomalies\", even when they only hand you a sign-in log export and ask what looks wrong. SKIP, do NOT use for: implementing authentication itself (use [[authentication-patterns]]) or cloud resource misconfiguration (use [[cloud-security-posture-detection]]).",
+      "long_description": "This skill drives defensive detection of identity-based attacks from IdP and SSO telemetry (Entra ID, Okta, Google Workspace, Active Directory). It teaches a deterministic detection pass over sign-in and audit logs: baseline normal access per identity, then hunt impossible travel, MFA fatigue or push bombing, password spraying and credential-stuffing brute force, token and session theft (impossible-token-reuse, anomalous device or IP for an existing session), and authentication-process tampering (new MFA methods, conditional-access or federation changes, added app credentials). Each pattern is expressed as a concrete log query with a tuned threshold to manage false positives, and every confirmed hit maps to ATT&CK valid-accounts, credential-access, and authentication-modification techniques. The output is a prioritized set of detection findings with the identity, evidence, and a recommended containment handoff; the skill detects and triages only and never weakens authentication or performs the attacks it hunts.",
+      "summary_l0": "\"Detect account-takeover patterns in IdP and SSO sign-in logs from the defender seat\"",
+      "overview_l1": "\"This skill drives defensive detection of identity-based attacks from IdP and SSO telemetry (Entra ID, Okta, Google Workspace, Active Directory). It teaches a deterministic detection pass over sign-in and audit logs: baseline normal access per identity, then hunt impossible travel, MFA fatigue or push bombing, password spraying and credential-stuffing brute force, token and session theft (impossible-token-reuse, anomalous device or IP for an existing session), and authentication-process tampering (new MFA methods, conditional-access or federation changes, added app credentials). Each pattern is expressed as a concrete log query with a tuned threshold to manage false positives, and every confirmed hit maps to ATT&CK valid-accounts, credential-access, and authentication-modification techniques. The output is a prioritized set of detection findings with the identity, evidence, and a recommended containment handoff; the skill detects and triages only and never weakens authentication or performs the attacks it hunts.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security-operations",
+      "language": "Multi-language",
+      "tags": [
+        "security",
+        "security-operations",
+        "identity",
+        "detection",
+        "account-takeover",
+        "mitre-attack"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/v2.3.0/plans/adoption-ecc-cybersec-skills.md Phase 6)",
+      "tools_required": [],
+      "path": "catalog/skills/security-operations/identity-threat-detection/",
+      "file": "catalog/skills/security-operations/identity-threat-detection/SKILL.md",
+      "size": {
+        "lines": 103,
+        "characters": 10249,
+        "tokens_estimate": 1367
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "malware-triage-analysis",
+      "title": "malware-triage-analysis",
+      "description": "Triage a suspicious file safely and defensively - static indicators (true file type, hashes, strings, imports, embedded URLs) plus behavioral notes from an isolated detonation - to classify maliciousness and extract IOCs, without offensive work or full reverse engineering. Make sure to use this skill whenever the user says \"triage this malware sample\", \"analyze a suspicious file\", \"extract IOCs from a binary\", \"static malware analysis\", \"is this file malicious\", or \"classify a suspicious executable\", even when they only hand you a hash or a file path and ask what it is. SKIP, do NOT use for: writing malware or any offensive tooling, deep or full reverse engineering, or memory-image forensics (use [[memory-forensics]]).",
+      "long_description": "This skill drives safe, defensive triage of a suspicious file to reach a maliciousness verdict and extract indicators of compromise without offensive work or full reverse engineering. It teaches a deterministic static-first sequence performed in an isolated, network-controlled environment: confirm true file type from magic bytes, hash the sample, mine printable and decoded strings, enumerate imports and suspicious capabilities, and surface embedded URLs, IPs, and dropped-file paths (all defanged). Optional behavioral notes come only from a detonation inside an analyst-owned isolated sandbox, never on a workstation. Findings produce a graded verdict (benign, suspicious, malicious) and a structured IOC set (hashes, defanged network indicators, file and registry artifacts) mapped to ATT&CK obfuscation, injection, and execution techniques. The skill is analysis-only: it never modifies the sample to weaponize it, never executes the sample outside isolation, and hands deep reversing or memory analysis to other workflows.",
+      "summary_l0": "\"Safely triage a suspicious file, classify maliciousness, and extract IOCs\"",
+      "overview_l1": "\"This skill drives safe, defensive triage of a suspicious file to reach a maliciousness verdict and extract indicators of compromise without offensive work or full reverse engineering. It teaches a deterministic static-first sequence performed in an isolated, network-controlled environment: confirm true file type from magic bytes, hash the sample, mine printable and decoded strings, enumerate imports and suspicious capabilities, and surface embedded URLs, IPs, and dropped-file paths (all defanged). Optional behavioral notes come only from a detonation inside an analyst-owned isolated sandbox, never on a workstation. Findings produce a graded verdict (benign, suspicious, malicious) and a structured IOC set (hashes, defanged network indicators, file and registry artifacts) mapped to ATT&CK obfuscation, injection, and execution techniques. The skill is analysis-only: it never modifies the sample to weaponize it, never executes the sample outside isolation, and hands deep reversing or memory analysis to other workflows.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security-operations",
+      "language": "Multi-language",
+      "tags": [
+        "security",
+        "security-operations",
+        "malware",
+        "triage",
+        "ioc",
+        "mitre-attack"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/v2.3.0/plans/adoption-ecc-cybersec-skills.md Phase 6)",
+      "tools_required": [],
+      "path": "catalog/skills/security-operations/malware-triage-analysis/",
+      "file": "catalog/skills/security-operations/malware-triage-analysis/SKILL.md",
+      "size": {
+        "lines": 103,
+        "characters": 9641,
+        "tokens_estimate": 1285
       },
       "downloads": 0,
       "status": "production",

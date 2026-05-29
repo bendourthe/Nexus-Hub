@@ -1946,6 +1946,17 @@ function Install-Templates {
         Safe-Copy -Source $auditSource -Destination (Join-Path $scriptsDest "harness_audit.py") -Confirm:$true -CustomMessage "✓ Harness audit installed at: $scriptsDest\harness_audit.py"
     }
 
+    # Copy v2.3.0 Phase 6 framework-coverage generator (T017). Mirror of the
+    # matching block in scripts\installer.sh. Read-only, zero-outbound: reads
+    # the optional framework-mapping frontmatter fields (mitre_attack /
+    # atlas_techniques / d3fend_techniques / nist_csf / nist_ai_rmf) across
+    # catalog\skills\ and emits a coverage matrix (Markdown or JSON) of which
+    # skills cover which MITRE/NIST controls.
+    $coverageSource = Join-Path $RepoRoot "scripts\build_framework_coverage.py"
+    if (Test-Path $coverageSource) {
+        Safe-Copy -Source $coverageSource -Destination (Join-Path $scriptsDest "build_framework_coverage.py") -Confirm:$true -CustomMessage "✓ Framework coverage generator installed at: $scriptsDest\build_framework_coverage.py"
+    }
+
     # Copy feature-directory bootstrap scripts (v2.1.0 / adoption-spec-kit
     # Phase 7 / G5). The two scripts resolve the next specs\<NNN>-<slug>\
     # prefix (sequential or timestamp per .specify\init-options.json),

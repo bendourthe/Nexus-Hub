@@ -153,6 +153,12 @@
       "skill_count": 8
     },
     {
+      "id": "security-operations",
+      "name": "Security Operations",
+      "description": "Defensive security operations: DFIR, threat hunting, detection engineering, incident response, and cloud/endpoint/identity/phishing detection",
+      "skill_count": 15
+    },
+    {
       "id": "specialized-domains",
       "name": "Specialized Domains",
       "description": "Fintech, mobile development, document generation, graphics programming, generative art, theme tokens, brand styling",

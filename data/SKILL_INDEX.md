@@ -218,5 +218,20 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | continuous-learning | workflow | "Capture observations, mint local YAML instincts, evolve clusters into draft skills - all in-process, zero outbound" | catalog/skills/workflow/continuous-learning/SKILL.md |
 | skill-stocktake | workflow | "Holistic skill-quality audit with a cached results file and quick-diff re-scoring over changed skills" | catalog/skills/workflow/skill-stocktake/SKILL.md |
 | skill-create | workflow | "Draft a conformant SKILL.md by mining local git history for a recurring, automatable pattern" | catalog/skills/workflow/skill-create/SKILL.md |
+| memory-forensics | security-operations | "Triage a RAM image for injected code, hidden processes, and credential artifacts" | catalog/skills/security-operations/memory-forensics/SKILL.md |
+| hunting-credential-dumping | security-operations | "Hunt LSASS, SAM/SECURITY, and NTDS.dit credential theft across endpoint and SIEM telemetry" | catalog/skills/security-operations/hunting-credential-dumping/SKILL.md |
+| disk-artifact-forensics | security-operations | "Reconstruct host activity and a timeline from disk-image filesystem and OS artifacts" | catalog/skills/security-operations/disk-artifact-forensics/SKILL.md |
+| siem-detection-engineering | security-operations | "Author, tune, and test portable SIEM detection rules with seeded-event proof and FP management" | catalog/skills/security-operations/siem-detection-engineering/SKILL.md |
+| log-threat-hunting | security-operations | "Run hypothesis-driven hunts across logs to surface adversary behavior, then promote findings to detections" | catalog/skills/security-operations/log-threat-hunting/SKILL.md |
+| lateral-movement-detection | security-operations | "Detect RDP/SMB/WMI/PsExec lateral movement by correlating auth events and network telemetry across hosts" | catalog/skills/security-operations/lateral-movement-detection/SKILL.md |
+| ransomware-incident-response | security-operations | "Run a ransomware incident-response runbook from containment through recovery and post-incident review" | catalog/skills/security-operations/ransomware-incident-response/SKILL.md |
+| persistence-mechanism-hunting | security-operations | "Hunt and triage attacker persistence across autostart, scheduled tasks, services, WMI, and run keys" | catalog/skills/security-operations/persistence-mechanism-hunting/SKILL.md |
+| endpoint-edr-detection | security-operations | "Detect process injection, suspicious process trees, and LOLBin abuse from EDR host telemetry" | catalog/skills/security-operations/endpoint-edr-detection/SKILL.md |
+| cloud-security-posture-detection | security-operations | "Detect risky cloud misconfigurations and posture drift across AWS, Azure, and GCP" | catalog/skills/security-operations/cloud-security-posture-detection/SKILL.md |
+| cloud-audit-log-detection | security-operations | "Detect malicious activity in AWS, Azure, and GCP control-plane audit logs" | catalog/skills/security-operations/cloud-audit-log-detection/SKILL.md |
+| container-runtime-detection | security-operations | "Detect runtime threats in containers and Kubernetes from runtime and orchestrator telemetry" | catalog/skills/security-operations/container-runtime-detection/SKILL.md |
+| phishing-analysis-and-defense | security-operations | "Analyze a suspected phishing email and drive block, hunt, and report response" | catalog/skills/security-operations/phishing-analysis-and-defense/SKILL.md |
+| identity-threat-detection | security-operations | "Detect account-takeover patterns in IdP and SSO sign-in logs from the defender seat" | catalog/skills/security-operations/identity-threat-detection/SKILL.md |
+| malware-triage-analysis | security-operations | "Safely triage a suspicious file, classify maliciousness, and extract IOCs" | catalog/skills/security-operations/malware-triage-analysis/SKILL.md |
 
-**Total: 211 skills across 22 categories**
+**Total: 226 skills across 23 categories**

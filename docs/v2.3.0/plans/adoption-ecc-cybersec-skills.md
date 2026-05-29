@@ -34,7 +34,7 @@ The de facto governing document for adoption decisions in this plan is the **MCP
 | 3 (done) | Runtime learning | Memory-persistence session hooks + a local-only continuous-learning skill and capture hooks |
 | 4 (done) | Installer lifecycle & selective install | Install-state manifest, `doctor`/`repair`/`list-installed`, profiles/modules + `consult` advisor, harness audit scoring |
 | 5 | Skill quality tooling | `skill-stocktake` audit, `validate_skills.py` quality pass, `skill-create` from git history |
-| 6 | Framework coverage + defensive security content | Coverage-matrix generator + two re-authored defensive security skill packs + their helper scripts |
+| 6 (done) | Framework coverage + defensive security content | Coverage-matrix generator + two re-authored defensive security skill packs + their helper scripts |
 | 7 | [known-gaps] Installer instruction-file parity | DF-001 / MT-2 / MT-1 closed; legacy bash blocks removable |
 | 8 | [known-gaps] Code-graph quality & extractor expansion | WN-1 / WN-5 / WN-6 / WN-7 / DF-002 addressed |
 | 9 | [known-gaps] Live-environment verification | WN-2 / WN-3 / WN-4 / WN-8 verified on live VMs |
@@ -317,7 +317,7 @@ The de facto governing document for adoption decisions in this plan is the **MCP
 
 #### 6.1 — Framework coverage-matrix generator
 
-- [ ] T017 Add scripts/build_framework_coverage.py over the Phase 1 frontmatter tags
+- [x] T017 Add scripts/build_framework_coverage.py over the Phase 1 frontmatter tags
 
 **Objective**: Reproduce the cybersecurity repo's ATT&CK Navigator / coverage-matrix idea as a local generator over Nexus-Hub's own framework-tagged skills.
 
@@ -328,7 +328,7 @@ The de facto governing document for adoption decisions in this plan is the **MCP
 
 #### 6.2 — Defensive security skill pack batch 1 (DFIR / threat hunting / IR)
 
-- [ ] T018 Re-author ~10-15 defensive skills under catalog/skills/security-operations/ (requires maintainer sign-off on the new category)
+- [x] T018 Re-author ~10-15 defensive skills under catalog/skills/security-operations/ (requires maintainer sign-off on the new category)
 
 **Objective**: Re-author a curated, high-value defensive subset (Digital Forensics, Threat Hunting, Incident Response) to Nexus-Hub's standard, with framework tags.
 
@@ -339,7 +339,7 @@ The de facto governing document for adoption decisions in this plan is the **MCP
 
 #### 6.3 — Defensive security skill pack batch 2 (cloud / endpoint / phishing)
 
-- [ ] T019 Re-author the second defensive batch under catalog/skills/security-operations/ (depends on T018)
+- [x] T019 Re-author the second defensive batch under catalog/skills/security-operations/ (depends on T018)
 
 **Objective**: Extend coverage to Cloud Security ops, Endpoint/EDR, and Phishing Defense, same quality bar and filters.
 
@@ -350,7 +350,7 @@ The de facto governing document for adoption decisions in this plan is the **MCP
 
 #### 6.4 — Deterministic helper scripts for adopted skills
 
-- [ ] T020 Re-author helper scripts under each adopted skill's scripts/ directory (.sh + .ps1 parity) for the defensive skill packs (depends on T018, T019)
+- [x] T020 Re-author helper scripts under each adopted skill's scripts/ directory (.sh + .ps1 parity) for the defensive skill packs (depends on T018, T019)
 
 **Objective**: Where an adopted skill needs a deterministic helper, re-author a local-only script with cross-platform parity (not a bulk copy of the source's 1030 Python scripts).
 
@@ -361,7 +361,7 @@ The de facto governing document for adoption decisions in this plan is the **MCP
 
 #### 6.5 — Testing and Stabilization
 
-- [ ] T021 Run and stabilize Phase 6 content and coverage generator
+- [x] T021 Run and stabilize Phase 6 content and coverage generator
 
 **Objective**: Verify the coverage matrix, all new skills, and helper scripts pass validation.
 
@@ -372,12 +372,12 @@ The de facto governing document for adoption decisions in this plan is the **MCP
 
 ### Phase 6 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] All tests passing
-- [ ] No known regressions from prior phases
-- [ ] Maintainer sign-off recorded for the security-operations category (or skills nested under security/)
-- [ ] Session history generated for this phase
-- [ ] Ready to advance to Phase 7
+- [x] All sub-tasks completed
+- [x] All tests passing (tests/ 298 passed; tests/validators 44 passed incl. 6 new coverage-generator cases; 4 CI validators rc=0; bundle audit 0 orphans; quality pass 0 new warnings)
+- [x] No known regressions from prior phases (catalog-tree byte-parity preserved; pre-existing WN/BG/DF items unchanged)
+- [x] Maintainer sign-off recorded for the security-operations category (approved 2026-05-29; new category created, documented in AGENTS.md)
+- [x] Session history generated for this phase
+- [x] Ready to advance to Phase 7
 
 ---
 
