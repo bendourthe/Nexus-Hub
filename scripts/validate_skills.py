@@ -2,13 +2,17 @@
 """Validate all Nexus-Hub skills for structural compliance and security.
 
 Checks YAML frontmatter, required fields, directory naming, and scans for
-hardcoded secrets. Returns exit code 0 if all checks pass (warnings OK),
-exit code 1 if any ERROR-level issue is found.
+hardcoded secrets. Also exposes a non-blocking quality-heuristics pass
+behind `--quality` (missing Common Rationalizations, prose-only
+Verification, over-long Tier-1 fields, missing Related Skills links) --
+warnings only, never errors. Returns exit code 0 if all checks pass
+(warnings OK), exit code 1 if any ERROR-level issue is found.
 
 Usage:
     python scripts/validate_skills.py
     python scripts/validate_skills.py --path catalog/skills/framework-specialists/
     python scripts/validate_skills.py --verbose
+    python scripts/validate_skills.py --quality --verbose
 """
 
 from __future__ import annotations

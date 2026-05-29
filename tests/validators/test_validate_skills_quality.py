@@ -143,3 +143,38 @@ def test_quality_cli_exits_zero_on_catalog(flag: str) -> None:
     )
     assert result.returncode == 0, result.stderr
     assert "quality heuristics" in result.stdout
+
+
+def test_quality_mode_does_not_invoke_secret_scan(tmp_path: Path) -> None:
+    """`--quality` alone must not run the secret scanner.
+
+    The quality pass is defined as a pure quality-heuristics pass; the
+    secret scan belongs to the full structural validator (and is hard-error
+    on a real hit). Putting a plausible OpenAI-style key in a fixture under
+    the skill bundle proves that running `--quality` does not surface it as
+    an error -- if it did, exit code would be 1 and the run would fail CI
+    in non-blocking situations where that is exactly what `--quality` is
+    designed to avoid.
+    """
+    skill_dir = tmp_path / "fixture-with-secret"
+    write_skill(skill_dir, GOOD_SKILL)
+    (skill_dir / "scripts").mkdir()
+    # A 30-char alphanumeric key that matches SECRET_PATTERNS["OpenAI API key"].
+    (skill_dir / "scripts" / "leaky.py").write_text(
+        "OPENAI_KEY = 'sk-" + "A" * 30 + "'\n", encoding="utf-8"
+    )
+    cmd = [
+        sys.executable,
+        str(VALIDATOR),
+        "--quality",
+        "--verbose",
+        "--path",
+        str(tmp_path),
+    ]
+    result = subprocess.run(
+        cmd, capture_output=True, text=True, check=False, cwd=REPO_ROOT
+    )
+    assert result.returncode == 0, result.stderr
+    # The secret should not be surfaced as an error OR a quality warning.
+    assert "OpenAI API key" not in result.stdout
+    assert "OpenAI API key" not in result.stderr
