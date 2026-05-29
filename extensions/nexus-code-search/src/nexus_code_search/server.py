@@ -5,7 +5,9 @@ v1.0 tools (keyword chunk index):
 
 v2.0 tools (tree-sitter AST graph):
     index_graph              Build / refresh the SQLite AST graph for a repo.
-    code_search              FTS5 search over graph nodes (name + docstring).
+    code_search              FTS5 search over graph node names (name-scoped by
+                             default; all_fields=true widens to qualified_name
+                             + docstring).
     code_callers             Direct callers of a symbol.
     code_callees             Direct callees of a symbol.
     code_impact              Blast-radius traversal.
@@ -53,8 +55,9 @@ Tools (what / when):
   get_indexing_status   Report current state (IDLE / RUNNING) and counts.
   index_graph           v2.0: build the tree-sitter AST graph (nodes / edges
                         / FTS5) for Python + TypeScript source files.
-  code_search           v2.0: full-text search over graph node names and
-                        docstrings; returns symbol records.
+  code_search           v2.0: full-text search over graph node names
+                        (name-scoped by default; all_fields=true also matches
+                        qualified_name + docstring); returns symbol records.
   code_callers          v2.0: every node that has a `calls` edge into this
                         symbol. Useful for "who calls X" questions.
   code_callees          v2.0: every node this symbol has a `calls` edge to.
@@ -224,7 +227,11 @@ def _all_tools() -> list[Tool]:
         ),
         Tool(
             name="code_search",
-            description="FTS5 search over graph node names, qualified_names, and docstrings.",
+            description=(
+                "FTS5 search over graph node names. Scoped to the symbol-name "
+                "column by default for precision; set all_fields=true to also "
+                "match qualified_names and docstrings."
+            ),
             inputSchema={
                 "type": "object",
                 "properties": {
@@ -235,6 +242,15 @@ def _all_tools() -> list[Tool]:
                         "default": 20,
                         "minimum": 1,
                         "maximum": 200,
+                    },
+                    "all_fields": {
+                        "type": "boolean",
+                        "default": False,
+                        "description": (
+                            "Match name + qualified_name + docstring instead of "
+                            "the name column only. Use for docstring or "
+                            "path-segment search."
+                        ),
                     },
                 },
                 "required": ["root", "query"],
@@ -513,10 +529,11 @@ def _handle_graph_query(
         if name == "code_search":
             query = arguments.get("query", "")
             limit = int(arguments.get("limit", 20))
+            all_fields = bool(arguments.get("all_fields", False))
             payload = {
                 "root": str(root),
                 "query": query,
-                "results": qm.search(query, limit=limit),
+                "results": qm.search(query, limit=limit, all_columns=all_fields),
             }
         elif name == "code_callers":
             symbol = arguments.get("symbol", "")

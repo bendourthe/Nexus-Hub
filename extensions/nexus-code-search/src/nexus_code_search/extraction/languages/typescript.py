@@ -2,7 +2,13 @@
 
 Emits the following node kinds: `class`, `interface`, `function`, `method`,
 `type_alias`, `import`, `export`, `property`, `variable`, `constant`. Emits
-edges: `contains`, `calls`, `extends`, `implements`, `imports`, `exports`.
+edges: `contains`, `calls`, `instantiates`, `overrides`, `extends`,
+`implements`, `imports`, `exports`.
+
+A `new Foo()` expression resolving to an in-file class emits `instantiates`;
+a plain call resolving to a class also emits `instantiates`. An `overrides`
+edge is emitted when a method's enclosing class extends (in-file) a parent
+class that defines a same-named method.
 
 Same in-file resolution scope as the Python extractor: cross-file references
 are left to the orchestrator.
@@ -94,15 +100,19 @@ class TypeScriptExtractor(Extractor):
                 add_node,
             )
 
-        # Second pass for call edges.
+        # Second pass for call / instantiation edges.
         self._collect_calls(
             root,
             source,
             module_qual,
+            nodes,
             edges,
             index_by_qname,
             index_by_name,
         )
+
+        # Resolve method-override edges against in-file parent classes.
+        self._resolve_overrides(nodes, edges, index_by_qname)
 
         return nodes, edges
 
@@ -537,6 +547,7 @@ class TypeScriptExtractor(Extractor):
         root: TSNode,
         source: bytes,
         module_qual: str,
+        nodes: list[Node],
         edges: list[Edge],
         index_by_qname: dict[str, int],
         index_by_name: dict[str, int],
@@ -555,27 +566,69 @@ class TypeScriptExtractor(Extractor):
                     fname = _node_text(source, name_node)
                     qprefix = f"{module_qual}.{cls_n}" if cls_n else module_qual
                     new_fn = f"{qprefix}.{fname}"
-            elif node.type == "call_expression":
-                caller_idx = index_by_qname.get(fn_q) if fn_q else None
-                if caller_idx is not None:
-                    fn_field = node.child_by_field_name("function")
-                    if fn_field is not None:
-                        called = self._resolve_called_name(fn_field, source)
-                        if called:
-                            target_idx = index_by_qname.get(
-                                f"{module_qual}.{called}"
-                            ) or index_by_name.get(called.split(".")[-1])
-                            if target_idx is not None and target_idx != caller_idx:
-                                edges.append(
-                                    Edge(
-                                        source_id=caller_idx,
-                                        target_id=target_idx,
-                                        kind=EdgeKind.CALLS,
-                                        call_site_line=_start_line(node),
-                                    )
-                                )
+            elif node.type in ("call_expression", "new_expression"):
+                # `new_expression` exposes the constructed type under the
+                # `constructor` field; `call_expression` under `function`.
+                fn_field = node.child_by_field_name(
+                    "constructor"
+                    if node.type == "new_expression"
+                    else "function"
+                )
+                self._emit_call_edge(
+                    node,
+                    fn_field,
+                    source,
+                    module_qual,
+                    fn_q,
+                    nodes,
+                    edges,
+                    index_by_qname,
+                    index_by_name,
+                    force_instantiates=node.type == "new_expression",
+                )
             for c in reversed(node.named_children):
                 stack.append((c, new_fn, new_cls))
+
+    def _emit_call_edge(
+        self,
+        node: TSNode,
+        fn_field: TSNode | None,
+        source: bytes,
+        module_qual: str,
+        fn_q: str | None,
+        nodes: list[Node],
+        edges: list[Edge],
+        index_by_qname: dict[str, int],
+        index_by_name: dict[str, int],
+        force_instantiates: bool,
+    ) -> None:
+        caller_idx = index_by_qname.get(fn_q) if fn_q else None
+        if caller_idx is None or fn_field is None:
+            return
+        called = self._resolve_called_name(fn_field, source)
+        if not called:
+            return
+        target_idx = index_by_qname.get(
+            f"{module_qual}.{called}"
+        ) or index_by_name.get(called.split(".")[-1])
+        if target_idx is None or target_idx == caller_idx:
+            return
+        # `new X()` is always instantiation; a plain call resolving to a class
+        # is also a constructor invocation. Everything else is a `calls` edge.
+        is_class = nodes[target_idx].kind == NodeKind.CLASS
+        kind = (
+            EdgeKind.INSTANTIATES
+            if force_instantiates or is_class
+            else EdgeKind.CALLS
+        )
+        edges.append(
+            Edge(
+                source_id=caller_idx,
+                target_id=target_idx,
+                kind=kind,
+                call_site_line=_start_line(node),
+            )
+        )
 
     def _resolve_called_name(self, fn_field: TSNode, source: bytes) -> str:
         if fn_field.type == "identifier":
@@ -589,3 +642,52 @@ class TypeScriptExtractor(Extractor):
                 return f"{obj_text}.{prop_text}"
             return prop_text
         return ""
+
+    def _resolve_overrides(
+        self,
+        nodes: list[Node],
+        edges: list[Edge],
+        index_by_qname: dict[str, int],
+    ) -> None:
+        """Emit `overrides` edges for methods that shadow a parent's method.
+
+        Uses the in-file `extends` edges emitted by `_handle_class`: a method
+        `Child.foo` overrides `Parent.foo` when `Child` extends `Parent`
+        (transitively, within this file) and `Parent` defines a method named
+        `foo`. Only `extends` (class inheritance) is followed; `implements`
+        (interface conformance) is left out, matching the Python extractor.
+        """
+        parent_of: dict[str, str] = {}
+        for e in edges:
+            if e.kind != EdgeKind.EXTENDS:
+                continue
+            child = nodes[e.source_id]
+            parent = nodes[e.target_id]
+            if child.kind == NodeKind.CLASS and parent.kind == NodeKind.CLASS:
+                parent_of[child.qualified_name] = parent.qualified_name
+        if not parent_of:
+            return
+
+        for idx, node in enumerate(nodes):
+            if node.kind != NodeKind.METHOD:
+                continue
+            class_qname = node.qualified_name.rsplit(".", 1)[0]
+            seen: set[str] = set()
+            cur = parent_of.get(class_qname)
+            while cur is not None and cur not in seen:
+                seen.add(cur)
+                parent_method_idx = index_by_qname.get(f"{cur}.{node.name}")
+                if (
+                    parent_method_idx is not None
+                    and parent_method_idx != idx
+                    and nodes[parent_method_idx].kind == NodeKind.METHOD
+                ):
+                    edges.append(
+                        Edge(
+                            source_id=idx,
+                            target_id=parent_method_idx,
+                            kind=EdgeKind.OVERRIDES,
+                        )
+                    )
+                    break
+                cur = parent_of.get(cur)

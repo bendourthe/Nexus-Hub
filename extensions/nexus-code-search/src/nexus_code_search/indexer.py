@@ -86,7 +86,15 @@ def _matches_exclude_patterns(name: str, patterns: Iterable[str]) -> bool:
 
 
 def _load_ignore_spec(root: Path) -> pathspec.PathSpec:
-    """Combine `.gitignore` + `.nexusignore` into a single PathSpec."""
+    """Combine `.gitignore` + `.nexusignore` into a single PathSpec.
+
+    Uses the ``gitignore`` pattern factory (``GitIgnoreSpecPattern``) rather
+    than the legacy ``gitwildmatch`` factory: the latter emits a
+    ``DeprecationWarning`` as of pathspec 0.12 and is slated for removal. The
+    two factories match identically for the ignore patterns we feed them
+    (verified against the indexer fixtures); ``gitignore`` is the maintained
+    successor.
+    """
     lines: list[str] = []
     for name in (".gitignore", ".nexusignore"):
         p = root / name
@@ -95,7 +103,7 @@ def _load_ignore_spec(root: Path) -> pathspec.PathSpec:
                 lines.extend(p.read_text(encoding="utf-8", errors="ignore").splitlines())
             except OSError:
                 pass
-    return pathspec.PathSpec.from_lines("gitwildmatch", lines)
+    return pathspec.PathSpec.from_lines("gitignore", lines)
 
 
 def _rel_posix(path: Path, root: Path) -> str:

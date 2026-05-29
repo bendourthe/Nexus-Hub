@@ -83,6 +83,80 @@ def test_python_typed_parameter_name_extracted(tmp_path: Path) -> None:
     assert any(p in params for p in ("args", "kwargs"))
 
 
+def test_python_constructor_emits_instantiates_edge(tmp_path: Path) -> None:
+    src = (
+        "class Widget:\n"
+        "    def __init__(self):\n"
+        "        pass\n"
+        "\n"
+        "def build():\n"
+        "    return Widget()\n"
+    )
+    nodes, edges = PythonExtractor().extract(tmp_path / "a.py", src.encode("utf-8"))
+    build_idx = next(i for i, n in enumerate(nodes) if n.name == "build")
+    widget_idx = next(
+        i for i, n in enumerate(nodes)
+        if n.name == "Widget" and n.kind == NodeKind.CLASS
+    )
+    inst = [
+        e
+        for e in edges
+        if e.kind == EdgeKind.INSTANTIATES
+        and e.source_id == build_idx
+        and e.target_id == widget_idx
+    ]
+    assert inst
+    # The constructor call is NOT also emitted as a plain `calls` edge.
+    calls_to_widget = [
+        e
+        for e in edges
+        if e.kind == EdgeKind.CALLS and e.target_id == widget_idx
+    ]
+    assert not calls_to_widget
+
+
+def test_python_method_override_emits_overrides_edge(tmp_path: Path) -> None:
+    src = (
+        "class Base:\n"
+        "    def run(self):\n"
+        "        return 1\n"
+        "\n"
+        "class Derived(Base):\n"
+        "    def run(self):\n"
+        "        return 2\n"
+    )
+    nodes, edges = PythonExtractor().extract(tmp_path / "a.py", src.encode("utf-8"))
+    base_run = next(
+        i for i, n in enumerate(nodes) if n.qualified_name.endswith("Base.run")
+    )
+    derived_run = next(
+        i for i, n in enumerate(nodes) if n.qualified_name.endswith("Derived.run")
+    )
+    overrides = [
+        e
+        for e in edges
+        if e.kind == EdgeKind.OVERRIDES
+        and e.source_id == derived_run
+        and e.target_id == base_run
+    ]
+    assert overrides
+
+
+def test_python_no_override_when_names_differ(tmp_path: Path) -> None:
+    src = (
+        "class Base:\n"
+        "    def run(self):\n"
+        "        return 1\n"
+        "\n"
+        "class Derived(Base):\n"
+        "    def jog(self):\n"
+        "        return 2\n"
+    )
+    nodes, edges = PythonExtractor().extract(tmp_path / "a.py", src.encode("utf-8"))
+    overrides = [e for e in edges if e.kind == EdgeKind.OVERRIDES]
+    assert not overrides
+
+
 def test_python_extractor_skips_unresolvable_calls(tmp_path: Path) -> None:
     src = (
         "def main(items):\n"

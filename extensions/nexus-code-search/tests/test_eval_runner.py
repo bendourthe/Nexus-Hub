@@ -1,8 +1,9 @@
 """Eval-runner smoke tests (T033).
 
 These tests assert the harness runs and emits a Markdown report. They do NOT
-assert specific score thresholds - those live in docs/v2.2.0/eval-baseline.md
-and are guarded by `make eval` in CI.
+assert specific score thresholds - those live in docs/v2.3.0/eval-baseline.md
+and are guarded by `make eval` in CI - except the per-fixture recall gate
+(>= 80%), which is asserted here so a new extractor cannot silently regress.
 """
 
 from __future__ import annotations
@@ -89,9 +90,27 @@ def test_render_report_emits_markdown_with_expected_sections(tmp_path: Path) -> 
 
 def test_eval_runner_runs_against_all_shipped_fixtures(tmp_path: Path) -> None:
     result = run_eval(FIXTURES_ROOT, tmp_path)
-    # All four fixtures should be present and produce at least one question
-    # each.
+    # All shipped fixtures should be present and produce at least one question
+    # each. The original four plus the v2.3.0 (T030) language fixtures.
     names = {f.name for f in result.fixtures}
-    assert names == {"minimal", "python_app", "fastapi_app", "ts_express"}
+    assert names == {
+        "minimal",
+        "python_app",
+        "fastapi_app",
+        "ts_express",
+        "go_app",
+        "rust_app",
+        "java_app",
+        "csharp_app",
+    }
     for fix in result.fixtures:
         assert fix.questions, f"{fix.name} produced no questions"
+
+
+def test_every_fixture_clears_recall_gate(tmp_path: Path) -> None:
+    # The v2.3.0 exit gate is >= 80% per-fixture recall (DF-002 / T030).
+    result = run_eval(FIXTURES_ROOT, tmp_path)
+    for fix in result.fixtures:
+        assert fix.aggregate_recall >= 0.8, (
+            f"{fix.name} recall {fix.aggregate_recall:.0%} is below the 80% gate"
+        )

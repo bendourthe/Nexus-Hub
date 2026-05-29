@@ -13,14 +13,31 @@ from collections import deque
 from nexus_code_search.types import EdgeKind, Node, NodeKind
 
 # Edges followed by `impact_radius` - the set the caller of a function might
-# care about when assessing change blast radius.
+# care about when assessing change blast radius. `instantiates` is included so
+# that re-typing a constructor call from `calls` (pre-v2.3.0) to `instantiates`
+# does not silently drop the relationship from a node's impact radius.
 _IMPACT_KINDS: tuple[str, ...] = (
     EdgeKind.CALLS.value,
+    EdgeKind.INSTANTIATES.value,
     EdgeKind.REFERENCES.value,
     EdgeKind.EXTENDS.value,
     EdgeKind.IMPLEMENTS.value,
     EdgeKind.OVERRIDES.value,
 )
+
+
+def _scope_to_name(query: str) -> str:
+    """Wrap a bare FTS5 query so it matches only the `name` column.
+
+    Returns the query unchanged when it is empty or already uses FTS5
+    column-filter syntax (contains a ':'), so advanced/explicit queries keep
+    working. Otherwise wraps it as ``name : (<query>)`` so the match is
+    restricted to the symbol-name column.
+    """
+    q = query.strip()
+    if not q or ":" in q:
+        return q
+    return f"name : ({q})"
 
 
 def _row_to_node(row: tuple) -> Node:
@@ -70,12 +87,27 @@ class GraphTraverser:
         ).fetchone()
         return _row_to_node(row) if row else None
 
-    def search_fts(self, query: str, limit: int = 20) -> list[Node]:
-        """Full-text search over name / qualified_name / docstring."""
+    def search_fts(
+        self, query: str, limit: int = 20, *, all_columns: bool = False
+    ) -> list[Node]:
+        """Full-text search over graph node names.
+
+        By default the match is scoped to the `name` column. A symbol search
+        should surface symbols *named* like the query, not every node whose
+        `qualified_name` happens to contain the query as an ancestor segment
+        (a function's parameters and methods all carry the function name in
+        their qualified_name) nor docstring prose. Scoping to `name` removes
+        that false-positive class without dropping recall on real symbol
+        queries.
+
+        Pass `all_columns=True` to match name + qualified_name + docstring
+        (the pre-v2.3.0 behavior), e.g. for docstring or path-segment search.
+        """
+        match_query = query if all_columns else _scope_to_name(query)
         rows = self.conn.execute(
             f"{_NODE_SELECT} JOIN nodes_fts ON nodes_fts.rowid = n.id "
             f"WHERE nodes_fts MATCH ? ORDER BY rank LIMIT ?",
-            (query, limit),
+            (match_query, limit),
         ).fetchall()
         return [_row_to_node(r) for r in rows]
 

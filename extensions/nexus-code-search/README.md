@@ -9,7 +9,7 @@ Nexus-Hub local-only code search MCP server. Walks a repository, chunks source f
 ## Status
 
 - **v1.0 ships keyword-only search** via an inverted index + `rapidfuzz` fuzzy scoring.
-- **v2.0 (current) adds a tree-sitter AST graph** for Python and TypeScript: SQLite + FTS5 storage, NodeKind / EdgeKind taxonomy, call-graph traversal (callers / callees / impact radius / path finding), and a debounced filesystem watcher built on watchdog. Both surfaces are available simultaneously; callers pick the right tool for their query. Future versions may add dense / hybrid retrieval with local ONNX embeddings; nothing is reserved today.
+- **v2.0 (current) adds a tree-sitter AST graph** for Python, TypeScript, Go, Rust, Java, and C#: SQLite + FTS5 storage, NodeKind / EdgeKind taxonomy, call-graph traversal (callers / callees / impact radius / path finding), and a debounced filesystem watcher built on watchdog. Both surfaces are available simultaneously; callers pick the right tool for their query. Future versions may add dense / hybrid retrieval with local ONNX embeddings; nothing is reserved today.
 
 ## Install
 
@@ -32,12 +32,12 @@ The installer ships with the repo. Alternatively install via the Nexus-Hub insta
 | `clear_index(root)` | Remove both the JSON index and the SQLite graph database for `<root>`. |
 | `get_indexing_status(root)` | Return index state (`idle` / `running` / `error`) plus counts and timestamps. |
 
-### v2 AST graph surface (Python, TypeScript)
+### v2 AST graph surface (Python, TypeScript, Go, Rust, Java, C#)
 
 | Tool | Purpose |
 |---|---|
 | `index_graph(root, force=False)` | Build / refresh the tree-sitter AST graph at `<root>/.nexus/code-index/codegraph.db` (nodes / edges / files / FTS5 over names + docstrings). Content-hash incremental. |
-| `code_search(query, limit=20)` | FTS5 full-text search over node names, qualified_names, and docstrings. Returns ranked node records. |
+| `code_search(query, limit=20, all_fields=False)` | FTS5 full-text search over node names. Scoped to the symbol-name column by default for precision; pass `all_fields=true` to also match qualified_names and docstrings (e.g. for path-segment or docstring search). Returns ranked node records. |
 | `code_callers(symbol)` | Every node with a `calls` edge into `symbol` (qualified_name or plain name). |
 | `code_callees(symbol)` | Every node `symbol` has a `calls` edge to. |
 | `code_impact(symbol, depth=2)` | BFS over impact-bearing edges (`calls` + `references` + `extends` + `implements` + `overrides`) up to `depth` hops in both directions. |
@@ -49,7 +49,14 @@ The installer ships with the repo. Alternatively install via the Nexus-Hub insta
 
 ## NodeKind / EdgeKind taxonomy
 
-The v2 graph stores 22 node kinds (`file`, `module`, `class`, `struct`, `interface`, `trait`, `protocol`, `function`, `method`, `property`, `field`, `variable`, `constant`, `enum`, `enum_member`, `type_alias`, `namespace`, `parameter`, `import`, `export`, `route`, `component`) and 12 edge kinds (`contains`, `calls`, `imports`, `exports`, `extends`, `implements`, `references`, `type_of`, `returns`, `instantiates`, `overrides`, `decorates`). Python and TypeScript extractors emit a subset suited to each grammar. Three framework resolvers (Django for `urls.py` files, FastAPI / Flask for decorator-driven handlers, Express for `app.<method>` / `router.<method>` calls) run after AST extraction and emit `route` nodes plus `decorates` / `references` edges so URL handlers and middleware chains are searchable through the same `code_search` / `code_context` tools.
+The v2 graph stores 22 node kinds (`file`, `module`, `class`, `struct`, `interface`, `trait`, `protocol`, `function`, `method`, `property`, `field`, `variable`, `constant`, `enum`, `enum_member`, `type_alias`, `namespace`, `parameter`, `import`, `export`, `route`, `component`) and 12 edge kinds (`contains`, `calls`, `imports`, `exports`, `extends`, `implements`, `references`, `type_of`, `returns`, `instantiates`, `overrides`, `decorates`). Each language extractor emits a subset suited to its grammar:
+
+- **Python / TypeScript** emit `contains` / `calls` / `imports` / `extends` (+ TS `implements` / `exports`) plus `instantiates` (constructor / `new` calls) and `overrides` (a method shadowing an in-file parent's method).
+- **Go** emits structs, interfaces, receiver-keyed methods, fields, and `instantiates` from composite literals (no inheritance edges -- Go interface satisfaction is structural).
+- **Rust** emits structs, enums, traits, impl-block methods, `implements` from `impl Trait for Type`, and `instantiates` from struct literals.
+- **Java / C#** emit the full OOP edge set: `extends`, `implements`, `overrides`, and `instantiates` from `new` expressions. C# resolves its single syntactic `base_list` into `extends` vs `implements` by the resolved target's kind.
+
+Three framework resolvers (Django for `urls.py` files, FastAPI / Flask for decorator-driven handlers, Express for `app.<method>` / `router.<method>` calls) run after AST extraction and emit `route` nodes plus `decorates` / `references` edges so URL handlers and middleware chains are searchable through the same `code_search` / `code_context` tools.
 
 ## CLI dispatcher
 
@@ -67,7 +74,7 @@ The dispatcher exits with code 2 if no graph index is found at `<root>/.nexus/co
 
 ## Eval harness
 
-`make eval` (or `python -m nexus_code_search.eval` from this directory) runs the synthetic-codebase harness under `src/nexus_code_search/eval/`. The harness ships four fixture codebases (minimal / python_app / fastapi_app / ts_express) with 18 questions per run, scores recall + precision against the answer keys, and writes a Markdown report. The v2.2.0 baseline is captured at `docs/v2.2.0/eval-baseline.md`.
+`make eval` (or `python -m nexus_code_search.eval` from this directory) runs the synthetic-codebase harness under `src/nexus_code_search/eval/`. The harness ships eight fixture codebases (minimal / python_app / fastapi_app / ts_express / go_app / rust_app / java_app / csharp_app), scores recall + precision against the answer keys, and writes a Markdown report. The current baseline is captured at `docs/v2.3.0/eval-baseline.md` (100% aggregate recall, 96.2% aggregate precision; every fixture clears the >=80% per-fixture recall gate).
 
 ## Data flow
 

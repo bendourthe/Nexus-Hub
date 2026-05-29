@@ -19,8 +19,12 @@ class GraphQueryManager:
         self.conn = conn
         self.traverser = GraphTraverser(conn)
 
-    def search(self, query: str, limit: int = 20) -> list[dict]:
-        results = self.traverser.search_fts(query, limit=limit)
+    def search(
+        self, query: str, limit: int = 20, *, all_columns: bool = False
+    ) -> list[dict]:
+        results = self.traverser.search_fts(
+            query, limit=limit, all_columns=all_columns
+        )
         return [_node_to_dict(n) for n in results]
 
     def callers_of(self, symbol: str, kind: NodeKind | None = None) -> dict:

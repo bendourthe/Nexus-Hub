@@ -1,0 +1,19 @@
+name: csharp_app
+description: C# sources - exercises class/interface extraction, base-list extends/implements resolution, override detection, new-expression instantiation, and impact radius.
+questions:
+  - tool: code_search
+    query: Lion
+    expect: [Lion]
+  - tool: code_search
+    query: Animal
+    expect: [Animal]
+  - tool: code_search
+    query: Create
+    expect: [Create]
+  - tool: code_impact
+    symbol: Lion
+    depth: 1
+    expect_in_radius: [Create, Animal]
+  - tool: code_callers
+    symbol: Animal
+    expect_callers: []

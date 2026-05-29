@@ -36,7 +36,7 @@ The de facto governing document for adoption decisions in this plan is the **MCP
 | 5 | Skill quality tooling | `skill-stocktake` audit, `validate_skills.py` quality pass, `skill-create` from git history |
 | 6 (done) | Framework coverage + defensive security content | Coverage-matrix generator + two re-authored defensive security skill packs + their helper scripts |
 | 7 | [known-gaps] Installer instruction-file parity | DF-001 / MT-2 / MT-1 closed; legacy bash blocks removable |
-| 8 | [known-gaps] Code-graph quality & extractor expansion | WN-1 / WN-5 / WN-6 / WN-7 / DF-002 addressed |
+| 8 (done) | [known-gaps] Code-graph quality & extractor expansion | WN-1 / WN-5 / WN-6 / WN-7 / DF-002 addressed |
 | 9 | [known-gaps] Live-environment verification | WN-2 / WN-3 / WN-4 / WN-8 verified on live VMs |
 
 ---
@@ -453,7 +453,7 @@ The de facto governing document for adoption decisions in this plan is the **MCP
 
 #### 8.1 — pathspec deprecation fix
 
-- [ ] T026 [P] [from v2.2.0 known-gaps: WN-1] Pin pathspec to gitignore mode in extensions/nexus-code-search
+- [x] T026 [P] [from v2.2.0 known-gaps: WN-1] Pin pathspec to gitignore mode in extensions/nexus-code-search
 
 **Objective**: Eliminate the 52 `GitWildMatchPattern` deprecation warnings.
 
@@ -464,7 +464,7 @@ The de facto governing document for adoption decisions in this plan is the **MCP
 
 #### 8.2 — tree-sitter pin monitor/widen
 
-- [ ] T027 [P] [from v2.2.0 known-gaps: WN-5] Re-verify the tree-sitter dependency pin in extensions/nexus-code-search/pyproject.toml
+- [x] T027 [P] [from v2.2.0 known-gaps: WN-5] Re-verify the tree-sitter dependency pin in extensions/nexus-code-search/pyproject.toml
 
 **Objective**: Track tree-sitter ABI compatibility for the per-language packages.
 
@@ -475,7 +475,7 @@ The de facto governing document for adoption decisions in this plan is the **MCP
 
 #### 8.3 — Constructor / super-method override resolution
 
-- [ ] T028 [from v2.2.0 known-gaps: WN-6] Emit instantiates/overrides edges in extensions/nexus-code-search/src/nexus_code_search/extraction/languages/python.py and typescript.py
+- [x] T028 [from v2.2.0 known-gaps: WN-6] Emit instantiates/overrides edges in extensions/nexus-code-search/src/nexus_code_search/extraction/languages/python.py and typescript.py
 
 **Objective**: Upgrade in-file call resolution to emit `instantiates` and `overrides` edges.
 
@@ -486,7 +486,7 @@ The de facto governing document for adoption decisions in this plan is the **MCP
 
 #### 8.4 — Eval precision improvement
 
-- [ ] T029 [from v2.2.0 known-gaps: WN-7] Improve code_search precision in extensions/nexus-code-search eval
+- [x] T029 [from v2.2.0 known-gaps: WN-7] Improve code_search precision in extensions/nexus-code-search eval
 
 **Objective**: Raise the 63.3% aggregate precision without dropping recall.
 
@@ -497,7 +497,7 @@ The de facto governing document for adoption decisions in this plan is the **MCP
 
 #### 8.5 — Deferred language/framework extractors (next batch)
 
-- [ ] T030 [from v2.2.0 known-gaps: DF-002] Add the next batch of language/framework extractors under extensions/nexus-code-search/src/nexus_code_search/extraction/languages/
+- [x] T030 [from v2.2.0 known-gaps: DF-002] Add the next batch of language/framework extractors under extensions/nexus-code-search/src/nexus_code_search/extraction/languages/
 
 **Objective**: Implement the highest-demand extractors from the 18 deferred languages + 13 framework extractors.
 
@@ -508,7 +508,7 @@ The de facto governing document for adoption decisions in this plan is the **MCP
 
 #### 8.6 — Testing and Stabilization
 
-- [ ] T031 Run and stabilize Phase 8 code-graph changes
+- [x] T031 Run and stabilize Phase 8 code-graph changes
 
 **Objective**: Verify warnings cleared, new edges, improved precision, and new extractors against the eval baseline.
 
@@ -519,11 +519,11 @@ The de facto governing document for adoption decisions in this plan is the **MCP
 
 ### Phase 8 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] All tests passing
-- [ ] No known regressions from prior phases
-- [ ] Session history generated for this phase
-- [ ] Ready to advance to Phase 9
+- [x] All sub-tasks completed (T026-T031)
+- [x] All tests passing (nexus-code-search 168 passed / 1 skipped, zero DeprecationWarnings under `-W error::DeprecationWarning`; eval 8/8 fixtures at 100% recall, aggregate precision 63.3% -> 96.2%; make-validate equivalent green -- skills.json OK, bundle audit 0/0, 4 CI validators rc=0)
+- [x] No known regressions from prior phases (only `extensions/nexus-code-search/` + the Makefile eval path + docs touched; catalog/data unchanged; the 4 new tree-sitter deps auto-distribute via the installers' editable pip install of the copied package -- no installer edit required)
+- [x] Session history generated for this phase
+- [x] Ready to advance to Phase 9 (WN-1/WN-5/WN-6/WN-7/DF-002 closed; WN-2/WN-3/WN-4/WN-8 remain as the Phase 9 live-environment verification set)
 
 ---
 

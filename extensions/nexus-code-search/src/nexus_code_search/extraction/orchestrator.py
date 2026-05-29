@@ -283,6 +283,14 @@ def _language_for(path: Path) -> str:
         return "typescript"
     if s == ".tsx":
         return "tsx"
+    if s == ".go":
+        return "go"
+    if s == ".rs":
+        return "rust"
+    if s == ".java":
+        return "java"
+    if s in (".cs", ".csx"):
+        return "csharp"
     return s.lstrip(".") or "unknown"
 
 

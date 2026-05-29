@@ -63,6 +63,53 @@ def test_ts_class_property(tmp_path: Path) -> None:
     assert "height" in props
 
 
+def test_ts_new_expression_emits_instantiates_edge(tmp_path: Path) -> None:
+    src = (
+        "class Widget { build(): number { return 1; } }\n"
+        "function make(): Widget { return new Widget(); }\n"
+    )
+    nodes, edges = TypeScriptExtractor().extract(
+        tmp_path / "a.ts", src.encode("utf-8")
+    )
+    make_idx = next(i for i, n in enumerate(nodes) if n.name == "make")
+    widget_idx = next(
+        i for i, n in enumerate(nodes)
+        if n.name == "Widget" and n.kind == NodeKind.CLASS
+    )
+    inst = [
+        e
+        for e in edges
+        if e.kind == EdgeKind.INSTANTIATES
+        and e.source_id == make_idx
+        and e.target_id == widget_idx
+    ]
+    assert inst
+
+
+def test_ts_method_override_emits_overrides_edge(tmp_path: Path) -> None:
+    src = (
+        "class Base { run(): number { return 1; } }\n"
+        "class Derived extends Base { run(): number { return 2; } }\n"
+    )
+    nodes, edges = TypeScriptExtractor().extract(
+        tmp_path / "a.ts", src.encode("utf-8")
+    )
+    base_run = next(
+        i for i, n in enumerate(nodes) if n.qualified_name.endswith("Base.run")
+    )
+    derived_run = next(
+        i for i, n in enumerate(nodes) if n.qualified_name.endswith("Derived.run")
+    )
+    overrides = [
+        e
+        for e in edges
+        if e.kind == EdgeKind.OVERRIDES
+        and e.source_id == derived_run
+        and e.target_id == base_run
+    ]
+    assert overrides
+
+
 def test_ts_method_call_through_member_expression(tmp_path: Path) -> None:
     src = (
         "class Logger { log(msg: string) { return msg; } }\n"

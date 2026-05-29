@@ -2,13 +2,16 @@
 
 Emits the following node kinds: `function`, `method`, `class`, `parameter`,
 `import`, `variable`, `constant`. Emits edges: `contains`, `calls`,
-`extends`, `imports`, `decorates`.
+`instantiates`, `overrides`, `extends`, `imports`, `decorates`.
 
 Edge resolution scope: only in-file edges are emitted. A `calls` edge is
 produced when the call target name (or its dotted suffix) matches one of the
-function / method nodes also extracted from the same file. Cross-file
-resolution is the orchestrator's responsibility (it joins on qualified_name
-after every file has been parsed).
+function / method nodes also extracted from the same file. When the resolved
+target is a `class`, the edge is emitted as `instantiates` rather than `calls`
+(a constructor call). An `overrides` edge is emitted when a method's enclosing
+class extends (in-file) a parent class that defines a same-named method.
+Cross-file resolution is the orchestrator's responsibility (it joins on
+qualified_name after every file has been parsed).
 
 By extractor convention, `source_id` and `target_id` on every emitted Edge
 hold the LOCAL index into the emitted nodes list (not a database id). The
@@ -149,6 +152,9 @@ class PythonExtractor(Extractor):
             index_by_qname,
             index_by_name,
         )
+
+        # Resolve method-override edges against in-file parent classes.
+        self._resolve_overrides(nodes, edges, index_by_qname)
 
         return nodes, edges
 
@@ -566,11 +572,19 @@ class PythonExtractor(Extractor):
             ) or index_by_name.get(called_name.split(".")[-1])
             if target_idx is None or target_idx == caller_idx:
                 continue
+            # A call whose target is a class is a constructor invocation: emit
+            # `instantiates` rather than `calls` so the graph distinguishes
+            # "uses this function" from "creates this type".
+            edge_kind = (
+                EdgeKind.INSTANTIATES
+                if nodes[target_idx].kind == NodeKind.CLASS
+                else EdgeKind.CALLS
+            )
             edges.append(
                 Edge(
                     source_id=caller_idx,
                     target_id=target_idx,
-                    kind=EdgeKind.CALLS,
+                    kind=edge_kind,
                     call_site_line=_start_line(ts_node),
                 )
             )
@@ -625,3 +639,53 @@ class PythonExtractor(Extractor):
             return attr_text
         # Skip more complex call targets (subscripts, lambdas, etc.).
         return ""
+
+    def _resolve_overrides(
+        self,
+        nodes: list[Node],
+        edges: list[Edge],
+        index_by_qname: dict[str, int],
+    ) -> None:
+        """Emit `overrides` edges for methods that shadow a parent's method.
+
+        Uses the in-file `extends` edges already emitted by `_handle_class`:
+        a method `Child.foo` overrides `Parent.foo` when `Child` extends
+        `Parent` (transitively, within this file) and `Parent` defines a
+        method named `foo`. Resolution is in-file only; cross-file inheritance
+        is the orchestrator's responsibility.
+        """
+        # child class qualified_name -> parent class qualified_name (in-file).
+        parent_of: dict[str, str] = {}
+        for e in edges:
+            if e.kind != EdgeKind.EXTENDS:
+                continue
+            child = nodes[e.source_id]
+            parent = nodes[e.target_id]
+            if child.kind == NodeKind.CLASS and parent.kind == NodeKind.CLASS:
+                parent_of[child.qualified_name] = parent.qualified_name
+        if not parent_of:
+            return
+
+        for idx, node in enumerate(nodes):
+            if node.kind != NodeKind.METHOD:
+                continue
+            class_qname = node.qualified_name.rsplit(".", 1)[0]
+            seen: set[str] = set()
+            cur = parent_of.get(class_qname)
+            while cur is not None and cur not in seen:
+                seen.add(cur)
+                parent_method_idx = index_by_qname.get(f"{cur}.{node.name}")
+                if (
+                    parent_method_idx is not None
+                    and parent_method_idx != idx
+                    and nodes[parent_method_idx].kind == NodeKind.METHOD
+                ):
+                    edges.append(
+                        Edge(
+                            source_id=idx,
+                            target_id=parent_method_idx,
+                            kind=EdgeKind.OVERRIDES,
+                        )
+                    )
+                    break
+                cur = parent_of.get(cur)

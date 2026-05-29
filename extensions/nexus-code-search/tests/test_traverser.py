@@ -136,3 +136,61 @@ def test_query_manager_explore_aggregates(indexed_repo) -> None:
         assert "impact" in first
     finally:
         conn.close()
+
+
+@pytest.fixture
+def indexed_class_repo(tmp_path: Path) -> Path:
+    """A repo whose qualified_names embed the class name as an ancestor
+    segment (a method and a parameter), used to prove name-scoped search
+    excludes those false positives (T029 / WN-7)."""
+    (tmp_path / "src").mkdir()
+    (tmp_path / "src" / "models.py").write_text(
+        "class AdminUser:\n"
+        "    def is_admin(self, scope):\n"
+        "        return True\n",
+        encoding="utf-8",
+    )
+    idx_dir = tmp_path / ".nexus" / "code-index"
+    with ExtractionOrchestrator(
+        tmp_path, CodeSearchConfig(hub_root=None), idx_dir
+    ) as orch:
+        orch.run()
+    return idx_dir
+
+
+def test_search_fts_name_scoped_excludes_qualified_matches(
+    indexed_class_repo,
+) -> None:
+    from nexus_code_search.db import open_database
+
+    conn = open_database(indexed_class_repo)
+    try:
+        trav = GraphTraverser(conn)
+        # Default (name-scoped): only the class itself is named "AdminUser".
+        results = trav.search_fts("AdminUser")
+        names = {n.name for n in results}
+        assert "AdminUser" in names
+        # The method `is_admin` and parameter `scope` carry "AdminUser" in
+        # their qualified_name but are NOT named it -> excluded.
+        assert "is_admin" not in names
+        assert "scope" not in names
+    finally:
+        conn.close()
+
+
+def test_search_fts_all_columns_includes_qualified_matches(
+    indexed_class_repo,
+) -> None:
+    from nexus_code_search.db import open_database
+
+    conn = open_database(indexed_class_repo)
+    try:
+        trav = GraphTraverser(conn)
+        # Opting into all columns restores the pre-v2.3.0 behavior: nodes whose
+        # qualified_name contains "AdminUser" (its method) are surfaced too.
+        results = trav.search_fts("AdminUser", all_columns=True)
+        names = {n.name for n in results}
+        assert "AdminUser" in names
+        assert "is_admin" in names
+    finally:
+        conn.close()

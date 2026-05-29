@@ -9,9 +9,21 @@ dependencies = [
     "mcp>=1.0.0",
     "rapidfuzz>=3.5.0",
     "pathspec>=0.12.0",
+    # tree-sitter core + per-language grammars. The <0.26 ceiling guards
+    # against an ABI break: the abandoned `tree-sitter-languages` umbrella
+    # crashes on core >=0.23, so each grammar is pinned as its own package.
+    # Pin re-verified 2026-05-29 (v2.3.0 Phase 8 / WN-5): no 0.26-compatible
+    # release of core (latest 0.25.2), tree-sitter-python (0.25.0), or
+    # tree-sitter-typescript (0.23.2) has shipped, so the ceiling stays.
     "tree-sitter>=0.24,<0.26",
     "tree-sitter-python>=0.23,<0.26",
     "tree-sitter-typescript>=0.23,<0.26",
+    # Phase 8 / DF-002 extractor batch: Go, Rust, Java, C#. All resolve under
+    # the shared <0.26 ceiling (go 0.25, rust 0.24, java/c-sharp 0.23).
+    "tree-sitter-go>=0.23,<0.26",
+    "tree-sitter-rust>=0.23,<0.26",
+    "tree-sitter-java>=0.23,<0.26",
+    "tree-sitter-c-sharp>=0.23,<0.26",
     "watchdog>=4.0.0",
 ]
 

@@ -1,0 +1,18 @@
+name: go_app
+description: Go package - exercises struct/interface/method extraction, composite-literal instantiation, and in-file calls.
+questions:
+  - tool: code_search
+    query: Greeter
+    expect: [Greeter]
+  - tool: code_search
+    query: NewGreeter
+    expect: [NewGreeter]
+  - tool: code_search
+    query: Speaker
+    expect: [Speaker]
+  - tool: code_callees
+    symbol: main
+    expect_callees: [NewGreeter, Speak]
+  - tool: code_callers
+    symbol: NewGreeter
+    expect_callers: [main]

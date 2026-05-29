@@ -48,8 +48,8 @@ test: ## Run MCP skill server + repo-level pytest suites
 
 eval: ## Run the nexus-code-search synthetic-codebase eval harness
 	@echo "Running nexus-code-search eval harness..."
-	@cd extensions/nexus-code-search && python -m nexus_code_search.eval --out ../../docs/v2.2.0/eval-baseline.md
-	@echo "Eval complete. Report: docs/v2.2.0/eval-baseline.md"
+	@cd extensions/nexus-code-search && python -m nexus_code_search.eval --out ../../docs/v2.3.0/eval-baseline.md
+	@echo "Eval complete. Report: docs/v2.3.0/eval-baseline.md"
 
 benchmark: ## Benchmark internal MCP servers
 	@echo "Benchmarking internal MCPs..."

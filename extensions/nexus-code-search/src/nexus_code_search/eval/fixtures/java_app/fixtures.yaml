@@ -1,0 +1,19 @@
+name: java_app
+description: Java sources - exercises class/interface extraction, extends/implements/overrides edges, new-expression instantiation, and impact radius.
+questions:
+  - tool: code_search
+    query: Lion
+    expect: [Lion]
+  - tool: code_search
+    query: Animal
+    expect: [Animal]
+  - tool: code_search
+    query: create
+    expect: [create]
+  - tool: code_impact
+    symbol: Lion
+    depth: 1
+    expect_in_radius: [create, Animal]
+  - tool: code_callers
+    symbol: Animal
+    expect_callers: []
