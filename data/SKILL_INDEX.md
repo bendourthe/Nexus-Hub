@@ -216,5 +216,7 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | context-modes | workflow | "Switch the agent's working posture (dev, review, research) with explicit entry, exit, and reset rules" | catalog/skills/workflow/context-modes/SKILL.md |
 | security-framework-mapping | security | "Map security skills and findings across MITRE ATT&CK, ATLAS, D3FEND, NIST CSF, and NIST AI RMF" | catalog/skills/security/security-framework-mapping/SKILL.md |
 | continuous-learning | workflow | "Capture observations, mint local YAML instincts, evolve clusters into draft skills - all in-process, zero outbound" | catalog/skills/workflow/continuous-learning/SKILL.md |
+| skill-stocktake | workflow | "Holistic skill-quality audit with a cached results file and quick-diff re-scoring over changed skills" | catalog/skills/workflow/skill-stocktake/SKILL.md |
+| skill-create | workflow | "Draft a conformant SKILL.md by mining local git history for a recurring, automatable pattern" | catalog/skills/workflow/skill-create/SKILL.md |
 
-**Total: 209 skills across 22 categories**
+**Total: 211 skills across 22 categories**

@@ -266,7 +266,7 @@ The de facto governing document for adoption decisions in this plan is the **MCP
 
 #### 5.1 — skill-stocktake skill + validate_skills quality pass
 
-- [ ] T014 Create catalog/skills/workflow/skill-stocktake/SKILL.md and add a quality-heuristics pass to scripts/validate_skills.py
+- [x] T014 Create catalog/skills/workflow/skill-stocktake/SKILL.md and add a quality-heuristics pass to scripts/validate_skills.py
 
 **Objective**: Reproduce ECC's `skill-stocktake` holistic quality audit (cached `results.json` + quick-diff) and extend Nexus-Hub's structural validator with quality heuristics.
 
@@ -277,7 +277,7 @@ The de facto governing document for adoption decisions in this plan is the **MCP
 
 #### 5.2 — skill-create from git history
 
-- [ ] T015 Create a git-history-driven skill generator (skill or scripts/skill_create.py)
+- [x] T015 Create a git-history-driven skill generator (skill or scripts/skill_create.py)
 
 **Objective**: Reproduce ECC's `skill-create` local-analysis path (generate SKILL.md drafts from local git history).
 
@@ -288,7 +288,7 @@ The de facto governing document for adoption decisions in this plan is the **MCP
 
 #### 5.3 — Testing and Stabilization
 
-- [ ] T016 Run and stabilize Phase 5 tooling and validator pass
+- [x] T016 Run and stabilize Phase 5 tooling and validator pass
 
 **Objective**: Verify the stocktake skill, validator quality pass, and skill-create draft path.
 
@@ -299,11 +299,11 @@ The de facto governing document for adoption decisions in this plan is the **MCP
 
 ### Phase 5 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] All tests passing
-- [ ] No known regressions from prior phases
-- [ ] Session history generated for this phase
-- [ ] Ready to advance to Phase 6
+- [x] All sub-tasks completed
+- [x] All tests passing
+- [x] No known regressions from prior phases
+- [x] Session history generated for this phase
+- [x] Ready to advance to Phase 6
 
 ---
 

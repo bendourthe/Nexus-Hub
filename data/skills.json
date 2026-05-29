@@ -7219,6 +7219,80 @@
         "semantic": 95,
         "validated": true
       }
+    },
+    {
+      "name": "skill-stocktake",
+      "title": "skill-stocktake",
+      "description": "Audit Nexus-Hub skills for quality - frontmatter completeness, binary Verification, Common Rationalizations depth, Tier-1 field length, and Related-Skills wiring - combining a deterministic checklist with the agent's holistic judgment, and caching results so re-runs only re-score changed skills. Make sure to use this skill whenever the user says 'audit our skills', 'stocktake the catalog', 'which skills are low quality', 'are our skills up to standard', 'review skill quality', 'score the skills', 'find weak skills', 'quality pass on the catalog', or otherwise asks for a quality assessment across one or many SKILL.md files rather than a structural pass/fail. Also trigger before a release when the user wants a quality snapshot of the catalog, or after a batch of new skills lands and someone asks 'are these any good'. SKIP, do NOT use for, structural validation that only needs pass/fail (use scripts/validate_skills.py directly), writing or editing a single new skill (use create-skill-or-command), or generating a brand-new skill from git history (use skill-create).",
+      "long_description": "Defines a two-mode quality audit for Nexus-Hub SKILL.md files. Quick Scan reads a cached .nexus/skill-stocktake/results.json, recomputes a content hash per skill, and only re-scores skills whose hash changed since the last run, so an audit after a small edit is near-instant. Full Stocktake scores every skill from scratch and rewrites the cache. Each skill gets a deterministic checklist score (run via scripts/validate_skills.py --quality) plus a short holistic agent judgment, and the skill proposes remediation for the lowest-scoring skills without ever auto-editing them.",
+      "summary_l0": "\"Holistic skill-quality audit with a cached results file and quick-diff re-scoring over changed skills\"",
+      "overview_l1": "\"Defines a two-mode quality audit for Nexus-Hub SKILL.md files. Quick Scan reads a cached .nexus/skill-stocktake/results.json, recomputes a per-skill content hash, and re-scores only skills whose hash changed since the last run, so an audit after a small edit is near-instant. Full Stocktake scores every skill and rewrites the cache. Each skill gets a deterministic checklist score (required frontmatter, tight Tier-1 fields, binary Verification, Common Rationalizations with concrete failure modes, Related Skills links, body within the size norm) plus a short holistic judgment on whether the body teaches a real procedure. The deterministic half reuses scripts/validate_skills.py --quality rather than re-implementing heuristics. Output is a worst-first ranked report and the refreshed cache. Trigger phrases: audit our skills, stocktake the catalog, score the skills, which skills are low quality.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "workflow",
+      "language": "Multi-language",
+      "tags": [
+        "skill-quality",
+        "audit",
+        "catalog-health",
+        "quality-gate",
+        "caching"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "reverse-engineered local analogue of ECC's skill-stocktake pattern (see docs/v2.2.0/comparison-ECC.md Section 11 Bucket B (B6))",
+      "tools_required": [],
+      "path": "catalog/skills/workflow/skill-stocktake/",
+      "file": "catalog/skills/workflow/skill-stocktake/SKILL.md",
+      "size": {
+        "lines": 132,
+        "characters": 10512,
+        "tokens_estimate": 1350
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "skill-create",
+      "title": "skill-create",
+      "description": "Draft a new Nexus-Hub-conformant SKILL.md by mining the local git history for a recurring pattern - a sequence of commits, a repeated fix, a workflow the team keeps redoing by hand - and turning it into a reusable skill with full frontmatter, Common Rationalizations, and binary Verification. Make sure to use this skill whenever the user says 'turn this into a skill', 'we keep doing this, make a skill', 'draft a skill from our git history', 'create a skill for X', 'generate a SKILL.md from these commits', 'automate this recurring workflow as a skill', 'should this pattern be a skill', or otherwise asks to manufacture a new skill out of work that has already happened in the repo. Also trigger when continuous-learning surfaces an instinct cluster strong enough to become a skill and the next step is drafting the actual SKILL.md. SKIP, do NOT use for, auditing or scoring skills that already exist (use skill-stocktake), the generic interactive new-skill wizard when there is no git-history signal to mine (use create-skill-or-command), or editing one existing skill.",
+      "long_description": "Teaches the agent to generate a new Nexus-Hub skill from evidence already in the repository's git history. The agent analyzes git log, diffs, and commit clustering to find a recurring pattern, confirms it with the user, then drafts a SKILL.md that follows every Nexus-Hub convention and surfaces it for maintainer review. The draft is local-analysis-only (git log/diff, zero outbound) and is never auto-registered or committed.",
+      "summary_l0": "\"Draft a conformant SKILL.md by mining local git history for a recurring, automatable pattern\"",
+      "overview_l1": "\"Teaches the agent to generate a new Nexus-Hub skill from evidence already in the repository's git history. The agent analyzes git log and diffs to find a recurring pattern (a fix applied repeatedly, a multi-step workflow done by hand across commits, a class of change that keeps recurring), confirms it with the user, then drafts a SKILL.md following every Nexus-Hub convention: pushy description with trigger phrases and a SKIP clause, quoted summary_l0 and overview_l1, When to Use (+ When NOT), Instructions distilled from the actual commits, a Common Rationalizations table citing failure modes seen in the history, a binary Verification checklist, and Related Skills links. The draft is local-analysis-only (git log/diff, zero outbound) and is surfaced for maintainer review, never auto-registered or committed. Trigger phrases: turn this into a skill, draft a skill from git history, we keep doing this make a skill, generate a SKILL.md from commits.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "workflow",
+      "language": "Multi-language",
+      "tags": [
+        "skill-authoring",
+        "git-history",
+        "pattern-mining",
+        "skill-generation",
+        "local-only"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "reverse-engineered local-analysis path of ECC's skill-create pattern (see docs/v2.2.0/comparison-ECC.md Section 11 Bucket B (B6))",
+      "tools_required": [],
+      "path": "catalog/skills/workflow/skill-create/",
+      "file": "catalog/skills/workflow/skill-create/SKILL.md",
+      "size": {
+        "lines": 111,
+        "characters": 9299,
+        "tokens_estimate": 1200
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     }
   ]
 }

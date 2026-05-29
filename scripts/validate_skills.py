@@ -36,6 +36,11 @@ SCANNABLE_EXTENSIONS = {
 BUNDLED_SUBDIRS = ("scripts", "references", "assets")
 BUNDLE_EXEMPT_FILENAMES = {".gitkeep"}
 
+# Quality-heuristics thresholds (Tier-1 field limits from AGENTS.md "Write SKILL.md").
+QUALITY_SUMMARY_L0_MAX_WORDS = 15
+QUALITY_OVERVIEW_L1_MAX_WORDS = 150
+QUALITY_CHECKLIST_MAX = 6
+
 SECRET_PATTERNS: list[tuple[str, re.Pattern[str]]] = [
     ("OpenAI API key", re.compile(r"sk-[A-Za-z0-9]{20,}")),
     ("AWS Access Key", re.compile(r"AKIA[0-9A-Z]{16}")),
@@ -170,6 +175,86 @@ def validate_skill_bundles(skill_dir: Path, skill_md_content: str) -> list[str]:
     return warnings
 
 
+def _section_body(content: str, heading: str) -> str | None:
+    """Return the body text of a `## <heading>` section, or None if absent.
+
+    The body runs from just after the heading line to the next `## ` heading
+    (or end of file). Matching is case-insensitive on the heading text.
+    """
+    pattern = re.compile(
+        rf"^##\s+{re.escape(heading)}\s*$", re.IGNORECASE | re.MULTILINE
+    )
+    match = pattern.search(content)
+    if match is None:
+        return None
+    start = match.end()
+    next_heading = re.compile(r"^##\s+", re.MULTILINE).search(content, start)
+    end = next_heading.start() if next_heading else len(content)
+    return content[start:end]
+
+
+def validate_skill_quality(skill_dir: Path, content: str) -> list[str]:
+    """Non-blocking quality heuristics for a single skill. Returns warnings.
+
+    These are quality signals, NOT structural errors -- a work-in-progress
+    branch can legitimately trip them, so they are always warnings and never
+    affect the exit code. The checks mirror the authoring norms in AGENTS.md
+    "Write SKILL.md":
+
+    1. A `## Common Rationalizations` section is present.
+    2. `## Verification` is present AND uses a binary checklist (`- [ ]`),
+       not prose ("the code looks good" is explicitly not a valid criterion).
+    3. Tier-1 fields stay within budget: `summary_l0` <= 15 words and
+       `overview_l1` <= 150 words.
+    4. A `## Related Skills` section is present AND wires at least one
+       `[[skill-name]]` cross-link.
+
+    Each returned warning is prefixed with `quality:` so callers and the
+    skill-stocktake skill can distinguish quality findings from orphan-bundle
+    findings.
+    """
+    warnings: list[str] = []
+    sf = skill_dir / "SKILL.md"
+
+    def warn(msg: str) -> None:
+        warnings.append(f"{sf}: quality: {msg}")
+
+    # 1. Common Rationalizations table
+    if _section_body(content, "Common Rationalizations") is None:
+        warn("missing '## Common Rationalizations' section")
+
+    # 2. Binary (non-prose) Verification
+    verification = _section_body(content, "Verification")
+    if verification is None:
+        warn("missing '## Verification' section")
+    elif "- [ ]" not in verification and "- [x]" not in verification.lower():
+        warn("Verification section is prose-only (no binary '- [ ]' checklist)")
+
+    # 3. Over-long Tier-1 fields
+    fm = parse_frontmatter(content) or {}
+    summary = fm.get("summary_l0", "")
+    if summary and len(summary.split()) > QUALITY_SUMMARY_L0_MAX_WORDS:
+        warn(
+            f"summary_l0 is {len(summary.split())} words "
+            f"(soft limit {QUALITY_SUMMARY_L0_MAX_WORDS})"
+        )
+    overview = fm.get("overview_l1", "")
+    if overview and len(overview.split()) > QUALITY_OVERVIEW_L1_MAX_WORDS:
+        warn(
+            f"overview_l1 is {len(overview.split())} words "
+            f"(soft limit {QUALITY_OVERVIEW_L1_MAX_WORDS})"
+        )
+
+    # 4. Related Skills with at least one cross-link
+    related = _section_body(content, "Related Skills")
+    if related is None:
+        warn("missing '## Related Skills' section")
+    elif "[[" not in related:
+        warn("Related Skills section has no [[skill-name]] cross-links")
+
+    return warnings
+
+
 def scan_for_secrets(directory: Path) -> list[str]:
     """Scan all scannable files in a directory tree for hardcoded secrets."""
     errors: list[str] = []
@@ -231,6 +316,17 @@ def main() -> int:
             "the full strict validator for manual audits."
         ),
     )
+    parser.add_argument(
+        "--quality",
+        action="store_true",
+        help=(
+            "Run only the non-blocking quality-heuristics pass (missing "
+            "Common Rationalizations / prose-only Verification / over-long "
+            "Tier-1 fields / missing Related Skills links). Always exits 0; "
+            "quality findings are warnings, surfaced with --verbose. Consumed "
+            "by the skill-stocktake skill."
+        ),
+    )
     args = parser.parse_args()
 
     scan_root = args.path
@@ -247,21 +343,29 @@ def main() -> int:
     total_warnings: list[str] = []
 
     for skill_dir in skill_dirs:
-        if args.bundles_only:
+        if args.bundles_only or args.quality:
             skill_file = skill_dir / "SKILL.md"
             try:
                 content = skill_file.read_text(encoding="utf-8", errors="replace")
             except OSError as exc:
                 total_errors.append(f"{skill_file}: cannot read ({exc})")
                 continue
-            total_warnings.extend(validate_skill_bundles(skill_dir, content))
+            if args.bundles_only:
+                total_warnings.extend(validate_skill_bundles(skill_dir, content))
+            if args.quality:
+                total_warnings.extend(validate_skill_quality(skill_dir, content))
         else:
             errs, warns = validate_skill_dir(skill_dir)
             total_errors.extend(errs)
             total_warnings.extend(warns)
 
     # Report results
-    mode = "bundle audit" if args.bundles_only else "full validator"
+    if args.quality:
+        mode = "quality heuristics"
+    elif args.bundles_only:
+        mode = "bundle audit"
+    else:
+        mode = "full validator"
     print(f"Scanned {len(skill_dirs)} skills under {scan_root} ({mode})")
 
     if args.verbose and total_warnings:

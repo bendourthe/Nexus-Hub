@@ -173,8 +173,8 @@
     {
       "id": "workflow",
       "name": "Workflow",
-      "description": "Git workflows, TDD, debugging, session history, skill evaluation, version management, project governance, issue tracking, agent context modes, local continuous learning",
-      "skill_count": 25
+      "description": "Git workflows, TDD, debugging, session history, skill evaluation, version management, project governance, issue tracking, agent context modes, local continuous learning, skill quality audit and generation",
+      "skill_count": 27
     }
   ],
   "discovery": {
