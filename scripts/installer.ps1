@@ -1087,7 +1087,10 @@ function Install-Global {
         $script:TestCmd = "# specify test command"
         $script:LintCmd = "# specify lint command"
         $script:NonObviousTooling = "- (configure per project with /setup-project)"
-        Render-Template -Template "$RepoRoot\templates\ai-instructions\base-claude.md" -Output "$globalClaude\CLAUDE.md" -RepoRoot $RepoRoot -Languages @()
+        # DF-001: the registry runner renders CLAUDE.md (marker-merged, full
+        # placeholder substitution). -InstructionOnly leaves the catalog mirror
+        # to the Safe-Folder-Copy block below.
+        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "claude" -DisplayName "CLAUDE.md (instruction file)" -InstructionOnly
 
         Safe-Folder-Copy -Source "$RepoRoot\catalog\skills"   -Destination (Join-Path $globalClaude "skills")   -CustomMessage "✓ Skills catalog installed at: $(Join-Path $globalClaude "skills")"
         Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $globalClaude "commands") -CustomMessage "✓ Commands installed at: $(Join-Path $globalClaude "commands")"
@@ -1115,7 +1118,7 @@ function Install-Global {
         Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $globalCodexDir "prompts")  -CustomMessage "✓ Custom prompts installed at: $(Join-Path $globalCodexDir "prompts")"
 
         # AGENTS.md (open standard read by Codex, Jules, Cursor, Aider, OpenCode)
-        Render-Template -Template "$RepoRoot\templates\ai-instructions\base-codex.md" -Output "$globalCodexDir\AGENTS.md" -RepoRoot $RepoRoot -Languages @()
+        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "codex" -DisplayName "AGENTS.md (instruction file)" -InstructionOnly
     }
 
     # --- Google -- Gemini / Antigravity 1.0 + 2.0 / Gemini CLI -----------
@@ -1130,7 +1133,7 @@ function Install-Global {
             if (-not (Test-Path $globalGeminiDir)) { New-Item -ItemType Directory -Force -Path $globalGeminiDir | Out-Null }
             if (-not (Test-Path $globalAgentDir))  { New-Item -ItemType Directory -Force -Path $globalAgentDir  | Out-Null }
 
-            Render-Template -Template "$RepoRoot\templates\ai-instructions\base-gemini.md" -Output "$globalGeminiDir\GEMINI.md" -RepoRoot $RepoRoot -Languages @()
+            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "gemini" -DisplayName "GEMINI.md (instruction file)" -InstructionOnly
 
             Safe-Folder-Copy -Source "$RepoRoot\catalog\skills"   -Destination (Join-Path $globalAgentDir  "skills")    -CustomMessage "✓ Skills catalog mirrored to: $(Join-Path $globalAgentDir "skills")"
             Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $globalAgentDir  "workflows") -CustomMessage "✓ Workflows mirrored to: $(Join-Path $globalAgentDir "workflows")"
@@ -1365,86 +1368,12 @@ function Detect-ProjectMetadata {
     if ([string]::IsNullOrEmpty($script:LintTool)) { $script:LintTool = "(detect or specify)" }
 }
 
-function Render-Template {
-    param(
-        [string]$Template,
-        [string]$Output,
-        [string]$RepoRoot,
-        [string[]]$Languages
-    )
-
-    if (-not (Test-Path $Template)) {
-        Write-Item -Message "Skip: Template not found ($(Split-Path $Template -Leaf))" -Color "DarkGray"
-        return
-    }
-
-    # Check for existing file (reuse overwrite logic)
-    $doWrite = $true
-    if (Test-Path $Output) {
-        if ($script:OverwriteMode -eq "ALL") {
-            # Proceed
-        }
-        elseif ($script:OverwriteMode -eq "NONE") {
-            Write-Item -Message "File exists: $Output (Skipped)" -Color "DarkGray"
-            $doWrite = $false
-        }
-        else {
-            Write-Item -Message "File exists: $Output" -Color "Yellow"
-            $resp = Read-Prompt "Overwrite? [Y]es / [N]o / [A]ll"
-            if ($resp -match "^[Aa]") { $script:OverwriteMode = "ALL" }
-            elseif ($resp -notmatch "^[Yy]") { $doWrite = $false }
-        }
-    }
-
-    if ($doWrite) {
-        $parentDir = Split-Path $Output -Parent
-        if (-not (Test-Path $parentDir)) { New-Item -ItemType Directory -Force -Path $parentDir | Out-Null }
-
-        # Read template and replace placeholders
-        $content = Get-Content $Template -Raw
-        $content = $content.Replace("{{PROJECT_NAME}}", $script:ProjectName)
-        $content = $content.Replace("{{PROJECT_DESCRIPTION}}", "(Add a 2-3 sentence project description here, or run /setup-project)")
-        $content = $content.Replace("{{PRIMARY_LANGUAGE}}", $script:PrimaryLanguage)
-        $content = $content.Replace("{{LANGUAGE_VERSION}}", "")
-        $content = $content.Replace("{{PACKAGE_MANAGER}}", $script:PackageManager)
-        $content = $content.Replace("{{BUILD_TOOL}}", $script:BuildTool)
-        $content = $content.Replace("{{TEST_FRAMEWORK}}", $script:TestFramework)
-        $content = $content.Replace("{{LINT_TOOL}}", $script:LintTool)
-        $content = $content.Replace("{{PROJECT_STRUCTURE_BRIEF}}", "(Run /setup-project to generate project layout)")
-        $content = $content.Replace("{{BUILD_CMD}}", $script:BuildCmd)
-        $content = $content.Replace("{{TEST_CMD}}", $script:TestCmd)
-        $content = $content.Replace("{{LINT_CMD}}", $script:LintCmd)
-        $content = $content.Replace("{{NON_OBVIOUS_TOOLING}}", $script:NonObviousTooling)
-        $content = $content.Replace("{{LANGUAGE_CONVENTIONS}}", "(See coding-snippets or run /setup-project)")
-        $content = $content.Replace("{{OS_CONTEXT}}", $script:OSContext)
-
-        # Replace {{SKILL_INDEX}} with actual skill index content (if available)
-        $skillIndexPath = Join-Path $RepoRoot "data\SKILL_INDEX.md"
-        if (Test-Path $skillIndexPath) {
-            $skillIndexContent = Get-Content $skillIndexPath -Raw
-            $content = $content.Replace("{{SKILL_INDEX}}", $skillIndexContent)
-        }
-        else {
-            $content = $content.Replace("{{SKILL_INDEX}}", "<!-- Skill index not available. Run the Nexus-Hub installer to generate it. -->")
-        }
-
-        # Append language-specific snippets
-        if ($Languages -and $Languages.Count -gt 0) {
-            foreach ($lang in $Languages) {
-                $langKey = $lang.ToLower()
-                if ($langKey -eq "c++") { $langKey = "cpp" }
-                if ($langKey -eq "c#") { $langKey = "csharp" }
-                $snippet = Join-Path $RepoRoot "templates\ai-instructions\coding-snippets\${langKey}.md"
-                if (Test-Path $snippet) {
-                    $content += "`n`n" + (Get-Content $snippet -Raw)
-                }
-            }
-        }
-
-        $content | Set-Content $Output -Encoding UTF8
-        Write-Item -Message "✓ Installed to $Output" -Color "DarkGreen"
-    }
-}
+# Render-Template was removed in v2.3.0 / Phase 7 (DF-001). Instruction-file
+# rendering now flows through scripts/lib/integrations/runner.py via
+# Invoke-RegistryPlatform (single renderer shared with installer.sh), which
+# substitutes the same placeholder set and marker-merges the body. The detected
+# script globals (ProjectName, BuildCmd, OSContext, ...) are threaded to the
+# runner by Invoke-RegistryPlatform.
 
 function Install-Workspace {
     param (
@@ -1489,7 +1418,7 @@ function Install-Workspace {
             Write-Item -Message "Claude Code" -Color "Gray"
             $claudeDir = Join-Path $targetPath ".claude"
 
-            Render-Template -Template "$RepoRoot\templates\ai-instructions\base-claude.md" -Output "$targetPath\CLAUDE.md" -RepoRoot $RepoRoot -Languages $languages
+            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "claude" -DisplayName "CLAUDE.md (instruction file)" -Languages ($languages -join ',') -InstructionOnly
 
             Safe-Folder-Copy -Source "$RepoRoot\catalog\skills"   -Destination (Join-Path $claudeDir "skills")   -CustomMessage "✓ Skills catalog installed at: $(Join-Path $claudeDir "skills")"
             Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $claudeDir "commands") -CustomMessage "✓ Commands installed at: $(Join-Path $claudeDir "commands")"
@@ -1519,7 +1448,7 @@ function Install-Workspace {
             Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $codexDir "prompts") -CustomMessage "✓ Custom prompts installed at: $(Join-Path $codexDir "prompts")"
 
             # AGENTS.md at project root (open standard read by Codex, Jules, Cursor, Aider, OpenCode)
-            Render-Template -Template "$RepoRoot\templates\ai-instructions\base-codex.md" -Output "$targetPath\AGENTS.md" -RepoRoot $RepoRoot -Languages $languages
+            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "codex" -DisplayName "AGENTS.md (instruction file)" -Languages ($languages -join ',') -InstructionOnly
         }
 
         # --- Google -- Gemini / Antigravity 1.0 + 2.0 / Gemini CLI ------
@@ -1534,7 +1463,7 @@ function Install-Workspace {
                 if (-not (Test-Path $geminiDir)) { New-Item -ItemType Directory -Force -Path $geminiDir | Out-Null }
                 if (-not (Test-Path $agentDir))  { New-Item -ItemType Directory -Force -Path $agentDir  | Out-Null }
 
-                Render-Template -Template "$RepoRoot\templates\ai-instructions\base-gemini.md" -Output "$geminiDir\GEMINI.md" -RepoRoot $RepoRoot -Languages $languages
+                Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "gemini" -DisplayName "GEMINI.md (instruction file)" -Languages ($languages -join ',') -InstructionOnly
 
                 Safe-Folder-Copy -Source "$RepoRoot\catalog\skills"   -Destination (Join-Path $agentDir "skills")    -CustomMessage "✓ Skills catalog mirrored to: $(Join-Path $agentDir "skills")"
                 Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $agentDir "workflows") -CustomMessage "✓ Workflows mirrored to: $(Join-Path $agentDir "workflows")"
@@ -1643,7 +1572,9 @@ function Invoke-RegistryPlatform {
         [string]$Scope,            # "global" or "workspace"
         [string]$TargetPath,       # used for workspace scope only
         [string]$IntegrationKey,   # registry key, e.g. "antigravity2"
-        [string]$DisplayName       # human-readable label printed as a sub-item
+        [string]$DisplayName,      # human-readable label printed as a sub-item
+        [string]$Languages = "",   # csv; appends coding-snippet fragments
+        [switch]$InstructionOnly   # render only the instruction file (skip catalog mirror)
     )
     $runner = Join-Path $RepoRoot "scripts\lib\integrations\runner.py"
     if (-not (Test-Path $runner)) { return }
@@ -1659,6 +1590,22 @@ function Invoke-RegistryPlatform {
         $argsList += @("--target", $TargetPath)
     }
     if ($script:OverwriteMode -eq "ALL") { $argsList += "--overwrite" }
+    if ($InstructionOnly) { $argsList += "--instruction-only" }
+    if ($Languages) { $argsList += @("--languages", $Languages) }
+    # Thread the instruction-template placeholders from the detected script
+    # globals so the registry renders the same instruction body the legacy
+    # Render-Template produced (DF-001).
+    $argsList += @("--project-name", "$($script:ProjectName)")
+    $argsList += @("--var", "PRIMARY_LANGUAGE=$($script:PrimaryLanguage)")
+    $argsList += @("--var", "PACKAGE_MANAGER=$($script:PackageManager)")
+    $argsList += @("--var", "BUILD_TOOL=$($script:BuildTool)")
+    $argsList += @("--var", "TEST_FRAMEWORK=$($script:TestFramework)")
+    $argsList += @("--var", "LINT_TOOL=$($script:LintTool)")
+    $argsList += @("--var", "BUILD_CMD=$($script:BuildCmd)")
+    $argsList += @("--var", "TEST_CMD=$($script:TestCmd)")
+    $argsList += @("--var", "LINT_CMD=$($script:LintCmd)")
+    $argsList += @("--var", "NON_OBVIOUS_TOOLING=$($script:NonObviousTooling)")
+    $argsList += @("--var", "OS_CONTEXT=$($script:OSContext)")
 
     & $py @argsList
     if ($LASTEXITCODE -ne 0) {

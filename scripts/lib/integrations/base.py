@@ -27,7 +27,7 @@ import re
 import shutil
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from .manifest import InstallManifest
 from .result import FileAction, WriteResult
@@ -65,6 +65,17 @@ class InstallContext:
     dry_run: bool = False
     manifest: InstallManifest = field(default_factory=InstallManifest)
     template_vars: Dict[str, str] = field(default_factory=dict)
+    # v2.3.0 / Phase 7 / T022 -- the selected language list (e.g. ["Python",
+    # "TypeScript"]). MarkdownIntegration appends the matching coding-snippet
+    # fragment for each language, mirroring the legacy bash `render_template`
+    # snippet-append step. Empty by default (global scope passes no languages).
+    languages: List[str] = field(default_factory=list)
+    # v2.3.0 / Phase 7 / T022 -- when True, MarkdownIntegration renders only the
+    # instruction file and SkillsIntegration skips the catalog tree mirror. The
+    # installer uses this when it has already copied catalog/ via its own
+    # `safe_folder_copy` block and only needs the registry to render the
+    # marker-merged instruction file (the DF-001 legacy-block replacement path).
+    instruction_only: bool = False
 
 
 class IntegrationBase:
@@ -360,14 +371,101 @@ class MarkdownIntegration(IntegrationBase):
     _TOKEN_RE = re.compile(r"\{\{([A-Z0-9_]+)\}\}")
     instruction_mode: str = "shared"
 
+    # v2.3.0 / Phase 7 / T022 -- built-in defaults for the instruction-template
+    # placeholders. These mirror the constant sed substitutions the legacy bash
+    # `render_template` performs (installer.sh ~line 1000) so a render with no
+    # caller-supplied vars still produces a complete instruction file (used by
+    # `print-config`). Caller-supplied `ctx.template_vars` override these, and
+    # the installer threads its detected values (PRIMARY_LANGUAGE, BUILD_CMD,
+    # ...) the same way the bash path fills them. `{{SKILL_INDEX}}` is loaded
+    # from data/SKILL_INDEX.md on demand (see `_render`). Tokens absent from
+    # both this map and `ctx.template_vars` (e.g. `{{AGENT_REGISTRY}}`) are left
+    # literal, exactly as the bash `sed` list leaves them.
+    _DEFAULT_TEMPLATE_VARS: Dict[str, str] = {
+        "PROJECT_DESCRIPTION": "(Add a 2-3 sentence project description here, or run /setup-project)",
+        "PRIMARY_LANGUAGE": "",
+        "LANGUAGE_VERSION": "",
+        "PACKAGE_MANAGER": "",
+        "BUILD_TOOL": "",
+        "TEST_FRAMEWORK": "",
+        "LINT_TOOL": "",
+        "PROJECT_STRUCTURE_BRIEF": "(Run /setup-project to generate project layout)",
+        "BUILD_CMD": "# specify build command",
+        "TEST_CMD": "# specify test command",
+        "LINT_CMD": "# specify lint command",
+        "NON_OBVIOUS_TOOLING": "- (configure per project with /setup-project)",
+        "LANGUAGE_CONVENTIONS": "(See coding-snippets or run /setup-project)",
+        "OS_CONTEXT": "",
+    }
+
+    def _load_skill_index(self, ctx: InstallContext) -> Optional[str]:
+        """Return the contents of data/SKILL_INDEX.md, or None if absent.
+
+        Mirrors the bash `render_template` multi-line `{{SKILL_INDEX}}` replace:
+        the index is substituted only when the file exists; otherwise the token
+        is left literal so the absence is visible rather than silently blanked.
+        """
+        index_path = ctx.repo_root / "data" / "SKILL_INDEX.md"
+        if index_path.exists():
+            return index_path.read_text(encoding="utf-8")
+        return None
+
+    def _effective_template_vars(self, ctx: InstallContext) -> Dict[str, str]:
+        """Merge built-in defaults, the auto-loaded skill index, and the
+        caller-supplied vars (the caller wins). The result is the full token map
+        used for one render.
+        """
+        merged: Dict[str, str] = dict(self._DEFAULT_TEMPLATE_VARS)
+        skill_index = self._load_skill_index(ctx)
+        if skill_index is not None:
+            merged["SKILL_INDEX"] = skill_index
+        merged.update(ctx.template_vars)
+        return merged
+
     def _render(self, template_path: Path, ctx: InstallContext) -> str:
         text = template_path.read_text(encoding="utf-8")
+        merged = self._effective_template_vars(ctx)
 
         def repl(match: re.Match[str]) -> str:
             key = match.group(1)
-            return str(ctx.template_vars.get(key, match.group(0)))
+            if key in merged:
+                return str(merged[key])
+            return match.group(0)
 
-        return self._TOKEN_RE.sub(repl, text)
+        rendered = self._TOKEN_RE.sub(repl, text)
+        return self._append_language_snippets(rendered, ctx)
+
+    def _append_language_snippets(self, rendered: str, ctx: InstallContext) -> str:
+        """Append each selected language's coding-snippet fragment.
+
+        Reproduces the legacy bash `render_template` snippet-append loop: for
+        every language in `ctx.languages`, append
+        `templates/ai-instructions/coding-snippets/<lang>.md` (lowercased, with
+        `c++`->`cpp` and `c#`->`csharp`) separated by a blank line. Because the
+        shared-mode marker block strips surrounding whitespace, each fragment is
+        normalized to a single trailing newline so the output is deterministic
+        across the bash and PowerShell installers (which historically appended
+        slightly different whitespace).
+        """
+        for lang in ctx.languages:
+            lang_key = lang.strip().lower()
+            if not lang_key:
+                continue
+            if lang_key == "c++":
+                lang_key = "cpp"
+            elif lang_key == "c#":
+                lang_key = "csharp"
+            snippet = (
+                ctx.repo_root
+                / "templates"
+                / "ai-instructions"
+                / "coding-snippets"
+                / f"{lang_key}.md"
+            )
+            if snippet.exists():
+                fragment = snippet.read_text(encoding="utf-8").strip()
+                rendered = rendered.rstrip("\n") + "\n\n" + fragment + "\n"
+        return rendered
 
     def _write_instruction(
         self, dst_dir: Path, ctx: InstallContext
@@ -445,7 +543,13 @@ class MarkdownIntegration(IntegrationBase):
 
     def install_workspace(self, ctx: InstallContext) -> WriteResult:
         result = super().install_workspace(ctx)
-        rel = self.config.get("workspace_dir")
+        # v2.3.0 / Phase 7 / DF-001 -- the instruction file may live in a
+        # different directory than the catalog mirror. `instruction_workspace_dir`
+        # defaults to `workspace_dir`, but claude/codex set it to "" so the
+        # instruction file (CLAUDE.md / AGENTS.md) lands at the project root --
+        # the location those tools actually read -- matching the legacy bash
+        # installer, while skills/ still mirror under `.claude/` / `.codex/`.
+        rel = self.config.get("instruction_workspace_dir", self.config.get("workspace_dir"))
         if rel is not None:
             target = (ctx.target_root / rel).resolve()
             self._ensure_dir(target, ctx)
@@ -560,6 +664,11 @@ class SkillsIntegration(IntegrationBase):
 
     def install_global(self, ctx: InstallContext) -> WriteResult:
         result = super().install_global(ctx)
+        # v2.3.0 / Phase 7 / T022 -- skip the catalog mirror when the caller only
+        # wants the instruction file rendered (the installer copies catalog/ via
+        # its own block and uses --instruction-only for the registry call).
+        if ctx.instruction_only:
+            return result
         rel = self.config.get("global_dir")
         if rel is None:
             return result
@@ -571,6 +680,8 @@ class SkillsIntegration(IntegrationBase):
 
     def install_workspace(self, ctx: InstallContext) -> WriteResult:
         result = super().install_workspace(ctx)
+        if ctx.instruction_only:
+            return result
         rel = self.config.get("workspace_dir")
         if rel is None:
             return result

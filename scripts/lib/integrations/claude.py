@@ -30,6 +30,10 @@ class ClaudeIntegration(MarkdownIntegration, SkillsIntegration):
     config = {
         "global_dir": "~/.claude",
         "workspace_dir": ".claude",
+        # Workspace CLAUDE.md lands at the project root (where Claude Code reads
+        # it), not under .claude/; skills/commands/agents/rules still mirror
+        # under .claude/. Matches the legacy bash installer (DF-001).
+        "instruction_workspace_dir": "",
         "instruction_file": "CLAUDE.md",
         "instruction_template": "templates/ai-instructions/base-claude.md",
         "skills_subdir": "skills",

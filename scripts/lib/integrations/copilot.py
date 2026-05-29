@@ -17,15 +17,16 @@ from __future__ import annotations
 
 from .base import InstallContext, MarkdownIntegration
 from .result import FileAction, WriteResult
+from scripts.lib.installer.instruction_merge import merge_marker_section
 
 
 class CopilotIntegration(MarkdownIntegration):
     key = "copilot"
     display_name = "GitHub Copilot (Microsoft)"
-    # Copilot has a bespoke append-after-existing-header flow predating the
-    # marker-merge primitive; the `instruction_mode` attribute is set here for
-    # documentation but does not change behavior (this subclass overrides
-    # `install_workspace` entirely).
+    # v2.3.0 / Phase 7 / MT-1 -- Copilot now uses the canonical
+    # `merge_marker_section` primitive (like Cursor), migrating the v2.1
+    # `## Nexus-Hub Harness` legacy header inline into the marker block so user
+    # content above and below the block is preserved across re-installs.
     instruction_mode = "shared"
     config = {
         "global_dir": None,
@@ -54,35 +55,12 @@ class CopilotIntegration(MarkdownIntegration):
             result.files.append(FileAction(path=str(template), action="not-found"))
             return result
         rendered = self._render(template, ctx)
-        marker = "## Nexus-Hub Harness"
-        # Always emit the marker so a subsequent install can detect prior
-        # ownership and short-circuit to `kept`. The first install on a fresh
-        # workspace writes `<marker>\n\n<rendered>\n`; the same shape is what
-        # later installs see and skip.
-        managed_block = marker + "\n\n" + rendered.rstrip() + "\n"
-        managed_bytes = managed_block.encode("utf-8")
-        if dst.exists() and not ctx.overwrite:
-            existing = dst.read_text(encoding="utf-8")
-            if marker not in existing:
-                merged = existing.rstrip() + "\n\n" + managed_block
-                merged_bytes = merged.encode("utf-8")
-                if existing.encode("utf-8") == merged_bytes:
-                    ctx.manifest.track(self.key, str(dst))
-                    result.files.append(FileAction(path=str(dst), action="unchanged"))
-                else:
-                    if not ctx.dry_run:
-                        dst.write_bytes(merged_bytes)
-                    ctx.manifest.track(self.key, str(dst))
-                    result.files.append(FileAction(path=str(dst), action="updated"))
-            else:
-                ctx.manifest.log(self.key, f"skip-existing-with-marker: {dst}")
-                result.files.append(FileAction(path=str(dst), action="kept"))
-        else:
-            existed = dst.exists()
-            if not ctx.dry_run:
-                dst.write_bytes(managed_bytes)
-            ctx.manifest.track(self.key, str(dst))
-            result.files.append(
-                FileAction(path=str(dst), action="updated" if existed else "created")
-            )
+        action = merge_marker_section(
+            dst,
+            rendered,
+            legacy_header="## Nexus-Hub Harness",
+            dry_run=ctx.dry_run,
+        )
+        ctx.manifest.track_shared(self.key, str(dst))
+        result.files.append(action)
         return result

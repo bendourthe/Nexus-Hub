@@ -391,7 +391,7 @@ The de facto governing document for adoption decisions in this plan is the **MCP
 
 #### 7.1 — Instruction-file byte-parity migration (part 2)
 
-- [ ] T022 [from v2.2.0 known-gaps: DF-001] Thread the full placeholder set through scripts/lib/integrations/runner.py and MarkdownIntegration
+- [x] T022 [from v2.2.0 known-gaps: DF-001] Thread the full placeholder set through scripts/lib/integrations/runner.py and MarkdownIntegration
 
 **Objective**: Bring the Python registry runner to feature parity with the legacy bash `render_template` so instruction files match byte-for-byte.
 
@@ -402,7 +402,7 @@ The de facto governing document for adoption decisions in this plan is the **MCP
 
 #### 7.2 — Instruction-file byte-parity tests
 
-- [ ] T023 [from v2.2.0 known-gaps: MT-2] Assert instruction-file byte parity in tests/integrations/test_parity_with_legacy_installer.py
+- [x] T023 [from v2.2.0 known-gaps: MT-2] Assert instruction-file byte parity in tests/integrations/test_parity_with_legacy_installer.py
 
 **Objective**: Add the byte-equality assertion that gates legacy-block removal.
 
@@ -413,7 +413,7 @@ The de facto governing document for adoption decisions in this plan is the **MCP
 
 #### 7.3 — Copilot/Cursor marker-merge refactor
 
-- [ ] T024 [from v2.2.0 known-gaps: MT-1] Refactor Copilot install_workspace to use merge_marker_section in scripts/lib/integrations/copilot.py
+- [x] T024 [from v2.2.0 known-gaps: MT-1] Refactor Copilot install_workspace to use merge_marker_section in scripts/lib/integrations/copilot.py
 
 **Objective**: Move Copilot's bespoke append-after-heading flow onto the canonical marker-merge primitive.
 
@@ -424,7 +424,7 @@ The de facto governing document for adoption decisions in this plan is the **MCP
 
 #### 7.4 — Testing and Stabilization
 
-- [ ] T025 Run and stabilize Phase 7 installer-parity changes
+- [x] T025 Run and stabilize Phase 7 installer-parity changes
 
 **Objective**: Verify byte parity, Copilot marker-merge, and full contract/parity suites.
 
@@ -435,11 +435,11 @@ The de facto governing document for adoption decisions in this plan is the **MCP
 
 ### Phase 7 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] All tests passing
-- [ ] No known regressions from prior phases
-- [ ] Session history generated for this phase
-- [ ] Ready to advance to Phase 8
+- [x] All sub-tasks completed (T022-T025)
+- [x] All tests passing (tests/integrations + tests/installer + tests/validators 304 passed / 0 failed; catalog/hooks/tests 392 passed + 3 skipped; new body-parity test green for claude/codex/gemini x global+workspace; make-validate equivalent green; shellcheck + bash -n + PowerShell parse clean)
+- [x] No known regressions from prior phases (catalog tree-mirror parity preserved; the registry runner is now the single instruction-file renderer shared by both installers; DF-001/MT-1/MT-2 closed)
+- [x] Session history generated for this phase
+- [x] Ready to advance to Phase 8
 
 ---
 

@@ -726,7 +726,10 @@ install_global() {
     TEST_CMD="# specify test command"
     LINT_CMD="# specify lint command"
     NON_OBVIOUS_TOOLING="- (configure per project with /setup-project)"
-    render_template "$repo_root/templates/ai-instructions/base-claude.md" "$global_claude/CLAUDE.md" "$repo_root" ""
+    # DF-001: the registry runner renders CLAUDE.md (marker-merged, full
+    # placeholder substitution). --instruction-only leaves the catalog mirror to
+    # the safe_folder_copy block below.
+    invoke_registry_platform "$repo_root" "global" "" "claude" "CLAUDE.md (instruction file)" "" "true"
 
     safe_folder_copy "$repo_root/catalog/skills"   "$global_claude/skills"   "[OK] Skills catalog installed at: $global_claude/skills"
     safe_folder_copy "$repo_root/catalog/commands" "$global_claude/commands" "[OK] Commands installed at: $global_claude/commands"
@@ -751,7 +754,7 @@ install_global() {
     safe_folder_copy "$repo_root/catalog/commands" "$global_codex_dir/prompts" "[OK] Custom prompts installed at: $global_codex_dir/prompts"
 
     # AGENTS.md (open standard read by Codex, Jules, Cursor, Aider, OpenCode)
-    render_template "$repo_root/templates/ai-instructions/base-codex.md" "$global_codex_dir/AGENTS.md" "$repo_root" ""
+    invoke_registry_platform "$repo_root" "global" "" "codex" "AGENTS.md (instruction file)" "" "true"
 
     # --- Google -- Gemini / Antigravity 1.0 + 2.0 / Gemini CLI ---------
     write_header "GOOGLE"
@@ -761,7 +764,7 @@ install_global() {
     mkdir -p "$global_gemini_dir"
     mkdir -p "$global_agent_dir"
 
-    render_template "$repo_root/templates/ai-instructions/base-gemini.md" "$global_gemini_dir/GEMINI.md" "$repo_root" ""
+    invoke_registry_platform "$repo_root" "global" "" "gemini" "GEMINI.md (instruction file)" "" "true"
 
     safe_folder_copy "$repo_root/catalog/skills"   "$global_agent_dir/skills"    "[OK] Skills catalog mirrored to: $global_agent_dir/skills"
     safe_folder_copy "$repo_root/catalog/commands" "$global_agent_dir/workflows" "[OK] Workflows mirrored to: $global_agent_dir/workflows"
@@ -965,91 +968,12 @@ detect_project_metadata() {
     [ -z "$NON_OBVIOUS_TOOLING" ] && NON_OBVIOUS_TOOLING="- (add project-specific tooling notes here)"
 }
 
-render_template() {
-    local template="$1"
-    local output="$2"
-    local repo_root="$3"
-    local languages="$4"
-    local confirm="${5:-true}"
-
-    if [ ! -f "$template" ]; then
-        write_item "Skip: Template not found ($(basename "$template"))" "$GRAY"
-        return
-    fi
-
-    # Check for existing file (reuse safe_copy overwrite logic)
-    local do_write=true
-    if [ -f "$output" ]; then
-        if [ "$confirm" = true ] && [ "$OVERWRITE_ALL" = false ]; then
-            write_item "File exists: $output" "$YELLOW"
-            local resp
-            resp=$(read_prompt "Overwrite? [Y]es / [N]o / [A]ll")
-            if [[ "$resp" =~ ^[Aa] ]]; then
-                OVERWRITE_ALL=true
-            elif [[ ! "$resp" =~ ^[Yy] ]]; then
-                write_item "Skipped by user." "$GRAY"
-                do_write=false
-            fi
-        fi
-    fi
-
-    if [ "$do_write" = true ]; then
-        mkdir -p "$(dirname "$output")"
-
-        # Replace placeholders with detected values
-        sed \
-            -e "s|{{PROJECT_NAME}}|$PROJECT_NAME|g" \
-            -e "s|{{PROJECT_DESCRIPTION}}|(Add a 2-3 sentence project description here, or run /setup-project)|g" \
-            -e "s|{{PRIMARY_LANGUAGE}}|$PRIMARY_LANGUAGE|g" \
-            -e "s|{{LANGUAGE_VERSION}}||g" \
-            -e "s|{{PACKAGE_MANAGER}}|$PACKAGE_MANAGER|g" \
-            -e "s|{{BUILD_TOOL}}|$BUILD_TOOL|g" \
-            -e "s|{{TEST_FRAMEWORK}}|$TEST_FRAMEWORK|g" \
-            -e "s|{{LINT_TOOL}}|$LINT_TOOL|g" \
-            -e "s|{{PROJECT_STRUCTURE_BRIEF}}|(Run /setup-project to generate project layout)|g" \
-            -e "s|{{BUILD_CMD}}|$BUILD_CMD|g" \
-            -e "s|{{TEST_CMD}}|$TEST_CMD|g" \
-            -e "s|{{LINT_CMD}}|$LINT_CMD|g" \
-            -e "s|{{NON_OBVIOUS_TOOLING}}|$NON_OBVIOUS_TOOLING|g" \
-            -e "s|{{LANGUAGE_CONVENTIONS}}|(See coding-snippets or run /setup-project)|g" \
-            -e "s|{{OS_CONTEXT}}|$OS_CONTEXT|g" \
-            "$template" > "$output"
-
-        # Replace {{SKILL_INDEX}} with actual skill index content (multi-line, can't use sed)
-        local skill_index_file="$repo_root/data/SKILL_INDEX.md"
-        if [ -f "$skill_index_file" ] && grep -q '{{SKILL_INDEX}}' "$output" 2>/dev/null; then
-            python3 -c "
-import sys
-with open(sys.argv[1], 'r') as f:
-    content = f.read()
-with open(sys.argv[2], 'r') as f:
-    index = f.read()
-content = content.replace('{{SKILL_INDEX}}', index)
-with open(sys.argv[1], 'w') as f:
-    f.write(content)
-" "$output" "$skill_index_file" 2>/dev/null || true
-        fi
-
-        # Append language-specific snippets if available
-        if [ -n "$languages" ]; then
-            IFS=',' read -ra LANGS <<< "$languages"
-            for lang in "${LANGS[@]}"; do
-                local lang_key
-                lang_key=$(echo "$lang" | tr '[:upper:]' '[:lower:]')
-                if [ "$lang_key" == "c++" ]; then lang_key="cpp"; fi
-                if [ "$lang_key" == "c#" ]; then lang_key="csharp"; fi
-
-                local snippet="$repo_root/templates/ai-instructions/coding-snippets/${lang_key}.md"
-                if [ -f "$snippet" ]; then
-                    echo "" >> "$output"
-                    cat "$snippet" >> "$output"
-                fi
-            done
-        fi
-
-        write_item "[OK] Installed to $output" "$GREEN"
-    fi
-}
+# render_template() was removed in v2.3.0 / Phase 7 (DF-001). Instruction-file
+# rendering now flows through scripts/lib/integrations/runner.py via
+# invoke_registry_platform (single renderer shared with installer.ps1), which
+# substitutes the same placeholder set and marker-merges the body. The detected
+# globals above (PROJECT_NAME, BUILD_CMD, OS_CONTEXT, ...) are threaded to the
+# runner by invoke_registry_platform.
 
 get_language_selection() {
     local detected="$1"
@@ -1122,7 +1046,7 @@ install_workspace() {
         local claude_dir="$target_path/.claude"
         mkdir -p "$claude_dir"
 
-        render_template "$repo_root/templates/ai-instructions/base-claude.md" "$target_path/CLAUDE.md" "$repo_root" "$languages"
+        invoke_registry_platform "$repo_root" "workspace" "$target_path" "claude" "CLAUDE.md (instruction file)" "$languages" "true"
 
         safe_folder_copy "$repo_root/catalog/skills"   "$claude_dir/skills"   "[OK] Skills catalog installed at: $claude_dir/skills"
         safe_folder_copy "$repo_root/catalog/commands" "$claude_dir/commands" "[OK] Commands installed at: $claude_dir/commands"
@@ -1149,7 +1073,7 @@ install_workspace() {
         safe_folder_copy "$repo_root/catalog/commands" "$codex_dir/prompts" "[OK] Custom prompts installed at: $codex_dir/prompts"
 
         # AGENTS.md (open standard read by Codex, Jules, Cursor, Aider, OpenCode)
-        render_template "$repo_root/templates/ai-instructions/base-codex.md" "$target_path/AGENTS.md" "$repo_root" "$languages"
+        invoke_registry_platform "$repo_root" "workspace" "$target_path" "codex" "AGENTS.md (instruction file)" "$languages" "true"
 
         # --- Google -- Gemini / Antigravity 1.0 + 2.0 / Gemini CLI -
         write_header "GOOGLE"
@@ -1159,7 +1083,7 @@ install_workspace() {
         mkdir -p "$gemini_dir"
         mkdir -p "$agent_dir"
 
-        render_template "$repo_root/templates/ai-instructions/base-gemini.md" "$gemini_dir/GEMINI.md" "$repo_root" "$languages"
+        invoke_registry_platform "$repo_root" "workspace" "$target_path" "gemini" "GEMINI.md (instruction file)" "$languages" "true"
         safe_folder_copy "$repo_root/catalog/skills"   "$agent_dir/skills"    "[OK] Skills catalog mirrored to: $agent_dir/skills"
         safe_folder_copy "$repo_root/catalog/commands" "$agent_dir/workflows" "[OK] Workflows mirrored to: $agent_dir/workflows"
 
@@ -1248,14 +1172,27 @@ resolve_python_executable() {
 # responsible for printing the provider header (write_header). This
 # function prints a sub-item label for the platform display name and
 # the [OK] / error line.
+#
+# The instruction-template placeholders (PRIMARY_LANGUAGE, BUILD_CMD,
+# OS_CONTEXT, ...) are threaded from the globals that the global block and
+# detect_project_metadata set, so the registry renders the same instruction
+# body the legacy bash render_template produced (DF-001). Passing them to every
+# registry platform is harmless and fixes the latent literal-placeholder bug for
+# the platforms that were already registry-driven.
+#
 # Args: $1=repo_root  $2=scope (global|workspace)  $3=target_path (workspace only)
 #       $4=integration_key  $5=display_name
+#       $6=languages (csv, optional)  $7=instruction_only ("true" to render only
+#       the instruction file and skip the catalog mirror -- used when the bash
+#       block already copied catalog/ via safe_folder_copy)
 invoke_registry_platform() {
     local repo_root="$1"
     local scope="$2"
     local target_path="$3"
     local key="$4"
     local display="$5"
+    local languages="${6:-}"
+    local instruction_only="${7:-}"
 
     local runner="$repo_root/scripts/lib/integrations/runner.py"
     if [ ! -f "$runner" ]; then return 0; fi
@@ -1273,6 +1210,24 @@ invoke_registry_platform() {
     if [ "$OVERWRITE_ALL" = true ]; then
         args+=("--overwrite")
     fi
+    if [ "$instruction_only" = "true" ]; then
+        args+=("--instruction-only")
+    fi
+    if [ -n "$languages" ]; then
+        args+=("--languages" "$languages")
+    fi
+    # Thread the instruction-template placeholders from the detected globals.
+    args+=("--project-name" "${PROJECT_NAME:-}")
+    args+=("--var" "PRIMARY_LANGUAGE=${PRIMARY_LANGUAGE:-}")
+    args+=("--var" "PACKAGE_MANAGER=${PACKAGE_MANAGER:-}")
+    args+=("--var" "BUILD_TOOL=${BUILD_TOOL:-}")
+    args+=("--var" "TEST_FRAMEWORK=${TEST_FRAMEWORK:-}")
+    args+=("--var" "LINT_TOOL=${LINT_TOOL:-}")
+    args+=("--var" "BUILD_CMD=${BUILD_CMD:-}")
+    args+=("--var" "TEST_CMD=${TEST_CMD:-}")
+    args+=("--var" "LINT_CMD=${LINT_CMD:-}")
+    args+=("--var" "NON_OBVIOUS_TOOLING=${NON_OBVIOUS_TOOLING:-}")
+    args+=("--var" "OS_CONTEXT=${OS_CONTEXT:-}")
     if "$py" "${args[@]}"; then
         write_item "[OK] Installed (${scope} scope)" "$GREEN"
     else

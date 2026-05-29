@@ -13,8 +13,10 @@ from scripts.lib.integrations.base import InstallContext
 @pytest.mark.parametrize(
     "key,expected_paths",
     [
-        ("claude", [".claude/CLAUDE.md", ".claude/skills", ".claude/commands"]),
-        ("codex", [".codex/AGENTS.md", ".codex/skills", ".codex/prompts"]),
+        # v2.3.0 / DF-001: claude/codex render the instruction file at the
+        # project root (where the tools read it); skills/ still mirror nested.
+        ("claude", ["CLAUDE.md", ".claude/skills", ".claude/commands"]),
+        ("codex", ["AGENTS.md", ".codex/skills", ".codex/prompts"]),
         ("gemini", [".gemini/GEMINI.md", ".gemini/skills", ".gemini/workflows"]),
         ("opencode", [".opencode/AGENTS.md", ".opencode/skills", ".opencode/commands"]),
         ("antigravity", [".gemini/antigravity/rules.md", ".gemini/antigravity/skills"]),

@@ -98,15 +98,18 @@ def test_teardown_returns_write_result_with_removed_actions(
 
 
 def test_copilot_marker_block_settles_after_two_installs(install_ctx: InstallContext) -> None:
-    """Copilot's custom flow: pass 1 writes the template body, pass 2 appends
-    the marker block to the body (since the marker is missing), pass 3 is a
-    no-op (the marker is present).
+    """Copilot now uses the canonical merge_marker_section primitive (v2.3.0 /
+    MT-1): pass 1 creates the marker-wrapped block; every subsequent install is
+    a byte-identical no-op reported as ``unchanged`` (the shared-mode vocabulary
+    used by cursor/codex/gemini), not the bespoke ``kept`` of the old flow.
     """
     integ = get("copilot")
-    integ.install(install_ctx)
+    first = integ.install(install_ctx)
+    assert "created" in [fa.action for fa in first.files]
     integ.install(install_ctx)
     third = integ.install(install_ctx)
     actions = [fa.action for fa in third.files]
-    assert "kept" in actions, (
-        f"copilot third install should be a no-op (kept) once marker is present, got {actions}"
+    assert "unchanged" in actions, (
+        f"copilot re-install should settle to a no-op (unchanged) once the marker "
+        f"block is present, got {actions}"
     )

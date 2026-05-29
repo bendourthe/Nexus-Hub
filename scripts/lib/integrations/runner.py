@@ -84,6 +84,33 @@ def _manifest_path(target_root: Path) -> Path:
     return target_root / ".nexus-hub" / "install-manifest.json"
 
 
+def _template_vars_from_args(args: argparse.Namespace) -> dict:
+    """Build the template-var map from --project-name plus repeated --var pairs.
+
+    --var accepts ``KEY=VALUE`` (value may contain ``=``; only the first ``=``
+    splits). The installer threads its detected placeholders (PRIMARY_LANGUAGE,
+    BUILD_CMD, OS_CONTEXT, ...) through these so the registry renders the same
+    instruction body the legacy bash `render_template` produced (DF-001).
+    """
+    target_root = Path(args.target).expanduser().resolve() if getattr(args, "target", None) else Path.cwd().resolve()
+    vars_map = {"PROJECT_NAME": args.project_name or target_root.name}
+    for pair in getattr(args, "var", None) or []:
+        key, sep, value = pair.partition("=")
+        if not sep:
+            print(f"Ignoring malformed --var (expected KEY=VALUE): {pair!r}", file=sys.stderr)
+            continue
+        vars_map[key.strip()] = value
+    return vars_map
+
+
+def _languages_from_args(args: argparse.Namespace) -> List[str]:
+    """Split the optional --languages CSV into a clean list."""
+    raw = getattr(args, "languages", None)
+    if not raw:
+        return []
+    return [part.strip() for part in raw.split(",") if part.strip()]
+
+
 def cmd_list(args: argparse.Namespace) -> int:
     descriptions = [INTEGRATION_REGISTRY[k].describe() for k in list_keys()]
     if args.json:
@@ -106,7 +133,9 @@ def cmd_install(args: argparse.Namespace) -> int:
         overwrite=args.overwrite,
         dry_run=args.dry_run,
         manifest=manifest,
-        template_vars={"PROJECT_NAME": args.project_name or target_root.name},
+        template_vars=_template_vars_from_args(args),
+        languages=_languages_from_args(args),
+        instruction_only=args.instruction_only,
     )
     failures = []
     for key in keys:
@@ -181,7 +210,8 @@ def cmd_print_config(args: argparse.Namespace) -> int:
         overwrite=False,
         dry_run=True,
         manifest=InstallManifest(),
-        template_vars={"PROJECT_NAME": args.project_name or target_root.name},
+        template_vars=_template_vars_from_args(args),
+        languages=_languages_from_args(args),
     )
     sys.stdout.write(integ.print_config(ctx))
     return 0
@@ -438,6 +468,21 @@ def build_parser() -> argparse.ArgumentParser:
     p_install.add_argument("--dry-run", action="store_true")
     p_install.add_argument("--project-name", help="Template token PROJECT_NAME.")
     p_install.add_argument(
+        "--var",
+        action="append",
+        metavar="KEY=VALUE",
+        help="Instruction-template placeholder (repeatable). The installer threads detected values (PRIMARY_LANGUAGE, BUILD_CMD, OS_CONTEXT, ...) this way.",
+    )
+    p_install.add_argument(
+        "--languages",
+        help="Comma-separated language list; appends the matching coding-snippet fragment to the instruction file.",
+    )
+    p_install.add_argument(
+        "--instruction-only",
+        action="store_true",
+        help="Render only the instruction file; skip the catalog tree mirror (the installer copies catalog/ via its own block).",
+    )
+    p_install.add_argument(
         "--quiet",
         action="store_true",
         help="Suppress informational output. The installer uses this so it can print its own per-platform headers; errors still go to stderr.",
@@ -452,6 +497,16 @@ def build_parser() -> argparse.ArgumentParser:
     p_print.add_argument("--scope", choices=["global", "workspace"], default="workspace")
     p_print.add_argument("--target", help="Workspace root (defaults to CWD).")
     p_print.add_argument("--project-name", help="Template token PROJECT_NAME.")
+    p_print.add_argument(
+        "--var",
+        action="append",
+        metavar="KEY=VALUE",
+        help="Instruction-template placeholder (repeatable).",
+    )
+    p_print.add_argument(
+        "--languages",
+        help="Comma-separated language list for coding-snippet append.",
+    )
     p_print.set_defaults(func=cmd_print_config)
 
     p_check = sub.add_parser(

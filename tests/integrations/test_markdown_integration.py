@@ -23,9 +23,9 @@ def test_reinstall_preserves_user_content_around_marker(install_ctx: InstallCont
     rewrites the Nexus-Hub block.
     """
     integ = get("claude")
-    workspace_claude_dir = install_ctx.target_root / ".claude"
-    workspace_claude_dir.mkdir(parents=True, exist_ok=True)
-    claude_md = workspace_claude_dir / "CLAUDE.md"
+    # v2.3.0 / DF-001: workspace CLAUDE.md lives at the project root.
+    install_ctx.target_root.mkdir(parents=True, exist_ok=True)
+    claude_md = install_ctx.target_root / "CLAUDE.md"
 
     user_preamble = "# My personal CLAUDE notes\n\nSome user wisdom.\n"
     user_appendix = "\n## My TODOs\n\n- ship the auth flow\n- write more tests\n"
@@ -95,9 +95,9 @@ def test_legacy_header_migrated_inline(install_ctx: InstallContext) -> None:
     verify the install migrates it to a marker-delimited block.
     """
     integ = get("codex")
-    workspace_codex_dir = install_ctx.target_root / ".codex"
-    workspace_codex_dir.mkdir(parents=True, exist_ok=True)
-    agents_md = workspace_codex_dir / "AGENTS.md"
+    # v2.3.0 / DF-001: workspace AGENTS.md lives at the project root.
+    install_ctx.target_root.mkdir(parents=True, exist_ok=True)
+    agents_md = install_ctx.target_root / "AGENTS.md"
     agents_md.write_text(
         "# Project AGENTS\n\nUser notes.\n\n## Nexus-Hub\n\nOld unmanaged body.\n",
         encoding="utf-8",
@@ -121,9 +121,11 @@ def test_shared_mode_writes_with_markers(install_ctx: InstallContext, key: str) 
     integ = get(key)
     integ.install(install_ctx)
     instruction_file = integ.config["instruction_file"]
-    workspace_dir = integ.config["workspace_dir"]
-    # gemini and gemini-cli both write to .gemini/, antigravity to .gemini/antigravity.
-    dst = install_ctx.target_root / workspace_dir / instruction_file
+    # v2.3.0 / DF-001: the instruction file may live at the project root
+    # (claude/codex set instruction_workspace_dir="") or nested under the
+    # workspace dir (gemini/opencode/antigravity/...).
+    iwd = integ.config.get("instruction_workspace_dir", integ.config["workspace_dir"])
+    dst = install_ctx.target_root / iwd / instruction_file
     assert dst.exists(), f"{key}: expected instruction file at {dst}"
     text = dst.read_text(encoding="utf-8")
     assert START in text, f"{key}: instruction file should contain start marker"

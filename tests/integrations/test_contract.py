@@ -157,15 +157,16 @@ def _instruction_file_for(integ: IntegrationBase, target: Path) -> Path | None:
     instr_file = integ.config.get("instruction_file")
     if not instr_file:
         return None
-    # Cursor and Copilot write the instruction file at non-default locations.
+    # Cursor writes AGENTS.md at the project root via a bespoke override.
     if integ.key == "cursor":
         return target / instr_file
-    if integ.key == "copilot":
-        return target / integ.config["workspace_dir"] / instr_file
-    workspace_dir = integ.config.get("workspace_dir")
-    if not workspace_dir:
+    # v2.3.0 / DF-001: the instruction file lives under instruction_workspace_dir
+    # (claude/codex set it to "" -> project root); it defaults to workspace_dir
+    # for everyone else (gemini/opencode/copilot/...).
+    iwd = integ.config.get("instruction_workspace_dir", integ.config.get("workspace_dir"))
+    if iwd is None:
         return None
-    return target / workspace_dir / instr_file
+    return target / iwd / instr_file
 
 
 @pytest.mark.parametrize("key", ALL_KEYS)

@@ -16,6 +16,13 @@ class CodexIntegration(MarkdownIntegration, SkillsIntegration):
     config = {
         "global_dir": "~/.codex",
         "workspace_dir": ".codex",
+        # Workspace AGENTS.md lands at the project root (the open-standard
+        # location Codex / Cursor / OpenCode read), not under .codex/; skills/
+        # and prompts/ still mirror under .codex/. Matches the legacy bash
+        # installer (DF-001). When both Codex and Cursor are installed they
+        # share the root AGENTS.md marker block (near-identical templates), which
+        # is cleaner than the legacy bash path that duplicated both bodies.
+        "instruction_workspace_dir": "",
         "instruction_file": "AGENTS.md",
         "instruction_template": "templates/ai-instructions/base-codex.md",
         "skills_subdir": "skills",

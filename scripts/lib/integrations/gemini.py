@@ -20,8 +20,13 @@ class GeminiIntegration(MarkdownIntegration, SkillsIntegration):
     config = {
         "global_dir": "~/.gemini",
         "workspace_dir": ".gemini",
+        # base-gemini.md is the canonical, fully-templated GEMINI.md the legacy
+        # bash installer renders (and one of the five lock-step base templates in
+        # AGENTS.md). The earlier base-gemini-ide.md was a static @-import stub
+        # that diverged from the bash output; using base-gemini.md closes the
+        # template-divergence half of DF-001.
         "instruction_file": "GEMINI.md",
-        "instruction_template": "templates/ai-instructions/base-gemini-ide.md",
+        "instruction_template": "templates/ai-instructions/base-gemini.md",
         "skills_subdir": "skills",
         "commands_subdir": "workflows",
         "agents_subdir": "agents",

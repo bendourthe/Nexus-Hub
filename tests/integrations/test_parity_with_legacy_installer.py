@@ -161,11 +161,9 @@ def test_cursor_produces_expected_rule_set(fake_home: Path, tmp_path: Path) -> N
 
 @pytest.mark.parametrize("key", LEGACY_FIVE)
 def test_instruction_file_is_produced(key: str, fake_home: Path, tmp_path: Path) -> None:
-    """The registry's install must at least PRODUCE the instruction file.
-
-    Byte-level parity with bash sed-substitution is tracked in
-    docs/v2.2.0/known-gaps.md (DF-001 part 2) and is intentionally not asserted
-    here.
+    """The registry's install must PRODUCE the instruction file at the expected
+    location. (Byte-level body parity is asserted by
+    ``test_instruction_body_parity_with_legacy_render`` below.)
     """
     target = tmp_path / "ws"
     target.mkdir()
@@ -175,10 +173,146 @@ def test_instruction_file_is_produced(key: str, fake_home: Path, tmp_path: Path)
     if key == "cursor":
         instr_path = target / "AGENTS.md"
     else:
-        workspace_dir = integ.config.get("workspace_dir")
         instruction_file = integ.config.get("instruction_file")
-        if not (workspace_dir and instruction_file):
+        workspace_dir = integ.config.get("workspace_dir")
+        if not (workspace_dir is not None and instruction_file):
             pytest.skip(f"{key} has no instruction file in workspace scope")
-        instr_path = target / workspace_dir / instruction_file
+        # v2.3.0 / DF-001: claude/codex render to the project root (empty
+        # instruction_workspace_dir); others render under the workspace dir.
+        iwd = integ.config.get("instruction_workspace_dir", workspace_dir)
+        instr_path = target / iwd / instruction_file
     assert instr_path.is_file(), f"{key}: instruction file not produced at {instr_path}"
     assert instr_path.stat().st_size > 0, f"{key}: instruction file is empty"
+
+
+# ---------------------------------------------------------------------------
+# Instruction-file BODY parity (DF-001 / MT-2 close)
+#
+# The legacy bash `render_template` fills 15 placeholders via `sed`, replaces
+# `{{SKILL_INDEX}}` from data/SKILL_INDEX.md, and appends per-language coding
+# snippets, then writes the raw body. The registry runner now does the same
+# substitution but wraps the body in the shared `<!-- NEXUS_HUB_* -->` marker
+# block (the deliberate v2.2.0 user-edit-preservation feature). Byte parity is
+# therefore asserted at the MANAGED-BODY level: the content the registry places
+# between the markers must equal an independent reference render of the same
+# template + var set.
+#
+# `_reference_render` is a deliberately naive str.replace re-implementation of
+# the bash substitution -- NOT the production regex renderer -- so it has teeth:
+# a regex bug, a forgotten SKILL_INDEX load, or a snippet-append whitespace
+# drift in production would diverge from this oracle and fail the test. This is
+# the precondition that authorizes removing the legacy bash render_template
+# blocks.
+# ---------------------------------------------------------------------------
+
+LEGACY_INSTRUCTION_THREE = ["claude", "codex", "gemini"]
+
+# A full var set exercising every placeholder the bash installer fills, plus a
+# language whose coding snippet exists in the repo.
+PARITY_VARS = {
+    "PROJECT_NAME": "parity-test",
+    "PROJECT_DESCRIPTION": "(Add a 2-3 sentence project description here, or run /setup-project)",
+    "PRIMARY_LANGUAGE": "Python",
+    "LANGUAGE_VERSION": "",
+    "PACKAGE_MANAGER": "uv (or pip with venv)",
+    "BUILD_TOOL": "uv",
+    "TEST_FRAMEWORK": "pytest",
+    "LINT_TOOL": "ruff",
+    "PROJECT_STRUCTURE_BRIEF": "(Run /setup-project to generate project layout)",
+    "BUILD_CMD": "uv run python src/main.py",
+    "TEST_CMD": "uv run pytest tests/",
+    "LINT_CMD": "uv run ruff check . && uv run ruff format .",
+    "NON_OBVIOUS_TOOLING": "- Use `uv` not `pip` for Python package management",
+    "LANGUAGE_CONVENTIONS": "(See coding-snippets or run /setup-project)",
+    "OS_CONTEXT": "I am a Linux user. Ensure shell commands are POSIX-compatible.",
+}
+PARITY_LANGUAGES = ["Python"]
+
+
+def _reference_render(
+    template_text: str, vars_map: dict[str, str], repo_root: Path, languages: list[str]
+) -> str:
+    """Independent oracle mirroring the legacy bash `render_template` body."""
+    out = template_text
+    for key, value in vars_map.items():
+        out = out.replace("{{" + key + "}}", value)
+    index_path = repo_root / "data" / "SKILL_INDEX.md"
+    if index_path.exists():
+        out = out.replace("{{SKILL_INDEX}}", index_path.read_text(encoding="utf-8"))
+    for lang in languages:
+        lang_key = lang.strip().lower()
+        if lang_key == "c++":
+            lang_key = "cpp"
+        elif lang_key == "c#":
+            lang_key = "csharp"
+        if not lang_key:
+            continue
+        snippet = repo_root / "templates" / "ai-instructions" / "coding-snippets" / f"{lang_key}.md"
+        if snippet.exists():
+            out = out.rstrip("\n") + "\n\n" + snippet.read_text(encoding="utf-8").strip() + "\n"
+    return out
+
+
+def _extract_marker_body(file_text: str) -> str:
+    from scripts.lib.installer.instruction_merge import (
+        DEFAULT_END_MARKER,
+        DEFAULT_START_MARKER,
+    )
+
+    start = file_text.index(DEFAULT_START_MARKER) + len(DEFAULT_START_MARKER)
+    end = file_text.rindex(DEFAULT_END_MARKER)
+    return file_text[start:end].strip()
+
+
+@pytest.mark.parametrize("scope", ["global", "workspace"])
+@pytest.mark.parametrize("key", LEGACY_INSTRUCTION_THREE)
+def test_instruction_body_parity_with_legacy_render(
+    key: str, scope: str, fake_home: Path, tmp_path: Path
+) -> None:
+    integ = get(key)
+    target = tmp_path / "ws"
+    target.mkdir()
+    ctx = InstallContext(
+        repo_root=REPO_ROOT,
+        target_root=target,
+        scope=scope,
+        overwrite=False,
+        dry_run=False,
+        manifest=InstallManifest(),
+        template_vars=dict(PARITY_VARS),
+        languages=list(PARITY_LANGUAGES),
+        instruction_only=True,
+    )
+    integ.install(ctx)
+
+    instruction_file = integ.config["instruction_file"]
+    if scope == "global":
+        global_dir = integ.config["global_dir"].lstrip("~/")
+        instr_path = Path.home() / global_dir / instruction_file
+    else:
+        iwd = integ.config.get("instruction_workspace_dir", integ.config["workspace_dir"])
+        instr_path = target / iwd / instruction_file
+    assert instr_path.is_file(), f"{key}/{scope}: instruction file not at {instr_path}"
+
+    body = _extract_marker_body(instr_path.read_text(encoding="utf-8"))
+    template_path = REPO_ROOT / integ.config["instruction_template"]
+    expected = _reference_render(
+        template_path.read_text(encoding="utf-8"), PARITY_VARS, REPO_ROOT, PARITY_LANGUAGES
+    ).strip()
+
+    assert body == expected, (
+        f"{key}/{scope}: registry instruction body diverges from the reference render"
+    )
+    # DF-001 completeness: no known instruction placeholder left literal.
+    for token in (
+        "{{PROJECT_NAME}}",
+        "{{PRIMARY_LANGUAGE}}",
+        "{{PACKAGE_MANAGER}}",
+        "{{BUILD_CMD}}",
+        "{{TEST_CMD}}",
+        "{{LINT_CMD}}",
+        "{{OS_CONTEXT}}",
+        "{{NON_OBVIOUS_TOOLING}}",
+        "{{SKILL_INDEX}}",
+    ):
+        assert token not in body, f"{key}/{scope}: literal {token} left in instruction body"
