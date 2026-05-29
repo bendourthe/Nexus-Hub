@@ -760,7 +760,10 @@ install_global() {
     write_header "GOOGLE"
     write_item "Gemini IDE + Antigravity 1.0" "$GRAY"
     local global_gemini_dir="$user_home/.gemini"
-    local global_agent_dir="$user_home/.agent"
+    # Antigravity 2.0 + CLI global dir (binary `agy`; verified 2026-05-29 against
+    # Google's public Antigravity CLI docs -- the CLI footprint lives under the
+    # shared ~/.gemini/ family, not the previously-inferred ~/.agent/).
+    local global_agent_dir="$user_home/.gemini/antigravity-cli"
     mkdir -p "$global_gemini_dir"
     mkdir -p "$global_agent_dir"
 
@@ -1079,7 +1082,10 @@ install_workspace() {
         write_header "GOOGLE"
         write_item "Gemini IDE + Antigravity 1.0" "$GRAY"
         local gemini_dir="$target_path/.gemini"
-        local agent_dir="$target_path/.agent"
+        # Antigravity 2.0 + CLI per-project dir (binary `agy`; verified 2026-05-29
+        # against Google's public Antigravity CLI docs -- skills/workflows live
+        # under .agents/, not the previously-inferred .agent/).
+        local agent_dir="$target_path/.agents"
         mkdir -p "$gemini_dir"
         mkdir -p "$agent_dir"
 

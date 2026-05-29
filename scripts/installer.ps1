@@ -1129,7 +1129,10 @@ function Install-Global {
         if ($platforms -contains "GEMINI") {
             Write-Item -Message "Gemini IDE + Antigravity 1.0" -Color "Gray"
             $globalGeminiDir = Join-Path $env:USERPROFILE ".gemini"
-            $globalAgentDir  = Join-Path $env:USERPROFILE ".agent"
+            # Antigravity 2.0 + CLI global dir (binary `agy`; verified 2026-05-29
+            # against Google's public Antigravity CLI docs -- the CLI footprint
+            # lives under the shared ~/.gemini/ family, not ~/.agent/).
+            $globalAgentDir  = Join-Path $env:USERPROFILE ".gemini\antigravity-cli"
             if (-not (Test-Path $globalGeminiDir)) { New-Item -ItemType Directory -Force -Path $globalGeminiDir | Out-Null }
             if (-not (Test-Path $globalAgentDir))  { New-Item -ItemType Directory -Force -Path $globalAgentDir  | Out-Null }
 
@@ -1459,7 +1462,10 @@ function Install-Workspace {
             if ($workspacePlatforms -contains "GEMINI") {
                 Write-Item -Message "Gemini IDE + Antigravity 1.0" -Color "Gray"
                 $geminiDir = Join-Path $targetPath ".gemini"
-                $agentDir  = Join-Path $targetPath ".agent"
+                # Antigravity 2.0 + CLI per-project dir (binary `agy`; verified
+                # 2026-05-29 against Google's public Antigravity CLI docs --
+                # skills/workflows live under .agents/, not .agent/).
+                $agentDir  = Join-Path $targetPath ".agents"
                 if (-not (Test-Path $geminiDir)) { New-Item -ItemType Directory -Force -Path $geminiDir | Out-Null }
                 if (-not (Test-Path $agentDir))  { New-Item -ItemType Directory -Force -Path $agentDir  | Out-Null }
 

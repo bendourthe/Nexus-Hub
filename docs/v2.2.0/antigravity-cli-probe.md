@@ -1,8 +1,10 @@
 # Antigravity CLI install-path probe
 
-**Status**: STATIC PROBE (no live VM available at authoring time on 2026-05-21)
-**Source**: 2026-05-21 Google Developers Blog announcement transitioning Gemini CLI to Antigravity CLI, plus the Antigravity 2.0 desktop installer (already in scope as `antigravity2` since v2.1.0)
-**Action**: Sub-task 2.2 (T008) reconciles the existing `Antigravity20Integration` against these findings; sub-task 2.6 (T012) confirms the on-disk command file schema.
+**Status**: STATIC PROBE (2026-05-21) + DOCS-VERIFIED UPDATE (2026-05-29). See Section 11 for the v2.3.0 Phase 9 verification against Google's now-public Antigravity CLI documentation.
+**Source**: 2026-05-21 Google Developers Blog announcement transitioning Gemini CLI to Antigravity CLI, plus the Antigravity 2.0 desktop installer (already in scope as `antigravity2` since v2.1.0). Updated 2026-05-29 with Google's public Antigravity CLI docs + codelabs.
+**Action**: Sub-task 2.2 (T008) reconciles the existing `Antigravity20Integration` against these findings; sub-task 2.6 (T012) confirms the on-disk command file schema. v2.3.0 Phase 9 (T032/T033/T034) re-verifies the `(inferred)` / `(open)` fields below against public docs.
+
+> **2026-05-29 correction summary (v2.3.0 Phase 9, WN-2/WN-3/WN-4)**: The binary name is **`agy`** (installed to `~/.local/bin/agy`), NOT the inferred `antigravity`. The per-project dir is **`.agents/`** (plural) with **`AGENTS.md`** as the project-root instruction file; workflows/skills are **Markdown** under `.agents/workflows/` and `.agents/skills/` (WN-3 confirmed). The global CLI footprint is under **`~/.gemini/antigravity-cli/`**, not the inferred `~/.agent/`. These corrections are applied to `scripts/lib/integrations/antigravity.py`, both installers, the diff-review hooks, and the base templates. Full detail, sources, and the residual live-VM items are in **Section 11** below; do not treat Sections 1/4/6 as canonical where they conflict with Section 11.
 
 This document is the empirical record sub-task 2.1 (T007) of [the codegraph-and-antigravity plan](plans/codegraph-and-antigravity.md) requires before sub-task 2.2 modifies the integration.
 
@@ -94,16 +96,64 @@ This is the (a) branch of the T008 prompt: "if Antigravity CLI uses the same `~/
 
 ## 9. Open items (tracked in `<version_dir>/known-gaps.md`)
 
-The following empirical confirmations remain `(open)` until a live Antigravity CLI install is available:
+> **Updated 2026-05-29 (v2.3.0 Phase 9)**: items 1-3 below were RESOLVED via Google's public Antigravity CLI documentation (see Section 11). The binary name was corrected (`antigravity` -> `agy`), the command file format was confirmed (Markdown), and the front-matter behavior was documented. A live-VM smoke is still pending for the residual items listed in Section 11.4.
 
-1. **Binary name confirmation** - confirm `antigravity` is the canonical PATH name (vs. `agent`, `ag`, or another short alias). Sub-task 2.3 / T009 hardcodes `antigravity` in the diff-review hook on the basis of (inferred) above; rename if Google ships a different binary name.
-2. **Command file format** - confirm Markdown vs. TOML. Sub-task 2.6 / T012 documents the empirical schema.
-3. **Workflow front-matter schema** - confirm the optional YAML frontmatter fields. Sub-task 2.6 / T012 captures a sample.
+The following empirical confirmations were `(open)` until the Antigravity CLI documentation became public:
 
-All three are flagged `WN` (warning, not blocker) in known-gaps.md per the v2.2.0 known-gaps-tracker convention; the Antigravity CLI integration ships unblocked because the path conventions are documented.
+1. **Binary name confirmation** - ~~confirm `antigravity` is the canonical PATH name~~ RESOLVED 2026-05-29: the binary is **`agy`** (Section 11.1). Sub-task 2.3 / T009 originally hardcoded `antigravity`; the diff-review hooks now call `agy`.
+2. **Command file format** - ~~confirm Markdown vs. TOML~~ RESOLVED 2026-05-29: **Markdown** under `.agents/workflows/` (Section 11.2), confirming the inferred value.
+3. **Workflow front-matter schema** - ~~confirm the optional YAML frontmatter fields~~ RESOLVED 2026-05-29: YAML frontmatter is honored and the workflow name derives from the filename (Section 11.3).
+
+These were flagged `WN` (warning, not blocker) in known-gaps.md; the integration shipped unblocked. The v2.3.0 corrections close WN-2/WN-3/WN-4 via documentation; a fresh `WN` records the residual live-VM items (Section 11.4).
 
 ## 10. References
 
 - Google Developers Blog, "An important update: transitioning Gemini CLI to Antigravity CLI" (2026-05-21): https://developers.googleblog.com/an-important-update-transitioning-gemini-cli-to-antigravity-cli/
-- Existing integration: [scripts/lib/integrations/antigravity.py](../../scripts/lib/integrations/antigravity.py) lines 34-49
+- Existing integration: [scripts/lib/integrations/antigravity.py](../../scripts/lib/integrations/antigravity.py)
 - Phase 2 plan reference: [docs/v2.2.0/plans/codegraph-and-antigravity.md](plans/codegraph-and-antigravity.md) sub-tasks 2.1 (T007), 2.2 (T008), 2.6 (T012)
+- v2.3.0 Phase 9 plan reference: [docs/v2.3.0/plans/adoption-ecc-cybersec-skills.md](../v2.3.0/plans/adoption-ecc-cybersec-skills.md) sub-tasks T032 (WN-2), T033 (WN-3), T034 (WN-4)
+
+## 11. v2.3.0 Phase 9 verification against public Antigravity CLI docs (2026-05-29)
+
+**Method**: The v2.2.0 probe inferred several fields by analogy to Gemini CLI because the Antigravity CLI binary was not yet on a verifiable channel. By 2026-05-29 (cutover is 2026-06-18), Google's Antigravity CLI documentation and codelabs are public, so WN-2/WN-3/WN-4 were verified against those primary sources rather than a live install. A live-install (`agy`) smoke was NOT run -- no `agy` binary is installed on the Windows authoring host -- so the confirmations below are tagged `(docs-verified)`, and a residual live-VM item is recorded in 11.4.
+
+### 11.1 Binary name (WN-2) -- CORRECTED
+
+| Field | v2.2.0 inferred | 2026-05-29 verified | Source |
+|---|---|---|---|
+| Binary name | `antigravity` | **`agy`** | `(docs-verified)` -- official docs page titled "Using AGY CLI" (`antigravity.google/docs/cli-using`); corroborated by multiple practitioner guides ("the binary drops into `~/.local/bin/` as `agy`") |
+| PATH install | `/usr/local/bin/antigravity`, `%LOCALAPPDATA%\...\antigravity.exe` | **`~/.local/bin/agy`** | `(docs-verified)` -- practitioner install guides |
+| Invocation | `antigravity -p '<prompt>'` | **`agy -p '<prompt>'`** | `(docs-verified)` |
+
+**Applied**: `catalog/hooks/antigravity-cli-diff-review.sh`/`.ps1` now call `agy` (the binary detection and invocation); `base-antigravity-20.md` / `base-antigravity-cli.md` and the `Antigravity20Integration` docstring updated. The hook filename keeps the product name (`antigravity-cli-diff-review`), consistent with its siblings and its registration in both installers.
+
+### 11.2 Workflow / command file format (WN-3) -- CONFIRMED (inferred value was correct)
+
+| Field | v2.2.0 inferred | 2026-05-29 verified | Source |
+|---|---|---|---|
+| Per-project dir | `.agent/` (singular) | **`.agents/`** (plural) | `(docs-verified)` -- official Google codelab: `.agents/skills/`, `.agents/workflows/` |
+| Workflow format | Markdown `.md` | **Markdown `.md`** | `(docs-verified)` -- codelab `.agents/workflows/startcycle.md` |
+| Global dir | `~/.agent/` | **`~/.gemini/antigravity-cli/`** | `(docs-verified)` -- Google Cloud Community config guide; consistent with the SDK-pinned `~/.gemini/antigravity/brain/` (Section 7) |
+
+**Applied**: `Antigravity20Integration` config -> `workspace_dir=.agents`, `global_dir=~/.gemini/antigravity-cli`; both installers' legacy mirror paths updated in lockstep; `test_antigravity_commands.py` Markdown-not-TOML assertion repointed to `.agents/workflows/`. The Markdown-vs-TOML conclusion in [antigravity-cli-commands-schema.md](antigravity-cli-commands-schema.md) is validated, not changed.
+
+### 11.3 Instruction file + frontmatter / name derivation (WN-4) -- DOCUMENTED
+
+| Field | v2.2.0 inferred | 2026-05-29 verified | Source |
+|---|---|---|---|
+| Instruction file | `AGENT.md` (singular) | **`AGENTS.md`** at project root | `(docs-verified)` -- "AGENTS.md at repo root replaces the old `.gemini/` convention"; codelab `.agents/agents.md` example |
+| Frontmatter | optional YAML | **YAML frontmatter honored** | `(docs-verified)` -- skills/workflows use frontmatter + Markdown body |
+| Name derivation | filename or first H1 | **filename** (`lint.md` -> `/lint`) | `(docs-verified)` |
+
+**Applied**: `instruction_file` -> `AGENTS.md`. The file is written to `.agents/AGENTS.md` (the integration's own dir), NOT the project root, because `agy` reads a project-root `AGENTS.md` that the `codex` integration already manages via the shared `## Nexus-Hub` marker; pointing two integrations at the same root file with one shared marker would clobber each other (a real install-time regression isolated tests would not catch). Whether `agy` should instead read a Nexus-Hub-written root `AGENTS.md` (requiring a per-integration marker scheme) is a residual decision in 11.4.
+
+### 11.4 Residual items still requiring a live-VM `agy` smoke
+
+These are tracked as a fresh non-blocking `WN` in `docs/v2.3.0/known-gaps.md`:
+
+1. **`.agent/` vs `.agents/` dissent**: one official Google codelab ("Getting Started with Antigravity Skills") shows a workspace `.agent/` (singular); the weight of evidence favors `.agents/` (plural) but a live `agy` run is the tiebreaker.
+2. **Exact global subpath**: sources put the CLI global footprint under the `~/.gemini/` family but vary between `~/.gemini/antigravity-cli/` and a top-level `~/.gemini/`; `~/.gemini/antigravity-cli/` was chosen as best-documented.
+3. **`subagents/` / `rules/` subdirs**: the codelabs document `skills/` and `workflows/` under `.agents/`; the `subagents/` and `rules/` subdirs the integration also mirrors are unconfirmed (harmless if `agy` ignores them).
+4. **Root vs `.agents/` instruction file**: confirm whether `agy` requires `AGENTS.md` specifically at the project root (vs. also reading `.agents/AGENTS.md`); if root is required, add a per-integration marker scheme so codex + antigravity2 can co-manage the root file.
+
+All four are low-risk: the integration installs and the diff-review hook detects `agy` correctly; the residuals only affect whether `agy` actually consumes every mirrored path. Re-run a live `agy --help` / `agy init` probe once the binary is installed and reconcile.

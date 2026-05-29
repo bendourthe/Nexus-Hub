@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 # antigravity-cli-diff-review.sh - opt-in git pre-commit hook (Nexus-Hub).
-# Pipes the staged diff through `antigravity -p` (Google Antigravity CLI) for an
-# LLM review of hardcoded secrets, debug artifacts (console.log, print, debugger),
-# unfinished TODOs, and large commented-out code blocks.
+# Pipes the staged diff through `agy -p` (the Google Antigravity CLI binary) for
+# an LLM review of hardcoded secrets, debug artifacts (console.log, print,
+# debugger), unfinished TODOs, and large commented-out code blocks.
+#
+# Binary name verified 2026-05-29 against Google's public Antigravity CLI docs:
+# the CLI ships as `agy` (installed to ~/.local/bin/agy), NOT `antigravity`.
 #
 # Independent of the Claude / Gemini / Codex / OpenCode variants - calls the
 # Antigravity CLI only. Added in v2.2.0 alongside the Gemini-CLI-to-Antigravity-CLI
@@ -41,10 +44,10 @@ if [ -n "$GIT_DIR" ]; then
     fi
 fi
 
-# --- Locate antigravity CLI ----------------------------------------------
-if ! command -v antigravity >/dev/null 2>&1; then
-    echo "[antigravity-diff-review] WARNING: antigravity CLI not found on PATH; skipping review." >&2
-    echo "[antigravity-diff-review] Install Antigravity CLI (https://developers.googleblog.com/an-important-update-transitioning-gemini-cli-to-antigravity-cli/) or set NEXUS_DIFF_REVIEW_DISABLE=1 to silence this warning." >&2
+# --- Locate Antigravity CLI (agy binary) ---------------------------------
+if ! command -v agy >/dev/null 2>&1; then
+    echo "[antigravity-diff-review] WARNING: Antigravity CLI (agy) not found on PATH; skipping review." >&2
+    echo "[antigravity-diff-review] Install Antigravity CLI (https://antigravity.google/docs/cli-getting-started) or set NEXUS_DIFF_REVIEW_DISABLE=1 to silence this warning." >&2
     exit 0
 fi
 
@@ -95,10 +98,10 @@ Diff follows:
 EOF
 )
 
-# --- Run antigravity (fail-open on any error) ----------------------------
-RESPONSE=$(printf '%s' "$DIFF" | antigravity -p "$PROMPT" 2>/dev/null || true)
+# --- Run agy (fail-open on any error) ------------------------------------
+RESPONSE=$(printf '%s' "$DIFF" | agy -p "$PROMPT" 2>/dev/null || true)
 if [ -z "$RESPONSE" ]; then
-    echo "[antigravity-diff-review] WARNING: antigravity CLI returned no output; allowing commit." >&2
+    echo "[antigravity-diff-review] WARNING: Antigravity CLI (agy) returned no output; allowing commit." >&2
     exit 0
 fi
 
@@ -125,7 +128,7 @@ case "$VERDICT" in
         exit 1
         ;;
     *)
-        echo "[antigravity-diff-review] WARNING: unparseable verdict from antigravity (expected PASS|WARN|BLOCK); allowing commit." >&2
+        echo "[antigravity-diff-review] WARNING: unparseable verdict from agy (expected PASS|WARN|BLOCK); allowing commit." >&2
         exit 0
         ;;
 esac

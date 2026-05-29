@@ -5,16 +5,19 @@ live under the IDE's Customizations menu and on disk under
 `~/.gemini/antigravity/`. Rules + Workflows.
 
 Antigravity 2.0 + CLI (announced at Google I/O 2026; CLI transition announced
-2026-05-21): standalone agent-first platform that ships a desktop IDE, a CLI,
-and an SDK against a shared backend. All three surfaces use a `.agent/`
-directory convention -- `~/.agent/` for global, `.agent/` for per-project --
-with `AGENT.md` as the instruction file and `workflows/` for saved prompts.
+2026-05-21): standalone agent-first platform that ships a desktop IDE, a CLI
+(`agy`), and an SDK against a shared backend. The surfaces use a `.agents/`
+directory convention -- `.agents/` per-project for skills/workflows, `AGENTS.md`
+as the project-root instruction file -- with the global CLI footprint under the
+shared `~/.gemini/` family (CLI settings + global skills under
+`~/.gemini/antigravity-cli/`).
 
-The 2026-05-21 Google Developers Blog announcement transitioning Gemini CLI to
-Antigravity CLI confirmed the CLI inherits the Antigravity 2.0 on-disk
-conventions; therefore a single `Antigravity20Integration` class covers both
-the desktop and the CLI. See docs/v2.2.0/antigravity-cli-probe.md for the full
-probe and divergence analysis.
+These on-disk conventions were verified against Google's public Antigravity CLI
+documentation and codelabs on 2026-05-29 (binary name `agy`; `.agents/skills/`
+and `.agents/workflows/` as Markdown; project-root `AGENTS.md`); a single
+`Antigravity20Integration` class still covers both the desktop and the CLI. See
+docs/v2.2.0/antigravity-cli-probe.md for the full probe, the 2026-05-29 verified
+findings, and the residual items still pending a live-VM smoke.
 """
 
 from __future__ import annotations
@@ -39,24 +42,40 @@ class Antigravity10Integration(MarkdownIntegration, SkillsIntegration):
 
 
 class Antigravity20Integration(MarkdownIntegration, SkillsIntegration):
-    """Covers both the Antigravity 2.0 desktop IDE and the Antigravity CLI.
+    """Covers both the Antigravity 2.0 desktop IDE and the Antigravity CLI (`agy`).
 
-    Per the 2026-05-21 Google Developers Blog announcement, the Antigravity CLI
-    (transitioned from Gemini CLI ahead of the 2026-06-18 sunset) shares the
-    Antigravity 2.0 backend and on-disk conventions: same `~/.agent/` global
-    config dir, same `AGENT.md` instruction file, same `workflows/` / `skills/`
-    / `subagents/` / `rules/` subdirectories. The probe at
-    docs/v2.2.0/antigravity-cli-probe.md documents the convergence; no separate
-    `AntigravityCliIntegration` class is required.
+    The Antigravity CLI (transitioned from Gemini CLI ahead of the 2026-06-18
+    sunset) shares the Antigravity 2.0 backend and on-disk conventions. Verified
+    against Google's public Antigravity CLI docs + codelabs on 2026-05-29:
+
+      - Binary: `agy` (installs to `~/.local/bin/agy`), not the inferred
+        `antigravity`.
+      - Per-project skills/workflows live under `.agents/` (`.agents/skills/`,
+        `.agents/workflows/`) as Markdown files; a workflow's name derives from
+        its filename and YAML frontmatter is honored.
+      - The project-root instruction file is `AGENTS.md` -- the open standard the
+        `codex` integration already manages, which `agy` reads. To avoid
+        clobbering that shared root block (both integrations use the single
+        `## Nexus-Hub` marker), this integration keeps its surface-specific copy
+        under `.agents/AGENTS.md` rather than at the root.
+      - Global CLI footprint is under `~/.gemini/antigravity-cli/`.
+
+    Residual items still pending a live-VM `agy` smoke (recorded in
+    docs/v2.2.0/antigravity-cli-probe.md and v2.3.0 known-gaps): one official
+    codelab shows `.agent/` (singular); the exact global subpath varies across
+    sources; the `subagents/` / `rules/` subdirs are unconfirmed; and whether
+    `agy` requires the instruction file specifically at the project root (vs.
+    also reading `.agents/AGENTS.md`) needs a per-marker scheme decision. No
+    separate `AntigravityCliIntegration` class is required.
     """
 
     key = "antigravity2"
     display_name = "Antigravity 2.0 + CLI (Google)"
     instruction_mode = "shared"
     config = {
-        "global_dir": "~/.agent",
-        "workspace_dir": ".agent",
-        "instruction_file": "AGENT.md",
+        "global_dir": "~/.gemini/antigravity-cli",
+        "workspace_dir": ".agents",
+        "instruction_file": "AGENTS.md",
         "instruction_template": "templates/ai-instructions/base-antigravity-20.md",
         "skills_subdir": "skills",
         "commands_subdir": "workflows",

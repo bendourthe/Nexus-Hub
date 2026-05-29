@@ -6,5 +6,5 @@ This file is a thin alias for `base-antigravity-20.md`. The Antigravity CLI and 
 
 This wrapper exists as a placeholder for a hypothetical future split where Google diverges the CLI from the desktop. Until then, the Antigravity 2.0 integration is the canonical Antigravity CLI integration.
 
-- Binary / invocation: `antigravity --help`, `antigravity -p '<prompt>'`
+- Binary / invocation: `agy --help`, `agy -p '<prompt>'` (verified 2026-05-29; the CLI ships as `agy`, not `antigravity`)
 - Migration timeline: non-enterprise Gemini CLI users transition to Antigravity CLI before 2026-06-18

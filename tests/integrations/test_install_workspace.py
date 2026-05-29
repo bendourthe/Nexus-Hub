@@ -20,7 +20,7 @@ from scripts.lib.integrations.base import InstallContext
         ("gemini", [".gemini/GEMINI.md", ".gemini/skills", ".gemini/workflows"]),
         ("opencode", [".opencode/AGENTS.md", ".opencode/skills", ".opencode/commands"]),
         ("antigravity", [".gemini/antigravity/rules.md", ".gemini/antigravity/skills"]),
-        ("antigravity2", [".agent/AGENT.md", ".agent/skills", ".agent/workflows"]),
+        ("antigravity2", [".agents/AGENTS.md", ".agents/skills", ".agents/workflows"]),
         ("nexus-ai", [".nexus-ai/NEXUS_AI.md", ".nexus-ai/skills", ".nexus-ai/commands"]),
     ],
 )

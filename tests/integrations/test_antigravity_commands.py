@@ -2,8 +2,10 @@
 
 Added in v2.2.0 Phase 2 (T012). Locks in the conclusion from
 docs/v2.2.0/antigravity-cli-commands-schema.md: Antigravity 2.0 + CLI mirrors
-catalog/commands/*.md verbatim into ~/.agent/workflows/<name>.md (not the
-TOML form used by Gemini CLI). The existing SkillsIntegration._mirror_catalog
+catalog/commands/*.md verbatim into .agents/workflows/<name>.md (not the
+TOML form used by Gemini CLI). The Markdown-workflow format was verified
+2026-05-29 against Google's public Antigravity CLI docs (the CLI reads
+`.agents/workflows/*.md`). The existing SkillsIntegration._mirror_catalog
 helper handles this correctly; no _write_antigravity_commands variant is
 required.
 """
@@ -21,7 +23,7 @@ def test_antigravity_20_workflows_are_md_not_toml(install_ctx: InstallContext):
     """
     integ = get("antigravity2")
     integ.install(install_ctx)
-    workflows_dir = install_ctx.target_root / ".agent" / "workflows"
+    workflows_dir = install_ctx.target_root / ".agents" / "workflows"
     assert workflows_dir.exists(), "workflows directory must exist after install"
 
     md_files = list(workflows_dir.rglob("*.md"))
@@ -49,7 +51,7 @@ def test_antigravity_20_workflow_content_is_verbatim(install_ctx: InstallContext
     assert len(md_sources) >= 2, "need at least 2 catalog/commands/*.md files for this test"
 
     for src in md_sources:
-        mirrored = install_ctx.target_root / ".agent" / "workflows" / src.name
+        mirrored = install_ctx.target_root / ".agents" / "workflows" / src.name
         assert mirrored.exists(), f"mirrored workflow {mirrored} missing"
         assert mirrored.read_bytes() == src.read_bytes(), (
             f"{src.name}: mirrored workflow body must be byte-identical to the "

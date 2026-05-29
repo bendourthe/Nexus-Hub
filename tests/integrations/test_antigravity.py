@@ -3,7 +3,9 @@
 Added in v2.2.0 Phase 2 (T008). Covers:
   - Both integrations are registered and resolve via get(key)
   - Antigravity 1.0 lays files under .gemini/antigravity/
-  - Antigravity 2.0 + CLI lays files under .agent/ (covers both desktop and CLI
+  - Antigravity 2.0 + CLI lays files under .agents/ (covers both desktop and CLI;
+    paths verified 2026-05-29 against Google's public Antigravity CLI docs --
+    binary `agy`, `.agents/` per-project dir, `AGENTS.md` instruction file --
     per docs/v2.2.0/antigravity-cli-probe.md)
   - WriteResult records carry the expected FileAction entries
   - The display_name reflects dual desktop+CLI coverage on the 2.0 integration
@@ -28,10 +30,10 @@ def test_antigravity_10_install_workspace_lays_files(install_ctx: InstallContext
 def test_antigravity_20_install_workspace_lays_files(install_ctx: InstallContext):
     integ = get("antigravity2")
     result = integ.install(install_ctx)
-    assert (install_ctx.target_root / ".agent" / "AGENT.md").exists()
-    assert (install_ctx.target_root / ".agent" / "skills").exists()
-    assert (install_ctx.target_root / ".agent" / "workflows").exists()
-    assert (install_ctx.target_root / ".agent" / "subagents").exists()
+    assert (install_ctx.target_root / ".agents" / "AGENTS.md").exists()
+    assert (install_ctx.target_root / ".agents" / "skills").exists()
+    assert (install_ctx.target_root / ".agents" / "workflows").exists()
+    assert (install_ctx.target_root / ".agents" / "subagents").exists()
     assert result.files, "WriteResult should record at least one FileAction"
 
 

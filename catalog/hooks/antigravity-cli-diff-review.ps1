@@ -1,7 +1,10 @@
 # antigravity-cli-diff-review.ps1 - opt-in git pre-commit hook (Nexus-Hub).
-# Pipes the staged diff through `antigravity -p` (Google Antigravity CLI) for an
-# LLM review of hardcoded secrets, debug artifacts, unfinished TODOs, and large
-# commented-out code blocks.
+# Pipes the staged diff through `agy -p` (the Google Antigravity CLI binary) for
+# an LLM review of hardcoded secrets, debug artifacts, unfinished TODOs, and
+# large commented-out code blocks.
+#
+# Binary name verified 2026-05-29 against Google's public Antigravity CLI docs:
+# the CLI ships as `agy` (installed to ~/.local/bin/agy), NOT `antigravity`.
 #
 # Independent of the Claude / Gemini / Codex / OpenCode variants - calls the
 # Antigravity CLI only. Added in v2.2.0 alongside the Gemini-CLI-to-Antigravity-CLI
@@ -41,11 +44,11 @@ if ($gitDir) {
     }
 }
 
-# --- Locate antigravity CLI ----------------------------------------------
-$antigravityCmd = Get-Command antigravity -ErrorAction SilentlyContinue
+# --- Locate Antigravity CLI (agy binary) ---------------------------------
+$antigravityCmd = Get-Command agy -ErrorAction SilentlyContinue
 if (-not $antigravityCmd) {
-    Write-Host "[antigravity-diff-review] WARNING: antigravity CLI not found on PATH; skipping review." -ForegroundColor Yellow
-    Write-Host "[antigravity-diff-review] Install Antigravity CLI (https://developers.googleblog.com/an-important-update-transitioning-gemini-cli-to-antigravity-cli/) or set NEXUS_DIFF_REVIEW_DISABLE=1 to silence this warning." -ForegroundColor Yellow
+    Write-Host "[antigravity-diff-review] WARNING: Antigravity CLI (agy) not found on PATH; skipping review." -ForegroundColor Yellow
+    Write-Host "[antigravity-diff-review] Install Antigravity CLI (https://antigravity.google/docs/cli-getting-started) or set NEXUS_DIFF_REVIEW_DISABLE=1 to silence this warning." -ForegroundColor Yellow
     exit 0
 }
 
@@ -95,15 +98,15 @@ Diff follows:
 
 '@
 
-# --- Run antigravity (fail-open on any error) ----------------------------
+# --- Run agy (fail-open on any error) ------------------------------------
 $response = $null
 try {
-    $response = $diff | antigravity -p $prompt 2>$null
+    $response = $diff | agy -p $prompt 2>$null
 } catch {
     $response = $null
 }
 if ([string]::IsNullOrWhiteSpace($response)) {
-    Write-Host "[antigravity-diff-review] WARNING: antigravity CLI returned no output; allowing commit." -ForegroundColor Yellow
+    Write-Host "[antigravity-diff-review] WARNING: Antigravity CLI (agy) returned no output; allowing commit." -ForegroundColor Yellow
     exit 0
 }
 
@@ -130,7 +133,7 @@ switch ($verdict) {
         exit 1
     }
     default {
-        Write-Host "[antigravity-diff-review] WARNING: unparseable verdict from antigravity (expected PASS|WARN|BLOCK); allowing commit." -ForegroundColor Yellow
+        Write-Host "[antigravity-diff-review] WARNING: unparseable verdict from agy (expected PASS|WARN|BLOCK); allowing commit." -ForegroundColor Yellow
         exit 0
     }
 }
