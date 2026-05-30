@@ -191,6 +191,8 @@ class FlakynessDetectionTest {
 
 ### Step 2: Diagnose Timing Dependencies
 
+Timing flakiness almost always traces back to waiting for a fixed duration instead of waiting for the condition you care about. Before reaching for fake timers below, read [references/condition-based-waiting.md](references/condition-based-waiting.md) for the wait-for-the-condition pattern, the quick-patterns table, and the narrow cases where a fixed timeout IS correct. The reusable `waitFor` helper is bundled under `assets/` (`condition-based-waiting-example.ts`).
+
 **Python:**
 ```python
 import time

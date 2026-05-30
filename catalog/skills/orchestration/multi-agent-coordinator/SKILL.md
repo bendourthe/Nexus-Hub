@@ -369,6 +369,36 @@ Every agent starts with a fresh context. You must provide:
 - [ ] Expected output format and contract
 - [ ] Any project conventions (naming, error handling patterns, test frameworks)
 
+### Step 4.5: Subagent-Driven Development - Two-Stage Review and the Status Protocol
+
+When you delegate implementation to a subagent, the implementer should not also judge its own work, and review should happen in a fixed order. This subsection adds the operational layer on top of the role catalog above: concrete prompt templates, a four-status return protocol, and per-role model tiering. The templates are bundled as assets you paste and fill:
+
+- [assets/implementer-prompt.md](assets/implementer-prompt.md) - the implementer dispatch template (one task, explicit write scope, required verification, four-status return).
+- [assets/spec-reviewer-prompt.md](assets/spec-reviewer-prompt.md) - stage-one review: does the change satisfy the acceptance criteria?
+- [assets/code-quality-reviewer-prompt.md](assets/code-quality-reviewer-prompt.md) - stage-two review: is the change well-built?
+
+**Two-stage review ordering (spec compliance FIRST, then code quality - never reversed).** Run the spec-compliance reviewer before the code-quality reviewer, always. Spec review answers "does it do the right thing?"; quality review answers "does it do the thing well?" Reversing the order wastes a quality review on a change that may not meet its requirements at all, and it biases the reviewer toward accepting a polished change that solves the wrong problem. A spec-review `FAIL` short-circuits stage two: send the change back to the implementer with the unmet criteria before spending a quality review on it.
+
+**The 4-status implementer protocol.** Every implementer subagent returns exactly one of these statuses as its headline, so the coordinator can route deterministically:
+
+| Status | Meaning | Coordinator action |
+|--------|---------|--------------------|
+| **DONE** | All acceptance criteria met; all verification passes (proving output included). | Proceed to stage-one (spec) review. |
+| **DONE_WITH_CONCERNS** | Criteria met and verification passes, but the implementer flagged something (fragile assumption, adjacent bug, unavoidable TODO). | Proceed to review, but carry the concern into reconciliation; do not let it vanish. |
+| **NEEDS_CONTEXT** | Cannot complete - missing information or the write scope is too narrow. | Supply the missing context (or widen scope) and re-dispatch with a refined prompt. Do not just retry the same prompt. |
+| **BLOCKED** | An external blocker prevents completion (failing dependency, broken baseline, missing credential, contradictory requirement). | Resolve the blocker or escalate to the user; do not re-dispatch until it is cleared. |
+
+A return that is a paragraph of caveats with no status word violates the protocol - the status word is the contract that makes routing mechanical instead of interpretive.
+
+**Per-role model tiering.** Match model capability to the cognitive demand of the role, because aggregate cost compounds across a fan-out:
+
+- **Mechanical implementation** (rename, move, apply an established pattern with a clear contract): a cheaper / faster model is sufficient.
+- **Design-bearing implementation** (new module, non-obvious algorithm, architectural choice): use a capable model.
+- **Spec-compliance review**: use a capable model - judging whether behavior matches intent is exactly what a cheaper model gets wrong.
+- **Code-quality review**: a mid-tier model is usually fine, but mechanical-only models miss subtle maintainability and concurrency issues; tier up when the change is concurrency- or performance-sensitive.
+
+See also [competitive-generation](../competitive-generation/SKILL.md) for the variant where multiple implementers tackle the same task and you select the best output, and `assets/implementer-prompt.md` for the per-status handling notes.
+
 ### Step 5: Reconcile and Integrate Results
 
 After parallel agents complete, their outputs must be merged and validated.

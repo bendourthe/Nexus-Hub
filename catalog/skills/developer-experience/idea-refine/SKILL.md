@@ -116,7 +116,7 @@ Synthesize the above into one page or less:
 - [ ] <Question>
 ```
 
-Once the human approves this statement, hand off to `spec-driven-development` or `plan-before-code`.
+Once the human approves this statement, hand off to `spec-driven-development` or `plan-before-code`. Note that approving the problem statement here is a separate approval from approving the *design*. The `spec-driven-development` hard gate still requires an explicit design approval before any code is written; do not treat a green light on the problem as a green light to implement.
 
 ## Common Rationalizations
 

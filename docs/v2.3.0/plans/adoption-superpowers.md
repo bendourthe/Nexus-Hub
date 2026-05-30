@@ -188,7 +188,7 @@ No constitution file found at docs/v2.3.0/constitution.md - skipping check. Reco
 
 #### 3.1 — systematic-debugging discipline framing
 
-- [ ] T009 [P] Add discipline framing to catalog/skills/bug-fixing/regression-root-cause-analyzer/SKILL.md
+- [x] T009 [P] Add discipline framing to catalog/skills/bug-fixing/regression-root-cause-analyzer/SKILL.md
 
 **Objective**: Add the "no fixes without root-cause investigation" gate, the 3-failed-fixes-question-architecture rule, and the multi-component evidence-gathering pattern.
 
@@ -200,7 +200,7 @@ No constitution file found at docs/v2.3.0/constitution.md - skipping check. Reco
 
 #### 3.2 — subagent two-stage-review templates
 
-- [ ] T010 [P] Add reviewer prompt templates in catalog/skills/orchestration/multi-agent-coordinator/assets/
+- [x] T010 [P] Add reviewer prompt templates in catalog/skills/orchestration/multi-agent-coordinator/assets/
 
 **Objective**: Add concrete implementer + two-stage-reviewer prompt templates and the 4-status implementer protocol.
 
@@ -212,7 +212,7 @@ No constitution file found at docs/v2.3.0/constitution.md - skipping check. Reco
 
 #### 3.3 — condition-based-waiting reference
 
-- [ ] T011 [P] Add condition-based-waiting reference in catalog/skills/tests-generation/flaky-test-detector/references/condition-based-waiting.md
+- [x] T011 [P] Add condition-based-waiting reference in catalog/skills/tests-generation/flaky-test-detector/references/condition-based-waiting.md
 
 **Objective**: Document the "wait for the condition, not a guessed delay" pattern as a reusable reference.
 
@@ -224,7 +224,7 @@ No constitution file found at docs/v2.3.0/constitution.md - skipping check. Reco
 
 #### 3.4 — brainstorming hard-gate
 
-- [ ] T012 [P] Add a design-approval hard-gate to catalog/skills/developer-experience/spec-driven-development/SKILL.md
+- [x] T012 [P] Add a design-approval hard-gate to catalog/skills/developer-experience/spec-driven-development/SKILL.md
 
 **Objective**: Add an explicit "no implementation before an approved design" gate, folding the superpowers brainstorming pattern into the existing spec skill rather than creating a duplicate.
 
@@ -236,7 +236,7 @@ No constitution file found at docs/v2.3.0/constitution.md - skipping check. Reco
 
 #### 3.5 — Testing and Stabilization
 
-- [ ] T013 Run and stabilize Phase 3 across the four enhanced skills
+- [x] T013 Run and stabilize Phase 3 across the four enhanced skills
 
 **Objective**: Confirm the enhancements validate, stay within size norms, and do not orphan any bundled file.
 
@@ -247,11 +247,11 @@ No constitution file found at docs/v2.3.0/constitution.md - skipping check. Reco
 
 ### Phase 3 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] All tests passing (`make validate`, `make lint`, orphan-bundle clean)
-- [ ] No known regressions from prior phases
-- [ ] Session history generated for this phase
-- [ ] Ready to advance to Phase 4
+- [x] All sub-tasks completed
+- [x] All tests passing (`validate_skills.py` orphan-bundle PASS 0/0; JSON catalogs OK; no-personal-paths / unicode-safety / supply-chain validators exit 0; `make` unavailable on Windows host so validators invoked directly; `make lint` n/a - no shell scripts added this phase)
+- [x] No known regressions from prior phases (enhancements only; no registry/data edits; all four enhanced skills under the 800-line soft cap)
+- [x] Session history generated for this phase
+- [x] Ready to advance to Phase 4
 
 ---
 

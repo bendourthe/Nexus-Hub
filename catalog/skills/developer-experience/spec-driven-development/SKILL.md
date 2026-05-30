@@ -9,6 +9,25 @@ overview_l1: "This skill produces a written technical specification before imple
 
 Write a structured specification before writing any code. The spec is the shared source of truth between you and the human engineer — it defines what we're building, why, and how we'll know it's done. Code without a spec is guessing.
 
+## Hard Gate: No Implementation Before an Approved Design
+
+This is a hard gate, not a guideline. Until a design has been presented in reviewable sections AND the user has explicitly approved it, you MUST NOT:
+
+- invoke any implementation skill (`incremental-implementation`, a language-specific build skill, `plan-before-code`'s execution step),
+- write, edit, or generate production or test code,
+- scaffold files, create directories, or run a generator,
+- run an installer or add a dependency in service of the unbuilt feature.
+
+The gate applies regardless of how simple the change looks. "Simple" is a judgment about implementation effort; the gate is about whether you and the user agree on *what* to build and *why*. Those are independent: a one-file change built against the wrong assumption is still rework. The cost of presenting a short design for a simple change is a minute; the cost of building the wrong simple thing is the build plus the rebuild plus the conversation about why it was wrong.
+
+What satisfies the gate: a design or spec presented in sections the user can react to (objective, the proposed approach, success criteria, boundaries), followed by an explicit approval ("yes, build that", "approved", a clear go-ahead). Silence is not approval. A thumbs-up on the *problem statement* is not approval of the *design*. If the user says "just build it" before any design exists, present the smallest reviewable design first and ask for the go-ahead - that exchange takes one turn and is the entire point of the gate.
+
+### One Question at a Time
+
+When you need to resolve ambiguity before the design is complete, ask one question at a time and wait for the answer before asking the next. A wall of ten questions forces the user to context-switch across ten decisions at once and usually produces partial answers that leave the design ambiguous anyway. A single, specific question ("session cookies or JWT?") gets a clean answer you can build the next question on. This Socratic, one-at-a-time flow is the same discipline `/clarify-spec` automates as a sequential 5-question loop; use it manually whenever you are clarifying a design before the gate. (This complements, and does not replace, the `[NEEDS CLARIFICATION]` marker convention below, which is for ambiguities recorded *in* the written spec.)
+
+Cross-link: `[[idea-refine]]` runs before this skill to sharpen the problem statement; the hard gate here governs the transition from an approved design to code. Approving the problem (idea-refine) and approving the design (this gate) are two separate approvals - do not collapse them.
+
 ## When to Use This Skill
 
 Use when:
@@ -232,6 +251,8 @@ Execute tasks following `incremental-implementation` (one task at a time, test a
 | Rationalization | Reality |
 |---|---|
 | "This is simple — I don't need a spec" | Simple tasks don't need long specs, but they still need acceptance criteria. A two-line spec is fine. |
+| "This is too simple to need a design before I code it" | Simplicity of implementation is independent of agreement on intent. The hard gate is not about effort; it is about whether you and the user agree on what to build. A trivial change built against a wrong assumption is still a rebuild. Present the smallest reviewable design and get the go-ahead — it costs one turn. |
+| "The user said 'just build it', so the gate is satisfied" | "Just build it" before any design exists is a request to skip the design, not approval of one. Present the smallest design in reviewable sections and get an explicit go-ahead first. Approval of the problem is not approval of the design. |
 | "I'll write the spec after coding" | That's documentation, not specification. The spec's value is forcing clarity *before* code. Writing it after confirms what you built, not what you should have built. |
 | "The spec will slow us down" | A 15-minute spec prevents hours of rework. The spec itself is not the slowdown; vague requirements are. |
 | "Requirements will change anyway" | That's why the spec is a living document. An outdated spec is still better than no spec — it shows the intent at the time. |

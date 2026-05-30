@@ -9,6 +9,41 @@ overview_l1: "This skill systematically identifies the root cause of regressions
 
 Systematically identify the root cause of regressions in CI/CD environments by combining diff analysis, git bisect integration, test failure correlation, change impact analysis, and timeline reconstruction. This skill bridges the gap between "something broke" and "this specific change caused it because of this specific reason".
 
+## Iron Law: No Fixes Without Root Cause Investigation First
+
+Do not write, propose, or apply a fix until you have identified the specific change and the specific mechanism that produced the regression. A fix applied before the root cause is known is a guess, and a guess that happens to make the symptom disappear is worse than no fix: it hides the real defect, leaves the blast radius unaddressed, and ships a second bug as often as it removes the first.
+
+The gate is binary. Before any fix:
+
+1. **Name the regression precisely.** What behavior changed, from what to what, observed how (the failing test, the error, the metric).
+2. **Locate the introducing change.** Identify the commit (via the timeline + bisect steps below) and the specific lines within it.
+3. **Explain the mechanism.** State *why* that change causes *this* symptom. "Commit abc123 broke it" is a location, not a root cause; "abc123 changed the default timeout from 30s to 3s, so the slow integration path now exceeds it" is a root cause.
+4. **Only then** design the fix, and verify it against the exact reproduction.
+
+If you cannot complete steps 1-3, you are not ready to fix. Keep investigating. A symptom that disappears for a reason you cannot articulate has not been fixed; it has been disturbed.
+
+### After 3 Failed Fixes, Question the Architecture, Not the Bug
+
+When three or more fix attempts have failed to resolve the regression, stop fixing. The repeated failure is itself evidence: it tells you the mental model of where the bug lives is wrong. Continuing to patch the suspected location wastes effort on a hypothesis the evidence has already rejected.
+
+Failure-pattern signals that you are fixing the wrong thing:
+
+- Each fix moves the symptom rather than removing it (the same failure reappears one layer over, or a different test starts failing).
+- The fix "should work" by your reasoning but the test still fails, repeatedly.
+- You are adding special-cases or guards rather than changing the logic that produces the value.
+
+When you hit this signal, escalate the question from "what line is wrong?" to "is the boundary / contract / data flow itself wrong?" Re-examine the assumptions: which component is *assumed* to own this state, whether the interface contract actually holds, whether the regression is in the component you keep editing or in one upstream of it. The 3-failure threshold is a circuit breaker that forces this re-framing before sunk cost drives a fourth, fifth, and sixth doomed patch.
+
+### Multi-Component Boundary Evidence Gathering
+
+When a regression spans several components and you do not yet know *which* component breaks, do not guess and start editing. Instrument first, then locate, then investigate the one that breaks.
+
+1. **Instrument each component boundary.** Add a cheap, temporary observation (a log line, an assertion, a recorded value) at every boundary the data crosses on the failing path: input to component A, A's output / B's input, B's output, and so on.
+2. **Run once to find WHERE it breaks.** A single run now tells you the first boundary at which the value is wrong. The break is between the last boundary where the value was correct and the first where it was wrong - that narrows a multi-component mystery to one component in one run.
+3. **Investigate only that component.** Now apply the Iron Law within the isolated component: name the regression at that boundary, locate the introducing change, explain the mechanism.
+
+This converts "something in this pipeline is wrong" into "component B corrupts the value between its input and output" without editing any production logic on a hunch. Remove the instrumentation once the root cause is confirmed.
+
 ## When to Use This Skill
 
 Use this skill when you need to:
@@ -144,120 +179,7 @@ class TimelineReconstructor:
         return 0.1 < failure_rate < threshold
 ```
 
-**JavaScript: CI timeline reconstructor**
-
-```javascript
-const { execSync } = require("child_process");
-
-class TimelineReconstructor {
-  constructor(repoPath) {
-    this.repoPath = repoPath;
-  }
-
-  getCommitLog(since, until = "HEAD") {
-    const output = execSync(
-      `git log ${since}..${until} --format="%H|%aI|%s|%an" --no-merges`,
-      { cwd: this.repoPath, encoding: "utf-8" }
-    );
-
-    return output.trim().split("\n").filter(Boolean).map(line => {
-      const [hash, timestamp, subject, author] = line.split("|", 4);
-      return { hash, timestamp, subject, author };
-    });
-  }
-
-  findRegressionWindow(buildResults) {
-    const sorted = [...buildResults].sort(
-      (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
-    );
-
-    let lastPass = null;
-    let firstFail = null;
-
-    for (const result of sorted) {
-      if (result.status === "pass") {
-        lastPass = result;
-        firstFail = null;
-      } else if (result.status === "fail" && firstFail === null) {
-        firstFail = result;
-      }
-    }
-
-    return lastPass && firstFail ? { lastPass, firstFail } : null;
-  }
-
-  isFlakyFailure(buildResults, testName, threshold = 0.3) {
-    const recent = [...buildResults]
-      .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-      .slice(0, 20);
-
-    const failCount = recent.filter(
-      b => b.failedTests.includes(testName)
-    ).length;
-    const total = recent.length;
-
-    if (total === 0) return false;
-    const failureRate = failCount / total;
-    return failureRate > 0.1 && failureRate < threshold;
-  }
-}
-```
-
-**Java: CI timeline reconstructor**
-
-```java
-import java.time.Instant;
-import java.util.*;
-import java.util.stream.Collectors;
-
-public class TimelineReconstructor {
-    public record BuildResult(String commitHash, Instant timestamp,
-                               String status, List<String> failedTests) {}
-
-    public record RegressionWindow(BuildResult lastPass, BuildResult firstFail) {}
-
-    public static Optional<RegressionWindow> findRegressionWindow(
-            List<BuildResult> buildResults) {
-        List<BuildResult> sorted = buildResults.stream()
-            .sorted(Comparator.comparing(BuildResult::timestamp))
-            .toList();
-
-        BuildResult lastPass = null;
-        BuildResult firstFail = null;
-
-        for (BuildResult result : sorted) {
-            if ("pass".equals(result.status())) {
-                lastPass = result;
-                firstFail = null;
-            } else if ("fail".equals(result.status()) && firstFail == null) {
-                firstFail = result;
-            }
-        }
-
-        if (lastPass != null && firstFail != null) {
-            return Optional.of(new RegressionWindow(lastPass, firstFail));
-        }
-        return Optional.empty();
-    }
-
-    public static boolean isFlakyFailure(
-            List<BuildResult> buildResults, String testName, double threshold) {
-        List<BuildResult> recent = buildResults.stream()
-            .sorted(Comparator.comparing(BuildResult::timestamp).reversed())
-            .limit(20)
-            .toList();
-
-        long failCount = recent.stream()
-            .filter(b -> b.failedTests().contains(testName))
-            .count();
-        int total = recent.size();
-        if (total == 0) return false;
-
-        double failureRate = (double) failCount / total;
-        return failureRate > 0.1 && failureRate < threshold;
-    }
-}
-```
+The JavaScript and Java equivalents of this timeline reconstructor are in [references/multi-language-examples.md](references/multi-language-examples.md#step-1-timeline-reconstruction).
 
 ### Step 2: Analyze Diffs Between Good and Bad States
 
@@ -503,62 +425,7 @@ class GitBisector:
                 return {"first_bad_commit": None, "log": self.bisect_log}
 ```
 
-**JavaScript: Git bisect automation**
-
-```javascript
-const { execSync } = require("child_process");
-
-class GitBisector {
-  constructor(repoPath, testCommand) {
-    this.repoPath = repoPath;
-    this.testCommand = testCommand;
-  }
-
-  run(cmd) {
-    try {
-      return execSync(cmd, {
-        cwd: this.repoPath,
-        encoding: "utf-8",
-        stdio: "pipe",
-      });
-    } catch (err) {
-      return err.stdout || err.message;
-    }
-  }
-
-  bisect(goodCommit, badCommit) {
-    this.run(`git bisect start ${badCommit} ${goodCommit}`);
-    const output = this.run(
-      `git bisect run sh -c '${this.testCommand}'`
-    );
-
-    let firstBad = null;
-    for (const line of output.split("\n")) {
-      if (line.includes("is the first bad commit")) {
-        firstBad = line.split(" ")[0];
-        break;
-      }
-    }
-
-    let commitInfo = {};
-    if (firstBad) {
-      const info = this.run(
-        `git show --stat --format="%H%n%aI%n%an%n%s" ${firstBad}`
-      );
-      const parts = info.split("\n");
-      commitInfo = {
-        hash: parts[0],
-        timestamp: parts[1],
-        author: parts[2],
-        subject: parts[3],
-      };
-    }
-
-    this.run("git bisect reset");
-    return { firstBadCommit: firstBad, commitInfo };
-  }
-}
-```
+The JavaScript equivalent of this bisect automation is in [references/multi-language-examples.md](references/multi-language-examples.md#step-3-git-bisect-integration).
 
 ### Step 4: Correlate Test Failures
 
@@ -763,115 +630,7 @@ class ChangeImpactAnalyzer:
         return impact
 ```
 
-**Java: Change impact analyzer**
-
-```java
-import java.util.*;
-import java.util.regex.*;
-import java.io.*;
-
-public class ChangeImpactAnalyzer {
-    private final String repoPath;
-
-    public ChangeImpactAnalyzer(String repoPath) {
-        this.repoPath = repoPath;
-    }
-
-    public record ImpactReport(
-        List<String> changedFiles,
-        Map<String, List<String>> changedSymbols,
-        Map<String, List<CallerInfo>> affectedCallers,
-        String riskLevel
-    ) {}
-
-    public record CallerInfo(String file, int line, String context) {}
-
-    public Map<String, List<String>> getChangedSymbols(String commitHash)
-            throws IOException, InterruptedException {
-        ProcessBuilder pb = new ProcessBuilder(
-            "git", "diff", commitHash + "~1", commitHash, "-U0"
-        );
-        pb.directory(new File(repoPath));
-        Process proc = pb.start();
-        String output = new String(proc.getInputStream().readAllBytes());
-        proc.waitFor();
-
-        Map<String, List<String>> symbols = new LinkedHashMap<>();
-        String currentFile = null;
-        Pattern filePattern = Pattern.compile("^\\+\\+\\+ b/(.+)$", Pattern.MULTILINE);
-        Pattern hunkPattern = Pattern.compile("^@@ .+ @@ (.+)$", Pattern.MULTILINE);
-
-        for (String line : output.split("\\n")) {
-            Matcher fileMatcher = filePattern.matcher(line);
-            if (fileMatcher.matches()) {
-                currentFile = fileMatcher.group(1);
-                symbols.putIfAbsent(currentFile, new ArrayList<>());
-                continue;
-            }
-            Matcher hunkMatcher = hunkPattern.matcher(line);
-            if (hunkMatcher.matches() && currentFile != null) {
-                symbols.get(currentFile).add(hunkMatcher.group(1).trim());
-            }
-        }
-        return symbols;
-    }
-
-    public ImpactReport assessBlastRadius(String commitHash)
-            throws IOException, InterruptedException {
-        Map<String, List<String>> changedSymbols = getChangedSymbols(commitHash);
-        Map<String, List<CallerInfo>> affectedCallers = new LinkedHashMap<>();
-
-        int totalCallers = 0;
-        Pattern namePattern = Pattern.compile(
-            "(?:def|function|void|public|private|protected)\\s+(\\w+)"
-        );
-
-        for (var entry : changedSymbols.entrySet()) {
-            for (String symbol : entry.getValue()) {
-                Matcher m = namePattern.matcher(symbol);
-                if (m.find()) {
-                    String name = m.group(1);
-                    // Use git grep to find callers
-                    ProcessBuilder pb = new ProcessBuilder(
-                        "git", "grep", "-n", name
-                    );
-                    pb.directory(new File(repoPath));
-                    Process proc = pb.start();
-                    String grepOutput = new String(
-                        proc.getInputStream().readAllBytes()
-                    );
-                    proc.waitFor();
-
-                    List<CallerInfo> callers = new ArrayList<>();
-                    for (String line : grepOutput.split("\\n")) {
-                        String[] parts = line.split(":", 3);
-                        if (parts.length == 3) {
-                            callers.add(new CallerInfo(
-                                parts[0],
-                                Integer.parseInt(parts[1]),
-                                parts[2].trim()
-                            ));
-                        }
-                    }
-                    if (!callers.isEmpty()) {
-                        affectedCallers.put(name, callers);
-                        totalCallers += callers.size();
-                    }
-                }
-            }
-        }
-
-        String riskLevel = totalCallers > 20 ? "critical"
-            : totalCallers > 10 ? "high"
-            : totalCallers > 5 ? "medium" : "low";
-
-        return new ImpactReport(
-            new ArrayList<>(changedSymbols.keySet()),
-            changedSymbols, affectedCallers, riskLevel
-        );
-    }
-}
-```
+The Java equivalent of this change impact analyzer is in [references/multi-language-examples.md](references/multi-language-examples.md#step-5-change-impact-analysis).
 
 ### Step 6: Generate the Root Cause Report
 
@@ -928,6 +687,20 @@ def generate_root_cause_report(
 
     return "\n".join(report_lines)
 ```
+
+## Common Rationalizations
+
+Each row is an excuse that precedes skipping the root-cause investigation, with the concrete failure mode it causes.
+
+| Rationalization | Reality |
+|---|---|
+| "I can see the fix, no need to bisect." | The fix you can "see" addresses the symptom you can see. Without the introducing change and its mechanism, you do not know whether your fix removes the cause or just masks one of its effects. Locate the change first; the fix is often different from your first guess. |
+| "It's obviously the most recent commit." | Recency is salience, not evidence. Regressions frequently lurk in an earlier commit and surface later when test coverage, ordering, or data changes. Bisect against a reliable reproduction instead of trusting the last thing that landed. |
+| "The test is probably just flaky." | "Probably flaky" is a hypothesis, not a finding. Run the failure-frequency check: a test that fails consistently on the bad commit and passes consistently on the good one is a regression, not flakiness. Dismissing a real regression as flaky ships the bug. |
+| "Three fixes didn't work, let me try a fourth." | Three failed fixes are evidence your model of where the bug lives is wrong. A fourth patch in the same place repeats the mistake. Stop and question the architecture / boundary, per the Iron Law section. |
+| "It's a one-line change, the cause is self-evident." | One-line changes are exactly where an inverted condition or a changed default hides. Self-evidence suppresses the mechanism question. State why the line causes this symptom before fixing it. |
+| "The fix made the symptom go away, so I'm done." | A disappeared symptom with no articulated mechanism is a disturbed bug, not a fixed one. Confirm the fix against a reproduction that fails without it and passes with it, and check the blast radius for the same cause elsewhere. |
+| "It only happens in CI, so it's an environment issue." | Maybe - but "environment" is a category, not a root cause. A dependency bump, runner update, or ordering change IS a regression with a locatable introducing change. Investigate the environment changelog the same way you investigate the code changelog. |
 
 ## Best Practices
 
