@@ -234,5 +234,8 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | phishing-analysis-and-defense | security-operations | "Analyze a suspected phishing email and drive block, hunt, and report response" | catalog/skills/security-operations/phishing-analysis-and-defense/SKILL.md |
 | identity-threat-detection | security-operations | "Detect account-takeover patterns in IdP and SSO sign-in logs from the defender seat" | catalog/skills/security-operations/identity-threat-detection/SKILL.md |
 | malware-triage-analysis | security-operations | "Safely triage a suspicious file, classify maliciousness, and extract IOCs" | catalog/skills/security-operations/malware-triage-analysis/SKILL.md |
+| verification-before-completion | workflow | "Require fresh verification evidence before making any completion or success claim" | catalog/skills/workflow/verification-before-completion/SKILL.md |
+| receiving-code-review | code-review | "Act on code review feedback with technical rigor and no performative agreement" | catalog/skills/code-review/receiving-code-review/SKILL.md |
+| using-git-worktrees | workflow | "Set up isolated worktree workspaces safely, preferring the native tool over raw git" | catalog/skills/workflow/using-git-worktrees/SKILL.md |
 
-**Total: 227 skills across 23 categories**
+**Total: 230 skills across 23 categories**

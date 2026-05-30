@@ -7901,6 +7901,121 @@
         "semantic": 95,
         "validated": true
       }
+    },
+    {
+      "name": "verification-before-completion",
+      "title": "verification-before-completion",
+      "description": "Use before stating that any task is done, fixed, working, passing, or ready. Trigger phrases: it works, done, fixed, all tests pass, the build is green, ready to commit, ready for review, should work now, this is complete, that is resolved. Fires whenever you are about to make a completion or success claim, even an implicit one. SKIP only when reporting a verification you literally just ran in this turn and whose full output you are quoting, or when describing a plan you have not executed yet.",
+      "long_description": "An always-on discipline gate that fires before any completion or success claim. It forces a strict sequence: name the claim, identify the single command that would prove it, run that command fresh in this turn, read the full output and exit code, confirm the output supports the claim, then state the result while quoting the evidence. Includes a claim-to-evidence table and a rationalization table that rebuts the excuses used to skip verification.",
+      "summary_l0": "\"Require fresh verification evidence before making any completion or success claim\"",
+      "overview_l1": "\"This skill is an always-on discipline gate that fires immediately before any completion or success claim (it works, done, fixed, tests pass, build green, ready to ship). It forces a strict sequence: identify the one command that would prove the claim, run that command fresh in this turn, read its full output and exit code, confirm the output actually supports the claim, and only then state the result, quoting the evidence. It supplies a claim-to-evidence table mapping each common claim (tests pass, linter clean, build succeeds, bug fixed, requirements met) to the exact proving artifact, plus a rationalization table that rebuts the excuses agents use to skip verification (should work now, I only changed one line, I will run it after). Without this gate, agents report success from memory or inference and ship regressions. Use it as the final step of every task and after every code change.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "workflow",
+      "language": "Multi-language",
+      "tags": [
+        "workflow",
+        "discipline",
+        "verification",
+        "quality-gate"
+      ],
+      "priority": "HIGH",
+      "based_on": "adapted process-discipline pattern (see docs/v2.3.0/plans/adoption-superpowers.md Phase 1)",
+      "tools_required": [
+        "Bash"
+      ],
+      "path": "catalog/skills/workflow/verification-before-completion/",
+      "file": "catalog/skills/workflow/verification-before-completion/SKILL.md",
+      "size": {
+        "lines": 98,
+        "characters": 11081,
+        "tokens_estimate": 1477
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "receiving-code-review",
+      "title": "receiving-code-review",
+      "description": "Use when responding to code review feedback, a reviewer's comments, PR suggestions, or critique of code you wrote, and before you implement any requested change. Trigger phrases: the reviewer said, address this comment, they want me to change, PR feedback, review comments, you should refactor this, please fix, can you also handle, the review suggests. Especially when a suggestion is unclear, debatable, or expands scope. SKIP when you are the one authoring or producing a review of someone else's code (use the code-review producing skills instead), or when there is no review feedback to act on.",
+      "long_description": "Governs how to respond to code review feedback so that changes are correct, scoped, and free of reflexive agreement. It forces a per-comment pattern: read the comment fully, restate the requirement, verify the claim against the actual codebase, evaluate the suggestion for THIS codebase, then respond with a technical acknowledgment or reasoned push-back, implementing one item at a time and testing each. It forbids performative agreement and gratitude filler, adds a YAGNI check for do-it-properly suggestions, and prescribes a clarify-then-blocking-then-simple-then-complex ordering.",
+      "summary_l0": "\"Act on code review feedback with technical rigor and no performative agreement\"",
+      "overview_l1": "\"This skill governs how to respond to code review feedback so that changes are correct, scoped, and free of reflexive agreement. It forces a per-comment pattern: read the comment in full, restate the requirement in your own words, verify the claim against the actual codebase before accepting it, evaluate whether the suggestion fits THIS codebase, then respond with either a technical acknowledgment or reasoned push-back, implementing one item at a time and testing each. It forbids performative responses (no You're absolutely right, no gratitude filler) in favor of stating the concrete fix. It adds a YAGNI check for implement-properly suggestions (grep for real usage first) and an ordering rule (clarify unclear items before touching code, then blocking, then simple, then complex). Use it whenever a reviewer, teammate, or automated reviewer leaves feedback on code you produced. Do NOT use it when you are the one writing the review.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "code-review",
+      "language": "Multi-language",
+      "tags": [
+        "code-review",
+        "discipline",
+        "feedback",
+        "anti-sycophancy"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "adapted process-discipline pattern (see docs/v2.3.0/plans/adoption-superpowers.md Phase 1)",
+      "tools_required": [
+        "Read",
+        "Grep"
+      ],
+      "path": "catalog/skills/code-review/receiving-code-review/",
+      "file": "catalog/skills/code-review/receiving-code-review/SKILL.md",
+      "size": {
+        "lines": 102,
+        "characters": 11595,
+        "tokens_estimate": 1546
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "using-git-worktrees",
+      "title": "using-git-worktrees",
+      "description": "Use when starting isolated feature work, beginning a new branch, or before executing an implementation plan that will modify files, so the work happens in a clean separate workspace instead of the main checkout. Trigger phrases: start a worktree, work in isolation, new feature branch, spin up a workspace, isolate this change, before I start implementing, set up an isolated environment. SKIP for quick in-place edits, read-only exploration, or when you are already inside an isolated worktree or a disposable sandbox.",
+      "long_description": "Ensures substantial feature work happens in an isolated worktree rather than the shared main checkout, using a safe ordered procedure: detect existing isolation (git-dir vs git-common-dir, with a submodule guard), prefer the harness's native worktree tool over raw git, gate any in-repo worktree behind git check-ignore so it is never tracked, run project setup, and verify a clean test baseline before reporting the workspace ready. Includes a quick-reference command table, common mistakes, red flags, and a binary verification checklist.",
+      "summary_l0": "\"Set up isolated worktree workspaces safely, preferring the native tool over raw git\"",
+      "overview_l1": "\"This skill ensures substantial feature work happens in an isolated worktree rather than the shared main checkout, using a safe, ordered procedure. Step 0 detects whether you are already isolated (comparing the git-dir against the git-common-dir, with a submodule guard) so you never nest a worktree. Step 1 prefers the harness's native worktree tool (EnterWorktree / a worktree command) and falls back to raw git worktree add only when no native tool exists, choosing the directory by a safe priority order and running git check-ignore first so the new worktree is never created inside tracked or ignored project paths. Step 3 auto-detects and runs project setup (install dependencies, copy env files). Step 4 verifies a clean test baseline before reporting the workspace ready. It includes a quick-reference command table, common mistakes, red flags, and a binary verification checklist. Use it before executing any multi-file plan.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "workflow",
+      "language": "Multi-language",
+      "tags": [
+        "workflow",
+        "git",
+        "worktree",
+        "isolation"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "adapted process-discipline pattern (see docs/v2.3.0/plans/adoption-superpowers.md Phase 1)",
+      "tools_required": [
+        "Bash"
+      ],
+      "path": "catalog/skills/workflow/using-git-worktrees/",
+      "file": "catalog/skills/workflow/using-git-worktrees/SKILL.md",
+      "size": {
+        "lines": 169,
+        "characters": 13113,
+        "tokens_estimate": 1748
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
     }
   ]
 }

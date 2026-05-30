@@ -47,7 +47,7 @@ No constitution file found at docs/v2.3.0/constitution.md - skipping check. Reco
 
 #### 1.1 — verification-before-completion skill
 
-- [ ] T001 [P] Create discipline skill in catalog/skills/workflow/verification-before-completion/SKILL.md
+- [x] T001 [P] Create discipline skill in catalog/skills/workflow/verification-before-completion/SKILL.md
 
 **Objective**: Ship an always-on "evidence before claims" discipline skill that fires before any completion/success claim.
 
@@ -61,7 +61,7 @@ No constitution file found at docs/v2.3.0/constitution.md - skipping check. Reco
 
 #### 1.2 — receiving-code-review skill
 
-- [ ] T002 [P] Create discipline skill in catalog/skills/code-review/receiving-code-review/SKILL.md
+- [x] T002 [P] Create discipline skill in catalog/skills/code-review/receiving-code-review/SKILL.md
 
 **Objective**: Ship a skill for acting on review feedback with technical rigor and no performative agreement.
 
@@ -75,7 +75,7 @@ No constitution file found at docs/v2.3.0/constitution.md - skipping check. Reco
 
 #### 1.3 — using-git-worktrees skill
 
-- [ ] T003 [P] Create workflow skill in catalog/skills/workflow/using-git-worktrees/SKILL.md
+- [x] T003 [P] Create workflow skill in catalog/skills/workflow/using-git-worktrees/SKILL.md
 
 **Objective**: Ship a skill that ensures work happens in an isolated workspace, preferring the harness's native worktree tool over a raw `git worktree` fallback.
 
@@ -89,7 +89,7 @@ No constitution file found at docs/v2.3.0/constitution.md - skipping check. Reco
 
 #### 1.4 — Register the three new skills
 
-- [ ] T004 Register the new skills in data/SKILL_INDEX.md, data/skills.json, data/marketplace.json
+- [x] T004 Register the new skills in data/SKILL_INDEX.md, data/skills.json, data/marketplace.json
 
 **Objective**: Make the three Phase 1 skills discoverable via the catalog registries.
 
@@ -104,7 +104,7 @@ No constitution file found at docs/v2.3.0/constitution.md - skipping check. Reco
 
 #### 1.5 — Testing and Stabilization
 
-- [ ] T005 Run and stabilize Phase 1 in data/ and catalog/skills/
+- [x] T005 Run and stabilize Phase 1 in data/ and catalog/skills/
 
 **Objective**: Verify catalog integrity and that the new discipline skills trigger.
 
@@ -115,11 +115,11 @@ No constitution file found at docs/v2.3.0/constitution.md - skipping check. Reco
 
 ### Phase 1 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] All tests passing (`make validate`, `make lint`, trigger checks)
-- [ ] No known regressions from prior phases
-- [ ] Session history generated for this phase
-- [ ] Ready to advance to Phase 2
+- [x] All sub-tasks completed
+- [x] All tests passing (`make validate` validators green; `make lint` n/a - no shell scripts; static trigger check passed, live eval-loop deferred per known-gaps)
+- [x] No known regressions from prior phases
+- [x] Session history generated for this phase
+- [x] Ready to advance to Phase 2
 
 ---
 
