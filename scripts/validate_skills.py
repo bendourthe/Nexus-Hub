@@ -18,6 +18,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import re
 import sys
@@ -30,6 +31,19 @@ from pathlib import Path
 
 REQUIRED_FRONTMATTER_FIELDS = {"name", "description", "summary_l0", "overview_l1"}
 OPTIONAL_FRONTMATTER_FIELDS = {"version", "author", "license", "category", "tags"}
+
+# Single-line frontmatter discipline (insight I-03 from the Nexus
+# adoption-skill-cleaner track; enforced upstream at PR time rather than at
+# runtime in the consumer). `name` must be single-line kebab-case; `description`
+# must be single-line and stay within DESCRIPTION_MAX_CHARS. When `name` is
+# absent the parent directory name is the default and must itself be kebab-case.
+NAME_PATTERN = re.compile(r"^[a-z0-9-]+$")
+DESCRIPTION_MAX_CHARS = 250
+
+# Transitional allowlist consulted only under `--allow-existing`: files whose
+# pre-existing single-line violations are grandfathered (demoted to warnings)
+# while the catalog drains them. Lives beside this script.
+ALLOWLIST_PATH = Path(__file__).resolve().parent / "validate_skills.allowlist.json"
 SCANNABLE_EXTENSIONS = {
     ".md", ".py", ".sh", ".js", ".ts", ".json", ".yaml", ".yml",
     ".txt", ".toml", ".cfg", ".ini", ".ps1", ".bash",
@@ -80,8 +94,68 @@ def parse_frontmatter(content: str) -> dict[str, str] | None:
 # Validators
 # ---------------------------------------------------------------------------
 
-def validate_skill_dir(skill_dir: Path) -> tuple[list[str], list[str]]:
-    """Validate a single skill directory. Returns (errors, warnings)."""
+def load_allowlist(path: Path = ALLOWLIST_PATH) -> set[str]:
+    """Load the transitional single-line-violation allowlist.
+
+    Returns the set of POSIX-style relative SKILL.md paths whose new-rule
+    violations are grandfathered. A missing or malformed file yields an empty
+    set (the allowlist is purely optional and additive).
+    """
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return set()
+    allow = data.get("allow", []) if isinstance(data, dict) else []
+    return {str(entry) for entry in allow}
+
+
+def validate_frontmatter_format(
+    skill_file: Path, skill_dir: Path, fm: dict[str, str]
+) -> list[str]:
+    """Enforce the single-line name/description discipline (insight I-03).
+
+    Three checks:
+      (a) `name:` is single-line kebab-case (^[a-z0-9-]+$).
+      (b) `description:` is single-line and at most DESCRIPTION_MAX_CHARS.
+      (c) when `name:` is absent, the parent directory name is the effective
+          name and must itself satisfy rule (a).
+
+    Returns a list of error strings (empty when the frontmatter conforms).
+    """
+    errors: list[str] = []
+
+    # (a) + (c): effective name is the frontmatter value, or the directory name
+    # when `name:` is absent. Either way it must be single-line kebab-case.
+    name = fm.get("name") or skill_dir.name
+    if "\n" in name or not NAME_PATTERN.fullmatch(name):
+        source = "frontmatter name" if fm.get("name") else "directory name (default for absent name)"
+        errors.append(
+            f"{skill_file}: {source} '{name}' must be single-line kebab-case "
+            f"(^[a-z0-9-]+$)"
+        )
+
+    # (b): description single-line and within the character budget.
+    description = fm.get("description", "")
+    if "\n" in description:
+        errors.append(f"{skill_file}: description must be a single line (no embedded newline)")
+    if len(description) > DESCRIPTION_MAX_CHARS:
+        errors.append(
+            f"{skill_file}: description is {len(description)} characters "
+            f"(max {DESCRIPTION_MAX_CHARS})"
+        )
+
+    return errors
+
+
+def validate_skill_dir(
+    skill_dir: Path, grandfathered: frozenset[str] | set[str] = frozenset()
+) -> tuple[list[str], list[str]]:
+    """Validate a single skill directory. Returns (errors, warnings).
+
+    `grandfathered` is the set of POSIX SKILL.md paths whose single-line-format
+    violations are demoted from errors to warnings (populated from the allowlist
+    only when `--allow-existing` is passed).
+    """
     errors: list[str] = []
     warnings: list[str] = []
     skill_file = skill_dir / "SKILL.md"
@@ -110,6 +184,14 @@ def validate_skill_dir(skill_dir: Path) -> tuple[list[str], list[str]]:
             f"{skill_file}: frontmatter name '{fm['name']}' does not match "
             f"directory name '{skill_dir.name}'"
         )
+
+    # Hard rule (insight I-03): single-line name/description discipline.
+    # Grandfathered files have their format violations demoted to warnings.
+    format_errors = validate_frontmatter_format(skill_file, skill_dir, fm)
+    if skill_file.as_posix() in grandfathered:
+        warnings.extend(f"grandfathered single-line violation: {e}" for e in format_errors)
+    else:
+        errors.extend(format_errors)
 
     # Soft rule: optional fields
     for field in OPTIONAL_FRONTMATTER_FIELDS:
@@ -331,7 +413,19 @@ def main() -> int:
             "by the skill-stocktake skill."
         ),
     )
+    parser.add_argument(
+        "--allow-existing",
+        action="store_true",
+        help=(
+            "Demote single-line name/description violations (insight I-03) to "
+            "warnings for files listed in scripts/validate_skills.allowlist.json. "
+            "Transitional: grandfathers known offenders while the catalog drains "
+            "them. New files are still hard-errors."
+        ),
+    )
     args = parser.parse_args()
+
+    grandfathered: set[str] = load_allowlist() if args.allow_existing else set()
 
     scan_root = args.path
     if not scan_root.exists():
@@ -359,7 +453,7 @@ def main() -> int:
             if args.quality:
                 total_warnings.extend(validate_skill_quality(skill_dir, content))
         else:
-            errs, warns = validate_skill_dir(skill_dir)
+            errs, warns = validate_skill_dir(skill_dir, grandfathered)
             total_errors.extend(errs)
             total_warnings.extend(warns)
 
