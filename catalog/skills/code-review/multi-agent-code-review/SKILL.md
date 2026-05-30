@@ -1,0 +1,131 @@
+---
+name: multi-agent-code-review
+description: Review a code change with a panel of specialized reviewer personas (correctness, security, performance, reliability, testing, maintainability, api-contract, adversarial, project-standards) dispatched in parallel, then merge their findings through a confidence-anchored dedup / cross-reviewer-promotion / gate pipeline. Make sure to use this skill whenever the user says "review my changes", "review this PR", "review the diff", "do a thorough code review", "multi-agent review", "persona review", "review before I merge", or wants more than a single-pass review of a branch, diff, or pull request. SKIP, do NOT use for, reviewing a plan or requirements doc before code (use plan-review), a whole-codebase audit (use review-codebase / run-deep-review), a security-only audit (use run-security-audit / run-penetration-test), or a one-line quick read of a single file.
+summary_l0: "Review a diff with parallel reviewer personas and a confidence-gated findings pipeline"
+overview_l1: "Runs a multi-agent code review over a diff, branch, or PR. It resolves the review scope, discovers the change's intent, then selects reviewer personas per-diff: four always-on lenses (correctness, maintainability, testing, project-standards) plus conditional lenses (security, performance, api-contract, reliability, adversarial, agent-native) chosen from the diff's content. The selected persona agents are dispatched in bounded parallel, each returning structured JSON findings. Findings are merged with the confidence-anchored-scoring discipline: fingerprint dedup, cross-reviewer agreement promotion, mode-aware demotion of weak advisory findings, and a deliberately-late confidence gate. Externalizing modes add an independent per-finding validation pass, and high-stakes reviewers inherit the session model while advisory reviewers run a cheaper tier. Four modes: interactive, autofix, report-only, headless. Everything is local: no new outbound call. Trigger phrases: review my changes, review this PR, thorough code review, multi-agent review, persona review."
+---
+
+# Multi-Agent Code Review
+
+Review a code change the way a strong review board would: several focused reviewers, each looking through one lens, whose findings are then reconciled into one ranked list rather than a pile of overlapping comments. This is the persona-fanout pipeline. It coordinates the reviewer agents under `catalog/agents/` and applies the [confidence-anchored-scoring](../code-quality/references/confidence-anchored-scoring.md) discipline so the output is deduplicated, corroboration-weighted, and gated to what is worth a human's attention.
+
+Everything is local. The pipeline orchestrates the agent's own model over the local diff and local agent definitions; it adds no outbound call and no new credential.
+
+## When to Use This Skill
+
+Use when:
+
+- The user asks to "review my changes", "review this PR", "review the diff", or wants a "thorough" / "multi-agent" / "persona" review of a branch, diff, or PR.
+- A change is about to merge and a single-pass review is not enough confidence.
+- You want findings ranked by corroboration and evidence, not a flat list.
+
+**When NOT to use:**
+
+- Reviewing a plan, spec, or requirements document *before* code exists - use [[plan-review]] (persona lenses for docs) or [[cross-artifact-analyzer]] / [[analyze-spec]] (single-agent).
+- A whole-codebase health review - use [[review-codebase]] or the [[run-deep-review]] orchestrator.
+- A security-only deep dive - use [[run-security-audit]] (remediation loop) or [[run-penetration-test]] (parallel security hunters).
+- A trivial one-file glance where fanning out N agents is wasteful - read it directly.
+
+## Modes
+
+Pick the mode from the user's request; default to **interactive**.
+
+| Mode | Human present? | Validation pass | Autofix | Output |
+|---|---|---|---|---|
+| **interactive** | Yes | No (human triages) | Proposes, applies on approval | Findings in-chat, ranked |
+| **autofix** | No (then review) | Yes | Applies `safe` class, proposes `assisted` | Diff of applied fixes + report |
+| **report-only** | No | Yes | Never | A written report artifact |
+| **headless** | No (CI) | Yes | Never | Machine-readable JSON + exit code |
+
+Mode changes two behaviors downstream: whether [mode-aware demotion](../code-quality/references/confidence-anchored-scoring.md) applies (only in non-interactive modes), and whether the independent validation pass (Stage 6) runs (only in externalizing modes: autofix / report-only / headless).
+
+## Instructions
+
+Run the seven stages in order. Stages 2-4 are where the fanout happens; Stage 5 is where the scoring discipline reconciles it.
+
+### Stage 1 - Determine scope
+
+Resolve exactly what diff is under review. Detect the sub-mode from the request:
+
+- **standalone**: uncommitted work - `git diff` (unstaged) plus `git diff --cached` (staged). If both are empty, ask whether to review a commit range.
+- **branch**: the current feature branch vs its merge base - `git merge-base HEAD <default-branch>` then `git diff <base>...HEAD`.
+- **PR**: a specified PR - resolve its base and head (via `gh pr diff` when the `gh` CLI is available, else the branch form).
+- **base**: an explicit range the user gave (`git diff <ref-a>...<ref-b>`).
+
+Record the resolved base ref; every persona agent receives it so they all review the same lines. If the diff exceeds ~800 changed lines, batch by module/feature area and run the pipeline per batch (note the batching in the report).
+
+### Stage 2 - Intent discovery
+
+Before selecting reviewers, establish what the change is *trying* to do, so reviewers judge against intent, not guesswork. Gather, cheaply: the branch name, the commit messages (`git log <base>...HEAD --oneline`), any linked plan / issue / PR description, and the high-level shape of the diff (`git diff --stat`). Write a 1-3 sentence intent statement. Pass it to every persona - it is what lets `project-standards` and `correctness` judge "does this do what it claims" rather than "is this generically fine".
+
+### Stage 3 - Per-diff persona selection
+
+Select reviewers from the diff's content, not a fixed list. See [references/persona-selection.md](references/persona-selection.md) for the full trigger table and the agent-name mapping. In short:
+
+- **Always-on (every review)**: `correctness` (reuse the `code-reviewer` agent), `maintainability-reviewer`, `testing-reviewer`, `project-standards-reviewer`.
+- **Conditional (select when the diff matches)**: `security-reviewer` (input handling, auth, crypto, secrets), `performance-reviewer` (loops over user-sized data, queries, hot paths), `api-contract-reviewer` (changes to a consumed interface/schema), `reliability-reviewer` (new external I/O, multi-step state changes), `adversarial-reviewer` (input parsing, trust boundaries), `agent-native-reviewer` (new user-facing capability - see [[tool-design]]).
+
+Record which personas were selected and why; the report shows this so a human can see what was and was not examined.
+
+### Stage 4 - Bounded parallel dispatch
+
+Dispatch the selected persona agents over the same diff + intent statement. Each returns a JSON array of findings per [references/findings-schema.md](references/findings-schema.md).
+
+- Run them concurrently, but respect the harness active-subagent limit. If the harness rejects a dispatch because the limit is reached, treat it as **backpressure**: queue the persona and dispatch it when a slot frees - do not drop it, and do not silently reduce the persona set.
+- Each agent is read-only and returns findings only; no agent edits code in this stage.
+- Collect all raw findings into one pool, tagged by persona. Do not gate or dedup yet.
+
+### Stage 5 - Merge findings (the scoring pipeline)
+
+Apply [confidence-anchored-scoring](../code-quality/references/confidence-anchored-scoring.md) in its fixed order - do not reorder:
+
+1. **Fingerprint + dedup**: `normalize(file) + line_bucket(+/-3) + normalize(title)`. Collapse same-fingerprint findings into one.
+2. **Cross-reviewer promotion**: when two+ personas independently land on one fingerprint, promote the merged confidence one anchor step (capped at 100). Record which personas agreed.
+3. **Mode-aware demotion**: only in non-interactive modes, demote weak advisory (P2/P3 from testing/maintainability) findings one step.
+4. **Late confidence gate**: suppress anything below anchor 75, except a P0 at anchor 50+ which always surfaces. Keep suppressed findings in a verbose/appendix tier - never delete them.
+
+### Stage 6 - Independent validation pass (externalizing modes only)
+
+In autofix / report-only / headless modes, every surviving finding with `requires_verification: true` (or `confidence < 100`) gets one independent check by a fresh reviewer that did not produce it, using [references/validator-template.md](references/validator-template.md). The validator tries to *refute* the finding; a refuted finding is moved to the suppressed tier with the refutation recorded. In interactive mode, skip this - the human is the validator.
+
+### Stage 7 - Model tiering and emit
+
+Assign reviewer model tiers to spend budget where stakes are highest:
+
+- **High-stakes reviewers** (correctness, security, reliability, api-contract, adversarial) inherit the session model.
+- **Advisory reviewers** (maintainability, testing, project-standards) may run a cheaper/mid tier.
+- The Stage 6 validators run at the session model (refutation is high-stakes).
+
+Then emit per the active mode (table above). The headline list is the gate survivors, ranked by severity then confidence; the appendix holds the suppressed tier. In autofix mode, route `autofix_class: safe` findings to the `refactor-cleaner` agent to apply, propose `assisted`, and never auto-apply `manual`.
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "One reviewer agent is enough; fanning out is overkill" | A single generalist pass blends lenses and misses what a focused reviewer catches - the testing lens finds the untested branch the correctness lens skimmed past. The fanout exists because one prompt cannot hold every lens at full attention. |
+| "Skip the dedup, just show every finding" | Without dedup the human sees the same issue three times and the cross-reviewer promotion signal is lost - you can no longer tell a corroborated finding from a lone hunch. Dedup before gating is what makes the ranking mean something. |
+| "Gate the findings as each agent returns them" | Gating early throws away a 50-confidence finding that a second reviewer's agreement would have promoted to 75. The gate runs LAST, after promotion, on purpose. |
+| "Run the validation pass in interactive mode too, to be safe" | In interactive mode the human IS the validator; an extra automated refutation pass burns tokens and slows the loop without adding signal. Validation is for unattended (externalizing) modes. |
+| "Select every persona every time - more lenses, more coverage" | Irrelevant personas produce noise (a performance reviewer on a docs-only diff invents findings to look useful) and waste the subagent budget. Per-diff selection keeps signal high; record what was skipped so coverage is auditable. |
+| "Demote advisory findings in interactive mode to keep it short" | Demotion is a triage tool for when no human is present. With a human in the loop, let them decide - demoting hides P2/P3 findings they might have wanted. |
+| "Auto-apply the manual-class fixes, they look fine" | `manual` means the fix needs design judgement the pipeline does not have. Auto-applying it is how a review tool introduces the bug it was supposed to catch. Only `safe` is auto-applied. |
+
+## Verification
+
+- [ ] The resolved diff base ref is recorded and every dispatched persona reviewed the same lines.
+- [ ] An intent statement was written and passed to the personas.
+- [ ] Persona selection is recorded with the trigger reason for each conditional persona (and which were skipped).
+- [ ] Every dispatched persona returned findings in the [findings-schema](references/findings-schema.md) JSON shape (or an explicit empty array).
+- [ ] The scoring pipeline ran in the fixed order: dedup -> promotion -> demotion -> gate (gate last).
+- [ ] In autofix / report-only / headless modes, an independent validation pass ran for `requires_verification` findings; in interactive mode it was correctly skipped.
+- [ ] Suppressed findings are retained in a verbose/appendix tier, not deleted.
+- [ ] No outbound network call or new credential was introduced.
+
+## Related Skills
+
+- [[code-quality]] - owns the [confidence-anchored-scoring](../code-quality/references/confidence-anchored-scoring.md) reference this pipeline depends on; the single-agent quality lens.
+- [[security-review]] - the security lens as a standalone skill; this pipeline dispatches the `security-reviewer` agent as one conditional persona.
+- [[plan-review]] - the same persona-fanout idea applied to a plan / requirements doc *before* code.
+- [[review-codebase]] - whole-codebase deep review (8-phase); use that for breadth, this for a specific diff.
+- [[run-penetration-test]] - parallel security hunters with the same confidence-gated synthesis; security-only.
+- [[tool-design]] - defines the agent-native review lens the `agent-native-reviewer` persona applies.

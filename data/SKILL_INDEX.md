@@ -50,7 +50,9 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | context-analysis | code-review | "Analyze project structure, architecture, and dependencies as code review Phase 1" | catalog/skills/code-review/context-analysis/SKILL.md |
 | final-report | code-review | "Consolidate review findings into structured reports with executive summary and action plan" | catalog/skills/code-review/final-report/SKILL.md |
 | intent-based-review | code-review | "Review AI-generated code by verifying acceptance criteria instead of line-by-line inspection" | catalog/skills/code-review/intent-based-review/SKILL.md |
+| multi-agent-code-review | code-review | "Review a diff with parallel reviewer personas and a confidence-gated findings pipeline" | catalog/skills/code-review/multi-agent-code-review/SKILL.md |
 | performance-review | code-review | "Detect performance bottlenecks, resource issues, and caching optimization opportunities" | catalog/skills/code-review/performance-review/SKILL.md |
+| plan-review | code-review | "Review a plan or requirements doc with parallel persona lenses before coding" | catalog/skills/code-review/plan-review/SKILL.md |
 | security-review | code-review | "Identify security vulnerabilities across OWASP Top 10 and supply chain domains" | catalog/skills/code-review/security-review/SKILL.md |
 | testing-review | code-review | "Assess test coverage, quality, and strategy effectiveness with gap identification" | catalog/skills/code-review/testing-review/SKILL.md |
 | ai-agent-governance | compliance | "Implement AI agent governance with lifecycle, risk, security, and observability pillars" | catalog/skills/compliance/ai-agent-governance/SKILL.md |

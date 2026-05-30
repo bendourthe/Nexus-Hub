@@ -3,22 +3,22 @@
 This file tracks per-version unfinished work, deferred items, deviations from plan, and bugs discovered during phase implementation. The next phase plan and the version-bump checklist read this file to decide what carries forward.
 
 **Plan**: [docs/v2.4.0/plans/adoption-compound-engineering-plugin.md](plans/adoption-compound-engineering-plugin.md)
-**Status**: in-progress (Phase 1 of 8 closed - Foundation: knowledge base + scoring discipline)
-**Last updated**: 2026-05-30 (Phase 1 close)
+**Status**: in-progress (Phase 2 of 8 closed - Persona review pipeline)
+**Last updated**: 2026-05-30 (Phase 2 close)
 
 ## Summary
 
 | Category | Open | Resolved this version |
 |---|---|---|
 | NI -- Not implemented (skipped subtask) | 1 | 0 |
-| DF -- Deferred (intentionally) | 1 | 0 |
+| DF -- Deferred (intentionally) | 2 | 0 |
 | BG -- Bug or unresolved test failure | 0 | 1 |
 | MT -- Missing tests / coverage gap | 0 | 0 |
 | WN -- Warning or suppressed lint rule | 1 | 1 |
 | QG -- Quality gate bypassed | 0 | 0 |
-| **Total** | **3** | **2** |
+| **Total** | **4** | **2** |
 
-_Phase 1 resolved 2 of the 15 ingested v2.3.0 gaps (WN-v23-1 count drift, BG-v23-1 secret-scan false positives). The remaining 13 ingested gaps are tracked as sub-tasks in the plan (Phases 2-8) and are not duplicated here until discovered/closed during their phase. Phase 1 added 3 new gaps (below)._
+_Phase 1 resolved 2 of the 15 ingested v2.3.0 gaps (WN-v23-1 count drift, BG-v23-1 secret-scan false positives). The remaining 13 ingested gaps are tracked as sub-tasks in the plan (Phases 2-8) and are not duplicated here until discovered/closed during their phase. Phase 1 added 3 new gaps; Phase 2 added 1 (DF-v24-2) and extended WN-v24-1 with the agent-count delta._
 
 ## Open Items
 
@@ -38,13 +38,21 @@ _Phase 1 resolved 2 of the 15 ingested v2.3.0 gaps (WN-v23-1 count drift, BG-v23
 - **Reason**: T007 asks for a live `skill-eval-loop` trigger run (1.0 on a positive prompt, 0.0 on a fenced negative) for `solution-knowledge-base` and `solution-refresh`. The harness (`scripts/optimize_skill_description.py`) invokes a model CLI (`claude`/`codex`/`gemini`/`opencode`) as a subprocess; none is available on PATH in the implementation environment, and a live run is token-intensive. A static trigger-surface check was performed instead: both descriptions carry explicit verbatim trigger phrases plus a `SKIP` clause, and the two skills cross-fence each other (capture vs audit) to prevent over-trigger. This mirrors the v2.3.0 DF-v23-7 precedent (live run deferred, static check substituted).
 - **Suggested next step**: Run the live `skill-eval-loop` for both skills when a model CLI is available - Phase 8 sub-task T037 already targets a Phase-1 knowledge-base skill for a live run; fold these two in there. Author a minimal `evals.json` per skill (one should-trigger, one should-not-trigger prompt) and confirm 1.0 positive / 0.0 negative; tighten the description per `skill-eval-loop/references/improvement-heuristics.md` if under-triggering.
 
+### DF-v24-2 -- Live skill-eval-loop trigger run + full-pipeline benchmark deferred for the two new Phase-2 review skills
+
+- **Source phase**: Phase 2 - Persona review pipeline (sub-task T012)
+- **Plan reference**: `docs/v2.4.0/plans/adoption-compound-engineering-plugin.md` (sub-task 2.5 / T012)
+- **Category**: DF -- Deferred (intentionally; environment constraint)
+- **Reason**: T012 asks for a live `skill-eval-loop` trigger check (1.0 positive / 0.0 fenced-negative) for `multi-agent-code-review` and `plan-review`, and a review-pipeline benchmark. No model CLI (`claude`/`codex`/`gemini`/`opencode`) is on PATH in the implementation environment (same constraint as DF-v24-1). Two substitutes were performed and recorded: (1) a static trigger-surface check confirming both descriptions carry verbatim trigger phrases plus a SKIP clause and cross-fence each other (code-diff vs plan-doc), and (2) a real persona-dispatch benchmark over a seeded fixture - the correctness and security personas each surfaced their planted defect, stayed in lane, emitted the findings-schema JSON contract, and left the clean control untouched (see `docs/v2.4.0/development/phase-2-benchmark/README.md`). The full end-to-end pipeline run (all conditional personas, the independent validation pass, model tiering, cross-reviewer promotion) was not exercised, because the dedicated `*-reviewer` persona agents ship as catalog templates and are not registered as dispatchable subagent types in the authoring harness; the two reused dispatchable agents (`code-reviewer`, `security-reviewer`) validated the contract and lens discipline.
+- **Suggested next step**: When a model CLI is available (fold into Phase 8 T037, which already targets a Phase-2 review skill for a live run), author a minimal `evals.json` per skill and confirm 1.0 positive / 0.0 negative; tighten descriptions per `skill-eval-loop/references/improvement-heuristics.md` if under-triggering. Optionally run the full pipeline with the dedicated persona agents once they are registered as dispatchable subagents in a consuming environment, and confirm cross-reviewer promotion on an overlapping seeded finding.
+
 ### WN-v24-1 -- AGENTS.md catalog-count prose is stale after the registry reconciliation
 
 - **Source phase**: Phase 1 - Foundation (sub-task T005)
 - **Plan reference**: `docs/v2.4.0/plans/adoption-compound-engineering-plugin.md` (sub-task 1.5 / T005)
 - **Category**: WN -- Stale documentation count
 - **Reason**: The T005 reconciliation revealed the registries had drifted far beyond the planned "1-skill" estimate: 6 conformant on-disk skills were unregistered in `data/skills.json` (`advanced-attack-patterns`, `business-logic-abuse`, `dev-progress-tracker`, `hallmark-design`, `html-output-conventions`, `implementation-plan`), 3 skills carried mis-cased category values, and `data/marketplace.json` omitted the `research` category. All three registries are now reconciled to the on-disk truth: **239 skills across 21 categories**. AGENTS.md prose still reads "230 skills across 23 categories" (the "23" was inflated by the 3 mis-cased duplicate category keys; the true directory count is 21). The Repository Overview line and the embedded SKILL INDEX in AGENTS.md / the platform instruction templates were not updated in Phase 1 (out of scope for T005, which is data-file-only).
-- **Suggested next step**: At the v2.4.0 version bump (Phase 9 / `/update-version`), update the AGENTS.md "Current catalog" line and any platform-template count prose to "239 skills across 21 categories" (plus the new Phase-2..6 additions), and regenerate the embedded SKILL INDEX from `data/SKILL_INDEX.md`.
+- **Suggested next step**: At the v2.4.0 version bump (Phase 9 / `/update-version`), update the AGENTS.md "Current catalog" line and any platform-template count prose, and regenerate the embedded SKILL INDEX from `data/SKILL_INDEX.md`. As of Phase 2 close the on-disk truth is **241 skills across 21 categories** (Phase 2 added `multi-agent-code-review` + `plan-review`) and the agent count is now **23** (AGENTS.md prose still reads "10 agents"; Phase 2 added 13 persona/lens reviewer agents under `catalog/agents/`). Roll in the remaining Phase 3-6 additions at bump time.
 
 ## Resolved
 

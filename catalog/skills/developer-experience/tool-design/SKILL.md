@@ -210,6 +210,17 @@ Tools should be tested with actual agent interactions, not just unit tests.
 - Agent calls the tool multiple times with slightly varied parameters (guessing)
 - Agent misinterprets the output
 
+## Agent-Native Design
+
+Designing a tool well is one half of a larger principle: **every capability a product ships should be reachable by an AI agent, not only by a human**. As agents become first-class users of software, a feature only a person can discover and invoke through a GUI is half-built. The test is **action + context parity**.
+
+- **Action parity**: for every new thing a human can do, an agent has a way to do it too - a documented API endpoint, a CLI command, an MCP tool, or a function with a clear signature. A button wired only to an internal handler, with no callable interface, fails action parity.
+- **Context parity**: the agent can *discover* the capability and knows *how* to use it - the action has a description, named and typed inputs, recovery-oriented errors, and it is referenced where an agent looks (the tool list, help text, schema, or instruction file). An endpoint that exists but is undocumented, with opaque parameter names and a bare "failed" error, fails context parity.
+
+When you add a user-facing feature, ask both questions: *Can an agent invoke this?* and *Can an agent find out it exists and learn to use it correctly?* If either answer is no, the feature is not yet agent-native. Apply the same description-engineering, error-recovery, and structured-output rules from Steps 2 and 4 above to the agent-facing surface of the new capability.
+
+This principle is enforced at review time by the **agent-native-reviewer** persona ([catalog/agents/agent-native-reviewer.md](../../../agents/agent-native-reviewer.md)), a conditional lens in the [[multi-agent-code-review]] pipeline that fires when a diff adds a user-facing capability and checks it for action + context parity. Designing for parity here is what lets that review pass.
+
 ## Best Practices
 
 - **Write descriptions first, implement second**: If you cannot write a clear description, the tool's scope is unclear

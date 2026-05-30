@@ -6,14 +6,14 @@
     "description": "Comprehensive catalog of Nexus-Hub skills with L0/L1 tiered summaries"
   },
   "statistics": {
-    "total_skills": 239,
+    "total_skills": 241,
     "categories": {
       "ai-development": 10,
       "architecture": 7,
       "bug-fixing": 5,
       "business-product": 5,
       "code-cleanup": 10,
-      "code-review": 11,
+      "code-review": 13,
       "compliance": 9,
       "developer-experience": 29,
       "documentation": 6,
@@ -1308,6 +1308,77 @@
         "lines": 231,
         "characters": 11892,
         "tokens_estimate": 1680
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "multi-agent-code-review",
+      "title": "multi-agent-code-review",
+      "description": "Review a code change with a panel of specialized reviewer personas (correctness, security, performance, reliability, testing, maintainability, api-contract, adversarial, project-standards) dispatched in parallel, then merge their findings through a confidence-anchored dedup, cross-reviewer-promotion, and late-gate pipeline. Use for reviewing a diff, branch, or PR; supports interactive, autofix, report-only, and headless modes.",
+      "long_description": "Runs a persona-fanout code review over a diff, branch, or PR. It resolves scope, discovers intent, selects reviewer personas per-diff (four always-on plus conditional lenses), dispatches the catalog/agents reviewer set in bounded parallel for structured JSON findings, and reconciles them with the confidence-anchored-scoring discipline (fingerprint dedup, cross-reviewer promotion, mode-aware demotion, deliberately-late gate). Externalizing modes add an independent per-finding refutation pass; high-stakes reviewers inherit the session model. Everything is local with no new outbound call.",
+      "summary_l0": "\"Review a diff with parallel reviewer personas and a confidence-gated findings pipeline\"",
+      "overview_l1": "\"Runs a multi-agent code review over a diff, branch, or PR. It resolves the review scope, discovers the change's intent, then selects reviewer personas per-diff: four always-on lenses (correctness, maintainability, testing, project-standards) plus conditional lenses (security, performance, api-contract, reliability, adversarial, agent-native) chosen from the diff's content. The selected persona agents are dispatched in bounded parallel, each returning structured JSON findings. Findings are merged with the confidence-anchored-scoring discipline: fingerprint dedup, cross-reviewer agreement promotion, mode-aware demotion of weak advisory findings, and a deliberately-late confidence gate. Externalizing modes add an independent per-finding validation pass, and high-stakes reviewers inherit the session model while advisory reviewers run a cheaper tier. Four modes: interactive, autofix, report-only, headless. Everything is local: no new outbound call. Trigger phrases: review my changes, review this PR, thorough code review, multi-agent review, persona review.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "code-review",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "HIGH",
+      "based_on": "",
+      "tools_required": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Bash"
+      ],
+      "path": "catalog/skills/code-review/multi-agent-code-review/",
+      "file": "catalog/skills/code-review/multi-agent-code-review/SKILL.md",
+      "size": {
+        "lines": 132,
+        "characters": 13307,
+        "tokens_estimate": 1901
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "plan-review",
+      "title": "plan-review",
+      "description": "Review a plan, spec, or requirements document with a panel of parallel persona lenses (coherence, feasibility, product, design, security, scope-guardian, adversarial) BEFORE any code is written, returning a severity-tagged findings table and a coverage note. Read-only; complements the single-agent cross-artifact-analyzer and analyze-spec by adding independent parallel viewpoints. Use for reviewing a plan, spec, or PRD before implementation starts.",
+      "long_description": "Reviews a single plan, spec, or requirements document through parallel persona lenses before implementation begins, so design and scope problems are caught while they are cheap to fix. It dispatches lens agents (coherence, feasibility, product, design, security, scope-guardian, adversarial) over the document, each returning structured findings, then aggregates them into one severity-tagged table plus a coverage note. It is read-only and never edits the plan, and reuses the same confidence anchors as the code-review pipeline.",
+      "summary_l0": "\"Review a plan or requirements doc with parallel persona lenses before coding\"",
+      "overview_l1": "\"Reviews a single plan, spec, or requirements document through parallel persona lenses before implementation begins, so design and scope problems are caught while they are cheap to fix. It dispatches lens agents - coherence, feasibility, product, design, security, scope-guardian, and adversarial - over the document, each returning structured findings, then aggregates them into one severity-tagged table plus a coverage note stating which lenses ran and what each examined. It is read-only: it never edits the plan. The lenses reuse the same confidence anchors as the code-review pipeline, and security / adversarial reuse the existing reviewer agents. Use it after a plan is drafted and before coding starts. It complements the single-agent cross-artifact-analyzer and analyze-spec by adding independent, parallel viewpoints rather than one consistency pass. Trigger phrases: review my plan, review this spec, review the requirements, red-team this plan, critique this proposal.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "code-review",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "HIGH",
+      "based_on": "",
+      "tools_required": [
+        "Read",
+        "Glob",
+        "Grep"
+      ],
+      "path": "catalog/skills/code-review/plan-review/",
+      "file": "catalog/skills/code-review/plan-review/SKILL.md",
+      "size": {
+        "lines": 105,
+        "characters": 10063,
+        "tokens_estimate": 1437
       },
       "downloads": 0,
       "status": "production",
