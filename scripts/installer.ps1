@@ -212,10 +212,10 @@ function Get-ProviderColor {
         "ANTHROPIC"       { "DarkYellow" }
         "OPENAI"          { "DarkMagenta" }
         "GOOGLE"          { "Blue" }
-        "MICROSOFT"       { "Gray" }
-        "ANYSPHERE"       { "DarkCyan" }
-        "OPENCODE"        { "DarkGreen" }
-        "NEXUS"           { "Magenta" }
+        "MICROSOFT"       { "DarkCyan" }
+        "ANYSPHERE"       { "Magenta" }
+        "OPENCODE"        { "Cyan" }
+        "NEXUS"           { "DarkBlue" }
         Default           { "White" }
     }
     return $color

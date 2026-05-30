@@ -22,6 +22,9 @@ MAGENTA='\033[0;35m'
 CYAN='\033[0;36m'
 GRAY='\033[0;90m'
 DARK_YELLOW='\033[0;33m' # Approximate
+BRIGHT_CYAN='\033[0;96m'    # OpenCode - distinct from the teal CYAN used by Microsoft
+BRIGHT_MAGENTA='\033[0;95m' # Anysphere/Cursor - distinct from the dark MAGENTA used by OpenAI
+DARK_BLUE='\033[38;5;18m'   # Nexus - navy, distinct from the BLUE used by Google
 # DARK_CYAN removed in v2.1.0 - only used by the legacy 120-char banner rules.
 
 OVERWRITE_ALL=false
@@ -38,10 +41,10 @@ get_provider_color() {
         "ANTHROPIC")        echo -ne "${DARK_YELLOW}" ;;
         "OPENAI")           echo -ne "${MAGENTA}" ;;
         "GOOGLE")           echo -ne "${BLUE}" ;;
-        "MICROSOFT")        echo -ne "${GRAY}" ;;
-        "ANYSPHERE")        echo -ne "${CYAN}" ;;
-        "OPENCODE")         echo -ne "${GREEN}" ;;
-        "NEXUS")            echo -ne "${MAGENTA}" ;;
+        "MICROSOFT")        echo -ne "${CYAN}" ;;
+        "ANYSPHERE")        echo -ne "${BRIGHT_MAGENTA}" ;;
+        "OPENCODE")         echo -ne "${BRIGHT_CYAN}" ;;
+        "NEXUS")            echo -ne "${DARK_BLUE}" ;;
         *)                  echo -ne "${RESET}" ;;
     esac
 }
