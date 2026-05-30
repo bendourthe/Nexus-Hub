@@ -33,6 +33,17 @@ Usage:
 candidate-generation prompt template, then exits 0 without invoking any CLI.
 The pytest at catalog/hooks/tests/test_eval_loop.py::TestOptimizerDryRun
 asserts the dry-run output schema.
+
+Trigger-testing techniques (v2.3.0 / Phase 4):
+    `--model <name>` runs the trigger-rate estimation against a faster / cheaper
+    model (e.g. `--model haiku`) to surface descriptions that only trigger on
+    stronger models (a per-eval `model` field in evals.json overrides it).
+    `detect_premature_action()` flags a with_skill run that invoked another tool
+    before loading the Skill, and `evaluate_multi_turn()` replays an ordered
+    `turns` list and asserts the skill triggers at the designated turn. These
+    reuse the same CLI dispatcher (no new outbound calls, no new dependency) and
+    are documented at catalog/skills/workflow/skill-eval-loop/references/
+    trigger-testing.md.
 """
 
 from __future__ import annotations
@@ -103,13 +114,18 @@ def split_train_test(
 # ── CLI dispatch (parity-tested) ──────────────────────────────────────────────
 
 
-def invoke_cli(cli: str, prompt: str, skill_path: Path | None) -> dict[str, Any]:
-    """Run `cli` with the given prompt and (optionally) skill loaded.
+def build_cli_command(
+    cli: str, prompt: str, skill_path: Path | None, model: str | None = None
+) -> list[str]:
+    """Construct the argv for `cli`, optionally loading a skill and pinning a model.
 
-    Each branch invokes ONLY its matching CLI binary. The parity test in
-    catalog/hooks/tests/test_eval_loop.py::TestEvalLoopCLIAdapter inspects
-    this function's source and asserts no other CLI binary appears in any
-    `if cli == "X":` branch.
+    Each branch references ONLY its matching CLI binary. Command construction is
+    split out from `invoke_cli` so the cheap-model flag threading (T015) and the
+    no-cross-CLI-bleed parity invariant are both testable without spawning a
+    subprocess. The parity test in
+    catalog/hooks/tests/test_eval_loop.py::TestEvalLoopCLIAdapter inspects this
+    function's `if cli == "X":` branches and asserts no other CLI binary appears
+    in any of them.
     """
     assert cli in _SUPPORTED_CLIS, f"unsupported cli: {cli}"
 
@@ -117,23 +133,38 @@ def invoke_cli(cli: str, prompt: str, skill_path: Path | None) -> dict[str, Any]
         cmd = ["claude", "-p", prompt]
         if skill_path is not None:
             cmd.extend(["--skill", str(skill_path)])
-        return _run_subprocess(cmd)
+        if model:
+            cmd.extend(["--model", model])
+        return cmd
     if cli == "gemini":
         cmd = ["gemini", "--workflow", prompt]
         if skill_path is not None:
             cmd.extend(["--skill-file", str(skill_path)])
-        return _run_subprocess(cmd)
+        if model:
+            cmd.extend(["--model", model])
+        return cmd
     if cli == "codex":
         cmd = ["codex", "exec", prompt]
         if skill_path is not None:
             cmd.extend(["--prompt", str(skill_path)])
-        return _run_subprocess(cmd)
+        if model:
+            cmd.extend(["--model", model])
+        return cmd
     if cli == "opencode":
         cmd = ["opencode", "run", prompt]
         if skill_path is not None:
             cmd.extend(["--skill", str(skill_path)])
-        return _run_subprocess(cmd)
+        if model:
+            cmd.extend(["--model", model])
+        return cmd
     raise AssertionError(f"unreachable: cli={cli}")
+
+
+def invoke_cli(
+    cli: str, prompt: str, skill_path: Path | None, model: str | None = None
+) -> dict[str, Any]:
+    """Run `cli` with the given prompt and (optionally) skill + model loaded."""
+    return _run_subprocess(build_cli_command(cli, prompt, skill_path, model))
 
 
 def _run_subprocess(cmd: list[str]) -> dict[str, Any]:
@@ -157,6 +188,7 @@ def estimate_trigger_rate(
     description_under_test: str,
     queries: list[dict[str, Any]],
     repeats: int,
+    model: str | None = None,
 ) -> float:
     """Run each `query` `repeats` times and compute the trigger rate.
 
@@ -181,8 +213,9 @@ def estimate_trigger_rate(
         total = 0
         for q in queries:
             should_trigger = bool(q.get("should_trigger", True))
+            q_model = q.get("model") or model
             for _ in range(repeats):
-                result = invoke_cli(cli, q["query"], skill_path)
+                result = invoke_cli(cli, q["query"], skill_path, q_model)
                 triggered = _detect_trigger(result["stdout"], description_under_test)
                 # An eval is a "success" when triggered matches should_trigger.
                 if triggered == should_trigger:
@@ -222,6 +255,142 @@ def _detect_trigger(stdout: str, description: str) -> bool:
     # Pull short phrases (<= 6 words) out of the description as proxies.
     candidates = re.findall(r"[a-z][a-z\- ]{4,40}", description.lower())
     return any(c.strip() in lowered for c in candidates if len(c.strip()) >= 8)
+
+
+# ── Premature-action detection (T014) ─────────────────────────────────────────
+
+
+# Tools allowed before the first Skill invocation in a with_skill run. `Skill`
+# IS the skill load; `TodoWrite` is planning scaffolding, not real work. Any
+# other tool used before the skill loads is "premature action": the agent
+# started working before it loaded the skill it was supposed to use.
+_PREMATURE_ACTION_ALLOWLIST = ("Skill", "TodoWrite")
+
+
+def extract_tool_invocations(stream_text: str) -> list[str]:
+    """Return the ordered list of tool-use names from a CLI stream-json transcript.
+
+    Accepts the newline-delimited JSON that the CLIs emit under their
+    stream/transcript output mode (the superpowers harness greps the same
+    stream for `"name":"Skill"`). Each `{"type": "tool_use", "name": ...}` block,
+    however deeply nested inside an assistant message, contributes its `name` in
+    document order. Tolerates a single JSON document spanning the whole text and
+    skips any non-JSON line rather than raising.
+    """
+    names: list[str] = []
+
+    def walk(obj: Any) -> None:
+        if isinstance(obj, dict):
+            if obj.get("type") == "tool_use" and isinstance(obj.get("name"), str):
+                names.append(obj["name"])
+            for value in obj.values():
+                walk(value)
+        elif isinstance(obj, list):
+            for item in obj:
+                walk(item)
+
+    for line in stream_text.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            walk(json.loads(line))
+        except json.JSONDecodeError:
+            continue
+    if not names:
+        # Fall back to parsing the whole text as one JSON document (an array
+        # of events rather than newline-delimited objects).
+        try:
+            walk(json.loads(stream_text))
+        except json.JSONDecodeError:
+            pass
+    return names
+
+
+def detect_premature_action(tool_stream: str | list[str]) -> bool:
+    """Flag a with_skill run that acted before loading the skill.
+
+    `tool_stream` is either a raw stream-json transcript or an already-extracted
+    ordered list of tool names. Returns True when a non-allowlisted tool is
+    invoked before the first `Skill` invocation - including the case where the
+    skill never loads at all but the agent still used a real tool.
+    """
+    invocations = (
+        extract_tool_invocations(tool_stream)
+        if isinstance(tool_stream, str)
+        else list(tool_stream)
+    )
+    for name in invocations:
+        if name == "Skill":
+            return False
+        if name not in _PREMATURE_ACTION_ALLOWLIST:
+            return True
+    return False
+
+
+# ── Multi-turn trigger testing (T015) ─────────────────────────────────────────
+
+
+def is_multi_turn(eval_entry: dict[str, Any]) -> bool:
+    """True when an eval entry drives a multi-turn flow (a non-empty `turns` list)."""
+    turns = eval_entry.get("turns")
+    return isinstance(turns, list) and len(turns) > 0
+
+
+def first_trigger_turn(per_turn_triggers: list[bool]) -> int | None:
+    """Return the 1-based index of the first turn that triggered, or None."""
+    for idx, triggered in enumerate(per_turn_triggers, start=1):
+        if triggered:
+            return idx
+    return None
+
+
+def multi_turn_passes(per_turn_triggers: list[bool], expected_turn: int) -> bool:
+    """A multi-turn eval passes when the FIRST trigger lands on `expected_turn`.
+
+    Triggering earlier than expected (the description over-triggers on setup
+    turns) and never triggering both count as failures - the designated turn is
+    where the skill is supposed to fire, no sooner and no later.
+    """
+    return first_trigger_turn(per_turn_triggers) == expected_turn
+
+
+def evaluate_multi_turn(
+    cli: str,
+    skill_path: Path,
+    eval_entry: dict[str, Any],
+    repeats: int,
+    model: str | None = None,
+) -> dict[str, Any]:
+    """Replay an eval's ordered `turns` and report whether it triggers on time.
+
+    Each turn is run `repeats` times; a turn counts as triggered when the
+    majority of its repeats trigger (the same >= 0.5 rule the optimizer uses).
+    The designated turn comes from the entry's `trigger_turn` (1-based; defaults
+    to the last turn, matching the superpowers `run-haiku-test` 5-turn flow that
+    asserts a turn-5 trigger). Reuses the standard dispatcher - no new outbound
+    path.
+    """
+    turns = eval_entry.get("turns") or []
+    expected_turn = int(eval_entry.get("trigger_turn", len(turns)))
+    q_model = eval_entry.get("model") or model
+
+    per_turn_triggers: list[bool] = []
+    for turn_prompt in turns:
+        hits = 0
+        for _ in range(repeats):
+            result = invoke_cli(cli, turn_prompt, skill_path, q_model)
+            if _detect_trigger(result["stdout"], eval_entry.get("query", turn_prompt)):
+                hits += 1
+        per_turn_triggers.append(repeats > 0 and hits / repeats >= 0.5)
+
+    return {
+        "eval_id": eval_entry.get("id"),
+        "expected_turn": expected_turn,
+        "per_turn_triggers": per_turn_triggers,
+        "first_trigger_turn": first_trigger_turn(per_turn_triggers),
+        "passed": multi_turn_passes(per_turn_triggers, expected_turn),
+    }
 
 
 # ── Candidate generation ──────────────────────────────────────────────────────
@@ -303,12 +472,15 @@ def run_iteration(
     test: list[dict[str, Any]],
     description: str,
     repeats: int,
+    model: str | None = None,
 ) -> dict[str, Any]:
     """Run one optimizer iteration. Returns the iteration record."""
-    baseline_train = estimate_trigger_rate(cli, skill_path, description, train, repeats)
-    baseline_test = estimate_trigger_rate(cli, skill_path, description, test, repeats)
+    baseline_train = estimate_trigger_rate(cli, skill_path, description, train, repeats, model)
+    baseline_test = estimate_trigger_rate(cli, skill_path, description, test, repeats, model)
 
-    train_passes = [q["query"] for q in train if _passes(cli, skill_path, description, q, repeats)]
+    train_passes = [
+        q["query"] for q in train if _passes(cli, skill_path, description, q, repeats, model)
+    ]
     train_failures = [q["query"] for q in train if q["query"] not in train_passes]
 
     candidate_strs = generate_candidates(cli, description, train_passes, train_failures)
@@ -317,8 +489,12 @@ def run_iteration(
         candidates.append(
             {
                 "description": cand,
-                "train_trigger_rate": estimate_trigger_rate(cli, skill_path, cand, train, repeats),
-                "test_trigger_rate": estimate_trigger_rate(cli, skill_path, cand, test, repeats),
+                "train_trigger_rate": estimate_trigger_rate(
+                    cli, skill_path, cand, train, repeats, model
+                ),
+                "test_trigger_rate": estimate_trigger_rate(
+                    cli, skill_path, cand, test, repeats, model
+                ),
             }
         )
 
@@ -344,9 +520,14 @@ def run_iteration(
 
 
 def _passes(
-    cli: str, skill_path: Path, description: str, query: dict[str, Any], repeats: int
+    cli: str,
+    skill_path: Path,
+    description: str,
+    query: dict[str, Any],
+    repeats: int,
+    model: str | None = None,
 ) -> bool:
-    rate = estimate_trigger_rate(cli, skill_path, description, [query], repeats)
+    rate = estimate_trigger_rate(cli, skill_path, description, [query], repeats, model)
     return rate >= 0.5
 
 
@@ -362,11 +543,13 @@ def render_dry_run(
     cli: str,
     max_iterations: int,
     seed: int,
+    model: str | None = None,
 ) -> dict[str, Any]:
     """Build the dry-run report without invoking any CLI."""
     return {
         "mode": "dry-run",
         "cli": cli,
+        "model": model,
         "max_iterations": max_iterations,
         "seed": seed,
         "skill_path": str(skill_path),
@@ -406,6 +589,12 @@ def main() -> int:
     parser.add_argument("--repeats", type=int, default=3, help="Trigger-rate samples per query (default 3)")
     parser.add_argument("--seed", type=int, default=_DEFAULT_SEED)
     parser.add_argument("--train-fraction", type=float, default=_DEFAULT_TRAIN_FRACTION)
+    parser.add_argument(
+        "--model",
+        default=None,
+        help="Run trigger-rate estimation against this (e.g. cheaper/faster) model; "
+        "a per-eval `model` field overrides it. Default: the CLI's default model.",
+    )
     parser.add_argument("--dry-run", action="store_true", help="Print plan and exit; no CLI calls")
     args = parser.parse_args()
 
@@ -430,6 +619,7 @@ def main() -> int:
             cli=args.cli,
             max_iterations=args.max_iterations,
             seed=args.seed,
+            model=args.model,
         )
         print(json.dumps(report, indent=2))
         return 0
@@ -450,6 +640,7 @@ def main() -> int:
             test=test,
             description=current_description,
             repeats=args.repeats,
+            model=args.model,
         )
         record["iteration"] = n
         out_path = optimizer_dir / f"iteration-{n}.json"

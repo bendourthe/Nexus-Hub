@@ -265,7 +265,7 @@ No constitution file found at docs/v2.3.0/constitution.md - skipping check. Reco
 
 #### 4.1 — premature-action detection
 
-- [ ] T014 Add premature-action detection to scripts/optimize_skill_description.py
+- [x] T014 Add premature-action detection to scripts/optimize_skill_description.py
 
 **Objective**: Detect the failure mode where the agent invokes other tools before loading the skill.
 
@@ -276,7 +276,7 @@ No constitution file found at docs/v2.3.0/constitution.md - skipping check. Reco
 
 #### 4.2 — multi-turn + cheap-model trigger testing
 
-- [ ] T015 Add multi-turn and cheap-model trigger modes to scripts/optimize_skill_description.py
+- [x] T015 Add multi-turn and cheap-model trigger modes to scripts/optimize_skill_description.py
 
 **Objective**: Test whether a skill triggers deep in a multi-turn workflow and whether it survives on a cheaper/faster model.
 
@@ -287,7 +287,7 @@ No constitution file found at docs/v2.3.0/constitution.md - skipping check. Reco
 
 #### 4.3 — trigger-testing reference
 
-- [ ] T016 Add references/trigger-testing.md under catalog/skills/workflow/skill-eval-loop/
+- [x] T016 Add references/trigger-testing.md under catalog/skills/workflow/skill-eval-loop/
 
 **Objective**: Document the three new techniques and when to use each.
 
@@ -298,7 +298,7 @@ No constitution file found at docs/v2.3.0/constitution.md - skipping check. Reco
 
 #### 4.4 — Testing and Stabilization
 
-- [ ] T017 Add and run pytest cases in catalog/hooks/tests/test_eval_loop.py
+- [x] T017 Add and run pytest cases in catalog/hooks/tests/test_eval_loop.py
 
 **Objective**: Cover the new harness behavior with tests and confirm parity.
 
@@ -309,11 +309,11 @@ No constitution file found at docs/v2.3.0/constitution.md - skipping check. Reco
 
 ### Phase 4 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] All tests passing (`make test`)
-- [ ] No known regressions from prior phases (existing optimizer behavior preserved)
-- [ ] Session history generated for this phase
-- [ ] Ready to advance to Phase 5
+- [x] All sub-tasks completed
+- [x] All tests passing (`catalog/hooks/tests/test_eval_loop.py` 37 passed, was 14; +23 new Phase 4 cases. `make` unavailable on the Windows host so pytest invoked directly. The 73 failures elsewhere in `catalog/hooks/tests/` are pre-existing bash-hook-on-Windows environmental failures in 5 unrelated test files - same cross-OS class as DF-v23-6, green on Linux CI - not regressions from this phase.)
+- [x] No known regressions from prior phases (existing optimizer behavior preserved: dry-run exit 0, train/test split + selection-metric unchanged; parity invariant still enforced after the `build_cli_command` extraction)
+- [x] Session history generated for this phase
+- [x] Ready to advance to Phase 5
 
 ---
 

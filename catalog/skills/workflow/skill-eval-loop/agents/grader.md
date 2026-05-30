@@ -8,6 +8,7 @@ You are the grader for one run of the skill-eval-loop. You evaluate a list of te
 - `run_dir` (path): the directory that contains the run, e.g. `iteration-1/eval-001/with_skill/`.
 - The file at `<run_dir>/outputs/response.txt` (the CLI's response).
 - The file at `<run_dir>/outputs/run_metadata.json` (the timing / token capture).
+- The optional tool/transcript stream at `<run_dir>/outputs/stream.jsonl` (the CLI's stream-json transcript, when captured) - used only for the `premature_action` flag below.
 
 ## Output
 
@@ -18,6 +19,7 @@ Write to `<run_dir>/grading.json`. The schema is fixed (the aggregator depends o
   "eval_id": "eval-001",
   "skill_loaded": true,
   "graded_at": "<ISO 8601 UTC timestamp>",
+  "premature_action": false,
   "assertions": [
     {
       "text": "<verbatim copy of the assertion text from evals.json>",
@@ -30,6 +32,8 @@ Write to `<run_dir>/grading.json`. The schema is fixed (the aggregator depends o
 ```
 
 `pass_rate` is `count(passed=true) / total_assertions`, rounded to 2 decimal places.
+
+`premature_action` (with_skill runs only) is `true` when the agent invoked any tool other than `Skill` or `TodoWrite` BEFORE the first `Skill` invocation in `outputs/stream.jsonl` - i.e. it started working before loading the skill. Apply the exact rule in `optimize_skill_description.detect_premature_action`: walk the ordered tool-use names; the first `Skill` clears the flag, any earlier non-allowlisted tool sets it. Set `false` when no stream was captured, when the baseline (without_skill) run is being graded, or when no tool ran before the skill loaded.
 
 ## Rules
 
@@ -51,5 +55,5 @@ Write to `<run_dir>/grading.json`. The schema is fixed (the aggregator depends o
 
 - JSON only. No prose preamble. No trailing comments.
 - UTF-8. No BOM.
-- Field order: `eval_id`, `skill_loaded`, `graded_at`, `assertions`, `pass_rate` (in that order, per the schema).
+- Field order: `eval_id`, `skill_loaded`, `graded_at`, `premature_action`, `assertions`, `pass_rate` (in that order, per the schema).
 - `evidence` strings should not exceed ~200 characters; longer evidence belongs in `grading-notes.md`.

@@ -22,10 +22,15 @@ A list of eval entries. Each entry:
 Fields:
 
 - `id` (string, required) - kebab-case identifier; used as the directory name under `iteration-N/`.
-- `query` (string, required) - the prompt text passed to the CLI. Should be realistic, not contrived.
+- `query` (string, required for single-turn evals) - the prompt text passed to the CLI. Should be realistic, not contrived. Optional when `turns` is present.
 - `should_trigger` (bool, required) - whether the skill is expected to trigger on this query. The optimizer uses this for its trigger-rate metric.
 - `assertions` (array of `{text, ...}` objects, required) - each `text` is human-readable; the grader sub-agent evaluates each one against the run's `response.txt` and records `passed` + `evidence`.
 - `tags` (array of strings, optional) - free-form labels for filtering in the viewer. Common tags: `happy-path`, `edge-case`, `trigger-positive`, `trigger-negative`, `regression`.
+- `turns` (array of strings, optional) - an ordered list of conversation turns for a multi-turn trigger test. When present, `evaluate_multi_turn()` replays the turns in order and asserts the skill triggers at the designated turn (the deep-in-conversation failure mode). See `references/trigger-testing.md`.
+- `trigger_turn` (number, optional) - the 1-based turn index at which the skill is expected to FIRST trigger in a multi-turn flow. Defaults to the last turn. Triggering earlier or never both fail the multi-turn assertion.
+- `model` (string, optional) - run THIS eval against a specific (typically cheaper/faster) model to surface descriptions that only trigger on stronger models. Overrides the harness-level `--model` flag for this entry. See `references/trigger-testing.md`.
+
+Both `turns`/`trigger_turn` and `model` are opt-in: a plain single-turn eval omits them and is unaffected.
 
 ## `iteration-N/eval-XXX/{with_skill,without_skill}/outputs/run_metadata.json`
 
@@ -60,6 +65,7 @@ Produced by the grader sub-agent per the prompt in `agents/grader.md`:
   "eval_id": "eval-001",
   "skill_loaded": true,
   "graded_at": "2026-05-08T12:35:30Z",
+  "premature_action": false,
   "assertions": [
     {
       "text": "Output references at least one Stage 1 question",
@@ -78,6 +84,8 @@ Produced by the grader sub-agent per the prompt in `agents/grader.md`:
 
 The aggregator depends on the exact field names `text`, `passed`, `evidence`. The grader sub-agent prompt enforces this contract.
 
+`premature_action` (bool, optional) is the trigger-discipline flag for a `with_skill` run: `true` when the agent invoked a tool other than `Skill` / `TodoWrite` before the first `Skill` invocation (it started working before loading the skill). The grader computes it from the run's tool stream via the rule in `optimize_skill_description.detect_premature_action`; the aggregator surfaces it per-eval in `benchmark.json`. It defaults to `false` for the `without_skill` baseline (no skill to load) and for runs that predate the field.
+
 ## `iteration-N/benchmark.json`
 
 Produced by `scripts/aggregate_benchmark.py`:
@@ -89,9 +97,10 @@ Produced by `scripts/aggregate_benchmark.py`:
   "generated_at": "2026-05-08T12:40:00Z",
   "by_eval": {
     "eval-001": {
-      "with_skill": {"pass_rate": 0.8, "duration_ms_mean": 18000, "duration_ms_stddev": 1200, "tokens_mean": 4100, "tokens_stddev": 250},
-      "without_skill": {"pass_rate": 0.2, "duration_ms_mean": 9500, "duration_ms_stddev": 800, "tokens_mean": 2200, "tokens_stddev": 150},
-      "delta": {"pass_rate": 0.6, "duration_ms": 8500, "tokens": 1900}
+      "with_skill": {"pass_rate": 0.8, "duration_ms_mean": 18000, "duration_ms_stddev": 1200, "tokens_mean": 4100, "tokens_stddev": 250, "premature_action": false},
+      "without_skill": {"pass_rate": 0.2, "duration_ms_mean": 9500, "duration_ms_stddev": 800, "tokens_mean": 2200, "tokens_stddev": 150, "premature_action": false},
+      "delta": {"pass_rate": 0.6, "duration_ms": 8500, "tokens": 1900},
+      "premature_action": false
     }
   },
   "overall": {

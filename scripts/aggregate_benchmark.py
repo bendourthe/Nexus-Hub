@@ -77,12 +77,22 @@ def _aggregate_run_condition(eval_dir: Path, condition: str) -> dict[str, Any]:
     duration_mean, duration_stddev = _safe_stats(durations)
     tokens_mean, tokens_stddev = _safe_stats(tokens)
 
+    # Premature-action flag (T014): the runner/grader records whether the agent
+    # invoked another tool before loading the Skill (see optimize_skill_
+    # description.detect_premature_action). Surfaced here so the benchmark output
+    # carries the trigger-discipline signal alongside pass-rate. Defaults to
+    # False when the run predates the field or the condition has no skill to load.
+    premature_action = bool(
+        (grading or {}).get("premature_action", (metadata or {}).get("premature_action", False))
+    )
+
     return {
         "pass_rate": round(pass_rate, 3),
         "duration_ms_mean": round(duration_mean, 1),
         "duration_ms_stddev": round(duration_stddev, 1),
         "tokens_mean": round(tokens_mean, 1),
         "tokens_stddev": round(tokens_stddev, 1),
+        "premature_action": premature_action,
         "graded": grading is not None,
         "metadata_present": metadata is not None,
     }
@@ -107,7 +117,10 @@ def _aggregate_eval(eval_dir: Path) -> dict[str, Any]:
             1,
         ),
     }
-    return {**by_condition, "delta": delta}
+    # Premature action is a with_skill-only property (the baseline run has no
+    # skill to load before), so the eval-level flag mirrors the with_skill run.
+    premature_action = bool(by_condition["with_skill"].get("premature_action", False))
+    return {**by_condition, "delta": delta, "premature_action": premature_action}
 
 
 def aggregate(iteration_dir: Path) -> dict[str, Any]:

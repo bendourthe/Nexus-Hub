@@ -303,5 +303,157 @@ class TestViewerStaticMode:
         assert "submitFeedback" in body  # the JS handler is wired in
 
 
+# ── 4. Trigger-testing techniques (v2.3.0 Phase 4 / T014-T015) ───────────────
+
+
+@pytest.fixture
+def optimizer_module():
+    """Import optimize_skill_description.py as a module to call its pure helpers."""
+    return _load_module(_OPTIMIZER)
+
+
+def _stream_line(*tool_names: str) -> str:
+    """One stream-json assistant event whose content holds the given tool_use blocks."""
+    return json.dumps(
+        {
+            "type": "assistant",
+            "message": {
+                "content": [
+                    {"type": "tool_use", "name": name, "input": {}} for name in tool_names
+                ]
+            },
+        }
+    )
+
+
+class TestPrematureActionDetection:
+    """T014: flag a with_skill run that acted before loading the skill."""
+
+    def test_tool_use_before_skill_flags_true(self, optimizer_module) -> None:
+        stream = "\n".join([_stream_line("Bash"), _stream_line("Skill")])
+        assert optimizer_module.detect_premature_action(stream) is True
+
+    def test_skill_first_flags_false(self, optimizer_module) -> None:
+        stream = "\n".join([_stream_line("Skill"), _stream_line("Bash")])
+        assert optimizer_module.detect_premature_action(stream) is False
+
+    def test_todowrite_before_skill_is_allowed(self, optimizer_module) -> None:
+        assert optimizer_module.detect_premature_action(["TodoWrite", "Skill", "Bash"]) is False
+
+    def test_skill_never_loads_with_real_tool_flags_true(self, optimizer_module) -> None:
+        assert optimizer_module.detect_premature_action(["Bash", "Edit"]) is True
+
+    def test_clean_planning_only_stream_flags_false(self, optimizer_module) -> None:
+        assert optimizer_module.detect_premature_action(["TodoWrite", "Skill"]) is False
+
+    def test_empty_stream_flags_false(self, optimizer_module) -> None:
+        assert optimizer_module.detect_premature_action("") is False
+
+    def test_extract_tool_invocations_preserves_order(self, optimizer_module) -> None:
+        stream = "\n".join(
+            [
+                json.dumps(
+                    {
+                        "type": "assistant",
+                        "message": {
+                            "content": [
+                                {"type": "text", "text": "thinking out loud"},
+                                {"type": "tool_use", "name": "TodoWrite", "input": {}},
+                            ]
+                        },
+                    }
+                ),
+                _stream_line("Skill"),
+            ]
+        )
+        assert optimizer_module.extract_tool_invocations(stream) == ["TodoWrite", "Skill"]
+
+    def test_extract_tool_invocations_handles_single_json_array(self, optimizer_module) -> None:
+        events = [
+            {"type": "tool_use", "name": "Grep"},
+            {"type": "tool_use", "name": "Skill"},
+        ]
+        assert optimizer_module.extract_tool_invocations(json.dumps(events)) == ["Grep", "Skill"]
+
+
+class TestMultiTurnTriggering:
+    """T015: replay an ordered turns list and assert the skill triggers on time."""
+
+    def test_is_multi_turn_detects_turns(self, optimizer_module) -> None:
+        assert optimizer_module.is_multi_turn({"id": "e", "turns": ["a", "b"]}) is True
+        assert optimizer_module.is_multi_turn({"id": "e", "query": "a"}) is False
+        assert optimizer_module.is_multi_turn({"id": "e", "turns": []}) is False
+
+    def test_first_trigger_turn(self, optimizer_module) -> None:
+        assert optimizer_module.first_trigger_turn([False, False, True]) == 3
+        assert optimizer_module.first_trigger_turn([True, False]) == 1
+        assert optimizer_module.first_trigger_turn([False, False]) is None
+
+    def test_multi_turn_passes_on_designated_turn(self, optimizer_module) -> None:
+        assert optimizer_module.multi_turn_passes([False, False, True], 3) is True
+
+    def test_multi_turn_fails_when_triggering_too_early(self, optimizer_module) -> None:
+        assert optimizer_module.multi_turn_passes([True, False, False], 3) is False
+
+    def test_multi_turn_fails_when_never_triggering(self, optimizer_module) -> None:
+        assert optimizer_module.multi_turn_passes([False, False, False], 3) is False
+
+
+class TestCheapModelThreading:
+    """T015: the --model flag threads through the dispatcher into every CLI branch."""
+
+    @pytest.mark.parametrize("cli", _SUPPORTED_CLIS)
+    def test_build_cli_command_threads_model(self, optimizer_module, cli: str) -> None:
+        cmd = optimizer_module.build_cli_command(cli, "do a thing", Path("SKILL.md"), model="haiku")
+        assert cmd[0] == cli
+        assert "--model" in cmd
+        assert "haiku" in cmd
+
+    @pytest.mark.parametrize("cli", _SUPPORTED_CLIS)
+    def test_build_cli_command_omits_model_by_default(self, optimizer_module, cli: str) -> None:
+        cmd = optimizer_module.build_cli_command(cli, "do a thing", Path("SKILL.md"))
+        assert cmd[0] == cli
+        assert "--model" not in cmd
+
+    def test_model_flag_surfaces_in_dry_run(self, fixture_skill_and_evals: tuple[Path, Path]) -> None:
+        skill_md, evals = fixture_skill_and_evals
+        result = subprocess.run(
+            [
+                sys.executable, str(_OPTIMIZER),
+                "--skill", str(skill_md),
+                "--evals", str(evals),
+                "--cli", "claude",
+                "--model", "haiku",
+                "--dry-run",
+            ],
+            capture_output=True, text=True, timeout=30,
+        )
+        assert result.returncode == 0, f"dry-run with --model failed: {result.stderr}"
+        report = json.loads(result.stdout)
+        assert report["model"] == "haiku"
+
+
+class TestPrematureActionInBenchmark:
+    """T014: the aggregator surfaces premature_action per-eval in benchmark.json."""
+
+    def test_aggregator_surfaces_premature_action(self, tmp_path: Path) -> None:
+        iter_dir = _build_fixture_iteration(tmp_path)
+        grading_path = iter_dir / "eval-001" / "with_skill" / "grading.json"
+        data = json.loads(grading_path.read_text(encoding="utf-8"))
+        data["premature_action"] = True
+        grading_path.write_text(json.dumps(data), encoding="utf-8")
+
+        result = subprocess.run(
+            [sys.executable, str(_AGGREGATOR), str(iter_dir)],
+            capture_output=True, text=True, timeout=30,
+        )
+        assert result.returncode == 0, f"aggregator failed: {result.stderr}"
+        bench = json.loads((iter_dir / "benchmark.json").read_text(encoding="utf-8"))
+        assert bench["by_eval"]["eval-001"]["premature_action"] is True
+        assert bench["by_eval"]["eval-001"]["with_skill"]["premature_action"] is True
+        # The baseline run has no skill to load, so it defaults to False.
+        assert bench["by_eval"]["eval-001"]["without_skill"]["premature_action"] is False
+
+
 if __name__ == "__main__":
     sys.exit(pytest.main([__file__, "-v"]))

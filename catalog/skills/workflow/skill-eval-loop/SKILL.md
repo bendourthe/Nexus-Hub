@@ -166,6 +166,16 @@ The description-optimizer is a specialized form of the loop that targets only th
 
 Full schema and worked example at `references/description-optimizer.md`. The optimizer reuses the same CLI dispatcher as the main loop (no cross-CLI fallback; parity-test enforced).
 
+## Trigger-testing techniques
+
+Single-prompt trigger rate catches the most common failure (a description too narrow to fire) but misses three others. The harness adds techniques for each, all reusing the same CLI dispatcher (no new outbound calls, no new dependency):
+
+- **Premature-action detection** - flags a `with_skill` run that invoked a real tool before loading the skill (it started working before loading the gate it was meant to use). Computed by `detect_premature_action()` from the run's tool stream, recorded as `premature_action` in `grading.json`, and surfaced per-eval in `benchmark.json`.
+- **Multi-turn triggering** - replays an ordered `turns` list and asserts the skill triggers at the designated `trigger_turn`, catching skills that fire on a cold prompt but not deep in a brainstorm -> plan -> execute flow.
+- **Cheap-model fragility** - re-runs the eval against a faster/cheaper model via `--model <name>` (or a per-eval `model` field) to surface descriptions that only trigger on stronger models.
+
+Use premature-action detection on discipline/gate skills, multi-turn on skills whose real use arrives mid-workflow, and the cheap-model test before shipping to users not on the strongest model. Full guidance - what each catches, how to author the eval, how to read the output fields - is at `references/trigger-testing.md`. The `turns`, `trigger_turn`, and `model` eval fields are documented in `references/schemas.md` and are opt-in (single-turn, default-model evals are unaffected).
+
 ## CLI-agnostic adapter
 
 The loop must work on whichever AI CLI the user has installed. The design follows the v1.1.3 four-hook precedent (`catalog/hooks/{claude,gemini,codex,opencode}-diff-review.sh`):
@@ -213,6 +223,7 @@ Binary checklist - each item must describe an observable artifact or state.
 - `references/improvement-heuristics.md` - the five improvement heuristics applied at step 9 (pushy descriptions, explain-the-why, repeated-work elimination, negative-space coverage, assertion calibration), each with a worked example.
 - `references/cli-adapter.md` - the option-A vs option-B design rationale, the per-CLI invocation patterns for `claude` / `gemini` / `codex` / `opencode`, and the parity-test specification.
 - `references/description-optimizer.md` - the 60/40 train-test split rationale, the candidate-generation prompt template, and the held-out-test selection rule for `best_description`.
+- `references/trigger-testing.md` - the three trigger-testing techniques (premature-action detection, multi-turn conversation triggering, cheap-model fragility), what each catches, how to author an eval that exercises it, and how to read the new output fields.
 
 ## Bundled sub-agent prompts
 
