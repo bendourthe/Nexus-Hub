@@ -69,6 +69,14 @@ SECRET_PATTERNS: list[tuple[str, re.Pattern[str]]] = [
     ("Generic secret assignment", re.compile(r"""(?:password|secret|token|api_key)\s*=\s*["'][^"']{8,}["']""", re.IGNORECASE)),
 ]
 
+# Low-confidence patterns whose matches inside a fenced code block of a
+# Markdown file are documentation examples (e.g., `password = "hunter2"` in a
+# snippet) rather than real leaked credentials. These are suppressed in that
+# context only. High-confidence credential patterns (real API-key / token
+# formats) are intentionally NOT listed here, so a genuinely leaked key pasted
+# into a code block is still flagged even inside a fence.
+FENCE_EXEMPT_PATTERN_NAMES = {"Generic secret assignment"}
+
 
 # ---------------------------------------------------------------------------
 # YAML frontmatter parser (no external deps)
@@ -341,6 +349,56 @@ def validate_skill_quality(skill_dir: Path, content: str) -> list[str]:
     return warnings
 
 
+# A fenced-code delimiter: 3+ backticks or 3+ tildes, optionally indented,
+# optionally followed by an info string (only on the OPENING fence).
+_FENCE_RE = re.compile(r"^\s*(?P<fence>`{3,}|~{3,})(?P<info>.*)$")
+
+
+def scan_text_for_secrets(text: str, filepath: Path) -> list[str]:
+    """Scan one file's text for hardcoded secrets, fenced-code-aware.
+
+    Inside a fenced code block of a Markdown file, the low-confidence patterns
+    in FENCE_EXEMPT_PATTERN_NAMES are suppressed because such matches are
+    documentation examples, not real leaked credentials. High-confidence
+    credential patterns are always flagged, even inside a fence.
+
+    Fence tracking follows the CommonMark rule so nested examples (e.g. a
+    ```markdown block that itself shows ```bash snippets) are handled
+    correctly: an opening fence may carry an info string, but a CLOSING fence
+    must use the same character, be at least as long, and carry NO info string.
+    A fence-looking line that is not a valid closer while already inside a
+    fence is treated as block content.
+    """
+    errors: list[str] = []
+    is_markdown = filepath.suffix.lower() == ".md"
+    in_fence = False
+    fence_char = ""
+    fence_len = 0
+    for line_no, line in enumerate(text.splitlines(), start=1):
+        if is_markdown:
+            m = _FENCE_RE.match(line)
+            if m:
+                fence = m.group("fence")
+                info = m.group("info").strip()
+                char = fence[0]
+                if not in_fence:
+                    in_fence, fence_char, fence_len = True, char, len(fence)
+                    continue
+                if char == fence_char and len(fence) >= fence_len and not info:
+                    in_fence, fence_char, fence_len = False, "", 0
+                    continue
+                # fence-looking content inside an open fence: fall through.
+        for pattern_name, pattern in SECRET_PATTERNS:
+            if is_markdown and in_fence and pattern_name in FENCE_EXEMPT_PATTERN_NAMES:
+                continue
+            if pattern.search(line):
+                errors.append(
+                    f"{filepath}: potential {pattern_name} detected "
+                    f"(line ~{line_no})"
+                )
+    return errors
+
+
 def scan_for_secrets(directory: Path) -> list[str]:
     """Scan all scannable files in a directory tree for hardcoded secrets."""
     errors: list[str] = []
@@ -353,12 +411,7 @@ def scan_for_secrets(directory: Path) -> list[str]:
                 text = filepath.read_text(encoding="utf-8", errors="replace")
             except OSError:
                 continue
-            for pattern_name, pattern in SECRET_PATTERNS:
-                for match in pattern.finditer(text):
-                    errors.append(
-                        f"{filepath}: potential {pattern_name} detected "
-                        f"(line ~{text[:match.start()].count(chr(10)) + 1})"
-                    )
+            errors.extend(scan_text_for_secrets(text, filepath))
     return errors
 
 

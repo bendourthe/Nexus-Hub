@@ -1497,6 +1497,13 @@ install_templates() {
     if [ -f "$workflow_source" ]; then
         safe_copy "$workflow_source" "$scripts_dest/validate_workflow_security.py" true "[OK] Workflow-security validator installed at: $scripts_dest/validate_workflow_security.py"
     fi
+    # validate_solution_frontmatter.py (v2.4.0) is a parser-safety linter for
+    # solution-knowledge-base docs (docs/solutions/<category>/<slug>.md); it
+    # uses Python stdlib only. Lockstep with scripts/installer.ps1.
+    local solution_fm_source="$repo_root/scripts/validate_solution_frontmatter.py"
+    if [ -f "$solution_fm_source" ]; then
+        safe_copy "$solution_fm_source" "$scripts_dest/validate_solution_frontmatter.py" true "[OK] Solution-frontmatter validator installed at: $scripts_dest/validate_solution_frontmatter.py"
+    fi
 
     # Copy v2.3.0 Phase 4 lifecycle scripts (T011 consult advisor + T012
     # harness audit). The doctor / repair / list-installed surface itself

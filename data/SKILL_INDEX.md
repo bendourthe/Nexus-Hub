@@ -4,13 +4,13 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 
 | Skill | Category | Summary | File |
 |-------|----------|---------|------|
-| analysis-logic | Developer Experience | "Apply structured analytical reasoning with decision matrices and data presentation" | catalog/skills/developer-experience/analysis-logic/SKILL.md |
-| creative-generation | Developer Experience | "Generate image prompts, slide decks, and creative ideation with structured direction" | catalog/skills/developer-experience/creative-generation/SKILL.md |
-| writing-editing | Developer Experience | "Write and edit professional documentation with clarity, structure, and concision" | catalog/skills/developer-experience/writing-editing/SKILL.md |
-| ui-component-generation | Developer Experience | "Generate UI components directly with the agent's LLM instead of routing requests through external generation services" | catalog/skills/developer-experience/ui-component-generation/SKILL.md |
-| trend-research | Research | "Research recent trends across Reddit, X, and the web with prompt generation" | catalog/skills/research/trend-research/SKILL.md |
-| local-docs-lookup | Research | "Answer library and API questions from locally-available documentation sources instead of routing queries through a third-party service" | catalog/skills/research/local-docs-lookup/SKILL.md |
-| cross-project-comparison | Workflow | "Compare projects with external sources to produce gap analysis and adoption plans" | catalog/skills/workflow/cross-project-comparison/SKILL.md |
+| analysis-logic | developer-experience | "Apply structured analytical reasoning with decision matrices and data presentation" | catalog/skills/developer-experience/analysis-logic/SKILL.md |
+| creative-generation | developer-experience | "Generate image prompts, slide decks, and creative ideation with structured direction" | catalog/skills/developer-experience/creative-generation/SKILL.md |
+| writing-editing | developer-experience | "Write and edit professional documentation with clarity, structure, and concision" | catalog/skills/developer-experience/writing-editing/SKILL.md |
+| ui-component-generation | developer-experience | "Generate UI components directly with the agent's LLM instead of routing requests through external generation services" | catalog/skills/developer-experience/ui-component-generation/SKILL.md |
+| trend-research | research | "Research recent trends across Reddit, X, and the web with prompt generation" | catalog/skills/research/trend-research/SKILL.md |
+| local-docs-lookup | research | "Answer library and API questions from locally-available documentation sources instead of routing queries through a third-party service" | catalog/skills/research/local-docs-lookup/SKILL.md |
+| cross-project-comparison | workflow | "Compare projects with external sources to produce gap analysis and adoption plans" | catalog/skills/workflow/cross-project-comparison/SKILL.md |
 | ai-agent-development | ai-development | "Build AI agents with tool use, memory, planning loops, and multi-agent orchestration" | catalog/skills/ai-development/ai-agent-development/SKILL.md |
 | ai-billing-safeguards | ai-development | "Enforce hard spending caps and billing safeguards for autonomous AI agent systems" | catalog/skills/ai-development/ai-billing-safeguards/SKILL.md |
 | claude-agent-sdk | ai-development | "Integrate Claude Agent SDK in TypeScript with provider routing, spending caps, and audit logging" | catalog/skills/ai-development/claude-agent-sdk/SKILL.md |
@@ -237,5 +237,11 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | verification-before-completion | workflow | "Require fresh verification evidence before making any completion or success claim" | catalog/skills/workflow/verification-before-completion/SKILL.md |
 | receiving-code-review | code-review | "Act on code review feedback with technical rigor and no performative agreement" | catalog/skills/code-review/receiving-code-review/SKILL.md |
 | using-git-worktrees | workflow | "Set up isolated worktree workspaces safely, preferring the native tool over raw git" | catalog/skills/workflow/using-git-worktrees/SKILL.md |
+| hallmark-design | developer-experience | "Produce and review UI that avoids the 'looks AI-generated' failure mode using anti-slop gates and four verbs" | catalog/skills/developer-experience/hallmark-design/SKILL.md |
+| html-output-conventions | developer-experience | "Prefer HTML over Markdown for human-facing artifacts that are read, compared, or interacted with, using four self-contained templates" | catalog/skills/developer-experience/html-output-conventions/SKILL.md |
+| advanced-attack-patterns | security | "Advanced attack classes: state desynchronization, cache poisoning, replay attacks, and timing-attack side channels beyond password comparison" | catalog/skills/security/advanced-attack-patterns/SKILL.md |
+| business-logic-abuse | security | "Identify business-logic vulnerabilities: race conditions, TOCTOU, double-spending, workflow bypass, and idempotency violations - requires domain knowledge" | catalog/skills/security/business-logic-abuse/SKILL.md |
+| solution-knowledge-base | workflow | "Document a solved problem into a categorized docs/solutions/ knowledge base for future reuse" | catalog/skills/workflow/solution-knowledge-base/SKILL.md |
+| solution-refresh | workflow | "Audit docs/solutions/ entries and decide Keep / Update / Consolidate / Replace / Delete" | catalog/skills/workflow/solution-refresh/SKILL.md |
 
-**Total: 230 skills across 23 categories**
+**Total: 239 skills across 21 categories**

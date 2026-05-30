@@ -6,38 +6,37 @@
     "description": "Comprehensive catalog of Nexus-Hub skills with L0/L1 tiered summaries"
   },
   "statistics": {
-    "total_skills": 223,
+    "total_skills": 239,
     "categories": {
-      "Developer Experience": 3,
-      "Research": 2,
-      "Workflow": 1,
-      "ai-development": 9,
+      "ai-development": 10,
       "architecture": 7,
       "bug-fixing": 5,
       "business-product": 5,
       "code-cleanup": 10,
-      "code-review": 10,
+      "code-review": 11,
       "compliance": 9,
-      "developer-experience": 23,
+      "developer-experience": 29,
       "documentation": 6,
       "framework-specialists": 6,
       "infrastructure": 19,
       "language-specialists": 10,
       "orchestration": 14,
       "project-setup": 4,
-      "security": 8,
+      "research": 2,
+      "security": 10,
+      "security-operations": 15,
       "specialized-domains": 13,
       "testing": 3,
       "tests-generation": 18,
-      "workflow": 23,
-      "security-operations": 15
+      "workflow": 33
     },
     "priorities": {
-      "MEDIUM": 175
+      "HIGH": 1,
+      "MEDIUM": 238
     },
-    "total_lines": 115753,
-    "total_tokens_estimate": 462321,
-    "average_lines_per_skill": 612,
+    "total_lines": 125537,
+    "total_tokens_estimate": 590757,
+    "average_lines_per_skill": 525,
     "languages_supported": [
       "Python",
       "JavaScript",
@@ -48,7 +47,7 @@
       "C++"
     ],
     "repository": "https://github.com/bendourthe/Nexus-Hub",
-    "last_updated": "2025-10-21"
+    "last_updated": "2026-05-30"
   },
   "skills": [
     {
@@ -1774,7 +1773,7 @@
       "overview_l1": "\"This skill applies data analyst and strategist standards to analytical tasks, covering step-by-step reasoning, assumption identification, BLUF (Bottom Line Up Front) summaries, table-based comparisons, and critical thinking with edge case consideration. Use it when analyzing data, comparing options, evaluating trade-offs, creating decision matrices, or presenting findings with structured reasoning. Key capabilities include step-by-step problem decomposition, assumption and bias identification, BLUF summary generation, table-based comparison creation, decision matrix construction with weighted criteria, edge case and alternative interpretation analysis, and structured findings presentation. The expected output is clear analytical reports with BLUF summaries, comparison tables, decision matrices, identified assumptions, and well-reasoned conclusions. Trigger phrases: analyze data, compare options, evaluate trade-offs, decision matrix, structured analysis, pros and cons, data presentation, BLUF summary, critical analysis.\"",
       "version": "1.0.0",
       "author": "Benjamin Dourthe",
-      "category": "Developer Experience",
+      "category": "developer-experience",
       "language": "Multi-language",
       "tags": [],
       "priority": "MEDIUM",
@@ -1939,7 +1938,7 @@
       "overview_l1": "\"This skill applies creative director standards to generative and design tasks, covering detailed image generation prompts, presentation slide design with speaker notes, and structured ideation with varied, distinct options. Use it when generating image prompts, designing slide decks, brainstorming ideas, creating visual concepts, or producing creative content. Key capabilities include detailed image generation prompt construction (subject, style, lighting, composition, mood, negative prompts), presentation narrative design with logical flow and speaker notes, structured ideation with varied and distinct creative options, visual concept development, and creative brief interpretation. The expected output is polished creative deliverables including detailed image prompts with specifications, slide deck outlines with speaker notes, and structured brainstorm outputs with diverse options. Trigger phrases: generate image prompt, design slides, brainstorm ideas, creative concept, visual design, presentation deck, ideation, creative brief.\"",
       "version": "1.0.0",
       "author": "Benjamin Dourthe",
-      "category": "Developer Experience",
+      "category": "developer-experience",
       "language": "Multi-language",
       "tags": [],
       "priority": "MEDIUM",
@@ -2394,7 +2393,7 @@
       "overview_l1": "\"This skill applies professional editor and technical writer standards to all written output, covering clarity, concision, structure, active voice, logical hierarchy, and smooth transitions. Use it when writing, editing, rewriting, or reviewing documents, README files, reports, blog posts, or any non-code text content. Key capabilities include clarity and concision editing (removing fluff and jargon), active voice transformation, logical hierarchy structuring with headings and bullet points, smooth paragraph transitions, content refinement through iterative rewrites, and tone calibration for different audiences (technical, executive, end-user). The expected output is polished, well-structured prose with clear headings, concise language, active voice, and logical flow appropriate to the target audience. Trigger phrases: write documentation, edit text, rewrite, review document, improve writing, README, blog post, report writing, technical writing, proofread.\"",
       "version": "1.0.0",
       "author": "Benjamin Dourthe",
-      "category": "Developer Experience",
+      "category": "developer-experience",
       "language": "Multi-language",
       "tags": [],
       "priority": "MEDIUM",
@@ -4300,7 +4299,7 @@
       "overview_l1": "\"This skill researches any topic across Reddit, X (Twitter), and the web to identify recent trends from the last 30 days and generate production-ready prompts or recommendations. Use it when exploring emerging trends in a technology area, generating up-to-date prompts based on community consensus, identifying best practices from recent discussions, or producing research summaries for decision-making. Key capabilities include multi-source trend research (Reddit, X/Twitter, web), last-30-day time window filtering, community consensus identification, best practice extraction, production-ready prompt generation from research findings, and structured recommendation reports. The expected output is a research report with identified trends, community consensus, and copy-paste-ready prompts or recommendations. Trigger phrases: research trends, latest trends, what is trending, community consensus, recent best practices, trend analysis, research topic.\"",
       "version": "1.0.0",
       "author": "Benjamin Dourthe (ported from mvanhorn/last30days-skill)",
-      "category": "Research",
+      "category": "research",
       "language": "Multi-language",
       "tags": [
         "research",
@@ -5633,7 +5632,7 @@
       "overview_l1": "\"This skill compares the current project with an external knowledge source (Git repo, web article, or local path) to produce a structured gap analysis and adoption plan. Use it when benchmarking your project against industry standards, evaluating open-source alternatives, identifying adoption opportunities from articles or repos, planning migrations based on external references, or producing structured comparison reports. Key capabilities include multi-source comparison (Git repos, web articles, local paths), structured gap analysis generation, adoption plan creation with prioritized recommendations, pattern and practice extraction from external sources, compatibility assessment, and migration effort estimation. The expected output is a structured gap analysis report with identified differences, adoption recommendations, and a prioritized implementation plan. Trigger phrases: compare projects, gap analysis, benchmarking, cross-project, adoption plan, compare with repo, compare with article, project comparison.\"",
       "version": "1.1.0",
       "author": "Benjamin Dourthe",
-      "category": "Workflow",
+      "category": "workflow",
       "language": "Multi-language",
       "tags": [
         "comparison",
@@ -6403,7 +6402,7 @@
       "overview_l1": "\"This skill establishes a lookup sequence for grounding agent answers in locally-available documentation - vendored README files in node_modules or site-packages, introspection tools (python -m pydoc, help(), go doc), project-shipped docs/ trees, and local man pages - before considering any external documentation-lookup service. In regulated environments library names, API signatures, and query text are sensitive because they reveal architectural intent and internal naming; a documentation-lookup-as-service MCP leaks each query to a third party. The correct replacement is a disciplined local lookup flow that exhausts on-disk sources first. When the corpus is genuinely not on-disk (e.g. a service's REST API documentation that the user explicitly approves fetching), the agent can call nexus-web-fetch on a single user-approved URL - the MCP Registry Policy permits that because the data destination is the URL itself, not a third-party intermediary. This skill replaces one specific use case of popular library-documentation MCPs (cached local docs) and does not recreate a continuously-updated library index; that gap is acknowledged and accepted.\"",
       "version": "1.0.0",
       "author": "Benjamin Dourthe",
-      "category": "Research",
+      "category": "research",
       "language": "Multi-language",
       "tags": [
         "documentation",
@@ -8007,6 +8006,310 @@
         "lines": 169,
         "characters": 13113,
         "tokens_estimate": 1748
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "hallmark-design",
+      "title": "hallmark-design",
+      "description": "Generate and audit human-facing UI that does not look AI-generated, using anti-slop gates and four verbs (build / audit / redesign / study) - adapted from Hallmark with the multi-theme catalog deliberately excluded",
+      "long_description": "Generate, audit, and redesign human-facing UI so it does not look AI-generated. The most common failure mode of agent-produced interfaces is a recognizable \"slop\" signature: a centered hero with a gradient call-to-action, three feature cards of identical width, emoji bullets, uniform spacing with no...",
+      "summary_l0": "\"Produce and review UI that avoids the 'looks AI-generated' failure mode using anti-slop gates and four verbs\"",
+      "overview_l1": "\"This skill instructs the agent to design, audit, and redesign human-facing UI so it does not exhibit the generic 'AI slop' signature (centered hero, gradient buttons, evenly-spaced everything, emoji bullets, lorem-ipsum rhythm). It carries a catalog of anti-pattern gates spanning layout, color, typography, spacing, components, motion, and content, plus four verbs: the default build verb generates UI that passes the gates from the start; the audit verb reviews existing markup and reports gate violations; the redesign verb rewrites existing UI to clear the gates; the study verb extracts the design principles from a reference the user supplies. Use it whenever the Coding pillar renders human-facing surfaces (review diffs, dashboards, the session replay timeline, generated component previews). It is adapted from Hallmark (Together AI, MIT) but deliberately drops Hallmark's 22-theme catalog because Nexus is a single product with one shell theme; theme variation is out of scope. Compose it with the html-output-conventions skill, which decides when an artifact should be HTML at all.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "developer-experience",
+      "language": "Multi-language",
+      "tags": [
+        "ui",
+        "design",
+        "anti-slop",
+        "css",
+        "html",
+        "accessibility",
+        "audit",
+        "redesign",
+        "frontend"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Edit",
+        "Read",
+        "Write"
+      ],
+      "path": "catalog/skills/developer-experience/hallmark-design/",
+      "file": "catalog/skills/developer-experience/hallmark-design/SKILL.md",
+      "size": {
+        "lines": 164,
+        "characters": 12517,
+        "tokens_estimate": 1937
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "html-output-conventions",
+      "title": "html-output-conventions",
+      "description": "Decide when a human-facing artifact should be HTML rather than Markdown, and produce it from four self-contained reference templates (grid comparison, annotated diff, interactive tuning, tabbed document)",
+      "long_description": "Prefer HTML over Markdown for human-facing artifacts that will actually be read, compared, or interacted with. Markdown is the right default for short prose; it stops being the right default the moment an artifact needs a table, an SVG, an interactive control, spatial data, or simply runs long enoug...",
+      "summary_l0": "\"Prefer HTML over Markdown for human-facing artifacts that are read, compared, or interacted with, using four self-contained templates\"",
+      "overview_l1": "\"This skill codifies when the agent should emit an HTML artifact instead of Markdown, and how. HTML wins when an artifact needs tables, SVG, interactive controls, or spatial data, when it runs past roughly 100 lines and becomes hard to scan as Markdown, when it should be shared as a link, or when it should round-trip state back to the agent (copy-as-JSON). Markdown stays the right choice for short notes, README front matter, and commit messages. The skill ships four self-contained reference templates the agent can adapt: a grid comparison layout for N-way comparisons, an annotated diff display with color-coded severity margins for code review, an interactive tuning interface with copy-as-JSON controls, and a tabbed organization layout for long documents. It composes with hallmark-design (which governs whether the chosen HTML actually looks designed rather than AI-generated). Use it on Coding-pillar review surfaces, the session replay timeline, and the operator-actions dashboard. Anti-patterns: ASCII diagrams (use SVG) and defaulting to Markdown when an HTML artifact would actually be read.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "developer-experience",
+      "language": "HTML",
+      "tags": [
+        "html",
+        "markdown",
+        "artifacts",
+        "code-review",
+        "accessibility",
+        "svg",
+        "templates",
+        "frontend"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Edit",
+        "Read",
+        "Write"
+      ],
+      "path": "catalog/skills/developer-experience/html-output-conventions/",
+      "file": "catalog/skills/developer-experience/html-output-conventions/SKILL.md",
+      "size": {
+        "lines": 84,
+        "characters": 8452,
+        "tokens_estimate": 1253
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "advanced-attack-patterns",
+      "title": "advanced-attack-patterns",
+      "description": "Advanced attack classes beyond the OWASP Top 10 baseline including state desynchronization, cache poisoning, replay attacks, and timing-attack side channels. Each class is gated on an applicability check so the audit only engages where the attack surface actually exists. Use when extending a baseline security review, auditing distributed systems or cache-heavy architectures, or running `/run-penetration-test --depth=deep`.",
+      "long_description": "Four attack classes that a baseline OWASP Top 10 review routinely misses because they depend on architectural properties (distributed state, HTTP caching, protocol guarantees, observable timing) rather than on input validation. Each class is gated on an applicability check: if the architectural prec...",
+      "summary_l0": "\"Advanced attack classes: state desynchronization, cache poisoning, replay attacks, and timing-attack side channels beyond password comparison\"",
+      "overview_l1": "\"This skill covers advanced attack classes that generic OWASP Top 10 reviews miss because they depend on architectural properties rather than input validation: distributed-state divergence, HTTP cache manipulation, protocol-level replay, and timing side channels in branches that depend on secret-valued inputs. Use it as a second pass after the baseline security-review, when auditing cache-heavy or eventually-consistent architectures, or as the second half of the `/run-penetration-test --depth=deep` Business Logic & Advanced Attacks hunter. Key capabilities include state-desynchronization detection across client/server, cache/DB, and multi-service boundaries; cache-poisoning analysis covering cache-key hygiene, Vary-header correctness, and cache-deception; replay-attack detection spanning nonces, idempotency keys, and timestamp-window validation; and timing-attack surface identification beyond password comparison. The expected output is a findings table keyed by attack class with applicability verdict, exploit sketch, and architectural remediation. Trigger phrases: advanced attacks, state desync, cache poisoning, cache deception, replay attack, nonce, idempotency, timing attack, side channel, user enumeration, token binding, WSTG deep pass.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Write"
+      ],
+      "path": "catalog/skills/security/advanced-attack-patterns/",
+      "file": "catalog/skills/security/advanced-attack-patterns/SKILL.md",
+      "size": {
+        "lines": 258,
+        "characters": 21942,
+        "tokens_estimate": 3030
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "business-logic-abuse",
+      "title": "business-logic-abuse",
+      "description": "Identify business-logic vulnerabilities that bypass intended workflows including race conditions, TOCTOU, double-spending, workflow-state bypass, idempotency violations, and check-sequence abuse. Requires domain knowledge of the application's business rules because these flaws do not appear in generic scanners. Use when auditing financial flows, reservation systems, multi-step workflows, or any feature with stateful invariants.",
+      "long_description": "Business-logic vulnerabilities break the application's own rules: balances go negative, workflows skip required steps, requests replay inside an allowed window, two parallel operations both succeed when only one should. Generic scanners miss these because they depend on domain knowledge - what \"vali...",
+      "summary_l0": "\"Identify business-logic vulnerabilities: race conditions, TOCTOU, double-spending, workflow bypass, and idempotency violations - requires domain knowledge\"",
+      "overview_l1": "\"This skill identifies business-logic vulnerabilities that generic scanners cannot find because the flaws depend on the application's own rules. Use it when auditing high-value workflows (payments, ledgers, reservations, privilege grants), when reviewing state-machine implementations, or when extending `/run-penetration-test` with domain-aware checks under `--depth=deep`. Key capabilities include race-condition and TOCTOU detection at atomicity boundaries, double-spending and replay-within-window analysis, workflow-state bypass via direct-endpoint calls, idempotency-key review, check-sequence abuse (validate X then act on Y), and missing state-machine guards. The expected output is a findings table with severity, invariant violated, code reference, reproduction sketch, and architectural remediation. Trigger phrases: business logic, race condition, TOCTOU, double-spend, idempotency, workflow bypass, state machine, check-then-act, deep pen-test, WSTG-BUSL.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "catalog/skills/security/business-logic-abuse/",
+      "file": "catalog/skills/security/business-logic-abuse/SKILL.md",
+      "size": {
+        "lines": 262,
+        "characters": 19035,
+        "tokens_estimate": 2666
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "dev-progress-tracker",
+      "title": "dev-progress-tracker",
+      "description": "Maintain docs/todos.md as the project's living progress tracker. Use at session start (read current state), when tasks complete (check them off), when new work is identified (add tasks), or when starting a multi-phase project (create the file).",
+      "long_description": "Maintain `docs/todos.md` as a living, project-level progress tracker that persists across sessions and AI platforms.",
+      "summary_l0": "\"Maintain docs/todos.md as a living project progress tracker across sessions\"",
+      "overview_l1": "\"This skill maintains docs/todos.md as a living project progress tracker. Use it at the start of any multi-session development work to read current progress, check off completed tasks, add newly identified work, and update metrics. When the file does not exist and the project spans multiple sessions or phases, create it following the dashboard + sprint/phase structure defined here. Key capabilities include session start progress review, task status updates, metrics dashboard maintenance, sprint planning, and structured multi-track progress tracking. Trigger phrases: check todos, update todos, track progress, what are we working on, where did we leave off, what's next, docs/todos.md, progress tracker.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "workflow",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read",
+        "Task",
+        "Write"
+      ],
+      "path": "catalog/skills/workflow/dev-progress-tracker/",
+      "file": "catalog/skills/workflow/dev-progress-tracker/SKILL.md",
+      "size": {
+        "lines": 153,
+        "characters": 7401,
+        "tokens_estimate": 1169
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "implementation-plan",
+      "title": "implementation-plan",
+      "description": ">-",
+      "long_description": "Guide the user through a structured discovery interview, then generate a comprehensive plan at `<version_dir>/plans/<slug>.md` broken into phased sub-tasks — each with an executable prompt — so the full effort can be completed session by session.",
+      "summary_l0": "\"Generate a phased plan through guided discovery, saved to docs/versions/<vMAJOR>/<vSEMVER>/plans/<slug>.md\"",
+      "overview_l1": ">-",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "workflow",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read",
+        "Write"
+      ],
+      "path": "catalog/skills/workflow/implementation-plan/",
+      "file": "catalog/skills/workflow/implementation-plan/SKILL.md",
+      "size": {
+        "lines": 338,
+        "characters": 18205,
+        "tokens_estimate": 2688
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "solution-knowledge-base",
+      "title": "solution-knowledge-base",
+      "description": "Capture a problem you just solved (a bug fix or a durable lesson) into a categorized, reusable docs/solutions/ knowledge base so future planning and review can reuse it. Make sure to use this skill whenever the user says \"document how we fixed that\", \"save this solution\", \"capture this for next time\", \"add this to the knowledge base\", \"we should remember this fix\", \"write this up so we don't hit it again\", or whenever a non-trivial bug, gotcha, or hard-won insight has just been resolved and is worth persisting. Also trigger right after a debugging session ends with a root cause found. SKIP, do NOT use for, in-session todo tracking (use dev-progress-tracker), per-version unfinished-work logging (use known-gaps-tracker), minting in-session behavioral instincts (use continuous-learning), or any request to send the captured solution to an external service or shared store.",
+      "long_description": "Turn a problem you just solved into a durable, categorized entry under `docs/solutions/` so the next plan, the next reviewer, and the next debugging session can find it. This is the capture half of a compound knowledge loop: solved problems become grounding for future work. The lifecycle half (Keep ...",
+      "summary_l0": "\"Document a solved problem into a categorized docs/solutions/ knowledge base for future reuse\"",
+      "overview_l1": "\"Captures a recently solved problem into docs/solutions/<category>/<slug>.md so the knowledge survives the session and feeds future planning and review. Each entry uses a two-track frontmatter contract (bug track: symptoms / root_cause / resolution_type; knowledge track: applies_when) with a generic, framework-agnostic component taxonomy defined in references/schema.md. The skill runs parallel read-only research (a context analyzer, a solution extractor, and a related-docs finder that each return text only), then a single orchestrator writes exactly one file. Before writing, a 5-dimension overlap score decides whether to update an existing entry or create a new one. A Discoverability Check surfaces the store in AGENTS.md / CLAUDE.md via a dedicated marker block that never clobbers installer-managed content. Everything is local and zero-outbound. Trigger phrases: document how we fixed that, save this solution, capture this for next time, add to the knowledge base.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "workflow",
+      "language": "Multi-language",
+      "tags": [
+        "knowledge-base",
+        "solved-problems",
+        "documentation",
+        "compound-loop",
+        "local-only"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "reverse-engineered local subset of an external solved-problem capture pattern (see docs/v2.3.0/comparison-compound-engineering-plugin.md)",
+      "tools_required": [
+        "Read",
+        "Write"
+      ],
+      "path": "catalog/skills/workflow/solution-knowledge-base/",
+      "file": "catalog/skills/workflow/solution-knowledge-base/SKILL.md",
+      "size": {
+        "lines": 130,
+        "characters": 11971,
+        "tokens_estimate": 1768
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "solution-refresh",
+      "title": "solution-refresh",
+      "description": "Audit and maintain the docs/solutions/ knowledge base over time - for each entry decide Keep, Update, Consolidate, Replace, or Delete. Make sure to use this skill whenever the user says \"review the solutions docs\", \"is the knowledge base still accurate\", \"clean up docs/solutions\", \"audit our saved solutions\", \"consolidate duplicate solution entries\", \"prune stale fixes\", or whenever the solution store has drifted from the current codebase and needs a freshness pass. Also trigger when a solution entry is suspected to be outdated, superseded, or duplicated. SKIP, do NOT use for, capturing a brand-new solution (use solution-knowledge-base), per-version unfinished-work logging (use known-gaps-tracker), or general docs/ folder reorganization (use refactor-docs).",
+      "long_description": "Keep the `docs/solutions/` knowledge base honest. As the codebase changes, captured solutions drift: a fix gets superseded, a file referenced in an entry is deleted, two entries describe the same root cause. This skill is the lifecycle half of the compound knowledge loop - the capture half is [[solu...",
+      "summary_l0": "\"Audit docs/solutions/ entries and decide Keep / Update / Consolidate / Replace / Delete\"",
+      "overview_l1": "\"Maintains the docs/solutions/ knowledge base so it stays accurate as the codebase evolves. For each audited entry it decides one of five outcomes: Keep (still accurate), Update (drifted but salvageable), Consolidate (merge duplicates into one canonical entry), Replace (superseded by a newer solution), or Delete (the underlying code or problem no longer exists). It runs in interactive mode (propose each verdict, confirm before acting) or autofix mode (apply safe verdicts - Keep, frontmatter Update - automatically and surface the rest). Scope is selectable: a single file, a component, a category, or the whole store. It reuses solution-knowledge-base references/schema.md for frontmatter validation rather than duplicating the contract, and runs the parser-safety checker before and after edits. Everything is local and zero-outbound. Trigger phrases: review the solutions docs, audit our saved solutions, consolidate duplicate solution entries, prune stale fixes.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "workflow",
+      "language": "Multi-language",
+      "tags": [
+        "knowledge-base",
+        "lifecycle",
+        "maintenance",
+        "compound-loop",
+        "local-only"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "reverse-engineered local subset of an external solved-problem lifecycle pattern (see docs/v2.3.0/comparison-compound-engineering-plugin.md)",
+      "tools_required": [
+        "Edit",
+        "Write"
+      ],
+      "path": "catalog/skills/workflow/solution-refresh/",
+      "file": "catalog/skills/workflow/solution-refresh/SKILL.md",
+      "size": {
+        "lines": 97,
+        "characters": 9055,
+        "tokens_estimate": 1313
       },
       "downloads": 0,
       "status": "production",

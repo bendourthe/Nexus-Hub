@@ -46,6 +46,10 @@ Use this skill when you need to:
 | **P2** | MEDIUM | Improvements recommended |
 | **P3** | LOW | Minor enhancements |
 
+### Scoring confidence
+
+When findings come from multiple reviewers or multiple passes, score and gate them with the discrete confidence anchors in [references/confidence-anchored-scoring.md](references/confidence-anchored-scoring.md) (five behavioral anchors at 0 / 25 / 50 / 75 / 100, fingerprint-based dedup, cross-reviewer promotion, mode-aware demotion, and a deliberately-late suppression gate) rather than an ad-hoc 0-100 slider. This keeps confidence comparable across reviewers and surfaces only substantiated findings.
+
 ## Instructions
 
 ### Step 1: Run Static Analysis

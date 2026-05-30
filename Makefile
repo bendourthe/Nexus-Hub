@@ -25,6 +25,8 @@ validate: ## Validate all JSON catalog files and skill bundles
 	    --exclude templates/ai-instructions
 	@python scripts/scan_supply_chain_iocs.py
 	@python scripts/validate_workflow_security.py
+	@echo "Validating solution-doc frontmatter parser-safety (docs/solutions; no-op when absent)..."
+	@python scripts/validate_solution_frontmatter.py
 	@echo "All catalogs valid."
 
 lint: ## Lint shell scripts with ShellCheck

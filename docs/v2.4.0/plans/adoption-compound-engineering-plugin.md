@@ -46,7 +46,7 @@ No constitution file found at docs/v2.4.0/constitution.md - skipping check. Reco
 
 #### 1.1 — Solution knowledge-base capture skill
 
-- [ ] T001 Create the capture skill at catalog/skills/workflow/solution-knowledge-base/SKILL.md
+- [x] T001 Create the capture skill at catalog/skills/workflow/solution-knowledge-base/SKILL.md
 
 **Objective**: Adopt CE's `ce-compound` as a generic, local, zero-outbound skill that documents a recently solved problem into a categorized `docs/solutions/`-style store.
 
@@ -57,7 +57,7 @@ No constitution file found at docs/v2.4.0/constitution.md - skipping check. Reco
 
 #### 1.2 — Solution knowledge-base refresh skill
 
-- [ ] T002 Create the refresh skill at catalog/skills/workflow/solution-refresh/SKILL.md
+- [x] T002 Create the refresh skill at catalog/skills/workflow/solution-refresh/SKILL.md
 
 **Objective**: Adopt CE's `ce-compound-refresh` lifecycle (Keep / Update / Consolidate / Replace / Delete) for maintaining the knowledge base over time.
 
@@ -68,7 +68,7 @@ No constitution file found at docs/v2.4.0/constitution.md - skipping check. Reco
 
 #### 1.3 — Frontmatter parser-safety validator
 
-- [ ] T003 [P] Add the frontmatter validator at scripts/validate_solution_frontmatter.py (+ .ps1 sibling)
+- [x] T003 [P] Add the frontmatter validator at scripts/validate_solution_frontmatter.py (.ps1 sibling intentionally omitted - see NI-v24-1)
 
 **Objective**: Adopt CE's `validate-frontmatter.py` as a stdlib-only parser-safety checker for solution-doc frontmatter (malformed delimiters, unquoted ` #` comment truncation, unquoted `: ` mapping confusion).
 
@@ -79,7 +79,7 @@ No constitution file found at docs/v2.4.0/constitution.md - skipping check. Reco
 
 #### 1.4 — Confidence-anchored scoring reference
 
-- [ ] T004 [P] Add the scoring discipline reference at catalog/skills/code-review/code-quality/references/confidence-anchored-scoring.md
+- [x] T004 [P] Add the scoring discipline reference at catalog/skills/code-review/code-quality/references/confidence-anchored-scoring.md
 
 **Objective**: Adopt CE's discrete 5-anchor confidence scoring (0/25/50/75/100), fingerprint dedup, cross-reviewer promotion, mode-aware demotion, and late confidence gate as a reusable reference the Phase 2 pipeline and existing review skills cite.
 
@@ -90,7 +90,7 @@ No constitution file found at docs/v2.4.0/constitution.md - skipping check. Reco
 
 #### 1.5 — Reconcile skills.json count drift
 
-- [ ] T005 [from v2.3.0 known-gaps: WN-v23-1] Reconcile statistics.total_skills with len(skills) in data/skills.json
+- [x] T005 [from v2.3.0 known-gaps: WN-v23-1] Reconcile statistics.total_skills with len(skills) in data/skills.json
 
 **Objective**: Resolve the 1-skill drift between `data/skills.json` entry count and `statistics.total_skills`, recomputing per-category counts, so the Phase-1 additions land on a reconciled baseline.
 
@@ -101,7 +101,7 @@ No constitution file found at docs/v2.4.0/constitution.md - skipping check. Reco
 
 #### 1.6 — Resolve secret-scan false positives in skill docs
 
-- [ ] T006 [P] [from v2.3.0 known-gaps: BG-v23-1] Make scripts/validate_skills.py ignore fenced-code secret examples
+- [x] T006 [P] [from v2.3.0 known-gaps: BG-v23-1] Make scripts/validate_skills.py ignore fenced-code secret examples
 
 **Objective**: Eliminate the 7 pre-existing "Generic secret assignment" false positives so the strict validator is usable when adding new skills.
 
@@ -112,7 +112,7 @@ No constitution file found at docs/v2.4.0/constitution.md - skipping check. Reco
 
 #### 1.7 — Testing and Stabilization
 
-- [ ] T007 Run and stabilize Phase 1 tests, including live skill-eval-loop trigger runs
+- [x] T007 Run and stabilize Phase 1 tests, including live skill-eval-loop trigger runs (live run deferred - DF-v24-1)
 
 **Objective**: Verify Phase 1 end-to-end at the heavier testing bar.
 
@@ -123,13 +123,13 @@ No constitution file found at docs/v2.4.0/constitution.md - skipping check. Reco
 
 ### Phase 1 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] All tests passing (pytest + make validate + make lint)
-- [ ] Live skill-eval-loop trigger runs pass for both new skills
-- [ ] data/ registries reconciled (count drift zero)
-- [ ] No known regressions
-- [ ] Session history generated for this phase
-- [ ] Ready to advance to Phase 2
+- [x] All sub-tasks completed
+- [x] All tests passing (pytest + make validate + make lint)
+- [~] Live skill-eval-loop trigger runs pass for both new skills (deferred - no model CLI on PATH; static trigger-surface check done; DF-v24-1)
+- [x] data/ registries reconciled (count drift zero - all three files agree at 239 skills / 21 categories)
+- [x] No known regressions
+- [x] Session history generated for this phase
+- [x] Ready to advance to Phase 2
 
 ---
 

@@ -133,6 +133,8 @@
     "catalog/skills/workflow/skill-create/SKILL.md",
     "catalog/skills/workflow/skill-eval-loop/SKILL.md",
     "catalog/skills/workflow/skill-stocktake/SKILL.md",
+    "catalog/skills/workflow/solution-knowledge-base/SKILL.md",
+    "catalog/skills/workflow/solution-refresh/SKILL.md",
     "catalog/skills/workflow/tasks-to-issues/SKILL.md",
     "catalog/skills/workflow/using-git-worktrees/SKILL.md",
     "catalog/skills/workflow/using-nexus-hub/SKILL.md",

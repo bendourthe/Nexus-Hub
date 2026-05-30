@@ -1913,6 +1913,12 @@ function Install-Templates {
     if (Test-Path $workflowSource) {
         Safe-Copy -Source $workflowSource -Destination (Join-Path $scriptsDest "validate_workflow_security.py") -Confirm:$true -CustomMessage "✓ Workflow-security validator installed at: $scriptsDest\validate_workflow_security.py"
     }
+    # validate_solution_frontmatter.py (v2.4.0): parser-safety linter for
+    # solution-knowledge-base docs (docs/solutions). Mirror of the bash block.
+    $solutionFmSource = Join-Path $RepoRoot "scripts\validate_solution_frontmatter.py"
+    if (Test-Path $solutionFmSource) {
+        Safe-Copy -Source $solutionFmSource -Destination (Join-Path $scriptsDest "validate_solution_frontmatter.py") -Confirm:$true -CustomMessage "✓ Solution-frontmatter validator installed at: $scriptsDest\validate_solution_frontmatter.py"
+    }
 
     # Copy v2.3.0 Phase 4 lifecycle scripts (T011 consult advisor + T012
     # harness audit). Mirror of the matching block in scripts\installer.sh.

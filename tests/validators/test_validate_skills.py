@@ -149,3 +149,73 @@ def test_overlong_description_fails_full_validator_via_cli(tmp_path: Path) -> No
     )
     assert result.returncode == 1, result.stdout
     assert "max 250" in result.stdout
+
+
+# ---------------------------------------------------------------------------
+# Fenced-code-aware secret scan (BG-v23-1)
+# ---------------------------------------------------------------------------
+
+_FENCED = (
+    "# Example\n\n"
+    "Here is how NOT to store a secret:\n\n"
+    "```python\n"
+    'password = "hunter2pass"\n'
+    "```\n\n"
+    "Done.\n"
+)
+
+_UNFENCED = (
+    "# Example\n\n"
+    'A bare assignment in prose: password = "hunter2pass" should be flagged.\n'
+)
+
+
+def test_fenced_generic_secret_is_ignored() -> None:
+    errs = validate_skills.scan_text_for_secrets(_FENCED, Path("doc.md"))
+    assert errs == [], errs
+
+
+def test_unfenced_generic_secret_is_flagged() -> None:
+    errs = validate_skills.scan_text_for_secrets(_UNFENCED, Path("doc.md"))
+    assert any("Generic secret assignment" in e for e in errs), errs
+
+
+def test_high_confidence_secret_flagged_even_in_fence() -> None:
+    # A real-format AWS key inside a fence must still be flagged.
+    text = "```\nAKIAIOSFODNN7EXAMPLE\n```\n"
+    errs = validate_skills.scan_text_for_secrets(text, Path("doc.md"))
+    assert any("AWS Access Key" in e for e in errs), errs
+
+
+def test_generic_secret_in_non_markdown_is_flagged_inside_backticks() -> None:
+    # Non-Markdown files do not get fence treatment: the assignment is flagged
+    # regardless of surrounding triple-backtick lines.
+    text = '```\npassword = "hunter2pass"\n```\n'
+    errs = validate_skills.scan_text_for_secrets(text, Path("script.py"))
+    assert any("Generic secret assignment" in e for e in errs), errs
+
+
+def test_nested_example_fence_does_not_invert_state() -> None:
+    # Mirrors the user-documentation skill: a ```markdown block that itself
+    # shows ```bash examples must not invert fence state. The generic secret in
+    # the later ```python block stays suppressed; the one in prose is flagged.
+    text = (
+        "# Doc\n\n"
+        "```markdown\n"
+        "Inside the markdown example, here is a shell block:\n"
+        "```bash\n"
+        'export TOKEN_VALUE="example-inside-md"\n'
+        "```\n"
+        "End of markdown example.\n"
+        "```\n\n"
+        "Now a real python usage block:\n\n"
+        "```python\n"
+        'client = Client(api_key="your-key-here")\n'
+        "```\n\n"
+        'And in prose: password = "leakedvalue123" should be flagged.\n'
+    )
+    errs = validate_skills.scan_text_for_secrets(text, Path("doc.md"))
+    # exactly one finding: the prose assignment, not the two fenced examples.
+    assert len(errs) == 1, errs
+    assert "leakedvalue123" not in " ".join(errs)  # message names pattern, not value
+    assert any("Generic secret assignment" in e for e in errs)

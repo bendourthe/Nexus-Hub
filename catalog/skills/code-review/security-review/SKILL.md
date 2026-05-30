@@ -49,6 +49,10 @@ Use this skill when you need to:
 | **P2** | MEDIUM | Security weakness to address |
 | **P3** | LOW | Minor hardening improvement |
 
+### Scoring confidence (multi-reviewer / pipeline use)
+
+When this review runs as one lens inside a multi-agent pipeline, or when `run-penetration-test` synthesis aggregates findings from several hunters, score and gate findings with the discrete confidence anchors in [../code-quality/references/confidence-anchored-scoring.md](../code-quality/references/confidence-anchored-scoring.md). Note the security-relevant exception in that policy's late gate: a **P0 at anchor 50+** (plausible-but-unconfirmed critical) is always surfaced rather than suppressed.
+
 ## Instructions
 
 ### Step 1: Dependency Vulnerability Scan
