@@ -78,6 +78,7 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | legacy-modernizer | developer-experience | "Modernize legacy codebases incrementally with Strangler Fig and migration patterns" | catalog/skills/developer-experience/legacy-modernizer/SKILL.md |
 | refactoring-expert | developer-experience | "Refactor code safely using Fowler's patterns without changing behavior" | catalog/skills/developer-experience/refactoring-expert/SKILL.md |
 | requirement-enhancer | developer-experience | "Enhance requirement quality with acceptance criteria, testability, and completeness checks" | catalog/skills/developer-experience/requirement-enhancer/SKILL.md |
+| skill-description-authoring | developer-experience | "Author single-line skill descriptions that preserve product, tool, action, and object trigger nouns" | catalog/skills/developer-experience/skill-description-authoring/SKILL.md |
 | technical-debt-analyzer | developer-experience | "Quantify and prioritize technical debt with SQALE methodology and remediation planning" | catalog/skills/developer-experience/technical-debt-analyzer/SKILL.md |
 | tool-design | developer-experience | "Design tools and APIs for AI agent consumption with MCP and function schemas" | catalog/skills/developer-experience/tool-design/SKILL.md |
 | api-documentation | documentation | "Create OpenAPI specs, API references, and endpoint documentation with examples" | catalog/skills/documentation/api-documentation/SKILL.md |
@@ -234,4 +235,4 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | identity-threat-detection | security-operations | "Detect account-takeover patterns in IdP and SSO sign-in logs from the defender seat" | catalog/skills/security-operations/identity-threat-detection/SKILL.md |
 | malware-triage-analysis | security-operations | "Safely triage a suspicious file, classify maliciousness, and extract IOCs" | catalog/skills/security-operations/malware-triage-analysis/SKILL.md |
 
-**Total: 226 skills across 23 categories**
+**Total: 227 skills across 23 categories**

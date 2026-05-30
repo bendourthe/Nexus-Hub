@@ -2285,6 +2285,40 @@
       }
     },
     {
+      "name": "skill-description-authoring",
+      "title": "skill-description-authoring",
+      "description": "Author and rewrite SKILL.md frontmatter descriptions so they stay single-line, ASCII-sanitized, and preserve the four matching trigger nouns (product, tool, action, object). Use when writing a new skill description, compacting an over-long one, or fixing a description that no longer surfaces in search and trigger matching.",
+      "long_description": "Codifies how to write and rewrite the description field in a SKILL.md so it stays faithful to the matcher that loads skills into the agent prompt. Covers the three rules that drive the work (single-line and ASCII-sanitized, preservation of the four trigger-noun categories, and name defaulting to the parent directory), with worked examples for a good description, an over-long description with a compaction diff, and a no-trigger-noun rewrite...",
+      "summary_l0": "\"Author single-line skill descriptions that preserve product, tool, action, and object trigger nouns\"",
+      "overview_l1": "\"This skill codifies how to write and rewrite the description field in a SKILL.md so it stays faithful to the matcher that loads skills into the agent prompt. Use it when authoring a new skill, compacting a description grown too long for the render budget, or repairing one that stopped surfacing for its tasks. Three rules drive the work: descriptions are single-line and ASCII-sanitized (no newlines, no trailing whitespace, no curly quotes or em-dashes); descriptions preserve the four trigger-noun categories that drive matching (product, tool, action, object); and the name field defaults to the parent directory name when omitted. The skill ships three worked examples (a good description, an over-long description with a compaction diff, and a no-trigger-noun description with a rewrite) and points at Nexus-Hub validate_skills.py as the eventual enforcement point. Trigger phrases: skill description, description authoring, trigger nouns, compact description, SKILL.md frontmatter, rewrite description.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "developer-experience",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read",
+        "Edit"
+      ],
+      "path": "catalog/skills/developer-experience/skill-description-authoring/",
+      "file": "catalog/skills/developer-experience/skill-description-authoring/SKILL.md",
+      "size": {
+        "lines": 152,
+        "characters": 11686,
+        "tokens_estimate": 1479
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
       "name": "technical-debt-analyzer",
       "title": "technical-debt-analyzer",
       "description": "Quantify, categorize, and prioritize technical debt using SQALE methodology with interest calculation and remediation planning. Use when assessing code debt, architecture debt, test debt, documentation debt, or planning debt reduction sprints.",

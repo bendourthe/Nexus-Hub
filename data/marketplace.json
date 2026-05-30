@@ -108,7 +108,7 @@
       "id": "developer-experience",
       "name": "Developer Experience",
       "description": "Code optimization, refactoring, migration, dependency management, web artifact scaffolding",
-      "skill_count": 26
+      "skill_count": 27
     },
     {
       "id": "documentation",
