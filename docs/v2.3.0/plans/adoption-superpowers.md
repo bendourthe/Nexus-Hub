@@ -378,7 +378,7 @@ No constitution file found at docs/v2.3.0/constitution.md - skipping check. Reco
 
 #### 6.1 — Record the visual-brainstorm-server deferral
 
-- [ ] T021 Record the P3 deferral in docs/v2.3.0/known-gaps.md
+- [x] T021 Record the P3 deferral in docs/v2.3.0/known-gaps.md
 
 **Objective**: Capture the deferred visual brainstorming server as a tracked item with a revisit trigger, rather than building it.
 
@@ -389,7 +389,7 @@ No constitution file found at docs/v2.3.0/constitution.md - skipping check. Reco
 
 #### 6.2 — Update catalog counts and changelog
 
-- [ ] T022 Update AGENTS.md catalog counts and CHANGELOG.md [Unreleased]
+- [x] T022 Update AGENTS.md catalog counts and CHANGELOG.md [Unreleased]
 
 **Objective**: Reflect the three new skills and the adoption work in project metadata.
 
@@ -400,7 +400,7 @@ No constitution file found at docs/v2.3.0/constitution.md - skipping check. Reco
 
 #### 6.3 — Final validation sweep
 
-- [ ] T023 Run the final validation sweep across the repo
+- [x] T023 Run the final validation sweep across the repo
 
 **Objective**: Confirm the whole adoption is green and documented.
 
@@ -422,12 +422,12 @@ No constitution file found at docs/v2.3.0/constitution.md - skipping check. Reco
 
 ### Phase 6 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] All tests passing (`make validate`, `make lint`, `make test`)
-- [ ] AGENTS.md counts + CHANGELOG updated
-- [ ] Sibling adoption-ecc-cybersec-skills plan untouched
-- [ ] Session history generated for this phase
-- [ ] Adoption complete
+- [x] All sub-tasks completed
+- [x] All tests passing (`make` unavailable on the Windows host so validators invoked directly: JSON catalogs load OK; orphan-bundle audit PASS 0/0 across 237 skills; no-personal-paths / unicode-safety / supply-chain-iocs / workflow-security all rc=0; the three edited files (known-gaps.md, AGENTS.md, CHANGELOG.md) introduce zero new unicode warnings -- the residual em-dash warnings are pre-existing debt under the tracked WN-v23-3 umbrella. `make test` is N/A: Phase 6 changed only markdown docs, so no code/test surface moved and the validators are the relevant gate.)
+- [x] AGENTS.md counts + CHANGELOG updated (catalog headline + tree comment bumped to 230 skills / 23 categories; CHANGELOG [Unreleased] adoption block added under Added / Changed / Deferred)
+- [x] Sibling adoption-ecc-cybersec-skills plan untouched (git diff empty)
+- [x] Session history generated for this phase
+- [x] Adoption complete (Phases 1-6 of 6 closed; the one P3 item recorded as DF-v23-9 deferral)
 
 ---
 
