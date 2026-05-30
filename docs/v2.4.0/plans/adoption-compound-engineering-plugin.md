@@ -143,7 +143,7 @@ No constitution file found at docs/v2.4.0/constitution.md - skipping check. Reco
 
 #### 2.1 — Re-authored generic persona agent library
 
-- [ ] T008 Add persona reviewer agents under catalog/agents/
+- [x] T008 Add persona reviewer agents under catalog/agents/
 
 **Objective**: Adopt CE's persona-agent concept as a generic, language-agnostic reviewer set that the review pipeline fans out to.
 
@@ -154,7 +154,7 @@ No constitution file found at docs/v2.4.0/constitution.md - skipping check. Reco
 
 #### 2.2 — Persona-fanout code review skill + command
 
-- [ ] T009 Create the review pipeline at catalog/skills/code-review/multi-agent-code-review/SKILL.md (+ catalog/commands/review-changes.md)
+- [x] T009 Create the review pipeline at catalog/skills/code-review/multi-agent-code-review/SKILL.md (+ catalog/commands/review-changes.md)
 
 **Objective**: Adopt CE's `ce-code-review` pipeline: per-diff persona selection, parallel dispatch, merge/dedup, cross-reviewer promotion, confidence gate, autofix routing, an independent validation pass, model tiering, and four modes.
 
@@ -165,7 +165,7 @@ No constitution file found at docs/v2.4.0/constitution.md - skipping check. Reco
 
 #### 2.3 — Persona review of plans and requirements
 
-- [ ] T010 Create the plan-review skill at catalog/skills/code-review/plan-review/SKILL.md
+- [x] T010 Create the plan-review skill at catalog/skills/code-review/plan-review/SKILL.md
 
 **Objective**: Adopt CE's `ce-doc-review`: parallel persona lenses applied to a plan or requirements doc before code.
 
@@ -176,7 +176,7 @@ No constitution file found at docs/v2.4.0/constitution.md - skipping check. Reco
 
 #### 2.4 — Agent-native review lens
 
-- [ ] T011 Add the agent-native review lens (catalog/agents/agent-native-reviewer.md + extend tool-design)
+- [x] T011 Add the agent-native review lens (catalog/agents/agent-native-reviewer.md + extend tool-design)
 
 **Objective**: Adopt CE's `ce-agent-native-reviewer` lens that verifies new features are reachable by an agent (action + context parity).
 
@@ -187,7 +187,7 @@ No constitution file found at docs/v2.4.0/constitution.md - skipping check. Reco
 
 #### 2.5 — Testing and Stabilization
 
-- [ ] T012 Run and stabilize Phase 2 tests, including a review-pipeline benchmark
+- [x] T012 Run and stabilize Phase 2 tests, including a review-pipeline benchmark (live skill-eval-loop deferred - DF-v24-2; seeded-fixture benchmark passed)
 
 **Objective**: Verify the review pipeline at the heavier testing bar.
 
@@ -198,12 +198,12 @@ No constitution file found at docs/v2.4.0/constitution.md - skipping check. Reco
 
 ### Phase 2 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] Review pipeline benchmark passes (seeded findings surfaced, clean file untouched)
-- [ ] Live trigger checks pass for the new review skills
-- [ ] make validate + make lint green
-- [ ] Session history generated
-- [ ] Ready to advance to Phase 3
+- [x] All sub-tasks completed
+- [x] Review pipeline benchmark passes (seeded findings surfaced, clean file untouched)
+- [~] Live trigger checks pass for the new review skills (deferred - no model CLI on PATH; static trigger-surface check done; DF-v24-2)
+- [x] make validate + make lint green (validators direct: orphan-bundle 0/0, all CI validators exit 0; lint N/A - no shell scripts; repo tests 331 passed)
+- [x] Session history generated for this phase
+- [x] Ready to advance to Phase 3
 
 ---
 
