@@ -58,6 +58,12 @@ def test_init_creates_claude_settings_stub(tmp_path: Path) -> None:
     data = json.loads(settings.read_text(encoding="utf-8"))
     assert "permissions" in data
     assert "allow" in data["permissions"]
+    # The stub seeds xhigh effort + the opus model as the project defaults
+    # (xhigh requires Opus 4.8/4.7, so the model is pinned alongside it), plus
+    # the highest-precedence env override that forces xhigh past the VS Code toggle.
+    assert data["effortLevel"] == "xhigh"
+    assert data["model"] == "opus"
+    assert data["env"]["CLAUDE_CODE_EFFORT_LEVEL"] == "xhigh"
 
 
 def test_init_never_overwrites_existing_claude_settings(tmp_path: Path) -> None:

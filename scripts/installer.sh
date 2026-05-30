@@ -390,30 +390,46 @@ install_core_settings() {
         return
     fi
 
-    # Idempotency: skip if effortLevel already matches the template value
-    local template_effort
-    template_effort=$(jq -r '.effortLevel' "$template_file" 2>/dev/null)
-    if jq -e --arg v "$template_effort" '.effortLevel == $v' "$settings_file" >/dev/null 2>&1; then
-        write_item "[OK] effortLevel already set to ${template_effort} in settings.json" "$GREEN"
+    if ! command -v jq >/dev/null 2>&1; then
+        write_item "Warning: jq not found, cannot set core settings (effortLevel, model, env)" "$YELLOW"
+        write_item "  Manually copy effortLevel/model/env from $template_file to $settings_file" "$YELLOW"
         return
     fi
 
-    if command -v jq >/dev/null 2>&1; then
-        local merged
-        merged=$(jq -s '
-            .[0] as $existing | .[1] as $template |
-            $existing + {effortLevel: $template.effortLevel}
-        ' "$settings_file" "$template_file" 2>/dev/null)
+    # Core defaults seeded from the template: effortLevel + model, plus the
+    # env.CLAUDE_CODE_EFFORT_LEVEL override. The env var is the highest-precedence
+    # effort lever per the Claude Code docs, so it forces the effort past the VS
+    # Code effort toggle (which otherwise resets to the model default each session).
+    local template_effort template_model template_env_effort
+    template_effort=$(jq -r '.effortLevel' "$template_file" 2>/dev/null)
+    template_model=$(jq -r '.model' "$template_file" 2>/dev/null)
+    template_env_effort=$(jq -r '.env.CLAUDE_CODE_EFFORT_LEVEL' "$template_file" 2>/dev/null)
 
-        if [ -n "$merged" ]; then
-            echo "$merged" > "$settings_file"
-            write_item "[OK] $scope settings.json updated with effortLevel: ${template_effort}" "$GREEN"
-        else
-            write_item "Warning: Could not merge effortLevel into settings.json" "$YELLOW"
-        fi
+    # Idempotency: skip only if all three already match the template.
+    if jq -e -s '
+        .[0] as $e | .[1] as $t |
+        ($e.effortLevel == $t.effortLevel)
+        and ($e.model == $t.model)
+        and ($e.env.CLAUDE_CODE_EFFORT_LEVEL == $t.env.CLAUDE_CODE_EFFORT_LEVEL)
+    ' "$settings_file" "$template_file" >/dev/null 2>&1; then
+        write_item "[OK] Core settings (effortLevel, model, env effort) already current in settings.json" "$GREEN"
+        return
+    fi
+
+    # Merge scalars and deep-merge the env key, preserving any sibling env vars.
+    local merged
+    merged=$(jq -s '
+        .[0] as $e | .[1] as $t |
+        $e
+        + {effortLevel: $t.effortLevel, model: $t.model}
+        | .env = ((.env // {}) + {CLAUDE_CODE_EFFORT_LEVEL: $t.env.CLAUDE_CODE_EFFORT_LEVEL})
+    ' "$settings_file" "$template_file" 2>/dev/null)
+
+    if [ -n "$merged" ]; then
+        echo "$merged" > "$settings_file"
+        write_item "[OK] $scope settings.json updated core settings (effortLevel: ${template_effort}, model: ${template_model}, env CLAUDE_CODE_EFFORT_LEVEL: ${template_env_effort})" "$GREEN"
     else
-        write_item "Warning: jq not found, cannot set effortLevel" "$YELLOW"
-        write_item "  Manually add: \"effortLevel\": \"${template_effort}\" to $settings_file" "$YELLOW"
+        write_item "Warning: Could not merge core settings into settings.json" "$YELLOW"
     fi
 }
 
@@ -1736,6 +1752,10 @@ data['mcpServers']['nexus-web-fetch'] = {
     'args': ['-m', 'nexus_web_fetch'],
     'env': {'NEXUS_HUB_ROOT': hub}
 }
+# Remove superseded legacy (devai-hub) MCP entries left by pre-rename installs;
+# they are replaced one-for-one by the nexus-* servers registered above.
+for legacy in ('devai-skill-server', 'devai-code-search', 'devai-web-fetch'):
+    data['mcpServers'].pop(legacy, None)
 with open(path, 'w') as f:
     json.dump(data, f, indent=2)
 " "$claude_settings" "$venv_path" "$nexus_home"

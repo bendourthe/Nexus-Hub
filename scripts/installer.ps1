@@ -724,29 +724,58 @@ function Install-CoreSettings {
         return
     }
 
-    # Idempotency: skip if effortLevel already matches the template value
+    # Core defaults seeded from the template: effortLevel + model scalars, plus the
+    # env.CLAUDE_CODE_EFFORT_LEVEL override. The env var is the highest-precedence
+    # effort lever per the Claude Code docs, so it forces the effort past the VS
+    # Code effort toggle (which otherwise resets to the model default each session).
     $content = Get-Content $settingsFile -Raw
     try {
         $existingJson = $content | ConvertFrom-Json
         $templateJson = Get-Content $templateFile -Raw | ConvertFrom-Json
-        $templateEffort = $templateJson.effortLevel
+        $coreKeys = @("effortLevel", "model")
+        $applied = @()
 
-        if ($existingJson.PSObject.Properties["effortLevel"] -and $existingJson.effortLevel -eq $templateEffort) {
-            Write-Item -Message "✓ effortLevel already set to $templateEffort in settings.json" -Color "DarkGreen"
+        foreach ($key in $coreKeys) {
+            if (-not $templateJson.PSObject.Properties[$key]) { continue }
+            $templateValue = $templateJson.$key
+            if ($existingJson.PSObject.Properties[$key] -and $existingJson.$key -eq $templateValue) {
+                continue
+            }
+            if ($existingJson.PSObject.Properties[$key]) {
+                $existingJson.$key = $templateValue
+            } else {
+                $existingJson | Add-Member -NotePropertyName $key -NotePropertyValue $templateValue
+            }
+            $applied += "${key}: ${templateValue}"
+        }
+
+        # Deep-merge the env effort override, preserving any sibling env vars.
+        if ($templateJson.PSObject.Properties["env"] -and $templateJson.env.PSObject.Properties["CLAUDE_CODE_EFFORT_LEVEL"]) {
+            $envEffort = $templateJson.env.CLAUDE_CODE_EFFORT_LEVEL
+            if (-not $existingJson.PSObject.Properties["env"]) {
+                $existingJson | Add-Member -NotePropertyName "env" -NotePropertyValue ([PSCustomObject]@{})
+            }
+            if ($existingJson.env.PSObject.Properties["CLAUDE_CODE_EFFORT_LEVEL"]) {
+                if ($existingJson.env.CLAUDE_CODE_EFFORT_LEVEL -ne $envEffort) {
+                    $existingJson.env.CLAUDE_CODE_EFFORT_LEVEL = $envEffort
+                    $applied += "env.CLAUDE_CODE_EFFORT_LEVEL: $envEffort"
+                }
+            } else {
+                $existingJson.env | Add-Member -NotePropertyName "CLAUDE_CODE_EFFORT_LEVEL" -NotePropertyValue $envEffort
+                $applied += "env.CLAUDE_CODE_EFFORT_LEVEL: $envEffort"
+            }
+        }
+
+        if ($applied.Count -eq 0) {
+            Write-Item -Message "✓ Core settings (effortLevel, model, env effort) already current in settings.json" -Color "DarkGreen"
             return
         }
-
-        if ($existingJson.PSObject.Properties["effortLevel"]) {
-            $existingJson.effortLevel = $templateEffort
-        } else {
-            $existingJson | Add-Member -NotePropertyName "effortLevel" -NotePropertyValue $templateEffort
-        }
         $existingJson | ConvertTo-Json -Depth 10 | Set-Content $settingsFile -Encoding UTF8
-        Write-Item -Message "✓ $Scope settings.json updated with effortLevel: $templateEffort" -Color "DarkGreen"
+        Write-Item -Message "✓ $Scope settings.json updated core settings ($($applied -join ', '))" -Color "DarkGreen"
     }
     catch {
-        Write-Item -Message "Warning: Could not set effortLevel ($($_.Exception.Message))" -Color "Yellow"
-        Write-Item -Message "  Manually add: `"effortLevel`": `"xhigh`" to $settingsFile" -Color "Yellow"
+        Write-Item -Message "Warning: Could not set core settings ($($_.Exception.Message))" -Color "Yellow"
+        Write-Item -Message "  Manually copy effortLevel/model/env from $templateFile to $settingsFile" -Color "Yellow"
     }
 }
 
@@ -2186,6 +2215,14 @@ function Install-SkillDiscovery {
             $settings.mcpServers.$name = $entry
         } else {
             $settings.mcpServers | Add-Member -NotePropertyName $name -NotePropertyValue $entry
+        }
+    }
+
+    # Remove superseded legacy (devai-hub) MCP entries left by pre-rename installs;
+    # they are replaced one-for-one by the nexus-* servers registered above.
+    foreach ($legacy in @("devai-skill-server", "devai-code-search", "devai-web-fetch")) {
+        if ($settings.mcpServers.PSObject.Properties[$legacy]) {
+            $settings.mcpServers.PSObject.Properties.Remove($legacy)
         }
     }
 
