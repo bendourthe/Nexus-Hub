@@ -225,7 +225,7 @@ These are tier-3 resources - the agent loads them only when invoking the corresp
 ## Related Skills
 
 - `developer-experience/ai-output-evaluation` - upstream evaluation methodology (rubrics, LLM-as-judge, bias mitigation); this skill operationalizes that methodology specifically for the Nexus-Hub skill catalog.
-- `workflow/create-custom-command` and AGENTS.md "Adding a New Skill" - the cold-start phase that produces the draft this skill iterates on.
+- `workflow/create-custom-command` and AGENTS.md "Adding a New Skill" - the cold-start phase that produces the draft this skill iterates on. Its bundled `references/tdd-for-skills.md`, `references/pressure-testing.md`, and `references/persuasion-principles.md` are the test-first authoring methodology that pairs with this empirical loop: TDD-for-skills mines rationalizations from a baseline run during authoring, and this loop uses the same baseline as its marginal-value control during iteration.
 - `tests-generation/code-coverage` - covers test coverage for code, not skills; complementary, not redundant.
 - `orchestration/multi-agent-coordinator` - relevant when paired runs spawn parallel sub-agents (grader + comparator + analyzer); this skill calls each sub-agent in serial within an iteration but the multi-agent coordinator covers the parallel case.
 - `developer-experience/prompt-engineering` - the upstream skill for designing the prompts that go INTO `evals.json`; use it before running the loop, not during.

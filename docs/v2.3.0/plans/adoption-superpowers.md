@@ -133,7 +133,7 @@ No constitution file found at docs/v2.3.0/constitution.md - skipping check. Reco
 
 #### 2.1 — TDD-for-skills authoring methodology
 
-- [ ] T006 Add authoring-methodology references in catalog/skills/workflow/create-custom-command/references/
+- [x] T006 Add authoring-methodology references in catalog/skills/workflow/create-custom-command/references/
 
 **Objective**: Encode the "no skill without a failing baseline test first" methodology and pressure-scenario testing for discipline skills.
 
@@ -147,7 +147,7 @@ No constitution file found at docs/v2.3.0/constitution.md - skipping check. Reco
 
 #### 2.2 — persuasion-principles reference
 
-- [ ] T007 Add persuasion-principles reference in catalog/skills/workflow/create-custom-command/references/persuasion-principles.md
+- [x] T007 Add persuasion-principles reference in catalog/skills/workflow/create-custom-command/references/persuasion-principles.md
 
 **Objective**: Provide research-backed grounding for why rationalization tables, red-flag lists, and authority framing work in discipline skills.
 
@@ -159,7 +159,7 @@ No constitution file found at docs/v2.3.0/constitution.md - skipping check. Reco
 
 #### 2.3 — Testing and Stabilization
 
-- [ ] T008 Run and stabilize Phase 2 in catalog/skills/workflow/create-custom-command/
+- [x] T008 Run and stabilize Phase 2 in catalog/skills/workflow/create-custom-command/
 
 **Objective**: Confirm the new references validate and are not orphaned.
 
@@ -170,11 +170,11 @@ No constitution file found at docs/v2.3.0/constitution.md - skipping check. Reco
 
 ### Phase 2 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] All tests passing (`make validate`, orphan-bundle clean)
-- [ ] No known regressions from prior phases
-- [ ] Session history generated for this phase
-- [ ] Ready to advance to Phase 3
+- [x] All sub-tasks completed
+- [x] All tests passing (`make validate` run via `python scripts/validate_skills.py`; orphan-bundle clean across the full catalog; `make` unavailable on the Windows host so validators invoked directly)
+- [x] No known regressions from prior phases
+- [x] Session history generated for this phase
+- [x] Ready to advance to Phase 3
 
 ---
 

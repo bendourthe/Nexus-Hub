@@ -489,11 +489,22 @@ Perform a comprehensive review combining multiple checks:
 Provide a combined report with all findings.
 ```
 
+## Skill-Authoring Methodology (bundled references)
+
+Writing a command or a skill body is the cold-start phase; writing a *discipline-enforcing* one (a gate that must resist rationalization under pressure) needs a test-first methodology before you ever run an empirical eval. Three bundled references under `references/` cover that methodology. Read them when authoring a skill whose job is to make the agent do the harder, correct thing (verify before claiming done, investigate root cause before patching, get a design approved before coding), not merely teach a capability.
+
+- `references/tdd-for-skills.md` - the RED-GREEN-REFACTOR loop for skill authoring: run the pressure scenario WITHOUT the skill and capture rationalizations verbatim (RED), write the skill to rebut them (GREEN), close the new loopholes the agent finds (REFACTOR), plus the Iron Law ("no skill without a failing baseline first") and how this complements the empirical `skill-eval-loop`.
+- `references/pressure-testing.md` - how to construct scenarios that apply real, combined pressure (time, sunk cost, authority, exhaustion, social, pragmatic), the meta-testing question ("how could the skill have been written so the disciplined action was the only acceptable answer?"), and the signals that a discipline skill is bulletproof.
+- `references/persuasion-principles.md` - the research-backed framing (Cialdini 2021; Meincke et al. 2025) behind why gates and rationalization tables work, which principles to use (authority, commitment, scarcity, social proof, unity) and which to AVOID for compliance (liking and reciprocity, which produce sycophancy), with a principle-by-skill-type table.
+
+These three feed directly into the `skill-eval-loop` iteration phase: the baseline run that TDD-for-skills uses to mine rationalizations is the same paired control `skill-eval-loop` uses to measure marginal value.
+
 ## Related Skills
 
 - `plan-before-code` - Planning commands
 - `code-quality` - Review commands
 - `test-structure` - Testing commands
+- `[[skill-eval-loop]]` - the empirical iteration loop that measures and hardens the draft this skill's authoring methodology produces
 
 ---
 
