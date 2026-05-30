@@ -327,7 +327,7 @@ No constitution file found at docs/v2.3.0/constitution.md - skipping check. Reco
 
 #### 5.1 — find-polluter bisector
 
-- [ ] T018 Add find-polluter.sh and find-polluter.ps1 in catalog/skills/tests-generation/flaky-test-detector/scripts/
+- [x] T018 Add find-polluter.sh and find-polluter.ps1 in catalog/skills/tests-generation/flaky-test-detector/scripts/
 
 **Objective**: Provide a local bisection script that finds which test file creates filesystem/state pollution.
 
@@ -338,7 +338,7 @@ No constitution file found at docs/v2.3.0/constitution.md - skipping check. Reco
 
 #### 5.2 — condition-based-waiting helper
 
-- [ ] T019 Add waitFor helper example in catalog/skills/tests-generation/flaky-test-detector/assets/condition-based-waiting-example.ts
+- [x] T019 Add waitFor helper example in catalog/skills/tests-generation/flaky-test-detector/assets/condition-based-waiting-example.ts
 
 **Objective**: Provide a copy-in `waitFor` polling helper that replaces `sleep`-based flakiness.
 
@@ -349,7 +349,7 @@ No constitution file found at docs/v2.3.0/constitution.md - skipping check. Reco
 
 #### 5.3 — Testing and Stabilization
 
-- [ ] T020 Run and stabilize Phase 5 in catalog/skills/tests-generation/flaky-test-detector/
+- [x] T020 Run and stabilize Phase 5 in catalog/skills/tests-generation/flaky-test-detector/
 
 **Objective**: Validate the bundle and confirm cross-platform parity of the script.
 
@@ -360,11 +360,11 @@ No constitution file found at docs/v2.3.0/constitution.md - skipping check. Reco
 
 ### Phase 5 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] All tests passing (`make validate`, `make lint`)
-- [ ] `.sh` / `.ps1` parity confirmed (or cross-OS run recorded as deferred)
-- [ ] Session history generated for this phase
-- [ ] Ready to advance to Phase 6
+- [x] All sub-tasks completed
+- [x] All tests passing (`make` unavailable on Windows host so validators invoked directly: orphan-bundle audit PASS 0/0 across 237 skills; JSON catalogs OK; no-personal-paths / unicode-safety / supply-chain-iocs / workflow-security validators exit 0; new files ASCII-clean. ShellCheck unavailable on host - `bash -n` syntax check passed; ShellCheck deferred, consistent with `make lint`'s skip-when-absent behavior.)
+- [x] `.sh` / `.ps1` parity confirmed (both run live against a throwaway fixture; identical behavior across 5 cases each: polluter detection, no-polluter, append-mode, unsafe-watch guard, no-match guard. A literal-pattern `nullglob` bug in the `.sh` was found via the smoke test and fixed.)
+- [x] Session history generated for this phase
+- [x] Ready to advance to Phase 6
 
 ---
 

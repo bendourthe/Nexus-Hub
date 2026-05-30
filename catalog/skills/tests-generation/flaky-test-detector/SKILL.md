@@ -301,6 +301,20 @@ class TimingDependencyTest {
 
 ### Step 3: Diagnose Test Ordering Dependencies
 
+When randomized ordering reveals an order-dependent failure, the next question is *which* earlier test leaked the state. The bundled bisector under `scripts/` automates that hunt: it runs each test file in isolation, cleaning a watched pollution artifact (a file or directory a clean run should never leave behind) before each run, and reports the first file whose isolated run re-creates it. It is project-agnostic - you pass the artifact to watch, a glob of test files, and your own test command - so it hardcodes no language or framework and makes no network calls. Use `scripts/find-polluter.sh` on POSIX or `scripts/find-polluter.ps1` on Windows:
+
+```bash
+# Bash: which test file leaves tmp/leaked.lock behind? {} is the per-file placeholder.
+scripts/find-polluter.sh --watch "tmp/leaked.lock" --tests "tests/test_*.py" -- pytest -p no:randomly {}
+```
+
+```powershell
+# PowerShell: the functional equivalent (test command passed as one string)
+.\scripts\find-polluter.ps1 -Watch "tmp/leaked.lock" -Tests "tests/test_*.py" -TestCommand "pytest -p no:randomly {}"
+```
+
+Once the bisector names the polluting file, fix it by making every test set up and tear down its own state, as below.
+
 **Python:**
 ```python
 # Run with randomized order to detect ordering dependencies:
