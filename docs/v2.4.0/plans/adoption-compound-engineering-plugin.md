@@ -332,7 +332,7 @@ No constitution file found at docs/v2.4.0/constitution.md - skipping check. Reco
 
 #### 5.1 — Per-platform capability spec docs
 
-- [ ] T020 Author per-platform capability specs under docs/specs/<platform>.md
+- [x] T020 Author per-platform capability specs under docs/specs/<platform>.md
 
 **Objective**: Adopt CE's `docs/specs/*` per-platform capability references, reconstructed locally from the Nexus-Hub integration registry knowledge.
 
@@ -343,7 +343,7 @@ No constitution file found at docs/v2.4.0/constitution.md - skipping check. Reco
 
 #### 5.2 — Installer branch-based testing
 
-- [ ] T021 Add a --branch / -Branch flag to scripts/installer.sh and scripts/installer.ps1
+- [x] T021 Add a --branch / -Branch flag to scripts/installer.sh and scripts/installer.ps1
 
 **Objective**: Adopt CE's branch-based plugin testing: install the catalog from a pushed branch into a deterministic cache path without switching the user's checkout.
 
@@ -354,7 +354,7 @@ No constitution file found at docs/v2.4.0/constitution.md - skipping check. Reco
 
 #### 5.3 — Testing and Stabilization
 
-- [ ] T022 Run and stabilize Phase 5 tests
+- [x] T022 Run and stabilize Phase 5 tests
 
 **Objective**: Verify the re-full builds.
 
@@ -365,12 +365,12 @@ No constitution file found at docs/v2.4.0/constitution.md - skipping check. Reco
 
 ### Phase 5 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] Per-platform specs accurate to the integration registry
-- [ ] --branch flag works on bash + PowerShell; default behavior unchanged
-- [ ] make validate + make lint + installer probes green
-- [ ] Session history generated
-- [ ] Ready to advance to Phase 6
+- [x] All sub-tasks completed
+- [x] Per-platform specs accurate to the integration registry (20/20 instruction_file + workspace_dir spot-checks against the live INTEGRATION_REGISTRY config)
+- [x] --branch flag works on bash + PowerShell; default behavior unchanged (probe resolves cache path + neutralizes traversal on both; 70/70 installer tests pass incl. the unchanged enterprise/check/init/traversal suites)
+- [x] make validate + make lint + installer probes green (validators direct: JSON OK, unicode/no-personal-paths exit 0, orphan-bundle 0/0; bash -n OK both installers, shellcheck N/A on host; 7 new branch-flag probe tests pass)
+- [x] Session history generated
+- [x] Ready to advance to Phase 6
 
 ---
 

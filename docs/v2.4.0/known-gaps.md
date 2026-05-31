@@ -3,22 +3,22 @@
 This file tracks per-version unfinished work, deferred items, deviations from plan, and bugs discovered during phase implementation. The next phase plan and the version-bump checklist read this file to decide what carries forward.
 
 **Plan**: [docs/v2.4.0/plans/adoption-compound-engineering-plugin.md](plans/adoption-compound-engineering-plugin.md)
-**Status**: in-progress (Phases 1-4 closed; Phase 3 of 8 closed - Close the compound loop)
-**Last updated**: 2026-05-31 (Phase 3 close)
+**Status**: in-progress (Phases 1-5 of 8 closed; latest: Phase 5 - Internal RE builds re-full)
+**Last updated**: 2026-05-31 (Phase 5 close)
 
 ## Summary
 
 | Category | Open | Resolved this version |
 |---|---|---|
 | NI -- Not implemented (skipped subtask) | 1 | 0 |
-| DF -- Deferred (intentionally) | 4 | 0 |
+| DF -- Deferred (intentionally) | 5 | 0 |
 | BG -- Bug or unresolved test failure | 0 | 1 |
 | MT -- Missing tests / coverage gap | 0 | 0 |
 | WN -- Warning or suppressed lint rule | 1 | 1 |
 | QG -- Quality gate bypassed | 0 | 0 |
-| **Total** | **6** | **2** |
+| **Total** | **7** | **2** |
 
-_Phase 1 resolved 2 of the 15 ingested v2.3.0 gaps (WN-v23-1 count drift, BG-v23-1 secret-scan false positives). The remaining 13 ingested gaps are tracked as sub-tasks in the plan (Phases 2-8) and are not duplicated here until discovered/closed during their phase. Phase 1 added 3 new gaps; Phase 2 added 1 (DF-v24-2) and extended WN-v24-1 with the agent-count delta. Phase 4 added 1 (DF-v24-3) and extended WN-v24-1 to the 242-skill truth. Phase 3 (run after Phase 4, since Phase 4's prerequisite was "None beyond Phase 1") added 1 (DF-v24-4) and extended WN-v24-1 to the 244-skill truth (added `product-strategy` + `session-query`)._
+_Phase 1 resolved 2 of the 15 ingested v2.3.0 gaps (WN-v23-1 count drift, BG-v23-1 secret-scan false positives). The remaining 13 ingested gaps are tracked as sub-tasks in the plan (Phases 2-8) and are not duplicated here until discovered/closed during their phase. Phase 1 added 3 new gaps; Phase 2 added 1 (DF-v24-2) and extended WN-v24-1 with the agent-count delta. Phase 4 added 1 (DF-v24-3) and extended WN-v24-1 to the 242-skill truth. Phase 3 (run after Phase 4, since Phase 4's prerequisite was "None beyond Phase 1") added 1 (DF-v24-4) and extended WN-v24-1 to the 244-skill truth (added `product-strategy` + `session-query`). Phase 5 added 1 (DF-v24-5, live --branch clone+install deferred); it ships docs-only + installer changes, no new skills, so the registries are unchanged at 244._
 
 ## Open Items
 
@@ -61,6 +61,14 @@ _Phase 1 resolved 2 of the 15 ingested v2.3.0 gaps (WN-v23-1 count drift, BG-v23
 - **Category**: DF -- Deferred (intentionally; environment constraint)
 - **Reason**: T016 asks for a live `skill-eval-loop` trigger check for `product-strategy` and `session-query`. No model CLI (`claude`/`codex`/`gemini`/`opencode`) is on PATH in the implementation environment (same constraint as DF-v24-1 / DF-v24-2 / DF-v24-3). A static trigger-surface check was performed instead and recorded: `product-strategy` carries verbatim positive trigger phrases ("write a strategy", "what is our product strategy", "define the target problem", "who is this for", "what metrics matter", "set the product direction", "what are our bets", "what tracks are we working on") plus a `SKIP` clause fencing governance MUST/SHOULD (project-constitution), single-idea refinement (idea-refine), known-gaps logging, and single-feature specs; `session-query` carries verbatim positive trigger phrases ("did we look at this before", "what did we try last time", "find the session where we debugged X", "search my past sessions", "pull up prior context on this branch", "have we hit this error before") plus a `SKIP` clause fencing session-history generation, solution capture, known-gaps logging, and any external upload. Both `summary_l0` are <=15 words and both `overview_l1` are <=150 words; the MCP skill-server suite (43 passed) consumes both new entries. The session-query extractor was additionally proven via 13 pytest cases and an empirical PowerShell-parity smoke (topic / time-window / no-match all match the Python digest).
 - **Suggested next step**: Run the live `skill-eval-loop` for `product-strategy` and `session-query` when a model CLI is available - fold into Phase 8 T037 alongside DF-v24-1 / DF-v24-2 / DF-v24-3. Author a minimal `evals.json` per skill (one should-trigger, one should-not-trigger prompt) and confirm 1.0 positive / 0.0 negative; tighten the description per `skill-eval-loop/references/improvement-heuristics.md` if under-triggering.
+
+### DF-v24-5 -- Live --branch clone+install path verified only via the dry-run probe
+
+- **Source phase**: Phase 5 - Internal RE builds re-full (sub-task T022)
+- **Plan reference**: `docs/v2.4.0/plans/adoption-compound-engineering-plugin.md` (sub-task 5.2 / T021, 5.3 / T022)
+- **Category**: DF -- Deferred (intentionally; environment / scope constraint)
+- **Reason**: T021 added the `--branch <name>` / `-Branch <name>` installer flag, which shallow-clones a pushed branch into `~/.nexus-hub/branches/<sanitized>/` and re-execs the install from that checkout. T022's acceptance was satisfied via the clone-free dry-run probe (`--branch <name> --check` / `-Branch <name> -Check`): the probe resolves the cache path, neutralizes path-traversal branch names (`../../etc` -> `---etc`), reads the clone source from `git remote.origin.url`, and exits 0 without cloning, on both bash and PowerShell (7 pytest probes in `tests/installer/test_branch_flag.py`). The actual end-to-end path -- shallow clone of a real pushed branch, `NEXUS_HUB_BRANCH_RESOLVED` re-exec into the cached installer, and a full install from the cached checkout -- was not run, because it requires a real pushed branch and a full (non-dry-run) install into a throwaway target, which is heavier than the phase's probe-level acceptance bar.
+- **Suggested next step**: Once a test branch is pushed, run `bash scripts/installer.sh --branch <that-branch>` (and the PowerShell `-Branch` equivalent) into a throwaway global/workspace target and confirm: (1) the cache dir is created and populated from the branch, (2) the re-exec runs with `NEXUS_HUB_BRANCH_RESOLVED=1` and does not re-clone, (3) the install completes from the cached checkout, and (4) the user's working copy is untouched. Fold into the Phase-8 cross-OS smoke (T039) or a maintainer pre-release check.
 
 ### WN-v24-1 -- AGENTS.md catalog-count prose is stale after the registry reconciliation
 

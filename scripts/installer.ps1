@@ -18,6 +18,7 @@ param(
     [switch]$Help,
     [string]$PrintConfig,
     [switch]$Check,
+    [string]$Branch,
     [Parameter(Position = 0)]
     [string]$Subcommand,
     [Parameter(ValueFromRemainingArguments = $true)]
@@ -31,6 +32,7 @@ Usage:
   pwsh scripts/installer.ps1 init [-Target PATH] [-DryRun]
   pwsh scripts/installer.ps1 -PrintConfig <integration-key>
   pwsh scripts/installer.ps1 -Check
+  pwsh scripts/installer.ps1 -Branch <name> [-Enterprise]
 
 Subcommands:
   init          Bootstrap project-local surfaces (Cursor rules, Claude
@@ -53,12 +55,32 @@ Options:
                 the only way to keep the integration after that date.
                 Default (without -Enterprise): the installer prints a sunset
                 warning and skips Gemini CLI but still installs Antigravity CLI.
+  -Branch <name>  Install the catalog from a pushed branch instead of the
+                current checkout. Shallow-clones the repo at <name> into a
+                deterministic cache directory (~/.nexus-hub/branches/<name>/),
+                then runs the install from that checkout -- the user's working
+                copy is never touched. Combine with -Check to print the resolved
+                cache path and clone source without cloning (a probe).
   -Help         Show this help and exit.
 "@ | Write-Host
     exit 0
 }
 
 $ErrorActionPreference = "Stop"
+
+# Map an arbitrary git branch name to a filesystem-safe cache token (the
+# PowerShell sibling of installer.sh's sanitize_branch_name): every character
+# outside [A-Za-z0-9._-] becomes '-', parent-dir tokens are neutralized, and a
+# leading dot/dash is stripped so the result is never a hidden dir or a path-
+# traversal vector.
+function Get-SanitizedBranchName {
+    param([string]$Raw)
+    $s = ($Raw -replace '[^A-Za-z0-9._-]', '-')
+    $s = $s -replace '\.\.', '-'
+    $s = $s -replace '^[-.]', ''
+    if ([string]::IsNullOrEmpty($s)) { $s = 'branch' }
+    return $s
+}
 
 # --- Version ---
 # Single source of truth for the installer banner version label.
@@ -2369,6 +2391,61 @@ function Show-FarewellBanner {
 
 # --- Main ---
 $repoRoot = Resolve-Path "$PSScriptRoot\.."
+
+# --- Branch-based install (v2.4.0+) --------------------------------------
+# When -Branch <name> is given, install the catalog from a shallow clone of
+# that pushed branch in a deterministic cache dir, leaving the user's working
+# copy untouched. NEXUS_HUB_BRANCH_RESOLVED guards against re-cloning once we
+# have re-launched into the cached checkout. This block runs before the
+# read-only dispatch so that -Branch + -Check is a clone-free probe.
+if ($Branch -and $env:NEXUS_HUB_BRANCH_RESOLVED -ne "1") {
+    $branchToken = Get-SanitizedBranchName -Raw $Branch
+    $homeDir = if ($env:HOME) { $env:HOME } else { $env:USERPROFILE }
+    $branchCacheDir = Join-Path $homeDir ".nexus-hub/branches/$branchToken"
+    $branchSrcUrl = ""
+    try { $branchSrcUrl = (& git -C "$repoRoot" config --get remote.origin.url).Trim() } catch { $branchSrcUrl = "" }
+    if ([string]::IsNullOrEmpty($branchSrcUrl)) { $branchSrcUrl = "$repoRoot" }
+
+    if ($Check) {
+        # Probe: print the resolution and exit without cloning or installing.
+        Write-Host "nexus-hub branch install (dry-run):"
+        Write-Host "  branch:    $Branch"
+        Write-Host "  sanitized: $branchToken"
+        Write-Host "  source:    $branchSrcUrl"
+        Write-Host "  cache dir: $branchCacheDir"
+        exit 0
+    }
+
+    if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
+        Write-Error "git is required for -Branch installs but was not found on PATH."
+        exit 2
+    }
+
+    Write-Host "Installing Nexus-Hub from branch '$Branch' (cache: $branchCacheDir)..."
+    $branchParent = Split-Path $branchCacheDir -Parent
+    if (-not (Test-Path $branchParent)) { New-Item -ItemType Directory -Force -Path $branchParent | Out-Null }
+    if (Test-Path (Join-Path $branchCacheDir ".git")) {
+        & git -C "$branchCacheDir" fetch --depth 1 origin "$Branch"
+        if ($LASTEXITCODE -ne 0) { Write-Error "Failed to refresh branch cache at $branchCacheDir"; exit 2 }
+        & git -C "$branchCacheDir" checkout -f FETCH_HEAD
+        if ($LASTEXITCODE -ne 0) { Write-Error "Failed to checkout branch cache at $branchCacheDir"; exit 2 }
+    } else {
+        if (Test-Path $branchCacheDir) { Remove-Item -Recurse -Force $branchCacheDir }
+        & git clone --depth 1 --branch "$Branch" "$branchSrcUrl" "$branchCacheDir"
+        if ($LASTEXITCODE -ne 0) { Write-Error "Failed to clone branch '$Branch' from $branchSrcUrl"; exit 2 }
+    }
+
+    $cachedInstaller = Join-Path $branchCacheDir "scripts/installer.ps1"
+    if (-not (Test-Path $cachedInstaller)) {
+        Write-Error "Cached checkout has no scripts/installer.ps1 at $cachedInstaller"
+        exit 2
+    }
+    $env:NEXUS_HUB_BRANCH_RESOLVED = "1"
+    $branchPassthru = @()
+    if ($Enterprise) { $branchPassthru += "-Enterprise" }
+    & powershell -NoProfile -ExecutionPolicy Bypass -File $cachedInstaller @branchPassthru
+    exit $LASTEXITCODE
+}
 
 # Read-only subcommand dispatch (init / -PrintConfig / -Check) - bypass the
 # interactive scope menu and proxy to the Python runner so they are pipeable /

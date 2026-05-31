@@ -1900,6 +1900,22 @@ REPO_ROOT="$(dirname "$SCRIPT_DIR")"
 ENTERPRISE=0
 SUBCOMMAND=""
 SUBCOMMAND_ARGS=()
+BRANCH_NAME=""
+PASSTHRU_ARGS=()
+
+# Map an arbitrary git branch name to a filesystem-safe cache token: every
+# character outside [A-Za-z0-9._-] becomes '-', parent-dir tokens are
+# neutralized, and a leading dot/dash is stripped so the result is never a
+# hidden dir or a path-traversal vector.
+sanitize_branch_name() {
+    local raw="$1" s
+    s="${raw//[!A-Za-z0-9._-]/-}"
+    s="${s//../-}"
+    s="${s#[-.]}"
+    [ -n "$s" ] || s="branch"
+    printf '%s' "$s"
+}
+
 show_installer_usage() {
     cat <<EOF
 Usage:
@@ -1907,6 +1923,7 @@ Usage:
   bash scripts/installer.sh init [--target PATH] [--dry-run]
   bash scripts/installer.sh --print-config <integration-key>
   bash scripts/installer.sh --check
+  bash scripts/installer.sh --branch <name> [--enterprise]
 
 Subcommands:
   init           Bootstrap project-local surfaces (Cursor rules, Claude
@@ -1933,6 +1950,13 @@ Options:
                  warning and skips the Gemini CLI install, but still installs
                  Antigravity CLI (which covers the same functionality via the
                  antigravity2 integration).
+  --branch <name>  Install the catalog from a pushed branch instead of the
+                 current checkout. Shallow-clones the repo at <name> into a
+                 deterministic cache directory (~/.nexus-hub/branches/<name>/),
+                 then runs the install from that checkout -- the user's working
+                 copy is never touched. Combine with --check / --dry-run to
+                 print the resolved cache path and clone source without cloning
+                 (a probe). Use --branch=<name> or --branch <name>.
   -h, --help     Show this help and exit.
 EOF
 }
@@ -1942,6 +1966,23 @@ while [ $# -gt 0 ]; do
     case "$1" in
         --enterprise)
             ENTERPRISE=1
+            PASSTHRU_ARGS+=("--enterprise")
+            shift
+            ;;
+        --branch)
+            BRANCH_NAME="${2:-}"
+            if [ -z "$BRANCH_NAME" ]; then
+                echo "--branch requires a branch name" >&2
+                exit 2
+            fi
+            shift 2
+            ;;
+        --branch=*)
+            BRANCH_NAME="${1#--branch=}"
+            if [ -z "$BRANCH_NAME" ]; then
+                echo "--branch requires a branch name" >&2
+                exit 2
+            fi
             shift
             ;;
         --print-config)
@@ -1977,6 +2018,53 @@ while [ $# -gt 0 ]; do
             ;;
     esac
 done
+
+# --- Branch-based install (v2.4.0+) --------------------------------------
+# When --branch <name> is given, install the catalog from a shallow clone of
+# that pushed branch in a deterministic cache dir, leaving the user's working
+# copy untouched. NEXUS_HUB_BRANCH_RESOLVED guards against re-cloning once we
+# have re-exec'd into the cached checkout. This block runs before the read-only
+# dispatch so that --branch + --check is a clone-free probe.
+if [ -n "$BRANCH_NAME" ] && [ "${NEXUS_HUB_BRANCH_RESOLVED:-0}" != "1" ]; then
+    branch_token="$(sanitize_branch_name "$BRANCH_NAME")"
+    branch_cache_dir="$HOME/.nexus-hub/branches/$branch_token"
+    branch_src_url="$(git -C "$REPO_ROOT" config --get remote.origin.url 2>/dev/null || true)"
+    [ -n "$branch_src_url" ] || branch_src_url="file://$REPO_ROOT"
+
+    if [ "$CHECK_MODE" = "1" ]; then
+        # Probe: print the resolution and exit without cloning or installing.
+        echo "nexus-hub branch install (dry-run):"
+        echo "  branch:    $BRANCH_NAME"
+        echo "  sanitized: $branch_token"
+        echo "  source:    $branch_src_url"
+        echo "  cache dir: $branch_cache_dir"
+        exit 0
+    fi
+
+    if ! command -v git >/dev/null 2>&1; then
+        echo "git is required for --branch installs but was not found on PATH." >&2
+        exit 2
+    fi
+
+    echo "Installing Nexus-Hub from branch '$BRANCH_NAME' (cache: $branch_cache_dir)..."
+    mkdir -p "$(dirname "$branch_cache_dir")"
+    if [ -d "$branch_cache_dir/.git" ]; then
+        git -C "$branch_cache_dir" fetch --depth 1 origin "$BRANCH_NAME" \
+            && git -C "$branch_cache_dir" checkout -f FETCH_HEAD \
+            || { echo "Failed to refresh branch cache at $branch_cache_dir" >&2; exit 2; }
+    else
+        rm -rf "$branch_cache_dir"
+        git clone --depth 1 --branch "$BRANCH_NAME" "$branch_src_url" "$branch_cache_dir" \
+            || { echo "Failed to clone branch '$BRANCH_NAME' from $branch_src_url" >&2; exit 2; }
+    fi
+
+    cached_installer="$branch_cache_dir/scripts/installer.sh"
+    if [ ! -f "$cached_installer" ]; then
+        echo "Cached checkout has no scripts/installer.sh at $cached_installer" >&2
+        exit 2
+    fi
+    exec env NEXUS_HUB_BRANCH_RESOLVED=1 bash "$cached_installer" ${PASSTHRU_ARGS[@]+"${PASSTHRU_ARGS[@]}"}
+fi
 
 # Dispatch read-only subcommands BEFORE the interactive banner so they remain
 # pipeable / scriptable.
