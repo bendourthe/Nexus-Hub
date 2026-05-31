@@ -1941,6 +1941,19 @@ function Install-Templates {
     if (Test-Path $solutionFmSource) {
         Safe-Copy -Source $solutionFmSource -Destination (Join-Path $scriptsDest "validate_solution_frontmatter.py") -Confirm:$true -CustomMessage "✓ Solution-frontmatter validator installed at: $scriptsDest\validate_solution_frontmatter.py"
     }
+    # generate_release_changelog.py / .ps1 (v2.4.0): local conventional-commit
+    # release helper - computes the next semver bump + a Keep-a-Changelog
+    # section from local git history. Zero-outbound (local git only); an
+    # optional helper for the update-version / generate-changelog flows, NOT a
+    # GitHub Action. Both siblings ship. Mirror of the bash block.
+    $releaseChangelogPy = Join-Path $RepoRoot "scripts\generate_release_changelog.py"
+    if (Test-Path $releaseChangelogPy) {
+        Safe-Copy -Source $releaseChangelogPy -Destination (Join-Path $scriptsDest "generate_release_changelog.py") -Confirm:$true -CustomMessage "✓ Release-changelog helper installed at: $scriptsDest\generate_release_changelog.py"
+    }
+    $releaseChangelogPs1 = Join-Path $RepoRoot "scripts\generate_release_changelog.ps1"
+    if (Test-Path $releaseChangelogPs1) {
+        Safe-Copy -Source $releaseChangelogPs1 -Destination (Join-Path $scriptsDest "generate_release_changelog.ps1") -Confirm:$true -CustomMessage "✓ Release-changelog helper (PowerShell) installed at: $scriptsDest\generate_release_changelog.ps1"
+    }
 
     # Copy v2.3.0 Phase 4 lifecycle scripts (T011 consult advisor + T012
     # harness audit). Mirror of the matching block in scripts\installer.sh.

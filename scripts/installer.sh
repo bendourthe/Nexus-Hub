@@ -1504,6 +1504,19 @@ install_templates() {
     if [ -f "$solution_fm_source" ]; then
         safe_copy "$solution_fm_source" "$scripts_dest/validate_solution_frontmatter.py" true "[OK] Solution-frontmatter validator installed at: $scripts_dest/validate_solution_frontmatter.py"
     fi
+    # generate_release_changelog.py / .ps1 (v2.4.0): local conventional-commit
+    # release helper - computes the next semver bump + a Keep-a-Changelog
+    # section from git history. Zero-outbound (local git only); an optional
+    # helper for the update-version / generate-changelog flows, NOT a GitHub
+    # Action. Both siblings ship. Lockstep with scripts/installer.ps1.
+    local release_changelog_py="$repo_root/scripts/generate_release_changelog.py"
+    if [ -f "$release_changelog_py" ]; then
+        safe_copy "$release_changelog_py" "$scripts_dest/generate_release_changelog.py" true "[OK] Release-changelog helper installed at: $scripts_dest/generate_release_changelog.py"
+    fi
+    local release_changelog_ps1="$repo_root/scripts/generate_release_changelog.ps1"
+    if [ -f "$release_changelog_ps1" ]; then
+        safe_copy "$release_changelog_ps1" "$scripts_dest/generate_release_changelog.ps1" true "[OK] Release-changelog helper (PowerShell) installed at: $scripts_dest/generate_release_changelog.ps1"
+    fi
 
     # Copy v2.3.0 Phase 4 lifecycle scripts (T011 consult advisor + T012
     # harness audit). The doctor / repair / list-installed surface itself

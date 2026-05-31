@@ -76,6 +76,14 @@ git diff {last_tag}..HEAD --stat
 
 4. Generate proposed CHANGELOG entries from this analysis.
 
+**Optional accelerator (conventional-commit repos)**: if the project uses conventional commits, the local helper `scripts/generate_release_changelog.py` (PowerShell sibling `scripts/generate_release_changelog.ps1`, also installed at `~/.nexus-hub/scripts/`) computes the proposed bump (MAJOR/MINOR/PATCH) AND a draft Keep-a-Changelog section from `git log {last_tag}..HEAD` in one pass:
+
+```bash
+python scripts/generate_release_changelog.py --current-version {current}
+```
+
+It is zero-outbound (local `git` only), needs no credentials, and is NOT a release Action - use its proposed bump and section as a starting point for Step A1's version choice and the A4 draft below. It omits non-conventional commits, so the manual review in A3-A4 still applies; never let it overwrite `CHANGELOG.md` directly (Step C2 owns the write).
+
 ### Step A4: Present Proposed Changes
 
 Show the user the auto-generated CHANGELOG entries:

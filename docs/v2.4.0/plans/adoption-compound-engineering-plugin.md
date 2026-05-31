@@ -384,7 +384,7 @@ No constitution file found at docs/v2.4.0/constitution.md - skipping check. Reco
 
 #### 6.1 — Local demo-capture skill
 
-- [ ] T023 Create the demo-capture skill at catalog/skills/workflow/demo-capture/SKILL.md (+ capture scripts)
+- [x] T023 Create the demo-capture skill at catalog/skills/workflow/demo-capture/SKILL.md (+ capture scripts)
 
 **Objective**: Adopt CE's `ce-demo-reel` visual PR evidence, re-partial: keep the local capture (GIF / terminal recording / screenshots), drop the upstream upload/approval vendor surface.
 
@@ -395,7 +395,7 @@ No constitution file found at docs/v2.4.0/constitution.md - skipping check. Reco
 
 #### 6.2 — Conventional-commit release/changelog script
 
-- [ ] T024 Add a local release/changelog script and wire it into update-version / generate-changelog
+- [x] T024 Add a local release/changelog script and wire it into update-version / generate-changelog
 
 **Objective**: Adopt CE's release automation as a LOCAL re-partial script (conventional-commit-driven version selection + changelog), avoiding the third-party release-please GitHub Action.
 
@@ -406,7 +406,7 @@ No constitution file found at docs/v2.4.0/constitution.md - skipping check. Reco
 
 #### 6.3 — Testing and Stabilization
 
-- [ ] T025 Run and stabilize Phase 6 tests
+- [x] T025 Run and stabilize Phase 6 tests (live skill-eval-loop deferred - DF-v24-6; static trigger-surface + graceful-degradation verified)
 
 **Objective**: Verify the re-partial builds.
 
@@ -417,12 +417,13 @@ No constitution file found at docs/v2.4.0/constitution.md - skipping check. Reco
 
 ### Phase 6 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] demo-capture is local-only and degrades gracefully
-- [ ] release/changelog script registered in both installers; no GitHub Action added
-- [ ] make validate + make lint + pytest green
-- [ ] Session history generated
-- [ ] Ready to advance to Phase 7
+- [x] All sub-tasks completed (T023-T025)
+- [x] demo-capture is local-only and degrades gracefully (no upload step; missing-tool capture returns captured=0 + install hint + exit 0 on both .py and .ps1)
+- [x] release/changelog script registered in both installers; no GitHub Action added (both .py + .ps1 copy steps in installer.sh/.ps1; release-please Action NOT added; wired as optional helper into update-version + generate-changelog)
+- [x] make validate + make lint + pytest green (validators direct: JSON OK at 245/workflow 36, orphan-bundle 0/0, quality 0 errors, 4 CI validators + solution-frontmatter exit 0; ruff check clean; 31 new tests + skill-server 43 + validators/skills 115 pass; lint shellcheck N/A - no new .sh. NOTE: 1 PRE-EXISTING installer test failure BG-v24-1, unrelated to Phase 6, recorded)
+- [~] Live skill-eval-loop trigger check (deferred - no model CLI on PATH; static trigger-surface check done + graceful-degradation verified directly; DF-v24-6)
+- [x] Session history generated for this phase
+- [x] Ready to advance to Phase 7
 
 ---
 

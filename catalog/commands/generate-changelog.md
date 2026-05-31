@@ -58,6 +58,20 @@ Run the following git commands to gather source material:
    ```
    Parse the owner/repo from HTTPS or SSH URLs.
 
+### Optional: local conventional-commit helper
+
+If the repository uses conventional commits, the local helper `scripts/generate_release_changelog.py` (PowerShell sibling: `scripts/generate_release_changelog.ps1`, installed at `~/.nexus-hub/scripts/`) can pre-compute the next semantic-version bump AND a draft `[Unreleased]` -> version section for the commits since the last tag:
+
+```bash
+# Draft the next section from git history (last tag -> HEAD):
+python scripts/generate_release_changelog.py --current-version <current>
+
+# Or feed a fixture commit set (for review without touching git):
+python scripts/generate_release_changelog.py --commits-from commits.txt --current-version <current> --out section.md
+```
+
+It is zero-outbound (local `git` only), requires no credentials, and is NOT a release Action. Use its output as a starting draft for Phase 3-4 below; the manual categorization and enrichment steps still apply (the helper omits non-conventional commits, so review its output before finalizing).
+
 ## Phase 3: Categorize Changes
 
 For each version boundary, categorize commits into Keep a Changelog sections.

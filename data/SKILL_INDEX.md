@@ -248,5 +248,6 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | product-pulse | business-product | "Generate a time-windowed product-pulse report from local usage, performance, and error data" | catalog/skills/business-product/product-pulse/SKILL.md |
 | product-strategy | workflow | "Author and maintain a STRATEGY.md anchor (problem, approach, persona, metrics, tracks) for planning grounding" | catalog/skills/workflow/product-strategy/SKILL.md |
 | session-query | workflow | "Query local Claude/Codex/Cursor session logs for prior investigation context, script-first and zero-outbound" | catalog/skills/workflow/session-query/SKILL.md |
+| demo-capture | workflow | "Capture local terminal/GIF/screenshot PR evidence into docs/demos, script-first and upload-free" | catalog/skills/workflow/demo-capture/SKILL.md |
 
-**Total: 244 skills across 21 categories**
+**Total: 245 skills across 21 categories**
