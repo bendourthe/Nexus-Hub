@@ -3,22 +3,22 @@
 This file tracks per-version unfinished work, deferred items, deviations from plan, and bugs discovered during phase implementation. The next phase plan and the version-bump checklist read this file to decide what carries forward.
 
 **Plan**: [docs/v2.4.0/plans/adoption-compound-engineering-plugin.md](plans/adoption-compound-engineering-plugin.md)
-**Status**: in-progress (Phase 2 of 8 closed - Persona review pipeline)
-**Last updated**: 2026-05-30 (Phase 2 close)
+**Status**: in-progress (Phase 4 of 8 closed - Remaining skill-native; Phase 3 not yet implemented)
+**Last updated**: 2026-05-31 (Phase 4 close)
 
 ## Summary
 
 | Category | Open | Resolved this version |
 |---|---|---|
 | NI -- Not implemented (skipped subtask) | 1 | 0 |
-| DF -- Deferred (intentionally) | 2 | 0 |
+| DF -- Deferred (intentionally) | 3 | 0 |
 | BG -- Bug or unresolved test failure | 0 | 1 |
 | MT -- Missing tests / coverage gap | 0 | 0 |
 | WN -- Warning or suppressed lint rule | 1 | 1 |
 | QG -- Quality gate bypassed | 0 | 0 |
-| **Total** | **4** | **2** |
+| **Total** | **5** | **2** |
 
-_Phase 1 resolved 2 of the 15 ingested v2.3.0 gaps (WN-v23-1 count drift, BG-v23-1 secret-scan false positives). The remaining 13 ingested gaps are tracked as sub-tasks in the plan (Phases 2-8) and are not duplicated here until discovered/closed during their phase. Phase 1 added 3 new gaps; Phase 2 added 1 (DF-v24-2) and extended WN-v24-1 with the agent-count delta._
+_Phase 1 resolved 2 of the 15 ingested v2.3.0 gaps (WN-v23-1 count drift, BG-v23-1 secret-scan false positives). The remaining 13 ingested gaps are tracked as sub-tasks in the plan (Phases 2-8) and are not duplicated here until discovered/closed during their phase. Phase 1 added 3 new gaps; Phase 2 added 1 (DF-v24-2) and extended WN-v24-1 with the agent-count delta. Phase 4 added 1 (DF-v24-3) and extended WN-v24-1 to the 242-skill truth. Phase 3 was not implemented in the Phase 4 run (Phase 4's prerequisite is "None beyond Phase 1"); its sub-tasks remain open in the plan, not duplicated here._
 
 ## Open Items
 
@@ -46,13 +46,21 @@ _Phase 1 resolved 2 of the 15 ingested v2.3.0 gaps (WN-v23-1 count drift, BG-v23
 - **Reason**: T012 asks for a live `skill-eval-loop` trigger check (1.0 positive / 0.0 fenced-negative) for `multi-agent-code-review` and `plan-review`, and a review-pipeline benchmark. No model CLI (`claude`/`codex`/`gemini`/`opencode`) is on PATH in the implementation environment (same constraint as DF-v24-1). Two substitutes were performed and recorded: (1) a static trigger-surface check confirming both descriptions carry verbatim trigger phrases plus a SKIP clause and cross-fence each other (code-diff vs plan-doc), and (2) a real persona-dispatch benchmark over a seeded fixture - the correctness and security personas each surfaced their planted defect, stayed in lane, emitted the findings-schema JSON contract, and left the clean control untouched (see `docs/v2.4.0/development/phase-2-benchmark/README.md`). The full end-to-end pipeline run (all conditional personas, the independent validation pass, model tiering, cross-reviewer promotion) was not exercised, because the dedicated `*-reviewer` persona agents ship as catalog templates and are not registered as dispatchable subagent types in the authoring harness; the two reused dispatchable agents (`code-reviewer`, `security-reviewer`) validated the contract and lens discipline.
 - **Suggested next step**: When a model CLI is available (fold into Phase 8 T037, which already targets a Phase-2 review skill for a live run), author a minimal `evals.json` per skill and confirm 1.0 positive / 0.0 negative; tighten descriptions per `skill-eval-loop/references/improvement-heuristics.md` if under-triggering. Optionally run the full pipeline with the dedicated persona agents once they are registered as dispatchable subagents in a consuming environment, and confirm cross-reviewer promotion on an overlapping seeded finding.
 
+### DF-v24-3 -- Live skill-eval-loop trigger run deferred for the new Phase-4 product-pulse skill
+
+- **Source phase**: Phase 4 - Remaining skill-native (sub-task T019)
+- **Plan reference**: `docs/v2.4.0/plans/adoption-compound-engineering-plugin.md` (sub-task 4.3 / T019)
+- **Category**: DF -- Deferred (intentionally; environment constraint)
+- **Reason**: T019 asks for a live `skill-eval-loop` trigger check for `product-pulse`. No model CLI (`claude`/`codex`/`gemini`/`opencode`) is on PATH in the implementation environment (same constraint as DF-v24-1 / DF-v24-2). A static trigger-surface check was performed instead and recorded: the description carries 7/7 verbatim positive trigger phrases ("product pulse", "usage report", "how is the product doing", "monthly product report", "error trends", "performance over time", "product metrics summary"), an explicit `SKIP` clause fencing dashboards / real-time monitoring / external-analytics routing / one-off greps, and the zero-outbound assertion ("no outbound call and no new data processor"). All six required body sections are present, the frontmatter parses as YAML with all required keys, and the MCP skill-server suite (43 passed) consumes the new entry. The T017 persistence-discipline section was dry-run-verified separately (write -> verify-read -> done-marker -> resume-skips-completed).
+- **Suggested next step**: Run the live `skill-eval-loop` for `product-pulse` when a model CLI is available - fold into Phase 8 T037 alongside DF-v24-1 / DF-v24-2. Author a minimal `evals.json` (one should-trigger usage-report prompt, one should-not-trigger dashboard prompt) and confirm 1.0 positive / 0.0 negative; tighten the description per `skill-eval-loop/references/improvement-heuristics.md` if under-triggering.
+
 ### WN-v24-1 -- AGENTS.md catalog-count prose is stale after the registry reconciliation
 
 - **Source phase**: Phase 1 - Foundation (sub-task T005)
 - **Plan reference**: `docs/v2.4.0/plans/adoption-compound-engineering-plugin.md` (sub-task 1.5 / T005)
 - **Category**: WN -- Stale documentation count
 - **Reason**: The T005 reconciliation revealed the registries had drifted far beyond the planned "1-skill" estimate: 6 conformant on-disk skills were unregistered in `data/skills.json` (`advanced-attack-patterns`, `business-logic-abuse`, `dev-progress-tracker`, `hallmark-design`, `html-output-conventions`, `implementation-plan`), 3 skills carried mis-cased category values, and `data/marketplace.json` omitted the `research` category. All three registries are now reconciled to the on-disk truth: **239 skills across 21 categories**. AGENTS.md prose still reads "230 skills across 23 categories" (the "23" was inflated by the 3 mis-cased duplicate category keys; the true directory count is 21). The Repository Overview line and the embedded SKILL INDEX in AGENTS.md / the platform instruction templates were not updated in Phase 1 (out of scope for T005, which is data-file-only).
-- **Suggested next step**: At the v2.4.0 version bump (Phase 9 / `/update-version`), update the AGENTS.md "Current catalog" line and any platform-template count prose, and regenerate the embedded SKILL INDEX from `data/SKILL_INDEX.md`. As of Phase 2 close the on-disk truth is **241 skills across 21 categories** (Phase 2 added `multi-agent-code-review` + `plan-review`) and the agent count is now **23** (AGENTS.md prose still reads "10 agents"; Phase 2 added 13 persona/lens reviewer agents under `catalog/agents/`). Roll in the remaining Phase 3-6 additions at bump time.
+- **Suggested next step**: At the v2.4.0 version bump (Phase 9 / `/update-version`), update the AGENTS.md "Current catalog" line and any platform-template count prose, and regenerate the embedded SKILL INDEX from `data/SKILL_INDEX.md`. As of Phase 4 close the on-disk truth is **242 skills across 21 categories** (Phase 2 added `multi-agent-code-review` + `plan-review`; Phase 4 added `product-pulse`) and the agent count is **23** (AGENTS.md prose still reads "230 skills across 23 categories" and "10 agents"; `README.md` line 113 still reads "208 skills"). The `data/SKILL_INDEX.md` Total line was corrected from a stale "239" to the true **242** during the Phase 4 registration (the 239 was a Phase-2 oversight - rows were added without updating the footer). Roll in the remaining Phase 3 / 5 / 6 additions at bump time.
 
 ## Resolved
 

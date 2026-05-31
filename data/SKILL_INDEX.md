@@ -245,5 +245,6 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | business-logic-abuse | security | "Identify business-logic vulnerabilities: race conditions, TOCTOU, double-spending, workflow bypass, and idempotency violations - requires domain knowledge" | catalog/skills/security/business-logic-abuse/SKILL.md |
 | solution-knowledge-base | workflow | "Document a solved problem into a categorized docs/solutions/ knowledge base for future reuse" | catalog/skills/workflow/solution-knowledge-base/SKILL.md |
 | solution-refresh | workflow | "Audit docs/solutions/ entries and decide Keep / Update / Consolidate / Replace / Delete" | catalog/skills/workflow/solution-refresh/SKILL.md |
+| product-pulse | business-product | "Generate a time-windowed product-pulse report from local usage, performance, and error data" | catalog/skills/business-product/product-pulse/SKILL.md |
 
-**Total: 239 skills across 21 categories**
+**Total: 242 skills across 21 categories**

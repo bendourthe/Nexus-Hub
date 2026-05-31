@@ -280,7 +280,7 @@ No constitution file found at docs/v2.4.0/constitution.md - skipping check. Reco
 
 #### 4.1 — Crash-safe optimization persistence discipline
 
-- [ ] T017 Add persistence-discipline guidance to catalog/skills/workflow/skill-eval-loop/SKILL.md
+- [x] T017 Add persistence-discipline guidance to catalog/skills/workflow/skill-eval-loop/SKILL.md
 
 **Objective**: Adopt CE's `ce-optimize` persistence discipline (write each result to disk immediately, verify the write, re-read at phase boundaries, per-experiment crash-recovery markers) so long-running eval loops survive context compaction and crashes.
 
@@ -291,7 +291,7 @@ No constitution file found at docs/v2.4.0/constitution.md - skipping check. Reco
 
 #### 4.2 — Product-pulse report skill template
 
-- [ ] T018 [P] Create the product-pulse skill at catalog/skills/business-product/product-pulse/SKILL.md
+- [x] T018 [P] Create the product-pulse skill at catalog/skills/business-product/product-pulse/SKILL.md
 
 **Objective**: Adopt CE's `ce-product-pulse`: a time-windowed report on usage / performance / errors / followups read from the user's own local telemetry sources.
 
@@ -302,7 +302,7 @@ No constitution file found at docs/v2.4.0/constitution.md - skipping check. Reco
 
 #### 4.3 — Testing and Stabilization
 
-- [ ] T019 Run and stabilize Phase 4 tests
+- [x] T019 Run and stabilize Phase 4 tests (live skill-eval-loop deferred - DF-v24-3; static trigger-surface + persistence dry-run passed)
 
 **Objective**: Verify Phase 4 at the heavier bar.
 
@@ -313,11 +313,11 @@ No constitution file found at docs/v2.4.0/constitution.md - skipping check. Reco
 
 ### Phase 4 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] product-pulse trigger check passes
-- [ ] make validate + make lint green
-- [ ] Session history generated
-- [ ] Ready to advance to Phase 5
+- [x] All sub-tasks completed
+- [~] product-pulse trigger check passes (live deferred - no model CLI on PATH; static trigger-surface check done 7/7 + SKIP; DF-v24-3)
+- [x] make validate + make lint green (validators direct: orphan-bundle 0/0 across 242 skills, all CI validators exit 0; lint N/A - no shell scripts; MCP skill-server 43 passed; repo tests 331 passed)
+- [x] Session history generated for this phase
+- [x] Ready to advance to Phase 5 (note: Phase 3 remains open - Phase 4 prereq was "None beyond Phase 1")
 
 ---
 

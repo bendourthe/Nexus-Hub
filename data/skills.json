@@ -6,12 +6,12 @@
     "description": "Comprehensive catalog of Nexus-Hub skills with L0/L1 tiered summaries"
   },
   "statistics": {
-    "total_skills": 241,
+    "total_skills": 242,
     "categories": {
       "ai-development": 10,
       "architecture": 7,
       "bug-fixing": 5,
-      "business-product": 5,
+      "business-product": 6,
       "code-cleanup": 10,
       "code-review": 13,
       "compliance": 9,
@@ -8381,6 +8381,50 @@
         "lines": 97,
         "characters": 9055,
         "tokens_estimate": 1313
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "product-pulse",
+      "title": "product-pulse",
+      "description": "Generate a time-windowed product-pulse report - usage, performance, errors, and open followups - from local data sources the user points the skill at. Make sure to use this skill whenever the user asks for a \"product pulse\", \"usage report\", \"how is the product doing\", \"weekly product report\", \"monthly product report\", \"product health\", \"error trends\", \"performance over time\", \"product metrics summary\", or wants a single-page timeline of product outcomes built from their own logs or exported analytics, even if they never say the word \"pulse\". The skill reads ONLY local files the user supplies and introduces no outbound call and no new data processor. SKIP, do NOT use for, live interactive dashboards with filtering (build a dashboard), real-time monitoring or alerting (use observability-setup), one-off ad-hoc log greps, or any flow that sends product data to an external analytics service.",
+      "long_description": "A local-only product-health report generator. The user points the skill at their own data sources (application/access logs, exported analytics CSV/JSON, local metrics dumps, a prior pulse report) and a time window; the skill normalizes every source into four dimensions (usage, performance, errors, followups), computes deltas versus the previous window when one exists, and writes a single-page browseable timeline to docs/pulse-reports/<window>.md. Zero outbound calls, zero new data processors, zero new credentials - it reads only the paths supplied and writes only the report.",
+      "summary_l0": "\"Generate a time-windowed product-pulse report from local usage, performance, and error data\"",
+      "overview_l1": "\"This skill produces a single-page, time-windowed product-pulse report covering four outcome dimensions - usage, performance, errors, and open followups - rendered as a browseable timeline and saved to docs/pulse-reports/<window>.md. It reads ONLY the local data sources the user explicitly points it at (application or access log files, exported analytics CSV/JSON, local metrics dumps, a prior pulse report); it never reaches out to a network service and never introduces a new data processor or credential. The report normalizes each source into the four dimensions, computes simple counts and deltas versus the previous window when an earlier report exists, and surfaces a short Highlights block plus a prioritized followups list. Use it for recurring product-health summaries built from data the user already owns. Trigger phrases: product pulse, usage report, product health, weekly product report, monthly product report, error trends, performance over time, product metrics summary, product outcomes timeline.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "business-product",
+      "language": "Multi-language",
+      "tags": [
+        "product-pulse",
+        "usage-report",
+        "product-health",
+        "metrics-summary",
+        "error-trends",
+        "reporting",
+        "timeline",
+        "local-only"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "reverse-engineered local subset of an external product-outcome reporting pattern (see docs/v2.3.0/comparison-compound-engineering-plugin.md)",
+      "tools_required": [
+        "Read",
+        "Write",
+        "Edit"
+      ],
+      "path": "catalog/skills/business-product/product-pulse/",
+      "file": "catalog/skills/business-product/product-pulse/SKILL.md",
+      "size": {
+        "lines": 134,
+        "characters": 11318,
+        "tokens_estimate": 2830
       },
       "downloads": 0,
       "status": "production",

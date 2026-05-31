@@ -153,6 +153,24 @@ Spawn iteration `N+1` (steps 3-8 again). The loop terminates when:
 
 Do NOT run more than 5 iterations without a measurable pass-rate trajectory. If pass-rate is flat across 3 iterations, the bottleneck is the assertions or the eval set, not the skill - go fix those first.
 
+## Persistence discipline (crash-safe long runs)
+
+An eval loop can run for many iterations across hours, and a long run is exactly the situation where context compaction, a crashed CLI, or a killed shell silently discards in-memory state. The defense is to treat the filesystem - not the conversation - as the source of truth for every measured result. The cost is one extra read per write; the payoff is that any interruption resumes from the last completed experiment instead of restarting the loop and re-spending tokens.
+
+Apply these rules whenever a run spans more than a couple of evals or more than one iteration:
+
+- **Write each result immediately.** The moment an experiment is measured (a graded run, an optimizer candidate score, an aggregated benchmark) write it to its own file under the iteration directory before starting the next experiment. Never hold a batch of results in memory to flush at the end - a crash before the flush loses the whole batch.
+- **Verify the write by reading it back.** After writing `grading.json` / `benchmark.json` / an optimizer result, immediately re-read and parse the file. A write that produced truncated or invalid JSON is worse than no write, because on resume it looks like completed progress. Treat a failed read-back as a failed experiment and retry the write before moving on.
+- **Re-read state at every phase boundary.** Do not trust in-memory state across a phase transition (iteration N -> N+1, or step 9 -> step 10). At each boundary re-read the completed results from disk and rebuild the working set from those files. This makes the loop correct whether it is running fresh or resuming after compaction dropped the earlier turns from context.
+- **Keep the log append-only.** Maintain a single append-only progress log (e.g. `<workspace>/run-log.jsonl`) with one line per completed experiment. Never rewrite or truncate it - appending survives an interrupt mid-loop, whereas a rewrite can corrupt the whole history.
+- **Write a per-experiment crash-recovery marker.** Before starting an experiment write a `started` marker; on completion write a `done` marker. On resume, any experiment with a `started` marker but no `done` marker is the one that was interrupted - rerun exactly that one and continue. A minimal marker:
+
+    ```json
+    {"experiment": "iteration-3/eval-002/with_skill", "status": "done", "result_file": "grading.json"}
+    ```
+
+On resume, the procedure is: re-read the markers, find the first `started`-without-`done` experiment (or the first never-started one), and continue from there. Completed experiments are never recomputed - their result files are authoritative. This is what lets a 5-iteration optimizer run survive a mid-run crash without re-spending tokens on the iterations it already finished.
+
 ## Description optimizer (A7)
 
 The description-optimizer is a specialized form of the loop that targets only the skill's `description` frontmatter field. Run `scripts/optimize_skill_description.py --skill <path> --evals <evals.json> --cli <name>`. The optimizer:
@@ -213,6 +231,7 @@ Binary checklist - each item must describe an observable artifact or state.
 - [ ] The viewer can be launched in either server mode (`scripts/skill_eval_viewer.py <iter>`) or static mode (`--static <path>`), and the static-mode HTML opens without errors in a browser.
 - [ ] `<workspace>/iteration-N/feedback.json` exists after a viewer review pass.
 - [ ] If the optimizer was run, `<workspace>/optimizer/iteration-N.json` exists with a `best_description` field selected by held-out test score (NOT train score).
+- [ ] For a multi-iteration run, an append-only `<workspace>/run-log.jsonl` exists and every completed experiment has a crash-recovery marker with `status: done`; a simulated resume recomputes no already-`done` experiment.
 - [ ] `catalog/hooks/tests/test_eval_loop.py::TestEvalLoopCLIAdapter` passes (no cross-CLI bleed in any dispatcher script).
 
 "The skill seems better now" is not a valid verification criterion. Pass-rate must be measured numerically and compared across at least 2 consecutive iterations.
