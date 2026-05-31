@@ -246,5 +246,7 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | solution-knowledge-base | workflow | "Document a solved problem into a categorized docs/solutions/ knowledge base for future reuse" | catalog/skills/workflow/solution-knowledge-base/SKILL.md |
 | solution-refresh | workflow | "Audit docs/solutions/ entries and decide Keep / Update / Consolidate / Replace / Delete" | catalog/skills/workflow/solution-refresh/SKILL.md |
 | product-pulse | business-product | "Generate a time-windowed product-pulse report from local usage, performance, and error data" | catalog/skills/business-product/product-pulse/SKILL.md |
+| product-strategy | workflow | "Author and maintain a STRATEGY.md anchor (problem, approach, persona, metrics, tracks) for planning grounding" | catalog/skills/workflow/product-strategy/SKILL.md |
+| session-query | workflow | "Query local Claude/Codex/Cursor session logs for prior investigation context, script-first and zero-outbound" | catalog/skills/workflow/session-query/SKILL.md |
 
-**Total: 242 skills across 21 categories**
+**Total: 244 skills across 21 categories**

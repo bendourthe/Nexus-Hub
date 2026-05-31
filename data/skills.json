@@ -6,7 +6,7 @@
     "description": "Comprehensive catalog of Nexus-Hub skills with L0/L1 tiered summaries"
   },
   "statistics": {
-    "total_skills": 242,
+    "total_skills": 244,
     "categories": {
       "ai-development": 10,
       "architecture": 7,
@@ -28,7 +28,7 @@
       "specialized-domains": 13,
       "testing": 3,
       "tests-generation": 18,
-      "workflow": 33
+      "workflow": 35
     },
     "priorities": {
       "HIGH": 1,
@@ -8425,6 +8425,87 @@
         "lines": 134,
         "characters": 11318,
         "tokens_estimate": 2830
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "product-strategy",
+      "title": "product-strategy",
+      "description": "Author and maintain a durable product-strategy anchor (STRATEGY.md or docs/<version>/strategy.md) that declares the target problem, the chosen approach, the target persona, the key metrics, and the active work tracks - the upstream framing that ideation, brainstorming, and planning read as grounding. Make sure to use this skill whenever the user says \"write a strategy\", \"what is our product strategy\", \"define the target problem\", \"who is this for\", \"what metrics matter\", \"set the product direction\", \"create a STRATEGY.md\", \"update the strategy\", \"what are our bets\", \"what tracks are we working on\", or otherwise wants to capture or revise the product-level framing that should bound every downstream idea and plan. SKIP, do NOT use for, governance MUST / SHOULD rules and architectural invariants (use project-constitution), refining one vague idea into a single problem statement (use idea-refine), per-version unfinished-work logging (use known-gaps-tracker), or a single feature's requirements (use spec-driven-development).",
+      "long_description": "Author and maintain a durable product-strategy anchor that states, in one place, what problem the product solves, the approach it takes, who it is for, how success is measured, and which bets are active right now. This anchor is the upstream framing of the compound loop: ideation, brainstorming, and ...",
+      "summary_l0": "\"Author and maintain a STRATEGY.md anchor (problem, approach, persona, metrics, tracks) for planning grounding\"",
+      "overview_l1": "\"Produces and maintains a durable product-strategy anchor at STRATEGY.md (repo root) or docs/<version>/strategy.md. The anchor is distinct from the project constitution: the constitution declares MUST / SHOULD governance rules, while the strategy declares product framing - the target problem, the chosen approach, the target persona, the key metrics, and the active work tracks (the current bets). The skill defines the anchor's five required sections, an authoring flow, and an amendment flow that revises changed sections and bumps Last updated. Ideation, brainstorming, and planning read this anchor as grounding so new work traces back to a stated problem and metric instead of drifting. Everything is local and zero-outbound. Trigger phrases: write a strategy, what is our product strategy, define the target problem, who is this for, what metrics matter, set the product direction, what are our bets, what tracks are we working on.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "workflow",
+      "language": "Multi-language",
+      "tags": [
+        "product-strategy",
+        "strategy-anchor",
+        "planning-grounding",
+        "compound-loop",
+        "local-only"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "reverse-engineered local subset of an external product-strategy anchor pattern (see docs/v2.3.0/comparison-compound-engineering-plugin.md)",
+      "tools_required": [
+        "Read",
+        "Write"
+      ],
+      "path": "catalog/skills/workflow/product-strategy/",
+      "file": "catalog/skills/workflow/product-strategy/SKILL.md",
+      "size": {
+        "lines": 125,
+        "characters": 11388,
+        "tokens_estimate": 2390
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "session-query",
+      "title": "session-query",
+      "description": "Query your own LOCAL AI session logs (Claude Code, Codex, Cursor) for prior investigation context - what was tried, decided, or discovered in earlier sessions on a topic, branch, or time window. Make sure to use this skill whenever the user says \"did we look at this before\", \"what did we try last time\", \"find the session where we debugged X\", \"search my past sessions\", \"what did the earlier session say about Y\", \"pull up prior context on this branch\", \"have we hit this error before\", or otherwise wants to recover context from earlier conversations instead of re-investigating from scratch. The skill is script-first (a local extractor does the reading) and strictly zero-outbound. SKIP, do NOT use for, generating a NEW session-history document for the current session (use generate-session-history / session-history), capturing a solved problem (use solution-knowledge-base), per-version unfinished-work logging (use known-gaps-tracker), or any flow that uploads session logs to an external service.",
+      "long_description": "Recover context from your own earlier AI sessions instead of re-investigating from scratch. When a problem feels familiar, this skill searches your LOCAL session-log transcripts and returns a focused digest of the matching prior investigation. It is script-first: bundled discovery and extraction scrip...",
+      "summary_l0": "\"Query local Claude/Codex/Cursor session logs for prior investigation context, script-first and zero-outbound\"",
+      "overview_l1": "\"Searches the user's own LOCAL AI session-log JSONL transcripts (Claude Code under ~/.claude/projects, Codex under ~/.codex, Cursor under ~/.cursor, or a supplied directory) for prior investigation context and returns a topic / branch / time-windowed digest. It is script-first: the bundled scripts/discover-sessions.{sh,ps1} enumerate local transcript files and scripts/extract-session.{py,ps1} read them and emit a JSON digest (matched files, first/last timestamps, branch mentions, truncated snippets); the skill drives those scripts and presents the result. All processing is local and zero-outbound - the extractor imports no network module and opens no connection. This is the QUERY counterpart to session-history / generate-session-history, which GENERATE a record of the current session; this skill reads PAST sessions. Trigger phrases: did we look at this before, what did we try last time, find the session where we debugged X, search my past sessions, pull up prior context on this branch.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "workflow",
+      "language": "Multi-language",
+      "tags": [
+        "session-query",
+        "session-logs",
+        "prior-context",
+        "script-first",
+        "compound-loop",
+        "local-only"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "reverse-engineered local subset of an external cross-tool session-query pattern (see docs/v2.3.0/comparison-compound-engineering-plugin.md)",
+      "tools_required": [
+        "Bash",
+        "Read"
+      ],
+      "path": "catalog/skills/workflow/session-query/",
+      "file": "catalog/skills/workflow/session-query/SKILL.md",
+      "size": {
+        "lines": 127,
+        "characters": 10263,
+        "tokens_estimate": 2270
       },
       "downloads": 0,
       "status": "production",

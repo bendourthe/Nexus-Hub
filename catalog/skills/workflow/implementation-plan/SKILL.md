@@ -135,6 +135,17 @@ Research areas to consider:
 
 ---
 
+### Phase B.5: Knowledge-Base Grounding (before designing phases)
+
+Before designing the phase breakdown, ground the plan in what the project already knows. This is the read half of the compound loop - solved problems and product framing captured earlier become inputs to the new plan instead of being re-derived.
+
+1. **Search the solved-problem store**: if `docs/solutions/` exists, search it (by category, component, and the problem's symptom tokens) for prior solutions relevant to this plan's scope. A matching entry can change the phase breakdown: reuse the documented resolution, avoid a known dead end, or fold the recurrence-recognition note into a test. Cite any entry you lean on in the relevant sub-task's `Prompt`. The store is written by [[solution-knowledge-base]] and audited by [[solution-refresh]].
+2. **Read the strategy anchor**: if `STRATEGY.md` (or `docs/<version>/strategy.md`) exists, read it and check that this plan's scope serves the stated Target Problem and Persona and moves at least one Key Metric. If the plan serves no stated persona or metric, surface that tension - either narrow the plan or amend the strategy via [[product-strategy]]; do not plan around it silently.
+
+When neither file exists, note that and proceed - grounding is best-effort, not a blocker.
+
+---
+
 ### Phase C: Generate the Plan File
 
 Resolve the target version (from git tags, CHANGELOG, or package manifests; default `v0.1.0` for fresh greenfield projects), then resolve `<version_dir>` per `/generate-plan` Step 0b.5 (canonical `docs/versions/<vMAJOR>/<vSEMVER>/` for new content; legacy `docs/<vSEMVER>/` preserved when already present). Derive a slug from the one-sentence scope statement collected at the start of the interview (lowercase, hyphen-separated, ~5 words, sanitized to `[a-z0-9-]+`). Confirm both with the user before writing.
@@ -287,6 +298,7 @@ your working context (not written to the file).
 ### Step 3: Design the Phase Breakdown
 
 Before writing the file, outline the phases mentally:
+- Did Phase B.5 grounding surface a prior `docs/solutions/` entry or a strategy constraint that changes the breakdown? Fold it in before designing.
 - What is the minimal foundation that makes everything else possible? (Phase 1)
 - What can be built and tested independently? (each subsequent phase)
 - What is the natural order given dependencies between components?
@@ -326,6 +338,8 @@ Incorporate feedback, then write the final file.
 ## Related Skills
 
 - `[[project-constitution]]` - authors and amends the constitution that the Constitution Check section enforces; FAIL verdicts here lead either to plan edits or to a constitution amendment via that skill
+- `[[solution-knowledge-base]]` - writes the `docs/solutions/` store that Phase B.5 grounding reads; closes the capture -> plan half of the compound loop
+- `[[product-strategy]]` - authors the `STRATEGY.md` anchor that Phase B.5 grounding checks the plan against (problem / persona / metrics)
 - `plan-before-code` - Lightweight planning for individual features within a phase
 - `research-plan-implement` - Structured RPI workflow for a single complex feature
 - `session-history` - Document each completed phase

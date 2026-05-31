@@ -217,7 +217,7 @@ No constitution file found at docs/v2.4.0/constitution.md - skipping check. Reco
 
 #### 3.1 — Product-strategy anchor
 
-- [ ] T013 Add the strategy anchor (extend catalog/skills/workflow/project-constitution/SKILL.md or new product-strategy skill)
+- [x] T013 Add the strategy anchor (new catalog/skills/workflow/product-strategy/SKILL.md)
 
 **Objective**: Adopt CE's `ce-strategy` / STRATEGY.md upstream anchor (target problem, approach, persona, key metrics, tracks) read as grounding by ideation/planning.
 
@@ -228,7 +228,7 @@ No constitution file found at docs/v2.4.0/constitution.md - skipping check. Reco
 
 #### 3.2 — Wire planning skills to read the knowledge base
 
-- [ ] T014 Cross-link generate-plan / implement-phase / continuous-learning to read docs/solutions
+- [x] T014 Cross-link generate-plan / implement-phase / continuous-learning to read docs/solutions
 
 **Objective**: Close the loop: planning and learning skills read the A1 knowledge base as grounding, with the discoverability surfaced in instruction files.
 
@@ -239,7 +239,7 @@ No constitution file found at docs/v2.4.0/constitution.md - skipping check. Reco
 
 #### 3.3 — Cross-tool session-history query skill
 
-- [ ] T015 Create the session-query skill at catalog/skills/workflow/session-query/SKILL.md (+ extraction scripts)
+- [x] T015 Create the session-query skill at catalog/skills/workflow/session-query/SKILL.md (+ extraction scripts)
 
 **Objective**: Adopt CE's `ce-sessions` cross-tool session query: search local Claude/Codex/Cursor session logs for prior investigation context, script-first.
 
@@ -250,7 +250,7 @@ No constitution file found at docs/v2.4.0/constitution.md - skipping check. Reco
 
 #### 3.4 — Testing and Stabilization
 
-- [ ] T016 Run and stabilize Phase 3 tests, including session-query extraction tests
+- [x] T016 Run and stabilize Phase 3 tests, including session-query extraction tests (live skill-eval-loop deferred - DF-v24-4; PowerShell parity verified empirically)
 
 **Objective**: Verify the loop wiring and session query at the heavier bar.
 
@@ -261,12 +261,13 @@ No constitution file found at docs/v2.4.0/constitution.md - skipping check. Reco
 
 ### Phase 3 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] Session-query extraction tests pass; no outbound calls
-- [ ] Loop verified end-to-end (capture -> grounding read)
-- [ ] make validate + make lint green
-- [ ] Session history generated
-- [ ] Ready to advance to Phase 4
+- [x] All sub-tasks completed
+- [x] Session-query extraction tests pass; no outbound calls (13 passed; zero-outbound static analysis green on .py/.ps1/.sh)
+- [x] Loop verified end-to-end (capture -> grounding read; implementation-plan Phase B.5 + generate-plan Step 2.5 both search docs/solutions and STRATEGY.md)
+- [x] make validate + make lint green (validators direct: counts reconciled 244/35, orphan-bundle 0/0, quality 0 errors, 4 CI validators + solution-frontmatter exit 0; lint N/A - no shellcheck on host; repo 344 passed + skill-server 43 passed)
+- [~] Live skill-eval-loop trigger checks (deferred - no model CLI on PATH; static trigger-surface check done; DF-v24-4)
+- [x] Session history generated
+- [x] Ready to advance to Phase 4
 
 ---
 

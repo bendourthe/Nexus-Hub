@@ -368,6 +368,17 @@ After collecting answers, identify technical areas where the best approach is un
 
 ---
 
+## Step 2.5: Knowledge-Base Grounding
+
+Before designing the phase breakdown, ground the plan in what the project already knows - the read half of the compound loop (capture -> plan -> review -> capture). This step is best-effort: when neither source exists, note that and continue.
+
+1. **Search the solved-problem store**: if `docs/solutions/` exists, search it (by category, component, and the new plan's symptom/topic tokens) for prior solutions relevant to this scope. A matching entry can reshape the breakdown - reuse the documented resolution, sidestep a known dead end, or turn a recurrence-recognition note into a planned test. Cite any entry you rely on in the relevant sub-task's `**Prompt**:` block. The store is written by the `solution-knowledge-base` skill and audited by `solution-refresh`.
+2. **Read the strategy anchor**: if `STRATEGY.md` (repo root) or `docs/<version>/strategy.md` exists, read it and confirm this plan's scope serves the stated Target Problem and Persona and moves at least one Key Metric. If it serves no stated persona or metric, surface that tension to the user - narrow the plan or amend the strategy via the `product-strategy` skill rather than planning around it silently.
+
+This step never blocks plan generation; it only enriches the phase design with prior knowledge and product framing.
+
+---
+
 ## Step 3: Design the Phase Breakdown
 
 Before writing the file, plan the phases:
