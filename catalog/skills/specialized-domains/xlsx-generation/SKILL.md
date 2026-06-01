@@ -2,7 +2,7 @@
 name: xlsx-generation
 description: Excel spreadsheet generation and manipulation expertise for creating, reading, and automating XLSX files programmatically. Use when building report generators, automating financial models, creating data export pipelines, or manipulating spreadsheets.
 summary_l0: "Generate and manipulate Excel spreadsheets with formulas, charts, and multi-library support"
-overview_l1: "This skill provides comprehensive expertise in generating, reading, and manipulating Excel XLSX files programmatically across Python, JavaScript, and Java ecosystems. Use it when building automated report generators, creating data export pipelines, producing financial models, formatting business dashboards as spreadsheets, converting database query results into styled Excel workbooks, or integrating spreadsheet output into ETL workflows. Key capabilities include library selection across openpyxl, xlsxwriter, ExcelJS, and Apache POI; workbook and worksheet creation with typed cell data; rich cell styling with fonts, borders, fills, alignment, and number formats; conditional formatting rules and data validation dropdowns; formula injection with named ranges, array formulas, and cross-sheet references; chart generation including bar, line, pie, scatter, and combo charts with data-driven configuration; advanced features such as autofilters, freeze panes, print layout, password protection, and VBA macro preservation; and Pandas integration for DataFrame-to-Excel pipelines with multi-sheet export and Styler-based formatting. The expected output is production-ready XLSX files with correct formatting, formulas, charts, and data integrity suitable for business stakeholders. Trigger phrases: xlsx, Excel generation, spreadsheet, openpyxl, xlsxwriter, ExcelJS, Apache POI, Excel report, data export, Excel automation, workbook, worksheet, cell formatting, Excel chart, pivot table, Excel formula, DataFrame to Excel, spreadsheet pipeline."
+overview_l1: "This skill provides comprehensive expertise in generating, reading, and manipulating Excel XLSX files programmatically across Python, JavaScript, and Java ecosystems. Use it when building report generators, data export pipelines, financial models, business dashboards as spreadsheets, converting query results into styled workbooks, or integrating spreadsheet output into ETL workflows. Key capabilities include library selection across openpyxl, xlsxwriter, ExcelJS, and Apache POI; workbook and worksheet creation with typed cell data; rich cell styling; conditional formatting and data validation; formula injection with named ranges and cross-sheet references; chart generation (bar, line, pie, scatter, combo); features such as autofilters, freeze panes, and password protection; and Pandas DataFrame-to-Excel pipelines. The expected output is production-ready XLSX files with correct formatting, formulas, charts, and data integrity suitable for business stakeholders. Trigger phrases: xlsx, Excel generation, spreadsheet, openpyxl, xlsxwriter, ExcelJS, Apache POI, Excel report, data export, Excel automation, cell formatting, Excel chart, DataFrame to Excel, spreadsheet pipeline."
 ---
 
 # XLSX Generation
@@ -2008,3 +2008,29 @@ def generate_regional_reports(
 - **Column limit**: XLSX supports up to 16,384 columns (XFD). Validate wide DataFrames before export
 - **File locking**: On Windows, Excel locks open files. Catch `PermissionError` and prompt users to close the file
 - **Encoding**: XLSX is UTF-8 internally. Special characters, CJK text, and emoji work without extra configuration
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "I'll write the formula and read the result back, it's the same cell" | XLSX libraries write formula text, not computed values; the cell returns the formula or a stale cached value, not the sum you expect, until Excel opens it. Compute the value in Python if downstream code needs the number. |
+| "Floats are fine for currency, the rounding is tiny" | openpyxl stores floats, so 0.1 + 0.2 lands as 0.30000000000000004 in a financial report a stakeholder audits. Use Decimal and round before writing the cell. |
+| "Strings just write, no need to check length" | A field over 32,767 characters or a sheet name with a `/` raises mid-batch and aborts the export. Validating string and sheet-name limits up front keeps the batch running. |
+| "The file looks right in Excel, no automated check needed" | Opening one file by hand does not scale and misses the row whose number_format silently displayed a date as a serial integer. Asserting cell values and formats programmatically is what catches it. |
+
+## Verification
+
+- [ ] The generated file opens as a valid XLSX (a ZIP archive with the required OOXML parts)
+- [ ] A read-back test asserts expected cell values and number formats per sheet
+- [ ] Financial values were rounded with Decimal before writing (no float artifacts)
+- [ ] All sheet names are <=31 characters and contain none of `\ / * ? : [ ]`
+- [ ] No string cell exceeds 32,767 characters and no export exceeds 16,384 columns
+- [ ] Formulas requiring computed downstream values were pre-calculated in code, not left as formula text
+
+## Related Skills
+
+- [[docx-generation]] -- the Word-document counterpart sharing the same library-selection approach
+- [[pptx-generation]] -- generate slide decks whose charts consume this spreadsheet data
+- [[data-pipeline-design]] -- design the ETL pipeline that feeds DataFrame-to-Excel export
+- [[python-expert]] -- Python language patterns for spreadsheet generation backends
+- [[sql-expert]] -- write the queries whose results become styled Excel workbooks

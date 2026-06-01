@@ -114,10 +114,10 @@ The two scripts are kept parallel per the v1.1.3 four-hook precedent: every bund
 
 ## Related Skills
 
-- `framework-specialists/react-expert` - deep React component patterns, hooks, state management; consumed after the scaffold for the actual app logic.
-- `framework-specialists/nextjs-expert` - server-side rendered alternative; route here when SSR / SEO is a requirement.
-- `framework-specialists/astro-expert` - static-first alternative; route here when the artifact is mostly content with islands of interactivity.
-- `developer-experience/frontend-ui-engineering` - accessibility, responsive layout, component architecture; complements this skill once the scaffold exists.
-- `developer-experience/ui-component-generation` - generates individual components inline with the agent; pairs with this scaffold to produce the components consumed by `src/components/`.
-- `specialized-domains/theme-tokens` - 10 curated themes; emit a theme into `src/app.css` `@theme` block during scaffold customization.
-- `specialized-domains/brand-styling` - apply user-supplied brand tokens; route through this skill for the scaffold, then through brand-styling to override the theme.
+- [[react-expert]] -- deep React component patterns, hooks, state management; consumed after the scaffold for the actual app logic.
+- [[nextjs-expert]] -- server-side rendered alternative; route here when SSR / SEO is a requirement.
+- [[astro-expert]] -- static-first alternative; route here when the artifact is mostly content with islands of interactivity.
+- [[frontend-ui-engineering]] -- accessibility, responsive layout, component architecture; complements this skill once the scaffold exists.
+- [[ui-component-generation]] -- generates individual components inline with the agent; pairs with this scaffold to produce the components consumed by `src/components/`.
+- [[theme-tokens]] -- 10 curated themes; emit a theme into `src/app.css` `@theme` block during scaffold customization.
+- [[brand-styling]] -- apply user-supplied brand tokens; route through this skill for the scaffold, then through brand-styling to override the theme.

@@ -393,11 +393,26 @@ for item in items:  # Could be millions
 - [ ] Performance impact is minimal
 - [ ] Log retention policy defined
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "I can just add a print statement and eyeball it" | An unstructured print with no correlation ID is useless once the bug only reproduces under concurrent requests; you cannot tell which request emitted which line. |
+| "Logging the whole request body is the fastest way to see what is wrong" | Dumping the body leaks tokens, passwords, and PII into log storage and incident channels; the fix becomes a security incident. |
+| "I will remove the debug logs later" | Verbose logs left in production flood log storage and hide the next real signal; "later" never comes without a checklist item forcing the cleanup. |
+
+## Verification
+
+- [ ] Every new log statement uses the project's structured logger, not raw stdout/print
+- [ ] A correlation ID is attached so a single request can be traced end to end
+- [ ] No log statement emits secrets, tokens, or PII (grep the diff for password/token/secret)
+- [ ] Verbose debug logs added for this investigation are removed or gated behind a debug level before merge
+
 ## Related Skills
 
-- `performance-review` - Performance analysis
-- `security-review` - Security logging requirements
-- `testing-review` - Test debugging
+- [[performance-review]] -- correlate timing logs with bottlenecks once logging localizes a slow path
+- [[security-review]] -- audit log statements so they never emit secrets, tokens, or PII
+- [[bug-localization]] -- pinpoint the fault region that this skill then instruments with strategic logs
 
 ---
 

@@ -651,7 +651,16 @@ test.describe('Accessibility', () => {
 - **Quarantine flaky tests**: Do not let flaky tests block the main pipeline
 - **Test critical paths first**: Login, checkout, and core CRUD flows before edge cases
 
-## Quality Checklist
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "I'll just add a `waitForTimeout(3000)` to fix the flaky click" | A fixed sleep passes on a fast machine and fails the moment CI is slower; the test is still flaky, just less often, which is harder to diagnose than a consistent failure. Wait on the actual event (response or element state) instead. |
+| "CSS selectors are fine, the markup never changes" | A class rename or a CSS-in-JS hash change silently breaks every `.order-card` selector; role-based and data-testid selectors survive restyles because they are decoupled from presentation. |
+| "This test is flaky, I'll mark it skipped to unblock the PR" | A skipped E2E test is zero coverage on a real user flow; quarantine it with a tag and a tracking issue so it is monitored, not silently abandoned. |
+| "Logging in through the UI in every test is fine, it's realistic" | Repeating the browser login flow per test multiplies run time and adds a flake surface; authenticate once via storage state or an API fixture and reuse it. |
+
+## Verification
 
 - [ ] Framework selected with documented rationale
 - [ ] Page object model implemented for all tested pages
@@ -668,11 +677,11 @@ test.describe('Accessibility', () => {
 
 ## Related Skills
 
-- `unit-tests` - Unit testing for individual functions and components
-- `test-cases` - Integration and API testing patterns
-- `cicd-architect` - CI/CD pipeline design for test automation
-- `code-coverage` - Measuring and improving test coverage
-- `performance-testing` - Load testing and performance benchmarking
+- [[unit-tests]] -- unit testing for individual functions and components
+- [[test-cases]] -- integration and API testing patterns
+- [[cicd-architect]] -- CI/CD pipeline design for test automation
+- [[code-coverage]] -- measuring and improving test coverage
+- [[performance-testing]] -- load testing and performance benchmarking
 
 ---
 

@@ -1041,7 +1041,16 @@ public class OrderEventListener {
 }
 ```
 
-## Quality Checklist
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "Returning `null` from a lookup is the Java way" | Callers forget the null check and a `NullPointerException` surfaces three layers up with no clue which lookup returned null; `Optional` forces the absence to be handled at the call site. |
+| "Field injection with `@Autowired` is less verbose" | Field-injected beans cannot be constructed in a unit test without a Spring context and hide missing dependencies until runtime; constructor injection fails fast at startup. |
+| "An imperative loop is clearer than a stream here" | Hand-rolled accumulation loops reintroduce off-by-one and mutable-state bugs that a `Collectors.toMap`/`groupingBy` pipeline cannot have. |
+| "I'll catch `Exception` and log it" | A blanket catch swallows `InterruptedException` without re-interrupting the thread, breaking cancellation; catch the specific checked exceptions and route them through `@ControllerAdvice`. |
+
+## Verification
 
 - [ ] Records used for value types and DTOs
 - [ ] Sealed interfaces used for closed type hierarchies
@@ -1055,11 +1064,11 @@ public class OrderEventListener {
 
 ## Related Skills
 
-- `spring-boot-expert` - Advanced Spring Boot patterns
-- `performance-testing` - JMH benchmarks, load testing
-- `cicd-architect` - Maven/Gradle CI/CD pipelines
-- `kubernetes-expert` - Java microservices on K8s
-- `code-quality` - SonarQube, Checkstyle, SpotBugs
+- [[fastapi-expert]] -- contrast with Spring Boot when choosing a service framework
+- [[performance-testing]] -- JMH benchmarks and load testing
+- [[cicd-architect]] -- Maven/Gradle CI/CD pipelines
+- [[kubernetes-expert]] -- Java microservices on K8s
+- [[code-quality]] -- SonarQube, Checkstyle, and SpotBugs scoring
 
 ---
 

@@ -639,9 +639,11 @@ npm test
 
 ## Related Skills
 
-- `security-review` - Application-level security audit
-- `pre-commit-checklist` - Pre-commit security checks
-- `licensing-compliance` - License checking
+- [[security-review]] -- application-level security audit
+- [[pre-commit-checklist]] -- pre-commit security checks
+- [[licensing-compliance]] -- license checking
+- [[cve-reachability-analyzer]] -- triages this skill's CVE findings to drop unreachable false positives
+- [[sbom-generation]] -- generates the SBOM artifacts this audit consumes and emits
 
 ## Additional Resources
 

@@ -932,7 +932,16 @@ async def retry(
 result = await retry(fetch_url, session, url, max_attempts=5)
 ```
 
-## Quality Checklist
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "Type hints are optional, the code runs without them" | Without annotations `mypy --strict` cannot catch a `None` passed where a `str` is expected, so the `AttributeError` surfaces at runtime in a code path the tests did not cover. |
+| "A mutable default like `def f(x=[])` is convenient" | The default list is created once and shared across calls, so the second caller sees the first caller's mutations; this is a classic silent state-leak bug. |
+| "A bare `except:` keeps the script robust" | Bare except swallows `KeyboardInterrupt` and `SystemExit`, so the process becomes unkillable and masks the real error instead of logging it. |
+| "Pydantic validation is overkill for this input" | Skipping validation at the boundary lets a malformed payload propagate as a wrong-typed value deep into business logic, where the traceback no longer points at the source. |
+
+## Verification
 
 - [ ] All functions have type annotations (parameters and return)
 - [ ] mypy strict passes with zero errors
@@ -947,10 +956,10 @@ result = await retry(fetch_url, session, url, max_attempts=5)
 
 ## Related Skills
 
-- `performance-testing` - Python profiling and benchmarks
-- `cicd-architect` - Python CI/CD pipelines
-- `code-quality` - Python code standards
-- `api-designer` - FastAPI and async web services
+- [[performance-testing]] -- Python profiling and benchmarks
+- [[cicd-architect]] -- Python CI/CD pipelines
+- [[code-quality]] -- Python code-standard scoring
+- [[fastapi-expert]] -- FastAPI and async web services
 
 ---
 

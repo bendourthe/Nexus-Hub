@@ -1,4 +1,4 @@
-﻿# Java AI System Prompt
+# Java AI System Prompt
 
 Use this prompt to configure your AI assistant for Java software development, writing, analysis, and creative generation.
 

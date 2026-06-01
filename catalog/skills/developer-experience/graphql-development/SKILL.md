@@ -825,12 +825,29 @@ type User {
 - [ ] Error handling distinguishes user errors from system errors
 - [ ] Schema documented with descriptions on types and fields
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "The resolver works, I'll add DataLoader later" | A relationship resolver without DataLoader is an N+1 query that issues one DB call per row; "later" arrives as a production latency spike when the list grows from 10 to 10,000 rows. |
+| "We don't need a depth limit, our clients are trusted" | GraphQL exposes a recursive query surface; without a depth and complexity limit a single deeply-nested query (or a malicious one) can fan out into a denial-of-service against the database. |
+| "Mutations can just throw, the client will handle it" | Throwing for expected user errors collapses them into transport-level failures; payload types with an errors field let the client distinguish validation failure from a 500, which a thrown exception erases. |
+| "Auth at the route is enough for GraphQL" | A single endpoint serves every field; route-level auth cannot protect a sensitive field reachable through an alternate query path, so authorization must be applied at the field/resolver layer. |
+
+## Verification
+
+- [ ] No N+1 queries: every relationship field resolves through DataLoader (verified by query logging)
+- [ ] Query depth and complexity limits are configured and reject an over-limit query
+- [ ] Mutations return payload types with an `errors` field distinguishing user errors from system errors
+- [ ] Authorization is enforced at the field/resolver level for sensitive data, not only at the endpoint
+- [ ] Pagination uses the Relay cursor specification and the schema validates against the SDL
+
 ## Related Skills
 
-- `api-documentation` - Documenting GraphQL schemas
-- `performance-testing` - Load testing GraphQL endpoints
-- `async-patterns` - Subscription and real-time patterns
-- `security-review` - GraphQL security assessment
+- [[api-documentation]] -- documents the GraphQL schema with descriptions and examples
+- [[performance-testing]] -- load-tests GraphQL endpoints to catch N+1 and complexity regressions
+- [[async-patterns]] -- the subscription and real-time concurrency patterns GraphQL subscriptions rely on
+- [[security-review]] -- assesses GraphQL-specific attack surface (depth abuse, introspection, field-level auth)
 
 ---
 

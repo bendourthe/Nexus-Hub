@@ -102,12 +102,27 @@ class GraphTraverser:
 
         Pass `all_columns=True` to match name + qualified_name + docstring
         (the pre-v2.3.0 behavior), e.g. for docstring or path-segment search.
+
+        Import / export nodes are demoted from the default result set. Their
+        `name` is the imported symbol (an `import { make_user }` site is named
+        `make_user`), so a bare name query like `make_user` would otherwise
+        return both the definition and every import site that references it -
+        references, not definitions, depressing precision. They remain reachable
+        via `all_columns=True` (the same opt-out that widens the matched
+        columns), so a caller who wants import sites can still get them.
         """
         match_query = query if all_columns else _scope_to_name(query)
+        params: list = [match_query]
+        kind_filter = ""
+        if not all_columns:
+            excluded = (NodeKind.IMPORT.value, NodeKind.EXPORT.value)
+            kind_filter = f"AND n.kind NOT IN ({','.join('?' for _ in excluded)}) "
+            params.extend(excluded)
+        params.append(limit)
         rows = self.conn.execute(
             f"{_NODE_SELECT} JOIN nodes_fts ON nodes_fts.rowid = n.id "
-            f"WHERE nodes_fts MATCH ? ORDER BY rank LIMIT ?",
-            (match_query, limit),
+            f"WHERE nodes_fts MATCH ? {kind_filter}ORDER BY rank LIMIT ?",
+            tuple(params),
         ).fetchall()
         return [_row_to_node(r) for r in rows]
 

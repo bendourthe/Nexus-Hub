@@ -465,11 +465,30 @@ class UserServiceTest {
 - [ ] Fixtures properly scoped
 - [ ] No shared mutable state
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "Mocking everything makes the test fully isolated and fast." | Over-mocking tests the mock, not the code; a test where every collaborator is a mock passes even after the real integration breaks, because no real wiring is exercised. |
+| "I will reuse one shared fixture object across all tests to save setup." | Shared mutable fixture state leaks between tests, so test order becomes load-bearing and a failure in one test corrupts the next; each test must own its data. |
+| "A stub that returns a happy value is enough; I do not need error scenarios." | The mocked dependency's timeout and 5xx paths are where resilience bugs hide; a stub that only returns success never exercises the retry or fallback logic. |
+| "I will mock the internal function directly to control its return." | Mocking internals couples the test to implementation; a refactor that renames the function breaks the test without any behavior change. Mock at the boundary instead. |
+
+## Verification
+
+- [ ] External dependencies are mocked at the boundary (HTTP, DB, queue), not at internal functions.
+- [ ] Each mock asserts the expected interaction (called with the right arguments) where behavior depends on it.
+- [ ] Error and timeout scenarios are stubbed and tested, not only happy-path returns.
+- [ ] Data factories produce realistic, valid entities with sensible defaults.
+- [ ] Fixtures are scoped correctly and reset between tests so no shared mutable state leaks.
+
 ## Related Skills
 
-- `unit-tests` - Unit testing (Phase 2)
-- `test-cases` - Integration tests (Phase 3)
-- `test-structure` - Test infrastructure (Phase 1)
+- [[unit-tests]] -- consumes these test doubles to isolate the unit under test (Phase 2)
+- [[test-cases]] -- integration scenarios that combine fixtures and mocks (Phase 3)
+- [[test-structure]] -- sets up the fixture and conftest infrastructure these doubles live in (Phase 1)
+- [[integration-test-generator]] -- uses HTTP mock servers and data factories at service boundaries
+- [[flaky-test-detector]] -- relies on deterministic mocks to remove network-induced flakiness
 
 ---
 

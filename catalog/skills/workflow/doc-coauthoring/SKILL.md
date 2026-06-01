@@ -106,12 +106,12 @@ Binary checklist - each item must describe an observable artifact or state.
 
 ## Related Skills
 
-- `business-product/technical-writer` - audience-appropriate technical documentation; complements Stage 2 when the doc's content (not just structure) needs domain-specific framing.
-- `developer-experience/writing-editing` - sentence-level polish and clarity; the Stage 3 successor when reader-testing has identified the right shape and you now need the right words.
-- `documentation/technical-documentation` - architecture docs, ADRs, and design specs; provides the format templates this workflow's Stage 2 outline can target.
-- `business-product/internal-comms` - structured templates for internal communication formats (3P updates, status reports, leadership briefings); use in place of this skill when the doc is short and the format is fixed.
-- `developer-experience/idea-refine` - refine vague ideas into concrete problem statements; an upstream pre-Stage-1 step when the user is not yet sure what they want to document.
-- `developer-experience/spec-driven-development` - turn an accepted spec into implementation; the downstream consumer when this workflow's output is a spec.
+- [[technical-writer]] -- audience-appropriate technical documentation; complements Stage 2 when the doc's content (not just structure) needs domain-specific framing.
+- [[writing-editing]] -- sentence-level polish and clarity; the Stage 3 successor when reader-testing has identified the right shape and you now need the right words.
+- [[technical-documentation]] -- architecture docs, ADRs, and design specs; provides the format templates this workflow's Stage 2 outline can target.
+- [[internal-comms]] -- structured templates for internal communication formats (3P updates, status reports, leadership briefings); use in place of this skill when the doc is short and the format is fixed.
+- [[idea-refine]] -- refine vague ideas into concrete problem statements; an upstream pre-Stage-1 step when the user is not yet sure what they want to document.
+- [[spec-driven-development]] -- turn an accepted spec into implementation; the downstream consumer when this workflow's output is a spec.
 
 ## Bundled Resources
 

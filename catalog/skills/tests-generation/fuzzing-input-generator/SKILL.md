@@ -798,3 +798,28 @@ class CorpusManager:
 - **Fuzzing only in development**: Fuzzing should be part of CI, not just a one-time developer activity; new code introduces new bugs that fuzzing can find
 - **Not testing error paths**: Fuzzing primarily exercises error handling paths; if your code lacks proper error handling, fuzzing will reveal this as crashes rather than graceful failures
 - **Using production URLs for API fuzzing**: Always fuzz against local or staging environments; never send fuzz traffic to production
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "Our input validation already rejects bad data, so fuzzing is redundant." | Fuzzing exercises the error-handling paths your unit tests never reach; a parser that handles every malformed case you imagined still segfaults on the byte sequence you did not, which is exactly what the fuzzer finds. |
+| "Running the fuzzer for a minute showed no crashes, so the code is safe." | Coverage-guided fuzzers find deep bugs only after millions of iterations; a 60-second run barely warms the corpus and a clean result is meaningless. |
+| "I will start the fuzzer from random bytes; a seed corpus is extra work." | Blind random bytes almost never form valid JSON or a valid file header, so the fuzzer wastes its budget being rejected at the front gate; one good seed multiplies effectiveness. |
+| "A hang is not a crash, so I can ignore the timeout findings." | A 30-second hang on a crafted input is an algorithmic-complexity denial-of-service (ReDoS, hash-collision DoS); ignoring it ships a remotely triggerable outage. |
+
+## Verification
+
+- [ ] The fuzz harness builds and runs against the target without setup errors.
+- [ ] A non-empty seed corpus of valid inputs exists before mutation-based fuzzing starts.
+- [ ] Crash-triggering inputs are saved to a permanent corpus and minimized to the smallest reproducer.
+- [ ] The harness suppresses only expected error types and lets unexpected exceptions propagate as findings.
+- [ ] Fuzzing runs in CI as a long-running job with explicit memory and time limits, not a one-time smoke test.
+
+## Related Skills
+
+- [[edge-case-generator]] -- enumerates curated boundary inputs alongside the random inputs this skill mutates
+- [[directed-test-input-generator]] -- reaches specific branches where broad fuzzing is too undirected
+- [[security-review]] -- triages the vulnerabilities fuzzing surfaces (overflows, injection, DoS)
+- [[bug-reproduction-test-generator]] -- turns a minimized crash input into a permanent regression test
+- [[property-based-test-generator]] -- shares the generative testing mindset with explicit invariants as oracles

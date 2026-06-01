@@ -1,4 +1,4 @@
-﻿# Go AI System Prompt
+# Go AI System Prompt
 
 Use this prompt to configure your AI assistant for Go software development, writing, analysis, and creative generation.
 

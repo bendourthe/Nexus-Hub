@@ -45,9 +45,9 @@ def main() -> None:
     # Format: (command, expected_auto_approve, category, description)
     cases = [
         # ── User-reported mislabeled commands ──
-        ("cd /c/Users/bdour/Downloads/installer && find . -type f -o -type d | head -100", True, "REPORTED", "compound: cd + find + head via && and |"),
-        ("head -50 /c/Users/bdour/Documents/Work/Coding/Github/Gemma-Code/src/tools/ToolCatalog.ts", True, "REPORTED", "simple head with long path"),
-        ("git -C /c/Users/bdour/Documents/Work/Coding/Github/Gemma-Code tag", True, "REPORTED", "git with -C global option before subcommand"),
+        ("cd /c/Users/user/Downloads/installer && find . -type f -o -type d | head -100", True, "REPORTED", "compound: cd + find + head via && and |"),
+        ("head -50 /c/Users/user/Documents/Work/Coding/Github/Gemma-Code/src/tools/ToolCatalog.ts", True, "REPORTED", "simple head with long path"),
+        ("git -C /c/Users/user/Documents/Work/Coding/Github/Gemma-Code tag", True, "REPORTED", "git with -C global option before subcommand"),
 
         # ── Git global options before subcommand ──
         ("git -C /some/repo log --oneline -5", True, "GIT-GLOBAL", "git -C before log"),
@@ -212,11 +212,11 @@ def main() -> None:
         ("gh issue create --title bug", False, "GH-CLI", "create issue MUTATES"),
 
         # ── Windows/Git Bash paths ──
-        ("cat /c/Users/bdour/.gitconfig", True, "WINDOWS", "cat with /c/ path"),
-        ("ls /c/Users/bdour/Documents", True, "WINDOWS", "ls with /c/ path"),
-        ("find /c/Users/bdour -name '*.md' -maxdepth 2", True, "WINDOWS", "find with /c/ root"),
-        ("wc -l /c/Users/bdour/Documents/file.txt", True, "WINDOWS", "wc with /c/ path"),
-        ("head -100 /c/Users/bdour/file.log", True, "WINDOWS", "head with /c/ path"),
+        ("cat /c/Users/user/.gitconfig", True, "WINDOWS", "cat with /c/ path"),
+        ("ls /c/Users/user/Documents", True, "WINDOWS", "ls with /c/ path"),
+        ("find /c/Users/user -name '*.md' -maxdepth 2", True, "WINDOWS", "find with /c/ root"),
+        ("wc -l /c/Users/user/Documents/file.txt", True, "WINDOWS", "wc with /c/ path"),
+        ("head -100 /c/Users/user/file.log", True, "WINDOWS", "head with /c/ path"),
 
         # ── Prefix commands ──
         ("time git log --oneline -10", True, "PREFIX", "time prefix on git log"),

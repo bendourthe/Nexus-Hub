@@ -127,8 +127,8 @@ Binary checklist - each item must describe an observable artifact or state.
 
 ## Related Skills
 
-- `infrastructure/observability-setup` - the upstream skill that stands up the logging, metrics, and tracing this skill reads from; use it first when no telemetry exists, and for real-time alerting (the pulse is periodic, not real-time).
-- `business-product/product-manager` - consumes the pulse: the Followups and usage trends feed prioritization and now/next/later sequencing.
-- `business-product/internal-comms` - turn a pulse window into a leadership update or weekly status; the pulse is the data, internal-comms is the audience-shaped message.
-- `developer-experience/analysis-logic` - structured analytical presentation (decision matrices, data framing) for the deeper analysis a single pulse window may surface.
-- `workflow/known-gaps-tracker` - record recurring followups that span multiple windows as tracked gaps rather than re-deriving them each pulse.
+- [[observability-setup]] -- the upstream skill that stands up the logging, metrics, and tracing this skill reads from; use it first when no telemetry exists, and for real-time alerting (the pulse is periodic, not real-time).
+- [[product-manager]] -- consumes the pulse: the Followups and usage trends feed prioritization and now/next/later sequencing.
+- [[internal-comms]] -- turn a pulse window into a leadership update or weekly status; the pulse is the data, internal-comms is the audience-shaped message.
+- [[analysis-logic]] -- structured analytical presentation (decision matrices, data framing) for the deeper analysis a single pulse window may surface.
+- [[known-gaps-tracker]] -- record recurring followups that span multiple windows as tracked gaps rather than re-deriving them each pulse.

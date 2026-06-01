@@ -716,3 +716,28 @@ class TestDecisionTableDirected:
 - **Forgetting compound conditions**: A branch like `if a > 0 and b < 10 and c != ""` requires all three conjuncts to be true; missing any one causes the test to take the wrong path
 - **Not testing both sides of every branch**: Directing a test to reach the `if` branch is only half the job; you also need a test that takes the `else` branch
 - **Confusing path coverage with correctness**: Reaching a code path does not guarantee correctness; you still need meaningful assertions about the output
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "Random or property-based tests will eventually hit this branch." | A branch guarded by `coupon == "FREESHIP2024" AND cost < 100` has a vanishingly small chance of random satisfaction; the path may never be exercised across millions of random runs while a directed input reaches it in one. |
+| "Hitting the line is enough; I do not need to verify the path." | A miscalculated input can reach the target line via a different branch than intended, so the test passes while the condition you meant to cover stays untested; only coverage instrumentation confirms the path. |
+| "I will eyeball the path condition instead of solving it." | For a 5-conjunct condition involving arithmetic on weight, distance, and priority, manual guesses silently miss feasible inputs; a constraint solver finds a satisfying assignment or proves the path infeasible. |
+| "Covering the `if` branch covers the condition." | Every branch has a taken and not-taken arm; testing only the `if` leaves the `else` defect unguarded, which is exactly where unhandled fallbacks ship. |
+
+## Verification
+
+- [ ] Each directed test documents, in a comment, the path condition the input is designed to satisfy.
+- [ ] Running the suite under branch-coverage instrumentation confirms each targeted branch is reached.
+- [ ] Both arms (taken and not-taken) of every targeted branch have at least one test.
+- [ ] Inputs produced by the constraint solver are re-run through the actual function and reach the intended path.
+- [ ] Branch coverage for the target function increases measurably after adding the directed tests.
+
+## Related Skills
+
+- [[code-coverage]] -- identifies the uncovered branches this skill then targets with crafted inputs
+- [[edge-case-generator]] -- covers boundary and special-value inputs alongside these path-directed inputs
+- [[fuzzing-input-generator]] -- explores the input space broadly where directed generation is too narrow
+- [[property-based-test-generator]] -- discovers unanticipated paths that complement deliberate path targeting
+- [[unit-tests]] -- houses the directed tests this skill produces in the standard unit-test suite

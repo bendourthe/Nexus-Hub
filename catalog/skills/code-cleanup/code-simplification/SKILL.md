@@ -169,8 +169,8 @@ Abstraction for 2 callers is premature. Abstraction that is harder to understand
 
 ## Related Skills
 
-- `dead-code-eliminator` — systematic dead code removal at codebase scale
-- `refactoring-expert` — behavior-preserving refactoring using Fowler's catalog
-- `python-cleanup` — Python-specific style and pattern cleanup
-- `javascript-cleanup` — JavaScript/TypeScript-specific cleanup
-- `code-smell-detector` — identify structural code quality issues before simplification
+- [[dead-code-eliminator]] -- systematic dead code removal at codebase scale
+- [[refactoring-expert]] -- behavior-preserving refactoring using Fowler's catalog
+- [[python-cleanup]] -- Python-specific style and pattern cleanup
+- [[javascript-cleanup]] -- JavaScript/TypeScript-specific cleanup
+- [[code-smell-detector]] -- identify structural code quality issues before simplification

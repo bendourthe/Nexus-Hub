@@ -466,7 +466,16 @@ GROUP BY grp
 ORDER BY start_date;
 ```
 
-## Quality Checklist
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "`SELECT *` is convenient and the table is small" | `SELECT *` pulls every column over the wire and defeats covering indexes; it also breaks silently when a column is added or reordered. |
+| "The query is fast on my dev data" | Dev tables have hundreds of rows; the same query without an index does a sequential scan that takes minutes once production has millions of rows. |
+| "Wrapping the indexed column in a function is harmless" | `WHERE LOWER(email) = ...` makes the planner ignore the index on `email` and full-scan; index the expression or compare without the function. |
+| "OFFSET pagination is simpler than keyset" | `LIMIT/OFFSET` rescans and discards all skipped rows, so page 10000 reads 10000 pages of data; keyset pagination reads only the page you want. |
+
+## Verification
 
 - [ ] Query uses indexes effectively (EXPLAIN verified)
 - [ ] No SELECT * in production queries
@@ -479,10 +488,10 @@ ORDER BY start_date;
 
 ## Related Skills
 
-- `performance-review` - Database performance assessment
-- `code-quality` - SQL code standards
-- `security-review` - SQL injection prevention
-- `terraform-specialist` - Database infrastructure
+- [[performance-review]] -- database performance assessment
+- [[code-quality]] -- SQL code-standard scoring
+- [[security-review]] -- SQL injection prevention
+- [[terraform-specialist]] -- provisioning the database infrastructure
 
 ---
 

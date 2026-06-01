@@ -639,7 +639,16 @@ export function classifyError(error: unknown): ErrorClass {
 }
 ```
 
-## Quality Checklist
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "I'll call `client.messages.create` directly here, it is one call" | A direct call bypasses the `AgentExecutor`, so it has no budget check, no retry classification, and no audit entry; the one bypass is exactly the call that overspends or fails silently. |
+| "An unpinned SDK version stays current automatically" | A minor SDK bump can change default model routing or tool-call serialization and break the agent at runtime with no diff in your code; pin the version and upgrade deliberately. |
+| "Retrying every error is the robust default" | Retrying a fatal 400 (bad request) wastes budget and never succeeds; retry logic must distinguish retryable (429/5xx) from fatal errors. |
+| "Parallel agents can share one executor and budget guard" | A shared budget guard double-counts under concurrency and a shared Playwright instance corrupts cross-agent state; each parallel agent needs its own executor and guard. |
+
+## Verification
 
 - [ ] SDK pinned to a specific version in `package.json`
 - [ ] `BudgetGuard` initialized with a concrete dollar limit per agent
@@ -654,12 +663,12 @@ export function classifyError(error: unknown): ErrorClass {
 
 ## Related Skills
 
-- `ai-agent-development` — General agent architecture patterns (ReAct, planning, memory) in Python
-- `multi-provider-ai` — Detailed provider selection criteria and configuration for Anthropic, Bedrock, Vertex, OpenRouter
-- `ai-billing-safeguards` — Comprehensive spending cap strategies and cost attribution patterns
-- `temporal-orchestration` — Durable workflow orchestration for parallel, fault-tolerant agent pipelines
-- `mcp-server-development` — Building custom MCP servers for Claude Agent SDK integration
-- `prompt-engineering` — Crafting effective system prompts for specialized agents
+- [[ai-agent-development]] -- general agent architecture patterns (ReAct, planning, memory) in Python
+- [[multi-provider-ai]] -- detailed provider selection criteria and configuration for Anthropic, Bedrock, Vertex, OpenRouter
+- [[ai-billing-safeguards]] -- comprehensive spending cap strategies and cost attribution patterns
+- [[temporal-orchestration]] -- durable workflow orchestration for parallel, fault-tolerant agent pipelines
+- [[mcp-builder]] -- building custom MCP servers for Claude Agent SDK integration
+- [[prompt-engineering]] -- crafting effective system prompts for specialized agents
 
 ---
 

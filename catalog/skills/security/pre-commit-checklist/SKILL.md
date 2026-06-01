@@ -906,12 +906,30 @@ jobs:
 - [ ] False positive rate acceptable (<5%)
 - [ ] Bypass rate monitored and low (<10%)
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "CI already runs these checks, so pre-commit hooks are redundant" | A secret pushed to a branch is already in git history and the remote by the time CI fails; pre-commit is the only gate that stops the credential from ever leaving the developer's machine. |
+| "I will just use --no-verify this once to unblock myself" | A high `--no-verify` rate is the signal that the hooks are too slow or too noisy; routinely bypassing them defeats the gate entirely, so the fix is to tune the hooks, not to skip them. |
+| "Running the full test suite on every commit guarantees quality" | A 30-second-plus pre-commit hook trains developers to bypass it; only fast smoke tests (under 10 seconds) belong here, with the comprehensive suite offloaded to CI. |
+| "The hooks are configured, so every developer is protected" | Hooks live in `.git/hooks` and are not cloned; a new team member who skips `pre-commit install` has zero protection, which is why CI must enforce the same checks as a safety net. |
+
+## Verification
+
+- [ ] `.pre-commit-config.yaml` exists in the repository root and `pre-commit install` has run (a hook exists at `.git/hooks/pre-commit`)
+- [ ] A secret-detection hook is configured with a committed baseline (e.g. `.secrets.baseline`)
+- [ ] The full hook set passes on a clean tree: `pre-commit run --all-files`
+- [ ] A commit-msg hook enforces the convention: `pre-commit install --hook-type commit-msg` has run
+- [ ] CI runs the same checks as a safety net (a `pre-commit run --all-files` step exists in the pipeline)
+- [ ] Total pre-commit run time on a typical change is under 30 seconds
+
 ## Related Skills
 
-- `dependency-security-audit` - Dependency vulnerability scanning
-- `code-commit-workflow` - Git commit best practices
-- `security-review` - Deep security audit
-- `code-quality` - Code quality assessment
+- [[dependency-security-audit]] -- dependency vulnerability scanning that can run as a hook
+- [[code-commit-workflow]] -- git commit conventions the commit-msg hook enforces
+- [[security-review]] -- deeper security audit beyond the fast pre-commit gate
+- [[code-quality]] -- code quality assessment the linting hooks support
 
 ## Additional Resources
 

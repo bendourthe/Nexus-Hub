@@ -183,15 +183,32 @@ Generate ADVERSARIAL-REPORT.md as an independent artifact:
 - **Focus on untrusted inputs first**: start with user-facing entry points and external data sources before testing internal interfaces
 - **Do not fix the code**: the breaker's job is to find and report, not to fix; fixing is a separate step that should be done by the implementer or a different agent
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "It passed code review and the acceptance tests, so it is safe to merge." | Acceptance tests check the happy path the author imagined; a single empty-array or negative-length input the author never considered can still crash production. Adversarial verification exists to find the inputs nobody planned for. |
+| "I will just eyeball the code for edge cases instead of writing failing tests." | An opinion that "this might overflow" is noise without a reproduction. Only a test that actually fails against the current implementation proves the bug and survives the next refactor. |
+| "The same agent that wrote the code can break it." | Authors share their own blind spots; the breaker should be a different model so the assumptions baked into the implementation are not silently re-baked into the attack. |
+| "Documenting the inputs I tested and found safe is wasted effort." | The false-positive log is what lets a reviewer trust the verdict; without it, a PASS is indistinguishable from "I did not look very hard." |
+
+## Verification
+
+- [ ] `ADVERSARIAL-REPORT.md` exists and lists every entry point from the Attack Surface inventory
+- [ ] Each confirmed finding includes a concrete test that fails against the current implementation
+- [ ] Inputs tested and found safe are recorded in the False Positives section
+- [ ] The report ends with an explicit verdict: PASS, FAIL, or CONDITIONAL PASS
+- [ ] No code was modified by the breaker agent (find-and-report only)
+
 ## Related Skills
 
-- `cross-model-orchestrator` - Multi-model workflow where breaker is the fifth role
-- `intent-based-review` - Criteria-based review that the breaker complements
-- `edge-case-generator` - Generate edge cases (used as a sub-technique by this skill)
-- `fuzzing-input-generator` - Generate fuzz inputs (used as a sub-technique)
-- `exploitability-analyzer` - Analyze whether a found vulnerability is exploitable
-- `security-review` - Broader security review covering architecture and dependencies
-- `mutation-testing` - Test whether tests catch injected faults (related but distinct goal)
+- [[cross-model-orchestrator]] - Multi-model workflow where breaker is the fifth role
+- [[intent-based-review]] - Criteria-based review that the breaker complements
+- [[edge-case-generator]] - Generate edge cases (used as a sub-technique by this skill)
+- [[fuzzing-input-generator]] - Generate fuzz inputs (used as a sub-technique)
+- [[exploitability-analyzer]] - Analyze whether a found vulnerability is exploitable
+- [[security-review]] - Broader security review covering architecture and dependencies
+- [[mutation-testing]] - Test whether tests catch injected faults (related but distinct goal)
 
 ---
 

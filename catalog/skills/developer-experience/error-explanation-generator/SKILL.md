@@ -2,7 +2,7 @@
 name: error-explanation-generator
 description: Explain cryptic error messages, stack traces, and compiler errors in plain language with fix suggestions and prevention strategies. Use when encountering confusing errors, debugging stack traces, understanding compiler output, or diagnosing runtime exceptions.
 summary_l0: "Explain cryptic errors and stack traces in plain language with fix suggestions"
-overview_l1: "This skill transforms cryptic error messages, stack traces, and compiler diagnostics into plain-language explanations with actionable fix suggestions and prevention strategies. Use it when encountering a cryptic compiler error, parsing multi-frame stack traces to find root causes, diagnosing intermittent runtime exceptions, explaining build tool errors (Maven, Gradle, npm, pip, cargo), interpreting database error codes, understanding HTTP error responses, translating low-level system errors (segfaults, OOM, permission denied), or helping developers learn from errors. Key capabilities include multi-language error pattern recognition, stack trace parsing and root cause extraction, build tool error interpretation, database and HTTP error code lookup, system-level error translation, fix suggestion generation, and prevention strategy recommendations. The expected output is a plain-language explanation of the error, its root cause, concrete fix steps, and prevention strategies. Trigger phrases: explain this error, what does this error mean, help me understand this stack trace, fix this error, debug this exception, why am I getting this error, error explanation, stack trace help, compiler error, runtime exception."
+overview_l1: "This skill transforms cryptic error messages, stack traces, and compiler diagnostics into plain-language explanations with actionable fix suggestions and prevention strategies. Use it when encountering a cryptic compiler error, parsing multi-frame stack traces for root causes, diagnosing intermittent runtime exceptions, explaining build tool errors (Maven, Gradle, npm, pip, cargo), interpreting database error codes, understanding HTTP error responses, or translating low-level system errors (segfaults, OOM, permission denied). Key capabilities include multi-language error pattern recognition, stack trace parsing and root cause extraction, build tool error interpretation, database and HTTP error code lookup, system-level error translation, fix suggestion generation, and prevention recommendations. The expected output is a plain-language explanation of the error, its root cause, concrete fix steps, and prevention strategies. Trigger phrases: explain this error, what does this error mean, help me understand this stack trace, fix this error, debug this exception, error explanation, stack trace help, compiler error, runtime exception."
 ---
 
 # Error Explanation Generator
@@ -461,3 +461,27 @@ When explaining an error, use this structure:
 - **Ignoring error codes**: error codes are more specific and stable than error messages, which may change between versions; always search by code when available
 - **Not reproducing before fixing**: guessing at fixes for errors you cannot reproduce leads to wasted effort and false confidence; invest time in reproduction first
 - **Suppressing errors with empty catch blocks**: catching and ignoring exceptions hides real problems; at minimum, log the exception; prefer handling it meaningfully
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "The error is on line 50, so I'll fix line 50" | The throw site is rarely the bug site; a NullPointerException on line 50 often originates from a null assignment on line 20, so tracing the data flow backward is what finds the actual cause. |
+| "I read the first line of the trace, that's enough" | The first frame is the symptom; the middle frames and the `Caused by` chain hold the originating exception, and skipping them produces a fix for the wrong layer. |
+| "A null check here makes the exception go away" | Suppressing the symptom without explaining why the value is null relocates the bug; the same root cause resurfaces elsewhere with a different stack trace. |
+| "I found a fix on the web, I'll paste it in" | A copied fix that resolves the message without explaining the mechanism can introduce new problems; the explanation must state why the fix works before it is applied. |
+
+## Verification
+
+- [ ] The explanation names the root cause, not just the surface error message
+- [ ] The full stack trace was read, including `Caused by` chains, and the originating frame is identified
+- [ ] Concrete fix steps are provided, each tied to the identified root cause
+- [ ] The error was reproduced (or a clear reproduction path is documented) before the fix was proposed
+- [ ] A prevention strategy is included so the same error class does not recur
+
+## Related Skills
+
+- [[bug-localization]] -- pinpoints the fault location once this skill has parsed the stack trace
+- [[debug-with-logs]] -- adds the strategic logging needed to reproduce an intermittent error
+- [[regression-root-cause-analyzer]] -- traces an error that appeared after a change back to the introducing commit
+- [[semantic-bug-detector]] -- catches the logic error underlying an error that static parsing alone cannot explain

@@ -486,11 +486,30 @@ pipeline {
 - [ ] Failure notifications set up
 - [ ] E2E tests run on main branch
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "Tests pass locally, so the pipeline is just a formality." | Local runs use the developer's cached deps and OS; a missing `npm ci` lockfile or a Linux-only path bug surfaces only when the CI runner starts from a clean checkout. |
+| "A quality gate that only echoes 'passed' is good enough for now." | A gate that never reads the coverage number cannot fail; a regression that drops coverage from 85% to 40% sails through a stub gate and ships untested code. |
+| "Running every test serially is simpler than configuring a matrix." | Serial suites push CI feedback past 20 minutes, so developers stop waiting and merge on red; parallel matrix jobs are what keep the gate enforceable. |
+| "Flaky E2E tests can stay in the main pipeline; we will just re-run." | A flaky job that blocks merges trains the team to click 'retry until green', which silently masks a real intermittent failure the next time it fires. |
+
+## Verification
+
+- [ ] The pipeline triggers on both `push` and `pull_request` events for the protected branches.
+- [ ] The quality-gate job reads an actual coverage value and fails the build when it is below the documented threshold.
+- [ ] Test results and coverage artifacts are uploaded and visible on a failed run (`if: always()` set on upload steps).
+- [ ] A deliberately failing test causes the pipeline to report a red status (gate is not a no-op).
+- [ ] Dependency caching is configured so a second run is faster than a cold run.
+
 ## Related Skills
 
-- `test-structure` - Test infrastructure (Phase 1)
-- `code-coverage` - Coverage analysis (Phase 7)
-- `performance-testing` - Load testing (Phase 5)
+- [[test-structure]] -- sets up the test infrastructure this pipeline executes (Phase 1)
+- [[code-coverage]] -- defines the coverage thresholds the quality gate enforces (Phase 7)
+- [[performance-testing]] -- supplies the load tests this skill schedules in a later stage (Phase 5)
+- [[cicd-architect]] -- designs the broader CI/CD pipeline this testing stage plugs into
+- [[flaky-test-detector]] -- diagnoses the intermittent failures that destabilize CI runs
 
 ---
 

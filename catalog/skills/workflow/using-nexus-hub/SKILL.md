@@ -110,9 +110,24 @@ You do not need to interact with hooks directly — they run in the background.
 | Refactoring | `plan-before-code` → `refactoring-expert` → `behavior-preservation-checker` |
 | AI agent development | `ai-agent-development` → `context-engineering` → `prompt-engineering` |
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "I will just do the task directly instead of looking for a skill" | Skipping skill discovery means re-deriving a workflow the catalog already encodes; the relevant skill carries the verification gate and rationalization rebuttals you would otherwise miss. |
+| "I read the skill index once, I do not need to search again" | The index lists 230+ skills; relying on memory leads to picking a near-match instead of the right skill, so search by task intent each time rather than recalling a name. |
+| "Hooks are just noise, I can ignore the warnings" | The secret-scan and git-guardrails hooks block real failure modes (committed credentials, destructive git); treating their output as noise is how a secret reaches the remote. |
+
+## Verification
+
+- [ ] The task was matched against the skill index before starting (a candidate skill was named or "no skill applies" was concluded explicitly)
+- [ ] If a skill applies, it was loaded at L1 then L2 before acting
+- [ ] The chosen starting point matches a row in the Recommended Starting Points table for the task type
+- [ ] Hook warnings surfaced during the session were addressed, not ignored
+
 ## Related Skills
 
-- `plan-before-code` — start here for any non-trivial implementation
-- `idea-refine` — clarify before you specify
-- `spec-driven-development` — specify before you build
-- `incremental-implementation` — build one step at a time
+- [[plan-before-code]] -- start here for any non-trivial implementation
+- [[idea-refine]] -- clarify before you specify
+- [[spec-driven-development]] -- specify before you build
+- [[incremental-implementation]] -- build one step at a time

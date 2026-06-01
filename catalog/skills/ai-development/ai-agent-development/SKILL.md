@@ -1024,11 +1024,11 @@ Cross-links:
 
 ## Related Skills
 
-- `tool-design` - Designing tools and APIs for agent consumption
-- `prompt-engineering` - Crafting effective system prompts for agents
-- `rag-implementation` - Building retrieval systems agents can query
-- `context-manager` - Managing context budgets in long agent sessions
-- `ai-agent-governance` - Compliance and governance for AI agent deployments
+- [[tool-design]] -- designing tools and APIs for agent consumption
+- [[prompt-engineering]] -- crafting effective system prompts for agents
+- [[rag-implementation]] -- building retrieval systems agents can query
+- [[context-manager]] -- managing context budgets in long agent sessions
+- [[ai-agent-governance]] -- compliance and governance for AI agent deployments
 
 ---
 

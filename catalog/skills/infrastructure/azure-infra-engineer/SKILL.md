@@ -675,13 +675,30 @@ jobs:
 - [ ] Infrastructure defined in Bicep or Terraform with CI/CD pipeline
 - [ ] What-If or plan step runs on every pull request
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "I'll grant Owner at the subscription scope to unblock the deploy faster" | Subscription-wide Owner is the blast-radius mistake that turns one leaked credential into a full tenant compromise; scope RBAC to the resource group and use a managed identity instead. |
+| "Public endpoints are fine, the data is not that sensitive" | A storage account or Azure SQL with a public endpoint is internet-reachable; Private Endpoints plus NSG rules are what keep the data plane off the public network, and retrofitting them after a breach is far costlier. |
+| "I'll click through the portal once and document it later" | Portal-only changes drift from the Bicep/Terraform source of truth; the next `what-if` or `terraform plan` either reverts the change or fails, and there is no review trail for the manual edit. |
+| "Soft-delete and purge protection on Key Vault can wait" | Without purge protection a deleted or compromised Key Vault and its secrets are unrecoverable; this is a one-way data-loss event that the flag would have prevented. |
+
+## Verification
+
+- [ ] Infrastructure is defined in Bicep or Terraform, not created only through the portal.
+- [ ] A dry run was executed before apply: `az deployment group what-if` (Bicep) or `terraform plan` (azurerm).
+- [ ] RBAC assignments are scoped to the resource group or resource, not subscription-wide Owner.
+- [ ] Data services (Storage, Azure SQL, Cosmos DB) use Private Endpoints; no unintended public network access.
+- [ ] Secrets are stored in Azure Key Vault (with soft-delete and purge protection), not in templates or pipeline variables in plaintext.
+
 ## Related Skills
 
-- `cloud-architect` - Multi-cloud architecture patterns and Well-Architected Framework
-- `terraform-specialist` - Advanced Terraform patterns and module design
-- `kubernetes-expert` - Kubernetes workload design and operations
-- `cicd-architect` - CI/CD pipeline design and deployment strategies
-- `security-review` - Security assessment and compliance review
+- [[cloud-architect]] -- multi-cloud architecture patterns and Well-Architected Framework
+- [[terraform-specialist]] -- advanced Terraform patterns and module design
+- [[kubernetes-expert]] -- Kubernetes workload design and operations
+- [[cicd-architect]] -- CI/CD pipeline design and deployment strategies
+- [[security-review]] -- security assessment and compliance review
 
 ---
 

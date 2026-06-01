@@ -448,12 +448,29 @@ updates:
 - [ ] Rollback plan documented
 - [ ] Deployment monitored
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "It's just a patch bump, I'll skip the test run" | Semver is a promise, not a guarantee; patch releases routinely ship regressions, and skipping the suite means the break surfaces in production instead of CI. |
+| "I'll upgrade everything at once to save time" | A batched multi-package upgrade makes it impossible to attribute a failure to one dependency; one isolated upgrade at a time keeps each change bisectable and revertible. |
+| "The audit flagged a vuln but we don't use that function" | Reachability matters, but "we don't use it" is a claim that needs tracing the call path; transitive dependencies pull the vulnerable code in through paths you did not author. |
+| "I don't need to commit the lock file" | Without the committed lock file, CI and teammates resolve different versions; the bug that only reproduces on one machine is almost always an uncommitted lock divergence. |
+
+## Verification
+
+- [ ] `npm audit` / `pip-audit` / `cargo audit` (the ecosystem's scanner) reports no unaddressed high/critical CVEs
+- [ ] The lock file is updated and committed alongside the manifest change
+- [ ] The full test suite passes after the upgrade
+- [ ] A manual smoke test of the affected feature was performed
+- [ ] A documented rollback plan exists (the prior lock file / version is recoverable)
+
 ## Related Skills
 
-- `security-review` - Security implications of dependencies
-- `cicd-architect` - Automated dependency updates in CI
-- `legacy-modernizer` - Major framework upgrades
-- `pre-commit-checklist` - Dependency checks before commit
+- [[security-review]] -- assesses the security implications of new and upgraded dependencies
+- [[cicd-architect]] -- automates dependency updates and audit gates in the CI pipeline
+- [[legacy-modernizer]] -- handles major framework upgrades that span many breaking changes
+- [[dependency-security-audit]] -- the deeper CVE and SBOM audit this skill's vulnerability patching feeds
 
 ---
 

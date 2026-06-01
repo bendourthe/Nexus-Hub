@@ -510,3 +510,27 @@ git rerere diff
 - **Not using merge commits for traceability**: Squash-merging everything makes it impossible to trace which feature branch introduced a specific change. Use merge commits (with `--no-ff`) when branch history matters.
 - **Resolving the same conflict repeatedly**: If you keep encountering the same conflict (e.g., during a rebase across many commits), enable `rerere` to record and replay the resolution automatically.
 - **Not considering the broader impact**: A conflict in one file may indicate that related (non-conflicting) changes in other files also need to be reconciled. Review the full diff on both branches, not just the conflicting files.
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "I will just take `--theirs` to resolve it fast" | Blindly accepting one side silently discards the other branch's work; a teammate's bug fix vanishes and no test catches it because both sides compiled fine. |
+| "The merge resolved cleanly, so it is correct" | A clean textual merge can still be a semantic conflict: two independently-correct changes can produce a duplicate variable, an incompatible type, or a race; only the test suite proves correctness. |
+| "I can hand-edit the lockfile conflict markers" | Hand-editing a lockfile's JSON conflict markers almost always yields an invalid or inconsistent lockfile; delete and regenerate it instead. |
+| "I resolved the conflict I saw and committed" | A file often has multiple conflict regions; committing after fixing one leaves stray `<<<<<<<` markers compiled into the code. |
+
+## Verification
+
+- [ ] No conflict markers remain: `git grep -nE '^(<{7}|={7}|>{7})'` returns nothing
+- [ ] The project builds and all tests pass after resolution: `<the project test command>`
+- [ ] Lockfile conflicts were regenerated, not hand-edited (the lockfile parses and installs cleanly)
+- [ ] Both sides' intended changes are present in the resolution, not just one side's
+- [ ] Non-obvious resolution decisions are documented in the merge commit message
+
+## Related Skills
+
+- [[code-commit-workflow]] -- atomic commits and clear messages reduce the conflict surface this skill resolves
+- [[using-git-worktrees]] -- isolate branches in separate worktrees so parallel work conflicts less
+- [[regression-root-cause-analyzer]] -- when a merge introduces a regression, trace which side's change caused it
+- [[code-quality]] -- review the merged result for the semantic correctness a textual merge cannot guarantee

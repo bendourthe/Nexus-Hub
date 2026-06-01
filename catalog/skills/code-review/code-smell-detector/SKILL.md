@@ -2,7 +2,7 @@
 name: code-smell-detector
 description: Detect and categorize code smells using Martin Fowler's catalog with severity scoring and refactoring recommendations. Use when reviewing code quality, identifying long methods, god classes, feature envy, data clumps, shotgun surgery, or other structural problems.
 summary_l0: "Detect code smells using Fowler's catalog with severity scoring and refactoring advice"
-overview_l1: "This skill provides systematic detection and categorization of code smells based on Martin Fowler's catalog and established software engineering literature. Use it when reviewing code for structural quality problems before merging, identifying methods, classes, or modules that have grown too large or complex, detecting coupling and cohesion issues, prioritizing refactoring efforts based on severity and impact, training developers to recognize anti-patterns, establishing code quality baselines, or preparing a codebase for new feature development. Key capabilities include smell detection across Fowler's full catalog (long method, god class, feature envy, data clumps, shotgun surgery, divergent change, primitive obsession, parallel inheritance), severity scoring with impact assessment, specific refactoring strategy recommendations per smell, and codebase-level smell density reporting. The expected output is a categorized smell report with location, severity, impact explanation, and recommended refactoring for each instance. Trigger phrases: code smell, detect smells, find code smells, code quality issues, long method, god class, feature envy, data clumps, shotgun surgery, code review quality, structural problems, anti-patterns."
+overview_l1: "This skill provides systematic detection and categorization of code smells based on Martin Fowler's catalog and established software engineering literature. Use it when reviewing code for structural quality problems before merging, identifying methods, classes, or modules that have grown too large or complex, detecting coupling and cohesion issues, prioritizing refactoring efforts by severity and impact, training developers to recognize anti-patterns, establishing code quality baselines, or preparing a codebase for new feature development. Key capabilities include smell detection across Fowler's full catalog (long method, god class, feature envy, data clumps, shotgun surgery, divergent change, primitive obsession, parallel inheritance), severity scoring with impact assessment, specific refactoring strategy recommendations per smell, and codebase-level smell density reporting. The expected output is a categorized smell report with location, severity, impact explanation, and recommended refactoring for each instance."
 ---
 
 # Code Smell Detector
@@ -475,3 +475,28 @@ Produce a structured report for each reviewed file or module.
 - **Fixing smells in code scheduled for deletion**: if a module is being replaced next quarter, investing in smell remediation is wasted effort; focus on code with a long expected lifespan
 - **Missing the root cause**: sometimes multiple surface-level smells (long method, data clumps, feature envy) all stem from a single architectural problem such as a missing domain object; fix the root cause rather than treating symptoms individually
 - **Not communicating with the team**: refactoring shared code without informing other developers causes merge conflicts and confusion; coordinate smell fixes through your team's normal workflow
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "This method is long but I understand it, so it's fine" | The UserManager god-class example in this skill is readable to its author yet has 9 dependencies and 6 responsibilities; the cost is paid by the next developer who must change authentication and is forced to understand session, audit, and rate-limiting code interleaved in the same class. |
+| "Every method over 25 lines is a smell, flag them all" | Over-detection erodes trust; an inherently complex algorithm split to satisfy a line threshold becomes less readable, which is why this skill weights scope, frequency, and change-impact rather than a single raw line count. |
+| "I'll fix all the smells in one big refactoring commit" | Refactoring an entire god class in one commit makes the diff unreviewable and any introduced regression unbisectable; the skill's guidance is to extract one responsibility at a time and run tests between each extraction. |
+| "These multiple smells are separate problems to fix individually" | Long method, data clumps, and feature envy in the same area frequently share one root cause (a missing domain object); treating them as independent symptoms produces three partial fixes instead of one structural one. |
+
+## Verification
+
+- [ ] Every detected smell has a recorded location (`file:line range`), category, and composite severity from the scoring matrix
+- [ ] Each smell is mapped to at least one recommended refactoring from the smell-to-refactoring table
+- [ ] Smells are prioritized by remediation value (effort vs. impact), with critical and high items listed first
+- [ ] A smell report is produced in the documented format (summary counts plus per-finding evidence)
+- [ ] Quantitative thresholds were calibrated to the project context, not applied blindly
+- [ ] Characterization tests exist for any smell scheduled for refactoring in untested code
+
+## Related Skills
+
+- [[refactoring-expert]] -- performs the behavior-preserving transforms this skill recommends per smell
+- [[code-quality]] -- the Phase 2 quality review that uses this skill's smell catalog as one input
+- [[behavior-preservation-checker]] -- verifies that fixing a smell did not change observable behavior
+- [[design-pattern-suggestor]] -- recommends the GoF patterns that resolve object-orientation-abuser smells

@@ -120,3 +120,26 @@ This skill is optimized for an iterative approach:
 2. **Review**: Critically analyze the output (coverage, quality, completeness).
 3. **Refine**: If targets aren't met, repeat the specific implementation steps with improved context.
 4. **Loop**: Continue until the definition of done is satisfied.
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "My training data already knows this topic, so I can skip the search" | Training data has a fixed cutoff; a 30-day trend window is by definition newer than any cutoff, so skipping the search returns stale consensus that contradicts what the community now recommends. |
+| "One web query is enough to call something a trend" | A single SEO blog post is marketing, not consensus. Without cross-checking Reddit and X you cannot distinguish a vendor's launch announcement from an actual community-validated practice. |
+| "I can write the prompt in my default style instead of the format the research found" | If the research shows the target tool needs XML tags or JSON and you ship Markdown prose, the prompt underperforms on that tool -- the format finding is the deliverable, not a suggestion. |
+| "I will keep results from older than 30 days because they look authoritative" | Old high-ranking pages describe deprecated APIs and retired tools; including them dilutes the trend signal the user explicitly asked for. |
+
+## Verification
+
+- [ ] At least three distinct search queries were run (community, general web, and format-specific when QUERY_TYPE is PROMPTING).
+- [ ] Every cited trend draws on a source dated within the last 30 days of the request.
+- [ ] The output identifies an explicit community consensus (top 3-5 agreed points), not just a single source.
+- [ ] If QUERY_TYPE is PROMPTING, the generated prompt's format matches the format consensus found in research.
+- [ ] The final report follows the output structure for the detected QUERY_TYPE (PROMPTING, RECOMMENDATIONS, or NEWS/GENERAL).
+
+## Related Skills
+
+- [[prompt-engineering]] -- refine and structurally evaluate the prompt this skill generates from trend findings.
+- [[deep-research-compilation]] -- compile multiple trend reports into one cited deliverable when the topic spans several sessions.
+- [[cross-project-comparison]] -- compare the surfaced trends against the current project to produce an adoption plan.

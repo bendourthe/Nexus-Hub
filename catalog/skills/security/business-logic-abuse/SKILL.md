@@ -1,7 +1,7 @@
 ---
 name: business-logic-abuse
 description: Identify business-logic vulnerabilities that bypass intended workflows including race conditions, TOCTOU, double-spending, workflow-state bypass, idempotency violations, and check-sequence abuse. Requires domain knowledge of the application's business rules because these flaws do not appear in generic scanners. Use when auditing financial flows, reservation systems, multi-step workflows, or any feature with stateful invariants.
-summary_l0: "Identify business-logic vulnerabilities: race conditions, TOCTOU, double-spending, workflow bypass, and idempotency violations - requires domain knowledge"
+summary_l0: "Find business-logic flaws: race conditions, TOCTOU, double-spending, workflow bypass, idempotency violations"
 overview_l1: "This skill identifies business-logic vulnerabilities that generic scanners cannot find because the flaws depend on the application's own rules. Use it when auditing high-value workflows (payments, ledgers, reservations, privilege grants), when reviewing state-machine implementations, or when extending `/run-penetration-test` with domain-aware checks under `--depth=deep`. Key capabilities include race-condition and TOCTOU detection at atomicity boundaries, double-spending and replay-within-window analysis, workflow-state bypass via direct-endpoint calls, idempotency-key review, check-sequence abuse (validate X then act on Y), and missing state-machine guards. The expected output is a findings table with severity, invariant violated, code reference, reproduction sketch, and architectural remediation. Trigger phrases: business logic, race condition, TOCTOU, double-spend, idempotency, workflow bypass, state machine, check-then-act, deep pen-test, WSTG-BUSL."
 ---
 
@@ -231,6 +231,15 @@ def transition(order: Order, to: OrderStatus) -> None:
 - [ ] Remediation is architectural (database constraint, state machine, idempotency key) rather than ad-hoc (extra `if` check)
 - [ ] Severity reflects real exploitability, not just theoretical class
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "The scanner came back clean, so the logic is fine" | Generic scanners only know syntax-level classes (XSS, SQL-i); they have no model of "balance cannot go negative", so a read-check-write debit race ships clean and lets balances go negative under concurrency. |
+| "The UI only lets the user reach checkout after payment, so the complete endpoint is safe" | The UI path is untrusted; a client that POSTs directly to `/checkout/complete` skips the payment step entirely unless the server re-checks the persisted state-machine position. |
+| "Adding an idempotency key is over-engineering for a simple payment endpoint" | Without an enforced key plus a UNIQUE constraint, a single client retry on a flaky network double-charges the customer, the exact double-spend in Step 4. |
+| "I can infer the business rules from reading the code" | Code shows what the system does, not what it should do; auditing invariants you guessed produces false positives and misses the real rule the operator holds in their head, which is why Step 1 elicits rules first. |
+
 ## Verification
 
 - [ ] For each CRITICAL finding, write or request a reproduction test that fails before the fix and passes after
@@ -241,11 +250,11 @@ def transition(order: Order, to: OrderStatus) -> None:
 
 ## Related Skills
 
-- `security-patch-advisor` - Patch generation for the remediation code
-- `security-review` - General application security review (this skill extends it with domain-specific checks)
-- `authentication-patterns` - Auth-specific invariants (one active session per user, MFA enrollment sequencing)
-- `fintech-engineer` - Domain knowledge for financial ledger invariants
-- `semantic-bug-detector` - Logic bugs beyond security (overlaps with this skill on race conditions)
+- [[security-patch-advisor]] -- patch generation for the remediation code
+- [[security-review]] -- general application security review (this skill extends it with domain-specific checks)
+- [[authentication-patterns]] -- auth-specific invariants (one active session per user, MFA enrollment sequencing)
+- [[fintech-engineer]] -- domain knowledge for financial ledger invariants
+- [[semantic-bug-detector]] -- logic bugs beyond security (overlaps with this skill on race conditions)
 
 ---
 

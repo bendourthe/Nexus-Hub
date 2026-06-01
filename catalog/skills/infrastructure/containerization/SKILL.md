@@ -686,12 +686,29 @@ docker build --secret id=npmrc,src=$HOME/.npmrc .
 - [ ] Layer order optimized for cache efficiency
 - [ ] Development Compose uses volumes for hot reload
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "Running as root inside the container is fine, it's isolated" | A container escape from a root process gets root on the host; a non-root USER and a read-only root filesystem are what contain the blast radius when the runtime has a CVE. |
+| "I'll use the full base image, multi-stage is over-engineering" | A full base image ships compilers, package managers, and shells the running app never needs, every one an attack-surface and image-size cost; a multi-stage build that copies only the artifact into a slim or distroless final stage removes them. |
+| "COPYing the .env or build secret into a layer is convenient" | Secrets baked into a layer persist in the image history even if a later layer deletes them; anyone who pulls the image can extract them. Use build secrets / mounts, never COPY. |
+| "Scanning the image is a release-day step" | Vulnerable base layers compound the longer they ship; running Trivy (or equivalent) in the build pipeline catches a critical CVE before the image is ever promoted, not after it is in production. |
+
+## Verification
+
+- [ ] The Dockerfile uses a multi-stage build; the final stage contains only the runtime artifact and its dependencies.
+- [ ] The container runs as a non-root USER and, where feasible, a read-only root filesystem.
+- [ ] No secrets are COPYed into any layer; image history is clean (`docker history` shows no secret values).
+- [ ] The image passes a vulnerability scan in CI: `trivy image <tag>` reports no unaddressed CRITICAL findings.
+- [ ] A HEALTHCHECK is defined and resource limits are set for the service.
+
 ## Related Skills
 
-- `cicd-architect` - Container build pipelines and registry automation
-- `kubernetes-expert` - Deploying containers to Kubernetes
-- `observability-setup` - Monitoring containerized applications
-- `security-review` - Container security assessment
+- [[cicd-architect]] -- container build pipelines and registry automation
+- [[kubernetes-expert]] -- deploying containers to Kubernetes
+- [[observability-setup]] -- monitoring containerized applications
+- [[security-review]] -- container security assessment
 
 ---
 

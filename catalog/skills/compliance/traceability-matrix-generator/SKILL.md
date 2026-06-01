@@ -2,7 +2,7 @@
 name: traceability-matrix-generator
 description: Generate requirement-to-code traceability matrices for compliance audits, regulatory reporting, and quality assurance. Use when preparing for audits, validating test coverage against requirements, or ensuring all requirements are implemented and verified.
 summary_l0: "Generate requirement-to-code traceability matrices for audits and compliance reporting"
-overview_l1: "This skill generates comprehensive requirement-to-code traceability matrices that map every requirement to its implementing code, associated tests, and verification status. Use it when preparing for compliance audits (ISO 27001, SOC 2, PCI DSS, HIPAA), generating traceability evidence for regulatory submissions (FDA, DO-178C, IEC 62304), validating that all requirements have implementations and tests, identifying gaps where requirements lack coverage, producing requirements coverage reports, mapping user stories to code changes, or tracking requirement changes and their impact. Key capabilities include bi-directional traceability (requirement-to-code and code-to-requirement), gap analysis for missing implementations or tests, compliance framework mapping, coverage reporting with metrics, user story to code change tracking, and CI/CD pipeline integration for continuous traceability enforcement. The expected output is a traceability matrix with requirement IDs, implementation references, test mappings, coverage status, and gap analysis. Trigger phrases: traceability matrix, requirement traceability, requirements coverage, audit preparation, compliance mapping, requirement-to-code mapping, test coverage mapping, gap analysis, requirements tracking."
+overview_l1: "This skill generates comprehensive requirement-to-code traceability matrices that map every requirement to its implementing code, associated tests, and verification status. Use it when preparing for compliance audits (ISO 27001, SOC 2, PCI DSS, HIPAA), generating traceability evidence for regulatory submissions (FDA, DO-178C, IEC 62304), validating that all requirements have implementations and tests, identifying gaps where requirements lack coverage, producing requirements coverage reports, mapping user stories to code changes, or tracking requirement changes. Key capabilities include bi-directional traceability (requirement-to-code and code-to-requirement), gap analysis for missing implementations or tests, compliance framework mapping, coverage reporting with metrics, user story to code change tracking, and CI/CD pipeline integration for continuous traceability enforcement. The expected output is a traceability matrix with requirement IDs, implementation references, test mappings, coverage status, and gap analysis. Trigger phrases: traceability matrix, requirement traceability, requirements coverage, audit preparation, compliance mapping, requirement-to-code mapping, test coverage mapping, gap analysis, requirements tracking."
 ---
 
 # Traceability Matrix Generator
@@ -713,3 +713,29 @@ def analyze_change_impact(
 - **Not linking to test results**: Traceability to test code is necessary but not sufficient. For audit purposes, link to actual test execution results (pass/fail) to prove verification.
 - **Ignoring orphaned code**: Code that does not map to any requirement may indicate scope creep, unused features, or missing requirements. Investigate orphaned code during gap analysis.
 - **Failing to update traceability when requirements change**: When a requirement is modified, split, or deleted, the traceability matrix must be updated accordingly. Include traceability review as part of the requirement change process.
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "We will build the matrix in a spreadsheet right before the audit" | A hand-maintained spreadsheet drifts out of sync the moment code changes; auditors who sample requirements find the matrix points at functions that moved or were deleted, which reads as a control failure. |
+| "Linking the requirement to the module is specific enough" | Mapping REQ-001 to `src/services/` proves nothing about which line implements it; gap analysis cannot distinguish implemented from missing, so the mapping must reach the file and function. |
+| "Tests are mapped to the requirement, so verification is proven" | Mapping to test code is not proof the test passed; for audit purposes the chain must link to actual pass/fail results, or a skipped test still shows as verified. |
+| "Non-functional and negative requirements do not need traceability" | 'The system shall NOT store plaintext passwords' and performance targets are exactly what auditors probe; omitting them leaves the highest-risk requirements untraced. |
+
+## Verification
+
+- [ ] Requirement markers are embedded in source and the matrix is generated automatically (not hand-maintained)
+- [ ] Each requirement maps to a specific file and line, not a whole module
+- [ ] Every requirement has a coverage status (FULLY_TRACED, IMPLEMENTED_NOT_VERIFIED, TEST_WITHOUT_IMPLEMENTATION, or NOT_TRACED)
+- [ ] Gap analysis lists all high-priority requirements lacking implementation or test coverage
+- [ ] Verification links to actual test execution results, not just test files
+- [ ] The CI/CD traceability gate enforces coverage thresholds: `python scripts/traceability-gate.py --report traceability-report.json --fail-on-high-priority-gaps`
+
+## Related Skills
+
+- [[soc2-compliance]] -- consumes this matrix as control-to-evidence mapping for the audit package
+- [[iso27001-compliance]] -- maps Annex A controls to implementing evidence via this matrix
+- [[pci-dss-compliance]] -- traces the 12 requirements to their implementing controls
+- [[code-coverage]] -- supplies the test-execution coverage data the verification column needs
+- [[requirement-enhancer]] -- improves requirement quality so each one is traceable and testable

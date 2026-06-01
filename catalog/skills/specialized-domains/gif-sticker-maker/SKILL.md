@@ -2,7 +2,7 @@
 name: gif-sticker-maker
 description: "Animated GIF and sticker creation expertise using AI image generation, video processing, and frame animation. Use when creating animated stickers, converting images to GIFs, building avatar generators, or automating visual content pipelines."
 summary_l0: "Create animated GIFs and stickers with AI generation, video processing, and frame animation"
-overview_l1: "This skill provides end-to-end expertise for creating animated GIFs and stickers using AI image generation, video processing, and programmatic frame animation. Use it when generating animated stickers from text prompts, converting video clips to optimized GIFs, building sprite sheet animations, creating avatar generators with expression cycles, automating visual content pipelines for chat platforms, or applying animation effects like bounce, pulse, rotate, and fade. Key capabilities include AI image generation integration (DALL-E, Stable Diffusion, Midjourney API, and other providers), Python Pillow GIF assembly with palette optimization and transparency, ffmpeg video-to-GIF conversion with two-pass palette generation, animation techniques (tweening, easing functions, keyframe interpolation), sticker formatting for Telegram, Discord, Slack, and WhatsApp, and batch processing with file size optimization. The expected output is production-ready animated GIFs and stickers that meet platform size and format requirements. Trigger phrases: animated GIF, sticker maker, GIF creation, sticker generator, sprite animation, video to GIF, avatar animation, animated emoji, GIF optimization, sticker pack, frame animation, Pillow GIF, ffmpeg GIF, animated sticker."
+overview_l1: "This skill provides end-to-end expertise for creating animated GIFs and stickers using AI image generation, video processing, and programmatic frame animation. Use it when generating animated stickers from text prompts, converting video clips to optimized GIFs, building sprite sheet animations, creating avatar generators with expression cycles, automating visual content pipelines for chat platforms, or applying animation effects like bounce, pulse, rotate, and fade. Key capabilities include AI image generation integration, Python Pillow GIF assembly with palette optimization and transparency, ffmpeg video-to-GIF conversion with two-pass palette generation, animation techniques (tweening, easing, keyframe interpolation), sticker formatting for Telegram, Discord, Slack, and WhatsApp, and batch processing with file-size optimization. The expected output is production-ready animated GIFs and stickers that meet platform size and format requirements. Trigger phrases: animated GIF, sticker maker, GIF creation, sticker generator, sprite animation, video to GIF, avatar animation, GIF optimization, sticker pack, Pillow GIF, ffmpeg GIF."
 ---
 
 # GIF and Sticker Maker
@@ -1434,13 +1434,31 @@ def validate_output(
 - [ ] Duration stays within platform time limits
 - [ ] Output directory structure is organized for delivery
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "A single-pass ffmpeg conversion is good enough" | Single-pass GIF conversion uses a generic palette that bands gradients and bloats the file. The documented two-pass palettegen/paletteuse flow is what produces a clean palette at a fraction of the size. |
+| "It loops fine in my preview, ship the sticker" | A desktop preview hides the green fringe on transparency and the visible jump at the loop seam that show up at the platform's display size. Check the alpha edges and the first/last frame match before delivery. |
+| "The GIF is only a bit over the platform limit" | Telegram, Discord, Slack, and WhatsApp hard-reject stickers over their size or dimension cap, so "a bit over" means the upload fails silently. Validate against the specific platform's limit, not a guess. |
+| "More frames always look smoother" | Past the platform's frame budget, extra frames just inflate the file without perceptible smoothness gains and push it over the size cap. Tune frame count to the motion, then optimize the palette. |
+
+## Verification
+
+- [ ] The output GIF file size is within the target platform's documented limit
+- [ ] Output dimensions match the platform's recommended sticker size
+- [ ] The animation loops with no visible jump between the last and first frame
+- [ ] Transparent backgrounds render with no green fringe or matte artifacts
+- [ ] The color palette was generated with the two-pass ffmpeg flow (palettegen + paletteuse)
+- [ ] Each batch output is validated against the destination platform's format requirements
+
 ## Related Skills
 
-- `creative-generation` - Image prompt engineering and creative ideation
-- `python-expert` - Python patterns for image processing pipelines
-- `containerization` - Dockerizing the pipeline with ffmpeg and system dependencies
-- `async-patterns` - Concurrency patterns for batch AI generation
-- `code-optimizer` - Performance optimization for frame processing
+- [[creative-generation]] -- image prompt engineering and creative ideation for the source frames
+- [[python-expert]] -- Python patterns for the Pillow image-processing pipeline
+- [[containerization]] -- Dockerizing the pipeline with ffmpeg and system dependencies
+- [[async-patterns]] -- concurrency patterns for batch AI generation
+- [[code-optimizer]] -- performance optimization for frame processing
 
 ---
 

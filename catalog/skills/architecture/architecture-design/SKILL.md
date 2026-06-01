@@ -718,11 +718,11 @@ class LegacyCustomerAdapter:
 
 ## Related Skills
 
-- `ddd-strategic-design` - Domain modeling and bounded context identification
-- `api-design` - API contract design for inter-component communication
-- `microservices-patterns` - Distributed system patterns and resilience
-- `cloud-architect` - Cloud-native architecture and managed service selection
-- `security-review` - Security architecture assessment
+- [[ddd-strategic-design]] -- domain modeling and bounded context identification
+- [[api-design]] -- API contract design for inter-component communication
+- [[microservices-patterns]] -- distributed system patterns and resilience
+- [[cloud-architect]] -- cloud-native architecture and managed service selection
+- [[security-review]] -- security architecture assessment
 
 ---
 

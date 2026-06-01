@@ -331,11 +331,11 @@ Run after step 9. Each check is binary; FAIL on any item loops back up to three 
 
 ## Related Skills
 
-- [`project-refactor`](../project-refactor/SKILL.md) (formerly `project-layout-refactor`) - reorganize repo root files, scripts, configs, and CI/CD artifacts (not under `docs/`). Run this before `docs-layout-refactor` if root layout is also messy.
-- `update-documentation` - check whether docs are factually accurate against the code. Complementary: that skill checks **content**, this skill checks **structure**.
-- `known-gaps-tracker` - per-version unfinished work tracker. Invoke with `--migrate-known-gaps` to auto-promote Cat 3 findings.
-- `documentation-consistency` - link-integrity sweep. Run after this skill's apply phase to catch any references that survived `refgraph`.
-- `version-upgrade` - the parent release workflow. `/refactor-docs` is invoked as Step B4 of `/update-version`.
+- [[project-refactor]] -- reorganize repo root files, scripts, configs, and CI/CD artifacts (not under `docs/`). Run this before `docs-layout-refactor` if root layout is also messy.
+- [[documentation-consistency]] -- link-integrity sweep. Run after this skill's apply phase to catch any references that survived `refgraph`.
+- [[known-gaps-tracker]] -- per-version unfinished work tracker. Invoke with `--migrate-known-gaps` to auto-promote Cat 3 findings.
+- [[version-upgrade]] -- the parent release workflow. `/refactor-docs` is invoked as Step B4 of `/update-version`.
+- `/update-documentation` -- companion command that checks whether docs are factually accurate against the code; that command checks **content**, this skill checks **structure**.
 
 ---
 

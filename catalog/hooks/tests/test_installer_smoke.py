@@ -315,14 +315,21 @@ def test_catalog_hooks_settings_effort_level_is_xhigh():
 
 
 def test_installer_ps1_fallback_literal_matches_template():
-    """If jq/PowerShell merge fails, installer.ps1 prints a manual-add hint.
+    """If the PowerShell core-settings merge fails, installer.ps1 prints a
+    manual-add hint.
 
-    That hint MUST reference the same value as catalog/hooks/settings.json.
+    installer.ps1 seeds the core defaults dynamically from the template
+    (`$coreKeys = @("effortLevel", "model")` plus the env effort override)
+    rather than hardcoding the `xhigh` literal, so the fallback hint points the
+    user at copying effortLevel/model/env from the template file. The hint MUST
+    name those keys so it stays consistent with catalog/hooks/settings.json
+    whatever the shipped default value is.
     """
     body = INSTALLER_PS1.read_text(encoding="utf-8")
-    assert '"effortLevel`": `"xhigh`"' in body, (
-        "installer.ps1 manual-add fallback must reference \"xhigh\" to match "
-        "catalog/hooks/settings.json. Update both together if the default changes."
+    assert "Manually copy effortLevel/model/env from" in body, (
+        "installer.ps1 core-settings fallback must reference copying "
+        "effortLevel/model/env from the template so it tracks "
+        "catalog/hooks/settings.json without a hardcoded value."
     )
 
 

@@ -2,7 +2,7 @@
 name: pdf-document-generation
 description: Generate professional PDF documents programmatically using Python and JavaScript libraries with precise layout control, typography, and multi-format support. Use when building invoice generators, report pipelines, contract templates, certificate systems, HTML-to-PDF converters, or any workflow that produces PDF output from structured data.
 summary_l0: "Generate professional PDF documents with layout design, typography, and multi-library support"
-overview_l1: "This skill provides comprehensive guidance for generating PDF documents programmatically across Python and JavaScript ecosystems. Use it when building invoice generators, report rendering pipelines, contract or certificate templates, HTML-to-PDF conversion services, or any system that produces PDF output from structured data. Key capabilities include library selection (ReportLab, WeasyPrint, PDFKit, Puppeteer, jsPDF), document layout design (page templates, margins, columns, headers/footers), typography management (font embedding, Unicode support, text wrapping), table rendering with cell spanning and overflow handling, image embedding and vector graphics, cover pages and table of contents generation, page numbering and watermarks, form fields and digital signatures, PDF/A archival compliance, accessibility tagging, encryption and permission controls, and testing strategies for PDF output validation. The expected output is production-quality PDF generation code with proper font handling, layout precision, and cross-viewer compatibility. Trigger phrases: PDF generation, generate PDF, create PDF, invoice PDF, report PDF, HTML to PDF, WeasyPrint, ReportLab, PDFKit, Puppeteer PDF, jsPDF, PDF template, PDF layout, PDF forms, digital signature PDF, PDF/A, accessible PDF."
+overview_l1: "This skill provides comprehensive guidance for generating PDF documents programmatically across Python and JavaScript ecosystems. Use it when building invoice generators, report rendering pipelines, contract or certificate templates, HTML-to-PDF conversion services, or any system that produces PDF output from structured data. Key capabilities include library selection (ReportLab, WeasyPrint, PDFKit, Puppeteer, jsPDF), document layout design, typography management (font embedding, Unicode support, text wrapping), table rendering with cell spanning and overflow handling, image and vector graphics, cover pages and table of contents, page numbering and watermarks, form fields and digital signatures, PDF/A archival compliance, accessibility tagging, encryption controls, and testing strategies for PDF output validation. The expected output is production-quality PDF generation code with proper font handling, layout precision, and cross-viewer compatibility. Trigger phrases: PDF generation, generate PDF, create PDF, invoice PDF, report PDF, HTML to PDF, WeasyPrint, ReportLab, PDFKit, jsPDF, PDF template, PDF forms, digital signature PDF, PDF/A, accessible PDF."
 ---
 
 # PDF Document Generation
@@ -1723,3 +1723,29 @@ def validate_pdf_a_compliance(pdf_path: str | Path) -> dict:
 | Accessibility | PAC (PDF Accessibility Checker) | Screen reader compatibility, tag structure |
 | File size | pathlib stat | Output stays within budget (avoids image bloat) |
 | Cross-viewer | Manual spot-check matrix | Renders correctly in Acrobat, Chrome, Firefox, Preview |
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "The default font is fine, no need to embed it" | A non-embedded font renders with a substitute on any viewer that lacks it, so the carefully laid-out invoice reflows and the alignment breaks. Embedding the font is the only guarantee the PDF looks identical everywhere. |
+| "It renders fine in Chrome, ship it" | Chrome's PDF viewer is forgiving; Acrobat, Preview, and a PDF/A validator are not. A PDF that passes a Chrome spot-check can still be malformed or fail archival compliance. Validate structure with QPDF, not eyeballs. |
+| "Unicode text just works, I'll skip the encoding test" | A core PDF font silently drops glyphs outside Latin-1, so accented names and CJK text vanish without an error. Only a font that covers the character set plus an extraction test catches the missing glyphs. |
+| "Accessibility tagging is optional for an internal report" | An untagged PDF is unreadable to a screen reader and fails the accessibility audit that compliance later demands. Tagging during generation is far cheaper than retrofitting it. |
+
+## Verification
+
+- [ ] All fonts used are embedded in the output (verified with `pdffonts` or PyMuPDF)
+- [ ] A content-extraction test (pdfplumber / PyMuPDF) confirms expected text, tables, and metadata are present
+- [ ] The PDF passes structural validation: `qpdf --check <file>` reports no errors
+- [ ] Unicode and multi-byte text render correctly (extraction returns the original characters)
+- [ ] Output file size stays within the documented budget (images optimized, no bloat)
+- [ ] Rendering is spot-checked in at least two viewers (e.g. Acrobat and Chrome)
+
+## Related Skills
+
+- [[docx-generation]] -- the editable-Word counterpart when output must remain user-editable
+- [[pptx-generation]] -- slide-deck generation sharing the same library-selection approach
+- [[python-expert]] -- Python language patterns for PDF generation backends
+- [[integration-test-generator]] -- integration testing for PDF rendering pipelines
+- [[technical-writer]] -- content strategy and information architecture for generated documents

@@ -31,7 +31,7 @@ Use when:
 
 ## Instructions
 
-Framework mappings are documented in [references/standards.md](references/standards.md).
+Framework mappings are documented in [references/standards.md](references/standards.md). Platform-specific query examples (the same behavior as a Sigma rule plus Splunk SPL, Sentinel KQL, and Elastic EQL) are in [references/query-examples.md](references/query-examples.md).
 
 ### 1. Define the detection hypothesis
 

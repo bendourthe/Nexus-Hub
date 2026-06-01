@@ -358,14 +358,31 @@ Verify that:
 - **Generate step stubs first, then implement**: write the feature file and step definition skeleton before implementing the actual logic; this validates the structure before investing in implementation
 - **Map every acceptance criterion to at least one scenario**: if a criterion has no scenario, it has no automated verification
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "The acceptance criteria are already written in plain English, so they document the behavior well enough." | A `.feature` file that is never linked to step definitions verifies nothing; a criterion changes silently and no test fails to catch the drift. |
+| "I will write the step definitions later once the implementation lands." | Undefined steps make Cucumber/pytest-bdd report scenarios as skipped, not failed, so a green-looking run hides zero actual coverage. |
+| "One happy-path scenario per feature is enough for acceptance testing." | The expired-subscription and wrong-tier denial paths are exactly where access-control bugs ship; a single happy-path scenario passes while the real defect is in the unwritten error scenario. |
+| "I will reuse the same scenario state across scenarios to save setup code." | Shared mutable state makes scenario order load-bearing; one reordered run flips a pass to a fail and the suite becomes untrustworthy. |
+
+## Verification
+
+- [ ] A `.feature` file exists for each functional area under the documented features directory.
+- [ ] Every Given/When/Then step in each feature file resolves to a defined step (no undefined-step warnings).
+- [ ] Running `pytest tests/step_defs/ -v` (Python) or `npx cucumber-js` (JavaScript) reports zero undefined and zero pending steps.
+- [ ] Each acceptance criterion maps to at least one scenario (happy path plus at least one error/edge scenario).
+- [ ] Error-case scenarios assert the failure behavior, not just the absence of success.
+
 ## Related Skills
 
-- `requirement-enhancer` - Generate Given/When/Then acceptance criteria from requirements
-- `intent-based-review` - Review code by checking acceptance criteria pass/fail status
-- `unit-tests` - Generate unit tests (more granular than BDD tests)
-- `test-cases` - Generate test case specifications
-- `test-structure` - Set up test directory structure and configuration
-- `e2e-testing-automation` - End-to-end tests that complement BDD acceptance tests
+- [[requirement-enhancer]] -- generates the Given/When/Then acceptance criteria this skill turns into feature files
+- [[intent-based-review]] -- reviews code by checking each criterion's pass/fail status against these tests
+- [[unit-tests]] -- produces finer-grained tests beneath the BDD acceptance layer
+- [[test-cases]] -- authors the test-case specifications that seed scenario coverage
+- [[test-structure]] -- sets up the test directory layout and config these feature files live in
+- [[e2e-testing-automation]] -- drives full end-to-end flows that complement BDD acceptance scenarios
 
 ---
 

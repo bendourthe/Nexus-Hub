@@ -70,3 +70,18 @@ Generative / algorithmic / interactive visual outputs (p5.js sketches, HTML canv
 | "We don't need a philosophy step for one poster." | Without it, the agent defaults to AI-slop visuals (generic gradient backgrounds, centered title, three-icon grid). The manifesto is 50 lines and saves a 10x rework when the first render misses the brief. |
 | "I'll iterate on the rendered image directly." | Rendered iteration is expensive and hard to compare. Iterating on the manifesto first lets you fix direction in 5 minutes of writing, not 30 minutes of re-rendering. |
 | "The user only said 'make a poster', so any poster is fine." | The user said "poster" because they don't have the vocabulary to specify direction. The manifesto is how you offer a direction back to them and confirm before rendering. |
+
+## Verification
+
+- [ ] For static print output, a philosophy manifesto exists next to the render (e.g., `poster-philosophy.md` beside `poster.pdf`)
+- [ ] The manifesto names a 3-5 color palette with hex values and identifies the dominant color and accent
+- [ ] Image prompts specify subject, style, lighting, composition, mood, and at least one negative prompt
+- [ ] Ideation output presents at least 3 meaningfully different approaches, each with a stated rationale
+- [ ] The rendered format was produced through the matching skill (pptx/docx/pdf), not improvised
+
+## Related Skills
+
+- [[pptx-generation]] -- renders slide and deck output once the creative direction is fixed
+- [[docx-generation]] -- renders document or letter-format poster output from the manifesto
+- [[pdf-document-generation]] -- produces print-quality PDF output for fixed-format distribution
+- [[generative-art]] -- handles interactive and algorithmic visual outputs that are out of scope here

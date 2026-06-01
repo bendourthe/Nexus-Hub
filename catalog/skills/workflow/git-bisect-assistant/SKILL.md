@@ -521,3 +521,26 @@ git bisect log | tail -1
 - **Not handling dependency changes**: Commits that change `package.json`, `requirements.txt`, or build configuration need dependency reinstallation. Always include `npm ci` or equivalent in your test script.
 - **Running bisect on uncommitted changes**: Bisect checks out different commits, which will fail or produce confusing results if you have uncommitted changes. Stash or commit before bisecting.
 - **Giving up too early**: If bisect seems stuck or produces a suspicious result, check the bisect log, verify the test, and consider restarting with adjusted good/bad boundaries. Bisect is reliable when the test is reliable.
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "I can just read the diff between good and bad to find the bug" | A range can span hundreds of commits; eyeballing the cumulative diff is exactly what bisect's O(log n) search replaces, and manual reading routinely blames the wrong change. |
+| "The test passing once means this commit is good" | A flaky test that sometimes passes makes bisect search in the wrong direction; the test script must run the check multiple times with majority voting or bisect converges on a false culprit. |
+| "I will bisect with my uncommitted changes in the tree" | Bisect checks out other commits and your dirty working tree either blocks the checkout or contaminates every test; stash or commit before starting. |
+
+## Verification
+
+- [ ] `git bisect run <script>` converges and names exactly one first-bad commit
+- [ ] The test script exits 0 for good, 1 for bad, and 125 for untestable (verified by running it on a known-good and known-bad commit)
+- [ ] The working tree was clean before `git bisect start` (no uncommitted changes)
+- [ ] `git bisect reset` was run afterward so HEAD returns to the original branch
+- [ ] The identified commit actually introduces the bug (the bug is absent at its parent and present at the commit)
+
+## Related Skills
+
+- [[regression-root-cause-analyzer]] -- once bisect names the commit, analyze why that change caused the regression
+- [[bug-localization]] -- narrow the fault to a region before bisect narrows it to a commit
+- [[debug-with-logs]] -- instrument the suspect commit to confirm the mechanism bisect surfaced
+- [[bug-reproduction-test-generator]] -- builds the deterministic failing test that makes `git bisect run` reliable

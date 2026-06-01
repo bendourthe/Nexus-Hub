@@ -268,11 +268,27 @@ After applying optimizations, re-run the same representative tasks and compare.
 - **Set token budgets per task** and treat them as soft constraints to build discipline around context management
 - **Revisit your optimization strategy** monthly as model capabilities and pricing change
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "I will optimize the prompt that feels longest." | Intuition picks the wrong target. Without a baseline token audit you often shave a 200-token prompt while a tool-definition block silently eats 8,000 tokens per turn. Measure first, then optimize the actual bottleneck. |
+| "Compacting harder always saves more, so more is better." | Past a point, aggressive compaction strips the context the model needs and quality drops, forcing re-work that costs more tokens than it saved. Token reduction that degrades output is a net loss, not a win. |
+| "Programmatic tool calling is overkill; I will just call the tools one at a time." | For an exploration-heavy workflow, sequential tool calls re-pay the round-trip token cost on every step. A single script that batches the calls and returns only the relevant slice is where the 24-85% reduction comes from. |
+
+## Verification
+
+- [ ] A baseline token audit was captured before any optimization
+- [ ] The chosen technique targets the measured bottleneck (PTC, filtering, or tool deferral)
+- [ ] Post-optimization token consumption is measured and compared to baseline
+- [ ] Output quality was checked to confirm compaction did not strip critical context
+- [ ] The savings (percent reduction) are documented for the task
+
 ## Related Skills
 
-- `context-compression` - Techniques for compressing context content
-- `context-manager` - Managing information flow across workflow phases
-- `context-degradation` - Detecting and recovering from context quality loss
+- [[context-compression]] - Techniques for compressing context content
+- [[context-manager]] - Managing information flow across workflow phases
+- [[context-degradation]] - Detecting and recovering from context quality loss
 
 ---
 

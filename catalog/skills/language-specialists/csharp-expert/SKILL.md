@@ -1041,7 +1041,16 @@ public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TReques
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 ```
 
-## Quality Checklist
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "`.Result` is quicker than awaiting here" | Blocking on a Task from a request thread (ASP.NET, UI) deadlocks when the continuation needs the captured synchronization context; the symptom is a request that hangs forever, not an exception. |
+| "I don't need to pass CancellationToken to this call" | A long EF Core query with no token keeps running after the client disconnects, holding a pooled connection until the pool is exhausted under load. |
+| "Materializing the LINQ query early is harmless" | Calling `.ToList()` before a `.Where()` filter loads the whole table into memory instead of pushing the predicate to SQL, turning an indexed query into a full-table scan. |
+| "Field injection with `[Autowired]`-style attributes reads cleaner" | Constructor injection makes missing dependencies a compile/startup failure; field injection defers it to a `NullReferenceException` at first use. |
+
+## Verification
 
 - [ ] All async methods accept and forward CancellationToken
 - [ ] No `.Result` or `.Wait()` calls on tasks (async all the way)
@@ -1055,11 +1064,11 @@ builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBeh
 
 ## Related Skills
 
-- `typescript-expert` - Frontend/fullstack with Blazor WASM interop
-- `sql-expert` - Entity Framework Core and raw SQL optimization
-- `cicd-architect` - .NET CI/CD pipelines with GitHub Actions
-- `code-quality` - Static analysis with Roslyn analyzers
-- `kubernetes-expert` - Containerized .NET microservices on K8s
+- [[typescript-expert]] -- frontend/fullstack with Blazor WASM interop
+- [[sql-expert]] -- Entity Framework Core and raw SQL optimization
+- [[cicd-architect]] -- .NET CI/CD pipelines with GitHub Actions
+- [[code-quality]] -- static analysis with Roslyn analyzers
+- [[kubernetes-expert]] -- containerized .NET microservices on K8s
 
 ---
 

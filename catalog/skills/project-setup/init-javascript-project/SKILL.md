@@ -561,12 +561,30 @@ npm create vite@latest project-name -- --template react-ts
 - [ ] Git initialized
 - [ ] README accurate
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "Plain JavaScript is faster to start than configuring TypeScript." | Skipping `strict` TypeScript at init means every later refactor lacks the compiler's safety net; the `undefined is not a function` bug that ships to production is exactly what `tsc --strict` would have caught at build. |
+| "ESLint and Prettier are bikeshedding; I will format by hand." | Inconsistent style and unflagged unused variables accumulate into noisy diffs and missed bugs; wiring the linter and formatter at init makes every commit conform automatically. |
+| "I will pin exact dependency versions later." | A floating `^` range lets a transitive minor bump break the build between two clean installs; using a lockfile and exact production versions from the start makes installs reproducible. |
+| "Tests and CI can come after the first feature." | The empty scaffold is the cheapest place to prove `npm test` and the type-check pass in CI; deferring it guarantees the first red pipeline lands under deadline pressure. |
+
+## Verification
+
+- [ ] `package.json` is configured and `npm install` (or the chosen package manager) completes against a lockfile.
+- [ ] TypeScript compiles without errors: `tsc --noEmit` (or `npm run type-check`) succeeds.
+- [ ] Lint and format checks pass: `npm run lint` and Prettier report clean.
+- [ ] The sample test suite passes with coverage: `npm test` exits with code 0.
+- [ ] Git is initialized with a `.gitignore` and an initial commit.
+
 ## Related Skills
 
-- `test-structure` - Set up comprehensive testing
-- `javascript-cleanup` - Code cleanup
-- `api-documentation` - Document APIs
-- `code-commit-workflow` - Git workflow
+- [[test-structure]] -- sets up the comprehensive testing infrastructure beyond the starter scaffold
+- [[javascript-cleanup]] -- modernizes and cleans the JS/TS code that grows in this project
+- [[api-documentation]] -- documents the API surface this scaffold exposes
+- [[code-commit-workflow]] -- establishes the conventional-commit Git workflow for the new repo
+- [[typescript-expert]] -- guides type-safe TypeScript on top of this foundation
 
 ---
 

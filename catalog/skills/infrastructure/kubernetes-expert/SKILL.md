@@ -398,12 +398,29 @@ kind: Ingress
 - [ ] Image tags are specific (not `latest`)
 - [ ] Labels and annotations applied consistently
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "I'll skip resource requests and limits, the scheduler will figure it out" | Without requests the scheduler cannot bin-pack and a noisy pod starves its neighbors; without limits one pod OOM-kills the node. Requests and limits are how the cluster stays stable under load. |
+| "cluster-admin on the Serviceaccount is simplest" | A pod bound to cluster-admin turns any container RCE into full cluster takeover; namespaced Roles scoped to the verbs the workload actually needs are what contain a compromised pod. |
+| "No readiness probe needed, the container starts fast" | Without a readiness probe a rolling update sends traffic to a pod before it can serve, causing a brief outage on every deploy; the probe gates traffic until the app is actually ready. |
+| "I'll edit the live resource with kubectl edit to fix it fast" | An imperative edit drifts from the manifest in Git; the next `kubectl apply` or GitOps sync reverts it, and the fix is lost with no review trail. |
+
+## Verification
+
+- [ ] Every container sets resource requests and limits for CPU and memory.
+- [ ] Workloads define readiness and liveness probes appropriate to the app's startup and health behavior.
+- [ ] RBAC uses namespaced Roles scoped to required verbs; no workload is bound to cluster-admin unnecessarily.
+- [ ] NetworkPolicies restrict pod-to-pod traffic to what the architecture requires (default-deny where feasible).
+- [ ] Manifests are applied declaratively from source (`kubectl apply` / GitOps), not imperatively edited in the cluster.
+
 ## Related Skills
 
-- `cicd-architect` - Kubernetes deployment pipelines
-- `cloud-architect` - Managed Kubernetes services (EKS, AKS, GKE)
-- `security-review` - Kubernetes security assessment
-- `terraform-specialist` - Infrastructure provisioning for clusters
+- [[cicd-architect]] -- Kubernetes deployment pipelines
+- [[cloud-architect]] -- managed Kubernetes services (EKS, AKS, GKE)
+- [[security-review]] -- Kubernetes security assessment
+- [[terraform-specialist]] -- infrastructure provisioning for clusters
 
 ---
 

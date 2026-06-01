@@ -160,7 +160,7 @@ Use when a page or interaction feels slow.
 
 ## Related Skills
 
-- `frontend-ui-engineering` — accessibility and responsive design practices
-- `e2e-testing-automation` — automate browser flows with Playwright or Cypress
-- `performance-review` — systematic performance bottleneck identification
-- `security-review` — check security headers and CSP configuration
+- [[frontend-ui-engineering]] -- accessibility and responsive design practices
+- [[e2e-testing-automation]] -- automate browser flows with Playwright or Cypress
+- [[performance-review]] -- systematic performance bottleneck identification
+- [[security-review]] -- check security headers and CSP configuration

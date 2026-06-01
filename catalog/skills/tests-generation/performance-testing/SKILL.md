@@ -308,11 +308,30 @@ public class AlgorithmBenchmark {
 - [ ] Bottlenecks identified
 - [ ] Results documented with graphs
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "The app feels fast on my machine, so performance is fine." | A single-user manual click hides the connection-pool exhaustion and lock contention that only appear at 500 concurrent users; without a load test the failure mode ships to production. |
+| "Average response time is 80ms, so we meet the SLA." | Averages mask the tail; the p99 that times out is what users actually experience, and an SLA stated only on the mean lets the slow 1% degrade silently. |
+| "We will run the load test once before launch." | Performance regresses with every release; a one-time test gives a baseline that is stale by the next deploy unless regression detection runs in CI. |
+| "We can skip warm-up and ramp-up to save test time." | A cold JIT, empty cache, and unprimed connection pool produce numbers that do not reflect steady state; results without ramp-up are noise, not a baseline. |
+
+## Verification
+
+- [ ] Performance requirements (target throughput, p95/p99 latency, error rate) are documented before testing.
+- [ ] Load test scenarios include ramp-up to a steady state, not an instantaneous spike.
+- [ ] Latency is reported at percentiles (p50, p95, p99), not only the average.
+- [ ] A baseline is recorded and the test fails when latency or throughput regresses past the threshold.
+- [ ] Identified bottlenecks are traced to a specific component via profiling, not guessed.
+
 ## Related Skills
 
-- `unit-tests` - Unit testing (Phase 2)
-- `cicd-integration` - CI/CD setup (Phase 6)
-- `code-coverage` - Coverage analysis (Phase 7)
+- [[unit-tests]] -- correctness tests that run before performance validation (Phase 2)
+- [[cicd-integration]] -- runs these load tests and regression gates in the pipeline (Phase 6)
+- [[code-coverage]] -- functional coverage that complements performance coverage (Phase 7)
+- [[code-optimizer]] -- applies the optimizations these tests prove are needed
+- [[observability-setup]] -- supplies the metrics and traces that locate the bottlenecks under load
 
 ---
 

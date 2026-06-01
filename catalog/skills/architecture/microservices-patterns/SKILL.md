@@ -887,7 +887,16 @@ async def check_health() -> dict:
     }
 ```
 
-## Quality Checklist
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "Sharing one database between two services is fine, it's simpler" | A shared database couples the two services at the schema level, so neither can change a table without coordinating a release, which defeats the independent-deployability that justified splitting them; database-per-service is the boundary that makes services autonomous. |
+| "We don't need circuit breakers, our services are reliable" | A single slow downstream dependency without a circuit breaker exhausts the caller's thread pool, and the failure cascades upstream until the whole system is down; the breaker exists to fail fast and contain the blast radius. |
+| "Synchronous calls are easier than async messaging, just chain the services" | A request that synchronously fans out across five services multiplies latency and fails if any one is down; for workflows that can tolerate eventual consistency, async messaging removes the temporal coupling that makes the chain fragile. |
+| "We'll add distributed tracing later when we have time" | Without correlation IDs and tracing from day one, the first cross-service production incident is undiagnosable -- you cannot follow one request across service logs; retrofitting tracing during an outage is far costlier than wiring it in upfront. |
+
+## Verification
 
 - [ ] Each service has a single, well-defined business responsibility
 - [ ] Each service owns its data (no shared databases)
@@ -906,12 +915,13 @@ async def check_health() -> dict:
 
 ## Related Skills
 
-- `architecture-design` - System-level architecture and trade-off analysis
-- `ddd-strategic-design` - Bounded contexts that become service boundaries
-- `api-design` - Designing inter-service API contracts
-- `kubernetes-expert` - Container orchestration for microservices deployment
-- `cicd-architect` - Independent deployment pipelines per service
-- `event-driven-architecture` - Async messaging and event infrastructure
+- [[architecture-design]] -- system-level architecture and trade-off analysis
+- [[ddd-strategic-design]] -- bounded contexts that become service boundaries
+- [[api-design]] -- designing inter-service API contracts
+- [[kubernetes-expert]] -- container orchestration for microservices deployment
+- [[cicd-architect]] -- independent deployment pipelines per service
+- [[event-driven-architecture]] -- async messaging and event infrastructure
+- [[component-boundary-identifier]] -- finding the extraction seams before splitting a monolith
 
 ---
 

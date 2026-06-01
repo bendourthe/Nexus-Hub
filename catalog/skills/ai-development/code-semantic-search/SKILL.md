@@ -128,8 +128,8 @@ After RRF, the top 20-50 candidates can be reranked for higher precision:
 
 ## Related Skills
 
-- [`rag-implementation`](../rag-implementation/SKILL.md) - general-purpose RAG over non-code corpora. This skill is the code-corpus specialization.
-- [`context-manager`](../../orchestration/context-manager/SKILL.md) - for session-level context budgeting. Use `code-semantic-search` as the escape valve when the repo exceeds the context window.
-- [`context-engineering`](../context-engineering/SKILL.md) - deliberate context shaping. Semantic search is one of the primary retrieval-based context sources.
-- [`local-docs-lookup`](../../research/local-docs-lookup/SKILL.md) - for library-docs grounding. This skill is for the user's own code.
+- [[rag-implementation]] -- general-purpose RAG over non-code corpora. This skill is the code-corpus specialization.
+- [[context-manager]] -- for session-level context budgeting. Use this skill as the escape valve when the repo exceeds the context window.
+- [[context-engineering]] -- deliberate context shaping. Semantic search is one of the primary retrieval-based context sources.
+- [[local-docs-lookup]] -- for library-docs grounding. This skill is for the user's own code.
 - Nexus-Hub's internal [`nexus-code-search`](../../../../extensions/nexus-code-search/) MCP - the reference implementation referenced throughout. Install via `pip install -e extensions/nexus-code-search` or the Nexus-Hub installer.

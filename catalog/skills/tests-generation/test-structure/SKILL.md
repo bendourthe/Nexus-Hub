@@ -609,12 +609,30 @@ After using this skill, you should have:
 - [ ] Documentation for testing standards
 - [ ] CI/CD-ready test configuration
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "I will just drop test files next to the source; a directory structure is overhead." | Mixing unit, integration, and E2E tests in one flat folder makes it impossible to run the fast suite alone; developers stop running tests locally because the slow E2E tests are always pulled in. |
+| "The framework defaults are fine; I do not need a config file." | Without an explicit config, test discovery, coverage source paths, and parallel workers behave inconsistently across machines and CI, producing 'works locally, fails in CI' surprises. |
+| "I will set up coverage and CI integration later." | Retrofitting coverage and CI onto a grown suite means re-pathing every import and fixture; wiring it at Phase 1 costs minutes, wiring it later costs a refactor. |
+| "One giant conftest/setup file is simpler than scoped fixtures." | A single global fixture file couples unrelated tests and forces every test to load every fixture; scope fixtures to the directory that uses them to keep setup fast and isolated. |
+
+## Verification
+
+- [ ] The test framework is installed and a config file exists (pytest.ini/pyproject, jest.config.js, etc.).
+- [ ] Separate directories exist for unit, integration, and E2E tests with consistent naming.
+- [ ] A sample test runs successfully and test discovery finds all test files.
+- [ ] Coverage reporting is configured and points at the correct source paths.
+- [ ] The fast (unit) suite can be run independently of the slow (integration/E2E) suites.
+
 ## Related Skills
 
-- `unit-tests` - Generate comprehensive unit tests (Phase 2)
-- `test-cases` - Create integration and E2E tests (Phase 3)
-- `mocks-fixtures` - Build test doubles and fixtures (Phase 4)
-- `cicd-integration` - Configure test automation (Phase 6)
+- [[unit-tests]] -- generates comprehensive unit tests on top of this infrastructure (Phase 2)
+- [[test-cases]] -- creates integration and E2E tests in the directories this skill sets up (Phase 3)
+- [[mocks-fixtures]] -- builds the test doubles and fixtures organized by this structure (Phase 4)
+- [[cicd-integration]] -- configures the CI pipeline this scaffolding prepares for (Phase 6)
+- [[code-coverage]] -- consumes the coverage configuration established here (Phase 7)
 
 ## Tools by Language
 

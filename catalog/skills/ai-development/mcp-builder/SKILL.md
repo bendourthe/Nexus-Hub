@@ -233,10 +233,9 @@ The `.sh` and `.ps1` siblings are kept parallel per the v1.1.3 four-hook precede
 
 ## Related Skills
 
-- `developer-experience/tool-design` - upstream skill for designing tool / API schemas the agent consumes well; apply BEFORE scaffolding the MCP so the tool surface is well-shaped.
-- `workflow/create-skill-or-command` - the alternative to an MCP when the capability is LLM-native; consult before defaulting to MCP.
-- `ai-development/ai-agent-development` - broader agent architecture context (tool use patterns, planning loops); consumes MCPs as one tool source.
-- `ai-development/claude-agent-sdk` - Claude Agent SDK integration; consumes MCPs registered in `~/.claude/settings.json`.
-- `architecture/api-design` - REST / gRPC / GraphQL design; relevant when wrapping an existing API as an MCP and you need the underlying API to be well-shaped first.
-- `language-specialists/python-expert` - production Python patterns for the FastMCP path.
-- `language-specialists/typescript-expert` - production TypeScript patterns for the SDK path.
+- [[tool-design]] -- upstream skill for designing tool / API schemas the agent consumes well; apply BEFORE scaffolding the MCP so the tool surface is well-shaped.
+- [[ai-agent-development]] -- broader agent architecture context (tool use patterns, planning loops); consumes MCPs as one tool source.
+- [[claude-agent-sdk]] -- Claude Agent SDK integration; consumes MCPs registered in `~/.claude/settings.json`.
+- [[api-design]] -- REST / gRPC / GraphQL design; relevant when wrapping an existing API as an MCP and you need the underlying API to be well-shaped first.
+- [[python-expert]] -- production Python patterns for the FastMCP path.
+- [[typescript-expert]] -- production TypeScript patterns for the SDK path.

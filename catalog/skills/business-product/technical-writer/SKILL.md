@@ -524,11 +524,33 @@ Every document moves through these stages: **Draft** (in progress), **Published*
 ### Issue: Documentation is inaccessible to non-native English speakers
 **Solution**: Target Flesch-Kincaid Grade Level 8-10. Avoid idioms and unnecessarily complex vocabulary.
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "I'll write for myself, the readers are technical too" | Skipping the persona step means writing at expert tier for an audience that includes beginners, who then abandon the doc. Writing for the lowest tier in the audience is what keeps the install guide usable on day one. |
+| "Passive voice sounds more professional" | "The configuration file is loaded" hides who loads it, so the reader cannot tell whether they or the system must act. Active voice plus imperative mood is the difference between a step a reader can follow and one they have to decode. |
+| "The code examples are obviously correct, no need to run them" | Untested examples drift the moment the API changes and a copy-paste failure is the fastest way to lose reader trust. Examples tested in CI are the only ones that stay correct across releases. |
+| "Docs can be updated later, the feature ships now" | "Later" never comes, and the doc silently rots until a freshness audit or an angry support ticket surfaces it. Embedding doc updates in the definition of done is what prevents the drift. |
+
+## Verification
+
+- [ ] At least one reader persona (role, knowledge level, goal) is defined before the draft begins
+- [ ] The document uses exactly one H1 and never skips heading levels
+- [ ] Instructions are written in active voice and imperative mood
+- [ ] Every code example includes a language identifier and has been run (or is explicitly marked pseudocode)
+- [ ] All images have alt text and every table has a header row (WCAG 2.1 AA)
+- [ ] A technical review and an editorial review were both completed and recorded
+- [ ] Link checking passed in CI with zero broken internal or external links
+- [ ] A freshness-audit cadence (quarterly / per-release / annual) is recorded for the document
+
 ## Related Skills
 
-- `technical-documentation` - Architecture docs, ADRs, and design documents
-- `code-quality` - Code review and quality standards
-- `project-management` - Planning and tracking documentation projects
+- [[technical-documentation]] -- architecture docs, ADRs, and design documents (use instead for system-design artifacts)
+- [[user-documentation]] -- READMEs, install guides, and tutorials that this skill's craft principles apply to
+- [[api-documentation]] -- OpenAPI specs and endpoint references for the API-guide work described in Step 4
+- [[code-quality]] -- code review and quality standards that the docs-as-code review mirrors
+- [[documentation-consistency]] -- link checking and staleness detection that automate the freshness audits here
 
 ---
 

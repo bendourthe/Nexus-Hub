@@ -530,12 +530,30 @@ Additional files:
 - [ ] README accurate
 - [ ] CHANGELOG started
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "I will skip the virtual environment and install into the system Python to save a step." | Installing into the global interpreter pollutes every other project and produces the classic 'works on my machine' dependency clash; an isolated `.venv` is the difference between reproducible and unshippable. |
+| "pyproject.toml is overkill; a flat requirements.txt is enough." | Without a build backend and project metadata, the package cannot be installed editable, the test paths and coverage source are unconfigured, and CI cannot build a wheel; the scaffold stops being a real project. |
+| "I will add tests and CI later once there is something to test." | Retrofitting a test directory and CI workflow onto an existing flat layout means re-pathing imports and fixtures; wiring the empty scaffold now costs minutes and guarantees the first feature ships with a green pipeline. |
+| "Linting and type checking can wait until the code is bigger." | The first hundred lines set the conventions the rest inherit; a project without ruff/mypy from line one accumulates style and type drift that is expensive to retro-fix. |
+
+## Verification
+
+- [ ] The documented directory structure exists with `src/`, `tests/`, and `docs/`.
+- [ ] `pyproject.toml` is present and the package installs editable: `python -m pip install -e ".[dev]"` succeeds.
+- [ ] The sample test suite passes: `pytest` exits with code 0.
+- [ ] Lint, format, and type checks run cleanly (`ruff check .`, `mypy src/`).
+- [ ] Git is initialized with a `.gitignore` and an initial commit.
+
 ## Related Skills
 
-- `test-structure` - Set up comprehensive testing
-- `docstrings` - Add documentation
-- `python-cleanup` - Code cleanup
-- `code-commit-workflow` - Git workflow
+- [[test-structure]] -- sets up the comprehensive testing infrastructure beyond the starter scaffold
+- [[docstrings]] -- adds standards-compliant documentation to the scaffolded modules
+- [[python-cleanup]] -- modernizes and cleans the code that grows in this project
+- [[code-commit-workflow]] -- establishes the conventional-commit Git workflow for the new repo
+- [[python-expert]] -- guides idiomatic production Python on top of this foundation
 
 ---
 

@@ -2,7 +2,7 @@
 name: dead-code-eliminator
 description: Find and safely remove dead code including unreachable functions, unused imports, obsolete features, and stale feature flags using static analysis and call graph techniques. Use when cleaning up codebases, removing unused code, eliminating dead imports, or cleaning up feature flags.
 summary_l0: "Find and safely remove dead code with static analysis and call graph techniques"
-overview_l1: "This skill provides systematic detection and safe removal of dead code from codebases using static analysis, call graph construction, feature flag cleanup, and safe removal strategies. Use it when cleaning up a codebase before a major release or refactoring, removing code left behind after feature deprecation, eliminating unused imports, variables, functions, classes, and modules, cleaning up stale feature flags, reducing bundle size or compilation time, improving readability, or preparing a codebase for transfer or open-sourcing. Key capabilities include static analysis-based dead code detection, call graph construction for reachability analysis, feature flag lifecycle management, safe removal strategies that account for indirect references, reflection, and external integrations, and impact verification. The expected output is a prioritized list of dead code items with safe removal patches and verification steps. Trigger phrases: dead code, unused code, remove dead code, unused imports, unreachable code, unused functions, feature flag cleanup, stale code, code cleanup, eliminate dead code, unused variables, orphan code."
+overview_l1: "This skill provides systematic detection and safe removal of dead code using static analysis, call graph construction, feature flag cleanup, and safe removal strategies. Use it when cleaning up a codebase before a release or refactor, removing code left after a feature deprecation, eliminating unused imports, variables, functions, classes, and modules, cleaning up stale feature flags, reducing bundle size or compilation time, or preparing a codebase for transfer or open-sourcing. Key capabilities include static-analysis dead code detection, call graph construction for reachability, feature flag lifecycle management, safe removal that accounts for indirect references, reflection, and external integrations, and impact verification. The expected output is a prioritized list of dead code items with safe removal patches and verification steps. Trigger phrases: dead code, unused code, remove dead code, unused imports, unreachable code, unused functions, feature flag cleanup, stale code, code cleanup, eliminate dead code, unused variables, orphan code."
 ---
 
 # Dead Code Eliminator
@@ -525,3 +525,27 @@ public List<UserDTO> getInactiveUsers() {
 - **Confusing test-only code with dead code**: helper functions used exclusively in test files are not dead code; they are test utilities
 - **Removing code too aggressively in a single commit**: large-scale removal makes it difficult to identify which specific deletion caused a regression; remove in small, focused batches
 - **Not monitoring after removal**: even after thorough analysis, some dead code may have hidden callers that only manifest under specific conditions (monthly batch jobs, annual reports, error recovery paths); monitor for a full business cycle after removal
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "The linter says it's unused, so it's safe to delete" | Static analysis cannot see `getattr()`, `Class.forName()`, plugin loaders, or config-file references; the "unused" function may be invoked by name at runtime and removing it breaks production silently. |
+| "I'll comment it out instead of deleting it" | Commented-out code is still dead code that adds noise and ages into confusion; version control already preserves the history, so delete it. |
+| "It's faster to remove everything in one big commit" | A large removal makes it impossible to bisect which deletion caused a regression; small focused batches keep each removal independently revertible. |
+| "Tests still pass, so the removal is verified" | Reflection, webhook handlers, and monthly batch jobs are often untested; a green suite does not exercise the external trigger that the deleted code served. |
+
+## Verification
+
+- [ ] Each removal item was checked for string-based references (reflection, config files, DI containers, routing tables)
+- [ ] The full test suite passes after removal: `<the project test command>`
+- [ ] The project builds/compiles cleanly with no unresolved-symbol errors
+- [ ] Removals are split into small, independently revertible commits with a rationale in each message
+- [ ] For library code, public-API removals were checked against external usage before deletion
+
+## Related Skills
+
+- [[dependency-manager]] -- removes the now-orphaned dependencies that supported the deleted code
+- [[code-simplification]] -- reduces structural complexity alongside dead-code removal without changing behavior
+- [[refactoring-expert]] -- the behavior-preserving transforms that make a large cleanup safe
+- [[technical-debt-analyzer]] -- quantifies the debt that accumulated dead code represents and prioritizes cleanup

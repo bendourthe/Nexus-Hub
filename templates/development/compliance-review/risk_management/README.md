@@ -8,7 +8,7 @@
 
 ## Overview
 
-This sub-phase provides comprehensive risk management templates implementing **Defense in Depth** — multiple overlapping security layers that protect against threats from data ingestion to model performance.
+This sub-phase provides comprehensive risk management templates implementing **Defense in Depth** -- multiple overlapping security layers that protect against threats from data ingestion to model performance.
 
 ### Available Templates
 
@@ -18,7 +18,7 @@ This sub-phase provides comprehensive risk management templates implementing **D
 
 ### The Defense in Depth Principle
 
-**Definition**: Implements multiple, independent protection layers — PII detection, guardrails, compliance controls, and monitoring — to protect against issues from data ingestion to model performance.
+**Definition**: Implements multiple, independent protection layers -- PII detection, guardrails, compliance controls, and monitoring -- to protect against issues from data ingestion to model performance.
 
 **Best Practice**: Multiple overlapping defenses ensure that if one layer fails, others catch the issue.
 
@@ -325,7 +325,7 @@ Templates directly support NIST AI RMF implementation.
 
 **Problem**: Relying on one security control (e.g., only firewall).
 
-**Solution**: Defense in depth — multiple overlapping layers. If one fails, others catch issues.
+**Solution**: Defense in depth -- multiple overlapping layers. If one fails, others catch issues.
 
 ### ❌ Ignoring AI-Specific Risks
 

@@ -247,7 +247,7 @@ If any item is false, do not publish. Fix the runbook.
 
 ## Related Skills
 
-- `sre-engineer` -- the SRE practice. The on-call runbook is one of several artifacts in the practice; this skill is the artifact-producer.
-- `runbook-writer` -- general operational runbooks. The general runbook is longer and procedural; the on-call runbook is per-alert and short. Cross-link from this runbook's "Related" metadata to the matching general runbooks.
-- `incident-postmortem` -- the writeup of a specific past incident. Postmortem action items frequently update the on-call runbook for the alert involved in the incident.
-- `observability-setup` -- the alerting pipeline. The on-call runbook documents the response to alerts; observability-setup designs the alerts themselves. If a page has no actionable response, the alert (not the runbook) is the gap.
+- [[sre-engineer]] -- the SRE practice. The on-call runbook is one of several artifacts in the practice; this skill is the artifact-producer.
+- [[runbook-writer]] -- general operational runbooks. The general runbook is longer and procedural; the on-call runbook is per-alert and short. Cross-link from this runbook's "Related" metadata to the matching general runbooks.
+- [[incident-postmortem]] -- the writeup of a specific past incident. Postmortem action items frequently update the on-call runbook for the alert involved in the incident.
+- [[observability-setup]] -- the alerting pipeline. The on-call runbook documents the response to alerts; the observability setup designs the alerts themselves. If a page has no actionable response, the alert (not the runbook) is the gap.

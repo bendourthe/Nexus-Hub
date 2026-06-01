@@ -494,11 +494,30 @@ class PCISecurityTesting:
 - [ ] Penetration testing completed
 - [ ] Policies documented and approved
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "We use a payment processor, so PCI does not apply to us" | Using a processor reduces but rarely eliminates scope; if your page renders the card field or you handle a redirect, the cardholder data environment still touches your systems and a SAQ is still required. |
+| "We encrypt the card numbers, so requirement 3 is satisfied" | Requirement 3 also forbids storing sensitive authentication data (full track, CVV) after authorization and mandates key management; encrypting the PAN while retaining the CVV is a direct violation. |
+| "Our annual scan passed, so we are compliant for the year" | PCI requires quarterly ASV scans plus rescans after significant change, not a single annual pass; a network change after the scan reopens the requirement-11 gap. |
+| "Network segmentation is optional, so we left the CDE flat" | Without segmentation the entire network becomes the cardholder data environment, pulling every system into PCI scope; segmentation is the primary lever that keeps scope (and audit cost) contained. |
+
+## Verification
+
+- [ ] The cardholder data environment (CDE) scope is defined, documented, and segmented from the rest of the network
+- [ ] No sensitive authentication data (full track, CVV, PIN) is stored after authorization; stored PAN is encrypted with managed keys
+- [ ] MFA is enforced for all access into the CDE (requirement 8)
+- [ ] Quarterly ASV vulnerability scans pass and a penetration test has been completed (requirement 11)
+- [ ] Logging and monitoring of all CDE access is active with retained audit trails (requirement 10)
+- [ ] The correct SAQ or ROC is completed and all 12 requirements have documented evidence
+
 ## Related Skills
 
-- `soc2-compliance` - SOC 2 implementation
-- `security-review` - Security vulnerability review
-- `dependency-security-audit` - Dependency scanning
+- [[soc2-compliance]] -- overlapping access, logging, and monitoring controls
+- [[security-review]] -- security vulnerability review feeding requirement 6 and 11 evidence
+- [[dependency-security-audit]] -- dependency scanning for the vulnerability-management requirement
+- [[authentication-patterns]] -- secure MFA and access patterns for requirement 8
 
 ---
 

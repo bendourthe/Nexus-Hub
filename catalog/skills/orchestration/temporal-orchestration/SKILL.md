@@ -436,7 +436,15 @@ const { runAgentActivity } = proxyActivities<typeof activities>({
 });
 ```
 
-## Quality Checklist
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "A `Promise.all()` over my agents is simpler than standing up Temporal." | For a short-lived, single-shot fan-out it is -- and the When NOT section says to use it. But the moment a worker crashes mid-pipeline, `Promise.all()` loses all state and restarts from scratch, while Temporal replays from the last completed activity. The overhead buys crash recovery you cannot bolt on later. |
+| "I will put the LLM API call directly in the workflow function to keep it readable." | Workflow code must be deterministic so Temporal can replay it; an API call, timer, or random value inside the workflow corrupts replay and silently produces wrong results. Non-deterministic work belongs in activities, always. |
+| "Retries are automatic, so I do not need to classify error types." | Blind retries loop forever on a non-retryable error (bad input, budget exceeded) and burn API spend. Listing `nonRetryableErrorTypes` is what stops a deterministic failure from retrying until the budget guard or the bill stops it. |
+
+## Verification
 
 - [ ] All non-deterministic code (API calls, timers, random) is inside activities, not workflows
 - [ ] Long-running activities (> 1 min) have a heartbeat loop
@@ -451,11 +459,11 @@ const { runAgentActivity } = proxyActivities<typeof activities>({
 
 ## Related Skills
 
-- `claude-agent-sdk` — The agent executor pattern that runs inside Temporal activities
-- `ai-billing-safeguards` — Budget guard integration with Temporal's non-retryable error classification
-- `multi-provider-ai` — Multi-provider client configuration for agents inside Temporal activities
-- `ai-docker-orchestration` — Docker Compose topology for Temporal server + worker containers
-- `workflow-orchestrator` — Simpler Markdown-phase orchestration for workflows that don't need Temporal's guarantees
+- [[claude-agent-sdk]] -- The agent executor pattern that runs inside Temporal activities
+- [[ai-billing-safeguards]] -- Budget guard integration with Temporal's non-retryable error classification
+- [[multi-provider-ai]] -- Multi-provider client configuration for agents inside Temporal activities
+- `ai-docker-orchestration` -- Docker Compose topology for Temporal server + worker containers
+- [[workflow-orchestrator]] -- Simpler Markdown-phase orchestration for workflows that don't need Temporal's guarantees
 
 ---
 

@@ -850,7 +850,15 @@ function useFormValidation<T extends Record<string, string>>(
 }
 ```
 
-## Quality Checklist
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "I will memoize everything with `useMemo`/`React.memo` to be safe." | Memoizing without profiling adds comparison overhead and dependency-array bugs that cost more than the re-render they prevent. Memoize only where the profiler shows a measurable render cost; premature memoization is a documented anti-pattern. |
+| "The list uses the array index as the key; it renders fine." | Index keys break the moment the list reorders, filters, or inserts: React reuses the wrong DOM node and component state attaches to the wrong item, producing stale inputs and lost focus. Use a stable unique id. |
+| "I will omit a value from the useEffect dependency array to stop it re-running." | A deliberately incomplete dependency array means the effect closes over stale state and silently uses old values. The fix is to restructure the effect (or use a ref), not to lie to the linter. |
+
+## Verification
 
 - [ ] Components follow single-responsibility principle
 - [ ] Custom hooks extract reusable stateful logic
@@ -872,11 +880,11 @@ function useFormValidation<T extends Record<string, string>>(
 
 ## Related Skills
 
-- `nextjs-expert` - React framework with SSR, routing, and server components
-- `javascript-cleanup` - JavaScript code quality and cleanup
-- `unit-tests` - General unit testing strategies
-- `performance-review` - Broad performance review methodology
-- `test-cases` - Test case design patterns
+- [[nextjs-expert]] - React framework with SSR, routing, and server components
+- [[javascript-cleanup]] - JavaScript code quality and cleanup
+- [[unit-tests]] - General unit testing strategies
+- [[performance-review]] - Broad performance review methodology
+- [[test-cases]] - Test case design patterns
 
 ---
 

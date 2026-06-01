@@ -1,7 +1,7 @@
 ---
 name: google-antigravity-sdk
 description: Design, implement, and debug autonomous AI agents using the Google Antigravity SDK -- the async agent loop, declarative tool-call policies, lifecycle hooks, MCP integration, multimodal ingestion, triggers, subagents, and Pydantic structured output. Make sure to use this skill whenever the user mentions the Google Antigravity SDK, AGY SDK, antigravity SDK, a Gemini agent loop, an antigravity agent, LocalAgentConfig, Conversation, or ConnectionStrategy, even if they do not say the word "agent" explicitly. SKIP, do NOT use for, a standalone Gemini API client with no agent loop (use multi-provider-ai or claude-api instead), one-off Gemini text-completion calls, or Antigravity CLI install / configuration work (that is owned by the Antigravity20Integration installer path, not this skill).
-summary_l0: "Build autonomous AI agents with the Google Antigravity SDK -- async agent loop, hooks, policies, MCP"
+summary_l0: "Build autonomous AI agents on the Google Antigravity SDK: async loop, hooks, policies, MCP"
 overview_l1: "Use this skill to build autonomous agents on the Google Antigravity backend (Gemini models) with the Python Antigravity SDK. It covers the SDK's three-layer architecture (Agent owns the lifecycle and configuration, Conversation manages turn state and message history, Connection handles the backend transport and MCP bridging), its async-first API (async with Agent(config) as agent), and the operational surface around it: a declarative tool-call policy system with deterministic priority resolution and fail-closed predicates, lifecycle hooks for pre/post turn and pre/post tool execution and error recovery, MCP integration over stdio and SSE transports, multimodal input ingestion (images, PDFs, audio, in-memory bytes), background-task triggers, subagent spawning, and Pydantic-schema structured output. The expected output is working SDK agent code plus the configuration, policy, and observability scaffolding to run it safely. Trigger phrases: Google Antigravity SDK, AGY SDK, antigravity agent, Gemini agent loop, LocalAgentConfig, Conversation, ConnectionStrategy."
 ---
 
@@ -122,8 +122,8 @@ Read the reference doc that matches the task, then the matching example for a co
 
 ## Related Skills
 
-- `claude-agent-sdk` -- the Anthropic-side equivalent (Claude Agent SDK in TypeScript); use it when building on Claude instead of Gemini.
-- `mcp-builder` -- build the MCP servers an Antigravity agent consumes (this skill covers the consumer side; `mcp-builder` covers the author side).
-- `ai-development/ai-agent-development` -- general agent architecture patterns (planning loops, memory) independent of any one SDK; the canonical home for the agent lifecycle-hook pattern ([references/lifecycle-hooks.md](../ai-agent-development/references/lifecycle-hooks.md)) and the multimodal-ingestion pattern ([references/multimodal-ingestion.md](../ai-agent-development/references/multimodal-ingestion.md)) this skill implements.
-- `security/authentication-patterns` -- declarative tool-call authorization patterns; the canonical home for the policy resolution-order doctrine ([references/agent-policy-resolution.md](../../security/authentication-patterns/references/agent-policy-resolution.md)) that this skill's [safety_policies.md](references/safety_policies.md) implements concretely.
-- `multi-provider-ai` -- provider routing for standalone model calls without an agent loop (one of the SKIP destinations above).
+- [[claude-agent-sdk]] -- the Anthropic-side equivalent (Claude Agent SDK in TypeScript); use it when building on Claude instead of Gemini.
+- [[mcp-builder]] -- build the MCP servers an Antigravity agent consumes (this skill covers the consumer side; mcp-builder covers the author side).
+- [[ai-agent-development]] -- general agent architecture patterns (planning loops, memory) independent of any one SDK; the canonical home for the agent lifecycle-hook pattern and the multimodal-ingestion pattern this skill implements.
+- [[authentication-patterns]] -- declarative tool-call authorization patterns; the canonical home for the policy resolution-order doctrine that this skill's safety_policies.md implements concretely.
+- [[multi-provider-ai]] -- provider routing for standalone model calls without an agent loop (one of the SKIP destinations above).

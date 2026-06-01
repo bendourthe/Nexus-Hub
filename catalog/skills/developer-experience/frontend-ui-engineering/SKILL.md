@@ -174,9 +174,9 @@ Make the aesthetic decision before writing the first component, not after. Captu
 
 ## Related Skills
 
-- `react-expert` — React-specific patterns, hooks, and optimization
-- `nextjs-expert` — Next.js App Router, Server Components, and data fetching
-- `vue-expert` — Vue 3 Composition API and Pinia
-- `svelte-expert` — Svelte runes and SvelteKit patterns
-- `e2e-testing-automation` — End-to-end testing for user flows
-- `performance-review` — Detect and fix frontend performance bottlenecks
+- [[react-expert]] -- React-specific patterns, hooks, and optimization
+- [[nextjs-expert]] -- Next.js App Router, Server Components, and data fetching
+- [[vue-expert]] -- Vue 3 Composition API and Pinia
+- [[svelte-expert]] -- Svelte runes and SvelteKit patterns
+- [[e2e-testing-automation]] -- End-to-end testing for user flows
+- [[performance-review]] -- Detect and fix frontend performance bottlenecks

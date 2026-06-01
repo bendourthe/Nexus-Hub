@@ -573,10 +573,31 @@ std::vector<int> generate();
 container.push_back(std::move(largeObject));
 ```
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "Raw pointers are fine, the team knows who owns what" | Ownership held only in someone's head leaks the moment an exception unwinds past the delete. A unique_ptr encodes ownership in the type system so the compiler enforces what the comment merely hoped for. |
+| "Manual new/delete is faster than smart pointers" | unique_ptr compiles down to a raw pointer with zero overhead, while the manual delete you forgot on the throwing path is a leak AddressSanitizer will flag. RAII is free and correct; manual cleanup is neither. |
+| "This loop is clearer than a std::algorithm" | A hand-written find loop hides the off-by-one and the missing break that any_of cannot get wrong. The named algorithm states intent and removes the class of bugs raw loops invite. |
+| "Modernizing to C++17 is cosmetic, skip it" | structured bindings and std::optional remove the uninitialized-out-parameter and sentinel-value bugs that the old idioms shipped. The modern idiom is the bug fix, not a paint job. |
+
+## Verification
+
+- [ ] clang-tidy is clean: `clang-tidy *.cpp -checks='*' --` reports no new warnings
+- [ ] No memory errors: an AddressSanitizer build runs the test suite with zero reports
+- [ ] No undefined behavior: an UndefinedBehaviorSanitizer build runs clean
+- [ ] No owning raw pointers remain; ownership is expressed via unique_ptr / shared_ptr
+- [ ] Resource acquisition uses RAII so every path (including exceptions) releases resources
+- [ ] The build is warning-free: `g++ -std=c++17 -Wall -Wextra -Wpedantic -Werror *.cpp` succeeds
+- [ ] All existing tests pass after the cleanup
+
 ## Related Skills
 
-- `code-review-quality` - Code quality assessment
-- `security-review` - Security analysis
+- [[code-quality]] -- score the modernized codebase against SOLID and complexity metrics
+- [[security-review]] -- security analysis for the memory-safety issues this skill resolves
+- [[c-cleanup]] -- the C counterpart for codebases still on manual malloc/free
+- [[refactoring-expert]] -- behavior-preserving transforms underlying the smart-pointer and RAII migrations
 
 ---
 

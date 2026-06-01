@@ -1090,6 +1090,24 @@ class AIAgentGovernance:
 - [ ] Compliance mapping documented
 - [ ] Incident response procedures ready
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "Our existing app governance already covers the agent" | Deterministic-software governance has no model for non-deterministic, autonomous behavior; an agent with a tool allowlist gap can take unauthorized actions that a code review of static logic would never surface. |
+| "We added input guardrails, so prompt injection is handled" | Input filtering alone is a single layer; the Defense-in-Depth pillar requires output guardrails and tool-use guardrails too, because an injection that slips the input filter still needs the output and tool layers to block exfiltration. |
+| "We log the agent's responses, so we have observability" | Logging the final response is not tracing the decision; without per-tool-call spans and logged reasoning you cannot answer 'why did the agent do that', which is exactly what an audit or incident review demands. |
+| "Agents run in a trusted environment, so least privilege is overkill" | The 80% of orgs that hit risky agent behavior mostly granted broad credentials; a long-lived admin-scoped key on a non-deterministic agent is one prompt injection away from data exposure. |
+
+## Verification
+
+- [ ] Every agent configuration is versioned with a recorded creator, changelog, and rollback path
+- [ ] Input, output, and tool-use guardrails are all active and tested against adversarial inputs
+- [ ] Agent credentials are role-scoped, time-limited, and rotated on a schedule (no shared admin keys)
+- [ ] OpenTelemetry traces capture every LLM call and tool invocation with decision logging
+- [ ] A rollback has been exercised end-to-end and documented, not just configured
+- [ ] The control-to-framework mapping (SOC 2, ISO 42001, NIST AI RMF) is documented and current
+
 ## Compliance Framework Mapping
 
 ### SOC 2 Integration
@@ -1121,10 +1139,12 @@ class AIAgentGovernance:
 
 ## Related Skills
 
-- `nist-ai-rmf` - NIST AI Risk Management Framework
-- `iso42001-ai-governance` - ISO 42001 AI Management System
-- `soc2-compliance` - SOC 2 implementation
-- `security-review` - Security vulnerability review
+- [[nist-ai-rmf]] -- NIST AI Risk Management Framework this governance maps to
+- [[iso42001-ai-governance]] -- ISO 42001 AI Management System the lifecycle pillar satisfies
+- [[soc2-compliance]] -- SOC 2 controls the security and observability pillars feed
+- [[security-review]] -- security vulnerability review for the agent's surrounding code
+- [[ai-agent-development]] -- builds the agents this skill wraps with governance
+- [[ai-billing-safeguards]] -- enforces the spending caps the cost-tracking observability complements
 
 ---
 

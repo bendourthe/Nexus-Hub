@@ -38,3 +38,27 @@ version: 1.0.0
 - Place punctuation outside quotation marks (logical punctuation)
 - Do not use em-dashes to break up sentences; use parentheses, commas, or separate sentences
 - Maintain a professional, helpful, and teaching tone
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "The draft reads fine, it doesn't need editing" | First drafts carry passive voice, hedge words, and buried leads; skipping the edit pass ships a document the reader has to work to understand. |
+| "More detail makes the writing more thorough" | Padding with fluff and jargon lowers signal density; cutting unnecessary words without losing meaning is what makes the same content scannable. |
+| "I'll keep the conclusion at the end for impact" | Burying the key point forces every reader to read to the end; the BLUF pattern leads with the most important information so a skimming reader still gets it. |
+| "An em-dash reads naturally here" | Em-dashes violate the project ASCII-punctuation rule and corrupt on Windows; parentheses, commas, or separate sentences carry the same break safely. |
+
+## Verification
+
+- [ ] The most important point appears first (BLUF), not buried in the conclusion
+- [ ] Passive voice was converted to active voice where it does not distort meaning
+- [ ] No em-dashes are used to break sentences (parentheses, commas, or separate sentences instead)
+- [ ] Punctuation sits outside quotation marks (logical punctuation)
+- [ ] Long paragraphs are broken into digestible chunks with logical headings
+
+## Related Skills
+
+- [[technical-writer]] -- produces audience-appropriate technical documentation with structured information architecture
+- [[user-documentation]] -- applies these conventions to READMEs, guides, and tutorials
+- [[analysis-logic]] -- supplies the BLUF and table structure this skill polishes into prose
+- [[strategic-comments]] -- the same clarity discipline applied to in-code explanatory comments

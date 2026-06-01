@@ -939,12 +939,29 @@ class CounterActor(Actor):
 - [ ] Structured concurrency is used where supported (TaskGroup, context.WithCancel)
 - [ ] Concurrent tests are deterministic and do not depend on timing
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "It passed on my machine, the concurrency is fine" | A race condition is a timing accident; passing once proves nothing without a race detector, which is why `go test -race` / TSan belongs in CI, not a single local run. |
+| "I'll hold the lock across the await to keep it simple" | Holding a lock across an await point is the classic async deadlock: the awaited task needs the same lock and neither side progresses. |
+| "Fire-and-forget is fine for this background task" | An unsupervised task swallows its own exceptions; the failure surfaces as missing data hours later with no stack trace pointing back to the dropped task. |
+| "An unbounded queue is easier than backpressure" | An unbounded queue under load grows until the process OOMs; bounded queues with backpressure fail predictably instead of crashing. |
+
+## Verification
+
+- [ ] The concurrency model is matched to the workload (I/O-bound vs CPU-bound) and stated explicitly
+- [ ] No lock is held across an await point anywhere in the changed code
+- [ ] Every async I/O call has an explicit timeout and cancellation propagates through task hierarchies
+- [ ] A race detector ran clean: `go test -race ./...` (or the language equivalent such as TSan / pytest-asyncio)
+- [ ] Concurrent tests are deterministic and do not depend on `sleep`-based timing
+
 ## Related Skills
 
-- `performance-testing` - Load testing concurrent systems
-- `debug-with-logs` - Tracing async execution flows
-- `observability-setup` - Distributed tracing for async architectures
-- `event-driven-architecture` - Event-based concurrency patterns
+- [[performance-testing]] -- load-tests the concurrent system under realistic contention
+- [[debug-with-logs]] -- traces async execution flows to localize a race or deadlock
+- [[observability-setup]] -- adds distributed tracing across async architectures
+- [[event-driven-architecture]] -- the broker-based concurrency patterns this skill's actors and channels feed into
 
 ---
 

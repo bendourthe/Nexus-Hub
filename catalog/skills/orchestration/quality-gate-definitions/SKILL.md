@@ -360,13 +360,29 @@ Record every gate execution for auditability. This is especially valuable for te
 - **Use the PARTIAL outcome** judiciously; it should be the exception, not the norm
 - **Share gate results** with the team so everyone knows the quality bar and can see trends over time
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "This criterion is blocking the gate, so I will disable it just this once." | A required criterion disabled "just once" is the exact path by which untested or insecure code reaches the next phase. If a criterion blocks consistently, fix the underlying issue or reclassify it as optional with documented rationale -- never silently waive it. |
+| "More gates with stricter thresholds means higher quality." | Over-gating slows velocity without proportional quality gains, and a 90% coverage gate on a 60%-coverage project just gets routinely overridden until the gate means nothing. Set thresholds against the project's current state. |
+| "I will eyeball whether the gate passed instead of defining explicit criteria." | A gate without explicit, mostly-automated criteria is a subjective judgement dressed up as a checkpoint. Two reviewers will pass and fail the same change, and the audit trail records nothing useful. |
+
+## Verification
+
+- [ ] Each gate has explicitly listed required and optional criteria
+- [ ] Every criterion that can be automated is automated (manual checks are the exception)
+- [ ] Pass / fail / partial behavior is defined for each gate
+- [ ] Thresholds are set against the project's current state, not an aspirational ideal
+- [ ] Gate outcomes are recorded in the result-tracking template for the audit trail
+
 ## Related Skills
 
-- `workflow-orchestrator` - Orchestrating multi-phase workflows that use these gates
-- `task-coordinator` - Coordinating tasks within gated phases
-- `plan-before-code` - Planning phase that feeds into the plan-approved gate
-- `cross-model-orchestrator` - Multi-model workflows that use gates at model transitions
-- `research-plan-implement` - RPI workflow that uses gates between research, plan, and implement phases
+- [[workflow-orchestrator]] - Orchestrating multi-phase workflows that use these gates
+- [[task-coordinator]] - Coordinating tasks within gated phases
+- [[plan-before-code]] - Planning phase that feeds into the plan-approved gate
+- [[cross-model-orchestrator]] - Multi-model workflows that use gates at model transitions
+- [[research-plan-implement]] - RPI workflow that uses gates between research, plan, and implement phases
 
 ---
 

@@ -633,7 +633,16 @@ func main() {
 }
 ```
 
-## Quality Checklist
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "I'll ignore this error with `_`, it never fails here" | An ignored error from `json.Unmarshal` or a DB call returns a zero-value struct that flows downstream and produces a silent data-corruption bug far from the source. |
+| "Passing `context.Context` everywhere is boilerplate" | Without context propagation a cancelled request keeps its goroutines and DB connections alive, so load spikes exhaust the connection pool instead of shedding work. |
+| "A goroutine without synchronization is fine for a quick task" | `go test -race` flags the data race; in production it manifests as a non-deterministic crash that only appears under concurrency and cannot be reproduced locally. |
+| "Closing the channel from the receiver is simpler" | Closing from the receiver panics the sender on the next send; the sender must own and close the channel. |
+
+## Verification
 
 - [ ] All errors handled (no _ = err)
 - [ ] Context passed and respected
@@ -646,10 +655,10 @@ func main() {
 
 ## Related Skills
 
-- `performance-testing` - Go benchmarking
-- `cicd-architect` - Go CI/CD pipelines
-- `code-quality` - Go code standards
-- `kubernetes-expert` - Go microservices on K8s
+- [[performance-testing]] -- Go benchmarking for hot paths
+- [[cicd-architect]] -- Go CI/CD pipelines with `go vet` and `staticcheck`
+- [[code-quality]] -- Go code-standard scoring of the result
+- [[kubernetes-expert]] -- deploying Go microservices on K8s
 
 ---
 

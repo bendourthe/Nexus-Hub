@@ -506,3 +506,27 @@ After optimizing, measure the improvement and verify correctness.
 - **Optimizing dead code paths**: spending time optimizing error handlers, admin endpoints, or rarely-executed branches has negligible impact on real-world performance; focus on hot paths
 - **Not considering memory/CPU trade-offs**: caching reduces CPU time but increases memory; parallelism reduces wall-clock time but increases total CPU time; understand and accept the trade-off
 - **Losing readability without measurement**: if the "optimized" code is harder to understand but benchmarks show no significant improvement, revert to the readable version
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "This loop is obviously the slow part, I'll just rewrite it" | Intuition about hotspots is wrong more often than right; a profiler routinely fingers a different function, and rewriting the wrong loop spends effort for zero measurable gain. |
+| "It's faster now, ship it" | "Feels faster" without a before/after benchmark on production-representative data is not evidence; the change may be noise or may only help on toy inputs. |
+| "A micro-optimization here will help" | Amdahl's law caps the win at the fraction of runtime the code occupies; tuning a path that is 5% of execution time yields at most a 5% improvement while the O(n^2) hotspot still dominates. |
+| "Caching it will fix the slowness" | A cache without an invalidation rule trades a speed bug for a stale-data bug that is far harder to reproduce; define invalidation before adding the cache. |
+
+## Verification
+
+- [ ] A profiler run identifies the specific bottleneck before any code changed
+- [ ] A before/after benchmark on production-representative data shows the improvement, with numbers recorded
+- [ ] Outputs of the optimized code match the original on empty, single-element, and maximum-size inputs
+- [ ] The optimization meets a stated performance budget (latency/throughput/memory target)
+- [ ] Any added cache has a documented invalidation strategy
+
+## Related Skills
+
+- [[performance-review]] -- audits the code for bottlenecks and caching opportunities before this skill optimizes
+- [[performance-testing]] -- supplies the load tests and benchmarks that prove the optimization works
+- [[async-patterns]] -- the concurrency patterns this skill applies for I/O-bound and CPU-bound parallelism
+- [[code-quality]] -- checks that the optimized code did not trade away maintainability for an unmeasured gain

@@ -401,10 +401,10 @@ def test_returns_user_by_id():
 
 ## Related Skills
 
-- `plan-before-code` - Plan TDD approach before starting
-- `test-structure` - Set up testing frameworks
-- `unit-tests` - Comprehensive unit test patterns
-- `mocks-fixtures` - Create test data and mocks
+- [[plan-before-code]] -- plan the TDD approach before starting the red-green-refactor cycle
+- [[test-structure]] -- set up the testing frameworks the cycle runs against
+- [[unit-tests]] -- comprehensive unit test patterns for the tests written first
+- [[mocks-fixtures]] -- create test data and mocks needed to isolate the unit under test
 
 ---
 

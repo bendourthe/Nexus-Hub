@@ -234,10 +234,10 @@ If any checklist item is false, the strategy is not ready for sign-off. Iterate 
 
 ## Related Skills
 
-- `test-structure` -- sets up the testing framework, directory layout, and CI integration. The strategy says which tools are used; `test-structure` sets them up.
-- `test-cases` -- writes the individual P0/P1 scenarios named in the strategy's index. The strategy is the index; `test-cases` is the implementation.
-- `code-coverage` -- analyzes existing coverage and identifies gaps. Use during cycle execution to validate that the strategy's coverage targets are actually being met.
-- `testing-review` -- assesses the existing test suite against the strategy. Use it after the cycle to verify the strategy's exit criteria were enforced.
-- `integration-test-generator` -- generates integration tests for the contracts named in the Test Types matrix. The strategy decides which contracts need integration tests; this skill produces them.
-- `e2e-testing-automation` -- builds the E2E flows named in the P0 index using Playwright or Cypress with page objects and CI integration.
-- `performance-testing` -- builds the load and stress tests required by performance risk rows in the matrix.
+- [[test-structure]] -- sets up the testing framework, directory layout, and CI integration. The strategy says which tools are used; [[test-structure]] sets them up.
+- [[test-cases]] -- writes the individual P0/P1 scenarios named in the strategy's index. The strategy is the index; [[test-cases]] is the implementation.
+- [[code-coverage]] -- analyzes existing coverage and identifies gaps. Use during cycle execution to validate that the strategy's coverage targets are actually being met.
+- [[testing-review]] -- assesses the existing test suite against the strategy. Use it after the cycle to verify the strategy's exit criteria were enforced.
+- [[integration-test-generator]] -- generates integration tests for the contracts named in the Test Types matrix. The strategy decides which contracts need integration tests; this skill produces them.
+- [[e2e-testing-automation]] -- builds the E2E flows named in the P0 index using Playwright or Cypress with page objects and CI integration.
+- [[performance-testing]] -- builds the load and stress tests required by performance risk rows in the matrix.

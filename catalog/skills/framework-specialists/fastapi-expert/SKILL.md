@@ -2,7 +2,7 @@
 name: fastapi-expert
 description: Deep FastAPI expertise for async API development, dependency injection, Pydantic models, middleware, and testing. Use when building Python APIs with FastAPI, designing API schemas, or implementing authentication.
 summary_l0: "Build FastAPI applications with async patterns, Pydantic models, and dependency injection"
-overview_l1: "This skill provides specialized FastAPI expertise covering async API design, Pydantic v2 model patterns, dependency injection, middleware, background tasks, WebSocket support, async database integration, testing, OpenAPI customization, and production deployment. Use it when designing RESTful APIs with path, query, and body parameters, building Pydantic v2 models with validators, implementing dependency injection hierarchies, writing middleware for CORS, authentication, and rate limiting, running background tasks and WebSocket connections, integrating async databases (SQLAlchemy async, Tortoise ORM), testing with TestClient and dependency overrides, customizing OpenAPI documentation, or deploying with uvicorn and Docker. Key capabilities include async endpoint design, Pydantic v2 model architecture, DI hierarchy design, middleware chain implementation, WebSocket handler creation, async database integration, and comprehensive testing patterns. The expected output is a production-ready FastAPI application with proper async patterns, validation, dependency injection, and deployment configuration. Trigger phrases: fastapi, fast api, pydantic, python api, async api, uvicorn, python rest api, fastapi dependency injection, fastapi middleware, fastapi testing."
+overview_l1: "This skill provides specialized FastAPI expertise covering async API design, Pydantic v2 model patterns, dependency injection, middleware, background tasks, WebSocket support, async database integration, testing, OpenAPI customization, and production deployment. Use it when designing RESTful APIs, building Pydantic v2 models with validators, implementing dependency injection hierarchies, writing middleware for CORS, auth, and rate limiting, running background tasks and WebSocket connections, integrating async databases (SQLAlchemy async, Tortoise ORM), testing with TestClient and dependency overrides, or deploying with uvicorn and Docker. Key capabilities include async endpoint design, Pydantic v2 model architecture, DI hierarchy design, middleware chain implementation, WebSocket handler creation, and comprehensive testing patterns. The expected output is a production-ready FastAPI application with proper async patterns, validation, dependency injection, and deployment configuration. Trigger phrases: fastapi, fast api, pydantic, python api, async api, uvicorn, python rest api, fastapi dependency injection, fastapi middleware, fastapi testing."
 ---
 
 # FastAPI Expert
@@ -932,7 +932,15 @@ class PaginatedResponse(BaseModel, Generic[T]):
         )
 ```
 
-## Quality Checklist
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "I will define the endpoint with a plain dict instead of a `response_model`; it is faster." | Without `response_model`, internal fields (password hashes, internal IDs) leak into the JSON response, and the OpenAPI schema no longer matches reality. The explicit model is what enforces the API contract and filters the output. |
+| "It is just one synchronous DB call inside an async endpoint; it will not matter." | A blocking call inside an `async def` handler stalls the entire event loop, so one slow query freezes every concurrent request, not just its own. Use an async driver or offload to a thread pool. |
+| "I will validate the request body with a few `if` checks instead of a Pydantic model." | Manual checks miss type coercion and edge cases Pydantic handles for free, and they do not appear in the generated docs. A malformed payload then reaches your business logic instead of being rejected at the boundary with a 422. |
+
+## Verification
 
 - [ ] All endpoints have explicit `response_model` definitions
 - [ ] Input validation uses Pydantic schemas (not manual checks)
@@ -953,11 +961,11 @@ class PaginatedResponse(BaseModel, Generic[T]):
 
 ## Related Skills
 
-- `python-cleanup` - Python code quality and cleanup patterns
-- `unit-tests` - General unit testing strategies
-- `api-documentation` - API documentation standards
-- `kubernetes-expert` - Container orchestration for API deployment
-- `security-review` - Security review for API endpoints
+- [[python-cleanup]] - Python code quality and cleanup patterns
+- [[unit-tests]] - General unit testing strategies
+- [[api-documentation]] - API documentation standards
+- [[kubernetes-expert]] - Container orchestration for API deployment
+- [[security-review]] - Security review for API endpoints
 
 ---
 

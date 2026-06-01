@@ -469,11 +469,30 @@ class ServiceProviderAgreement:
 - [ ] Audit trail maintained
 - [ ] Annual data inventory updated
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "We are GDPR-compliant, so CCPA is covered" | CCPA has distinct mechanics GDPR lacks: a mandatory 'Do Not Sell/Share' link, Global Privacy Control signal handling, and a 45-day response clock; reusing GDPR workflows misses the opt-out and GPC obligations entirely. |
+| "We do not sell data, so opt-out does not apply" | CPRA defines 'sharing' for cross-context behavioral advertising as a separate trigger from selling; a site that runs third-party ad pixels is sharing even if no money changes hands, so the opt-out link is still required. |
+| "We process the deletion request and we are done" | Right-to-Delete requires propagating the deletion to service providers and checking statutory exemptions; deleting only your own copy leaves the data live downstream and skips the exemption analysis the law requires. |
+| "We honor opt-outs through the preference center, so GPC is optional" | CPRA requires honoring the Global Privacy Control browser signal as a valid opt-out; ignoring the GPC header is itself a violation regardless of whether a preference center exists. |
+
+## Verification
+
+- [ ] The homepage carries a working 'Do Not Sell or Share My Personal Information' link and a 'Limit the Use of My Sensitive Personal Information' link
+- [ ] The Global Privacy Control (GPC) signal is detected and treated as an opt-out of sale and sharing
+- [ ] Each consumer-request type (know, delete, correct, opt-out, limit) has an implemented, tested workflow with identity verification
+- [ ] Deletion and correction requests propagate to service providers, with statutory exemptions checked and recorded
+- [ ] Every request is answered within the 45-day deadline and logged with an audit trail
+- [ ] Service provider agreements contain all CCPA-required clauses (validated against the required-clause list)
+
 ## Related Skills
 
-- `gdpr-compliance` - EU privacy compliance
-- `soc2-compliance` - SOC 2 privacy criteria
-- `security-review` - Security controls
+- [[gdpr-compliance]] -- EU privacy regime with overlapping subject-rights workflows
+- [[soc2-compliance]] -- SOC 2 privacy criteria that reuse these access and deletion controls
+- [[security-review]] -- security controls protecting the personal information this skill governs
+- [[traceability-matrix-generator]] -- maps each CCPA requirement to its implementing code for audit
 
 ---
 

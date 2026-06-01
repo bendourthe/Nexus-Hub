@@ -397,7 +397,15 @@ For concerns that span multiple areas:
 2. Standardize logging format
 ```
 
-## Quality Checklist
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "I will hold the whole codebase in my head; building a context map is busywork." | A mental model of a 40-file change does not survive a compaction or a long pause. The written context map is the only thing that lets a fresh turn (or a different agent) resume without re-reading everything. |
+| "I read the file once, so I do not need to track its relationships." | Reading a file in isolation hides the ripple effects. Without documented relationships, a rename in one file silently breaks three callers you never mapped, and the inconsistency only surfaces at test time. |
+| "Impact analysis slows me down; I will just make the change and run the tests." | Tests catch what they cover; an unmapped consumer with no test fails silently in production. The change-impact pass is what finds the consumer the test suite forgot. |
+
+## Verification
 
 - [ ] Initial context map created
 - [ ] File relationships documented
@@ -410,11 +418,11 @@ For concerns that span multiple areas:
 
 ## Related Skills
 
-- `task-coordinator` - Breaking down coordinated work
-- `plan-before-code` - Initial exploration and planning
-- `context-analysis` - Deep codebase analysis
-- `workflow-orchestrator` - Managing complete workflows
-- [`code-semantic-search`](../../ai-development/code-semantic-search/SKILL.md) - when the repo exceeds the model's context window, retrieval over code chunks is the primary escape valve. Use `code-semantic-search` to produce a ranked chunk set and feed the top-K into the session. Nexus-Hub's internal [`nexus-code-search`](../../../../extensions/nexus-code-search/) MCP is the reference implementation (local-only, zero outbound calls).
+- [[task-coordinator]] - Breaking down coordinated work
+- [[plan-before-code]] - Initial exploration and planning
+- [[context-analysis]] - Deep codebase analysis
+- [[workflow-orchestrator]] - Managing complete workflows
+- [[code-semantic-search]] - when the repo exceeds the model's context window, retrieval over code chunks is the primary escape valve. Use it to produce a ranked chunk set and feed the top-K into the session. Nexus-Hub's internal [`nexus-code-search`](../../../../extensions/nexus-code-search/) MCP is the reference implementation (local-only, zero outbound calls).
 - See also: [SESSION_LIFECYCLE_DECISIONS](../../../../guides/SESSION_LIFECYCLE_DECISIONS.md) - when to continue, `/rewind`, `/clear`, `/compact`, or delegate to a subagent
 
 ---

@@ -922,3 +922,27 @@ head -40 "release_notes_${VERSION}.md"
 - **Not linking to issues and PRs**: Release notes without links to the underlying PRs or issues force readers to search for context manually. Always include references that allow drilling down into details.
 
 - **Inconsistent formatting across releases**: Each release should follow the same structure. If v2.4.0 used one format and v2.5.0 uses another, consumers cannot reliably parse your changelog. Use the same tooling and templates for every release.
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "I'll just paste the raw git log, it's all there" | A raw log of "wip", "fix", and merge commits is unreadable to users and buries the one breaking change that matters; parsing and categorizing is what turns history into release notes someone can act on. |
+| "Breaking changes are in the commits, readers will find them" | A breaking change hidden in a commit body is the change that breaks consumers on upgrade with no warning; it must be promoted to an explicit, prominent callout with migration steps. |
+| "One document for everyone is simpler" | Mixing "Added PDF export" with "Refactored the caching layer" confuses every audience at once; user-facing and developer notes need separate sections or documents. |
+| "The automated output is good enough to publish as-is" | Generation is a draft: it cannot supply the why behind a feature, fix garbled non-conventional commits, or drop irrelevant items; publishing unedited ships inaccuracies. |
+
+## Verification
+
+- [ ] Notes are generated against the correct previous-version reference (the commit range was verified before generation).
+- [ ] Changes are categorized (Features, Fixes, Performance, Docs, Internal), not a flat commit dump.
+- [ ] Breaking changes have a dedicated, prominent callout with migration guidance.
+- [ ] The output matches the intended audience (user-facing vs developer notes are separated or clearly sectioned).
+- [ ] Entries link back to the underlying PRs or issues, and Markdown special characters are escaped.
+
+## Related Skills
+
+- [[devlog-generation]] -- produces the internal development log that complements user-facing release notes
+- [[version-upgrade]] -- coordinates the version bump and cross-file changes the release notes describe
+- [[technical-writer]] -- refines the audience-appropriate language and structure of the notes
+- [[cicd-architect]] -- automates release-note generation as a step in the release pipeline

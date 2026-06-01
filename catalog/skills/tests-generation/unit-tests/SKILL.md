@@ -808,11 +808,11 @@ After using this skill, you should have:
 
 ## Related Skills
 
-- `test-structure` - Set up test infrastructure (Phase 1)
-- `test-cases` - Integration and E2E tests (Phase 3)
-- `mocks-fixtures` - Test doubles and fixtures (Phase 4)
-- `code-coverage` - Coverage analysis (Phase 7)
-- `mutation-testing` - Test quality validation (Phase 8)
+- [[test-structure]] - Set up test infrastructure (Phase 1)
+- [[test-cases]] - Integration and E2E tests (Phase 3)
+- [[mocks-fixtures]] - Test doubles and fixtures (Phase 4)
+- [[code-coverage]] - Coverage analysis (Phase 7)
+- [[mutation-testing]] - Test quality validation (Phase 8)
 
 ---
 

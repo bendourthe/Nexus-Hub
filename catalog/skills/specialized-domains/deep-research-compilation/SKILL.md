@@ -954,3 +954,30 @@ Edit `<cache_dir>/generate.py` and re-run. Maximum 3 iterations; if still failin
 - **Every style value comes from the profile.** No hardcoded fonts, colors, or sizes in the generator. When a new template is supplied, the output must visually match it -- never the previous template.
 - **Save the generator script.** `<cache_dir>/generate.py` is kept so the user can re-run or tweak it without invoking the command.
 - **Separate final outputs from intermediates.** Final outputs live in `<final_dir>` (`docs/compiled/`). Intermediate artifacts live in `<cache_dir>` (`.cache/compile-deep-research/<ReportTitle>/`). Never put intermediates in `docs/`.
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "I'll add a citation here to make the claim look sourced" | A fabricated citation is worse than none: it points a reader to a source that does not support the claim, destroying the document's credibility. A sentence with no citation in the source material gets none in the merge. |
+| "These two references look like the same paper, I'll keep both" | Near-duplicate references with slightly different titles inflate the reference count and break renumbering. Dedup by DOI, normalized URL, and fuzzy title before assigning the canonical [N]. |
+| "I'll hardcode the fonts to match the last template, it's faster" | Hardcoded fonts and colors are the documented v1 bug: the output then matches the previous template, not the one the user just supplied. Every style value must read from the template's style profile. |
+| "The document opens in Word, so the citations and TOC are fine" | Word opens documents with broken citation anchors and empty TOCs without complaint. Only a post-generation validation pass catches the unresolved [N] links and the missing references. |
+
+## Verification
+
+- [ ] The final document is written to `docs/compiled/` and intermediates stay in `.cache/compile-deep-research/<ReportTitle>/`
+- [ ] Every inline [N] citation resolves to an entry in the References section
+- [ ] Every canonical reference appears in References (even if its inline count is zero)
+- [ ] No citation exists in the merged document that was absent from the source material
+- [ ] The output's fonts, colors, and sizes are read from the template style profile, not hardcoded
+- [ ] The generator script is saved at `<cache_dir>/generate.py` for re-run
+- [ ] The output format (.docx / .pdf / .md) matches what the user explicitly chose
+
+## Related Skills
+
+- [[docx-generation]] -- the python-docx fundamentals the per-run generator script is built on
+- [[pdf-document-generation]] -- the PDF export path when the user chooses .pdf output
+- [[technical-writer]] -- content synthesis and information architecture for the merged narrative
+- [[deep-research]] -- upstream multi-source research that produces the reports this skill compiles
+- [[trend-research]] -- source gathering across web, Reddit, and X that feeds the compilation

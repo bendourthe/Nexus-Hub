@@ -1164,13 +1164,32 @@ class TestRegulatoryCompliance:
 - [ ] API versioning implemented for all financial endpoints
 - [ ] Rate limiting configured for trading and high-frequency endpoints
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "I'll use a float for the amount, the rounding is negligible" | Floating-point cannot represent 0.10 exactly, so a sum of cents drifts and the ledger fails to balance by a penny that compounds across millions of rows. Fixed-precision decimals are non-negotiable for money. |
+| "The client only sends each payment once, idempotency keys are overkill" | Networks retry, users double-click, and webhooks redeliver; without an idempotency key the same charge posts twice and you refund an angry customer. Every write endpoint requires the key. |
+| "If the fraud service times out, let the transaction through so we don't lose the sale" | Failing open on a compliance or fraud check is how laundered funds and chargebacks get in. The rule is fail closed: block the transaction when the check cannot run. |
+| "I'll skip the daily reconciliation, the gateway and ledger always agree" | Silent divergence between your ledger and the gateway is invisible until an audit or a customer dispute surfaces it, by which point it is unfixable. Continuous reconciliation is what catches the drift the day it happens. |
+
+## Verification
+
+- [ ] All monetary amounts are stored as fixed-precision decimals, never floating-point
+- [ ] The double-entry invariant is enforced at the database level (trigger or constraint)
+- [ ] Idempotency keys are required on every write endpoint
+- [ ] Webhook handlers verify signatures and process events idempotently
+- [ ] Fraud and compliance checks fail closed (block) when the dependent service is unavailable
+- [ ] Reconciliation runs at least daily between the internal ledger and the payment gateway
+- [ ] The audit log is append-only with restricted permissions
+
 ## Related Skills
 
-- `architecture-design` - System decomposition and trade-off analysis
-- `api-design` - API contract design and versioning strategies
-- `security-review` - Security assessment for financial applications
-- `database-design` - Schema design for financial data models
-- `event-sourcing` - Event-driven architecture for audit trails
+- [[architecture-design]] -- system decomposition and trade-off analysis for the bounded contexts
+- [[api-design]] -- API contract design and versioning strategies for financial endpoints
+- [[security-review]] -- security assessment for PCI-DSS scope and financial data paths
+- [[database-design]] -- schema design for ledger and transaction data models
+- [[event-driven-architecture]] -- event sourcing and CQRS for append-only audit trails
 
 ---
 

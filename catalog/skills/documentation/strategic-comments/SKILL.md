@@ -277,7 +277,15 @@ Use for complex algorithms or important context.
 /** Doxygen documentation comment */
 ```
 
-## Quality Checklist
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "I will comment what the code does so the next reader follows it line by line." | A comment that restates the code ("increment i") adds noise and rots the instant the line changes, while the genuinely non-obvious reason (why this loop skips index 0) goes undocumented. Comment the why, not the what. |
+| "This workaround is obvious; I do not need to explain it." | A bare workaround looks like a bug to the next maintainer, who 'fixes' it and reintroduces the issue it was guarding against. Annotate the workaround with the cause and a ticket so it is not silently reverted. |
+| "I will drop a TODO; someone will get to it." | An ownerless, ticketless TODO is invisible to any tracking system and accumulates forever. Attach an owner and a ticket number or it is a comment that documents inaction, not a plan. |
+
+## Verification
 
 - [ ] Complex algorithms explained
 - [ ] Business logic documented
@@ -303,9 +311,9 @@ Use for complex algorithms or important context.
 
 ## Related Skills
 
-- `docstrings` - Function and class documentation
-- `code-quality` - Code quality review
-- `technical-documentation` - Architecture documentation
+- [[docstrings]] - Function and class documentation
+- [[code-quality]] - Code quality review
+- [[technical-documentation]] - Architecture documentation
 
 ---
 

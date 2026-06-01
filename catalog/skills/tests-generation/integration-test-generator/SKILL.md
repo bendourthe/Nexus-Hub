@@ -856,3 +856,11 @@ class TestOrderEventMessaging:
 - [ ] Integration tests cover both success and error paths for each tested boundary
 - [ ] Test suite completes in under 120 seconds on a standard CI runner
 - [ ] All tests pass deterministically on three consecutive runs: `pytest tests/integration -q` exits with code 0 each time
+
+## Related Skills
+
+- [[unit-tests]] -- isolates single functions with mocks beneath the integration layer these tests exercise
+- [[e2e-testing-automation]] -- drives full end-to-end flows where this skill stops at 2-3 components
+- [[mocks-fixtures]] -- supplies the stubs and data factories used to control external boundaries here
+- [[domain-contract-validator]] -- enforces the provider/consumer contracts these integration tests validate
+- [[test-structure]] -- sets up the separate integration test directory and infrastructure config

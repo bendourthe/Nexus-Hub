@@ -138,7 +138,7 @@ Once the human approves this statement, hand off to `spec-driven-development` or
 
 ## Related Skills
 
-- `spec-driven-development` — next step after a confirmed problem statement; writes the full technical spec
-- `ambiguity-detector` — detects ambiguous, incomplete, or contradictory requirements in existing specs
-- `requirement-enhancer` — improves an existing requirement's quality, testability, and completeness
-- `plan-before-code` — planning phase after the spec is confirmed
+- [[spec-driven-development]] -- next step after a confirmed problem statement; writes the full technical spec
+- [[ambiguity-detector]] -- detects ambiguous, incomplete, or contradictory requirements in existing specs
+- [[requirement-enhancer]] -- improves an existing requirement's quality, testability, and completeness
+- [[plan-before-code]] -- planning phase after the spec is confirmed

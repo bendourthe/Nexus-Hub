@@ -453,11 +453,30 @@ class AIMonitoringService:
 - [ ] Audit trail maintained
 - [ ] Continuous improvement process in place
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "We already have ISO 27001, so the AI management system is covered" | ISO 42001 adds AI-specific obligations 27001 has no concept of: bias and fairness evaluation, explainability documentation, and human-oversight mechanisms; an infosec ISMS does not satisfy an AI-specific audit. |
+| "Our AI system is low-risk, so it does not need governance" | ISO 42001 requires risk assessment of every AI system to justify the risk level; declaring a system low-risk without a documented assessment is itself the gap an auditor flags. |
+| "The model performs well, so we have demonstrated responsible AI" | Accuracy is not fairness or transparency; clause 8 requires bias evaluation and explainability evidence, so a high-accuracy model with no fairness analysis still fails the responsible-AI controls. |
+| "Human oversight means a person can see the logs" | Oversight requires a defined intervention mechanism (review, override, escalation), not passive log visibility; read-only access does not satisfy the human-oversight requirement. |
+
+## Verification
+
+- [ ] An AI system inventory exists with each system's risk level documented and justified (clause 4 / 6)
+- [ ] A responsible-AI policy and governance structure are documented (clause 5)
+- [ ] Bias / fairness evaluation evidence exists for each in-scope AI system (clause 8)
+- [ ] Transparency and explainability documentation is produced for high-risk systems
+- [ ] A defined human-oversight / intervention mechanism is implemented, not just log visibility
+- [ ] Monitoring, internal audit, and a continual-improvement process are in place (clause 9 / 10)
+
 ## Related Skills
 
-- `nist-ai-rmf` - NIST AI Risk Management Framework
-- `ai-agent-governance` - AI agent-specific governance
-- `iso27001-compliance` - Information security management
+- [[nist-ai-rmf]] -- NIST AI Risk Management Framework that maps onto this management system
+- [[ai-agent-governance]] -- AI agent-specific governance the lifecycle clause operationalizes
+- [[iso27001-compliance]] -- information-security ISMS this AI standard mirrors and extends
+- [[traceability-matrix-generator]] -- maps each ISO 42001 clause to its implementing evidence
 
 ---
 

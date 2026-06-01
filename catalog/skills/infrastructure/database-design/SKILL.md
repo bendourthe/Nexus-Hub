@@ -635,12 +635,29 @@ REFRESH MATERIALIZED VIEW CONCURRENTLY mv_daily_sales;
 - [ ] Timestamps use TIMESTAMPTZ (not TIMESTAMP)
 - [ ] Naming conventions are consistent (snake_case, `idx_` prefixes)
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "I'll add indexes later once queries get slow" | The slow query that triggers "later" is usually discovered in production under load; an EXPLAIN-driven index plan at design time avoids a full-table-scan incident on the hot path. |
+| "Dropping the column in the migration is fine, the deploy is quick" | A non-backward-compatible migration breaks the still-running old application version during the rollout window; expand-then-contract (add new, dual-write, backfill, then drop) is what makes it zero-downtime. |
+| "Denormalizing now saves a join, so it's faster" | Denormalization trades read speed for write-time consistency risk; without a clear access pattern justifying it, you get update anomalies that normalization was designed to prevent. |
+| "More indexes can only help" | Every index is write amplification: inserts and updates must maintain it, and a redundant or unused index slows writes while consuming storage with no read benefit. |
+
+## Verification
+
+- [ ] The schema's normalization level (or deliberate denormalization) is justified by the documented access patterns.
+- [ ] Indexes are chosen from EXPLAIN/EXPLAIN ANALYZE evidence on the actual query workload, not guessed.
+- [ ] Schema migrations are backward-compatible (expand-then-contract); the prior app version keeps working during rollout.
+- [ ] Each hot-path query has been checked for full table scans and N+1 access patterns.
+- [ ] The database type (relational, document, graph, time-series) is selected against the workload, not by default.
+
 ## Related Skills
 
-- `sql-expert` - Advanced SQL query writing and optimization
-- `cloud-architect` - Managed database service selection (RDS, Cloud SQL, Aurora)
-- `cicd-architect` - Running migrations in deployment pipelines
-- `performance-review` - Identifying database-related performance bottlenecks
+- [[sql-expert]] -- advanced SQL query writing and optimization
+- [[cloud-architect]] -- managed database service selection (RDS, Cloud SQL, Aurora)
+- [[cicd-architect]] -- running migrations in deployment pipelines
+- [[performance-review]] -- identifying database-related performance bottlenecks
 
 ---
 

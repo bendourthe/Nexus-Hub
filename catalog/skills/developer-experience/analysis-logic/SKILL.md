@@ -33,3 +33,27 @@ version: 1.0.0
 - Recommend an approach with supporting rationale
 - Highlight risks and mitigation strategies
 - Distinguish facts from opinions
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "The recommendation is obvious, I'll skip the decision matrix" | Without weighted criteria the obvious choice is often the one that fit your prior, not the one that scores best; the matrix surfaces the option you discounted. |
+| "I'll just say it's faster, no need to quantify" | Vague qualifiers like "faster" hide the magnitude; a reader cannot act on "faster" but can act on "30% lower P95 latency". |
+| "I don't need to state my assumptions, they're standard" | An unstated assumption (e.g., "traffic stays flat") is exactly where the analysis silently breaks when the assumption fails in production. |
+| "Putting the conclusion last builds the argument better" | Burying the answer forces every reader to reconstruct it; BLUF puts the bottom line first so a skimming decision-maker still gets the recommendation. |
+
+## Verification
+
+- [ ] The output opens with a BLUF summary stating the recommendation up front
+- [ ] Comparisons are presented as tables, not prose paragraphs
+- [ ] Every quantitative claim cites a number and its source or confidence level
+- [ ] Assumptions and known biases are listed explicitly in a dedicated section
+- [ ] At least one alternative interpretation or edge case is considered before concluding
+
+## Related Skills
+
+- [[creative-generation]] -- structures ideation output the way this skill structures analytical output
+- [[writing-editing]] -- tightens the prose around the tables and BLUF this skill produces
+- [[technical-debt-analyzer]] -- a domain-specific application of weighted decision matrices to remediation priority
+- [[product-manager]] -- consumes these decision matrices when prioritizing features and trade-offs

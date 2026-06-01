@@ -463,14 +463,14 @@ This project uses:
 Follow existing patterns in src/components/.
 ```
 
-## Quality Checklist
+## Verification
 
-- [ ] Command has clear purpose
-- [ ] Instructions are specific
-- [ ] Output format is defined
-- [ ] Arguments are documented
-- [ ] Command works consistently
-- [ ] Team has reviewed command
+- [ ] The command file exists at `.claude/commands/<name>.md` and is non-empty
+- [ ] The file states a single clear purpose in its opening line
+- [ ] An Output Format section defines what the command produces
+- [ ] Every argument the command consumes is documented in the body
+- [ ] Invoking `/<name>` twice on the same input produces the same structure
+- [ ] The command body has been reviewed by at least one other team member
 
 ## Advanced: Command Composition
 

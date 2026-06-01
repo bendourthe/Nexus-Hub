@@ -436,3 +436,27 @@ def test_translation_equivalence():
 - **Equality semantics**: Python's `==` compares values; JavaScript's `===` compares values and types; Java's `==` compares references (for objects); ensure equality checks are translated correctly
 - **Default parameter handling**: Python evaluates default parameters once at function definition time (mutable default pitfall); JavaScript evaluates defaults at each call; Java does not support default parameters; each requires different translation patterns
 - **Error handling model mismatch**: translating Python exceptions to Go error returns (or Rust Results) requires restructuring control flow, not just swapping syntax
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "I'll do a line-by-line literal translation, it's faster" | A literal port writes Java-style getters in Python or a manual `for` loop where a comprehension belongs; the result compiles but is unidiomatic and unmaintainable to a native developer. |
+| "The logic is the same, I don't need to port the tests" | The source tests are the behavioral spec; without translating them you have no proof the target produces identical output, and edge-case divergences go unnoticed. |
+| "Integers are integers in every language" | Python ints are arbitrary precision, JS numbers are 64-bit floats, Rust panics on overflow in debug mode; a direct mapping silently changes results at the boundaries. |
+| "Null is null everywhere" | Python `None`, JS `null` vs `undefined`, Java `null`, and Rust `Option` have different semantics; a one-to-one swap introduces boundary bugs the original never had. |
+
+## Verification
+
+- [ ] The translated tests pass against the new implementation and cover the same cases as the source tests
+- [ ] Source and target produce identical output for a shared set of representative inputs, including empty and boundary values
+- [ ] Idioms were translated, not syntax (the target reads as native code, not a transliteration of the source)
+- [ ] Error semantics match: equivalent exception types or error/Result patterns, with no silently swallowed errors
+- [ ] Numeric, string-encoding, and null-handling differences between the languages were checked at every boundary
+
+## Related Skills
+
+- [[framework-migration-assistant]] -- coordinates the larger migration when translation is one step of a stack change
+- [[legacy-modernizer]] -- the incremental Strangler Fig approach when porting a large codebase piecemeal
+- [[unit-tests]] -- generates or adapts the test suite that proves the translation preserves behavior
+- [[deprecated-api-updater]] -- maps source library calls to current target-language equivalents

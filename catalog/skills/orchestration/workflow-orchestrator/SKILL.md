@@ -391,7 +391,15 @@ Draft → Review → Refine → Review → Final
 | Documentation | docstrings, user-documentation | api-documentation |
 | Deployment | cicd-architect | pre-commit-checklist |
 
-## Quality Checklist
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "I will run the phases back to back without gates; the work is straightforward." | Without a gate between phases, a failure in implementation flows straight into testing and the root cause is buried under downstream symptoms. The quality gate is what stops a broken phase from contaminating the next one. |
+| "If a phase fails I will just figure out recovery then." | Improvising recovery mid-failure is how a workflow loses an hour of partial work. A rollback plan defined upfront means a failed phase reverts cleanly instead of leaving the project in a half-migrated state. |
+| "Chaining skills by hand is the same as orchestrating; I do not need a template." | Ad hoc chaining skips phases under time pressure (the review or the rollback plan is the first to go). A selected workflow template makes every phase, gate, and exit criterion explicit so nothing silently gets dropped. |
+
+## Verification
 
 - [ ] Workflow template selected and configured
 - [ ] All phases defined with clear inputs/outputs
@@ -404,10 +412,10 @@ Draft → Review → Refine → Review → Final
 
 ## Related Skills
 
-- `task-coordinator` - Breaking down phase tasks
-- `context-manager` - Maintaining information across phases
-- `plan-before-code` - Initial planning phase
-- All domain-specific skills used in phases
+- [[task-coordinator]] - Breaking down phase tasks
+- [[context-manager]] - Maintaining information across phases
+- [[plan-before-code]] - Initial planning phase
+- [[quality-gate-definitions]] - The GO/NO-GO gate definitions enforced between phases
 
 ---
 

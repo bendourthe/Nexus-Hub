@@ -2,7 +2,7 @@
 name: bug-to-patch-generator
 description: Generate code patches from bug reports, error messages, and failing tests. Use when converting bug descriptions into fixes, creating patches from error output, or automating fix generation from test failures.
 summary_l0: "Generate targeted code patches from bug reports, errors, and failing tests"
-overview_l1: "This skill transforms bug reports, error messages, and failing test output into targeted code patches that fix the underlying issue while preserving all existing passing tests. Use it when converting a bug report from an issue tracker or user report into a concrete code fix, generating a patch from a failing test or assertion error, translating an error message or stack trace into the minimum required code change, producing a patch that fixes the bug while maintaining test suite integrity, automating the fix-validate-commit cycle for well-defined defects, or generating candidate patches for review. Key capabilities include bug report parsing, root cause identification, minimal diff generation, regression test creation, patch validation against existing test suites, and fix confidence scoring. The expected output is a validated code patch with an explanation of the fix, affected files, and a regression test. Trigger phrases: generate a patch, fix this bug, create a fix for, patch from error, convert bug report to fix, auto-fix, generate fix from test failure, bug to patch."
+overview_l1: "This skill transforms bug reports, error messages, and failing test output into targeted code patches that fix the underlying issue while preserving all existing passing tests. Use it when converting a bug report into a concrete code fix, generating a patch from a failing test or assertion error, translating an error or stack trace into the minimum required change, producing a fix that maintains test-suite integrity, or generating candidate patches for review. Key capabilities include bug report parsing, root cause identification, minimal diff generation, regression test creation, patch validation against existing test suites, and fix confidence scoring. The expected output is a validated code patch with an explanation of the fix, affected files, and a regression test. Trigger phrases: generate a patch, fix this bug, create a fix for, patch from error, convert bug report to fix, auto-fix, generate fix from test failure, bug to patch."
 ---
 
 # Bug-to-Patch Generator
@@ -754,3 +754,29 @@ public class RegressionTestGenerator {
 - **Applying patches without understanding the root cause.** If you cannot explain why the bug occurred, your patch may be masking the real problem. Invest time in root cause analysis before generating fixes.
 - **Forgetting to handle the patch in the context of concurrent changes.** If the target file has been modified since the bug was reported, the patch may not apply cleanly. Always rebase or verify against the latest version of the code before committing.
 - **Trusting automated patch generation without review.** Machine-generated patches can be syntactically correct but semantically wrong. Every patch should undergo human review before merging.
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "Adding a null check at the crash site fixes the bug" | A guard at the crash site hides the deeper bug where the null was introduced; the next caller that hits the same uninitialized path crashes again, so the patch must target where the incorrect value originated. |
+| "The failing test passes now, so the patch is done" | Turning the failing test green while breaking three others is a net regression; the patch is only valid once the full suite passes, which is why regression validation is mandatory. |
+| "Rewriting the whole function is cleaner than a one-line fix" | A broad rewrite to fix a one-line defect is high-risk and hard to review; the minimal diff is both easier to review and less likely to introduce a new regression. |
+| "I do not need to understand the root cause to ship the fix" | A patch applied without a root-cause explanation is usually masking the symptom; if you cannot explain why the bug occurred, the fix is a guess that often leaves the real defect live. |
+
+## Verification
+
+- [ ] A failing reproduction test exists and turns green with the patch applied
+- [ ] The full existing test suite still passes (no new regressions): run the project test command
+- [ ] The patch is a minimal diff scoped to the defect, not a broad rewrite
+- [ ] The fix targets the root cause (documented), not just the crash site
+- [ ] A regression test is added that fails if the patch is reverted
+- [ ] The patch references the bug ID in the commit message and a nearby code comment
+
+## Related Skills
+
+- [[bug-localization]] -- pinpoints the fault location this skill patches
+- [[bug-reproduction-test-generator]] -- produces the failing test the patch must turn green
+- [[regression-root-cause-analyzer]] -- identifies the offending change so the patch targets the true cause
+- [[semantic-bug-detector]] -- catches logic errors the patch must avoid reintroducing
+- [[behavior-preservation-checker]] -- verifies the patch fixes the bug without altering unrelated behavior

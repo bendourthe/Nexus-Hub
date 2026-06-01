@@ -2,7 +2,7 @@
 name: docx-generation
 description: Word document generation and manipulation expertise for creating, editing, and templating professional DOCX files programmatically. Use when building document generators, automating contracts and reports, creating mail merge pipelines, or manipulating Word documents.
 summary_l0: "Generate professional Word documents with templates, styles, and multi-library support"
-overview_l1: "This skill provides comprehensive expertise in programmatic Word document generation across Python, JavaScript, and .NET ecosystems. Use it when building automated document generators, creating template-driven reports, implementing mail merge pipelines, generating contracts with conditional clauses, producing batch documents from data sources, or manipulating existing DOCX files. Key capabilities include library selection and trade-off analysis (python-docx, docxtpl, Pandoc, officegen, docx for Node.js, OpenXML SDK), document structure fundamentals (paragraphs, runs, styles, sections, headers, footers), Jinja2-based DOCX templating with loops and conditionals, JavaScript DOCX generation with typed APIs, professional document design patterns (cover pages, table of contents, watermarks, page numbering), advanced formatting (custom styles, theme colors, section breaks, columns, footnotes), data-driven mail merge and batch generation, and document testing and validation strategies. The expected output is production-ready code that generates correctly formatted, cross-platform-compatible Word documents from structured data. Trigger phrases: docx generation, Word document, python-docx, docxtpl, mail merge, document template, report generator, contract automation, Word template, officegen, OpenXML, document builder, batch documents, DOCX manipulation."
+overview_l1: "This skill provides comprehensive expertise in programmatic Word document generation across Python, JavaScript, and .NET ecosystems. Use it when building automated document generators, creating template-driven reports, implementing mail merge pipelines, generating contracts with conditional clauses, producing batch documents from data sources, or manipulating existing DOCX files. Key capabilities include library selection and trade-off analysis (python-docx, docxtpl, Pandoc, officegen, docx for Node.js, OpenXML SDK), document structure fundamentals, Jinja2-based DOCX templating with loops and conditionals, JavaScript DOCX generation with typed APIs, professional design patterns (cover pages, table of contents, watermarks, page numbering), advanced formatting, data-driven mail merge and batch generation, and document testing strategies. The expected output is production-ready code that generates correctly formatted, cross-platform-compatible Word documents from structured data. Trigger phrases: docx generation, Word document, python-docx, docxtpl, mail merge, document template, report generator, contract automation, Word template, OpenXML, batch documents, DOCX manipulation."
 ---
 
 # DOCX Generation
@@ -2005,14 +2005,32 @@ def compare_documents(doc_a_path: str | Path, doc_b_path: str | Path) -> Documen
 - [ ] File sizes are reasonable (images optimized, no unnecessary embedded resources)
 - [ ] CI pipeline includes a template rendering smoke test with sample data
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "I'll set paragraph.text directly, runs are extra work" | Assigning `.text` collapses the paragraph to one unformatted run and silently drops any bold, color, or size you set. Building explicit runs is the only way formatting survives. |
+| "The template renders for the sample data, ship it" | The empty-list loop, the None value, and the long-string overflow are the cases that break in production, not the happy-path sample. A CI smoke render with edge-case data is what catches them. |
+| "Reusing one DocxTemplate instance across the batch is faster" | A reused template carries state from the previous render, so row 2 inherits row 1's content. Loading a fresh DocxTemplate per record is the documented requirement, not an optimization to skip. |
+| "It opens in my Word, that is enough verification" | A DOCX that renders in desktop Word can still break in LibreOffice or Word Online and may leave unreplaced `{{` tags a quick read misses. Validate the ZIP structure and assert no leftover tags. |
+
+## Verification
+
+- [ ] The generated file is a structurally valid DOCX (a ZIP archive containing the required OOXML parts)
+- [ ] No unreplaced template tags (`{{` or `{%`) remain in any generated document
+- [ ] A content-extraction test confirms every expected data field appears in the rendered output
+- [ ] The batch generator records per-record failures without aborting the whole run
+- [ ] Document properties (title, author, subject) are set on `core_properties`
+- [ ] A CI smoke test renders the template with sample (including empty-list and None) data and passes
+
 ## Related Skills
 
-- `python-expert` - Python language patterns for document generation backends
-- `typescript-expert` - TypeScript patterns for Node.js DOCX generation
-- `api-design` - API design for document generation services
-- `unit-tests` - Unit testing patterns for generator functions
-- `integration-test-generator` - Integration testing for template rendering pipelines
-- `technical-writer` - Content strategy and information architecture for generated documents
+- [[python-expert]] -- Python language patterns for document generation backends
+- [[typescript-expert]] -- TypeScript patterns for Node.js DOCX generation
+- [[api-design]] -- API design for document generation services
+- [[integration-test-generator]] -- integration testing for template rendering pipelines
+- [[technical-writer]] -- content strategy and information architecture for generated documents
+- [[pdf-document-generation]] -- the PDF counterpart when output must be fixed-layout instead of editable
 
 ---
 

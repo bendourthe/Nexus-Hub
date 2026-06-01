@@ -219,8 +219,8 @@ If any checklist item is false, do not publish. Fix the document.
 
 ## Related Skills
 
-- `sre-engineer` -- broader SRE patterns (SLOs, error budgets, on-call design). The postmortem is one artifact in the SRE practice; this skill is the artifact-producer, `sre-engineer` is the advisor.
-- `runbook-writer` -- operational runbooks for services and incident types. Action items from a postmortem frequently include "write or update the runbook for X"; that work goes through `runbook-writer`.
-- `oncall-runbook` -- per-alert response runbooks. Postmortem action items that close detection-and-response gaps frequently update per-alert runbooks.
-- `rollback-strategy-advisor` -- rollback procedures. If the postmortem identified a rollback gap, the action item plan is informed by `rollback-strategy-advisor`.
-- `observability-setup` -- detection-pipeline design. If the postmortem identified a detection gap, the action item plan is informed by `observability-setup`.
+- [[sre-engineer]] -- broader SRE patterns (SLOs, error budgets, on-call design). The postmortem is one artifact in the SRE practice; this skill is the artifact-producer, the advisor is the SRE skill.
+- [[runbook-writer]] -- operational runbooks for services and incident types. Action items from a postmortem frequently include "write or update the runbook for X"; that work goes through the runbook writer.
+- [[oncall-runbook]] -- per-alert response runbooks. Postmortem action items that close detection-and-response gaps frequently update per-alert runbooks.
+- [[rollback-strategy-advisor]] -- rollback procedures. If the postmortem identified a rollback gap, the action item plan is informed by the rollback advisor.
+- [[observability-setup]] -- detection-pipeline design. If the postmortem identified a detection gap, the action item plan is informed by the observability setup.

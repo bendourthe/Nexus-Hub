@@ -1,7 +1,7 @@
 ---
 name: ui-component-generation
 description: Generate framework-specific UI components by prompting the agent's own LLM directly - no external generation service or MCP required
-summary_l0: "Generate UI components directly with the agent's LLM instead of routing requests through external generation services"
+summary_l0: "Generate UI components directly with the agent's LLM, not external generation services"
 overview_l1: "This skill instructs the agent to generate UI components (React, Vue, Svelte, Astro, or plain HTML) by direct prompting rather than calling an external component-generation service or MCP. The agent is already an LLM; the same LLM that was invoked to understand the task can produce the component code. This replaces a class of third-party MCPs that would otherwise ship component specs and design intent to a generation-as-service vendor. Use this skill whenever the user asks for a new UI component, iteration on an existing one, or bulk generation of design-system primitives. Always start from an explicit prop / variant / accessibility spec. Always emit accessible markup with correct ARIA, keyboard handling, and color contrast baselines. When the request is architectural (multi-component layouts, state management, routing), defer to the frontend-ui-engineering skill instead."
 version: 1.0.0
 author: Benjamin Dourthe
@@ -103,9 +103,9 @@ Match the framework's idiomatic patterns:
 
 ## Related Skills
 
-- `frontend-ui-engineering` - multi-component architecture, state management, accessibility at the page level.
-- `react-expert` - React-specific idioms and patterns.
-- `vue-expert` - Vue-specific patterns.
-- `svelte-expert` - Svelte runes and SvelteKit.
-- `astro-expert` - Astro islands and content collections.
-- `nextjs-expert` - Next.js App Router and server components.
+- [[frontend-ui-engineering]] -- multi-component architecture, state management, accessibility at the page level.
+- [[react-expert]] -- React-specific idioms and patterns.
+- [[vue-expert]] -- Vue-specific patterns.
+- [[svelte-expert]] -- Svelte runes and SvelteKit.
+- [[astro-expert]] -- Astro islands and content collections.
+- [[nextjs-expert]] -- Next.js App Router and server components.

@@ -470,11 +470,30 @@ class AIRiskManagement:
 - [ ] MANAGE: Treatment plans developed
 - [ ] MANAGE: Monitoring active
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "The NIST AI RMF is voluntary, so we can skip the formal functions" | Voluntary does not mean optional in practice; federal contracts and enterprise procurement increasingly require RMF alignment, and skipping GOVERN leaves no accountability owner when a risk materializes. |
+| "We measure model accuracy, so the MEASURE function is satisfied" | MEASURE covers the full set of trustworthiness characteristics (validity, safety, fairness, explainability, privacy), not accuracy alone; reporting one metric leaves the other characteristics unassessed. |
+| "MAP is just an inventory we can do once" | MAP is context characterization that must be revisited as the system, data, or deployment context changes; a stale MAP feeds wrong inputs into MEASURE and MANAGE. |
+| "MANAGE means we wrote a treatment plan" | MANAGE requires prioritization, response, communication, and ongoing monitoring; a treatment plan with no monitoring or escalation path is an unexecuted document, not risk management. |
+
+## Verification
+
+- [ ] GOVERN: a governance structure with named accountability and an approved AI policy exists
+- [ ] MAP: every AI system is characterized with its context and stakeholders documented
+- [ ] MEASURE: trustworthiness characteristics (validity, safety, fairness, explainability, privacy) are each assessed, not accuracy alone
+- [ ] MANAGE: risks are prioritized with treatment plans, a communication path, and active monitoring
+- [ ] The program maps cleanly to existing enterprise risk management rather than duplicating it
+- [ ] Evidence for each function is retained and audit-ready
+
 ## Related Skills
 
-- `iso42001-ai-governance` - ISO 42001 AI management
-- `ai-agent-governance` - AI agent governance
-- `security-review` - Security vulnerability review
+- [[iso42001-ai-governance]] -- ISO 42001 AI management system this framework maps onto
+- [[ai-agent-governance]] -- AI agent governance that operationalizes these four functions
+- [[security-review]] -- security vulnerability review feeding the MEASURE function
+- [[traceability-matrix-generator]] -- maps each RMF subcategory to its implementing control
 
 ---
 

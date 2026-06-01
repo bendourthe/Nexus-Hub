@@ -568,3 +568,27 @@ When a story is too large, split it using these patterns:
 - **Ignoring requirement dependencies**: Requirements that depend on other requirements should explicitly state the dependency. Missing dependencies cause implementation ordering problems and integration failures.
 - **Not revisiting requirements when scope changes**: When a related requirement changes, dependent requirements may become inconsistent. Maintain a dependency map and review the chain when any requirement is modified.
 - **Treating all requirements as equally important**: Not all requirements are critical. Use MoSCoW (Must, Should, Could, Won't) or similar prioritization to focus enhancement effort on the requirements that matter most.
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "The requirement is clear enough, the team will figure it out" | "Figuring it out" means each developer fills the gap with a different assumption; the absence of measurable acceptance criteria is exactly what produces the build-the-wrong-thing rework this skill prevents. |
+| "I'll specify the happy path, errors are obvious" | Most requirement defects are missing error handling; "obvious" error behavior diverges between developers, so every happy path needs its paired "what happens when this fails?". |
+| "One requirement can cover auth and logging together" | A compound requirement ("authenticate AND log access") cannot be independently tracked or tested; splitting it is what makes each clause traceable to a test. |
+| "Use React for the frontend is a requirement" | That is a design decision masquerading as a requirement; a requirement states the problem ("render on 320-428px screens"), leaving the solution space open for the implementer. |
+
+## Verification
+
+- [ ] Every enhanced requirement has at least one measurable, testable acceptance criterion
+- [ ] Each requirement is atomic (no compound AND/OR clauses) and independently traceable
+- [ ] Error and boundary cases are specified, not only the happy path
+- [ ] Non-functional requirements (performance, security, usability) state measurable thresholds
+- [ ] Requirements describe the problem, not a prescribed implementation, and carry a traceability identifier
+
+## Related Skills
+
+- [[ambiguity-detector]] -- flags the ambiguous, incomplete, and contradictory requirements this skill then rewrites
+- [[spec-driven-development]] -- assembles the enhanced requirements into a full technical specification
+- [[idea-refine]] -- produces the problem statement that the enhanced requirements elaborate
+- [[business-analyst]] -- gathers the stakeholder context needed to resolve requirement gaps

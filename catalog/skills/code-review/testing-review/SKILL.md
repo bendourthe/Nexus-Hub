@@ -137,26 +137,35 @@ Immediate (before next release)
 - Shared mutable state
 - No assertions (always pass)
 
-## Quality Checklist
+## Common Rationalizations
 
-- [ ] Coverage metrics collected
-- [ ] Coverage gaps identified
-- [ ] Test quality assessed (AAA pattern, naming, isolation)
-- [ ] Anti-patterns detected
-- [ ] Test type balance evaluated (70/20/10)
-- [ ] Test performance reviewed
-- [ ] Critical path coverage verified (95%+ target)
+| Rationalization | Reality |
+|---|---|
+| "Coverage is 85%, so the test suite is good" | High line coverage with assertion-free or always-passing tests detects no bugs; the 45%-covered payment path in this skill's example is more dangerous than a low number suggests because the uncovered 55% is the error-handling and refund logic. |
+| "These tests pass, so we don't need to review their quality" | Tests that assert implementation details break on every refactor and tests that share mutable state pass in isolation but fail in CI; passing today says nothing about whether the suite is maintainable or catches regressions. |
+| "We have lots of E2E tests, so unit coverage doesn't matter" | An inverted test pyramid (heavy E2E, thin unit) produces slow, flaky suites where a single failure could be any of dozens of layers; the 70/20/10 balance exists so failures localize quickly. |
+| "Edge cases are unlikely, so testing the happy path is enough" | Production failures cluster at boundaries (empty collections, null inputs, currency rounding); the coverage-gap step targets exactly the error and boundary paths that happy-path-only suites leave unguarded. |
+
+## Verification
+
+- [ ] Coverage metrics collected (line, branch, function) and recorded
+- [ ] Coverage gaps identified by feature and risk area
+- [ ] Test quality assessed (AAA pattern, descriptive naming, isolation)
+- [ ] Anti-patterns detected (no-assertion tests, shared mutable state, implementation-detail tests)
+- [ ] Test type balance evaluated against the 70/20/10 pyramid
+- [ ] Test execution performance reviewed (slow tests flagged)
+- [ ] Critical path coverage verified against the 95%+ target
 - [ ] Recommendations documented with severity (P0-P3)
 
 ## Related Skills
 
-- `context-analysis` - Context understanding (Phase 1)
-- `code-quality` - Code quality + SOLID review (Phase 2)
-- `security-review` - Security analysis (Phase 3)
-- `performance-review` - Performance analysis (Phase 4)
-- `unit-tests` - Unit test generation
-- `code-coverage` - Coverage improvement
-- `final-report` - Consolidated report (Phase 6)
+- [[context-analysis]] -- Context understanding (Phase 1)
+- [[code-quality]] -- Code quality + SOLID review (Phase 2)
+- [[security-review]] -- Security analysis (Phase 3)
+- [[performance-review]] -- Performance analysis (Phase 4)
+- [[unit-tests]] -- generate the unit tests that close the gaps this review identifies
+- [[code-coverage]] -- raise coverage toward the targets this review measures against
+- [[final-report]] -- Consolidated report (Phase 6)
 
 ---
 

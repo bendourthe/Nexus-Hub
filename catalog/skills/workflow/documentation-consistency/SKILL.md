@@ -322,7 +322,7 @@ if __name__ == '__main__':
     print(f"Files with TODOs: {len(results['todos'])}")
 ```
 
-## Quality Checklist
+## Verification
 
 Before completing documentation audit:
 
@@ -337,11 +337,19 @@ Before completing documentation audit:
 - [ ] Dates updated where applicable
 - [ ] Consistency report generated
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "The docs were correct when I wrote them, so they are still fine" | Code drifts away from prose silently; a renamed function or moved file leaves a dead link or a stale example that misleads the next reader who trusts the doc. |
+| "Broken links are cosmetic, not worth an audit" | A broken install or API link in a README blocks a new user at the first step; the cost is a lost contributor, not a cosmetic blemish. |
+| "Version numbers will be consistent because I bumped the main one" | Version strings live in many files (README, package manifest, docs headers); bumping one and missing the rest produces contradictory claims that erode trust in every number. |
+
 ## Related Skills
 
-- `version-upgrade` - Version update workflow
-- `code-commit-workflow` - Commit best practices
-- `technical-documentation` - Documentation writing
+- [[version-upgrade]] -- the version bump workflow whose cross-file edits this audit verifies for consistency
+- [[code-commit-workflow]] -- commit hygiene that keeps doc changes atomic with the code they describe
+- [[technical-documentation]] -- authoring the docs whose freshness and link integrity this skill checks
 
 ---
 

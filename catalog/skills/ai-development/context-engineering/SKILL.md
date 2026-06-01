@@ -141,9 +141,9 @@ Information at the bottom of the context window has less influence on output tha
 
 ## Related Skills
 
-- `context-optimization` — reduces token cost and context window bloat
-- `context-compression` — compresses long sessions to fit within context limits
-- `context-manager` — manages context across large codebases with attention budgeting
-- `plan-before-code` — defines the task structure that determines what context each step needs
-- `incremental-implementation` — executes one step at a time, enabling scoped context loads
-- [`code-semantic-search`](../code-semantic-search/SKILL.md) — retrieval-based context shaping for source-code corpora; specialized over the general `rag-implementation` skill. Paired with Nexus-Hub's internal [`nexus-code-search`](../../../../extensions/nexus-code-search/) MCP.
+- [[context-optimization]] -- reduces token cost and context window bloat
+- [[context-compression]] -- compresses long sessions to fit within context limits
+- [[context-manager]] -- manages context across large codebases with attention budgeting
+- [[plan-before-code]] -- defines the task structure that determines what context each step needs
+- [[incremental-implementation]] -- executes one step at a time, enabling scoped context loads
+- [[code-semantic-search]] -- retrieval-based context shaping for source-code corpora; specialized over the general rag-implementation skill

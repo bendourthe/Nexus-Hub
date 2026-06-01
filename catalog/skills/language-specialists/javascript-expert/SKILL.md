@@ -669,7 +669,16 @@ function createEventBus() {
 }
 ```
 
-## Quality Checklist
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "This Promise can't reject, so no `.catch()` needed" | An unhandled rejection crashes the Node process under `--unhandled-rejections=throw` (the default since Node 15); the bug appears only when the unexpected reject path fires in production. |
+| "`var` vs `const` is just style" | A `var` hoisted out of a loop captured by a closure binds to the final value, so every callback sees the same variable; `const` in a block scope captures the intended value. |
+| "I'll remove the event listener when I get around to it" | A listener attached without an `AbortController` or `removeEventListener` keeps the whole component subtree alive, so a long-running SPA leaks memory until it is reloaded. |
+| "Loading the file into memory is fine, it's small" | "Small" inputs grow; reading a multi-GB upload with `fs.readFile` instead of a stream OOM-kills the worker under a single large request. |
+
+## Verification
 
 - [ ] No `var` declarations; `const` by default, `let` only when needed
 - [ ] All Promises have `.catch()` or are inside try/catch
@@ -682,10 +691,10 @@ function createEventBus() {
 
 ## Related Skills
 
-- `performance-testing` - JavaScript benchmarking and profiling
-- `cicd-architect` - Node.js CI/CD pipelines
-- `code-quality` - JavaScript code standards
-- `kubernetes-expert` - Node.js microservices on K8s
+- [[typescript-expert]] -- add static types to a JavaScript codebase
+- [[performance-testing]] -- JavaScript benchmarking and profiling
+- [[cicd-architect]] -- Node.js CI/CD pipelines
+- [[kubernetes-expert]] -- Node.js microservices on K8s
 
 ---
 

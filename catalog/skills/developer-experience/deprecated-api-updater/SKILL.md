@@ -639,3 +639,27 @@ After applying migrations, verify correctness through multiple validation layers
 - **Batch-migrating high-risk items**: high-risk migrations (behavioral changes, structural rewrites) should be done one at a time with full verification; do not combine them with low-risk mechanical migrations
 - **Forgetting to update documentation and configuration**: after migrating code, update README files, configuration examples, deployment scripts, and developer setup guides that reference deprecated APIs
 - **Not communicating the migration to the team**: other developers may be working on code that uses the deprecated API; coordinate migrations to avoid merge conflicts and duplicated effort
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "The new API is a drop-in replacement, I'll just swap the name" | Replacements routinely change default values, exception behavior, nullability, or thread-safety guarantees; a name swap that ignores the contract introduces a subtle behavioral bug. |
+| "A find-and-replace across the repo is fastest" | Regex replacement edits string literals, comments, and unrelated files; `javax` to `jakarta` done blindly corrupts non-Java content, which is why AST-based rewrites are the safe path. |
+| "Tests pass on the old runtime, so the migration works" | The old runtime still ships the deprecated symbol; only running against the target runtime version proves the replacement actually resolves and behaves identically. |
+| "It's just a deprecation warning, it can wait" | Deprecation is the announced removal schedule; deferring it means the warning becomes a hard compile error on the next major upgrade, blocking that upgrade until the migration is done anyway. |
+
+## Verification
+
+- [ ] Every deprecated call flagged by the compiler/linter has a documented replacement mapping
+- [ ] The test suite passes against the target runtime version, not just the old one
+- [ ] High-risk migrations (behavioral or structural) were done one at a time with separate verification
+- [ ] Behavioral equivalence was confirmed: the replaced API returns the same output for representative inputs
+- [ ] Documentation, config examples, and setup guides referencing the old API were updated
+
+## Related Skills
+
+- [[framework-migration-assistant]] -- coordinates the broader framework upgrade that surfaces these deprecations
+- [[dependency-manager]] -- upgrades the library versions whose deprecation notices this skill resolves
+- [[code-translation]] -- maps source idioms to current equivalents when migrating between libraries
+- [[legacy-modernizer]] -- the incremental strategy for migrating a large deprecated-API surface safely

@@ -2,7 +2,7 @@
 name: pptx-generation
 description: PowerPoint presentation generation expertise for creating, editing, and designing professional slide decks programmatically. Use when building presentation generators, automating report decks, or creating slide templates with consistent branding.
 summary_l0: "Generate professional PowerPoint presentations with slide design, charts, and multi-library support"
-overview_l1: "This skill provides comprehensive expertise in programmatic PowerPoint presentation generation across multiple languages and libraries. Use it when building automated slide deck generators, creating report presentations from data, designing reusable slide templates with consistent branding, adding charts and data visualizations to slides, populating existing templates with dynamic content, or batch-generating presentations from datasets. Key capabilities include library selection and comparison (python-pptx, PptxGenJS, Apache POI, LibreOffice), slide layout design patterns (title slides, content slides, two-column layouts, section dividers), chart and data visualization integration (bar, line, pie, scatter, combo charts), master slide and theme management for brand consistency, template-based generation with placeholder population, batch deck generation from structured data sources, speaker notes and animation configuration, and testing strategies for slide content verification and visual quality assurance. The expected output is production-ready PowerPoint files with professional layouts, consistent branding, accurate data visualizations, and optimized file sizes. Trigger phrases: pptx generation, PowerPoint automation, slide deck generator, presentation builder, python-pptx, PptxGenJS, slide template, chart slides, automated reports, batch presentations, slide layouts, master slides, branding templates."
+overview_l1: "This skill provides comprehensive expertise in programmatic PowerPoint presentation generation across multiple languages and libraries. Use it when building automated slide deck generators, creating report presentations from data, designing reusable slide templates with consistent branding, adding charts and data visualizations to slides, populating existing templates with dynamic content, or batch-generating presentations from datasets. Key capabilities include library selection (python-pptx, PptxGenJS, Apache POI, LibreOffice), slide layout design patterns, chart and data visualization integration (bar, line, pie, scatter, combo charts), master slide and theme management for brand consistency, template-based generation with placeholder population, batch deck generation from structured data, speaker notes and animation configuration, and testing strategies for slide content verification. The expected output is production-ready PowerPoint files with professional layouts, consistent branding, accurate data visualizations, and optimized file sizes. Trigger phrases: pptx generation, PowerPoint automation, slide deck generator, presentation builder, python-pptx, PptxGenJS, slide template, chart slides, batch presentations, master slides."
 ---
 
 # PPTX Generation
@@ -1975,3 +1975,30 @@ def export_slides_as_images(
 - Validate that speaker notes are populated when expected
 - Check that hyperlinks resolve to valid URLs
 - Run generation tests with `tmp_path` fixtures to avoid polluting the working directory
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "I'll position every shape with absolute coordinates, layouts are fiddly" | Hard-coded coordinates break the moment the template theme or slide size changes, and brand consistency drifts slide to slide. Using master-slide placeholders is what keeps a 40-slide deck on-brand. |
+| "The deck looks right when I open it, no need to assert content" | Visual inspection misses the slide whose data field silently rendered empty because the placeholder name changed. Extracting and asserting text content is the only check that scales past a handful of slides. |
+| "Embedding full-resolution images is fine" | Unoptimized images balloon a deck to tens of megabytes that will not email or upload; resizing before embedding keeps the file within budget. |
+| "The chart shows numbers, so the data is correct" | A chart can render with the wrong series mapped to the wrong axis and still look plausible. Re-reading the chart XML and asserting the series values is what catches a swapped column. |
+
+## Verification
+
+- [ ] The generated file opens as a valid PPTX (a ZIP archive with the required OOXML parts)
+- [ ] Slide count matches the expected number of data items
+- [ ] A content-extraction test asserts the expected text appears on each slide (not visual inspection)
+- [ ] Table dimensions (rows, columns) match the input data
+- [ ] Speaker notes are populated where expected and hyperlinks resolve to valid URLs
+- [ ] Output file size stays within budget (images optimized before embedding)
+- [ ] A LibreOffice headless conversion runs in CI for visual regression
+
+## Related Skills
+
+- [[docx-generation]] -- the Word-document counterpart sharing the same library-selection approach
+- [[pdf-document-generation]] -- export the deck to fixed-layout PDF for distribution
+- [[xlsx-generation]] -- generate the source spreadsheets that feed the chart data
+- [[python-expert]] -- Python language patterns for presentation generation backends
+- [[creative-generation]] -- slide content ideation and structured deck direction upstream of generation

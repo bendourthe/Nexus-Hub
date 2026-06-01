@@ -2,7 +2,7 @@
 name: svelte-expert
 description: Deep Svelte 5 and SvelteKit expertise for runes reactivity, component patterns, server-side rendering, form actions, and deployment. Use when building Svelte applications, migrating to Svelte 5 runes, or optimizing SvelteKit projects.
 summary_l0: "Build Svelte apps with runes, SvelteKit routing, server-side rendering, and form actions"
-overview_l1: "This skill provides specialized Svelte 5 and SvelteKit expertise covering runes reactivity ($state, $derived, $effect, $props, $bindable), component composition with snippets, SvelteKit file-based routing, data loading with load functions, form actions with progressive enhancement, state management with shared runes and context, hooks and middleware, error handling, performance optimization with fine-grained reactivity, transitions and animations, prerendering, adapter selection, and testing with Vitest and Playwright. Use it when scaffolding new SvelteKit applications, migrating from Svelte 4 stores to Svelte 5 runes, designing component architectures with snippets and two-way binding, implementing server-side data loading and form mutations, building shared state with rune-based stores and context, configuring hooks for authentication and request modification, optimizing rendering performance and bundle size, writing component tests with @testing-library/svelte, or creating end-to-end tests with Playwright. Key capabilities include runes-based reactivity design, component composition patterns, SvelteKit routing and layout architecture, load function and form action implementation, shared state management, hook and middleware configuration, performance tuning with prerendering and lazy loading, and comprehensive testing strategies. The expected output is a well-structured SvelteKit application with fine-grained reactivity, progressive enhancement, and production-ready deployment configuration. Trigger phrases: svelte, sveltekit, svelte 5, runes, $state, $derived, $effect, $props, svelte component, svelte routing, svelte form actions, svelte load function, svelte store, svelte hooks, svelte transition, svelte animation."
+overview_l1: "This skill provides specialized Svelte 5 and SvelteKit expertise covering runes reactivity ($state, $derived, $effect, $props, $bindable), component composition with snippets, file-based routing, data loading with load functions, form actions with progressive enhancement, shared-rune and context state, hooks, performance tuning, transitions, prerendering, adapter selection, and testing with Vitest and Playwright. Use it when scaffolding SvelteKit apps, migrating from Svelte 4 stores to Svelte 5 runes, designing snippet-based components, implementing server-side data loading and form mutations, building shared rune state, configuring auth hooks, optimizing rendering, or writing component and end-to-end tests. The expected output is a well-structured SvelteKit application with fine-grained reactivity, progressive enhancement, and production-ready deployment. Trigger phrases: svelte, sveltekit, svelte 5, runes, $state, $derived, $effect, $props, svelte component, svelte routing, svelte form actions, svelte load function, svelte store, svelte hooks, svelte transition, svelte animation."
 ---
 
 # Svelte Expert
@@ -1669,7 +1669,15 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 </div>
 ```
 
-## Quality Checklist
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "I will compute the derived value inside an $effect that assigns to $state." | Using $effect to derive state creates an extra render pass and an easy infinite-loop trap when the effect's write feeds its own dependency. $derived computes synchronously without re-running the component; that is what it is for. |
+| "Svelte 4 stores still work, so I will keep using them in this Svelte 5 project." | Mixing store reactivity with runes fragments the reactivity model and forfeits the fine-grained updates Svelte 5 provides. Worse, the two paradigms interact subtly and produce updates that fire in the wrong order. Migrate to $state and shared runes. |
+| "The form posts to a server action, so I do not need to re-validate the input there." | Form actions are public endpoints reachable without `use:enhance`; a direct POST bypasses any client-side checks entirely. Validate with Zod and return `fail()` in the action, or unvalidated data hits your mutation. |
+
+## Verification
 
 - [ ] All reactive state uses $state (not Svelte 4 stores or let-assignment reactivity)
 - [ ] Computed values use $derived, not $effect with assignment
@@ -1689,11 +1697,11 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 
 ## Related Skills
 
-- `react-expert` - React component architecture and hooks (for comparison)
-- `nextjs-expert` - Next.js App Router patterns (SvelteKit equivalent concepts)
-- `typescript-expert` - Advanced TypeScript for typed components and stores
-- `unit-tests` - General unit testing strategies
-- `e2e-testing-automation` - End-to-end testing patterns with Playwright
+- [[react-expert]] - React component architecture and hooks (for comparison)
+- [[nextjs-expert]] - Next.js App Router patterns (SvelteKit equivalent concepts)
+- [[typescript-expert]] - Advanced TypeScript for typed components and stores
+- [[unit-tests]] - General unit testing strategies
+- [[e2e-testing-automation]] - End-to-end testing patterns with Playwright
 
 ---
 

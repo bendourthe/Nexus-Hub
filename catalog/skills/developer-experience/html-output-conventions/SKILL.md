@@ -1,8 +1,8 @@
 ---
 name: html-output-conventions
 description: Decide when a human-facing artifact should be HTML rather than Markdown, and produce it from four self-contained reference templates (grid comparison, annotated diff, interactive tuning, tabbed document)
-summary_l0: "Prefer HTML over Markdown for human-facing artifacts that are read, compared, or interacted with, using four self-contained templates"
-overview_l1: "This skill codifies when the agent should emit an HTML artifact instead of Markdown, and how. HTML wins when an artifact needs tables, SVG, interactive controls, or spatial data, when it runs past roughly 100 lines and becomes hard to scan as Markdown, when it should be shared as a link, or when it should round-trip state back to the agent (copy-as-JSON). Markdown stays the right choice for short notes, README front matter, and commit messages. The skill ships four self-contained reference templates the agent can adapt: a grid comparison layout for N-way comparisons, an annotated diff display with color-coded severity margins for code review, an interactive tuning interface with copy-as-JSON controls, and a tabbed organization layout for long documents. It composes with hallmark-design (which governs whether the chosen HTML actually looks designed rather than AI-generated). Use it on Coding-pillar review surfaces, the session replay timeline, and the operator-actions dashboard. Anti-patterns: ASCII diagrams (use SVG) and defaulting to Markdown when an HTML artifact would actually be read."
+summary_l0: "Decide when an artifact should be HTML over Markdown, using four self-contained templates"
+overview_l1: "This skill codifies when the agent should emit an HTML artifact instead of Markdown, and how. HTML wins when an artifact needs tables, SVG, interactive controls, or spatial data, when it runs past roughly 100 lines, when it should be shared as a link, or when it should round-trip state to the agent (copy-as-JSON). Markdown stays right for short notes, README front matter, and commit messages. The skill ships four self-contained reference templates: a grid comparison layout, an annotated diff display with color-coded severity margins for code review, an interactive tuning interface with copy-as-JSON controls, and a tabbed layout for long documents. It composes with hallmark-design, which governs whether the chosen HTML looks designed rather than AI-generated. Use it on Coding-pillar review surfaces, the session replay timeline, and the operator-actions dashboard. Anti-patterns: ASCII diagrams (use SVG) and defaulting to Markdown when an HTML artifact would actually be read."
 version: 1.0.0
 author: Benjamin Dourthe
 license: MIT
@@ -66,6 +66,15 @@ HTML artifacts that are saved (a review report, an exported timeline, a persiste
 4. If the artifact is persisted, confirm the privacy note above: no secrets embedded, no outbound calls added.
 5. Return the artifact (and, when shared as a file, note the path).
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "Markdown is simpler, I'll just use it for this comparison" | A 4-way comparison rendered as Markdown tables is hard to scan once it passes ~100 lines; the grid comparison template is what makes the data actually readable instead of defaulting to the format that gets skimmed past. |
+| "An ASCII diagram conveys the structure fine" | ASCII diagrams misalign across fonts and break for screen readers; the decision table calls for SVG precisely because the ASCII version is an accessibility and rendering failure. |
+| "I'll pull in a CDN stylesheet to make it look nice" | A non-self-contained artifact breaks when shared offline and can leak an outbound request; the templates are self-contained so the file works as a standalone link with no network call. |
+| "It's just an internal artifact, accessibility can slide" | Color-only severity and missing focus states fail keyboard and screen-reader users on the very review surfaces this skill targets; the templates bake in labels and focus states for that reason. |
+
 ## Verification
 
 - [ ] The HTML-vs-Markdown choice matches the decision table (and Markdown was chosen when appropriate).
@@ -77,7 +86,7 @@ HTML artifacts that are saved (a review report, an exported timeline, a persiste
 
 ## Related Skills
 
-- `hallmark-design` - ensures the chosen HTML looks designed rather than AI-generated; always compose with this skill.
-- `ui-component-generation` - generate a component with a defined contract, then render it inside one of these templates.
-- `frontend-ui-engineering` - page-level architecture when the artifact grows into an app surface.
-- `technical-writer` - when Markdown is the right choice, this skill defers to writing conventions there.
+- [[hallmark-design]] -- ensures the chosen HTML looks designed rather than AI-generated; always compose with this skill.
+- [[ui-component-generation]] -- generate a component with a defined contract, then render it inside one of these templates.
+- [[frontend-ui-engineering]] -- page-level architecture when the artifact grows into an app surface.
+- [[technical-writer]] -- when Markdown is the right choice, this skill defers to writing conventions there.

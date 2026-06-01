@@ -842,3 +842,27 @@ Next steps: [RCA scheduled / fix in progress]
 - **Not communicating during rollback**: An unannounced rollback confuses other team members who may be investigating the same incident. Always announce the rollback decision and its outcome in the incident channel.
 
 - **Deleting the failed version's artifacts**: Keep the failed version's container image, build artifacts, and logs. You will need them for the post-incident review to understand what went wrong.
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "Rollback is just deploying the previous version, no plan needed" | A destructive schema migration or a data-format change cannot be naively reversed; assuming every deploy is rollback-safe is how an incident response makes the outage worse. Classify rollback safety before deploying, not during the incident. |
+| "We'll figure out the rollback when something breaks" | An untested rollback procedure invented under incident pressure fails exactly when it is needed; the procedure must be written and rehearsed in staging before the risky deploy. |
+| "Roll back the database migration, that undoes the change" | Reversing a migration without a fresh backup risks irreversible data loss if the reverse path is wrong; and a forward-only destructive migration has no safe reverse at all, making roll-forward the correct call. |
+| "Roll back the one service that's erroring" | In a multi-service deploy where B depends on A's new API, reverting only B breaks the dependency contract; the full dependency graph determines the rollback sequence. |
+
+## Verification
+
+- [ ] Rollback safety is classified before deploy (immediate, gradual, data-aware, or composite), and roll-forward is chosen where reverse is unsafe.
+- [ ] A fresh backup is taken before any database migration rollback.
+- [ ] The rollback procedure has been tested in staging, not invented during the incident.
+- [ ] Multi-service rollbacks follow the dependency graph; no service is reverted in isolation that breaks a contract.
+- [ ] Post-rollback verification (health checks, error rate, user-facing behavior) is part of the runbook, and the failed version's artifacts are retained.
+
+## Related Skills
+
+- [[cd-pipeline-generator]] -- generates the deployment pipeline whose automated rollback job this strategy drives
+- [[runbook-writer]] -- turns the rollback procedure into the operational runbook responders follow
+- [[incident-postmortem]] -- consumes the retained failed-version artifacts to analyze what went wrong
+- [[sre-engineer]] -- the incident-response and reliability practice this rollback strategy plugs into

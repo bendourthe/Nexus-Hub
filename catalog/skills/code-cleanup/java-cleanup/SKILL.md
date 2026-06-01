@@ -119,9 +119,30 @@ public record User(String name, String email) {}
 - [ ] Checkstyle passes
 - [ ] Tests still pass
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "A for-loop is clearer than a stream here" | A manual loop that accumulates into a mutable list hides the null-handling and filtering logic a stream makes explicit; Optional and stream pipelines remove the NullPointerException paths the loop quietly carried. |
+| "The deprecated method still works, leave it" | A @Deprecated API is flagged for removal in a future JDK; the upgrade that drops it will then break the build at the worst possible moment. Migrate while the deprecation warning still points at the call. |
+| "Checkstyle failures are just formatting, I'll skip them" | Checkstyle and PMD catch real defects (empty catch blocks, unused assignments, missing equals/hashCode), not only style. A green build with PMD warnings is shipping known latent bugs. |
+| "I'll catch Exception broadly to be safe" | A broad catch swallows the InterruptedException and the programming error you needed to see, turning a crash into silent data corruption. Catch the specific exception and rethrow or log the rest. |
+
+## Verification
+
+- [ ] Checkstyle passes: `mvn checkstyle:check` succeeds
+- [ ] PMD passes: `mvn pmd:check` reports no violations
+- [ ] SpotBugs passes: `mvn spotbugs:check` reports no bugs
+- [ ] All deprecated API call sites flagged by the compiler have been migrated
+- [ ] No empty or overly broad catch blocks remain; exceptions are handled or rethrown specifically
+- [ ] All existing tests pass: `mvn test`
+
 ## Related Skills
 
-- `code-review-quality` - Code quality assessment
+- [[code-quality]] -- score the cleaned codebase against SOLID and complexity metrics
+- [[security-review]] -- security analysis for deserialization and input-handling paths
+- [[java-expert]] -- idiomatic modern Java (streams, Optional, records) this cleanup applies
+- [[deprecated-api-updater]] -- systematic migration of the deprecated Java API calls this skill flags
 
 ---
 

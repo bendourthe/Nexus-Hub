@@ -175,7 +175,7 @@ Items classified as `drop-outright` in Step 5 belong in the NOT-recommended list
 - **Flag new dependencies**: Any adoption item that introduces a new tool, library, or runtime dependency deserves extra scrutiny.
 - **Cite evidence**: Every claim must reference specific file paths (for projects) or article sections (for articles). "The article recommends better testing" is not actionable. "The article recommends property-based testing using Hypothesis (Section 3), and the current project has no property-based tests" is actionable.
 
-## Quality Checklist
+## Verification
 
 - [ ] The source type was correctly identified and the appropriate analysis strategy was applied
 - [ ] For project sources: every comparison dimension has been evaluated for both projects
@@ -197,3 +197,18 @@ This skill is optimized for an iterative approach:
 2. **Review**: Critically analyze the output (coverage, quality, completeness).
 3. **Refine**: If targets are not met, repeat the specific implementation steps with improved context.
 4. **Loop**: Continue until the definition of done is satisfied.
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "The other project does it better, so we should adopt everything" | Adopting everything imports ongoing maintenance cost for patterns that may not fit; recommend only items where the benefit clearly exceeds the maintenance burden, with the rest moved to NOT-recommended. |
+| "The article clearly recommends better testing, that is the gap" | Vague claims like "better testing" are not actionable; a gap must cite the specific technique and the specific absence (e.g., "property-based testing via Hypothesis, Section 3; current project has none"). |
+| "It is an internal comparison, the security assessment can be skipped" | Skipping Step 5 lets an adoption item smuggle in an outbound call, a new API key, or a new data processor unreviewed; the MCP Registry Policy must be cited for every such item. |
+
+## Related Skills
+
+- [[architecture-design]] -- frames the trade-off analysis when an adoption item changes structure
+- [[technical-debt-analyzer]] -- quantifies the cost side of the value/effort matrix this skill builds
+- [[dependency-manager]] -- evaluate any new tool or library an adoption item introduces before recommending it
+- [[security-review]] -- deepen the Step 5 security assessment for items that add outbound calls or new dependencies

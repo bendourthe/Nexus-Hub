@@ -431,7 +431,15 @@ results = pipeline.process_batch(data_list)
 ```
 ```
 
-## Quality Checklist
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "The architecture is in my head and the code; a written doc is redundant." | The code shows the current state, not why it was chosen over the alternatives. A new engineer (or you in six months) cannot tell a deliberate tradeoff from an accident without the doc, and re-litigates settled decisions. |
+| "I will draw the architecture diagram once in a drawing tool." | A static image diverges from the system the moment a component moves and nobody updates the binary file. Diagram-as-code (Mermaid, PlantUML) lives in the repo and is reviewed with the change, so it stays current. |
+| "We made the decision; recording an ADR is bureaucratic overhead." | An undocumented decision gets reversed by someone who never knew the constraints behind it, then reverted again when the original reason resurfaces. The ADR's context and consequences sections are what stop that loop. |
+
+## Verification
 
 - [ ] Architecture overview complete
 - [ ] All components documented
@@ -457,9 +465,10 @@ results = pipeline.process_batch(data_list)
 
 ## Related Skills
 
-- `user-documentation` - User guides
-- `api-documentation` - API reference
-- `code-quality` - Code quality review
+- [[user-documentation]] - User guides
+- [[api-documentation]] - API reference
+- [[code-quality]] - Code quality review
+- [[architecture-decision-record]] - Author individual ADRs for key decisions
 
 ---
 

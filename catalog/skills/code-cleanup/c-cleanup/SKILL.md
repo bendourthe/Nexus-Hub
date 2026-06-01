@@ -498,10 +498,30 @@ if (a > INT_MAX - b) {
 int result = a + b;
 ```
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "The build compiles, so the memory handling is fine" | A clean compile says nothing about leaks or use-after-free; Valgrind routinely finds leaks in code that builds with zero warnings. Run `valgrind --leak-check=full` before declaring the cleanup done. |
+| "This malloc never fails in practice, skip the NULL check" | An unchecked malloc that returns NULL on a low-memory device dereferences a null pointer and crashes the firmware in the field, not on the bench. Every malloc gets a NULL check, no exceptions. |
+| "strcpy is fine here, the input is always short" | "Always short" is the assumption every buffer-overflow CVE was built on; a longer input than expected silently corrupts the stack. Use strncpy/snprintf with an explicit size bound. |
+| "MISRA single-exit is just style, multiple returns are cleaner" | Early returns in C leak the resources allocated before them because there is no destructor; the single-exit pattern with cleanup labels is what guarantees every malloc has a matching free on every path. |
+
+## Verification
+
+- [ ] Static analysis is clean: `cppcheck --enable=all --inconclusive .` reports no new issues
+- [ ] Memory is clean: `valgrind --leak-check=full --show-leak-kinds=all ./program` reports no leaks or invalid accesses
+- [ ] The build is warning-free: `gcc -Wall -Wextra -Wpedantic -Werror *.c` succeeds
+- [ ] Every malloc/calloc has a NULL check and a matching free on every return path
+- [ ] No unchecked strcpy/sprintf remain; all string copies are size-bounded
+- [ ] All existing tests pass after the cleanup
+
 ## Related Skills
 
-- `code-review-security` - Security analysis
-- `code-review-quality` - Code quality assessment
+- [[security-review]] -- security analysis for the memory-safety and format-string issues this skill surfaces
+- [[code-quality]] -- score the cleaned codebase against SOLID and complexity metrics
+- [[cpp-cleanup]] -- the C++ counterpart for RAII-based resource management when the project moves to C++
+- [[dead-code-eliminator]] -- deeper call-graph analysis for removing unused functions and unreachable code
 
 ---
 

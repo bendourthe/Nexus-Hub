@@ -854,3 +854,28 @@ class TestPaginateResultsCombinations:
 - **Neglecting cleanup in edge case tests**: Edge cases that allocate large resources (100k-element lists, temporary files) must clean up to avoid test suite resource exhaustion
 - **Copy-pasting boundary values incorrectly**: When porting edge case tests between languages, numeric limits differ (JavaScript `Number.MAX_SAFE_INTEGER` is not the same as Java `Integer.MAX_VALUE`)
 - **Assuming defensive code exists**: Edge case tests should verify that the code handles the edge, not assume it does; if the code lacks validation, the test exposes the gap
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "The happy-path tests pass, so the function works." | A `paginate_results` call with `page=0` or an empty list takes an entirely different code path; the off-by-one and empty-collection defects ship precisely because no happy-path test exercises the boundary. |
+| "Null and empty inputs would never reach this function in production." | Untrusted callers, deserialization, and upstream refactors routinely deliver null/empty values; a function that throws an opaque `IndexError` on empty input becomes a production incident, not a caught error. |
+| "Unicode edge cases are over-engineering for a name field." | A null character, RTL override, or surrogate pair in a name field is a real injection and rendering vector; skipping these tests leaves the normalization gap that security review will flag. |
+| "Testing every boundary combination is impractical, so I will skip them." | The point of boundary value analysis and pairwise partitioning is to cover high-value edges without combinatorial blowup; skipping them entirely is not the same as choosing them wisely. |
+
+## Verification
+
+- [ ] Each parameter has tests at minimum, minimum-minus-one, maximum, and maximum-plus-one boundaries.
+- [ ] Empty, null/undefined, and single-element inputs are covered for every collection or string parameter.
+- [ ] Each edge-case test asserts the specific expected value or exception type, not merely non-null.
+- [ ] Special values relevant to the parameter type (NaN, Infinity, MAX_INT, surrogate pairs) are exercised.
+- [ ] All edge-case tests pass and clean up any large allocations they create (`pytest -q` or equivalent exits 0).
+
+## Related Skills
+
+- [[property-based-test-generator]] -- discovers edge cases automatically that this skill enumerates by hand
+- [[fuzzing-input-generator]] -- explores adversarial inputs beyond the curated special-value catalogue here
+- [[directed-test-input-generator]] -- crafts inputs to reach specific branches these edge cases may not cover
+- [[unit-tests]] -- holds the edge-case tests alongside the happy-path unit tests
+- [[code-coverage]] -- confirms the boundary and error paths these tests exercise are actually covered

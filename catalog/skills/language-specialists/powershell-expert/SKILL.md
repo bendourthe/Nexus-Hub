@@ -634,7 +634,16 @@ function Get-AppConfig {
 }
 ```
 
-## Quality Checklist
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "I'll return a formatted string, it reads better" | A function that emits `Write-Host` text instead of an object cannot be piped, filtered, or `Select-Object`-ed by the caller, so it dead-ends every downstream automation. |
+| "`-ErrorAction SilentlyContinue` keeps the script moving" | Silencing errors lets the script proceed on a failed `Remove-Item` or `Copy-Item` and report success while the side effect never happened. |
+| "This destructive function doesn't need `SupportsShouldProcess`" | Without `-WhatIf`/`-Confirm` support, a caller has no dry-run, so the first time they discover the function deletes the wrong path is in production. |
+| "Aliases like `?` and `%` are fine in scripts" | Aliases are not guaranteed across hosts or future versions; a script using `gci`/`%` can break on a locked-down endpoint where `Get-ChildItem`/`ForEach-Object` always work. |
+
+## Verification
 
 - [ ] All functions use `[CmdletBinding()]`
 - [ ] Parameters have appropriate `[Validate*]` attributes
@@ -649,10 +658,10 @@ function Get-AppConfig {
 
 ## Related Skills
 
-- `cicd-architect` - PowerShell in CI/CD pipelines
-- `code-quality` - PowerShell code standards and PSScriptAnalyzer
-- `csharp-expert` - Deep .NET integration from PowerShell
-- `kubernetes-expert` - PowerShell for AKS and container management
+- [[cicd-architect]] -- PowerShell in CI/CD pipelines
+- [[code-quality]] -- PowerShell code standards and PSScriptAnalyzer
+- [[csharp-expert]] -- deep .NET integration from PowerShell
+- [[kubernetes-expert]] -- PowerShell for AKS and container management
 
 ---
 

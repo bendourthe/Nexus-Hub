@@ -168,10 +168,30 @@ function processUser(user: User): string {
 - [ ] Formatting consistent
 - [ ] Tests still pass
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "var works the same as let, no need to change it" | var is function-scoped and hoisted, so the loop variable captured in a closure leaks the last value, not the per-iteration one. Converting to let/const fixes a class of closure bugs the old syntax invited. |
+| "I'll silence this ESLint rule with eslint-disable" | A blanket disable hides the no-unused-vars and no-floating-promises rules that catch real defects; the unhandled promise rejection it suppresses crashes the process later. Fix the cause, do not disable the rule. |
+| "Callbacks are fine, async/await is just sugar" | Nested callbacks drop errors silently when a handler forgets to check the err argument; async/await with try/catch routes every rejection through one path the linter can verify. |
+| "tsc reports type errors but it still runs" | A type error is a runtime bug the compiler already found for you; shipping with `tsc --noEmit` failures means trusting that the wrong type never reaches that line, which it eventually does. |
+
+## Verification
+
+- [ ] ESLint is clean: `npx eslint . --ext .js,.ts,.tsx` reports no errors
+- [ ] Type-check passes: `npx tsc --noEmit` reports no errors
+- [ ] Formatting is consistent: `npx prettier --check "src/**/*.{js,ts,tsx}"` succeeds
+- [ ] No `var` declarations remain; all are `let` or `const`
+- [ ] No remaining `eslint-disable` comments without a justifying inline reason
+- [ ] All existing tests pass: `npm test`
+
 ## Related Skills
 
-- `code-review-quality` - Code quality assessment
-- `generate-docstrings` - Add JSDoc documentation
+- [[code-quality]] -- score the cleaned codebase against SOLID and complexity metrics
+- [[docstrings]] -- add JSDoc documentation to the modernized functions
+- [[javascript-expert]] -- idiomatic modern JavaScript patterns this cleanup applies
+- [[typescript-expert]] -- type-safe patterns for the JavaScript-to-TypeScript conversion path
 
 ---
 

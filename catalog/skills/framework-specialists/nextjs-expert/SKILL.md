@@ -2,7 +2,7 @@
 name: nextjs-expert
 description: Deep Next.js expertise for App Router, Server Components, data fetching, middleware, and deployment. Use when building Next.js applications, migrating to App Router, or optimizing SSR/SSG.
 summary_l0: "Build Next.js apps with App Router, Server Components, and data fetching patterns"
-overview_l1: "This skill provides specialized Next.js expertise covering App Router architecture, Server and Client Components, data fetching with caching and revalidation, middleware, route handlers, authentication, optimization, streaming, and deployment. Use it when scaffolding new Next.js applications, migrating from Pages Router to App Router, designing layouts and error handling, implementing Server and Client Components, building data fetching pipelines with caching, writing server actions, creating middleware for auth and redirects, configuring ISR, streaming, and parallel routes, deploying to Vercel or Docker, or optimizing Core Web Vitals. Key capabilities include App Router architecture design, Server/Client Component selection, data fetching with revalidation strategies, server action implementation, middleware chain design, ISR and streaming configuration, and production deployment optimization. The expected output is a well-structured Next.js application with proper rendering strategies, caching, and deployment configuration. Trigger phrases: nextjs, next.js, app router, server component, server action, next middleware, next deployment, next.js routing, pages to app router, next.js caching, ISR, next image."
+overview_l1: "This skill provides specialized Next.js expertise covering App Router architecture, Server and Client Components, data fetching with caching and revalidation, middleware, route handlers, authentication, optimization, streaming, and deployment. Use it when scaffolding Next.js apps, migrating from Pages Router to App Router, designing layouts and error handling, building data fetching pipelines with caching, writing server actions, creating middleware for auth and redirects, configuring ISR, streaming, and parallel routes, deploying to Vercel or Docker, or optimizing Core Web Vitals. Key capabilities include App Router architecture design, Server/Client Component selection, data fetching with revalidation strategies, server action implementation, middleware chain design, ISR and streaming configuration, and production deployment optimization. The expected output is a well-structured Next.js application with proper rendering strategies, caching, and deployment configuration. Trigger phrases: nextjs, next.js, app router, server component, server action, next middleware, next deployment, next.js routing, pages to app router, next.js caching, ISR, next image."
 ---
 
 # Next.js Expert
@@ -792,7 +792,15 @@ async function RecentReviews() {
 }
 ```
 
-## Quality Checklist
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "I will add `"use client"` to the page so I can use a hook quickly." | Marking a route's top-level component as a Client Component opts its entire subtree out of server rendering, ballooning the JS bundle and losing the data-fetching benefits of Server Components. Push `"use client"` down to the smallest interactive leaf instead. |
+| "fetch caches sensibly by default; I do not need to set a caching strategy." | Caching defaults shift between Next.js versions and silently serve stale data (or refetch on every request) when left implicit. An explicit `cache` / `revalidate` option is the only way to know what the user actually sees. |
+| "Server actions run on the server, so the input is already trusted." | A server action is a public POST endpoint; a crafted request can call it with any payload. Without Zod (or equivalent) validation, that unvalidated input reaches your database the same as any other injection vector. |
+
+## Verification
 
 - [ ] Root layout defines `<html>` and `<body>` with lang attribute
 - [ ] Every route segment with slow data has a `loading.tsx`
@@ -814,11 +822,11 @@ async function RecentReviews() {
 
 ## Related Skills
 
-- `react-expert` - React component architecture, hooks, and testing patterns
-- `javascript-cleanup` - JavaScript code quality and refactoring
-- `performance-review` - Performance analysis methodology
-- `kubernetes-expert` - Container orchestration for self-hosted deployments
-- `cicd-architect` - CI/CD pipeline design for Next.js builds
+- [[react-expert]] - React component architecture, hooks, and testing patterns
+- [[javascript-cleanup]] - JavaScript code quality and refactoring
+- [[performance-review]] - Performance analysis methodology
+- [[kubernetes-expert]] - Container orchestration for self-hosted deployments
+- [[cicd-architect]] - CI/CD pipeline design for Next.js builds
 
 ---
 

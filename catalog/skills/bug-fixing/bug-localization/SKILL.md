@@ -2,7 +2,7 @@
 name: bug-localization
 description: Pinpoint bug locations using stack traces, error logs, code flow analysis, spectrum-based fault localization, and bisection techniques. Use when debugging failures, analyzing stack traces, tracing error origins, or narrowing down faulty code regions.
 summary_l0: "Pinpoint bug locations using stack traces, log correlation, and fault localization"
-overview_l1: "This skill systematically pinpoints the exact location of bugs in a codebase using stack trace analysis, error log correlation, code flow tracing, spectrum-based fault localization, and bisection techniques. Use it when determining which file, class, or function contains a bug, analyzing stack traces to find the true origin of an exception, correlating multiple log entries to identify behavioral divergence, applying statistical fault localization (Tarantula, Ochiai) to test results, using git bisect to narrow down the offending commit, tracing data flow to find where values become incorrect, or identifying root causes when errors manifest far from their origin. Key capabilities include bottom-up and top-down stack trace reading, log timeline reconstruction, SBFL suspiciousness scoring, delta debugging, and code flow invariant checking. The expected output is a precise fault location report with file, line, and root cause explanation. Trigger phrases: find the bug, localize the fault, where is the bug, trace the error, analyze stack trace, narrow down the issue, which commit broke, bisect the failure, fault localization."
+overview_l1: "This skill systematically pinpoints the exact location of bugs in a codebase using stack trace analysis, error log correlation, code flow tracing, spectrum-based fault localization, and bisection techniques. Use it when determining which file or function contains a bug, analyzing stack traces to find the true origin of an exception, correlating log entries to identify behavioral divergence, applying statistical fault localization (Tarantula, Ochiai) to test results, using git bisect to narrow down the offending commit, or tracing data flow to where values become incorrect. Key capabilities include bottom-up and top-down stack trace reading, log timeline reconstruction, SBFL suspiciousness scoring, delta debugging, and code flow invariant checking. The expected output is a precise fault location report with file, line, and root cause explanation. Trigger phrases: find the bug, localize the fault, where is the bug, trace the error, analyze stack trace, which commit broke, bisect the failure, fault localization."
 ---
 
 # Bug Localization
@@ -800,3 +800,11 @@ def delta_debug(changes: list, test_fn) -> list:
 - [ ] At least two localization techniques applied (e.g., stack trace + log correlation, or SBFL + bisect) and results cross-checked
 - [ ] Fault location documented with exact file, line, and root cause explanation (not just symptom description)
 - [ ] Reproduction test added or identified that fails at the fault location and passes after the fix
+
+## Related Skills
+
+- [[bug-reproduction-test-generator]] -- builds the deterministic reproduction this skill requires before localizing
+- [[bug-to-patch-generator]] -- consumes the localized fault location to generate a targeted fix
+- [[regression-root-cause-analyzer]] -- takes over when bisect points to a regression-introducing commit
+- [[git-bisect-assistant]] -- automates the bisection technique in Step 5
+- [[debug-with-logs]] -- adds strategic logging to support the log-correlation technique in Step 3

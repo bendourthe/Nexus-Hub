@@ -375,12 +375,28 @@ rpi/{feature-slug}/
 - **Delete or archive RPI folders** after the feature is merged to avoid stale artifacts accumulating
 - **Reference artifact file paths** in commit messages and PR descriptions so reviewers can trace the decision history
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "This task is simple enough to skip the research phase" | The research phase is where hidden complexity surfaces; skipping it on a "simple" task is how a one-line change turns into a migration nobody planned for. |
+| "I will fill in IMPLEMENT.md after I finish coding" | Reconstructing the execution log retroactively loses the deviations as they happened; updating it in real time is what catches a drift from PLAN.md before it compounds. |
+| "Research says NO-GO but I have already started, so I will push through" | A NO-GO recommendation is a valid, valuable outcome; overriding it to avoid sunk-cost loss is exactly how the workflow fails to prevent wasted effort. |
+
+## Verification
+
+- [ ] The RPI folder exists with all six artifacts (REQUEST.md, RESEARCH.md, PLAN.md, IMPLEMENT.md, VERIFY.md, and at least one perspective doc)
+- [ ] VERIFY.md maps every acceptance criterion from REQUEST.md to a Yes/No with evidence (test name or manual check)
+- [ ] All tests pass and there are no lint errors: `<the project test and lint commands>`
+- [ ] No TODO items remain in the changed code
+- [ ] VERIFY.md records a PASS / FAIL verdict, and a FAIL blocks completion
+
 ## Related Skills
 
-- `plan-before-code` - Lighter-weight planning for simpler tasks
-- `workflow-orchestrator` - General multi-phase workflow patterns
-- `task-coordinator` - Breaking tasks into coordinated subtasks
-- `quality-gate-definitions` - Reusable gate criteria for each phase transition
+- [[plan-before-code]] -- lighter-weight planning for simpler tasks that do not need the full RPI workflow
+- [[workflow-orchestrator]] -- general multi-phase workflow patterns this skill specializes
+- [[task-coordinator]] -- breaking the planned work into coordinated subtasks
+- [[quality-gate-definitions]] -- reusable gate criteria for each phase transition's GO/NO-GO
 
 ---
 

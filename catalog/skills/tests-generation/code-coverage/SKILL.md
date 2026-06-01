@@ -497,11 +497,30 @@ func TestUserService_CreateUser(t *testing.T) {
 - [ ] CI/CD threshold enforced
 - [ ] Reports generated and accessible
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "We hit 80% line coverage, so the code is well tested." | Line coverage counts lines executed, not assertions made; a test that calls `create_user` without asserting on the result lights up every line yet verifies nothing. |
+| "Branch coverage is too strict; line coverage is enough." | The uncovered `else` of a feature flag is exactly where bugs hide; line coverage marks that function green while the disabled-path behavior is never exercised. |
+| "These config and DTO files drag the number down, so I will exclude them." | Excluding files to inflate the percentage hides genuinely untested logic; only exclude generated code and trivial accessors, and record why in the coverage config. |
+| "I will chase the last few percent by testing getters and `__repr__`." | Coverage-padding tests on trivial accessors add maintenance cost without catching defects; spend that effort on uncovered branches in core business logic instead. |
+
+## Verification
+
+- [ ] A coverage report is generated and accessible (HTML or XML at the documented path).
+- [ ] Overall line coverage meets or exceeds the documented threshold (e.g. 80%).
+- [ ] Branch coverage is measured, not just line coverage (`branch = true` or equivalent set).
+- [ ] Critical business-logic modules meet their stricter per-module threshold.
+- [ ] The CI pipeline fails the build when coverage drops below the threshold (`--cov-fail-under` or equivalent gate is active).
+
 ## Related Skills
 
-- `unit-tests` - Unit testing (Phase 2)
-- `mutation-testing` - Test quality validation (Phase 8)
-- `cicd-integration` - CI/CD setup (Phase 6)
+- [[unit-tests]] -- writes the tests that fill the gaps this coverage analysis exposes (Phase 2)
+- [[mutation-testing]] -- validates that the covered lines have meaningful assertions, not just execution (Phase 8)
+- [[cicd-integration]] -- enforces the coverage threshold as a pipeline quality gate (Phase 6)
+- [[code-quality]] -- complements coverage with structural quality metrics on the same code
+- [[dead-code-eliminator]] -- removes the unreachable code that coverage gaps frequently reveal
 
 ---
 

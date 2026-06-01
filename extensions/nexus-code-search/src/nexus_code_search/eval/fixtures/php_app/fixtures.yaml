@@ -1,0 +1,18 @@
+name: php_app
+description: PHP namespace - exercises class/method/function/const/property extraction and an in-file function call.
+questions:
+  - tool: code_search
+    query: Greeter
+    expect: [Greeter]
+  - tool: code_search
+    query: announce
+    expect: [announce]
+  - tool: code_search
+    query: greet
+    expect: [greet]
+  - tool: code_search
+    query: MAX
+    expect: [MAX]
+  - tool: code_callees
+    symbol: announce
+    expect_callees: [greet]

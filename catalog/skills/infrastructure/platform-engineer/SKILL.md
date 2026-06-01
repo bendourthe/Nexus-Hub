@@ -1275,13 +1275,30 @@ Push to main -> Build + test -> Deploy to staging (rolling)
 - [ ] Platform SLOs are defined, measured, and reviewed monthly
 - [ ] Developer onboarding documentation is current and tested quarterly
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "We'll build the platform and teams will adopt it because it's mandated" | A platform with no measured adoption becomes shelfware that teams route around; treating the platform as a product (with DevEx metrics and an opt-in golden path that is genuinely faster) is what drives real usage. |
+| "Self-service means giving teams raw Terraform and cloud credentials" | Raw access without paved-road guardrails recreates the inconsistency the platform was meant to remove and hands every team root-level blast radius; golden paths and policy-as-code constrain the self-service surface. |
+| "One golden path can cover every team's workflow" | A single rigid path forces teams with legitimately different needs off the platform entirely; golden paths must cover the common case while leaving a documented escape hatch for the exceptions. |
+| "Governance can be a wiki page of guidelines" | Guidelines that are not enforced as policy-as-code drift the moment they are inconvenient; the enforcement (OPA, admission control, pipeline gates) is what makes governance real rather than aspirational. |
+
+## Verification
+
+- [ ] The platform exposes a self-service interface (portal or API), not raw cloud credentials handed to teams.
+- [ ] At least one golden path is documented with a defined escape hatch for teams whose needs differ.
+- [ ] Adoption and DevEx are measured (DORA metrics or equivalent), not assumed from a mandate.
+- [ ] Governance rules are enforced as policy-as-code in the provisioning or pipeline path, not only documented.
+- [ ] Secrets are managed through a dedicated system (Vault, external-secrets-operator), not embedded in templates.
+
 ## Related Skills
 
-- `cloud-architect` - Cloud infrastructure design and Well-Architected Framework
-- `terraform-specialist` - Deep Terraform module development and state management
-- `kubernetes-expert` - Container orchestration and cluster operations
-- `cicd-architect` - Advanced CI/CD pipeline design and optimization
-- `security-review` - Security assessment and threat modeling
+- [[cloud-architect]] -- cloud infrastructure design and Well-Architected Framework
+- [[terraform-specialist]] -- deep Terraform module development and state management
+- [[kubernetes-expert]] -- container orchestration and cluster operations
+- [[cicd-architect]] -- advanced CI/CD pipeline design and optimization
+- [[security-review]] -- security assessment and threat modeling
 
 ---
 

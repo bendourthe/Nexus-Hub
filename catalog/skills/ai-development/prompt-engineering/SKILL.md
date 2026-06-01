@@ -1115,10 +1115,10 @@ def dynamic_few_shot(
 
 ## Related Skills
 
-- `ai-agent-development` - Building agents that rely on well-designed prompts
-- `rag-implementation` - Constructing prompts with retrieved context
-- `tool-design` - Writing tool descriptions (a specialized form of prompting)
-- `ai-output-evaluation` - Evaluating and scoring LLM outputs
+- [[ai-agent-development]] -- building agents that rely on well-designed prompts
+- [[rag-implementation]] -- constructing prompts with retrieved context
+- [[tool-design]] -- writing tool descriptions (a specialized form of prompting)
+- [[ai-output-evaluation]] -- evaluating and scoring LLM outputs
 
 ---
 

@@ -484,7 +484,16 @@ let door = door.unlock();
 door.open();  // OK
 ```
 
-## Quality Checklist
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "`unwrap()` is fine, this `Option` is always `Some`" | The one input that makes it `None` (an empty file, a missing env var) panics the thread and aborts the request instead of returning a recoverable `Err`. |
+| "This `unsafe` block is obviously correct" | Undocumented `unsafe` hides the invariant the caller must uphold; the next maintainer changes a length or pointer and introduces UB the compiler can no longer catch. |
+| "Clippy warnings are just style nits" | Clippy lints like `clippy::await_holding_lock` flag real deadlock and correctness bugs, not formatting; suppressing them ships the bug. |
+| "I'll handle the error later with `let _ =`" | Discarding a `Result` from a write or flush drops the error, so a partial write looks like success and the corruption is found only by the user. |
+
+## Verification
 
 - [ ] No unwrap() in production code
 - [ ] All Results handled properly
@@ -497,10 +506,10 @@ door.open();  // OK
 
 ## Related Skills
 
-- `performance-testing` - Benchmarking Rust code
-- `security-review` - Unsafe code review
-- `cicd-architect` - Rust CI/CD pipelines
-- `code-quality` - Rust code standards
+- [[performance-testing]] -- benchmarking Rust code
+- [[security-review]] -- reviewing unsafe blocks for soundness
+- [[cicd-architect]] -- Rust CI/CD pipelines
+- [[code-quality]] -- Rust code-standard scoring
 
 ---
 

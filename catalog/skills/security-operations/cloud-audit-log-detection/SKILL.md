@@ -29,7 +29,7 @@ Detect malicious activity in cloud control-plane audit logs across AWS, Azure, a
 
 ## Instructions
 
-Framework mappings are documented in [references/standards.md](references/standards.md).
+Framework mappings are documented in [references/standards.md](references/standards.md). Vendor-native query examples per cloud (AWS CloudTrail, Azure Activity and Entra KQL, and GCP Audit Logs) are in [references/query-examples.md](references/query-examples.md).
 
 ### 1. Confirm log coverage and integrity
 

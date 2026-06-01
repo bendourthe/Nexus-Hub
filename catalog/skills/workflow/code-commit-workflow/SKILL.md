@@ -467,9 +467,9 @@ git commit -m "test: add auth integration tests"
 
 ## Related Skills
 
-- `pre-commit-checklist` - Pre-commit validation
-- `security-review` - Security checks before commit
-- `code-quality` - Code quality standards
+- [[pre-commit-checklist]] -- runs the lint/secret/test gate before this skill stages and commits
+- [[security-review]] -- security checks to clear before a commit touches sensitive code paths
+- [[code-quality]] -- the quality standards a commit should already satisfy before it is recorded
 
 ---
 

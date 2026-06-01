@@ -228,8 +228,8 @@ If any checklist item is false, the ADR is not yet ready for Accepted status. It
 
 ## Related Skills
 
-- `architecture-design` -- the broader architecture design work that an ADR records one decision within. Use `architecture-design` when designing the overall system; use this skill when recording a single decision within that design.
-- `technical-documentation` -- general design specs, architecture overviews, and reference docs. An ADR is one document type within the broader technical-documentation practice; use that skill for everything that is not strictly one-decision-per-document.
-- `api-design` -- designing a specific API contract once the architectural policy is set. ADRs record the cross-cutting policy ("we use cursor pagination"); `api-design` applies the policy to a specific endpoint.
-- `ddd-strategic-design` -- bounded contexts, aggregates, and domain events. Strategic DDD decisions are exactly the kind of architecturally-significant choice that warrants an ADR. Use the two skills together: `ddd-strategic-design` to do the work, this skill to record it.
-- `component-boundary-identifier` -- module boundary analysis. The "where do we split this monolith" decision is an ADR-worthy choice; use this skill to record it once the boundary analysis is done.
+- [[architecture-design]] -- the broader architecture design work that an ADR records one decision within. Use it when designing the overall system; use this skill when recording a single decision within that design.
+- [[technical-documentation]] -- general design specs, architecture overviews, and reference docs. An ADR is one document type within the broader technical-documentation practice; use that skill for everything that is not strictly one-decision-per-document.
+- [[api-design]] -- designing a specific API contract once the architectural policy is set. ADRs record the cross-cutting policy ("we use cursor pagination"); api-design applies the policy to a specific endpoint.
+- [[ddd-strategic-design]] -- bounded contexts, aggregates, and domain events. Strategic DDD decisions are exactly the kind of architecturally-significant choice that warrants an ADR. Use the two skills together: ddd-strategic-design to do the work, this skill to record it.
+- [[component-boundary-identifier]] -- module boundary analysis. The "where do we split this monolith" decision is an ADR-worthy choice; use this skill to record it once the boundary analysis is done.

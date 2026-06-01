@@ -532,7 +532,15 @@ When coordinating error recovery, invoke related skills at appropriate phases:
 | Result Reconciliation | `context-manager`, `code-quality` |
 | Post-Failure Review | `technical-documentation` |
 
-## Quality Checklist
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "Just retry the failed agent; the error was probably transient." | Retrying without classifying the failure re-runs a deterministic bug forever and burns tokens. The taxonomy step exists so a non-retryable error (bad input, missing permission) gets re-delegated or escalated instead of looped. |
+| "Each agent failure is independent; I will fix them one at a time." | Parallel agents that fail together usually share a root cause (a bad shared fixture, a broken upstream output). Fixing them individually masks the common cause and the next batch fails the same way. Correlate before you recover. |
+| "The downstream tasks can keep running while I fix this one." | An error that feeds a dependent task cascades; letting downstream work continue on a poisoned input multiplies the cleanup. Pause or cancel dependents first, then recover. |
+
+## Verification
 
 - [ ] Every error classified by taxonomy category and severity level
 - [ ] Cross-agent correlations checked before individual recovery
@@ -544,11 +552,11 @@ When coordinating error recovery, invoke related skills at appropriate phases:
 
 ## Related Skills
 
-- `task-coordinator` - Task decomposition and multi-agent handoff protocols
-- `context-manager` - Managing information across tasks and agent contexts
-- `plan-before-code` - Upfront planning to reduce error likelihood
+- [[task-coordinator]] - Task decomposition and multi-agent handoff protocols
+- [[context-manager]] - Managing information across tasks and agent contexts
+- [[plan-before-code]] - Upfront planning to reduce error likelihood
 - `debugging` - Root cause analysis techniques for individual errors
-- `code-quality` - Quality standards that prevent common failure modes
+- [[code-quality]] - Quality standards that prevent common failure modes
 
 ---
 

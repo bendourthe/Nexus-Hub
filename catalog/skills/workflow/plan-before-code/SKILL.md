@@ -344,9 +344,9 @@ The planning step takes 5-10 minutes but saves 30-60 minutes of iteration and de
 
 ## Related Skills
 
-- `test-driven-development` - Plan includes tests-first approach
-- `code-quality` - Review plan before implementation
-- `context-analysis` - Deep codebase exploration
+- [[test-driven-development]] -- the plan should include a tests-first approach this skill sequences
+- [[code-quality]] -- review the plan against quality standards before implementation begins
+- [[context-analysis]] -- deep codebase exploration that feeds the planning phase
 
 ---
 

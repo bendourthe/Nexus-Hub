@@ -970,11 +970,11 @@ HTTP/1.1 207 Multi-Status
 
 ## Related Skills
 
-- `architecture-design` - System-level architecture that APIs expose
-- `ddd-strategic-design` - Published language and open host service patterns
-- `api-documentation` - Generating and maintaining API reference docs
-- `security-review` - Authentication, authorization, and API security audit
-- `performance-review` - API latency optimization and caching strategies
+- [[architecture-design]] -- system-level architecture that APIs expose
+- [[ddd-strategic-design]] -- published language and open host service patterns
+- [[api-documentation]] -- generating and maintaining API reference docs
+- [[security-review]] -- authentication, authorization, and API security audit
+- [[performance-review]] -- API latency optimization and caching strategies
 
 ---
 

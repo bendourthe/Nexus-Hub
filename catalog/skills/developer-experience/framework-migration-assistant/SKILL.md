@@ -2,7 +2,7 @@
 name: framework-migration-assistant
 description: Guide framework and library migrations (Express to Fastify, Angular to React, Spring MVC to Spring Boot, Django to FastAPI) with migration assessment, dependency mapping, API translation, incremental strategies, and coexistence patterns. Use when upgrading frameworks, switching libraries, or modernizing legacy technology stacks.
 summary_l0: "Guide framework migrations with assessment, API translation, and coexistence patterns"
-overview_l1: "This skill plans and executes framework and library migrations systematically, covering migration assessment, dependency mapping, API translation, incremental migration strategies, and coexistence patterns. Use it when migrating between web frameworks (Express to Fastify, Flask to FastAPI), switching frontend frameworks (Angular to React, jQuery to Vue), upgrading major framework versions with breaking changes, replacing deprecated libraries, assessing whether a migration is worth the effort, planning incremental migrations, running old and new code in parallel, or mapping API patterns between frameworks. Key capabilities include migration cost-benefit assessment, dependency graph analysis, API pattern mapping between source and target, incremental migration planning with rollback points, coexistence adapter patterns, automated code transformation where possible, and post-migration validation. The expected output is a migration plan with assessment, dependency map, API translation guide, incremental execution steps, and validation checklist. Trigger phrases: migrate framework, switch from X to Y, framework migration, upgrade framework, replace library, migration plan, incremental migration, coexistence pattern, migration assessment."
+overview_l1: "This skill plans and executes framework and library migrations systematically, covering migration assessment, dependency mapping, API translation, incremental strategies, and coexistence patterns. Use it when migrating between web frameworks (Express to Fastify, Flask to FastAPI), switching frontend frameworks (Angular to React, jQuery to Vue), upgrading major versions with breaking changes, replacing deprecated libraries, assessing whether a migration is worth the effort, planning incremental migrations, running old and new code in parallel, or mapping API patterns between frameworks. Key capabilities include cost-benefit assessment, dependency graph analysis, API pattern mapping, incremental planning with rollback points, coexistence adapter patterns, automated code transformation where possible, and post-migration validation. The expected output is a migration plan with assessment, dependency map, API translation guide, incremental execution steps, and validation checklist. Trigger phrases: migrate framework, switch from X to Y, framework migration, upgrade framework, replace library, migration plan, incremental migration, coexistence pattern, migration assessment."
 ---
 
 # Framework Migration Assistant
@@ -681,3 +681,27 @@ rollback_plan:
 - **Not communicating with consumers**: If your API has external consumers, verify that the migration does not change observable behavior (response format, header values, status codes, error shapes).
 - **Leaving migration scaffolding in place**: The coexistence proxy, parity tests, and dual-framework configuration add complexity. Remove them promptly after migration is complete.
 - **Migrating for the wrong reasons**: "The new framework is trendy" is not sufficient justification for a migration. Ensure there is a clear, measurable benefit that outweighs the migration cost.
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "Let's just rewrite it all on the new framework in one release" | A big-bang migration is a binary success/failure with no rollback path; the coexistence pattern lets you migrate route by route and revert any single piece that breaks. |
+| "The new framework is the modern choice, that's reason enough" | Trendiness is not a measurable benefit; without a stated win (performance, hiring, reduced maintenance) that outweighs the cost, the migration burns weeks for no return. |
+| "I'll port the business logic while I'm in there" | Rewriting domain code during a framework swap conflates two changes; if a behavior regresses you cannot tell whether the framework or the rewrite caused it. |
+| "Middleware will be easy, it's the last step" | Middleware encodes cross-cutting concerns (auth, logging, error shaping) and is usually the hardest part with no direct equivalent; mapping it last is how migrations stall. |
+
+## Verification
+
+- [ ] The assessment states a measurable benefit that outweighs the migration cost
+- [ ] Characterization tests exist and pass on the source framework before any migration began
+- [ ] A coexistence phase ran old and new side by side with a documented rollback point
+- [ ] Parity tests confirm identical observable behavior (response format, status codes, headers, error shapes)
+- [ ] Migration scaffolding (proxy, dual config, parity harness) was removed after completion
+
+## Related Skills
+
+- [[legacy-modernizer]] -- the incremental Strangler Fig strategy this skill's coexistence phase implements
+- [[deprecated-api-updater]] -- migrates the deprecated API calls the new framework version requires
+- [[code-translation]] -- maps source-framework idioms to target-framework equivalents during the port
+- [[behavior-preservation-checker]] -- verifies the migration did not change observable behavior

@@ -10,7 +10,7 @@
 
 This sub-phase provides **AI agent-specific governance** templates implementing the **4 Pillars Framework**: Lifecycle Management, Risk Management, Security, and Observability.
 
-Modern AI systems — especially agentic AI — require governance frameworks that address unique risks beyond traditional software. [80% of organizations have encountered risky behaviors from AI agents](https://www.mckinsey.com/capabilities/risk-and-resilience/our-insights/deploying-agentic-ai-with-safety-and-security-a-playbook-for-technology-leaders), including improper data exposure and unauthorized system access.
+Modern AI systems -- especially agentic AI -- require governance frameworks that address unique risks beyond traditional software. [80% of organizations have encountered risky behaviors from AI agents](https://www.mckinsey.com/capabilities/risk-and-resilience/our-insights/deploying-agentic-ai-with-safety-and-security-a-playbook-for-technology-leaders), including improper data exposure and unauthorized system access.
 
 ### Why AI Agents Need Special Governance
 
@@ -108,7 +108,7 @@ Based on research from [McKinsey](https://www.mckinsey.com/capabilities/risk-and
 
 ### Pillar 2: ⚠️ Risk Management (Defense in Depth)
 
-**Definition**: Implements multiple overlapping defense layers — PII detection, guardrails, compliance controls, and monitoring — to protect against issues from data ingestion to model performance.
+**Definition**: Implements multiple overlapping defense layers -- PII detection, guardrails, compliance controls, and monitoring -- to protect against issues from data ingestion to model performance.
 
 **Best Practice**: Defense in depth with layered protection mechanisms.
 
@@ -244,7 +244,7 @@ Permissions:
 
 ### Pillar 4: 🔍 Observability (Audit Everything)
 
-**Definition**: Captures comprehensive logs of all system interactions — data access, model actions and predictions — enabling complete traceability and compliance reporting.
+**Definition**: Captures comprehensive logs of all system interactions -- data access, model actions and predictions -- enabling complete traceability and compliance reporting.
 
 **Best Practice**: Audit everything with immutable, tamper-evident logs.
 

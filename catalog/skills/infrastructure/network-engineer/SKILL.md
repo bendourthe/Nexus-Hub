@@ -1068,12 +1068,29 @@ Client ──► Verified Access (identity check) ──► Private ALB ──�
 - [ ] CDN configured with origin shield and versioned static assets
 - [ ] Network architecture diagram current and accessible
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "I'll use a /16 everywhere, CIDR planning is premature" | Overlapping or oversized CIDR blocks make VPC peering and transit-gateway routing impossible to add later without re-IP-ing the whole environment; a planned non-overlapping allocation up front is the cheap moment to get it right. |
+| "Open the security group to 0.0.0.0/0 so it just works" | A wildcard ingress rule exposes the service to the entire internet; least-privilege source ranges and a defense-in-depth NACL layer are what keep an open SG from being the breach vector. |
+| "The connection is failing, I'll just restart the load balancer" | Restarting without layer-by-layer diagnosis (DNS, routing, SG/NACL, health check) treats a symptom; the actual failure (a failing health check or a missing route) recurs immediately after the restart. |
+| "DNS TTLs do not matter for failover" | A long TTL means clients cache a dead endpoint long after failover; the TTL is the floor on your failover recovery time, and it must be set deliberately for any record on the failover path. |
+
+## Verification
+
+- [ ] VPC CIDR blocks are non-overlapping and sized to a documented allocation plan that allows for peering/transit.
+- [ ] Security group and NACL rules use least-privilege source ranges; no unintended 0.0.0.0/0 ingress on private tiers.
+- [ ] Load balancer health checks are configured and verified to fail over correctly on an unhealthy target.
+- [ ] DNS records on the failover path have a TTL set to meet the documented recovery-time target.
+- [ ] Connectivity issues were diagnosed layer by layer (DNS, routing, firewall, health check) before any change was applied.
+
 ## Related Skills
 
-- `cloud-architect` - Cloud infrastructure design and Well-Architected Framework
-- `terraform-specialist` - Infrastructure as Code provisioning
-- `kubernetes-expert` - Container orchestration and cluster networking
-- `security-review` - Security assessment and compliance
+- [[cloud-architect]] -- cloud infrastructure design and Well-Architected Framework
+- [[terraform-specialist]] -- Infrastructure as Code provisioning
+- [[kubernetes-expert]] -- container orchestration and cluster networking
+- [[security-review]] -- security assessment and compliance
 
 ---
 

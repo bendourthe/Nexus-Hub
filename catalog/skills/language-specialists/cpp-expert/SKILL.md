@@ -949,7 +949,16 @@ public:
 };
 ```
 
-## Quality Checklist
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "Raw `new`/`delete` is fine for this small object" | One early `return` or thrown exception between the `new` and the `delete` leaks the allocation; `unique_ptr` releases on every exit path. |
+| "I'll add `noexcept` to move operations later" | A move constructor that can throw silently disables move semantics in `std::vector` reallocation, so the container copies instead and your "optimized" type is slower than before. |
+| "Sanitizers slow the build, I'll run them before release" | ASan/UBSan catch use-after-free and signed-overflow UB that pass silently in a normal build and corrupt memory only under production load. |
+| "Templates are fine without concepts" | An unconstrained template emits a 200-line error from deep inside instantiation; a `concept` fails at the call site with one readable line. |
+
+## Verification
 
 - [ ] No raw new/delete (use smart pointers or containers)
 - [ ] Move constructors and move assignment are noexcept
@@ -962,10 +971,10 @@ public:
 
 ## Related Skills
 
-- `performance-testing` - C++ benchmarking and profiling
-- `cicd-architect` - C++ CI/CD with CMake and sanitizers
-- `code-quality` - C++ static analysis and code standards
-- `kubernetes-expert` - Deploying C++ services in containers
+- [[performance-testing]] -- C++ benchmarking and profiling for performance-critical paths
+- [[cicd-architect]] -- C++ CI/CD with CMake and sanitizers in the pipeline
+- [[code-quality]] -- static analysis and code-standard scoring of the result
+- [[kubernetes-expert]] -- deploying compiled C++ services in containers
 
 ---
 

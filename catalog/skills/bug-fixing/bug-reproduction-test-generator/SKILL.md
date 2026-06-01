@@ -2,7 +2,7 @@
 name: bug-reproduction-test-generator
 description: Create minimal reproduction tests from bug reports and error descriptions. Use when writing failing tests from bug reports, creating minimal reproductions, isolating test cases, or building regression test suites from production incidents.
 summary_l0: "Create minimal reproduction tests from bug reports and error descriptions"
-overview_l1: "This skill transforms bug reports, error descriptions, and production incident logs into minimal, isolated reproduction tests that reliably demonstrate the defect. Use it when converting natural-language bug reports into failing test cases, creating minimal reproductions from complex failure scenarios, isolating bugs from surrounding context, generating regression tests from production incidents, building tests that fail before a fix and pass after, reducing large tests to the smallest triggering case, or setting up exact environment conditions for intermittent failures. Key capabilities include bug report parsing and condition extraction, test case minimization, environment condition setup, intermittent failure isolation, regression test scaffolding, and before/after validation patterns. The expected output is a minimal, self-contained test file that reliably reproduces the bug with clear assertions and setup instructions. Trigger phrases: write a reproduction test, create a failing test, reproduce this bug, minimal reproduction, write a test for this bug report, create regression test, isolate the failure, test case from bug report."
+overview_l1: "This skill transforms bug reports, error descriptions, and production incident logs into minimal, isolated reproduction tests that reliably demonstrate the defect. Use it when converting natural-language bug reports into failing test cases, creating minimal reproductions from complex failures, isolating bugs from surrounding context, generating regression tests from production incidents, building tests that fail before a fix and pass after, or setting up exact conditions for intermittent failures. Key capabilities include bug report parsing and condition extraction, test case minimization, environment condition setup, intermittent failure isolation, regression test scaffolding, and before/after validation patterns. The expected output is a minimal, self-contained test file that reliably reproduces the bug with clear assertions and setup instructions. Trigger phrases: write a reproduction test, create a failing test, reproduce this bug, minimal reproduction, write a test for this bug report, create regression test, isolate the failure."
 ---
 
 # Bug Reproduction Test Generator
@@ -903,3 +903,29 @@ class TestIsolationChecker {
 - **Not testing the negative case.** After the fix is applied, verify that the test now passes. Also verify that removing the fix causes the test to fail again. This round-trip confirms the test is genuinely tied to the bug.
 - **Reproduction tests that are too slow.** A reproduction test that takes 30 seconds to run will be skipped or ignored. Keep reproduction tests fast (under 1 second for unit-level, under 10 seconds for integration-level).
 - **Hardcoding environment-specific values.** File paths, port numbers, and hostnames that work on your machine will fail in CI. Use environment variables, temporary directories, and dynamic port allocation.
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "I can see the bug in the code, I do not need to write a reproduction first" | Without a test that fails on the unfixed code you have no way to prove the fix worked; many 'fixes' address a symptom while the reproduction would have shown the bug still triggers on a second input. |
+| "The reproduction needs the full production setup to be realistic" | A reproduction that requires the whole database and service mesh is slow and fragile and gets skipped; minimizing to the two inputs that trigger the defect makes the test fast, portable, and the actual root cause obvious. |
+| "The test passes now, so the bug is reproduced" | A reproduction test that passes on the buggy code reproduces nothing; it must fail before the fix and pass after, or it is asserting the wrong condition. |
+| "It only fails when run after the integration suite, that is close enough" | An order-dependent test is not a reproduction of the reported bug; it is reproducing test pollution, and it will give false confidence when the real bug is still live in isolation. |
+
+## Verification
+
+- [ ] The generated test fails on the unfixed code (the bug is genuinely reproduced)
+- [ ] The same test passes once the fix is applied, and fails again if the fix is reverted
+- [ ] The test runs in isolation without depending on other tests, network, or pre-existing filesystem state
+- [ ] The test is minimized to only the setup and inputs needed to trigger the defect
+- [ ] The test documents the bug ID, expected behavior, and actual behavior in comments
+- [ ] Unit-level reproductions complete in under 1 second
+
+## Related Skills
+
+- [[bug-localization]] -- requires the deterministic reproduction this skill produces before localizing
+- [[bug-to-patch-generator]] -- consumes the failing test as the gate its patch must turn green
+- [[regression-root-cause-analyzer]] -- uses the reproduction as the bisect test command
+- [[unit-tests]] -- general unit-test authoring patterns the reproduction follows
+- [[test-driven-development]] -- the red-green-refactor cycle this failing-test-first approach mirrors

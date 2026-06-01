@@ -460,12 +460,29 @@ def add_deprecation_header(response):
 - [ ] Validation criteria defined
 - [ ] Team aligned on approach
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "A full rewrite will be cleaner than incremental modernization" | The big-bang rewrite is the classic failure mode: it freezes feature work for months, accumulates its own bugs, and ships with no rollback path; the Strangler Fig migrates piece by piece with the old system live. |
+| "The legacy code has no tests, but I understand it well enough" | Without characterization tests there is no oracle for "did I preserve behavior"; the subtle edge case the original handled (and you forgot) only surfaces in production. |
+| "We can route all traffic to the new component on launch day" | An all-at-once cutover is a binary success/failure; feature flags and gradual traffic shifting are what let you detect the regression at 5% traffic instead of 100%. |
+| "Modernizing means improving the logic while I'm here" | Mixing behavior changes into a modernization makes any regression impossible to attribute; modernize the structure first, change behavior in a separate, tested step. |
+
+## Verification
+
+- [ ] Characterization tests capture the legacy system's current behavior and pass before migration starts
+- [ ] A documented rollback procedure exists for each migrated component
+- [ ] Feature flags or toggles gate the new path so traffic can shift gradually
+- [ ] Validation confirms the new component produces identical output to the legacy one for representative inputs
+- [ ] Monitoring is configured on the new path to catch regressions during the coexistence phase
+
 ## Related Skills
 
-- `refactoring-expert` - Code-level improvements
-- `dependency-manager` - Upgrading dependencies
-- `context-manager` - Understanding legacy code
-- `cicd-architect` - Deployment strategies
+- [[refactoring-expert]] -- the behavior-preserving code-level transforms used inside each migration step
+- [[framework-migration-assistant]] -- coordinates a framework or library swap that is part of the modernization
+- [[behavior-preservation-checker]] -- verifies a migrated component preserves the legacy system's behavior
+- [[cicd-architect]] -- the deployment and traffic-shifting strategy that supports a gradual cutover
 
 ---
 

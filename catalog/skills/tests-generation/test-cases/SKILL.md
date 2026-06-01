@@ -462,11 +462,30 @@ class UserApiIntegrationTest {
 - [ ] Test data properly cleaned up
 - [ ] Tests isolated from each other
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "Unit tests already cover this logic, so integration tests duplicate them." | Unit tests mock the database and HTTP layer; the integration test is the only place the real query, serialization, and routing wiring is exercised, which is where the production bug actually lives. |
+| "Testing the happy-path workflow is enough for an E2E scenario." | The 401 on an expired token and the 409 on a duplicate submit are the flows users hit under stress; an E2E suite without error and auth paths passes while the real failure ships. |
+| "I will let tests share the seeded database to avoid setup cost." | Shared data makes test order load-bearing; one test that mutates a row flips an unrelated assertion, and the suite becomes non-deterministic. |
+| "Asserting the 200 status confirms the endpoint works." | A 200 with a wrong or empty body is still a defect; assert the response shape and key fields, not just the status code. |
+
+## Verification
+
+- [ ] Each API endpoint is tested for success, validation error, and not-found/conflict cases.
+- [ ] Authentication and authorization flows are covered, not only authenticated happy paths.
+- [ ] Each test creates and tears down its own data so tests pass in randomized order.
+- [ ] Responses are asserted on body shape and key fields, not status code alone.
+- [ ] Complete multi-step workflows are exercised end to end with state verified between steps.
+
 ## Related Skills
 
-- `unit-tests` - Unit testing (Phase 2)
-- `mocks-fixtures` - Test doubles (Phase 4)
-- `performance-testing` - Load testing (Phase 5)
+- [[unit-tests]] -- isolates single functions beneath the integration scenarios here (Phase 2)
+- [[mocks-fixtures]] -- supplies the test doubles and data factories these scenarios use (Phase 4)
+- [[performance-testing]] -- validates the same workflows under load (Phase 5)
+- [[integration-test-generator]] -- generates the boundary-level integration tests this skill orchestrates
+- [[e2e-testing-automation]] -- drives browser-level end-to-end journeys above the API integration layer
 
 ---
 

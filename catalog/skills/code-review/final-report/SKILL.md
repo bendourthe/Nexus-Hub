@@ -331,29 +331,37 @@ When the user selects **option 5 (Export report)**, follow these steps:
 
 After presenting the report, always end with the Next Steps menu. Wait for the user's selection before taking any action.
 
-## Quality Checklist
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "I'll just dump every finding in one long list" | A flat list of 40 findings is unactionable; the dual-view (by feature and by priority) is what lets a team triage P0 items first and assign feature areas to owners, which a single list cannot do. |
+| "The executive summary is optional, the findings speak for themselves" | A stakeholder deciding go/no-go reads the verdict and risk level, not 40 finding entries; omitting the executive summary means the report is consumed only by engineers and ignored by the decision-makers it should inform. |
+| "I can start fixing the issues as I write the report" | The Next Steps protocol forbids implementing changes before the user confirms which fixes to apply; auto-fixing turns a review deliverable into an unreviewed code change the user never approved. |
+| "A finding without an effort estimate is still useful" | Without effort and severity on each item, the team cannot sequence the roadmap; a P3 that takes one minute and a P1 that takes a week look identical, defeating the prioritization this report exists to provide. |
+
+## Verification
 
 - [ ] Section 1 (Codebase Overview) is present and accurate
-- [ ] Section 2 (Executive Summary) includes all subsections: verdict, critical fixes, functional groupings, redundancy, roadmap
-- [ ] Section 3 Phase 1 findings are intelligently grouped by feature area
+- [ ] Section 2 (Executive Summary) includes verdict, critical fixes, functional groupings, redundancy, and roadmap subsections
+- [ ] Section 3 Phase 1 findings are grouped by feature area
 - [ ] Section 3 Phase 2 findings are grouped by priority (P0 through P3)
-- [ ] All findings appear in both Phase 1 and Phase 2 views (no missing items)
-- [ ] Severity consistently classified (P0-P3)
+- [ ] Every finding appears in both Phase 1 and Phase 2 views (no missing items)
+- [ ] Severity consistently classified (P0-P3) across both views
 - [ ] Overall verdict assigned (APPROVE / REQUEST_CHANGES / COMMENT)
 - [ ] Remediation steps are actionable with code examples where applicable
-- [ ] Effort estimates included for each finding
-- [ ] Report professionally formatted
-- [ ] Clean review protocol followed (if no issues found)
-- [ ] Next steps menu presented with 5 options (including export)
-- [ ] No changes implemented without user confirmation
+- [ ] Effort estimate included for each finding
+- [ ] Clean review protocol followed when no issues were found
+- [ ] Next Steps menu presented with all 5 options (including export)
+- [ ] No changes implemented before explicit user confirmation
 
 ## Related Skills
 
-- `context-analysis` - Context understanding (Phase 1)
-- `code-quality` - Code quality + SOLID + dead code review (Phase 2)
-- `security-review` - Security analysis, 10-domain model (Phase 3)
-- `performance-review` - Performance analysis (Phase 4)
-- `testing-review` - Test assessment (Phase 5)
+- [[context-analysis]] -- Context understanding (Phase 1), source of Section 1
+- [[code-quality]] -- Code quality + SOLID + dead code review (Phase 2)
+- [[security-review]] -- Security analysis, 10-domain model (Phase 3)
+- [[performance-review]] -- Performance analysis (Phase 4)
+- [[testing-review]] -- Test assessment (Phase 5)
 
 ---
 

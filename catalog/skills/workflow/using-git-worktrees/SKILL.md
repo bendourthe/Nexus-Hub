@@ -162,8 +162,8 @@ Run the project's test (and, if fast, build) command in the new worktree and con
 
 ## Related Skills
 
-- `incremental-implementation` - once isolated, implement the plan one tested step at a time inside the worktree.
-- `verification-before-completion` - "the worktree is ready" and "the feature works" are both completion claims that need a fresh proving run.
-- `shipping-and-launch` - worktree-aware finishing: merge or clean up the worktree as part of shipping the branch.
-- `multi-agent-coordinator` - when several agents work in parallel, each gets its own worktree so their changes never collide.
-- `competitive-generation` - runs parallel attempts that each benefit from an isolated worktree.
+- [[incremental-implementation]] -- once isolated, implement the plan one tested step at a time inside the worktree.
+- [[verification-before-completion]] -- "the worktree is ready" and "the feature works" are both completion claims that need a fresh proving run.
+- [[shipping-and-launch]] -- worktree-aware finishing: merge or clean up the worktree as part of shipping the branch.
+- [[multi-agent-coordinator]] -- when several agents work in parallel, each gets its own worktree so their changes never collide.
+- [[competitive-generation]] -- runs parallel attempts that each benefit from an isolated worktree.

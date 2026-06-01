@@ -437,7 +437,16 @@ class BudgetGuard:
         return self._spent_usd
 ```
 
-## Quality Checklist
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "I'll add the budget cap once the agent works" | An autonomous loop with a tool-call bug can burn the month's budget in a single overnight run before anyone notices; the cap has to exist before the first unattended run, not after. |
+| "Checking the budget after the call is good enough" | Recording usage after the response cannot stop the call that blew the limit; `checkBudget()` must run BEFORE the API call so the over-limit request is never sent. |
+| "A console-level quota is sufficient protection" | A provider quota fails the whole key for every workflow at once and gives no per-agent attribution; a per-agent `BudgetGuard` stops one runaway agent while others keep working. |
+| "Re-raising BudgetExceededError is the clean way to stop" | An unhandled exception discards the partial results the agent already produced and paid for; catch it at the workflow level and return what was completed. |
+
+## Verification
 
 - [ ] Provider-level quota set in Anthropic Console / AWS Bedrock / GCP Billing
 - [ ] Per-agent `BudgetGuard` initialized with a concrete dollar limit
@@ -452,11 +461,11 @@ class BudgetGuard:
 
 ## Related Skills
 
-- `claude-agent-sdk` — Agent executor pattern where budget guards are integrated
-- `multi-provider-ai` — Provider-specific quota configuration (Bedrock, Vertex, OpenRouter)
-- `temporal-orchestration` — Handling BudgetExceededError in durable workflow activities
-- `check-usage` — VS Code and CLI usage display (monitoring, not enforcement)
-- `ai-agent-governance` — Enterprise governance framework for AI agent deployments
+- [[claude-agent-sdk]] -- agent executor pattern where budget guards are integrated
+- [[multi-provider-ai]] -- provider-specific quota configuration (Bedrock, Vertex, OpenRouter)
+- [[temporal-orchestration]] -- handling BudgetExceededError in durable workflow activities
+- [[observability-setup]] -- usage and cost monitoring dashboards alongside enforcement
+- [[ai-agent-governance]] -- enterprise governance framework for AI agent deployments
 
 ---
 

@@ -2,7 +2,7 @@
 name: context-optimization
 description: Optimize AI coding session context window usage by compressing command output, minimizing verbose logs, and avoiding context bloat. Use when sessions are hitting token limits, commands produce excessive output, you want to maximize effective session length, or you notice the context window filling up quickly. Covers rtk proxy setup for Claude Code and prompt-level output reduction for Gemini, Codex, and Copilot.
 summary_l0: "Optimize AI session context windows by compressing output and reducing token bloat"
-overview_l1: "This skill provides techniques for controlling context window consumption in AI coding sessions through automated output compression and prompt-level output minimization. Use it when a session is consuming excessive tokens from command output, tests or builds dump full logs into context, you want to extend session length before hitting limits, you are configuring a new environment for context efficiency, or verbose output like progress bars is consuming context. Key capabilities include automated output compression via rtk (a Rust-based CLI proxy for Claude Code that reduces tokens from 150K to 45K per session), prompt-level output minimization with quiet flags, progress bar suppression, long output summarization, and cross-platform strategies for Claude Code, Gemini, Codex, and Copilot. The expected output is a configured environment with reduced context consumption and guidelines for maintaining context efficiency. Trigger phrases: context window, token limit, context bloat, compress output, reduce tokens, session length, verbose output, rtk setup, context optimization."
+overview_l1: "This skill provides techniques for controlling context window consumption in AI coding sessions through automated output compression and prompt-level output minimization. Use it when a session consumes excessive tokens from command output, tests or builds dump full logs into context, you want to extend session length before hitting limits, you are configuring a new environment for context efficiency, or verbose output like progress bars fills the window. Key capabilities include automated compression via rtk (a Rust-based CLI proxy for Claude Code that reduces tokens from 150K to 45K per session), prompt-level minimization with quiet flags, progress bar suppression, long output summarization, and cross-platform strategies for Claude Code, Gemini, Codex, and Copilot. The expected output is a configured environment with reduced context consumption. Trigger phrases: context window, token limit, context bloat, compress output, reduce tokens, session length, verbose output, rtk setup, context optimization."
 ---
 
 # Context Window Optimization
@@ -148,11 +148,29 @@ These instructions reduce the amount of command output the AI includes in its re
 
 ---
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "I'll deal with context limits when the session actually fills up" | By the time the window is full the early context is already evicted; configuring rtk or quiet flags up front is what prevents the truncation that loses earlier decisions. |
+| "Dumping the full test log is fine, the model can read it" | A passing-test log of 500 lines costs thousands of tokens for zero signal; summarizing to counts plus failures leaves room for the actual debugging work. |
+| "rtk is a Rust install, too much hassle for one session" | The one-time `rtk init --global` pays back as ~150K-to-45K reduction every session afterward; the hassle is amortized across the whole project, not one session. |
+| "Advisory prompt instructions are enough, I don't need the proxy" | Prompt-level minimization depends on the model obeying; rtk enforces compression at the tool boundary regardless of how chatty the command is. |
+
+## Verification
+
+- [ ] For Claude Code: `rtk init --global` has run and `settings.json` contains the rtk hook
+- [ ] For Claude Code: `rtk gain` reports non-zero savings after the first session
+- [ ] For Gemini/Codex/Copilot: an Output Minimization section was added to the relevant instruction file
+- [ ] Build, test, and package-manager commands use `--quiet`/`-q`/`--silent` where the tool supports it
+- [ ] Long-running commands summarize counts and errors rather than dumping the full log
+
 ## Related Skills
 
-- `developer-experience` category skills for general productivity improvements
-- `workflow` skills for session management and planning
-- `project-setup` skills for configuring a new project from scratch
+- [[context-engineering]] -- shapes what belongs in context, complementing this skill's focus on shrinking what leaks in
+- [[context-compression]] -- the orchestration-level techniques for minimizing tokens per task
+- [[prompt-token-optimization]] -- reduces token consumption through programmatic tool calling and context hygiene
+- [[using-nexus-hub]] -- orients a new session, a good point to apply these output-minimization defaults
 
 ---
 

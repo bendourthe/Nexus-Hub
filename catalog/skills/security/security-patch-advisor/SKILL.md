@@ -569,6 +569,32 @@ After applying any security patch, verify with this checklist:
 - **Breaking error handling**: Security patches that convert detailed error messages to generic ones may mask legitimate application errors. Log the details server-side while returning generic messages to the client.
 - **Not testing with edge cases**: Patches that work for obvious attack payloads may fail against encoded, double-encoded, or Unicode-normalized variants. Test with a comprehensive set of bypass techniques.
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "I added a WAF rule, so the XSS is fixed" | A WAF rule is a symptom patch one bypass away from exploitation; the unencoded output in the template is still there, so the fix must be context-correct output encoding at the source, not a perimeter filter. |
+| "I escaped the value, so the XSS is gone" | HTML-entity encoding does not stop XSS inside a JavaScript or URL context; encoding in the wrong context (Strategy 1, Step 1) leaves the injection live, so the encoding must match the exact output context. |
+| "The scanner flagged one endpoint and I patched it" | The same vulnerable pattern usually recurs across the codebase; patching only the flagged instance leaves the others exploitable, which is why every similar code path must be patched in the same pass. |
+| "Blocking private IP ranges stops the SSRF" | Blocking ranges without resolving DNS first leaves a DNS-rebinding hole; the URL validator must resolve the hostname and check the resolved IP, exactly as in Strategy 3, Step 1. |
+
+## Verification
+
+- [ ] The original proof-of-concept or scanner no longer reproduces the vulnerability
+- [ ] The full test suite still passes after the patch (no business-logic regression)
+- [ ] Input validation rejects the malicious payload AND accepts legitimate input (no false positives)
+- [ ] The same vulnerability pattern was searched for and patched across every similar code path, not just the flagged one
+- [ ] Security headers are present in the response: `curl -I <url>` shows the expected `Content-Security-Policy` / `X-Frame-Options` / `Strict-Transport-Security`
+- [ ] No secrets were hardcoded in the patch (encryption keys and credentials come from environment or a secrets manager)
+
+## Related Skills
+
+- [[business-logic-abuse]] -- remediation for race-condition, TOCTOU, idempotency, and workflow-bypass classes
+- [[advanced-attack-patterns]] -- state-desync, cache-poisoning, replay, and timing-attack remediation
+- [[security-review]] -- the audit pass that surfaces the findings this skill patches
+- [[exploitability-analyzer]] -- confirms a finding is worth patching before generating the fix
+- [[authentication-patterns]] -- secure patterns for the broken-authentication remediation row
+
 ## Related Resources
 
 - [catalog/checklists/file-upload-security.md](../../../checklists/file-upload-security.md) - Defense checklist for file-upload-specific exploits (polyglots, MIME confusion, archive path traversal, resource limits, content scanning, serving hardening). Pairs with Strategy 7 (Path Traversal) and Strategy 8 (Insecure Deserialization) above.

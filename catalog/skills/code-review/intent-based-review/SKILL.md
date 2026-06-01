@@ -234,13 +234,12 @@ Switch to the traditional `full-code-review` workflow (or individual review skil
 
 ## Related Skills
 
-- `requirement-enhancer` - Generate acceptance criteria when none exist
-- `quality-gate-definitions` - Reusable gate criteria for workflow transitions
-- `full-code-review` (workflow) - Traditional 6-phase line-by-line review
-- `cross-model-orchestrator` - Multi-model workflow that produces artifacts reviewable with this skill
-- `research-plan-implement` - Workflow that produces REQUEST.md consumed by this skill
-- `adversarial-verifier` - Stress-test implementations that pass intent-based review
-- `traceability-matrix-generator` - Map requirements to tests systematically
+- [[requirement-enhancer]] -- generate acceptance criteria when none exist before this review runs
+- [[quality-gate-definitions]] -- reusable gate criteria for workflow transitions
+- [[cross-model-orchestrator]] -- multi-model workflow that produces artifacts reviewable with this skill
+- [[research-plan-implement]] -- workflow that produces the REQUEST.md this skill consumes
+- [[adversarial-verifier]] -- stress-test implementations that pass intent-based review
+- [[traceability-matrix-generator]] -- map requirements to tests systematically
 
 ---
 

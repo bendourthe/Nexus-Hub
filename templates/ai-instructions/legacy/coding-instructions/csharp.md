@@ -1,4 +1,4 @@
-﻿# C# AI System Prompt
+# C# AI System Prompt
 
 Use this prompt to configure your AI assistant for C# software development, writing, analysis, and creative generation.
 

@@ -443,12 +443,34 @@ Review the DoD every quarter. Add criteria when the team consistently meets curr
 - [ ] Team health check is conducted at least quarterly
 - [ ] Definition of Done evolves as the team matures
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "Plan the sprint at full capacity, the team can handle it" | Planning at 100% utilization ignores meetings, review, and support, so the first interruption blows the commitment. The 0.7 capacity factor and 20% buffer are what keep carry-over under 10%. |
+| "The sprint goal is just the list of committed stories" | A story list is not an outcome the team can rally around or measure at review. "Users complete onboarding without manual intervention" tells the team what to cut when time runs short; a ticket list does not. |
+| "Velocity is up this sprint, so the team is doing better" | Velocity is an estimation artifact, not a productivity score. Treating it as a KPI makes the team inflate estimates; use the rolling 3-sprint average for planning only and compare a team only to its own trend. |
+| "Skip reviewing last retro's actions, we have new issues to discuss" | Unreviewed action items quietly die, and the team learns retros do not change anything. Reviewing prior actions at the START of every retro is what makes the next round of commitments credible. |
+| "A blocker can wait until the next standup to escalate" | A BLOCKING impediment left for 24 hours stalls the whole story and often a dependency. The escalation table sets hours-not-days resolution targets precisely so blockers do not accumulate. |
+
+## Verification
+
+- [ ] The sprint goal is stated as a measurable outcome, not a list of story IDs
+- [ ] Committable capacity is calculated with a capacity factor and an unplanned-work buffer
+- [ ] Every story entering the sprint meets the Definition of Ready checklist
+- [ ] WIP limits are set per column and respected on the board
+- [ ] The retrospective produced 1-3 concrete action items, each with a volunteer owner and due date
+- [ ] Previous retro action items were reviewed before new ones were brainstormed
+- [ ] Velocity is reported as a rolling average over 4+ sprints, never as a cross-team comparison or a target
+- [ ] Every active impediment in the log has an owner, an impact level, and a resolution date
+
 ## Related Skills
 
-- `product-manager` - Product management analysis for feature prioritization and scope control
-- `plan-before-code` - Engineering planning and exploration before implementation
-- `test-driven-development` - Writing tests from acceptance criteria
-- `code-quality` - Ensuring implementation meets non-functional requirements
+- [[product-manager]] -- product management analysis for feature prioritization and scope control upstream of the sprint
+- [[plan-before-code]] -- engineering planning and exploration before implementation begins
+- [[test-driven-development]] -- writing tests from the acceptance criteria refined during backlog grooming
+- [[code-quality]] -- ensuring implementation meets the non-functional bar in the Definition of Done
+- [[incident-postmortem]] -- the blameless retrospective format to reach for after a sprint disrupted by an incident
 
 ---
 

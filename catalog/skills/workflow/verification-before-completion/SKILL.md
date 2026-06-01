@@ -91,8 +91,8 @@ The rule is "no completion claim without fresh proving evidence", not "run a com
 
 ## Related Skills
 
-- `quality-gate-definitions` - defines the GO/NO-GO thresholds (tests, coverage, lint, build) that this gate proves at each checkpoint.
-- `adversarial-verifier` - goes beyond "does it pass" to stress-test the change against edge cases and attack inputs once the basic gate is green.
-- `receiving-code-review` - applies the same verify-before-claiming discipline when acting on review feedback (verify the suggestion against the codebase before agreeing it is correct).
-- `test-driven-development` - supplies the failing-then-passing reproduction that the "bug fixed" row of the claim-to-evidence table depends on.
-- `debug-with-logs` - when the proving command fails, this skill helps locate why before re-entering the gate.
+- [[quality-gate-definitions]] -- defines the GO/NO-GO thresholds (tests, coverage, lint, build) that this gate proves at each checkpoint.
+- [[adversarial-verifier]] -- goes beyond "does it pass" to stress-test the change against edge cases and attack inputs once the basic gate is green.
+- [[receiving-code-review]] -- applies the same verify-before-claiming discipline when acting on review feedback (verify the suggestion against the codebase before agreeing it is correct).
+- [[test-driven-development]] -- supplies the failing-then-passing reproduction that the "bug fixed" row of the claim-to-evidence table depends on.
+- [[debug-with-logs]] -- when the proving command fails, this skill helps locate why before re-entering the gate.

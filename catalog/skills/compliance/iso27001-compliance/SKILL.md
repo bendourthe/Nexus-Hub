@@ -497,11 +497,30 @@ class InternalAudit:
 - [ ] Management review performed
 - [ ] Continual improvement process established
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "We implemented all the Annex A controls, so we are certifiable" | ISO 27001 certification is granted against the management-system clauses (4-10), not Annex A alone; without a defined scope, risk assessment, internal audit, and management review, an auditor issues a major nonconformity even with every control in place. |
+| "We can mark a control as applicable without justifying it" | The Statement of Applicability must record an inclusion or exclusion justification for every Annex A control; an unjustified exclusion is the single most common audit finding and blocks certification. |
+| "Risk treatment is a one-time exercise for the audit" | Clause 10 requires continual improvement and clause 9 requires recurring monitoring and management review; a risk assessment frozen at certification time fails the next surveillance audit. |
+| "Documenting the policy is enough to satisfy the control" | Auditors test for operating effectiveness, not just a written policy; a documented access-control policy with no evidence of enforcement (logs, reviews, tickets) is treated as not implemented. |
+
+## Verification
+
+- [ ] The ISMS scope is defined and documented with interested parties identified (clause 4)
+- [ ] A risk assessment and risk treatment plan exist and are current (clause 6 / 8)
+- [ ] The Statement of Applicability records an inclusion or exclusion justification for every Annex A control
+- [ ] An internal audit has been conducted and findings tracked to closure (clause 9)
+- [ ] A management review has been performed and minuted (clause 9)
+- [ ] A documented continual-improvement / nonconformity process is in place (clause 10)
+
 ## Related Skills
 
-- `soc2-compliance` - SOC 2 implementation
-- `iso42001-ai-governance` - AI management systems
-- `security-review` - Security vulnerability review
+- [[soc2-compliance]] -- overlapping control set; many ISMS controls satisfy SOC 2 criteria
+- [[iso42001-ai-governance]] -- the AI management-system standard that mirrors this ISMS structure
+- [[security-review]] -- security vulnerability review feeding the technological-control evidence
+- [[traceability-matrix-generator]] -- maps each control to its implementing evidence for the audit
 
 ---
 

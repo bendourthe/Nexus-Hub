@@ -120,7 +120,7 @@ These are the most common ways incremental discipline breaks down:
 
 ## Related Skills
 
-- `spec-driven-development` — produces the task list that this skill executes
-- `plan-before-code` — produces the implementation plan; this skill executes it
-- `test-driven-development` — pairs naturally with incremental implementation (write test first, then implement)
-- `code-commit-workflow` — commit message conventions and atomic change patterns
+- [[spec-driven-development]] -- produces the task list that this skill executes
+- [[plan-before-code]] -- produces the implementation plan; this skill executes it
+- [[test-driven-development]] -- pairs naturally with incremental implementation (write test first, then implement)
+- [[code-commit-workflow]] -- commit message conventions and atomic change patterns

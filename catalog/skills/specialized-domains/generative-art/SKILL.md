@@ -116,8 +116,8 @@ Each template's top comment block names a default movement reference (Casey Reas
 
 ## Related Skills
 
-- `developer-experience/creative-generation` - umbrella creative-direction skill; its Static Poster Workflow handles the complementary case where the output is a fixed .pdf rather than a parameter-driven sketch.
-- `specialized-domains/glsl-shader-development` - 3D shader / fragment-shader visuals; the GPU-side counterpart to this skill's CPU-side p5.js sketches.
-- `specialized-domains/brand-styling` - apply user-supplied brand tokens (palette, typography) to the manifesto's Color section when the piece is brand-applied; otherwise this skill picks color rules autonomously.
-- `developer-experience/ui-component-generation` - surrounding UI / app shell when the generative piece is embedded in a larger product; this skill handles only the canvas, not the chrome.
-- `specialized-domains/gif-sticker-maker` - export the generative output as an animated .gif loop when the artifact's natural form is a short cycle rather than a re-rollable still.
+- [[creative-generation]] -- umbrella creative-direction skill; its Static Poster Workflow handles the complementary case where the output is a fixed .pdf rather than a parameter-driven sketch.
+- [[glsl-shader-development]] -- 3D shader / fragment-shader visuals; the GPU-side counterpart to this skill's CPU-side p5.js sketches.
+- [[brand-styling]] -- apply user-supplied brand tokens (palette, typography) to the manifesto's Color section when the piece is brand-applied; otherwise this skill picks color rules autonomously.
+- [[ui-component-generation]] -- surrounding UI / app shell when the generative piece is embedded in a larger product; this skill handles only the canvas, not the chrome.
+- [[gif-sticker-maker]] -- export the generative output as an animated .gif loop when the artifact's natural form is a short cycle rather than a re-rollable still.

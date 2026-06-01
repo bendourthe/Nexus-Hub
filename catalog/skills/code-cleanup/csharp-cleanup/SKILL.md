@@ -395,10 +395,30 @@ if (list.Any())
 }
 ```
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "async void is fine for this event handler" | An exception thrown in an async void method cannot be caught by the caller and crashes the process; the same code as async Task surfaces the exception where it can be handled. Convert every async void that is not a top-level event handler. |
+| "Nullable warnings are noise, I'll suppress them" | Each suppressed warning is a NullReferenceException waiting in production. Enabling `#nullable enable` and annotating the reference moves the failure from runtime to compile time, which is the whole point. |
+| "I'll enumerate this LINQ query in a few places, it's the same data" | A deferred query re-executes every enumeration, so a database-backed query hits the wire three times. Materializing once with ToList() turns three round-trips into one. |
+| "The old API still works, no need to migrate" | A deprecated .NET API is a removal scheduled for a future framework upgrade; deferring the migration just moves the break to a worse time. Migrate while the analyzer still points at the call site. |
+
+## Verification
+
+- [ ] Formatting is clean: `dotnet format --verify-no-changes` succeeds
+- [ ] The build is warning-free including nullable: `dotnet build /warnaserror:nullable` succeeds
+- [ ] No async void methods remain except top-level event handlers
+- [ ] No deferred LINQ query is enumerated more than once without materialization
+- [ ] All deprecated API call sites flagged by the analyzer have been migrated
+- [ ] All existing tests pass: `dotnet test`
+
 ## Related Skills
 
-- `code-review-quality` - Code quality assessment
-- `security-review` - Security analysis
+- [[code-quality]] -- score the cleaned codebase against SOLID and complexity metrics
+- [[security-review]] -- security analysis for input handling and deserialization paths
+- [[async-patterns]] -- correct async/await and concurrency idioms behind the async-void fixes
+- [[deprecated-api-updater]] -- systematic migration of the deprecated .NET API calls this skill flags
 
 ---
 

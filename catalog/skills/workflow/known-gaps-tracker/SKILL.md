@@ -1,7 +1,7 @@
 ---
 name: known-gaps-tracker
 description: Maintain docs/<version>/known-gaps.md - a per-version log of items that were not implemented, deferred, buggy, suppressed, or left without coverage at the end of each phase. /implement-phase appends, /wrap-up-session sweeps and finalizes, /generate-plan ingests open items into the next plan.
-summary_l0: "Track per-version unfinished work, deferred items, bugs, warnings, and coverage gaps so the next plan picks them up automatically"
+summary_l0: "Track per-version unfinished work, deferred items, bugs, and coverage gaps for the next plan"
 overview_l1: "This skill maintains docs/<version>/known-gaps.md as a per-version, append-only log of items that did not reach a clean state by the end of a phase: subtasks not implemented, work intentionally deferred, bugs found but not fixed, warnings suppressed, missing tests or coverage gaps, and quality gates the user opted to bypass. /implement-phase appends to it after each phase; /wrap-up-session sweeps the live conversation for any uncaptured gaps and finalizes the file when the version is bumped; /generate-plan reads the immediately prior version's known-gaps.md (and any older still-in-progress files) to seed the discovery interview for the next plan, so unfinished work is automatically pulled forward. Trigger phrases: known gaps, deferred work, carryover, unfinished items, what was left over, prior version gaps, docs/<version>/known-gaps.md."
 ---
 
@@ -166,8 +166,8 @@ ID prefixes are stable: `NI-`, `DF-`, `BG-`, `WN-`, `MT-`, `QG-`. Numbers are mo
 
 ## Related Skills
 
-- `dev-progress-tracker` - maintains `docs/todos.md` (forward-looking sprint roadmap); known-gaps is the per-version archive companion that records what slipped.
-- `session-history` - retrospective per-session record; known-gaps is a structured punch-list aggregated across sessions of the same version.
-- `version-upgrade` - the version-bump operation that triggers known-gaps finalization.
-- `implementation-plan` - generates the plan that known-gaps eventually feeds into for the next version.
-- `solution-knowledge-base` - when a `BG` (bug) gap is resolved with a non-trivial root cause, or an item is closed with a hard-won insight, graduate it into a durable `docs/solutions/<category>/<slug>.md` entry so the fix becomes grounding for future planning and review. Moving the item to `## Resolved` records *that* it was fixed; the solution doc records *how*, retrievably.
+- [[dev-progress-tracker]] -- maintains `docs/todos.md` (forward-looking sprint roadmap); known-gaps is the per-version archive companion that records what slipped.
+- [[session-history]] -- retrospective per-session record; known-gaps is a structured punch-list aggregated across sessions of the same version.
+- [[version-upgrade]] -- the version-bump operation that triggers known-gaps finalization.
+- [[implementation-plan]] -- generates the plan that known-gaps eventually feeds into for the next version.
+- [[solution-knowledge-base]] -- when a `BG` (bug) gap is resolved with a non-trivial root cause, or an item is closed with a hard-won insight, graduate it into a durable `docs/solutions/<category>/<slug>.md` entry so the fix becomes grounding for future planning and review. Moving the item to `## Resolved` records *that* it was fixed; the solution doc records *how*, retrievably.

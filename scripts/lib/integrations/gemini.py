@@ -22,8 +22,8 @@ class GeminiIntegration(MarkdownIntegration, SkillsIntegration):
         "workspace_dir": ".gemini",
         # base-gemini.md is the canonical, fully-templated GEMINI.md the legacy
         # bash installer renders (and one of the five lock-step base templates in
-        # AGENTS.md). The earlier base-gemini-ide.md was a static @-import stub
-        # that diverged from the bash output; using base-gemini.md closes the
+        # AGENTS.md). An earlier static @-import stub diverged from the bash
+        # output and has since been removed; using base-gemini.md closes the
         # template-divergence half of DF-001.
         "instruction_file": "GEMINI.md",
         "instruction_template": "templates/ai-instructions/base-gemini.md",

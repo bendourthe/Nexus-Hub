@@ -2,7 +2,7 @@
 name: session-history
 description: Generate a comprehensive, standalone session history document at the end of a development session capturing chronological steps, troubleshooting, assumptions, testing results, and next steps. Use when finishing a coding session, documenting a development phase, or creating handoff context for the next session.
 summary_l0: "Generate standalone session history documents capturing steps, troubleshooting, and next steps"
-overview_l1: "This skill generates comprehensive session history documents at the end of a development session or retrospectively from archived sources. Use it when finishing a coding session, documenting a completed phase of an implementation plan, creating handoff context for the next session or developer, or reconstructing development history from git and past session files. Key capabilities include live conversation context mining, git delta analysis for the session window, implementation plan cross-referencing with TODO tracking, troubleshooting trail documentation with actual error messages, assumption tracking (explicit and implicit), structured verification gate tables, testing summary with manual testing suggestions, plan discrepancy detection, and next-steps generation. Operates in two modes: session mode (default, mines the live conversation as the primary source) and retrospective mode (reconstructs from archived AI session files, git history, DEVLOG, and planning documents). The expected output is a standalone Markdown file with 9 structured sections: Starting State, Chronological Steps, Verification Gate, Known Issues, Plan Discrepancies, Assumptions Made, Testing Summary, TODO Tracker, and Summary and Next Steps. Trigger phrases: session history, document session, session recap, end of session, session summary, what did we do, session log, development session, generate session history, document this phase."
+overview_l1: "This skill generates comprehensive session history documents at the end of a development session or retrospectively from archived sources. Use it when finishing a coding session, documenting a completed phase, creating handoff context for the next session, or reconstructing history from git and past session files. Key capabilities: conversation context mining, git delta analysis, plan cross-referencing with TODO tracking, troubleshooting trails with actual error messages, assumption tracking, verification gate tables, plan discrepancy detection, and next-steps generation. It operates in session mode (mines the live conversation) and retrospective mode (reconstructs from archived session files, git, DEVLOG, and plans). Output is a standalone Markdown file with 9 sections: Starting State, Chronological Steps, Verification Gate, Known Issues, Plan Discrepancies, Assumptions Made, Testing Summary, TODO Tracker, and Summary and Next Steps. Trigger phrases: session history, document session, session recap, end of session, session summary, session log, generate session history."
 ---
 
 # Session History
@@ -276,28 +276,36 @@ Rely on git history, DEVLOG, CHANGELOG, and planning documents. Flag all trouble
 ### Session With No Code Changes
 Document research, planning, or investigation sessions. Note "No code changes were committed this session" in the Starting State. Chronological Steps captures the research or discussion topics instead.
 
-## Quality Checklist
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "I remember the session well enough to summarize it from memory" | Memory compresses away the failed attempts and exact error strings that make a handoff useful; the next session repeats the same dead ends because the trail was never recorded. |
+| "An empty section can just be dropped" | Dropping a section hides whether it was empty by design or forgotten; emit all 9 sections with "None" or "N/A" so a reader can trust the document is complete. |
+| "I can describe the error in my own words instead of pasting it" | Paraphrased errors are unsearchable and lossy; the actual error message is what the next developer greps for, so capture it verbatim. |
+
+## Verification
 
 Before finalizing the output file, verify:
 
--   [ ] Every git commit from the session window appears in at least one Chronological Steps subsection
--   [ ] Troubleshooting entries include actual error messages, not just descriptions
--   [ ] Assumptions section captures both explicit and implicit assumptions
--   [ ] TODO Tracker aligns with the plan's subtask list (if a plan exists)
--   [ ] Verification Gate has a result for every check that was performed
--   [ ] No fabricated content; thin sections are explicitly flagged
--   [ ] The file is standalone — readable without access to the conversation
--   [ ] All 9 sections are present (with "None" or "N/A" for empty sections)
--   [ ] Dates and commit hashes are accurate (cross-referenced with git)
--   [ ] File naming follows the convention: `<YYYY-MM>_<kebab-title>.md`
+- [ ] Every git commit from the session window appears in at least one Chronological Steps subsection
+- [ ] Troubleshooting entries include actual error messages, not just descriptions
+- [ ] Assumptions section captures both explicit and implicit assumptions
+- [ ] TODO Tracker aligns with the plan's subtask list (if a plan exists)
+- [ ] Verification Gate has a result for every check that was performed
+- [ ] No fabricated content; thin sections are explicitly flagged
+- [ ] The file is standalone -- readable without access to the conversation
+- [ ] All 9 sections are present (with "None" or "N/A" for empty sections)
+- [ ] Dates and commit hashes are accurate (cross-referenced with git)
+- [ ] File naming follows the convention: `<YYYY-MM>_<kebab-title>.md`
 
 ## Related Skills
 
--   `devlog-generation` — Retroactive full-project DEVLOG.md from git history (different output format and purpose)
--   `plan-before-code` — Creating the implementation plan that this skill cross-references
--   `research-plan-implement` — RPI workflow with artifact generation and quality gates
--   `code-commit-workflow` — Commit conventions that feed into session history timestamps
--   `documentation-consistency` — Verifying documentation stays in sync with code changes
+-   [[devlog-generation]] -- retroactive full-project DEVLOG.md from git history (different output format and purpose)
+-   [[plan-before-code]] -- creating the implementation plan that this skill cross-references
+-   [[research-plan-implement]] -- RPI workflow with artifact generation and quality gates
+-   [[code-commit-workflow]] -- commit conventions that feed into session history timestamps
+-   [[documentation-consistency]] -- verifying documentation stays in sync with code changes
 -   See also: [SESSION_LIFECYCLE_DECISIONS](../../../../guides/SESSION_LIFECYCLE_DECISIONS.md) — the "summarize from here" handoff pattern and when to pair session-history output with `/rewind` or `/clear`
 
 ---

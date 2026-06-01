@@ -500,12 +500,32 @@ Good: Change request submitted, impact assessed, approved by designated authorit
 - [ ] Change request process is documented and stakeholders are aware of it
 - [ ] Traceability matrix links business needs to requirements to test cases with no orphans
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "The stakeholder told me exactly what to build, so I can skip elicitation" | Stakeholders describe solutions, not problems. Building the dropdown they asked for instead of the country-selection capability they needed means a rework cycle the moment a 196th country appears. |
+| "The current process is obvious, I'll jump straight to the to-be design" | Skipping the as-is map hides the legacy approval step that exists only to compensate for a system limitation. You automate the workaround and ship the bottleneck into the new system. |
+| "'User-friendly' and 'fast' are clear enough for the engineers" | Those words are untestable, so QA cannot sign off and every reviewer interprets them differently. "Registration completes in under 3 minutes without assistance" is the difference between a passing test and an endless argument. |
+| "Data migration will just work once the new schema is ready" | Unmapped source fields and missing transformation rules surface as silent data loss at cutover, not in development. A field-by-field mapping with quality rules is the only thing that catches a NULL email before it reaches production. |
+
+## Verification
+
+- [ ] The stakeholder map lists every stakeholder with an interest, influence, and engagement strategy
+- [ ] At least two elicitation techniques were used for the same requirement set (triangulation)
+- [ ] Every functional requirement uses "shall" and is independently testable with a measurable criterion
+- [ ] The data dictionary defines every field with type, constraints, and a business definition
+- [ ] Each gap in the gap matrix has a cost-benefit entry and a priority score
+- [ ] Every business rule has at least one Given/When/Then scenario covering happy path, error path, and boundary
+- [ ] The traceability matrix links each business need to a requirement to a test case with zero orphan rows
+
 ## Related Skills
 
-- `product-manager` - Product strategy, prioritization, and roadmap planning
-- `technical-writer` - Documentation standards and user-facing content
-- `plan-before-code` - Engineering planning and exploration before implementation
-- `test-driven-development` - Writing automated tests from acceptance criteria
+- [[product-manager]] -- product strategy, prioritization, and roadmap planning that consumes these requirements
+- [[technical-writer]] -- documentation standards and user-facing content for the specs this skill produces
+- [[plan-before-code]] -- engineering planning and exploration before implementation begins
+- [[test-driven-development]] -- writing automated tests from the acceptance criteria defined here
+- [[requirement-enhancer]] -- sharpen the testability and completeness of individual requirements
 
 ---
 

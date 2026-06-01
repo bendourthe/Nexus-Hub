@@ -461,3 +461,27 @@ Cross-link: `[[spec-driven-development]]` writes the spec; `[[idea-refine]]` pro
 - **Confusing ambiguity with disagreement**: sometimes two people interpret a requirement differently not because it is ambiguous but because they have different assumptions; surface the assumptions rather than just rewriting the text
 - **Creating overly verbose requirements to avoid ambiguity**: excessively detailed requirements are difficult to read and maintain; aim for precision, not length; use examples rather than exhaustive prose
 - **Failing to close the loop**: detecting ambiguity is useless if clarification questions are never asked or answers are never incorporated back into the requirements document; track resolution status for every finding
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "Everyone on the team knows what 'fast' means here" | The most expensive ambiguity is the one nobody flags because all parties assume a shared definition; the backend dev codes for 500ms while the PM expected 100ms. |
+| "The spec is detailed, so it must be complete" | Length is not completeness; a 5-page spec can describe the happy path in depth and never state what happens on invalid input, leaving the error path undefined. |
+| "I'll just pick a reasonable interpretation and move on" | A guessed interpretation that diverges from intent costs 10-100x more to fix after code is written than a `[NEEDS CLARIFICATION]` marker would have cost upfront. |
+| "There are 12 things to clarify, I'll mark them all" | A spec with 12 markers signals scope confusion, not rigor; the 3-marker cap forces triage by scope > security > UX > technical so reviewers act on what matters. |
+
+## Verification
+
+- [ ] Each finding records its ambiguity type (lexical/syntactic/semantic/pragmatic/scope/temporal), location, and severity
+- [ ] Every detected ambiguity has a specific clarification question, not a free-form note
+- [ ] The completeness checklist was applied: error cases, boundaries, concurrency, and security are addressed or explicitly out of scope
+- [ ] No more than 3 `[NEEDS CLARIFICATION]` markers remain, each with a specific question and priority note
+- [ ] Ambiguity density and testability scores are computed and reported with their ratings
+
+## Related Skills
+
+- [[spec-driven-development]] -- writes the structured spec this skill audits for ambiguity before implementation
+- [[idea-refine]] -- produces the problem statement that bounds the spec, honoring the same 3-marker cap
+- [[requirement-enhancer]] -- rewrites flagged requirements with measurable, testable acceptance criteria
+- [[business-analyst]] -- gathers stakeholder answers to resolve the clarification questions this skill emits

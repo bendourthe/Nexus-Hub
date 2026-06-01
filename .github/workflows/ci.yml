@@ -38,8 +38,7 @@ jobs:
           python scripts/validate_no_personal_paths.py \
             --exclude docs/v2.0.0 \
             --exclude docs/v2.1.0 \
-            --exclude docs/v2.2.0 \
-            --exclude catalog/hooks/tests
+            --exclude docs/v2.2.0
 
       - name: Validate Unicode safety (v2.3.0 Phase 2)
         run: |
@@ -67,9 +66,9 @@ jobs:
         run: |
           shellcheck --severity=warning scripts/installer.sh install.sh
 
-      - name: Lint hook scripts
+      - name: Lint hook and per-skill scripts
         run: |
-          find catalog/hooks -name '*.sh' -print0 | xargs -0 shellcheck --severity=warning || true
+          find catalog -name '*.sh' -print0 | xargs -0 shellcheck --severity=warning || true
 
   tests:
     # Runs the Python test suite. Each pytest invocation is scoped to its own

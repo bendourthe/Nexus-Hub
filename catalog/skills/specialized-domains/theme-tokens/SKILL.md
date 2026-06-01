@@ -153,9 +153,9 @@ User-supplied themes go under `~/.nexus-hub/brand/<name>/tokens.json` (via `spec
 
 ## Related Skills
 
-- `specialized-domains/brand-styling` - applies user-supplied brand tokens; this skill provides the schema, brand-styling provides the user-specific instances.
-- `specialized-domains/pptx-generation` - one of the four primary downstream consumers; maps theme tokens to slide masters and placeholders.
-- `specialized-domains/docx-generation` - downstream consumer for Word styles.
-- `specialized-domains/pdf-document-generation` - downstream consumer for ReportLab `ParagraphStyle` or HTML-to-PDF CSS.
-- `developer-experience/web-artifacts-builder` - downstream consumer; emits theme as CSS custom properties or Tailwind v4 `@theme` block.
-- `specialized-domains/generative-art` - reads `palette.primary` and `accent` as the starting palette for the philosophy manifesto's Color section.
+- [[brand-styling]] -- applies user-supplied brand tokens; this skill provides the schema, brand-styling provides the user-specific instances.
+- [[pptx-generation]] -- one of the four primary downstream consumers; maps theme tokens to slide masters and placeholders.
+- [[docx-generation]] -- downstream consumer for Word styles.
+- [[pdf-document-generation]] -- downstream consumer for ReportLab `ParagraphStyle` or HTML-to-PDF CSS.
+- [[web-artifacts-builder]] -- downstream consumer; emits theme as CSS custom properties or Tailwind v4 `@theme` block.
+- [[generative-art]] -- reads `palette.primary` and `accent` as the starting palette for the philosophy manifesto's Color section.

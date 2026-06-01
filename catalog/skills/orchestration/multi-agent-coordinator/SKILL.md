@@ -632,7 +632,15 @@ Invoke related skills at the appropriate coordination phase:
 | Documentation agents | `technical-documentation`, `api-documentation` |
 | Verification | `loop-operator` (iterative test fixing) |
 
-## Quality Checklist
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "Splitting this across agents is cleaner than doing it serially." | Multi-agent coordination adds 5-15x token overhead and a reconciliation burden. For a task one agent can hold in context, it is strictly more expensive and more error-prone. The Do NOT list fences off exactly this case. |
+| "Two agents can both touch the shared module; I will merge their edits afterward." | Overlapping write scopes produce the merge conflicts this skill exists to prevent. If the file sets are not disjoint, parallelism is unsafe and you reconcile by hand instead of by design. Allocate disjoint write scopes first. |
+| "The subagent can figure out the context from the file paths I give it." | A subagent runs in a fresh context with none of the parent session's reasoning. A prompt that lists only file references, not the decisions and constraints, produces an agent that re-derives (and re-litigates) settled choices. |
+
+## Verification
 
 - [ ] Task graph identifies critical path and all parallel opportunities
 - [ ] Every agent has a defined role, disjoint write scope, and output contract
@@ -649,11 +657,11 @@ Invoke related skills at the appropriate coordination phase:
 
 ## Related Skills
 
-- `task-coordinator` - General task decomposition and dependency management
-- `plan-before-code` - Upfront planning methodology
-- `context-manager` - Managing information across agent boundaries
-- `workflow-orchestrator` - End-to-end workflow management
-- `code-quality` - Quality standards for agent-produced implementations
+- [[task-coordinator]] - General task decomposition and dependency management
+- [[plan-before-code]] - Upfront planning methodology
+- [[context-manager]] - Managing information across agent boundaries
+- [[workflow-orchestrator]] - End-to-end workflow management
+- [[code-quality]] - Quality standards for agent-produced implementations
 - See also: [SESSION_LIFECYCLE_DECISIONS](../../../../guides/SESSION_LIFECYCLE_DECISIONS.md) - the "will I need this tool output again?" test for deciding when to delegate to a subagent
 
 ---

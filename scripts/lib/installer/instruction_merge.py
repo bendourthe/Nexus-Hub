@@ -148,9 +148,10 @@ def _replace_between_markers(
     text: str, new_block: str, start_marker: str, end_marker: str
 ) -> str:
     # Use rindex so the marker block can quote itself in body text without
-    # accidentally truncating at the first nested mention. (The shared
-    # base-gemini-ide.md template literally references both markers when
-    # explaining the merge mechanism to the user.)
+    # accidentally truncating at the first nested mention. (A shared instruction
+    # template may literally reference both markers when explaining the merge
+    # mechanism to the user, e.g. an inline "between <!-- NEXUS:BEGIN --> and
+    # <!-- NEXUS:END -->" note in the body.)
     start = text.index(start_marker)
     end = text.rindex(end_marker, start) + len(end_marker)
     # Preserve the trailing newline after the end marker if it existed; otherwise

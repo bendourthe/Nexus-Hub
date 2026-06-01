@@ -2,7 +2,7 @@
 name: glsl-shader-development
 description: GLSL shader programming expertise for visual effects, 3D graphics, and GPU computing. Use when writing fragment/vertex shaders, implementing ray marching, building procedural generation, creating post-processing effects, or working with WebGL/Three.js shaders.
 summary_l0: "Write GLSL shaders for visual effects, ray marching, procedural generation, and 3D graphics"
-overview_l1: "This skill provides GLSL shader programming expertise for visual effects, 3D graphics, and GPU computing. Use it when writing fragment or vertex shaders, implementing ray marching and sphere tracing, building procedural generation with noise functions, creating post-processing effects like bloom and depth of field, or working with WebGL and Three.js shader pipelines. Key capabilities include signed distance function (SDF) modeling with CSG operations, physically-based rendering with Cook-Torrance BRDF, procedural noise (Perlin, Simplex, Worley) and fractal brownian motion, camera and lighting setup for ray marched scenes, animation and mouse interaction in real-time shaders, and integration with Three.js ShaderMaterial and raw WebGL programs. The expected output is correct, performant GLSL shader code with proper precision qualifiers, optimized loops, and clean uniform interfaces. Trigger phrases: GLSL, shader, fragment shader, vertex shader, ray marching, SDF, signed distance function, procedural generation, noise function, post-processing, bloom, depth of field, ShaderToy, WebGL, Three.js shader, PBR shader, Cook-Torrance, Perlin noise, Simplex noise, domain warping, FBM."
+overview_l1: "This skill provides GLSL shader programming expertise for visual effects, 3D graphics, and GPU computing. Use it when writing fragment or vertex shaders, implementing ray marching and sphere tracing, building procedural generation with noise functions, creating post-processing effects like bloom and depth of field, or working with WebGL and Three.js shader pipelines. Key capabilities include signed distance function (SDF) modeling with CSG operations, physically-based rendering with Cook-Torrance BRDF, procedural noise (Perlin, Simplex, Worley) and fractal brownian motion, camera and lighting setup for ray marched scenes, animation and mouse interaction in real-time shaders, and integration with Three.js ShaderMaterial and raw WebGL. The expected output is correct, performant GLSL shader code with proper precision qualifiers, optimized loops, and clean uniform interfaces. Trigger phrases: GLSL, shader, fragment shader, vertex shader, ray marching, SDF, signed distance function, procedural generation, noise function, post-processing, ShaderToy, WebGL, Three.js shader, PBR shader, Cook-Torrance, Perlin noise, Simplex noise, FBM."
 ---
 
 # GLSL Shader Development
@@ -1353,3 +1353,28 @@ mediump vec3 color = texture(uTex, uv).rgb;
 6. **Shader compilation errors**: Compilation errors are only available via `gl.getShaderInfoLog()`. Always check after `compileShader()`.
 7. **Missing precision qualifier**: WebGL fragment shaders require an explicit `precision` declaration. Omitting it is a compile error on mobile.
 8. **Loop unrolling limits**: Some drivers refuse to compile loops with non-constant bounds. Use `#define MAX_STEPS 128` or `const int`.
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "It compiles, so the shader is correct" | A GLSL shader that compiles can still read uninitialized varyings as garbage or produce NaN from a divide-by-zero in the ray-march loop. Visual output plus a NaN/precision check is the only proof it is correct. |
+| "I'll omit the precision qualifier, it works on desktop" | Desktop GL defaults to highp; mobile WebGL fragment shaders require an explicit `precision` declaration and fail to compile without it. The shader that runs on your laptop is a black screen on a phone. |
+| "ray-march with 256 steps for quality, performance later" | A high step count plus heavy per-pixel ALU drops mobile below 60fps and may exceed the driver's loop-unroll limit so it will not compile at all. Budget steps against the fragment-cost target from the start. |
+| "sin(iTime) is fine for the animation" | As iTime grows, mobile float precision turns sin(largeNumber) into visible jitter. Wrapping the input with `mod(iTime, 6.2831)` is what keeps the animation stable over a long session. |
+
+## Verification
+
+- [ ] The shader compiles with no errors: `gl.getShaderInfoLog()` is empty after `compileShader()`
+- [ ] Every fragment shader declares an explicit `precision` qualifier
+- [ ] All varyings written by the vertex shader are read (and initialized) in the fragment shader
+- [ ] The output contains no NaN/black artifacts (divide-by-zero and unbounded values are guarded)
+- [ ] Ray-march / loop bounds use a constant (`#define` or `const int`) so the driver can unroll them
+- [ ] Per-pixel cost meets the documented fragment budget (under ~50 ALU ops for 60fps mobile)
+
+## Related Skills
+
+- [[generative-art]] -- p5.js generative-art pipeline that often pairs with shader-driven visuals
+- [[creative-generation]] -- creative direction and ideation for the visual effect a shader implements
+- [[code-optimizer]] -- profiling and ALU-reduction techniques for hot fragment shaders
+- [[web-artifacts-builder]] -- scaffold the WebGL / Three.js host page that runs the shader

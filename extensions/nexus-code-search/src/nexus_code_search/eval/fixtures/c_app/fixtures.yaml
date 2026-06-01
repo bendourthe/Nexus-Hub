@@ -1,0 +1,18 @@
+name: c_app
+description: C translation unit - exercises function/struct/enum extraction, include imports, and in-file calls.
+questions:
+  - tool: code_search
+    query: add
+    expect: [add]
+  - tool: code_search
+    query: compute
+    expect: [compute]
+  - tool: code_search
+    query: Point
+    expect: [Point]
+  - tool: code_search
+    query: Color
+    expect: [Color]
+  - tool: code_callees
+    symbol: compute
+    expect_callees: [add]

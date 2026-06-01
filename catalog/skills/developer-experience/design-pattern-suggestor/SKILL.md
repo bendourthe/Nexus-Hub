@@ -587,3 +587,27 @@ Not every problem needs a design pattern. Simpler solutions are preferred when t
 - **Over-abstracting Factory patterns**: if the factory requires as much conditional logic as the original creation code, the abstraction has not simplified anything
 - **Forgetting about testability**: design patterns should make code easier to test by enabling mock injection and isolating behavior; if a pattern makes testing harder, reconsider the approach
 - **Not considering the team's familiarity**: introducing uncommon patterns (Visitor, Flyweight, Mediator) to a team unfamiliar with them can reduce rather than improve maintainability; choose patterns the team understands or invest in education first
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "A Strategy pattern will future-proof this two-branch if-else" | Introducing a pattern for a hypothetical third variant adds indirection now for a benefit that may never arrive; wait for the third variant or concrete evidence of change. |
+| "This codebase should use more patterns, it looks too plain" | Pattern worship treats GoF as a checklist; a god class wearing a Builder is still a god class, and the extra abstraction makes the real problem harder to see. |
+| "The pattern is the canonical solution, so it must fit" | Many GoF patterns work around language limits that no longer apply; Python uses a module not a Singleton class, JS uses generators not a classical Iterator, so the canonical form can be the wrong fit. |
+| "It's more abstract, therefore more maintainable" | Abstraction that makes mock injection harder reduces testability; if applying the pattern makes the code harder to test, it is making maintainability worse, not better. |
+
+## Verification
+
+- [ ] The recommendation names the specific code smell or problem the pattern solves
+- [ ] A before/after code comparison shows the pattern reduces, not increases, conditional complexity
+- [ ] The trade-off analysis lists the cost (indirection, learning curve) alongside the benefit
+- [ ] A language-idiomatic alternative was considered before recommending a classical GoF form
+- [ ] The pattern makes the code easier to unit test (mock injection, isolated behavior), not harder
+
+## Related Skills
+
+- [[refactoring-expert]] -- applies the behavior-preserving transforms that introduce the recommended pattern
+- [[code-smell-detector]] -- identifies the structural problems that a pattern recommendation addresses
+- [[code-quality]] -- scores whether the introduced pattern improved SOLID adherence and complexity
+- [[architecture-design]] -- the system-level structuring that complements method- and class-level patterns

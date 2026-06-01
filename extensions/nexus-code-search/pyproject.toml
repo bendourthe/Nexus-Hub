@@ -24,6 +24,12 @@ dependencies = [
     "tree-sitter-rust>=0.23,<0.26",
     "tree-sitter-java>=0.23,<0.26",
     "tree-sitter-c-sharp>=0.23,<0.26",
+    # v2.4.0 / DF-v23-4 extractor batch: Ruby, PHP, C, C++. All resolve under
+    # the shared <0.26 ceiling (ruby 0.23, php 0.24, c 0.24, cpp 0.23).
+    "tree-sitter-ruby>=0.23,<0.26",
+    "tree-sitter-php>=0.23,<0.26",
+    "tree-sitter-c>=0.23,<0.26",
+    "tree-sitter-cpp>=0.23,<0.26",
     "watchdog>=4.0.0",
 ]
 

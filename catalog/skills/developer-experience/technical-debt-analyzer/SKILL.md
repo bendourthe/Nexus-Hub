@@ -2,7 +2,7 @@
 name: technical-debt-analyzer
 description: Quantify, categorize, and prioritize technical debt using SQALE methodology with interest calculation and remediation planning. Use when assessing code debt, architecture debt, test debt, documentation debt, or planning debt reduction sprints.
 summary_l0: "Quantify and prioritize technical debt with SQALE methodology and remediation planning"
-overview_l1: "This skill provides systematic identification, quantification, and prioritization of technical debt across a codebase using the SQALE (Software Quality Assessment based on Lifecycle Expectations) methodology. Use it when assessing overall technical debt posture, quantifying debt in remediation effort and ongoing interest, categorizing debt by type (code, architecture, test, documentation, infrastructure, dependency), prioritizing debt items based on business impact and cost, planning debt reduction sprints, communicating debt status to non-technical stakeholders, establishing debt budgets, or evaluating whether to pay down or accept debt. Key capabilities include SQALE-based debt measurement, interest calculation (cost of delay), debt categorization across six dimensions, business impact scoring, remediation effort estimation, trend tracking over time, and stakeholder-friendly reporting. The expected output is a debt analysis report with categorized items, severity scores, interest calculations, and a prioritized remediation plan. Trigger phrases: technical debt, tech debt, debt analysis, debt assessment, code debt, architecture debt, test debt, documentation debt, debt prioritization, remediation plan, SQALE, debt budget, debt reduction."
+overview_l1: "This skill provides systematic identification, quantification, and prioritization of technical debt using the SQALE (Software Quality Assessment based on Lifecycle Expectations) methodology. Use it when assessing overall debt posture, quantifying debt in remediation effort and ongoing interest, categorizing debt by type (code, architecture, test, documentation, infrastructure, dependency), prioritizing debt items by business impact and cost, planning debt reduction sprints, communicating debt status to non-technical stakeholders, establishing debt budgets, or evaluating whether to pay down or accept debt. Key capabilities include SQALE-based measurement, interest calculation (cost of delay), categorization across six dimensions, business impact scoring, remediation effort estimation, trend tracking, and stakeholder-friendly reporting. The expected output is a debt analysis report with categorized items, severity scores, interest calculations, and a prioritized remediation plan. Trigger phrases: technical debt, tech debt, debt analysis, debt assessment, code debt, architecture debt, test debt, documentation debt, debt prioritization, remediation plan, SQALE, debt budget, debt reduction."
 ---
 
 # Technical Debt Analyzer
@@ -526,3 +526,27 @@ Produce a report for stakeholders that combines technical details with business 
 - **Over-investing in debt reduction**: a codebase with zero debt is not the goal; the goal is to maintain debt at a level where it does not significantly impair velocity or quality; diminishing returns apply
 - **Failing to address the root cause**: if debt accumulates because of time pressure, lack of code review, or insufficient testing culture, paying down individual items without fixing the process will result in re-accumulation
 - **Not accounting for the cost of remediation itself**: refactoring introduces risk; estimate not just the effort but also the potential for regressions, and factor in the cost of testing the remediation
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "We have a lot of debt, let's just fix it all" | A codebase with zero debt is not the goal and chasing it hits diminishing returns; prioritizing by interest (cost of delay) and ROI is what keeps the effort funded and impactful. |
+| "I'll count the debt items and tackle the biggest list first" | Item count is the wrong axis; a single 40-hour architecture restructuring can outweigh fifty magic-number fixes, so prioritize by remediation cost versus ongoing interest, not by count. |
+| "Code smells are the debt, that's what the linter finds" | Architecture, test, and infrastructure debt are usually more costly than code smells and invisible to linters; measuring only what is automatable understates the real posture. |
+| "Paying down debt is obviously worth it, no need to measure" | Without showing that remediation improved velocity, reduced defects, or shortened onboarding, the business stops funding it; outcomes must be tracked, not assumed. |
+
+## Verification
+
+- [ ] Each debt item carries a SQALE remediation-effort estimate and an interest (cost-of-delay) figure
+- [ ] Debt is categorized across all six dimensions (code, architecture, test, documentation, infrastructure, dependency), not code only
+- [ ] The remediation plan is prioritized by ROI/interest, not by item count
+- [ ] The report includes a stakeholder-facing summary with severity scores
+- [ ] Deliberate debt items have a recorded repayment plan and deadline
+
+## Related Skills
+
+- [[code-quality]] -- supplies the complexity and SOLID metrics that feed code-debt scoring
+- [[refactoring-expert]] -- executes the behavior-preserving remediation the analysis prioritizes
+- [[dead-code-eliminator]] -- removes the dead-code debt this analysis surfaces
+- [[analysis-logic]] -- the weighted decision-matrix discipline applied to debt prioritization

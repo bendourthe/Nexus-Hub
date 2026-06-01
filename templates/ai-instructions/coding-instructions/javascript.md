@@ -1,4 +1,4 @@
-﻿# JavaScript AI System Prompt
+# JavaScript AI System Prompt
 
 Use this prompt to configure your AI assistant for JavaScript software development, writing, analysis, and creative generation.
 

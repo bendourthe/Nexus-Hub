@@ -655,3 +655,28 @@ def test_reverse_reverse_is_identity(s):
 - **Forgetting to handle the empty case**: Many properties should hold for empty inputs too (empty list, empty string, empty dict); make sure your generator includes them
 - **Mixing up the model and the system under test**: In stateful testing, the model must be trivially correct (e.g., a list for a queue); if the model itself has bugs, the test is worthless
 - **Not investigating shrunken counterexamples**: The shrunken counterexample is a gift; it tells you the minimal conditions for failure; investigate it carefully before fixing
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "I already wrote example-based tests, so property tests are redundant." | Hand-picked examples cover the cases you thought of; a property test runs thousands of generated inputs and finds the empty-list or Unicode edge you never considered, then shrinks it to a one-line reproducer. |
+| "The property `result is not None` passes, so the function is correct." | A property that any non-crashing run satisfies catches no bug; weak properties give false confidence while the off-by-one in the real invariant stays hidden. |
+| "100 examples ran clean, so the property holds." | Rare edge cases need volume; 100 examples is fast local feedback, but a stateful machine or wide input domain needs 10,000+ in CI to actually exercise the corners. |
+| "My property `my_sort(xs) == sorted(xs)` is a strong check." | Comparing against the standard library re-implements the oracle; a bug in your sort that coincidentally matches the library's quirk passes, so assert the contract (same elements, ordered) instead. |
+
+## Verification
+
+- [ ] Each property states an implementation-independent invariant, not a re-implementation of the function.
+- [ ] Properties hold for boundary inputs (empty collection, empty string, single element) via the generator.
+- [ ] Float-involving properties use approximate comparison with an explicit tolerance.
+- [ ] The CI run uses a high example count (e.g. 10,000) and records the failing seed on any failure.
+- [ ] Reported failures are the framework-shrunk minimal counterexample, not the original large input.
+
+## Related Skills
+
+- [[edge-case-generator]] -- enumerates curated boundaries that complement randomly generated property inputs
+- [[metamorphic-test-generator]] -- applies transformation invariants where a direct property oracle is unavailable
+- [[fuzzing-input-generator]] -- finds crashes where property testing finds invariant violations
+- [[directed-test-input-generator]] -- targets specific branches that random generation reaches only by chance
+- [[unit-tests]] -- holds the example-based regression tests that pin shrunk counterexamples

@@ -179,24 +179,33 @@ Create a report with:
 1. [Area] - [Reason]
 ```
 
-## Quality Checklist
+## Common Rationalizations
 
-- [ ] Repository structure documented
-- [ ] Entry points identified
-- [ ] Architecture patterns recognized
-- [ ] Dependencies analyzed
-- [ ] Vulnerabilities checked
-- [ ] Critical paths mapped
-- [ ] Metrics collected
-- [ ] Context report generated
+| Rationalization | Reality |
+|---|---|
+| "I can review the diff directly without mapping the project first" | Reviewing a payment-flow change without knowing it sits behind an auth guard leads to flagging a non-issue or missing that the guard was bypassed; context is what tells you which lines are critical paths. |
+| "The README describes the architecture, so I don't need to map it" | READMEs drift from reality; the documented "layered architecture" is often a god-module in practice, and only a directory and dependency scan reveals the actual structure under review. |
+| "Dependency health is a separate concern from this review" | A code change that adds a call into an unpinned, known-CVE dependency is a review finding; skipping the dependency scan in Phase 1 means later phases lack the context to flag it. |
+| "Skipping context analysis saves time on small changes" | A 10-line change to a shared utility can ripple across dozens of callers; without mapping usages first, the reviewer cannot scope the blast radius and approves a breaking change. |
+
+## Verification
+
+- [ ] Repository structure documented (directory tree captured)
+- [ ] Entry points identified and listed
+- [ ] Architecture patterns recognized and named
+- [ ] Dependencies analyzed (count and outdated/vulnerable totals recorded)
+- [ ] Dependency vulnerability scan run (`pip-audit` / `npm audit` / equivalent) with output saved
+- [ ] Critical paths mapped (auth, payments, data writes, network boundaries)
+- [ ] Codebase metrics collected (lines of code, complexity)
+- [ ] Context report generated at the documented path with review-focus recommendations
 
 ## Related Skills
 
-- `code-quality` - Code quality + SOLID + dead code review (Phase 2)
-- `security-review` - Security analysis, 10-domain model (Phase 3)
-- `performance-review` - Performance analysis (Phase 4)
-- `testing-review` - Test assessment (Phase 5)
-- `final-report` - Consolidated report with verdict (Phase 6)
+- [[code-quality]] -- Code quality + SOLID + dead code review (Phase 2), run after this context pass
+- [[security-review]] -- Security analysis across the 10-domain model (Phase 3)
+- [[performance-review]] -- Performance analysis (Phase 4)
+- [[testing-review]] -- Test assessment (Phase 5)
+- [[final-report]] -- Consolidated report with verdict (Phase 6)
 
 ---
 

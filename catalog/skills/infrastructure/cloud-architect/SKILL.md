@@ -521,12 +521,29 @@ API Gateway → ALB → EKS with Istio
 - [ ] Security groups follow least privilege
 - [ ] Architecture documented
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "Single-AZ is cheaper and our SLA is informal anyway" | A single-AZ deployment has a hard availability ceiling: one zone outage takes the whole service down, and no amount of retries inside that zone recovers it. Multi-AZ is the floor for any production tier. |
+| "We'll optimize cost after launch once usage stabilizes" | On-demand-everything with no right-sizing or reserved capacity quietly burns the largest line item from day one; the FinOps review is cheapest before the architecture ossifies, not after. |
+| "The Well-Architected review is a formality we can skip" | Skipping the pillar pass is how undetected single points of failure, missing encryption, and unbounded blast radius reach production; the review exists to catch exactly those before they cost an incident. |
+| "Multi-cloud means I should abstract every service behind a portability layer" | Premature portability layers throw away each cloud's managed-service leverage and add latency and complexity; choose the right service per workload and document the lock-in trade-off explicitly instead. |
+
+## Verification
+
+- [ ] The architecture is assessed against all relevant Well-Architected pillars (reliability, security, cost, performance, operational excellence, sustainability).
+- [ ] Production tiers are multi-AZ; a documented DR plan states the RTO and RPO targets.
+- [ ] A cost estimate accompanies the design, with right-sizing and reserved/committed-use options noted.
+- [ ] Security controls (identity, encryption at rest and in transit, network segmentation) are explicit in the design, not assumed.
+- [ ] Service selection records the cloud-specific managed services chosen and the lock-in trade-off for each.
+
 ## Related Skills
 
-- `terraform-specialist` - Infrastructure provisioning
-- `kubernetes-expert` - Container orchestration on cloud
-- `cicd-architect` - Deployment pipelines
-- `security-review` - Cloud security assessment
+- [[terraform-specialist]] -- infrastructure provisioning
+- [[kubernetes-expert]] -- container orchestration on cloud
+- [[cicd-architect]] -- deployment pipelines
+- [[security-review]] -- cloud security assessment
 
 ---
 

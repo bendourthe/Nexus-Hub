@@ -2,7 +2,7 @@
 name: semantic-bug-detector
 description: Detect semantic bugs (logic errors, incorrect assumptions, race conditions) beyond syntactic checks. Use when reviewing code for logic errors, identifying off-by-one mistakes, finding null safety issues, detecting race conditions, or verifying invariants.
 summary_l0: "Detect logic errors, race conditions, and invariant violations beyond syntax checks"
-overview_l1: "This skill detects semantic bugs that pass compilation and linting but produce incorrect behavior at runtime, including logic flow analysis, type confusion detection, off-by-one error detection, null safety analysis, race condition identification, and invariant violation detection. Use it when reviewing code for logic errors compilers cannot catch, identifying off-by-one errors in loops and boundary conditions, detecting null/undefined safety issues, finding type confusion bugs with silent coercion, identifying race conditions in multi-threaded or async code, verifying code invariants (preconditions, postconditions, loop invariants), or auditing incorrect assumptions about data formats and ranges. Key capabilities include control flow path analysis, boundary condition verification, null propagation tracking, type coercion detection, concurrency hazard identification, and invariant assertion generation. The expected output is a categorized bug report with location, severity, explanation, and suggested fix for each detected semantic issue. Trigger phrases: check for logic errors, find semantic bugs, detect off-by-one, null safety review, race condition detection, find logic flaws, check invariants, semantic analysis, detect concurrency bugs."
+overview_l1: "This skill detects semantic bugs that pass compilation and linting but produce incorrect behavior at runtime, including logic flow analysis, type confusion detection, off-by-one errors, null safety analysis, race condition identification, and invariant violation detection. Use it when reviewing code for logic errors compilers cannot catch, finding off-by-one errors in loops and boundaries, detecting null/undefined safety issues, finding type-confusion bugs from silent coercion, identifying race conditions in concurrent code, or verifying invariants (preconditions, postconditions, loop invariants). Key capabilities include control flow path analysis, boundary condition verification, null propagation tracking, type coercion detection, concurrency hazard identification, and invariant assertion generation. The expected output is a categorized bug report with location, severity, explanation, and suggested fix for each detected semantic issue. Trigger phrases: check for logic errors, find semantic bugs, detect off-by-one, null safety review, race condition detection, find logic flaws, check invariants, semantic analysis, detect concurrency bugs."
 ---
 
 # Semantic Bug Detector
@@ -1230,3 +1230,11 @@ def run_full_semantic_analysis(source_code: str, filename: str) -> dict:
 - [ ] Type coercion risk assessed: implicit conversions in conditions and arithmetic expressions reviewed
 - [ ] At least one property-based or parameterized test added for each logic-heavy function to cover non-obvious inputs
 - [ ] Semantic bug report produced with location, severity, explanation, and suggested fix for each detected issue
+
+## Related Skills
+
+- [[bug-localization]] -- pinpoints the file and line for a semantic bug this skill surfaces
+- [[bug-to-patch-generator]] -- generates the fix for a detected logic error
+- [[edge-case-generator]] -- produces the boundary inputs this skill checks off-by-one conditions against
+- [[property-based-test-generator]] -- generates the property-based tests the Verification step calls for
+- [[code-quality]] -- broader maintainability review that complements semantic-defect detection

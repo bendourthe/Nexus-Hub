@@ -761,10 +761,10 @@ deploy:
 
 ## Related Skills
 
-- `kubernetes-expert` - Kubernetes deployment targets
-- `terraform-specialist` - Infrastructure provisioning in pipelines
-- `security-review` - Pipeline security assessment
-- `test-structure` - Test automation strategies
+- [[kubernetes-expert]] -- Kubernetes deployment targets
+- [[terraform-specialist]] -- infrastructure provisioning in pipelines
+- [[security-review]] -- pipeline security assessment
+- [[test-structure]] -- test automation strategies
 
 ---
 

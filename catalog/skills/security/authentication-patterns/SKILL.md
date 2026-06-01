@@ -857,10 +857,10 @@ app.post('/api/orders', requireScope('orders:write'), createOrder);
 
 ## Related Skills
 
-- `security-review` - Application security assessment including auth review
-- `pre-commit-checklist` - Security checks before committing auth code
-- `dependency-security-audit` - Auditing auth library vulnerabilities
-- `cicd-architect` - Securing CI/CD pipelines with service accounts and tokens
+- [[security-review]] -- application security assessment including auth review
+- [[pre-commit-checklist]] -- security checks before committing auth code
+- [[dependency-security-audit]] -- auditing auth library vulnerabilities
+- [[cicd-architect]] -- securing CI/CD pipelines with service accounts and tokens
 
 ---
 

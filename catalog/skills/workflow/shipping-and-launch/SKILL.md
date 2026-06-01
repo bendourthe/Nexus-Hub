@@ -141,8 +141,8 @@ Minimum communication checklist:
 
 ## Related Skills
 
-- `cicd-architect` — design the CI/CD pipeline that automates pre-flight checks
-- `cd-pipeline-generator` — generate deployment pipeline configuration
-- `rollback-strategy-advisor` — design rollback procedures for complex deployments
-- `observability-setup` — instrument monitoring before this skill is needed
-- `sre-engineer` — SLO definitions and incident response procedures
+- [[cicd-architect]] -- design the CI/CD pipeline that automates pre-flight checks
+- [[cd-pipeline-generator]] -- generate deployment pipeline configuration
+- [[rollback-strategy-advisor]] -- design rollback procedures for complex deployments
+- [[observability-setup]] -- instrument monitoring before this skill is needed
+- [[sre-engineer]] -- SLO definitions and incident response procedures

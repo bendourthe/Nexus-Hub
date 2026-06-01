@@ -646,7 +646,16 @@ class RecentOrder(Specification):
 vip_candidates = HighValueOrder().and_(RecentOrder(days=90))
 ```
 
-## Quality Checklist
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "We can model the whole domain in one big shared model" | A single model forces every team to agree on one meaning of "Customer", and the conflict surfaces as endless cross-team coupling; bounded contexts exist precisely so Sales and Support can each have their own Customer with different invariants. |
+| "Getters and setters on entities are fine, the service layer enforces the rules" | An anemic model with public setters lets any caller put an Order into an invalid state (negative total, shipped-before-paid); the invariant belongs inside the aggregate so the illegal transition is unrepresentable, not policed externally. |
+| "Aggregates can reference each other directly for convenience" | Direct object references between aggregates create large transactional load graphs and accidental cross-aggregate writes; referencing by ID is what keeps the consistency boundary small and the aggregate independently loadable. |
+| "We'll skip event storming and design the model from the database schema" | Designing from the schema bakes in CRUD-table thinking and misses the domain events and process flows that reveal the real boundaries; event storming with domain experts is what surfaces the ubiquitous language the code must use. |
+
+## Verification
 
 - [ ] Bounded contexts identified and named using ubiquitous language
 - [ ] Context map drawn showing all relationships (ACL, OHS, C/S, etc.)
@@ -663,11 +672,12 @@ vip_candidates = HighValueOrder().and_(RecentOrder(days=90))
 
 ## Related Skills
 
-- `architecture-design` - System-level decomposition and trade-off analysis
-- `api-design` - Designing published language and open host services
-- `microservices-patterns` - Implementing bounded contexts as services
-- `event-driven-architecture` - Event infrastructure and messaging patterns
-- `refactoring-expert` - Refactoring toward a rich domain model
+- [[architecture-design]] -- system-level decomposition and trade-off analysis
+- [[api-design]] -- designing published language and open host services
+- [[microservices-patterns]] -- implementing bounded contexts as services
+- [[event-driven-architecture]] -- event infrastructure and messaging patterns
+- [[refactoring-expert]] -- refactoring toward a rich domain model
+- [[component-boundary-identifier]] -- locating bounded-context seams in an existing codebase
 
 ---
 

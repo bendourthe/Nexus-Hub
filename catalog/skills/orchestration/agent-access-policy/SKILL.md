@@ -235,12 +235,28 @@ When using the `cross-model-orchestrator` skill, apply different access policies
 - **Review denied access attempts**: if an agent frequently hits permission boundaries, it may indicate the task scope was too narrow or the agent is trying to solve a cross-cutting concern
 - **Document the policy**: include a comment in the settings file explaining why each path is allowed or denied, so the next person (or agent) understands the rationale
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "Giving the agent full write access is faster; I will just review the diff afterward." | A single misdirected edit to an auth or payments file can land in the diff alongside fifty legitimate changes and slip through review. Scoping write access to the task paths makes an out-of-scope edit impossible, not merely visible. |
+| "This is a one-off task, so a permission policy is overkill." | One-off tasks are exactly when an agent over-reaches into unfamiliar code, because there is no established boundary. The scoped bug-fix template (Template D) takes a minute and caps the blast radius. |
+| "Read-only is too restrictive; the agent might need to touch something." | Starting read-only and adding the specific write globs the agent actually hits surfaces the true scope. If it hits a boundary often, the task was mis-scoped, which is a finding, not a nuisance. |
+
+## Verification
+
+- [ ] A `.claude/settings.json` (or per-role variant) exists with explicit `Write(...)` / `Read(...)` rules
+- [ ] Write access is restricted to glob patterns covering only the task's files
+- [ ] Sensitive paths (auth, payments, infra) are not writable unless the task explicitly requires them
+- [ ] Each allow/deny rule has a comment explaining its rationale
+- [ ] The agent completed the task without hitting an unexpected permission boundary (or the boundary surfaced a mis-scoped task)
+
 ## Related Skills
 
-- `cross-model-orchestrator` - Multi-model workflows where each role gets different access
+- [[cross-model-orchestrator]] - Multi-model workflows where each role gets different access
 - `escalation-trigger` (hook) - Advisory hook for sensitive path detection
-- `component-boundary-identifier` - Identify architectural boundaries for access policy design
-- `quality-gate-definitions` - Define gates that check for unauthorized file modifications
+- [[component-boundary-identifier]] - Identify architectural boundaries for access policy design
+- [[quality-gate-definitions]] - Define gates that check for unauthorized file modifications
 
 ---
 

@@ -633,12 +633,30 @@ dotnet watch run --project src/ProjectName
 - [ ] CI workflow configured
 - [ ] Documentation complete
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "A single project is simpler than a solution with separate src and test projects." | Without a test project wired into the solution, `dotnet test` has nothing to discover and coverage never runs; the separation is what makes the suite executable, not bureaucracy. |
+| "I will leave warnings on; they are not errors." | Unaddressed nullable-reference and obsolete-API warnings accumulate until a real defect is invisible in the noise; enabling `TreatWarningsAsErrors` from the start keeps the signal usable. |
+| "Swagger and health checks are nice-to-haves I can add before launch." | Retrofitting an OpenAPI surface and health endpoint onto a grown controller layer means touching every route; scaffolding them now gives every later endpoint the contract and probe for free. |
+| "I will set up CI once the project actually does something." | The empty scaffold is the cheapest moment to prove `dotnet build` and `dotnet test` pass in CI; deferring it means the first failing pipeline appears under deadline pressure. |
+
+## Verification
+
+- [ ] The solution and its src/test projects are created and referenced (`dotnet sln list` shows them).
+- [ ] The project builds without warnings: `dotnet build` succeeds with `TreatWarningsAsErrors` honored.
+- [ ] The sample test suite passes: `dotnet test` exits with code 0.
+- [ ] The application starts and the Swagger UI / health endpoint responds.
+- [ ] Git is initialized with a `.gitignore` and an initial commit.
+
 ## Related Skills
 
-- `test-structure` - Set up comprehensive testing
-- `csharp-cleanup` - Code cleanup
-- `api-documentation` - Document APIs
-- `security-review` - Security assessment
+- [[test-structure]] -- sets up the comprehensive testing infrastructure beyond the starter scaffold
+- [[csharp-cleanup]] -- modernizes and cleans the C# code that grows in this project
+- [[api-documentation]] -- documents the API surface this ASP.NET Core scaffold exposes
+- [[security-review]] -- assesses the scaffolded service for OWASP and supply-chain risks
+- [[csharp-expert]] -- guides idiomatic enterprise C# on top of this foundation
 
 ---
 

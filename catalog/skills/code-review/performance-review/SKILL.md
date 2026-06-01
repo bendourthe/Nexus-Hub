@@ -180,25 +180,35 @@ users = User.query.options(
 - dotTrace, dotMemory
 - BenchmarkDotNet
 
-## Quality Checklist
+## Common Rationalizations
 
-- [ ] Application profiled
-- [ ] Hot paths identified
-- [ ] Database queries analyzed (N+1, missing indexes, over-fetching)
-- [ ] Memory usage reviewed (leaks, unbounded collections)
-- [ ] Caching strategy evaluated (TTL, invalidation, stampede)
-- [ ] Boundary conditions checked
-- [ ] Diagnostic questions applied to each module
-- [ ] Findings documented with metrics and severity (P0-P3)
+| Rationalization | Reality |
+|---|---|
+| "It's fast enough on my machine" | A query that returns in 5ms against 100 local rows runs an N+1 pattern that becomes 2000 round-trips and seconds of latency against a production table; local timing hides the bottleneck this review exists to catch. |
+| "We'll optimize when it becomes a problem" | An unbounded collection or missing-TTL cache does not degrade gradually; it works until a traffic spike causes an OOM crash or serves stale data, at which point the fix is an incident, not a review comment. |
+| "Caching will fix the slow path, just add a cache" | A cache without an invalidation strategy or a tenant-scoped key creates a correctness bug (stale or cross-user data) that is far worse than the latency it removed; the caching-strategy table in this skill exists to prevent exactly that. |
+| "The profiler shows this function is hot, so rewrite it" | Hot in cumulative time often means it calls a slow dependency (an N+1 query or sync I/O), not that its own logic is slow; optimizing the wrong layer wastes effort and leaves the real bottleneck in place. |
+
+## Verification
+
+- [ ] Application profiled and profile output saved (cProfile / clinic / JFR / pprof)
+- [ ] Hot paths identified from cumulative time, not assumed
+- [ ] Database queries analyzed for N+1, missing indexes, and over-fetching
+- [ ] Memory usage reviewed for leaks and unbounded collections
+- [ ] Caching strategy evaluated (TTL, invalidation, key scoping, stampede)
+- [ ] Boundary conditions checked (empty collections, large files, unbounded growth)
+- [ ] Diagnostic questions applied to each module under review
+- [ ] Findings documented with measured metrics (before/after estimate) and severity (P0-P3)
 
 ## Related Skills
 
-- `context-analysis` - Context understanding (Phase 1)
-- `code-quality` - Code quality + SOLID review (Phase 2)
-- `security-review` - Security analysis (Phase 3)
-- `performance-testing` - Load testing
-- `testing-review` - Test assessment (Phase 5)
-- `final-report` - Consolidated report (Phase 6)
+- [[context-analysis]] -- Context understanding (Phase 1)
+- [[code-quality]] -- Code quality + SOLID review (Phase 2)
+- [[security-review]] -- Security analysis (Phase 3)
+- [[performance-testing]] -- load and stress testing to confirm the bottlenecks this review identifies
+- [[testing-review]] -- Test assessment (Phase 5)
+- [[final-report]] -- Consolidated report (Phase 6)
+- [[code-optimizer]] -- apply the algorithmic and caching optimizations this review recommends
 
 ---
 

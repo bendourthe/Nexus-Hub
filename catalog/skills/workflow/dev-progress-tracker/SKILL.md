@@ -144,9 +144,24 @@ When `docs/todos.md` does not exist:
 
 - [references/sdk-triggers.md](references/sdk-triggers.md) — background-task triggers in agent SDKs (time-based and event-based) as prior art for the `/loop` and `/schedule` workflows: the same "work that fires without a human prompt" mental model at a different runtime layer.
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "I will remember what is left to do, a tracker is overhead" | Across multi-session work the next session starts cold with no memory; without `docs/todos.md` the agent re-discovers state from scratch and silently drops half-finished items. |
+| "I will update todos.md at the end once everything is done" | Batching updates to the end means a crashed or interrupted session loses the record of what was completed; check off tasks as they finish, not in one deferred sweep. |
+| "Putting the decision rationale here keeps everything in one place" | Mixing rationale and meeting notes into the tracker bloats it until it is unreadable; rationale belongs in DEVLOG.md or an ADR, the tracker stays a scannable checklist. |
+
+## Verification
+
+- [ ] The file exists at exactly `docs/todos.md`
+- [ ] Section 1 contains a dashboard table with the optimized metric (no empty cells; use `?` for unknowns)
+- [ ] Completed tasks are marked `- [x]` in place, not deleted or moved to an archive block
+- [ ] No meeting notes, ADR-style rationale, or per-turn churn was added to the file
+
 ## Related Skills
 
-- `session-history` — captures what happened in a session (retrospective); todos.md is forward-looking
-- `code-commit-workflow` — after committing, check off the relevant tasks in todos.md
-- `wrap-up-session` — runs at end of session; reads todos.md as part of cleanup
-- `implementation-plan` — produces the initial sprint breakdown that populates todos.md Section 2
+- [[session-history]] -- captures what happened in a session (retrospective); todos.md is forward-looking
+- [[code-commit-workflow]] -- after committing, check off the relevant tasks in todos.md
+- [[implementation-plan]] -- produces the initial sprint breakdown that populates todos.md Section 2
+- [[known-gaps-tracker]] -- the per-version archive companion that records deferred items todos.md no longer tracks

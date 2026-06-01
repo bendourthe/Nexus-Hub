@@ -8,7 +8,7 @@
 
 ## Overview
 
-This category provides comprehensive templates for establishing, documenting, and maintaining compliance with industry standards, regulatory requirements, and AI governance best practices. Unlike reactive security reviews (found in [codebase-review/security_review](../codebase-review/security_review/)), these templates focus on **proactive governance architecture** — building the policies, controls, and monitoring systems that ensure long-term compliance and trustworthy AI deployment.
+This category provides comprehensive templates for establishing, documenting, and maintaining compliance with industry standards, regulatory requirements, and AI governance best practices. Unlike reactive security reviews (found in [codebase-review/security_review](../codebase-review/security_review/)), these templates focus on **proactive governance architecture** -- building the policies, controls, and monitoring systems that ensure long-term compliance and trustworthy AI deployment.
 
 ### What's Included
 
@@ -42,7 +42,7 @@ This category provides comprehensive templates for establishing, documenting, an
 
 ## The Four Pillars of AI Agent Governance
 
-Modern AI systems — especially agentic AI — require governance frameworks that address unique risks beyond traditional software. The **4 Pillars Framework** ([source: McKinsey](https://www.mckinsey.com/capabilities/risk-and-resilience/our-insights/deploying-agentic-ai-with-safety-and-security-a-playbook-for-technology-leaders), [Bain](https://www.bain.com/insights/building-the-foundation-for-agentic-ai-technology-report-2025/), [AWS](https://aws.amazon.com/blogs/machine-learning/advancing-ai-agent-governance-with-boomi-and-aws-a-unified-approach-to-observability-and-compliance/)) provides the foundation:
+Modern AI systems -- especially agentic AI -- require governance frameworks that address unique risks beyond traditional software. The **4 Pillars Framework** ([source: McKinsey](https://www.mckinsey.com/capabilities/risk-and-resilience/our-insights/deploying-agentic-ai-with-safety-and-security-a-playbook-for-technology-leaders), [Bain](https://www.bain.com/insights/building-the-foundation-for-agentic-ai-technology-report-2025/), [AWS](https://aws.amazon.com/blogs/machine-learning/advancing-ai-agent-governance-with-boomi-and-aws-a-unified-approach-to-observability-and-compliance/)) provides the foundation:
 
 ### 1. 🔄 Lifecycle Management (Separation of Duties)
 
@@ -67,7 +67,7 @@ Modern AI systems — especially agentic AI — require governance frameworks th
 
 ### 2. ⚠️ Risk Management (Defense in Depth)
 
-**Definition**: Implements multiple overlapping defense layers — PII detection, guardrails, compliance controls, and monitoring — to protect against issues from data ingestion to model performance.
+**Definition**: Implements multiple overlapping defense layers -- PII detection, guardrails, compliance controls, and monitoring -- to protect against issues from data ingestion to model performance.
 
 **Best Practice**: Defense in depth with layered protection mechanisms.
 
@@ -107,7 +107,7 @@ Modern AI systems — especially agentic AI — require governance frameworks th
 
 ### 4. 🔍 Observability (Audit Everything)
 
-**Definition**: Captures comprehensive logs of all system interactions — data access, model actions and predictions — enabling complete traceability and compliance reporting.
+**Definition**: Captures comprehensive logs of all system interactions -- data access, model actions and predictions -- enabling complete traceability and compliance reporting.
 
 **Best Practice**: Audit everything with immutable, tamper-evident logs.
 
@@ -125,7 +125,7 @@ Modern AI systems — especially agentic AI — require governance frameworks th
 **Checklist**:
 ✅ Can you trace every tool your agent used, when it ran, what data it accessed, and what it returned?
 
-**Critical Insight**: [80% of organizations have encountered risky behaviors from AI agents](https://www.mckinsey.com/capabilities/risk-and-resilience/our-insights/deploying-agentic-ai-with-safety-and-security-a-playbook-for-technology-leaders), including improper data exposure and unauthorized system access. Robust governance is no longer optional — it's essential for 2025 and beyond.
+**Critical Insight**: [80% of organizations have encountered risky behaviors from AI agents](https://www.mckinsey.com/capabilities/risk-and-resilience/our-insights/deploying-agentic-ai-with-safety-and-security-a-playbook-for-technology-leaders), including improper data exposure and unauthorized system access. Robust governance is no longer optional -- it's essential for 2025 and beyond.
 
 ---
 
@@ -411,7 +411,7 @@ Specialized governance for autonomous AI agents following the 4 Pillars Framewor
 - SOC 2 auditors increasingly expect [AI-specific controls](https://www.soc2certification.com/blog/soc2-compliance-for-ai-ml-companies) (model security, bias testing, inference monitoring)
 - ISO 27001:2022 updated with [greater emphasis on cloud security and threat intelligence](https://www.itgovernance.co.uk/blog/how-to-address-ai-security-risks-with-iso-27001)
 - NIST AI RMF moving from planning to [operationalization](https://www.ispartnersllc.com/blog/nist-ai-rmf-2025-updates-what-you-need-to-know-about-the-latest-framework-changes/) in 2025
-- [80% of organizations report risky AI agent behaviors](https://www.mckinsey.com/capabilities/risk-and-resilience/our-insights/deploying-agentic-ai-with-safety-and-security-a-playbook-for-technology-leaders) — governance frameworks are essential
+- [80% of organizations report risky AI agent behaviors](https://www.mckinsey.com/capabilities/risk-and-resilience/our-insights/deploying-agentic-ai-with-safety-and-security-a-playbook-for-technology-leaders) -- governance frameworks are essential
 
 ---
 

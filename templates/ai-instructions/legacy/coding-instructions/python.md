@@ -1,4 +1,4 @@
-﻿# Python AI System Prompt
+# Python AI System Prompt
 
 Use this prompt to configure your AI assistant for Python software development, writing, analysis, and creative generation.
 

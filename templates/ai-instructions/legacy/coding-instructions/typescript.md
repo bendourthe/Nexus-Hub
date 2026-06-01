@@ -1,4 +1,4 @@
-﻿# TypeScript AI System Prompt
+# TypeScript AI System Prompt
 
 Use this prompt to configure your AI assistant for TypeScript software development, writing, analysis, and creative generation.
 

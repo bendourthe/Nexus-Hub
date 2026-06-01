@@ -1,8 +1,8 @@
 ---
 name: hallmark-design
 description: Generate and audit human-facing UI that does not look AI-generated, using anti-slop gates and four verbs (build / audit / redesign / study) - adapted from Hallmark with the multi-theme catalog deliberately excluded
-summary_l0: "Produce and review UI that avoids the 'looks AI-generated' failure mode using anti-slop gates and four verbs"
-overview_l1: "This skill instructs the agent to design, audit, and redesign human-facing UI so it does not exhibit the generic 'AI slop' signature (centered hero, gradient buttons, evenly-spaced everything, emoji bullets, lorem-ipsum rhythm). It carries a catalog of anti-pattern gates spanning layout, color, typography, spacing, components, motion, and content, plus four verbs: the default build verb generates UI that passes the gates from the start; the audit verb reviews existing markup and reports gate violations; the redesign verb rewrites existing UI to clear the gates; the study verb extracts the design principles from a reference the user supplies. Use it whenever the Coding pillar renders human-facing surfaces (review diffs, dashboards, the session replay timeline, generated component previews). It is adapted from Hallmark (Together AI, MIT) but deliberately drops Hallmark's 22-theme catalog because Nexus is a single product with one shell theme; theme variation is out of scope. Compose it with the html-output-conventions skill, which decides when an artifact should be HTML at all."
+summary_l0: "Produce and audit UI that avoids the 'AI-generated' look using anti-slop gates"
+overview_l1: "This skill instructs the agent to design, audit, and redesign human-facing UI so it does not exhibit the generic 'AI slop' signature (centered hero, gradient buttons, evenly-spaced everything, emoji bullets, lorem-ipsum rhythm). It carries a catalog of anti-pattern gates spanning layout, color, typography, spacing, components, motion, and content, plus four verbs: build generates UI that passes the gates from the start; audit reviews existing markup and reports gate violations; redesign rewrites existing UI to clear the gates; study extracts design principles from a reference the user supplies. Use it whenever the Coding pillar renders human-facing surfaces (review diffs, dashboards, the session replay timeline, generated component previews). It is adapted from Hallmark but deliberately drops the 22-theme catalog because Nexus is a single product with one shell theme. Compose it with the html-output-conventions skill, which decides when an artifact should be HTML at all."
 version: 1.0.0
 author: Benjamin Dourthe
 license: MIT
@@ -157,7 +157,7 @@ Every `build` output must pass these gates; `audit` reports each one it fails; `
 
 ## Related Skills
 
-- `html-output-conventions` - decides when a surface should be HTML at all; compose with this skill so the artifact is both well-chosen and well-designed.
-- `ui-component-generation` - generate the component contract first, then `audit` the result here.
-- `frontend-ui-engineering` - page-level architecture, state, and accessibility.
-- `creative-generation` - design direction and ideation when the brief is open-ended.
+- [[html-output-conventions]] -- decides when a surface should be HTML at all; compose with this skill so the artifact is both well-chosen and well-designed.
+- [[ui-component-generation]] -- generate the component contract first, then audit the result here.
+- [[frontend-ui-engineering]] -- page-level architecture, state, and accessibility.
+- [[creative-generation]] -- design direction and ideation when the brief is open-ended.

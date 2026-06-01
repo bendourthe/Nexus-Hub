@@ -1,8 +1,8 @@
 ---
 name: project-refactor
 description: Audit and refactor a repository's project artifacts (root files, scripts, configs, CI/CD, source layout) to follow standard conventions. Moves misplaced files, fixes all references, archives outdated artifacts tied to prior major versions, and verifies nothing breaks. Use whenever the user says "refactor project layout", "refactor repo layout", "clean up root directory", "too many files in root", "organize project structure", "apply layout rules", "move files to correct directories", "root is cluttered", "layout conventions", "project structure refactor", "archive prior version artifacts", "clean up scripts folder", "organize CI/CD configs", or before a major release. SKIP for docs/ tree reorganization (use docs-layout-refactor), content accuracy fixes (use update-documentation), or CHANGELOG generation (use generate-changelog).
-summary_l0: "Refactor repository project artifacts (root, scripts, configs, CI/CD) and archive prior-version artifacts with full reference repair"
-overview_l1: "This skill systematically reorganizes a repository's project artifacts (everything outside the docs/ tree) to follow declared conventions, with full impact analysis and reference repair before any file is moved. Scope includes root files, scripts, configs, CI/CD pipelines, and top-level source layout. It also detects prior-major-version artifacts (release notes, deploy checklists, generated reports, snapshot bundles, version-scoped CI workflows) and archives them under archive/versions/v<MAJOR>/v<SEMVER>/ when --archive-prior-versions is set. Use it when cleaning up a cluttered project root, applying a standard layout ruleset to an existing project, migrating a repo after adopting new conventions, preparing a project for public release, archiving artifacts from a prior major version, or auditing whether a repo matches its declared layout rules. Default mode is propose-only: no files move until the user explicitly confirms at the gate. Trigger phrases: refactor project layout, refactor repo layout, clean up root directory, too many files in root, organize project structure, apply layout rules, move files to correct directories, root is cluttered, layout conventions, project structure refactor, archive prior version artifacts, archive old release notes, clean up scripts folder, organize CI/CD configs."
+summary_l0: "Refactor repository project artifacts (root, scripts, configs, CI/CD) and archive prior-version artifacts with reference repair"
+overview_l1: "This skill systematically reorganizes a repository's project artifacts (everything outside the docs/ tree) to follow declared conventions, with impact analysis and reference repair before any file is moved. Scope includes root files, scripts, configs, CI/CD pipelines, and top-level source layout. It also detects prior-major-version artifacts (release notes, deploy checklists, generated reports, snapshot bundles, version-scoped CI workflows) and archives them under archive/versions/v<MAJOR>/v<SEMVER>/ when --archive-prior-versions is set. Use it when cleaning up a cluttered project root, applying a standard layout ruleset to an existing project, migrating a repo after adopting new conventions, preparing a project for public release, archiving artifacts from a prior major version, or auditing whether a repo matches its declared layout rules. Default mode is propose-only: no files move until the user explicitly confirms at the gate. Trigger phrases: refactor project layout, clean up root directory, organize project structure, apply layout rules, archive prior version artifacts, organize CI/CD configs."
 ---
 
 # Project Refactor
@@ -311,10 +311,10 @@ Run after Phase 7. Each check is binary; FAIL on any item loops back up to 3 tim
 
 ## Related Skills
 
-- `docs-layout-refactor` — sister skill for the `docs/` tree. Run in any order; they touch disjoint scopes.
-- `documentation-consistency` — audit documentation accuracy after a layout change.
-- `version-upgrade` — update version references and CHANGELOG as part of a release that includes layout changes.
-- `code-commit-workflow` — commit the refactor with a clear, structured commit message.
+- [[docs-layout-refactor]] -- sister skill for the `docs/` tree. Run in any order; they touch disjoint scopes.
+- [[documentation-consistency]] -- audit documentation accuracy after a layout change.
+- [[version-upgrade]] -- update version references and CHANGELOG as part of a release that includes layout changes.
+- [[code-commit-workflow]] -- commit the refactor with a clear, structured commit message.
 
 ---
 

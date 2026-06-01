@@ -515,11 +515,30 @@ class ProcessingActivityRecord:
 - [ ] DPO appointed (if required)
 - [ ] Training completed
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "The user accepted our cookie banner, so we have consent" | GDPR consent must be granular, freely given, and as easy to withdraw as to give; a single 'Accept All' banner with no per-purpose choice is not valid consent and fails an Article 7 audit. |
+| "We will document the lawful basis if a regulator asks" | The accountability principle (Article 5) requires the lawful basis to be documented before processing; choosing the basis retroactively under audit pressure is itself the violation. |
+| "We can investigate the breach fully before notifying" | The 72-hour clock to notify the supervisory authority starts at awareness, not at the end of investigation; waiting for a complete root cause routinely blows the deadline and triggers fines. |
+| "Right to erasure means we just delete the row" | Erasure must propagate to backups, processors, and downstream recipients, and must be weighed against retention obligations; a single DELETE leaves copies that keep the data in scope. |
+
+## Verification
+
+- [ ] A lawful processing basis is documented for every processing activity in the ROPA
+- [ ] Consent is captured per-purpose with a withdrawal path as easy as the opt-in
+- [ ] Each data-subject right (access, rectification, erasure, restriction, portability, objection) has an implemented, identity-verified workflow
+- [ ] The breach-notification workflow can notify the supervisory authority within 72 hours of awareness
+- [ ] A DPIA process exists and has been run for high-risk processing
+- [ ] Cross-border transfers rely on a documented mechanism (SCCs or an adequacy decision)
+
 ## Related Skills
 
-- `ccpa-compliance` - California privacy compliance
-- `soc2-compliance` - SOC 2 privacy criteria
-- `security-review` - Security controls
+- [[ccpa-compliance]] -- California privacy regime with parallel subject-rights workflows
+- [[soc2-compliance]] -- SOC 2 privacy criteria that reuse these access and erasure controls
+- [[security-review]] -- security controls protecting the personal data this skill governs
+- [[traceability-matrix-generator]] -- maps each GDPR article to its implementing control for audit
 
 ---
 

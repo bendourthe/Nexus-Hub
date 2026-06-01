@@ -1,8 +1,8 @@
 ---
 name: local-docs-lookup
 description: Ground agent answers in local library documentation (pydoc, go doc, vendored READMEs, help() in REPLs) rather than routing queries through a third-party documentation lookup service
-summary_l0: "Answer library and API questions from locally-available documentation sources instead of routing queries through a third-party service"
-overview_l1: "This skill establishes a lookup sequence for grounding agent answers in locally-available documentation - vendored README files in node_modules or site-packages, introspection tools (python -m pydoc, help(), go doc), project-shipped docs/ trees, and local man pages - before considering any external documentation-lookup service. In regulated environments library names, API signatures, and query text are sensitive because they reveal architectural intent and internal naming; a documentation-lookup-as-service MCP leaks each query to a third party. The correct replacement is a disciplined local lookup flow that exhausts on-disk sources first. When the corpus is genuinely not on-disk (e.g. a service's REST API documentation that the user explicitly approves fetching), the agent can call nexus-web-fetch on a single user-approved URL - the MCP Registry Policy permits that because the data destination is the URL itself, not a third-party intermediary. This skill replaces one specific use case of popular library-documentation MCPs (cached local docs) and does not recreate a continuously-updated library index; that gap is acknowledged and accepted."
+summary_l0: "Answer library and API questions from local documentation instead of a third-party service"
+overview_l1: "This skill establishes a lookup sequence for grounding agent answers in locally-available documentation - vendored README files in node_modules or site-packages, introspection tools (pydoc, help(), go doc), project-shipped docs/ trees, and local man pages - before considering any external documentation-lookup service. In regulated environments library names, API signatures, and query text are sensitive because they reveal architectural intent and internal naming; a documentation-lookup-as-service MCP leaks each query to a third party. The correct replacement is a disciplined local lookup flow that exhausts on-disk sources first. When the corpus is genuinely not on-disk and the user approves fetching it, the agent can call nexus-web-fetch on a single user-approved URL - the MCP Registry Policy permits that because the destination is the URL itself, not a third-party intermediary. This skill replaces the cached-local-docs use case of library-documentation MCPs and does not recreate a continuously-updated library index; that gap is acknowledged."
 version: 1.0.0
 author: Benjamin Dourthe
 category: Research
@@ -147,10 +147,10 @@ If the user approves, call `nexus-web-fetch` with the single URL. Do not perform
 
 ## Related Skills
 
-- `rag-implementation` - general RAG over arbitrary document corpora; this skill is the specialized flow for library documentation.
-- `context-manager` - for shaping what context the agent loads; feed local doc extracts via this skill.
-- `code-semantic-search` - for searching the user's own code (not library docs).
-- `error-explanation-generator` - when the library question is triggered by a specific runtime error.
+- [[rag-implementation]] -- general RAG over arbitrary document corpora; this skill is the specialized flow for library documentation.
+- [[context-manager]] -- for shaping what context the agent loads; feed local doc extracts via this skill.
+- [[code-semantic-search]] -- for searching the user's own code (not library docs).
+- [[error-explanation-generator]] -- when the library question is triggered by a specific runtime error.
 
 ## Notes on the Gap
 

@@ -772,3 +772,28 @@ class FlakinessTracker:
 - **Hardcoding ports and file paths**: Tests that bind to port 8080 or write to `/tmp/test.txt` conflict when run in parallel; use dynamic allocation
 - **Testing async operations with sleep**: `sleep(2)` is never the right way to wait for an async operation; use explicit completion signals, polling with backoff, or fake timers
 - **Merging code with known flaky tests**: Flaky tests in the main branch erode trust progressively; enforce a "no new flaky tests" policy in code review
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "It is just one flaky test; we will re-run the pipeline." | A test that fails 5% of the time, in a suite of 200 such tests, makes a green build statistically rare; the team learns to ignore red and a true regression slips through unnoticed. |
+| "Adding `retryTimes: 3` fixes the flakiness." | Retries hide the symptom while the race condition or shared-state leak remains in the production code path; the same defect fires under real load where there is no retry. |
+| "The test passes locally, so it is the CI runner's fault." | Passing on a fast laptop and failing on a slow runner is the textbook signature of a hard-coded `sleep` racing a TTL; the defect is the fixed wait, not the infrastructure. |
+| "I will quarantine it now and fix it later." | Quarantined tests with no ticket and no target date accumulate into a dead suite; quarantine without a tracked fix is just deletion with extra steps. |
+
+## Verification
+
+- [ ] Each suspect test passes on 20 consecutive repeated runs (`pytest --count=20` or `@RepeatedTest(20)`).
+- [ ] The suite passes under randomized ordering with a fixed seed recorded for reproducibility.
+- [ ] The suite passes under parallel execution, not only sequential.
+- [ ] Every time-dependent test uses an injected clock or fake timer, not real `sleep`.
+- [ ] Every quarantined test has a linked ticket, a root-cause hypothesis, and a target fix date.
+
+## Related Skills
+
+- [[cicd-integration]] -- the pipeline whose reliability this skill restores by stabilizing flaky tests
+- [[test-suite-prioritizer]] -- uses failure history to order tests, complementing flakiness tracking
+- [[mocks-fixtures]] -- supplies the deterministic stubs that replace flaky network and time dependencies
+- [[debug-with-logs]] -- adds the strategic logging needed to reproduce intermittent failures
+- [[edge-case-generator]] -- distinguishes genuine boundary failures from non-deterministic flakiness

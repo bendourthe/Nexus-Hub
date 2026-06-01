@@ -16,13 +16,11 @@ validate: ## Validate all JSON catalog files and skill bundles
 	@python scripts/validate_no_personal_paths.py \
 	    --exclude docs/v2.0.0 \
 	    --exclude docs/v2.1.0 \
-	    --exclude docs/v2.2.0 \
-	    --exclude catalog/hooks/tests
+	    --exclude docs/v2.2.0
 	@python scripts/validate_unicode_safety.py \
 	    --exclude docs/v2.0.0 \
 	    --exclude docs/v2.1.0 \
-	    --exclude docs/v2.2.0 \
-	    --exclude templates/ai-instructions
+	    --exclude docs/v2.2.0
 	@python scripts/scan_supply_chain_iocs.py
 	@python scripts/validate_workflow_security.py
 	@echo "Validating solution-doc frontmatter parser-safety (docs/solutions; no-op when absent)..."

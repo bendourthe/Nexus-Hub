@@ -275,11 +275,29 @@ This principle is enforced at review time by the **agent-native-reviewer** perso
 - [ ] Tools tested with actual agent interactions
 - [ ] Negative cases documented ("Do NOT use when...")
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "More tools give the agent more options" | Past roughly 20 active tools the agent's selection accuracy drops sharply; an overloaded tool list causes the wrong tool to fire, so fewer well-scoped tools beat many overlapping ones. |
+| "The parameter name is in the docs, that's enough" | The agent selects on the schema it sees, not external docs; an opaque name like `arg1` is guessed wrong, while a self-documenting `start_date_iso8601` is used correctly. |
+| "A terse error like 'invalid input' is fine" | An error without a recovery suggestion leaves the agent to retry blindly or give up; an actionable message ("expected ISO-8601 date, got 'tomorrow'") lets it self-correct in one turn. |
+| "I'll dump the full API response, the agent can parse it" | A 5,000-token response consumes the context budget for zero added signal; tool output must be scoped to what the agent needs, or it starves later steps of context. |
+
+## Verification
+
+- [ ] Every tool description answers all four questions (what it does, when to use, when NOT to use, what it returns)
+- [ ] The total active tool count is within the 10-20 range
+- [ ] Parameter names are self-documenting and types are explicit in the schema
+- [ ] Error messages include a concrete recovery suggestion
+- [ ] Each tool was exercised with actual agent interactions, not just unit tests of the handler
+
 ## Related Skills
 
-- `create-custom-command` - Creating Claude Code slash commands
-- `api-documentation` - Documenting API interfaces
-- `context-manager` - Managing tool output impact on context budget
+- [[create-custom-command]] -- applies the same agent-facing description discipline to Claude Code slash commands
+- [[api-documentation]] -- documents the underlying API interface the tool wraps
+- [[context-manager]] -- manages the impact of tool output on the agent's context budget
+- [[mcp-builder]] -- builds the local MCP server that hosts the tools designed here
 
 ---
 

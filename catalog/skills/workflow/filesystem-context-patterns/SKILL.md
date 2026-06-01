@@ -312,7 +312,7 @@ tasks/session-state.md:
 
 Each skill enters context fresh, at the point of maximum attention.
 
-## Quality Checklist
+## Verification
 
 - [ ] Appropriate pattern selected for the situation
 - [ ] Files named descriptively with timestamps where relevant
@@ -322,12 +322,20 @@ Each skill enters context fresh, at the point of maximum attention.
 - [ ] Self-modification changes reviewed before persisting
 - [ ] File paths referenced explicitly in conversation
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "Keeping everything in the conversation is simpler than writing files" | The context window has a hard limit; holding intermediate results inline crowds out the actual task and triggers degradation, while a file holds them at zero ongoing token cost. |
+| "I wrote the result to a file, so I do not need to mention it" | An unsummarized file write is invisible to the conversation; the next step cannot reference a path it was never told about, so always summarize the write and cite the path. |
+| "Two agents can both write the same shared file" | Concurrent overwrite of a shared file silently loses one agent's work; shared state must use an append-only protocol so neither writer clobbers the other. |
+
 ## Related Skills
 
-- `context-manager` - Context fundamentals and attention budget management
-- `context-compression` - Compression techniques that use filesystem patterns
-- `plan-before-code` - Planning methodology (plans should be file-persisted)
-- `task-coordinator` - Task coordination that benefits from file-based state
+- [[context-manager]] -- context fundamentals and attention-budget management this skill offloads to disk
+- [[context-compression]] -- compression techniques that pair with file-based scratch storage
+- [[plan-before-code]] -- planning methodology whose plans should be file-persisted, not held inline
+- [[task-coordinator]] -- task coordination that benefits from file-based shared state
 
 ---
 

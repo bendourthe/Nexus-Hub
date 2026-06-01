@@ -1,4 +1,4 @@
-﻿> **DEPRECATED**: This file is no longer used by the installer. The installer now renders
+> **DEPRECATED**: This file is no longer used by the installer. The installer now renders
 > `base-gemini.md` with auto-detected project metadata. This file is kept for backward
 > compatibility with users who manually copy templates.
 

@@ -739,10 +739,10 @@ def on_order_created(order):
 
 ## Related Skills
 
-- `cicd-architect` - Integrating observability into CI/CD pipelines
-- `kubernetes-expert` - Kubernetes-specific monitoring (kube-state-metrics, cAdvisor)
-- `cloud-architect` - Cloud-native monitoring services (CloudWatch, Stackdriver)
-- `async-patterns` - Tracing asynchronous and concurrent workflows
+- [[cicd-architect]] -- integrating observability into CI/CD pipelines
+- [[kubernetes-expert]] -- Kubernetes-specific monitoring (kube-state-metrics, cAdvisor)
+- [[cloud-architect]] -- cloud-native monitoring services (CloudWatch, Stackdriver)
+- [[async-patterns]] -- tracing asynchronous and concurrent workflows
 
 ---
 

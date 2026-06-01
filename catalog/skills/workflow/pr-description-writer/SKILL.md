@@ -249,8 +249,8 @@ If any item is false, do not request review. Fix the description.
 
 ## Related Skills
 
-- `code-commit-workflow` -- atomic commit hygiene and conventional commit messages. The PR may contain multiple commits authored via this skill; the PR description is a separate higher-level artifact.
-- `code-quality` -- code review focused on quality, SOLID, complexity. A reviewer who reads a good description will spend more time on code-quality concerns rather than on understanding what changed.
-- `intent-based-review` -- review by checking acceptance criteria. The PR description's How-to-Test section and Reviewer Notes are the entry point for intent-based review.
-- `release-notes-writer` -- user-facing release notes. PR descriptions feed into release notes; the two artifacts are not the same.
+- [[code-commit-workflow]] -- atomic commit hygiene and conventional commit messages. The PR may contain multiple commits authored via this skill; the PR description is a separate higher-level artifact.
+- [[code-quality]] -- code review focused on quality, SOLID, complexity. A reviewer who reads a good description will spend more time on code-quality concerns rather than on understanding what changed.
+- [[intent-based-review]] -- review by checking acceptance criteria. The PR description's How-to-Test section and Reviewer Notes are the entry point for intent-based review.
+- [[release-notes-writer]] -- user-facing release notes. PR descriptions feed into release notes; the two artifacts are not the same.
 - `/generate-changelog` (command) -- project-level changelog from git history. Well-formed PR descriptions improve the quality of auto-generated changelogs.

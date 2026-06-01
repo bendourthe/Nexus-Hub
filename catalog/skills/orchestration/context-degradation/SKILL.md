@@ -252,7 +252,15 @@ After applying mitigation, verify that context quality has been restored.
 3. Resolve it with a clear directive (Bucket 1)
 4. Verify the agent follows the resolved approach
 
-## Quality Checklist
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "The agent is fine; one wrong file reference is just a slip." | A single file confusion is the first of the five degradation signals, not a slip. Ignoring it means the next edit lands in `UserController.ts` when it should have hit `UserService.ts`. Run the probe questions the moment the first signal appears. |
+| "Re-explaining the constraint will fix it; I do not need to restart the session." | Restating helps the contradiction pattern, but instruction amnesia and quality regression usually mean the context is saturated. Re-explaining into a degraded context often just adds noise; a fresh session with a handoff document recovers faster. |
+| "Starting a new session loses all my progress." | Progress lives in the files and the handoff document, not in the conversation. A clean session that re-reads the handoff is consistently higher quality than fighting a degraded one turn after turn. |
+
+## Verification
 
 - [ ] Degradation pattern identified correctly
 - [ ] Severity assessed using indicators table
@@ -263,10 +271,10 @@ After applying mitigation, verify that context quality has been restored.
 
 ## Related Skills
 
-- `context-manager` - Foundational context management and attention budget concepts
-- `context-compression` - Detailed compression procedures and summary templates
-- `plan-before-code` - Structured planning that prevents some degradation
-- `task-coordinator` - Task isolation that reduces context overload
+- [[context-manager]] - Foundational context management and attention budget concepts
+- [[context-compression]] - Detailed compression procedures and summary templates
+- [[plan-before-code]] - Structured planning that prevents some degradation
+- [[task-coordinator]] - Task isolation that reduces context overload
 - See also: [SESSION_LIFECYCLE_DECISIONS](../../../../guides/SESSION_LIFECYCLE_DECISIONS.md) - decision tree for continue vs `/rewind` vs `/clear` vs `/compact` when degradation sets in
 
 ---

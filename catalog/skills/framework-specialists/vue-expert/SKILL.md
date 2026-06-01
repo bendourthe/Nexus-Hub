@@ -2,7 +2,7 @@
 name: vue-expert
 description: Deep Vue 3 expertise for Composition API, component patterns, Pinia state management, Vue Router, performance optimization, and testing. Use when building Vue applications, designing composables, or reviewing Vue code.
 summary_l0: "Build Vue 3 apps with Composition API, Pinia, Vue Router, and optimization"
-overview_l1: "This skill provides specialized Vue 3 expertise covering Composition API fundamentals, component architecture with SFC and TypeScript, composable design for reusable logic, Pinia state management, Vue Router patterns, performance optimization, testing with Vitest and Vue Test Utils, and advanced TypeScript integration. Use it when designing Vue component architectures (SFC, slots, provide/inject), writing composables (useAsync, useFetch, form logic), managing state with Pinia (stores, getters, actions, plugins), configuring Vue Router (guards, lazy loading, nested routes, meta fields), optimizing rendering (shallowRef, v-once, v-memo, KeepAlive, async components), testing components and composables with Vitest and Vue Test Utils, or integrating TypeScript with typed props, emits, generic components, and typed slots. Key capabilities include Composition API mastery, composable extraction, Pinia store architecture, route guard design, render performance optimization, component and composable testing, and TypeScript generics for Vue components. The expected output is well-architected Vue 3 code with proper component boundaries, type-safe props and emits, optimized rendering, comprehensive tests, and idiomatic Composition API usage. Trigger phrases: vue component, vue composable, composition api, ref reactive, pinia store, vue router, vue performance, vue testing, vue typescript, defineProps, defineEmits, provide inject, v-model, shallowRef, keepalive, vue test utils."
+overview_l1: "This skill provides specialized Vue 3 expertise covering Composition API fundamentals, component architecture with SFC and TypeScript, composable design for reusable logic, Pinia state management, Vue Router patterns, performance optimization, testing with Vitest and Vue Test Utils, and advanced TypeScript integration. Use it when designing Vue component architectures (SFC, slots, provide/inject), writing composables, managing state with Pinia, configuring Vue Router (guards, lazy loading, nested routes), optimizing rendering (shallowRef, v-memo, KeepAlive, async components), testing components and composables, or integrating TypeScript with typed props, emits, and generic components. The expected output is well-architected Vue 3 code with proper component boundaries, type-safe props and emits, optimized rendering, comprehensive tests, and idiomatic Composition API usage. Trigger phrases: vue component, vue composable, composition api, ref reactive, pinia store, vue router, vue performance, vue testing, vue typescript, defineProps, defineEmits, provide inject, v-model, shallowRef, keepalive, vue test utils."
 ---
 
 # Vue Expert
@@ -1876,7 +1876,15 @@ function handleKeydown(event: KeyboardEvent) {
 </template>
 ```
 
-## Quality Checklist
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "I will destructure the props or a reactive object to make the template cleaner." | Destructuring a reactive source severs Vue's reactivity tracking, so the value freezes at its initial state and the UI silently stops updating. Keep the ref/reactive intact or use `toRefs`; cleaner syntax is not worth a dead binding. |
+| "Plain `ref` is fine for this large list; reactivity is reactivity." | Deep reactivity on a large array makes Vue track every nested property, and the render cost scales with list size. `shallowRef` plus `v-memo` (or virtual scrolling) is what keeps a big list responsive. |
+| "I will type props with a loose object instead of an InjectionKey for provide/inject." | Untyped provide/inject defers a missing-provider mismatch to a runtime `undefined` deep in a child component. A typed `InjectionKey` turns that into a compile-time error at the injection site. |
+
+## Verification
 
 - [ ] All components use `<script setup lang="ts">` with typed props and emits
 - [ ] Composables follow the `use` prefix convention and return reactive state
@@ -1893,12 +1901,12 @@ function handleKeydown(event: KeyboardEvent) {
 
 ## Related Skills
 
-- `nextjs-expert` - SSR framework patterns applicable to Nuxt (Vue's SSR framework)
-- `javascript-cleanup` - JavaScript code quality and cleanup
-- `typescript-expert` - Advanced TypeScript patterns and strict configuration
-- `unit-tests` - General unit testing strategies
-- `performance-review` - Broad performance review methodology
-- `test-cases` - Test case design patterns
+- [[nextjs-expert]] - SSR framework patterns applicable to Nuxt (Vue's SSR framework)
+- [[javascript-cleanup]] - JavaScript code quality and cleanup
+- [[typescript-expert]] - Advanced TypeScript patterns and strict configuration
+- [[unit-tests]] - General unit testing strategies
+- [[performance-review]] - Broad performance review methodology
+- [[test-cases]] - Test case design patterns
 
 ---
 

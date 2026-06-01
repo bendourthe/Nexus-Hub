@@ -467,10 +467,30 @@ if err != nil {
 }
 ```
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "I'll ignore this returned error, it never fails here" | An ignored error is the documented top source of Go production incidents; the file handle that "never" fails to close leaks descriptors until the process dies. Check every error or assign it to `_` with a comment explaining why. |
+| "fmt.Errorf without %w is good enough" | Dropping the `%w` verb breaks the error chain so `errors.Is` and `errors.As` cannot match the wrapped sentinel downstream. Wrap with `%w` so callers can inspect the cause. |
+| "gofmt is just style, the diff is noisy" | Unformatted Go fails the CI gate that every Go project enforces; running gofmt now keeps the cleanup diff reviewable instead of mixing formatting churn with logic changes later. |
+| "staticcheck flagged it but the code works" | staticcheck catches real bugs (ineffective assignments, nil-map writes, deprecated calls), not just style. A passing build with staticcheck warnings is shipping known latent defects. |
+
+## Verification
+
+- [ ] Formatting is clean: `gofmt -l .` lists no files and `goimports -l .` lists no files
+- [ ] Vet is clean: `go vet ./...` reports no issues
+- [ ] Static analysis is clean: `staticcheck ./...` reports no warnings
+- [ ] Every returned error is checked or explicitly discarded with `_` and a justifying comment
+- [ ] Wrapped errors use `%w` so `errors.Is` / `errors.As` still match the cause
+- [ ] All existing tests pass with the race detector: `go test -race ./...`
+
 ## Related Skills
 
-- `code-review-quality` - Code quality assessment
-- `security-review` - Security analysis
+- [[code-quality]] -- score the cleaned codebase against SOLID and complexity metrics
+- [[security-review]] -- security analysis for input validation and concurrency-safety issues
+- [[go-expert]] -- idiomatic Go patterns (interfaces, goroutines, error wrapping) this cleanup applies
+- [[dead-code-eliminator]] -- call-graph analysis for removing unused functions and packages
 
 ---
 

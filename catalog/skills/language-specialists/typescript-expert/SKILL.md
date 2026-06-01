@@ -1275,7 +1275,16 @@ const users = await apiClient("GET /users", { query: { page: 1 } });
 const user = await apiClient("POST /users", { body: { name: "Alice", email: "a@b.com" } });
 ```
 
-## Quality Checklist
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "`any` here is faster than fighting the types" | `any` silently disables every check downstream of that value, so a renamed field or wrong shape compiles cleanly and fails at runtime in the browser. |
+| "TypeScript types validate the API response" | Types are erased at compile time and provide zero runtime guarantees; an API that returns an unexpected shape needs a Zod `safeParse` at the boundary or it corrupts state. |
+| "`strict` mode is too noisy, I'll enable it later" | Retrofitting `strict` onto a large untyped codebase is far more work than starting strict; without `noUncheckedIndexedAccess`, `arr[i]` is typed non-undefined and the missing-element bug ships. |
+| "The exported function's return type is obvious" | An inferred return type changes silently when the implementation changes, so a refactor can widen the public contract without any diff on the signature; an explicit return type fails the build instead. |
+
+## Verification
 
 - [ ] `strict: true` enabled in tsconfig with `noUncheckedIndexedAccess`
 - [ ] No uses of `any` (search codebase, replace with `unknown` and narrow)
@@ -1289,11 +1298,11 @@ const user = await apiClient("POST /users", { body: { name: "Alice", email: "a@b
 
 ## Related Skills
 
-- `react-specialist` - React architecture and patterns
-- `code-quality` - TypeScript code standards
-- `cicd-architect` - TypeScript CI/CD pipelines
-- `api-designer` - Type-safe API design
-- `performance-testing` - TypeScript build optimization
+- [[react-expert]] -- React architecture and patterns
+- [[code-quality]] -- TypeScript code-standard scoring
+- [[cicd-architect]] -- TypeScript CI/CD pipelines
+- [[api-design]] -- type-safe API design
+- [[performance-testing]] -- TypeScript build optimization
 
 ---
 

@@ -194,3 +194,60 @@ def test_search_fts_all_columns_includes_qualified_matches(
         assert "is_admin" in names
     finally:
         conn.close()
+
+
+@pytest.fixture
+def indexed_import_repo(tmp_path: Path) -> Path:
+    """A two-file repo where one module imports a function defined in the
+    other, so an `import` node carries the imported symbol's name. Used to
+    prove the default search demotes import sites (references) while the
+    `all_columns` opt-out still surfaces them (T034 / DF-v23-5)."""
+    (tmp_path / "src").mkdir()
+    (tmp_path / "src" / "service.py").write_text(
+        "def make_user(name):\n    return name\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "src" / "main.py").write_text(
+        "from service import make_user\n"
+        "\n"
+        "def run():\n    return make_user('Alice')\n",
+        encoding="utf-8",
+    )
+    idx_dir = tmp_path / ".nexus" / "code-index"
+    with ExtractionOrchestrator(
+        tmp_path, CodeSearchConfig(hub_root=None), idx_dir
+    ) as orch:
+        orch.run()
+    return idx_dir
+
+
+def test_search_fts_default_demotes_import_nodes(indexed_import_repo) -> None:
+    from nexus_code_search.db import open_database
+
+    conn = open_database(indexed_import_repo)
+    try:
+        trav = GraphTraverser(conn)
+        # Default search returns the function definition, not the import site,
+        # even though both are named "make_user".
+        results = trav.search_fts("make_user")
+        assert results, "expected the make_user definition to be found"
+        assert all(n.kind != NodeKind.IMPORT for n in results)
+        assert any(
+            n.name == "make_user" and n.kind == NodeKind.FUNCTION for n in results
+        )
+    finally:
+        conn.close()
+
+
+def test_search_fts_all_columns_surfaces_import_nodes(indexed_import_repo) -> None:
+    from nexus_code_search.db import open_database
+
+    conn = open_database(indexed_import_repo)
+    try:
+        trav = GraphTraverser(conn)
+        # The all_columns opt-out keeps import sites reachable for callers who
+        # explicitly want references.
+        results = trav.search_fts("make_user", all_columns=True)
+        assert any(n.kind == NodeKind.IMPORT for n in results)
+    finally:
+        conn.close()

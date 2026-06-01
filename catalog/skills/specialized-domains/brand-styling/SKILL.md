@@ -170,11 +170,11 @@ The skill ships NO palette values, NO font URLs, NO logo files, NO voice rules. 
 
 ## Related Skills
 
-- `specialized-domains/theme-tokens` - the brand-neutral counterpart; provides 10 curated themes plus the schema this skill extends. Use theme-tokens when the user has no brand or wants brand-agnostic styling.
-- `specialized-domains/pptx-generation` - downstream consumer; maps brand tokens (palette, fonts, logo) to slide master and placeholders.
-- `specialized-domains/docx-generation` - downstream consumer; maps brand tokens to Word styles, header logo, and voice-driven copy.
-- `specialized-domains/pdf-document-generation` - downstream consumer; maps brand tokens to ReportLab styles, footer logo, and cover page.
-- `developer-experience/web-artifacts-builder` - downstream consumer; emits brand tokens as CSS custom properties + inline-SVG logo in the scaffold's header component.
-- `business-product/internal-comms` - applies `voice.do` / `voice.dont` to the chosen comms template's body.
-- `developer-experience/writing-editing` - applies `voice.tone` and do/don't rules to editing passes.
-- `business-product/technical-writer` - applies voice rules to long-form documentation produced under the brand.
+- [[theme-tokens]] -- the brand-neutral counterpart; provides 10 curated themes plus the schema this skill extends. Use theme-tokens when the user has no brand or wants brand-agnostic styling.
+- [[pptx-generation]] -- downstream consumer; maps brand tokens (palette, fonts, logo) to slide master and placeholders.
+- [[docx-generation]] -- downstream consumer; maps brand tokens to Word styles, header logo, and voice-driven copy.
+- [[pdf-document-generation]] -- downstream consumer; maps brand tokens to ReportLab styles, footer logo, and cover page.
+- [[web-artifacts-builder]] -- downstream consumer; emits brand tokens as CSS custom properties + inline-SVG logo in the scaffold's header component.
+- [[internal-comms]] -- applies `voice.do` / `voice.dont` to the chosen comms template's body.
+- [[writing-editing]] -- applies `voice.tone` and do/don't rules to editing passes.
+- [[technical-writer]] -- applies voice rules to long-form documentation produced under the brand.

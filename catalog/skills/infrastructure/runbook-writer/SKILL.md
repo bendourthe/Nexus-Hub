@@ -168,8 +168,8 @@ If any item is false, do not publish. Fix the runbook.
 
 ## Related Skills
 
-- `sre-engineer` -- the broader SRE practice in which runbooks live. The advisor for SLOs, error budgets, and operational design; this skill is the artifact-producer for procedures.
-- `incident-postmortem` -- the writeup of a specific past incident. A frequent postmortem action item is "write or update the runbook for X"; that work goes through this skill.
-- `oncall-runbook` -- the per-alert response runbook. An on-call runbook is shorter and narrower than a general runbook (one page per alert); use it when the procedure is keyed to a specific paging event.
-- `rollback-strategy-advisor` -- the design of the rollback strategy itself. This skill writes the rollback section of the runbook; the rollback strategy advisor designs what the rollback should do.
-- `cd-pipeline-generator` -- the CI/CD pipeline. Deployment runbooks frequently document procedures invoked by the pipeline; the pipeline generator designs the automation that the runbook describes.
+- [[sre-engineer]] -- the broader SRE practice in which runbooks live. The advisor for SLOs, error budgets, and operational design; this skill is the artifact-producer for procedures.
+- [[incident-postmortem]] -- the writeup of a specific past incident. A frequent postmortem action item is "write or update the runbook for X"; that work goes through this skill.
+- [[oncall-runbook]] -- the per-alert response runbook. An on-call runbook is shorter and narrower than a general runbook (one page per alert); use it when the procedure is keyed to a specific paging event.
+- [[rollback-strategy-advisor]] -- the design of the rollback strategy itself. This skill writes the rollback section of the runbook; the rollback strategy advisor designs what the rollback should do.
+- [[cd-pipeline-generator]] -- the CI/CD pipeline. Deployment runbooks frequently document procedures invoked by the pipeline; the pipeline generator designs the automation that the runbook describes.

@@ -728,12 +728,34 @@ Good: "Now: Feature X (committed). Next: Feature Y (high confidence). Later: Fea
 - [ ] Launch checklist is complete before rollout begins
 - [ ] Post-launch review is scheduled before launch happens
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "The team already knows what to build, framing is overhead" | Solution-first momentum ships a Kafka queue when the user only needed updates within 5 seconds. The JTBD statement is what stops the team from building infrastructure nobody asked for. |
+| "We'll add 'just one more thing' to this release" | "While we're at it" is the documented scope-creep signal that turns a 2-week MVP into a 6-week project. Every In-item that moves in must push an Out-item out or the deadline slips silently. |
+| "Success is shipping the feature on time" | Output is not outcome. A feature shipped on schedule that nobody adopts is a failure the guardrail metric would have caught; define the metric before code, not after launch. |
+| "We can prioritize by gut feel, the backlog is small" | Opinion-based ranking re-litigates the same decision every standup. A RICE or ICE score makes the tradeoff explicit and survives the loudest stakeholder in the room. |
+| "Acceptance criteria can be filled in during implementation" | "The page should load quickly" is untestable, so QA cannot sign off and the engineer guesses the threshold. Given/When/Then with a concrete number is the contract that prevents rework. |
+
+## Verification
+
+- [ ] Each feature traces to a written problem statement and at least one JTBD statement
+- [ ] Scope is captured in an In/Out table where every Out item has a stated reason
+- [ ] Features are ranked with a structured framework (RICE, ICE, or weighted scoring), not opinion
+- [ ] Every acceptance criterion is in Given/When/Then form and is binary and independently testable
+- [ ] Each success metric has a numeric target and a paired guardrail metric
+- [ ] The RACI matrix has exactly one Accountable role per row
+- [ ] The roadmap uses Now/Next/Later horizons, not fixed quarterly date commitments
+- [ ] The pre-launch checklist is complete and a rollback plan is documented before rollout
+
 ## Related Skills
 
-- `plan-before-code` - Engineering planning and exploration before implementation
-- `test-driven-development` - Writing tests from acceptance criteria
-- `code-quality` - Ensuring implementation meets non-functional requirements
-- `context-analysis` - Deep analysis of existing systems before feature design
+- [[plan-before-code]] -- engineering planning and exploration before implementation begins
+- [[test-driven-development]] -- writing tests directly from the acceptance criteria defined here
+- [[code-quality]] -- ensuring the implementation meets the non-functional requirements set during scoping
+- [[context-analysis]] -- deep analysis of existing systems before designing a new feature
+- [[business-analyst]] -- upstream requirement elicitation and process modeling that feeds product decisions
 
 ---
 

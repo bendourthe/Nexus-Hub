@@ -431,12 +431,29 @@ class NewDataStore(DataStore):
 - [ ] Changes are committed incrementally
 - [ ] Refactoring is documented
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "There are no tests, but I'll refactor carefully" | Refactoring without a test net is not refactoring, it is rewriting and hoping; the behavior you silently changed surfaces as a production bug because nothing caught it. |
+| "I'll fix this bug while I'm refactoring this method" | Mixing a behavior change into a refactor breaks the one guarantee refactoring offers (no observable change), so when a test fails you cannot tell whether the refactor or the fix caused it. |
+| "One big commit is cleaner than many small ones" | A large refactor commit is unbisectable; small atomic commits that each keep the tests green are what let you pinpoint and revert the exact change that introduced a regression. |
+| "It compiles and looks cleaner, so it's done" | "Looks cleaner" is not behavior preservation; only running the test suite after each change proves the external behavior is unchanged. |
+
+## Verification
+
+- [ ] Tests exist and pass before the first refactoring change
+- [ ] The full test suite passes after every atomic change (no behavior change introduced)
+- [ ] Each refactoring step is committed separately and is individually revertible
+- [ ] No new code smells or lint warnings were introduced: `<the lint command>`
+- [ ] The public API and observable behavior are unchanged from before the refactor
+
 ## Related Skills
 
-- `code-quality` - Quality standards and metrics
-- `unit-tests` - Ensuring test coverage
-- `legacy-modernizer` - Large-scale modernization
-- `context-analysis` - Understanding code before refactoring
+- [[code-quality]] -- scores the refactored result against quality standards and complexity metrics
+- [[unit-tests]] -- supplies the test coverage that makes a refactor safe to perform
+- [[behavior-preservation-checker]] -- verifies the refactor preserved behavior with before/after analysis
+- [[code-smell-detector]] -- identifies the smells that justify a refactor in the first place
 
 ---
 

@@ -271,12 +271,29 @@ Understanding the relationship between token usage and output quality helps allo
 - [ ] Token budget estimated for evaluation pipeline
 - [ ] Human spot-checks planned for calibration
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "The output looks good, so it passes" | "Looks good" is the verbosity-bias trap this skill exists to break; a 100-line function that reads well can still fail a correctness dimension a rubric would have caught. |
+| "I trust the LLM judge's score, no need for evidence" | Without an evidence quote per dimension, judges default to generous scores; an unjustified 0.9 hides the missing boundary check on line 72. |
+| "One evaluation pass is enough for this comparison" | Position bias favors the first option; a single pairwise pass can flip verdict when the order is swapped, so high-stakes calls need a swapped re-run. |
+| "We can skip token budgeting for the eval pipeline" | Evaluation costs ~2,500 tokens per item plus 20% re-eval; skipping the estimate means the pipeline silently blows its budget partway through a batch. |
+
+## Verification
+
+- [ ] A weighted rubric exists with explicit dimensions and a documented pass threshold
+- [ ] Every LLM-as-judge score is accompanied by at least one evidence quote from the output
+- [ ] Pairwise comparisons were run in both orderings and any >0.2 score divergence was flagged
+- [ ] End-state checks ran: the output compiles/parses and existing tests still pass
+- [ ] A 10-20% human spot-check of scores was performed for calibration
+
 ## Related Skills
 
-- `code-quality` - Code quality standards and review criteria
-- `testing-review` - Test quality assessment methodology
-- `final-report` - Consolidating review findings into actionable reports
-- `context-manager` - Ensuring evaluators have sufficient context
+- [[code-quality]] -- supplies the code-quality standards and review criteria a code rubric scores against
+- [[testing-review]] -- the test-quality assessment methodology used when evaluating generated test suites
+- [[final-report]] -- consolidates the dimensional scores and verdicts into an actionable review report
+- [[context-manager]] -- ensures the judge has sufficient context, the dominant driver of evaluation quality
 
 ---
 

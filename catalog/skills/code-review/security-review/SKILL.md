@@ -277,12 +277,13 @@ For each finding, document both **exploitability** (how easy to exploit) and **i
 
 ## Related Skills
 
-- `context-analysis` - Context understanding (Phase 1)
-- `code-quality` - Code quality + SOLID review (Phase 2)
-- `dependency-security-audit` - Detailed CVE scanning
-- `performance-review` - Performance analysis (Phase 4)
-- `testing-review` - Test assessment (Phase 5)
-- `final-report` - Consolidated report (Phase 6)
+- [[context-analysis]] -- Context understanding (Phase 1)
+- [[code-quality]] -- Code quality + SOLID review (Phase 2)
+- [[dependency-security-audit]] -- detailed CVE scanning behind Domain 5 (supply chain)
+- [[performance-review]] -- Performance analysis (Phase 4)
+- [[testing-review]] -- Test assessment (Phase 5)
+- [[final-report]] -- Consolidated report (Phase 6)
+- [[security-patch-advisor]] -- generate fixes for the XSS, injection, and SSRF findings this review surfaces
 
 ---
 

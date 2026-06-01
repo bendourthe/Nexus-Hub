@@ -48,7 +48,7 @@ Detect on behavior, not static signatures, and measure precision before you ship
 1. Express the analytic over host process and command-line telemetry, anchored on the behavioral features rather than a single hash or filename.
 2. Add context conditions that separate the malicious shape from benign use (unexpected parent, user-writable path, unusual flags).
 3. Keep the logic readable so a responder can understand on a hit why it fired; an opaque rule cannot be triaged.
-4. This per-process behavioral analysis is the MITRE D3FEND process-analysis and process-spawn-analysis lens. Framework mappings are documented in [references/standards.md](references/standards.md).
+4. This per-process behavioral analysis is the MITRE D3FEND process-analysis and process-spawn-analysis lens. Framework mappings are documented in [references/standards.md](references/standards.md). EDR-native detection queries for process injection, suspicious process trees, and LOLBin abuse (Sigma plus Microsoft Defender for Endpoint KQL and Splunk SPL) are in [references/query-examples.md](references/query-examples.md).
 
 ### 4. Validate
 

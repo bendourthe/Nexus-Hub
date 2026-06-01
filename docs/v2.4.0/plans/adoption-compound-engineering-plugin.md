@@ -437,7 +437,7 @@ No constitution file found at docs/v2.4.0/constitution.md - skipping check. Reco
 
 #### 7.1 — Skill-stocktake remediation pass
 
-- [ ] T026 [from v2.3.0 known-gaps: WN-v23-4] Remediate the lowest-scoring skills surfaced by skill-stocktake
+- [x] T026 [from v2.3.0 known-gaps: WN-v23-4] Remediate the lowest-scoring skills surfaced by skill-stocktake (full sweep: 576 -> 0 quality warnings across all 245 skills; 218 skills edited)
 
 **Objective**: Reduce the 574 quality-heuristics warnings (missing Common Rationalizations, prose-only Verification, missing Related Skills links) across grandfathered skills.
 
@@ -448,7 +448,7 @@ No constitution file found at docs/v2.4.0/constitution.md - skipping check. Reco
 
 #### 7.2 — Enrich security-operations skill bodies
 
-- [ ] T027 [from v2.3.0 known-gaps: DF-v23-2] Add platform-specific query examples to high-traffic security-operations skills
+- [x] T027 [from v2.3.0 known-gaps: DF-v23-2] Add platform-specific query examples to high-traffic security-operations skills (3 references/query-examples.md added + linked; orphan-bundle clean)
 
 **Objective**: Optionally deepen the highest-traffic defensive skills with platform-specific examples.
 
@@ -459,7 +459,7 @@ No constitution file found at docs/v2.4.0/constitution.md - skipping check. Reco
 
 #### 7.3 — Strip BOMs from instruction templates
 
-- [ ] T028 [P] [from v2.3.0 known-gaps: WN-v23-2] Remove UTF-8 BOM from templates/ai-instructions/**/*.md and drop the Makefile exclusion
+- [x] T028 [P] [from v2.3.0 known-gaps: WN-v23-2] Remove UTF-8 BOM from templates/ai-instructions/**/*.md and drop the Makefile exclusion (15 BOMs stripped; Makefile + CI exclusion dropped)
 
 **Objective**: Clear the 15 BOM-flagged Markdown files so the unicode-safety validator runs without the `templates/ai-instructions` exclusion.
 
@@ -470,7 +470,7 @@ No constitution file found at docs/v2.4.0/constitution.md - skipping check. Reco
 
 #### 7.4 — Replace non-ASCII punctuation in compliance templates
 
-- [ ] T029 [P] [from v2.3.0 known-gaps: WN-v23-3] Convert em-dashes/curly quotes to ASCII in templates/development/compliance-review/**/*.md
+- [x] T029 [P] [from v2.3.0 known-gaps: WN-v23-3] Convert em-dashes/curly quotes to ASCII in templates/development/compliance-review/**/*.md (3 files; --strict now 0 findings in the subtree)
 
 **Objective**: Resolve the ~1034 unicode-safety warnings on English Markdown punctuation in the compliance-review templates.
 
@@ -481,7 +481,7 @@ No constitution file found at docs/v2.4.0/constitution.md - skipping check. Reco
 
 #### 7.5 — Redact personal paths in test fixtures
 
-- [ ] T030 [from v2.3.0 known-gaps: DF-v23-1] Replace real usernames with <user> in catalog/hooks/tests/test_classification_audit.py and drop the exclusion
+- [x] T030 [from v2.3.0 known-gaps: DF-v23-1] Replace real usernames with a placeholder in catalog/hooks/tests/test_classification_audit.py and drop the exclusion (redacted to `user`; audit 172/172; Makefile + CI exclusion dropped)
 
 **Objective**: Clear the 8 personal-path findings in the test fixtures so `validate_no_personal_paths.py` runs without excluding `catalog/hooks/tests/`.
 
@@ -492,7 +492,7 @@ No constitution file found at docs/v2.4.0/constitution.md - skipping check. Reco
 
 #### 7.6 — Remove or repurpose the orphaned base-gemini-ide template
 
-- [ ] T031 [P] [from v2.3.0 known-gaps: DF-v23-3] Delete templates/ai-instructions/base-gemini-ide.md and update its references
+- [x] T031 [P] [from v2.3.0 known-gaps: DF-v23-3] Delete templates/ai-instructions/base-gemini-ide.md and update its references (deleted; gemini.py + instruction_merge.py comments updated; integration suite green)
 
 **Objective**: Remove the orphaned instruction template no integration renders.
 
@@ -503,7 +503,7 @@ No constitution file found at docs/v2.4.0/constitution.md - skipping check. Reco
 
 #### 7.7 — Broaden CI shellcheck to per-skill scripts
 
-- [ ] T032 [P] [from v2.3.0 known-gaps: QG-v23-1] Extend the CI shellcheck step in .github/workflows/ci.yml to lint catalog/skills/**/scripts/*.sh
+- [x] T032 [P] [from v2.3.0 known-gaps: QG-v23-1] Extend the CI shellcheck step in .github/workflows/ci.yml to lint catalog/skills/**/scripts/*.sh (broadened to `find catalog -name '*.sh'`; bash -n clean on all 8 per-skill scripts)
 
 **Objective**: Gate the per-skill helper `.sh` scripts in CI so a future regression is caught.
 
@@ -514,7 +514,7 @@ No constitution file found at docs/v2.4.0/constitution.md - skipping check. Reco
 
 #### 7.8 — Next code-search language-extractor batch
 
-- [ ] T033 [P] [from v2.3.0 known-gaps: DF-v23-4] Add the next language extractors under extensions/nexus-code-search
+- [x] T033 [P] [from v2.3.0 known-gaps: DF-v23-4] Add the next language extractors under extensions/nexus-code-search (Ruby + PHP + C + C++, coverage 6 -> 10; each fixture 100% recall/precision; remaining languages -> DF-v24-7)
 
 **Objective**: Extend code-graph language coverage beyond the current Python/TS/Go/Rust/Java/C# set.
 
@@ -525,7 +525,7 @@ No constitution file found at docs/v2.4.0/constitution.md - skipping check. Reco
 
 #### 7.9 — Code-search import-node precision residual
 
-- [ ] T034 [from v2.3.0 known-gaps: DF-v23-5] Resolve the python_app import-site precision residual in code_search
+- [x] T034 [from v2.3.0 known-gaps: DF-v23-5] Resolve the python_app import-site precision residual in code_search (import/export nodes demoted by default; python_app precision 70% -> 100%, recall held 100%)
 
 **Objective**: Lift the `python_app` fixture precision (70%) closer to 100% by handling import-statement nodes under name-scoped queries.
 
@@ -536,7 +536,7 @@ No constitution file found at docs/v2.4.0/constitution.md - skipping check. Reco
 
 #### 7.10 — Testing and Stabilization
 
-- [ ] T035 Run and stabilize Phase 7 tests
+- [x] T035 Run and stabilize Phase 7 tests (all suites green: code-search 187, validators 115, hooks 415, integrations+installer 267, skill-server 43; eval recall/precision 100%; BG-v24-1 closed)
 
 **Objective**: Verify all nine ingested cleanup items at the heavier bar.
 
@@ -547,13 +547,13 @@ No constitution file found at docs/v2.4.0/constitution.md - skipping check. Reco
 
 ### Phase 7 Exit Checklist
 
-- [ ] All nine ingested cleanup items resolved
-- [ ] Makefile exclusions removed for the remediated subtrees
-- [ ] Quality-warning count reduced and recorded
-- [ ] CI shellcheck covers catalog/**/*.sh
-- [ ] Code-search eval recall/precision gates hold
-- [ ] Session history generated
-- [ ] Ready to advance to Phase 8
+- [x] All nine ingested cleanup items resolved (T026-T034; WN-v23-2/3/4, DF-v23-1/2/3/4/5, QG-v23-1)
+- [x] Makefile exclusions removed for the remediated subtrees (templates/ai-instructions unicode + catalog/hooks/tests personal-paths, in both Makefile and ci.yml)
+- [x] Quality-warning count reduced and recorded (576 -> 0 across all 245 skills)
+- [x] CI shellcheck covers catalog/**/*.sh (find catalog -name '*.sh'; bash -n clean on all 8 per-skill scripts)
+- [x] Code-search eval recall/precision gates hold (all 10 fixtures 100%/100%; python_app precision 70% -> 100%; 4 new languages clear the 80% recall gate)
+- [x] Session history generated
+- [x] Ready to advance to Phase 8 (also closed BG-v24-1, the pre-existing installer.ps1 stale test; full suite green)
 
 ---
 

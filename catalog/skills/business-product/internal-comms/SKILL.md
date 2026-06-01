@@ -335,8 +335,8 @@ The examples are deliberately generic; do not adapt them to a specific real orga
 
 ## Related Skills
 
-- `developer-experience/writing-editing` - sentence-level polish on the draft this skill produces; use as a follow-up step.
-- `business-product/technical-writer` - audience-appropriate technical documentation; complements when the comm has substantial technical content (an incident on a complex system, a project update with architecture detail).
-- `workflow/doc-coauthoring` - 3-stage co-authoring workflow for long-form decision docs / specs / RFCs that don't fit any of the six templates.
-- `documentation/technical-documentation` - architecture docs, ADRs, design specs; use instead of the project-update one-pager when the artifact needs to be referenced after the period ends.
-- `developer-experience/idea-refine` - upstream pre-template step when the writer is not yet sure what they want to say.
+- [[writing-editing]] -- sentence-level polish on the draft this skill produces; use as a follow-up step.
+- [[technical-writer]] -- audience-appropriate technical documentation; complements when the comm has substantial technical content (an incident on a complex system, a project update with architecture detail).
+- [[doc-coauthoring]] -- 3-stage co-authoring workflow for long-form decision docs / specs / RFCs that don't fit any of the six templates.
+- [[technical-documentation]] -- architecture docs, ADRs, design specs; use instead of the project-update one-pager when the artifact needs to be referenced after the period ends.
+- [[idea-refine]] -- upstream pre-template step when the writer is not yet sure what they want to say.

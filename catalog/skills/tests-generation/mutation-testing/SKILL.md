@@ -437,11 +437,30 @@ with pytest.raises(ValueError):
     func(invalid_input)
 ```
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "We have 90% line coverage, so mutation testing is unnecessary." | Coverage proves lines ran, not that an assertion would catch a bug; mutation testing flips `>` to `>=` and a high-coverage suite that never asserts the boundary lets the mutant survive. |
+| "Surviving mutants are just equivalent mutants we can ignore." | True equivalent mutants are rare; most survivors mark a real assertion gap, and dismissing them as equivalent without analysis is how weak tests stay green. |
+| "Running mutation testing on the whole codebase is too slow for CI." | Scope it to changed files per PR and run the full sweep nightly; the cost is bounded and a survived mutant on critical logic is far cheaper to catch here than in production. |
+| "The mutation score dropped, but the tests still pass, so we are fine." | Passing tests with a falling mutation score mean new code shipped without assertions that detect its defects; the score, not the pass/fail, is the quality signal. |
+
+## Verification
+
+- [ ] The mutation testing tool runs and produces a mutation score for the target module.
+- [ ] The mutation score meets or exceeds the documented threshold (e.g. 80%).
+- [ ] Every surviving mutant has been analyzed and classified as equivalent or as an assertion gap to fix.
+- [ ] Tests added to kill survivors actually fail against the mutant and pass against the original code.
+- [ ] Mutation testing is wired into CI scoped to changed files, with a recorded threshold.
+
 ## Related Skills
 
-- `code-coverage` - Coverage analysis (Phase 7)
-- `unit-tests` - Unit testing (Phase 2)
-- `test-cases` - Integration tests (Phase 3)
+- [[code-coverage]] -- measures which lines run; mutation testing measures whether assertions catch bugs (Phase 7)
+- [[unit-tests]] -- the suite whose assertion strength this skill validates and improves (Phase 2)
+- [[test-cases]] -- integration scenarios whose effectiveness mutation testing also scores (Phase 3)
+- [[edge-case-generator]] -- supplies the boundary tests that kill off-by-one and comparison mutants
+- [[semantic-bug-detector]] -- shares the focus on logic defects that surviving mutants expose
 
 ---
 

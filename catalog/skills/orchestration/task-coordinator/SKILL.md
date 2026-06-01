@@ -462,7 +462,15 @@ When coordinating tasks, invoke related skills at appropriate phases:
 | Documentation | `technical-documentation`, `api-documentation` |
 | Deployment | `cicd-architect`, `kubernetes-expert` |
 
-## Quality Checklist
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "The task is big but I understand it; I will just start coding and decompose as I go." | Decomposing as you go means dependencies surface mid-stream, and you discover task B needed task A's output after you already started B. The upfront dependency graph is what prevents that rework. |
+| "Splitting this into a multi-agent system will go faster." | Multi-agent runs cost 5-15x the tokens of a single agent and only pay off when context isolation is the bottleneck. If one agent can hold all the relevant context, multi-agent is slower and pricier, not faster. |
+| "I will track progress in my head; writing a status report is overhead." | An in-head progress model is invisible to anyone resuming the work and evaporates on a context reset. A written task list with completion state is the only thing that survives a handoff and shows what is actually left. |
+
+## Verification
 
 - [ ] Task breakdown covers all requirements
 - [ ] Dependencies explicitly documented
@@ -475,10 +483,10 @@ When coordinating tasks, invoke related skills at appropriate phases:
 
 ## Related Skills
 
-- `plan-before-code` - Initial planning methodology
-- `context-manager` - Managing information across tasks
-- `workflow-orchestrator` - End-to-end workflow management
-- `code-quality` - Quality standards for implementations
+- [[plan-before-code]] - Initial planning methodology
+- [[context-manager]] - Managing information across tasks
+- [[workflow-orchestrator]] - End-to-end workflow management
+- [[code-quality]] - Quality standards for implementations
 
 ---
 

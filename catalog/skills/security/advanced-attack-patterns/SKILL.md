@@ -1,8 +1,8 @@
 ---
 name: advanced-attack-patterns
 description: Advanced attack classes beyond the OWASP Top 10 baseline including state desynchronization, cache poisoning, replay attacks, and timing-attack side channels. Each class is gated on an applicability check so the audit only engages where the attack surface actually exists. Use when extending a baseline security review, auditing distributed systems or cache-heavy architectures, or running `/run-penetration-test --depth=deep`.
-summary_l0: "Advanced attack classes: state desynchronization, cache poisoning, replay attacks, and timing-attack side channels beyond password comparison"
-overview_l1: "This skill covers advanced attack classes that generic OWASP Top 10 reviews miss because they depend on architectural properties rather than input validation: distributed-state divergence, HTTP cache manipulation, protocol-level replay, and timing side channels in branches that depend on secret-valued inputs. Use it as a second pass after the baseline security-review, when auditing cache-heavy or eventually-consistent architectures, or as the second half of the `/run-penetration-test --depth=deep` Business Logic & Advanced Attacks hunter. Key capabilities include state-desynchronization detection across client/server, cache/DB, and multi-service boundaries; cache-poisoning analysis covering cache-key hygiene, Vary-header correctness, and cache-deception; replay-attack detection spanning nonces, idempotency keys, and timestamp-window validation; and timing-attack surface identification beyond password comparison. The expected output is a findings table keyed by attack class with applicability verdict, exploit sketch, and architectural remediation. Trigger phrases: advanced attacks, state desync, cache poisoning, cache deception, replay attack, nonce, idempotency, timing attack, side channel, user enumeration, token binding, WSTG deep pass."
+summary_l0: "Advanced attack classes: state desync, cache poisoning, replay, and timing side channels"
+overview_l1: "This skill covers advanced attack classes that generic OWASP Top 10 reviews miss because they depend on architectural properties rather than input validation: distributed-state divergence, HTTP cache manipulation, protocol-level replay, and timing side channels in branches that depend on secret-valued inputs. Use it as a second pass after the baseline security-review, when auditing cache-heavy or eventually-consistent architectures, or in the `/run-penetration-test --depth=deep` advanced-attacks hunter. Key capabilities include state-desynchronization detection across client/server, cache/DB, and multi-service boundaries; cache-poisoning analysis covering cache-key hygiene, Vary-header correctness, and cache-deception; replay-attack detection spanning nonces, idempotency keys, and timestamp windows; and timing-attack surface identification beyond password comparison. The expected output is a findings table keyed by attack class with applicability verdict, exploit sketch, and architectural remediation. Trigger phrases: advanced attacks, state desync, cache poisoning, cache deception, replay attack, nonce, idempotency, timing attack, side channel, user enumeration, token binding."
 ---
 
 # Advanced Attack Patterns
@@ -235,13 +235,22 @@ response.headers["Vary"] = "Cookie"  # Cookie includes the session
 - [ ] For each state-desync finding, write an integration test that triggers the divergence and asserts the post-fix invariant
 - [ ] Confirm `Vary` headers by requesting the same URL with and without the relevant header from a CDN-adjacent tool (e.g., `curl -I` against the CDN, then the origin)
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "The baseline OWASP review already covered this, so the deep pass is redundant" | Cache poisoning and state desync depend on architecture, not input shape; a baseline review that grep-checks for SQL-i and XSS never inspects the `Vary` header or the read/write store split, so the `X-Forwarded-Host`-into-cache-key bug ships unfound. |
+| "We use a vetted crypto library, so there is no timing-attack surface" | The most common timing leak is user enumeration on `/login` and `/forgot-password`, where the secret-dependent branch is your own `if user_exists` early return, not anything inside the crypto library. |
+| "Replay does not matter because our tokens expire" | A bearer token with a multi-day expiry can be replayed from any network for its whole lifetime; expiry is not a nonce, and without timestamp-window plus nonce a captured signed webhook replays indefinitely. |
+| "This architecture is too simple to have distributed state" | A single read-replica or a Redis cache in front of the DB is enough to serve a just-revoked permission from a stale cache, which is exactly the cache-vs-DB divergence in Step 1. |
+
 ## Related Skills
 
-- `business-logic-abuse` - Companion skill; state-desynchronization step-skip and workflow-bypass overlap heavily
-- `security-patch-advisor` - Patch generation for XSS / SQL-i / SSRF fixes referenced in remediation
-- `security-review` - Baseline OWASP Top 10 pass that this skill extends
-- `authentication-patterns` - Token binding, session management, MFA flows referenced in replay attacks
-- `fintech-engineer` - Financial replay and double-spend coverage in payment-specific contexts
+- [[business-logic-abuse]] -- companion skill; state-desynchronization step-skip and workflow-bypass overlap heavily
+- [[security-patch-advisor]] -- patch generation for XSS / SQL-i / SSRF fixes referenced in remediation
+- [[security-review]] -- baseline OWASP Top 10 pass that this skill extends
+- [[authentication-patterns]] -- token binding, session management, MFA flows referenced in replay attacks
+- [[fintech-engineer]] -- financial replay and double-spend coverage in payment-specific contexts
 
 ---
 

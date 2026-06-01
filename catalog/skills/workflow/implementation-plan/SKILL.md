@@ -319,7 +319,15 @@ Incorporate feedback, then write the final file.
 
 ---
 
-## Quality Checklist
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "The user already knows what they want, I can skip the discovery questions" | Skipping discovery produces a plan built on the agent's assumptions; the unasked question is exactly the requirement that gets missed and forces a rewrite mid-implementation. |
+| "I will add the install and packaging step at the end" | Deferring packaging to the end means the build is unrunnable for the whole middle of the plan; the install step must land before the halfway point so each phase produces something executable. |
+| "A phase does not need its own testing sub-task if I test at the end" | Batching all testing into a final phase hides which phase introduced a defect; every phase must end with a testing and stabilization sub-task so failures are localized. |
+
+## Verification
 
 - [ ] Plan type, version, and slug all resolved and confirmed with the user
 - [ ] All discovery questions answered (optional "additional context" question may be skipped)

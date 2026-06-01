@@ -812,3 +812,28 @@ for i, name in enumerate(ordered, 1):
 - **Not measuring the impact**: Implementing prioritization without measuring before/after metrics makes it impossible to justify the investment or identify regressions in the approach
 - **Treating all tests as equal in parallel distribution**: Assigning tests round-robin to parallel runners ignores execution time differences; one runner may finish in 1 minute while another takes 10 minutes; use time-balanced distribution
 - **Skipping integration tests too aggressively**: Unit tests passing does not guarantee integration correctness; always run at least a smoke-level integration test on every commit
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "We will just buy more CI runners instead of prioritizing." | Throwing hardware at a 30-minute suite shortens wall-clock time but not time-to-first-failure; a developer still waits minutes to learn their one-line change broke a test that could have run first. |
+| "Test selection lets us skip everything the diff did not touch." | Change-impact analysis misses indirect dependencies such as a config or shared-fixture change that affects every module; without a periodic full run, a real regression escapes the selected subset. |
+| "Failure history ordering will surface our worst tests first." | If flaky tests dominate the failure history they get prioritized highest and waste the feedback budget on noise; flaky tests must be fixed before failure-based ordering pays off. |
+| "Round-robin distribution balances the parallel runners." | Round-robin ignores per-test duration, so one runner finishes in a minute while another takes ten; only time-balanced assignment actually shortens the critical path. |
+
+## Verification
+
+- [ ] The prioritized ordering is derived from recorded failure history and/or change correlation, not an arbitrary list.
+- [ ] A tiered CI config fails fast: a tier-1 (smoke) failure skips the later tiers.
+- [ ] The coverage/test-impact map has been refreshed within the documented staleness window.
+- [ ] The full suite still runs on a periodic schedule (e.g. nightly) as a safety net.
+- [ ] Before/after metrics for time-to-first-failure and total CI time are recorded to quantify the gain.
+
+## Related Skills
+
+- [[flaky-test-detector]] -- fixes the flaky tests that otherwise poison failure-history prioritization
+- [[cicd-integration]] -- the pipeline this ordering and tiering is wired into
+- [[code-coverage]] -- supplies the test-to-file map that drives coverage-based and impact-based selection
+- [[test-strategy-doc]] -- defines the risk weighting that risk-based ordering applies
+- [[performance-testing]] -- profiles slow tests so prioritization is paired with actually making them faster

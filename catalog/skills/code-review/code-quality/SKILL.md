@@ -266,11 +266,13 @@ When proposing fixes, follow these 7 heuristics:
 
 ## Related Skills
 
-- `context-analysis` - Context understanding (Phase 1)
-- `security-review` - Security analysis (Phase 3)
-- `performance-review` - Performance analysis (Phase 4)
-- `testing-review` - Test assessment (Phase 5)
-- `final-report` - Consolidated report (Phase 6)
+- [[context-analysis]] -- Context understanding (Phase 1), run before this quality pass
+- [[security-review]] -- Security analysis (Phase 3)
+- [[performance-review]] -- Performance analysis (Phase 4)
+- [[testing-review]] -- Test assessment (Phase 5)
+- [[final-report]] -- Consolidated report (Phase 6)
+- [[code-smell-detector]] -- deeper Fowler-catalog smell detection beyond the quick smell table here
+- [[refactoring-expert]] -- behavior-preserving transforms that resolve the SOLID violations this skill flags
 
 ---
 

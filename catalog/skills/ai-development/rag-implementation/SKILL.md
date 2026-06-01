@@ -1042,7 +1042,16 @@ def enrich_chunk_metadata(chunk: Chunk) -> Chunk:
     return chunk
 ```
 
-## Quality Checklist
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "Default fixed-size chunking is good enough" | Splitting mid-sentence or mid-table strands the context the answer needs across two chunks, so retrieval returns half the fact and the LLM hallucinates the rest; chunking must respect the document's structure. |
+| "I'll skip the eval suite, the answers look right" | "Looks right" on a handful of demo queries hides low recall on the long tail; without a faithfulness/relevance/recall suite a retrieval regression ships undetected. |
+| "I do not need source attribution in the prompt" | Without injected sources the system cannot show provenance and you cannot distinguish a grounded answer from a hallucination, which is the entire point of RAG. |
+| "Full re-indexing on every update is simpler" | Re-embedding the whole corpus on each document change is slow and expensive at scale and creates a stale window; incremental indexing keeps the store current without the full cost. |
+
+## Verification
 
 - [ ] Document loaders handle target formats (PDF, HTML, code, etc.)
 - [ ] Chunking strategy chosen and tuned for document type and query patterns
@@ -1057,10 +1066,10 @@ def enrich_chunk_metadata(chunk: Chunk) -> Chunk:
 
 ## Related Skills
 
-- `ai-agent-development` - Building agents that use RAG as a tool
-- `prompt-engineering` - Designing prompts for RAG answer generation
-- `sql-expert` - Using pgvector with existing Postgres databases
-- `performance-testing` - Load testing RAG retrieval endpoints
+- [[ai-agent-development]] -- building agents that use RAG as a tool
+- [[prompt-engineering]] -- designing prompts for RAG answer generation
+- [[sql-expert]] -- using pgvector with existing Postgres databases
+- [[performance-testing]] -- load testing RAG retrieval endpoints
 
 ---
 

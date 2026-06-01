@@ -271,13 +271,13 @@ Execute tasks following `incremental-implementation` (one task at a time, test a
 
 ## Related Skills
 
-- `idea-refine` — clarify the idea before writing the spec
-- `plan-before-code` — detailed implementation planning once the spec is approved
-- `incremental-implementation` — execute the plan one task at a time
-- `ambiguity-detector` — detect gaps in an existing spec before implementation
-- `cross-artifact-analyzer` — verify the FR-### / SC-### IDs in the spec have matching tasks in the plan via the Coverage Summary table emitted by `/analyze-spec`
-- `project-constitution` — establish the MUST/SHOULD principles that the `Constitution Check` section of every plan validates against
-- `/clarify-spec` (Phase 5 command) — sequential 5-question loop that resolves spec ambiguities after the template's slots are filled; pairs with the spec-quality-checklist for the final readiness gate before `/generate-plan`
+- [[idea-refine]] -- clarify the idea before writing the spec
+- [[plan-before-code]] -- detailed implementation planning once the spec is approved
+- [[incremental-implementation]] -- execute the plan one task at a time
+- [[ambiguity-detector]] -- detect gaps in an existing spec before implementation
+- [[cross-artifact-analyzer]] -- verify the FR-### / SC-### IDs in the spec have matching tasks in the plan via the Coverage Summary table emitted by `/analyze-spec`
+- [[project-constitution]] -- establish the MUST/SHOULD principles that the `Constitution Check` section of every plan validates against
+- `/clarify-spec` (Phase 5 command) -- sequential 5-question loop that resolves spec ambiguities after the template's slots are filled; pairs with the spec-quality-checklist for the final readiness gate before `/generate-plan`
 
 ## Methodology essay
 

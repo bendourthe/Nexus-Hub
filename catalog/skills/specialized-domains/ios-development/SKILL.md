@@ -2,7 +2,7 @@
 name: ios-development
 description: iOS native development expertise with Swift, SwiftUI, UIKit, and modern Apple platform patterns. Use when building iOS applications, designing UI with SwiftUI, implementing MVVM architecture, or integrating Apple frameworks.
 summary_l0: "Build iOS apps with Swift, SwiftUI, UIKit, and modern Apple platform patterns"
-overview_l1: "This skill provides iOS native development expertise covering Swift, SwiftUI, UIKit, and modern Apple platform patterns. Use it when building iOS applications from scratch, designing declarative UI with SwiftUI, implementing MVVM or clean architecture, integrating Apple frameworks such as SwiftData, HealthKit, MapKit, StoreKit 2, or App Intents, persisting data with Core Data or SwiftData, networking with URLSession and async/await, writing tests with XCTest or the Swift Testing framework, or bridging UIKit and SwiftUI in brownfield projects. Key capabilities include Xcode project configuration and Swift Package Manager dependency management, SwiftUI view composition with property wrappers and state management, NavigationStack path-based routing and sheet presentation, UIKit view controller lifecycle and diffable data sources, MVVM architecture with @Observable and dependency injection, data persistence with SwiftData and Keychain, async/await networking with Codable serialization, Apple framework integration (notifications, background tasks, HealthKit, MapKit, StoreKit 2, App Intents), and comprehensive testing with XCTest, Swift Testing, and XCUITest. The expected output is production-quality Swift code following Apple Human Interface Guidelines with proper architecture, error handling, and test coverage. Trigger phrases: iOS app, SwiftUI view, UIKit controller, Swift Package Manager, MVVM iOS, SwiftData, Core Data, HealthKit, MapKit, StoreKit, App Intents, XCTest, XCUITest, NavigationStack, async await networking, Codable, property wrapper, @Observable, @State, @Binding, UICollectionView, diffable data source, Keychain, push notification, background task."
+overview_l1: "This skill provides iOS native development expertise covering Swift, SwiftUI, UIKit, and modern Apple platform patterns. Use it when building iOS apps, designing declarative UI with SwiftUI, implementing MVVM or clean architecture, integrating Apple frameworks (SwiftData, HealthKit, MapKit, StoreKit 2, App Intents), persisting data with Core Data, networking with async/await, writing tests, or bridging UIKit and SwiftUI in brownfield projects. Key capabilities include Xcode and Swift Package Manager configuration, SwiftUI view composition with property wrappers, NavigationStack routing, UIKit lifecycle and diffable data sources, MVVM with @Observable and dependency injection, persistence with SwiftData and Keychain, async/await networking with Codable, Apple framework integration, and testing with XCTest and XCUITest. The expected output is production-quality Swift following Apple Human Interface Guidelines with proper architecture, error handling, and test coverage. Trigger phrases: iOS app, SwiftUI view, UIKit controller, MVVM iOS, SwiftData, HealthKit, StoreKit, App Intents, XCTest, XCUITest, NavigationStack, @Observable, Keychain, push notification."
 ---
 
 # iOS Development
@@ -2169,13 +2169,31 @@ struct APIClientAsyncTests {
 - [ ] Background tasks registered and scheduled correctly
 - [ ] StoreKit 2 transaction listener active on app launch
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "I'll store the auth token in UserDefaults, it's simpler" | UserDefaults is an unencrypted plist any jailbroken device or backup reads in plaintext. Tokens and credentials belong in the Keychain, which is the only Apple-provided encrypted store. |
+| "Strong-capturing self in this closure is fine" | A strong self in an escaping closure that the object also retains creates a reference cycle that leaks the view controller forever. Capture `[weak self]` and the Instruments leaks tool stays green. |
+| "I'll do the network call on the main thread, it's just one request" | A synchronous request on the main actor blocks the UI and trips the watchdog into a hang termination. async/await off the main actor with a main-actor UI update is the pattern that keeps the app responsive. |
+| "SwiftUI previews are nice-to-have, skip them" | Previews are the fastest feedback loop for state and layout bugs; skipping them pushes recomposition and binding errors to device builds that take 10x longer to iterate. |
+
+## Verification
+
+- [ ] The project builds and tests pass: `xcodebuild test -scheme <Scheme> -destination 'platform=iOS Simulator,name=iPhone 15'`
+- [ ] No compiler warnings remain in the changed files
+- [ ] Instruments Leaks shows no retain cycles in the changed view controllers or view models
+- [ ] All credentials and tokens are stored in the Keychain, never in UserDefaults or plist
+- [ ] Network calls run off the main actor; UI updates are dispatched back to the main actor
+- [ ] SwiftUI views expose a working `#Preview` for the changed screens
+
 ## Related Skills
 
-- `architecture-design` - System decomposition and trade-off analysis for complex apps
-- `security-review` - Security assessment for authentication and data protection
-- `testing-review` - Test coverage and strategy evaluation
-- `code-quality` - Code quality metrics and maintainability assessment
-- `typescript-expert` - Cross-platform comparison when evaluating React Native alternatives
+- [[architecture-design]] -- system decomposition and trade-off analysis for complex apps
+- [[security-review]] -- security assessment for authentication and data protection
+- [[testing-review]] -- test coverage and strategy evaluation
+- [[code-quality]] -- code quality metrics and maintainability assessment
+- [[android-development]] -- the Android counterpart when the same product targets both platforms
 
 ---
 

@@ -619,7 +619,15 @@ All errors follow this structure:
 - **Postman**: API testing and docs
 - **OpenAPI Generator**: Client generation
 
-## Quality Checklist
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "The endpoint names are self-explanatory; I will skip the request/response schemas." | A consumer integrating against the API cannot guess the exact field names, types, and required-vs-optional status. Without the schema they build to a wrong shape and discover the mismatch at runtime, not at design time. |
+| "I will write the example payloads by hand and trust they are right." | Hand-written examples drift from the real API the moment a field is added or renamed, and a consumer who copies a wrong example files a bug against working code. Examples must be validated against the actual spec. |
+| "Documenting the happy path is enough; error responses are obvious." | The error catalog is what tells a consumer how to handle a 429 vs a 401 vs a 500. Omitting it forces every integrator to reverse-engineer your failure modes by triggering them in production. |
+
+## Verification
 
 - [ ] All endpoints documented
 - [ ] Request/response schemas complete
@@ -634,9 +642,10 @@ All errors follow this structure:
 
 ## Related Skills
 
-- `docstrings` - Code documentation
-- `technical-documentation` - Architecture docs
-- `user-documentation` - User guides
+- [[docstrings]] - Code documentation
+- [[technical-documentation]] - Architecture docs
+- [[user-documentation]] - User guides
+- [[api-design]] - the REST/GraphQL design decisions the documentation describes
 
 ---
 

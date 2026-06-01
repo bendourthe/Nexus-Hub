@@ -2,7 +2,7 @@
 name: regression-root-cause-analyzer
 description: Identify root causes of regressions using diff analysis, git bisect, test failure correlation, and change impact analysis. Use when a previously passing test fails, CI/CD pipelines break after a deployment, or recent changes introduce unexpected behavior.
 summary_l0: "Identify regression root causes with diff analysis, bisect, and change impact tracing"
-overview_l1: "This skill systematically identifies the root cause of regressions by combining diff analysis, git bisect integration, test failure correlation, change impact analysis, and timeline reconstruction. Use it when determining which commit or merge introduced a regression, analyzing CI/CD pipeline failures after a deployment, correlating multiple test failures to a single root cause change, performing change impact analysis to understand blast radius, reconstructing the timeline of events leading to a regression, distinguishing genuine regressions from flaky tests, or investigating performance regressions. Key capabilities include automated bisect-driven commit isolation, diff-to-failure correlation, blast radius mapping, timeline reconstruction, flaky test discrimination, and performance regression profiling. The expected output is a root cause report identifying the specific commit, the change that caused it, the mechanism of the regression, and recommended remediation. Trigger phrases: find the regression, what broke the build, which commit caused, regression analysis, CI pipeline broke, test started failing, root cause of regression, bisect the failure, what change caused this."
+overview_l1: "This skill systematically identifies the root cause of regressions by combining diff analysis, git bisect integration, test failure correlation, change impact analysis, and timeline reconstruction. Use it when determining which commit or merge introduced a regression, analyzing CI/CD pipeline failures after a deployment, correlating multiple test failures to a single root-cause change, mapping the blast radius of a change, distinguishing genuine regressions from flaky tests, or investigating performance regressions. Key capabilities include automated bisect-driven commit isolation, diff-to-failure correlation, blast radius mapping, timeline reconstruction, flaky test discrimination, and performance regression profiling. The expected output is a root cause report identifying the specific commit, the change that caused it, the mechanism of the regression, and recommended remediation. Trigger phrases: find the regression, what broke the build, which commit caused, regression analysis, CI pipeline broke, test started failing, root cause of regression, bisect the failure."
 ---
 
 # Regression Root Cause Analyzer
@@ -723,3 +723,20 @@ Each row is an excuse that precedes skipping the root-cause investigation, with 
 - **Neglecting transitive regressions.** A dependency update (in package.json, requirements.txt, pom.xml) can introduce regressions without any direct code change in your repository. Always check dependency diffs.
 - **Not accounting for merge order.** In repositories with frequent merges, the order in which commits are integrated matters. A change that works in isolation may fail when combined with another change that was merged around the same time.
 - **Failing to distinguish between test regression and production regression.** A test may start failing due to a change in test infrastructure or test data, not because of a production code bug. Verify that the regression also manifests in the production code path.
+
+## Verification
+
+- [ ] The failing test is confirmed deterministic (not flaky) before bisect is trusted
+- [ ] git bisect (or equivalent) has isolated the first bad commit and it is recorded
+- [ ] The investigation reaches the specific line and mechanism, not just the commit hash
+- [ ] Dependency and environment changelogs were checked, not only the code diff (transitive regressions ruled in or out)
+- [ ] The regression is confirmed in the production code path, not just the test
+- [ ] The root cause report names the commit, the change, the mechanism, and a recommended remediation
+
+## Related Skills
+
+- [[bug-localization]] -- general fault-localization techniques this skill applies to regressions
+- [[git-bisect-assistant]] -- automates the bisection that isolates the offending commit
+- [[bug-to-patch-generator]] -- generates the fix once the regression-introducing change is identified
+- [[flaky-test-detector]] -- distinguishes a flaky test from a genuine regression before bisect
+- [[bug-reproduction-test-generator]] -- builds the deterministic test bisect needs as its check command

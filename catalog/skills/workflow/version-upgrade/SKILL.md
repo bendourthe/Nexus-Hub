@@ -415,7 +415,15 @@ Y.Y.Y+20231215
 - [ ] go.mod reviewed
 - [ ] Git tag created
 
-## Quality Checklist
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "I bumped the version in package.json, the upgrade is done" | Version strings live in many places (README, About dialog, docs headers, CHANGELOG); updating one and missing the rest ships a build that reports contradictory versions to users. |
+| "I will write the CHANGELOG entry from memory" | A CHANGELOG built from memory omits the quiet fixes and breaking changes; derive it from the actual commit range so users see every change that affects them. |
+| "It is just a patch bump, SemVer rules do not really matter" | Mislabeling a breaking change as a patch silently breaks downstream consumers who pinned a caret range; the MAJOR/MINOR/PATCH choice is a contract, not a formality. |
+
+## Verification
 
 Before finalizing the version upgrade:
 
@@ -473,9 +481,10 @@ Version upgrade complete! Copy the commit message above when ready.
 
 ## Related Skills
 
-- `code-commit-workflow` - Commit workflow and conventions
-- `pre-commit-checklist` - Pre-commit validation
-- `documentation` - Documentation standards
+- [[code-commit-workflow]] -- commit workflow and conventions for the version-bump commit
+- [[pre-commit-checklist]] -- pre-commit validation before the upgrade is recorded
+- [[documentation-consistency]] -- verify every version reference and doc link stays in sync after the bump
+- [[release-notes-writer]] -- generate the user-facing release notes that accompany the new version
 
 ---
 

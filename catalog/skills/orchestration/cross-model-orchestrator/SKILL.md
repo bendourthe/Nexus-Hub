@@ -260,12 +260,28 @@ When the reviewer or verifier disagrees with the planner or implementer, follow 
 - **Start simple** with two models (planner + reviewer) before scaling to a full four-model workflow
 - **Use the same prompt format** across models for consistency; the artifact templates above help with this
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "One capable model can plan, code, and review the change itself." | A model reviewing its own work re-confirms its own assumptions; the blind spot that produced the bug also hides it during self-review. The cross-model gate exists so a second model with different training catches what the first cannot see. |
+| "The plan is obvious, so I will let the implementer skip the review handoff." | "Obvious" plans are where unverified assumptions hide. Skipping the independent review phase is the single most common way a cross-model workflow degrades into an expensive single-model workflow. |
+| "I will reuse the same session across roles to save setup time." | Carrying the planner's context into the reviewer role contaminates the review with the planner's framing. Fresh sessions per role are what make the second opinion genuinely independent. |
+
+## Verification
+
+- [ ] Each workflow phase has an assigned model and a documented rationale for the assignment
+- [ ] A QA gate with explicit GO/NO-GO criteria sits at every model transition
+- [ ] Intermediate artifacts are machine-readable Markdown that the next model can parse
+- [ ] Each model role ran in a fresh session (no context carried across phases)
+- [ ] Model disagreements were logged and resolved before proceeding
+
 ## Related Skills
 
-- `plan-before-code` - Detailed planning methodology used in Phase 1
-- `workflow-orchestrator` - General workflow orchestration patterns
-- `task-coordinator` - Breaking down tasks across phases
-- `quality-gate-definitions` - Reusable gate criteria referenced in Step 4
+- [[plan-before-code]] - Detailed planning methodology used in Phase 1
+- [[workflow-orchestrator]] - General workflow orchestration patterns
+- [[task-coordinator]] - Breaking down tasks across phases
+- [[quality-gate-definitions]] - Reusable gate criteria referenced in Step 4
 
 ---
 

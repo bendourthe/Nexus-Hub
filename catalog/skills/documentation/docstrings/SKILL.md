@@ -376,7 +376,15 @@ public:
 };
 ```
 
-## Quality Checklist
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "The function name says what it does; a docstring is redundant." | A name conveys intent, not the parameter contract, the units, the raised exceptions, or the edge-case behavior. An IDE hover or a generated API page shows the docstring, not your reasoning, so the caller integrates blind without it. |
+| "I will write the docstring once and it will stay accurate." | Docstrings silently rot when the signature changes and nothing fails. A docstring that documents a removed parameter actively misleads; sync it on every change and validate with a tool (doctest, docstring linters). |
+| "Any reasonable format is fine; I will write it however reads best." | Off-convention docstrings break the documentation generator (Sphinx, JSDoc, godoc) so the API page renders wrong or not at all. Follow the language's standard format so the tooling can parse it. |
+
+## Verification
 
 - [ ] All public modules/packages documented
 - [ ] All public classes documented
@@ -416,9 +424,9 @@ python -m doctest module.py
 
 ## Related Skills
 
-- `strategic-comments` - High-value code comments
-- `api-documentation` - API reference documentation
-- `user-documentation` - User guides and tutorials
+- [[strategic-comments]] - High-value code comments
+- [[api-documentation]] - API reference documentation
+- [[user-documentation]] - User guides and tutorials
 
 ---
 

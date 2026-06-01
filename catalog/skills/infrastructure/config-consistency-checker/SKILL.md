@@ -1072,3 +1072,27 @@ echo "PASS: No critical configuration drift"
 - **Letting the ignore list grow unchecked**: An ignore list that grows over time without review becomes a way to sweep real issues under the rug. Periodically audit the ignore list to ensure every entry has a documented justification and is still relevant.
 
 - **Generating reports that nobody reads**: A drift report is only useful if someone acts on it. Assign ownership of drift findings, set SLAs for resolution, and track closure rates. An unread report is the same as no report at all.
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "The configs all look the same, a manual eyeball is enough" | A single missing key or a type that is `8080` in one env and `"8080"` in another is exactly what the eye skips and what breaks only in the environment that differs; a normalized programmatic diff catches what manual review misses. |
+| "I'll just compare the values directly across environments" | Database hostnames, URLs, and replica counts are supposed to differ; comparing raw values floods the report with false positives that train the team to ignore it. Compare key presence, types, and schema, not environment-specific values. |
+| "Checking the files in the repo covers our config" | Production config partially managed in a cloud console, parameter store, or Terraform state is a major drift source the repo never sees; the check must include those live sources. |
+| "Every difference is a problem to fix" | Without severity classification a missing connection string and an extra debug flag look equal; the team then either burns time on noise or ignores the report entirely. |
+
+## Verification
+
+- [ ] All configuration sources per environment are inventoried, including non-repo sources (parameter store, ConfigMaps, console-managed values).
+- [ ] Values are normalized by type before comparison so format differences (int vs string) do not produce false type mismatches.
+- [ ] Environment-specific keys (hostnames, URLs, replica counts) are on a documented ignore list, not flagged as drift.
+- [ ] Secret references are validated for presence and resolution, never compared by value.
+- [ ] Findings carry a severity level, and the report identifies an owner or resolution step per discrepancy.
+
+## Related Skills
+
+- [[platform-engineer]] -- enforces config standards across services that this checker audits
+- [[cicd-architect]] -- integrates the drift check as a pre-deployment gate in the pipeline
+- [[database-design]] -- the connection-string and schema parameters this checker frequently validates
+- [[security-review]] -- audits the secret references this checker verifies for existence

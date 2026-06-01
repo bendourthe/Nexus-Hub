@@ -843,3 +843,27 @@ deploy-production:
 - **Overly broad rollback triggers**: Rolling back on any single failed health check can cause unnecessary rollbacks during transient issues. Use consecutive failure thresholds (for example, 3 failures in a row) to avoid false positives.
 
 - **Neglecting pipeline maintenance**: Pipelines are code. They need testing, version control, and periodic review. Treat your deployment pipeline with the same rigor as your application code.
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "I'll rebuild the image for production so it has the prod config baked in" | A rebuilt image is not the artifact that passed staging tests; environment-specific config belongs in injected configuration, and promoting the exact same digest is the only way the pipeline actually verifies what ships. |
+| "We'll add the rollback job later, deploys rarely fail" | The first failed production deploy with no tested rollback path is an outage with no fast exit; the rollback job and a documented, practiced procedure must ship with the pipeline, not after the incident. |
+| "Health checks slow the pipeline, I'll skip them to ship faster" | A broken deploy that reaches users undetected costs far more than a 60-second health gate; skipping verification trades a small known delay for an unbounded incident. |
+| "Putting the secret directly in the workflow file is fine, the repo is private" | Secrets in pipeline files leak through logs, forks, and history even in private repos; platform-native secret stores injected at deploy time are the only safe path. |
+
+## Verification
+
+- [ ] The same image digest built in CI is promoted through every environment (no per-environment rebuild).
+- [ ] The pipeline includes post-deployment health verification that gates promotion and triggers rollback on failure.
+- [ ] A tested rollback path exists for the chosen strategy (blue-green traffic switch, canary abort, or `kubectl rollout undo`).
+- [ ] No secrets are hardcoded in pipeline files; they are injected at runtime from a secret store.
+- [ ] Concurrency control prevents overlapping deployments to the same environment, and every deploy step has an explicit timeout.
+
+## Related Skills
+
+- [[cicd-architect]] -- the broader CI/CD pipeline architecture this deployment stage plugs into
+- [[rollback-strategy-advisor]] -- designs the rollback procedure the pipeline's rollback job executes
+- [[kubernetes-expert]] -- the deployment target for blue-green, canary, and rolling strategies
+- [[runbook-writer]] -- documents the operational procedure for running and recovering the pipeline

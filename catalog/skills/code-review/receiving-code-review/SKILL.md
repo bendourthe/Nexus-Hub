@@ -96,7 +96,7 @@ The rule is "evaluate feedback technically and respond with substance", not "avo
 
 ## Related Skills
 
-- `code-quality`, `security-review`, `performance-review`, `testing-review`, `code-smell-detector`, `final-report` - the review-producing side; this skill is their counterpart for the engineer receiving the review.
-- `verification-before-completion` - verify each implemented review item with a fresh proving command before claiming it is addressed.
-- `intent-based-review` - shares the principle of evaluating against acceptance criteria rather than line-by-line reflex.
-- `refactoring-expert` - when a review's structural suggestion is sound, this skill guides the behavior-preserving change.
+- [[code-quality]], [[security-review]], [[performance-review]], [[testing-review]], [[code-smell-detector]], [[final-report]] -- the review-producing side; this skill is their counterpart for the engineer receiving the review.
+- [[verification-before-completion]] -- verify each implemented review item with a fresh proving command before claiming it is addressed.
+- [[intent-based-review]] -- shares the principle of evaluating against acceptance criteria rather than line-by-line reflex.
+- [[refactoring-expert]] -- when a review's structural suggestion is sound, this skill guides the behavior-preserving change.

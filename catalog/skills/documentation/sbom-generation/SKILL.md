@@ -421,7 +421,15 @@ osv-scanner --sbom=sbom.json
 - **Dependency-Track** - SBOM analysis platform
 - **GUAC** - Graph for Understanding Artifact Composition
 
-## Quality Checklist
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "Listing the direct dependencies is enough for the SBOM." | A vulnerable component is usually a transitive dependency four levels deep, exactly what a direct-only list omits. An auditor (and the next CVE) cares about the full tree; scan with `--scope all-layers` or the SBOM misses the components that matter most. |
+| "The SBOM is generated once for the audit and then we are done." | Dependencies change with every release, so a one-time SBOM is stale before the next deploy and the compliance claim (NTIA, EU CRA) no longer holds. Generation must run in CI/CD so the SBOM tracks the shipped artifact. |
+| "Component names and versions are sufficient identification." | Names collide across ecosystems and versions get reused; without PURLs/CPEs a scanner cannot reliably match a component to its CVEs, so vulnerable packages slip through unflagged. Include the machine-readable identifiers. |
+
+## Verification
 
 - [ ] All NTIA minimum elements present
 - [ ] Supplier information complete
@@ -457,9 +465,9 @@ grype sbom:sbom.json -o json > vulnerabilities.json
 
 ## Related Skills
 
-- `dependency-security-audit` - Security scanning
-- `licensing-compliance` - License checking
-- `security-review` - Security analysis
+- [[dependency-security-audit]] - Security scanning
+- [[licensing-compliance]] - License checking
+- [[security-review]] - Security analysis
 
 ---
 

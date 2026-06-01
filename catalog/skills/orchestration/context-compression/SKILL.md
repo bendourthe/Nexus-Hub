@@ -316,7 +316,15 @@ After compressing, verify no critical information was lost.
 3. Re-inject the summary as a clear context reset
 4. Proceed with focused execution
 
-## Quality Checklist
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "I will just keep going; the context window is not full yet." | Quality degrades well before the hard limit -- around 70-80% capacity the agent starts dropping earlier decisions silently. Waiting for a hard truncation means you compress under duress, with no chance to validate what was lost. |
+| "Summarizing in my head is enough; I do not need to write a handoff file." | An in-context summary evaporates the moment the session compacts or ends. Only a summary written to a file survives a `/clear`, a crash, or a handoff to another session. |
+| "I will compress aggressively and drop the tool outputs to save the most tokens." | Discarding raw exploration is fine, but dropping a file-modification record or a decision rationale means the next turn re-derives (and may re-break) work already done. Compress exploration, never the decisions and file changes. |
+
+## Verification
 
 - [ ] Compression need identified (capacity or degradation)
 - [ ] Appropriate approach selected via decision tree
@@ -328,10 +336,10 @@ After compressing, verify no critical information was lost.
 
 ## Related Skills
 
-- `context-manager` - Context fundamentals and attention budget management
-- `context-degradation` - Detecting when compression is needed
-- `plan-before-code` - Structured planning that reduces context bloat
-- `filesystem-context-patterns` - File-based context management patterns
+- [[context-manager]] - Context fundamentals and attention budget management
+- [[context-degradation]] - Detecting when compression is needed
+- [[plan-before-code]] - Structured planning that reduces context bloat
+- [[filesystem-context-patterns]] - File-based context management patterns
 - See also: [SESSION_LIFECYCLE_DECISIONS](../../../../guides/SESSION_LIFECYCLE_DECISIONS.md) - when to compact vs `/rewind`, `/clear`, or delegate to a subagent
 
 ---

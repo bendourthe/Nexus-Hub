@@ -550,12 +550,29 @@ resource "aws_s3_bucket_versioning" "buckets" {
 - [ ] Encryption enabled for storage resources
 - [ ] `terraform fmt` and `terraform validate` pass
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "Local state is fine for now, I'll move to a remote backend later" | Local state cannot be locked, so a second apply (or a teammate) corrupts it, and a lost laptop loses the only record of the infrastructure; a locking remote backend is the prerequisite for any shared environment, not a later upgrade. |
+| "I'll just apply, the plan is obvious" | Skipping `terraform plan` review is how a misconfigured resource forces a destroy-and-recreate of a database or a security group in production; the plan output is the one chance to catch a destructive change before it happens. |
+| "Putting the secret in a variable default is convenient" | Secrets in HCL or in tfvars committed to Git leak into version history and into the state file in plaintext; pull them from a secrets manager at apply time instead. |
+| "I'll fix the drift by editing the resource in the console" | A console edit creates drift that the next plan wants to revert; the fix is to bring the change into code (or import it), not to keep patching around Terraform's source of truth. |
+
+## Verification
+
+- [ ] State is stored in a remote backend with locking enabled (no committed local `terraform.tfstate`).
+- [ ] `terraform plan` output was reviewed before apply; any destroy/recreate of a stateful resource was intentional.
+- [ ] No secrets appear in HCL, variable defaults, or committed tfvars; they are sourced from a secrets manager.
+- [ ] Modules are versioned and reused across environments rather than copy-pasted per environment.
+- [ ] A validation step runs in CI: `terraform validate` and `terraform fmt -check` (plus policy-as-code where used).
+
 ## Related Skills
 
-- `cloud-architect` - Cloud architecture patterns
-- `cicd-architect` - Terraform CI/CD pipelines
-- `kubernetes-expert` - EKS/AKS/GKE provisioning
-- `security-review` - Infrastructure security assessment
+- [[cloud-architect]] -- cloud architecture patterns
+- [[cicd-architect]] -- Terraform CI/CD pipelines
+- [[kubernetes-expert]] -- EKS/AKS/GKE provisioning
+- [[security-review]] -- infrastructure security assessment
 
 ---
 

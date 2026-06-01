@@ -2,7 +2,7 @@
 name: android-development
 description: Android native development expertise with Kotlin, Jetpack Compose, Material Design 3, and modern Android architecture. Use when building Android applications, designing UI with Compose, implementing MVVM/MVI patterns, or configuring Gradle builds.
 summary_l0: "Build Android apps with Kotlin, Jetpack Compose, Material Design 3, and modern architecture"
-overview_l1: "This skill provides Android native development expertise for building production-quality applications with Kotlin, Jetpack Compose, and modern Android architecture. Use it when creating new Android projects, designing UI with Jetpack Compose and Material Design 3, implementing MVVM or MVI architecture patterns, configuring Gradle builds with version catalogs, setting up Room databases or Retrofit networking, handling Android lifecycle and side effects, implementing navigation with type-safe routes, or writing Android tests with JUnit 5 and Compose testing. Key capabilities include project structure and multi-module Gradle configuration, Jetpack Compose UI development with state hoisting and recomposition optimization, Material Design 3 theming with dynamic color and Material You, type-safe Compose Navigation with nested graphs and deep links, MVVM architecture with ViewModel, UiState, Repository pattern, and Hilt dependency injection, data layer implementation with Room, DataStore, Retrofit, and Paging 3, lifecycle-aware coroutine collection and WorkManager background processing, and comprehensive testing with Compose test rules, Robolectric, and UI automation. The expected output is well-structured, testable Android application code following current Android development best practices. Trigger phrases: android app, kotlin android, jetpack compose, compose ui, material design 3, material you, android viewmodel, android navigation, room database, hilt injection, gradle version catalog, android testing, compose preview, android architecture, mvvm android, mvi pattern, datastore, paging 3, workmanager."
+overview_l1: "This skill provides Android native development expertise for building production-quality applications with Kotlin, Jetpack Compose, and modern Android architecture. Use it when creating new Android projects, designing Compose UI with Material Design 3, implementing MVVM or MVI patterns, configuring Gradle builds with version catalogs, setting up Room or Retrofit, handling lifecycle and side effects, implementing type-safe navigation, or writing Android tests. Key capabilities include multi-module Gradle configuration, Compose UI with state hoisting and recomposition optimization, Material Design 3 theming, type-safe Compose Navigation, MVVM with ViewModel, UiState, Repository pattern, and Hilt dependency injection, a data layer with Room, DataStore, Retrofit, and Paging 3, lifecycle-aware coroutine collection and WorkManager, and testing with Compose test rules and Robolectric. The expected output is well-structured, testable Android code following current best practices. Trigger phrases: android app, kotlin android, jetpack compose, material design 3, android viewmodel, room database, hilt injection, android testing, mvvm android, workmanager."
 ---
 
 # Android Development
@@ -2521,4 +2521,30 @@ class ArticleRepositoryIntegrationTest {
 - **Offline-first architecture**: Serve cached data from Room immediately and refresh from the network in the background. Users should always see data, even without connectivity
 - **Type safety**: Use Kotlin serialization with `@Serializable` route classes for navigation, sealed interfaces for UI state, and strict Kotlin compiler flags to catch errors at compile time
 - **Minimize Android framework coupling**: ViewModels, use cases, and repositories should not depend on Android classes (Context, Activity). Use Hilt to inject platform dependencies behind interfaces
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "I'll hold state inside the Composable, hoisting is overkill" | State held in a Composable is lost on recomposition and rotation, so the user's half-filled form clears on a config change. Hoisting to a ViewModel StateFlow is what survives the lifecycle. |
+| "Collecting the Flow with collect() in a coroutine is fine" | A raw collect() keeps running while the screen is in the background, leaking work and crashing on stale UI references. collectAsStateWithLifecycle() (or repeatOnLifecycle) is the only collection that respects the lifecycle. |
+| "The ViewModel can take a Context, it's convenient" | A Context reference in a ViewModel outlives the Activity and leaks it across rotation. Injecting platform dependencies behind interfaces via Hilt is what keeps the ViewModel testable and leak-free. |
+| "Skipping tests, Compose UI is hard to test anyway" | createComposeRule() with semantics queries makes Compose UI directly testable; skipping it means recomposition and state bugs ship to users instead of failing in CI. |
+
+## Verification
+
+- [ ] The release build succeeds: `./gradlew assembleRelease`
+- [ ] Lint is clean: `./gradlew lint` reports no new errors
+- [ ] Unit and instrumentation tests pass: `./gradlew test connectedAndroidTest`
+- [ ] UI state is hoisted to a ViewModel and exposed as an immutable StateFlow / UiState
+- [ ] Every Flow in the UI is collected with `collectAsStateWithLifecycle()` (or `repeatOnLifecycle`)
+- [ ] No ViewModel, use case, or repository imports `android.content.Context` or `android.app.Activity` directly
+- [ ] Navigation routes are type-safe `@Serializable` classes, not raw strings
+
+## Related Skills
+
+- [[ios-development]] -- the iOS counterpart when the same app targets Apple platforms
+- [[mocks-fixtures]] -- build fakes and fixtures for the repository and use-case tests this skill recommends
+- [[code-quality]] -- score the resulting Kotlin against SOLID and complexity metrics
+- [[async-patterns]] -- structured-concurrency and coroutine patterns behind lifecycle-aware Flow collection
 - **Test at every layer**: Unit test ViewModels with Turbine, test Compose screens with ComposeTestRule, test DAOs with in-memory Room databases, and run integration tests with Hilt testing support

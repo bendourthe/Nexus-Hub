@@ -638,3 +638,30 @@ modules =
 - **Copying the monolith structure into services**: If you extract a "service" that mirrors the monolith's internal layering (controller, service, repository), you may have just created a smaller monolith. Design each service around its domain model.
 - **Ignoring the human factor**: Boundary decisions are also organizational decisions. A boundary that places related functionality in different teams will create handoff friction.
 - **Treating extraction as a one-time project**: Boundaries need ongoing maintenance. Without architecture tests and regular review, coupling will gradually increase across boundaries.
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "The team already knows where the boundaries should be" | Intuition systematically misses change coupling -- two modules with zero import dependencies that share a database table always change together; only the co-change analysis in Phase 2 surfaces that hidden seam before extraction breaks it. |
+| "We'll extract the shared utilities first since they're easy" | Extracting logging or validation first creates coupling in the wrong direction (every domain module depends on the new shared service); the skill's guidance is to extract high-cohesion domain modules first and keep the shared kernel minimal. |
+| "Static import analysis is enough to decide boundaries" | Two operations that run in the same database transaction can be split across services with no import dependency between them, then silently lose atomicity; data-ownership and transactional-boundary analysis must run alongside the dependency graph. |
+| "More services means cleaner architecture" | Over-decomposition produces a distributed monolith where a single request fans out across the network with distributed transactions and deployment coupling; the extraction-score ranking exists to start with a few coarse-grained, high-cohesion boundaries instead. |
+
+## Verification
+
+- [ ] A module-level dependency graph was built from actual imports (madge / pydeps / jdeps / `go mod graph`), not assumed
+- [ ] Afferent/efferent coupling and instability were computed per module and recorded
+- [ ] Change coupling (co-change from git history) was analyzed to surface hidden coupling without import edges
+- [ ] Cohesion was measured per candidate module and mixed-concern modules were flagged
+- [ ] Bounded contexts were identified with each boundary classified CLEAN / ACCEPTABLE / TANGLED
+- [ ] Extraction candidates were ranked by score with effort estimates and explicit prerequisites
+- [ ] A strangler-fig migration plan with ordered phases was produced for the top candidates
+- [ ] Architecture tests (ArchUnit / import-linter / ESLint boundaries) were defined to enforce the chosen boundaries
+
+## Related Skills
+
+- [[microservices-patterns]] -- applies the resilience and distributed-data patterns the extracted services will need
+- [[ddd-strategic-design]] -- the bounded-context modeling this skill's Phase 4 draws on
+- [[architecture-design]] -- the broader decomposition and trade-off analysis this boundary work feeds into
+- [[event-driven-architecture]] -- the saga and event patterns required when extraction splits a transactional boundary

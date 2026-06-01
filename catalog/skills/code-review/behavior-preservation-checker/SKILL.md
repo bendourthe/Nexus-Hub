@@ -435,3 +435,10 @@ Produce a structured report summarizing the verification results.
 - [ ] Public interface contract is unchanged: method signatures, declared exceptions, and return types verified by diff
 - [ ] Side effect audit completed: every I/O operation, event emission, and log statement in the original is present in the refactored code
 - [ ] Preservation report generated with APPROVE / APPROVE WITH CONDITIONS / REJECT verdict and supporting evidence
+
+## Related Skills
+
+- [[refactoring-expert]] -- performs the behavior-preserving transforms this skill verifies after the fact
+- [[code-smell-detector]] -- identifies the smells that motivate the refactoring this skill checks
+- [[testing-review]] -- assesses whether the test suite is strong enough to detect a behavioral change
+- [[regression-root-cause-analyzer]] -- traces the offending change when this skill detects a behavioral regression

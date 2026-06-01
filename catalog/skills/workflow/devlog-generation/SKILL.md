@@ -223,24 +223,33 @@ Coverage: Z releases, W feature branches.
 -   Each squash-merge commit becomes one entry
 -   Use the squash commit message (typically contains the PR description) as the primary source
 
-## Quality Checklist
+## Verification
 
--   [ ] All tagged releases have corresponding entries
--   [ ] Entries are in strict reverse chronological order
--   [ ] Each entry has at minimum "What Changed" and "Why It Changed" sections
--   [ ] Decisions sections include rejected alternatives with reasoning
--   [ ] Troubleshooting trails use collapsible `<details>` sections
--   [ ] Category tags are consistently applied to all entries
--   [ ] File paths use backtick formatting
--   [ ] Date format is consistent (`[YYYY-MM-DD HH:MM]`)
--   [ ] File header includes purpose statement and maintenance guidance
--   [ ] User was warned before overwriting any existing DEVLOG.md
+- [ ] All tagged releases have corresponding entries
+- [ ] Entries are in strict reverse chronological order
+- [ ] Each entry has at minimum "What Changed" and "Why It Changed" sections
+- [ ] Decisions sections include rejected alternatives with reasoning
+- [ ] Troubleshooting trails use collapsible `<details>` sections
+- [ ] Category tags are consistently applied to all entries
+- [ ] File paths use backtick formatting
+- [ ] Date format is consistent (`[YYYY-MM-DD HH:MM]`)
+- [ ] File header includes purpose statement and maintenance guidance
+- [ ] User was warned before overwriting any existing DEVLOG.md
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "The git log already is the devlog" | Raw `git log` lists what changed but never why; a reader six months later cannot reconstruct the decision or the rejected alternatives that the DEVLOG captures. |
+| "I can infer the 'why' confidently from the diff" | Inferring intent from code alone produces confident-sounding fiction; entries built only from commit messages must be flagged low-confidence so the user enriches them, not presented as fact. |
+| "I will just overwrite the existing DEVLOG.md to regenerate it cleanly" | Silently overwriting destroys hand-written context the user added; the user must be warned before any existing DEVLOG.md is replaced. |
 
 ## Related Skills
 
--   `code-commit-workflow` — Commit message conventions that feed into devlog generation
--   `technical-documentation` — Broader documentation practices
--   `context-manager` — Maintaining context across large codebases
+- [[code-commit-workflow]] -- commit message conventions that feed into devlog generation
+- [[technical-documentation]] -- broader documentation practices the devlog complements
+- [[context-manager]] -- maintaining context across large codebases when reconstructing history
+- [[session-history]] -- captures a single session in detail; the devlog aggregates across many sessions and releases
 
 ---
 

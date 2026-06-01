@@ -674,12 +674,30 @@ jacocoTestReport {
 - [ ] Documentation complete
 - [ ] Git initialized
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "I will hand-pick dependency versions instead of using a BOM or parent POM." | Unmanaged transitive versions drift into conflicts that surface as `NoSuchMethodError` at runtime, not at build; a managed dependency set (Spring Boot parent or a BOM) is what prevents the classpath roulette. |
+| "JaCoCo coverage gating is overhead for a fresh project." | Without a coverage plugin wired at init, the 80% target is never measured and the suite silently rots; configuring the gate on an empty scaffold costs one plugin block. |
+| "Actuator and health endpoints can wait until deployment." | Retrofitting observability onto a grown service touches the whole startup path; scaffolding Actuator now gives every later component a readiness and metrics surface by default. |
+| "I will add CI after the first real feature." | The empty scaffold is the cheapest place to prove `mvn verify` (or `gradle build`) passes in CI; deferring it means the first red pipeline arrives under deadline pressure. |
+
+## Verification
+
+- [ ] The build file (`pom.xml` or `build.gradle`) is configured and the project compiles.
+- [ ] The sample test suite passes: `mvn test` (or `gradle test`) exits with code 0.
+- [ ] The application starts and the Actuator health endpoint responds.
+- [ ] Code coverage is measured by JaCoCo and meets the documented threshold.
+- [ ] Git is initialized with a `.gitignore` and an initial commit.
+
 ## Related Skills
 
-- `test-structure` - Set up comprehensive testing
-- `java-cleanup` - Code cleanup
-- `api-documentation` - Document APIs
-- `security-review` - Security assessment
+- [[test-structure]] -- sets up the comprehensive testing infrastructure beyond the starter scaffold
+- [[java-cleanup]] -- modernizes and cleans the Java code that grows in this project
+- [[api-documentation]] -- documents the API surface this Spring Boot scaffold exposes
+- [[security-review]] -- assesses the scaffolded service for OWASP and supply-chain risks
+- [[java-expert]] -- guides idiomatic enterprise Java on top of this foundation
 
 ---
 

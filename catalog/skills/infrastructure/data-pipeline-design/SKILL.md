@@ -750,12 +750,29 @@ for table in tables:
 - [ ] CDC configured with snapshot for initial load
 - [ ] Data lineage documented from source to gold layer
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "The transform is not idempotent but reruns are rare, so it's fine" | A non-idempotent step double-counts rows the first time a retry or backfill fires, and orchestrators retry by design; idempotency (upsert/merge on a key, or a deterministic partition overwrite) is what makes a rerun safe. |
+| "Validation slows the pipeline, I'll check data quality downstream" | Bad data that lands in the warehouse silently corrupts every dashboard built on it; a quality gate at ingestion fails loudly and cheaply, while downstream cleanup is a manual incident. |
+| "Streaming is more modern, I'll use it instead of batch" | Streaming adds exactly-once and state-management complexity that a nightly reporting workload never needs; choosing batch vs streaming on actual latency requirements avoids paying that cost for no benefit. |
+| "I'll handle schema changes by editing the pipeline when they break" | An unhandled upstream schema change breaks the pipeline in production at the worst time; explicit schema-evolution handling (contracts, nullable additions, versioned schemas) absorbs the change without an outage. |
+
+## Verification
+
+- [ ] The batch-versus-streaming choice is justified by a stated latency requirement, not defaulted.
+- [ ] Transformation steps are idempotent: a rerun on the same input produces the same output without duplicates.
+- [ ] Data quality checks run at ingestion and fail the pipeline (or quarantine the batch) on violation.
+- [ ] Schema evolution is handled explicitly; an additive upstream change does not break the run.
+- [ ] Orchestration defines retries, alerting on failure, and a documented backfill procedure.
+
 ## Related Skills
 
-- `database-design` - Source database schema and indexing
-- `cicd-architect` - Deploying pipeline code changes
-- `cloud-architect` - Managed services (BigQuery, Redshift, Kafka on Confluent)
-- `observability-setup` - Pipeline monitoring and alerting infrastructure
+- [[database-design]] -- source database schema and indexing
+- [[cicd-architect]] -- deploying pipeline code changes
+- [[cloud-architect]] -- managed services (BigQuery, Redshift, Kafka on Confluent)
+- [[observability-setup]] -- pipeline monitoring and alerting infrastructure
 
 ---
 

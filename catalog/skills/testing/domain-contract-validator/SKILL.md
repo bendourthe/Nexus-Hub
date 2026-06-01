@@ -278,13 +278,30 @@ Contracts must evolve with the system but should be treated as versioned agreeme
 - **Keep contracts close to the boundary**: contract test files should live near the boundary they protect (e.g., `tests/contracts/api/`, `tests/contracts/events/`)
 - **Do not weaken contracts to make tests pass**: if a contract test fails, fix the code, not the contract (unless the contract itself is wrong)
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "Our unit tests already cover this, so contracts are redundant" | A unit test on the provider can pass while still breaking a consumer: the provider renames a field its own tests do not assert on, and the consumer-driven contract is the only check that catches the silent breakage before deploy. |
+| "The schema is obvious from the code, no need to validate at runtime" | An upstream producer can emit a malformed event (extra field, wrong type) that the code's type hints never see at runtime; without `additionalProperties: false` schema validation it is accepted and corrupts downstream state. |
+| "A contract test is failing, I'll just relax the contract to ship" | Weakening the contract to green the build ships the exact incompatibility the contract was protecting against; the consumer that depended on the old shape breaks in production instead. |
+| "Contracts only matter for microservices, this is a monolith" | Module boundaries, database schemas, and external-API responses are contracts even inside one process; a column type change or a third-party response shift breaks a monolith just as hard. |
+
+## Verification
+
+- [ ] Each identified boundary (API, database, event, module, external) has at least one contract test file under `tests/contracts/`.
+- [ ] At least one contract test asserts the rejection path (a missing-required-field or wrong-type payload raises a validation error).
+- [ ] Business invariants are expressed as assertions that produce a clear INVARIANT VIOLATION message on failure.
+- [ ] Contract tests run as a dedicated CI step after unit tests: `pytest tests/contracts/ -v`.
+- [ ] No contract was weakened to make a failing test pass (the fix changed code, not the contract, unless the contract itself was wrong).
+
 ## Related Skills
 
-- `behavior-preservation-checker` - Verify contracts are preserved during refactoring
-- `quality-gate-definitions` - Define gates that include contract checks
-- `api-design` - Design APIs with contracts in mind
-- `integration-test-generator` - Generate integration tests that complement contract tests
-- `intent-based-review` - Use contract test results as verification evidence
+- [[behavior-preservation-checker]] -- verify contracts are preserved during refactoring
+- [[quality-gate-definitions]] -- define gates that include contract checks
+- [[api-design]] -- design APIs with contracts in mind
+- [[integration-test-generator]] -- generate integration tests that complement contract tests
+- [[intent-based-review]] -- use contract test results as verification evidence
 
 ---
 

@@ -748,11 +748,29 @@ npm ls --all --json > deps-tree.json
 - [ ] Exceptions documented with justification
 - [ ] Regular audit schedule established
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "Our direct dependencies are all MIT, so we are compliant" | Copyleft contamination travels through transitive deps; a single AGPL-3.0 package three levels deep can force your entire distributed product to be AGPL, and you never declared it in `package.json`. |
+| "It is open source, so we can use it however we want" | Open source is not public domain; GPL, AGPL, and even Apache-2.0 carry obligations (source disclosure, NOTICE files, patent grants), and ignoring them creates real legal liability on distribution. |
+| "We checked licenses at the last release, that is good enough" | A routine `npm install` or dependency bump can pull in a newly copyleft transitive package; without a CI gate on every manifest change the violation ships in the next patch release unnoticed. |
+| "An OR expression like `Apache-2.0 OR GPL-2.0` means we are fine" | A dual-license expression requires you to pick and comply with one branch; leaving it unresolved means a reviewer cannot tell which obligations apply, which is why the analyzer routes multi-license strings to manual review. |
+
+## Verification
+
+- [ ] A license inventory covering the full transitive tree exists (e.g. `pip-licenses --format=json` or `license-checker --json`)
+- [ ] Every dependency is categorized (permissive, weak copyleft, strong copyleft, proprietary, or unknown)
+- [ ] The compliance check reports zero HIGH-severity violations against the project license: `python check_compliance.py` exits 0
+- [ ] Every unknown or requires-review license has a recorded manual-review outcome
+- [ ] A NOTICE file is generated and included with the distributed artifact
+- [ ] Every approved exception has a documented justification, approver, and date
+
 ## Related Skills
 
-- `dependency-security-audit` - Security vulnerability scanning
-- `pre-commit-checklist` - Pre-commit validation
-- `sbom-generation` - Software Bill of Materials
+- [[dependency-security-audit]] -- security vulnerability scanning over the same dependency tree
+- [[pre-commit-checklist]] -- pre-commit validation gate that can run the license check
+- [[sbom-generation]] -- produces the Software Bill of Materials this audit annotates with license data
 
 ## Additional Resources
 

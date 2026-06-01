@@ -631,3 +631,28 @@ class TestDataPipelineMetamorphic:
 - **Applying transformations that are too aggressive**: Replacing every word in a sentence is not a "small perturbation"; it legitimately changes the meaning; keep transformations minimal
 - **Testing only one direction**: If the relation is "narrower query returns fewer results", also test the reverse: "broader query returns more results"; this catches different bug classes
 - **Not reporting the full execution pair**: When a metamorphic test fails, report both the source input/output and the follow-up input/output; without both, debugging is impossible
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "We cannot write a test oracle for this ML model, so we cannot test it." | The oracle problem is exactly what metamorphic relations solve: you do not need the correct prediction, only the invariant that a tiny input perturbation should not flip the classification. |
+| "The relation `output is not null` is metamorphic, so we have coverage." | A relation that any non-crashing run satisfies catches no semantic bug; weak relations give false confidence while the ranking or numerical-stability defect ships untested. |
+| "Floating-point results match, so exact equality is fine." | Reordering a sum changes the last bits of a float; an exact-equality metamorphic test fails on a correct implementation and forces developers to delete the test instead of adding a tolerance. |
+| "If the test fails, the code is wrong." | A misstated relation produces false positives where the system legitimately violates it; the relation itself must be validated against known-correct examples first. |
+
+## Verification
+
+- [ ] At least 3-5 independent metamorphic relations are defined for the system under test.
+- [ ] Each relation is validated against a known-correct example before being used as a test.
+- [ ] Approximate relations use an explicit documented tolerance, not exact equality.
+- [ ] Source inputs are representative of production workloads, not only trivial empty/zero values.
+- [ ] On failure, the test reports both the source and follow-up input/output pairs.
+
+## Related Skills
+
+- [[property-based-test-generator]] -- generates the source inputs these metamorphic transformations are applied to
+- [[fuzzing-input-generator]] -- finds crashes where metamorphic testing finds semantic relationship violations
+- [[edge-case-generator]] -- supplies boundary source inputs that stress the metamorphic relations
+- [[ai-output-evaluation]] -- evaluates ML output quality where exact oracles are unavailable
+- [[unit-tests]] -- houses the metamorphic test pairs alongside oracle-based unit tests

@@ -387,7 +387,16 @@ const client = new Anthropic({
 });
 ```
 
-## Quality Checklist
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "Using a model alias keeps me on the latest version" | An unpinned alias silently re-points to a new model whose tokenizer and pricing differ, so cost and output quality shift under you with no code change and no diff to review. |
+| "All four providers expose the same model, region does not matter" | A model available in `us-east-1` Bedrock may be absent in the deploy region; the failure surfaces only at first production call in that region, not in dev. |
+| "I do not need fallback routing, the primary provider is reliable" | Provider-wide outages and per-key rate limits happen; without a tested fallback path the whole agent fleet hard-fails instead of degrading to a secondary provider. |
+| "A default branch in the provider switch is fine" | A non-exhaustive switch lets a new `Provider` value compile and silently hit the default, routing requests to the wrong backend; a `never` branch turns that into a compile error. |
+
+## Verification
 
 - [ ] Provider selection documented with rationale in CLAUDE.md or ADR
 - [ ] Model IDs pinned to specific versioned identifiers (no aliases)
@@ -400,10 +409,10 @@ const client = new Anthropic({
 
 ## Related Skills
 
-- `claude-agent-sdk` — Building autonomous agents on top of these providers
-- `ai-billing-safeguards` — Spending cap enforcement for multi-provider agent systems
-- `temporal-orchestration` — Workflow orchestration for multi-provider agent pipelines
-- `cross-model-orchestrator` — Routing tasks across different models based on capability requirements
+- [[claude-agent-sdk]] -- building autonomous agents on top of these providers
+- [[ai-billing-safeguards]] -- spending cap enforcement for multi-provider agent systems
+- [[temporal-orchestration]] -- workflow orchestration for multi-provider agent pipelines
+- [[cross-model-orchestrator]] -- routing tasks across different models based on capability requirements
 
 ---
 

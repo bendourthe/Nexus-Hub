@@ -1348,13 +1348,30 @@ main
 - [ ] Chaos experiments running in staging on a schedule
 - [ ] Toil measured and reduction targets set
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "We'll aim for 100% uptime, more nines is always better" | Chasing 100% spends the error budget that should fund release velocity and feature work; an SLO below 100% with an explicit error budget is what lets you ship and still be reliable, rather than freezing in fear of any failure. |
+| "Alert on every error so nothing slips through" | Alerting on raw error count pages on-call for noise and trains them to ignore alerts (alert fatigue); symptom-based, burn-rate alerts tied to the SLO page only when users are actually affected. |
+| "The postmortem should name who caused the outage" | A blame-focused postmortem makes engineers hide information, so the real contributing factors never surface; blameless review is what produces action items that actually prevent recurrence. |
+| "This manual ops task is quick, automating it is not worth it" | A quick task repeated daily across an on-call rotation is exactly the toil that compounds into burnout and error; if it is repetitive, automatable, and tactical, it meets the definition of toil to be eliminated. |
+
+## Verification
+
+- [ ] Each critical service has an SLO with a defined SLI and an explicit error-budget policy.
+- [ ] Alerts are symptom-based and tied to SLO burn rate, not raw error counts (no alert fires without user impact).
+- [ ] Incident response defines severity levels, an on-call rotation, and a commander/communication protocol.
+- [ ] Post-incident reviews are blameless and produce tracked action items with owners.
+- [ ] Identified toil is quantified and has an automation proposal, not just acknowledged.
+
 ## Related Skills
 
-- `cloud-architect` - Cloud infrastructure design
-- `kubernetes-expert` - Container orchestration and scaling
-- `observability-setup` - Monitoring and alerting implementation
-- `terraform-specialist` - Infrastructure as code
-- `cicd-architect` - Deployment pipeline design
+- [[cloud-architect]] -- cloud infrastructure design
+- [[kubernetes-expert]] -- container orchestration and scaling
+- [[observability-setup]] -- monitoring and alerting implementation
+- [[terraform-specialist]] -- infrastructure as code
+- [[cicd-architect]] -- deployment pipeline design
 
 ---
 

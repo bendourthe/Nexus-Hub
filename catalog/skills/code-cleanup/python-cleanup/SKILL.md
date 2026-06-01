@@ -215,10 +215,30 @@ class User:
 - [ ] Tests still pass
 - [ ] No functionality changed
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "Type hints are optional in Python, skip them" | Without hints, mypy cannot catch the str-passed-where-int-expected bug that surfaces as a TypeError three calls deep in production. Annotating the signature moves that failure to a static check that runs in CI. |
+| "This unused import is harmless, leave it" | An unused import can mask a circular-import side effect or pull in a heavy module at startup; autoflake removes it cleanly so the dependency graph reflects what the code actually uses. |
+| "def f(items=[]) is a fine default" | A mutable default argument is shared across all calls, so the second call sees the first call's leftovers; this is a classic Python bug that ruff flags as B006. Use None and initialize inside the function. |
+| "black reformatted half the file, that's too noisy" | The noise is one-time; once black runs, every future diff is logic-only because formatting never changes again. Skipping it leaves formatting churn mixed into every later review. |
+
+## Verification
+
+- [ ] Linting is clean: `ruff check .` reports no issues
+- [ ] Formatting is clean: `black --check .` and `isort --check-only .` both succeed
+- [ ] Type-check passes: `mypy src/` reports no errors
+- [ ] No unused imports remain: `autoflake --check -r src/` reports nothing to remove
+- [ ] No mutable default arguments remain (no `def f(x=[])` or `def f(x={})`)
+- [ ] All existing tests pass: `pytest`
+
 ## Related Skills
 
-- `code-review-quality` - Code quality assessment
-- `generate-docstrings` - Add documentation
+- [[code-quality]] -- score the cleaned codebase against SOLID and complexity metrics
+- [[docstrings]] -- add PyDoc documentation to the type-annotated functions
+- [[python-expert]] -- idiomatic modern Python patterns this cleanup applies
+- [[dead-code-eliminator]] -- deeper call-graph analysis for removing unused functions beyond what autoflake finds
 
 ---
 

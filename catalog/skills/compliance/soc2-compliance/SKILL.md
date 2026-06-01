@@ -483,11 +483,30 @@ audit_log = AuditLogger()
 - [ ] Audit trail complete
 - [ ] Policies reviewed and approved
 
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "We wrote the control descriptions, so we are ready for the audit" | SOC 2 Type II tests operating effectiveness over a 6-12 month observation window, not just control design; documented controls with no evidence of consistent operation across the period yield exceptions. |
+| "We will collect the evidence right before the audit" | Type II requires evidence sampled throughout the observation period; you cannot back-fill access reviews or change tickets for months that already passed, so collection must start at the period's beginning. |
+| "All five Trust Services Criteria must be in scope" | Only Security (the common criteria) is mandatory; the other four are optional and scoping them in without the controls to support them manufactures gaps, so scope to what you can actually evidence. |
+| "An exception means we failed the audit" | Documented exceptions with remediation plans are expected and acceptable; hiding an exception or leaving it untracked is what damages the report, not the exception itself. |
+
+## Verification
+
+- [ ] Security (common criteria) is in scope; any additional criteria are scoped only where controls exist to support them
+- [ ] Every control has a documented description mapped to specific evidence
+- [ ] Evidence is collected continuously across the Type II observation period, not back-filled
+- [ ] Control testing procedures are defined and results recorded
+- [ ] Exceptions are documented with tracked remediation plans
+- [ ] An audit-ready package (control matrix, evidence, management assertion) is assembled
+
 ## Related Skills
 
-- `iso27001-compliance` - ISO 27001 implementation
-- `security-review` - Security vulnerability review
-- `gdpr-compliance` - GDPR compliance
+- [[iso27001-compliance]] -- ISO 27001 ISMS whose controls heavily overlap the Security criteria
+- [[security-review]] -- security vulnerability review feeding the Security criteria evidence
+- [[gdpr-compliance]] -- privacy regime that supports the optional Privacy criteria
+- [[traceability-matrix-generator]] -- maps each control to its evidence for the audit package
 
 ---
 

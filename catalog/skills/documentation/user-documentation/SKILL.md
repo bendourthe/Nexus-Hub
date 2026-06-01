@@ -194,7 +194,7 @@ docker pull user/mypackage
 docker run user/mypackage --help
 ```
 
-## Verification
+## Verify Installation
 
 Verify installation:
 
@@ -479,7 +479,15 @@ If issues persist:
    - Steps to reproduce
 ```
 
-## Quality Checklist
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "I wrote the install steps from memory; they obviously work." | Steps written from memory assume the tooling already on your machine. On a fresh environment the missing prerequisite surfaces as a cryptic error on the user's first five minutes, the exact moment they decide whether to keep going. Test on a clean environment. |
+| "The code examples are simple; I do not need to run them." | An untested snippet drifts the moment an API changes, and a copy-pasted example that errors is worse than no example -- it tells the user the docs are stale. Run every code block before publishing. |
+| "A README with a feature list is enough; a quick start is optional." | Without a quick start the user has to assemble install, configure, and run steps themselves, which is where most first-time users abandon. The quick start is the single highest-leverage section for adoption. |
+
+## Verification
 
 - [ ] README provides clear overview
 - [ ] Installation tested on all platforms
@@ -505,9 +513,9 @@ If issues persist:
 
 ## Related Skills
 
-- `technical-documentation` - Architecture documentation
-- `api-documentation` - API reference
-- `docstrings` - Code documentation
+- [[technical-documentation]] - Architecture documentation
+- [[api-documentation]] - API reference
+- [[docstrings]] - Code documentation
 
 ---
 
