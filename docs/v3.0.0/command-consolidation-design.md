@@ -25,7 +25,7 @@ Principles:
 | # | Command | One-line | Default (bare) behavior | Scopes (optional arg) | Delegates to (existing skills) |
 |---|---------|----------|-------------------------|-----------------------|-------------------------------|
 | 1 | **`/describe`** | Understand a project (any directory, software or not) | Full structured description of the selected dir | `full`, `structure`, `deps`, `architecture`, `onboarding` | `analyze-codebase` (generalized to any dir) |
-| 2 | **`/plan`** | Define goals and produce a phased plan | Goals-first discovery interview -> phased plan; ingests known-gaps + strategy + constitution | `goals` (define/refine goal + DoD only), `new`, `feature`, `refactor`, `from-comparison`, `todos`, `issues` | `generate-plan`, `implementation-plan`, `product-strategy`, `generate-todos`, `tasks-to-issues` |
+| 2 | **`/plan`** | Define goals and produce a robust phased plan | Goals-first discovery -> optional multi-angle workflow drafting + parallel research -> phased plan; ingests known-gaps + strategy + constitution (see 2A) | `goals` (define/refine goal + DoD only), `new`, `feature`, `refactor`, `from-comparison`, `todos`, `issues` | `generate-plan`, `implementation-plan`, `product-strategy`, `generate-todos`, `tasks-to-issues`, `agent-orchestration-primitives` |
 | 3 | **`/implement`** | Implement one plan phase end-to-end | Discover plan -> implement next/selected phase -> lint/test/troubleshoot -> per-phase docs+commit; final phase auto-runs release readiness (hands to `/update release`) | `<slug>`, `<slug> phase-N`, `next` | `implement-phase` |
 | 4 | **`/test`** | Drive coverage to a standardized threshold across test tiers | Analyze coverage -> generate+run unit tests iteratively to threshold + pass-rate -> integration -> e2e -> CI/CD, each tier the same way | `unit`, `integration`, `e2e`, `ci`, `tdd`, `all` | `generate-tests`, `generate-unit-tests`, `tdd` |
 | 5 | **`/review`** | Comprehensive, scope-able project review | Ask scope, then run it; `full` orchestrates all lenses | `full`, `structure`, `quality`, `coverage`, `security`, `pentest`, `changes`, `skill-scan`, `sbom`, `deps` | `review-codebase`, `review-changes`, `run-deep-review`, `run-security-audit`, `run-penetration-test`, `generate-sbom`, NEW `skill-security-scan` |
@@ -48,6 +48,24 @@ Principles:
 | 12 | **`/setup`** | Bootstrap and configure a project/repo | Bootstrap CLAUDE.md, scaffolding, README/DEVLOG/CHANGELOG; can add hooks | `project` (default), `hooks` (install pre-commit review hook) | `setup-project`, `install-pre-commit-review-hook` |
 | 13 | **`/memory`** | Audit, prune, and manage memory + CLAUDE.md | Audit and propose memory cleanup | (none) | `manage-memory` |
 | 14 | **`/usage`** | Check usage limits + model-switch advice | Show usage + recommendation | (none) | `check-usage` |
+
+### 2A. The `/plan` command in depth (generate-plan + goals + dynamic workflows)
+
+`/plan` is the most heavily-used command, so v3.0.0 makes it the most robust by merging three lineages:
+
+1. **Everything `generate-plan` did.** The guided discovery interview (greenfield / feature / refactor question sets), from-comparison mode (reverse-engineer-first ordering), prior-version known-gaps ingest, knowledge-base + strategy grounding, the Constitution Check + Complexity Tracking gates, and the strict `T###` task-line file format. None of this is lost.
+
+2. **Goals framing (OpenAI Codex `/plan` + Anthropic plan-mode goals).** A `goals` scope, plus a goals-first step at the top of every other scope, establishes the target problem, persona, and observable success criteria / definition-of-done *before* decomposition - seeded from the `product-strategy` STRATEGY anchor. Like Codex's `/plan <inline prompt>`, `/plan goals <one-liner>` accepts an inline goal and returns a crisp goal + DoD without producing a full phased plan. This prevents the most common planning failure: a detailed plan for the wrong objective.
+
+3. **Dynamic-workflows robustness (Claude Code workflows, https://code.claude.com/docs/en/workflows).** When dynamic workflows are available in the harness, `/plan` can use them as a *quality* mechanism, not just for speed:
+    - **Multi-angle drafting**: the workflows doc names "a hard plan worth drafting from several independent angles before you commit to one" as a prime use case. For a large or high-stakes plan, `/plan` offers to draft the plan from several independent angles (e.g., MVP-first, risk-first, architecture-first), have independent agents adversarially weigh them, and synthesize the strongest - a more trustworthy plan than a single pass.
+    - **Parallel research at scale**: the research step fans out across sources and subsystems concurrently (up to 16 concurrent / 1,000 total agents per run), keeping intermediate findings out of the planning context and returning only the converged grounding.
+    - **Workflow-aware phase prompts**: when a generated phase is a large fan-out task (audit every endpoint, migrate N files, generate tests for every unit), `/plan` writes that phase's executable prompt to *recommend running it as a dynamic workflow*, cross-linking `[[agent-orchestration-primitives]]` and carrying the scope-first token caution.
+    - **Reusable**: a plan-drafting or plan-review process you repeat can be saved as a `.claude/workflows/` command.
+
+**Graceful degradation (required).** Dynamic workflows are a plan-gated research-preview feature (Pro / Max / Team / Enterprise, Claude Code v2.1.154+, toggleable in `/config`). `/plan` MUST detect availability and fall back to single-agent planning when workflows are off or unavailable - it never assumes they are present, never hard-depends on them, and always offers the workflow path as an opt-in with the token-cost caution (calibrate on a small slice first). MCP Registry Policy impact: none - dynamic workflows are an Anthropic-runtime feature, so this is `skill-native` guidance plus command behavior, with zero new outbound calls, dependencies, or credentials.
+
+The net effect: `/plan` is the merge point of phased planning, goal-setting, and at-scale orchestration - robust by default, workflow-accelerated when available.
 
 ## 3. Full 41 -> 14 Mapping (every old command accounted for)
 
