@@ -612,7 +612,25 @@ install_permissions() {
             fi
 
             if [ -f "$config_file" ]; then
-                if grep -q 'permissions.default.network' "$config_file" 2>/dev/null && grep -q 'allowed_domains' "$config_file" 2>/dev/null; then
+                # Repair an already-broken config: if it defines [permissions.*]
+                # but lacks default_permissions, the newer Codex CLI refuses to
+                # load it. Insert the key before the FIRST table header of any
+                # kind (the only valid spot for a root-level key in TOML) rather
+                # than appending it after a table, where it would silently bind
+                # to that table and stay broken.
+                if grep -q '^\[permissions' "$config_file" 2>/dev/null && ! grep -q 'default_permissions' "$config_file" 2>/dev/null; then
+                    cp "$config_file" "$config_file.bak.$(date +%Y%m%d-%H%M%S)"
+                    if awk 'BEGIN{ins=0} /^\[/ && ins==0 {print "default_permissions = \"default\""; print ""; ins=1} {print}' "$config_file" > "$config_file.nexus.tmp"; then
+                        mv "$config_file.nexus.tmp" "$config_file"
+                        write_item "[OK] Repaired Codex config.toml: inserted missing default_permissions" "$GREEN"
+                    else
+                        rm -f "$config_file.nexus.tmp"
+                        write_item "Warning: could not repair Codex config.toml; review it manually" "$YELLOW"
+                    fi
+                fi
+
+                # Already fully configured (managed block complete, incl. default_permissions)?
+                if grep -q 'permissions.default.network' "$config_file" 2>/dev/null && grep -q 'allowed_domains' "$config_file" 2>/dev/null && grep -q 'default_permissions' "$config_file" 2>/dev/null; then
                     write_item "[OK] Auto-approve permissions already configured in config.toml" "$GREEN"
                     return
                 fi

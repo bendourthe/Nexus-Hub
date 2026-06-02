@@ -1014,7 +1014,24 @@ function Install-Permissions {
 
             if (Test-Path $configFile) {
                 $content = Get-Content $configFile -Raw
-                if ($content -match 'permissions\.default\.network' -and $content -match 'allowed_domains') {
+
+                # Repair an already-broken config: [permissions.*] present but
+                # default_permissions missing -> the newer Codex CLI refuses to
+                # load it. Insert the key before the FIRST table header of any
+                # kind (the only valid spot for a root-level key in TOML).
+                if ($content -match '(?m)^\[permissions' -and $content -notmatch 'default_permissions') {
+                    Copy-Item -Path $configFile -Destination "$configFile.bak.$(Get-Date -Format 'yyyyMMdd-HHmmss')" -Force
+                    # Instance .Replace(input, replacement, count) caps at one insert;
+                    # [regex]::Replace(...)'s 4th arg is RegexOptions, not a count.
+                    $content = ([regex]'(?m)^(\[)').Replace($content, "default_permissions = `"default`"`r`n`r`n`$1", 1)
+                    # WriteAllText writes UTF-8 WITHOUT a BOM; Set-Content -Encoding UTF8
+                    # on PS 5.1 prepends a BOM that breaks strict TOML parsers.
+                    [System.IO.File]::WriteAllText($configFile, $content)
+                    Write-Item -Message "[OK] Repaired Codex config.toml: inserted missing default_permissions" -Color "DarkGreen"
+                }
+
+                # Already fully configured (managed block complete, incl. default_permissions)?
+                if ($content -match 'permissions\.default\.network' -and $content -match 'allowed_domains' -and $content -match 'default_permissions') {
                     Write-Item -Message "✓ Auto-approve permissions already configured in config.toml" -Color "DarkGreen"
                     return
                 }

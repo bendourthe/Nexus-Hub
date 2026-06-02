@@ -224,7 +224,23 @@ function Install-CodexPermissions {
 
     if (Test-Path $configFile) {
         $content = Get-Content $configFile -Raw
-        if ($content -match 'permissions\.default\.network' -and $content -match 'allowed_domains') {
+
+        # Repair an already-broken config: [permissions.*] present but
+        # default_permissions missing -> the newer Codex CLI refuses to load it.
+        # Insert before the FIRST table header (the only valid spot for a
+        # root-level key in TOML).
+        if ($content -match '(?m)^\[permissions' -and $content -notmatch 'default_permissions') {
+            Backup-Config $configFile | Out-Null
+            # Instance .Replace(input, replacement, count) caps at one insert;
+            # [regex]::Replace(...)'s 4th arg is RegexOptions, not a count.
+            $content = ([regex]'(?m)^(\[)').Replace($content, "default_permissions = `"default`"`r`n`r`n`$1", 1)
+            # WriteAllText writes UTF-8 WITHOUT a BOM; Set-Content -Encoding UTF8
+            # on PS 5.1 prepends a BOM that breaks strict TOML parsers.
+            [System.IO.File]::WriteAllText($configFile, $content)
+            Write-Status "  Repaired config.toml: inserted missing default_permissions" "Green"
+        }
+
+        if ($content -match 'permissions\.default\.network' -and $content -match 'allowed_domains' -and $content -match 'default_permissions') {
             Write-Status "  Already configured. Skipping." "DarkGreen"
             return
         }
