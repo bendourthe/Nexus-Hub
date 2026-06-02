@@ -829,6 +829,31 @@ function Install-GitCommitMsgHook {
 
 # --- Permission Installation ---
 
+# Ensure the OpenAI Codex CLI is present before writing its config. Nexus-Hub
+# configures Codex permissions on every install; when the CLI is absent the
+# config is never validated until the user installs Codex later, so install it
+# now (via npm) when missing. Non-fatal: a failed or skipped install only prints
+# a hint and never aborts the installer.
+function Ensure-CodexCli {
+    if (Get-Command codex -ErrorAction SilentlyContinue) {
+        Write-Item -Message "[OK] Codex CLI detected" -Color "DarkGreen"
+        return
+    }
+    if (Get-Command npm -ErrorAction SilentlyContinue) {
+        Write-Item -Message "Codex CLI not found; installing (npm install -g @openai/codex)..." -Color "Gray"
+        try {
+            & npm install -g @openai/codex 2>$null | Out-Null
+        } catch {}
+        if (Get-Command codex -ErrorAction SilentlyContinue) {
+            Write-Item -Message "[OK] Codex CLI installed" -Color "DarkGreen"
+        } else {
+            Write-Item -Message "Warning: could not auto-install Codex CLI. Install manually: npm install -g @openai/codex" -Color "Yellow"
+        }
+    } else {
+        Write-Item -Message "Codex CLI not found and npm is unavailable. Install Node.js, then run: npm install -g @openai/codex" -Color "Yellow"
+    }
+}
+
 function Install-Permissions {
     param(
         [string]$RepoRoot,
@@ -977,6 +1002,7 @@ function Install-Permissions {
         }
 
         "CODEX" {
+            Ensure-CodexCli
             $configDir = Join-Path $env:USERPROFILE ".codex"
             $configFile = Join-Path $configDir "config.toml"
             $templateFile = Join-Path $permDir "codex-permissions.toml"

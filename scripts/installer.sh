@@ -435,6 +435,28 @@ install_core_settings() {
 
 # --- Permission Installation ---
 
+# Ensure the OpenAI Codex CLI is present before writing its config. Nexus-Hub
+# configures Codex permissions on every install; when the CLI is absent the
+# config is never validated until the user installs Codex later, so install it
+# now (via npm) when missing. Non-fatal: a failed or skipped install only prints
+# a hint and never aborts the installer.
+ensure_codex_cli() {
+    if command -v codex >/dev/null 2>&1; then
+        write_item "[OK] Codex CLI detected" "$GREEN"
+        return 0
+    fi
+    if command -v npm >/dev/null 2>&1; then
+        write_item "Codex CLI not found; installing (npm install -g @openai/codex)..." "$GRAY"
+        if npm install -g @openai/codex >/dev/null 2>&1 && command -v codex >/dev/null 2>&1; then
+            write_item "[OK] Codex CLI installed" "$GREEN"
+        else
+            write_item "Warning: could not auto-install Codex CLI. Install manually: npm install -g @openai/codex" "$YELLOW"
+        fi
+    else
+        write_item "Codex CLI not found and npm is unavailable. Install Node.js, then run: npm install -g @openai/codex" "$YELLOW"
+    fi
+}
+
 install_permissions() {
     local repo_root="$1"
     local platform="$2"    # "CLAUDE", "GEMINI", "CODEX", "COPILOT"
@@ -579,6 +601,7 @@ install_permissions() {
             ;;
 
         CODEX)
+            ensure_codex_cli
             local config_dir="$user_home/.codex"
             local config_file="$config_dir/config.toml"
             local template_file="$perm_dir/codex-permissions.toml"
