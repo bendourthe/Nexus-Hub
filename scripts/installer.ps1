@@ -1019,6 +1019,11 @@ function Install-Permissions {
                 if ($existingContent -notmatch '\[permissions\.default\.network\]') {
                     $sectionsToAdd += ($templateContent | Select-String -Pattern '(?s)\[permissions\.default\.network\].*' -AllMatches).Matches.Value
                 }
+                if ($existingContent -notmatch 'default_permissions') {
+                    # Required by the newer Codex permissions system: a config with
+                    # [permissions.*] but no default_permissions fails to load.
+                    $sectionsToAdd = @("default_permissions = `"default`"") + $sectionsToAdd
+                }
                 if ($existingContent -notmatch 'approval_policy') {
                     $sectionsToAdd = @("approval_policy = `"on-request`"") + $sectionsToAdd
                 }

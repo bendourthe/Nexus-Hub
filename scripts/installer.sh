@@ -604,6 +604,11 @@ install_permissions() {
                 if ! grep -q 'approval_policy' "$config_file" 2>/dev/null; then
                     printf 'approval_policy = "on-request"\n\n' >> "$config_file"
                 fi
+                # default_permissions selects the profile defined below; the newer
+                # Codex CLI rejects a config with [permissions.*] but no default_permissions.
+                if ! grep -q 'default_permissions' "$config_file" 2>/dev/null; then
+                    printf 'default_permissions = "default"\n\n' >> "$config_file"
+                fi
                 if ! grep -q '\[permissions.default.filesystem\]' "$config_file" 2>/dev/null; then
                     grep -A2 '\[permissions.default.filesystem\]' "$template_file" >> "$config_file"
                     printf '\n' >> "$config_file"

@@ -237,6 +237,11 @@ function Install-CodexPermissions {
         if ($content -notmatch 'approval_policy') {
             $sectionsToAdd += 'approval_policy = "on-request"'
         }
+        if ($content -notmatch 'default_permissions') {
+            # Required by the newer Codex permissions system: a config with
+            # [permissions.*] but no default_permissions fails to load.
+            $sectionsToAdd += 'default_permissions = "default"'
+        }
         if ($content -notmatch '\[permissions\.default\.filesystem\]') {
             $match = [regex]::Match($templateContent, '(?s)\[permissions\.default\.filesystem\].*?(?=\[|$)')
             if ($match.Success) { $sectionsToAdd += $match.Value.Trim() }

@@ -10,6 +10,12 @@
 # "on-request" means Codex will still ask before executing writes.
 approval_policy = "on-request"
 
+# Select the "default" permissions profile defined below. REQUIRED by the newer
+# Codex permissions system: a config that defines [permissions.*] profiles but
+# omits default_permissions fails to load with the error
+# "config defines `[permissions]` profiles but does not set `default_permissions`".
+default_permissions = "default"
+
 [permissions.default.filesystem]
 # Grant read access to project directories; write remains blocked by default.
 ":project_roots" = "read"
