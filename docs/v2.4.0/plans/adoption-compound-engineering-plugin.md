@@ -567,7 +567,7 @@ No constitution file found at docs/v2.4.0/constitution.md - skipping check. Reco
 
 #### 8.1 — Live skill-eval-loop run for the three discipline skills
 
-- [ ] T036 [from v2.3.0 known-gaps: DF-v23-7] Run the live skill-eval-loop for verification-before-completion, receiving-code-review, using-git-worktrees
+- [~] T036 [from v2.3.0 known-gaps: DF-v23-7] Run the live skill-eval-loop for verification-before-completion, receiving-code-review, using-git-worktrees (re-deferred 2026-06-02 - no model CLI on PATH; static trigger-surface check done; DF-v24-8)
 
 **Objective**: Close the deferred live trigger verification for the three superpowers-adoption discipline skills.
 
@@ -578,7 +578,7 @@ No constitution file found at docs/v2.4.0/constitution.md - skipping check. Reco
 
 #### 8.2 — Live eval-harness trigger-techniques run
 
-- [ ] T037 [from v2.3.0 known-gaps: DF-v23-8] Run the three new eval-harness trigger techniques live
+- [~] T037 [from v2.3.0 known-gaps: DF-v23-8] Run the three new eval-harness trigger techniques live (re-deferred 2026-06-02 - no model CLI on PATH; v2.3.0 dry-run + pure-logic + fixture-stream tests stand; DF-v24-9)
 
 **Objective**: Close the deferred live run of premature-action detection, multi-turn replay, and cheap-model fragility in the optimizer.
 
@@ -589,7 +589,7 @@ No constitution file found at docs/v2.4.0/constitution.md - skipping check. Reco
 
 #### 8.3 — Antigravity CLI live-VM probe
 
-- [ ] T038 [from v2.3.0 known-gaps: WN-v23-5] Reconcile the four Antigravity CLI residuals against a live agy install or re-defer with a dated reason
+- [~] T038 [from v2.3.0 known-gaps: WN-v23-5] Reconcile the four Antigravity CLI residuals against a live agy install or re-defer with a dated reason (re-deferred 2026-06-02 - agy binary not installable on host; docs-verified conventions stand; WN-v24-3)
 
 **Objective**: Resolve (or dated-defer) the docs-verified-but-not-live-verified Antigravity CLI conventions.
 
@@ -600,7 +600,7 @@ No constitution file found at docs/v2.4.0/constitution.md - skipping check. Reco
 
 #### 8.4 — macOS + Linux installer smoke
 
-- [ ] T039 [from v2.3.0 known-gaps: DF-v23-6] Run the macOS full smoke and the Linux installer-probe/eval, or re-defer with a dated reason
+- [~] T039 [from v2.3.0 known-gaps: DF-v23-6] Run the macOS full smoke and the Linux installer-probe/eval, or re-defer with a dated reason (re-deferred 2026-06-02 - Windows-only host; Windows empirical + CI-Linux green; DF-v24-10)
 
 **Objective**: Close (or dated-defer) the cross-OS installer smoke gap before any packaged-binary release.
 
@@ -611,7 +611,7 @@ No constitution file found at docs/v2.4.0/constitution.md - skipping check. Reco
 
 #### 8.5 — Final release-readiness gate
 
-- [ ] T040 Run the final catalog-green release-readiness gate across the whole repo
+- [x] T040 Run the final catalog-green release-readiness gate across the whole repo (make validate exit 0; 1056 passed / 4 skipped / 0 failed across all suites; eval recall 100% / precision 100%; registries reconciled 245/21; zero new outbound verified)
 
 **Objective**: Confirm the Definition of Done: all A-items shipped, all 15 ingested gaps resolved or dated-deferred, catalog green.
 
@@ -634,13 +634,13 @@ No constitution violations to track (no constitution file is in force; all phase
 
 ### Phase 8 Exit Checklist
 
-- [ ] Live eval runs completed for the discipline skills and the eval-harness techniques (DF-v23-7, DF-v23-8 closed)
-- [ ] Antigravity + cross-OS smoke gaps resolved or dated-deferred
-- [ ] make validate + make lint + make test green across the whole repo
-- [ ] data/ registries reconciled; zero new outbound verified
-- [ ] All A1-A13 items shipped; all 15 ingested gaps resolved or dated-deferred
-- [ ] CHANGELOG [Unreleased] updated
-- [ ] Session history generated
+- [~] Live eval runs for the discipline skills and the eval-harness techniques (re-deferred 2026-06-02 - no model CLI on PATH; DF-v23-7 -> DF-v24-8, DF-v23-8 -> DF-v24-9; static trigger-surface checks stand)
+- [x] Antigravity + cross-OS smoke gaps resolved or dated-deferred (dated re-deferrals: WN-v23-5 -> WN-v24-3 no agy binary; DF-v23-6 -> DF-v24-10 Windows-only host; both acceptable for a source release)
+- [x] make validate + make lint + make test green across the whole repo (validate exit 0; lint shellcheck N/A on host / CI-Linux; 1056 passed / 4 skipped / 0 failed: skill-server 43, code-search 187, web-fetch 29, tests/ 382, hooks 415)
+- [x] data/ registries reconciled; zero new outbound verified (skills.json 245/245, marketplace 21 cats sum 245, SKILL_INDEX 245/21; no network primitives in any new script)
+- [x] All A1-A13 items shipped; all 15 ingested gaps resolved (11) or dated-deferred (4)
+- [x] CHANGELOG [Unreleased] updated (compound-engineering v2.4.0 adoption summary added; renamed to [2.4.0] at the bump)
+- [x] Session history generated
 
 ---
 

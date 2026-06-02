@@ -1,7 +1,7 @@
 {
   "name": "nexus-hub",
-  "description": "Enterprise-grade skill harness for AI coding assistants -- the upstream catalog for the Nexus desktop app and every major agent (Claude Code, OpenAI Codex, Antigravity, GitHub Copilot, Cursor, GitHub CLI). 206+ curated skills, 40 commands, 22 hooks, cross-platform.",
-  "version": "2.3.0",
+  "description": "Enterprise-grade skill harness for AI coding assistants -- the upstream catalog for the Nexus desktop app and every major agent (Claude Code, OpenAI Codex, Antigravity, GitHub Copilot, Cursor, GitHub CLI). 245 curated skills, 41 commands, 22 hooks, cross-platform.",
+  "version": "2.4.0",
   "author": {
     "name": "Benjamin Dourthe",
     "url": "https://github.com/bendourthe"
