@@ -11,18 +11,20 @@ This file tracks per-version unfinished work, deferred items, deviations from pl
 | Category | Open | Resolved this version |
 |---|---|---|
 | NI -- Not implemented (skipped subtask) | 0 | 0 |
-| DF -- Deferred (intentionally) | 1 | 2 |
+| DF -- Deferred (intentionally) | 0 | 2 |
 | BG -- Bug or unresolved test failure | 0 | 0 |
 | MT -- Missing tests / coverage gap | 0 | 2 |
 | WN -- Warning or suppressed lint rule | 0 | 8 |
 | QG -- Quality gate bypassed | 0 | 0 |
-| **Total** | **1** | **12** |
+| **Total (DF-v23-9 transferred to v3.0.0)** | **0** | **12** |
 
 _(Phase 9 closed the final four v2.2.0 carryover items (WN-2, WN-3, WN-4 via Google's now-public Antigravity CLI docs; WN-8 via a Windows smoke + CI-Linux test-suite evidence -- see Resolved) and added two new low-priority gaps (WN-v23-5 Antigravity live-VM residuals; DF-v23-6 macOS full-smoke + Linux installer-probe deferral). Phase 8 previously closed WN-1/WN-5/WN-6/WN-7/DF-002; Phase 7 closed DF-001/MT-1/MT-2. All 12 ingested v2.2.0 known-gaps are now resolved or re-deferred with evidence. The remaining open items are pre-existing catalog-quality debt plus the superpowers-adoption deferrals (BG-v23-1, WN-v23-1..5, DF-v23-1..8, QG-v23-1) -- none is a release blocker. adoption-superpowers Phase 4 added DF-v23-8 (live end-to-end run of the new eval-harness trigger techniques deferred to the Phase 6 final validation, alongside the DF-v23-7 live `skill-eval-loop` run); both are low-priority verification-method deferrals, not defects.) All 15 remaining open items were transferred to the v2.4.0 adoption-compound-engineering-plugin plan on 2026-05-30 (ingested as known-gaps); their tracking surface is now that plan, and they are recorded in the Resolved table above as transferred._
 
 ## Open Items
 
 _The 15 prior open items were transferred to the v2.4.0 plan [adoption-compound-engineering-plugin](../v2.4.0/plans/adoption-compound-engineering-plugin.md) on 2026-05-30 (see the Resolved table below). The single item below is a new adoption-superpowers Phase 6 deferral._
+
+> **TRANSFERRED to the v3.0.0 plan on 2026-06-02.** DF-v23-9 was ingested into [command-consolidation-skill-security](../v3.0.0/plans/command-consolidation-skill-security.md) Phase 10, sub-task T047, and re-homed to the Resolved table below. Open count is now 0. The detailed entry is retained here for reference; it remains an intentional deferral with a revisit trigger (re-evaluated, not auto-built, in v3.0.0).
 
 ### DF-v23-9 -- Superpowers visual brainstorming server (deferred, not built)
 
@@ -37,6 +39,7 @@ _The 15 prior open items were transferred to the v2.4.0 plan [adoption-compound-
 
 | ID | Title | Category | Resolved in | Detail |
 |---|---|---|---|---|
+| DF-v23-9 | Superpowers-style visual brainstorming server (deferred, not built) | DF | transferred to v3.0.0 plan | Carried into [command-consolidation-skill-security](../v3.0.0/plans/command-consolidation-skill-security.md) Phase 10, sub-task T047 (re-evaluate the deferral; build only if a user-facing need for in-session visual collaboration has emerged, else re-defer into docs/v3.0.0/known-gaps.md preserving the revisit trigger). Intentional re-full, local-only, policy-compliant deferral on catalog-content-first identity grounds. |
 | DF-001 | Installer instruction-file byte parity (registry runner vs legacy bash `render_template`) | DF | v2.3.0 Phase 7 (sub-tasks T022 + removal) | Carried forward from v2.2.0 known-gaps DF-001 part 2. The Python `MarkdownIntegration._render` previously substituted only `{{PROJECT_NAME}}`, leaving 14+ placeholders literal; it now threads the full bash placeholder set (defaults + installer-detected `--var` values + auto-loaded `{{SKILL_INDEX}}` + per-language coding-snippet append) and leaves unknown tokens literal exactly as the bash `sed` list did. claude/codex render to the project root (`instruction_workspace_dir=""`) and gemini uses the canonical `base-gemini.md`, eliminating the path and template divergences. The six legacy `render_template` / `Render-Template` calls were replaced by `invoke_registry_platform ... --instruction-only`, the dead render functions were deleted, and the registry runner is now the single shared instruction-file renderer across both installers. Gated by the T023 body-parity test (below). |
 | MT-1 | Copilot `install_workspace` does not use the canonical `merge_marker_section` primitive | MT | v2.3.0 Phase 7 (sub-task T024) | Carried forward from v2.2.0 known-gaps MT-1. `CopilotIntegration.install_workspace` was refactored from its bespoke append-after-heading flow onto `merge_marker_section(..., legacy_header="## Nexus-Hub Harness")`, matching Cursor. The v2.1 `## Nexus-Hub Harness` legacy header now migrates inline into the marker block, re-installs settle to `unchanged`, and teardown removes only the marker block (`track_shared`). The 50-case contract suite (idempotency + sibling preservation + partial-state recovery) passes for copilot. |
 | MT-2 | `test_parity_with_legacy_installer.py` did not assert instruction-file byte parity | MT | v2.3.0 Phase 7 (sub-task T023) | Carried forward from v2.2.0 known-gaps MT-2. Added `test_instruction_body_parity_with_legacy_render` (claude/codex/gemini x global+workspace): it installs each integration in isolation with the full placeholder set, extracts the marker-delimited body, and asserts byte equality against an INDEPENDENT naive-`str.replace` reference render (the bash-semantics oracle), plus a no-literal-placeholder completeness check. This is the precondition that authorized the legacy-block removal under DF-001 above. |
