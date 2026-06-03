@@ -1,0 +1,62 @@
+---
+description: Define goals and produce a robust, phased plan. Use to plan a build, feature, enhancement, refactor, or any multi-step effort; to fix a goal and definition-of-done before decomposing; to bootstrap docs/todos.md; or to fan a plan's tasks out to GitHub issues. Trigger phrases - "make a plan", "plan this feature", "build a roadmap", "plan this refactor", "what are the goals", "define the goal", "create todos", "file issues from the plan", "plan from this comparison". SKIP - implementing a phase that already has a plan (use /implement), or one-off task lists with no phasing.
+---
+
+# /plan Command
+
+Define the goal and produce a robust, phased plan. `/plan` is the merge point of three lineages - phased planning (`generate-plan`), goal-setting (`product-strategy` + plan-mode goals), and at-scale orchestration (dynamic workflows) - so it is robust by default and workflow-accelerated when available. It works for greenfield builds, feature additions, enhancements, refactors, bug-fix campaigns, and any other multi-step effort.
+
+This is a thin dispatcher over the retained planning skills, following the contract in [`command-scope-mechanism.md`](../style-guides/command-scope-mechanism.md). Heavy logic stays in the skills; this file resolves scope and delegates.
+
+## Scope resolution
+
+Resolve SCOPE from the first positional argument (`$ARGUMENTS`). Recognized scopes: `goals`, `new`, `feature`, `refactor`, `from-comparison`, `todos`, `issues`.
+
+- If `$ARGUMENTS` names a recognized scope, set SCOPE and skip the menu.
+- `/plan goals <one-liner>` accepts an inline goal (Codex `/plan <inline>` style): return a crisp goal statement + definition-of-done, no full plan.
+- `/plan from-comparison <path>` or a bare `*.md` comparison-report path routes to `from-comparison` and pre-seeds from the report's Adoption Plan.
+- Otherwise, present this menu and wait for a selection:
+
+      What scope?
+        1. feature        (recommended) - plan a feature or enhancement on an existing project
+        2. goals          - fix the target problem, persona, and definition-of-done only
+        3. new            - greenfield v0.1.0 build (full discovery interview)
+        4. refactor       - plan a refactor or cleanup campaign
+        5. from-comparison - seed a plan from a /compare adoption report (RE-first ordering)
+        6. todos          - bootstrap docs/todos.md as a living progress tracker
+        7. issues         - fan a plan's / tasks.md task lines out to GitHub issues
+
+      Reply with a number or a scope name.
+
+## Goals-first step (every planning scope)
+
+Before decomposition, every scope except `todos` and `issues` runs a goals-first step seeded from the `product-strategy` STRATEGY anchor: fix the target problem, the persona, and an observable definition-of-done. A detailed plan for the wrong objective is the most common planning failure, and this step prevents it. The `goals` scope runs only this step and stops; `/plan goals <one-liner>` does it inline.
+
+## Optional dynamic-workflow robustness (graceful degradation, REQUIRED)
+
+When dynamic workflows are available in the harness, `/plan` can use them as a quality mechanism, not just for speed. This path is always opt-in and never assumed present:
+
+- **Detect availability** first. Dynamic workflows are a plan-gated research-preview feature (Pro / Max / Team / Enterprise, Claude Code v2.1.154+, toggleable in `/config`). If they are off or unavailable, fall back to single-agent planning silently and continue - never hard-depend on them.
+- **Multi-angle drafting** (offer for large or high-stakes plans): draft the plan from several independent angles (MVP-first, risk-first, architecture-first), have independent agents adversarially weigh them, and synthesize the strongest.
+- **Parallel research at scale**: fan research out across sources and subsystems concurrently, keeping intermediates off the planning context and returning only the converged grounding.
+- **Workflow-aware phase prompts**: when a generated phase is a large fan-out task (audit every endpoint, migrate N files, generate tests for every unit), write that phase's executable prompt to recommend dynamic-workflow execution and cross-link `[[agent-orchestration-primitives]]`.
+- Always present the workflow path with the scope-first token caution: calibrate on a small slice before fanning out across the whole surface. This carries zero new outbound calls, dependencies, or credentials - dynamic workflows are an Anthropic-runtime feature, so this is command behavior plus skill-native guidance.
+
+## Delegation
+
+Dispatch the resolved scope to the retained skill(s):
+
+      goals            -> product-strategy (goal + DoD), no full plan
+      new              -> generate-plan (greenfield discovery interview)
+      feature          -> generate-plan (feature/enhancement interview) + implementation-plan
+      refactor         -> generate-plan (refactor interview)
+      from-comparison  -> generate-plan (from-comparison mode, RE-first ordering)
+      todos            -> generate-todos (bootstrap docs/todos.md)
+      issues           -> tasks-to-issues (fan tasks.md -> GitHub issues via gh)
+
+For the planning scopes, `generate-plan` preserves everything it always did: the guided discovery interview, prior-version known-gaps ingest, knowledge-base + strategy grounding, the Constitution Check + Complexity Tracking gates, and the strict `T###` task-line file-format contract. Pass any remaining arguments through unchanged.
+
+## Notes
+
+- This command replaces deprecated `/generate-plan`, `/generate-todos`, and `/tasks-to-issues`. The old names forward here via deprecation shims through v3.x (removed at v4.0.0).
+- Keep this dispatcher thin. The discovery interviews, the comparison ingest, and the issue-creation logic all live in the retained skills.
