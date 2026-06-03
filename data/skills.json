@@ -6,7 +6,7 @@
     "description": "Comprehensive catalog of Nexus-Hub skills with L0/L1 tiered summaries"
   },
   "statistics": {
-    "total_skills": 245,
+    "total_skills": 247,
     "categories": {
       "ai-development": 10,
       "architecture": 7,
@@ -20,10 +20,10 @@
       "framework-specialists": 6,
       "infrastructure": 19,
       "language-specialists": 10,
-      "orchestration": 14,
+      "orchestration": 15,
       "project-setup": 4,
       "research": 2,
-      "security": 10,
+      "security": 11,
       "security-operations": 15,
       "specialized-domains": 13,
       "testing": 3,
@@ -32,7 +32,7 @@
     },
     "priorities": {
       "HIGH": 1,
-      "MEDIUM": 239
+      "MEDIUM": 241
     },
     "total_lines": 125537,
     "total_tokens_estimate": 590757,
@@ -4234,6 +4234,39 @@
       }
     },
     {
+      "name": "agent-orchestration-primitives",
+      "title": "agent-orchestration-primitives",
+      "description": "Decide which agent-orchestration primitive a task actually needs -- a single agent, isolated subagents, persistent agent teams, or Dynamic Workflows -- and when to escalate between them. Make sure to use this skill whenever the user asks \"should I use subagents or agent teams\", \"subagents vs agent teams\", \"should I parallelize this\", \"how many agents should I spawn\", \"fan this out\", \"should I use a Dynamic Workflow\", \"turn on ultracode\", \"orchestrate multiple agents\", or otherwise weighs single-agent vs multi-agent execution, even when they do not name a specific primitive. SKIP, do NOT use for, designing the detailed write-scope and role plan once multi-agent is already chosen (use multi-agent-coordinator), picking the best of N parallel attempts at one task (use competitive-generation), stress-testing a single implementation (use adversarial-verifier), or any plainly single-agent task.",
+      "long_description": "A decision guide for the one question that matters before any multi-agent work: not \"should I use multiple agents?\" but \"what kind of coordination does this task actually need?\" It names the four primitives available to an AI coding agent, gives the envelope (the strengths and...",
+      "summary_l0": "\"Choose between single agent, subagents, agent teams, and Dynamic Workflows for a task\"",
+      "overview_l1": "\"This skill is a decision guide for picking the right agent-orchestration primitive and knowing when to escalate. It names the four primitives -- a single well-prompted agent, isolated fire-and-forget subagents (parallelism plus context compression, no peer communication), persistent agent teams (peers that message each other and share a blockedBy task list, but get messy past about five members), and Dynamic Workflows (a JavaScript orchestration script that fans out to up to 16 concurrent and 1,000 total subagents, keeps intermediates off the context window, supports adversarial convergence, and is crash-safe and resumable). It teaches a start-single, escalate-only-on-a-measured-problem gate, the three orchestration failure modes (vague tasks cause duplicated work, verifiers declare victory without verifying, token costs compound), and the rule against parallelizing code-writing. The five orchestration patterns live in references/five-patterns.md. Trigger phrases: subagents vs agent teams, should I parallelize, how many agents, fan out, Dynamic Workflows, ultracode, orchestrate agents.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "orchestration",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "catalog/skills/orchestration/agent-orchestration-primitives/",
+      "file": "catalog/skills/orchestration/agent-orchestration-primitives/SKILL.md",
+      "size": {
+        "lines": 131,
+        "characters": 16056,
+        "tokens_estimate": 2190
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
       "name": "init-csharp-project",
       "title": "init-csharp-project",
       "description": "Initialize a complete C#/.NET project with solution structure, testing framework, and configuration. Use when starting ASP.NET Core APIs, console applications, class libraries, or Blazor applications.",
@@ -8232,6 +8265,39 @@
         "lines": 262,
         "characters": 19035,
         "tokens_estimate": 2666
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "skill-security-scan",
+      "title": "skill-security-scan",
+      "description": "Adjudicate the findings from a skill-security scan -- read the deterministic detector output, filter false positives (especially example code inside Markdown fences in a producer catalog), explain the malicious intent behind real findings, and assign a final install verdict. Make sure to use this skill whenever the user asks \"scan this skill\", \"is this skill safe to install\", \"check a skill for malicious patterns\", \"review this SKILL.md or MCP config for security issues\", \"should I trust this third-party skill\", or wants to triage skill-scanner output before importing a skill or gating a catalog. SKIP, do NOT use for, writing offensive or exploit tooling, generic code review of application source (use code-quality or security-review), dependency CVE triage alone (use dependency-security-audit), or mapping a finding to a framework identifier (use security-framework-mapping).",
+      "long_description": "The semantic-adjudication stage of a two-stage skill-security scan. The first stage is a deterministic detector (the `nexus-skill-scanner` engine, delivered in Phase 6 of the v3.0.0 plan) that runs regex, AST, taint-tracking, and MCP-declaration checks over a skill's `SKILL.md...",
+      "summary_l0": "\"Adjudicate skill-security scanner findings, filter false positives, and assign an install verdict\"",
+      "overview_l1": "\"This skill is the semantic-adjudication stage of a two-stage skill-security scan. A deterministic detector (the nexus-skill-scanner engine, Phase 6) emits machine findings across 16 vulnerability classes (such as prompt injection, data exfiltration, behavioral AST exec/eval, and MCP tool poisoning). This skill instructs the agent to read those findings and adjudicate them: filter false positives (especially example code inside Markdown fences in a producer catalog like Nexus-Hub), explain the malicious intent behind genuine findings, and assign a final verdict (safe to install / install with caution / do not install). It runs entirely through the user's already-configured agent -- no bundled LLM client, no new API key, no outbound call. Until the engine lands it adjudicates manually-collected findings. It is defensive only. Trigger phrases: scan this skill, is this skill safe to install, check a skill for malicious patterns, triage skill-scanner output.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "catalog/skills/security/skill-security-scan/",
+      "file": "catalog/skills/security/skill-security-scan/SKILL.md",
+      "size": {
+        "lines": 115,
+        "characters": 13988,
+        "tokens_estimate": 1908
       },
       "downloads": 0,
       "status": "production",

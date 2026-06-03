@@ -25,6 +25,8 @@ Use this skill for:
 - All subtasks are strictly sequential with no parallelism opportunity
 - The codebase has tight coupling that makes disjoint write scopes impossible
 
+**When NOT to go multi-agent (the gate before this skill).** This skill is the *coordination plan* for work that has already been judged worth splitting. The prior decision -- single agent vs. subagents vs. agent teams vs. Dynamic Workflows -- belongs to [[agent-orchestration-primitives]]. Apply its "start single, escalate only on a measured problem" gate first: if you cannot name a concrete problem a single agent cannot solve (context overflow, embarrassing parallelism, independent verification, specialized concurrent lenses), stay single-agent and do not open this skill. In particular, **do not parallelize code-writing**: parallel agents writing production code make incompatible interface and naming assumptions, and the merge cost exceeds the parallelism gain. Use subagents to explore and answer questions, not to write code alongside the main agent.
+
 **Trigger phrases**: "multi-agent", "parallel agents", "delegate to agents", "concurrent execution", "agent coordination", "split across agents", "subagent", "write scope", "agent conflict", "parallel delegation"
 
 ## What This Skill Does
@@ -67,6 +69,8 @@ See also: [SESSION_LIFECYCLE_DECISIONS](../../../../guides/SESSION_LIFECYCLE_DEC
 ### Step 1: Analyze and Decompose the Task Graph
 
 Before launching any agents, map the full task into a dependency graph. The goal is to identify the critical path (the longest sequential chain) and all opportunities for parallel sidecar work.
+
+**Decomposition principle: split by context, not by role.** Decompose the work along *context boundaries*, not along job titles. Role-splitting (a planner agent, an implementer agent, a tester agent for the same feature) creates a telephone game: each handoff loses context and degrades quality. The agent that implements a feature should also write that feature's tests, because it already holds the context that makes both correct. Split into separate agents only when the slices have genuinely *different* context (the backend module vs. the frontend module vs. an unrelated subsystem) -- not when they are different phases of the same context. This is why the role catalog below assigns whole context-coherent slices (a subsystem with its own tests) rather than thin single-responsibility roles. For the control-flow shape that wraps the decomposition (prompt chaining, routing, parallelization, orchestrator-worker, evaluator-optimizer), see the five-pattern catalog in [[agent-orchestration-primitives]].
 
 **Discovery Questions**:
 
@@ -657,6 +661,7 @@ Invoke related skills at the appropriate coordination phase:
 
 ## Related Skills
 
+- [[agent-orchestration-primitives]] - The decision guide that chooses the primitive (single agent / subagents / agent teams / Dynamic Workflows) BEFORE this skill plans the coordination, and the home of the five-pattern catalog.
 - [[task-coordinator]] - General task decomposition and dependency management
 - [[plan-before-code]] - Upfront planning methodology
 - [[context-manager]] - Managing information across agent boundaries

@@ -249,5 +249,7 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | product-strategy | workflow | "Author and maintain a STRATEGY.md anchor (problem, approach, persona, metrics, tracks) for planning grounding" | catalog/skills/workflow/product-strategy/SKILL.md |
 | session-query | workflow | "Query local Claude/Codex/Cursor session logs for prior investigation context, script-first and zero-outbound" | catalog/skills/workflow/session-query/SKILL.md |
 | demo-capture | workflow | "Capture local terminal/GIF/screenshot PR evidence into docs/demos, script-first and upload-free" | catalog/skills/workflow/demo-capture/SKILL.md |
+| agent-orchestration-primitives | orchestration | "Choose between single agent, subagents, agent teams, and Dynamic Workflows for a task" | catalog/skills/orchestration/agent-orchestration-primitives/SKILL.md |
+| skill-security-scan | security | "Adjudicate skill-security scanner findings, filter false positives, and assign an install verdict" | catalog/skills/security/skill-security-scan/SKILL.md |
 
-**Total: 245 skills across 21 categories**
+**Total: 247 skills across 21 categories**
