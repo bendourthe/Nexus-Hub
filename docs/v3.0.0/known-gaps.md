@@ -1,7 +1,7 @@
 # Known Gaps -- v3.0.0
 
 **Status**: in progress (accumulating across phases; finalized at the v3.0.0 release in Phase 10)
-**Last updated**: 2026-06-03 (Phase 3)
+**Last updated**: 2026-06-03 (Phase 4)
 
 This file tracks per-phase unfinished work, intentional deferrals, bugs, missing tests, warnings, and bypassed quality gates for the v3.0.0 `command-consolidation-skill-security` plan. The next version's `/generate-plan` ingests the open items here. Category prefixes: `NI` (not implemented / skipped subtask), `DF` (intentionally deferred), `BG` (bug), `MT` (missing test), `WN` (warning / suppressed rule), `QG` (quality gate bypassed).
 
