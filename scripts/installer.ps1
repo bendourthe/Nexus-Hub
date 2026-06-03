@@ -1999,6 +1999,15 @@ function Install-Templates {
     if (Test-Path $versionSyncSource) {
         Safe-Copy -Source $versionSyncSource -Destination (Join-Path $scriptsDest "check_version_sync.py") -Confirm:$true -CustomMessage "✓ Version-sync guard installed at: $scriptsDest\check_version_sync.py"
     }
+    # scan_skill_security.py (v3.0.0): thin CLI launcher for the
+    # nexus-skill-scanner static skill-security engine (extensions\nexus-skill-scanner).
+    # Stdlib-only launcher; it locates the bundled package src under extensions\.
+    # Single cross-platform .py file with no .ps1 sibling (NI-v24-1 convention).
+    # Mirror of the bash block in scripts\installer.sh.
+    $scanSkillSource = Join-Path $RepoRoot "scripts\scan_skill_security.py"
+    if (Test-Path $scanSkillSource) {
+        Safe-Copy -Source $scanSkillSource -Destination (Join-Path $scriptsDest "scan_skill_security.py") -Confirm:$true -CustomMessage "✓ Skill-security scanner installed at: $scriptsDest\scan_skill_security.py"
+    }
     # generate_release_changelog.py / .ps1 (v2.4.0): local conventional-commit
     # release helper - computes the next semver bump + a Keep-a-Changelog
     # section from local git history. Zero-outbound (local git only); an

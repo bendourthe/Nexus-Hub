@@ -1,4 +1,4 @@
-.PHONY: all validate lint build-catalog test eval benchmark clean help
+.PHONY: all validate lint build-catalog test scan eval benchmark clean help
 
 all: validate lint ## Run validation and linting
 
@@ -45,8 +45,14 @@ test: ## Run MCP skill server + repo-level pytest suites
 	@cd extensions/nexus-skill-server && python -m pytest -q
 	@cd extensions/nexus-code-search && python -m pytest -q
 	@cd extensions/nexus-web-fetch && python -m pytest -q
+	@cd extensions/nexus-skill-scanner && python -m pytest -q
 	@if [ -d tests ]; then python -m pytest -q tests; else echo "  (no tests/ directory -- skipping repo-level suite)"; fi
 	@echo "Tests complete."
+
+scan: ## Scan the catalog for skill-security findings (fails on any HIGH/CRITICAL)
+	@echo "Scanning catalog with nexus-skill-scanner (gate: HIGH/CRITICAL)..."
+	@python scripts/scan_skill_security.py catalog/skills catalog/mcp-configs --fail-on high
+	@echo "Catalog scan clean (no HIGH/CRITICAL findings)."
 
 eval: ## Run the nexus-code-search synthetic-codebase eval harness
 	@echo "Running nexus-code-search eval harness..."

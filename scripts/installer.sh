@@ -1560,6 +1560,15 @@ install_templates() {
     if [ -f "$version_sync_source" ]; then
         safe_copy "$version_sync_source" "$scripts_dest/check_version_sync.py" true "[OK] Version-sync guard installed at: $scripts_dest/check_version_sync.py"
     fi
+    # scan_skill_security.py (v3.0.0): thin CLI launcher for the
+    # nexus-skill-scanner static skill-security engine (extensions/nexus-skill-scanner).
+    # Stdlib-only launcher; it locates the bundled package src under extensions/.
+    # Single cross-platform .py file with no .ps1 sibling (NI-v24-1 convention).
+    # Lockstep with scripts/installer.ps1.
+    local scan_skill_source="$repo_root/scripts/scan_skill_security.py"
+    if [ -f "$scan_skill_source" ]; then
+        safe_copy "$scan_skill_source" "$scripts_dest/scan_skill_security.py" true "[OK] Skill-security scanner installed at: $scripts_dest/scan_skill_security.py"
+    fi
     # generate_release_changelog.py / .ps1 (v2.4.0): local conventional-commit
     # release helper - computes the next semver bump + a Keep-a-Changelog
     # section from git history. Zero-outbound (local git only); an optional

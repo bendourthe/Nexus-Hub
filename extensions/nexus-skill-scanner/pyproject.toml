@@ -1,0 +1,33 @@
+[project]
+name = "nexus-skill-scanner"
+version = "3.0.0"
+description = "Nexus-Hub local-only static skill-security scanner (16 vulnerability classes, fence-aware, SARIF/JSON/Markdown output, zero outbound by default)"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [{name = "Benjamin Dourthe"}]
+# Stdlib-only core engine: regex, ast, json, urllib. No third-party runtime
+# dependency is required for the deterministic gate. The semantic-adjudication
+# stage is a Nexus-Hub skill run by the user's own agent (no bundled LLM
+# client, no API key). Optional engines (YARA signatures, OSV.dev dependency
+# lookup) arrive in Phase 7 as lazy optional extras so the default install
+# stays dependency-free and offline.
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0"]
+# Optional Phase 7 engines (default off, lazy-imported with an install hint):
+#   yara = ["yara-python>=4.3"]   # class 14 signature module
+yara = ["yara-python>=4.3"]
+
+[project.scripts]
+nexus-skill-scanner = "nexus_skill_scanner.__main__:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/nexus_skill_scanner"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
