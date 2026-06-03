@@ -1,0 +1,30 @@
+# Known Gaps -- v3.0.0
+
+**Status**: in progress (accumulating across phases; finalized at the v3.0.0 release in Phase 10)
+**Last updated**: 2026-06-02 (Phase 1)
+
+This file tracks per-phase unfinished work, intentional deferrals, bugs, missing tests, warnings, and bypassed quality gates for the v3.0.0 `command-consolidation-skill-security` plan. The next version's `/generate-plan` ingests the open items here. Category prefixes: `NI` (not implemented / skipped subtask), `DF` (intentionally deferred), `BG` (bug), `MT` (missing test), `WN` (warning / suppressed rule), `QG` (quality gate bypassed).
+
+## Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| NI | 0 | 0 |
+| DF | 0 | 0 |
+| BG | 0 | 0 |
+| MT | 0 | 0 |
+| WN | 1 | 0 |
+| QG | 0 | 0 |
+| **Total** | **1** | **0** |
+
+## Open Items
+
+| ID | Category | Source phase | Plan reference | Reason | Suggested next step | Severity |
+|---|---|---|---|---|---|---|
+| WN-v30-1 | WN | Phase 1 | T004 (stabilization) | Local lint verification was partial on the Windows dev host: `make` and `shellcheck` are not installed, so `make validate` was emulated by invoking each validator directly (all green, including `check_version_sync.py`) and the ShellCheck pass on the new `installer.sh` copy block was deferred to CI. The new block reuses the exact `safe_copy ... true "..."` pattern of its 15 sibling validator-copy blocks, so it is ShellCheck-clean by construction. | Confirm the CI `shellcheck` job is green for this commit on the ubuntu runner; no code change expected. | Low (covered by CI) |
+
+## Resolved
+
+| ID | Category | Source phase | Resolved in | Note |
+|---|---|---|---|---|
+| (none yet) | -- | -- | -- | -- |

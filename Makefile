@@ -25,6 +25,8 @@ validate: ## Validate all JSON catalog files and skill bundles
 	@python scripts/validate_workflow_security.py
 	@echo "Validating solution-doc frontmatter parser-safety (docs/solutions; no-op when absent)..."
 	@python scripts/validate_solution_frontmatter.py
+	@echo "Checking version sync across all version-carrying surfaces..."
+	@python scripts/check_version_sync.py
 	@echo "All catalogs valid."
 
 lint: ## Lint shell scripts with ShellCheck

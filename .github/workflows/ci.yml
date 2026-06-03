@@ -53,6 +53,9 @@ jobs:
       - name: Validate GitHub Actions workflow security (v2.3.0 Phase 2)
         run: python scripts/validate_workflow_security.py
 
+      - name: Validate version sync across all surfaces (v3.0.0 Phase 1)
+        run: python scripts/check_version_sync.py
+
   shellcheck:
     runs-on: ubuntu-latest
     steps:

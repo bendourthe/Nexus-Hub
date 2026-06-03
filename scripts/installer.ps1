@@ -1989,6 +1989,16 @@ function Install-Templates {
     if (Test-Path $solutionFmSource) {
         Safe-Copy -Source $solutionFmSource -Destination (Join-Path $scriptsDest "validate_solution_frontmatter.py") -Confirm:$true -CustomMessage "✓ Solution-frontmatter validator installed at: $scriptsDest\validate_solution_frontmatter.py"
     }
+    # check_version_sync.py (v3.0.0): version-drift guard. Reads the canonical
+    # version from .claude-plugin\plugin.json and asserts every other
+    # version-carrying surface (both installers, marketplace.json, the latest
+    # CHANGELOG heading, README/AGENTS markers) matches it. Stdlib-only, so it
+    # is a single cross-platform .py file with no .ps1 sibling (NI-v24-1
+    # convention). Mirror of the bash block in scripts\installer.sh.
+    $versionSyncSource = Join-Path $RepoRoot "scripts\check_version_sync.py"
+    if (Test-Path $versionSyncSource) {
+        Safe-Copy -Source $versionSyncSource -Destination (Join-Path $scriptsDest "check_version_sync.py") -Confirm:$true -CustomMessage "✓ Version-sync guard installed at: $scriptsDest\check_version_sync.py"
+    }
     # generate_release_changelog.py / .ps1 (v2.4.0): local conventional-commit
     # release helper - computes the next semver bump + a Keep-a-Changelog
     # section from local git history. Zero-outbound (local git only); an

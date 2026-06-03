@@ -4,6 +4,8 @@
 
 # Nexus-Hub
 
+<!-- nexus-hub-version: 2.4.0 -->
+
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 245 skills, 41 commands, 22 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
 > **Renamed from DevAI-Hub at v2.0.0** to align with the sibling project [Nexus](https://github.com/bendourthe/Nexus-AI), a local-first desktop AI Studio that consumes Nexus-Hub as its upstream skill feed. Existing `~/.devai-hub/` installs are migrated in place by the v2.0.0 installer on first run; see [docs/v2.0.0/RELEASE_NOTES.md](docs/v2.0.0/RELEASE_NOTES.md) for the full migration story.

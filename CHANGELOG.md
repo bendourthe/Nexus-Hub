@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+v3.0.0 work in progress (plan: `docs/v3.0.0/plans/command-consolidation-skill-security.md`). The full v3.0.0 entry, including the 41 -> 14 command rename table and the breaking-change notice, is finalized at release in Phase 10.
+
+### Added
+
+- **Version-sync drift guard** (`scripts/check_version_sync.py`): a stdlib-only validator that reads the canonical version from `.claude-plugin/plugin.json` and asserts every other version-carrying surface (both installers, `data/marketplace.json`, the latest `CHANGELOG.md` heading, and the README/AGENTS version markers) matches it. Wired into `make validate`, the CI `validate` job, and registered as an explicit-name copy step in both installers. Closes the v2.4.0-class version-drift failure systemically. Covered by `tests/validators/test_check_version_sync.py` (13 cases incl. an injected-drift fixture).
+- **Command scope-mechanism style guide** (`catalog/style-guides/command-scope-mechanism.md`): documents the uniform interactive-scope-plus-optional-argument contract and ships a thin-command skeleton template the v3.0.0 consolidated commands copy. Auto-installs to `~/.nexus-hub/style-guides/`.
+
+### Changed
+
+- `README.md` and `AGENTS.md` now carry a machine-readable `<!-- nexus-hub-version: X.Y.Z -->` marker (invisible when rendered) so the version-sync guard can assert their catalog-version prose and `/update version` has a precise bump anchor.
+
+---
+
 ## [2.4.0] - 2026-06-02
 
 **Compound-engineering plugin adoption (reverse-engineer-first)**: the headline v2.4.0 plan (see [`docs/v2.4.0/plans/adoption-compound-engineering-plugin.md`](docs/v2.4.0/plans/adoption-compound-engineering-plugin.md) and the source comparison [`docs/v2.3.0/comparison-compound-engineering-plugin.md`](docs/v2.3.0/comparison-compound-engineering-plugin.md)) adopts all 13 in-scope capabilities (A1-A13) from the compound-engineering plugin comparison AND resolves the 15 ingested v2.3.0 known-gaps, as local zero-outbound Nexus-Hub content. Sequenced per the MCP Registry Policy reverse-engineer-first decision tree: skill-native items first (Phases 1-4), then `re-full` internal builds (Phase 5), then `re-partial` internal builds (Phase 6), then the ingested catalog-quality remediation (Phase 7) and live-verification / release-readiness gate (Phase 8). Every adopted item is local catalog content (markdown skills + re-authored generic agents) or a local script reusing the user's own model CLI and local logs: zero new outbound calls, zero new credentials, zero new third-party data processors. The vendor-integrated CE skills (Gemini image generation, Slack research, Proof, Riffrec, XcodeBuildMCP) fail the MCP Registry Policy and were dropped (out-of-scope appendix N1-N8). This release also folds in the prior unreleased process-discipline (Superpowers) and Hallmark / HTML-output interim additions. SemVer **minor** bump: every change is additive and local. The catalog grows to 245 skills across 21 categories (the prior "23 categories" was an artifact of three mis-cased duplicate category keys reconciled in Phase 1).

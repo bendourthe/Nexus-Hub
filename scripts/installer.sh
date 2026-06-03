@@ -1550,6 +1550,16 @@ install_templates() {
     if [ -f "$solution_fm_source" ]; then
         safe_copy "$solution_fm_source" "$scripts_dest/validate_solution_frontmatter.py" true "[OK] Solution-frontmatter validator installed at: $scripts_dest/validate_solution_frontmatter.py"
     fi
+    # check_version_sync.py (v3.0.0): version-drift guard. Reads the canonical
+    # version from .claude-plugin/plugin.json and asserts every other
+    # version-carrying surface (both installers, marketplace.json, the latest
+    # CHANGELOG heading, README/AGENTS markers) matches it. Stdlib-only, so it
+    # is a single cross-platform .py file with no .ps1 sibling (NI-v24-1
+    # convention). Lockstep with scripts/installer.ps1.
+    local version_sync_source="$repo_root/scripts/check_version_sync.py"
+    if [ -f "$version_sync_source" ]; then
+        safe_copy "$version_sync_source" "$scripts_dest/check_version_sync.py" true "[OK] Version-sync guard installed at: $scripts_dest/check_version_sync.py"
+    fi
     # generate_release_changelog.py / .ps1 (v2.4.0): local conventional-commit
     # release helper - computes the next semver bump + a Keep-a-Changelog
     # section from git history. Zero-outbound (local git only); an optional
