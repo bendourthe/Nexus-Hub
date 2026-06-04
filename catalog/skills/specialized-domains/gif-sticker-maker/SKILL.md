@@ -1418,22 +1418,6 @@ def validate_output(
 - **Batch with concurrency limits**: AI image generation APIs have rate limits. Use semaphores to control concurrent requests and implement exponential backoff for retries
 - **Validate every output**: Automatically check file size, dimensions, frame count, and duration against platform requirements before delivering stickers
 
-## Quality Checklist
-
-- [ ] GIF file size is within the target platform's limit
-- [ ] Dimensions match the platform's recommended size
-- [ ] Animation loops smoothly without visible jumps
-- [ ] Transparent background renders correctly (no green fringe or artifacts)
-- [ ] Sticker outline is visible at the platform's display size
-- [ ] Text captions are legible at the final display resolution
-- [ ] Color palette is optimized (no unnecessary colors wasting bits)
-- [ ] Frame rate produces smooth motion without bloating file size
-- [ ] AI-generated frames maintain visual consistency across the animation
-- [ ] Batch outputs are validated against platform requirements
-- [ ] Easing functions are applied to movement animations
-- [ ] Duration stays within platform time limits
-- [ ] Output directory structure is organized for delivery
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

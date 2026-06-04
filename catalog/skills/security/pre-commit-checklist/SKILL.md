@@ -889,23 +889,6 @@ jobs:
 - Add installation check to CI/CD
 - Use `husky` which auto-installs for JavaScript projects
 
-## Quality Checklist
-
-- [ ] Pre-commit framework installed and configured
-- [ ] Code formatting automated for all languages
-- [ ] Linting enforced with appropriate rules
-- [ ] Type checking enabled (TypeScript, Python, etc.)
-- [ ] Secret detection preventing credential leaks
-- [ ] Quick unit tests running (<10 seconds)
-- [ ] Commit message validation enforcing conventions
-- [ ] File size and type checks preventing inappropriate commits
-- [ ] Team trained on pre-commit workflow
-- [ ] CI/CD pipeline enforces same checks
-- [ ] Documentation updated with setup instructions
-- [ ] Performance optimized (total time <30 seconds)
-- [ ] False positive rate acceptable (<5%)
-- [ ] Bypass rate monitored and low (<10%)
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

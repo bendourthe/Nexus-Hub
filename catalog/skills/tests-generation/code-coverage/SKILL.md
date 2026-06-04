@@ -487,16 +487,6 @@ func TestUserService_CreateUser(t *testing.T) {
    - Add to CI/CD pipeline
    - Block merges below threshold
 
-## Quality Checklist
-
-- [ ] Coverage tool configured
-- [ ] Exclusions properly set
-- [ ] Initial baseline measured
-- [ ] Critical paths at 90%+
-- [ ] Overall coverage at 80%+
-- [ ] CI/CD threshold enforced
-- [ ] Reports generated and accessible
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

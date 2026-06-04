@@ -1333,21 +1333,6 @@ main
 - **Test your monitoring**: if you have never seen an alert fire, you do not know if it works
 - **Keep runbooks current**: stale runbooks are worse than no runbooks because they create false confidence
 
-## Quality Checklist
-
-- [ ] SLOs defined for all user-facing services
-- [ ] Error budgets calculated and tracked on dashboards
-- [ ] Burn rate alerts configured with multi-window strategy
-- [ ] Structured logging with trace/correlation ID propagation
-- [ ] On-call rotation with at least 4 engineers
-- [ ] Incident severity levels defined and documented
-- [ ] Postmortem template adopted and action items tracked
-- [ ] Load tests run before major releases
-- [ ] Autoscaling configured with appropriate min/max bounds
-- [ ] Circuit breakers on all external service calls
-- [ ] Chaos experiments running in staging on a schedule
-- [ ] Toil measured and reduction targets set
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

@@ -442,19 +442,6 @@ memcpy(dest, src, n);  // Return value ignored
 - **Coverity**: Commercial analysis
 - **gcov**: Code coverage
 
-## Quality Checklist
-
-- [ ] Unused includes removed
-- [ ] Unused functions removed
-- [ ] All malloc checked for NULL
-- [ ] All malloc has matching free
-- [ ] No buffer overflows
-- [ ] No use after free
-- [ ] Static analysis clean
-- [ ] Valgrind clean
-- [ ] Build clean with -Wall -Wextra
-- [ ] Tests pass
-
 ## Common Issues and Solutions
 
 ### Issue: Memory leak detected

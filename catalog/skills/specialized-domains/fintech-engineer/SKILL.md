@@ -1146,24 +1146,6 @@ class TestRegulatoryCompliance:
 - **Automate compliance checks**: Manual compliance processes do not scale. Encode rules as code, test them, and run them in CI alongside your application tests
 - **Design for regulatory change**: Regulations change frequently. Externalize thresholds, country lists, and rule parameters into configuration rather than hardcoding them
 
-## Quality Checklist
-
-- [ ] All monetary amounts stored as fixed-precision decimals, never floating-point
-- [ ] Double-entry invariant enforced at the database level (trigger or constraint)
-- [ ] Idempotency keys required on all write endpoints
-- [ ] Payment state machine prevents invalid transitions
-- [ ] Webhook handlers verify signatures and process events idempotently
-- [ ] Reconciliation runs daily between internal ledger and payment gateway
-- [ ] KYC/AML screening runs at customer onboarding and periodically thereafter
-- [ ] Transaction monitoring rules are configured, tested, and alerting
-- [ ] Audit log is append-only with restricted permissions
-- [ ] PCI-DSS scope minimized via client-side tokenization
-- [ ] Exchange rates stored with effective dates and sources
-- [ ] Property-based tests verify accounting invariants
-- [ ] Chaos tests verify payment flow resilience under failure
-- [ ] API versioning implemented for all financial endpoints
-- [ ] Rate limiting configured for trading and high-frequency endpoints
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

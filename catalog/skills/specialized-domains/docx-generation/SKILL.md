@@ -1987,24 +1987,6 @@ def compare_documents(doc_a_path: str | Path, doc_b_path: str | Path) -> Documen
 - **Test with realistic data**: Use production-length strings, multi-byte characters, and maximum-size datasets in your test fixtures. Edge cases in document generation often involve text overflow and page layout
 - **Log generation metadata**: Record which template version, data source, and generator version produced each document. This is essential for audit trails and debugging rendering issues
 
-## Quality Checklist
-
-- [ ] Library selection justified with a documented trade-off analysis for the project
-- [ ] Document templates stored in version control with sample rendering tests
-- [ ] All template variables validated against the data schema before rendering
-- [ ] Custom styles defined in a central function and applied by name (no scattered direct formatting)
-- [ ] Headers, footers, and page numbers configured for all sections
-- [ ] Images sized appropriately and tested for page overflow
-- [ ] Batch generation handles errors per-record without aborting the entire batch
-- [ ] Output documents validated as structurally correct ZIP archives with required OOXML entries
-- [ ] Content extraction tests verify that all data fields appear in the rendered output
-- [ ] No unreplaced template tags (`{{`, `{%`) remain in generated documents
-- [ ] Cross-platform rendering verified in Word, LibreOffice, and Word Online
-- [ ] Document properties (title, author, subject) set correctly
-- [ ] Unicode and multi-byte characters render correctly in all text positions
-- [ ] File sizes are reasonable (images optimized, no unnecessary embedded resources)
-- [ ] CI pipeline includes a template rendering smoke test with sample data
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

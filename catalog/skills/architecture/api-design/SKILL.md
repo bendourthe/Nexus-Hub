@@ -933,21 +933,6 @@ HTTP/1.1 207 Multi-Status
 }
 ```
 
-## Quality Checklist
-
-- [ ] All resources use plural nouns (not verbs) in URL paths
-- [ ] HTTP methods used correctly (GET is safe, PUT is idempotent)
-- [ ] Status codes are specific and correct (not 200 for everything)
-- [ ] Error responses follow RFC 7807 Problem Details format
-- [ ] All list endpoints are paginated (cursor-based preferred)
-- [ ] API is versioned from the initial release
-- [ ] Rate limit headers included in every response
-- [ ] Authentication scheme documented (Bearer token, API key)
-- [ ] OpenAPI/GraphQL schema/proto files are the source of truth
-- [ ] Breaking changes go through a deprecation cycle with Sunset headers
-- [ ] Idempotency keys supported for state-changing POST operations
-- [ ] Request/response examples provided for every endpoint
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

@@ -482,18 +482,6 @@ class PCISecurityTesting:
 - [ ] Log review evidence
 - [ ] Training records
 
-## Quality Checklist
-
-- [ ] CDE scope defined and documented
-- [ ] All 12 requirements addressed
-- [ ] Cardholder data encrypted
-- [ ] Strong cryptography implemented
-- [ ] MFA enabled for CDE access
-- [ ] Logging and monitoring active
-- [ ] Vulnerability scans passing
-- [ ] Penetration testing completed
-- [ ] Policies documented and approved
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

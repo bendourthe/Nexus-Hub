@@ -30,6 +30,15 @@ dependencies = [
     "tree-sitter-php>=0.23,<0.26",
     "tree-sitter-c>=0.23,<0.26",
     "tree-sitter-cpp>=0.23,<0.26",
+    # v3.0.0 / DF-v24-7 mobile extractor batch: Swift, Kotlin. These two
+    # grammars version their OWN package independently of the tree-sitter core
+    # (swift at 0.7.x, kotlin at 1.x), so they do not carry a <0.26 marker; the
+    # <0.26 ceiling above guards the CORE ABI, not each grammar's package
+    # version. Both were verified ABI-compatible with core 0.25.2 (parse + node
+    # extraction) on 2026-06-04; their PyPI metadata declares core ~=0.23/~=0.22
+    # only as an optional `[core]` extra, which we do not install.
+    "tree-sitter-swift>=0.7,<0.8",
+    "tree-sitter-kotlin>=1.1,<2",
     "watchdog>=4.0.0",
 ]
 

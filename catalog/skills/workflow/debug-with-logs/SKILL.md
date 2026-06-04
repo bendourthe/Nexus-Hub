@@ -383,16 +383,6 @@ for item in items:  # Could be millions
 - [ ] Tested log output is useful
 - [ ] Cleaned up verbose logs after debugging
 
-## Quality Checklist
-
-- [ ] Logs follow structured format
-- [ ] Correlation IDs enable request tracing
-- [ ] Log levels are appropriate
-- [ ] No sensitive data in logs
-- [ ] Logs are actionable
-- [ ] Performance impact is minimal
-- [ ] Log retention policy defined
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

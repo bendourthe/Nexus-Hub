@@ -458,18 +458,6 @@ class AIRiskManagement:
 - [ ] Monitoring reports
 - [ ] Incident records
 
-## Quality Checklist
-
-- [ ] GOVERN: Governance structure established
-- [ ] GOVERN: AI policy approved
-- [ ] MAP: All AI systems characterized
-- [ ] MAP: Stakeholders identified
-- [ ] MEASURE: Risk assessments completed
-- [ ] MEASURE: Testing performed
-- [ ] MANAGE: Risks prioritized
-- [ ] MANAGE: Treatment plans developed
-- [ ] MANAGE: Monitoring active
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

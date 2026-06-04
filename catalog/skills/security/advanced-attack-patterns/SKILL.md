@@ -218,15 +218,6 @@ response.headers["Cache-Control"] = "private, max-age=60"
 response.headers["Vary"] = "Cookie"  # Cookie includes the session
 ```
 
-## Quality Checklist
-
-- [ ] Every class explicitly either audited OR marked not-applicable with a one-line reason
-- [ ] Cache-poisoning audit includes every request header the response depends on
-- [ ] Every signed-request finding reports which defense is absent (nonce / timestamp / binding)
-- [ ] Every timing-attack finding includes an observed timing delta or a code-level confirmation of the branch
-- [ ] Remediation is architectural (constant-time comparator, strict Vary, server-authoritative state) rather than input-sanitization patches
-- [ ] State-desync findings cross-reference the `business-logic-abuse` skill where the overlap exists (workflow bypass)
-
 ## Verification
 
 - [ ] For each cache-poisoning finding, attempt the exploit from a second client to confirm cross-user impact

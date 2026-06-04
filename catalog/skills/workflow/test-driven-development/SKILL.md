@@ -369,18 +369,6 @@ def test_returns_user_by_id():
 ### Pitfall 4: Skipping Refactoring
 **Solution**: Always refactor after tests pass.
 
-## Quality Checklist
-
-- [ ] All tests written **before** implementation
-- [ ] Each test tests **one specific behavior**
-- [ ] Tests have **descriptive names**
-- [ ] Tests follow **Arrange-Act-Assert** pattern
-- [ ] Tests are **independent** (no shared state)
-- [ ] Code coverage is **80%+**
-- [ ] Tests run **quickly** (< 1 second for unit tests)
-- [ ] All tests **pass** before committing
-- [ ] Refactoring done while keeping tests green
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

@@ -517,19 +517,6 @@ Additional files:
 - MANIFEST.in
 - docs/conf.py
 
-## Quality Checklist
-
-- [ ] Directory structure created
-- [ ] pyproject.toml configured
-- [ ] Virtual environment set up
-- [ ] Dependencies installed
-- [ ] Tests pass
-- [ ] Linting passes
-- [ ] Documentation complete
-- [ ] Git initialized
-- [ ] README accurate
-- [ ] CHANGELOG started
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

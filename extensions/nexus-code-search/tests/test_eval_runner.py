@@ -91,8 +91,9 @@ def test_render_report_emits_markdown_with_expected_sections(tmp_path: Path) -> 
 def test_eval_runner_runs_against_all_shipped_fixtures(tmp_path: Path) -> None:
     result = run_eval(FIXTURES_ROOT, tmp_path)
     # All shipped fixtures should be present and produce at least one question
-    # each. The original four, the v2.3.0 (T030) language fixtures, and the
-    # v2.4.0 (DF-v23-4) batch: Ruby, PHP, C, C++.
+    # each. The original four, the v2.3.0 (T030) language fixtures, the
+    # v2.4.0 (DF-v23-4) batch (Ruby, PHP, C, C++), and the v3.0.0 (DF-v24-7)
+    # mobile batch (Swift, Kotlin).
     names = {f.name for f in result.fixtures}
     assert names == {
         "minimal",
@@ -107,6 +108,8 @@ def test_eval_runner_runs_against_all_shipped_fixtures(tmp_path: Path) -> None:
         "php_app",
         "c_app",
         "cpp_app",
+        "swift_app",
+        "kotlin_app",
     }
     for fix in result.fixtures:
         assert fix.questions, f"{fix.name} produced no questions"

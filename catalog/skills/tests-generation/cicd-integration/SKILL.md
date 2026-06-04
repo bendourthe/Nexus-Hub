@@ -476,16 +476,6 @@ pipeline {
    - No regressions allowed
    - Performance thresholds
 
-## Quality Checklist
-
-- [ ] Pipeline triggers on push and PR
-- [ ] Tests run in parallel where possible
-- [ ] Dependencies cached effectively
-- [ ] Coverage reports uploaded
-- [ ] Quality gates configured
-- [ ] Failure notifications set up
-- [ ] E2E tests run on main branch
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

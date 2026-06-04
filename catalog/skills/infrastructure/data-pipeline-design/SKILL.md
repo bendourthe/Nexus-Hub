@@ -735,21 +735,6 @@ for table in tables:
     load_table(path, table)
 ```
 
-## Quality Checklist
-
-- [ ] Pipeline architecture documented (ETL vs ELT, batch vs streaming)
-- [ ] All pipeline steps are idempotent (safe to re-run)
-- [ ] Data is partitioned by date for efficient backfills
-- [ ] Schema tests defined for all silver and gold layer models
-- [ ] Data validation runs after every transform step
-- [ ] Dead-letter queue configured for invalid records
-- [ ] Backfill mechanism tested and documented
-- [ ] SLA monitoring and alerting configured
-- [ ] Pipeline DAGs and models are in version control
-- [ ] Consumer lag and data freshness dashboards operational
-- [ ] CDC configured with snapshot for initial load
-- [ ] Data lineage documented from source to gold layer
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

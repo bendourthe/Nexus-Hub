@@ -715,19 +715,6 @@ Bad:  "Q3: Feature X, Q4: Feature Y" (treated as deadline commitments)
 Good: "Now: Feature X (committed). Next: Feature Y (high confidence). Later: Feature Z (directional)."
 ```
 
-## Quality Checklist
-
-- [ ] User problem is stated from the user's perspective with evidence
-- [ ] Scope has an explicit In/Out table reviewed by the team
-- [ ] Features are prioritized with a structured framework (not opinions)
-- [ ] Acceptance criteria are written in Given/When/Then format
-- [ ] Every criterion is independently testable and binary
-- [ ] RACI matrix has exactly one accountable person per row
-- [ ] Decision log captures key decisions with context and rationale
-- [ ] Roadmap uses Now/Next/Later, not fixed quarterly dates
-- [ ] Launch checklist is complete before rollout begins
-- [ ] Post-launch review is scheduled before launch happens
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

@@ -204,17 +204,6 @@ class User:
 - **autoflake**: Remove unused imports
 - **isort**: Import sorting
 
-## Quality Checklist
-
-- [ ] Unused imports removed
-- [ ] Unused variables removed
-- [ ] Empty lines within functions removed
-- [ ] PEP 8 compliance verified
-- [ ] Type hints added
-- [ ] Modern patterns applied
-- [ ] Tests still pass
-- [ ] No functionality changed
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

@@ -418,19 +418,6 @@ go mod vendor
 - **ineffassign**: Ineffectual assignments
 - **gosec**: Security issues
 
-## Quality Checklist
-
-- [ ] gofmt applied (no changes)
-- [ ] goimports applied (no changes)
-- [ ] go vet passes
-- [ ] staticcheck passes
-- [ ] Unused imports removed
-- [ ] Unused variables removed
-- [ ] Error handling follows patterns
-- [ ] Context used correctly
-- [ ] go mod tidy applied
-- [ ] Tests pass
-
 ## Common Issues and Solutions
 
 ### Issue: Unused import

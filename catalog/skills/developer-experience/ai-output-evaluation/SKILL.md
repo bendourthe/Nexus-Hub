@@ -261,16 +261,6 @@ Understanding the relationship between token usage and output quality helps allo
 3. Mutation testing (do they catch intentional bugs?)
 4. Review test quality: independence, meaningful assertions, edge cases
 
-## Quality Checklist
-
-- [ ] Evaluation rubric defined with weighted dimensions
-- [ ] Scoring scale and pass/fail thresholds established
-- [ ] LLM-as-judge prompt includes evidence requirement
-- [ ] End-state evaluation (not process evaluation) applied
-- [ ] Top 3 biases addressed in evaluation design
-- [ ] Token budget estimated for evaluation pipeline
-- [ ] Human spot-checks planned for calibration
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

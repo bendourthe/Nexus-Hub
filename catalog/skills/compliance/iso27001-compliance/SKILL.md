@@ -486,17 +486,6 @@ class InternalAudit:
 - [ ] Management review results
 - [ ] Nonconformities and corrective actions
 
-## Quality Checklist
-
-- [ ] ISMS scope defined and documented
-- [ ] Risk assessment completed
-- [ ] All Annex A controls evaluated
-- [ ] Statement of Applicability complete
-- [ ] Required procedures documented
-- [ ] Internal audit conducted
-- [ ] Management review performed
-- [ ] Continual improvement process established
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

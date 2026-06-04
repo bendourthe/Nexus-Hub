@@ -815,22 +815,6 @@ app.get('/api/orders', requireScope('orders:read'), getOrders);
 app.post('/api/orders', requireScope('orders:write'), createOrder);
 ```
 
-## Quality Checklist
-
-- [ ] OAuth 2.0 flow uses PKCE (even for confidential clients)
-- [ ] Access tokens are short-lived (5-15 minutes)
-- [ ] Refresh token rotation implemented with reuse detection
-- [ ] Passwords hashed with Argon2id or bcrypt (cost factor >= 12)
-- [ ] Session IDs regenerated after authentication state changes
-- [ ] Cookies use Secure, HttpOnly, SameSite attributes
-- [ ] CSRF protection implemented for cookie-based auth
-- [ ] JWT validation checks iss, aud, exp, and algorithm
-- [ ] MFA available for all user accounts
-- [ ] Security headers configured (CSP, HSTS, CORS)
-- [ ] Rate limiting applied to login and token endpoints
-- [ ] Authentication events logged for audit trail
-- [ ] API keys are hashed before storage (never stored in plaintext)
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

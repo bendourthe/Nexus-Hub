@@ -137,17 +137,6 @@ These instructions reduce the amount of command output the AI includes in its re
 
 ---
 
-## Quality Checklist
-
-- [ ] For Claude Code: `rtk init --global` has been run and `settings.json` contains the rtk hook
-- [ ] For Claude Code: `rtk gain` reports non-zero savings after the first session
-- [ ] For Gemini/Codex/Copilot: Output Minimization section added to the relevant instruction file
-- [ ] Commands using `--silent` or `-q` flags where appropriate
-- [ ] Long-running commands summarize rather than dump full output
-- [ ] Security review completed if deploying rtk in a shared or production environment
-
----
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

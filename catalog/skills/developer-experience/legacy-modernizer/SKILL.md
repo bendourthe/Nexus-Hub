@@ -449,17 +449,6 @@ def add_deprecation_header(response):
     return response
 ```
 
-## Quality Checklist
-
-- [ ] Legacy system fully assessed
-- [ ] Migration strategy selected and documented
-- [ ] Phased plan created
-- [ ] Rollback procedures defined
-- [ ] Feature flags/toggles in place
-- [ ] Monitoring configured
-- [ ] Validation criteria defined
-- [ ] Team aligned on approach
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

@@ -492,21 +492,6 @@ Every document moves through these stages: **Draft** (in progress), **Published*
 
 ---
 
-## Quality Checklist
-
-- [ ] Audience personas defined before drafting
-- [ ] Document structure follows progressive disclosure
-- [ ] Headings are descriptive and correctly nested
-- [ ] Writing uses active voice and concise sentences
-- [ ] Terminology is consistent; glossary is up to date
-- [ ] Code examples are complete, tested, and realistic
-- [ ] Visuals are appropriate and accessible
-- [ ] Technical review completed by a subject-matter expert
-- [ ] Editorial review completed for style and clarity
-- [ ] Links checked and valid
-- [ ] Publishing pipeline configured and tested
-- [ ] Freshness audit schedule established
-
 ## Common Issues and Solutions
 
 ### Issue: Documentation falls out of date quickly

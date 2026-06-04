@@ -503,18 +503,6 @@ class ProcessingActivityRecord:
 - [ ] Breach notifications
 - [ ] DPIA assessments
 
-## Quality Checklist
-
-- [ ] Lawful basis documented for all processing
-- [ ] Privacy notices published
-- [ ] Consent mechanisms implemented
-- [ ] Data subject rights procedures in place
-- [ ] DPIA process established
-- [ ] Breach notification procedures ready
-- [ ] ROPA maintained
-- [ ] DPO appointed (if required)
-- [ ] Training completed
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

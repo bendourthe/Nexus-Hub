@@ -426,23 +426,6 @@ Review the DoD every quarter. Add criteria when the team consistently meets curr
 | "How healthy is our team?" | Team Health Check | Step 7 |
 | "When is a story truly done?" | Definition of Done | Step 7 |
 
-## Quality Checklist
-
-- [ ] Sprint goal is a measurable outcome, not a list of stories
-- [ ] Capacity is calculated with a buffer for unplanned work
-- [ ] All stories in the sprint meet the Definition of Ready
-- [ ] Standup is timeboxed to 15 minutes and focuses on flow
-- [ ] WIP limits are set and respected
-- [ ] Sprint review includes a live demo of working software
-- [ ] Stakeholder feedback is captured in a structured log
-- [ ] Retrospective uses a varied format and produces 1-3 concrete actions
-- [ ] Previous retro actions are reviewed before brainstorming new ones
-- [ ] Velocity is tracked as a rolling average, not a target
-- [ ] Impediments are logged with owners and resolution dates
-- [ ] Dependencies are tracked and reviewed weekly
-- [ ] Team health check is conducted at least quarterly
-- [ ] Definition of Done evolves as the team matures
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

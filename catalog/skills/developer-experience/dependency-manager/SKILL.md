@@ -437,17 +437,6 @@ updates:
 - Review within 24 hours of CVE publication
 ```
 
-## Quality Checklist
-
-- [ ] All dependencies audited for vulnerabilities
-- [ ] Outdated packages identified
-- [ ] Breaking changes reviewed
-- [ ] Lock file committed
-- [ ] Full test suite passing
-- [ ] Manual smoke test completed
-- [ ] Rollback plan documented
-- [ ] Deployment monitored
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

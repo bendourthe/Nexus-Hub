@@ -159,15 +159,6 @@ function processUser(user: User): string {
 - **TypeScript**: Type checking
 - **depcheck**: Find unused dependencies
 
-## Quality Checklist
-
-- [ ] ESLint errors fixed
-- [ ] Unused imports removed
-- [ ] Modern syntax applied
-- [ ] Types added (TypeScript)
-- [ ] Formatting consistent
-- [ ] Tests still pass
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

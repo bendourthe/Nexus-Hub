@@ -426,21 +426,6 @@ git add tests/*.ts
 git commit -m "test: add auth integration tests"
 ```
 
-## Quality Checklist
-
-- [ ] Commit message follows conventional format
-- [ ] Subject line is under 50 characters
-- [ ] Body explains what and why
-- [ ] Changes are atomic (one logical change)
-- [ ] All tests pass
-- [ ] No secrets in commit
-- [ ] Related files are grouped together
-- [ ] Breaking changes are clearly marked
-- [ ] No `Co-Authored-By` or AI attribution lines in commit message
-- [ ] Commit message is ASCII-only (no em-dashes, en-dashes, curly quotes, ellipsis, or other Unicode punctuation)
-- [ ] No hard-wrapping in the body or footer: every paragraph and every bullet is a single continuous source line, with no mid-paragraph or mid-bullet line breaks at any column width
-- [ ] For any commit touching multiple components, the body uses **labeled sections with bullets** (not flowing paragraphs); section headers end in a colon and group bullets by component, module, or theme; **Tests** and **Known gaps** / **Deviations** are dedicated sections at the end
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

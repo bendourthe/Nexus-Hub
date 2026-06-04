@@ -662,18 +662,6 @@ jacocoTestReport {
 }
 ```
 
-## Quality Checklist
-
-- [ ] pom.xml/build.gradle configured
-- [ ] Project compiles successfully
-- [ ] Tests pass
-- [ ] Application starts
-- [ ] Actuator endpoints accessible
-- [ ] Code coverage > 80%
-- [ ] CI workflow configured
-- [ ] Documentation complete
-- [ ] Git initialized
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

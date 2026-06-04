@@ -1079,17 +1079,6 @@ class AIAgentGovernance:
 - [ ] Alert rules configured
 - [ ] Data lineage tracked
 
-## Quality Checklist
-
-- [ ] All 4 pillars implemented
-- [ ] Agent versioning in place
-- [ ] Guardrails tested with adversarial inputs
-- [ ] Rollback tested and documented
-- [ ] Credentials rotated regularly
-- [ ] Audit trail complete and searchable
-- [ ] Compliance mapping documented
-- [ ] Incident response procedures ready
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

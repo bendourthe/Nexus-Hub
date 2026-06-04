@@ -456,15 +456,6 @@ class UserServiceTest {
    - Include error responses
    - Set appropriate status codes
 
-## Quality Checklist
-
-- [ ] All external dependencies mockable
-- [ ] Factories create realistic data
-- [ ] Mocks verify expected calls
-- [ ] Error scenarios covered
-- [ ] Fixtures properly scoped
-- [ ] No shared mutable state
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

@@ -397,15 +397,6 @@ go install github.com/zimmski/go-mutesting/cmd/go-mutesting@latest
    - Warning: Below 60%
    - Fail: Below 50%
 
-## Quality Checklist
-
-- [ ] Mutation tool configured
-- [ ] Initial mutation score measured
-- [ ] Surviving mutants analyzed
-- [ ] Weak tests strengthened
-- [ ] Mutation score at 80%+
-- [ ] CI/CD threshold configured
-
 ## Common Weak Test Patterns
 
 ### 1. Vague Assertions

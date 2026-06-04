@@ -9,7 +9,7 @@ Nexus-Hub local-only code search MCP server. Walks a repository, chunks source f
 ## Status
 
 - **v1.0 ships keyword-only search** via an inverted index + `rapidfuzz` fuzzy scoring.
-- **v2.0 (current) adds a tree-sitter AST graph** for Python, TypeScript, Go, Rust, Java, C#, Ruby, PHP, C, and C++: SQLite + FTS5 storage, NodeKind / EdgeKind taxonomy, call-graph traversal (callers / callees / impact radius / path finding), and a debounced filesystem watcher built on watchdog. Both surfaces are available simultaneously; callers pick the right tool for their query. Future versions may add dense / hybrid retrieval with local ONNX embeddings; nothing is reserved today.
+- **v2.0 (current) adds a tree-sitter AST graph** for Python, TypeScript, Go, Rust, Java, C#, Ruby, PHP, C, C++, Swift, and Kotlin: SQLite + FTS5 storage, NodeKind / EdgeKind taxonomy, call-graph traversal (callers / callees / impact radius / path finding), and a debounced filesystem watcher built on watchdog. Both surfaces are available simultaneously; callers pick the right tool for their query. Future versions may add dense / hybrid retrieval with local ONNX embeddings; nothing is reserved today.
 
 ## Install
 
@@ -32,7 +32,7 @@ The installer ships with the repo. Alternatively install via the Nexus-Hub insta
 | `clear_index(root)` | Remove both the JSON index and the SQLite graph database for `<root>`. |
 | `get_indexing_status(root)` | Return index state (`idle` / `running` / `error`) plus counts and timestamps. |
 
-### v2 AST graph surface (Python, TypeScript, Go, Rust, Java, C#, Ruby, PHP, C, C++)
+### v2 AST graph surface (Python, TypeScript, Go, Rust, Java, C#, Ruby, PHP, C, C++, Swift, Kotlin)
 
 | Tool | Purpose |
 |---|---|
@@ -59,6 +59,8 @@ The v2 graph stores 22 node kinds (`file`, `module`, `class`, `struct`, `interfa
 - **PHP** emits namespaces, classes, interfaces, methods, functions, class constants, properties, `use` imports, `extends` / `implements`, and in-file `calls`.
 - **C** emits functions, structs + fields, enums + members, typedefs, `#include` imports, and in-file `calls` (no inheritance -- C has no classes).
 - **C++** emits namespaces, classes / structs, methods vs free functions, fields, enums, `#include` imports, `extends` from base-class clauses, and in-file `calls`.
+- **Swift** emits protocols, classes / structs / enums (the grammar's single `class_declaration` discriminated by keyword), methods vs top-level functions, initializers, properties, enum cases, `import` declarations, `extends` (class) / `implements` (protocol conformance) from inheritance clauses, and in-file `calls`.
+- **Kotlin** emits interfaces, classes (and `object` singletons), enum classes + entries, methods vs top-level functions, properties vs top-level constants, package namespaces, `import` declarations, `extends` / `implements` from delegation specifiers, and in-file `calls`.
 
 Three framework resolvers (Django for `urls.py` files, FastAPI / Flask for decorator-driven handlers, Express for `app.<method>` / `router.<method>` calls) run after AST extraction and emit `route` nodes plus `decorates` / `references` edges so URL handlers and middleware chains are searchable through the same `code_search` / `code_context` tools.
 

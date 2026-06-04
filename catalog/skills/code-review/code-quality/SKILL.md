@@ -229,21 +229,6 @@ When proposing fixes, follow these 7 heuristics:
 **Effort**: [Low/Medium/High]
 ```
 
-## Quality Checklist
-
-- [ ] Static analysis run
-- [ ] SOLID diagnostic questions applied to each module
-- [ ] Naming conventions reviewed
-- [ ] Function complexity checked
-- [ ] Error handling assessed
-- [ ] Code smells detected (full list)
-- [ ] Dead code candidates identified and categorized
-- [ ] Removal plan created for dead code
-- [ ] Redundancy analysis completed (dependencies, features, architecture, low-value components)
-- [ ] Trade-off removals documented with pros/cons
-- [ ] Refactor proposals follow the 7 heuristics
-- [ ] Findings documented with severity
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

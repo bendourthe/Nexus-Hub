@@ -810,21 +810,6 @@ type User {
 }
 ```
 
-## Quality Checklist
-
-- [ ] Schema follows naming conventions (PascalCase types, camelCase fields)
-- [ ] All relationship fields use DataLoader (no N+1 queries)
-- [ ] Mutations return payload types with an errors field
-- [ ] Pagination uses Relay cursor specification
-- [ ] Query depth limit configured (recommended: 10)
-- [ ] Query complexity limit configured (recommended: 1000)
-- [ ] Authentication/authorization applied to sensitive fields
-- [ ] Custom scalars used for emails, dates, URLs
-- [ ] Deprecated fields annotated with `@deprecated(reason: "...")`
-- [ ] Subscriptions authenticate on connection
-- [ ] Error handling distinguishes user errors from system errors
-- [ ] Schema documented with descriptions on types and fields
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

@@ -222,15 +222,6 @@ def transition(order: Order, to: OrderStatus) -> None:
     order.status = to
 ```
 
-## Quality Checklist
-
-- [ ] Every high-value workflow was elicited from the operator (not guessed from code alone)
-- [ ] Every invariant has a named rule and a code reference
-- [ ] Every finding names the attack class (race / TOCTOU / double-spend / workflow bypass / idempotency / check-sequence)
-- [ ] Each finding includes a reproduction sketch a tester could execute
-- [ ] Remediation is architectural (database constraint, state machine, idempotency key) rather than ad-hoc (extra `if` check)
-- [ ] Severity reflects real exploitability, not just theoretical class
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

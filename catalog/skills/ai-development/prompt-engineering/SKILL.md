@@ -1080,19 +1080,6 @@ def dynamic_few_shot(
     return [ex for _, ex in scored[:num_examples]]
 ```
 
-## Quality Checklist
-
-- [ ] System prompt defines role, rules, and output format clearly
-- [ ] Reasoning technique chosen and justified for task complexity
-- [ ] Output format specified and enforced (JSON, XML, or structured text)
-- [ ] Few-shot examples cover typical cases and edge cases
-- [ ] Input sanitization prevents prompt injection
-- [ ] Evaluation suite with automated scoring and failure analysis
-- [ ] Prompt versions tracked with content hashes and eval scores
-- [ ] Token usage measured and optimized (caching, concise phrasing)
-- [ ] Anti-patterns reviewed and eliminated
-- [ ] Production monitoring tracks output quality and cost per query
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

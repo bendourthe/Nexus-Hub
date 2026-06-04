@@ -924,21 +924,6 @@ class CounterActor(Actor):
             message["reply"].set_result(self.count)
 ```
 
-## Quality Checklist
-
-- [ ] Concurrency model matches the workload type (I/O-bound vs CPU-bound)
-- [ ] All async I/O calls have explicit timeouts
-- [ ] Bounded queues or semaphores enforce backpressure
-- [ ] Locks are never held across await points
-- [ ] Cancellation propagates through task hierarchies
-- [ ] Error handling covers partial failures in concurrent operations
-- [ ] Race detector or equivalent tool used during testing
-- [ ] No fire-and-forget tasks without supervision
-- [ ] Shared mutable state is protected by appropriate primitives
-- [ ] Retry logic includes exponential backoff with jitter
-- [ ] Structured concurrency is used where supported (TaskGroup, context.WithCancel)
-- [ ] Concurrent tests are deterministic and do not depend on timing
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

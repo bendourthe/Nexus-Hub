@@ -537,19 +537,6 @@ resource "aws_s3_bucket_versioning" "buckets" {
 }
 ```
 
-## Quality Checklist
-
-- [ ] Provider versions pinned
-- [ ] Remote state configured with locking
-- [ ] Sensitive variables marked as sensitive
-- [ ] Input validation on all variables
-- [ ] All resources tagged consistently
-- [ ] Modules have README documentation
-- [ ] No hardcoded values (use variables/data sources)
-- [ ] Security groups follow least privilege
-- [ ] Encryption enabled for storage resources
-- [ ] `terraform fmt` and `terraform validate` pass
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

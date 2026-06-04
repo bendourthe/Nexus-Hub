@@ -621,18 +621,6 @@ dotnet run --project src/ProjectName
 dotnet watch run --project src/ProjectName
 ```
 
-## Quality Checklist
-
-- [ ] Solution structure created
-- [ ] Project builds without warnings
-- [ ] Tests pass
-- [ ] Application starts
-- [ ] Swagger UI accessible
-- [ ] Health checks working
-- [ ] Code coverage > 80%
-- [ ] CI workflow configured
-- [ ] Documentation complete
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

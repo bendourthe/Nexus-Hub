@@ -486,20 +486,6 @@ Bad:  Stakeholder emails a new requirement; developer implements it immediately
 Good: Change request submitted, impact assessed, approved by designated authority, then scheduled
 ```
 
-## Quality Checklist
-
-- [ ] Stakeholder map is complete with engagement strategy per stakeholder
-- [ ] At least two elicitation techniques were used (triangulation)
-- [ ] As-is process is documented with measurable metrics
-- [ ] To-be process addresses specific identified pain points
-- [ ] Every functional requirement uses "shall" and is independently testable
-- [ ] Data dictionary defines every field with type, constraints, and business meaning
-- [ ] Gap analysis includes cost-benefit for each recommendation
-- [ ] Acceptance criteria are written in Given/When/Then format for every business rule
-- [ ] UAT plan has defined entry and exit criteria
-- [ ] Change request process is documented and stakeholders are aware of it
-- [ ] Traceability matrix links business needs to requirements to test cases with no orphans
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

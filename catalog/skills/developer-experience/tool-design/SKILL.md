@@ -265,16 +265,6 @@ This principle is enforced at review time by the **agent-native-reviewer** perso
 4. Update descriptions to clearly delineate remaining tools
 5. Re-test with the same task prompts
 
-## Quality Checklist
-
-- [ ] Each tool has a clear, specific description answering all 4 questions
-- [ ] Total active tool count is within 10-20 range
-- [ ] Parameter names are descriptive and self-documenting
-- [ ] Error messages include recovery suggestions
-- [ ] No two tools have overlapping use cases without clear differentiation
-- [ ] Tools tested with actual agent interactions
-- [ ] Negative cases documented ("Do NOT use when...")
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

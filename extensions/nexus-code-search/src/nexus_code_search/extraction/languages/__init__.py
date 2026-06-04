@@ -14,10 +14,12 @@ from nexus_code_search.extraction.languages.cpp import CppExtractor
 from nexus_code_search.extraction.languages.csharp import CSharpExtractor
 from nexus_code_search.extraction.languages.go import GoExtractor
 from nexus_code_search.extraction.languages.java import JavaExtractor
+from nexus_code_search.extraction.languages.kotlin import KotlinExtractor
 from nexus_code_search.extraction.languages.php import PhpExtractor
 from nexus_code_search.extraction.languages.python import PythonExtractor
 from nexus_code_search.extraction.languages.ruby import RubyExtractor
 from nexus_code_search.extraction.languages.rust import RustExtractor
+from nexus_code_search.extraction.languages.swift import SwiftExtractor
 from nexus_code_search.extraction.languages.typescript import TypeScriptExtractor
 
 LANGUAGE_EXTRACTORS: dict[str, type[Extractor]] = {
@@ -42,6 +44,9 @@ LANGUAGE_EXTRACTORS: dict[str, type[Extractor]] = {
     ".hpp": CppExtractor,
     ".hh": CppExtractor,
     ".hxx": CppExtractor,
+    ".swift": SwiftExtractor,
+    ".kt": KotlinExtractor,
+    ".kts": KotlinExtractor,
 }
 
 __all__ = [
@@ -52,9 +57,11 @@ __all__ = [
     "CSharpExtractor",
     "GoExtractor",
     "JavaExtractor",
+    "KotlinExtractor",
     "PhpExtractor",
     "PythonExtractor",
     "RubyExtractor",
     "RustExtractor",
+    "SwiftExtractor",
     "TypeScriptExtractor",
 ]

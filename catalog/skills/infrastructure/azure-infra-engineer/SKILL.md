@@ -659,22 +659,6 @@ jobs:
 - **Enable soft delete and purge protection** on Key Vault and Storage accounts to prevent accidental data loss
 - **Run Azure Advisor and Defender for Cloud** recommendations regularly to maintain security posture and optimize costs
 
-## Quality Checklist
-
-- [ ] Management group hierarchy follows Azure Landing Zone patterns
-- [ ] Naming convention applied consistently across all resources
-- [ ] Required tags enforced via Azure Policy
-- [ ] Hub-spoke networking topology deployed with NSGs on every subnet
-- [ ] Private Endpoints configured for all PaaS services
-- [ ] Managed identities used instead of service principal secrets
-- [ ] RBAC follows least-privilege with no Owner at subscription level
-- [ ] AKS uses workload identity and Defender for Containers
-- [ ] Storage accounts deny public access and enforce TLS 1.2
-- [ ] Diagnostic settings enabled on all resources pointing to Log Analytics
-- [ ] Alert rules configured for critical metrics with action groups
-- [ ] Infrastructure defined in Bicep or Terraform with CI/CD pipeline
-- [ ] What-If or plan step runs on every pull request
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

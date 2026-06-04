@@ -111,14 +111,6 @@ public record User(String name, String email) {}
 - **SpotBugs**: Bug detection
 - **IntelliJ Inspections**: IDE analysis
 
-## Quality Checklist
-
-- [ ] Unused imports removed
-- [ ] Deprecated APIs updated
-- [ ] Modern patterns applied
-- [ ] Checkstyle passes
-- [ ] Tests still pass
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

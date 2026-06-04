@@ -681,21 +681,6 @@ class LegacyCustomerAdapter:
         return mapping.get(legacy_class, "standard")
 ```
 
-## Quality Checklist
-
-- [ ] Quality attribute scenarios documented for top 5 concerns
-- [ ] Trade-off analysis completed for each contested decision
-- [ ] ADR written for every significant architectural choice
-- [ ] C4 context and container diagrams created and current
-- [ ] Component boundaries align with team boundaries (Conway's Law)
-- [ ] Dependency direction verified (always toward the domain)
-- [ ] Fitness functions implemented and running in CI
-- [ ] Scalability analysis completed (10x current load)
-- [ ] Failure mode analysis documented (what happens when X goes down?)
-- [ ] Security threat model completed (STRIDE or equivalent)
-- [ ] Data flow diagrams created for sensitive data paths
-- [ ] Architecture reviewed by at least one peer
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

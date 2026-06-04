@@ -969,19 +969,6 @@ def execute_research_agent(question: str) -> str:
     )
 ```
 
-## Quality Checklist
-
-- [ ] Agent architecture chosen and justified for the use case
-- [ ] Tools defined with clear descriptions and structured error responses
-- [ ] Memory system matches persistence requirements (session vs. long-term)
-- [ ] Planning loop includes replanning on failure
-- [ ] Turn and cost limits configured to prevent runaway execution
-- [ ] Guardrails validate inputs, tool calls, and outputs
-- [ ] Evaluation suite covers happy path, edge cases, and failure modes
-- [ ] Observability in place: structured logs, trace IDs, cost tracking
-- [ ] Multi-agent communication protocol defined (if applicable)
-- [ ] Prompts versioned and stored alongside code
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

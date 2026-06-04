@@ -619,22 +619,6 @@ CREATE UNIQUE INDEX idx_mv_daily_sales_date ON mv_daily_sales (sale_date);
 REFRESH MATERIALIZED VIEW CONCURRENTLY mv_daily_sales;
 ```
 
-## Quality Checklist
-
-- [ ] Entity-relationship model documented before writing DDL
-- [ ] All tables have a primary key (UUID or BIGSERIAL)
-- [ ] Foreign key constraints defined for every relationship
-- [ ] CHECK constraints enforce domain rules (positive prices, valid statuses)
-- [ ] Schema is in 3NF (intentional denormalization documented with rationale)
-- [ ] Indexes exist for all foreign keys and common query patterns
-- [ ] EXPLAIN ANALYZE run on critical queries with production-like data
-- [ ] No N+1 query patterns in application code
-- [ ] Migration scripts are versioned and tested with rollback
-- [ ] Zero-downtime migration strategy for production deployments
-- [ ] Connection pooling configured with appropriate limits
-- [ ] Timestamps use TIMESTAMPTZ (not TIMESTAMP)
-- [ ] Naming conventions are consistent (snake_case, `idx_` prefixes)
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

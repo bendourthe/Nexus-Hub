@@ -312,17 +312,6 @@ Good: "Please expand the plan with:
 
 The planning step takes 5-10 minutes but saves 30-60 minutes of iteration and debugging.
 
-## Quality Checklist
-
-- [ ] Completed exploration phase (no code written yet)
-- [ ] Reviewed findings for accuracy
-- [ ] Received detailed implementation plan
-- [ ] Reviewed and approved (or modified) the plan
-- [ ] Authorized implementation to proceed
-- [ ] Verified final implementation matches plan
-- [ ] All tests passing
-- [ ] Documentation updated
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

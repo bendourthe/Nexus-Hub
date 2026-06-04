@@ -2151,24 +2151,6 @@ struct APIClientAsyncTests {
 - **Use SwiftData for new projects, Core Data only for existing ones**: SwiftData is the modern replacement for Core Data with simpler syntax and SwiftUI integration
 - **Automate with Xcode Cloud or CI**: Run tests, linting (SwiftLint), and archive builds on every pull request. Catch regressions before they reach the main branch
 
-## Quality Checklist
-
-- [ ] Deployment target set to iOS 17+ with Swift 6 strict concurrency enabled
-- [ ] Project organized with feature modules and local Swift packages for shared logic
-- [ ] All views use @Observable for state management, not ObservableObject
-- [ ] Navigation uses NavigationStack with type-safe routes
-- [ ] All external dependencies defined as protocols for testability
-- [ ] View models marked @MainActor with async methods for data loading
-- [ ] Sensitive data stored in Keychain, not UserDefaults
-- [ ] Networking layer uses async/await with proper error handling and Codable
-- [ ] SwiftData models configured with proper relationships and constraints
-- [ ] Accessibility labels provided for all interactive elements
-- [ ] Unit tests cover view model logic with protocol-based mocks
-- [ ] UI tests cover critical user flows (sign in, main action, purchase)
-- [ ] Privacy usage descriptions set in Info.plist for all requested permissions
-- [ ] Background tasks registered and scheduled correctly
-- [ ] StoreKit 2 transaction listener active on app launch
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

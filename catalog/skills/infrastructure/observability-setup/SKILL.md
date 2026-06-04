@@ -702,21 +702,6 @@ def on_order_created(order):
     order_value.observe(order.total)
 ```
 
-## Quality Checklist
-
-- [ ] OpenTelemetry SDK initialized before any application code runs
-- [ ] Structured JSON logging configured with trace ID correlation
-- [ ] RED metrics (Rate, Errors, Duration) instrumented for all HTTP endpoints
-- [ ] USE metrics (Utilization, Saturation, Errors) instrumented for infrastructure resources
-- [ ] SLOs defined for critical user journeys
-- [ ] Multi-window burn-rate alerting rules deployed
-- [ ] Grafana dashboards display request rate, latency percentiles, and error budget
-- [ ] Health and readiness endpoints exposed (excluded from tracing)
-- [ ] Log retention and sampling policies documented
-- [ ] Metric label cardinality reviewed (no unbounded labels)
-- [ ] Runbook links included in all alert annotations
-- [ ] Traces propagate across service boundaries via W3C Trace Context headers
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

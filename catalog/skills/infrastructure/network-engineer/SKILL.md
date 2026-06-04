@@ -1053,21 +1053,6 @@ Route 53 (Latency) ──► US: CloudFront ──► ALB us-east-1
 Client ──► Verified Access (identity check) ──► Private ALB ──► App (mTLS mesh)
 ```
 
-## Quality Checklist
-
-- [ ] CIDR ranges documented and non-overlapping across all VPCs
-- [ ] Three-AZ deployment for all production workloads
-- [ ] NAT Gateway per AZ (not shared) for high availability
-- [ ] Security groups follow least-privilege (no 0.0.0.0/0 ingress)
-- [ ] NACLs on isolated subnets deny all except required ports
-- [ ] VPC Flow Logs enabled and shipping to S3 and CloudWatch
-- [ ] DNS failover health checks configured with appropriate thresholds
-- [ ] Load balancer health checks test downstream dependencies
-- [ ] WAF rules deployed with AWS Managed Rule Sets at minimum
-- [ ] TLS 1.2+ enforced on all listeners and origins
-- [ ] CDN configured with origin shield and versioned static assets
-- [ ] Network architecture diagram current and accessible
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

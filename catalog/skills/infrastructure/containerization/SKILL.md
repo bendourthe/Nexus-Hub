@@ -671,21 +671,6 @@ RUN --mount=type=secret,id=npmrc,target=/app/.npmrc \
 docker build --secret id=npmrc,src=$HOME/.npmrc .
 ```
 
-## Quality Checklist
-
-- [ ] Multi-stage build separates build dependencies from runtime
-- [ ] Base image is pinned (tag + digest) and minimal (slim/distroless)
-- [ ] Container runs as non-root with dropped capabilities
-- [ ] .dockerignore excludes secrets, tests, docs, and .git
-- [ ] Healthcheck defined in Dockerfile or Compose
-- [ ] CMD/ENTRYPOINT uses exec form (JSON array)
-- [ ] No secrets baked into the image (use runtime injection)
-- [ ] Vulnerability scanning runs in CI and blocks on critical findings
-- [ ] Image tagged with SHA and semantic version
-- [ ] Resource limits (memory, CPU) specified in orchestration config
-- [ ] Layer order optimized for cache efficiency
-- [ ] Development Compose uses volumes for hot reload
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

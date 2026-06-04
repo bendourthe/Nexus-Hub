@@ -1262,19 +1262,6 @@ Push to main -> Build + test -> Deploy to staging (rolling)
     -> Full rollout -> Notify Slack
 ```
 
-## Quality Checklist
-
-- [ ] Service catalog contains all production services with owners and dependencies
-- [ ] At least one golden path template exists for the most common service type
-- [ ] Shared CI/CD templates are versioned and consumed by 80%+ of services
-- [ ] DORA metrics are collected and visible to all engineering teams
-- [ ] Mutual TLS is enforced for all service-to-service communication
-- [ ] No secrets are stored in Git (sealed secrets or external-secrets-operator in use)
-- [ ] Policy-as-code blocks deployments missing required labels and resource limits
-- [ ] Cost tags are enforced on all cloud resources
-- [ ] Platform SLOs are defined, measured, and reviewed monthly
-- [ ] Developer onboarding documentation is current and tested quarterly
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

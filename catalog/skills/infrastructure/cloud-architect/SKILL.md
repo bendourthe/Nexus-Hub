@@ -508,19 +508,6 @@ API Gateway → ALB → EKS with Istio
 | DNS | Route 53 | DNS | Cloud DNS |
 | IAM | IAM | Entra ID | IAM |
 
-## Quality Checklist
-
-- [ ] Multi-AZ deployment for high availability
-- [ ] Encryption at rest and in transit
-- [ ] Least privilege IAM policies
-- [ ] VPC with private subnets for workloads
-- [ ] Auto-scaling configured
-- [ ] Backup and recovery tested
-- [ ] Monitoring and alerting in place
-- [ ] Cost allocation tags applied
-- [ ] Security groups follow least privilege
-- [ ] Architecture documented
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

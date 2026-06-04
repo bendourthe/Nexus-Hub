@@ -726,19 +726,6 @@ deploy:
     !contains(github.event.head_commit.message, '[skip deploy]')
 ```
 
-## Quality Checklist
-
-- [ ] Pipeline runs on both PRs and main branch
-- [ ] Tests run before deployment
-- [ ] Security scanning integrated (SAST, dependencies)
-- [ ] Container images scanned for vulnerabilities
-- [ ] Secrets stored securely (not in code)
-- [ ] Caching configured for dependencies
-- [ ] Deployment requires approval for production
-- [ ] Rollback mechanism documented and tested
-- [ ] Pipeline notifications configured
-- [ ] Branch protection rules enabled
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

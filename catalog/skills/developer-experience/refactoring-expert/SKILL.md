@@ -420,17 +420,6 @@ class NewDataStore(DataStore):
 # Step 4: Switch implementations via config/feature flag
 ```
 
-## Quality Checklist
-
-- [ ] Tests exist and pass before refactoring
-- [ ] Each change is small and atomic
-- [ ] Tests run and pass after each change
-- [ ] No behavior changes introduced
-- [ ] Code is more readable/maintainable
-- [ ] No new code smells introduced
-- [ ] Changes are committed incrementally
-- [ ] Refactoring is documented
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

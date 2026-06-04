@@ -385,19 +385,6 @@ kind: Ingress
 {{- end }}
 ```
 
-## Quality Checklist
-
-- [ ] Resource requests and limits defined for all containers
-- [ ] Liveness and readiness probes configured
-- [ ] Security context with non-root user
-- [ ] NetworkPolicies applied (default deny)
-- [ ] RBAC with least privilege
-- [ ] Secrets managed properly (not in plain text)
-- [ ] PodDisruptionBudget configured
-- [ ] HPA configured if needed
-- [ ] Image tags are specific (not `latest`)
-- [ ] Labels and annotations applied consistently
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

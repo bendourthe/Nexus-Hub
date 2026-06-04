@@ -549,18 +549,6 @@ npm create vite@latest project-name -- --template react-ts
 }
 ```
 
-## Quality Checklist
-
-- [ ] package.json configured
-- [ ] TypeScript compiles without errors
-- [ ] ESLint passes
-- [ ] Prettier formatting applied
-- [ ] Tests pass with coverage
-- [ ] CI workflow configured
-- [ ] Documentation complete
-- [ ] Git initialized
-- [ ] README accurate
-
 ## Common Rationalizations
 
 | Rationalization | Reality |

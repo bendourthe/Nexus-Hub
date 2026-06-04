@@ -709,22 +709,6 @@ TEST_F(UserTest, IdentifiesMinorsCorrectly) {
    - Fix test or code as appropriate
    - Re-run to verify fix
 
-## Quality Checklist
-
-Before completing unit test generation, verify:
-
-- [ ] All public functions/methods have tests
-- [ ] Happy path scenarios covered
-- [ ] Edge cases tested (empty, null, boundary)
-- [ ] Error conditions tested with proper assertions
-- [ ] Tests follow AAA pattern consistently
-- [ ] Tests are independent (pass when run alone or together)
-- [ ] Tests execute quickly (<100ms each)
-- [ ] Parametrized tests used for multiple inputs
-- [ ] Meaningful test names describe expected behavior
-- [ ] No test pollution or shared mutable state
-- [ ] Coverage meets 80%+ target
-
 ## Common Anti-Patterns to Avoid
 
 ### Testing Implementation Instead of Behavior
