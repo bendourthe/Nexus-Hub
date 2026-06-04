@@ -10,7 +10,7 @@ Nexus-Hub produces and distributes exactly the artifact this scans (`SKILL.md` f
 
 ## Detection classes
 
-The scanner covers 16 classes (prompt injection, data exfiltration, privilege escalation, supply chain, excessive agency, output handling, system-prompt leakage, memory poisoning, tool misuse, rogue agent, trigger abuse, behavioral AST, taint tracking, YARA signatures, MCP least privilege, MCP tool poisoning). Class 14 (YARA) and the live OSV.dev dependency lookup are optional Phase 7 modules. Each finding is tagged with its primary MITRE ATT&CK / ATLAS / D3FEND / NIST CSF identifiers; the full taxonomy lives in `catalog/skills/security/skill-security-scan/references/detection-classes.md`.
+The scanner covers 16 classes (prompt injection, data exfiltration, privilege escalation, supply chain, excessive agency, output handling, system-prompt leakage, memory poisoning, tool misuse, rogue agent, trigger abuse, behavioral AST, taint tracking, signature rules, MCP least privilege, MCP tool poisoning). Class 14 (signature rules, `--yara`) and the live portion of class 4 (OSV.dev dependency lookup, `--osv`) are optional, default-off modules: both are opt-in, both degrade gracefully when unavailable, and the default scan stays stdlib-only and offline. The signature module is a self-contained pure-Python rule engine (no native binding); the OSV lookup is offline-first against a bundled advisory DB. Each finding is tagged with its primary MITRE ATT&CK / ATLAS / D3FEND / NIST CSF identifiers; the full taxonomy lives in `catalog/skills/security/skill-security-scan/references/detection-classes.md`.
 
 ## Producer-catalog discipline
 
@@ -38,7 +38,8 @@ Options:
 - `--output PATH` - write the report to a file instead of stdout.
 - `--fail-on {none,low,medium,high,critical}` - exit 1 if any finding meets or exceeds this severity.
 - `--no-llm` - documented no-op: the engine is always deterministic; the semantic pass is the `skill-security-scan` skill.
-- `--osv` - (Phase 7) opt-in OSV.dev dependency lookup; reported as skipped until then.
+- `--yara` - opt-in local signature-rule engine (class 14: malware / web shell / cryptominer / exploit). Pure-Python, no native binding, no network. Degrades to skipped if the bundled rules cannot be loaded.
+- `--osv` - opt-in dependency-vulnerability lookup (class 4). Offline-first against a bundled advisory DB; the live OSV.dev query (single opt-in outbound call) sends only the `{ecosystem, package, version}` tuple and degrades to the offline DB on any network failure.
 
 Exit codes: `0` clean / below threshold, `1` findings at or above `--fail-on`, `2` usage or IO error.
 

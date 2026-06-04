@@ -11,8 +11,14 @@ Options mirror the established skill-scanner CLI shape:
     --no-llm                                  documented default: the engine is
                                               always deterministic; the semantic
                                               pass is the skill-security-scan skill
-    --osv                                     (Phase 7) opt-in OSV.dev dep lookup;
-                                              not yet available -- reported as skipped
+    --yara                                    opt-in local signature-rule engine
+                                              (class 14: malware/webshell/miner/
+                                              exploit); pure-Python, no network
+    --osv                                     opt-in dependency-vulnerability
+                                              lookup (class 4); offline-first with
+                                              a bundled advisory DB, and a live
+                                              OSV.dev query that sends only the
+                                              {ecosystem,package,version} tuple
     --repo-root PATH                          Nexus-Hub checkout root (auto-detected)
     -V / --version                            print the scanner version
 
@@ -55,8 +61,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="no-op: the engine is always deterministic; the semantic pass is a skill",
     )
     parser.add_argument(
+        "--yara", action="store_true",
+        help="opt-in local signature-rule engine (class 14); pure-Python, no network",
+    )
+    parser.add_argument(
         "--osv", action="store_true",
-        help="(Phase 7) opt-in OSV.dev dependency lookup; not yet available",
+        help="opt-in dependency-vulnerability lookup (class 4); offline-first, sends only package coordinates to OSV.dev",
     )
     parser.add_argument("--repo-root", type=Path, default=None, help="Nexus-Hub checkout root")
     parser.add_argument("-V", "--version", action="version", version=f"nexus-skill-scanner {__version__}")
@@ -80,12 +90,16 @@ def run(argv: list[str] | None = None) -> int:
         return 2
 
     repo_root = args.repo_root or find_repo_root(targets[0])
-    scanner = Scanner(repo_root=repo_root)
+    # The two Phase 7 modules are opt-in. --osv enables the live OSV.dev query
+    # (the single opt-in outbound call); it is offline-first and degrades to the
+    # bundled advisory DB on any network failure.
+    scanner = Scanner(
+        repo_root=repo_root,
+        enable_signatures=args.yara,
+        enable_osv=args.osv,
+        osv_online=args.osv,
+    )
     result = scanner.scan(targets)
-
-    # Optional modules that are not part of the deterministic Phase 6 core.
-    if args.osv:
-        result.skipped_modules.append("osv (Phase 7, not yet available)")
 
     output = render(result, args.format)
     if args.output:

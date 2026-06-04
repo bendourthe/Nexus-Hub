@@ -1,7 +1,7 @@
 # Known Gaps -- v3.0.0
 
 **Status**: in progress (accumulating across phases; finalized at the v3.0.0 release in Phase 10)
-**Last updated**: 2026-06-03 (Phase 6)
+**Last updated**: 2026-06-04 (Phase 7)
 
 This file tracks per-phase unfinished work, intentional deferrals, bugs, missing tests, warnings, and bypassed quality gates for the v3.0.0 `command-consolidation-skill-security` plan. The next version's `/generate-plan` ingests the open items here. Category prefixes: `NI` (not implemented / skipped subtask), `DF` (intentionally deferred), `BG` (bug), `MT` (missing test), `WN` (warning / suppressed rule), `QG` (quality gate bypassed).
 
@@ -10,12 +10,12 @@ This file tracks per-phase unfinished work, intentional deferrals, bugs, missing
 | Category | Open | Resolved |
 |---|---|---|
 | NI | 0 | 0 |
-| DF | 2 | 0 |
+| DF | 3 | 0 |
 | BG | 0 | 0 |
 | MT | 0 | 0 |
-| WN | 3 | 0 |
+| WN | 4 | 0 |
 | QG | 0 | 0 |
-| **Total** | **5** | **0** |
+| **Total** | **7** | **0** |
 
 ## Open Items
 
@@ -26,6 +26,8 @@ This file tracks per-phase unfinished work, intentional deferrals, bugs, missing
 | DF-v30-1 | DF | Phase 6 | T027 (static analyzers) | The `nexus-skill-scanner` ships the highest-signal patterns for each of the 15 static classes (1-13, 15-16), not the full ~64-pattern surface described in the comparison. This is the deliberate "start with the highest-signal classes and grow the pattern set per release" approach from `comparison-skillspector.md` Section 13. Coverage is sufficient to score the planted-malicious fixture CRITICAL and pass the clean catalog, but individual classes (e.g. memory poisoning, tool misuse, output handling) have a thin pattern set. | Grow the per-class pattern set in subsequent releases, adding eval fixtures per new pattern; prioritize classes by observed catalog/third-party false-negative rate. Class 14 (YARA) and the live OSV.dev lookup are scheduled for Phase 7, not gaps. | Low (by-design incremental coverage; gate + semantic skill compensate) |
 | DF-v30-2 | DF | Phase 6 | T027 (taint tracking) | Class 13 taint tracking is a module-scoped over-approximating heuristic: it marks names assigned from a tainted source (os.environ / os.getenv / input / sys.stdin) and flags them reaching a code-exec sink (HIGH) or process-exec sink (MEDIUM). It is flat (not intra-procedural / flow-sensitive), so it can over- or under-approximate across function boundaries. Severities are capped so the heuristic cannot trip the HIGH gate except on the genuinely dangerous input->exec/eval flow (which the catalog has none of). | If false positives/negatives emerge in practice, replace with a flow-sensitive intra-procedural dataflow pass (per-function def-use chains). Add adversarial taint fixtures. | Low (conservative severities; bounded blast radius) |
 | WN-v30-3 | WN | Phase 6 | T032 (stabilization) | Local verification on the Windows dev host was partial: `make` and `ruff` are not installed, so `make validate`/`make scan`/`make test` were emulated by invoking each validator and the scanner directly (all green: 38 package tests + 134 repo validator tests, version-sync, supply-chain, workflow-security, bundle audit, and the new catalog scan gate at exit 0), `py_compile` was used in place of `ruff`, and the ShellCheck pass on the two new installer copy blocks was deferred to CI. The new installer blocks reuse the exact `safe_copy ... true "..."` / `Safe-Copy ... -Confirm:$true` pattern of their sibling validator-copy blocks, so they are ShellCheck-clean by construction. | Confirm the CI `validate`, `tests`, and `shellcheck` jobs are green for this commit on the ubuntu runner (which runs `ruff`/`make` equivalents and the editable install + pytest); no code change expected. | Low (covered by CI) |
+| DF-v30-3 | DF | Phase 7 | T033 / T034 (optional modules) | The two Phase 7 optional modules ship deliberately minimal starter content: the signature engine bundles 12 re-authored rules across 3 files (cryptominers, reverse-shell/exploit cradles, web shells), and the offline OSV advisory DB seeds 5 well-documented public advisories. Both are sufficient to demonstrate detection and graceful degradation, but neither is comprehensive coverage of its class. This mirrors the DF-v30-1 "highest-signal first, grow per release" philosophy. | Grow the signature rule set (add a generic-malware/loader file and per-language web-shell coverage) and expand the offline advisory seed per release, each with a paired test fixture; the live `--osv` lookup already supplements the offline DB when enabled. | Low (by-design incremental coverage; modules are opt-in and adjudicated by the skill) |
+| WN-v30-4 | WN | Phase 7 | T035 (stabilization) | Local verification on the Windows dev host was partial: `make` is not on PATH, so `make validate`/`make test` were emulated by invoking each validator and the package test suite directly (all green: 72 package tests incl. the new 18 signature tests, version-sync, supply-chain, workflow-security, and the bundle audit at exit 0; `ruff check` ran clean on the changed files). Phase 7 made no shell/installer changes (Python modules + bundled data + README only), so there is no ShellCheck surface this phase. | Confirm the CI `validate` and `tests` jobs are green for this commit on the ubuntu runner (which runs the editable install + `pytest extensions/nexus-skill-scanner/tests/`); no code change expected. | Low (covered by CI) |
 
 ## Resolved
 

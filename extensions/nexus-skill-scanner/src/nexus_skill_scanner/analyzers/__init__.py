@@ -12,14 +12,28 @@ from pathlib import Path
 
 from .base import Analyzer
 from .behavioral_ast import BehavioralASTAnalyzer
+from .dependencies import DependencyVulnerabilityAnalyzer, OSVClient
 from .mcp import MCPConfigAnalyzer
+from .signatures import SignatureAnalyzer
 from .subsumed import SecretsAnalyzer, SupplyChainAnalyzer, WorkflowSecurityAnalyzer
 from .text_patterns import TextPatternAnalyzer
 
 
-def build_analyzers(repo_root: Path | None) -> list[Analyzer]:
-    """Instantiate every analyzer for a scan rooted at ``repo_root``."""
-    return [
+def build_analyzers(
+    repo_root: Path | None,
+    *,
+    enable_signatures: bool = False,
+    enable_osv: bool = False,
+    osv_online: bool = False,
+    osv_client: OSVClient | None = None,
+) -> list[Analyzer]:
+    """Instantiate the analyzers for a scan rooted at ``repo_root``.
+
+    The six core analyzers (the deterministic Phase 6 engine) always run. The
+    two Phase 7 modules are appended only when explicitly enabled, so a default
+    scan is byte-identical to Phase 6 and makes no network call.
+    """
+    analyzers: list[Analyzer] = [
         TextPatternAnalyzer(),
         BehavioralASTAnalyzer(),
         MCPConfigAnalyzer(),
@@ -27,6 +41,11 @@ def build_analyzers(repo_root: Path | None) -> list[Analyzer]:
         SupplyChainAnalyzer(repo_root),
         WorkflowSecurityAnalyzer(repo_root),
     ]
+    if enable_signatures:
+        analyzers.append(SignatureAnalyzer())
+    if enable_osv:
+        analyzers.append(DependencyVulnerabilityAnalyzer(client=osv_client, online=osv_online))
+    return analyzers
 
 
 __all__ = [
@@ -38,4 +57,7 @@ __all__ = [
     "SecretsAnalyzer",
     "SupplyChainAnalyzer",
     "WorkflowSecurityAnalyzer",
+    "SignatureAnalyzer",
+    "DependencyVulnerabilityAnalyzer",
+    "OSVClient",
 ]

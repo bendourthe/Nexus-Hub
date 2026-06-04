@@ -1,0 +1,50 @@
+{
+  "_comment": "Offline-first advisory seed for the OSV.dev dependency module (detection class 4). This small, curated list of well-documented public advisories lets the scanner flag the most common vulnerable pins with zero network access (air-gapped). When --osv is passed, the live OSV.dev API supplements this list; on any network failure the scanner degrades to this offline set. Each entry records public advisory identifiers (OSV / CVE / GHSA) as factual references; the summaries are re-authored, not copied. 'vulnerable' is a comma-separated set of version constraints that ALL must hold for a coordinate to be considered affected; '*' matches every version.",
+  "advisories": [
+    {
+      "ecosystem": "PyPI",
+      "package": "requests",
+      "vulnerable": "<2.20.0",
+      "id": "GHSA-x84v-xcm2-53pg",
+      "aliases": ["CVE-2018-18074"],
+      "severity": "medium",
+      "summary": "requests before 2.20.0 sends the Authorization header to a different host across an HTTPS-to-HTTP redirect, leaking credentials."
+    },
+    {
+      "ecosystem": "PyPI",
+      "package": "urllib3",
+      "vulnerable": ">=1.0.0,<1.24.2",
+      "id": "GHSA-mh33-7rrq-662w",
+      "aliases": ["CVE-2019-11324"],
+      "severity": "high",
+      "summary": "urllib3 before 1.24.2 mishandles certificate verification when a CA directory is supplied, weakening TLS validation."
+    },
+    {
+      "ecosystem": "PyPI",
+      "package": "pyyaml",
+      "vulnerable": "<5.4",
+      "id": "GHSA-8q59-q68h-6hv4",
+      "aliases": ["CVE-2020-14343"],
+      "severity": "critical",
+      "summary": "PyYAML before 5.4 allows arbitrary code execution when untrusted input is parsed with the full loader (yaml.load without SafeLoader)."
+    },
+    {
+      "ecosystem": "npm",
+      "package": "lodash",
+      "vulnerable": "<4.17.12",
+      "id": "GHSA-jf85-cpcp-j695",
+      "aliases": ["CVE-2019-10744"],
+      "severity": "high",
+      "summary": "lodash before 4.17.12 is vulnerable to prototype pollution via defaultsDeep, allowing modification of Object.prototype."
+    },
+    {
+      "ecosystem": "npm",
+      "package": "minimist",
+      "vulnerable": "<1.2.6",
+      "id": "GHSA-xvch-5gv4-984h",
+      "aliases": ["CVE-2021-44906"],
+      "severity": "critical",
+      "summary": "minimist before 1.2.6 is vulnerable to prototype pollution through crafted command-line arguments."
+    }
+  ]
+}

@@ -13,6 +13,7 @@ from pathlib import Path
 
 from .analyzers import build_analyzers
 from .analyzers.base import FileUnit
+from .analyzers.dependencies import OSVClient
 from .analyzers.subsumed import find_repo_root
 from .scoring import score_findings
 from .types import Finding, ScanResult
@@ -38,11 +39,32 @@ MAX_FILE_BYTES = 5 * 1024 * 1024
 
 
 class Scanner:
-    """Configurable static skill-security scanner."""
+    """Configurable static skill-security scanner.
 
-    def __init__(self, repo_root: Path | None = None) -> None:
+    The optional Phase 7 modules are off by default. ``enable_signatures``
+    (``--yara``) adds the local signature-rule engine; ``enable_osv``
+    (``--osv``) adds the dependency-vulnerability lookup, whose live OSV.dev
+    query is gated behind ``osv_online``. Tests inject ``osv_client`` to keep
+    the network out of CI.
+    """
+
+    def __init__(
+        self,
+        repo_root: Path | None = None,
+        *,
+        enable_signatures: bool = False,
+        enable_osv: bool = False,
+        osv_online: bool = False,
+        osv_client: OSVClient | None = None,
+    ) -> None:
         self.repo_root = repo_root
-        self._analyzers = build_analyzers(repo_root)
+        self._analyzers = build_analyzers(
+            repo_root,
+            enable_signatures=enable_signatures,
+            enable_osv=enable_osv,
+            osv_online=osv_online,
+            osv_client=osv_client,
+        )
 
     def _rel(self, path: Path, base: Path) -> str:
         try:
@@ -93,29 +115,48 @@ class Scanner:
         # Stable ordering: by file, then line, then descending severity.
         all_findings.sort(key=lambda f: (f.file, f.line, -f.severity.rank))
         score, band = score_findings(all_findings)
-        return ScanResult(
+        result = ScanResult(
             target=label,
             findings=all_findings,
             files_scanned=files_scanned,
             score=score,
             band=band,
         )
+        # Surface graceful-degrade notes from any optional analyzer (e.g. the
+        # OSV live lookup degrading to the offline DB, or the signature engine
+        # finding no rules). Deduplicated; core analyzers have no `skipped`.
+        for analyzer in self._analyzers:
+            for note in getattr(analyzer, "skipped", ()) or ():
+                if note not in result.skipped_modules:
+                    result.skipped_modules.append(note)
+        return result
 
 
 def scan_target(
     target: str | Path | list[str | Path],
     repo_root: str | Path | None = None,
+    *,
+    enable_signatures: bool = False,
+    enable_osv: bool = False,
+    osv_online: bool = False,
+    osv_client: OSVClient | None = None,
 ) -> ScanResult:
     """Convenience entry: scan a target (or targets) and return the result.
 
     ``repo_root`` controls where the subsumed validators are loaded from and
     how file paths are reported; when omitted it is auto-detected by walking up
-    from the first target.
+    from the first target. The optional-module flags mirror ``Scanner``.
     """
     raw_targets = target if isinstance(target, list) else [target]
     targets = [Path(t) for t in raw_targets]
     root = Path(repo_root) if repo_root else None
     if root is None and targets:
         root = find_repo_root(targets[0])
-    scanner = Scanner(repo_root=root)
+    scanner = Scanner(
+        repo_root=root,
+        enable_signatures=enable_signatures,
+        enable_osv=enable_osv,
+        osv_online=osv_online,
+        osv_client=osv_client,
+    )
     return scanner.scan(targets)
