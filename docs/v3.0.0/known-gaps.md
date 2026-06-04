@@ -1,7 +1,7 @@
 # Known Gaps -- v3.0.0
 
 **Status**: in progress (accumulating across phases; finalized at the v3.0.0 release in Phase 10)
-**Last updated**: 2026-06-04 (Phase 7)
+**Last updated**: 2026-06-04 (Phase 8)
 
 This file tracks per-phase unfinished work, intentional deferrals, bugs, missing tests, warnings, and bypassed quality gates for the v3.0.0 `command-consolidation-skill-security` plan. The next version's `/generate-plan` ingests the open items here. Category prefixes: `NI` (not implemented / skipped subtask), `DF` (intentionally deferred), `BG` (bug), `MT` (missing test), `WN` (warning / suppressed rule), `QG` (quality gate bypassed).
 
@@ -10,12 +10,12 @@ This file tracks per-phase unfinished work, intentional deferrals, bugs, missing
 | Category | Open | Resolved |
 |---|---|---|
 | NI | 0 | 0 |
-| DF | 3 | 0 |
+| DF | 4 | 0 |
 | BG | 0 | 0 |
 | MT | 0 | 0 |
-| WN | 4 | 0 |
+| WN | 6 | 0 |
 | QG | 0 | 0 |
-| **Total** | **7** | **0** |
+| **Total** | **10** | **0** |
 
 ## Open Items
 
@@ -28,6 +28,9 @@ This file tracks per-phase unfinished work, intentional deferrals, bugs, missing
 | WN-v30-3 | WN | Phase 6 | T032 (stabilization) | Local verification on the Windows dev host was partial: `make` and `ruff` are not installed, so `make validate`/`make scan`/`make test` were emulated by invoking each validator and the scanner directly (all green: 38 package tests + 134 repo validator tests, version-sync, supply-chain, workflow-security, bundle audit, and the new catalog scan gate at exit 0), `py_compile` was used in place of `ruff`, and the ShellCheck pass on the two new installer copy blocks was deferred to CI. The new installer blocks reuse the exact `safe_copy ... true "..."` / `Safe-Copy ... -Confirm:$true` pattern of their sibling validator-copy blocks, so they are ShellCheck-clean by construction. | Confirm the CI `validate`, `tests`, and `shellcheck` jobs are green for this commit on the ubuntu runner (which runs `ruff`/`make` equivalents and the editable install + pytest); no code change expected. | Low (covered by CI) |
 | DF-v30-3 | DF | Phase 7 | T033 / T034 (optional modules) | The two Phase 7 optional modules ship deliberately minimal starter content: the signature engine bundles 12 re-authored rules across 3 files (cryptominers, reverse-shell/exploit cradles, web shells), and the offline OSV advisory DB seeds 5 well-documented public advisories. Both are sufficient to demonstrate detection and graceful degradation, but neither is comprehensive coverage of its class. This mirrors the DF-v30-1 "highest-signal first, grow per release" philosophy. | Grow the signature rule set (add a generic-malware/loader file and per-language web-shell coverage) and expand the offline advisory seed per release, each with a paired test fixture; the live `--osv` lookup already supplements the offline DB when enabled. | Low (by-design incremental coverage; modules are opt-in and adjudicated by the skill) |
 | WN-v30-4 | WN | Phase 7 | T035 (stabilization) | Local verification on the Windows dev host was partial: `make` is not on PATH, so `make validate`/`make test` were emulated by invoking each validator and the package test suite directly (all green: 72 package tests incl. the new 18 signature tests, version-sync, supply-chain, workflow-security, and the bundle audit at exit 0; `ruff check` ran clean on the changed files). Phase 7 made no shell/installer changes (Python modules + bundled data + README only), so there is no ShellCheck surface this phase. | Confirm the CI `validate` and `tests` jobs are green for this commit on the ubuntu runner (which runs the editable install + `pytest extensions/nexus-skill-scanner/tests/`); no code change expected. | Low (covered by CI) |
+| DF-v30-4 | DF | Phase 8 | T036 (deprecation shims) | The 40 renamed command files ship as forwarding deprecation shims for the entire v3.x line per the consolidation design (`command-consolidation-design.md` Section 5 step 6); they are intentionally retained (not removed) in v3.0.0 so old invocations keep working. The historical "41 -> 14" count references in `catalog/style-guides/command-scope-mechanism.md`, `command-consolidation-design.md`, `comparison-skillspector.md`, and the plan are likewise intentionally preserved. | At v4.0.0, delete the 40 shim files in `catalog/commands/`, drop the "+ 40 deprecated v3.x shims" clause from the AGENTS.md / README / marketplace.json count prose, and remove the shim section from `docs/v3.0.0/command-migration.md`. Track via a dedicated v4.0.0 plan. | Low (by design; shims are zero-cost forwarders) |
+| WN-v30-5 | WN | Phase 8 | T039 (stabilization) | Local verification on the Windows dev host was partial: `make` is not on PATH, so `make validate` was emulated by invoking each validator directly (all green: edited `marketplace.json`/`plugin.json` are valid JSON, `skills.json` 247, bundle audit PASS 0 errors / 1 pre-existing warning, unicode-safety 0 errors, no-personal-paths / supply-chain / workflow-security / solution-frontmatter all exit 0, `check_version_sync.py` green at 2.4.0 across all six surfaces, and 40/40 shims verified to forward to the correct new command + scope). Phase 8 made no shell/installer/Python changes (40 markdown shims + 1 migration doc + count prose only), so there is no ShellCheck or new-code pytest surface and `make test` was not run. | Confirm the CI `validate` job is green for this commit on the ubuntu runner; no code change expected. | Low (covered by CI) |
+| WN-v30-6 | WN | Phase 8 | T038 (count reconciliation) | While reconciling the command count to 14 across all surfaces, a separate pre-existing SKILL-count drift was observed: `data/marketplace.json` and `.claude-plugin/plugin.json` descriptions still read "245 curated skills" while the catalog is 247 (`AGENTS.md` / `README.md` were bumped 245 -> 247 in Phase 2, but these two JSON descriptions were not). Left untouched this phase to stay within the command-count scope. Note: T038 was deliberately extended by one surface (`.claude-plugin/plugin.json`, not in T038's enumerated list) so the command count would not be left stale in the canonical manifest. | Reconcile "245" -> "247" in both JSON descriptions during Phase 10 `/update release`. Consider extending `check_version_sync.py` (or a new count-consistency check) to assert skill / command / hook / agent counts agree across all prose surfaces, closing the WN-v24-1 count-drift class for non-version counts too. | Low (cosmetic prose drift; not a functional or version-sync issue) |
 
 ## Resolved
 

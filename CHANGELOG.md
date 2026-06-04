@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-v3.0.0 work in progress (plan: `docs/v3.0.0/plans/command-consolidation-skill-security.md`). The full v3.0.0 entry, including the 41 -> 14 command rename table and the breaking-change notice, is finalized at release in Phase 10.
+v3.0.0 work in progress (plan: `docs/v3.0.0/plans/command-consolidation-skill-security.md`). The 41 -> 14 command rename table lands below under Deprecated (Phase 8); the full v3.0.0 entry and the consolidated breaking-change summary are finalized at release in Phase 10.
 
 ### Added
 
@@ -25,6 +25,55 @@ v3.0.0 work in progress (plan: `docs/v3.0.0/plans/command-consolidation-skill-se
 - `README.md` and `AGENTS.md` now carry a machine-readable `<!-- nexus-hub-version: X.Y.Z -->` marker (invisible when rendered) so the version-sync guard can assert their catalog-version prose and `/update version` has a precise bump anchor.
 - `multi-agent-coordinator` enriched with the context-centric-decomposition principle (split by context boundaries, not by role; the agent that implements a feature also writes its tests), a "when NOT to go multi-agent" gate that defers the primitive choice to `agent-orchestration-primitives`, and a cross-link to the five-pattern catalog.
 - Catalog grows to **247 skills** across 21 categories; README/AGENTS skill-count prose updated 245 -> 247.
+
+### Deprecated
+
+- **Command surface consolidated 41 -> 14 verb-first commands** (a breaking interface change; old names keep working through v3.x and are removed at v4.0.0). The new surface is `describe`, `plan`, `implement`, `test`, `review`, `update`, `compare`, `research`, `skills`, `spec`, `session`, `setup`, `memory`, `usage`, plus the two permanent convenience aliases `/constitution` (-> `/spec constitution`) and `/commit` (-> `/update commit`). Each new command is a thin dispatcher that delegates to the same retained skill, so no behavior is removed. The 40 renamed command names keep working for the whole v3.x line as deprecation shims that print a one-line notice and forward to the new command + scope. Full guidance: [`docs/v3.0.0/command-migration.md`](docs/v3.0.0/command-migration.md).
+
+The old -> new command rename table:
+
+| Old command | New command + scope |
+|---|---|
+| `/analyze-codebase` | `/describe full` |
+| `/generate-plan` | `/plan` (interactive: `new` / `feature` / `refactor` / `from-comparison`) |
+| `/generate-todos` | `/plan todos` |
+| `/tasks-to-issues` | `/plan issues` |
+| `/implement-phase` | `/implement` (positional `<slug>` / `phase-N` / `next`) |
+| `/generate-tests` | `/test all` |
+| `/generate-unit-tests` | `/test unit` |
+| `/tdd` | `/test tdd` |
+| `/review-codebase` | `/review full` |
+| `/review-changes` | `/review changes` |
+| `/run-deep-review` | `/review full` |
+| `/run-security-audit` | `/review security` |
+| `/run-penetration-test` | `/review pentest` |
+| `/generate-sbom` | `/review sbom` |
+| `/update-documentation` | `/update docs` |
+| `/generate-readme` | `/update docs` |
+| `/update-devlog` | `/update devlog` |
+| `/generate-devlog` | `/update devlog` |
+| `/update-gitignore` | `/update gitignore` |
+| `/update-version` | `/update version` |
+| `/generate-changelog` | `/update changelog` |
+| `/generate-commit-message` | `/update commit` |
+| `/refactor-docs` | `/update refactor` |
+| `/refactor-project` | `/update refactor` |
+| `/compare-project` | `/compare` (scope auto-detected) |
+| `/compile-deep-research` | `/research compile` |
+| `/generate-report` | `/research report` |
+| `/search-skills` | `/skills search` |
+| `/commands-cheatsheet` | `/skills list` |
+| `/create-skill-or-command` | `/skills create` |
+| `/import-skills` | `/skills import` |
+| `/analyze-spec` | `/spec analyze` |
+| `/clarify-spec` | `/spec clarify` |
+| `/continue-session` | `/session continue` |
+| `/wrap-up-session` | `/session wrap-up` |
+| `/generate-session-history` | `/session history` |
+| `/setup-project` | `/setup project` |
+| `/install-pre-commit-review-hook` | `/setup hooks` |
+| `/manage-memory` | `/memory` |
+| `/check-usage` | `/usage` |
 
 ---
 

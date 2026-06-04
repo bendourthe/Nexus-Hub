@@ -1,54 +1,15 @@
 ---
-description: Analyze recent changes and generate a comprehensive entry for docs/DEVLOG.md.
+description: DEPRECATED (removed in v4.0.0). Forwarding to /update devlog. Was: append a DEVLOG entry for recent changes.
 ---
-# Update DEVLOG Command
 
-Analyze recent changes and generate a comprehensive entry for the `docs/DEVLOG.md` file.
+# /update-devlog (deprecated)
 
-## Objective
-Maintain a detailed history of development to aid future AI agents in troubleshooting and context retrieval. This log serves as a persistent "memory" of challenges, failures, and solutions.
+`/update-devlog` is deprecated and will be removed in v4.0.0. It now forwards to `/update devlog`.
 
-## Process
+This is a v3.x backward-compatibility shim. Behavior is unchanged: `/update devlog` delegates to the same retained `update-devlog` skill that ran the original work. Update scripts, docs, and muscle memory to call `/update devlog` directly.
 
-1.  **Analyze Context**:
-    *   Read the existing `docs/DEVLOG.md` (if present) to identify the last recorded state.
-    *   Analyze git history/diffs since the last entry.
-    *   Recall (or infer from code comments/commit messages) specific errors encountered.
+When invoked, first print this notice:
 
-2.  **Synthesize Entry**:
-    Create a new Markdown entry with the following structure:
+      /update-devlog is deprecated and will be removed in v4.0.0. Forwarding to /update devlog.
 
-    ### [YYYY-MM-DD HH:MM] - [Short Title of Task]
-    
-    *   **Goal**: What was the primary objective?
-    *   **Attempted Solutions**:
-        *   *Approach 1*: Description of what was tried.
-            *   *Result*: Failed/Partially Worked.
-            *   *Error*: `[Quote specific error logs or messages]`
-            *   *Analysis*: Why did this fail? (e.g., "Syntax error in Powershell 5.1", "API misuse").
-        *   *Approach 2* (The Solution): Description of the successful fix.
-    *   **Changes**:
-        *   Modified `[file_path]`: [Brief desc of change]
-    *   **Lessons Learned**: Critical context for future agents (e.g., "Always use `Safe-Copy` for this file type to avoid locks").
-    *   **Current Status**: Verified/Pending/Broken.
-
-3.  **Action**:
-    *   Append this entry to the top (or chronological bottom, depending on existing file style) of `docs/DEVLOG.md`.
-    *   If `docs/DEVLOG.md` does not exist, create it.
-
-
-## Phase: Iterative Refinement (Loop)
-
-**CRITICAL**: This is an iterative process. You cannot assume the first pass is perfect.
-Perform the following refinement loop up to **3 times** (or as specified by the user's input, e.g., "5 iterations"):
-
-1.  **Analyze**: Look at the generated output.
-    *   Is it complete?
-    *   Are there any obvious errors?
-    *   Does it meet the user's requirements?
-2.  **Refine**:
-    *   Fix any issues found.
-    *   Add missing components.
-3.  **Stop**:
-    *   If you are confident the result is excellent.
-    *   OR if you have reached the maximum iteration count.
+then delegate to `/update devlog`, passing every argument through unchanged.

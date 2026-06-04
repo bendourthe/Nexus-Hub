@@ -1,37 +1,15 @@
 ---
-description: Analyze the codebase and generate a comprehensive Software Bill of Materials (SBOM).
+description: DEPRECATED (removed in v4.0.0). Forwarding to /review sbom. Was: generate a Software Bill of Materials.
 ---
-# Generate SBOM Command
 
-Analyze the codebase and generate a comprehensive Software Bill of Materials (SBOM).
+# /generate-sbom (deprecated)
 
-## Usage
-Run this command to inventory all external dependencies, libraries, and modules used in the project.
+`/generate-sbom` is deprecated and will be removed in v4.0.0. It now forwards to `/review sbom`.
 
-## Steps
-1.  **Activate Skill**: `security/sbom-generation`
-2.  **Scan**: Perform a deep traversal of the repository to find dependency manifests (package.json, requirements.txt, etc.).
-3.  **Analyze**: Extract component names, versions, and licenses.
-4.  **Report**:
-    *   Provide a **Human-Readable Summary** (Markdown Table).
-    *   Generate a **Machine-Readable Artifact** (JSON block in CycloneDX or SPDX format).
+This is a v3.x backward-compatibility shim. Behavior is unchanged: `/review sbom` delegates to the same retained `generate-sbom` skill that ran the original work. Update scripts, docs, and muscle memory to call `/review sbom` directly.
 
-## Output File
-Ask the user if they want to save the output to `stb-sbom.json` or `sbom.md`.
+When invoked, first print this notice:
 
+      /generate-sbom is deprecated and will be removed in v4.0.0. Forwarding to /review sbom.
 
-## Phase: Iterative Refinement (Loop)
-
-**CRITICAL**: This is an iterative process. You cannot assume the first pass is perfect.
-Perform the following refinement loop up to **3 times** (or as specified by the user's input, e.g., "5 iterations"):
-
-1.  **Analyze**: Look at the generated output.
-    *   Is it complete?
-    *   Are there any obvious errors?
-    *   Does it meet the user's requirements?
-2.  **Refine**:
-    *   Fix any issues found.
-    *   Add missing components.
-3.  **Stop**:
-    *   If you are confident the result is excellent.
-    *   OR if you have reached the maximum iteration count.
+then delegate to `/review sbom`, passing every argument through unchanged.

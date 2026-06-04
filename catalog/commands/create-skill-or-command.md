@@ -1,60 +1,15 @@
 ---
-description: Interactive wizard to help the user create new Skills or Commands.
+description: DEPRECATED (removed in v4.0.0). Forwarding to /skills create. Was: interactive wizard to create a new skill or command.
 ---
-# Create Skill or Command Wizard
 
-Interactive wizard to help the user create new **Skills** or **Commands**.
+# /create-skill-or-command (deprecated)
 
-## Process
+`/create-skill-or-command` is deprecated and will be removed in v4.0.0. It now forwards to `/skills create`.
 
-### 1. Identify Resource Type
-Ask the user: "Do you want to create a **Skill** (passive capability) or a **Command** (interactive /slash-command)?"
+This is a v3.x backward-compatibility shim. Behavior is unchanged: `/skills create` delegates to the same retained `create-skill-or-command` skill that ran the original work. Update scripts, docs, and muscle memory to call `/skills create` directly.
 
-### 2. Structured Interview
-Depending on the choice, gather requirements:
+When invoked, first print this notice:
 
-**For a Command:**
-*   **Goal**: What should this command do?
-*   **Trigger**: What user intent triggers this?
-*   **Process**: What steps should the AI follow?
-*   **Output**: What should the final result look like?
+      /create-skill-or-command is deprecated and will be removed in v4.0.0. Forwarding to /skills create.
 
-**For a Skill:**
-*   **Domain**: What category does this fall under? (e.g., Testing, Security, Refactoring)
-*   **Capability**: What specific task does it enable?
-*   **Activation**: When should this skill automaticall activate?
-
-### 3. Drafting Phase
-Generate a draft of the new file:
-*   **Propose a Name**: (e.g., `commands/analyze-db.md` or `skills/security/sql-injection.md`)
-*   **Draft Content**: structured markdown with clear instructions.
-
-### 4. Feedback Loop
-Show the draft to the user.
-*   "Does this name work for you?"
-*   "Are the steps accurate?"
-*   Refine based on feedback.
-
-### 5. Finalization
-Once approved:
-1.  Create the file in the appropriate directory:
-    *   Commands: `.claude/commands/` (or `.gemini/commands/`)
-    *   Skills: `.claude/skills/<category>/`
-2.  Confirm creation.
-
-
-## Phase: Iterative Refinement (Loop)
-
-**CRITICAL**: This is an iterative process. You cannot assume the first pass is perfect.
-Perform the following refinement loop up to **3 times** (or as specified by the user's input, e.g., "5 iterations"):
-
-1.  **Analyze**: Look at the generated output.
-    *   Is it complete?
-    *   Are there any obvious errors?
-    *   Does it meet the user's requirements?
-2.  **Refine**:
-    *   Fix any issues found.
-    *   Add missing components.
-3.  **Stop**:
-    *   If you are confident the result is excellent.
-    *   OR if you have reached the maximum iteration count.
+then delegate to `/skills create`, passing every argument through unchanged.
