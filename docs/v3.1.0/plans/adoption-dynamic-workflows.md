@@ -145,7 +145,7 @@ This plan aligns with the `AGENTS.md` MCP Registry Policy by construction: all c
 
 #### 3.1 -- Add the tournament ranking-at-scale shape
 
-- [ ] T007 Add the pairwise-tournament ranking-at-scale shape to catalog/skills/orchestration/agent-orchestration-primitives/references/five-patterns.md
+- [x] T007 Add the pairwise-tournament ranking-at-scale shape to catalog/skills/orchestration/agent-orchestration-primitives/references/five-patterns.md
 
 **Objective**: Catalog ranking/sorting many items by repeated pairwise comparison, distinct from competitive-generation's best-of-N.
 
@@ -156,7 +156,7 @@ This plan aligns with the `AGENTS.md` MCP Registry Policy by construction: all c
 
 #### 3.2 -- Cross-reference /loop and /goal
 
-- [ ] T008 Cross-reference the /loop and /goal platform commands in catalog/skills/orchestration/agent-orchestration-primitives/SKILL.md
+- [x] T008 Cross-reference the /loop and /goal platform commands in catalog/skills/orchestration/agent-orchestration-primitives/SKILL.md
 
 **Objective**: Point users to the built-in commands for continuous/durable operation without shipping them.
 
@@ -167,7 +167,7 @@ This plan aligns with the `AGENTS.md` MCP Registry Policy by construction: all c
 
 #### 3.3 -- Testing and Stabilization
 
-- [ ] T009 Final validation via make validate
+- [x] T009 Final validation via make validate
 
 **Objective**: Confirm the enrichments keep the catalog clean.
 
@@ -188,11 +188,11 @@ This plan aligns with the `AGENTS.md` MCP Registry Policy by construction: all c
 
 ### Phase 3 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] All tests passing
-- [ ] No known regressions from prior phases
-- [ ] Session history generated for this phase
-- [ ] Adoption complete; CHANGELOG updated
+- [x] All sub-tasks completed
+- [x] All tests passing
+- [x] No known regressions from prior phases
+- [x] Session history generated for this phase
+- [x] Adoption complete; CHANGELOG updated
 
 ---
 

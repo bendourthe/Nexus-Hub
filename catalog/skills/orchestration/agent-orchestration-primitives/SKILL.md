@@ -101,6 +101,10 @@ Once a primitive is chosen, the *shape* of the orchestration follows one of five
 
 When you reach for **Dynamic Workflows** specifically, [assets/example-fanout-workflow.js](assets/example-fanout-workflow.js) is a copy-adaptable reference template: a read-only fan-out-and-synthesize workflow (audit every file under a directory, then merge the findings) that begins with the required `export const meta = {...}` literal and carries the mandatory graceful-degradation fallback and the scope-first token caution inline. It is a TEMPLATE TO ADAPT, not a script to run verbatim -- copy `example-fanout-workflow.js` into your skill's `scripts/` or `assets/` directory and rewrite the meta, schema, and prompts for your task. This is the workflow-as-skill-bundle distribution pattern documented under "Per-skill Bundled Resources" in `AGENTS.md`.
 
+### Step 8: Pair workflows with the platform's continuous-operation commands
+
+A Dynamic Workflow run is one-shot by default. When a task must persist beyond a single run, two Claude Code built-in commands compose with it: `/loop` re-runs a workflow (or any prompt) on an interval or until you stop it (scheduled audits, continuous monitoring of a changing surface), and `/goal` attaches a hard, explicit completion requirement the agent must satisfy before it is allowed to stop. These are platform commands you reference and invoke directly in your harness -- NOT catalog artifacts Nexus-Hub ships; this skill names them so the choice is on the table, but does not provide them.
+
 ## Common Rationalizations
 
 | Rationalization | Reality |
