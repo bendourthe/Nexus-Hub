@@ -2401,7 +2401,7 @@ function Remove-LegacyVSCodeExtensions {
 
 # Detects an existing ~/.devai-hub/ install and migrates it to ~/.nexus-hub/.
 # One-shot, one-way per the backward-compat decision in
-# docs/v2.0.0/rename-decisions.md. The installer does NOT ship a symlink or
+# docs/archive/v2/v2.0.0/rename-decisions.md. The installer does NOT ship a symlink or
 # compatibility shim. Three branches:
 #   1. legacy only             -> prompt to migrate (default Y), then Move-Item.
 #   2. legacy AND new co-exist -> ask user: keep-new, abort, or merge.

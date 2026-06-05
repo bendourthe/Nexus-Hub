@@ -9,6 +9,16 @@ Thank you for your interest in contributing to Nexus-Hub. This guide explains ho
 3. Browse existing skills in [catalog/skills/](catalog/skills/) to understand the format
 4. Check the [comparison reports](docs/) for adoption candidates already identified
 
+## Branching and Commits
+
+Nexus-Hub uses a lightweight **`develop` + `main`** workflow:
+
+- Branch your work off **`develop`** (e.g. `feat/my-skill`, `fix/installer-path`), not `main`.
+- **`main`** holds stable, tagged releases only -- it is the branch users install from. Do not commit directly to it.
+- Open pull requests against **`develop`**. Releases are cut by merging `develop` -> `main` and tagging `vX.Y.Z`.
+- Run `make validate` (and `make test` for hook or validator changes) before opening a PR.
+- Commit messages are ASCII-only with no AI-attribution footers (see [CLAUDE.md](CLAUDE.md)).
+
 ## What You Can Contribute
 
 | Contribution Type | Location | Format |

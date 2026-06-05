@@ -9,7 +9,7 @@ overview_l1: "Defines a local-only continuous-learning loop. The learning-captur
 
 Teach the agent to harvest its own session for patterns: capture observations to a local JSONL, mint atomic instincts as YAML, and evolve clusters of instincts into draft skills or commands - all in-session, on demand, with no background process and no outbound network calls.
 
-This is the local-only reverse-engineered subset of ECC's `continuous-learning-v2` pattern. See `docs/v2.2.0/comparison-ECC.md` Section 11 Bucket B (B4) and Section 13 ("Continuous-learning egress trap") for the policy framing. The capture half is the `learning-capture` hook; this skill is the analysis half.
+This is the local-only reverse-engineered subset of ECC's `continuous-learning-v2` pattern. See `docs/archive/v2/v2.2.0/comparison-ECC.md` Section 11 Bucket B (B4) and Section 13 ("Continuous-learning egress trap") for the policy framing. The capture half is the `learning-capture` hook; this skill is the analysis half.
 
 ## When to Use This Skill
 

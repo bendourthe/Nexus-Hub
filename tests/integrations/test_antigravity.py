@@ -6,7 +6,7 @@ Added in v2.2.0 Phase 2 (T008). Covers:
   - Antigravity 2.0 + CLI lays files under .agents/ (covers both desktop and CLI;
     paths verified 2026-05-29 against Google's public Antigravity CLI docs --
     binary `agy`, `.agents/` per-project dir, `AGENTS.md` instruction file --
-    per docs/v2.2.0/antigravity-cli-probe.md)
+    per docs/archive/v2/v2.2.0/antigravity-cli-probe.md)
   - WriteResult records carry the expected FileAction entries
   - The display_name reflects dual desktop+CLI coverage on the 2.0 integration
 """

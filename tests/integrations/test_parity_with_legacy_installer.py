@@ -26,7 +26,7 @@ What this suite does NOT yet assert
 registry runner currently only substitutes ``{{PROJECT_NAME}}``. Closing this
 gap requires extending the runner's ``template_vars`` to mirror every key the
 bash installer fills. Tracked under DF-001 (carry-forward) in
-``docs/v2.2.0/known-gaps.md``.
+``docs/archive/v2/v2.2.0/known-gaps.md``.
 
 When parity becomes byte-identical for instruction files too, sub-task 3.7
 (``scripts/installer.sh`` legacy block removal) can complete.

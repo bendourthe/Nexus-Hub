@@ -80,7 +80,7 @@ The dispatcher exits with code 2 if no graph index is found at `<root>/.nexus/co
 
 ## Eval harness
 
-`make eval` (or `python -m nexus_code_search.eval` from this directory) runs the synthetic-codebase harness under `src/nexus_code_search/eval/`. The harness ships eight fixture codebases (minimal / python_app / fastapi_app / ts_express / go_app / rust_app / java_app / csharp_app), scores recall + precision against the answer keys, and writes a Markdown report. The current baseline is captured at `docs/v2.3.0/eval-baseline.md` (100% aggregate recall, 96.2% aggregate precision; every fixture clears the >=80% per-fixture recall gate).
+`make eval` (or `python -m nexus_code_search.eval` from this directory) runs the synthetic-codebase harness under `src/nexus_code_search/eval/`. The harness ships eight fixture codebases (minimal / python_app / fastapi_app / ts_express / go_app / rust_app / java_app / csharp_app), scores recall + precision against the answer keys, and writes a Markdown report. The current baseline is captured at `docs/archive/v2/v2.3.0/eval-baseline.md` (100% aggregate recall, 96.2% aggregate precision; every fixture clears the >=80% per-fixture recall gate).
 
 ## Data flow
 

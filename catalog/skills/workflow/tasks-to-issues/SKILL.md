@@ -112,7 +112,7 @@ The `[gh#<num>]` marker is the only idempotency primitive. The skill never queri
 | Rationalization | Reality |
 |---|---|
 | "I will skip the dry-run -- it is just preview" | The dry-run is the only safe way to verify labels, titles, and bodies before issues are created. Skipping it means a bad payload becomes N rate-limited GitHub artifacts that have to be deleted manually. |
-| "I will run this on a plan with the old free-form task list" | The strict regex from Phase 6 of `docs/v2.1.0/plans/adoption-spec-kit.md` is non-negotiable. Free-form task lines abort the parse with a list of offending lines. Re-run `/generate-plan` first. |
+| "I will run this on a plan with the old free-form task list" | The strict regex from Phase 6 of `docs/archive/v2/v2.1.0/plans/adoption-spec-kit.md` is non-negotiable. Free-form task lines abort the parse with a list of offending lines. Re-run `/generate-plan` first. |
 | "I will create the labels later, after the issues are filed" | `gh issue create` warns when a label is missing; the issue is created without the missing label. After-the-fact label creation does NOT retroactively attach the label to existing issues. Pre-create labels via `gh label create` before running. |
 | "I will parallelize the gh invocations to make it faster" | GitHub's secondary rate limit on issue creation is strict. Sequential is the documented contract. Parallel runs trigger the rate limit and turn a 30-second job into a 10-minute job with retries. |
 | "If a gh invocation fails I will just skip and continue" | The skill stops on first failure by design. Skipping silently means already-filed issues become orphans referencing a partial plan. The contract is: stop, report, re-run after fixing the underlying cause. |

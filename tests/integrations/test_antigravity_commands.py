@@ -1,7 +1,7 @@
 """Tests for the Antigravity 2.0 + CLI commands schema.
 
 Added in v2.2.0 Phase 2 (T012). Locks in the conclusion from
-docs/v2.2.0/antigravity-cli-commands-schema.md: Antigravity 2.0 + CLI mirrors
+docs/archive/v2/v2.2.0/antigravity-cli-commands-schema.md: Antigravity 2.0 + CLI mirrors
 catalog/commands/*.md verbatim into .agents/workflows/<name>.md (not the
 TOML form used by Gemini CLI). The Markdown-workflow format was verified
 2026-05-29 against Google's public Antigravity CLI docs (the CLI reads
@@ -19,7 +19,7 @@ from scripts.lib.integrations.base import InstallContext
 def test_antigravity_20_workflows_are_md_not_toml(install_ctx: InstallContext):
     """Antigravity 2.0 + CLI must receive verbatim .md command files, not the
     .toml form Gemini CLI uses. This is the contract documented in
-    docs/v2.2.0/antigravity-cli-commands-schema.md.
+    docs/archive/v2/v2.2.0/antigravity-cli-commands-schema.md.
     """
     integ = get("antigravity2")
     integ.install(install_ctx)

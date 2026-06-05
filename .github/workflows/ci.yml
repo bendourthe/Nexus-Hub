@@ -35,17 +35,11 @@ jobs:
 
       - name: Validate no personal paths leaked (v2.3.0 Phase 2)
         run: |
-          python scripts/validate_no_personal_paths.py \
-            --exclude docs/v2.0.0 \
-            --exclude docs/v2.1.0 \
-            --exclude docs/v2.2.0
+          python scripts/validate_no_personal_paths.py
 
       - name: Validate Unicode safety (v2.3.0 Phase 2)
         run: |
-          python scripts/validate_unicode_safety.py \
-            --exclude docs/v2.0.0 \
-            --exclude docs/v2.1.0 \
-            --exclude docs/v2.2.0
+          python scripts/validate_unicode_safety.py
 
       - name: Scan supply-chain IOCs (v2.3.0 Phase 2)
         run: python scripts/scan_supply_chain_iocs.py

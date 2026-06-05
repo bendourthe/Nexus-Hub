@@ -16,7 +16,7 @@ These on-disk conventions were verified against Google's public Antigravity CLI
 documentation and codelabs on 2026-05-29 (binary name `agy`; `.agents/skills/`
 and `.agents/workflows/` as Markdown; project-root `AGENTS.md`); a single
 `Antigravity20Integration` class still covers both the desktop and the CLI. See
-docs/v2.2.0/antigravity-cli-probe.md for the full probe, the 2026-05-29 verified
+docs/archive/v2/v2.2.0/antigravity-cli-probe.md for the full probe, the 2026-05-29 verified
 findings, and the residual items still pending a live-VM smoke.
 """
 
@@ -61,7 +61,7 @@ class Antigravity20Integration(MarkdownIntegration, SkillsIntegration):
       - Global CLI footprint is under `~/.gemini/antigravity-cli/`.
 
     Residual items still pending a live-VM `agy` smoke (recorded in
-    docs/v2.2.0/antigravity-cli-probe.md and v2.3.0 known-gaps): one official
+    docs/archive/v2/v2.2.0/antigravity-cli-probe.md and v2.3.0 known-gaps): one official
     codelab shows `.agent/` (singular); the exact global subpath varies across
     sources; the `subagents/` / `rules/` subdirs are unconfirmed; and whether
     `agy` requires the instruction file specifically at the project root (vs.

@@ -350,7 +350,7 @@ Walk this checklist before proposing a PR:
 
 ### Platform coverage caveats (current state)
 
-> **Gemini CLI sunset**: per the 2026-05-21 Google Developers Blog announcement, Gemini CLI stops serving free / Google AI Pro / Ultra / GitHub-installed users on 2026-06-18. The standalone `gemini-cli` integration is now opt-in via the `--enterprise` installer flag (Bash: `scripts/installer.sh --enterprise`; PowerShell: `scripts/installer.ps1 -Enterprise`) and installs only when the user explicitly requests it. Non-enterprise users transition to Antigravity CLI, which is covered by the `antigravity2` integration (the desktop IDE and CLI share a backend per the same announcement; see [docs/v2.2.0/antigravity-cli-probe.md](docs/v2.2.0/antigravity-cli-probe.md)).
+> **Gemini CLI sunset**: per the 2026-05-21 Google Developers Blog announcement, Gemini CLI stops serving free / Google AI Pro / Ultra / GitHub-installed users on 2026-06-18. The standalone `gemini-cli` integration is now opt-in via the `--enterprise` installer flag (Bash: `scripts/installer.sh --enterprise`; PowerShell: `scripts/installer.ps1 -Enterprise`) and installs only when the user explicitly requests it. Non-enterprise users transition to Antigravity CLI, which is covered by the `antigravity2` integration (the desktop IDE and CLI share a backend per the same announcement; see [docs/archive/v2/v2.2.0/antigravity-cli-probe.md](docs/archive/v2/v2.2.0/antigravity-cli-probe.md)).
 
 The installer deploys **skills, commands, agents, hooks, and rules as separate files** to the following platforms:
 
@@ -358,7 +358,7 @@ The installer deploys **skills, commands, agents, hooks, and rules as separate f
 - **Extended 4 (v2.2.0+, via integration registry)**: Antigravity 2.0 + CLI (Google -- single integration covers both surfaces; the CLI ships as the `agy` binary and uses the `.agents/` per-project convention with global content under `~/.gemini/antigravity-cli/`, verified 2026-05-29 against Google's public Antigravity CLI docs), Antigravity CLI (Google -- transition target for Gemini CLI before 2026-06-18; covered by the `antigravity2` integration), Gemini CLI (Google, ENTERPRISE-ONLY post-2026-06-18, opt-in via `--enterprise` installer flag), Nexus-AI (https://github.com/bendourthe/Nexus-AI).
 - **Behavioral-guardrails only**: Cursor (`.cursor/rules/*.mdc` + repo-root `AGENTS.md`), OpenCode (`AGENTS.md`).
 
-Each of these has a corresponding `IntegrationBase` subclass under `scripts/lib/integrations/` (added in Phase 10 of v2.1.0); the original 4 continue to install via the legacy installer copy blocks, with the registry subclasses standing by for the future v2.2.0 parity migration documented in `docs/v2.1.0/known-gaps.md` (DF-001).
+Each of these has a corresponding `IntegrationBase` subclass under `scripts/lib/integrations/` (added in Phase 10 of v2.1.0); the original 4 continue to install via the legacy installer copy blocks, with the registry subclasses standing by for the future v2.2.0 parity migration documented in `docs/archive/v2/v2.1.0/known-gaps.md` (DF-001).
 
 If your change is a new slash command, call out in the CHANGELOG which platforms get a slash surface (Claude / Gemini / Codex / Gemini CLI) versus those that see only the command body via the instruction file.
 
@@ -372,6 +372,16 @@ make lint        # ShellCheck on all hook scripts
 make test        # pytest hook test suite
 make build-catalog  # Rebuild data/ from catalog/
 ```
+
+## Branching and Release Workflow
+
+Nexus-Hub uses a lightweight **`develop` + `main`** model (adopted 2026-06-04). Full-Git-Flow ceremony (`release/*`, `hotfix/*` branches) is intentionally avoided.
+
+- **`main`** is the stable, installable branch -- the branch users install from. It only receives merges at release time, each cut as a `vX.Y.Z` tag. Never commit version or phase work directly to `main`. The GitHub default branch stays `main` so clones and installer runs always get stable content.
+- **`develop`** is the integration branch. All version work lands here, either directly or via short-lived feature branches (`feat/<slug>`, `fix/<slug>`) merged back into `develop`.
+- **Release**: when a version's Definition of Done is met, merge `develop` -> `main` and tag `vX.Y.Z` via `/update version` (which bumps every version-carrying surface; the `check_version_sync.py` guard enforces consistency across them).
+
+Rationale: Nexus-Hub is a catalog consumed directly from the repo by an installer across every supported AI platform, so `main` is effectively a release artifact. Isolating in-progress, multi-phase versions on `develop` protects downstream installer users from half-applied phases.
 
 ## Critical Conventions
 

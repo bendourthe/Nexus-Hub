@@ -8,7 +8,7 @@
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 247 skills, 14 commands, 22 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
-> **Renamed from DevAI-Hub at v2.0.0** to align with the sibling project [Nexus](https://github.com/bendourthe/Nexus-AI), a local-first desktop AI Studio that consumes Nexus-Hub as its upstream skill feed. Existing `~/.devai-hub/` installs are migrated in place by the v2.0.0 installer on first run; see [docs/v2.0.0/RELEASE_NOTES.md](docs/v2.0.0/RELEASE_NOTES.md) for the full migration story.
+> **Renamed from DevAI-Hub at v2.0.0** to align with the sibling project [Nexus](https://github.com/bendourthe/Nexus-AI), a local-first desktop AI Studio that consumes Nexus-Hub as its upstream skill feed. Existing `~/.devai-hub/` installs are migrated in place by the v2.0.0 installer on first run; see [docs/archive/v2/v2.0.0/RELEASE_NOTES.md](docs/archive/v2/v2.0.0/RELEASE_NOTES.md) for the full migration story.
 
 ---
 
@@ -40,12 +40,12 @@ Highlights:
 - **3 new templates**: `constitution-template.md`, `spec-template.md` (with P1 / P2 / P3 user stories + FR-### / SC-### IDs), `spec-quality-checklist.md`.
 - **`/generate-plan` updates**: opt-in `--specs-layout` flag for the `specs/<NNN>-<slug>/` directory layout, strict `- [ ] T### [P?] [US?] file_path` task-line format with phase organization (Setup / Foundational / User-Story / Polish), Constitution Check + Complexity Tracking sections in every generated plan.
 - **`[NEEDS CLARIFICATION]` marker discipline** with a 3-marker hard cap prioritized `scope > security/privacy > UX > technical`, wired into `spec-driven-development`, `ambiguity-detector`, and `idea-refine` skills.
-- **Integration Registry (G12, pulled forward from v2.2.0)**: a Python class hierarchy under `scripts/lib/integrations/` that owns per-platform install logic. Adding a new AI assistant is now one ~30-line subclass + one register line instead of editing 5+ instruction templates in lockstep. See [docs/v2.1.0/adr/adr-001-integration-registry.md](docs/v2.1.0/adr/adr-001-integration-registry.md) for the architecture decision record.
+- **Integration Registry (G12, pulled forward from v2.2.0)**: a Python class hierarchy under `scripts/lib/integrations/` that owns per-platform install logic. Adding a new AI assistant is now one ~30-line subclass + one register line instead of editing 5+ instruction templates in lockstep. See [docs/archive/v2/v2.1.0/adr/adr-001-integration-registry.md](docs/archive/v2/v2.1.0/adr/adr-001-integration-registry.md) for the architecture decision record.
 - **Expanded platform support (3 new platforms)**: Antigravity 2.0 (Google), Gemini CLI (Google), and Nexus-AI ([https://github.com/bendourthe/Nexus-AI](https://github.com/bendourthe/Nexus-AI)) join the existing Claude Code / Codex / Cursor / Gemini / Antigravity 1.0 / GitHub Copilot / OpenCode list. The installer auto-dispatches to all 10 platforms so switching assistants is seamless.
 
 All 11 SDD adoption items are classified `skill-native` under the MCP Registry Policy -- no new outbound calls, no new credentials, no new third-party data processors, no new runtime dependencies. The Integration Registry is also stdlib-only Python.
 
-See [CHANGELOG.md](CHANGELOG.md) and [docs/v2.1.0/RELEASE_NOTES.md](docs/v2.1.0/RELEASE_NOTES.md) for the full v2.1.0 entry, and [docs/v2.1.0/plans/adoption-spec-kit.md](docs/v2.1.0/plans/adoption-spec-kit.md) for the 10-phase plan.
+See [CHANGELOG.md](CHANGELOG.md) and [docs/archive/v2/v2.1.0/RELEASE_NOTES.md](docs/archive/v2/v2.1.0/RELEASE_NOTES.md) for the full v2.1.0 entry, and [docs/archive/v2/v2.1.0/plans/adoption-spec-kit.md](docs/archive/v2/v2.1.0/plans/adoption-spec-kit.md) for the 10-phase plan.
 
 ---
 
@@ -73,7 +73,7 @@ Both `scripts/installer.sh` and `scripts/installer.ps1` now print an ASCII-art `
 
 This README and the top-level agent instruction files (`AGENTS.md`, `CLAUDE.md`) now describe the relationship between Nexus-Hub and Nexus directly, so the two-project shape is obvious to anyone landing on either repo.
 
-See [CHANGELOG.md](CHANGELOG.md) and [docs/v2.0.0/RELEASE_NOTES.md](docs/v2.0.0/RELEASE_NOTES.md) for the full v2.0.0 entry.
+See [CHANGELOG.md](CHANGELOG.md) and [docs/archive/v2/v2.0.0/RELEASE_NOTES.md](docs/archive/v2/v2.0.0/RELEASE_NOTES.md) for the full v2.0.0 entry.
 
 ---
 
@@ -94,7 +94,7 @@ See [CHANGELOG.md](CHANGELOG.md) and [docs/v2.0.0/RELEASE_NOTES.md](docs/v2.0.0/
 | Nexus desktop app | upstream consumer | indirect | Reads the same catalog as its skill feed |
 | Nexus VS Code extension | upstream consumer | indirect | Reads the same catalog as its skill feed |
 
-**Coverage caveat**: the **registry** path (introduced in v2.1.0 Phase 10) dispatches install / teardown through `scripts/lib/integrations/runner.py` and supports a `--dry-run` mode. The **legacy** path (the long-standing in-installer copy blocks) continues to be the canonical install for Claude / Gemini / Codex / Copilot until v2.2.0 parity migration (tracked as DF-001 in `docs/v2.1.0/known-gaps.md`). Both paths produce the same end-state on disk for those platforms; the per-platform installer logic lives in [`scripts/installer.sh`](scripts/installer.sh), [`scripts/installer.ps1`](scripts/installer.ps1), and the per-platform subclasses under [`scripts/lib/integrations/`](scripts/lib/integrations/). Per-platform capability specs (install surface, distributed content, instruction file, quirks) are documented under [`docs/specs/`](docs/specs/).
+**Coverage caveat**: the **registry** path (introduced in v2.1.0 Phase 10) dispatches install / teardown through `scripts/lib/integrations/runner.py` and supports a `--dry-run` mode. The **legacy** path (the long-standing in-installer copy blocks) continues to be the canonical install for Claude / Gemini / Codex / Copilot until v2.2.0 parity migration (tracked as DF-001 in `docs/archive/v2/v2.1.0/known-gaps.md`). Both paths produce the same end-state on disk for those platforms; the per-platform installer logic lives in [`scripts/installer.sh`](scripts/installer.sh), [`scripts/installer.ps1`](scripts/installer.ps1), and the per-platform subclasses under [`scripts/lib/integrations/`](scripts/lib/integrations/). Per-platform capability specs (install surface, distributed content, instruction file, quirks) are documented under [`docs/specs/`](docs/specs/).
 
 **Branch-based install** (v2.4.0): pass `--branch <name>` (Bash) or `-Branch <name>` (PowerShell) to install the catalog from a pushed branch instead of the current checkout. The installer shallow-clones the repo at `<name>` into a deterministic cache directory (`~/.nexus-hub/branches/<sanitized-name>/`) and runs the install from that checkout, so the user's working copy is never touched. The branch name is sanitized for filesystem safety (path-traversal sequences are neutralized). Combine with `--check` / `-Check` for a clone-free probe that prints the resolved cache path and clone source.
 
@@ -336,7 +336,7 @@ Nexus-Hub evolves in versioned slices. Each upcoming line item below traces to a
 
 | Focus | Target | Status | Source |
 |-------|--------|--------|--------|
-| Rename DevAI-Hub to Nexus-Hub, modernize installer with ASCII banner, integrate Nexus brand linkage | v2.0.0 | In progress | [docs/v2.0.0/plans/nexus-hub-rename.md](docs/v2.0.0/plans/nexus-hub-rename.md) |
+| Rename DevAI-Hub to Nexus-Hub, modernize installer with ASCII banner, integrate Nexus brand linkage | v2.0.0 | In progress | [docs/archive/v2/v2.0.0/plans/nexus-hub-rename.md](docs/archive/v2/v2.0.0/plans/nexus-hub-rename.md) |
 | Cross-OS CI matrix for installer smoke tests (closes the cumulative DF-003 / DF-005 / DF-006 / DF-007 / DF-008 cluster from v1.1.5 known-gaps) | v2.1.0 | Planned | [docs/archive/v1/v1.1.5/](docs/archive/v1/v1.1.5/) known-gaps cluster |
 | Skill-eval-loop integration into pre-commit (assertion-graded regression guard for high-traffic skills before they ship) | v2.1.0 | Planned | [catalog/skills/workflow/skill-eval-loop/SKILL.md](catalog/skills/workflow/skill-eval-loop/SKILL.md) |
 | MCP registry expansion under the existing 5-step policy (reverse-engineer-first; hard-no on search / embeddings / scraping / generation as a service) | continuous | In progress | [docs/policy/mcp-reverse-engineering-matrix.md](docs/policy/mcp-reverse-engineering-matrix.md) |

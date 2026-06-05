@@ -6,7 +6,7 @@ YamlIntegration, SkillsIntegration). The registry maps a string `key` to an
 IntegrationBase instance and is consumed by `runner.py` to dispatch install /
 teardown operations.
 
-Design rationale: see docs/v2.1.0/adr/adr-001-integration-registry.md.
+Design rationale: see docs/archive/v2/v2.1.0/adr/adr-001-integration-registry.md.
 """
 
 from __future__ import annotations
