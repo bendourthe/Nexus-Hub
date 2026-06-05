@@ -180,6 +180,7 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | test-suite-prioritizer | tests-generation | "Prioritize test suites for faster CI feedback with failure history and risk analysis" | catalog/skills/tests-generation/test-suite-prioritizer/SKILL.md |
 | unit-tests | tests-generation | "Generate unit tests following FIRST principles and AAA pattern across languages" | catalog/skills/tests-generation/unit-tests/SKILL.md |
 | code-commit-workflow | workflow | "Implement Git commit workflows with conventional commits and atomic changes" | catalog/skills/workflow/code-commit-workflow/SKILL.md |
+| git-branching-workflow | workflow | "Follow a project's declared branching model for branches, merges, and releases" | catalog/skills/workflow/git-branching-workflow/SKILL.md |
 | conflict-analyzer | workflow | "Analyze and resolve merge conflicts with three-way analysis and resolution strategies" | catalog/skills/workflow/conflict-analyzer/SKILL.md |
 | create-custom-command | workflow | "Create custom slash commands for Claude Code to automate repetitive workflows" | catalog/skills/workflow/create-custom-command/SKILL.md |
 | debug-with-logs | workflow | "Add strategic logging and use log analysis to debug production issues" | catalog/skills/workflow/debug-with-logs/SKILL.md |
@@ -252,4 +253,4 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | agent-orchestration-primitives | orchestration | "Choose between single agent, subagents, agent teams, and Dynamic Workflows for a task" | catalog/skills/orchestration/agent-orchestration-primitives/SKILL.md |
 | skill-security-scan | security | "Adjudicate skill-security scanner findings, filter false positives, and assign an install verdict" | catalog/skills/security/skill-security-scan/SKILL.md |
 
-**Total: 247 skills across 21 categories**
+**Total: 248 skills across 21 categories**
