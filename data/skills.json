@@ -5664,6 +5664,39 @@
       }
     },
     {
+      "name": "git-branching-workflow",
+      "title": "git-branching-workflow",
+      "description": "Follow a project's declared branching model when creating branches, committing, merging, and releasing. Make sure to use this skill whenever the user or task involves \"create a branch\", \"which branch should I use\", \"feature branch\", \"branch off develop\", \"merge to develop\", \"merge to main\", \"cut a release\", \"protected branch\", \"develop vs main\", \"git flow\", \"github flow\", \"trunk-based\", or you are about to commit/merge work and need to confirm the correct branch and flow first. The skill is CONFIG-DRIVEN -- it reads the project's declared branching strategy and follows THAT, rather than imposing one. SKIP, do NOT use for: writing the commit message itself (use code-commit-workflow), resolving merge conflicts (use conflict-analyzer), or bumping version numbers across files (use version-upgrade).",
+      "long_description": "Keep every branch, commit, merge, and release action aligned with the project's declared branching model. This skill does not impose a single model; it discovers the one the project uses and enforces that model's discipline, with one invariant across all models: feature and version work never lands directly on the protected (release) branch.",
+      "summary_l0": "\"Follow a project's declared branching model for branches, merges, and releases\"",
+      "overview_l1": "\"This skill keeps branch, merge, and release actions aligned with the project's DECLARED branching model instead of imposing a fixed one. It first resolves the model (reading an explicit declaration in AGENTS.md / CLAUDE.md / a config file, else inferring from repo state, else defaulting to GitHub Flow), then applies the matching discipline: which branch is protected (release-only), which is the integration target, how feature branches are named and based, when to merge and with what merge style, and how a release is cut and tagged. It supports develop+main, GitHub Flow, trunk-based, and git-flow. The core invariant across every model is: never commit feature or version work directly to the protected/release branch -- branch off the integration branch, and integrate through it. Use whenever creating a branch, deciding where work goes, merging a finished unit, or cutting a release. Trigger phrases: which branch, create a feature branch, branch off develop, merge to develop, merge to main, cut a release, protected branch, develop vs main, git flow, github flow, trunk-based.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "workflow",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Bash"
+      ],
+      "path": "catalog/skills/workflow/git-branching-workflow/",
+      "file": "catalog/skills/workflow/git-branching-workflow/SKILL.md",
+      "size": {
+        "lines": 123,
+        "characters": 9723,
+        "tokens_estimate": 1496
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
       "name": "conflict-analyzer",
       "title": "conflict-analyzer",
       "description": "Analyze and resolve merge conflicts systematically using three-way merge analysis, conflict classification, resolution strategies, and prevention techniques. Use when encountering merge conflicts, planning branch integration, or establishing merge workflow policies.",

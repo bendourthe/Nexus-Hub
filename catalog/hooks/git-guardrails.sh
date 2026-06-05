@@ -57,5 +57,28 @@ for entry in "${DANGEROUS_PATTERNS[@]}"; do
   fi
 done
 
+# --- Protected-branch guard (opt-in via NEXUS_PROTECTED_BRANCHES) ---
+# When a project declares protected (release-only) branches, block a direct
+# `git commit` on them so feature/version work goes through a feature branch.
+# Inert by default: does nothing unless NEXUS_PROTECTED_BRANCHES is set.
+#   Configure : NEXUS_PROTECTED_BRANCHES="main develop"   (space- or comma-separated)
+#   Override  : NEXUS_PROTECTED_BRANCH_ALLOW=1            (allow one legitimate commit)
+# Targets `git commit` only -- release merges (`git merge --no-ff` on the
+# protected branch) and pushes are intentionally NOT blocked.
+if [ -n "${NEXUS_PROTECTED_BRANCHES:-}" ] \
+   && [ "${NEXUS_PROTECTED_BRANCH_ALLOW:-0}" != "1" ] \
+   && echo "$COMMAND" | grep -qE '(^|[;&|]|[[:space:]])git[[:space:]]+commit([[:space:]]|$)'; then
+  CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "")
+  if [ -n "$CURRENT_BRANCH" ]; then
+    PROTECTED_LIST=$(echo "${NEXUS_PROTECTED_BRANCHES}" | tr ',' ' ')
+    for b in $PROTECTED_LIST; do
+      if [ "$b" = "$CURRENT_BRANCH" ]; then
+        echo "BLOCKED: direct commit to protected branch '${CURRENT_BRANCH}'. Branch off the integration branch first (e.g. 'git checkout -b feat/<slug>') and commit there; the protected branch receives release merges only. To allow this one commit, set NEXUS_PROTECTED_BRANCH_ALLOW=1." >&2
+        exit 2
+      fi
+    done
+  fi
+fi
+
 # Command is safe
 exit 0

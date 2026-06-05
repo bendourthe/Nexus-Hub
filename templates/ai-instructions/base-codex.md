@@ -39,6 +39,10 @@
 - Professional teaching tone
 - Never hard-wrap paragraph text at a fixed column width; write each paragraph or bullet point as a single continuous line and let the editor or terminal handle visual wrapping
 
+## Branching
+
+- Follow the project's declared branching strategy. Do not commit feature or version work directly to the protected (release) branch -- branch off the integration branch and integrate through it. If the strategy is unstated, infer it (a `develop` branch implies a develop+main model; otherwise assume GitHub Flow) and confirm before branching. See the `git-branching-workflow` skill for the per-model discipline.
+
 ## Output Minimization
 - Suppress verbose progress bars, banners, and informational logs from commands unless they indicate an error
 - Prefer `--quiet`, `--silent`, or `-q` flags when running package managers, build tools, and test runners
