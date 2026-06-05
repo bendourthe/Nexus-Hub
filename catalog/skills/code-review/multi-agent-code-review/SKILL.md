@@ -98,6 +98,12 @@ Assign reviewer model tiers to spend budget where stakes are highest:
 
 Then emit per the active mode (table above). The headline list is the gate survivors, ranked by severity then confidence; the appendix holds the suppressed tier. In autofix mode, route `autofix_class: safe` findings to the `refactor-cleaner` agent to apply, propose `assisted`, and never auto-apply `manual`.
 
+### Running the fanout as a Dynamic Workflow (optional)
+
+Stages 3-6 are the canonical *dimensions -> find -> adversarially-verify* fanout: personas are the dimensions, Stage 4 is the find, Stage 6 is the refutation. When the harness has the Dynamic Workflows runtime, [scripts/review-fanout-workflow.js](scripts/review-fanout-workflow.js) is a ready-to-adapt scaffold that runs that shape deterministically (parallel persona review, a barrier merge that does the cross-reviewer promotion, per-finding refutation, then the late confidence gate). It binds to the skill's own contracts -- `FINDINGS_SCHEMA` mirrors [findings-schema](references/findings-schema.md) and `VERDICT_SCHEMA` mirrors [validator-template](references/validator-template.md).
+
+It is a **template to adapt, not a script to run verbatim**, and it must **degrade gracefully**: Dynamic Workflows is a plan-gated research-preview capability that may be absent, so fall back to dispatching the personas as isolated subagents (Stage 4 by hand), or a single sequential reviewer. Because a persona fanout plus per-finding verification carries a 5-15x token multiplier, keep the **scope-first** discipline: calibrate on one module first, review the resolved persona set and diff base on the first trigger, and confirm before reviewing the whole change. For whether a fanout is warranted at all and the hard budget controls, see [[agent-orchestration-primitives]] and [[ai-billing-safeguards]] -- this template does not duplicate that guidance.
+
 ## Common Rationalizations
 
 | Rationalization | Reality |

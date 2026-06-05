@@ -94,7 +94,7 @@ This plan aligns with the `AGENTS.md` MCP Registry Policy by construction: all c
 
 #### 2.1 -- Pilot bundle: multi-agent code review
 
-- [ ] T004 Add an adapted fan-out workflow template to catalog/skills/code-review/multi-agent-code-review/
+- [x] T004 Add an adapted fan-out workflow template to catalog/skills/code-review/multi-agent-code-review/
 
 **Objective**: Give the large-surface review skill a ready-made (adaptable) fan-out harness.
 
@@ -105,7 +105,7 @@ This plan aligns with the `AGENTS.md` MCP Registry Policy by construction: all c
 
 #### 2.2 -- Pilot bundle: deep research compilation
 
-- [ ] T005 Add an adapted fan-out workflow template to catalog/skills/specialized-domains/deep-research-compilation/
+- [x] T005 Add an adapted fan-out workflow template to catalog/skills/specialized-domains/deep-research-compilation/
 
 **Objective**: Mirror the article's published `/deep-research` fan-out -> fetch -> verify -> synthesize shape in the catalog's research skill.
 
@@ -116,7 +116,7 @@ This plan aligns with the `AGENTS.md` MCP Registry Policy by construction: all c
 
 #### 2.3 -- Testing and Stabilization
 
-- [ ] T006 Validate both pilot bundles via make validate
+- [x] T006 Validate both pilot bundles via make validate
 
 **Objective**: Confirm both templates are referenced and the catalog stays clean.
 
@@ -127,11 +127,11 @@ This plan aligns with the `AGENTS.md` MCP Registry Policy by construction: all c
 
 ### Phase 2 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] All tests passing
-- [ ] No known regressions from prior phases
-- [ ] Session history generated for this phase
-- [ ] Ready to advance to Phase 3
+- [x] All sub-tasks completed
+- [x] All tests passing
+- [x] No known regressions from prior phases
+- [x] Session history generated for this phase
+- [x] Ready to advance to Phase 3
 
 ---
 
