@@ -213,6 +213,14 @@ The check is a warning (not error) by default so that work-in-progress branches 
 
 **Cross-links**: see [Three-Tier Loading Model](#three-tier-loading-model) for the loading-cost rationale, the [SKILL.md size norm](#skill-md-size-norm) for when to push body content into `references/`, and the v1.1.3 four-hook precedent (`catalog/hooks/{claude,gemini,codex,opencode}-diff-review.sh`) for the parity invariant that applies when a `scripts/` directory ships per-CLI variants.
 
+**Workflow templates (Dynamic Workflows)**: a skill MAY ship a Dynamic-Workflow JavaScript file (under its `scripts/` or `assets/` directory) and reference it from SKILL.md **as a template to adapt, not a verbatim script to run**. This is the workflow-as-skill-bundle distribution pattern: it lets a skill ship a ready-made fan-out harness (e.g. the dimensions -> find -> adversarially-verify review shape, or a fan-out -> fetch -> verify -> synthesize research shape) without inflating the SKILL.md body. Three rules are mandatory:
+
+1. **Graceful degradation.** Dynamic Workflows is a plan-gated research-preview capability that may be absent in the user's harness. The template MUST fall back to isolated subagents (small surface) or a single sequential agent (smallest surface), and the skill MUST NOT hard-depend on the workflow runtime being present.
+2. **Scope-first token caution.** Because a fan-out carries a 5-15x token multiplier, the template MUST carry the scope-first discipline inline: calibrate on one folder first, review the execution plan on the first trigger, and confirm before going full-scale. Cross-link `[[ai-billing-safeguards]]` for the hard budget controls.
+3. **Skill-native.** The template introduces no outbound call, no dependency, and no credential; the subagents it spawns use only the harness's own tools.
+
+Use `agent-orchestration-primitives` as the decision guide for whether a fan-out is warranted at all, and see its `assets/example-fanout-workflow.js` for the reference template. The orphan-bundle audit (below) applies unchanged: the `.js` file MUST be referenced from SKILL.md like any other bundled resource.
+
 ### 4. Register the skill
 
 After creating SKILL.md, update these three files:

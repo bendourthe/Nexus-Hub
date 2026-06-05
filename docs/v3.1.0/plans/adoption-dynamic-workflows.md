@@ -43,7 +43,7 @@ This plan aligns with the `AGENTS.md` MCP Registry Policy by construction: all c
 
 #### 1.1 -- Document the workflow-bundle convention
 
-- [ ] T001 Document the workflow-as-skill-bundle convention in AGENTS.md (Per-skill Bundled Resources section)
+- [x] T001 Document the workflow-as-skill-bundle convention in AGENTS.md (Per-skill Bundled Resources section)
 
 **Objective**: Add the article's distribution pattern to the canonical bundled-resources rules.
 
@@ -54,7 +54,7 @@ This plan aligns with the `AGENTS.md` MCP Registry Policy by construction: all c
 
 #### 1.2 -- Author a reference workflow template
 
-- [ ] T002 Author a reference graceful-degrading Dynamic-Workflow template in catalog/skills/orchestration/agent-orchestration-primitives/assets/example-fanout-workflow.js
+- [x] T002 Author a reference graceful-degrading Dynamic-Workflow template in catalog/skills/orchestration/agent-orchestration-primitives/assets/example-fanout-workflow.js
 
 **Objective**: Provide a canonical, copy-adaptable template the convention can point to.
 
@@ -65,7 +65,7 @@ This plan aligns with the `AGENTS.md` MCP Registry Policy by construction: all c
 
 #### 1.3 -- Testing and Stabilization
 
-- [ ] T003 Validate the convention and reference template via make validate
+- [x] T003 Validate the convention and reference template via make validate
 
 **Objective**: Confirm the new bundle is referenced and the catalog stays clean.
 
@@ -76,11 +76,11 @@ This plan aligns with the `AGENTS.md` MCP Registry Policy by construction: all c
 
 ### Phase 1 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] All tests passing
-- [ ] No known regressions from prior phases
-- [ ] Session history generated for this phase
-- [ ] Ready to advance to Phase 2
+- [x] All sub-tasks completed
+- [x] All tests passing
+- [x] No known regressions from prior phases
+- [x] Session history generated for this phase
+- [x] Ready to advance to Phase 2
 
 ---
 

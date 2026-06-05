@@ -99,6 +99,8 @@ The single most important warning. Use subagents to *explore and answer question
 
 Once a primitive is chosen, the *shape* of the orchestration follows one of five named patterns (prompt chaining, routing, parallelization, orchestrator-worker, evaluator-optimizer). These are documented with selection guidance and worked examples in [references/five-patterns.md](references/five-patterns.md). Read that file when you need to pick a pattern; this body does not duplicate it.
 
+When you reach for **Dynamic Workflows** specifically, [assets/example-fanout-workflow.js](assets/example-fanout-workflow.js) is a copy-adaptable reference template: a read-only fan-out-and-synthesize workflow (audit every file under a directory, then merge the findings) that begins with the required `export const meta = {...}` literal and carries the mandatory graceful-degradation fallback and the scope-first token caution inline. It is a TEMPLATE TO ADAPT, not a script to run verbatim -- copy `example-fanout-workflow.js` into your skill's `scripts/` or `assets/` directory and rewrite the meta, schema, and prompts for your task. This is the workflow-as-skill-bundle distribution pattern documented under "Per-skill Bundled Resources" in `AGENTS.md`.
+
 ## Common Rationalizations
 
 | Rationalization | Reality |
