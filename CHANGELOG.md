@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.1.1] - 2026-06-08
+
+**Fixed: the `/skills list` command cheatsheet now has authored, self-maintaining backing.** The v3.0.0 command consolidation wired `/skills list` (which the deprecated `/commands-cheatsheet` forwards to) to a "retained `commands-cheatsheet` skill" that was never actually written -- so the cheatsheet had no source of truth and the agent improvised it inconsistently, with no deprecated-command mapping or workflow guidance. This patch gives it a real procedure that **generates the cheatsheet at runtime from the command files themselves**, so it is correct by construction and updates automatically on every command add / rename / deprecation -- there is no static command list to maintain anywhere. SemVer **patch** (bug fix; catalog count unchanged at 250 -- the procedure is a style-guide, not a counted skill).
+
+### Fixed
+
+- **`/skills list` cheatsheet generation** (`catalog/style-guides/commands-cheatsheet.md`): a new style-guide defining how `/skills list` renders the cheatsheet -- locate the command surface (installed `commands/` / `prompts/` / `workflows/`, or `catalog/commands/`), read each command's frontmatter `description`, classify active / alias / shim, build the deprecated-to-new "replaces" map from each shim's forwarding target, and render three sections: (1) active commands with what they do and the deprecated names they replace, (2) a deprecated-to-new migration map, (3) common multi-command workflows. Verified against the live catalog: 14 active commands + 2 permanent aliases + 40 deprecation shims, all 40 forward targets parsed. Auto-installs to `~/.nexus-hub/style-guides/`.
+- **`catalog/commands/skills.md`**: the `list` scope now reads and follows the new style-guide and documents the runtime-generation behavior, replacing the dangling delegation to a non-existent retained skill.
+
+### Changed
+
+- **`AGENTS.md` "Adding a New Command"**: documents the rename/deprecation shim convention and states explicitly that no static command list is maintained -- `/skills list` derives the cheatsheet live from the command files, so adding / renaming / deprecating a command updates it automatically.
+
 ## [3.1.0] - 2026-06-08
 
 **v3.1.0 -- selective Claude-Red offensive-methodology adoption + Dynamic Workflows residual.** Two scope-gated, catalog-native external-source adoptions from the 2026-06-04 `/compare-project` cycle, sequenced reverse-engineer-first behind one shared gate (the `nexus-skill-scanner` producer-catalog allowlist). Master roadmap: [`docs/v3.1.0/plans/v3.1.0-adoption-roadmap.md`](docs/v3.1.0/plans/v3.1.0-adoption-roadmap.md). Both are `skill-native` (pure catalog content; zero new outbound call, credential, dependency, or third-party processor). **Claude-Red** ([`docs/v3.1.0/plans/adoption-claude-red.md`](docs/v3.1.0/plans/adoption-claude-red.md)) contributes a re-authored slice of offensive-security methodology that sharpens the existing defensive review surface, gated behind the scanner allowlist and an Ask-First category decision; re-authored generically per the Reverse-Engineering Attribution Rule with authorized-engagement preconditions in Verification. **Dynamic Workflows** ([`docs/v3.1.0/plans/adoption-dynamic-workflows.md`](docs/v3.1.0/plans/adoption-dynamic-workflows.md)) contributes the workflow-as-skill-bundle distribution pattern (gracefully-degrading Dynamic-Workflow `.js` templates inside skill bundles, referenced from SKILL.md as templates to adapt) piloted on two read-only fan-out skills, plus minor orchestration enrichments. SemVer **minor** bump (additive). Open items: [`docs/v3.1.0/known-gaps.md`](docs/v3.1.0/known-gaps.md).
