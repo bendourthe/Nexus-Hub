@@ -1,13 +1,15 @@
 ---
 name: advanced-attack-patterns
-description: Advanced attack classes beyond the OWASP Top 10 baseline including state desynchronization, cache poisoning, replay attacks, and timing-attack side channels. Each class is gated on an applicability check so the audit only engages where the attack surface actually exists. Use when extending a baseline security review, auditing distributed systems or cache-heavy architectures, or running `/run-penetration-test --depth=deep`.
-summary_l0: "Advanced attack classes: state desync, cache poisoning, replay, and timing side channels"
-overview_l1: "This skill covers advanced attack classes that generic OWASP Top 10 reviews miss because they depend on architectural properties rather than input validation: distributed-state divergence, HTTP cache manipulation, protocol-level replay, and timing side channels in branches that depend on secret-valued inputs. Use it as a second pass after the baseline security-review, when auditing cache-heavy or eventually-consistent architectures, or in the `/run-penetration-test --depth=deep` advanced-attacks hunter. Key capabilities include state-desynchronization detection across client/server, cache/DB, and multi-service boundaries; cache-poisoning analysis covering cache-key hygiene, Vary-header correctness, and cache-deception; replay-attack detection spanning nonces, idempotency keys, and timestamp windows; and timing-attack surface identification beyond password comparison. The expected output is a findings table keyed by attack class with applicability verdict, exploit sketch, and architectural remediation. Trigger phrases: advanced attacks, state desync, cache poisoning, cache deception, replay attack, nonce, idempotency, timing attack, side channel, user enumeration, token binding."
+description: Advanced and web-application attack classes beyond the OWASP Top 10 baseline -- architectural classes (state desynchronization, cache poisoning, replay, timing side channels) plus the attacker-perspective injection and access-control vectors that baseline reviews under-test (SSRF, SSTI, XXE, insecure deserialization, HTTP request smuggling, IDOR). Each class is gated on an applicability check so the audit only engages where the attack surface exists, and every vector is framed to strengthen `/review security` and `/run-penetration-test --depth=deep`. Use when extending a baseline security review, auditing distributed / cache-heavy architectures, or red-teaming a web application under authorization. SKIP, do NOT use for, generic input-validation lint (use security-review), business-rule abuse such as pricing or refund manipulation (use business-logic-abuse), or any test without documented authorization and scope.
+summary_l0: "Advanced and web-app attack surfaces: state desync, cache poisoning, SSRF, XXE, deserialization, request smuggling, IDOR"
+overview_l1: "This skill covers advanced and web-application attack classes that generic OWASP Top 10 reviews under-test. The first family is architectural -- distributed-state divergence, HTTP cache manipulation, protocol-level replay, and timing side channels -- which input-validation scanners never inspect. The second family is the attacker-perspective injection and access-control surface: server-side request forgery, server-side template injection, XML external entities, insecure deserialization, HTTP request smuggling, and insecure direct object reference. Each class opens with an applicability check so the audit stays high-signal, and every web-app vector is framed to strengthen `/review security` and the `/run-penetration-test --depth=deep` advanced-attacks hunter. Deep per-vector payloads live in `references/web-appsec-methodology.md`. The expected output is a findings table keyed by attack class with applicability verdict, exploit sketch, and remediation. Trigger phrases: advanced attacks, state desync, cache poisoning, replay attack, timing attack, SSRF, SSTI, XXE, insecure deserialization, request smuggling, HTTP desync, IDOR, broken access control, WSTG deep pass."
 ---
 
 # Advanced Attack Patterns
 
-Four attack classes that a baseline OWASP Top 10 review routinely misses because they depend on architectural properties (distributed state, HTTP caching, protocol guarantees, observable timing) rather than on input validation. Each class is gated on an applicability check: if the architectural precondition is absent, skip the class and document why. The goal is a high-signal findings table, not a scripted walkthrough.
+Two families of attack classes that a baseline OWASP Top 10 review routinely under-tests. The **architectural** family (Steps 1-4) depends on system properties - distributed state, HTTP caching, protocol guarantees, observable timing - that input-validation scanners never inspect. The **injection and access-control** family (Step 5) is the attacker-perspective web-application surface - SSRF, SSTI, XXE, insecure deserialization, HTTP request smuggling, and IDOR - where a scanner flags the easy cases but a human auditor probes the bypass conditions. Each class is gated on an applicability check: if the precondition is absent, skip the class and document why. The goal is a high-signal findings table, not a scripted walkthrough.
+
+This skill is offensive knowledge in service of defense: the same understanding that lets you reach an internal endpoint via SSRF or smuggle a request past a front-end is what lets you write the control that blocks it. Run it only inside an authorized engagement with documented scope, keep payloads benign and pointed at reserved placeholder destinations such as `attacker.example`, and treat the remediation as the deliverable.
 
 ## When to Use This Skill
 
@@ -18,23 +20,37 @@ Use this skill when:
 - Auditing HTTP caching architectures (CDNs, reverse proxies, application-layer caches)
 - Assessing authentication or high-value endpoints where replay semantics matter
 - Investigating user-enumeration or timing-leak reports
+- Red-teaming a web application's injection and access-control surface (SSRF, SSTI, XXE, deserialization, request smuggling, IDOR) under authorization, or hardening `/review security` against those vectors
+- Auditing any endpoint that fetches a user-supplied URL, renders a template from user input, parses XML, deserializes a request body, sits behind a front-end/back-end proxy pair, or exposes object identifiers in its API
 
 Do NOT use this skill for:
-- Generic input-validation bugs (use `security-review` or baseline `/run-penetration-test`).
-- Business-logic rule violations (use `business-logic-abuse` - it partners with this skill but covers a different axis).
+- Generic input-validation bugs with no advanced angle (use `security-review` or baseline `/run-penetration-test`).
+- Business-logic rule violations - pricing/refund abuse, anti-fraud defeat, workflow-step bypass (use `business-logic-abuse`; it partners with this skill but covers a different axis).
+- Any engagement without documented authorization, scope, and rules of engagement - stop and obtain them first.
 
-**Trigger phrases**: "state desync", "state desynchronization", "cache poisoning", "cache deception", "replay attack", "nonce validation", "idempotency replay", "timing attack", "user enumeration", "token binding", "side channel", "Vary header", "CDN cache", "WSTG deep".
+**Trigger phrases**: "state desync", "state desynchronization", "cache poisoning", "cache deception", "replay attack", "nonce validation", "idempotency replay", "timing attack", "user enumeration", "token binding", "side channel", "Vary header", "CDN cache", "SSRF", "server-side request forgery", "cloud metadata", "SSTI", "template injection", "XXE", "XML external entity", "insecure deserialization", "gadget chain", "request smuggling", "HTTP desync", "CL.TE", "TE.CL", "IDOR", "broken object level authorization", "WSTG deep".
 
 ## What This Skill Does
 
-Provides a four-class advanced-attack audit procedure:
+Provides a two-family advanced-attack audit procedure.
+
+**Architectural family (Steps 1-4):**
 
 - **State Desynchronization**: Client/server divergence, cache-vs-DB divergence, step-skip via direct endpoints.
 - **Cache Poisoning**: Unkeyed inputs, missing Vary entries, header-injection into cache keys, cache deception via path confusion.
 - **Replay Attacks**: Missing nonces, absent timestamp windows, absent token binding, idempotency replay outside the intended window.
 - **Timing Attack Surfaces**: Enumeration via response-time delta, token-lookup timing, crypto branch timing beyond the classic `==` password comparison.
 
-Each section starts with an **applicability check**. If the precondition does not hold, the class is skipped with a one-line justification in the output. This keeps the audit high-signal and avoids false-positive noise on architectures the class cannot reach.
+**Injection and access-control family (Step 5):**
+
+- **SSRF**: Coercing the server to make attacker-chosen requests - internal services, cloud metadata, port scanning, and the filter bypasses (DNS rebinding, redirects, alternate IP encodings) that defeat naive allow/deny lists.
+- **SSTI**: Reaching a template engine with user input, escalating from expression evaluation to object traversal and command execution.
+- **XXE**: Abusing an XML parser's external-entity resolution for file read, blind out-of-band exfiltration, and denial of service.
+- **Insecure Deserialization**: Turning an untrusted serialized payload into code execution via language-specific gadget chains (pickle, `readObject`, `unserialize`, `BinaryFormatter`).
+- **HTTP Request Smuggling**: Front-end/back-end length-parsing disagreement (CL.TE / TE.CL / TE.TE) to poison the connection and hijack adjacent requests.
+- **IDOR**: Object identifiers accepted without an ownership check, enabling horizontal and vertical access to other tenants' data.
+
+Each section starts with an **applicability check**. If the precondition does not hold, the class is skipped with a one-line justification in the output. This keeps the audit high-signal and avoids false-positive noise on surfaces the class cannot reach. Deep per-vector payloads and engine-specific probes for the Step 5 family live in [`references/web-appsec-methodology.md`](references/web-appsec-methodology.md), kept out of this body so it stays within the size norm.
 
 ## Instructions
 
@@ -150,7 +166,84 @@ If no HTTP caching layer exists, skip to Step 3 with justification "No HTTP cach
 - For custom crypto: use vetted libraries (`libsodium`, `cryptography`, `tink`) exclusively; do not implement RSA or AES primitives in application code.
 - For regex: bound backtracking with atomic groups, possessive quantifiers, or a bounded-backtracking engine (Rust's `regex`, Go's `regexp`, `re2`).
 
-### Step 5: Output Format
+### Step 5: Injection and Access-Control Attack Surfaces
+
+The web-application family. Where Steps 1-4 hinge on architecture, these hinge on a sink that trusts attacker-influenced input. For each vector below: run the applicability check, take the attacker's approach to confirm reachability, then convert the confirmed reach into the defensive control. Full engine-specific probes, filter-bypass catalogs, and language-specific gadget notes are in [`references/web-appsec-methodology.md`](references/web-appsec-methodology.md) - keep payloads fenced and pointed at reserved placeholders (`attacker.example`, internal RFC-1918 ranges) so the engagement stays benign.
+
+#### 5a. Server-Side Request Forgery (SSRF)
+
+**Applicability check**: Does any endpoint fetch a URL, hostname, or file path that the user can influence (webhooks, link previews, PDF/image renderers, import-from-URL, document converters, SSO metadata fetch, server-side `fetch`/`curl`)? If no server-initiated request depends on user input, skip with "No server-side fetch surface."
+
+**Attacker approach**: Point the fetch at what the server can reach but the attacker cannot - internal services, the cloud metadata endpoint, and localhost admin ports. The high-value target is cloud instance metadata for credential theft.
+
+```text
+http://169.254.169.254/latest/meta-data/iam/security-credentials/   # cloud metadata (IMDSv1)
+http://localhost:6379/   gopher://127.0.0.1:6379/_<redis-command>   # internal service / protocol smuggling
+```
+
+When a naive allow/deny list is present, the finding is the *bypass*: DNS rebinding, a `30x` redirect from an allowed host to an internal one, alternate IP encodings (decimal/octal/IPv6-mapped), or `@`-confusion in the authority. See the references file for the bypass catalog.
+
+**Indicators in code**: user-supplied URL passed to an HTTP client with no host allowlist; allowlist checked against the *pre-redirect* host only; SSRF "protection" that blocks `localhost` literally but not `127.0.0.1`, `0.0.0.0`, or a rebinding domain.
+
+**Remediation**: allowlist destination hosts and resolve-then-pin the IP (re-validate after every redirect); block link-local/loopback/RFC-1918 ranges at the egress layer; require IMDSv2 (token-bound) on cloud hosts; disable unused URL schemes (`gopher://`, `file://`, `dict://`).
+
+#### 5b. Server-Side Template Injection (SSTI)
+
+**Applicability check**: Is user input ever concatenated into a server-side template (email/report generators, themable pages, "custom message" fields rendered by Jinja2, Twig, Freemarker, Velocity, ERB, Handlebars)? If templates are always rendered from static files with data passed as bound context, skip with "No user-controlled template source."
+
+**Attacker approach**: Send an arithmetic probe and observe whether it is evaluated rather than echoed.
+
+```text
+${7*7}   {{7*7}}   #{7*7}   <%= 7*7 %>     # 49 in the response confirms evaluation
+```
+
+Confirmed evaluation escalates to object-graph traversal and, on most engines, command execution. Treat reaching evaluation as the finding; demonstrate escalation only as far as the rules of engagement allow, using a benign marker (e.g. printing a fixed string) rather than a live system command.
+
+**Indicators in code**: `render_template_string(user_input)`, f-string/`+` concatenation into a template, a CMS "custom template" feature without a sandbox.
+
+**Remediation**: never compile templates from user input - pass user data as bound context to a static template; use a logic-less engine (Mustache) or a sandboxed environment where available; treat SSTI as RCE-class severity.
+
+#### 5c. XML External Entity (XXE)
+
+**Applicability check**: Does the app parse XML from any untrusted source (SOAP, SAML, SVG upload, DOCX/XLSX, RSS, XML APIs)? If no XML is parsed from untrusted input, skip with "No XML parse surface."
+
+**Attacker approach**: Define an external entity and observe whether the parser resolves it - file disclosure inline, or blind/out-of-band exfiltration via an external DTD fetched from `attacker.example` when the response body does not reflect the entity. A recursive-entity payload tests for denial of service.
+
+**Indicators in code**: an XML parser constructed without disabling DTDs/external entities (`libxml` with `noent`, Java `DocumentBuilderFactory` defaults on old runtimes, .NET `XmlResolver` set).
+
+**Remediation**: disable DOCTYPE/DTD processing and external-entity resolution on every parser; prefer a parser that is secure by default; for SVG/Office uploads, parse with entity resolution off and validate against a schema.
+
+#### 5d. Insecure Deserialization
+
+**Applicability check**: Does the app deserialize untrusted bytes into objects (Python `pickle`, Java native `readObject`, PHP `unserialize`, .NET `BinaryFormatter`, Ruby `Marshal`, YAML with implicit object tags)? JSON-into-DTO with explicit field binding does NOT qualify. If only safe formats are deserialized, skip with "No native-object deserialization of untrusted input."
+
+**Attacker approach**: The exploit is a *gadget chain* - existing classes whose deserialization side effects compose into code execution. Confirm the vulnerable sink and the presence of a known gadget library on the classpath rather than shipping a weaponized chain; the references file describes the per-language sinks conceptually.
+
+**Indicators in code**: `pickle.loads`, `yaml.load` without `SafeLoader`, `ObjectInputStream.readObject` on request data, `BinaryFormatter.Deserialize`, `Marshal.load` on user input.
+
+**Remediation**: do not deserialize native objects from untrusted input - use a data-only format (JSON/Protobuf) with explicit schema binding; if unavoidable, enforce a strict type allowlist and run the parser with least privilege.
+
+#### 5e. HTTP Request Smuggling
+
+**Applicability check**: Is there a front-end/back-end pair (CDN, reverse proxy, load balancer in front of an app server) that may parse request boundaries differently? If a single server terminates the connection with no intermediary, skip with "No proxy chain to desynchronize."
+
+**Attacker approach**: Send a request where `Content-Length` and `Transfer-Encoding` disagree (CL.TE, TE.CL) or `Transfer-Encoding` is obfuscated so one hop ignores it (TE.TE). The desync leaves a prefix in the connection buffer that gets prepended to the next user's request - enabling request hijack, cache poisoning, and control bypass. Confirm with timing-based detection before any exploit attempt.
+
+**Indicators in config**: a proxy and an origin running different HTTP stacks; HTTP/1.1 keep-alive to the back-end; ambiguous header handling not normalized at the edge.
+
+**Remediation**: normalize/reject ambiguous requests at the front-end (reject messages with both `CL` and `TE`); use HTTP/2 end-to-end where possible; disable back-end connection reuse for upstream pools that face untrusted input.
+
+#### 5f. Insecure Direct Object Reference (IDOR) / Broken Object-Level Authorization
+
+**Applicability check**: Do any endpoints accept an object identifier (numeric ID, UUID, filename, account number) and return or mutate that object? If every data access is implicitly scoped to the authenticated principal, skip with "No client-supplied object reference."
+
+**Attacker approach**: Authenticate as a low-privilege user, then substitute another principal's identifier and observe whether the object is returned or mutated. Probe horizontal access (another user, same role) and vertical access (an admin-only object). Mass-assignment is the write-side sibling: submit fields the UI never exposes (`role`, `is_admin`, `owner_id`).
+
+**Indicators in code**: a handler that loads `Object.get(id)` from the request without a `WHERE owner = current_user` predicate; authorization enforced only by hiding the link in the UI; sequential or guessable identifiers.
+
+**Remediation**: enforce object-level authorization at the data layer on every access - scope every query to the authenticated principal, not just the route guard; bind writes to an explicit field allowlist; prefer unguessable identifiers as defense-in-depth (not as the control).
+
+### Step 6: Output Format
 
 Produce findings as a table. Include applicability decisions for classes that were skipped so the operator sees the complete audit shape:
 
@@ -160,6 +253,8 @@ Produce findings as a table. Include applicability decisions for classes that we
 | Cache poisoning | YES (Cloudflare CDN) | CRITICAL | `nginx.conf + src/views/home.py:88` | `X-Forwarded-Host` reflected into absolute URLs; not in cache key | Strip `X-Forwarded-Host` at CDN, add to cache key, switch to relative URLs |
 | Replay attacks | NO | - | - | - | No signed requests outside webhooks; webhooks already dedup on event_id |
 | Timing attacks | YES (login endpoint) | MEDIUM | `src/auth/login.py:31-49` | Timing delta ~120ms reveals valid usernames | Run dummy bcrypt for missing users |
+| SSRF | YES (link-preview fetch) | CRITICAL | `src/preview/fetch.py:22` | User URL fetched with no allowlist; reaches the cloud metadata endpoint for IAM role credentials | Allowlist + resolve-and-pin host, block link-local at egress, require IMDSv2 |
+| IDOR | YES (invoice endpoint) | HIGH | `src/billing/invoice.py:60` | `GET /invoices/{id}` loads by id with no owner check; another tenant's invoice returned | Scope the query to `current_user`, enforce object-level authz at the data layer |
 
 Severity guidance:
 - CRITICAL: attack is exploitable in default config, gives code execution, session hijack, or bulk data exposure.
@@ -220,11 +315,19 @@ response.headers["Vary"] = "Cookie"  # Cookie includes the session
 
 ## Verification
 
+- [ ] Written authorization, scope, and rules of engagement are documented before any probe was run; targets are in scope and the data is synthetic or marked test data
+- [ ] Every payload used during the assessment was benign and pointed at a reserved placeholder (`attacker.example`) or an in-scope internal host - no real data was moved off the target
 - [ ] For each cache-poisoning finding, attempt the exploit from a second client to confirm cross-user impact
 - [ ] For each timing finding, measure the timing delta from an unprivileged network position to confirm observability
 - [ ] For each replay finding, capture and re-send the request; confirm rejection after the fix
 - [ ] For each state-desync finding, write an integration test that triggers the divergence and asserts the post-fix invariant
 - [ ] Confirm `Vary` headers by requesting the same URL with and without the relevant header from a CDN-adjacent tool (e.g., `curl -I` against the CDN, then the origin)
+- [ ] For each SSRF finding, confirm the server reached an attacker-chosen internal/metadata destination, then re-test after the allowlist + egress fix to confirm the reach is closed
+- [ ] For each SSTI/deserialization finding, demonstrate only as far as the rules of engagement allow (a benign marker, not a live system command) and confirm the sink rejects untrusted input after the fix
+- [ ] For each XXE finding, confirm external-entity resolution is disabled on the parser after the fix
+- [ ] For each request-smuggling finding, confirm the front-end now rejects ambiguous `CL`/`TE` requests
+- [ ] For each IDOR finding, re-test object access as a different principal and confirm the data-layer authorization check rejects it
+- [ ] Each finding maps to a concrete defensive control (allowlist, parser config, authz predicate) handed to `security-review` / `security-patch-advisor`
 
 ## Common Rationalizations
 
@@ -234,19 +337,24 @@ response.headers["Vary"] = "Cookie"  # Cookie includes the session
 | "We use a vetted crypto library, so there is no timing-attack surface" | The most common timing leak is user enumeration on `/login` and `/forgot-password`, where the secret-dependent branch is your own `if user_exists` early return, not anything inside the crypto library. |
 | "Replay does not matter because our tokens expire" | A bearer token with a multi-day expiry can be replayed from any network for its whole lifetime; expiry is not a nonce, and without timestamp-window plus nonce a captured signed webhook replays indefinitely. |
 | "This architecture is too simple to have distributed state" | A single read-replica or a Redis cache in front of the DB is enough to serve a just-revoked permission from a stale cache, which is exactly the cache-vs-DB divergence in Step 1. |
+| "The SSRF fetch only hits an internal allowlist, so it is safe" | An allowlist that checks the pre-redirect host is bypassed by a `30x` to an internal target, and one that blocks `localhost` literally still resolves `127.0.0.1`, a decimal-encoded IP, or a rebinding domain; the durable control is resolve-and-pin plus egress filtering, not a hostname string match. |
+| "Object IDs are UUIDs, so IDOR is not exploitable" | Unguessable identifiers are defense-in-depth, not authorization; UUIDs leak through referrers, logs, shared links, and prior responses, and once an attacker has one, an endpoint with no `WHERE owner = current_user` predicate hands over the object regardless of how random the id was. |
+| "We pass user data into the template, but it is just for a custom message" | If user input reaches a server-side template compiler at all, `{{7*7}}` returning `49` proves expression evaluation, which on most engines escalates to object traversal and command execution; the fix is to pass data as bound context, never to compile a template from user input. |
 
 ## Related Skills
 
-- [[business-logic-abuse]] -- companion skill; state-desynchronization step-skip and workflow-bypass overlap heavily
-- [[security-patch-advisor]] -- patch generation for XSS / SQL-i / SSRF fixes referenced in remediation
+- [[business-logic-abuse]] -- companion skill; state-desynchronization step-skip and workflow-bypass overlap heavily, and its attacker playbooks pair with the Step 5 injection family
+- [[security-patch-advisor]] -- patch generation for the SSRF / SSTI / XXE / deserialization fixes referenced in remediation
 - [[security-review]] -- baseline OWASP Top 10 pass that this skill extends
-- [[authentication-patterns]] -- token binding, session management, MFA flows referenced in replay attacks
+- [[authentication-patterns]] -- token binding, session management, and the JWT/OAuth attack methodology referenced in replay attacks
+- [[pentest-reporting]] -- writes up the findings this skill produces (CVSS, evidence, executive summary, retest)
+- [[exploitability-analyzer]] -- scores and prioritizes the confirmed findings for the report
 - [[fintech-engineer]] -- financial replay and double-spend coverage in payment-specific contexts
 
 ---
 
-**Version**: 1.0.0
-**Last Updated**: April 2026
+**Version**: 1.1.0
+**Last Updated**: June 2026
 
 ### Iterative Refinement Strategy
 

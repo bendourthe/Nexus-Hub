@@ -149,7 +149,7 @@ This plan aligns with the `AGENTS.md` MCP Registry Policy (all candidates are `s
 
 #### 3.1 -- Enrich advanced-attack-patterns
 
-- [ ] T007 Fold web AppSec attack methodology into catalog/skills/security/advanced-attack-patterns/SKILL.md
+- [x] T007 Fold web AppSec attack methodology into catalog/skills/security/advanced-attack-patterns/SKILL.md
 
 **Objective**: Add concrete attacker-perspective methodology for SSRF, SSTI, XXE, deserialization, request-smuggling, and IDOR.
 
@@ -160,7 +160,7 @@ This plan aligns with the `AGENTS.md` MCP Registry Policy (all candidates are `s
 
 #### 3.2 -- Enrich business-logic-abuse
 
-- [ ] T008 Fold business-logic attack scenarios into catalog/skills/security/business-logic-abuse/SKILL.md
+- [x] T008 Fold business-logic attack scenarios into catalog/skills/security/business-logic-abuse/SKILL.md
 
 **Objective**: Add concrete attack scenarios (pricing/refund abuse, anti-fraud defeat, workflow bypass) the defensive skill can cite.
 
@@ -171,7 +171,7 @@ This plan aligns with the `AGENTS.md` MCP Registry Policy (all candidates are `s
 
 #### 3.3 -- Testing and Stabilization
 
-- [ ] T009 Validate Phase 3 via make validate and the scanner gate
+- [x] T009 Validate Phase 3 via make validate and the scanner gate
 
 **Objective**: Confirm the enriched skills stay clean and within norms.
 
@@ -182,11 +182,11 @@ This plan aligns with the `AGENTS.md` MCP Registry Policy (all candidates are `s
 
 ### Phase 3 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] All tests passing
-- [ ] No known regressions from prior phases
-- [ ] Session history generated for this phase
-- [ ] Ready to advance to Phase 4
+- [x] All sub-tasks completed
+- [x] All tests passing
+- [x] No known regressions from prior phases
+- [x] Session history generated for this phase
+- [x] Ready to advance to Phase 4
 
 ---
 

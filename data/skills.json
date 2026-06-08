@@ -8307,10 +8307,10 @@
     {
       "name": "advanced-attack-patterns",
       "title": "advanced-attack-patterns",
-      "description": "Advanced attack classes beyond the OWASP Top 10 baseline including state desynchronization, cache poisoning, replay attacks, and timing-attack side channels. Each class is gated on an applicability check so the audit only engages where the attack surface actually exists. Use when extending a baseline security review, auditing distributed systems or cache-heavy architectures, or running `/run-penetration-test --depth=deep`.",
-      "long_description": "Four attack classes that a baseline OWASP Top 10 review routinely misses because they depend on architectural properties (distributed state, HTTP caching, protocol guarantees, observable timing) rather than on input validation. Each class is gated on an applicability check: if the architectural prec...",
-      "summary_l0": "\"Advanced attack classes: state desynchronization, cache poisoning, replay attacks, and timing-attack side channels beyond password comparison\"",
-      "overview_l1": "\"This skill covers advanced attack classes that generic OWASP Top 10 reviews miss because they depend on architectural properties rather than input validation: distributed-state divergence, HTTP cache manipulation, protocol-level replay, and timing side channels in branches that depend on secret-valued inputs. Use it as a second pass after the baseline security-review, when auditing cache-heavy or eventually-consistent architectures, or as the second half of the `/run-penetration-test --depth=deep` Business Logic & Advanced Attacks hunter. Key capabilities include state-desynchronization detection across client/server, cache/DB, and multi-service boundaries; cache-poisoning analysis covering cache-key hygiene, Vary-header correctness, and cache-deception; replay-attack detection spanning nonces, idempotency keys, and timestamp-window validation; and timing-attack surface identification beyond password comparison. The expected output is a findings table keyed by attack class with applicability verdict, exploit sketch, and architectural remediation. Trigger phrases: advanced attacks, state desync, cache poisoning, cache deception, replay attack, nonce, idempotency, timing attack, side channel, user enumeration, token binding, WSTG deep pass.\"",
+      "description": "Advanced and web-application attack classes beyond the OWASP Top 10 baseline -- architectural classes (state desynchronization, cache poisoning, replay, timing side channels) plus the attacker-perspective injection and access-control vectors that baseline reviews under-test (SSRF, SSTI, XXE, insecure deserialization, HTTP request smuggling, IDOR). Each class is gated on an applicability check so the audit only engages where the attack surface exists, and every vector is framed to strengthen `/review security` and `/run-penetration-test --depth=deep`. Use when extending a baseline security review, auditing distributed / cache-heavy architectures, or red-teaming a web application under authorization. SKIP, do NOT use for, generic input-validation lint (use security-review), business-rule abuse such as pricing or refund manipulation (use business-logic-abuse), or any test without documented authorization and scope.",
+      "long_description": "Two families of attack classes that a baseline OWASP Top 10 review routinely under-tests. The architectural family (Steps 1-4) depends on system properties - distributed state, HTTP caching, protocol guarantees, observable timing - that input-validation scanners never inspect. The injection and acce...",
+      "summary_l0": "\"Advanced and web-app attack surfaces: state desync, cache poisoning, SSRF, XXE, deserialization, request smuggling, IDOR\"",
+      "overview_l1": "\"This skill covers advanced and web-application attack classes that generic OWASP Top 10 reviews under-test. The first family is architectural -- distributed-state divergence, HTTP cache manipulation, protocol-level replay, and timing side channels -- which input-validation scanners never inspect. The second family is the attacker-perspective injection and access-control surface: server-side request forgery, server-side template injection, XML external entities, insecure deserialization, HTTP request smuggling, and insecure direct object reference. Each class opens with an applicability check so the audit stays high-signal, and every web-app vector is framed to strengthen `/review security` and the `/run-penetration-test --depth=deep` advanced-attacks hunter. Deep per-vector payloads live in `references/web-appsec-methodology.md`. The expected output is a findings table keyed by attack class with applicability verdict, exploit sketch, and remediation. Trigger phrases: advanced attacks, state desync, cache poisoning, replay attack, timing attack, SSRF, SSTI, XXE, insecure deserialization, request smuggling, HTTP desync, IDOR, broken access control, WSTG deep pass.\"",
       "version": "1.0.0",
       "author": "Benjamin Dourthe",
       "category": "security",
@@ -8324,9 +8324,9 @@
       "path": "catalog/skills/security/advanced-attack-patterns/",
       "file": "catalog/skills/security/advanced-attack-patterns/SKILL.md",
       "size": {
-        "lines": 258,
-        "characters": 21942,
-        "tokens_estimate": 3030
+        "lines": 366,
+        "characters": 37022,
+        "tokens_estimate": 5148
       },
       "downloads": 0,
       "status": "production",
@@ -8340,10 +8340,10 @@
     {
       "name": "business-logic-abuse",
       "title": "business-logic-abuse",
-      "description": "Identify business-logic vulnerabilities that bypass intended workflows including race conditions, TOCTOU, double-spending, workflow-state bypass, idempotency violations, and check-sequence abuse. Requires domain knowledge of the application's business rules because these flaws do not appear in generic scanners. Use when auditing financial flows, reservation systems, multi-step workflows, or any feature with stateful invariants.",
+      "description": "Identify business-logic vulnerabilities that bypass intended workflows -- race conditions, TOCTOU, double-spending, workflow-state bypass, idempotency violations, check-sequence abuse -- and the concrete attacker playbooks they enable: pricing/refund abuse, coupon and promo stacking, anti-fraud and rate-limit defeat, multi-accounting, and workflow-step bypass. Requires domain knowledge of the application's business rules because these flaws do not appear in generic scanners. Use when auditing financial flows, reservation systems, multi-step workflows, or any feature with stateful invariants, or when red-teaming pricing/refund/promo logic under authorization. SKIP, do NOT use for, generic injection classes such as XSS or SQL injection (use security-review), architectural or web-app attacks such as SSRF or request smuggling (use advanced-attack-patterns), or stateless endpoint bugs (use semantic-bug-detector).",
       "long_description": "Business-logic vulnerabilities break the application's own rules: balances go negative, workflows skip required steps, requests replay inside an allowed window, two parallel operations both succeed when only one should. Generic scanners miss these because they depend on domain knowledge - what \"vali...",
-      "summary_l0": "\"Identify business-logic vulnerabilities: race conditions, TOCTOU, double-spending, workflow bypass, and idempotency violations - requires domain knowledge\"",
-      "overview_l1": "\"This skill identifies business-logic vulnerabilities that generic scanners cannot find because the flaws depend on the application's own rules. Use it when auditing high-value workflows (payments, ledgers, reservations, privilege grants), when reviewing state-machine implementations, or when extending `/run-penetration-test` with domain-aware checks under `--depth=deep`. Key capabilities include race-condition and TOCTOU detection at atomicity boundaries, double-spending and replay-within-window analysis, workflow-state bypass via direct-endpoint calls, idempotency-key review, check-sequence abuse (validate X then act on Y), and missing state-machine guards. The expected output is a findings table with severity, invariant violated, code reference, reproduction sketch, and architectural remediation. Trigger phrases: business logic, race condition, TOCTOU, double-spend, idempotency, workflow bypass, state machine, check-then-act, deep pen-test, WSTG-BUSL.\"",
+      "summary_l0": "\"Business-logic abuse: race conditions, TOCTOU, double-spending, workflow bypass, pricing/refund abuse, anti-fraud defeat\"",
+      "overview_l1": "\"This skill identifies business-logic vulnerabilities that generic scanners cannot find because the flaws depend on the application's own rules. Use it when auditing high-value workflows (payments, ledgers, reservations, privilege grants), reviewing state-machine implementations, or extending `/run-penetration-test --depth=deep` with domain-aware checks. Key capabilities include race-condition and TOCTOU detection at atomicity boundaries, double-spending and replay-within-window analysis, workflow-state bypass via direct-endpoint calls, idempotency-key review, check-sequence abuse, and concrete attacker playbooks -- pricing/refund abuse, coupon stacking, anti-fraud and rate-limit defeat, and workflow-step bypass -- that give each finding a business impact. The expected output is a findings table with severity, invariant violated, code reference, reproduction sketch, and remediation. Trigger phrases: business logic, race condition, TOCTOU, double-spend, idempotency, workflow bypass, pricing abuse, refund abuse, promo stacking, multi-accounting, anti-fraud bypass, WSTG-BUSL.\"",
       "version": "1.0.0",
       "author": "Benjamin Dourthe",
       "category": "security",
@@ -8357,9 +8357,9 @@
       "path": "catalog/skills/security/business-logic-abuse/",
       "file": "catalog/skills/security/business-logic-abuse/SKILL.md",
       "size": {
-        "lines": 262,
-        "characters": 19035,
-        "tokens_estimate": 2666
+        "lines": 324,
+        "characters": 27839,
+        "tokens_estimate": 3971
       },
       "downloads": 0,
       "status": "production",
