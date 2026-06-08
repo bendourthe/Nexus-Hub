@@ -4435,11 +4435,11 @@
     {
       "name": "authentication-patterns",
       "title": "authentication-patterns",
-      "description": "Authentication and authorization patterns including OAuth 2.0, OIDC, JWT, session management, MFA, and passkeys. Use when implementing login flows, securing APIs, or reviewing auth architecture.",
+      "description": "Authentication and authorization patterns (OAuth 2.0, OIDC, JWT, session management, MFA, passkeys, RBAC/ABAC) plus the attacker-perspective JWT and OAuth methodology the design must withstand -- alg:none, RS256/HS256 key confusion, weak-secret cracking, kid/jku injection, claim-validation gaps, token leakage, redirect_uri manipulation, weak state/nonce, PKCE downgrade, code injection. Use when implementing login flows, securing APIs, or reviewing or red-teaming auth architecture under authorization. SKIP, do NOT use for generic input-validation lint (use security-review), web-app injection or access-control review such as SSRF/XXE/IDOR (use advanced-attack-patterns), or any test without documented authorization and scope.",
       "long_description": "Comprehensive guidance for implementing secure authentication and authorization systems. Covers OAuth 2.0 flows, OpenID Connect, JWT lifecycle management, session security, password hashing, multi-factor authentication, passkeys/WebAuthn, role-based and attribute-based access control, API key manage...",
       "summary_l0": "\"Implement authentication with OAuth 2.0, JWT, session management, MFA, and passkeys\"",
-      "overview_l1": "\"This skill provides authentication and authorization patterns including OAuth 2.0, OIDC, JWT, session management, MFA, and passkeys. Use it when implementing login flows, securing APIs, reviewing auth architecture, adding multi-factor authentication, or implementing modern passwordless patterns. Key capabilities include OAuth 2.0 flow implementation (authorization code, PKCE, client credentials), OIDC integration, JWT design and validation, session management with secure cookie configuration, MFA implementation, passkey/WebAuthn support, RBAC and ABAC authorization models, and token refresh and revocation strategies. The expected output is authentication implementation code with secure token handling, session management, and authorization policies. Trigger phrases: authentication, OAuth, OIDC, JWT, session management, MFA, passkeys, login flow, API security, authorization, RBAC.\"",
-      "version": "1.0.0",
+      "overview_l1": "\"This skill provides authentication and authorization patterns including OAuth 2.0, OIDC, JWT, session management, MFA, and passkeys. Use it when implementing login flows, securing APIs, reviewing auth architecture, adding multi-factor authentication, or implementing modern passwordless patterns. Key capabilities include OAuth 2.0 flow implementation (authorization code, PKCE, client credentials), OIDC integration, JWT design and validation, session management with secure cookie configuration, MFA implementation, passkey/WebAuthn support, RBAC and ABAC authorization models, and token refresh and revocation strategies. It also folds in the attacker-perspective JWT and OAuth methodology the design must withstand (alg:none, key confusion, weak-secret cracking, kid/jku injection, redirect_uri manipulation, PKCE downgrade), with deep probes in references/auth-attack-methodology.md. The expected output is authentication implementation code with secure token handling, session management, and authorization policies. Trigger phrases: authentication, OAuth, OIDC, JWT, session management, MFA, passkeys, login flow, API security, authorization, RBAC, JWT attacks, alg:none, key confusion, PKCE bypass, token leakage.\"",
+      "version": "1.1.0",
       "author": "Benjamin Dourthe",
       "category": "security",
       "language": "Multi-language",
@@ -4450,9 +4450,9 @@
       "path": "catalog/skills/security/authentication-patterns/",
       "file": "catalog/skills/security/authentication-patterns/SKILL.md",
       "size": {
-        "lines": 852,
-        "characters": 28354,
-        "tokens_estimate": 3093
+        "lines": 903,
+        "characters": 37725,
+        "tokens_estimate": 4425
       },
       "downloads": 0,
       "status": "production",
