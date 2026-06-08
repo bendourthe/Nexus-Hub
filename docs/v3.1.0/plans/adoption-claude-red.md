@@ -240,7 +240,7 @@ This plan aligns with the `AGENTS.md` MCP Registry Policy (all candidates are `s
 
 #### 5.1 -- Author the category decision memo
 
-- [ ] T012 Author an offensive-security category decision memo in docs/v3.1.0/offensive-security-category-decision.md
+- [x] T012 Author an offensive-security category decision memo in docs/v3.1.0/offensive-security-category-decision.md
 
 **Objective**: Give maintainers a crisp Ask-First decision artifact, not an implemented category.
 
@@ -251,7 +251,7 @@ This plan aligns with the `AGENTS.md` MCP Registry Policy (all candidates are `s
 
 #### 5.2 -- Final validation and changelog
 
-- [ ] T013 Run full validation and add the CHANGELOG entry
+- [x] T013 Run full validation and add the CHANGELOG entry
 
 **Objective**: Confirm the whole adoption is green and recorded.
 
@@ -272,11 +272,11 @@ This plan aligns with the `AGENTS.md` MCP Registry Policy (all candidates are `s
 
 ### Phase 5 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] All tests passing
-- [ ] No known regressions from prior phases
-- [ ] Session history generated for this phase
-- [ ] Adoption complete; category decision awaiting maintainer sign-off; CHANGELOG updated
+- [x] All sub-tasks completed
+- [x] All tests passing (all catalog gates green; the only failures are 3 pre-existing ENV bash-installer tests on the Windows host, CI-green -- WN-v31cr-6)
+- [x] No known regressions from prior phases
+- [x] Session history generated for this phase
+- [x] Adoption complete; category decision awaiting maintainer sign-off; CHANGELOG updated
 
 ---
 
