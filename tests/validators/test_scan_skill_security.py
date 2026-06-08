@@ -62,6 +62,61 @@ def test_catalog_gate_is_clean() -> None:
     assert high == [], f"unexpected HIGH/CRITICAL findings: {high}"
 
 
+# A synthetic high-confidence Bearer token (>= 50 token chars), assembled at
+# runtime so this test source carries no credential literal. The secret
+# analyzer flags it HIGH even inside a Markdown fence.
+_BEARER = "Bearer " + "A" * 64
+
+_SECURITY_BODY = f"""---
+name: jwt-attack-methodology
+description: Authorized JWT/OAuth attack methodology for defensive review. SKIP unauthorized use.
+summary_l0: "Attacker-perspective JWT/OAuth methodology for authorized review"
+overview_l1: "Shows fenced example tokens for recognition only."
+---
+
+# JWT Attack Methodology
+
+A forged Authorization header to recognize:
+
+```text
+{_BEARER}
+```
+"""
+
+
+def _make_skill(root: Path, category: str) -> Path:
+    skill = root / "catalog" / "skills" / category / "jwt-attack-methodology"
+    skill.mkdir(parents=True, exist_ok=True)
+    (skill / "SKILL.md").write_text(_SECURITY_BODY, encoding="utf-8")
+    return skill
+
+
+def test_allowlist_passes_high_gate_for_security_skill(tmp_path: Path) -> None:
+    # Authorized payload in catalog/skills/security/ is capped to MEDIUM, so the
+    # HIGH gate passes (exit 0) even though the secret is still detected.
+    skill = _make_skill(tmp_path, "security")
+    result = run_scanner(
+        str(skill), "--repo-root", str(tmp_path), "--fail-on", "high", "--format", "json"
+    )
+    assert result.returncode == 0, result.stderr
+    payload = json.loads(result.stdout)
+    severities = [f["severity"] for f in payload["findings"]]
+    assert severities, "the fenced token should still be detected"
+    assert "high" not in severities and "critical" not in severities
+
+
+def test_allowlist_does_not_apply_to_non_security_skill(tmp_path: Path) -> None:
+    # The SAME payload in a non-security category is not allowlisted: the secret
+    # stays HIGH and the gate fails (exit 1).
+    skill = _make_skill(tmp_path, "developer-experience")
+    result = run_scanner(
+        str(skill), "--repo-root", str(tmp_path), "--fail-on", "high", "--format", "json"
+    )
+    assert result.returncode == 1, result.stderr
+    payload = json.loads(result.stdout)
+    assert any(f["severity"] == "high" for f in payload["findings"])
+
+
 def test_sarif_output_is_valid() -> None:
     result = run_scanner(str(FIXTURES / "malicious-skill"), "--format", "sarif")
     assert result.returncode == 0

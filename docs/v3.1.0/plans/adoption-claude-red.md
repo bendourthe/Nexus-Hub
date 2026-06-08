@@ -109,7 +109,7 @@ This plan aligns with the `AGENTS.md` MCP Registry Policy (all candidates are `s
 
 #### 2.1 -- Tune the producer-catalog allowlist
 
-- [ ] T005 Tune the producer-catalog allowlist in extensions/nexus-skill-scanner/
+- [x] T005 Tune the producer-catalog allowlist in extensions/nexus-skill-scanner/
 
 **Objective**: Allow authorized-methodology payloads in trusted `security`-category skills while preserving malicious-skill detection.
 
@@ -120,7 +120,7 @@ This plan aligns with the `AGENTS.md` MCP Registry Policy (all candidates are `s
 
 #### 2.2 -- Add allowlist regression tests
 
-- [ ] T006 Add allowlist regression tests in extensions/nexus-skill-scanner/ (and tests/validators/)
+- [x] T006 Add allowlist regression tests in extensions/nexus-skill-scanner/ (and tests/validators/)
 
 **Objective**: Prove the allowlist does not create a malicious-skill blind spot.
 
@@ -131,11 +131,11 @@ This plan aligns with the `AGENTS.md` MCP Registry Policy (all candidates are `s
 
 ### Phase 2 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] All tests passing
-- [ ] No known regressions from prior phases
-- [ ] Session history generated for this phase
-- [ ] Ready to advance to Phase 3
+- [x] All sub-tasks completed
+- [x] All tests passing
+- [x] No known regressions from prior phases
+- [x] Session history generated for this phase
+- [x] Ready to advance to Phase 3
 
 ---
 
