@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.1.0] - 2026-06-08
+
 **v3.1.0 -- selective Claude-Red offensive-methodology adoption + Dynamic Workflows residual.** Two scope-gated, catalog-native external-source adoptions from the 2026-06-04 `/compare-project` cycle, sequenced reverse-engineer-first behind one shared gate (the `nexus-skill-scanner` producer-catalog allowlist). Master roadmap: [`docs/v3.1.0/plans/v3.1.0-adoption-roadmap.md`](docs/v3.1.0/plans/v3.1.0-adoption-roadmap.md). Both are `skill-native` (pure catalog content; zero new outbound call, credential, dependency, or third-party processor). **Claude-Red** ([`docs/v3.1.0/plans/adoption-claude-red.md`](docs/v3.1.0/plans/adoption-claude-red.md)) contributes a re-authored slice of offensive-security methodology that sharpens the existing defensive review surface, gated behind the scanner allowlist and an Ask-First category decision; re-authored generically per the Reverse-Engineering Attribution Rule with authorized-engagement preconditions in Verification. **Dynamic Workflows** ([`docs/v3.1.0/plans/adoption-dynamic-workflows.md`](docs/v3.1.0/plans/adoption-dynamic-workflows.md)) contributes the workflow-as-skill-bundle distribution pattern (gracefully-degrading Dynamic-Workflow `.js` templates inside skill bundles, referenced from SKILL.md as templates to adapt) piloted on two read-only fan-out skills, plus minor orchestration enrichments. SemVer **minor** bump (additive). Open items: [`docs/v3.1.0/known-gaps.md`](docs/v3.1.0/known-gaps.md).
 
 ### Added
