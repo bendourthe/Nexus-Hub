@@ -200,7 +200,7 @@ This plan aligns with the `AGENTS.md` MCP Registry Policy (all candidates are `s
 
 #### 4.1 -- Enrich authentication-patterns
 
-- [ ] T010 Fold JWT/OAuth attack methodology into catalog/skills/security/authentication-patterns/SKILL.md
+- [x] T010 Fold JWT/OAuth attack methodology into catalog/skills/security/authentication-patterns/SKILL.md
 
 **Objective**: Add attacker-perspective auth-flow methodology (alg:none, key confusion, secret cracking, kid injection, open redirect, token leakage, PKCE bypass).
 
@@ -211,7 +211,7 @@ This plan aligns with the `AGENTS.md` MCP Registry Policy (all candidates are `s
 
 #### 4.2 -- Testing and Stabilization
 
-- [ ] T011 Validate Phase 4 via make validate and the scanner gate
+- [x] T011 Validate Phase 4 via make validate and the scanner gate
 
 **Objective**: Confirm the enriched auth skill stays clean.
 
@@ -222,11 +222,11 @@ This plan aligns with the `AGENTS.md` MCP Registry Policy (all candidates are `s
 
 ### Phase 4 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] All tests passing
-- [ ] No known regressions from prior phases
-- [ ] Session history generated for this phase
-- [ ] Ready to advance to Phase 5
+- [x] All sub-tasks completed
+- [x] All tests passing
+- [x] No known regressions from prior phases
+- [x] Session history generated for this phase
+- [x] Ready to advance to Phase 5
 
 ---
 
