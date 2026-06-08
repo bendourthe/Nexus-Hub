@@ -146,6 +146,8 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | cve-reachability-analyzer | security | "Trace call paths to determine if dependency CVEs actually affect your application" | catalog/skills/security/cve-reachability-analyzer/SKILL.md |
 | dependency-security-audit | security | "Audit dependencies for CVEs, license issues, and outdated packages with SBOM" | catalog/skills/security/dependency-security-audit/SKILL.md |
 | exploitability-analyzer | security | "Assess vulnerability exploitability with CVSS scoring and attack path analysis" | catalog/skills/security/exploitability-analyzer/SKILL.md |
+| ai-attack-patterns | security | "Adversarial AI-security methodology: prompt injection, jailbreaking, and RAG poisoning for authorized review" | catalog/skills/security/ai-attack-patterns/SKILL.md |
+| pentest-reporting | security | "Write professional penetration-test reports with CVSS scoring, evidence, and a retest workflow" | catalog/skills/security/pentest-reporting/SKILL.md |
 | licensing-compliance | security | "Audit dependency licenses for compliance, compatibility, and legal risk" | catalog/skills/security/licensing-compliance/SKILL.md |
 | pre-commit-checklist | security | "Implement pre-commit hooks for linting, security scanning, and commit validation" | catalog/skills/security/pre-commit-checklist/SKILL.md |
 | security-patch-advisor | security | "Generate security patches for XSS, SQL injection, SSRF, CSRF, and misconfigurations" | catalog/skills/security/security-patch-advisor/SKILL.md |
@@ -242,8 +244,8 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | using-git-worktrees | workflow | "Set up isolated worktree workspaces safely, preferring the native tool over raw git" | catalog/skills/workflow/using-git-worktrees/SKILL.md |
 | hallmark-design | developer-experience | "Produce and review UI that avoids the 'looks AI-generated' failure mode using anti-slop gates and four verbs" | catalog/skills/developer-experience/hallmark-design/SKILL.md |
 | html-output-conventions | developer-experience | "Prefer HTML over Markdown for human-facing artifacts that are read, compared, or interacted with, using four self-contained templates" | catalog/skills/developer-experience/html-output-conventions/SKILL.md |
-| advanced-attack-patterns | security | "Advanced attack classes: state desynchronization, cache poisoning, replay attacks, and timing-attack side channels beyond password comparison" | catalog/skills/security/advanced-attack-patterns/SKILL.md |
-| business-logic-abuse | security | "Identify business-logic vulnerabilities: race conditions, TOCTOU, double-spending, workflow bypass, and idempotency violations - requires domain knowledge" | catalog/skills/security/business-logic-abuse/SKILL.md |
+| advanced-attack-patterns | security | "Advanced and web-app attack surfaces: state desync, cache poisoning, SSRF, XXE, deserialization, request smuggling, IDOR" | catalog/skills/security/advanced-attack-patterns/SKILL.md |
+| business-logic-abuse | security | "Business-logic abuse: race conditions, TOCTOU, double-spending, workflow bypass, pricing/refund abuse, anti-fraud defeat" | catalog/skills/security/business-logic-abuse/SKILL.md |
 | solution-knowledge-base | workflow | "Document a solved problem into a categorized docs/solutions/ knowledge base for future reuse" | catalog/skills/workflow/solution-knowledge-base/SKILL.md |
 | solution-refresh | workflow | "Audit docs/solutions/ entries and decide Keep / Update / Consolidate / Replace / Delete" | catalog/skills/workflow/solution-refresh/SKILL.md |
 | product-pulse | business-product | "Generate a time-windowed product-pulse report from local usage, performance, and error data" | catalog/skills/business-product/product-pulse/SKILL.md |

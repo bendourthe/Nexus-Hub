@@ -84,6 +84,7 @@
     "catalog/skills/security-operations/ransomware-incident-response/SKILL.md",
     "catalog/skills/security-operations/siem-detection-engineering/SKILL.md",
     "catalog/skills/security/advanced-attack-patterns/SKILL.md",
+    "catalog/skills/security/authentication-patterns/SKILL.md",
     "catalog/skills/security/business-logic-abuse/SKILL.md",
     "catalog/skills/security/cve-reachability-analyzer/SKILL.md",
     "catalog/skills/security/dependency-security-audit/SKILL.md",

@@ -4435,11 +4435,11 @@
     {
       "name": "authentication-patterns",
       "title": "authentication-patterns",
-      "description": "Authentication and authorization patterns including OAuth 2.0, OIDC, JWT, session management, MFA, and passkeys. Use when implementing login flows, securing APIs, or reviewing auth architecture.",
+      "description": "Authentication and authorization patterns (OAuth 2.0, OIDC, JWT, session management, MFA, passkeys, RBAC/ABAC) plus the attacker-perspective JWT and OAuth methodology the design must withstand -- alg:none, RS256/HS256 key confusion, weak-secret cracking, kid/jku injection, claim-validation gaps, token leakage, redirect_uri manipulation, weak state/nonce, PKCE downgrade, code injection. Use when implementing login flows, securing APIs, or reviewing or red-teaming auth architecture under authorization. SKIP, do NOT use for generic input-validation lint (use security-review), web-app injection or access-control review such as SSRF/XXE/IDOR (use advanced-attack-patterns), or any test without documented authorization and scope.",
       "long_description": "Comprehensive guidance for implementing secure authentication and authorization systems. Covers OAuth 2.0 flows, OpenID Connect, JWT lifecycle management, session security, password hashing, multi-factor authentication, passkeys/WebAuthn, role-based and attribute-based access control, API key manage...",
       "summary_l0": "\"Implement authentication with OAuth 2.0, JWT, session management, MFA, and passkeys\"",
-      "overview_l1": "\"This skill provides authentication and authorization patterns including OAuth 2.0, OIDC, JWT, session management, MFA, and passkeys. Use it when implementing login flows, securing APIs, reviewing auth architecture, adding multi-factor authentication, or implementing modern passwordless patterns. Key capabilities include OAuth 2.0 flow implementation (authorization code, PKCE, client credentials), OIDC integration, JWT design and validation, session management with secure cookie configuration, MFA implementation, passkey/WebAuthn support, RBAC and ABAC authorization models, and token refresh and revocation strategies. The expected output is authentication implementation code with secure token handling, session management, and authorization policies. Trigger phrases: authentication, OAuth, OIDC, JWT, session management, MFA, passkeys, login flow, API security, authorization, RBAC.\"",
-      "version": "1.0.0",
+      "overview_l1": "\"This skill provides authentication and authorization patterns including OAuth 2.0, OIDC, JWT, session management, MFA, and passkeys. Use it when implementing login flows, securing APIs, reviewing auth architecture, adding multi-factor authentication, or implementing modern passwordless patterns. Key capabilities include OAuth 2.0 flow implementation (authorization code, PKCE, client credentials), OIDC integration, JWT design and validation, session management with secure cookie configuration, MFA implementation, passkey/WebAuthn support, RBAC and ABAC authorization models, and token refresh and revocation strategies. It also folds in the attacker-perspective JWT and OAuth methodology the design must withstand (alg:none, key confusion, weak-secret cracking, kid/jku injection, redirect_uri manipulation, PKCE downgrade), with deep probes in references/auth-attack-methodology.md. The expected output is authentication implementation code with secure token handling, session management, and authorization policies. Trigger phrases: authentication, OAuth, OIDC, JWT, session management, MFA, passkeys, login flow, API security, authorization, RBAC, JWT attacks, alg:none, key confusion, PKCE bypass, token leakage.\"",
+      "version": "1.1.0",
       "author": "Benjamin Dourthe",
       "category": "security",
       "language": "Multi-language",
@@ -4450,9 +4450,9 @@
       "path": "catalog/skills/security/authentication-patterns/",
       "file": "catalog/skills/security/authentication-patterns/SKILL.md",
       "size": {
-        "lines": 852,
-        "characters": 28354,
-        "tokens_estimate": 3093
+        "lines": 903,
+        "characters": 37725,
+        "tokens_estimate": 4425
       },
       "downloads": 0,
       "status": "production",
@@ -4546,6 +4546,68 @@
         "lines": 553,
         "characters": 21327,
         "tokens_estimate": 2482
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "ai-attack-patterns",
+      "title": "ai-attack-patterns",
+      "description": "Offensive AI-security methodology for authorized red-teaming of LLM-backed systems -- direct and indirect prompt injection, jailbreaking, RAG / knowledge-base poisoning, and tool-use abuse -- framed to harden the system under test and to sharpen defensive review. Make sure to use this skill whenever the user wants to \"test an LLM for prompt injection\", \"red-team a RAG pipeline\", \"jailbreak resistance testing\", \"AI red team\", \"LLM security testing\", \"indirect prompt injection\", \"RAG poisoning\", \"agent tool abuse\", or wants the attacker's perspective on an AI feature before shipping it. SKIP, do NOT use for, building or prompt-tuning the application itself (use prompt-engineering), adjudicating skill-security scanner output (use skill-security-scan), generic application code review (use security-review), or any test without documented authorization and scope.",
+      "long_description": "Adopt the attacker's perspective on LLM-backed systems to find where prompts, retrieved context, tool outputs, and model outputs can be turned against the application, then convert each weakness into a defense. Framed to feed defensive review rather than standalone offensive engagement, and gated to authorized engagements only.",
+      "summary_l0": "\"Adversarial AI-security methodology: prompt injection, jailbreaking, and RAG poisoning for authorized review\"",
+      "overview_l1": "\"This skill primes the agent with the attacker's perspective on LLM-backed systems so it can red-team them under authorization and translate every finding into a concrete defense. It covers direct and indirect prompt injection, jailbreak technique families, RAG and knowledge-base poisoning, tool / function-call abuse in agentic systems, and unsafe-output handling. It is framed to feed defensive work -- hardening prompts, designing detection rules, and strengthening the skill-security scanner's rationale -- not standalone offensive engagement. Every assessment starts from documented scope and rules of engagement, captures reproducible evidence, and ends with a defense recommendation. Trigger phrases: test an LLM for prompt injection, red-team a RAG pipeline, jailbreak resistance testing, AI red team, LLM security testing, indirect prompt injection, RAG poisoning, agent tool abuse.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/security/ai-attack-patterns/",
+      "file": "catalog/skills/security/ai-attack-patterns/SKILL.md",
+      "size": {
+        "lines": 160,
+        "characters": 12984,
+        "tokens_estimate": 1511
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "pentest-reporting",
+      "title": "pentest-reporting",
+      "description": "Write professional penetration-test and security-assessment reports -- consistent severity and CVSS scoring, reproducible evidence capture, risk-led executive summaries, prioritized remediation, and a retest workflow that closes findings. Make sure to use this skill whenever the user wants to \"write a pentest report\", \"penetration test report\", \"security assessment report\", \"document security findings\", \"CVSS score these findings\", \"executive summary for a security test\", \"remediation report\", or \"retest report\", even if they only say \"write up the vulnerabilities we found\". SKIP, do NOT use for, generating the code-level fix itself (use security-patch-advisor), blameless production-incident postmortems (use incident-postmortem), or generic project status / release reporting (use technical-writer or release-notes-writer).",
+      "long_description": "Turn raw security findings from an authorized assessment into a defensible report with consistent CVSS scoring, reproducible and redacted evidence, a risk-led executive summary, prioritized remediation, and a retest workflow that drives findings to closed.",
+      "summary_l0": "\"Write professional penetration-test reports with CVSS scoring, evidence, and a retest workflow\"",
+      "overview_l1": "\"This skill turns raw security findings into a defensible penetration-test report. It gives the agent a finding anatomy (title, severity, CVSS vector, affected asset, impact, reproduction, evidence, remediation, references), a consistent CVSS scoring method, evidence-capture and redaction discipline, a risk-led executive summary aimed at non-technical decision makers, prioritized remediation guidance, and a retest workflow that drives findings to closed. It complements the engagement methodology skills and the /review pentest command by standardizing how their output is documented. Use it at the end of any authorized assessment, CTF write-up, or bug-bounty submission. Trigger phrases: write a pentest report, penetration test report, security assessment report, document security findings, CVSS score, executive summary for a security test, remediation report, retest report.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/security/pentest-reporting/",
+      "file": "catalog/skills/security/pentest-reporting/SKILL.md",
+      "size": {
+        "lines": 169,
+        "characters": 11728,
+        "tokens_estimate": 1365
       },
       "downloads": 0,
       "status": "production",
@@ -8245,10 +8307,10 @@
     {
       "name": "advanced-attack-patterns",
       "title": "advanced-attack-patterns",
-      "description": "Advanced attack classes beyond the OWASP Top 10 baseline including state desynchronization, cache poisoning, replay attacks, and timing-attack side channels. Each class is gated on an applicability check so the audit only engages where the attack surface actually exists. Use when extending a baseline security review, auditing distributed systems or cache-heavy architectures, or running `/run-penetration-test --depth=deep`.",
-      "long_description": "Four attack classes that a baseline OWASP Top 10 review routinely misses because they depend on architectural properties (distributed state, HTTP caching, protocol guarantees, observable timing) rather than on input validation. Each class is gated on an applicability check: if the architectural prec...",
-      "summary_l0": "\"Advanced attack classes: state desynchronization, cache poisoning, replay attacks, and timing-attack side channels beyond password comparison\"",
-      "overview_l1": "\"This skill covers advanced attack classes that generic OWASP Top 10 reviews miss because they depend on architectural properties rather than input validation: distributed-state divergence, HTTP cache manipulation, protocol-level replay, and timing side channels in branches that depend on secret-valued inputs. Use it as a second pass after the baseline security-review, when auditing cache-heavy or eventually-consistent architectures, or as the second half of the `/run-penetration-test --depth=deep` Business Logic & Advanced Attacks hunter. Key capabilities include state-desynchronization detection across client/server, cache/DB, and multi-service boundaries; cache-poisoning analysis covering cache-key hygiene, Vary-header correctness, and cache-deception; replay-attack detection spanning nonces, idempotency keys, and timestamp-window validation; and timing-attack surface identification beyond password comparison. The expected output is a findings table keyed by attack class with applicability verdict, exploit sketch, and architectural remediation. Trigger phrases: advanced attacks, state desync, cache poisoning, cache deception, replay attack, nonce, idempotency, timing attack, side channel, user enumeration, token binding, WSTG deep pass.\"",
+      "description": "Advanced and web-application attack classes beyond the OWASP Top 10 baseline -- architectural classes (state desynchronization, cache poisoning, replay, timing side channels) plus the attacker-perspective injection and access-control vectors that baseline reviews under-test (SSRF, SSTI, XXE, insecure deserialization, HTTP request smuggling, IDOR). Each class is gated on an applicability check so the audit only engages where the attack surface exists, and every vector is framed to strengthen `/review security` and `/run-penetration-test --depth=deep`. Use when extending a baseline security review, auditing distributed / cache-heavy architectures, or red-teaming a web application under authorization. SKIP, do NOT use for, generic input-validation lint (use security-review), business-rule abuse such as pricing or refund manipulation (use business-logic-abuse), or any test without documented authorization and scope.",
+      "long_description": "Two families of attack classes that a baseline OWASP Top 10 review routinely under-tests. The architectural family (Steps 1-4) depends on system properties - distributed state, HTTP caching, protocol guarantees, observable timing - that input-validation scanners never inspect. The injection and acce...",
+      "summary_l0": "\"Advanced and web-app attack surfaces: state desync, cache poisoning, SSRF, XXE, deserialization, request smuggling, IDOR\"",
+      "overview_l1": "\"This skill covers advanced and web-application attack classes that generic OWASP Top 10 reviews under-test. The first family is architectural -- distributed-state divergence, HTTP cache manipulation, protocol-level replay, and timing side channels -- which input-validation scanners never inspect. The second family is the attacker-perspective injection and access-control surface: server-side request forgery, server-side template injection, XML external entities, insecure deserialization, HTTP request smuggling, and insecure direct object reference. Each class opens with an applicability check so the audit stays high-signal, and every web-app vector is framed to strengthen `/review security` and the `/run-penetration-test --depth=deep` advanced-attacks hunter. Deep per-vector payloads live in `references/web-appsec-methodology.md`. The expected output is a findings table keyed by attack class with applicability verdict, exploit sketch, and remediation. Trigger phrases: advanced attacks, state desync, cache poisoning, replay attack, timing attack, SSRF, SSTI, XXE, insecure deserialization, request smuggling, HTTP desync, IDOR, broken access control, WSTG deep pass.\"",
       "version": "1.0.0",
       "author": "Benjamin Dourthe",
       "category": "security",
@@ -8262,9 +8324,9 @@
       "path": "catalog/skills/security/advanced-attack-patterns/",
       "file": "catalog/skills/security/advanced-attack-patterns/SKILL.md",
       "size": {
-        "lines": 258,
-        "characters": 21942,
-        "tokens_estimate": 3030
+        "lines": 366,
+        "characters": 37022,
+        "tokens_estimate": 5148
       },
       "downloads": 0,
       "status": "production",
@@ -8278,10 +8340,10 @@
     {
       "name": "business-logic-abuse",
       "title": "business-logic-abuse",
-      "description": "Identify business-logic vulnerabilities that bypass intended workflows including race conditions, TOCTOU, double-spending, workflow-state bypass, idempotency violations, and check-sequence abuse. Requires domain knowledge of the application's business rules because these flaws do not appear in generic scanners. Use when auditing financial flows, reservation systems, multi-step workflows, or any feature with stateful invariants.",
+      "description": "Identify business-logic vulnerabilities that bypass intended workflows -- race conditions, TOCTOU, double-spending, workflow-state bypass, idempotency violations, check-sequence abuse -- and the concrete attacker playbooks they enable: pricing/refund abuse, coupon and promo stacking, anti-fraud and rate-limit defeat, multi-accounting, and workflow-step bypass. Requires domain knowledge of the application's business rules because these flaws do not appear in generic scanners. Use when auditing financial flows, reservation systems, multi-step workflows, or any feature with stateful invariants, or when red-teaming pricing/refund/promo logic under authorization. SKIP, do NOT use for, generic injection classes such as XSS or SQL injection (use security-review), architectural or web-app attacks such as SSRF or request smuggling (use advanced-attack-patterns), or stateless endpoint bugs (use semantic-bug-detector).",
       "long_description": "Business-logic vulnerabilities break the application's own rules: balances go negative, workflows skip required steps, requests replay inside an allowed window, two parallel operations both succeed when only one should. Generic scanners miss these because they depend on domain knowledge - what \"vali...",
-      "summary_l0": "\"Identify business-logic vulnerabilities: race conditions, TOCTOU, double-spending, workflow bypass, and idempotency violations - requires domain knowledge\"",
-      "overview_l1": "\"This skill identifies business-logic vulnerabilities that generic scanners cannot find because the flaws depend on the application's own rules. Use it when auditing high-value workflows (payments, ledgers, reservations, privilege grants), when reviewing state-machine implementations, or when extending `/run-penetration-test` with domain-aware checks under `--depth=deep`. Key capabilities include race-condition and TOCTOU detection at atomicity boundaries, double-spending and replay-within-window analysis, workflow-state bypass via direct-endpoint calls, idempotency-key review, check-sequence abuse (validate X then act on Y), and missing state-machine guards. The expected output is a findings table with severity, invariant violated, code reference, reproduction sketch, and architectural remediation. Trigger phrases: business logic, race condition, TOCTOU, double-spend, idempotency, workflow bypass, state machine, check-then-act, deep pen-test, WSTG-BUSL.\"",
+      "summary_l0": "\"Business-logic abuse: race conditions, TOCTOU, double-spending, workflow bypass, pricing/refund abuse, anti-fraud defeat\"",
+      "overview_l1": "\"This skill identifies business-logic vulnerabilities that generic scanners cannot find because the flaws depend on the application's own rules. Use it when auditing high-value workflows (payments, ledgers, reservations, privilege grants), reviewing state-machine implementations, or extending `/run-penetration-test --depth=deep` with domain-aware checks. Key capabilities include race-condition and TOCTOU detection at atomicity boundaries, double-spending and replay-within-window analysis, workflow-state bypass via direct-endpoint calls, idempotency-key review, check-sequence abuse, and concrete attacker playbooks -- pricing/refund abuse, coupon stacking, anti-fraud and rate-limit defeat, and workflow-step bypass -- that give each finding a business impact. The expected output is a findings table with severity, invariant violated, code reference, reproduction sketch, and remediation. Trigger phrases: business logic, race condition, TOCTOU, double-spend, idempotency, workflow bypass, pricing abuse, refund abuse, promo stacking, multi-accounting, anti-fraud bypass, WSTG-BUSL.\"",
       "version": "1.0.0",
       "author": "Benjamin Dourthe",
       "category": "security",
@@ -8295,9 +8357,9 @@
       "path": "catalog/skills/security/business-logic-abuse/",
       "file": "catalog/skills/security/business-logic-abuse/SKILL.md",
       "size": {
-        "lines": 262,
-        "characters": 19035,
-        "tokens_estimate": 2666
+        "lines": 324,
+        "characters": 27839,
+        "tokens_estimate": 3971
       },
       "downloads": 0,
       "status": "production",

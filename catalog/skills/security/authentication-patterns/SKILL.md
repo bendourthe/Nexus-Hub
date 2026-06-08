@@ -1,8 +1,8 @@
 ---
 name: authentication-patterns
-description: Authentication and authorization patterns including OAuth 2.0, OIDC, JWT, session management, MFA, and passkeys. Use when implementing login flows, securing APIs, or reviewing auth architecture.
+description: Authentication and authorization patterns (OAuth 2.0, OIDC, JWT, session management, MFA, passkeys, RBAC/ABAC) plus the attacker-perspective JWT and OAuth methodology the design must withstand -- alg:none, RS256/HS256 key confusion, weak-secret cracking, kid/jku injection, claim-validation gaps, token leakage, redirect_uri manipulation, weak state/nonce, PKCE downgrade, code injection. Use when implementing login flows, securing APIs, or reviewing or red-teaming auth architecture under authorization. SKIP, do NOT use for generic input-validation lint (use security-review), web-app injection or access-control review such as SSRF/XXE/IDOR (use advanced-attack-patterns), or any test without documented authorization and scope.
 summary_l0: "Implement authentication with OAuth 2.0, JWT, session management, MFA, and passkeys"
-overview_l1: "This skill provides authentication and authorization patterns including OAuth 2.0, OIDC, JWT, session management, MFA, and passkeys. Use it when implementing login flows, securing APIs, reviewing auth architecture, adding multi-factor authentication, or implementing modern passwordless patterns. Key capabilities include OAuth 2.0 flow implementation (authorization code, PKCE, client credentials), OIDC integration, JWT design and validation, session management with secure cookie configuration, MFA implementation, passkey/WebAuthn support, RBAC and ABAC authorization models, and token refresh and revocation strategies. The expected output is authentication implementation code with secure token handling, session management, and authorization policies. Trigger phrases: authentication, OAuth, OIDC, JWT, session management, MFA, passkeys, login flow, API security, authorization, RBAC."
+overview_l1: "This skill provides authentication and authorization patterns including OAuth 2.0, OIDC, JWT, session management, MFA, and passkeys. Use it when implementing login flows, securing APIs, reviewing auth architecture, adding multi-factor authentication, or implementing modern passwordless patterns. Key capabilities include OAuth 2.0 flow implementation (authorization code, PKCE, client credentials), OIDC integration, JWT design and validation, session management with secure cookie configuration, MFA implementation, passkey/WebAuthn support, RBAC and ABAC authorization models, and token refresh and revocation strategies. It also folds in the attacker-perspective JWT and OAuth methodology the design must withstand (alg:none, key confusion, weak-secret cracking, kid/jku injection, redirect_uri manipulation, PKCE downgrade), with deep probes in references/auth-attack-methodology.md. The expected output is authentication implementation code with secure token handling, session management, and authorization policies. Trigger phrases: authentication, OAuth, OIDC, JWT, session management, MFA, passkeys, login flow, API security, authorization, RBAC, JWT attacks, alg:none, key confusion, PKCE bypass, token leakage."
 ---
 
 # Authentication Patterns
@@ -731,6 +731,33 @@ function validateBoundToken(token: string, clientFingerprint: string): boolean {
 }
 ```
 
+## Attacker-Perspective: What the Auth Design Must Withstand
+
+Every control above exists because a specific attack would otherwise succeed. This section flips to the attacker's view of the JWT and OAuth/OIDC surface so the design can be audited against it. It is offensive knowledge in service of a hardened verifier, not a standalone engagement: use it only inside an authorized assessment with documented scope, and keep every probe benign and pointed at reserved placeholders (`auth.example`, `attacker.example`). The concrete malformed-token structures, key-confusion mechanics, and flow-manipulation sequences live in [`references/auth-attack-methodology.md`](references/auth-attack-methodology.md) so this body stays within the size norm; the checklist below is the audit summary.
+
+### JWT attack surface
+
+A verifier is sound only if it pins the algorithm and binds the signature to a key the server chose, not one the token names. Audit for each of:
+
+- **`alg: none` acceptance** - the verifier trusts the header's algorithm and accepts an unsigned token. Defense: pin `algorithms` server-side and reject `none` case-insensitively.
+- **RS256 -> HS256 key confusion** - the token is re-signed with HMAC using the public RSA key as the secret, and a permissive verify call accepts it. Defense: bind each key to one algorithm family; pass an explicit algorithm allowlist to the verifier.
+- **Weak HMAC secret** - an HS256 secret such as `secret` / `changeme` is recovered offline from a captured token. Defense: a >= 256-bit random secret, or RS256/ES256 so there is no shared secret.
+- **`kid` / `jku` / `x5u` injection** - the verifier resolves its key from an attacker-influenced header (path traversal, SQLi, or a URL to the attacker's JWKS). Defense: never locate keys from token-controlled input; allowlist `kid` to known IDs and `jku` / `x5u` to your own issuer.
+- **Claim-validation gaps** - signature verified but `exp` / `aud` / `iss` / `nbf` are not, so expired or cross-audience tokens replay. Defense: validate every registered claim on every request.
+- **Token leakage and lifetime** - long-lived bearer tokens in `localStorage`, URLs, or non-`HttpOnly` cookies leak via XSS, referrers, and logs. Defense: short-lived access tokens, rotating refresh tokens with reuse detection, and `HttpOnly` + `Secure` + `SameSite` cookies.
+
+### OAuth 2.0 / OIDC attack surface
+
+OAuth attacks target the flow (the redirect, the binding state, the code exchange), not a single token. Audit for each of:
+
+- **`redirect_uri` manipulation** - loose matching sends the authorization code to an attacker endpoint. Defense: exact-match against a pre-registered allowlist, no wildcards, no allowed target carrying an open redirect.
+- **Missing / weak `state` (and OIDC `nonce`)** - the callback is not bound to the user's session, enabling login CSRF / code fixation. Defense: a random `state` bound to the session and rejected on mismatch; validate `nonce`.
+- **PKCE downgrade** - a public client's `code_challenge` is not enforced, or the token endpoint accepts an exchange missing `code_verifier`. Defense: require `code_challenge` for public clients and reject any exchange whose verifier does not hash (S256) to the challenge.
+- **Authorization-code injection / replay** - codes are not single-use or not bound to the requesting client. Defense: single-use, short-lived codes bound to `client_id` + `redirect_uri` + the PKCE challenge; revoke the grant on reuse.
+- **IdP mix-up / scope escalation** - a multi-IdP client mis-attributes the issuer, or the resource server trusts a self-asserted scope. Defense: pin and validate the issuer per request (RFC 9207); enforce scope-to-resource policy server-side.
+
+Hand every confirmed weakness to `security-review` / `security-patch-advisor` as a concrete control, and write it up via [[pentest-reporting]].
+
 ## Best Practices
 
 - **Use PKCE for all OAuth flows**: Even confidential clients benefit from PKCE as defense-in-depth
@@ -825,6 +852,9 @@ app.post('/api/orders', requireScope('orders:write'), createOrder);
 | "We store access tokens in localStorage because it's simpler" | XSS in any third-party script on the page (analytics, chat widgets) can exfiltrate localStorage tokens silently; HttpOnly cookies are immune to JavaScript access. |
 | "Session ID regeneration after login is optional" | Session fixation allows an attacker to pre-set a known session ID, then hijack it after the victim authenticates — a P0 vulnerability with trivial exploitation. |
 | "We check authorization at the route level, which is sufficient" | Route-level checks prevent accessing the wrong endpoint; IDOR exploits occur at the data layer when a user passes a valid endpoint but with another user's resource ID, bypassing route guards entirely. |
+| "We verify the JWT signature, so the token is trustworthy" | A verifier that reads the algorithm from the token header accepts an `alg:none` token or an RS256->HS256 key-confusion forgery; the signature check is only sound when the algorithm and key are pinned server-side, not named by the token. |
+| "PKCE is enabled, so our authorization code is safe" | PKCE protects only when the authorization server enforces `code_challenge` and the token endpoint rejects an exchange missing `code_verifier`; an unenforced PKCE downgrades silently and a stolen code is replayable as if PKCE were absent. |
+| "Our redirect_uri allowlist uses a prefix match for flexibility" | Prefix or substring matching lets `https://app.example.attacker.example/cb` pass and leaks the authorization code; only full-string exact matching against pre-registered URIs closes redirect_uri manipulation. |
 
 ## Verification
 
@@ -835,21 +865,34 @@ app.post('/api/orders', requireScope('orders:write'), createOrder);
 - [ ] JWT validation explicitly checks `iss`, `aud`, `exp`, and `alg` — no `none` algorithm accepted
 - [ ] Rate limiting is applied to the login endpoint (verified by attempting >10 requests/minute)
 
+When the attacker-perspective methodology is exercised (auditing or red-teaming the auth surface), also confirm:
+
+- [ ] Written authorization, scope, and rules of engagement are documented before any probe; targets are in scope and any data used is synthetic or marked test data
+- [ ] Every probe used benign placeholders (`auth.example`, `attacker.example`, a placeholder secret) -- no real token, secret, or third-party host was used
+- [ ] The verifier rejects `alg: none` and pins an algorithm allowlist (confirmed by submitting a `none` and a cross-family token and observing rejection)
+- [ ] Verification keys are never resolved from token-controlled `kid` / `jku` / `x5u` input (confirmed in source)
+- [ ] `redirect_uri` is exact-matched against a pre-registered allowlist and `state` / `nonce` are enforced (confirmed by a mismatched-callback probe)
+- [ ] Each confirmed weakness maps to a concrete defensive control handed to `security-review` / `security-patch-advisor`
+
 ## References
 
+- [references/auth-attack-methodology.md](references/auth-attack-methodology.md) - Deep attacker-perspective JWT and OAuth/OIDC methodology (alg:none, RS256/HS256 key confusion, weak-secret cracking, kid/jku/x5u injection, claim-validation gaps, token leakage; redirect_uri manipulation, weak state/nonce, PKCE downgrade, code injection, IdP mix-up/scope escalation) with benign probes, defenses, and a WSTG/CWE standards map. The methodology section in this skill summarizes each vector; this file carries the concrete structures and sequences and feeds `pentest-reporting`.
 - [references/agent-policy-resolution.md](references/agent-policy-resolution.md) - Declarative tool-call authorization for AI agents being built: the deterministic resolution priority order (Specific Deny > Specific Ask > Specific Allow > Wildcard Deny > Wildcard Ask > Wildcard Allow), fail-closed predicates, and convenience presets. Distinct from human / service authentication; applies when an agent grants tools.
 
 ## Related Skills
 
 - [[security-review]] -- application security assessment including auth review
+- [[advanced-attack-patterns]] -- the replay / token-binding and injection attack surface that pairs with this skill's JWT and OAuth methodology
+- [[pentest-reporting]] -- writes up confirmed auth weaknesses (CVSS, evidence, retest) using the standards map in the references file
+- [[security-patch-advisor]] -- patch generation for the auth weaknesses surfaced by the methodology section
 - [[pre-commit-checklist]] -- security checks before committing auth code
 - [[dependency-security-audit]] -- auditing auth library vulnerabilities
 - [[cicd-architect]] -- securing CI/CD pipelines with service accounts and tokens
 
 ---
 
-**Version**: 1.0.0
-**Last Updated**: March 2026
+**Version**: 1.1.0
+**Last Updated**: June 2026
 
 ### Iterative Refinement Strategy
 This skill is optimized for an iterative approach:
