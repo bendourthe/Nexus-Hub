@@ -31,12 +31,16 @@ Resolve SCOPE from the first positional argument (`$ARGUMENTS`). Recognized scop
 Dispatch the resolved scope to the retained skill:
 
       search  -> search-skills (keyword / category / role search over the catalog)
-      list    -> commands-cheatsheet (unified skills + commands cheatsheet table)
+      list    -> read and follow style-guides/commands-cheatsheet.md (render the command cheatsheet live from the command files)
       create  -> create-skill-or-command (interactive scaffolding wizard)
       import  -> import-skills (copy catalog skills into the active project)
       scan    -> skill-security-scan (semantic adjudication; backed by nexus-skill-scanner once Phase 6 lands)
 
 Pass any remaining arguments (search term, skill name, target path) through unchanged. Heavy logic stays in the retained skills; this file only resolves scope and delegates.
+
+## list scope (command cheatsheet)
+
+`list` renders the unified command cheatsheet -- the active commands with what they do, the deprecated name each one replaces, and common multi-command workflows. It is generated **at runtime from the command files** (the installed per-platform `commands/` / `prompts/` / `workflows/` directory, or `catalog/commands/` in the repo), not from a hand-maintained table, so it always matches the commands actually present. Read and follow [`commands-cheatsheet.md`](../style-guides/commands-cheatsheet.md) (installed at `~/.nexus-hub/style-guides/commands-cheatsheet.md`) for the generation procedure and output format. An optional argument (`/skills list <term>`) filters to matching commands.
 
 ## scan scope (pre-install security check)
 

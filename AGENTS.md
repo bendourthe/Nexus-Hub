@@ -1,6 +1,6 @@
 # AGENTS.md
 
-<!-- nexus-hub-version: 3.1.0 -->
+<!-- nexus-hub-version: 3.1.1 -->
 
 This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, Gemini CLI, etc.) when working with code in this repository.
 
@@ -308,6 +308,10 @@ Commands are Markdown files in `catalog/commands/`. Each file is a slash command
 File naming: `kebab-case.md`. Commands use the same SKILL.md conventions for instructions but do not need frontmatter.
 
 After adding a command, update `data/marketplace.json` `"total_commands"` if that field is present.
+
+**On a rename or deprecation**, keep the old command name working through the current major by adding a deprecation shim at `catalog/commands/<old-name>.md` -- a `DEPRECATED (removed in vX.Y.Z). Forwarding to /NEW.` frontmatter `description` plus a short body that prints the notice and delegates to the new command (model after `catalog/commands/generate-plan.md`).
+
+**Do not maintain a static command list anywhere.** `/skills list` derives the command cheatsheet -- the active commands, what each does, the deprecated name each one replaces, and common multi-command workflows -- at runtime from the command files themselves (see `catalog/style-guides/commands-cheatsheet.md`). Adding, renaming, refactoring, or deprecating a command therefore updates the cheatsheet automatically on the next `/skills list`; there is no table to hand-edit. The only command artifacts to touch on a change are the command file(s) and (on a rename) the deprecation shim.
 
 ## Adding or Modifying a Hook
 
