@@ -250,6 +250,7 @@ Generate COMPARISON.md:
 - [[quality-gate-definitions]] - Reusable criteria that can be adapted for scoring
 - [[intent-based-review]] - Review the winning candidate by acceptance criteria
 - [[adversarial-verifier]] - Stress-test the winning candidate after selection
+- [[agent-orchestration-primitives]] - distinguishes best-of-N (this skill: one task, N attempts, pick a winner) from ranking/sorting many items by pairwise tournament (a distinct shape documented in its `references/five-patterns.md`)
 
 ---
 

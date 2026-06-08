@@ -1,8 +1,8 @@
 ---
 name: business-logic-abuse
-description: Identify business-logic vulnerabilities that bypass intended workflows including race conditions, TOCTOU, double-spending, workflow-state bypass, idempotency violations, and check-sequence abuse. Requires domain knowledge of the application's business rules because these flaws do not appear in generic scanners. Use when auditing financial flows, reservation systems, multi-step workflows, or any feature with stateful invariants.
-summary_l0: "Find business-logic flaws: race conditions, TOCTOU, double-spending, workflow bypass, idempotency violations"
-overview_l1: "This skill identifies business-logic vulnerabilities that generic scanners cannot find because the flaws depend on the application's own rules. Use it when auditing high-value workflows (payments, ledgers, reservations, privilege grants), when reviewing state-machine implementations, or when extending `/run-penetration-test` with domain-aware checks under `--depth=deep`. Key capabilities include race-condition and TOCTOU detection at atomicity boundaries, double-spending and replay-within-window analysis, workflow-state bypass via direct-endpoint calls, idempotency-key review, check-sequence abuse (validate X then act on Y), and missing state-machine guards. The expected output is a findings table with severity, invariant violated, code reference, reproduction sketch, and architectural remediation. Trigger phrases: business logic, race condition, TOCTOU, double-spend, idempotency, workflow bypass, state machine, check-then-act, deep pen-test, WSTG-BUSL."
+description: Identify business-logic vulnerabilities that bypass intended workflows -- race conditions, TOCTOU, double-spending, workflow-state bypass, idempotency violations, check-sequence abuse -- and the concrete attacker playbooks they enable: pricing/refund abuse, coupon and promo stacking, anti-fraud and rate-limit defeat, multi-accounting, and workflow-step bypass. Requires domain knowledge of the application's business rules because these flaws do not appear in generic scanners. Use when auditing financial flows, reservation systems, multi-step workflows, or any feature with stateful invariants, or when red-teaming pricing/refund/promo logic under authorization. SKIP, do NOT use for, generic injection classes such as XSS or SQL injection (use security-review), architectural or web-app attacks such as SSRF or request smuggling (use advanced-attack-patterns), or stateless endpoint bugs (use semantic-bug-detector).
+summary_l0: "Business-logic abuse: race conditions, TOCTOU, double-spending, workflow bypass, pricing/refund abuse, anti-fraud defeat"
+overview_l1: "This skill identifies business-logic vulnerabilities that generic scanners cannot find because the flaws depend on the application's own rules. Use it when auditing high-value workflows (payments, ledgers, reservations, privilege grants), reviewing state-machine implementations, or extending `/run-penetration-test --depth=deep` with domain-aware checks. Key capabilities include race-condition and TOCTOU detection at atomicity boundaries, double-spending and replay-within-window analysis, workflow-state bypass via direct-endpoint calls, idempotency-key review, check-sequence abuse, and concrete attacker playbooks -- pricing/refund abuse, coupon stacking, anti-fraud and rate-limit defeat, and workflow-step bypass -- that give each finding a business impact. The expected output is a findings table with severity, invariant violated, code reference, reproduction sketch, and remediation. Trigger phrases: business logic, race condition, TOCTOU, double-spend, idempotency, workflow bypass, pricing abuse, refund abuse, promo stacking, multi-accounting, anti-fraud bypass, WSTG-BUSL."
 ---
 
 # Business-Logic Abuse
@@ -19,12 +19,15 @@ Use this skill when:
 - Evaluating multi-step workflows where each step has preconditions
 - Running `/run-penetration-test --depth=deep` (this skill powers the Business Logic & Advanced Attacks hunter)
 - Investigating a specific incident that looks like "the system did something it should not have allowed"
+- Red-teaming pricing, refund, promo, or anti-fraud logic under authorization (the attacker playbooks in Step 8)
 
 Do NOT use this skill for:
 - Generic vulnerability classes (XSS, SQL injection) - use `security-review` or `/run-penetration-test` standard depth.
+- Architectural or web-app attack classes (SSRF, SSTI, XXE, request smuggling, IDOR) - use `advanced-attack-patterns`, the companion skill.
 - Stateless endpoint bugs - use `semantic-bug-detector` or unit-test coverage instead.
+- Any engagement without documented authorization, scope, and synthetic/test data - obtain them first.
 
-**Trigger phrases**: "business logic", "race condition", "TOCTOU", "time of check time of use", "double spend", "idempotency", "workflow bypass", "state machine bug", "check then act", "workflow state", "ledger integrity", "WSTG-BUSL".
+**Trigger phrases**: "business logic", "race condition", "TOCTOU", "time of check time of use", "double spend", "idempotency", "workflow bypass", "state machine bug", "check then act", "workflow state", "ledger integrity", "pricing abuse", "price tampering", "refund abuse", "coupon stacking", "promo abuse", "anti-fraud bypass", "rate limit bypass", "multi-accounting", "bonus farming", "WSTG-BUSL".
 
 ## What This Skill Does
 
@@ -33,6 +36,7 @@ Provides a domain-aware audit procedure for business-logic flaws including:
 - **Rule Elicitation**: A structured interview that surfaces high-value workflows, critical invariants, and idempotency guarantees from the operator.
 - **Attack Class Coverage**: Six canonical attack classes (race conditions, TOCTOU, double-spending, workflow bypass, idempotency violations, check-sequence abuse) with indicators, example code patterns, and remediation guidance.
 - **Code-Trace Procedure**: For each elicited rule, a walkthrough that maps the rule onto atomicity boundaries, state-machine transitions, and persistence guarantees.
+- **Attacker Playbooks**: Concrete scenarios (pricing/refund abuse, anti-fraud and rate-limit defeat, workflow-step bypass) that turn a missing-guard finding into a demonstrated business impact - what an attacker actually does with the gap.
 - **Structured Output**: A findings table schema (severity, rule violated, code reference, reproduction sketch, remediation) consumable by `/run-penetration-test` reports and security reviews.
 
 ## Instructions
@@ -143,7 +147,58 @@ If the operator cannot answer these, stop and request the product spec or domain
 - For uploads: server generates the filename; the client-supplied name is never used for storage.
 - For permissions: the authorization decision must bind to the subject-verb-object tuple that the downstream handler acts on.
 
-### Step 8: Output Format
+### Step 8: Attacker Playbooks (concrete scenarios)
+
+Steps 2-7 are the audit *methodology*; this step is the attacker's *intent*. These playbooks are the concrete scenarios a defensive review should cite when arguing that an invariant matters - they show what an attacker actually does with a missing guard, so the finding carries a business impact, not just a code smell. Run them only inside an authorized engagement against synthetic accounts and test data; the deliverable is the control that defeats the play, not the proceeds.
+
+#### 8a. Pricing and refund abuse
+
+The attacker pays less than intended, or gets back more than they paid, by manipulating values the server should never trust from the client.
+
+- **Client-set price / quantity**: the cart or order request carries `price`, `amount`, or `quantity`, and the server bills what the client sent. Substitute a lower price, a negative quantity (which can credit the account), or a zero/`0.001` unit price.
+- **Currency and rounding abuse**: order in a currency where the conversion or rounding favors the attacker (charge 100 of a low-value unit, refund 100 of a high-value one), or exploit float rounding so a per-line discount rounds the total to zero.
+- **Coupon / promo stacking**: apply the same single-use code twice via a race (see Step 2), stack mutually-exclusive promos the UI hides, or combine a percentage and a fixed discount so the total goes negative and becomes store credit.
+- **Refund > payment**: refund a partially-consumed order in full, refund after a chargeback, refund to a different payment instrument than the one charged, or refund line items at a price higher than they were bought (price changed between purchase and refund).
+
+```text
+# Tampered order body -- the server must recompute price/total server-side
+{"sku": "PRO-PLAN", "quantity": -1, "unit_price": 0.01, "currency": "XYZ", "coupons": ["SAVE50","FLAT20"]}
+```
+
+**Invariants broken**: "the customer is charged the catalog price for a non-negative quantity"; "total refunded never exceeds total captured"; "a single-use code is redeemed at most once".
+
+**Defend**: recompute every monetary value server-side from trusted catalog/ledger data - never bill or refund a client-supplied amount; clamp quantities to a positive range; enforce single-use codes with a UNIQUE constraint set atomically with the award (Step 4); cap cumulative refunds at the captured amount in the same transaction that records the refund.
+
+#### 8b. Anti-fraud and rate-limit defeat
+
+The attacker defeats the controls meant to make abuse uneconomical, usually by multiplying identities or exploiting a check that is not authoritative.
+
+- **Multi-accounting / bonus farming**: harvest new-account or referral bonuses by creating many accounts (disposable emails, plus-addressing, rotating devices) and, in the worst case, self-referral loops where one principal is both referrer and referee.
+- **Velocity-limit bypass**: spread requests across accounts/IPs/devices so no single key trips the per-key limit, or exploit eventual consistency so concurrent requests each read an under-limit counter before any write lands (a race, per Step 2).
+- **Check-not-authoritative**: the fraud/risk check runs asynchronously or advisory-only, so the value moves before the check completes; or the check trusts a client-supplied signal (device id, "is_trusted" flag) the attacker controls.
+
+**Invariants broken**: "a bonus is granted at most once per real entity"; "a principal cannot exceed N actions per window"; "value does not move until the risk check clears".
+
+**Defend**: bind limits and bonuses to an entity the attacker cannot cheaply multiply (verified payment instrument, verified phone) rather than to an email/IP; enforce limits with an atomic server-side counter (Step 2), not a client signal; make the risk check authoritative and synchronous on the value-moving path, or hold the value until it clears; reject self-referral by checking referrer != referee at grant time.
+
+#### 8c. Workflow-step bypass (offensive)
+
+The attacker reaches a privileged end state without passing the gates that precede it - the offensive twin of Step 5.
+
+- **Skip the payment / verification / approval gate**: POST directly to `/checkout/complete`, `/account/verify`, or `/withdrawal/approve` from a state where the prerequisite step was never completed.
+- **Replay a "success" token**: capture the confirmation token or signed "paid"/"verified" artifact from a sandbox, a prior order, or another user, and present it on a new flow.
+- **State-field tampering / force-browsing**: flip a client-held `status` field to `confirmed`, or force-browse to the post-success page whose handler trusts that arrival implies completion.
+
+```text
+# Direct call to the terminal step from a non-prerequisite state
+POST /api/checkout/complete   {"order_id": 5012, "state": "paid"}   # server never verified a capture
+```
+
+**Invariants broken**: "an order is fulfilled only after a successful capture"; "an account is privileged only after verification"; "a transition is allowed only from its predecessor state".
+
+**Defend**: enforce the state machine server-side (Step 5) - every terminal action re-reads the persisted state and rejects a transition not allowed from the current state; bind success tokens to the specific order/user/flow and a server-issued nonce (so a replayed token is rejected); never trust a client-supplied `status`; treat page arrival as navigation, never as authorization.
+
+### Step 9: Output Format
 
 Produce findings as a table so the result is consumable by `/run-penetration-test` reports, security reviews, and downstream skills:
 
@@ -230,27 +285,34 @@ def transition(order: Order, to: OrderStatus) -> None:
 | "The UI only lets the user reach checkout after payment, so the complete endpoint is safe" | The UI path is untrusted; a client that POSTs directly to `/checkout/complete` skips the payment step entirely unless the server re-checks the persisted state-machine position. |
 | "Adding an idempotency key is over-engineering for a simple payment endpoint" | Without an enforced key plus a UNIQUE constraint, a single client retry on a flaky network double-charges the customer, the exact double-spend in Step 4. |
 | "I can infer the business rules from reading the code" | Code shows what the system does, not what it should do; auditing invariants you guessed produces false positives and misses the real rule the operator holds in their head, which is why Step 1 elicits rules first. |
+| "We validate the price on the client, so the order total is safe" | The client is the attacker's machine; a tampered order body with a negative quantity or a 0.01 unit price (Step 8a) bills exactly what the client sent unless the server recomputes the total from trusted catalog data, which is why client-side price validation is never the control. |
+| "Per-user rate limits stop bonus farming" | A limit keyed to an email or IP is defeated by creating many accounts or rotating identifiers (Step 8b); the bonus must bind to an entity the attacker cannot cheaply multiply (a verified payment instrument or phone), or the farm runs at scale under the per-key ceiling. |
 
 ## Verification
 
+- [ ] Any attacker-playbook exercise (Step 8) ran under documented authorization against synthetic accounts and test data; no real funds or real customer data were moved
 - [ ] For each CRITICAL finding, write or request a reproduction test that fails before the fix and passes after
 - [ ] Confirm database-level constraints (UNIQUE, CHECK, `FOR UPDATE`) are in place, not just application-level code
 - [ ] For race-condition fixes: load-test the fixed code with N >= 10 concurrent requests; confirm the invariant holds
 - [ ] For workflow-bypass fixes: attempt to POST directly to the downstream endpoint from a state where it should be rejected; confirm rejection
 - [ ] For idempotency fixes: replay the same request twice; confirm identical observable result
+- [ ] For pricing/refund findings: confirm the server recomputes every monetary value from trusted data and caps cumulative refunds at the captured amount
+- [ ] For anti-fraud findings: confirm limits/bonuses bind to an entity the attacker cannot cheaply multiply, enforced by an atomic server-side counter
 
 ## Related Skills
 
+- [[advanced-attack-patterns]] -- companion skill; its Step 5 injection/access-control vectors and Step 1 state-desync pair with these business-logic playbooks on multi-step flows
 - [[security-patch-advisor]] -- patch generation for the remediation code
 - [[security-review]] -- general application security review (this skill extends it with domain-specific checks)
 - [[authentication-patterns]] -- auth-specific invariants (one active session per user, MFA enrollment sequencing)
+- [[pentest-reporting]] -- writes up the business-impact findings these playbooks produce
 - [[fintech-engineer]] -- domain knowledge for financial ledger invariants
 - [[semantic-bug-detector]] -- logic bugs beyond security (overlaps with this skill on race conditions)
 
 ---
 
-**Version**: 1.0.0
-**Last Updated**: April 2026
+**Version**: 1.1.0
+**Last Updated**: June 2026
 
 ### Iterative Refinement Strategy
 

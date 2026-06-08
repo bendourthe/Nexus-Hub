@@ -281,4 +281,4 @@ Execute tasks following `incremental-implementation` (one task at a time, test a
 
 ## Methodology essay
 
-For the broader motivation behind treating the specification as the source of truth that code compiles from, see `docs/v2.1.0/spec-driven-methodology.md`. The essay covers the power inversion (specs lead, code follows), the seven-station Nexus-Hub SDD workflow, the six core principles, and the pitfalls / anti-patterns (over-specifying the trivial, hiding behind the gate, treating the analyzer as a linter).
+For the broader motivation behind treating the specification as the source of truth that code compiles from, see `docs/archive/v2/v2.1.0/spec-driven-methodology.md`. The essay covers the power inversion (specs lead, code follows), the seven-station Nexus-Hub SDD workflow, the six core principles, and the pitfalls / anti-patterns (over-specifying the trivial, hiding behind the gate, treating the analyzer as a linter).

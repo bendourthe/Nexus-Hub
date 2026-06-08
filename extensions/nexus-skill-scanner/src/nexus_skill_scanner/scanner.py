@@ -11,6 +11,7 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
+from .allowlist import apply_allowlist
 from .analyzers import build_analyzers
 from .analyzers.base import FileUnit
 from .analyzers.dependencies import OSVClient
@@ -100,7 +101,12 @@ class Scanner:
         findings: list[Finding] = []
         for analyzer in self._analyzers:
             findings.extend(analyzer.analyze(unit))
-        return findings
+        # Producer-catalog policy layer: cap authorized red-team payloads inside
+        # trusted security-skill Markdown bodies at MEDIUM (never scripts, never
+        # the never-relax danger classes, never third-party skills). Analyzers
+        # above always report the real class/severity; this is the one
+        # documented place that relaxes it. See allowlist.py.
+        return apply_allowlist(findings, path, self.repo_root)
 
     def scan(self, targets: list[Path]) -> ScanResult:
         """Scan one or more targets and return an aggregated, scored result."""

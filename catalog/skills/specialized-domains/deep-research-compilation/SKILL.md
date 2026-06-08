@@ -47,6 +47,16 @@ The anti-patterns that will wreck the output:
 
 ---
 
+## Upstream: gathering sources as a Dynamic Workflow (optional)
+
+The steps below assume the user already has the research sources. When the user instead arrives with a *question* and no sources, the gathering is the upstream [[deep-research]] shape: fan-out searches -> fetch sources -> adversarially verify claims -> synthesize. When the harness has the Dynamic Workflows runtime, [scripts/research-fanout-workflow.js](scripts/research-fanout-workflow.js) is a ready-to-adapt scaffold for exactly that phase (a multi-modal search sweep, a per-source fetch pipeline, per-claim refutation, then a cited synthesis whose canonical `[N]` list feeds the renumbering in Step 4).
+
+This does not violate the "you are the generator; there is no persistent script" core principle: that rule governs document *emission* (the throwaway python-docx generator). This file emits no document -- it is an orchestration harness for *source gathering* that hands its synthesized, citation-ready output to Step 3 onward.
+
+It is a **template to adapt, not a script to run verbatim**, and it must **degrade gracefully**: Dynamic Workflows is a plan-gated research-preview capability that may be absent, so fall back to a few isolated subagents (one per search angle) or a single sequential search-read-synthesize pass. Because the fan-out carries a 5-15x token multiplier, keep the **scope-first** discipline: calibrate on one search angle first, review the candidate source list on the first trigger, and confirm before fanning out across every angle. The subagents use only the harness's built-in `WebSearch` / `WebFetch` tools -- no new dependency or credential. For whether a fan-out is warranted at all and the hard budget controls, see [[agent-orchestration-primitives]] and [[ai-billing-safeguards]].
+
+---
+
 ## Step 1: Inspect the .docx Template
 
 Before synthesizing or generating anything, build a **style profile** of the selected template. Write it to `<cache_dir>/style_profile.json` so the user can review what you extracted.

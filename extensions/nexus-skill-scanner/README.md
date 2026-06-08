@@ -16,6 +16,18 @@ The scanner covers 16 classes (prompt injection, data exfiltration, privilege es
 
 A catalog that teaches security legitimately contains dangerous-looking constructs (`eval(`, "ignore previous instructions", `password = "..."`) inside fenced examples. The scanner is fence-aware: low-confidence text patterns inside Markdown fences are suppressed, and prose-delivered classes are capped at MEDIUM. The deterministic CI gate fails only on HIGH/CRITICAL findings, with the semantic-adjudication skill as the false-positive filter.
 
+### Security-category allowlist
+
+The `security` skill category goes one step further than fence-aware text capping: its `SKILL.md` bodies carry authorized red-team methodology (example credentials / tokens, attack directives, and payloads shown inside fenced blocks to teach defenders what a system must withstand). The clearest case is a fenced example `Authorization: Bearer <token>`, which the secret analyzer flags HIGH **even inside a fence** (a genuinely leaked key must never be suppressed). To keep the CI gate from failing on authorized teaching content, a documented policy layer (`allowlist.py`) caps such findings at MEDIUM.
+
+This is a policy cap, not a detection change: every analyzer still reports the real detection class and severity, the construct still surfaces (at MEDIUM) for the `skill-security-scan` adjudication skill, and the cap is applied at exactly one place. A finding is capped only when **all** of these hold:
+
+1. **Trusted producer catalog.** The scan is rooted at a real Nexus-Hub checkout (`repo_root` resolved) AND the host file resolves to a path under `<repo_root>/catalog/skills/security/`. A third-party skill scanned via `/skills import` is not under the trusted repo's security tree, so it is never allowlisted -- its findings score at their real class.
+2. **Prose / fenced context only.** The host file is a Markdown skill body (`.md` / `.markdown`). Bundled executable scripts (`.py`, `.sh`, `.ps1`, ...) are real code, not teaching prose, and are never capped -- a payload that actually runs is detected at full severity even inside a `security` skill.
+3. **Not a never-relax class.** The cap never applies to data exfiltration (class 2), excessive agency (class 5), behavioral dynamic code execution (class 12), taint-to-sink code injection (class 13), or signature / live-malware (class 14). These keep their real severity even inside a trusted security-skill body.
+
+The net effect: authorized methodology in a reviewed `security` skill body passes the gate at MEDIUM, while a malicious skill (a bundled exfil script, a code-execution payload, the same credential in any other category, or any third-party skill) still trips the HIGH/CRITICAL gate.
+
 ## Usage
 
 ```bash

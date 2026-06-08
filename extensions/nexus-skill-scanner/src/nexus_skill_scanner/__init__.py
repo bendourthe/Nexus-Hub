@@ -15,10 +15,12 @@ Public API:
     scan_target(target, ...)   -> ScanResult
     Scanner                    -> the configurable scanner object
     Finding, ScanResult, Severity, Band -> result types
+    apply_allowlist, is_trusted_security_skill_body -> producer-catalog policy
 """
 
 from __future__ import annotations
 
+from .allowlist import apply_allowlist, is_trusted_security_skill_body
 from .scanner import Scanner, scan_target
 from .types import Band, Finding, ScanResult, Severity
 
@@ -29,6 +31,8 @@ __all__ = [
     "ScanResult",
     "Severity",
     "Band",
+    "apply_allowlist",
+    "is_trusted_security_skill_body",
 ]
 
 __version__ = "3.0.0"

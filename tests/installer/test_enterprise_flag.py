@@ -13,7 +13,7 @@ install run) because:
      consistent.
 
 If a future refactor moves the dispatch into a function, these tests need to
-follow that refactor; see docs/v2.2.0/plans/codegraph-and-antigravity.md
+follow that refactor; see docs/archive/v2/v2.2.0/plans/codegraph-and-antigravity.md
 sub-task 2.7 (T013).
 """
 

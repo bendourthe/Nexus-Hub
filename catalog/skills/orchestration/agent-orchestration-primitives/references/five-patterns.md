@@ -73,6 +73,19 @@ Read this file when you need to pick a shape. Each section gives the shape, when
 
 Real orchestrations chain these shapes. A common composition: **route** an incoming task by complexity, **parallelize** the discovery phase across independent areas, hand the findings to an **orchestrator-worker** decomposition, and wrap the risky workers in an **evaluator-optimizer** loop for verification. Compose deliberately -- each added shape adds token cost and failure surface, so add one only when a measured problem (parent skill, Step 2) demands it.
 
+## Ranking at Scale (the pairwise-tournament shape)
+
+One composition recurs often enough to name on its own: **ranking or sorting many items by repeated pairwise comparison**. Rank 80 resumes against a rubric, sort 1,000 support tickets by severity, order a backlog by risk -- tasks where the absolute score an agent assigns to any one item is noisy, but the relative judgement "is A better than B?" is cheap and stable.
+
+**Shape.** Parallelization (section 3) supplies the comparisons -- each isolated agent judges one pair (or bins one slice) -- and a deterministic loop, NOT an agent, holds the bracket and merges the results. Two common arrangements:
+
+- **Tournament / merge sort.** Split the N items into buckets, rank each bucket with pairwise comparisons, then merge the ranked buckets the way merge sort merges sorted runs. The comparison count stays near O(N log N) instead of the O(N^2) of comparing every possible pair.
+- **Bucket-rank-then-merge.** When only coarse ordering is needed, have agents bin items into a few ordered buckets (critical / high / low) in parallel, then run pairwise comparisons only inside the buckets that matter. Most items never enter an expensive comparison at all.
+
+**Why a deterministic loop holds the bracket.** The ordering logic -- which pairs to compare next, how to merge two ranked runs -- is plain code in the orchestration script, so it is exact, cheap, and resumable. The agents do only the one thing code cannot: the subjective pairwise judgement. The bracket is sorting; the agents are the comparator.
+
+**Distinct from best-of-N.** This is NOT [[competitive-generation]]. Best-of-N runs N agents on the *same* task and picks one winner by an objective rubric: one decision, many attempts. Ranking at scale orders *many different items* through many relative comparisons: many decisions, one ordering. Reach for best-of-N when you want the single best output of one task; reach for the tournament shape when you must rank or sort a large set. Either way, apply the parent skill's scope-first token caution -- comparisons multiply fast, so calibrate on one bucket before turning it loose on the whole set.
+
 ---
 
 ## Source

@@ -1,7 +1,7 @@
 """Eval-runner smoke tests (T033).
 
 These tests assert the harness runs and emits a Markdown report. They do NOT
-assert specific score thresholds - those live in docs/v2.3.0/eval-baseline.md
+assert specific score thresholds - those live in docs/archive/v2/v2.3.0/eval-baseline.md
 and are guarded by `make eval` in CI - except the per-fixture recall gate
 (>= 80%), which is asserted here so a new extractor cannot silently regress.
 """

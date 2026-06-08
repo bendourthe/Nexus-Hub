@@ -5,7 +5,7 @@ Idempotent: re-running on already-renamed files is a no-op. Variants are applied
 in length-descending order so longer strings are replaced before shorter ones
 that would over-match (e.g. `DEVAI-HUB` before `DEVAI_HUB`).
 
-Writes a per-file manifest to docs/v2.0.0/rename-manifest.txt.
+Writes a per-file manifest to docs/archive/v2/v2.0.0/rename-manifest.txt.
 """
 from __future__ import annotations
 

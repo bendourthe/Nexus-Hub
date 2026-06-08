@@ -13,14 +13,8 @@ validate: ## Validate all JSON catalog files and skill bundles
 	@echo "Running non-blocking skill quality-heuristics pass (warnings only)..."
 	@python scripts/validate_skills.py --quality
 	@echo "Running v2.3.0 CI validators (no-personal-paths, unicode-safety, supply-chain-iocs, workflow-security)..."
-	@python scripts/validate_no_personal_paths.py \
-	    --exclude docs/v2.0.0 \
-	    --exclude docs/v2.1.0 \
-	    --exclude docs/v2.2.0
-	@python scripts/validate_unicode_safety.py \
-	    --exclude docs/v2.0.0 \
-	    --exclude docs/v2.1.0 \
-	    --exclude docs/v2.2.0
+	@python scripts/validate_no_personal_paths.py
+	@python scripts/validate_unicode_safety.py
 	@python scripts/scan_supply_chain_iocs.py
 	@python scripts/validate_workflow_security.py
 	@echo "Validating solution-doc frontmatter parser-safety (docs/solutions; no-op when absent)..."
@@ -56,8 +50,8 @@ scan: ## Scan the catalog for skill-security findings (fails on any HIGH/CRITICA
 
 eval: ## Run the nexus-code-search synthetic-codebase eval harness
 	@echo "Running nexus-code-search eval harness..."
-	@cd extensions/nexus-code-search && python -m nexus_code_search.eval --out ../../docs/v2.3.0/eval-baseline.md
-	@echo "Eval complete. Report: docs/v2.3.0/eval-baseline.md"
+	@cd extensions/nexus-code-search && python -m nexus_code_search.eval --out ../../docs/v3.0.0/eval-baseline.md
+	@echo "Eval complete. Report: docs/v3.0.0/eval-baseline.md"
 
 benchmark: ## Benchmark internal MCP servers
 	@echo "Benchmarking internal MCPs..."

@@ -9,7 +9,7 @@
          `.nexus/context/last-session.md` so the next SessionStart can read it.
 
     The digest is the local-only reverse-engineered subset of ECC's
-    memory-persistence pattern (see docs/v2.3.0/plans/adoption-ecc-cybersec-skills.md
+    memory-persistence pattern (see docs/archive/v2/v2.3.0/plans/adoption-ecc-cybersec-skills.md
     T007). No network calls; reads/writes are local only.
 
 .NOTES

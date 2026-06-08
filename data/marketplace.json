@@ -1,8 +1,8 @@
 {
   "plugin": {
     "name": "nexus-hub",
-    "version": "3.0.0",
-    "description": "Enterprise-grade skill library for AI coding assistants with 247 curated skills, 14 commands, 22 hooks, and cross-platform support",
+    "version": "3.1.0",
+    "description": "Enterprise-grade skill library for AI coding assistants with 250 curated skills, 14 commands, 22 hooks, and cross-platform support",
     "author": "Benjamin Dourthe",
     "license": "MIT",
     "repository": "https://github.com/bendourthe/Nexus-Hub",
@@ -149,8 +149,8 @@
     {
       "id": "security",
       "name": "Security",
-      "description": "Authentication, CVE analysis, dependency audit, licensing, penetration testing, framework mapping",
-      "skill_count": 11
+      "description": "Authentication, AI attack patterns, CVE analysis, dependency audit, licensing, penetration testing and reporting, framework mapping",
+      "skill_count": 13
     },
     {
       "id": "security-operations",
@@ -180,7 +180,7 @@
       "id": "workflow",
       "name": "Workflow",
       "description": "Git workflows, TDD, debugging, session history and session query, skill evaluation, version management, project governance and product strategy, issue tracking, agent context modes, local continuous learning, skill quality audit and generation, local PR demo capture",
-      "skill_count": 36
+      "skill_count": 37
     },
     {
       "id": "research",
