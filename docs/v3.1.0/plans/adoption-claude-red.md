@@ -47,7 +47,7 @@ This plan aligns with the `AGENTS.md` MCP Registry Policy (all candidates are `s
 
 #### 1.1 -- Re-author the AI-attack-patterns skill
 
-- [ ] T001 Create catalog/skills/security/ai-attack-patterns/SKILL.md
+- [x] T001 Create catalog/skills/security/ai-attack-patterns/SKILL.md
 
 **Objective**: Adopt offensive AI-security methodology (prompt injection / jailbreaking / RAG poisoning) as a skill that strengthens the defensive scanner's detection rationale.
 
@@ -58,7 +58,7 @@ This plan aligns with the `AGENTS.md` MCP Registry Policy (all candidates are `s
 
 #### 1.2 -- Re-author the pentest-reporting skill
 
-- [ ] T002 Create catalog/skills/security/pentest-reporting/SKILL.md
+- [x] T002 Create catalog/skills/security/pentest-reporting/SKILL.md
 
 **Objective**: Adopt professional pentest report-writing methodology to complement `/review pentest` and `final-report`.
 
@@ -69,7 +69,7 @@ This plan aligns with the `AGENTS.md` MCP Registry Policy (all candidates are `s
 
 #### 1.3 -- Register both skills
 
-- [ ] T003 Register the two new skills in data/SKILL_INDEX.md, data/skills.json, and data/marketplace.json
+- [x] T003 Register the two new skills in data/SKILL_INDEX.md, data/skills.json, and data/marketplace.json
 
 **Objective**: Add catalog registry entries per the AGENTS.md new-skill procedure.
 
@@ -80,7 +80,7 @@ This plan aligns with the `AGENTS.md` MCP Registry Policy (all candidates are `s
 
 #### 1.4 -- Testing and Stabilization
 
-- [ ] T004 Validate Phase 1 via make validate and the CI skill-security gate
+- [x] T004 Validate Phase 1 via make validate and the CI skill-security gate
 
 **Objective**: Confirm the new skills pass integrity + security gates.
 
@@ -91,11 +91,11 @@ This plan aligns with the `AGENTS.md` MCP Registry Policy (all candidates are `s
 
 ### Phase 1 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] All tests passing
-- [ ] No known regressions from prior phases
-- [ ] Session history generated for this phase
-- [ ] Ready to advance to Phase 2
+- [x] All sub-tasks completed
+- [x] All tests passing
+- [x] No known regressions from prior phases
+- [x] Session history generated for this phase
+- [x] Ready to advance to Phase 2
 
 ---
 

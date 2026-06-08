@@ -146,6 +146,8 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | cve-reachability-analyzer | security | "Trace call paths to determine if dependency CVEs actually affect your application" | catalog/skills/security/cve-reachability-analyzer/SKILL.md |
 | dependency-security-audit | security | "Audit dependencies for CVEs, license issues, and outdated packages with SBOM" | catalog/skills/security/dependency-security-audit/SKILL.md |
 | exploitability-analyzer | security | "Assess vulnerability exploitability with CVSS scoring and attack path analysis" | catalog/skills/security/exploitability-analyzer/SKILL.md |
+| ai-attack-patterns | security | "Adversarial AI-security methodology: prompt injection, jailbreaking, and RAG poisoning for authorized review" | catalog/skills/security/ai-attack-patterns/SKILL.md |
+| pentest-reporting | security | "Write professional penetration-test reports with CVSS scoring, evidence, and a retest workflow" | catalog/skills/security/pentest-reporting/SKILL.md |
 | licensing-compliance | security | "Audit dependency licenses for compliance, compatibility, and legal risk" | catalog/skills/security/licensing-compliance/SKILL.md |
 | pre-commit-checklist | security | "Implement pre-commit hooks for linting, security scanning, and commit validation" | catalog/skills/security/pre-commit-checklist/SKILL.md |
 | security-patch-advisor | security | "Generate security patches for XSS, SQL injection, SSRF, CSRF, and misconfigurations" | catalog/skills/security/security-patch-advisor/SKILL.md |

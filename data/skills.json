@@ -4557,6 +4557,68 @@
       }
     },
     {
+      "name": "ai-attack-patterns",
+      "title": "ai-attack-patterns",
+      "description": "Offensive AI-security methodology for authorized red-teaming of LLM-backed systems -- direct and indirect prompt injection, jailbreaking, RAG / knowledge-base poisoning, and tool-use abuse -- framed to harden the system under test and to sharpen defensive review. Make sure to use this skill whenever the user wants to \"test an LLM for prompt injection\", \"red-team a RAG pipeline\", \"jailbreak resistance testing\", \"AI red team\", \"LLM security testing\", \"indirect prompt injection\", \"RAG poisoning\", \"agent tool abuse\", or wants the attacker's perspective on an AI feature before shipping it. SKIP, do NOT use for, building or prompt-tuning the application itself (use prompt-engineering), adjudicating skill-security scanner output (use skill-security-scan), generic application code review (use security-review), or any test without documented authorization and scope.",
+      "long_description": "Adopt the attacker's perspective on LLM-backed systems to find where prompts, retrieved context, tool outputs, and model outputs can be turned against the application, then convert each weakness into a defense. Framed to feed defensive review rather than standalone offensive engagement, and gated to authorized engagements only.",
+      "summary_l0": "\"Adversarial AI-security methodology: prompt injection, jailbreaking, and RAG poisoning for authorized review\"",
+      "overview_l1": "\"This skill primes the agent with the attacker's perspective on LLM-backed systems so it can red-team them under authorization and translate every finding into a concrete defense. It covers direct and indirect prompt injection, jailbreak technique families, RAG and knowledge-base poisoning, tool / function-call abuse in agentic systems, and unsafe-output handling. It is framed to feed defensive work -- hardening prompts, designing detection rules, and strengthening the skill-security scanner's rationale -- not standalone offensive engagement. Every assessment starts from documented scope and rules of engagement, captures reproducible evidence, and ends with a defense recommendation. Trigger phrases: test an LLM for prompt injection, red-team a RAG pipeline, jailbreak resistance testing, AI red team, LLM security testing, indirect prompt injection, RAG poisoning, agent tool abuse.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/security/ai-attack-patterns/",
+      "file": "catalog/skills/security/ai-attack-patterns/SKILL.md",
+      "size": {
+        "lines": 160,
+        "characters": 12984,
+        "tokens_estimate": 1511
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "pentest-reporting",
+      "title": "pentest-reporting",
+      "description": "Write professional penetration-test and security-assessment reports -- consistent severity and CVSS scoring, reproducible evidence capture, risk-led executive summaries, prioritized remediation, and a retest workflow that closes findings. Make sure to use this skill whenever the user wants to \"write a pentest report\", \"penetration test report\", \"security assessment report\", \"document security findings\", \"CVSS score these findings\", \"executive summary for a security test\", \"remediation report\", or \"retest report\", even if they only say \"write up the vulnerabilities we found\". SKIP, do NOT use for, generating the code-level fix itself (use security-patch-advisor), blameless production-incident postmortems (use incident-postmortem), or generic project status / release reporting (use technical-writer or release-notes-writer).",
+      "long_description": "Turn raw security findings from an authorized assessment into a defensible report with consistent CVSS scoring, reproducible and redacted evidence, a risk-led executive summary, prioritized remediation, and a retest workflow that drives findings to closed.",
+      "summary_l0": "\"Write professional penetration-test reports with CVSS scoring, evidence, and a retest workflow\"",
+      "overview_l1": "\"This skill turns raw security findings into a defensible penetration-test report. It gives the agent a finding anatomy (title, severity, CVSS vector, affected asset, impact, reproduction, evidence, remediation, references), a consistent CVSS scoring method, evidence-capture and redaction discipline, a risk-led executive summary aimed at non-technical decision makers, prioritized remediation guidance, and a retest workflow that drives findings to closed. It complements the engagement methodology skills and the /review pentest command by standardizing how their output is documented. Use it at the end of any authorized assessment, CTF write-up, or bug-bounty submission. Trigger phrases: write a pentest report, penetration test report, security assessment report, document security findings, CVSS score, executive summary for a security test, remediation report, retest report.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/security/pentest-reporting/",
+      "file": "catalog/skills/security/pentest-reporting/SKILL.md",
+      "size": {
+        "lines": 169,
+        "characters": 11728,
+        "tokens_estimate": 1365
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
       "name": "licensing-compliance",
       "title": "licensing-compliance",
       "description": "Audit project dependencies for license compliance, identify legal issues, verify compatibility between licenses, and generate compliance reports. Use when releasing software, adding dependencies, corporate compliance requirements, mergers/acquisitions, or distributing code.",
