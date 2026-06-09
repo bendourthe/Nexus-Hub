@@ -8721,7 +8721,7 @@
     {
       "name": "session-teach-back",
       "title": "session-teach-back",
-      "description": "Socratic mastery-confirmation loop that quizzes the HUMAN operator on what a development session actually built and why, one concept at a time against a persistent dated checklist, and refuses to finish until every item is confirmed. Make sure to use this skill whenever the user says \"teach me what we built\", \"quiz me on this session\", \"teach-back\", \"did I understand X\", \"drill me on the session\", \"make sure I actually get what we did\", \"test my understanding of this work\", or otherwise wants to confirm THEIR OWN understanding of a completed session instead of just recording it. SKIP, do NOT use for, generating a record of what happened (use generate-session-history / session-history), querying or recovering context from PAST sessions (use session-query), or tracking task or phase progress (use dev-progress-tracker).",
+      "description": "Socratic mastery-confirmation loop that quizzes the HUMAN operator on what a development session actually built and why, one concept at a time against a persistent dated checklist, and refuses to finish until every item is confirmed. Make sure to use this skill whenever the user says \"teach me what we built\", \"quiz me on this session\", \"teach-back\", \"did I understand X\", \"drill me on the session\", \"help me teach this to someone\", \"put me in teaching mode\", \"make sure I actually get what we did\", \"test my understanding of this work\", or otherwise wants to confirm THEIR OWN understanding of a completed session (or guide someone else through it) instead of just recording it. SKIP, do NOT use for, generating a record of what happened (use generate-session-history / session-history), querying or recovering context from PAST sessions (use session-query), or tracking task or phase progress (use dev-progress-tracker).",
       "long_description": "Confirm that the human actually understands what a session built, not just that the work shipped. This skill runs a Socratic mastery-confirmation loop: it sources the session by reusing session-query's local zero-outbound extractor, writes a dated mastery checklist, opens with a calibration question, then quizzes the operator one concept at a time, drilling into the why behind each decision and refusing to finish until every item is con...",
       "summary_l0": "\"Socratic teach-back loop that quizzes the human on a session until every concept is confirmed\"",
       "overview_l1": "\"Adds a Socratic mastery-confirmation loop that quizzes the human operator on what a development session produced, confirming each concept before finishing. It sources the session by reusing session-query's local, script-first, zero-outbound extractor rather than re-grepping transcripts, then writes a dated mastery checklist under docs/teaching/ (or .nexus/teaching/) with mode/source/started frontmatter, The Problem / The Solution / Broader Context sections, [ ]/[x] checkboxes, and an n/total confirmed progress line. The loop opens by asking the user to restate their understanding (calibration), asks one targeted question per exchange, drills into WHY behind each decision, marks items confirmed immediately, and refuses to wrap up until every item is checked. It is a teaching loop, not requirements intake, so it deliberately does not batch questions. Trigger phrases: teach me what we built, quiz me on this session, teach-back.\"",
@@ -8747,9 +8747,9 @@
       "path": "catalog/skills/workflow/session-teach-back/",
       "file": "catalog/skills/workflow/session-teach-back/SKILL.md",
       "size": {
-        "lines": 133,
-        "characters": 13231,
-        "tokens_estimate": 2927
+        "lines": 158,
+        "characters": 16889,
+        "tokens_estimate": 3738
       },
       "downloads": 0,
       "status": "production",
