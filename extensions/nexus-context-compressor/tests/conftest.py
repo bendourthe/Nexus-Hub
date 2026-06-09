@@ -15,5 +15,11 @@ SRC = PKG_ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
+# Also expose the package root so the top-level ``evals/`` harness package
+# (sibling of src/ and tests/, added in Phase 5) imports cleanly in the eval
+# tests without an install: ``from evals.runner import ...``.
+if str(PKG_ROOT) not in sys.path:
+    sys.path.insert(0, str(PKG_ROOT))
+
 # Repo root is three levels up: extensions/nexus-context-compressor/tests -> repo.
 REPO_ROOT = PKG_ROOT.parents[1]

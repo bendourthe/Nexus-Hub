@@ -1,0 +1,22 @@
+[
+  {"file": "src/auth/login.py", "symbol": "authenticate", "score": 0.91},
+  {"file": "src/auth/session.py", "symbol": "issue_token", "score": 0.78},
+  {"file": "src/api/routes.py", "symbol": "register_routes", "score": 0.66},
+  {"file": "src/api/handlers.py", "symbol": "handle_request", "score": 0.61},
+  {"file": "src/core/utils.py", "symbol": "helper", "score": 0.42},
+  {"file": "src/core/utils.py", "symbol": "helper", "score": 0.42},
+  {"file": "src/core/utils.py", "symbol": "helper", "score": 0.42},
+  {"file": "src/core/utils.py", "symbol": "helper", "score": 0.42},
+  {"file": "src/core/utils.py", "symbol": "helper", "score": 0.42},
+  {"file": "src/core/utils.py", "symbol": "helper", "score": 0.42},
+  {"file": "src/core/utils.py", "symbol": "helper", "score": 0.42},
+  {"file": "src/core/utils.py", "symbol": "helper", "score": 0.42},
+  {"file": "src/core/utils.py", "symbol": "helper", "score": 0.42},
+  {"file": "src/core/utils.py", "symbol": "helper", "score": 0.42},
+  {"file": "src/db/models.py", "symbol": "User", "score": 0.55},
+  {"file": "src/db/models.py", "symbol": "Session", "score": 0.52},
+  {"file": "src/db/query.py", "symbol": "find_user", "score": 0.49},
+  {"file": "src/cli/main.py", "symbol": "run", "score": 0.38},
+  {"file": "src/cli/main.py", "symbol": "parse_args", "score": 0.35},
+  {"file": "src/__init__.py", "symbol": "version", "score": 0.21}
+]

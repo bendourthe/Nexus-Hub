@@ -284,7 +284,7 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 #### 5.1 -- Build the accuracy-regression harness
 
-- [ ] T016 Build compression accuracy-regression harness in extensions/nexus-context-compressor/evals/
+- [x] T016 Build compression accuracy-regression harness in extensions/nexus-context-compressor/evals/
 
 **Objective**: Port headroom's benchmark-gate concept (compression ratio vs. accuracy delta).
 
@@ -295,7 +295,7 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 #### 5.2 -- Wire the CI accuracy gate
 
-- [ ] T017 Wire compression accuracy gate into the CI validate job and make validate
+- [x] T017 Wire compression accuracy gate into the CI validate job and make validate
 
 **Objective**: Fail CI if a compression change degrades fidelity below threshold.
 
@@ -306,7 +306,7 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 #### 5.3 -- Testing and Stabilization
 
-- [ ] T018 Run and stabilize Phase 5 tests and the eval gate
+- [x] T018 Run and stabilize Phase 5 tests and the eval gate
 
 **Objective**: Generate and run all Phase 5 tests. Iterate until stable.
 
@@ -317,11 +317,11 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 ### Phase 5 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] All tests passing
-- [ ] No known regressions from prior phases
-- [ ] Session history generated for this phase
-- [ ] Ready to advance to Phase 6
+- [x] All sub-tasks completed
+- [x] All tests passing
+- [x] No known regressions from prior phases
+- [x] Session history generated for this phase
+- [x] Ready to advance to Phase 6
 
 ---
 
