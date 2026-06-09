@@ -41,7 +41,7 @@ No constitution file found at docs/v3.2.0/constitution.md - skipping check. Reco
 
 #### 1.1 -- Write the core SKILL.md
 
-- [ ] T001 Create the core skill at catalog/skills/workflow/session-teach-back/SKILL.md
+- [x] T001 Create the core skill at catalog/skills/workflow/session-teach-back/SKILL.md
 
 **Objective**: Author the new skill body implementing the solo-mode Socratic loop (insight I1), the calibration opener (I9), the dated mastery checklist (I5), drill-into-why (I8), and the hard completion gate (I11), sourcing the session via the existing `session-query` extractor (I4) rather than inline `grep`.
 
@@ -60,7 +60,7 @@ No constitution file found at docs/v3.2.0/constitution.md - skipping check. Reco
 
 #### 1.2 -- Register the skill in the three catalog registries
 
-- [ ] T002 Register the skill in data/SKILL_INDEX.md, data/skills.json, and data/marketplace.json
+- [x] T002 Register the skill in data/SKILL_INDEX.md, data/skills.json, and data/marketplace.json
 
 **Objective**: Make the new skill discoverable by adding it to every catalog registry per the `AGENTS.md` "Register the skill" procedure.
 
@@ -77,7 +77,7 @@ No constitution file found at docs/v3.2.0/constitution.md - skipping check. Reco
 
 #### 1.3 -- Testing and Stabilization
 
-- [ ] T003 Run and stabilize Phase 1 validators for catalog/skills/workflow/session-teach-back/SKILL.md
+- [x] T003 Run and stabilize Phase 1 validators for catalog/skills/workflow/session-teach-back/SKILL.md
 
 **Objective**: Confirm the new skill and registry edits leave the catalog green.
 
@@ -88,12 +88,12 @@ No constitution file found at docs/v3.2.0/constitution.md - skipping check. Reco
 
 ### Phase 1 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] `make validate` and `make lint` exit 0 (or validators run directly, all green)
-- [ ] Skill-security scanner: 0 HIGH/CRITICAL on the new skill
-- [ ] Skill present and consistent across all three registries
-- [ ] Session history generated for this phase
-- [ ] Ready to advance to Phase 2
+- [x] All sub-tasks completed
+- [x] `make validate` and `make lint` exit 0 (or validators run directly, all green)
+- [x] Skill-security scanner: 0 HIGH/CRITICAL on the new skill
+- [x] Skill present and consistent across all three registries
+- [x] Session history generated for this phase
+- [x] Ready to advance to Phase 2
 
 ---
 
