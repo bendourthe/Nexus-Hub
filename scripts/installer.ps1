@@ -2289,6 +2289,25 @@ function Install-SkillDiscovery {
         }
         Write-Item -Message "  nexus-web-fetch installed at $webFetchDest" -Color "DarkGreen"
     }
+
+    # Install nexus-context-compressor into the same venv (v3.2.0+).
+    # Local-first context-compression engine. Zero outbound by default; tiktoken
+    # is the only dependency, with an offline stdlib fallback. The MCP
+    # compress/retrieve tool is registered in adoption-headroom Phase 4 (T013);
+    # Phase 1 only places the package in the shared venv so it is importable.
+    # See AGENTS.md MCP Registry Policy.
+    $contextCompressorSrc = Join-Path $RepoRoot "extensions\nexus-context-compressor"
+    $contextCompressorDest = Join-Path $nexusHome "context-compressor"
+    if (Test-Path $contextCompressorSrc) {
+        if (Test-Path $contextCompressorDest) { Remove-Item -Path $contextCompressorDest -Recurse -Force }
+        Copy-Item -Path $contextCompressorSrc -Destination $contextCompressorDest -Recurse -Force
+        if ($hasUv) {
+            & uv pip install --python "$venvPath\Scripts\python.exe" -e $contextCompressorDest 2>$null | Out-Null
+        } else {
+            & "$venvPath\Scripts\pip.exe" install -q -e $contextCompressorDest 2>$null | Out-Null
+        }
+        Write-Item -Message "  nexus-context-compressor installed at $contextCompressorDest" -Color "DarkGreen"
+    }
     $ErrorActionPreference = "Stop"
 
     # Add or update mcpServers without touching other keys (e.g., hooks)

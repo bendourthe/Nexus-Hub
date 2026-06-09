@@ -1812,6 +1812,25 @@ install_skill_discovery() {
         write_item "  nexus-web-fetch installed at $web_fetch_dest" "$GREEN"
     fi
 
+    # Install nexus-context-compressor into the same venv (v3.2.0+).
+    # Local-first context-compression engine. Zero outbound by default; tiktoken
+    # is the only dependency, with an offline stdlib fallback. The MCP
+    # compress/retrieve tool is registered in adoption-headroom Phase 4 (T013);
+    # Phase 1 only places the package in the shared venv so it is importable.
+    # See AGENTS.md MCP Registry Policy.
+    local context_compressor_src="$repo_root/extensions/nexus-context-compressor"
+    local context_compressor_dest="$nexus_home/context-compressor"
+    if [ -d "$context_compressor_src" ]; then
+        rm -rf "$context_compressor_dest"
+        cp -r "$context_compressor_src" "$context_compressor_dest"
+        if command -v uv >/dev/null 2>&1; then
+            uv pip install --python "$venv_path/bin/python" -e "$context_compressor_dest" >/dev/null 2>&1
+        else
+            "$venv_path/bin/pip" install -q -e "$context_compressor_dest" >/dev/null 2>&1
+        fi
+        write_item "  nexus-context-compressor installed at $context_compressor_dest" "$GREEN"
+    fi
+
     # Use python to safely merge MCP server config into settings.json (all three internal servers).
     "$python_cmd" -c "
 import json, sys

@@ -47,7 +47,7 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 #### 1.1 -- Scaffold the compressor package
 
-- [ ] T001 Scaffold `extensions/nexus-context-compressor/` (package, pyproject.toml, tests skeleton, README)
+- [x] T001 Scaffold `extensions/nexus-context-compressor/` (package, pyproject.toml, tests skeleton, README)
 
 **Objective**: Create a stdlib-first Python package mirroring the layout of `extensions/nexus-skill-scanner`.
 
@@ -58,7 +58,7 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 #### 1.2 -- Register the package in both installers
 
-- [ ] T002 Register `nexus-context-compressor` copy step in scripts/installer.sh and scripts/installer.ps1
+- [x] T002 Register `nexus-context-compressor` copy step in scripts/installer.sh and scripts/installer.ps1
 
 **Objective**: Ensure the new extension distributes to all platforms per the AGENTS.md installer-aware rule.
 
@@ -69,7 +69,7 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 #### 1.3 -- Implement SmartCrusher (JSON-array dedup)
 
-- [ ] T003 Implement deterministic JSON-array compressor in extensions/nexus-context-compressor/nexus_context_compressor/transforms/smart_crusher.py
+- [x] T003 Implement deterministic JSON-array compressor in extensions/nexus-context-compressor/nexus_context_compressor/transforms/smart_crusher.py
 
 **Objective**: Port headroom's variance/uniqueness/change-point JSON-array dedup as pure local logic.
 
@@ -80,7 +80,7 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 #### 1.4 -- Testing and Stabilization
 
-- [ ] T004 Run and stabilize Phase 1 tests in extensions/nexus-context-compressor/tests/
+- [x] T004 Run and stabilize Phase 1 tests in extensions/nexus-context-compressor/tests/
 
 **Objective**: Generate and run all Phase 1 tests. Iterate until stable.
 
@@ -91,11 +91,11 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 ### Phase 1 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] All tests passing
-- [ ] No known regressions from prior phases
-- [ ] Session history generated for this phase
-- [ ] Ready to advance to Phase 2
+- [x] All sub-tasks completed
+- [x] All tests passing
+- [x] No known regressions from prior phases
+- [x] Session history generated for this phase
+- [x] Ready to advance to Phase 2
 
 ---
 
