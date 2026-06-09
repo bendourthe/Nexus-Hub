@@ -23,6 +23,8 @@ from .marker import (
     DROPPED_KEY,
     ParsedMarker,
     extract_hash,
+    find_all_markers,
+    find_marker,
     format_marker,
     make_marker_object,
     parse_marker,
@@ -39,6 +41,8 @@ __all__ = [
     "make_marker_object",
     "parse_marker",
     "extract_hash",
+    "find_marker",
+    "find_all_markers",
     "ParsedMarker",
     "DROPPED_KEY",
 ]

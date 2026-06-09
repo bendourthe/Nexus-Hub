@@ -160,7 +160,7 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 #### 3.1 -- Implement CacheAligner
 
-- [ ] T008 [P] Implement KV-cache prefix stabilizer in extensions/nexus-context-compressor/nexus_context_compressor/transforms/cache_aligner.py
+- [x] T008 [P] Implement KV-cache prefix stabilizer in extensions/nexus-context-compressor/nexus_context_compressor/transforms/cache_aligner.py
 
 **Objective**: Move dynamic tail content out of the stable system-prompt prefix and normalize whitespace so provider KV caches hit.
 
@@ -171,7 +171,7 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 #### 3.2 -- Implement ContentRouter
 
-- [ ] T009 [P] Implement content-type router in extensions/nexus-context-compressor/nexus_context_compressor/transforms/content_router.py
+- [x] T009 [P] Implement content-type router in extensions/nexus-context-compressor/nexus_context_compressor/transforms/content_router.py
 
 **Objective**: Detect content type and dispatch each segment to its optimal compressor.
 
@@ -182,7 +182,7 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 #### 3.3 -- Implement CodeCompressor (reuse tree-sitter)
 
-- [ ] T010 Implement AST-aware code compressor in extensions/nexus-context-compressor/nexus_context_compressor/transforms/code_compressor.py
+- [x] T010 Implement AST-aware code compressor in extensions/nexus-context-compressor/nexus_context_compressor/transforms/code_compressor.py
 
 **Objective**: Trim function/method bodies while preserving imports, signatures, decorators, and class structure -- reusing the existing nexus-code-search tree-sitter infrastructure.
 
@@ -193,7 +193,7 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 #### 3.4 -- Testing and Stabilization
 
-- [ ] T011 Run and stabilize Phase 3 tests in extensions/nexus-context-compressor/tests/
+- [x] T011 Run and stabilize Phase 3 tests in extensions/nexus-context-compressor/tests/
 
 **Objective**: Generate and run all Phase 3 tests. Iterate until stable.
 
@@ -204,11 +204,11 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 ### Phase 3 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] All tests passing
-- [ ] No known regressions from prior phases
-- [ ] Session history generated for this phase
-- [ ] Ready to advance to Phase 4
+- [x] All sub-tasks completed
+- [x] All tests passing
+- [x] No known regressions from prior phases
+- [x] Session history generated for this phase
+- [x] Ready to advance to Phase 4
 
 ---
 

@@ -27,11 +27,23 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
-# Marker grammar. The hash is the first 12 hex chars of a SHA-256 content hash
-# (see ``transforms.smart_crusher._content_hash``); ``N_rows`` is the count of
-# original records the marker stands in for. Anchored so a marker that has
-# trailing junk does not silently parse.
-_MARKER_RE = re.compile(r"^<<ccr:(?P<hash>[0-9a-f]{12}) (?P<count>\d+)_rows>>$")
+# Marker grammar, in one place. The hash is the first 12 hex chars of a SHA-256
+# content hash (see ``transforms.smart_crusher._content_hash`` and
+# ``transforms.code_compressor``); ``N_rows`` is the count of original units the
+# marker stands in for (records for SmartCrusher, source lines for
+# CodeCompressor).
+_MARKER_INNER = r"<<ccr:(?P<hash>[0-9a-f]{12}) (?P<count>\d+)_rows>>"
+
+# Standalone form: the whole (stripped) string must BE a marker. This is the
+# shape SmartCrusher emits -- a ``{"_ccr_dropped": "<<ccr:...>>"}`` object whose
+# value is exactly the marker. Anchored so trailing junk does not silently parse.
+_MARKER_RE = re.compile(rf"^{_MARKER_INNER}$")
+
+# Embedded form: the marker appears *somewhere inside* a larger string. This is
+# the shape CodeCompressor emits -- the marker rides inside a language comment
+# (``# <<ccr:...>>`` / ``// <<ccr:...>>``) standing in for an elided function
+# body, so the surrounding text is not a bare marker. :func:`find_marker` uses it.
+_MARKER_EMBEDDED_RE = re.compile(_MARKER_INNER)
 
 # The key under which a dropped-span marker object carries its marker string.
 DROPPED_KEY = "_ccr_dropped"
@@ -113,3 +125,43 @@ def extract_hash(value: object) -> str | None:
     if isinstance(value, str) and re.fullmatch(r"[0-9a-f]{12}", value.strip()):
         return value.strip()
     return None
+
+
+def find_marker(text: object) -> ParsedMarker | None:
+    """Find the first CCR marker embedded *anywhere* inside a text blob.
+
+    Unlike :func:`parse_marker` (which requires the whole string to be a marker),
+    this scans for a marker that rides inside a larger body of text -- the form
+    CodeCompressor leaves behind, where the marker sits inside a language comment
+    on an otherwise ordinary line of code (``    // <<ccr:HASH N_rows>>``). It is
+    the read-side hook the Phase 4 retrieve tool uses to resolve an elided code
+    body back to its original lines.
+
+    Args:
+        text: a code line, a compressed code blob, or any string.
+
+    Returns:
+        A :class:`ParsedMarker` for the first marker found, or ``None`` if the
+        input is not a string or contains no marker. Never raises.
+    """
+    if not isinstance(text, str):
+        return None
+    match = _MARKER_EMBEDDED_RE.search(text)
+    if match is None:
+        return None
+    return ParsedMarker(hash=match.group("hash"), count=int(match.group("count")))
+
+
+def find_all_markers(text: object) -> list[ParsedMarker]:
+    """Return every CCR marker embedded in ``text``, in order of appearance.
+
+    The multi-marker companion to :func:`find_marker`, for a compressed code blob
+    that elided several function bodies (and so carries several markers). Returns
+    an empty list for a non-string or a marker-free string; never raises.
+    """
+    if not isinstance(text, str):
+        return []
+    return [
+        ParsedMarker(hash=m.group("hash"), count=int(m.group("count")))
+        for m in _MARKER_EMBEDDED_RE.finditer(text)
+    ]

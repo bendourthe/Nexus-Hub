@@ -13,6 +13,8 @@ from nexus_context_compressor.ccr.marker import (
     DROPPED_KEY,
     ParsedMarker,
     extract_hash,
+    find_all_markers,
+    find_marker,
     format_marker,
     make_marker_object,
     parse_marker,
@@ -80,3 +82,47 @@ def test_extract_hash_accepts_a_bare_hash():
 def test_extract_hash_returns_none_on_garbage():
     assert extract_hash("definitely not a hash") is None
     assert extract_hash("0123456789ab extra") is None
+
+
+# --- Embedded markers (Phase 3: CodeCompressor leaves markers inside comments) ---
+
+
+def test_find_marker_inside_a_code_comment():
+    line = f"    // <<ccr:{_HASH} 12_rows>>"
+    parsed = find_marker(line)
+    assert parsed == ParsedMarker(hash=_HASH, count=12)
+
+
+def test_find_marker_inside_a_python_comment():
+    line = f"        # <<ccr:{_HASH} 4_rows>>"
+    parsed = find_marker(line)
+    assert parsed is not None and parsed.hash == _HASH and parsed.count == 4
+
+
+def test_parse_marker_rejects_what_find_marker_accepts():
+    # The key distinction: parse_marker is anchored (the whole string must be a
+    # marker); find_marker locates one embedded in surrounding text.
+    embedded = f"// <<ccr:{_HASH} 3_rows>>"
+    assert parse_marker(embedded) is None
+    assert find_marker(embedded) is not None
+
+
+def test_find_marker_returns_none_without_a_marker():
+    assert find_marker("just a line of code") is None
+    assert find_marker(None) is None  # type: ignore[arg-type]
+    assert find_marker(42) is None  # type: ignore[arg-type]
+
+
+def test_find_all_markers_returns_every_marker_in_order():
+    blob = (
+        f"def a():\n    # <<ccr:{_HASH} 5_rows>>\n"
+        f"def b():\n    # <<ccr:abcdefabcdef 9_rows>>\n"
+    )
+    markers = find_all_markers(blob)
+    assert [m.hash for m in markers] == [_HASH, "abcdefabcdef"]
+    assert [m.count for m in markers] == [5, 9]
+
+
+def test_find_all_markers_empty_when_none_present():
+    assert find_all_markers("no markers here") == []
+    assert find_all_markers(None) == []  # type: ignore[arg-type]

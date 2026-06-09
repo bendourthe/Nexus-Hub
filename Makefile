@@ -40,6 +40,7 @@ test: ## Run MCP skill server + repo-level pytest suites
 	@cd extensions/nexus-code-search && python -m pytest -q
 	@cd extensions/nexus-web-fetch && python -m pytest -q
 	@cd extensions/nexus-skill-scanner && python -m pytest -q
+	@cd extensions/nexus-context-compressor && python -m pytest -q
 	@if [ -d tests ]; then python -m pytest -q tests; else echo "  (no tests/ directory -- skipping repo-level suite)"; fi
 	@echo "Tests complete."
 
