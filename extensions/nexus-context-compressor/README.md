@@ -18,8 +18,9 @@ Nexus-Hub today owns no compression engine, only methodology skills (`context-co
 
 Built incrementally across the v3.2.0 `adoption-headroom` plan:
 
-- **Phase 1 (this phase)** - package skeleton, `CompressResult` metrics, no-op pipeline, and the first deterministic strategy (SmartCrusher JSON-array dedup) emitting CCR markers.
-- **Phases 2-7** - CCR reversible store, the remaining deterministic strategies, runtime hook + internal MCP tool (retiring `rtk`), an accuracy-regression gate, the optional ML token-dropper, and methodology cross-links.
+- **Phase 1** - package skeleton, `CompressResult` metrics, no-op pipeline, and the first deterministic strategy (SmartCrusher JSON-array dedup) emitting CCR markers.
+- **Phase 2 (this phase)** - the reversible CCR store: a local SQLite store keyed by each span's content hash (`ccr/store.py`), a shared marker codec (`ccr/marker.py`), and a `retrieve()` interface (`ccr/retrieve.py`) that resolves a marker back to the originals (or a `NOT_FOUND` sentinel). SmartCrusher persists its drops through an optional injected store, so compression is now provably non-lossy.
+- **Phases 3-7** - the remaining deterministic strategies, runtime hook + internal MCP tool (retiring `rtk`), an accuracy-regression gate, the optional ML token-dropper, and methodology cross-links.
 
 ## Usage
 
@@ -39,6 +40,23 @@ print(result.tokens_before, result.tokens_after, result.ratio)
 # Package identity and active token-counting mode
 python -m nexus_context_compressor
 ```
+
+Reversible compression -- persist dropped spans, then resolve a marker back to
+the originals on demand:
+
+```python
+from nexus_context_compressor.ccr import CCRStore, retrieve, NOT_FOUND
+from nexus_context_compressor.transforms.smart_crusher import smart_crush
+
+with CCRStore() as store:  # defaults to ~/.nexus-hub/cache/ccr-store.db
+    result = smart_crush(records, store=store)   # drops are persisted as a side channel
+    marker = result.records[1]                   # e.g. {"_ccr_dropped": "<<ccr:HASH N_rows>>"}
+    original = retrieve(marker, store=store)      # the exact dropped records, or NOT_FOUND
+    if original is NOT_FOUND:
+        ...  # span was evicted or the marker is unrecognized
+```
+
+With no `store=` argument, `smart_crush` stays pure (no persistence, no side effects).
 
 ## Install
 

@@ -109,7 +109,7 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 #### 2.1 -- Implement the CCR store
 
-- [ ] T005 Implement local CCR store in extensions/nexus-context-compressor/nexus_context_compressor/ccr/store.py
+- [x] T005 Implement local CCR store in extensions/nexus-context-compressor/nexus_context_compressor/ccr/store.py
 
 **Objective**: Persist dropped content keyed by content hash in a local SQLite database.
 
@@ -120,7 +120,7 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 #### 2.2 -- Implement the retrieval interface
 
-- [ ] T006 Implement CCR retrieval interface in extensions/nexus-context-compressor/nexus_context_compressor/ccr/retrieve.py
+- [x] T006 Implement CCR retrieval interface in extensions/nexus-context-compressor/nexus_context_compressor/ccr/retrieve.py
 
 **Objective**: Let a consumer (later, an MCP tool / hook) resolve a CCR marker back to originals on demand.
 
@@ -131,7 +131,7 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 #### 2.3 -- Testing and Stabilization
 
-- [ ] T007 Run and stabilize Phase 2 tests in extensions/nexus-context-compressor/tests/
+- [x] T007 Run and stabilize Phase 2 tests in extensions/nexus-context-compressor/tests/
 
 **Objective**: Generate and run all Phase 2 tests. Iterate until stable.
 
@@ -142,11 +142,11 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 ### Phase 2 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] All tests passing
-- [ ] No known regressions from prior phases
-- [ ] Session history generated for this phase
-- [ ] Ready to advance to Phase 3
+- [x] All sub-tasks completed
+- [x] All tests passing
+- [x] No known regressions from prior phases
+- [x] Session history generated for this phase
+- [x] Ready to advance to Phase 3
 
 ---
 

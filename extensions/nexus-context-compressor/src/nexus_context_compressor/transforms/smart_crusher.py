@@ -9,7 +9,11 @@ originals -- compression is non-lossy.
 
 The strategy is a pure-Python port (no Rust in v1), deterministic and
 dependency-free: the same input always yields the same output and the same
-marker hashes (no randomness, no uuid, no clock).
+marker hashes (no randomness, no uuid, no clock). Passing an optional ``store``
+to :func:`smart_crush` persists each dropped span as a side effect (so the
+marker is reversible via the CCR retrieval interface) without changing the
+returned, still-deterministic :class:`CrushResult`; with no ``store`` (the
+default) the function touches nothing outside itself.
 
 Two mechanisms decide what survives:
 
@@ -28,6 +32,12 @@ from __future__ import annotations
 import hashlib
 import json
 from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
+
+from ..ccr.marker import make_marker_object
+
+if TYPE_CHECKING:
+    from ..ccr.store import CCRWriter
 
 # Number of hex chars kept from the content hash in a CCR marker. Long enough to
 # avoid collisions across the spans of a single payload, short enough to read.
@@ -224,19 +234,28 @@ def _assemble(
             i += 1
         span = records[start:i]
         span_hash = _content_hash(span)
-        out.append({"_ccr_dropped": f"<<ccr:{span_hash} {len(span)}_rows>>"})
+        out.append(make_marker_object(span_hash, len(span)))
         dropped.append(CCRSpan(hash=span_hash, count=len(span), records=list(span)))
     return out, dropped
 
 
 def smart_crush(
-    records: list, config: SmartCrusherConfig | None = None
+    records: list,
+    config: SmartCrusherConfig | None = None,
+    store: CCRWriter | None = None,
 ) -> CrushResult:
     """Compress a JSON array by collapsing low-variance duplicate runs.
 
     Args:
         records: the JSON array (a list of records of any JSON-serializable shape).
         config: tunables; defaults to :class:`SmartCrusherConfig`.
+        store: an optional CCR write seam (any object with
+            ``put(hash, original)``, e.g. a
+            :class:`~nexus_context_compressor.ccr.store.CCRStore`). When given,
+            each dropped span is persisted so its ``<<ccr:HASH N_rows>>`` marker
+            can later be resolved back to the originals; the returned
+            :class:`CrushResult` is identical either way. With ``store=None``
+            (the default) the call has no side effects and stays pure.
 
     Returns:
         A :class:`CrushResult` whose ``records`` interleave kept records with
@@ -256,6 +275,12 @@ def smart_crush(
         )
     keep = _select_keep_indices(records, scores, config)
     out, dropped = _assemble(records, keep)
+    if store is not None:
+        # Persist after assembly so the pure scoring/selection logic above is
+        # unaffected: the store is a write-only side channel keyed by the same
+        # span hash embedded in each marker, making every drop reversible.
+        for span in dropped:
+            store.put(span.hash, span.records)
     return CrushResult(records=out, dropped=dropped, original_count=original_count)
 
 
