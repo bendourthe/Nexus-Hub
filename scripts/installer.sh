@@ -204,6 +204,13 @@ install_git_guardrails() {
     safe_copy "$repo_root/catalog/hooks/git-guardrails.sh" "$hooks_dir/git-guardrails.sh" true "[OK] $scope git guardrails hook installed at: $hooks_dir"
     chmod +x "$hooks_dir/git-guardrails.sh" 2>/dev/null || true
 
+    # compress-output.sh is the other PreToolUse Bash hook; it ships alongside
+    # git-guardrails because the settings.json merge below pulls the whole
+    # PreToolUse array (which now includes it). It is opt-in / default-off
+    # (inert unless NEXUS_CONTEXT_COMPRESS=1), so copying the file is harmless.
+    safe_copy "$repo_root/catalog/hooks/compress-output.sh" "$hooks_dir/compress-output.sh" true "[OK] $scope output-compression hook installed at: $hooks_dir"
+    chmod +x "$hooks_dir/compress-output.sh" 2>/dev/null || true
+
     # Merge hook config into settings.json
     local settings_file="$target_claude_dir/settings.json"
     local template_file="$repo_root/catalog/hooks/settings.json"
@@ -1814,9 +1821,9 @@ install_skill_discovery() {
 
     # Install nexus-context-compressor into the same venv (v3.2.0+).
     # Local-first context-compression engine. Zero outbound by default; tiktoken
-    # is the only dependency, with an offline stdlib fallback. The MCP
-    # compress/retrieve tool is registered in adoption-headroom Phase 4 (T013);
-    # Phase 1 only places the package in the shared venv so it is importable.
+    # is the only required dependency, with an offline stdlib fallback. Installed
+    # with the [mcp] extra so the Phase 4 (T013) compress/retrieve MCP server runs;
+    # the server is registered in the settings.json merge block below.
     # See AGENTS.md MCP Registry Policy.
     local context_compressor_src="$repo_root/extensions/nexus-context-compressor"
     local context_compressor_dest="$nexus_home/context-compressor"
@@ -1824,9 +1831,9 @@ install_skill_discovery() {
         rm -rf "$context_compressor_dest"
         cp -r "$context_compressor_src" "$context_compressor_dest"
         if command -v uv >/dev/null 2>&1; then
-            uv pip install --python "$venv_path/bin/python" -e "$context_compressor_dest" >/dev/null 2>&1
+            uv pip install --python "$venv_path/bin/python" -e "${context_compressor_dest}[mcp]" >/dev/null 2>&1
         else
-            "$venv_path/bin/pip" install -q -e "$context_compressor_dest" >/dev/null 2>&1
+            "$venv_path/bin/pip" install -q -e "${context_compressor_dest}[mcp]" >/dev/null 2>&1
         fi
         write_item "  nexus-context-compressor installed at $context_compressor_dest" "$GREEN"
     fi
@@ -1856,6 +1863,11 @@ data['mcpServers']['nexus-web-fetch'] = {
     'args': ['-m', 'nexus_web_fetch'],
     'env': {'NEXUS_HUB_ROOT': hub}
 }
+data['mcpServers']['nexus-context-compressor'] = {
+    'command': venv + '/bin/python',
+    'args': ['-m', 'nexus_context_compressor', 'serve'],
+    'env': {'NEXUS_HUB_ROOT': hub}
+}
 # Remove superseded legacy (devai-hub) MCP entries left by pre-rename installs;
 # they are replaced one-for-one by the nexus-* servers registered above.
 for legacy in ('devai-skill-server', 'devai-code-search', 'devai-web-fetch'):
@@ -1864,7 +1876,7 @@ with open(path, 'w') as f:
     json.dump(data, f, indent=2)
 " "$claude_settings" "$venv_path" "$nexus_home"
 
-    write_item "  MCP servers registered in $claude_settings (nexus-skill-server, nexus-code-search, nexus-web-fetch)" "$GREEN"
+    write_item "  MCP servers registered in $claude_settings (nexus-skill-server, nexus-code-search, nexus-web-fetch, nexus-context-compressor)" "$GREEN"
     write_item "  Servers will auto-start with Claude Code. No manual steps needed." "$GREEN"
 }
 

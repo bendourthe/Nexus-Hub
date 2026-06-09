@@ -19,8 +19,10 @@ Nexus-Hub today owns no compression engine, only methodology skills (`context-co
 Built incrementally across the v3.2.0 `adoption-headroom` plan:
 
 - **Phase 1** - package skeleton, `CompressResult` metrics, no-op pipeline, and the first deterministic strategy (SmartCrusher JSON-array dedup) emitting CCR markers.
-- **Phase 2 (this phase)** - the reversible CCR store: a local SQLite store keyed by each span's content hash (`ccr/store.py`), a shared marker codec (`ccr/marker.py`), and a `retrieve()` interface (`ccr/retrieve.py`) that resolves a marker back to the originals (or a `NOT_FOUND` sentinel). SmartCrusher persists its drops through an optional injected store, so compression is now provably non-lossy.
-- **Phases 3-7** - the remaining deterministic strategies, runtime hook + internal MCP tool (retiring `rtk`), an accuracy-regression gate, the optional ML token-dropper, and methodology cross-links.
+- **Phase 2** - the reversible CCR store: a local SQLite store keyed by each span's content hash (`ccr/store.py`), a shared marker codec (`ccr/marker.py`), and a `retrieve()` interface (`ccr/retrieve.py`) that resolves a marker back to the originals (or a `NOT_FOUND` sentinel). SmartCrusher persists its drops through an optional injected store, so compression is now provably non-lossy.
+- **Phase 3** - the remaining deterministic strategies: `CacheAligner` (KV-cache prefix stabilization), AST-aware `CodeCompressor` (reusing the `nexus-code-search` tree-sitter extractors), and `ContentRouter` (classify JSON / code / log / text and dispatch each to the right strategy).
+- **Phase 4 (this phase)** - runtime integration and rtk retirement: the `compress_output(text)` runtime seam, a CLI (`compress` / `retrieve` / `serve`), a rewired `compress(messages)` (routes content; no longer a no-op), an opt-in PreToolUse hook (`catalog/hooks/compress-output.sh`), and an internal MCP server (`server.py`) exposing `context_compress` + `context_retrieve`. The external `rtk` recommendation is superseded by this owned engine.
+- **Phases 5-7** - an accuracy-regression gate, the optional ML token-dropper, and methodology cross-links.
 
 ## Usage
 
@@ -57,6 +59,29 @@ with CCRStore() as store:  # defaults to ~/.nexus-hub/cache/ccr-store.db
 ```
 
 With no `store=` argument, `smart_crush` stays pure (no persistence, no side effects).
+
+## Runtime integration (Phase 4)
+
+The engine wires into a live session two ways, both local and zero-outbound.
+
+CLI (what the PreToolUse hook pipes a command's output through):
+
+```bash
+# Compress raw output read from stdin (stdout = compressed; metrics on stderr)
+some-command-with-json-output | python -m nexus_context_compressor compress
+
+# Resolve a CCR marker back to the dropped originals
+python -m nexus_context_compressor retrieve "<<ccr:HASH N_rows>>"
+```
+
+PreToolUse hook (`catalog/hooks/compress-output.sh`): opt-in and default-off. Enable it with `export NEXUS_CONTEXT_COMPRESS=1`; it then rewrites each Bash command so its stdout pipes through the engine, preserving the exit status. See [`guides/RTK_CONTEXT_COMPRESSION.md`](../../guides/RTK_CONTEXT_COMPRESSION.md).
+
+Internal MCP server (requires the `mcp` extra): exposes `context_compress` and `context_retrieve` over stdio.
+
+```bash
+pip install -e "extensions/nexus-context-compressor/[mcp]"
+python -m nexus_context_compressor serve
+```
 
 ## Install
 

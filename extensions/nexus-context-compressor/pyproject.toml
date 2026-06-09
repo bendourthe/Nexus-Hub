@@ -15,6 +15,10 @@ authors = [{name = "Benjamin Dourthe"}]
 dependencies = ["tiktoken>=0.5"]
 
 [project.optional-dependencies]
+# Phase 4 internal MCP server (context_compress + context_retrieve). Optional so
+# the engine library and CLI stay importable without the MCP runtime; server.py
+# imports mcp lazily only when the server is launched.
+mcp = ["mcp>=1.0.0"]
 # Phase 6 ML token-dropper: public pre-trained ONNX weights, default-off.
 ml = ["onnxruntime>=1.16"]
 # Phase 3 AST-aware CodeCompressor reuses the tree-sitter grammars already

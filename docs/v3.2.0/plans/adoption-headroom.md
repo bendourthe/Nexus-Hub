@@ -222,7 +222,7 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 #### 4.1 -- PreToolUse compression hook
 
-- [ ] T012 Add PreToolUse compression hook in catalog/hooks/ (+ settings.json registration)
+- [x] T012 Add PreToolUse compression hook in catalog/hooks/ (+ settings.json registration)
 
 **Objective**: Compress tool output before it is written into the context window, at the same hook point rtk uses.
 
@@ -233,7 +233,7 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 #### 4.2 -- Internal MCP compress/retrieve tool
 
-- [ ] T013 Add internal MCP server exposing compress + retrieve in extensions/nexus-context-compressor/
+- [x] T013 Add internal MCP server exposing compress + retrieve in extensions/nexus-context-compressor/
 
 **Objective**: Expose `compress` and `retrieve` as local MCP tools, modeled on headroom's MCP server and Nexus-Hub's existing internal MCPs.
 
@@ -244,7 +244,7 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 #### 4.3 -- Supersede the external rtk recommendation
 
-- [ ] T014 Supersede external rtk with the internal engine in guides/RTK_CONTEXT_COMPRESSION.md
+- [x] T014 Supersede external rtk with the internal engine in guides/RTK_CONTEXT_COMPRESSION.md
 
 **Objective**: Convert the "trust a third-party GitHub binary" posture into the owned, audited internal compressor, with a migration note.
 
@@ -255,7 +255,7 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 #### 4.4 -- Testing and Stabilization
 
-- [ ] T015 Run and stabilize Phase 4 tests via make test and an installer dry-run
+- [x] T015 Run and stabilize Phase 4 tests via make test and an installer dry-run
 
 **Objective**: Generate and run all Phase 4 tests. Iterate until stable.
 
@@ -266,11 +266,11 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 ### Phase 4 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] All tests passing
-- [ ] No known regressions from prior phases
-- [ ] Session history generated for this phase
-- [ ] Ready to advance to Phase 5
+- [x] All sub-tasks completed
+- [x] All tests passing
+- [x] No known regressions from prior phases
+- [x] Session history generated for this phase
+- [x] Ready to advance to Phase 5
 
 ---
 

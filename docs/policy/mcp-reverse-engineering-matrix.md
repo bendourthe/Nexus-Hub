@@ -104,6 +104,16 @@ These land via Phases 6 and 7 of the plan. Registry entries are added by Phase 3
 
 ---
 
+### New in v3.2.0 (Reverse-Engineered Internal MCP)
+
+Added by the v3.2.0 `adoption-headroom` plan (Phase 4). Registry entry lives in `catalog/mcp-configs/mcp-servers.json` with the 5-question audit inlined in its `_comment`.
+
+| MCP key | Current source | What it does | Outbound-call surface | Classification | Effort if RE'd | v3.2.0 action | v3.3.0+ action | Rationale / citation |
+|---|---|---|---|---|---|---|---|---|
+| `nexus-context-compressor` | Nexus-Hub internal (new; `extensions/nexus-context-compressor/`, Python 3.10+) | Local-first, reversible context compression: `context_compress(payload, persist)` compresses structured tool output (JSON arrays, code) and leaves logs/prose untouched; `context_retrieve(marker)` resolves a `<<ccr:HASH N_rows>>` marker back to the exact dropped records. Also a PreToolUse hook (`catalog/hooks/compress-output.sh`) and a CLI (`python -m nexus_context_compressor compress`). | None. Deterministic stdlib strategies; payloads are compressed in-process and dropped spans persist to a local SQLite CCR store under `~/.nexus-hub/cache/`. No network. | `re-full` | Medium | Build and ship as the owned replacement for the external `rtk` context-compression recommendation. Deterministic strategies (SmartCrusher / CacheAligner / ContentRouter / CodeCompressor) + reversible CCR retrieval. The optional ML token-dropper (default-off) lands in Phase 6. | Free-text/log compression via the optional Phase 6 ML token-dropper; an accuracy-regression gate (Phase 5). | Replaces a "trust a third-party GitHub binary installed via `cargo install --git`" posture (the external `rtk` Rust proxy) with an owned, audited, fully-local engine. rtk is command-output-only and lossy; this engine is reversible (CCR store) and routes by content type. The compression logic is pure Python + stdlib, so reverse-engineering it locally is a strict supply-chain improvement with no data-flow change (there was never an outbound call to remove -- rtk is local too -- but the trust surface of an unaudited external binary is eliminated). Upstream name appears only in this column per the Reverse-Engineering Attribution Rule. |
+
+---
+
 ### Reverted in v1.0.0
 
 | MCP key | Current source | What it does | Outbound-call surface | Classification | Effort if RE'd | v1.0.0 action | v1.1.0+ action | Rationale / citation |
@@ -124,6 +134,8 @@ These land via Phases 6 and 7 of the plan. Registry entries are added by Phase 3
 | Deferred to v1.1.0+ | 5+ | dense/hybrid retrieval on `nexus-code-search`; Playwright rendering in `nexus-web-fetch`; vendor-wrapper rebuilds (`nexus-github`, `nexus-postgres`, `nexus-supabase`, `nexus-railway`, `nexus-vercel`, `nexus-cloudflare`) |
 
 **Post-v1.0.0 registry size**: 13 entries (5 already-local + 6 vendor-intrinsic + 2 new internal).
+
+**Post-v3.2.0 registry size**: 14 entries (adds `nexus-context-compressor`, the third new internal MCP, via the `adoption-headroom` plan).
 
 ---
 

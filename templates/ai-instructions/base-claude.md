@@ -52,7 +52,7 @@
 - Prefer `--quiet`, `--silent`, or `-q` flags when running package managers, build tools, and test runners
 - Summarize long command output rather than echoing it in full; report only counts, errors, and key results
 - When a command produces more than ~20 lines of output, summarize what happened rather than quoting the full log
-- For automated compression of all command output, see `guides/RTK_CONTEXT_COMPRESSION.md` (requires Rust/cargo)
+- For automated compression of structured command output, see `guides/RTK_CONTEXT_COMPRESSION.md` (the internal `nexus-context-compressor` engine; local-first, Python, no Rust)
 
 ## Context References
 - Skills: `.claude/skills/` (auto-activated by task context)

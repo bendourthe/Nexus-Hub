@@ -124,3 +124,9 @@ jobs:
 
       - name: Skill-scanner tests
         run: pytest extensions/nexus-skill-scanner/tests/ -v
+
+      - name: Install context-compressor engine (v3.2.0+)
+        run: pip install -e "extensions/nexus-context-compressor/[dev]"
+
+      - name: Context-compressor tests
+        run: pytest extensions/nexus-context-compressor/tests/ -v
