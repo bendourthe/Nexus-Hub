@@ -175,7 +175,7 @@ No constitution file found at docs/v3.2.0/constitution.md - skipping check. Reco
 
 #### 3.1 -- Add bidirectional Related-Skills cross-links
 
-- [ ] T008 [P] Add `[[session-teach-back]]` back-links to catalog/skills/workflow/session-query/SKILL.md, catalog/skills/workflow/session-history/SKILL.md, and catalog/skills/workflow/dev-progress-tracker/SKILL.md
+- [x] T008 [P] Add `[[session-teach-back]]` back-links to catalog/skills/workflow/session-query/SKILL.md, catalog/skills/workflow/session-history/SKILL.md, and catalog/skills/workflow/dev-progress-tracker/SKILL.md
 
 **Objective**: Complete the bidirectional cross-link graph (insight P2) so the `session-*` family points at the new skill and vice versa.
 
@@ -192,7 +192,7 @@ No constitution file found at docs/v3.2.0/constitution.md - skipping check. Reco
 
 #### 3.2 -- Add using-nexus-hub mention and CHANGELOG entry
 
-- [ ] T009 [P] Mention the skill in catalog/skills/workflow/using-nexus-hub/SKILL.md and add a CHANGELOG.md [Unreleased] entry
+- [x] T009 [P] Mention the skill in catalog/skills/workflow/using-nexus-hub/SKILL.md and add a CHANGELOG.md [Unreleased] entry
 
 **Objective**: Surface the new skill in the orientation skill and record the change in the changelog.
 
@@ -208,7 +208,7 @@ No constitution file found at docs/v3.2.0/constitution.md - skipping check. Reco
 
 #### 3.3 -- Testing and Stabilization
 
-- [ ] T010 Run the final validators and confirm catalog green for catalog/skills/workflow/session-teach-back/SKILL.md
+- [x] T010 Run the final validators and confirm catalog green for catalog/skills/workflow/session-teach-back/SKILL.md
 
 **Objective**: Final green check across the whole adoption before the plan is considered done.
 
@@ -231,9 +231,9 @@ No constitution file was found, so there are no MUST principles to violate. This
 
 ### Phase 3 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] `make validate` and `make lint` exit 0; scanner 0 HIGH/CRITICAL catalog-wide
-- [ ] All `[[session-teach-back]]` cross-links resolve bidirectionally
-- [ ] No new slash command; no installer edit required
-- [ ] CHANGELOG `[Unreleased]` entry present
-- [ ] Session history generated; adoption complete
+- [x] All sub-tasks completed
+- [x] `make validate` and `make lint` exit 0; scanner 0 HIGH/CRITICAL catalog-wide (validators run directly; `make`/`shellcheck` unavailable on host -- WN-v32-2, covered by CI; no shell surface so `make lint` is a no-op)
+- [x] All `[[session-teach-back]]` cross-links resolve bidirectionally
+- [x] No new slash command; no installer edit required
+- [x] CHANGELOG `[Unreleased]` entry present
+- [x] Session history generated; adoption complete

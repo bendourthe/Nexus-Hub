@@ -109,6 +109,7 @@ You do not need to interact with hooks directly — they run in the background.
 | Test coverage | `/generate-tests` or `unit-tests` + `integration-test-generator` |
 | Refactoring | `plan-before-code` → `refactoring-expert` → `behavior-preservation-checker` |
 | AI agent development | `ai-agent-development` → `context-engineering` → `prompt-engineering` |
+| Confirm you understood a session | `session-teach-back` |
 
 ## Common Rationalizations
 
