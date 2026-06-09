@@ -125,3 +125,4 @@ If the recovered context resolves a recurring problem, offer to capture it durab
 - [[solution-knowledge-base]] - capture a recovered, recurring solution durably so future work does not need to re-query the logs.
 - [[continuous-learning]] - mines the in-session observations log (`.nexus/observations.jsonl`) for behavioral patterns; this skill queries full cross-tool session transcripts for investigation context.
 - [[debug-with-logs]] - when the recovered context is a prior debugging trail, this is the skill that resumes the active debugging.
+- [[session-teach-back]] - the mastery-confirmation counterpart: it reuses this skill's extractor to source the material it quizzes you on, confirming you understood what a past session produced.

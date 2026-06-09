@@ -165,3 +165,4 @@ When `docs/todos.md` does not exist:
 - [[code-commit-workflow]] -- after committing, check off the relevant tasks in todos.md
 - [[implementation-plan]] -- produces the initial sprint breakdown that populates todos.md Section 2
 - [[known-gaps-tracker]] -- the per-version archive companion that records deferred items todos.md no longer tracks
+- [[session-teach-back]] -- uses the same checkbox-file pattern this skill applies to tasks, but to track confirmed mastery of a session rather than forward-looking work

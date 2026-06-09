@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **`session-teach-back` workflow skill** (`catalog\skills\workflow\session-teach-back\SKILL.md`): a Socratic mastery-confirmation loop for the human operator that quizzes you item by item on what a session actually built and why, refusing to finish until every concept is confirmed. Skill-native with zero new code, dependency, or outbound call: reuses `session-query` for zero-outbound session sourcing and `dev-progress-tracker`'s checkbox-file pattern for the dated mastery checklist. Includes teach-someone-else mode, eli5/eli14/intern depth levels, and multiple-choice discipline; the checklist commit is opt-in and off by default per adaptation N1 (respecting the `git-guardrails` hook). Registered in all three catalog registries and bidirectionally cross-linked across the `session-*` family.
+
 ## [3.1.1] - 2026-06-08
 
 **Fixed: the `/skills list` command cheatsheet now has authored, self-maintaining backing.** The v3.0.0 command consolidation wired `/skills list` (which the deprecated `/commands-cheatsheet` forwards to) to a "retained `commands-cheatsheet` skill" that was never actually written -- so the cheatsheet had no source of truth and the agent improvised it inconsistently, with no deprecated-command mapping or workflow guidance. This patch gives it a real procedure that **generates the cheatsheet at runtime from the command files themselves**, so it is correct by construction and updates automatically on every command add / rename / deprecation -- there is no static command list to maintain anywhere. SemVer **patch** (bug fix; catalog count unchanged at 250 -- the procedure is a style-guide, not a counted skill). This patch also adds a `/commands` **permanent alias** for `/skills list`, so the cheatsheet is reachable by the obvious name rather than only under `/skills`.

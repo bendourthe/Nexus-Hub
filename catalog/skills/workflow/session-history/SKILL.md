@@ -306,6 +306,7 @@ Before finalizing the output file, verify:
 -   [[research-plan-implement]] -- RPI workflow with artifact generation and quality gates
 -   [[code-commit-workflow]] -- commit conventions that feed into session history timestamps
 -   [[documentation-consistency]] -- verifying documentation stays in sync with code changes
+-   [[session-teach-back]] -- this skill writes the session record; session-teach-back quizzes you on what that session produced to confirm you understood it
 -   See also: [SESSION_LIFECYCLE_DECISIONS](../../../../guides/SESSION_LIFECYCLE_DECISIONS.md) — the "summarize from here" handoff pattern and when to pair session-history output with `/rewind` or `/clear`
 
 ---
