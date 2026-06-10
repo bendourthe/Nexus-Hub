@@ -375,7 +375,7 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 #### 7.1 -- Cross-link methodology skills to the engine
 
-- [ ] T021 Cross-link the engine from catalog/skills/orchestration/context-compression/SKILL.md and prompt-token-optimization/SKILL.md
+- [x] T021 Cross-link the engine from catalog/skills/orchestration/context-compression/SKILL.md and prompt-token-optimization/SKILL.md
 
 **Objective**: Make the methodology skills point to the programmatic engine without duplicating it.
 
@@ -386,7 +386,7 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 #### 7.2 -- Architecture documentation
 
-- [ ] T022 Write the compressor architecture writeup in extensions/nexus-context-compressor/README.md (and docs/v3.2.0/)
+- [x] T022 Write the compressor architecture writeup in extensions/nexus-context-compressor/README.md (and docs/v3.2.0/)
 
 **Objective**: Document the pipeline, CCR reversibility, the local-first/zero-outbound posture, and the rtk migration.
 
@@ -397,7 +397,7 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 #### 7.3 -- Final validation
 
-- [ ] T023 Run full validation suite and installer dry-run
+- [x] T023 Run full validation suite and installer dry-run
 
 **Objective**: Confirm the entire adoption is green end-to-end.
 
@@ -418,11 +418,11 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 ### Phase 7 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] All tests passing
-- [ ] No known regressions from prior phases
-- [ ] Session history generated for this phase
-- [ ] Adoption complete; CHANGELOG updated
+- [x] All sub-tasks completed
+- [x] All tests passing
+- [x] No known regressions from prior phases
+- [x] Session history generated for this phase
+- [x] Adoption complete; CHANGELOG updated
 
 ---
 
