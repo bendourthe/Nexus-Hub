@@ -1,16 +1,16 @@
 # Command Migration Guide -- v3.0.0
 
 **Version**: v3.0.0
-**Status**: deprecation shims active for the whole v3.x line; old names removed at v4.0.0
+**Status**: the v3.x deprecation shims were REMOVED in v3.2.0, ahead of the original v4.0.0 schedule, to cut slash-menu noise. The old command names no longer resolve -- use the new names. This guide is retained as the old-to-new mapping reference.
 
 v3.0.0 collapses the 41-command slash surface into **14 verb-first commands** plus **2 permanent convenience aliases**. No behavior was removed. Each consolidated command is a thin dispatcher that resolves a scope and delegates to the same retained skill that did the work before, so every proven behavior is preserved (the design rationale is in [`command-consolidation-design.md`](command-consolidation-design.md)).
 
-Every old command name keeps working for the entire v3.x line through a **deprecation shim**: invoking it prints a one-line notice and then forwards to the new command and scope. Update your scripts, docs, and muscle memory to the new names; the shims are a transition aid, not a permanent surface.
+From v3.0.0 through v3.1.x, every old command name kept working through a **deprecation shim** that printed a one-line notice and forwarded to the new command and scope. **As of v3.2.0 the shims are removed**: the old names no longer resolve, so update any remaining scripts, docs, and muscle memory to the new names using the mapping below.
 
 ## Deprecation timeline
 
-- **v3.0.0 through v3.x**: all 40 old command names work as deprecation shims. Invoking one prints `/<old> is deprecated and will be removed in v4.0.0. Forwarding to /<new> <scope>.` and then runs the new command identically (same retained skill, same arguments).
-- **v4.0.0**: the deprecation shims are removed. Only the 14 consolidated commands and the 2 permanent aliases (`/constitution`, `/commit`) remain. Shim removal is tracked as a v4.0.0 known-gap.
+- **v3.0.0 through v3.1.x**: all 40 old command names worked as deprecation shims. Invoking one printed `/<old> is deprecated and will be removed in v4.0.0. Forwarding to /<new> <scope>.` and then ran the new command identically (same retained skill, same arguments).
+- **v3.2.0**: the deprecation shims were removed ahead of the originally announced v4.0.0 schedule, to cut the slash-menu noise the consolidation set out to reduce. Only the 14 consolidated commands and the 3 permanent aliases (`/constitution`, `/commit`, `/commands`) remain. The old names no longer resolve.
 
 ## How scope resolution works
 
@@ -21,7 +21,7 @@ Every consolidated command follows one uniform contract (full version in [`catal
 - A **`full` or `all` scope** runs every focused scope in order and then synthesizes (for example `/review full`, `/test all`).
 - A **path or slug** argument is routed and passed through (for example `/implement <plan-slug> phase-3`, `/compare <github-url>`).
 
-A deprecation shim maps the old name straight onto the new command and the scope shown in the table below, so an old invocation behaves exactly as it did before.
+Each shim mapped the old name straight onto the new command and the scope shown in the table below. The table is retained as the old-to-new reference now that the shims are gone.
 
 ## Old to new mapping (grouped by new command)
 

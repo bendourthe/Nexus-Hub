@@ -36,6 +36,6 @@ Pass any remaining arguments (the research question, source list, target format,
 
 ## Notes
 
-- This command replaces the deprecated `/compile-deep-research` and `/generate-report`, and surfaces the `deep-research` skill as a first-class `/research deep` scope. The old command names forward here via deprecation shims through v3.x (removed at v4.0.0).
+- This command replaces `/compile-deep-research` and `/generate-report` (removed in v3.2.0), and surfaces the `deep-research` skill as a first-class `/research deep` scope.
 - `deep` already fans out across sources internally; it carries the scope-first token caution and adversarial verification built into the `deep-research` skill.
 - Keep this dispatcher thin. The research, compilation, and export procedures live in the retained skills; this file owns only scope resolution and delegation.

@@ -18,5 +18,5 @@ The skill reports current consumption against the limits and recommends whether 
 
 ## Notes
 
-- This command replaces the deprecated `/check-usage`. The old name forwards here via a deprecation shim through v3.x (removed at v4.0.0).
+- This command replaces `/check-usage` (removed in v3.2.0).
 - Keep this dispatcher thin. The usage-check procedure lives entirely in the `check-usage` skill.

@@ -43,5 +43,5 @@ For a phase that is itself a large fan-out task (the plan's prompt recommends dy
 
 ## Notes
 
-- This command replaces deprecated `/implement-phase`. The old name forwards here via a deprecation shim through v3.x (removed at v4.0.0).
+- This command replaces `/implement-phase` (removed in v3.2.0).
 - Keep this dispatcher thin. The end-to-end phase workflow lives entirely in the `implement-phase` skill.

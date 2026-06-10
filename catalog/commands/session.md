@@ -35,5 +35,5 @@ Pass any remaining arguments through unchanged. Heavy logic stays in the retaine
 ## Notes
 
 - `history` is also the sub-step the `/implement` per-phase sequence invokes to document each phase; calling `/session history` directly produces the same standalone document on demand.
-- This command replaces the deprecated `/continue-session`, `/wrap-up-session`, and `/generate-session-history`. The old names forward here via deprecation shims through v3.x (removed at v4.0.0).
+- This command replaces `/continue-session`, `/wrap-up-session`, and `/generate-session-history` (removed in v3.2.0).
 - Keep this dispatcher thin. The session procedures live in the retained skills; this file owns only scope resolution and delegation.
