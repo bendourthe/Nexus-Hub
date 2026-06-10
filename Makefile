@@ -1,4 +1,4 @@
-.PHONY: all validate lint build-catalog test scan eval benchmark clean help
+.PHONY: all validate lint build-catalog test scan eval compress-eval benchmark clean help
 
 all: validate lint ## Run validation and linting
 
@@ -21,6 +21,8 @@ validate: ## Validate all JSON catalog files and skill bundles
 	@python scripts/validate_solution_frontmatter.py
 	@echo "Checking version sync across all version-carrying surfaces..."
 	@python scripts/check_version_sync.py
+	@echo "Running compression accuracy-regression gate (v3.2.0 Phase 5)..."
+	@cd extensions/nexus-context-compressor && python -m evals --check
 	@echo "All catalogs valid."
 
 lint: ## Lint shell scripts with ShellCheck
@@ -40,6 +42,7 @@ test: ## Run MCP skill server + repo-level pytest suites
 	@cd extensions/nexus-code-search && python -m pytest -q
 	@cd extensions/nexus-web-fetch && python -m pytest -q
 	@cd extensions/nexus-skill-scanner && python -m pytest -q
+	@cd extensions/nexus-context-compressor && python -m pytest -q
 	@if [ -d tests ]; then python -m pytest -q tests; else echo "  (no tests/ directory -- skipping repo-level suite)"; fi
 	@echo "Tests complete."
 
@@ -52,6 +55,11 @@ eval: ## Run the nexus-code-search synthetic-codebase eval harness
 	@echo "Running nexus-code-search eval harness..."
 	@cd extensions/nexus-code-search && python -m nexus_code_search.eval --out ../../docs/v3.0.0/eval-baseline.md
 	@echo "Eval complete. Report: docs/v3.0.0/eval-baseline.md"
+
+compress-eval: ## Run the context-compressor accuracy-regression harness + gate
+	@echo "Running context-compressor accuracy-regression harness..."
+	@cd extensions/nexus-context-compressor && python -m evals --check --out ../../docs/v3.2.0/compression-eval-baseline.md
+	@echo "Compress-eval complete. Report: docs/v3.2.0/compression-eval-baseline.md"
 
 benchmark: ## Benchmark internal MCP servers
 	@echo "Benchmarking internal MCPs..."

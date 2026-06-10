@@ -600,4 +600,4 @@ After applying any security patch, verify with this checklist:
 - [catalog/checklists/file-upload-security.md](../../../checklists/file-upload-security.md) - Defense checklist for file-upload-specific exploits (polyglots, MIME confusion, archive path traversal, resource limits, content scanning, serving hardening). Pairs with Strategy 7 (Path Traversal) and Strategy 8 (Insecure Deserialization) above.
 - [catalog/skills/security/business-logic-abuse/SKILL.md](../business-logic-abuse/SKILL.md) - Domain-aware invariant-violation audit covering race conditions, TOCTOU, idempotency, and workflow bypass. Remediation patches for these classes live here.
 - [catalog/skills/security/advanced-attack-patterns/SKILL.md](../advanced-attack-patterns/SKILL.md) - State desynchronization, cache poisoning, replay, and timing-attack remediation patterns.
-- [catalog/commands/run-penetration-test.md](../../../commands/run-penetration-test.md) - The pen-test command that surfaces findings this skill patches.
+- [catalog/commands/review.md](../../../commands/review.md) - The `/review pentest` scope that surfaces findings this skill patches.

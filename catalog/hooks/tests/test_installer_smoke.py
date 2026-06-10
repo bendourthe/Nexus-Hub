@@ -398,8 +398,6 @@ V0_9_7_ARTIFACTS = [
     "catalog/skills/security/advanced-attack-patterns/SKILL.md",
     # New skill (parallel-session deep-research work)
     "catalog/skills/specialized-domains/deep-research-compilation/SKILL.md",
-    # New commands (parallel-session deep-research work)
-    "catalog/commands/compile-deep-research.md",
     # Style guides relocated out of catalog/commands/ in v1.0.0 so they no
     # longer surface as slash commands. They live alongside the matching
     # command name minus the -style-guide suffix.

@@ -113,5 +113,5 @@ This counts how many task lines have an idempotency marker. The number should ma
 ## Related Files
 
 - `[[tasks-to-issues]]` SKILL.md -- skill body that consumes this runbook.
-- `catalog/commands/tasks-to-issues.md` -- command file that orchestrates the flow.
+- `catalog/commands/plan.md` -- the `/plan issues` command that orchestrates the flow.
 - `catalog/skills/workflow/tasks-to-issues/scripts/tasks-to-issues.sh` and `.ps1` -- helper scripts.

@@ -39,5 +39,5 @@ The `constitution` scope drives the `project-constitution` skill - the same end-
 
 ## Notes
 
-- This command replaces the deprecated `/clarify-spec` and `/analyze-spec`. Those old names forward here via deprecation shims through v3.x (removed at v4.0.0). `/constitution` is a permanent alias (see above), not a shim.
+- This command replaces `/clarify-spec` and `/analyze-spec` (removed in v3.2.0). `/constitution` is a permanent alias (see above), not a shim.
 - Keep this dispatcher thin. The spec and governance procedures live in the retained skills; this file owns only scope resolution and delegation.

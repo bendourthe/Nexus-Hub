@@ -9,6 +9,8 @@ overview_l1: "This skill minimizes token consumption and maximizes effective con
 
 Specialized expertise in reducing token consumption and maximizing the value extracted from every token in an AI coding assistant session. These techniques can reduce input tokens by 24-85% depending on the workflow, directly lowering cost and improving response quality by keeping the context window focused on relevant information.
 
+> **Programmatic counterpart -- the `nexus-context-compressor` engine.** Step 3 below (Dynamic Filtering) is the manual discipline of trimming large outputs before they enter the window. Nexus-Hub ships an engine that *enforces* that discipline at the tool boundary: `extensions/nexus-context-compressor/`, a local-first PreToolUse compressor that deduplicates JSON dumps, elides code bodies AST-aware, and persists every dropped span behind a reversible `<<ccr:HASH N_rows>>` marker. Reach for it when tool output is the measured bottleneck (the largest single category in most sessions); the techniques in this skill cover the rest of the budget (tool-call batching, deferral, tuning). See [[context-optimization]] for setup.
+
 ## When to Use This Skill
 
 Use this skill for:
@@ -289,6 +291,7 @@ After applying optimizations, re-run the same representative tasks and compare.
 - [[context-compression]] - Techniques for compressing context content
 - [[context-manager]] - Managing information flow across workflow phases
 - [[context-degradation]] - Detecting and recovering from context quality loss
+- [[context-optimization]] - Configures the `nexus-context-compressor` engine that enforces Step 3's dynamic filtering automatically at the tool boundary
 
 ---
 

@@ -382,19 +382,19 @@ class MarkdownIntegration(IntegrationBase):
     # both this map and `ctx.template_vars` (e.g. `{{AGENT_REGISTRY}}`) are left
     # literal, exactly as the bash `sed` list leaves them.
     _DEFAULT_TEMPLATE_VARS: Dict[str, str] = {
-        "PROJECT_DESCRIPTION": "(Add a 2-3 sentence project description here, or run /setup-project)",
+        "PROJECT_DESCRIPTION": "(Add a 2-3 sentence project description here, or run /setup project)",
         "PRIMARY_LANGUAGE": "",
         "LANGUAGE_VERSION": "",
         "PACKAGE_MANAGER": "",
         "BUILD_TOOL": "",
         "TEST_FRAMEWORK": "",
         "LINT_TOOL": "",
-        "PROJECT_STRUCTURE_BRIEF": "(Run /setup-project to generate project layout)",
+        "PROJECT_STRUCTURE_BRIEF": "(Run /setup project to generate project layout)",
         "BUILD_CMD": "# specify build command",
         "TEST_CMD": "# specify test command",
         "LINT_CMD": "# specify lint command",
-        "NON_OBVIOUS_TOOLING": "- (configure per project with /setup-project)",
-        "LANGUAGE_CONVENTIONS": "(See coding-snippets or run /setup-project)",
+        "NON_OBVIOUS_TOOLING": "- (configure per project with /setup project)",
+        "LANGUAGE_CONVENTIONS": "(See coding-snippets or run /setup project)",
         "OS_CONTEXT": "",
     }
 

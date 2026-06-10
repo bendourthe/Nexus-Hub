@@ -56,6 +56,6 @@ The `config` scope validates installed platform configs and repairs drift, reusi
 
 ## Notes
 
-- This command replaces deprecated `/update-documentation`, `/update-devlog`, `/generate-devlog`, `/generate-readme`, `/update-gitignore`, `/update-version`, `/generate-changelog`, `/generate-commit-message`, `/refactor-docs`, and `/refactor-project`. The old names forward here via deprecation shims through v3.x (removed at v4.0.0).
+- This command replaces `/update-documentation`, `/update-devlog`, `/generate-devlog`, `/generate-readme`, `/update-gitignore`, `/update-version`, `/generate-changelog`, `/generate-commit-message`, `/refactor-docs`, and `/refactor-project` (removed in v3.2.0).
 - `/commit` is retained as a permanent convenience alias forwarding to `/update commit` (high-frequency mid-dev use).
 - Keep this dispatcher thin. The update procedures live in the retained skills; this file owns only scope resolution, the release sequence, and the version-sync / config-repair contracts above.

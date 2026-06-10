@@ -39,5 +39,5 @@ The comparison report is written to `docs/<version>/comparison-<name>.md` per th
 
 ## Notes
 
-- This command replaces the deprecated `/compare-project`. The old name forwards here via a deprecation shim through v3.x (removed at v4.0.0).
+- This command replaces `/compare-project` (removed in v3.2.0).
 - Keep this dispatcher thin. The comparison procedure lives entirely in the `compare-project` skill; this file owns only source detection, delegation, and the `/plan from-comparison` hand-off.

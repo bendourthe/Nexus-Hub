@@ -65,5 +65,5 @@ For very large surfaces ("generate tests for every unit"), offer the dynamic-wor
 
 ## Notes
 
-- This command replaces deprecated `/generate-tests`, `/generate-unit-tests`, and `/tdd`. The old names forward here via deprecation shims through v3.x (removed at v4.0.0).
+- This command replaces `/generate-tests`, `/generate-unit-tests`, and `/tdd` (removed in v3.2.0).
 - Keep this dispatcher thin. The test-generation logic lives in the retained skills; this file owns only the tier sequence, the loop, and the gate.

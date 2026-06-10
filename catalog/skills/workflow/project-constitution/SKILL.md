@@ -95,7 +95,7 @@ Version increments follow SemVer applied to principles:
 1. Confirm the file location (default `docs/<version>/constitution.md`).
 2. Ask the user to name 3-5 principles. For each, capture the **Statement** (MUST or SHOULD), the **Rationale** (the failure mode it prevents), and the **Applies to** scope.
 3. Draft the Governance section: amendment process, conflict resolution, enforcement points. Default amendment process: "Open a PR that edits `<constitution path>` and includes a Sync Impact Report at the top. Two maintainer reviews required for MAJOR; one for MINOR / PATCH."
-4. Emit the Sync Impact Report HTML comment with `Version change: (new) -> 1.0.0`, ratified date = today, list of new principles, list of templates requiring updates (typically `catalog/templates/spec-template.md`, `catalog/commands/generate-plan.md`).
+4. Emit the Sync Impact Report HTML comment with `Version change: (new) -> 1.0.0`, ratified date = today, list of new principles, list of templates requiring updates (typically `catalog/templates/spec-template.md`, `catalog/commands/plan.md`).
 5. Write the file. Validate: ISO dates, no leftover `[ALL_CAPS_IDENTIFIER]` placeholders, principle IDs are unique and monotonic.
 
 ### Amending an existing constitution
@@ -108,7 +108,7 @@ Version increments follow SemVer applied to principles:
 3. Increment the version per the classification. Update `Last Amended` to today; do NOT change `Ratified`.
 4. Apply the edits in place.
 5. **Propagation check**: read every file that references the constitution and verify it is still consistent with the amended content. The default propagation list is:
-    - `catalog/commands/generate-plan.md` (Constitution Check section template).
+    - `catalog/commands/plan.md` (Constitution Check section template).
     - `catalog/templates/spec-template.md` once Phase 4 of the adoption-spec-kit plan ships it.
     - Any plan under `docs/<version>/plans/` that explicitly cites a principle ID.
     - Any ADR under `docs/<version>/adr-*.md` that cites a principle ID.

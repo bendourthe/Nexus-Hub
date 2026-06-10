@@ -85,7 +85,7 @@ function Get-SanitizedBranchName {
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-$script:NexusHubVersion = "3.1.1"
+$script:NexusHubVersion = "3.2.0"
 
 $Host.UI.RawUI.WindowTitle = "Nexus-Hub Installer"
 $script:InstallerTitle = "Nexus-Hub Installer"
@@ -462,6 +462,12 @@ function Install-GitGuardrails {
     $hooksDir = Join-Path $TargetClaudeDir "hooks"
     if (-not (Test-Path $hooksDir)) { New-Item -ItemType Directory -Force -Path $hooksDir | Out-Null }
     Safe-Copy -Source "$RepoRoot\catalog\hooks\git-guardrails.sh" -Destination (Join-Path $hooksDir "git-guardrails.sh") -Confirm:$true -CustomMessage "✓ $Scope git guardrails hook installed at: $hooksDir"
+
+    # compress-output.sh is the other PreToolUse Bash hook; it ships alongside
+    # git-guardrails because the settings.json merge below pulls the whole
+    # PreToolUse array (which now includes it). It is opt-in / default-off
+    # (inert unless NEXUS_CONTEXT_COMPRESS=1), so copying the file is harmless.
+    Safe-Copy -Source "$RepoRoot\catalog\hooks\compress-output.sh" -Destination (Join-Path $hooksDir "compress-output.sh") -Confirm:$true -CustomMessage "✓ $Scope output-compression hook installed at: $hooksDir"
 
     # Merge hook config into settings.json
     $settingsFile = Join-Path $TargetClaudeDir "settings.json"
@@ -1185,7 +1191,7 @@ function Install-Global {
         $script:BuildCmd = "# specify build command"
         $script:TestCmd = "# specify test command"
         $script:LintCmd = "# specify lint command"
-        $script:NonObviousTooling = "- (configure per project with /setup-project)"
+        $script:NonObviousTooling = "- (configure per project with /setup project)"
         # DF-001: the registry runner renders CLAUDE.md (marker-merged, full
         # placeholder substitution). -InstructionOnly leaves the catalog mirror
         # to the Safe-Folder-Copy block below.
@@ -1890,7 +1896,7 @@ function Install-Templates {
     Write-SubSectionBanner -Text "Templates & Report Generator Installation"
     Write-Host ""
     Write-Item -Message "Nexus-Hub can generate professional Word (.docx) and PowerPoint (.pptx)" -Color "White"
-    Write-Item -Message "reports from Markdown files using the /generate-report command." -Color "White"
+    Write-Item -Message "reports from Markdown files using the /research report command." -Color "White"
     Write-Host ""
 
     # Ensure global directories exist
@@ -2011,7 +2017,7 @@ function Install-Templates {
     # generate_release_changelog.py / .ps1 (v2.4.0): local conventional-commit
     # release helper - computes the next semver bump + a Keep-a-Changelog
     # section from local git history. Zero-outbound (local git only); an
-    # optional helper for the update-version / generate-changelog flows, NOT a
+    # optional helper for the /update version / /update changelog flows, NOT a
     # GitHub Action. Both siblings ship. Mirror of the bash block.
     $releaseChangelogPy = Join-Path $RepoRoot "scripts\generate_release_changelog.py"
     if (Test-Path $releaseChangelogPy) {
@@ -2051,7 +2057,7 @@ function Install-Templates {
     # Phase 7 / G5). The two scripts resolve the next specs\<NNN>-<slug>\
     # prefix (sequential or timestamp per .specify\init-options.json),
     # create the directory, and persist .specify\feature.json so downstream
-    # commands (/clarify-spec, /analyze-spec, /tasks-to-issues) can locate
+    # commands (/spec clarify, /spec analyze, /plan issues) can locate
     # the active feature directory without git-branch coupling. Lockstep
     # with the same block in scripts\installer.sh.
     $newFeatureShSource = Join-Path $RepoRoot "scripts\new-feature.sh"
@@ -2077,8 +2083,8 @@ function Install-Templates {
         New-Item -ItemType File -Force -Path $libInit | Out-Null
     }
 
-    # Copy style-guides (v1.0.0+). Reference content for /compile-deep-research
-    # and /generate-report; deliberately not in catalog\commands so the files
+    # Copy style-guides (v1.0.0+). Reference content for /research compile
+    # and /research report; deliberately not in catalog\commands so the files
     # do not surface as slash commands.
     $styleGuidesSrc = Join-Path $RepoRoot "catalog\style-guides"
     $styleGuidesDest = Join-Path $nexusHome "style-guides"
@@ -2090,7 +2096,7 @@ function Install-Templates {
     # platform-parallel variants in v1.1.3). Each hook calls only its own
     # CLI - they are independent of each other. The hooks themselves are
     # NEVER auto-wired into a repository; users opt in by running the
-    # /install-pre-commit-review-hook slash command from inside the target
+    # /setup hooks slash command from inside the target
     # repo, which copies the chosen platform's script to .git\hooks\pre-commit.
     $nexusHooksDest = Join-Path $nexusHome "hooks"
     if (-not (Test-Path $nexusHooksDest)) { New-Item -ItemType Directory -Force -Path $nexusHooksDest | Out-Null }
@@ -2133,7 +2139,7 @@ function Install-Templates {
 
     # v0.9.7: The interactive "Import custom Word/PowerPoint templates?" prompt has been
     # removed. Custom template selection is now handled at report-generation time by the
-    # `/generate-report` command (generic vs custom path gate). Bundled generic templates
+    # `/research report` command (generic vs custom path gate). Bundled generic templates
     # are still copied silently above so the command has a default to offer.
 
     # List installed templates
@@ -2289,6 +2295,25 @@ function Install-SkillDiscovery {
         }
         Write-Item -Message "  nexus-web-fetch installed at $webFetchDest" -Color "DarkGreen"
     }
+
+    # Install nexus-context-compressor into the same venv (v3.2.0+).
+    # Local-first context-compression engine. Zero outbound by default; tiktoken
+    # is the only required dependency, with an offline stdlib fallback. Installed
+    # with the [mcp] extra so the Phase 4 (T013) compress/retrieve MCP server runs;
+    # the server is registered in the mcpServers merge block below.
+    # See AGENTS.md MCP Registry Policy.
+    $contextCompressorSrc = Join-Path $RepoRoot "extensions\nexus-context-compressor"
+    $contextCompressorDest = Join-Path $nexusHome "context-compressor"
+    if (Test-Path $contextCompressorSrc) {
+        if (Test-Path $contextCompressorDest) { Remove-Item -Path $contextCompressorDest -Recurse -Force }
+        Copy-Item -Path $contextCompressorSrc -Destination $contextCompressorDest -Recurse -Force
+        if ($hasUv) {
+            & uv pip install --python "$venvPath\Scripts\python.exe" -e "$contextCompressorDest[mcp]" 2>$null | Out-Null
+        } else {
+            & "$venvPath\Scripts\pip.exe" install -q -e "$contextCompressorDest[mcp]" 2>$null | Out-Null
+        }
+        Write-Item -Message "  nexus-context-compressor installed at $contextCompressorDest" -Color "DarkGreen"
+    }
     $ErrorActionPreference = "Stop"
 
     # Add or update mcpServers without touching other keys (e.g., hooks)
@@ -2307,6 +2332,11 @@ function Install-SkillDiscovery {
         args    = @("-m", "nexus_web_fetch")
         env     = [PSCustomObject]@{ NEXUS_HUB_ROOT = $nexusHome }
     }
+    $contextCompressorEntry = [PSCustomObject]@{
+        command = "$venvPath\Scripts\python.exe"
+        args    = @("-m", "nexus_context_compressor", "serve")
+        env     = [PSCustomObject]@{ NEXUS_HUB_ROOT = $nexusHome }
+    }
 
     if (-not $settings.PSObject.Properties["mcpServers"]) {
         $settings | Add-Member -NotePropertyName "mcpServers" -NotePropertyValue ([PSCustomObject]@{})
@@ -2315,7 +2345,8 @@ function Install-SkillDiscovery {
     foreach ($pair in @(
         @{ Name = "nexus-skill-server"; Entry = $skillServerEntry },
         @{ Name = "nexus-code-search"; Entry = $codeSearchEntry },
-        @{ Name = "nexus-web-fetch"; Entry = $webFetchEntry }
+        @{ Name = "nexus-web-fetch"; Entry = $webFetchEntry },
+        @{ Name = "nexus-context-compressor"; Entry = $contextCompressorEntry }
     )) {
         $name = $pair.Name
         $entry = $pair.Entry
@@ -2335,7 +2366,7 @@ function Install-SkillDiscovery {
     }
 
     $settings | ConvertTo-Json -Depth 10 | Set-Content $claudeSettings -Encoding UTF8
-    Write-Item -Message "  MCP servers registered in $claudeSettings (nexus-skill-server, nexus-code-search, nexus-web-fetch)" -Color "DarkGreen"
+    Write-Item -Message "  MCP servers registered in $claudeSettings (nexus-skill-server, nexus-code-search, nexus-web-fetch, nexus-context-compressor)" -Color "DarkGreen"
     Write-Item -Message "  Servers will auto-start with Claude Code. No manual steps needed." -Color "DarkGreen"
 }
 
@@ -2585,7 +2616,7 @@ else {
 }
 
 # Bundled report-generator templates + scripts are user-scope and always install silently.
-# Interactive custom-template import moved to /generate-report at use time (v0.9.7).
+# Interactive custom-template import moved to /research report at use time (v0.9.7).
 Install-Templates -RepoRoot $repoRoot
 
 Write-Host ""

@@ -87,6 +87,14 @@
         "NEXUS_HUB_ROOT": "${NEXUS_HUB_ROOT}"
       },
       "_comment": "Nexus-Hub local-only web-fetch MCP server (internal). Classification: re-full (reverse-engineered replacement for scraping-as-service patterns). Tool: fetch_url(url, render_js=False, extract_mode='readability'|'text'|'raw'). SSRF-guarded: RFC 1918, loopback, link-local, file:// blocked by default; YAML override at ~/.nexus/web-fetch.yaml. 30s timeout, 5 MB max body, no cookies, no auth headers. 5-question audit: (1) Python subprocess locally; (2) outbound HTTP/HTTPS to user-specified URL only, no third-party intermediary; (3) no API keys; (4) transmits only the URL itself (no prompts, no source code, no query text beyond the URL); (5) no vendor relationship required. Requires Python 3.10+. Upstream attribution recorded in docs/policy/mcp-reverse-engineering-matrix.md."
+    },
+    "nexus-context-compressor": {
+      "command": "python",
+      "args": ["-m", "nexus_context_compressor", "serve"],
+      "env": {
+        "NEXUS_HUB_ROOT": "${NEXUS_HUB_ROOT}"
+      },
+      "_comment": "Nexus-Hub local-first context-compression MCP server (internal). Classification: re-full (reverse-engineered, owned-and-audited replacement for the external rtk context-compression binary). Tools: context_compress(payload, persist=True) compresses structured tool output (JSON arrays, code) and leaves logs/prose untouched; context_retrieve(marker) resolves a <<ccr:HASH N_rows>> marker back to the exact dropped records (compression is non-lossy). The CCR store is a local SQLite file under ~/.nexus-hub/cache/. 5-question audit: (1) Python subprocess locally; (2) no outbound calls (deterministic stdlib strategies; payloads are compressed in-process); (3) no API keys; (4) transmits no source code, prompts, or query text to any third party (the payload is compressed and stored locally, never sent anywhere); (5) no vendor relationship. Requires Python 3.10+ and the optional 'mcp' extra (pip install 'nexus-context-compressor[mcp]'). Upstream attribution recorded in docs/policy/mcp-reverse-engineering-matrix.md."
     }
   },
   "_usage": {

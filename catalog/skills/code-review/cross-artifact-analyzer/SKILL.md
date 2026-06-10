@@ -98,7 +98,7 @@ Promotion up the severity ladder is allowed when analyst judgment outranks the h
 
 ### 6. Emit the report
 
-Format per the template in `catalog/commands/analyze-spec.md` Step 5: header block + Findings table (50-row cap with overflow summary) + Coverage Summary table + Metrics block + Next Actions + the mandatory closing statement **"This analyzer is read-only. It modifies no files. Any remediation requires user approval."**
+Format per the template used by `/spec analyze`: header block + Findings table (50-row cap with overflow summary) + Coverage Summary table + Metrics block + Next Actions + the mandatory closing statement **"This analyzer is read-only. It modifies no files. Any remediation requires user approval."**
 
 The report is written to stdout by default; if the command was invoked with `--output <path>`, also write it to that path. Do not write to any file under the feature directory.
 

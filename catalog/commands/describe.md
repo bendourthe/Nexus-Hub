@@ -54,5 +54,5 @@ The `full` scope writes its report to `docs/<version>/analysis.md` per the `anal
 
 ## Notes
 
-- This command replaces the deprecated `/analyze-codebase`. The old name forwards here via a deprecation shim through v3.x (removed at v4.0.0).
+- This command replaces `/analyze-codebase` (removed in v3.2.0).
 - Keep this dispatcher thin. If you find yourself adding analysis steps here, they belong in the `analyze-codebase` skill instead.

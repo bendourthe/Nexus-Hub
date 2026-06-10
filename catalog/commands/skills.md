@@ -48,5 +48,5 @@ Pass any remaining arguments (search term, skill name, target path) through unch
 
 ## Notes
 
-- This command replaces the deprecated `/search-skills`, `/commands-cheatsheet`, `/create-skill-or-command`, and `/import-skills`. The old names forward here via deprecation shims through v3.x (removed at v4.0.0).
+- This command replaces `/search-skills`, `/commands-cheatsheet`, `/create-skill-or-command`, and `/import-skills` (removed in v3.2.0).
 - Keep this dispatcher thin. The catalog procedures live in the retained skills; this file owns only scope resolution and delegation.
