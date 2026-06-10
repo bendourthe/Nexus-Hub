@@ -1,6 +1,6 @@
 # AGENTS.md
 
-<!-- nexus-hub-version: 3.1.1 -->
+<!-- nexus-hub-version: 3.2.0 -->
 
 This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, Gemini CLI, etc.) when working with code in this repository.
 
@@ -8,7 +8,7 @@ This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, G
 
 Nexus-Hub is a production-grade skill harness for AI coding assistants. It is the **upstream catalog** consumed by Nexus (the local-first desktop AI Studio, see `https://github.com/bendourthe/Nexus-AI`) and by every other major agent platform: Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, and GitHub CLI. Skills, commands, hooks, agents, and rules are distributed via installer scripts into users' `~/.nexus-hub/` directory and into their AI assistant's per-platform config locations.
 
-Current catalog: **250 skills** across 21 categories, 14 commands (plus 3 permanent aliases and 40 deprecated v3.x shims), 22 hooks, 23 agents.
+Current catalog: **251 skills** across 21 categories, 14 commands (plus 3 permanent aliases), 22 hooks, 23 agents. The 40 v3.x deprecation shims were removed in v3.2.0.
 
 ## Project Structure
 
@@ -17,14 +17,14 @@ Nexus-Hub/
 ├── catalog/                  # Master templates (distributed to users)
 │   ├── agents/               # 23 agent YAML definitions
 │   ├── checklists/           # Standalone reference checklists (4 files)
-│   ├── commands/             # 14 active command .md files (+ 3 permanent aliases + 40 deprecated v3.x shims)
+│   ├── commands/             # 14 active command .md files (+ 3 permanent aliases; the 40 v3.x shims were removed in v3.2.0)
 │   ├── context/              # Context template files
 │   ├── hooks/                # Hook scripts + settings.json template
 │   │   └── tests/            # pytest suite for hook scripts
 │   ├── mcp-configs/          # MCP server registry
 │   ├── memory/               # Memory template files
 │   ├── rules/                # Code style/security rules (4 languages)
-│   └── skills/               # 250 skills across 21 categories
+│   └── skills/               # 251 skills across 21 categories
 │       └── <category>/
 │           └── <skill-name>/
 │               └── SKILL.md
@@ -280,7 +280,7 @@ When reverse-engineering an external pattern into Nexus-Hub content (a skill, a 
 
 ## Markdown Style for Generated Documentation
 
-Every Markdown file Nexus-Hub generates or modifies (READMEs, CHANGELOG, DEVLOG, RELEASE_NOTES, plans, comparison reports, pen test reports, session histories, skills, commands, generated `/generate-report` and `/compile-deep-research` outputs) must follow the conventions in [`catalog/style-guides/markdown.md`](catalog/style-guides/markdown.md). The guide is also installed at `~/.nexus-hub/style-guides/markdown.md` for global reference.
+Every Markdown file Nexus-Hub generates or modifies (READMEs, CHANGELOG, DEVLOG, RELEASE_NOTES, plans, comparison reports, pen test reports, session histories, skills, commands, generated `/research report` and `/research compile` outputs) must follow the conventions in [`catalog/style-guides/markdown.md`](catalog/style-guides/markdown.md). The guide is also installed at `~/.nexus-hub/style-guides/markdown.md` for global reference.
 
 The most common rendering bugs that the style guide prevents:
 
@@ -309,7 +309,7 @@ File naming: `kebab-case.md`. Commands use the same SKILL.md conventions for ins
 
 After adding a command, update `data/marketplace.json` `"total_commands"` if that field is present.
 
-**On a rename or deprecation**, keep the old command name working through the current major by adding a deprecation shim at `catalog/commands/<old-name>.md` -- a `DEPRECATED (removed in vX.Y.Z). Forwarding to /NEW.` frontmatter `description` plus a short body that prints the notice and delegates to the new command (model after `catalog/commands/generate-plan.md`).
+**On a rename or deprecation**, decide whether to keep the old command name working through a deprecation shim at `catalog/commands/<old-name>.md` -- a `DEPRECATED (removed in vX.Y.Z). Forwarding to /NEW.` frontmatter `description` plus a short body that prints the notice and delegates to the new command -- or to remove it outright with a CHANGELOG `Removed` note. (The 40 v3.0.0-era shims followed the shim pattern and were removed in v3.2.0; see the v3.2.0 CHANGELOG and `docs/v3.0.0/command-migration.md`.)
 
 **Do not maintain a static command list anywhere.** `/skills list` derives the command cheatsheet -- the active commands, what each does, the deprecated name each one replaces, and common multi-command workflows -- at runtime from the command files themselves (see `catalog/style-guides/commands-cheatsheet.md`). Adding, renaming, refactoring, or deprecating a command therefore updates the cheatsheet automatically on the next `/skills list`; there is no table to hand-edit. The only command artifacts to touch on a change are the command file(s) and (on a rename) the deprecation shim.
 

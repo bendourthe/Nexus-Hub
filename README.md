@@ -4,9 +4,9 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.1.1 -->
+<!-- nexus-hub-version: 3.2.0 -->
 
-Nexus-Hub is the upstream skill catalog for AI coding assistants: 250 skills, 14 commands, 22 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
+Nexus-Hub is the upstream skill catalog for AI coding assistants: 251 skills, 14 commands, 22 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
 > **Renamed from DevAI-Hub at v2.0.0** to align with the sibling project [Nexus](https://github.com/bendourthe/Nexus-AI), a local-first desktop AI Studio that consumes Nexus-Hub as its upstream skill feed. Existing `~/.devai-hub/` installs are migrated in place by the v2.0.0 installer on first run; see [docs/archive/v2/v2.0.0/RELEASE_NOTES.md](docs/archive/v2/v2.0.0/RELEASE_NOTES.md) for the full migration story.
 
@@ -22,7 +22,7 @@ Nexus-Hub is the upstream skill catalog for AI coding assistants: 250 skills, 14
 
 Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of the same idea, split along a deliberate seam.
 
-- **Nexus-Hub (this repo)** is the catalog: 250 curated skills, 14 commands, 22 hooks, 23 agents, 4 rule families, plus 3 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`). It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
+- **Nexus-Hub (this repo)** is the catalog: 251 curated skills, 14 commands, 22 hooks, 23 agents, 4 rule families, plus 3 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`). It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
 - **Nexus** is a local-first desktop AI Studio that consumes Nexus-Hub as its skill feed. Nexus's `AGENTS.md` names this repo as "the only external project we deliberately link to" -- the upstream feed for its skill harness.
 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
@@ -114,7 +114,7 @@ See [CHANGELOG.md](CHANGELOG.md) and [docs/archive/v2/v2.0.0/RELEASE_NOTES.md](d
 
 After the installer completes:
 
-- **Globally**: your user profile has all 250 skills, 14 commands, 22 hooks, 23 agents, plus Gemini and Codex instructions.
+- **Globally**: your user profile has all 251 skills, 14 commands, 22 hooks, 23 agents, plus Gemini and Codex instructions.
 - **Locally**: your project has `copilot-instructions.md` and `AGENTS.md` tailored to your language.
 
 ---
@@ -149,9 +149,9 @@ Open an AI chatbot (Claude.ai or ChatGPT) and brainstorm: problem, users, core f
 
 1. Create the Git repo with a three-tier branching model: `main` / `develop` / `feature/*`.
 2. Install the Nexus-Hub toolkit: `./install.sh` (macOS / Linux) or `install.bat` (Windows).
-3. In Claude Code, run `/setup-project` -- bootstraps `CLAUDE.md`, the directory structure, `.gitignore`, `README.md`, `DEVLOG.md`, and `CHANGELOG.md` in 8 guided phases.
+3. In Claude Code, run `/setup project` -- bootstraps `CLAUDE.md`, the directory structure, `.gitignore`, `README.md`, `DEVLOG.md`, and `CHANGELOG.md` in 8 guided phases.
 4. Save the implementation plan from step 1 to `docs/<version>/plans/<slug>.md`.
-5. Commit with `/generate-commit-message`.
+5. Commit with `/commit`.
 
 #### 3. Development (core loop)
 
@@ -159,20 +159,20 @@ For each plan phase:
 
 1. Create a feature branch: `feature/phase-N-short-description`.
 2. Open a fresh Claude Code session.
-3. Run `/implement-phase <slug> <phase>` -- walks every subtask, generates and runs tests, applies fixes, runs `/update-gitignore` + `/update-documentation`, generates a session-history file, and produces a commit message.
+3. Run `/implement <slug> <phase>` -- walks every subtask, generates and runs tests, applies fixes, runs `/update gitignore` + `/update docs`, generates a session-history file, and produces a commit message.
 4. Commit and push the feature branch.
 5. Merge into `develop`. Repeat for the next phase.
 
 #### 4. Quality assurance (pre-release)
 
-1. Run `/run-deep-review` -- a 12-phase orchestrator that chains known-gaps collection, health gates, dependency scan, docs / git hygiene, project validators, `/analyze-codebase`, `/run-security-audit`, `/run-penetration-test --depth=deep`, and `/review-codebase`.
+1. Run `/review full` -- a 12-phase orchestrator that chains known-gaps collection, health gates, dependency scan, docs / git hygiene, project validators, codebase description (`/describe full`), and the `security`, `pentest`, and full codebase-review scopes.
 2. Read the synthesis report -- it produces a P0 / P1 / P2 / P3 ranked list of findings with a GO / GO-WITH-CONDITIONS / NO-GO verdict.
 3. Address all P0 and P1 findings before release. P2 findings can be deferred to a follow-up patch release; P3 findings are advisory.
-4. Run `/generate-sbom` for compliance documentation.
+4. Run `/review sbom` for compliance documentation.
 
 #### 5. Release
 
-1. Run `/update-version` -- orchestrates version detection, layout cleanup, `.gitignore` audit, version-bump across all configuration files, CHANGELOG migration, doc sync, and DEVLOG entry.
+1. Run `/update release` -- orchestrates version detection, layout cleanup, `.gitignore` audit, version-bump across all configuration files, CHANGELOG migration, doc sync, and DEVLOG entry.
 2. Merge `develop` into `main`, tag the release, and push.
 
 ### Inherited Project Workflow (2 phases)
@@ -182,8 +182,8 @@ For projects you have inherited or need to audit.
 #### 1. Primary analysis and deep review
 
 1. Clone the repo, open it in VS Code, start a Claude Code session.
-2. Run `/run-deep-review` -- the same 12-phase orchestrator from Phase 4 of the New Project Workflow. The synthesis report's prioritized roadmap (P0 / P1 / P2 / P3) becomes your initial backlog.
-3. If documentation is sparse, backfill it: `/generate-readme` (if missing), `/generate-changelog` (from git history), `/generate-devlog`, `/refactor-project-layout` (only when the repo has structural issues).
+2. Run `/review full` -- the same 12-phase orchestrator from Phase 4 of the New Project Workflow. The synthesis report's prioritized roadmap (P0 / P1 / P2 / P3) becomes your initial backlog.
+3. If documentation is sparse, backfill it: `/update docs` (README, if missing), `/update changelog` (from git history), `/update devlog`, `/update refactor` (only when the repo has structural issues).
 4. Establish the `develop` branch if not already present.
 5. Commit the analysis artifacts.
 
@@ -191,8 +191,8 @@ For projects you have inherited or need to audit.
 
 For each change:
 
-1. Brainstorm in a chatbot, then run `/generate-plan` to produce a structured implementation plan saved to `docs/<version>/plans/<slug>.md`.
-2. Run `/implement-phase <slug> <phase>` per phase -- identical to the New Project Workflow's development loop.
+1. Brainstorm in a chatbot, then run `/plan` to produce a structured implementation plan saved to `docs/<version>/plans/<slug>.md`.
+2. Run `/implement <slug> <phase>` per phase -- identical to the New Project Workflow's development loop.
 3. (Optional) Use git worktrees for parallel work:
 
     ```bash
@@ -201,7 +201,7 @@ For each change:
     git worktree remove ../project-fix
     ```
 
-4. After all changes land on `develop`, run `/run-deep-review` again to verify nothing regressed, then `/update-version` and merge to `main`.
+4. After all changes land on `develop`, run `/review full` again to verify nothing regressed, then `/update release` and merge to `main`.
 
 The QA and release steps are identical to the New Project Workflow.
 
@@ -306,7 +306,7 @@ Monitor usage from the VS Code status bar with a full dashboard.
 
 See [extensions/claude-usage-monitor/](extensions/claude-usage-monitor/) for setup instructions.
 
-### `/check-usage` Command
+### `/usage` Command
 
 On-demand detailed usage report with model-switching recommendations. Auto-fetches from the API (falls back to manual entry if credentials are unavailable).
 

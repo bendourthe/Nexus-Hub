@@ -41,7 +41,7 @@ No constitution file found at docs/v3.2.0/constitution.md - skipping check. Reco
 
 #### 1.1 -- Write the core SKILL.md
 
-- [ ] T001 Create the core skill at catalog/skills/workflow/session-teach-back/SKILL.md
+- [x] T001 Create the core skill at catalog/skills/workflow/session-teach-back/SKILL.md
 
 **Objective**: Author the new skill body implementing the solo-mode Socratic loop (insight I1), the calibration opener (I9), the dated mastery checklist (I5), drill-into-why (I8), and the hard completion gate (I11), sourcing the session via the existing `session-query` extractor (I4) rather than inline `grep`.
 
@@ -60,7 +60,7 @@ No constitution file found at docs/v3.2.0/constitution.md - skipping check. Reco
 
 #### 1.2 -- Register the skill in the three catalog registries
 
-- [ ] T002 Register the skill in data/SKILL_INDEX.md, data/skills.json, and data/marketplace.json
+- [x] T002 Register the skill in data/SKILL_INDEX.md, data/skills.json, and data/marketplace.json
 
 **Objective**: Make the new skill discoverable by adding it to every catalog registry per the `AGENTS.md` "Register the skill" procedure.
 
@@ -77,7 +77,7 @@ No constitution file found at docs/v3.2.0/constitution.md - skipping check. Reco
 
 #### 1.3 -- Testing and Stabilization
 
-- [ ] T003 Run and stabilize Phase 1 validators for catalog/skills/workflow/session-teach-back/SKILL.md
+- [x] T003 Run and stabilize Phase 1 validators for catalog/skills/workflow/session-teach-back/SKILL.md
 
 **Objective**: Confirm the new skill and registry edits leave the catalog green.
 
@@ -88,12 +88,12 @@ No constitution file found at docs/v3.2.0/constitution.md - skipping check. Reco
 
 ### Phase 1 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] `make validate` and `make lint` exit 0 (or validators run directly, all green)
-- [ ] Skill-security scanner: 0 HIGH/CRITICAL on the new skill
-- [ ] Skill present and consistent across all three registries
-- [ ] Session history generated for this phase
-- [ ] Ready to advance to Phase 2
+- [x] All sub-tasks completed
+- [x] `make validate` and `make lint` exit 0 (or validators run directly, all green)
+- [x] Skill-security scanner: 0 HIGH/CRITICAL on the new skill
+- [x] Skill present and consistent across all three registries
+- [x] Session history generated for this phase
+- [x] Ready to advance to Phase 2
 
 ---
 
@@ -107,7 +107,7 @@ No constitution file found at docs/v3.2.0/constitution.md - skipping check. Reco
 
 #### 2.1 -- Add teach-someone-else mode and depth levels
 
-- [ ] T004 Add the teach-others mode and eli5/eli14/intern depth levels to catalog/skills/workflow/session-teach-back/SKILL.md
+- [x] T004 Add the teach-others mode and eli5/eli14/intern depth levels to catalog/skills/workflow/session-teach-back/SKILL.md
 
 **Objective**: Implement insight I14 (reframe the same checklist as a guide for explaining to a named student) and I12 (adjustable explanation depth).
 
@@ -123,7 +123,7 @@ No constitution file found at docs/v3.2.0/constitution.md - skipping check. Reco
 
 #### 2.2 -- Add multiple-choice discipline
 
-- [ ] T005 Add the multiple-choice questioning discipline to catalog/skills/workflow/session-teach-back/SKILL.md
+- [x] T005 Add the multiple-choice questioning discipline to catalog/skills/workflow/session-teach-back/SKILL.md
 
 **Objective**: Implement insight I13 (vary the correct-answer position; do not reveal the answer until after the user responds).
 
@@ -134,7 +134,7 @@ No constitution file found at docs/v3.2.0/constitution.md - skipping check. Reco
 
 #### 2.3 -- Add opt-in (off-by-default) checklist commit
 
-- [ ] T006 Add an opt-in checklist commit step to catalog/skills/workflow/session-teach-back/SKILL.md
+- [x] T006 Add an opt-in checklist commit step to catalog/skills/workflow/session-teach-back/SKILL.md
 
 **Objective**: Adopt `/teach`'s checklist-commit idea as adaptation N1 -- offer to commit the mastery checklist, but never push unprompted and never on by default.
 
@@ -145,7 +145,7 @@ No constitution file found at docs/v3.2.0/constitution.md - skipping check. Reco
 
 #### 2.4 -- Testing and Stabilization
 
-- [ ] T007 Run and stabilize Phase 2 validators for catalog/skills/workflow/session-teach-back/SKILL.md
+- [x] T007 Run and stabilize Phase 2 validators for catalog/skills/workflow/session-teach-back/SKILL.md
 
 **Objective**: Confirm the enhanced skill body still validates and stays within the size norm.
 
@@ -156,12 +156,12 @@ No constitution file found at docs/v3.2.0/constitution.md - skipping check. Reco
 
 ### Phase 2 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] `make validate` exits 0; scanner 0 HIGH/CRITICAL
-- [ ] SKILL.md <=500 lines; any `references/` file is referenced (no orphan)
-- [ ] Auto-commit documented as off by default and confirmation-gated
-- [ ] Session history generated for this phase
-- [ ] Ready to advance to Phase 3
+- [x] All sub-tasks completed
+- [x] `make validate` exits 0; scanner 0 HIGH/CRITICAL
+- [x] SKILL.md <=500 lines; any `references/` file is referenced (no orphan)
+- [x] Auto-commit documented as off by default and confirmation-gated
+- [x] Session history generated for this phase
+- [x] Ready to advance to Phase 3
 
 ---
 
@@ -175,7 +175,7 @@ No constitution file found at docs/v3.2.0/constitution.md - skipping check. Reco
 
 #### 3.1 -- Add bidirectional Related-Skills cross-links
 
-- [ ] T008 [P] Add `[[session-teach-back]]` back-links to catalog/skills/workflow/session-query/SKILL.md, catalog/skills/workflow/session-history/SKILL.md, and catalog/skills/workflow/dev-progress-tracker/SKILL.md
+- [x] T008 [P] Add `[[session-teach-back]]` back-links to catalog/skills/workflow/session-query/SKILL.md, catalog/skills/workflow/session-history/SKILL.md, and catalog/skills/workflow/dev-progress-tracker/SKILL.md
 
 **Objective**: Complete the bidirectional cross-link graph (insight P2) so the `session-*` family points at the new skill and vice versa.
 
@@ -192,7 +192,7 @@ No constitution file found at docs/v3.2.0/constitution.md - skipping check. Reco
 
 #### 3.2 -- Add using-nexus-hub mention and CHANGELOG entry
 
-- [ ] T009 [P] Mention the skill in catalog/skills/workflow/using-nexus-hub/SKILL.md and add a CHANGELOG.md [Unreleased] entry
+- [x] T009 [P] Mention the skill in catalog/skills/workflow/using-nexus-hub/SKILL.md and add a CHANGELOG.md [Unreleased] entry
 
 **Objective**: Surface the new skill in the orientation skill and record the change in the changelog.
 
@@ -208,7 +208,7 @@ No constitution file found at docs/v3.2.0/constitution.md - skipping check. Reco
 
 #### 3.3 -- Testing and Stabilization
 
-- [ ] T010 Run the final validators and confirm catalog green for catalog/skills/workflow/session-teach-back/SKILL.md
+- [x] T010 Run the final validators and confirm catalog green for catalog/skills/workflow/session-teach-back/SKILL.md
 
 **Objective**: Final green check across the whole adoption before the plan is considered done.
 
@@ -231,9 +231,9 @@ No constitution file was found, so there are no MUST principles to violate. This
 
 ### Phase 3 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] `make validate` and `make lint` exit 0; scanner 0 HIGH/CRITICAL catalog-wide
-- [ ] All `[[session-teach-back]]` cross-links resolve bidirectionally
-- [ ] No new slash command; no installer edit required
-- [ ] CHANGELOG `[Unreleased]` entry present
-- [ ] Session history generated; adoption complete
+- [x] All sub-tasks completed
+- [x] `make validate` and `make lint` exit 0; scanner 0 HIGH/CRITICAL catalog-wide (validators run directly; `make`/`shellcheck` unavailable on host -- WN-v32-2, covered by CI; no shell surface so `make lint` is a no-op)
+- [x] All `[[session-teach-back]]` cross-links resolve bidirectionally
+- [x] No new slash command; no installer edit required
+- [x] CHANGELOG `[Unreleased]` entry present
+- [x] Session history generated; adoption complete

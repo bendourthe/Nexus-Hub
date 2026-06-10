@@ -18,5 +18,5 @@ The skill audits CLAUDE.md and the memory files, flags stale or oversized entrie
 
 ## Notes
 
-- This command replaces the deprecated `/manage-memory`. The old name forwards here via a deprecation shim through v3.x (removed at v4.0.0).
+- This command replaces `/manage-memory` (removed in v3.2.0).
 - Keep this dispatcher thin. The memory-management procedure lives entirely in the `manage-memory` skill.

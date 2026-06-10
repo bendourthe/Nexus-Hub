@@ -1,0 +1,10 @@
+{
+  "_comment": "Compression accuracy-regression baseline (adoption-headroom Phase 5). Fidelity metrics are deterministic structural invariants and must stay at 1.0 -- a value below means a dropped span did not reverse exactly or a code signature was lost. 'min_aggregate_char_reduction' is an effectiveness floor that catches a compressor which silently stops compressing; it sits a safety margin below the measured reduction. To re-baseline intentionally after a legitimate behavior change, run 'python -m evals --update-baseline' and review the diff.",
+  "fidelity": {
+    "ccr_roundtrip": 1.0,
+    "signature_preservation": 1.0
+  },
+  "effectiveness": {
+    "min_aggregate_char_reduction": 0.36
+  }
+}

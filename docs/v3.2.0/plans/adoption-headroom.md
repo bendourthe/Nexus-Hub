@@ -47,7 +47,7 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 #### 1.1 -- Scaffold the compressor package
 
-- [ ] T001 Scaffold `extensions/nexus-context-compressor/` (package, pyproject.toml, tests skeleton, README)
+- [x] T001 Scaffold `extensions/nexus-context-compressor/` (package, pyproject.toml, tests skeleton, README)
 
 **Objective**: Create a stdlib-first Python package mirroring the layout of `extensions/nexus-skill-scanner`.
 
@@ -58,7 +58,7 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 #### 1.2 -- Register the package in both installers
 
-- [ ] T002 Register `nexus-context-compressor` copy step in scripts/installer.sh and scripts/installer.ps1
+- [x] T002 Register `nexus-context-compressor` copy step in scripts/installer.sh and scripts/installer.ps1
 
 **Objective**: Ensure the new extension distributes to all platforms per the AGENTS.md installer-aware rule.
 
@@ -69,7 +69,7 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 #### 1.3 -- Implement SmartCrusher (JSON-array dedup)
 
-- [ ] T003 Implement deterministic JSON-array compressor in extensions/nexus-context-compressor/nexus_context_compressor/transforms/smart_crusher.py
+- [x] T003 Implement deterministic JSON-array compressor in extensions/nexus-context-compressor/nexus_context_compressor/transforms/smart_crusher.py
 
 **Objective**: Port headroom's variance/uniqueness/change-point JSON-array dedup as pure local logic.
 
@@ -80,7 +80,7 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 #### 1.4 -- Testing and Stabilization
 
-- [ ] T004 Run and stabilize Phase 1 tests in extensions/nexus-context-compressor/tests/
+- [x] T004 Run and stabilize Phase 1 tests in extensions/nexus-context-compressor/tests/
 
 **Objective**: Generate and run all Phase 1 tests. Iterate until stable.
 
@@ -91,11 +91,11 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 ### Phase 1 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] All tests passing
-- [ ] No known regressions from prior phases
-- [ ] Session history generated for this phase
-- [ ] Ready to advance to Phase 2
+- [x] All sub-tasks completed
+- [x] All tests passing
+- [x] No known regressions from prior phases
+- [x] Session history generated for this phase
+- [x] Ready to advance to Phase 2
 
 ---
 
@@ -109,7 +109,7 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 #### 2.1 -- Implement the CCR store
 
-- [ ] T005 Implement local CCR store in extensions/nexus-context-compressor/nexus_context_compressor/ccr/store.py
+- [x] T005 Implement local CCR store in extensions/nexus-context-compressor/nexus_context_compressor/ccr/store.py
 
 **Objective**: Persist dropped content keyed by content hash in a local SQLite database.
 
@@ -120,7 +120,7 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 #### 2.2 -- Implement the retrieval interface
 
-- [ ] T006 Implement CCR retrieval interface in extensions/nexus-context-compressor/nexus_context_compressor/ccr/retrieve.py
+- [x] T006 Implement CCR retrieval interface in extensions/nexus-context-compressor/nexus_context_compressor/ccr/retrieve.py
 
 **Objective**: Let a consumer (later, an MCP tool / hook) resolve a CCR marker back to originals on demand.
 
@@ -131,7 +131,7 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 #### 2.3 -- Testing and Stabilization
 
-- [ ] T007 Run and stabilize Phase 2 tests in extensions/nexus-context-compressor/tests/
+- [x] T007 Run and stabilize Phase 2 tests in extensions/nexus-context-compressor/tests/
 
 **Objective**: Generate and run all Phase 2 tests. Iterate until stable.
 
@@ -142,11 +142,11 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 ### Phase 2 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] All tests passing
-- [ ] No known regressions from prior phases
-- [ ] Session history generated for this phase
-- [ ] Ready to advance to Phase 3
+- [x] All sub-tasks completed
+- [x] All tests passing
+- [x] No known regressions from prior phases
+- [x] Session history generated for this phase
+- [x] Ready to advance to Phase 3
 
 ---
 
@@ -160,7 +160,7 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 #### 3.1 -- Implement CacheAligner
 
-- [ ] T008 [P] Implement KV-cache prefix stabilizer in extensions/nexus-context-compressor/nexus_context_compressor/transforms/cache_aligner.py
+- [x] T008 [P] Implement KV-cache prefix stabilizer in extensions/nexus-context-compressor/nexus_context_compressor/transforms/cache_aligner.py
 
 **Objective**: Move dynamic tail content out of the stable system-prompt prefix and normalize whitespace so provider KV caches hit.
 
@@ -171,7 +171,7 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 #### 3.2 -- Implement ContentRouter
 
-- [ ] T009 [P] Implement content-type router in extensions/nexus-context-compressor/nexus_context_compressor/transforms/content_router.py
+- [x] T009 [P] Implement content-type router in extensions/nexus-context-compressor/nexus_context_compressor/transforms/content_router.py
 
 **Objective**: Detect content type and dispatch each segment to its optimal compressor.
 
@@ -182,7 +182,7 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 #### 3.3 -- Implement CodeCompressor (reuse tree-sitter)
 
-- [ ] T010 Implement AST-aware code compressor in extensions/nexus-context-compressor/nexus_context_compressor/transforms/code_compressor.py
+- [x] T010 Implement AST-aware code compressor in extensions/nexus-context-compressor/nexus_context_compressor/transforms/code_compressor.py
 
 **Objective**: Trim function/method bodies while preserving imports, signatures, decorators, and class structure -- reusing the existing nexus-code-search tree-sitter infrastructure.
 
@@ -193,7 +193,7 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 #### 3.4 -- Testing and Stabilization
 
-- [ ] T011 Run and stabilize Phase 3 tests in extensions/nexus-context-compressor/tests/
+- [x] T011 Run and stabilize Phase 3 tests in extensions/nexus-context-compressor/tests/
 
 **Objective**: Generate and run all Phase 3 tests. Iterate until stable.
 
@@ -204,11 +204,11 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 ### Phase 3 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] All tests passing
-- [ ] No known regressions from prior phases
-- [ ] Session history generated for this phase
-- [ ] Ready to advance to Phase 4
+- [x] All sub-tasks completed
+- [x] All tests passing
+- [x] No known regressions from prior phases
+- [x] Session history generated for this phase
+- [x] Ready to advance to Phase 4
 
 ---
 
@@ -222,7 +222,7 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 #### 4.1 -- PreToolUse compression hook
 
-- [ ] T012 Add PreToolUse compression hook in catalog/hooks/ (+ settings.json registration)
+- [x] T012 Add PreToolUse compression hook in catalog/hooks/ (+ settings.json registration)
 
 **Objective**: Compress tool output before it is written into the context window, at the same hook point rtk uses.
 
@@ -233,7 +233,7 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 #### 4.2 -- Internal MCP compress/retrieve tool
 
-- [ ] T013 Add internal MCP server exposing compress + retrieve in extensions/nexus-context-compressor/
+- [x] T013 Add internal MCP server exposing compress + retrieve in extensions/nexus-context-compressor/
 
 **Objective**: Expose `compress` and `retrieve` as local MCP tools, modeled on headroom's MCP server and Nexus-Hub's existing internal MCPs.
 
@@ -244,7 +244,7 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 #### 4.3 -- Supersede the external rtk recommendation
 
-- [ ] T014 Supersede external rtk with the internal engine in guides/RTK_CONTEXT_COMPRESSION.md
+- [x] T014 Supersede external rtk with the internal engine in guides/RTK_CONTEXT_COMPRESSION.md
 
 **Objective**: Convert the "trust a third-party GitHub binary" posture into the owned, audited internal compressor, with a migration note.
 
@@ -255,7 +255,7 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 #### 4.4 -- Testing and Stabilization
 
-- [ ] T015 Run and stabilize Phase 4 tests via make test and an installer dry-run
+- [x] T015 Run and stabilize Phase 4 tests via make test and an installer dry-run
 
 **Objective**: Generate and run all Phase 4 tests. Iterate until stable.
 
@@ -266,11 +266,11 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 ### Phase 4 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] All tests passing
-- [ ] No known regressions from prior phases
-- [ ] Session history generated for this phase
-- [ ] Ready to advance to Phase 5
+- [x] All sub-tasks completed
+- [x] All tests passing
+- [x] No known regressions from prior phases
+- [x] Session history generated for this phase
+- [x] Ready to advance to Phase 5
 
 ---
 
@@ -284,7 +284,7 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 #### 5.1 -- Build the accuracy-regression harness
 
-- [ ] T016 Build compression accuracy-regression harness in extensions/nexus-context-compressor/evals/
+- [x] T016 Build compression accuracy-regression harness in extensions/nexus-context-compressor/evals/
 
 **Objective**: Port headroom's benchmark-gate concept (compression ratio vs. accuracy delta).
 
@@ -295,7 +295,7 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 #### 5.2 -- Wire the CI accuracy gate
 
-- [ ] T017 Wire compression accuracy gate into the CI validate job and make validate
+- [x] T017 Wire compression accuracy gate into the CI validate job and make validate
 
 **Objective**: Fail CI if a compression change degrades fidelity below threshold.
 
@@ -306,7 +306,7 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 #### 5.3 -- Testing and Stabilization
 
-- [ ] T018 Run and stabilize Phase 5 tests and the eval gate
+- [x] T018 Run and stabilize Phase 5 tests and the eval gate
 
 **Objective**: Generate and run all Phase 5 tests. Iterate until stable.
 
@@ -317,11 +317,11 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 ### Phase 5 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] All tests passing
-- [ ] No known regressions from prior phases
-- [ ] Session history generated for this phase
-- [ ] Ready to advance to Phase 6
+- [x] All sub-tasks completed
+- [x] All tests passing
+- [x] No known regressions from prior phases
+- [x] Session history generated for this phase
+- [x] Ready to advance to Phase 6
 
 ---
 
@@ -335,7 +335,7 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 #### 6.1 -- Implement the optional ML token-dropper
 
-- [ ] T019 Implement default-off ML token-dropper in extensions/nexus-context-compressor/nexus_context_compressor/transforms/ml_token_dropper.py
+- [x] T019 Implement default-off ML token-dropper in extensions/nexus-context-compressor/nexus_context_compressor/transforms/ml_token_dropper.py
 
 **Objective**: Port the Kompress importance-scoring drop as an optional module using public pre-trained weights (do NOT retrain).
 
@@ -346,7 +346,7 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 #### 6.2 -- Testing and Stabilization
 
-- [ ] T020 Run and stabilize Phase 6 tests in extensions/nexus-context-compressor/tests/
+- [x] T020 Run and stabilize Phase 6 tests in extensions/nexus-context-compressor/tests/
 
 **Objective**: Generate and run all Phase 6 tests. Iterate until stable.
 
@@ -357,11 +357,11 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 ### Phase 6 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] All tests passing
-- [ ] No known regressions from prior phases
-- [ ] Session history generated for this phase
-- [ ] Ready to advance to Phase 7
+- [x] All sub-tasks completed
+- [x] All tests passing
+- [x] No known regressions from prior phases
+- [x] Session history generated for this phase
+- [x] Ready to advance to Phase 7
 
 ---
 
@@ -375,7 +375,7 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 #### 7.1 -- Cross-link methodology skills to the engine
 
-- [ ] T021 Cross-link the engine from catalog/skills/orchestration/context-compression/SKILL.md and prompt-token-optimization/SKILL.md
+- [x] T021 Cross-link the engine from catalog/skills/orchestration/context-compression/SKILL.md and prompt-token-optimization/SKILL.md
 
 **Objective**: Make the methodology skills point to the programmatic engine without duplicating it.
 
@@ -386,7 +386,7 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 #### 7.2 -- Architecture documentation
 
-- [ ] T022 Write the compressor architecture writeup in extensions/nexus-context-compressor/README.md (and docs/v3.2.0/)
+- [x] T022 Write the compressor architecture writeup in extensions/nexus-context-compressor/README.md (and docs/v3.2.0/)
 
 **Objective**: Document the pipeline, CCR reversibility, the local-first/zero-outbound posture, and the rtk migration.
 
@@ -397,7 +397,7 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 #### 7.3 -- Final validation
 
-- [ ] T023 Run full validation suite and installer dry-run
+- [x] T023 Run full validation suite and installer dry-run
 
 **Objective**: Confirm the entire adoption is green end-to-end.
 
@@ -418,11 +418,11 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 ### Phase 7 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] All tests passing
-- [ ] No known regressions from prior phases
-- [ ] Session history generated for this phase
-- [ ] Adoption complete; CHANGELOG updated
+- [x] All sub-tasks completed
+- [x] All tests passing
+- [x] No known regressions from prior phases
+- [x] Session history generated for this phase
+- [x] Adoption complete; CHANGELOG updated
 
 ---
 

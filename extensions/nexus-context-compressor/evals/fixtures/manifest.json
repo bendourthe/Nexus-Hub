@@ -1,0 +1,52 @@
+{
+  "_comment": "Fixed local dataset for the compression accuracy-regression harness (adoption-headroom Phase 5, T016). Each fixture is read as text and run through the matching deterministic strategy. No live LLM call is involved -- 'accuracy preserved' is measured structurally: CCR round-trip completeness (reconstruct == original) for arrays and elided code bodies, plus signature-preservation rate for code. 'must_preserve' lists structural substrings (imports, decorators, class headers, function/method signatures) the CodeCompressor must keep verbatim in its skeleton.",
+  "fixtures": [
+    {
+      "name": "json_logs",
+      "kind": "json_array",
+      "file": "json_logs.json",
+      "description": "Repetitive log records with three change-points; SmartCrusher collapses the duplicate runs into reversible CCR markers."
+    },
+    {
+      "name": "search_hits",
+      "kind": "json_array",
+      "file": "search_hits.json",
+      "description": "Search-result rows with a long identical run; SmartCrusher dedups it behind a CCR marker."
+    },
+    {
+      "name": "python_module",
+      "kind": "code",
+      "file": "sample_python.py",
+      "language": "python",
+      "description": "Imports, a dataclass, and a class with multi-line methods; CodeCompressor elides bodies behind CCR markers while keeping structure.",
+      "must_preserve": [
+        "from __future__ import annotations",
+        "import json",
+        "import os",
+        "from dataclasses import dataclass",
+        "@dataclass",
+        "class Config:",
+        "def load_config(path: str) -> Config:",
+        "class Service:",
+        "def __init__(self, config: Config) -> None:",
+        "def process(self, payload: dict) -> dict:",
+        "def shutdown(self) -> None:"
+      ]
+    },
+    {
+      "name": "typescript_module",
+      "kind": "code",
+      "file": "sample_typescript.ts",
+      "language": "typescript",
+      "description": "Imports, an interface, an exported function, and a class with a multi-line method; exercises the BRACE family (regex fallback works without tree-sitter).",
+      "must_preserve": [
+        "import { readFile } from \"node:fs/promises\";",
+        "import { resolve } from \"node:path\";",
+        "export interface Config {",
+        "export async function loadConfig(path: string): Promise<Config> {",
+        "export class Service {",
+        "process(payload: Record<string, unknown>): Record<string, unknown> {"
+      ]
+    }
+  ]
+}

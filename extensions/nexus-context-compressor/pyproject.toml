@@ -1,0 +1,42 @@
+[project]
+name = "nexus-context-compressor"
+version = "3.2.0"
+description = "Nexus-Hub local-first context-compression engine (deterministic strategies, reversible CCR retrieval, optional ML token-dropper, zero outbound by default)"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [{name = "Benjamin Dourthe"}]
+# Stdlib-first. tiktoken is the only required runtime dependency, used for
+# accurate token accounting; the counter degrades to a deterministic stdlib
+# estimate when tiktoken (or its cached vocab) is unavailable, so the package
+# NEVER requires a network call to function. tiktoken's one-time vocab fetch is
+# a static asset carrying no user data (the same offline-first posture the
+# v3.0.0 OSV.dev DB and the Phase 6 ML weights follow). The deterministic
+# strategies (SmartCrusher, CacheAligner, ContentRouter) are pure stdlib.
+dependencies = ["tiktoken>=0.5"]
+
+[project.optional-dependencies]
+# Phase 4 internal MCP server (context_compress + context_retrieve). Optional so
+# the engine library and CLI stay importable without the MCP runtime; server.py
+# imports mcp lazily only when the server is launched.
+mcp = ["mcp>=1.0.0"]
+# Phase 6 ML token-dropper: public pre-trained ONNX weights, default-off. Local
+# ONNX text inference needs three standard, lightweight companions -- the runtime
+# (onnxruntime), tensor I/O (numpy), and the bundled sub-word tokenizer
+# (tokenizers, the HF runtime, NOT the heavyweight transformers stack). The module
+# only *loads* pre-placed public weights; it never downloads them and sends no
+# user data anywhere, so the extra carries no outbound dependency.
+ml = ["onnxruntime>=1.16", "numpy>=1.21", "tokenizers>=0.15"]
+# Phase 3 AST-aware CodeCompressor reuses the tree-sitter grammars already
+# vendored by nexus-code-search; this extra is a fallback for standalone use.
+code = ["tree-sitter>=0.21"]
+dev = ["pytest>=7.0"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/nexus_context_compressor"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

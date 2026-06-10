@@ -57,6 +57,14 @@ jobs:
         # skill-security-scan skill, not the gate.
         run: python scripts/scan_skill_security.py catalog/skills catalog/mcp-configs --fail-on high
 
+      - name: Compression accuracy-regression gate (v3.2.0 Phase 5)
+        # Deterministic, offline structural-fidelity gate: fails if the
+        # context-compressor stops reversing dropped spans exactly (CCR
+        # round-trip), drops a code signature, or compresses below the
+        # documented effectiveness floor. No live LLM call; the harness
+        # bootstraps its own src/ so no package install is needed here.
+        run: cd extensions/nexus-context-compressor && python -m evals --check
+
   shellcheck:
     runs-on: ubuntu-latest
     steps:
@@ -124,3 +132,9 @@ jobs:
 
       - name: Skill-scanner tests
         run: pytest extensions/nexus-skill-scanner/tests/ -v
+
+      - name: Install context-compressor engine (v3.2.0+)
+        run: pip install -e "extensions/nexus-context-compressor/[dev]"
+
+      - name: Context-compressor tests
+        run: pytest extensions/nexus-context-compressor/tests/ -v

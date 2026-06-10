@@ -46,7 +46,7 @@ Skills are grouped into 22 domain categories:
 
 **Option 1 — Use a command:**
 ```
-/search-skills <keyword>
+/skills search <keyword>
 ```
 Searches the full skill catalog by keyword and returns the top matches with summaries.
 
@@ -64,16 +64,16 @@ Key commands:
 
 | Command | What it does |
 |---|---|
-| `/search-skills` | Find skills by keyword |
-| `/commands-cheatsheet` | List all available commands |
-| `/analyze-codebase` | Full codebase analysis with Mermaid diagrams |
-| `/review-codebase` | Senior-level code review |
-| `/implement-phase` | Execute one phase of an implementation plan |
-| `/wrap-up-session` | Capture session history and clean up |
-| `/generate-tests` | Generate comprehensive test coverage |
-| `/run-security-audit` | Full security audit with remediation |
+| `/skills search` | Find skills by keyword |
+| `/commands` | List all available commands (the cheatsheet) |
+| `/describe` | Full codebase analysis with Mermaid diagrams |
+| `/review` | Senior-level code review (scope-able) |
+| `/implement` | Execute one phase of an implementation plan |
+| `/session wrap-up` | Capture session history and clean up |
+| `/test` | Generate comprehensive test coverage |
+| `/review security` | Full security audit with remediation |
 
-Run `/commands-cheatsheet` to see all 32 commands with descriptions.
+Run `/commands` (or `/skills list`) to see all commands with descriptions.
 
 ## How Hooks Protect the Session
 
@@ -102,13 +102,14 @@ You do not need to interact with hooks directly — they run in the background.
 | Task | Start here |
 |---|---|
 | New feature from scratch | `idea-refine` → `spec-driven-development` → `plan-before-code` → `incremental-implementation` |
-| Code review | `review-codebase` command or `code-quality` + `security-review` skills |
+| Code review | `/review` command or `code-quality` + `security-review` skills |
 | Bug fix | `bug-localization` → `bug-to-patch-generator` |
 | Deployment | `shipping-and-launch` |
-| Security audit | `/run-security-audit` or `security-review` skill |
-| Test coverage | `/generate-tests` or `unit-tests` + `integration-test-generator` |
+| Security audit | `/review security` or `security-review` skill |
+| Test coverage | `/test` or `unit-tests` + `integration-test-generator` |
 | Refactoring | `plan-before-code` → `refactoring-expert` → `behavior-preservation-checker` |
 | AI agent development | `ai-agent-development` → `context-engineering` → `prompt-engineering` |
+| Confirm you understood a session | `session-teach-back` |
 
 ## Common Rationalizations
 

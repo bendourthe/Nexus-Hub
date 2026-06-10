@@ -45,6 +45,15 @@
         ]
       },
       {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/compress-output.sh"
+          }
+        ]
+      },
+      {
         "matcher": "PowerShell",
         "hooks": [
           {

@@ -58,5 +58,5 @@ For the planning scopes, `generate-plan` preserves everything it always did: the
 
 ## Notes
 
-- This command replaces deprecated `/generate-plan`, `/generate-todos`, and `/tasks-to-issues`. The old names forward here via deprecation shims through v3.x (removed at v4.0.0).
+- This command replaces `/generate-plan`, `/generate-todos`, and `/tasks-to-issues` (removed in v3.2.0).
 - Keep this dispatcher thin. The discovery interviews, the comparison ingest, and the issue-creation logic all live in the retained skills.

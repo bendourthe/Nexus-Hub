@@ -9,6 +9,8 @@ overview_l1: "This skill minimizes tokens per task in long-running agent session
 
 Specialized expertise in compressing conversation context to extend effective session length and maintain quality. Context compression is the primary tool for managing long-running agent sessions without losing critical decisions, file modifications, or task state.
 
+> **Programmatic counterpart -- the `nexus-context-compressor` engine.** This skill is the *methodology* for compressing conversation context with judgment. For automatic, reversible compression of verbose *tool output* before it ever enters the window, Nexus-Hub ships an engine at `extensions/nexus-context-compressor/`: a local-first PreToolUse compressor that routes JSON dumps, code, and logs to deterministic strategies and persists every dropped span behind a `<<ccr:HASH N_rows>>` marker that resolves back on demand. Reach for the engine when the bloat is *mechanical* tool output (the Observation Masking pattern below, automated); apply the approaches in this skill when the bloat is conversation history and decisions that need a human-or-agent summary. See [[context-optimization]] for the one-env-var setup and [[prompt-token-optimization]] for the token-economics view.
+
 ## When to Use This Skill
 
 Use this skill for:
@@ -338,6 +340,7 @@ After compressing, verify no critical information was lost.
 
 - [[context-manager]] - Context fundamentals and attention budget management
 - [[context-degradation]] - Detecting when compression is needed
+- [[context-optimization]] - Configures the programmatic `nexus-context-compressor` engine (the automated, reversible counterpart to this skill's manual methodology)
 - [[plan-before-code]] - Structured planning that reduces context bloat
 - [[filesystem-context-patterns]] - File-based context management patterns
 - See also: [SESSION_LIFECYCLE_DECISIONS](../../../../guides/SESSION_LIFECYCLE_DECISIONS.md) - when to compact vs `/rewind`, `/clear`, or delegate to a subagent

@@ -1,5 +1,5 @@
 # new-feature.ps1 -- Resolve the next feature-directory prefix and create the
-# directory under specs/. Used by /generate-plan --specs-layout (and other
+# directory under specs/. Used by /plan --specs-layout (and other
 # spec-driven commands) to pick a sequential or timestamp prefix without
 # coupling the agent flow to git branch state.
 #

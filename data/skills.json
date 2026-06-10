@@ -1969,10 +1969,10 @@
     {
       "name": "context-optimization",
       "title": "context-optimization",
-      "description": "Optimize AI coding session context window usage by compressing command output, minimizing verbose logs, and avoiding context bloat. Use when sessions are hitting token limits, commands produce excessive output, you want to maximize effective session length, or you notice the context window filling up quickly. Covers rtk proxy setup for Claude Code and prompt-level output reduction for Gemini, Codex, and Copilot.",
+      "description": "Optimize AI coding session context window usage by compressing command output, minimizing verbose logs, and avoiding context bloat. Use when sessions are hitting token limits, commands produce excessive output, you want to maximize effective session length, or you notice the context window filling up quickly. Covers the internal nexus-context-compressor engine for Claude Code and prompt-level output reduction for Gemini, Codex, and Copilot.",
       "long_description": "Use this skill when:\n- A 30-minute Claude Code session is consuming 100K+ tokens from command output alone\n- Tests, builds, or package manager commands are dumping full logs into the context window\n- You want to extend session length before hitting context limits\n- You are configuring a new developm...",
       "summary_l0": "\"Optimize AI session context windows by compressing output and reducing token bloat\"",
-      "overview_l1": "\"This skill provides techniques for controlling context window consumption in AI coding sessions through automated output compression and prompt-level output minimization. Use it when a session is consuming excessive tokens from command output, tests or builds dump full logs into context, you want to extend session length before hitting limits, you are configuring a new environment for context efficiency, or verbose output like progress bars is consuming context. Key capabilities include automated output compression via rtk (a Rust-based CLI proxy for Claude Code that reduces tokens from 150K to 45K per session), prompt-level output minimization with quiet flags, progress bar suppression, long output summarization, and cross-platform strategies for Claude Code, Gemini, Codex, and Copilot. The expected output is a configured environment with reduced context consumption and guidelines for maintaining context efficiency. Trigger phrases: context window, token limit, context bloat, compress output, reduce tokens, session length, verbose output, rtk setup, context optimization.\"",
+      "overview_l1": "\"This skill provides techniques for controlling context window consumption in AI coding sessions through automated output compression and prompt-level output minimization. Use it when a session is consuming excessive tokens from command output, tests or builds dump full logs into context, you want to extend session length before hitting limits, you are configuring a new environment for context efficiency, or verbose output like progress bars is consuming context. Key capabilities include automated output compression via the internal nexus-context-compressor engine (a local-first, reversible PreToolUse compressor for Claude Code that Nexus-Hub owns and audits, replacing the external rtk binary), prompt-level output minimization with quiet flags, progress bar suppression, long output summarization, and cross-platform strategies for Claude Code, Gemini, Codex, and Copilot. The expected output is a configured environment with reduced context consumption and guidelines for maintaining context efficiency. Trigger phrases: context window, token limit, context bloat, compress output, reduce tokens, session length, verbose output, compressor setup, rtk migration, context optimization.\"",
       "version": "1.0.0",
       "author": "Benjamin Dourthe",
       "category": "developer-experience",
@@ -8708,6 +8708,48 @@
         "lines": 118,
         "characters": 9300,
         "tokens_estimate": 2100
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "session-teach-back",
+      "title": "session-teach-back",
+      "description": "Socratic mastery-confirmation loop that quizzes the HUMAN operator on what a development session actually built and why, one concept at a time against a persistent dated checklist, and refuses to finish until every item is confirmed. Make sure to use this skill whenever the user says \"teach me what we built\", \"quiz me on this session\", \"teach-back\", \"did I understand X\", \"drill me on the session\", \"help me teach this to someone\", \"put me in teaching mode\", \"make sure I actually get what we did\", \"test my understanding of this work\", or otherwise wants to confirm THEIR OWN understanding of a completed session (or guide someone else through it) instead of just recording it. SKIP, do NOT use for, generating a record of what happened (use generate-session-history / session-history), querying or recovering context from PAST sessions (use session-query), or tracking task or phase progress (use dev-progress-tracker).",
+      "long_description": "Confirm that the human actually understands what a session built, not just that the work shipped. This skill runs a Socratic mastery-confirmation loop: it sources the session by reusing session-query's local zero-outbound extractor, writes a dated mastery checklist, opens with a calibration question, then quizzes the operator one concept at a time, drilling into the why behind each decision and refusing to finish until every item is con...",
+      "summary_l0": "\"Socratic teach-back loop that quizzes the human on a session until every concept is confirmed\"",
+      "overview_l1": "\"Adds a Socratic mastery-confirmation loop that quizzes the human operator on what a development session produced, confirming each concept before finishing. It sources the session by reusing session-query's local, script-first, zero-outbound extractor rather than re-grepping transcripts, then writes a dated mastery checklist under docs/teaching/ (or .nexus/teaching/) with mode/source/started frontmatter, The Problem / The Solution / Broader Context sections, [ ]/[x] checkboxes, and an n/total confirmed progress line. The loop opens by asking the user to restate their understanding (calibration), asks one targeted question per exchange, drills into WHY behind each decision, marks items confirmed immediately, and refuses to wrap up until every item is checked. It is a teaching loop, not requirements intake, so it deliberately does not batch questions. Trigger phrases: teach me what we built, quiz me on this session, teach-back.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "workflow",
+      "language": "Multi-language",
+      "tags": [
+        "session-teach-back",
+        "socratic",
+        "mastery-confirmation",
+        "teach-back",
+        "knowledge-retention",
+        "local-only"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "net-new skill composing the session-query extractor and the dev-progress-tracker checklist pattern with a Socratic teach-back loop (see docs/v3.2.0/comparison-teach.md)",
+      "tools_required": [
+        "Bash",
+        "Read",
+        "Write"
+      ],
+      "path": "catalog/skills/workflow/session-teach-back/",
+      "file": "catalog/skills/workflow/session-teach-back/SKILL.md",
+      "size": {
+        "lines": 158,
+        "characters": 16889,
+        "tokens_estimate": 3738
       },
       "downloads": 0,
       "status": "production",

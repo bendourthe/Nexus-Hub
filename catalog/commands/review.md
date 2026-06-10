@@ -60,6 +60,6 @@ For very large read-only audits ("audit every endpoint for missing auth", "scan 
 
 ## Notes
 
-- This command replaces deprecated `/review-codebase`, `/review-changes`, `/run-deep-review`, `/run-security-audit`, `/run-penetration-test`, and `/generate-sbom`. The old names forward here via deprecation shims through v3.x (removed at v4.0.0).
+- This command replaces `/review-codebase`, `/review-changes`, `/run-deep-review`, `/run-security-audit`, `/run-penetration-test`, and `/generate-sbom` (removed in v3.2.0).
 - All scopes are read-only: `/review` analyzes and reports; remediation goes into a plan (via `/plan from-comparison` or the synthesis report's roadmap), not into the working tree.
 - Keep this dispatcher thin. The review procedures live in the retained skills; this file owns only scope resolution and delegation.

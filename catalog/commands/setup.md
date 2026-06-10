@@ -32,5 +32,5 @@ Pass any remaining arguments through unchanged. Heavy logic stays in the retaine
 
 ## Notes
 
-- This command replaces the deprecated `/setup-project` and `/install-pre-commit-review-hook`. The old names forward here via deprecation shims through v3.x (removed at v4.0.0).
+- This command replaces `/setup-project` and `/install-pre-commit-review-hook` (removed in v3.2.0).
 - Keep this dispatcher thin. The setup procedures live in the retained skills; this file owns only scope resolution and delegation.
