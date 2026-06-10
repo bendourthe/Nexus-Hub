@@ -335,7 +335,7 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 #### 6.1 -- Implement the optional ML token-dropper
 
-- [ ] T019 Implement default-off ML token-dropper in extensions/nexus-context-compressor/nexus_context_compressor/transforms/ml_token_dropper.py
+- [x] T019 Implement default-off ML token-dropper in extensions/nexus-context-compressor/nexus_context_compressor/transforms/ml_token_dropper.py
 
 **Objective**: Port the Kompress importance-scoring drop as an optional module using public pre-trained weights (do NOT retrain).
 
@@ -346,7 +346,7 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 #### 6.2 -- Testing and Stabilization
 
-- [ ] T020 Run and stabilize Phase 6 tests in extensions/nexus-context-compressor/tests/
+- [x] T020 Run and stabilize Phase 6 tests in extensions/nexus-context-compressor/tests/
 
 **Objective**: Generate and run all Phase 6 tests. Iterate until stable.
 
@@ -357,11 +357,11 @@ This plan nonetheless aligns with the standing `AGENTS.md` MCP Registry Policy: 
 
 ### Phase 6 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] All tests passing
-- [ ] No known regressions from prior phases
-- [ ] Session history generated for this phase
-- [ ] Ready to advance to Phase 7
+- [x] All sub-tasks completed
+- [x] All tests passing
+- [x] No known regressions from prior phases
+- [x] Session history generated for this phase
+- [x] Ready to advance to Phase 7
 
 ---
 

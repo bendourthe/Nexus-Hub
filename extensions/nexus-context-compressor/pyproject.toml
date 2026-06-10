@@ -19,8 +19,13 @@ dependencies = ["tiktoken>=0.5"]
 # the engine library and CLI stay importable without the MCP runtime; server.py
 # imports mcp lazily only when the server is launched.
 mcp = ["mcp>=1.0.0"]
-# Phase 6 ML token-dropper: public pre-trained ONNX weights, default-off.
-ml = ["onnxruntime>=1.16"]
+# Phase 6 ML token-dropper: public pre-trained ONNX weights, default-off. Local
+# ONNX text inference needs three standard, lightweight companions -- the runtime
+# (onnxruntime), tensor I/O (numpy), and the bundled sub-word tokenizer
+# (tokenizers, the HF runtime, NOT the heavyweight transformers stack). The module
+# only *loads* pre-placed public weights; it never downloads them and sends no
+# user data anywhere, so the extra carries no outbound dependency.
+ml = ["onnxruntime>=1.16", "numpy>=1.21", "tokenizers>=0.15"]
 # Phase 3 AST-aware CodeCompressor reuses the tree-sitter grammars already
 # vendored by nexus-code-search; this extra is a fallback for standalone use.
 code = ["tree-sitter>=0.21"]

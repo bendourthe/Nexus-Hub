@@ -10,6 +10,8 @@ semantically-faithful version, recording any reversible drops in the CCR store.
   ``nexus-code-search`` tree-sitter extractors, with reversible CCR markers.
 * ``content_router`` (Phase 3) -- detect content type and dispatch each segment
   to the strategy that fits.
+* ``ml_token_dropper`` (Phase 6) -- optional, default-off, *lossy* ML
+  token-importance dropper for free text. Off the default pipeline; opt-in only.
 """
 
 from __future__ import annotations
@@ -28,6 +30,12 @@ from .content_router import (
     Segment,
     classify,
     route,
+)
+from .ml_token_dropper import (
+    DropResult,
+    MLTokenDropperConfig,
+    build_onnx_scorer,
+    drop_tokens,
 )
 from .smart_crusher import (
     CCRSpan,
@@ -58,4 +66,9 @@ __all__ = [
     "RouteResult",
     "Segment",
     "ContentType",
+    # ml_token_dropper (optional, default-off, lossy)
+    "drop_tokens",
+    "build_onnx_scorer",
+    "MLTokenDropperConfig",
+    "DropResult",
 ]
