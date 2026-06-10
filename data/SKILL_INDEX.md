@@ -256,4 +256,4 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | skill-security-scan | security | "Adjudicate skill-security scanner findings, filter false positives, and assign an install verdict" | catalog/skills/security/skill-security-scan/SKILL.md |
 | session-teach-back | workflow | "Socratic teach-back loop that quizzes the human on a session until every concept is confirmed" | catalog/skills/workflow/session-teach-back/SKILL.md |
 
-**Total: 249 skills across 21 categories**
+**Total: 251 skills across 21 categories**
