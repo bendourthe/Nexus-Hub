@@ -73,7 +73,7 @@ the file.
 
 Historical documentation that is no longer load-bearing for the active
 release, kept for traceability. Anything in this tree was promoted by
-[`/refactor-docs`](../../catalog/commands/refactor-docs.md) as a Category 2
+[`/update refactor`](../../catalog/commands/update.md) as a Category 2
 (archive) finding.
 
 ## Rule

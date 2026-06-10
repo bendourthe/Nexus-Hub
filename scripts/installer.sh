@@ -797,7 +797,7 @@ install_global() {
     BUILD_CMD="# specify build command"
     TEST_CMD="# specify test command"
     LINT_CMD="# specify lint command"
-    NON_OBVIOUS_TOOLING="- (configure per project with /setup-project)"
+    NON_OBVIOUS_TOOLING="- (configure per project with /setup project)"
     # DF-001: the registry runner renders CLAUDE.md (marker-merged, full
     # placeholder substitution). --instruction-only leaves the catalog mirror to
     # the safe_folder_copy block below.
@@ -1454,7 +1454,7 @@ install_templates() {
     write_subsection_banner "Templates & Report Generator Installation"
     echo ""
     write_item "Nexus-Hub can generate professional Word (.docx) and PowerPoint (.pptx)" "$RESET"
-    write_item "reports from Markdown files using the /generate-report command." "$RESET"
+    write_item "reports from Markdown files using the /research report command." "$RESET"
     echo ""
 
     # Ensure global directories exist
@@ -1579,7 +1579,7 @@ install_templates() {
     # generate_release_changelog.py / .ps1 (v2.4.0): local conventional-commit
     # release helper - computes the next semver bump + a Keep-a-Changelog
     # section from git history. Zero-outbound (local git only); an optional
-    # helper for the update-version / generate-changelog flows, NOT a GitHub
+    # helper for the /update version / /update changelog flows, NOT a GitHub
     # Action. Both siblings ship. Lockstep with scripts/installer.ps1.
     local release_changelog_py="$repo_root/scripts/generate_release_changelog.py"
     if [ -f "$release_changelog_py" ]; then
@@ -1619,7 +1619,7 @@ install_templates() {
     # Phase 7 / G5). The two scripts resolve the next specs/<NNN>-<slug>/
     # prefix (sequential or timestamp per .specify/init-options.json),
     # create the directory, and persist .specify/feature.json so downstream
-    # commands (/clarify-spec, /analyze-spec, /tasks-to-issues) can locate
+    # commands (/spec clarify, /spec analyze, /plan issues) can locate
     # the active feature directory without git-branch coupling. Lockstep
     # with the same block in scripts/installer.ps1.
     local new_feature_sh_source="$repo_root/scripts/new-feature.sh"
@@ -1646,8 +1646,8 @@ install_templates() {
         : > "$scripts_dest/lib/__init__.py" 2>/dev/null || true
     fi
 
-    # Copy style-guides (v1.0.0+). Reference content for /compile-deep-research
-    # and /generate-report; deliberately not in catalog/commands/ so the files
+    # Copy style-guides (v1.0.0+). Reference content for /research compile
+    # and /research report; deliberately not in catalog/commands/ so the files
     # do not surface as slash commands.
     local style_guides_src="$repo_root/catalog/style-guides"
     local style_guides_dest="$nexus_home/style-guides"
@@ -1659,7 +1659,7 @@ install_templates() {
     # platform-parallel variants in v1.1.3). Each hook calls only its own
     # CLI - they are independent of each other. The hooks themselves are
     # NEVER auto-wired into a repository; users opt in by running the
-    # /install-pre-commit-review-hook slash command from inside the target
+    # /setup hooks slash command from inside the target
     # repo, which copies the chosen platform's script to .git/hooks/pre-commit.
     local nexus_hooks_dest="$nexus_home/hooks"
     mkdir -p "$nexus_hooks_dest"
@@ -1688,7 +1688,7 @@ install_templates() {
 
     # v0.9.7: The interactive "Import custom Word/PowerPoint templates?" prompt has been
     # removed. Custom template selection is now handled at report-generation time by the
-    # `/generate-report` command (generic vs custom path gate). Bundled generic templates
+    # `/research report` command (generic vs custom path gate). Bundled generic templates
     # are still copied silently above so the command has a default to offer.
 
     # List installed templates
@@ -2236,7 +2236,7 @@ case "$SCOPE_CHOICE" in
 esac
 
 # Bundled report-generator templates + scripts are user-scope and always install silently.
-# Interactive custom-template import moved to /generate-report at use time (v0.9.7).
+# Interactive custom-template import moved to /research report at use time (v0.9.7).
 install_templates "$REPO_ROOT"
 
 echo ""
