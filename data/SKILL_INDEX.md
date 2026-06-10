@@ -208,6 +208,7 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | browser-testing-with-devtools | testing | "Test and debug frontend behavior using browser DevTools for network, console, performance, and accessibility" | catalog/skills/testing/browser-testing-with-devtools/SKILL.md |
 | code-simplification | code-cleanup | "Reduce structural complexity by eliminating over-abstraction and dead code without changing behavior" | catalog/skills/code-cleanup/code-simplification/SKILL.md |
 | known-gaps-tracker | workflow | "Track per-version unfinished work, deferred items, bugs, warnings, and coverage gaps so the next plan picks them up automatically" | catalog/skills/workflow/known-gaps-tracker/SKILL.md |
+| loop-engineering | Workflow | "Assemble goal-terminated agentic loops from Nexus-Hub primitives" | catalog/skills/workflow/loop-engineering/SKILL.md |
 | doc-coauthoring | workflow | "Guide users through a 3-stage workflow for co-authoring documentation" | catalog/skills/workflow/doc-coauthoring/SKILL.md |
 | generative-art | specialized-domains | "Produce p5.js generative art with a philosophy manifesto, parameter-driven sketch, and HTML viewer" | catalog/skills/specialized-domains/generative-art/SKILL.md |
 | theme-tokens | specialized-domains | "Apply curated theme tokens (palette, fonts, spacing) to slides, docs, PDFs, and web artifacts" | catalog/skills/specialized-domains/theme-tokens/SKILL.md |

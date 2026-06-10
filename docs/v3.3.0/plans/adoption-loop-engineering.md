@@ -127,14 +127,14 @@ For grounding, the plan was checked against the project's *de facto* governing r
 
 ### Phase 1 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] `loop-engineering/SKILL.md` + `references/loop-schema.md` + `references/loop-library.md` exist and conform
-- [ ] Orphan-bundle audit clean (every bundled file referenced from SKILL.md)
-- [ ] Skill registered in all three registries; machine-readable totals consistent
-- [ ] `make validate` (bundles + quality) passes
-- [ ] No known regressions
-- [ ] Session history generated for Phase 1
-- [ ] Ready to advance to Phase 2
+- [x] All sub-tasks completed
+- [x] `loop-engineering/SKILL.md` + `references/loop-schema.md` + `references/loop-library.md` exist and conform
+- [x] Orphan-bundle audit clean (every bundled file referenced from SKILL.md)
+- [x] Skill registered in all three registries; machine-readable totals consistent
+- [x] `make validate` (bundles + quality) passes
+- [x] No known regressions
+- [x] Session history generated for Phase 1
+- [x] Ready to advance to Phase 2
 
 ---
 
