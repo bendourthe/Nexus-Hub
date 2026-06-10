@@ -4,7 +4,15 @@
 **Plan**: [`docs/v3.2.0/plans/adoption-headroom.md`](../../plans/adoption-headroom.md)
 **Phase**: 6 of 7 -- Optional ML token-dropper (re-partial)
 **Branch**: `feat/adoption-headroom` (continuing from Phase 5)
-**Outcome**: complete; both sub-tasks (T019-T020) closed, all quality gates green (GO).
+**Outcome**: complete; both sub-tasks (T019-T020) closed, all quality gates green (GO). Reconciled on 2026-06-10 with a parallel duplicate implementation (see Reconciliation below): the pushed lossy base was kept and CCR-reversibility was grafted onto it per the maintainer's decision.
+
+## Reconciliation (2026-06-10)
+
+Phase 6 was implemented twice in parallel -- once on this machine and once, accidentally, on a second machine the night before -- producing two designs that diverged on the same axis: the pushed commit `e6ddbc5` was a **pure-lossy** dropper (no CCR, no retrieval), while the in-session work was **CCR-reversible**. The maintainer chose "reconcile: keep the pushed base + add reversibility". Mechanically this was a clean fast-forward (the local uncommitted work was stashed; `e6ddbc5`'s parent was the local Phase-5 HEAD, so no merge bubble), then reversibility was grafted onto `e6ddbc5`'s stronger base (it has the more faithful sub-word tokenization and a larger test suite) rather than replacing it:
+
+- `drop_tokens` gained an optional `store` parameter (the same CCR write seam `smart_crush` / `compress_code` use). When a store is supplied and a real drop occurs, the full original is persisted behind a content-hashed `<<ccr:HASH N_rows>>` marker appended to the kept preview, so the lossy preview resolves back to the exact original via `retrieve` -- the engine's every-drop-reversible invariant now holds for this strategy too.
+- A **never-expand guard** persists + marks only when the reversible preview is actually smaller than the original (the marker's token cost, notably the content hash, can outweigh the drop on a small input); otherwise the original is kept verbatim. Growing the payload is never acceptable.
+- With `store=None` (the default) behavior is byte-for-byte e6ddbc5's pure lossy preview, so all 35 of its original tests pass unchanged; 7 reversibility tests were added on top.
 
 ## Goal
 
@@ -23,10 +31,11 @@ Add the free-text compression path the deterministic engine deliberately lacks. 
 - **Standalone transform, NOT wired into the default pipeline.** The dropper is exported from `transforms/` and callable directly, but the default `ContentRouter`/`compress`/`compress_output` path is unchanged -- free text still passes through. A lossy default belongs off the auto pipeline (the same stance as CacheAligner, DF-v32hr-9). The runtime auto-wiring carve-out is DF-v32hr-14. This keeps every changed line traceable to T019/T020 and the deterministic strategies as the default.
 - **`[ml]` extra expanded to onnxruntime+numpy+tokenizers.** Real local ONNX text inference needs the runtime, tensor I/O, and a sub-word tokenizer; declaring only `onnxruntime` would ship a broken extra. The three are standard, lightweight (the `tokenizers` HF runtime, not the heavyweight `transformers` stack) and carry no outbound dependency.
 - **DF-v32hr-10 resolved, DF-v32hr-14 carved out.** The Phase-4 free-text-parity deferral is discharged (the scheduled mechanism shipped); the residual default-off/not-auto-wired property is the narrower DF-v32hr-14 -- the same resolve-with-carve-out shape as DF-v32hr-7 -> DF-v32hr-9.
+- **CCR-reversible via the store seam (reconciliation, 2026-06-10).** Rather than leave the dropper as the engine's one irreversible strategy, reversibility was grafted on keyed to an optional `store` parameter: a store-backed drop persists the full original behind an appended `<<ccr:HASH N_rows>>` marker and is resolvable via `retrieve`, while `store=None` stays the pure lossy preview. This makes reversibility opt-in at the call site (exactly how a runtime would thread its shared store) without changing the lossy default, and upholds the engine's every-drop-reversible invariant. A never-expand guard prevents the marker's token cost from growing a small payload. See Reconciliation above.
 
 ## Test results
 
-- Package suite: **206 passed, 2 skipped** (35 added in Phase 6; the 2 skips are the `_reduce_logits_to_importance` tests, correctly skipped via `importorskip("numpy")` because numpy is absent in this environment).
+- Package suite: **215 passed** on the reconciliation host (numpy present, so the 2 `_reduce_logits_to_importance` tests run). The ML-dropper file has 42 tests: 35 from the pushed base + 7 reversibility tests added in reconciliation. On a numpy-absent host the 2 numpy-reduction tests skip via `importorskip`, giving 213 passed + 2 skipped.
 - Phase 5 accuracy gate, verbatim (`cd extensions/nexus-context-compressor && python -m evals --check`): **exit 0** -- CCR round-trip 100%, signature preservation 100%, mean char reduction 45.8% (unchanged; the lossy module is off the deterministic pipeline).
 - `make validate` validators run directly (JSON catalogs, bundle orphan audit PASS, no-personal-paths, unicode-safety, supply-chain-iocs, workflow-security, solution-frontmatter, version-sync): **0 errors** (the pre-existing legacy unicode WARNs and the 1 bundle warning are unrelated to this phase; the new Python is ASCII-only).
 - Sibling extension suites untouched (no shared code changed); the change is confined to `extensions/nexus-context-compressor/`.

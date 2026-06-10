@@ -3,19 +3,28 @@
 Every other strategy in this engine is *deterministic* and *reversible*: it
 either reorders content (CacheAligner) or drops a span behind a content-hashed
 CCR marker that resolves back to the exact original (SmartCrusher,
-CodeCompressor). This module is the one exception, and the trade-offs that come
-with it are the reason it sits behind an explicit opt-in flag and is off by
-default.
+CodeCompressor). This module is the only one whose in-context output is *lossy* --
+it shows a shortened, importance-filtered preview of free text -- which is why it
+sits behind an explicit opt-in flag and is off by default. It nonetheless honors
+the engine's "every drop is reversible" invariant: when a CCR ``store`` is
+supplied, the full original is preserved and the preview is never the only copy.
 
 It ports headroom's Kompress strategy: a pre-trained ModernBERT token-importance
 classifier scores each unit of free text, and the lowest-importance units are
-*dropped* to hit a target compression ratio. That is genuinely lossy -- a dropped
-word cannot be reconstructed from an importance score, so there is no CCR store
-and no retrieval. Free prose is exactly the content the deterministic strategies
-leave untouched (the ContentRouter passes ``text`` through verbatim), so this is
-the only path that compresses it, at the cost of fidelity. The Phase 5
-accuracy-regression gate exists precisely to keep a lossy default off the shipping
-pipeline; this module honors that by staying opt-in.
+*dropped* to hit a target compression ratio. The preview that enters context is
+genuinely lossy -- a dropped word cannot be reconstructed from an importance score
+alone. Reversibility is restored the same way the deterministic strategies provide
+it: when :func:`drop_tokens` is given a CCR ``store``, it persists the full
+original behind a content-hashed ``<<ccr:HASH N_rows>>`` marker appended to the
+kept preview, so a consumer resolves it back exactly via
+:func:`~nexus_context_compressor.ccr.retrieve.retrieve`. The token saving comes
+from the shorter preview entering context; the original lives in the local store,
+fetched on demand. With no ``store`` (the default) the dropper stays a pure lossy
+preview, exactly as a consumer that does not care about reversibility wants. Free
+prose is exactly the content the deterministic strategies leave untouched (the
+ContentRouter passes ``text`` through verbatim), so this is the only path that
+compresses it. The Phase 5 accuracy-regression gate exists precisely to keep a
+lossy default off the shipping pipeline; this module honors that by staying opt-in.
 
 Granularity. The upstream classifier scores sub-word tokens; this port scores and
 drops at the **whitespace-word** granularity instead. A word is the unit a human
@@ -52,14 +61,19 @@ Section 5a (Kompress ML token-dropping).
 
 from __future__ import annotations
 
+import hashlib
 import math
 import os
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Callable
+from typing import TYPE_CHECKING, Callable
 
+from ..ccr.marker import format_marker
 from ..tokens import count_tokens
+
+if TYPE_CHECKING:
+    from ..ccr.store import CCRWriter
 
 # The importance-scorer contract. Given the ordered words of a text, return one
 # score per word (higher = more important = more likely to be kept). Pluggable so
@@ -77,6 +91,11 @@ _WORD_RE = re.compile(r"\S+")
 _MODEL_SUBDIR = ("cache", "models", "importance-scorer")
 _MODEL_FILENAME = "model.onnx"
 _TOKENIZER_FILENAME = "tokenizer.json"
+
+# Hex width kept from the content hash in a CCR marker. Matches SmartCrusher /
+# CodeCompressor and the 12-char width the marker grammar expects, so a dropped
+# text span is addressed exactly like a dropped JSON span or code body.
+_HASH_LEN = 12
 
 
 def _install_hint(reason: str, model_dir: Path | None = None) -> str:
@@ -116,13 +135,33 @@ class MLTokenDropperConfig:
     model_dir: str | None = None
 
 
+@dataclass(frozen=True)
+class DroppedText:
+    """The original text a marker stands in for, addressable by its content hash.
+
+    Emitted only on the reversible path (a ``store`` was supplied to
+    :func:`drop_tokens`). The CCR store persists ``lines`` keyed by ``hash`` so a
+    consumer can resolve the ``<<ccr:HASH N_rows>>`` marker back to the exact
+    original (``"\\n".join(lines) == original``), matching how ``CodeCompressor``
+    stores an elided body. ``count`` is the number of original lines (the marker's
+    ``N_rows``); ``dropped_words`` is how many whitespace words the preview removed.
+    """
+
+    hash: str
+    count: int
+    lines: list[str]
+    dropped_words: int = 0
+
+
 @dataclass
 class DropResult:
     """The outcome of running the ML token-dropper over one text.
 
     Attributes:
         text: the (possibly) compressed text. Equal to the input whenever the
-            dropper did not run (disabled, too short, or degraded).
+            dropper did not run (disabled, too short, or degraded). On the
+            reversible path it is the kept preview followed by a ``<<ccr:...>>``
+            marker line.
         tokens_before / tokens_after: whole-text token accounting via
             ``tokens.count_tokens``.
         words_before / words_after: whitespace-word counts before/after the drop.
@@ -131,6 +170,9 @@ class DropResult:
         degraded: ``True`` when the dropper was enabled but the backend was
             unavailable, so it fell back to the original text plus ``hint``.
         hint: the user-facing install/obtain-weights hint when ``degraded``.
+        dropped: the reversibly-stored originals (one entry when a real drop ran
+            with a ``store``; empty on the pure-lossy path or any no-op). Resolvable
+            via :func:`~nexus_context_compressor.ccr.retrieve.retrieve`.
     """
 
     text: str
@@ -141,6 +183,7 @@ class DropResult:
     ran: bool = False
     degraded: bool = False
     hint: str | None = None
+    dropped: list[DroppedText] = field(default_factory=list)
 
     @property
     def ratio(self) -> float:
@@ -153,6 +196,11 @@ class DropResult:
     def dropped_words(self) -> int:
         """Number of words removed (never negative)."""
         return max(0, self.words_before - self.words_after)
+
+    @property
+    def reversible(self) -> bool:
+        """Whether the drop was persisted to a CCR store (so it can be resolved back)."""
+        return bool(self.dropped)
 
 
 # --- Pure selection + reconstruction (no ML, fully testable) ----------------
@@ -223,6 +271,11 @@ def _safe_scores(scorer: Scorer, words: list[str]) -> list[float] | None:
         return [float(s) for s in raw]
     except (TypeError, ValueError):
         return None
+
+
+def _content_hash(text: str) -> str:
+    """Deterministic 12-hex-char content hash of the original text (no salt/clock)."""
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()[:_HASH_LEN]
 
 
 # --- ONNX backend (optional; loaded only when enabled and present) ----------
@@ -394,6 +447,7 @@ def drop_tokens(
     *,
     config: MLTokenDropperConfig | None = None,
     scorer: Scorer | None = None,
+    store: "CCRWriter | None" = None,
 ) -> DropResult:
     """Drop low-importance words from free text using the optional ML scorer.
 
@@ -410,11 +464,21 @@ def drop_tokens(
             Mainly for testing and for a consumer supplying its own model. When
             ``None`` and the dropper is enabled, :func:`build_onnx_scorer` provides
             the default (or degrades).
+        store: an optional CCR write seam (anything with ``put(hash, lines)``).
+            When given and a real drop occurs, the full original is persisted and a
+            ``<<ccr:HASH N_rows>>`` marker is appended to the preview so the drop is
+            reversible via :func:`~nexus_context_compressor.ccr.retrieve.retrieve`
+            -- the engine's every-drop-reversible invariant. With ``store=None``
+            (the default) the dropper stays a pure lossy preview with no side
+            effects, exactly as the deterministic strategies stay pure without a
+            store.
 
     Returns:
         A :class:`DropResult`. The text is unchanged on every non-running path
         (disabled, too short, or degraded), and ``degraded``/``hint`` explain a
-        backend-unavailable fallback.
+        backend-unavailable fallback. On the reversible path ``text`` is the kept
+        preview plus a trailing marker line and ``dropped`` carries the stored
+        original.
     """
     config = config or MLTokenDropperConfig()
     text = text if isinstance(text, str) else ("" if text is None else str(text))
@@ -455,11 +519,45 @@ def drop_tokens(
 
     keep = _select_keepers(scores, config.target_ratio)
     out_text = _reconstruct(text, matches, keep)
+    words_after = len(keep)
+
+    # Reversibility: when a CCR store is supplied and words were actually dropped,
+    # persist the full original behind a content-hashed marker appended to the
+    # preview, so the lossy preview resolves back to the exact original via
+    # retrieve() -- the engine's every-drop-reversible invariant. With no store
+    # (the default) the dropper stays a pure lossy preview, just as the
+    # deterministic strategies stay side-effect-free without a store.
+    dropped: list[DroppedText] = []
+    if store is not None and len(keep) < word_count:
+        original_lines = text.split("\n")
+        span_hash = _content_hash(text)
+        marked = f"{out_text}\n{format_marker(span_hash, len(original_lines))}"
+        # Never expand: the CCR marker carries a real token cost (notably the
+        # content hash), which on a small input can outweigh the dropped words.
+        # Persist + mark only when the reversible preview is actually smaller than
+        # the original; otherwise keep the original verbatim -- a lossy preview that
+        # is no smaller is pointless, and growing the payload is never acceptable.
+        if count_tokens(marked) < tokens_before:
+            out_text = marked
+            store.put(span_hash, original_lines)
+            dropped = [
+                DroppedText(
+                    hash=span_hash,
+                    count=len(original_lines),
+                    lines=original_lines,
+                    dropped_words=word_count - len(keep),
+                )
+            ]
+        else:
+            out_text = text
+            words_after = word_count
+
     return DropResult(
         text=out_text,
         tokens_before=tokens_before,
         tokens_after=count_tokens(out_text),
         words_before=word_count,
-        words_after=len(keep),
+        words_after=words_after,
         ran=True,
+        dropped=dropped,
     )

@@ -9,6 +9,10 @@ Covers the stability-gate assertions from the plan:
 * no network call occurs (the module never downloads weights -- it only loads
   pre-placed local ones), proven by running the enabled path with the socket
   layer poisoned;
+* a supplied CCR ``store`` makes the (otherwise lossy) drop reversible -- the full
+  original is persisted behind a ``<<ccr:HASH N_rows>>`` marker appended to the
+  preview and resolves back exactly via ``retrieve`` -- while ``store=None`` stays
+  a pure lossy preview with no marker;
 
 plus the pure selection/reconstruction/pooling helpers, determinism, every
 ``build_onnx_scorer`` degradation branch (via stubbed ``sys.modules``, mirroring
@@ -28,7 +32,11 @@ import types
 
 import pytest
 
+from nexus_context_compressor.ccr.marker import find_marker
+from nexus_context_compressor.ccr.retrieve import NOT_FOUND, retrieve
+from nexus_context_compressor.ccr.store import CCRStore
 from nexus_context_compressor.transforms.ml_token_dropper import (
+    DroppedText,
     DropResult,
     MLTokenDropperConfig,
     _pool_subword_scores,
@@ -53,6 +61,12 @@ FILLER = ["the", "a", "very", "really", "just", "so", "then", "and", "but", "als
           "quite", "rather", "somewhat", "perhaps", "maybe", "indeed", "thus", "hence"]
 SAMPLE_WORDS = KEYWORDS + FILLER
 SAMPLE_TEXT = " ".join(SAMPLE_WORDS)
+
+# A larger sample for the reversible-path tests. The CCR marker has a real token
+# cost (notably the content hash), so a reversible drop only happens when dropping
+# the bulk of the filler clearly beats it -- the never-expand guard keeps small
+# inputs (like SAMPLE_TEXT) verbatim. Repeating the filler makes that margin wide.
+LARGE_TEXT = " ".join(KEYWORDS + FILLER * 12)  # 8 keywords + 216 filler = 224 words
 
 
 def keyword_scorer(words: list[str]) -> list[float]:
@@ -415,6 +429,88 @@ def test_resolve_model_dir_default_under_hub_root(monkeypatch, tmp_path):
     monkeypatch.setenv("NEXUS_HUB_ROOT", str(tmp_path))
     resolved = _resolve_model_dir(MLTokenDropperConfig())
     assert resolved == tmp_path / "cache" / "models" / "importance-scorer"
+
+
+# --- CCR reversibility (a supplied store makes the lossy drop reversible) ------
+
+
+def test_store_makes_drop_reversible(tmp_path):
+    config = MLTokenDropperConfig(enabled=True, target_ratio=0.4)
+    with CCRStore(tmp_path / "ccr.db") as store:
+        result = drop_tokens(LARGE_TEXT, config=config, scorer=keyword_scorer, store=store)
+        assert result.ran
+        assert result.reversible
+        assert len(result.dropped) == 1
+        # The preview carries a resolvable marker...
+        parsed = find_marker(result.text)
+        assert parsed is not None
+        # ...and the original is persisted exactly once and round-trips verbatim.
+        assert len(store) == 1
+        restored = retrieve(parsed.hash, store=store)
+        assert restored is not NOT_FOUND
+        assert "\n".join(restored) == LARGE_TEXT
+
+
+def test_reversible_preview_still_compresses(tmp_path):
+    """The kept preview + marker is still smaller than the original."""
+    config = MLTokenDropperConfig(enabled=True, target_ratio=0.4)
+    with CCRStore(tmp_path / "ccr.db") as store:
+        result = drop_tokens(LARGE_TEXT, config=config, scorer=keyword_scorer, store=store)
+        assert result.reversible
+        assert result.tokens_after < result.tokens_before
+
+
+def test_small_input_never_expands_under_store(tmp_path):
+    """The never-expand guard: a small text whose marker would outweigh the drop
+    is kept verbatim (no marker, nothing persisted) rather than grown."""
+    config = MLTokenDropperConfig(enabled=True, target_ratio=0.4)
+    with CCRStore(tmp_path / "ccr.db") as store:
+        result = drop_tokens(SAMPLE_TEXT, config=config, scorer=keyword_scorer, store=store)
+        assert result.text == SAMPLE_TEXT  # unchanged -- guard refused to expand
+        assert not result.reversible
+        assert len(store) == 0
+        assert result.tokens_after <= result.tokens_before
+
+
+def test_without_store_is_pure_lossy_no_marker():
+    """No store => e6ddbc5's pure lossy preview: no marker, no dropped record."""
+    config = MLTokenDropperConfig(enabled=True, target_ratio=0.4)
+    result = drop_tokens(SAMPLE_TEXT, config=config, scorer=keyword_scorer)
+    assert result.ran
+    assert not result.reversible
+    assert result.dropped == []
+    assert find_marker(result.text) is None
+
+
+def test_store_unused_when_nothing_dropped(tmp_path):
+    """target_ratio 1.0 keeps everything: no drop => no marker, store untouched."""
+    config = MLTokenDropperConfig(enabled=True, target_ratio=1.0)
+    with CCRStore(tmp_path / "ccr.db") as store:
+        result = drop_tokens(SAMPLE_TEXT, config=config, scorer=keyword_scorer, store=store)
+        assert result.text == SAMPLE_TEXT  # verbatim, no marker appended
+        assert not result.reversible
+        assert len(store) == 0
+
+
+def test_reversible_round_trip_multiline(tmp_path):
+    """A multi-line original is recovered byte-for-byte from its marker."""
+    text = "\n".join(" ".join(KEYWORDS) for _ in range(4)) + "\n" + " ".join(FILLER)
+    config = MLTokenDropperConfig(enabled=True, target_ratio=0.3)
+    with CCRStore(tmp_path / "ccr.db") as store:
+        result = drop_tokens(text, config=config, scorer=keyword_scorer, store=store)
+        parsed = find_marker(result.text)
+        assert parsed is not None
+        assert "\n".join(retrieve(parsed.hash, store=store)) == text
+
+
+def test_dropped_text_carries_word_drop_count(tmp_path):
+    config = MLTokenDropperConfig(enabled=True, target_ratio=0.4)
+    with CCRStore(tmp_path / "ccr.db") as store:
+        result = drop_tokens(LARGE_TEXT, config=config, scorer=keyword_scorer, store=store)
+        span = result.dropped[0]
+        assert isinstance(span, DroppedText)
+        assert span.dropped_words == result.dropped_words
+        assert span.count == len(LARGE_TEXT.split("\n"))
 
 
 # --- Phase 5 accuracy gate still passes with the lossy module present ----------
