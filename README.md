@@ -4,9 +4,9 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.2.2 -->
+<!-- nexus-hub-version: 3.3.0 -->
 
-Nexus-Hub is the upstream skill catalog for AI coding assistants: 251 skills, 14 commands, 22 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
+Nexus-Hub is the upstream skill catalog for AI coding assistants: 252 skills, 14 commands, 22 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
 > **Renamed from DevAI-Hub at v2.0.0** to align with the sibling project [Nexus](https://github.com/bendourthe/Nexus-AI), a local-first desktop AI Studio that consumes Nexus-Hub as its upstream skill feed. Existing `~/.devai-hub/` installs are migrated in place by the v2.0.0 installer on first run; see [docs/archive/v2/v2.0.0/RELEASE_NOTES.md](docs/archive/v2/v2.0.0/RELEASE_NOTES.md) for the full migration story.
 
@@ -22,10 +22,23 @@ Nexus-Hub is the upstream skill catalog for AI coding assistants: 251 skills, 14
 
 Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of the same idea, split along a deliberate seam.
 
-- **Nexus-Hub (this repo)** is the catalog: 251 curated skills, 14 commands, 22 hooks, 23 agents, 4 rule families, plus 4 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`, `nexus-context-compressor`). It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
+- **Nexus-Hub (this repo)** is the catalog: 252 curated skills, 14 commands, 22 hooks, 23 agents, 4 rule families, plus 4 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`, `nexus-context-compressor`). It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
 - **Nexus** is a local-first desktop AI Studio that consumes Nexus-Hub as its skill feed. Nexus's `AGENTS.md` names this repo as "the only external project we deliberately link to" -- the upstream feed for its skill harness.
 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
+
+---
+
+## What's New in v3.3.0
+
+v3.3.0 adds a skill-native loop-engineering layer. Every change is local-first: zero new outbound calls, dependencies, credentials, or third-party processors, and no new slash command.
+
+Highlights:
+
+- **`loop-engineering` workflow skill** (`catalog/skills/workflow/loop-engineering/`): a connective layer that composes Nexus-Hub's existing primitives into named, goal-terminated agentic loops. It ships a loop-definition schema (`name`, `goal`, `iteration_cap`, `check_command`, `exit_condition`, `driver`, `maturity`, `agents`, `tags`), a seeded local loop library (three full archetypes -- `ship-pr-until-green`, `build-until-green`, `e2e-until-green` -- plus two mapped examples that defer to the first-class `/test` and `/review changes` commands), a five-pieces-to-primitive mapping, and a scheduled-triage recipe expressed entirely with owned primitives. The loop *driver* remains the host platform's `/loop` and `/goal`; Nexus-Hub references those commands and never reimplements them. The hosted-gallery pattern was reverse-engineered into a purely local, service-free registry (no install counts, no remote fetch).
+- **Goal-based stopping + independent-evaluator methodology**: `agent-orchestration-primitives` and `verification-before-completion` now teach that a loop's exit condition must be a falsifiable `check_command` evaluated by a checker that did not produce the work -- and name two loop human-cost anti-patterns (cognitive surrender, comprehension debt) with mitigations, cross-linking `session-teach-back` as the comprehension-debt countermeasure.
+
+Catalog: **252 skills** across 21 categories. See [CHANGELOG.md](CHANGELOG.md) for the full entry and [docs/v3.3.0/](docs/v3.3.0/) for the plan and known gaps.
 
 ---
 
@@ -128,7 +141,7 @@ See [CHANGELOG.md](CHANGELOG.md) and [docs/archive/v2/v2.0.0/RELEASE_NOTES.md](d
 
 After the installer completes:
 
-- **Globally**: your user profile has all 251 skills, 14 commands, 22 hooks, 23 agents, plus Gemini and Codex instructions.
+- **Globally**: your user profile has all 252 skills, 14 commands, 22 hooks, 23 agents, plus Gemini and Codex instructions.
 - **Locally**: your project has `copilot-instructions.md` and `AGENTS.md` tailored to your language.
 
 ---
