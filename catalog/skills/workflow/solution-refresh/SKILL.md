@@ -24,7 +24,7 @@ Use when:
 
 - Capturing a brand-new solution - use [[solution-knowledge-base]].
 - Logging per-version unfinished work, deferrals, and open bugs - use [[known-gaps-tracker]].
-- Reorganizing the broader `docs/` folder layout (archiving versions, moving reports) - use [[refactor-docs]].
+- Reorganizing the broader `docs/` folder layout (archiving versions, moving reports) - use `/update refactor`.
 
 ## The Five Verdicts
 
@@ -93,4 +93,4 @@ Run `python scripts/validate_solution_frontmatter.py <scoped paths>` again after
 - [[solution-knowledge-base]] - the capture half; this skill maintains what that skill writes. Shares its `references/schema.md` contract.
 - [[known-gaps-tracker]] - per-version unfinished work; a resolved gap can graduate into a solution entry that this skill later audits.
 - [[continuous-learning]] - prunes and re-confirms in-session instincts; this skill is the same lifecycle discipline applied to durable solution docs.
-- [[refactor-docs]] - broader `docs/` reorganization; use it for archiving versions and moving reports, not for per-entry solution verdicts.
+- `/update refactor` - broader `docs/` reorganization; use it for archiving versions and moving reports, not for per-entry solution verdicts.

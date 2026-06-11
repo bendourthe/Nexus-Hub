@@ -31,7 +31,7 @@ Use when:
 **When NOT to use:**
 
 - You want to assess the quality of skills that already exist - use [[skill-stocktake]].
-- You are authoring a skill from scratch with no git-history signal to mine - use the interactive [[create-skill-or-command]] wizard.
+- You are authoring a skill from scratch with no git-history signal to mine - use the interactive `/skills create` wizard.
 - You are editing one existing skill's content - edit it directly.
 
 ## Instructions
@@ -65,7 +65,7 @@ Choose an existing category from `AGENTS.md` (do not invent a new one without si
 Write a draft that follows every Nexus-Hub convention:
 
 - **Frontmatter**: `name` (matching the directory), a pushy `description` (verbatim trigger phrases the user is likely to say, plus a `SKIP:` clause), quoted `summary_l0` (<= 15 words), quoted `overview_l1` (<= 150 words).
-- **Body, in order**: title, When to Use This Skill (with "When NOT to use"), Instructions (the step-by-step distilled from the actual commits - this is where the git evidence pays off), Common Rationalizations (each row citing a concrete failure mode seen in the history, not a platitude), binary Verification (observable artifacts/commands), Related Skills (`[[links]]`).
+- **Body, in order**: title, When to Use This Skill (with "When NOT to use"), Instructions (the step-by-step distilled from the actual commits - this is where the git evidence pays off), Common Rationalizations (each row citing a concrete failure mode seen in the history, not a platitude), binary Verification (observable artifacts/commands), Related Skills (`[[ ]]` cross-links).
 - Keep the body within the size norm (target <= 500 lines).
 
 ### 5. Surface for review (do NOT auto-register)
@@ -105,7 +105,7 @@ And ideally clear the quality pass (`--quality --verbose`) with zero warnings.
 ## Related Skills
 
 - [[skill-stocktake]] - audits existing skills for quality; skill-create produces the skills it later audits.
-- [[create-skill-or-command]] - the interactive from-scratch authoring wizard; skill-create is the git-history-driven alternative.
+- `/skills create` - the interactive from-scratch authoring wizard; skill-create is the git-history-driven alternative.
 - [[continuous-learning]] - mints local instincts; a strong instinct cluster is the natural input to skill-create.
 - [[devlog-generation]] - the same git-history-mining technique applied to producing a development log instead of a skill.
 - [[create-custom-command]] - when the recurring pattern is better expressed as a slash command than a skill.

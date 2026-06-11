@@ -126,6 +126,6 @@ The user prunes manually. This skill offers to mark an instinct `archived: true`
 - [[dev-progress-tracker]] - in-session todo and progress tracking; complements observations but does not persist patterns.
 - [[context-modes]] - shapes posture (dev / review / research); this skill shapes long-lived rules across postures.
 - [[create-custom-command]] - the natural next step once an instinct cluster justifies a slash command.
-- [[manage-memory]] - cleanup of the agent's memory store; separate from project-scoped instincts but related in intent.
+- `/memory` - cleanup of the agent's memory store; separate from project-scoped instincts but related in intent.
 - [[known-gaps-tracker]] - records explicit known gaps per version; observations capture unconscious patterns the agent should learn from.
 - [[solution-knowledge-base]] - the durable, bodied sibling of an instinct. This skill mints lightweight, confidence-scored runtime instincts in `.nexus/instincts/<slug>.yaml` (in-session behavioral nudges); `solution-knowledge-base` writes full solved-problem docs in `docs/solutions/<category>/<slug>.md` (durable, retrievable by planning grounding). When a high-confidence instinct describes a concrete solved problem rather than a behavior, graduate it into a solution doc.

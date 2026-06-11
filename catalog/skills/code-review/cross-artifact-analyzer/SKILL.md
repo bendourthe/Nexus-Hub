@@ -21,7 +21,7 @@ Run a deterministic, read-only consistency, coverage, and ambiguity check across
 **When NOT to use**:
 
 - For full code-review of an implementation - use `[[code-quality]]`, `[[security-review]]`, and the rest of the code-review category.
-- For single-file lint passes - use the language-specific cleanup skills (`[[python-cleanup]]`, `[[typescript-cleanup]]`, ...).
+- For single-file lint passes - use the language-specific cleanup skills (`[[python-cleanup]]`, `[[javascript-cleanup]]`, ...).
 - For runtime profiling or performance analysis - use `[[performance-review]]`.
 - For test execution or coverage measurement of code - use the testing skills.
 
