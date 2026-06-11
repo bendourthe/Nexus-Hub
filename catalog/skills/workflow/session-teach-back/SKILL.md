@@ -9,7 +9,7 @@ overview_l1: "Adds a Socratic mastery-confirmation loop that quizzes the human o
 
 Confirm that the HUMAN actually understands what a session built, not just that the work shipped. After an AI session produces code and decisions, the operator's grasp of *what was built and why* silently degrades. This skill closes that gap with an explicit, item-by-item Socratic quiz against a persistent checklist sourced from the real session, and a hard gate: it does not declare the debrief complete until every concept is confirmed by a correct answer.
 
-It quizzes *you*, the operator. It is the mastery-confirmation counterpart to the rest of the session family: [[session-query]] reads past sessions, [[session-history]] / [[generate-session-history]] write a record of the current one, and this skill checks that you can explain that record back.
+It quizzes *you*, the operator. It is the mastery-confirmation counterpart to the rest of the session family: [[session-query]] reads past sessions, [[session-history]] writes a record of the current one, and this skill checks that you can explain that record back.
 
 ## When to Use This Skill
 
@@ -23,7 +23,7 @@ Use when:
 
 **When NOT to use:**
 
-- Generating a record of what happened in the session - use [[generate-session-history]] / [[session-history]]. That writes the document; this skill quizzes you on it.
+- Generating a record of what happened in the session - use [[session-history]]. That writes the document; this skill quizzes you on it.
 - Recovering context from a PAST session ("did we look at this before?") - use [[session-query]].
 - Tracking task or phase progress against a plan - use [[dev-progress-tracker]].
 - Gathering requirements before building. This is a teaching loop, not requirements intake (see the Common Rationalizations table for why the one-question-per-exchange rule here is the deliberate opposite of the usual batch-your-questions rule).
@@ -152,6 +152,5 @@ This is deliberately opt-in: an unprompted commit or push is an outward-facing g
 
 - [[session-query]] - the local, script-first, zero-outbound session extractor; this skill reuses it to source the material it quizzes you on rather than re-grepping transcripts.
 - [[session-history]] - writes a standalone record of the current session; this skill quizzes you on what that session produced. Generate the record, then teach-back on it.
-- [[generate-session-history]] - the command that produces a session-history document; use it (not this skill) when the goal is to write the record, not confirm understanding.
 - [[dev-progress-tracker]] - tracks task/phase progress with the same `[ ]`/`[x]` checkbox-file pattern this skill uses to track mastery; that file is forward-looking work, this one is confirmed understanding.
 - [[quality-gate-definitions]] - the reusable GO/NO-GO gate pattern; this skill applies that gate to human mastery (100% of items confirmed) rather than to artifact state.

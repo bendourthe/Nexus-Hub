@@ -21,9 +21,9 @@ Use when:
 
 **When NOT to use:**
 
-- Reviewing a plan, spec, or requirements document *before* code exists - use [[plan-review]] (persona lenses for docs) or [[cross-artifact-analyzer]] / [[analyze-spec]] (single-agent).
-- A whole-codebase health review - use [[review-codebase]] or the [[run-deep-review]] orchestrator.
-- A security-only deep dive - use [[run-security-audit]] (remediation loop) or [[run-penetration-test]] (parallel security hunters).
+- Reviewing a plan, spec, or requirements document *before* code exists - use [[plan-review]] (persona lenses for docs) or [[cross-artifact-analyzer]] / `/spec analyze` (single-agent).
+- A whole-codebase health review - use the `/review full` orchestrator.
+- A security-only deep dive - use `/review security` (remediation loop) or `/review pentest` (parallel security hunters).
 - A trivial one-file glance where fanning out N agents is wasteful - read it directly.
 
 ## Modes
@@ -132,6 +132,6 @@ It is a **template to adapt, not a script to run verbatim**, and it must **degra
 - [[code-quality]] - owns the [confidence-anchored-scoring](../code-quality/references/confidence-anchored-scoring.md) reference this pipeline depends on; the single-agent quality lens.
 - [[security-review]] - the security lens as a standalone skill; this pipeline dispatches the `security-reviewer` agent as one conditional persona.
 - [[plan-review]] - the same persona-fanout idea applied to a plan / requirements doc *before* code.
-- [[review-codebase]] - whole-codebase deep review (8-phase); use that for breadth, this for a specific diff.
-- [[run-penetration-test]] - parallel security hunters with the same confidence-gated synthesis; security-only.
+- `/review full` - whole-codebase deep review (8-phase); use that for breadth, this for a specific diff.
+- `/review pentest` - parallel security hunters with the same confidence-gated synthesis; security-only.
 - [[tool-design]] - defines the agent-native review lens the `agent-native-reviewer` persona applies.

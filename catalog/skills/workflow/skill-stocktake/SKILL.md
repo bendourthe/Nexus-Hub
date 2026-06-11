@@ -32,7 +32,7 @@ Use when:
 **When NOT to use:**
 
 - You only need a structural pass/fail - run `python scripts/validate_skills.py` directly; it is faster and is the CI gate.
-- You are authoring or editing one specific skill - use [[create-skill-or-command]].
+- You are authoring or editing one specific skill - use `/skills create`.
 - You want to draft a new skill from recurring git-history patterns - use [[skill-create]].
 
 ## Cache Layout
@@ -126,7 +126,7 @@ For the lowest-scoring skills, propose specific fixes (add a Common Rationalizat
 ## Related Skills
 
 - [[skill-create]] - drafts a new skill from git history; stocktake audits skills that already exist.
-- [[create-skill-or-command]] - the interactive authoring wizard; stocktake feeds it the list of skills that need work.
+- `/skills create` - the interactive authoring wizard; stocktake feeds it the list of skills that need work.
 - [[continuous-learning]] - mints local instincts and draft skills; stocktake is the quality gate those drafts must clear.
 - [[code-quality]] - the same quality-over-structure philosophy applied to source code instead of skills.
 - [[known-gaps-tracker]] - low-scoring skills that are not fixed this pass become tracked gaps.

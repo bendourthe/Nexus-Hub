@@ -125,5 +125,5 @@ Run `python scripts/validate_solution_frontmatter.py docs/solutions/<category>/<
 - [[solution-refresh]] - the lifecycle half (Keep / Update / Consolidate / Replace / Delete) that audits and maintains these entries over time.
 - [[known-gaps-tracker]] - records per-version unfinished work; a resolved gap can graduate into a `docs/solutions/` entry via this skill.
 - [[continuous-learning]] - mints lightweight in-session behavioral instincts (`.nexus/instincts/`); this skill captures durable, bodied solved-problem docs - the heavier, longer-lived sibling.
-- [[generate-plan]] - reads `docs/solutions/` as grounding before designing, closing the capture -> plan loop.
+- `/plan` - reads `docs/solutions/` as grounding before designing, closing the capture -> plan loop.
 - [[debug-with-logs]] - a debugging session that ends with a root cause is the canonical trigger to capture here.

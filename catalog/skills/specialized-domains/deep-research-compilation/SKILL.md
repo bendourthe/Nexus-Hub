@@ -49,7 +49,7 @@ The anti-patterns that will wreck the output:
 
 ## Upstream: gathering sources as a Dynamic Workflow (optional)
 
-The steps below assume the user already has the research sources. When the user instead arrives with a *question* and no sources, the gathering is the upstream [[deep-research]] shape: fan-out searches -> fetch sources -> adversarially verify claims -> synthesize. When the harness has the Dynamic Workflows runtime, [scripts/research-fanout-workflow.js](scripts/research-fanout-workflow.js) is a ready-to-adapt scaffold for exactly that phase (a multi-modal search sweep, a per-source fetch pipeline, per-claim refutation, then a cited synthesis whose canonical `[N]` list feeds the renumbering in Step 4).
+The steps below assume the user already has the research sources. When the user instead arrives with a *question* and no sources, the gathering is the upstream `/research deep` shape: fan-out searches -> fetch sources -> adversarially verify claims -> synthesize. When the harness has the Dynamic Workflows runtime, [scripts/research-fanout-workflow.js](scripts/research-fanout-workflow.js) is a ready-to-adapt scaffold for exactly that phase (a multi-modal search sweep, a per-source fetch pipeline, per-claim refutation, then a cited synthesis whose canonical `[N]` list feeds the renumbering in Step 4).
 
 This does not violate the "you are the generator; there is no persistent script" core principle: that rule governs document *emission* (the throwaway python-docx generator). This file emits no document -- it is an orchestration harness for *source gathering* that hands its synthesized, citation-ready output to Step 3 onward.
 
@@ -989,5 +989,5 @@ Edit `<cache_dir>/generate.py` and re-run. Maximum 3 iterations; if still failin
 - [[docx-generation]] -- the python-docx fundamentals the per-run generator script is built on
 - [[pdf-document-generation]] -- the PDF export path when the user chooses .pdf output
 - [[technical-writer]] -- content synthesis and information architecture for the merged narrative
-- [[deep-research]] -- upstream multi-source research that produces the reports this skill compiles
+- `/research deep` -- upstream multi-source research that produces the reports this skill compiles
 - [[trend-research]] -- source gathering across web, Reddit, and X that feeds the compilation
