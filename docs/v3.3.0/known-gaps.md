@@ -1,7 +1,7 @@
 # Known Gaps -- v3.3.0
 
-**Status**: v3.3.0 `adoption-loop-engineering` is in progress. Phase 1 (Foundation -- loop-engineering skill + schema + seeded library) is complete on `codex/adoption-loop-engineering-phase-1`; Phases 2-4 remain.
-**Last updated**: 2026-06-10 (adoption-loop-engineering Phase 1 complete)
+**Status**: v3.3.0 `adoption-loop-engineering` is in progress. Phases 1-2 are complete on `feat/adoption-loop-engineering` (Phase 1: Foundation -- loop-engineering skill + schema + seeded library; Phase 2: goal-based stopping + independent-evaluator pattern enrichments); Phases 3-4 remain. Phase 2 introduced no new gaps -- it edited three SKILL.md bodies only, added no skill, and changed no JSON registry.
+**Last updated**: 2026-06-11 (adoption-loop-engineering Phase 2 complete)
 
 This file tracks per-phase unfinished work, intentional deferrals, bugs, missing tests, warnings, and bypassed quality gates for v3.3.0. The next version's `/plan` ingests the open items here. Category prefixes: `NI` (not implemented / skipped subtask), `DF` (intentionally deferred), `BG` (bug), `MT` (missing test), `WN` (warning / suppressed rule), `QG` (quality gate bypassed).
 

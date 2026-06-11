@@ -92,7 +92,7 @@ Human-review bandwidth is also a budget. A loop that produces more PRs, findings
 
 ## Related Skills
 
-- [[agent-orchestration-primitives]] - chooses the cheapest agent primitive and owns the continuous-operation command caveat for `/loop` and `/goal`.
+- [[agent-orchestration-primitives]] - chooses the cheapest agent primitive and owns the goal-based-stopping + independent-evaluator rule for `/loop` and `/goal` (Step 8).
 - [[using-git-worktrees]] - isolates writable loop iterations so repeated attempts do not damage the main worktree.
 - [[adversarial-verifier]] - supplies the independent checker role for loop exits and high-risk claims.
 - [[verification-before-completion]] - requires fresh evidence before treating a loop exit as complete.

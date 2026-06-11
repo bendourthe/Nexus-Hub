@@ -184,13 +184,13 @@ For grounding, the plan was checked against the project's *de facto* governing r
 
 ### Phase 2 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] Goal-based-stop + independent-evaluator section present in `agent-orchestration-primitives`
-- [ ] `verification-before-completion` treats a loop exit as an evidence-bearing completion claim
-- [ ] Bidirectional cross-links among the three skills
-- [ ] `make validate` passes; catalog count unchanged by this phase
-- [ ] Session history generated for Phase 2
-- [ ] Ready to advance to Phase 3
+- [x] All sub-tasks completed
+- [x] Goal-based-stop + independent-evaluator section present in `agent-orchestration-primitives`
+- [x] `verification-before-completion` treats a loop exit as an evidence-bearing completion claim
+- [x] Bidirectional cross-links among the three skills
+- [x] `make validate` passes; catalog count unchanged by this phase
+- [x] Session history generated for Phase 2
+- [x] Ready to advance to Phase 3
 
 ---
 
