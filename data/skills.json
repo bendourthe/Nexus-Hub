@@ -6,7 +6,7 @@
     "description": "Comprehensive catalog of Nexus-Hub skills with L0/L1 tiered summaries"
   },
   "statistics": {
-    "total_skills": 247,
+    "total_skills": 252,
     "categories": {
       "ai-development": 10,
       "architecture": 7,
@@ -23,20 +23,20 @@
       "orchestration": 15,
       "project-setup": 4,
       "research": 2,
-      "security": 11,
+      "security": 13,
       "security-operations": 15,
       "specialized-domains": 13,
       "testing": 3,
       "tests-generation": 18,
-      "workflow": 36
+      "workflow": 39
     },
     "priorities": {
-      "HIGH": 1,
-      "MEDIUM": 241
+      "HIGH": 3,
+      "MEDIUM": 249
     },
-    "total_lines": 125537,
-    "total_tokens_estimate": 590757,
-    "average_lines_per_skill": 525,
+    "total_lines": 127456,
+    "total_tokens_estimate": 623156,
+    "average_lines_per_skill": 506,
     "languages_supported": [
       "Python",
       "JavaScript",
@@ -47,7 +47,7 @@
       "C++"
     ],
     "repository": "https://github.com/bendourthe/Nexus-Hub",
-    "last_updated": "2026-05-30"
+    "last_updated": "2026-06-10"
   },
   "skills": [
     {
@@ -6709,6 +6709,49 @@
       "size": {
         "lines": 150,
         "tokens_estimate": 1100
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "loop-engineering",
+      "title": "loop-engineering",
+      "description": "Assemble named, goal-terminated agentic loops from Nexus-Hub primitives. Use whenever the user says \"run this in a loop\", \"loop until tests pass\", \"set up an agentic loop\", \"iterate until green\", \"build a loop that ships PRs\", \"what loop should I use\", or asks for continuous agent work with a stopping rule. SKIP: a one-shot task with no iteration; choosing between single-agent / subagents / workflows -- use agent-orchestration-primitives; the host /loop or /goal command mechanics themselves.",
+      "long_description": "Connective-layer skill for composing host-driven agentic loops from Nexus-Hub's existing primitives: automations, worktrees, skills, plugins/connectors, sub-agents, and the external-memory layer. It defines a local loop schema, points to a seeded service-free loop library, explains that /loop and /goal are host-platform drivers rather than catalog commands, and teaches operators to cap iterations, use command-derived exits, split maker/checker roles, and persist loop state through Nexus-Hub tracking files.",
+      "summary_l0": "\"Assemble goal-terminated agentic loops from Nexus-Hub primitives\"",
+      "overview_l1": "\"This skill turns Nexus-Hub's existing agentic primitives into named, goal-terminated loops. Use it to choose or author a loop definition with a falsifiable goal, iteration cap, check command, checker-evaluated exit condition, host driver, maturity flag, agents, and tags. It maps automations, worktrees, skills, plugins/connectors, sub-agents, and external memory to owned catalog surfaces, then points operators to a local loop schema and seeded loop library. The loop driver remains the host platform's /loop or /goal command; Nexus-Hub references those commands and never reimplements them.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "workflow",
+      "language": "Multi-language",
+      "tags": [
+        "loop-engineering",
+        "agentic-loops",
+        "workflow",
+        "goal",
+        "automation",
+        "local-only"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "docs/v3.2.0/comparison-loop-engineering.md and docs/v3.3.0/plans/adoption-loop-engineering.md",
+      "tools_required": [
+        "Read",
+        "Write",
+        "Edit",
+        "Glob"
+      ],
+      "path": "catalog/skills/workflow/loop-engineering/",
+      "file": "catalog/skills/workflow/loop-engineering/SKILL.md",
+      "size": {
+        "lines": 101,
+        "characters": 10032,
+        "tokens_estimate": 2508
       },
       "downloads": 0,
       "status": "production",

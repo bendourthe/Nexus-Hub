@@ -56,6 +56,9 @@ Every completion claim maps to a specific proving artifact. Never make the claim
 | Requirements met | the acceptance check named in the spec or plan (a test, a script, a manual procedure with observed output) | Each acceptance criterion has a corresponding observed pass. Map criteria to evidence one-to-one. |
 | Feature works end to end | running the actual flow (start the app, hit the endpoint, drive the UI) | Observed correct behavior in the running system, not just green unit tests. Unit tests prove units; they do not prove integration. |
 | File / change is in place | reading the file back, or `git diff` / `git status` | The change is visible in the current file content, not just in your memory of having written it. |
+| Loop exit condition met | the loop's `check_command` (e.g. `npm test`, `gh pr checks`, `make validate`) | The `check_command` exits 0 and its output satisfies the loop's `exit_condition`, confirmed by a checker that did not produce the iteration -- not the maker's sense that the loop has converged. |
+
+A loop's exit condition is itself a completion claim: "the loop is done" asserts something about the current state of the code, so it is bound by this same gate. The evidence is the `check_command` output gathered this turn, not the maker agent's reassurance that it converged. See [[loop-engineering]] for assembling the loop and [[agent-orchestration-primitives]] (Step 8) for why the checker that certifies the exit must not be the agent that produced the work.
 
 If a claim has no proving command, say so explicitly: "I have not verified this; I believe X because Y" is honest and useful. "X works" without evidence is neither.
 
@@ -74,6 +77,13 @@ Each row is an excuse that precedes a false completion claim, with the concrete 
 | "Partial output looked fine." | A suite prints passes before it prints the failure. Reading the first screen and stopping is how a red suite gets reported as green. Read to the end and check the exit code. |
 | "Great, that's done!" / "Perfect!" | Expressions of satisfaction are completion claims in disguise and often arrive before any verification. Catch yourself: before the celebratory sentence, run the gate. |
 | "The user is in a hurry, I'll skip the check." | A fast wrong answer costs more than a slightly slower correct one, because the user now has to discover the error and ask again. Speed that ships regressions is not speed. |
+
+## Loop Anti-Patterns
+
+When this gate runs inside an agentic loop (see [[loop-engineering]]), two failure modes attack the human rather than the code. Name them so you can catch them:
+
+- **Cognitive surrender** -- the operator stops forming an independent opinion about loop output because the automation is comfortable and the green checks feel authoritative. The failure mode is a loop that ships work no human actually judged. Mitigation: verification stays a human responsibility. The checker that certifies a loop exit must not be the agent that produced the work (the independent-evaluator rule in [[agent-orchestration-primitives]], Step 8), and the human still reads the evidence at bounded checkpoints rather than trusting the checkmark.
+- **Comprehension debt** -- the gap between what the loop has shipped and what the operator actually understands widens with every cycle, until no one can safely change or debug the system. The failure mode is accumulated code the team cannot reason about. Mitigation: close the gap deliberately with [[session-teach-back]], the Socratic mastery-confirmation loop that quizzes the operator on what was built and why until every concept is confirmed.
 
 ## Spirit Over Letter
 
@@ -96,3 +106,6 @@ The rule is "no completion claim without fresh proving evidence", not "run a com
 - [[receiving-code-review]] -- applies the same verify-before-claiming discipline when acting on review feedback (verify the suggestion against the codebase before agreeing it is correct).
 - [[test-driven-development]] -- supplies the failing-then-passing reproduction that the "bug fixed" row of the claim-to-evidence table depends on.
 - [[debug-with-logs]] -- when the proving command fails, this skill helps locate why before re-entering the gate.
+- [[loop-engineering]] -- assembles goal-terminated loops whose exit condition is the evidence-bearing completion claim this gate enforces.
+- [[agent-orchestration-primitives]] -- Step 8 supplies the independent-evaluator rule: the checker that certifies a loop exit must not be the agent that produced the work.
+- [[session-teach-back]] -- the comprehension-debt countermeasure: a Socratic loop that confirms the operator understands what a loop shipped, not just that it passed.
