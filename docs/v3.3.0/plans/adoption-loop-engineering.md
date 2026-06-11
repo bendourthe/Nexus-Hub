@@ -231,13 +231,13 @@ For grounding, the plan was checked against the project's *de facto* governing r
 
 ### Phase 3 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] Scheduled-triage recipe present, every step citing an owned primitive, with the token caution
-- [ ] Cognitive-surrender and comprehension-debt named with mitigations; `session-teach-back` cross-linked
-- [ ] Orphan-bundle audit clean (if a new reference file was added)
-- [ ] `make validate` passes; no new outbound call/dependency introduced
-- [ ] Session history generated for Phase 3
-- [ ] Ready to advance to Phase 4
+- [x] All sub-tasks completed
+- [x] Scheduled-triage recipe present, every step citing an owned primitive, with the token caution
+- [x] Cognitive-surrender and comprehension-debt named with mitigations; `session-teach-back` cross-linked
+- [x] Orphan-bundle audit clean (recipe added inline; no new reference file)
+- [x] `make validate` passes; no new outbound call/dependency introduced
+- [x] Session history generated for Phase 3
+- [x] Ready to advance to Phase 4
 
 ---
 

@@ -70,6 +70,22 @@ Loops multiply every cost in the underlying workflow: model tokens, tool calls, 
 
 Human-review bandwidth is also a budget. A loop that produces more PRs, findings, or plan diffs than a human can review safely is not "automated"; it is accumulating unreviewed risk. Prefer fewer hardened loops with crisp exits over broad continuous work with vague triage.
 
+Two human-cost risks attack long-running loops directly: **cognitive surrender** (the operator stops judging loop output because the green checks feel authoritative) and **comprehension debt** (the gap between what the loop shipped and what the operator understands widens each cycle). Both are named with mitigations in [[verification-before-completion]]; close comprehension debt deliberately with [[session-teach-back]].
+
+## Scheduled-Triage Recipe
+
+This is the full automation-to-ship loop: a scheduled run that triages incoming work, fixes what it can in isolation, and routes the rest to a human. It is a recipe to adapt, not a runnable script. Every step uses a primitive Nexus-Hub already owns or a host command it references; the recipe introduces no new outbound call, dependency, credential, or third-party processor.
+
+1. **Cadence** -- host `/schedule` for a fixed clock (e.g. nightly) or host `/loop` for interval re-runs. These are platform commands referenced per Step 1 and `catalog/skills/orchestration/agent-orchestration-primitives/SKILL.md` Step 8; Nexus-Hub does not reimplement them. Set the `iteration_cap` and the cadence before the first run.
+2. **Triage** -- at each wake, read the incoming surface: CI failures, open issues, or recent commits. Triage classifies each item as auto-fixable, needs-human, or ignore. Triage is a read step; it makes no change yet.
+3. **Persist findings to the memory layer** -- write the triaged list to a durable file rather than the loop's working memory: `docs/todos.md` via [[dev-progress-tracker]], the version gap log via [[known-gaps-tracker]], or a scratch file per [[filesystem-context-patterns]]. The next wake reads this file, so state survives across runs.
+4. **Isolate each viable finding in a worktree** -- for every auto-fixable item, create a dedicated `git worktree` via [[using-git-worktrees]] so concurrent fixes never collide on the main worktree.
+5. **Maker drafts, independent checker reviews** -- inside each worktree, a maker sub-agent drafts the fix and an independent checker sub-agent reviews it. The checker must not be the maker (the Phase 2 exit rule): use [[adversarial-verifier]] for the checker role and treat the loop exit as the evidence-bearing completion claim in [[verification-before-completion]], with the independent-evaluator rule from [[agent-orchestration-primitives]] (Step 8). The fix's `check_command` (the worktree's tests or build) is the exit evidence, not the maker's confidence.
+6. **Ship through host connectors** -- open the PR or update the ticket through a host connector (MCP), using only surfaces approved by the MCP Registry Policy: see [[mcp-builder]] and `catalog/mcp-configs/mcp-servers.json`. Do not add a connector just to close the loop; if no approved destination exists, stop at the worktree and report.
+7. **Route the rest to a human inbox** -- every needs-human item (and any finding that failed its checker after the `iteration_cap`) goes to a human review queue: a tracked list in the memory layer, an assigned issue, or a digest. Unhandleable work is surfaced, never silently dropped.
+
+Scope first. A scheduled triage loop multiplies token, tool-call, and reviewer cost on every wake, so calibrate on one finding, inspect the plan and check output, cap the run, and only then let it run unattended. Bound the spend with [[ai-billing-safeguards]] before scheduling, and keep the human-inbox volume inside what a person can actually review.
+
 ## Common Rationalizations
 
 | Rationalization | Reality |
@@ -99,3 +115,4 @@ Human-review bandwidth is also a budget. A loop that produces more PRs, findings
 - [[dev-progress-tracker]] - persists forward-looking loop state in `docs/todos.md`.
 - [[known-gaps-tracker]] - records deferred or failed loop outcomes into the version gap log.
 - [[ai-billing-safeguards]] - bounds runaway loop cost with hard spending controls and budget gates.
+- [[session-teach-back]] - the comprehension-debt countermeasure: confirms the operator understands what a loop shipped before the gap compounds.

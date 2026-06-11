@@ -78,6 +78,13 @@ Each row is an excuse that precedes a false completion claim, with the concrete 
 | "Great, that's done!" / "Perfect!" | Expressions of satisfaction are completion claims in disguise and often arrive before any verification. Catch yourself: before the celebratory sentence, run the gate. |
 | "The user is in a hurry, I'll skip the check." | A fast wrong answer costs more than a slightly slower correct one, because the user now has to discover the error and ask again. Speed that ships regressions is not speed. |
 
+## Loop Anti-Patterns
+
+When this gate runs inside an agentic loop (see [[loop-engineering]]), two failure modes attack the human rather than the code. Name them so you can catch them:
+
+- **Cognitive surrender** -- the operator stops forming an independent opinion about loop output because the automation is comfortable and the green checks feel authoritative. The failure mode is a loop that ships work no human actually judged. Mitigation: verification stays a human responsibility. The checker that certifies a loop exit must not be the agent that produced the work (the independent-evaluator rule in [[agent-orchestration-primitives]], Step 8), and the human still reads the evidence at bounded checkpoints rather than trusting the checkmark.
+- **Comprehension debt** -- the gap between what the loop has shipped and what the operator actually understands widens with every cycle, until no one can safely change or debug the system. The failure mode is accumulated code the team cannot reason about. Mitigation: close the gap deliberately with [[session-teach-back]], the Socratic mastery-confirmation loop that quizzes the operator on what was built and why until every concept is confirmed.
+
 ## Spirit Over Letter
 
 The rule is "no completion claim without fresh proving evidence", not "run a command sometime". Running an unrelated command, running the right command against stale code, or running it and not reading the output all violate the spirit while technically touching a terminal. The gate is satisfied only when the evidence in front of you, gathered this turn, actually supports the specific claim you are about to make.
@@ -101,3 +108,4 @@ The rule is "no completion claim without fresh proving evidence", not "run a com
 - [[debug-with-logs]] -- when the proving command fails, this skill helps locate why before re-entering the gate.
 - [[loop-engineering]] -- assembles goal-terminated loops whose exit condition is the evidence-bearing completion claim this gate enforces.
 - [[agent-orchestration-primitives]] -- Step 8 supplies the independent-evaluator rule: the checker that certifies a loop exit must not be the agent that produced the work.
+- [[session-teach-back]] -- the comprehension-debt countermeasure: a Socratic loop that confirms the operator understands what a loop shipped, not just that it passed.
