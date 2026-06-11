@@ -32,19 +32,30 @@ Resolve SCOPE from the first positional argument (`$ARGUMENTS`). Recognized scop
 
 ## Delegation
 
-Dispatch the resolved scope to the retained skill(s):
+Dispatch the resolved scope to the retained skill(s). These targets are skills under `catalog/skills/`, NOT the consolidated-away v3.x commands: the old command names (`/update-documentation`, `/generate-readme`, `/update-devlog`, `/generate-changelog`, ...) were removed in v3.2.0 and no longer resolve, so never delegate to them.
 
-      docs      -> update-documentation (+ generate-readme for the README)
-      devlog    -> update-devlog (+ generate-devlog to bootstrap when no DEVLOG exists)
-      gitignore -> update-gitignore
-      version   -> update-version, gated by scripts/check_version_sync.py (see below)
-      changelog -> generate-changelog
-      refactor  -> refactor-docs + refactor-project
+      docs      -> user-documentation (README + guides) + technical-documentation (architecture / ADRs) + documentation-consistency (link / staleness / sync audit); see the docs-sync checklist below
+      devlog    -> devlog-generation
+      gitignore -> built-in (audit .gitignore, clean the tracked index, recommend LFS for large binaries)
+      version   -> version-upgrade, gated by scripts/check_version_sync.py (see below)
+      changelog -> release-notes-writer (parse git history since the last tag into a CHANGELOG entry)
+      refactor  -> docs-layout-refactor + project-refactor
       config    -> update-config (built-in) + config-consistency-checker / nexus-hub doctor (see below)
-      commit    -> generate-commit-message
+      commit    -> code-commit-workflow
       release   -> docs -> devlog -> gitignore -> version -> changelog -> refactor, then clean up, commit, tag, push
 
 Pass any remaining arguments through unchanged. Heavy logic stays in the retained skills; this file owns only scope resolution and the release sequencing.
+
+## docs scope (feature-level sync, not just counts)
+
+The `docs` scope MUST refresh documentation CONTENT to the repo's current state, not merely bump version strings and counts (the atomic version bump is the `version` scope's job). Before finishing `docs` -- and therefore before every `release` -- reconcile each item below against the actual catalog and the latest `CHANGELOG.md` entry, and FIX any drift found:
+
+- **Headline counts**: skills / commands / hooks / agents / rule-families in `README.md` and `AGENTS.md` match `data/skills.json` and the registries.
+- **Internal MCP server list**: the README's "internal MCP servers" enumeration matches the `nexus-*` servers actually registered in `catalog/mcp-configs/mcp-servers.json` -- both the COUNT and the NAMES (e.g. when `nexus-context-compressor` was added in v3.2.0 the README still read "3 internal MCP servers").
+- **"What's New" narrative**: the README has a section summarizing the headline features of the release being shipped. Do NOT leave the latest release undocumented -- a release whose only README change is the version/count bump has skipped this step (the exact failure the v3.2.0 release hit).
+- **Removed / renamed surfaces**: no doc still presents a command, skill, flag, or path removed or renamed since the last release as if it were current.
+
+When the scope is `release`, run this reconciliation as the FIRST step, before the version bump. A release whose only documentation change is the version/count bump has not run `docs`.
 
 ## version scope (atomic, drift-guarded)
 
