@@ -6,8 +6,8 @@ This file is consumed by BOTH the Antigravity 2.0 desktop IDE and the Antigravit
 
 - Binary / invocation: `agy --help`, `agy -p '<prompt>'` (for the CLI surface); in-IDE chat panel (for the desktop surface). The CLI installs as `agy` (in `~/.local/bin/agy`), not `antigravity`.
 - Instruction file: `agy` reads a project-root `AGENTS.md` (the open standard the Codex/AGENTS.md surface already manages). Nexus-Hub keeps its surface-specific copy at `.agents/AGENTS.md` to avoid clobbering that shared root block.
-- Skills: `.agents/skills/*.md` (workspace) and `~/.gemini/antigravity-cli/skills/` (global) -- the Nexus-Hub installer mirrors `catalog/skills/` here automatically
-- Workflows: `.agents/workflows/*.md` -- the Nexus-Hub installer mirrors `catalog/commands/` here automatically (Markdown; a workflow's name derives from its filename)
-- Subagents: `.agents/subagents/` -- the Nexus-Hub installer mirrors `catalog/agents/` here automatically
-- Hooks: supported (pre-commit, pre-tool-use, etc.) -- see the Antigravity hook docs
+- Skills: flat folder-per-skill `.agents/skills/<skill-name>/SKILL.md` (workspace). Global install writes to BOTH `~/.gemini/antigravity/skills/` (the IDE root) and `~/.gemini/antigravity-cli/skills/` (the `agy` CLI root). The Nexus-Hub installer flattens `catalog/skills/<category>/<name>/` to the flat `skills/<name>/` layout Antigravity discovers (a category-nested copy is invisible to the IDE).
+- Workflows: `.agents/workflows/<name>.md` (and the same under both global roots) -- the Nexus-Hub installer mirrors `catalog/commands/` here verbatim. A workflow is invoked as the slash command `/<name>` (name derives from the filename).
+- Subagents: `.agents/subagents/` (and both global roots) -- the Nexus-Hub installer mirrors `catalog/agents/` here automatically.
+- Hooks: `.agents/hooks.json` registers a curated, platform-agnostic set (secret-scan, large-file-guard, git-guardrails, and the opt-in context-compressor) whose scripts the installer places under `.agents/hooks/`. The schema is keyed by named hook groups (each with an `enabled` flag) using Claude-compatible events (PreToolUse/PostToolUse/SessionStart/Stop) and `matcher` regexes. On Windows the `.sh` hooks need a Unix shell (git-bash), same as the Claude hooks.
 - Permissions: `configs/permissions/gemini-permissions.json` (shared with the Gemini surfaces -- the same trusted-domain allowlist applies)
