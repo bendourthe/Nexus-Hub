@@ -832,18 +832,18 @@ install_global() {
     write_header "GOOGLE"
     write_item "Gemini IDE + Antigravity 1.0" "$GRAY"
     local global_gemini_dir="$user_home/.gemini"
-    # Antigravity 2.0 + CLI global dir (binary `agy`; verified 2026-05-29 against
-    # Google's public Antigravity CLI docs -- the CLI footprint lives under the
-    # shared ~/.gemini/ family, not the previously-inferred ~/.agent/).
-    local global_agent_dir="$user_home/.gemini/antigravity-cli"
     mkdir -p "$global_gemini_dir"
-    mkdir -p "$global_agent_dir"
 
     invoke_registry_platform "$repo_root" "global" "" "gemini" "GEMINI.md (instruction file)" "" "true"
 
-    safe_folder_copy "$repo_root/catalog/skills"   "$global_agent_dir/skills"    "[OK] Skills catalog mirrored to: $global_agent_dir/skills"
-    safe_folder_copy "$repo_root/catalog/commands" "$global_agent_dir/workflows" "[OK] Workflows mirrored to: $global_agent_dir/workflows"
-
+    # Antigravity 2.0 + CLI: the antigravity2 integration below owns the entire
+    # Antigravity mirror. It flattens skills to skills/<name>/SKILL.md (the flat
+    # folder-per-skill layout the IDE actually scans), mirrors commands to
+    # workflows/, installs the curated hooks + hooks.json, and writes to BOTH the
+    # IDE global root (~/.gemini/antigravity) and the CLI global root
+    # (~/.gemini/antigravity-cli). The previous verbatim copies here buried every
+    # SKILL.md under a category folder the IDE could not read and only targeted
+    # the CLI root, so skills and commands never surfaced in the 2.0 IDE.
     invoke_registry_platform "$repo_root" "global" "" "antigravity2" "Antigravity 2.0 + CLI"
     if [ "${ENTERPRISE:-0}" = "1" ]; then
         invoke_registry_platform "$repo_root" "global" "" "gemini-cli"   "Gemini CLI (enterprise)"
@@ -1154,17 +1154,15 @@ install_workspace() {
         write_header "GOOGLE"
         write_item "Gemini IDE + Antigravity 1.0" "$GRAY"
         local gemini_dir="$target_path/.gemini"
-        # Antigravity 2.0 + CLI per-project dir (binary `agy`; verified 2026-05-29
-        # against Google's public Antigravity CLI docs -- skills/workflows live
-        # under .agents/, not the previously-inferred .agent/).
-        local agent_dir="$target_path/.agents"
         mkdir -p "$gemini_dir"
-        mkdir -p "$agent_dir"
 
         invoke_registry_platform "$repo_root" "workspace" "$target_path" "gemini" "GEMINI.md (instruction file)" "$languages" "true"
-        safe_folder_copy "$repo_root/catalog/skills"   "$agent_dir/skills"    "[OK] Skills catalog mirrored to: $agent_dir/skills"
-        safe_folder_copy "$repo_root/catalog/commands" "$agent_dir/workflows" "[OK] Workflows mirrored to: $agent_dir/workflows"
 
+        # Antigravity 2.0 + CLI: the antigravity2 integration below owns the
+        # .agents/ mirror -- it flattens skills to .agents/skills/<name>/SKILL.md,
+        # mirrors commands to .agents/workflows/, and installs .agents/hooks/ +
+        # .agents/hooks.json. The previous verbatim copies buried SKILL.md under a
+        # category folder the IDE could not read.
         invoke_registry_platform "$repo_root" "workspace" "$target_path" "antigravity2" "Antigravity 2.0 + CLI"
         if [ "${ENTERPRISE:-0}" = "1" ]; then
             invoke_registry_platform "$repo_root" "workspace" "$target_path" "gemini-cli"   "Gemini CLI (enterprise)"
