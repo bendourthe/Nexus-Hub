@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.2.2] - 2026-06-10
+
+**v3.2.2 -- docs/UX patch: corrects the v3.2.1 over-claim about Antigravity 2.0 IDE global installs.** A live-IDE smoke confirmed the v3.2.1 installer fix works -- Nexus-Hub commands surface as `/<name>` slash commands from an OPEN project's `.agents/workflows/` -- but also confirmed the desktop IDE does NOT scan the global `~/.gemini/antigravity/` mirror for slash commands (its global workflows are created via the IDE's own "+ Global" UI/registry, not by dropping files). This patch corrects the `base-antigravity-20.md` template and adds a note to both installers directing IDE users to run a workspace/project install and open that folder; the global mirror is retained for the `agy` CLI surface. Documentation/messaging only -- no code or catalog change; catalog unchanged at 251 skills.
+
 ### Changed
 
 - **Antigravity 2.0 IDE: clarified that slash commands are workspace-scoped** (`templates/ai-instructions/base-antigravity-20.md`, `scripts/installer.sh`, `scripts/installer.ps1`, `docs/v3.2.0/known-gaps.md`): a live-IDE smoke (2026-06-10) confirmed the v3.2.1 fix works -- a workflow surfaces as `/<name>` from an OPEN project's `.agents/workflows/` (both a minimal probe and the real `plan.md`, including its long YAML `description`, registered correctly). It also confirmed the desktop IDE does NOT scan the global `~/.gemini/antigravity/` mirror for slash commands (the IDE's global workflows are created through its own "+ Global" UI into an internal registry, not by file-drop). This corrects the v3.2.1 over-claim that the dual global-root write makes the IDE work without an open project: it does not. The template and both installers now direct IDE users to run a workspace/project install and open that folder; the global mirror is retained for the `agy` CLI surface. Resolves WN-v32ag-3.
