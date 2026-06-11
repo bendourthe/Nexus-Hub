@@ -28,7 +28,7 @@ Use when:
 **When NOT to use:**
 
 - End-to-end threat modeling of a new system — use [[architecture-design]] plus a dedicated threat model.
-- Actually running a security audit — use [[run-security-audit]] or [[run-penetration-test]].
+- Actually running a security audit — use `/review security` or `/review pentest`.
 - Generating evidence for a specific regulation (GDPR, SOC 2, ISO 27001) — those have dedicated skills: [[gdpr-compliance]], [[soc2-compliance]], [[iso27001-compliance]].
 - Picking between security skills for a task — that is skill routing, not mapping.
 

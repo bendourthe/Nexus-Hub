@@ -22,8 +22,8 @@ Use when:
 **When NOT to use:**
 
 - Reviewing code, a diff, or a PR - use [[multi-agent-code-review]].
-- A single-agent consistency / coverage / ambiguity check across a *set* of artifacts (spec.md + plan.md + tasks.md) in a feature directory - use [[cross-artifact-analyzer]] or [[analyze-spec]]. Those answer "do these artifacts agree and cover each other?"; this answers "from seven independent viewpoints, what is wrong with this one plan?".
-- Generating or drafting the plan in the first place - use [[generate-plan]].
+- A single-agent consistency / coverage / ambiguity check across a *set* of artifacts (spec.md + plan.md + tasks.md) in a feature directory - use [[cross-artifact-analyzer]] or `/spec analyze`. Those answer "do these artifacts agree and cover each other?"; this answers "from seven independent viewpoints, what is wrong with this one plan?".
+- Generating or drafting the plan in the first place - use `/plan`.
 
 ### Persona-fanout vs the single-agent analyzers
 
@@ -99,6 +99,6 @@ Follow it with a **coverage note**: which lenses ran, which were skipped and why
 
 - [[multi-agent-code-review]] - the same persona-fanout idea applied to a code diff after implementation.
 - [[cross-artifact-analyzer]] - single-agent cross-artifact consistency / coverage / constitution-alignment across a feature directory; use for "do these artifacts agree?".
-- [[analyze-spec]] - single-agent spec/plan/tasks consistency and ambiguity analysis; complements this skill's parallel critique.
-- [[generate-plan]] - authors the plan this skill reviews; run plan-review on its output before implementing.
+- `/spec analyze` - single-agent spec/plan/tasks consistency and ambiguity analysis; complements this skill's parallel critique.
+- `/plan` - authors the plan this skill reviews; run plan-review on its output before implementing.
 - [[code-quality]] - owns the [confidence-anchored-scoring](../code-quality/references/confidence-anchored-scoring.md) reference both review pipelines share.

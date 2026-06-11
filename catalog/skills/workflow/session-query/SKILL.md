@@ -11,7 +11,7 @@ Recover context from your own earlier AI sessions instead of re-investigating fr
 
 It is **script-first**: the heavy lifting (file discovery and JSONL parsing) lives in the bundled scripts so the agent does not read raw transcripts into context. The agent runs the scripts and presents their JSON output. Everything is local and zero-outbound: the extractor reads files on disk and makes no network call.
 
-This is the **query** half of session tooling. Its counterparts [[session-history]] and [[generate-session-history]] *generate* a new record of the *current* session; this skill *reads past* sessions. Use this to look backward; use those to write the current session down.
+This is the **query** half of session tooling. Its counterpart [[session-history]] *generates* a new record of the *current* session; this skill *reads past* sessions. Use this to look backward; use that to write the current session down.
 
 ## When to Use This Skill
 
@@ -24,7 +24,7 @@ Use when:
 
 **When NOT to use:**
 
-- Generating a session-history document for the session you are in now - use [[generate-session-history]] / [[session-history]].
+- Generating a session-history document for the session you are in now - use [[session-history]].
 - Capturing a solved problem for durable reuse - use [[solution-knowledge-base]].
 - Logging per-version unfinished work, deferrals, or bugs - use [[known-gaps-tracker]].
 - Any flow that uploads, syncs, or shares session logs with an external service. This skill is local-only by design (see the Common Rationalizations table).
@@ -121,7 +121,6 @@ If the recovered context resolves a recurring problem, offer to capture it durab
 ## Related Skills
 
 - [[session-history]] - the generate counterpart: writes a standalone record of the current session. This skill queries past sessions; that one documents the present.
-- [[generate-session-history]] - the command that produces a session-history document; pair with this skill when you want to both recover prior context and record the current session.
 - [[solution-knowledge-base]] - capture a recovered, recurring solution durably so future work does not need to re-query the logs.
 - [[continuous-learning]] - mines the in-session observations log (`.nexus/observations.jsonl`) for behavioral patterns; this skill queries full cross-tool session transcripts for investigation context.
 - [[debug-with-logs]] - when the recovered context is a prior debugging trail, this is the skill that resumes the active debugging.
