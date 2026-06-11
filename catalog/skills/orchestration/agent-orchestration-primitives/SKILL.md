@@ -105,6 +105,15 @@ When you reach for **Dynamic Workflows** specifically, [assets/example-fanout-wo
 
 A Dynamic Workflow run is one-shot by default. When a task must persist beyond a single run, two Claude Code built-in commands compose with it: `/loop` re-runs a workflow (or any prompt) on an interval or until you stop it (scheduled audits, continuous monitoring of a changing surface), and `/goal` attaches a hard, explicit completion requirement the agent must satisfy before it is allowed to stop. These are platform commands you reference and invoke directly in your harness -- NOT catalog artifacts Nexus-Hub ships; this skill names them so the choice is on the table, but does not provide them.
 
+#### Goal-based stopping: the exit must be a checked command, not a judgement
+
+A continuous loop is only as safe as its stopping rule. Two requirements make a loop's exit trustworthy:
+
+1. **The exit condition is a falsifiable command, not a vibe.** The thing that ends the loop must be a `check_command` whose output and exit code can be read (`npm test`, `gh pr checks`, `make validate`), paired with an `exit_condition` derived from that output ("exits 0", "0 failing required checks"). "Looks ready" or "seems green" cannot terminate a loop, because the loop has no way to disprove it. A loop with no command-derived exit is an unbounded token burn waiting to happen, so it also needs a hard iteration cap.
+2. **The exit is evaluated by a checker that did not produce the work.** This is failure mode 2 ("verification agents declare victory without verifying") applied to termination: if the maker that wrote the iteration is also the agent that decides the loop is done, it will declare victory on plausible-looking output. Give the exit decision to an independent checker with a falsifiable instruction -- run the command, read the full output, and only then certify (the [[verification-before-completion]] evidence gate) -- using [[adversarial-verifier]] for high-risk exits.
+
+Assembling a named, goal-terminated loop from these parts (the loop-definition schema, the iteration cap, the maker/checker split, the host driver) is the job of [[loop-engineering]]; this step states the termination rule, that skill is where you compose the whole loop. Do not duplicate the loop schema here -- reference it through that skill.
+
 ## Common Rationalizations
 
 | Rationalization | Reality |
@@ -129,7 +138,8 @@ A Dynamic Workflow run is one-shot by default. When a task must persist beyond a
 ## Related Skills
 
 - [[multi-agent-coordinator]] - the detailed coordination plan (write scopes, roles, wait points, reconciliation) once this guide has chosen multi-agent execution.
-- [[adversarial-verifier]] - the refute-until-converge verification pass referenced in the independent-verification problem.
+- [[adversarial-verifier]] - the refute-until-converge verification pass referenced in the independent-verification problem and the independent-checker for loop exits.
+- [[loop-engineering]] - assembles named, goal-terminated loops on top of `/loop` and `/goal`; consumes the goal-based-stopping rule from Step 8.
 - [[competitive-generation]] - the variant where N agents attempt the same task and you select the best output.
 - [[ai-billing-safeguards]] - hard spending caps and budget controls for the token-cost failure mode.
 - [[prompt-token-optimization]] - reducing per-task token consumption inside any chosen primitive.

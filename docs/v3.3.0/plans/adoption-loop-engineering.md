@@ -127,14 +127,14 @@ For grounding, the plan was checked against the project's *de facto* governing r
 
 ### Phase 1 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] `loop-engineering/SKILL.md` + `references/loop-schema.md` + `references/loop-library.md` exist and conform
-- [ ] Orphan-bundle audit clean (every bundled file referenced from SKILL.md)
-- [ ] Skill registered in all three registries; machine-readable totals consistent
-- [ ] `make validate` (bundles + quality) passes
-- [ ] No known regressions
-- [ ] Session history generated for Phase 1
-- [ ] Ready to advance to Phase 2
+- [x] All sub-tasks completed
+- [x] `loop-engineering/SKILL.md` + `references/loop-schema.md` + `references/loop-library.md` exist and conform
+- [x] Orphan-bundle audit clean (every bundled file referenced from SKILL.md)
+- [x] Skill registered in all three registries; machine-readable totals consistent
+- [x] `make validate` (bundles + quality) passes
+- [x] No known regressions
+- [x] Session history generated for Phase 1
+- [x] Ready to advance to Phase 2
 
 ---
 
@@ -184,13 +184,13 @@ For grounding, the plan was checked against the project's *de facto* governing r
 
 ### Phase 2 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] Goal-based-stop + independent-evaluator section present in `agent-orchestration-primitives`
-- [ ] `verification-before-completion` treats a loop exit as an evidence-bearing completion claim
-- [ ] Bidirectional cross-links among the three skills
-- [ ] `make validate` passes; catalog count unchanged by this phase
-- [ ] Session history generated for Phase 2
-- [ ] Ready to advance to Phase 3
+- [x] All sub-tasks completed
+- [x] Goal-based-stop + independent-evaluator section present in `agent-orchestration-primitives`
+- [x] `verification-before-completion` treats a loop exit as an evidence-bearing completion claim
+- [x] Bidirectional cross-links among the three skills
+- [x] `make validate` passes; catalog count unchanged by this phase
+- [x] Session history generated for Phase 2
+- [x] Ready to advance to Phase 3
 
 ---
 
@@ -231,13 +231,13 @@ For grounding, the plan was checked against the project's *de facto* governing r
 
 ### Phase 3 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] Scheduled-triage recipe present, every step citing an owned primitive, with the token caution
-- [ ] Cognitive-surrender and comprehension-debt named with mitigations; `session-teach-back` cross-linked
-- [ ] Orphan-bundle audit clean (if a new reference file was added)
-- [ ] `make validate` passes; no new outbound call/dependency introduced
-- [ ] Session history generated for Phase 3
-- [ ] Ready to advance to Phase 4
+- [x] All sub-tasks completed
+- [x] Scheduled-triage recipe present, every step citing an owned primitive, with the token caution
+- [x] Cognitive-surrender and comprehension-debt named with mitigations; `session-teach-back` cross-linked
+- [x] Orphan-bundle audit clean (recipe added inline; no new reference file)
+- [x] `make validate` passes; no new outbound call/dependency introduced
+- [x] Session history generated for Phase 3
+- [x] Ready to advance to Phase 4
 
 ---
 
@@ -306,12 +306,12 @@ For grounding, the plan was checked against the project's *de facto* governing r
 
 ### Phase 4 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] New skill in `scripts/validate_skills.allowlist.json`; description unchanged; `make validate` green
-- [ ] `nexus-skill-scanner` reports no HIGH/CRITICAL findings for the new skill
-- [ ] All cross-links resolve and are bidirectional; machine-readable registry totals consistent
-- [ ] `## [Unreleased]` CHANGELOG entry added; version NOT bumped (release-bump's job)
-- [ ] End-to-end demonstration assembles one library loop with a checker-evaluated exit
-- [ ] Orphan-bundle audit clean; `make lint` run only if a shell surface was added (none expected)
-- [ ] Session history generated for Phase 4
-- [ ] Plan complete; ready for develop->main release via `/update version` (MINOR -> v3.3.0)
+- [x] All sub-tasks completed
+- [x] New skill in `scripts/validate_skills.allowlist.json`; description unchanged; `make validate` green
+- [x] `nexus-skill-scanner` reports no HIGH/CRITICAL findings for the new skill
+- [x] All cross-links resolve and are bidirectional; machine-readable registry totals consistent
+- [x] `## [Unreleased]` CHANGELOG entry added; version NOT bumped (release-bump's job)
+- [x] End-to-end demonstration assembles one library loop with a checker-evaluated exit
+- [x] Orphan-bundle audit clean; `make lint` run only if a shell surface was added (none expected)
+- [x] Session history generated for Phase 4
+- [x] Plan complete; ready for develop->main release via `/update version` (MINOR -> v3.3.0)
