@@ -85,7 +85,7 @@ function Get-SanitizedBranchName {
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-$script:NexusHubVersion = "3.2.0"
+$script:NexusHubVersion = "3.2.2"
 
 $Host.UI.RawUI.WindowTitle = "Nexus-Hub Installer"
 $script:InstallerTitle = "Nexus-Hub Installer"
@@ -1234,17 +1234,18 @@ function Install-Global {
         if ($platforms -contains "GEMINI") {
             Write-Item -Message "Gemini IDE + Antigravity 1.0" -Color "Gray"
             $globalGeminiDir = Join-Path $env:USERPROFILE ".gemini"
-            # Antigravity 2.0 + CLI global dir (binary `agy`; verified 2026-05-29
-            # against Google's public Antigravity CLI docs -- the CLI footprint
-            # lives under the shared ~/.gemini/ family, not ~/.agent/).
-            $globalAgentDir  = Join-Path $env:USERPROFILE ".gemini\antigravity-cli"
             if (-not (Test-Path $globalGeminiDir)) { New-Item -ItemType Directory -Force -Path $globalGeminiDir | Out-Null }
-            if (-not (Test-Path $globalAgentDir))  { New-Item -ItemType Directory -Force -Path $globalAgentDir  | Out-Null }
 
             Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "gemini" -DisplayName "GEMINI.md (instruction file)" -InstructionOnly
 
-            Safe-Folder-Copy -Source "$RepoRoot\catalog\skills"   -Destination (Join-Path $globalAgentDir  "skills")    -CustomMessage "✓ Skills catalog mirrored to: $(Join-Path $globalAgentDir "skills")"
-            Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $globalAgentDir  "workflows") -CustomMessage "✓ Workflows mirrored to: $(Join-Path $globalAgentDir "workflows")"
+            # Antigravity 2.0 + CLI: the antigravity2 integration (below) owns the
+            # entire Antigravity mirror -- it flattens skills to skills/<name>/SKILL.md,
+            # mirrors commands to workflows/, installs the curated hooks + hooks.json,
+            # and writes to BOTH the IDE global root (~/.gemini/antigravity) and the
+            # CLI global root (~/.gemini/antigravity-cli). The previous verbatim
+            # antigravity-cli copies buried every SKILL.md under a category folder the
+            # IDE could not read. (The Gemini IDE ~/.gemini/skills mirror below and the
+            # Antigravity 1.0 global_workflows mirror are separate, untouched surfaces.)
             Safe-Folder-Copy -Source "$RepoRoot\catalog\skills"   -Destination (Join-Path $globalGeminiDir "skills")    -CustomMessage "✓ Skills catalog installed at: $(Join-Path $globalGeminiDir "skills")"
 
             $globalAntigravityWorkflows = Join-Path $globalGeminiDir "antigravity\global_workflows"
@@ -1254,6 +1255,7 @@ function Install-Global {
 
         if ($platforms -contains "ANTIGRAVITY2") {
             Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "antigravity2" -DisplayName "Antigravity 2.0 + CLI"
+            Write-Item -Message "Antigravity 2.0 IDE: slash commands appear only inside an OPEN project folder (its .agents/workflows/). Run a workspace/project install in your repo so the commands show; a global-only install is not scanned by the IDE for slash commands." -Color "Yellow"
         }
         if ($platforms -contains "GEMINI_CLI") {
             if ($Enterprise) {
@@ -1567,17 +1569,15 @@ function Install-Workspace {
             if ($workspacePlatforms -contains "GEMINI") {
                 Write-Item -Message "Gemini IDE + Antigravity 1.0" -Color "Gray"
                 $geminiDir = Join-Path $targetPath ".gemini"
-                # Antigravity 2.0 + CLI per-project dir (binary `agy`; verified
-                # 2026-05-29 against Google's public Antigravity CLI docs --
-                # skills/workflows live under .agents/, not .agent/).
-                $agentDir  = Join-Path $targetPath ".agents"
                 if (-not (Test-Path $geminiDir)) { New-Item -ItemType Directory -Force -Path $geminiDir | Out-Null }
-                if (-not (Test-Path $agentDir))  { New-Item -ItemType Directory -Force -Path $agentDir  | Out-Null }
 
                 Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "gemini" -DisplayName "GEMINI.md (instruction file)" -Languages ($languages -join ',') -InstructionOnly
 
-                Safe-Folder-Copy -Source "$RepoRoot\catalog\skills"   -Destination (Join-Path $agentDir "skills")    -CustomMessage "✓ Skills catalog mirrored to: $(Join-Path $agentDir "skills")"
-                Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $agentDir "workflows") -CustomMessage "✓ Workflows mirrored to: $(Join-Path $agentDir "workflows")"
+                # Antigravity 2.0 + CLI: the antigravity2 integration (below) owns the
+                # .agents/ mirror -- it flattens skills to .agents/skills/<name>/SKILL.md,
+                # mirrors commands to .agents/workflows/, and installs .agents/hooks/ +
+                # .agents/hooks.json. The previous verbatim copies buried SKILL.md under a
+                # category folder the IDE could not read.
             }
 
             if ($workspacePlatforms -contains "ANTIGRAVITY2") {
