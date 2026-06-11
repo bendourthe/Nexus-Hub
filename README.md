@@ -4,9 +4,17 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.3.1 -->
+<!-- nexus-hub-version: 3.3.2 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 252 skills, 14 commands, 22 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
+
+## Interactive Guide -- start here
+
+**New to Nexus-Hub? [Open the interactive guide](guide/nexus-hub-guide.html).** It is a self-contained, click-through walkthrough of the entire workflow -- install, onboard an unfamiliar codebase, plan, implement, harden, and ship -- with simulated VS Code / terminal sessions and the artifact each command produces. It is the fastest way to get a teammate productive, and it doubles as a live-demo-quality presentation.
+
+- **File:** [`guide/nexus-hub-guide.html`](guide/nexus-hub-guide.html) -- one HTML file, fully offline, no server or install required.
+- **To view it:** GitHub does not render HTML inline. Open the file above and click **Download raw file** (top-right of the file view), then open the downloaded `.html` in any browser. Or clone the repo and double-click it.
+- **To share it:** send that single file to anyone on the team. See [guide/README.md](guide/README.md) for maintainer notes.
 
 > **Renamed from DevAI-Hub at v2.0.0** to align with the sibling project [Nexus](https://github.com/bendourthe/Nexus-AI), a local-first desktop AI Studio that consumes Nexus-Hub as its upstream skill feed. Existing `~/.devai-hub/` installs are migrated in place by the v2.0.0 installer on first run; see [docs/archive/v2/v2.0.0/RELEASE_NOTES.md](docs/archive/v2/v2.0.0/RELEASE_NOTES.md) for the full migration story.
 
