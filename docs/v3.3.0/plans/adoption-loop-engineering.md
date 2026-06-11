@@ -306,12 +306,12 @@ For grounding, the plan was checked against the project's *de facto* governing r
 
 ### Phase 4 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] New skill in `scripts/validate_skills.allowlist.json`; description unchanged; `make validate` green
-- [ ] `nexus-skill-scanner` reports no HIGH/CRITICAL findings for the new skill
-- [ ] All cross-links resolve and are bidirectional; machine-readable registry totals consistent
-- [ ] `## [Unreleased]` CHANGELOG entry added; version NOT bumped (release-bump's job)
-- [ ] End-to-end demonstration assembles one library loop with a checker-evaluated exit
-- [ ] Orphan-bundle audit clean; `make lint` run only if a shell surface was added (none expected)
-- [ ] Session history generated for Phase 4
-- [ ] Plan complete; ready for develop->main release via `/update version` (MINOR -> v3.3.0)
+- [x] All sub-tasks completed
+- [x] New skill in `scripts/validate_skills.allowlist.json`; description unchanged; `make validate` green
+- [x] `nexus-skill-scanner` reports no HIGH/CRITICAL findings for the new skill
+- [x] All cross-links resolve and are bidirectional; machine-readable registry totals consistent
+- [x] `## [Unreleased]` CHANGELOG entry added; version NOT bumped (release-bump's job)
+- [x] End-to-end demonstration assembles one library loop with a checker-evaluated exit
+- [x] Orphan-bundle audit clean; `make lint` run only if a shell surface was added (none expected)
+- [x] Session history generated for Phase 4
+- [x] Plan complete; ready for develop->main release via `/update version` (MINOR -> v3.3.0)
