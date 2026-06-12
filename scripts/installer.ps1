@@ -85,7 +85,7 @@ function Get-SanitizedBranchName {
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-$script:NexusHubVersion = "3.3.3"
+$script:NexusHubVersion = "3.3.4"
 
 $Host.UI.RawUI.WindowTitle = "Nexus-Hub Installer"
 $script:InstallerTitle = "Nexus-Hub Installer"
@@ -1285,8 +1285,7 @@ function Install-Global {
     # --- Microsoft -- GitHub Copilot -------------------------------------
     if ($platforms -contains "COPILOT") {
         Write-Header -Provider "MICROSOFT"
-        Write-Item -Message "GitHub Copilot" -Color "Gray"
-        Write-Item -Message "Check skipped (no global file support on Windows)." -Color "DarkGray"
+        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "copilot" -DisplayName "GitHub Copilot (global prompt files)"
     }
 
     # --- Anysphere -- Cursor ---------------------------------------------

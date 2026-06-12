@@ -7,7 +7,7 @@ set -e
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-NEXUS_HUB_VERSION="3.3.3"
+NEXUS_HUB_VERSION="3.3.4"
 
 # --- Window Title ---
 printf '\033]0;Nexus-Hub Installer\007'
@@ -854,8 +854,7 @@ install_global() {
 
     # --- Microsoft -- GitHub Copilot -----------------------------------
     write_header "MICROSOFT"
-    write_item "GitHub Copilot" "$GRAY"
-    write_item "Check skipped (no global file support standard)." "$GRAY"
+    invoke_registry_platform "$repo_root" "global" "" "copilot" "GitHub Copilot (global prompt files)"
 
     # --- Anysphere -- Cursor -------------------------------------------
     write_header "ANYSPHERE"

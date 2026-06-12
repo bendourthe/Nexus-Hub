@@ -171,6 +171,23 @@ class Antigravity20Integration(MarkdownIntegration, SkillsIntegration):
             result.files.extend(self._mirror_antigravity(parent, ctx, scope="workspace"))
         return result
 
+    def wire_project_surfaces(self, ctx: InstallContext) -> WriteResult:
+        """Seed the current repo's ``.agents/`` surfaces for ``nexus-hub init``.
+
+        The Antigravity 2.0 IDE reads slash commands (``workflows/``), rules, and
+        skills ONLY from the open project's ``.agents/`` -- a global install is
+        not scanned (verified empirically). There is therefore no global command
+        surface to mirror into; instead ``nexus-hub init`` writes the ``.agents/``
+        tree into the current repo so the catalog's commands, rules, and skills
+        become available there. Mirrors the workspace ``.agents/`` content but
+        leaves the shared ``AGENTS.md`` instruction file to the install flow.
+        """
+        result = WriteResult()
+        parent = (ctx.target_root / self.config["workspace_dir"]).resolve()
+        self._ensure_dir(parent, ctx)
+        result.files.extend(self._mirror_antigravity(parent, ctx, scope="workspace"))
+        return result
+
     # ----- mirror helpers --------------------------------------------------
 
     def _mirror_antigravity(

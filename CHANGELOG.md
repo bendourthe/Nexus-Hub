@@ -9,6 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.3.4] - 2026-06-12
+
+**v3.3.4 -- global slash commands for Cursor and Copilot; Antigravity project-seed.** Makes the catalog's commands available from any repo on platforms that read a user-global command surface, closing the gap where a global Nexus-Hub install did not surface slash commands in arbitrary projects. Each platform's global capability was verified empirically (a sentinel command placed in the global dir, then confirmed visible from a repo with no local install). Installer/integration change only; no catalog content change.
+
+### Added
+
+- **Cursor global commands** (`scripts/lib/integrations/cursor.py`): `install_global` now mirrors `catalog/commands/*.md` into `~/.cursor/commands/` (Cursor's user-global slash-command directory), so every command is available as `/<name>` in any repo with no per-project install.
+- **Copilot global prompt files** (`scripts/lib/integrations/copilot.py`): `install_global` now writes `catalog/commands/*.md` as `<vscode-user>/prompts/<name>.prompt.md` (cross-platform user-dir detection across Windows/macOS/Linux, stable + Insiders), surfaced as `/<name>` in Copilot Chat from any repo. Skipped with a note when VS Code is not installed.
+- **Shared mirror+prune helper** (`scripts/lib/integrations/_command_surface.py`): one routine for both surfaces. Pruning is manifest-scoped, so a command removed/renamed upstream is deleted from the global dir on the next install, while a user's own commands in the same directory are never touched.
+- **Antigravity `nexus-hub init`** (`scripts/lib/integrations/antigravity.py`): `wire_project_surfaces` seeds the current repo's `.agents/` (workflows/rules/skills/hooks). The Antigravity 2.0 IDE reads slash commands only from the open project's `.agents/` (a global install is not scanned -- verified), so `nexus-hub init` is the per-repo bridge.
+
+### Notes
+
+- Global-command capability by platform is now: Claude Code / Codex / Gemini CLI (already global), **Cursor / Copilot (global, new)**, Antigravity (project-only via `nexus-hub init`).
+
 ## [3.3.3] - 2026-06-12
 
 **v3.3.3 -- Windows installer writes BOM-less JSON.** Fixes a Windows PowerShell 5.1 bug where the installer wrote `~/.claude/settings.json` (and the VS Code settings merge) as UTF-8 *with a BOM* via `Set-Content -Encoding UTF8`. A leading BOM is invalid per the JSON spec, so the Claude Code VS Code extension failed to parse the file ("Unexpected token ... is not valid JSON"), which surfaced when changing the model. The installer now writes all JSON through a BOM-less helper. Installer-only change; no catalog content, command, or dependency change.
