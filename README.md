@@ -37,78 +37,17 @@ The two projects are designed to be useful independently: you can install Nexus-
 
 ---
 
-## What's New in v3.3.0
+## What's New in v3.3.4
 
-v3.3.0 adds a skill-native loop-engineering layer. Every change is local-first: zero new outbound calls, dependencies, credentials, or third-party processors, and no new slash command.
-
-Highlights:
-
-- **`loop-engineering` workflow skill** (`catalog/skills/workflow/loop-engineering/`): a connective layer that composes Nexus-Hub's existing primitives into named, goal-terminated agentic loops. It ships a loop-definition schema (`name`, `goal`, `iteration_cap`, `check_command`, `exit_condition`, `driver`, `maturity`, `agents`, `tags`), a seeded local loop library (three full archetypes -- `ship-pr-until-green`, `build-until-green`, `e2e-until-green` -- plus two mapped examples that defer to the first-class `/test` and `/review changes` commands), a five-pieces-to-primitive mapping, and a scheduled-triage recipe expressed entirely with owned primitives. The loop *driver* remains the host platform's `/loop` and `/goal`; Nexus-Hub references those commands and never reimplements them. The hosted-gallery pattern was reverse-engineered into a purely local, service-free registry (no install counts, no remote fetch).
-- **Goal-based stopping + independent-evaluator methodology**: `agent-orchestration-primitives` and `verification-before-completion` now teach that a loop's exit condition must be a falsifiable `check_command` evaluated by a checker that did not produce the work -- and name two loop human-cost anti-patterns (cognitive surrender, comprehension debt) with mitigations, cross-linking `session-teach-back` as the comprehension-debt countermeasure.
-
-Catalog: **252 skills** across 21 categories. See [CHANGELOG.md](CHANGELOG.md) for the full entry and [docs/v3.3.0/](docs/v3.3.0/) for the plan and known gaps.
-
----
-
-## What's New in v3.2.0
-
-v3.2.0 lands two reverse-engineer-first adoptions and removes the v3.x command shims. Every change is local-first: zero new outbound calls, credentials, or third-party processors.
+v3.3.4 makes the catalog's slash commands reachable from any repo on every platform that exposes a user-global command surface. It is an installer / integration change only: zero catalog content change (still **252 skills**), and no new outbound call, dependency, credential, or third-party processor.
 
 Highlights:
 
-- **Internal `nexus-context-compressor` engine** (`extensions/nexus-context-compressor/`): a local-first, reversible, zero-outbound replacement for the external `rtk` Rust binary. It routes tool output to deterministic strategies (JSON-array dedup, AST-aware code-body elision reusing the `nexus-code-search` tree-sitter extractors, KV-cache prefix stabilization), persists every dropped span behind a reversible `<<ccr:HASH N_rows>>` marker (a local SQLite store resolves it back on demand), and ships an opt-in PreToolUse hook + an internal MCP `context_compress` / `context_retrieve` tool. An offline, deterministic accuracy-regression gate guards fidelity in CI, and an optional default-off ML token-dropper (public pre-trained ONNX weights, offline-capable) is available behind an extra. This is the 4th internal MCP server.
-- **`session-teach-back` skill**: a Socratic mastery-confirmation loop that quizzes the operator on what a session built until every concept is confirmed. Skill-native, no new code or outbound call.
-- **Removed the 40 v3.x deprecation command shims** (breaking): the old command names no longer resolve. The consolidated 14 commands + 3 permanent aliases (`/commands`, `/commit`, `/constitution`) remain; the old-to-new mapping is in [docs/v3.0.0/command-migration.md](docs/v3.0.0/command-migration.md).
+- **Cursor and Copilot global slash commands**: a global install now mirrors every command into Cursor's `~/.cursor/commands/<name>.md` and into VS Code's user-profile `prompts/<name>.prompt.md`, so `/<command>` works in any repo with no per-project install. A manifest-scoped prune removes commands deleted or renamed upstream without ever touching a user's own files.
+- **Antigravity per-repo seed**: the Antigravity 2.0 IDE reads slash commands only from the open project's `.agents/workflows/`, so `nexus-hub init` (`scripts/installer.sh init` / `scripts/installer.ps1 init`) seeds them per repo. Global-command capability by platform is now Claude Code / Codex / Gemini CLI (already global), **Cursor / Copilot (global, new)**, and Antigravity (project-only via `nexus-hub init`).
+- **Earlier in the v3.3.x line**: v3.3.3 fixed a Windows installer bug that wrote `~/.claude/settings.json` with a UTF-8 BOM (which broke the Claude Code VS Code extension's JSON parsing); v3.3.2 added the self-contained [interactive onboarding guide](guides/interactive-guide/nexus-hub-guide.html).
 
-Catalog: **251 skills** across 21 categories. See [CHANGELOG.md](CHANGELOG.md) for the full entry and [docs/v3.2.0/](docs/v3.2.0/) for the plans, architecture writeup, and known gaps.
-
----
-
-## What's New in v2.1.0
-
-v2.1.0 makes **Spec-Driven Development (SDD)** a first-class workflow in Nexus-Hub by adopting 11 capabilities surfaced by the v2.0.0 cross-project comparison with [GitHub Spec Kit](https://github.com/github/spec-kit). The release is fully additive -- every change is opt-in, and pre-existing command and skill behavior is preserved.
-
-Highlights:
-
-- **4 new slash commands**: `/constitution` (project-governance file with versioned MUST / SHOULD principles), `/analyze-spec` (read-only cross-artifact analyzer with severity-tagged findings), `/clarify-spec` (sequential 5-question ambiguity-reduction loop), `/tasks-to-issues` (convert strict-format task lines into linked GitHub issues via the local `gh` CLI).
-- **3 new skills**: `project-constitution`, `cross-artifact-analyzer`, `tasks-to-issues`.
-- **3 new templates**: `constitution-template.md`, `spec-template.md` (with P1 / P2 / P3 user stories + FR-### / SC-### IDs), `spec-quality-checklist.md`.
-- **`/generate-plan` updates**: opt-in `--specs-layout` flag for the `specs/<NNN>-<slug>/` directory layout, strict `- [ ] T### [P?] [US?] file_path` task-line format with phase organization (Setup / Foundational / User-Story / Polish), Constitution Check + Complexity Tracking sections in every generated plan.
-- **`[NEEDS CLARIFICATION]` marker discipline** with a 3-marker hard cap prioritized `scope > security/privacy > UX > technical`, wired into `spec-driven-development`, `ambiguity-detector`, and `idea-refine` skills.
-- **Integration Registry (G12, pulled forward from v2.2.0)**: a Python class hierarchy under `scripts/lib/integrations/` that owns per-platform install logic. Adding a new AI assistant is now one ~30-line subclass + one register line instead of editing 5+ instruction templates in lockstep. See [docs/archive/v2/v2.1.0/adr/adr-001-integration-registry.md](docs/archive/v2/v2.1.0/adr/adr-001-integration-registry.md) for the architecture decision record.
-- **Expanded platform support (3 new platforms)**: Antigravity 2.0 (Google), Gemini CLI (Google), and Nexus-AI ([https://github.com/bendourthe/Nexus-AI](https://github.com/bendourthe/Nexus-AI)) join the existing Claude Code / Codex / Cursor / Gemini / Antigravity 1.0 / GitHub Copilot / OpenCode list. The installer auto-dispatches to all 10 platforms so switching assistants is seamless.
-
-All 11 SDD adoption items are classified `skill-native` under the MCP Registry Policy -- no new outbound calls, no new credentials, no new third-party data processors, no new runtime dependencies. The Integration Registry is also stdlib-only Python.
-
-See [CHANGELOG.md](CHANGELOG.md) and [docs/archive/v2/v2.1.0/RELEASE_NOTES.md](docs/archive/v2/v2.1.0/RELEASE_NOTES.md) for the full v2.1.0 entry, and [docs/archive/v2/v2.1.0/plans/adoption-spec-kit.md](docs/archive/v2/v2.1.0/plans/adoption-spec-kit.md) for the 10-phase plan.
-
----
-
-## What's New in v2.0.0
-
-v2.0.0 is a **rename + brand modernization** release. There are three headline changes:
-
-### 1. Renamed from DevAI-Hub to Nexus-Hub (breaking)
-
-The repository, distributed artifact, plugin metadata, installer, MCP servers, extensions, scripts, skills, commands, hooks, agents, rules, templates, and every documentation surface have been renamed to **Nexus-Hub**. The complete list of breaking changes is in [CHANGELOG.md](CHANGELOG.md) under `[2.0.0] -- Breaking changes`. The headline items:
-
-- **Installed root**: `~/.devai-hub/` -> `~/.nexus-hub/`
-- **Plugin name**: `devai-hub` -> `nexus-hub`
-- **MCP server names**: `devai-skill-server` -> `nexus-skill-server` (and the other two)
-- **Environment-variable prefix**: `DEVAI_*` -> `NEXUS_*`
-- **GitHub URL**: `bendourthe/DevAI-Hub` -> `bendourthe/Nexus-Hub` (GitHub's automatic rename redirect handles in-flight links)
-
-Existing DevAI-Hub installs are migrated in place by a one-shot prompt at the top of the v2.0.0 installer. No symlinks, no compatibility shims -- a single user-visible event.
-
-### 2. Modernized installer
-
-Both `scripts/installer.sh` and `scripts/installer.ps1` now print an ASCII-art `NEXUS-HUB` banner at startup, followed by the tagline, version, and repo URL. The legacy-install migration logic runs immediately after the banner and before the welcome prompt.
-
-### 3. Explicit Nexus brand linkage
-
-This README and the top-level agent instruction files (`AGENTS.md`, `CLAUDE.md`) now describe the relationship between Nexus-Hub and Nexus directly, so the two-project shape is obvious to anyone landing on either repo.
-
-See [CHANGELOG.md](CHANGELOG.md) and [docs/archive/v2/v2.0.0/RELEASE_NOTES.md](docs/archive/v2/v2.0.0/RELEASE_NOTES.md) for the full v2.0.0 entry.
+See [CHANGELOG.md](CHANGELOG.md) for the full v3.3.4 entry and the complete release history.
 
 ---
 
