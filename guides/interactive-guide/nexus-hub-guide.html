@@ -929,8 +929,8 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
               <div><span class="t-violet">&#9656; Anthropic</span> &middot; Claude Code &nbsp;&nbsp;<span class="t-ok">&#10003;</span> skills &middot; commands &middot; agents &middot; rules &middot; hooks &middot; MCP config</div>
               <div><span class="t-violet">&#9656; OpenAI</span> &middot; Codex &nbsp;&nbsp;<span class="t-ok">&#10003;</span> skills &middot; prompts &middot; AGENTS.md</div>
               <div><span class="t-violet">&#9656; Google</span> &middot; Gemini / Antigravity &nbsp;&nbsp;<span class="t-ok">&#10003;</span> skills &middot; workflows &middot; Antigravity 2.0 + CLI</div>
-              <div><span class="t-violet">&#9656; Microsoft</span> &middot; Copilot &nbsp;&nbsp;<span class="t-dim">- skipped on Windows (no global file support)</span></div>
-              <div><span class="t-violet">&#9656; Anysphere</span> &middot; Cursor &nbsp;&nbsp;<span class="t-ok">&#10003;</span> rules + skill index</div>
+              <div><span class="t-violet">&#9656; Microsoft</span> &middot; Copilot &nbsp;&nbsp;<span class="t-ok">&#10003;</span> commands (VS Code prompt files) &middot; copilot-instructions.md</div>
+              <div><span class="t-violet">&#9656; Anysphere</span> &middot; Cursor &nbsp;&nbsp;<span class="t-ok">&#10003;</span> commands &middot; rules &middot; skill index</div>
               <div><span class="t-violet">&#9656; OpenCode</span> &nbsp;&nbsp;<span class="t-ok">&#10003;</span> AGENTS.md</div>
               <div><span class="t-violet">&#9656; Nexus</span> &middot; Nexus-AI &nbsp;&nbsp;<span class="t-ok">&#10003;</span> installed</div>
               <div class="spacer"></div>
@@ -939,7 +939,7 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
               <div><span class="t-teal">&middot; Skill Discovery</span> &nbsp;<span class="t-ok">&#10003;</span> skill index + MCP servers (skill-search, code-search, web-fetch, compressor)</div>
               <div><span class="t-teal">&middot; Git commit-msg hook</span> &nbsp;<span class="t-ok">&#10003;</span> installed to ~/.git-templates</div>
               <div class="spacer"></div>
-              <div class="t-ok t-bold">&#10003; Nexus-Hub v3.3.1 installed (Global scope).</div>
+              <div class="t-ok t-bold">&#10003; Nexus-Hub v3.3.4 installed (Global scope).</div>
               <div class="t-warn">Restart your AI assistants so they pick up the new skills, hooks, and rules.</div>
             </div>
           </div>
@@ -1030,14 +1030,15 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
           <tbody>
             <tr><td><strong>Anthropic</strong> &middot; Claude Code</td><td><span class="sev ok">Files</span></td><td><span class="sev ok">Yes</span></td><td><code>commands/</code></td><td><code>~/.claude/</code> + hooks</td></tr>
             <tr><td><strong>OpenAI</strong> &middot; Codex</td><td><span class="sev ok">Files</span></td><td><span class="sev ok">Yes</span></td><td><code>prompts/</code></td><td><code>~/.codex/</code></td></tr>
-            <tr><td><strong>Google</strong> &middot; Gemini / Antigravity</td><td><span class="sev ok">Files</span></td><td><span class="sev ok">Yes</span></td><td><code>workflows/</code></td><td><code>~/.gemini/</code>, <code>.agents/</code></td></tr>
-            <tr><td><strong>Anysphere</strong> &middot; Cursor</td><td><span class="sev low">Via index</span></td><td><span class="sev med">Body only</span></td><td><span class="muted">instruction file</span></td><td><code>.cursor/rules/</code></td></tr>
-            <tr><td><strong>Microsoft</strong> &middot; GitHub Copilot</td><td><span class="sev low">Via index</span></td><td><span class="sev med">Body only</span></td><td><span class="muted">instruction file</span></td><td><code>copilot-instructions.md</code></td></tr>
+            <tr><td><strong>Google</strong> &middot; Gemini / Antigravity</td><td><span class="sev ok">Files</span></td><td><span class="sev ok">Yes</span></td><td><code>workflows/</code></td><td><code>~/.gemini/</code>, <code>.agents/</code> <span class="muted">(per repo)</span></td></tr>
+            <tr><td><strong>Anysphere</strong> &middot; Cursor</td><td><span class="sev low">Via index</span></td><td><span class="sev ok">Yes</span></td><td><code>~/.cursor/commands/</code></td><td><code>~/.cursor/commands/</code> + <code>.cursor/rules/</code></td></tr>
+            <tr><td><strong>Microsoft</strong> &middot; GitHub Copilot</td><td><span class="sev low">Via index</span></td><td><span class="sev ok">Yes</span></td><td><code>prompts/*.prompt.md</code></td><td>VS Code <code>prompts/</code> + <code>copilot-instructions.md</code></td></tr>
             <tr><td><strong>OpenCode</strong></td><td><span class="sev low">Via index</span></td><td><span class="sev med">Body only</span></td><td><span class="muted">instruction file</span></td><td><code>AGENTS.md</code></td></tr>
             <tr><td><strong>Nexus</strong> &middot; Nexus-AI</td><td><span class="sev ok">Files</span></td><td><span class="sev ok">Yes</span></td><td><span class="muted">native</span></td><td>desktop integration</td></tr>
           </tbody>
         </table>
         <p class="muted" style="font-size:13px"><strong>Yes</strong> = the command appears in that tool's native slash menu. <strong>Body only</strong> = no slash entry, but the agent still follows the command's instructions when you name it. <strong>Via index</strong> = skills are exposed through a skill-index block in the tool's instruction file rather than as individual files. These seven providers are exactly the choices the installer's provider menu offers.</p>
+        <p class="muted" style="font-size:13px"><strong>Cursor and Copilot now get global slash commands too.</strong> A global install mirrors every command into Cursor's <code>~/.cursor/commands/</code> and into VS Code's user-profile <code>prompts/</code> folder, so <code>/&lt;command&gt;</code> works in <em>any</em> repo with no per-project setup. <strong>Antigravity is the exception:</strong> it reads slash commands only from the open project's <code>.agents/</code> folder, so run <code>nexus-hub init</code> once inside a repo to seed them there (one command, no reinstall).</p>
 
         <div class="callout tip">
           <span class="ci">&#9733;</span>

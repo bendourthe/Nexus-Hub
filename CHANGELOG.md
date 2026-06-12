@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Notes
 
 - Global-command capability by platform is now: Claude Code / Codex / Gemini CLI (already global), **Cursor / Copilot (global, new)**, Antigravity (project-only via `nexus-hub init`).
+- Docs synced to match: the `AGENTS.md` platform-coverage section (distribution table, caveats, and slash-surface note) and the interactive guide's platform table / install log (`guides/interactive-guide/nexus-hub-guide.html`) now describe the new global command surfaces (Cursor `~/.cursor/commands/`, Copilot VS Code `prompts/*.prompt.md`) and the Antigravity per-repo `nexus-hub init` seed, replacing the prior "body-only / instruction-file" description.
 
 ## [3.3.3] - 2026-06-12
 
