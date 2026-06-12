@@ -105,7 +105,10 @@ def test_default_wire_project_surfaces_returns_none(tmp_path: Path) -> None:
         manifest=InstallManifest(),
     )
 
-    overrides = {"cursor", "claude"}
+    # antigravity2 overrides the hook (v3.3.4): the Antigravity 2.0 IDE reads
+    # slash commands only from the open project's .agents/, so `nexus-hub init`
+    # seeds that tree per-repo (there is no global command surface to mirror).
+    overrides = {"cursor", "claude", "antigravity2"}
     for key, integ in INTEGRATION_REGISTRY.items():
         out = integ.wire_project_surfaces(ctx)
         if key in overrides:
