@@ -8,7 +8,7 @@ The guide is a **single HTML file with zero dependencies** - no server, no netwo
 
 - **To open:** double-click `nexus-hub-guide.html`. It opens in any modern browser and works fully offline via `file://`.
 - **To share:** send that one file to a teammate (Slack, email, shared drive). It is the entire guide.
-- **From GitHub:** the file is linked from the main [README](../README.md). GitHub does not render HTML inline, so use the file's **Download raw file** button, then open the downloaded file in a browser.
+- **From GitHub:** the file is linked from the main [README](../../README.md). GitHub does not render HTML inline, so use the file's **Download raw file** button, then open the downloaded file in a browser.
 - **No ZIP required** - but you can zip the single file if your channel prefers an archive.
 
 This `README.md` is for maintainers; it does not need to be shared with the file.
