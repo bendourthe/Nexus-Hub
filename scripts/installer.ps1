@@ -85,7 +85,7 @@ function Get-SanitizedBranchName {
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-$script:NexusHubVersion = "3.3.2"
+$script:NexusHubVersion = "3.3.3"
 
 $Host.UI.RawUI.WindowTitle = "Nexus-Hub Installer"
 $script:InstallerTitle = "Nexus-Hub Installer"
@@ -336,6 +336,21 @@ function Get-Overwrite-Preference {
 
 # --- File Operations ---
 
+# Writes an object as JSON in UTF-8 *without* a BOM. Windows PowerShell 5.1's
+# Set-Content / Out-File -Encoding UTF8 prepend a BOM, which is invalid per the
+# JSON spec and breaks strict JSON.parse consumers such as the Claude Code VS Code
+# extension ("Unexpected token ... is not valid JSON"). .NET WriteAllText with
+# UTF8Encoding($false) is BOM-less on both Windows PowerShell 5.1 and PowerShell 7+.
+function Write-JsonFile {
+    param(
+        [Parameter(Mandatory = $true)][string]$Path,
+        [Parameter(Mandatory = $true)]$Object,
+        [int]$Depth = 10
+    )
+    $json = $Object | ConvertTo-Json -Depth $Depth
+    [System.IO.File]::WriteAllText($Path, $json, (New-Object System.Text.UTF8Encoding($false)))
+}
+
 function Safe-Copy {
     param(
         [string]$Source,
@@ -525,7 +540,7 @@ function Install-GitGuardrails {
                     }
                 }
 
-                $existingJson | ConvertTo-Json -Depth 10 | Set-Content $settingsFile -Encoding UTF8
+                Write-JsonFile -Path $settingsFile -Object $existingJson
                 Write-Item -Message "✓ $Scope settings.json updated with git guardrails hook" -Color "DarkGreen"
             }
         }
@@ -614,7 +629,7 @@ function Install-UsageDisplay {
                 }
             }
 
-            $existingJson | ConvertTo-Json -Depth 10 | Set-Content $settingsFile -Encoding UTF8
+            Write-JsonFile -Path $settingsFile -Object $existingJson
             Write-Item -Message "✓ $Scope settings.json updated with usage display hook" -Color "DarkGreen"
         }
     }
@@ -726,7 +741,7 @@ function Install-RequireDescription {
                 }
             }
 
-            $existingJson | ConvertTo-Json -Depth 10 | Set-Content $settingsFile -Encoding UTF8
+            Write-JsonFile -Path $settingsFile -Object $existingJson
             $added = ($entriesToAdd | ForEach-Object { $_.matcher }) -join ", "
             Write-Item -Message "✓ $Scope settings.json updated with description hooks ($added)" -Color "DarkGreen"
         }
@@ -798,7 +813,7 @@ function Install-CoreSettings {
             Write-Item -Message "✓ Core settings (effortLevel, model, env effort) already current in settings.json" -Color "DarkGreen"
             return
         }
-        $existingJson | ConvertTo-Json -Depth 10 | Set-Content $settingsFile -Encoding UTF8
+        Write-JsonFile -Path $settingsFile -Object $existingJson
         Write-Item -Message "✓ $Scope settings.json updated core settings ($($applied -join ', '))" -Color "DarkGreen"
     }
     catch {
@@ -916,7 +931,7 @@ function Install-Permissions {
                     Write-Item -Message "  Backup created: $backupPath" -Color "DarkGray"
 
                     $existingJson.permissions.allow = $merged
-                    $existingJson | ConvertTo-Json -Depth 10 | Set-Content $settingsFile -Encoding UTF8
+                    Write-JsonFile -Path $settingsFile -Object $existingJson
                     Write-Item -Message "✓ $Scope auto-approve permissions added to settings.json ($addedCount new entries)" -Color "DarkGreen"
                 }
                 catch {
@@ -928,7 +943,7 @@ function Install-Permissions {
                 # No existing settings.json; create with permissions only
                 $newJson = [PSCustomObject]@{ permissions = [PSCustomObject]@{ allow = $newEntries } }
                 if (-not (Test-Path $configDir)) { New-Item -ItemType Directory -Force -Path $configDir | Out-Null }
-                $newJson | ConvertTo-Json -Depth 10 | Set-Content $settingsFile -Encoding UTF8
+                Write-JsonFile -Path $settingsFile -Object $newJson
                 Write-Item -Message "✓ $Scope settings.json created with auto-approve permissions" -Color "DarkGreen"
             }
 
@@ -983,7 +998,7 @@ function Install-Permissions {
                     $existingDomains = @($existingJson.allowedDomains)
                     $existingJson.allowedDomains = @($existingDomains + $newDomains | Select-Object -Unique)
 
-                    $existingJson | ConvertTo-Json -Depth 10 | Set-Content $settingsFile -Encoding UTF8
+                    Write-JsonFile -Path $settingsFile -Object $existingJson
                     Write-Item -Message "✓ $Scope auto-approve permissions added to settings.json" -Color "DarkGreen"
                 }
                 catch {
@@ -997,7 +1012,7 @@ function Install-Permissions {
                     tools = [PSCustomObject]@{ allowed = $newTools }
                     allowedDomains = $newDomains
                 }
-                $newJson | ConvertTo-Json -Depth 10 | Set-Content $settingsFile -Encoding UTF8
+                Write-JsonFile -Path $settingsFile -Object $newJson
                 Write-Item -Message "✓ $Scope settings.json created with auto-approve permissions" -Color "DarkGreen"
             }
 
@@ -1130,7 +1145,7 @@ function Install-Permissions {
                     $existingJson.$key = $true
                 }
 
-                $existingJson | ConvertTo-Json -Depth 10 | Set-Content $vscodeSettingsFile -Encoding UTF8
+                Write-JsonFile -Path $vscodeSettingsFile -Object $existingJson
                 Write-Item -Message "✓ $Scope VS Code settings updated with Copilot instruction file support" -Color "DarkGreen"
             }
             catch {
@@ -2365,7 +2380,7 @@ function Install-SkillDiscovery {
         }
     }
 
-    $settings | ConvertTo-Json -Depth 10 | Set-Content $claudeSettings -Encoding UTF8
+    Write-JsonFile -Path $claudeSettings -Object $settings
     Write-Item -Message "  MCP servers registered in $claudeSettings (nexus-skill-server, nexus-code-search, nexus-web-fetch, nexus-context-compressor)" -Color "DarkGreen"
     Write-Item -Message "  Servers will auto-start with Claude Code. No manual steps needed." -Color "DarkGreen"
 }
