@@ -2,14 +2,22 @@
 
 Cursor uses .cursor/rules/<name>.mdc files (Markdown + YAML frontmatter) for
 project rules, plus AGENTS.md at repo root as the canonical instruction file.
-Cursor does not have a slash-command surface; commands surface as rule files
-or are invoked manually.
+
+Cursor DOES expose a user-global slash-command surface: it scans
+``~/.cursor/commands/<name>.md`` (alongside project ``.cursor/commands/``) and
+offers each as ``/<name>`` in any repo. A global install therefore mirrors the
+catalog's commands there so they are available from every project with no
+per-project install (confirmed empirically against a repo with no local
+install). Project rules still install per-workspace.
 """
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from .base import InstallContext, MarkdownIntegration, YamlIntegration
 from .result import FileAction, WriteResult
+from ._command_surface import mirror_command_surface
 from scripts.lib.installer.instruction_merge import merge_marker_section
 
 
@@ -25,6 +33,21 @@ class CursorIntegration(MarkdownIntegration, YamlIntegration):
         "rules_subdir": "rules",
         "hooks_supported": False,
     }
+
+    def install_global(self, ctx: InstallContext) -> WriteResult:
+        """Mirror catalog commands into ``~/.cursor/commands/`` (global surface).
+
+        Cursor offers every ``~/.cursor/commands/<name>.md`` as ``/<name>`` in
+        any repo, so this makes the Nexus-Hub commands available globally with
+        no per-project install. Stale commands from a prior install are pruned.
+        """
+        result = super().install_global(ctx)
+        commands_dir = (Path.home() / ".cursor" / "commands").resolve()
+        self._ensure_dir(commands_dir, ctx)
+        result.files.extend(
+            mirror_command_surface(ctx, self.key, commands_dir, suffix=".md")
+        )
+        return result
 
     def install_workspace(self, ctx: InstallContext) -> WriteResult:
         result = WriteResult()
