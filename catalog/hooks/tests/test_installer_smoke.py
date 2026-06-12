@@ -531,5 +531,39 @@ def _run_all():
     print(f"\nAll {len(tests)} installer-smoke tests passed.")
 
 
+# --- (3) Encoding regression: settings.json must be written BOM-less ----------
+
+
+def test_installer_ps1_writes_settings_without_bom():
+    """Windows PowerShell 5.1's `Set-Content -Encoding UTF8` prepends a UTF-8 BOM,
+    which is invalid per the JSON spec and breaks strict JSON.parse consumers such
+    as the Claude Code VS Code extension ("Unexpected token ... is not valid JSON").
+    The installer must never pipe ConvertTo-Json into Set-Content; it must use the
+    BOM-less Write-JsonFile helper instead.
+    """
+    body = INSTALLER_PS1.read_text(encoding="utf-8")
+    assert "ConvertTo-Json -Depth 10 | Set-Content" not in body, (
+        "installer.ps1 must not write JSON via 'ConvertTo-Json | Set-Content' "
+        "(adds a UTF-8 BOM on Windows PowerShell 5.1). Use Write-JsonFile instead."
+    )
+    assert "function Write-JsonFile {" in body, (
+        "installer.ps1 must define the BOM-less Write-JsonFile helper"
+    )
+    assert "System.Text.UTF8Encoding($false)" in body, (
+        "Write-JsonFile must write UTF-8 without a BOM via UTF8Encoding($false)"
+    )
+
+
+def test_settings_template_has_no_bom():
+    """The shipped settings.json template must carry no UTF-8 BOM, so the
+    no-existing-file copy path yields a BOM-less, JSON.parse-safe file."""
+    import codecs
+
+    head = SETTINGS_TEMPLATE.read_bytes()[:3]
+    assert head != codecs.BOM_UTF8, (
+        "catalog/hooks/settings.json must be saved without a UTF-8 BOM"
+    )
+
+
 if __name__ == "__main__":
     _run_all()

@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.3.3] - 2026-06-12
+
+**v3.3.3 -- Windows installer writes BOM-less JSON.** Fixes a Windows PowerShell 5.1 bug where the installer wrote `~/.claude/settings.json` (and the VS Code settings merge) as UTF-8 *with a BOM* via `Set-Content -Encoding UTF8`. A leading BOM is invalid per the JSON spec, so the Claude Code VS Code extension failed to parse the file ("Unexpected token ... is not valid JSON"), which surfaced when changing the model. The installer now writes all JSON through a BOM-less helper. Installer-only change; no catalog content, command, or dependency change.
+
+### Fixed
+
+- **BOM-less settings.json writes** (`scripts/installer.ps1`): added a `Write-JsonFile` helper that writes UTF-8 without a BOM via `[System.IO.File]::WriteAllText(..., (New-Object System.Text.UTF8Encoding($false)))`, and routed all 10 `ConvertTo-Json | Set-Content -Encoding UTF8` writes (Claude `settings.json`, the VS Code settings merge, and the config-repair path) through it. Windows PowerShell 5.1's `Set-Content` / `Out-File -Encoding UTF8` prepends a UTF-8 BOM that breaks strict `JSON.parse` consumers such as the Claude Code VS Code extension. A BOM-corrupted file is repaired by re-running the installer (or a one-off strip of the leading 3 BOM bytes). Added regression tests in `catalog/hooks/tests/test_installer_smoke.py` asserting the installer never pipes `ConvertTo-Json` into `Set-Content` and that the shipped settings template carries no BOM.
+
 ## [3.3.2] - 2026-06-11
 
 **v3.3.2 -- interactive onboarding guide.** Adds a self-contained, single-file interactive HTML guide (`guide/nexus-hub-guide.html`) that walks an engineer through the full Nexus-Hub workflow on a worked example codebase ("TaskFlow"): install, onboard (`/describe` + `/review`), plan (`/plan` + `/compare`), implement (`/implement`), harden (security + supply-chain + `/test` / CI), and ship (`/update release`). It also carries a raw-prompting-vs-Nexus-Hub comparison and a "coming from generic commands" migration map (`/goal`, `/grill`, `/loop`, `/batch`, ... mapped to their Nexus-Hub equivalents with how-to-adapt guidance), plus the cross-platform install model. Linked prominently from the README. Documentation / presentation only -- zero catalog change (still 252 skills), and no new outbound call, dependency, credential, or command.
