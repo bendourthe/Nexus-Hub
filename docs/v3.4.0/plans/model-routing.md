@@ -223,7 +223,7 @@ No constitution file found at `docs/v3.4.0/constitution.md` - skipping check. Re
 
 **Goal**: Make `/implement` re-run the routing assessment at the start of each phase - because a stronger or cheaper model may have shipped since planning - confirm or override the plan's recommendation, and apply the switch posture before the build step.
 **Prerequisites**: Phase 1 (routing skill); Phase 3 (the plan now carries a recommendation to re-confirm). Final phase of this plan, so it triggers release readiness on completion.
-**Stability Gate**: `/implement` performs a pre-build routing re-confirmation that reads the plan's recommendation, re-assesses against the currently-enumerated models, and applies the confirm-then-auto-execute posture; the step degrades gracefully and never blocks implementation; `make` checks and the `implement-phase` tests are green; AGENTS.md + CHANGELOG updated; release readiness run.
+**Stability Gate**: `/implement` performs a pre-build routing re-confirmation that reads the plan's recommendation, re-assesses against the currently-enumerated models, and applies the confirm-then-auto-execute posture; the step degrades gracefully and never blocks implementation; `make` checks and the `implement-phase` tests are green; AGENTS.md, the interactive guide (`nexus-hub-guide.html` loop section), and CHANGELOG are updated; release readiness run.
 
 ### Sub-tasks
 
@@ -245,12 +245,12 @@ No constitution file found at `docs/v3.4.0/constitution.md` - skipping check. Re
 
 ---
 
-#### 4.3 - Update platform-coverage docs and CHANGELOG
+#### 4.3 - Update the loop documentation, the interactive guide, and CHANGELOG
 
-**Objective**: Document the implement-time re-confirmation and escalation behavior.
+**Objective**: Document the implement-time re-confirmation and escalation behavior AND reflect routing as an automated segment of the Nexus-Hub loop in the user-facing guide, now that the `/plan` + `/implement` integration is complete.
 
 **Prompt**:
-> Update `AGENTS.md` (the `/implement` and loop sections) to describe the per-phase routing re-confirmation and the troubleshooting-loop upshift, both platform-agnostic and best-effort. Add a `## [Unreleased]` CHANGELOG entry. Confirm and state that this is command + skill behavior, not a `base-*.md` lockstep change. ASCII-only.
+> Now that routing is wired into both `/plan` (Phase 3) and `/implement` (this phase), update the user-facing documentation so routing reads as an automated part of the Nexus-Hub loop. (1) `AGENTS.md`: in the `/plan`, `/implement`, and loop sections, describe the planning-time assessment, the per-phase re-confirmation, and the troubleshooting-loop upshift - all platform-agnostic and best-effort. (2) `guides/interactive-guide/nexus-hub-guide.html`: update the "THE GOLDEN PATH" / "The Nexus-Hub loop" section so the loop reflects that `/plan` and `/implement` now perform model routing (e.g. a routing note or sub-step on those two stages), and add the new `/route` command wherever the guide enumerates the command set; preserve the guide's existing structure and styling. (3) Any other user-facing surface that describes the loop or the command set (the README loop description; the commands cheatsheet style guide only if it hard-references behavior). (4) Add a `## [Unreleased]` CHANGELOG entry. Confirm and state that this is command + skill + docs behavior, not a `base-*.md` lockstep change. ASCII-only for Markdown (follow the Markdown style guide); the HTML guide follows its own existing conventions.
 
 ---
 
@@ -279,7 +279,7 @@ No constitution file found at `docs/v3.4.0/constitution.md` - skipping check. Re
 - [ ] Re-assessment picks up newer/cheaper models shipped since planning; disagreements surface with stronger-default
 - [ ] Troubleshooting-loop upshift implemented (upshift-only, with confirmation); never auto-downshifts mid-phase
 - [ ] Graceful degradation verified (never blocks implementation)
-- [ ] AGENTS.md + CHANGELOG updated; confirmed not a base-template change
+- [ ] AGENTS.md, the interactive guide (`nexus-hub-guide.html` loop section), and CHANGELOG updated; the new `/route` command is listed in the guide; confirmed not a base-template change
 - [ ] `make` checks + `implement-phase` tests green (or direct equivalents)
 - [ ] No known regressions; session history generated
 - [ ] Release readiness run via `/update release` (final phase)
