@@ -413,6 +413,7 @@ const client = new Anthropic({
 - [[ai-billing-safeguards]] -- spending cap enforcement for multi-provider agent systems
 - [[temporal-orchestration]] -- workflow orchestration for multi-provider agent pipelines
 - [[cross-model-orchestrator]] -- routing tasks across different models based on capability requirements
+- [[model-routing]] -- task-time model + effort routing that reuses this skill's tier abstraction but enumerates the model set live instead of from a hardcoded matrix
 
 ---
 

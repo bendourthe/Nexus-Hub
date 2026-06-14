@@ -6,9 +6,9 @@
     "description": "Comprehensive catalog of Nexus-Hub skills with L0/L1 tiered summaries"
   },
   "statistics": {
-    "total_skills": 252,
+    "total_skills": 253,
     "categories": {
-      "ai-development": 10,
+      "ai-development": 11,
       "architecture": 7,
       "bug-fixing": 5,
       "business-product": 6,
@@ -207,6 +207,37 @@
         "lines": 413,
         "characters": 18645,
         "tokens_estimate": 2150
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "model-routing",
+      "title": "model-routing",
+      "description": "Detect the current agentic platform, enumerate its available models live, score a task's complexity, and recommend (then help apply) the cheapest model and reasoning effort that carries the work with zero quality loss. Use whenever the user says \"route this to the right model\", \"which model should I use\", \"pick the cheapest model that can do this\", \"is this an Opus task or a Sonnet task\", \"save tokens on this phase\", or \"what reasoning effort for this\". SKIP: checking current usage against limits -> use /usage; setting hard spend caps for autonomous agents -> ai-billing-safeguards; choosing an API PROVIDER rather than a model tier -> multi-provider-ai.",
+      "long_description": "Route a task to the cheapest model and reasoning effort that can carry it with no loss in output quality. Detects the platform, enumerates the live model set from that platform's own surface (no hardcoded list), scores the task on a five-signal complexity rubric, and maps the score to a model plus effort with a conservative strong-tier default on any uncertainty...",
+      "summary_l0": "\"Detect the platform, enumerate models live, and route a task to the cheapest capable model\"",
+      "overview_l1": "\"This skill routes a task to the right model and reasoning effort for the platform you are running, so the easy majority of work runs cheaper and faster while the hard minority never downshifts. Use it when deciding which model or effort level a task, plan phase, or session needs, when a user asks to save tokens without losing quality, or when wiring routing into a planning or implementation loop. It detects the platform from environment cues, enumerates the live model set from that platform's own surface (no hardcoded list), scores the task on a five-signal complexity rubric, maps the score to a model plus effort with a conservative strong-tier default on any uncertainty, and describes how to switch per the platform's capabilities. It adds no outbound call, dependency, or credential. SKIP for usage-limit checks, hard spend caps, or provider selection.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "ai-development",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/ai-development/model-routing/",
+      "file": "catalog/skills/ai-development/model-routing/SKILL.md",
+      "size": {
+        "lines": 149,
+        "characters": 13305,
+        "tokens_estimate": 1480
       },
       "downloads": 0,
       "status": "production",
