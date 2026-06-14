@@ -1,4 +1,4 @@
-# Plan - Nessie + agency-agents adoption (v-next slice)
+# Plan - Nessie + agency-agents adoption (expanded slice)
 
 **Project**: Nexus-Hub
 **Version**: v3.4.0
@@ -6,15 +6,15 @@
 **Plan Type**: Feature / Enhancement
 **Created**: 2026-06-12
 **Source report**: [`../comparison-nessie-and-agency-agents.md`](../comparison-nessie-and-agency-agents.md)
-**Goal**: Ship the two highest-value, zero-outbound adoptions from the comparison - a local session-distillation "context pack" skill (A1) and Aider + Windsurf platform integrations (A3) - with no new outbound call, dependency, or credential.
+**Goal**: Ship the zero-outbound adoptions from the comparison - a local session-distillation "context pack" skill (A1), Aider + Windsurf platform integrations (A3), extended `session-query` discovery (A4), the optional Kimi / Qwen / OpenClaw integrations (A3-ext), and selective agent-body enrichment (A2) - with no new outbound call, dependency, or credential.
 
 ## Overview
 
-This plan operationalizes the reverse-engineer-first Adoption Plan from the comparison report. It is deliberately scoped to the v-next slice: **A1** (a new `workflow` skill that distills prior-session digests and solved-problem records into a reusable, deduped, topic-organized context pack the next session, a teammate, and an agent all load) and **A3** (two new `IntegrationBase` subclasses extending Nexus-Hub's platform reach to Aider and Windsurf). Both are `skill-native` / `re-full` per the report's Step 5.4: they introduce zero new outbound calls, dependencies, credentials, or third-party processors. A1 sequences first (skill-native before re-full).
+This plan operationalizes the reverse-engineer-first Adoption Plan from the comparison report across five phases: **A1** (a new `workflow` skill that distills prior-session digests and solved-problem records into a reusable, deduped, topic-organized context pack the next session, a teammate, and an agent all load), **A3** (two new `IntegrationBase` subclasses extending Nexus-Hub's platform reach to Aider and Windsurf), **A4** (extend `session-query` discovery to Obsidian vaults and exported ChatGPT/Gemini history, locally), **A3-ext** (three further integration subclasses for Kimi, Qwen, and OpenClaw, extending the Phase 2 pattern), and **A2** (selective "Success Metrics" / "Deliverable Template" enrichment of existing agent definitions). Every item is `skill-native` or `re-full` per the report's Step 5.4: each introduces zero new outbound calls, dependencies, credentials, or third-party processors. Ordering keeps the highest-value, lowest-risk work first - the skill-native A1, then the re-full integration and extractor work (A3, A4, A3-ext) - with the opportunistic skill-native A2 sequenced last (a deliberate deviation from strict skill-native-first ordering) because it is the lowest-value, edits-existing-files item.
 
 Delivery follows the AGENTS.md installer-aware contract. A1 is auto-distributed (a new skill folder is copied recursively by both installers) but must be registered in the three catalog registries. A3 requires no installer copy-block edit but each subclass must be registered in `scripts/lib/integrations/__init__.py::_register_builtins()`, and the AGENTS.md platform-coverage section + CHANGELOG must be updated. The Reverse-Engineering Attribution Rule applies throughout: implement generically, never name the upstream `agency-agents` repo or `nessielabs.com` in any shipped artifact; provenance lives only in `docs/policy/mcp-reverse-engineering-matrix.md`.
 
-Success is observable: `make validate`, `make lint`, and `make test` are green; the new skill passes the skill-security scan and the orphan-bundle audit; and a dry-run installer run shows the Aider and Windsurf artifacts landing at their expected per-platform paths. Explicitly out of scope and deferred to backlog: A4 (extend `session-query` to Obsidian / exported ChatGPT-Gemini history), A5 (canonical-source -> per-platform transform refactor), and the optional Kimi / Qwen / OpenClaw integrations.
+Success is observable: `make validate`, `make lint`, and `make test` are green; the new skill passes the skill-security scan and the orphan-bundle audit; and a dry-run installer run shows the Aider, Windsurf, Kimi, Qwen, and OpenClaw artifacts landing at their expected per-platform paths. Explicitly out of scope and deferred to backlog: A5 (canonical-source -> per-platform transform refactor), which remains a high-effort architectural refactor with no standalone user value.
 
 ## Constitution Check
 
@@ -28,6 +28,9 @@ No constitution file found at `docs/v3.4.0/constitution.md` - skipping check. Re
 |-------|-------|---------|
 | 1 | Context-pack distillation skill (A1, skill-native) | A new `workflow` skill that turns prior-session digests + solved-problem records into a reusable, deduped, topic-organized context pack; registered in all 3 registries; validated and security-scanned |
 | 2 | Aider + Windsurf integrations (A3, re-full) | Two new `IntegrationBase` subclasses registered in `_register_builtins()`; AGENTS.md platform docs + CHANGELOG updated; installer dry-run confirms artifacts land |
+| 3 | Extend session-query to Obsidian + exported history (A4, re-full) | `session-query` discovers and parses Obsidian vaults and exported ChatGPT/Gemini history locally; zero-outbound invariant preserved; `.ps1` parity |
+| 4 | Optional Kimi / Qwen / OpenClaw integrations (A3-ext, re-full) | Three more `IntegrationBase` subclasses registered and dry-run-verified, extending the Phase 2 pattern |
+| 5 | Selective agent-body enrichment (A2, skill-native) | Concise "Success Metrics" / "Deliverable Template" sections added to select `catalog/agents/` definitions where they earn their length |
 
 ---
 
@@ -145,7 +148,166 @@ No constitution file found at `docs/v3.4.0/constitution.md` - skipping check. Re
 **Objective**: Verify both integrations via dry-run and the test suite; iterate until stable.
 
 **Prompt**:
-> Validate both new integrations. (1) Run a dry-run install into a throwaway directory using both installers (`scripts/installer.sh --check` and `--dry-run`; `scripts/installer.ps1 -Check`) and confirm the Aider `CONVENTIONS.md` and Windsurf `.windsurfrules` artifacts land at their expected paths with no error and that not-detected tools skip cleanly with a note. (2) Run `make lint` (ShellCheck) and the integration pytest suite (`make test`); add or extend tests under `catalog/hooks/tests/` (or the integration test module) asserting each new subclass is registered in `_register_builtins()` and produces its expected output - model on the existing installer-smoke / integration tests. (3) Re-confirm the carried-forward v3.3.0 gap WN-v33-1: ensure CI `validate` and `scan` are green on the ubuntu runner (no code change expected). If `make` is not on PATH locally, invoke the validators directly and note it. Fix any failure and re-run until green. Then run `/session` to document Phase 2. As this is the plan's final phase, `/implement` will trigger release-readiness on completion.
+> Validate both new integrations. (1) Run a dry-run install into a throwaway directory using both installers (`scripts/installer.sh --check` and `--dry-run`; `scripts/installer.ps1 -Check`) and confirm the Aider `CONVENTIONS.md` and Windsurf `.windsurfrules` artifacts land at their expected paths with no error and that not-detected tools skip cleanly with a note. (2) Run `make lint` (ShellCheck) and the integration pytest suite (`make test`); add or extend tests under `catalog/hooks/tests/` (or the integration test module) asserting each new subclass is registered in `_register_builtins()` and produces its expected output - model on the existing installer-smoke / integration tests. (3) Re-confirm the carried-forward v3.3.0 gap WN-v33-1: ensure CI `validate` and `scan` are green on the ubuntu runner (no code change expected). If `make` is not on PATH locally, invoke the validators directly and note it. Fix any failure and re-run until green. Then run `/session` to document Phase 2.
+
+---
+
+### Phase 2 Exit Checklist
+
+- [ ] Both subclasses implemented and registered in `_register_builtins()`
+- [ ] Dry-run install confirms Aider + Windsurf artifacts land at expected paths; not-detected tools skip cleanly
+- [ ] `make lint` and integration pytest suite green (or direct equivalents, per WN-v33-1); CI `validate`/`scan` green on ubuntu runner
+- [ ] AGENTS.md platform-coverage section, RE matrix row, and CHANGELOG `[Unreleased]` updated
+- [ ] No upstream repo named in any shipped artifact (attribution only in the RE matrix)
+- [ ] No known regressions; session history generated
+- [ ] Ready to advance to Phase 3
+
+---
+
+## Phase 3: Extend session-query to Obsidian + exported history (A4, re-full)
+
+**Goal**: Extend the `session-query` skill's local discovery and extraction to two additional zero-outbound sources - Obsidian vaults and exported ChatGPT/Gemini history - so the context-pack and session-query flows see more of the user's prior context without breaking the zero-outbound invariant.
+**Prerequisites**: None (independent; benefits from A1's context-pack format but is not blocked by it).
+**Stability Gate**: `session-query`'s bundled discovery and extraction helpers parse Obsidian vaults and exported ChatGPT/Gemini history locally; the zero-outbound invariant holds (no network module imported); every `.sh`/`.py` helper has a `.ps1` sibling; `make validate`, `make lint`, and `make test` are green; the orphan-bundle audit is clean.
+
+### Sub-tasks
+
+#### 3.1 - Map the extractor and define the new source formats
+
+**Objective**: Learn the existing zero-outbound discovery/extraction helpers and pin down the parse format for each new source before editing.
+
+**Prompt**:
+> Read `catalog/skills/workflow/session-query/SKILL.md` and its bundled `scripts/` (the discovery and extraction helpers, e.g. `discover-sessions.{sh,ps1}` and `extract-session.{py,ps1}`). Confirm the current zero-outbound invariant (no network module; reads local JSONL logs only). Then define, as a short design note (no edits yet): (1) where Obsidian vaults live and how to discover them locally (the vault root, `.md` notes, the `.obsidian/` marker), and what to extract (note title, headings, body, backlinks); (2) the on-disk shape of exported ChatGPT and Gemini history (the JSON/Markdown export formats) and how to parse them into the same digest structure session-query already emits. Specify exactly which helper each new source plugs into and the normalized digest fields. Constraint: zero new outbound calls, dependencies, or credentials - everything reads local files only.
+
+---
+
+#### 3.2 - Extend discovery and extraction (with `.ps1` parity)
+
+**Objective**: Implement the new local sources in the session-query helpers, preserving parity and the zero-outbound invariant.
+
+**Prompt**:
+> Extend `catalog/skills/workflow/session-query/scripts/` per the 3.1 design: add Obsidian-vault and exported-ChatGPT/Gemini-history discovery roots to the discovery helper, and add parsers for those formats to the extraction helper, normalizing into session-query's existing digest structure. Per the AGENTS.md `.ps1` parity rule, every `.sh`/`.py` change must have an identical `.ps1` sibling. Import no network module; open no connection; require no new credential. Keep additions behind the existing source-selection mechanism so default behavior is unchanged when the new sources are absent. Run ShellCheck on the `.sh` helpers.
+
+---
+
+#### 3.3 - Update SKILL.md and CHANGELOG
+
+**Objective**: Document the new sources and keep the bundle reference-clean.
+
+**Prompt**:
+> Update `catalog/skills/workflow/session-query/SKILL.md` to document the new Obsidian and exported-history sources (in "When to Use" / "Instructions" / "Verification"), keeping the zero-outbound statement explicit and ensuring every bundled file remains referenced (orphan-bundle audit). Add a `## [Unreleased]` CHANGELOG entry (note: re-full, local-only, zero new outbound call / dependency / credential). ASCII-only; follow the Markdown style guide.
+
+---
+
+#### 3.4 - Testing and Stabilization
+
+**Objective**: Validate the new sources and parity; iterate until stable.
+
+**Prompt**:
+> Validate the extended session-query. (1) On sample fixtures (a tiny Obsidian vault and a small exported ChatGPT/Gemini history file), confirm discovery finds them and extraction normalizes them into the expected digest structure, with default behavior unchanged when the sources are absent. (2) Confirm both the `.sh`/`.py` helpers and their `.ps1` siblings behave identically on the fixtures. (3) Run `make validate`, `make lint`, and `make test` (or direct equivalents per WN-v33-1); confirm the orphan-bundle audit is clean. Fix and re-run until green. Add/extend the CHANGELOG entry. Then run `/session` to document Phase 3.
+
+---
+
+### Phase 3 Exit Checklist
+
+- [ ] Obsidian vaults and exported ChatGPT/Gemini history discovered + parsed locally; default behavior unchanged when absent
+- [ ] Zero-outbound invariant preserved (no network module imported)
+- [ ] `.sh`/`.py` helpers all have `.ps1` siblings with identical behavior
+- [ ] `make validate`, `make lint`, `make test` green (or direct equivalents); orphan-bundle audit clean
+- [ ] SKILL.md + CHANGELOG updated
+- [ ] No known regressions; session history generated
+- [ ] Ready to advance to Phase 4
+
+---
+
+## Phase 4: Optional Kimi / Qwen / OpenClaw integrations (A3-ext, re-full)
+
+**Goal**: Extend Nexus-Hub's platform reach with three further `IntegrationBase` subclasses - Kimi, Qwen, and OpenClaw - reusing the Aider/Windsurf pattern proven in Phase 2.
+**Prerequisites**: Phase 2 (these subclasses copy its integration pattern).
+**Stability Gate**: three subclasses registered in `_register_builtins()`; a dry-run install reports the Kimi, Qwen, and OpenClaw artifacts at their expected paths with no error; `make lint` and the integration pytest suite are green; AGENTS.md platform-coverage section, the RE matrix, and the CHANGELOG are updated; no upstream repo named in any shipped artifact.
+
+### Sub-tasks
+
+#### 4.1 - Define the three transforms
+
+**Objective**: Pin the output each new platform needs, reusing the Phase 2 design approach.
+
+**Prompt**:
+> Reusing the integration-registry pattern studied in Phase 2 (sub-task 2.1), define as a short design note (no code yet) the transform for each new platform: (1) Kimi -> `agent.yaml` + `system.md`; (2) Qwen -> a `.md` instruction file with an optional `tools` section; (3) OpenClaw -> the SOUL / AGENTS / IDENTITY split. For each, specify the global vs. project-local target path, the content emitted (Nexus-Hub instruction content + `{{SKILL_INDEX}}` block as appropriate), and which existing subclass is the closest model to copy. Constraint: pure local file emission, zero outbound calls or credentials. Apply the Reverse-Engineering Attribution Rule - do not name any upstream repo in code, comments, or docs; use generic descriptive names.
+
+---
+
+#### 4.2 - Implement and register the three subclasses
+
+**Objective**: Add `kimi.py`, `qwen.py`, `openclaw.py` and wire them into the registry.
+
+**Prompt**:
+> Create `scripts/lib/integrations/kimi.py`, `scripts/lib/integrations/qwen.py`, and `scripts/lib/integrations/openclaw.py` as `IntegrationBase` subclasses per the 4.1 design, each modeled on the closest existing subclass. Register all three in `scripts/lib/integrations/__init__.py::_register_builtins()` (the MANDATORY step - the file alone does nothing without registration). Follow existing conventions for path resolution, not-detected skip-with-note behavior, and the `WriteResult` contract. ASCII-only; name no upstream project in code or comments. Dry-run (`scripts/installer.sh --check`) and confirm each runs without error.
+
+---
+
+#### 4.3 - Update platform-coverage docs, the RE matrix, and the CHANGELOG
+
+**Objective**: Keep documented coverage and provenance in sync.
+
+**Prompt**:
+> Update (1) `AGENTS.md` platform-coverage section to add Kimi, Qwen, and OpenClaw to the extended-platform set with the surface each gets; (2) `docs/policy/mcp-reverse-engineering-matrix.md` with a row recording provenance + the `re-full` decision-tree classification (the only place the upstream source may be named); (3) `CHANGELOG.md` `[Unreleased]` with an "Added" entry noting zero new outbound call / dependency / credential. ASCII-only across all three.
+
+---
+
+#### 4.4 - Testing and Stabilization
+
+**Objective**: Verify the three integrations via dry-run and tests; iterate until stable.
+
+**Prompt**:
+> Validate the three new integrations. (1) Dry-run install into a throwaway directory with both installers and confirm the Kimi, Qwen, and OpenClaw artifacts land at expected paths with no error and that not-detected tools skip cleanly. (2) Run `make lint` and the integration pytest suite; extend the integration tests to assert each new subclass is registered and produces its expected output. (3) Re-confirm WN-v33-1 (CI validate/scan green on the ubuntu runner; invoke validators directly if `make` is absent). Fix and re-run until green. Then run `/session` to document Phase 4.
+
+---
+
+### Phase 4 Exit Checklist
+
+- [ ] Three subclasses implemented and registered in `_register_builtins()`
+- [ ] Dry-run install confirms Kimi + Qwen + OpenClaw artifacts land; not-detected tools skip cleanly
+- [ ] `make lint` + integration tests green (or direct equivalents); CI validate/scan green on ubuntu runner
+- [ ] AGENTS.md platform-coverage, RE matrix row, and CHANGELOG updated
+- [ ] No upstream repo named in any shipped artifact (attribution only in the RE matrix)
+- [ ] No known regressions; session history generated
+- [ ] Ready to advance to Phase 5
+
+---
+
+## Phase 5: Selective agent-body enrichment (A2, skill-native)
+
+**Goal**: Where a Nexus-Hub agent definition genuinely benefits, add concise "Success Metrics" / "Deliverable Template" sections - keeping the terse, verification-first style and importing none of the source's persona/vibe narration.
+**Prerequisites**: None. Sequenced last (a deliberate deviation from strict skill-native-first ordering) because it is the lowest-value, opportunistic, edits-existing-files item. Final phase of this plan, so it triggers release readiness on completion.
+**Stability Gate**: a small, justified set of agent files under `catalog/agents/` carry the new sections where they earn their length; no persona/vibe content is introduced; `make validate` is green; the change is scoped (no agent edited "just because").
+
+### Sub-tasks
+
+#### 5.1 - Select the agents that benefit
+
+**Objective**: Decide which agents earn the new sections, before editing any.
+
+**Prompt**:
+> Survey `catalog/agents/` and identify the small set of agent definitions where a concise "Success Metrics" or "Deliverable Template" section would measurably improve the agent's output contract (favor deliverable-producing agents over read-only reviewers). Produce a short list with one-line justifications. Do NOT edit any agent yet. Constraint: this is opportunistic enrichment - if an agent's existing structure already conveys success criteria, leave it alone. Import no persona/vibe framing from the comparison source.
+
+---
+
+#### 5.2 - Add the sections to the selected agents
+
+**Objective**: Add terse, verification-first sections to the chosen agents only.
+
+**Prompt**:
+> For each agent selected in 5.1, add a concise "Success Metrics" and/or "Deliverable Template" section in the repo's terse, verification-first style (observable outcomes, not vibe narration). Match the existing agent file structure and tone exactly. ASCII-only; follow the Markdown style guide. Change only the selected agents - every changed line must trace to the enrichment rationale from 5.1.
+
+---
+
+#### 5.3 - Testing and Stabilization
+
+**Objective**: Validate the agent edits and run release readiness as the final phase.
+
+**Prompt**:
+> Validate the agent enrichment. (1) Run `make validate` (and any agent-definition validators) and confirm green; (2) confirm no persona/vibe content was introduced and only the selected agents changed. Add a `## [Unreleased]` CHANGELOG entry (skill-native authoring; zero new outbound call / dependency / credential). Then run `/session` to document Phase 5. As this is the plan's final phase, `/implement` then triggers release readiness; route the version bump / changelog / tag / push through `/update release` per the implement-phase final-phase contract.
 
 ---
 
@@ -159,32 +321,28 @@ No constitution file found at `docs/v3.4.0/constitution.md` - skipping check. Re
 
 ---
 
-### Phase 2 Exit Checklist
+### Phase 5 Exit Checklist
 
-- [ ] Both subclasses implemented and registered in `_register_builtins()`
-- [ ] Dry-run install confirms Aider + Windsurf artifacts land at expected paths; not-detected tools skip cleanly
-- [ ] `make lint` and integration pytest suite green (or direct equivalents, per WN-v33-1); CI `validate`/`scan` green on ubuntu runner
-- [ ] AGENTS.md platform-coverage section, RE matrix row, and CHANGELOG `[Unreleased]` updated
-- [ ] No upstream repo named in any shipped artifact (attribution only in the RE matrix)
+- [ ] Only the justified set of agents edited; selection rationale recorded
+- [ ] "Success Metrics" / "Deliverable Template" sections added in the terse verification-first style; no persona/vibe content
+- [ ] `make validate` green (or direct equivalents)
+- [ ] CHANGELOG updated
 - [ ] No known regressions; session history generated
-- [ ] Release readiness run (final phase)
+- [ ] Release readiness run via `/update release` (final phase)
 
 ---
 
 ## Out of Scope / Deferred (backlog)
 
-Carried from the comparison report's Adoption Plan; not in this version's slice. The next `/plan` ingests these via the known-gaps file.
+The next `/plan` ingests these via the known-gaps file.
 
 | ID | Item | RE class | Why deferred |
 |---|---|---|---|
-| A4 (N-A) | Extend `session-query` discovery to Obsidian vaults + exported ChatGPT/Gemini history (local) | `re-full` | Valuable but independent; A1 delivers the higher-value distillation capability first. Edits the existing zero-outbound extractor - schedule after A1 proves the context-pack format. |
-| A3-ext | Optional Kimi / Qwen / OpenClaw integrations | `re-full` | Lower-adoption platforms than Aider/Windsurf; same subclass pattern, add once the two primary ones are proven. |
 | A5 (C2) | Generalize bespoke per-subclass transforms into a declarative canonical -> per-platform table | `re-full` | High-effort architectural refactor with no standalone user value; only worth it if platform count keeps growing. |
-| A2 (C3) | Add "Success Metrics" / "Deliverable Template" sections to select `catalog/agents/` definitions | `skill-native` | Low-medium value authoring; do opportunistically, not as a dedicated phase. |
 
 Permanently excluded (from the report's NOT-recommended list, with grounds): Nessie the product / any Nessie API (`drop-outright` - closed-source vendor + data egress; MCP Registry Policy Hard-No), personality/vibe theater + business-division breadth (out of scope - identity conflict), multilingual catalog (style-guide conflict).
 
 ## Carried-forward known gaps (from v3.3.0)
 
-- **WN-v33-1** (Low): confirm CI `validate` and `scan` are green on the ubuntu runner; locally, `make` may not be on PATH, so invoke validators/scanner directly. Folded into 1.5 and 2.5.
+- **WN-v33-1** (Low): confirm CI `validate` and `scan` are green on the ubuntu runner; locally, `make` may not be on PATH, so invoke validators/scanner directly. Folded into 1.5, 2.5, 3.4, 4.4, and 5.3.
 - **WN-v33-2** (Low): two benign pre-existing global-audit warnings (the `demo-capture` orphan `.pyc` is local-only/gitignored; `git-branching-workflow` has a 169-word `overview_l1` soft warning). Optional one-line reword of that overview can be picked up opportunistically; no gate impact.
