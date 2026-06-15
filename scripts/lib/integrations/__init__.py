@@ -28,6 +28,7 @@ def _register(integration: IntegrationBase) -> None:
 
 def _register_builtins() -> None:
     """Import and register every built-in integration in alphabetical order."""
+    from .aider import AiderIntegration
     from .antigravity import Antigravity10Integration, Antigravity20Integration
     from .claude import ClaudeIntegration
     from .codex import CodexIntegration
@@ -37,7 +38,9 @@ def _register_builtins() -> None:
     from .gemini_cli import GeminiCliIntegration
     from .nexus_ai import NexusAiIntegration
     from .opencode import OpenCodeIntegration
+    from .windsurf import WindsurfIntegration
 
+    _register(AiderIntegration())
     _register(Antigravity10Integration())
     _register(Antigravity20Integration())
     _register(ClaudeIntegration())
@@ -48,6 +51,7 @@ def _register_builtins() -> None:
     _register(GeminiCliIntegration())
     _register(NexusAiIntegration())
     _register(OpenCodeIntegration())
+    _register(WindsurfIntegration())
 
 
 _register_builtins()

@@ -154,13 +154,13 @@ No constitution file found at `docs/v3.4.0/constitution.md` - skipping check. Re
 
 ### Phase 2 Exit Checklist
 
-- [ ] Both subclasses implemented and registered in `_register_builtins()`
-- [ ] Dry-run install confirms Aider + Windsurf artifacts land at expected paths; not-detected tools skip cleanly
-- [ ] `make lint` and integration pytest suite green (or direct equivalents, per WN-v33-1); CI `validate`/`scan` green on ubuntu runner
-- [ ] AGENTS.md platform-coverage section, RE matrix row, and CHANGELOG `[Unreleased]` updated
-- [ ] No upstream repo named in any shipped artifact (attribution only in the RE matrix)
-- [ ] No known regressions; session history generated
-- [ ] Ready to advance to Phase 3
+- [x] Both subclasses implemented and registered in `_register_builtins()` (`aider`, `windsurf`)
+- [x] Dry-run install confirms Aider + Windsurf artifacts land at expected paths (project-root `CONVENTIONS.md` / `.windsurfrules`); not-detected tools skip cleanly (Windsurf global skip-with-note when `~/.codeium` absent; Aider global no-op-with-note)
+- [x] Integration pytest suite green (231 passed; new `test_aider_windsurf.py` 8 passed; contract suite +10 for the two keys) and the dry-run check is clean (direct equivalents per WN-v33-1: `make` not on PATH locally, validators invoked directly; ShellCheck not installed locally, `bash -n` + PowerShell AST parse both clean; CI `validate`/`scan`/ShellCheck run on the ubuntu runner)
+- [x] AGENTS.md platform-coverage section, RE matrix row, and CHANGELOG `[Unreleased]` updated
+- [x] No upstream repo named in any shipped artifact (attribution only in the RE matrix `re-full` platform-integration row)
+- [x] No known regressions (hook suite 439 passed / 7 skipped; catalog unchanged at 256 skills, orphan-bundle audit clean); session history generated
+- [x] Ready to advance to Phase 3
 
 ---
 

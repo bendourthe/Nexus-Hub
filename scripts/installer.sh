@@ -864,6 +864,16 @@ install_global() {
     write_header "OPENCODE"
     invoke_registry_platform "$repo_root" "global" "" "opencode" "OpenCode"
 
+    # --- Aider ---------------------------------------------------------
+    write_header "AIDER"
+    invoke_registry_platform "$repo_root" "global" "" "aider" "Aider (CONVENTIONS.md)"
+    write_item "Aider: reads a project-root CONVENTIONS.md; there is no global instruction surface. Run a workspace/project install in your repo to get it." "$DARK_YELLOW"
+
+    # --- Windsurf ------------------------------------------------------
+    write_header "WINDSURF"
+    invoke_registry_platform "$repo_root" "global" "" "windsurf" "Windsurf (global_rules.md)"
+    write_item "Windsurf: global rules are written to ~/.codeium/windsurf/memories/global_rules.md only when Windsurf is detected (~/.codeium present); the project-root .windsurfrules installs at workspace scope." "$DARK_YELLOW"
+
     # --- Nexus -- Nexus-AI (Local Desktop Studio) ----------------------
     write_header "NEXUS"
     invoke_registry_platform "$repo_root" "global" "" "nexus-ai" "Nexus-AI (Local Desktop Studio)"
@@ -1226,6 +1236,14 @@ install_workspace() {
         # --- OpenCode -----------------------------------------------
         write_header "OPENCODE"
         invoke_registry_platform "$repo_root" "workspace" "$target_path" "opencode" "OpenCode"
+
+        # --- Aider --------------------------------------------------
+        write_header "AIDER"
+        invoke_registry_platform "$repo_root" "workspace" "$target_path" "aider" "Aider (CONVENTIONS.md)" "$languages"
+
+        # --- Windsurf -----------------------------------------------
+        write_header "WINDSURF"
+        invoke_registry_platform "$repo_root" "workspace" "$target_path" "windsurf" "Windsurf (.windsurfrules)" "$languages"
 
         # --- Nexus -- Nexus-AI --------------------------------------
         write_header "NEXUS"

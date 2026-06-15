@@ -67,6 +67,16 @@ These rows record catalog content adopted from an external project under the `sk
 
 ---
 
+### Re-full platform-integration adoptions (no MCP, no outbound calls)
+
+These rows record platform-distribution reach adopted from an external project under the `re-full` classification: local file-transform logic rebuilt as `IntegrationBase` subclasses under `scripts/lib/integrations/`, adding no MCP, no outbound call, no dependency, and no credential. Per the Reverse-Engineering Attribution Rule, the upstream repo is named only here, never in the distributed artifact (the subclasses, templates, installer blocks, and AGENTS.md use only generic platform names). The action columns are version-scoped to the adopting release.
+
+| MCP key | Current source | What it does | Outbound-call surface | Classification | Effort if RE'd | v3.4.0 action | v3.5.0+ action | Rationale / citation |
+|---|---|---|---|---|---|---|---|---|
+| n/a (integration subclasses, not MCP) | external multi-platform converter at msitarzewski/agency-agents (`convert.sh` single-canonical-source -> per-platform transform; MIT) | Extends Nexus-Hub's platform reach to Aider (project-root `CONVENTIONS.md`) and Windsurf (project-root `.windsurfrules` + global `~/.codeium/windsurf/memories/global_rules.md`) - behavioral-guidance surfaces carrying the Nexus-Hub instruction content + `{{SKILL_INDEX}}` block | None. Pure local file emission via the existing `MarkdownIntegration` base (stdlib `pathlib`/`shutil`, shared marker-merge). No network, no credential | `re-full` | Medium | Adopted as `scripts/lib/integrations/aider.py` + `windsurf.py` (Phase 2, sub-tasks 2.2-2.3), registered in `_register_builtins()`, wired into both installers' global + workspace blocks, with new `templates/ai-instructions/base-aider.md` / `base-windsurf.md`. Implemented generically; upstream repo stripped from every user-facing artifact per the Reverse-Engineering Attribution Rule | Optional A3-ext: Kimi / Qwen / OpenClaw subclasses (Phase 4) reusing this pattern; the C2 canonical-source -> declarative per-platform transform refactor remains deferred to backlog | Source converter at github.com/msitarzewski/agency-agents (`convert.sh` + per-platform target templates). MIT-licensed. Classified `re-full` because the conversion is local file-transform logic with no third-party data destination - reverse-engineering it into native `IntegrationBase` subclasses is a strict reach gain with zero new outbound surface. The platform file conventions themselves (Aider's `CONVENTIONS.md`, Windsurf's `.windsurfrules` / `global_rules.md`) are public, vendor-published conventions. Hard-no items from the same source explicitly NOT adopted: personality/vibe theater + business-division breadth (identity conflict) and multilingual catalog (ASCII-only style-guide conflict); see docs/v3.4.0/comparison-nessie-and-agency-agents.md |
+
+---
+
 ### Dropped in v1.0.0 (Reverse-Engineered or Drop-Outright)
 
 | MCP key | Current source | What it does | Outbound-call surface | Classification | Effort if RE'd | v1.0.0 action | v1.1.0+ action | Rationale / citation |
