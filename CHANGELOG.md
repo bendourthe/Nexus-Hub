@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased]
+## [3.5.0] - 2026-06-15
 
 **Loop-engineering skill enrichment (loopmaxxing + autoresearch adoption).** Enriches the existing `loop-engineering` skill and its two reference files with the six refinements surfaced by the AlphaSignal loop-design article and the autoresearch reference loop, all skill-native: a strict-control-loop doctrine, a progressive-hardening lifecycle, a scalar-metric-optimization loop archetype with a per-iteration compute budget, production observability (trace-logging + stall detection), a concrete retries-then-handoff default, and the "loopmaxxing" anti-pattern named as a recognition label. Pure local catalog enrichment of three existing files; no new skill, command, outbound call, dependency, or credential, and no frontmatter change (so no `data/` registry edit). Catalog unchanged at **256 skills** / **15 commands**.
 
