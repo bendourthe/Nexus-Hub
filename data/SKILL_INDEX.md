@@ -258,5 +258,7 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | skill-security-scan | security | "Adjudicate skill-security scanner findings, filter false positives, and assign an install verdict" | catalog/skills/security/skill-security-scan/SKILL.md |
 | session-teach-back | workflow | "Socratic teach-back loop that quizzes the human on a session until every concept is confirmed" | catalog/skills/workflow/session-teach-back/SKILL.md |
 | context-pack-builder | workflow | "Distill prior-session digests and solutions into a reusable, deduped, topic-organized context pack" | catalog/skills/workflow/context-pack-builder/SKILL.md |
+| direct-corpus-interaction | developer-experience | "Search code with a hypothesis-refine-anchor-verify discipline over hybrid retrieval plus direct corpus tools" | catalog/skills/developer-experience/direct-corpus-interaction/SKILL.md |
+| agent-presets | workflow | "Ready-made agent presets that compose existing skills and slash commands into one-invocation bundles" | catalog/skills/workflow/agent-presets/SKILL.md |
 
-**Total: 254 skills across 21 categories**
+**Total: 256 skills across 21 categories**
