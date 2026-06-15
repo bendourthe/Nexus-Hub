@@ -179,11 +179,11 @@ The "Rec. model / effort" column is a best-effort planning-time assessment (Step
 
 ### Phase 3 Exit Checklist
 
-- [ ] All sub-tasks completed (3.1, 3.2, 3.3)
-- [ ] `trace_log`, `progress_check`, `handoff` optional fields + Production Loops note present
-- [ ] Retries-then-handoff default stated; "loopmaxxing" named without weakening any guardrail
-- [ ] Full cross-file consistency read-through passed
-- [ ] Registry-edit decision made and validated (no edit needed, or three registries updated + re-validated)
-- [ ] Validators green; SKILL.md under 500 lines
-- [ ] Session history generated; `docs/v3.5.0/known-gaps.md` updated
-- [ ] CHANGELOG `## [Unreleased]` entry added
+- [x] All sub-tasks completed (3.1, 3.2, 3.3)
+- [x] `trace_log`, `progress_check`, `handoff` optional fields + Production Loops note present
+- [x] Retries-then-handoff default stated; "loopmaxxing" named without weakening any guardrail
+- [x] Full cross-file consistency read-through passed
+- [x] Registry-edit decision made and validated (no edit needed - frontmatter unchanged, `summary_l0` / `overview_l1` still accurate, JSON catalogs load clean)
+- [x] Validators green; SKILL.md under 500 lines (131)
+- [x] Session history generated; no deferred items so no `docs/v3.5.0/known-gaps.md` entry created
+- [x] CHANGELOG `## [Unreleased]` entry added
