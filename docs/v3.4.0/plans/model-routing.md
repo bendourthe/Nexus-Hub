@@ -275,13 +275,13 @@ No constitution file found at `docs/v3.4.0/constitution.md` - skipping check. Re
 
 ### Phase 4 Exit Checklist
 
-- [ ] `/implement` runs a per-phase routing re-confirmation before the build step; `implement.md` stays a thin dispatcher
-- [ ] Re-assessment picks up newer/cheaper models shipped since planning; disagreements surface with stronger-default
-- [ ] Troubleshooting-loop upshift implemented (upshift-only, with confirmation); never auto-downshifts mid-phase
-- [ ] Graceful degradation verified (never blocks implementation)
-- [ ] AGENTS.md, the interactive guide (`nexus-hub-guide.html` loop section), and CHANGELOG updated; the new `/route` command is listed in the guide; confirmed not a base-template change
-- [ ] `make` checks + `implement-phase` tests green (or direct equivalents)
-- [ ] No known regressions; session history generated
+- [x] `/implement` runs a per-phase routing re-confirmation before the build step; `implement.md` stays a thin dispatcher
+- [x] Re-assessment picks up newer/cheaper models shipped since planning; disagreements surface with stronger-default
+- [x] Troubleshooting-loop upshift implemented (upshift-only, with confirmation); never auto-downshifts mid-phase
+- [x] Graceful degradation verified (never blocks implementation)
+- [x] AGENTS.md, the interactive guide (`nexus-hub-guide.html` loop section), and CHANGELOG updated; the new `/route` command is listed in the guide; confirmed not a base-template change
+- [x] `make` checks + `implement-phase` tests green (or direct equivalents)
+- [x] No known regressions; session history generated
 - [ ] Release readiness run via `/update release` (final phase)
 
 ---

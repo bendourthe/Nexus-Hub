@@ -111,6 +111,14 @@ bash ~/.nexus-hub/skills/ai-development/model-routing/scripts/switch-model.sh <p
 - **One user action** (Claude Code): the main loop cannot switch its own model mid-session. Emit the exact one-key `/model` and `/effort` instruction, AND auto-route any delegated subagent work to the chosen tier via the Task / Workflow `model` parameter (the built-in `opusplan` alias is native routing of this shape).
 - **Manual only** (Cursor, Copilot, OpenCode): no flag, env, config, or rule field pins a model. Emit the recommendation plus a "select X in the model picker" instruction.
 
+### Step 7: Mid-task escalation during an implement loop (upshift only)
+
+When routing is wired into an implementation loop (the `/implement` per-phase pre-flight), persistent failure is itself a routing signal. If a phase's tests fail repeatedly -- after several troubleshooting iterations on the same failure -- the task was likely under-tiered, so recommend an **upshift** to a stronger reasoning tier or a higher effort before continuing. Rules:
+
+- **Upshift only.** Never auto-downshift mid-phase: the no-degradation guarantee forbids dropping to a cheaper model while a task is actively failing, because a downshift mid-failure trades the one thing routing must never gamble on (output quality on a hard task) for marginal token savings.
+- **Best-effort and platform-aware.** Follow the same posture as Step 6 -- on Claude Code surface the `/model` + `/effort` keystroke; on scriptable platforms (Codex, Antigravity `agy`, Gemini CLI) apply it with confirmation; on manual-only platforms print the picker instruction.
+- **Confirm, do not silently switch.** Surface that repeated failure triggered the escalation so the user can approve the stronger tier; it is a confirm-then-apply action, not an automatic one.
+
 ## Platform routing profiles
 
 Each platform is a small profile. Adding a platform is adding a row, not rewriting the router. The fields are `can_script_switch`, `enumerate_command` / `model_list_source`, `switch_mechanism`, and `effort_knob`.
@@ -141,6 +149,7 @@ Each platform is a small profile. Adding a platform is adding a row, not rewriti
 - [ ] Any task scored `high` on at least one signal, or scored as uncertain, resolves to the strongest available tier and a high/max effort.
 - [ ] The switch instruction matches the detected platform's `switch_mechanism` (scriptable execute / Claude Code keystroke / picker instruction) and never scripts a switch on a manual-only platform.
 - [ ] No hardcoded model list is used; the model set came from `enumerate-models`.
+- [ ] A mid-task escalation (Step 7) only ever upshifts the tier or effort; the router never auto-downshifts a model mid-phase while a task is failing.
 - [ ] No new outbound call, dependency, or credential was introduced; the only optional network call (`GET /v1/models`) ran only because a key was already present.
 
 ## Related Skills
@@ -153,5 +162,5 @@ Each platform is a small profile. Adding a platform is adding a row, not rewriti
 
 ---
 
-**Version**: 1.0.0
+**Version**: 1.1.0
 **Last Updated**: June 2026
