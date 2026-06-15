@@ -42,6 +42,15 @@ When dynamic workflows are available in the harness, `/plan` can use them as a q
 - **Workflow-aware phase prompts**: when a generated phase is a large fan-out task (audit every endpoint, migrate N files, generate tests for every unit), write that phase's executable prompt to recommend dynamic-workflow execution and cross-link `[[agent-orchestration-primitives]]`.
 - Always present the workflow path with the scope-first token caution: calibrate on a small slice before fanning out across the whole surface. This carries zero new outbound calls, dependencies, or credentials - dynamic workflows are an Anthropic-runtime feature, so this is command behavior plus skill-native guidance.
 
+## Optional per-phase model-routing assessment (graceful degradation)
+
+After the phase breakdown is designed and before the plan file is written, `/plan` runs a best-effort model-routing assessment so each phase records the model and reasoning effort it should run on. This is opt-in by availability and never blocks plan generation:
+
+- **Assess each phase once.** For every phase in the breakdown, invoke the `[[model-routing]]` skill to score that phase's scope and sub-tasks on its complexity rubric and recommend a model plus reasoning effort, defaulting to the strongest available tier on any uncertainty or high-risk signal (the no-degradation guarantee). The skill detects the platform and enumerates the live model set itself - `/plan` never hardcodes a model list.
+- **Record platform-agnostic intent alongside the concrete name.** Write the recommendation as a tier intent ("strong reasoning tier, high effort") together with the concretely-enumerated model id and effort when enumeration succeeds, so the recommendation survives a platform switch between planning and implementation - `/implement` re-confirms it against the then-current models.
+- **Degrade silently.** If the routing skill or live enumeration is unavailable (no platform surface, offline, manual-only platform), write the neutral placeholder `assess at implementation time` for that phase's recommendation rather than failing. The plan is still valid and complete without a concrete model name.
+- This carries zero new outbound calls, dependencies, or credentials - the heavy logic stays in `[[model-routing]]`; `/plan` only invokes it per phase and records the result in the plan template (see the retained planning skill's "Phases at a Glance" column and per-phase `**Recommended model**` field).
+
 ## Delegation
 
 Dispatch the resolved scope to the retained skill(s):

@@ -313,6 +313,10 @@ After adding a command, update `data/marketplace.json` `"total_commands"` if tha
 
 **Do not maintain a static command list anywhere.** `/skills list` derives the command cheatsheet -- the active commands, what each does, the deprecated name each one replaces, and common multi-command workflows -- at runtime from the command files themselves (see `catalog/style-guides/commands-cheatsheet.md`). Adding, renaming, refactoring, or deprecating a command therefore updates the cheatsheet automatically on the next `/skills list`; there is no table to hand-edit. The only command artifacts to touch on a change are the command file(s) and (on a rename) the deprecation shim.
 
+## Model Routing in the Plan/Implement Loop
+
+`/plan` performs a best-effort, platform-agnostic model-routing assessment per phase (added v3.4.0). After the phase breakdown is designed and before the plan file is written, it invokes the `model-routing` skill once per phase to score that phase's complexity and recommend a model plus reasoning effort, defaulting to the strongest available tier on any uncertainty or high-risk signal. The recommendation is recorded in the plan as a platform-agnostic tier intent ("strong reasoning tier, high effort") alongside the concretely-enumerated model id and effort when enumeration succeeds, surfaced in the "Phases at a Glance" "Rec. model / effort" column and each phase's `**Recommended model**` field. The step degrades silently: when the routing skill or live model enumeration is unavailable (no platform surface, offline, or a manual-only platform), each phase carries the neutral `assess at implementation time` placeholder and the plan is still valid. The heavy logic stays in the skill; `model-routing` adds no outbound call, dependency, or credential, and `/plan` and the retained planning skill stay thin dispatchers over it. This is command + skill behavior, NOT a `base-*.md` lockstep change -- routing is opt-in via the plan/implement steps, not always-loaded instruction text.
+
 ## Adding or Modifying a Hook
 
 Hook scripts live in `catalog/hooks/`. Rules:

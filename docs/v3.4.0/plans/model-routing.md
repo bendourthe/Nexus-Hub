@@ -209,13 +209,13 @@ No constitution file found at `docs/v3.4.0/constitution.md` - skipping check. Re
 
 ### Phase 3 Exit Checklist
 
-- [ ] `/plan` runs a per-phase routing assessment; `plan.md` stays a thin dispatcher
-- [ ] Plan template carries the recommended-model column + per-phase field; existing plans still validate
-- [ ] Graceful degradation verified (neutral placeholder when routing unavailable)
-- [ ] AGENTS.md + CHANGELOG updated; confirmed not a base-template change
-- [ ] `make validate` + planning tests green (or direct equivalents)
-- [ ] No known regressions; session history generated
-- [ ] Ready to advance to Phase 4
+- [x] `/plan` runs a per-phase routing assessment; `plan.md` stays a thin dispatcher
+- [x] Plan template carries the recommended-model column + per-phase field; existing plans still validate
+- [x] Graceful degradation verified (neutral placeholder when routing unavailable)
+- [x] AGENTS.md + CHANGELOG updated; confirmed not a base-template change
+- [x] `make validate` + planning tests green (or direct equivalents)
+- [x] No known regressions; session history generated
+- [x] Ready to advance to Phase 4
 
 ---
 
