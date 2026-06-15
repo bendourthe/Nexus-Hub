@@ -99,7 +99,15 @@ Present the recommendation with its reasoning, never a bare model name:
 
 Switching is a three-tier spectrum, not uniform automation (see the routing profiles). The posture is **confirm, then auto-execute**: present the recommendation, get approval, then act per the platform's `can_script_switch`:
 
-- **Scriptable** (Codex, Antigravity `agy`, Gemini CLI): execute the switch directly (a `-c` / `-m` / `--profile` invocation or a config write). The `/route` command bundles a `switch-model` helper for this.
+- **Scriptable** (Codex, Antigravity `agy`, Gemini CLI): execute the switch directly (a `-c` / `-m` / `--profile` invocation or a config write). Run the bundled helper, which validates the requested model against the enumerated set before acting and is idempotent:
+
+```bash
+bash ~/.nexus-hub/skills/ai-development/model-routing/scripts/switch-model.sh <platform-id> <model-id> [effort]
+```
+
+```powershell
+~/.nexus-hub/skills/ai-development/model-routing/scripts/switch-model.ps1 <platform-id> <model-id> [effort]
+```
 - **One user action** (Claude Code): the main loop cannot switch its own model mid-session. Emit the exact one-key `/model` and `/effort` instruction, AND auto-route any delegated subagent work to the chosen tier via the Task / Workflow `model` parameter (the built-in `opusplan` alias is native routing of this shape).
 - **Manual only** (Cursor, Copilot, OpenCode): no flag, env, config, or rule field pins a model. Emit the recommendation plus a "select X in the model picker" instruction.
 
