@@ -288,6 +288,9 @@ function Select-Platforms {
     Write-Host "7 - Nexus       ─ Nexus-AI (Local Desktop Studio)"
     Write-Host "8 - Aider       ─ Aider (CONVENTIONS.md)"
     Write-Host "9 - Windsurf    ─ Windsurf (.windsurfrules)"
+    Write-Host "10 - Kimi       ─ Kimi (.kimi/agent.yaml + system.md)"
+    Write-Host "11 - Qwen       ─ Qwen Code (QWEN.md)"
+    Write-Host "12 - OpenClaw   ─ OpenClaw (.openclaw/ SOUL+AGENTS+IDENTITY)"
 
     # Provider → set of internal platform keys. The 4 legacy platforms
     # (CLAUDE / GEMINI / CODEX / COPILOT) trigger the inline installer
@@ -303,12 +306,15 @@ function Select-Platforms {
         "7" = @("NEXUS_AI")
         "8" = @("AIDER")
         "9" = @("WINDSURF")
+        "10" = @("KIMI")
+        "11" = @("QWEN")
+        "12" = @("OPENCLAW")
     }
 
     $allPlatforms = @()
     foreach ($k in $providerMap.Keys) { $allPlatforms += $providerMap[$k] }
 
-    $inputStr = Read-Prompt "Selection [A, 1-9]"
+    $inputStr = Read-Prompt "Selection [A, 1-12]"
     if ([string]::IsNullOrWhiteSpace($inputStr)) { return $allPlatforms }
 
     $selected = @()
@@ -1320,6 +1326,27 @@ function Install-Global {
         Write-Item -Message "Windsurf: global rules are written to ~/.codeium/windsurf/memories/global_rules.md only when Windsurf is detected (~/.codeium present); the project-root .windsurfrules installs at workspace scope." -Color "DarkYellow"
     }
 
+    # --- Kimi ------------------------------------------------------------
+    if ($platforms -contains "KIMI") {
+        Write-Header -Provider "KIMI"
+        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "kimi" -DisplayName "Kimi (.kimi/agent.yaml + system.md)"
+        Write-Item -Message "Kimi: global files are written to ~/.kimi/ only when Kimi is detected (~/.kimi present); the project-local .kimi/ pair installs at workspace scope." -Color "DarkYellow"
+    }
+
+    # --- Qwen ------------------------------------------------------------
+    if ($platforms -contains "QWEN") {
+        Write-Header -Provider "QWEN"
+        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "qwen" -DisplayName "Qwen Code (QWEN.md)"
+        Write-Item -Message "Qwen: ~/.qwen/QWEN.md is written only when Qwen is detected (~/.qwen present); the project-root QWEN.md installs at workspace scope." -Color "DarkYellow"
+    }
+
+    # --- OpenClaw --------------------------------------------------------
+    if ($platforms -contains "OPENCLAW") {
+        Write-Header -Provider "OPENCLAW"
+        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "openclaw" -DisplayName "OpenClaw (.openclaw/ SOUL+AGENTS+IDENTITY)"
+        Write-Item -Message "OpenClaw: global files are written to ~/.openclaw/ only when OpenClaw is detected (~/.openclaw present); the project-local .openclaw/ split installs at workspace scope." -Color "DarkYellow"
+    }
+
     # --- Nexus -- Nexus-AI (Local Desktop Studio) ------------------------
     if ($platforms -contains "NEXUS_AI") {
         Write-Header -Provider "NEXUS"
@@ -1705,6 +1732,24 @@ function Install-Workspace {
         if ($workspacePlatforms -contains "WINDSURF") {
             Write-Header -Provider "WINDSURF"
             Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "windsurf" -DisplayName "Windsurf (.windsurfrules)" -Languages ($languages -join ',')
+        }
+
+        # --- Kimi -------------------------------------------------------
+        if ($workspacePlatforms -contains "KIMI") {
+            Write-Header -Provider "KIMI"
+            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "kimi" -DisplayName "Kimi (.kimi/agent.yaml + system.md)" -Languages ($languages -join ',')
+        }
+
+        # --- Qwen -------------------------------------------------------
+        if ($workspacePlatforms -contains "QWEN") {
+            Write-Header -Provider "QWEN"
+            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "qwen" -DisplayName "Qwen Code (QWEN.md)" -Languages ($languages -join ',')
+        }
+
+        # --- OpenClaw ---------------------------------------------------
+        if ($workspacePlatforms -contains "OPENCLAW") {
+            Write-Header -Provider "OPENCLAW"
+            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "openclaw" -DisplayName "OpenClaw (.openclaw/ SOUL+AGENTS+IDENTITY)" -Languages ($languages -join ',')
         }
 
         # --- Nexus -- Nexus-AI ------------------------------------------

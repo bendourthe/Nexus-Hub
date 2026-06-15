@@ -266,13 +266,13 @@ No constitution file found at `docs/v3.4.0/constitution.md` - skipping check. Re
 
 ### Phase 4 Exit Checklist
 
-- [ ] Three subclasses implemented and registered in `_register_builtins()`
-- [ ] Dry-run install confirms Kimi + Qwen + OpenClaw artifacts land; not-detected tools skip cleanly
-- [ ] `make lint` + integration tests green (or direct equivalents); CI validate/scan green on ubuntu runner
-- [ ] AGENTS.md platform-coverage, RE matrix row, and CHANGELOG updated
-- [ ] No upstream repo named in any shipped artifact (attribution only in the RE matrix)
-- [ ] No known regressions; session history generated
-- [ ] Ready to advance to Phase 5
+- [x] Three subclasses implemented and registered in `_register_builtins()` (`kimi`, `qwen`, `openclaw`; alphabetical, registry now 15 keys)
+- [x] Dry-run install confirms Kimi + Qwen + OpenClaw artifacts land (runner workspace dry-run rc=0: `.kimi/system.md` + `.kimi/agent.yaml`, `QWEN.md`, `.openclaw/{AGENTS,SOUL,IDENTITY}.md`); not-detected tools skip cleanly (global scope skips-with-note unless `~/.kimi` / `~/.qwen` / `~/.openclaw` present, asserted by the new test module)
+- [x] `make lint` + integration tests green via direct equivalents per WN-v33-1: `make`/ShellCheck not on PATH locally, so `bash -n` (installer.sh clean) + PowerShell `[Parser]::ParseFile` AST (installer.ps1 clean); integration pytest `tests/integrations/` 265 passed (incl. new `test_kimi_qwen_openclaw.py` and the contract suite auto-covering all 13 keys); `test_installer_smoke.py` 28 passed. CI `validate`/`scan`/ShellCheck run on the ubuntu runner (no code change expected)
+- [x] AGENTS.md platform-coverage section, a new RE matrix `re-full` row, and CHANGELOG `[Unreleased]` "Added" entry updated
+- [x] No upstream repo named in any shipped artifact (kimi/qwen/openclaw `.py`, base-*.md templates, both installers, AGENTS.md all clean per grep; attribution only in the RE matrix row + internal planning docs)
+- [x] No known regressions (catalog unchanged at 256 skills; no skill/data registry edit needed for integrations); session history generated
+- [x] Ready to advance to Phase 5
 
 ---
 

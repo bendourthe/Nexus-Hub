@@ -330,6 +330,45 @@ class IntegrationBase:
             return FileAction(path=str(dst), action="created")
         return FileAction(path=str(dst), action="updated")
 
+    @staticmethod
+    def _write_generated(
+        dst: Path, content: str, ctx: InstallContext, integration_key: str
+    ) -> FileAction:
+        """Write a deterministic, Nexus-Hub-owned companion file.
+
+        Used by integrations that emit a small generated config/identity file
+        alongside a marker-merged instruction file (e.g., Kimi's ``agent.yaml``,
+        OpenClaw's ``SOUL.md`` / ``IDENTITY.md``). Mirrors the dedicated-mode
+        contract of ``_write_instruction`` so these files share the same
+        idempotency, partial-recovery, and dry-run guarantees the contract suite
+        asserts:
+
+          - dst missing                              -> write -> "created"
+          - dst exists, bytes match                  -> no write -> "unchanged"
+          - dst exists, bytes differ, overwrite=True -> write -> "updated"
+          - dst exists, bytes differ, no overwrite   -> no write -> "kept"
+
+        The path is tracked in the manifest so the default teardown removes it.
+        """
+        content_bytes = content.encode("utf-8")
+        if dst.exists():
+            if dst.read_bytes() == content_bytes:
+                ctx.manifest.track(integration_key, str(dst))
+                return FileAction(path=str(dst), action="unchanged")
+            if not ctx.overwrite:
+                ctx.manifest.log(integration_key, f"skip-existing: {dst}")
+                return FileAction(path=str(dst), action="kept")
+            if not ctx.dry_run:
+                dst.parent.mkdir(parents=True, exist_ok=True)
+                dst.write_bytes(content_bytes)
+            ctx.manifest.track(integration_key, str(dst))
+            return FileAction(path=str(dst), action="updated")
+        if not ctx.dry_run:
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            dst.write_bytes(content_bytes)
+        ctx.manifest.track(integration_key, str(dst))
+        return FileAction(path=str(dst), action="created")
+
 
 def _tree_matches(src: Path, dst: Path) -> bool:
     """Return True if every file under `src` exists at the matching `dst` path
