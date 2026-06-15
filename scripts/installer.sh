@@ -7,7 +7,7 @@ set -e
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-NEXUS_HUB_VERSION="3.3.4"
+NEXUS_HUB_VERSION="3.4.0"
 
 # --- Window Title ---
 printf '\033]0;Nexus-Hub Installer\007'
@@ -864,6 +864,31 @@ install_global() {
     write_header "OPENCODE"
     invoke_registry_platform "$repo_root" "global" "" "opencode" "OpenCode"
 
+    # --- Aider ---------------------------------------------------------
+    write_header "AIDER"
+    invoke_registry_platform "$repo_root" "global" "" "aider" "Aider (CONVENTIONS.md)"
+    write_item "Aider: reads a project-root CONVENTIONS.md; there is no global instruction surface. Run a workspace/project install in your repo to get it." "$DARK_YELLOW"
+
+    # --- Windsurf ------------------------------------------------------
+    write_header "WINDSURF"
+    invoke_registry_platform "$repo_root" "global" "" "windsurf" "Windsurf (global_rules.md)"
+    write_item "Windsurf: global rules are written to ~/.codeium/windsurf/memories/global_rules.md only when Windsurf is detected (~/.codeium present); the project-root .windsurfrules installs at workspace scope." "$DARK_YELLOW"
+
+    # --- Kimi ----------------------------------------------------------
+    write_header "KIMI"
+    invoke_registry_platform "$repo_root" "global" "" "kimi" "Kimi (.kimi/agent.yaml + system.md)"
+    write_item "Kimi: global files are written to ~/.kimi/ only when Kimi is detected (~/.kimi present); the project-local .kimi/ pair installs at workspace scope." "$DARK_YELLOW"
+
+    # --- Qwen ----------------------------------------------------------
+    write_header "QWEN"
+    invoke_registry_platform "$repo_root" "global" "" "qwen" "Qwen Code (QWEN.md)"
+    write_item "Qwen: ~/.qwen/QWEN.md is written only when Qwen is detected (~/.qwen present); the project-root QWEN.md installs at workspace scope." "$DARK_YELLOW"
+
+    # --- OpenClaw ------------------------------------------------------
+    write_header "OPENCLAW"
+    invoke_registry_platform "$repo_root" "global" "" "openclaw" "OpenClaw (.openclaw/ SOUL+AGENTS+IDENTITY)"
+    write_item "OpenClaw: global files are written to ~/.openclaw/ only when OpenClaw is detected (~/.openclaw present); the project-local .openclaw/ split installs at workspace scope." "$DARK_YELLOW"
+
     # --- Nexus -- Nexus-AI (Local Desktop Studio) ----------------------
     write_header "NEXUS"
     invoke_registry_platform "$repo_root" "global" "" "nexus-ai" "Nexus-AI (Local Desktop Studio)"
@@ -1226,6 +1251,26 @@ install_workspace() {
         # --- OpenCode -----------------------------------------------
         write_header "OPENCODE"
         invoke_registry_platform "$repo_root" "workspace" "$target_path" "opencode" "OpenCode"
+
+        # --- Aider --------------------------------------------------
+        write_header "AIDER"
+        invoke_registry_platform "$repo_root" "workspace" "$target_path" "aider" "Aider (CONVENTIONS.md)" "$languages"
+
+        # --- Windsurf -----------------------------------------------
+        write_header "WINDSURF"
+        invoke_registry_platform "$repo_root" "workspace" "$target_path" "windsurf" "Windsurf (.windsurfrules)" "$languages"
+
+        # --- Kimi ---------------------------------------------------
+        write_header "KIMI"
+        invoke_registry_platform "$repo_root" "workspace" "$target_path" "kimi" "Kimi (.kimi/agent.yaml + system.md)" "$languages"
+
+        # --- Qwen ---------------------------------------------------
+        write_header "QWEN"
+        invoke_registry_platform "$repo_root" "workspace" "$target_path" "qwen" "Qwen Code (QWEN.md)" "$languages"
+
+        # --- OpenClaw -----------------------------------------------
+        write_header "OPENCLAW"
+        invoke_registry_platform "$repo_root" "workspace" "$target_path" "openclaw" "OpenClaw (.openclaw/ SOUL+AGENTS+IDENTITY)" "$languages"
 
         # --- Nexus -- Nexus-AI --------------------------------------
         write_header "NEXUS"

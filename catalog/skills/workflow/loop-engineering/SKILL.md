@@ -116,3 +116,4 @@ Scope first. A scheduled triage loop multiplies token, tool-call, and reviewer c
 - [[known-gaps-tracker]] - records deferred or failed loop outcomes into the version gap log.
 - [[ai-billing-safeguards]] - bounds runaway loop cost with hard spending controls and budget gates.
 - [[session-teach-back]] - the comprehension-debt countermeasure: confirms the operator understands what a loop shipped before the gap compounds.
+- [[context-pack-builder]] - distills cross-session context into a durable memory artifact a loop can load at each iteration.

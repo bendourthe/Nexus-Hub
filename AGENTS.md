@@ -1,6 +1,6 @@
 # AGENTS.md
 
-<!-- nexus-hub-version: 3.3.4 -->
+<!-- nexus-hub-version: 3.4.0 -->
 
 This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, Gemini CLI, etc.) when working with code in this repository.
 
@@ -8,7 +8,7 @@ This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, G
 
 Nexus-Hub is a production-grade skill harness for AI coding assistants. It is the **upstream catalog** consumed by Nexus (the local-first desktop AI Studio, see `https://github.com/bendourthe/Nexus-AI`) and by every other major agent platform: Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, and GitHub CLI. Skills, commands, hooks, agents, and rules are distributed via installer scripts into users' `~/.nexus-hub/` directory and into their AI assistant's per-platform config locations.
 
-Current catalog: **252 skills** across 21 categories, 14 commands (plus 3 permanent aliases), 22 hooks, 23 agents. The 40 v3.x deprecation shims were removed in v3.2.0.
+Current catalog: **256 skills** across 21 categories, 15 commands (plus 3 permanent aliases), 22 hooks, 23 agents. The 40 v3.x deprecation shims were removed in v3.2.0.
 
 ## Project Structure
 
@@ -17,14 +17,14 @@ Nexus-Hub/
 ├── catalog/                  # Master templates (distributed to users)
 │   ├── agents/               # 23 agent YAML definitions
 │   ├── checklists/           # Standalone reference checklists (4 files)
-│   ├── commands/             # 14 active command .md files (+ 3 permanent aliases; the 40 v3.x shims were removed in v3.2.0)
+│   ├── commands/             # 15 active command .md files (+ 3 permanent aliases; the 40 v3.x shims were removed in v3.2.0)
 │   ├── context/              # Context template files
 │   ├── hooks/                # Hook scripts + settings.json template
 │   │   └── tests/            # pytest suite for hook scripts
 │   ├── mcp-configs/          # MCP server registry
 │   ├── memory/               # Memory template files
 │   ├── rules/                # Code style/security rules (4 languages)
-│   └── skills/               # 252 skills across 21 categories
+│   └── skills/               # 256 skills across 21 categories
 │       └── <category>/
 │           └── <skill-name>/
 │               └── SKILL.md
@@ -313,6 +313,12 @@ After adding a command, update `data/marketplace.json` `"total_commands"` if tha
 
 **Do not maintain a static command list anywhere.** `/skills list` derives the command cheatsheet -- the active commands, what each does, the deprecated name each one replaces, and common multi-command workflows -- at runtime from the command files themselves (see `catalog/style-guides/commands-cheatsheet.md`). Adding, renaming, refactoring, or deprecating a command therefore updates the cheatsheet automatically on the next `/skills list`; there is no table to hand-edit. The only command artifacts to touch on a change are the command file(s) and (on a rename) the deprecation shim.
 
+## Model Routing in the Plan/Implement Loop
+
+`/plan` performs a best-effort, platform-agnostic model-routing assessment per phase (added v3.4.0). After the phase breakdown is designed and before the plan file is written, it invokes the `model-routing` skill once per phase to score that phase's complexity and recommend a model plus reasoning effort, defaulting to the strongest available tier on any uncertainty or high-risk signal. The recommendation is recorded in the plan as a platform-agnostic tier intent ("strong reasoning tier, high effort") alongside the concretely-enumerated model id and effort when enumeration succeeds, surfaced in the "Phases at a Glance" "Rec. model / effort" column and each phase's `**Recommended model**` field. The step degrades silently: when the routing skill or live model enumeration is unavailable (no platform surface, offline, or a manual-only platform), each phase carries the neutral `assess at implementation time` placeholder and the plan is still valid. The heavy logic stays in the skill; `model-routing` adds no outbound call, dependency, or credential, and `/plan` and the retained planning skill stay thin dispatchers over it. This is command + skill behavior, NOT a `base-*.md` lockstep change -- routing is opt-in via the plan/implement steps, not always-loaded instruction text.
+
+`/implement` re-confirms that recommendation at the start of each phase, before the subtask-by-subtask build step (added v3.4.0 Phase 4). It reads the phase's `**Recommended model**` field, invokes the `model-routing` skill to re-assess against the currently-enumerated models -- so a plan built before a new model release picks up the newer or cheaper option at implementation time -- and applies the same confirm-then-auto-execute posture per platform tier; if the re-assessment disagrees with the plan it surfaces the delta and defaults to the stronger option (the no-degradation guarantee). The pre-flight is best-effort and never blocks: when routing or enumeration is unavailable it proceeds on the plan's recommendation (or the session's current model) with a one-line note. Separately, the `/implement` troubleshooting loop may UPSHIFT to a stronger tier or higher effort when a phase's tests fail repeatedly (an under-tiering signal) -- upshift only, with confirmation, never an automatic mid-phase downshift (see the mid-task escalation rule in the `model-routing` skill). Like the planning-time assessment, this is command + skill + docs behavior, NOT a `base-*.md` lockstep change, and adds no outbound call, dependency, or credential. The standalone `/route` command (v3.4.0 Phase 2) runs the same assessment on demand for any task or plan phase.
+
 ## Adding or Modifying a Hook
 
 Hook scripts live in `catalog/hooks/`. Rules:
@@ -370,7 +376,7 @@ The installer deploys **skills, commands, agents, hooks, and rules as separate f
 - **Extended 4 (v2.2.0+, via integration registry)**: Antigravity 2.0 + CLI (Google -- single integration covers both surfaces; the CLI ships as the `agy` binary and uses the `.agents/` per-project convention with global content under `~/.gemini/antigravity-cli/`, verified 2026-05-29 against Google's public Antigravity CLI docs), Antigravity CLI (Google -- transition target for Gemini CLI before 2026-06-18; covered by the `antigravity2` integration), Gemini CLI (Google, ENTERPRISE-ONLY post-2026-06-18, opt-in via `--enterprise` installer flag), Nexus-AI (https://github.com/bendourthe/Nexus-AI).
 - **User-global slash commands (v3.3.4)**: Cursor (`~/.cursor/commands/<name>.md`) and GitHub Copilot in VS Code (user-profile `prompts/<name>.prompt.md`) each expose a global command surface that every repo reads with no local install. A global install mirrors the catalog's commands there (manifest-scoped pruning removes upstream-deleted commands without touching the user's own files). Cursor additionally gets `.cursor/rules/*.mdc` + repo-root `AGENTS.md` behavioral guardrails.
 - **Project-only slash commands**: Antigravity 2.0 reads slash commands only from the open project's `.agents/workflows/`. There is no global surface, so a global-install user runs `nexus-hub init` in each repo to seed them (see the `wire_project_surfaces` row above).
-- **Behavioral-guardrails only**: OpenCode (`AGENTS.md`).
+- **Behavioral-guardrails only**: OpenCode (`AGENTS.md`); Aider (project-root `CONVENTIONS.md`; no global instruction surface, so a global install is a no-op and the file installs at workspace scope); Windsurf (project-root `.windsurfrules` at workspace scope, plus a global `~/.codeium/windsurf/memories/global_rules.md` written only when Windsurf is detected); Kimi (project-local `.kimi/system.md` + `.kimi/agent.yaml` at workspace scope, mirrored under `~/.kimi/` only when Kimi is detected); Qwen (project-root `QWEN.md` at workspace scope, plus `~/.qwen/QWEN.md` only when Qwen is detected); OpenClaw (project-local `.openclaw/` SOUL + AGENTS + IDENTITY split at workspace scope, mirrored under `~/.openclaw/` only when OpenClaw is detected). These carry the Nexus-Hub instruction content with the `{{SKILL_INDEX}}` block embedded (the multi-file platforms embed it in the primary file -- Kimi `system.md`, OpenClaw `AGENTS.md` -- with the other files as stable companions); they are NOT slash-command surfaces. (Aider + Windsurf added v3.4.0 via the `aider` / `windsurf` integration subclasses; Kimi + Qwen + OpenClaw added v3.4.0 via the `kimi` / `qwen` / `openclaw` subclasses, reusing the same pattern.)
 
 Each of these has a corresponding `IntegrationBase` subclass under `scripts/lib/integrations/` (added in Phase 10 of v2.1.0); the original 4 continue to install via the legacy installer copy blocks, with the registry subclasses standing by for the future v2.2.0 parity migration documented in `docs/archive/v2/v2.1.0/known-gaps.md` (DF-001).
 

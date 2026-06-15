@@ -57,6 +57,30 @@ Run the full build after fixing. A successful build means zero errors, not just 
 
 If tests exist, run them after a successful build: a fix that breaks tests is not a fix.
 
+## Success Metrics
+
+- The build command exits 0 with zero errors, not merely fewer errors than before.
+- The existing test suite still passes after the fix.
+- No error was suppressed (`@ts-ignore`, `# type: ignore`, `any`, or deleted error-checking code) without a comment justifying why it is safe.
+- The fix targeted the first error in dependency order, not the first error the compiler happened to report.
+
+## Deliverable Template
+
+```
+## Root Cause
+[The earliest-in-dependency-order error and why it occurs.]
+
+## Fix
+- path/to/file.ext:line - what changed and why
+
+## Cascade Resolved
+[How many downstream errors disappeared once the root error was fixed.]
+
+## Verification
+- Build: <command> -> exit 0
+- Tests: <command> -> <pass count>
+```
+
 ## Rules
 
 - Never suppress type errors without a comment explaining why it is safe to do so

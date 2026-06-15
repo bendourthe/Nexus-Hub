@@ -1,6 +1,6 @@
 """Parameterized contract test suite for every registered integration.
 
-For each of the 10 integrations, this suite asserts five invariants:
+For each of the 13 integrations, this suite asserts five invariants:
 
   1. install_idempotent       - a second install is all `unchanged` / `kept`.
   2. uninstall_reverses_install - install followed by uninstall leaves no
@@ -15,7 +15,7 @@ For each of the 10 integrations, this suite asserts five invariants:
                                   histogram from install against a separately
                                   cloned fresh tmp_path.
 
-Total cases: 10 integrations * 5 invariants = 50 (with documented skips for
+Total cases: 13 integrations * 5 invariants = 65 (with documented skips for
 the rare cases that legitimately do not apply).
 """
 

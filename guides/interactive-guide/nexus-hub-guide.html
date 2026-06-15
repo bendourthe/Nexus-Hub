@@ -715,6 +715,7 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
           <div class="flow-arrow">&rarr;</div>
           <div class="flow-node" data-go="ship"><div class="cmd">/update</div><div class="lbl">ship</div></div>
         </div>
+        <p class="muted" style="font-size:13.5px"><code>/plan</code> and <code>/implement</code> also <strong>route the model per phase</strong>: each phase is scored and run on the cheapest capable model (defaulting up to the strongest tier on any doubt), so the easy majority of work costs less with no loss in quality. <code>/implement</code> re-confirms the choice at build time to pick up any newer or cheaper model shipped since planning. Run it standalone on any task any time with <code>/route</code>.</p>
         <div class="callout tip">
           <span class="ci">&#9733;</span>
           <p><strong>Read this as a story.</strong> Across the next pages you'll inherit one made-up codebase - <strong>TaskFlow</strong>, a task-management SaaS - and take it from "I've never seen this repo" to "shipped, reviewed, and tested" using only Nexus-Hub commands.</p>
@@ -2063,6 +2064,7 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
         <table class="tbl">
           <tbody>
             <tr><td><code>/plan</code></td><td>Goal-gated, phased plan. Scopes: <code>feature</code>, <code>goals</code>, <code>new</code>, <code>refactor</code>, <code>from-comparison</code>, <code>todos</code>, <code>issues</code>.</td></tr>
+            <tr><td><code>/route</code></td><td>Route a task or plan phase to the cheapest capable model + reasoning effort; detects the platform and enumerates models live. Auto-run per phase inside <code>/plan</code> and <code>/implement</code>.</td></tr>
             <tr><td><code>/compare</code></td><td>Gap analysis vs a repo / article / local path; reverse-engineer-first adoption plan; chains to <code>/plan</code>.</td></tr>
             <tr><td><code>/spec</code></td><td>Clarify a spec, analyze a feature dir for coverage, or author/amend the project constitution.</td></tr>
           </tbody>

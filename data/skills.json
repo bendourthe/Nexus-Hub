@@ -6,16 +6,16 @@
     "description": "Comprehensive catalog of Nexus-Hub skills with L0/L1 tiered summaries"
   },
   "statistics": {
-    "total_skills": 252,
+    "total_skills": 256,
     "categories": {
-      "ai-development": 10,
+      "ai-development": 11,
       "architecture": 7,
       "bug-fixing": 5,
       "business-product": 6,
       "code-cleanup": 10,
       "code-review": 13,
       "compliance": 9,
-      "developer-experience": 29,
+      "developer-experience": 30,
       "documentation": 6,
       "framework-specialists": 6,
       "infrastructure": 19,
@@ -28,11 +28,11 @@
       "specialized-domains": 13,
       "testing": 3,
       "tests-generation": 18,
-      "workflow": 39
+      "workflow": 41
     },
     "priorities": {
       "HIGH": 3,
-      "MEDIUM": 249
+      "MEDIUM": 253
     },
     "total_lines": 127456,
     "total_tokens_estimate": 623156,
@@ -207,6 +207,37 @@
         "lines": 413,
         "characters": 18645,
         "tokens_estimate": 2150
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "model-routing",
+      "title": "model-routing",
+      "description": "Detect the current agentic platform, enumerate its available models live, score a task's complexity, and recommend (then help apply) the cheapest model and reasoning effort that carries the work with zero quality loss. Use whenever the user says \"route this to the right model\", \"which model should I use\", \"pick the cheapest model that can do this\", \"is this an Opus task or a Sonnet task\", \"save tokens on this phase\", or \"what reasoning effort for this\". SKIP: checking current usage against limits -> use /usage; setting hard spend caps for autonomous agents -> ai-billing-safeguards; choosing an API PROVIDER rather than a model tier -> multi-provider-ai.",
+      "long_description": "Route a task to the cheapest model and reasoning effort that can carry it with no loss in output quality. Detects the platform, enumerates the live model set from that platform's own surface (no hardcoded list), scores the task on a five-signal complexity rubric, and maps the score to a model plus effort with a conservative strong-tier default on any uncertainty...",
+      "summary_l0": "\"Detect the platform, enumerate models live, and route a task to the cheapest capable model\"",
+      "overview_l1": "\"This skill routes a task to the right model and reasoning effort for the platform you are running, so the easy majority of work runs cheaper and faster while the hard minority never downshifts. Use it when deciding which model or effort level a task, plan phase, or session needs, when a user asks to save tokens without losing quality, or when wiring routing into a planning or implementation loop. It detects the platform from environment cues, enumerates the live model set from that platform's own surface (no hardcoded list), scores the task on a five-signal complexity rubric, maps the score to a model plus effort with a conservative strong-tier default on any uncertainty, and describes how to switch per the platform's capabilities. It adds no outbound call, dependency, or credential. SKIP for usage-limit checks, hard spend caps, or provider selection.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "ai-development",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/ai-development/model-routing/",
+      "file": "catalog/skills/ai-development/model-routing/SKILL.md",
+      "size": {
+        "lines": 149,
+        "characters": 13305,
+        "tokens_estimate": 1480
       },
       "downloads": 0,
       "status": "production",
@@ -8793,6 +8824,132 @@
         "lines": 158,
         "characters": 16889,
         "tokens_estimate": 3738
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "context-pack-builder",
+      "title": "context-pack-builder",
+      "description": "Distill already-gathered prior-session digests and solved-problem records into a single committed, deduped, topic-organized context pack the next session, a teammate, and an agent can all load. Make sure to use this skill whenever the user says \"build a context pack\", \"distill our sessions\", \"carry context forward\", \"give the next session a head start\", \"shared project context\", \"package what we know about X\", or wants prior context turned into a durable, loadable artifact instead of re-derived. It consumes session-query / solution-knowledge-base output and does everything locally and zero-outbound. SKIP, do NOT use for, querying or searching past sessions (use session-query), capturing one solved problem (use solution-knowledge-base), writing the current session's record (use session-history), minting in-session instincts (use continuous-learning), or any flow that uploads or shares the pack with an external service.",
+      "long_description": "Distills already-gathered prior context into a single committed, reusable context pack so the next session, a teammate, and an agent all open with the same grounding instead of re-investigating. It is the DISTILL step downstream of session-query (which queries local session logs) and solution-knowledge-base (which captures one solved problem): the agent feeds their digests in, then distills and dedupes them by topic into docs/context/<topic>.md, attributing every fact to a source session and timestamp, tracking open questions, and linking the relevant solution docs. A docs/context/README.md index lists every pack and merges happen in place to avoid duplicates. Distillation and merge are LLM-driven judgment, so no script ships; everything is local and zero-outbound, with no new dependency or credential.",
+      "summary_l0": "\"Distill prior-session digests and solutions into a reusable, deduped, topic-organized context pack\"",
+      "overview_l1": "\"Turns already-gathered prior context into a single committed, reusable context pack so the next session, a teammate, and an agent all start with the same grounding instead of re-investigating. It is the DISTILL step downstream of session-query (which queries local session logs) and solution-knowledge-base (which captures one solved problem): the agent feeds their digests in, then distills and dedupes them by topic into docs/context/<topic>.md, where every fact cites its source session and timestamp, open questions are tracked, and links point to the relevant solution docs. A docs/context/README.md index lists every pack. Distillation and merge are LLM-driven judgment, so no script ships; everything is local and zero-outbound, with no new dependency or credential. Trigger phrases: build a context pack, distill our sessions, carry context forward, give the next session a head start, shared project context.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "workflow",
+      "language": "Multi-language",
+      "tags": [
+        "context-pack-builder",
+        "context",
+        "workflow",
+        "session",
+        "knowledge",
+        "local-only"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "docs/v3.4.0/comparison-nessie-and-agency-agents.md and docs/v3.4.0/plans/adoption-nessie-and-agency-agents.md",
+      "tools_required": [
+        "Read",
+        "Write",
+        "Edit",
+        "Glob"
+      ],
+      "path": "catalog/skills/workflow/context-pack-builder/",
+      "file": "catalog/skills/workflow/context-pack-builder/SKILL.md",
+      "size": {
+        "lines": 146,
+        "characters": 12401,
+        "tokens_estimate": 3100
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "direct-corpus-interaction",
+      "title": "direct-corpus-interaction",
+      "description": "Apply a direct-corpus-interaction (DCI) search discipline: anchor with semantic retrieval, then grep, trace, and read to verify exact strings, versions, and error codes before answering. Use when searching code or hitting a retrieval dead end.",
+      "long_description": "This skill codifies Direct Corpus Interaction (DCI): the discipline of treating retrieval as an iterative loop rather than a one-shot vector lookup. Pure-vector RAG decides too early what the agent is allowed to see and breaks on exact-string, version-constraint, and multi-hop tasks. DCI fixes this by using semantic retrieval only for a broad anchor, then expanding laterally with grep, call-graph tracing, and direct file reads to verify exact constraints before answering. The agent forms a hypothesis, refines the query when results are thin, recognizes dead ends, expands from an anchor document, and confirms exact strings, versions, and error codes against source. Crucially it never pre-filters evidence out of the reasoning loop.",
+      "summary_l0": "\"Search code with a hypothesis-refine-anchor-verify discipline over hybrid retrieval plus direct corpus tools\"",
+      "overview_l1": "\"This skill codifies Direct Corpus Interaction (DCI): the discipline of treating retrieval as an iterative loop rather than a one-shot vector lookup. Pure-vector RAG decides too early what the agent is allowed to see and breaks on exact-string, version-constraint, and multi-hop tasks. DCI fixes this by using semantic retrieval only for a broad anchor, then expanding laterally with grep, call-graph tracing, and direct file reads to verify exact constraints before answering. The agent forms a hypothesis, refines the query when results are thin, recognizes dead ends, expands from an anchor document, and confirms exact strings, versions, and error codes against source. Crucially it never pre-filters evidence out of the reasoning loop. Trigger phrases: search the codebase, find where X is defined, why does this fail, DCI, grep for, trace callers, verify the exact version, hybrid retrieval discipline.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "developer-experience",
+      "language": "Multi-language",
+      "tags": [
+        "direct-corpus-interaction",
+        "code-search",
+        "retrieval",
+        "developer-experience",
+        "local-only"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "v3.4.0 catalog addition",
+      "tools_required": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Bash"
+      ],
+      "path": "catalog/skills/developer-experience/direct-corpus-interaction/",
+      "file": "catalog/skills/developer-experience/direct-corpus-interaction/SKILL.md",
+      "size": {
+        "lines": 109,
+        "characters": 8827,
+        "tokens_estimate": 2207
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "agent-presets",
+      "title": "agent-presets",
+      "description": "Invoke a ready-made agent preset (morning-briefing, research, coding-assistant) that wires existing skills and slash commands into a one-shot working bundle. Use to orient at session start, kick off research, or enter a plan-test-commit coding loop.",
+      "long_description": "This skill defines a small set of agent presets -- morning-briefing, research, and coding-assistant -- each a named bundle that composes existing catalog skills and slash commands into a single invocation. Instead of remembering which skills and commands to chain for a recurring activity, the user names the preset and the agent activates the bundle in order: morning-briefing orients on what changed and what is next; research enters an evidence-gathering posture that ends in a cited report; coding-assistant runs a plan, implement, test, verify, commit loop. Presets are templates over capabilities that already exist -- they introduce no new tools and make no outbound calls. The agent announces the active preset, lists what it activates, and runs the bundle's steps.",
+      "summary_l0": "\"Ready-made agent presets that compose existing skills and slash commands into one-invocation bundles\"",
+      "overview_l1": "\"This skill defines a small set of agent presets -- morning-briefing, research, and coding-assistant -- each a named bundle that composes existing catalog skills and slash commands into a single invocation. Instead of remembering which skills and commands to chain for a recurring activity, the user names the preset and the agent activates the bundle in order: morning-briefing orients on what changed and what is next; research enters an evidence-gathering posture that ends in a cited report; coding-assistant runs a plan, implement, test, verify, commit loop. Presets are templates over capabilities that already exist -- they introduce no new tools and make no outbound calls. The agent announces the active preset, lists what it activates, and runs the bundle's steps. Trigger phrases: morning briefing, start my day, research preset, coding assistant, enter coding mode, run the research bundle, agent preset, daily standup.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "workflow",
+      "language": "Multi-language",
+      "tags": [
+        "agent-presets",
+        "agents",
+        "workflow",
+        "composition",
+        "local-only"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "v3.4.0 catalog addition",
+      "tools_required": [
+        "Read",
+        "Glob",
+        "Grep"
+      ],
+      "path": "catalog/skills/workflow/agent-presets/",
+      "file": "catalog/skills/workflow/agent-presets/SKILL.md",
+      "size": {
+        "lines": 105,
+        "characters": 8390,
+        "tokens_estimate": 2098
       },
       "downloads": 0,
       "status": "production",
