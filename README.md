@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.4.0 -->
+<!-- nexus-hub-version: 3.5.0 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 256 skills, 15 commands, 22 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -37,18 +37,19 @@ The two projects are designed to be useful independently: you can install Nexus-
 
 ---
 
-## What's New in v3.4.0
+## What's New in v3.5.0
 
-v3.4.0 adds automated model routing across the plan/implement loop, five new platform integrations, and four new skills, while extending `session-query` to more local sources. Every addition is skill-native or reverse-engineered-to-local: no new outbound call, dependency, credential, or third-party processor. Catalog: **256 skills**, **15 commands**.
+v3.5.0 enriches the `loop-engineering` skill with six refinements distilled from recent loop-design writing and a reference research loop. Every change is skill-native: no new skill, command, outbound call, dependency, credential, or third-party processor, and no frontmatter change. Catalog unchanged: **256 skills**, **15 commands**.
 
 Highlights:
 
-- **Model routing across the loop** (new `model-routing` skill + `/route` command): detects the current agent platform, enumerates its available models live, scores a task on a five-signal complexity rubric, and recommends the cheapest model plus reasoning effort that carries the work -- defaulting to the strongest available tier on any uncertainty. `/plan` records a per-phase recommendation, and `/implement` re-confirms it against the live model set at the start of each phase (with an upshift on repeated test failures).
-- **Five new platform integrations**: Aider (`CONVENTIONS.md`), Windsurf (`.windsurfrules`), Kimi (`.kimi/`), Qwen (`QWEN.md`), and OpenClaw (`.openclaw/`) -- behavioral-guardrails surfaces carrying the Nexus-Hub instruction content plus the embedded skill index, reverse-engineered to pure local file emission.
-- **Four new skills**: `model-routing`, `context-pack-builder` (distills prior-session digests plus solved-problem records into a deduped, topic-organized context pack), `direct-corpus-interaction`, and `agent-presets`. `session-query` now also discovers and parses Obsidian vaults and exported ChatGPT/Gemini history, locally; and select agent definitions gained concise Success Metrics / Deliverable Template sections.
-- **Earlier in the v3.3.x line**: v3.3.4 added Cursor/Copilot global slash commands and the Antigravity per-repo seed; v3.3.0 added the loop-engineering layer; v3.2.0 added the internal context-compression engine.
+- **Strict-control-loop doctrine + progressive hardening**: the skill now teaches that the most effective loops are strict control loops where deterministic code drives iteration and the LLM is invoked only for the one decision code cannot make (bounding a hallucinating model's blast radius), plus the maturity progression that turns an `experimental` loop into a `hardened` one by moving each consistently-correct step out of the prompt and into code.
+- **A metric-optimization loop archetype**: a new `optimize-metric-keep-best` library entry captures the optimize-a-scalar-metric shape (make a change, measure, keep it only if the metric improved, revert otherwise) -- the one loop shape the library lacked -- with an optional per-iteration compute budget.
+- **Production-loop observability + graceful handoff**: optional `trace_log` (per-iteration decision record), `progress_check` (stall detection), and `handoff` (human-review destination) schema fields, a Production Loops note, and a concrete "two or three retries, then hand off to a human" default.
+- **"loopmaxxing" named**: open-ended `while(true)` iteration on a fuzzy goal is named as a recognized anti-pattern -- the loop-era equivalent of tokenmaxxing -- that the skill's mandatory falsifiable goal, `iteration_cap`, and command-derived `exit_condition` exist precisely to prevent.
+- **Earlier in the v3.4.x / v3.3.x line**: v3.4.0 added automated model routing across the plan/implement loop, five platform integrations, and four new skills; v3.3.4 added Cursor/Copilot global slash commands; v3.3.0 added the loop-engineering layer.
 
-See [CHANGELOG.md](CHANGELOG.md) for the full v3.4.0 entry and the complete release history.
+See [CHANGELOG.md](CHANGELOG.md) for the full v3.5.0 entry and the complete release history.
 
 ---
 

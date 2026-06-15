@@ -121,3 +121,27 @@ tags:
 ```
 
 Pointer: prefer `/review changes` in `catalog/commands/review.md` and [[multi-agent-code-review]] for the reviewer personas and confidence-gated findings pipeline. The loop definition only records the reusable shape.
+
+## optimize-metric-keep-best
+
+```yaml
+name: optimize-metric-keep-best
+goal: The tracked metric is improved over the baseline and no regression is kept.
+iteration_cap: 20
+check_command: <project metric command emitting one scalar, e.g. a benchmark or eval score>
+exit_condition: iteration_cap reached, or no improvement over the last N iterations (progress-check), with the best result retained.
+driver: /loop for continuous re-runs, with manual re-invocation fallback.
+maturity: experimental
+agents:
+  - Claude Code
+  - Codex manual fallback
+  - Cursor manual fallback
+  - Gemini/Antigravity manual fallback
+tags:
+  - optimization
+  - metric
+  - benchmark
+  - keep-best
+```
+
+Unlike the green/not-green archetypes above, this loop's exit is an optimization target rather than a binary pass: each iteration makes a change, runs the `check_command` to read one scalar metric, keeps the change only when the metric improves over the best result so far, and reverts it otherwise. It pairs with the optional `per_iteration_budget` field (a per-iteration compute ceiling) and `progress_check` field (stall detection on no improvement) defined in [loop-schema.md](loop-schema.md). This is the shape behind overnight metric-optimization runs, such as an ML experiment loop that searches for a higher evaluation score while retaining only the best candidate.

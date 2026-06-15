@@ -82,15 +82,27 @@ This is the full automation-to-ship loop: a scheduled run that triages incoming 
 4. **Isolate each viable finding in a worktree** -- for every auto-fixable item, create a dedicated `git worktree` via [[using-git-worktrees]] so concurrent fixes never collide on the main worktree.
 5. **Maker drafts, independent checker reviews** -- inside each worktree, a maker sub-agent drafts the fix and an independent checker sub-agent reviews it. The checker must not be the maker (the Phase 2 exit rule): use [[adversarial-verifier]] for the checker role and treat the loop exit as the evidence-bearing completion claim in [[verification-before-completion]], with the independent-evaluator rule from [[agent-orchestration-primitives]] (Step 8). The fix's `check_command` (the worktree's tests or build) is the exit evidence, not the maker's confidence.
 6. **Ship through host connectors** -- open the PR or update the ticket through a host connector (MCP), using only surfaces approved by the MCP Registry Policy: see [[mcp-builder]] and `catalog/mcp-configs/mcp-servers.json`. Do not add a connector just to close the loop; if no approved destination exists, stop at the worktree and report.
-7. **Route the rest to a human inbox** -- every needs-human item (and any finding that failed its checker after the `iteration_cap`) goes to a human review queue: a tracked list in the memory layer, an assigned issue, or a digest. Unhandleable work is surfaced, never silently dropped.
+7. **Route the rest to a human inbox** -- every needs-human item (and any finding that failed its checker after the `iteration_cap`) goes to a human review queue: a tracked list in the memory layer, an assigned issue, or a digest. Unhandleable work is surfaced, never silently dropped. As a rule of thumb, allow at most two or three retries on a failing step, then fail gracefully and route the error to this same inbox through the loop's `handoff` target rather than spending the whole `iteration_cap` on a step that is not converging.
 
 Scope first. A scheduled triage loop multiplies token, tool-call, and reviewer cost on every wake, so calibrate on one finding, inspect the plan and check output, cap the run, and only then let it run unattended. Bound the spend with [[ai-billing-safeguards]] before scheduling, and keep the human-inbox volume inside what a person can actually review.
+
+## Strict Control Loops
+
+The most effective loops are not open-ended agentic cycles; they are strict control loops where deterministic code drives the iteration and the LLM is invoked only for the decisions code cannot make. This is complementary to the host `/loop` + `/goal` driver model from Step 1, not a replacement: the host command still drives the run, but the loop body should push as much as possible into deterministic code.
+
+- **The operator owns the shell.** Write the desired end state and the observation/check mechanism, then let deterministic code handle iteration, execution, and every tool or API call. The loop is a control structure first and a prompt second.
+- **The LLM handles only the dynamic decision.** Reserve the model for the one genuinely-dynamic step traditional code cannot make. A hallucinating model's blast radius is then bounded by the hard-coded checks surrounding it, rather than corrupting the whole run.
+- **Wrap risky steps in deterministic checks.** Every repetitive or risky action you wrap in a code-level check (an exit code, a schema validation, a numeric threshold) is how you limit the blast radius of a bad decision. Push the cheapest-primitive discipline of [[agent-orchestration-primitives]] and the cost-bounding of [[ai-billing-safeguards]] into the loop body, not just the loop driver.
+
+### Progressive hardening
+
+Loops earn determinism over time. Start with the minimal loop run with a human in the verification seat, run it several times to learn which steps the agent gets right consistently, then replace the LLM prompt for each consistently-correct step with deterministic code. The LLM's role shrinks every cycle. This progression is exactly how an `experimental` loop (run with human verification) becomes `hardened` (repeatedly successful, with its consistently-correct steps moved into code); see the `maturity` field in [references/loop-schema.md](references/loop-schema.md).
 
 ## Common Rationalizations
 
 | Rationalization | Reality |
 |---|---|
-| "I will just loop without an exit condition and stop when it looks good." | That creates unbounded token burn and invites goal drift; the loop ends when a command-derived condition is met, not when the maker feels finished. |
+| "I will just loop without an exit condition and stop when it looks good." | That creates unbounded token burn and invites goal drift; the loop ends when a command-derived condition is met, not when the maker feels finished. Open-ended `while(true)` iteration on a fuzzy goal (betting the agent will eventually converge) is "loopmaxxing", the loop-era equivalent of tokenmaxxing; the mandatory falsifiable goal, `iteration_cap`, and command-derived `exit_condition` exist precisely to prevent it. |
 | "The maker agent can grade its own exit." | Self-certification recreates the `agent-orchestration-primitives` failure mode where verifiers declare victory without verifying; use an independent checker or fresh command evidence. |
 | "The library should fetch popular loops from a remote registry." | A remote registry would add a service dependency and a supply-chain surface. Nexus-Hub ships local loop definitions and lets operators adapt them. |
 | "A loop means I do not need to understand each iteration." | That produces comprehension debt: the system changes faster than the operator's model of it. Keep state files readable and require human review at bounded checkpoints. |
