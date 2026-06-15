@@ -210,13 +210,13 @@ No constitution file found at `docs/v3.4.0/constitution.md` - skipping check. Re
 
 ### Phase 3 Exit Checklist
 
-- [ ] Obsidian vaults and exported ChatGPT/Gemini history discovered + parsed locally; default behavior unchanged when absent
-- [ ] Zero-outbound invariant preserved (no network module imported)
-- [ ] `.sh`/`.py` helpers all have `.ps1` siblings with identical behavior
-- [ ] `make validate`, `make lint`, `make test` green (or direct equivalents); orphan-bundle audit clean
-- [ ] SKILL.md + CHANGELOG updated
-- [ ] No known regressions; session history generated
-- [ ] Ready to advance to Phase 4
+- [x] Obsidian vaults and exported ChatGPT/Gemini history discovered + parsed locally; default behavior unchanged when absent (no-`--tool` scan still covers only Claude/Codex/Cursor JSONL; `test_default_root_scan_ignores_md` asserts this)
+- [x] Zero-outbound invariant preserved (no network module imported; static-analysis guard over all four scripts green; grep for banned tokens clean)
+- [x] `.sh`/`.py` helpers all have `.ps1` siblings with identical behavior (verified across all four sources + topic/time-window filtering; PS `ConvertFrom-Json` single-element-array unrolling handled so ChatGPT `parts` parse matches Python)
+- [x] `make validate` / `make lint` / `make test` green via direct equivalents per WN-v33-1 (orphan-bundle PASS 0 errors; unicode/personal-paths/supply-chain/workflow-security clean; version-sync match; `bash -n` + PowerShell AST parse clean; repo suite 452 passed; hook suite 439 passed / 7 skipped; `test_session_query_extract.py` 26 passed; skill-security scan install-OK)
+- [x] SKILL.md + CHANGELOG updated (149-line SKILL.md, ASCII-only; `[Unreleased]` "Added" entry recording re-full / zero-outbound)
+- [x] No known regressions; session history generated (`docs/v3.4.0/development/history/2026-06-15_adoption-nessie-and-agency-agents-phase-3-session-query-obsidian-chatgpt-gemini.md`)
+- [x] Ready to advance to Phase 4
 
 ---
 
