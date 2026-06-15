@@ -12,7 +12,7 @@ This schema is the local, service-free structure for reusable loop definitions. 
 | `check_command` | Exact shell command run between iterations to measure progress. Use a project-specific command when possible. | `gh pr checks` |
 | `exit_condition` | Observable, command-derived condition that ends the loop. A checker evaluates this condition; the maker does not self-certify it. | `check_command exits 0 and reports no failing required checks.` |
 | `driver` | Host command that runs the loop, or the fallback when unavailable. Use `/loop` for interval or continuous work, `/goal` for a hard completion requirement, and manual re-invocation when the host lacks those commands. | `/loop`, with manual re-invocation fallback |
-| `maturity` | Local maturity flag. Use `experimental` for new or unproven definitions and `hardened` only after repeated successful local use. | `experimental` |
+| `maturity` | Local maturity flag and a hardening progression. `experimental` = new or unproven; run it with a human in the verification seat. `hardened` = repeatedly successful locally AND its consistently-correct steps have been moved out of the LLM prompt into deterministic code. A loop advances from `experimental` to `hardened` as you replace each reliably-correct step with code. | `experimental` |
 | `agents` | Platforms or harnesses the loop is known to run on. Include fallback notes when the host lacks a driver. | `Claude Code, Codex manual fallback` |
 | `tags` | Discovery labels for library search and plan selection. | `ci`, `pr`, `checks` |
 

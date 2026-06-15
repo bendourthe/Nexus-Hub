@@ -160,12 +160,12 @@ The "Rec. model / effort" column is a best-effort planning-time assessment (Step
 
 ### Phase 1 Exit Checklist
 
-- [ ] All sub-tasks completed (1.1, 1.2)
-- [ ] Strict-control-loop section and hardening lifecycle present and coherent
-- [ ] SKILL.md body under 500 lines; frontmatter unchanged
-- [ ] Validators green; orphan-bundle and dangling-wikilink audits clean
-- [ ] Session history generated for Phase 1
-- [ ] Ready to advance to Phase 2
+- [x] All sub-tasks completed (1.1, 1.2)
+- [x] Strict-control-loop section and hardening lifecycle present and coherent
+- [x] SKILL.md body under 500 lines; frontmatter unchanged
+- [x] Validators green; orphan-bundle and dangling-wikilink audits clean
+- [x] Session history generated for Phase 1
+- [x] Ready to advance to Phase 2
 
 ### Phase 2 Exit Checklist
 
