@@ -7,7 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased]
+## [3.4.0] - 2026-06-15
+
+**v3.4.0 -- model routing across the plan/implement loop, five new platform integrations, and four new skills.** Two plans land this release. The `model-routing` plan adds a new `ai-development` skill that detects the current agent platform, enumerates its available models live, scores a task on a five-signal complexity rubric, and recommends the cheapest model plus reasoning effort that carries the work (defaulting to the strongest available tier on any uncertainty), plus a standalone `/route` command and per-phase routing wired into `/plan` (planning-time) and `/implement` (re-confirmed at implementation time, with an upshift on repeated test failures). The `adoption-nessie-and-agency-agents` plan adds the `context-pack-builder` skill, five new `IntegrationBase` platform subclasses (Aider, Windsurf, Kimi, Qwen, OpenClaw), a `session-query` extension to Obsidian plus exported ChatGPT/Gemini history, the `direct-corpus-interaction` and `agent-presets` skills, and selective agent-body enrichment (Success Metrics / Deliverable Template sections on the deliverable-producing agents that lacked an output contract). Catalog: **256 skills** across 21 categories, **15 commands**. Every addition is skill-native or reverse-engineered-to-local: no new outbound call, dependency, credential, or third-party processor.
 
 ### Added
 

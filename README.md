@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.3.4 -->
+<!-- nexus-hub-version: 3.4.0 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 256 skills, 15 commands, 22 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -37,17 +37,18 @@ The two projects are designed to be useful independently: you can install Nexus-
 
 ---
 
-## What's New in v3.3.4
+## What's New in v3.4.0
 
-v3.3.4 makes the catalog's slash commands reachable from any repo on every platform that exposes a user-global command surface. It is an installer / integration change only: zero catalog content change (still **252 skills**), and no new outbound call, dependency, credential, or third-party processor.
+v3.4.0 adds automated model routing across the plan/implement loop, five new platform integrations, and four new skills, while extending `session-query` to more local sources. Every addition is skill-native or reverse-engineered-to-local: no new outbound call, dependency, credential, or third-party processor. Catalog: **256 skills**, **15 commands**.
 
 Highlights:
 
-- **Cursor and Copilot global slash commands**: a global install now mirrors every command into Cursor's `~/.cursor/commands/<name>.md` and into VS Code's user-profile `prompts/<name>.prompt.md`, so `/<command>` works in any repo with no per-project install. A manifest-scoped prune removes commands deleted or renamed upstream without ever touching a user's own files.
-- **Antigravity per-repo seed**: the Antigravity 2.0 IDE reads slash commands only from the open project's `.agents/workflows/`, so `nexus-hub init` (`scripts/installer.sh init` / `scripts/installer.ps1 init`) seeds them per repo. Global-command capability by platform is now Claude Code / Codex / Gemini CLI (already global), **Cursor / Copilot (global, new)**, and Antigravity (project-only via `nexus-hub init`).
-- **Earlier in the v3.3.x line**: v3.3.3 fixed a Windows installer bug that wrote `~/.claude/settings.json` with a UTF-8 BOM (which broke the Claude Code VS Code extension's JSON parsing); v3.3.2 added the self-contained [interactive onboarding guide](guides/interactive-guide/nexus-hub-guide.html).
+- **Model routing across the loop** (new `model-routing` skill + `/route` command): detects the current agent platform, enumerates its available models live, scores a task on a five-signal complexity rubric, and recommends the cheapest model plus reasoning effort that carries the work -- defaulting to the strongest available tier on any uncertainty. `/plan` records a per-phase recommendation, and `/implement` re-confirms it against the live model set at the start of each phase (with an upshift on repeated test failures).
+- **Five new platform integrations**: Aider (`CONVENTIONS.md`), Windsurf (`.windsurfrules`), Kimi (`.kimi/`), Qwen (`QWEN.md`), and OpenClaw (`.openclaw/`) -- behavioral-guardrails surfaces carrying the Nexus-Hub instruction content plus the embedded skill index, reverse-engineered to pure local file emission.
+- **Four new skills**: `model-routing`, `context-pack-builder` (distills prior-session digests plus solved-problem records into a deduped, topic-organized context pack), `direct-corpus-interaction`, and `agent-presets`. `session-query` now also discovers and parses Obsidian vaults and exported ChatGPT/Gemini history, locally; and select agent definitions gained concise Success Metrics / Deliverable Template sections.
+- **Earlier in the v3.3.x line**: v3.3.4 added Cursor/Copilot global slash commands and the Antigravity per-repo seed; v3.3.0 added the loop-engineering layer; v3.2.0 added the internal context-compression engine.
 
-See [CHANGELOG.md](CHANGELOG.md) for the full v3.3.4 entry and the complete release history.
+See [CHANGELOG.md](CHANGELOG.md) for the full v3.4.0 entry and the complete release history.
 
 ---
 
