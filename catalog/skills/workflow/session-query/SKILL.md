@@ -125,3 +125,4 @@ If the recovered context resolves a recurring problem, offer to capture it durab
 - [[continuous-learning]] - mines the in-session observations log (`.nexus/observations.jsonl`) for behavioral patterns; this skill queries full cross-tool session transcripts for investigation context.
 - [[debug-with-logs]] - when the recovered context is a prior debugging trail, this is the skill that resumes the active debugging.
 - [[session-teach-back]] - the mastery-confirmation counterpart: it reuses this skill's extractor to source the material it quizzes you on, confirming you understood what a past session produced.
+- [[context-pack-builder]] - the DISTILL counterpart: it consumes this skill's digest and folds it into a durable, deduped topic context pack under `docs/context/`.

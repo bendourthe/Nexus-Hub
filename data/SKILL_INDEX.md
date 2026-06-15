@@ -257,5 +257,6 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | agent-orchestration-primitives | orchestration | "Choose between single agent, subagents, agent teams, and Dynamic Workflows for a task" | catalog/skills/orchestration/agent-orchestration-primitives/SKILL.md |
 | skill-security-scan | security | "Adjudicate skill-security scanner findings, filter false positives, and assign an install verdict" | catalog/skills/security/skill-security-scan/SKILL.md |
 | session-teach-back | workflow | "Socratic teach-back loop that quizzes the human on a session until every concept is confirmed" | catalog/skills/workflow/session-teach-back/SKILL.md |
+| context-pack-builder | workflow | "Distill prior-session digests and solutions into a reusable, deduped, topic-organized context pack" | catalog/skills/workflow/context-pack-builder/SKILL.md |
 
-**Total: 253 skills across 21 categories**
+**Total: 254 skills across 21 categories**

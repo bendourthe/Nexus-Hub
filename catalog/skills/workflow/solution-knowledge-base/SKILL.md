@@ -127,3 +127,4 @@ Run `python scripts/validate_solution_frontmatter.py docs/solutions/<category>/<
 - [[continuous-learning]] - mints lightweight in-session behavioral instincts (`.nexus/instincts/`); this skill captures durable, bodied solved-problem docs - the heavier, longer-lived sibling.
 - `/plan` - reads `docs/solutions/` as grounding before designing, closing the capture -> plan loop.
 - [[debug-with-logs]] - a debugging session that ends with a root cause is the canonical trigger to capture here.
+- [[context-pack-builder]] - distills these solved-problem records (alongside prior-session digests) into a topic-level context pack and links back to them.

@@ -127,6 +127,7 @@
     "catalog/skills/tests-generation/unit-tests/SKILL.md",
     "catalog/skills/workflow/conflict-analyzer/SKILL.md",
     "catalog/skills/workflow/context-modes/SKILL.md",
+    "catalog/skills/workflow/context-pack-builder/SKILL.md",
     "catalog/skills/workflow/continuous-learning/SKILL.md",
     "catalog/skills/workflow/demo-capture/SKILL.md",
     "catalog/skills/workflow/doc-coauthoring/SKILL.md",

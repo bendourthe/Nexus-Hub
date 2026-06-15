@@ -6,7 +6,7 @@
     "description": "Comprehensive catalog of Nexus-Hub skills with L0/L1 tiered summaries"
   },
   "statistics": {
-    "total_skills": 253,
+    "total_skills": 254,
     "categories": {
       "ai-development": 11,
       "architecture": 7,
@@ -28,11 +28,11 @@
       "specialized-domains": 13,
       "testing": 3,
       "tests-generation": 18,
-      "workflow": 39
+      "workflow": 40
     },
     "priorities": {
       "HIGH": 3,
-      "MEDIUM": 249
+      "MEDIUM": 250
     },
     "total_lines": 127456,
     "total_tokens_estimate": 623156,
@@ -8824,6 +8824,49 @@
         "lines": 158,
         "characters": 16889,
         "tokens_estimate": 3738
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "context-pack-builder",
+      "title": "context-pack-builder",
+      "description": "Distill already-gathered prior-session digests and solved-problem records into a single committed, deduped, topic-organized context pack the next session, a teammate, and an agent can all load. Make sure to use this skill whenever the user says \"build a context pack\", \"distill our sessions\", \"carry context forward\", \"give the next session a head start\", \"shared project context\", \"package what we know about X\", or wants prior context turned into a durable, loadable artifact instead of re-derived. It consumes session-query / solution-knowledge-base output and does everything locally and zero-outbound. SKIP, do NOT use for, querying or searching past sessions (use session-query), capturing one solved problem (use solution-knowledge-base), writing the current session's record (use session-history), minting in-session instincts (use continuous-learning), or any flow that uploads or shares the pack with an external service.",
+      "long_description": "Distills already-gathered prior context into a single committed, reusable context pack so the next session, a teammate, and an agent all open with the same grounding instead of re-investigating. It is the DISTILL step downstream of session-query (which queries local session logs) and solution-knowledge-base (which captures one solved problem): the agent feeds their digests in, then distills and dedupes them by topic into docs/context/<topic>.md, attributing every fact to a source session and timestamp, tracking open questions, and linking the relevant solution docs. A docs/context/README.md index lists every pack and merges happen in place to avoid duplicates. Distillation and merge are LLM-driven judgment, so no script ships; everything is local and zero-outbound, with no new dependency or credential.",
+      "summary_l0": "\"Distill prior-session digests and solutions into a reusable, deduped, topic-organized context pack\"",
+      "overview_l1": "\"Turns already-gathered prior context into a single committed, reusable context pack so the next session, a teammate, and an agent all start with the same grounding instead of re-investigating. It is the DISTILL step downstream of session-query (which queries local session logs) and solution-knowledge-base (which captures one solved problem): the agent feeds their digests in, then distills and dedupes them by topic into docs/context/<topic>.md, where every fact cites its source session and timestamp, open questions are tracked, and links point to the relevant solution docs. A docs/context/README.md index lists every pack. Distillation and merge are LLM-driven judgment, so no script ships; everything is local and zero-outbound, with no new dependency or credential. Trigger phrases: build a context pack, distill our sessions, carry context forward, give the next session a head start, shared project context.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "workflow",
+      "language": "Multi-language",
+      "tags": [
+        "context-pack-builder",
+        "context",
+        "workflow",
+        "session",
+        "knowledge",
+        "local-only"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "docs/v3.4.0/comparison-nessie-and-agency-agents.md and docs/v3.4.0/plans/adoption-nessie-and-agency-agents.md",
+      "tools_required": [
+        "Read",
+        "Write",
+        "Edit",
+        "Glob"
+      ],
+      "path": "catalog/skills/workflow/context-pack-builder/",
+      "file": "catalog/skills/workflow/context-pack-builder/SKILL.md",
+      "size": {
+        "lines": 146,
+        "characters": 12401,
+        "tokens_estimate": 3100
       },
       "downloads": 0,
       "status": "production",
