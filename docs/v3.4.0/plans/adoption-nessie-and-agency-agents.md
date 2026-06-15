@@ -323,11 +323,11 @@ No constitution file found at `docs/v3.4.0/constitution.md` - skipping check. Re
 
 ### Phase 5 Exit Checklist
 
-- [ ] Only the justified set of agents edited; selection rationale recorded
-- [ ] "Success Metrics" / "Deliverable Template" sections added in the terse verification-first style; no persona/vibe content
-- [ ] `make validate` green (or direct equivalents)
-- [ ] CHANGELOG updated
-- [ ] No known regressions; session history generated
+- [x] Only the justified set of agents edited; selection rationale recorded (3 agents: `build-error-resolver`, `harness-optimizer`, `doc-updater`; the 13 JSON-contracted reviewers and the 6 Output-Format-bearing working agents left untouched)
+- [x] "Success Metrics" / "Deliverable Template" sections added in the terse verification-first style; no persona/vibe content (all added lines are observable metrics or a literal report template; ASCII-only)
+- [x] `make validate` green (or direct equivalents per WN-v33-1: unicode-safety/no-personal-paths/workflow-security/supply-chain all exit 0; JSON integrity 256 skills / 15 bundles; orphan-bundle PASS; version-sync match 3.3.4; the three edited files ASCII-clean, all 14 `--strict` em-dash flags pre-existing)
+- [x] CHANGELOG updated (`[Unreleased]` "Changed" entry; skill-native, zero new outbound call / dependency / credential)
+- [x] No known regressions; session history generated (`docs/v3.4.0/development/history/2026-06-15_adoption-nessie-and-agency-agents-phase-5-agent-body-enrichment.md`)
 - [ ] Release readiness run via `/update release` (final phase)
 
 ---

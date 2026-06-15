@@ -51,6 +51,27 @@ Implement quick wins with explicit before/after comparisons. Report:
 - Coverage delta
 - Execution time delta (measure before and after)
 
+## Success Metrics
+
+- Total suite execution time is lower than the recorded baseline, measured rather than estimated.
+- No test that failed intermittently before the change still does, with the flakiness fixed rather than masked.
+- Line and branch coverage are at or above the baseline, so no coverage was lost to the cleanup.
+- The full suite is green after every change, with no regression introduced.
+
+## Deliverable Template
+
+```
+## Inventory
+- Tests: <unit>/<integration>/<e2e>; coverage <line>%/<branch>%; avg <ms>/test; skipped: <n>
+
+## Prioritized Improvements
+| Improvement | Impact | Effort | Status |
+|---|---|---|---|
+
+## Quick Wins Applied (before -> after)
+- <change>: time <before> -> <after>; coverage <before> -> <after>; tests <before> -> <after>
+```
+
 ## Rules
 
 - Never delete a test without confirming the behavior it covers is tested elsewhere

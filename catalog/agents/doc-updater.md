@@ -66,6 +66,13 @@ Do not add comments that merely restate what the code does — only explain *why
 
 Update `catalog/context/architecture.md` only when module boundaries, data flow, or integration points changed. Minor implementation details do not warrant an architecture update.
 
+## Success Metrics
+
+- Every doc section describing changed behavior is updated; no section describing unchanged behavior is touched.
+- DEVLOG has a new dated entry for this session, under 200 words.
+- No description contradicts what the code actually does; every claim was read from the code, not inferred.
+- No documentation was deleted without confirming the feature it describes was actually removed.
+
 ## Rules
 
 - Never delete documentation without confirming the feature it describes is actually removed
