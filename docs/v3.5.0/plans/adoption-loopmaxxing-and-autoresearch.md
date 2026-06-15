@@ -169,13 +169,13 @@ The "Rec. model / effort" column is a best-effort planning-time assessment (Step
 
 ### Phase 2 Exit Checklist
 
-- [ ] All sub-tasks completed (2.1, 2.2)
-- [ ] `optimize-metric-keep-best` archetype added using schema-defined fields only
-- [ ] `per_iteration_budget` field and deterministic-oracle carve-out present
-- [ ] No external repo/product name in any reference file
-- [ ] Validators green
-- [ ] Session history generated for Phase 2
-- [ ] Ready to advance to Phase 3
+- [x] All sub-tasks completed (2.1, 2.2)
+- [x] `optimize-metric-keep-best` archetype added using schema-defined fields only
+- [x] `per_iteration_budget` field and deterministic-oracle carve-out present
+- [x] No external repo/product name in any reference file
+- [x] Validators green
+- [x] Session history generated for Phase 2
+- [x] Ready to advance to Phase 3
 
 ### Phase 3 Exit Checklist
 

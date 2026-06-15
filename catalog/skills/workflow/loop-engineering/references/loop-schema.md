@@ -15,6 +15,9 @@ This schema is the local, service-free structure for reusable loop definitions. 
 | `maturity` | Local maturity flag and a hardening progression. `experimental` = new or unproven; run it with a human in the verification seat. `hardened` = repeatedly successful locally AND its consistently-correct steps have been moved out of the LLM prompt into deterministic code. A loop advances from `experimental` to `hardened` as you replace each reliably-correct step with code. | `experimental` |
 | `agents` | Platforms or harnesses the loop is known to run on. Include fallback notes when the host lacks a driver. | `Claude Code, Codex manual fallback` |
 | `tags` | Discovery labels for library search and plan selection. | `ci`, `pr`, `checks` |
+| `per_iteration_budget` | Optional. Hard cost ceiling for a single iteration (wall-clock, tokens, or tool calls), orthogonal to `iteration_cap`, which bounds the number of iterations rather than the cost of each one. | `5 min wall-clock per iteration` |
+
+The first nine fields are required for every loop definition. Any field whose Purpose begins with "Optional" (such as `per_iteration_budget`) is additive: existing loop definitions stay valid without it.
 
 ## Worked Example
 
@@ -44,5 +47,5 @@ The `exit_condition` is a completion claim. Treat it as evidence-bearing: run th
 
 - No `iteration_cap`: the loop can burn tokens indefinitely and should not run.
 - Vibe-based `exit_condition`: "looks better" or "seems ready" cannot terminate a loop.
-- Maker self-certifies exit: the same agent that produced the work should not be the only judge of whether the loop is complete.
+- Maker self-certifies exit: the same agent that produced the work should not be the only judge of whether the loop is complete. Carve-out: the maker and checker may be the same agent only when the checker is a deterministic, non-LLM oracle (a numeric metric, an exit code, or a compiler result), because a deterministic oracle is its own independent check. Whenever the checker is itself an LLM, the maker must not also be the checker.
 - Host-driver assumption: if `/loop` or `/goal` is unavailable, fall back to manual re-invocation with the same schema fields.
