@@ -147,3 +147,4 @@ Information at the bottom of the context window has less influence on output tha
 - [[plan-before-code]] -- defines the task structure that determines what context each step needs
 - [[incremental-implementation]] -- executes one step at a time, enabling scoped context loads
 - [[code-semantic-search]] -- retrieval-based context shaping for source-code corpora; specialized over the general rag-implementation skill
+- [[context-pack-builder]] -- distills prior-session context into a committed pack you can load as a Layer-1 orientation artifact for the current task

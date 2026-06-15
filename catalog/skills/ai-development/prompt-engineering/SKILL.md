@@ -1106,6 +1106,7 @@ def dynamic_few_shot(
 - [[rag-implementation]] -- constructing prompts with retrieved context
 - [[tool-design]] -- writing tool descriptions (a specialized form of prompting)
 - [[ai-output-evaluation]] -- evaluating and scoring LLM outputs
+- [[model-routing]] -- platform-aware, live-enumerated extension of the model-routing and effort-level guidance in this skill
 
 ---
 

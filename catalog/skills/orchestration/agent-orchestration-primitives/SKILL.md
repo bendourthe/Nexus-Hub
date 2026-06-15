@@ -144,3 +144,4 @@ Assembling a named, goal-terminated loop from these parts (the loop-definition s
 - [[ai-billing-safeguards]] - hard spending caps and budget controls for the token-cost failure mode.
 - [[prompt-token-optimization]] - reducing per-task token consumption inside any chosen primitive.
 - [[task-coordinator]] - general task decomposition and dependency tracking that feeds the primitive choice.
+- [[model-routing]] - picks the model tier each agent runs on once this guide has chosen the orchestration primitive.

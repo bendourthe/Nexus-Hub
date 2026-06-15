@@ -466,6 +466,7 @@ class BudgetGuard:
 - [[temporal-orchestration]] -- handling BudgetExceededError in durable workflow activities
 - [[observability-setup]] -- usage and cost monitoring dashboards alongside enforcement
 - [[ai-agent-governance]] -- enterprise governance framework for AI agent deployments
+- [[model-routing]] -- task-time model / effort recommendation that respects the hard spend caps this skill enforces
 
 ---
 

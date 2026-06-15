@@ -153,13 +153,13 @@ No constitution file found at `docs/v3.4.0/constitution.md` - skipping check. Re
 
 ### Phase 2 Exit Checklist
 
-- [ ] `/route` command created as a thin dispatcher to `model-routing`
-- [ ] Switch helpers shipped with `.sh` + `.ps1` parity, referenced from SKILL.md, model-validated, and clean-refusing on unknown platforms
-- [ ] `total_commands` bumped; slash-surface coverage noted in CHANGELOG
-- [ ] Dry-run shows recommendation + correct posture behavior per platform tier; strong-tier-default holds on uncertain input
-- [ ] `make lint` + tests green (or direct equivalents, per WN-v33-1)
-- [ ] No known regressions; session history generated
-- [ ] Ready to advance to Phase 3
+- [x] `/route` command created as a thin dispatcher to `model-routing`
+- [x] Switch helpers shipped with `.sh` + `.ps1` parity, referenced from SKILL.md, model-validated, and clean-refusing on unknown platforms
+- [x] `total_commands` bumped; slash-surface coverage noted in CHANGELOG
+- [x] Dry-run shows recommendation + correct posture behavior per platform tier; strong-tier-default holds on uncertain input
+- [x] `make lint` + tests green (or direct equivalents, per WN-v33-1)
+- [x] No known regressions; session history generated
+- [x] Ready to advance to Phase 3
 
 ---
 
@@ -209,13 +209,13 @@ No constitution file found at `docs/v3.4.0/constitution.md` - skipping check. Re
 
 ### Phase 3 Exit Checklist
 
-- [ ] `/plan` runs a per-phase routing assessment; `plan.md` stays a thin dispatcher
-- [ ] Plan template carries the recommended-model column + per-phase field; existing plans still validate
-- [ ] Graceful degradation verified (neutral placeholder when routing unavailable)
-- [ ] AGENTS.md + CHANGELOG updated; confirmed not a base-template change
-- [ ] `make validate` + planning tests green (or direct equivalents)
-- [ ] No known regressions; session history generated
-- [ ] Ready to advance to Phase 4
+- [x] `/plan` runs a per-phase routing assessment; `plan.md` stays a thin dispatcher
+- [x] Plan template carries the recommended-model column + per-phase field; existing plans still validate
+- [x] Graceful degradation verified (neutral placeholder when routing unavailable)
+- [x] AGENTS.md + CHANGELOG updated; confirmed not a base-template change
+- [x] `make validate` + planning tests green (or direct equivalents)
+- [x] No known regressions; session history generated
+- [x] Ready to advance to Phase 4
 
 ---
 
@@ -275,13 +275,13 @@ No constitution file found at `docs/v3.4.0/constitution.md` - skipping check. Re
 
 ### Phase 4 Exit Checklist
 
-- [ ] `/implement` runs a per-phase routing re-confirmation before the build step; `implement.md` stays a thin dispatcher
-- [ ] Re-assessment picks up newer/cheaper models shipped since planning; disagreements surface with stronger-default
-- [ ] Troubleshooting-loop upshift implemented (upshift-only, with confirmation); never auto-downshifts mid-phase
-- [ ] Graceful degradation verified (never blocks implementation)
-- [ ] AGENTS.md, the interactive guide (`nexus-hub-guide.html` loop section), and CHANGELOG updated; the new `/route` command is listed in the guide; confirmed not a base-template change
-- [ ] `make` checks + `implement-phase` tests green (or direct equivalents)
-- [ ] No known regressions; session history generated
+- [x] `/implement` runs a per-phase routing re-confirmation before the build step; `implement.md` stays a thin dispatcher
+- [x] Re-assessment picks up newer/cheaper models shipped since planning; disagreements surface with stronger-default
+- [x] Troubleshooting-loop upshift implemented (upshift-only, with confirmation); never auto-downshifts mid-phase
+- [x] Graceful degradation verified (never blocks implementation)
+- [x] AGENTS.md, the interactive guide (`nexus-hub-guide.html` loop section), and CHANGELOG updated; the new `/route` command is listed in the guide; confirmed not a base-template change
+- [x] `make` checks + `implement-phase` tests green (or direct equivalents)
+- [x] No known regressions; session history generated
 - [ ] Release readiness run via `/update release` (final phase)
 
 ---
