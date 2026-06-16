@@ -98,6 +98,30 @@ The most effective loops are not open-ended agentic cycles; they are strict cont
 
 Loops earn determinism over time. Start with the minimal loop run with a human in the verification seat, run it several times to learn which steps the agent gets right consistently, then replace the LLM prompt for each consistently-correct step with deterministic code. The LLM's role shrinks every cycle. This progression is exactly how an `experimental` loop (run with human verification) becomes `hardened` (repeatedly successful, with its consistently-correct steps moved into code); see the `maturity` field in [references/loop-schema.md](references/loop-schema.md).
 
+## Workflow-Control Patterns: Gate, Resume, Continue-on-Error
+
+Three control patterns extend a loop's vocabulary beyond a single `exit_condition`. All three are **agent-instruction patterns** you encode in the loop body and its state file, NOT a new runtime to build. Where the host harness exposes Dynamic Workflows (the `Workflow` tool), the same shapes map onto its script (a gate is an `AskUserQuestion` between stages, resume is the workflow's native journal-based resume, continue-on-error is a per-item `try/catch` that records the failure and keeps going). In a plain `/loop` or `/goal` run you implement them with the external memory layer from Step 1.
+
+- **Human gate checkpoint.** Pause the loop at a named boundary for an approve/reject decision before continuing (before a maker's change is shipped, or before a destructive step). Record an explicit `on_reject` policy so a rejection is deterministic rather than improvised: `abort` (stop the whole loop), `skip` (drop this item, continue with the rest), or `retry` (re-run the gated step, counting against `iteration_cap`). The reviewer is a human (or an independent checker per Step 4), never the maker.
+
+    ```
+    gate: "approve PR body before push?"  on_reject: skip   # rejected item is logged to the human inbox; loop continues
+    ```
+
+- **Persisted resume-from-checkpoint.** Record per-step state to the memory layer (a run file via [[filesystem-context-patterns]]) so an interrupted or failed run resumes at the failed step instead of restarting from step 1. The run file records, per step, its status (`pending` / `done` / `failed`) and the output the next step needs; on re-invocation the loop skips `done` steps and re-enters at the first non-`done` step. This is what makes a long loop crash-safe without a bespoke engine.
+
+    ```
+    runs/2026-06-16.json -> [{step: triage, status: done}, {step: fix-A, status: failed}]   # resume re-enters at fix-A
+    ```
+
+- **Per-step continue-on-error.** Mark a step so its failure is recorded and the loop continues rather than aborting, leaving the failed step's status visible to downstream conditional logic. Use it for independent units (fix item A, fix item B) where one failure should not block the rest; pair it with the two-or-three-retries-then-handoff rule from the Scheduled-Triage Recipe so a non-converging step is routed to the human inbox, never silently swallowed. A failure that should stop everything is NOT a continue-on-error step - use a gate with `on_reject: abort`.
+
+    ```
+    step: fix-A  continue_on_error: true   # records {fix-A: failed}; downstream "if any failed -> open digest" still fires
+    ```
+
+These compose: a scheduled triage loop gates risky ships, resumes from its run file after an interruption, and continues past a single item's failure while routing it to the human inbox. Do not build a YAML workflow engine to host them (the loop-era equivalent of the declined portable-runtime trap); they are instructions over the harness's existing Dynamic Workflows or a `/loop` driver.
+
 ## Common Rationalizations
 
 | Rationalization | Reality |
@@ -117,6 +141,7 @@ Loops earn determinism over time. Start with the minimal loop run with a human i
 - [ ] Any writable iteration has an isolation plan through [[using-git-worktrees]] or an explicit reason isolation is unnecessary.
 - [ ] State and unresolved gaps persist through [[dev-progress-tracker]], [[known-gaps-tracker]], or [[filesystem-context-patterns]].
 - [ ] The loop introduces no new outbound call, dependency, credential, or third-party processor beyond existing approved project destinations.
+- [ ] Any gate, resume, or continue-on-error step is implemented as a loop-body instruction over the memory layer (or the harness's Dynamic Workflows), not a new runtime; every gate names its `on_reject` policy (abort / skip / retry).
 
 ## Related Skills
 

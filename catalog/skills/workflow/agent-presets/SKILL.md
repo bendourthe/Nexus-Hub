@@ -79,6 +79,23 @@ Presets are starting templates, not fixed scripts. To adapt one:
 
 A custom preset must still compose only existing capabilities and introduce no new outbound surface.
 
+### Composition strategies
+
+When one preset layers on top of a lower-priority base (a project preset over a catalog default, or a per-task tweak over a named preset), four strategies say how the override combines with what it sits on. They are a vocabulary for layering without forking the base bundle (the copy that drifts out of sync):
+
+- **`replace`** (default) -- the higher-priority content fully replaces the lower-priority content. Example: a project's own `plan` step replaces the catalog `plan-before-code` step entirely.
+- **`prepend`** -- place the override before the base, blank-line separated. Example: a `load project conventions` step runs ahead of the inherited `coding-assistant` bundle.
+- **`append`** -- place the override after the base. Example: a `post to the team channel` step runs after the inherited bundle's commit step.
+- **`wrap`** -- the override embeds a `{CORE_TEMPLATE}` placeholder that is replaced with the lower-priority content, so the base runs inside the override's framing:
+
+    ```
+    enter project posture
+    {CORE_TEMPLATE}        # the inherited plan -> implement -> test -> verify -> commit bundle
+    run project smoke check
+    ```
+
+Prefer `replace` unless you specifically need to keep the base; `prepend` / `append` / `wrap` let a project layer its own steps onto a catalog preset without copying the whole bundle.
+
 ## Common Rationalizations
 
 | Rationalization | Reality |

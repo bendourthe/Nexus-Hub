@@ -109,6 +109,22 @@ The 10 are deliberate generic precedents. Do not extend the bundled list inside 
 5. **Do not extend palette / font slots**. If a downstream generator needs a fourth color (highlight, danger, success), derive it from the existing six (e.g., `accent` desaturated 30% for hover state) rather than adding a slot. Slot drift breaks every downstream generator simultaneously.
 6. **For user-supplied themes**, validate against the schema before consuming. A missing `palette.muted` should fall back to `foreground` at 60% opacity, not crash the generator.
 
+## Composition Strategies
+
+When a theme override layers on top of a base theme (a brand tweak over a bundled theme, or a per-artifact adjustment over a project theme), four strategies say how the override token set combines with the base. They are a layering vocabulary that avoids forking a whole theme to change a few tokens (the copy that drifts):
+
+- **`replace`** (default) -- the override theme fully replaces the base; downstream generators read only the override. Example: a brand-new bundled theme substituted for the current one.
+- **`prepend`** -- the override resolves before the base, so any slot the override defines wins and the base fills the rest. Example: override just `palette.accent` while inheriting every other slot from `corporate-slate`.
+- **`append`** -- the base resolves first and the override fills only slots the base left unset. Example: supply a missing `shadow` or `radius` on top of a partial base without disturbing its palette.
+- **`wrap`** -- the override is a frame containing a `{CORE_TEMPLATE}` placeholder replaced with the base token object, so the override can add tokens around an embedded base. Example: bolt project-specific extension tokens onto a curated theme in one file.
+
+```json
+// brand override, prepend strategy: win on accent, inherit the rest of corporate-slate
+{ "extends": "corporate-slate", "strategy": "prepend", "palette": { "accent": "#ff5722" } }
+```
+
+Prefer `replace` for a genuinely new look; use `prepend` / `append` / `wrap` to retune a few tokens of a bundled theme without copying all of it. Brand overrides still route through [[brand-styling]]; this vocabulary describes how that override layers onto the base.
+
 ## Common Rationalizations
 
 | Rationalization | Reality |

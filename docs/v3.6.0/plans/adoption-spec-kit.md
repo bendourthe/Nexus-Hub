@@ -84,14 +84,14 @@ The "Rec. model / effort" column is a best-effort per-phase routing assessment (
 
 ### Phase 1 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] `make validate` passes (JSON integrity + orphan-bundle audit clean)
-- [ ] `make lint` passes
-- [ ] All four edited skills retain valid frontmatter (`summary_l0` / `overview_l1`)
-- [ ] No registry files (SKILL_INDEX / skills.json / marketplace.json) changed (none required)
-- [ ] No known regressions from prior work
-- [ ] Session history generated for this phase
-- [ ] Ready to advance to Phase 2
+- [x] All sub-tasks completed
+- [x] `make validate` passes (JSON integrity + orphan-bundle audit clean)
+- [x] `make lint` passes
+- [x] All four edited skills retain valid frontmatter (`summary_l0` / `overview_l1`)
+- [x] No registry files (SKILL_INDEX / skills.json / marketplace.json) changed (none required)
+- [x] No known regressions from prior work
+- [x] Session history generated for this phase
+- [x] Ready to advance to Phase 2
 
 ---
 
