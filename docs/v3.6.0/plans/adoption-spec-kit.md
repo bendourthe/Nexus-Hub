@@ -133,14 +133,14 @@ The "Rec. model / effort" column is a best-effort per-phase routing assessment (
 
 ### Phase 2 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] `scripts/check_base_template_parity.py` exists with docstring + type annotations
-- [ ] Guard wired into `make validate` (directly or via a make target it calls)
-- [ ] Guard passes on the current in-sync templates; fails on a desynced fixture; no false positive on an allowed-difference fixture
-- [ ] No installer copy steps added (repo-internal guard, by design)
-- [ ] `make test`, `make validate`, `make lint` all pass
-- [ ] Session history generated for this phase
-- [ ] Ready to advance to Phase 3
+- [x] All sub-tasks completed
+- [x] `scripts/check_base_template_parity.py` exists with docstring + type annotations
+- [x] Guard wired into `make validate` (directly or via a make target it calls)
+- [x] Guard passes on the current in-sync templates; fails on a desynced fixture; no false positive on an allowed-difference fixture
+- [x] No installer copy steps added (repo-internal guard, by design)
+- [x] `make test`, `make validate`, `make lint` all pass (validate green incl. the new guard; the 9 parity tests pass; 4 pre-existing Windows-bash test failures are unrelated to this phase and pass on CI -- see WN-v36-1)
+- [x] Session history generated for this phase
+- [x] Ready to advance to Phase 3
 
 ---
 

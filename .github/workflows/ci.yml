@@ -50,6 +50,13 @@ jobs:
       - name: Validate version sync across all surfaces (v3.0.0 Phase 1)
         run: python scripts/check_version_sync.py
 
+      - name: Validate base-*.md lockstep parity (v3.6.0 Phase 2)
+        # Structural parity guard over the five platform-agnostic instruction
+        # templates (base-claude/codex/cursor/gemini/opencode). Fails if a
+        # platform-agnostic edit (shared heading, placeholder, or invariant
+        # block like the MCP Registry Policy) lands in a subset of the five.
+        run: python scripts/check_base_template_parity.py
+
       - name: Scan catalog for skill-security findings (v3.0.0 Phase 6)
         # Deterministic static gate: fails on any HIGH/CRITICAL finding across
         # catalog/skills and catalog/mcp-configs. MEDIUM/LOW findings in a

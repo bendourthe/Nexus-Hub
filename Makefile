@@ -21,6 +21,8 @@ validate: ## Validate all JSON catalog files and skill bundles
 	@python scripts/validate_solution_frontmatter.py
 	@echo "Checking version sync across all version-carrying surfaces..."
 	@python scripts/check_version_sync.py
+	@echo "Checking base-*.md lockstep parity (claude/codex/cursor/gemini/opencode)..."
+	@python scripts/check_base_template_parity.py
 	@echo "Running compression accuracy-regression gate (v3.2.0 Phase 5)..."
 	@cd extensions/nexus-context-compressor && python -m evals --check
 	@echo "All catalogs valid."
