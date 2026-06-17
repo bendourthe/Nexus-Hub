@@ -153,28 +153,26 @@ def test_installer_ps1_migrates_legacy_nexus_hub_dir():
         "installer.ps1 migration must perform the one-way Move-Item"
 
 
-def test_installer_sh_asks_global_vs_workspace_first():
+def test_installer_sh_scope_is_no_prompt_default_global():
+    """v3.7.0 Phase 2 removed the interactive `Select [G/W]` scope prompt: scope
+    is resolved from `--workspace <path>` (default = global) with no prompt. This
+    guard prevents a regression back to the prompt-driven scope UX.
+    """
     body = INSTALLER_SH.read_text(encoding="utf-8")
-    # The upfront scope choice prompt (v0.9.7 refactor, terse form in post-release fix)
-    assert "Select [G/W]" in body, \
-        "installer.sh is missing the upfront global-vs-workspace choice"
-    # Global must be the default (recommended) branch -- exact phrasing was
-    # modernized in v2.1.0, so just check that 'Global' and '(recommended)'
-    # both appear in the scope prompt block.
-    scope_block_idx = body.index("Select [G/W]")
-    scope_block = body[max(0, scope_block_idx - 600):scope_block_idx]
-    assert "Global" in scope_block and "(recommended)" in scope_block, \
-        "installer.sh should present Global as the recommended option"
+    assert "Select [G/W]" not in body, \
+        "installer.sh must not re-introduce the interactive scope prompt"
+    assert "--workspace" in body and "WORKSPACE_PATH" in body, \
+        "installer.sh must resolve scope from --workspace"
+    # Global is the default branch when no workspace path is given.
+    assert 'install_global "$REPO_ROOT"' in body
 
 
-def test_installer_ps1_asks_global_vs_workspace_first():
+def test_installer_ps1_scope_is_no_prompt_default_global():
     body = INSTALLER_PS1.read_text(encoding="utf-8")
-    assert "Select [G/W]" in body, \
-        "installer.ps1 is missing the upfront global-vs-workspace choice"
-    scope_block_idx = body.index("Select [G/W]")
-    scope_block = body[max(0, scope_block_idx - 600):scope_block_idx]
-    assert "Global" in scope_block and "(recommended)" in scope_block, \
-        "installer.ps1 should present Global as the recommended option"
+    assert 'Read-Host "Select [G/W]"' not in body, \
+        "installer.ps1 must not re-introduce the interactive scope prompt"
+    assert "$Workspace" in body, "installer.ps1 must resolve scope from -Workspace"
+    assert "Install-Global -RepoRoot $repoRoot" in body
 
 
 def test_installers_have_no_phase_labels():
@@ -259,18 +257,22 @@ def test_installer_ps1_surfaces_vsce_errors():
     )
 
 
-def test_installer_ps1_has_overwrite_request_subsection():
-    """Both Install-Global and Install-Workspace must render an 'Overwrite Request'
-    subsection banner before calling Get-Overwrite-Preference, so the preamble
-    prompt is framed consistently with the other subsections.
+def test_installer_ps1_uses_conflict_only_overwrite():
+    """v3.7.0 Phase 2 replaced the upfront 'Overwrite Request' O/S/A prompt with
+    conflict-only overwrite: in a non-interactive / -Yes / -Force run managed
+    files refresh silently (OverwriteMode "ALL"); in an interactive run a single
+    end-of-run Resolve-Conflicts prompt lists the differing files. This guard
+    prevents a regression back to the prompt-per-install UX.
     """
     body = INSTALLER_PS1.read_text(encoding="utf-8")
-    # Must appear at least twice (Install-Global + Install-Workspace)
-    count = body.count('Write-SubSectionBanner -Text "Overwrite Request"')
-    assert count >= 2, (
-        f"installer.ps1 must render an 'Overwrite Request' subsection in both "
-        f"Install-Global and Install-Workspace (found {count} occurrences)"
-    )
+    assert 'Write-SubSectionBanner -Text "Overwrite Request"' not in body, \
+        "installer.ps1 must not re-introduce the upfront Overwrite Request prompt"
+    assert "function Get-Overwrite-Preference" not in body, \
+        "the Get-Overwrite-Preference prompt must be removed"
+    assert "function Resolve-Conflicts" in body, \
+        "installer.ps1 must define the conflict-only resolver"
+    assert "$script:ConflictDsts" in body, \
+        "installer.ps1 must accumulate managed-file conflicts"
 
 
 def test_installer_sh_removed_template_import_prompt():

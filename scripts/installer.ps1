@@ -19,6 +19,11 @@ param(
     [string]$PrintConfig,
     [switch]$Check,
     [string]$Branch,
+    # v3.7.0 / Phase 2 -- no-prompt install controls.
+    [string]$Workspace,        # install into a single project dir; default = global
+    [string]$Platforms,        # comma-separated integration keys; default = all
+    [switch]$Yes,              # non-interactive: never prompt, refresh managed files
+    [switch]$Force,            # overwrite existing managed files without asking
     [Parameter(Position = 0)]
     [string]$Subcommand,
     [Parameter(ValueFromRemainingArguments = $true)]
@@ -28,11 +33,18 @@ param(
 if ($Help) {
     @"
 Usage:
-  pwsh scripts/installer.ps1 [-Enterprise] [-Help]
+  pwsh scripts/installer.ps1 [-Workspace PATH] [-Platforms LIST] [-Yes]
+                             [-Force] [-Enterprise] [-Help]
   pwsh scripts/installer.ps1 init [-Target PATH] [-DryRun]
   pwsh scripts/installer.ps1 -PrintConfig <integration-key>
   pwsh scripts/installer.ps1 -Check
   pwsh scripts/installer.ps1 -Branch <name> [-Enterprise]
+
+By default the installer runs with NO prompts: a global install across ALL
+supported platforms (absent platforms skip-with-note). Existing managed files
+that you have customized are detected and you are asked ONCE whether to
+overwrite them; with -Yes / -Force (or any non-interactive / piped run) they
+are refreshed to the latest version automatically.
 
 Subcommands:
   init          Bootstrap project-local surfaces (Cursor rules, Claude
@@ -48,6 +60,17 @@ Read-only modes (no disk writes):
                       would create / update / remove a file. Useful in CI.
 
 Options:
+  -Workspace <path>  Install into a single project directory instead of the
+                default global (all-projects) scope.
+  -Platforms <list>  Install only the given comma-separated integration keys
+                instead of all platforms. Valid keys: claude, codex, gemini,
+                antigravity2, gemini-cli, copilot, cursor, opencode, nexus-ai,
+                aider, windsurf, kimi, qwen, openclaw.
+  -Yes          Non-interactive: never prompt, and refresh existing managed
+                files to the latest version (also implied when stdin is not a
+                TTY, e.g. a piped irm|iex install).
+  -Force        Overwrite existing managed files with the Nexus-Hub version
+                without asking (implies -Yes for prompting).
   -Enterprise   Install the standalone Gemini CLI integration. Requires a paid
                 Gemini API key. After 2026-06-18 (per the 2026-05-21 Google
                 Developers Blog announcement), Gemini CLI stops serving free /
@@ -274,76 +297,58 @@ function Read-Prompt {
 
 # --- Interaction Helpers ---
 
-function Select-Platforms {
-    param([string]$PhaseName)
-    Write-Host ""
-    Write-Host "Select providers to install for $PhaseName (comma separated):" -ForegroundColor White
-    Write-Host "A - ALL (Recommended)"
-    Write-Host "1 - Anthropic   ─ Claude Code"
-    Write-Host "2 - OpenAI      ─ Codex"
-    Write-Host "3 - Google      ─ Gemini, Antigravity 1.0, Antigravity 2.0, Gemini CLI"
-    Write-Host "4 - Microsoft   ─ GitHub Copilot"
-    Write-Host "5 - Anysphere   ─ Cursor"
-    Write-Host "6 - OpenCode    ─ OpenCode"
-    Write-Host "7 - Nexus       ─ Nexus-AI (Local Desktop Studio)"
-    Write-Host "8 - Aider       ─ Aider (CONVENTIONS.md)"
-    Write-Host "9 - Windsurf    ─ Windsurf (.windsurfrules)"
-    Write-Host "10 - Kimi       ─ Kimi (.kimi/agent.yaml + system.md)"
-    Write-Host "11 - Qwen       ─ Qwen Code (QWEN.md)"
-    Write-Host "12 - OpenClaw   ─ OpenClaw (.openclaw/ SOUL+AGENTS+IDENTITY)"
-
-    # Provider → set of internal platform keys. The 4 legacy platforms
-    # (CLAUDE / GEMINI / CODEX / COPILOT) trigger the inline installer
-    # blocks; the rest flow through the integration runner. GEMINI bundles
-    # Gemini IDE + Antigravity 1.0 (they share one legacy block).
-    $providerMap = [ordered]@{
-        "1" = @("CLAUDE")
-        "2" = @("CODEX")
-        "3" = @("GEMINI", "ANTIGRAVITY2", "GEMINI_CLI")
-        "4" = @("COPILOT")
-        "5" = @("CURSOR")
-        "6" = @("OPENCODE")
-        "7" = @("NEXUS_AI")
-        "8" = @("AIDER")
-        "9" = @("WINDSURF")
-        "10" = @("KIMI")
-        "11" = @("QWEN")
-        "12" = @("OPENCLAW")
-    }
-
-    $allPlatforms = @()
-    foreach ($k in $providerMap.Keys) { $allPlatforms += $providerMap[$k] }
-
-    $inputStr = Read-Prompt "Selection [A, 1-12]"
-    if ([string]::IsNullOrWhiteSpace($inputStr)) { return $allPlatforms }
-
-    $selected = @()
-    $sawAll = $false
-
-    foreach ($token in $inputStr.Split(',')) {
-        $key = $token.Trim().ToUpper()
-        if ($key -eq "A") {
-            $sawAll = $true
-        } elseif ($providerMap.Contains($key)) {
-            $selected += $providerMap[$key]
-        }
-    }
-
-    if ($sawAll -or $selected.Count -eq 0) { return $allPlatforms }
-    return $selected
+# Map a user-supplied integration key (the --platforms vocabulary) to the
+# internal PS platform keys the per-provider install blocks gate on. GEMINI
+# bundles Gemini IDE + Antigravity 1.0 (they share one legacy block).
+$script:IntegrationKeyToPlatforms = [ordered]@{
+    "claude"       = @("CLAUDE")
+    "codex"        = @("CODEX")
+    "gemini"       = @("GEMINI")
+    "antigravity2" = @("ANTIGRAVITY2")
+    "gemini-cli"   = @("GEMINI_CLI")
+    "copilot"      = @("COPILOT")
+    "cursor"       = @("CURSOR")
+    "opencode"     = @("OPENCODE")
+    "nexus-ai"     = @("NEXUS_AI")
+    "aider"        = @("AIDER")
+    "windsurf"     = @("WINDSURF")
+    "kimi"         = @("KIMI")
+    "qwen"         = @("QWEN")
+    "openclaw"     = @("OPENCLAW")
 }
 
-function Get-Overwrite-Preference {
-    Write-Host "How should we handle existing installations?" -ForegroundColor White
-    Write-Host "[O]verwrite All     - Replace everything without asking"
-    Write-Host "[S]kip All          - Keep existing files without asking"
-    Write-Host "[A]sk (Recommended) - Prompt for each conflict"
+# Resolve the set of internal platform keys to install (v3.7.0 / Phase 2). With
+# no -Platforms argument every platform is selected (the no-prompt default);
+# otherwise the comma-separated integration keys are validated and expanded.
+# Exits non-zero on an unknown key.
+function Resolve-Platforms {
+    param([string]$PlatformsArg)
 
-    $resp = Read-Prompt "Selection [O/S/A]"
+    $allPlatforms = @()
+    foreach ($k in $script:IntegrationKeyToPlatforms.Keys) {
+        $allPlatforms += $script:IntegrationKeyToPlatforms[$k]
+    }
 
-    if ($resp -match "^[Oo]") { return "ALL" }
-    if ($resp -match "^[Ss]") { return "NONE" }
-    return "ASK"
+    if ([string]::IsNullOrWhiteSpace($PlatformsArg)) { return $allPlatforms }
+
+    $selected = @()
+    foreach ($token in $PlatformsArg.Split(',')) {
+        $key = $token.Trim().ToLower()
+        if ([string]::IsNullOrWhiteSpace($key)) { continue }
+        if ($script:IntegrationKeyToPlatforms.Contains($key)) {
+            $selected += $script:IntegrationKeyToPlatforms[$key]
+        }
+        else {
+            Write-Host "Unknown platform key: '$key'" -ForegroundColor Red
+            Write-Host ("Valid keys: " + ($script:IntegrationKeyToPlatforms.Keys -join ", ")) -ForegroundColor Red
+            exit 2
+        }
+    }
+    if ($selected.Count -eq 0) {
+        Write-Host "-Platforms produced an empty platform set" -ForegroundColor Red
+        exit 2
+    }
+    return $selected
 }
 
 # --- File Operations ---
@@ -363,6 +368,18 @@ function Write-JsonFile {
     [System.IO.File]::WriteAllText($Path, $json, (New-Object System.Text.UTF8Encoding($false)))
 }
 
+# Copy a single managed file with conflict-only overwrite semantics (v3.7.0 /
+# Phase 2). The $Confirm parameter is retained for call-site signature
+# compatibility but no longer gates a prompt: conflict handling is uniform and
+# driven by $script:OverwriteMode.
+#
+#   - source missing                -> skip-with-note
+#   - destination missing           -> create
+#   - destination identical to src  -> nothing to do (idempotent, silent)
+#   - destination differs:
+#       OverwriteMode "ALL" (refresh)        -> overwrite now
+#       otherwise (interactive "CONFLICT")   -> record conflict + KEEP; the
+#         single end-of-run Resolve-Conflicts prompt decides whether to overwrite
 function Safe-Copy {
     param(
         [string]$Source,
@@ -370,6 +387,7 @@ function Safe-Copy {
         [boolean]$Confirm = $false,
         [string]$CustomMessage
     )
+    $null = $Confirm  # retained for call-site compatibility; intentionally unused
 
     if (-not (Test-Path $Source)) {
         Write-Item -Message "Skip: Source not found ($(Split-Path $Source -Leaf))" -Color "DarkGray"
@@ -377,27 +395,20 @@ function Safe-Copy {
     }
 
     if (Test-Path $Destination) {
-        # Check global overwrite preference
-        if ($script:OverwriteMode -eq "ALL") {
-            # Proceed to overwrite
-        }
-        elseif ($script:OverwriteMode -eq "NONE") {
-            Write-Item -Message "Skip: File exists ($Destination)" -Color "DarkGray"
+        $srcHash = (Get-FileHash -Path $Source).Hash
+        $dstHash = (Get-FileHash -Path $Destination).Hash
+        if ($srcHash -eq $dstHash) {
+            # Already current -- nothing to write.
             return
         }
-        else {
-            # ASK mode
-            if ($Confirm) {
-                Write-Item -Message "File exists: $Destination" -Color "Yellow"
-                $resp = Read-Prompt "Overwrite? [Y]es / [N]o / [A]ll"
-                if ($resp -match "^[Aa]") {
-                    $script:OverwriteMode = "ALL"
-                }
-                elseif ($resp -notmatch "^[Yy]") {
-                    Write-Item -Message "Skipped by user." -Color "Gray"
-                    return
-                }
-            }
+        if ($script:OverwriteMode -ne "ALL") {
+            # Interactive conflict: a managed file the user may have customized
+            # differs from the catalog version. Keep it and defer to the single
+            # end-of-run confirmation in Resolve-Conflicts.
+            $script:ConflictSrcs += $Source
+            $script:ConflictDsts += $Destination
+            Write-Item -Message "Differs (kept; pending confirmation): $Destination" -Color "Yellow"
+            return
         }
     }
 
@@ -415,6 +426,42 @@ function Safe-Copy {
     catch {
         Write-Item -Message "ERROR: Could not write file. Is it open?" -Color "Red"
         Write-Item -Message $_.Exception.Message -Color "Red" -Indent 2
+    }
+}
+
+# Resolve any conflicts accumulated by Safe-Copy during an interactive install
+# (v3.7.0 / Phase 2). Conflicts are only recorded when OverwriteMode is not
+# "ALL", so this prints the list, asks ONCE, and on confirmation overwrites the
+# kept files. The non-interactive / -Yes / -Force path reaches here with an
+# empty list (no-op).
+function Resolve-Conflicts {
+    $count = $script:ConflictDsts.Count
+    if ($count -eq 0) { return }
+
+    Write-SubSectionBanner -Text "Existing customizations detected"
+    Write-Item -Message "$count managed file(s) on disk differ from the Nexus-Hub version:" -Color "Yellow"
+    for ($i = 0; $i -lt $count; $i++) {
+        Write-Item -Message "- $($script:ConflictDsts[$i])" -Color "DarkYellow"
+    }
+
+    $resp = Read-Prompt "Overwrite these with the Nexus-Hub version? [y/N]"
+    if ($resp -match "^[Yy]") {
+        for ($i = 0; $i -lt $count; $i++) {
+            $dst = $script:ConflictDsts[$i]
+            $src = $script:ConflictSrcs[$i]
+            try {
+                $parent = Split-Path $dst -Parent
+                if (-not (Test-Path $parent)) { New-Item -ItemType Directory -Force -Path $parent | Out-Null }
+                Copy-Item -Path $src -Destination $dst -Force -ErrorAction Stop
+                Write-Item -Message "✓ Refreshed $dst" -Color "DarkGreen"
+            }
+            catch {
+                Write-Item -Message "ERROR: Could not write $dst. Is it open?" -Color "Red"
+            }
+        }
+    }
+    else {
+        Write-Item -Message "Kept your $count customized file(s). Re-run with -Yes (or -Force) to refresh them." -Color "Gray"
     }
 }
 
@@ -437,35 +484,25 @@ function Safe-Folder-Copy {
         Write-Item -Message "Skip: Source folder not found ($(Split-Path $Source -Leaf))" -Color "DarkGray"
         return
     }
-    if (Test-Path $Destination) {
-        if ($script:OverwriteMode -eq "ALL") {
-            # Proceed
-        }
-        elseif ($script:OverwriteMode -eq "NONE") {
-            Write-Item -Message "Skip: Folder exists ($Destination)" -Color "DarkGray"
-            return
-        }
-        else {
-            # ASK
-            Write-Item -Message "Folder exists: $Destination" -Color "Yellow"
-            $resp = Read-Prompt "Overwrite contents? [Y]es / [N]o / [A]ll"
-            if ($resp -match "^[Aa]") {
-                $script:OverwriteMode = "ALL"
-            }
-            elseif ($resp -notmatch "^[Yy]") {
-                Write-Item -Message "Skipped." -Color "Gray"
-                return
-            }
-        }
-    }
-    else {
+    if (-not (Test-Path $Destination)) {
         New-Item -ItemType Directory -Force -Path $Destination | Out-Null
     }
 
-    if (Test-Path $Destination) {
+    # Catalog trees are Nexus-owned content meant to be refreshed on every
+    # install/upgrade, so they no longer prompt (v3.7.0 / Phase 2). The resolved
+    # OverwriteMode picks the sync mode:
+    #   "ALL" (refresh)  -> robocopy /MIR: refresh files AND remove stale ones
+    #                       (the non-interactive / -Yes / -Force / bootstrap path).
+    #   otherwise        -> robocopy /E: add/update files but keep any extras the
+    #                       user added (never destructive, no prompt).
+    if ($script:OverwriteMode -eq "ALL") {
         Write-Item -Message "Syncing (old files not in source will be removed)..." -Color "DarkGray"
+        & robocopy $Source $Destination /MIR /NFL /NDL /NJH /NJS | Out-Null
     }
-    & robocopy $Source $Destination /MIR /NFL /NDL /NJH /NJS | Out-Null
+    else {
+        Write-Item -Message "Merging (adding/updating files, keeping extras)..." -Color "DarkGray"
+        & robocopy $Source $Destination /E /NFL /NDL /NJH /NJS | Out-Null
+    }
     Restore-Title
 
     if (-not [string]::IsNullOrEmpty($CustomMessage)) {
@@ -1182,22 +1219,19 @@ function Install-Global {
     Write-CenteredBanner -Text "Global Installation" -Color "Cyan"
     # Write-SubSectionBanner below prepends its own blank line; no explicit Write-Host "" needed.
 
-    # Global Overwrite Preference
-    Write-SubSectionBanner -Text "Overwrite Request"
-    Write-Host ""
-    $script:OverwriteMode = Get-Overwrite-Preference
-    # Write-SubSectionBanner below prepends its own blank line; no explicit Write-Host "" needed.
-
     Write-SubSectionBanner -Text "Skills & Commands"
 
-    $platforms = Select-Platforms -PhaseName "Global Phase"
+    # Scope/platform/overwrite are resolved once at startup (v3.7.0 / Phase 2):
+    # $script:OverwriteMode and $script:SelectedPlatforms are already set, so no
+    # interactive Overwrite/platform prompts here.
+    $platforms = $script:SelectedPlatforms
     Write-Host ""
     Write-Host "Checking User Profile ($env:USERPROFILE)..." -ForegroundColor Gray
 
-    # Per-provider install blocks. The Select-Platforms menu groups by
-    # organization (Anthropic / OpenAI / Google / Microsoft / Anysphere /
-    # OpenCode / Nexus); the install output mirrors that grouping so each
-    # provider has a single colored Write-Header line and its platforms
+    # Per-provider install blocks gated on the --platforms subset
+    # ($platforms -contains <KEY>). The output groups by organization
+    # (Anthropic / OpenAI / Google / Microsoft / Anysphere / OpenCode / Nexus);
+    # each provider has a single colored Write-Header line and its platforms
     # listed underneath.
 
     # --- Anthropic -- Claude Code ----------------------------------------
@@ -1397,6 +1431,14 @@ function Get-LanguageSelection {
     param([array]$Detected)
     $map = @{ "1" = "Python"; "2" = "JavaScript"; "3" = "TypeScript"; "4" = "Java"; "5" = "C#"; "6" = "Go"; "7" = "C++" }
 
+    # Non-interactive (-Yes / -Force / piped / CI): auto-accept the detected
+    # languages with no prompt; fall back to Python when nothing was detected.
+    # Keeps a -Workspace install promptless (v3.7.0 / Phase 2).
+    if ($script:AssumeYes) {
+        if ($Detected.Count -gt 0) { return $Detected }
+        return @("Python")
+    }
+
     if ($Detected.Count -gt 0) {
         Write-Host "Detected languages: $($Detected -join ', ')" -ForegroundColor Yellow
         $resp = Read-Host "└─> Use these? [Y]es / [N]o"
@@ -1565,14 +1607,12 @@ function Install-Workspace {
     Write-Host ""
     Write-Host "Target: $targetPath" -ForegroundColor DarkYellow
 
-    # Workspace Overwrite Preference (mirrors Install-Global UX)
-    Write-SubSectionBanner -Text "Overwrite Request"
-    Write-Host ""
-    $script:OverwriteMode = Get-Overwrite-Preference
-    # Next line is Select-Platforms (plain content); one blank line via Write-Host "" for separation.
+    # Scope/platform/overwrite are resolved once at startup (v3.7.0 / Phase 2):
+    # $script:OverwriteMode and $script:SelectedPlatforms are already set, so no
+    # interactive Overwrite/platform prompts here.
     Write-Host ""
 
-        $workspacePlatforms = Select-Platforms -PhaseName "Workspace Phase"
+        $workspacePlatforms = $script:SelectedPlatforms
 
         $detected = Detect-Languages -Path $targetPath
         $languages = Get-LanguageSelection -Detected $detected
@@ -1684,30 +1724,13 @@ function Install-Workspace {
             if (-not (Test-Path $copilotDir)) { New-Item -ItemType Directory -Force -Path $copilotDir | Out-Null }
             $copilotFile = Join-Path $copilotDir "copilot-instructions.md"
 
-            $doWrite = $true
-            if ((Test-Path $copilotFile)) {
-                if ($script:OverwriteMode -eq "ALL") {
-                    # Overwrite
-                }
-                elseif ($script:OverwriteMode -eq "NONE") {
-                    Write-Item -Message "File exists: copilot-instructions.md (skipped)" -Color "DarkGray"
-                    $doWrite = $false
-                }
-                else {
-                    Write-Item -Message "File exists: copilot-instructions.md" -Color "Yellow"
-                    $resp = Read-Prompt "Overwrite? [Y]es / [N]o / [A]ll"
-                    if ($resp -match "^[Aa]") {
-                        $script:OverwriteMode = "ALL"
-                    }
-                    elseif ($resp -notmatch "^[Yy]") {
-                        $doWrite = $false
-                    }
-                }
-            }
-            if ($doWrite) {
-                $mergedContent | Set-Content $copilotFile
-                Write-Item -Message "✓ Workspace instructions installed at: $copilotFile" -Color "DarkGreen"
-            }
+            # Route the generated body through Safe-Copy via a temp file so the
+            # Copilot instruction file participates in the unified conflict-only
+            # overwrite flow (v3.7.0 / Phase 2) instead of its own inline prompt.
+            $copilotTmp = [System.IO.Path]::GetTempFileName()
+            $script:TempFiles += $copilotTmp
+            [System.IO.File]::WriteAllText($copilotTmp, $mergedContent, (New-Object System.Text.UTF8Encoding($false)))
+            Safe-Copy -Source $copilotTmp -Destination $copilotFile -Confirm:$true -CustomMessage "✓ Workspace instructions installed at: $copilotFile"
         }
 
         # --- Anysphere -- Cursor ----------------------------------------
@@ -2656,6 +2679,10 @@ if ($Branch -and $env:NEXUS_HUB_BRANCH_RESOLVED -ne "1") {
     $env:NEXUS_HUB_BRANCH_RESOLVED = "1"
     $branchPassthru = @()
     if ($Enterprise) { $branchPassthru += "-Enterprise" }
+    if ($Workspace) { $branchPassthru += @("-Workspace", $Workspace) }
+    if ($Platforms) { $branchPassthru += @("-Platforms", $Platforms) }
+    if ($Yes) { $branchPassthru += "-Yes" }
+    if ($Force) { $branchPassthru += "-Force" }
     & powershell -NoProfile -ExecutionPolicy Bypass -File $cachedInstaller @branchPassthru
     exit $LASTEXITCODE
 }
@@ -2686,6 +2713,27 @@ if ($Subcommand -eq "init" -or $PrintConfig -or $Check) {
     exit $LASTEXITCODE
 }
 
+# --- Resolve no-prompt install configuration (v3.7.0 / Phase 2) ----------
+# Conflict accumulators (interactive mode only) + temp files for deferred writes.
+$script:ConflictSrcs = @()
+$script:ConflictDsts = @()
+$script:TempFiles = @()
+
+# Validate -Platforms into the internal platform-key set (empty/absent = all).
+$script:SelectedPlatforms = Resolve-Platforms -PlatformsArg $Platforms
+
+# Resolve the assume-yes / overwrite decision. -Yes or -Force force it; a
+# non-interactive stdin (piped irm|iex, CI) also implies it. In that case
+# existing managed files are refreshed silently (OverwriteMode "ALL");
+# otherwise interactive conflicts are collected and resolved once.
+$script:AssumeYes = $Yes -or $Force -or [Console]::IsInputRedirected -or (-not [Environment]::UserInteractive)
+if ($script:AssumeYes) {
+    $script:OverwriteMode = "ALL"
+}
+else {
+    $script:OverwriteMode = "CONFLICT"
+}
+
 Write-NexusBanner
 Invoke-LegacyInstallMigration
 # Idempotent cleanup -- safe to run every install. Catches the case where the
@@ -2694,26 +2742,19 @@ Invoke-LegacyInstallMigration
 Remove-LegacyVSCodeExtensions
 Show-WelcomeBanner
 
-Write-Host ""
-Write-Host "Where would you like to install Nexus-Hub?"
-Write-Host "  [G] Global    - all projects on this machine (recommended)" -ForegroundColor Green
-Write-Host "  [W] Workspace - a single project directory" -ForegroundColor Yellow
-$scopeChoice = Read-Host "Select [G/W]"
-
+# Scope is resolved from -Workspace (no interactive scope/platform prompt).
+# Default = global install across all platforms.
 $scopeLabel = "Global"
-if ($scopeChoice -match "^[Ww]") {
+if (-not [string]::IsNullOrWhiteSpace($Workspace)) {
     $scopeLabel = "Workspace"
-    # Workspace install: prompt for project path via folder picker, then run the workspace phase once.
-    do {
-        $workspaceTarget = [ModernFolderPicker.FileOpenDialog]::ShowDialog()
-        if ([string]::IsNullOrWhiteSpace($workspaceTarget)) {
-            Write-Host "No folder selected. Please choose a workspace directory." -ForegroundColor Yellow
-        }
-    } while ([string]::IsNullOrWhiteSpace($workspaceTarget))
+    $workspaceTarget = $Workspace
+    if (-not (Test-Path $workspaceTarget)) {
+        Write-Host "Workspace path not found: $workspaceTarget" -ForegroundColor Red
+        exit 2
+    }
     Install-Workspace -RepoRoot $repoRoot -TargetPath $workspaceTarget
 }
 else {
-    # Default + explicit [Gg] both route here.
     Install-Global -RepoRoot $repoRoot
 }
 
@@ -2721,10 +2762,21 @@ else {
 # Interactive custom-template import moved to /research report at use time (v0.9.7).
 Install-Templates -RepoRoot $repoRoot
 
+# Resolve any managed-file conflicts collected during an interactive install
+# (single end-of-run prompt). No-op on the non-interactive / -Yes / -Force path.
+Resolve-Conflicts
+
+# Clean up temp files created for deferred writes (e.g. the Copilot body).
+foreach ($tf in $script:TempFiles) {
+    if ($tf -and (Test-Path $tf)) { Remove-Item $tf -Force -ErrorAction SilentlyContinue }
+}
+
 Write-Host ""
 Write-Host "✓ Nexus-Hub v$script:NexusHubVersion installed ($scopeLabel scope)." -ForegroundColor Green
 Write-Host ""
 Write-Host "Restart any running AI assistant sessions (Claude Code, Cursor, Gemini CLI, Codex, Copilot, OpenCode) so they pick up the new settings, hooks, skills, and rules." -ForegroundColor Yellow
 
 Show-FarewellBanner
-Pause
+# Pause is itself a prompt -- skip it on the non-interactive / -Yes / -Force /
+# piped path so a no-prompt install never blocks (v3.7.0 / Phase 2).
+if (-not $script:AssumeYes) { Pause }
