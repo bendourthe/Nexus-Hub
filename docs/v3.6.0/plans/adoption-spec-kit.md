@@ -230,15 +230,15 @@ The "Rec. model / effort" column is a best-effort per-phase routing assessment (
 
 ### Phase 4 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] Import path rejects non-HTTPS sources (allows http://localhost only)
-- [ ] Discovery-only (`install_allowed: false`) entries listable but not installable
-- [ ] Hash-on-import recorded via existing manifest hashing (no new hashing code)
-- [ ] No new outbound call, dependency, or credential introduced; existing scan gate still referenced
-- [ ] If a distributed script was added: registered in BOTH installers and dry-run-verified
-- [ ] `make test`, `make validate`, `make lint` all pass
-- [ ] Session history generated for this phase
-- [ ] Ready to advance to Phase 5
+- [x] All sub-tasks completed
+- [x] Import path rejects non-HTTPS sources (allows http://localhost only)
+- [x] Discovery-only (`install_allowed: false`) entries listable but not installable
+- [x] Hash-on-import recorded via existing manifest hashing (no new hashing code)
+- [x] No new outbound call, dependency, or credential introduced; existing scan gate still referenced
+- [x] If a distributed script was added: registered in BOTH installers and dry-run-verified
+- [x] `make test`, `make validate`, `make lint` all pass (run via direct equivalents per WN-v33-1: validate chain green, 540 passed / 0 failed, `bash -n` + PowerShell AST clean)
+- [x] Session history generated for this phase
+- [ ] Ready to advance to Phase 5 (NOTE: Phase 3 / N1a still pending -- see NI-v36-1; implement before Phase 5, whose CHANGELOG enumerates N1a)
 
 ---
 

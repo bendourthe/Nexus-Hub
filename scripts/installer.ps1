@@ -2047,6 +2047,17 @@ function Install-Templates {
         Safe-Copy -Source $skillPackagerSource -Destination (Join-Path $scriptsDest "package_skill.py") -Confirm:$true -CustomMessage "✓ Skill packager installed at: $scriptsDest\package_skill.py"
     }
 
+    # Copy the /skills import hygiene gate (v3.6.0 Phase 4 / N6). Mirror of the
+    # bash block in scripts\installer.sh. Hardens the LOCAL import path with
+    # HTTPS-only source validation, an install_allowed discovery-only flag, and
+    # hash-on-import (hashing reuses scripts\lib\integrations\manifest.py,
+    # copied separately under lib\). No outbound call or credential; additive
+    # to the pre-install skill-security scan.
+    $importHygieneSource = Join-Path $RepoRoot "scripts\import_skills.py"
+    if (Test-Path $importHygieneSource) {
+        Safe-Copy -Source $importHygieneSource -Destination (Join-Path $scriptsDest "import_skills.py") -Confirm:$true -CustomMessage "✓ Skill-import hygiene gate installed at: $scriptsDest\import_skills.py"
+    }
+
     # Copy nexus-hub affected CLI dispatcher (v2.2.0 / codegraph Phase 5 /
     # T032). Mirror of the bash block in scripts\installer.sh. Wraps the
     # nexus-code-search code_affected_tests graph query so users can pipe

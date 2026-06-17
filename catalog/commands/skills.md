@@ -42,6 +42,16 @@ Pass any remaining arguments (search term, skill name, target path) through unch
 
 `list` renders the unified command cheatsheet -- the active commands with what they do, the deprecated name each one replaces, and common multi-command workflows. It is generated **at runtime from the command files** (the installed per-platform `commands/` / `prompts/` / `workflows/` directory, or `catalog/commands/` in the repo), not from a hand-maintained table, so it always matches the commands actually present. Read and follow [`commands-cheatsheet.md`](../style-guides/commands-cheatsheet.md) (installed at `~/.nexus-hub/style-guides/commands-cheatsheet.md`) for the generation procedure and output format. An optional argument (`/skills list <term>`) filters to matching commands.
 
+## import scope (local hygiene gate)
+
+`import` copies catalog skills into the active project. Before copying a skill that comes from outside the trusted local catalog, run the v3.6.0 import-hygiene gate (`scripts/import_skills.py`, installed at `~/.nexus-hub/scripts/import_skills.py`), which enforces three LOCAL disciplines:
+
+- **HTTPS-only source validation** -- a remote source URL must be `https://` (the only carve-out is `http://localhost` for a local catalog mirror); a plain local filesystem path is always allowed. Any other URL scheme (non-loopback `http://`, `file://`, `ftp://`, ...) is refused. Run `python ~/.nexus-hub/scripts/import_skills.py validate-source <source>`.
+- **Discovery-only `install_allowed` flag** -- a skill or source entry whose metadata sets `install_allowed: false` can be listed but not installed. Run `python ~/.nexus-hub/scripts/import_skills.py check-allowed <skill-dir>`.
+- **Hash-on-import** -- every imported artifact gets a recorded SHA-256 (the hashing reuses the existing install-manifest hasher). The full gate (`vet`) runs all three and records the hashes: `python ~/.nexus-hub/scripts/import_skills.py vet <skill-dir> [--source <source>] --json`.
+
+This gate introduces NO outbound call or credential (remote credentialed catalog fetch is deliberately out of scope). It is ADDITIVE to, never a replacement for, the `scan` step below: always `scan` a skill sourced from outside the trusted catalog before you `import` it.
+
 ## scan scope (pre-install security check)
 
 `scan` is the v3.0.0 addition. It runs the `skill-security-scan` skill over a skill you are about to import - reading the deterministic findings emitted by `nexus-skill-scanner` (Phase 6), filtering false positives (especially fenced-code examples in documentation), explaining any malicious intent, and assigning a final verdict before you install. This is the same lens `/review skill-scan` uses for the catalog dogfood. Until the Phase 6 engine lands, the scope adjudicates manually-collected findings. Always offer `scan` before `import` for skills sourced from outside the trusted catalog.

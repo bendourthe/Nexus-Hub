@@ -1556,6 +1556,17 @@ install_templates() {
         safe_copy "$skill_packager_source" "$scripts_dest/package_skill.py" true "[OK] Skill packager installed at: $scripts_dest/package_skill.py"
     fi
 
+    # Copy the /skills import hygiene gate (v3.6.0 Phase 4 / N6). Hardens the
+    # LOCAL import path with HTTPS-only source validation, an install_allowed
+    # discovery-only flag, and hash-on-import (the hashing reuses
+    # scripts/lib/integrations/manifest.py, copied separately under lib/). It
+    # adds NO outbound call or credential and is additive to the pre-install
+    # skill-security scan. Lockstep with the same block in scripts/installer.ps1.
+    local import_hygiene_source="$repo_root/scripts/import_skills.py"
+    if [ -f "$import_hygiene_source" ]; then
+        safe_copy "$import_hygiene_source" "$scripts_dest/import_skills.py" true "[OK] Skill-import hygiene gate installed at: $scripts_dest/import_skills.py"
+    fi
+
     # Copy nexus-hub affected CLI dispatcher (v2.2.0 / codegraph Phase 5 /
     # T032). Thin wrapper around the nexus-code-search code_affected_tests
     # graph query so users can pipe `git diff --name-only` into a test-impact
