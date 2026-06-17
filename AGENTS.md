@@ -1,6 +1,6 @@
 # AGENTS.md
 
-<!-- nexus-hub-version: 3.5.0 -->
+<!-- nexus-hub-version: 3.6.0 -->
 
 This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, Gemini CLI, etc.) when working with code in this repository.
 
@@ -8,7 +8,7 @@ This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, G
 
 Nexus-Hub is a production-grade skill harness for AI coding assistants. It is the **upstream catalog** consumed by Nexus (the local-first desktop AI Studio, see `https://github.com/bendourthe/Nexus-AI`) and by every other major agent platform: Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, and GitHub CLI. Skills, commands, hooks, agents, and rules are distributed via installer scripts into users' `~/.nexus-hub/` directory and into their AI assistant's per-platform config locations.
 
-Current catalog: **256 skills** across 21 categories, 15 commands (plus 3 permanent aliases), 22 hooks, 23 agents. The 40 v3.x deprecation shims were removed in v3.2.0.
+Current catalog: **256 skills** across 21 categories, 15 commands (plus 3 permanent aliases), 23 hooks, 23 agents. The 40 v3.x deprecation shims were removed in v3.2.0.
 
 ## Project Structure
 
@@ -332,6 +332,10 @@ The hook registration template is `catalog/hooks/settings.json`. Supported event
 
 **Write tests for any new hook** following the pytest pattern in `catalog/hooks/tests/test_format_bash_description.py`. Run with `make test`.
 
+### Workflow-phase automation (N1a)
+
+To run automation at a `/plan`, `/implement`, or `/spec` **phase boundary**, do NOT invent new harness event types and do NOT import a Spec Kit-style per-command `before_/after_` hook registry (that presupposes the declined third-party extension runtime -- see the v3.6.0 Spec Kit comparison, candidate N1b). A phase boundary surfaces as a specific tool call, so key a `PreToolUse` / `PostToolUse` matcher on it and let the hook inspect the tool input: match `Write`/`Edit` and gate on `tool_input.file_path` (a plan artifact under `docs/**/plans/`, a `spec.md`, a `tasks.md`, a `CHANGELOG.md`), or match `Bash` and gate on `tool_input.command` (a `git commit`). Use `SessionStart` / `Stop` for session-level setup/teardown. The four events relevant to workflow-phase automation are `SessionStart` / `PreToolUse` / `PostToolUse` / `Stop`; this is a usage pattern on the existing surface, not a new runtime. A runnable example ships as [`catalog/hooks/workflow-phase-notice.sh`](catalog/hooks/workflow-phase-notice.sh) (tested in `catalog/hooks/tests/test_workflow_phase_notice.py`) and is registered in the default `settings.json` `PostToolUse` chain; it is advisory only (exit 0) and is disabled per-session with `NEXUS_DISABLED_HOOKS=workflow-phase-notice` or `NEXUS_HOOK_PROFILE=minimal`. Full recipe (matcher-to-phase mapping, authoring rules, registration snippet): the "Workflow-phase automation recipe" in [`guides/CLAUDE_CODE_SETTINGS_REFERENCE.md`](guides/CLAUDE_CODE_SETTINGS_REFERENCE.md).
+
 ## Installer-Aware Changes (Cross-Platform)
 
 Nexus-Hub is a **template repository**. Nothing you add is "live" until a user runs `scripts/installer.sh` (macOS/Linux) or `scripts/installer.ps1` (Windows). The installer is what distributes your changes across every supported agentic platform.
@@ -362,7 +366,7 @@ Walk this checklist before proposing a PR:
 1. **Is your change inside a folder already copied recursively by the installer?** (`catalog/skills/`, `catalog/commands/`, `catalog/agents/`, `catalog/rules/`, `catalog/hooks/`, `templates/documentation/`.) If yes, no installer edit needed.
 2. **Is your change a standalone script in `scripts/`?** If yes, add a copy line in `scripts/installer.sh` (next to the existing `generate_report.py` block, around line 1395) AND a `Safe-Copy` line in `scripts/installer.ps1` (around line 1656). Both must reference the same destination under `~/.nexus-hub/scripts/`.
 3. **Does your change introduce a new Python or Node dependency?** Prefer a lazy import with a clear `pip install <pkg>` hint on failure (e.g., `try: import X; except ImportError: print("Error: X not installed. Please run: pip install X")`, as used in `scripts/generate_report.py`). If a hard requirement is unavoidable, add a dependency check in both installers next to the existing `python-docx`/`python-pptx` check.
-4. **Does your change touch a platform-specific instruction template?** If you edit any of `templates/ai-instructions/base-*.md`, apply the same change to all five (claude/codex/cursor/gemini/opencode). This is the "platform-agnostic" constraint.
+4. **Does your change touch a platform-specific instruction template?** If you edit any of `templates/ai-instructions/base-*.md`, apply the same change to all five (claude/codex/cursor/gemini/opencode). This is the "platform-agnostic" constraint. It is machine-enforced: `scripts/check_base_template_parity.py` (run by `make validate` and in CI) fails when a shared section heading, a shared placeholder token, or an invariant block (Tech Stack, Key Commands, Branching, MCP Registry Policy) diverges across the five, while tolerating intentional per-platform lines (platform names, install paths). It is a repo-internal guard like `check_version_sync.py`, so it needs no `.ps1` sibling and no installer copy step.
 5. **Validate**: run `make validate` (JSON integrity) and `make lint` (ShellCheck) after edits. For new hooks, run `make test`. For installer changes, do a dry-run install into a throwaway directory and confirm the new artifact lands at the expected path.
 6. **Document**: add an entry under `## [Unreleased]` in `CHANGELOG.md`.
 

@@ -114,6 +114,16 @@ A continuous loop is only as safe as its stopping rule. Two requirements make a 
 
 Assembling a named, goal-terminated loop from these parts (the loop-definition schema, the iteration cap, the maker/checker split, the host driver) is the job of [[loop-engineering]]; this step states the termination rule, that skill is where you compose the whole loop. Do not duplicate the loop schema here -- reference it through that skill.
 
+#### Workflow-control vocabulary: gate, resume, continue-on-error
+
+Beyond the exit rule, a multi-step workflow or loop needs three control patterns. All three are **agent-instruction patterns** (LLM-native) you encode in the orchestration, NOT a new runtime to build:
+
+- **Gate** -- a human approve/reject checkpoint between stages, with an explicit `on_reject` policy (`abort` / `skip` / `retry`). In a Dynamic Workflow it is an `AskUserQuestion` between stages; in a `/loop` run it is a pause-for-approval step.
+- **Resume-from-checkpoint** -- record per-step state so an interrupted run re-enters at the failed step instead of restarting. Dynamic Workflows are crash-safe and resumable natively (the runtime journals each `agent()` call); a plain loop persists the same state to a run file.
+- **Continue-on-error** -- record a step's failure and continue, leaving it visible to downstream conditional logic, instead of aborting the whole run. In a workflow this is a per-item `try/catch` whose result is `null`; the canonical `.filter(Boolean)` then drops failed items while the rest proceed.
+
+Composing these into a named, goal-terminated loop (the schema, the `iteration_cap`, the maker/checker split, the `on_reject` policy) is the job of [[loop-engineering]]; this step names the vocabulary, that skill assembles the loop. Do not build a bespoke YAML workflow engine for them -- they are instructions over the harness's existing Dynamic Workflows or a `/loop` driver.
+
 ## Common Rationalizations
 
 | Rationalization | Reality |

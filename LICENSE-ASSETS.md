@@ -6,12 +6,14 @@ This file documents the licensing and attribution of the brand assets shipped un
 
 | File | Brand | Format | Dimensions | Usage |
 |---|---|---|---|---|
-| `assets/nexus_hub_banner.png` | Nexus-Hub | PNG, RGB | 1983 x 793 | README hero, social previews, banner mentions |
-| `assets/nexus_hub_primary.png` | Nexus-Hub | PNG, RGBA | 919 x 919 | Square mark for app icons, badges, small inline references |
-| `assets/nexus_banner.png` | Nexus | PNG, RGB | 1983 x 793 | Sibling-project banner, used in stacked cross-link visualizations linking Nexus-Hub to [Nexus](https://github.com/bendourthe/Nexus-AI) |
-| `assets/nexus_primary.png` | Nexus | PNG, RGBA | 430 x 430 | Sibling-project square mark, reserved for compact contexts where the banner would be too wide |
-| `assets/nexus_monochrome.png` | Shared mark (Nexus / Nexus-Hub) | PNG, RGBA | 507 x 477 | Monochrome variant for dark contexts, print, single-color displays |
-| `assets/nexus_monochrome_full.png` | Shared mark (Nexus / Nexus-Hub) | PNG, RGBA | 620 x 596 | Monochrome variant with full square treatment |
+| `assets/nexus-hub-banner.png` | Nexus-Hub | PNG, RGB | 1981 x 793 | README hero, social previews, banner mentions |
+| `assets/nexus-hub-primary.png` | Nexus-Hub | PNG, RGBA | 1254 x 1254 | Square mark (framed) for app icons, badges, small inline references |
+| `assets/nexus-hub-primary_no-background.png` | Nexus-Hub | PNG, RGBA (transparent) | 1024 x 1024 | Transparent square mark for colored / dark backgrounds; embedded as the single reusable logo symbol in the interactive guide |
+| `assets/nexus-hub-primary_no-background.svg` | Nexus-Hub | SVG wrapper (embedded raster) | 1024 x 1024 | Same transparent artwork as the PNG, wrapped in an SVG container for convenient HTML/CSS embedding (not a path-based vector) |
+| `assets/nexus-ai-banner.png` | Nexus-AI | PNG, RGB | 1983 x 793 | Sibling-project banner, used in stacked cross-link visualizations linking Nexus-Hub to [Nexus-AI](https://github.com/bendourthe/Nexus-AI) |
+| `assets/nexus-ai-primary.png` | Nexus-AI | PNG, RGBA | 1254 x 1254 | Sibling-project square mark (framed) for compact contexts where the banner would be too wide |
+| `assets/nexus-ai-primary_no-background.png` | Nexus-AI | PNG, RGBA (transparent) | 1024 x 1024 | Transparent sibling-project square mark for colored / dark backgrounds |
+| `assets/nexus-ai-primary_no-background.svg` | Nexus-AI | SVG wrapper (embedded raster) | 1024 x 1024 | Transparent sibling-project square mark wrapped in an SVG container |
 | `assets/sibling_arrow.svg` | Generated graphic | SVG, vector | 160 x 60 (viewBox) | Decorative double-headed arrow rendered between the Nexus-Hub and Nexus banners in the README cross-link block. Neutral-gray stroke (#9aa4ad) reads on both light and dark GitHub themes. |
 
 ## License
@@ -22,10 +24,10 @@ These assets are licensed under the same terms as the rest of this repository (s
 
 ## Brand usage notes
 
-- **Banner**: the wide `nexus_hub_banner.png` is the canonical README hero and the preferred surface in any horizontal layout (a tagline strip, a blog post header, a social card). The sibling `nexus_banner.png` is the same shape and resolution for the Nexus brand, used in stacked cross-link visualizations so the two project banners read as a related pair rather than competing layouts.
-- **Square primary**: `nexus_hub_primary.png` is the canonical square mark. Use it for inline references, app icons, GitHub social preview, and anywhere a 1:1 aspect ratio is required.
-- **Monochrome**: prefer `nexus_monochrome.png` for single-color displays (printed material, low-color terminals via image-to-ansi tooling, etc.); `nexus_monochrome_full.png` adds the rounded-square frame.
-- **Sibling brand**: `nexus_primary.png` is the [Nexus](https://github.com/bendourthe/Nexus-AI) square variant. Its color treatment differs from `nexus_hub_primary.png` (different cyan and gradient stops -- darker, more electric-blue vs. the cyan / teal of Nexus-Hub) so the two marks are visually distinguishable when placed adjacent -- see the "How Nexus-Hub fits with Nexus" section in [`README.md`](README.md), which currently uses the banner pair `nexus_hub_banner.png` and `nexus_banner.png` stacked vertically.
+- **Banner**: the wide `nexus-hub-banner.png` is the canonical README hero and the preferred surface in any horizontal layout (a tagline strip, a blog post header, a social card). The sibling `nexus-ai-banner.png` is the same shape and resolution for the Nexus-AI brand, used in stacked cross-link visualizations so the two project banners read as a related pair rather than competing layouts.
+- **Square primary**: `nexus-hub-primary.png` is the canonical framed square mark. Use it for inline references, app icons, GitHub social preview, and anywhere a 1:1 aspect ratio is required against a light surface.
+- **Transparent / no-background**: prefer `nexus-hub-primary_no-background.png` (or its SVG-wrapped twin `nexus-hub-primary_no-background.svg`) wherever the mark sits on a colored or dark surface. The interactive guide ([`guides/interactive-guide/nexus-hub-guide.html`](guides/interactive-guide/nexus-hub-guide.html)) embeds this transparent mark as its single reusable `<symbol>` logo, so the logo reads cleanly on the dark hero background at every size. The Nexus-AI equivalents are `nexus-ai-primary_no-background.png` / `.svg`.
+- **Sibling brand**: `nexus-ai-primary.png` is the [Nexus-AI](https://github.com/bendourthe/Nexus-AI) square variant. Its color treatment differs from `nexus-hub-primary.png` (different cyan and gradient stops -- darker, more electric-blue vs. the cyan / teal of Nexus-Hub) so the two marks are visually distinguishable when placed adjacent -- see the "How Nexus-Hub fits with Nexus" section in [`README.md`](README.md), which uses the banner pair `nexus-hub-banner.png` and `nexus-ai-banner.png`.
 
 ## Modifying or redistributing
 

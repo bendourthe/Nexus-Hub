@@ -85,7 +85,7 @@ function Get-SanitizedBranchName {
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-$script:NexusHubVersion = "3.5.0"
+$script:NexusHubVersion = "3.6.0"
 
 $Host.UI.RawUI.WindowTitle = "Nexus-Hub Installer"
 $script:InstallerTitle = "Nexus-Hub Installer"
@@ -2045,6 +2045,17 @@ function Install-Templates {
     $skillPackagerSource = Join-Path $RepoRoot "scripts\package_skill.py"
     if (Test-Path $skillPackagerSource) {
         Safe-Copy -Source $skillPackagerSource -Destination (Join-Path $scriptsDest "package_skill.py") -Confirm:$true -CustomMessage "✓ Skill packager installed at: $scriptsDest\package_skill.py"
+    }
+
+    # Copy the /skills import hygiene gate (v3.6.0 Phase 4 / N6). Mirror of the
+    # bash block in scripts\installer.sh. Hardens the LOCAL import path with
+    # HTTPS-only source validation, an install_allowed discovery-only flag, and
+    # hash-on-import (hashing reuses scripts\lib\integrations\manifest.py,
+    # copied separately under lib\). No outbound call or credential; additive
+    # to the pre-install skill-security scan.
+    $importHygieneSource = Join-Path $RepoRoot "scripts\import_skills.py"
+    if (Test-Path $importHygieneSource) {
+        Safe-Copy -Source $importHygieneSource -Destination (Join-Path $scriptsDest "import_skills.py") -Confirm:$true -CustomMessage "✓ Skill-import hygiene gate installed at: $scriptsDest\import_skills.py"
     }
 
     # Copy nexus-hub affected CLI dispatcher (v2.2.0 / codegraph Phase 5 /

@@ -348,6 +348,12 @@ DEV_ONLY_SCRIPTS = {
     # .cursor/ applying the legacy-name to Nexus-Hub variant table. Maintainer
     # tool only; idempotent and useless on an end-user install.
     "apply_rename.py",
+    # Repo-internal parity guard (v3.6.0): structurally compares the five
+    # templates/ai-instructions/base-*.md files for lockstep drift. Runs in
+    # `make validate` and CI; an end user has no base-*.md to check, so unlike
+    # check_version_sync.py (which IS distributed) this guard is deliberately
+    # not copied by the installers.
+    "check_base_template_parity.py",
 }
 
 

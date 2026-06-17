@@ -1,12 +1,12 @@
-<p align="center"><a href="https://github.com/bendourthe/Nexus-Hub"><img src="assets/nexus_hub_banner.png" alt="Nexus-Hub" width="640" /></a></p>
+<p align="center"><a href="https://github.com/bendourthe/Nexus-Hub"><img src="assets/nexus-hub-banner.png" alt="Nexus-Hub" width="640" /></a></p>
 
 <p align="center"><em>The Skill Harness for Every AI Coding Assistant.</em></p>
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.5.0 -->
+<!-- nexus-hub-version: 3.6.0 -->
 
-Nexus-Hub is the upstream skill catalog for AI coding assistants: 256 skills, 15 commands, 22 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
+Nexus-Hub is the upstream skill catalog for AI coding assistants: 256 skills, 15 commands, 23 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
 ## Interactive Guide -- start here
 
@@ -23,33 +23,34 @@ Nexus-Hub is the upstream skill catalog for AI coding assistants: 256 skills, 15
 ## How Nexus-Hub fits with Nexus
 
 <p align="center">
-<a href="https://github.com/bendourthe/Nexus-Hub"><img src="assets/nexus_hub_banner.png" alt="Nexus-Hub" width="360" align="middle" /></a>
+<a href="https://github.com/bendourthe/Nexus-Hub"><img src="assets/nexus-hub-banner.png" alt="Nexus-Hub" width="360" align="middle" /></a>
 <img src="assets/sibling_arrow.svg" alt="↔" width="80" align="middle" />
-<a href="https://github.com/bendourthe/Nexus-AI"><img src="assets/nexus_banner.png" alt="Nexus" width="360" align="middle" /></a>
+<a href="https://github.com/bendourthe/Nexus-AI"><img src="assets/nexus-ai-banner.png" alt="Nexus" width="360" align="middle" /></a>
 </p>
 
 Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of the same idea, split along a deliberate seam.
 
-- **Nexus-Hub (this repo)** is the catalog: 256 curated skills, 15 commands, 22 hooks, 23 agents, 4 rule families, plus 4 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`, `nexus-context-compressor`). It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
+- **Nexus-Hub (this repo)** is the catalog: 256 curated skills, 15 commands, 23 hooks, 23 agents, 4 rule families, plus 4 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`, `nexus-context-compressor`). It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
 - **Nexus** is a local-first desktop AI Studio that consumes Nexus-Hub as its skill feed. Nexus's `AGENTS.md` names this repo as "the only external project we deliberately link to" -- the upstream feed for its skill harness.
 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
 
-## What's New in v3.5.0
+## What's New in v3.6.0
 
-v3.5.0 enriches the `loop-engineering` skill with six refinements distilled from recent loop-design writing and a reference research loop. Every change is skill-native: no new skill, command, outbound call, dependency, credential, or third-party processor, and no frontmatter change. Catalog unchanged: **256 skills**, **15 commands**.
+v3.6.0 operationalizes the policy-clean recommendations from the v3.5.0 GitHub Spec Kit re-comparison: it folds Spec Kit's extensibility *disciplines* into Nexus-Hub's local-first equivalents and makes two deliberate declines durable. Every change is additive and backward-compatible (a MINOR bump), with no new outbound call, dependency, credential, or third-party data processor. Catalog: **256 skills**, **15 commands**, **23 hooks**.
 
 Highlights:
 
-- **Strict-control-loop doctrine + progressive hardening**: the skill now teaches that the most effective loops are strict control loops where deterministic code drives iteration and the LLM is invoked only for the one decision code cannot make (bounding a hallucinating model's blast radius), plus the maturity progression that turns an `experimental` loop into a `hardened` one by moving each consistently-correct step out of the prompt and into code.
-- **A metric-optimization loop archetype**: a new `optimize-metric-keep-best` library entry captures the optimize-a-scalar-metric shape (make a change, measure, keep it only if the metric improved, revert otherwise) -- the one loop shape the library lacked -- with an optional per-iteration compute budget.
-- **Production-loop observability + graceful handoff**: optional `trace_log` (per-iteration decision record), `progress_check` (stall detection), and `handoff` (human-review destination) schema fields, a Production Loops note, and a concrete "two or three retries, then hand off to a human" default.
-- **"loopmaxxing" named**: open-ended `while(true)` iteration on a fuzzy goal is named as a recognized anti-pattern -- the loop-era equivalent of tokenmaxxing -- that the skill's mandatory falsifiable goal, `iteration_cap`, and command-derived `exit_condition` exist precisely to prevent.
-- **Earlier in the v3.4.x / v3.3.x line**: v3.4.0 added automated model routing across the plan/implement loop, five platform integrations, and four new skills; v3.3.4 added Cursor/Copilot global slash commands; v3.3.0 added the loop-engineering layer.
+- **`base-*.md` lockstep parity guard**: a new repo-internal `check_base_template_parity.py` validator (wired into `make validate` and CI) machine-enforces the "edit all five platform instruction templates in lockstep" rule structurally, so cross-platform drift fails the build instead of shipping.
+- **Workflow-phase hook recipe**: honest guidance plus an advisory example hook for firing automation at `/plan` / `/implement` / `/spec` phase boundaries using only Nexus-Hub's four supported hook events -- no new harness event types, no third-party-code hook registry.
+- **`/skills import` hygiene**: HTTPS-only source validation, a discovery-only flag, and hash-on-import on the local import path, layered on top of the existing pre-install security scanner.
+- **Orchestration + preset vocabulary**: gate / persisted-resume / continue-on-error patterns folded into `loop-engineering` and `agent-orchestration-primitives`; template composition strategies (`replace` / `prepend` / `append` / `wrap`) folded into `agent-presets` and `theme-tokens`.
+- **Reverse-engineer-first declines, recorded**: a credentialed remote-catalog auth framework and an unsandboxed third-party-extension install path were both declined under the MCP Registry Policy and recorded in the reverse-engineering matrix so they stay adjudicated.
+- **Interactive guide polish**: copy-to-clipboard buttons on runnable command examples, and the "Get set up" entry point renamed to "Get started".
 
-See [CHANGELOG.md](CHANGELOG.md) for the full v3.5.0 entry and the complete release history.
+See [CHANGELOG.md](CHANGELOG.md) for the full v3.6.0 entry and the complete release history.
 
 ---
 
@@ -90,7 +91,7 @@ See [CHANGELOG.md](CHANGELOG.md) for the full v3.5.0 entry and the complete rele
 
 After the installer completes:
 
-- **Globally**: your user profile has all 256 skills, 15 commands, 22 hooks, 23 agents, plus Gemini and Codex instructions.
+- **Globally**: your user profile has all 256 skills, 15 commands, 23 hooks, 23 agents, plus Gemini and Codex instructions.
 - **Locally**: your project has `copilot-instructions.md` and `AGENTS.md` tailored to your language.
 
 ---
