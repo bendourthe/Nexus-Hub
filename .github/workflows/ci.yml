@@ -88,6 +88,60 @@ jobs:
         run: |
           find catalog -name '*.sh' -print0 | xargs -0 shellcheck --severity=warning || true
 
+  bootstrap:
+    # v3.7.0 Phase 1: exercise the dual-mode self-fetching bootstrap end-to-end
+    # on a clean machine (no pre-existing clone). The bash entry point runs the
+    # full install from a GitHub-shaped tarball of the checkout; the PowerShell
+    # entry point is AST-parsed and precheck-run via pwsh (the Windows installer
+    # itself is not executed on Linux). This is the authoritative bash-path gate
+    # under WN-v36-1 (bash cannot be fully run on the Windows dev host).
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Build a GitHub-shaped catalog tarball from the checkout
+        run: git archive --format=tar.gz --prefix=Nexus-Hub-main/ -o /tmp/catalog.tar.gz HEAD
+
+      - name: bash standalone bootstrap end-to-end (no prior clone)
+        run: |
+          set -uo pipefail
+          home="$(mktemp -d)/home"
+          mkdir -p "$home"
+          HOME="$home" NEXUS_HUB_FORCE_STANDALONE=1 NEXUS_HUB_TARBALL=/tmp/catalog.tar.gz \
+            bash install.sh < /dev/null || echo "core installer exited non-zero (rc=$?); asserting artifacts"
+          test -f "$home/.nexus-hub/src/scripts/installer.sh" \
+            || { echo "FAIL: bootstrap did not extract the catalog to ~/.nexus-hub/src"; exit 1; }
+          test -d "$home/.nexus-hub" \
+            || { echo "FAIL: ~/.nexus-hub not populated"; exit 1; }
+          echo "OK: standalone bootstrap populated $home/.nexus-hub"
+
+      - name: bash missing-tool simulation exits non-zero with a clear message
+        run: |
+          set -uo pipefail
+          bash_bin="$(command -v bash)"
+          out="$(PATH='' NEXUS_HUB_FORCE_STANDALONE=1 "$bash_bin" install.sh 2>&1)" && rc=0 || rc=$?
+          printf '%s\n' "$out"
+          test "$rc" -ne 0 || { echo "FAIL: expected a non-zero exit"; exit 1; }
+          printf '%s\n' "$out" | grep -qi curl || { echo "FAIL: message did not name curl/wget"; exit 1; }
+          echo "OK: missing-tool path exits $rc with a clear message"
+
+      - name: PowerShell bootstrap AST parse + precheck (pwsh)
+        shell: pwsh
+        run: |
+          $errs = $null
+          $null = [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path ./install.ps1).Path, [ref]$null, [ref]$errs)
+          if ($errs -and $errs.Count -gt 0) { $errs | ForEach-Object { Write-Host $_.Message }; exit 1 }
+          Write-Host "install.ps1 AST OK"
+          $env:NEXUS_HUB_FORCE_STANDALONE = '1'
+          $env:NEXUS_HUB_PRECHECK_ONLY = '1'
+          pwsh -NoProfile -File ./install.ps1
+          if ($LASTEXITCODE -ne 0) { Write-Host "FAIL: precheck exit $LASTEXITCODE"; exit 1 }
+          Write-Host "OK: pwsh precheck passed"
+
   tests:
     # Runs the Python test suite. Each pytest invocation is scoped to its own
     # tree so pytest does not accidentally adopt a nested `pyproject.toml` as

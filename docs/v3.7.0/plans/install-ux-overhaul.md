@@ -197,3 +197,33 @@ Live model enumeration was not performed at planning time; recommendations are p
 ### Phase Exit Checklists
 
 Each phase: all sub-tasks done; the phase Stability Gate met; `make validate` / `make lint` / (where relevant) `make test` green via the documented direct equivalents; the bootstrap/installer changes verified on CI (authoritative for bash); session history generated; no new outbound call beyond the project's own GitHub, and no new dependency, credential, or third-party processor.
+
+---
+
+## Appendix A -- Phase 1 working notes (bootstrap contract)
+
+Recorded during sub-task 1.1 from a read of the current `install.sh`, `install.bat`, `scripts/installer.sh`, and `scripts/installer.ps1`.
+
+### How the installer is invoked today
+
+- **`install.sh`** (repo root) -- thin delegate. Resolves its own directory via `${BASH_SOURCE[0]}`, then `exec`s `<dir>/scripts/installer.sh "$@"`. Assumes it lives next to a `scripts/` folder (i.e. inside a checkout). Fails with "Installer script not found" if `scripts/installer.sh` is absent. `set -e` only.
+- **`install.bat`** (repo root) -- one line: `powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\installer.ps1"`. Same in-repo assumption (`%~dp0` is the .bat's own dir). Not pipeable; cannot be `irm | iex`'d. Left unchanged in Phase 1 (the in-repo Windows path still works through it).
+- **`scripts/installer.sh`** -- the core installer. `SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"`, `REPO_ROOT="$(dirname "$SCRIPT_DIR")"`. Everything it copies is addressed as `$REPO_ROOT/catalog/...`, `$REPO_ROOT/scripts/...`, etc. So **the only thing the core installer needs is to be sitting in a complete checkout tree** -- it does not care about CWD. Flags: `--enterprise`, `--branch <name>` (shallow-clones a pushed branch into `~/.nexus-hub/branches/<token>/` and re-execs with `NEXUS_HUB_BRANCH_RESOLVED=1`), `--print-config <key>`, `--check` / `--dry-run`, `init`, `-h`/`--help`. Interactive scope prompt `Select [G/W]` (EOF on stdin -> empty -> defaults to Global). Python is resolved via `resolve_python_executable` (tries `python3`/`python`/`py`).
+- **`scripts/installer.ps1`** -- the Windows core. `$repoRoot = Resolve-Path "$PSScriptRoot\.."`. Same `$RepoRoot\catalog\...` addressing. Mirrors the bash flags as PowerShell params (`-Enterprise`, `-Branch`, `-PrintConfig`, `-Check`, `init`). Same `Select [G/W]` prompt.
+
+**Key consequence**: the core installers already run correctly from *any* complete checkout tree (this is exactly what `--branch` relies on -- it re-execs the core installer from a clone in `~/.nexus-hub/branches/...`). The bootstrap therefore only has to *materialize such a tree* and hand off; no change to the core installers is needed in Phase 1.
+
+### Standalone-mode contract (implemented in Phase 1)
+
+- **In-repo vs standalone detection**: resolve the entry script's own directory; if `<dir>/scripts/installer.{sh,ps1}` exists, run in-repo (today's behavior). Otherwise (including the `curl|bash` / `irm|iex` case where the script is read from stdin and has no on-disk dir), run standalone. `NEXUS_HUB_FORCE_STANDALONE=1` forces standalone for testing.
+- **Required-tool precheck (fail fast, non-zero, actionable)**:
+    - macOS/Linux: a downloader (`curl` OR `wget`) + `tar` + a Python interpreter (`python3`/`python`/`py`). Prefer `curl`; fall back to `wget`.
+    - Windows: PowerShell 5.1+ + an extractor (`tar` OR `Expand-Archive`) + a Python interpreter. Downloader is the built-in `Invoke-WebRequest`.
+- **Fetch**: tarball (not `git clone`, so no `git` dependency) from `https://github.com/<repo>/archive/refs/heads/<ref>.tar.gz` (default `<repo>=bendourthe/Nexus-Hub`, `<ref>=main`). Windows falls back to the `.zip` archive when only `Expand-Archive` is available.
+- **Extract target**: `~/.nexus-hub/src` (override `NEXUS_HUB_SRC`). The download is GitHub-shaped (single top dir `Nexus-Hub-<ref>/`), so bash uses `tar --strip-components=1`; the destination is wiped and recreated each run so the bootstrap is idempotent and re-runnable (this is also what `nexus-hub upgrade` will invoke in Phase 3).
+- **Hand-off**: `exec`/invoke `<src>/scripts/installer.{sh,ps1}` passing through any args.
+- **Testing seams (internal env vars)**: `NEXUS_HUB_REF`, `NEXUS_HUB_REPO`, `NEXUS_HUB_TARBALL` (local path or URL -- bypasses URL construction), `NEXUS_HUB_SRC`, `NEXUS_HUB_FORCE_STANDALONE=1`, `NEXUS_HUB_PRECHECK_ONLY=1` (run the precheck then exit, no fetch).
+
+### WN-v36-1 testing constraint (carried forward)
+
+bash cannot be fully run on the Windows dev host (the dev checkout path contains a space and `bash.EXE` mis-resolves it). All bash-path end-to-end verification therefore leans on CI (ubuntu); the PowerShell path is AST-checked locally; a real-Mac smoke test of the `curl|bash` one-liner is a recorded manual checklist item (see Phase 5). `bash -n` / static pytest checks are run locally where the space-in-path does not bite.
