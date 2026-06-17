@@ -332,6 +332,10 @@ The hook registration template is `catalog/hooks/settings.json`. Supported event
 
 **Write tests for any new hook** following the pytest pattern in `catalog/hooks/tests/test_format_bash_description.py`. Run with `make test`.
 
+### Workflow-phase automation (N1a)
+
+To run automation at a `/plan`, `/implement`, or `/spec` **phase boundary**, do NOT invent new harness event types and do NOT import a Spec Kit-style per-command `before_/after_` hook registry (that presupposes the declined third-party extension runtime -- see the v3.6.0 Spec Kit comparison, candidate N1b). A phase boundary surfaces as a specific tool call, so key a `PreToolUse` / `PostToolUse` matcher on it and let the hook inspect the tool input: match `Write`/`Edit` and gate on `tool_input.file_path` (a plan artifact under `docs/**/plans/`, a `spec.md`, a `tasks.md`, a `CHANGELOG.md`), or match `Bash` and gate on `tool_input.command` (a `git commit`). Use `SessionStart` / `Stop` for session-level setup/teardown. The four events relevant to workflow-phase automation are `SessionStart` / `PreToolUse` / `PostToolUse` / `Stop`; this is a usage pattern on the existing surface, not a new runtime. A runnable example ships as [`catalog/hooks/workflow-phase-notice.sh`](catalog/hooks/workflow-phase-notice.sh) (tested in `catalog/hooks/tests/test_workflow_phase_notice.py`) and is registered in the default `settings.json` `PostToolUse` chain; it is advisory only (exit 0) and is disabled per-session with `NEXUS_DISABLED_HOOKS=workflow-phase-notice` or `NEXUS_HOOK_PROFILE=minimal`. Full recipe (matcher-to-phase mapping, authoring rules, registration snippet): the "Workflow-phase automation recipe" in [`guides/CLAUDE_CODE_SETTINGS_REFERENCE.md`](guides/CLAUDE_CODE_SETTINGS_REFERENCE.md).
+
 ## Installer-Aware Changes (Cross-Platform)
 
 Nexus-Hub is a **template repository**. Nothing you add is "live" until a user runs `scripts/installer.sh` (macOS/Linux) or `scripts/installer.ps1` (Windows). The installer is what distributes your changes across every supported agentic platform.

@@ -204,6 +204,50 @@ Hooks are shell commands that run at specific lifecycle events:
 | 2 | Block the operation (PreToolUse only) |
 | Other | Warning (logged, does not block) |
 
+### Workflow-phase automation recipe
+
+GitHub Spec Kit's extension system registers per-command lifecycle hooks (18 points: `before_specify`, `after_tasks`, `before_/after_plan`, ...) in a `.specify/extensions.yml` registry. That registry presupposes Spec Kit's third-party extension runtime, which Nexus-Hub deliberately declines (see the v3.6.0 Spec Kit comparison, candidate N1b). Nexus-Hub does **not** add new harness event types and does **not** import that registry. Instead, it approximates the same "run automation at a workflow-phase boundary" intent on the Claude-style event surface it already uses.
+
+The four events relevant to workflow-phase automation are `SessionStart`, `PreToolUse`, `PostToolUse`, and `Stop`. The key idea: in the `/plan`, `/implement`, and `/spec` workflows a phase boundary surfaces as a specific **tool call**, so you key a `PreToolUse` / `PostToolUse` matcher on that tool and let the hook script inspect the tool input to decide whether it is really at a boundary.
+
+| Spec Kit per-command intent | Nexus-Hub equivalent | How |
+|---|---|---|
+| `before_plan` / `after_plan` | `PreToolUse` / `PostToolUse` on `Write`/`Edit` | Match `Write`/`Edit`; the hook reads `tool_input.file_path` and acts only when it targets a plan artifact (`docs/**/plans/*.md`). |
+| `after_tasks` / `after_specify` | `PostToolUse` on `Write` | Same, gated on the `tasks.md` / `spec.md` artifact basename. |
+| `after_implement` (phase commit) | `PostToolUse` on `Bash` | Match `Bash`; the hook reads `tool_input.command` and fires on `git commit`. |
+| session-level setup/teardown | `SessionStart` / `Stop` | Run once at session start, or at each turn end (for example, a post-phase docs reminder). |
+
+Authoring rules for a workflow-phase hook (mirroring `old-version-docs-guard.sh` and `secret-scan.sh`):
+
+- Be advisory by default: exit 0 and never block a phase. Only escalate to a blocking exit code behind an explicit opt-in env var.
+- Read the JSON payload from stdin and extract the field with `jq` (`.tool_input.file_path` / `.tool_input.command`). No-op silently when `jq` is absent.
+- Normalize Windows path separators (`\\` to `/`) before matching.
+- Honor the standard runtime controls: `NEXUS_DISABLED_HOOKS` (disable by name) and `NEXUS_HOOK_PROFILE=minimal` (skip advisory hooks).
+
+A runnable example ships as `catalog/hooks/workflow-phase-notice.sh` (tested in `catalog/hooks/tests/test_workflow_phase_notice.py`). It emits an advisory marker when a `Write`/`Edit` targets a plan, spec, tasks, or release (`CHANGELOG.md`) artifact, and is silent otherwise. It is registered in the default `catalog/hooks/settings.json` with this `PostToolUse` block:
+
+```json
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/workflow-phase-notice.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+Because it is advisory only (exit 0, never blocks a phase), it is safe to leave on. Disable it for a session with `export NEXUS_DISABLED_HOOKS=workflow-phase-notice`, or skip all advisory hooks with `export NEXUS_HOOK_PROFILE=minimal`.
+
+This adopts the *discipline* (phase-boundary automation on Nexus-Hub's own hook surface) without adopting Spec Kit's per-command hook *machinery*. See the "lifecycle-hook scope creep" risk note in the v3.6.0 Spec Kit comparison (Section 9) for why the line is drawn here.
+
 ---
 
 ## Sandbox Settings

@@ -182,13 +182,13 @@ The "Rec. model / effort" column is a best-effort per-phase routing assessment (
 
 ### Phase 3 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] Workflow-phase automation recipe documented honestly within the 4-event model
-- [ ] Any example hook is registered in settings.json and passes `make test`
-- [ ] No unsupported event types introduced; no `.specify/extensions.yml`-style registry imported
-- [ ] `make test`, `make validate`, `make lint` all pass
-- [ ] Session history generated for this phase
-- [ ] Ready to advance to Phase 4
+- [x] All sub-tasks completed
+- [x] Workflow-phase automation recipe documented honestly within the 4-event model (concise pointer in AGENTS.md "Adding or Modifying a Hook" + full recipe in `guides/CLAUDE_CODE_SETTINGS_REFERENCE.md`; framed on the four phase-relevant events SessionStart / PreToolUse / PostToolUse / Stop without asserting they are the only events the harness defines)
+- [x] Example hook registered in settings.json and passes `make test` (the example `catalog/hooks/workflow-phase-notice.sh` is registered in the default `catalog/hooks/settings.json` `PostToolUse` `Write|Edit` block per the maintainer's "activate for all installs" decision; advisory-only, disable via `NEXUS_DISABLED_HOOKS` / `NEXUS_HOOK_PROFILE=minimal`; 9-case pytest passes)
+- [x] No unsupported event types introduced; no `.specify/extensions.yml`-style registry imported
+- [x] `make test`, `make validate`, `make lint` all pass (run via direct equivalents per WN-v33-1: validate chain green incl. base-parity guard + compression eval; `catalog/hooks/tests/` 441 passed + 14 jq-skips; repo-level `tests/` 540 passed; hook 9/9 with jq. Fixed a pre-existing Phase 2 gap -- `check_base_template_parity.py` was missing from `test_installer_smoke.py`'s `DEV_ONLY_SCRIPTS`, failing at HEAD -- see BG-v36-1)
+- [x] Session history generated for this phase
+- [x] Ready to advance to Phase 5 (Phase 4 already complete; N1a now lands, so Phase 5's CHANGELOG can enumerate all five adoptions)
 
 ---
 
@@ -238,7 +238,7 @@ The "Rec. model / effort" column is a best-effort per-phase routing assessment (
 - [x] If a distributed script was added: registered in BOTH installers and dry-run-verified
 - [x] `make test`, `make validate`, `make lint` all pass (run via direct equivalents per WN-v33-1: validate chain green, 540 passed / 0 failed, `bash -n` + PowerShell AST clean)
 - [x] Session history generated for this phase
-- [ ] Ready to advance to Phase 5 (NOTE: Phase 3 / N1a still pending -- see NI-v36-1; implement before Phase 5, whose CHANGELOG enumerates N1a)
+- [x] Ready to advance to Phase 5 (Phase 3 / N1a now complete -- NI-v36-1 resolved; Phase 5's CHANGELOG can enumerate N1a)
 
 ---
 

@@ -136,6 +136,15 @@
             "command": "bash .claude/hooks/lint-on-write.sh"
           }
         ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/workflow-phase-notice.sh"
+          }
+        ]
       }
     ],
     "UserPromptSubmit": [
