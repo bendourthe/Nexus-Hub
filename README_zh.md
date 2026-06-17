@@ -68,17 +68,15 @@
 
 ---
 
-## 快速开始（30 秒配置）
+## 快速开始（一条命令）
 
-不想手动复制粘贴文件？我们准备了安装器。
+打开终端，粘贴适合你系统的一条命令即可安装 - 无需下载、解压或 `cd`。
 
-1. **克隆或下载** 本仓库。
-2. **运行安装器**：
-   - **Windows**：双击 **`install.bat`**。
-   - **macOS / Linux**：在终端中运行 `./install.sh`。
-3. **拖放** 你的目标项目文件夹。
-4. **确认** 安装全局技能。
-5. **（可选）选择项目** 配置工作区规则。
+1. **打开终端**（macOS：用 Spotlight 搜索 Terminal；Windows：在开始菜单搜索 PowerShell；Linux：按 Ctrl+Alt+T）。
+2. **粘贴并运行一条命令**：
+   - **macOS / Linux**：`curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash`（没有 curl 就用 `wget -qO-`）。
+   - **Windows**：`irm https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.ps1 | iex`。
+3. **就这样，没有任何提问。** 安装器会下载技能目录、预检依赖，并对检测到的每个受支持助手执行全局安装；你没有的助手会被跳过并附带说明，你的自定义内容会被保留。之后可运行 `nexus-hub upgrade` 就地更新。
 
 **完成。**
 - **全局**：你的用户配置文件现在拥有所有 187 个 Claude 技能、34 个命令、13 个钩子、10 个代理，以及 Gemini 和 Codex 指令。
@@ -115,7 +113,7 @@ Nexus-Hub 提供两个有主张的端到端工作流。可作为起点，再根�
 
 1. 创建 Git 仓库与三层分支模型：`main` / `develop` / `feature/*`。
 
-2. 安装 Nexus-Hub 工具包：`./install.sh`（macOS / Linux）或 `install.bat`（Windows）。
+2. 安装 Nexus-Hub 工具包 - 粘贴适合你系统的一条安装命令（见上方"快速开始"）。
 
 3. 在 Claude Code 中运行 `/setup-project` - 通过 8 个引导阶段自动生成 `CLAUDE.md`、目录结构、`.gitignore`、`README.md`、`DEVLOG.md` 和 `CHANGELOG.md`。
 

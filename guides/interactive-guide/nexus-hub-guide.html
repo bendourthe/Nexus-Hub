@@ -811,43 +811,71 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
       <h1>Install once, work everywhere</h1>
       <p class="lead">Nexus-Hub is the upstream <strong>catalog</strong>. A single installer copies it onto your machine and wires it into whichever AI assistants you already use - so the commands in this guide work the same whether you're in Claude Code, Codex, or Antigravity.</p>
 
-      <!-- Install -->
+      <!-- Step 1: open a terminal -->
       <div class="step">
         <div class="step-head">
           <div class="step-badge">1</div>
           <div>
-            <h3>Launch the installer</h3>
-            <div class="sub">double-click, or one command - your choice</div>
+            <h3>Open a terminal</h3>
+            <div class="sub">no download, no unzip - just a terminal window</div>
           </div>
         </div>
-        <p>Download the repo (the green <strong>Code &rarr; Download ZIP</strong> button on GitHub, or <code>git clone</code>) and unzip it. Then launch the installer. You do <strong>not</strong> need to be comfortable with a terminal - on Windows you can just double-click a file.</p>
+        <p>Nexus-Hub installs from a <strong>single command</strong> you paste into a terminal. There is nothing to download, unzip, or <code>cd</code> into first. Open a terminal the way your operating system does it:</p>
 
-        <div class="grid grid-2 choice-cards" style="align-items:start; margin:6px 0 10px">
+        <div class="grid grid-3 choice-cards" style="align-items:start; margin:6px 0 4px">
           <div class="card">
-            <div class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5h18v12H3z"/><path d="M8 21h8M12 17v4"/></svg></div>
-            <h3>The easy way - double-click</h3>
-            <p style="margin-bottom:8px; font-size:14px">No terminal needed. A console window opens and runs the guided installer.</p>
-            <ul style="font-size:13.5px; color:var(--ink-dim); padding-left:18px; margin:0; line-height:1.85">
-              <li><strong>Windows:</strong> double-click <code>install.bat</code></li>
-              <li><strong>macOS / Linux:</strong> double-click (or run) <code>install.sh</code></li>
-            </ul>
+            <div class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3c0 2-1.6 3.6-3.6 3.6C10.2 4.6 12 3 14 3z"/><path d="M5.5 12.2c0-3 2-5 4.7-5 1.1 0 1.9.5 2.7.5s1.6-.5 2.8-.5c2.1 0 3.8 1.6 3.8 4.1 0 3.2-2.3 8.4-4.4 8.4-1 0-1.5-.6-2.8-.6s-1.9.6-2.9.6C7 19.2 5.5 14.5 5.5 12.2z"/></svg></div>
+            <h3>macOS</h3>
+            <p style="margin:0; font-size:13.5px">Press <span class="kbd">Cmd</span> + <span class="kbd">Space</span>, type <strong>Terminal</strong>, press <span class="kbd">Enter</span>.</p>
           </div>
           <div class="card">
-            <div class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M8 9l3 3-3 3M13 15h4"/></svg></div>
-            <h3>From a terminal</h3>
-            <p style="margin-bottom:8px; font-size:14px">The exact same installer, launched yourself.</p>
-            <div style="font-family:var(--mono); font-size:12.5px; color:var(--term-ink); background:var(--term-bg); border-radius:8px; padding:11px 13px; line-height:1.85">
-              <div><span class="t-dim"># Windows</span></div>
-              <div class="cmd-line" data-copy=".\install.bat"><span class="t-teal">&gt;</span> .\install.bat</div>
-              <div style="height:7px"></div>
-              <div><span class="t-dim"># macOS / Linux</span></div>
-              <div class="cmd-line" data-copy="./install.sh"><span class="t-teal">$</span> ./install.sh</div>
-            </div>
+            <div class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5.5l8-1.1V11H3zM13 4.1L21 3v8h-8zM3 13h8v6.6l-8-1.1zM13 13h8v8l-8-1.1z"/></svg></div>
+            <h3>Windows</h3>
+            <p style="margin:0; font-size:13.5px">Click <strong>Start</strong>, type <strong>PowerShell</strong>, press <span class="kbd">Enter</span>.</p>
           </div>
+          <div class="card">
+            <div class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4.5" width="18" height="15" rx="2"/><path d="M7 9.5l3 2.5-3 2.5M12.5 14.5h4.5"/></svg></div>
+            <h3>Linux</h3>
+            <p style="margin:0; font-size:13.5px">Press <span class="kbd">Ctrl</span> + <span class="kbd">Alt</span> + <span class="kbd">T</span>, or open your terminal app.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: run one command -->
+      <div class="step">
+        <div class="step-head">
+          <div class="step-badge">2</div>
+          <div>
+            <h3>Run one command</h3>
+            <div class="sub">paste it, press Enter - it fetches the catalog and installs everything</div>
+          </div>
+        </div>
+        <p>Copy the line for your system, paste it into the terminal, and press <span class="kbd">Enter</span>. It downloads the catalog from the project's own GitHub and runs the installer for you - no clone, no unzip, no <code>cd</code>.</p>
+
+        <div class="term term--standalone" style="margin:6px 0 4px">
+          <div class="term-bar"><div class="tdots"><i style="background:#ff5f56"></i><i style="background:#ffbd2e"></i><i style="background:#27c93f"></i></div><span class="label">macOS / Linux &middot; paste into Terminal</span></div>
+          <div class="term-body">
+            <div class="cmd-line" style="flex-wrap:wrap; overflow-wrap:anywhere" data-copy="curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash"><span class="t-teal">$</span> curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash</div>
+            <div class="spacer"></div>
+            <div class="term-line"><span class="t-dim"># No curl on this box? Use wget instead:</span></div>
+            <div class="cmd-line" style="flex-wrap:wrap; overflow-wrap:anywhere" data-copy="wget -qO- https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash"><span class="t-teal">$</span> wget -qO- https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash</div>
+          </div>
+        </div>
+
+        <div class="term term--standalone" style="margin:8px 0 4px">
+          <div class="term-bar"><div class="tdots"><i style="background:#ff5f56"></i><i style="background:#ffbd2e"></i><i style="background:#27c93f"></i></div><span class="label">Windows &middot; paste into PowerShell</span></div>
+          <div class="term-body">
+            <div class="cmd-line" style="flex-wrap:wrap; overflow-wrap:anywhere" data-copy="irm https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.ps1 | iex"><span class="t-teal">&gt;</span> irm https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.ps1 | iex</div>
+          </div>
+        </div>
+
+        <div class="callout" style="margin:12px 0 6px">
+          <span class="ci">&#9432;</span>
+          <p>If a tool the installer needs is missing (a downloader, <code>tar</code>, or Python), it stops right away and tells you exactly what to install and how - never a cryptic failure.</p>
         </div>
 
         <h3 style="margin-top:24px">It opens with a welcome banner</h3>
-        <p>However you launch it, the experience is identical: the installer prints the Nexus-Hub banner, then asks <strong>three quick questions</strong> before doing the rest.</p>
+        <p>The command fetches the catalog into <code>~/.nexus-hub/src</code>, then runs the installer. It prints the Nexus-Hub banner and gets straight to work:</p>
 
         <div class="term term--standalone">
           <div class="term-bar">
@@ -861,80 +889,47 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
 ██║╚██╗██║██╔══╝   ██╔██╗ ██║   ██║╚════██║╚════╝██╔══██║██║   ██║██╔══██╗
 ██║ ╚████║███████╗██╔╝ ██╗╚██████╔╝███████║      ██║  ██║╚██████╔╝██████╔╝
 ╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝      ╚═╝  ╚═╝ ╚═════╝ ╚═════╝</pre>
-            <div class="t-dim">  Multi-platform AI skill harness  &middot;  v3.6.0  &middot;  github.com/bendourthe/Nexus-Hub</div>
+            <div class="t-dim">  Multi-platform AI skill harness  &middot;  v3.7.0  &middot;  github.com/bendourthe/Nexus-Hub</div>
             <div class="spacer"></div>
-            <div class="t-teal">Welcome to the Nexus-Hub Universal Installer (v3.3.1)</div>
+            <div class="t-teal">Welcome to the Nexus-Hub Universal Installer (v3.7.0)</div>
           </div>
         </div>
 
-        <h3 style="margin-top:26px">Three quick questions</h3>
-        <p>Each prompt has a recommended default. Here is what each one is asking and what to pick.</p>
+        <h3 style="margin-top:26px">No questions asked</h3>
+        <p>There are no prompts. The installer picks sensible defaults and just runs - which is exactly why the same paste-one-command flow works for a person and for an automated setup script alike. Here is what it decides for you:</p>
 
-        <!-- Q1: scope -->
-        <div class="grid grid-2" style="align-items:center; margin:14px 0">
-          <div class="term term--standalone" style="margin:0">
-            <div class="term-bar"><div class="tdots"><i style="background:#ff5f56"></i><i style="background:#ffbd2e"></i><i style="background:#27c93f"></i></div><span class="label">question 1 of 3 &middot; install scope</span></div>
-            <div class="term-body">
-              <div class="term-line t-bold">Where would you like to install Nexus-Hub?</div>
-              <div class="term-line"><span class="t-ok">[G] Global</span>    - all projects on this machine (recommended)</div>
-              <div class="term-line t-dim">[W] Workspace - a single project directory</div>
-              <div class="term-line">Select [G/W]: <span class="t-cyan">G</span></div>
-            </div>
+        <div class="grid grid-3" style="align-items:start; margin:14px 0">
+          <div class="card">
+            <h3 style="font-size:1.06rem; margin-bottom:6px">Installs globally</h3>
+            <p style="margin:0; font-size:13.5px; color:var(--ink-dim)">Available in every project on your machine - the normal setup. Power users can scope it to one repo with <code>--workspace &lt;path&gt;</code>.</p>
           </div>
-          <div>
-            <h3 style="font-size:1.08rem; margin-bottom:6px">Where should it live?</h3>
-            <ul style="font-size:14px; color:var(--ink-dim); padding-left:18px; margin:0; line-height:1.8">
-              <li><strong>Global</strong> (recommended) - available in every project on your machine. Pick this for a normal setup.</li>
-              <li><strong>Workspace</strong> - wires a single repo only; a folder picker opens so you can choose it.</li>
-            </ul>
+          <div class="card">
+            <h3 style="font-size:1.06rem; margin-bottom:6px">Every assistant you have</h3>
+            <p style="margin:0; font-size:13.5px; color:var(--ink-dim)">Sets up each supported AI tool it detects; the ones you do not have are skipped with a note, never an error. Narrow it with <code>--platforms claude,codex,...</code>.</p>
+          </div>
+          <div class="card">
+            <h3 style="font-size:1.06rem; margin-bottom:6px">Your edits stay safe</h3>
+            <p style="margin:0; font-size:13.5px; color:var(--ink-dim)">Anything you customized is preserved. On a re-install it asks <strong>once</strong>, and only if it finds a managed file you changed that it would overwrite - naming the file.</p>
           </div>
         </div>
 
-        <!-- Q2: existing files -->
-        <div class="grid grid-2" style="align-items:center; margin:14px 0">
-          <div class="term term--standalone" style="margin:0">
-            <div class="term-bar"><div class="tdots"><i style="background:#ff5f56"></i><i style="background:#ffbd2e"></i><i style="background:#27c93f"></i></div><span class="label">question 2 of 3 &middot; existing files</span></div>
-            <div class="term-body">
-              <div class="term-line t-bold">How should we handle existing installations?</div>
-              <div class="term-line t-dim">[O]verwrite All     - replace everything</div>
-              <div class="term-line t-dim">[S]kip All          - keep existing files</div>
-              <div class="term-line"><span class="t-ok">[A]sk (Recommended)</span> - prompt for each conflict</div>
-              <div class="term-line">Selection [O/S/A]: <span class="t-cyan">A</span></div>
-            </div>
-          </div>
-          <div>
-            <h3 style="font-size:1.08rem; margin-bottom:6px">What about files you've changed?</h3>
-            <ul style="font-size:14px; color:var(--ink-dim); padding-left:18px; margin:0; line-height:1.8">
-              <li><strong>First install:</strong> any choice is fine - there's nothing to conflict with yet.</li>
-              <li><strong>Re-install / update:</strong> <strong>Ask</strong> protects anything you customized, <strong>Overwrite</strong> forces the catalog's version, <strong>Skip</strong> keeps yours.</li>
-            </ul>
+        <p>That last point is the <em>only</em> prompt you might ever see, and only on a re-install over a file you hand-edited:</p>
+
+        <div class="term term--standalone" style="margin:8px 0 0">
+          <div class="term-bar"><div class="tdots"><i style="background:#ff5f56"></i><i style="background:#ffbd2e"></i><i style="background:#27c93f"></i></div><span class="label">re-install &middot; the one conflict prompt</span></div>
+          <div class="term-body">
+            <div class="term-line t-dim">1 managed file differs from the catalog and would be overwritten:</div>
+            <div class="term-line">  <span class="t-warn">~/.claude/settings.json</span></div>
+            <div class="term-line">Overwrite it with the latest? [y/N]: <span class="t-cyan">N</span></div>
+            <div class="spacer"></div>
+            <div class="term-line t-ok">Kept your version. Everything else refreshed.</div>
           </div>
         </div>
 
-        <!-- Q3: providers -->
-        <div class="grid grid-2" style="align-items:center; margin:14px 0">
-          <div class="term term--standalone" style="margin:0">
-            <div class="term-bar"><div class="tdots"><i style="background:#ff5f56"></i><i style="background:#ffbd2e"></i><i style="background:#27c93f"></i></div><span class="label">question 3 of 3 &middot; providers</span></div>
-            <div class="term-body">
-              <div class="term-line t-bold">Select providers to install (comma separated):</div>
-              <div class="term-line"><span class="t-teal">A</span> - ALL (Recommended)</div>
-              <div class="term-line">1 Anthropic <span class="t-dim">Claude Code</span>   2 OpenAI <span class="t-dim">Codex</span></div>
-              <div class="term-line">3 Google <span class="t-dim">Gemini/Antigravity</span>   4 Microsoft <span class="t-dim">Copilot</span></div>
-              <div class="term-line">5 Anysphere <span class="t-dim">Cursor</span>   6 OpenCode   7 Nexus <span class="t-dim">Nexus-AI</span></div>
-              <div class="term-line">Selection [A, 1-7]: <span class="t-cyan">A</span></div>
-            </div>
-          </div>
-          <div>
-            <h3 style="font-size:1.08rem; margin-bottom:6px">Which assistants?</h3>
-            <ul style="font-size:14px; color:var(--ink-dim); padding-left:18px; margin:0; line-height:1.8">
-              <li><strong>ALL</strong> (recommended) - set up every assistant, so the same workflows work wherever you go.</li>
-              <li>Or type specific numbers, comma-separated - e.g. <code>1,2,5</code> for Claude Code + Codex + Cursor.</li>
-            </ul>
-          </div>
-        </div>
+        <p style="margin-top:12px">Want a fully unattended run (CI, scripts)? Add <code>--yes</code> and it refreshes managed files to the latest with no prompt at all.</p>
 
         <h3 style="margin-top:26px">Then it sets everything up</h3>
-        <p>With those three answers it configures each provider and installs the shared add-ons. The real run prints a line per file; condensed, it looks like this:</p>
+        <p>It configures every assistant it finds and installs the shared add-ons. The real run prints a line per file; condensed, it looks like this:</p>
 
         <div class="term term--standalone" data-anim data-speed="18">
           <div class="term-bar">
@@ -959,7 +954,7 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
               <div><span class="t-teal">&middot; Skill Discovery</span> &nbsp;<span class="t-ok">&#10003;</span> skill index + MCP servers (skill-search, code-search, web-fetch, compressor)</div>
               <div><span class="t-teal">&middot; Git commit-msg hook</span> &nbsp;<span class="t-ok">&#10003;</span> installed to ~/.git-templates</div>
               <div class="spacer"></div>
-              <div class="t-ok t-bold">&#10003; Nexus-Hub v3.3.4 installed (Global scope).</div>
+              <div class="t-ok t-bold">&#10003; Nexus-Hub v3.7.0 installed (Global scope).</div>
               <div class="t-warn">Restart your AI assistants so they pick up the new skills, hooks, and rules.</div>
             </div>
           </div>
@@ -987,14 +982,14 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
 
         <div class="callout tip" style="margin-top:18px">
           <span class="ci">&#9733;</span>
-          <p><strong>First time? Answer Global, Ask, ALL.</strong> That installs for every project, protects any files you've customized, and sets up every assistant - so the same workflows work no matter which tool you (or a teammate) open later.</p>
+          <p><strong>First time? Just paste the command.</strong> The defaults install for every project, set up every assistant you have, and protect anything you customize - so the same workflows work no matter which tool you (or a teammate) open later.</p>
         </div>
       </div>
 
       <!-- What lands where -->
       <div class="step">
         <div class="step-head">
-          <div class="step-badge">2</div>
+          <div class="step-badge">3</div>
           <div>
             <h3>What lands where</h3>
             <div class="sub">one shared catalog + per-tool surfaces</div>
@@ -1027,8 +1022,8 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
         <div>
           <h3>Keep it current</h3>
           <ul style="color:var(--ink-dim); font-size:14.5px; line-height:1.9">
-            <li><code>git pull</code> then re-run the installer to pick up new skills and commands.</li>
-            <li>The installer is idempotent - safe to run repeatedly; it repairs drifted configs.</li>
+            <li>Run <code>nexus-hub upgrade</code> - it checks the latest version, shows what's new, and updates in place on confirm.</li>
+            <li>Or just paste the install command again - it's idempotent, safe to re-run, and repairs drifted configs.</li>
             <li><code>/update config</code> validates and repairs an assistant's installed config.</li>
           </ul>
         </div>
@@ -1037,7 +1032,7 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
       <!-- Platforms -->
       <div class="step">
         <div class="step-head">
-          <div class="step-badge">3</div>
+          <div class="step-badge">4</div>
           <div>
             <h3>One catalog, every platform</h3>
             <div class="sub">why your team can use different tools and still share workflows</div>
@@ -2122,18 +2117,18 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
         <div class="grid grid-2" style="align-items:start">
           <div>
             <h3>Install the catalog</h3>
-            <p>One installer copies the catalog into <code>~/.nexus-hub/</code> and wires it into each AI assistant's own config location. Run it once per machine.</p>
+            <p>One command copies the catalog into <code>~/.nexus-hub/</code> and wires it into each AI assistant's own config location. Run it once per machine.</p>
             <div class="term term--standalone" style="margin-top:10px">
               <div class="term-bar">
                 <div class="tdots"><i style="background:#ff5f56"></i><i style="background:#ffbd2e"></i><i style="background:#27c93f"></i></div>
                 <span class="label">install</span>
               </div>
               <div class="term-body">
-                <div class="term-line"><span class="t-dim"># Windows - double-click, or run:</span></div>
-                <div class="term-line"><span class="t-teal">&gt;</span> .\install.bat</div>
+                <div class="term-line"><span class="t-dim"># macOS / Linux - paste into Terminal:</span></div>
+                <div class="cmd-line" style="flex-wrap:wrap; overflow-wrap:anywhere" data-copy="curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash"><span class="t-teal">$</span> curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash</div>
                 <div class="spacer"></div>
-                <div class="term-line"><span class="t-dim"># macOS / Linux - double-click, or run:</span></div>
-                <div class="term-line"><span class="t-teal">$</span> ./install.sh</div>
+                <div class="term-line"><span class="t-dim"># Windows - paste into PowerShell:</span></div>
+                <div class="cmd-line" style="flex-wrap:wrap; overflow-wrap:anywhere" data-copy="irm https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.ps1 | iex"><span class="t-teal">&gt;</span> irm https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.ps1 | iex</div>
                 <div class="spacer"></div>
                 <div class="term-line t-dim">Full guided walkthrough on the Setup page.</div>
               </div>

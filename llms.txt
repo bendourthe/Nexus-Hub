@@ -4,12 +4,12 @@
 
 ## Installation
 
-### One-click (recommended)
+### One command (recommended)
 
-Windows: run `install.bat`
-macOS / Linux: run `./install.sh`
+macOS / Linux (paste into a terminal): `curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash` (no curl? use `wget -qO-`)
+Windows (paste into PowerShell): `irm https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.ps1 | iex`
 
-The installer copies skills, hooks, and templates to your user profile (`~/.claude/skills/`, `~/.gemini/`, etc.) and optionally to a target project.
+The command downloads the catalog and runs the installer with no prompts, copying skills, hooks, and templates to your user profile (`~/.claude/skills/`, `~/.gemini/`, etc.) across every supported assistant it detects. Run `nexus-hub upgrade` later to update in place. Already cloned the repo? `./install.sh` / `install.bat` still work.
 
 ### Manual
 

@@ -77,15 +77,29 @@ See [CHANGELOG.md](CHANGELOG.md) for the full v3.6.0 entry and the complete rele
 
 ---
 
-## Quick Start (The 30-Second Setup)
+## Quick Start (one command)
 
-1. **Clone or download** this repository.
-2. **Run the installer**:
-    - **Windows**: double-click **`install.bat`**.
-    - **macOS / Linux**: run `./install.sh` in your terminal.
-3. **Drag and drop** your target project folder when asked.
-4. **Confirm** to install global skills.
-5. **(Optional) Select a project** to configure workspace-specific rules.
+Open a terminal and paste the line for your system. It downloads the catalog from this repo and runs the installer -- no clone, no unzip, no `cd`.
+
+**macOS / Linux** (paste into Terminal):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash
+```
+
+No `curl` on the box? Use `wget`:
+
+```bash
+wget -qO- https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash
+```
+
+**Windows** (paste into PowerShell):
+
+```powershell
+irm https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.ps1 | iex
+```
+
+That is the whole setup -- no prompts. The installer prechecks its dependencies (and tells you exactly what to install if one is missing), then performs a global install across every supported assistant it detects; assistants you do not have are skipped with a note, never an error. Your customizations are preserved (marker-merge), and on a re-install it asks once only if it finds a managed file you changed that it would overwrite, naming the file.
 
 **Done.** The installer writes to `~/.nexus-hub/` (the user-global catalog) and into each supported assistant's per-platform config locations. If a legacy `~/.devai-hub/` install is detected, you will see a single migration prompt at the top of the run -- answer `Y` (default) to migrate in place.
 
@@ -93,6 +107,12 @@ After the installer completes:
 
 - **Globally**: your user profile has all 256 skills, 15 commands, 23 hooks, 23 agents, plus Gemini and Codex instructions.
 - **Locally**: your project has `copilot-instructions.md` and `AGENTS.md` tailored to your language.
+
+**Power-user flags**: `--workspace <path>` installs into a single repo instead of globally; `--platforms <comma-list>` limits the install to a subset of assistants; `--yes` runs fully unattended (refreshes managed files with no prompt -- ideal for CI). Prefer to clone first? `git clone` the repo and run `./install.sh` (macOS / Linux) or `install.bat` (Windows) -- the in-repo path still works exactly as before.
+
+### Keeping it current
+
+Run `nexus-hub upgrade` -- it reports your installed version against the latest, shows a short what's-new summary, and updates in place on confirmation. Re-running the install command above works too; the installer is idempotent.
 
 ---
 
@@ -125,7 +145,7 @@ Open an AI chatbot (Claude.ai or ChatGPT) and brainstorm: problem, users, core f
 #### 2. Project setup
 
 1. Create the Git repo with a three-tier branching model: `main` / `develop` / `feature/*`.
-2. Install the Nexus-Hub toolkit: `./install.sh` (macOS / Linux) or `install.bat` (Windows).
+2. Install the Nexus-Hub toolkit -- paste the one-line install command for your OS (see [Quick Start](#quick-start-one-command)).
 3. In Claude Code, run `/setup project` -- bootstraps `CLAUDE.md`, the directory structure, `.gitignore`, `README.md`, `DEVLOG.md`, and `CHANGELOG.md` in 8 guided phases.
 4. Save the implementation plan from step 1 to `docs/<version>/plans/<slug>.md`.
 5. Commit with `/commit`.
