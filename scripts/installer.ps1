@@ -2091,6 +2091,16 @@ function Install-Templates {
         Safe-Copy -Source $affectedSource -Destination (Join-Path $scriptsDest "nexus_hub_affected.py") -Confirm:$true -CustomMessage "✓ Affected-tests CLI installed at: $scriptsDest\nexus_hub_affected.py"
     }
 
+    # Copy the nexus-hub CLI core (v3.7.0 Phase 3). The logic behind the
+    # `nexus-hub` launcher on PATH: `nexus-hub --version` and `nexus-hub
+    # upgrade`. Stdlib-only, cross-platform single .py (NI-v24-1), so no .ps1
+    # sibling. The launcher itself + the VERSION file are installed by
+    # Install-CliLauncher below. Mirror of the same block in scripts\installer.sh.
+    $cliSource = Join-Path $RepoRoot "scripts\nexus_hub_cli.py"
+    if (Test-Path $cliSource) {
+        Safe-Copy -Source $cliSource -Destination (Join-Path $scriptsDest "nexus_hub_cli.py") -Confirm:$true -CustomMessage "✓ nexus-hub CLI installed at: $scriptsDest\nexus_hub_cli.py"
+    }
+
     # Copy v2.3.0 CI validators (Phase 2 / T004-T005). Mirror of the bash
     # block in scripts\installer.sh. Four standalone static validators:
     # validate_no_personal_paths.py (leaked /Users/<name> or C:\Users\<name>
@@ -2278,6 +2288,55 @@ function Install-Templates {
     }
     else {
         Write-Item -Message "  (none)" -Color "Gray"
+    }
+    Write-Host ""
+}
+
+
+# --- nexus-hub CLI launcher (v3.7.0 Phase 3) ---
+
+# Writes the installed-version marker and drops the nexus-hub.cmd launcher on
+# PATH (~\.nexus-hub\bin\nexus-hub.cmd). The launcher is a thin shim over the CLI
+# core (scripts\nexus_hub_cli.py, copied by Install-Templates) that powers
+# `nexus-hub --version` and `nexus-hub upgrade`. upgrade's only outbound call is
+# to the project's own GitHub. PATH wiring is best-effort: a clear hint is
+# printed and PATH is NEVER auto-edited (a no-prompt install must not silently
+# mutate the user's environment). Mirror of install_cli_launcher in
+# scripts\installer.sh.
+function Install-CliLauncher {
+    param ($RepoRoot)
+
+    $nexusHome = Join-Path $env:USERPROFILE ".nexus-hub"
+    $binDest = Join-Path $nexusHome "bin"
+
+    Write-Host ""
+    Write-SubSectionBanner -Text "nexus-hub CLI"
+    Write-Host ""
+
+    # Installed-version marker (read by the CLI's --version and upgrade).
+    # Written from the canonical $script:NexusHubVersion as ASCII (no BOM), so it
+    # is deliberately NOT a check_version_sync surface (never hand-edited).
+    $versionFile = Join-Path $nexusHome "VERSION"
+    if (-not (Test-Path $nexusHome)) { New-Item -ItemType Directory -Force -Path $nexusHome | Out-Null }
+    Set-Content -Path $versionFile -Value $script:NexusHubVersion -Encoding ascii -NoNewline
+    Write-Item -Message "✓ Version marker written: $versionFile ($script:NexusHubVersion)" -Color "DarkGreen"
+
+    if (-not (Test-Path $binDest)) { New-Item -ItemType Directory -Force -Path $binDest | Out-Null }
+    $launcherSource = Join-Path $RepoRoot "scripts\nexus-hub.cmd"
+    if (Test-Path $launcherSource) {
+        Safe-Copy -Source $launcherSource -Destination (Join-Path $binDest "nexus-hub.cmd") -Confirm:$true -CustomMessage "✓ nexus-hub launcher installed at: $binDest\nexus-hub.cmd"
+    }
+
+    # PATH hint (best-effort; never auto-edits the user's PATH).
+    $pathEntries = @($env:PATH -split ';')
+    if ($pathEntries -contains $binDest) {
+        Write-Item -Message "✓ $binDest is already on your PATH -- run: nexus-hub --version" -Color "DarkGreen"
+    }
+    else {
+        Write-Item -Message "To use the 'nexus-hub' command, add its bin directory to your PATH." -Color "Yellow"
+        Write-Item -Message "  Run this once in PowerShell (appends to your user PATH), then reopen your terminal:" -Color "White"
+        Write-Item -Message "    [Environment]::SetEnvironmentVariable('PATH', `"`$([Environment]::GetEnvironmentVariable('PATH','User'));$binDest`", 'User')" -Color "Cyan"
+        Write-Item -Message "  Until then, run it directly: $binDest\nexus-hub.cmd --version" -Color "Gray"
     }
     Write-Host ""
 }
@@ -2761,6 +2820,9 @@ else {
 # Bundled report-generator templates + scripts are user-scope and always install silently.
 # Interactive custom-template import moved to /research report at use time (v0.9.7).
 Install-Templates -RepoRoot $repoRoot
+
+# Install the nexus-hub CLI launcher + version marker (v3.7.0 Phase 3).
+Install-CliLauncher -RepoRoot $repoRoot
 
 # Resolve any managed-file conflicts collected during an interactive install
 # (single end-of-run prompt). No-op on the non-interactive / -Yes / -Force path.

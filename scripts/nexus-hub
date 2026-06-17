@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+# nexus-hub launcher (POSIX) -- v3.7.0 Phase 3.
+#
+# A thin shim installed on PATH at ~/.nexus-hub/bin/nexus-hub. It locates a
+# Python interpreter and hands off to the CLI core at
+# ~/.nexus-hub/scripts/nexus_hub_cli.py, which does all the real work
+# (--version, upgrade, ...). Keeping the logic in one cross-platform .py file
+# means this launcher never has to be kept in sync with feature changes.
+#
+# Override the install root with NEXUS_HUB_HOME (used by the test suite).
+set -euo pipefail
+
+nexus_home="${NEXUS_HUB_HOME:-$HOME/.nexus-hub}"
+cli="$nexus_home/scripts/nexus_hub_cli.py"
+
+if [ ! -f "$cli" ]; then
+    printf 'Error: nexus-hub CLI not found at %s -- re-run the installer.\n' "$cli" >&2
+    exit 1
+fi
+
+python_cmd=""
+for candidate in python3 python py; do
+    if command -v "$candidate" >/dev/null 2>&1; then
+        python_cmd="$candidate"
+        break
+    fi
+done
+
+if [ -z "$python_cmd" ]; then
+    printf 'Error: Python 3 is required to run nexus-hub but was not found on PATH.\n' >&2
+    exit 1
+fi
+
+exec "$python_cmd" "$cli" "$@"

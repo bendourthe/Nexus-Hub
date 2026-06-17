@@ -5,5 +5,11 @@
 *.sh text eol=lf
 *.ps1 text=auto
 
+# v3.7.0 Phase 3 nexus-hub launchers: the extension-less POSIX shim MUST stay
+# LF (a CRLF shebang breaks `#!/usr/bin/env bash` on macOS/Linux); the Windows
+# .cmd uses CRLF.
+scripts/nexus-hub text eol=lf
+scripts/nexus-hub.cmd text eol=crlf
+
 # Documentation
 *.md text=auto

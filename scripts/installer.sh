@@ -1742,6 +1742,17 @@ install_templates() {
         safe_copy "$affected_source" "$scripts_dest/nexus_hub_affected.py" true "[OK] Affected-tests CLI installed at: $scripts_dest/nexus_hub_affected.py"
     fi
 
+    # Copy the nexus-hub CLI core (v3.7.0 Phase 3). The logic behind the
+    # `nexus-hub` launcher on PATH: `nexus-hub --version` and `nexus-hub
+    # upgrade`. Stdlib-only, cross-platform single .py (NI-v24-1), so no .ps1
+    # sibling. The launcher itself + the VERSION file are installed by
+    # install_cli_launcher below. Lockstep with the same block in
+    # scripts/installer.ps1.
+    local cli_source="$repo_root/scripts/nexus_hub_cli.py"
+    if [ -f "$cli_source" ]; then
+        safe_copy "$cli_source" "$scripts_dest/nexus_hub_cli.py" true "[OK] nexus-hub CLI installed at: $scripts_dest/nexus_hub_cli.py"
+    fi
+
     # Copy v2.3.0 CI validators (Phase 2 / T004-T005). Four standalone static
     # validators that run on the clean tree and fail non-zero on a finding:
     # validate_no_personal_paths.py scans distributed docs for leaked
@@ -1923,6 +1934,62 @@ install_templates() {
     if [ "$found_templates" = false ]; then
         write_item "  (none)" "$GRAY"
     fi
+    echo ""
+}
+
+# --- nexus-hub CLI launcher (v3.7.0 Phase 3) ---
+
+# Writes the installed-version marker and drops the `nexus-hub` launcher on PATH
+# (~/.nexus-hub/bin/nexus-hub). The launcher is a thin shim over the CLI core
+# (scripts/nexus_hub_cli.py, copied by install_templates) that powers
+# `nexus-hub --version` and `nexus-hub upgrade`. `upgrade`'s only outbound call
+# is to the project's own GitHub. PATH wiring is best-effort: a clear hint is
+# printed and shell-rc files are NEVER auto-edited (a no-prompt install must not
+# silently mutate a user dotfile). Lockstep with Install-CliLauncher in
+# scripts/installer.ps1.
+install_cli_launcher() {
+    local repo_root="$1"
+    local nexus_home="$HOME/.nexus-hub"
+    local bin_dest="$nexus_home/bin"
+
+    echo ""
+    write_subsection_banner "nexus-hub CLI"
+    echo ""
+
+    # Installed-version marker (install-mode independent; read by the CLI's
+    # --version and upgrade). Written from the canonical $NEXUS_HUB_VERSION, so
+    # it is deliberately NOT a check_version_sync surface (never hand-edited).
+    printf '%s\n' "$NEXUS_HUB_VERSION" > "$nexus_home/VERSION"
+    write_item "[OK] Version marker written: $nexus_home/VERSION ($NEXUS_HUB_VERSION)" "$GREEN"
+
+    mkdir -p "$bin_dest"
+    local launcher_source="$repo_root/scripts/nexus-hub"
+    if [ -f "$launcher_source" ]; then
+        safe_copy "$launcher_source" "$bin_dest/nexus-hub" true "[OK] nexus-hub launcher installed at: $bin_dest/nexus-hub"
+        chmod +x "$bin_dest/nexus-hub" 2>/dev/null || true
+    fi
+
+    # PATH hint (best-effort; never auto-edits a shell rc file).
+    case ":${PATH:-}:" in
+        *":$bin_dest:"*)
+            write_item "[OK] $bin_dest is already on your PATH -- run: nexus-hub --version" "$GREEN"
+            ;;
+        *)
+            # The tildes below are intentional display text in a user-facing
+            # hint (shown literally as "~/.zshrc"), not paths to be expanded.
+            # shellcheck disable=SC2088
+            local rc="your shell profile (e.g. ~/.bashrc or ~/.zshrc)"
+            # shellcheck disable=SC2088
+            case "$(basename "${SHELL:-}")" in
+                zsh)  rc="~/.zshrc" ;;
+                bash) rc="~/.bashrc" ;;
+            esac
+            write_item "To use the 'nexus-hub' command, add its bin directory to your PATH." "$YELLOW"
+            write_item "  Add this line to $rc, then restart your shell:" "$RESET"
+            write_item "    export PATH=\"\$HOME/.nexus-hub/bin:\$PATH\"" "$CYAN"
+            write_item "  Until then, run it directly: $bin_dest/nexus-hub --version" "$GRAY"
+            ;;
+    esac
     echo ""
 }
 
@@ -2553,6 +2620,9 @@ fi
 # Bundled report-generator templates + scripts are user-scope and always install silently.
 # Interactive custom-template import moved to /research report at use time (v0.9.7).
 install_templates "$REPO_ROOT"
+
+# Install the nexus-hub CLI launcher + version marker (v3.7.0 Phase 3).
+install_cli_launcher "$REPO_ROOT"
 
 # Resolve any managed-file conflicts collected during an interactive install
 # (single end-of-run prompt). No-op on the non-interactive / --yes / --force path.
