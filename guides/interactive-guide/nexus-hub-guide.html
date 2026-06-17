@@ -491,6 +491,25 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
   *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; }
   .hero .mark-xl { animation: none; }
 }
+
+/* copy-to-clipboard buttons on runnable command / prompt examples */
+.cmd-line { display: flex; align-items: center; gap: 8px; }
+.copy-btn {
+  margin-left: auto; flex: none;
+  display: inline-flex; align-items: center; gap: 5px;
+  font-family: var(--mono); font-size: 11px; line-height: 1;
+  padding: 4px 8px; border-radius: 6px;
+  border: 1px solid rgba(120,224,238,.22);
+  background: rgba(120,224,238,.06); color: var(--ink-dim);
+  cursor: pointer; transition: color .15s, border-color .15s, background .15s;
+}
+.copy-btn:hover { color: var(--ink); border-color: var(--border-bright); background: rgba(120,224,238,.12); }
+.copy-btn:focus-visible { outline: 2px solid var(--teal-soft); outline-offset: 2px; }
+.copy-btn.copied { color: var(--teal-soft); border-color: var(--teal-soft); }
+.copy-btn svg { width: 13px; height: 13px; flex: none; }
+.copy-btn .cb-label { font-weight: 600; letter-spacing: .02em; }
+.copyable { position: relative; }
+.copyable > .copy-btn { position: absolute; top: 8px; right: 8px; margin-left: 0; }
 </style>
 </head>
 <body>
@@ -544,7 +563,7 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
         <h1>Turn your AI assistant into a<br><span class="gtext">disciplined engineering team</span></h1>
         <p class="lead">Nexus-Hub is a production-grade skill harness for AI coding assistants. It replaces ad-hoc prompting with governed, repeatable workflows that cover the whole software lifecycle - from inheriting an unfamiliar codebase to shipping a reviewed, tested release.</p>
         <div class="btn-row">
-          <a class="btn btn--primary" data-go="setup">Get set up <span class="arr">&rarr;</span></a>
+          <a class="btn btn--primary" data-go="setup">Get started <span class="arr">&rarr;</span></a>
           <a class="btn" data-go="onboard">Jump to the workflow</a>
         </div>
         <div class="stat-row">
@@ -725,7 +744,7 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
       <!-- Use case nav -->
       <section class="section">
         <span class="eyebrow">Where to go</span>
-        <h2>Get set up, learn the pieces, then walk the workflows</h2>
+        <h2>Get started, learn the pieces, then walk the workflows</h2>
         <div class="grid grid-3">
           <div class="card navcard" data-go="setup">
             <div class="step-no">START HERE</div>
@@ -819,10 +838,10 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
             <p style="margin-bottom:8px; font-size:14px">The exact same installer, launched yourself.</p>
             <div style="font-family:var(--mono); font-size:12.5px; color:var(--term-ink); background:var(--term-bg); border-radius:8px; padding:11px 13px; line-height:1.85">
               <div><span class="t-dim"># Windows</span></div>
-              <div><span class="t-teal">&gt;</span> .\install.bat</div>
+              <div class="cmd-line" data-copy=".\install.bat"><span class="t-teal">&gt;</span> .\install.bat</div>
               <div style="height:7px"></div>
               <div><span class="t-dim"># macOS / Linux</span></div>
-              <div><span class="t-teal">$</span> ./install.sh</div>
+              <div class="cmd-line" data-copy="./install.sh"><span class="t-teal">$</span> ./install.sh</div>
             </div>
           </div>
         </div>
@@ -842,7 +861,7 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
 ██║╚██╗██║██╔══╝   ██╔██╗ ██║   ██║╚════██║╚════╝██╔══██║██║   ██║██╔══██╗
 ██║ ╚████║███████╗██╔╝ ██╗╚██████╔╝███████║      ██║  ██║╚██████╔╝██████╔╝
 ╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝      ╚═╝  ╚═╝ ╚═════╝ ╚═════╝</pre>
-            <div class="t-dim">  Multi-platform AI skill harness  &middot;  v3.3.1  &middot;  github.com/bendourthe/Nexus-Hub</div>
+            <div class="t-dim">  Multi-platform AI skill harness  &middot;  v3.6.0  &middot;  github.com/bendourthe/Nexus-Hub</div>
             <div class="spacer"></div>
             <div class="t-teal">Welcome to the Nexus-Hub Universal Installer (v3.3.1)</div>
           </div>
@@ -2490,8 +2509,52 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
       })();
     }
 
+    /* -------------------------------------------------- copy buttons */
+    var COPY_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>';
+    var CHECK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg>';
+
+    function fallbackCopy(text) {
+      var ta = document.createElement("textarea");
+      ta.value = text; ta.setAttribute("readonly", "");
+      ta.style.position = "fixed"; ta.style.top = "-1000px"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand("copy"); } catch (e) {}
+      document.body.removeChild(ta);
+    }
+    function flashCopied(btn) {
+      btn.classList.add("copied");
+      btn.innerHTML = CHECK_SVG + '<span class="cb-label">Copied</span>';
+      window.setTimeout(function () {
+        btn.classList.remove("copied");
+        btn.innerHTML = COPY_SVG + '<span class="cb-label">Copy</span>';
+      }, 1600);
+    }
+    function copyText(text, btn) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function () { flashCopied(btn); }, function () { fallbackCopy(text); flashCopied(btn); });
+      } else { fallbackCopy(text); flashCopied(btn); }
+    }
+    function initCopyButtons() {
+      var nodes = document.querySelectorAll("[data-copy]");
+      for (var i = 0; i < nodes.length; i++) {
+        (function (el) {
+          if (el.querySelector(".copy-btn")) return;
+          var btn = document.createElement("button");
+          btn.type = "button"; btn.className = "copy-btn";
+          btn.setAttribute("aria-label", "Copy to clipboard");
+          btn.innerHTML = COPY_SVG + '<span class="cb-label">Copy</span>';
+          btn.addEventListener("click", function (ev) {
+            ev.preventDefault(); ev.stopPropagation();
+            copyText(el.getAttribute("data-copy"), btn);
+          });
+          el.appendChild(btn);
+        })(nodes[i]);
+      }
+    }
+
     /* -------------------------------------------------- boot */
     go();
+    initCopyButtons();
   })();
   </script>
 </body>
