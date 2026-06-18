@@ -262,7 +262,7 @@ A natural phasing folds the items into three groups that belong together concept
 - Ralph's loop engine, safety mechanisms, project-enablement, and sandbox/security surfaces were characterized by three read-only Explore passes over the shallow clone (HEAD `0c1d7bf`), with file-and-line evidence. The `ralph_loop.sh` main loop is 157KB; the analysis targeted the loop body, exit gate, rate limiter, circuit breaker, response analyzer, sandbox modules, and templates rather than every line. The *patterns* adopted (the exit-signal protocol, the trip conditions, the fence, the metrics schema) are unambiguous from the cited code; a deeper read would refine implementation detail but not change any archetype.
 - The README version badge (`v0.11.5`, "784 tests") and `package.json` (`1.0.0`) disagree; the README is taken as the user-facing version. The exact current test count was not re-run locally.
 - This report deliberately does not re-litigate the v3.2.0 / v3.5.0 / v3.6.0 loop findings (the five primitives, the loop schema fields, the strict-control-loop principle, gate/resume/continue-on-error). Those are settled in the prior reports and the shipped `loop-engineering` skill; this report covers only what a real runtime adds on top.
-- The shallow clone at `C:\Users\BEDOURTHE\AppData\Local\Temp\ralph-claude-code` is a scratch artifact for this analysis and can be removed after report generation.
+- The shallow clone at `%LOCALAPPDATA%\Temp\ralph-claude-code` (under the system temp directory) is a scratch artifact for this analysis and can be removed after report generation.
 
 ---
 

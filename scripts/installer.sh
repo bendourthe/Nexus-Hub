@@ -1545,8 +1545,11 @@ install_vscode_extensions() {
 
         # Detect platform and suggest install method
         if command -v brew >/dev/null 2>&1; then
+            # A non-interactive run (the piped one-command bootstrap, --yes, or CI)
+            # installs without asking so every dependency is present in one pass;
+            # an interactive run prompts first.
             local install_resp
-            install_resp=$(read_prompt "Install Node.js LTS via Homebrew? [Y]es / [N]o")
+            if [ "$ASSUME_YES" = true ]; then install_resp="y"; else install_resp=$(read_prompt "Install Node.js LTS via Homebrew? [Y]es / [N]o"); fi
             if [[ "$install_resp" =~ ^[Yy] ]]; then
                 write_item "Installing Node.js LTS via Homebrew..." "$RESET"
                 brew install node@22 || {
@@ -1560,7 +1563,7 @@ install_vscode_extensions() {
             fi
         elif command -v apt-get >/dev/null 2>&1; then
             local install_resp
-            install_resp=$(read_prompt "Install Node.js via apt? [Y]es / [N]o")
+            if [ "$ASSUME_YES" = true ]; then install_resp="y"; else install_resp=$(read_prompt "Install Node.js via apt? [Y]es / [N]o"); fi
             if [[ "$install_resp" =~ ^[Yy] ]]; then
                 write_item "Installing Node.js via apt..." "$RESET"
                 sudo apt-get update -qq && sudo apt-get install -y -qq nodejs npm || {
@@ -1598,25 +1601,41 @@ install_vscode_extensions() {
         rm -rf "$extension_dir/out"
     fi
 
+    # A node_modules tree copied in from another OS (e.g. zipping a Windows
+    # checkout) leaves Windows .cmd/.ps1 bin shims that a Unix shell cannot
+    # exec, so `tsc` resolves to "command not found" and the build fails with a
+    # confusing error. Removing it forces a clean, OS-correct dependency tree.
+    if [ -d node_modules ]; then
+        rm -rf node_modules
+    fi
+
     write_item "  Installing dependencies..." "$GRAY"
-    if ! npm install --silent 2>/dev/null; then
-        write_item "npm install failed." "$RED"
+    local npm_log
+    if ! npm_log=$(npm install --silent 2>&1); then
+        write_item "npm install failed:" "$RED"
+        echo "$npm_log" | tail -n 20
         popd > /dev/null
         return
     fi
 
     write_item "  Compiling TypeScript..." "$GRAY"
-    if ! npm run compile 2>/dev/null; then
-        write_item "TypeScript compilation failed." "$RED"
+    local compile_log
+    if ! compile_log=$(npm run compile 2>&1); then
+        write_item "TypeScript compilation failed:" "$RED"
+        echo "$compile_log" | tail -n 30
         popd > /dev/null
         return
     fi
 
     write_item "[OK] Extension built successfully." "$GREEN"
 
-    # Package as VSIX (uses locally installed @vscode/vsce from devDependencies)
+    # Package as VSIX (uses locally installed @vscode/vsce from devDependencies).
+    # A bundled LICENSE file removes the only packaging warning, so vsce no longer
+    # shows its interactive "Do you want to continue? [y/N]" prompt. Piping "y" is
+    # belt-and-suspenders: if any future warning reappears it auto-confirms instead
+    # of blocking an unattended install (harmless when there is no prompt).
     write_item "Packaging extension as VSIX..." "$RESET"
-    npx vsce package --no-dependencies 2>/dev/null
+    echo "y" | npx vsce package --no-dependencies 2>/dev/null
     local vsix_file
     vsix_file=$(ls -t "$extension_dir"/*.vsix 2>/dev/null | head -1)
 
@@ -1631,20 +1650,52 @@ install_vscode_extensions() {
 
     popd > /dev/null
 
-    # Install into VS Code
+    # Locate a VS Code-family CLI. On a fresh Mac the `code` command is not on
+    # PATH unless the user ran "Shell Command: Install 'code' command in PATH", so
+    # fall back to the standard application-bundle / install locations. This lets
+    # the VSIX auto-install instead of leaving the user to do it by hand.
+    local code_cli=""
+    local code_label="VS Code"
     if command -v code >/dev/null 2>&1; then
-        # Uninstall any existing version first so VS Code does not skip the reinstall
-        code --uninstall-extension "nexus-hub.claude-usage-monitor" 2>/dev/null || true
+        code_cli="code"
+    else
+        local candidate
+        for candidate in \
+            "/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code" \
+            "$HOME/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code" \
+            "/Applications/Visual Studio Code - Insiders.app/Contents/Resources/app/bin/code" \
+            "/usr/share/code/bin/code" \
+            "/usr/bin/code" \
+            "/snap/bin/code" \
+            "/var/lib/flatpak/exports/bin/com.visualstudio.code" \
+            "/Applications/Cursor.app/Contents/Resources/app/bin/cursor" \
+            "$HOME/Applications/Cursor.app/Contents/Resources/app/bin/cursor" \
+            "/Applications/VSCodium.app/Contents/Resources/app/bin/codium"; do
+            if [ -x "$candidate" ]; then
+                code_cli="$candidate"
+                case "$candidate" in
+                    *Cursor*) code_label="Cursor" ;;
+                    *VSCodium*) code_label="VSCodium" ;;
+                esac
+                break
+            fi
+        done
+    fi
+
+    # Install into the detected editor
+    if [ -n "$code_cli" ]; then
+        # Uninstall any existing version first so the editor does not skip the reinstall
+        "$code_cli" --uninstall-extension "nexus-hub.claude-usage-monitor" 2>/dev/null || true
         # --force ensures reinstall even when the version number has not changed
-        if code --install-extension "$vsix_file" --force 2>/dev/null; then
-            write_item "[OK] Claude Usage Monitor extension installed in VS Code!" "$GREEN"
-            write_item "  Restart VS Code to activate. Look for 'Claude: --%' in the status bar." "$RESET"
+        if "$code_cli" --install-extension "$vsix_file" --force 2>/dev/null; then
+            write_item "[OK] Claude Usage Monitor extension installed in $code_label!" "$GREEN"
+            write_item "  Restart $code_label to activate. Look for 'Claude: --%' in the status bar." "$RESET"
         else
-            write_item "VS Code install failed. Install manually:" "$YELLOW"
-            write_item "  code --install-extension \"$vsix_file\"" "$RESET"
+            write_item "$code_label install failed. Install manually:" "$YELLOW"
+            write_item "  \"$code_cli\" --install-extension \"$vsix_file\"" "$RESET"
         fi
     else
-        write_item "VS Code CLI ('code') not found in PATH." "$YELLOW"
+        write_item "VS Code CLI ('code') not found in PATH or standard install locations." "$YELLOW"
         write_item "VSIX saved at: $vsix_file" "$RESET"
         write_item "Install manually via VS Code: Extensions > ... > Install from VSIX" "$GRAY"
     fi
@@ -2023,22 +2074,55 @@ install_skill_discovery() {
     echo ""
     write_item "MCP Skill Server (Claude Code integration)" "$RESET"
 
-    # Check Python >= 3.10
+    # Check Python >= 3.10.
+    # Ask the interpreter for its own version instead of parsing `--version`
+    # output with grep. BSD grep (the macOS default) lacks `-P` (PCRE), so the old
+    # `grep -oP` approach printed "grep: invalid option -- P" and silently left
+    # python_cmd empty, skipping the entire MCP server install on macOS.
+    detect_python_310() {
+        local cmd ver
+        for cmd in python3 python; do
+            if command -v "$cmd" >/dev/null 2>&1; then
+                ver=$("$cmd" -c 'import sys; print(sys.version_info[0] * 100 + sys.version_info[1])' 2>/dev/null)
+                if [ -n "$ver" ] && [ "$ver" -ge 310 ]; then
+                    echo "$cmd"
+                    return 0
+                fi
+            fi
+        done
+        return 1
+    }
+
     local python_cmd=""
-    for cmd in python3 python; do
-        if command -v "$cmd" >/dev/null 2>&1; then
-            local ver
-            ver=$("$cmd" --version 2>&1 | grep -oP 'Python\s+3\.(\d+)' | grep -oP '\d+$')
-            if [ -n "$ver" ] && [ "$ver" -ge 10 ]; then
-                python_cmd="$cmd"
-                break
+    python_cmd=$(detect_python_310) || python_cmd=""
+
+    # Offer to auto-install Python when it is missing or too old, mirroring the
+    # Node.js auto-install flow so every dependency is handled in a single run. A
+    # non-interactive run (the piped one-command bootstrap, --yes, or CI) installs
+    # without asking; an interactive run prompts first. This only fires when no
+    # usable Python exists, so it never shadows an existing conda/pyenv interpreter.
+    if [ -z "$python_cmd" ]; then
+        local py_resp=""
+        if command -v brew >/dev/null 2>&1; then
+            if [ "$ASSUME_YES" = true ]; then py_resp="y"; else py_resp=$(read_prompt "Python 3.10+ not found. Install it via Homebrew? [Y]es / [N]o"); fi
+            if [[ "$py_resp" =~ ^[Yy] ]]; then
+                write_item "  Installing Python via Homebrew..." "$RESET"
+                brew install python@3.12 >/dev/null 2>&1 || true
+                python_cmd=$(detect_python_310) || python_cmd=""
+            fi
+        elif command -v apt-get >/dev/null 2>&1; then
+            if [ "$ASSUME_YES" = true ]; then py_resp="y"; else py_resp=$(read_prompt "Python 3.10+ not found. Install it via apt? [Y]es / [N]o"); fi
+            if [[ "$py_resp" =~ ^[Yy] ]]; then
+                write_item "  Installing Python via apt..." "$RESET"
+                sudo apt-get update -qq && sudo apt-get install -y -qq python3 python3-venv python3-pip >/dev/null 2>&1 || true
+                python_cmd=$(detect_python_310) || python_cmd=""
             fi
         fi
-    done
+    fi
 
     if [ -z "$python_cmd" ]; then
         write_item "  Python 3.10+ not found. MCP server requires Python 3.10 or newer." "$YELLOW"
-        write_item "  Install Python and re-run the installer." "$YELLOW"
+        write_item "  Install Python 3.10+ (macOS: brew install python@3.12; Linux: apt install python3) and re-run." "$YELLOW"
         return
     fi
 

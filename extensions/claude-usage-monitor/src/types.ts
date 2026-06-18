@@ -64,8 +64,8 @@ export interface OAuthCredentials {
 }
 
 export interface CredentialsFile {
-  claudeAiOauth: OAuthCredentials;
-  organizationUuid: string;
+  claudeAiOauth?: OAuthCredentials;
+  organizationUuid?: string;
 }
 
 export interface Recommendation {

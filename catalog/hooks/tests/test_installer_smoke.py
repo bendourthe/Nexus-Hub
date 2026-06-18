@@ -251,8 +251,11 @@ def test_installer_ps1_surfaces_vsce_errors():
     assert "vsce package --no-dependencies 2>$null | Out-Null" not in body, (
         "installer.ps1 must capture vsce output (2>&1 into a variable), not swallow it"
     )
-    # The new capture-and-echo-on-failure pattern must be present
-    assert "$vsceOutput = & npx vsce package" in body and "2>&1" in body, (
+    # The new capture-and-echo-on-failure pattern must be present. The vsce call
+    # is piped a "y" (belt-and-suspenders for any future packaging warning on an
+    # unattended run), so match the capture into $vsceOutput + 2>&1 rather than the
+    # exact command prefix.
+    assert "$vsceOutput =" in body and "npx vsce package" in body and "2>&1" in body, (
         "installer.ps1 must capture vsce output into $vsceOutput using 2>&1 redirection"
     )
 

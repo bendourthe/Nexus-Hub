@@ -1861,7 +1861,9 @@ function Install-VSCodeExtensions {
     $nodeCmd = Get-Command "node" -ErrorAction SilentlyContinue
     if (-not $nodeCmd) {
         Write-Item -Message "Node.js is not installed (required to build the extension)." -Color "DarkYellow"
-        $installResp = Read-Prompt "Install Node.js LTS via winget? [Y]es / [N]o"
+        # A non-interactive run (the piped one-command bootstrap, -Yes, or CI) installs
+        # without asking so every dependency is present in one pass; interactive prompts.
+        if ($script:AssumeYes) { $installResp = "y" } else { $installResp = Read-Prompt "Install Node.js LTS via winget? [Y]es / [N]o" }
         if ($installResp -match "^[Yy]") {
             # Check for winget
             $wingetCmd = Get-Command "winget" -ErrorAction SilentlyContinue
@@ -1923,21 +1925,31 @@ function Install-VSCodeExtensions {
         Remove-Item -Path $outDir -Recurse -Force
     }
 
+    # A node_modules tree copied in from another OS leaves bin shims the current
+    # shell cannot exec, so the build fails with a confusing error. Removing it
+    # forces a clean, OS-correct dependency tree (mirrors installer.sh).
+    $nmDir = Join-Path $extensionDir "node_modules"
+    if (Test-Path $nmDir) {
+        Remove-Item -Path $nmDir -Recurse -Force
+    }
+
     Write-Item -Message "  Installing dependencies..." -Color "Gray"
-    & npm install --silent 2>$null | Out-Null
+    $npmOutput = & npm install --silent 2>&1
     Restore-Title
     if ($LASTEXITCODE -ne 0) {
         Write-Item -Message "Build failed: npm install failed" -Color "Red"
+        if ($npmOutput) { $npmOutput | Select-Object -Last 20 | ForEach-Object { Write-Item -Message "    $_" -Color "Gray" } }
         Pop-Location
         $ErrorActionPreference = $savedErrorPref
         return
     }
 
     Write-Item -Message "  Compiling TypeScript..." -Color "Gray"
-    & npm run compile 2>$null | Out-Null
+    $compileOutput = & npm run compile 2>&1
     Restore-Title
     if ($LASTEXITCODE -ne 0) {
         Write-Item -Message "Build failed: TypeScript compilation failed" -Color "Red"
+        if ($compileOutput) { $compileOutput | Select-Object -Last 30 | ForEach-Object { Write-Item -Message "    $_" -Color "Gray" } }
         Pop-Location
         $ErrorActionPreference = $savedErrorPref
         return
@@ -1951,7 +1963,10 @@ function Install-VSCodeExtensions {
     Push-Location $extensionDir
     # Capture stdout + stderr so failures surface the real vsce diagnostic
     # (previously swallowed by 2>$null | Out-Null, leaving operators with no clue).
-    $vsceOutput = & npx vsce package --no-dependencies 2>&1
+    # The bundled LICENSE removes vsce's only packaging warning, so it no longer
+    # shows its interactive "Do you want to continue? [y/N]" prompt; piping "y" is
+    # belt-and-suspenders for any future warning on an unattended run.
+    $vsceOutput = "y" | & npx vsce package --no-dependencies 2>&1
     Restore-Title
     $vsixExitCode = $LASTEXITCODE
     Pop-Location
@@ -1971,26 +1986,51 @@ function Install-VSCodeExtensions {
 
     Write-Item -Message "✓ Packaged: $($vsixFile.Name)" -Color "DarkGreen"
 
-    # Install into VS Code
-    $codeCmd = Get-Command "code" -ErrorAction SilentlyContinue
-    if ($codeCmd) {
-        # Uninstall any existing version first so VS Code does not skip the reinstall
-        & code --uninstall-extension "nexus-hub.claude-usage-monitor" 2>$null | Out-Null
+    # Locate a VS Code-family CLI. On a fresh machine `code` is not always on PATH,
+    # so fall back to the standard Windows install locations. This lets the VSIX
+    # auto-install instead of leaving the user to do it by hand (mirrors installer.sh).
+    $codeCli = $null
+    $codeLabel = "VS Code"
+    if (Get-Command "code" -ErrorAction SilentlyContinue) {
+        $codeCli = "code"
+    }
+    else {
+        # Empty env vars collapse to non-existent paths that Test-Path rejects safely.
+        $candidates = @(
+            "$env:LOCALAPPDATA\Programs\Microsoft VS Code\bin\code.cmd",
+            "$env:ProgramFiles\Microsoft VS Code\bin\code.cmd",
+            "${env:ProgramFiles(x86)}\Microsoft VS Code\bin\code.cmd",
+            "$env:LOCALAPPDATA\Programs\Microsoft VS Code Insiders\bin\code-insiders.cmd",
+            "$env:LOCALAPPDATA\Programs\cursor\resources\app\bin\cursor.cmd"
+        )
+        foreach ($candidate in $candidates) {
+            if ($candidate -and (Test-Path $candidate)) {
+                $codeCli = $candidate
+                if ($candidate -like "*cursor*") { $codeLabel = "Cursor" }
+                break
+            }
+        }
+    }
+
+    # Install into the detected editor
+    if ($codeCli) {
+        # Uninstall any existing version first so the editor does not skip the reinstall
+        & $codeCli --uninstall-extension "nexus-hub.claude-usage-monitor" 2>$null | Out-Null
         Restore-Title
         # --force ensures reinstall even when the version number has not changed
-        & code --install-extension $vsixFile.FullName --force 2>$null | Out-Null
+        & $codeCli --install-extension $vsixFile.FullName --force 2>$null | Out-Null
         Restore-Title
         if ($LASTEXITCODE -eq 0) {
-            Write-Item -Message "✓ Claude Usage Monitor extension installed in VS Code!" -Color "DarkGreen"
-            Write-Item -Message "  Restart VS Code to activate. Look for 'Claude: --%' in the status bar." -Color "White"
+            Write-Item -Message "✓ Claude Usage Monitor extension installed in $codeLabel!" -Color "DarkGreen"
+            Write-Item -Message "  Restart $codeLabel to activate. Look for 'Claude: --%' in the status bar." -Color "White"
         }
         else {
-            Write-Item -Message "VS Code install failed. You can install manually:" -Color "Yellow"
-            Write-Item -Message "  code --install-extension `"$($vsixFile.FullName)`"" -Color "White"
+            Write-Item -Message "$codeLabel install failed. You can install manually:" -Color "Yellow"
+            Write-Item -Message "  `"$codeCli`" --install-extension `"$($vsixFile.FullName)`"" -Color "White"
         }
     }
     else {
-        Write-Item -Message "VS Code CLI ('code') not found in PATH." -Color "Yellow"
+        Write-Item -Message "VS Code CLI ('code') not found in PATH or standard install locations." -Color "Yellow"
         Write-Item -Message "VSIX saved at: $($vsixFile.FullName)" -Color "White"
         Write-Item -Message "Install manually via VS Code: Extensions > ... > Install from VSIX" -Color "Gray"
     }
@@ -2379,25 +2419,46 @@ function Install-SkillDiscovery {
 
     # Check Python >= 3.10
     $ErrorActionPreference = "Continue"
-    $pythonCmd = $null
-    foreach ($cmd in @("python", "python3")) {
-        try {
-            $ver = & $cmd --version 2>&1
-            if ($ver -match "Python\s+3\.(\d+)") {
-                $minor = [int]$Matches[1]
-                if ($minor -ge 10) {
-                    $pythonCmd = $cmd
-                    break
+    $detectPython310 = {
+        foreach ($cmd in @("python", "python3")) {
+            try {
+                $ver = & $cmd --version 2>&1
+                if ($ver -match "Python\s+3\.(\d+)") {
+                    if ([int]$Matches[1] -ge 10) { return $cmd }
                 }
             }
+            catch {}
         }
-        catch {}
+        return $null
+    }
+    $pythonCmd = & $detectPython310
+
+    # Offer to auto-install Python when it is missing or too old, mirroring the
+    # Node.js auto-install flow so every dependency is handled in a single run. A
+    # non-interactive run (the piped one-command bootstrap, -Yes, or CI) installs
+    # without asking. Only fires when no usable Python exists, so it never shadows
+    # an existing conda/pyenv interpreter.
+    if (-not $pythonCmd) {
+        $wingetCmd = Get-Command "winget" -ErrorAction SilentlyContinue
+        if ($wingetCmd) {
+            if ($script:AssumeYes) { $pyResp = "y" } else { $pyResp = Read-Prompt "Python 3.10+ not found. Install it via winget? [Y]es / [N]o" }
+            if ($pyResp -match "^[Yy]") {
+                Write-Item -Message "  Installing Python via winget..." -Color "White"
+                try {
+                    & winget install Python.Python.3.12 --accept-package-agreements --accept-source-agreements
+                    # Refresh PATH for the current session so the new python resolves.
+                    $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path", "User")
+                    $pythonCmd = & $detectPython310
+                }
+                catch {}
+            }
+        }
     }
     $ErrorActionPreference = "Stop"
 
     if (-not $pythonCmd) {
         Write-Item -Message "  Python 3.10+ not found. MCP server requires Python 3.10 or newer." -Color "Yellow"
-        Write-Item -Message "  Install Python from https://python.org and re-run the installer." -Color "Yellow"
+        Write-Item -Message "  Install Python from https://python.org (or: winget install Python.Python.3.12) and re-run." -Color "Yellow"
         return
     }
 

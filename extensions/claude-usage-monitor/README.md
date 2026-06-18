@@ -4,7 +4,7 @@ A VS Code extension that automatically monitors your Claude Code API usage limit
 
 ## Features
 
-- **Auto-fetch**: Reads your OAuth token from `~/.claude/.credentials.json` and fetches usage data from the Anthropic API
+- **Auto-fetch**: Reads your Claude Code OAuth token (from `~/.claude/.credentials.json` on Windows/Linux, or the macOS Keychain) and fetches usage data from the Anthropic API
 - **Status bar**: Shows session and weekly usage percentages with a custom Claude icon
 - **SVG tooltip**: Hover for theme-aware progress bars showing per-metric breakdown with reset timers
 - **Dashboard panel**: Click for a full usage dashboard with model recommendations and optimization tips
@@ -83,7 +83,12 @@ Open Settings (`Ctrl+,`) and search "Claude Usage":
 
 ### Auto-Fetch
 
-The extension reads the OAuth access token from `~/.claude/.credentials.json` (written by Claude Code) and calls:
+The extension reads the OAuth access token written by Claude Code and calls the usage API. The token location is platform-dependent:
+
+- **Windows / Linux**: `~/.claude/.credentials.json`
+- **macOS**: the login Keychain (generic password, service `Claude Code-credentials`), read via the `security` CLI. macOS Claude Code does not write the JSON file, so the Keychain is the only source there.
+
+The request:
 
 ```
 GET https://api.anthropic.com/api/oauth/usage
