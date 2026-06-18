@@ -146,6 +146,15 @@ Three control patterns extend a loop's vocabulary beyond a single `exit_conditio
 
 These compose: a scheduled triage loop gates risky ships, resumes from its run file after an interruption, and continues past a single item's failure while routing it to the human inbox. Do not build a YAML workflow engine to host them (the loop-era equivalent of the declined portable-runtime trap); they are instructions over the harness's existing Dynamic Workflows or a `/loop` driver.
 
+## Sandboxing an Unattended Loop
+
+For an unattended writable loop, keep the loop ORCHESTRATION (driver, `iteration_cap`, stall/fault detection, `trace_log`) on the host and run only the WRITABLE agent execution inside a local container, so a misbehaving iteration cannot touch anything outside the mounted workspace.
+
+- **Isolate only the writable execution**, not the orchestration. The host still owns the loop; the container is just where each risky iteration runs.
+- **Compose the isolation controls**: a container with the project bind-mounted read-write, credential isolation so API keys are never baked into the image or the workspace, a non-root user mapped to the host uid/gid to preserve file ownership, and an explicit network mode.
+- **This composes skills Nexus-Hub already owns** -- [[containerization]] for the container build and isolation, [[agent-access-policy]] for least-privilege tool and file access, and [[using-git-worktrees]] for writable-iteration isolation at the VCS layer. It ships no new dependency or runtime of its own: the container is the operator's, the doctrine is ours.
+- **Local only.** A cloud sandbox that uploads the project and prompts to a third-party compute API is OUT of scope under the MCP Registry Policy -- it egresses source code and prompts off the machine and adds a credential plus a commercial relationship. The local container reaches the same isolation goal with zero egress.
+
 ## Common Rationalizations
 
 | Rationalization | Reality |
