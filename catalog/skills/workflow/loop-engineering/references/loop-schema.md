@@ -16,7 +16,7 @@ This schema is the local, service-free structure for reusable loop definitions. 
 | `agents` | Platforms or harnesses the loop is known to run on. Include fallback notes when the host lacks a driver. | `Claude Code, Codex manual fallback` |
 | `tags` | Discovery labels for library search and plan selection. | `ci`, `pr`, `checks` |
 | `per_iteration_budget` | Optional. Hard cost ceiling for a single iteration (wall-clock, tokens, or tool calls), orthogonal to `iteration_cap`, which bounds the number of iterations rather than the cost of each one. | `5 min wall-clock per iteration` |
-| `trace_log` | Optional. Path or sink where each iteration's agent reasoning and tool calls are recorded, so a production loop's decisions can be debugged after the fact. | `docs/loops/<name>-trace.md` |
+| `trace_log` | Optional. Path or sink where each iteration's reasoning, tool calls, and outcome are recorded, so a production loop's decisions can be debugged after the fact. Prefer a JSON Lines sink: one object appended per iteration carrying `loop_number` (int), `success` (bool), `duration` (seconds), `calls` (LLM/API calls this iteration), `tokens` (optional), `exit_reason` (one of `in_progress`, `completed`, `stalled`, `repeated_error`, `permission_denied`, `cap_reached` -- matching the Stall and Fault Detection classes and the Exit-Signal Protocol), and `timestamp` (ISO-8601). JSONL keeps the trace append-only and trivially aggregatable (total iterations, success rate, average duration, total calls). | `docs/loops/<name>-trace.jsonl` |
 | `progress_check` | Optional. Stall-detection rule that terminates the loop early when the last N iterations show no measurable progress on `check_command`, distinct from `iteration_cap`, which is a hard count limit. Detects distinct fault classes -- no-progress (no measurable change across N iterations) and repeated-error (the same error recurs even when files change) -- rather than one generic "stuck" check. | `stop if val metric has not improved for 3 iterations` |
 | `handoff` | Optional. Human-review destination for items the loop cannot resolve - the inbox, queue, or assigned issue that post-cap failures route to. | `docs/todos.md needs-human section` |
 
@@ -60,6 +60,12 @@ The no-`iteration_cap` and vibe-based-`exit_condition` anti-patterns together ar
 
 A production loop (one that runs unattended or on a schedule, not a one-off local loop) should declare more than the mandatory `iteration_cap`:
 
-- Set `trace_log` so each iteration's reasoning and tool calls are recorded and the loop's decisions can be debugged after the fact.
+- Set `trace_log` to a JSON Lines sink (see the `trace_log` field above) so each iteration's reasoning, tool calls, and `exit_reason` are recorded and the loop's decisions can be debugged and aggregated after the fact.
 - Set `progress_check` so a stuck loop stops on no measurable progress instead of burning its full `iteration_cap`.
 - Set `handoff` so any item the loop cannot resolve routes to a human review destination instead of being silently dropped.
+
+A single `trace_log` line (one JSON object per iteration):
+
+```jsonl
+{"loop_number": 3, "success": false, "duration": 42, "calls": 5, "exit_reason": "repeated_error", "timestamp": "2026-06-18T17:04:11Z"}
+```
