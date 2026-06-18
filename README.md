@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.6.0 -->
+<!-- nexus-hub-version: 3.7.0 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 256 skills, 15 commands, 23 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -37,20 +37,19 @@ The two projects are designed to be useful independently: you can install Nexus-
 
 ---
 
-## What's New in v3.6.0
+## What's New in v3.7.0
 
-v3.6.0 operationalizes the policy-clean recommendations from the v3.5.0 GitHub Spec Kit re-comparison: it folds Spec Kit's extensibility *disciplines* into Nexus-Hub's local-first equivalents and makes two deliberate declines durable. Every change is additive and backward-compatible (a MINOR bump), with no new outbound call, dependency, credential, or third-party data processor. Catalog: **256 skills**, **15 commands**, **23 hooks**.
+v3.7.0 is the install-UX overhaul: Nexus-Hub installs and upgrades with a single copy-paste terminal command on macOS, Linux, and Windows -- no download, no unzip, no `cd`. The only outbound call is to the project's own GitHub (the installer's existing posture); no new dependency, credential, or third-party data processor. Catalog unchanged: **256 skills**, **15 commands**, **23 hooks**.
 
 Highlights:
 
-- **`base-*.md` lockstep parity guard**: a new repo-internal `check_base_template_parity.py` validator (wired into `make validate` and CI) machine-enforces the "edit all five platform instruction templates in lockstep" rule structurally, so cross-platform drift fails the build instead of shipping.
-- **Workflow-phase hook recipe**: honest guidance plus an advisory example hook for firing automation at `/plan` / `/implement` / `/spec` phase boundaries using only Nexus-Hub's four supported hook events -- no new harness event types, no third-party-code hook registry.
-- **`/skills import` hygiene**: HTTPS-only source validation, a discovery-only flag, and hash-on-import on the local import path, layered on top of the existing pre-install security scanner.
-- **Orchestration + preset vocabulary**: gate / persisted-resume / continue-on-error patterns folded into `loop-engineering` and `agent-orchestration-primitives`; template composition strategies (`replace` / `prepend` / `append` / `wrap`) folded into `agent-presets` and `theme-tokens`.
-- **Reverse-engineer-first declines, recorded**: a credentialed remote-catalog auth framework and an unsandboxed third-party-extension install path were both declined under the MCP Registry Policy and recorded in the reverse-engineering matrix so they stay adjudicated.
-- **Interactive guide polish**: copy-to-clipboard buttons on runnable command examples, and the "Get set up" entry point renamed to "Get started".
+- **One-command install**: `curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash` (macOS/Linux, with a `wget` fallback) or `irm https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.ps1 | iex` (Windows). The dual-mode entry points self-fetch the catalog, precheck dependencies (failing fast with an actionable message), and run the installer -- the in-repo `./install.sh` / `install.bat` path still works.
+- **No-prompt, all-platform install**: a run defaults to a global install across every detected assistant with no scope / platform / overwrite prompts (absent platforms skip-with-note); marker-merge preserves your edits, and a single end-of-run prompt appears only on a real conflict. `--workspace` / `--platforms` / `--yes` flags remain for power users and CI.
+- **`nexus-hub upgrade` checker**: a `nexus-hub` CLI on PATH reports installed vs latest, shows a short what's-new summary, and upgrades in place on confirmation (the version check is the only new outbound call, to the project's own GitHub).
+- **macOS install parity + Claude Usage Monitor fix**: every dependency (Node.js, Python 3.10+) is auto-installed when missing so a Mac install reaches the same clean steps as Windows; the Usage Monitor extension now reads Claude Code credentials from the macOS login Keychain, so it works after a Mac install.
+- **Cross-platform CI proof**: the bootstrap runs end-to-end on ubuntu + macOS (bash) and Windows (PowerShell), each asserting a working `nexus-hub --version`.
 
-See [CHANGELOG.md](CHANGELOG.md) for the full v3.6.0 entry and the complete release history.
+See [CHANGELOG.md](CHANGELOG.md) for the full v3.7.0 entry and the complete release history.
 
 ---
 

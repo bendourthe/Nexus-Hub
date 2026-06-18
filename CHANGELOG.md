@@ -7,7 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased]
+## [3.7.0] - 2026-06-17
+
+**v3.7.0 -- install-UX overhaul.** Nexus-Hub now installs and upgrades with a single copy-paste terminal command on macOS, Linux, and Windows -- no download, no unzip, no `cd`. The dual-mode entry points self-fetch the `main` catalog tarball, precheck dependencies (failing fast with an actionable message), and run the unchanged core installer; the install is no-prompt (global across every detected assistant, absent ones skip-with-note, marker-merge preserving edits, a single end-of-run prompt only on a real conflict), with `--workspace` / `--platforms` / `--yes` retained for power users and CI. A `nexus-hub` CLI on PATH adds `nexus-hub upgrade` (installed-vs-latest with a what's-new summary, upgrade in place on confirmation). This release also incorporates the macOS install-parity fixes so a Mac install reaches the same clean steps as Windows (every dependency auto-installed) and the Claude Usage Monitor reads credentials from the macOS Keychain, and proves the bootstrap end-to-end on ubuntu + macOS + Windows CI. The only outbound call is to the project's own GitHub (the installer's existing posture); no new dependency, credential, or third-party processor. Catalog unchanged: **256 skills**, **15 commands**, **23 hooks**.
 
 ### Added
 
