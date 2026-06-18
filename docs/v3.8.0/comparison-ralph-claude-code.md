@@ -271,7 +271,7 @@ A natural phasing folds the items into three groups that belong together concept
 This report's prioritized adoption plan (Section 7) is ready to ingest. Recommended chain:
 
 ```
-/plan from-comparison docs/v3.7.0/comparison-ralph-claude-code.md reverse-engineer-first=true
+/plan from-comparison docs/v3.8.0/comparison-ralph-claude-code.md reverse-engineer-first=true
 ```
 
 Because every recommended candidate is `skill-native` (with R7 a `re-partial` composing owned skills) and none introduces an outbound call, dependency, or credential, the reverse-engineer-first ordering collapses to value/effort sequencing within the skill-native bucket. A natural phasing:

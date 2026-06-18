@@ -59,7 +59,7 @@ None needed. CI already runs `pytest tests/installer` (ci.yml line 168) and lint
 
 ## Known gaps / pre-existing issues surfaced (not fixed -- out of Phase 2 scope)
 
-- **Personal-path leak in an unrelated doc.** `docs/v3.7.0/comparison-ralph-claude-code.md:265` contained a `C:\Users\<user>` leak (committed in `51081c8`, a separate comparison doc), which fails the `validate_no_personal_paths` gate. It must be redacted before the v3.7.0 release. NOT touched here -- every changed line traces to Phase 2 (redacted in Phase 5).
+- **Personal-path leak in an unrelated doc.** `docs/v3.8.0/comparison-ralph-claude-code.md:265` contained a `C:\Users\<user>` leak (committed in `51081c8`, a separate comparison doc), which fails the `validate_no_personal_paths` gate. It must be redacted before the v3.7.0 release. NOT touched here -- every changed line traces to Phase 2 (redacted in Phase 5).
 - **Diff-based conflict false-positive on version bumps.** Without last-written-hash tracking on the bash path, an INTERACTIVE upgrade where Nexus (not the user) changed a hook flags it as a conflict. Accepted as the explicit "Diff + refresh-on-yes" tradeoff: the common non-interactive / `nexus-hub upgrade` path refreshes silently, and only a hand-run installer in a TTY sees the (one) prompt.
 - `docs/v3.7.0/known-gaps.md` is created in Phase 5 (sub-task 5.2); these two items should land there. Carried-forward constraints: WN-v36-1 and WN-v33-1.
 

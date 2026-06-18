@@ -57,7 +57,7 @@ None needed. CI already runs `pytest tests/installer` and lints `scripts/install
 
 ## Known gaps / pre-existing issues surfaced (not fixed -- out of Phase 3 scope)
 
-- **`validate_no_personal_paths` is red on 3 PRE-EXISTING `C:\Users\<name>` leaks** committed in Phase 1/2 docs: `docs/DEVLOG.md` (the Phase 2 entry that quotes the leak path), `docs/v3.7.0/comparison-ralph-claude-code.md:265`, and `docs/v3.7.0/development/history/2026-06-17_install-ux-overhaul-phase-2-no-prompt-install.md:62`. The check was green at v3.6.0 (WN-v33-1 evidence), so this is a v3.7.0 regression introduced before Phase 3. None of the 3 files is in the Phase 3 diff; they should be redacted in Phase 5 (sub-task 5.2) before the release. (This history file uses `<name>` placeholders so it adds no new leak.)
+- **`validate_no_personal_paths` is red on 3 PRE-EXISTING `C:\Users\<name>` leaks** committed in Phase 1/2 docs: `docs/DEVLOG.md` (the Phase 2 entry that quotes the leak path), `docs/v3.8.0/comparison-ralph-claude-code.md:265`, and `docs/v3.7.0/development/history/2026-06-17_install-ux-overhaul-phase-2-no-prompt-install.md:62`. The check was green at v3.6.0 (WN-v33-1 evidence), so this is a v3.7.0 regression introduced before Phase 3. None of the 3 files is in the Phase 3 diff; they should be redacted in Phase 5 (sub-task 5.2) before the release. (This history file uses `<name>` placeholders so it adds no new leak.)
 - `docs/v3.7.0/known-gaps.md` is created in Phase 5 (sub-task 5.2); the personal-path-redaction item should land there. Carried-forward constraints: WN-v36-1 and WN-v33-1.
 
 ## Next steps
