@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.7.0 -->
+<!-- nexus-hub-version: 3.8.0 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 256 skills, 15 commands, 23 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -37,19 +37,16 @@ The two projects are designed to be useful independently: you can install Nexus-
 
 ---
 
-## What's New in v3.7.0
+## What's New in v3.8.0
 
-v3.7.0 is the install-UX overhaul: Nexus-Hub installs and upgrades with a single copy-paste terminal command on macOS, Linux, and Windows -- no download, no unzip, no `cd`. The only outbound call is to the project's own GitHub (the installer's existing posture); no new dependency, credential, or third-party data processor. Catalog unchanged: **256 skills**, **15 commands**, **23 hooks**.
+v3.8.0 enriches the `loop-engineering` skill with the loop-design doctrine an executable loop runtime revealed, and threads GitHub Release publishing into the `/update release` flow. Every change is skill-native and additive -- no new skill, command, outbound call, dependency, or credential. Catalog unchanged: **256 skills**, **15 commands**, **23 hooks**.
 
 Highlights:
 
-- **One-command install**: `curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash` (macOS/Linux, with a `wget` fallback) or `irm https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.ps1 | iex` (Windows). The dual-mode entry points self-fetch the catalog, precheck dependencies (failing fast with an actionable message), and run the installer -- the in-repo `./install.sh` / `install.bat` path still works.
-- **No-prompt, all-platform install**: a run defaults to a global install across every detected assistant with no scope / platform / overwrite prompts (absent platforms skip-with-note); marker-merge preserves your edits, and a single end-of-run prompt appears only on a real conflict. `--workspace` / `--platforms` / `--yes` flags remain for power users and CI.
-- **`nexus-hub upgrade` checker**: a `nexus-hub` CLI on PATH reports installed vs latest, shows a short what's-new summary, and upgrades in place on confirmation (the version check is the only new outbound call, to the project's own GitHub).
-- **macOS install parity + Claude Usage Monitor fix**: every dependency (Node.js, Python 3.10+) is auto-installed when missing so a Mac install reaches the same clean steps as Windows; the Usage Monitor extension now reads Claude Code credentials from the macOS login Keychain, so it works after a Mac install.
-- **Cross-platform CI proof**: the bootstrap runs end-to-end on ubuntu + macOS (bash) and Windows (PowerShell), each asserting a working `nexus-hub --version`.
+- **Loop-engineering enrichment**: an exit-signal protocol with a dual-condition exit gate, three-class stall/fault detection (no-progress / repeated-error / permission-denial), an untrusted-task-source fence, a task-readiness gate, per-iteration recovery points, and a local-only unattended-loop sandbox -- plus a concrete JSON Lines `trace_log` schema. Three cloud/runtime-shaped capabilities were deliberately declined in the reverse-engineering matrix, each with its local-first equivalent named.
+- **GitHub Release publishing in `/update`**: `/update release` now publishes a GitHub Release as its final step (after the tag is pushed), so the Releases page no longer lags the tags -- preferring `gh release create`, degrading gracefully when `gh` is absent, idempotent and backfillable.
 
-See [CHANGELOG.md](CHANGELOG.md) for the full v3.7.0 entry and the complete release history.
+See [CHANGELOG.md](CHANGELOG.md) for the full v3.8.0 entry and the complete release history.
 
 ---
 

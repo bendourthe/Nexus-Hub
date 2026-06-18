@@ -7,7 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased]
+## [3.8.0] - 2026-06-18
+
+**v3.8.0 -- loop-engineering enrichment + GitHub Release publishing.** Enriches the `loop-engineering` skill with the loop-design doctrine an executable loop runtime revealed (an exit-signal protocol, stall/fault detection, an untrusted-task-source fence, a task-readiness gate, per-iteration recovery points, and a local-only unattended-loop sandbox), with three capabilities deliberately declined in the reverse-engineering matrix -- all skill-native, with zero new skill, command, outbound call, dependency, or credential. Also threads GitHub Release publishing into the final `/update release` step so the Releases page no longer lags the tags. Catalog unchanged: **256 skills**, **15 commands**, **23 hooks**.
+
+### Added
+
+- **`/update release` now publishes a GitHub Release as its final step** (`catalog/commands/update.md`, `AGENTS.md`): pushing a git tag does not create a GitHub Release (separate objects), so the Releases page lagged the tags. The release flow now publishes a GitHub Release after the tag is pushed -- body = the finalized CHANGELOG section, title = the tag's one-line summary -- preferring `gh release create`, degrading gracefully when `gh` is absent or unauthenticated (it prints the `gh` + curl-API commands and never fails the release), idempotent (`gh release edit`), confirmation-gated, and backfillable for any tag whose Release is missing. Command + docs only; no new outbound call, dependency, or credential in the catalog itself (the publish runs at release time via the maintainer's `gh` / token).
 
 ### Changed
 
