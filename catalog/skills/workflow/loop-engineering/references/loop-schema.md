@@ -10,14 +10,14 @@ This schema is the local, service-free structure for reusable loop definitions. 
 | `goal` | Falsifiable end state in one sentence. | `The pull request has no failing required checks.` |
 | `iteration_cap` | Hard maximum number of iterations before the loop stops and asks for human review. | `10` |
 | `check_command` | Exact shell command run between iterations to measure progress. Use a project-specific command when possible. | `gh pr checks` |
-| `exit_condition` | Observable, command-derived condition that ends the loop. A checker evaluates this condition; the maker does not self-certify it. | `check_command exits 0 and reports no failing required checks.` |
+| `exit_condition` | Observable, command-derived condition that ends the loop. A checker evaluates this condition; the maker does not self-certify it. A loop MAY also require the agent to emit a structured status block carrying an explicit completion signal, in which case it terminates only on the dual condition of that signal AND this command-derived corroboration -- the signal alone never terminates the loop. | `check_command exits 0 and reports no failing required checks.` |
 | `driver` | Host command that runs the loop, or the fallback when unavailable. Use `/loop` for interval or continuous work, `/goal` for a hard completion requirement, and manual re-invocation when the host lacks those commands. | `/loop`, with manual re-invocation fallback |
 | `maturity` | Local maturity flag and a hardening progression. `experimental` = new or unproven; run it with a human in the verification seat. `hardened` = repeatedly successful locally AND its consistently-correct steps have been moved out of the LLM prompt into deterministic code. A loop advances from `experimental` to `hardened` as you replace each reliably-correct step with code. | `experimental` |
 | `agents` | Platforms or harnesses the loop is known to run on. Include fallback notes when the host lacks a driver. | `Claude Code, Codex manual fallback` |
 | `tags` | Discovery labels for library search and plan selection. | `ci`, `pr`, `checks` |
 | `per_iteration_budget` | Optional. Hard cost ceiling for a single iteration (wall-clock, tokens, or tool calls), orthogonal to `iteration_cap`, which bounds the number of iterations rather than the cost of each one. | `5 min wall-clock per iteration` |
 | `trace_log` | Optional. Path or sink where each iteration's agent reasoning and tool calls are recorded, so a production loop's decisions can be debugged after the fact. | `docs/loops/<name>-trace.md` |
-| `progress_check` | Optional. Stall-detection rule that terminates the loop early when the last N iterations show no measurable progress on `check_command`, distinct from `iteration_cap`, which is a hard count limit. | `stop if val metric has not improved for 3 iterations` |
+| `progress_check` | Optional. Stall-detection rule that terminates the loop early when the last N iterations show no measurable progress on `check_command`, distinct from `iteration_cap`, which is a hard count limit. Detects distinct fault classes -- no-progress (no measurable change across N iterations) and repeated-error (the same error recurs even when files change) -- rather than one generic "stuck" check. | `stop if val metric has not improved for 3 iterations` |
 | `handoff` | Optional. Human-review destination for items the loop cannot resolve - the inbox, queue, or assigned issue that post-cap failures route to. | `docs/todos.md needs-human section` |
 
 The first nine fields are required for every loop definition. Any field whose Purpose begins with "Optional" (such as `per_iteration_budget`, `trace_log`, `progress_check`, or `handoff`) is additive: existing loop definitions stay valid without it.
@@ -52,6 +52,7 @@ The `exit_condition` is a completion claim. Treat it as evidence-bearing: run th
 - Vibe-based `exit_condition`: "looks better" or "seems ready" cannot terminate a loop.
 - Maker self-certifies exit: the same agent that produced the work should not be the only judge of whether the loop is complete. Carve-out: the maker and checker may be the same agent only when the checker is a deterministic, non-LLM oracle (a numeric metric, an exit code, or a compiler result), because a deterministic oracle is its own independent check. Whenever the checker is itself an LLM, the maker must not also be the checker.
 - Host-driver assumption: if `/loop` or `/goal` is unavailable, fall back to manual re-invocation with the same schema fields.
+- Single-claim exit: terminating on the agent's first "done" without corroboration; require the dual-condition gate (the explicit signal AND command-derived evidence).
 
 The no-`iteration_cap` and vibe-based-`exit_condition` anti-patterns together are what the skill body names "loopmaxxing" (open-ended iteration betting the agent will eventually converge); the required `iteration_cap` and command-derived `exit_condition` exist precisely to prevent it.
 
