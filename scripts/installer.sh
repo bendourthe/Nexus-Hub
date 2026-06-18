@@ -7,7 +7,7 @@ set -e
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-NEXUS_HUB_VERSION="3.6.0"
+NEXUS_HUB_VERSION="3.7.0"
 
 # --- Window Title ---
 printf '\033]0;Nexus-Hub Installer\007'
@@ -27,7 +27,55 @@ BRIGHT_MAGENTA='\033[0;95m' # Anysphere/Cursor - distinct from the dark MAGENTA 
 DARK_BLUE='\033[38;5;18m'   # Nexus - navy, distinct from the BLUE used by Google
 # DARK_CYAN removed in v2.1.0 - only used by the legacy 120-char banner rules.
 
+# Resolved overwrite decision (v3.7.0 / Phase 2).
+#   true  = "refresh" mode: existing managed files are overwritten with the
+#           Nexus-Hub version silently (the non-interactive / --yes / --force /
+#           bootstrap path). Also threaded to the registry runner as --overwrite.
+#   false = "conflict-collection" mode (interactive, no --yes/--force): managed
+#           single files whose on-disk content differs are recorded as conflicts
+#           and KEPT; after the install pass resolve_conflicts() lists them and
+#           asks once whether to overwrite. Resolved once at startup; install_*
+#           no longer toggle it.
 OVERWRITE_ALL=false
+
+# Non-interactive / assume-yes decision (v3.7.0 / Phase 2). True under --yes,
+# --force, or when stdin is not a TTY (piped curl|bash, CI). Drives both the
+# OVERWRITE_ALL refresh decision and the suppression of any remaining content
+# prompts (e.g. workspace language selection).
+ASSUME_YES=false
+
+# Conflict accumulators (interactive mode only). Parallel arrays of source ->
+# destination pairs for managed single files that differ on disk and were kept
+# pending the single end-of-run confirmation in resolve_conflicts().
+CONFLICT_SRCS=()
+CONFLICT_DSTS=()
+
+# Temp files created for deferred writes (e.g. the generated Copilot workspace
+# instruction file routed through safe_copy). Cleaned on EXIT.
+TEMP_FILES=()
+cleanup_temp_files() {
+    local f
+    for f in ${TEMP_FILES[@]+"${TEMP_FILES[@]}"}; do
+        [ -n "$f" ] && rm -f "$f"
+    done
+}
+trap cleanup_temp_files EXIT
+
+# Platform subset filter (v3.7.0 / Phase 2). Empty = install ALL platforms
+# (the default). Otherwise a space-delimited set of integration keys; only the
+# matching per-provider blocks run. Populated from --platforms <csv>.
+PLATFORMS_FILTER=""
+
+# should_install <integration-key> -- gate a per-provider install block on the
+# --platforms subset. Returns 0 (install) when no filter is set or the key is in
+# the filter; 1 (skip) otherwise.
+should_install() {
+    [ -z "$PLATFORMS_FILTER" ] && return 0
+    case " $PLATFORMS_FILTER " in
+        *" $1 "*) return 0 ;;
+        *) return 1 ;;
+    esac
+}
 
 # --- Formatting Helpers ---
 
@@ -88,9 +136,25 @@ write_subsection_banner() {
     echo -e "  ${color}- ${text}${RESET}"
 }
 
+# Copy a single managed file with conflict-only overwrite semantics (v3.7.0 /
+# Phase 2). The third parameter (`confirm`) is retained for call-site signature
+# compatibility but no longer gates a prompt: conflict handling is now uniform
+# and driven by the resolved OVERWRITE_ALL decision.
+#
+#   - source missing                -> skip-with-note
+#   - destination missing           -> create
+#   - destination identical to src  -> nothing to do (idempotent, silent)
+#   - destination differs:
+#       OVERWRITE_ALL=true (refresh)  -> overwrite now
+#       OVERWRITE_ALL=false (interactive) -> record conflict + KEEP; the single
+#         end-of-run resolve_conflicts() prompt decides whether to overwrite.
 safe_copy() {
     local source="$1"
     local destination="$2"
+    # The 3rd positional arg (formerly the per-file confirm flag) is retained so
+    # the ~30 existing 4-arg call sites keep working; conflict handling is now
+    # uniform and driven by OVERWRITE_ALL, so the value itself is unused.
+    # shellcheck disable=SC2034
     local confirm="${3:-false}"
     local custom_message="$4"
 
@@ -99,30 +163,28 @@ safe_copy() {
         return
     fi
 
-    local do_copy=true
-
     if [ -f "$destination" ]; then
-        if [ "$confirm" = true ] && [ "$OVERWRITE_ALL" = false ]; then
-            write_item "File exists: $destination" "$YELLOW"
-            local resp
-            resp=$(read_prompt "Overwrite? [Y]es / [N]o / [A]ll")
-            if [[ "$resp" =~ ^[Aa] ]]; then
-                OVERWRITE_ALL=true
-            elif [[ ! "$resp" =~ ^[Yy] ]]; then
-                write_item "Skipped by user." "$GRAY"
-                do_copy=false
-            fi
+        if cmp -s "$source" "$destination"; then
+            # Already current -- nothing to write.
+            return
+        fi
+        if [ "$OVERWRITE_ALL" != true ]; then
+            # Interactive conflict: a managed file the user may have customized
+            # differs from the catalog version. Keep it for now and defer to the
+            # single end-of-run confirmation.
+            CONFLICT_SRCS+=("$source")
+            CONFLICT_DSTS+=("$destination")
+            write_item "Differs (kept; pending confirmation): $destination" "$DARK_YELLOW"
+            return
         fi
     fi
 
-    if [ "$do_copy" = true ]; then
-        mkdir -p "$(dirname "$destination")"
-        cp "$source" "$destination"
-        if [ -n "$custom_message" ]; then
-            write_item "$custom_message" "$GREEN"
-        else
-            write_item "[OK] Installed to $destination" "$GREEN"
-        fi
+    mkdir -p "$(dirname "$destination")"
+    cp "$source" "$destination"
+    if [ -n "$custom_message" ]; then
+        write_item "$custom_message" "$GREEN"
+    else
+        write_item "[OK] Installed to $destination" "$GREEN"
     fi
 }
 
@@ -145,22 +207,18 @@ safe_folder_copy() {
 
     local do_copy=true
 
+    # Catalog trees (skills/commands/agents/rules) are Nexus-owned content meant
+    # to be refreshed on every install/upgrade, so they no longer prompt
+    # (v3.7.0 / Phase 2). The resolved OVERWRITE_ALL decision picks the sync mode:
+    #   refresh (true)      -> full sync: refresh files AND remove stale ones
+    #                          (the non-interactive / --yes / --force / bootstrap
+    #                          path; matches the previous "[A]ll" behavior).
+    #   interactive (false) -> merge-only: add/update files but keep any extras
+    #                          the user added (never destructive, no prompt).
     local full_sync=true
+    [ "$OVERWRITE_ALL" = true ] || full_sync=false
 
-    if [ -d "$destination" ]; then
-        if [ "$OVERWRITE_ALL" = false ]; then
-            write_item "Folder exists: $destination" "$YELLOW"
-            local resp
-            resp=$(read_prompt "Full sync? [Y]es (delete stale files) / [N]o (add/update only) / [A]ll")
-            if [[ "$resp" =~ ^[Aa] ]]; then
-                OVERWRITE_ALL=true
-            elif [[ "$resp" =~ ^[Nn] ]]; then
-                # Merge-only: copy new/updated files but do not remove extras
-                full_sync=false
-            fi
-            # Any other response (including Y) proceeds with full_sync=true
-        fi
-    else
+    if [ ! -d "$destination" ]; then
         mkdir -p "$destination"
     fi
 
@@ -188,6 +246,36 @@ safe_folder_copy() {
         else
             write_item "[OK] Installed to $destination" "$GREEN"
         fi
+    fi
+}
+
+# Resolve any conflicts accumulated by safe_copy during an interactive install
+# (v3.7.0 / Phase 2). Conflicts are only ever recorded in interactive mode
+# (OVERWRITE_ALL=false), so this prints the list, asks ONCE, and -- on
+# confirmation -- overwrites the kept files with the Nexus-Hub version. The
+# non-interactive / --yes / --force path overwrites inline and reaches here with
+# an empty list (no-op).
+resolve_conflicts() {
+    local count="${#CONFLICT_DSTS[@]}"
+    [ "$count" -eq 0 ] && return 0
+
+    write_subsection_banner "Existing customizations detected"
+    write_item "${count} managed file(s) on disk differ from the Nexus-Hub version:" "$YELLOW"
+    local i
+    for ((i=0; i<count; i++)); do
+        write_item "- ${CONFLICT_DSTS[$i]}" "$DARK_YELLOW"
+    done
+
+    local resp
+    resp=$(read_prompt "Overwrite these with the Nexus-Hub version? [y/N]")
+    if [[ "$resp" =~ ^[Yy] ]]; then
+        for ((i=0; i<count; i++)); do
+            mkdir -p "$(dirname "${CONFLICT_DSTS[$i]}")"
+            cp "${CONFLICT_SRCS[$i]}" "${CONFLICT_DSTS[$i]}"
+            write_item "[OK] Refreshed ${CONFLICT_DSTS[$i]}" "$GREEN"
+        done
+    else
+        write_item "Kept your ${count} customized file(s). Re-run with --yes (or --force) to refresh them." "$GRAY"
     fi
 }
 
@@ -762,7 +850,8 @@ install_global() {
     local repo_root="$1"
     local user_home="$HOME"
 
-    OVERWRITE_ALL=false
+    # OVERWRITE_ALL is resolved once at startup (refresh vs interactive-conflict);
+    # the install functions no longer toggle it.
     echo ""
     echo -e "${CYAN}> Global install${RESET}"
 
@@ -770,18 +859,9 @@ install_global() {
 
     echo -e "${GRAY}Checking User Profile ($user_home)...${RESET}"
 
-    # Per-provider install blocks. The Select-Platforms menu groups by
-    # organization (Anthropic / OpenAI / Google / Microsoft / Anysphere /
-    # OpenCode / Nexus); the install output mirrors that grouping so each
-    # provider has a single colored write_header line and its platforms
-    # listed underneath.
-
-    # --- Anthropic -- Claude Code ---------------------------------------
-    write_header "ANTHROPIC"
-    write_item "Claude Code" "$GRAY"
-    local global_claude="$user_home/.claude"
-    mkdir -p "$global_claude"
-
+    # Instruction-template placeholders, set unconditionally so every selected
+    # provider renders a complete instruction body even when --platforms excludes
+    # Claude (these globals are threaded to every invoke_registry_platform call).
     PROJECT_NAME="Global"
     OS_CONTEXT=""
     case "$(uname -s)" in
@@ -798,6 +878,20 @@ install_global() {
     TEST_CMD="# specify test command"
     LINT_CMD="# specify lint command"
     NON_OBVIOUS_TOOLING="- (configure per project with /setup project)"
+
+    # Per-provider install blocks. Each is gated on the --platforms subset via
+    # should_install <integration-key> (no filter => all run). The output groups
+    # by organization (Anthropic / OpenAI / Google / Microsoft / Anysphere /
+    # OpenCode / Nexus); each provider has a single colored write_header line and
+    # its platforms listed underneath.
+
+    # --- Anthropic -- Claude Code ---------------------------------------
+    if should_install claude; then
+    write_header "ANTHROPIC"
+    write_item "Claude Code" "$GRAY"
+    local global_claude="$user_home/.claude"
+    mkdir -p "$global_claude"
+
     # DF-001: the registry runner renders CLAUDE.md (marker-merged, full
     # placeholder substitution). --instruction-only leaves the catalog mirror to
     # the safe_folder_copy block below.
@@ -815,8 +909,10 @@ install_global() {
     install_usage_display     "$repo_root" "$global_claude" "Global"
     install_require_description "$repo_root" "$global_claude" "Global"
     install_core_settings     "$repo_root" "$global_claude" "Global"
+    fi
 
     # --- OpenAI -- Codex ------------------------------------------------
+    if should_install codex; then
     write_header "OPENAI"
     write_item "Codex" "$GRAY"
     local global_codex_dir="$user_home/.codex"
@@ -827,14 +923,18 @@ install_global() {
 
     # AGENTS.md (open standard read by Codex, Jules, Cursor, Aider, OpenCode)
     invoke_registry_platform "$repo_root" "global" "" "codex" "AGENTS.md (instruction file)" "" "true"
+    fi
 
     # --- Google -- Gemini / Antigravity 1.0 + 2.0 / Gemini CLI ---------
+    if should_install gemini || should_install antigravity2 || should_install gemini-cli; then
     write_header "GOOGLE"
+    if should_install gemini; then
     write_item "Gemini IDE + Antigravity 1.0" "$GRAY"
     local global_gemini_dir="$user_home/.gemini"
     mkdir -p "$global_gemini_dir"
 
     invoke_registry_platform "$repo_root" "global" "" "gemini" "GEMINI.md (instruction file)" "" "true"
+    fi
 
     # Antigravity 2.0 + CLI: the antigravity2 integration below owns the entire
     # Antigravity mirror. It flattens skills to skills/<name>/SKILL.md (the flat
@@ -844,71 +944,103 @@ install_global() {
     # (~/.gemini/antigravity-cli). The previous verbatim copies here buried every
     # SKILL.md under a category folder the IDE could not read and only targeted
     # the CLI root, so skills and commands never surfaced in the 2.0 IDE.
+    if should_install antigravity2; then
     invoke_registry_platform "$repo_root" "global" "" "antigravity2" "Antigravity 2.0 + CLI"
     write_item "Antigravity 2.0 IDE: slash commands appear only inside an OPEN project folder (its .agents/workflows/). Run a workspace/project install in your repo so the commands show; a global-only install is not scanned by the IDE for slash commands." "$DARK_YELLOW"
+    fi
+    if should_install gemini-cli; then
     if [ "${ENTERPRISE:-0}" = "1" ]; then
         invoke_registry_platform "$repo_root" "global" "" "gemini-cli"   "Gemini CLI (enterprise)"
     else
         write_item "Gemini CLI: skipped (sunset on 2026-06-18 for free / Google AI Pro / Ultra / GitHub-installed users). Re-run with --enterprise to install (requires paid Gemini API key); Antigravity CLI above covers the same functionality." "$DARK_YELLOW"
     fi
+    fi
+    fi
 
     # --- Microsoft -- GitHub Copilot -----------------------------------
+    if should_install copilot; then
     write_header "MICROSOFT"
     invoke_registry_platform "$repo_root" "global" "" "copilot" "GitHub Copilot (global prompt files)"
+    fi
 
     # --- Anysphere -- Cursor -------------------------------------------
+    if should_install cursor; then
     write_header "ANYSPHERE"
     invoke_registry_platform "$repo_root" "global" "" "cursor" "Cursor"
+    fi
 
     # --- OpenCode ------------------------------------------------------
+    if should_install opencode; then
     write_header "OPENCODE"
     invoke_registry_platform "$repo_root" "global" "" "opencode" "OpenCode"
+    fi
 
     # --- Aider ---------------------------------------------------------
+    if should_install aider; then
     write_header "AIDER"
     invoke_registry_platform "$repo_root" "global" "" "aider" "Aider (CONVENTIONS.md)"
     write_item "Aider: reads a project-root CONVENTIONS.md; there is no global instruction surface. Run a workspace/project install in your repo to get it." "$DARK_YELLOW"
+    fi
 
     # --- Windsurf ------------------------------------------------------
+    if should_install windsurf; then
     write_header "WINDSURF"
     invoke_registry_platform "$repo_root" "global" "" "windsurf" "Windsurf (global_rules.md)"
     write_item "Windsurf: global rules are written to ~/.codeium/windsurf/memories/global_rules.md only when Windsurf is detected (~/.codeium present); the project-root .windsurfrules installs at workspace scope." "$DARK_YELLOW"
+    fi
 
     # --- Kimi ----------------------------------------------------------
+    if should_install kimi; then
     write_header "KIMI"
     invoke_registry_platform "$repo_root" "global" "" "kimi" "Kimi (.kimi/agent.yaml + system.md)"
     write_item "Kimi: global files are written to ~/.kimi/ only when Kimi is detected (~/.kimi present); the project-local .kimi/ pair installs at workspace scope." "$DARK_YELLOW"
+    fi
 
     # --- Qwen ----------------------------------------------------------
+    if should_install qwen; then
     write_header "QWEN"
     invoke_registry_platform "$repo_root" "global" "" "qwen" "Qwen Code (QWEN.md)"
     write_item "Qwen: ~/.qwen/QWEN.md is written only when Qwen is detected (~/.qwen present); the project-root QWEN.md installs at workspace scope." "$DARK_YELLOW"
+    fi
 
     # --- OpenClaw ------------------------------------------------------
+    if should_install openclaw; then
     write_header "OPENCLAW"
     invoke_registry_platform "$repo_root" "global" "" "openclaw" "OpenClaw (.openclaw/ SOUL+AGENTS+IDENTITY)"
     write_item "OpenClaw: global files are written to ~/.openclaw/ only when OpenClaw is detected (~/.openclaw present); the project-local .openclaw/ split installs at workspace scope." "$DARK_YELLOW"
+    fi
 
     # --- Nexus -- Nexus-AI (Local Desktop Studio) ----------------------
+    if should_install nexus-ai; then
     write_header "NEXUS"
     invoke_registry_platform "$repo_root" "global" "" "nexus-ai" "Nexus-AI (Local Desktop Studio)"
+    fi
 
     # --- Auto-Approve Permissions sub-section --------------------------
     # Permissions only apply to the legacy 4 (CLAUDE / GEMINI / CODEX /
-    # COPILOT). Mirrored to provider headers for visual consistency.
+    # COPILOT). Mirrored to provider headers for visual consistency. Each is
+    # gated on the same --platforms subset as its provider block above.
     write_subsection_banner "Auto-Approve Permissions"
 
+    if should_install claude; then
     write_header "ANTHROPIC"
     install_permissions "$repo_root" "CLAUDE" "Global"
+    fi
 
+    if should_install codex; then
     write_header "OPENAI"
     install_permissions "$repo_root" "CODEX" "Global"
+    fi
 
+    if should_install gemini; then
     write_header "GOOGLE"
     install_permissions "$repo_root" "GEMINI" "Global"
+    fi
 
+    if should_install copilot; then
     write_header "MICROSOFT"
     install_permissions "$repo_root" "COPILOT" "Global"
+    fi
 
     # --- Claude Code Utilities sub-section ---
     write_subsection_banner "Claude Code Utilities"
@@ -1078,6 +1210,14 @@ detect_project_metadata() {
 get_language_selection() {
     local detected="$1"
 
+    # Non-interactive (--yes / --force / piped / CI): auto-accept the detected
+    # languages with no prompt; fall back to Python when nothing was detected.
+    # This keeps a `--workspace <path>` install promptless (v3.7.0 / Phase 2).
+    if [ "$ASSUME_YES" = true ]; then
+        if [ -n "$detected" ]; then echo "$detected"; else echo "Python"; fi
+        return
+    fi
+
     if [ -n "$detected" ]; then
         echo -e "${YELLOW}Detected languages: $detected${RESET}" >&2
         local resp
@@ -1139,8 +1279,11 @@ install_workspace() {
         detect_project_metadata "$target_path" "$languages"
 
         # --- Install Logic (provider-grouped) ---
+        # Each provider block is gated on the --platforms subset via
+        # should_install <integration-key> (no filter => all run).
 
         # --- Anthropic -- Claude Code -------------------------------
+        if should_install claude; then
         write_header "ANTHROPIC"
         write_item "Claude Code" "$GRAY"
         local claude_dir="$target_path/.claude"
@@ -1162,8 +1305,10 @@ install_workspace() {
         install_git_guardrails    "$repo_root" "$claude_dir" "Workspace"
         install_usage_display     "$repo_root" "$claude_dir" "Workspace"
         install_require_description "$repo_root" "$claude_dir" "Workspace"
+        fi
 
         # --- OpenAI -- Codex ----------------------------------------
+        if should_install codex; then
         write_header "OPENAI"
         write_item "Codex" "$GRAY"
         local codex_dir="$target_path/.codex"
@@ -1174,28 +1319,39 @@ install_workspace() {
 
         # AGENTS.md (open standard read by Codex, Jules, Cursor, Aider, OpenCode)
         invoke_registry_platform "$repo_root" "workspace" "$target_path" "codex" "AGENTS.md (instruction file)" "$languages" "true"
+        fi
 
         # --- Google -- Gemini / Antigravity 1.0 + 2.0 / Gemini CLI -
+        if should_install gemini || should_install antigravity2 || should_install gemini-cli; then
         write_header "GOOGLE"
+        if should_install gemini; then
         write_item "Gemini IDE + Antigravity 1.0" "$GRAY"
         local gemini_dir="$target_path/.gemini"
         mkdir -p "$gemini_dir"
 
         invoke_registry_platform "$repo_root" "workspace" "$target_path" "gemini" "GEMINI.md (instruction file)" "$languages" "true"
+        fi
 
         # Antigravity 2.0 + CLI: the antigravity2 integration below owns the
         # .agents/ mirror -- it flattens skills to .agents/skills/<name>/SKILL.md,
         # mirrors commands to .agents/workflows/, and installs .agents/hooks/ +
         # .agents/hooks.json. The previous verbatim copies buried SKILL.md under a
         # category folder the IDE could not read.
+        if should_install antigravity2; then
         invoke_registry_platform "$repo_root" "workspace" "$target_path" "antigravity2" "Antigravity 2.0 + CLI"
+        fi
+        if should_install gemini-cli; then
         if [ "${ENTERPRISE:-0}" = "1" ]; then
             invoke_registry_platform "$repo_root" "workspace" "$target_path" "gemini-cli"   "Gemini CLI (enterprise)"
         else
             write_item "Gemini CLI: skipped (sunset on 2026-06-18 for free / Google AI Pro / Ultra / GitHub-installed users). Re-run with --enterprise to install (requires paid Gemini API key); Antigravity CLI above covers the same functionality." "$DARK_YELLOW"
         fi
+        fi
+        fi
 
-        # --- Prepare Copilot/Cursor instruction body (used below) --
+        # --- Microsoft -- GitHub Copilot ----------------------------
+        if should_install copilot; then
+        # Prepare the Copilot instruction body.
         local merged_content="# $PROJECT_NAME - Copilot Instructions\n\n"
         merged_content+="## Tech Stack\n"
         merged_content+="- **Language**: $PRIMARY_LANGUAGE\n"
@@ -1221,60 +1377,69 @@ install_workspace() {
             fi
         done
 
-        # --- Microsoft -- GitHub Copilot ----------------------------
         write_header "MICROSOFT"
         write_item "GitHub Copilot" "$GRAY"
         local copilot_dir="$target_path/.github"
         mkdir -p "$copilot_dir"
         local copilot_file="$copilot_dir/copilot-instructions.md"
 
-        local do_write=true
-        if [ -f "$copilot_file" ] && [ "$OVERWRITE_ALL" = false ]; then
-             write_item "File exists: copilot-instructions.md" "$YELLOW"
-             local resp
-             resp=$(read_prompt "Overwrite? [Y]es / [N]o / [A]ll")
-             if [[ "$resp" =~ ^[Aa] ]]; then
-                OVERWRITE_ALL=true
-             elif [[ ! "$resp" =~ ^[Yy] ]]; then
-                do_write=false
-             fi
-        fi
-        if [ "$do_write" = true ]; then
-            echo -e "$merged_content" > "$copilot_file"
-            write_item "[OK] Workspace instructions installed at: $copilot_file" "$GREEN"
+        # Route the generated body through safe_copy via a temp file so the
+        # Copilot instruction file participates in the unified conflict-only
+        # overwrite flow (v3.7.0 / Phase 2) instead of its own inline prompt.
+        local copilot_tmp
+        copilot_tmp=$(mktemp)
+        TEMP_FILES+=("$copilot_tmp")
+        printf '%b' "$merged_content" > "$copilot_tmp"
+        safe_copy "$copilot_tmp" "$copilot_file" true "[OK] Workspace instructions installed at: $copilot_file"
         fi
 
         # --- Anysphere -- Cursor ------------------------------------
+        if should_install cursor; then
         write_header "ANYSPHERE"
         invoke_registry_platform "$repo_root" "workspace" "$target_path" "cursor" "Cursor"
+        fi
 
         # --- OpenCode -----------------------------------------------
+        if should_install opencode; then
         write_header "OPENCODE"
         invoke_registry_platform "$repo_root" "workspace" "$target_path" "opencode" "OpenCode"
+        fi
 
         # --- Aider --------------------------------------------------
+        if should_install aider; then
         write_header "AIDER"
         invoke_registry_platform "$repo_root" "workspace" "$target_path" "aider" "Aider (CONVENTIONS.md)" "$languages"
+        fi
 
         # --- Windsurf -----------------------------------------------
+        if should_install windsurf; then
         write_header "WINDSURF"
         invoke_registry_platform "$repo_root" "workspace" "$target_path" "windsurf" "Windsurf (.windsurfrules)" "$languages"
+        fi
 
         # --- Kimi ---------------------------------------------------
+        if should_install kimi; then
         write_header "KIMI"
         invoke_registry_platform "$repo_root" "workspace" "$target_path" "kimi" "Kimi (.kimi/agent.yaml + system.md)" "$languages"
+        fi
 
         # --- Qwen ---------------------------------------------------
+        if should_install qwen; then
         write_header "QWEN"
         invoke_registry_platform "$repo_root" "workspace" "$target_path" "qwen" "Qwen Code (QWEN.md)" "$languages"
+        fi
 
         # --- OpenClaw -----------------------------------------------
+        if should_install openclaw; then
         write_header "OPENCLAW"
         invoke_registry_platform "$repo_root" "workspace" "$target_path" "openclaw" "OpenClaw (.openclaw/ SOUL+AGENTS+IDENTITY)" "$languages"
+        fi
 
         # --- Nexus -- Nexus-AI --------------------------------------
+        if should_install nexus-ai; then
         write_header "NEXUS"
         invoke_registry_platform "$repo_root" "workspace" "$target_path" "nexus-ai" "Nexus-AI (Local Desktop Studio)"
+        fi
 
         echo ""
 }
@@ -1380,8 +1545,11 @@ install_vscode_extensions() {
 
         # Detect platform and suggest install method
         if command -v brew >/dev/null 2>&1; then
+            # A non-interactive run (the piped one-command bootstrap, --yes, or CI)
+            # installs without asking so every dependency is present in one pass;
+            # an interactive run prompts first.
             local install_resp
-            install_resp=$(read_prompt "Install Node.js LTS via Homebrew? [Y]es / [N]o")
+            if [ "$ASSUME_YES" = true ]; then install_resp="y"; else install_resp=$(read_prompt "Install Node.js LTS via Homebrew? [Y]es / [N]o"); fi
             if [[ "$install_resp" =~ ^[Yy] ]]; then
                 write_item "Installing Node.js LTS via Homebrew..." "$RESET"
                 brew install node@22 || {
@@ -1395,7 +1563,7 @@ install_vscode_extensions() {
             fi
         elif command -v apt-get >/dev/null 2>&1; then
             local install_resp
-            install_resp=$(read_prompt "Install Node.js via apt? [Y]es / [N]o")
+            if [ "$ASSUME_YES" = true ]; then install_resp="y"; else install_resp=$(read_prompt "Install Node.js via apt? [Y]es / [N]o"); fi
             if [[ "$install_resp" =~ ^[Yy] ]]; then
                 write_item "Installing Node.js via apt..." "$RESET"
                 sudo apt-get update -qq && sudo apt-get install -y -qq nodejs npm || {
@@ -1433,25 +1601,41 @@ install_vscode_extensions() {
         rm -rf "$extension_dir/out"
     fi
 
+    # A node_modules tree copied in from another OS (e.g. zipping a Windows
+    # checkout) leaves Windows .cmd/.ps1 bin shims that a Unix shell cannot
+    # exec, so `tsc` resolves to "command not found" and the build fails with a
+    # confusing error. Removing it forces a clean, OS-correct dependency tree.
+    if [ -d node_modules ]; then
+        rm -rf node_modules
+    fi
+
     write_item "  Installing dependencies..." "$GRAY"
-    if ! npm install --silent 2>/dev/null; then
-        write_item "npm install failed." "$RED"
+    local npm_log
+    if ! npm_log=$(npm install --silent 2>&1); then
+        write_item "npm install failed:" "$RED"
+        echo "$npm_log" | tail -n 20
         popd > /dev/null
         return
     fi
 
     write_item "  Compiling TypeScript..." "$GRAY"
-    if ! npm run compile 2>/dev/null; then
-        write_item "TypeScript compilation failed." "$RED"
+    local compile_log
+    if ! compile_log=$(npm run compile 2>&1); then
+        write_item "TypeScript compilation failed:" "$RED"
+        echo "$compile_log" | tail -n 30
         popd > /dev/null
         return
     fi
 
     write_item "[OK] Extension built successfully." "$GREEN"
 
-    # Package as VSIX (uses locally installed @vscode/vsce from devDependencies)
+    # Package as VSIX (uses locally installed @vscode/vsce from devDependencies).
+    # A bundled LICENSE file removes the only packaging warning, so vsce no longer
+    # shows its interactive "Do you want to continue? [y/N]" prompt. Piping "y" is
+    # belt-and-suspenders: if any future warning reappears it auto-confirms instead
+    # of blocking an unattended install (harmless when there is no prompt).
     write_item "Packaging extension as VSIX..." "$RESET"
-    npx vsce package --no-dependencies 2>/dev/null
+    echo "y" | npx vsce package --no-dependencies 2>/dev/null
     local vsix_file
     vsix_file=$(ls -t "$extension_dir"/*.vsix 2>/dev/null | head -1)
 
@@ -1466,20 +1650,52 @@ install_vscode_extensions() {
 
     popd > /dev/null
 
-    # Install into VS Code
+    # Locate a VS Code-family CLI. On a fresh Mac the `code` command is not on
+    # PATH unless the user ran "Shell Command: Install 'code' command in PATH", so
+    # fall back to the standard application-bundle / install locations. This lets
+    # the VSIX auto-install instead of leaving the user to do it by hand.
+    local code_cli=""
+    local code_label="VS Code"
     if command -v code >/dev/null 2>&1; then
-        # Uninstall any existing version first so VS Code does not skip the reinstall
-        code --uninstall-extension "nexus-hub.claude-usage-monitor" 2>/dev/null || true
+        code_cli="code"
+    else
+        local candidate
+        for candidate in \
+            "/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code" \
+            "$HOME/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code" \
+            "/Applications/Visual Studio Code - Insiders.app/Contents/Resources/app/bin/code" \
+            "/usr/share/code/bin/code" \
+            "/usr/bin/code" \
+            "/snap/bin/code" \
+            "/var/lib/flatpak/exports/bin/com.visualstudio.code" \
+            "/Applications/Cursor.app/Contents/Resources/app/bin/cursor" \
+            "$HOME/Applications/Cursor.app/Contents/Resources/app/bin/cursor" \
+            "/Applications/VSCodium.app/Contents/Resources/app/bin/codium"; do
+            if [ -x "$candidate" ]; then
+                code_cli="$candidate"
+                case "$candidate" in
+                    *Cursor*) code_label="Cursor" ;;
+                    *VSCodium*) code_label="VSCodium" ;;
+                esac
+                break
+            fi
+        done
+    fi
+
+    # Install into the detected editor
+    if [ -n "$code_cli" ]; then
+        # Uninstall any existing version first so the editor does not skip the reinstall
+        "$code_cli" --uninstall-extension "nexus-hub.claude-usage-monitor" 2>/dev/null || true
         # --force ensures reinstall even when the version number has not changed
-        if code --install-extension "$vsix_file" --force 2>/dev/null; then
-            write_item "[OK] Claude Usage Monitor extension installed in VS Code!" "$GREEN"
-            write_item "  Restart VS Code to activate. Look for 'Claude: --%' in the status bar." "$RESET"
+        if "$code_cli" --install-extension "$vsix_file" --force 2>/dev/null; then
+            write_item "[OK] Claude Usage Monitor extension installed in $code_label!" "$GREEN"
+            write_item "  Restart $code_label to activate. Look for 'Claude: --%' in the status bar." "$RESET"
         else
-            write_item "VS Code install failed. Install manually:" "$YELLOW"
-            write_item "  code --install-extension \"$vsix_file\"" "$RESET"
+            write_item "$code_label install failed. Install manually:" "$YELLOW"
+            write_item "  \"$code_cli\" --install-extension \"$vsix_file\"" "$RESET"
         fi
     else
-        write_item "VS Code CLI ('code') not found in PATH." "$YELLOW"
+        write_item "VS Code CLI ('code') not found in PATH or standard install locations." "$YELLOW"
         write_item "VSIX saved at: $vsix_file" "$RESET"
         write_item "Install manually via VS Code: Extensions > ... > Install from VSIX" "$GRAY"
     fi
@@ -1575,6 +1791,17 @@ install_templates() {
     local affected_source="$repo_root/scripts/nexus_hub_affected.py"
     if [ -f "$affected_source" ]; then
         safe_copy "$affected_source" "$scripts_dest/nexus_hub_affected.py" true "[OK] Affected-tests CLI installed at: $scripts_dest/nexus_hub_affected.py"
+    fi
+
+    # Copy the nexus-hub CLI core (v3.7.0 Phase 3). The logic behind the
+    # `nexus-hub` launcher on PATH: `nexus-hub --version` and `nexus-hub
+    # upgrade`. Stdlib-only, cross-platform single .py (NI-v24-1), so no .ps1
+    # sibling. The launcher itself + the VERSION file are installed by
+    # install_cli_launcher below. Lockstep with the same block in
+    # scripts/installer.ps1.
+    local cli_source="$repo_root/scripts/nexus_hub_cli.py"
+    if [ -f "$cli_source" ]; then
+        safe_copy "$cli_source" "$scripts_dest/nexus_hub_cli.py" true "[OK] nexus-hub CLI installed at: $scripts_dest/nexus_hub_cli.py"
     fi
 
     # Copy v2.3.0 CI validators (Phase 2 / T004-T005). Four standalone static
@@ -1761,6 +1988,62 @@ install_templates() {
     echo ""
 }
 
+# --- nexus-hub CLI launcher (v3.7.0 Phase 3) ---
+
+# Writes the installed-version marker and drops the `nexus-hub` launcher on PATH
+# (~/.nexus-hub/bin/nexus-hub). The launcher is a thin shim over the CLI core
+# (scripts/nexus_hub_cli.py, copied by install_templates) that powers
+# `nexus-hub --version` and `nexus-hub upgrade`. `upgrade`'s only outbound call
+# is to the project's own GitHub. PATH wiring is best-effort: a clear hint is
+# printed and shell-rc files are NEVER auto-edited (a no-prompt install must not
+# silently mutate a user dotfile). Lockstep with Install-CliLauncher in
+# scripts/installer.ps1.
+install_cli_launcher() {
+    local repo_root="$1"
+    local nexus_home="$HOME/.nexus-hub"
+    local bin_dest="$nexus_home/bin"
+
+    echo ""
+    write_subsection_banner "nexus-hub CLI"
+    echo ""
+
+    # Installed-version marker (install-mode independent; read by the CLI's
+    # --version and upgrade). Written from the canonical $NEXUS_HUB_VERSION, so
+    # it is deliberately NOT a check_version_sync surface (never hand-edited).
+    printf '%s\n' "$NEXUS_HUB_VERSION" > "$nexus_home/VERSION"
+    write_item "[OK] Version marker written: $nexus_home/VERSION ($NEXUS_HUB_VERSION)" "$GREEN"
+
+    mkdir -p "$bin_dest"
+    local launcher_source="$repo_root/scripts/nexus-hub"
+    if [ -f "$launcher_source" ]; then
+        safe_copy "$launcher_source" "$bin_dest/nexus-hub" true "[OK] nexus-hub launcher installed at: $bin_dest/nexus-hub"
+        chmod +x "$bin_dest/nexus-hub" 2>/dev/null || true
+    fi
+
+    # PATH hint (best-effort; never auto-edits a shell rc file).
+    case ":${PATH:-}:" in
+        *":$bin_dest:"*)
+            write_item "[OK] $bin_dest is already on your PATH -- run: nexus-hub --version" "$GREEN"
+            ;;
+        *)
+            # The tildes below are intentional display text in a user-facing
+            # hint (shown literally as "~/.zshrc"), not paths to be expanded.
+            # shellcheck disable=SC2088
+            local rc="your shell profile (e.g. ~/.bashrc or ~/.zshrc)"
+            # shellcheck disable=SC2088
+            case "$(basename "${SHELL:-}")" in
+                zsh)  rc="~/.zshrc" ;;
+                bash) rc="~/.bashrc" ;;
+            esac
+            write_item "To use the 'nexus-hub' command, add its bin directory to your PATH." "$YELLOW"
+            write_item "  Add this line to $rc, then restart your shell:" "$RESET"
+            write_item "    export PATH=\"\$HOME/.nexus-hub/bin:\$PATH\"" "$CYAN"
+            write_item "  Until then, run it directly: $bin_dest/nexus-hub --version" "$GRAY"
+            ;;
+    esac
+    echo ""
+}
+
 # --- Skill Discovery ---
 
 install_skill_discovery() {
@@ -1791,22 +2074,55 @@ install_skill_discovery() {
     echo ""
     write_item "MCP Skill Server (Claude Code integration)" "$RESET"
 
-    # Check Python >= 3.10
+    # Check Python >= 3.10.
+    # Ask the interpreter for its own version instead of parsing `--version`
+    # output with grep. BSD grep (the macOS default) lacks `-P` (PCRE), so the old
+    # `grep -oP` approach printed "grep: invalid option -- P" and silently left
+    # python_cmd empty, skipping the entire MCP server install on macOS.
+    detect_python_310() {
+        local cmd ver
+        for cmd in python3 python; do
+            if command -v "$cmd" >/dev/null 2>&1; then
+                ver=$("$cmd" -c 'import sys; print(sys.version_info[0] * 100 + sys.version_info[1])' 2>/dev/null)
+                if [ -n "$ver" ] && [ "$ver" -ge 310 ]; then
+                    echo "$cmd"
+                    return 0
+                fi
+            fi
+        done
+        return 1
+    }
+
     local python_cmd=""
-    for cmd in python3 python; do
-        if command -v "$cmd" >/dev/null 2>&1; then
-            local ver
-            ver=$("$cmd" --version 2>&1 | grep -oP 'Python\s+3\.(\d+)' | grep -oP '\d+$')
-            if [ -n "$ver" ] && [ "$ver" -ge 10 ]; then
-                python_cmd="$cmd"
-                break
+    python_cmd=$(detect_python_310) || python_cmd=""
+
+    # Offer to auto-install Python when it is missing or too old, mirroring the
+    # Node.js auto-install flow so every dependency is handled in a single run. A
+    # non-interactive run (the piped one-command bootstrap, --yes, or CI) installs
+    # without asking; an interactive run prompts first. This only fires when no
+    # usable Python exists, so it never shadows an existing conda/pyenv interpreter.
+    if [ -z "$python_cmd" ]; then
+        local py_resp=""
+        if command -v brew >/dev/null 2>&1; then
+            if [ "$ASSUME_YES" = true ]; then py_resp="y"; else py_resp=$(read_prompt "Python 3.10+ not found. Install it via Homebrew? [Y]es / [N]o"); fi
+            if [[ "$py_resp" =~ ^[Yy] ]]; then
+                write_item "  Installing Python via Homebrew..." "$RESET"
+                brew install python@3.12 >/dev/null 2>&1 || true
+                python_cmd=$(detect_python_310) || python_cmd=""
+            fi
+        elif command -v apt-get >/dev/null 2>&1; then
+            if [ "$ASSUME_YES" = true ]; then py_resp="y"; else py_resp=$(read_prompt "Python 3.10+ not found. Install it via apt? [Y]es / [N]o"); fi
+            if [[ "$py_resp" =~ ^[Yy] ]]; then
+                write_item "  Installing Python via apt..." "$RESET"
+                sudo apt-get update -qq && sudo apt-get install -y -qq python3 python3-venv python3-pip >/dev/null 2>&1 || true
+                python_cmd=$(detect_python_310) || python_cmd=""
             fi
         fi
-    done
+    fi
 
     if [ -z "$python_cmd" ]; then
         write_item "  Python 3.10+ not found. MCP server requires Python 3.10 or newer." "$YELLOW"
-        write_item "  Install Python and re-run the installer." "$YELLOW"
+        write_item "  Install Python 3.10+ (macOS: brew install python@3.12; Linux: apt install python3) and re-run." "$YELLOW"
         return
     fi
 
@@ -2066,6 +2382,12 @@ SUBCOMMAND_ARGS=()
 BRANCH_NAME=""
 PASSTHRU_ARGS=()
 
+# v3.7.0 / Phase 2 -- no-prompt install controls.
+WORKSPACE_PATH=""   # set by --workspace <path>; empty => global scope (default)
+PLATFORMS_ARG=""    # set by --platforms <csv>; empty => all platforms (default)
+YES_FLAG=0          # --yes : non-interactive, auto-confirm + refresh
+FORCE_FLAG=0        # --force : overwrite existing managed files without asking
+
 # Map an arbitrary git branch name to a filesystem-safe cache token: every
 # character outside [A-Za-z0-9._-] becomes '-', parent-dir tokens are
 # neutralized, and a leading dot/dash is stripped so the result is never a
@@ -2082,11 +2404,18 @@ sanitize_branch_name() {
 show_installer_usage() {
     cat <<EOF
 Usage:
-  bash scripts/installer.sh [--enterprise] [-h | --help]
+  bash scripts/installer.sh [--workspace PATH] [--platforms LIST] [--yes]
+                            [--force] [--enterprise] [-h | --help]
   bash scripts/installer.sh init [--target PATH] [--dry-run]
   bash scripts/installer.sh --print-config <integration-key>
   bash scripts/installer.sh --check
   bash scripts/installer.sh --branch <name> [--enterprise]
+
+By default the installer runs with NO prompts: a global install across ALL
+supported platforms (absent platforms skip-with-note). Existing managed files
+that you have customized are detected and you are asked ONCE whether to
+overwrite them; with --yes / --force (or any non-interactive / piped run) they
+are refreshed to the latest version automatically.
 
 Subcommands:
   init           Bootstrap project-local surfaces (Cursor rules, Claude
@@ -2104,6 +2433,19 @@ Read-only modes (no disk writes):
                         CI to detect install drift.
 
 Options:
+  --workspace <path>  Install into a single project directory instead of the
+                 default global (all-projects) scope. Use --workspace=<path> or
+                 --workspace <path>.
+  --platforms <list>  Install only the given comma-separated integration keys
+                 instead of all platforms. Valid keys: claude, codex, gemini,
+                 antigravity2, gemini-cli, copilot, cursor, opencode, nexus-ai,
+                 aider, windsurf, kimi, qwen, openclaw. Use --platforms=<list>
+                 or --platforms <list>.
+  --yes, -y      Non-interactive: never prompt, and refresh existing managed
+                 files to the latest version (also implied when stdin is not a
+                 TTY, e.g. a piped curl|bash install).
+  --force        Overwrite existing managed files with the Nexus-Hub version
+                 without asking (implies --yes for prompting).
   --enterprise   Install the standalone Gemini CLI integration. Requires a paid
                  Gemini API key. After 2026-06-18 (per the 2026-05-21 Google
                  Developers Blog announcement), Gemini CLI stops serving free /
@@ -2130,6 +2472,52 @@ while [ $# -gt 0 ]; do
         --enterprise)
             ENTERPRISE=1
             PASSTHRU_ARGS+=("--enterprise")
+            shift
+            ;;
+        --workspace)
+            WORKSPACE_PATH="${2:-}"
+            if [ -z "$WORKSPACE_PATH" ]; then
+                echo "--workspace requires a path" >&2
+                exit 2
+            fi
+            PASSTHRU_ARGS+=("--workspace" "$WORKSPACE_PATH")
+            shift 2
+            ;;
+        --workspace=*)
+            WORKSPACE_PATH="${1#--workspace=}"
+            if [ -z "$WORKSPACE_PATH" ]; then
+                echo "--workspace requires a path" >&2
+                exit 2
+            fi
+            PASSTHRU_ARGS+=("--workspace=$WORKSPACE_PATH")
+            shift
+            ;;
+        --platforms)
+            PLATFORMS_ARG="${2:-}"
+            if [ -z "$PLATFORMS_ARG" ]; then
+                echo "--platforms requires a comma-separated list" >&2
+                exit 2
+            fi
+            PASSTHRU_ARGS+=("--platforms" "$PLATFORMS_ARG")
+            shift 2
+            ;;
+        --platforms=*)
+            PLATFORMS_ARG="${1#--platforms=}"
+            if [ -z "$PLATFORMS_ARG" ]; then
+                echo "--platforms requires a comma-separated list" >&2
+                exit 2
+            fi
+            PASSTHRU_ARGS+=("--platforms=$PLATFORMS_ARG")
+            shift
+            ;;
+        --yes|-y)
+            YES_FLAG=1
+            PASSTHRU_ARGS+=("--yes")
+            shift
+            ;;
+        --force)
+            FORCE_FLAG=1
+            PASSTHRU_ARGS+=("--force")
             shift
             ;;
         --branch)
@@ -2250,6 +2638,43 @@ if [ "$SUBCOMMAND" = "init" ] || [ -n "$PRINT_CONFIG_KEY" ] || [ "$CHECK_MODE" =
     fi
 fi
 
+# --- Resolve no-prompt install configuration (v3.7.0 / Phase 2) ----------
+# Validate --platforms into the space-delimited PLATFORMS_FILTER (empty = all).
+if [ -n "$PLATFORMS_ARG" ]; then
+    known_platform_keys="claude codex gemini antigravity2 gemini-cli copilot cursor opencode nexus-ai aider windsurf kimi qwen openclaw"
+    PLATFORMS_FILTER=""
+    IFS=',' read -ra _requested_platforms <<< "$PLATFORMS_ARG"
+    for _pk in "${_requested_platforms[@]}"; do
+        _pk="$(printf '%s' "$_pk" | tr '[:upper:]' '[:lower:]' | tr -d '[:space:]')"
+        [ -z "$_pk" ] && continue
+        case " $known_platform_keys " in
+            *" $_pk "*) PLATFORMS_FILTER="$PLATFORMS_FILTER $_pk" ;;
+            *)
+                echo "Unknown platform key: '$_pk'" >&2
+                echo "Valid keys: $known_platform_keys" >&2
+                exit 2
+                ;;
+        esac
+    done
+    PLATFORMS_FILTER="$(printf '%s' "$PLATFORMS_FILTER" | sed 's/^ *//;s/ *$//')"
+    if [ -z "$PLATFORMS_FILTER" ]; then
+        echo "--platforms produced an empty platform set" >&2
+        exit 2
+    fi
+fi
+
+# Resolve the assume-yes / overwrite decision. --yes or --force force it; a
+# non-interactive stdin (piped curl|bash, CI) also implies it. In that case
+# existing managed files are refreshed silently; otherwise interactive conflicts
+# are collected and resolved once via resolve_conflicts().
+if [ "$YES_FLAG" = 1 ] || [ "$FORCE_FLAG" = 1 ] || [ ! -t 0 ]; then
+    ASSUME_YES=true
+    OVERWRITE_ALL=true
+else
+    ASSUME_YES=false
+    OVERWRITE_ALL=false
+fi
+
 print_nexus_banner
 migrate_legacy_install
 # Idempotent cleanup -- safe to run every install. Catches the case where the
@@ -2258,40 +2683,34 @@ migrate_legacy_install
 remove_legacy_vscode_extensions
 print_banner
 
-echo ""
-echo -e "Where would you like to install Nexus-Hub?"
-echo -e "  ${GREEN}[G]${RESET} Global    - all projects on this machine (recommended)"
-echo -e "  ${YELLOW}[W]${RESET} Workspace - a single project directory"
-SCOPE_CHOICE=$(read_prompt "Select [G/W]")
-
-SCOPE_LABEL="Global"
-case "$SCOPE_CHOICE" in
-    [Ww]*)
-        SCOPE_LABEL="Workspace"
-        # Workspace install: prompt for project path, then run the workspace phase once.
-        while true; do
-            TARGET_PATH=$(read_prompt "Enter absolute path to project")
-            # Remove surrounding quotes if user pasted them
-            TARGET_PATH="${TARGET_PATH%\"}"
-            TARGET_PATH="${TARGET_PATH#\"}"
-            # Expand tilde if present
-            TARGET_PATH="${TARGET_PATH/#\~/$HOME}"
-            if [ -n "$TARGET_PATH" ] && [ -d "$TARGET_PATH" ]; then
-                break
-            fi
-            write_item "Invalid directory: $TARGET_PATH" "$YELLOW"
-        done
-        install_workspace "$REPO_ROOT" "$TARGET_PATH"
-        ;;
-    *)
-        # Default + explicit [Gg] both route here.
-        install_global "$REPO_ROOT"
-        ;;
-esac
+# Scope is resolved from --workspace (no interactive scope/platform prompt).
+# Default = global install across all platforms.
+if [ -n "$WORKSPACE_PATH" ]; then
+    SCOPE_LABEL="Workspace"
+    # Strip pasted surrounding quotes and expand a leading tilde.
+    WORKSPACE_PATH="${WORKSPACE_PATH%\"}"
+    WORKSPACE_PATH="${WORKSPACE_PATH#\"}"
+    WORKSPACE_PATH="${WORKSPACE_PATH/#\~/$HOME}"
+    if [ ! -d "$WORKSPACE_PATH" ]; then
+        echo "Workspace path not found: $WORKSPACE_PATH" >&2
+        exit 2
+    fi
+    install_workspace "$REPO_ROOT" "$WORKSPACE_PATH"
+else
+    SCOPE_LABEL="Global"
+    install_global "$REPO_ROOT"
+fi
 
 # Bundled report-generator templates + scripts are user-scope and always install silently.
 # Interactive custom-template import moved to /research report at use time (v0.9.7).
 install_templates "$REPO_ROOT"
+
+# Install the nexus-hub CLI launcher + version marker (v3.7.0 Phase 3).
+install_cli_launcher "$REPO_ROOT"
+
+# Resolve any managed-file conflicts collected during an interactive install
+# (single end-of-run prompt). No-op on the non-interactive / --yes / --force path.
+resolve_conflicts
 
 echo ""
 echo -e "${GREEN}✓ Nexus-Hub v${NEXUS_HUB_VERSION} installed (${SCOPE_LABEL} scope).${RESET}"

@@ -144,6 +144,16 @@ These rows record two GitHub Spec Kit extensibility systems that the v3.6.0 re-c
 
 ---
 
+### Adopted in v3.7.0 (previously deferred -- N4 self-upgrade)
+
+This row records N4 (a self-upgrade CLI), deferred in v3.6.0 as low-ROI (DF-v36-1) and reprioritized by the maintainer as part of the v3.7.0 install-UX overhaul. It is policy-clean because the only outbound call it adds is to the project's OWN GitHub (the same posture the installer/bootstrap already has) -- no third-party data processor, credential, or new dependency. The action columns are version-scoped to the adopting release.
+
+| MCP key | Current source | What it does | Outbound-call surface | Classification | Effort if RE'd | v3.7.0 action | v3.8.0+ action | Rationale / citation |
+|---|---|---|---|---|---|---|---|---|
+| n/a (local self-upgrade CLI, not MCP) | GitHub Spec Kit `specify self upgrade` (a packaged-CLI in-place updater) | Ships a local `nexus-hub` CLI on PATH (`~/.nexus-hub/bin/nexus-hub` POSIX + `nexus-hub.cmd` Windows, thin shims over the stdlib-only `scripts/nexus_hub_cli.py` core). `nexus-hub --version` reads the installer-written `~/.nexus-hub/VERSION`; `nexus-hub upgrade` compares it to the latest `.claude-plugin/plugin.json` version on the project's own GitHub, prints the matching CHANGELOG block as a what's-new summary, and on confirmation re-runs the Phase 1 install bootstrap to upgrade in place | One version-check fetch to the project's OWN GitHub (`raw.githubusercontent.com` / `github.com`), preferring `curl`, falling back to `wget`, then stdlib `urllib`; the upgrade itself re-runs the existing bootstrap (also project-GitHub-only). No third-party processor, credential, or new dependency | `re-full` | Medium | **Adopted** in the install-ux-overhaul plan Phase 3 (sub-tasks 3.1-3.3): the `nexus-hub` launcher + version marker are installed by both installers (`install_cli_launcher` / `Install-CliLauncher`); offline / fetch-failure is handled with a clear message and a non-zero exit (no partial state). Implemented generically; the upstream is named only in this column per the Reverse-Engineering Attribution Rule | None planned. Revisit only if a richer self-management surface (channel pinning, rollback) becomes a stated goal | Reverse-engineers the *intent* of `specify self upgrade`, not its packaging: Nexus-Hub is a template catalog consumed from the repo (not a `uv`/`pip`-installed CLI), so the local equivalent is a launcher over the existing bootstrap, and the version check reuses the installer's existing project-GitHub posture rather than introducing a new data destination. Deferred as DF-v36-1 in v3.6.0; reprioritized for v3.7.0. Full analysis: [docs/v3.6.0/comparison-spec-kit.md](../v3.6.0/comparison-spec-kit.md) Bucket C (candidate N4) + [docs/v3.7.0/plans/install-ux-overhaul.md](../v3.7.0/plans/install-ux-overhaul.md) Phase 3. |
+
+---
+
 ## Summary
 
 | Bucket | Count | Notes |

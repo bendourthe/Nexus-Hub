@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.6.0 -->
+<!-- nexus-hub-version: 3.7.0 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 256 skills, 15 commands, 23 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -37,20 +37,19 @@ The two projects are designed to be useful independently: you can install Nexus-
 
 ---
 
-## What's New in v3.6.0
+## What's New in v3.7.0
 
-v3.6.0 operationalizes the policy-clean recommendations from the v3.5.0 GitHub Spec Kit re-comparison: it folds Spec Kit's extensibility *disciplines* into Nexus-Hub's local-first equivalents and makes two deliberate declines durable. Every change is additive and backward-compatible (a MINOR bump), with no new outbound call, dependency, credential, or third-party data processor. Catalog: **256 skills**, **15 commands**, **23 hooks**.
+v3.7.0 is the install-UX overhaul: Nexus-Hub installs and upgrades with a single copy-paste terminal command on macOS, Linux, and Windows -- no download, no unzip, no `cd`. The only outbound call is to the project's own GitHub (the installer's existing posture); no new dependency, credential, or third-party data processor. Catalog unchanged: **256 skills**, **15 commands**, **23 hooks**.
 
 Highlights:
 
-- **`base-*.md` lockstep parity guard**: a new repo-internal `check_base_template_parity.py` validator (wired into `make validate` and CI) machine-enforces the "edit all five platform instruction templates in lockstep" rule structurally, so cross-platform drift fails the build instead of shipping.
-- **Workflow-phase hook recipe**: honest guidance plus an advisory example hook for firing automation at `/plan` / `/implement` / `/spec` phase boundaries using only Nexus-Hub's four supported hook events -- no new harness event types, no third-party-code hook registry.
-- **`/skills import` hygiene**: HTTPS-only source validation, a discovery-only flag, and hash-on-import on the local import path, layered on top of the existing pre-install security scanner.
-- **Orchestration + preset vocabulary**: gate / persisted-resume / continue-on-error patterns folded into `loop-engineering` and `agent-orchestration-primitives`; template composition strategies (`replace` / `prepend` / `append` / `wrap`) folded into `agent-presets` and `theme-tokens`.
-- **Reverse-engineer-first declines, recorded**: a credentialed remote-catalog auth framework and an unsandboxed third-party-extension install path were both declined under the MCP Registry Policy and recorded in the reverse-engineering matrix so they stay adjudicated.
-- **Interactive guide polish**: copy-to-clipboard buttons on runnable command examples, and the "Get set up" entry point renamed to "Get started".
+- **One-command install**: `curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash` (macOS/Linux, with a `wget` fallback) or `irm https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.ps1 | iex` (Windows). The dual-mode entry points self-fetch the catalog, precheck dependencies (failing fast with an actionable message), and run the installer -- the in-repo `./install.sh` / `install.bat` path still works.
+- **No-prompt, all-platform install**: a run defaults to a global install across every detected assistant with no scope / platform / overwrite prompts (absent platforms skip-with-note); marker-merge preserves your edits, and a single end-of-run prompt appears only on a real conflict. `--workspace` / `--platforms` / `--yes` flags remain for power users and CI.
+- **`nexus-hub upgrade` checker**: a `nexus-hub` CLI on PATH reports installed vs latest, shows a short what's-new summary, and upgrades in place on confirmation (the version check is the only new outbound call, to the project's own GitHub).
+- **macOS install parity + Claude Usage Monitor fix**: every dependency (Node.js, Python 3.10+) is auto-installed when missing so a Mac install reaches the same clean steps as Windows; the Usage Monitor extension now reads Claude Code credentials from the macOS login Keychain, so it works after a Mac install.
+- **Cross-platform CI proof**: the bootstrap runs end-to-end on ubuntu + macOS (bash) and Windows (PowerShell), each asserting a working `nexus-hub --version`.
 
-See [CHANGELOG.md](CHANGELOG.md) for the full v3.6.0 entry and the complete release history.
+See [CHANGELOG.md](CHANGELOG.md) for the full v3.7.0 entry and the complete release history.
 
 ---
 
@@ -77,15 +76,29 @@ See [CHANGELOG.md](CHANGELOG.md) for the full v3.6.0 entry and the complete rele
 
 ---
 
-## Quick Start (The 30-Second Setup)
+## Quick Start (one command)
 
-1. **Clone or download** this repository.
-2. **Run the installer**:
-    - **Windows**: double-click **`install.bat`**.
-    - **macOS / Linux**: run `./install.sh` in your terminal.
-3. **Drag and drop** your target project folder when asked.
-4. **Confirm** to install global skills.
-5. **(Optional) Select a project** to configure workspace-specific rules.
+Open a terminal and paste the line for your system. It downloads the catalog from this repo and runs the installer -- no clone, no unzip, no `cd`.
+
+**macOS / Linux** (paste into Terminal):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash
+```
+
+No `curl` on the box? Use `wget`:
+
+```bash
+wget -qO- https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash
+```
+
+**Windows** (paste into PowerShell):
+
+```powershell
+irm https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.ps1 | iex
+```
+
+That is the whole setup -- no prompts. The installer prechecks its dependencies (and tells you exactly what to install if one is missing), then performs a global install across every supported assistant it detects; assistants you do not have are skipped with a note, never an error. Your customizations are preserved (marker-merge), and on a re-install it asks once only if it finds a managed file you changed that it would overwrite, naming the file.
 
 **Done.** The installer writes to `~/.nexus-hub/` (the user-global catalog) and into each supported assistant's per-platform config locations. If a legacy `~/.devai-hub/` install is detected, you will see a single migration prompt at the top of the run -- answer `Y` (default) to migrate in place.
 
@@ -93,6 +106,12 @@ After the installer completes:
 
 - **Globally**: your user profile has all 256 skills, 15 commands, 23 hooks, 23 agents, plus Gemini and Codex instructions.
 - **Locally**: your project has `copilot-instructions.md` and `AGENTS.md` tailored to your language.
+
+**Power-user flags**: `--workspace <path>` installs into a single repo instead of globally; `--platforms <comma-list>` limits the install to a subset of assistants; `--yes` runs fully unattended (refreshes managed files with no prompt -- ideal for CI). Prefer to clone first? `git clone` the repo and run `./install.sh` (macOS / Linux) or `install.bat` (Windows) -- the in-repo path still works exactly as before.
+
+### Keeping it current
+
+Run `nexus-hub upgrade` -- it reports your installed version against the latest, shows a short what's-new summary, and updates in place on confirmation. Re-running the install command above works too; the installer is idempotent.
 
 ---
 
@@ -125,7 +144,7 @@ Open an AI chatbot (Claude.ai or ChatGPT) and brainstorm: problem, users, core f
 #### 2. Project setup
 
 1. Create the Git repo with a three-tier branching model: `main` / `develop` / `feature/*`.
-2. Install the Nexus-Hub toolkit: `./install.sh` (macOS / Linux) or `install.bat` (Windows).
+2. Install the Nexus-Hub toolkit -- paste the one-line install command for your OS (see [Quick Start](#quick-start-one-command)).
 3. In Claude Code, run `/setup project` -- bootstraps `CLAUDE.md`, the directory structure, `.gitignore`, `README.md`, `DEVLOG.md`, and `CHANGELOG.md` in 8 guided phases.
 4. Save the implementation plan from step 1 to `docs/<version>/plans/<slug>.md`.
 5. Commit with `/commit`.

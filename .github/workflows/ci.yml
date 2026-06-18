@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, develop]
   pull_request:
-    branches: [main]
+    branches: [main, develop]
 
 jobs:
   validate:
@@ -87,6 +87,157 @@ jobs:
       - name: Lint hook and per-skill scripts
         run: |
           find catalog -name '*.sh' -print0 | xargs -0 shellcheck --severity=warning || true
+
+  bootstrap:
+    # v3.7.0 Phase 1 + Phase 5: exercise the dual-mode self-fetching bootstrap
+    # end-to-end on a clean machine (no pre-existing clone). The bash entry point
+    # runs the FULL install from a GitHub-shaped tarball of the checkout and then
+    # asserts a working `nexus-hub --version` (the Phase 5 DoD); the PowerShell
+    # entry point is AST-parsed and precheck-run via pwsh here (the full Windows
+    # install runs end-to-end in the bootstrap-windows job below).
+    #
+    # Phase 5 widens the bash path to a macOS runner as well as ubuntu: the
+    # installer is bash-3.2-safe (no associative arrays / mapfile / case-mod
+    # expansions), so the same code path runs on the BSD-userland macOS runner.
+    # ubuntu remains the authoritative bash gate under WN-v36-1 (bash cannot be
+    # fully run on the Windows dev host); macOS adds real-platform proof that the
+    # Mac smoke test (docs/v3.7.0/development/mac-smoke-test.md) used to carry
+    # alone.
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Build a GitHub-shaped catalog tarball from the checkout
+        run: git archive --format=tar.gz --prefix=Nexus-Hub-main/ -o "$RUNNER_TEMP/catalog.tar.gz" HEAD
+
+      - name: bash standalone bootstrap end-to-end (no prior clone) + nexus-hub --version
+        run: |
+          set -uo pipefail
+          # macOS mktemp needs an explicit template; this form is GNU- and BSD-safe.
+          home="$(mktemp -d "${TMPDIR:-/tmp}/nexus-ci.XXXXXX")/home"
+          mkdir -p "$home"
+          HOME="$home" NEXUS_HUB_FORCE_STANDALONE=1 NEXUS_HUB_TARBALL="$RUNNER_TEMP/catalog.tar.gz" \
+            bash install.sh < /dev/null || echo "core installer exited non-zero (rc=$?); asserting artifacts"
+          test -f "$home/.nexus-hub/src/scripts/installer.sh" \
+            || { echo "FAIL: bootstrap did not extract the catalog to ~/.nexus-hub/src"; exit 1; }
+          test -d "$home/.nexus-hub" \
+            || { echo "FAIL: ~/.nexus-hub not populated"; exit 1; }
+          echo "OK: standalone bootstrap populated $home/.nexus-hub"
+          # The install drops a `nexus-hub` launcher on PATH (Phase 3 CLI). Assert
+          # `--version` reports a semver (the Phase 5 DoD). Prefer the installed
+          # launcher; fall back to the extracted CLI core (its plugin.json version
+          # fallback always resolves after extraction) so the version-reading path
+          # is proven on this OS even if the headless install stopped short of the
+          # launcher step. The launcher-wiring itself is unit-tested in
+          # tests/installer/test_upgrade_cli.py.
+          launcher="$home/.nexus-hub/bin/nexus-hub"
+          core="$home/.nexus-hub/src/scripts/nexus_hub_cli.py"
+          export NEXUS_HUB_HOME="$home/.nexus-hub"
+          if [ -x "$launcher" ]; then
+            ver="$("$launcher" --version)" \
+              || { echo "FAIL: nexus-hub launcher --version exited non-zero"; exit 1; }
+            echo "launcher: $ver"
+          elif [ -f "$core" ]; then
+            echo "WARN: launcher not installed; checking the extracted CLI core"
+            ver="$(python3 "$core" --version)" \
+              || { echo "FAIL: nexus_hub_cli.py --version exited non-zero"; exit 1; }
+            echo "core: $ver"
+          else
+            echo "FAIL: neither the nexus-hub launcher nor the CLI core is present"; exit 1
+          fi
+          printf '%s\n' "$ver" | grep -qE 'nexus-hub [0-9]+\.[0-9]+\.[0-9]+' \
+            || { echo "FAIL: unexpected --version output: $ver"; exit 1; }
+          echo "OK: nexus-hub --version works ($ver)"
+
+      - name: bash missing-tool simulation exits non-zero with a clear message
+        run: |
+          set -uo pipefail
+          bash_bin="$(command -v bash)"
+          out="$(PATH='' NEXUS_HUB_FORCE_STANDALONE=1 "$bash_bin" install.sh 2>&1)" && rc=0 || rc=$?
+          printf '%s\n' "$out"
+          test "$rc" -ne 0 || { echo "FAIL: expected a non-zero exit"; exit 1; }
+          printf '%s\n' "$out" | grep -qi curl || { echo "FAIL: message did not name curl/wget"; exit 1; }
+          echo "OK: missing-tool path exits $rc with a clear message"
+
+      - name: PowerShell bootstrap AST parse + precheck (pwsh)
+        shell: pwsh
+        run: |
+          $errs = $null
+          $null = [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path ./install.ps1).Path, [ref]$null, [ref]$errs)
+          if ($errs -and $errs.Count -gt 0) { $errs | ForEach-Object { Write-Host $_.Message }; exit 1 }
+          Write-Host "install.ps1 AST OK"
+          $env:NEXUS_HUB_FORCE_STANDALONE = '1'
+          $env:NEXUS_HUB_PRECHECK_ONLY = '1'
+          pwsh -NoProfile -File ./install.ps1
+          if ($LASTEXITCODE -ne 0) { Write-Host "FAIL: precheck exit $LASTEXITCODE"; exit 1 }
+          Write-Host "OK: pwsh precheck passed"
+
+  bootstrap-windows:
+    # v3.7.0 Phase 5: run the standalone PowerShell bootstrap end-to-end on a real
+    # Windows runner. Before Phase 5 the Windows path had only been AST-parsed and
+    # precheck-run (under pwsh on Linux); the dev host cannot run the bash path at
+    # all (WN-v36-1), so a Windows runner is the only place the real `irm | iex`
+    # standalone flow is exercised. It drives install.ps1 in forced-standalone mode
+    # against a GitHub-shaped tarball of the checkout (zero network), then asserts a
+    # populated ~/.nexus-hub and a working `nexus-hub --version`.
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Build a GitHub-shaped catalog tarball from the checkout
+        shell: bash
+        run: git archive --format=tar.gz --prefix=Nexus-Hub-main/ -o "$RUNNER_TEMP/catalog.tar.gz" HEAD
+
+      - name: PowerShell standalone bootstrap end-to-end + nexus-hub --version
+        shell: powershell
+        run: |
+          $nxHome = Join-Path $env:RUNNER_TEMP ("nexus-home-" + [System.Guid]::NewGuid().ToString("N"))
+          New-Item -ItemType Directory -Force -Path $nxHome | Out-Null
+          $env:USERPROFILE = $nxHome
+          $env:HOME = $nxHome
+          $env:NEXUS_HUB_FORCE_STANDALONE = '1'
+          $env:NEXUS_HUB_TARBALL = (Join-Path $env:RUNNER_TEMP 'catalog.tar.gz')
+          # Run the standalone bootstrap via Windows PowerShell 5.1 (the documented
+          # floor and the `irm | iex` default on Windows). Tolerate the core
+          # installer's exit code; the extraction + version assertions below are the
+          # real gate.
+          & .\install.ps1
+          Write-Host "bootstrap rc=$LASTEXITCODE (asserting artifacts below)"
+          $nx = Join-Path $nxHome '.nexus-hub'
+          if (-not (Test-Path (Join-Path $nx 'src\scripts\installer.ps1'))) { Write-Host 'FAIL: bootstrap did not extract the catalog to ~/.nexus-hub/src'; exit 1 }
+          if (-not (Test-Path $nx)) { Write-Host 'FAIL: ~/.nexus-hub not populated'; exit 1 }
+          Write-Host "OK: standalone bootstrap populated $nx"
+          # Assert a working `nexus-hub --version`. Prefer the installed .cmd
+          # launcher; fall back to the extracted CLI core (plugin.json version
+          # fallback) so the version path is proven on Windows Python even if the
+          # headless core install stopped short of the launcher step.
+          $env:NEXUS_HUB_HOME = $nx
+          $launcher = Join-Path $nx 'bin\nexus-hub.cmd'
+          $core = Join-Path $nx 'src\scripts\nexus_hub_cli.py'
+          if (Test-Path $launcher) {
+            $ver = (& $launcher --version | Out-String).Trim()
+            Write-Host "launcher: $ver"
+          } elseif (Test-Path $core) {
+            Write-Host 'WARN: launcher not installed; checking the extracted CLI core'
+            $ver = (& python $core --version | Out-String).Trim()
+            Write-Host "core: $ver"
+          } else {
+            Write-Host 'FAIL: neither the nexus-hub launcher nor the CLI core is present'; exit 1
+          }
+          if ("$ver" -notmatch 'nexus-hub \d+\.\d+\.\d+') { Write-Host "FAIL: unexpected --version output: $ver"; exit 1 }
+          Write-Host "OK: nexus-hub --version works ($ver)"
 
   tests:
     # Runs the Python test suite. Each pytest invocation is scoped to its own

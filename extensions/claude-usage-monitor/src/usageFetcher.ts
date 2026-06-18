@@ -1,6 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";
+import { execFileSync } from "child_process";
 import {
   UsageData,
   UsageMetric,
@@ -12,6 +13,13 @@ import {
 import { formatResetTime } from "./usageStore";
 
 const CREDENTIALS_PATH = path.join(os.homedir(), ".claude", ".credentials.json");
+// On macOS, Claude Code stores its OAuth credentials in the login Keychain as a
+// generic password, NOT in ~/.claude/.credentials.json. Reading the file alone
+// therefore reports "credentials not found" on every Mac. The service name has
+// been "Claude Code-credentials" across Claude Code releases; we try the bare
+// "Claude Code" too as a defensive fallback in case a build differs.
+const KEYCHAIN_SERVICES = ["Claude Code-credentials", "Claude Code"];
+const IS_MACOS = process.platform === "darwin";
 const USAGE_API_URL = "https://api.anthropic.com/api/oauth/usage";
 const ANTHROPIC_BETA_HEADER = "oauth-2025-04-20";
 const TOKEN_REFRESH_URL = "https://console.anthropic.com/v1/oauth/token";
@@ -48,18 +56,85 @@ export type FetchResult =
   | { success: false; error: FetchError };
 
 export class UsageFetcher {
+  // Tracks where the active credentials came from so a refreshed token is
+  // written back to the same store (file on Linux/Windows, Keychain on macOS).
+  private credentialSource: "file" | "keychain" = "file";
+  // The Keychain service name that actually held the credentials, so write-back
+  // updates the same item. Defaults to the canonical name.
+  private keychainService: string = KEYCHAIN_SERVICES[0];
+
   private readCredentials(): OAuthCredentials | null {
-    try {
-      if (!fs.existsSync(CREDENTIALS_PATH)) {
-        return null;
+    // 1. The credentials file (Linux/Windows, and any macOS setup that still
+    //    uses a file). Preferred when present so behavior is unchanged there.
+    const fromFile = this.readCredentialsFromFile();
+    if (fromFile) {
+      this.credentialSource = "file";
+      return fromFile;
+    }
+    // 2. macOS Keychain fallback. This is the default location Claude Code uses
+    //    on macOS, so without this the extension can never find credentials there.
+    if (IS_MACOS) {
+      const fromKeychain = this.readCredentialsFromKeychain();
+      if (fromKeychain) {
+        this.credentialSource = "keychain";
+        return fromKeychain;
       }
-      const raw = fs.readFileSync(CREDENTIALS_PATH, "utf-8");
+    }
+    return null;
+  }
+
+  private parseCredentials(raw: string): OAuthCredentials | null {
+    try {
       const parsed: CredentialsFile = JSON.parse(raw);
       if (!parsed.claudeAiOauth?.accessToken) {
         return null;
       }
       return parsed.claudeAiOauth;
     } catch {
+      return null;
+    }
+  }
+
+  private readCredentialsFromFile(): OAuthCredentials | null {
+    try {
+      if (!fs.existsSync(CREDENTIALS_PATH)) {
+        return null;
+      }
+      return this.parseCredentials(fs.readFileSync(CREDENTIALS_PATH, "utf-8"));
+    } catch {
+      return null;
+    }
+  }
+
+  private readCredentialsFromKeychain(): OAuthCredentials | null {
+    for (const service of KEYCHAIN_SERVICES) {
+      const raw = this.readKeychainItem(service);
+      if (!raw) {
+        continue;
+      }
+      const parsed = this.parseCredentials(raw);
+      if (parsed) {
+        this.keychainService = service;
+        return parsed;
+      }
+    }
+    return null;
+  }
+
+  private readKeychainItem(service: string): string | null {
+    try {
+      // .toString() before .trim() keeps this valid regardless of which
+      // execFileSync overload the resolved @types/node selects (string vs Buffer).
+      const raw = execFileSync(
+        "security",
+        ["find-generic-password", "-s", service, "-w"],
+        { encoding: "utf8", timeout: 5_000 }
+      )
+        .toString()
+        .trim();
+      return raw || null;
+    } catch {
+      // No matching Keychain item, or the `security` tool is unavailable.
       return null;
     }
   }
@@ -276,11 +351,49 @@ export class UsageFetcher {
   }
 
   private saveCredentials(credentials: OAuthCredentials): void {
+    if (this.credentialSource === "keychain") {
+      this.saveCredentialsToKeychain(credentials);
+      return;
+    }
     try {
       const raw = fs.readFileSync(CREDENTIALS_PATH, "utf-8");
       const file: CredentialsFile = JSON.parse(raw);
       file.claudeAiOauth = { ...file.claudeAiOauth, ...credentials };
       fs.writeFileSync(CREDENTIALS_PATH, JSON.stringify(file, null, 2), "utf-8");
+    } catch {
+      // Non-fatal: extension will use the refreshed token for this session only
+    }
+  }
+
+  private saveCredentialsToKeychain(credentials: OAuthCredentials): void {
+    try {
+      // Merge into the existing Keychain blob so we preserve any sibling fields
+      // Claude Code stores alongside claudeAiOauth.
+      let file: CredentialsFile = {};
+      const raw = this.readKeychainItem(this.keychainService);
+      if (raw) {
+        try {
+          file = JSON.parse(raw);
+        } catch {
+          file = {};
+        }
+      }
+      file.claudeAiOauth = { ...file.claudeAiOauth, ...credentials };
+      // -U updates the existing generic-password item in place.
+      execFileSync(
+        "security",
+        [
+          "add-generic-password",
+          "-U",
+          "-a",
+          os.userInfo().username,
+          "-s",
+          this.keychainService,
+          "-w",
+          JSON.stringify(file),
+        ],
+        { timeout: 5_000 }
+      );
     } catch {
       // Non-fatal: extension will use the refreshed token for this session only
     }
