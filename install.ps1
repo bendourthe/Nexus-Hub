@@ -46,6 +46,21 @@ function Test-CommandExists {
     return [bool](Get-Command $Name -ErrorAction SilentlyContinue)
 }
 
+# Resolve the PowerShell executable to re-invoke the core installer with. This
+# must be the SAME host running this script, not a hardcoded "powershell":
+# Windows PowerShell 5.1 is "powershell.exe", but PowerShell 7 is "pwsh", and on
+# Linux/macOS (or a pwsh-only Windows) "powershell" does not exist at all -- so
+# `& powershell` fails with "term 'powershell' is not recognized". The running
+# process path covers every case (5.1 and 7, Windows and Unix).
+function Get-PowerShellExe {
+    try {
+        $self = (Get-Process -Id $PID).Path
+        if ($self) { return $self }
+    } catch {}
+    if ($PSVersionTable.PSVersion.Major -ge 6) { return "pwsh" }
+    return "powershell"
+}
+
 # Resolve the directory this script lives in, or $null when invoked via irm|iex
 # (no file on disk -> $PSScriptRoot / $PSCommandPath are empty).
 function Resolve-ScriptDir {
@@ -84,7 +99,7 @@ function Invoke-InRepo {
         Write-BootstrapError "Installer script not found at $installer"
         exit 1
     }
-    & powershell -NoProfile -ExecutionPolicy Bypass -File $installer @ArgList
+    & (Get-PowerShellExe) -NoProfile -ExecutionPolicy Bypass -File $installer @ArgList
     exit $LASTEXITCODE
 }
 
@@ -165,7 +180,7 @@ function Invoke-Standalone {
         }
 
         Write-BootstrapInfo "Running installer from $src ..."
-        & powershell -NoProfile -ExecutionPolicy Bypass -File $installer @ArgList
+        & (Get-PowerShellExe) -NoProfile -ExecutionPolicy Bypass -File $installer @ArgList
         $exitCode = $LASTEXITCODE
     } finally {
         if (Test-Path $tmp) { Remove-Item -Recurse -Force $tmp -ErrorAction SilentlyContinue }
