@@ -44,6 +44,10 @@ repos:
         files: '\.(json)$'
       - id: mixed-line-ending
         args: ['--fix=lf']
+        # Windows batch shims must keep CRLF (see .gitattributes:
+        # `scripts/nexus-hub.cmd text eol=crlf`). They check out as CRLF on
+        # every OS, so the global --fix=lf would rewrite them and fail the hook.
+        exclude: '\.cmd$'
 
   - repo: https://github.com/shellcheck-py/shellcheck-py
     rev: v0.10.0.1
