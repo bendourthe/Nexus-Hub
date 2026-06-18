@@ -4,7 +4,7 @@ description: Sync a repo to its current state and, at release scope, ship it - d
 
 # /update Command
 
-Sync a repository to its current state and, at `release` scope, ship it. `/update` consolidates every "bring the repo up to date" action: documentation and README, devlog, gitignore, version bump (atomic across every version-carrying surface), changelog, docs/project refactor, platform-config repair, commit message, and the end-to-end release flow that commits, tags, and pushes. Bare invocation asks for a scope.
+Sync a repository to its current state and, at `release` scope, ship it. `/update` consolidates every "bring the repo up to date" action: documentation and README, devlog, gitignore, version bump (atomic across every version-carrying surface), changelog, docs/project refactor, platform-config repair, commit message, and the end-to-end release flow that commits, tags, pushes, and publishes the GitHub Release. Bare invocation asks for a scope.
 
 This is a thin dispatcher following the contract in [`command-scope-mechanism.md`](../style-guides/command-scope-mechanism.md). The substantive logic lives in the retained skills; this file resolves scope and delegates. `/update release` is the flow `/implement` hands off to on a plan's final phase.
 
@@ -16,7 +16,7 @@ Resolve SCOPE from the first positional argument (`$ARGUMENTS`). Recognized scop
 - Otherwise, present this menu and wait for a selection before doing any work:
 
       What scope?
-        1. release   (recommended) - the full ship flow: docs + devlog + gitignore + version + changelog + refactor, then commit, tag, push
+        1. release   (recommended) - the full ship flow: docs + devlog + gitignore + version + changelog + refactor, then commit, tag, push, publish GitHub Release
         2. docs      - sync README, API docs, architecture docs, inline guides
         3. devlog    - append a DEVLOG entry for recent changes
         4. gitignore - audit .gitignore, clean the index, recommend LFS
@@ -28,7 +28,7 @@ Resolve SCOPE from the first positional argument (`$ARGUMENTS`). Recognized scop
 
       Reply with a number or a scope name.
 
-- `release` runs the focused scopes in order - `docs`, then `devlog`, then `gitignore`, then `version`, then `changelog`, then `refactor` - then cleans up, commits, tags, and pushes as one flow. It keeps every confirmation gate: never create a tag or push without explicit user confirmation.
+- `release` runs the focused scopes in order - `docs`, then `devlog`, then `gitignore`, then `version`, then `changelog`, then `refactor` - then cleans up, commits, tags, pushes, and publishes the GitHub Release as one flow. It keeps every confirmation gate: never create a tag, push, or publish a release without explicit user confirmation.
 
 ## Delegation
 
@@ -42,7 +42,7 @@ Dispatch the resolved scope to the retained skill(s). These targets are skills u
       refactor  -> docs-layout-refactor + project-refactor
       config    -> update-config (built-in) + config-consistency-checker / nexus-hub doctor (see below)
       commit    -> code-commit-workflow
-      release   -> docs -> devlog -> gitignore -> version -> changelog -> refactor, then clean up, commit, tag, push
+      release   -> docs -> devlog -> gitignore -> version -> changelog -> refactor, then clean up, commit, tag, push, publish GitHub Release (see below)
 
 Pass any remaining arguments through unchanged. Heavy logic stays in the retained skills; this file owns only scope resolution and the release sequencing.
 
@@ -60,6 +60,16 @@ When the scope is `release`, run this reconciliation as the FIRST step, before t
 ## version scope (atomic, drift-guarded)
 
 The `version` scope MUST use `scripts/check_version_sync.py` so every version-carrying surface is bumped as one atomic set: `.claude-plugin/plugin.json` (canonical), `scripts/installer.sh` (`NEXUS_HUB_VERSION`), `scripts/installer.ps1` (`$script:NexusHubVersion`), `data/marketplace.json`, the latest `CHANGELOG.md` heading, and the README / AGENTS.md catalog-version prose. Run the guard before and after the bump: it must report a clean in-sync tree afterward. This closes the v2.4.0 drift class (installers stuck at one version while `plugin.json` moved to the next) systemically - a mismatch fails the build rather than shipping.
+
+## release scope: GitHub Release publishing (final step, after push)
+
+After the tag is pushed, `release` publishes a GitHub Release for the new `vX.Y.Z` tag so the repo's Releases page (and the "latest release" badge / sidebar) tracks the tag. **Pushing a git tag does NOT create a GitHub Release** -- they are separate objects -- so omitting this step silently leaves the Releases page behind the tags (the exact drift that left the page at v3.5.0 while the v3.6.0 and v3.7.0 tags already existed). This step runs last because it requires the tag to be on the remote first.
+
+- **Body = the finalized CHANGELOG section.** Use the `## [X.Y.Z]` block just written to `CHANGELOG.md` as the release notes, and reuse the tag annotation's one-line summary for the title (`vX.Y.Z - <summary>`).
+- **Prefer `gh`, degrade gracefully (never fail the release).** If the GitHub CLI is present and authenticated (`gh auth status` succeeds), run `gh release create "vX.Y.Z" --title "vX.Y.Z - <summary>" --notes-file <file-holding-the-changelog-section>`. If `gh` is absent or unauthenticated, do NOT fail or roll back -- the tag and push already succeeded, so the Release can be published at any later time. Print the exact commands for the user to run: the `gh release create ...` form, plus a no-`gh` fallback (`curl -X POST -H "Authorization: Bearer <token>" https://api.github.com/repos/<owner>/<repo>/releases -d '{"tag_name":"vX.Y.Z","name":"vX.Y.Z - <summary>","body":"<notes>"}'`).
+- **Idempotent.** If a Release for `vX.Y.Z` already exists, update it in place (`gh release edit "vX.Y.Z" --title ... --notes-file ...`) instead of erroring.
+- **Confirmation gate.** Publishing is outward-facing, so confirm before creating/editing the Release -- the same gate the tag and push already carry. Never publish without explicit user confirmation.
+- **Backfill.** When the Releases page is behind the tags (a tag exists with no matching Release), the same step publishes the missing Release(s) from each tag's CHANGELOG section -- run it per missing `vX.Y.Z`.
 
 ## config scope (platform-config drift repair)
 

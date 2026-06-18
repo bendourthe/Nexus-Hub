@@ -1,6 +1,6 @@
 # AGENTS.md
 
-<!-- nexus-hub-version: 3.7.0 -->
+<!-- nexus-hub-version: 3.8.0 -->
 
 This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, Gemini CLI, etc.) when working with code in this repository.
 
@@ -405,7 +405,7 @@ Nexus-Hub uses a lightweight **`develop` + `main`** model (adopted 2026-06-04). 
 
 - **`main`** is the stable, installable branch -- the branch users install from. It only receives merges at release time, each cut as a `vX.Y.Z` tag. Never commit version or phase work directly to `main`. The GitHub default branch stays `main` so clones and installer runs always get stable content.
 - **`develop`** is the integration branch. All version work lands here, either directly or via short-lived feature branches (`feat/<slug>`, `fix/<slug>`) merged back into `develop`.
-- **Release**: when a version's Definition of Done is met, merge `develop` -> `main` and tag `vX.Y.Z` via `/update version` (which bumps every version-carrying surface; the `check_version_sync.py` guard enforces consistency across them).
+- **Release**: when a version's Definition of Done is met, run `/update release` (which bumps every version-carrying surface -- the `check_version_sync.py` guard enforces consistency across them -- finalizes the changelog, then commits, merges `develop` -> `main`, tags `vX.Y.Z`, pushes, and **publishes the GitHub Release** for that tag). Pushing a tag does NOT create a GitHub Release, so the publish step is what keeps the Releases page in step with the tags; it degrades gracefully (prints the `gh release create` command when `gh` is unavailable) and is idempotent + backfillable for any tag whose Release is missing.
 
 Rationale: Nexus-Hub is a catalog consumed directly from the repo by an installer across every supported AI platform, so `main` is effectively a release artifact. Isolating in-progress, multi-phase versions on `develop` protects downstream installer users from half-applied phases.
 

@@ -39,7 +39,7 @@ The plan recommends a strong reasoning tier at medium effort for this docs phase
 
 - Guide HTML: inline `html.parser` parse without exception; container-tag balance div 610/610, section 18/18, p 117/117, svg 23/23; 5 `[data-copy]` blocks; all three bootstrap commands present; static `data-go` nav targets all resolve (the only "unresolved" hits are JS template-literal artifacts inside the inline `<script>`).
 - `validate_unicode_safety.py`: 0 errors, 1051 warnings -- identical to the Phase 1 baseline, so the changed files (including the Chinese `README_zh.md`) added no new non-ASCII errors or warnings.
-- `validate_no_personal_paths.py`: 3 findings, all PRE-EXISTING Phase 1/2 doc leaks (`docs/DEVLOG.md`, `docs/v3.7.0/comparison-ralph-claude-code.md:265`, the Phase 2 history file); none in any Phase 4 file. The guide's run-output `C:\Users\you` is a generic placeholder the validator does not flag.
+- `validate_no_personal_paths.py`: 3 findings, all PRE-EXISTING Phase 1/2 doc leaks (`docs/DEVLOG.md`, `docs/v3.8.0/comparison-ralph-claude-code.md:265`, the Phase 2 history file); none in any Phase 4 file. The guide's run-output `C:\Users\you` is a generic placeholder the validator does not flag.
 - `check_version_sync.py`: all surfaces match canonical 3.6.0 (the README.md / AGENTS.md edits did not disturb the version markers; the bump is Phase 5).
 - `check_base_template_parity.py`: 5/5 present (no `base-*.md` template was touched).
 
@@ -54,7 +54,7 @@ None needed. This phase adds no script, test, or hook; the docs changes carry no
 
 ## Known gaps / pre-existing issues surfaced (not fixed -- out of Phase 4 scope)
 
-- **3 standing personal-path leaks** in `docs/DEVLOG.md` (the Phase 2/3 entries quoting the leak path), `docs/v3.7.0/comparison-ralph-claude-code.md:265`, and the Phase 2 history file -- to be redacted in sub-task 5.2 before release.
+- **3 standing personal-path leaks** in `docs/DEVLOG.md` (the Phase 2/3 entries quoting the leak path), `docs/v3.8.0/comparison-ralph-claude-code.md:265`, and the Phase 2 history file -- to be redacted in sub-task 5.2 before release.
 - **`README_zh.md` is broadly stale** beyond the install flow (wrong catalog counts, old command names). A full re-translation pass should be logged in `docs/v3.7.0/known-gaps.md` (created in Phase 5).
 - Carried-forward constraints: WN-v36-1 (bash not fully runnable on the Windows dev host) and WN-v33-1 (local `make` / ShellCheck not always on PATH; validators run directly).
 
