@@ -118,7 +118,7 @@ The Nexus-Hub installer automatically includes this section in all generated `GE
 
 ## Related Resources
 
-- [context-optimization skill](../catalog/skills/developer-experience/context-optimization/SKILL.md) - AI-assisted guidance for applying these optimizations to a project
-- [nexus-context-compressor README](../extensions/nexus-context-compressor/README.md) - the engine's architecture, strategies, and reversible CCR store
+- [context-optimization skill](../../catalog/skills/developer-experience/context-optimization/SKILL.md) - AI-assisted guidance for applying these optimizations to a project
+- [nexus-context-compressor README](../../extensions/nexus-context-compressor/README.md) - the engine's architecture, strategies, and reversible CCR store
 - [CLAUDE_CODE_SETTINGS_REFERENCE.md](CLAUDE_CODE_SETTINGS_REFERENCE.md) - full reference for Claude Code settings.json and hooks
 - [CLAUDE_CODE_GUIDE.md](CLAUDE_CODE_GUIDE.md) - general Claude Code setup and usage guide

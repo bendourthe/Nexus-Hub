@@ -909,8 +909,8 @@ Use `medium` or `low` for latency-sensitive, tightly-scoped tasks where reasonin
 
 ### Related
 
-- [guides/SESSION_LIFECYCLE_DECISIONS.md](../../../../guides/SESSION_LIFECYCLE_DECISIONS.md) - effort level is the reasoning-per-turn dial; session-lifecycle choices are the per-session dial. Both are needed.
-- [guides/CLAUDE_CODE_SETTINGS_REFERENCE.md](../../../../guides/CLAUDE_CODE_SETTINGS_REFERENCE.md) - concrete config syntax for each tier.
+- [guides/reference/SESSION_LIFECYCLE_DECISIONS.md](../../../../guides/reference/SESSION_LIFECYCLE_DECISIONS.md) - effort level is the reasoning-per-turn dial; session-lifecycle choices are the per-session dial. Both are needed.
+- [guides/reference/CLAUDE_CODE_SETTINGS_REFERENCE.md](../../../../guides/reference/CLAUDE_CODE_SETTINGS_REFERENCE.md) - concrete config syntax for each tier.
 
 ## Opus 4.7 Practices
 

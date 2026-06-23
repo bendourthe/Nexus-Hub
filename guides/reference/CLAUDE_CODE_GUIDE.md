@@ -2,7 +2,7 @@
 
 **Complete guide for autonomous development with Claude Code**
 
-[← Back to Main](../README.md)
+[← Back to Main](../../README.md)
 
 ---
 
@@ -258,19 +258,19 @@ Pre-built CLAUDE.md templates for all supported languages:
 **Location:** `templates/ai-instructions/CLAUDE_MD/`
 
 **Available Templates:**
-- [Python](../templates/ai-instructions/CLAUDE_MD/python/) - Modular skills-based template
+- [Python](../../templates/ai-instructions/CLAUDE_MD/python/) - Modular skills-based template
 
-- [JavaScript/TypeScript](../templates/ai-instructions/CLAUDE_MD/javascript/) - Full stack, Node.js
+- [JavaScript/TypeScript](../../templates/ai-instructions/CLAUDE_MD/javascript/) - Full stack, Node.js
 
-- [Java](../templates/ai-instructions/CLAUDE_MD/java/) - Enterprise, Spring Boot
+- [Java](../../templates/ai-instructions/CLAUDE_MD/java/) - Enterprise, Spring Boot
 
-- [C#](../templates/ai-instructions/CLAUDE_MD/csharp/) - .NET Core, ASP.NET
+- [C#](../../templates/ai-instructions/CLAUDE_MD/csharp/) - .NET Core, ASP.NET
 
-- [Go](../templates/ai-instructions/CLAUDE_MD/go/) - Cloud-native, microservices
+- [Go](../../templates/ai-instructions/CLAUDE_MD/go/) - Cloud-native, microservices
 
-- [C](../templates/ai-instructions/CLAUDE_MD/c/) - Embedded, firmware
+- [C](../../templates/ai-instructions/CLAUDE_MD/c/) - Embedded, firmware
 
-- [C++](../templates/ai-instructions/CLAUDE_MD/cpp/) - Modern C++17/20
+- [C++](../../templates/ai-instructions/CLAUDE_MD/cpp/) - Modern C++17/20
 
 **Setup Steps:**
 
@@ -501,7 +501,7 @@ Claude: "I'll use the setup-test-infrastructure skill followed by generate-test-
 
 - **refactor-safely** (CRITICAL) - Safe refactoring with tests
 
-**Full catalog:** [catalog/skills/](../catalog/skills/)
+**Full catalog:** [catalog/skills/](../../catalog/skills/)
 
 ### 2.5 Skill Categories
 
@@ -685,7 +685,7 @@ Six documentation types, fully supported by Claude Code autonomous execution:
 5. **API Documentation** - Complete API reference
 6. **SBOM** - Software Bill of Materials for compliance
 
-**Templates:** [templates/development/documentation-generation/](../templates/development/documentation-generation/)
+**Templates:** [templates/development/documentation-generation/](../../templates/development/documentation-generation/)
 
 ### 4.2 Recommended Order with Autonomous Execution
 
@@ -1199,7 +1199,7 @@ Claude Code autonomously implements compliance frameworks, security governance, 
 
 ### 7.2 Available Templates (96 Total)
 
-**Location:** [templates/development/compliance-review/](../templates/development/compliance-review/)
+**Location:** [templates/development/compliance-review/](../../templates/development/compliance-review/)
 
 #### Compliance Frameworks (28 templates)
 - **SOC 2 Type II** - Trust Services Criteria for SaaS/Cloud providers
@@ -1208,31 +1208,31 @@ Claude Code autonomously implements compliance frameworks, security governance, 
 - **NIST AI RMF 1.0** - AI Risk Management Framework
 - **PCI-DSS v4.0** - Payment Card Industry Data Security Standard
 
-**Templates:** [compliance_frameworks/](../templates/development/compliance-review/compliance_frameworks/)
+**Templates:** [compliance_frameworks/](../../templates/development/compliance-review/compliance_frameworks/)
 
 #### Risk Management (14 templates)
 - **Risk Assessment** - Systematic threat identification and mitigation
 - **Threat Modeling** - STRIDE methodology, attack surface analysis
 
-**Templates:** [risk_management/](../templates/development/compliance-review/risk_management/)
+**Templates:** [risk_management/](../../templates/development/compliance-review/risk_management/)
 
 #### Governance Policies (14 templates)
 - **Security Policies** - Comprehensive security policy documentation
 - **Access Control** - RBAC implementation, least privilege
 
-**Templates:** [governance_policies/](../templates/development/compliance-review/governance_policies/)
+**Templates:** [governance_policies/](../../templates/development/compliance-review/governance_policies/)
 
 #### Privacy Protection (14 templates)
 - **GDPR Compliance** - EU General Data Protection Regulation
 - **CCPA Compliance** - California Consumer Privacy Act
 
-**Templates:** [privacy_protection/](../templates/development/compliance-review/privacy_protection/)
+**Templates:** [privacy_protection/](../../templates/development/compliance-review/privacy_protection/)
 
 #### Incident Response (14 templates)
 - **Incident Response Plans** - NIST SP 800-61 6-phase lifecycle
 - **Breach Protocols** - GDPR 72-hour notification compliance
 
-**Templates:** [incident_response/](../templates/development/compliance-review/incident_response/)
+**Templates:** [incident_response/](../../templates/development/compliance-review/incident_response/)
 
 #### AI Agent Governance (14 templates)
 - **Lifecycle Management** - Separation of duties, CI/CD for AI
@@ -1240,7 +1240,7 @@ Claude Code autonomously implements compliance frameworks, security governance, 
 - **Agent Security** - Least privilege for agents
 - **Agent Risk Controls** - Guardrails, PII detection
 
-**Templates:** [ai_agent_governance/](../templates/development/compliance-review/ai_agent_governance/)
+**Templates:** [ai_agent_governance/](../../templates/development/compliance-review/ai_agent_governance/)
 
 ### 7.3 The Four Pillars of AI Agent Governance
 
@@ -1796,21 +1796,21 @@ Pull Request: #123
 ## 📚 Additional Resources
 
 **Essential Reading:**
-- [CLAUDE.md Templates](../templates/ai-instructions/CLAUDE_MD/)
+- [CLAUDE.md Templates](../../templates/ai-instructions/CLAUDE_MD/)
 
-- [Skills Catalog](../catalog/skills/)
+- [Skills Catalog](../../catalog/skills/)
 
 - [Claude Code Project Setup Guide](CLAUDE_CODE_PROJECT_SETUP.md)
 
 **Template Directories:**
-- [Documentation Templates](../templates/development/documentation-generation/)
+- [Documentation Templates](../../templates/development/documentation-generation/)
 
-- [Testing Templates](../templates/development/tests-generation/)
+- [Testing Templates](../../templates/development/tests-generation/)
 
-- [Code Review Templates](../templates/development/codebase-review/)
+- [Code Review Templates](../../templates/development/codebase-review/)
 
-- [Cleanup Templates](../templates/development/codebase-cleanup/)
+- [Cleanup Templates](../../templates/development/codebase-cleanup/)
 
 ---
 
-[← Back to Main](../README.md)
+[← Back to Main](../../README.md)

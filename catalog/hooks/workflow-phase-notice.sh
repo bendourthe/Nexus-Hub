@@ -14,7 +14,7 @@
 #   the tool call that marks the boundary (here, Write/Edit), with the hook
 #   script inspecting the tool input to decide whether it is really at a
 #   boundary. This is the runnable example referenced by the "Workflow-phase
-#   automation recipe" in guides/CLAUDE_CODE_SETTINGS_REFERENCE.md.
+#   automation recipe" in guides/reference/CLAUDE_CODE_SETTINGS_REFERENCE.md.
 #
 # How it works:
 #   Claude Code pipes JSON to stdin around each Write/Edit tool call. This

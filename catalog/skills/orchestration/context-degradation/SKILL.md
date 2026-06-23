@@ -102,7 +102,7 @@ Context degradation manifests in 5 distinct patterns. Identifying the correct pa
 | 70-85% | High | Active compression recommended |
 | 85-100% | Critical | Immediate session handoff or compression |
 
-**Companion guidance for compression and handoff decisions**: the percentages above describe *severity*; deciding which tool to reach for when you hit Orange or Red is a separate call. See the **Proactive steering with `/compact focus on X, drop Y`** subsection of [context-compression/SKILL.md](../context-compression/SKILL.md) for the steerable-compaction syntax used at the Orange threshold, and [guides/SESSION_LIFECYCLE_DECISIONS.md](../../../../guides/SESSION_LIFECYCLE_DECISIONS.md) for the continue / `/rewind` / `/clear` / `/compact` / delegate decision tree that decides when compression is the wrong tool.
+**Companion guidance for compression and handoff decisions**: the percentages above describe *severity*; deciding which tool to reach for when you hit Orange or Red is a separate call. See the **Proactive steering with `/compact focus on X, drop Y`** subsection of [context-compression/SKILL.md](../context-compression/SKILL.md) for the steerable-compaction syntax used at the Orange threshold, and [guides/reference/SESSION_LIFECYCLE_DECISIONS.md](../../../../guides/reference/SESSION_LIFECYCLE_DECISIONS.md) for the continue / `/rewind` / `/clear` / `/compact` / delegate decision tree that decides when compression is the wrong tool.
 
 ### Step 3: Apply Mitigation
 
@@ -275,7 +275,7 @@ After applying mitigation, verify that context quality has been restored.
 - [[context-compression]] - Detailed compression procedures and summary templates
 - [[plan-before-code]] - Structured planning that prevents some degradation
 - [[task-coordinator]] - Task isolation that reduces context overload
-- See also: [SESSION_LIFECYCLE_DECISIONS](../../../../guides/SESSION_LIFECYCLE_DECISIONS.md) - decision tree for continue vs `/rewind` vs `/clear` vs `/compact` when degradation sets in
+- See also: [SESSION_LIFECYCLE_DECISIONS](../../../../guides/reference/SESSION_LIFECYCLE_DECISIONS.md) - decision tree for continue vs `/rewind` vs `/clear` vs `/compact` when degradation sets in
 
 ---
 

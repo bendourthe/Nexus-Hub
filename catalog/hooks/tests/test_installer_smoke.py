@@ -417,7 +417,7 @@ V0_9_7_ARTIFACTS = [
     # into docs/archive/v0/ during v2.1.0 post-Phase-10 maintenance
     # (commit 590ea5a). The test continues to assert it exists at its new
     # canonical path so the historical record stays reachable.
-    "guides/SESSION_LIFECYCLE_DECISIONS.md",
+    "guides/reference/SESSION_LIFECYCLE_DECISIONS.md",
     "docs/archive/v0/v0.9.6/opus-4-7-migration.md",
     # New checklist (Phase 3)
     "catalog/checklists/file-upload-security.md",

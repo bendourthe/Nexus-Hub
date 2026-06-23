@@ -2,7 +2,7 @@
 
 **Comprehensive reference for Claude Code command-line flags and environment variables**
 
-[Back to Main](../README.md)
+[Back to Main](../../README.md)
 
 ---
 

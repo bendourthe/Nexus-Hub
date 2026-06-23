@@ -23,7 +23,7 @@
 #   NEXUS_CONTEXT_COMPRESS=0 <command>
 #
 # Windows: hooks require a Unix shell. On Windows, Claude Code uses the
-#   CLAUDE.md-injected instruction block instead (see guides/RTK_CONTEXT_COMPRESSION.md),
+#   CLAUDE.md-injected instruction block instead (see guides/reference/RTK_CONTEXT_COMPRESSION.md),
 #   which tells the agent to pipe noisy structured output through
 #   `python -m nexus_context_compressor compress` explicitly.
 #

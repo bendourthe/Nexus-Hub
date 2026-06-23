@@ -2,7 +2,7 @@
 
 **Complete 8-phase testing methodology from infrastructure setup to test quality validation**
 
-[← Back to Main](../../README.md) | [Coding Assistant Guide](../../guides/CODING_ASSISTANT_GUIDE.md) | [Claude Code Guide](../../guides/CLAUDE_CODE_GUIDE.md) | [All Guides](../../guides/)
+[← Back to Main](../../README.md) | [Coding Assistant Guide](../../guides/CODING_ASSISTANT_GUIDE.md) | [Claude Code Guide](../../guides/reference/CLAUDE_CODE_GUIDE.md) | [All Guides](../../guides/)
 
 ---
 

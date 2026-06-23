@@ -57,7 +57,7 @@ Use this skill when you need to:
   2. AI outputs the 5-10 bullet handoff message.
   3. User runs `/rewind` (to drop recent noise) or `/clear` (to fully reset).
   4. User pastes the handoff as the opening message of the new turn; work resumes with the learnings but without the noise.
-- **Cross-link**: see [SESSION_LIFECYCLE_DECISIONS.md](../../../../guides/SESSION_LIFECYCLE_DECISIONS.md) section 2 ("When to `/rewind`") for the decision logic on when this handoff is the right choice vs a full `/clear` or proactive `/compact focus on X, drop Y`.
+- **Cross-link**: see [SESSION_LIFECYCLE_DECISIONS.md](../../../../guides/reference/SESSION_LIFECYCLE_DECISIONS.md) section 2 ("When to `/rewind`") for the decision logic on when this handoff is the right choice vs a full `/clear` or proactive `/compact focus on X, drop Y`.
 
 **Template for the handoff message**:
 
@@ -307,7 +307,7 @@ Before finalizing the output file, verify:
 -   [[code-commit-workflow]] -- commit conventions that feed into session history timestamps
 -   [[documentation-consistency]] -- verifying documentation stays in sync with code changes
 -   [[session-teach-back]] -- this skill writes the session record; session-teach-back quizzes you on what that session produced to confirm you understood it
--   See also: [SESSION_LIFECYCLE_DECISIONS](../../../../guides/SESSION_LIFECYCLE_DECISIONS.md) — the "summarize from here" handoff pattern and when to pair session-history output with `/rewind` or `/clear`
+-   See also: [SESSION_LIFECYCLE_DECISIONS](../../../../guides/reference/SESSION_LIFECYCLE_DECISIONS.md) — the "summarize from here" handoff pattern and when to pair session-history output with `/rewind` or `/clear`
 
 ---
 

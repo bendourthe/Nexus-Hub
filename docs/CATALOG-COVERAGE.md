@@ -58,7 +58,7 @@ This matrix maps Nexus-Hub's skill catalog against user roles, AI platforms, and
 - `templates/documentation/branded-report-template.docx` - styled Word template (teal Consolas title, Calibri Light small-caps headings, auto-TOC, hanging-indent references) that ships alongside the existing generic template.
 
 **New guides (2)**:
-- [guides/SESSION_LIFECYCLE_DECISIONS.md](../guides/SESSION_LIFECYCLE_DECISIONS.md) - five-branch decision tree (continue / `/rewind` / `/clear` / `/compact` / delegate to subagent).
+- [guides/reference/SESSION_LIFECYCLE_DECISIONS.md](../guides/reference/SESSION_LIFECYCLE_DECISIONS.md) - five-branch decision tree (continue / `/rewind` / `/clear` / `/compact` / delegate to subagent).
 - [docs/v0.9.6/opus-4-7-migration.md](v0.9.6/opus-4-7-migration.md) - operator migration guide with TL;DR, four must-do items, and a 13-row cross-reference table indexing every Opus 4.6 -> 4.7 behavioral delta.
 
 **New checklists (1)**:
@@ -372,7 +372,7 @@ The following capability areas are not yet covered by the catalog:
 
 | Gap | Category | Priority | Notes |
 |-----|----------|----------|-------|
-| MCP server development | AI Development | P2 | Guide exists (`guides/MCP_DEVELOPMENT_SERVERS.md`); dedicated skill planned |
+| MCP server development | AI Development | P2 | Guide exists (`guides/reference/MCP_DEVELOPMENT_SERVERS.md`); dedicated skill planned |
 | Docker AI orchestration | Infrastructure | P2 | `containerization` skill is generic; AI-workload patterns planned |
 | Sample report outputs | Documentation | P2 | No example outputs for report-generating skills |
 | Strict TypeScript tsconfig | Developer Experience | P3 | `typescript.md` template covers basics; strict config patterns planned |

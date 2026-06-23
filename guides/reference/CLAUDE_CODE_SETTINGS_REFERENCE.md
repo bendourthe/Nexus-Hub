@@ -2,7 +2,7 @@
 
 **Comprehensive reference for the Claude Code settings system**
 
-[Back to Main](../README.md)
+[Back to Main](../../README.md)
 
 ---
 
@@ -131,7 +131,7 @@ Permissions control which tools Claude Code can use and what operations it can p
 | `medium` | Balanced speed and quality | Tightly scoped tasks, general development |
 | `low` | Fastest responses | Simple edits, formatting, latency-sensitive interactive work |
 
-The Nexus-Hub installer writes `effortLevel: xhigh` by default (see `catalog/hooks/settings.json`). Override via the `/effort` command (interactive slider or direct set, e.g. `/effort high`), the `/model` command, the `--effort` CLI flag for a single session, or the `CLAUDE_CODE_EFFORT_LEVEL` environment variable. For the full decision guidance, see the **Effort-Level Strategy** section of [catalog/skills/ai-development/prompt-engineering/SKILL.md](../catalog/skills/ai-development/prompt-engineering/SKILL.md).
+The Nexus-Hub installer writes `effortLevel: xhigh` by default (see `catalog/hooks/settings.json`). Override via the `/effort` command (interactive slider or direct set, e.g. `/effort high`), the `/model` command, the `--effort` CLI flag for a single session, or the `CLAUDE_CODE_EFFORT_LEVEL` environment variable. For the full decision guidance, see the **Effort-Level Strategy** section of [catalog/skills/ai-development/prompt-engineering/SKILL.md](../../catalog/skills/ai-development/prompt-engineering/SKILL.md).
 
 ---
 

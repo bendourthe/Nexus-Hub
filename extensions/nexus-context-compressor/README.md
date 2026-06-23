@@ -81,7 +81,7 @@ Every default-path strategy is pure standard library. The only required dependen
 
 ### Migrating from rtk
 
-This engine supersedes the external `rtk` Rust binary the project previously recommended. Existing rtk users remove the rtk PreToolUse hook (or the Windows `CLAUDE.md` instruction block), optionally `cargo uninstall rtk`, and enable the internal hook with `export NEXUS_CONTEXT_COMPRESS=1`. Do not run both at once. The full migration steps, platform matrix, and trust rationale are in [`guides/RTK_CONTEXT_COMPRESSION.md`](../../guides/RTK_CONTEXT_COMPRESSION.md).
+This engine supersedes the external `rtk` Rust binary the project previously recommended. Existing rtk users remove the rtk PreToolUse hook (or the Windows `CLAUDE.md` instruction block), optionally `cargo uninstall rtk`, and enable the internal hook with `export NEXUS_CONTEXT_COMPRESS=1`. Do not run both at once. The full migration steps, platform matrix, and trust rationale are in [`guides/reference/RTK_CONTEXT_COMPRESSION.md`](../../guides/reference/RTK_CONTEXT_COMPRESSION.md).
 
 ## Status
 
@@ -145,7 +145,7 @@ some-command-with-json-output | python -m nexus_context_compressor compress
 python -m nexus_context_compressor retrieve "<<ccr:HASH N_rows>>"
 ```
 
-PreToolUse hook (`catalog/hooks/compress-output.sh`): opt-in and default-off. Enable it with `export NEXUS_CONTEXT_COMPRESS=1`; it then rewrites each Bash command so its stdout pipes through the engine, preserving the exit status. See [`guides/RTK_CONTEXT_COMPRESSION.md`](../../guides/RTK_CONTEXT_COMPRESSION.md).
+PreToolUse hook (`catalog/hooks/compress-output.sh`): opt-in and default-off. Enable it with `export NEXUS_CONTEXT_COMPRESS=1`; it then rewrites each Bash command so its stdout pipes through the engine, preserving the exit status. See [`guides/reference/RTK_CONTEXT_COMPRESSION.md`](../../guides/reference/RTK_CONTEXT_COMPRESSION.md).
 
 Internal MCP server (requires the `mcp` extra): exposes `context_compress` and `context_retrieve` over stdio.
 

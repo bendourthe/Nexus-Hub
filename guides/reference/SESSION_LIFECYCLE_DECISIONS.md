@@ -207,11 +207,11 @@ Subagents run a scoped sub-task in their own context, return a result, and do no
 ## Related anchors in this repository
 
 - [TOKEN_OPTIMIZATION.md](TOKEN_OPTIMIZATION.md) - compaction tactics, `/compact focus on X, drop Y`, and the bad-compact failure mode.
-- [catalog/skills/ai-development/prompt-engineering/SKILL.md](../catalog/skills/ai-development/prompt-engineering/SKILL.md) - Effort-Level Strategy section covers the effort-tier half of session economics.
-- [catalog/skills/orchestration/context-compression/SKILL.md](../catalog/skills/orchestration/context-compression/SKILL.md) - concrete compression recipes for handoffs.
-- [catalog/skills/orchestration/context-degradation/SKILL.md](../catalog/skills/orchestration/context-degradation/SKILL.md) - recognition signals for the 300-500k range.
-- [catalog/skills/orchestration/multi-agent-coordinator/SKILL.md](../catalog/skills/orchestration/multi-agent-coordinator/SKILL.md) - subagent delegation patterns in depth.
-- [catalog/skills/workflow/session-history/SKILL.md](../catalog/skills/workflow/session-history/SKILL.md) - the "summarize from here" mode used in sections 2 and 4.
+- [catalog/skills/ai-development/prompt-engineering/SKILL.md](../../catalog/skills/ai-development/prompt-engineering/SKILL.md) - Effort-Level Strategy section covers the effort-tier half of session economics.
+- [catalog/skills/orchestration/context-compression/SKILL.md](../../catalog/skills/orchestration/context-compression/SKILL.md) - concrete compression recipes for handoffs.
+- [catalog/skills/orchestration/context-degradation/SKILL.md](../../catalog/skills/orchestration/context-degradation/SKILL.md) - recognition signals for the 300-500k range.
+- [catalog/skills/orchestration/multi-agent-coordinator/SKILL.md](../../catalog/skills/orchestration/multi-agent-coordinator/SKILL.md) - subagent delegation patterns in depth.
+- [catalog/skills/workflow/session-history/SKILL.md](../../catalog/skills/workflow/session-history/SKILL.md) - the "summarize from here" mode used in sections 2 and 4.
 
 ---
 

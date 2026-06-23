@@ -81,7 +81,7 @@ Is this an emergency (context at 90%+)?
 
 #### Proactive steering with `/compact focus on X, drop Y`
 
-See also: [SESSION_LIFECYCLE_DECISIONS.md](../../../../guides/SESSION_LIFECYCLE_DECISIONS.md) for the companion decision tree on continue vs `/rewind` vs `/clear` vs `/compact`.
+See also: [SESSION_LIFECYCLE_DECISIONS.md](../../../../guides/reference/SESSION_LIFECYCLE_DECISIONS.md) for the companion decision tree on continue vs `/rewind` vs `/clear` vs `/compact`.
 
 The approaches A / B / C above choose *how* to compress. The decision of *when and how aggressively* to compress also matters. Default posture: **steer compaction proactively rather than waiting for autocompact**.
 
@@ -91,7 +91,7 @@ The approaches A / B / C above choose *how* to compress. The decision of *when a
 - Recent turns include large tool outputs or file reads you no longer need, but the overall goal is unchanged.
 - You want to shed closed-thread content while keeping the live thread fully intact.
 
-Waiting for autocompact is the **bad-compact failure mode**: the automatic trigger fires mid-reasoning, drops context Claude was about to use, and quality tanks for the next several turns. See `guides/TOKEN_OPTIMIZATION.md` for the recognition signals.
+Waiting for autocompact is the **bad-compact failure mode**: the automatic trigger fires mid-reasoning, drops context Claude was about to use, and quality tanks for the next several turns. See `guides/reference/TOKEN_OPTIMIZATION.md` for the recognition signals.
 
 **Syntax**: `/compact focus on <current work>, drop <closed threads>`
 
@@ -343,7 +343,7 @@ After compressing, verify no critical information was lost.
 - [[context-optimization]] - Configures the programmatic `nexus-context-compressor` engine (the automated, reversible counterpart to this skill's manual methodology)
 - [[plan-before-code]] - Structured planning that reduces context bloat
 - [[filesystem-context-patterns]] - File-based context management patterns
-- See also: [SESSION_LIFECYCLE_DECISIONS](../../../../guides/SESSION_LIFECYCLE_DECISIONS.md) - when to compact vs `/rewind`, `/clear`, or delegate to a subagent
+- See also: [SESSION_LIFECYCLE_DECISIONS](../../../../guides/reference/SESSION_LIFECYCLE_DECISIONS.md) - when to compact vs `/rewind`, `/clear`, or delegate to a subagent
 
 ---
 

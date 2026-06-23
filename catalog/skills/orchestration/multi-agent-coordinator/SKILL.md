@@ -64,7 +64,7 @@ Before designing a multi-agent plan, ask the one question that decides whether d
 
 If the test says "run in main session," skip the rest of this skill - delegation is not the right tool. If it says "delegate," continue to Step 1 to design the task graph.
 
-See also: [SESSION_LIFECYCLE_DECISIONS](../../../../guides/SESSION_LIFECYCLE_DECISIONS.md) section "When to delegate to a subagent" for the paired session-lifecycle perspective.
+See also: [SESSION_LIFECYCLE_DECISIONS](../../../../guides/reference/SESSION_LIFECYCLE_DECISIONS.md) section "When to delegate to a subagent" for the paired session-lifecycle perspective.
 
 ### Step 1: Analyze and Decompose the Task Graph
 
@@ -667,7 +667,7 @@ Invoke related skills at the appropriate coordination phase:
 - [[context-manager]] - Managing information across agent boundaries
 - [[workflow-orchestrator]] - End-to-end workflow management
 - [[code-quality]] - Quality standards for agent-produced implementations
-- See also: [SESSION_LIFECYCLE_DECISIONS](../../../../guides/SESSION_LIFECYCLE_DECISIONS.md) - the "will I need this tool output again?" test for deciding when to delegate to a subagent
+- See also: [SESSION_LIFECYCLE_DECISIONS](../../../../guides/reference/SESSION_LIFECYCLE_DECISIONS.md) - the "will I need this tool output again?" test for deciding when to delegate to a subagent
 
 ---
 

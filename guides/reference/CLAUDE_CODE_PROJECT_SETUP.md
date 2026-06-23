@@ -2,7 +2,7 @@
 
 **Complete guide for setting up new projects with the modular CLAUDE.md architecture**
 
-[← Back to Main](../README.md) | [Claude Code Guide](CLAUDE_CODE_GUIDE.md)
+[← Back to Main](../../README.md) | [Claude Code Guide](CLAUDE_CODE_GUIDE.md)
 
 ---
 

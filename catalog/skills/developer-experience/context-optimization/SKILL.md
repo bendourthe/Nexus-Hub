@@ -28,7 +28,7 @@ This skill provides two complementary approaches to controlling context window c
 
 ## Claude Code: nexus-context-compressor (internal engine)
 
-Nexus-Hub ships its own context-compression engine, `nexus-context-compressor` (`extensions/nexus-context-compressor/`), an owned and audited replacement for the external `rtk` Rust binary this skill previously recommended. It is local-first, requires no Rust toolchain, makes zero new outbound calls, and makes compression *reversible*. The full setup, platform matrix, and architecture live in the guide [`RTK_CONTEXT_COMPRESSION.md`](../../../../guides/RTK_CONTEXT_COMPRESSION.md); this section is the short version.
+Nexus-Hub ships its own context-compression engine, `nexus-context-compressor` (`extensions/nexus-context-compressor/`), an owned and audited replacement for the external `rtk` Rust binary this skill previously recommended. It is local-first, requires no Rust toolchain, makes zero new outbound calls, and makes compression *reversible*. The full setup, platform matrix, and architecture live in the guide [`RTK_CONTEXT_COMPRESSION.md`](../../../../guides/reference/RTK_CONTEXT_COMPRESSION.md); this section is the short version.
 
 ### Prerequisites
 
@@ -153,7 +153,7 @@ These instructions reduce the amount of command output the AI includes in its re
 - [[context-compression]] -- the orchestration-level techniques for minimizing tokens per task
 - [[prompt-token-optimization]] -- reduces token consumption through programmatic tool calling and context hygiene
 - [[using-nexus-hub]] -- orients a new session, a good point to apply these output-minimization defaults
-- **`nexus-context-compressor` engine** (`extensions/nexus-context-compressor/`) -- the programmatic compressor this skill configures; the deterministic strategies and reversible CCR store the prose above describes. Full setup, platform matrix, and architecture: [`guides/RTK_CONTEXT_COMPRESSION.md`](../../../../guides/RTK_CONTEXT_COMPRESSION.md) and the [engine README](../../../../extensions/nexus-context-compressor/README.md).
+- **`nexus-context-compressor` engine** (`extensions/nexus-context-compressor/`) -- the programmatic compressor this skill configures; the deterministic strategies and reversible CCR store the prose above describes. Full setup, platform matrix, and architecture: [`guides/reference/RTK_CONTEXT_COMPRESSION.md`](../../../../guides/reference/RTK_CONTEXT_COMPRESSION.md) and the [engine README](../../../../extensions/nexus-context-compressor/README.md).
 
 ---
 

@@ -14,7 +14,7 @@ Integrations documented here are **governed by the MCP Registry Policy** in [AGE
 4. Trusted vendor wrapper where the vendor is the intrinsic data destination AND the capability cannot be reverse-engineered AND the feature is extremely worth it
 5. Otherwise: drop
 
-Third-party search-as-service, embeddings-as-service, scraping-as-service, and generation-as-service MCPs are **hard-no** under the policy. Previously-common servers like context7, exa, firecrawl, magic-ui, claude-context, tavily, and hosted LLM proxies (OpenAI / Anthropic / etc. via MCP) are NOT shipped in `catalog/mcp-configs/mcp-servers.json` and NOT documented below. See [MCP_DEVELOPMENT_SERVERS.md](../../guides/MCP_DEVELOPMENT_SERVERS.md) "Reverse-engineered replacements" for the Nexus-Hub equivalents.
+Third-party search-as-service, embeddings-as-service, scraping-as-service, and generation-as-service MCPs are **hard-no** under the policy. Previously-common servers like context7, exa, firecrawl, magic-ui, claude-context, tavily, and hosted LLM proxies (OpenAI / Anthropic / etc. via MCP) are NOT shipped in `catalog/mcp-configs/mcp-servers.json` and NOT documented below. See [MCP_DEVELOPMENT_SERVERS.md](../../guides/reference/MCP_DEVELOPMENT_SERVERS.md) "Reverse-engineered replacements" for the Nexus-Hub equivalents.
 
 ---
 
@@ -26,7 +26,7 @@ Model Context Protocol (MCP) is Anthropic's standard for connecting Claude to ex
 
 ## MCP Configuration
 
-MCPs are configured in `.mcp.json` at your project root or `~/.claude/.mcp.json` for user-scope. The canonical registry Nexus-Hub ships is `catalog/mcp-configs/mcp-servers.json`; copy the entries you need. See [MCP_DEVELOPMENT_SERVERS.md](../../guides/MCP_DEVELOPMENT_SERVERS.md) for recommendation ordering by workflow stage.
+MCPs are configured in `.mcp.json` at your project root or `~/.claude/.mcp.json` for user-scope. The canonical registry Nexus-Hub ships is `catalog/mcp-configs/mcp-servers.json`; copy the entries you need. See [MCP_DEVELOPMENT_SERVERS.md](../../guides/reference/MCP_DEVELOPMENT_SERVERS.md) for recommendation ordering by workflow stage.
 
 ```json
 {

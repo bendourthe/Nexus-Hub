@@ -133,7 +133,7 @@ The Claude Code effort level (`xhigh` / `high` / `max` / `medium` / `low`) is a 
 - Harness template: [catalog/hooks/settings.json](../../catalog/hooks/settings.json) (`effortLevel: xhigh` is the shipped default)
 - User override: `~/.claude/settings.json` (written by the installer on first run; edit directly or via the `/model` slash command in a Claude Code session)
 - Decision guidance: [prompt-engineering/SKILL.md - Effort-Level Strategy](../../catalog/skills/ai-development/prompt-engineering/SKILL.md#effort-level-strategy)
-- Setting reference: [guides/CLAUDE_CODE_SETTINGS_REFERENCE.md - Effort Levels](../../guides/CLAUDE_CODE_SETTINGS_REFERENCE.md)
+- Setting reference: [guides/reference/CLAUDE_CODE_SETTINGS_REFERENCE.md - Effort Levels](../../guides/reference/CLAUDE_CODE_SETTINGS_REFERENCE.md)
 
 ### Why this extension does not yet surface the effort level
 
