@@ -26,6 +26,24 @@ When NOT to use this skill:
 - The user needs detailed host-command syntax for `/loop` or `/goal`. Those are platform commands, not Nexus-Hub catalog artifacts.
 - The loop would run without a falsifiable `check_command`, an `iteration_cap`, and a checker-evaluated `exit_condition`.
 
+## Design the Loop Before You Run It
+
+Before you assemble or run a loop, design it. A loop inherits every weakness in its goal and its checks and multiplies that weakness by the iteration count, so a few minutes spent tightening the design saves a whole run spent converging on the wrong thing. Walk three design stages and critique each against the prompts below before the first iteration.
+
+- **Goal shape.** The goal must name a concrete outcome AND the artifact or state that proves the loop finished, set its scope boundaries (what is included, what is excluded, the maximum depth), name the context sources the loop must read instead of assume, and name who consumes the result. Reject goals like "improve the project" (no target artifact) or "make it good" (no criteria). A useful critique prompt: "what would count as done if two competent agents disagreed?"
+- **Verification typing.** Type every check as one of programmatic (a command with an expected exit code or output), judge (a rubric a second model or a human evaluates), or human (a manual signoff), and require at least one non-vibe check. Prefer the types in this order: a programmatic check first (cheapest and unambiguous), then a judge rubric where a programmatic check is not possible, then a human signoff only where neither fits. A loop whose only check is a judge or a human signoff should state why a programmatic check was not available.
+- **Control guards.** Confirm the loop carries its termination guards before it runs: the mandatory `iteration_cap` and command-derived `exit_condition`, plus `progress_check` and `handoff` for any production loop. A design with no cap or no observable exit is not ready to run.
+
+This design pass COMPOSES the task-readiness gate (in the Scheduled-Triage Recipe below); it does not replace it. If the goal is underspecified, route it to `/plan` or `/idea-refine` to produce a spec FIRST rather than letting the loop iterate against a vague goal (that is loopmaxxing). Score and improve the goal with [[ambiguity-detector]] and [[requirement-enhancer]]; do not duplicate their logic here.
+
+**Render and confirm before the first run.** Before the first run of a non-trivial or unattended loop, render the design (its goal, its gates, its termination caps, and which model sits in each seat) and confirm it, so a bad design is caught before any file is changed. A plain textual rendering is enough:
+
+```
+goal: <outcome + proving artifact>  ->  gates: <programmatic check>, <judge rubric>  ->  caps: iteration_cap=N, exit_condition=<command evidence>
+```
+
+This is the scope-first calibration discipline from Step 5 applied one step earlier: confirm the design, calibrate one iteration, inspect the plan and check output, cap the run, then widen.
+
 ## Instructions
 
 ### Step 1: Map the loop pieces to owned primitives
@@ -57,11 +75,11 @@ When adding a new loop to the library, keep it local and service-free: no instal
 
 1. Write the loop goal as a falsifiable end state.
 2. Set a hard `iteration_cap` before the first run.
-3. Pick one `check_command` that measures progress between iterations.
+3. Pick one `check_command` that measures progress between iterations. Express the check, and any model invocation, as an argument array (the program plus discrete arguments) with an explicit timeout, never an interpolated shell string; this is injection-resistant by construction and matches the project Bash security rules.
 4. Define `exit_condition` as command-derived evidence, not reassurance from the maker.
 5. Choose the host driver: `/goal` for a hard completion requirement, `/loop` for interval or continuous re-runs, or manual re-invocation when the host lacks those commands.
 6. Decide whether writable work belongs in a git worktree via [[using-git-worktrees]].
-7. Assign maker and checker roles. For high-risk loops, the checker should be independent and should use [[adversarial-verifier]] or the evidence discipline in [[verification-before-completion]].
+7. Assign maker and checker roles. For high-risk loops, the checker should be independent and should use [[adversarial-verifier]] or the evidence discipline in [[verification-before-completion]]. When a checker or council seat is a different model behind an external CLI, the handoff is an egress event: apply the handoff-egress-hygiene discipline in [[cross-model-orchestrator]] (redaction defaults plus first-send consent before any artifact crosses).
 8. Persist state and unresolved work through [[dev-progress-tracker]], [[known-gaps-tracker]], or [[filesystem-context-patterns]].
 
 ### Step 5: Budget the orchestration tax
@@ -80,7 +98,7 @@ This is the full automation-to-ship loop: a scheduled run that triages incoming 
 2. **Triage** -- at each wake, read the incoming surface: CI failures, open issues, or recent commits. Triage classifies each item as auto-fixable, needs-human, or ignore. Triage is a read step; it makes no change yet.
 3. **Persist findings to the memory layer** -- write the triaged list to a durable file rather than the loop's working memory: `docs/todos.md` via [[dev-progress-tracker]], the version gap log via [[known-gaps-tracker]], or a scratch file per [[filesystem-context-patterns]]. The next wake reads this file, so state survives across runs.
 4. **Isolate each viable finding in a worktree** -- for every auto-fixable item, create a dedicated `git worktree` via [[using-git-worktrees]] so concurrent fixes never collide on the main worktree. Keep a per-iteration recovery point so a bad iteration can be reverted: the dedicated worktree plus a documented reversion path ([[rollback-strategy-advisor]]) usually suffices, with a per-iteration backup branch as a lighter-weight alternative.
-5. **Maker drafts, independent checker reviews** -- inside each worktree, a maker sub-agent drafts the fix and an independent checker sub-agent reviews it. The checker must not be the maker (the Phase 2 exit rule): use [[adversarial-verifier]] for the checker role and treat the loop exit as the evidence-bearing completion claim in [[verification-before-completion]], with the independent-evaluator rule from [[agent-orchestration-primitives]] (Step 8). The fix's `check_command` (the worktree's tests or build) is the exit evidence, not the maker's confidence.
+5. **Maker drafts, independent checker reviews** -- inside each worktree, a maker sub-agent drafts the fix and an independent checker sub-agent reviews it. The checker must not be the maker (the Phase 2 exit rule): use [[adversarial-verifier]] for the checker role and treat the loop exit as the evidence-bearing completion claim in [[verification-before-completion]], with the independent-evaluator rule from [[agent-orchestration-primitives]] (Step 8). The fix's `check_command` (the worktree's tests or build) is the exit evidence, not the maker's confidence. When the checker is a different model behind an external CLI, treat the review handoff as an egress event governed by the handoff-egress-hygiene discipline in [[cross-model-orchestrator]].
 6. **Ship through host connectors** -- open the PR or update the ticket through a host connector (MCP), using only surfaces approved by the MCP Registry Policy: see [[mcp-builder]] and `catalog/mcp-configs/mcp-servers.json`. Do not add a connector just to close the loop; if no approved destination exists, stop at the worktree and report.
 7. **Route the rest to a human inbox** -- every needs-human item (and any finding that failed its checker after the `iteration_cap`) goes to a human review queue: a tracked list in the memory layer, an assigned issue, or a digest. Unhandleable work is surfaced, never silently dropped. As a rule of thumb, allow at most two or three retries on a failing step, then fail gracefully and route the error to this same inbox through the loop's `handoff` target rather than spending the whole `iteration_cap` on a step that is not converging.
 
