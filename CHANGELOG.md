@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### Added
+
+- **Foundations page added to the interactive guide** (`guides/website/nexus-hub-guide.html`, `guides/website/README.md`): a new **Foundations** tab (placed between Installation and Training) that teaches the core AI concepts behind Nexus-Hub as two ladders -- *model -> reasoning -> agent* (what an AI system is) and *prompt -> context -> harness engineering* (how you steer it) -- landing on "Nexus-Hub is harness engineering". Built entirely from the guide's existing components (animated terminal demos, flow diagrams, comparison cards, tables) with no new CSS or JS; wired into the nav links and the `PAGES` routing array so navigation, the prev/next footer, and the progress dots all work. Self-contained single HTML file (offline, zero dependencies). Docs-only: no new skill, command, hook, outbound call, dependency, or credential. Catalog unchanged: **256 skills**, **15 commands**, **23 hooks**.
+
 ## [3.8.1] - 2026-06-23
 
 **v3.8.1 -- guides reorganization + interactive guide refresh.** Reorganizes the `guides/` tree and rebuilds the self-contained interactive guide for live-workshop use. The 10 developer-reference docs move from `guides/` into `guides/reference/`, and the interactive guide moves to `guides/website/` with a refreshed training tour. Docs-only: no new skill, command, hook, outbound call, dependency, or credential. Catalog unchanged: **256 skills**, **15 commands**, **23 hooks**.

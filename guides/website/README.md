@@ -21,6 +21,10 @@ The training is embedded directly in the guide as the **Guided tour** page: a se
 - **To share:** send that one file. It is the entire guide.
 - **From GitHub:** the file is linked from the main [README](../../README.md). GitHub does not render HTML inline, so use the file's Download raw file button, then open it in a browser.
 
+## The Foundations page
+
+The **Foundations** page (top nav, between Installation and Training) is a concepts primer for workshops: it explains how AI actually works -- *model -> reasoning -> agent* and *prompt -> context -> harness engineering* -- and why Nexus-Hub is the harness layer. It is a standard `<section class="page">` block (`#page-foundations`) built from the guide's shared components, with three animated terminal demos. Present it before the guided tour to give the team the vocabulary first.
+
 ## The guided tour
 
 The guide's **Guided tour** page (reachable from the top nav or the Home call-to-action) leads with what Nexus-Hub is, then walks the full workflow on the example. It is a slide-show embedded in the guide.
