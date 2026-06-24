@@ -195,6 +195,16 @@ Models cannot share sessions, so all handoffs happen through files. Structure yo
 
 **Tip**: Store all artifacts in a dedicated folder (e.g., `rpi/{feature-slug}/`) so every model session can find them easily.
 
+### Handoff Egress Hygiene
+
+Step 3 hands files to a second model, so the handoff is where egress discipline belongs. When the receiving model runs behind an external CLI or API, every artifact you pass it (the `PLAN.md`, the `REVIEW.md`, the `PROGRESS.md`, and any source file the plan cites) leaves your machine. Treat each handoff as a content-egress boundary governed by the MCP Registry Policy in `AGENTS.md`, and apply the same care you would give any outbound call. See [[agent-access-policy]] for the broader access posture this fits into.
+
+- **Redact before the first send.** Substitute the contents of files matching a default deny-glob set with a visible marker such as `[redacted:<relative-path>]` instead of sending the raw bytes. The default set is `.env`, `.env.*`, `secrets/**`, `**/*.key`, plus any secret paths specific to your project. The marker keeps the artifact's structure legible to the reviewer while withholding the secret itself.
+
+- **Get explicit first-send consent.** The first time a given destination model receives project content, state in one place WHAT will be sent (the artifact list), WHICH model or CLI receives it, and WHICH redaction globs are applied, then require an explicit confirmation before the content goes out. Record that consent (the destination, the list of artifacts sent, and the redaction globs applied) so later sends to the same destination in the same session do not re-prompt.
+
+- **A fully-local reviewer needs no consent.** When the second model is served locally on the operator's own machine, the handoff never leaves the host, so the egress gate does not apply. Reserve the consent step for any destination that reaches an external service.
+
 ### Step 4: Quality Gates Between Models
 
 Every model transition must pass through a quality gate. Do not proceed to the next phase if the gate fails.
@@ -224,6 +234,15 @@ Every model transition must pass through a quality gate. Do not proceed to the n
 - **GO**: Proceed to next phase
 - **NO-GO (fixable)**: Return to previous phase with specific feedback, then re-run gate
 - **NO-GO (blocking)**: Escalate to human for decision
+
+**Reviewer vs. judge**
+
+Distinguish the two roles a second model can play at a gate:
+
+- A **reviewer** produces non-binding notes: observations, adversarial critique, tone. It is for brainstorming and stress-testing and cannot honestly certify a binary outcome.
+- A **judge** returns a structured, parseable verdict: a pass-or-revise decision, the blocking issues, and a confidence value.
+
+Only a judge or a human may be the deciding source for a gate whose policy is "revise until clean", because a notes-only reviewer cannot honestly certify "clean" -- treating reviewer notes as a blocking clean verdict is fake precision. This is the same anti-self-deception discipline as the self-review entry in the Common Rationalizations table (a model reviewing its own work re-confirms its own assumptions), applied to the gate's deciding source rather than to who writes the code. Prefer a judge or a human for any gate that blocks progress; reserve a reviewer for gates where a forced pass/fail would itself be false precision. See [[quality-gate-definitions]] and [[adversarial-verifier]].
 
 ### Step 5: Handle Disagreements Between Models
 
@@ -259,6 +278,7 @@ When the reviewer or verifier disagrees with the planner or implementer, follow 
 - **Log all model outputs** so you can audit which model contributed what and improve role assignments over time
 - **Start simple** with two models (planner + reviewer) before scaling to a full four-model workflow
 - **Use the same prompt format** across models for consistency; the artifact templates above help with this
+- **Invoke models and checks as argument arrays**, never interpolated shell strings: pass the program plus discrete arguments with an explicit per-call timeout. This is injection-resistant by construction and matches the project Bash security rules, which require building commands as arrays and never interpolating input into a command string
 
 ## Common Rationalizations
 
