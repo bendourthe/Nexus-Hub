@@ -236,13 +236,13 @@ The "Rec. model / effort" column is a best-effort planning-time assessment, reco
 
 ### Phase 4 Exit Checklist
 
-- [ ] All sub-tasks completed (4.1, 4.2, 4.3)
-- [ ] Sample PPTX -> interactive HTML preserves the original flow; sample report -> a presentation of the report; both open offline
-- [ ] Each sample `.html` has zero external network requests, is well-formed and ASCII-safe, and clears the hallmark-design anti-slop gate
-- [ ] `make validate`, `make lint`, `make test` all green
-- [ ] Reverse-Engineering Attribution grep clean (no upstream product names in any distributed artifact)
-- [ ] CHANGELOG `## [Unreleased]` entry added with the new counts; `docs/v3.9.0/known-gaps.md` records the deferrals
-- [ ] Session history generated for Phase 4
+- [x] All sub-tasks completed (4.1, 4.2, 4.3)
+- [x] Sample PPTX -> interactive HTML preserves the original flow (5 slides in order); sample report -> a presentation of the report (synthesized title + agenda + 4 sections); both open offline
+- [x] Each sample `.html` has zero external network requests (builder `assert_no_external` passed + grep clean), is well-formed (lxml) and ASCII-safe, and clears the hallmark-design anti-slop gate (gates 7/11/12/13/14/15/24/25/26/27 audited PASS)
+- [x] `make validate` green (JSON integrity, orphan-bundle 0 errors, quality 0/0, personal-paths, unicode 0 errors, supply-chain, workflow-security, version-sync, base-parity, compression gate); `make lint` (shellcheck) exit 0; `make test` -- every suite that runs on the Windows dev host is green (extensions 574, hooks 441/14-skip, validators 200); installer + integrations subsuites do not complete here (carried WN-v36-1: bash mis-resolves the space-containing checkout path), authoritative on CI
+- [x] Reverse-Engineering Attribution grep clean (only internal `[[hallmark-design]]` cross-links; no upstream product names)
+- [x] CHANGELOG `## [Unreleased]` entry added with the new counts (257 skills / 16 commands / 23 hooks); `docs/v3.9.0/known-gaps.md` records the deferrals (DF-v39-presentify-1..5)
+- [x] Session history generated for Phase 4
 
 ---
 

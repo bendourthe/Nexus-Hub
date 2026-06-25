@@ -1,0 +1,6 @@
+# Regenerable / binary artifacts of the /presentify worked example.
+# The committed evidence is the two .html decks + the generator/enrichment
+# scripts + this README. Regenerate the rest with make_fixtures.py and the
+# commands in README.md.
+inputs/
+models/

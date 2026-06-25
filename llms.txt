@@ -77,29 +77,32 @@ generate-test-cases, setup-test-infrastructure, cicd-integration, code-coverage,
 ### Workflow (14)
 code-commit-workflow, plan-before-code, debug-with-logs, test-driven-development, create-custom-command, filesystem-context-patterns, documentation-consistency, version-upgrade, devlog-generation, conflict-analyzer, git-bisect-assistant, release-notes-writer, check-usage, research-plan-implement
 
-## Slash Commands (21)
+## Slash Commands (16, plus 3 permanent aliases)
 
-/analyze-codebase        Structured 12-section codebase analysis with Mermaid diagrams
-/check-usage             Claude Code usage limits with model-switching recommendations
-/compare-project         Gap analysis between current project and external source
-/create-skill-or-command Interactive wizard to create new skills or commands
-/generate-changelog      Full CHANGELOG.md from git history
-/generate-commit-message Structured commit message from staged changes
-/generate-devlog         Complete DEVLOG.md from git history
-/generate-readme         Production-quality README.md
-/generate-report         Word (.docx) or PowerPoint (.pptx) from Markdown (style guide at catalog/style-guides/generate-report.md, not a slash command)
-/generate-sbom           Software Bill of Materials
-/generate-tests          Comprehensive test coverage analysis and generation
-/generate-unit-tests     Detailed unit test plan for entire codebase
-/import-skills           Import skills from Hub catalog into project
-/manage-memory           Audit and prune CLAUDE.md and memory files
-/review-codebase         Senior-level codebase review with remediation roadmap
-/run-deep-review         Pre-release deep review: 12-phase orchestrator chaining health gates (test + 80% coverage), dependency scan, docs / git / CI/CD / release-readiness hygiene, project validators, /analyze-codebase, /run-security-audit, /run-penetration-test --depth=deep, /review-codebase. Synthesis with GO / GO-WITH-CONDITIONS / NO-GO verdict.
-/search-skills           Search the Hub catalog by keyword, category, or role
-/setup-project           Configure CLAUDE.md with project description
-/update-devlog           Generate new DEVLOG.md entry from recent changes
-/update-documentation    Discover and update all documentation files
-/update-version          Guide through semantic version upgrade
+Most commands take a scope as the first argument (e.g. `/review security`); run a command bare to get a scope menu. The cheatsheet is generated at runtime from the installed command files (`/skills list` or `/commands`), so it always matches the commands actually present.
+
+/compare       Gap analysis vs an external repo / article / local path; reverse-engineer-first adoption plan; chains to /plan
+/describe      Structured description of any directory (scopes: full, structure, deps, architecture, onboarding)
+/implement     Implement one plan phase end-to-end (review, code, lint, test, troubleshoot, post-phase docs + commit); final phase runs release readiness
+/memory        Audit, prune, and manage CLAUDE.md and memory files across the project
+/plan          Goal-gated, phased plan (scopes: feature, goals, new, refactor, from-comparison, todos, issues)
+/presentify    Turn one or more documents (PDF / Word / Excel / PowerPoint) into a single self-contained, offline, interactive HTML presentation; local-only parsing, inline charts, no external requests
+/research      Deep multi-source research, report compilation, and document export (.docx / slide deck / Markdown)
+/review        Read-only review (scopes: full, quality, coverage, security, pentest, changes, deps, sbom, skill-scan)
+/route         Detect the platform, enumerate models live, and route a task or plan phase to the cheapest capable model + reasoning effort
+/session       Resume where you left off, wrap up cleanly, or write a session-history document
+/setup         Bootstrap a project: scaffold CLAUDE.md, structure, .gitignore, README, optional pre-commit review hook
+/skills        Browse, search, create, import, and security-scan the skill + command catalog
+/spec          Clarify a spec, analyze a feature directory for coverage / consistency, or author / amend the project constitution
+/test          Drive coverage to threshold (tiers: unit, integration, e2e, ci, tdd, all)
+/update        Sync + ship (scopes: docs, devlog, version, changelog, refactor, config, commit, release)
+/usage         Check Claude Code usage limits and model-switching recommendations
+
+Permanent aliases:
+
+/commands      Alias for /skills list (the command cheatsheet)
+/commit        Alias for /update commit (structured commit message for staged changes)
+/constitution  Alias for /spec constitution (author / amend the project constitution)
 
 ## Workflows (17)
 
@@ -127,7 +130,7 @@ Stop:        usage-display.sh, notify-on-complete.sh, session-summary.sh
 ## Key Files
 
 catalog/skills/           134 skill directories organized by category
-catalog/commands/         21 slash command definition files
+catalog/commands/         16 slash commands plus 3 permanent aliases
 catalog/hooks/            10 runtime hook shell scripts
 templates/ai-instructions/ Base instruction templates for each platform
 scripts/installer.ps1     Windows installer (PowerShell, no runtime required)
