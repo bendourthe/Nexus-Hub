@@ -1780,21 +1780,26 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
             <div class="ts-slide" data-sec="The loop, step by step" data-tt="Ship: /update">
               <div class="ts-badge"><span class="ts-bn">STEP 09 / 09</span><span class="ts-bv">Ship</span></div>
               <h2 class="ts-title">/update</h2>
-              <div class="ts-cmdbox"><span class="ts-pr">&gt;</span><span class="ts-cmdtext">/commit</span><button class="ts-copy" type="button" data-ts-copy="/commit">Copy</button></div>
-              <div class="ts-row"><span class="ts-k">Outcome</span><span class="ts-val">A clean, well-described commit covering the fixes and the feature.</span></div>
-              <div class="ts-row"><span class="ts-k">Release</span><span class="ts-val"><b>/update release</b> runs the full release: version, changelog, tag, notes.</span></div>
+              <div class="ts-cmdbox"><span class="ts-pr">&gt;</span><span class="ts-cmdtext">/update release</span><button class="ts-copy" type="button" data-ts-copy="/update release">Copy</button></div>
+              <div class="ts-row"><span class="ts-k">Outcome</span><span class="ts-val">Docs, changelog, and version synced across every surface, then merged, tagged, and pushed - the whole ship flow as one gated sequence.</span></div>
+              <div class="ts-row"><span class="ts-k">Scopes</span><span class="ts-val"><b>/update</b> also runs each part on its own: <b>docs</b>, <b>devlog</b>, <b>changelog</b>, <b>refactor</b>, <b>config</b>, <b>commit</b>.</span></div>
             </div>
 
             <div class="ts-slide" data-sec="The loop, step by step" data-tt="/update result">
-              <div class="ts-outbadge"><span class="ob">OUTPUT</span><span class="oc">/commit</span></div>
+              <div class="ts-outbadge"><span class="ob">OUTPUT</span><span class="oc">/update release</span></div>
               <div class="ts-term">
-                <div class="tl tdim">$ git log --oneline</div>
-                <div class="tl"><span class="tamber">382f181</span>  test: cover scoring, restart, and shuffle</div>
-                <div class="tl"><span class="tamber">d8887c8</span>  feat: shuffle the deck on every run</div>
-                <div class="tl"><span class="tamber">35f2a47</span>  fix: count the final answer; clear answers on restart</div>
-                <div class="tl"><span class="tamber">51da821</span>  chore: seed Trivia Quiz</div>
+                <div class="tl"><span class="tadd">&bull;</span> <b>docs</b> ....... README + guides reconciled to current state</div>
+                <div class="tl"><span class="tadd">&bull;</span> <b>devlog</b> ..... appended an entry for this increment</div>
+                <div class="tl"><span class="tadd">&bull;</span> <b>gitignore</b> .. audited; index clean</div>
+                <div class="tl"><span class="tadd">&bull;</span> <b>version</b> .... 0.4.0 &rarr; <span class="tadd">0.5.0</span> across every surface</div>
+                <div class="tl">&nbsp;&nbsp;&#8627; <span class="tadd">check_version_sync: in sync</span></div>
+                <div class="tl"><span class="tadd">&bull;</span> <b>changelog</b> .. generated from git history since the last tag</div>
+                <div class="tl"><span class="tadd">&bull;</span> <b>refactor</b> ... docs + layout to convention, references repaired</div>
+                <div class="tl">&nbsp;</div>
+                <div class="tl">&rsaquo; Merge <span class="tamber">develop</span> &rarr; <span class="tamber">main</span> and tag <span class="tamber">v0.5.0</span>? <span class="tdim">[y/N]</span> <span class="tadd">y</span></div>
+                <div class="tl"><span class="tadd">&#10003;</span> committed, tagged, pushed; GitHub Release published</div>
               </div>
-              <p class="ts-outcap">Clean, conventional commits, one per step. The increment is shipped.</p>
+              <p class="ts-outcap">One gated command runs the whole ship flow - docs, version, changelog, merge, tag, push - and never tags or pushes without your yes.</p>
             </div>
 
             <div class="ts-slide" data-sec="In practice" data-tt="Summary">
@@ -1820,15 +1825,31 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
               </ul>
             </div>
 
-            <div class="ts-slide" data-sec="In practice" data-tt="Document & present">
+            <div class="ts-slide" data-sec="In practice" data-tt="Document &amp; present">
               <div class="ts-eyebrow"><span class="ts-pip"></span> In practice</div>
               <h2 class="ts-title">Document it, then present it</h2>
               <div class="ts-cmdbox"><span class="ts-pr">&gt;</span><span class="ts-cmdtext">/presentify docs/</span><button class="ts-copy" type="button" data-ts-copy="/presentify docs/">Copy</button></div>
-              <ul class="ts-list" style="margin-top:6px; max-width:82ch">
-                <li>Keep the work captured - <b>/update docs</b>, <b>/update devlog</b>, and <b>/session history</b> leave a clean trail: README, dev log, plans, todos, git history.</li>
-                <li>Then <b>/presentify</b> turns those documents into one self-contained, offline, interactive HTML briefing - more engaging than a slide deck, and versionable as a single file.</li>
-                <li>Share progress with stakeholders or teammates without hand-building a deck.</li>
+              <ul class="ts-list">
+                <li>Capture the trail: <b>/update docs</b>, <b>/update devlog</b>, <b>/session history</b>.</li>
+                <li><b>/presentify</b> turns those docs into one offline, interactive deck.</li>
+                <li>One versionable file - shared without hand-building a slide deck.</li>
               </ul>
+            </div>
+
+            <div class="ts-slide" data-sec="In practice" data-tt="/presentify result">
+              <div class="ts-outbadge"><span class="ob">OUTPUT</span><span class="oc">/presentify docs/</span></div>
+              <div class="ts-term">
+                <div class="tl"><span class="tadd">&bull;</span> <b>extract</b> .. README + devlog + session history &rarr; content model</div>
+                <div class="tl"><span class="tadd">&bull;</span> <b>theme</b> .... system font stacks, styles inlined (offline)</div>
+                <div class="tl"><span class="tadd">&bull;</span> <b>build</b> .... one self-contained <span class="tamber">trivia-quiz.html</span></div>
+                <div class="tl">&nbsp;&nbsp;&#8627; <span class="tadd">assert_no_external: 0 external requests</span></div>
+                <div class="tl"><span class="tadd">&bull;</span> <b>enrich</b> ... 8 passing tests &rarr; an inline coverage chart</div>
+                <div class="tl">&nbsp;</div>
+                <div class="tl tdim">trivia-quiz.html - 6 slides, opens offline:</div>
+                <div class="tl">&nbsp;&nbsp;Title &middot; What it does &middot; How it works</div>
+                <div class="tl">&nbsp;&nbsp;Shuffle feature &middot; Test coverage &middot; What's next</div>
+              </div>
+              <p class="ts-outcap">The docs you already wrote, compiled into one interactive deck - navigation, an outline, and the coverage rendered as a chart, all offline.</p>
             </div>
 
             <div class="ts-slide ts-cover" data-sec="In practice" data-tt="Apply it">
