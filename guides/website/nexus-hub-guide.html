@@ -613,7 +613,7 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
   .nht .ts-row .ts-val b { color: var(--ink); }
 
   .nht .ts-cover .ts-big { font-size: 84px; line-height: 1.05; font-weight: 800; letter-spacing: -1.5px; margin: 0 0 14px; }
-  .nht ul.ts-list { list-style: none; margin: 12px 0 0; padding: 0; max-width: 66ch; }
+  .nht ul.ts-list { list-style: none; margin: 12px 0 0; padding: 0; max-width: 1100px; }
   .nht ul.ts-list li { position: relative; padding: 11px 0 11px 32px; font-size: 26px; line-height: 1.45; color: var(--ink-dim); border-bottom: 1px solid var(--border); }
   .nht ul.ts-list li:last-child { border-bottom: 0; }
   .nht ul.ts-list li::before { content: ""; position: absolute; left: 3px; top: 17px; width: 9px; height: 9px; border-radius: 50%; background: var(--grad); }
@@ -1818,7 +1818,7 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
                 <div class="ts-arrow">&rarr;</div>
                 <div class="ts-node is-on"><div class="ts-ncmd">/update</div><div class="ts-nlbl">shipped</div></div>
               </div>
-              <ul class="ts-list" style="margin-top:6px; max-width:82ch">
+              <ul class="ts-list" style="margin-top:6px">
                 <li>Mapped an unfamiliar app, then found <b>two real bugs</b> and the missing tests.</li>
                 <li>Fixed both bugs, and adopted a <b>shuffle</b> feature with <b>/compare</b>.</li>
                 <li>Covered the logic with tests, then <b>shipped</b> clean, conventional commits.</li>
@@ -1837,19 +1837,37 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
             </div>
 
             <div class="ts-slide" data-sec="In practice" data-tt="/presentify result">
-              <div class="ts-outbadge"><span class="ob">OUTPUT</span><span class="oc">/presentify docs/</span></div>
-              <div class="ts-term">
-                <div class="tl"><span class="tadd">&bull;</span> <b>extract</b> .. README + devlog + session history &rarr; content model</div>
-                <div class="tl"><span class="tadd">&bull;</span> <b>theme</b> .... system font stacks, styles inlined (offline)</div>
-                <div class="tl"><span class="tadd">&bull;</span> <b>build</b> .... one self-contained <span class="tamber">trivia-quiz.html</span></div>
-                <div class="tl">&nbsp;&nbsp;&#8627; <span class="tadd">assert_no_external: 0 external requests</span></div>
-                <div class="tl"><span class="tadd">&bull;</span> <b>enrich</b> ... 8 passing tests &rarr; an inline coverage chart</div>
-                <div class="tl">&nbsp;</div>
-                <div class="tl tdim">trivia-quiz.html - 6 slides, opens offline:</div>
-                <div class="tl">&nbsp;&nbsp;Title &middot; What it does &middot; How it works</div>
-                <div class="tl">&nbsp;&nbsp;Shuffle feature &middot; Test coverage &middot; What's next</div>
+              <div class="ts-outbadge"><span class="ob">OPENS AS</span><span class="oc">trivia-quiz.html</span></div>
+              <div style="max-width:1100px; border:1px solid var(--border); border-radius:13px; overflow:hidden; box-shadow:0 28px 64px -30px rgba(0,0,0,.85)">
+                <div style="display:flex; align-items:center; gap:11px; padding:12px 18px; background:var(--surface); border-bottom:1px solid var(--border)">
+                  <span style="display:inline-flex; gap:8px"><i style="width:12px; height:12px; border-radius:50%; background:#ff5f56"></i><i style="width:12px; height:12px; border-radius:50%; background:#ffbd2e"></i><i style="width:12px; height:12px; border-radius:50%; background:#27c93f"></i></span>
+                  <span style="font:600 18px/1 var(--mono); color:var(--ink-faint)">trivia-quiz.html</span>
+                </div>
+                <div style="position:relative; padding:40px 48px 44px; background:radial-gradient(740px 380px at 82% -12%, rgba(45,212,191,.16), transparent 60%), linear-gradient(180deg, #04141a, #02090c)">
+                  <div style="font:700 15px/1 var(--mono); letter-spacing:2.5px; text-transform:uppercase; color:var(--teal-soft); margin-bottom:15px">Slide 4 / 6 &middot; Results</div>
+                  <div style="font-size:40px; font-weight:800; letter-spacing:-.5px; margin-bottom:24px; color:var(--ink)">Test coverage</div>
+                  <div style="display:flex; align-items:flex-end; gap:40px; height:150px; padding-left:4px">
+                    <div style="display:flex; flex-direction:column; align-items:center; gap:11px">
+                      <span style="font:700 20px/1 var(--mono); color:var(--ink-faint)">34%</span>
+                      <div style="width:96px; height:48px; background:var(--ink-faint); border-radius:7px 7px 0 0; opacity:.5"></div>
+                      <span style="font:600 17px/1 var(--mono); color:var(--ink-faint)">before</span>
+                    </div>
+                    <div style="display:flex; flex-direction:column; align-items:center; gap:11px">
+                      <span style="font:700 20px/1 var(--mono); color:var(--teal-soft)">82%</span>
+                      <div style="width:96px; height:116px; background:var(--grad); border-radius:7px 7px 0 0"></div>
+                      <span style="font:600 17px/1 var(--mono); color:var(--ink-dim)">after</span>
+                    </div>
+                    <div style="align-self:center; max-width:340px; margin-left:18px; font-size:21px; line-height:1.4; color:var(--ink-dim)">57 tests added across tiers; core logic covered to 97%.</div>
+                  </div>
+                  <div style="position:absolute; left:0; right:0; bottom:0; height:5px; background:var(--border)"><div style="width:66%; height:100%; background:var(--grad)"></div></div>
+                  <div style="position:absolute; right:20px; bottom:18px; display:flex; align-items:center; gap:13px; font:600 17px/1 var(--mono); color:var(--ink-faint)">
+                    <span style="border:1px solid var(--border); border-radius:8px; padding:5px 11px">&larr;</span>
+                    <span>4 / 6</span>
+                    <span style="border:1px solid var(--border); border-radius:8px; padding:5px 11px">&rarr;</span>
+                  </div>
+                </div>
               </div>
-              <p class="ts-outcap">The docs you already wrote, compiled into one interactive deck - navigation, an outline, and the coverage rendered as a chart, all offline.</p>
+              <p class="ts-outcap">A preview of the deck itself - one offline HTML file with slide navigation, an outline, a progress bar, and the coverage as an inline chart.</p>
             </div>
 
             <div class="ts-slide ts-cover" data-sec="In practice" data-tt="Apply it">
@@ -2358,6 +2376,98 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
       <div class="callout tip">
         <span class="ci">&#10003;</span>
         <p><strong>20 minutes in, here's what you have:</strong> a structured <code>analysis.md</code> (what it is) and a severity-ranked <code>review-full.md</code> with a GO/NO-GO verdict (what shape it's in). Full situational awareness, on disk, ready to drive the next command. That's the onboarding workflow.</p>
+      </div>
+
+      <div class="progress" data-progress></div>
+      <div class="page-nav" data-pagenav></div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       PAGE: PLAN - turn findings into a phased plan
+       ===================================================================== -->
+  <section class="page" id="page-plan" data-page="plan">
+    <div class="container">
+      <span class="eyebrow">Plan the work</span>
+      <h1>Turn findings into a phased plan</h1>
+      <p class="lead">The review handed you a list of problems and a feature idea. Before any code, <code>/plan</code> turns them into a goal-gated, phased plan with a clear definition of done - and <code>/compare</code> mines an external repo or article for ideas worth adopting, feeding them straight into the plan.</p>
+
+      <div class="grid grid-3" style="margin-bottom:8px">
+        <div class="card">
+          <div class="step-no" style="font:700 12px/1 var(--mono); color:var(--teal-soft); letter-spacing:1px; margin-bottom:8px">/plan</div>
+          <h3>Decompose into phases</h3>
+          <p>Fix the goal and definition of done first, then break the work into phases - each with prerequisites and a stability gate - and seed <code>docs/todos.md</code> as the living tracker.</p>
+        </div>
+        <div class="card">
+          <div class="step-no" style="font:700 12px/1 var(--mono); color:var(--teal-soft); letter-spacing:1px; margin-bottom:8px">/compare</div>
+          <h3>Mine for ideas</h3>
+          <p>Run a gap analysis against an open-source repo, an article, or a local path, and get a reverse-engineer-first adoption plan. Take the ideas, not the code.</p>
+        </div>
+        <div class="card">
+          <div class="step-no" style="font:700 12px/1 var(--mono); color:var(--teal-soft); letter-spacing:1px; margin-bottom:8px">/plan from-comparison</div>
+          <h3>Adopt what fits</h3>
+          <p>Fold the comparison's adoption items into the phased plan, so an external idea becomes concrete, sequenced work with its own gates.</p>
+        </div>
+      </div>
+
+      <div class="scenario">
+        <div class="pin" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg></div>
+        <div>
+          <h3>Plan the TaskFlow fixes and the shuffle feature</h3>
+          <p>The two bugs from the review, plus the deck-shuffle idea, become a four-phase plan with an explicit definition of done - green tests and 80% coverage - and a per-phase model recommendation, before a single line is written.</p>
+        </div>
+      </div>
+
+      <div class="term term--standalone" data-anim data-speed="22">
+        <div class="term-bar">
+          <div class="tdots"><i style="background:#ff5f56"></i><i style="background:#ffbd2e"></i><i style="background:#27c93f"></i></div>
+          <span class="label"><b>claude</b> &mdash; taskflow</span>
+          <button class="term-replay" type="button">&#8635; replay</button>
+        </div>
+        <div class="term-body">
+          <div class="term-cmd"><span class="prompt">&gt; </span><span class="typed" data-type="/plan feature">/plan feature</span></div>
+          <div class="term-out">
+            <div class="t-tool">&bull; <b>goal</b> ...... fix 2 bugs + adopt deck shuffle; DoD = tests green, 80% coverage</div>
+            <div class="t-tool">&bull; <b>phases</b> .... decomposed into 4, each with a stability gate</div>
+            <div class="t-tool">&nbsp;&nbsp;&nbsp;&nbsp;1 &middot; fix scoring + restart bugs</div>
+            <div class="t-tool">&nbsp;&nbsp;&nbsp;&nbsp;2 &middot; adopt deck shuffle (reverse-engineered)</div>
+            <div class="t-tool">&nbsp;&nbsp;&nbsp;&nbsp;3 &middot; cover logic with tests to 80%</div>
+            <div class="t-tool">&nbsp;&nbsp;&nbsp;&nbsp;4 &middot; docs + release</div>
+            <div class="t-tool">&bull; <b>routing</b> ... per-phase model + effort recorded (via /route)</div>
+            <div class="t-tool">&bull; <b>todos</b> ..... <span class="t-cyan">docs/todos.md</span> seeded with the phases</div>
+            <div class="spacer"></div>
+            <div class="t-ok t-bold">&#10003; Plan written to docs/plans/taskflow-fixes.md</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-2" style="align-items:start">
+        <div class="artifact">
+          <div class="artifact-bar"><span class="doc">&#9783;</span> taskflow-fixes.md <span class="tag">generated</span></div>
+          <div class="artifact-body">
+            <h1 style="font-size:1.2rem">Plan - TaskFlow fixes + shuffle</h1>
+            <h3 style="color:var(--cyan-soft)">Definition of Done</h3>
+            <ul>
+              <li>All review findings resolved</li>
+              <li>Tests green; 80% line coverage</li>
+            </ul>
+            <h3 style="color:var(--ink)">Phases</h3>
+            <ul>
+              <li>1 - Fix scoring + restart bugs</li>
+              <li>2 - Adopt deck shuffle (reverse-engineered)</li>
+              <li>3 - Cover logic with tests to 80%</li>
+              <li>4 - Docs + release</li>
+            </ul>
+          </div>
+        </div>
+        <div>
+          <h3>Why phases, not a to-do dump</h3>
+          <p class="muted" style="font-size:13.5px">Each phase carries its own prerequisites and a stability gate, so <code>/implement</code> can build, test, and verify one slice at a time instead of producing a giant, untestable diff. The definition of done is fixed up front, so "done" is a checklist, not a feeling.</p>
+          <div class="callout tip">
+            <span class="ci">&#9733;</span>
+            <p><strong>Model routing, per phase.</strong> <code>/plan</code> records a recommended model and reasoning effort for each phase (via <code>/route</code>), so the cheap phases run cheap and the hard ones get the strong tier - re-confirmed at implementation time.</p>
+          </div>
+        </div>
       </div>
 
       <div class="progress" data-progress></div>
