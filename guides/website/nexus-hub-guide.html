@@ -973,8 +973,8 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
           </div>
           <div class="card navcard" data-go="communicate">
             <div class="step-no">WORKFLOW 06</div>
-            <h3>Document &amp; communicate</h3>
-            <p>Capture the work in clean docs, then turn it into an interactive briefing with <code>/presentify</code>.</p>
+            <h3>Document</h3>
+            <p>Capture the work in clean docs, then turn it into an interactive site with <code>/presentify</code>.</p>
             <span class="go">Open <span class="arr">&rarr;</span></span>
           </div>
           <div class="card navcard" data-go="reference">
@@ -1837,37 +1837,94 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
             </div>
 
             <div class="ts-slide" data-sec="In practice" data-tt="/presentify result">
-              <div class="ts-outbadge"><span class="ob">OPENS AS</span><span class="oc">trivia-quiz.html</span></div>
-              <div style="max-width:1100px; border:1px solid var(--border); border-radius:13px; overflow:hidden; box-shadow:0 28px 64px -30px rgba(0,0,0,.85)">
-                <div style="display:flex; align-items:center; gap:11px; padding:12px 18px; background:var(--surface); border-bottom:1px solid var(--border)">
-                  <span style="display:inline-flex; gap:8px"><i style="width:12px; height:12px; border-radius:50%; background:#ff5f56"></i><i style="width:12px; height:12px; border-radius:50%; background:#ffbd2e"></i><i style="width:12px; height:12px; border-radius:50%; background:#27c93f"></i></span>
-                  <span style="font:600 18px/1 var(--mono); color:var(--ink-faint)">trivia-quiz.html</span>
+              <div class="ts-outbadge"><span class="ob">OPENS AS</span><span class="oc">an interactive site</span></div>
+              <style>
+                @keyframes pq-fade { 0%,2%{opacity:0;transform:translateY(10px)} 7%,28%{opacity:1;transform:none} 34%,100%{opacity:0;transform:translateY(-8px)} }
+                @keyframes pq-tabon { 0%,3%{color:#9a9488;border-color:transparent} 7%,29%{color:#e8552d;border-color:#e8552d} 34%,100%{color:#9a9488;border-color:transparent} }
+                .pq-panel { position:absolute; inset:0; opacity:0; animation:pq-fade 13.5s infinite; }
+                .pq-panel.p2 { animation-delay:4.5s; } .pq-panel.p3 { animation-delay:9s; }
+                .pq-tab { padding-bottom:6px; border-bottom:2px solid transparent; color:#9a9488; animation:pq-tabon 13.5s infinite; }
+                .pq-tab.t2 { animation-delay:4.5s; } .pq-tab.t3 { animation-delay:9s; }
+                @media (prefers-reduced-motion: reduce) {
+                  .pq-panel, .pq-tab { animation:none; }
+                  .pq-panel { opacity:0; } .pq-panel.p1 { opacity:1; }
+                  .pq-tab.t1 { color:#e8552d; border-color:#e8552d; }
+                }
+              </style>
+              <div style="max-width:1040px; border-radius:14px; overflow:hidden; box-shadow:0 30px 66px -30px rgba(0,0,0,.85); border:1px solid #2a2622">
+                <div style="display:flex; align-items:center; gap:11px; padding:11px 16px; background:#211d1a">
+                  <span style="display:inline-flex; gap:7px"><i style="width:11px; height:11px; border-radius:50%; background:#ff5f56"></i><i style="width:11px; height:11px; border-radius:50%; background:#ffbd2e"></i><i style="width:11px; height:11px; border-radius:50%; background:#27c93f"></i></span>
+                  <span style="font:600 16px/1 var(--mono); color:#8a8378">trivia-quiz.html &middot; generated, offline</span>
                 </div>
-                <div style="position:relative; padding:40px 48px 44px; background:radial-gradient(740px 380px at 82% -12%, rgba(45,212,191,.16), transparent 60%), linear-gradient(180deg, #04141a, #02090c)">
-                  <div style="font:700 15px/1 var(--mono); letter-spacing:2.5px; text-transform:uppercase; color:var(--teal-soft); margin-bottom:15px">Slide 4 / 6 &middot; Results</div>
-                  <div style="font-size:40px; font-weight:800; letter-spacing:-.5px; margin-bottom:24px; color:var(--ink)">Test coverage</div>
-                  <div style="display:flex; align-items:flex-end; gap:40px; height:150px; padding-left:4px">
-                    <div style="display:flex; flex-direction:column; align-items:center; gap:11px">
-                      <span style="font:700 20px/1 var(--mono); color:var(--ink-faint)">34%</span>
-                      <div style="width:96px; height:48px; background:var(--ink-faint); border-radius:7px 7px 0 0; opacity:.5"></div>
-                      <span style="font:600 17px/1 var(--mono); color:var(--ink-faint)">before</span>
-                    </div>
-                    <div style="display:flex; flex-direction:column; align-items:center; gap:11px">
-                      <span style="font:700 20px/1 var(--mono); color:var(--teal-soft)">82%</span>
-                      <div style="width:96px; height:116px; background:var(--grad); border-radius:7px 7px 0 0"></div>
-                      <span style="font:600 17px/1 var(--mono); color:var(--ink-dim)">after</span>
-                    </div>
-                    <div style="align-self:center; max-width:340px; margin-left:18px; font-size:21px; line-height:1.4; color:var(--ink-dim)">57 tests added across tiers; core logic covered to 97%.</div>
+                <div style="background:#faf6ee; color:#26211c">
+                  <div style="display:flex; align-items:center; justify-content:space-between; padding:22px 34px 0">
+                    <span style="font:800 26px/1 Georgia,'Times New Roman',serif; letter-spacing:-.3px; color:#1c1812">Trivia Quiz</span>
+                    <span style="display:inline-flex; gap:26px; font:600 17px/1 system-ui,sans-serif">
+                      <span class="pq-tab t1">Overview</span>
+                      <span class="pq-tab t2">How it works</span>
+                      <span class="pq-tab t3">Results</span>
+                    </span>
                   </div>
-                  <div style="position:absolute; left:0; right:0; bottom:0; height:5px; background:var(--border)"><div style="width:66%; height:100%; background:var(--grad)"></div></div>
-                  <div style="position:absolute; right:20px; bottom:18px; display:flex; align-items:center; gap:13px; font:600 17px/1 var(--mono); color:var(--ink-faint)">
-                    <span style="border:1px solid var(--border); border-radius:8px; padding:5px 11px">&larr;</span>
-                    <span>4 / 6</span>
-                    <span style="border:1px solid var(--border); border-radius:8px; padding:5px 11px">&rarr;</span>
+                  <div style="height:1px; background:#e7ddca; margin:15px 34px 0"></div>
+                  <div style="position:relative; height:296px; margin:0 34px; padding:26px 0">
+                    <div class="pq-panel p1">
+                      <div style="font:800 40px/1.12 Georgia,serif; letter-spacing:-.5px; max-width:600px; color:#1c1812">A quick-fire trivia game you can host anywhere</div>
+                      <p style="font-size:20px; line-height:1.5; color:#5c5347; max-width:560px; margin:16px 0 24px">Ten questions, shuffled on every run, scored instantly. Pure HTML, CSS, and JavaScript - no build step, no backend.</p>
+                      <span style="display:inline-block; background:#e8552d; color:#fff; font:700 17px system-ui; padding:12px 24px; border-radius:999px">Play now</span>
+                    </div>
+                    <div class="pq-panel p2">
+                      <div style="font:800 34px/1.1 Georgia,serif; margin-bottom:18px; color:#1c1812">How it works</div>
+                      <div style="display:flex; gap:16px">
+                        <div style="flex:1; background:#fff; border:1px solid #ece3d2; border-radius:12px; padding:18px 20px">
+                          <div style="font:700 14px var(--mono); color:#e8552d; margin-bottom:9px">01</div>
+                          <div style="font:700 20px system-ui; margin-bottom:6px">Shuffle</div>
+                          <p style="font-size:16px; line-height:1.45; color:#6b6255; margin:0">The deck reorders on every load, so no two runs are alike.</p>
+                        </div>
+                        <div style="flex:1; background:#fff; border:1px solid #ece3d2; border-radius:12px; padding:18px 20px">
+                          <div style="font:700 14px var(--mono); color:#e8552d; margin-bottom:9px">02</div>
+                          <div style="font:700 20px system-ui; margin-bottom:6px">Answer</div>
+                          <p style="font-size:16px; line-height:1.45; color:#6b6255; margin:0">Pick an option; the choice locks and the next card slides in.</p>
+                        </div>
+                        <div style="flex:1; background:#fff; border:1px solid #ece3d2; border-radius:12px; padding:18px 20px">
+                          <div style="font:700 14px var(--mono); color:#e8552d; margin-bottom:9px">03</div>
+                          <div style="font:700 20px system-ui; margin-bottom:6px">Score</div>
+                          <p style="font-size:16px; line-height:1.45; color:#6b6255; margin:0">A running tally totals at the end, with a restart in one click.</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="pq-panel p3">
+                      <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:16px">
+                        <div style="font:800 32px/1.1 Georgia,serif; color:#1c1812">Scores by round</div>
+                        <span style="font:600 13px var(--mono); color:#8a8378; border:1px solid #e7ddca; border-radius:999px; padding:5px 13px">drag to zoom &middot; click legend to filter</span>
+                      </div>
+                      <div style="display:flex; gap:14px">
+                        <div style="display:flex; flex-direction:column; justify-content:space-between; height:150px; font:600 13px var(--mono); color:#9a9488; text-align:right">
+                          <span>100</span><span>50</span><span>0</span>
+                        </div>
+                        <div style="flex:1; border-left:1px solid #ddd2bd; border-bottom:1px solid #ddd2bd; display:flex; align-items:flex-end; gap:30px; padding:0 14px 0 18px; height:150px">
+                          <div style="display:flex; align-items:flex-end; gap:9px; flex:1">
+                            <div style="flex:1; height:88px; background:#e8552d; border-radius:5px 5px 0 0"></div>
+                            <div style="flex:1; height:120px; background:#caa46a; border-radius:5px 5px 0 0"></div>
+                          </div>
+                          <div style="display:flex; align-items:flex-end; gap:9px; flex:1">
+                            <div style="flex:1; height:108px; background:#e8552d; border-radius:5px 5px 0 0"></div>
+                            <div style="flex:1; height:120px; background:#caa46a; border-radius:5px 5px 0 0"></div>
+                          </div>
+                          <div style="display:flex; align-items:flex-end; gap:9px; flex:1">
+                            <div style="flex:1; height:70px; background:#e8552d; border-radius:5px 5px 0 0"></div>
+                            <div style="flex:1; height:120px; background:#caa46a; border-radius:5px 5px 0 0"></div>
+                          </div>
+                        </div>
+                      </div>
+                      <div style="display:flex; gap:20px; margin-top:13px; padding-left:42px; font:600 14px system-ui; color:#6b6255">
+                        <span style="display:inline-flex; align-items:center; gap:7px"><i style="width:12px; height:12px; border-radius:3px; background:#e8552d"></i>Correct</span>
+                        <span style="display:inline-flex; align-items:center; gap:7px"><i style="width:12px; height:12px; border-radius:3px; background:#caa46a"></i>Asked</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-              <p class="ts-outcap">A preview of the deck itself - one offline HTML file with slide navigation, an outline, a progress bar, and the coverage as an inline chart.</p>
+              <p class="ts-outcap">presentify reads your docs and generates a unique interactive site - navigable sections, real figures, and charts you can zoom and filter. Not a slide deck, and a fresh style every run (or pass your own in).</p>
             </div>
 
             <div class="ts-slide ts-cover" data-sec="In practice" data-tt="Apply it">
@@ -2919,7 +2976,7 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
        ===================================================================== -->
   <section class="page" id="page-communicate" data-page="communicate">
     <div class="container">
-      <span class="eyebrow">Document &amp; communicate</span>
+      <span class="eyebrow">Document</span>
       <h1>Capture the work, then present it</h1>
       <p class="lead">v0.5.0 is shipped - but the work only pays off if others can see and understand it. This last stage does two things at once: it makes sure the work is <em>captured</em> in clean, organized documentation, and then turns that documentation into an interactive briefing you can hand to a stakeholder or a teammate. The artifacts you already produced - README, dev log, plans, todos, session history, git history - are the raw material, so there is no slide deck to build by hand.</p>
 
@@ -3140,7 +3197,7 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
       { id: "build",       title: "Implement" },
       { id: "harden",      title: "Harden" },
       { id: "ship",        title: "Ship & maintain" },
-      { id: "communicate", title: "Document & communicate" },
+      { id: "communicate", title: "Document" },
       { id: "reference",   title: "Cheatsheets" }
     ];
     var REDUCE = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -3606,7 +3663,7 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
 /* Workflow subtabs: inject a secondary tab bar into each workflow page. */
 (function () {
   "use strict";
-  var WF = [["explore", "Explore"], ["plan", "Plan"], ["build", "Build"], ["harden", "Harden"], ["ship", "Ship"]];
+  var WF = [["explore", "Explore"], ["plan", "Plan"], ["build", "Build"], ["harden", "Harden"], ["ship", "Ship"], ["communicate", "Document"]];
   WF.forEach(function (pair) {
     var page = document.getElementById("page-" + pair[0]);
     if (!page) return;
