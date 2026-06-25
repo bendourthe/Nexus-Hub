@@ -1,10 +1,45 @@
 # Interactive Features and the Enrichment Pass
 
-This document is the design contract for the presentation output: the catalog of interactive features the template (`assets/presentation-template.html`) ships, how the theme is overridden, and the LLM "enrichment pass" that turns the deterministic baseline (`scripts/build_presentation.py`) into a captivating deck. The builder produces a correct, plain, fully-offline baseline; the enrichment pass is the part that is the agent's own work, not a script.
+This document is the design contract for the output. It has two layers: the PRIMARY path - the agent authoring a unique, interactive WEBSITE from the content model, with dynamic charts and a bespoke design - and an OPTIONAL deterministic baseline (`scripts/build_presentation.py` + `assets/presentation-template.html`), whose plain, slide-based features are cataloged further down for when a fast, reproducible draft is wanted.
 
-Everything here holds the two non-negotiable guarantees: the output is a single self-contained file that opens with zero external network requests (see `[[html-output-conventions]]`), and it reads as intentionally designed rather than AI-generated (see `[[hallmark-design]]`).
+Everything here holds the two non-negotiable guarantees: the output is a single self-contained file that opens with zero external network requests (see `[[html-output-conventions]]`), and it reads as intentionally designed rather than AI-generated (see `[[hallmark-design]]`). The default output is a navigable website, not a static slide deck.
 
-## Interactive Feature Catalog
+## Authoring the Interactive Website (primary path)
+
+The default deliverable is a unique, interactive, single-file website authored from the content model - not a slide deck. Aim for a clear, engaging, dynamic interface.
+
+### Structure
+
+- Open with a concise overview / landing area, then organize the content into scannable sections.
+- Provide real navigation: in-page anchors, a sticky section nav, tabs, or routed views - pick what fits the content. Avoid a forced one-screen-per-slide sequence.
+- Make it responsive (phone to projector) and keyboard-accessible, with visible focus states.
+
+### Dynamic, manipulable charts
+
+Every figure that carries real data (a `chart` block in the content model, or a numeric table worth charting) becomes an INTERACTIVE chart the reader can manipulate - built entirely from inlined vanilla JavaScript, with no charting library and no CDN (the offline guarantee is absolute). At minimum, support:
+
+- **Zoom and pan**: mouse wheel / pinch to zoom, drag to pan, and a reset control.
+- **Series toggle**: click a legend entry to hide/show that series; the axes rescale to the visible data.
+- **Axis control**: let the reader adjust the visible x / y range (drag-select a region to zoom into it, or min/max inputs).
+- **Readout**: hover (and keyboard focus) shows the value at a point.
+
+Implementation approach (no library): render to a `<canvas>` (or an inline SVG you update), keep the data plus the current view state (`xMin/xMax/yMin/yMax`, the hidden-series set) in a small JS object, and redraw on interaction. Bar, line, area, scatter, and pie/doughnut all follow the same redraw-on-state pattern. Always include an accessible label and a text+swatch legend so color is never the sole carrier of meaning. Use the source's REAL numbers; never invent values or round data away.
+
+### Real visuals
+
+If the source has figures, tables, or images, they appear in the site: images inline as base64; numeric data as the interactive charts above; large tables as sortable / filterable tables where that helps the reader.
+
+### Unique design and caller-specified style
+
+- Author a fresh, content-appropriate design each run. A recognizable fixed house style across runs is the templated 'AI-generated' signature `[[hallmark-design]]` rejects.
+- If the caller specified a style or color scheme - a `[[theme-tokens]]` set, a `[[brand-styling]]` brand `tokens.json`, or plain words ("dark", "minimal", "editorial", "playful", "high-contrast", a brand color) - treat it as the binding design direction. Ask for brand tokens before inventing a brand's colors.
+- Keep all fonts as system stacks (or base64 `@font-face`); never fetch a web font.
+
+## Optional Baseline: the deterministic builder's features
+
+The sections below describe the OPTIONAL `scripts/build_presentation.py` baseline and its slide-based template - a plain, reproducible draft, not the primary deliverable. Use them when a caller explicitly wants a fast deterministic draft to elevate into the interactive website above.
+
+### Interactive Feature Catalog (baseline template)
 
 The template carries all of the following with inline CSS and JS only. The builder injects content; it never adds or removes a feature.
 
@@ -36,7 +71,7 @@ A `notes` block renders into an `<aside class="notes">` that is hidden by defaul
 
 ### Inline chart types and when to use each
 
-Charts are rendered server-side as inline SVG by the builder (no charting library, no canvas dependency, no CDN). The `chart_type_hint` on a `chart` block selects the renderer; the enrichment pass may override it for the data shape.
+These are the baseline builder's STATIC inline-SVG charts (no charting library, no canvas dependency, no CDN); the primary path renders the same data as the dynamic, manipulable charts described in "Dynamic, manipulable charts" above. The `chart_type_hint` on a `chart` block selects the renderer; the agent may override it for the data shape.
 
 | Type | Use when | Notes |
 |---|---|---|
