@@ -68,6 +68,22 @@ When a review has multiple comments, do not implement in the order they appear. 
 
 Test after each item. A clean intermediate state means that if a later, riskier change breaks something, you know exactly which change did it.
 
+## Escalating Intent-Touching Findings to the Human
+
+Not every finding is yours to resolve. When acting on review feedback, a finding that challenges the user's deliberate intent or changes product behavior (the escalate bucket in [[intent-based-review]]) is a decision that belongs to the user, not the agent. Do NOT approve it, fix it, or skip it on your own judgment.
+
+Instead, stop and bring it to the user before you respond:
+
+- Relay the finding as written: its location and its full description, verbatim. Do not paraphrase it, and do not summarize away the detail that makes it a judgment call.
+- Do not pre-judge the answer. Present the decision, not your preferred outcome dressed up as a recommendation.
+- Then translate the user's decision into the action: fix it with their guidance, accept it as written, or skip it.
+
+Contrast this with mechanical-fix findings (objective, low-risk defects), which you may resolve on your own without asking. The escalation rule applies only to findings that genuinely contest intent or product behavior.
+
+There is one standing exception: when the user has given explicit standing consent to drive the work unattended, you may resolve escalate-bucket findings automatically under that mandate. Absent that consent, stop and ask.
+
+This is the same discipline this skill already applies to performative agreement, pointed at intent-touching findings. Relaying a finding verbatim and refusing to silently resolve it is the no-performative-compliance rule again: you do not paper over a real decision with a quiet edit any more than you paper over a real disagreement with "You're absolutely right". See [[verification-before-completion]] for proving whatever fix the user does choose.
+
 ## Common Rationalizations
 
 | Rationalization | Reality |

@@ -104,6 +104,19 @@ Stages 3-6 are the canonical *dimensions -> find -> adversarially-verify* fanout
 
 It is a **template to adapt, not a script to run verbatim**, and it must **degrade gracefully**: Dynamic Workflows is a plan-gated research-preview capability that may be absent, so fall back to dispatching the personas as isolated subagents (Stage 4 by hand), or a single sequential reviewer. Because a persona fanout plus per-finding verification carries a 5-15x token multiplier, keep the **scope-first** discipline: calibrate on one module first, review the resolved persona set and diff base on the first trigger, and confirm before reviewing the whole change. For whether a fanout is warranted at all and the hard budget controls, see [[agent-orchestration-primitives]] and [[ai-billing-safeguards]] -- this template does not duplicate that guidance.
 
+## Round-History Hygiene (Multi-Round Review)
+
+When a review runs more than once over the same change (a re-review after a fix pass, or a later follow-up), carry a sanitized history of which findings were surfaced in earlier passes and which ones the user chose to leave unaddressed. On a follow-up pass, do NOT re-report a finding the user already ignored, unless the code now presents a materially different issue at that location.
+
+This prevents a specific failure mode: without round-history hygiene, an iterative review loop re-surfaces the same rejected finding on every pass. That trains the user to tune out the reviewer entirely, and it buries genuinely new findings under the repeated noise. A finding the user explicitly deferred is a decision (it belongs in the escalate-bucket history described in [[intent-based-review]]), so re-raising it unchanged is just performative re-review.
+
+Keep one distinction precise:
+
+- **The same finding** at a location the user already passed on: do not re-raise it.
+- **A materially changed issue** at that location: do raise it, and say what changed since the user last saw it. If the surrounding code was rewritten in a way that revives or worsens the concern, that is a new finding, not a repeat.
+
+See [[loop-engineering]] for the broader loop-control discipline this round-history rule is an instance of.
+
 ## Common Rationalizations
 
 | Rationalization | Reality |

@@ -39,6 +39,33 @@ This skill provides an alternative review methodology:
 - **Selective Deep Dive**: Triggers line-by-line review only for criteria that fail or lack test coverage
 - **Review Report**: Produces a structured INTENT-REVIEW.md artifact
 
+## Capturing Intent as the Review Oracle
+
+The whole method depends on a faithful statement of intent, because intent is the oracle every finding is judged against. Intent is what the user set out to accomplish (the goal or request behind the work, in the user's own terms), not a description of the diff or a list of the files that changed. A reviewer handed only the diff cannot tell a deliberate choice from an accident, and the intent statement is what supplies that missing knowledge.
+
+Capture the nuance the diff alone does not reveal:
+
+- The user's actual goal, stated as an outcome rather than as a file list.
+- The specific decisions and tradeoffs made along the way (what was chosen, and what it was chosen over).
+- Any constraints or approaches the user deliberately ruled in or ruled out.
+- Anything the user explicitly asked for that would otherwise look surprising in the diff (a deletion, an added guard, an unusual dependency).
+
+Err on the side of completeness, not brevity: a few sentences to a short paragraph is normal. A thin one-line intent is the classic failure mode, because it makes the review flag things the user already chose on purpose, producing false escalations under the finding-action taxonomy below. A rich intent is exactly what lets the reviewer drop a finding into the mechanical-fix bucket instead of the escalate bucket.
+
+Prefer intent known directly from the live conversation over intent reconstructed after the fact from session transcripts. Live intent is faster to obtain and less error-prone, so when the agent already knows the goal from the working session it should pass that along rather than mine logs to rediscover it. Reconstruction is a fallback for when the original context is gone, not the default. See [[verification-before-completion]] for proving the change against that intent.
+
+## Classifying Findings by Action
+
+Severity tells you how bad a finding is. It does not tell you who gets to decide what happens next. Classify every review finding by the action it implies, in three buckets:
+
+- **Mechanical-fix**: an objective, low-risk defect (an ignored error return, a missing null check, a clear correctness, reliability, or security bug). The right fix is not in dispute, so the agent may resolve it on its own judgment.
+- **Escalate-to-human**: a finding that challenges the user's deliberate intent or changes product behavior. It argues that an intentional addition, removal, or guard should be undone, or it questions a deliberate design or product choice. This is a decision only the user can make.
+- **Informational**: a note that needs no fix (a heads-up, a future consideration, a context comment).
+
+Hold the boundary between the first two buckets sharply. Routine correctness, reliability, and security fixes stay in the mechanical-fix bucket even when the smallest correct fix reintroduces a little previously-deleted logic. The escalate bucket is reserved for findings that genuinely contest intent or product behavior, not for any change that merely touches deleted code. Reintroducing one guard clause to fix a real crash is mechanical; arguing that an entire feature the user deliberately removed should come back is an escalation.
+
+This classification is what makes intent-based review actionable. A reviewer that cannot tell a deliberate decision from a mistake fails in one of two directions: it rubber-stamps real defects (treating a bug as an intentional choice), or it flags the user's own choices (treating intent as a bug). The escalate bucket is handled by the escalation discipline in [[receiving-code-review]].
+
 ## Instructions
 
 ### Step 1: Locate Acceptance Criteria

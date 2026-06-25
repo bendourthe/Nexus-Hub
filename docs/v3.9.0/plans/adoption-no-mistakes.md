@@ -193,16 +193,16 @@ The "Rec. model / effort" column is a best-effort planning-time assessment, reco
 
 ### Phase 1 Exit Checklist
 
-- [ ] All sub-tasks completed (1.1, 1.2, 1.3, 1.4)
-- [ ] Three-way finding-action taxonomy present in `intent-based-review` with all three buckets and the mechanical-vs-escalate boundary rule
-- [ ] Intent-as-verbatim-review-oracle guidance present in `intent-based-review`, including the thin-intent failure mode and the live-conversation-over-transcript preference
-- [ ] Verbatim human-escalation rule present in `receiving-code-review`, with the no-self-resolution rule, the relay-verbatim discipline, and the standing-consent exception
-- [ ] Round-history hygiene rule present in `multi-agent-code-review`, distinguishing unchanged from materially-changed findings
-- [ ] No upstream product name or literal schema token in any distributed artifact (grep clean)
-- [ ] Every edited body under 500 lines; frontmatter unchanged in this phase
-- [ ] Validators green (JSON integrity; orphan-bundle audit; wikilinks resolve)
-- [ ] Session history generated for Phase 1
-- [ ] Ready to advance to Phase 2
+- [x] All sub-tasks completed (1.1, 1.2, 1.3, 1.4)
+- [x] Three-way finding-action taxonomy present in `intent-based-review` with all three buckets and the mechanical-vs-escalate boundary rule
+- [x] Intent-as-verbatim-review-oracle guidance present in `intent-based-review`, including the thin-intent failure mode and the live-conversation-over-transcript preference
+- [x] Verbatim human-escalation rule present in `receiving-code-review`, with the no-self-resolution rule, the relay-verbatim discipline, and the standing-consent exception
+- [x] Round-history hygiene rule present in `multi-agent-code-review`, distinguishing unchanged from materially-changed findings
+- [x] No upstream product name or literal schema token in any distributed artifact (grep clean)
+- [x] Every edited body under 500 lines; frontmatter unchanged in this phase
+- [x] Validators green (JSON integrity; orphan-bundle audit; wikilinks resolve)
+- [x] Session history generated for Phase 1
+- [x] Ready to advance to Phase 2
 
 ### Phase 2 Exit Checklist
 
