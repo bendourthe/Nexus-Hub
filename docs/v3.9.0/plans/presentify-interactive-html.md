@@ -204,14 +204,14 @@ The "Rec. model / effort" column is a best-effort planning-time assessment, reco
 
 ### Phase 1 Exit Checklist
 
-- [ ] All sub-tasks completed (1.1, 1.2, 1.3)
-- [ ] `references/content-model.md` defines the schema, the per-format mapping, and the multi-file merge
-- [ ] `scripts/extract_content.py` extracts all four formats into the model, lazy-imports every parser with a `pip install` hint, and merges multi-file input with source attribution
-- [ ] A missing parser library yields the documented message + non-zero exit (no traceback)
-- [ ] Images carried as base64 within the size budget; slide order preserved for PPTX; XLSX numeric range -> chart block
-- [ ] `references/extraction-runbook.md` documents per-format coverage, gotchas, and the OCR/video out-of-scope note
-- [ ] Validators green; Python style (ruff) clean; no network call in the script
-- [ ] Session history generated for Phase 1
+- [x] All sub-tasks completed (1.1, 1.2, 1.3, 1.4)
+- [x] `references/content-model.md` defines the schema, the per-format mapping, and the multi-file merge
+- [x] `scripts/extract_content.py` extracts all four formats into the model, lazy-imports every parser with a `pip install` hint, and merges multi-file input with source attribution
+- [x] A missing parser library yields the documented message + non-zero exit (no traceback)
+- [x] Images carried as base64 within the size budget; slide order preserved for PPTX; XLSX numeric range -> chart block
+- [x] `references/extraction-runbook.md` documents per-format coverage, gotchas, and the OCR/video out-of-scope note
+- [x] Validators green; Python style (ruff) clean; no network call in the script
+- [x] Session history generated for Phase 1
 
 ### Phase 2 Exit Checklist
 
