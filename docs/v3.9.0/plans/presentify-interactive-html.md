@@ -215,14 +215,14 @@ The "Rec. model / effort" column is a best-effort planning-time assessment, reco
 
 ### Phase 2 Exit Checklist
 
-- [ ] All sub-tasks completed (2.1, 2.2, 2.3, 2.4)
-- [ ] `assets/presentation-template.html` is self-contained (no external requests), with nav/outline/progress/fullscreen/keyboard/transitions/reduced-motion/responsive
-- [ ] `assets/theme.json` is valid JSON with a documented theme-tokens/brand-styling override path
-- [ ] `scripts/build_presentation.py` produces one offline `.html` with inline base64 images and inline SVG/canvas charts, and passes its no-external-reference self-check
-- [ ] `references/interactive-features.md` documents the feature catalog, theme override, and the hallmark-design enrichment pass + the three input modes
-- [ ] A baseline build of a sample model opens offline and is well-formed
-- [ ] Validators green
-- [ ] Session history generated for Phase 2
+- [x] All sub-tasks completed (2.1, 2.2, 2.3, 2.4)
+- [x] `assets/presentation-template.html` is self-contained (no external requests), with nav/outline/progress/fullscreen/keyboard/transitions/reduced-motion/responsive
+- [x] `assets/theme.json` is valid JSON with a documented theme-tokens/brand-styling override path
+- [x] `scripts/build_presentation.py` produces one offline `.html` with inline base64 images and inline SVG/canvas charts, and passes its no-external-reference self-check
+- [x] `references/interactive-features.md` documents the feature catalog, theme override, and the hallmark-design enrichment pass + the three input modes
+- [x] A baseline build of a sample model opens offline and is well-formed (lxml parse PASS; all tag pairs balanced)
+- [x] Validators green (`make validate` gates: bundles-only + quality + JSON integrity all pass; ruff clean on the builder)
+- [x] Session history generated for Phase 2
 
 ### Phase 3 Exit Checklist
 

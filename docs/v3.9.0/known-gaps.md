@@ -2,7 +2,7 @@
 
 **Status**: v3.9.0 (loop-design + cross-model egress-hygiene enrichment from the design-time loop-coach and cross-model agent-runtime comparisons) is feature-complete on `develop`. The `adoption-looper-and-deer-flow` plan ([docs/v3.9.0/plans/adoption-looper-and-deer-flow.md](plans/adoption-looper-and-deer-flow.md)) landed all three phases: Phase 1 (handoff egress hygiene + reviewer-vs-judge verdict-honesty rule + argv-array invocation in `cross-model-orchestrator`), Phase 2 (design-first loop section + typed-verification ordering + render-and-confirm note + egress cross-link in `loop-engineering`), Phase 3 (default-deny host-execution posture in `agent-access-policy`, optional typed-fact schema in `context-pack-builder`, three reverse-engineering-matrix declines + the convergent-validation finding). All four edited bodies stayed under the 500-line norm; no frontmatter changed, so no `data/` registry edit was required (decision recorded below).
 
-**Last updated**: 2026-06-25 (v3.9.0 presentify-interactive-html Phase 1)
+**Last updated**: 2026-06-25 (v3.9.0 presentify-interactive-html Phase 2)
 
 This file tracks per-phase unfinished work, intentional deferrals, bugs, missing tests, warnings, and bypassed quality gates for v3.9.0. The next version's `/plan` ingests the open items here. Category prefixes: `NI` (not implemented / skipped subtask), `DF` (intentionally deferred), `BG` (bug), `MT` (missing test), `WN` (warning / suppressed rule), `QG` (quality gate bypassed).
 
@@ -11,12 +11,12 @@ This file tracks per-phase unfinished work, intentional deferrals, bugs, missing
 | Category | Open | Resolved |
 |---|---|---|
 | NI | 0 | 0 |
-| DF | 5 | 0 |
+| DF | 6 | 0 |
 | BG | 0 | 0 |
 | MT | 0 | 0 |
 | WN | 3 | 0 |
 | QG | 0 | 0 |
-| **Total** | **8** | **0** |
+| **Total** | **9** | **0** |
 
 ## Open Items
 
@@ -30,12 +30,13 @@ This file tracks per-phase unfinished work, intentional deferrals, bugs, missing
 | DF-v39-presentify-2 | DF | presentify-interactive-html Phase 1 | PDF raster-image extraction is not implemented in v1; a PDF contributes text and tables only (PPTX/DOCX images are extracted as base64). | Add PDF image extraction (pypdf `page.images` / pdfplumber) in a later iteration. | Low (PPTX/DOCX image path is implemented and tested). |
 | DF-v39-presentify-3 | DF | presentify-interactive-html Phase 1 | Native PowerPoint / Word embedded chart objects are not extracted; chartable data is sourced from `.xlsx` numeric ranges, which map cleanly to `chart` blocks. | Map pptx/docx chart parts to `chart` blocks if a deck's charts must survive without the source spreadsheet. | Low (the primary chart path - spreadsheet ranges - is implemented and tested). |
 | DF-v39-presentify-4 | DF | presentify-interactive-html Phase 1 | Video / audio media embedded in any source format is ignored (the output is a single self-contained offline HTML deck; embedded media would break the offline / size guarantee). | Revisit only if embedded media is a stated requirement; would need a size + offline strategy. | Low (out of scope by design for a self-contained deck). |
+| DF-v39-presentify-5 | DF | presentify-interactive-html Phase 2 | Custom brand-font embedding is not implemented in the builder: a theme / brand override supplies CSS font stacks, but a non-system custom font would need a base64 `@font-face` to stay self-contained. The builder keeps fonts as system stacks so the output never fetches a font. | Add an opt-in base64 `@font-face` embed path (read the font file from the brand `assets_dir`, inline it) if a brand custom font becomes a requirement. | Low (documented in `references/interactive-features.md`; system-stack themes and brand palettes are fully supported). |
 
 ## Notes
 
 - **Registry-edit decision (Phase 3.4): no edit needed.** The final `summary_l0` / `overview_l1` of all four enriched skills (`cross-model-orchestrator`, `loop-engineering`, `agent-access-policy`, `context-pack-builder`) still accurately describe them at the one-line / paragraph level; the enrichments are doctrine refinements within each skill's existing scope, not new headline capabilities. So `data/SKILL_INDEX.md`, `data/skills.json`, and `data/marketplace.json` were left unchanged, and `cross-model-orchestrator`'s footer version stays at 1.0.0. This follows the v3.8.0 loop-engineering-enrichment precedent (comparable body enrichment, no frontmatter / registry change).
 - **Declines are durable, not gaps.** The three v3.9.0 declines (loop runner script, spec-compile step, advisory-only cost caps) and the convergent-design-validation finding are recorded as authoritative rows in [docs/policy/mcp-reverse-engineering-matrix.md](../policy/mcp-reverse-engineering-matrix.md) so a future comparison recognizes them as already-adjudicated rather than re-surfacing them as fresh gaps.
-- **Separate v3.9.0 plan: presentify-interactive-html Phase 1 landed.** [docs/v3.9.0/plans/presentify-interactive-html.md](plans/presentify-interactive-html.md) is an independent v3.9.0 plan. Phase 1 (local multi-format extraction) is now implemented on `develop`: `references/content-model.md` (the normalized schema), `scripts/extract_content.py` (the lazy-import PDF/Word/Excel/PowerPoint extractor), and `references/extraction-runbook.md`. Its Phase 1 deferrals are tracked above (DF-v39-presentify-1..4). Phases 2-4 (the self-contained interactive HTML builder, the SKILL.md + command + registration, and the worked example + final validation) remain unimplemented; the SKILL.md does not exist yet, so the new bundle is intentionally not registered and not counted as a skill until Phase 3.
+- **Separate v3.9.0 plan: presentify-interactive-html Phases 1-2 landed.** [docs/v3.9.0/plans/presentify-interactive-html.md](plans/presentify-interactive-html.md) is an independent v3.9.0 plan. Phase 1 (local multi-format extraction) and Phase 2 (the self-contained interactive HTML template + builder) are now implemented on `develop`. Phase 1: `references/content-model.md` (the normalized schema), `scripts/extract_content.py` (the lazy-import PDF/Word/Excel/PowerPoint extractor), `references/extraction-runbook.md`. Phase 2: `assets/presentation-template.html` (the offline self-contained scaffold with nav/outline/progress/fullscreen/keyboard/transitions/reduced-motion/responsive + print path), `assets/theme.json` (default theme on the theme-tokens schema with a documented theme-tokens / brand-styling override path), `scripts/build_presentation.py` (content model -> one offline `.html` with inline base64 images and inline SVG bar/line/pie/doughnut charts, plus a post-write no-external-reference self-check), and `references/interactive-features.md` (feature catalog + theme override + the hallmark-design enrichment pass + the three input modes). Its deferrals are tracked above (DF-v39-presentify-1..5). Phases 3-4 (the SKILL.md + command + registration, and the worked example + final validation) remain unimplemented; the SKILL.md does not exist yet, so the new bundle is intentionally not registered and not counted as a skill until Phase 3.
 - **presentify Phase 1 heuristic limitations (not blocking).** Two extraction heuristics are intentionally approximate and documented in [`references/extraction-runbook.md`](../../catalog/skills/specialized-domains/document-to-interactive-html/references/extraction-runbook.md): a worksheet is interpreted as one contiguous grid (a sheet holding several separate tables is treated as one), and PDF section headings rely on a short-first-line heuristic (PDF has no reliable heading structure). Both are recorded as runbook gotchas with the recommended source-side workaround, not as open defects.
 
 ## Resolved
