@@ -226,13 +226,13 @@ The "Rec. model / effort" column is a best-effort planning-time assessment, reco
 
 ### Phase 3 Exit Checklist
 
-- [ ] All sub-tasks completed (3.1, 3.2, 3.3)
-- [ ] `SKILL.md`: pushy description with verbatim triggers + SKIP; `summary_l0` <= 15 words; `overview_l1` <= 150 words; all required sections in order; body < 500 lines; every bundle file referenced
-- [ ] `catalog/commands/presentify.md` is pushy, documents single/multi/folder inputs + theme/output options, and delegates to the skill
-- [ ] `data/SKILL_INDEX.md`, `data/skills.json`, `data/marketplace.json` updated; counts incremented (skills + commands)
-- [ ] CLAUDE.md / AGENTS.md skill-index rows + headline counts updated and consistent
-- [ ] `make validate` green: JSON integrity, orphan-bundle audit clean, dangling-wikilink audit clean; `make lint` green
-- [ ] Session history generated for Phase 3
+- [x] All sub-tasks completed (3.1, 3.2, 3.3)
+- [x] `SKILL.md`: pushy description with verbatim triggers + SKIP; `summary_l0` <= 15 words (11); `overview_l1` <= 150 words (132); all required sections in order; body < 500 lines (128); every bundle file referenced
+- [x] `catalog/commands/presentify.md` is pushy, documents single/multi/folder inputs + theme/output options, and delegates to the skill
+- [x] `data/SKILL_INDEX.md`, `data/skills.json`, `data/marketplace.json` updated; counts incremented (skills 256 -> 257, specialized-domains 13 -> 14, commands 15 -> 16)
+- [x] AGENTS.md + README.md headline counts updated and consistent (the CLAUDE.md skill table is a user-global copy, not edited; the authoritative repo surfaces are AGENTS.md and data/SKILL_INDEX.md)
+- [x] Validators green: JSON integrity, orphan-bundle audit clean for this skill, dangling-wikilink resolve (all 8 Related Skills), quality pass 0/0; `make lint` no-op (no shell scripts added)
+- [x] Session history generated for Phase 3 (`docs/v3.9.0/development/history/2026-06-25_presentify-interactive-html-phase-3-skill-command-and-registration.md`)
 
 ### Phase 4 Exit Checklist
 

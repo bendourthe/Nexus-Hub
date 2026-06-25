@@ -6,7 +6,7 @@
     "description": "Comprehensive catalog of Nexus-Hub skills with L0/L1 tiered summaries"
   },
   "statistics": {
-    "total_skills": 256,
+    "total_skills": 257,
     "categories": {
       "ai-development": 11,
       "architecture": 7,
@@ -25,7 +25,7 @@
       "research": 2,
       "security": 13,
       "security-operations": 15,
-      "specialized-domains": 13,
+      "specialized-domains": 14,
       "testing": 3,
       "tests-generation": 18,
       "workflow": 41
@@ -34,9 +34,9 @@
       "HIGH": 3,
       "MEDIUM": 253
     },
-    "total_lines": 127456,
-    "total_tokens_estimate": 623156,
-    "average_lines_per_skill": 506,
+    "total_lines": 127584,
+    "total_tokens_estimate": 625245,
+    "average_lines_per_skill": 496,
     "languages_supported": [
       "Python",
       "JavaScript",
@@ -7094,6 +7094,53 @@
       "size": {
         "lines": 180,
         "tokens_estimate": 3500
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "document-to-interactive-html",
+      "title": "document-to-interactive-html",
+      "description": "Turn one or more documents (PDF, Word, Excel, PowerPoint) into a SINGLE self-contained, offline, interactive HTML presentation using local-only parsing and LLM-native HTML generation. Use this skill whenever the user says \"turn this PowerPoint into an interactive presentation\", \"make an interactive HTML deck from these docs\", \"presentify this report\", \"turn these documents into a presentation\", \"convert this PDF/Word/Excel into an interactive presentation\", or wants a captivating navigable deck built FROM existing documents (a single deck preserves its flow, a single report becomes a presentation of the report, multiple files compile into one). SKIP: generating a NEW .pptx/.docx/.xlsx/.pdf from scratch (use the pptx-generation / docx-generation / xlsx-generation / pdf-document-generation skills), one-off static charts or data exports, or a plain HTML document with no presentation flow or interactivity.",
+      "long_description": "Connector skill that turns one or more existing documents (PDF, Word, Excel, PowerPoint) into a single self-contained, offline, interactive HTML presentation. A local lazy-import extractor (scripts/extract_content.py) maps every format into one normalized content model (references/content-model.md); a deterministic builder (scripts/build_presentation.py) injects that model into a self-contained template (assets/presentation-template.html) with base64 images and inline SVG charts (no library, no CDN); then an LLM enrichment pass elevates the plain baseline to a captivating deck per references/interactive-features.md and hallmark-design. Three modes: a single PowerPoint preserves its flow, a single report becomes a presentation of the report, and multiple files compile into one attributed deck. Local-only parsing, LLM-native generation, zero outbound calls; the output opens with zero external network requests. Theme overridable via theme-tokens / brand-styling.",
+      "summary_l0": "\"Turn one or more documents into a self-contained interactive HTML presentation\"",
+      "overview_l1": "\"This skill converts one or more source documents (PDF, Word, Excel, PowerPoint) into a single self-contained, offline, interactive HTML presentation. It composes two local stages: a lazy-import Python extractor maps each format into a normalized content model, then a deterministic builder injects that model into a self-contained template, inlining base64 images and rendering spreadsheet data as inline SVG charts with no charting library and no CDN. The agent then runs an enrichment pass to elevate the plain baseline into a captivating deck. Three modes: a single PowerPoint preserves its slide flow, a single report becomes a paced presentation of that report, and multiple or mixed files compile into one attributed deck. Parsing is local-only; HTML generation is LLM-native; no document leaves the machine and the output opens with zero external network requests.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "specialized-domains",
+      "language": "Multi-language",
+      "tags": [
+        "presentation",
+        "interactive-html",
+        "document-conversion",
+        "presentify",
+        "pptx",
+        "docx",
+        "xlsx",
+        "pdf",
+        "offline",
+        "self-contained",
+        "slides",
+        "data-visualization"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Bash",
+        "Read",
+        "Write"
+      ],
+      "path": "catalog/skills/specialized-domains/document-to-interactive-html/",
+      "file": "catalog/skills/specialized-domains/document-to-interactive-html/SKILL.md",
+      "size": {
+        "lines": 128,
+        "tokens_estimate": 2089
       },
       "downloads": 0,
       "status": "production",
