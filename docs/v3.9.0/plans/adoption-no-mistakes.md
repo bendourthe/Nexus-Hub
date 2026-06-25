@@ -206,16 +206,16 @@ The "Rec. model / effort" column is a best-effort planning-time assessment, reco
 
 ### Phase 2 Exit Checklist
 
-- [ ] All sub-tasks completed (2.1, 2.2, 2.3)
-- [ ] Canonical pre-merge gate present in `shipping-and-launch`: ordered sequence, per-step rationale, "stable meaning" payoff, per-step cross-links, per-run-skip exception
-- [ ] Stop-at-the-human-decision-boundary doctrine present in `shipping-and-launch`, with the no-busy-poll rule and its failure mode
-- [ ] Loop-side no-busy-poll note present in `loop-engineering`, tied to the exit-signal / stall material
-- [ ] Canonical gate cross-links (not redefines) the existing per-step skills; no contradiction with `pre-commit-checklist`, `code-commit-workflow`, or `verification-before-completion`
-- [ ] No upstream product name or literal token in any distributed artifact (grep clean)
-- [ ] Every edited body under 500 lines; any new reference file linked from SKILL.md
-- [ ] Validators green
-- [ ] Session history generated for Phase 2
-- [ ] Ready to advance to Phase 3
+- [x] All sub-tasks completed (2.1, 2.2, 2.3)
+- [x] Canonical pre-merge gate present in `shipping-and-launch`: ordered sequence, per-step rationale, "stable meaning" payoff, per-step cross-links, per-run-skip exception
+- [x] Stop-at-the-human-decision-boundary doctrine present in `shipping-and-launch`, with the no-busy-poll rule and its failure mode
+- [x] Loop-side no-busy-poll note present in `loop-engineering`, tied to the exit-signal / stall material
+- [x] Canonical gate cross-links (not redefines) the existing per-step skills; no contradiction with `pre-commit-checklist`, `code-commit-workflow`, or `verification-before-completion`
+- [x] No upstream product name or literal token in any distributed artifact (grep clean)
+- [x] Every edited body under 500 lines; any new reference file linked from SKILL.md
+- [x] Validators green
+- [x] Session history generated for Phase 2
+- [x] Ready to advance to Phase 3
 
 ### Phase 3 Exit Checklist
 

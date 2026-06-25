@@ -20,6 +20,30 @@ Use when:
 
 **When NOT to use:** For setting up the CI/CD pipeline itself, use `cicd-architect` or `cd-pipeline-generator`. For rollback procedure design, use `rollback-strategy-advisor`.
 
+## Canonical Pre-Merge Gate
+
+Before a change is shared, it passes a fixed, ordered sequence of checks. The order is opinionated on purpose: when the gate is stable, "this change cleared the gate" means the same thing every time, instead of each change inventing its own ad hoc checklist. Each step names the skill that owns it, so the gate composes the per-step skills rather than redefining them.
+
+Run the steps in this order, and finish each one before starting the next:
+
+1. **Review the diff first.** The reviewer reads fresh code before any fix churns it. See [[intent-based-review]] and [[multi-agent-code-review]].
+2. **Run tests and gather verification evidence.** Prove the change works, and capture the proof. See [[verification-before-completion]] and [[demo-capture]].
+3. **Update documentation.** Do this after tests, so docs are written against code that is known to work.
+4. **Run lint and static analysis.** Do this last among local checks, so it does not churn over code that may still change. See [[pre-commit-checklist]].
+5. **Commit and push, only after every local check is clean.** Rebase onto fresh upstream first (see [[git-branching-workflow]]), then commit with a clean message and push (see [[code-commit-workflow]]).
+6. **Open or update the PR.** See [[pr-description-writer]].
+7. **Watch CI.** Let the remote checks run, and read their result.
+
+The fixed order is the point, not a suggestion. A per-run skip (a docs-only change with no tests to add, say) is a deliberate, stated exception for that run, never a reason to reorder the gate itself.
+
+### Stop at the Human-Decision Boundary
+
+Distinguish "validated and ready for a human decision" from "the decision was made". The end of the gate is usually the former: the change is validated, CI is green, and the PR is open, but the merge is the human's call.
+
+At that point, stop driving. Tell the user what is ready and what decision is now theirs, include the link they need to act, and hand control back. Do not block, poll, or re-run waiting for the human to act. An agent that busy-waits for a human merge wastes a turn loop and can re-trigger work it has already done; the right behavior is a crisp summary and the specific decision requested.
+
+This generalizes beyond merges to any human-owned gate (an approval, a sign-off, a go-live window). See [[loop-engineering]] for the loop-side half of this rule, and [[verification-before-completion]] for the evidence that makes "ready" a true claim.
+
 ## The Launch Protocol
 
 ### Phase 1: Pre-Flight Checks (before deploying)

@@ -140,6 +140,8 @@ The optional `progress_check` field is backed by a worked design: a robust loop 
 
 A tripped detector should pause with a cooldown and may auto-recover to a monitoring state if progress resumes, rather than hard-aborting on the first stall. Cross-link [[agent-orchestration-primitives]] for the cheapest-primitive and independent-evaluator discipline.
 
+A fourth pattern looks like a stall but is not a fault: the loop is waiting on a human-owned action (an approval, a merge, an external sign-off). Do not spend iterations busy-polling for it. A loop that re-runs waiting for a human is a no-progress signature, and the [[shipping-and-launch]] gate ends at exactly such a boundary. Hand control back with a crisp summary of what is ready and what decision is requested, and treat the human action as an external resume signal rather than a condition to spin on.
+
 ## Workflow-Control Patterns: Gate, Resume, Continue-on-Error
 
 Three control patterns extend a loop's vocabulary beyond a single `exit_condition`. All three are **agent-instruction patterns** you encode in the loop body and its state file, NOT a new runtime to build. Where the host harness exposes Dynamic Workflows (the `Workflow` tool), the same shapes map onto its script (a gate is an `AskUserQuestion` between stages, resume is the workflow's native journal-based resume, continue-on-error is a per-item `try/catch` that records the failure and keeps going). In a plain `/loop` or `/goal` run you implement them with the external memory layer from Step 1.
