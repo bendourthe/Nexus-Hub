@@ -104,9 +104,9 @@ Permanent aliases:
 /commit        Alias for /update commit (structured commit message for staged changes)
 /constitution  Alias for /spec constitution (author / amend the project constitution)
 
-## Workflows (17)
+## Workflows (18)
 
-Full Code Review, Security Audit, New Project Setup, API Development, Release Preparation, Legacy Modernization, AI Agent Pipeline, Compliance Assessment, Test Coverage Boost, Production Readiness, Cross-Model Orchestration, Research-Plan-Implement, Token Optimization, Intent-Based Code Review, Adversarial Code Review, Competitive Implementation, Progressive Delivery
+Full Code Review, Security Audit, New Project Setup, API Development, Release Preparation, Legacy Modernization, AI Agent Pipeline, Compliance Assessment, Test Coverage Boost, Production Readiness, Cross-Model Orchestration, Research-Plan-Implement, Token Optimization, Intent-Based Code Review, Adversarial Code Review, Competitive Implementation, Progressive Delivery, Document and Communicate
 
 ## Role Bundles (11)
 
@@ -137,6 +137,6 @@ scripts/installer.ps1     Windows installer (PowerShell, no runtime required)
 scripts/installer.sh      macOS/Linux installer (Bash, no runtime required)
 scripts/generate_report.py Word/PowerPoint report generator (Python 3.8+)
 data/skills.json          Machine-readable catalog of all 134 skills
-data/workflows.json       17 goal-based workflow definitions
+data/workflows.json       18 goal-based workflow definitions
 data/bundles.json         11 role-based bundle definitions
 extensions/claude-usage-monitor/  VS Code extension for real-time usage monitoring

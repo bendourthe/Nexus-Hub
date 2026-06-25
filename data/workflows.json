@@ -255,6 +255,21 @@
       ],
       "estimated_time": "60-120 minutes",
       "trigger": "When deploying a change that requires canary analysis, staged rollout, and automated rollback triggers."
+    },
+    {
+      "id": "document-and-communicate",
+      "name": "Document and Communicate",
+      "description": "Capture completed work as clean, organized documentation (README and guides, development log, progress tracker, session history) with a consistency pass, then compile those artifacts into a single self-contained, offline, interactive HTML briefing to present and share.",
+      "skills": [
+        "user-documentation",
+        "devlog-generation",
+        "dev-progress-tracker",
+        "session-history",
+        "documentation-consistency",
+        "document-to-interactive-html"
+      ],
+      "estimated_time": "20-40 minutes",
+      "trigger": "After finishing a feature, milestone, or sprint, when the work needs to be both well-documented and ready to communicate to stakeholders or teammates."
     }
   ]
 }

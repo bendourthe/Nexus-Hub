@@ -971,6 +971,12 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
             <p>Sync docs, refactor the layout, and run the atomic release flow with <code>/update release</code>.</p>
             <span class="go">Open <span class="arr">&rarr;</span></span>
           </div>
+          <div class="card navcard" data-go="communicate">
+            <div class="step-no">WORKFLOW 06</div>
+            <h3>Document &amp; communicate</h3>
+            <p>Capture the work in clean docs, then turn it into an interactive briefing with <code>/presentify</code>.</p>
+            <span class="go">Open <span class="arr">&rarr;</span></span>
+          </div>
           <div class="card navcard" data-go="reference">
             <div class="step-no">APPENDIX</div>
             <h3>Reference</h3>
@@ -1814,14 +1820,26 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
               </ul>
             </div>
 
+            <div class="ts-slide" data-sec="In practice" data-tt="Document & present">
+              <div class="ts-eyebrow"><span class="ts-pip"></span> In practice</div>
+              <h2 class="ts-title">Document it, then present it</h2>
+              <div class="ts-cmdbox"><span class="ts-pr">&gt;</span><span class="ts-cmdtext">/presentify docs/</span><button class="ts-copy" type="button" data-ts-copy="/presentify docs/">Copy</button></div>
+              <ul class="ts-list" style="margin-top:6px; max-width:82ch">
+                <li>Keep the work captured - <b>/update docs</b>, <b>/update devlog</b>, and <b>/session history</b> leave a clean trail: README, dev log, plans, todos, git history.</li>
+                <li>Then <b>/presentify</b> turns those documents into one self-contained, offline, interactive HTML briefing - more engaging than a slide deck, and versionable as a single file.</li>
+                <li>Share progress with stakeholders or teammates without hand-building a deck.</li>
+              </ul>
+            </div>
+
             <div class="ts-slide ts-cover" data-sec="In practice" data-tt="Apply it">
               <div class="ts-eyebrow"><span class="ts-pip"></span> In practice</div>
               <h2 class="ts-big">Apply it to <span class="ts-grad">your own work</span></h2>
-              <p class="ts-lead ts-wide">The same six steps carry any project, in any field, on any platform, from first contact to a finished, verified result.</p>
+              <p class="ts-lead ts-wide">The same steps carry any project, in any field, on any platform, from first contact to a finished, verified result others can see.</p>
               <ul class="ts-list">
                 <li><b>Understand</b> the work, then <b>evaluate</b> it honestly.</li>
                 <li><b>Decompose</b> it into a plan with a clear definition of done.</li>
                 <li><b>Build</b>, <b>harden</b> to a standard, and <b>ship</b>.</li>
+                <li><b>Document</b> the result and <b>communicate</b> it.</li>
               </ul>
               <p class="ts-small ts-muted" style="margin-top:16px">Begin with the guide, install Nexus-Hub, and run the loop on something real.</p>
             </div>
@@ -2766,6 +2784,76 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
   </section>
 
   <!-- =====================================================================
+       PAGE: COMMUNICATE - document and present the work
+       ===================================================================== -->
+  <section class="page" id="page-communicate" data-page="communicate">
+    <div class="container">
+      <span class="eyebrow">Document &amp; communicate</span>
+      <h1>Capture the work, then present it</h1>
+      <p class="lead">v0.5.0 is shipped - but the work only pays off if others can see and understand it. This last stage does two things at once: it makes sure the work is <em>captured</em> in clean, organized documentation, and then turns that documentation into an interactive briefing you can hand to a stakeholder or a teammate. The artifacts you already produced - README, dev log, plans, todos, session history, git history - are the raw material, so there is no slide deck to build by hand.</p>
+
+      <div class="grid grid-3" style="margin-bottom:8px">
+        <div class="card">
+          <div class="step-no" style="font:700 12px/1 var(--mono); color:var(--teal-soft); letter-spacing:1px; margin-bottom:8px">/update docs</div>
+          <h3>Capture the work</h3>
+          <p>Reconcile README, architecture docs, the development log, and the changelog to the repo's <em>current</em> state - so the documentation tells the true story before anyone reads it.</p>
+        </div>
+        <div class="card">
+          <div class="step-no" style="font:700 12px/1 var(--mono); color:var(--teal-soft); letter-spacing:1px; margin-bottom:8px">/session history</div>
+          <h3>Keep the record</h3>
+          <p>Write a standalone session history and update the <code>docs/todos.md</code> progress tracker, so plans, todos, and development history stay organized lap after lap.</p>
+        </div>
+        <div class="card">
+          <div class="step-no" style="font:700 12px/1 var(--mono); color:var(--teal-soft); letter-spacing:1px; margin-bottom:8px">/presentify</div>
+          <h3>Present it, interactively</h3>
+          <p>Turn those documents into <em>one</em> self-contained, offline, interactive HTML deck - inline charts, an outline, keyboard navigation - higher quality and more interactive than a slide deck, and versionable as a single file.</p>
+        </div>
+      </div>
+
+      <div class="scenario">
+        <div class="pin" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg></div>
+        <div>
+          <h3>Brief the team on TaskFlow v0.5.0</h3>
+          <p><code>/presentify</code> ingests the release docs - the CHANGELOG, the dev log, and the analysis and pentest reports - and compiles one interactive deck that opens offline with zero external requests: the security findings as a paced section, the coverage jump as an inline chart, the roadmap as a closing slide. One <code>.html</code> file you can commit, email, or open on any laptop.</p>
+        </div>
+      </div>
+
+      <div class="term term--standalone" data-anim data-speed="22">
+        <div class="term-bar">
+          <div class="tdots"><i style="background:#ff5f56"></i><i style="background:#ffbd2e"></i><i style="background:#27c93f"></i></div>
+          <span class="label"><b>claude</b> &mdash; taskflow</span>
+          <button class="term-replay" type="button">&#8635; replay</button>
+        </div>
+        <div class="term-body">
+          <div class="term-cmd"><span class="prompt">&gt; </span><span class="typed" data-type="/presentify docs/v0.5.0/ CHANGELOG.md">/presentify docs/v0.5.0/ CHANGELOG.md</span></div>
+          <div class="term-out">
+            <div class="t-tool">&bull; <b>extract</b> .. 4 sources (changelog, devlog, analysis, pentest) &rarr; content model</div>
+            <div class="t-tool">&bull; <b>theme</b> .... applied brand tokens; system font stacks (no web fonts)</div>
+            <div class="t-tool">&bull; <b>build</b> .... one self-contained <span class="t-cyan">taskflow-v0.5.0.html</span></div>
+            <div class="t-tool">&nbsp;&nbsp;&nbsp;&nbsp;&#8627; <span class="t-ok">assert_no_external: 0 external requests</span></div>
+            <div class="t-tool">&bull; <b>enrich</b> ... coverage 34 &rarr; 82 as an inline chart; findings paced as a section</div>
+            <div class="spacer"></div>
+            <div class="t-ok t-bold">&#10003; taskflow-v0.5.0.html - opens offline, 11 slides, interactive</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout tip">
+        <span class="ci">&#9733;</span>
+        <p><strong>Local-first, like everything else.</strong> Parsing runs on your machine with lazy-imported libraries, the deck is the model authoring HTML, and the output makes zero network requests. No document leaves the machine and there is no slide-as-a-service in the loop - the same posture that lets you run it on a confidential report or an internal spreadsheet.</p>
+      </div>
+
+      <div class="callout">
+        <span class="ci">&#9851;</span>
+        <p><strong>Now the loop is complete.</strong> Understand, plan, build, harden, ship - and communicate. Each lap leaves the codebase more understood, more tested, and more documented than the last, and now the people around you can see it.</p>
+      </div>
+
+      <div class="progress" data-progress></div>
+      <div class="page-nav" data-pagenav></div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
        PAGE: REFERENCE
        ===================================================================== -->
   <section class="page" id="page-reference" data-page="reference">
@@ -2921,6 +3009,7 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
       { id: "build",       title: "Implement" },
       { id: "harden",      title: "Harden" },
       { id: "ship",        title: "Ship & maintain" },
+      { id: "communicate", title: "Document & communicate" },
       { id: "reference",   title: "Cheatsheets" }
     ];
     var REDUCE = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -2967,7 +3056,7 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
       for (var j = 0; j < links.length; j++) {
         links[j].classList.toggle("active", links[j].getAttribute("data-go") === id);
       }
-      if (["explore", "plan", "build", "harden", "ship"].indexOf(id) >= 0) {
+      if (["explore", "plan", "build", "harden", "ship", "communicate"].indexOf(id) >= 0) {
         var wfNav = document.querySelector('.nav-links a[data-group="workflow"]');
         if (wfNav) wfNav.classList.add("active");
       }
