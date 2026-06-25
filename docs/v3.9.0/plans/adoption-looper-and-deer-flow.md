@@ -205,16 +205,16 @@ The "Rec. model / effort" column is a best-effort planning-time assessment, reco
 
 ### Phase 3 Exit Checklist
 
-- [ ] All sub-tasks completed (3.1, 3.2, 3.3, 3.4)
-- [ ] Default-deny host-execution posture and log-before-execute note present in `agent-access-policy`; reciprocal cross-link with the loop-engineering sandbox subsection resolves both ways
-- [ ] Optional typed-fact memory schema note present in the chosen memory skill, framed as optional and schema-only (no extraction runtime)
-- [ ] RE matrix records the two `drop-outright` runtime declines (with precedent citation), the advisory-cost-cap cautionary note, and the convergent-validation finding, each referencing the two comparison reports
-- [ ] Registry-edit decision made and validated (summaries/registries updated only if a headline capability changed; cross-model-orchestrator footer version bumped if its summary changed)
-- [ ] Full cross-file consistency read-through passed; nothing implies a shipped loop runtime or a new dependency
-- [ ] No upstream product name or literal token in any distributed artifact (grep clean across all three phases)
-- [ ] Validators green; all edited bodies under 500 lines
-- [ ] CHANGELOG `## [Unreleased]` entry added; `docs/v3.9.0/known-gaps.md` updated
-- [ ] Session history generated for Phase 3
+- [x] All sub-tasks completed (3.1, 3.2, 3.3, 3.4)
+- [x] Default-deny host-execution posture and log-before-execute note present in `agent-access-policy`; reciprocal cross-link with the loop-engineering sandbox subsection resolves both ways
+- [x] Optional typed-fact memory schema note present in the chosen memory skill (`context-pack-builder`), framed as optional and schema-only (no extraction runtime)
+- [x] RE matrix records the two `drop-outright` runtime declines (with v3.8.0 host-driver precedent citation), the advisory-cost-cap cautionary note, and the convergent-validation finding, each referencing the two comparison reports
+- [x] Registry-edit decision made and validated: NO edit needed (all four summaries still accurate; doctrine refinements within existing scope, per the v3.8.0 precedent); registries and cross-model-orchestrator footer version unchanged
+- [x] Full cross-file consistency read-through passed; nothing implies a shipped loop runtime or a new dependency (egress hygiene and default-deny cover different boundaries and reinforce each other)
+- [x] No upstream product name or literal token in any distributed artifact (grep clean across the full diff)
+- [x] Validators green (JSON integrity OK; orphan-bundle PASS 0 errors; quality PASS 0 warnings; unicode-safety exit 0, no edited file flagged); all edited bodies under 500 lines (agent-access-policy 277, context-pack-builder 159, cross-model-orchestrator 310, loop-engineering 209)
+- [x] CHANGELOG `## [Unreleased]` entry added; `docs/v3.9.0/known-gaps.md` created
+- [x] Session history generated for Phase 3
 
 ---
 

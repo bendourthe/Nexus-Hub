@@ -71,6 +71,19 @@ tags: [<tag>, <tag>]
 
 Apply the standard YAML-safety quoting rule: quote any scalar containing ` #` or `: `. Keep `---` delimiters clean so the MCP server and other parsers can read the frontmatter.
 
+## Optional: Typed Fact Entries
+
+The Distilled Facts above are prose bullets with an inline source, which is the default and is enough for most packs. A caller who wants more auditable memory can instead persist each fact as a typed entry, so the entries are filterable and their provenance is inspectable:
+
+- `id` - a stable identifier for the fact
+- `content` - the fact itself, stated atomically
+- `category` - a tag for grouping and filtering (e.g. `architecture`, `auth`, `tooling`)
+- `confidence` - how settled the fact is, from a single observation to confirmed across sessions
+- `created` - the date the entry was recorded
+- `source` - where the fact came from (a session path and timestamp, or a solution-doc path)
+
+This is an OPTIONAL shape for the persisted entries, not a required pack format. It is a schema only: it does NOT introduce an extraction runtime. Any LLM-driven extraction that populates these fields is the caller's choice and lives outside this skill, which still only reads digests and writes Markdown.
+
 ## Instructions
 
 ### 1. Gather the inputs (read-only)

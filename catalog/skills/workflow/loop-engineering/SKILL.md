@@ -173,6 +173,8 @@ For an unattended writable loop, keep the loop ORCHESTRATION (driver, `iteration
 - **This composes skills Nexus-Hub already owns** -- [[containerization]] for the container build and isolation, [[agent-access-policy]] for least-privilege tool and file access, and [[using-git-worktrees]] for writable-iteration isolation at the VCS layer. It ships no new dependency or runtime of its own: the container is the operator's, the doctrine is ours.
 - **Local only.** A cloud sandbox that uploads the project and prompts to a third-party compute API is OUT of scope under the MCP Registry Policy -- it egresses source code and prompts off the machine and adds a credential plus a commercial relationship. The local container reaches the same isolation goal with zero egress.
 
+The posture behind this -- deny host execution unless the task needs it, prefer a sandbox tier, and log before executing -- lives in the "Default-Deny Host Command Execution" section of [[agent-access-policy]]; this subsection is its unattended-loop application.
+
 ## Common Rationalizations
 
 | Rationalization | Reality |

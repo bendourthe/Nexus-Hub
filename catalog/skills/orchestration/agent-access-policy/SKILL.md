@@ -226,6 +226,18 @@ When using the `cross-model-orchestrator` skill, apply different access policies
 
 **Implementation**: create separate `.claude/settings.json` files for each role (e.g., `.claude/settings.planner.json`, `.claude/settings.implementer.json`) and specify the appropriate config when launching each model session.
 
+## Default-Deny Host Command Execution
+
+Host (non-sandboxed) command execution is the highest-privilege grant an access policy can give, so deny it by default. Shell and file-write capability is what turns a misdirected agent from a bad edit into a damaged machine; grant it deliberately, never as a convenience. This is access-policy doctrine for how to scope and audit execution, not a runtime to build.
+
+- **Deny host execution by default.** Do not allow host shell execution unless the task demonstrably needs it. Start from no execution and add only the narrowest command globs the task actually requires, the same least-privilege discipline Step 2 applies to `Write` and `Edit`.
+
+- **Prefer an isolated tier over the host.** When execution is genuinely needed, run it inside a local sandbox (a container with the workspace bind-mounted) rather than directly on the host. Escalate isolation with risk: a local container for untrusted input, and stronger isolation (its own non-root user, an explicit network mode, no host credentials) for multi-tenant or network-exposed runs.
+
+- **Log before you execute.** Record each shell and file operation before it runs, an audit-before-execute step, so a misbehaving step is visible in the log rather than discovered only by its damage. This pairs with the advisory `escalation-trigger` hook from Step 3.
+
+This composes skills the catalog already owns: see the local-only "Sandboxing an Unattended Loop" subsection in [[loop-engineering]] for the unattended-loop application, [[containerization]] for the sandbox build and isolation controls, and [[using-git-worktrees]] for writable-iteration isolation at the VCS layer.
+
 ## Best Practices
 
 - **Default to least privilege**: start with read-only access and add write permissions only for the specific paths the agent needs
