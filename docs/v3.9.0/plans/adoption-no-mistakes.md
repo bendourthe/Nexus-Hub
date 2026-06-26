@@ -219,15 +219,15 @@ The "Rec. model / effort" column is a best-effort planning-time assessment, reco
 
 ### Phase 3 Exit Checklist
 
-- [ ] All sub-tasks completed (3.1, 3.2, 3.3, 3.4)
-- [ ] Optional deterministic-PR-body-from-audit-trail pattern present in `pr-description-writer`, framed as optional and additive
-- [ ] N7 decision made and recorded (deferred to known-gaps with a reason, OR built in `session-query` with an RE-matrix row and redaction confirmation); consistent with the N3 guidance
-- [ ] RE matrix records the host-side runtime as `drop-outright` (with v3.1.0 / v3.8.0 precedent) and the default-on telemetry as a cautionary not-recommended item (MCP Registry Policy named), both referencing the comparison report
-- [ ] Registry-edit decision made and validated (edit + three registries + footer bump if a summary materially changed; otherwise recorded as no edit needed)
-- [ ] Full cross-file consistency read-through passed; nothing implies a shipped runtime, a new dependency, or any telemetry
-- [ ] No upstream product name or literal token in any distributed artifact (grep clean across the full diff)
-- [ ] Validators green; all edited bodies under 500 lines
-- [ ] CHANGELOG `## [Unreleased]` entry added; `docs/v3.9.0/known-gaps.md` updated
+- [x] All sub-tasks completed (3.1, 3.2, 3.3, 3.4)
+- [x] Optional deterministic-PR-body-from-audit-trail pattern present in `pr-description-writer`, framed as optional and additive
+- [x] N7 decision made and recorded (deferred to known-gaps with a reason -- DF-v39-nomistakes-1); consistent with the N3 guidance (verbatim live intent preferred, already delivered in Phase 1)
+- [x] RE matrix records the host-side runtime as `drop-outright` (with v3.1.0 / v3.8.0 precedent) and the default-on telemetry as a cautionary not-recommended item (MCP Registry Policy named), both referencing the comparison report
+- [x] Registry-edit decision made and validated (no edit needed; recorded in known-gaps Notes -- all six enriched skills' summaries still accurate within existing scope)
+- [x] Full cross-file consistency read-through passed; nothing implies a shipped runtime, a new dependency, or any telemetry
+- [x] No upstream product name or literal token in any distributed artifact (grep clean across the full diff)
+- [x] Validators green; all edited bodies under 500 lines (pr-description-writer 272, session-query 149 unchanged)
+- [x] CHANGELOG `## [Unreleased]` entry added; `docs/v3.9.0/known-gaps.md` updated
 - [ ] Session history generated for Phase 3
 
 ---

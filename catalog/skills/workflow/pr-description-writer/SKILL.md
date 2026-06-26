@@ -217,6 +217,22 @@ The eight sections above are the default. Trim or expand by type:
 | Chore (deps bumps, CI config) | Risk-and-Rollout mandatory for dependency bumps; state the upstream changelog link. |
 | Breaking change | Add an explicit "BREAKING CHANGE:" section in the body, immediately after Summary, naming the contract that breaks and the migration path. |
 
+## Optional Pattern: Building the Risk and Testing Sections from an Audit Trail
+
+When the change went through a recorded review-and-fix process -- the review findings, the fixes applied in response, and the re-check results are all available as a trail -- the Risk-and-Rollout and How-to-Test / Testing-Checklist sections can be built deterministically from that trail instead of authored freehand. This is an optional enrichment for when such a trail exists; it does not replace the eight-section structure above.
+
+Render the fix history as an **issue-then-fix-then-verification narrative**, not a flat chronological log. For each finding that was fixed, state three things in order:
+
+1. The issue -- what the review found, and where.
+2. The fix -- the change applied in response.
+3. The outcome -- either the successful re-check that closed it, or the findings still open after that fix.
+
+This gives a reviewer direct visibility into what was found, what changed in response, and how many attempts a fix took before it held, working from the same trail the author did rather than from a summary of it.
+
+The payoff is trust: a PR body derived from a real audit trail is harder to inflate and easier to verify than authored prose, and it surfaces the follow-on fixes the original change missed (the ones the review caught). When no such trail exists, author the Risk and Testing sections normally per Steps 6 and 8.
+
+See [[intent-based-review]] and [[multi-agent-code-review]] for the review process that produces the trail, and [[verification-before-completion]] for the evidence each re-check should carry.
+
 ## Common Rationalizations
 
 | Rationalization | Reality |
