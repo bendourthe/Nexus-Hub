@@ -4,7 +4,7 @@ description: Turn one or more documents (PDF, Word, Excel, PowerPoint) into a SI
 
 # /presentify Command
 
-Turn existing documents into a single self-contained, offline, UNIQUE interactive website - not a static slide deck. One PowerPoint becomes a more interactive, more dynamic site that follows the same flow; one report (Word or PDF) becomes a navigable interactive site presenting it; several mixed documents compile into one attributed site. The output opens from a single file with zero external network requests, renders the source's real figures as INTERACTIVE charts (zoom, pan, filter series, adjust axes), carries a clear navigable structure, and uses a fresh bespoke design each run (or one you specify).
+Turn existing documents into a single self-contained, offline, UNIQUE interactive website - not a static slide deck. One PowerPoint becomes a more interactive, more dynamic site that follows the same flow; one report (Word or PDF) becomes a navigable interactive site presenting it; several mixed documents compile into one attributed site. The output opens from a single file with zero external network requests, renders the source's real figures as INTERACTIVE charts (zoom, pan, filter series, adjust axes), carries a clear navigable structure, and uses a fresh, content-driven design each run: the agent first brainstorms a distinct style direction (palette, type, layout, motion), announces it in one line, and authors to it, rather than reusing one house look. You can steer or pin the design with `--style` / `--theme`.
 
 This is a thin entry point over the `document-to-interactive-html` skill. The full method (extract -> design -> author the interactive site -> verify), the per-format coverage, and the offline / anti-slop discipline live in that skill; this command resolves inputs and options, then delegates.
 
@@ -36,7 +36,7 @@ Dispatch to the skill, passing the resolved inputs, theme, output path, and mode
 /presentify <inputs...> -> document-to-interactive-html (Instructions)
 ```
 
-The skill runs its workflow: detect inputs and mode -> run `scripts/extract_content.py` to the normalized content model -> choose a bespoke design (honoring `--style` / `--theme`, with `theme-tokens` / `brand-styling` for an exact brand) -> author a unique interactive website with dynamic, manipulable charts per the skill's `references/interactive-features.md` and `hallmark-design` (optionally starting from the `scripts/build_presentation.py` plain baseline) -> verify the output is self-contained, interactive, and opens offline with zero external requests per `html-output-conventions`.
+The skill runs its workflow: detect inputs and mode -> run `scripts/extract_content.py` to the normalized content model -> brainstorm a content-driven design direction and commit to it, announced in one line (honoring `--style` / `--theme` when given, with `theme-tokens` / `brand-styling` for an exact brand, and deliberately diverging from the default "AI-generated" look) -> author a unique interactive website that uses the viewport width on purpose (the narrow reading measure is for body prose only, not a page-wide column) with dynamic, manipulable charts per the skill's `references/interactive-features.md` and `hallmark-design` (optionally starting from the `scripts/build_presentation.py` plain baseline) -> verify the output is self-contained, interactive, and opens offline with zero external requests per `html-output-conventions`.
 
 Heavy logic stays in the `document-to-interactive-html` skill; this file only resolves inputs and options and delegates. Do not duplicate the extraction or build method here.
 
@@ -47,4 +47,6 @@ A single `.html` at `--out` (or alongside the inputs) - a navigable interactive 
 ## Notes
 
 - Local-only and private by construction: parsing runs on local libraries (lazy-imported, with a `pip install` hint when one is missing), HTML generation is the agent's own work, and no document leaves the machine.
+- The design is chosen by a short, content-driven style brainstorm that the agent announces in one line before authoring; pass `--style` / `--theme` to bind it. Each run deliberately differs from the default dark / monospace-label / amber-accent / card-grid look so outputs do not all look alike.
+- The layout uses the window width on purpose: the narrow reading measure applies to body prose only, so headings and hero text are not trapped in a half-width column while cards or charts sit at full width.
 - Out of scope for v1: scanned / image-only PDF OCR, video / audio embedding, and native PowerPoint / Word chart objects (deliver chartable data via an `.xlsx` input). See the skill's `references/extraction-runbook.md`.

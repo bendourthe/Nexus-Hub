@@ -13,6 +13,7 @@ The default deliverable is a unique, interactive, single-file website authored f
 - Open with a concise overview / landing area, then organize the content into scannable sections.
 - Provide real navigation: in-page anchors, a sticky section nav, tabs, or routed views - pick what fits the content. Avoid a forced one-screen-per-slide sequence.
 - Make it responsive (phone to projector) and keyboard-accessible, with visible focus states.
+- **Use the viewport width deliberately.** The 45-85 character reading measure is for long-form body prose only, not a page-wide wrapper. Give headings, hero / display text, charts, tables, and section backgrounds the room to use the available width; full-bleed bands and multi-column zones are encouraged. A page locked into a single narrow centered column (headings and all) while cards or charts sit at full width beside it reads as broken. Decide the measure per element, never once for the page.
 
 ### Dynamic, manipulable charts
 
@@ -29,11 +30,32 @@ Implementation approach (no library): render to a `<canvas>` (or an inline SVG y
 
 If the source has figures, tables, or images, they appear in the site: images inline as base64; numeric data as the interactive charts above; large tables as sortable / filterable tables where that helps the reader.
 
-### Unique design and caller-specified style
+### Design direction (brainstorm first)
 
-- Author a fresh, content-appropriate design each run. A recognizable fixed house style across runs is the templated 'AI-generated' signature `[[hallmark-design]]` rejects.
-- If the caller specified a style or color scheme - a `[[theme-tokens]]` set, a `[[brand-styling]]` brand `tokens.json`, or plain words ("dark", "minimal", "editorial", "playful", "high-contrast", a brand color) - treat it as the binding design direction. Ask for brand tokens before inventing a brand's colors.
-- Keep all fonts as system stacks (or base64 `@font-face`); never fetch a web font.
+Before writing any markup, brainstorm a design direction and commit to one. "Be unique" is not enough on its own: the agent has a strong default attractor it returns to unless forced off it, and that sameness is what makes a run read as AI-generated. Make the brainstorm a real, deliberate stage, not an afterthought during authoring.
+
+**Read the content's character.** From the content model, name the subject, the audience, the tone, the era, and the emotional register, then let those drive the aesthetic. A quarterly finance report wants restraint and data-first clarity; a product launch wants expressive type and bolder color; a research paper wants editorial calm. The design fits the document, not a house template.
+
+**Generate candidates across these axes, then pick one.** Brainstorm a few directions that vary on:
+
+- **Palette mood**: not just light vs dark, but the emotional temperature (warm paper, cool clinical, high-contrast editorial, muted earthy, saturated playful). Constrain to one or two accents over a neutral base (`[[hallmark-design]]` gate 8).
+- **Typographic voice**: the heading / body pairing and its personality (serif-display editorial, geometric-sans modern, mono-technical, humanist-warm). System stacks only, or base64 `@font-face`.
+- **Layout system**: the structural signature (asymmetric two-column, editorial grid with pull-quotes, full-bleed bands, sidebar-anchored, magazine spreads). Not a stack of identical centered cards (gate 2).
+- **Motion personality**: how the site moves (crisp and instant, slow and weighty, springy, none at all). Always guarded by `prefers-reduced-motion`.
+
+**Diverge from the default attractor.** The look the agent drifts to by default is off-limits unless the content or the caller asks for it:
+
+- a near-black background,
+- monospace eyebrow / kicker labels (the "01 / FOUNDATIONS" tag),
+- an amber / orange accent,
+- evenly-spaced rows of identical cards,
+- a dead-centered hero.
+
+If the committed direction matches that description, it is almost certainly the attractor: pick something else. Aim also to differ from the previous run, so a sequence of outputs visibly varies.
+
+**Commit to concrete tokens and record them.** Write the direction down before authoring: a name, the exact colors (hex), the font pairing (heading / body / mono), the spacing rhythm, the signature layout move, and the motion signature. Embed it as an HTML comment at the top of the output (so the choice is auditable) and state it to the user in one line. Then author to those tokens; do not drift back to the attractor mid-build.
+
+**A caller-specified style or theme binds.** When `--style` words, a `[[theme-tokens]]` set, or a `[[brand-styling]]` brand `tokens.json` is supplied, that is the binding direction: honor it instead of brainstorming freely (a partial `--style` still leaves the unspecified axes to brainstorm). Ask the user for brand tokens before inventing a brand's colors. Keep all fonts as system stacks or base64 `@font-face`; never fetch a web font.
 
 ## Optional Baseline: the deterministic builder's features
 
