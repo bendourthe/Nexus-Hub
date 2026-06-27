@@ -30,13 +30,25 @@ Implementation approach (no library): render to a `<canvas>` (or an inline SVG y
 
 If the source has figures, tables, or images, they appear in the site: images inline as base64; numeric data as the interactive charts above; large tables as sortable / filterable tables where that helps the reader.
 
-### Design direction (brainstorm first)
+### Design direction (resolve the direction, then brainstorm - creativity-first)
 
-Before writing any markup, brainstorm a design direction and commit to one. "Be unique" is not enough on its own: the agent has a strong default attractor it returns to unless forced off it, and that sameness is what makes a run read as AI-generated. Make the brainstorm a real, deliberate stage, not an afterthought during authoring.
+Before writing any markup, resolve a design direction and commit to one. The goal each run is a UNIQUE, creative, interactive design; "fit the document type" is never the rule. "Be unique" is not enough on its own either: the agent has a strong default attractor it returns to unless forced off it, and that sameness is what makes a run read as AI-generated. Make this a real, deliberate stage, not an afterthought during authoring.
 
-**Read the content's character.** From the content model, name the subject, the audience, the tone, the era, and the emotional register, then let those drive the aesthetic. A quarterly finance report wants restraint and data-first clarity; a product launch wants expressive type and bolder color; a research paper wants editorial calm. The design fits the document, not a house template.
+**Resolve the direction in order.**
 
-**Generate candidates across these axes, then pick one.** Brainstorm a few directions that vary on:
+1. **A named style binds.** When `--style` words (or the natural `using the style <description>` phrasing), a `[[theme-tokens]]` set, or a `[[brand-styling]]` brand `tokens.json` is supplied, that is the binding direction: honor it instead of offering the menu (a partial `--style` still leaves the unspecified axes to brainstorm). Ask the user for brand tokens before inventing a brand's colors.
+2. **Otherwise, offer the design-direction menu first.** With no style named, ask the user to choose before authoring:
+    1. **Corporate & Professional** - polished, restrained, business-ready.
+    2. **Creative & Expressive** - bold, artistic, unexpected.
+    3. **Technical & Precise** - clean, structured, data-forward.
+    4. **Surprise me** - let the agent invent a unique, creative direction for this run.
+    5. **Other** - the user describes their own style (equivalent to `--style`).
+
+    If the menu cannot be answered (a non-interactive or headless run), fall back to option 4 and proceed with the creative/unique path - never block on the prompt.
+
+**Let content inform, not dictate.** The content's character (subject, audience, tone, era, emotional register) is an INPUT that shades the design, not the rule that picks it. It can nudge palette and pacing - a quarterly finance report leans calmer, a product launch leans bolder - but lead with what makes this run distinctive, interactive, and engaging. Do not mechanically map document type to a fixed aesthetic: that reintroduces the sameness the menu and the surprise-me option exist to break.
+
+**Generate candidates across these axes, then pick one.** For "surprise me" (and the fallback) brainstorm freely; for a standard preset brainstorm within that register. Vary on:
 
 - **Palette mood**: not just light vs dark, but the emotional temperature (warm paper, cool clinical, high-contrast editorial, muted earthy, saturated playful). Constrain to one or two accents over a neutral base (`[[hallmark-design]]` gate 8).
 - **Typographic voice**: the heading / body pairing and its personality (serif-display editorial, geometric-sans modern, mono-technical, humanist-warm). System stacks only, or base64 `@font-face`.
@@ -55,7 +67,7 @@ If the committed direction matches that description, it is almost certainly the 
 
 **Commit to concrete tokens and record them.** Write the direction down before authoring: a name, the exact colors (hex), the font pairing (heading / body / mono), the spacing rhythm, the signature layout move, and the motion signature. Embed it as an HTML comment at the top of the output (so the choice is auditable) and state it to the user in one line. Then author to those tokens; do not drift back to the attractor mid-build.
 
-**A caller-specified style or theme binds.** When `--style` words, a `[[theme-tokens]]` set, or a `[[brand-styling]]` brand `tokens.json` is supplied, that is the binding direction: honor it instead of brainstorming freely (a partial `--style` still leaves the unspecified axes to brainstorm). Ask the user for brand tokens before inventing a brand's colors. Keep all fonts as system stacks or base64 `@font-face`; never fetch a web font.
+**Keep fonts self-contained.** Whatever the direction, keep all fonts as system stacks or base64 `@font-face`; never fetch a web font (it would break the offline guarantee). A named style or theme is resolved up front per "Resolve the direction in order" above and binds the look; the brainstorm only fills the axes it leaves open.
 
 ## Optional Baseline: the deterministic builder's features
 
