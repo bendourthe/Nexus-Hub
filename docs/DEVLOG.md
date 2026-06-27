@@ -1,5 +1,13 @@
 # Development Log
 
+## [2026-06-26] - v3.9.1 release: presentify creativity-first design + style-direction menu
+
+Shipped v3.9.1, a patch refining the `/presentify` design stage introduced in v3.9.0. No new outbound call, dependency, credential, or catalog addition; counts unchanged (257 skills, 16 commands, 23 hooks, 23 agents).
+
+presentify-creativity-first (this session): reframed the `/presentify` design stage so each run leads with creativity, interactivity, and uniqueness rather than mechanically deriving a fixed style from the document type. When no style is named, the command now offers a five-option design-direction menu (three standard presets -- Corporate & Professional, Creative & Expressive, Technical & Precise -- plus a "surprise me" creative option and an "other" free-form option), falling back to the creative/unique path when the menu cannot be answered; a caller-named style (`--style`, the natural `using the style <description>` phrasing, or `--theme`) still binds and skips the menu. The document's character is now an input that shades the design rather than the rule that picks it. Edits landed in the `presentify` command, the `document-to-interactive-html` SKILL.md body (resolution order, two new Common Rationalizations rows, one new Verification item), and the `references/interactive-features.md` brainstorm section. No frontmatter change, so no `data/` registry edit; the trigger surface is unchanged.
+
+Release: bumped 3.9.0 -> 3.9.1 across every version-carrying surface (`.claude-plugin/plugin.json`, `data/marketplace.json`, `scripts/installer.sh`, `scripts/installer.ps1`, the README / AGENTS markers, the CHANGELOG heading), finalized `## [Unreleased]` to `## [3.9.1] - 2026-06-26` with a release summary, and refreshed the README "What's New". `check_version_sync` reports all surfaces match 3.9.1. Stabilization (WN-v33-1, `make` absent on the Windows host, direct equivalents): JSON catalogs OK (257 skills), orphan-bundle audit PASS, `validate_unicode_safety` 0 errors on edited files, `validate_no_personal_paths` exit 0. Quality gate GO.
+
 ## [2026-06-26] - v3.9.0 release: presentify + pre-merge-verification / loop-design / cross-model-egress doctrine
 
 Shipped v3.9.0, bundling three completed plans plus the release mechanics. No new outbound call, dependency, or credential enters the catalog; the only catalog additions are one skill and one command (256 -> 257 skills, 15 -> 16 commands; 23 hooks and 23 agents unchanged).

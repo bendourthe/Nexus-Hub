@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.9.0 -->
+<!-- nexus-hub-version: 3.9.1 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 257 skills, 16 commands, 23 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -37,18 +37,19 @@ The two projects are designed to be useful independently: you can install Nexus-
 
 ---
 
-## What's New in v3.9.0
+## What's New in v3.9.1
 
-v3.9.0 adds a documents-to-interactive-HTML capability and enriches the review, loop, and cross-model orchestration skills with three batches of agent-facing doctrine. The only catalog additions are one skill and one command; everything else is local Markdown enrichment with no new outbound call, dependency, or credential. Catalog: **257 skills**, **16 commands**, **23 hooks**.
+v3.9.1 is a patch release that refines the `/presentify` design stage introduced in v3.9.0 so each run leads with creativity, interactivity, and uniqueness rather than mechanically deriving a fixed style from the document type. It is docs-only, with no catalog change; the v3.9.0 feature set below ships unchanged. Catalog: **257 skills**, **16 commands**, **23 hooks**.
 
 Highlights:
 
+- **`/presentify` creativity-first design with a style-direction menu** (v3.9.1): when no style is named, `/presentify` now asks you to pick a design direction first -- three standard presets (Corporate & Professional, Creative & Expressive, Technical & Precise), a "surprise me" option that lets the agent invent something unique for that run, and "other" to describe your own. A named style (`using the style <description>`, `--style`, or `--theme`) still binds and skips the menu, and the agent falls back to the creative/unique path when the menu cannot be answered.
 - **`/presentify` command + `document-to-interactive-html` skill**: turn one or many mixed-format source documents (PDF, Word, Excel, PowerPoint) into a single self-contained, offline, interactive HTML presentation. Local-only parsing maps every format into a normalized content model; a deterministic builder inlines base64 images and renders spreadsheet data as inline SVG charts (no charting library, no CDN); and an LLM-native enrichment pass elevates the baseline deck. The output opens with zero external network requests, enforced by a builder self-check.
 - **Pre-merge-verification + finding-escalation doctrine**: the review skills gain a three-way finding-action taxonomy (an objective mechanical fix the agent may resolve, an intent-challenging finding the user must decide, or an informational note) and a verbatim human-escalation rule; `shipping-and-launch` gains a canonical pre-merge gate with a justified order plus a stop-at-the-human-decision-boundary doctrine; `pr-description-writer` gains an optional PR-body-from-audit-trail pattern.
 - **Loop-design + cross-model egress hygiene**: `loop-engineering` gains a design-the-loop-before-you-run-it pre-flight and a no-busy-poll-for-a-human rule; `cross-model-orchestrator` gains handoff egress hygiene (treat any artifact crossing to a second model as an egress event) and a reviewer-vs-judge verdict-honesty rule; `agent-access-policy` gains a default-deny host-command-execution posture.
 - **Foundations page added to the interactive guide**: a new tab that teaches the core AI concepts behind Nexus-Hub as two ladders -- model to reasoning to agent, and prompt to context to harness engineering.
 
-See [CHANGELOG.md](CHANGELOG.md) for the full v3.9.0 entry and the complete release history.
+See [CHANGELOG.md](CHANGELOG.md) for the full v3.9.1 entry and the complete release history.
 
 ---
 
