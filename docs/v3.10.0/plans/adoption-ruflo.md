@@ -304,17 +304,17 @@ The "Rec. model / effort" column is a best-effort planning-time assessment, reco
 
 ### Phase 2 Exit Checklist
 
-- [ ] All sub-tasks completed (2.1, 2.2)
-- [ ] `prompt-injection-defense/SKILL.md` created with conformant frontmatter and all six required body sections
-- [ ] Five-part defensive playbook, recognition cues, and safe-response rule present
-- [ ] If any security-mapping frontmatter field added, `references/standards.md` exists and is linked (orphan-bundle clean)
-- [ ] Cross-links to `ai-attack-patterns`, `agent-access-policy`, `egress-redaction`, `advanced-attack-patterns` resolve
-- [ ] Three registries updated consistently (skills count 259)
-- [ ] Body under 500 lines; complements rather than duplicates `ai-attack-patterns`
-- [ ] No upstream name or branded token (grep clean)
-- [ ] Validators green
-- [ ] Session history generated for Phase 2
-- [ ] Ready to advance to Phase 3
+- [x] All sub-tasks completed (2.1, 2.2)
+- [x] `prompt-injection-defense/SKILL.md` created with conformant frontmatter and all six required body sections
+- [x] Five-part defensive playbook, recognition cues, and safe-response rule present
+- [x] Security-mapping field added (`atlas_techniques: [AML.T0051]`); `references/standards.md` exists and is linked (orphan-bundle clean)
+- [x] Cross-links to `ai-attack-patterns`, `agent-access-policy`, `egress-redaction`, `advanced-attack-patterns` resolve (plus `security-framework-mapping`, `security-review`)
+- [x] Three registries updated consistently (skills count 259); allowlist grandfathers the pushy description
+- [x] Body under 500 lines (118); complements rather than duplicates `ai-attack-patterns` (offensive methodology stays there; this skill is recognition-and-posture)
+- [x] No upstream name or branded token (grep clean)
+- [x] Validators green (JSON integrity, bundle audit, quality, unicode-safety, no-personal-paths, supply-chain-IOC, workflow-security, version-sync, skill-security scan no HIGH/CRITICAL)
+- [x] Session history generated for Phase 2
+- [x] Ready to advance to Phase 3
 
 ### Phase 3 Exit Checklist
 

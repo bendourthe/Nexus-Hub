@@ -262,5 +262,6 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | agent-presets | workflow | "Ready-made agent presets that compose existing skills and slash commands into one-invocation bundles" | catalog/skills/workflow/agent-presets/SKILL.md |
 | document-to-interactive-html | specialized-domains | "Turn one or more documents into a unique, interactive, self-contained website" | catalog/skills/specialized-domains/document-to-interactive-html/SKILL.md |
 | egress-redaction | security | "Detect sensitive data and apply a typed block/redact/hash/pass policy before egress" | catalog/skills/security/egress-redaction/SKILL.md |
+| prompt-injection-defense | security | "Recognize and resist prompt injection and poisoned tool output with instruction-origin discipline" | catalog/skills/security/prompt-injection-defense/SKILL.md |
 
-**Total: 258 skills across 21 categories**
+**Total: 259 skills across 21 categories**
