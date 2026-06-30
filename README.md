@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.9.1 -->
+<!-- nexus-hub-version: 3.10.0 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 259 skills, 16 commands, 25 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -37,19 +37,20 @@ The two projects are designed to be useful independently: you can install Nexus-
 
 ---
 
-## What's New in v3.9.1
+## What's New in v3.10.0
 
-v3.9.1 is a patch release that refines the `/presentify` design stage introduced in v3.9.0 so each run leads with creativity, interactivity, and uniqueness rather than mechanically deriving a fixed style from the document type. It is docs-only, with no catalog change; the v3.9.0 feature set below ships unchanged. Catalog: **257 skills**, **16 commands**, **23 hooks**.
+v3.10.0 operationalizes the reverse-engineerable subset of an external runtime-meta-harness comparison: two new defensive security skills, a supply-chain verify command, harness self-grading, an iterative competition mode, and advisory worker-check hooks -- reverse-engineer-first, with no new outbound call, dependency, credential, or third-party data processor. The source's six runtime components (a runtime meta-harness, a GPU vector DB, a multi-provider router runtime, cross-machine federation, hosted web UIs, and a WASM sandbox) are declined under the MCP Registry Policy and recorded in the reverse-engineering matrix. Catalog: **259 skills**, **16 commands**, **25 hooks**.
 
 Highlights:
 
-- **`/presentify` creativity-first design with a style-direction menu** (v3.9.1): when no style is named, `/presentify` now asks you to pick a design direction first -- three standard presets (Corporate & Professional, Creative & Expressive, Technical & Precise), a "surprise me" option that lets the agent invent something unique for that run, and "other" to describe your own. A named style (`using the style <description>`, `--style`, or `--theme`) still binds and skips the menu, and the agent falls back to the creative/unique path when the menu cannot be answered.
-- **`/presentify` command + `document-to-interactive-html` skill**: turn one or many mixed-format source documents (PDF, Word, Excel, PowerPoint) into a single self-contained, offline, interactive HTML presentation. Local-only parsing maps every format into a normalized content model; a deterministic builder inlines base64 images and renders spreadsheet data as inline SVG charts (no charting library, no CDN); and an LLM-native enrichment pass elevates the baseline deck. The output opens with zero external network requests, enforced by a builder self-check.
-- **Pre-merge-verification + finding-escalation doctrine**: the review skills gain a three-way finding-action taxonomy (an objective mechanical fix the agent may resolve, an intent-challenging finding the user must decide, or an informational note) and a verbatim human-escalation rule; `shipping-and-launch` gains a canonical pre-merge gate with a justified order plus a stop-at-the-human-decision-boundary doctrine; `pr-description-writer` gains an optional PR-body-from-audit-trail pattern.
-- **Loop-design + cross-model egress hygiene**: `loop-engineering` gains a design-the-loop-before-you-run-it pre-flight and a no-busy-poll-for-a-human rule; `cross-model-orchestrator` gains handoff egress hygiene (treat any artifact crossing to a second model as an egress event) and a reviewer-vs-judge verdict-honesty rule; `agent-access-policy` gains a default-deny host-command-execution posture.
-- **Foundations page added to the interactive guide**: a new tab that teaches the core AI concepts behind Nexus-Hub as two ladders -- model to reasoning to agent, and prompt to context to harness engineering.
+- **`egress-redaction` defensive skill**: a typed sensitive-data / PII taxonomy with a per-category policy action (BLOCK / REDACT / HASH / PASS) applied before any artifact crosses a trust boundary (a cross-model handoff, a context pack, a log, an external send), with a default-policy table and a per-egress-event rule.
+- **`prompt-injection-defense` defensive skill**: the recognition-and-posture counterpart to `ai-attack-patterns` -- instruction-origin discipline, untrusted-content fencing, tool-output skepticism, indirect-injection recognition cues, and a safe-response rule.
+- **`nexus-hub verify` supply-chain command**: recomputes installed-file SHA-256 and diffs against a release-published `MANIFEST.sha256`, reporting OK / MODIFIED / MISSING / EXTRA per file with a single PASS / FAIL. Strictly local and read-only (stdlib only) -- no network call, no credential, no new dependency.
+- **Agent-setup grade + regression diff**: `harness_audit.py` gains an explainable 1-100 setup grade across six weighted dimensions and a cross-snapshot regression diff (advisory by default; gates only with `--fail-on-regression`), surfaced through `skill-stocktake`.
+- **Iterative competitive-generation**: `competitive-generation` gains a hill-climbing / co-evolution section -- run the competition over multiple rounds seeded by the previous winner, with a no-progress stopping rule and a token caution.
+- **Two advisory worker-check hooks**: `test-gap-notice` (flags source edits with no companion test) and `dependency-staleness-notice` (flags dependency-manifest edits with the matching audit command) -- event-driven, advisory-only, disableable, never a daemon.
 
-See [CHANGELOG.md](CHANGELOG.md) for the full v3.9.1 entry and the complete release history.
+See [CHANGELOG.md](CHANGELOG.md) for the full v3.10.0 entry and the complete release history.
 
 ---
 

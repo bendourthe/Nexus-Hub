@@ -489,11 +489,11 @@ function activeSuggestion(data: UsageData): string | null {
   const isOpus = /opus|default/i.test(data.currentModel);
   const pct = Math.round(highest);
   if (highest >= t.critical) {
-    return `Usage has reached ${pct}% - switch to Haiku 4.5 and set Effort to Low to avoid hitting your limit.`;
+    return `Usage has reached ${pct}% - switch to Haiku and set Effort to Low to avoid hitting your limit.`;
   }
   if (highest >= t.high) {
     return isOpus
-      ? `Usage has reached ${pct}% - switch to Sonnet 4.6 and reduce Effort to High or Medium.`
+      ? `Usage has reached ${pct}% - switch to Sonnet and reduce Effort to High or Medium.`
       : `Usage has reached ${pct}% - reduce Effort to High or Medium.`;
   }
   if (highest >= t.moderate) {

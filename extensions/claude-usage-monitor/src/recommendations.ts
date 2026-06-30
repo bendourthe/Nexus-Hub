@@ -99,8 +99,8 @@ export function getRecommendation(data: UsageData): Recommendation {
   if (sessionUrgency === "critical" || weeklyUrgency === "critical" || sonnetUrgency === "critical") {
     return {
       urgency: overallUrgency,
-      message: `Usage is critical (${getHighestMetricSummary(data)}). Switch to Haiku 4.5 and set Effort to Low to avoid hitting your limit.`,
-      suggestedModel: "claude-haiku-4-5",
+      message: `Usage is critical (${getHighestMetricSummary(data)}). Switch to Haiku and set Effort to Low to avoid hitting your limit.`,
+      suggestedModel: "haiku",
       tips,
     };
   }
@@ -109,8 +109,8 @@ export function getRecommendation(data: UsageData): Recommendation {
   if (weeklyUrgency === "high" && isOpus(data.currentModel)) {
     return {
       urgency: overallUrgency,
-      message: `Weekly usage is ${data.weeklyAllModels.percent}% (resets ${data.weeklyAllModels.resetsIn}). Switch from ${formatModelName(data.currentModel)} to Sonnet 4.6 and reduce Effort to High or Medium until the weekly reset.`,
-      suggestedModel: "claude-sonnet-4-6",
+      message: `Weekly usage is ${data.weeklyAllModels.percent}% (resets ${data.weeklyAllModels.resetsIn}). Switch from ${formatModelName(data.currentModel)} to Sonnet and reduce Effort to High or Medium until the weekly reset.`,
+      suggestedModel: "sonnet",
       tips,
     };
   }
@@ -130,7 +130,7 @@ export function getRecommendation(data: UsageData): Recommendation {
     return {
       urgency: overallUrgency,
       message: `Sonnet-only limit is ${data.weeklySonnet.percent}% (resets ${data.weeklySonnet.resetsIn}). Switch to Opus for complex tasks or Haiku for simple ones. Neither counts against the Sonnet-only limit.`,
-      suggestedModel: "claude-opus-4-6",
+      suggestedModel: "opus",
       tips,
     };
   }
@@ -139,8 +139,8 @@ export function getRecommendation(data: UsageData): Recommendation {
   if (sessionUrgency === "high" && isOpus(data.currentModel)) {
     return {
       urgency: overallUrgency,
-      message: `Session usage is ${data.session.percent}% (resets in ${data.session.resetsIn}). Switch to Sonnet 4.6 and reduce Effort to High or Medium.`,
-      suggestedModel: "claude-sonnet-4-6",
+      message: `Session usage is ${data.session.percent}% (resets in ${data.session.resetsIn}). Switch to Sonnet and reduce Effort to High or Medium.`,
+      suggestedModel: "sonnet",
       tips,
     };
   }
@@ -218,7 +218,7 @@ function getRelevantTips(data: UsageData): string[] {
   }
 
   if (isOpus(data.currentModel) && data.weeklyAllModels.percent > 50) {
-    tips.push("Use Sonnet 4.6 for standard coding, debugging, and test writing. Reserve Opus for architecture.");
+    tips.push("Use Sonnet for standard coding, debugging, and test writing. Reserve Opus for architecture.");
   }
 
   return tips;

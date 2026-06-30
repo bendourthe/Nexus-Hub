@@ -391,11 +391,11 @@ async function evaluateAndNotify(data: UsageData): Promise<boolean> {
   const pct = Math.round(triggerPercent);
   if (triggerPercent >= t.critical) {
     bucket = t.critical;
-    message = `${triggerLabel} usage at ${pct}% \u2192 Switch to Haiku 4.5 and set Effort to Low to avoid hitting your limit.${resetSuffix}`;
+    message = `${triggerLabel} usage at ${pct}% \u2192 Switch to Haiku and set Effort to Low to avoid hitting your limit.${resetSuffix}`;
   } else if (triggerPercent >= t.high) {
     bucket = t.high;
     message = isOpus
-      ? `${triggerLabel} usage at ${pct}% \u2192 Switch to Sonnet 4.6 and reduce Effort to High or Medium.${resetSuffix}`
+      ? `${triggerLabel} usage at ${pct}% \u2192 Switch to Sonnet and reduce Effort to High or Medium.${resetSuffix}`
       : `${triggerLabel} usage at ${pct}% \u2192 Reduce Effort to High or Medium.${resetSuffix}`;
   } else {
     // Moderate band: nudge Effort down regardless of model. No model swap yet.
