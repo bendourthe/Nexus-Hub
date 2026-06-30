@@ -219,6 +219,25 @@ Generate COMPARISON.md:
 | Total | | | $[total] |
 ```
 
+## Iterative Competition (Multi-Round)
+
+The base pattern (Steps 1-6) runs N agents in parallel for a single round and picks the winner from that one draw. When the best candidate of a single round still falls short of the rubric ceiling, or when the candidates cluster closely and none clearly dominates, extend the competition across multiple rounds: each round is seeded by the previous round's winner, so quality climbs round over round instead of being fixed by a single draw.
+
+When to escalate from a single round to multiple rounds:
+
+- The single-round winner passes the rubric but leaves one dimension visibly weak (for example, it wins on tests but carries the largest diff).
+- The top two or three candidates score within a narrow band, so the "winner" is close to a coin flip.
+- The change is high-value enough that climbing from an 8.8 to a 9.6 is worth the additional rounds.
+
+The mechanics:
+
+- **Hill-climbing**: keep the current best candidate as the incumbent. Each round, generate challengers that vary the incumbent (a different approach to one weak dimension, a tighter diff, an added test). Replace the incumbent only when a challenger scores strictly higher on the same rubric, so the running score is monotonic and never regresses across rounds.
+- **Co-evolution**: when the runners-up each carry a distinct strong idea (one has the cleanest abstraction, another the best test coverage), synthesize a new challenger that combines them rather than discarding the losers. The next incumbent can be a deliberate graft of the best parts, not just whichever single candidate survived the round.
+- **Stopping rule**: stop when a round produces no rubric improvement over the incumbent for K consecutive rounds (a no-progress signature; K of 2 is a reasonable default), or when a pre-set round budget is hit, whichever comes first. Do not run "one more round" against a flat curve hoping for a lucky draw.
+- **Token caution**: each round multiplies the per-round fan-out cost, so a 3-candidate, 4-round competition is up to 12 agent runs. Calibrate the round count and the fan-out width up front, treat the budget as fixed, and stop the moment the rubric converges.
+
+Score challengers with an independent skeptic, not the generator that produced them, so the incumbent earns its place against adversarial scrutiny rather than self-assessment (see [[adversarial-verifier]]). Treat the round budget as a hard cost control, not a target to exhaust (see [[ai-billing-safeguards]]). Before committing to a multi-round competition at all, confirm that a fan-out is warranted for the task in the first place (see [[agent-orchestration-primitives]]).
+
 ## Best Practices
 
 - **Use 2-3 candidates, not more**: diminishing returns set in quickly; 3 candidates provide sufficient diversity without excessive cost

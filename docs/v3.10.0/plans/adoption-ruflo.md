@@ -318,15 +318,15 @@ The "Rec. model / effort" column is a best-effort planning-time assessment, reco
 
 ### Phase 3 Exit Checklist
 
-- [ ] All sub-tasks completed (3.1, 3.2)
-- [ ] `competitive-generation` carries an iterative hill-climbing / co-evolution section with the no-progress stopping rule and the token caution
-- [ ] A6 decision made and recorded (short generic note in a planning skill, or skipped to `docs/v3.10.0/known-gaps.md` with a reason)
-- [ ] Cross-links resolve; iterative section does not contradict the existing single-round guidance
-- [ ] No upstream branded token ("arena", "SPARC", "ruflo") in any distributed artifact (grep clean)
-- [ ] Edited bodies under 500 lines; registries updated only if a summary changed
-- [ ] Validators green
-- [ ] Session history generated for Phase 3
-- [ ] Ready to advance to Phase 4
+- [x] All sub-tasks completed (3.1, 3.2)
+- [x] `competitive-generation` carries an iterative hill-climbing / co-evolution section with the no-progress stopping rule and the token caution
+- [x] A6 decision made and recorded (skipped to `docs/v3.10.0/known-gaps.md` as DF-v310-ruflo-A6 with a reason; the phased-guided-development-with-gates function is already delivered by `/plan`, `/implement`, `/spec`, and `quality-gate-definitions`)
+- [x] Cross-links resolve (all six wikilinks: `adversarial-verifier`, `agent-orchestration-primitives`, `ai-billing-safeguards`, `cross-model-orchestrator`, `intent-based-review`, `quality-gate-definitions`); iterative section extends, does not contradict, the existing single-round guidance
+- [x] No upstream branded token ("arena", "SPARC", "ruflo") in any distributed artifact (grep clean on `competitive-generation/SKILL.md`; "ruflo" in `known-gaps.md` is only the cycle/plan/report identifier in internal docs)
+- [x] Edited body under 500 lines (278); no registry edit needed (no `summary_l0`/frontmatter change)
+- [x] Validators green (the `make validate` gate components -- JSON integrity, bundle audit, quality, supply-chain, workflow-security, base-parity -- plus unicode-safety, no-personal-paths, version-sync)
+- [x] Session history generated for Phase 3
+- [x] Ready to advance to Phase 4
 
 ### Phase 4 Exit Checklist
 
