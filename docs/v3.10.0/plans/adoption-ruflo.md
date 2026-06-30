@@ -356,16 +356,16 @@ The "Rec. model / effort" column is a best-effort planning-time assessment, reco
 
 ### Phase 6 Exit Checklist
 
-- [ ] All sub-tasks completed (6.1, 6.2, 6.3)
-- [ ] 1-3 advisory, event-driven hooks adopt selected worker-check ideas; registered in `settings.json`; exit 0 always; disableable; pytest passing; no daemon scheduler imported
-- [ ] RE matrix records all six runtime drops as `drop-outright` with the MCP Registry Policy and the v3.1.0 / v3.8.0 precedents named, referencing the comparison report
-- [ ] Catalog counts finalized and consistent across registries and docs (259 skills, 16 commands, 23 + N hooks)
-- [ ] Registry-edit decision made and recorded (edit if a summary materially changed, else recorded as not-needed)
-- [ ] Full cross-file consistency read-through passed; nothing implies a shipped runtime, a new dependency, a credential, or any outbound call
-- [ ] No upstream product or component brand token in any distributed artifact (grep clean across the full diff)
-- [ ] `make validate`, `make lint`, and `make test` all green
-- [ ] CHANGELOG `## [Unreleased]` entry added; `docs/v3.10.0/known-gaps.md` updated
-- [ ] Session history generated for Phase 6
+- [x] All sub-tasks completed (6.1, 6.2, 6.3)
+- [x] 2 advisory, event-driven hooks (`test-gap-notice`, `dependency-staleness-notice`) adopt selected worker-check ideas; registered in `settings.json` `PostToolUse` `Write|Edit`; exit 0 always (no blocking path); disableable via `NEXUS_DISABLED_HOOKS` / `minimal` profile; pytest passing (27 cases, jq-gated ones skip locally / run in CI); no daemon scheduler imported
+- [x] RE matrix records all six runtime drops as `drop-outright` (runtime meta-harness + MCP daemon, GPU vector DB + graph-RAG, multi-provider router runtime, cross-machine federation, hosted web UIs, WASM sandbox) with the MCP Registry Policy and the v3.1.0 / v3.8.0 precedents named, referencing the comparison report
+- [x] Catalog counts finalized and consistent across registries and docs (259 skills, 16 commands, 23 + 2 = 25 hooks)
+- [x] Registry-edit decision made and recorded: no further `data/` registry edit needed (Phase 3 / Phase 5 refinements changed no `summary_l0` / `overview_l1`; v3.8.0 / v3.9.0 precedent); only current-state count prose corrected in AGENTS.md / README / plugin.json / marketplace.json
+- [x] Full cross-file consistency read-through passed; nothing implies a shipped runtime, a new dependency, a credential, or any outbound call (both hooks are stdlib bash, no network primitive)
+- [x] No upstream product or component brand token in any distributed artifact (grep clean across `catalog/` / `data/` / `templates/` / `scripts/`; `ruflo` appears only in internal `docs/`)
+- [x] `make validate` green (bundle-audit, quality, unicode-safety, no-personal-paths, supply-chain-IOC, workflow-security, version-sync, base-parity); `make lint` (ShellCheck) clean on both hooks; `make test` green (catalog/hooks/tests 445 passed / 36 skipped; full `tests/` suite confirmed -- see DEVLOG)
+- [x] CHANGELOG `## [Unreleased]` entry added; `docs/v3.10.0/known-gaps.md` updated (status all-phases-complete + DF-v310-ruflo-A10-rest)
+- [x] Session history generated for Phase 6
 
 ---
 
