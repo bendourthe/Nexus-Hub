@@ -6,7 +6,7 @@
     "description": "Comprehensive catalog of Nexus-Hub skills with L0/L1 tiered summaries"
   },
   "statistics": {
-    "total_skills": 257,
+    "total_skills": 258,
     "categories": {
       "ai-development": 11,
       "architecture": 7,
@@ -23,7 +23,7 @@
       "orchestration": 15,
       "project-setup": 4,
       "research": 2,
-      "security": 13,
+      "security": 14,
       "security-operations": 15,
       "specialized-domains": 14,
       "testing": 3,
@@ -32,7 +32,7 @@
     },
     "priorities": {
       "HIGH": 3,
-      "MEDIUM": 253
+      "MEDIUM": 254
     },
     "total_lines": 127584,
     "total_tokens_estimate": 625245,
@@ -8997,6 +8997,37 @@
         "lines": 105,
         "characters": 8390,
         "tokens_estimate": 2098
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "egress-redaction",
+      "title": "egress-redaction",
+      "description": "Detect sensitive data and apply a typed per-policy action (block, redact, hash, or pass) before any artifact crosses a trust boundary. Make sure to use this skill whenever the user wants to \"redact sensitive data before sending\", \"PII detection\", \"scrub secrets from a prompt\", \"decide what can leave the trust boundary\", or \"redact before handing off to another model / agent / log\", even if they only say \"make sure we are not leaking anything\". SKIP, do NOT use for, encrypting data at rest, network-layer DLP appliances, or compliance program design (use the compliance skills).",
+      "long_description": "Recognize sensitive data and apply a per-category policy action (BLOCK, REDACT, HASH, PASS) before any artifact crosses a trust boundary, generalizing the cross-model handoff egress-hygiene step into a reusable typed taxonomy and a conservative-by-default policy. Detection-and-policy guidance for the agent's own judgment, not a substitute for a programmatic DLP layer in high-assurance flows.",
+      "summary_l0": "\"Detect sensitive data and apply a typed block/redact/hash/pass policy before egress\"",
+      "overview_l1": "\"This skill teaches the agent to recognize sensitive data and apply a per-category policy action before any artifact leaves a trust boundary. It provides a typed taxonomy of sensitive-data categories with one-line recognition cues, four policy actions (BLOCK, REDACT, HASH, PASS), a conservative-by-default policy table, and the core rule that a redaction decision is made per egress event, not per value: the same value may pass internally yet be redacted on a cross-model handoff, a context pack, a log line, or an external send. It generalizes the handoff egress-hygiene step from cross-model orchestration into a reusable posture. This is detection-and-policy guidance for the agent's own judgment, not a guarantee; high-assurance flows still need a programmatic DLP layer. Trigger phrases: redact sensitive data before sending, PII detection, scrub secrets from a prompt, what can leave the trust boundary, redact before handoff.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "v3.10.0 catalog addition",
+      "tools_required": [],
+      "path": "catalog/skills/security/egress-redaction/",
+      "file": "catalog/skills/security/egress-redaction/SKILL.md",
+      "size": {
+        "lines": 138,
+        "characters": 12891,
+        "tokens_estimate": 3223
       },
       "downloads": 0,
       "status": "production",

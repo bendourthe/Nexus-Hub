@@ -261,5 +261,6 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | direct-corpus-interaction | developer-experience | "Search code with a hypothesis-refine-anchor-verify discipline over hybrid retrieval plus direct corpus tools" | catalog/skills/developer-experience/direct-corpus-interaction/SKILL.md |
 | agent-presets | workflow | "Ready-made agent presets that compose existing skills and slash commands into one-invocation bundles" | catalog/skills/workflow/agent-presets/SKILL.md |
 | document-to-interactive-html | specialized-domains | "Turn one or more documents into a unique, interactive, self-contained website" | catalog/skills/specialized-domains/document-to-interactive-html/SKILL.md |
+| egress-redaction | security | "Detect sensitive data and apply a typed block/redact/hash/pass policy before egress" | catalog/skills/security/egress-redaction/SKILL.md |
 
-**Total: 257 skills across 21 categories**
+**Total: 258 skills across 21 categories**

@@ -291,16 +291,16 @@ The "Rec. model / effort" column is a best-effort planning-time assessment, reco
 
 ### Phase 1 Exit Checklist
 
-- [ ] All sub-tasks completed (1.1, 1.2)
-- [ ] `egress-redaction/SKILL.md` created with conformant frontmatter and all six required body sections
-- [ ] Typed sensitive-data taxonomy, the four per-policy actions (BLOCK / REDACT / HASH / PASS), the default-policy table, and the per-egress-event trust-boundary rule all present
-- [ ] Cross-links to `cross-model-orchestrator`, `agent-access-policy`, `context-pack-builder`, `security-review` resolve
-- [ ] Three registries updated consistently (skills count 258); summary string matches verbatim
-- [ ] Body under 500 lines; frontmatter parses as YAML with quoted summaries within word limits
-- [ ] No upstream name or branded token in any distributed artifact (grep clean)
-- [ ] Validators green
-- [ ] Session history generated for Phase 1
-- [ ] Ready to advance to Phase 2
+- [x] All sub-tasks completed (1.1, 1.2)
+- [x] `egress-redaction/SKILL.md` created with conformant frontmatter and all six required body sections
+- [x] Typed sensitive-data taxonomy, the four per-policy actions (BLOCK / REDACT / HASH / PASS), the default-policy table, and the per-egress-event trust-boundary rule all present
+- [x] Cross-links to `cross-model-orchestrator`, `agent-access-policy`, `context-pack-builder`, `security-review` resolve
+- [x] Three registries updated consistently (skills count 258); summary string matches verbatim
+- [x] Body under 500 lines (138); frontmatter parses as YAML with quoted summaries within word limits (summary_l0 11 words, overview_l1 140 words)
+- [x] No upstream name or branded token in any distributed artifact (grep clean)
+- [x] Validators green (JSON integrity, bundle audit, quality, unicode-safety, no-personal-paths, supply-chain-IOC, workflow-security, version-sync)
+- [x] Session history generated for Phase 1
+- [x] Ready to advance to Phase 2
 
 ### Phase 2 Exit Checklist
 

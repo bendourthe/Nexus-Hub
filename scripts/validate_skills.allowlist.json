@@ -90,6 +90,7 @@
     "catalog/skills/security/business-logic-abuse/SKILL.md",
     "catalog/skills/security/cve-reachability-analyzer/SKILL.md",
     "catalog/skills/security/dependency-security-audit/SKILL.md",
+    "catalog/skills/security/egress-redaction/SKILL.md",
     "catalog/skills/security/exploitability-analyzer/SKILL.md",
     "catalog/skills/security/licensing-compliance/SKILL.md",
     "catalog/skills/security/pentest-reporting/SKILL.md",

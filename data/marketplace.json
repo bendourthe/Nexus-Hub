@@ -150,7 +150,7 @@
       "id": "security",
       "name": "Security",
       "description": "Authentication, AI attack patterns, CVE analysis, dependency audit, licensing, penetration testing and reporting, framework mapping",
-      "skill_count": 13
+      "skill_count": 14
     },
     {
       "id": "security-operations",
