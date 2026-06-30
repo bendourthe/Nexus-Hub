@@ -344,15 +344,15 @@ The "Rec. model / effort" column is a best-effort planning-time assessment, reco
 
 ### Phase 5 Exit Checklist
 
-- [ ] All sub-tasks completed (5.1, 5.2, 5.3)
-- [ ] `harness_audit.py` emits a 1-100 setup grade with an explainable per-dimension rubric, advisory (exit 0 regardless of score)
-- [ ] Snapshot/diff reports per-dimension improved/unchanged/regressed and the grade delta; default advisory, `--fail-on-regression` gates
-- [ ] `skill-stocktake` documents the grade and regression diff and states they are advisory by default
-- [ ] Determinism confirmed; pytest covers rubric math and diff classification; `make test` green
-- [ ] No outbound call, no credential; no upstream branded token ("MetaHarness", "ruflo") (grep clean)
-- [ ] Validators green; registries updated only if a summary changed
-- [ ] Session history generated for Phase 5
-- [ ] Ready to advance to Phase 6
+- [x] All sub-tasks completed (5.1, 5.2, 5.3)
+- [x] `harness_audit.py` emits a 1-100 setup grade with an explainable per-dimension rubric (6 dimensions: registry_consistency, skill_frontmatter, security_hooks, instruction_files, hook_registration, data_integrity), advisory (exit 0 regardless of score); repo grades 100/100
+- [x] Snapshot/diff reports per-dimension improved/unchanged/regressed and the grade delta; default advisory (exit 0), `--fail-on-regression` gates (exit 1 on grade regression); `--snapshot`/`--diff` flag aliases and positional `grade`/`snapshot`/`diff` actions both work
+- [x] `skill-stocktake` documents the grade and regression diff (new "Agent-setup grade (companion signal)" section) and states they are advisory by default
+- [x] Determinism confirmed (byte-identical snapshots; unchanged diff = all-unchanged, zero grade delta); pytest covers rubric math, drift detection, and diff classification (17 new cases in `tests/integrations/test_harness_audit.py`, 25 total); full `tests/` suite 615 passed / 15 skipped / 1 pre-existing environmental failure (untouched root `install.ps1` bootstrap, Windows tar; confirmed not a regression)
+- [x] No outbound call, no credential (read-only; only write is the local grade snapshot under gitignored `.nexus/harness-audit/`); no upstream branded token ("MetaHarness", "ruflo") (grep clean across the diff)
+- [x] Validators green (JSON integrity, bundle audit, quality, unicode-safety, no-personal-paths, supply-chain-IOC, workflow-security, version-sync); no registry edit needed (skill-stocktake `summary_l0`/`overview_l1` unchanged; v3.8.0 / v3.9.0 refinement precedent)
+- [x] Session history generated for Phase 5
+- [x] Ready to advance to Phase 6
 
 ### Phase 6 Exit Checklist
 

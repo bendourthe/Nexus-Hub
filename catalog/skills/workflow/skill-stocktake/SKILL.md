@@ -104,6 +104,16 @@ Write the refreshed `results.json` and a worst-first `report.md`: rank skills by
 
 For the lowest-scoring skills, propose specific fixes (add a Common Rationalizations table, convert prose Verification to checkboxes, tighten `summary_l0`). Never silently rewrite a skill - surface the proposal and let the maintainer decide.
 
+## Agent-setup grade (companion signal)
+
+The per-skill stocktake above scores individual SKILL.md files. For a quick whole-setup health signal alongside it, `scripts/harness_audit.py` emits a single explainable 1-100 agent-setup grade plus a cross-snapshot regression guard. Use it during a release stocktake as a fast catalog-health check, not a replacement for the per-skill pass.
+
+- `python scripts/harness_audit.py grade` prints the grade with a per-dimension breakdown (registry consistency, skill-frontmatter conformance, security-hook presence and registration, instruction-file presence, hook-reference integrity, and data-registry JSON health), each with its weight, sub-score, and a one-line reason.
+- `python scripts/harness_audit.py snapshot` writes that graded setup to a local baseline at `.nexus/harness-audit/latest.json` (gitignored, same local-tooling convention as this skill's cache).
+- `python scripts/harness_audit.py diff` compares the current setup against the latest snapshot and reports each dimension as improved / unchanged / regressed plus the overall grade delta, so a change that quietly degrades the setup becomes visible.
+
+Both the grade and the diff are advisory by default: they print and exit 0 regardless of score. Only `diff --fail-on-regression` opts a CI job into a gate. Pair this whole-setup grade with [[skill-security-scan]] for per-skill security findings and the benchmark loop in [[skill-eval-loop]] for a fuller catalog-health picture.
+
 ## Common Rationalizations
 
 | Rationalization | Reality |
@@ -130,3 +140,5 @@ For the lowest-scoring skills, propose specific fixes (add a Common Rationalizat
 - [[continuous-learning]] - mints local instincts and draft skills; stocktake is the quality gate those drafts must clear.
 - [[code-quality]] - the same quality-over-structure philosophy applied to source code instead of skills.
 - [[known-gaps-tracker]] - low-scoring skills that are not fixed this pass become tracked gaps.
+- [[skill-security-scan]] - per-skill security adjudication; the harness-audit setup grade folds security-hook presence into a whole-setup signal.
+- [[skill-eval-loop]] - benchmark a single skill against a baseline; the setup grade is the catalog-wide companion to that per-skill loop.

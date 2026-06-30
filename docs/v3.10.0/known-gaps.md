@@ -1,8 +1,8 @@
 # Known Gaps -- v3.10.0
 
-**Status**: v3.10.0 (the ruflo adoption cycle) is in progress on `develop`. The `adoption-ruflo` plan ([docs/v3.10.0/plans/adoption-ruflo.md](plans/adoption-ruflo.md)) operationalizes the reverse-engineerable subset of [comparison-ruflo.md](comparison-ruflo.md). Phase 1 (the `egress-redaction` skill), Phase 2 (the `prompt-injection-defense` skill), Phase 3 (the `competitive-generation` iterative-rounds enrichment plus the A6 decision recorded here), and Phase 4 (the `nexus-hub verify` supply-chain command + release manifest) are complete. Phases 5-6 (the agent-setup grade + regression diff, and the advisory worker-check hooks + consolidation) are pending.
+**Status**: v3.10.0 (the ruflo adoption cycle) is in progress on `develop`. The `adoption-ruflo` plan ([docs/v3.10.0/plans/adoption-ruflo.md](plans/adoption-ruflo.md)) operationalizes the reverse-engineerable subset of [comparison-ruflo.md](comparison-ruflo.md). Phase 1 (the `egress-redaction` skill), Phase 2 (the `prompt-injection-defense` skill), Phase 3 (the `competitive-generation` iterative-rounds enrichment plus the A6 decision recorded here), Phase 4 (the `nexus-hub verify` supply-chain command + release manifest), and Phase 5 (the agent-setup grade + cross-snapshot regression diff in `harness_audit.py`, surfaced through `skill-stocktake`) are complete. Phase 6 (the advisory worker-check hooks + consolidation) is pending.
 
-**Last updated**: 2026-06-30 (v3.10.0 adoption-ruflo Phase 4)
+**Last updated**: 2026-06-30 (v3.10.0 adoption-ruflo Phase 5)
 
 This file tracks per-phase unfinished work, intentional deferrals, bugs, missing tests, warnings, and bypassed quality gates for v3.10.0. The next version's `/plan` ingests the open items here. Category prefixes: `NI` (not implemented / skipped subtask), `DF` (intentionally deferred), `BG` (bug), `MT` (missing test), `WN` (warning / suppressed rule), `QG` (quality gate bypassed).
 
