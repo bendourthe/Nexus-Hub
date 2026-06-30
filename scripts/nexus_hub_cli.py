@@ -15,6 +15,12 @@ Subcommands:
                                on the project's own GitHub, show what's new, and
                                offer to upgrade in place by re-running the
                                install bootstrap.
+    nexus-hub verify           Recompute SHA-256 of the installed catalog and
+                               diff it against the published MANIFEST.sha256,
+                               reporting OK / MODIFIED / MISSING / EXTRA and a
+                               single PASS / FAIL. Strictly local, no outbound
+                               call (see scripts/verify_install.py for the
+                               threat-model boundary).
     nexus-hub --help           Usage.
 
 THE ONLY OUTBOUND CALL this CLI makes is `upgrade`'s version check, and it goes
@@ -359,6 +365,29 @@ def cmd_upgrade(assume_yes: bool) -> int:
     return run_bootstrap()
 
 
+def cmd_verify(argv: list[str]) -> int:
+    """Dispatch `nexus-hub verify` to the installed verify_install sibling.
+
+    The verifier is a separate stdlib-only module so the integrity logic stays
+    out of this network-capable CLI core (the only outbound call in this file is
+    `upgrade`'s version check). Imported lazily so importing this module does
+    not pull in the verifier; the CLI's own directory is put on sys.path so the
+    sibling resolves both at runtime (~/.nexus-hub/scripts/) and in tests.
+    """
+    cli_dir = str(Path(__file__).resolve().parent)
+    if cli_dir not in sys.path:
+        sys.path.insert(0, cli_dir)
+    try:
+        import verify_install
+    except ImportError as exc:  # pragma: no cover - missing install artifact
+        _eprint(
+            "nexus-hub verify: verify_install.py not found "
+            f"({exc}). Re-run the installer."
+        )
+        return 2
+    return verify_install.main(argv)
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="nexus-hub",
@@ -373,12 +402,28 @@ def build_parser() -> argparse.ArgumentParser:
     up.add_argument(
         "-y", "--yes", action="store_true", help="Upgrade without prompting."
     )
+    # Registered only so `nexus-hub --help` lists it; `verify` is intercepted in
+    # main() before parsing and its args are forwarded verbatim to the verifier
+    # (argparse.REMAINDER mishandles a leading `--flag`, so we slice argv instead).
+    sub.add_parser(
+        "verify",
+        add_help=False,
+        help="Verify the installed catalog against the published SHA-256 manifest.",
+    )
     return parser
 
 
 def main(argv: list[str] | None = None) -> int:
+    raw = list(sys.argv[1:] if argv is None else argv)
+
+    # `verify` forwards every remaining token to the verifier verbatim, so its
+    # own flags (--root/--manifest/--ignore-extra) are never swallowed by this
+    # parser. Intercept it before argparse runs (see build_parser for why).
+    if raw and raw[0] == "verify":
+        return cmd_verify(raw[1:])
+
     parser = build_parser()
-    args = parser.parse_args(argv)
+    args = parser.parse_args(raw)
 
     if args.version or args.command == "version":
         return cmd_version()

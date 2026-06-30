@@ -28,7 +28,7 @@ Resolve SCOPE from the first positional argument (`$ARGUMENTS`). Recognized scop
 
       Reply with a number or a scope name.
 
-- `release` runs the focused scopes in order - `docs`, then `devlog`, then `gitignore`, then `version`, then `changelog`, then `refactor` - then cleans up, commits, tags, pushes, and publishes the GitHub Release as one flow. It keeps every confirmation gate: never create a tag, push, or publish a release without explicit user confirmation.
+- `release` runs the focused scopes in order - `docs`, then `devlog`, then `gitignore`, then `version`, then `changelog`, then `refactor` - then regenerates the supply-chain manifest, cleans up, commits, tags, pushes, and publishes the GitHub Release as one flow. It keeps every confirmation gate: never create a tag, push, or publish a release without explicit user confirmation.
 
 ## Delegation
 
@@ -42,7 +42,7 @@ Dispatch the resolved scope to the retained skill(s). These targets are skills u
       refactor  -> docs-layout-refactor + project-refactor
       config    -> update-config (built-in) + config-consistency-checker / nexus-hub doctor (see below)
       commit    -> code-commit-workflow
-      release   -> docs -> devlog -> gitignore -> version -> changelog -> refactor, then clean up, commit, tag, push, publish GitHub Release (see below)
+      release   -> docs -> devlog -> gitignore -> version -> changelog -> refactor -> manifest, then clean up, commit, tag, push, publish GitHub Release (see below)
 
 Pass any remaining arguments through unchanged. Heavy logic stays in the retained skills; this file owns only scope resolution and the release sequencing.
 
@@ -60,6 +60,10 @@ When the scope is `release`, run this reconciliation as the FIRST step, before t
 ## version scope (atomic, drift-guarded)
 
 The `version` scope MUST use `scripts/check_version_sync.py` so every version-carrying surface is bumped as one atomic set: `.claude-plugin/plugin.json` (canonical), `scripts/installer.sh` (`NEXUS_HUB_VERSION`), `scripts/installer.ps1` (`$script:NexusHubVersion`), `data/marketplace.json`, the latest `CHANGELOG.md` heading, and the README / AGENTS.md catalog-version prose. Run the guard before and after the bump: it must report a clean in-sync tree afterward. This closes the v2.4.0 drift class (installers stuck at one version while `plugin.json` moved to the next) systemically - a mismatch fails the build rather than shipping.
+
+## release scope: supply-chain manifest (regenerate before the commit)
+
+After every version-carrying surface is bumped (`version`) and the docs / changelog / refactor scopes have run, regenerate the supply-chain manifest so it reflects the exact bytes being released, then stage it into the release commit (before the tag is cut). Run `python scripts/generate_manifest.py`, which writes `MANIFEST.sha256` at the repo root over the distributed catalog tree (`catalog/`, `templates/`, `scripts/`, `data/`) in `sha256sum -c` text format. This MUST run after the version bump so the manifest hashes the bumped files, and before the commit so the manifest ships inside the release tag (and therefore inside the `~/.nexus-hub/src` tree the install bootstrap materializes). The manifest is what `nexus-hub verify` later diffs the installed catalog against; a release whose manifest is stale or missing leaves `verify` unable to confirm an install. The generator is strictly local (stdlib `hashlib`, no outbound call) and deterministic (sorted by path), so re-running it on an unchanged tree is a no-op diff.
 
 ## release scope: GitHub Release publishing (final step, after push)
 

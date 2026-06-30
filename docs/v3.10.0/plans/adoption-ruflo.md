@@ -330,17 +330,17 @@ The "Rec. model / effort" column is a best-effort planning-time assessment, reco
 
 ### Phase 4 Exit Checklist
 
-- [ ] All sub-tasks completed (4.1, 4.2, 4.3)
-- [ ] `scripts/generate_manifest.py` writes a deterministic `MANIFEST.sha256` over the distributed tree (byte-identical on re-run)
-- [ ] `scripts/verify_install.py` reports OK / MODIFIED / MISSING / EXTRA and a single PASS/FAIL with correct exit codes; reuses `manifest.py` hashing
-- [ ] `nexus-hub verify` dispatches to the installed script; clean install PASSes, a modified file FAILs, a deleted file reports MISSING
-- [ ] Both installers copy the new scripts and `MANIFEST.sha256` to the documented `~/.nexus-hub/` paths (verified by a throwaway dry-run install)
-- [ ] Manifest generation wired into the release flow (regenerated and committed before the tag)
-- [ ] Zero outbound call, no new dependency, no credential (code grep clean for network calls)
-- [ ] `make lint` clean on new shell; pytest coverage for classification added; `make test` green
-- [ ] User docs updated with `nexus-hub verify` and its local-only threat-model boundary
-- [ ] Session history generated for Phase 4
-- [ ] Ready to advance to Phase 5
+- [x] All sub-tasks completed (4.1, 4.2, 4.3)
+- [x] `scripts/generate_manifest.py` writes a deterministic `MANIFEST.sha256` over the distributed tree (byte-identical on re-run; 1100 entries; `sha256sum -c` clean)
+- [x] `scripts/verify_install.py` reports OK / MODIFIED / MISSING / EXTRA and a single PASS/FAIL with correct exit codes (0/1/2); reuses `manifest.py` hashing via the dual-location import shim
+- [x] `nexus-hub verify` dispatches to the installed script; clean install PASSes (exit 0), a modified file FAILs (exit 1), a deleted file reports MISSING, an added file reports EXTRA; `--ignore-extra` clears the EXTRA-only FAIL
+- [x] Both installers copy the new scripts and `MANIFEST.sha256` to the documented `~/.nexus-hub/` paths (throwaway-home dry-run via the installed launcher = PASS; copy lines also asserted statically by pytest)
+- [x] Manifest generation wired into the release flow (`/update release` regenerates after the version bump, before the commit); manifest is a release-time artifact, not committed mid-cycle (known-gaps note)
+- [x] Zero outbound call, no new dependency, no credential (grep of both scripts for network primitives = zero matches; stdlib `hashlib` only)
+- [x] `make lint` (ShellCheck) clean on `installer.sh` + `install.sh`; pytest coverage for classification added (`tests/validators/test_verify_install.py`, 22 cases); full suite 333 passed / 15 skipped / 1 pre-existing environmental failure (untouched root `install.ps1` bootstrap, Windows tar; confirmed not a regression)
+- [x] User docs updated with `nexus-hub verify` and its local-only threat-model boundary (README "Verifying your install")
+- [x] Session history generated for Phase 4
+- [x] Ready to advance to Phase 5
 
 ### Phase 5 Exit Checklist
 

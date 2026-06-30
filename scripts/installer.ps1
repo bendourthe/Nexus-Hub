@@ -2141,6 +2141,30 @@ function Install-Templates {
         Safe-Copy -Source $cliSource -Destination (Join-Path $scriptsDest "nexus_hub_cli.py") -Confirm:$true -CustomMessage "✓ nexus-hub CLI installed at: $scriptsDest\nexus_hub_cli.py"
     }
 
+    # Copy the supply-chain manifest tooling (v3.10.0). generate_manifest.py
+    # writes a SHA-256 MANIFEST.sha256 over the distributed catalog tree at
+    # release time; verify_install.py powers `nexus-hub verify`, which recomputes
+    # those hashes against the installed tree and reports OK/MODIFIED/MISSING/
+    # EXTRA with zero outbound call. Both are stdlib-only single .py files
+    # (NI-v24-1, no .ps1 sibling -- the nexus-hub.cmd launcher already covers
+    # Windows via nexus_hub_cli.py). The MANIFEST.sha256 (committed at the repo
+    # root by the release flow) is copied to the install root as a known-location
+    # convenience; `nexus-hub verify` primarily reads the copy that rides inside
+    # the materialized source tree (~\.nexus-hub\src\MANIFEST.sha256). Mirror of
+    # the same block in scripts\installer.sh.
+    $genManifestSource = Join-Path $RepoRoot "scripts\generate_manifest.py"
+    if (Test-Path $genManifestSource) {
+        Safe-Copy -Source $genManifestSource -Destination (Join-Path $scriptsDest "generate_manifest.py") -Confirm:$true -CustomMessage "✓ Manifest generator installed at: $scriptsDest\generate_manifest.py"
+    }
+    $verifySource = Join-Path $RepoRoot "scripts\verify_install.py"
+    if (Test-Path $verifySource) {
+        Safe-Copy -Source $verifySource -Destination (Join-Path $scriptsDest "verify_install.py") -Confirm:$true -CustomMessage "✓ Install verifier installed at: $scriptsDest\verify_install.py"
+    }
+    $manifestSource = Join-Path $RepoRoot "MANIFEST.sha256"
+    if (Test-Path $manifestSource) {
+        Safe-Copy -Source $manifestSource -Destination (Join-Path $nexusHome "MANIFEST.sha256") -Confirm:$true -CustomMessage "✓ Supply-chain manifest installed at: $nexusHome\MANIFEST.sha256"
+    }
+
     # Copy v2.3.0 CI validators (Phase 2 / T004-T005). Mirror of the bash
     # block in scripts\installer.sh. Four standalone static validators:
     # validate_no_personal_paths.py (leaked /Users/<name> or C:\Users\<name>

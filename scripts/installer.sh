@@ -1804,6 +1804,30 @@ install_templates() {
         safe_copy "$cli_source" "$scripts_dest/nexus_hub_cli.py" true "[OK] nexus-hub CLI installed at: $scripts_dest/nexus_hub_cli.py"
     fi
 
+    # Copy the supply-chain manifest tooling (v3.10.0). generate_manifest.py
+    # writes a SHA-256 MANIFEST.sha256 over the distributed catalog tree at
+    # release time; verify_install.py powers `nexus-hub verify`, which recomputes
+    # those hashes against the installed tree and reports OK/MODIFIED/MISSING/
+    # EXTRA with zero outbound call. Both are stdlib-only single .py files
+    # (NI-v24-1, no .ps1 sibling -- the nexus-hub.cmd launcher already covers
+    # Windows via nexus_hub_cli.py). The MANIFEST.sha256 (committed at the repo
+    # root by the release flow) is copied to the install root as a known-location
+    # convenience; `nexus-hub verify` primarily reads the copy that rides inside
+    # the materialized source tree (~/.nexus-hub/src/MANIFEST.sha256). Lockstep
+    # with the same block in scripts/installer.ps1.
+    local gen_manifest_source="$repo_root/scripts/generate_manifest.py"
+    if [ -f "$gen_manifest_source" ]; then
+        safe_copy "$gen_manifest_source" "$scripts_dest/generate_manifest.py" true "[OK] Manifest generator installed at: $scripts_dest/generate_manifest.py"
+    fi
+    local verify_source="$repo_root/scripts/verify_install.py"
+    if [ -f "$verify_source" ]; then
+        safe_copy "$verify_source" "$scripts_dest/verify_install.py" true "[OK] Install verifier installed at: $scripts_dest/verify_install.py"
+    fi
+    local manifest_source="$repo_root/MANIFEST.sha256"
+    if [ -f "$manifest_source" ]; then
+        safe_copy "$manifest_source" "$nexus_home/MANIFEST.sha256" true "[OK] Supply-chain manifest installed at: $nexus_home/MANIFEST.sha256"
+    fi
+
     # Copy v2.3.0 CI validators (Phase 2 / T004-T005). Four standalone static
     # validators that run on the clean tree and fail non-zero on a finding:
     # validate_no_personal_paths.py scans distributed docs for leaked
