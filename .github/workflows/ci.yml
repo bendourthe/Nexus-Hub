@@ -106,7 +106,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        # Cost control: PRs run ubuntu-only; the macOS leg (10x minutes) runs on
+        # pushes to shared branches, where real-platform proof matters.
+        os: ${{ github.event_name == 'pull_request' && fromJSON('["ubuntu-latest"]') || fromJSON('["ubuntu-latest","macos-latest"]') }}
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v5
@@ -189,6 +191,10 @@ jobs:
     # against a GitHub-shaped tarball of the checkout (zero network), then asserts a
     # populated ~/.nexus-hub and a working `nexus-hub --version`.
     runs-on: windows-latest
+    # Cost control: Windows is a 2x-minute runner. Run the real end-to-end
+    # bootstrap on pushes only, not on PRs (PRs still get the pwsh AST-parse in
+    # the `bootstrap` job).
+    if: ${{ github.event_name != 'pull_request' }}
     steps:
       - uses: actions/checkout@v5
 
