@@ -302,7 +302,6 @@ export class UsageFetcher {
     return {
       session: this.mapLimit(apiData.five_hour),
       weeklyAllModels: this.mapLimit(apiData.seven_day),
-      weeklySonnet: this.mapLimit(apiData.seven_day_sonnet),
       currentModel,
       lastUpdated: Date.now(),
       dataSource: "api",

@@ -30,7 +30,6 @@ export class UsageStore {
       ...data,
       session: refreshMetricCountdown(data.session),
       weeklyAllModels: refreshMetricCountdown(data.weeklyAllModels),
-      weeklySonnet: refreshMetricCountdown(data.weeklySonnet),
     };
   }
 
@@ -78,7 +77,7 @@ export class UsageStore {
       return false;
     }
     const now = Date.now();
-    const metrics = [data.session, data.weeklyAllModels, data.weeklySonnet];
+    const metrics = [data.session, data.weeklyAllModels];
     return metrics.some(
       (m) => m.resetsAt != null && m.resetsAt <= now && data.lastUpdated < m.resetsAt
     );
@@ -147,8 +146,8 @@ export function formatResetTime(epochMs: number): string {
     return remainingMin > 0 ? `${diffHours}h ${remainingMin}m` : `${diffHours}h`;
   }
 
-  // 24h+ away (the weekly limits): show the concrete date and time plus the
-  // remaining duration, e.g. "Tuesday July 7th at 6:59 AM (3 days, 4 hours, 15 mins)".
+  // 24h+ away (the weekly limit): show the concrete date and time plus the
+  // compact remaining duration, e.g. "Tuesday July 7th at 6:59 AM (3d 4h 15m)".
   const resetDate = new Date(epochMs);
   const weekday = resetDate.toLocaleDateString("en-US", { weekday: "long" });
   const month = resetDate.toLocaleDateString("en-US", { month: "long" });
@@ -160,12 +159,25 @@ export function formatResetTime(epochMs: number): string {
   const days = Math.floor(diffHours / 24);
   const hours = diffHours % 24;
   const mins = diffMinutes % 60;
-  const remaining = [
-    `${days} ${days === 1 ? "day" : "days"}`,
-    `${hours} ${hours === 1 ? "hour" : "hours"}`,
-    `${mins} ${mins === 1 ? "min" : "mins"}`,
-  ].join(", ");
-  return `${weekday} ${month} ${ordinal(resetDate.getDate())} at ${time} (${remaining})`;
+  return `${weekday} ${month} ${ordinal(resetDate.getDate())} at ${time} (${days}d ${hours}h ${mins}m)`;
+}
+
+/**
+ * Prefix a resetsIn value with the right verb form so every surface (dashboard,
+ * status-bar tooltip, notifications) reads the same way:
+ *   "2h 38m"                        → "Resets in 2h 38m"
+ *   "Tuesday July 7th at 7:00 AM…"  → "Resets on Tuesday July 7th at 7:00 AM…"
+ *   "August 1"                      → "Resets on August 1"   (monthly credits)
+ *   "N/A" / "any moment"            → "Resets N/A" / "Resets any moment"
+ */
+export function formatResetLabel(resetsIn: string): string {
+  if (/^(Mon|Tue|Wed|Thu|Fri|Sat|Sun|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)/.test(resetsIn)) {
+    return `Resets on ${resetsIn}`;
+  }
+  if (resetsIn === "N/A" || resetsIn === "any moment") {
+    return `Resets ${resetsIn}`;
+  }
+  return `Resets in ${resetsIn}`;
 }
 
 /** 1 → "1st", 2 → "2nd", 7 → "7th", 11 → "11th", 22 → "22nd". */

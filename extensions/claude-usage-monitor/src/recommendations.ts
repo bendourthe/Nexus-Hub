@@ -10,8 +10,7 @@ import {
 } from "./types";
 
 // Fable is Opus-class (top tier), so it gets the same switch-down advice.
-const isOpus   = (m: string): boolean => /opus|fable|default/i.test(m);
-const isSonnet = (m: string): boolean => /sonnet/i.test(m);
+const isOpus = (m: string): boolean => /opus|fable|default/i.test(m);
 
 export function classifyUrgency(percent: number): UrgencyLevel {
   const t = getThresholdConfig();
@@ -31,7 +30,6 @@ export function getOverallUrgency(data: UsageData): UrgencyLevel {
   const levels: UrgencyLevel[] = [
     classifyUrgency(data.session.percent),
     classifyUrgency(data.weeklyAllModels.percent),
-    classifyUrgency(data.weeklySonnet.percent),
   ];
 
   const priority: UrgencyLevel[] = ["critical", "high", "moderate", "low"];
@@ -52,18 +50,101 @@ export function getActiveUrgency(data: UsageData): UrgencyLevel {
   const metric = getThresholdMetric();
   let percent: number;
   switch (metric) {
-    case "highest": percent = Math.max(data.session.percent, data.weeklyAllModels.percent, data.weeklySonnet.percent); break;
+    case "highest": percent = Math.max(data.session.percent, data.weeklyAllModels.percent); break;
     case "weekly":  percent = data.weeklyAllModels.percent; break;
-    case "sonnet":  percent = data.weeklySonnet.percent; break;
     default:        percent = data.session.percent; break;
   }
   return classifyUrgency(percent);
 }
 
+/** The usage metric a threshold suggestion is evaluated against, with its display label. */
+export interface TriggerMetric {
+  percent: number;
+  resetsIn: string;
+  label: string;
+}
+
+/**
+ * Select the usage metric that threshold notifications and the dashboard
+ * suggestion evaluate, honoring the claudeUsage.thresholdMetric setting.
+ * Shared by the toast policy (extension.ts) and the dashboard (dashboardPanel.ts)
+ * so both fire from the same metric under the same conditions.
+ */
+export function pickTriggerMetric(data: UsageData): TriggerMetric {
+  const metric = getThresholdMetric();
+  switch (metric) {
+    case "highest": {
+      const candidates: TriggerMetric[] = [
+        { percent: data.session.percent,         resetsIn: data.session.resetsIn,         label: "Current Session" },
+        { percent: data.weeklyAllModels.percent, resetsIn: data.weeklyAllModels.resetsIn, label: "Weekly" },
+      ];
+      return candidates.reduce((a, b) => (a.percent >= b.percent ? a : b));
+    }
+    case "weekly":
+      return { percent: data.weeklyAllModels.percent, resetsIn: data.weeklyAllModels.resetsIn, label: "Weekly" };
+    default:
+      return { percent: data.session.percent, resetsIn: data.session.resetsIn, label: "Current Session" };
+  }
+}
+
+/** A threshold suggestion: the configured threshold bucket that fired and the full message. */
+export interface UsageSuggestion {
+  bucket: number;
+  message: string;
+}
+
+/**
+ * Build the threshold suggestion shown by both the toast notification and the
+ * dashboard Recommendation section, so the two always agree. Advice is
+ * model-aware at every level: a switch-down suggestion appears only when the
+ * current model has a lower tier to move to (Opus-class → Sonnet, anything
+ * but Haiku → Haiku at critical); otherwise only the Effort advice remains.
+ * Returns null when usage is below the moderate threshold.
+ */
+export function buildUsageSuggestion(data: UsageData, trigger: TriggerMetric): UsageSuggestion | null {
+  const t = getThresholdConfig();
+  if (trigger.percent < t.moderate) {
+    return null;
+  }
+
+  const pct = Math.round(trigger.percent);
+  const opus = isOpus(data.currentModel);
+  const haiku = /haiku/i.test(data.currentModel);
+
+  // Long-form weekly resets start with a weekday name ("Tuesday July 7th at ...")
+  // and already carry their own parenthetical duration; duration-style values
+  // ("2h 48m") read best inside parentheses.
+  const resetClause = /^(Mon|Tue|Wed|Thu|Fri|Sat|Sun)/.test(trigger.resetsIn)
+    ? `before it resets on ${trigger.resetsIn}`
+    : `before it resets (in ${trigger.resetsIn})`;
+
+  if (trigger.percent >= t.critical) {
+    return {
+      bucket: t.critical,
+      message: haiku
+        ? `${trigger.label} usage at ${pct}% → Set Effort to Low to avoid hitting your limit ${resetClause}.`
+        : `${trigger.label} usage at ${pct}% → Switch to Haiku and set Effort to Low to avoid hitting your limit ${resetClause}.`,
+    };
+  }
+  if (trigger.percent >= t.high) {
+    return {
+      bucket: t.high,
+      message: opus
+        ? `${trigger.label} usage at ${pct}% → Switch to Sonnet and reduce Effort to High or Medium to prevent reaching your limit ${resetClause}.`
+        : `${trigger.label} usage at ${pct}% → Reduce Effort to High or Medium to prevent reaching your limit ${resetClause}.`,
+    };
+  }
+  return {
+    bucket: t.moderate,
+    message: opus
+      ? `${trigger.label} usage at ${pct}% → Consider switching to Sonnet and reducing Effort to High or Medium to prevent reaching your limit ${resetClause}.`
+      : `${trigger.label} usage at ${pct}% → Reduce Effort to High or Medium to extend your remaining usage ${resetClause}.`,
+  };
+}
+
 export function getRecommendation(data: UsageData): Recommendation {
   const sessionUrgency = classifyUrgency(data.session.percent);
   const weeklyUrgency = classifyUrgency(data.weeklyAllModels.percent);
-  const sonnetUrgency = classifyUrgency(data.weeklySonnet.percent);
   const overallUrgency = getOverallUrgency(data);
 
   const tips = getRelevantTips(data);
@@ -97,7 +178,7 @@ export function getRecommendation(data: UsageData): Recommendation {
   }
 
   // Critical anywhere: switch to Haiku and drop Effort to Low (matches the toast notification policy).
-  if (sessionUrgency === "critical" || weeklyUrgency === "critical" || sonnetUrgency === "critical") {
+  if (sessionUrgency === "critical" || weeklyUrgency === "critical") {
     return {
       urgency: overallUrgency,
       message: `Usage is critical (${getHighestMetricSummary(data)}). Switch to Haiku and set Effort to Low to avoid hitting your limit.`,
@@ -122,16 +203,6 @@ export function getRecommendation(data: UsageData): Recommendation {
       urgency: overallUrgency,
       message: `Weekly usage is ${data.weeklyAllModels.percent}% (resets ${data.weeklyAllModels.resetsIn}). Reduce Effort to High or Medium until the weekly reset.`,
       suggestedModel: null,
-      tips,
-    };
-  }
-
-  // Sonnet-only limit is high while using Sonnet
-  if (sonnetUrgency === "high" && isSonnet(data.currentModel)) {
-    return {
-      urgency: overallUrgency,
-      message: `Sonnet-only limit is ${data.weeklySonnet.percent}% (resets ${data.weeklySonnet.resetsIn}). Switch to Opus for complex tasks or Haiku for simple ones. Neither counts against the Sonnet-only limit.`,
-      suggestedModel: "opus",
       tips,
     };
   }
@@ -191,8 +262,7 @@ export function getRecommendation(data: UsageData): Recommendation {
 function getHighestMetricSummary(data: UsageData): string {
   const metrics = [
     { name: "Session", percent: data.session.percent, resets: data.session.resetsIn },
-    { name: "Weekly (all models)", percent: data.weeklyAllModels.percent, resets: data.weeklyAllModels.resetsIn },
-    { name: "Weekly (Sonnet)", percent: data.weeklySonnet.percent, resets: data.weeklySonnet.resetsIn },
+    { name: "Weekly", percent: data.weeklyAllModels.percent, resets: data.weeklyAllModels.resetsIn },
   ];
 
   const highest = metrics.reduce((a, b) => (a.percent > b.percent ? a : b));

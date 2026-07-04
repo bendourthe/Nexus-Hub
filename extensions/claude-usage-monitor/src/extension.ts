@@ -4,8 +4,8 @@ import { StatusBarManager } from "./statusBarManager";
 import { UsageFetcher, FetchError } from "./usageFetcher";
 import { DashboardPanel } from "./dashboardPanel";
 import { SettingsPanel } from "./settingsPanel";
-import { getRecommendation, getOverallUrgency, getActiveUrgency } from "./recommendations";
-import { UrgencyLevel, UsageData, formatModelName, getThresholdConfig, getThresholdMetric, getNotificationTimeoutMs, syncColorsToWorkbench, getColorConfig } from "./types";
+import { getRecommendation, getActiveUrgency, pickTriggerMetric, buildUsageSuggestion } from "./recommendations";
+import { UrgencyLevel, UsageData, formatModelName, getThresholdConfig, getNotificationTimeoutMs, syncColorsToWorkbench, getColorConfig } from "./types";
 
 type NotificationSeverity = "info" | "warning";
 
@@ -326,97 +326,36 @@ async function autoFetchAndUpdate(
 
 /**
  * Evaluate usage against suggestion thresholds and show a one-time VS Code
- * notification the first time each threshold is crossed in a usage cycle.
- * Only the highest unnotified threshold fires a notification per evaluation.
- */
-/**
- * Evaluate usage against suggestion thresholds and show a one-time VS Code
  * notification the first time each threshold is crossed in a session.
  * Uses an in-memory set so the state resets on every VS Code startup — this
  * guarantees the user sees a notification on launch when usage is already high.
  * Only the highest unnotified threshold fires a notification per evaluation.
+ * Metric selection and message wording live in pickTriggerMetric /
+ * buildUsageSuggestion (recommendations.ts), shared with the dashboard so the
+ * popup and the dashboard suggestion always agree.
  * Returns true if a notification was shown, false otherwise.
  */
 async function evaluateAndNotify(data: UsageData): Promise<boolean> {
-  const t = getThresholdConfig();
-  const metric = getThresholdMetric();
+  const trigger = pickTriggerMetric(data);
+  const suggestion = buildUsageSuggestion(data, trigger);
 
-  let triggerPercent: number;
-  let resetIn: string;
-  let triggerLabel: string;
-  switch (metric) {
-    case "highest": {
-      const candidates = [
-        { percent: data.session.percent,          resetsIn: data.session.resetsIn,          label: "Current Session" },
-        { percent: data.weeklyAllModels.percent,  resetsIn: data.weeklyAllModels.resetsIn,  label: "Weekly (All Models)" },
-        { percent: data.weeklySonnet.percent,     resetsIn: data.weeklySonnet.resetsIn,     label: "Weekly (Sonnet)" },
-      ];
-      const top = candidates.reduce((a, b) => a.percent >= b.percent ? a : b);
-      triggerPercent = top.percent;
-      resetIn        = top.resetsIn;
-      triggerLabel   = top.label;
-      break;
-    }
-    case "weekly":
-      triggerPercent = data.weeklyAllModels.percent;
-      resetIn = data.weeklyAllModels.resetsIn;
-      triggerLabel = "Weekly (All Models)";
-      break;
-    case "sonnet":
-      triggerPercent = data.weeklySonnet.percent;
-      resetIn = data.weeklySonnet.resetsIn;
-      triggerLabel = "Weekly (Sonnet)";
-      break;
-    default:
-      triggerPercent = data.session.percent;
-      resetIn = data.session.resetsIn;
-      triggerLabel = "Current Session";
-      break;
-  }
-
-  // Reset within-session tracking when usage drops below the moderate threshold.
-  if (triggerPercent < t.moderate) {
+  // Below the moderate threshold: reset within-session tracking.
+  if (!suggestion) {
     notifiedThresholds.clear();
     return false;
   }
 
-  const isOpus = /opus|fable|default/i.test(data.currentModel);
-  // Long-form weekly resets start with a weekday name ("Tuesday July 7th at ...");
-  // "Resets in" only reads correctly for duration-style values ("2h 20m").
-  const resetSuffix = /^(Mon|Tue|Wed|Thu|Fri|Sat|Sun)/.test(resetIn)
-    ? ` Resets ${resetIn}.`
-    : ` Resets in ${resetIn}.`;
-
-  // Determine the single applicable threshold bucket and its message.
-  // Only one notification fires — the one that matches the current usage level.
-  let bucket: number;
-  let message: string;
-
-  const pct = Math.round(triggerPercent);
-  if (triggerPercent >= t.critical) {
-    bucket = t.critical;
-    message = `${triggerLabel} usage at ${pct}% \u2192 Switch to Haiku and set Effort to Low to avoid hitting your limit.${resetSuffix}`;
-  } else if (triggerPercent >= t.high) {
-    bucket = t.high;
-    message = isOpus
-      ? `${triggerLabel} usage at ${pct}% \u2192 Switch to Sonnet and reduce Effort to High or Medium.${resetSuffix}`
-      : `${triggerLabel} usage at ${pct}% \u2192 Reduce Effort to High or Medium.${resetSuffix}`;
-  } else {
-    // Moderate band: nudge Effort down regardless of model. No model swap yet.
-    bucket = t.moderate;
-    message = `${triggerLabel} usage at ${pct}% \u2192 Reduce Effort to High or Medium to extend your remaining usage.${resetSuffix}`;
-  }
-
   // Already notified for this bucket in the current session — nothing to do.
-  if (notifiedThresholds.has(bucket)) {
+  if (notifiedThresholds.has(suggestion.bucket)) {
     return false;
   }
 
   // Mark this bucket and every lower one as notified so they never fire
   // individually if usage continues to climb during the same session.
-  [t.critical, t.high, t.moderate].filter(thresh => triggerPercent >= thresh).forEach(thresh => notifiedThresholds.add(thresh));
+  const t = getThresholdConfig();
+  [t.critical, t.high, t.moderate].filter(thresh => trigger.percent >= thresh).forEach(thresh => notifiedThresholds.add(thresh));
 
-  showAutoDismissNotification(`Claude Usage: ${message}`, "warning");
+  showAutoDismissNotification(`Claude Usage Warning: ${suggestion.message}`, "warning");
   return true;
 }
 

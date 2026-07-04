@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import { UsageData, UrgencyLevel, ColorConfig, getColorConfig, WORKBENCH_COLOR_KEYS, syncActiveColorToWorkbench } from "./types";
 import { getActiveUrgency } from "./recommendations";
-import { UsageStore } from "./usageStore";
+import { UsageStore, formatResetLabel } from "./usageStore";
 
 export class StatusBarManager {
   private readonly statusBarItem: vscode.StatusBarItem;
@@ -162,19 +162,9 @@ export class StatusBarManager {
       return `data:image/svg+xml,${encodeURIComponent(svg)}`;
     };
 
-    const resetLabel = (resetsIn: string) => {
-      if (/^(Mon|Tue|Wed|Thu|Fri|Sat|Sun)/.test(resetsIn)) {
-        return `Resets on ${resetsIn}`;
-      }
-      if (resetsIn === "N/A" || resetsIn === "any moment") {
-        return `Resets ${resetsIn}`;
-      }
-      return `Resets in ${resetsIn}`;
-    };
-
     const section = (label: string, pct: number, resetsIn: string) =>
       `<img src="${sectionImg(label, pct)}" width="${W}" height="${svgH}"><br>` +
-      `<em>${resetLabel(resetsIn)}</em><br><br>`;
+      `<em>${formatResetLabel(resetsIn)}</em><br><br>`;
 
     const staleWarning = this.isDataStale(data)
       ? `<span style="color:#cca700">&#9888; Data may be stale (last updated ${timeSince})</span><br><br>`
@@ -184,8 +174,7 @@ export class StatusBarManager {
       `<span style="opacity:0.6">Claude Usage</span><br><br>` +
       staleWarning +
       section("Current Session", data.session.percent, data.session.resetsIn) +
-      section("Weekly (All Models)", data.weeklyAllModels.percent, data.weeklyAllModels.resetsIn) +
-      section("Weekly (Sonnet)", data.weeklySonnet.percent, data.weeklySonnet.resetsIn) +
+      section("Weekly", data.weeklyAllModels.percent, data.weeklyAllModels.resetsIn) +
       `<span style="opacity:0.6">Last updated: ${timeSince}</span>`
     );
 

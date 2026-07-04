@@ -381,8 +381,7 @@ export class SettingsPanel {
   <select id="metric-select" class="metric-select" onchange="onMetric(this)">
     <option value="highest" ${metric === "highest" ? "selected" : ""}>Highest (auto)</option>
     <option value="session" ${metric === "session" ? "selected" : ""}>Current Session</option>
-    <option value="weekly"  ${metric === "weekly"  ? "selected" : ""}>Weekly (All Models)</option>
-    <option value="sonnet"  ${metric === "sonnet"  ? "selected" : ""}>Weekly (Sonnet)</option>
+    <option value="weekly"  ${metric === "weekly"  ? "selected" : ""}>Weekly</option>
   </select>
 </div>
 

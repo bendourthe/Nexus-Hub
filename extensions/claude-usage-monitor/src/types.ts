@@ -23,7 +23,6 @@ export interface ExtraUsageInfo {
 export interface UsageData {
   session: UsageMetric;
   weeklyAllModels: UsageMetric;
-  weeklySonnet: UsageMetric;
   currentModel: ClaudeModel;
   lastUpdated: number;
   dataSource?: DataSource;
@@ -146,7 +145,7 @@ export const DEFAULT_NOTIFICATION_TIMEOUT_SECONDS = 12;
 export type ColorOption = string;
 
 /** Which usage metric the urgency thresholds are evaluated against. */
-export type ThresholdMetric = "highest" | "session" | "weekly" | "sonnet";
+export type ThresholdMetric = "highest" | "session" | "weekly";
 
 /** Default hex colors matching the badge colors in the settings panel. */
 export const DEFAULT_URGENCY_COLORS = {
@@ -214,9 +213,15 @@ export function getColorConfig(): ColorConfig {
 
 /** Read which usage metric the thresholds should be evaluated against. */
 export function getThresholdMetric(): ThresholdMetric {
-  return vscode.workspace
+  const raw = vscode.workspace
     .getConfiguration("claudeUsage")
-    .get<ThresholdMetric>("thresholdMetric", "highest");
+    .get<string>("thresholdMetric", "highest");
+  // Legacy migration: the Weekly (Sonnet) limit is no longer tracked on the
+  // Claude Usage page; a persisted "sonnet" selection folds into "weekly".
+  if (raw === "sonnet") {
+    return "weekly";
+  }
+  return raw === "session" || raw === "weekly" ? raw : "highest";
 }
 
 /**

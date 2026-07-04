@@ -1,14 +1,18 @@
 import * as vscode from "vscode";
-import { UsageData, formatModelName, getThresholdConfig } from "./types";
+import { UsageData, formatModelName } from "./types";
+import { formatResetLabel } from "./usageStore";
 import { FetchError, UsageFetcher } from "./usageFetcher";
 import {
   getRecommendation,
+  pickTriggerMetric,
+  buildUsageSuggestion,
 } from "./recommendations";
 
 function nextMonthlyResetLabel(): string {
   const now = new Date();
   const next = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-  return "on " + next.toLocaleDateString("en-US", { month: "long", day: "numeric" });
+  // Month-name-first so formatResetLabel renders it as "Resets on August 1".
+  return next.toLocaleDateString("en-US", { month: "long", day: "numeric" });
 }
 
 export interface DashboardCallbacks {
@@ -168,13 +172,8 @@ export class DashboardPanel {
       </div>
 
       <div class="section">
-        <h3>Weekly (All Models)</h3>
+        <h3>Weekly</h3>
         ${this.renderProgressBar(data.weeklyAllModels.percent, data.weeklyAllModels.resetsIn, data.weeklyAllModels.resetsAt)}
-      </div>
-
-      <div class="section">
-        <h3>Weekly (Sonnet)</h3>
-        ${this.renderProgressBar(data.weeklySonnet.percent, data.weeklySonnet.resetsIn, data.weeklySonnet.resetsAt)}
       </div>
 
       ${data.extraUsage && data.extraUsage.isEnabled ? `
@@ -232,7 +231,7 @@ export class DashboardPanel {
         </div>
         <span class="progress-label">${percent}%</span>
       </div>
-      <span class="progress-subtitle"${attr}>Resets: ${escapeHtml(resetsIn)}</span>
+      <span class="progress-subtitle"${attr}>${escapeHtml(formatResetLabel(resetsIn))}</span>
     `;
   }
 
@@ -441,16 +440,16 @@ export class DashboardPanel {
     function send(command) {
       vscode.postMessage({ command });
     }
-    // Live countdown: recompute "Resets:" labels from embedded epoch timestamps.
-    // Mirrors formatResetTime in usageStore.ts: durations under 24h stay compact
-    // ("2h 20m"); 24h+ shows the concrete date and time plus the remaining duration.
+    // Live countdown: recompute the reset labels from embedded epoch timestamps.
+    // Mirrors formatResetTime + formatResetLabel in usageStore.ts: "Resets in 2h 20m"
+    // under 24h; "Resets on Tuesday July 7th at 7:00 AM (3d 11h 28m)" for 24h+.
     function fmtCountdown(epochMs) {
       const diff = epochMs - Date.now();
-      if (diff <= 0) return "soon";
+      if (diff <= 0) return "Resets any moment";
       const totalM = Math.floor(diff / 60000);
       const h = Math.floor(totalM / 60);
       const m = totalM % 60;
-      if (h < 24) return h > 0 ? h + "h " + m + "m" : m + "m";
+      if (h < 24) return "Resets in " + (h > 0 ? h + "h " + m + "m" : m + " min");
       const d = new Date(epochMs);
       const weekday = d.toLocaleDateString("en-US", { weekday: "long" });
       const month = d.toLocaleDateString("en-US", { month: "long" });
@@ -460,15 +459,13 @@ export class DashboardPanel {
       const time = d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
       const days = Math.floor(h / 24);
       const hours = h % 24;
-      return weekday + " " + month + " " + day + suf + " at " + time +
-        " (" + days + (days === 1 ? " day, " : " days, ") +
-        hours + (hours === 1 ? " hour, " : " hours, ") +
-        m + (m === 1 ? " min)" : " mins)");
+      return "Resets on " + weekday + " " + month + " " + day + suf + " at " + time +
+        " (" + days + "d " + hours + "h " + m + "m)";
     }
     setInterval(function() {
       document.querySelectorAll("[data-resets-at]").forEach(function(el) {
         const epoch = Number(el.dataset.resetsAt);
-        if (epoch) { el.textContent = "Resets: " + fmtCountdown(epoch); }
+        if (epoch) { el.textContent = fmtCountdown(epoch); }
       });
     }, 60000);
     // Loading state: disable Refresh button when a fetch is in progress
@@ -495,27 +492,12 @@ export class DashboardPanel {
 
 /**
  * Returns the single most urgent suggestion message based on current usage,
- * or null when no threshold has been crossed. Thresholds and wording mirror
- * the toast-notification policy in extension.ts so the dashboard and the
- * popup agree under the same conditions.
+ * or null when no threshold has been crossed. Delegates to the shared
+ * pickTriggerMetric / buildUsageSuggestion pair (recommendations.ts) so the
+ * dashboard and the toast popup agree under the same conditions.
  */
 function activeSuggestion(data: UsageData): string | null {
-  const t = getThresholdConfig();
-  const highest = Math.max(data.session.percent, data.weeklyAllModels.percent);
-  const isOpus = /opus|fable|default/i.test(data.currentModel);
-  const pct = Math.round(highest);
-  if (highest >= t.critical) {
-    return `Usage has reached ${pct}% - switch to Haiku and set Effort to Low to avoid hitting your limit.`;
-  }
-  if (highest >= t.high) {
-    return isOpus
-      ? `Usage has reached ${pct}% - switch to Sonnet and reduce Effort to High or Medium.`
-      : `Usage has reached ${pct}% - reduce Effort to High or Medium.`;
-  }
-  if (highest >= t.moderate) {
-    return `Usage has reached ${pct}% - reduce Effort to High or Medium to extend your remaining usage.`;
-  }
-  return null;
+  return buildUsageSuggestion(data, pickTriggerMetric(data))?.message ?? null;
 }
 
 function escapeHtml(text: string): string {
