@@ -1,5 +1,15 @@
 # Development Log
 
+## [2026-07-03] - v3.10.3 patch: usage-monitor Extra Credits in the hover tooltip
+
+Shipped v3.10.3, an extension-only patch release (Claude Usage Monitor 0.5.4 -> 0.5.5) adding an Extra Credits section to the status-bar hover tooltip on user request. No catalog change: skills / commands / hooks stay 259 / 16 / 25.
+
+The tooltip previously showed only Current Session and Weekly; it now carries Extra Credits in the same order the dashboard uses (Current Session -> Weekly -> Extra Credits -> Last updated). Available case (extra usage enabled and monthlyLimit > 0): a labeled utilization bar built with the same `sectionImg` SVG helper as the other rows, then an `<em>` line "$X / $Y used this month &middot; Resets on <first of next month>". N/A case (extra usage disabled, `extraUsage` absent from the cached API response, or a $0 monthly limit -- the "limit set at 0 with no extra credit" the user described): a bold "Extra Credits" label and a dim "No extra credit available on your account" line, no bar. The availability test is `extra.isEnabled && extra.monthlyLimit > 0` (monthlyLimit is API cents / 100, so a $0 limit reads as unavailable).
+
+Refactor riding along: the monthly-reset label (`nextMonthlyResetLabel`, first-of-next-month "August 1" passed through `formatResetLabel` -> "Resets on August 1") was a private copy in `dashboardPanel.ts`; it is now an exported helper in `usageStore.ts` beside `formatResetLabel`, used by both the dashboard and the tooltip so the wording cannot drift between the two surfaces. This continues the v3.10.2 "one shared reset-label helper" consolidation.
+
+Verification: `tsc -p ./` clean; vsix packaged (`claude-usage-monitor-0.5.5.vsix`, 27 files) and installed (`nexus-hub.claude-usage-monitor@0.5.5`). Release surfaces bumped atomically 3.10.2 -> 3.10.3 (`check_version_sync.py` clean) and the supply-chain manifest regenerated.
+
 ## [2026-07-03] - v3.10.2 patch: usage-monitor model-aware warnings + unified reset labels
 
 Shipped v3.10.2, an extension-only patch release addressing two follow-up requests on the Claude Usage Monitor VS Code extension (bumped 0.5.3 -> 0.5.4). No catalog change: skills / commands / hooks stay 259 / 16 / 25. Also fielded a support question first: the "Error loading webview: Could not register service worker" failure the user hit was diagnosed as a VS Code webview-host service-worker cache corruption (global to every webview in the window, which is why it also took down the Claude Code panel), NOT a regression in the v0.5.3 extension update -- the last diff touched only model-detection and label data logic, never webview creation. Fix was clearing the `%APPDATA%\Code\Service Worker` cache; the extension changes below are the feature work the user asked for once the editor recovered.

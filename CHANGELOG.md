@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.10.3] - 2026-07-03
+
+**v3.10.3 -- Claude Usage Monitor Extra Credits in the hover tooltip.** Extension-only patch release (0.5.4 -> 0.5.5): the status-bar hover tooltip now carries an Extra Credits section matching the dashboard, and reads "No extra credit available on your account" when the account has no extra-credit limit. No catalog change: **259 skills**, **16 commands**, **25 hooks**.
+
+### Added
+
+- **Claude Usage Monitor Extra Credits in the status-bar hover tooltip** (`extensions/claude-usage-monitor/src/statusBarManager.ts`, `src/usageStore.ts`, `src/dashboardPanel.ts`): the hover tooltip gains an Extra Credits section in the same order as the dashboard (Current Session, Weekly, Extra Credits, Last updated). When extra credit is available (extra usage enabled and a non-zero monthly limit) it renders a utilization progress bar plus a "$X / $Y used this month" line and the monthly reset date ("Resets on August 1"); when there is none (extra usage disabled, absent from the API response, or a $0 monthly limit) it shows "No extra credit available on your account" with no bar. The monthly-reset label is consolidated into one exported `nextMonthlyResetLabel` helper in `usageStore.ts`, shared by the dashboard and the tooltip so the wording cannot drift. Extension patch bump 0.5.4 -> 0.5.5.
+
 ## [3.10.2] - 2026-07-03
 
 **v3.10.2 -- Claude Usage Monitor patch (model-aware threshold warnings + unified reset labels).** Extension-only patch release (0.5.3 -> 0.5.4): the usage-monitor's threshold warnings are now model-aware at every band and share a single message builder with the dashboard so the toast and the dashboard Recommendation section always agree; every surface renders reset times through one shared helper ("Resets in 2h 38m" / "Resets on Tuesday July 7th at 7:00 AM (3d 11h 28m)"); "Weekly (All Models)" is renamed to "Weekly"; and the no-longer-tracked "Weekly (Sonnet)" metric is removed. No catalog change: **259 skills**, **16 commands**, **25 hooks**.
