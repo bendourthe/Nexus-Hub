@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.10.1] - 2026-07-03
+
+**v3.10.1 -- Claude Usage Monitor patch (current-model detection + date-and-time weekly resets).** Extension-only patch release: the usage-monitor VS Code extension (0.5.2 -> 0.5.3) now detects the current model from the selection Claude Code persists to `~/.claude/settings.json`, shows only the model family (Fable / Opus / Sonnet / Haiku), classifies Fable as Opus-class in the switch-down advice, and renders weekly reset labels as a concrete date and time plus the remaining duration. No catalog change: **259 skills**, **16 commands**, **25 hooks**. Also carries the v3.11.0 spec-kit third-cycle comparison report and adoption plan (internal docs only).
+
 ### Fixed
 
 - **Claude Usage Monitor detects the current model from Claude Code's persisted selection** (`extensions/claude-usage-monitor/src/usageStore.ts`, `src/types.ts`, `src/recommendations.ts`, `src/extension.ts`, `src/dashboardPanel.ts`): the dashboard showed "Default (Opus 1M)" regardless of the model picked with `/model`, because it read the obsolete `claudeCode.selectedModel` VS Code setting; `getCurrentModel()` now reads the `model` field Claude Code persists to `~/.claude/settings.json` (fresh on every refresh), falling back to the legacy setting and then to the default tier. The Current Model display now shows only the model family (Fable / Opus / Sonnet / Haiku) with no "Default" label and no context-window suffix, and Fable is classified as Opus-class in the model-tier checks so top-tier switch-down advice applies to it. Weekly reset labels 24h+ away now show the concrete date and time plus the remaining duration ("Tuesday July 7th at 6:59 AM (3 days, 4 hours, 15 mins)") instead of a bare weekday/time, in the dashboard (including its live countdown), the status-bar tooltip, and notifications; sub-24h countdowns are unchanged. Extension type-checks clean; patch bump 0.5.2 -> 0.5.3.
