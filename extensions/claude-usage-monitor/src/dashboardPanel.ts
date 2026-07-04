@@ -1,19 +1,12 @@
 import * as vscode from "vscode";
 import { UsageData, formatModelName } from "./types";
-import { formatResetLabel } from "./usageStore";
+import { formatResetLabel, nextMonthlyResetLabel } from "./usageStore";
 import { FetchError, UsageFetcher } from "./usageFetcher";
 import {
   getRecommendation,
   pickTriggerMetric,
   buildUsageSuggestion,
 } from "./recommendations";
-
-function nextMonthlyResetLabel(): string {
-  const now = new Date();
-  const next = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-  // Month-name-first so formatResetLabel renders it as "Resets on August 1".
-  return next.toLocaleDateString("en-US", { month: "long", day: "numeric" });
-}
 
 export interface DashboardCallbacks {
   onRefresh: () => void;

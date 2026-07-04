@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import { UsageData, UrgencyLevel, ColorConfig, getColorConfig, WORKBENCH_COLOR_KEYS, syncActiveColorToWorkbench } from "./types";
 import { getActiveUrgency } from "./recommendations";
-import { UsageStore, formatResetLabel } from "./usageStore";
+import { UsageStore, formatResetLabel, nextMonthlyResetLabel } from "./usageStore";
 
 export class StatusBarManager {
   private readonly statusBarItem: vscode.StatusBarItem;
@@ -170,11 +170,23 @@ export class StatusBarManager {
       ? `<span style="color:#cca700">&#9888; Data may be stale (last updated ${timeSince})</span><br><br>`
       : "";
 
+    // Extra Credits: mirror the dashboard section. When extra usage is disabled,
+    // absent, or the monthly limit is 0 (no extra credit available on the
+    // account), show an N/A line instead of a progress bar.
+    const extra = data.extraUsage;
+    const extraCredits =
+      extra && extra.isEnabled && extra.monthlyLimit > 0
+        ? `<img src="${sectionImg("Extra Credits", extra.utilization != null ? Math.round(extra.utilization) : 0)}" width="${W}" height="${svgH}"><br>` +
+          `<em>$${extra.usedCredits.toFixed(2)} / $${extra.monthlyLimit.toFixed(2)} used this month &middot; ${formatResetLabel(nextMonthlyResetLabel())}</em><br><br>`
+        : `<span style="color:${labelColor};font-weight:bold">Extra Credits</span><br>` +
+          `<em style="color:${dimColor}">No extra credit available on your account</em><br><br>`;
+
     md.appendMarkdown(
       `<span style="opacity:0.6">Claude Usage</span><br><br>` +
       staleWarning +
       section("Current Session", data.session.percent, data.session.resetsIn) +
       section("Weekly", data.weeklyAllModels.percent, data.weeklyAllModels.resetsIn) +
+      extraCredits +
       `<span style="opacity:0.6">Last updated: ${timeSince}</span>`
     );
 

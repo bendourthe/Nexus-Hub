@@ -180,6 +180,18 @@ export function formatResetLabel(resetsIn: string): string {
   return `Resets in ${resetsIn}`;
 }
 
+/**
+ * Month-name-first label for the first day of next month, e.g. "August 1".
+ * Passed through formatResetLabel it reads "Resets on August 1". Extra credits
+ * reset monthly, so this is the reset label for the Extra Credits sections in
+ * both the dashboard and the status-bar tooltip.
+ */
+export function nextMonthlyResetLabel(): string {
+  const now = new Date();
+  const next = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+  return next.toLocaleDateString("en-US", { month: "long", day: "numeric" });
+}
+
 /** 1 → "1st", 2 → "2nd", 7 → "7th", 11 → "11th", 22 → "22nd". */
 function ordinal(n: number): string {
   const rem10 = n % 10;
