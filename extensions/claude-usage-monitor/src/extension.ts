@@ -380,8 +380,12 @@ async function evaluateAndNotify(data: UsageData): Promise<boolean> {
     return false;
   }
 
-  const isOpus = /opus|default/i.test(data.currentModel);
-  const resetSuffix = ` Resets in ${resetIn}.`;
+  const isOpus = /opus|fable|default/i.test(data.currentModel);
+  // Long-form weekly resets start with a weekday name ("Tuesday July 7th at ...");
+  // "Resets in" only reads correctly for duration-style values ("2h 20m").
+  const resetSuffix = /^(Mon|Tue|Wed|Thu|Fri|Sat|Sun)/.test(resetIn)
+    ? ` Resets ${resetIn}.`
+    : ` Resets in ${resetIn}.`;
 
   // Determine the single applicable threshold bucket and its message.
   // Only one notification fires — the one that matches the current usage level.

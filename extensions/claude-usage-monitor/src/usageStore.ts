@@ -1,4 +1,7 @@
 import * as vscode from "vscode";
+import * as fs from "fs";
+import * as os from "os";
+import * as path from "path";
 import {
   UsageData,
   UsageMetric,
@@ -42,16 +45,22 @@ export class UsageStore {
   }
 
   getCurrentModel(): string {
-    // Primary: read Claude Code's own VS Code setting — updated whenever the user switches
-    // models in Claude Code's model picker (claudeCode.selectedModel).
-    // Values: "sonnet[1m]", "sonnet", "opus[1m]", "opus", "haiku", "default"
+    // Primary: Claude Code persists the /model picker selection to
+    // ~/.claude/settings.json ("model": "claude-fable-5[1m]"). Read it fresh on
+    // every call so each refresh reflects the user's latest pick.
+    const fromClaudeSettings = readModelFromClaudeSettings();
+    if (fromClaudeSettings) {
+      return fromClaudeSettings;
+    }
+    // Legacy: older Claude Code builds exposed the picker choice as a VS Code
+    // setting (claudeCode.selectedModel). Values: "sonnet[1m]", "opus", "default", ...
     const selected = vscode.workspace
       .getConfiguration("claudeCode")
       .get<string>("selectedModel");
     if (selected && selected.length > 0) {
       return selected;
     }
-    // Fallback if claudeCode.selectedModel is not set — Claude Code defaults to Opus 1M
+    // Unknown — treat as Claude Code's default tier (Opus-class)
     return "default";
   }
 
@@ -138,11 +147,52 @@ export function formatResetTime(epochMs: number): string {
     return remainingMin > 0 ? `${diffHours}h ${remainingMin}m` : `${diffHours}h`;
   }
 
+  // 24h+ away (the weekly limits): show the concrete date and time plus the
+  // remaining duration, e.g. "Tuesday July 7th at 6:59 AM (3 days, 4 hours, 15 mins)".
   const resetDate = new Date(epochMs);
-  return resetDate.toLocaleDateString("en-US", {
-    weekday: "short",
+  const weekday = resetDate.toLocaleDateString("en-US", { weekday: "long" });
+  const month = resetDate.toLocaleDateString("en-US", { month: "long" });
+  const time = resetDate.toLocaleTimeString("en-US", {
     hour: "numeric",
     minute: "2-digit",
     hour12: true,
   });
+  const days = Math.floor(diffHours / 24);
+  const hours = diffHours % 24;
+  const mins = diffMinutes % 60;
+  const remaining = [
+    `${days} ${days === 1 ? "day" : "days"}`,
+    `${hours} ${hours === 1 ? "hour" : "hours"}`,
+    `${mins} ${mins === 1 ? "min" : "mins"}`,
+  ].join(", ");
+  return `${weekday} ${month} ${ordinal(resetDate.getDate())} at ${time} (${remaining})`;
+}
+
+/** 1 → "1st", 2 → "2nd", 7 → "7th", 11 → "11th", 22 → "22nd". */
+function ordinal(n: number): string {
+  const rem10 = n % 10;
+  const rem100 = n % 100;
+  if (rem10 === 1 && rem100 !== 11) {
+    return `${n}st`;
+  }
+  if (rem10 === 2 && rem100 !== 12) {
+    return `${n}nd`;
+  }
+  if (rem10 === 3 && rem100 !== 13) {
+    return `${n}rd`;
+  }
+  return `${n}th`;
+}
+
+/** Reads the persisted model selection from ~/.claude/settings.json, if present. */
+function readModelFromClaudeSettings(): string | undefined {
+  try {
+    const settingsPath = path.join(os.homedir(), ".claude", "settings.json");
+    const parsed = JSON.parse(fs.readFileSync(settingsPath, "utf8")) as { model?: unknown };
+    return typeof parsed.model === "string" && parsed.model.length > 0
+      ? parsed.model
+      : undefined;
+  } catch {
+    return undefined;
+  }
 }

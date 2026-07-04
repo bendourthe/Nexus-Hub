@@ -9,7 +9,8 @@ import {
   getThresholdMetric,
 } from "./types";
 
-const isOpus   = (m: string): boolean => /opus|default/i.test(m);
+// Fable is Opus-class (top tier), so it gets the same switch-down advice.
+const isOpus   = (m: string): boolean => /opus|fable|default/i.test(m);
 const isSonnet = (m: string): boolean => /sonnet/i.test(m);
 
 export function classifyUrgency(percent: number): UrgencyLevel {

@@ -441,13 +441,29 @@ export class DashboardPanel {
     function send(command) {
       vscode.postMessage({ command });
     }
-    // Live countdown: recompute "Resets: Xh Ym" labels from embedded epoch timestamps
+    // Live countdown: recompute "Resets:" labels from embedded epoch timestamps.
+    // Mirrors formatResetTime in usageStore.ts: durations under 24h stay compact
+    // ("2h 20m"); 24h+ shows the concrete date and time plus the remaining duration.
     function fmtCountdown(epochMs) {
       const diff = epochMs - Date.now();
       if (diff <= 0) return "soon";
-      const h = Math.floor(diff / 3600000);
-      const m = Math.floor((diff % 3600000) / 60000);
-      return h > 0 ? h + "h " + m + "m" : m + "m";
+      const totalM = Math.floor(diff / 60000);
+      const h = Math.floor(totalM / 60);
+      const m = totalM % 60;
+      if (h < 24) return h > 0 ? h + "h " + m + "m" : m + "m";
+      const d = new Date(epochMs);
+      const weekday = d.toLocaleDateString("en-US", { weekday: "long" });
+      const month = d.toLocaleDateString("en-US", { month: "long" });
+      const day = d.getDate();
+      const r10 = day % 10, r100 = day % 100;
+      const suf = (r10 === 1 && r100 !== 11) ? "st" : (r10 === 2 && r100 !== 12) ? "nd" : (r10 === 3 && r100 !== 13) ? "rd" : "th";
+      const time = d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
+      const days = Math.floor(h / 24);
+      const hours = h % 24;
+      return weekday + " " + month + " " + day + suf + " at " + time +
+        " (" + days + (days === 1 ? " day, " : " days, ") +
+        hours + (hours === 1 ? " hour, " : " hours, ") +
+        m + (m === 1 ? " min)" : " mins)");
     }
     setInterval(function() {
       document.querySelectorAll("[data-resets-at]").forEach(function(el) {
@@ -486,7 +502,7 @@ export class DashboardPanel {
 function activeSuggestion(data: UsageData): string | null {
   const t = getThresholdConfig();
   const highest = Math.max(data.session.percent, data.weeklyAllModels.percent);
-  const isOpus = /opus|default/i.test(data.currentModel);
+  const isOpus = /opus|fable|default/i.test(data.currentModel);
   const pct = Math.round(highest);
   if (highest >= t.critical) {
     return `Usage has reached ${pct}% - switch to Haiku and set Effort to Low to avoid hitting your limit.`;
