@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.10.1 -->
+<!-- nexus-hub-version: 3.10.2 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 259 skills, 16 commands, 25 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -37,13 +37,13 @@ The two projects are designed to be useful independently: you can install Nexus-
 
 ---
 
-## What's New in v3.10.1
+## What's New in v3.10.2
 
-v3.10.1 is a patch release that fixes the Claude Usage Monitor extension's current-model detection and reset-time display. It is extension-only, with no catalog change; the v3.10.0 feature set below ships unchanged. Catalog: **259 skills**, **16 commands**, **25 hooks**.
+v3.10.2 is a patch release that makes the Claude Usage Monitor extension's threshold warnings model-aware and unifies its reset-time display. It is extension-only, with no catalog change; the v3.10.0 feature set below ships unchanged. Catalog: **259 skills**, **16 commands**, **25 hooks**.
 
 Highlights:
 
-- **Claude Usage Monitor v0.5.3 -- model detection + weekly reset display** (v3.10.1): the dashboard now detects the current model from the selection Claude Code persists to `~/.claude/settings.json` (fresh on every refresh) instead of an obsolete VS Code setting that made it always show "Default (Opus 1M)"; the Current Model card shows only the model family (Fable / Opus / Sonnet / Haiku) with no "Default" label or context-window suffix; Fable is classified as Opus-class in the switch-down recommendations; and weekly reset labels 24h+ away show the concrete date and time plus the remaining duration ("Tuesday July 7th at 6:59 AM (3 days, 4 hours, 15 mins)").
+- **Claude Usage Monitor v0.5.4 -- model-aware warnings + unified reset labels** (v3.10.2): threshold warnings now suggest a model switch only when the current model has a lower tier to move to (Fable/Opus -> Sonnet at the moderate and high bands, anything but Haiku -> Haiku at critical), otherwise only the Effort advice remains; the toast popup and the dashboard Recommendation section now share one message builder so they always agree. Every surface (dashboard, its live countdown, the status-bar hover tooltip, the monthly credits line) renders reset times through one shared helper -- "Resets in 2h 38m" for sub-24h countdowns and "Resets on Tuesday July 7th at 7:00 AM (3d 11h 28m)" for the weekly reset. "Weekly (All Models)" is renamed to "Weekly", and the no-longer-tracked "Weekly (Sonnet)" metric is removed.
 - **`egress-redaction` defensive skill**: a typed sensitive-data / PII taxonomy with a per-category policy action (BLOCK / REDACT / HASH / PASS) applied before any artifact crosses a trust boundary (a cross-model handoff, a context pack, a log, an external send), with a default-policy table and a per-egress-event rule.
 - **`prompt-injection-defense` defensive skill**: the recognition-and-posture counterpart to `ai-attack-patterns` -- instruction-origin discipline, untrusted-content fencing, tool-output skepticism, indirect-injection recognition cues, and a safe-response rule.
 - **`nexus-hub verify` supply-chain command**: recomputes installed-file SHA-256 and diffs against a release-published `MANIFEST.sha256`, reporting OK / MODIFIED / MISSING / EXTRA per file with a single PASS / FAIL. Strictly local and read-only (stdlib only) -- no network call, no credential, no new dependency.
@@ -51,7 +51,7 @@ Highlights:
 - **Iterative competitive-generation**: `competitive-generation` gains a hill-climbing / co-evolution section -- run the competition over multiple rounds seeded by the previous winner, with a no-progress stopping rule and a token caution.
 - **Two advisory worker-check hooks**: `test-gap-notice` (flags source edits with no companion test) and `dependency-staleness-notice` (flags dependency-manifest edits with the matching audit command) -- event-driven, advisory-only, disableable, never a daemon.
 
-See [CHANGELOG.md](CHANGELOG.md) for the full v3.10.1 entry and the complete release history.
+See [CHANGELOG.md](CHANGELOG.md) for the full v3.10.2 entry and the complete release history.
 
 ---
 

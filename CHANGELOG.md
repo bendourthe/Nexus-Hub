@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.10.2] - 2026-07-03
+
+**v3.10.2 -- Claude Usage Monitor patch (model-aware threshold warnings + unified reset labels).** Extension-only patch release (0.5.3 -> 0.5.4): the usage-monitor's threshold warnings are now model-aware at every band and share a single message builder with the dashboard so the toast and the dashboard Recommendation section always agree; every surface renders reset times through one shared helper ("Resets in 2h 38m" / "Resets on Tuesday July 7th at 7:00 AM (3d 11h 28m)"); "Weekly (All Models)" is renamed to "Weekly"; and the no-longer-tracked "Weekly (Sonnet)" metric is removed. No catalog change: **259 skills**, **16 commands**, **25 hooks**.
+
 ### Changed
 
 - **Claude Usage Monitor threshold warnings are model-aware at every level** (`extensions/claude-usage-monitor/src/recommendations.ts`, `src/extension.ts`, `src/dashboardPanel.ts`): the moderate band now suggests switching down when a top-tier model is active ("Consider switching to Sonnet and reducing Effort to High or Medium to prevent reaching your limit before it resets (in 2h 48m)"), the high band keeps the firm "Switch to Sonnet" advice, and the critical band skips the "Switch to Haiku" advice when Haiku is already selected -- a switch-down suggestion appears only when the current model has a lower tier to move to, otherwise only the Effort advice remains. Message layout reworked: notifications open with "Claude Usage Warning:" and the reset time is woven into the sentence ("before it resets (in 2h 48m)" / "before it resets on Tuesday July 7th at ..."). Metric selection and wording now live in one shared builder (`pickTriggerMetric` / `buildUsageSuggestion`), so the toast and the dashboard Recommendation section always agree -- the dashboard previously ignored the `claudeUsage.thresholdMetric` setting; it now honors it. Extension patch bump 0.5.3 -> 0.5.4.
