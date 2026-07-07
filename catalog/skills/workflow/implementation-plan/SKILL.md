@@ -43,7 +43,7 @@ Guide the user through a structured discovery interview, then generate a compreh
 
 `<version_dir>` is resolved per the `[[docs-layout-refactor]]` skill's Version-directory resolution algorithm. The canonical layout is `docs/v<MAJOR>/v<MAJOR>.<MINOR>/` (e.g., `docs/v3/v3.11/`), with patch releases sharing their minor dir; legacy projects using the flat `docs/<vSEMVER>/` or the old three-level `docs/versions/<vMAJOR>/<vSEMVER>/` layout are auto-detected and respected to avoid mid-version path churn. Use `/update refactor` to migrate a legacy project to the canonical layout.
 
-The command entry point is `/generate-plan`. When invoked with a comparison report path (`/generate-plan <version_dir>/comparison-<name>.md`), the command enters *From-comparison mode* (Step 0.5): it pre-seeds the interview from the report's Adoption Plan section, skipping questions the report already answers, and writes the plan to `<version_dir>/plans/adoption-<name>.md`.
+The command entry point is `/generate-plan`. When invoked with a comparison report path (`/generate-plan <version_dir>/comparisons/v<MAJOR>.<MINOR>.<PATCH>-comparison-<name>.md`; glob `<version_dir>/comparisons/*-comparison-<name>.md` to find it), the command enters *From-comparison mode* (Step 0.5): it pre-seeds the interview from the report's Adoption Plan section, skipping questions the report already answers, and writes the plan to `<version_dir>/plans/v<MAJOR>.<MINOR>.<PATCH>-adoption-<name>.md`.
 
 ## When to Use This Skill
 

@@ -88,6 +88,13 @@ unique interactive .html  (self-contained, offline, dynamic JS charts)
 5. **(Optional) Plain baseline.** Only when a caller explicitly wants a fast, simple, reproducible draft, run `python scripts/build_presentation.py model.json -o draft.html [--theme theme.json]` for a minimal deterministic sectioned page, then elevate it into the interactive site above. This is a convenience, not the default; its output is plain by design (static inline SVG, fixed layout) and does not by itself meet the interactive-website bar.
 6. **Verify self-contained, offline, and interactive.** Per `[[html-output-conventions]]`, confirm the final `.html` opens with zero external network requests (grep for external `http(s)` / `cdn` references outside comments; expect none), is well-formed and ASCII-safe, every source section is represented, and the charts are genuinely interactive (zoom / pan / series-toggle / axis controls respond). Then clear the `[[hallmark-design]]` anti-slop gates.
 
+7. **Visual-QA loop (render, screenshot, assess, iterate).** The Step 6 checks are static (bytes and structure); they do not prove the page LOOKS right. After Step 6 passes, run a visual pass, delegating the render / screenshot mechanics to `[[browser-testing-with-devtools]]` and keeping it fully offline (a local headless render, no external network):
+    - **Render + capture**: open the generated `.html` in a headless browser and capture a full-page screenshot, plus screenshots of key interactive states (a chart, a sortable / filterable table, a navigated section, a mobile-width viewport).
+    - **Assess**: read the screenshot image(s) back and inspect for graphic defects - tables that overflow or render poorly, broken or janky animations, unreadable text (contrast, size, overlap), clipped or misaligned elements, charts that fail to draw, and layout breakage at the intended viewport.
+    - **Fix + re-render**: correct the issues in the HTML and re-render.
+    - **Iterate** until the screenshot passes a clean-and-shareable bar (up to 3 passes), then report the specific visual issues found and fixed.
+    - **Graceful degradation**: if a headless browser is unavailable in the environment, degrade to a static structural review (the Step 6 checks plus a careful read of the markup) and note the degradation in one line; never hard-fail the run on a missing browser.
+
 ## Common Rationalizations
 
 | Rationalization | Reality |
@@ -122,6 +129,7 @@ Binary checklist - each item describes an observable artifact or state.
 - [ ] Motion is purposeful and `prefers-reduced-motion` is honored; the layout is responsive.
 - [ ] In single-source mode the content order matches the source; in multi-source mode each source is a labeled, attributed area.
 - [ ] The HTML is well-formed (tag balance) and ASCII-safe, and it clears the `[[hallmark-design]]` anti-slop gates.
+- [ ] A visual-QA pass ran (Step 7): the rendered page was screenshotted, the screenshot(s) were reviewed for graphic defects, and no defects remain - or, when no headless browser was available, a static structural review ran with a one-line degradation note (never a hard fail).
 - [ ] `make validate` passes (orphan-bundle audit clean, JSON integrity green).
 
 "The site looks nice" is not a verification criterion. The verification is: does it open offline with no external requests, is it a navigable interactive website (not a deck), are the charts genuinely manipulable on real data, and does it clear the hallmark-design gates.
