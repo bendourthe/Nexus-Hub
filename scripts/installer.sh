@@ -929,11 +929,15 @@ install_global() {
     if should_install gemini || should_install antigravity2 || should_install gemini-cli; then
     write_header "GOOGLE"
     if should_install gemini; then
-    write_item "Gemini IDE + Antigravity 1.0" "$GRAY"
+    write_item "Gemini IDE" "$GRAY"
     local global_gemini_dir="$user_home/.gemini"
     mkdir -p "$global_gemini_dir"
 
-    invoke_registry_platform "$repo_root" "global" "" "gemini" "GEMINI.md (instruction file)" "" "true"
+    # Full registry mirror (v3.11.0): renders GEMINI.md AND mirrors the catalog to
+    # ~/.gemini/{skills,workflows,agents,rules} per gemini.py. Dropping the prior
+    # instruction-only call fixes the bash/PowerShell parity break (C1) and the
+    # never-delivered agents/rules (C2) from the Phase 7.1 read-contract audit.
+    invoke_registry_platform "$repo_root" "global" "" "gemini" "Gemini IDE (GEMINI.md + catalog mirror)" "" ""
     fi
 
     # Antigravity 2.0 + CLI: the antigravity2 integration below owns the entire
@@ -1325,11 +1329,12 @@ install_workspace() {
         if should_install gemini || should_install antigravity2 || should_install gemini-cli; then
         write_header "GOOGLE"
         if should_install gemini; then
-        write_item "Gemini IDE + Antigravity 1.0" "$GRAY"
+        write_item "Gemini IDE" "$GRAY"
         local gemini_dir="$target_path/.gemini"
         mkdir -p "$gemini_dir"
 
-        invoke_registry_platform "$repo_root" "workspace" "$target_path" "gemini" "GEMINI.md (instruction file)" "$languages" "true"
+        # Full registry mirror (v3.11.0): GEMINI.md + .gemini/{skills,workflows,agents,rules}.
+        invoke_registry_platform "$repo_root" "workspace" "$target_path" "gemini" "Gemini IDE (GEMINI.md + catalog mirror)" "$languages" ""
         fi
 
         # Antigravity 2.0 + CLI: the antigravity2 integration below owns the

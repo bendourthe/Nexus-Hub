@@ -298,8 +298,9 @@ function Read-Prompt {
 # --- Interaction Helpers ---
 
 # Map a user-supplied integration key (the --platforms vocabulary) to the
-# internal PS platform keys the per-provider install blocks gate on. GEMINI
-# bundles Gemini IDE + Antigravity 1.0 (they share one legacy block).
+# internal PS platform keys the per-provider install blocks gate on. GEMINI is
+# the Gemini IDE (full registry mirror as of v3.11.0); Antigravity 2.0 is a
+# separate ANTIGRAVITY2 key. (Antigravity 1.0 has no reachable install block.)
 $script:IntegrationKeyToPlatforms = [ordered]@{
     "claude"       = @("CLAUDE")
     "codex"        = @("CODEX")
@@ -1293,25 +1294,17 @@ function Install-Global {
         Write-Header -Provider "GOOGLE"
 
         if ($platforms -contains "GEMINI") {
-            Write-Item -Message "Gemini IDE + Antigravity 1.0" -Color "Gray"
+            Write-Item -Message "Gemini IDE" -Color "Gray"
             $globalGeminiDir = Join-Path $env:USERPROFILE ".gemini"
             if (-not (Test-Path $globalGeminiDir)) { New-Item -ItemType Directory -Force -Path $globalGeminiDir | Out-Null }
 
-            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "gemini" -DisplayName "GEMINI.md (instruction file)" -InstructionOnly
-
-            # Antigravity 2.0 + CLI: the antigravity2 integration (below) owns the
-            # entire Antigravity mirror -- it flattens skills to skills/<name>/SKILL.md,
-            # mirrors commands to workflows/, installs the curated hooks + hooks.json,
-            # and writes to BOTH the IDE global root (~/.gemini/antigravity) and the
-            # CLI global root (~/.gemini/antigravity-cli). The previous verbatim
-            # antigravity-cli copies buried every SKILL.md under a category folder the
-            # IDE could not read. (The Gemini IDE ~/.gemini/skills mirror below and the
-            # Antigravity 1.0 global_workflows mirror are separate, untouched surfaces.)
-            Safe-Folder-Copy -Source "$RepoRoot\catalog\skills"   -Destination (Join-Path $globalGeminiDir "skills")    -CustomMessage "✓ Skills catalog installed at: $(Join-Path $globalGeminiDir "skills")"
-
-            $globalAntigravityWorkflows = Join-Path $globalGeminiDir "antigravity\global_workflows"
-            if (-not (Test-Path $globalAntigravityWorkflows)) { New-Item -ItemType Directory -Force -Path $globalAntigravityWorkflows | Out-Null }
-            Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination $globalAntigravityWorkflows -CustomMessage "✓ Antigravity workflows installed at: $globalAntigravityWorkflows"
+            # Full registry mirror (v3.11.0): renders GEMINI.md AND mirrors the catalog
+            # to ~/.gemini/{skills,workflows,agents,rules} per gemini.py. Replaces the
+            # prior instruction-only call plus the hardcoded skills / global_workflows
+            # copies, fixing the bash/PowerShell parity break (C1) and the never-delivered
+            # agents/rules (C2) from the Phase 7.1 read-contract audit. Antigravity 2.0 is
+            # handled by the antigravity2 block below.
+            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "gemini" -DisplayName "Gemini IDE (GEMINI.md + catalog mirror)"
         }
 
         if ($platforms -contains "ANTIGRAVITY2") {
@@ -1668,11 +1661,12 @@ function Install-Workspace {
             Write-Header -Provider "GOOGLE"
 
             if ($workspacePlatforms -contains "GEMINI") {
-                Write-Item -Message "Gemini IDE + Antigravity 1.0" -Color "Gray"
+                Write-Item -Message "Gemini IDE" -Color "Gray"
                 $geminiDir = Join-Path $targetPath ".gemini"
                 if (-not (Test-Path $geminiDir)) { New-Item -ItemType Directory -Force -Path $geminiDir | Out-Null }
 
-                Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "gemini" -DisplayName "GEMINI.md (instruction file)" -Languages ($languages -join ',') -InstructionOnly
+                # Full registry mirror (v3.11.0): GEMINI.md + .gemini/{skills,workflows,agents,rules}.
+                Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "gemini" -DisplayName "Gemini IDE (GEMINI.md + catalog mirror)" -Languages ($languages -join ',')
 
                 # Antigravity 2.0 + CLI: the antigravity2 integration (below) owns the
                 # .agents/ mirror -- it flattens skills to .agents/skills/<name>/SKILL.md,

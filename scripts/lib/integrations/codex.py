@@ -25,6 +25,13 @@ class CodexIntegration(MarkdownIntegration, SkillsIntegration):
         "instruction_workspace_dir": "",
         "instruction_file": "AGENTS.md",
         "instruction_template": "templates/ai-instructions/base-codex.md",
+        # v3.11.0 read-contract note (C5; see docs/v3/v3.11/platform-read-contracts.md):
+        # Codex's live surfaces are AGENTS.md (which embeds {{SKILL_INDEX}} - the reliable
+        # skill surface) and ~/.codex/prompts/*.md. The installer invokes codex
+        # instruction-only and copies ONLY skills + prompts; agents_subdir / rules_subdir
+        # are declared for future registry parity but Codex has no discovery for them, so
+        # ~/.codex/agents and ~/.codex/rules are intentionally NOT created (no dead dirs).
+        # The prompt read-path/format still needs a live probe (residual gap D1).
         "skills_subdir": "skills",
         "commands_subdir": "prompts",
         "agents_subdir": "agents",
