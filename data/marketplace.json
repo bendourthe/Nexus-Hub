@@ -186,7 +186,7 @@
       "id": "research",
       "name": "Research",
       "description": "Research recent trends and answer library/API questions from local sources",
-      "skill_count": 2
+      "skill_count": 3
     }
   ],
   "discovery": {

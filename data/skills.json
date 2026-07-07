@@ -6,7 +6,7 @@
     "description": "Comprehensive catalog of Nexus-Hub skills with L0/L1 tiered summaries"
   },
   "statistics": {
-    "total_skills": 259,
+    "total_skills": 260,
     "categories": {
       "ai-development": 11,
       "architecture": 7,
@@ -22,7 +22,7 @@
       "language-specialists": 10,
       "orchestration": 15,
       "project-setup": 4,
-      "research": 2,
+      "research": 3,
       "security": 15,
       "security-operations": 15,
       "specialized-domains": 14,
@@ -9067,6 +9067,46 @@
         "integrity": 100,
         "semantic": 95,
         "validated": true
+      }
+    },
+    {
+      "name": "youtube-transcript",
+      "title": "youtube-transcript",
+      "description": "Fetch a YouTube video's publicly-available transcript locally with the yt-dlp command-line tool and save a clean text file. Local-only: no paid API, no API key, and no query text leaves the machine beyond yt-dlp's own request to YouTube.",
+      "long_description": "Documents the local yt-dlp caption path: decide a save location and filename, confirm yt-dlp is on PATH (with a graceful install hint when it is absent), fetch channel and title metadata, download public captions as json3 (not vtt, which duplicates rolling caption lines), flatten the json3 to clean text with a bundled standard-library script, and report the saved path. Carries a required Terms-of-Service and bot-flagging caveat: fetch only public captions and stop on an HTTP 429 or bot-confirmation response rather than retrying in a loop. The paid deep-research API path from the source pattern is deliberately omitted; yt-dlp is lazy-checked and is not a Nexus-Hub dependency.",
+      "summary_l0": "\"Fetch a YouTube video transcript locally via yt-dlp and save clean text\"",
+      "overview_l1": "\"This skill fetches a YouTube video's publicly-available captions locally with the yt-dlp command-line tool, flattens them to clean raw text, and saves a .txt file into the current project (or ~/Downloads when there is no project). Use it when the user hands you a YouTube URL and wants the words: the transcript, the captions, or what the video says. It runs entirely on the user's machine: no paid API, no API key, and no query text leaves the machine beyond yt-dlp's own request to YouTube. yt-dlp is lazy-checked, never auto-installed, and is not a Nexus-Hub dependency. The skill fetches only public captions in accordance with YouTube's Terms of Service and stops on bot-flagging rather than retrying in a loop. It does not transcribe audio with a speech-to-text model, and it does not download the video.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "research",
+      "language": "Multi-language",
+      "tags": [
+        "youtube",
+        "transcript",
+        "captions",
+        "subtitles",
+        "research",
+        "local-only"
+      ],
+      "priority": "MEDIUM",
+      "based_on": [],
+      "tools_required": [
+        "Bash",
+        "Read",
+        "Write"
+      ],
+      "path": "catalog/skills/research/youtube-transcript/",
+      "file": "catalog/skills/research/youtube-transcript/SKILL.md",
+      "size": {
+        "lines": 121,
+        "tokens_estimate": 1167
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
       }
     }
   ]

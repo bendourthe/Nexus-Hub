@@ -10,6 +10,7 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | ui-component-generation | developer-experience | "Generate UI components directly with the agent's LLM instead of routing requests through external generation services" | catalog/skills/developer-experience/ui-component-generation/SKILL.md |
 | trend-research | research | "Research recent trends across Reddit, X, and the web with prompt generation" | catalog/skills/research/trend-research/SKILL.md |
 | local-docs-lookup | research | "Answer library and API questions from locally-available documentation sources instead of routing queries through a third-party service" | catalog/skills/research/local-docs-lookup/SKILL.md |
+| youtube-transcript | research | "Fetch a YouTube video transcript locally via yt-dlp and save clean text" | catalog/skills/research/youtube-transcript/SKILL.md |
 | cross-project-comparison | workflow | "Compare projects with external sources to produce gap analysis and adoption plans" | catalog/skills/workflow/cross-project-comparison/SKILL.md |
 | ai-agent-development | ai-development | "Build AI agents with tool use, memory, planning loops, and multi-agent orchestration" | catalog/skills/ai-development/ai-agent-development/SKILL.md |
 | ai-billing-safeguards | ai-development | "Enforce hard spending caps and billing safeguards for autonomous AI agent systems" | catalog/skills/ai-development/ai-billing-safeguards/SKILL.md |
@@ -264,4 +265,4 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | egress-redaction | security | "Detect sensitive data and apply a typed block/redact/hash/pass policy before egress" | catalog/skills/security/egress-redaction/SKILL.md |
 | prompt-injection-defense | security | "Recognize and resist prompt injection and poisoned tool output with instruction-origin discipline" | catalog/skills/security/prompt-injection-defense/SKILL.md |
 
-**Total: 259 skills across 21 categories**
+**Total: 260 skills across 21 categories**
