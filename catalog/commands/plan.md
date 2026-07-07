@@ -51,6 +51,10 @@ After the phase breakdown is designed and before the plan file is written, `/pla
 - **Degrade silently.** If the routing skill or live enumeration is unavailable (no platform surface, offline, manual-only platform), write the neutral placeholder `assess at implementation time` for that phase's recommendation rather than failing. The plan is still valid and complete without a concrete model name.
 - This carries zero new outbound calls, dependencies, or credentials - the heavy logic stays in `[[model-routing]]`; `/plan` only invokes it per phase and records the result in the plan template (see the retained planning skill's "Phases at a Glance" column and per-phase `**Recommended model**` field).
 
+## Mandatory final phase (planning scopes)
+
+Every plan `generate-plan` / `implementation-plan` produces now ends with a mandatory final phase - "Architecture Refactor, Known-Gaps Reconciliation, and CI/CD" - and each phase's testing sub-task also creates/updates and optimizes CI/CD for that phase's changes. This is part of the plan contract, not a dispatcher responsibility: the template and the design rules live in the `[[implementation-plan]]` skill (its "Mandatory Final Phase" block and the "Terminal refactor phase" / "CI/CD per phase" design guidelines). This dispatcher only surfaces the guarantee; it does not duplicate the template.
+
 ## Delegation
 
 Dispatch the resolved scope to the retained skill(s):

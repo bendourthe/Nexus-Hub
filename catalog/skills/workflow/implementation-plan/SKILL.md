@@ -241,9 +241,13 @@ stable before advancing to Phase N+1.
 **Prompt**:
 > Generate comprehensive tests for everything built in Phase N. This should include:
 > [list the specific kinds of tests appropriate for this phase: unit tests, integration
-> tests, E2E tests, performance benchmarks, CI/CD configuration, etc.]. Run the tests,
-> fix any failures, and iterate until all tests pass and the implementation is stable.
-> Do not proceed to Phase N+1 until this phase is fully tested and verified.
+> tests, E2E tests, performance benchmarks, etc.]. Run the tests, fix any failures, and
+> iterate until all tests pass and the implementation is stable. Then create or update the
+> CI/CD pipeline to cover this phase's changes and optimize it to reduce CI action minutes
+> (path filters, concurrency cancel-in-progress, dependency caching, gating expensive-OS or
+> matrix jobs to merges/schedule) while keeping comprehensive coverage - keep the language
+> platform-agnostic, with GitHub Actions as the primary example. Do not proceed to Phase
+> N+1 until this phase is fully tested and verified.
 > After all tests pass, run `/generate-session-history` to document Phase N.
 
 ---
@@ -269,6 +273,41 @@ stable before advancing to Phase N+1.
 
 The `## Complexity Tracking` block sits near the end of the file, between the last phase's content and that phase's `### Phase N Exit Checklist`. Leave the row blank (keep only the header, blockquote, and column titles) when every Constitution Check bullet is PASS or N/A. Populate one row per FAIL principle, stating the violation, why it is needed, and why the simpler alternative was rejected. Treat the section as part of the plan's contract with `[[project-constitution]]` and `/analyze-spec`.
 
+#### Mandatory Final Phase (every plan)
+
+Every generated plan MUST end with a final phase dedicated to architecture refactor, known-gaps reconciliation, and CI/CD - even a small plan (there it may be a light, near-no-op pass, but it is never omitted). This is a REFACTOR / known-gaps / CI phase, NOT a deferred-testing phase: per-phase testing still stands (see the "Testing continuous" guideline below and the testing rationalization). Emit it verbatim as the last `## Phase N`:
+
+```markdown
+## Phase N: Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
+
+**Goal**: Leave the project well-organized, its known gaps reconciled, and its CI/CD complete and optimized.
+**Prerequisites**: All prior phases.
+**Stability Gate**: The layout is clean (no deprecated/obsolete files, empty dirs, redundant files/dirs, or overcomplicated structure left un-triaged); the version's known gaps are reconciled; CI/CD covers every change and is optimized; project validation/tests pass.
+**Recommended model**: [Step 3.5 routing; repo-wide refactor + reference repair is high-risk - default to the strong reasoning tier.]
+
+### Sub-tasks
+
+#### N.1 - Architecture refactor
+**Objective**: Refactor toward a well-organized, intuitive layout.
+**Prompt**:
+> Identify deprecated/obsolete files, empty directories, redundant files/dirs, and overcomplicated structure, then refactor toward a clean, intuitive layout via [[project-refactor]] and [[docs-layout-refactor]] (propose-then-apply, with confirmation; repair every reference for anything that moves).
+
+#### N.2 - Known-gaps reconciliation
+**Objective**: Reconcile the version's open gaps.
+**Prompt**:
+> Reconcile this version's known gaps via [[known-gaps-tracker]]: resolve, defer, or transfer each open item, and finalize the per-minor known-gaps file for the version.
+
+#### N.3 - CI/CD create/update/optimize
+**Objective**: CI/CD covers all changes and is optimized.
+**Prompt**:
+> Create or update the CI/CD pipeline so it covers every change in this plan, then optimize it to reduce action minutes (path filters, concurrency cancel-in-progress, dependency caching, gating expensive-OS or matrix jobs to merges/schedule) while keeping comprehensive testing. Keep it platform-agnostic; GitHub Actions is the primary example.
+
+#### N.4 - Testing and Stabilization
+**Objective**: Prove the refactor preserved behavior and CI/CD is green.
+**Prompt**:
+> Run the full validation/test suite, confirm the refactor changed no behavior, confirm CI/CD passes and the action-minute reduction is real, and iterate until clean. Generate a session-history entry for this phase.
+```
+
 #### Phase Design Guidelines
 
 Apply these rules when deciding how many phases to create and how to split them:
@@ -283,6 +322,8 @@ Apply these rules when deciding how many phases to create and how to split them:
 | Integration phase | If external APIs or local models are involved, create a dedicated integration phase with clear mocking/stubbing strategies for early phases |
 | Testing continuous | Every phase ends with a testing sub-task — not a single final QA phase |
 | Phase count | Target 4–8 phases for most plans; very small scopes may have 2–3; major refactors up to 10 |
+| Terminal refactor phase | Every plan ends with a mandatory final phase that reviews architecture and refactors toward a clean, intuitive layout, reconciles the version's known gaps, and creates/updates/optimizes CI/CD - even small plans (a light near-no-op pass, but never omitted). Distinct from per-phase testing, which still applies to every phase. |
+| CI/CD per phase | Every phase's testing sub-task also creates or updates the CI/CD pipeline for that phase's changes and optimizes it (path filters, concurrency cancellation, caching, gating expensive jobs) to keep action minutes low while coverage stays comprehensive |
 
 ---
 
@@ -348,7 +389,8 @@ Incorporate feedback, then write the final file.
 - [ ] Every feature or goal from the interview appears in at least one sub-task
 - [ ] Phase 1 establishes the foundation needed for subsequent phases (toolchain + runnable build for initial implementations; test harness or scaffolding for enhancements/refactors)
 - [ ] For initial implementations: installation/packaging step appears before the halfway point
-- [ ] Every phase ends with a testing and stabilization sub-task
+- [ ] Every phase ends with a testing and stabilization sub-task (which also creates/updates and optimizes CI/CD for that phase's changes)
+- [ ] The plan's last phase is the mandatory "Architecture Refactor, Known-Gaps Reconciliation, and CI/CD" phase (sub-tasks: N.1 architecture refactor, N.2 known-gaps reconciliation, N.3 CI/CD create/update/optimize, N.4 testing and stabilization)
 - [ ] Every sub-task has a complete, self-contained executable prompt
 - [ ] Every phase has a stability gate and exit checklist
 - [ ] Every phase carries a recommended model (or an explicit assess-at-implementation placeholder) in both the "Phases at a Glance" column and its `**Recommended model**` field
