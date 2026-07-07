@@ -54,19 +54,29 @@ Per the resolved model:
 | **trunk-based** | (none; trunk IS the working branch) | `main`/`master` | the trunk (short-lived branches, merge fast) |
 | **git-flow** | `main`/`master` | `develop` | `develop` (features), `main` only via `release/*` and `hotfix/*` |
 
-### Step 3: Never commit protected-branch work directly
+### Step 3: Bootstrap the integration branch when missing
+
+When a project has **no declared model, no `develop` (or `dev`) branch, and is not deliberately trunk-based** - the greenfield / inherited-project case that `/setup` handles - bootstrap the develop+main model rather than leaving work stranded on a lone default branch:
+
+1. **Confirm with the user first.** Creating a branch is a repo-shaping action; never bootstrap silently.
+2. Create `develop` from the current default branch and adopt develop+main: `git checkout -b develop` (from `main`/`master`), then treat `main` as protected and `develop` as the integration target.
+3. Record the adopted model where the project declares conventions (AGENTS.md / CLAUDE.md), so later sessions resolve it via Step 1 rather than re-inferring.
+
+Do NOT bootstrap when the project has DECLARED trunk-based (a single-branch flow is a deliberate choice) or already has an integration branch. This is the create-if-missing path only; a project that resolved a model in Step 1 skips it.
+
+### Step 4: Never commit protected-branch work directly
 
 The cross-model invariant: do not commit feature or version work directly to the protected branch. Branch off the integration branch first:
 
 ```
 git checkout <integration-branch>
 git pull        # if a remote exists
-git checkout -b feat/<slug>      # or fix/<slug>
+git checkout -b feat/<slug>      # or fix/, refactor/, ci/, docs/, chore/, test/
 ```
 
-Use `feat/<slug>` for features, `fix/<slug>` for fixes; keep `<slug>` short, lowercase, hyphenated, and aligned with any plan/spec slug (e.g. `feat/adoption-claude-red`). For GitHub Flow and trunk-based, the integration branch IS the default branch -- you still branch off it rather than committing to it directly (trunk-based keeps the branch very short-lived).
+Use `feat/<slug>` for features and `fix/<slug>` for fixes; the fuller work-branch prefix set is `refactor/`, `ci/`, `docs/`, `chore/`, and `test/` (matching the conventional-commit types), all branched off and integrated through the integration branch. Keep `<slug>` short, lowercase, hyphenated, and aligned with any plan/spec slug (e.g. `feat/adoption-claude-red`, `refactor/docs-layout`). For GitHub Flow and trunk-based, the integration branch IS the default branch -- you still branch off it rather than committing to it directly (trunk-based keeps the branch very short-lived).
 
-### Step 4: Work, validate, then integrate
+### Step 5: Work, validate, then integrate
 
 1. Do the work on the feature branch; commit there (use [[code-commit-workflow]] for messages).
 2. Run the project's validation/tests before integrating.
@@ -79,7 +89,7 @@ Use `feat/<slug>` for features, `fix/<slug>` for fixes; keep `<slug>` short, low
 
 4. If the integration branch advanced while you worked (e.g. a shared prerequisite landed), bring it into your branch first (`git merge <integration-branch>` or rebase) and re-validate before merging up.
 
-### Step 5: Cut a release
+### Step 6: Cut a release
 
 For models with a protected branch (develop+main, git-flow), a release is the only time the protected branch is touched:
 
@@ -92,7 +102,7 @@ git push origin <protected-branch> --follow-tags
 
 For GitHub Flow / trunk-based, "release" is tagging the default branch at a chosen commit; there is no separate merge step. Bump version-carrying files before tagging.
 
-### Step 6: Surface the rule cross-platform
+### Step 7: Surface the rule cross-platform
 
 This discipline is advisory on platforms without enforcement hooks. When working on a project that declares a protected branch, restate the rule at the start of branch/commit work so it survives context drift, and (on hook-capable platforms) rely on a protected-branch guard as the backstop. The guidance reaches every platform through the skill index; the hard stop only exists where hooks run.
 
@@ -101,14 +111,15 @@ This discipline is advisory on platforms without enforcement hooks. When working
 | Rationalization | Reality |
 |---|---|
 | "It is a tiny change, I will just commit to main." | The protected branch is the release surface; a direct commit bypasses integration, skips the gate, and (for catalogs/libraries consumed from the branch) can ship a half-applied change to downstream users. Branch off the integration branch even for one-liners. |
-| "I do not know the model, so I will assume develop+main." | Assuming the wrong model is as harmful as having none -- you might create a `develop` branch a trunk-based project does not want, or block a legitimate commit. Resolve the model from Step 1 first and state it. |
+| "I do not know the model, so I will assume develop+main." | Resolve the model from Step 1 first and state it. You MAY *bootstrap* develop+main (Step 3) for an undeclared / greenfield / inherited project - that is the `/setup` path, and it requires user confirmation - but never auto-create `develop` in a project that has DECLARED trunk-based. Silently assuming the wrong model can block a legitimate commit or impose a branch a trunk-based project rejects. |
 | "I will commit on the feature branch and push it straight to main to save a step." | That defeats the integration branch. Merge into the integration target; the protected branch only receives release merges. |
 | "Fast-forward merges are cleaner, I will skip --no-ff." | Fast-forward erases the boundary of the unit you merged, making it hard to revert one feature without others. `--no-ff` keeps each unit atomic in history. |
 | "There is no hook on this platform, so the rule does not apply here." | The rule is the project's, not the platform's. Hooks only add a backstop where they run; on Cursor/OpenCode/Copilot the discipline is yours to keep. |
 
 ## Verification
 
-- [ ] The resolved branching model is stated explicitly, with how it was determined (declaration / inference / default).
+- [ ] The resolved branching model is stated explicitly, with how it was determined (declaration / inference / default / bootstrap).
+- [ ] If the integration branch was missing and the project is not trunk-based, `develop` was created (with user confirmation) and the adopted model recorded, so the integration branch now exists.
 - [ ] No feature or version commit was made directly on the protected branch.
 - [ ] The feature branch is based on the correct integration branch and named `feat/<slug>` or `fix/<slug>`.
 - [ ] Project validation/tests ran green before any merge into the integration branch.

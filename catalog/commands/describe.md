@@ -31,7 +31,7 @@ Resolve SCOPE from the first positional argument (`$ARGUMENTS`). Recognized scop
 
 Before delegating, detect whether the target directory is a software project (presence of a manifest, source files, version control) or a non-software project (documents, data, mixed content):
 
-- **Software project**: run `analyze-codebase` as written - version detection, structure, dependencies, architecture, Mermaid diagrams, the 12-section report.
+- **Software project**: run `analyze-codebase` as written - version detection, structure, dependencies, architecture, Mermaid diagrams, and the twelve-section report (including the read-only Project-health block, section 2, that reports git / version / branch / baseline-docs / docs-tree status and offers a `/setup project` handoff when any is missing).
 - **Non-software project**: adapt the same skill to the content present. Replace "dependencies" with "external references / inputs", "architecture" with "how the material is organized and how the parts relate", and "how to run it" with "how to use or navigate it". Skip sections that do not apply rather than inventing them. The goal is always the same: a clear, well-structured description that makes an inherited project understandable.
 
 State which mode was detected before producing the description.

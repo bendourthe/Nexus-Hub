@@ -108,7 +108,7 @@
       "id": "developer-experience",
       "name": "Developer Experience",
       "description": "Code optimization, refactoring, migration, dependency management, web artifact scaffolding",
-      "skill_count": 30
+      "skill_count": 31
     },
     {
       "id": "documentation",
@@ -144,7 +144,7 @@
       "id": "project-setup",
       "name": "Project Setup",
       "description": "Initialize C#, Java, JavaScript, and Python projects with best practices",
-      "skill_count": 4
+      "skill_count": 5
     },
     {
       "id": "security",

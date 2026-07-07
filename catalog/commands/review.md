@@ -50,6 +50,22 @@ Dispatch the resolved scope to the retained skill(s):
 
 Pass any remaining arguments (target path, `--scope` glob, depth flags) through unchanged. Heavy logic stays in the retained skills; this file only resolves scope and delegates.
 
+## Project health (full and structure scopes)
+
+For the `full` and `structure` scopes, `/review` emits the same read-only Project-health block that `[[analyze-codebase]]` produces, so a review surfaces governance gaps consistently with `/describe`. Report each surface as OK or MISSING:
+
+| Surface | Status | Detail |
+|---|---|---|
+| Git version control | OK / MISSING | repo present? at least one commit? |
+| Version number | OK / MISSING | resolved version (tag / CHANGELOG / manifest), or none found |
+| Branch model | OK / MISSING | develop + main present? or which model is in use? |
+| Baseline docs | OK / MISSING | README / CHANGELOG / DEVLOG present with real content? |
+| Per-version docs tree | OK / MISSING | docs/v<MAJOR>/v<MAJOR>.<MINOR>/ with plans/ + comparisons/? |
+
+When any surface is MISSING, end the block with the handoff offer, naming the gaps: "Setup needed: <gaps>. Run `/setup project` to bootstrap them." `/review` stays read-only (its contract below) - it detects and recommends but never mutates; remediation is the user's call via `/setup`. Use the exact wording from `[[analyze-codebase]]` so `/describe` and `/review` stay in sync.
+
+> Note: the `full` / `structure` delegates (`run-deep-review`, `review-codebase`) are currently prose-only - their bodies live in git history rather than as SKILL.md files - so this health-block behavior is documented here at the command level until those delegates are reconstituted. It does not change `/review`'s read-only contract.
+
 ## skill-scan scope (pre-install and catalog dogfood)
 
 `skill-scan` is the v3.0.0 addition. It runs the `skill-security-scan` skill over a target skill directory (a skill you are about to import) or over the whole `catalog/skills/` + `catalog/mcp-configs/` tree (catalog dogfood). The skill reads the deterministic findings emitted by `nexus-skill-scanner` (Phase 6) and adjudicates them - filtering false positives (especially fenced-code examples in a producer catalog), explaining intent, and assigning a final verdict. Until the Phase 6 engine lands, the scope adjudicates manually-collected findings. This is the same lens `/skills scan` uses before an import.

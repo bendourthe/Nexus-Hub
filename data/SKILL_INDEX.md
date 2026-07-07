@@ -5,6 +5,7 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | Skill | Category | Summary | File |
 |-------|----------|---------|------|
 | analysis-logic | developer-experience | "Apply structured analytical reasoning with decision matrices and data presentation" | catalog/skills/developer-experience/analysis-logic/SKILL.md |
+| analyze-codebase | developer-experience | "Describe any project's structure, deps, architecture, and health with a /setup handoff offer" | catalog/skills/developer-experience/analyze-codebase/SKILL.md |
 | creative-generation | developer-experience | "Generate image prompts, slide decks, and creative ideation with structured direction" | catalog/skills/developer-experience/creative-generation/SKILL.md |
 | writing-editing | developer-experience | "Write and edit professional documentation with clarity, structure, and concision" | catalog/skills/developer-experience/writing-editing/SKILL.md |
 | ui-component-generation | developer-experience | "Generate UI components directly with the agent's LLM instead of routing requests through external generation services" | catalog/skills/developer-experience/ui-component-generation/SKILL.md |
@@ -144,6 +145,7 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | init-java-project | project-setup | "Initialize Java projects with Maven/Gradle, Spring Boot, and testing frameworks" | catalog/skills/project-setup/init-java-project/SKILL.md |
 | init-javascript-project | project-setup | "Initialize JavaScript/TypeScript projects with package.json, bundler, and testing" | catalog/skills/project-setup/init-javascript-project/SKILL.md |
 | init-python-project | project-setup | "Initialize Python projects with pyproject.toml, pytest, and standard structure" | catalog/skills/project-setup/init-python-project/SKILL.md |
+| setup-project | project-setup | "Detect and bootstrap a project's git, version, branch model, docs tree, and README/CHANGELOG/DEVLOG" | catalog/skills/project-setup/setup-project/SKILL.md |
 | authentication-patterns | security | "Implement authentication with OAuth 2.0, JWT, session management, MFA, and passkeys" | catalog/skills/security/authentication-patterns/SKILL.md |
 | cve-reachability-analyzer | security | "Trace call paths to determine if dependency CVEs actually affect your application" | catalog/skills/security/cve-reachability-analyzer/SKILL.md |
 | dependency-security-audit | security | "Audit dependencies for CVEs, license issues, and outdated packages with SBOM" | catalog/skills/security/dependency-security-audit/SKILL.md |
@@ -265,4 +267,4 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | egress-redaction | security | "Detect sensitive data and apply a typed block/redact/hash/pass policy before egress" | catalog/skills/security/egress-redaction/SKILL.md |
 | prompt-injection-defense | security | "Recognize and resist prompt injection and poisoned tool output with instruction-origin discipline" | catalog/skills/security/prompt-injection-defense/SKILL.md |
 
-**Total: 260 skills across 21 categories**
+**Total: 262 skills across 21 categories**
