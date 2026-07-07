@@ -8656,6 +8656,37 @@
       }
     },
     {
+      "name": "implement-phase",
+      "title": "implement-phase",
+      "description": "Implement one phase of a plan end-to-end - discover the plan and phase, review against the codebase, code subtask by subtask, lint, test with coverage, augment tests, run the troubleshooting loop and GO/NO-GO gate, then the full post-phase documentation and commit sequence. On a plan's final phase it also runs the mandatory architecture-refactor + known-gaps + CI/CD gate and the release-readiness workflow, handing off to /update release. This is the delegate behind /implement. Use whenever the user says \"implement phase N\", \"build the next phase\", \"do phase 3 of the plan\", \"execute the plan\", \"continue implementing\", or points at a plan file. SKIP - creating the plan itself (use /plan), or one-off edits with no plan to track.",
+      "long_description": "Implement one phase of a plan end-to-end: discover the right plan and phase, review it against the codebase, write the code subtask by subtask, lint, test with coverage, troubleshoot failures, augment missing tests, pass a quality gate, and run the full post-phase documentation and commit sequence. When the target phase is the plan's final phase, also run the mandatory architecture-refactor plus known-gaps plus CI/CD gate and the release-readiness workflow. This is the delegate behind /implement.",
+      "summary_l0": "\"Implement one plan phase end-to-end with tests, gates, post-phase docs, commit, and final-phase release-readiness\"",
+      "overview_l1": "\"The delegate behind /implement. It runs one plan phase end-to-end: Phase 0 resolves the plan and phase and detects the final phase from five signals; Phase 1 reviews the plan against the codebase; Phase 2 implements subtask by subtask in scope; Phases 3-7 lint, run tests with coverage, augment missing tests, loop on failures up to three times, and apply a four-part GO/NO-GO quality gate; Phase 8 runs the ten-step post-phase sequence (gitignore, test review, CI/CD readiness plus optimization, known-gaps append, docs-cleanup audit, devlog, docs, session history, commit message, and a required commit-and-push prompt). On the final phase it additionally runs the mandatory architecture-refactor plus known-gaps plus CI/CD-optimize gate and the release-readiness workflow, handing the version bump and tag off to /update release. The full ordered procedure lives in references/implement-phase-runbook.md.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "workflow",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/workflow/implement-phase/",
+      "file": "catalog/skills/workflow/implement-phase/SKILL.md",
+      "size": {
+        "lines": 73,
+        "characters": 8173,
+        "tokens_estimate": 1170
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
       "name": "solution-knowledge-base",
       "title": "solution-knowledge-base",
       "description": "Capture a problem you just solved (a bug fix or a durable lesson) into a categorized, reusable docs/solutions/ knowledge base so future planning and review can reuse it. Make sure to use this skill whenever the user says \"document how we fixed that\", \"save this solution\", \"capture this for next time\", \"add this to the knowledge base\", \"we should remember this fix\", \"write this up so we don't hit it again\", or whenever a non-trivial bug, gotcha, or hard-won insight has just been resolved and is worth persisting. Also trigger right after a debugging session ends with a root cause found. SKIP, do NOT use for, in-session todo tracking (use dev-progress-tracker), per-version unfinished-work logging (use known-gaps-tracker), minting in-session behavioral instincts (use continuous-learning), or any request to send the captured solution to an external service or shared store.",
