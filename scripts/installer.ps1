@@ -2400,6 +2400,62 @@ function Install-CliLauncher {
 }
 
 
+# --- Project auto-seed + on-open hook (v3.11.0 Phase 7.3) ---
+#
+# Lockstep with install_project_autoseed in scripts\installer.sh. Ships the opt-in
+# "seed on project open" hook and, on a global install run from inside a git work
+# tree, seeds the current repo's project surfaces (Antigravity .agents/, Cursor,
+# Claude stub). Per the no-auto-rc-edit policy the hook is installed and its enable
+# line printed; the current-repo seed is automatic. Opt out with
+# $env:NEXUS_HUB_NO_AUTOSEED = "1".
+function Install-ProjectAutoseed {
+    param ($RepoRoot, $ScopeLabel)
+
+    $nexusHome = Join-Path $env:USERPROFILE ".nexus-hub"
+    $hooksDest = Join-Path $nexusHome "hooks"
+    $runner = Join-Path $RepoRoot "scripts\lib\integrations\runner.py"
+
+    Write-Host ""
+    Write-SubSectionBanner -Text "Project auto-seed (Antigravity .agents/, Cursor, Claude)"
+    Write-Host ""
+
+    # Ship the on-open hook script regardless of scope.
+    if (-not (Test-Path $hooksDest)) { New-Item -ItemType Directory -Force -Path $hooksDest | Out-Null }
+    $hookSrc = Join-Path $RepoRoot "scripts\nexus-hub-autoseed.ps1"
+    if (Test-Path $hookSrc) {
+        Safe-Copy -Source $hookSrc -Destination (Join-Path $hooksDest "nexus-hub-autoseed.ps1") -Confirm:$true -CustomMessage "✓ on-open hook installed at: $(Join-Path $hooksDest "nexus-hub-autoseed.ps1")"
+    }
+
+    # Auto-seed the current repo on a GLOBAL install run from inside a git work tree
+    # (a workspace install already seeded its target). Skips the source cache and
+    # honors the opt-out.
+    if ($ScopeLabel -eq "Global" -and $env:NEXUS_HUB_NO_AUTOSEED -ne "1") {
+        $py = $null
+        foreach ($c in @("python", "py", "python3")) {
+            if (Get-Command $c -ErrorAction SilentlyContinue) { $py = $c; break }
+        }
+        if ($py -and (Test-Path $runner)) {
+            $cwd = (Get-Location).Path
+            if (-not ($cwd -eq $nexusHome -or $cwd.StartsWith($nexusHome))) {
+                $inRepo = $false
+                try { $null = (& git -C $cwd rev-parse --is-inside-work-tree 2>$null); if ($LASTEXITCODE -eq 0) { $inRepo = $true } } catch { }
+                if ($inRepo) {
+                    Write-Item -Message "Seeding project surfaces in the current repo: $cwd" -Color "Gray"
+                    if ($py -eq "py") { & $py -3 $runner init --target $cwd --quiet *> $null } else { & $py $runner init --target $cwd --quiet *> $null }
+                    Write-Item -Message "✓ Current repo seeded (Antigravity .agents/, Cursor rules, Claude stub)." -Color "DarkGreen"
+                }
+            }
+        }
+    }
+
+    Write-Item -Message "To surface Nexus-Hub in another project, run inside it:  nexus-hub init" -Color "Yellow"
+    Write-Item -Message "Optional 'seed on project open' hook (opt-in; the installer never edits your profile):" -Color "White"
+    Write-Item -Message '  Add to $PROFILE:  . "$HOME\.nexus-hub\hooks\nexus-hub-autoseed.ps1"' -Color "Cyan"
+    Write-Item -Message '  Disable auto-seed anytime with: $env:NEXUS_HUB_NO_AUTOSEED = "1"' -Color "Gray"
+    Write-Host ""
+}
+
+
 # --- MCP Skill Server & Skill Index ---
 
 function Install-SkillDiscovery {
@@ -2902,6 +2958,11 @@ Install-Templates -RepoRoot $repoRoot
 
 # Install the nexus-hub CLI launcher + version marker (v3.7.0 Phase 3).
 Install-CliLauncher -RepoRoot $repoRoot
+
+# Project auto-seed + on-open hook (v3.11.0 Phase 7.3): seed the current repo on a
+# global install run from inside it, ship the opt-in on-open hook, and surface
+# `nexus-hub init` for other projects.
+Install-ProjectAutoseed -RepoRoot $repoRoot -ScopeLabel $scopeLabel
 
 # Resolve any managed-file conflicts collected during an interactive install
 # (single end-of-run prompt). No-op on the non-interactive / -Yes / -Force path.

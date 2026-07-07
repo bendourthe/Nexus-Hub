@@ -2073,6 +2073,67 @@ install_cli_launcher() {
     echo ""
 }
 
+# --- Project auto-seed + on-open hook (v3.11.0 Phase 7.3) ---
+#
+# Project-only-surface platforms (Antigravity 2.0 reads workflows/skills/rules
+# ONLY from an open project's .agents/) are not served by a global-only install.
+# This step (1) ships an opt-in "seed on project open" hook, and (2) seeds the
+# CURRENT repo's project surfaces when a global install is run from inside a git
+# work tree. Per the no-auto-rc-edit policy, the hook script is INSTALLED and its
+# one-line enable is PRINTED (never written into a dotfile); the current-repo seed
+# is fully automatic. Opt out with NEXUS_HUB_NO_AUTOSEED=1. Lockstep with
+# Install-ProjectAutoseed in scripts/installer.ps1.
+install_project_autoseed() {
+    local repo_root="$1"
+    local scope_label="$2"   # "Global" or "Workspace"
+    local nexus_home="$HOME/.nexus-hub"
+    local hooks_dest="$nexus_home/hooks"
+    local runner="$repo_root/scripts/lib/integrations/runner.py"
+
+    echo ""
+    write_subsection_banner "Project auto-seed (Antigravity .agents/, Cursor, Claude)"
+    echo ""
+
+    # Ship the on-open hook script (fail-open, idempotent, opt-out) regardless of scope.
+    mkdir -p "$hooks_dest"
+    local hook_src="$repo_root/scripts/nexus-hub-autoseed.sh"
+    if [ -f "$hook_src" ]; then
+        safe_copy "$hook_src" "$hooks_dest/nexus-hub-autoseed.sh" true "[OK] on-open hook installed at: $hooks_dest/nexus-hub-autoseed.sh"
+        chmod +x "$hooks_dest/nexus-hub-autoseed.sh" 2>/dev/null || true
+    fi
+
+    # Auto-seed the current repo on a GLOBAL install run from inside a git work
+    # tree (a workspace install already seeded its target). Skips the source cache
+    # and honors the opt-out. (Under the curl|bash bootstrap the invocation dir may
+    # be the cache; the nexus-hub init hint + the on-open hook cover that case.)
+    if [ "$scope_label" = "Global" ] && [ "${NEXUS_HUB_NO_AUTOSEED:-0}" != "1" ]; then
+        local py
+        if [ -f "$runner" ] && py=$(resolve_python_executable 2>/dev/null); then
+            local cwd; cwd="$(pwd -P 2>/dev/null || pwd)"
+            case "$cwd" in
+                "$nexus_home"|"$nexus_home"/*) : ;;  # never seed the source cache
+                *)
+                    if git -C "$cwd" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+                        write_item "Seeding project surfaces in the current repo: $cwd" "$GRAY"
+                        "$py" "$runner" init --target "$cwd" --quiet >/dev/null 2>&1 || true
+                        write_item "[OK] Current repo seeded (Antigravity .agents/, Cursor rules, Claude stub)." "$GREEN"
+                    fi
+                    ;;
+            esac
+        fi
+    fi
+
+    # Prominence: seeding OTHER repos, and enabling the on-open hook.
+    write_item "To surface Nexus-Hub in another project, run inside it:  nexus-hub init" "$YELLOW"
+    write_item "Optional 'seed on project open' hook (opt-in; the installer never edits your shell rc):" "$RESET"
+    case "$(basename "${SHELL:-}")" in
+        zsh)  write_item "  Add to ~/.zshrc:   source \"\$HOME/.nexus-hub/hooks/nexus-hub-autoseed.sh\"" "$CYAN" ;;
+        *)    write_item "  Add to ~/.bashrc:  source \"\$HOME/.nexus-hub/hooks/nexus-hub-autoseed.sh\"" "$CYAN" ;;
+    esac
+    write_item "  Disable auto-seed anytime with: export NEXUS_HUB_NO_AUTOSEED=1" "$GRAY"
+    echo ""
+}
+
 # --- Skill Discovery ---
 
 install_skill_discovery() {
@@ -2736,6 +2797,11 @@ install_templates "$REPO_ROOT"
 
 # Install the nexus-hub CLI launcher + version marker (v3.7.0 Phase 3).
 install_cli_launcher "$REPO_ROOT"
+
+# Project auto-seed + on-open hook (v3.11.0 Phase 7.3): seed the current repo on a
+# global install run from inside it, ship the opt-in on-open hook, and surface
+# `nexus-hub init` for other projects.
+install_project_autoseed "$REPO_ROOT" "$SCOPE_LABEL"
 
 # Resolve any managed-file conflicts collected during an interactive install
 # (single end-of-run prompt). No-op on the non-interactive / --yes / --force path.
