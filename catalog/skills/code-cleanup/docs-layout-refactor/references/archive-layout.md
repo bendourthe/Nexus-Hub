@@ -7,17 +7,20 @@ build or extend an archive.
 
 ## Layout convention
 
-The archive mirrors the active layout. Every Cat 2 file lands at:
+The archive mirrors the active layout (`docs/v<MAJOR>/v<MAJOR>.<MINOR>/`). Every
+Cat 2 file lands at:
 
 ```
-docs/archive/<source-version>/<topic>/<file>.md
+docs/archive/v<MAJOR>/v<MAJOR>.<MINOR>/<topic>/<file>.md
 ```
 
-- `<source-version>` is the file's owning version directory (e.g. `v0.9.7`).
+- `v<MAJOR>` is the leading major of the file's source version (`v0.9.7` -> `v0`).
+- `v<MAJOR>.<MINOR>` is the minor bucket of the source version (`v0.9.7` -> `v0.9`);
+  patch releases collapse into the shared minor dir.
 - `<topic>` is the file's topic subdirectory inside the source version
-  (e.g. `plans`, `reviews`, `execution/deploy-checklists`).
-- If the source file sits at the version root (no topic subdir),
-  archive it under `<source-version>/misc/`.
+  (e.g. `plans`, `comparisons`, `reviews`, `execution/deploy-checklists`).
+- If the source file sits at the version root (no topic subdir), archive it
+  under `v<MAJOR>/v<MAJOR>.<MINOR>/misc/`.
 
 For files that lived in a top-level `docs/` subdirectory rather than a
 version dir (`docs/git/`, `docs/security/`, etc.), promote the subdirectory
@@ -32,35 +35,39 @@ archives to `docs/archive/git/gitignore-audit-2026-04-22.md`.
 
 ## Example tree
 
-This is the example the user supplied in the original request. It shows the
-two layout modes side by side: version-keyed (the default) and date-keyed
-exception (top-level subdirs moved wholesale).
+This shows the two layout modes side by side: version-keyed minor-grouped (the
+default) and the date-keyed exception (top-level subdirs moved wholesale).
 
 ```
 docs/archive/
-├── README.md                           # the rule + the exception
+├── README.md                               # the rule + the exception
 │
-├── v0.9.0/
-│   └── reviews/
-│       └── comprehensive-review.md     # was docs/v0.9.0/development/comprehensive_review.md
+├── v0/
+│   └── v0.9/
+│       ├── reviews/
+│       │   └── comprehensive-review.md     # was docs/v0.9.0/development/comprehensive_review.md
+│       └── comparisons/
+│           └── comparison-foo.md           # was docs/v0.9.7/comparison-foo.md
 │
-├── v1.0.0/
-│   ├── plans/
-│   │   └── implementation-plan.md      # was docs/v1.0.0/development/implementation-plan.md
-│   ├── execution/
-│   │   └── deploy-checklists/
-│   │       ├── v0.9.13.md              # was docs/v1.0.0/deploy-checklist-v0.9.13.md
-│   │       └── v0.9.14.md              # was docs/v1.0.0/deploy-checklist-v0.9.14.md
-│   ├── reviews/
-│   │   └── codebase-review.md          # was docs/v1.0.0/review.md
-│   └── audits/
-│       └── repo-history-audit.md       # was docs/v1.0.0/repo-history-audit.md
+├── v1/
+│   └── v1.0/
+│       ├── plans/
+│       │   └── v1.0.0-implementation-plan.md  # was docs/v1.0.0/development/implementation-plan.md
+│       ├── execution/
+│       │   └── deploy-checklists/
+│       │       ├── v0.9.13.md              # was docs/v1.0.0/deploy-checklist-v0.9.13.md
+│       │       └── v0.9.14.md              # was docs/v1.0.0/deploy-checklist-v0.9.14.md
+│       └── reviews/
+│           └── codebase-review.md          # was docs/v1.0.0/review.md
 │
-└── test_and_validation/                # date-keyed exception (moved wholesale)
+└── test_and_validation/                    # date-keyed exception (moved wholesale)
     ├── baselines/
     ├── plans/
     └── test-results/
 ```
+
+Note how `v0.9.0` and `v0.9.7` (two patch releases) collapse into a single
+`v0/v0.9/` minor bucket, with their artifacts separated by topic subdirectory.
 
 ## `docs/archive/README.md` template
 
@@ -94,19 +101,27 @@ shape rather than being version-keyed.
 
 | Archived path | Source path | Source version | Archived on |
 |---|---|---|---|
-| <archive/v0.9.0/reviews/comprehensive-review.md> | <docs/v0.9.0/development/comprehensive_review.md> | v0.9.0 | YYYY-MM-DD |
+| <archive/v0/v0.9/reviews/comprehensive-review.md> | <docs/v0.9.0/development/comprehensive_review.md> | v0.9.0 | YYYY-MM-DD |
 | ... | ... | ... | ... |
 ```
 
 ## Collision rule
 
-If two source files target the same archive destination (rare; happens when
-two version dirs contain a file with the same name), suffix the older copy
+Plans and comparison reports are release-prefixed (`v<MAJOR>.<MINOR>.<PATCH>-<slug>.md`),
+so two patch releases sharing one minor dir do not collide even after archival:
+
+```
+docs/archive/v0/v0.8/plans/v0.8.1-implementation-plan.md
+docs/archive/v0/v0.8/plans/v0.8.2-implementation-plan.md   # different release, no collision
+```
+
+If two source files still target the same archive destination (rare; a
+non-prefixed filename that appears in two version dirs), suffix the older copy
 with `-<source-version>`:
 
 ```
-docs/archive/plans/implementation-plan-v0.8.1.md
-docs/archive/plans/implementation-plan.md            # canonical, newer
+docs/archive/v0/v0.8/misc/notes-v0.8.1.md
+docs/archive/v0/v0.8/misc/notes.md                          # canonical, newer
 ```
 
 Never silently overwrite.

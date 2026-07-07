@@ -35,7 +35,7 @@ The `compare-project` skill produces a Security assessment and a Reverse-Enginee
 
 ## Output and the /plan chain
 
-The comparison report is written to `docs/<version>/comparison-<name>.md` per the `compare-project` skill. After the report is written, offer to chain into `/plan from-comparison`, which ingests the report's prioritized adoption plan and produces a phased implementation plan with reverse-engineer-first ordering.
+The comparison report is written to `docs/v<MAJOR>/v<MAJOR>.<MINOR>/comparisons/comparison-<name>.md` per the `compare-project` skill (see the `docs-layout-refactor` Version-directory resolution for the scheme). After the report is written, offer to chain into `/plan from-comparison`, which ingests the report's prioritized adoption plan and produces a phased implementation plan with reverse-engineer-first ordering.
 
 ## Notes
 

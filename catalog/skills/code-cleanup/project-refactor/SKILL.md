@@ -65,7 +65,7 @@ This skill operates on:
 ## What This Skill Does
 
 1. **Rule Loading** — reads layout rules from `CLAUDE.md` / `AGENTS.md` / `GEMINI.md` / project config; falls back to Nexus-Hub defaults.
-2. **Active-version Detection** — resolves the active version from `--active-version`, `CHANGELOG.md`, latest git tag, or `docs/versions/`. The active major is the cut-off for prior-version archival.
+2. **Active-version Detection** — resolves the active version from `--active-version`, `CHANGELOG.md`, latest git tag, or the `docs/v*/` version tree. The active major is the cut-off for prior-version archival.
 3. **Inventory and Classification** — every in-scope file is classified Stay / Move / Archive / Ambiguous against the loaded rules and the prior-version heuristics.
 4. **Impact Analysis** — finds every reference to each file that will move or be archived, across all file types, before touching anything. CI/CD references are flagged HIGH risk.
 5. **Confirmation Gate** — propose-only by default; never moves a file without explicit user approval at the gate.

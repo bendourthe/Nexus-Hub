@@ -1,13 +1,13 @@
 ---
 name: known-gaps-tracker
-description: Maintain docs/<version>/known-gaps.md - a per-version log of items that were not implemented, deferred, buggy, suppressed, or left without coverage at the end of each phase. /implement-phase appends, /wrap-up-session sweeps and finalizes, /generate-plan ingests open items into the next plan.
+description: Maintain docs/v<MAJOR>/v<MAJOR>.<MINOR>/known-gaps.md - a per-minor-version log (patch releases append their own subsection) of items that were not implemented, deferred, buggy, suppressed, or left without coverage at the end of each phase. /implement-phase appends, /wrap-up-session sweeps and finalizes, /generate-plan ingests open items into the next plan.
 summary_l0: "Track per-version unfinished work, deferred items, bugs, and coverage gaps for the next plan"
-overview_l1: "This skill maintains docs/<version>/known-gaps.md as a per-version, append-only log of items that did not reach a clean state by the end of a phase: subtasks not implemented, work intentionally deferred, bugs found but not fixed, warnings suppressed, missing tests or coverage gaps, and quality gates the user opted to bypass. /implement-phase appends to it after each phase; /wrap-up-session sweeps the live conversation for any uncaptured gaps and finalizes the file when the version is bumped; /generate-plan reads the immediately prior version's known-gaps.md (and any older still-in-progress files) to seed the discovery interview for the next plan, so unfinished work is automatically pulled forward. Trigger phrases: known gaps, deferred work, carryover, unfinished items, what was left over, prior version gaps, docs/<version>/known-gaps.md."
+overview_l1: "This skill maintains docs/v<MAJOR>/v<MAJOR>.<MINOR>/known-gaps.md as a per-minor-version, append-only log of items that did not reach a clean state by the end of a phase: subtasks not implemented, work intentionally deferred, bugs found but not fixed, warnings suppressed, missing tests or coverage gaps, and quality gates the user opted to bypass. Because patch releases share their minor directory, the file is multi-release aware - each patch appends its own subsection rather than overwriting a shared file. /implement-phase appends to it after each phase; /wrap-up-session sweeps the live conversation for any uncaptured gaps and finalizes the file when the version is bumped; /generate-plan reads the immediately prior version's known-gaps.md (and any older still-in-progress files) to seed the discovery interview for the next plan, so unfinished work is automatically pulled forward. Trigger phrases: known gaps, deferred work, carryover, unfinished items, what was left over, prior version gaps, docs/<version>/known-gaps.md."
 ---
 
 # Known-Gaps Tracker
 
-Maintain `docs/<version>/known-gaps.md` as a per-version, append-only record of work that did not reach a clean state by the end of each phase, and pull open items forward into the next version's plan.
+Maintain `docs/v<MAJOR>/v<MAJOR>.<MINOR>/known-gaps.md` as a per-minor-version, append-only record of work that did not reach a clean state by the end of each phase, and pull open items forward into the next version's plan. Patch releases share the minor directory, so the file is multi-release aware: each patch release appends its own `## v<MAJOR>.<MINOR>.<PATCH>` subsection under a single file-level header (see `[[docs-layout-refactor]]`'s Version-directory resolution for the scheme).
 
 ## When to Use This Skill
 
@@ -19,16 +19,18 @@ Maintain `docs/<version>/known-gaps.md` as a per-version, append-only record of 
 
 ## File Format
 
-Path: `docs/<version>/known-gaps.md` - one file per version that has had at least one phase implemented.
+Path: `docs/v<MAJOR>/v<MAJOR>.<MINOR>/known-gaps.md` - **one file per minor version** that has had at least one phase implemented. Patch releases share their minor directory, so the file carries a single file-level header (`Project`, `Status`, `Last updated`) followed by one `## v<MAJOR>.<MINOR>.<PATCH>` subsection per patch release; a new patch appends its subsection rather than overwriting the header or a prior patch's items.
 
 ```markdown
-# Known Gaps - <version>
+# Known Gaps - v3.10
 
 **Project**: <name>
 **Status**: in-progress | finalized
 **Last updated**: <YYYY-MM-DD>
 
-## Summary
+## v3.10.0
+
+### Summary
 
 | Category | Open | Resolved |
 |---|---|---|
@@ -39,52 +41,56 @@ Path: `docs/<version>/known-gaps.md` - one file per version that has had at leas
 | Missing tests / coverage gaps (MT) | N | N |
 | Quality-gate gaps (QG) | N | N |
 
-## Open Items
+### Open Items
 
-### Not Implemented
+#### Not Implemented
 
-#### NI-1 - <short title>
+##### NI-1 - <short title>
 
 - **Source phase**: Phase N - <name>
-- **Plan reference**: `docs/<version>/plans/<slug>.md` (sub-task N.X)
+- **Plan reference**: `docs/v3/v3.10/plans/v3.10.0-<slug>.md` (sub-task N.X)
 - **Reason**: <why it was skipped or could not be completed>
 - **Suggested next step**: <one-line actionable hint for the next plan>
 
-### Deferred
+#### Deferred
 
 (DF-1 ... using the same shape as NI)
 
-### Bugs / Regressions
+#### Bugs / Regressions
 
 (BG-1 ... include reproduction steps and observed-vs-expected behavior when known)
 
-### Warnings
+#### Warnings
 
 (WN-1 ... e.g., suppressed lint rules with reason, runtime warnings, dependency deprecation notices)
 
-### Missing Tests / Coverage Gaps
+#### Missing Tests / Coverage Gaps
 
 (MT-1 ... files below the project coverage threshold and which paths are uncovered)
 
-### Quality-Gate Gaps
+#### Quality-Gate Gaps
 
 (QG-1 ... gates the user opted to bypass with "Proceed anyway", e.g., 75% coverage instead of 80%)
 
-## Resolved
+### Resolved
 
 | ID | Title | Resolved in | Notes |
 |---|---|---|---|
 | NI-3 | Settings panel keyboard shortcuts | Phase 5 | Implemented as part of authentication subtask |
+
+## v3.10.1
+
+(the next patch release appends its own section here with the same Summary / Open Items / Resolved shape; the file-level header above is written once and never rewritten)
 ```
 
-ID prefixes are stable: `NI-`, `DF-`, `BG-`, `WN-`, `MT-`, `QG-`. Numbers are monotonic per category within a version - never reuse an ID once written, even after the item is resolved.
+ID prefixes are stable: `NI-`, `DF-`, `BG-`, `WN-`, `MT-`, `QG-`. Numbers are monotonic per category within the minor file (across all `## v<MAJOR>.<MINOR>.<PATCH>` subsections) - never reuse an ID once written, even after the item is resolved or a later patch adds new items.
 
 ## Instructions
 
 ### Append (during `/implement-phase` Phase 8)
 
-1. Locate or create `docs/<version>/known-gaps.md`. The version is the one that owns the active plan (`docs/<version>/plans/<slug>.md`).
-2. If the file does not exist, create it with the header (`Project`, `Status: in-progress`, `Last updated`) and empty section scaffolding.
+1. Resolve the minor directory for the active plan per `[[docs-layout-refactor]]`'s Version-directory resolution, then locate or create `docs/v<MAJOR>/v<MAJOR>.<MINOR>/known-gaps.md`. Within it, locate or create the `## v<MAJOR>.<MINOR>.<PATCH>` subsection for the specific patch release being implemented; append this phase's items under that subsection only, never under a different patch's and never by rewriting the file-level header.
+2. If the file does not exist, create it with the file-level header (`Project`, `Status: in-progress`, `Last updated`) followed by the current release's `## v<MAJOR>.<MINOR>.<PATCH>` subsection with empty section scaffolding. If the file exists but has no subsection for the current patch, append a new `## v<MAJOR>.<MINOR>.<PATCH>` subsection rather than editing an existing one.
 3. Walk the artifacts produced by Phases 2 through 7 of `/implement-phase`:
     - `# DEVIATION:` markers from Phase 2 - classify as `NI` (skipped), `DF` (intentionally deferred), or `BG` (deviation revealed a bug) based on the deviation reason.
     - Unresolved test failures from Phase 6 when the user picked option A "Skip failing tests" - classify as `BG`.
@@ -94,19 +100,19 @@ ID prefixes are stable: `NI-`, `DF-`, `BG-`, `WN-`, `MT-`, `QG-`. Numbers are mo
 4. For each item:
     - Allocate the next ID in its category (e.g., `NI-4` if `NI-3` was the last one used).
     - Write all four required fields: `Source phase`, `Plan reference`, `Reason`, `Suggested next step`.
-    - Append under the matching `## Open Items` subsection.
+    - Append under the matching `### Open Items` subsection of the current patch's `## v<MAJOR>.<MINOR>.<PATCH>` section.
 5. If this phase resolved any earlier open item (look up by code-change scope or by explicit reference in the deviation log), move that item from `## Open Items` to the `## Resolved` table with `Resolved in: Phase N`.
-6. Recompute the `## Summary` table counts so they match the actual number of items in each subsection.
-7. Update `Last updated` to today's date.
+6. Recompute the current patch section's `### Summary` table counts so they match the actual number of items in each subsection.
+7. Update the file-level `Last updated` to today's date.
 8. Do **not** finalize the file here - that is `/wrap-up-session`'s job at version bump.
 
 ### Sweep (during `/wrap-up-session` Phase 4)
 
-1. Re-read `docs/<version>/known-gaps.md`. Create it (status `in-progress`) if it does not exist.
+1. Re-read `docs/v<MAJOR>/v<MAJOR>.<MINOR>/known-gaps.md` and the current patch's `## v<MAJOR>.<MINOR>.<PATCH>` subsection. Create the file (status `in-progress`) and/or the patch subsection if either does not exist.
 2. Mine the live session conversation for items not already captured during `/implement-phase`. Look for: "we'll come back to", "TODO", "deferred", "skipped", "good enough for now", suppressed warnings, hand-rolled mocks left in production code, stubbed-out functions, commented-out tests, partial implementations marked as such in chat.
 3. Add any new items using the same ID allocation rules as Append. Cite the originating session (date) in the `Reason` field when the item came from chat rather than from a plan deviation.
-4. Recompute the `## Summary` table.
-5. Update `Last updated` to today's date.
+4. Recompute the current patch section's `### Summary` table.
+5. Update the file-level `Last updated` to today's date.
 
 ### Finalize (during `/wrap-up-session` Phase 6 if a version bump occurs)
 
@@ -121,8 +127,8 @@ ID prefixes are stable: `NI-`, `DF-`, `BG-`, `WN-`, `MT-`, `QG-`. Numbers are mo
 
 1. Resolve the prior version: the immediately previous semver tag (for a `v0.2.0` plan, look at `v0.1.0`).
 2. Build the candidate file list:
-    - `docs/<prior-version>/known-gaps.md` - always include if it exists.
-    - Any older `docs/v*/known-gaps.md` whose `Status:` is still `in-progress` (gaps that lingered across more than one version).
+    - The prior version's `docs/v<MAJOR>/v<MAJOR>.<MINOR>/known-gaps.md` (resolve its minor dir per the Version-directory resolution) - always include if it exists.
+    - Any older in-progress known-gaps file, matching both the two-level `docs/v*/v*/known-gaps.md` and the legacy flat `docs/v*/known-gaps.md` globs, whose `Status:` is still `in-progress` (gaps that lingered across more than one version).
 3. Parse all candidate files. Merge their `## Open Items` into a single in-memory list, tagged with the originating version.
 4. If the merged list is non-empty, show the user a compact summary and ask how to handle them:
 
@@ -157,9 +163,9 @@ ID prefixes are stable: `NI-`, `DF-`, `BG-`, `WN-`, `MT-`, `QG-`. Numbers are mo
 
 ## Verification
 
-- [ ] `docs/<version>/known-gaps.md` exists and has the required header (`Project`, `Status`, `Last updated`).
+- [ ] `docs/v<MAJOR>/v<MAJOR>.<MINOR>/known-gaps.md` exists with a single file-level header (`Project`, `Status`, `Last updated`) and one `## v<MAJOR>.<MINOR>.<PATCH>` subsection per implemented patch release (a new patch appends a subsection, never overwriting the header or a prior patch's items).
 - [ ] Every open item has all four fields: `Source phase`, `Plan reference`, `Reason`, `Suggested next step`.
-- [ ] Summary-table counts match the actual number of items in each subsection (compute, do not estimate).
+- [ ] Each patch subsection's `### Summary`-table counts match the actual number of items in that subsection (compute, do not estimate).
 - [ ] After `/wrap-up-session` runs on a version bump, `Status:` reads `finalized` and the version-bump note is present immediately after the Summary table.
 - [ ] When `/generate-plan` ingests items, the corresponding entries in the source file have moved from `## Open Items` to `## Resolved` with `Resolved in: transferred to <new-version> plan`.
 - [ ] Item IDs are not reused: a resolved `NI-3` does not become a new `NI-3` later.

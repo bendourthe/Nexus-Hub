@@ -2,7 +2,7 @@
 name: implementation-plan
 description: >-
   Guide the user through a structured discovery interview to generate a comprehensive
-  phased plan (docs/versions/<vMAJOR>/<vSEMVER>/plans/<slug>.md) for their project. Works
+  phased plan (docs/v<MAJOR>/v<MAJOR>.<MINOR>/plans/v<MAJOR>.<MINOR>.<PATCH>-<slug>.md) for their project. Works
   for initial v0.1.0 builds, feature additions, UX enhancements, refactors, and bug-fix campaigns.
   Asks targeted questions appropriate to the plan type, then generates a phased plan
   where each phase contains sub-tasks with detailed executable prompts, ends with test
@@ -11,7 +11,7 @@ description: >-
   when /compare-project hands off a comparison report to operationalize, or when a user
   asks to create an implementation plan, v0.1.0 plan, enhancement plan, refactor plan,
   or roadmap.
-summary_l0: "Generate a phased plan through guided discovery, saved to docs/versions/<vMAJOR>/<vSEMVER>/plans/<slug>.md"
+summary_l0: "Generate a phased plan through guided discovery, saved to docs/v<MAJOR>/v<MAJOR>.<MINOR>/plans/v<MAJOR>.<MINOR>.<PATCH>-<slug>.md"
 overview_l1: >-
   This skill conducts a structured discovery interview — asking one question at a
   time — to collect everything needed to write a comprehensive phased plan. The first
@@ -22,9 +22,9 @@ overview_l1: >-
   runtime behavior, integrations, performance, definition of done, and testing. For
   enhancements/refactors the interview uses a shorter scope-focused question set:
   goal, in/out scope, affected areas, constraints, definition of done, and testing.
-  After the interview the skill writes the plan to docs/versions/<vMAJOR>/<vSEMVER>/plans/<slug>.md
+  After the interview the skill writes the plan to docs/v<MAJOR>/v<MAJOR>.<MINOR>/plans/v<MAJOR>.<MINOR>.<PATCH>-<slug>.md
   (the legacy flat layout docs/<vSEMVER>/plans/<slug>.md is honored when already present;
-  see /generate-plan Step 0b.5 for the path-resolution algorithm) structured into numbered
+  see the docs-layout-refactor Version-directory resolution for the path-resolution algorithm) structured into numbered
   phases with numbered sub-tasks. Every sub-task includes a
   self-contained executable prompt that can be handed directly to Claude Code in a
   future session. Each phase ends with a dedicated testing and troubleshooting
@@ -41,7 +41,7 @@ overview_l1: >-
 
 Guide the user through a structured discovery interview, then generate a comprehensive plan at `<version_dir>/plans/<slug>.md` broken into phased sub-tasks — each with an executable prompt — so the full effort can be completed session by session.
 
-`<version_dir>` is resolved per `/generate-plan` Step 0b.5. The canonical layout is `docs/versions/<vMAJOR>/<vSEMVER>/` (e.g., `docs/versions/v2/v2.1.0/`); legacy projects using the flat `docs/<vSEMVER>/` layout are auto-detected and respected to avoid mid-version path churn. Use `/refactor-docs` to migrate a legacy project to the canonical layout.
+`<version_dir>` is resolved per the `[[docs-layout-refactor]]` skill's Version-directory resolution algorithm. The canonical layout is `docs/v<MAJOR>/v<MAJOR>.<MINOR>/` (e.g., `docs/v3/v3.11/`), with patch releases sharing their minor dir; legacy projects using the flat `docs/<vSEMVER>/` or the old three-level `docs/versions/<vMAJOR>/<vSEMVER>/` layout are auto-detected and respected to avoid mid-version path churn. Use `/update refactor` to migrate a legacy project to the canonical layout.
 
 The command entry point is `/generate-plan`. When invoked with a comparison report path (`/generate-plan <version_dir>/comparison-<name>.md`), the command enters *From-comparison mode* (Step 0.5): it pre-seeds the interview from the report's Adoption Plan section, skipping questions the report already answers, and writes the plan to `<version_dir>/plans/adoption-<name>.md`.
 
@@ -148,9 +148,9 @@ When neither file exists, note that and proceed - grounding is best-effort, not 
 
 ### Phase C: Generate the Plan File
 
-Resolve the target version (from git tags, CHANGELOG, or package manifests; default `v0.1.0` for fresh greenfield projects), then resolve `<version_dir>` per `/generate-plan` Step 0b.5 (canonical `docs/versions/<vMAJOR>/<vSEMVER>/` for new content; legacy `docs/<vSEMVER>/` preserved when already present). Derive a slug from the one-sentence scope statement collected at the start of the interview (lowercase, hyphen-separated, ~5 words, sanitized to `[a-z0-9-]+`). Confirm both with the user before writing.
+Resolve the target version (from git tags, CHANGELOG, or package manifests; default `v0.1.0` for fresh greenfield projects), then resolve `<version_dir>` per the `[[docs-layout-refactor]]` Version-directory resolution algorithm (canonical `docs/v<MAJOR>/v<MAJOR>.<MINOR>/` for new content, patch releases sharing their minor dir; legacy `docs/<vSEMVER>/` or `docs/versions/<vMAJOR>/<vSEMVER>/` preserved when already present). Derive a slug from the one-sentence scope statement collected at the start of the interview (lowercase, hyphen-separated, ~5 words, sanitized to `[a-z0-9-]+`); the plan file is then named with a release prefix - `v<MAJOR>.<MINOR>.<PATCH>-<slug>.md` - so multiple patch releases sharing one minor dir never collide. Confirm both with the user before writing.
 
-Create `<version_dir>/plans/` if it does not exist and write to `<version_dir>/plans/<slug>.md` following the structure below.
+Create `<version_dir>/plans/` if it does not exist and write to `<version_dir>/plans/v<MAJOR>.<MINOR>.<PATCH>-<slug>.md` following the structure below.
 
 #### File Header
 
@@ -320,7 +320,7 @@ This step adds no outbound call, dependency, or credential of its own - the heav
 
 ### Step 4: Write the Plan
 
-Create `<version_dir>/plans/` if it does not exist (where `<version_dir>` is the path resolved earlier — canonically `docs/versions/<vMAJOR>/<vSEMVER>/`, with legacy `docs/<vSEMVER>/` honored when already present), then write `<slug>.md` inside it following the structure above. If the target file already exists, ask the user whether to **Regenerate** (overwrite), **Append** (add phases), or **Rename** (pick a new slug).
+Create `<version_dir>/plans/` if it does not exist (where `<version_dir>` is the path resolved earlier - canonically `docs/v<MAJOR>/v<MAJOR>.<MINOR>/`, with legacy `docs/<vSEMVER>/` or `docs/versions/<vMAJOR>/<vSEMVER>/` honored when already present), then write the release-prefixed `v<MAJOR>.<MINOR>.<PATCH>-<slug>.md` inside it following the structure above. If the target file already exists, ask the user whether to **Regenerate** (overwrite), **Append** (add phases), or **Rename** (pick a new slug).
 
 ### Step 5: Review and Confirm
 
@@ -354,7 +354,7 @@ Incorporate feedback, then write the final file.
 - [ ] Every phase carries a recommended model (or an explicit assess-at-implementation placeholder) in both the "Phases at a Glance" column and its `**Recommended model**` field
 - [ ] `## Constitution Check` section present between `## Overview` and `## Phases at a Glance` (with PASS / FAIL / N/A per MUST principle, or the informational note when no constitution file exists)
 - [ ] `## Complexity Tracking` section present near the end of the file (empty table when no FAIL bullets; populated row per FAIL otherwise)
-- [ ] File written to the resolved `<version_dir>/plans/<slug>.md` (canonical `docs/versions/<vMAJOR>/<vSEMVER>/plans/<slug>.md` or legacy `docs/<vSEMVER>/plans/<slug>.md`)
+- [ ] File written to the resolved `<version_dir>/plans/v<MAJOR>.<MINOR>.<PATCH>-<slug>.md` (canonical `docs/v<MAJOR>/v<MAJOR>.<MINOR>/plans/v<MAJOR>.<MINOR>.<PATCH>-<slug>.md` or legacy `docs/<vSEMVER>/plans/<slug>.md`)
 - [ ] User confirmed the phase breakdown before final generation
 
 ## Related Skills
