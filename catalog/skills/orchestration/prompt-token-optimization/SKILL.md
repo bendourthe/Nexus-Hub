@@ -270,6 +270,25 @@ After applying optimizations, re-run the same representative tasks and compare.
 - **Set token budgets per task** and treat them as soft constraints to build discipline around context management
 - **Revisit your optimization strategy** monthly as model capabilities and pricing change
 
+## Optical / image-token context compression
+
+A class of proxy tools renders bulky static context (the system prompt, tool documentation, large tool results, closed conversation-history prefixes) as dense raster images and lets the model read it back through its vision head. The appeal is a billing asymmetry: images are priced by pixel dimensions, not character count, so densely-rendered text can pack many characters into few visual tokens. Treat this as a narrow, lossy cost lever, not a general token-savings technique, and reach for it only after exhausting the lossless options below.
+
+**The research grounding is real, but early.** The idea rests on a specific 2025 research line, not folklore. DeepSeek-OCR ("Contexts Optical Compression", arXiv 2510.18234) reports about 97% decode precision at roughly 10x compression, collapsing toward 60% near 20x. Glyph ("Scaling Context Windows via Visual-Text Compression", arXiv 2510.17800) reaches roughly 3x to 4x compression at accuracy comparable to a text baseline, and names OCR fidelity on rare alphanumeric sequences and UUIDs as the binding constraint. These are 2025 results: production-grade only in the narrow OCR / document-extraction case, and research-preview for general long-context. No mainstream lab ships "render your context as images" as a first-class long-context feature.
+
+**The economics invert on strong models.** Anthropic bills images per 28x28-pixel patch: an image costs `ceil(width / 28) * ceil(height / 28)` visual tokens. Standard-tier models cap at 1,568 visual tokens; the high-resolution tier that strong models use (Opus-class, Sonnet 5, Fable 5) caps at 4,784 and roughly triples image cost. Worked example, one page of code (about 50 lines, roughly 2,250 characters):
+
+- **As text**: about 750 to 1,050 tokens (code is roughly 3.5 characters per token; use the API's token-counting endpoint for an exact figure, not a third-party tokenizer).
+- **As a legible image on an Opus-class model** (about 150 DPI, 1275x1650 px): `ceil(1275 / 28) * ceil(1650 / 28) = 46 * 59 = 2,714` visual tokens; at a comfortable 200 DPI it hits the 4,784 cap.
+
+So at any resolution where the code stays legible, the image costs roughly 1.5x to 5x MORE than the same text, the opposite of a saving. Headline savings figures (the widely-shared "60% to 70%") come from rendering text illegibly dense and from a vision encoder that tolerates that density. The savings and the fidelity are the same dial turned in opposite directions: to reach the big savings you render at a density where exact strings are lost, and to recover fidelity you raise resolution until the savings evaporate. On a strong general model there is no operating point that is simultaneously cheap and byte-exact.
+
+**The failure mode is silent, and it is worst-case for code.** The technique is lossy by construction, and its misses are silent confabulations, not errors: the model returns a confident, plausible-but-wrong value (a flipped hex digit, a 0/O or 1/l substitution, a case flip) with no low-confidence signal to catch. Published tests report 12-character hex verbatim recall collapsing to 0% on Opus-class models. For a coding assistant this is the most dangerous error class: hashes, hex, base64, version pins, secrets, and near-identical identifiers must be byte-exact, and a silent one-character substitution still parses, passes lint, and passes human review. Rendering to pixels also forfeits verbatim reproduction, exact character-level diffs, and exact search against the original, which are core coding-agent operations.
+
+**The rule: byte-exact content stays as text.** Never image any content that must be reproduced, diffed, or searched exactly (IDs, hashes, secrets, precise numbers, literal code to edit). If you route content through any lossy transform (an imaging proxy, an aggressive summarizer), keep exact strings on a separate, text-only channel; see [[egress-redaction]] for the trust-boundary discipline on what crosses a mutating boundary.
+
+**Prefer the lossless levers first.** For the same large, static context, the correct default is the lossless stack this catalog already ships: prompt caching for repeated static prefixes, context pruning and hygiene (Steps 1 through 6 above), and the local `nexus-context-compressor` engine (`guides/reference/RTK_CONTEXT_COMPRESSION.md`), which drops spans reversibly rather than lossily. Prefer choosing the cheapest capable model for the task (see [[model-routing]]) over lossily compressing context to fit an expensive one. When cost is the binding constraint, cap it directly with [[ai-billing-safeguards]] and shape the window deliberately with [[context-engineering]] and [[context-compression]], rather than trading silent correctness for pixels.
+
 ## Common Rationalizations
 
 | Rationalization | Reality |
@@ -277,6 +296,7 @@ After applying optimizations, re-run the same representative tasks and compare.
 | "I will optimize the prompt that feels longest." | Intuition picks the wrong target. Without a baseline token audit you often shave a 200-token prompt while a tool-definition block silently eats 8,000 tokens per turn. Measure first, then optimize the actual bottleneck. |
 | "Compacting harder always saves more, so more is better." | Past a point, aggressive compaction strips the context the model needs and quality drops, forcing re-work that costs more tokens than it saved. Token reduction that degrades output is a net loss, not a win. |
 | "Programmatic tool calling is overkill; I will just call the tools one at a time." | For an exploration-heavy workflow, sequential tool calls re-pay the round-trip token cost on every step. A single script that batches the calls and returns only the relevant slice is where the 24-85% reduction comes from. |
+| "Rendering the big files as images will cut my token bill with no downside." | It is lossy by construction: exact strings are silently confabulated (published tests report 0% 12-character hex recall on Opus-class models), so a wrong hash or version pin passes lint and review undetected. And on the high-resolution image tier that strong models use, a legible page costs more tokens than the text it replaces. Use lossless prompt caching and context pruning, and keep byte-exact content as text. |
 
 ## Verification
 
@@ -285,6 +305,7 @@ After applying optimizations, re-run the same representative tasks and compare.
 - [ ] Post-optimization token consumption is measured and compared to baseline
 - [ ] Output quality was checked to confirm compaction did not strip critical context
 - [ ] The savings (percent reduction) are documented for the task
+- [ ] Any proposed image-token / optical-compression tactic keeps byte-exact content (IDs, hashes, secrets, code to edit) as text and prefers a lossless alternative (prompt caching, context pruning) for static bulk
 
 ## Related Skills
 
