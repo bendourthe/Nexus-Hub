@@ -41,17 +41,18 @@ function showAutoDismissNotification(message: string, _severity: NotificationSev
 }
 
 /**
- * Show the usage-threshold warning as a rich, still-auto-dismissing notification.
- * VS Code notifications cannot render a custom modal, but they DO render codicons
- * and a progress bar, so this maps the mockup onto the native toast: a `$(warning)`
- * title carrying the metric + percent; a determinate progress bar filled to the
- * usage percent (the notification's built-in bar - the closest native analog to a
- * usage ring); and a detail line of per-recommendation codicon rows - `$(arrow-swap)`
- * switch model, `$(dashboard)` reduce effort, `$(watch)` reset time. It stays a
- * `withProgress` notification so it self-dismisses on the configured timeout and
- * never stacks (the reason the toast uses withProgress rather than showWarningMessage).
- * The recommendation text is model-aware, taken verbatim from the shared
- * buildUsageSuggestion parts so the toast and the dashboard never drift (v0.6.0).
+ * Show the usage-threshold warning as a self-dismissing notification whose body
+ * mirrors the mockup's stacked layout. It stays a `withProgress` notification so
+ * it dismisses itself on the configured timeout and never stacks (the reason the
+ * toast never used showWarningMessage). Crucially it reports a MESSAGE ONLY and
+ * never an `increment`: an increment would fill the notification's progress bar
+ * (the visible bar we do not want), whereas reporting no increment keeps the toast
+ * bar-free, matching the original notification's look. The message carries the
+ * `$(warning)` header line plus the per-recommendation codicon rows - `$(arrow-swap)`
+ * switch model, `$(dashboard)` reduce effort, `$(watch)` reset time - on SEPARATE
+ * lines (joined with newlines) so they stack like the mockup. The recommendation
+ * text is model-aware, taken verbatim from the shared buildUsageSuggestion parts so
+ * the toast and the dashboard never drift (v0.6.0).
  */
 function showUsageWarningToast(suggestion: UsageSuggestion): void {
   const timeoutMs = getNotificationTimeoutMs();
@@ -62,8 +63,8 @@ function showUsageWarningToast(suggestion: UsageSuggestion): void {
   }
   rows.push(`$(dashboard) ${suggestion.effortAdvice}`);
   rows.push(`$(watch) ${formatResetLabel(suggestion.resetsIn)}`);
-  const detail = rows.join(" | ");
-  const fill = Math.max(0, Math.min(100, Math.round(suggestion.percent)));
+  // Separate lines (newline-joined) so the recommendations stack like the mockup.
+  const detail = rows.join("\n");
   void vscode.window.withProgress(
     {
       location: vscode.ProgressLocation.Notification,
@@ -71,9 +72,10 @@ function showUsageWarningToast(suggestion: UsageSuggestion): void {
       cancellable: true,
     },
     async (progress, token) => {
-      // A single increment renders the bar determinate at the usage percent; it
-      // then holds while the auto-dismiss timer runs (or the user clicks cancel).
-      progress.report({ increment: fill, message: detail });
+      // Message only, never an increment: reporting an increment fills the
+      // progress bar; reporting none keeps the toast bar-free (as the original)
+      // while it self-dismisses on the timer or on cancel.
+      progress.report({ message: detail });
       return new Promise<void>((resolve) => {
         const timer = setTimeout(resolve, timeoutMs);
         token.onCancellationRequested(() => {
