@@ -2803,6 +2803,17 @@ install_cli_launcher "$REPO_ROOT"
 # `nexus-hub init` for other projects.
 install_project_autoseed "$REPO_ROOT" "$SCOPE_LABEL"
 
+# Post-install per-platform verification (v3.11.0 Phase 7.4): report PASS /
+# NEEDS-ACTION per detected platform against its real read-path (advisory; never
+# fails the install).
+if [ -f "$REPO_ROOT/scripts/lib/integrations/runner.py" ]; then
+    if py=$(resolve_python_executable 2>/dev/null); then
+        echo ""
+        write_subsection_banner "Install verification"
+        "$py" "$REPO_ROOT/scripts/lib/integrations/runner.py" verify --target "$(pwd -P 2>/dev/null || pwd)" 2>/dev/null || true
+    fi
+fi
+
 # Resolve any managed-file conflicts collected during an interactive install
 # (single end-of-run prompt). No-op on the non-interactive / --yes / --force path.
 resolve_conflicts

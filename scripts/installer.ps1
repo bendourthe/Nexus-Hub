@@ -2964,6 +2964,18 @@ Install-CliLauncher -RepoRoot $repoRoot
 # `nexus-hub init` for other projects.
 Install-ProjectAutoseed -RepoRoot $repoRoot -ScopeLabel $scopeLabel
 
+# Post-install per-platform verification (v3.11.0 Phase 7.4): report PASS /
+# NEEDS-ACTION per detected platform against its real read-path (advisory).
+$verifyRunner = Join-Path $repoRoot "scripts\lib\integrations\runner.py"
+$pyVerify = $null
+foreach ($c in @("python", "py", "python3")) { if (Get-Command $c -ErrorAction SilentlyContinue) { $pyVerify = $c; break } }
+if ($pyVerify -and (Test-Path $verifyRunner)) {
+    Write-Host ""
+    Write-SubSectionBanner -Text "Install verification"
+    if ($pyVerify -eq "py") { & $pyVerify -3 $verifyRunner verify --target (Get-Location).Path 2>$null }
+    else { & $pyVerify $verifyRunner verify --target (Get-Location).Path 2>$null }
+}
+
 # Resolve any managed-file conflicts collected during an interactive install
 # (single end-of-run prompt). No-op on the non-interactive / -Yes / -Force path.
 Resolve-Conflicts
