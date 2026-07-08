@@ -108,7 +108,7 @@ function Get-SanitizedBranchName {
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-$script:NexusHubVersion = "3.10.3"
+$script:NexusHubVersion = "3.11.0"
 
 $Host.UI.RawUI.WindowTitle = "Nexus-Hub Installer"
 $script:InstallerTitle = "Nexus-Hub Installer"
@@ -2723,7 +2723,7 @@ function Remove-LegacyVSCodeExtensions {
 
 # Detects an existing ~/.devai-hub/ install and migrates it to ~/.nexus-hub/.
 # One-shot, one-way per the backward-compat decision in
-# docs/archive/v2/v2.0.0/rename-decisions.md. The installer does NOT ship a symlink or
+# docs/archive/v2/v2.0/rename-decisions.md. The installer does NOT ship a symlink or
 # compatibility shim. Three branches:
 #   1. legacy only             -> prompt to migrate (default Y), then Move-Item.
 #   2. legacy AND new co-exist -> ask user: keep-new, abort, or merge.

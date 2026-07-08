@@ -1,6 +1,6 @@
 # Platform Read-Contracts (v3.11.0 Phase 7.1)
 
-The authoritative, sourced map of where every supported platform READS each surface, and where the Nexus-Hub installer WRITES it. Built by auditing `scripts/lib/integrations/*.py`, `scripts/installer.sh`, `scripts/installer.ps1`, `docs/specs/*.md`, and `docs/archive/v2/v2.2.0/antigravity-cli-probe.md`. This table is the contract the Phase 7 fixes (7.2-7.3), the post-install verification (7.4), and the CI install-smoke (7.5) assert against. Findings only - 7.1 changes no installer behavior.
+The authoritative, sourced map of where every supported platform READS each surface, and where the Nexus-Hub installer WRITES it. Built by auditing `scripts/lib/integrations/*.py`, `scripts/installer.sh`, `scripts/installer.ps1`, `docs/specs/*.md`, and `docs/archive/v2/v2.2/antigravity-cli-probe.md`. This table is the contract the Phase 7 fixes (7.2-7.3), the post-install verification (7.4), and the CI install-smoke (7.5) assert against. Findings only - 7.1 changes no installer behavior.
 
 Source basis: repo code/config/spec (cited `file:line`). Contracts that depend on the current external platform's behavior and cannot be confirmed from the repo are flagged in "Residual live-verification gaps".
 

@@ -7480,9 +7480,9 @@
       "name": "tasks-to-issues",
       "title": "tasks-to-issues",
       "description": "Convert the strict task checklist in a feature directory's tasks.md (or plan.md) into linked GitHub issues via the local gh CLI. Drives /tasks-to-issues end-to-end - parses every `- [ ] T### [P?] [US?] file_path` line, builds a per-task issue payload with labels (`nexus-hub`, `spec-driven-task`, `parallel`, `user-story-N`), and either dry-runs the gh invocations or executes them sequentially after user confirmation. Use whenever the user wants to convert tasks to issues, create GitHub issues from a plan, file issues from tasks.md, dry-run the conversion to preview gh invocations, fan a plan out to issue tracking, or drive sprint planning from a generated plan. Trigger phrases include 'tasks to issues', 'convert tasks to issues', 'create issues from plan', 'file issues from tasks.md', 'issue tracking from plan', 'gh issue create from tasks', 'fan out tasks to GitHub', 'sprint from plan'. SKIP: project boards (use gh directly), milestone management, label creation, free-form issue authoring, plans whose tasks do NOT match the strict format (re-run /generate-plan first), or any flow that needs more than one issue per task.",
-      "long_description": "Drives the /tasks-to-issues command end-to-end. Locates the active feature directory (positional argument, .specify/feature.json, or most recent plan under docs/<version>/plans/), parses every `- [ ] T### [P?] [US?] file_path` line against the strict regex from Phase 6 of docs/archive/v2/v2.1.0/plans/adoption-spec-kit.md, builds a per-task issue payload (title, body with file path + user-story link, labels `nexus-hub` + `spec-driven-task` + optional `parallel` + optional `user-story-N`), and either prints the resolved `gh issue create` invocations one per task (--dry-run) or invokes them sequentially after user confirmation. The skill enforces idempotency by rewriting each successfully-filed task line to append `[gh#<num>]`, so re-runs skip already-converted tasks. Pre-flight checks verify gh is installed and authenticated and that the working directory resolves to a GitHub repo. The mechanical parsing + gh invocation lives in the per-skill scripts/tasks-to-issues.sh (POSIX) and scripts/tasks-to-issues.ps1 (PowerShell) helpers; the references/gh-cli-auth-runbook.md provides a one-page runbook on gh auth setup-git and rate-limit handling. Read-only when --dry-run is set; otherwise the only side effects are issue creation in the user's GitHub repo and idempotency-marker rewrites in the local source file.",
+      "long_description": "Drives the /tasks-to-issues command end-to-end. Locates the active feature directory (positional argument, .specify/feature.json, or most recent plan under docs/<version>/plans/), parses every `- [ ] T### [P?] [US?] file_path` line against the strict regex from Phase 6 of docs/archive/v2/v2.1/plans/adoption-spec-kit.md, builds a per-task issue payload (title, body with file path + user-story link, labels `nexus-hub` + `spec-driven-task` + optional `parallel` + optional `user-story-N`), and either prints the resolved `gh issue create` invocations one per task (--dry-run) or invokes them sequentially after user confirmation. The skill enforces idempotency by rewriting each successfully-filed task line to append `[gh#<num>]`, so re-runs skip already-converted tasks. Pre-flight checks verify gh is installed and authenticated and that the working directory resolves to a GitHub repo. The mechanical parsing + gh invocation lives in the per-skill scripts/tasks-to-issues.sh (POSIX) and scripts/tasks-to-issues.ps1 (PowerShell) helpers; the references/gh-cli-auth-runbook.md provides a one-page runbook on gh auth setup-git and rate-limit handling. Read-only when --dry-run is set; otherwise the only side effects are issue creation in the user's GitHub repo and idempotency-marker rewrites in the local source file.",
       "summary_l0": "\"Convert strict-format tasks.md / plan.md task lines into linked GitHub issues via the local gh CLI - dry-run or execute sequentially\"",
-      "overview_l1": "\"This skill drives the /tasks-to-issues command end-to-end. It locates the active feature directory (positional argument, .specify/feature.json, or most recent plan under docs/<version>/plans/), parses every `- [ ] T### [P?] [US?] file_path` line against the strict regex from Phase 6 of docs/archive/v2/v2.1.0/plans/adoption-spec-kit.md, builds a per-task issue payload (title, body with file path + user-story link, labels `nexus-hub` + `spec-driven-task` + optional `parallel` + optional `user-story-N`), and either prints the resolved `gh issue create` invocations one per task (--dry-run) or invokes them sequentially after user confirmation. The skill enforces idempotency by rewriting each successfully-filed task line to append `[gh#<num>]`, so re-runs skip already-converted tasks. Pre-flight checks verify gh is installed and authenticated and that the working directory resolves to a GitHub repo. The mechanical parsing + gh invocation lives in the per-skill scripts/tasks-to-issues.sh (POSIX) and scripts/tasks-to-issues.ps1 (PowerShell) helpers; the references/gh-cli-auth-runbook.md provides a one-page runbook on gh auth setup-git and rate-limit handling. Read-only when --dry-run is set; otherwise the only side effects are issue creation in the user's GitHub repo and idempotency-marker rewrites in the local source file. Trigger phrases: tasks to issues, convert tasks to issues, create issues from plan, file issues from tasks.md, issue tracking from plan, gh issue create from tasks, fan out tasks to GitHub, sprint from plan.\"",
+      "overview_l1": "\"This skill drives the /tasks-to-issues command end-to-end. It locates the active feature directory (positional argument, .specify/feature.json, or most recent plan under docs/<version>/plans/), parses every `- [ ] T### [P?] [US?] file_path` line against the strict regex from Phase 6 of docs/archive/v2/v2.1/plans/adoption-spec-kit.md, builds a per-task issue payload (title, body with file path + user-story link, labels `nexus-hub` + `spec-driven-task` + optional `parallel` + optional `user-story-N`), and either prints the resolved `gh issue create` invocations one per task (--dry-run) or invokes them sequentially after user confirmation. The skill enforces idempotency by rewriting each successfully-filed task line to append `[gh#<num>]`, so re-runs skip already-converted tasks. Pre-flight checks verify gh is installed and authenticated and that the working directory resolves to a GitHub repo. The mechanical parsing + gh invocation lives in the per-skill scripts/tasks-to-issues.sh (POSIX) and scripts/tasks-to-issues.ps1 (PowerShell) helpers; the references/gh-cli-auth-runbook.md provides a one-page runbook on gh auth setup-git and rate-limit handling. Read-only when --dry-run is set; otherwise the only side effects are issue creation in the user's GitHub repo and idempotency-marker rewrites in the local source file. Trigger phrases: tasks to issues, convert tasks to issues, create issues from plan, file issues from tasks.md, issue tracking from plan, gh issue create from tasks, fan out tasks to GitHub, sprint from plan.\"",
       "version": "1.0.0",
       "author": "Benjamin Dourthe",
       "category": "workflow",
@@ -7540,7 +7540,7 @@
         "research-mode"
       ],
       "priority": "MEDIUM",
-      "based_on": "reverse-engineered from ECC contexts/{dev,review,research}.md pattern (see docs/archive/v2/v2.2.0/comparison-ECC.md Section 11 Bucket A)",
+      "based_on": "reverse-engineered from ECC contexts/{dev,review,research}.md pattern (see docs/archive/v2/v2.2/comparison-ECC.md Section 11 Bucket A)",
       "tools_required": [],
       "path": "catalog/skills/workflow/context-modes/",
       "file": "catalog/skills/workflow/context-modes/SKILL.md",
@@ -7580,7 +7580,7 @@
         "framework-mapping"
       ],
       "priority": "MEDIUM",
-      "based_on": "reverse-engineered from Anthropic Cybersecurity Skills framework-tag pattern (see docs/archive/v2/v2.2.0/comparison-Anthropic-Cybersecurity-Skills.md Section 11 Bucket A)",
+      "based_on": "reverse-engineered from Anthropic Cybersecurity Skills framework-tag pattern (see docs/archive/v2/v2.2/comparison-Anthropic-Cybersecurity-Skills.md Section 11 Bucket A)",
       "tools_required": [],
       "path": "catalog/skills/security/security-framework-mapping/",
       "file": "catalog/skills/security/security-framework-mapping/SKILL.md",
@@ -7618,7 +7618,7 @@
         "memory-persistence"
       ],
       "priority": "MEDIUM",
-      "based_on": "reverse-engineered local subset of ECC's continuous-learning-v2 pattern (see docs/archive/v2/v2.2.0/comparison-ECC.md Section 11 Bucket B (B4) and Section 13)",
+      "based_on": "reverse-engineered local subset of ECC's continuous-learning-v2 pattern (see docs/archive/v2/v2.2/comparison-ECC.md Section 11 Bucket B (B4) and Section 13)",
       "tools_required": [],
       "path": "catalog/skills/workflow/continuous-learning/",
       "file": "catalog/skills/workflow/continuous-learning/SKILL.md",
@@ -7655,7 +7655,7 @@
         "caching"
       ],
       "priority": "MEDIUM",
-      "based_on": "reverse-engineered local analogue of ECC's skill-stocktake pattern (see docs/archive/v2/v2.2.0/comparison-ECC.md Section 11 Bucket B (B6))",
+      "based_on": "reverse-engineered local analogue of ECC's skill-stocktake pattern (see docs/archive/v2/v2.2/comparison-ECC.md Section 11 Bucket B (B6))",
       "tools_required": [],
       "path": "catalog/skills/workflow/skill-stocktake/",
       "file": "catalog/skills/workflow/skill-stocktake/SKILL.md",
@@ -7692,7 +7692,7 @@
         "local-only"
       ],
       "priority": "MEDIUM",
-      "based_on": "reverse-engineered local-analysis path of ECC's skill-create pattern (see docs/archive/v2/v2.2.0/comparison-ECC.md Section 11 Bucket B (B6))",
+      "based_on": "reverse-engineered local-analysis path of ECC's skill-create pattern (see docs/archive/v2/v2.2/comparison-ECC.md Section 11 Bucket B (B6))",
       "tools_required": [],
       "path": "catalog/skills/workflow/skill-create/",
       "file": "catalog/skills/workflow/skill-create/SKILL.md",
@@ -7731,7 +7731,7 @@
         "mitre-attack"
       ],
       "priority": "MEDIUM",
-      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3.0/plans/adoption-ecc-cybersec-skills.md Phase 6)",
+      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3/plans/adoption-ecc-cybersec-skills.md Phase 6)",
       "tools_required": [],
       "path": "catalog/skills/security-operations/memory-forensics/",
       "file": "catalog/skills/security-operations/memory-forensics/SKILL.md",
@@ -7770,7 +7770,7 @@
         "mitre-attack"
       ],
       "priority": "MEDIUM",
-      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3.0/plans/adoption-ecc-cybersec-skills.md Phase 6)",
+      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3/plans/adoption-ecc-cybersec-skills.md Phase 6)",
       "tools_required": [],
       "path": "catalog/skills/security-operations/hunting-credential-dumping/",
       "file": "catalog/skills/security-operations/hunting-credential-dumping/SKILL.md",
@@ -7808,7 +7808,7 @@
         "mitre-attack"
       ],
       "priority": "MEDIUM",
-      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3.0/plans/adoption-ecc-cybersec-skills.md Phase 6)",
+      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3/plans/adoption-ecc-cybersec-skills.md Phase 6)",
       "tools_required": [],
       "path": "catalog/skills/security-operations/disk-artifact-forensics/",
       "file": "catalog/skills/security-operations/disk-artifact-forensics/SKILL.md",
@@ -7846,7 +7846,7 @@
         "mitre-attack"
       ],
       "priority": "MEDIUM",
-      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3.0/plans/adoption-ecc-cybersec-skills.md Phase 6)",
+      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3/plans/adoption-ecc-cybersec-skills.md Phase 6)",
       "tools_required": [],
       "path": "catalog/skills/security-operations/siem-detection-engineering/",
       "file": "catalog/skills/security-operations/siem-detection-engineering/SKILL.md",
@@ -7884,7 +7884,7 @@
         "mitre-attack"
       ],
       "priority": "MEDIUM",
-      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3.0/plans/adoption-ecc-cybersec-skills.md Phase 6)",
+      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3/plans/adoption-ecc-cybersec-skills.md Phase 6)",
       "tools_required": [],
       "path": "catalog/skills/security-operations/log-threat-hunting/",
       "file": "catalog/skills/security-operations/log-threat-hunting/SKILL.md",
@@ -7922,7 +7922,7 @@
         "mitre-attack"
       ],
       "priority": "MEDIUM",
-      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3.0/plans/adoption-ecc-cybersec-skills.md Phase 6)",
+      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3/plans/adoption-ecc-cybersec-skills.md Phase 6)",
       "tools_required": [],
       "path": "catalog/skills/security-operations/lateral-movement-detection/",
       "file": "catalog/skills/security-operations/lateral-movement-detection/SKILL.md",
@@ -7960,7 +7960,7 @@
         "mitre-attack"
       ],
       "priority": "MEDIUM",
-      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3.0/plans/adoption-ecc-cybersec-skills.md Phase 6)",
+      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3/plans/adoption-ecc-cybersec-skills.md Phase 6)",
       "tools_required": [],
       "path": "catalog/skills/security-operations/ransomware-incident-response/",
       "file": "catalog/skills/security-operations/ransomware-incident-response/SKILL.md",
@@ -7998,7 +7998,7 @@
         "mitre-attack"
       ],
       "priority": "MEDIUM",
-      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3.0/plans/adoption-ecc-cybersec-skills.md Phase 6)",
+      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3/plans/adoption-ecc-cybersec-skills.md Phase 6)",
       "tools_required": [],
       "path": "catalog/skills/security-operations/persistence-mechanism-hunting/",
       "file": "catalog/skills/security-operations/persistence-mechanism-hunting/SKILL.md",
@@ -8036,7 +8036,7 @@
         "mitre-attack"
       ],
       "priority": "MEDIUM",
-      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3.0/plans/adoption-ecc-cybersec-skills.md Phase 6)",
+      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3/plans/adoption-ecc-cybersec-skills.md Phase 6)",
       "tools_required": [],
       "path": "catalog/skills/security-operations/endpoint-edr-detection/",
       "file": "catalog/skills/security-operations/endpoint-edr-detection/SKILL.md",
@@ -8074,7 +8074,7 @@
         "mitre-attack"
       ],
       "priority": "MEDIUM",
-      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3.0/plans/adoption-ecc-cybersec-skills.md Phase 6)",
+      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3/plans/adoption-ecc-cybersec-skills.md Phase 6)",
       "tools_required": [],
       "path": "catalog/skills/security-operations/cloud-security-posture-detection/",
       "file": "catalog/skills/security-operations/cloud-security-posture-detection/SKILL.md",
@@ -8112,7 +8112,7 @@
         "mitre-attack"
       ],
       "priority": "MEDIUM",
-      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3.0/plans/adoption-ecc-cybersec-skills.md Phase 6)",
+      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3/plans/adoption-ecc-cybersec-skills.md Phase 6)",
       "tools_required": [],
       "path": "catalog/skills/security-operations/cloud-audit-log-detection/",
       "file": "catalog/skills/security-operations/cloud-audit-log-detection/SKILL.md",
@@ -8151,7 +8151,7 @@
         "mitre-attack"
       ],
       "priority": "MEDIUM",
-      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3.0/plans/adoption-ecc-cybersec-skills.md Phase 6)",
+      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3/plans/adoption-ecc-cybersec-skills.md Phase 6)",
       "tools_required": [],
       "path": "catalog/skills/security-operations/container-runtime-detection/",
       "file": "catalog/skills/security-operations/container-runtime-detection/SKILL.md",
@@ -8189,7 +8189,7 @@
         "mitre-attack"
       ],
       "priority": "MEDIUM",
-      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3.0/plans/adoption-ecc-cybersec-skills.md Phase 6)",
+      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3/plans/adoption-ecc-cybersec-skills.md Phase 6)",
       "tools_required": [],
       "path": "catalog/skills/security-operations/phishing-analysis-and-defense/",
       "file": "catalog/skills/security-operations/phishing-analysis-and-defense/SKILL.md",
@@ -8227,7 +8227,7 @@
         "mitre-attack"
       ],
       "priority": "MEDIUM",
-      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3.0/plans/adoption-ecc-cybersec-skills.md Phase 6)",
+      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3/plans/adoption-ecc-cybersec-skills.md Phase 6)",
       "tools_required": [],
       "path": "catalog/skills/security-operations/identity-threat-detection/",
       "file": "catalog/skills/security-operations/identity-threat-detection/SKILL.md",
@@ -8265,7 +8265,7 @@
         "mitre-attack"
       ],
       "priority": "MEDIUM",
-      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3.0/plans/adoption-ecc-cybersec-skills.md Phase 6)",
+      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3/plans/adoption-ecc-cybersec-skills.md Phase 6)",
       "tools_required": [],
       "path": "catalog/skills/security-operations/malware-triage-analysis/",
       "file": "catalog/skills/security-operations/malware-triage-analysis/SKILL.md",
@@ -8301,7 +8301,7 @@
         "quality-gate"
       ],
       "priority": "HIGH",
-      "based_on": "adapted process-discipline pattern (see docs/archive/v2/v2.3.0/plans/adoption-superpowers.md Phase 1)",
+      "based_on": "adapted process-discipline pattern (see docs/archive/v2/v2.3/plans/adoption-superpowers.md Phase 1)",
       "tools_required": [
         "Bash"
       ],
@@ -8339,7 +8339,7 @@
         "anti-sycophancy"
       ],
       "priority": "MEDIUM",
-      "based_on": "adapted process-discipline pattern (see docs/archive/v2/v2.3.0/plans/adoption-superpowers.md Phase 1)",
+      "based_on": "adapted process-discipline pattern (see docs/archive/v2/v2.3/plans/adoption-superpowers.md Phase 1)",
       "tools_required": [
         "Read",
         "Grep"
@@ -8378,7 +8378,7 @@
         "isolation"
       ],
       "priority": "MEDIUM",
-      "based_on": "adapted process-discipline pattern (see docs/archive/v2/v2.3.0/plans/adoption-superpowers.md Phase 1)",
+      "based_on": "adapted process-discipline pattern (see docs/archive/v2/v2.3/plans/adoption-superpowers.md Phase 1)",
       "tools_required": [
         "Bash"
       ],
@@ -8705,7 +8705,7 @@
         "local-only"
       ],
       "priority": "MEDIUM",
-      "based_on": "reverse-engineered local subset of an external solved-problem capture pattern (see docs/archive/v2/v2.3.0/comparison-compound-engineering-plugin.md)",
+      "based_on": "reverse-engineered local subset of an external solved-problem capture pattern (see docs/archive/v2/v2.3/comparison-compound-engineering-plugin.md)",
       "tools_required": [
         "Read",
         "Write"
@@ -8745,7 +8745,7 @@
         "local-only"
       ],
       "priority": "MEDIUM",
-      "based_on": "reverse-engineered local subset of an external solved-problem lifecycle pattern (see docs/archive/v2/v2.3.0/comparison-compound-engineering-plugin.md)",
+      "based_on": "reverse-engineered local subset of an external solved-problem lifecycle pattern (see docs/archive/v2/v2.3/comparison-compound-engineering-plugin.md)",
       "tools_required": [
         "Edit",
         "Write"
@@ -8788,7 +8788,7 @@
         "local-only"
       ],
       "priority": "MEDIUM",
-      "based_on": "reverse-engineered local subset of an external product-outcome reporting pattern (see docs/archive/v2/v2.3.0/comparison-compound-engineering-plugin.md)",
+      "based_on": "reverse-engineered local subset of an external product-outcome reporting pattern (see docs/archive/v2/v2.3/comparison-compound-engineering-plugin.md)",
       "tools_required": [
         "Read",
         "Write",
@@ -8829,7 +8829,7 @@
         "local-only"
       ],
       "priority": "MEDIUM",
-      "based_on": "reverse-engineered local subset of an external product-strategy anchor pattern (see docs/archive/v2/v2.3.0/comparison-compound-engineering-plugin.md)",
+      "based_on": "reverse-engineered local subset of an external product-strategy anchor pattern (see docs/archive/v2/v2.3/comparison-compound-engineering-plugin.md)",
       "tools_required": [
         "Read",
         "Write"
@@ -8870,7 +8870,7 @@
         "local-only"
       ],
       "priority": "MEDIUM",
-      "based_on": "reverse-engineered local subset of an external cross-tool session-query pattern (see docs/archive/v2/v2.3.0/comparison-compound-engineering-plugin.md)",
+      "based_on": "reverse-engineered local subset of an external cross-tool session-query pattern (see docs/archive/v2/v2.3/comparison-compound-engineering-plugin.md)",
       "tools_required": [
         "Bash",
         "Read"
@@ -8911,7 +8911,7 @@
         "local-only"
       ],
       "priority": "MEDIUM",
-      "based_on": "reverse-engineered local subset of an external visual-PR-evidence pattern, upload surface dropped (see docs/archive/v2/v2.3.0/comparison-compound-engineering-plugin.md)",
+      "based_on": "reverse-engineered local subset of an external visual-PR-evidence pattern, upload surface dropped (see docs/archive/v2/v2.3/comparison-compound-engineering-plugin.md)",
       "tools_required": [
         "Bash",
         "Read"

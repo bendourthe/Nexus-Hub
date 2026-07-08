@@ -55,8 +55,8 @@ The 2.0 integration covers both the desktop IDE and the `agy` CLI (they share a 
 
 - The CLI binary is `agy` and uses the `.agents/` per-project convention with global content under `~/.gemini/antigravity-cli/`, verified 2026-05-29 against Google's public Antigravity CLI docs.
 - Antigravity CLI is the transition target for Gemini CLI users before the 2026-06-18 sunset (see [gemini.md](gemini.md)).
-- Four documentation-verified-but-not-live-verified residuals remain (the `.agent/` vs `.agents/` codelab dissent, the exact global subpath, the `subagents/` / `rules/` subdirs, and whether `agy` requires a root `AGENTS.md`); they are tracked in `docs/archive/v2/v2.2.0/antigravity-cli-probe.md` and v2.3.0 known-gaps WN-v23-5.
+- Four documentation-verified-but-not-live-verified residuals remain (the `.agent/` vs `.agents/` codelab dissent, the exact global subpath, the `subagents/` / `rules/` subdirs, and whether `agy` requires a root `AGENTS.md`); they are tracked in `docs/archive/v2/v2.2/antigravity-cli-probe.md` and v2.3.0 known-gaps WN-v23-5.
 
 ## Source of truth
 
-Mirrors `scripts/lib/integrations/antigravity.py` (`Antigravity10Integration`, `Antigravity20Integration`), the `AGENTS.md` platform-coverage section, and `docs/archive/v2/v2.2.0/antigravity-cli-probe.md`.
+Mirrors `scripts/lib/integrations/antigravity.py` (`Antigravity10Integration`, `Antigravity20Integration`), the `AGENTS.md` platform-coverage section, and `docs/archive/v2/v2.2/antigravity-cli-probe.md`.

@@ -12,7 +12,7 @@ directory convention -- `.agents/{skills,workflows,rules,hooks}` per-project,
 
 On-disk conventions (verified 2026-06-10 against Google's public Antigravity
 docs + codelabs, superseding the 2026-05-29 static probe in
-docs/archive/v2/v2.2.0/antigravity-cli-probe.md):
+docs/archive/v2/v2.2/antigravity-cli-probe.md):
 
   - **Skills are a FLAT folder-per-skill**: `skills/<skill-name>/SKILL.md`
     (frontmatter `description` mandatory, `name` optional -> defaults to the

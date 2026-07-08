@@ -12,6 +12,12 @@ on:
     - cron: '0 0 * * 0'  # Weekly on Sunday at midnight UTC
   workflow_dispatch:
 
+# v3.11.0 Phase 8.4: cancel superseded runs of the same ref so rapid pushes to
+# main do not stack redundant (and slow) CodeQL analyses.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   analyze:
     name: Analyze (${{ matrix.language }})

@@ -311,7 +311,7 @@ In this order:
 
 Re-run `audit-docs.py refgraph` against the new tree. For each moved file, update inbound references:
 
-- Markdown links: `[label](docs/v0.8.1/foo.md)` -> `[label](docs/archive/v0.8.1/foo.md)`.
+- Markdown links: `[label](docs/v0/v0.8/foo.md)` -> `[label](docs/archive/v0/v0.8/foo.md)`.
 - Raw paths in `.json`, `.yaml`, `.toml`, `.sh`, `.ps1`, `.py`: same substitution.
 
 For Cat 1 deletions, refgraph should report zero remaining inbound references. If any persist, surface them in the final report and revert the deletion - never leave dangling references.

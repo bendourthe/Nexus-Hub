@@ -1,0 +1,109 @@
+# Nexus-Hub v2.3.0 -- Cross-OS installer smoke (Phase 9 sub-task T035 / WN-8)
+
+Date: 2026-05-29
+Repo HEAD: 6b946ce (feat(v2.3.0): Phase 8 - code-graph quality + extractors) + Phase 9 working tree
+Goal: re-run the installer + test smoke before the v2.3.0 tag, replacing the v2.2.0 macOS/Linux PASS-by-parity inference (WN-8) with empirical evidence where a host is available, and recording the Antigravity CLI path/binary corrections (WN-2/WN-3/WN-4) that landed this phase.
+
+Carried-forward gap: WN-8 (docs/archive/v2/v2.2/known-gaps.md) -- the v2.2.0 cross-OS smoke ran only on Windows; macOS and Linux were inferred PASS-by-parity.
+
+============================================================
+1. Windows (Windows 11 Enterprise 10.0.26100, Windows PowerShell 5.1; Python 3.12.10)
+============================================================
+
+Host: Windows 11 Enterprise build 10.0.26100. installer.ps1 probes ran via Windows PowerShell 5.1 (powershell.exe -ExecutionPolicy Bypass). pytest ran under Python 3.12.10.
+
+1a. installer.ps1 -Help (argument parser)
+    exit=0
+    Result: PASS
+
+1b. installer.ps1 -PrintConfig claude (canonical platform dry-run)
+    exit=0
+    First line: "# Claude Code (Anthropic) (claude)"
+    Result: PASS
+
+1c. installer.ps1 -PrintConfig antigravity2 (Phase 9 path correction verification)
+    exit=0
+    FileActions table writes under `.agents/` (skills, workflows, subagents, rules) and `.agents/AGENTS.md` -- confirming the WN-2/WN-3/WN-4 corrections (binary `agy`, `.agents/` per-project dir, `AGENTS.md` instruction file) are live in the registry output. Was `.agent/` + `AGENT.md` at v2.2.0.
+    Result: PASS
+
+1d. installer.ps1 -PrintConfig gemini-cli (enterprise-only integration introspection)
+    exit=0
+    Result: PASS
+
+1e. installer.ps1 -PrintConfig no-such-integration (negative case)
+    exit=1
+    Known-integration list includes antigravity2 (registry holds all 10 integrations).
+    Result: PASS (correctly errors)
+
+1f. pytest -- catalog/hooks/tests/
+    Result: 392 passed, 3 skipped in 57.32s. PASS.
+
+1g. pytest -- tests/integrations + tests/installer (50-case contract matrix + parity + installer modes)
+    Result: 260 passed in 580.75s (0:09:40). PASS.
+    Includes the updated test_antigravity.py / test_antigravity_commands.py / test_install_workspace.py asserting the new `.agents/` paths + the body-parity suite from Phase 7.
+
+1h. pytest -- tests/validators (v2.3.0 Phase 2 CI validators + coverage generator)
+    Result: 44 passed in 8.05s. PASS.
+
+1i. pytest -- extensions/nexus-skill-server/tests/
+    Result: 43 passed in 5.76s. PASS.
+
+1j. pytest -- extensions/nexus-code-search/tests/ (Phase 8 code-graph)
+    Result: 168 passed, 1 skipped in 13.59s. PASS. Zero DeprecationWarnings (WN-1 fix holds).
+
+1k. pytest -- extensions/nexus-web-fetch/tests/
+    Result: 29 passed in 4.79s. PASS. (First run errored on collection because the package was not yet `pip install -e`'d in this shell; after the same editable install CI performs, all 29 pass. Not a code regression.)
+
+1l. eval harness -- extensions/nexus-code-search/eval/
+    Command: python -m nexus_code_search.eval (read-only; output to a temp file, NOT the in-tree baseline)
+    Result: aggregate recall 100.0%, aggregate precision 96.2%. All 8 fixtures (csharp_app / fastapi_app / go_app / java_app / minimal / python_app / rust_app / ts_express) clear the 80% per-fixture recall gate. Reproduces docs/archive/v2/v2.3/eval-baseline.md byte-for-byte (python_app 70% precision is the known DF-v23-5 import-node residual).
+
+Aggregate Windows totals: 392 + 260 + 44 + 43 + 168 + 29 = 936 pytest cases pass (+ 4 skipped). Eval recall 100% / precision 96.2%. 0 -PrintConfig / -Help failures (the negative case exits 1 by design). 10 integrations registered. PASS overall.
+
+============================================================
+2. Linux (target: Ubuntu 22.04 LTS)
+============================================================
+
+Status: TEST-SUITE EMPIRICALLY VERIFIED via CI; full installer-probe + eval smoke DEFERRED.
+
+Empirical evidence (CI): `.github/workflows/ci.yml` runs `runs-on: ubuntu-latest` and executes the Python test suite on every push/PR to `main`:
+  - catalog/hooks/tests/ (full suite)
+  - tests/integrations + tests/installer
+  - tests/validators
+  - extensions/nexus-skill-server/tests/
+  - extensions/nexus-code-search/tests/
+  - extensions/nexus-web-fetch/tests/
+  plus the 4 v2.3.0 CI validators (no-personal-paths, unicode-safety, supply-chain-iocs, workflow-security) and the JSON catalog checks.
+So the pytest portion of sub-steps 1f-1k is empirically green on Linux (ubuntu-latest) on the latest `main` push, not inferred.
+
+Deferred (not in CI): the installer.ps1/installer.sh `-PrintConfig`/`--print-config` and `--help` probes (1a-1e) and the `make eval` run (1l) are not part of the CI job, so they remain to be run on a Linux host before a packaged-binary release. installer.sh parses clean (`bash -n`) and shellcheck `--severity=warning` is green on the edited hook + installer (run on the Windows host's bash), so a hard regression is unlikely, but the empirical `--print-config`/eval run is still owed.
+
+============================================================
+3. macOS (target: macOS 14 Sonoma)
+============================================================
+
+Status: NOT RUN this cycle -- re-deferred with reason.
+
+Reason: the Phase 9 host (Windows 11 Enterprise) has no macOS VM or Docker macOS-mode container, and CI has no macOS runner. The installer.sh POSIX-bash path is shared with Linux (the only macOS divergence is the file-watcher backend, FSEvents vs inotify, handled inside the `watchdog` >=4.0.0 dependency), and the tree-mirror parity tests assert SHA-256-identical output OS-agnostically -- so PASS-by-parity remains the inferred status, but it is NOT empirically confirmed.
+
+Action item: run sub-steps 1a-1l on a macOS 14 host before any v2.3.0-tagged packaged-binary release.
+
+============================================================
+4. Antigravity CLI verification (WN-2 / WN-3 / WN-4) -- documented, live-VM pending
+============================================================
+
+Separate from the cross-OS smoke, Phase 9 verified the Antigravity CLI on-disk conventions against Google's now-public Antigravity CLI documentation + codelabs (the binary is now on a verifiable channel; cutover is 2026-06-18). See docs/archive/v2/v2.2/antigravity-cli-probe.md Section 11 for the full record. Summary:
+  - WN-2: binary is `agy` (not the inferred `antigravity`) -- CORRECTED in the diff-review hooks, integration, installers, templates.
+  - WN-3: workflow file format is Markdown under `.agents/workflows/` -- CONFIRMED.
+  - WN-4: YAML frontmatter honored; workflow name derived from filename -- DOCUMENTED.
+A live `agy` install smoke was NOT run (no `agy` binary on the Windows host); the residual live-VM items (`.agent/` vs `.agents/` codelab dissent, exact global subpath, subagents/rules subdirs, root-vs-`.agents/` instruction file) are recorded as a non-blocking WN in docs/archive/v2/v2.3/known-gaps.md.
+
+============================================================
+5. Overall
+============================================================
+
+Windows: PASS (Phase 9 host; 936 pytest cases, eval 100%/96.2%, installer probes clean)
+Linux:   PARTIAL-EMPIRICAL (pytest suite green in CI on ubuntu-latest; installer-probe + eval smoke deferred to a Linux host before binary release)
+macOS:   NOT RUN (re-deferred; inferred PASS-by-parity; required before binary release)
+
+v2.3.0 is a source release; downstream consumers (Nexus, Claude Code, Antigravity, etc.) re-verify on their own target OS during adoption. The macOS full smoke and the Linux installer-probe/eval portions are required before any v2.3.0-tagged packaged-binary release. These residual cross-OS items, plus the Antigravity live-VM items, are tracked in docs/archive/v2/v2.3/known-gaps.md.

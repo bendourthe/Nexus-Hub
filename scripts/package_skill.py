@@ -14,7 +14,7 @@ fields any downstream consumer (Claude.ai upload, Anthropic API skill upload,
 or another Nexus-Hub installation) needs at minimum to display and dispatch
 the skill.
 
-Phase 7 / A16 of docs/archive/v1/v1.1.5/plans/adoption-skills.md. The ``.skill`` archive
+Phase 7 / A16 of docs/archive/v1/v1.1/plans/adoption-skills.md. The ``.skill`` archive
 is intended to round-trip through ``unzip <name>.skill -d <dest>`` so the
 extracted layout matches a fresh ``catalog/skills/<cat>/<name>/`` directory.
 

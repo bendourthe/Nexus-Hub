@@ -55,13 +55,13 @@ scan: ## Scan the catalog for skill-security findings (fails on any HIGH/CRITICA
 
 eval: ## Run the nexus-code-search synthetic-codebase eval harness
 	@echo "Running nexus-code-search eval harness..."
-	@cd extensions/nexus-code-search && python -m nexus_code_search.eval --out ../../docs/v3.0.0/eval-baseline.md
-	@echo "Eval complete. Report: docs/v3.0.0/eval-baseline.md"
+	@cd extensions/nexus-code-search && python -m nexus_code_search.eval --out ../../docs/v3/v3.0/eval-baseline.md
+	@echo "Eval complete. Report: docs/v3/v3.0/eval-baseline.md"
 
 compress-eval: ## Run the context-compressor accuracy-regression harness + gate
 	@echo "Running context-compressor accuracy-regression harness..."
-	@cd extensions/nexus-context-compressor && python -m evals --check --out ../../docs/v3.2.0/compression-eval-baseline.md
-	@echo "Compress-eval complete. Report: docs/v3.2.0/compression-eval-baseline.md"
+	@cd extensions/nexus-context-compressor && python -m evals --check --out ../../docs/v3/v3.2/compression-eval-baseline.md
+	@echo "Compress-eval complete. Report: docs/v3/v3.2/compression-eval-baseline.md"
 
 benchmark: ## Benchmark internal MCP servers
 	@echo "Benchmarking internal MCPs..."

@@ -21,11 +21,11 @@ Whole-major archival (single bullet per version dir; substructure preserved):
 
 | Source dir | Files | Destination | Cat |
 |---|---|---|---|
-| `docs/v2.0.0/` | 25 | `docs/archive/v2/v2.0.0/` | 2 |
-| `docs/v2.1.0/` | 14 | `docs/archive/v2/v2.1.0/` | 2 |
-| `docs/v2.2.0/` | 36 | `docs/archive/v2/v2.2.0/` | 2 |
-| `docs/v2.3.0/` | 24 | `docs/archive/v2/v2.3.0/` | 2 |
-| `docs/v2.4.0/` | 13 | `docs/archive/v2/v2.4.0/` | 2 |
+| `docs/v2.0.0/` | 25 | `docs/archive/v2/v2.0/` | 2 |
+| `docs/v2.1.0/` | 14 | `docs/archive/v2/v2.1/` | 2 |
+| `docs/v2.2.0/` | 36 | `docs/archive/v2/v2.2/` | 2 |
+| `docs/v2.3.0/` | 24 | `docs/archive/v2/v2.3/` | 2 |
+| `docs/v2.4.0/` | 13 | `docs/archive/v2/v2.4/` | 2 |
 
 Loose files and non-version subfolders (classified; **kept in place** this run -- not the v2 focus):
 

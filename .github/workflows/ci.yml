@@ -3,8 +3,16 @@ name: CI
 on:
   push:
     branches: [main, develop]
+    # v3.11.0 Phase 8.4: docs-only pushes never affect validators, tests, or the
+    # installer, so skip the full job set (incl. the 10x macOS / 2x Windows legs)
+    # when a change touches nothing outside docs/. Skill/template/README/CHANGELOG
+    # changes live OUTSIDE docs/ and still trigger the full run.
+    paths-ignore:
+      - 'docs/**'
   pull_request:
     branches: [main, develop]
+    paths-ignore:
+      - 'docs/**'
 
 # v3.11.0 Phase 7.5 / 8.4 CI optimization: cancel superseded runs of the same ref
 # (the single largest action-minute saver) so only the latest push/PR commit runs.
@@ -21,6 +29,10 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: '3.11'
+          # v3.11.0 Phase 8.4: cache pip downloads keyed on the hook config so the
+          # pre-commit install is not fetched cold on every run.
+          cache: 'pip'
+          cache-dependency-path: '.pre-commit-config.yaml'
 
       - name: Install pre-commit
         run: pip install pre-commit
@@ -263,6 +275,11 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: '3.11'
+          # v3.11.0 Phase 8.4: this job does pytest + 5 editable extension installs;
+          # cache the pip download dir keyed on the extension manifests (pydantic,
+          # mcp, and friends are the heaviest cold downloads).
+          cache: 'pip'
+          cache-dependency-path: 'extensions/*/pyproject.toml'
 
       - name: Install pytest
         run: pip install pytest
