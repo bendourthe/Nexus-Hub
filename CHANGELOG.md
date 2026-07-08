@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.11.1] - 2026-07-08
+
+**v3.11.1 -- Claude Usage Monitor warning-toast redesign.** Extension-only patch (Claude Usage Monitor 0.5.5 -> 0.6.0): the usage-threshold warning notification is redesigned to a bar-free, self-dismissing toast with its recommendations stacked on separate lines, echoing the dashboard's look within the native notification format. No catalog change: **265 skills**, **16 commands**, **25 hooks**.
+
 ### Changed
 
 - **Claude Usage Monitor: richer usage-warning toast** (`extensions/claude-usage-monitor/src/recommendations.ts`, `src/extension.ts`): the usage-threshold warning notification is redesigned to mirror the mockup's stacked layout while staying a self-dismissing toast with no progress bar. It renders a `$(warning)` title with the metric and percent, then the per-recommendation codicon rows - `$(arrow-swap)` switch model, `$(dashboard)` reduce effort, `$(watch)` reset time - on SEPARATE lines. It stays a `withProgress` notification so it self-dismisses on the timer and never stacks, but reports a message only (never an `increment`) so the notification's progress bar stays unfilled/absent rather than showing a bar. The recommendation text stays model-aware and is taken from the shared `buildUsageSuggestion` structured parts (new `percent` / `label` / `resetsIn` / `switchModel` / `effortAdvice` fields) so the toast and the dashboard never drift. Extension 0.5.5 -> 0.6.0; no catalog change (265 skills, 16 commands, 25 hooks); no new outbound call, dependency, or credential. Prepared for a v3.11.1 patch release pending a visual confirm of the notification rendering.
