@@ -107,7 +107,7 @@ jobs:
     # expansions), so the same code path runs on the BSD-userland macOS runner.
     # ubuntu remains the authoritative bash gate under WN-v36-1 (bash cannot be
     # fully run on the Windows dev host); macOS adds real-platform proof that the
-    # Mac smoke test (docs/v3.7.0/development/mac-smoke-test.md) used to carry
+    # Mac smoke test (docs/v3/v3.7/development/mac-smoke-test.md) used to carry
     # alone.
     strategy:
       fail-fast: false

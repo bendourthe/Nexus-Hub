@@ -26,7 +26,7 @@
 - **Source phase**: Phase 8 - Nexus-Hub self-application
 - **Plan reference**: `docs/v3/v3.11/plans/v3.11.0-workflow-governance-refinements.md` (Phase 8, 8.1-8.6)
 - **Reason**: Terminal phase, not yet reached. The user explicitly required that the entire repo be migrated to the canonical docs-layout scheme at the end of the plan.
-- **Suggested next step**: Migrate every `docs/v3.x.y/` (and the currently-untracked `docs/v3.11.0/`, incl. the stray `comparison-t3mp3st.md` / `plans/adoption-t3mp3st.md`) into `docs/v3/v3.x/` with link repair; normalize `docs/archive/`; run the upgraded `project-refactor` cleanup; apply the CI optimizations already partly landed in 7.5 (concurrency) to the remaining jobs (path filters, caching, gated matrix); update registries + base-template parity; bump to v3.11.0 via `check_version_sync.py`; then `/update release`. The `/update refactor` whole-docs-tree migration (generalized to any repo this cycle) is the mechanism.
+- **Suggested next step**: Migrate every `docs/v3.x.y/` (and the currently-untracked `docs/v3/v3.11/`, incl. the stray `comparison-t3mp3st.md` / `plans/adoption-t3mp3st.md`) into `docs/v3/v3.x/` with link repair; normalize `docs/archive/`; run the upgraded `project-refactor` cleanup; apply the CI optimizations already partly landed in 7.5 (concurrency) to the remaining jobs (path filters, caching, gated matrix); update registries + base-template parity; bump to v3.11.0 via `check_version_sync.py`; then `/update release`. The `/update refactor` whole-docs-tree migration (generalized to any repo this cycle) is the mechanism.
 
 #### Deferred
 

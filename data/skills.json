@@ -6832,7 +6832,7 @@
         "local-only"
       ],
       "priority": "MEDIUM",
-      "based_on": "docs/v3.2.0/comparison-loop-engineering.md and docs/v3.3.0/plans/adoption-loop-engineering.md",
+      "based_on": "docs/v3/v3.2/comparisons/v3.2.0-comparison-loop-engineering.md and docs/v3/v3.3/plans/adoption-loop-engineering.md",
       "tools_required": [
         "Read",
         "Write",
@@ -8952,7 +8952,7 @@
         "local-only"
       ],
       "priority": "MEDIUM",
-      "based_on": "net-new skill composing the session-query extractor and the dev-progress-tracker checklist pattern with a Socratic teach-back loop (see docs/v3.2.0/comparison-teach.md)",
+      "based_on": "net-new skill composing the session-query extractor and the dev-progress-tracker checklist pattern with a Socratic teach-back loop (see docs/v3/v3.2/comparisons/v3.2.0-comparison-teach.md)",
       "tools_required": [
         "Bash",
         "Read",
@@ -8994,7 +8994,7 @@
         "local-only"
       ],
       "priority": "MEDIUM",
-      "based_on": "docs/v3.4.0/comparison-nessie-and-agency-agents.md and docs/v3.4.0/plans/adoption-nessie-and-agency-agents.md",
+      "based_on": "docs/v3/v3.4/comparisons/v3.4.0-comparison-nessie-and-agency-agents.md and docs/v3/v3.4/plans/adoption-nessie-and-agency-agents.md",
       "tools_required": [
         "Read",
         "Write",
