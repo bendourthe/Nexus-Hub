@@ -43,6 +43,7 @@ Use this skill when you need to:
 | RAG / knowledge-base poisoning | Malicious content planted in the index to steer answers | Source allowlisting, ingestion review, retrieval auditing |
 | Tool / function-call abuse | Injection that reaches an agent's tools (file, shell, HTTP, email) | Least-privilege tools, human-in-the-loop, action allowlists |
 | Unsafe output handling | LLM output rendered as HTML / SQL / shell without sanitization | Treat model output as untrusted input; encode and validate |
+| Local-agent commandeering | A target's already-running, authenticated local coding agent driven as an execution proxy (borrowed-session confused-deputy); named here for authorized-review awareness only, no build steps | Instruction-origin discipline, least-privilege containment, default-deny egress; see `[[prompt-injection-defense]]` |
 
 The throughline: in an agentic system, **text is an action surface**. Anything the model reads -- a user message, a retrieved chunk, a tool result -- can carry instructions, and anything the model emits can be a payload for a downstream sink.
 

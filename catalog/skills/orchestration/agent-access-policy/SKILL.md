@@ -238,6 +238,18 @@ Host (non-sandboxed) command execution is the highest-privilege grant an access 
 
 This composes skills the catalog already owns: see the local-only "Sandboxing an Unattended Loop" subsection in [[loop-engineering]] for the unattended-loop application, [[containerization]] for the sandbox build and isolation controls, and [[using-git-worktrees]] for writable-iteration isolation at the VCS layer.
 
+## Containing a Commandeered Agent (Blast-Radius Limit)
+
+An access policy is also the mitigation for the local-agent-commandeering threat described in `[[prompt-injection-defense]]`: because a coding agent that is already running and authenticated can be driven by an external process that borrows its session, the durable defense is to bound what the agent can reach in the first place, so that even a commandeered agent cannot exceed its sandbox. Provenance discipline lowers the chance of being driven; containment caps the damage when a check is missed.
+
+State three containment controls, each deny-by-default:
+
+- **Tool allowlist (deny by default).** Enumerate the exact tools the agent may invoke and deny the rest, the same least-privilege discipline Step 2 applies to `Write` and `Edit`. An external harness cannot make the agent call a tool that is not on the allowlist.
+- **Least-privilege file access scoped to the working tree.** Keep `Write` / `Edit` scoped to the task's paths (the Step 1 role-to-scope model), so a borrowed session cannot reach files outside the project.
+- **Default-deny network egress.** Any tool that reaches the network is restricted to an explicit allowlist of approved destinations and refuses off-scope public hosts by default. This is what stops a commandeered agent from being pointed at third-party targets or used to exfiltrate; pair it with `[[egress-redaction]]` for what is allowed to leave the boundary when egress is permitted.
+
+Together these bound the blast radius of the hijack pattern: containment decides what is reachable at all, so a partial compromise stays inside the sandbox.
+
 ## Best Practices
 
 - **Default to least privilege**: start with read-only access and add write permissions only for the specific paths the agent needs

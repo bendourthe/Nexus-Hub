@@ -201,13 +201,13 @@ Every Constitution Check bullet is PASS or N/A (no constitution file exists; the
 
 ### Phase 1 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] `prompt-injection-defense` carries the local-agent-hijack recognition-and-posture pattern (recognition, not construction)
-- [ ] `agent-access-policy` carries the containment mitigation (tool allowlist, least-privilege file, default-deny egress; satisfies C4)
-- [ ] `ai-attack-patterns` references the offensive counterpart and points to the defensive skill
-- [ ] No registry drift (frontmatter unchanged in all three skills, no `data/` edit)
-- [ ] Validators green; no dangling wikilinks; ASCII-only; bodies under 500 lines
-- [ ] Session history generated for Phase 1
+- [x] All sub-tasks completed
+- [x] `prompt-injection-defense` carries the local-agent-hijack recognition-and-posture pattern (recognition, not construction)
+- [x] `agent-access-policy` carries the containment mitigation (tool allowlist, least-privilege file, default-deny egress; satisfies C4)
+- [x] `ai-attack-patterns` references the offensive counterpart and points to the defensive skill
+- [x] No registry drift (frontmatter unchanged in all three skills, no `data/` edit)
+- [x] Validators green (`make validate` mode: `validate_skills --bundles-only` and `--quality` exit 0; unicode-safe); no dangling wikilinks; ASCII-only; bodies under 500 lines (139 / 289 / 161)
+- [x] Session history generated for Phase 1
 - [ ] Ready to advance to Phase 2
 
 ### Phase 2 Exit Checklist
