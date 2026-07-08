@@ -171,6 +171,16 @@ Apply these rules whenever a run spans more than a couple of evals or more than 
 
 On resume, the procedure is: re-read the markers, find the first `started`-without-`done` experiment (or the first never-started one), and continue from there. Completed experiments are never recomputed - their result files are authoritative. This is what lets a 5-iteration optimizer run survive a mid-run crash without re-spending tokens on the iterations it already finished.
 
+## Reproducible receipts
+
+No headline number ships without a reproducible receipt. A pass rate, a win rate, or an assertion-pass count is a claim, and a claim is only as strong as the artifact a reader can recompute it from. Tie every reported metric to three things:
+
+- **A committed artifact.** The number must be backed by a file committed alongside the report (here the iteration's `benchmark.json`, plus the per-run `grading.json` files it aggregates, under the workspace output directory) from which the metric recomputes exactly. A percentage with no committed source file is a vibe, not a result.
+- **A single recompute step.** There must be one documented command that regenerates the headline from that artifact, so a reader can verify it without rebuilding the run. Here that step is `scripts/aggregate_benchmark.py <workspace>/iteration-N/`, which recomputes `benchmark.json` from the graded runs. State the exact step next to the number.
+- **A confidence interval, or an honest label.** Every rate carries an interval (for a pass@1 rate, a Wilson score interval is a sound default), so "80%" is reported as "80% (95% CI 55-93%, n=10)" rather than a bare point estimate. When the sample is too small for a meaningful interval, label the number preliminary and unproven instead of publishing a bare percentage. A small-N number stated without that caveat is the exact failure mode this rule exists to prevent.
+
+This strengthens the benchmark flow above (steps 6-8): the aggregated `benchmark.json` is the receipt, the aggregator is the recompute step, and the interval is what keeps a two-iteration pass-rate comparison honest rather than a coin flip dressed as progress. The same receipt-and-interval discipline, applied to general output scoring, lives in `[[ai-output-evaluation]]`.
+
 ## Description optimizer (A7)
 
 The description-optimizer is a specialized form of the loop that targets only the skill's `description` frontmatter field. Run `scripts/optimize_skill_description.py --skill <path> --evals <evals.json> --cli <name>`. The optimizer:

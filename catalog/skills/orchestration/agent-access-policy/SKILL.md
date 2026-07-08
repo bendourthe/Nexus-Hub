@@ -250,6 +250,21 @@ State three containment controls, each deny-by-default:
 
 Together these bound the blast radius of the hijack pattern: containment decides what is reachable at all, so a partial compromise stays inside the sandbox.
 
+## Dangerous-Action Approval Gates
+
+Some actions are irreversible or high-impact enough that the access policy should require an explicit human approval step before the agent executes them, even when the agent is otherwise authorized to act. Containment decides what is reachable; an approval gate decides what may fire without a human in the loop.
+
+Define the gated class by effect, not by named tool:
+
+- Destructive filesystem operations outside the working tree (deleting, overwriting, or moving files the task does not own).
+- Actions that reach or modify systems beyond the local project (a remote host, a shared datastore, a production surface).
+- Executing tools that can cause external side effects (anything that sends, publishes, deploys, charges, or provisions).
+- Any action the agent cannot cleanly undo.
+
+State the default-deny stance on uncertainty: when it is unclear whether an action falls in the gated class, treat it as gated and ask rather than proceeding. A wrongly-gated safe action costs one confirmation; a wrongly-executed dangerous one may not be recoverable.
+
+This gate complements, and does not replace, the two neighboring controls. The tool-allowlist containment above bounds what is reachable at all; the approval gate bounds what executes without a human; and the spend caps in `[[ai-billing-safeguards]]` bound cost. An action can be inside the allowlist, under budget, and still warrant a human decision because it is irreversible.
+
 ## Best Practices
 
 - **Default to least privilege**: start with read-only access and add write permissions only for the specific paths the agent needs

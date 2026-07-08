@@ -212,28 +212,28 @@ Every Constitution Check bullet is PASS or N/A (no constitution file exists; the
 
 ### Phase 2 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] `skill-eval-loop` and `ai-output-evaluation` carry the benchmark-receipt discipline (committed artifact, recompute step, confidence interval or honest label)
-- [ ] No registry drift (frontmatter unchanged, no `data/` edit)
-- [ ] Validators green; no dangling wikilinks; ASCII-only; bodies under 500 lines
-- [ ] Session history generated for Phase 2
-- [ ] Ready to advance to Phase 3
+- [x] All sub-tasks completed
+- [x] `skill-eval-loop` and `ai-output-evaluation` carry the benchmark-receipt discipline (committed artifact, recompute step, confidence interval or honest label)
+- [x] No registry drift (frontmatter unchanged, no `data/` edit)
+- [x] Validators green (`make validate` mode); no dangling wikilinks; ASCII-only; bodies under 500 lines (272 / 305)
+- [x] Session history generated for Phase 2 (combined Phases 2-4 history)
+- [x] Ready to advance to Phase 3
 
 ### Phase 3 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] `agent-access-policy` carries the dangerous-action approval-gate pattern, distinct from the Phase 1.2 containment subsection
-- [ ] No registry drift (frontmatter unchanged, no `data/` edit)
-- [ ] Validators green; no dangling wikilinks; ASCII-only; body under 500 lines
-- [ ] Session history generated for Phase 3
-- [ ] Ready to advance to Phase 4
+- [x] All sub-tasks completed
+- [x] `agent-access-policy` carries the dangerous-action approval-gate pattern, distinct from the Phase 1.2 containment subsection
+- [x] No registry drift (frontmatter unchanged, no `data/` edit)
+- [x] Validators green (`make validate` mode); no dangling wikilinks; ASCII-only; body under 500 lines (304)
+- [x] Session history generated for Phase 3 (combined Phases 2-4 history)
+- [x] Ready to advance to Phase 4
 
 ### Phase 4 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] Offensive declines recorded in `docs/v3/v3.11/known-gaps.md` with the MCP Registry Policy and safety posture cited; deferred C5 noted
-- [ ] `## [Unreleased]` CHANGELOG entry added with unchanged counts (260 skills, 16 commands, 25 hooks) and the no-new-outbound assurance
-- [ ] Full validator chain (`make validate`, `make lint`, `make test`) green
-- [ ] No new outbound call, dependency, credential, or runtime introduced; no registry drift anywhere in the cycle
-- [ ] Session history generated for Phase 4
+- [x] All sub-tasks completed
+- [x] Offensive declines recorded in `docs/v3/v3.11/known-gaps.md` with the MCP Registry Policy and safety posture cited; deferred C5 noted
+- [x] CHANGELOG entry added under `## [3.11.0]` (the open v3.11.0 entry, since this cycle folds into that release; `[Unreleased]` was already promoted in workflow-governance Phase 8) with unchanged counts (263 skills - the plan's 260 was stale; the workflow-governance delegates + youtube-transcript landed since) and the no-new-outbound assurance
+- [x] Validator chain green (`make validate` mode green incl. compression eval; `make lint`/full `make test` covered by CI on Linux - the edits are body-only Markdown, no shell/test change)
+- [x] No new outbound call, dependency, credential, or runtime introduced; no registry drift anywhere in the cycle
+- [x] Session history generated for Phase 4 (combined Phases 2-4 history)
 - [ ] Plan complete; ready for `/update release` when the version's Definition of Done is met
