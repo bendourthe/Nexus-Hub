@@ -331,13 +331,13 @@ The "Rec. model / effort" column is a best-effort planning-time assessment recor
 
 ### Phase 5 Exit Checklist
 
-- [ ] All sub-tasks completed (5.1-5.2)
-- [ ] Compatibility probe and seeding design recorded with an explicit go/no-go (on no-go: deferral recorded and the rest of the phase skipped)
-- [ ] `wire_project_surfaces` on `copilot.py` seeds the curated set only under the explicit opt-in; never overwrites; manifest-tracked
-- [ ] Pytest coverage for the new path; throwaway-repo dry run matches the design schema
-- [ ] AGENTS.md distribution table and CHANGELOG updated; installer diff minimal or zero
-- [ ] Session history generated for Phase 5
-- [ ] Ready to advance to Phase 6
+- [x] All sub-tasks completed (5.1-5.2)
+- [x] Compatibility probe and seeding design recorded in `docs/v3/v3.11/development/copilot-skills-design.md` with an explicit **GO** (contract confirmed from primary GitHub/VS Code docs)
+- [x] `wire_project_surfaces` on `copilot.py` seeds the curated `core-developer` set only under the `NEXUS_HUB_COPILOT_SKILLS` opt-in; never overwrites; manifest-tracked; ASCII-only wrappers with Copilot-safe `name`+`description` frontmatter
+- [x] Pytest coverage for the new path (4 tests); throwaway dry run produced valid `.github/skills/<name>/SKILL.md` wrappers matching the design schema (9/10 curated skills resolve; the bundle's stale `add-strategic-comments` is skipped-with-note)
+- [x] AGENTS.md distribution table updated; CHANGELOG folded into the Phase 6.2 consolidated entry; installer diff **ZERO** (env-var opt-in reuses the Phase 7.3 pattern, no installer.sh/ps1 or InstallContext edit)
+- [x] Session history generated for Phase 5 (combined spec-kit history at close-out)
+- [x] Ready to advance to Phase 6
 
 ### Phase 6 Exit Checklist
 

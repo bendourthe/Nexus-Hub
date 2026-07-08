@@ -12,7 +12,7 @@ Workspace scope writes ``<project>/.windsurfrules``. Global scope writes
 Copilot VS-Code-dir detection). Both writes are shared (marker-merged) so user
 edits survive a re-install.
 
-DEPRECATED (dated note, 2026-07-08, adoption-spec-kit Phase 3): Cognition
+DEPRECATED (dated note, 2026-07-08, v3.11.0 Phase 3): Cognition
 acquired Windsurf (primary: https://cognition.com/blog/windsurf, 2025-07-14),
 which preserves it "as a distinct product with its own brand". Third-party
 outlets report the editor was rebranded to "Devin Desktop" on 2026-06-02 with

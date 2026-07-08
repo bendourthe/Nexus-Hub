@@ -12,7 +12,7 @@ deterministic, Nexus-Hub-owned companion). Global scope writes the same pair
 under ``~/.kimi/`` when the Kimi config root (``~/.kimi``) is present, and skips
 with a note otherwise (mirroring the Windsurf detection model).
 
-MIGRATION NOTE (dated, 2026-07-08, adoption-spec-kit Phase 3): Kimi CLI was
+MIGRATION NOTE (dated, 2026-07-08, v3.11.0 Phase 3): Kimi CLI was
 rebuilt as "Kimi Code CLI" (a Python -> Node.js rewrite, v0.1.0 May 2026;
 primary: https://www.kimi.com/code/docs/en/kimi-code-cli/guides/migration.html).
 The migration is NON-destructive to this layout: the guide states "Migration
