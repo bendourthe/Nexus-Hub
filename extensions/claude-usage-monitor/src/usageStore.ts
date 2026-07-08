@@ -1,4 +1,7 @@
 import * as vscode from "vscode";
+import * as fs from "fs";
+import * as os from "os";
+import * as path from "path";
 import {
   UsageData,
   UsageMetric,
@@ -27,7 +30,6 @@ export class UsageStore {
       ...data,
       session: refreshMetricCountdown(data.session),
       weeklyAllModels: refreshMetricCountdown(data.weeklyAllModels),
-      weeklySonnet: refreshMetricCountdown(data.weeklySonnet),
     };
   }
 
@@ -42,16 +44,22 @@ export class UsageStore {
   }
 
   getCurrentModel(): string {
-    // Primary: read Claude Code's own VS Code setting — updated whenever the user switches
-    // models in Claude Code's model picker (claudeCode.selectedModel).
-    // Values: "sonnet[1m]", "sonnet", "opus[1m]", "opus", "haiku", "default"
+    // Primary: Claude Code persists the /model picker selection to
+    // ~/.claude/settings.json ("model": "claude-fable-5[1m]"). Read it fresh on
+    // every call so each refresh reflects the user's latest pick.
+    const fromClaudeSettings = readModelFromClaudeSettings();
+    if (fromClaudeSettings) {
+      return fromClaudeSettings;
+    }
+    // Legacy: older Claude Code builds exposed the picker choice as a VS Code
+    // setting (claudeCode.selectedModel). Values: "sonnet[1m]", "opus", "default", ...
     const selected = vscode.workspace
       .getConfiguration("claudeCode")
       .get<string>("selectedModel");
     if (selected && selected.length > 0) {
       return selected;
     }
-    // Fallback if claudeCode.selectedModel is not set — Claude Code defaults to Opus 1M
+    // Unknown — treat as Claude Code's default tier (Opus-class)
     return "default";
   }
 
@@ -69,7 +77,7 @@ export class UsageStore {
       return false;
     }
     const now = Date.now();
-    const metrics = [data.session, data.weeklyAllModels, data.weeklySonnet];
+    const metrics = [data.session, data.weeklyAllModels];
     return metrics.some(
       (m) => m.resetsAt != null && m.resetsAt <= now && data.lastUpdated < m.resetsAt
     );
@@ -138,11 +146,77 @@ export function formatResetTime(epochMs: number): string {
     return remainingMin > 0 ? `${diffHours}h ${remainingMin}m` : `${diffHours}h`;
   }
 
+  // 24h+ away (the weekly limit): show the concrete date and time plus the
+  // compact remaining duration, e.g. "Tuesday July 7th at 6:59 AM (3d 4h 15m)".
   const resetDate = new Date(epochMs);
-  return resetDate.toLocaleDateString("en-US", {
-    weekday: "short",
+  const weekday = resetDate.toLocaleDateString("en-US", { weekday: "long" });
+  const month = resetDate.toLocaleDateString("en-US", { month: "long" });
+  const time = resetDate.toLocaleTimeString("en-US", {
     hour: "numeric",
     minute: "2-digit",
     hour12: true,
   });
+  const days = Math.floor(diffHours / 24);
+  const hours = diffHours % 24;
+  const mins = diffMinutes % 60;
+  return `${weekday} ${month} ${ordinal(resetDate.getDate())} at ${time} (${days}d ${hours}h ${mins}m)`;
+}
+
+/**
+ * Prefix a resetsIn value with the right verb form so every surface (dashboard,
+ * status-bar tooltip, notifications) reads the same way:
+ *   "2h 38m"                        → "Resets in 2h 38m"
+ *   "Tuesday July 7th at 7:00 AM…"  → "Resets on Tuesday July 7th at 7:00 AM…"
+ *   "August 1"                      → "Resets on August 1"   (monthly credits)
+ *   "N/A" / "any moment"            → "Resets N/A" / "Resets any moment"
+ */
+export function formatResetLabel(resetsIn: string): string {
+  if (/^(Mon|Tue|Wed|Thu|Fri|Sat|Sun|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)/.test(resetsIn)) {
+    return `Resets on ${resetsIn}`;
+  }
+  if (resetsIn === "N/A" || resetsIn === "any moment") {
+    return `Resets ${resetsIn}`;
+  }
+  return `Resets in ${resetsIn}`;
+}
+
+/**
+ * Month-name-first label for the first day of next month, e.g. "August 1".
+ * Passed through formatResetLabel it reads "Resets on August 1". Extra credits
+ * reset monthly, so this is the reset label for the Extra Credits sections in
+ * both the dashboard and the status-bar tooltip.
+ */
+export function nextMonthlyResetLabel(): string {
+  const now = new Date();
+  const next = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+  return next.toLocaleDateString("en-US", { month: "long", day: "numeric" });
+}
+
+/** 1 → "1st", 2 → "2nd", 7 → "7th", 11 → "11th", 22 → "22nd". */
+function ordinal(n: number): string {
+  const rem10 = n % 10;
+  const rem100 = n % 100;
+  if (rem10 === 1 && rem100 !== 11) {
+    return `${n}st`;
+  }
+  if (rem10 === 2 && rem100 !== 12) {
+    return `${n}nd`;
+  }
+  if (rem10 === 3 && rem100 !== 13) {
+    return `${n}rd`;
+  }
+  return `${n}th`;
+}
+
+/** Reads the persisted model selection from ~/.claude/settings.json, if present. */
+function readModelFromClaudeSettings(): string | undefined {
+  try {
+    const settingsPath = path.join(os.homedir(), ".claude", "settings.json");
+    const parsed = JSON.parse(fs.readFileSync(settingsPath, "utf8")) as { model?: unknown };
+    return typeof parsed.model === "string" && parsed.model.length > 0
+      ? parsed.model
+      : undefined;
+  } catch {
+    return undefined;
+  }
 }

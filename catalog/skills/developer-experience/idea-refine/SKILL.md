@@ -118,6 +118,23 @@ Synthesize the above into one page or less:
 
 Once the human approves this statement, hand off to `spec-driven-development` or `plan-before-code`. Note that approving the problem statement here is a separate approval from approving the *design*. The `spec-driven-development` hard gate still requires an explicit design approval before any code is written; do not treat a green light on the problem as a green light to implement.
 
+## Interactive grill mode (opt-in)
+
+Enter this mode ONLY when the user explicitly asks for it (trigger phrases: "grill me", "stress-test this plan", "interrogate my design", "poke holes in this"). It is NOT the default behavior of `idea-refine`, and it is NOT how any routine clarifying step works.
+
+Once invoked, interview the user relentlessly about the plan or design:
+
+- **Walk the decision tree branch by branch.** Take one branch at a time, resolve the dependencies between decisions, and do not jump ahead until the current branch is settled.
+- **One question at a time.** Ask a single question and wait for the answer before asking the next, so each decision is pressure-tested in isolation.
+- **Always recommend an answer.** For every question, offer your own recommended answer with a one-line rationale, so the user reacts to a concrete proposal rather than starting from a blank page.
+- **Explore before asking.** When a question can be answered by reading the codebase, explore the codebase and answer it yourself instead of asking the user.
+
+**Exit condition.** The mode ends when the branches are resolved and there is shared understanding of the design. At that point, summarize the resolved decisions so the outcome is captured, then hand back to the normal flow (`spec-driven-development` or `plan-before-code`).
+
+**Gating (read before using this mode).** This one-question-at-a-time loop is an opt-in interactive mode. It does NOT change Nexus-Hub's default convention, which is to BATCH clarifying questions into a single consolidated turn rather than asking one per turn (see the global batch-not-ping-pong rule and the "batch, not ping-pong" instruction in [[doc-coauthoring]]). Outside this explicitly-invoked mode the agent still batches its clarifying questions; never let the grill loop become the default clarifying behavior.
+
+Related: [[ambiguity-detector]] is the structured, non-interactive way to detect the same gaps this mode probes by hand; [[plan-review]] runs parallel-persona review of a finished plan (the non-interactive counterpart to grilling); and the `/spec clarify` scope resolves ambiguities in an already-written spec at the requirement granularity.
+
 ## Common Rationalizations
 
 | Rationalization | Reality |

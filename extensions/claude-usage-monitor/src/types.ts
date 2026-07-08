@@ -23,7 +23,6 @@ export interface ExtraUsageInfo {
 export interface UsageData {
   session: UsageMetric;
   weeklyAllModels: UsageMetric;
-  weeklySonnet: UsageMetric;
   currentModel: ClaudeModel;
   lastUpdated: number;
   dataSource?: DataSource;
@@ -83,35 +82,37 @@ export interface StatusBarState {
 }
 
 /**
- * Parse any Claude model ID into a human-readable display name matching Claude Code's UI.
+ * Parse any Claude model ID into its bare family name (Fable, Opus, Sonnet, Haiku).
  * Handles short aliases ("sonnet", "opus", "haiku", "default") and full IDs
- * ("claude-sonnet-4-6"), plus the [1m] bracket suffix for extended-context variants.
+ * ("claude-fable-5"), stripping any [1m]-style bracket suffix. No "Default" label
+ * and no context-window suffix — the dashboard shows only the model family.
  * Examples:
- *   "sonnet[1m]"            → "Sonnet (1M context)"
- *   "sonnet"                → "Sonnet"
- *   "default"               → "Default (Sonnet)"  (Claude Code's "Default (recommended)", currently Sonnet)
+ *   "claude-fable-5[1m]"    → "Fable"
+ *   "sonnet[1m]"            → "Sonnet"
+ *   "default"               → "Opus"  (Claude Code's default tier)
  *   "claude-opus-4-6"       → "Opus"
  *   "claude-haiku-4-5"      → "Haiku"
- *   "claude-opus-5-0"       → "Opus"  (future-proof)
  */
 export function formatModelName(modelId: string): string {
-  const is1M = /\[1m\]/i.test(modelId);
   const base = modelId.replace(/\[.*?\]/g, "").trim();
-  let family: string;
   if (/^default$/i.test(base)) {
-    family = "Default (Opus 1M)";
-  } else if (/opus/i.test(base)) {
-    family = "Opus";
-  } else if (/sonnet/i.test(base)) {
-    family = "Sonnet";
-  } else if (/haiku/i.test(base)) {
-    family = "Haiku";
-  } else {
-    // Unknown future model: strip prefix and version, capitalize
-    const cleaned = base.replace(/^claude-?/i, "").replace(/-\d.*/, "").replace(/-/g, " ").trim();
-    family = cleaned ? cleaned.charAt(0).toUpperCase() + cleaned.slice(1) : modelId;
+    return "Opus";
   }
-  return is1M ? `${family} (1M context)` : family;
+  if (/fable/i.test(base)) {
+    return "Fable";
+  }
+  if (/opus/i.test(base)) {
+    return "Opus";
+  }
+  if (/sonnet/i.test(base)) {
+    return "Sonnet";
+  }
+  if (/haiku/i.test(base)) {
+    return "Haiku";
+  }
+  // Unknown future model: strip prefix and version, capitalize
+  const cleaned = base.replace(/^claude-?/i, "").replace(/-\d.*/, "").replace(/-/g, " ").trim();
+  return cleaned ? cleaned.charAt(0).toUpperCase() + cleaned.slice(1) : modelId;
 }
 
 /** Strip the [1m] or any bracket suffix to get the base model ID. */
@@ -144,7 +145,7 @@ export const DEFAULT_NOTIFICATION_TIMEOUT_SECONDS = 12;
 export type ColorOption = string;
 
 /** Which usage metric the urgency thresholds are evaluated against. */
-export type ThresholdMetric = "highest" | "session" | "weekly" | "sonnet";
+export type ThresholdMetric = "highest" | "session" | "weekly";
 
 /** Default hex colors matching the badge colors in the settings panel. */
 export const DEFAULT_URGENCY_COLORS = {
@@ -212,9 +213,15 @@ export function getColorConfig(): ColorConfig {
 
 /** Read which usage metric the thresholds should be evaluated against. */
 export function getThresholdMetric(): ThresholdMetric {
-  return vscode.workspace
+  const raw = vscode.workspace
     .getConfiguration("claudeUsage")
-    .get<ThresholdMetric>("thresholdMetric", "highest");
+    .get<string>("thresholdMetric", "highest");
+  // Legacy migration: the Weekly (Sonnet) limit is no longer tracked on the
+  // Claude Usage page; a persisted "sonnet" selection folds into "weekly".
+  if (raw === "sonnet") {
+    return "weekly";
+  }
+  return raw === "session" || raw === "weekly" ? raw : "highest";
 }
 
 /**

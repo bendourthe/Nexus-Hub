@@ -29,4 +29,4 @@ This mirrors the active version layout. Archived content is **frozen history**: 
 
 A prior major is archived once the next major has a released version. The current major (`v3`) and any in-flight version directories are never archived. Whole-major archival is performed by `/refactor-docs` (the `docs-layout-refactor` skill); see the most recent `docs/<active-version>/docs-cleanup-report.md` for the audit trail of each archival run.
 
-The v2 line was archived on 2026-06-04 alongside the v3.0.0 release (audit trail: `docs/v3.1.0/docs-cleanup-report.md`).
+The v2 line was archived on 2026-06-04 alongside the v3.0.0 release (audit trail: `docs/v3/v3.1/docs-cleanup-report.md`).

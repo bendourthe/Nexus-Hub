@@ -96,6 +96,14 @@ When one preset layers on top of a lower-priority base (a project preset over a 
 
 Prefer `replace` unless you specifically need to keep the base; `prepend` / `append` / `wrap` let a project layer its own steps onto a catalog preset without copying the whole bundle.
 
+### Bundle-manifest semantics
+
+A preset or bundle definition is a manifest, and three authoring disciplines keep that manifest honest across installs (generic to any bundle system):
+
+- **Per-component version pinning** -- a bundle pins each component's version. Install-time idempotency that skips an already-present component does NOT re-pin it, so an explicit update pass is what re-applies pins; a skip is not an upgrade.
+- **Provenance-tracked removal** -- a bundle uninstall removes only the components that bundle contributed, never a component another installed bundle still needs (the no-collateral-removal rule). Track which bundle contributed each component so removal stays scoped.
+- **Update-vs-install semantics** -- an update refreshes owned components to their newly pinned versions while preserving user-level overrides; it is distinct from a fresh install, which seeds from scratch.
+
 ## Common Rationalizations
 
 | Rationalization | Reality |

@@ -50,7 +50,7 @@ $(claude-icon) Claude Usage: 12% (current) 5% (week)
 ```
 
 - The extension auto-fetches usage data on startup using your Claude OAuth credentials
-- **Hover** for a detailed SVG tooltip with progress bars for each metric (session, weekly all-models, weekly Sonnet-only, weekly Opus, extra credits) and reset timers
+- **Hover** for a detailed SVG tooltip with progress bars for the Current Session and Weekly metrics and their reset timers
 - **Click** to open the full usage dashboard panel
 
 The status bar background changes color based on urgency:
@@ -117,7 +117,6 @@ Based on your current model and usage level, the dashboard also shows model-spec
 
 - **Opus users at high usage**: Switch to Sonnet for routine tasks
 - **Sonnet users at high usage**: Switch to Haiku for simple tasks
-- **Sonnet-only limit high**: Switch to Opus or Haiku (neither counts against Sonnet limit)
 - **Session near capacity**: Wait for the session reset (typically a few minutes)
 
 ## Data Storage

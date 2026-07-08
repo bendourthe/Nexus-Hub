@@ -108,7 +108,7 @@ function Get-SanitizedBranchName {
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-$script:NexusHubVersion = "3.10.0"
+$script:NexusHubVersion = "3.11.0"
 
 $Host.UI.RawUI.WindowTitle = "Nexus-Hub Installer"
 $script:InstallerTitle = "Nexus-Hub Installer"
@@ -298,8 +298,9 @@ function Read-Prompt {
 # --- Interaction Helpers ---
 
 # Map a user-supplied integration key (the --platforms vocabulary) to the
-# internal PS platform keys the per-provider install blocks gate on. GEMINI
-# bundles Gemini IDE + Antigravity 1.0 (they share one legacy block).
+# internal PS platform keys the per-provider install blocks gate on. GEMINI is
+# the Gemini IDE (full registry mirror as of v3.11.0); Antigravity 2.0 is a
+# separate ANTIGRAVITY2 key. (Antigravity 1.0 has no reachable install block.)
 $script:IntegrationKeyToPlatforms = [ordered]@{
     "claude"       = @("CLAUDE")
     "codex"        = @("CODEX")
@@ -1293,25 +1294,17 @@ function Install-Global {
         Write-Header -Provider "GOOGLE"
 
         if ($platforms -contains "GEMINI") {
-            Write-Item -Message "Gemini IDE + Antigravity 1.0" -Color "Gray"
+            Write-Item -Message "Gemini IDE" -Color "Gray"
             $globalGeminiDir = Join-Path $env:USERPROFILE ".gemini"
             if (-not (Test-Path $globalGeminiDir)) { New-Item -ItemType Directory -Force -Path $globalGeminiDir | Out-Null }
 
-            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "gemini" -DisplayName "GEMINI.md (instruction file)" -InstructionOnly
-
-            # Antigravity 2.0 + CLI: the antigravity2 integration (below) owns the
-            # entire Antigravity mirror -- it flattens skills to skills/<name>/SKILL.md,
-            # mirrors commands to workflows/, installs the curated hooks + hooks.json,
-            # and writes to BOTH the IDE global root (~/.gemini/antigravity) and the
-            # CLI global root (~/.gemini/antigravity-cli). The previous verbatim
-            # antigravity-cli copies buried every SKILL.md under a category folder the
-            # IDE could not read. (The Gemini IDE ~/.gemini/skills mirror below and the
-            # Antigravity 1.0 global_workflows mirror are separate, untouched surfaces.)
-            Safe-Folder-Copy -Source "$RepoRoot\catalog\skills"   -Destination (Join-Path $globalGeminiDir "skills")    -CustomMessage "✓ Skills catalog installed at: $(Join-Path $globalGeminiDir "skills")"
-
-            $globalAntigravityWorkflows = Join-Path $globalGeminiDir "antigravity\global_workflows"
-            if (-not (Test-Path $globalAntigravityWorkflows)) { New-Item -ItemType Directory -Force -Path $globalAntigravityWorkflows | Out-Null }
-            Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination $globalAntigravityWorkflows -CustomMessage "✓ Antigravity workflows installed at: $globalAntigravityWorkflows"
+            # Full registry mirror (v3.11.0): renders GEMINI.md AND mirrors the catalog
+            # to ~/.gemini/{skills,workflows,agents,rules} per gemini.py. Replaces the
+            # prior instruction-only call plus the hardcoded skills / global_workflows
+            # copies, fixing the bash/PowerShell parity break (C1) and the never-delivered
+            # agents/rules (C2) from the Phase 7.1 read-contract audit. Antigravity 2.0 is
+            # handled by the antigravity2 block below.
+            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "gemini" -DisplayName "Gemini IDE (GEMINI.md + catalog mirror)"
         }
 
         if ($platforms -contains "ANTIGRAVITY2") {
@@ -1668,11 +1661,12 @@ function Install-Workspace {
             Write-Header -Provider "GOOGLE"
 
             if ($workspacePlatforms -contains "GEMINI") {
-                Write-Item -Message "Gemini IDE + Antigravity 1.0" -Color "Gray"
+                Write-Item -Message "Gemini IDE" -Color "Gray"
                 $geminiDir = Join-Path $targetPath ".gemini"
                 if (-not (Test-Path $geminiDir)) { New-Item -ItemType Directory -Force -Path $geminiDir | Out-Null }
 
-                Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "gemini" -DisplayName "GEMINI.md (instruction file)" -Languages ($languages -join ',') -InstructionOnly
+                # Full registry mirror (v3.11.0): GEMINI.md + .gemini/{skills,workflows,agents,rules}.
+                Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "gemini" -DisplayName "Gemini IDE (GEMINI.md + catalog mirror)" -Languages ($languages -join ',')
 
                 # Antigravity 2.0 + CLI: the antigravity2 integration (below) owns the
                 # .agents/ mirror -- it flattens skills to .agents/skills/<name>/SKILL.md,
@@ -1694,43 +1688,15 @@ function Install-Workspace {
             }
         }
 
-        # --- Prepare Copilot/Cursor instruction body (used below) -------
-        $mergedContent = "# $($script:ProjectName) - Copilot Instructions`n`n"
-        $mergedContent += "## Tech Stack`n"
-        $mergedContent += "- **Language**: $($script:PrimaryLanguage)`n"
-        $mergedContent += "- **Package Manager**: $($script:PackageManager)`n"
-        $mergedContent += "- **Test**: $($script:TestFramework)`n"
-        $mergedContent += "- **Lint**: $($script:LintTool)`n`n"
-        $mergedContent += "## Working Conventions`n"
-        $mergedContent += "- Destructive git commands require explicit user confirmation before running`n"
-        $mergedContent += "- Never add ``Co-Authored-By`` lines, AI attribution footers, or AI-generated signatures to commit messages`n"
-        $mergedContent += "- **MANDATORY: Every Bash/shell command approval MUST be preceded by a one-sentence plain-language explanation** of what the command does and what its impact will be. This applies to ALL commands regardless of complexity. No exceptions.`n"
-        $mergedContent += "- Ask clarifying questions before coding if requirements are ambiguous`n`n"
-        foreach ($lang in $languages) {
-            $langKey = $lang.ToLower()
-            if ($langKey -eq "c++") { $langKey = "cpp" }
-            if ($langKey -eq "c#") { $langKey = "csharp" }
-            $src = "$RepoRoot\templates\ai-instructions\coding-snippets\${langKey}.md"
-            if (Test-Path $src) {
-                $mergedContent += "`n" + (Get-Content $src -Raw) + "`n"
-            }
-        }
-
         # --- Microsoft -- GitHub Copilot --------------------------------
         if ($workspacePlatforms -contains "COPILOT") {
             Write-Header -Provider "MICROSOFT"
-            Write-Item -Message "GitHub Copilot" -Color "Gray"
-            $copilotDir = Join-Path $targetPath ".github"
-            if (-not (Test-Path $copilotDir)) { New-Item -ItemType Directory -Force -Path $copilotDir | Out-Null }
-            $copilotFile = Join-Path $copilotDir "copilot-instructions.md"
-
-            # Route the generated body through Safe-Copy via a temp file so the
-            # Copilot instruction file participates in the unified conflict-only
-            # overwrite flow (v3.7.0 / Phase 2) instead of its own inline prompt.
-            $copilotTmp = [System.IO.Path]::GetTempFileName()
-            $script:TempFiles += $copilotTmp
-            [System.IO.File]::WriteAllText($copilotTmp, $mergedContent, (New-Object System.Text.UTF8Encoding($false)))
-            Safe-Copy -Source $copilotTmp -Destination $copilotFile -Confirm:$true -CustomMessage "✓ Workspace instructions installed at: $copilotFile"
+            # Render .github/copilot-instructions.md via the registry so it carries the
+            # {{SKILL_INDEX}} block (from base-codex.md) and is marker-merged, preserving
+            # user content above and below the managed block. Fixes C6: the prior
+            # hand-built body dropped the skill index and full-overwrote the file
+            # (v3.11.0 Phase 7 read-contract audit).
+            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "copilot" -DisplayName "GitHub Copilot (.github/copilot-instructions.md)" -Languages ($languages -join ',')
         }
 
         # --- Anysphere -- Cursor ----------------------------------------
@@ -2406,6 +2372,62 @@ function Install-CliLauncher {
 }
 
 
+# --- Project auto-seed + on-open hook (v3.11.0 Phase 7.3) ---
+#
+# Lockstep with install_project_autoseed in scripts\installer.sh. Ships the opt-in
+# "seed on project open" hook and, on a global install run from inside a git work
+# tree, seeds the current repo's project surfaces (Antigravity .agents/, Cursor,
+# Claude stub). Per the no-auto-rc-edit policy the hook is installed and its enable
+# line printed; the current-repo seed is automatic. Opt out with
+# $env:NEXUS_HUB_NO_AUTOSEED = "1".
+function Install-ProjectAutoseed {
+    param ($RepoRoot, $ScopeLabel)
+
+    $nexusHome = Join-Path $env:USERPROFILE ".nexus-hub"
+    $hooksDest = Join-Path $nexusHome "hooks"
+    $runner = Join-Path $RepoRoot "scripts\lib\integrations\runner.py"
+
+    Write-Host ""
+    Write-SubSectionBanner -Text "Project auto-seed (Antigravity .agents/, Cursor, Claude)"
+    Write-Host ""
+
+    # Ship the on-open hook script regardless of scope.
+    if (-not (Test-Path $hooksDest)) { New-Item -ItemType Directory -Force -Path $hooksDest | Out-Null }
+    $hookSrc = Join-Path $RepoRoot "scripts\nexus-hub-autoseed.ps1"
+    if (Test-Path $hookSrc) {
+        Safe-Copy -Source $hookSrc -Destination (Join-Path $hooksDest "nexus-hub-autoseed.ps1") -Confirm:$true -CustomMessage "✓ on-open hook installed at: $(Join-Path $hooksDest "nexus-hub-autoseed.ps1")"
+    }
+
+    # Auto-seed the current repo on a GLOBAL install run from inside a git work tree
+    # (a workspace install already seeded its target). Skips the source cache and
+    # honors the opt-out.
+    if ($ScopeLabel -eq "Global" -and $env:NEXUS_HUB_NO_AUTOSEED -ne "1") {
+        $py = $null
+        foreach ($c in @("python", "py", "python3")) {
+            if (Get-Command $c -ErrorAction SilentlyContinue) { $py = $c; break }
+        }
+        if ($py -and (Test-Path $runner)) {
+            $cwd = (Get-Location).Path
+            if (-not ($cwd -eq $nexusHome -or $cwd.StartsWith($nexusHome))) {
+                $inRepo = $false
+                try { $null = (& git -C $cwd rev-parse --is-inside-work-tree 2>$null); if ($LASTEXITCODE -eq 0) { $inRepo = $true } } catch { }
+                if ($inRepo) {
+                    Write-Item -Message "Seeding project surfaces in the current repo: $cwd" -Color "Gray"
+                    if ($py -eq "py") { & $py -3 $runner init --target $cwd --quiet *> $null } else { & $py $runner init --target $cwd --quiet *> $null }
+                    Write-Item -Message "✓ Current repo seeded (Antigravity .agents/, Cursor rules, Claude stub)." -Color "DarkGreen"
+                }
+            }
+        }
+    }
+
+    Write-Item -Message "To surface Nexus-Hub in another project, run inside it:  nexus-hub init" -Color "Yellow"
+    Write-Item -Message "Optional 'seed on project open' hook (opt-in; the installer never edits your profile):" -Color "White"
+    Write-Item -Message '  Add to $PROFILE:  . "$HOME\.nexus-hub\hooks\nexus-hub-autoseed.ps1"' -Color "Cyan"
+    Write-Item -Message '  Disable auto-seed anytime with: $env:NEXUS_HUB_NO_AUTOSEED = "1"' -Color "Gray"
+    Write-Host ""
+}
+
+
 # --- MCP Skill Server & Skill Index ---
 
 function Install-SkillDiscovery {
@@ -2701,7 +2723,7 @@ function Remove-LegacyVSCodeExtensions {
 
 # Detects an existing ~/.devai-hub/ install and migrates it to ~/.nexus-hub/.
 # One-shot, one-way per the backward-compat decision in
-# docs/archive/v2/v2.0.0/rename-decisions.md. The installer does NOT ship a symlink or
+# docs/archive/v2/v2.0/rename-decisions.md. The installer does NOT ship a symlink or
 # compatibility shim. Three branches:
 #   1. legacy only             -> prompt to migrate (default Y), then Move-Item.
 #   2. legacy AND new co-exist -> ask user: keep-new, abort, or merge.
@@ -2908,6 +2930,23 @@ Install-Templates -RepoRoot $repoRoot
 
 # Install the nexus-hub CLI launcher + version marker (v3.7.0 Phase 3).
 Install-CliLauncher -RepoRoot $repoRoot
+
+# Project auto-seed + on-open hook (v3.11.0 Phase 7.3): seed the current repo on a
+# global install run from inside it, ship the opt-in on-open hook, and surface
+# `nexus-hub init` for other projects.
+Install-ProjectAutoseed -RepoRoot $repoRoot -ScopeLabel $scopeLabel
+
+# Post-install per-platform verification (v3.11.0 Phase 7.4): report PASS /
+# NEEDS-ACTION per detected platform against its real read-path (advisory).
+$verifyRunner = Join-Path $repoRoot "scripts\lib\integrations\runner.py"
+$pyVerify = $null
+foreach ($c in @("python", "py", "python3")) { if (Get-Command $c -ErrorAction SilentlyContinue) { $pyVerify = $c; break } }
+if ($pyVerify -and (Test-Path $verifyRunner)) {
+    Write-Host ""
+    Write-SubSectionBanner -Text "Install verification"
+    if ($pyVerify -eq "py") { & $pyVerify -3 $verifyRunner verify --target (Get-Location).Path 2>$null }
+    else { & $pyVerify $verifyRunner verify --target (Get-Location).Path 2>$null }
+}
 
 # Resolve any managed-file conflicts collected during an interactive install
 # (single end-of-run prompt). No-op on the non-interactive / -Yes / -Force path.

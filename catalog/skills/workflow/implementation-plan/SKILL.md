@@ -2,7 +2,7 @@
 name: implementation-plan
 description: >-
   Guide the user through a structured discovery interview to generate a comprehensive
-  phased plan (docs/versions/<vMAJOR>/<vSEMVER>/plans/<slug>.md) for their project. Works
+  phased plan (docs/v<MAJOR>/v<MAJOR>.<MINOR>/plans/v<MAJOR>.<MINOR>.<PATCH>-<slug>.md) for their project. Works
   for initial v0.1.0 builds, feature additions, UX enhancements, refactors, and bug-fix campaigns.
   Asks targeted questions appropriate to the plan type, then generates a phased plan
   where each phase contains sub-tasks with detailed executable prompts, ends with test
@@ -11,7 +11,7 @@ description: >-
   when /compare-project hands off a comparison report to operationalize, or when a user
   asks to create an implementation plan, v0.1.0 plan, enhancement plan, refactor plan,
   or roadmap.
-summary_l0: "Generate a phased plan through guided discovery, saved to docs/versions/<vMAJOR>/<vSEMVER>/plans/<slug>.md"
+summary_l0: "Generate a phased plan through guided discovery, saved to docs/v<MAJOR>/v<MAJOR>.<MINOR>/plans/v<MAJOR>.<MINOR>.<PATCH>-<slug>.md"
 overview_l1: >-
   This skill conducts a structured discovery interview — asking one question at a
   time — to collect everything needed to write a comprehensive phased plan. The first
@@ -22,9 +22,9 @@ overview_l1: >-
   runtime behavior, integrations, performance, definition of done, and testing. For
   enhancements/refactors the interview uses a shorter scope-focused question set:
   goal, in/out scope, affected areas, constraints, definition of done, and testing.
-  After the interview the skill writes the plan to docs/versions/<vMAJOR>/<vSEMVER>/plans/<slug>.md
+  After the interview the skill writes the plan to docs/v<MAJOR>/v<MAJOR>.<MINOR>/plans/v<MAJOR>.<MINOR>.<PATCH>-<slug>.md
   (the legacy flat layout docs/<vSEMVER>/plans/<slug>.md is honored when already present;
-  see /generate-plan Step 0b.5 for the path-resolution algorithm) structured into numbered
+  see the docs-layout-refactor Version-directory resolution for the path-resolution algorithm) structured into numbered
   phases with numbered sub-tasks. Every sub-task includes a
   self-contained executable prompt that can be handed directly to Claude Code in a
   future session. Each phase ends with a dedicated testing and troubleshooting
@@ -41,9 +41,9 @@ overview_l1: >-
 
 Guide the user through a structured discovery interview, then generate a comprehensive plan at `<version_dir>/plans/<slug>.md` broken into phased sub-tasks — each with an executable prompt — so the full effort can be completed session by session.
 
-`<version_dir>` is resolved per `/generate-plan` Step 0b.5. The canonical layout is `docs/versions/<vMAJOR>/<vSEMVER>/` (e.g., `docs/versions/v2/v2.1.0/`); legacy projects using the flat `docs/<vSEMVER>/` layout are auto-detected and respected to avoid mid-version path churn. Use `/refactor-docs` to migrate a legacy project to the canonical layout.
+`<version_dir>` is resolved per the `[[docs-layout-refactor]]` skill's Version-directory resolution algorithm. The canonical layout is `docs/v<MAJOR>/v<MAJOR>.<MINOR>/` (e.g., `docs/v3/v3.11/`), with patch releases sharing their minor dir; legacy projects using the flat `docs/<vSEMVER>/` or the old three-level `docs/versions/<vMAJOR>/<vSEMVER>/` layout are auto-detected and respected to avoid mid-version path churn. Use `/update refactor` to migrate a legacy project to the canonical layout.
 
-The command entry point is `/generate-plan`. When invoked with a comparison report path (`/generate-plan <version_dir>/comparison-<name>.md`), the command enters *From-comparison mode* (Step 0.5): it pre-seeds the interview from the report's Adoption Plan section, skipping questions the report already answers, and writes the plan to `<version_dir>/plans/adoption-<name>.md`.
+The command entry point is `/generate-plan`. When invoked with a comparison report path (`/generate-plan <version_dir>/comparisons/v<MAJOR>.<MINOR>.<PATCH>-comparison-<name>.md`; glob `<version_dir>/comparisons/*-comparison-<name>.md` to find it), the command enters *From-comparison mode* (Step 0.5): it pre-seeds the interview from the report's Adoption Plan section, skipping questions the report already answers, and writes the plan to `<version_dir>/plans/v<MAJOR>.<MINOR>.<PATCH>-adoption-<name>.md`.
 
 ## When to Use This Skill
 
@@ -148,9 +148,9 @@ When neither file exists, note that and proceed - grounding is best-effort, not 
 
 ### Phase C: Generate the Plan File
 
-Resolve the target version (from git tags, CHANGELOG, or package manifests; default `v0.1.0` for fresh greenfield projects), then resolve `<version_dir>` per `/generate-plan` Step 0b.5 (canonical `docs/versions/<vMAJOR>/<vSEMVER>/` for new content; legacy `docs/<vSEMVER>/` preserved when already present). Derive a slug from the one-sentence scope statement collected at the start of the interview (lowercase, hyphen-separated, ~5 words, sanitized to `[a-z0-9-]+`). Confirm both with the user before writing.
+Resolve the target version (from git tags, CHANGELOG, or package manifests; default `v0.1.0` for fresh greenfield projects), then resolve `<version_dir>` per the `[[docs-layout-refactor]]` Version-directory resolution algorithm (canonical `docs/v<MAJOR>/v<MAJOR>.<MINOR>/` for new content, patch releases sharing their minor dir; legacy `docs/<vSEMVER>/` or `docs/versions/<vMAJOR>/<vSEMVER>/` preserved when already present). Derive a slug from the one-sentence scope statement collected at the start of the interview (lowercase, hyphen-separated, ~5 words, sanitized to `[a-z0-9-]+`); the plan file is then named with a release prefix - `v<MAJOR>.<MINOR>.<PATCH>-<slug>.md` - so multiple patch releases sharing one minor dir never collide. Confirm both with the user before writing.
 
-Create `<version_dir>/plans/` if it does not exist and write to `<version_dir>/plans/<slug>.md` following the structure below.
+Create `<version_dir>/plans/` if it does not exist and write to `<version_dir>/plans/v<MAJOR>.<MINOR>.<PATCH>-<slug>.md` following the structure below.
 
 #### File Header
 
@@ -241,9 +241,13 @@ stable before advancing to Phase N+1.
 **Prompt**:
 > Generate comprehensive tests for everything built in Phase N. This should include:
 > [list the specific kinds of tests appropriate for this phase: unit tests, integration
-> tests, E2E tests, performance benchmarks, CI/CD configuration, etc.]. Run the tests,
-> fix any failures, and iterate until all tests pass and the implementation is stable.
-> Do not proceed to Phase N+1 until this phase is fully tested and verified.
+> tests, E2E tests, performance benchmarks, etc.]. Run the tests, fix any failures, and
+> iterate until all tests pass and the implementation is stable. Then create or update the
+> CI/CD pipeline to cover this phase's changes and optimize it to reduce CI action minutes
+> (path filters, concurrency cancel-in-progress, dependency caching, gating expensive-OS or
+> matrix jobs to merges/schedule) while keeping comprehensive coverage - keep the language
+> platform-agnostic, with GitHub Actions as the primary example. Do not proceed to Phase
+> N+1 until this phase is fully tested and verified.
 > After all tests pass, run `/generate-session-history` to document Phase N.
 
 ---
@@ -269,6 +273,41 @@ stable before advancing to Phase N+1.
 
 The `## Complexity Tracking` block sits near the end of the file, between the last phase's content and that phase's `### Phase N Exit Checklist`. Leave the row blank (keep only the header, blockquote, and column titles) when every Constitution Check bullet is PASS or N/A. Populate one row per FAIL principle, stating the violation, why it is needed, and why the simpler alternative was rejected. Treat the section as part of the plan's contract with `[[project-constitution]]` and `/analyze-spec`.
 
+#### Mandatory Final Phase (every plan)
+
+Every generated plan MUST end with a final phase dedicated to architecture refactor, known-gaps reconciliation, and CI/CD - even a small plan (there it may be a light, near-no-op pass, but it is never omitted). This is a REFACTOR / known-gaps / CI phase, NOT a deferred-testing phase: per-phase testing still stands (see the "Testing continuous" guideline below and the testing rationalization). Emit it verbatim as the last `## Phase N`:
+
+```markdown
+## Phase N: Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
+
+**Goal**: Leave the project well-organized, its known gaps reconciled, and its CI/CD complete and optimized.
+**Prerequisites**: All prior phases.
+**Stability Gate**: The layout is clean (no deprecated/obsolete files, empty dirs, redundant files/dirs, or overcomplicated structure left un-triaged); the version's known gaps are reconciled; CI/CD covers every change and is optimized; project validation/tests pass.
+**Recommended model**: [Step 3.5 routing; repo-wide refactor + reference repair is high-risk - default to the strong reasoning tier.]
+
+### Sub-tasks
+
+#### N.1 - Architecture refactor
+**Objective**: Refactor toward a well-organized, intuitive layout.
+**Prompt**:
+> Identify deprecated/obsolete files, empty directories, redundant files/dirs, and overcomplicated structure, then refactor toward a clean, intuitive layout via [[project-refactor]] and [[docs-layout-refactor]] (propose-then-apply, with confirmation; repair every reference for anything that moves).
+
+#### N.2 - Known-gaps reconciliation
+**Objective**: Reconcile the version's open gaps.
+**Prompt**:
+> Reconcile this version's known gaps via [[known-gaps-tracker]]: resolve, defer, or transfer each open item, and finalize the per-minor known-gaps file for the version.
+
+#### N.3 - CI/CD create/update/optimize
+**Objective**: CI/CD covers all changes and is optimized.
+**Prompt**:
+> Create or update the CI/CD pipeline so it covers every change in this plan, then optimize it to reduce action minutes (path filters, concurrency cancel-in-progress, dependency caching, gating expensive-OS or matrix jobs to merges/schedule) while keeping comprehensive testing. Keep it platform-agnostic; GitHub Actions is the primary example.
+
+#### N.4 - Testing and Stabilization
+**Objective**: Prove the refactor preserved behavior and CI/CD is green.
+**Prompt**:
+> Run the full validation/test suite, confirm the refactor changed no behavior, confirm CI/CD passes and the action-minute reduction is real, and iterate until clean. Generate a session-history entry for this phase.
+```
+
 #### Phase Design Guidelines
 
 Apply these rules when deciding how many phases to create and how to split them:
@@ -283,6 +322,8 @@ Apply these rules when deciding how many phases to create and how to split them:
 | Integration phase | If external APIs or local models are involved, create a dedicated integration phase with clear mocking/stubbing strategies for early phases |
 | Testing continuous | Every phase ends with a testing sub-task — not a single final QA phase |
 | Phase count | Target 4–8 phases for most plans; very small scopes may have 2–3; major refactors up to 10 |
+| Terminal refactor phase | Every plan ends with a mandatory final phase that reviews architecture and refactors toward a clean, intuitive layout, reconciles the version's known gaps, and creates/updates/optimizes CI/CD - even small plans (a light near-no-op pass, but never omitted). Distinct from per-phase testing, which still applies to every phase. |
+| CI/CD per phase | Every phase's testing sub-task also creates or updates the CI/CD pipeline for that phase's changes and optimizes it (path filters, concurrency cancellation, caching, gating expensive jobs) to keep action minutes low while coverage stays comprehensive |
 
 ---
 
@@ -320,7 +361,7 @@ This step adds no outbound call, dependency, or credential of its own - the heav
 
 ### Step 4: Write the Plan
 
-Create `<version_dir>/plans/` if it does not exist (where `<version_dir>` is the path resolved earlier — canonically `docs/versions/<vMAJOR>/<vSEMVER>/`, with legacy `docs/<vSEMVER>/` honored when already present), then write `<slug>.md` inside it following the structure above. If the target file already exists, ask the user whether to **Regenerate** (overwrite), **Append** (add phases), or **Rename** (pick a new slug).
+Create `<version_dir>/plans/` if it does not exist (where `<version_dir>` is the path resolved earlier - canonically `docs/v<MAJOR>/v<MAJOR>.<MINOR>/`, with legacy `docs/<vSEMVER>/` or `docs/versions/<vMAJOR>/<vSEMVER>/` honored when already present), then write the release-prefixed `v<MAJOR>.<MINOR>.<PATCH>-<slug>.md` inside it following the structure above. If the target file already exists, ask the user whether to **Regenerate** (overwrite), **Append** (add phases), or **Rename** (pick a new slug).
 
 ### Step 5: Review and Confirm
 
@@ -348,13 +389,14 @@ Incorporate feedback, then write the final file.
 - [ ] Every feature or goal from the interview appears in at least one sub-task
 - [ ] Phase 1 establishes the foundation needed for subsequent phases (toolchain + runnable build for initial implementations; test harness or scaffolding for enhancements/refactors)
 - [ ] For initial implementations: installation/packaging step appears before the halfway point
-- [ ] Every phase ends with a testing and stabilization sub-task
+- [ ] Every phase ends with a testing and stabilization sub-task (which also creates/updates and optimizes CI/CD for that phase's changes)
+- [ ] The plan's last phase is the mandatory "Architecture Refactor, Known-Gaps Reconciliation, and CI/CD" phase (sub-tasks: N.1 architecture refactor, N.2 known-gaps reconciliation, N.3 CI/CD create/update/optimize, N.4 testing and stabilization)
 - [ ] Every sub-task has a complete, self-contained executable prompt
 - [ ] Every phase has a stability gate and exit checklist
 - [ ] Every phase carries a recommended model (or an explicit assess-at-implementation placeholder) in both the "Phases at a Glance" column and its `**Recommended model**` field
 - [ ] `## Constitution Check` section present between `## Overview` and `## Phases at a Glance` (with PASS / FAIL / N/A per MUST principle, or the informational note when no constitution file exists)
 - [ ] `## Complexity Tracking` section present near the end of the file (empty table when no FAIL bullets; populated row per FAIL otherwise)
-- [ ] File written to the resolved `<version_dir>/plans/<slug>.md` (canonical `docs/versions/<vMAJOR>/<vSEMVER>/plans/<slug>.md` or legacy `docs/<vSEMVER>/plans/<slug>.md`)
+- [ ] File written to the resolved `<version_dir>/plans/v<MAJOR>.<MINOR>.<PATCH>-<slug>.md` (canonical `docs/v<MAJOR>/v<MAJOR>.<MINOR>/plans/v<MAJOR>.<MINOR>.<PATCH>-<slug>.md` or legacy `docs/<vSEMVER>/plans/<slug>.md`)
 - [ ] User confirmed the phase breakdown before final generation
 
 ## Related Skills

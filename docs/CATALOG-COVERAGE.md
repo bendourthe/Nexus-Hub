@@ -59,7 +59,7 @@ This matrix maps Nexus-Hub's skill catalog against user roles, AI platforms, and
 
 **New guides (2)**:
 - [guides/reference/SESSION_LIFECYCLE_DECISIONS.md](../guides/reference/SESSION_LIFECYCLE_DECISIONS.md) - five-branch decision tree (continue / `/rewind` / `/clear` / `/compact` / delegate to subagent).
-- [docs/v0.9.6/opus-4-7-migration.md](v0.9.6/opus-4-7-migration.md) - operator migration guide with TL;DR, four must-do items, and a 13-row cross-reference table indexing every Opus 4.6 -> 4.7 behavioral delta.
+- [docs/archive/v0/v0.9/opus-4-7-migration.md](archive/v0/v0.9/opus-4-7-migration.md) - operator migration guide with TL;DR, four must-do items, and a 13-row cross-reference table indexing every Opus 4.6 -> 4.7 behavioral delta.
 
 **New checklists (1)**:
 - [catalog/checklists/file-upload-security.md](../catalog/checklists/file-upload-security.md) - defense checklist against polyglot files, MIME confusion, archive path traversal, zip bombs, and unsafe upload serving.
@@ -77,7 +77,7 @@ This matrix maps Nexus-Hub's skill catalog against user roles, AI platforms, and
 - `/run-penetration-test` - optional 6th hunter (Business Logic & Advanced Attacks) gated behind `--depth=deep`; Attack Paths renamed to "Attack Paths / Chains"; new Secure Design Recommendations subsection; WSTG Coverage Matrix expanded with BUSL, cache poisoning, replay, and timing rows; hunter agents use shipped default `high` effort level.
 
 **Configuration change (operator-facing)**:
-- Installer default `effortLevel` reduced from `xhigh` to `high` (`catalog/hooks/settings.json`, `scripts/installer.ps1`). Full details in [CHANGELOG.md](../CHANGELOG.md) and [docs/v0.9.6/opus-4-7-migration.md](v0.9.6/opus-4-7-migration.md).
+- Installer default `effortLevel` reduced from `xhigh` to `high` (`catalog/hooks/settings.json`, `scripts/installer.ps1`). Full details in [CHANGELOG.md](../CHANGELOG.md) and [docs/archive/v0/v0.9/opus-4-7-migration.md](archive/v0/v0.9/opus-4-7-migration.md).
 
 ---
 

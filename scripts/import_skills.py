@@ -96,6 +96,11 @@ def validate_https_source(source: str) -> tuple[bool, str]:
     host = (parsed.hostname or "").lower()
 
     if scheme == "https":
+        if not host:
+            return (
+                False,
+                f"refusing host-less https source '{s}': a remote source must name a host",
+            )
         return True, "https"
     if scheme == "http" and host in LOCALHOST_HOSTS:
         return True, "http-localhost"

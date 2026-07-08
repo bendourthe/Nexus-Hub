@@ -19,7 +19,7 @@ These specs are descriptive, not executable. The authoritative behavior lives in
 
 ## Distribution tiers
 
-- **Original 4** (legacy installer copy blocks): Claude Code, Gemini / Antigravity 1.0, Codex, GitHub Copilot. These install via the explicit copy blocks in `scripts/installer.sh` / `installer.ps1` and also have a registry subclass standing by for the parity migration tracked in `docs/archive/v2/v2.1.0/known-gaps.md` (DF-001).
+- **Original 4** (legacy installer copy blocks): Claude Code, Gemini / Antigravity 1.0, Codex, GitHub Copilot. These install via the explicit copy blocks in `scripts/installer.sh` / `installer.ps1` and also have a registry subclass standing by for the parity migration tracked in `docs/archive/v2/v2.1/known-gaps.md` (DF-001).
 - **Extended** (v2.2.0+, via the integration registry under `scripts/lib/integrations/`): Antigravity 2.0 + CLI, Gemini CLI (enterprise-only post-2026-06-18), Nexus-AI.
 - **Behavioral guardrails only**: Cursor (`.cursor/rules/*.mdc` + repo-root `AGENTS.md`) and OpenCode (`AGENTS.md`) receive instruction-file guidance rather than a full per-file catalog copy (OpenCode additionally mirrors `skills/`).
 

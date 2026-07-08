@@ -418,7 +418,7 @@ V0_9_7_ARTIFACTS = [
     # (commit 590ea5a). The test continues to assert it exists at its new
     # canonical path so the historical record stays reachable.
     "guides/reference/SESSION_LIFECYCLE_DECISIONS.md",
-    "docs/archive/v0/v0.9.6/opus-4-7-migration.md",
+    "docs/archive/v0/v0.9/opus-4-7-migration.md",
     # New checklist (Phase 3)
     "catalog/checklists/file-upload-security.md",
     # Bundled report templates (copied silently by installer)

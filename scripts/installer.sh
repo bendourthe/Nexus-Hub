@@ -7,7 +7,7 @@ set -e
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-NEXUS_HUB_VERSION="3.10.0"
+NEXUS_HUB_VERSION="3.11.0"
 
 # --- Window Title ---
 printf '\033]0;Nexus-Hub Installer\007'
@@ -929,11 +929,15 @@ install_global() {
     if should_install gemini || should_install antigravity2 || should_install gemini-cli; then
     write_header "GOOGLE"
     if should_install gemini; then
-    write_item "Gemini IDE + Antigravity 1.0" "$GRAY"
+    write_item "Gemini IDE" "$GRAY"
     local global_gemini_dir="$user_home/.gemini"
     mkdir -p "$global_gemini_dir"
 
-    invoke_registry_platform "$repo_root" "global" "" "gemini" "GEMINI.md (instruction file)" "" "true"
+    # Full registry mirror (v3.11.0): renders GEMINI.md AND mirrors the catalog to
+    # ~/.gemini/{skills,workflows,agents,rules} per gemini.py. Dropping the prior
+    # instruction-only call fixes the bash/PowerShell parity break (C1) and the
+    # never-delivered agents/rules (C2) from the Phase 7.1 read-contract audit.
+    invoke_registry_platform "$repo_root" "global" "" "gemini" "Gemini IDE (GEMINI.md + catalog mirror)" "" ""
     fi
 
     # Antigravity 2.0 + CLI: the antigravity2 integration below owns the entire
@@ -1325,11 +1329,12 @@ install_workspace() {
         if should_install gemini || should_install antigravity2 || should_install gemini-cli; then
         write_header "GOOGLE"
         if should_install gemini; then
-        write_item "Gemini IDE + Antigravity 1.0" "$GRAY"
+        write_item "Gemini IDE" "$GRAY"
         local gemini_dir="$target_path/.gemini"
         mkdir -p "$gemini_dir"
 
-        invoke_registry_platform "$repo_root" "workspace" "$target_path" "gemini" "GEMINI.md (instruction file)" "$languages" "true"
+        # Full registry mirror (v3.11.0): GEMINI.md + .gemini/{skills,workflows,agents,rules}.
+        invoke_registry_platform "$repo_root" "workspace" "$target_path" "gemini" "Gemini IDE (GEMINI.md + catalog mirror)" "$languages" ""
         fi
 
         # Antigravity 2.0 + CLI: the antigravity2 integration below owns the
@@ -1351,46 +1356,13 @@ install_workspace() {
 
         # --- Microsoft -- GitHub Copilot ----------------------------
         if should_install copilot; then
-        # Prepare the Copilot instruction body.
-        local merged_content="# $PROJECT_NAME - Copilot Instructions\n\n"
-        merged_content+="## Tech Stack\n"
-        merged_content+="- **Language**: $PRIMARY_LANGUAGE\n"
-        merged_content+="- **Package Manager**: $PACKAGE_MANAGER\n"
-        merged_content+="- **Test**: $TEST_FRAMEWORK\n"
-        merged_content+="- **Lint**: $LINT_TOOL\n\n"
-        merged_content+="## Working Conventions\n"
-        merged_content+="- Destructive git commands require explicit user confirmation before running\n"
-        merged_content+="- Never add \`Co-Authored-By\` lines, AI attribution footers, or AI-generated signatures to commit messages\n"
-        merged_content+="- **MANDATORY: Every Bash/shell command approval MUST be preceded by a one-sentence plain-language explanation** of what the command does and what its impact will be. This applies to ALL commands regardless of complexity. No exceptions.\n"
-        merged_content+="- Ask clarifying questions before coding if requirements are ambiguous\n\n"
-
-        IFS=',' read -ra LANGS <<< "$languages"
-        for lang in "${LANGS[@]}"; do
-            lang_key=$(echo "$lang" | tr '[:upper:]' '[:lower:]')
-            if [ "$lang_key" == "c++" ]; then lang_key="cpp"; fi
-            if [ "$lang_key" == "c#" ]; then lang_key="csharp"; fi
-            src="$repo_root/templates/ai-instructions/coding-snippets/${lang_key}.md"
-            if [ -f "$src" ]; then
-                merged_content+="\n"
-                merged_content+=$(cat "$src")
-                merged_content+="\n"
-            fi
-        done
-
         write_header "MICROSOFT"
-        write_item "GitHub Copilot" "$GRAY"
-        local copilot_dir="$target_path/.github"
-        mkdir -p "$copilot_dir"
-        local copilot_file="$copilot_dir/copilot-instructions.md"
-
-        # Route the generated body through safe_copy via a temp file so the
-        # Copilot instruction file participates in the unified conflict-only
-        # overwrite flow (v3.7.0 / Phase 2) instead of its own inline prompt.
-        local copilot_tmp
-        copilot_tmp=$(mktemp)
-        TEMP_FILES+=("$copilot_tmp")
-        printf '%b' "$merged_content" > "$copilot_tmp"
-        safe_copy "$copilot_tmp" "$copilot_file" true "[OK] Workspace instructions installed at: $copilot_file"
+        # Render .github/copilot-instructions.md via the registry so it carries the
+        # {{SKILL_INDEX}} block (from base-codex.md) and is marker-merged, preserving
+        # user content above and below the managed block. Fixes C6: the prior
+        # hand-built body dropped the skill index and full-overwrote the file
+        # (v3.11.0 Phase 7 read-contract audit).
+        invoke_registry_platform "$repo_root" "workspace" "$target_path" "copilot" "GitHub Copilot (.github/copilot-instructions.md)" "$languages"
         fi
 
         # --- Anysphere -- Cursor ------------------------------------
@@ -2068,6 +2040,67 @@ install_cli_launcher() {
     echo ""
 }
 
+# --- Project auto-seed + on-open hook (v3.11.0 Phase 7.3) ---
+#
+# Project-only-surface platforms (Antigravity 2.0 reads workflows/skills/rules
+# ONLY from an open project's .agents/) are not served by a global-only install.
+# This step (1) ships an opt-in "seed on project open" hook, and (2) seeds the
+# CURRENT repo's project surfaces when a global install is run from inside a git
+# work tree. Per the no-auto-rc-edit policy, the hook script is INSTALLED and its
+# one-line enable is PRINTED (never written into a dotfile); the current-repo seed
+# is fully automatic. Opt out with NEXUS_HUB_NO_AUTOSEED=1. Lockstep with
+# Install-ProjectAutoseed in scripts/installer.ps1.
+install_project_autoseed() {
+    local repo_root="$1"
+    local scope_label="$2"   # "Global" or "Workspace"
+    local nexus_home="$HOME/.nexus-hub"
+    local hooks_dest="$nexus_home/hooks"
+    local runner="$repo_root/scripts/lib/integrations/runner.py"
+
+    echo ""
+    write_subsection_banner "Project auto-seed (Antigravity .agents/, Cursor, Claude)"
+    echo ""
+
+    # Ship the on-open hook script (fail-open, idempotent, opt-out) regardless of scope.
+    mkdir -p "$hooks_dest"
+    local hook_src="$repo_root/scripts/nexus-hub-autoseed.sh"
+    if [ -f "$hook_src" ]; then
+        safe_copy "$hook_src" "$hooks_dest/nexus-hub-autoseed.sh" true "[OK] on-open hook installed at: $hooks_dest/nexus-hub-autoseed.sh"
+        chmod +x "$hooks_dest/nexus-hub-autoseed.sh" 2>/dev/null || true
+    fi
+
+    # Auto-seed the current repo on a GLOBAL install run from inside a git work
+    # tree (a workspace install already seeded its target). Skips the source cache
+    # and honors the opt-out. (Under the curl|bash bootstrap the invocation dir may
+    # be the cache; the nexus-hub init hint + the on-open hook cover that case.)
+    if [ "$scope_label" = "Global" ] && [ "${NEXUS_HUB_NO_AUTOSEED:-0}" != "1" ]; then
+        local py
+        if [ -f "$runner" ] && py=$(resolve_python_executable 2>/dev/null); then
+            local cwd; cwd="$(pwd -P 2>/dev/null || pwd)"
+            case "$cwd" in
+                "$nexus_home"|"$nexus_home"/*) : ;;  # never seed the source cache
+                *)
+                    if git -C "$cwd" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+                        write_item "Seeding project surfaces in the current repo: $cwd" "$GRAY"
+                        "$py" "$runner" init --target "$cwd" --quiet >/dev/null 2>&1 || true
+                        write_item "[OK] Current repo seeded (Antigravity .agents/, Cursor rules, Claude stub)." "$GREEN"
+                    fi
+                    ;;
+            esac
+        fi
+    fi
+
+    # Prominence: seeding OTHER repos, and enabling the on-open hook.
+    write_item "To surface Nexus-Hub in another project, run inside it:  nexus-hub init" "$YELLOW"
+    write_item "Optional 'seed on project open' hook (opt-in; the installer never edits your shell rc):" "$RESET"
+    case "$(basename "${SHELL:-}")" in
+        zsh)  write_item "  Add to ~/.zshrc:   source \"\$HOME/.nexus-hub/hooks/nexus-hub-autoseed.sh\"" "$CYAN" ;;
+        *)    write_item "  Add to ~/.bashrc:  source \"\$HOME/.nexus-hub/hooks/nexus-hub-autoseed.sh\"" "$CYAN" ;;
+    esac
+    write_item "  Disable auto-seed anytime with: export NEXUS_HUB_NO_AUTOSEED=1" "$GRAY"
+    echo ""
+}
+
 # --- Skill Discovery ---
 
 install_skill_discovery() {
@@ -2298,7 +2331,7 @@ NEXUS_BANNER_EOF
 
 # Detects an existing ~/.devai-hub/ install and migrates it to ~/.nexus-hub/.
 # One-shot, one-way per the backward-compat decision in
-# docs/archive/v2/v2.0.0/rename-decisions.md. The installer does NOT ship a symlink or
+# docs/archive/v2/v2.0/rename-decisions.md. The installer does NOT ship a symlink or
 # compatibility shim. Three branches:
 #   1. legacy only            -> prompt to migrate (default Y), then `mv`.
 #   2. legacy AND new co-exist -> ask user: keep-new, abort, or merge.
@@ -2731,6 +2764,22 @@ install_templates "$REPO_ROOT"
 
 # Install the nexus-hub CLI launcher + version marker (v3.7.0 Phase 3).
 install_cli_launcher "$REPO_ROOT"
+
+# Project auto-seed + on-open hook (v3.11.0 Phase 7.3): seed the current repo on a
+# global install run from inside it, ship the opt-in on-open hook, and surface
+# `nexus-hub init` for other projects.
+install_project_autoseed "$REPO_ROOT" "$SCOPE_LABEL"
+
+# Post-install per-platform verification (v3.11.0 Phase 7.4): report PASS /
+# NEEDS-ACTION per detected platform against its real read-path (advisory; never
+# fails the install).
+if [ -f "$REPO_ROOT/scripts/lib/integrations/runner.py" ]; then
+    if py=$(resolve_python_executable 2>/dev/null); then
+        echo ""
+        write_subsection_banner "Install verification"
+        "$py" "$REPO_ROOT/scripts/lib/integrations/runner.py" verify --target "$(pwd -P 2>/dev/null || pwd)" 2>/dev/null || true
+    fi
+fi
 
 # Resolve any managed-file conflicts collected during an interactive install
 # (single end-of-run prompt). No-op on the non-interactive / --yes / --force path.

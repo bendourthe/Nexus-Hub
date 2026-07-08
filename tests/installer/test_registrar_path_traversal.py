@@ -12,11 +12,11 @@ named, e.g., `../etc/passwd` to `catalog/skills/`. The installer must refuse
 such a name, regardless of which platform it runs on. These tests pin that
 behavior in CI.
 
-Related plan reference: docs/archive/v2/v2.1.0/plans/adoption-spec-kit.md (Phase 9
+Related plan reference: docs/archive/v2/v2.1/plans/adoption-spec-kit.md (Phase 9
 sub-task 9.4). The plan adapts the Spec-Kit `tests/test_registrar_path_traversal.py`
 pattern -- per the Reverse-Engineering Attribution Rule in AGENTS.md, the
 upstream name is documented in the comparison report at
-docs/archive/v2/v2.0.0/comparison-spec-kit.md, not in the artifact itself.
+docs/archive/v2/v2.0/comparison-spec-kit.md, not in the artifact itself.
 """
 
 from __future__ import annotations
@@ -42,7 +42,7 @@ def install_root(tmp_path: Path) -> Path:
 
 
 class TestRejectMaliciousNames:
-    """Cases 1-4 from docs/archive/v2/v2.1.0/plans/adoption-spec-kit.md sub-task 9.4."""
+    """Cases 1-4 from docs/archive/v2/v2.1/plans/adoption-spec-kit.md sub-task 9.4."""
 
     def test_rejects_dotdot_traversal(self, install_root: Path) -> None:
         with pytest.raises(PathTraversalError):

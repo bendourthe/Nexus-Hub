@@ -124,6 +124,11 @@ Beyond the exit rule, a multi-step workflow or loop needs three control patterns
 
 Composing these into a named, goal-terminated loop (the schema, the `iteration_cap`, the maker/checker split, the `on_reject` policy) is the job of [[loop-engineering]]; this step names the vocabulary, that skill assembles the loop. Do not build a bespoke YAML workflow engine for them -- they are instructions over the harness's existing Dynamic Workflows or a `/loop` driver.
 
+Two step-type vocabulary notes round out the orchestration surface, distinct from the control patterns above:
+
+- **Init / bootstrap step** -- a workflow's first step may bootstrap the project or workspace (install dependencies, seed config, create the scratch directory) so the workflow is self-contained on a fresh checkout rather than assuming a prepared environment.
+- **Structured step output** -- a step may opt into machine-parseable output (JSON) that later steps consume instead of free text; the structured-output contract makes downstream steps deterministic (parse a named field, not prose).
+
 ## Common Rationalizations
 
 | Rationalization | Reality |

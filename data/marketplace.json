@@ -1,8 +1,8 @@
 {
   "plugin": {
     "name": "nexus-hub",
-    "version": "3.10.0",
-    "description": "Enterprise-grade skill library for AI coding assistants with 259 curated skills, 16 commands, 25 hooks, and cross-platform support",
+    "version": "3.11.0",
+    "description": "Enterprise-grade skill library for AI coding assistants with 265 curated skills, 16 commands, 25 hooks, and cross-platform support",
     "author": "Benjamin Dourthe",
     "license": "MIT",
     "repository": "https://github.com/bendourthe/Nexus-Hub",
@@ -96,7 +96,7 @@
       "id": "code-review",
       "name": "Code Review",
       "description": "Comprehensive code review with security, performance, and testing focus",
-      "skill_count": 13
+      "skill_count": 14
     },
     {
       "id": "compliance",
@@ -108,7 +108,7 @@
       "id": "developer-experience",
       "name": "Developer Experience",
       "description": "Code optimization, refactoring, migration, dependency management, web artifact scaffolding",
-      "skill_count": 30
+      "skill_count": 31
     },
     {
       "id": "documentation",
@@ -138,13 +138,13 @@
       "id": "orchestration",
       "name": "Orchestration",
       "description": "Multi-agent coordination, context management, workflow automation",
-      "skill_count": 15
+      "skill_count": 16
     },
     {
       "id": "project-setup",
       "name": "Project Setup",
       "description": "Initialize C#, Java, JavaScript, and Python projects with best practices",
-      "skill_count": 4
+      "skill_count": 5
     },
     {
       "id": "security",
@@ -180,13 +180,13 @@
       "id": "workflow",
       "name": "Workflow",
       "description": "Git workflows, TDD, debugging, session history and session query, context-pack distillation, skill evaluation, version management, project governance and product strategy, issue tracking, agent context modes, local continuous learning, skill quality audit and generation, local PR demo capture",
-      "skill_count": 41
+      "skill_count": 42
     },
     {
       "id": "research",
       "name": "Research",
       "description": "Research recent trends and answer library/API questions from local sources",
-      "skill_count": 2
+      "skill_count": 3
     }
   ],
   "discovery": {

@@ -4,9 +4,9 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.10.0 -->
+<!-- nexus-hub-version: 3.11.0 -->
 
-Nexus-Hub is the upstream skill catalog for AI coding assistants: 259 skills, 16 commands, 25 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
+Nexus-Hub is the upstream skill catalog for AI coding assistants: 265 skills, 16 commands, 25 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
 ## Interactive Guide -- start here
 
@@ -16,7 +16,7 @@ Nexus-Hub is the upstream skill catalog for AI coding assistants: 259 skills, 16
 - **To view it:** GitHub does not render HTML inline. Open the file above and click **Download raw file** (top-right of the file view), then open the downloaded `.html` in any browser. Or clone the repo and double-click it.
 - **To share it:** send that single file to anyone on the team. See [guides/website/README.md](guides/website/README.md) for maintainer notes.
 
-> **Renamed from DevAI-Hub at v2.0.0** to align with the sibling project [Nexus](https://github.com/bendourthe/Nexus-AI), a local-first desktop AI Studio that consumes Nexus-Hub as its upstream skill feed. Existing `~/.devai-hub/` installs are migrated in place by the v2.0.0 installer on first run; see [docs/archive/v2/v2.0.0/RELEASE_NOTES.md](docs/archive/v2/v2.0.0/RELEASE_NOTES.md) for the full migration story.
+> **Renamed from DevAI-Hub at v2.0.0** to align with the sibling project [Nexus](https://github.com/bendourthe/Nexus-AI), a local-first desktop AI Studio that consumes Nexus-Hub as its upstream skill feed. Existing `~/.devai-hub/` installs are migrated in place by the v2.0.0 installer on first run; see [docs/archive/v2/v2.0/RELEASE_NOTES.md](docs/archive/v2/v2.0/RELEASE_NOTES.md) for the full migration story.
 
 ---
 
@@ -30,19 +30,26 @@ Nexus-Hub is the upstream skill catalog for AI coding assistants: 259 skills, 16
 
 Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of the same idea, split along a deliberate seam.
 
-- **Nexus-Hub (this repo)** is the catalog: 259 curated skills, 16 commands, 25 hooks, 23 agents, 4 rule families, plus 4 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`, `nexus-context-compressor`). It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
+- **Nexus-Hub (this repo)** is the catalog: 265 curated skills, 16 commands, 25 hooks, 23 agents, 4 rule families, plus 4 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`, `nexus-context-compressor`). It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
 - **Nexus** is a local-first desktop AI Studio that consumes Nexus-Hub as its skill feed. Nexus's `AGENTS.md` names this repo as "the only external project we deliberately link to" -- the upstream feed for its skill harness.
 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
 
-## What's New in v3.10.0
+## What's New in v3.11.0
 
-v3.10.0 operationalizes the reverse-engineerable subset of an external runtime-meta-harness comparison: two new defensive security skills, a supply-chain verify command, harness self-grading, an iterative competition mode, and advisory worker-check hooks -- reverse-engineer-first, with no new outbound call, dependency, credential, or third-party data processor. The source's six runtime components (a runtime meta-harness, a GPU vector DB, a multi-provider router runtime, cross-machine federation, hosted web UIs, and a WASM sandbox) are declined under the MCP Registry Policy and recorded in the reverse-engineering matrix. Catalog: **259 skills**, **16 commands**, **25 hooks**.
+v3.11.0 turns a set of implicit good practices into command-enforced workflow defaults across the catalog. It standardizes the per-version docs layout on a canonical `docs/v<MAJOR>/v<MAJOR>.<MINOR>/` scheme, adds project-bootstrap governance, makes every generated plan end with a mandatory architecture-refactor + known-gaps + CI/CD phase, hardens `/compare` and `/presentify`, verifies that every install actually surfaces the catalog on every platform, and migrates the Nexus-Hub repo itself to follow all of it. It also lands four reverse-engineer-first skill-pack adoptions (six new skills plus several skill-native enrichments). Catalog: **265 skills**, **16 commands**, **25 hooks**.
 
 Highlights:
 
+- **Command-enforced workflow governance** (v3.11.0): `/setup` detects and bootstraps git, a `vX.Y.Z` version, a `develop` + feat/fix/refactor>develop>main branch model, and the per-version docs tree; `/describe` and `/review` report a Project-health block and offer a `/setup` handoff. Backed by two reconstituted delegate skills (`setup-project`, `analyze-codebase`) and the reconstituted `implement-phase` skill.
+- **Mandatory final refactor phase** (v3.11.0): every plan `/plan` generates now ends with an architecture-refactor + known-gaps-reconciliation + CI/CD-optimize phase, which `/implement` runs on a plan's final phase (even for plans that predate the rule) and `/update release` enforces. `project-refactor` gains empty-dir, duplicate, orphan, and structure-complexity detection.
+- **Canonical docs-layout scheme** (v3.11.0): active docs at `docs/v<MAJOR>/v<MAJOR>.<MINOR>/` and archive at `docs/archive/v<MAJOR>/v<MAJOR>.<MINOR>/`, each with `plans/` and `comparisons/` subdirs; patch releases share their minor dir with release-prefixed artifact filenames.
+- **Command robustness** (v3.11.0): `/compare` runs a source-security scan (prompt-injection / malicious-instruction / supply-chain) before ingesting any external source and files reports under `comparisons/`; `/presentify` renders, screenshots, and visually assesses its own output, iterating on graphic defects.
+- **Cross-platform distribution robustness** (v3.11.0): every install is verified against each platform's real read-path (not assumed from a successful copy), project-only surfaces auto-seed, a post-install `nexus-hub doctor` reports PASS / NEEDS-ACTION per platform, and a cross-OS CI `install-smoke` job fails a PR if any read-path would go empty.
+- **Skill-pack adoptions** (v3.11.0): four reverse-engineer-first adoptions land six new skills and several enrichments - `implementation-convergence` (post-implementation code-vs-plan gap check behind a new `/spec converge` scope) and `label-gated-agent-pipelines` (human-gated CI agent pipeline) from the spec-kit adoption; `youtube-transcript` (local `yt-dlp` captions) plus a portable research-brief technique and an opt-in grill-me mode from the davidondrej adoption; local-agent-hijack recognition across `prompt-injection-defense` / `agent-access-policy` / `ai-attack-patterns` and a reproducible-benchmark-receipt discipline from the t3mp3st adoption; and an optical / image-token compression doctrine from the pxpipe adoption. GitHub Copilot also gains an opt-in native `.github/skills/` project surface.
+- **Claude Usage Monitor v0.5.5 -- Extra Credits in the hover tooltip** (v3.10.3): the status-bar hover tooltip shows an Extra Credits section in the same order as the dashboard. When extra credit is available it renders a utilization bar plus "$X / $Y used this month" and the monthly reset date; when the account has no extra-credit limit it reads "No extra credit available on your account".
 - **`egress-redaction` defensive skill**: a typed sensitive-data / PII taxonomy with a per-category policy action (BLOCK / REDACT / HASH / PASS) applied before any artifact crosses a trust boundary (a cross-model handoff, a context pack, a log, an external send), with a default-policy table and a per-egress-event rule.
 - **`prompt-injection-defense` defensive skill**: the recognition-and-posture counterpart to `ai-attack-patterns` -- instruction-origin discipline, untrusted-content fencing, tool-output skepticism, indirect-injection recognition cues, and a safe-response rule.
 - **`nexus-hub verify` supply-chain command**: recomputes installed-file SHA-256 and diffs against a release-published `MANIFEST.sha256`, reporting OK / MODIFIED / MISSING / EXTRA per file with a single PASS / FAIL. Strictly local and read-only (stdlib only) -- no network call, no credential, no new dependency.
@@ -50,7 +57,7 @@ Highlights:
 - **Iterative competitive-generation**: `competitive-generation` gains a hill-climbing / co-evolution section -- run the competition over multiple rounds seeded by the previous winner, with a no-progress stopping rule and a token caution.
 - **Two advisory worker-check hooks**: `test-gap-notice` (flags source edits with no companion test) and `dependency-staleness-notice` (flags dependency-manifest edits with the matching audit command) -- event-driven, advisory-only, disableable, never a daemon.
 
-See [CHANGELOG.md](CHANGELOG.md) for the full v3.10.0 entry and the complete release history.
+See [CHANGELOG.md](CHANGELOG.md) for the full v3.11.0 entry and the complete release history.
 
 ---
 
@@ -71,7 +78,7 @@ See [CHANGELOG.md](CHANGELOG.md) for the full v3.10.0 entry and the complete rel
 | Nexus desktop app | upstream consumer | indirect | Reads the same catalog as its skill feed |
 | Nexus VS Code extension | upstream consumer | indirect | Reads the same catalog as its skill feed |
 
-**Coverage caveat**: the **registry** path (introduced in v2.1.0 Phase 10) dispatches install / teardown through `scripts/lib/integrations/runner.py` and supports a `--dry-run` mode. The **legacy** path (the long-standing in-installer copy blocks) continues to be the canonical install for Claude / Gemini / Codex / Copilot until v2.2.0 parity migration (tracked as DF-001 in `docs/archive/v2/v2.1.0/known-gaps.md`). Both paths produce the same end-state on disk for those platforms; the per-platform installer logic lives in [`scripts/installer.sh`](scripts/installer.sh), [`scripts/installer.ps1`](scripts/installer.ps1), and the per-platform subclasses under [`scripts/lib/integrations/`](scripts/lib/integrations/). Per-platform capability specs (install surface, distributed content, instruction file, quirks) are documented under [`docs/specs/`](docs/specs/).
+**Coverage caveat**: the **registry** path (introduced in v2.1.0 Phase 10) dispatches install / teardown through `scripts/lib/integrations/runner.py` and supports a `--dry-run` mode. The **legacy** path (the long-standing in-installer copy blocks) continues to be the canonical install for Claude / Gemini / Codex / Copilot until v2.2.0 parity migration (tracked as DF-001 in `docs/archive/v2/v2.1/known-gaps.md`). Both paths produce the same end-state on disk for those platforms; the per-platform installer logic lives in [`scripts/installer.sh`](scripts/installer.sh), [`scripts/installer.ps1`](scripts/installer.ps1), and the per-platform subclasses under [`scripts/lib/integrations/`](scripts/lib/integrations/). Per-platform capability specs (install surface, distributed content, instruction file, quirks) are documented under [`docs/specs/`](docs/specs/).
 
 **Branch-based install** (v2.4.0): pass `--branch <name>` (Bash) or `-Branch <name>` (PowerShell) to install the catalog from a pushed branch instead of the current checkout. The installer shallow-clones the repo at `<name>` into a deterministic cache directory (`~/.nexus-hub/branches/<sanitized-name>/`) and runs the install from that checkout, so the user's working copy is never touched. The branch name is sanitized for filesystem safety (path-traversal sequences are neutralized). Combine with `--check` / `-Check` for a clone-free probe that prints the resolved cache path and clone source.
 
@@ -105,7 +112,7 @@ That is the whole setup -- no prompts. The installer prechecks its dependencies 
 
 After the installer completes:
 
-- **Globally**: your user profile has all 259 skills, 16 commands, 25 hooks, 23 agents, plus Gemini and Codex instructions.
+- **Globally**: your user profile has all 265 skills, 16 commands, 25 hooks, 23 agents, plus Gemini and Codex instructions.
 - **Locally**: your project has `copilot-instructions.md` and `AGENTS.md` tailored to your language.
 
 **Power-user flags**: `--workspace <path>` installs into a single repo instead of globally; `--platforms <comma-list>` limits the install to a subset of assistants; `--yes` runs fully unattended (refreshes managed files with no prompt -- ideal for CI). Prefer to clone first? `git clone` the repo and run `./install.sh` (macOS / Linux) or `install.bat` (Windows) -- the in-repo path still works exactly as before.
@@ -341,8 +348,8 @@ Nexus-Hub evolves in versioned slices. Each upcoming line item below traces to a
 
 | Focus | Target | Status | Source |
 |-------|--------|--------|--------|
-| Rename DevAI-Hub to Nexus-Hub, modernize installer with ASCII banner, integrate Nexus brand linkage | v2.0.0 | In progress | [docs/archive/v2/v2.0.0/plans/nexus-hub-rename.md](docs/archive/v2/v2.0.0/plans/nexus-hub-rename.md) |
-| Cross-OS CI matrix for installer smoke tests (closes the cumulative DF-003 / DF-005 / DF-006 / DF-007 / DF-008 cluster from v1.1.5 known-gaps) | v2.1.0 | Planned | [docs/archive/v1/v1.1.5/](docs/archive/v1/v1.1.5/) known-gaps cluster |
+| Rename DevAI-Hub to Nexus-Hub, modernize installer with ASCII banner, integrate Nexus brand linkage | v2.0.0 | In progress | [docs/archive/v2/v2.0/plans/nexus-hub-rename.md](docs/archive/v2/v2.0/plans/nexus-hub-rename.md) |
+| Cross-OS CI matrix for installer smoke tests (closes the cumulative DF-003 / DF-005 / DF-006 / DF-007 / DF-008 cluster from v1.1.5 known-gaps) | v2.1.0 | Planned | [docs/archive/v1/v1.1/](docs/archive/v1/v1.1/) known-gaps cluster |
 | Skill-eval-loop integration into pre-commit (assertion-graded regression guard for high-traffic skills before they ship) | v2.1.0 | Planned | [catalog/skills/workflow/skill-eval-loop/SKILL.md](catalog/skills/workflow/skill-eval-loop/SKILL.md) |
 | MCP registry expansion under the existing 5-step policy (reverse-engineer-first; hard-no on search / embeddings / scraping / generation as a service) | continuous | In progress | [docs/policy/mcp-reverse-engineering-matrix.md](docs/policy/mcp-reverse-engineering-matrix.md) |
 

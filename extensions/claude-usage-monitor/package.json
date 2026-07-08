@@ -2,7 +2,7 @@
   "name": "claude-usage-monitor",
   "displayName": "Claude Usage Monitor",
   "description": "Monitor your Claude Code usage limits and get smart model-switching recommendations",
-  "version": "0.5.2",
+  "version": "0.5.5",
   "publisher": "nexus-hub",
   "icon": "icon.png",
   "repository": {
@@ -128,12 +128,11 @@
         "claudeUsage.thresholdMetric": {
           "type": "string",
           "default": "highest",
-          "enum": ["highest", "session", "weekly", "sonnet"],
+          "enum": ["highest", "session", "weekly"],
           "enumDescriptions": [
             "Automatically evaluate thresholds against whichever metric is currently highest",
             "Evaluate thresholds against the Current Session usage",
-            "Evaluate thresholds against the Weekly (All Models) usage",
-            "Evaluate thresholds against the Weekly (Sonnet) usage"
+            "Evaluate thresholds against the Weekly usage"
           ],
           "description": "Which usage metric the urgency thresholds and notifications are evaluated against"
         }

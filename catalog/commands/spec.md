@@ -10,7 +10,7 @@ This is a thin dispatcher following the contract in [`command-scope-mechanism.md
 
 ## Scope resolution
 
-Resolve SCOPE from the first positional argument (`$ARGUMENTS`). Recognized scopes: `clarify`, `analyze`, `constitution`.
+Resolve SCOPE from the first positional argument (`$ARGUMENTS`). Recognized scopes: `clarify`, `analyze`, `converge`, `constitution`.
 
 - If `$ARGUMENTS` names a recognized scope, set SCOPE and skip the menu.
 - If `$ARGUMENTS` is a feature directory or spec path, route it to `analyze` and pass it through.
@@ -19,7 +19,8 @@ Resolve SCOPE from the first positional argument (`$ARGUMENTS`). Recognized scop
       What scope?
         1. clarify       (recommended) - sequential 5-question clarification loop to resolve spec ambiguities
         2. analyze       - cross-artifact consistency, coverage, and ambiguity audit of a feature directory
-        3. constitution  - author or amend the project constitution (governance principles)
+        3. converge      - post-implementation: assess the code against the plan/spec/tasks and append remaining work as new tasks
+        4. constitution  - author or amend the project constitution (governance principles)
 
       Reply with a number or a scope name.
 
@@ -29,9 +30,12 @@ Dispatch the resolved scope to the retained skill:
 
       clarify       -> clarify-spec (sequential ambiguity-resolution loop; integrates answers back into the spec)
       analyze       -> analyze-spec (read-only cross-artifact consistency / coverage / alignment report)
+      converge      -> implementation-convergence (post-implementation code-vs-plan gap assessment; appends remaining work as new tasks)
       constitution  -> project-constitution (author/amend the constitution end-to-end; placeholder collection, draft, propagation check, Sync Impact Report, write)
 
 Pass any remaining arguments (spec path, feature directory, amend / check sub-mode) through unchanged. Heavy logic stays in the retained skills; this file only resolves scope and delegates.
+
+The `converge` scope takes an optional plan/tasks path (defaulting to the current version's plan discovery `/implement` uses) and runs only after an implementation pass. It is the post-implementation, code-vs-artifact mirror of `analyze`: `analyze` checks artifact-vs-artifact consistency before code exists (route ambiguity there); the per-version deferral ledger stays with `known-gaps-tracker`.
 
 ## constitution scope and the /constitution alias
 

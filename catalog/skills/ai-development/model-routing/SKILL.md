@@ -11,6 +11,8 @@ Route a task to the cheapest model and reasoning effort that can carry it with n
 
 The skill is platform-agnostic by a small capability abstraction (a routing profile per platform), not by a per-model special case. It introduces no new outbound call, dependency, or credential: every enumeration and switch surface it uses belongs to the platform the user is already running. The one optional network call (the Anthropic `GET /v1/models` enumeration) is best-effort and used only when an `ANTHROPIC_API_KEY` is already present; otherwise the skill falls back to the platform's model picker.
 
+> **Model choice is the reliable cost lever; some context tricks are not.** Some token-cost techniques are vision-encoder-specific rather than universal: rendering static context as images to save tokens works only on encoders that tolerate dense rendering, and it inverts on the high-resolution image-billing tier that strong reasoning models use (Opus-class, Sonnet 5, Fable 5), where a legible page costs more tokens than the equivalent text while exact strings are silently corrupted. Choosing the cheapest capable model for a task is the more reliable, lossless cost lever than lossily compressing context to fit an expensive one. See [[prompt-token-optimization]] for the full treatment of image-token / optical compression.
+
 ## When to Use This Skill
 
 Use this skill for:

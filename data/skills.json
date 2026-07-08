@@ -6,7 +6,7 @@
     "description": "Comprehensive catalog of Nexus-Hub skills with L0/L1 tiered summaries"
   },
   "statistics": {
-    "total_skills": 259,
+    "total_skills": 260,
     "categories": {
       "ai-development": 11,
       "architecture": 7,
@@ -22,7 +22,7 @@
       "language-specialists": 10,
       "orchestration": 15,
       "project-setup": 4,
-      "research": 2,
+      "research": 3,
       "security": 15,
       "security-operations": 15,
       "specialized-domains": 14,
@@ -4426,6 +4426,68 @@
       }
     },
     {
+      "name": "setup-project",
+      "title": "setup-project",
+      "description": "Bootstrap or repair a project's governance surfaces - git version control, a vX.Y.Z version, a develop+main branch model, the per-version docs tree, and real README / CHANGELOG / DEVLOG - detecting what already exists and creating ONLY what is missing (idempotent, safe on an inherited repo). This is the generic cross-language delegate behind /setup project. Use whenever the user says \"set up this project\", \"bootstrap the repo\", \"initialize the project\", \"scaffold this directory\", \"get this repo release-ready\", \"add version control\", \"create the develop branch\", \"set up the docs structure\", or when /describe or /review reports that setup is needed. SKIP - language-specific scaffolding with a package manifest and test runner (use the matching init-<language>-project skill), updating docs on an already-governed project (use /update docs), or describing a project without changing it (use /describe).",
+      "long_description": "Bring a new or inherited directory up to Nexus-Hub's governance baseline: version control, a version number, a branch model, a per-version docs tree, and the three baseline docs (README, CHANGELOG, DEVLOG). This is the generic, cross-language delegate behind /setup project.",
+      "summary_l0": "\"Detect and bootstrap a project's git, version, branch model, docs tree, and README/CHANGELOG/DEVLOG\"",
+      "overview_l1": "\"The generic, language-agnostic delegate behind /setup project. It brings any new or inherited directory up to Nexus-Hub's governance baseline by detecting each surface first and creating only what is missing, so it is safe to re-run: (a) git version control - init and make an initial commit if the directory is not a repo; (b) a vX.Y.Z version - detect from tags/CHANGELOG/manifest, else set v0.1.0 and record it on the canonical version surface; (c) a develop+main branch model - create a develop integration branch when only a default branch exists, delegating the discipline to git-branching-workflow; (d) the per-version docs tree docs/v<MAJOR>/v<MAJOR>.<MINOR>/ with plans/ and comparisons/ per the docs-layout-refactor scheme; (e) real README, CHANGELOG, and DEVLOG with actual content, not placeholders. Trigger phrases: set up this project, bootstrap the repo, initialize the project, scaffold this directory, create the develop branch, set up the docs structure.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "project-setup",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/project-setup/setup-project/",
+      "file": "catalog/skills/project-setup/setup-project/SKILL.md",
+      "size": {
+        "lines": 96,
+        "characters": 10474,
+        "tokens_estimate": 1360
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "analyze-codebase",
+      "title": "analyze-codebase",
+      "description": "Produce a clear, structured description of any project directory (software or not) - project type, layout, key modules, dependencies, architecture with diagrams, entry points, testing, and a fast-start onboarding guide - plus a read-only \"Project health\" block that reports whether git, a version, a branch model, and the baseline docs are in place and offers a /setup handoff when they are not. This is the generic delegate behind /describe. Use whenever the user says \"describe this project\", \"analyze the codebase\", \"what is this repo\", \"map this codebase\", \"help me understand this directory\", \"give me an overview\", \"onboard me to this code\", or \"is this repo set up properly\". Read-only by default - it reports and offers, it never mutates. SKIP - explaining a single file or function (answer directly), generating a README (use /update docs), or actually performing the setup it recommends (use /setup).",
+      "long_description": "Produce a clear, well-structured description of a project directory so someone who did not write it can understand and be productive in it fast. Works on any directory - a codebase, a documents folder, mixed content - and adapts its sections to what it finds. This is the generic delegate behind /describe.",
+      "summary_l0": "\"Describe any project's structure, deps, architecture, and health with a /setup handoff offer\"",
+      "overview_l1": "\"The generic delegate behind /describe. It produces a structured, twelve-section description of any directory - software or not - covering project type and purpose, directory layout, key modules, dependencies and external services, architecture and data flow (with Mermaid diagrams), entry points and how to run, configuration, testing and quality, a fast-start onboarding guide, and open questions. Immediately after the Executive Summary it emits a read-only Project health block: a binary checklist of whether git is initialized, a version is set (and which), a develop+main branch model is present, and the baseline README/CHANGELOG/DEVLOG and per-version docs tree exist - and when any check fails it offers to hand off to /setup rather than fixing anything itself. The full scope writes docs/<version>/analysis.md; focused scopes (structure/deps/architecture/onboarding) emit just their section. Trigger phrases: describe this project, analyze the codebase, what is this repo, map this codebase, onboard me to this code, is this repo set up properly.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "developer-experience",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/developer-experience/analyze-codebase/",
+      "file": "catalog/skills/developer-experience/analyze-codebase/SKILL.md",
+      "size": {
+        "lines": 155,
+        "characters": 10323,
+        "tokens_estimate": 1340
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
       "name": "trend-research",
       "title": "trend-research",
       "description": "Research any topic across Reddit, X (Twitter), and the web to identify recent trends (last 30 days) and generate production-ready prompts or recommendations",
@@ -6770,7 +6832,7 @@
         "local-only"
       ],
       "priority": "MEDIUM",
-      "based_on": "docs/v3.2.0/comparison-loop-engineering.md and docs/v3.3.0/plans/adoption-loop-engineering.md",
+      "based_on": "docs/v3/v3.2/comparisons/v3.2.0-comparison-loop-engineering.md and docs/v3/v3.3/plans/adoption-loop-engineering.md",
       "tools_required": [
         "Read",
         "Write",
@@ -7415,12 +7477,96 @@
       }
     },
     {
+      "name": "implementation-convergence",
+      "title": "implementation-convergence",
+      "description": "Assess the present implementation against a plan's stated intent AFTER an implementation pass, classify every gap with traceability, and append the remaining work as new tasks - never rewriting history, and guaranteeing a byte-for-byte no-op when the code already satisfies the plan. Make sure to use this whenever the user says 'converge the code with the plan', 'what's left unbuilt from the plan', 'did the implementation drift from the spec', 'assess the code against the plan and append the remaining work', 'post-implementation gap check', or wants to know whether an implementation actually delivered its plan before review or release. SKIP, do NOT use for - artifact-vs-artifact consistency analysis before or during implementation (use cross-artifact-analyzer); the per-version deferral ledger (use known-gaps-tracker); verifying a single change end-to-end (use verification-before-completion).",
+      "long_description": "Runs a convergence pass after an implementation over an existing plan or task file. Treats the plan, spec, and tasks (and the project constitution when present) as the sole source of intent, inventories every requirement, acceptance criterion, plan decision, and task under a stable key (FR-###, SC-###, US#/AC#, T###, plan-phase touch-point), and maps a code-scope bounded to the files the artifacts name. Classifies each gap under a four-type taxonomy (missing, partial, contradicts, unrequested) with a CRITICAL/HIGH/MEDIUM/LOW severity keyed to constitution MUSTs and P1-story baselines. Present-state assessment, not a diff tool - no git history or branch comparison. The only permitted write is append-only: a single new `## Phase N: Convergence` section (N = highest existing + 1) of strict-format `- [ ] T### [P?] [US?]` task lines, each traced to its source-ref and gap type, CRITICAL/HIGH first, never rewriting, renumbering, reordering, or deleting an existing task. When no actionable finding remains it leaves the task file byte-for-byte unchanged (no empty header) and reports converged. Presents an in-session findings table before any write; hands off to /implement on tasks-appended or to review/release on converged.",
+      "summary_l0": "\"Assess code against a plan post-implementation, classify gaps, and append remaining work as new tasks\"",
+      "overview_l1": "\"This skill runs a convergence pass after an implementation over an existing plan or task file: it treats the plan, spec, and tasks (and the project constitution when present) as the sole source of intent, inventories every requirement, acceptance criterion, plan decision, and task under a stable key, maps the code scope the artifacts name, and classifies each gap as missing, partial, contradicts, or unrequested with a CRITICAL/HIGH/MEDIUM/LOW severity. It is a present-state assessment, not a diff tool - no git history or branch comparison. Its only write is append-only: a single new Phase N: Convergence section of strict-format T### task lines, each traced to its source-ref and gap type, never rewriting, renumbering, reordering, or deleting an existing task. When nothing remains it leaves the task file byte-for-byte unchanged and reports converged. Trigger phrases: converge the code with the plan, what's left unbuilt, did the implementation drift from the spec, post-implementation gap check.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "code-review",
+      "language": "Multi-language",
+      "tags": [
+        "implementation-convergence",
+        "code-vs-plan",
+        "gap-taxonomy",
+        "append-only-tasks",
+        "source-ref-traceability",
+        "post-implementation",
+        "spec-driven-development"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read",
+        "Glob",
+        "Grep"
+      ],
+      "path": "catalog/skills/code-review/implementation-convergence/",
+      "file": "catalog/skills/code-review/implementation-convergence/SKILL.md",
+      "size": {
+        "lines": 175,
+        "tokens_estimate": 3000
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "label-gated-agent-pipelines",
+      "title": "label-gated-agent-pipelines",
+      "description": "Design a human-label-gated, multi-stage agent pipeline on GitHub issues (assess -> fix -> test), where a maintainer's label advances each stage, every stage declares a safe-outputs contract (draft PRs only, capped writes, an allowlist), and untrusted issue content is treated as data, never instructions. Make sure to use this whenever the user wants to 'automate bug triage with an agent when an issue is labeled', 'label-driven agent workflow', 'human-gated agent pipeline in CI', 'agent proposes a fix as a draft PR', or 'staged agent automation on GitHub issues'. SKIP, do NOT use for - local-session bug fixing (use the bug-fixing skills directly); recurring local tasks (use the loop/scheduling primitives); multi-agent orchestration inside one session (use agent-orchestration-primitives).",
+      "long_description": "Documents the human-label-gated agent-pipeline pattern as a discipline, not a runtime. Split a CI automation into small single-purpose stages (assess -> fix -> test), each mapping to an existing local skill (bug-localization, bug-to-patch-generator, bug-reproduction-test-generator) so each stage's output is reviewable on its own. Each stage runs only when a maintainer deliberately applies that stage's label; the agent never self-advances. Every stage declares a safe-outputs contract up front (draft PRs only, never direct pushes; a hard cap on comments and label writes; an explicit label allowlist; a protected-files policy) and consumes the previous stage's pipeline-authored output as its contract rather than re-litigating it or trusting an arbitrary commenter. Issue bodies, comments, and fetched content are untrusted data, never instructions (prompt-injection-defense applies verbatim). The pattern's deployment cost is stated plainly: an agent stage in CI needs a model credential in CI secrets and sends repository content to the model provider, so it is acceptable only with hard spend caps and scoped short-lived credentials (ai-billing-safeguards is required reading). Nexus-Hub ships the pattern as instructions only - never a runtime, lock file, or workflow file.",
+      "summary_l0": "\"Design human-label-gated CI agent pipelines with safe-outputs contracts and untrusted-input discipline\"",
+      "overview_l1": "\"This skill documents the human-label-gated agent-pipeline pattern as a discipline, not a runtime: split a CI automation into small single-purpose stages (assess, fix, test) each mapping to an existing local skill, and run each stage only when a maintainer deliberately applies that stage's label so the agent never self-advances. Every stage declares a safe-outputs contract up front (draft PRs only, never direct pushes; a hard cap on comments and label writes; an explicit label allowlist; a protected-files policy) and consumes the previous stage's posted output as its contract rather than re-litigating it. Issue bodies, comments, and fetched content are untrusted data, never instructions. Running an agent stage in CI requires a model credential in CI secrets and sends repository content to the model provider, so the pattern is acceptable only with hard spend caps and scoped short-lived credentials; Nexus-Hub ships it as instructions only, never a runtime, lock file, or workflow file. Trigger phrases: label-driven agent workflow, human-gated agent pipeline in CI, agent proposes a fix as a draft PR, staged agent automation on GitHub issues.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "orchestration",
+      "language": "Multi-language",
+      "tags": [
+        "label-gated-pipelines",
+        "human-gated-automation",
+        "safe-outputs-contract",
+        "untrusted-input",
+        "ci-agent-pipeline",
+        "draft-pr",
+        "credential-cost"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read",
+        "Glob",
+        "Grep"
+      ],
+      "path": "catalog/skills/orchestration/label-gated-agent-pipelines/",
+      "file": "catalog/skills/orchestration/label-gated-agent-pipelines/SKILL.md",
+      "size": {
+        "lines": 96,
+        "tokens_estimate": 2400
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
       "name": "tasks-to-issues",
       "title": "tasks-to-issues",
       "description": "Convert the strict task checklist in a feature directory's tasks.md (or plan.md) into linked GitHub issues via the local gh CLI. Drives /tasks-to-issues end-to-end - parses every `- [ ] T### [P?] [US?] file_path` line, builds a per-task issue payload with labels (`nexus-hub`, `spec-driven-task`, `parallel`, `user-story-N`), and either dry-runs the gh invocations or executes them sequentially after user confirmation. Use whenever the user wants to convert tasks to issues, create GitHub issues from a plan, file issues from tasks.md, dry-run the conversion to preview gh invocations, fan a plan out to issue tracking, or drive sprint planning from a generated plan. Trigger phrases include 'tasks to issues', 'convert tasks to issues', 'create issues from plan', 'file issues from tasks.md', 'issue tracking from plan', 'gh issue create from tasks', 'fan out tasks to GitHub', 'sprint from plan'. SKIP: project boards (use gh directly), milestone management, label creation, free-form issue authoring, plans whose tasks do NOT match the strict format (re-run /generate-plan first), or any flow that needs more than one issue per task.",
-      "long_description": "Drives the /tasks-to-issues command end-to-end. Locates the active feature directory (positional argument, .specify/feature.json, or most recent plan under docs/<version>/plans/), parses every `- [ ] T### [P?] [US?] file_path` line against the strict regex from Phase 6 of docs/archive/v2/v2.1.0/plans/adoption-spec-kit.md, builds a per-task issue payload (title, body with file path + user-story link, labels `nexus-hub` + `spec-driven-task` + optional `parallel` + optional `user-story-N`), and either prints the resolved `gh issue create` invocations one per task (--dry-run) or invokes them sequentially after user confirmation. The skill enforces idempotency by rewriting each successfully-filed task line to append `[gh#<num>]`, so re-runs skip already-converted tasks. Pre-flight checks verify gh is installed and authenticated and that the working directory resolves to a GitHub repo. The mechanical parsing + gh invocation lives in the per-skill scripts/tasks-to-issues.sh (POSIX) and scripts/tasks-to-issues.ps1 (PowerShell) helpers; the references/gh-cli-auth-runbook.md provides a one-page runbook on gh auth setup-git and rate-limit handling. Read-only when --dry-run is set; otherwise the only side effects are issue creation in the user's GitHub repo and idempotency-marker rewrites in the local source file.",
+      "long_description": "Drives the /tasks-to-issues command end-to-end. Locates the active feature directory (positional argument, .specify/feature.json, or most recent plan under docs/<version>/plans/), parses every `- [ ] T### [P?] [US?] file_path` line against the strict regex from Phase 6 of docs/archive/v2/v2.1/plans/adoption-spec-kit.md, builds a per-task issue payload (title, body with file path + user-story link, labels `nexus-hub` + `spec-driven-task` + optional `parallel` + optional `user-story-N`), and either prints the resolved `gh issue create` invocations one per task (--dry-run) or invokes them sequentially after user confirmation. The skill enforces idempotency by rewriting each successfully-filed task line to append `[gh#<num>]`, so re-runs skip already-converted tasks. Pre-flight checks verify gh is installed and authenticated and that the working directory resolves to a GitHub repo. The mechanical parsing + gh invocation lives in the per-skill scripts/tasks-to-issues.sh (POSIX) and scripts/tasks-to-issues.ps1 (PowerShell) helpers; the references/gh-cli-auth-runbook.md provides a one-page runbook on gh auth setup-git and rate-limit handling. Read-only when --dry-run is set; otherwise the only side effects are issue creation in the user's GitHub repo and idempotency-marker rewrites in the local source file.",
       "summary_l0": "\"Convert strict-format tasks.md / plan.md task lines into linked GitHub issues via the local gh CLI - dry-run or execute sequentially\"",
-      "overview_l1": "\"This skill drives the /tasks-to-issues command end-to-end. It locates the active feature directory (positional argument, .specify/feature.json, or most recent plan under docs/<version>/plans/), parses every `- [ ] T### [P?] [US?] file_path` line against the strict regex from Phase 6 of docs/archive/v2/v2.1.0/plans/adoption-spec-kit.md, builds a per-task issue payload (title, body with file path + user-story link, labels `nexus-hub` + `spec-driven-task` + optional `parallel` + optional `user-story-N`), and either prints the resolved `gh issue create` invocations one per task (--dry-run) or invokes them sequentially after user confirmation. The skill enforces idempotency by rewriting each successfully-filed task line to append `[gh#<num>]`, so re-runs skip already-converted tasks. Pre-flight checks verify gh is installed and authenticated and that the working directory resolves to a GitHub repo. The mechanical parsing + gh invocation lives in the per-skill scripts/tasks-to-issues.sh (POSIX) and scripts/tasks-to-issues.ps1 (PowerShell) helpers; the references/gh-cli-auth-runbook.md provides a one-page runbook on gh auth setup-git and rate-limit handling. Read-only when --dry-run is set; otherwise the only side effects are issue creation in the user's GitHub repo and idempotency-marker rewrites in the local source file. Trigger phrases: tasks to issues, convert tasks to issues, create issues from plan, file issues from tasks.md, issue tracking from plan, gh issue create from tasks, fan out tasks to GitHub, sprint from plan.\"",
+      "overview_l1": "\"This skill drives the /tasks-to-issues command end-to-end. It locates the active feature directory (positional argument, .specify/feature.json, or most recent plan under docs/<version>/plans/), parses every `- [ ] T### [P?] [US?] file_path` line against the strict regex from Phase 6 of docs/archive/v2/v2.1/plans/adoption-spec-kit.md, builds a per-task issue payload (title, body with file path + user-story link, labels `nexus-hub` + `spec-driven-task` + optional `parallel` + optional `user-story-N`), and either prints the resolved `gh issue create` invocations one per task (--dry-run) or invokes them sequentially after user confirmation. The skill enforces idempotency by rewriting each successfully-filed task line to append `[gh#<num>]`, so re-runs skip already-converted tasks. Pre-flight checks verify gh is installed and authenticated and that the working directory resolves to a GitHub repo. The mechanical parsing + gh invocation lives in the per-skill scripts/tasks-to-issues.sh (POSIX) and scripts/tasks-to-issues.ps1 (PowerShell) helpers; the references/gh-cli-auth-runbook.md provides a one-page runbook on gh auth setup-git and rate-limit handling. Read-only when --dry-run is set; otherwise the only side effects are issue creation in the user's GitHub repo and idempotency-marker rewrites in the local source file. Trigger phrases: tasks to issues, convert tasks to issues, create issues from plan, file issues from tasks.md, issue tracking from plan, gh issue create from tasks, fan out tasks to GitHub, sprint from plan.\"",
       "version": "1.0.0",
       "author": "Benjamin Dourthe",
       "category": "workflow",
@@ -7478,7 +7624,7 @@
         "research-mode"
       ],
       "priority": "MEDIUM",
-      "based_on": "reverse-engineered from ECC contexts/{dev,review,research}.md pattern (see docs/archive/v2/v2.2.0/comparison-ECC.md Section 11 Bucket A)",
+      "based_on": "reverse-engineered from ECC contexts/{dev,review,research}.md pattern (see docs/archive/v2/v2.2/comparison-ECC.md Section 11 Bucket A)",
       "tools_required": [],
       "path": "catalog/skills/workflow/context-modes/",
       "file": "catalog/skills/workflow/context-modes/SKILL.md",
@@ -7518,7 +7664,7 @@
         "framework-mapping"
       ],
       "priority": "MEDIUM",
-      "based_on": "reverse-engineered from Anthropic Cybersecurity Skills framework-tag pattern (see docs/archive/v2/v2.2.0/comparison-Anthropic-Cybersecurity-Skills.md Section 11 Bucket A)",
+      "based_on": "reverse-engineered from Anthropic Cybersecurity Skills framework-tag pattern (see docs/archive/v2/v2.2/comparison-Anthropic-Cybersecurity-Skills.md Section 11 Bucket A)",
       "tools_required": [],
       "path": "catalog/skills/security/security-framework-mapping/",
       "file": "catalog/skills/security/security-framework-mapping/SKILL.md",
@@ -7556,7 +7702,7 @@
         "memory-persistence"
       ],
       "priority": "MEDIUM",
-      "based_on": "reverse-engineered local subset of ECC's continuous-learning-v2 pattern (see docs/archive/v2/v2.2.0/comparison-ECC.md Section 11 Bucket B (B4) and Section 13)",
+      "based_on": "reverse-engineered local subset of ECC's continuous-learning-v2 pattern (see docs/archive/v2/v2.2/comparison-ECC.md Section 11 Bucket B (B4) and Section 13)",
       "tools_required": [],
       "path": "catalog/skills/workflow/continuous-learning/",
       "file": "catalog/skills/workflow/continuous-learning/SKILL.md",
@@ -7593,7 +7739,7 @@
         "caching"
       ],
       "priority": "MEDIUM",
-      "based_on": "reverse-engineered local analogue of ECC's skill-stocktake pattern (see docs/archive/v2/v2.2.0/comparison-ECC.md Section 11 Bucket B (B6))",
+      "based_on": "reverse-engineered local analogue of ECC's skill-stocktake pattern (see docs/archive/v2/v2.2/comparison-ECC.md Section 11 Bucket B (B6))",
       "tools_required": [],
       "path": "catalog/skills/workflow/skill-stocktake/",
       "file": "catalog/skills/workflow/skill-stocktake/SKILL.md",
@@ -7630,7 +7776,7 @@
         "local-only"
       ],
       "priority": "MEDIUM",
-      "based_on": "reverse-engineered local-analysis path of ECC's skill-create pattern (see docs/archive/v2/v2.2.0/comparison-ECC.md Section 11 Bucket B (B6))",
+      "based_on": "reverse-engineered local-analysis path of ECC's skill-create pattern (see docs/archive/v2/v2.2/comparison-ECC.md Section 11 Bucket B (B6))",
       "tools_required": [],
       "path": "catalog/skills/workflow/skill-create/",
       "file": "catalog/skills/workflow/skill-create/SKILL.md",
@@ -7669,7 +7815,7 @@
         "mitre-attack"
       ],
       "priority": "MEDIUM",
-      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3.0/plans/adoption-ecc-cybersec-skills.md Phase 6)",
+      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3/plans/adoption-ecc-cybersec-skills.md Phase 6)",
       "tools_required": [],
       "path": "catalog/skills/security-operations/memory-forensics/",
       "file": "catalog/skills/security-operations/memory-forensics/SKILL.md",
@@ -7708,7 +7854,7 @@
         "mitre-attack"
       ],
       "priority": "MEDIUM",
-      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3.0/plans/adoption-ecc-cybersec-skills.md Phase 6)",
+      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3/plans/adoption-ecc-cybersec-skills.md Phase 6)",
       "tools_required": [],
       "path": "catalog/skills/security-operations/hunting-credential-dumping/",
       "file": "catalog/skills/security-operations/hunting-credential-dumping/SKILL.md",
@@ -7746,7 +7892,7 @@
         "mitre-attack"
       ],
       "priority": "MEDIUM",
-      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3.0/plans/adoption-ecc-cybersec-skills.md Phase 6)",
+      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3/plans/adoption-ecc-cybersec-skills.md Phase 6)",
       "tools_required": [],
       "path": "catalog/skills/security-operations/disk-artifact-forensics/",
       "file": "catalog/skills/security-operations/disk-artifact-forensics/SKILL.md",
@@ -7784,7 +7930,7 @@
         "mitre-attack"
       ],
       "priority": "MEDIUM",
-      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3.0/plans/adoption-ecc-cybersec-skills.md Phase 6)",
+      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3/plans/adoption-ecc-cybersec-skills.md Phase 6)",
       "tools_required": [],
       "path": "catalog/skills/security-operations/siem-detection-engineering/",
       "file": "catalog/skills/security-operations/siem-detection-engineering/SKILL.md",
@@ -7822,7 +7968,7 @@
         "mitre-attack"
       ],
       "priority": "MEDIUM",
-      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3.0/plans/adoption-ecc-cybersec-skills.md Phase 6)",
+      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3/plans/adoption-ecc-cybersec-skills.md Phase 6)",
       "tools_required": [],
       "path": "catalog/skills/security-operations/log-threat-hunting/",
       "file": "catalog/skills/security-operations/log-threat-hunting/SKILL.md",
@@ -7860,7 +8006,7 @@
         "mitre-attack"
       ],
       "priority": "MEDIUM",
-      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3.0/plans/adoption-ecc-cybersec-skills.md Phase 6)",
+      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3/plans/adoption-ecc-cybersec-skills.md Phase 6)",
       "tools_required": [],
       "path": "catalog/skills/security-operations/lateral-movement-detection/",
       "file": "catalog/skills/security-operations/lateral-movement-detection/SKILL.md",
@@ -7898,7 +8044,7 @@
         "mitre-attack"
       ],
       "priority": "MEDIUM",
-      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3.0/plans/adoption-ecc-cybersec-skills.md Phase 6)",
+      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3/plans/adoption-ecc-cybersec-skills.md Phase 6)",
       "tools_required": [],
       "path": "catalog/skills/security-operations/ransomware-incident-response/",
       "file": "catalog/skills/security-operations/ransomware-incident-response/SKILL.md",
@@ -7936,7 +8082,7 @@
         "mitre-attack"
       ],
       "priority": "MEDIUM",
-      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3.0/plans/adoption-ecc-cybersec-skills.md Phase 6)",
+      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3/plans/adoption-ecc-cybersec-skills.md Phase 6)",
       "tools_required": [],
       "path": "catalog/skills/security-operations/persistence-mechanism-hunting/",
       "file": "catalog/skills/security-operations/persistence-mechanism-hunting/SKILL.md",
@@ -7974,7 +8120,7 @@
         "mitre-attack"
       ],
       "priority": "MEDIUM",
-      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3.0/plans/adoption-ecc-cybersec-skills.md Phase 6)",
+      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3/plans/adoption-ecc-cybersec-skills.md Phase 6)",
       "tools_required": [],
       "path": "catalog/skills/security-operations/endpoint-edr-detection/",
       "file": "catalog/skills/security-operations/endpoint-edr-detection/SKILL.md",
@@ -8012,7 +8158,7 @@
         "mitre-attack"
       ],
       "priority": "MEDIUM",
-      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3.0/plans/adoption-ecc-cybersec-skills.md Phase 6)",
+      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3/plans/adoption-ecc-cybersec-skills.md Phase 6)",
       "tools_required": [],
       "path": "catalog/skills/security-operations/cloud-security-posture-detection/",
       "file": "catalog/skills/security-operations/cloud-security-posture-detection/SKILL.md",
@@ -8050,7 +8196,7 @@
         "mitre-attack"
       ],
       "priority": "MEDIUM",
-      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3.0/plans/adoption-ecc-cybersec-skills.md Phase 6)",
+      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3/plans/adoption-ecc-cybersec-skills.md Phase 6)",
       "tools_required": [],
       "path": "catalog/skills/security-operations/cloud-audit-log-detection/",
       "file": "catalog/skills/security-operations/cloud-audit-log-detection/SKILL.md",
@@ -8089,7 +8235,7 @@
         "mitre-attack"
       ],
       "priority": "MEDIUM",
-      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3.0/plans/adoption-ecc-cybersec-skills.md Phase 6)",
+      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3/plans/adoption-ecc-cybersec-skills.md Phase 6)",
       "tools_required": [],
       "path": "catalog/skills/security-operations/container-runtime-detection/",
       "file": "catalog/skills/security-operations/container-runtime-detection/SKILL.md",
@@ -8127,7 +8273,7 @@
         "mitre-attack"
       ],
       "priority": "MEDIUM",
-      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3.0/plans/adoption-ecc-cybersec-skills.md Phase 6)",
+      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3/plans/adoption-ecc-cybersec-skills.md Phase 6)",
       "tools_required": [],
       "path": "catalog/skills/security-operations/phishing-analysis-and-defense/",
       "file": "catalog/skills/security-operations/phishing-analysis-and-defense/SKILL.md",
@@ -8165,7 +8311,7 @@
         "mitre-attack"
       ],
       "priority": "MEDIUM",
-      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3.0/plans/adoption-ecc-cybersec-skills.md Phase 6)",
+      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3/plans/adoption-ecc-cybersec-skills.md Phase 6)",
       "tools_required": [],
       "path": "catalog/skills/security-operations/identity-threat-detection/",
       "file": "catalog/skills/security-operations/identity-threat-detection/SKILL.md",
@@ -8203,7 +8349,7 @@
         "mitre-attack"
       ],
       "priority": "MEDIUM",
-      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3.0/plans/adoption-ecc-cybersec-skills.md Phase 6)",
+      "based_on": "reverse-engineered from public MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/archive/v2/v2.3/plans/adoption-ecc-cybersec-skills.md Phase 6)",
       "tools_required": [],
       "path": "catalog/skills/security-operations/malware-triage-analysis/",
       "file": "catalog/skills/security-operations/malware-triage-analysis/SKILL.md",
@@ -8239,7 +8385,7 @@
         "quality-gate"
       ],
       "priority": "HIGH",
-      "based_on": "adapted process-discipline pattern (see docs/archive/v2/v2.3.0/plans/adoption-superpowers.md Phase 1)",
+      "based_on": "adapted process-discipline pattern (see docs/archive/v2/v2.3/plans/adoption-superpowers.md Phase 1)",
       "tools_required": [
         "Bash"
       ],
@@ -8277,7 +8423,7 @@
         "anti-sycophancy"
       ],
       "priority": "MEDIUM",
-      "based_on": "adapted process-discipline pattern (see docs/archive/v2/v2.3.0/plans/adoption-superpowers.md Phase 1)",
+      "based_on": "adapted process-discipline pattern (see docs/archive/v2/v2.3/plans/adoption-superpowers.md Phase 1)",
       "tools_required": [
         "Read",
         "Grep"
@@ -8316,7 +8462,7 @@
         "isolation"
       ],
       "priority": "MEDIUM",
-      "based_on": "adapted process-discipline pattern (see docs/archive/v2/v2.3.0/plans/adoption-superpowers.md Phase 1)",
+      "based_on": "adapted process-discipline pattern (see docs/archive/v2/v2.3/plans/adoption-superpowers.md Phase 1)",
       "tools_required": [
         "Bash"
       ],
@@ -8594,6 +8740,37 @@
       }
     },
     {
+      "name": "implement-phase",
+      "title": "implement-phase",
+      "description": "Implement one phase of a plan end-to-end - discover the plan and phase, review against the codebase, code subtask by subtask, lint, test with coverage, augment tests, run the troubleshooting loop and GO/NO-GO gate, then the full post-phase documentation and commit sequence. On a plan's final phase it also runs the mandatory architecture-refactor + known-gaps + CI/CD gate and the release-readiness workflow, handing off to /update release. This is the delegate behind /implement. Use whenever the user says \"implement phase N\", \"build the next phase\", \"do phase 3 of the plan\", \"execute the plan\", \"continue implementing\", or points at a plan file. SKIP - creating the plan itself (use /plan), or one-off edits with no plan to track.",
+      "long_description": "Implement one phase of a plan end-to-end: discover the right plan and phase, review it against the codebase, write the code subtask by subtask, lint, test with coverage, troubleshoot failures, augment missing tests, pass a quality gate, and run the full post-phase documentation and commit sequence. When the target phase is the plan's final phase, also run the mandatory architecture-refactor plus known-gaps plus CI/CD gate and the release-readiness workflow. This is the delegate behind /implement.",
+      "summary_l0": "\"Implement one plan phase end-to-end with tests, gates, post-phase docs, commit, and final-phase release-readiness\"",
+      "overview_l1": "\"The delegate behind /implement. It runs one plan phase end-to-end: Phase 0 resolves the plan and phase and detects the final phase from five signals; Phase 1 reviews the plan against the codebase; Phase 2 implements subtask by subtask in scope; Phases 3-7 lint, run tests with coverage, augment missing tests, loop on failures up to three times, and apply a four-part GO/NO-GO quality gate; Phase 8 runs the ten-step post-phase sequence (gitignore, test review, CI/CD readiness plus optimization, known-gaps append, docs-cleanup audit, devlog, docs, session history, commit message, and a required commit-and-push prompt). On the final phase it additionally runs the mandatory architecture-refactor plus known-gaps plus CI/CD-optimize gate and the release-readiness workflow, handing the version bump and tag off to /update release. The full ordered procedure lives in references/implement-phase-runbook.md.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "workflow",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/workflow/implement-phase/",
+      "file": "catalog/skills/workflow/implement-phase/SKILL.md",
+      "size": {
+        "lines": 73,
+        "characters": 8173,
+        "tokens_estimate": 1170
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
       "name": "solution-knowledge-base",
       "title": "solution-knowledge-base",
       "description": "Capture a problem you just solved (a bug fix or a durable lesson) into a categorized, reusable docs/solutions/ knowledge base so future planning and review can reuse it. Make sure to use this skill whenever the user says \"document how we fixed that\", \"save this solution\", \"capture this for next time\", \"add this to the knowledge base\", \"we should remember this fix\", \"write this up so we don't hit it again\", or whenever a non-trivial bug, gotcha, or hard-won insight has just been resolved and is worth persisting. Also trigger right after a debugging session ends with a root cause found. SKIP, do NOT use for, in-session todo tracking (use dev-progress-tracker), per-version unfinished-work logging (use known-gaps-tracker), minting in-session behavioral instincts (use continuous-learning), or any request to send the captured solution to an external service or shared store.",
@@ -8612,7 +8789,7 @@
         "local-only"
       ],
       "priority": "MEDIUM",
-      "based_on": "reverse-engineered local subset of an external solved-problem capture pattern (see docs/archive/v2/v2.3.0/comparison-compound-engineering-plugin.md)",
+      "based_on": "reverse-engineered local subset of an external solved-problem capture pattern (see docs/archive/v2/v2.3/comparison-compound-engineering-plugin.md)",
       "tools_required": [
         "Read",
         "Write"
@@ -8652,7 +8829,7 @@
         "local-only"
       ],
       "priority": "MEDIUM",
-      "based_on": "reverse-engineered local subset of an external solved-problem lifecycle pattern (see docs/archive/v2/v2.3.0/comparison-compound-engineering-plugin.md)",
+      "based_on": "reverse-engineered local subset of an external solved-problem lifecycle pattern (see docs/archive/v2/v2.3/comparison-compound-engineering-plugin.md)",
       "tools_required": [
         "Edit",
         "Write"
@@ -8695,7 +8872,7 @@
         "local-only"
       ],
       "priority": "MEDIUM",
-      "based_on": "reverse-engineered local subset of an external product-outcome reporting pattern (see docs/archive/v2/v2.3.0/comparison-compound-engineering-plugin.md)",
+      "based_on": "reverse-engineered local subset of an external product-outcome reporting pattern (see docs/archive/v2/v2.3/comparison-compound-engineering-plugin.md)",
       "tools_required": [
         "Read",
         "Write",
@@ -8736,7 +8913,7 @@
         "local-only"
       ],
       "priority": "MEDIUM",
-      "based_on": "reverse-engineered local subset of an external product-strategy anchor pattern (see docs/archive/v2/v2.3.0/comparison-compound-engineering-plugin.md)",
+      "based_on": "reverse-engineered local subset of an external product-strategy anchor pattern (see docs/archive/v2/v2.3/comparison-compound-engineering-plugin.md)",
       "tools_required": [
         "Read",
         "Write"
@@ -8777,7 +8954,7 @@
         "local-only"
       ],
       "priority": "MEDIUM",
-      "based_on": "reverse-engineered local subset of an external cross-tool session-query pattern (see docs/archive/v2/v2.3.0/comparison-compound-engineering-plugin.md)",
+      "based_on": "reverse-engineered local subset of an external cross-tool session-query pattern (see docs/archive/v2/v2.3/comparison-compound-engineering-plugin.md)",
       "tools_required": [
         "Bash",
         "Read"
@@ -8818,7 +8995,7 @@
         "local-only"
       ],
       "priority": "MEDIUM",
-      "based_on": "reverse-engineered local subset of an external visual-PR-evidence pattern, upload surface dropped (see docs/archive/v2/v2.3.0/comparison-compound-engineering-plugin.md)",
+      "based_on": "reverse-engineered local subset of an external visual-PR-evidence pattern, upload surface dropped (see docs/archive/v2/v2.3/comparison-compound-engineering-plugin.md)",
       "tools_required": [
         "Bash",
         "Read"
@@ -8859,7 +9036,7 @@
         "local-only"
       ],
       "priority": "MEDIUM",
-      "based_on": "net-new skill composing the session-query extractor and the dev-progress-tracker checklist pattern with a Socratic teach-back loop (see docs/v3.2.0/comparison-teach.md)",
+      "based_on": "net-new skill composing the session-query extractor and the dev-progress-tracker checklist pattern with a Socratic teach-back loop (see docs/v3/v3.2/comparisons/v3.2.0-comparison-teach.md)",
       "tools_required": [
         "Bash",
         "Read",
@@ -8901,7 +9078,7 @@
         "local-only"
       ],
       "priority": "MEDIUM",
-      "based_on": "docs/v3.4.0/comparison-nessie-and-agency-agents.md and docs/v3.4.0/plans/adoption-nessie-and-agency-agents.md",
+      "based_on": "docs/v3/v3.4/comparisons/v3.4.0-comparison-nessie-and-agency-agents.md and docs/v3/v3.4/plans/adoption-nessie-and-agency-agents.md",
       "tools_required": [
         "Read",
         "Write",
@@ -9067,6 +9244,46 @@
         "integrity": 100,
         "semantic": 95,
         "validated": true
+      }
+    },
+    {
+      "name": "youtube-transcript",
+      "title": "youtube-transcript",
+      "description": "Fetch a YouTube video's publicly-available transcript locally with the yt-dlp command-line tool and save a clean text file. Local-only: no paid API, no API key, and no query text leaves the machine beyond yt-dlp's own request to YouTube.",
+      "long_description": "Documents the local yt-dlp caption path: decide a save location and filename, confirm yt-dlp is on PATH (with a graceful install hint when it is absent), fetch channel and title metadata, download public captions as json3 (not vtt, which duplicates rolling caption lines), flatten the json3 to clean text with a bundled standard-library script, and report the saved path. Carries a required Terms-of-Service and bot-flagging caveat: fetch only public captions and stop on an HTTP 429 or bot-confirmation response rather than retrying in a loop. The paid deep-research API path from the source pattern is deliberately omitted; yt-dlp is lazy-checked and is not a Nexus-Hub dependency.",
+      "summary_l0": "\"Fetch a YouTube video transcript locally via yt-dlp and save clean text\"",
+      "overview_l1": "\"This skill fetches a YouTube video's publicly-available captions locally with the yt-dlp command-line tool, flattens them to clean raw text, and saves a .txt file into the current project (or ~/Downloads when there is no project). Use it when the user hands you a YouTube URL and wants the words: the transcript, the captions, or what the video says. It runs entirely on the user's machine: no paid API, no API key, and no query text leaves the machine beyond yt-dlp's own request to YouTube. yt-dlp is lazy-checked, never auto-installed, and is not a Nexus-Hub dependency. The skill fetches only public captions in accordance with YouTube's Terms of Service and stops on bot-flagging rather than retrying in a loop. It does not transcribe audio with a speech-to-text model, and it does not download the video.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "research",
+      "language": "Multi-language",
+      "tags": [
+        "youtube",
+        "transcript",
+        "captions",
+        "subtitles",
+        "research",
+        "local-only"
+      ],
+      "priority": "MEDIUM",
+      "based_on": [],
+      "tools_required": [
+        "Bash",
+        "Read",
+        "Write"
+      ],
+      "path": "catalog/skills/research/youtube-transcript/",
+      "file": "catalog/skills/research/youtube-transcript/SKILL.md",
+      "size": {
+        "lines": 121,
+        "tokens_estimate": 1167
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
       }
     }
   ]

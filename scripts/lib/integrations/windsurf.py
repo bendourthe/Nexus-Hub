@@ -11,6 +11,18 @@ Workspace scope writes ``<project>/.windsurfrules``. Global scope writes
 (``~/.codeium``) is present, and skips with a note otherwise (mirroring the
 Copilot VS-Code-dir detection). Both writes are shared (marker-merged) so user
 edits survive a re-install.
+
+DEPRECATED (dated note, 2026-07-08, v3.11.0 Phase 3): Cognition
+acquired Windsurf (primary: https://cognition.com/blog/windsurf, 2025-07-14),
+which preserves it "as a distinct product with its own brand". Third-party
+outlets report the editor was rebranded to "Devin Desktop" on 2026-06-02 with
+accounts, extensions, and keybindings intact (no primary Cognition rebrand
+announcement was reachable). The ``.windsurfrules`` / ``global_rules.md``
+surfaces are STILL SERVED, so this integration stays registered and its writes
+stay detection-gated (they degrade gracefully on an absent platform). It is
+marked deprecated because the standalone Windsurf brand is sunsetting into
+Devin Desktop; do not delete it - existing users still rely on the surface.
+See docs/v3/v3.11/development/roster-verification.md.
 """
 
 from __future__ import annotations

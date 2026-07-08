@@ -20,6 +20,7 @@ extensions independently.
 
 from __future__ import annotations
 
+import json
 import os
 import platform
 from pathlib import Path
@@ -29,6 +30,17 @@ from .base import InstallContext, MarkdownIntegration
 from .result import FileAction, WriteResult
 from ._command_surface import mirror_command_surface
 from scripts.lib.installer.instruction_merge import merge_marker_section
+
+# v3.11.0 Phase 5 (S3): opt-in project-scoped skills surface.
+# .github/skills/ is commit-visible in the user's repo, so seeding is OFF by
+# default and activates only when this env var is truthy (mirrors the Phase 7.3
+# NEXUS_HUB_NO_AUTOSEED opt-out pattern; no installer.sh/ps1 edit required).
+_COPILOT_SKILLS_ENV = "NEXUS_HUB_COPILOT_SKILLS"
+_COPILOT_CURATED_BUNDLE = "core-developer"
+
+
+def _is_truthy(val: Optional[str]) -> bool:
+    return (val or "").strip().lower() in {"1", "true", "yes", "on"}
 
 
 def _vscode_user_dir() -> Optional[Path]:
@@ -110,3 +122,101 @@ class CopilotIntegration(MarkdownIntegration):
         ctx.manifest.track_shared(self.key, str(dst))
         result.files.append(action)
         return result
+
+    def wire_project_surfaces(self, ctx: InstallContext) -> Optional[WriteResult]:
+        """Opt-in: seed a curated skill set as ``.github/skills/<name>/SKILL.md``.
+
+        GitHub Copilot reads project Agent Skills from
+        ``.github/skills/<name>/SKILL.md`` (the frontmatter ``name`` must match the
+        directory; only ``name`` / ``description`` / ``license`` are recognized).
+        This is OFF by default because ``.github/skills/`` is commit-visible; it
+        activates only when ``NEXUS_HUB_COPILOT_SKILLS`` is truthy. It seeds thin
+        WRAPPER files (Copilot-safe ``name`` + ``description`` frontmatter plus a
+        pointer to the installed ``~/.nexus-hub/`` content) for the
+        ``core-developer`` bundle, ASCII-sanitized, never overwriting an existing
+        file. See docs/v3/v3.11/development/copilot-skills-design.md.
+        """
+        result = WriteResult()
+        if not _is_truthy(os.environ.get(_COPILOT_SKILLS_ENV)):
+            ctx.manifest.log(
+                self.key,
+                f"{_COPILOT_SKILLS_ENV} not set; skipping .github/skills seeding",
+            )
+            result.note(
+                f"Copilot project skills opt-in ({_COPILOT_SKILLS_ENV}=1) not set; "
+                ".github/skills/ not seeded"
+            )
+            return result
+        skills_root = (ctx.target_root / ".github" / "skills").resolve()
+        for name in self._curated_skill_names(ctx):
+            src_md = self._find_skill_md(ctx.repo_root, name)
+            if src_md is None:
+                ctx.manifest.log(self.key, f"curated skill not in catalog, skipping: {name}")
+                result.files.append(FileAction(path=name, action="not-found"))
+                continue
+            dst = skills_root / name / "SKILL.md"
+            if dst.exists():
+                # Never overwrite a user's committed .github/skills file.
+                ctx.manifest.log(self.key, f"skip-existing (never overwrite): {dst}")
+                result.files.append(FileAction(path=str(dst), action="kept"))
+                continue
+            result.files.append(
+                self._write_generated(dst, self._wrapper_skill_md(name, src_md), ctx, self.key)
+            )
+        return result
+
+    @staticmethod
+    def _curated_skill_names(ctx: InstallContext) -> list[str]:
+        """Return the curated bundle's skill names from data/bundles.json."""
+        try:
+            data = json.loads((ctx.repo_root / "data" / "bundles.json").read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return []
+        bundles = data.get("bundles", []) if isinstance(data, dict) else data
+        for b in bundles if isinstance(bundles, list) else []:
+            if (b.get("id") or b.get("name")) == _COPILOT_CURATED_BUNDLE:
+                return [str(s) for s in b.get("skills", [])]
+        return []
+
+    @staticmethod
+    def _find_skill_md(repo_root: Path, name: str) -> Optional[Path]:
+        matches = sorted((repo_root / "catalog" / "skills").glob(f"*/{name}/SKILL.md"))
+        return matches[0] if matches else None
+
+    @staticmethod
+    def _ascii(text: str) -> str:
+        return text.encode("ascii", "ignore").decode("ascii").strip()
+
+    @classmethod
+    def _wrapper_description(cls, src_md: Path) -> str:
+        """Prefer the skill's summary_l0; fall back to the description's lead."""
+        try:
+            text = src_md.read_text(encoding="utf-8")
+        except OSError:
+            return "Nexus-Hub skill."
+        summary = ""
+        for line in text.splitlines():
+            if line.startswith("summary_l0:"):
+                summary = line.split(":", 1)[1].strip().strip('"').strip()
+                break
+        if not summary:
+            for line in text.splitlines():
+                if line.startswith("description:"):
+                    summary = line.split(":", 1)[1].strip().strip('"').split(". ")[0]
+                    break
+        return (cls._ascii(summary) or "Nexus-Hub skill.")[:200]
+
+    @classmethod
+    def _wrapper_skill_md(cls, name: str, src_md: Path) -> str:
+        desc = cls._wrapper_description(src_md).replace('"', "'")
+        return (
+            "---\n"
+            f"name: {name}\n"
+            f'description: "{desc}"\n'
+            "---\n\n"
+            f"# {name}\n\n"
+            "Nexus-Hub skill wrapper. The full instructions for this skill ship with "
+            f"the Nexus-Hub catalog under `~/.nexus-hub/skills/**/{name}/SKILL.md`. "
+            "Read that file for the complete procedure, verification checklist, and "
+            "related skills.\n"
+        )

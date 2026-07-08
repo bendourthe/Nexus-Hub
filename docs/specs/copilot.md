@@ -12,14 +12,15 @@ GitHub Copilot (Microsoft) does not receive a full per-file catalog copy. It is 
 
 | Aspect | Global scope | Workspace scope |
 |--------|--------------|-----------------|
-| Catalog root | not applicable (`global_dir = None`) | `<project>/.github/` |
-| Instruction file | not applicable | `<project>/.github/copilot-instructions.md` |
+| Catalog root | VS Code user-profile `prompts/` (slash surface) | `<project>/.github/` |
+| Instruction file | not applicable (`global_dir = None`) | `<project>/.github/copilot-instructions.md` |
+| Slash commands | `<vscode-user>/prompts/<name>.prompt.md` -> `/<name>` in Copilot Chat (any repo) | not applicable |
 
-Copilot has no global install: `global_dir` is `None`, so it is configured per-project under `.github/`.
+Copilot has no global INSTRUCTION file (`global_dir` is `None`), so the per-project `.github/copilot-instructions.md` carries the behavioral layer. It DOES have a global slash surface (v3.3.4+): a global install mirrors the catalog's commands into the VS Code user-profile `prompts/` dir as `<name>.prompt.md`, offered as `/<name>` in Copilot Chat from any repo.
 
 ## Distributed content
 
-None as separate files. There is no `skills_subdir` / `commands_subdir` / `agents_subdir` / `rules_subdir` / `hooks_subdir`: the catalog is surfaced only through the embedded skill index in `copilot-instructions.md`.
+The workspace instruction file surfaces the catalog via the embedded `{{SKILL_INDEX}}` block (there is no `skills_subdir` / `commands_subdir` / `agents_subdir` / `rules_subdir` / `hooks_subdir` per-file copy). Additionally, a GLOBAL install mirrors the catalog's commands into the VS Code user-profile `prompts/` dir as `<name>.prompt.md` slash commands (v3.3.4+).
 
 ## Instruction file
 
@@ -29,7 +30,7 @@ None as separate files. There is no `skills_subdir` / `commands_subdir` / `agent
 
 ## Quirks and notes
 
-- Slash surface: no. Copilot has no slash-command surface; users invoke a command only by pasting its body.
+- Slash surface: YES (global). A global install mirrors catalog commands into the VS Code user-profile `prompts/` dir as `<name>.prompt.md`, invoked as `/<name>` in Copilot Chat from any repo (requires the `chat.promptFiles` setting, on by default). The per-project `.github/copilot-instructions.md` is the behavioral layer, not a slash surface.
 - Hooks: not supported.
 - Because Copilot reuses `base-codex.md`, any edit to that template affects both Codex and Copilot -- keep it platform-agnostic.
 

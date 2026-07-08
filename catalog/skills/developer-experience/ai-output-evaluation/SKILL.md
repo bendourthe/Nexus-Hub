@@ -220,6 +220,10 @@ Understanding the relationship between token usage and output quality helps allo
 - Budget for re-evaluation (20% of items flagged): + 20%
 ```
 
+## Reproducible Receipts
+
+When an evaluation produces a headline score (an LLM-as-judge rate, a rubric average, a pass/fail proportion), back it with a reproducible receipt rather than reporting the bare number. Attach three things: a committed artifact from which the score recomputes (the per-item results file the dimensional scores roll up from), a single documented recompute step so a reader can verify the headline without rerunning the judge, and a confidence interval - or, when the sample is too small for a meaningful interval, an explicit "preliminary / small-sample" label instead of a bare percentage. A score with no committed source and no interval is an opinion wearing a number. This is the same discipline `[[skill-eval-loop]]` applies to skill benchmarks; see it for the fuller treatment (committed `benchmark.json`, a single aggregate step, and a Wilson interval per rate).
+
 ## Best Practices
 
 - **Define rubrics before generating output**: Knowing evaluation criteria shapes better prompts

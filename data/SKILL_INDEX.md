@@ -5,11 +5,13 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | Skill | Category | Summary | File |
 |-------|----------|---------|------|
 | analysis-logic | developer-experience | "Apply structured analytical reasoning with decision matrices and data presentation" | catalog/skills/developer-experience/analysis-logic/SKILL.md |
+| analyze-codebase | developer-experience | "Describe any project's structure, deps, architecture, and health with a /setup handoff offer" | catalog/skills/developer-experience/analyze-codebase/SKILL.md |
 | creative-generation | developer-experience | "Generate image prompts, slide decks, and creative ideation with structured direction" | catalog/skills/developer-experience/creative-generation/SKILL.md |
 | writing-editing | developer-experience | "Write and edit professional documentation with clarity, structure, and concision" | catalog/skills/developer-experience/writing-editing/SKILL.md |
 | ui-component-generation | developer-experience | "Generate UI components directly with the agent's LLM instead of routing requests through external generation services" | catalog/skills/developer-experience/ui-component-generation/SKILL.md |
 | trend-research | research | "Research recent trends across Reddit, X, and the web with prompt generation" | catalog/skills/research/trend-research/SKILL.md |
 | local-docs-lookup | research | "Answer library and API questions from locally-available documentation sources instead of routing queries through a third-party service" | catalog/skills/research/local-docs-lookup/SKILL.md |
+| youtube-transcript | research | "Fetch a YouTube video transcript locally via yt-dlp and save clean text" | catalog/skills/research/youtube-transcript/SKILL.md |
 | cross-project-comparison | workflow | "Compare projects with external sources to produce gap analysis and adoption plans" | catalog/skills/workflow/cross-project-comparison/SKILL.md |
 | ai-agent-development | ai-development | "Build AI agents with tool use, memory, planning loops, and multi-agent orchestration" | catalog/skills/ai-development/ai-agent-development/SKILL.md |
 | ai-billing-safeguards | ai-development | "Enforce hard spending caps and billing safeguards for autonomous AI agent systems" | catalog/skills/ai-development/ai-billing-safeguards/SKILL.md |
@@ -143,6 +145,7 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | init-java-project | project-setup | "Initialize Java projects with Maven/Gradle, Spring Boot, and testing frameworks" | catalog/skills/project-setup/init-java-project/SKILL.md |
 | init-javascript-project | project-setup | "Initialize JavaScript/TypeScript projects with package.json, bundler, and testing" | catalog/skills/project-setup/init-javascript-project/SKILL.md |
 | init-python-project | project-setup | "Initialize Python projects with pyproject.toml, pytest, and standard structure" | catalog/skills/project-setup/init-python-project/SKILL.md |
+| setup-project | project-setup | "Detect and bootstrap a project's git, version, branch model, docs tree, and README/CHANGELOG/DEVLOG" | catalog/skills/project-setup/setup-project/SKILL.md |
 | authentication-patterns | security | "Implement authentication with OAuth 2.0, JWT, session management, MFA, and passkeys" | catalog/skills/security/authentication-patterns/SKILL.md |
 | cve-reachability-analyzer | security | "Trace call paths to determine if dependency CVEs actually affect your application" | catalog/skills/security/cve-reachability-analyzer/SKILL.md |
 | dependency-security-audit | security | "Audit dependencies for CVEs, license issues, and outdated packages with SBOM" | catalog/skills/security/dependency-security-audit/SKILL.md |
@@ -192,6 +195,7 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | filesystem-context-patterns | workflow | "Use the filesystem for context management, scratch pads, and inter-agent communication" | catalog/skills/workflow/filesystem-context-patterns/SKILL.md |
 | git-bisect-assistant | workflow | "Find regression-introducing commits with git bisect and automated test scripts" | catalog/skills/workflow/git-bisect-assistant/SKILL.md |
 | implementation-plan | workflow | "Generate a phased v0.1.0 implementation plan through guided discovery questions" | catalog/skills/workflow/implementation-plan/SKILL.md |
+| implement-phase | workflow | "Implement one plan phase end-to-end with tests, gates, post-phase docs, commit, and final-phase release-readiness" | catalog/skills/workflow/implement-phase/SKILL.md |
 | incremental-implementation | workflow | "Implement features one tested step at a time to prevent scope creep and undebuggable diffs" | catalog/skills/workflow/incremental-implementation/SKILL.md |
 | plan-before-code | workflow | "Plan before coding with exploration, task assessment, and implementation design" | catalog/skills/workflow/plan-before-code/SKILL.md |
 | pr-description-writer | workflow | "Author reviewer-friendly PR descriptions with summary, how-to-test, risk, and reviewer notes" | catalog/skills/workflow/pr-description-writer/SKILL.md |
@@ -220,6 +224,7 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | mcp-builder | ai-development | "Build local MCP servers (FastMCP Python or MCP SDK Node/TS) with cross-platform scaffolding scripts" | catalog/skills/ai-development/mcp-builder/SKILL.md |
 | project-constitution | workflow | "Author and maintain a versioned project constitution that declares MUST / SHOULD principles every plan, spec, and implementation aligns with" | catalog/skills/workflow/project-constitution/SKILL.md |
 | cross-artifact-analyzer | code-review | "Read-only cross-artifact analyzer for feature directories; emits severity-tagged findings, coverage matrix, and constitution-alignment verdicts" | catalog/skills/code-review/cross-artifact-analyzer/SKILL.md |
+| implementation-convergence | code-review | "Assess code against a plan post-implementation, classify gaps, and append remaining work as new tasks" | catalog/skills/code-review/implementation-convergence/SKILL.md |
 | tasks-to-issues | workflow | "Convert strict-format tasks.md / plan.md task lines into linked GitHub issues via the local gh CLI - dry-run or execute sequentially" | catalog/skills/workflow/tasks-to-issues/SKILL.md |
 | context-modes | workflow | "Switch the agent's working posture (dev, review, research) with explicit entry, exit, and reset rules" | catalog/skills/workflow/context-modes/SKILL.md |
 | security-framework-mapping | security | "Map security skills and findings across MITRE ATT&CK, ATLAS, D3FEND, NIST CSF, and NIST AI RMF" | catalog/skills/security/security-framework-mapping/SKILL.md |
@@ -255,6 +260,7 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | session-query | workflow | "Query local Claude/Codex/Cursor session logs for prior investigation context, script-first and zero-outbound" | catalog/skills/workflow/session-query/SKILL.md |
 | demo-capture | workflow | "Capture local terminal/GIF/screenshot PR evidence into docs/demos, script-first and upload-free" | catalog/skills/workflow/demo-capture/SKILL.md |
 | agent-orchestration-primitives | orchestration | "Choose between single agent, subagents, agent teams, and Dynamic Workflows for a task" | catalog/skills/orchestration/agent-orchestration-primitives/SKILL.md |
+| label-gated-agent-pipelines | orchestration | "Design human-label-gated CI agent pipelines with safe-outputs contracts and untrusted-input discipline" | catalog/skills/orchestration/label-gated-agent-pipelines/SKILL.md |
 | skill-security-scan | security | "Adjudicate skill-security scanner findings, filter false positives, and assign an install verdict" | catalog/skills/security/skill-security-scan/SKILL.md |
 | session-teach-back | workflow | "Socratic teach-back loop that quizzes the human on a session until every concept is confirmed" | catalog/skills/workflow/session-teach-back/SKILL.md |
 | context-pack-builder | workflow | "Distill prior-session digests and solutions into a reusable, deduped, topic-organized context pack" | catalog/skills/workflow/context-pack-builder/SKILL.md |
@@ -264,4 +270,4 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | egress-redaction | security | "Detect sensitive data and apply a typed block/redact/hash/pass policy before egress" | catalog/skills/security/egress-redaction/SKILL.md |
 | prompt-injection-defense | security | "Recognize and resist prompt injection and poisoned tool output with instruction-origin discipline" | catalog/skills/security/prompt-injection-defense/SKILL.md |
 
-**Total: 259 skills across 21 categories**
+**Total: 265 skills across 21 categories**

@@ -452,6 +452,118 @@ def cmd_list_installed(args: argparse.Namespace) -> int:
     return 0
 
 
+def _nonempty_dir(p: Path) -> bool:
+    """True when `p` is a directory containing at least one entry."""
+    try:
+        return p.is_dir() and any(p.iterdir())
+    except OSError:
+        return False
+
+
+def _file_contains(p: Path, needle: str) -> bool:
+    """True when file `p` exists and contains `needle`."""
+    try:
+        return p.is_file() and needle in p.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return False
+
+
+def _verify_checks(home: Path, target_root: Path) -> list:
+    """Build the per-platform read-path checks (v3.11.0 Phase 7.4).
+
+    Each entry is ``(platform_label, [(surface, ok_bool), ...], remediation_or_None)``.
+    Only platforms whose config dir is present are included, so the report reflects
+    what the user actually has installed. Asserts the surfaces the platform actually
+    READS (per docs/v3/v3.11/platform-read-contracts.md), not what the installer wrote.
+    """
+    checks: list = []
+    # Claude
+    d = home / ".claude"
+    if d.exists():
+        checks.append(("Claude", [
+            ("commands", _nonempty_dir(d / "commands")),
+            ("skills", _nonempty_dir(d / "skills")),
+            ("CLAUDE.md SKILL_INDEX", _file_contains(d / "CLAUDE.md", "Skill Index")),
+        ], "re-run the installer (Claude block)"))
+    # Codex - live surfaces are AGENTS.md (SKILL_INDEX) + prompts
+    d = home / ".codex"
+    if d.exists():
+        checks.append(("Codex", [
+            ("prompts", _nonempty_dir(d / "prompts")),
+            ("AGENTS.md SKILL_INDEX", _file_contains(d / "AGENTS.md", "Skill Index")),
+        ], "re-run the installer with --platforms codex"))
+    # Gemini IDE (full mirror as of v3.11.0)
+    d = home / ".gemini"
+    if d.exists():
+        checks.append(("Gemini IDE", [
+            ("skills", _nonempty_dir(d / "skills")),
+            ("workflows", _nonempty_dir(d / "workflows")),
+            ("GEMINI.md", (d / "GEMINI.md").is_file()),
+        ], "re-run the installer with --platforms gemini"))
+    # Antigravity 2.0 - global root AND the project-only .agents/ surface
+    ag = home / ".gemini" / "antigravity"
+    if ag.exists():
+        checks.append(("Antigravity 2.0 (global)", [
+            ("skills", _nonempty_dir(ag / "skills")),
+            ("workflows", _nonempty_dir(ag / "workflows")),
+        ], None))
+        checks.append(("Antigravity 2.0 (this project .agents/)", [
+            ("workflows", _nonempty_dir(target_root / ".agents" / "workflows")),
+        ], "run `nexus-hub init` in this project - Antigravity reads slash commands ONLY from .agents/"))
+    # Cursor - global slash surface
+    d = home / ".cursor"
+    if d.exists():
+        checks.append(("Cursor", [
+            ("commands", _nonempty_dir(d / "commands")),
+        ], "re-run the installer with --platforms cursor"))
+    # OpenCode
+    d = home / ".opencode"
+    if d.exists():
+        checks.append(("OpenCode", [
+            ("skills", _nonempty_dir(d / "skills")),
+            ("AGENTS.md", (d / "AGENTS.md").is_file()),
+        ], "re-run the installer with --platforms opencode"))
+    return checks
+
+
+def cmd_verify(args: argparse.Namespace) -> int:
+    """Post-install per-platform read-path verification (advisory; always exit 0).
+
+    For each detected platform, assert the surfaces it actually reads are populated
+    and print PASS / NEEDS-ACTION with a remediation hint. This is what turns a
+    silent no-op install (wrong path, or a project-only surface like Antigravity's
+    .agents/) into a visible, actionable line. Never fails the install.
+    """
+    home = Path.home()
+    target_root = (
+        Path(args.target).expanduser().resolve() if args.target else Path.cwd().resolve()
+    )
+    checks = _verify_checks(home, target_root)
+    if not checks:
+        if not args.quiet:
+            print("[verify] no supported platform config dirs detected under home.")
+        return 0
+    any_action = False
+    for platform, surfaces, remediation in checks:
+        ok = all(s_ok for _, s_ok in surfaces)
+        if not ok:
+            any_action = True
+        if args.quiet and ok:
+            continue
+        status = "PASS        " if ok else "NEEDS-ACTION"
+        detail = ", ".join(f"{name}:{'ok' if s_ok else 'MISSING'}" for name, s_ok in surfaces)
+        print(f"[verify] {status} {platform} -- {detail}")
+        if not ok and remediation:
+            print(f"             -> {remediation}")
+    if not args.quiet:
+        print(
+            "[verify] all detected platforms surface the catalog."
+            if not any_action
+            else "[verify] some platforms need action (see the -> hints above)."
+        )
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="nexus-hub-integrations")
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -576,6 +688,14 @@ def build_parser() -> argparse.ArgumentParser:
     p_list_installed.add_argument("--target", help="Workspace root (defaults to CWD).")
     p_list_installed.add_argument("--json", action="store_true", help="Emit JSON output.")
     p_list_installed.set_defaults(func=cmd_list_installed)
+
+    p_verify = sub.add_parser(
+        "verify",
+        help="Post-install per-platform read-path check: PASS / NEEDS-ACTION (advisory).",
+    )
+    p_verify.add_argument("--target", help="Project root for the .agents/ project-surface check (defaults to CWD).")
+    p_verify.add_argument("--quiet", action="store_true", help="Print only NEEDS-ACTION lines.")
+    p_verify.set_defaults(func=cmd_verify)
 
     return parser
 

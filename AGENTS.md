@@ -1,6 +1,6 @@
 # AGENTS.md
 
-<!-- nexus-hub-version: 3.10.0 -->
+<!-- nexus-hub-version: 3.11.0 -->
 
 This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, Gemini CLI, etc.) when working with code in this repository.
 
@@ -8,7 +8,7 @@ This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, G
 
 Nexus-Hub is a production-grade skill harness for AI coding assistants. It is the **upstream catalog** consumed by Nexus (the local-first desktop AI Studio, see `https://github.com/bendourthe/Nexus-AI`) and by every other major agent platform: Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, and GitHub CLI. Skills, commands, hooks, agents, and rules are distributed via installer scripts into users' `~/.nexus-hub/` directory and into their AI assistant's per-platform config locations.
 
-Current catalog: **259 skills** across 21 categories, 16 commands (plus 3 permanent aliases), 25 hooks, 23 agents. The 40 v3.x deprecation shims were removed in v3.2.0.
+Current catalog: **265 skills** across 21 categories, 16 commands (plus 3 permanent aliases), 25 hooks, 23 agents. The 40 v3.x deprecation shims were removed in v3.2.0.
 
 ## Project Structure
 
@@ -24,7 +24,7 @@ Nexus-Hub/
 │   ├── mcp-configs/          # MCP server registry
 │   ├── memory/               # Memory template files
 │   ├── rules/                # Code style/security rules (4 languages)
-│   └── skills/               # 259 skills across 21 categories
+│   └── skills/               # 265 skills across 21 categories
 │       └── <category>/
 │           └── <skill-name>/
 │               └── SKILL.md
@@ -93,7 +93,7 @@ Every Nexus-Hub skill is consumed by the agent in three tiers of progressive dis
 
 1. **Tier 1 — always loaded** (~150-300 tokens total): `name`, `description`, `summary_l0`, `overview_l1`. Every active session has these in context for every catalog skill, all the time. They determine whether the skill triggers. Tier 1 is the only tier under direct token-budget pressure across the catalog.
 2. **Tier 2 — loaded on trigger**: the SKILL.md body. Loaded once the agent decides this skill is relevant to the current task. Target ≤500 lines; soft cap 800 lines (see the size-norm rule below). Tier 2 is the agent's working manual for the skill — instructions, rationalizations, verification, related-skills cross-links.
-3. **Tier 3 — loaded on demand**: bundled resources under per-skill `scripts/`, `references/`, `assets/` subdirectories (the convention introduced in Phase 3 of `docs/archive/v1/v1.1.5/plans/adoption-skills.md`, item A13). Two access patterns:
+3. **Tier 3 — loaded on demand**: bundled resources under per-skill `scripts/`, `references/`, `assets/` subdirectories (the convention introduced in Phase 3 of `docs/archive/v1/v1.1/plans/adoption-skills.md`, item A13). Two access patterns:
     - **Reference files** (`references/<topic>.md`) load into context only when the agent reads them. The body should link to a reference file the way it would link to an external doc — "see `references/fastmcp-runbook.md` for the full setup steps" — so the agent only pays for it when needed.
     - **Scripts** (`scripts/<name>.{py,sh,js}`) execute via the Bash / shell tool **without their source code being loaded** into the context window. This is the critical performance affordance: a skill can bundle a 2000-line generator script that runs deterministically on demand, and the agent never reads a single line of it. Scripts are how a skill ships heavy capability without inflating Tier 2.
 
@@ -309,7 +309,7 @@ File naming: `kebab-case.md`. Commands use the same SKILL.md conventions for ins
 
 After adding a command, update `data/marketplace.json` `"total_commands"` if that field is present.
 
-**On a rename or deprecation**, decide whether to keep the old command name working through a deprecation shim at `catalog/commands/<old-name>.md` -- a `DEPRECATED (removed in vX.Y.Z). Forwarding to /NEW.` frontmatter `description` plus a short body that prints the notice and delegates to the new command -- or to remove it outright with a CHANGELOG `Removed` note. (The 40 v3.0.0-era shims followed the shim pattern and were removed in v3.2.0; see the v3.2.0 CHANGELOG and `docs/v3.0.0/command-migration.md`.)
+**On a rename or deprecation**, decide whether to keep the old command name working through a deprecation shim at `catalog/commands/<old-name>.md` -- a `DEPRECATED (removed in vX.Y.Z). Forwarding to /NEW.` frontmatter `description` plus a short body that prints the notice and delegates to the new command -- or to remove it outright with a CHANGELOG `Removed` note. (The 40 v3.0.0-era shims followed the shim pattern and were removed in v3.2.0; see the v3.2.0 CHANGELOG and `docs/v3/v3.0/command-migration.md`.)
 
 **Do not maintain a static command list anywhere.** `/skills list` derives the command cheatsheet -- the active commands, what each does, the deprecated name each one replaces, and common multi-command workflows -- at runtime from the command files themselves (see `catalog/style-guides/commands-cheatsheet.md`). Adding, renaming, refactoring, or deprecating a command therefore updates the cheatsheet automatically on the next `/skills list`; there is no table to hand-edit. The only command artifacts to touch on a change are the command file(s) and (on a rename) the deprecation shim.
 
@@ -359,7 +359,7 @@ Nexus-Hub is a **template repository**. Nothing you add is "live" until a user r
 | `scripts/<name>.py` or `scripts/<name>.js` | **Yes — MUST add a copy step** in BOTH `scripts/installer.sh` AND `scripts/installer.ps1`, modeled after the existing `generate_report.py` entry. The installer copies scripts by **explicit name**, never by folder. | All platforms (shared under `~/.nexus-hub/scripts/`) |
 | `data/SKILL_INDEX.md`, `data/skills.json`, `data/marketplace.json` | No — the installer reads these to fill `{{SKILL_INDEX}}` placeholders in every platform's instruction file. Updating them is mandatory when adding a skill. | All platforms whose instruction template embeds the index |
 | `scripts/lib/integrations/<platform>.py` (v2.1.0+) | No file-copy edit; **MUST** import + `_register()` the subclass in `scripts/lib/integrations/__init__.py::_register_builtins()`. The runner is invoked automatically by both installers for the extended-platform set. | The platform configured by the subclass (e.g., Antigravity 2.0, Gemini CLI, Nexus-AI for the v2.1.0 extended set; Claude / Codex / Cursor / Gemini / OpenCode / Copilot subclasses also exist for future v2.2.0 parity migration). |
-| Project-local surfaces (called from `nexus-hub init` -- v2.2.0+) | No file-copy edit; override `wire_project_surfaces(self, ctx) -> WriteResult \| None` on the integration subclass. The `nexus-hub init` subcommand (bash: `scripts/installer.sh init`; PowerShell: `scripts/installer.ps1 init`) walks every registered integration and invokes the hook. | Any platform whose subclass overrides the hook. Currently `cursor` (writes `.cursor/rules/nexus-hub.mdc`), `claude` (writes `.claude/settings.json` permissions stub when absent), and `antigravity2` (writes `.agents/workflows/<name>.md` command files, since Antigravity reads slash commands only from the open project's `.agents/`). |
+| Project-local surfaces (called from `nexus-hub init` -- v2.2.0+) | No file-copy edit; override `wire_project_surfaces(self, ctx) -> WriteResult \| None` on the integration subclass. The `nexus-hub init` subcommand (bash: `scripts/installer.sh init`; PowerShell: `scripts/installer.ps1 init`) walks every registered integration and invokes the hook. | Any platform whose subclass overrides the hook. Currently `cursor` (writes `.cursor/rules/nexus-hub.mdc`), `claude` (writes `.claude/settings.json` permissions stub when absent), `antigravity2` (writes `.agents/workflows/<name>.md` command files, since Antigravity reads slash commands only from the open project's `.agents/`), and `copilot` (v3.11.0, OPT-IN: writes thin `.github/skills/<name>/SKILL.md` wrapper files for the `core-developer` bundle when `NEXUS_HUB_COPILOT_SKILLS=1`, upgrading Copilot from behavioral-guardrails-only to a native project Agent Skills surface; off by default because `.github/skills/` is commit-visible, never overwrites an existing file). |
 
 ### Required steps for any change
 
@@ -374,7 +374,7 @@ Walk this checklist before proposing a PR:
 
 ### Platform coverage caveats (current state)
 
-> **Gemini CLI sunset**: per the 2026-05-21 Google Developers Blog announcement, Gemini CLI stops serving free / Google AI Pro / Ultra / GitHub-installed users on 2026-06-18. The standalone `gemini-cli` integration is now opt-in via the `--enterprise` installer flag (Bash: `scripts/installer.sh --enterprise`; PowerShell: `scripts/installer.ps1 -Enterprise`) and installs only when the user explicitly requests it. Non-enterprise users transition to Antigravity CLI, which is covered by the `antigravity2` integration (the desktop IDE and CLI share a backend per the same announcement; see [docs/archive/v2/v2.2.0/antigravity-cli-probe.md](docs/archive/v2/v2.2.0/antigravity-cli-probe.md)).
+> **Gemini CLI sunset**: per the 2026-05-21 Google Developers Blog announcement, Gemini CLI stops serving free / Google AI Pro / Ultra / GitHub-installed users on 2026-06-18. The standalone `gemini-cli` integration is now opt-in via the `--enterprise` installer flag (Bash: `scripts/installer.sh --enterprise`; PowerShell: `scripts/installer.ps1 -Enterprise`) and installs only when the user explicitly requests it. Non-enterprise users transition to Antigravity CLI, which is covered by the `antigravity2` integration (the desktop IDE and CLI share a backend per the same announcement; see [docs/archive/v2/v2.2/antigravity-cli-probe.md](docs/archive/v2/v2.2/antigravity-cli-probe.md)).
 
 The installer deploys **skills, commands, agents, hooks, and rules as separate files** to the following platforms:
 
@@ -384,7 +384,9 @@ The installer deploys **skills, commands, agents, hooks, and rules as separate f
 - **Project-only slash commands**: Antigravity 2.0 reads slash commands only from the open project's `.agents/workflows/`. There is no global surface, so a global-install user runs `nexus-hub init` in each repo to seed them (see the `wire_project_surfaces` row above).
 - **Behavioral-guardrails only**: OpenCode (`AGENTS.md`); Aider (project-root `CONVENTIONS.md`; no global instruction surface, so a global install is a no-op and the file installs at workspace scope); Windsurf (project-root `.windsurfrules` at workspace scope, plus a global `~/.codeium/windsurf/memories/global_rules.md` written only when Windsurf is detected); Kimi (project-local `.kimi/system.md` + `.kimi/agent.yaml` at workspace scope, mirrored under `~/.kimi/` only when Kimi is detected); Qwen (project-root `QWEN.md` at workspace scope, plus `~/.qwen/QWEN.md` only when Qwen is detected); OpenClaw (project-local `.openclaw/` SOUL + AGENTS + IDENTITY split at workspace scope, mirrored under `~/.openclaw/` only when OpenClaw is detected). These carry the Nexus-Hub instruction content with the `{{SKILL_INDEX}}` block embedded (the multi-file platforms embed it in the primary file -- Kimi `system.md`, OpenClaw `AGENTS.md` -- with the other files as stable companions); they are NOT slash-command surfaces. (Aider + Windsurf added v3.4.0 via the `aider` / `windsurf` integration subclasses; Kimi + Qwen + OpenClaw added v3.4.0 via the `kimi` / `qwen` / `openclaw` subclasses, reusing the same pattern.)
 
-Each of these has a corresponding `IntegrationBase` subclass under `scripts/lib/integrations/` (added in Phase 10 of v2.1.0); the original 4 continue to install via the legacy installer copy blocks, with the registry subclasses standing by for the future v2.2.0 parity migration documented in `docs/archive/v2/v2.1.0/known-gaps.md` (DF-001).
+> **Windsurf / Kimi roster verification (2026-07-08, dated note)**: Per [Cognition's acquisition blog](https://cognition.com/blog/windsurf) (2025-07-14), Windsurf was acquired by Cognition and preserved "as a distinct product with its own brand"; third-party outlets report a 2026-06-02 rebrand to "Devin Desktop" (no primary Cognition rebrand announcement was reachable). The `.windsurfrules` / `global_rules.md` surfaces are still served, so the `windsurf` integration is marked **deprecated (not deleted)** and stays detection-gated. Separately, Kimi CLI was rebuilt as "Kimi Code CLI" (Node.js rewrite, v0.1.0 May 2026; [migration guide](https://www.kimi.com/code/docs/en/kimi-code-cli/guides/migration.html)); the migration "never modifies or deletes any of the old data under `~/.kimi/`", so the legacy `.kimi/` layout `kimi.py` writes coexists and is still served (the `kimi` integration carries a dated migration note; a project-local convention refresh is deferred to `docs/v3/v3.11/known-gaps.md`). Evidence: [docs/v3/v3.11/development/roster-verification.md](docs/v3/v3.11/development/roster-verification.md).
+
+Each of these has a corresponding `IntegrationBase` subclass under `scripts/lib/integrations/` (added in Phase 10 of v2.1.0); the original 4 continue to install via the legacy installer copy blocks, with the registry subclasses standing by for the future v2.2.0 parity migration documented in `docs/archive/v2/v2.1/known-gaps.md` (DF-001).
 
 If your change is a new slash command, call out in the CHANGELOG which platforms get a slash surface. Global slash surfaces: Claude (`commands/`), Gemini (`workflows/`), Codex (`prompts/`), Cursor (`~/.cursor/commands/`), Copilot (VS Code `prompts/*.prompt.md`). Project-only (seed via `nexus-hub init`): Antigravity 2.0 (`.agents/workflows/`). Body-only via the instruction file: OpenCode.
 

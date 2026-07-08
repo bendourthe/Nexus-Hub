@@ -1,0 +1,100 @@
+"""Tests for the Copilot opt-in project skills surface (adoption-spec-kit Phase 5, S3).
+
+Covers `CopilotIntegration.wire_project_surfaces`:
+  - opt-in env var absent  -> no writes, a note, no .github/skills/ dir
+  - opt-in env var present -> curated core-developer bundle seeded as
+    .github/skills/<name>/SKILL.md wrappers with Copilot-safe frontmatter
+    (only name + description; name matches the directory; ASCII), manifest-tracked
+  - an existing file       -> never overwritten (kept)
+"""
+
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+import pytest
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from scripts.lib.integrations.base import InstallContext  # noqa: E402
+from scripts.lib.integrations.copilot import (  # noqa: E402
+    _COPILOT_SKILLS_ENV,
+    CopilotIntegration,
+)
+from scripts.lib.integrations.manifest import InstallManifest  # noqa: E402
+
+
+def _ctx(tmp_path: Path) -> InstallContext:
+    return InstallContext(
+        repo_root=REPO_ROOT,
+        target_root=tmp_path,
+        scope="workspace",
+        manifest=InstallManifest(),
+    )
+
+
+def test_opt_in_absent_writes_nothing(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv(_COPILOT_SKILLS_ENV, raising=False)
+    result = CopilotIntegration().wire_project_surfaces(_ctx(tmp_path))
+    assert result is not None
+    assert not (tmp_path / ".github" / "skills").exists()
+    # A note explains the opt-in was not set.
+    assert any(_COPILOT_SKILLS_ENV in n for n in result.notes)
+    # No files were created.
+    assert all(fa.action != "created" for fa in result.files)
+
+
+def test_opt_in_present_seeds_curated_wrappers(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv(_COPILOT_SKILLS_ENV, "1")
+    result = CopilotIntegration().wire_project_surfaces(_ctx(tmp_path))
+    skills_root = tmp_path / ".github" / "skills"
+    assert skills_root.is_dir()
+    created = [fa for fa in result.files if fa.action == "created"]
+    assert created, "expected at least one seeded wrapper"
+
+    # Every wrapper is .github/skills/<name>/SKILL.md with name matching the dir,
+    # ASCII, and only the Copilot-recognized frontmatter keys.
+    for skill_dir in skills_root.iterdir():
+        md = skill_dir / "SKILL.md"
+        assert md.is_file()
+        text = md.read_text(encoding="utf-8")
+        text.encode("ascii")  # raises if any non-ASCII slipped through
+        assert f"name: {skill_dir.name}\n" in text, "frontmatter name must match the directory"
+        assert "description:" in text
+        # Copilot rejects non-standard frontmatter keys; the wrapper must not
+        # carry our rich catalog keys.
+        assert "summary_l0" not in text
+        assert "overview_l1" not in text
+        assert "\nmode:" not in text
+
+
+def test_never_overwrites_existing_file(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv(_COPILOT_SKILLS_ENV, "1")
+    # Pre-create one wrapper path with user content.
+    names = CopilotIntegration._curated_skill_names(_ctx(tmp_path))
+    assert names, "core-developer bundle should resolve to skill names"
+    victim = tmp_path / ".github" / "skills" / names[0] / "SKILL.md"
+    victim.parent.mkdir(parents=True, exist_ok=True)
+    victim.write_text("USER CONTENT - do not clobber\n", encoding="utf-8")
+
+    result = CopilotIntegration().wire_project_surfaces(_ctx(tmp_path))
+    # The pre-existing file is untouched.
+    assert victim.read_text(encoding="utf-8") == "USER CONTENT - do not clobber\n"
+    assert any(fa.action == "kept" for fa in result.files)
+
+
+def test_curated_names_resolve_to_catalog_skills() -> None:
+    ctx_names = CopilotIntegration._curated_skill_names(
+        InstallContext(repo_root=REPO_ROOT, target_root=REPO_ROOT, manifest=InstallManifest())
+    )
+    assert "plan-before-code" in ctx_names
+    # At least most curated skills resolve to a real catalog SKILL.md.
+    found = [n for n in ctx_names if CopilotIntegration._find_skill_md(REPO_ROOT, n) is not None]
+    assert len(found) >= len(ctx_names) - 1

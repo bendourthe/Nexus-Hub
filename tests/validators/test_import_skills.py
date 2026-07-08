@@ -69,6 +69,20 @@ def test_validate_https_source_refuses_non_https_urls(source: str) -> None:
     assert detail  # a human-readable reason is always returned
 
 
+@pytest.mark.parametrize("source", ["https:///skills/evil", "https://"])
+def test_validate_https_source_refuses_host_less_https(source: str) -> None:
+    # A host-less https URL (empty netloc) must be refused, not treated as a
+    # valid remote source (v3.11.0 adoption-spec-kit Phase 4).
+    ok, detail = imp.validate_https_source(source)
+    assert ok is False
+    assert "host-less" in detail
+
+
+def test_validate_https_source_allows_https_with_host() -> None:
+    ok, _detail = imp.validate_https_source("https://example.com/path")
+    assert ok is True
+
+
 @pytest.mark.parametrize(
     "source",
     [

@@ -34,6 +34,9 @@ from typing import Iterable, Iterator, List, Optional
 # ── Constants ──────────────────────────────────────────────────────────────
 
 VERSION_DIR_RE = re.compile(r"^v\d+(?:\.\d+){0,2}(?:[-_].+)?$")
+# Two-level minor-grouped scheme (v3.11.0+): docs/v<MAJOR>/v<MAJOR>.<MINOR>/<topic>/...
+MAJOR_BUCKET_RE = re.compile(r"^v\d+$")
+MINOR_DIR_RE = re.compile(r"^v\d+\.\d+$")
 BINARY_EXTENSIONS = {
     ".png", ".jpg", ".jpeg", ".gif", ".bmp", ".tiff", ".webp", ".ico", ".svg",
     ".pdf", ".docx", ".xlsx", ".pptx", ".odt", ".ods", ".odp",
@@ -104,31 +107,62 @@ def _line_count(path: Path) -> Optional[int]:
         return None
 
 
-def _version_dir(rel: Path, docs_root: Path) -> Optional[str]:
-    """Return the vX.Y.Z segment if the path is under docs/v*/, else None."""
+def _resolve_version_topic(
+    abs_path: Path, docs_root: Path
+) -> "tuple[Optional[str], Optional[str]]":
+    """Resolve (version_dir, topic_dir) for a docs path under either scheme.
+
+    Two schemes are recognized:
+
+    - Two-level minor-grouped (v3.11.0+): ``docs/v<MAJOR>/v<MAJOR>.<MINOR>/<topic>/...``
+      (and the archive equivalent ``docs/archive/v<MAJOR>/v<MAJOR>.<MINOR>/<topic>/...``).
+      The version is the ``v<MAJOR>.<MINOR>`` minor bucket; the topic is the next
+      segment, or None when the file sits at the minor-dir root.
+    - Legacy flat: ``docs/<vSEMVER>/<topic>/...``. The version is the full version
+      segment; the topic is the next segment, or None at the version-dir root.
+
+    Returns ``(None, None)`` when the path is not under a version directory.
+    """
     try:
-        sub = rel.relative_to(docs_root)
+        sub = abs_path.relative_to(docs_root)
     except ValueError:
-        return None
-    if not sub.parts:
-        return None
-    first = sub.parts[0]
-    if VERSION_DIR_RE.match(first):
-        return first
-    return None
+        return None, None
+    parts = list(sub.parts)
+    # docs/archive/... reuses the same version scheme one level down.
+    if parts and parts[0] == "archive":
+        parts = parts[1:]
+    if not parts:
+        return None, None
+    first = parts[0]
+    if not VERSION_DIR_RE.match(first):
+        return None, None
+    # Two-level minor-grouped scheme: v<MAJOR>/v<MAJOR>.<MINOR>/<topic>/<file>.
+    if len(parts) >= 2 and MAJOR_BUCKET_RE.match(first) and MINOR_DIR_RE.match(parts[1]):
+        version = parts[1]
+        topic = parts[2] if len(parts) >= 4 else None
+        return version, topic
+    # Legacy flat scheme: v<SEMVER>/<topic>/<file>.
+    topic = parts[1] if len(parts) >= 3 else None
+    return first, topic
 
 
-def _topic_dir(rel: Path, docs_root: Path, version_dir: Optional[str]) -> Optional[str]:
-    """Return the topic subdirectory under the version dir, if any."""
-    if version_dir is None:
-        return None
-    try:
-        sub = rel.relative_to(docs_root)
-    except ValueError:
-        return None
-    if len(sub.parts) < 3:
-        return None
-    return sub.parts[1]
+def _version_dir(abs_path: Path, docs_root: Path) -> Optional[str]:
+    """Return the version-directory segment for a docs path, or None.
+
+    Backward-compatible wrapper around :func:`_resolve_version_topic`.
+    """
+    return _resolve_version_topic(abs_path, docs_root)[0]
+
+
+def _topic_dir(
+    abs_path: Path, docs_root: Path, version_dir: Optional[str] = None
+) -> Optional[str]:
+    """Return the topic subdirectory for a docs path, or None.
+
+    The ``version_dir`` argument is retained for call-site compatibility but is
+    no longer consulted; the resolver derives both values together.
+    """
+    return _resolve_version_topic(abs_path, docs_root)[1]
 
 
 def _walk(root: Path, excludes: Iterable[str]) -> Iterator[Path]:
@@ -188,14 +222,15 @@ def cmd_inventory(args: argparse.Namespace) -> int:
         age_days = (now - mtime_dt).days
 
         is_binary = _is_binary(path, args.max_bytes)
+        version_dir, topic_dir = _resolve_version_topic(path.resolve(), docs_root)
         record = {
             "path": rel_str,
             "size": stat.st_size,
             "mtime": mtime_dt.isoformat(),
             "mtime_age_days": age_days,
             "sha256_prefix": _sha256_prefix(path, args.max_bytes),
-            "version_dir": _version_dir(path.resolve(), docs_root),
-            "topic_dir": _topic_dir(path.resolve(), docs_root, _version_dir(path.resolve(), docs_root)),
+            "version_dir": version_dir,
+            "topic_dir": topic_dir,
             "extension": path.suffix.lower(),
             "line_count": None if is_binary else _line_count(path),
             "is_binary": is_binary,

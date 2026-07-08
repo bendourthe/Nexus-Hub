@@ -28,7 +28,7 @@ Resolve SCOPE from the first positional argument (`$ARGUMENTS`). Recognized scop
 
       Reply with a number or a scope name.
 
-- `release` runs the focused scopes in order - `docs`, then `devlog`, then `gitignore`, then `version`, then `changelog`, then `refactor` - then regenerates the supply-chain manifest, cleans up, commits, tags, pushes, and publishes the GitHub Release as one flow. It keeps every confirmation gate: never create a tag, push, or publish a release without explicit user confirmation.
+- `release` runs the focused scopes in order - `docs`, then `devlog`, then `gitignore`, then `version`, then `changelog`, then `refactor` - then reconciles the version's known gaps and creates/updates/optimizes CI/CD, regenerates the supply-chain manifest, cleans up, commits, tags, pushes, and publishes the GitHub Release as one flow. It keeps every confirmation gate: never create a tag, push, or publish a release without explicit user confirmation.
 
 ## Delegation
 
@@ -39,10 +39,10 @@ Dispatch the resolved scope to the retained skill(s). These targets are skills u
       gitignore -> built-in (audit .gitignore, clean the tracked index, recommend LFS for large binaries)
       version   -> version-upgrade, gated by scripts/check_version_sync.py (see below)
       changelog -> release-notes-writer (parse git history since the last tag into a CHANGELOG entry)
-      refactor  -> docs-layout-refactor + project-refactor
+      refactor  -> docs-layout-refactor + project-refactor (per-version docs structure + archive normalization + empty-dir/duplicate/orphan/structure-complexity detectors; see the refactor scope below)
       config    -> update-config (built-in) + config-consistency-checker / nexus-hub doctor (see below)
       commit    -> code-commit-workflow
-      release   -> docs -> devlog -> gitignore -> version -> changelog -> refactor -> manifest, then clean up, commit, tag, push, publish GitHub Release (see below)
+      release   -> docs -> devlog -> gitignore -> version -> changelog -> refactor (docs structure + cleanliness) -> known-gaps reconciliation -> CI/CD create/update/optimize -> manifest, then clean up, commit, tag, push, publish GitHub Release (see below)
 
 Pass any remaining arguments through unchanged. Heavy logic stays in the retained skills; this file owns only scope resolution and the release sequencing.
 
@@ -54,6 +54,7 @@ The `docs` scope MUST refresh documentation CONTENT to the repo's current state,
 - **Internal MCP server list**: the README's "internal MCP servers" enumeration matches the `nexus-*` servers actually registered in `catalog/mcp-configs/mcp-servers.json` -- both the COUNT and the NAMES (e.g. when `nexus-context-compressor` was added in v3.2.0 the README still read "3 internal MCP servers").
 - **"What's New" narrative**: the README has a section summarizing the headline features of the release being shipped. Do NOT leave the latest release undocumented -- a release whose only README change is the version/count bump has skipped this step (the exact failure the v3.2.0 release hit).
 - **Removed / renamed surfaces**: no doc still presents a command, skill, flag, or path removed or renamed since the last release as if it were current.
+- **Per-version docs structure**: the active version's `docs/v<MAJOR>/v<MAJOR>.<MINOR>/` tree exists with `plans/` and `comparisons/` subdirs per the `[[docs-layout-refactor]]` Version-directory resolution scheme; create or repair it (and relocate any stray comparison reports into `comparisons/`) if not.
 
 When the scope is `release`, run this reconciliation as the FIRST step, before the version bump. A release whose only documentation change is the version/count bump has not run `docs`.
 
@@ -78,6 +79,25 @@ After the tag is pushed, `release` publishes a GitHub Release for the new `vX.Y.
 ## config scope (platform-config drift repair)
 
 The `config` scope validates installed platform configs and repairs drift, reusing the `config-consistency-checker` skill / `nexus-hub doctor`. In particular, a Codex `~/.codex/config.toml` that defines `[permissions.*]` profiles MUST set `default_permissions`, or the config fails to load. Repairing an already-broken user config (a `[permissions.*]` table present but `default_permissions` missing) requires TOML-aware insertion of `default_permissions` before the first `[permissions...]` table, and the idempotency guard must NOT skip such a config - it is broken, not already-fixed. When Codex's elevated-sandbox setup fails on Windows, optionally surface the `[windows] sandbox = "unelevated"` recommendation.
+
+## refactor scope (docs structure + project cleanliness)
+
+The `refactor` scope delegates to `[[docs-layout-refactor]]` (the `docs/` tree) and `[[project-refactor]]` (everything else), and enforces the v3.11.0 governance:
+
+- **Whole docs-tree migration (any repo)**: migrate the ENTIRE docs tree - every version directory AND the archive, not just the active version - to the `docs/v<MAJOR>/v<MAJOR>.<MINOR>/` scheme (with `plans/` and `comparisons/` subdirs). Reshape any flat `docs/<vSEMVER>/` or old three-level `docs/versions/v<MAJOR>/<vSEMVER>/` directory into `docs/v<MAJOR>/v<MAJOR>.<MINOR>/`, merge patch releases into their shared minor dir, relocate stray comparison reports into `comparisons/`, normalize `docs/archive/` to `docs/archive/v<MAJOR>/v<MAJOR>.<MINOR>/`, and repair every internal reference. This generalizes to ANY repo: `/update refactor` (and, at release, `/update release`) canonicalizes that repo's whole docs tree via the `[[docs-layout-refactor]]` `--canonicalize-layout` path, so a project adopting Nexus-Hub gets the same migration with one command.
+- **Project cleanliness**: run the `project-refactor` cleanliness detectors - empty directories (respecting `.gitkeep`), duplicate/redundant files, non-version orphans, and overcomplicated structure - propose-only, with the skill's confirmation gate.
+
+Both delegate skills stay propose-then-apply; this scope surfaces the checks and defers the procedure to them.
+
+## release scope: known-gaps, architecture refactor, and CI/CD (before the commit)
+
+Beyond running the `refactor` scope, a `release` performs three governance steps before the release commit, each keeping its confirmation gate:
+
+1. **Known-gaps reconciliation** via `[[known-gaps-tracker]]`: resolve, defer, or transfer each open item for the version and finalize the per-minor `known-gaps.md`.
+2. **Full architecture refactor** via `[[project-refactor]]` (the empty-dir / duplicate / orphan / structure-complexity detectors) plus `[[docs-layout-refactor]]`, leaving a clean, intuitive layout.
+3. **CI/CD create/update/optimize**: ensure the pipeline covers every change in the release and is optimized to reduce action minutes (path filters, concurrency cancel-in-progress, caching, gating expensive-OS/matrix jobs) while keeping comprehensive testing.
+
+This mirrors the `implement-phase` final-phase gate - `/implement` hands off to `/update release` on a plan's last phase - so the same refactor + known-gaps + CI/CD work runs whether the release is reached through `/implement` or invoked directly.
 
 ## Notes
 

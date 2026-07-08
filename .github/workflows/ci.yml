@@ -3,18 +3,36 @@ name: CI
 on:
   push:
     branches: [main, develop]
+    # v3.11.0 Phase 8.4: docs-only pushes never affect validators, tests, or the
+    # installer, so skip the full job set (incl. the 10x macOS / 2x Windows legs)
+    # when a change touches nothing outside docs/. Skill/template/README/CHANGELOG
+    # changes live OUTSIDE docs/ and still trigger the full run.
+    paths-ignore:
+      - 'docs/**'
   pull_request:
     branches: [main, develop]
+    paths-ignore:
+      - 'docs/**'
+
+# v3.11.0 Phase 7.5 / 8.4 CI optimization: cancel superseded runs of the same ref
+# (the single largest action-minute saver) so only the latest push/PR commit runs.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: '3.11'
+          # v3.11.0 Phase 8.4: cache pip downloads keyed on the hook config so the
+          # pre-commit install is not fetched cold on every run.
+          cache: 'pip'
+          cache-dependency-path: '.pre-commit-config.yaml'
 
       - name: Install pre-commit
         run: pip install pre-commit
@@ -75,7 +93,7 @@ jobs:
   shellcheck:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
       - name: Install ShellCheck
         run: sudo apt-get install -y shellcheck
@@ -101,17 +119,19 @@ jobs:
     # expansions), so the same code path runs on the BSD-userland macOS runner.
     # ubuntu remains the authoritative bash gate under WN-v36-1 (bash cannot be
     # fully run on the Windows dev host); macOS adds real-platform proof that the
-    # Mac smoke test (docs/v3.7.0/development/mac-smoke-test.md) used to carry
+    # Mac smoke test (docs/v3/v3.7/development/mac-smoke-test.md) used to carry
     # alone.
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        # Cost control: PRs run ubuntu-only; the macOS leg (10x minutes) runs on
+        # pushes to shared branches, where real-platform proof matters.
+        os: ${{ github.event_name == 'pull_request' && fromJSON('["ubuntu-latest"]') || fromJSON('["ubuntu-latest","macos-latest"]') }}
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: '3.11'
 
@@ -189,10 +209,14 @@ jobs:
     # against a GitHub-shaped tarball of the checkout (zero network), then asserts a
     # populated ~/.nexus-hub and a working `nexus-hub --version`.
     runs-on: windows-latest
+    # Cost control: Windows is a 2x-minute runner. Run the real end-to-end
+    # bootstrap on pushes only, not on PRs (PRs still get the pwsh AST-parse in
+    # the `bootstrap` job).
+    if: ${{ github.event_name != 'pull_request' }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: '3.11'
 
@@ -246,11 +270,16 @@ jobs:
     # `catalog/hooks/tests/` with `extensions/nexus-skill-server/tests/`).
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: '3.11'
+          # v3.11.0 Phase 8.4: this job does pytest + 5 editable extension installs;
+          # cache the pip download dir keyed on the extension manifests (pydantic,
+          # mcp, and friends are the heaviest cold downloads).
+          cache: 'pip'
+          cache-dependency-path: 'extensions/*/pyproject.toml'
 
       - name: Install pytest
         run: pip install pytest
@@ -296,3 +325,76 @@ jobs:
 
       - name: Context-compressor tests
         run: pytest extensions/nexus-context-compressor/tests/ -v
+
+  install-smoke:
+    # v3.11.0 Phase 7.5: prove the catalog lands at each platform's real read-path
+    # and that the project auto-seed produces .agents/workflows. Uses the registry
+    # installer (a fast, deterministic file mirror - no MCP/venv) so it runs cheaply
+    # on every OS. Cursor/Copilot GLOBAL slash surfaces are installer-block-owned and
+    # exercised by the `bootstrap` job. Cost control: ubuntu on PRs; +macOS/Windows on pushes.
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ${{ github.event_name == 'pull_request' && fromJSON('["ubuntu-latest"]') || fromJSON('["ubuntu-latest","macos-latest","windows-latest"]') }}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.11'
+
+      - name: Global registry install into a throwaway HOME, then verify read-paths (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          set -uo pipefail
+          home="$(mktemp -d "${TMPDIR:-/tmp}/nx-smoke.XXXXXX")/home"
+          mkdir -p "$home"
+          HOME="$home" python scripts/lib/integrations/runner.py install --scope global \
+            --integrations claude,codex,gemini,antigravity2,opencode --overwrite --quiet
+          out="$(HOME="$home" python scripts/lib/integrations/runner.py verify --target "$home" 2>&1 || true)"
+          printf '%s\n' "$out"
+          for expect in \
+            "Claude -- commands:ok, skills:ok" \
+            "Codex -- prompts:ok" \
+            "Gemini IDE -- skills:ok, workflows:ok" \
+            "Antigravity 2.0 (global) -- skills:ok, workflows:ok" \
+            "OpenCode -- skills:ok"; do
+            printf '%s\n' "$out" | grep -qF "$expect" \
+              || { echo "FAIL: read-path not populated: $expect"; exit 1; }
+          done
+          echo "OK: global platform read-paths populated on ${{ matrix.os }}"
+
+      - name: Project auto-seed smoke (Linux only) - init seeds .agents/workflows
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          set -uo pipefail
+          repo="$(mktemp -d "${TMPDIR:-/tmp}/nx-proj.XXXXXX")/proj"
+          mkdir -p "$repo"
+          git -C "$repo" init -q
+          python scripts/lib/integrations/runner.py init --target "$repo" --quiet
+          test -n "$(ls -A "$repo/.agents/workflows" 2>/dev/null)" \
+            || { echo "FAIL: init did not populate .agents/workflows in the current repo"; exit 1; }
+          echo "OK: project auto-seed populated .agents/workflows"
+
+      - name: Global registry install into a throwaway HOME, then verify read-paths (PowerShell)
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: |
+          $h = Join-Path $env:RUNNER_TEMP ("nx-" + [System.Guid]::NewGuid().ToString("N"))
+          New-Item -ItemType Directory -Force -Path $h | Out-Null
+          $env:USERPROFILE = $h; $env:HOME = $h
+          & python scripts\lib\integrations\runner.py install --scope global --integrations claude,codex,gemini,antigravity2,opencode --overwrite --quiet
+          $out = (& python scripts\lib\integrations\runner.py verify --target $h | Out-String)
+          Write-Host $out
+          foreach ($expect in @(
+            "Claude -- commands:ok, skills:ok",
+            "Codex -- prompts:ok",
+            "Gemini IDE -- skills:ok, workflows:ok",
+            "Antigravity 2.0 (global) -- skills:ok, workflows:ok",
+            "OpenCode -- skills:ok")) {
+            if ($out -notmatch [regex]::Escape($expect)) { Write-Host "FAIL: read-path not populated: $expect"; exit 1 }
+          }
+          Write-Host "OK: global platform read-paths populated (Windows)"

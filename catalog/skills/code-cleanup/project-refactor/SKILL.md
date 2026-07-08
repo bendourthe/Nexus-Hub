@@ -1,8 +1,8 @@
 ---
 name: project-refactor
-description: Audit and refactor a repository's project artifacts (root files, scripts, configs, CI/CD, source layout) to follow standard conventions. Moves misplaced files, fixes all references, archives outdated artifacts tied to prior major versions, and verifies nothing breaks. Use whenever the user says "refactor project layout", "refactor repo layout", "clean up root directory", "too many files in root", "organize project structure", "apply layout rules", "move files to correct directories", "root is cluttered", "layout conventions", "project structure refactor", "archive prior version artifacts", "clean up scripts folder", "organize CI/CD configs", or before a major release. SKIP for docs/ tree reorganization (use docs-layout-refactor), content accuracy fixes (use update-documentation), or CHANGELOG generation (use generate-changelog).
-summary_l0: "Refactor repository project artifacts (root, scripts, configs, CI/CD) and archive prior-version artifacts with reference repair"
-overview_l1: "This skill systematically reorganizes a repository's project artifacts (everything outside the docs/ tree) to follow declared conventions, with impact analysis and reference repair before any file is moved. Scope includes root files, scripts, configs, CI/CD pipelines, and top-level source layout. It also detects prior-major-version artifacts (release notes, deploy checklists, generated reports, snapshot bundles, version-scoped CI workflows) and archives them under archive/versions/v<MAJOR>/v<SEMVER>/ when --archive-prior-versions is set. Use it when cleaning up a cluttered project root, applying a standard layout ruleset to an existing project, migrating a repo after adopting new conventions, preparing a project for public release, archiving artifacts from a prior major version, or auditing whether a repo matches its declared layout rules. Default mode is propose-only: no files move until the user explicitly confirms at the gate. Trigger phrases: refactor project layout, clean up root directory, organize project structure, apply layout rules, archive prior version artifacts, organize CI/CD configs."
+description: Audit and refactor a repository's project artifacts (root files, scripts, configs, CI/CD, source layout) to follow standard conventions. Moves misplaced files, fixes all references, archives outdated artifacts tied to prior major versions, and verifies nothing breaks. Use whenever the user says "refactor project layout", "refactor repo layout", "clean up root directory", "too many files in root", "organize project structure", "apply layout rules", "move files to correct directories", "root is cluttered", "layout conventions", "project structure refactor", "archive prior version artifacts", "clean up scripts folder", "organize CI/CD configs", "find empty directories", "remove duplicate files", "find orphaned files", "flatten overcomplicated structure", "consolidate single-child directories", or before a major release. SKIP for docs/ tree reorganization (use docs-layout-refactor), content accuracy fixes (use update-documentation), or CHANGELOG generation (use generate-changelog).
+summary_l0: "Refactor project artifacts and detect empty/duplicate/orphan/overcomplicated structure, archiving prior-version files with reference repair"
+overview_l1: "This skill systematically reorganizes a repository's project artifacts (everything outside the docs/ tree) to follow declared conventions, with impact analysis and reference repair before any file is moved. Scope includes root files, scripts, configs, CI/CD pipelines, and top-level source layout. It also detects prior-major-version artifacts (release notes, deploy checklists, generated reports, snapshot bundles, version-scoped CI workflows) and archives them under archive/versions/v<MAJOR>/v<SEMVER>/ when --archive-prior-versions is set. It also flags empty directories (respecting .gitkeep), duplicate/redundant files, unreferenced orphans, and overcomplicated structure for prune or consolidation, propose-only. Use it when cleaning up a cluttered project root, applying a standard layout ruleset to an existing project, migrating a repo after adopting new conventions, preparing a project for public release, archiving artifacts from a prior major version, or auditing whether a repo matches its declared layout rules. Default mode is propose-only: no files move until the user explicitly confirms at the gate. Trigger phrases: refactor project layout, clean up root directory, organize project structure, apply layout rules, archive prior version artifacts, organize CI/CD configs."
 ---
 
 # Project Refactor
@@ -65,8 +65,8 @@ This skill operates on:
 ## What This Skill Does
 
 1. **Rule Loading** — reads layout rules from `CLAUDE.md` / `AGENTS.md` / `GEMINI.md` / project config; falls back to Nexus-Hub defaults.
-2. **Active-version Detection** — resolves the active version from `--active-version`, `CHANGELOG.md`, latest git tag, or `docs/versions/`. The active major is the cut-off for prior-version archival.
-3. **Inventory and Classification** — every in-scope file is classified Stay / Move / Archive / Ambiguous against the loaded rules and the prior-version heuristics.
+2. **Active-version Detection** — resolves the active version from `--active-version`, `CHANGELOG.md`, latest git tag, or the `docs/v*/` version tree. The active major is the cut-off for prior-version archival.
+3. **Inventory and Classification** — every in-scope file and directory is classified Stay / Move / Archive / Prune / Consolidate / Ambiguous against the loaded rules, the prior-version heuristics, and the cleanliness detectors: empty directories, redundant/duplicate files and dirs, non-version orphans (zero inbound references), and overcomplicated structure (deep nesting, single-child chains, over-fragmentation). See "Detecting Empty and Redundant Artifacts" and "Structure-Complexity Heuristics" below.
 4. **Impact Analysis** — finds every reference to each file that will move or be archived, across all file types, before touching anything. CI/CD references are flagged HIGH risk.
 5. **Confirmation Gate** — propose-only by default; never moves a file without explicit user approval at the gate.
 6. **Safe Move Protocol** — copy + verify + delete (never deletes without confirming the copy succeeded; verifies size + sha256 prefix for files > 1 KB).
@@ -106,6 +106,45 @@ A file is **prior-version** when any of these signals apply:
 - Files explicitly listed in a "Stay" rule.
 
 Prior-version artifacts default to **Archive** when `--archive-prior-versions` is set, **Stay** otherwise.
+
+## Detecting Empty and Redundant Artifacts
+
+Beyond prior-version archival, the Inventory and Classification stage flags three cleanliness classes. All default to propose-only - nothing is pruned, consolidated, or removed without explicit confirmation at the gate.
+
+### Empty directories
+
+A directory with no files anywhere beneath it (recursively) is an **empty-directory** candidate for pruning:
+
+- A directory containing only a `.gitkeep` (or `.keep`) placeholder is intentionally empty - **never prune it**; it is holding a path open on purpose.
+- A directory that becomes empty only after this run's moves/archives is a prune candidate, but pruning it requires a second explicit confirmation (same rule as `docs-layout-refactor` empty-version dirs).
+- Propose prune; never auto-delete.
+
+### Redundant / duplicate files and dirs
+
+Two files are **duplicates** when their full-content sha256 hashes match. Two files are **redundant** when their names and evident purpose overlap (e.g. `utils.py` next to `utilities.py`, `config.old.json` next to `config.json`, `installer copy.sh`):
+
+- For byte-identical duplicates, propose keeping the canonical copy (the one with inbound references, or the one in the conventional location) and removing the other - flag, do not auto-remove.
+- For name/purpose overlaps that are not byte-identical, flag for manual review with a one-line reason; never merge automatically (the difference may be intentional).
+- A duplicate referenced by different callers is NOT safe to collapse - surface the callers.
+
+### Non-version orphans (unreferenced files)
+
+Invert the reference-detection machinery (see "Reference Detection Patterns"): a file with **zero inbound references** anywhere in the codebase is an **orphan** candidate:
+
+- Maintain an allowlist of intentional standalone files that are load-bearing without inbound refs: `LICENSE`, `README.md`, `CHANGELOG.md`, `SECURITY.md`, `CODE_OF_CONDUCT.md`, `.gitignore`, `.gitattributes`, `llms.txt`, entry-point installers, and any file matching a declared "Stay" rule. Never flag these as orphans.
+- A true orphan defaults to **Ambiguous** (flag for manual review), NOT auto-archive - an unreferenced file may still be a deliberate template, fixture, or asset loaded dynamically.
+- Report each orphan with the reference scan that returned zero hits, so the user can confirm.
+
+## Structure-Complexity Heuristics
+
+Overcomplicated structure adds navigation cost without organizational benefit. Detect and propose consolidation/flattening (propose-only):
+
+- **Single-child directory chains**: a directory whose only child is another directory (e.g. `a/b/c/d/only.md`) - propose collapsing the chain to the shallowest level that still separates concerns (`a/only.md` or `a/d/only.md`).
+- **Deep nesting**: a path nested deeper than the project's typical depth (default heuristic: more than 4 directory levels below the repo root, outside `docs/` and vendored trees) - propose flattening or justify the depth.
+- **Over-fragmentation**: many sibling directories each holding a single file where a grouping directory would read better - propose consolidation.
+- **Under-fragmentation** is out of scope here (splitting a large dir is a design decision, not a cleanliness fix).
+
+Each proposal names the current path, the proposed path, and the reference-repair impact. Consolidation moves follow the same Safe Move Protocol and reference-repair steps as any other move.
 
 ## Archive Layout
 
@@ -308,6 +347,10 @@ Run after Phase 7. Each check is binary; FAIL on any item loops back up to 3 tim
 - [ ] **`git status --porcelain` count matches the planned mutations** — surprise mutations halt with a diff dump for user review.
 - [ ] **Active-version artifacts untouched** — diff against pre-refactor state for the active version is empty (no incidental edits).
 - [ ] **Manual-review items documented** and handed off to the user.
+- [ ] **Empty directories detected and proposed for prune** (respecting `.gitkeep` / `.keep`); none auto-deleted without the second confirmation.
+- [ ] **Duplicate and redundant files flagged** (byte-identical duplicates plus name/purpose overlaps), callers surfaced; none auto-merged or auto-removed.
+- [ ] **Orphans (zero inbound references) flagged as Ambiguous**, allowlist honored (LICENSE / README / CHANGELOG / entry points never flagged); none auto-archived.
+- [ ] **Structure-complexity proposals emitted** for single-child chains, deep nesting, and over-fragmentation, each naming current path, proposed path, and reference-repair impact.
 
 ## Related Skills
 
@@ -318,8 +361,8 @@ Run after Phase 7. Each check is binary; FAIL on any item loops back up to 3 tim
 
 ---
 
-**Version**: 2.0.0
-**Last Updated**: May 2026
+**Version**: 2.1.0
+**Last Updated**: July 2026
 
 ### Iterative Refinement Strategy
 
