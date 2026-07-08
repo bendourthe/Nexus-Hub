@@ -7477,6 +7477,48 @@
       }
     },
     {
+      "name": "implementation-convergence",
+      "title": "implementation-convergence",
+      "description": "Assess the present implementation against a plan's stated intent AFTER an implementation pass, classify every gap with traceability, and append the remaining work as new tasks - never rewriting history, and guaranteeing a byte-for-byte no-op when the code already satisfies the plan. Make sure to use this whenever the user says 'converge the code with the plan', 'what's left unbuilt from the plan', 'did the implementation drift from the spec', 'assess the code against the plan and append the remaining work', 'post-implementation gap check', or wants to know whether an implementation actually delivered its plan before review or release. SKIP, do NOT use for - artifact-vs-artifact consistency analysis before or during implementation (use cross-artifact-analyzer); the per-version deferral ledger (use known-gaps-tracker); verifying a single change end-to-end (use verification-before-completion).",
+      "long_description": "Runs a convergence pass after an implementation over an existing plan or task file. Treats the plan, spec, and tasks (and the project constitution when present) as the sole source of intent, inventories every requirement, acceptance criterion, plan decision, and task under a stable key (FR-###, SC-###, US#/AC#, T###, plan-phase touch-point), and maps a code-scope bounded to the files the artifacts name. Classifies each gap under a four-type taxonomy (missing, partial, contradicts, unrequested) with a CRITICAL/HIGH/MEDIUM/LOW severity keyed to constitution MUSTs and P1-story baselines. Present-state assessment, not a diff tool - no git history or branch comparison. The only permitted write is append-only: a single new `## Phase N: Convergence` section (N = highest existing + 1) of strict-format `- [ ] T### [P?] [US?]` task lines, each traced to its source-ref and gap type, CRITICAL/HIGH first, never rewriting, renumbering, reordering, or deleting an existing task. When no actionable finding remains it leaves the task file byte-for-byte unchanged (no empty header) and reports converged. Presents an in-session findings table before any write; hands off to /implement on tasks-appended or to review/release on converged.",
+      "summary_l0": "\"Assess code against a plan post-implementation, classify gaps, and append remaining work as new tasks\"",
+      "overview_l1": "\"This skill runs a convergence pass after an implementation over an existing plan or task file: it treats the plan, spec, and tasks (and the project constitution when present) as the sole source of intent, inventories every requirement, acceptance criterion, plan decision, and task under a stable key, maps the code scope the artifacts name, and classifies each gap as missing, partial, contradicts, or unrequested with a CRITICAL/HIGH/MEDIUM/LOW severity. It is a present-state assessment, not a diff tool - no git history or branch comparison. Its only write is append-only: a single new Phase N: Convergence section of strict-format T### task lines, each traced to its source-ref and gap type, never rewriting, renumbering, reordering, or deleting an existing task. When nothing remains it leaves the task file byte-for-byte unchanged and reports converged. Trigger phrases: converge the code with the plan, what's left unbuilt, did the implementation drift from the spec, post-implementation gap check.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "code-review",
+      "language": "Multi-language",
+      "tags": [
+        "implementation-convergence",
+        "code-vs-plan",
+        "gap-taxonomy",
+        "append-only-tasks",
+        "source-ref-traceability",
+        "post-implementation",
+        "spec-driven-development"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read",
+        "Glob",
+        "Grep"
+      ],
+      "path": "catalog/skills/code-review/implementation-convergence/",
+      "file": "catalog/skills/code-review/implementation-convergence/SKILL.md",
+      "size": {
+        "lines": 175,
+        "tokens_estimate": 3000
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
       "name": "tasks-to-issues",
       "title": "tasks-to-issues",
       "description": "Convert the strict task checklist in a feature directory's tasks.md (or plan.md) into linked GitHub issues via the local gh CLI. Drives /tasks-to-issues end-to-end - parses every `- [ ] T### [P?] [US?] file_path` line, builds a per-task issue payload with labels (`nexus-hub`, `spec-driven-task`, `parallel`, `user-story-N`), and either dry-runs the gh invocations or executes them sequentially after user confirmation. Use whenever the user wants to convert tasks to issues, create GitHub issues from a plan, file issues from tasks.md, dry-run the conversion to preview gh invocations, fan a plan out to issue tracking, or drive sprint planning from a generated plan. Trigger phrases include 'tasks to issues', 'convert tasks to issues', 'create issues from plan', 'file issues from tasks.md', 'issue tracking from plan', 'gh issue create from tasks', 'fan out tasks to GitHub', 'sprint from plan'. SKIP: project boards (use gh directly), milestone management, label creation, free-form issue authoring, plans whose tasks do NOT match the strict format (re-run /generate-plan first), or any flow that needs more than one issue per task.",

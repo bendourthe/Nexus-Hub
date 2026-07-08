@@ -224,6 +224,7 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | mcp-builder | ai-development | "Build local MCP servers (FastMCP Python or MCP SDK Node/TS) with cross-platform scaffolding scripts" | catalog/skills/ai-development/mcp-builder/SKILL.md |
 | project-constitution | workflow | "Author and maintain a versioned project constitution that declares MUST / SHOULD principles every plan, spec, and implementation aligns with" | catalog/skills/workflow/project-constitution/SKILL.md |
 | cross-artifact-analyzer | code-review | "Read-only cross-artifact analyzer for feature directories; emits severity-tagged findings, coverage matrix, and constitution-alignment verdicts" | catalog/skills/code-review/cross-artifact-analyzer/SKILL.md |
+| implementation-convergence | code-review | "Assess code against a plan post-implementation, classify gaps, and append remaining work as new tasks" | catalog/skills/code-review/implementation-convergence/SKILL.md |
 | tasks-to-issues | workflow | "Convert strict-format tasks.md / plan.md task lines into linked GitHub issues via the local gh CLI - dry-run or execute sequentially" | catalog/skills/workflow/tasks-to-issues/SKILL.md |
 | context-modes | workflow | "Switch the agent's working posture (dev, review, research) with explicit entry, exit, and reset rules" | catalog/skills/workflow/context-modes/SKILL.md |
 | security-framework-mapping | security | "Map security skills and findings across MITRE ATT&CK, ATLAS, D3FEND, NIST CSF, and NIST AI RMF" | catalog/skills/security/security-framework-mapping/SKILL.md |
@@ -268,4 +269,4 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | egress-redaction | security | "Detect sensitive data and apply a typed block/redact/hash/pass policy before egress" | catalog/skills/security/egress-redaction/SKILL.md |
 | prompt-injection-defense | security | "Recognize and resist prompt injection and poisoned tool output with instruction-origin discipline" | catalog/skills/security/prompt-injection-defense/SKILL.md |
 
-**Total: 263 skills across 21 categories**
+**Total: 264 skills across 21 categories**

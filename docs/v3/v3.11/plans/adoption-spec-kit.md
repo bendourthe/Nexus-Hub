@@ -291,14 +291,14 @@ The "Rec. model / effort" column is a best-effort planning-time assessment recor
 
 ### Phase 1 Exit Checklist
 
-- [ ] All sub-tasks completed (1.1-1.3)
-- [ ] `implementation-convergence/SKILL.md` created with conformant frontmatter and all six required body sections
-- [ ] Four-type gap taxonomy, severity rules, source-ref traceability, append-only `T###` contract, and byte-for-byte no-op guarantee all present
-- [ ] Boundary statements against `cross-artifact-analyzer` and `known-gaps-tracker` explicit; all cross-links resolve
-- [ ] `/spec converge` scope present and thin
-- [ ] Three registries consistent at 260; validators green; body under 500 lines; attribution grep clean
-- [ ] Session history generated for Phase 1
-- [ ] Ready to advance to Phase 2
+- [x] All sub-tasks completed (1.1-1.3)
+- [x] `implementation-convergence/SKILL.md` created with conformant frontmatter and all six required body sections
+- [x] Four-type gap taxonomy, severity rules, source-ref traceability, append-only `T###` contract, and byte-for-byte no-op guarantee all present
+- [x] Boundary statements against `cross-artifact-analyzer` and `known-gaps-tracker` explicit; all cross-links resolve
+- [x] `/spec converge` scope present and thin
+- [x] Three registries consistent at **264** (the plan's 260 was stale; workflow-governance delegates + youtube-transcript + t3mp3st landed since); validators green; body 132 lines; attribution grep clean
+- [x] Session history generated for Phase 1 (combined spec-kit history at close-out)
+- [x] Ready to advance to Phase 2
 
 ### Phase 2 Exit Checklist
 
