@@ -1688,43 +1688,15 @@ function Install-Workspace {
             }
         }
 
-        # --- Prepare Copilot/Cursor instruction body (used below) -------
-        $mergedContent = "# $($script:ProjectName) - Copilot Instructions`n`n"
-        $mergedContent += "## Tech Stack`n"
-        $mergedContent += "- **Language**: $($script:PrimaryLanguage)`n"
-        $mergedContent += "- **Package Manager**: $($script:PackageManager)`n"
-        $mergedContent += "- **Test**: $($script:TestFramework)`n"
-        $mergedContent += "- **Lint**: $($script:LintTool)`n`n"
-        $mergedContent += "## Working Conventions`n"
-        $mergedContent += "- Destructive git commands require explicit user confirmation before running`n"
-        $mergedContent += "- Never add ``Co-Authored-By`` lines, AI attribution footers, or AI-generated signatures to commit messages`n"
-        $mergedContent += "- **MANDATORY: Every Bash/shell command approval MUST be preceded by a one-sentence plain-language explanation** of what the command does and what its impact will be. This applies to ALL commands regardless of complexity. No exceptions.`n"
-        $mergedContent += "- Ask clarifying questions before coding if requirements are ambiguous`n`n"
-        foreach ($lang in $languages) {
-            $langKey = $lang.ToLower()
-            if ($langKey -eq "c++") { $langKey = "cpp" }
-            if ($langKey -eq "c#") { $langKey = "csharp" }
-            $src = "$RepoRoot\templates\ai-instructions\coding-snippets\${langKey}.md"
-            if (Test-Path $src) {
-                $mergedContent += "`n" + (Get-Content $src -Raw) + "`n"
-            }
-        }
-
         # --- Microsoft -- GitHub Copilot --------------------------------
         if ($workspacePlatforms -contains "COPILOT") {
             Write-Header -Provider "MICROSOFT"
-            Write-Item -Message "GitHub Copilot" -Color "Gray"
-            $copilotDir = Join-Path $targetPath ".github"
-            if (-not (Test-Path $copilotDir)) { New-Item -ItemType Directory -Force -Path $copilotDir | Out-Null }
-            $copilotFile = Join-Path $copilotDir "copilot-instructions.md"
-
-            # Route the generated body through Safe-Copy via a temp file so the
-            # Copilot instruction file participates in the unified conflict-only
-            # overwrite flow (v3.7.0 / Phase 2) instead of its own inline prompt.
-            $copilotTmp = [System.IO.Path]::GetTempFileName()
-            $script:TempFiles += $copilotTmp
-            [System.IO.File]::WriteAllText($copilotTmp, $mergedContent, (New-Object System.Text.UTF8Encoding($false)))
-            Safe-Copy -Source $copilotTmp -Destination $copilotFile -Confirm:$true -CustomMessage "✓ Workspace instructions installed at: $copilotFile"
+            # Render .github/copilot-instructions.md via the registry so it carries the
+            # {{SKILL_INDEX}} block (from base-codex.md) and is marker-merged, preserving
+            # user content above and below the managed block. Fixes C6: the prior
+            # hand-built body dropped the skill index and full-overwrote the file
+            # (v3.11.0 Phase 7 read-contract audit).
+            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "copilot" -DisplayName "GitHub Copilot (.github/copilot-instructions.md)" -Languages ($languages -join ',')
         }
 
         # --- Anysphere -- Cursor ----------------------------------------

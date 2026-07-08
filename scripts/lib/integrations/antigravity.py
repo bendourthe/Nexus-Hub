@@ -52,6 +52,16 @@ from .result import FileAction, WriteResult
 
 
 class Antigravity10Integration(MarkdownIntegration, SkillsIntegration):
+    """Antigravity 1.0 (the original pre-2.0 IDE). DEPRECATED and NOT installer-wired.
+
+    v3.11.0 read-contract audit (C3): the ``antigravity`` key is retained in the
+    registry for reference and back-compat, but no installer block invokes it and it
+    is not in the installers' ``--platforms`` vocabulary. Antigravity 2.0 + CLI
+    (``Antigravity20Integration`` below) supersedes it and covers current users.
+    Outright removal is deferred to avoid churning the registry-key set that tests
+    assert on; this note resolves the "registered but unreachable" confusion.
+    """
+
     key = "antigravity"
     display_name = "Antigravity 1.0 (Google)"
     instruction_mode = "shared"

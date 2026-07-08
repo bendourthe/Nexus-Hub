@@ -1356,46 +1356,13 @@ install_workspace() {
 
         # --- Microsoft -- GitHub Copilot ----------------------------
         if should_install copilot; then
-        # Prepare the Copilot instruction body.
-        local merged_content="# $PROJECT_NAME - Copilot Instructions\n\n"
-        merged_content+="## Tech Stack\n"
-        merged_content+="- **Language**: $PRIMARY_LANGUAGE\n"
-        merged_content+="- **Package Manager**: $PACKAGE_MANAGER\n"
-        merged_content+="- **Test**: $TEST_FRAMEWORK\n"
-        merged_content+="- **Lint**: $LINT_TOOL\n\n"
-        merged_content+="## Working Conventions\n"
-        merged_content+="- Destructive git commands require explicit user confirmation before running\n"
-        merged_content+="- Never add \`Co-Authored-By\` lines, AI attribution footers, or AI-generated signatures to commit messages\n"
-        merged_content+="- **MANDATORY: Every Bash/shell command approval MUST be preceded by a one-sentence plain-language explanation** of what the command does and what its impact will be. This applies to ALL commands regardless of complexity. No exceptions.\n"
-        merged_content+="- Ask clarifying questions before coding if requirements are ambiguous\n\n"
-
-        IFS=',' read -ra LANGS <<< "$languages"
-        for lang in "${LANGS[@]}"; do
-            lang_key=$(echo "$lang" | tr '[:upper:]' '[:lower:]')
-            if [ "$lang_key" == "c++" ]; then lang_key="cpp"; fi
-            if [ "$lang_key" == "c#" ]; then lang_key="csharp"; fi
-            src="$repo_root/templates/ai-instructions/coding-snippets/${lang_key}.md"
-            if [ -f "$src" ]; then
-                merged_content+="\n"
-                merged_content+=$(cat "$src")
-                merged_content+="\n"
-            fi
-        done
-
         write_header "MICROSOFT"
-        write_item "GitHub Copilot" "$GRAY"
-        local copilot_dir="$target_path/.github"
-        mkdir -p "$copilot_dir"
-        local copilot_file="$copilot_dir/copilot-instructions.md"
-
-        # Route the generated body through safe_copy via a temp file so the
-        # Copilot instruction file participates in the unified conflict-only
-        # overwrite flow (v3.7.0 / Phase 2) instead of its own inline prompt.
-        local copilot_tmp
-        copilot_tmp=$(mktemp)
-        TEMP_FILES+=("$copilot_tmp")
-        printf '%b' "$merged_content" > "$copilot_tmp"
-        safe_copy "$copilot_tmp" "$copilot_file" true "[OK] Workspace instructions installed at: $copilot_file"
+        # Render .github/copilot-instructions.md via the registry so it carries the
+        # {{SKILL_INDEX}} block (from base-codex.md) and is marker-merged, preserving
+        # user content above and below the managed block. Fixes C6: the prior
+        # hand-built body dropped the skill index and full-overwrote the file
+        # (v3.11.0 Phase 7 read-contract audit).
+        invoke_registry_platform "$repo_root" "workspace" "$target_path" "copilot" "GitHub Copilot (.github/copilot-instructions.md)" "$languages"
         fi
 
         # --- Anysphere -- Cursor ------------------------------------
