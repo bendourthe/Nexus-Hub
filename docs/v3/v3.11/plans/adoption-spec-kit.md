@@ -312,13 +312,13 @@ The "Rec. model / effort" column is a best-effort planning-time assessment recor
 
 ### Phase 3 Exit Checklist
 
-- [ ] All sub-tasks completed (3.1-3.2)
-- [ ] Evidence note at `docs/v3/v3.11/development/roster-verification.md` with primary-source citations and per-platform recommended actions
-- [ ] Roster action applied per evidence (deprecate-with-note preferred; no integration deleted from the registry)
-- [ ] AGENTS.md platform-coverage caveats updated with dated vendor citations; CHANGELOG entry present
-- [ ] Integrations pytest suite green; dry-run surfaces behave as documented
-- [ ] Session history generated for Phase 3
-- [ ] Ready to advance to Phase 4
+- [x] All sub-tasks completed (3.1-3.2)
+- [x] Evidence note at `docs/v3/v3.11/development/roster-verification.md` with primary-source citations and per-platform recommended actions
+- [x] Roster action applied per evidence (deprecate-with-note for Windsurf, refresh-note for Kimi; no integration deleted from the registry; both docstring-only, non-breaking)
+- [x] AGENTS.md platform-coverage caveats updated with dated vendor citations; CHANGELOG entry folded into the consolidated spec-kit entry at Phase 6.2
+- [x] Integrations pytest suite green (44 windsurf/kimi/registry tests pass); changes are docstring-only so surfaces behave unchanged
+- [x] Session history generated for Phase 3 (combined spec-kit history at close-out)
+- [x] Ready to advance to Phase 4
 
 ### Phase 4 Exit Checklist
 

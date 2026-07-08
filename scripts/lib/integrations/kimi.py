@@ -11,6 +11,20 @@ user edits survive a re-install) plus ``<project>/.kimi/agent.yaml`` (a
 deterministic, Nexus-Hub-owned companion). Global scope writes the same pair
 under ``~/.kimi/`` when the Kimi config root (``~/.kimi``) is present, and skips
 with a note otherwise (mirroring the Windsurf detection model).
+
+MIGRATION NOTE (dated, 2026-07-08, adoption-spec-kit Phase 3): Kimi CLI was
+rebuilt as "Kimi Code CLI" (a Python -> Node.js rewrite, v0.1.0 May 2026;
+primary: https://www.kimi.com/code/docs/en/kimi-code-cli/guides/migration.html).
+The migration is NON-destructive to this layout: the guide states "Migration
+never modifies or deletes any of the old data under ``~/.kimi/``", so the
+legacy ``~/.kimi/`` layout coexists with the new install and the surface this
+integration writes is STILL SERVED. No primary source confirms the project-local
+``.kimi/system.md`` + ``.kimi/agent.yaml`` layout is rejected by Kimi Code CLI,
+so it is intentionally NOT rewritten here (``scripts/lib/integrations/`` is an
+"ask first" surface and a speculative rewrite risks breaking existing installs).
+A refresh to any Kimi-Code-CLI-specific project-local convention is deferred to
+known-gaps pending maintainer confirmation. See
+docs/v3/v3.11/development/roster-verification.md.
 """
 
 from __future__ import annotations
