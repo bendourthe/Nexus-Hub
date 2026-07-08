@@ -199,39 +199,39 @@ Every Constitution Check bullet is PASS or N/A (no constitution file exists; the
 
 ### Phase 1 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] `prompt-engineering` carries the research-brief technique; `/research` references it
-- [ ] No registry drift (frontmatter unchanged, no `data/` edit)
-- [ ] Validators green; no dangling wikilinks; ASCII-only; body under 500 lines
-- [ ] Session history generated for Phase 1
-- [ ] Ready to advance to Phase 2
+- [x] All sub-tasks completed
+- [x] `prompt-engineering` carries the research-brief technique; `/research` references it
+- [x] No registry drift (frontmatter unchanged, no `data/` edit)
+- [x] Validators green; no dangling wikilinks; ASCII-only; body under 500 lines
+- [x] Session history generated for Phase 1 (combined close-out history)
+- [x] Ready to advance to Phase 2
 
 ### Phase 2 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] `idea-refine` carries the opt-in grill-me mode with the explicit batch-convention gate
-- [ ] Gating verified: the mode cannot read as the default clarifying behavior
-- [ ] Validators green; no dangling wikilinks; ASCII-only; body under 500 lines
-- [ ] Session history generated for Phase 2
-- [ ] Ready to advance to Phase 3
+- [x] All sub-tasks completed
+- [x] `idea-refine` carries the opt-in grill-me mode with the explicit batch-convention gate
+- [x] Gating verified: the mode cannot read as the default clarifying behavior
+- [x] Validators green; no dangling wikilinks; ASCII-only; body under 500 lines
+- [x] Session history generated for Phase 2 (combined close-out history)
+- [x] Ready to advance to Phase 3
 
 ### Phase 3 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] `youtube-transcript` skill created (local yt-dlp path only; DeepAPI path omitted)
-- [ ] Bundled `flatten_captions.py` created, standard-library-only, referenced from SKILL.md
-- [ ] yt-dlp-absence graceful handling and ToS / 429-stop caveat present
-- [ ] Three registries updated consistently to 260; no installer edit; no `.ps1` sibling
-- [ ] Validators green; orphan-bundle audit clean; ASCII-only; body under 500 lines
-- [ ] Session history generated for Phase 3
-- [ ] Ready to advance to Phase 4
+- [x] All sub-tasks completed
+- [x] `youtube-transcript` skill created (local yt-dlp path only; DeepAPI path omitted)
+- [x] Bundled `flatten_captions.py` created, standard-library-only, referenced from SKILL.md
+- [x] yt-dlp-absence graceful handling and ToS / 429-stop caveat present
+- [x] Three registries updated consistently (259 -> 260 at the time it landed); no installer edit; no `.ps1` sibling
+- [x] Validators green; orphan-bundle audit clean; ASCII-only; body under 500 lines
+- [x] Session history generated for Phase 3 (combined close-out history)
+- [x] Ready to advance to Phase 4
 
 ### Phase 4 Exit Checklist
 
-- [ ] All sub-tasks completed
-- [ ] Declines recorded in `docs/v3/v3.11/known-gaps.md` with the MCP Registry Policy cited
-- [ ] `## [Unreleased]` CHANGELOG entry added with correct final counts (260 skills, 16 commands, 25 hooks)
-- [ ] Full validator chain (`make validate`, `make lint`, `make test`) green
-- [ ] No new outbound call, dependency, or credential introduced
-- [ ] Session history generated for Phase 4
-- [ ] Plan complete; ready for `/update release` when the version's Definition of Done is met
+- [x] All sub-tasks completed
+- [x] Declines recorded in `docs/v3/v3.11/known-gaps.md` with the MCP Registry Policy cited (added at close-out 2026-07-08)
+- [x] CHANGELOG entry present under `## [3.11.0]` (the entry was authored while the section was still `## [Unreleased]`, then promoted to `[3.11.0]` in workflow-governance Phase 8); final release count is 265, not the plan's point-in-time 260
+- [x] Validator chain green (`make validate` equivalent; `make lint`/full `make test` covered by CI on Linux)
+- [x] No new outbound call, dependency, or credential introduced
+- [x] Session history generated for Phase 4 (combined close-out history)
+- [x] Plan complete; ready for `/update release` when the version's Definition of Done is met

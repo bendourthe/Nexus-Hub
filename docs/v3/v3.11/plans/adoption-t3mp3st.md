@@ -208,7 +208,7 @@ Every Constitution Check bullet is PASS or N/A (no constitution file exists; the
 - [x] No registry drift (frontmatter unchanged in all three skills, no `data/` edit)
 - [x] Validators green (`make validate` mode: `validate_skills --bundles-only` and `--quality` exit 0; unicode-safe); no dangling wikilinks; ASCII-only; bodies under 500 lines (139 / 289 / 161)
 - [x] Session history generated for Phase 1
-- [ ] Ready to advance to Phase 2
+- [x] Ready to advance to Phase 2
 
 ### Phase 2 Exit Checklist
 
@@ -236,4 +236,4 @@ Every Constitution Check bullet is PASS or N/A (no constitution file exists; the
 - [x] Validator chain green (`make validate` mode green incl. compression eval; `make lint`/full `make test` covered by CI on Linux - the edits are body-only Markdown, no shell/test change)
 - [x] No new outbound call, dependency, credential, or runtime introduced; no registry drift anywhere in the cycle
 - [x] Session history generated for Phase 4 (combined Phases 2-4 history)
-- [ ] Plan complete; ready for `/update release` when the version's Definition of Done is met
+- [x] Plan complete; ready for `/update release` when the version's Definition of Done is met

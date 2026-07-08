@@ -90,3 +90,14 @@ The three open v3.10.0 items were reviewed and neither block nor intersect this 
 
 - **Agent-disclosure divergence (deliberate, not a gap)**: upstream spec-kit guidance recommends disclosing agent authorship in commits and PR comments. This directly conflicts with this repo's no-AI-attribution commit convention (global CLAUDE.md), so it is a recorded, deliberate divergence, not an omission.
 - **Pre-existing branded-token references**: `catalog/skills/workflow/tasks-to-issues/SKILL.md`, its `data/skills.json` entry, the `cross-artifact-analyzer` entry, and `scripts/installer.{sh,ps1}` carry pre-existing references to the archived `adoption-spec-kit.md` plan filename (they document the strict `T###` task-line format that originated there). These predate this cycle and are internal-provenance path references, not product-name attribution; this cycle added zero new branded tokens to any distributed artifact.
+
+## Comparison Declines - personal skill-pack comparison (2026-07-08)
+
+The adoption-davidondrej-skills cycle (`docs/v3/v3.11/plans/adoption-davidondrej-skills.md`, operationalizing [docs/v3/v3.11/comparisons/v3.11.0-comparison-davidondrej-skills.md](comparisons/v3.11.0-comparison-davidondrej-skills.md)) adopted three items (C2 research-brief technique in `prompt-engineering`, C3 opt-in grill-me mode in `idea-refine`, C1 the `youtube-transcript` skill). The rest of the 28-skill source pack was declined; recorded here so the next cycle does not re-propose them, each described generically by function.
+
+- **Paid scraping-and-email endpoint skill + paid deep-research skill** - declined. Grounds: MCP Registry Policy hard-no on scraping-as-service and research-as-service; the research workflow is already delivered by `/research` and its harness.
+- **Model-benchmark-via-third-party-router skill** - declined. Grounds: vendor-bound and niche (tied to a specific external model router); no general Nexus-Hub value.
+- **Prompt-rewriting / guardrail-evasion skill** - declined. Grounds: its purpose is to weaken server-side safety classifiers on dual-use topics, contrary to Nexus-Hub's defensive posture and safety refusals.
+- **Tool-bound set (a terminal-multiplexer integration, two personal-agent skills, a vendor goal-loop feature doc)** - declined. Grounds: they target external stacks Nexus-Hub does not support; the transferable goal-loop pattern is already covered by `loop-engineering`.
+
+**Deferred optional items (not declines)**: a guided setup walkthrough, a folder-scoped context-file helper, and a read-all-ADRs loader were rated low value; adoptable only on explicit maintainer request. Generic naming per the Reverse-Engineering Attribution Rule (no upstream product or author named).
