@@ -142,9 +142,9 @@ A tripped detector should pause with a cooldown and may auto-recover to a monito
 
 A fourth pattern looks like a stall but is not a fault: the loop is waiting on a human-owned action (an approval, a merge, an external sign-off). Do not spend iterations busy-polling for it. A loop that re-runs waiting for a human is a no-progress signature, and the [[shipping-and-launch]] gate ends at exactly such a boundary. Hand control back with a crisp summary of what is ready and what decision is requested, and treat the human action as an external resume signal rather than a condition to spin on.
 
-## Workflow-Control Patterns: Gate, Resume, Continue-on-Error
+## Workflow-Control Patterns: Gate, Resume, Continue-on-Error, Bounded Fan-Out
 
-Three control patterns extend a loop's vocabulary beyond a single `exit_condition`. All three are **agent-instruction patterns** you encode in the loop body and its state file, NOT a new runtime to build. Where the host harness exposes Dynamic Workflows (the `Workflow` tool), the same shapes map onto its script (a gate is an `AskUserQuestion` between stages, resume is the workflow's native journal-based resume, continue-on-error is a per-item `try/catch` that records the failure and keeps going). In a plain `/loop` or `/goal` run you implement them with the external memory layer from Step 1.
+Four control patterns extend a loop's vocabulary beyond a single `exit_condition`. All four are **agent-instruction patterns** you encode in the loop body and its state file, NOT a new runtime to build. Where the host harness exposes Dynamic Workflows (the `Workflow` tool), the same shapes map onto its script (a gate is an `AskUserQuestion` between stages, resume is the workflow's native journal-based resume, continue-on-error is a per-item `try/catch` that records the failure and keeps going). In a plain `/loop` or `/goal` run you implement them with the external memory layer from Step 1.
 
 - **Human gate checkpoint.** Pause the loop at a named boundary for an approve/reject decision before continuing (before a maker's change is shipped, or before a destructive step). Record an explicit `on_reject` policy so a rejection is deterministic rather than improvised: `abort` (stop the whole loop), `skip` (drop this item, continue with the rest), or `retry` (re-run the gated step, counting against `iteration_cap`). The reviewer is a human (or an independent checker per Step 4), never the maker.
 
@@ -164,7 +164,13 @@ Three control patterns extend a loop's vocabulary beyond a single `exit_conditio
     step: fix-A  continue_on_error: true   # records {fix-A: failed}; downstream "if any failed -> open digest" still fires
     ```
 
-These compose: a scheduled triage loop gates risky ships, resumes from its run file after an interruption, and continues past a single item's failure while routing it to the human inbox. Do not build a YAML workflow engine to host them (the loop-era equivalent of the declined portable-runtime trap); they are instructions over the harness's existing Dynamic Workflows or a `/loop` driver.
+- **Bounded fan-out concurrency.** When a step fans out over many items, declare an explicit max-concurrency bound so a wide fan-out cannot exhaust the executor (a connection pool, a provider rate limit, the token budget). Unbounded fan-out is an authoring error, not a default; pick the bound from the scarcest downstream resource.
+
+    ```
+    fan_out: items  max_concurrency: 8   # 500 items, at most 8 in flight
+    ```
+
+These compose: a scheduled triage loop gates risky ships, resumes from its run file after an interruption, continues past a single item's failure while routing it to the human inbox, and fans out its independent items under an explicit concurrency bound. Do not build a YAML workflow engine to host them (the loop-era equivalent of the declined portable-runtime trap); they are instructions over the harness's existing Dynamic Workflows or a `/loop` driver.
 
 ## Sandboxing an Unattended Loop
 

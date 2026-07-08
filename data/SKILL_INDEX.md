@@ -260,6 +260,7 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | session-query | workflow | "Query local Claude/Codex/Cursor session logs for prior investigation context, script-first and zero-outbound" | catalog/skills/workflow/session-query/SKILL.md |
 | demo-capture | workflow | "Capture local terminal/GIF/screenshot PR evidence into docs/demos, script-first and upload-free" | catalog/skills/workflow/demo-capture/SKILL.md |
 | agent-orchestration-primitives | orchestration | "Choose between single agent, subagents, agent teams, and Dynamic Workflows for a task" | catalog/skills/orchestration/agent-orchestration-primitives/SKILL.md |
+| label-gated-agent-pipelines | orchestration | "Design human-label-gated CI agent pipelines with safe-outputs contracts and untrusted-input discipline" | catalog/skills/orchestration/label-gated-agent-pipelines/SKILL.md |
 | skill-security-scan | security | "Adjudicate skill-security scanner findings, filter false positives, and assign an install verdict" | catalog/skills/security/skill-security-scan/SKILL.md |
 | session-teach-back | workflow | "Socratic teach-back loop that quizzes the human on a session until every concept is confirmed" | catalog/skills/workflow/session-teach-back/SKILL.md |
 | context-pack-builder | workflow | "Distill prior-session digests and solutions into a reusable, deduped, topic-organized context pack" | catalog/skills/workflow/context-pack-builder/SKILL.md |
@@ -269,4 +270,4 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | egress-redaction | security | "Detect sensitive data and apply a typed block/redact/hash/pass policy before egress" | catalog/skills/security/egress-redaction/SKILL.md |
 | prompt-injection-defense | security | "Recognize and resist prompt injection and poisoned tool output with instruction-origin discipline" | catalog/skills/security/prompt-injection-defense/SKILL.md |
 
-**Total: 264 skills across 21 categories**
+**Total: 265 skills across 21 categories**

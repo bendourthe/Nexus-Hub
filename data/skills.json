@@ -7519,6 +7519,48 @@
       }
     },
     {
+      "name": "label-gated-agent-pipelines",
+      "title": "label-gated-agent-pipelines",
+      "description": "Design a human-label-gated, multi-stage agent pipeline on GitHub issues (assess -> fix -> test), where a maintainer's label advances each stage, every stage declares a safe-outputs contract (draft PRs only, capped writes, an allowlist), and untrusted issue content is treated as data, never instructions. Make sure to use this whenever the user wants to 'automate bug triage with an agent when an issue is labeled', 'label-driven agent workflow', 'human-gated agent pipeline in CI', 'agent proposes a fix as a draft PR', or 'staged agent automation on GitHub issues'. SKIP, do NOT use for - local-session bug fixing (use the bug-fixing skills directly); recurring local tasks (use the loop/scheduling primitives); multi-agent orchestration inside one session (use agent-orchestration-primitives).",
+      "long_description": "Documents the human-label-gated agent-pipeline pattern as a discipline, not a runtime. Split a CI automation into small single-purpose stages (assess -> fix -> test), each mapping to an existing local skill (bug-localization, bug-to-patch-generator, bug-reproduction-test-generator) so each stage's output is reviewable on its own. Each stage runs only when a maintainer deliberately applies that stage's label; the agent never self-advances. Every stage declares a safe-outputs contract up front (draft PRs only, never direct pushes; a hard cap on comments and label writes; an explicit label allowlist; a protected-files policy) and consumes the previous stage's pipeline-authored output as its contract rather than re-litigating it or trusting an arbitrary commenter. Issue bodies, comments, and fetched content are untrusted data, never instructions (prompt-injection-defense applies verbatim). The pattern's deployment cost is stated plainly: an agent stage in CI needs a model credential in CI secrets and sends repository content to the model provider, so it is acceptable only with hard spend caps and scoped short-lived credentials (ai-billing-safeguards is required reading). Nexus-Hub ships the pattern as instructions only - never a runtime, lock file, or workflow file.",
+      "summary_l0": "\"Design human-label-gated CI agent pipelines with safe-outputs contracts and untrusted-input discipline\"",
+      "overview_l1": "\"This skill documents the human-label-gated agent-pipeline pattern as a discipline, not a runtime: split a CI automation into small single-purpose stages (assess, fix, test) each mapping to an existing local skill, and run each stage only when a maintainer deliberately applies that stage's label so the agent never self-advances. Every stage declares a safe-outputs contract up front (draft PRs only, never direct pushes; a hard cap on comments and label writes; an explicit label allowlist; a protected-files policy) and consumes the previous stage's posted output as its contract rather than re-litigating it. Issue bodies, comments, and fetched content are untrusted data, never instructions. Running an agent stage in CI requires a model credential in CI secrets and sends repository content to the model provider, so the pattern is acceptable only with hard spend caps and scoped short-lived credentials; Nexus-Hub ships it as instructions only, never a runtime, lock file, or workflow file. Trigger phrases: label-driven agent workflow, human-gated agent pipeline in CI, agent proposes a fix as a draft PR, staged agent automation on GitHub issues.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "orchestration",
+      "language": "Multi-language",
+      "tags": [
+        "label-gated-pipelines",
+        "human-gated-automation",
+        "safe-outputs-contract",
+        "untrusted-input",
+        "ci-agent-pipeline",
+        "draft-pr",
+        "credential-cost"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read",
+        "Glob",
+        "Grep"
+      ],
+      "path": "catalog/skills/orchestration/label-gated-agent-pipelines/",
+      "file": "catalog/skills/orchestration/label-gated-agent-pipelines/SKILL.md",
+      "size": {
+        "lines": 96,
+        "tokens_estimate": 2400
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
       "name": "tasks-to-issues",
       "title": "tasks-to-issues",
       "description": "Convert the strict task checklist in a feature directory's tasks.md (or plan.md) into linked GitHub issues via the local gh CLI. Drives /tasks-to-issues end-to-end - parses every `- [ ] T### [P?] [US?] file_path` line, builds a per-task issue payload with labels (`nexus-hub`, `spec-driven-task`, `parallel`, `user-story-N`), and either dry-runs the gh invocations or executes them sequentially after user confirmation. Use whenever the user wants to convert tasks to issues, create GitHub issues from a plan, file issues from tasks.md, dry-run the conversion to preview gh invocations, fan a plan out to issue tracking, or drive sprint planning from a generated plan. Trigger phrases include 'tasks to issues', 'convert tasks to issues', 'create issues from plan', 'file issues from tasks.md', 'issue tracking from plan', 'gh issue create from tasks', 'fan out tasks to GitHub', 'sprint from plan'. SKIP: project boards (use gh directly), milestone management, label creation, free-form issue authoring, plans whose tasks do NOT match the strict format (re-run /generate-plan first), or any flow that needs more than one issue per task.",

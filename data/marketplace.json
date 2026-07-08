@@ -138,7 +138,7 @@
       "id": "orchestration",
       "name": "Orchestration",
       "description": "Multi-agent coordination, context management, workflow automation",
-      "skill_count": 15
+      "skill_count": 16
     },
     {
       "id": "project-setup",

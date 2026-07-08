@@ -302,13 +302,13 @@ The "Rec. model / effort" column is a best-effort planning-time assessment recor
 
 ### Phase 2 Exit Checklist
 
-- [ ] All sub-tasks completed (2.1-2.3)
-- [ ] `label-gated-agent-pipelines/SKILL.md` created with the five-part pattern and the mandatory credential-cost subsection
-- [ ] Instructions-only boundary stated (no runtime, lock file, or workflow file shipped); `ai-billing-safeguards` and `prompt-injection-defense` cross-linked
-- [ ] Three vocabulary folds present in `agent-presets`, `loop-engineering`, `agent-orchestration-primitives`, extending without contradiction; no frontmatter changes
-- [ ] Three registries consistent at 261; validators green; attribution grep clean
-- [ ] Session history generated for Phase 2
-- [ ] Ready to advance to Phase 3
+- [x] All sub-tasks completed (2.1-2.3)
+- [x] `label-gated-agent-pipelines/SKILL.md` created with the five-part pattern and the mandatory credential-cost subsection
+- [x] Instructions-only boundary stated (no runtime, lock file, or workflow file shipped); `ai-billing-safeguards` and `prompt-injection-defense` cross-linked
+- [x] Three vocabulary folds present in `agent-presets`, `loop-engineering`, `agent-orchestration-primitives`, extending without contradiction; no frontmatter changes
+- [x] Three registries consistent at **265** (plan's 261 was stale); validators green; attribution grep clean in new artifacts (the 7 `adoption-spec-kit` matches are pre-existing internal plan-slug path references)
+- [x] Session history generated for Phase 2 (combined spec-kit history at close-out)
+- [x] Ready to advance to Phase 3
 
 ### Phase 3 Exit Checklist
 
