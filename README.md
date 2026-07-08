@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.11.0 -->
+<!-- nexus-hub-version: 3.11.1 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 265 skills, 16 commands, 25 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -37,7 +37,9 @@ The two projects are designed to be useful independently: you can install Nexus-
 
 ---
 
-## What's New in v3.11.0
+## What's New in v3.11.1
+
+v3.11.1 is an extension-only patch: the Claude Usage Monitor usage-warning notification is redesigned to a bar-free, self-dismissing toast with its recommendations stacked on separate lines (`$(arrow-swap)` switch model, `$(dashboard)` reduce effort, `$(watch)` reset time), echoing the dashboard's look within the native notification format (extension 0.5.5 -> 0.6.0). No catalog change; the v3.11.0 feature set below ships unchanged.
 
 v3.11.0 turns a set of implicit good practices into command-enforced workflow defaults across the catalog. It standardizes the per-version docs layout on a canonical `docs/v<MAJOR>/v<MAJOR>.<MINOR>/` scheme, adds project-bootstrap governance, makes every generated plan end with a mandatory architecture-refactor + known-gaps + CI/CD phase, hardens `/compare` and `/presentify`, verifies that every install actually surfaces the catalog on every platform, and migrates the Nexus-Hub repo itself to follow all of it. It also lands four reverse-engineer-first skill-pack adoptions (six new skills plus several skill-native enrichments). Catalog: **265 skills**, **16 commands**, **25 hooks**.
 

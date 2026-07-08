@@ -1,10 +1,10 @@
 import * as vscode from "vscode";
-import { UsageStore } from "./usageStore";
+import { UsageStore, formatResetLabel } from "./usageStore";
 import { StatusBarManager } from "./statusBarManager";
 import { UsageFetcher, FetchError } from "./usageFetcher";
 import { DashboardPanel } from "./dashboardPanel";
 import { SettingsPanel } from "./settingsPanel";
-import { getRecommendation, getActiveUrgency, pickTriggerMetric, buildUsageSuggestion } from "./recommendations";
+import { getRecommendation, getActiveUrgency, pickTriggerMetric, buildUsageSuggestion, UsageSuggestion } from "./recommendations";
 import { UrgencyLevel, UsageData, formatModelName, getThresholdConfig, getNotificationTimeoutMs, syncColorsToWorkbench, getColorConfig } from "./types";
 
 type NotificationSeverity = "info" | "warning";
@@ -29,6 +29,53 @@ function showAutoDismissNotification(message: string, _severity: NotificationSev
       cancellable: true,
     },
     async (_progress, token) => {
+      return new Promise<void>((resolve) => {
+        const timer = setTimeout(resolve, timeoutMs);
+        token.onCancellationRequested(() => {
+          clearTimeout(timer);
+          resolve();
+        });
+      });
+    }
+  );
+}
+
+/**
+ * Show the usage-threshold warning as a self-dismissing notification whose body
+ * mirrors the mockup's stacked layout. It stays a `withProgress` notification so
+ * it dismisses itself on the configured timeout and never stacks (the reason the
+ * toast never used showWarningMessage). Crucially it reports a MESSAGE ONLY and
+ * never an `increment`: an increment would fill the notification's progress bar
+ * (the visible bar we do not want), whereas reporting no increment keeps the toast
+ * bar-free, matching the original notification's look. The message carries the
+ * `$(warning)` header line plus the per-recommendation codicon rows - `$(arrow-swap)`
+ * switch model, `$(dashboard)` reduce effort, `$(watch)` reset time - on SEPARATE
+ * lines (joined with newlines) so they stack like the mockup. The recommendation
+ * text is model-aware, taken verbatim from the shared buildUsageSuggestion parts so
+ * the toast and the dashboard never drift (v0.6.0).
+ */
+function showUsageWarningToast(suggestion: UsageSuggestion): void {
+  const timeoutMs = getNotificationTimeoutMs();
+  const title = `$(warning) Claude Usage Warning: ${suggestion.label} ${suggestion.percent}%`;
+  const rows: string[] = [];
+  if (suggestion.switchModel) {
+    rows.push(`$(arrow-swap) Switch to ${suggestion.switchModel}`);
+  }
+  rows.push(`$(dashboard) ${suggestion.effortAdvice}`);
+  rows.push(`$(watch) ${formatResetLabel(suggestion.resetsIn)}`);
+  // Separate lines (newline-joined) so the recommendations stack like the mockup.
+  const detail = rows.join("\n");
+  void vscode.window.withProgress(
+    {
+      location: vscode.ProgressLocation.Notification,
+      title,
+      cancellable: true,
+    },
+    async (progress, token) => {
+      // Message only, never an increment: reporting an increment fills the
+      // progress bar; reporting none keeps the toast bar-free (as the original)
+      // while it self-dismisses on the timer or on cancel.
+      progress.report({ message: detail });
       return new Promise<void>((resolve) => {
         const timer = setTimeout(resolve, timeoutMs);
         token.onCancellationRequested(() => {
@@ -355,7 +402,7 @@ async function evaluateAndNotify(data: UsageData): Promise<boolean> {
   const t = getThresholdConfig();
   [t.critical, t.high, t.moderate].filter(thresh => trigger.percent >= thresh).forEach(thresh => notifiedThresholds.add(thresh));
 
-  showAutoDismissNotification(`Claude Usage Warning: ${suggestion.message}`, "warning");
+  showUsageWarningToast(suggestion);
   return true;
 }
 

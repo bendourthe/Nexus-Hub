@@ -91,6 +91,19 @@ export function pickTriggerMetric(data: UsageData): TriggerMetric {
 export interface UsageSuggestion {
   bucket: number;
   message: string;
+  /**
+   * Structured parts (v0.6.0), derived from the same logic as `message`, so the
+   * notification toast can render an icon-decorated view (title + per-recommendation
+   * codicon rows + a determinate usage bar) without re-deriving the advice. The
+   * dashboard keeps consuming `message`; both stay from one source so they never drift.
+   */
+  percent: number;
+  label: string;
+  resetsIn: string;
+  /** The model to switch down to ("Sonnet" / "Haiku"), or null when already at the lowest sensible tier. */
+  switchModel: string | null;
+  /** The effort-reduction advice, e.g. "Reduce Effort to High or Medium" / "Set Effort to Low". */
+  effortAdvice: string;
 }
 
 /**
@@ -124,6 +137,11 @@ export function buildUsageSuggestion(data: UsageData, trigger: TriggerMetric): U
       message: haiku
         ? `${trigger.label} usage at ${pct}% → Set Effort to Low to avoid hitting your limit ${resetClause}.`
         : `${trigger.label} usage at ${pct}% → Switch to Haiku and set Effort to Low to avoid hitting your limit ${resetClause}.`,
+      percent: pct,
+      label: trigger.label,
+      resetsIn: trigger.resetsIn,
+      switchModel: haiku ? null : "Haiku",
+      effortAdvice: "Set Effort to Low",
     };
   }
   if (trigger.percent >= t.high) {
@@ -132,6 +150,11 @@ export function buildUsageSuggestion(data: UsageData, trigger: TriggerMetric): U
       message: opus
         ? `${trigger.label} usage at ${pct}% → Switch to Sonnet and reduce Effort to High or Medium to prevent reaching your limit ${resetClause}.`
         : `${trigger.label} usage at ${pct}% → Reduce Effort to High or Medium to prevent reaching your limit ${resetClause}.`,
+      percent: pct,
+      label: trigger.label,
+      resetsIn: trigger.resetsIn,
+      switchModel: opus ? "Sonnet" : null,
+      effortAdvice: "Reduce Effort to High or Medium",
     };
   }
   return {
@@ -139,6 +162,11 @@ export function buildUsageSuggestion(data: UsageData, trigger: TriggerMetric): U
     message: opus
       ? `${trigger.label} usage at ${pct}% → Consider switching to Sonnet and reducing Effort to High or Medium to prevent reaching your limit ${resetClause}.`
       : `${trigger.label} usage at ${pct}% → Reduce Effort to High or Medium to extend your remaining usage ${resetClause}.`,
+    percent: pct,
+    label: trigger.label,
+    resetsIn: trigger.resetsIn,
+    switchModel: opus ? "Sonnet" : null,
+    effortAdvice: "Reduce Effort to High or Medium",
   };
 }
 
