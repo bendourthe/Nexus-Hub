@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: in-progress
-**Last updated**: 2026-07-07
+**Last updated**: 2026-07-08
 
 ## v3.11.0
 
@@ -10,10 +10,10 @@
 
 | Category | Open | Resolved |
 |---|---|---|
-| Not implemented (NI) | 6 | 0 |
+| Not implemented (NI) | 1 | 5 |
 | Deferred (DF) | 1 | 0 |
 | Bugs / regressions (BG) | 0 | 0 |
-| Warnings (WN) | 1 | 0 |
+| Warnings (WN) | 2 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
@@ -21,47 +21,12 @@
 
 #### Not Implemented
 
-##### NI-1 - Phase 7.2: Codex delivery fix
-
-- **Source phase**: Phase 7 - Cross-platform distribution robustness (sub-task 7.2)
-- **Plan reference**: `docs/v3/v3.11/plans/v3.11.0-workflow-governance-refinements.md` (7.2)
-- **Reason**: Session paused before the installer-mutating sub-tasks (user chose a fresh focused pass to avoid a half-applied two-language installer edit). 7.1 audit is complete and committed.
-- **Suggested next step**: In both installers + `codex.py`, conform the custom-prompts delivery to Codex's current contract (verify D1 first), keep skills surfacing via the `AGENTS.md` SKILL_INDEX, and document/align the never-installed `agents`/`rules` config (C5) rather than adding dead copies. See `docs/v3/v3.11/platform-read-contracts.md`.
-
-##### NI-2 - Phase 7.3: project-surface auto-seed + on-open hook (the reported Antigravity bug)
-
-- **Source phase**: Phase 7 (sub-task 7.3)
-- **Plan reference**: 7.3
-- **Reason**: Deferred with the rest of the installer mutations.
-- **Suggested next step**: When the installer / `nexus-hub upgrade` runs inside a git repo, also seed that repo's project surfaces (Antigravity `.agents/`, Cursor `.cursor/`, Claude stub) via `runner.py init` + a workspace install; install a fail-open, idempotent, opt-out (`NEXUS_HUB_NO_AUTOSEED=1`) on-open hook; make `nexus-hub init` prominent. User chose the "auto-seed + on-open hook" model.
-
-##### NI-3 - Phase 7.4: post-install per-platform verification (doctor uplift)
-
-- **Source phase**: Phase 7 (sub-task 7.4)
-- **Plan reference**: 7.4
-- **Reason**: Deferred with the installer mutations.
-- **Suggested next step**: Extend `runner.py` with a `verify` that asserts the 7.1-contracted read-paths per detected platform and prints PASS / NEEDS-ACTION with the remediation command; wire both installers to run it at the end of every install. This is the guardrail that reports C1-C7.
-
-##### NI-4 - Phase 7.5: cross-platform CI install-smoke
-
-- **Source phase**: Phase 7 (sub-task 7.5)
-- **Plan reference**: 7.5
-- **Reason**: Deferred with the installer mutations.
-- **Suggested next step**: Add an `install-smoke` job to `.github/workflows/ci.yml` (ubuntu/macos/windows) that installs into a throwaway HOME and asserts every platform's read-path is populated + correctly shaped; gate the macOS/Windows legs to merges/schedule.
-
 ##### NI-5 - Phase 8: full repo dogfood migration + v3.11.0 bump
 
 - **Source phase**: Phase 8 - Nexus-Hub self-application
-- **Plan reference**: Phase 8 (8.1-8.6)
+- **Plan reference**: `docs/v3/v3.11/plans/v3.11.0-workflow-governance-refinements.md` (Phase 8, 8.1-8.6)
 - **Reason**: Terminal phase, not yet reached. The user explicitly required that the entire repo be migrated to the canonical docs-layout scheme at the end of the plan.
-- **Suggested next step**: Migrate every `docs/v3.x.y/` (and the currently-untracked `docs/v3.11.0/`, incl. the stray `comparison-t3mp3st.md` / `plans/adoption-t3mp3st.md`) into `docs/v3/v3.x/` with link repair; normalize `docs/archive/`; run the upgraded `project-refactor` cleanup; optimize CI/CD; update registries + base-template parity; bump to v3.11.0 via `check_version_sync.py`; then `/update release`. The `/update refactor` whole-docs-tree migration (generalized to any repo in this session) is the mechanism.
-
-##### NI-6 - Phase 7 secondary distribution defects (fix-all scope)
-
-- **Source phase**: Phase 7 (7.1 audit findings; user chose "fix all")
-- **Plan reference**: `docs/v3/v3.11/platform-read-contracts.md` (Defects C1-C7)
-- **Reason**: Surfaced by the 7.1 audit beyond the plan's Codex+Antigravity scope; deferred with the installer mutations.
-- **Suggested next step**: Fix C1/C2 (Gemini bash/PS parity + agents/rules mirror - switch `gemini` to a full registry mirror by dropping `--instruction-only` and remove the PS hardcoded copies); C3 (Antigravity 1.0 unreachable - retire the dead registration or wire it, a maintainer call); C6/C7 (Copilot - render the instruction body via the registry so it carries the SKILL_INDEX, and fix the stale spec). All in both installers in lockstep.
+- **Suggested next step**: Migrate every `docs/v3.x.y/` (and the currently-untracked `docs/v3.11.0/`, incl. the stray `comparison-t3mp3st.md` / `plans/adoption-t3mp3st.md`) into `docs/v3/v3.x/` with link repair; normalize `docs/archive/`; run the upgraded `project-refactor` cleanup; apply the CI optimizations already partly landed in 7.5 (concurrency) to the remaining jobs (path filters, caching, gated matrix); update registries + base-template parity; bump to v3.11.0 via `check_version_sync.py`; then `/update release`. The `/update refactor` whole-docs-tree migration (generalized to any repo this cycle) is the mechanism.
 
 #### Deferred
 
@@ -69,8 +34,8 @@
 
 - **Source phase**: Phase 7 (7.1 audit, residual gaps D1-D7)
 - **Plan reference**: `docs/v3/v3.11/platform-read-contracts.md` (Residual live-verification gaps)
-- **Reason**: These contracts depend on the current external platform's behavior and cannot be confirmed from the repo alone.
-- **Suggested next step**: Run a live probe per platform: Codex prompt read path + format (D1) and skills discovery (D2); Antigravity 2.0 root-vs-`.agents/` instruction file (D3), exact global subpath (D4), `subagents`/`rules` consumption (D5), `.agents` vs `.agent` (D6); Cursor/Copilot global slash surfaces (D7). Feed results back into 7.2-7.4.
+- **Reason**: These contracts depend on the current external platform's behavior and cannot be confirmed from the repo alone. The 7.4 `verify` and 7.5 CI smoke now REPORT/CATCH the resulting surfacing gaps, but the underlying external contracts still want a live probe.
+- **Suggested next step**: Live-probe per platform: Codex prompt read path + format (D1) and skills discovery (D2); Antigravity 2.0 root-vs-`.agents/` instruction file (D3), exact global subpath (D4), `subagents`/`rules` consumption (D5), `.agents` vs `.agent` (D6); Cursor/Copilot global slash surfaces (D7); and whether `nexus-hub init` (the launcher) passes the `init` subcommand through (the on-open hook calls it fail-open). Feed results back into codex.py / antigravity.py.
 
 #### Warnings
 
@@ -78,11 +43,22 @@
 
 - **Source phase**: Phases 1-7 (verification)
 - **Plan reference**: N/A (environment)
-- **Reason**: `make` is unavailable on the Windows dev host, and the final `make validate` step (`cd extensions/nexus-context-compressor && python -m evals --check`) lives in an extension with its own environment; it is untouched by v3.11.0's changes but was not executed here.
+- **Reason**: `make` is unavailable on the Windows dev host, and the final `make validate` step (`cd extensions/nexus-context-compressor && python -m evals --check`) lives in an extension with its own environment; it is untouched by v3.11.0 but was not executed here.
 - **Suggested next step**: Run the full `make validate` (including the compression accuracy-regression gate) in an environment with the extension deps before the v3.11.0 release (Phase 8 / `/update release`).
+
+##### WN-2 - Windows MAX_PATH risk when seeding Antigravity `.agents/skills/` into a deep target
+
+- **Source phase**: Phase 7 (7.3 auto-seed / 7.4 verify smoke)
+- **Plan reference**: 7.3
+- **Reason**: The Antigravity `.agents/skills/<name>/references/examples/...` flattened copy can exceed the Windows 260-char MAX_PATH when the target repo lives at a very deep path (observed with the OneDrive + deep-temp scratch dir during the 7.3 smoke; `shutil.copytree` raised WinError 3). A normal-depth repo is well under the limit.
+- **Suggested next step**: Consider enabling Windows long-path support in the copytree (prefix `\\?\`) or shortening the deepest bundled skill paths; low severity - most repos are far under 260 chars, and the auto-seed is fail-open.
 
 ## Resolved
 
 | ID | Title | Resolved in | Notes |
 |---|---|---|---|
-| (none yet) | | | Phases 1-6 + 7.1 shipped clean; no in-version gaps opened by them. |
+| NI-1 | Phase 7.2 Codex delivery fix | Phase 7.2 (commit 3d18564) | codex.py documents that Codex surfaces via AGENTS.md SKILL_INDEX + prompts; agents/rules intentionally not created (no dead dirs). Prompt read-path live probe remains under DF-1. |
+| NI-2 | Phase 7.3 project auto-seed + on-open hook (the reported bug) | Phase 7.3 (commit 61a405f) | Global install from inside a repo seeds .agents/{workflows,skills,rules} + Cursor + Claude stub; opt-in on-open hook shipped; smoke-verified. |
+| NI-3 | Phase 7.4 post-install doctor/verify | Phase 7.4 (commit 2ed4646) | `runner.py verify` reports PASS / NEEDS-ACTION per platform; wired into both installers; 4 unit tests. Caught the Antigravity project-surface gap on the dev machine. |
+| NI-4 | Phase 7.5 cross-platform CI install-smoke | Phase 7.5 (commit 1959688) | `install-smoke` job (ubuntu + gated macOS/Windows) asserts read-paths + auto-seed; workflow concurrency added. |
+| NI-6 | Phase 7 secondary distribution defects (C1/C2/C3/C6/C7) | Phase 7 (commits 3d18564, 2b545d5) | Gemini full-mirror parity (C1/C2); Codex config alignment (C5); Copilot SKILL_INDEX via registry (C6) + spec fix (C7); Antigravity 1.0 deprecation documented (C3). |
