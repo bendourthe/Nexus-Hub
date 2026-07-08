@@ -21,12 +21,17 @@
 
 #### Not Implemented
 
-##### NI-5 - Phase 8: full repo dogfood migration + v3.11.0 bump
+##### NI-5 - Phase 8 remainder: archive normalization + cleanup + CI opt + v3.11.0 release
 
 - **Source phase**: Phase 8 - Nexus-Hub self-application
-- **Plan reference**: `docs/v3/v3.11/plans/v3.11.0-workflow-governance-refinements.md` (Phase 8, 8.1-8.6)
-- **Reason**: Terminal phase, not yet reached. The user explicitly required that the entire repo be migrated to the canonical docs-layout scheme at the end of the plan.
-- **Suggested next step**: Migrate every `docs/v3.x.y/` (and the currently-untracked `docs/v3/v3.11/`, incl. the stray `comparison-t3mp3st.md` / `plans/adoption-t3mp3st.md`) into `docs/v3/v3.x/` with link repair; normalize `docs/archive/`; run the upgraded `project-refactor` cleanup; apply the CI optimizations already partly landed in 7.5 (concurrency) to the remaining jobs (path filters, caching, gated matrix); update registries + base-template parity; bump to v3.11.0 via `check_version_sync.py`; then `/update release`. The `/update refactor` whole-docs-tree migration (generalized to any repo this cycle) is the mechanism.
+- **Plan reference**: `docs/v3/v3.11/plans/v3.11.0-workflow-governance-refinements.md` (Phase 8, 8.2-8.6)
+- **Reason**: 8.1 is DONE (commit d1b49a0): the 12 active `docs/v3.X.Y/` dirs are migrated to `docs/v3/v3.X/` with comparisons under `comparisons/` (release-prefixed), 493 references repaired across 128 files, only CHANGELOG.md retaining legacy paths (intentional). The stray t3mp3st files were swept in. 8.2-8.6 remain, culminating in an outward-facing release - deliberately left for a focused, gated pass.
+- **Suggested next step**:
+    - **8.2 archive normalization** (higher-risk than 8.1): `docs/archive/v0|v1|v2/` are still three-level full-semver. v0 collapses 11 patches into 2 minors (v0.8.1/.2/.5/.7/.8/.9 -> v0/v0.8; v0.9.2/.4/.5/.6/.7 -> v0/v0.9), so merging COLLIDES on per-version files (known-gaps.md, docs-cleanup-report.md) - suffix colliding filenames with `-<source-version>` per the docs-layout-refactor archive convention. v1 (v1.0/v1.1/v1.3) and v2 (v2.0..v2.4) are distinct minors, no collisions. Repair archive references after.
+    - **8.3**: run the upgraded `project-refactor` cleanliness detectors on the repo (empty dirs left by the migration, orphans, dupes).
+    - **8.4**: finish CI optimization (concurrency landed in 7.5; add `cache: 'pip'` to setup-python jobs, docs-only `paths-ignore`, and gate the bootstrap macOS/Windows legs already partly gated).
+    - **8.5**: bump to v3.11.0 atomically via `scripts/check_version_sync.py` across plugin.json / installer.sh / installer.ps1 / marketplace.json / CHANGELOG / README / AGENTS.md; add the `## [3.11.0]` CHANGELOG entry; regenerate `MANIFEST.sha256`; run `make build-catalog` if needed.
+    - **8.6**: hand off to `/update release` (docs -> devlog -> gitignore -> version -> changelog -> refactor -> known-gaps -> CI/CD -> manifest, then commit/tag/push/GitHub-Release) with its confirmation gates. NEVER auto-tag or push. Also run the full `make validate` (incl. the WN-1 compression eval) in an env with the extension deps first.
 
 #### Deferred
 
