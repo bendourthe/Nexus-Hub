@@ -322,12 +322,12 @@ The "Rec. model / effort" column is a best-effort planning-time assessment recor
 
 ### Phase 4 Exit Checklist
 
-- [ ] All sub-tasks completed (4.1-4.2)
-- [ ] `validate_source` refuses host-less `https` URLs; regression tests pass; no other behavior change
-- [ ] All `.github/workflows/` `uses:` lines SHA-pinned with tag comments; Dependabot covers github-actions
-- [ ] Full test suite green; `make lint` clean; CHANGELOG entries present
-- [ ] Session history generated for Phase 4
-- [ ] Ready to advance to Phase 5
+- [x] All sub-tasks completed (4.1-4.2)
+- [x] `validate_https_source` refuses host-less `https` URLs; regression tests pass (45 in the module); no other behavior change
+- [x] All `.github/workflows/` `uses:` lines SHA-pinned with tag comments (real SHAs resolved via `gh api`, not guessed); Dependabot already covers github-actions
+- [x] import-gate regression tests green; workflow-security validator PASS + YAML parses; full suite defers to CI (Linux) for the subprocess-heavy trees; CHANGELOG folded into the Phase 6.2 consolidated entry
+- [x] Session history generated for Phase 4 (combined spec-kit history at close-out)
+- [x] Ready to advance to Phase 5
 
 ### Phase 5 Exit Checklist
 
