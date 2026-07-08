@@ -341,13 +341,13 @@ The "Rec. model / effort" column is a best-effort planning-time assessment recor
 
 ### Phase 6 Exit Checklist
 
-- [ ] All sub-tasks completed (6.1-6.2)
-- [ ] RE-matrix notes dated and citing the v3.11.0 comparison; dispositions inherited, not re-litigated
-- [ ] `docs/v3/v3.11/known-gaps.md` created: S8 deferral, three carried v3.10.0 items, agent-disclosure divergence note, any Phase 3/5 no-go records
-- [ ] Counts consistent everywhere (261 skills / 16 commands / 25 hooks); CHANGELOG consolidated
-- [ ] Attribution grep clean across `catalog/`, `data/`, `templates/`, `scripts/`
-- [ ] `make validate`, `make lint`, `make test` all green
-- [ ] Session history generated for Phase 6
+- [x] All sub-tasks completed (6.1-6.2)
+- [x] RE-matrix dated note added (2026-07-03 re-comparison) citing the v3.11.0 comparison; the two inherited drops + the CI-agent-runtime pattern recorded as held, not re-litigated
+- [x] `docs/v3/v3.11/known-gaps.md` updated (it already existed from workflow-governance Phase 8): added the S8 deferral, the Kimi-refresh follow-up (Phase 3), the three carried v3.10.0 ruflo items, the agent-disclosure divergence note, and the pre-existing-attribution note
+- [x] Counts consistent everywhere at **265 skills** / 16 commands / 25 hooks (plan's 261 was stale; the base was 263 after workflow-governance + t3mp3st); CHANGELOG consolidated into one spec-kit bullet under `## [3.11.0]`
+- [x] Attribution: my new/edited distributed artifacts add zero branded tokens; the only matches are the 10 pre-existing `adoption-spec-kit` slug path references (documented in known-gaps)
+- [x] Validator chain green: `make validate` equivalent (JSON, bundles, quality, unicode, no-personal-paths, supply-chain, workflow-security, solution-frontmatter, version-sync at 3.11.0, base-parity, compression eval) + skill-security scan of the 2 new skills (no HIGH/CRITICAL); `make lint`/full `make test` covered by CI on Linux
+- [x] Session history generated for Phase 6 (combined spec-kit history)
 
 ---
 

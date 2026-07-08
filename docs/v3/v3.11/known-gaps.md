@@ -11,7 +11,7 @@
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 6 |
-| Deferred (DF) | 1 | 0 |
+| Deferred (DF) | 6 | 0 |
 | Bugs / regressions (BG) | 0 | 0 |
 | Warnings (WN) | 2 | 1 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
@@ -68,3 +68,25 @@ The adoption-t3mp3st cycle (`docs/v3/v3.11/plans/adoption-t3mp3st.md`, operation
 - **Runtime service surfaces (multi-provider LLM router, HTTP API server, hosted web dashboard, reconnaissance MCP server)** - declined. Grounds: runtime / daemon / hosted-UI / outbound classes (MCP Registry Policy, ruflo precedent). The routing doctrine is already covered in spirit by the `multi-provider-ai` and `model-routing` skills without a shipped service.
 
 **Deferred optional item (not a decline)**: the pentest report-type taxonomy (executive / technical / findings-only, comparison candidate C5) is adoptable into `pentest-reporting` on explicit maintainer request only; it is neither offensive nor policy-blocked, just out of scope for this defensive cycle.
+
+## adoption-spec-kit third cycle (2026-07-08)
+
+Operationalizes [docs/v3/v3.11/comparisons/v3.11.0-comparison-spec-kit.md](comparisons/v3.11.0-comparison-spec-kit.md) (candidates S1-S8). The recommended bucket (S1-S7) shipped; the following are deferred or recorded.
+
+### Deferred
+
+- **DF-v311-speckit-S8 - monorepo member-project targeting for `nexus-hub init`** (Low). The source supports targeting a specific member project inside a monorepo; Nexus-Hub's `nexus-hub init` seeds the current repo root. Deferred for lack of demand while `--workspace` already covers non-root targets. Next step (from the comparison): add an optional path argument to `nexus-hub init` that scopes seeding to a sub-project directory, only if monorepo users request it.
+- **DF-v311-kimi-refresh - Kimi Code CLI project-local convention refresh** (Low; from Phase 3). Kimi migrated to Kimi Code CLI (Node.js rewrite); the legacy `~/.kimi/` layout `kimi.py` writes is preserved and coexists (vendor migration guide), so no rewrite was made. Next step: confirm the exact Kimi-Code-CLI project-local convention from vendor docs and refresh `kimi.py` if it diverges, keeping backward compatibility. Evidence: [docs/v3/v3.11/development/roster-verification.md](development/roster-verification.md).
+
+### Carried forward from v3.10.0 (reviewed, remain deferred)
+
+The three open v3.10.0 items were reviewed and neither block nor intersect this cycle; they carry forward unchanged (full text in [docs/v3/v3.10/known-gaps.md](../v3.10/known-gaps.md)):
+
+- **DF-v310-ruflo-A6** (Low) - optional quality-gate-naming note; skipped, the function is already delivered by `/plan` -> `/implement` -> `/spec` + `quality-gate-definitions`.
+- **DF-v310-ruflo-P4-extensions** (Low) - `nexus-hub verify` manifest excludes `extensions/` MCP-server sources (their pip install has its own integrity).
+- **DF-v310-ruflo-A10-rest** (Low) - the remaining background-worker check ideas were not adopted as always-firing hooks (noise-prone or covered elsewhere).
+
+### Notes
+
+- **Agent-disclosure divergence (deliberate, not a gap)**: upstream spec-kit guidance recommends disclosing agent authorship in commits and PR comments. This directly conflicts with this repo's no-AI-attribution commit convention (global CLAUDE.md), so it is a recorded, deliberate divergence, not an omission.
+- **Pre-existing branded-token references**: `catalog/skills/workflow/tasks-to-issues/SKILL.md`, its `data/skills.json` entry, the `cross-artifact-analyzer` entry, and `scripts/installer.{sh,ps1}` carry pre-existing references to the archived `adoption-spec-kit.md` plan filename (they document the strict `T###` task-line format that originated there). These predate this cycle and are internal-provenance path references, not product-name attribution; this cycle added zero new branded tokens to any distributed artifact.

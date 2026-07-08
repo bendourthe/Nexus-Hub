@@ -232,6 +232,18 @@ This row records the optical / image-token context-compression proxy mechanism t
 
 ---
 
+## 2026-07-03 third-cycle re-comparison (dispositions held)
+
+The 2026-07-03 re-comparison ([docs/v3/v3.11/comparisons/v3.11.0-comparison-spec-kit.md](../v3/v3.11/comparisons/v3.11.0-comparison-spec-kit.md)) re-encountered the previously-declined surfaces in expanded form, and every disposition held under the MCP Registry Policy:
+
+- **Community-installable workflow step catalog** - inherits the third-party-extension-install `drop-outright` above (same code-distribution-channel character; the capability is already met by the scanned local skill catalog + `/skills import` hardening).
+- **Bundle remote-catalog fetch + trust-indicator machinery** - inherits the remote-catalog / plaintext-PAT-auth `drop-outright` above (remote credentialed catalog fetch is N/A for a local-first catalog that ships in the repo).
+- **CI agent runtime (gh-aw-style)** - recorded as a non-shipped pattern; Nexus-Hub ships the label-gated pipeline as instructions only (`label-gated-agent-pipelines` skill), never a runtime or workflow file.
+
+No new MCP, runtime, credential, or outbound surface was added in the v3.11.0 spec-kit cycle; the adopted items are skill-native or local `re-full` builds over owned artifacts.
+
+---
+
 ## How to Add a New Row
 
 1. Walk the [decision tree](../../AGENTS.md#decision-tree-stop-at-the-first-bucket-that-fits) in `AGENTS.md` and pick the highest-precedence bucket that applies.
