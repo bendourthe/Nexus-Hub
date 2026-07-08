@@ -1,5 +1,13 @@
 # Development Log
 
+## [2026-07-08] - v3.11.1 (prepared): Claude Usage Monitor warning-toast redesign
+
+Prepared an extension-only patch (Claude Usage Monitor 0.5.5 -> 0.6.0) redesigning the usage-threshold warning notification to echo the dashboard's richer look while deliberately staying an auto-dismissing toast. The user supplied a mockup of a full modal-style card (warning header, a 52% usage ring, icon rows for switch-model / reduce-effort / reset, a Cancel button). VS Code extensions cannot render a custom floating modal - the rich card is only achievable as a webview (editor tab / sidebar), which the user declined in favor of keeping the non-intrusive toast. So the work maps the mockup onto what a native notification CAN render: codicons and a progress bar.
+
+Implementation: `buildUsageSuggestion` (recommendations.ts) gained structured fields (`percent`, `label`, `resetsIn`, `switchModel`, `effortAdvice`) derived from the same model-aware logic as the existing prose `message`, so the toast can compose an icon view without re-deriving advice and without drifting from the dashboard (which keeps using `message`). A new `showUsageWarningToast` (extension.ts) renders the warning via `withProgress`: a `$(warning)` title with the metric + percent, a single `progress.report({ increment: percent })` to make the built-in bar determinate and fill it to the usage percent (the closest native analog to the ring), and a detail line of `$(arrow-swap)` / `$(dashboard)` / `$(watch)` codicon rows for switch-model / reduce-effort / reset-time. It stays a `withProgress` toast so it self-dismisses on the configured timeout and never stacks (the reason the toast never used `showWarningMessage`).
+
+Verification so far: `tsc -p ./` clean and `vsce package` produced `claude-usage-monitor-0.6.0.vsix` (27 files). The codicon and determinate-bar rendering are standard VS Code notification behaviors but were NOT exercised in the build environment; the vsix is staged for a manual install + visual confirm before the v3.11.1 release cuts (the repo version bump and CHANGELOG promotion are deferred to that release). No catalog change; no new outbound call, dependency, or credential.
+
 ## [2026-07-08] - v3.11.0: workflow-governance refinements + four skill-pack adoptions
 
 Shipped v3.11.0, a feature release that turns implicit good practices into command-enforced workflow defaults and bundles four reverse-engineer-first skill-pack adoptions. Catalog grows to skills / commands / hooks / agents = 265 / 16 / 25 / 23 (six new skills this cycle). No `base-*.md` lockstep change was needed: the release is command + skill behavior, not always-loaded instruction text.

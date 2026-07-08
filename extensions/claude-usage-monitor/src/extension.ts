@@ -1,10 +1,10 @@
 import * as vscode from "vscode";
-import { UsageStore } from "./usageStore";
+import { UsageStore, formatResetLabel } from "./usageStore";
 import { StatusBarManager } from "./statusBarManager";
 import { UsageFetcher, FetchError } from "./usageFetcher";
 import { DashboardPanel } from "./dashboardPanel";
 import { SettingsPanel } from "./settingsPanel";
-import { getRecommendation, getActiveUrgency, pickTriggerMetric, buildUsageSuggestion } from "./recommendations";
+import { getRecommendation, getActiveUrgency, pickTriggerMetric, buildUsageSuggestion, UsageSuggestion } from "./recommendations";
 import { UrgencyLevel, UsageData, formatModelName, getThresholdConfig, getNotificationTimeoutMs, syncColorsToWorkbench, getColorConfig } from "./types";
 
 type NotificationSeverity = "info" | "warning";
@@ -29,6 +29,51 @@ function showAutoDismissNotification(message: string, _severity: NotificationSev
       cancellable: true,
     },
     async (_progress, token) => {
+      return new Promise<void>((resolve) => {
+        const timer = setTimeout(resolve, timeoutMs);
+        token.onCancellationRequested(() => {
+          clearTimeout(timer);
+          resolve();
+        });
+      });
+    }
+  );
+}
+
+/**
+ * Show the usage-threshold warning as a rich, still-auto-dismissing notification.
+ * VS Code notifications cannot render a custom modal, but they DO render codicons
+ * and a progress bar, so this maps the mockup onto the native toast: a `$(warning)`
+ * title carrying the metric + percent; a determinate progress bar filled to the
+ * usage percent (the notification's built-in bar - the closest native analog to a
+ * usage ring); and a detail line of per-recommendation codicon rows - `$(arrow-swap)`
+ * switch model, `$(dashboard)` reduce effort, `$(watch)` reset time. It stays a
+ * `withProgress` notification so it self-dismisses on the configured timeout and
+ * never stacks (the reason the toast uses withProgress rather than showWarningMessage).
+ * The recommendation text is model-aware, taken verbatim from the shared
+ * buildUsageSuggestion parts so the toast and the dashboard never drift (v0.6.0).
+ */
+function showUsageWarningToast(suggestion: UsageSuggestion): void {
+  const timeoutMs = getNotificationTimeoutMs();
+  const title = `$(warning) Claude Usage Warning: ${suggestion.label} ${suggestion.percent}%`;
+  const rows: string[] = [];
+  if (suggestion.switchModel) {
+    rows.push(`$(arrow-swap) Switch to ${suggestion.switchModel}`);
+  }
+  rows.push(`$(dashboard) ${suggestion.effortAdvice}`);
+  rows.push(`$(watch) ${formatResetLabel(suggestion.resetsIn)}`);
+  const detail = rows.join(" | ");
+  const fill = Math.max(0, Math.min(100, Math.round(suggestion.percent)));
+  void vscode.window.withProgress(
+    {
+      location: vscode.ProgressLocation.Notification,
+      title,
+      cancellable: true,
+    },
+    async (progress, token) => {
+      // A single increment renders the bar determinate at the usage percent; it
+      // then holds while the auto-dismiss timer runs (or the user clicks cancel).
+      progress.report({ increment: fill, message: detail });
       return new Promise<void>((resolve) => {
         const timer = setTimeout(resolve, timeoutMs);
         token.onCancellationRequested(() => {
@@ -355,7 +400,7 @@ async function evaluateAndNotify(data: UsageData): Promise<boolean> {
   const t = getThresholdConfig();
   [t.critical, t.high, t.moderate].filter(thresh => trigger.percent >= thresh).forEach(thresh => notifiedThresholds.add(thresh));
 
-  showAutoDismissNotification(`Claude Usage Warning: ${suggestion.message}`, "warning");
+  showUsageWarningToast(suggestion);
   return true;
 }
 
