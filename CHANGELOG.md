@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Claude Usage Monitor: usage-warning webview** (`extensions/claude-usage-monitor/src/warningPanel.ts`, `src/extension.ts`): the usage-threshold warning is now a webview panel - a rich card with a warning header, a circular usage ring, per-recommendation icon rows (switch model, reduce effort), and a reset box - instead of a notification toast. VS Code notifications render `$(...)` codicons literally and collapse newlines, so the mockup's icons and stacked rows are only achievable in a webview; the v3.11.1 notification-toast approach is superseded. The panel opens beside the editor when a usage threshold is crossed (a single panel reused across crossings, deduped once per threshold bucket per session) and does not auto-dismiss - a deliberate trade for the richer layout. Model-aware recommendations still come from the shared `buildUsageSuggestion` structured parts so the panel and the dashboard agree. Extension 0.6.0 -> 0.6.1; no catalog change (265 skills, 16 commands, 25 hooks); no new outbound call, dependency, or credential.
+
 ## [3.11.1] - 2026-07-08
 
 **v3.11.1 -- Claude Usage Monitor warning-toast redesign.** Extension-only patch (Claude Usage Monitor 0.5.5 -> 0.6.0): the usage-threshold warning notification is redesigned to a bar-free, self-dismissing toast with its recommendations stacked on separate lines, echoing the dashboard's look within the native notification format. No catalog change: **265 skills**, **16 commands**, **25 hooks**.
