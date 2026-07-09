@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.11.3] - 2026-07-09
+
+**v3.11.3 -- Claude Usage Monitor warning dismiss button relabeled.** Extension-only patch (Claude Usage Monitor 0.6.1 -> 0.6.2): the usage-warning sidebar view's primary dismiss button now reads "OK" instead of "Cancel", since it acknowledges and closes the warning rather than cancelling an action. No catalog change: **265 skills**, **16 commands**, **25 hooks**.
+
+### Changed
+
+- **Claude Usage Monitor: warning dismiss button relabeled "Cancel" -> "OK"** (`extensions/claude-usage-monitor/src/warningView.ts`): the primary button in the usage-warning sidebar view now reads "OK" rather than "Cancel", since it dismisses/acknowledges the warning rather than cancelling an action; the dismiss wiring (the `cancel` message command) and the header close control are unchanged. Extension 0.6.1 -> 0.6.2; no catalog change (265 skills, 16 commands, 25 hooks); no new outbound call, dependency, or credential.
+
 ## [3.11.2] - 2026-07-09
 
 **v3.11.2 -- Claude Usage Monitor usage-warning sidebar view.** Extension-only patch (Claude Usage Monitor 0.6.0 -> 0.6.1): the usage-threshold warning is now a compact WebviewView in a dedicated narrow activity-bar container instead of a notification toast or a full editor tab, reveals automatically and promptly when a threshold is crossed (adaptive polling near thresholds), dismisses cleanly, and no longer steals an editor column. No catalog change: **265 skills**, **16 commands**, **25 hooks**.

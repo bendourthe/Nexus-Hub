@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.11.2 -->
+<!-- nexus-hub-version: 3.11.3 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 265 skills, 16 commands, 25 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -37,9 +37,9 @@ The two projects are designed to be useful independently: you can install Nexus-
 
 ---
 
-## What's New in v3.11.2
+## What's New in v3.11.3
 
-v3.11.2 is an extension-only patch: the Claude Usage Monitor usage-warning is now a compact WebviewView in its own narrow activity-bar container, rather than a notification toast or a full editor tab, so it no longer steals an editor column. It reveals automatically when a usage threshold is crossed - polling tightens to about once a minute as usage nears a threshold, so the warning is timely instead of up to a full refresh interval late - and Cancel dismisses it cleanly (view and container hide). Extension 0.6.0 -> 0.6.1. No catalog change; the v3.11.0 feature set below ships unchanged.
+v3.11.3 is an extension-only patch: it relabels the Claude Usage Monitor usage-warning's primary dismiss button from "Cancel" to "OK", which reads correctly as acknowledging and closing the warning. The warning itself (added in v3.11.2) is a compact WebviewView in its own narrow activity-bar container that reveals automatically when a usage threshold is crossed - polling tightens to about once a minute as usage nears a threshold, so the warning is timely - and dismisses cleanly, rather than a notification toast or a full editor tab. Extension 0.6.1 -> 0.6.2. No catalog change; the v3.11.0 feature set below ships unchanged.
 
 v3.11.0 turns a set of implicit good practices into command-enforced workflow defaults across the catalog. It standardizes the per-version docs layout on a canonical `docs/v<MAJOR>/v<MAJOR>.<MINOR>/` scheme, adds project-bootstrap governance, makes every generated plan end with a mandatory architecture-refactor + known-gaps + CI/CD phase, hardens `/compare` and `/presentify`, verifies that every install actually surfaces the catalog on every platform, and migrates the Nexus-Hub repo itself to follow all of it. It also lands four reverse-engineer-first skill-pack adoptions (six new skills plus several skill-native enrichments). Catalog: **265 skills**, **16 commands**, **25 hooks**.
 
