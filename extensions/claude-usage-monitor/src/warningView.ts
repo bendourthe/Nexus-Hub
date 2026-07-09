@@ -156,7 +156,7 @@ export class WarningViewProvider implements vscode.WebviewViewProvider {
           <span class="source">${ICON.chart}<span>Source: Claude Usage Monitor</span></span>
           <div class="footer-actions">
             <button class="secondary" data-command="openDashboard">Open Dashboard</button>
-            <button class="primary" data-command="cancel">Cancel</button>
+            <button class="primary" data-command="cancel">OK</button>
           </div>
         </div>
       </div>
