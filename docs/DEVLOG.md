@@ -1,5 +1,9 @@
 # Development Log
 
+## [2026-07-09] - v3.11.3: Claude Usage Monitor warning dismiss button relabeled
+
+Shipped a follow-up extension-only patch (Claude Usage Monitor 0.6.1 -> 0.6.2) on user request: the usage-warning sidebar view's primary button now reads "OK" instead of "Cancel". "Cancel" implied undoing an action, whereas the button only acknowledges and dismisses the warning, so "OK" is the correct affordance. Only the visible label changed - the `data-command="cancel"` dismiss wiring (which flips the `claudeUsage.warningActive` context key to hide the view and its container icon) and the header close control are unchanged. `tsc -p ./` clean; vsix packaged and installed at 0.6.2 (the throwaway 0.6.3 test build was uninstalled first so VS Code loads 0.6.2). Release surfaces bumped atomically 3.11.2 -> 3.11.3 (`check_version_sync.py` clean) and the supply-chain manifest regenerated. No catalog change (265 skills, 16 commands, 25 hooks); no new outbound call, dependency, or credential.
+
 ## [2026-07-09] - v3.11.2: Claude Usage Monitor usage-warning sidebar view
 
 Shipped an extension-only patch (Claude Usage Monitor 0.6.0 -> 0.6.1). The usage-threshold warning, prepared for this release as an editor-tab webview panel (`src/warningPanel.ts`), was moved to a compact WebviewView in a dedicated narrow activity-bar container after the panel stole roughly half an editor column. This supersedes both the never-released editor-tab panel and the v3.11.1 notification toast. The move is what actually gives width control: an extension cannot resize an editor group, but it fully controls its own view container (a narrow, user-resizable sidebar).
