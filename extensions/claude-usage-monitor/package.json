@@ -62,6 +62,25 @@
         }
       }
     },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "claudeUsageWarning",
+          "title": "Claude Usage Warning",
+          "icon": "icons/warning.svg"
+        }
+      ]
+    },
+    "views": {
+      "claudeUsageWarning": [
+        {
+          "id": "claudeUsageWarningView",
+          "name": "Usage Warning",
+          "type": "webview",
+          "when": "claudeUsage.warningActive"
+        }
+      ]
+    },
     "configuration": {
       "title": "Claude Usage Monitor",
       "properties": {

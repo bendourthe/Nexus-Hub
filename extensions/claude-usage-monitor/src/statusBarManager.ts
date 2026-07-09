@@ -1,14 +1,22 @@
 import * as vscode from "vscode";
-import { UsageData, UrgencyLevel, ColorConfig, getColorConfig, WORKBENCH_COLOR_KEYS, syncActiveColorToWorkbench } from "./types";
-import { getActiveUrgency } from "./recommendations";
+import { UsageData, UrgencyLevel, ColorConfig, getColorConfig, getThresholdConfig, WORKBENCH_COLOR_KEYS, syncActiveColorToWorkbench } from "./types";
+import { getActiveUrgency, pickTriggerMetric } from "./recommendations";
 import { UsageStore, formatResetLabel, nextMonthlyResetLabel } from "./usageStore";
+
+// When the active metric is within this many percentage points below the
+// moderate threshold (or already at/above it), the poll cadence drops to
+// NEAR_THRESHOLD_INTERVAL_MS so a threshold crossing surfaces the warning
+// within ~a minute rather than up to a full refresh interval later.
+const NEAR_MODERATE_BAND = 10;
+const NEAR_THRESHOLD_INTERVAL_MS = 60_000;
 
 export class StatusBarManager {
   private readonly statusBarItem: vscode.StatusBarItem;
   private readonly gearItem: vscode.StatusBarItem;
-  private autoRefreshTimer: ReturnType<typeof setInterval> | undefined;
+  private autoRefreshTimer: ReturnType<typeof setTimeout> | undefined;
+  private autoRefreshEnabled = false;
   private displayTickTimer: ReturnType<typeof setInterval> | undefined;
-  private onAutoRefresh: (() => void) | undefined;
+  private onAutoRefresh: (() => void | Promise<void>) | undefined;
   private onResetExpired: (() => void) | undefined;
   private backoffMultiplier = 1;
 
@@ -34,7 +42,7 @@ export class StatusBarManager {
     this.gearItem.name = "Claude Usage Settings";
   }
 
-  setAutoRefreshCallback(callback: () => void): void {
+  setAutoRefreshCallback(callback: () => void | Promise<void>): void {
     this.onAutoRefresh = callback;
   }
 
@@ -46,7 +54,7 @@ export class StatusBarManager {
     this.refresh();
     this.statusBarItem.show();
     this.gearItem.show();
-    this.startAutoRefreshTimer();
+    this.scheduleAutoRefresh();
     this.startDisplayTick();
   }
 
@@ -69,13 +77,13 @@ export class StatusBarManager {
 
   applyBackoff(): void {
     this.backoffMultiplier = Math.min(this.backoffMultiplier * 2, 4);
-    this.startAutoRefreshTimer();
+    this.scheduleAutoRefresh();
   }
 
   resetBackoff(): void {
     if (this.backoffMultiplier !== 1) {
       this.backoffMultiplier = 1;
-      this.startAutoRefreshTimer();
+      this.scheduleAutoRefresh();
     }
   }
 
@@ -211,23 +219,69 @@ export class StatusBarManager {
     return new vscode.ThemeColor(colorId);
   }
 
-  private startAutoRefreshTimer(): void {
-    this.stopAutoRefreshTimer();
-
-    const config = vscode.workspace.getConfiguration("claudeUsage");
-    const intervalMinutes = config.get<number>("refreshInterval", 5);
-    const effectiveMs = intervalMinutes * 60_000 * this.backoffMultiplier;
-
-    this.autoRefreshTimer = setInterval(() => {
-      if (this.onAutoRefresh) {
-        this.onAutoRefresh();
-      }
-    }, effectiveMs);
+  /**
+   * Arm a single self-rescheduling auto-refresh timer. Using setTimeout (not
+   * setInterval) lets each cycle recompute its delay from the latest usage, so
+   * the poll cadence tightens automatically as usage approaches a threshold and
+   * relaxes again when usage is low.
+   */
+  private scheduleAutoRefresh(): void {
+    this.autoRefreshEnabled = true;
+    this.clearAutoRefreshTimer();
+    const delay = this.computeRefreshDelayMs();
+    this.autoRefreshTimer = setTimeout(() => {
+      void this.runAutoRefresh();
+    }, delay);
   }
 
+  private async runAutoRefresh(): Promise<void> {
+    try {
+      if (this.onAutoRefresh) {
+        await this.onAutoRefresh();
+      }
+    } finally {
+      // Re-arm using the now-updated usage so the next delay reflects fresh data,
+      // but only if auto-refresh was not turned off (hide/dispose) mid-fetch.
+      if (this.autoRefreshEnabled) {
+        this.scheduleAutoRefresh();
+      }
+    }
+  }
+
+  /**
+   * Delay until the next auto-fetch. Defaults to the user-configured interval,
+   * but shortens to NEAR_THRESHOLD_INTERVAL_MS once the active metric is within
+   * NEAR_MODERATE_BAND points of (or above) the moderate threshold, so a warning
+   * fires close to when the threshold is actually crossed. Rate-limit backoff
+   * still scales both paths.
+   */
+  private computeRefreshDelayMs(): number {
+    const config = vscode.workspace.getConfiguration("claudeUsage");
+    const intervalMinutes = config.get<number>("refreshInterval", 10);
+    const baseMs = intervalMinutes * 60_000 * this.backoffMultiplier;
+
+    const data = this.store.getWithFreshCountdowns();
+    if (!data) {
+      return baseMs;
+    }
+
+    const percent = pickTriggerMetric(data).percent;
+    const moderate = getThresholdConfig().moderate;
+    if (percent >= moderate - NEAR_MODERATE_BAND) {
+      return Math.min(baseMs, NEAR_THRESHOLD_INTERVAL_MS * this.backoffMultiplier);
+    }
+    return baseMs;
+  }
+
+  /** Fully stop auto-refresh (hide/dispose): clear the timer and disarm re-scheduling. */
   private stopAutoRefreshTimer(): void {
+    this.autoRefreshEnabled = false;
+    this.clearAutoRefreshTimer();
+  }
+
+  private clearAutoRefreshTimer(): void {
     if (this.autoRefreshTimer) {
-      clearInterval(this.autoRefreshTimer);
+      clearTimeout(this.autoRefreshTimer);
       this.autoRefreshTimer = undefined;
     }
   }

@@ -4,7 +4,7 @@ import { StatusBarManager } from "./statusBarManager";
 import { UsageFetcher, FetchError } from "./usageFetcher";
 import { DashboardPanel } from "./dashboardPanel";
 import { SettingsPanel } from "./settingsPanel";
-import { WarningPanel } from "./warningPanel";
+import { WarningViewProvider, WARNING_VIEW_ID, WARNING_ACTIVE_CONTEXT } from "./warningView";
 import { getRecommendation, getActiveUrgency, pickTriggerMetric, buildUsageSuggestion, classifyUrgency } from "./recommendations";
 import { UrgencyLevel, UsageData, formatModelName, getThresholdConfig, getNotificationTimeoutMs, syncColorsToWorkbench, getColorConfig } from "./types";
 
@@ -51,9 +51,9 @@ let consecutiveFailures = 0;
 let lastFetchError: FetchError | undefined;
 let failureNotificationShown = false;
 let fetchInFlight = false;
-// Extension URI, captured in activate() so evaluateAndNotify (module-level) can
-// pass it to the WarningPanel webview for its icon.
-let warningExtensionUri: vscode.Uri | undefined;
+// The warning WebviewView provider, created in activate() so evaluateAndNotify
+// (module-level) can reveal the sidebar warning when a threshold is crossed.
+let warningView: WarningViewProvider | undefined;
 
 // In-memory threshold tracker — intentionally not persisted so it resets on every
 // VS Code startup. This ensures the user sees a notification on startup when usage
@@ -61,7 +61,15 @@ let warningExtensionUri: vscode.Uri | undefined;
 const notifiedThresholds = new Set<number>();
 
 export function activate(context: vscode.ExtensionContext): void {
-  warningExtensionUri = context.extensionUri;
+  // The warning sidebar starts hidden; it is revealed only when a threshold fires.
+  void vscode.commands.executeCommand("setContext", WARNING_ACTIVE_CONTEXT, false);
+  warningView = new WarningViewProvider();
+  context.subscriptions.push(
+    vscode.window.registerWebviewViewProvider(WARNING_VIEW_ID, warningView, {
+      webviewOptions: { retainContextWhenHidden: true },
+    }),
+  );
+
   const store = new UsageStore(context.globalState);
   const fetcher = new UsageFetcher();
   const statusBar = new StatusBarManager(store, DASHBOARD_COMMAND, SETTINGS_COMMAND);
@@ -360,16 +368,15 @@ async function evaluateAndNotify(data: UsageData): Promise<boolean> {
   const t = getThresholdConfig();
   [t.critical, t.high, t.moderate].filter(thresh => trigger.percent >= thresh).forEach(thresh => notifiedThresholds.add(thresh));
 
-  // Open the rich warning webview (icons + usage ring + stacked recommendations):
-  // VS Code notifications render `$(...)` literally and collapse newlines, so the
-  // mockup's layout is only achievable in a webview (v3.11.2). A single panel is
-  // reused across threshold crossings, and the notifiedThresholds dedup above means
-  // it opens at most once per bucket per session.
-  WarningPanel.show(
+  // Reveal the rich warning in its narrow sidebar view (icons + usage ring +
+  // stacked recommendations): VS Code notifications render `$(...)` literally and
+  // collapse newlines, so the mockup's layout is only achievable in a webview.
+  // A single view is reused across threshold crossings, and the notifiedThresholds
+  // dedup above means it reveals at most once per bucket per session.
+  await warningView?.show(
     suggestion,
     classifyUrgency(trigger.percent),
     { onOpenDashboard: () => vscode.commands.executeCommand(DASHBOARD_COMMAND) },
-    warningExtensionUri,
   );
   return true;
 }
