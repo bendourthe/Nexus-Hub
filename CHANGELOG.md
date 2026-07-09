@@ -7,7 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased]
+## [3.11.2] - 2026-07-09
+
+**v3.11.2 -- Claude Usage Monitor usage-warning sidebar view.** Extension-only patch (Claude Usage Monitor 0.6.0 -> 0.6.1): the usage-threshold warning is now a compact WebviewView in a dedicated narrow activity-bar container instead of a notification toast or a full editor tab, reveals automatically and promptly when a threshold is crossed (adaptive polling near thresholds), dismisses cleanly, and no longer steals an editor column. No catalog change: **265 skills**, **16 commands**, **25 hooks**.
+
+### Changed
+
+- **Claude Usage Monitor: usage-warning moved to a sidebar WebviewView** (`extensions/claude-usage-monitor/src/warningView.ts` (new), `src/statusBarManager.ts`, `src/extension.ts`, `package.json`, `icons/warning.svg` (new); removes `src/warningPanel.ts`): the usage-threshold warning is now a `WebviewViewProvider` hosted in a dedicated activity-bar view container, replacing the never-released editor-tab webview panel so the warning fills only a narrow, user-resizable sidebar instead of a roughly half-width editor split. The card is stacked vertically (header, a centered recommendations heading, per-recommendation icon rows for switch-model / reduce-effort, a circular usage ring, a reset box, and actions) and its visibility is gated by a `claudeUsage.warningActive` context key, so a threshold crossing reveals the view and its container icon while Cancel / Close flips the key to hide both - a genuine dismiss. The warning now surfaces close to when the threshold is actually crossed: `StatusBarManager` polling is adaptive, tightening from the configured `refreshInterval` (default 10 min) to about 60s once the active metric is within ~10 points of, or above, the moderate threshold (rate-limit backoff still scales both paths), instead of surfacing up to a full interval late. Buttons are wired with a nonce-gated CSP script and `addEventListener` rather than inline `onclick`, fixing an unresponsive Cancel. Model-aware recommendations still come from the shared `buildUsageSuggestion` structured parts so the view and the dashboard agree. Extension 0.6.0 -> 0.6.1; no catalog change (265 skills, 16 commands, 25 hooks); no new outbound call, dependency, or credential.
 
 ## [3.11.1] - 2026-07-08
 
@@ -15,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **Claude Usage Monitor: richer usage-warning toast** (`extensions/claude-usage-monitor/src/recommendations.ts`, `src/extension.ts`): the usage-threshold warning notification is redesigned to mirror the mockup's stacked layout while staying a self-dismissing toast with no progress bar. It renders a `$(warning)` title with the metric and percent, then the per-recommendation codicon rows - `$(arrow-swap)` switch model, `$(dashboard)` reduce effort, `$(watch)` reset time - on SEPARATE lines. It stays a `withProgress` notification so it self-dismisses on the timer and never stacks, but reports a message only (never an `increment`) so the notification's progress bar stays unfilled/absent rather than showing a bar. The recommendation text stays model-aware and is taken from the shared `buildUsageSuggestion` structured parts (new `percent` / `label` / `resetsIn` / `switchModel` / `effortAdvice` fields) so the toast and the dashboard never drift. Extension 0.5.5 -> 0.6.0; no catalog change (265 skills, 16 commands, 25 hooks); no new outbound call, dependency, or credential. Prepared for a v3.11.1 patch release pending a visual confirm of the notification rendering.
+- **Claude Usage Monitor: richer usage-warning toast** (`extensions/claude-usage-monitor/src/recommendations.ts`, `src/extension.ts`): the usage-threshold warning notification is redesigned to mirror the mockup's stacked layout while staying a self-dismissing toast with no progress bar. It renders a `$(warning)` title with the metric and percent, then the per-recommendation codicon rows - `$(arrow-swap)` switch model, `$(dashboard)` reduce effort, `$(watch)` reset time - on SEPARATE lines. It stays a `withProgress` notification so it self-dismisses on the timer and never stacks, but reports a message only (never an `increment`) so the notification's progress bar stays unfilled/absent rather than showing a bar. The recommendation text stays model-aware and is taken from the shared `buildUsageSuggestion` structured parts (new `percent` / `label` / `resetsIn` / `switchModel` / `effortAdvice` fields) so the toast and the dashboard never drift. Extension 0.5.5 -> 0.6.0; no catalog change (265 skills, 16 commands, 25 hooks); no new outbound call, dependency, or credential.
 
 ## [3.11.0] - 2026-07-08
 

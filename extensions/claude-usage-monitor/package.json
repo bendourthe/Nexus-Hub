@@ -2,7 +2,7 @@
   "name": "claude-usage-monitor",
   "displayName": "Claude Usage Monitor",
   "description": "Monitor your Claude Code usage limits and get smart model-switching recommendations",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "publisher": "nexus-hub",
   "icon": "icon.png",
   "repository": {
@@ -61,6 +61,25 @@
           "fontCharacter": "\\E101"
         }
       }
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "claudeUsageWarning",
+          "title": "Claude Usage Warning",
+          "icon": "icons/warning.svg"
+        }
+      ]
+    },
+    "views": {
+      "claudeUsageWarning": [
+        {
+          "id": "claudeUsageWarningView",
+          "name": "Usage Warning",
+          "type": "webview",
+          "when": "claudeUsage.warningActive"
+        }
+      ]
     },
     "configuration": {
       "title": "Claude Usage Monitor",
