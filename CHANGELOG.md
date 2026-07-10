@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### Added
+
+- **Nexus-AI version manifest (`nexus-hub-version.json`)** (`scripts/lib/integrations/nexus_ai.py`, `docs/specs/nexus-ai.md`, `docs/v3/v3.11/platform-read-contracts.md`): the `nexus-ai` integration now writes a deterministic `nexus-hub-version.json` at the catalog root (`~/.nexus-ai/catalog/` at global scope and `<project>/.nexus-ai/catalog/` at workspace scope). The manifest records the installed catalog `version` (read from the single canonical source `.claude-plugin/plugin.json`), the public `releases_url` / `latest_release_api` update-check endpoints, and a `layout` map (paths relative to the catalog root) of the standardized surface subdirectories. This gives the Nexus-AI desktop app a first-class update-detection contract: it reads the installed version and polls the latest published release to prompt the user to update from inside the app, and it resolves each surface (skills, commands, agents, rules, hooks) from one standardized root the same way Claude Code reads `~/.claude/`; the manifest's absence at the catalog root is the "never synced" signal for the offline first-run state. The manifest is timestamp-free and location-independent (a re-install is a byte-identical no-op) and is manifest-tracked so an uninstall removes it. No new outbound call, dependency, or credential; no catalog change (265 skills, 16 commands, 25 hooks).
+
+### Changed
+
+- **Nexus-AI catalog isolated under a `catalog/` subtree** (`scripts/lib/integrations/nexus_ai.py`, `docs/specs/nexus-ai.md`, `docs/v3/v3.11/platform-read-contracts.md`, `README.md`, `tests/integrations/`): the `nexus-ai` integration now installs the entire catalog under `~/.nexus-ai/catalog/` (and `<project>/.nexus-ai/catalog/`) instead of the `~/.nexus-ai/` root. The root is reserved for the Nexus-AI app's own data home (settings, MCP config, model weights, session artifacts, credentials vault); isolating the catalog in `catalog/` lets a catalog refresh wholesale wipe-and-refetch that subtree without any chance of touching irreplaceable app data, and keeps both populators (this installer and Nexus-AI's own syncer) writing only under `catalog/`. The spec, read-contract table, and README now document the single standardized root the way Claude Code reads `~/.claude/` and Codex reads `~/.codex/`, note the `mcp-configs/` and `templates/` global-scope surfaces the integration writes, and state that Nexus-AI should not maintain a separate fetch path or version-scoped skill store. No new outbound call, dependency, or credential; no catalog change (265 skills, 16 commands, 25 hooks).
+
 ## [3.11.3] - 2026-07-09
 
 **v3.11.3 -- Claude Usage Monitor warning dismiss button relabeled.** Extension-only patch (Claude Usage Monitor 0.6.1 -> 0.6.2): the usage-warning sidebar view's primary dismiss button now reads "OK" instead of "Cancel", since it acknowledges and closes the warning rather than cancelling an action. No catalog change: **265 skills**, **16 commands**, **25 hooks**.

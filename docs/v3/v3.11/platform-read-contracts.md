@@ -36,10 +36,12 @@ Formats: skills = folder-per-skill `SKILL.md`, nested `<category>/<name>/` verba
 | Qwen | workspace | `<project>/QWEN.md` (root) | none | none | none | none | none |
 | OpenClaw (`openclaw`) | global | `~/.openclaw/{AGENTS,SOUL,IDENTITY}.md` (only if `~/.openclaw` exists) | none | none | none | none | none |
 | OpenClaw | workspace | `<project>/.openclaw/AGENTS.md` + SOUL/IDENTITY | none | none | none | none | none |
-| Nexus-AI (`nexus-ai`) | global | `~/.nexus-ai/NEXUS_AI.md` (dedicated) | `~/.nexus-ai/commands/` | `~/.nexus-ai/skills/` | `~/.nexus-ai/agents/` | `~/.nexus-ai/rules/` | `~/.nexus-ai/hooks/` |
-| Nexus-AI | workspace | `<project>/.nexus-ai/NEXUS_AI.md` | `.nexus-ai/commands/` | `.nexus-ai/skills/` | `.nexus-ai/agents/` | `.nexus-ai/rules/` | `.nexus-ai/hooks/` |
+| Nexus-AI (`nexus-ai`) | global | `~/.nexus-ai/catalog/NEXUS_AI.md` (dedicated) | `~/.nexus-ai/catalog/commands/` | `~/.nexus-ai/catalog/skills/` | `~/.nexus-ai/catalog/agents/` | `~/.nexus-ai/catalog/rules/` | `~/.nexus-ai/catalog/hooks/` |
+| Nexus-AI | workspace | `<project>/.nexus-ai/catalog/NEXUS_AI.md` | `.nexus-ai/catalog/commands/` | `.nexus-ai/catalog/skills/` | `.nexus-ai/catalog/agents/` | `.nexus-ai/catalog/rules/` | `.nexus-ai/catalog/hooks/` |
 
 Generic mirror: `SkillsIntegration._mirror_catalog` maps the `*_subdir` config keys to `catalog/{skills,commands,agents,rules,hooks}` (`base.py:686-702`); the mirror is SKIPPED when `ctx.instruction_only` is set (`base.py:709-710,721-722`), which is how the installer's DF-001 split works (legacy block copies the catalog tree, registry renders only the instruction file).
+
+Nexus-AI isolation: `NexusAiIntegration` writes the entire catalog into an isolated `~/.nexus-ai/catalog/` subtree (not the `~/.nexus-ai/` root, which is the app's own data home), so a catalog refresh can wholesale wipe-and-refetch `catalog/` without touching app data. Beyond the generic mirror it also writes `mcp-configs/` and `templates/` (global scope only) and a `nexus-hub-version.json` manifest at the catalog root at both scopes (`nexus_ai.py`). The manifest is the desktop app's update-detection contract (installed `version` from `.claude-plugin/plugin.json` + `latest_release_api` + a `layout` map relative to the catalog root); see `docs/specs/nexus-ai.md`.
 
 ## Project-only surfaces (read ONLY from an open project, no global scan)
 
