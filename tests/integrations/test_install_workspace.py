@@ -21,7 +21,7 @@ from scripts.lib.integrations.base import InstallContext
         ("opencode", [".opencode/AGENTS.md", ".opencode/skills", ".opencode/commands"]),
         ("antigravity", [".gemini/antigravity/rules.md", ".gemini/antigravity/skills"]),
         ("antigravity2", [".agents/AGENTS.md", ".agents/skills", ".agents/workflows"]),
-        ("nexus-ai", [".nexus-ai/NEXUS_AI.md", ".nexus-ai/skills", ".nexus-ai/commands"]),
+        ("nexus-ai", [".nexus-ai/catalog/NEXUS_AI.md", ".nexus-ai/catalog/skills", ".nexus-ai/catalog/commands"]),
     ],
 )
 def test_workspace_install_lays_expected_paths(

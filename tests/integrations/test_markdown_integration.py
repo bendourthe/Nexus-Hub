@@ -63,7 +63,7 @@ def test_dedicated_mode_overwrites_full_file(install_ctx: InstallContext) -> Non
     """
     integ = get("nexus-ai")
     integ.install(install_ctx)
-    nexus_md = install_ctx.target_root / ".nexus-ai" / "NEXUS_AI.md"
+    nexus_md = install_ctx.target_root / ".nexus-ai" / "catalog" / "NEXUS_AI.md"
     assert nexus_md.exists()
     text = nexus_md.read_text(encoding="utf-8")
     assert START not in text
