@@ -30,6 +30,30 @@ Implementation approach (no library): render to a `<canvas>` (or an inline SVG y
 
 If the source has figures, tables, or images, they appear in the site: images inline as base64; numeric data as the interactive charts above; large tables as sortable / filterable tables where that helps the reader.
 
+### Site-wide interaction layer
+
+Charts are not the only carrier of dynamism - a source with zero chartable data must STILL produce a page that responds to the reader. This layer is the interactivity vocabulary for everything that is not a chart. All patterns are inlined vanilla JS/CSS (no library, no CDN), keyboard-accessible, and guarded by `prefers-reduced-motion`.
+
+1. **Scroll-triggered section reveals** - `IntersectionObserver` adds a `.revealed` class once per element as it enters the viewport; CSS transitions opacity/transform (a short rise, 200-400ms), optionally staggered per child via `transition-delay`. Sketch: `new IntersectionObserver(es => es.forEach(e => e.isIntersecting && (e.target.classList.add("revealed"), obs.unobserve(e.target))), {threshold: 0.15})`. Accessibility: under `prefers-reduced-motion: reduce`, elements start fully visible (no observer needed); content must never be unreachable if JS fails - reveal styles apply only under a `.js` root class.
+2. **Scroll-linked progress** - a sticky section nav whose active item tracks the section in view (a second `IntersectionObserver` with `rootMargin` tuned to the viewport middle), plus an optional thin reading-progress bar driven by `scroll` position (`requestAnimationFrame`-throttled). Accessibility: the active nav item carries `aria-current="true"`; the progress bar is `aria-hidden` (decorative).
+3. **Hover and focus affordances** - every interactive-adjacent element visibly responds: cards lift or gain an accent border, image thumbnails hint zoomability (a subtle scale or overlay icon), table rows highlight. Sketch: `:hover` plus `:focus-visible` sharing one ruleset (`.card:hover, .card:focus-visible { transform: translateY(-2px); ... }`). Accessibility: EVERY hover state has a keyboard-focus twin; focus outlines are never suppressed without a visible replacement.
+4. **Animated stat counters** - KPI-style numbers count up on first reveal (reuse the reveal observer), landing on the EXACT source value; duration ~800ms via `requestAnimationFrame`. Accessibility: under reduced motion the final value renders immediately; the element's accessible text is always the final value (animate a visual span, keep the real number in the DOM or `aria-label`).
+5. **Image lightbox with pan/zoom** - every non-decorative image opens in an overlay viewer: wheel/pinch zoom, drag pan, a reset control, Escape and backdrop-click to close. This is the SAME component the figure-reconstruction protocol's enhanced-original viewer and view-original toggle use - build it once. Accessibility: the trigger is a real `<button>` (or the image wrapped in one); on open, focus moves into the dialog (`role="dialog"`, `aria-modal="true"`) and is trapped; on close, focus returns to the trigger.
+6. **Expand/collapse structures** - tabs or accordions for dense subordinate content (appendices, per-source detail, long tables). Sketch: accordions as native `<details>/<summary>` (free keyboard support) styled to the design; tabs as buttons with `role="tab"` / `aria-selected` toggling `hidden` on panels. Accessibility: arrow-key navigation between tabs; state is always reflected in ARIA, not just classes.
+7. **Micro-transitions on state change** - nav jumps use smooth scrolling (`scroll-behavior: smooth` under motion-ok), chart series toggles and tab switches animate briefly (~150ms), lightbox fades in. Accessibility: all durations collapse to 0 under `prefers-reduced-motion: reduce`.
+
+### The minimum interaction budget (binary)
+
+Every run MUST ship ALL FIVE of the following, functional offline with zero external requests, in at most ~60 KB of added inline JS (the interaction layer, excluding chart controllers and base64 payloads):
+
+1. Working section navigation with active-state tracking (pattern 2).
+2. Scroll-triggered reveals OR an equivalent scroll-responsive treatment (pattern 1).
+3. Hover + keyboard-focus affordances on cards, images, and table rows (pattern 3).
+4. A pan/zoom lightbox on EVERY non-decorative image (pattern 5).
+5. At least ONE content-appropriate signature interaction chosen to fit the content: animated counters for a KPI-heavy source, tabs/accordions for a dense report, a comparison slider, a filterable grid, an annotated-figure hotspot layer... (patterns 4/6/7 or a bespoke move).
+
+A page whose only interactivity is its charts FAILS the budget. A page with no charts at all still meets the budget through this layer - that is the point.
+
 ### Design direction (resolve the direction, then brainstorm - creativity-first)
 
 Before writing any markup, resolve a design direction and commit to one. The goal each run is a UNIQUE, creative, interactive design; "fit the document type" is never the rule. "Be unique" is not enough on its own either: the agent has a strong default attractor it returns to unless forced off it, and that sameness is what makes a run read as AI-generated. Make this a real, deliberate stage, not an afterthought during authoring.
