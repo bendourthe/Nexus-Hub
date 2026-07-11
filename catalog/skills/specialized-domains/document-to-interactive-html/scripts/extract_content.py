@@ -82,6 +82,8 @@ REGION_MAX_PER_PAGE = 6
 REGION_MAX_OBJECTS = 4000  # pathological-page guard
 REGION_TEXT_DENSITY_MAX = 0.20  # char-area / region-area above this = prose
 CAPTION_MAX_GAP = 44.0  # max vertical gap between figure bottom and caption
+LABEL_REACH = 28.0  # grow a region crop to include text this close (ticks)
+CROP_MARGIN = 6.0  # breathing room around a rasterized region crop
 CAPTION_MAX_LEN = 140
 CAPTION_PLAIN_MAX_LEN = 90  # non-cue caption lines must be short
 HEADING_SIZE_RATIO = 1.15  # heading font must beat the page median by this
@@ -1022,6 +1024,33 @@ def _pdf_figure_regions(page: object, table_bboxes: list, image_bboxes: list) ->
     return regions[:REGION_MAX_PER_PAGE]
 
 
+def _expand_region_with_labels(page: object, bbox: tuple) -> tuple:
+    """Grow a figure-region crop to include nearby label text (axis ticks,
+    category labels, captions) so the rasterized figure stays readable.
+
+    Single-pass by design: only text near the ORIGINAL bbox is pulled in, so
+    the crop cannot creep across the page.
+    """
+    x0, top, x1, bottom = bbox
+    for char in getattr(page, "chars", None) or []:
+        center_x = (char["x0"] + char["x1"]) / 2
+        center_y = (char["top"] + char["bottom"]) / 2
+        if (
+            bbox[0] - LABEL_REACH <= center_x <= bbox[2] + LABEL_REACH
+            and bbox[1] - LABEL_REACH <= center_y <= bbox[3] + LABEL_REACH
+        ):
+            x0 = min(x0, char["x0"])
+            top = min(top, char["top"])
+            x1 = max(x1, char["x1"])
+            bottom = max(bottom, char["bottom"])
+    return (
+        max(0.0, x0 - CROP_MARGIN),
+        max(0.0, top - CROP_MARGIN),
+        min(float(page.width), x1 + CROP_MARGIN),
+        min(float(page.height), bottom + CROP_MARGIN),
+    )
+
+
 def _pdf_text_lines(page: object) -> list:
     """Positioned text lines (empty when the pdfplumber API is too old)."""
     try:
@@ -1534,7 +1563,8 @@ def _extract_pdf(path: str, max_bytes: int, cov: dict) -> tuple[str, list]:
                 pages_missing_renderer.append(page_no)
             elif regions:
                 for region_no, bbox in enumerate(regions, start=1):
-                    png = _pdf_render_region(renderer, index, bbox)
+                    crop = _expand_region_with_labels(page, bbox)
+                    png = _pdf_render_region(renderer, index, crop)
                     if png is None:
                         cov["vector_regions_skipped"] += 1
                         continue
