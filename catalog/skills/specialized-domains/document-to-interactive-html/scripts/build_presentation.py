@@ -540,10 +540,11 @@ def main(argv: list | None = None) -> int:
         return 2
     with model_path.open(encoding="utf-8") as handle:
         model: dict[str, Any] = json.load(handle)
-    if int(model.get("schema_version", 1)) != 1:
+    if int(model.get("schema_version", 1)) not in (1, 2):
         print(
             f"Error: unsupported content-model schema_version "
-            f"{model.get('schema_version')}; this builder understands version 1.",
+            f"{model.get('schema_version')}; this builder understands versions "
+            "1 and 2 (v2 fields are additive and ignored where unknown).",
             file=sys.stderr,
         )
         return 2

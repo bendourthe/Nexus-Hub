@@ -30,7 +30,7 @@ Use this skill when:
 - Generating a brand-new document from scratch: use `[[pptx-generation]]`, `[[docx-generation]]`, `[[xlsx-generation]]`, or `[[pdf-document-generation]]`. This skill presents documents that already exist; it does not author source documents.
 - A one-off static chart or a data export with no presentation flow.
 - A plain HTML document (a README, a long-form article) that has no slide model or interactivity. Use `[[html-output-conventions]]` directly for non-presentation HTML.
-- Scanned / image-only PDFs that need OCR, or video / audio embedding: both are out of scope for v1 (see `references/extraction-runbook.md`).
+- Video / audio embedding: out of scope (see `references/extraction-runbook.md`). Scanned / image-only PDFs ARE supported via the extractor's two-tier local-OCR + agent-vision path.
 
 ## The Pipeline
 

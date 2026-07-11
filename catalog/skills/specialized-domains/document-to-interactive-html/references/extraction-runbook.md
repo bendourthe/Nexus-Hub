@@ -12,11 +12,13 @@ The extractor is local-only and makes no network calls. Every parser is lazy-imp
     - The slide title placeholder becomes the section `heading`; a subtitle placeholder becomes `subheading`.
     - The first slide is `kind: "title"`; a title-only divider slide is `kind: "section-break"`; the rest are `kind: "content"`.
     - A body text frame with a single top-level paragraph becomes a `paragraph` block; a multi-paragraph or indented text frame becomes a `bullets` block, with each paragraph's indent level mapped to the item `depth`.
-    - Slide tables become `table` blocks (the table's `first_row` flag decides whether row 0 is a header). Embedded pictures become base64 `image` blocks. The notes-slide text becomes one `notes` block (hidden by default in the output).
+    - Slide tables become `table` blocks (the table's `first_row` flag decides whether row 0 is a header). Embedded pictures become base64 `image` blocks (`origin: "shape-picture"`, `page` = slide number). The notes-slide text becomes one `notes` block (hidden by default in the output).
+    - Grouped shapes ARE recursed into (depth-capped at 8), so text, tables, and pictures inside groups extract in order.
+    - Native PowerPoint chart shapes become `chart` blocks with `provenance: "native-chart"`, the source's real categories and series values, a `chart_type_hint` mapped from the chart type, and the chart title as `caption`. An unreadable chart lands in `coverage.skip_reasons`, never as silent loss.
 - Gotchas:
-    - Grouped shapes are not recursed into; text inside a group may be missed. Ungroup in the source if that text matters.
-    - Native PowerPoint chart shapes are not extracted in v1 (see out-of-scope below); deliver chartable data via a spreadsheet input instead.
     - SmartArt and WordArt are not extracted as text.
+    - A chart data point with an empty cache is recorded as `0.0` with a stderr warning; verify against the source when that warning fires.
+    - Pictures placed as picture-filled placeholders (rather than picture shapes) are not extracted as images.
 
 ## Word (.docx)
 
@@ -25,7 +27,8 @@ The extractor is local-only and makes no network calls. Every parser is lazy-imp
     - `Title`-styled text sets the document title (top-level `title` and the synthesized leading title section).
     - `Heading N`-styled paragraphs start new sections (`kind: "content"`), with the heading text as the section `heading`.
     - Body paragraphs become `paragraph` blocks; list paragraphs (a `w:numPr` numbering or a `List*` style) become `bullets` items, with the list level mapped to `depth`. Consecutive list items are merged into one `bullets` block.
-    - Tables become `table` blocks (row 0 is treated as the header). Inline images are resolved by relationship id and become base64 `image` blocks at their paragraph position.
+    - Tables become `table` blocks (row 0 is treated as the header). Inline images are resolved by relationship id and become base64 `image` blocks (`origin: "inline-image"`) at their paragraph position.
+    - Native Word chart parts are read directly from the OOXML package (the drawing's chart relationship id resolves to `word/charts/chart*.xml`, parsed with the standard library) and become `chart` blocks with `provenance: "native-chart"`. A malformed chart part degrades to a `coverage.skip_reasons` entry.
     - Content that appears before the first heading is collected into an implicit `Overview` section so nothing is dropped.
     - When the document has two or more content sections, a synthesized `Agenda` section (`kind: "section-break"`) listing the section headings is inserted near the front. This is what turns a flat report into "a presentation OF the report".
 - Gotchas:
@@ -48,16 +51,26 @@ The extractor is local-only and makes no network calls. Every parser is lazy-imp
 
 ## PDF (.pdf)
 
-- Library: `pdfplumber` (`pip install pdfplumber`), preferred for layout and table detection. `pypdf` (`pip install pypdf`) is an automatic fallback for text-only extraction when `pdfplumber` is absent; if neither is installed the extractor prints the `pdfplumber` install hint and exits non-zero.
+- Libraries:
+    - `pdfplumber` (`pip install pdfplumber`), preferred for layout, tables, headings, captions, and figure-region detection. `pypdf` (`pip install pypdf`) is an automatic fallback for text + embedded-image extraction when `pdfplumber` is absent; if neither is installed the extractor prints the `pdfplumber` install hint and exits non-zero.
+    - `pypdf` (optional alongside pdfplumber): supplies the decoded bytes of embedded raster images. Absent => embedded-image extraction is skipped with a warning and a `coverage.skip_reasons` entry; text and tables still extract.
+    - `pypdfium2` (`pip install pypdfium2`, optional): the local renderer used to rasterize vector-figure regions and scanned pages. Absent => those visuals are skipped with ONE warning naming the affected pages; nothing else fails.
+    - OCR engine (optional, for scanned pages): `rapidocr-onnxruntime` (`pip install rapidocr-onnxruntime`; pip-only, bundled detection + recognition, no system binary) preferred, or `pytesseract` when the Tesseract binary is already installed. Absent => scanned pages still ship as full-page image blocks for agent-vision reading, so no content is lost.
 - Mapping:
-    - Each page becomes one section. The page's first short line (<= 80 characters) is promoted to the section `heading`; otherwise the heading is `Page N`.
-    - Page text is split on blank lines into `paragraph` blocks. With `pdfplumber`, detected tables become `table` blocks.
-    - The first promoted (non-`Page N`) heading becomes the document title.
+    - Each page becomes one section. The heading is detected typographically (the page's largest-font short line in the top 45% of the page, when it beats the page's median font size); the first-short-line heuristic is the fallback, then `Page N`. The first promoted (non-`Page N`) heading becomes the document title.
+    - Page text is split on blank lines into `paragraph` blocks; detected tables become `table` blocks.
+    - Embedded raster images become base64 `image` blocks (`origin: "embedded-raster"`, `page` set). An identical image repeated on 3+ pages (a logo, a footer graphic) is kept once and skipped elsewhere with a `repeated-asset` coverage entry.
+    - Vector-figure regions (plots, maps, diagrams drawn as vector strokes - the norm in PDFs exported from PowerPoint) are detected by clustering drawing objects into low-text-density bounding boxes, rasterized at 2x via `pypdfium2`, and emitted as `image` blocks (`origin: "rasterized-region"`).
+    - A short caption line sitting directly below a figure (a "Figure N: ..." cue, or a short line under the figure's footprint) is attached as the block's `caption`.
+    - Scanned / image-only pages (near-empty text layer, image-dominated area) take the two-tier path: tier A runs the local OCR engine over the rendered page and emits `paragraph` / `table` blocks with `provenance: "ocr"` and per-block `ocr_confidence`; tier B ALWAYS emits a full-page `image` block (`origin: "scanned-page"`) so the authoring agent can read and verify the page directly. Low-confidence OCR blocks are counted in `coverage.ocr_low_confidence` for mandatory verification.
+    - A PDF whose pages are mostly landscape with low text density is tagged `deck_like: true` on its source entry (a PDF exported from slides; the mode auto-detect preserves page order as slide flow).
+    - Every visual found / kept / skipped is counted in the model's per-source `coverage` manifest with reasons.
 - Gotchas:
-    - PDF has no reliable heading structure, so the short-first-line heuristic can mis-promote a body line or miss a real heading. Treat PDF segmentation as approximate.
+    - PDF has no reliable heading structure; the typographic heuristic is much better than first-short-line on deck exports but is still approximate on dense reports.
     - Multi-column PDFs may interleave columns in the extracted text order; complex layouts are not reflowed.
-    - PDF image extraction is out of scope for v1 (see below); the value from a PDF is its text and tables.
-    - A scanned (image-only) PDF yields little or no text because there is no text layer.
+    - Figure images are placed after the page's text and tables, ordered by their vertical position; exact text/figure interleaving within a page is not reconstructed.
+    - Caption text also remains inside the page's paragraph text (it is attached, not moved); the authoring stage should prefer the block `caption` and drop the duplicate line.
+    - OCR table recovery is geometry-based (aligned multi-cell rows) and works best on well-separated columns; the `pytesseract` path recovers paragraphs only. The scanned-page image block plus the figure-reconstruction protocol's transcription pass are the accuracy backstop either way.
 
 ## Image handling and the base64 budget
 
@@ -78,9 +91,8 @@ The extractor is local-only and makes no network calls. Every parser is lazy-imp
 - Every section carries a `source_index` pointing at its entry in the top-level `sources` manifest, so attribution survives the merge.
 - A `section-break` is inserted at each source boundary (its heading is the source title), and a synthesized overview title section listing all sources is prepended. This is the "compile multiple sources into one presentation" behavior.
 
-## Out of scope for v1
+## Out of scope
 
-- Scanned-PDF / image-only PDF OCR. There is no text recognition; a PDF with no text layer yields no text. Run OCR upstream if you need it.
-- Video and audio embedding. Media in any source format is ignored.
-- Native PowerPoint and Word chart objects. Chartable data is sourced from spreadsheet (.xlsx) inputs, which map cleanly to `chart` blocks.
-- PDF image extraction. PDF contributes text and tables only.
+- Video and audio embedding. Media in any source format is ignored (the output is a single self-contained offline HTML file; embedded media would break the offline / size guarantee).
+- Full layout reflow of complex multi-column PDFs; column interleaving in text order is possible.
+- Formerly out of scope, now implemented (v2): PDF embedded-image extraction, PDF vector-figure region capture, native PPTX/DOCX chart objects, and scanned-PDF reading via the two-tier local-OCR + agent-vision path (see the PDF section above).

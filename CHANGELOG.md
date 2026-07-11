@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### Changed
+
+- **presentify extraction fidelity (v3.12.0 Phase 1)**: the `document-to-interactive-html` extractor now captures PDF embedded raster images (with repeated-asset dedup and caption pairing), rasterizes vector-figure regions (plots/maps/diagrams) via the optional local `pypdfium2` renderer, reads scanned / image-only PDF pages through a two-tier path (local OCR via optional `rapidocr-onnxruntime`/`pytesseract` with per-block confidence, plus an always-on full-page image block for agent-vision reading), recurses PPTX grouped shapes, extracts native PPTX/DOCX chart objects with their real series values, promotes typographic PDF headings, tags deck-exported PDFs `deck_like`, and emits a per-source extraction `coverage` manifest. Content model bumped to schema_version 2 (additive-only fields; the builder accepts v1 and v2). Resolves the v3.9 deferrals DF-v39-presentify-1/-2/-3 at the extraction layer. Local-only and installer-neutral: all new libraries are optional and lazy-imported with `pip install` hints; no new outbound call, credential, or registry change.
+
+---
+
 ## [3.11.4] - 2026-07-10
 
 **v3.11.4 -- Nexus-AI catalog isolated under `catalog/` with an update-detection manifest, and `docs-layout-refactor` gains universal cross-cutting doc-subtree handling.** The `nexus-ai` integration now installs the whole catalog under `~/.nexus-ai/catalog/` (reserving the root for the Nexus-AI app's own data home) and writes a timestamp-free `nexus-hub-version.json` so the desktop app can detect and prompt for catalog updates; the `docs-layout-refactor` skill (1.2.0 -> 1.3.0) now recognizes the standard non-versioned documentation subtrees (ADRs, RFCs, specs, policy, Diataxis content, runbooks, and static-site-generator output) as a single conservative disposition class, never version-archived or reclassified by semantic content. No catalog change: **265 skills**, **16 commands**, **25 hooks**.
