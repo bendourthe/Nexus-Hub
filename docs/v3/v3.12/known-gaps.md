@@ -1,7 +1,7 @@
 # Known Gaps - v3.12
 
 **Project**: Nexus-Hub
-**Status**: in development (presentify-fidelity-and-variety Phase 4 of 6 complete; Phase 4 added no gaps)
+**Status**: in development (presentify-fidelity-and-variety Phase 5 of 6 complete; Phase 5 added no gaps and RESOLVED WN-3)
 **Last updated**: 2026-07-11 (Phase 3: one new warning WN-3; Phase 2 added no gaps but fixed the Phase 1 region-crop defect inline - tick labels outside the rasterized crop - via label-inclusive crop expansion in `extract_content.py`, 45/45 fixture checks green)
 
 ## v3.12.0
@@ -13,7 +13,7 @@
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 3 | 0 |
 | Bugs / regressions (BG) | 0 | 0 |
-| Warnings (WN) | 3 | 0 |
+| Warnings (WN) | 2 | 1 |
 | Missing tests / coverage gaps (MT) | 1 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
@@ -58,18 +58,18 @@
 - **Reason**: The builder was not ruff-format-normalized when shipped in v3.9.0; this phase edited only its schema-version acceptance block and left whole-file reformatting out of scope (every changed line must trace to the phase). `ruff check` passes; only the formatter diff is outstanding, and no repo gate enforces `ruff format` today.
 - **Suggested next step**: Normalize the file in the plan's Phase 6 architecture-refactor pass (behavior-preserving, reviewed as its own commit).
 
-##### WN-3 - Interaction-budget demo verified by static structural review only (no headless browser on the dev host)
-
-- **Source phase**: Phase 3 (3.3)
-- **Plan reference**: sub-task 3.3
-- **Reason**: The chart-free budget demo (`docs/v3/v3.12/development/fixtures/budget_demo.py` -> `models/budget-demo.html`) passes an 11-check structural verification (all five budget points wired, zero external refs, JS within the 60 KB cap, reduced-motion + keyboard guards present), but no headless browser is available on this host to render it and screenshot the interactive states - the skill's own documented degradation path (static review + a one-line note) was applied.
-- **Suggested next step**: Exercise the rendered page during the Phase 5 worked example's visual-QA loop on a host with a headless browser (or accept the same degradation there and note it); no code change expected.
-
 #### Missing tests / coverage gaps
 
 ##### MT-1 - extract_content.py has no pytest suite; validation is via the committed fixture verifier
 
 - **Source phase**: Phase 1 (1.6)
 - **Plan reference**: sub-task 1.6; Phase 6 sub-task 6.3
-- **Reason**: Skill-bundle scripts have no pytest convention in this repo; Phase 1 validation runs `docs/v3/v3.12/development/fixtures/verify_phase1.py` (45 binary checks over generated fixtures: visuals, native charts, captions, dedup, scanned/OCR tiers, degradation, determinism, builder compat) manually rather than under CI.
-- **Suggested next step**: Phase 6 (6.3) decides whether to promote the fixture verifier (or extracted pure-function unit tests) into CI.
+- **Reason**: Skill-bundle scripts have no pytest convention in this repo; Phase 1 validation runs `docs/v3/v3.12/development/fixtures/verify_phase1.py` (45 binary checks over generated fixtures: visuals, native charts, captions, dedup, scanned/OCR tiers, degradation, determinism, builder compat) manually rather than under CI. Phases 3-5 added three more manual verifiers (`verify_budget_demo.py`, `verify_design_seed.py`, `verify_worked_example.py`).
+- **Suggested next step**: Phase 6 (6.3) decides whether to promote the fixture verifiers (or extracted pure-function unit tests) into CI.
+
+### Resolved
+
+##### WN-3 - Interaction-budget demo verified by static structural review only (RESOLVED in Phase 5)
+
+- **Source phase**: Phase 3 (3.3); resolved by Phase 5 (5.2)
+- **Resolution**: Headless Edge (present on the Windows host) rendered the worked example's runs at desktop and mobile widths (`docs/v3/v3.12/development/worked-example/*.png`); the visual-QA pass read the screenshots back (one defect found and fixed: a dangling caption dash on caption-less figures). The rendered-pass checkpoint this warning deferred to Phase 5 has been exercised.

@@ -269,6 +269,16 @@ values were confirmed by direct reading. The page-2 figure is illustrative
 <button type="button" class="close">Close</button></div>
 <img src="" alt=""></div>
 <script>{JS}</script>
+<!-- COVERAGE RECONCILIATION - scanned.pdf
+manifest: scanned pages 2 (OCR'd 2, low-confidence flagged for verification);
+          images found 2 / kept 2 / skipped 0; tables 1
+- [rendered]      scanned page 1 image (lightbox)
+- [rendered]      scanned page 2 image (lightbox)
+- [verified-ocr]  table page 1 (Region/Units: North 42, South 37 confirmed against the page image)
+- [agent-read]    heading + two body paragraphs (OCR spacing/merge corrections applied)
+- [skipped]       page 2 bar figure reconstruction DECLINED - no axes/ticks/labels, caption says
+                  illustrative (low confidence); presented via the page image instead
+verdict: ACCOUNTED - 0 unaccounted -->
 </body></html>
 """
     OUT.write_text(html, encoding="utf-8")

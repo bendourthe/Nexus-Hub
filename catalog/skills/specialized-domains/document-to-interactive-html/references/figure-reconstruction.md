@@ -100,6 +100,29 @@ For every `image` block with `origin: "scanned-page"`, the agent reads the page 
 
 A scanned page is complete when its text, tables, and figures are all either verified/transcribed or explicitly marked unreadable - the same no-silent-loss rule as everywhere else in this skill.
 
+## Coverage reconciliation (output format)
+
+The verification stage closes the loop between what extraction FOUND and what the output SHOWS. Compare the model's `coverage` manifest against the authored `.html` and produce a one-line-per-item accounting, embedded as an HTML comment at the end of the output and summarized to the user. Every visual the manifest counts must resolve to exactly one of `rendered`, `reconstructed`, or `skipped` (with a reason); OCR-provenance content additionally resolves to `verified-ocr` or `agent-read`.
+
+```text
+COVERAGE RECONCILIATION - <source path>
+manifest: images found F / kept K / skipped S; native charts C;
+          vector regions rasterized R / skipped Rs; scanned pages P
+          (OCR'd O, agent-read A, low-confidence L)
+- [rendered]      image page 4 "photo" (lightbox)
+- [reconstructed] chart from image page 2 "Figure 1: ..." (confidence medium,
+                  worksheet comment adjacent, view-original toggle)
+- [skipped]       image page 1 "logo" - decorative (repeated asset)
+- [verified-ocr]  table page 1 (numeric values confirmed against the page image)
+- [agent-read]    paragraph page 1 (transcribed; OCR had merged two paragraphs)
+verdict: ACCOUNTED - 0 unaccounted
+```
+
+The verdict is binary: ANY unaccounted visual (counted in the manifest but neither present in the output nor carrying a skip line) FAILS verification. Two companion gates ride on the same listing:
+
+- **Data fidelity**: every `chart` in the output traces to `source-data` / `native-chart` provenance or to a worksheet (`reconstructed-from-image`); a chart with neither is fabricated and FAILS.
+- **OCR verification**: no `provenance: "ocr"` numeric content reaches the output without the part-7 verification pass having confirmed or corrected it; unverified low-confidence OCR text never appears silently.
+
 ## Common failure modes this protocol exists to prevent
 
 - Embedding a data-bearing figure as a static picture because "it's just an image" - classify first; charts get worksheets.

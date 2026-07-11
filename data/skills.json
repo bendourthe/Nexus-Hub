@@ -7201,8 +7201,9 @@
       "path": "catalog/skills/specialized-domains/document-to-interactive-html/",
       "file": "catalog/skills/specialized-domains/document-to-interactive-html/SKILL.md",
       "size": {
-        "lines": 128,
-        "tokens_estimate": 2089
+        "lines": 186,
+        "characters": 32887,
+        "tokens_estimate": 4823
       },
       "downloads": 0,
       "status": "production",
