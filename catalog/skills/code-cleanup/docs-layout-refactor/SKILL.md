@@ -99,6 +99,40 @@ Use the kebab-safe form (dots and hyphens only, no parentheses or spaces) to pre
 - Never write the same artifact into two layouts. Resolution picks exactly one `<version_dir>`.
 - On a conflicting state (both legacy and canonical present), prefer the canonical path and report the inconsistency in the *Layout Inconsistencies* section of the report.
 
+## Cross-cutting documentation subtrees (non-versioned)
+
+Not every `docs/` subtree is a version-scoped artifact. Many projects keep long-lived, cross-cutting documentation at the `docs/` root that is deliberately *not* tied to a single release: architecture decision records, RFCs, specifications, governance policy, runbooks, a solutions knowledge base, and reference material. These subtrees are the companion to the version buckets above, and this skill treats them as a distinct disposition class so that a downstream `/plan` or `/implement` run has a canonical rule to follow instead of inventing one.
+
+**Recognized subtrees** (match on the directory name at the `docs/` root, case-insensitive; aliases in parentheses):
+
+| Class | Directories | Behavior |
+|---|---|---|
+| **Append-only decision logs** | `adr/` (`adrs`, `decisions`, `architecture/decisions`), `rfc/` (`rfcs`), `proposals/` | Records are *superseded*, never deleted - a superseded ADR/RFC is still part of the history. |
+| **Architecture and design** | `architecture/`, `design/` | Long-lived system documentation. Leave in place. |
+| **Diataxis content** | `tutorials/`, `how-to/` (`howto`, `how-to-guides`), `reference/`, `explanation/` (`concepts`), `guides/` | Maintained against the current codebase, not a past release. |
+| **Operations** | `runbooks/` (`runbook`), `playbooks/`, `troubleshooting/`, `ops/` (`operations`) | Living operational docs. |
+| **Governance, policy and legal** | `policy/` (`policies`, `governance`), `security/`, `compliance/`, `legal/` (`licenses`), `constitution.md` | Load-bearing governance. |
+| **Reference collections** | `specs/` (`specifications`), `api/` (`api-reference`), `solutions/`, `glossary/`, `faq/` (`faqs`), `examples/` | Leave in place; flag stale entries for refresh. |
+| **Localization** | `i18n/`, `locales/`, per-language dirs (`en/`, `fr/`, `zh/`, ...) | Per-language mirrors of the above. Leave in place. |
+
+All directory names above are matched relative to the `docs/` root (e.g. `docs/tutorials/`).
+
+**Default disposition** for every file under a recognized subtree:
+
+- **Hard floor at Cat 3.** These files are never auto-deleted (Cat 1) and never auto-archived (Cat 2) by the version heuristics. They rise to Cat 4 when actively referenced or in-flight. This floor sits alongside the signal 2 and signal 6 floors in Step 4.
+- **Exempt from version-based archival.** Signal 1 (version-vs-active) and whole-major archival (Step 5) never apply - these subtrees live outside the `docs/v<MAJOR>/` scheme by design.
+- **Never reclassified by semantic content.** The skill does not split, rename, merge, or re-bucket these subtrees by meaning (e.g. it never partitions ADRs into "design-spec" vs "governance-policy", because it has no reference layout to validate such a split against). Structural reorganization of a recognized subtree happens only when the user explicitly requests it AND supplies the target shape.
+- **Whole-subtree archival is opt-in only.** If a project genuinely retires one of these subtrees, archive it as a single unit through the Partial path at the Step 7 gate - never as an automated proposal.
+
+**Unrecognized but comparable subtrees**: a `docs/<name>/` directory that is clearly a living reference or governance collection (it holds maintained documentation, does not match the version-artifact filename patterns in signal 3, and is not itself a version bucket) defaults into this class. Bias to leave-in-place and flag as Cat 3 for manual review rather than auto-dispositioning it. When in doubt, treat a subtree as cross-cutting rather than version-scoped - a false "leave in place" is reversible, whereas a false archive or delete churns files and every cross-reference that points at them.
+
+**Documentation tooling and generated output** are not content and follow a separate rule, since most `docs/` trees are built by a static-site generator (Sphinx, MkDocs, Jekyll, Hugo, Docusaurus, VuePress):
+
+- **Generator scaffolding** - Sphinx (`source/`, `_static/`, `_templates/`, `conf.py`), Jekyll (`_layouts/`, `_includes/`, `_data/`), MkDocs / Docusaurus / VuePress (`src/`, `static/`, `.vuepress/`): active machinery. Same leave-in-place floor as the content subtrees above; never archived or reclassified.
+- **Generated build output** - Sphinx `_build/`, Jekyll `_site/`, MkDocs `site/`, Hugo `public/`, Docusaurus `.docusaurus/`, and any `dist/`: regenerable, not source. This is the one exception to the Cat 3 floor - the skill never archives it, recommends it be gitignored, and deletes it only with the explicit Cat 1 confirmation (never silently). Do not treat stale generated HTML as archivable content.
+- **Media and asset dirs** - `assets/`, `images/`, `img/`, `media/`, `diagrams/`: follow the binary-asset rule in Edge Case 4 (inventory-only; orphans propose Cat 2 archive, never Cat 1).
+- **Tool-managed versioned docs** - Docusaurus `versioned_docs/` and `versioned_sidebars/` are the generator's own versioning mechanism; leave them to the tool and never remap them into the `docs/v<MAJOR>/` scheme.
+
 ## Instructions
 
 ### Step 1 - Resolve scope and mode
@@ -163,7 +197,7 @@ The helper scans `.md`, `.json`, `.yaml`, `.yml`, `.toml`, `.sh`, `.ps1`, `.py` 
 
 ### Step 4 - Categorization (eight weighted heuristics)
 
-Signals 2 and 6 are **hard floors**: they can only raise a category, never lower it.
+Signals 2 and 6 are **hard floors**: they can only raise a category, never lower it. Files under a recognized cross-cutting subtree carry an additional hard floor at Cat 3 - see [Cross-cutting documentation subtrees (non-versioned)](#cross-cutting-documentation-subtrees-non-versioned).
 
 | # | Signal | Effect |
 |---|---|---|
@@ -203,7 +237,7 @@ Resolve archive-path collisions by suffixing with `-<source-version>` (e.g., `pl
 
 For the active tree, the canonical layout is `docs/v<MAJOR>/v<MAJOR>.<MINOR>/` (patch releases share the minor dir), with `plans/` and `comparisons/` subdirs - see [Version-directory resolution](#version-directory-resolution) for the full algorithm and per-file naming. Propose any renames or topical regroupings that bring older version dirs in line with the active layout. Mirror the active version's directory shape (e.g., if `<active_version_dir>/` uses `plans/` and `review/` subdirs, propose the same subdirs inside each archived version).
 
-**Working-version awareness**: when the active major version is `vN`, this skill treats any major bucket `v<M>` with `M < N` as a candidate for *whole-major archival* into `docs/archive/v<M>/`. Whole-major archival is triggered only via `/refactor-docs --auto-archive-older-versions` or explicit user opt-in at the Phase 7 gate; never implicitly. The current (in-flight) version directory is always preserved per `--keep-current-version`.
+**Working-version awareness**: when the active major version is `vN`, this skill treats any major bucket `v<M>` with `M < N` as a candidate for *whole-major archival* into `docs/archive/v<M>/`. Whole-major archival is triggered only via `/refactor-docs --auto-archive-older-versions` or explicit user opt-in at the Phase 7 gate; never implicitly. The current (in-flight) version directory is always preserved per `--keep-current-version`. Cross-cutting non-versioned subtrees (ADRs, RFCs, specs, policy, runbooks, and the like) are never swept by version-based or whole-major archival - they live outside the `docs/v<MAJOR>/` scheme; see [Cross-cutting documentation subtrees (non-versioned)](#cross-cutting-documentation-subtrees-non-versioned).
 
 Build a target-tree preview as a Markdown tree block for the report.
 
@@ -330,6 +364,8 @@ Run the seven binary checks (see Verification section below). On any FAIL, loop 
 | `docs/v1.1.5/plans/foo.md` | 2 (inbound refs from active), Cat 4 floor | Cat 4 | Active version + inbound refs = always Cat 4. |
 | `docs/DEVLOG.md` | 2 (inbound from AGENTS.md), age < 60d | Cat 3 | Edge case: always Cat 3 at root; never archived or deleted. |
 | `docs/git/gitignore-audit-2026-04-22.md` | 3 (date-stamped one-shot), 4 (age) | Cat 2 | Date-keyed audit; archive for traceability. |
+| `docs/adr/0007-use-postgres.md` | cross-cutting subtree (append-only log) | Cat 3 | ADR: superseded records are kept as part of the decision history, never deleted or version-archived. |
+| `docs/policy/mcp-reverse-engineering-matrix.md` | cross-cutting subtree (governance) | Cat 3 | Governance policy; leave in place regardless of age, even with no inbound docs links. |
 
 ## Edge Cases
 
@@ -345,6 +381,8 @@ Run the seven binary checks (see Verification section below). On any FAIL, loop 
 | 8 | Symlinks under `docs/` | Skip with warning. Never move or delete. |
 | 9 | Empty version directory | Cat 1 candidate. Require explicit user confirmation; do not auto-delete in `--apply`. |
 | 10 | Archive-path collision | Suffix with `-<source-version>`. Never silently overwrite. |
+| 11 | Cross-cutting non-versioned subtree (`docs/adr/`, `docs/rfc/`, `docs/specs/`, `docs/policy/`, `docs/architecture/`, `docs/tutorials/`, `docs/runbooks/`, `docs/i18n/`, ...) | Hard floor at Cat 3. Never version-archived, never reclassified or split by semantic content. Whole-subtree archival only via explicit opt-in at the gate. See [Cross-cutting documentation subtrees (non-versioned)](#cross-cutting-documentation-subtrees-non-versioned). |
+| 12 | Doc-generator output dir (`docs/_build/`, `_site/`, `site/`, `public/`, `.docusaurus/`, `dist/`) | Regenerable, not content. Never archived; recommend gitignoring; delete only with explicit Cat 1 confirmation. Generator scaffolding (`source/`, `_static/`, `_templates/`) gets the Cat 3 leave-in-place floor instead. |
 
 See [references/archive-layout.md](references/archive-layout.md) for the canonical archive tree shape and the `docs/archive/README.md` template that step 8 instantiates.
 
@@ -381,5 +419,5 @@ Run after step 9. Each check is binary; FAIL on any item loops back up to three 
 
 ---
 
-**Version**: 1.2.0
+**Version**: 1.3.0
 **Last Updated**: July 2026
