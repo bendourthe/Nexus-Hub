@@ -1,7 +1,7 @@
 # Known Gaps - v3.12
 
 **Project**: Nexus-Hub
-**Status**: in development (presentify-fidelity-and-variety Phase 3 of 6 complete)
+**Status**: in development (presentify-fidelity-and-variety Phase 4 of 6 complete; Phase 4 added no gaps)
 **Last updated**: 2026-07-11 (Phase 3: one new warning WN-3; Phase 2 added no gaps but fixed the Phase 1 region-crop defect inline - tick labels outside the rasterized crop - via label-inclusive crop expansion in `extract_content.py`, 45/45 fixture checks green)
 
 ## v3.12.0

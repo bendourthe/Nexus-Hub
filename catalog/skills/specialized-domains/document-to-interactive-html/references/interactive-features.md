@@ -70,9 +70,17 @@ Before writing any markup, resolve a design direction and commit to one. The goa
 
     If the menu cannot be answered (a non-interactive or headless run), fall back to option 4 and proceed with the creative/unique path - never block on the prompt.
 
+3. **Roll the design brief - mechanical entropy FIRST, judgment second.** Unseeded taste converges: two same-preset runs drift to the same palette and layout because the agent samples its own prior - that is the "same preset, same look every run" failure this step exists to break. Once the preset is resolved, run the bundled sampler:
+
+    ```bash
+    python scripts/design_seed.py --preset <corporate|creative|technical|surprise> -o brief.json
+    ```
+
+    It rolls candidates from curated axis pools (12 hue families with light AND dark bases, moods, type voices, layout signatures, motion personalities, signature moves), constrained per preset so preset intent holds while the feel still varies; seeds from `os.urandom` (pass `--seed N` to reproduce a run); and rejects any candidate sharing 2+ of {hue family, layout signature, type voice} with the last 3 committed runs in the persisted history (`~/.nexus-hub/state/presentify-design-history.json`, `--history` to override). Treat the rolled brief as the COMMITTED starting tokens: adapt the exact hexes, pairings, and pacing to the content's character WITHIN the brief's register - do NOT re-roll until you like the answer, and do NOT silently swap axes back toward the attractor. Record the seed and the brief's one-line summary in the output's design-record comment, and after the run ships call `python scripts/design_seed.py --commit brief.json` so the history advances and the next run is pushed away from this one. Skip the roll ONLY when the script cannot execute (no Python on the host): then manually vary at least the hue family and the layout signature away from the last recorded run, and say so in one line.
+
 **Let content inform, not dictate.** The content's character (subject, audience, tone, era, emotional register) is an INPUT that shades the design, not the rule that picks it. It can nudge palette and pacing - a quarterly finance report leans calmer, a product launch leans bolder - but lead with what makes this run distinctive, interactive, and engaging. Do not mechanically map document type to a fixed aesthetic: that reintroduces the sameness the menu and the surprise-me option exist to break.
 
-**Generate candidates across these axes, then pick one.** For "surprise me" (and the fallback) brainstorm freely; for a standard preset brainstorm within that register. Vary on:
+**Adapt the brief across these axes (the roll picks the register; you tune within it).** The sampler fixes the high-entropy axes; the brainstorm's job is to make them serve THIS content - sharpen the palette's exact values, pick the pairing weights, decide where the layout signature bites hardest. The axes, for reference:
 
 - **Palette mood**: not just light vs dark, but the emotional temperature (warm paper, cool clinical, high-contrast editorial, muted earthy, saturated playful). Constrain to one or two accents over a neutral base (`[[hallmark-design]]` gate 8).
 - **Typographic voice**: the heading / body pairing and its personality (serif-display editorial, geometric-sans modern, mono-technical, humanist-warm). System stacks only, or base64 `@font-face`.
@@ -89,7 +97,7 @@ Before writing any markup, resolve a design direction and commit to one. The goa
 
 If the committed direction matches that description, it is almost certainly the attractor: pick something else. Aim also to differ from the previous run, so a sequence of outputs visibly varies.
 
-**Commit to concrete tokens and record them.** Write the direction down before authoring: a name, the exact colors (hex), the font pairing (heading / body / mono), the spacing rhythm, the signature layout move, and the motion signature. Embed it as an HTML comment at the top of the output (so the choice is auditable) and state it to the user in one line. Then author to those tokens; do not drift back to the attractor mid-build.
+**Commit to concrete tokens and record them.** Write the direction down before authoring: a name, the exact colors (hex), the font pairing (heading / body / mono), the spacing rhythm, the signature layout move, the motion signature, AND the roll's seed + one-line brief summary (so the run is reproducible and auditable). Embed it as an HTML comment at the top of the output and state it to the user in one line. Then author to those tokens; do not drift back to the attractor mid-build.
 
 **Keep fonts self-contained.** Whatever the direction, keep all fonts as system stacks or base64 `@font-face`; never fetch a web font (it would break the offline guarantee). A named style or theme is resolved up front per "Resolve the direction in order" above and binds the look; the brainstorm only fills the axes it leaves open.
 
