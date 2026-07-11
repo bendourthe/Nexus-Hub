@@ -30,6 +30,6 @@ The scanned-fixture run's reconciliation (2 scanned pages OCR'd + verified, tabl
 ## Regenerate
 
 ```bash
-cd ../fixtures && python gen_fixtures.py && python verify_phase1.py  # models
+cd ../fixtures && python gen_fixtures.py && python verify_phase1.py && python enrich_models.py
 cd ../worked-example && python build_worked_example.py && python verify_worked_example.py
 ```

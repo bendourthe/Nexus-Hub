@@ -331,12 +331,22 @@ def make_data_xlsx(path: Path) -> None:
 def make_scanned_pdf(path: Path) -> None:
     from PIL import Image, ImageDraw, ImageFont
 
-    try:
-        heading_font = ImageFont.truetype("arial.ttf", 48)
-        body_font = ImageFont.truetype("arial.ttf", 30)
-    except OSError:
-        heading_font = ImageFont.load_default()
-        body_font = ImageFont.load_default()
+    def _font(size: int):
+        candidates = (
+            "arial.ttf",  # Windows
+            "DejaVuSans.ttf",
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",  # Ubuntu CI
+            "/System/Library/Fonts/Supplemental/Arial.ttf",  # macOS
+        )
+        for name in candidates:
+            try:
+                return ImageFont.truetype(name, size)
+            except OSError:
+                continue
+        return ImageFont.load_default()
+
+    heading_font = _font(48)
+    body_font = _font(30)
 
     def page_one() -> Image.Image:
         image = Image.new("RGB", (1700, 1300), "white")
