@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.11.4 -->
+<!-- nexus-hub-version: 3.12.0 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 265 skills, 16 commands, 25 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -37,7 +37,9 @@ The two projects are designed to be useful independently: you can install Nexus-
 
 ---
 
-## What's New in v3.11.4
+## What's New in v3.12.0
+
+v3.12.0 is the presentify fidelity-and-variety overhaul: `/presentify` and its `document-to-interactive-html` skill no longer drop source visuals, no longer guess at figures, no longer ship static-feeling pages, and no longer converge to one look. The extractor now captures PDF embedded images (with repeated-asset dedup and caption pairing), detects and rasterizes vector-figure regions (plots, maps, diagrams - the norm in decks exported to PDF), reads scanned / image-only PDFs through a two-tier path (local OCR via optional `rapidocr-onnxruntime`/`pytesseract` with per-block confidence, plus an always-on full-page image for agent-vision reading - zero installed OCR engines still means zero content loss), recurses PPTX grouped shapes, extracts native PPTX/DOCX chart objects with their real series values, and emits a per-source coverage manifest that the new COVERAGE RECONCILIATION gate audits: every visual must end rendered, reconstructed, or explicitly skipped with a reason. Data-bearing figures go through a new figure-reconstruction protocol - classification, an auditable read-the-figure worksheet, fidelity cross-checks, and a three-tier confidence gate under which low-confidence figures ship as pan/zoom originals, never invented numbers. Every run now carries a five-point minimum interaction budget (active-state nav, scroll reveals, hover/focus affordances, lightboxes on every non-decorative image, one signature interaction), and a new stdlib design-entropy engine (`design_seed.py`: 12 hue families x light/dark, preset-constrained pools, seeded rolls, a persisted run history with a 2-of-3-axes rejection rule) makes same-preset reruns provably different. A committed worked example replays the original failing case (a PDF saved from PowerPoint) twice with the same preset: ground-truth-exact reconstruction, 0 unaccounted visuals, and two unmistakably different designs. A path-filtered CI workflow now guards the extractor. Catalog counts unchanged: **265 skills**, **16 commands**, **25 hooks**.
 
 v3.11.4 is a small catalog patch bundling two changes. The Nexus-AI integration now installs the entire catalog under `~/.nexus-ai/catalog/` instead of the `~/.nexus-ai/` root - reserving the root for the Nexus-AI app's own data home (settings, MCP config, model weights, sessions, credentials) so a catalog refresh can wipe-and-refetch its own subtree without risking app data - and writes a timestamp-free `nexus-hub-version.json` at the catalog root that gives the desktop app a first-class update-detection contract (installed version plus the public releases endpoints). Separately, the `docs-layout-refactor` skill (1.2.0 -> 1.3.0) gains universal handling for cross-cutting, non-versioned documentation subtrees: it now recognizes the widely-adopted standards (architecture decision records, RFCs, specifications, governance policy, the Diataxis content quartet, runbooks, and static-site-generator output) as one conservative disposition class that is never version-archived or reclassified by semantic content, giving `/plan` and `/implement` a canonical rule instead of inventing one. No catalog change; the v3.11.0 feature set below ships unchanged.
 

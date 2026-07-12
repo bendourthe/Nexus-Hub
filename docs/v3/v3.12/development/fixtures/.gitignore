@@ -1,0 +1,5 @@
+# Regenerable / binary artifacts of the Phase 1 extraction-fidelity fixtures.
+# The committed evidence is the generator + verifier scripts + this README.
+# Regenerate the rest with gen_fixtures.py and verify with verify_phase1.py.
+inputs/
+models/

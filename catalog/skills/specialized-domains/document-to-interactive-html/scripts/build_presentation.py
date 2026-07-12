@@ -149,9 +149,7 @@ def theme_to_css(theme: dict) -> str:
     for slot in ("primary", "secondary", "accent", "background", "foreground", "muted"):
         lines.append(f"  --color-{slot}: {palette.get(slot, '#1c1c1c')};")
     lines.append(f"  --font-heading: {fonts.get('heading', 'Georgia, serif')};")
-    lines.append(
-        f"  --font-body: {fonts.get('body', 'system-ui, sans-serif')};"
-    )
+    lines.append(f"  --font-body: {fonts.get('body', 'system-ui, sans-serif')};")
     lines.append(f"  --font-mono: {fonts.get('mono', 'monospace')};")
     for index, value in enumerate(spaces, start=1):
         lines.append(f"  --space-{index}: {value}px;")
@@ -189,10 +187,7 @@ def _svg_bar(categories: list, series: list, colors: list, muted: str) -> str:
     n_cat = max(1, len(categories))
     group_w = plot_w / n_cat
     bar_w = (group_w * 0.78) / max(1, len(series))
-    parts = [
-        f'<svg viewBox="0 0 {width} {height}" role="img" '
-        f'aria-label="Bar chart">'
-    ]
+    parts = [f'<svg viewBox="0 0 {width} {height}" role="img" aria-label="Bar chart">']
     for frac in (0.0, 0.5, 1.0):
         y = baseline - plot_h * frac
         parts.append(
@@ -236,10 +231,7 @@ def _svg_line(categories: list, series: list, colors: list, muted: str) -> str:
     v_max = max(values + [0]) or 1
     n = max(1, len(categories))
     step = plot_w / max(1, n - 1) if n > 1 else 0
-    parts = [
-        f'<svg viewBox="0 0 {width} {height}" role="img" '
-        f'aria-label="Line chart">'
-    ]
+    parts = [f'<svg viewBox="0 0 {width} {height}" role="img" aria-label="Line chart">']
     for frac in (0.0, 0.5, 1.0):
         y = baseline - plot_h * frac
         parts.append(
@@ -332,14 +324,18 @@ def render_chart(block: dict, theme: dict) -> str:
     hint = str(block.get("chart_type_hint", "bar")).lower()
     if hint in ("pie", "doughnut"):
         colors = _chart_colors(theme, len(categories))
-        svg = _svg_pie(categories, series[0].get("values", []), colors, hint == "doughnut")
+        svg = _svg_pie(
+            categories, series[0].get("values", []), colors, hint == "doughnut"
+        )
         legend_labels = list(zip(categories, colors))
     else:
         colors = _chart_colors(theme, len(series))
         renderer = _svg_line if hint == "line" else _svg_bar
         muted = theme.get("palette", {}).get("muted", "#6b6b6b")
         svg = renderer(categories, series, colors, muted)
-        legend_labels = [(s.get("name", f"Series {i + 1}"), colors[i]) for i, s in enumerate(series)]
+        legend_labels = [
+            (s.get("name", f"Series {i + 1}"), colors[i]) for i, s in enumerate(series)
+        ]
     legend = "".join(
         f'<span><span class="swatch" style="background:{color}"></span>'
         f"{_esc(label)}</span>"
@@ -403,7 +399,9 @@ def _render_image(block: dict) -> str:
     caption = ""
     if alt and alt != "Image":
         caption = f"<figcaption>{_esc(alt)}</figcaption>"
-    return f'<figure><img src="{_esc_attr(uri)}" alt="{_esc_attr(alt)}">{caption}</figure>'
+    return (
+        f'<figure><img src="{_esc_attr(uri)}" alt="{_esc_attr(alt)}">{caption}</figure>'
+    )
 
 
 def render_block(block: dict, theme: dict) -> str:
@@ -450,7 +448,7 @@ def render_section(section: dict, index: int, theme: dict) -> str:
         if kind == "section-break":
             parts.append(
                 f'<h2 class="slide__heading"><span class="slide__index">'
-                f'{index + 1:02d}</span><span>{_esc(heading)}</span></h2>'
+                f"{index + 1:02d}</span><span>{_esc(heading)}</span></h2>"
             )
         else:
             tag = "h1" if kind == "title" else "h2"
@@ -471,7 +469,13 @@ def render_section(section: dict, index: int, theme: dict) -> str:
 def render_slides(model: dict, theme: dict) -> str:
     sections = model.get("sections", []) or []
     if not sections:
-        sections = [{"heading": model.get("title", "Presentation"), "kind": "title", "blocks": []}]
+        sections = [
+            {
+                "heading": model.get("title", "Presentation"),
+                "kind": "title",
+                "blocks": [],
+            }
+        ]
     return "\n".join(render_section(s, i, theme) for i, s in enumerate(sections))
 
 
@@ -500,7 +504,9 @@ def build_html(model: dict, theme: dict, template_text: str, title: str) -> str:
     css = theme_to_css(theme)
     slides = render_slides(model, theme)
     safe_title = _esc(title)
-    result = TITLE_RE.sub(lambda _m: f"<title>{safe_title}</title>", template_text, count=1)
+    result = TITLE_RE.sub(
+        lambda _m: f"<title>{safe_title}</title>", template_text, count=1
+    )
     result = THEME_BLOCK_RE.sub(lambda _m: css, result, count=1)
     result = SLIDES_RE.sub(
         lambda m: f"{m.group(1)}\n{slides}\n{m.group(2)}", result, count=1
@@ -516,7 +522,9 @@ def main(argv: list | None = None) -> int:
             "Local-only; renders inline SVG charts; no network calls."
         )
     )
-    parser.add_argument("model", help="Content-model JSON path (from extract_content.py).")
+    parser.add_argument(
+        "model", help="Content-model JSON path (from extract_content.py)."
+    )
     parser.add_argument("-o", "--out", required=True, help="Output .html path.")
     parser.add_argument(
         "--theme",
@@ -540,10 +548,11 @@ def main(argv: list | None = None) -> int:
         return 2
     with model_path.open(encoding="utf-8") as handle:
         model: dict[str, Any] = json.load(handle)
-    if int(model.get("schema_version", 1)) != 1:
+    if int(model.get("schema_version", 1)) not in (1, 2):
         print(
             f"Error: unsupported content-model schema_version "
-            f"{model.get('schema_version')}; this builder understands version 1.",
+            f"{model.get('schema_version')}; this builder understands versions "
+            "1 and 2 (v2 fields are additive and ignored where unknown).",
             file=sys.stderr,
         )
         return 2

@@ -30,6 +30,30 @@ Implementation approach (no library): render to a `<canvas>` (or an inline SVG y
 
 If the source has figures, tables, or images, they appear in the site: images inline as base64; numeric data as the interactive charts above; large tables as sortable / filterable tables where that helps the reader.
 
+### Site-wide interaction layer
+
+Charts are not the only carrier of dynamism - a source with zero chartable data must STILL produce a page that responds to the reader. This layer is the interactivity vocabulary for everything that is not a chart. All patterns are inlined vanilla JS/CSS (no library, no CDN), keyboard-accessible, and guarded by `prefers-reduced-motion`.
+
+1. **Scroll-triggered section reveals** - `IntersectionObserver` adds a `.revealed` class once per element as it enters the viewport; CSS transitions opacity/transform (a short rise, 200-400ms), optionally staggered per child via `transition-delay`. Sketch: `new IntersectionObserver(es => es.forEach(e => e.isIntersecting && (e.target.classList.add("revealed"), obs.unobserve(e.target))), {threshold: 0.15})`. Accessibility: under `prefers-reduced-motion: reduce`, elements start fully visible (no observer needed); content must never be unreachable if JS fails - reveal styles apply only under a `.js` root class.
+2. **Scroll-linked progress** - a sticky section nav whose active item tracks the section in view (a second `IntersectionObserver` with `rootMargin` tuned to the viewport middle), plus an optional thin reading-progress bar driven by `scroll` position (`requestAnimationFrame`-throttled). Accessibility: the active nav item carries `aria-current="true"`; the progress bar is `aria-hidden` (decorative).
+3. **Hover and focus affordances** - every interactive-adjacent element visibly responds: cards lift or gain an accent border, image thumbnails hint zoomability (a subtle scale or overlay icon), table rows highlight. Sketch: `:hover` plus `:focus-visible` sharing one ruleset (`.card:hover, .card:focus-visible { transform: translateY(-2px); ... }`). Accessibility: EVERY hover state has a keyboard-focus twin; focus outlines are never suppressed without a visible replacement.
+4. **Animated stat counters** - KPI-style numbers count up on first reveal (reuse the reveal observer), landing on the EXACT source value; duration ~800ms via `requestAnimationFrame`. Accessibility: under reduced motion the final value renders immediately; the element's accessible text is always the final value (animate a visual span, keep the real number in the DOM or `aria-label`).
+5. **Image lightbox with pan/zoom** - every non-decorative image opens in an overlay viewer: wheel/pinch zoom, drag pan, a reset control, Escape and backdrop-click to close. This is the SAME component the figure-reconstruction protocol's enhanced-original viewer and view-original toggle use - build it once. Accessibility: the trigger is a real `<button>` (or the image wrapped in one); on open, focus moves into the dialog (`role="dialog"`, `aria-modal="true"`) and is trapped; on close, focus returns to the trigger.
+6. **Expand/collapse structures** - tabs or accordions for dense subordinate content (appendices, per-source detail, long tables). Sketch: accordions as native `<details>/<summary>` (free keyboard support) styled to the design; tabs as buttons with `role="tab"` / `aria-selected` toggling `hidden` on panels. Accessibility: arrow-key navigation between tabs; state is always reflected in ARIA, not just classes.
+7. **Micro-transitions on state change** - nav jumps use smooth scrolling (`scroll-behavior: smooth` under motion-ok), chart series toggles and tab switches animate briefly (~150ms), lightbox fades in. Accessibility: all durations collapse to 0 under `prefers-reduced-motion: reduce`.
+
+### The minimum interaction budget (binary)
+
+Every run MUST ship ALL FIVE of the following, functional offline with zero external requests, in at most ~60 KB of added inline JS (the interaction layer, excluding chart controllers and base64 payloads):
+
+1. Working section navigation with active-state tracking (pattern 2).
+2. Scroll-triggered reveals OR an equivalent scroll-responsive treatment (pattern 1).
+3. Hover + keyboard-focus affordances on cards, images, and table rows (pattern 3).
+4. A pan/zoom lightbox on EVERY non-decorative image (pattern 5).
+5. At least ONE content-appropriate signature interaction chosen to fit the content: animated counters for a KPI-heavy source, tabs/accordions for a dense report, a comparison slider, a filterable grid, an annotated-figure hotspot layer... (patterns 4/6/7 or a bespoke move).
+
+A page whose only interactivity is its charts FAILS the budget. A page with no charts at all still meets the budget through this layer - that is the point.
+
 ### Design direction (resolve the direction, then brainstorm - creativity-first)
 
 Before writing any markup, resolve a design direction and commit to one. The goal each run is a UNIQUE, creative, interactive design; "fit the document type" is never the rule. "Be unique" is not enough on its own either: the agent has a strong default attractor it returns to unless forced off it, and that sameness is what makes a run read as AI-generated. Make this a real, deliberate stage, not an afterthought during authoring.
@@ -46,9 +70,17 @@ Before writing any markup, resolve a design direction and commit to one. The goa
 
     If the menu cannot be answered (a non-interactive or headless run), fall back to option 4 and proceed with the creative/unique path - never block on the prompt.
 
+3. **Roll the design brief - mechanical entropy FIRST, judgment second.** Unseeded taste converges: two same-preset runs drift to the same palette and layout because the agent samples its own prior - that is the "same preset, same look every run" failure this step exists to break. Once the preset is resolved, run the bundled sampler:
+
+    ```bash
+    python scripts/design_seed.py --preset <corporate|creative|technical|surprise> -o brief.json
+    ```
+
+    It rolls candidates from curated axis pools (12 hue families with light AND dark bases, moods, type voices, layout signatures, motion personalities, signature moves), constrained per preset so preset intent holds while the feel still varies; seeds from `os.urandom` (pass `--seed N` to reproduce a run); and rejects any candidate sharing 2+ of {hue family, layout signature, type voice} with the last 3 committed runs in the persisted history (`~/.nexus-hub/state/presentify-design-history.json`, `--history` to override). Treat the rolled brief as the COMMITTED starting tokens: adapt the exact hexes, pairings, and pacing to the content's character WITHIN the brief's register - do NOT re-roll until you like the answer, and do NOT silently swap axes back toward the attractor. Record the seed and the brief's one-line summary in the output's design-record comment, and after the run ships call `python scripts/design_seed.py --commit brief.json` so the history advances and the next run is pushed away from this one. Skip the roll ONLY when the script cannot execute (no Python on the host): then manually vary at least the hue family and the layout signature away from the last recorded run, and say so in one line.
+
 **Let content inform, not dictate.** The content's character (subject, audience, tone, era, emotional register) is an INPUT that shades the design, not the rule that picks it. It can nudge palette and pacing - a quarterly finance report leans calmer, a product launch leans bolder - but lead with what makes this run distinctive, interactive, and engaging. Do not mechanically map document type to a fixed aesthetic: that reintroduces the sameness the menu and the surprise-me option exist to break.
 
-**Generate candidates across these axes, then pick one.** For "surprise me" (and the fallback) brainstorm freely; for a standard preset brainstorm within that register. Vary on:
+**Adapt the brief across these axes (the roll picks the register; you tune within it).** The sampler fixes the high-entropy axes; the brainstorm's job is to make them serve THIS content - sharpen the palette's exact values, pick the pairing weights, decide where the layout signature bites hardest. The axes, for reference:
 
 - **Palette mood**: not just light vs dark, but the emotional temperature (warm paper, cool clinical, high-contrast editorial, muted earthy, saturated playful). Constrain to one or two accents over a neutral base (`[[hallmark-design]]` gate 8).
 - **Typographic voice**: the heading / body pairing and its personality (serif-display editorial, geometric-sans modern, mono-technical, humanist-warm). System stacks only, or base64 `@font-face`.
@@ -65,7 +97,7 @@ Before writing any markup, resolve a design direction and commit to one. The goa
 
 If the committed direction matches that description, it is almost certainly the attractor: pick something else. Aim also to differ from the previous run, so a sequence of outputs visibly varies.
 
-**Commit to concrete tokens and record them.** Write the direction down before authoring: a name, the exact colors (hex), the font pairing (heading / body / mono), the spacing rhythm, the signature layout move, and the motion signature. Embed it as an HTML comment at the top of the output (so the choice is auditable) and state it to the user in one line. Then author to those tokens; do not drift back to the attractor mid-build.
+**Commit to concrete tokens and record them.** Write the direction down before authoring: a name, the exact colors (hex), the font pairing (heading / body / mono), the spacing rhythm, the signature layout move, the motion signature, AND the roll's seed + one-line brief summary (so the run is reproducible and auditable). Embed it as an HTML comment at the top of the output and state it to the user in one line. Then author to those tokens; do not drift back to the attractor mid-build.
 
 **Keep fonts self-contained.** Whatever the direction, keep all fonts as system stacks or base64 `@font-face`; never fetch a web font (it would break the offline guarantee). A named style or theme is resolved up front per "Resolve the direction in order" above and binds the look; the brainstorm only fills the axes it leaves open.
 

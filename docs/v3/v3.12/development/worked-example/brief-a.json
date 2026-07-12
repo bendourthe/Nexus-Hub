@@ -1,0 +1,32 @@
+{
+  "preset": "technical",
+  "seed": 173564024410684514,
+  "hue_family": "teal",
+  "base_variant": "light",
+  "palette": {
+    "base": "#f2f8f8",
+    "surface": "#dcebeb",
+    "ink": "#173033",
+    "accent": "#2a7f83",
+    "accent_2": "#b6534e"
+  },
+  "mood": "duotone-graphic",
+  "neutral_temperature": "cool",
+  "type": {
+    "voice": "grotesk-editorial",
+    "heading": "'Arial Black', 'Segoe UI', 'Helvetica Neue', sans-serif",
+    "body": "Arial, 'Helvetica Neue', 'Segoe UI', sans-serif",
+    "mono": "Consolas, Menlo, monospace"
+  },
+  "spacing_rhythm": "airy",
+  "layout_signature": {
+    "name": "bento-mosaic",
+    "description": "a mosaic of DIFFERENTLY-sized tiles (never identical cards) packing stats, figures, and prose"
+  },
+  "motion_personality": "minimal-fade",
+  "signature_move": {
+    "name": "sticky-figure-scrollytelling",
+    "description": "a figure stays pinned while prose steps scroll past and update it"
+  },
+  "summary": "technical: light teal / duotone-graphic / grotesk-editorial / bento-mosaic / minimal-fade / move: sticky-figure-scrollytelling (seed 173564024410684514)"
+}

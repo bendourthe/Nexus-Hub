@@ -1,0 +1,32 @@
+{
+  "preset": "technical",
+  "seed": 10046507539169430048,
+  "hue_family": "cyan-slate",
+  "base_variant": "dark",
+  "palette": {
+    "base": "#14202a",
+    "surface": "#1d2e3a",
+    "ink": "#e4edf3",
+    "accent": "#3a7ca5",
+    "accent_2": "#c47f3d"
+  },
+  "mood": "high-contrast-editorial",
+  "neutral_temperature": "neutral",
+  "type": {
+    "voice": "mono-technical",
+    "heading": "Consolas, 'Cascadia Code', 'SF Mono', Menlo, monospace",
+    "body": "'Segoe UI', -apple-system, Arial, sans-serif",
+    "mono": "Consolas, 'Cascadia Code', Menlo, monospace"
+  },
+  "spacing_rhythm": "compact-dense",
+  "layout_signature": {
+    "name": "offset-column-rhythm",
+    "description": "content alternates left/right of the midline section by section"
+  },
+  "motion_personality": "crisp-instant",
+  "signature_move": {
+    "name": "filterable-grid",
+    "description": "a chip-filtered grid of items/figures"
+  },
+  "summary": "technical: dark cyan-slate / high-contrast-editorial / mono-technical / offset-column-rhythm / crisp-instant / move: filterable-grid (seed 10046507539169430048)"
+}

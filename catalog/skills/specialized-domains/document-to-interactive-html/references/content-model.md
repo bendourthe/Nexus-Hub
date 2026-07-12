@@ -6,18 +6,19 @@ The model is plain JSON. It is described here in prose plus a commented example;
 
 ## Top-level object
 
-A content model is a single JSON object with three required fields and one optional field.
+A content model is a single JSON object with three required fields and two optional fields.
 
-- `schema_version` (optional integer, default `1`): the model version. Present so the builder can reject a model it does not understand. Omit or set to `1` for the current shape.
+- `schema_version` (optional integer, default `1`): the model version. Present so the builder can reject a model it does not understand. The current extractor emits `2`. **Compatibility rule**: every v2 addition is ADDITIVE and optional - a v1 consumer that ignores unknown fields (exactly as it must ignore unknown block types) reads a v2 model correctly, and a v2 consumer treats every new field as absent-by-default when reading a v1 model. A consumer MUST NOT reject a model solely because `schema_version` is higher than it knows, as long as the required v1 fields are present.
 - `title` (string, required): the presentation title. For a single source this is the document title; for multiple sources it is a synthesized umbrella title.
-- `sources` (array, required): an ordered list of source descriptors, one per input document, in input order. Each entry is `{ "path": string, "format": string, "title": string }` where `format` is one of `pptx`, `docx`, `xlsx`, `pdf`. The order of this list defines multi-file ordering and is the attribution lookup for each section (see `source_index` below).
+- `sources` (array, required): an ordered list of source descriptors, one per input document, in input order. Each entry is `{ "path": string, "format": string, "title": string }` where `format` is one of `pptx`, `docx`, `xlsx`, `pdf`. The order of this list defines multi-file ordering and is the attribution lookup for each section (see `source_index` below). **v2 optional field**: `deck_like` (boolean) - set `true` on a PDF source whose pages are landscape-oriented with low text density (a PDF exported from slides), so the mode auto-detect treats it as deck-like (preserve page order as slide flow).
 - `sections` (array, required): an ordered list of section objects (defined below). Order is significant and is preserved end to end.
+- `coverage` (object, optional, v2): the extraction coverage manifest the authoring stage reconciles against. Shape: `{ "per_source": [ <entry>, ... ] }` with one entry per source, in `sources` order. Each entry carries `path` (string) plus integer counts `images_found`, `images_kept`, `images_skipped`, `native_charts`, `tables`, `vector_regions_rasterized`, `vector_regions_skipped`, `scanned_pages_detected`, `ocr_pages`, `ocr_low_confidence`, `agent_read_pages`, and `skip_reasons` (array of human-readable strings, one per skipped item or aggregated skip decision, e.g. `"repeated-asset: image on 4 pages kept once (page 1)"`). Verification rule: every visual the manifest counts as found must be accounted for in the output - rendered, reconstructed, or explicitly skipped with a reason.
 
 Commented example (JSON does not allow comments; the `//` lines are illustrative only and must be removed in real output):
 
 ```json
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "title": "Q3 Review",                  // umbrella title
   "sources": [
     { "path": "q3-deck.pptx",  "format": "pptx", "title": "Q3 Deck" },
@@ -72,17 +73,26 @@ Every entry in a section's `blocks` array is an object whose `type` field select
 
 - `paragraph`: a run of prose.
     - `{ "type": "paragraph", "text": string }`
+    - **v2 optional fields**: `provenance` (one of `text-layer` (the default when absent), `ocr`, `agent-read`) and `ocr_confidence` (number 0-1, present when provenance is `ocr`) - so fidelity checks know which text was recovered by OCR or agent-vision reading and must be verified against the page image.
 - `bullets`: a (possibly nested) list. Nesting is expressed by an integer `depth` on each item (0 = top level, 1 = one level in, and so on) rather than by nesting arrays, so the builder can render it with a single pass.
     - `{ "type": "bullets", "items": [ { "text": string, "depth": integer }, ... ] }`
 - `table`: a tabular block with an optional header row.
     - `{ "type": "table", "header": [string, ...], "rows": [ [string, ...], ... ] }`
     - `header` may be an empty array when the source table has no header row. Every row is an array of cell strings; cells are stringified (numbers become their string form).
+    - **v2 optional fields**: `provenance` and `ocr_confidence`, with the same semantics as on `paragraph`. Numeric content in an `ocr`-provenance table must ALWAYS be verified against the page image during authoring, regardless of confidence.
 - `image`: a raster figure. Bytes are carried inline as a base64 `data:` URI so the final HTML is self-contained (see `references/extraction-runbook.md` for the size budget and how bytes are extracted per format). `alt` is required for accessibility even when synthesized.
     - `{ "type": "image", "data_uri": string, "alt": string }`
     - `data_uri` has the form `data:image/<subtype>;base64,<...>`.
+    - **v2 optional fields**: `caption` (string; nearby caption text when detected, e.g. a "Figure 3: ..." line directly below the figure), `page` (integer; 1-based source page or slide number), `origin` (one of `embedded-raster` - a raster embedded in a PDF page; `rasterized-region` - a vector-figure region rendered to a bitmap; `shape-picture` - a PPTX picture shape; `inline-image` - a DOCX inline image; `scanned-page` - a full-page image of a scanned PDF page for agent-vision reading), and `classification` (string, default empty; filled by the figure-reconstruction protocol - one of `chart`, `map`, `diagram`, `table-image`, `photo`, `screenshot`, `decorative`).
 - `chart`: a typed data series derived from a spreadsheet range (or any numeric source). The builder renders it as an inline SVG or canvas chart with no charting library. `chart_type_hint` is advisory; the builder or the enrichment pass may override it for the data shape.
     - `{ "type": "chart", "chart_type_hint": string, "categories": [string, ...], "series": [ { "name": string, "values": [number, ...] }, ... ] }`
     - `chart_type_hint` is one of `bar`, `line`, `pie`, `doughnut`. `categories` labels the x-axis (or the slices for pie/doughnut). Each series `values` array aligns positionally with `categories`.
+    - **v2 optional fields**:
+        - `provenance` (one of `source-data` - derived from a spreadsheet range; `native-chart` - extracted from a native PPTX/DOCX chart part with the source's real series values; `reconstructed-from-image` - rebuilt by the figure-reconstruction protocol from a static figure image).
+        - `confidence` (one of `high`, `medium`, `low`; REQUIRED when provenance is `reconstructed-from-image` - the protocol's confidence-gate tier).
+        - `source_image` (string; a base64 `data:` URI of the original figure image, powering the view-original toggle on reconstructed charts).
+        - `caption` (string; the chart's own title or a nearby caption line when present).
+        - `axis` (object with optional `x_label`, `y_label`, `y_min`, `y_max`, `unit`) - so reconstructions preserve the source's scales and units faithfully.
 - `code`: a preformatted code or monospace block.
     - `{ "type": "code", "text": string, "language": string }`
     - `language` may be an empty string when unknown.
@@ -103,21 +113,26 @@ Each extractor maps its format into the model as follows. The full per-format co
 - One slide maps to exactly one `section`, in slide order. Preserving slide order is the "follows the same flow" guarantee for the single-deck mode.
 - The slide title placeholder maps to the section `heading`; a subtitle placeholder maps to `subheading`.
 - The first slide is `kind: "title"`; slides whose only content is a title (a divider slide) are `kind: "section-break"`; the rest are `kind: "content"` (or `data` when dominated by a chart/table).
-- Body text frames map to `paragraph` blocks, or to a single `bullets` block when the frame has list levels (the paragraph indent level becomes the item `depth`).
-- Slide tables map to `table` blocks; embedded pictures map to `image` blocks (base64).
+- Body text frames map to `paragraph` blocks, or to a single `bullets` block when the frame has list levels (the paragraph indent level becomes the item `depth`). Grouped shapes are recursed into (depth-capped), so text, tables, and pictures inside groups are extracted in order.
+- Slide tables map to `table` blocks; embedded pictures map to `image` blocks (base64, `origin: "shape-picture"`, `page` = the 1-based slide number).
+- Native chart shapes map to `chart` blocks with `provenance: "native-chart"` and the chart's real categories and series values; the chart title (when present) becomes the block's `caption`. A chart whose data cannot be read lands in the coverage manifest's `skip_reasons`, never as silent loss.
 - The slide's notes-slide text maps to a single `notes` block on that section.
 
 ### Word (.docx) and PDF (.pdf) -- present the report
 
-- Heading-styled paragraphs (Word `Heading 1`/`Heading 2`, or detected headings in PDF) define section boundaries: each heading starts a new `section` whose `heading` is the heading text.
-- Body paragraphs between headings map to `paragraph` blocks; list paragraphs map to `bullets` (with `depth` from the list level); tables map to `table` blocks; inline images map to `image` blocks.
+- Heading-styled paragraphs (Word `Heading 1`/`Heading 2`, or detected headings in PDF - the page's largest-font short line near the top, falling back to the first short line) define section boundaries: each heading starts a new `section` whose `heading` is the heading text.
+- Body paragraphs between headings map to `paragraph` blocks; list paragraphs map to `bullets` (with `depth` from the list level); tables map to `table` blocks; inline images map to `image` blocks (`origin: "inline-image"` for DOCX).
+- Native DOCX chart parts (read from the OOXML package) map to `chart` blocks with `provenance: "native-chart"`.
+- PDF visuals (v2): embedded raster images map to `image` blocks (`origin: "embedded-raster"`, `page` set, `caption` attached when a caption line sits directly below); vector-figure regions (plots, maps, diagrams drawn as vectors) are detected, rasterized via the optional local renderer, and map to `image` blocks (`origin: "rasterized-region"`); identical images repeated across 3+ pages (logos, footers) are kept once and counted in `coverage.skip_reasons` as `repeated-asset`.
+- Scanned / image-only PDF pages (v2): detected pages emit OCR-recovered `paragraph` / `table` blocks (`provenance: "ocr"`, `ocr_confidence` set) when a local OCR engine is available, and ALWAYS emit a full-page `image` block (`origin: "scanned-page"`) for agent-vision reading, so no content is lost without OCR.
+- A deck-exported PDF (landscape, low text density) sets `deck_like: true` on its source entry.
 - The document title maps to the top-level `title` and to a leading `kind: "title"` section.
 - A synthesized agenda is added as a `kind: "section-break"` (or `content`) section near the front, listing the section headings as a `bullets` block. This is what turns a flat report into "a presentation OF the report" and is generated by the extractor, not read from the source. Its `source_index` points at the source it summarizes.
 
 ### Excel (.xlsx) -- chart the data
 
 - Each worksheet maps to one `section`, in workbook order, usually `kind: "data"`. The sheet name is the `heading`.
-- A contiguous range with a label row/column and numeric body maps to a `chart` block: the label row becomes `categories`, each labeled numeric column (or row) becomes a series `{ name, values }`, and `chart_type_hint` is inferred (a small category count with one series leans `pie`/`doughnut`; multiple series or a time-like first column leans `line`; otherwise `bar`).
+- A contiguous range with a label row/column and numeric body maps to a `chart` block with `provenance: "source-data"`: the label row becomes `categories`, each labeled numeric column (or row) becomes a series `{ name, values }`, and `chart_type_hint` is inferred (a small category count with one series leans `pie`/`doughnut`; multiple series or a time-like first column leans `line`; otherwise `bar`).
 - Ranges that are not cleanly numeric map to `table` blocks instead, so no data is silently dropped.
 
 ## Multi-file merge
