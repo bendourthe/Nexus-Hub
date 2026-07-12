@@ -7,7 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased]
+## [3.12.0] - 2026-07-11
+
+**v3.12.0 -- the presentify fidelity-and-variety overhaul: nothing dropped, nothing invented, nothing static, nothing samey.** Driven by a real failing run (a PDF saved from PowerPoint whose photos, maps, and figures never reached the output), this release rebuilds the `/presentify` + `document-to-interactive-html` pipeline end to end: full PDF visual extraction (embedded rasters, rasterized vector-figure regions, captions, repeated-asset dedup) plus a two-tier scanned-page path (optional local OCR + always-on agent-vision page images), native PPTX/DOCX chart extraction and grouped-shape recursion, a schema-v2 content model with a per-source coverage manifest, a figure-reconstruction protocol whose worksheets and confidence gate make fabricated chart data structurally impossible, a COVERAGE RECONCILIATION verification gate (every visual rendered, reconstructed, or skipped-with-reason), a five-point minimum interaction budget so chart-free sources still produce dynamic pages, and a seeded design-entropy engine with a persisted run history so same-preset reruns provably differ. Proven by a committed worked example (two same-preset runs over the failing-case fixture: ground-truth-exact values, 0 unaccounted visuals, two unmistakably different designs) and guarded by a new path-filtered extractor CI workflow. Local-only throughout (all new libraries optional and lazy-imported); resolves the v3.9 deferrals DF-v39-presentify-1/-2/-3. Catalog counts unchanged: **265 skills**, **16 commands**, **25 hooks**.
 
 ### Changed
 

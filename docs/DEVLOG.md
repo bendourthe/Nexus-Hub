@@ -1,5 +1,9 @@
 # Development Log
 
+## [2026-07-11] - v3.12.0 shipped: the presentify fidelity-and-variety overhaul
+
+Shipped v3.12.0, the six-phase presentify overhaul (per-phase entries below). Release mechanics: README "What's New" narrative added (feature-level, not just counts); the v3.12 docs tree gained its `comparisons/` subdir; all seven version-carrying surfaces bumped atomically 3.11.4 -> 3.12.0 (`check_version_sync.py` clean before and after); CHANGELOG `[Unreleased]` promoted to `[3.12.0]` with the headline paragraph; and `MANIFEST.sha256` surgically updated per the documented Windows CRLF gotcha - 11 changed + 2 new covered files rewritten with LF-normalized hashes (13-line diff, no full-regen churn). Known gaps and CI/CD were reconciled in Phase 6 (no release blockers; WN-1's bash suites are CI-authoritative on the release run). Catalog counts unchanged (265 skills / 16 commands / 25 hooks); no new outbound call, hard dependency, or credential anywhere in the release.
+
 ## [2026-07-11] - v3.12.0 Phase 6 (final): refactor, known-gaps reconciliation, and extractor CI
 
 Closed the presentify-fidelity-and-variety plan with its mandatory terminal phase. **Refactor (6.1)**: the Phase 2 enrichment round-trip was committed into the fixtures kit as `enrich_models.py` - it previously lived only in session scratch, which made `models/*_enriched.json` (the inputs to the budget demo and the Phase 5 worked example) non-regenerable from the repo; both READMEs' regenerate chains now run kit-only. `build_presentation.py` was ruff-format-normalized (clearing WN-2), with behavior-neutrality proven by re-running the 45-check extraction-fidelity suite through the reformatted builder. No empty dirs, duplicates, or orphans in the v3.12 subtree or the skill bundle.
