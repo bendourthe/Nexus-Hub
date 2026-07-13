@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased]
+## [3.12.1] - 2026-07-13
 
 **Cross-platform install adapters + per-release format verification.** Fixes that Nexus-Hub skills and commands were not discoverable in the new ChatGPT desktop app (Chat + Work + Codex) or the Antigravity IDE, and hardens the install against future platform format drift. The canonical catalog is unchanged; each platform integration is now an adapter that materializes the catalog into that platform's native shape and location, and every command surfaces both as a slash command and as a reusable skill (`$name`). Catalog: **266 skills** (+1: `platform-contract-verification`), **16 commands**, **25 hooks**.
 
