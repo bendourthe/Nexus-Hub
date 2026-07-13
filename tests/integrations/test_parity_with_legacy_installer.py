@@ -95,7 +95,12 @@ def _install_workspace(key: str, target: Path) -> None:
         ("claude", "catalog/commands", ".claude/commands"),
         ("claude", "catalog/agents", ".claude/agents"),
         ("claude", "catalog/rules", ".claude/rules"),
-        ("codex", "catalog/skills", ".codex/skills"),
+        # Codex skills are no longer a verbatim mirror: as of v3.12.0 the codex
+        # integration FLATTENS catalog/skills/<category>/<name>/ to
+        # .codex/skills/<name>/ (one level, as Codex actually scans) and adds a
+        # skill per command. That flattening + command-skill behavior is asserted
+        # in tests/integrations/test_codex.py instead of here. The legacy prompts
+        # surface stays a verbatim flat copy, so its parity row remains.
         ("codex", "catalog/commands", ".codex/prompts"),
         ("gemini", "catalog/skills", ".gemini/skills"),
         ("opencode", "catalog/skills", ".opencode/skills"),

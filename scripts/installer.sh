@@ -918,11 +918,14 @@ install_global() {
     local global_codex_dir="$user_home/.codex"
     mkdir -p "$global_codex_dir"
 
-    safe_folder_copy "$repo_root/catalog/skills"   "$global_codex_dir/skills"  "[OK] Skills catalog installed at: $global_codex_dir/skills"
-    safe_folder_copy "$repo_root/catalog/commands" "$global_codex_dir/prompts" "[OK] Custom prompts installed at: $global_codex_dir/prompts"
-
-    # AGENTS.md (open standard read by Codex, Jules, Cursor, Aider, OpenCode)
-    invoke_registry_platform "$repo_root" "global" "" "codex" "AGENTS.md (instruction file)" "" "true"
+    # Full registry mirror (v3.12.0): the codex integration flattens skills to
+    # ~/.codex/skills/<name>/ AND ~/.agents/skills/<name>/ (one level, as Codex and
+    # the ChatGPT desktop app scan), emits every catalog command as a skill ($name)
+    # plus a legacy top-level prompt (~/.codex/prompts, /prompts:name), and renders
+    # ~/.codex/AGENTS.md. Replaces the prior verbatim skills/commands copies, which
+    # buried every SKILL.md under a category folder Codex could not read. See
+    # docs/policy/platform-read-contracts.md.
+    invoke_registry_platform "$repo_root" "global" "" "codex" "Codex (AGENTS.md + skills + commands)" "" ""
     fi
 
     # --- Google -- Gemini / Antigravity 1.0 + 2.0 / Gemini CLI ---------
@@ -1318,11 +1321,10 @@ install_workspace() {
         local codex_dir="$target_path/.codex"
         mkdir -p "$codex_dir"
 
-        safe_folder_copy "$repo_root/catalog/skills"   "$codex_dir/skills"  "[OK] Skills catalog installed at: $codex_dir/skills"
-        safe_folder_copy "$repo_root/catalog/commands" "$codex_dir/prompts" "[OK] Custom prompts installed at: $codex_dir/prompts"
-
-        # AGENTS.md (open standard read by Codex, Jules, Cursor, Aider, OpenCode)
-        invoke_registry_platform "$repo_root" "workspace" "$target_path" "codex" "AGENTS.md (instruction file)" "$languages" "true"
+        # Full registry mirror (v3.12.0): see the global Codex block. Workspace scope
+        # writes .codex/{skills,prompts}, .agents/skills (flattened + command skills),
+        # and a repo-root AGENTS.md.
+        invoke_registry_platform "$repo_root" "workspace" "$target_path" "codex" "Codex (AGENTS.md + skills + commands)" "$languages" ""
         fi
 
         # --- Google -- Gemini / Antigravity 1.0 + 2.0 / Gemini CLI -

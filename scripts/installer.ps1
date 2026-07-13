@@ -1281,11 +1281,13 @@ function Install-Global {
         $globalCodexDir = Join-Path $env:USERPROFILE ".codex"
         if (-not (Test-Path $globalCodexDir)) { New-Item -ItemType Directory -Force -Path $globalCodexDir | Out-Null }
 
-        Safe-Folder-Copy -Source "$RepoRoot\catalog\skills"   -Destination (Join-Path $globalCodexDir "skills")   -CustomMessage "✓ Skills catalog installed at: $(Join-Path $globalCodexDir "skills")"
-        Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $globalCodexDir "prompts")  -CustomMessage "✓ Custom prompts installed at: $(Join-Path $globalCodexDir "prompts")"
-
-        # AGENTS.md (open standard read by Codex, Jules, Cursor, Aider, OpenCode)
-        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "codex" -DisplayName "AGENTS.md (instruction file)" -InstructionOnly
+        # Full registry mirror (v3.12.0): the codex integration flattens skills to
+        # ~/.codex/skills AND ~/.agents/skills (one level, as Codex and the ChatGPT
+        # desktop app scan), emits every catalog command as a skill ($name) plus a
+        # legacy top-level prompt (/prompts:name), and renders ~/.codex/AGENTS.md.
+        # Replaces the prior verbatim copies that buried every SKILL.md under a
+        # category folder Codex could not read. See docs/policy/platform-read-contracts.md.
+        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "codex" -DisplayName "Codex (AGENTS.md + skills + commands)"
     }
 
     # --- Google -- Gemini / Antigravity 1.0 + 2.0 / Gemini CLI -----------
@@ -1648,11 +1650,10 @@ function Install-Workspace {
             $codexDir = Join-Path $targetPath ".codex"
             if (-not (Test-Path $codexDir)) { New-Item -ItemType Directory -Force -Path $codexDir | Out-Null }
 
-            Safe-Folder-Copy -Source "$RepoRoot\catalog\skills"   -Destination (Join-Path $codexDir "skills")  -CustomMessage "✓ Skills catalog installed at: $(Join-Path $codexDir "skills")"
-            Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $codexDir "prompts") -CustomMessage "✓ Custom prompts installed at: $(Join-Path $codexDir "prompts")"
-
-            # AGENTS.md at project root (open standard read by Codex, Jules, Cursor, Aider, OpenCode)
-            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "codex" -DisplayName "AGENTS.md (instruction file)" -Languages ($languages -join ',') -InstructionOnly
+            # Full registry mirror (v3.12.0): see the global Codex block. Workspace
+            # scope writes .codex/{skills,prompts}, .agents/skills (flattened + command
+            # skills), and a repo-root AGENTS.md.
+            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "codex" -DisplayName "Codex (AGENTS.md + skills + commands)" -Languages ($languages -join ',')
         }
 
         # --- Google -- Gemini / Antigravity 1.0 + 2.0 / Gemini CLI ------
