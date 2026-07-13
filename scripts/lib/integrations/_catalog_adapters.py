@@ -63,6 +63,22 @@ def _write_synced(
     return FileAction(path=str(dst), action="updated" if existed else "created")
 
 
+def catalog_skill_names(src_skills_dir: Path) -> set:
+    """Return the set of skill folder names under ``catalog/skills/<category>/``.
+
+    Used to guard ``commands_to_skills`` against a command whose name collides
+    with a real catalog skill (so the command wrapper never shadows a skill).
+    """
+    names: set = set()
+    if src_skills_dir.exists():
+        for category in src_skills_dir.iterdir():
+            if category.is_dir():
+                for skill in category.iterdir():
+                    if skill.is_dir():
+                        names.add(skill.name)
+    return names
+
+
 def flatten_skills(ctx, key: str, src_skills_dir: Path, dst_skills_dir: Path) -> list[FileAction]:
     """Flatten ``catalog/skills/<category>/<name>/`` into ``<dst>/<name>/``.
 
@@ -203,4 +219,9 @@ def commands_to_slash(
     return actions
 
 
-__all__ = ["flatten_skills", "commands_to_skills", "commands_to_slash"]
+__all__ = [
+    "catalog_skill_names",
+    "flatten_skills",
+    "commands_to_skills",
+    "commands_to_slash",
+]

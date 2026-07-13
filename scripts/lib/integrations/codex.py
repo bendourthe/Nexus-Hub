@@ -26,7 +26,12 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from ._catalog_adapters import commands_to_skills, commands_to_slash, flatten_skills
+from ._catalog_adapters import (
+    catalog_skill_names,
+    commands_to_skills,
+    commands_to_slash,
+    flatten_skills,
+)
 from .base import InstallContext, MarkdownIntegration, SkillsIntegration
 from .result import WriteResult
 
@@ -94,7 +99,7 @@ class CodexIntegration(MarkdownIntegration, SkillsIntegration):
         """
         src_skills = ctx.repo_root / "catalog" / "skills"
         src_commands = ctx.repo_root / "catalog" / "commands"
-        existing = self._catalog_skill_names(src_skills)
+        existing = catalog_skill_names(src_skills)
         actions: list = []
         # Flattened skills + commands-as-skills into BOTH skill roots.
         for skills_dst in (codex_root / "skills", agents_root / "skills"):
@@ -109,15 +114,3 @@ class CodexIntegration(MarkdownIntegration, SkillsIntegration):
             )
         )
         return actions
-
-    @staticmethod
-    def _catalog_skill_names(src_skills: Path) -> set:
-        """Return the set of skill folder names under catalog/skills/<category>/."""
-        names: set = set()
-        if src_skills.exists():
-            for category in src_skills.iterdir():
-                if category.is_dir():
-                    for skill in category.iterdir():
-                        if skill.is_dir():
-                            names.add(skill.name)
-        return names

@@ -1311,7 +1311,7 @@ function Install-Global {
 
         if ($platforms -contains "ANTIGRAVITY2") {
             Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "antigravity2" -DisplayName "Antigravity 2.0 + CLI"
-            Write-Item -Message "Antigravity 2.0 IDE: slash commands appear only inside an OPEN project folder (its .agents/workflows/). Run a workspace/project install in your repo so the commands show; a global-only install is not scanned by the IDE for slash commands." -Color "Yellow"
+            Write-Item -Message "Antigravity 2.0: global skills -> ~/.gemini/config/skills, slash commands -> ~/.gemini/config/global_workflows, rules -> ~/.gemini/GEMINI.md; the agy CLI reads ~/.gemini/antigravity-cli. Per-project .agents/ is still seeded by 'nexus-hub init' for project-scoped workflows and rules." -Color "Yellow"
         }
         if ($platforms -contains "GEMINI_CLI") {
             if ($Enterprise) {
