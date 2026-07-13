@@ -684,21 +684,52 @@ class SkillsIntegration(IntegrationBase):
     """
 
     def _mirror_catalog(self, parent_dir: Path, ctx: InstallContext) -> list[FileAction]:
-        mappings = {
-            "skills_subdir": "catalog/skills",
-            "commands_subdir": "catalog/commands",
-            "agents_subdir": "catalog/agents",
-            "rules_subdir": "catalog/rules",
-            "hooks_subdir": "catalog/hooks",
-        }
         actions: list[FileAction] = []
-        for cfg_key, src_rel in mappings.items():
+
+        # Skills. When the platform declares `flatten_skills_layout: True`, it
+        # discovers skills one level deep (skills/<name>/SKILL.md -- the SKILL.md
+        # open standard shared by Claude Code, Codex, Gemini CLI, OpenCode, and
+        # Antigravity), so the catalog's <category>/ layer must be dropped and each
+        # command additionally surfaces as a skill. Otherwise the catalog skills
+        # tree is mirrored verbatim (nested) for platforms that read it that way.
+        skills_subdir = self.config.get("skills_subdir")
+        if skills_subdir:
+            skills_dst = parent_dir / skills_subdir
+            if self.config.get("flatten_skills_layout"):
+                # Local import breaks the base <-> _catalog_adapters import cycle.
+                from ._catalog_adapters import (
+                    catalog_skill_names,
+                    commands_to_skills,
+                    flatten_skills,
+                )
+
+                src_skills = ctx.repo_root / "catalog" / "skills"
+                src_commands = ctx.repo_root / "catalog" / "commands"
+                actions.extend(flatten_skills(ctx, self.key, src_skills, skills_dst))
+                actions.extend(
+                    commands_to_skills(
+                        ctx, self.key, src_commands, skills_dst,
+                        catalog_skill_names(src_skills),
+                    )
+                )
+            else:
+                actions.append(
+                    self._copy_tree(ctx.repo_root / "catalog" / "skills", skills_dst, ctx, self.key)
+                )
+
+        # Commands, agents, rules, hooks: verbatim tree copy (already flat / tree-shaped).
+        for cfg_key, src_rel in (
+            ("commands_subdir", "catalog/commands"),
+            ("agents_subdir", "catalog/agents"),
+            ("rules_subdir", "catalog/rules"),
+            ("hooks_subdir", "catalog/hooks"),
+        ):
             subdir = self.config.get(cfg_key)
             if not subdir:
                 continue
-            src = ctx.repo_root / src_rel
-            dst = parent_dir / subdir
-            actions.append(self._copy_tree(src, dst, ctx, self.key))
+            actions.append(
+                self._copy_tree(ctx.repo_root / src_rel, parent_dir / subdir, ctx, self.key)
+            )
         return actions
 
     def install_global(self, ctx: InstallContext) -> WriteResult:

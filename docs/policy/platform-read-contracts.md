@@ -19,27 +19,27 @@ Formats: skills = folder-per-skill `SKILL.md`. "flattened" means one level deep 
 
 | Platform (key) | Scope | Instruction file | Commands / slash surface | Skills | Agents | Rules | Hooks |
 |---|---|---|---|---|---|---|---|
-| Claude (`claude`) | global | `~/.claude/CLAUDE.md` (marker-merged) | `~/.claude/commands/*.md` (slash) | `~/.claude/skills/` nested | `~/.claude/agents/` | `~/.claude/rules/` | `~/.claude/hooks/` + settings.json |
-| Claude | workspace | `<project>/CLAUDE.md` (root) | `<project>/.claude/commands/*.md` | `.claude/skills/` | `.claude/agents/` | `.claude/rules/` | `.claude/hooks/` |
+| Claude (`claude`) | global | `~/.claude/CLAUDE.md` (marker-merged) | `~/.claude/commands/*.md` (slash) | flattened `~/.claude/skills/<name>/` (+ command-skills) | `~/.claude/agents/` | `~/.claude/rules/` | `~/.claude/hooks/` + settings.json |
+| Claude | workspace | `<project>/CLAUDE.md` (root) | `<project>/.claude/commands/*.md` | flattened `.claude/skills/<name>/` (+ command-skills) | `.claude/agents/` | `.claude/rules/` | `.claude/hooks/` |
 | Codex (`codex`) | global | `~/.codex/AGENTS.md` (marker-merged) | `~/.codex/prompts/*.md` (flat, `/prompts:name`, deprecated) + skills below (`$name`) | flattened `~/.codex/skills/<name>/` AND `~/.agents/skills/<name>/` (+ one per command) | not read | not read | not supported |
 | Codex | workspace | `<project>/AGENTS.md` (root) | `<project>/.codex/prompts/*.md` + skills below | flattened `.codex/skills/<name>/` AND `.agents/skills/<name>/` (+ one per command) | not read | not read | none |
 | Antigravity 2.0 IDE (`antigravity2`) | global | `~/.gemini/GEMINI.md` (global rules) | `~/.gemini/config/global_workflows/<name>.md` (slash) + skills below | flattened `~/.gemini/config/skills/<name>/` (+ one per command) | `~/.gemini/config/skills/` (as skills) | `~/.gemini/GEMINI.md` | `hooks/` + `hooks.json` (best-effort) |
 | Antigravity `agy` CLI (`antigravity2`) | global | `~/.gemini/antigravity-cli/` instruction | `~/.gemini/antigravity-cli/` workflows (best-effort, unverified) | flattened `~/.gemini/antigravity-cli/skills/<name>/` | (as skills) | (CLI global) | `hooks/` + `hooks.json` |
 | Antigravity 2.0 | workspace | `<project>/.agents/` instruction (root `AGENTS.md` may also be read) | `<project>/.agents/workflows/*.md` (slash) + skills below | flattened `.agents/skills/<name>/` (+ one per command) | `.agents/subagents/` | `.agents/rules/` | `.agents/hooks/` + hooks.json |
-| Gemini IDE (`gemini`) | global | `~/.gemini/GEMINI.md` | `~/.gemini/workflows/` (see v3.11 defects C1/C2) | `~/.gemini/skills/` | `~/.gemini/agents/` | `~/.gemini/rules/` | not supported |
-| Gemini CLI (`gemini-cli`, enterprise) | global | `~/.gemini/GEMINI.md` | `~/.gemini/commands/*.toml` (TOML, slash) | `~/.gemini/skills/` | `~/.gemini/agents/` | `~/.gemini/rules/` | not supported |
+| Gemini IDE (`gemini`) | global | `~/.gemini/GEMINI.md` | `~/.gemini/workflows/` (see v3.11 defects C1/C2) | flattened `~/.gemini/skills/<name>/` (+ command-skills) | `~/.gemini/agents/` | `~/.gemini/rules/` | not supported |
+| Gemini CLI (`gemini-cli`, enterprise) | global | `~/.gemini/GEMINI.md` | `~/.gemini/commands/*.toml` (TOML, slash) | flattened `~/.gemini/skills/<name>/` (also reads `~/.agents/skills`) | `~/.gemini/agents/` | `~/.gemini/rules/` | not supported |
 | Copilot (`copilot`) | global | none | VS Code `<user>/prompts/<name>.prompt.md` (slash) | none (opt-in `.github/skills/`) | none | none | not supported |
 | Copilot | workspace | `<project>/.github/copilot-instructions.md` | none | opt-in `.github/skills/<name>/SKILL.md` | none | none | none |
 | Cursor (`cursor`) | global | none | `~/.cursor/commands/<name>.md` (slash, any repo) | none | none | none | not supported |
 | Cursor | workspace | `<project>/AGENTS.md` (marker-merged) | (Cursor-native project cmds) | none | none | `<project>/.cursor/rules/*.mdc` (flattened) | none |
-| OpenCode (`opencode`) | global | `~/.opencode/AGENTS.md` | `~/.opencode/commands/*.md` (body-only, NOT slash) | `~/.opencode/skills/` | none | `~/.opencode/rules/` | not supported |
-| OpenCode | workspace | `<project>/.opencode/AGENTS.md` | `.opencode/commands/` | `.opencode/skills/` | none | `.opencode/rules/` | none |
+| OpenCode (`opencode`) | global | `~/.opencode/AGENTS.md` | `~/.opencode/commands/*.md` (body-only, NOT slash) | flattened `~/.opencode/skills/<name>/`; also reads `~/.claude/skills` + `~/.agents/skills` (canonical global may be `~/.config/opencode/skills` -- gap #5) | none | `~/.opencode/rules/` | not supported |
+| OpenCode | workspace | `<project>/.opencode/AGENTS.md` | `.opencode/commands/` | flattened `.opencode/skills/<name>/` (also `.claude/skills`, `.agents/skills`) | none | `.opencode/rules/` | none |
 | Aider (`aider`) | workspace | `<project>/CONVENTIONS.md` (root) | none (skills via embedded SKILL_INDEX) | none | none | none | none |
 | Windsurf (`windsurf`) | workspace | `<project>/.windsurfrules` (root) | none | none | none | none | none |
 | Kimi (`kimi`) | workspace | `<project>/.kimi/system.md` + `.kimi/agent.yaml` | none | none | none | none | none |
 | Qwen (`qwen`) | workspace | `<project>/QWEN.md` (root) | none | none | none | none | none |
 | OpenClaw (`openclaw`) | workspace | `<project>/.openclaw/AGENTS.md` + SOUL/IDENTITY | none | none | none | none | none |
-| Nexus-AI (`nexus-ai`) | global | `~/.nexus-ai/NEXUS_AI.md` (dedicated) | `~/.nexus-ai/commands/` | `~/.nexus-ai/skills/` | `~/.nexus-ai/agents/` | `~/.nexus-ai/rules/` | `~/.nexus-ai/hooks/` |
+| Nexus-AI (`nexus-ai`) | global | `~/.nexus-ai/NEXUS_AI.md` (dedicated) | `~/.nexus-ai/commands/` | flattened `~/.nexus-ai/skills/<name>/` (+ command-skills) | `~/.nexus-ai/agents/` | `~/.nexus-ai/rules/` | `~/.nexus-ai/hooks/` |
 
 ## Sources (corrected rows, verified 2026-07-13)
 
@@ -49,6 +49,9 @@ Formats: skills = folder-per-skill `SKILL.md`. "flattened" means one level deep 
 - New ChatGPT desktop app merges Chat + Work + Codex; skills work in the desktop app, CLI, and IDE extension: <https://openai.com/index/introducing-the-codex-app/>
 - Antigravity IDE global skills `~/.gemini/config/skills/`, global workflows `~/.gemini/config/global_workflows/`, global rules `~/.gemini/GEMINI.md`, project `.agents/`: <https://codelabs.developers.google.com/getting-started-agy-ide>
 - Antigravity skills format (folder-per-skill `SKILL.md`, one level, name+description frontmatter) and CLI skills at `~/.gemini/antigravity-cli/skills/`: <https://codelabs.developers.google.com/getting-started-with-antigravity-skills>
+- Claude Code skills one level deep (`~/.claude/skills/<name>/SKILL.md`, "a directory that contains a SKILL.md file"): <https://code.claude.com/docs/en/skills>
+- OpenCode skills one level deep; reads `~/.config/opencode/skills`, `~/.claude/skills`, `~/.agents/skills` (and `.opencode/skills`, `.claude/skills`, `.agents/skills` per project): <https://opencode.ai/docs/skills/>
+- Gemini CLI skills one level deep; reads `~/.gemini/skills` and the `~/.agents/skills` alias: <https://geminicli.com/docs/cli/skills/>
 
 ## Defects to resolve in this release (v3.12.0)
 
@@ -64,3 +67,5 @@ Cannot be confirmed from docs alone; write to all documented candidates (additiv
 2. The `agy` CLI global workflow directory (skills confirmed at `~/.gemini/antigravity-cli/skills/`; the workflow path is best-effort).
 3. Antigravity 2.0 global hooks path (the codelabs document `skills/` + `workflows/`, not hooks at global scope).
 4. Antigravity 2.0 project instruction: root `AGENTS.md` vs `.agents/` (v3.11 defect C4).
+5. OpenCode canonical global skills dir: docs cite `~/.config/opencode/skills`, but we flatten to `~/.opencode/skills` and rely on OpenCode also reading `~/.claude/skills` + `~/.agents/skills` (both flattened by the claude/codex integrations on a full install). Confirm the canonical global dir on a live install.
+6. Gemini IDE (Code Assist) skill discovery: `~/.gemini/skills` flattening is applied on weight-of-evidence (the SKILL.md open standard, confirmed for Gemini CLI); confirm Code Assist reads `~/.gemini/skills` as well.
