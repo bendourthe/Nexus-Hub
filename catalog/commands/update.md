@@ -91,13 +91,14 @@ Both delegate skills stay propose-then-apply; this scope surfaces the checks and
 
 ## release scope: known-gaps, architecture refactor, and CI/CD (before the commit)
 
-Beyond running the `refactor` scope, a `release` performs three governance steps before the release commit, each keeping its confirmation gate:
+Beyond running the `refactor` scope, a `release` performs these governance steps before the release commit, each keeping its confirmation gate:
 
 1. **Known-gaps reconciliation** via `[[known-gaps-tracker]]`: resolve, defer, or transfer each open item for the version and finalize the per-minor `known-gaps.md`.
 2. **Full architecture refactor** via `[[project-refactor]]` (the empty-dir / duplicate / orphan / structure-complexity detectors) plus `[[docs-layout-refactor]]`, leaving a clean, intuitive layout.
 3. **CI/CD create/update/optimize**: ensure the pipeline covers every change in the release and is optimized to reduce action minutes (path filters, concurrency cancel-in-progress, caching, gating expensive-OS/matrix jobs) while keeping comprehensive testing.
+4. **Platform read-contract re-verification** via `[[platform-contract-verification]]`: for a distribution catalog whose installer targets multiple external AI platforms, re-verify each supported platform's CURRENT skill/command/rule/hook discovery format (via targeted web searches) so the next release is guaranteed to surface the catalog everywhere. The skill self-gates: it does real work only in a repo that ships `docs/policy/platform-read-contracts.md` + `scripts/lib/integrations/` (i.e. Nexus-Hub itself) and is a silent no-op in any other project, so the release flow stays generic. On drift it updates the contract doc, the affected integration adapter, and both installers, adds a CHANGELOG note, and re-runs `scripts/verify_platform_contracts.py`. Degrades gracefully offline.
 
-This mirrors the `implement-phase` final-phase gate - `/implement` hands off to `/update release` on a plan's last phase - so the same refactor + known-gaps + CI/CD work runs whether the release is reached through `/implement` or invoked directly.
+This mirrors the `implement-phase` final-phase gate - `/implement` hands off to `/update release` on a plan's last phase - so the same refactor + known-gaps + CI/CD + platform-contract work runs whether the release is reached through `/implement` or invoked directly.
 
 ## Notes
 

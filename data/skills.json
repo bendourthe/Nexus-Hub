@@ -6770,6 +6770,50 @@
       }
     },
     {
+      "name": "platform-contract-verification",
+      "title": "platform-contract-verification",
+      "description": "Re-verify every supported AI platform's current skill/command/rule/hook discovery format against the living read-contract before a release, and fix any drift in the installers. Self-gates to a multi-platform distribution catalog; no-op in ordinary projects.",
+      "long_description": "A release-time gate for a distribution catalog whose installer materializes skills, commands, rules, and hooks into many external AI platforms. External platforms change where and how they read these artifacts after app updates, silently breaking a global install. This skill re-verifies each platform's current discovery format via targeted web searches, diffs against docs/policy/platform-read-contracts.md, and on drift updates the contract doc, the affected integration adapter, and both installers, then re-runs scripts/verify_platform_contracts.py. Self-gates to the Nexus-Hub repo and is a no-op elsewhere; degrades gracefully offline; adds no outbound dependency or credential.",
+      "summary_l0": "\"Re-verify each AI platform's discovery format against the read-contract before release; fix installer drift\"",
+      "overview_l1": "\"A release-time gate for a distribution catalog (Nexus-Hub) whose installer materializes skills, commands, rules, and hooks into many external AI platforms (Claude, Codex/ChatGPT, Antigravity, Gemini, OpenCode, Cursor). External platforms change where and how they read these artifacts after app updates, silently breaking a global install. This skill re-verifies each platform's current discovery format via targeted web searches, diffs against docs/policy/platform-read-contracts.md, and on drift updates the contract doc, the affected integration adapter under scripts/lib/integrations, and both installers, then re-runs scripts/verify_platform_contracts.py. It self-gates to the Nexus-Hub repo and is a no-op elsewhere, and degrades gracefully offline. Trigger phrases: re-verify platform contracts, did any platform change its skill format, install stopped surfacing commands, pre-release platform check.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "workflow",
+      "language": "Multi-language",
+      "tags": [
+        "release",
+        "platform-contracts",
+        "installer",
+        "verification",
+        "drift-detection",
+        "cross-platform"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read",
+        "Write",
+        "Edit",
+        "Glob",
+        "WebSearch",
+        "Bash"
+      ],
+      "path": "catalog/skills/workflow/platform-contract-verification/",
+      "file": "catalog/skills/workflow/platform-contract-verification/SKILL.md",
+      "size": {
+        "lines": 90,
+        "tokens_estimate": 1200
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
       "name": "known-gaps-tracker",
       "title": "known-gaps-tracker",
       "description": "Maintain docs/<version>/known-gaps.md - a per-version log of items that were not implemented, deferred, buggy, suppressed, or left without coverage at the end of each phase. /implement-phase appends, /wrap-up-session sweeps and finalizes, /generate-plan ingests open items into the next plan.",
