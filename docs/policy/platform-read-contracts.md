@@ -1,0 +1,66 @@
+# Platform Read-Contracts (living)
+
+This is the durable, sourced source of truth for where every supported platform READS each surface (instruction file, slash commands, skills, agents, rules, hooks) and where the Nexus-Hub installer WRITES it. It supersedes the point-in-time snapshot at `docs/v3/v3.11/platform-read-contracts.md` (which resolved the v3.11.0 Phase 7 audit but left the Codex and Antigravity contracts flagged as unverified).
+
+**Last verified**: 2026-07-13 (Codex + Antigravity rows against current official docs; other rows inherited from the v3.11.0 audit and re-verified per the maintenance rule below).
+
+## How this doc is maintained
+
+`/update release` runs a Nexus-Hub-specific "Platform read-contract re-verification" step before every version bump (see the `platform-contract-verification` skill). For each platform below it runs targeted web searches for that platform's CURRENT skill/command/rule/hook discovery format, diffs the findings against this doc, and on any drift updates this doc's row (plus its source URL and the Last-verified date), the corresponding integration adapter under `scripts/lib/integrations/`, and both installers. Two automated guards keep the code aligned with this doc between releases:
+
+- `scripts/verify_platform_contracts.py` (run by `make validate`) asserts each integration's config and the installer copy targets match the paths declared here (code-vs-contract).
+- `nexus-hub verify` (`runner.py cmd_verify`) asserts, after an install, that each detected platform's read-paths are actually populated (install-vs-reality).
+
+The catalog itself is never reorganized per platform. Each integration is an adapter that materializes the canonical catalog into the shape below via the shared helpers in `scripts/lib/integrations/_catalog_adapters.py` (`flatten_skills`, `commands_to_skills`, `commands_to_slash`).
+
+## Read/write surface table
+
+Formats: skills = folder-per-skill `SKILL.md`. "flattened" means one level deep (`skills/<name>/SKILL.md`), which requires dropping the catalog's `<category>/` layer; "nested" means the catalog `<category>/<name>/` tree is copied verbatim. commands = `.md` verbatim unless noted. Every command additionally surfaces as a skill (`skills/<command>/SKILL.md`, invoked `$command`) on platforms whose reusable-action surface is skills.
+
+| Platform (key) | Scope | Instruction file | Commands / slash surface | Skills | Agents | Rules | Hooks |
+|---|---|---|---|---|---|---|---|
+| Claude (`claude`) | global | `~/.claude/CLAUDE.md` (marker-merged) | `~/.claude/commands/*.md` (slash) | `~/.claude/skills/` nested | `~/.claude/agents/` | `~/.claude/rules/` | `~/.claude/hooks/` + settings.json |
+| Claude | workspace | `<project>/CLAUDE.md` (root) | `<project>/.claude/commands/*.md` | `.claude/skills/` | `.claude/agents/` | `.claude/rules/` | `.claude/hooks/` |
+| Codex (`codex`) | global | `~/.codex/AGENTS.md` (marker-merged) | `~/.codex/prompts/*.md` (flat, `/prompts:name`, deprecated) + skills below (`$name`) | flattened `~/.codex/skills/<name>/` AND `~/.agents/skills/<name>/` (+ one per command) | not read | not read | not supported |
+| Codex | workspace | `<project>/AGENTS.md` (root) | `<project>/.codex/prompts/*.md` + skills below | flattened `.codex/skills/<name>/` AND `.agents/skills/<name>/` (+ one per command) | not read | not read | none |
+| Antigravity 2.0 IDE (`antigravity2`) | global | `~/.gemini/GEMINI.md` (global rules) | `~/.gemini/config/global_workflows/<name>.md` (slash) + skills below | flattened `~/.gemini/config/skills/<name>/` (+ one per command) | `~/.gemini/config/skills/` (as skills) | `~/.gemini/GEMINI.md` | `hooks/` + `hooks.json` (best-effort) |
+| Antigravity `agy` CLI (`antigravity2`) | global | `~/.gemini/antigravity-cli/` instruction | `~/.gemini/antigravity-cli/` workflows (best-effort, unverified) | flattened `~/.gemini/antigravity-cli/skills/<name>/` | (as skills) | (CLI global) | `hooks/` + `hooks.json` |
+| Antigravity 2.0 | workspace | `<project>/.agents/` instruction (root `AGENTS.md` may also be read) | `<project>/.agents/workflows/*.md` (slash) + skills below | flattened `.agents/skills/<name>/` (+ one per command) | `.agents/subagents/` | `.agents/rules/` | `.agents/hooks/` + hooks.json |
+| Gemini IDE (`gemini`) | global | `~/.gemini/GEMINI.md` | `~/.gemini/workflows/` (see v3.11 defects C1/C2) | `~/.gemini/skills/` | `~/.gemini/agents/` | `~/.gemini/rules/` | not supported |
+| Gemini CLI (`gemini-cli`, enterprise) | global | `~/.gemini/GEMINI.md` | `~/.gemini/commands/*.toml` (TOML, slash) | `~/.gemini/skills/` | `~/.gemini/agents/` | `~/.gemini/rules/` | not supported |
+| Copilot (`copilot`) | global | none | VS Code `<user>/prompts/<name>.prompt.md` (slash) | none (opt-in `.github/skills/`) | none | none | not supported |
+| Copilot | workspace | `<project>/.github/copilot-instructions.md` | none | opt-in `.github/skills/<name>/SKILL.md` | none | none | none |
+| Cursor (`cursor`) | global | none | `~/.cursor/commands/<name>.md` (slash, any repo) | none | none | none | not supported |
+| Cursor | workspace | `<project>/AGENTS.md` (marker-merged) | (Cursor-native project cmds) | none | none | `<project>/.cursor/rules/*.mdc` (flattened) | none |
+| OpenCode (`opencode`) | global | `~/.opencode/AGENTS.md` | `~/.opencode/commands/*.md` (body-only, NOT slash) | `~/.opencode/skills/` | none | `~/.opencode/rules/` | not supported |
+| OpenCode | workspace | `<project>/.opencode/AGENTS.md` | `.opencode/commands/` | `.opencode/skills/` | none | `.opencode/rules/` | none |
+| Aider (`aider`) | workspace | `<project>/CONVENTIONS.md` (root) | none (skills via embedded SKILL_INDEX) | none | none | none | none |
+| Windsurf (`windsurf`) | workspace | `<project>/.windsurfrules` (root) | none | none | none | none | none |
+| Kimi (`kimi`) | workspace | `<project>/.kimi/system.md` + `.kimi/agent.yaml` | none | none | none | none | none |
+| Qwen (`qwen`) | workspace | `<project>/QWEN.md` (root) | none | none | none | none | none |
+| OpenClaw (`openclaw`) | workspace | `<project>/.openclaw/AGENTS.md` + SOUL/IDENTITY | none | none | none | none | none |
+| Nexus-AI (`nexus-ai`) | global | `~/.nexus-ai/NEXUS_AI.md` (dedicated) | `~/.nexus-ai/commands/` | `~/.nexus-ai/skills/` | `~/.nexus-ai/agents/` | `~/.nexus-ai/rules/` | `~/.nexus-ai/hooks/` |
+
+## Sources (corrected rows, verified 2026-07-13)
+
+- Codex skills discovery, one-level-deep `SKILL.md`, `~/.codex/skills` + `~/.agents/skills`, `$name` invocation: <https://learn.chatgpt.com/docs/build-skills>
+- Codex custom prompts deprecated, `~/.codex/prompts/*.md` top-level only, `/prompts:name`: <https://learn.chatgpt.com/docs/custom-prompts>
+- Codex AGENTS.md (`~/.codex/AGENTS.md` + repo root): <https://developers.openai.com/codex/guides/agents-md>
+- New ChatGPT desktop app merges Chat + Work + Codex; skills work in the desktop app, CLI, and IDE extension: <https://openai.com/index/introducing-the-codex-app/>
+- Antigravity IDE global skills `~/.gemini/config/skills/`, global workflows `~/.gemini/config/global_workflows/`, global rules `~/.gemini/GEMINI.md`, project `.agents/`: <https://codelabs.developers.google.com/getting-started-agy-ide>
+- Antigravity skills format (folder-per-skill `SKILL.md`, one level, name+description frontmatter) and CLI skills at `~/.gemini/antigravity-cli/skills/`: <https://codelabs.developers.google.com/getting-started-with-antigravity-skills>
+
+## Defects to resolve in this release (v3.12.0)
+
+- **Codex flattening**: the installer copies `catalog/skills` verbatim to `~/.codex/skills`, preserving the `<category>/<name>/` tree, so skill folders sit two levels deep and Codex discovers none. Fix: `flatten_skills` to `~/.codex/skills` AND `~/.agents/skills` (Phase 2).
+- **Codex commands invisible in the desktop app**: commands ship only as deprecated prompts (`/prompts:name`). Fix: also emit `commands_to_skills` so `$name` works, keep prompts for CLI back-compat (Phase 2).
+- **Antigravity wrong global paths**: the installer writes global content to `~/.gemini/antigravity/`, which the IDE does not read. Fix: `~/.gemini/config/skills/`, `~/.gemini/config/global_workflows/`, `~/.gemini/GEMINI.md` (Phase 3).
+
+## Residual live-verification gaps
+
+Cannot be confirmed from docs alone; write to all documented candidates (additive) and confirm via the `/update release` re-verification step or a live probe:
+
+1. Whether the new ChatGPT desktop app canonically prefers `~/.codex/skills` or `~/.agents/skills` (we write both).
+2. The `agy` CLI global workflow directory (skills confirmed at `~/.gemini/antigravity-cli/skills/`; the workflow path is best-effort).
+3. Antigravity 2.0 global hooks path (the codelabs document `skills/` + `workflows/`, not hooks at global scope).
+4. Antigravity 2.0 project instruction: root `AGENTS.md` vs `.agents/` (v3.11 defect C4).
