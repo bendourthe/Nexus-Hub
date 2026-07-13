@@ -108,7 +108,7 @@ function Get-SanitizedBranchName {
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-$script:NexusHubVersion = "3.12.0"
+$script:NexusHubVersion = "3.12.1"
 
 $Host.UI.RawUI.WindowTitle = "Nexus-Hub Installer"
 $script:InstallerTitle = "Nexus-Hub Installer"
@@ -1281,11 +1281,13 @@ function Install-Global {
         $globalCodexDir = Join-Path $env:USERPROFILE ".codex"
         if (-not (Test-Path $globalCodexDir)) { New-Item -ItemType Directory -Force -Path $globalCodexDir | Out-Null }
 
-        Safe-Folder-Copy -Source "$RepoRoot\catalog\skills"   -Destination (Join-Path $globalCodexDir "skills")   -CustomMessage "✓ Skills catalog installed at: $(Join-Path $globalCodexDir "skills")"
-        Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $globalCodexDir "prompts")  -CustomMessage "✓ Custom prompts installed at: $(Join-Path $globalCodexDir "prompts")"
-
-        # AGENTS.md (open standard read by Codex, Jules, Cursor, Aider, OpenCode)
-        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "codex" -DisplayName "AGENTS.md (instruction file)" -InstructionOnly
+        # Full registry mirror (v3.12.0): the codex integration flattens skills to
+        # ~/.codex/skills AND ~/.agents/skills (one level, as Codex and the ChatGPT
+        # desktop app scan), emits every catalog command as a skill ($name) plus a
+        # legacy top-level prompt (/prompts:name), and renders ~/.codex/AGENTS.md.
+        # Replaces the prior verbatim copies that buried every SKILL.md under a
+        # category folder Codex could not read. See docs/policy/platform-read-contracts.md.
+        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "codex" -DisplayName "Codex (AGENTS.md + skills + commands)"
     }
 
     # --- Google -- Gemini / Antigravity 1.0 + 2.0 / Gemini CLI -----------
@@ -1309,7 +1311,7 @@ function Install-Global {
 
         if ($platforms -contains "ANTIGRAVITY2") {
             Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "antigravity2" -DisplayName "Antigravity 2.0 + CLI"
-            Write-Item -Message "Antigravity 2.0 IDE: slash commands appear only inside an OPEN project folder (its .agents/workflows/). Run a workspace/project install in your repo so the commands show; a global-only install is not scanned by the IDE for slash commands." -Color "Yellow"
+            Write-Item -Message "Antigravity 2.0: global skills -> ~/.gemini/config/skills, slash commands -> ~/.gemini/config/global_workflows, rules -> ~/.gemini/GEMINI.md; the agy CLI reads ~/.gemini/antigravity-cli. Per-project .agents/ is still seeded by 'nexus-hub init' for project-scoped workflows and rules." -Color "Yellow"
         }
         if ($platforms -contains "GEMINI_CLI") {
             if ($Enterprise) {
@@ -1648,11 +1650,10 @@ function Install-Workspace {
             $codexDir = Join-Path $targetPath ".codex"
             if (-not (Test-Path $codexDir)) { New-Item -ItemType Directory -Force -Path $codexDir | Out-Null }
 
-            Safe-Folder-Copy -Source "$RepoRoot\catalog\skills"   -Destination (Join-Path $codexDir "skills")  -CustomMessage "✓ Skills catalog installed at: $(Join-Path $codexDir "skills")"
-            Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $codexDir "prompts") -CustomMessage "✓ Custom prompts installed at: $(Join-Path $codexDir "prompts")"
-
-            # AGENTS.md at project root (open standard read by Codex, Jules, Cursor, Aider, OpenCode)
-            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "codex" -DisplayName "AGENTS.md (instruction file)" -Languages ($languages -join ',') -InstructionOnly
+            # Full registry mirror (v3.12.0): see the global Codex block. Workspace
+            # scope writes .codex/{skills,prompts}, .agents/skills (flattened + command
+            # skills), and a repo-root AGENTS.md.
+            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "codex" -DisplayName "Codex (AGENTS.md + skills + commands)" -Languages ($languages -join ',')
         }
 
         # --- Google -- Gemini / Antigravity 1.0 + 2.0 / Gemini CLI ------

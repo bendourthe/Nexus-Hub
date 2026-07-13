@@ -32,7 +32,10 @@ class GeminiCliIntegration(MarkdownIntegration, SkillsIntegration, TomlIntegrati
         "workspace_dir": ".gemini",
         "instruction_file": "GEMINI.md",
         "instruction_template": "templates/ai-instructions/base-gemini-cli.md",
+        # Gemini CLI discovers skills one level deep at ~/.gemini/skills/<name>/
+        # (or the ~/.agents/skills alias); flatten + add command-skills (Phase 4).
         "skills_subdir": "skills",
+        "flatten_skills_layout": True,
         "agents_subdir": "agents",
         "rules_subdir": "rules",
         "hooks_supported": False,

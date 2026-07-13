@@ -69,7 +69,10 @@ class NexusAiIntegration(MarkdownIntegration, SkillsIntegration):
         "workspace_dir": ".nexus-ai/catalog",
         "instruction_file": "NEXUS_AI.md",
         "instruction_template": "templates/ai-instructions/base-claude.md",
+        # Nexus-AI follows the SKILL.md open standard (one level deep); flatten the
+        # <category>/ layer and add command-skills (v3.12.0 Phase 4).
         "skills_subdir": "skills",
+        "flatten_skills_layout": True,
         "commands_subdir": "commands",
         "agents_subdir": "agents",
         "rules_subdir": "rules",

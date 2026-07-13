@@ -4,9 +4,9 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.12.0 -->
+<!-- nexus-hub-version: 3.12.1 -->
 
-Nexus-Hub is the upstream skill catalog for AI coding assistants: 265 skills, 16 commands, 25 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
+Nexus-Hub is the upstream skill catalog for AI coding assistants: 266 skills, 16 commands, 25 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
 ## Interactive Guide -- start here
 
@@ -36,6 +36,10 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v3.12.1
+
+v3.12.1 makes every Nexus-Hub skill and command actually discoverable in the new ChatGPT desktop app (Chat + Work + Codex) and the Antigravity IDE, and hardens the install against future platform format drift. Codex and the desktop app discover skills one level deep, but the installer was copying the catalog two levels deep (buried under a category folder), so nothing registered; skills are now flattened into `~/.codex/skills/` and the cross-tool `~/.agents/skills/`, and every command surfaces both as a slash command and as a reusable skill (`$presentify`, `$implement`, ...). Antigravity's global content now lands where the IDE actually reads it (`~/.gemini/config/skills/`, `~/.gemini/config/global_workflows/`, `~/.gemini/GEMINI.md`) instead of an unread path. The same one-level flattening plus command-skills fix extends to Claude, Gemini, Gemini CLI, OpenCode, and Nexus-AI, whose native skill folders were silently broken by the nested layout. A new living read-contract (`docs/policy/platform-read-contracts.md`) plus a three-layer verification gate keeps it correct: a deterministic code-vs-contract check in `make validate`, a corrected `nexus-hub verify`, and a new `/update release` step that re-verifies each platform's current discovery format via web search every release. Catalog: **266 skills** (+1: `platform-contract-verification`), **16 commands**, **25 hooks**.
 
 ## What's New in v3.12.0
 
@@ -118,7 +122,7 @@ That is the whole setup -- no prompts. The installer prechecks its dependencies 
 
 After the installer completes:
 
-- **Globally**: your user profile has all 265 skills, 16 commands, 25 hooks, 23 agents, plus Gemini and Codex instructions.
+- **Globally**: your user profile has all 266 skills, 16 commands, 25 hooks, 23 agents, plus Gemini and Codex instructions.
 - **Locally**: your project has `copilot-instructions.md` and `AGENTS.md` tailored to your language.
 
 **Power-user flags**: `--workspace <path>` installs into a single repo instead of globally; `--platforms <comma-list>` limits the install to a subset of assistants; `--yes` runs fully unattended (refreshes managed files with no prompt -- ideal for CI). Prefer to clone first? `git clone` the repo and run `./install.sh` (macOS / Linux) or `install.bat` (Windows) -- the in-repo path still works exactly as before.

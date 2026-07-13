@@ -47,6 +47,12 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from ._catalog_adapters import (
+    catalog_skill_names,
+    commands_to_skills,
+    commands_to_slash,
+    flatten_skills,
+)
 from .base import InstallContext, MarkdownIntegration, SkillsIntegration
 from .result import FileAction, WriteResult
 
@@ -80,28 +86,41 @@ class Antigravity10Integration(MarkdownIntegration, SkillsIntegration):
 class Antigravity20Integration(MarkdownIntegration, SkillsIntegration):
     """Covers both the Antigravity 2.0 desktop IDE and the Antigravity CLI (`agy`).
 
-    Unlike the generic ``SkillsIntegration`` verbatim mirror, this integration
-    overrides the install path to (a) flatten the skill tree to the flat
-    folder-per-skill layout Antigravity discovers, (b) write the catalog to BOTH
-    the IDE global root (``~/.gemini/antigravity``) and the CLI global root
-    (``~/.gemini/antigravity-cli``), and (c) install the hook scripts plus a
-    Antigravity-schema ``hooks.json`` registration. Commands still mirror
-    verbatim into ``workflows/`` (the slash-command surface).
+    Global read-paths (verified 2026-07-13 against the current Antigravity docs;
+    see docs/policy/platform-read-contracts.md and the codelabs cited there):
+
+      - IDE global skills:    ``~/.gemini/config/skills/<name>/`` (flattened, one level)
+      - IDE global slash cmds: ``~/.gemini/config/global_workflows/<name>.md``
+      - IDE global rules:     ``~/.gemini/GEMINI.md`` (shared with the ``gemini``
+        integration; marker-merge keeps both coexisting -- one Nexus-Hub block)
+      - CLI global skills:    ``~/.gemini/antigravity-cli/skills/<name>/`` (flattened)
+      - project (all):        ``<project>/.agents/{skills,workflows,rules,hooks}``
+
+    The prior version wrote global content under ``~/.gemini/antigravity/`` (which
+    the IDE does not read) and did not expose commands as skills. This integration
+    now (a) flattens skills into each surface's skills dir, (b) emits every command
+    BOTH as a slash workflow AND as a skill (so both ``/name`` and skill-invocation
+    work), and (c) installs the hook scripts plus an Antigravity-schema
+    ``hooks.json``. Workspace ``.agents/`` behavior is unchanged.
     """
 
     key = "antigravity2"
     display_name = "Antigravity 2.0 + CLI (Google)"
     instruction_mode = "shared"
     config = {
-        # The desktop IDE reads global content from ~/.gemini/antigravity/; the
-        # `agy` CLI reads from ~/.gemini/antigravity-cli/. Install to both.
-        "global_dir": "~/.gemini/antigravity",
-        "additional_global_dirs": ["~/.gemini/antigravity-cli"],
+        # IDE catalog root (skills, global_workflows) is ~/.gemini/config; IDE rules
+        # live at the sibling ~/.gemini/GEMINI.md. The `agy` CLI reads its catalog
+        # from ~/.gemini/antigravity-cli. Project scope is .agents/. install_global /
+        # install_workspace below use these explicitly (no generic root loop).
+        "global_dir": "~/.gemini/config",
+        "cli_global_dir": "~/.gemini/antigravity-cli",
+        "ide_rules_file": "~/.gemini/GEMINI.md",
         "workspace_dir": ".agents",
         "instruction_file": "AGENTS.md",
         "instruction_template": "templates/ai-instructions/base-antigravity-20.md",
         "skills_subdir": "skills",
         "commands_subdir": "workflows",
+        "ide_commands_subdir": "global_workflows",
         "agents_subdir": "subagents",
         "rules_subdir": "rules",
         "hooks_subdir": "hooks",
@@ -159,90 +178,129 @@ class Antigravity20Integration(MarkdownIntegration, SkillsIntegration):
 
     def install_global(self, ctx: InstallContext) -> WriteResult:
         result = WriteResult()
-        targets = [self.config["global_dir"], *self.config.get("additional_global_dirs", [])]
-        for rel in targets:
-            parent = (Path.home() / rel.lstrip("~/")).resolve()
-            self._ensure_dir(parent, ctx)
-            action = self._write_instruction(parent, ctx)
-            if action is not None:
-                result.files.append(action)
-            if not ctx.instruction_only:
-                result.files.extend(self._mirror_antigravity(parent, ctx, scope="global"))
+        gemini_home = (Path.home() / ".gemini").resolve()
+
+        # IDE surface: catalog under ~/.gemini/config, rules at ~/.gemini/GEMINI.md.
+        config_root = gemini_home / "config"
+        self._ensure_dir(config_root, ctx)
+        result.files.append(self._write_instruction_file(gemini_home / "GEMINI.md", ctx))
+        if not ctx.instruction_only:
+            result.files.extend(
+                self._mirror_surface(
+                    config_root, ctx, scope="global",
+                    commands_subdir=self.config["ide_commands_subdir"],
+                )
+            )
+
+        # CLI surface: catalog under ~/.gemini/antigravity-cli, instruction AGENTS.md.
+        cli_root = gemini_home / "antigravity-cli"
+        self._ensure_dir(cli_root, ctx)
+        result.files.append(
+            self._write_instruction_file(cli_root / self.config["instruction_file"], ctx)
+        )
+        if not ctx.instruction_only:
+            result.files.extend(
+                self._mirror_surface(
+                    cli_root, ctx, scope="global",
+                    commands_subdir=self.config["commands_subdir"],
+                )
+            )
         return result
 
     def install_workspace(self, ctx: InstallContext) -> WriteResult:
         result = WriteResult()
         parent = (ctx.target_root / self.config["workspace_dir"]).resolve()
         self._ensure_dir(parent, ctx)
-        action = self._write_instruction(parent, ctx)
-        if action is not None:
-            result.files.append(action)
+        result.files.append(
+            self._write_instruction_file(parent / self.config["instruction_file"], ctx)
+        )
         if not ctx.instruction_only:
-            result.files.extend(self._mirror_antigravity(parent, ctx, scope="workspace"))
+            result.files.extend(
+                self._mirror_surface(
+                    parent, ctx, scope="workspace",
+                    commands_subdir=self.config["commands_subdir"],
+                )
+            )
         return result
 
     def wire_project_surfaces(self, ctx: InstallContext) -> WriteResult:
         """Seed the current repo's ``.agents/`` surfaces for ``nexus-hub init``.
 
-        The Antigravity 2.0 IDE reads slash commands (``workflows/``), rules, and
-        skills ONLY from the open project's ``.agents/`` -- a global install is
-        not scanned (verified empirically). There is therefore no global command
-        surface to mirror into; instead ``nexus-hub init`` writes the ``.agents/``
-        tree into the current repo so the catalog's commands, rules, and skills
-        become available there. Mirrors the workspace ``.agents/`` content but
+        Beyond the corrected global read-paths, the Antigravity 2.0 IDE also reads
+        slash commands, skills, and rules from the OPEN project's ``.agents/``.
+        ``nexus-hub init`` writes that tree into the current repo so the catalog is
+        available project-scoped too. Mirrors the workspace ``.agents/`` content but
         leaves the shared ``AGENTS.md`` instruction file to the install flow.
         """
         result = WriteResult()
         parent = (ctx.target_root / self.config["workspace_dir"]).resolve()
         self._ensure_dir(parent, ctx)
-        result.files.extend(self._mirror_antigravity(parent, ctx, scope="workspace"))
+        result.files.extend(
+            self._mirror_surface(
+                parent, ctx, scope="workspace",
+                commands_subdir=self.config["commands_subdir"],
+            )
+        )
         return result
 
     # ----- mirror helpers --------------------------------------------------
 
-    def _mirror_antigravity(
-        self, parent: Path, ctx: InstallContext, scope: str
+    def _write_instruction_file(self, dst_path: Path, ctx: InstallContext) -> FileAction:
+        """Render base-antigravity-20.md and marker-merge it into an explicit path.
+
+        Mirrors ``MarkdownIntegration._write_instruction`` shared-mode behavior but
+        to a caller-chosen path (the IDE rules file is ``~/.gemini/GEMINI.md``,
+        while the CLI and workspace use ``AGENTS.md``). Tracked as a shared file so
+        only the Nexus-Hub marker block is removed on teardown -- important because
+        ``~/.gemini/GEMINI.md`` is shared with the ``gemini`` integration.
+        """
+        from scripts.lib.installer.instruction_merge import merge_marker_section
+
+        template_path = ctx.repo_root / self.config["instruction_template"]
+        if not template_path.exists():
+            ctx.manifest.log(self.key, f"missing-template: {template_path}")
+            return FileAction(path=str(template_path), action="not-found")
+        rendered = self._render(template_path, ctx)
+        if not ctx.dry_run:
+            dst_path.parent.mkdir(parents=True, exist_ok=True)
+        action = merge_marker_section(
+            dst_path, rendered, legacy_header="## Nexus-Hub", dry_run=ctx.dry_run
+        )
+        ctx.manifest.track_shared(self.key, str(dst_path))
+        return action
+
+    def _mirror_surface(
+        self, root: Path, ctx: InstallContext, scope: str, commands_subdir: str
     ) -> list[FileAction]:
-        """Lay the catalog into one Antigravity root in the format it reads."""
+        """Lay the catalog into one Antigravity surface in the shape it reads.
+
+        Skills are flattened one level (``skills/<name>/``) and every command is
+        emitted BOTH as a slash workflow (``<commands_subdir>/<name>.md``) and as a
+        skill (``skills/<name>/SKILL.md``) so both ``/name`` and skill-invocation
+        work. Agents/rules trees are additive (Antigravity ignores what it does not
+        consume); hooks + hooks.json are installed per the schema.
+        """
+        src_skills = ctx.repo_root / "catalog" / "skills"
+        src_commands = ctx.repo_root / "catalog" / "commands"
+        skills_dst = root / self.config["skills_subdir"]
+        existing = catalog_skill_names(src_skills)
+
         actions: list[FileAction] = []
-        actions.extend(self._mirror_flattened_skills(parent, ctx))
-        # Commands -> workflows (verbatim, already flat). Agents and rules keep
-        # their tree shape (Antigravity ignores any subdir it does not consume).
+        actions.extend(flatten_skills(ctx, self.key, src_skills, skills_dst))
+        actions.extend(commands_to_skills(ctx, self.key, src_commands, skills_dst, existing))
+        actions.extend(
+            commands_to_slash(ctx, self.key, src_commands, root / commands_subdir, style="verbatim")
+        )
         for cfg_key, src_rel in (
-            ("commands_subdir", "catalog/commands"),
             ("agents_subdir", "catalog/agents"),
             ("rules_subdir", "catalog/rules"),
         ):
             subdir = self.config.get(cfg_key)
-            if not subdir:
-                continue
-            src = ctx.repo_root / src_rel
-            actions.append(self._copy_tree(src, parent / subdir, ctx, self.key))
-        actions.extend(self._install_hooks(parent, ctx, scope))
-        return actions
-
-    def _mirror_flattened_skills(
-        self, parent: Path, ctx: InstallContext
-    ) -> list[FileAction]:
-        """Flatten catalog/skills/<category>/<name>/ -> skills/<name>/.
-
-        Antigravity discovers skills one level under `skills/`, so the catalog's
-        category layer must be dropped. Skill folder names are globally unique
-        across categories (enforced by the catalog), so flattening cannot
-        collide.
-        """
-        src_skills = ctx.repo_root / "catalog" / "skills"
-        skills_dst = parent / self.config["skills_subdir"]
-        if not src_skills.exists():
-            ctx.manifest.log(self.key, f"missing-tree: {src_skills}")
-            return [FileAction(path=str(src_skills), action="not-found")]
-        self._ensure_dir(skills_dst, ctx)
-        actions: list[FileAction] = []
-        for category in sorted(p for p in src_skills.iterdir() if p.is_dir()):
-            for skill in sorted(p for p in category.iterdir() if p.is_dir()):
+            if subdir:
                 actions.append(
-                    self._copy_tree(skill, skills_dst / skill.name, ctx, self.key)
+                    self._copy_tree(ctx.repo_root / src_rel, root / subdir, ctx, self.key)
                 )
+        actions.extend(self._install_hooks(root, ctx, scope))
         return actions
 
     def _install_hooks(

@@ -474,7 +474,7 @@ def _verify_checks(home: Path, target_root: Path) -> list:
     Each entry is ``(platform_label, [(surface, ok_bool), ...], remediation_or_None)``.
     Only platforms whose config dir is present are included, so the report reflects
     what the user actually has installed. Asserts the surfaces the platform actually
-    READS (per docs/v3/v3.11/platform-read-contracts.md), not what the installer wrote.
+    READS (per docs/policy/platform-read-contracts.md), not what the installer wrote.
     """
     checks: list = []
     # Claude
@@ -485,10 +485,13 @@ def _verify_checks(home: Path, target_root: Path) -> list:
             ("skills", _nonempty_dir(d / "skills")),
             ("CLAUDE.md SKILL_INDEX", _file_contains(d / "CLAUDE.md", "Skill Index")),
         ], "re-run the installer (Claude block)"))
-    # Codex - live surfaces are AGENTS.md (SKILL_INDEX) + prompts
+    # Codex / new ChatGPT desktop app - flattened skills (~/.codex/skills +
+    # ~/.agents/skills), legacy prompts, and the AGENTS.md SKILL_INDEX.
     d = home / ".codex"
     if d.exists():
-        checks.append(("Codex", [
+        checks.append(("Codex / ChatGPT", [
+            ("skills", _nonempty_dir(d / "skills")),
+            ("~/.agents/skills", _nonempty_dir(home / ".agents" / "skills")),
             ("prompts", _nonempty_dir(d / "prompts")),
             ("AGENTS.md SKILL_INDEX", _file_contains(d / "AGENTS.md", "Skill Index")),
         ], "re-run the installer with --platforms codex"))
@@ -500,16 +503,22 @@ def _verify_checks(home: Path, target_root: Path) -> list:
             ("workflows", _nonempty_dir(d / "workflows")),
             ("GEMINI.md", (d / "GEMINI.md").is_file()),
         ], "re-run the installer with --platforms gemini"))
-    # Antigravity 2.0 - global root AND the project-only .agents/ surface
-    ag = home / ".gemini" / "antigravity"
-    if ag.exists():
-        checks.append(("Antigravity 2.0 (global)", [
-            ("skills", _nonempty_dir(ag / "skills")),
-            ("workflows", _nonempty_dir(ag / "workflows")),
-        ], None))
+    # Antigravity 2.0 - IDE global (~/.gemini/config) + CLI (~/.gemini/antigravity-cli)
+    # + the project .agents/ surface. Detected on our own write targets.
+    cfg = home / ".gemini" / "config"
+    cli = home / ".gemini" / "antigravity-cli"
+    if cfg.exists() or cli.exists():
+        checks.append(("Antigravity 2.0 IDE (global)", [
+            ("skills", _nonempty_dir(cfg / "skills")),
+            ("global_workflows", _nonempty_dir(cfg / "global_workflows")),
+            ("GEMINI.md", (home / ".gemini" / "GEMINI.md").is_file()),
+        ], "re-run the installer with --platforms antigravity2"))
+        checks.append(("Antigravity 2.0 CLI (agy)", [
+            ("skills", _nonempty_dir(cli / "skills")),
+        ], "re-run the installer with --platforms antigravity2"))
         checks.append(("Antigravity 2.0 (this project .agents/)", [
             ("workflows", _nonempty_dir(target_root / ".agents" / "workflows")),
-        ], "run `nexus-hub init` in this project - Antigravity reads slash commands ONLY from .agents/"))
+        ], "run `nexus-hub init` in this project for project-scoped .agents/ workflows"))
     # Cursor - global slash surface
     d = home / ".cursor"
     if d.exists():

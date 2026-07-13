@@ -27,7 +27,10 @@ class GeminiIntegration(MarkdownIntegration, SkillsIntegration):
         # template-divergence half of DF-001.
         "instruction_file": "GEMINI.md",
         "instruction_template": "templates/ai-instructions/base-gemini.md",
+        # Skills are discovered one level deep (SKILL.md open standard); flatten
+        # the <category>/ layer and add command-skills (v3.12.0 Phase 4).
         "skills_subdir": "skills",
+        "flatten_skills_layout": True,
         "commands_subdir": "workflows",
         "agents_subdir": "agents",
         "rules_subdir": "rules",

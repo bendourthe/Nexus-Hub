@@ -48,7 +48,11 @@ class ClaudeIntegration(MarkdownIntegration, SkillsIntegration):
         "instruction_workspace_dir": "",
         "instruction_file": "CLAUDE.md",
         "instruction_template": "templates/ai-instructions/base-claude.md",
+        # Claude Code discovers skills one level deep (~/.claude/skills/<name>/
+        # SKILL.md), so flatten the catalog's <category>/ layer and surface each
+        # command as a skill too (v3.12.0 Phase 4).
         "skills_subdir": "skills",
+        "flatten_skills_layout": True,
         "commands_subdir": "commands",
         "agents_subdir": "agents",
         "rules_subdir": "rules",

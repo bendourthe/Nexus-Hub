@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.12.1] - 2026-07-13
+
+**Cross-platform install adapters + per-release format verification.** Fixes that Nexus-Hub skills and commands were not discoverable in the new ChatGPT desktop app (Chat + Work + Codex) or the Antigravity IDE, and hardens the install against future platform format drift. The canonical catalog is unchanged; each platform integration is now an adapter that materializes the catalog into that platform's native shape and location, and every command surfaces both as a slash command and as a reusable skill (`$name`). Catalog: **266 skills** (+1: `platform-contract-verification`), **16 commands**, **25 hooks**.
+
+### Fixed
+
+- **Codex / new ChatGPT desktop app: skills and commands now surface** (`scripts/lib/integrations/codex.py`, both installers): Codex and the desktop app discover skills one level deep (`skills/<name>/SKILL.md`), but the installer copied `catalog/skills` verbatim (two levels, buried under a category folder), so nothing registered. Skills are now flattened into both `~/.codex/skills/` and the cross-tool `~/.agents/skills/`, every command is emitted as a skill (so `$presentify`, `$implement`, ... work), and the legacy `~/.codex/prompts/` surface is kept for `/prompts:name`. The raw verbatim-copy installer blocks were replaced by a registry call in lockstep.
+- **Antigravity 2.0: global read-paths corrected** (`scripts/lib/integrations/antigravity.py`, both installers): the installer wrote global content to `~/.gemini/antigravity/`, which the IDE does not read. Global skills now land in `~/.gemini/config/skills/`, global slash commands in `~/.gemini/config/global_workflows/`, and rules in `~/.gemini/GEMINI.md`; the `agy` CLI catalog stays under `~/.gemini/antigravity-cli/`. Commands are also emitted as skills. The stale "slash commands are project-only" installer warning was corrected.
+- **Claude, Gemini, Gemini CLI, OpenCode, Nexus-AI: native skill folders fixed** (`scripts/lib/integrations/base.py` + the five configs): all discover skills one level deep, but the generic mirror shipped nested `<category>/<name>/` skills, so native skill folders were broken (skills reached the agent only via the `{{SKILL_INDEX}}` in each instruction file). A new `flatten_skills_layout` flag on `SkillsIntegration._mirror_catalog` flattens the skills tree and adds command-skills for these platforms.
+
+### Added
+
+- **Living platform read-contract** (`docs/policy/platform-read-contracts.md`): the durable, sourced source of truth for where each supported platform reads each surface (skills, commands, rules, hooks, instruction file) at global and workspace scope, with official-doc source URLs and a last-verified date. Supersedes the version-scoped v3.11 snapshot.
+- **Shared catalog-to-platform adapters** (`scripts/lib/integrations/_catalog_adapters.py`): `flatten_skills`, `commands_to_skills`, `commands_to_slash`, and `catalog_skill_names`, used by every platform integration.
+- **Three-layer verification gate**: (1) `scripts/verify_platform_contracts.py` (deterministic, offline code-vs-contract checker, wired into `make validate`); (2) corrected `nexus-hub verify` read-path checks (`runner.py`) for the new Codex/Antigravity paths; (3) a new self-gating `platform-contract-verification` skill wired as governance step 4 of `/update release`, which re-verifies each platform's CURRENT discovery format via targeted web searches every release and fixes any drift in the contract doc, adapters, and installers. The skill is a no-op outside the Nexus-Hub repo and degrades gracefully offline.
+- Cross-platform test coverage: `tests/integrations/test_catalog_adapters.py`, `test_codex.py`, `test_cross_platform_flatten.py`, and `tests/validators/test_verify_platform_contracts.py`, plus updated Antigravity, parity, and verify-read-path suites.
+
+### Changed
+
+- The CI `install-smoke` job now asserts the corrected Codex and Antigravity read-paths.
+- No new outbound call, dependency, or credential is introduced by any change (web search in the release step is the agent's own tool).
+
 ## [3.12.0] - 2026-07-11
 
 **v3.12.0 -- the presentify fidelity-and-variety overhaul: nothing dropped, nothing invented, nothing static, nothing samey.** Driven by a real failing run (a PDF saved from PowerPoint whose photos, maps, and figures never reached the output), this release rebuilds the `/presentify` + `document-to-interactive-html` pipeline end to end: full PDF visual extraction (embedded rasters, rasterized vector-figure regions, captions, repeated-asset dedup) plus a two-tier scanned-page path (optional local OCR + always-on agent-vision page images), native PPTX/DOCX chart extraction and grouped-shape recursion, a schema-v2 content model with a per-source coverage manifest, a figure-reconstruction protocol whose worksheets and confidence gate make fabricated chart data structurally impossible, a COVERAGE RECONCILIATION verification gate (every visual rendered, reconstructed, or skipped-with-reason), a five-point minimum interaction budget so chart-free sources still produce dynamic pages, and a seeded design-entropy engine with a persisted run history so same-preset reruns provably differ. Proven by a committed worked example (two same-preset runs over the failing-case fixture: ground-truth-exact values, 0 unaccounted visuals, two unmistakably different designs) and guarded by a new path-filtered extractor CI workflow. Local-only throughout (all new libraries optional and lazy-imported); resolves the v3.9 deferrals DF-v39-presentify-1/-2/-3. Catalog counts unchanged: **265 skills**, **16 commands**, **25 hooks**.

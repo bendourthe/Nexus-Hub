@@ -135,21 +135,39 @@ def test_antigravity_20_installs_hooks_and_registration(install_ctx: InstallCont
     assert "run_command" in matchers, "git-guardrails must match the run_command tool"
 
 
-def test_antigravity_20_global_targets_both_ide_and_cli_roots(install_ctx: InstallContext):
-    """Global install must reach BOTH the IDE root (~/.gemini/antigravity) and
-    the CLI root (~/.gemini/antigravity-cli). Uses dry_run so the real home
-    directory is never touched.
+def test_antigravity_20_global_targets_corrected_ide_and_cli_paths(install_ctx: InstallContext):
+    """Global install must reach the CORRECTED IDE read-paths (~/.gemini/config/
+    skills + global_workflows, ~/.gemini/GEMINI.md rules) and the CLI root
+    (~/.gemini/antigravity-cli). It must NOT write to the old ~/.gemini/antigravity/
+    root, which the IDE does not read. Uses dry_run so real home is never touched.
     """
     from dataclasses import replace
 
     integ = get("antigravity2")
     global_ctx = replace(install_ctx, scope="global")
     result = integ.dry_run(global_ctx)
-    paths = [fa.path.replace("\\", "/") for fa in result.files]
-    joined = " ".join(paths)
-    assert "/.gemini/antigravity/" in joined, (
-        "global install must write to the IDE root ~/.gemini/antigravity/"
+    joined = " ".join(fa.path.replace("\\", "/") for fa in result.files)
+
+    assert "/.gemini/config/skills/" in joined, "IDE global skills must land in ~/.gemini/config/skills"
+    assert "/.gemini/config/global_workflows/" in joined, (
+        "IDE global slash commands must land in ~/.gemini/config/global_workflows"
     )
-    assert "/.gemini/antigravity-cli/" in joined, (
-        "global install must write to the CLI root ~/.gemini/antigravity-cli/"
+    assert "/.gemini/GEMINI.md" in joined, "IDE global rules must land in ~/.gemini/GEMINI.md"
+    assert "/.gemini/antigravity-cli/skills/" in joined, "CLI skills must land in ~/.gemini/antigravity-cli"
+    # Regression guard: the old (unread) IDE root must be gone.
+    assert "/.gemini/antigravity/" not in joined, (
+        "global install must NOT write to the old ~/.gemini/antigravity/ root"
     )
+
+
+def test_antigravity_20_commands_are_also_skills(install_ctx: InstallContext):
+    """Every command surfaces BOTH as a slash workflow AND as a skill, so a user
+    can invoke /presentify or the skill form. Workspace scope check.
+    """
+    integ = get("antigravity2")
+    integ.install(install_ctx)
+    agents = install_ctx.target_root / ".agents"
+    assert (agents / "workflows" / "presentify.md").exists(), "slash workflow missing"
+    skill_md = agents / "skills" / "presentify" / "SKILL.md"
+    assert skill_md.exists(), "command-skill missing"
+    assert "name: presentify" in skill_md.read_text(encoding="utf-8")

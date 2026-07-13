@@ -62,17 +62,28 @@ def test_claude_needs_action_when_empty(tmp_path):
     assert not _all_ok(check)
 
 
-def test_antigravity_project_surface_needs_action_then_pass(tmp_path):
+def test_antigravity_ide_and_cli_global_pass(tmp_path):
+    """Corrected v3.12.0 paths: IDE global at ~/.gemini/config (skills +
+    global_workflows) + ~/.gemini/GEMINI.md; CLI at ~/.gemini/antigravity-cli.
+    """
     home = tmp_path / "home"
-    ag = home / ".gemini" / "antigravity"
-    (ag / "skills" / "s").mkdir(parents=True)
-    (ag / "workflows").mkdir(parents=True)
-    (ag / "workflows" / "c.md").write_text("c", encoding="utf-8")
+    cfg = home / ".gemini" / "config"
+    (cfg / "skills" / "s").mkdir(parents=True)
+    (cfg / "skills" / "s" / "SKILL.md").write_text("s", encoding="utf-8")
+    (cfg / "global_workflows").mkdir(parents=True)
+    (cfg / "global_workflows" / "c.md").write_text("c", encoding="utf-8")
+    (home / ".gemini" / "GEMINI.md").write_text("# Nexus-Hub Skill Index\n", encoding="utf-8")
+    cli = home / ".gemini" / "antigravity-cli"
+    (cli / "skills" / "s").mkdir(parents=True)
+    (cli / "skills" / "s" / "SKILL.md").write_text("s", encoding="utf-8")
     proj = tmp_path / "proj"
     proj.mkdir()
 
     labels = _by_label(runner._verify_checks(home, proj))
-    assert _all_ok(labels["Antigravity 2.0 (global)"])
+    assert _all_ok(labels["Antigravity 2.0 IDE (global)"])
+    assert _all_ok(labels["Antigravity 2.0 CLI (agy)"])
+    # The old (unread) ~/.gemini/antigravity global root must NOT be checked.
+    assert "Antigravity 2.0 (global)" not in labels
     proj_check = labels["Antigravity 2.0 (this project .agents/)"]
     assert not _all_ok(proj_check)
     assert "nexus-hub init" in (proj_check[2] or "")
@@ -82,6 +93,30 @@ def test_antigravity_project_surface_needs_action_then_pass(tmp_path):
     (proj / ".agents" / "workflows" / "c.md").write_text("c", encoding="utf-8")
     labels2 = _by_label(runner._verify_checks(home, proj))
     assert _all_ok(labels2["Antigravity 2.0 (this project .agents/)"])
+
+
+def test_codex_pass_and_needs_action(tmp_path):
+    """Codex verify checks flattened skills (~/.codex/skills + ~/.agents/skills),
+    legacy prompts, and the AGENTS.md SKILL_INDEX.
+    """
+    home = tmp_path / "home"
+    d = home / ".codex"
+    (d / "skills" / "presentify").mkdir(parents=True)
+    (d / "skills" / "presentify" / "SKILL.md").write_text("s", encoding="utf-8")
+    (d / "prompts").mkdir(parents=True)
+    (d / "prompts" / "presentify.md").write_text("p", encoding="utf-8")
+    (d / "AGENTS.md").write_text("# Nexus-Hub Skill Index\n", encoding="utf-8")
+    (home / ".agents" / "skills" / "presentify").mkdir(parents=True)
+    (home / ".agents" / "skills" / "presentify" / "SKILL.md").write_text("s", encoding="utf-8")
+
+    check = _by_label(runner._verify_checks(home, tmp_path / "proj"))["Codex / ChatGPT"]
+    assert _all_ok(check)
+
+    # Remove the ~/.agents/skills mirror -> NEEDS-ACTION.
+    import shutil
+    shutil.rmtree(home / ".agents")
+    check2 = _by_label(runner._verify_checks(home, tmp_path / "proj"))["Codex / ChatGPT"]
+    assert not _all_ok(check2)
 
 
 def test_no_platforms_detected(tmp_path):

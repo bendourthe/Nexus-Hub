@@ -7,7 +7,7 @@ set -e
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-NEXUS_HUB_VERSION="3.12.0"
+NEXUS_HUB_VERSION="3.12.1"
 
 # --- Window Title ---
 printf '\033]0;Nexus-Hub Installer\007'
@@ -918,11 +918,14 @@ install_global() {
     local global_codex_dir="$user_home/.codex"
     mkdir -p "$global_codex_dir"
 
-    safe_folder_copy "$repo_root/catalog/skills"   "$global_codex_dir/skills"  "[OK] Skills catalog installed at: $global_codex_dir/skills"
-    safe_folder_copy "$repo_root/catalog/commands" "$global_codex_dir/prompts" "[OK] Custom prompts installed at: $global_codex_dir/prompts"
-
-    # AGENTS.md (open standard read by Codex, Jules, Cursor, Aider, OpenCode)
-    invoke_registry_platform "$repo_root" "global" "" "codex" "AGENTS.md (instruction file)" "" "true"
+    # Full registry mirror (v3.12.0): the codex integration flattens skills to
+    # ~/.codex/skills/<name>/ AND ~/.agents/skills/<name>/ (one level, as Codex and
+    # the ChatGPT desktop app scan), emits every catalog command as a skill ($name)
+    # plus a legacy top-level prompt (~/.codex/prompts, /prompts:name), and renders
+    # ~/.codex/AGENTS.md. Replaces the prior verbatim skills/commands copies, which
+    # buried every SKILL.md under a category folder Codex could not read. See
+    # docs/policy/platform-read-contracts.md.
+    invoke_registry_platform "$repo_root" "global" "" "codex" "Codex (AGENTS.md + skills + commands)" "" ""
     fi
 
     # --- Google -- Gemini / Antigravity 1.0 + 2.0 / Gemini CLI ---------
@@ -950,7 +953,7 @@ install_global() {
     # the CLI root, so skills and commands never surfaced in the 2.0 IDE.
     if should_install antigravity2; then
     invoke_registry_platform "$repo_root" "global" "" "antigravity2" "Antigravity 2.0 + CLI"
-    write_item "Antigravity 2.0 IDE: slash commands appear only inside an OPEN project folder (its .agents/workflows/). Run a workspace/project install in your repo so the commands show; a global-only install is not scanned by the IDE for slash commands." "$DARK_YELLOW"
+    write_item "Antigravity 2.0: global skills -> ~/.gemini/config/skills, slash commands -> ~/.gemini/config/global_workflows, rules -> ~/.gemini/GEMINI.md; the agy CLI reads ~/.gemini/antigravity-cli. Per-project .agents/ is still seeded by 'nexus-hub init' for project-scoped workflows and rules." "$DARK_YELLOW"
     fi
     if should_install gemini-cli; then
     if [ "${ENTERPRISE:-0}" = "1" ]; then
@@ -1318,11 +1321,10 @@ install_workspace() {
         local codex_dir="$target_path/.codex"
         mkdir -p "$codex_dir"
 
-        safe_folder_copy "$repo_root/catalog/skills"   "$codex_dir/skills"  "[OK] Skills catalog installed at: $codex_dir/skills"
-        safe_folder_copy "$repo_root/catalog/commands" "$codex_dir/prompts" "[OK] Custom prompts installed at: $codex_dir/prompts"
-
-        # AGENTS.md (open standard read by Codex, Jules, Cursor, Aider, OpenCode)
-        invoke_registry_platform "$repo_root" "workspace" "$target_path" "codex" "AGENTS.md (instruction file)" "$languages" "true"
+        # Full registry mirror (v3.12.0): see the global Codex block. Workspace scope
+        # writes .codex/{skills,prompts}, .agents/skills (flattened + command skills),
+        # and a repo-root AGENTS.md.
+        invoke_registry_platform "$repo_root" "workspace" "$target_path" "codex" "Codex (AGENTS.md + skills + commands)" "$languages" ""
         fi
 
         # --- Google -- Gemini / Antigravity 1.0 + 2.0 / Gemini CLI -

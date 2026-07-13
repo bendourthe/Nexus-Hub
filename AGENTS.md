@@ -1,6 +1,6 @@
 # AGENTS.md
 
-<!-- nexus-hub-version: 3.12.0 -->
+<!-- nexus-hub-version: 3.12.1 -->
 
 This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, Gemini CLI, etc.) when working with code in this repository.
 
@@ -8,7 +8,7 @@ This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, G
 
 Nexus-Hub is a production-grade skill harness for AI coding assistants. It is the **upstream catalog** consumed by Nexus (the local-first desktop AI Studio, see `https://github.com/bendourthe/Nexus-AI`) and by every other major agent platform: Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, and GitHub CLI. Skills, commands, hooks, agents, and rules are distributed via installer scripts into users' `~/.nexus-hub/` directory and into their AI assistant's per-platform config locations.
 
-Current catalog: **265 skills** across 21 categories, 16 commands (plus 3 permanent aliases), 25 hooks, 23 agents. The 40 v3.x deprecation shims were removed in v3.2.0.
+Current catalog: **266 skills** across 21 categories, 16 commands (plus 3 permanent aliases), 25 hooks, 23 agents. The 40 v3.x deprecation shims were removed in v3.2.0.
 
 ## Project Structure
 
@@ -24,7 +24,7 @@ Nexus-Hub/
 │   ├── mcp-configs/          # MCP server registry
 │   ├── memory/               # Memory template files
 │   ├── rules/                # Code style/security rules (4 languages)
-│   └── skills/               # 265 skills across 21 categories
+│   └── skills/               # 266 skills across 21 categories
 │       └── <category>/
 │           └── <skill-name>/
 │               └── SKILL.md
@@ -348,8 +348,8 @@ Nexus-Hub is a **template repository**. Nothing you add is "live" until a user r
 
 | Artifact you add/modify | Installer edit required? | Platforms reached |
 |---|---|---|
-| `catalog/skills/<cat>/<name>/SKILL.md` | No — folder auto-copied | Claude, Gemini, Codex (under `skills/`); Cursor/OpenCode/Copilot via the `{{SKILL_INDEX}}` block in their instruction file |
-| `catalog/commands/<name>.md` | No — folder auto-copied | Claude (`commands/`), Gemini (`workflows/`), Codex (`prompts/`). Cursor and GitHub Copilot get a **user-global** slash surface too (v3.3.4): a global install mirrors every command into `~/.cursor/commands/<name>.md` and into VS Code's user-profile `prompts/<name>.prompt.md`, so `/<name>` works in any repo with no local install. Antigravity 2.0 reads slash commands only from the open project's `.agents/workflows/`, so its commands are seeded per-repo by `nexus-hub init` (no global surface). OpenCode has no slash surface — it sees the command body only via its instruction file. |
+| `catalog/skills/<cat>/<name>/SKILL.md` | No — folder auto-copied | As of v3.12.0 every SKILL.md-standard platform (Claude, Codex/ChatGPT, Antigravity, Gemini, Gemini CLI, OpenCode, Nexus-AI) receives skills FLATTENED to `skills/<name>/` (one level, per the SKILL.md open standard) plus one skill per command (`$name`); Cursor/Copilot get skills via the `{{SKILL_INDEX}}` block in their instruction file. Exact per-platform read-paths: `docs/policy/platform-read-contracts.md` (the living contract, maintained by the `/update release` platform-contract-verification step). |
+| `catalog/commands/<name>.md` | No — folder auto-copied | Claude (`commands/`), Gemini (`workflows/`), Codex (`prompts/`). Cursor and GitHub Copilot get a **user-global** slash surface too (v3.3.4): a global install mirrors every command into `~/.cursor/commands/<name>.md` and into VS Code's user-profile `prompts/<name>.prompt.md`, so `/<name>` works in any repo with no local install. As of v3.12.0 Antigravity 2.0 gets a global slash surface at `~/.gemini/config/global_workflows/` AND the open project's `.agents/workflows/` (the latter seeded by `nexus-hub init`), and every command is also emitted as a skill. OpenCode has no slash surface — it sees the command body only via its instruction file (and its skills folder). |
 | `catalog/style-guides/<name>.md` (companion reference for a command, NOT a slash command) | No — folder auto-copied to `~/.nexus-hub/style-guides/` by `install_templates` | All platforms (shared). Located outside `catalog/commands/` so the file does not surface in the slash menu. |
 | `catalog/agents/<name>.md` | No — folder auto-copied | Claude, Gemini, Codex |
 | `catalog/hooks/<name>.{sh,py}` | No for the file; **you must register it** in `catalog/hooks/settings.json` | Platforms that honor Claude-style hooks |
@@ -381,7 +381,7 @@ The installer deploys **skills, commands, agents, hooks, and rules as separate f
 - **Original 4 (legacy installer copy blocks)**: Claude Code, Gemini/Antigravity 1.0, Codex, GitHub Copilot (Copilot receives behavioral guardrails via `.github/copilot-instructions.md` rather than a full file-tree copy).
 - **Extended 4 (v2.2.0+, via integration registry)**: Antigravity 2.0 + CLI (Google -- single integration covers both surfaces; the CLI ships as the `agy` binary and uses the `.agents/` per-project convention with global content under `~/.gemini/antigravity-cli/`, verified 2026-05-29 against Google's public Antigravity CLI docs), Antigravity CLI (Google -- transition target for Gemini CLI before 2026-06-18; covered by the `antigravity2` integration), Gemini CLI (Google, ENTERPRISE-ONLY post-2026-06-18, opt-in via `--enterprise` installer flag), Nexus-AI (https://github.com/bendourthe/Nexus-AI).
 - **User-global slash commands (v3.3.4)**: Cursor (`~/.cursor/commands/<name>.md`) and GitHub Copilot in VS Code (user-profile `prompts/<name>.prompt.md`) each expose a global command surface that every repo reads with no local install. A global install mirrors the catalog's commands there (manifest-scoped pruning removes upstream-deleted commands without touching the user's own files). Cursor additionally gets `.cursor/rules/*.mdc` + repo-root `AGENTS.md` behavioral guardrails.
-- **Project-only slash commands**: Antigravity 2.0 reads slash commands only from the open project's `.agents/workflows/`. There is no global surface, so a global-install user runs `nexus-hub init` in each repo to seed them (see the `wire_project_surfaces` row above).
+- **Antigravity 2.0 slash commands (global + project, v3.12.0)**: Antigravity reads global slash commands from `~/.gemini/config/global_workflows/` and global skills from `~/.gemini/config/skills/` (a global install populates both), AND reads project-scoped `.agents/workflows/` + `.agents/skills/` from the open repo (seeded by `nexus-hub init`; see the `wire_project_surfaces` row above). The pre-v3.12.0 claim that Antigravity had no global slash surface (and wrote to `~/.gemini/antigravity/`) was incorrect and is fixed.
 - **Behavioral-guardrails only**: OpenCode (`AGENTS.md`); Aider (project-root `CONVENTIONS.md`; no global instruction surface, so a global install is a no-op and the file installs at workspace scope); Windsurf (project-root `.windsurfrules` at workspace scope, plus a global `~/.codeium/windsurf/memories/global_rules.md` written only when Windsurf is detected); Kimi (project-local `.kimi/system.md` + `.kimi/agent.yaml` at workspace scope, mirrored under `~/.kimi/` only when Kimi is detected); Qwen (project-root `QWEN.md` at workspace scope, plus `~/.qwen/QWEN.md` only when Qwen is detected); OpenClaw (project-local `.openclaw/` SOUL + AGENTS + IDENTITY split at workspace scope, mirrored under `~/.openclaw/` only when OpenClaw is detected). These carry the Nexus-Hub instruction content with the `{{SKILL_INDEX}}` block embedded (the multi-file platforms embed it in the primary file -- Kimi `system.md`, OpenClaw `AGENTS.md` -- with the other files as stable companions); they are NOT slash-command surfaces. (Aider + Windsurf added v3.4.0 via the `aider` / `windsurf` integration subclasses; Kimi + Qwen + OpenClaw added v3.4.0 via the `kimi` / `qwen` / `openclaw` subclasses, reusing the same pattern.)
 
 > **Windsurf / Kimi roster verification (2026-07-08, dated note)**: Per [Cognition's acquisition blog](https://cognition.com/blog/windsurf) (2025-07-14), Windsurf was acquired by Cognition and preserved "as a distinct product with its own brand"; third-party outlets report a 2026-06-02 rebrand to "Devin Desktop" (no primary Cognition rebrand announcement was reachable). The `.windsurfrules` / `global_rules.md` surfaces are still served, so the `windsurf` integration is marked **deprecated (not deleted)** and stays detection-gated. Separately, Kimi CLI was rebuilt as "Kimi Code CLI" (Node.js rewrite, v0.1.0 May 2026; [migration guide](https://www.kimi.com/code/docs/en/kimi-code-cli/guides/migration.html)); the migration "never modifies or deletes any of the old data under `~/.kimi/`", so the legacy `.kimi/` layout `kimi.py` writes coexists and is still served (the `kimi` integration carries a dated migration note; a project-local convention refresh is deferred to `docs/v3/v3.11/known-gaps.md`). Evidence: [docs/v3/v3.11/development/roster-verification.md](docs/v3/v3.11/development/roster-verification.md).
