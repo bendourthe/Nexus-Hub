@@ -2,6 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: release-ready (pending `/update release` commit / merge / tag / push)
+**v3.12.1 note**: the cross-platform-install-adapters patch appends its `## v3.12.1` gaps below; the `## v3.12.0` presentify sections are retained unchanged.
 **Last updated**: 2026-07-11 (Phase 6 final reconciliation: WN-2 and MT-1 resolved this phase; DF-v39-presentify-1/-2/-3 marked resolved in the v3.9 ledger; DF-v39-presentify-4/-5 carried in as DF-4/DF-5)
 
 ## v3.12.0
@@ -85,3 +86,45 @@
 ### Resolved from prior versions
 
 - **DF-v39-presentify-1** (scanned-PDF OCR), **DF-v39-presentify-2** (PDF image extraction), and **DF-v39-presentify-3** (native chart objects) are RESOLVED by this version's Phases 1-5; the v3.9 ledger rows are annotated with pointers back here.
+
+## v3.12.1
+
+Cross-platform install adapters + per-release format verification (the cross-platform-install-adapters patch). Fixes that Nexus-Hub skills/commands were not discoverable in the new ChatGPT desktop app (Codex) or the Antigravity IDE, and adds a three-layer verification gate. Plan: `docs/v3/v3.12/plans/v3.12.1-cross-platform-install-adapters.md`.
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| NI | 0 | 0 |
+| DF | 6 | 0 |
+| BG | 0 | 0 |
+| MT | 0 | 0 |
+| WN | 1 | 0 |
+| QG | 0 | 0 |
+
+### Open Items (Deferred)
+
+| ID | Source | Reason | Severity |
+|---|---|---|---|
+| DF-v3121-codex-skills-alias | Phase 2 (Codex) | The new ChatGPT desktop app reads skills, but docs do not state whether it prefers `~/.codex/skills` or the cross-tool `~/.agents/skills`; we write BOTH (additive), so discovery works either way. Confirm the canonical root on a live desktop-app install. | Low |
+| DF-v3121-agy-cli-workflows | Phase 3 (Antigravity) | The `agy` CLI global SKILLS path is confirmed (`~/.gemini/antigravity-cli/skills/`); the CLI global WORKFLOW dir is undocumented and written best-effort. IDE global slash works via `~/.gemini/config/global_workflows/`. | Low |
+| DF-v3121-antigravity-global-hooks | Phase 3 (Antigravity) | Global hooks path not documented by the codelabs; hooks + hooks.json are written under each surface root best-effort (the hook scripts are fail-open). | Low |
+| DF-v3121-opencode-global-dir | Phase 4 (sweep) | OpenCode docs cite `~/.config/opencode/skills` as the canonical global dir; we flatten to `~/.opencode/skills`. Mitigated: OpenCode also reads `~/.claude/skills` + `~/.agents/skills`, both flattened on a full install. | Low |
+| DF-v3121-gemini-ide-skill-dir | Phase 4 (sweep) | `~/.gemini/skills` flattening is confirmed for Gemini CLI; the Gemini IDE (Code Assist) skill dir is applied on weight-of-evidence. The SKILL_INDEX in GEMINI.md covers Code Assist regardless. | Low |
+| DF-v3121-antigravity-project-instruction | Phase 3 (carried from v3.11 C4) | Project instruction is written to `.agents/AGENTS.md`; the platform may also read a project-root `AGENTS.md`. The global `~/.gemini/GEMINI.md` + project `.agents/` surfaces carry the instruction. | Low |
+
+### Warnings
+
+| ID | Source | Reason | Severity |
+|---|---|---|---|
+| WN-v3121-skill-description-length | Phase 5 (new skill) | `validate_skills.py` full mode flags `platform-contract-verification`'s frontmatter `description` as >250 chars (683) - the catalog-wide pushy-description vs 250-char tension (164 skills already carry it; full mode is not part of `make validate`, which is clean). | Low |
+
+### Notes
+
+- Each DF item maps 1:1 to a "Residual live-verification gaps" entry in [docs/policy/platform-read-contracts.md](../../policy/platform-read-contracts.md); the `/update release` `platform-contract-verification` step closes them over successive releases as live confirmation arrives.
+- Native skill injection is intended, not a gap: the flattened platforms expose ~284 native skills (265 catalog + 19 command-skills) alongside the `{{SKILL_INDEX}}` in each instruction file - a user-approved decision.
+- The `~/.agents/skills` shared location (written by Codex, read by OpenCode and Gemini CLI) mitigates DF-v3121-opencode-global-dir.
+
+### Resolved
+
+_None resolved in v3.12.1 yet._
