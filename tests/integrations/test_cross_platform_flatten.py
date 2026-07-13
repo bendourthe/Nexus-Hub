@@ -21,7 +21,8 @@ _FLATTENED = [
     ("gemini", ".gemini/skills"),
     ("gemini-cli", ".gemini/skills"),
     ("opencode", ".opencode/skills"),
-    ("nexus-ai", ".nexus-ai/skills"),
+    # nexus-ai isolates the catalog under a catalog/ subtree (v3.11.4).
+    ("nexus-ai", ".nexus-ai/catalog/skills"),
 ]
 
 

@@ -1,7 +1,7 @@
-# Session History - v3.12.0 Phase 6: Refactor, known-gaps, CI/CD, release readiness
+# Session History - v3.12.1 Phase 6: Refactor, known-gaps, CI/CD, release readiness
 
 **Date**: 2026-07-13
-**Plan**: `docs/v3/v3.12/plans/v3.12.0-cross-platform-install-adapters.md`
+**Plan**: `docs/v3/v3.12/plans/v3.12.1-cross-platform-install-adapters.md`
 **Phase**: 6 of 6 (terminal) - Architecture refactor, known-gaps reconciliation, CI/CD, and release readiness
 **Status**: Complete (stability gate PASS); release handoff pending user confirmation
 

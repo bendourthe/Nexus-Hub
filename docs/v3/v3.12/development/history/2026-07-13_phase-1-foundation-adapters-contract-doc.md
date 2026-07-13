@@ -1,7 +1,7 @@
-# Session History - v3.12.0 Phase 1: Foundation (living contract doc + shared adapters)
+# Session History - v3.12.1 Phase 1: Foundation (living contract doc + shared adapters)
 
 **Date**: 2026-07-13
-**Plan**: `docs/v3/v3.12/plans/v3.12.0-cross-platform-install-adapters.md`
+**Plan**: `docs/v3/v3.12/plans/v3.12.1-cross-platform-install-adapters.md`
 **Phase**: 1 of 6 - Foundation: living contract doc + shared adapters
 **Status**: Complete (stability gate PASS)
 

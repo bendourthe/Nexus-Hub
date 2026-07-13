@@ -39,7 +39,7 @@ Formats: skills = folder-per-skill `SKILL.md`. "flattened" means one level deep 
 | Kimi (`kimi`) | workspace | `<project>/.kimi/system.md` + `.kimi/agent.yaml` | none | none | none | none | none |
 | Qwen (`qwen`) | workspace | `<project>/QWEN.md` (root) | none | none | none | none | none |
 | OpenClaw (`openclaw`) | workspace | `<project>/.openclaw/AGENTS.md` + SOUL/IDENTITY | none | none | none | none | none |
-| Nexus-AI (`nexus-ai`) | global | `~/.nexus-ai/NEXUS_AI.md` (dedicated) | `~/.nexus-ai/commands/` | flattened `~/.nexus-ai/skills/<name>/` (+ command-skills) | `~/.nexus-ai/agents/` | `~/.nexus-ai/rules/` | `~/.nexus-ai/hooks/` |
+| Nexus-AI (`nexus-ai`) | global | `~/.nexus-ai/catalog/NEXUS_AI.md` (dedicated) | `~/.nexus-ai/catalog/commands/` | flattened `~/.nexus-ai/catalog/skills/<name>/` (+ command-skills) | `~/.nexus-ai/catalog/agents/` | `~/.nexus-ai/catalog/rules/` | `~/.nexus-ai/catalog/hooks/` |
 
 ## Sources (corrected rows, verified 2026-07-13)
 

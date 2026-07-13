@@ -62,7 +62,7 @@ EXPECTATIONS: dict[str, dict] = {
     "gemini": {"config": {"global_dir": "~/.gemini"}, "flatten": "flag", "doc_mentions": ["~/.gemini/skills"]},
     "gemini-cli": {"config": {"global_dir": "~/.gemini"}, "flatten": "flag", "doc_mentions": ["~/.gemini/skills"]},
     "opencode": {"config": {"global_dir": "~/.opencode"}, "flatten": "flag", "doc_mentions": ["~/.opencode/skills"]},
-    "nexus-ai": {"config": {"global_dir": "~/.nexus-ai"}, "flatten": "flag", "doc_mentions": ["~/.nexus-ai/skills"]},
+    "nexus-ai": {"config": {"global_dir": "~/.nexus-ai/catalog"}, "flatten": "flag", "doc_mentions": ["~/.nexus-ai/catalog/skills"]},
 }
 
 

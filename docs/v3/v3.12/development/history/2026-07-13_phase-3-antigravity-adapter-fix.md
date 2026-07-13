@@ -1,7 +1,7 @@
-# Session History - v3.12.0 Phase 3: Antigravity adapter fix
+# Session History - v3.12.1 Phase 3: Antigravity adapter fix
 
 **Date**: 2026-07-13
-**Plan**: `docs/v3/v3.12/plans/v3.12.0-cross-platform-install-adapters.md`
+**Plan**: `docs/v3/v3.12/plans/v3.12.1-cross-platform-install-adapters.md`
 **Phase**: 3 of 6 - Antigravity adapter fix
 **Status**: Complete (stability gate PASS)
 

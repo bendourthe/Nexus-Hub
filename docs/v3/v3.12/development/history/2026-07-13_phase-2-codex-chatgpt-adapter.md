@@ -1,7 +1,7 @@
-# Session History - v3.12.0 Phase 2: Codex / ChatGPT desktop adapter
+# Session History - v3.12.1 Phase 2: Codex / ChatGPT desktop adapter
 
 **Date**: 2026-07-13
-**Plan**: `docs/v3/v3.12/plans/v3.12.0-cross-platform-install-adapters.md`
+**Plan**: `docs/v3/v3.12/plans/v3.12.1-cross-platform-install-adapters.md`
 **Phase**: 2 of 6 - Codex / ChatGPT desktop adapter
 **Status**: Complete (stability gate PASS)
 

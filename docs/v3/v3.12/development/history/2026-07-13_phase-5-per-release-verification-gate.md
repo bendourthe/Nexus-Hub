@@ -1,7 +1,7 @@
-# Session History - v3.12.0 Phase 5: Per-release verification gate
+# Session History - v3.12.1 Phase 5: Per-release verification gate
 
 **Date**: 2026-07-13
-**Plan**: `docs/v3/v3.12/plans/v3.12.0-cross-platform-install-adapters.md`
+**Plan**: `docs/v3/v3.12/plans/v3.12.1-cross-platform-install-adapters.md`
 **Phase**: 5 of 6 - Per-release verification gate
 **Status**: Complete (stability gate PASS)
 
