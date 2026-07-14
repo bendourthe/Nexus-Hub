@@ -30,6 +30,19 @@ Implementation approach (no library): render to a `<canvas>` (or an inline SVG y
 
 If the source has figures, tables, or images, they appear in the site: images inline as base64; numeric data as the interactive charts above; large tables as sortable / filterable tables where that helps the reader.
 
+### Prominence preservation
+
+Respect the source's visual hierarchy. A visual the author made dominant stays dominant in the site; do not flatten a hero image into a uniform thumbnail grid. Each `image` block carries prominence signals from the extractor: `page_fraction` (0..1, the share of the source page / slide it occupied) and native `width` / `height` (see `references/content-model.md`).
+
+- **Rank each section's visuals** by `page_fraction`, falling back to relative `width * height`, then to whether the image is the sole / primary visual of its section.
+- **Heroes render as heroes.** A visual that dominates its source - roughly `page_fraction >= 0.5`, OR the single primary visual of a section, OR (when `page_fraction` is absent) markedly larger than its siblings - gets a prominent treatment: its own full-width band or a wide column, sized to be seen, not shrunk into a row of equal thumbnails.
+- **Group only genuinely-secondary visuals.** Several small images of comparable, low `page_fraction` (logos, a strip of thumbnails, incidental screenshots) may become a gallery / grid - but size the grid so each image is legible, never a postage stamp.
+- **Never flatten a hero.** A single dominant image must not be demoted to thumbnail size beside unrelated cards; that width mismatch is the exact fidelity loss this rule prevents.
+- **Native resolution end to end.** Render from the native-resolution asset, and in any lightbox / zoom show that SAME full-resolution `data_uri` - never an upscaled thumbnail. This reinforces the figure-reconstruction lightbox rule; build the viewer once.
+- **When the signals are absent** (`page_fraction` null and no `width` / `height`, e.g. a standalone image or a DOCX inline image), fall back to the image's role in its section: a section's only image is its hero; a run of comparable images is a gallery.
+
+The failure mode to avoid is the "contact sheet": taking a slide that was dominated by two or three large photos and rendering it as a dense, uniform grid of small tiles. Preserve the source's emphasis and enhance it with the lightbox and motion; do not erase it.
+
 ### Site-wide interaction layer
 
 Charts are not the only carrier of dynamism - a source with zero chartable data must STILL produce a page that responds to the reader. This layer is the interactivity vocabulary for everything that is not a chart. All patterns are inlined vanilla JS/CSS (no library, no CDN), keyboard-accessible, and guarded by `prefers-reduced-motion`.

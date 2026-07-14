@@ -209,6 +209,26 @@ def _sniff_image_type(blob: bytes) -> str:
     return "image/png"
 
 
+def _image_dimensions(blob: bytes) -> tuple:
+    """Native (width, height) in pixels via Pillow, or (None, None) when the
+    library is absent or the bytes will not decode (e.g. SVG).
+
+    Computed from the ORIGINAL blob so the signal reflects the source's native
+    resolution even when the stored image is later downscaled for the budget.
+    """
+    try:
+        from PIL import Image
+    except ImportError:
+        return (None, None)
+    import io
+
+    try:
+        with Image.open(io.BytesIO(blob)) as image:
+            return (int(image.width), int(image.height))
+    except (OSError, ValueError):
+        return (None, None)
+
+
 def _try_downscale(blob: bytes, max_bytes: int) -> bytes | None:
     """Best-effort downscale of an over-budget image via Pillow (optional).
 
@@ -269,9 +289,16 @@ def _image_block(
     origin: str,
     page: int | None = None,
     caption: str | None = None,
+    page_fraction: float | None = None,
 ) -> dict | None:
-    """Coverage-counted image block with the schema-v2 metadata fields."""
+    """Coverage-counted image block with the schema-v2/v3 metadata fields.
+
+    `page_fraction` (0..1) is the share of the source page/slide AREA the image
+    occupies, when the caller can compute it; `width`/`height` are the native
+    pixel dimensions. Both are prominence signals for the authoring stage.
+    """
     cov["images_found"] += 1
+    width, height = _image_dimensions(blob)
     block = _encode_image(blob, content_type, alt, max_bytes)
     if block is None:
         cov["images_skipped"] += 1
@@ -283,6 +310,11 @@ def _image_block(
         block["page"] = page
     if caption:
         block["caption"] = caption
+    if width is not None and height is not None:
+        block["width"] = width
+        block["height"] = height
+    if page_fraction is not None:
+        block["page_fraction"] = round(max(0.0, min(1.0, float(page_fraction))), 3)
     cov["images_kept"] += 1
     return block
 
@@ -435,13 +467,19 @@ def _pptx_table_block(table: object) -> dict | None:
 
 
 def _pptx_image_block(
-    shape: object, max_bytes: int, cov: dict, slide_no: int
+    shape: object, max_bytes: int, cov: dict, slide_no: int, slide_area: float
 ) -> dict | None:
     try:
         image = shape.image
     except (AttributeError, ValueError):
         return None
     alt = (getattr(shape, "name", "") or "Image").strip() or "Image"
+    page_fraction = None
+    try:
+        if slide_area and shape.width and shape.height:
+            page_fraction = (float(shape.width) * float(shape.height)) / slide_area
+    except (AttributeError, TypeError, ValueError):
+        page_fraction = None
     return _image_block(
         image.blob,
         image.content_type,
@@ -450,6 +488,7 @@ def _pptx_image_block(
         cov,
         origin="shape-picture",
         page=slide_no,
+        page_fraction=page_fraction,
     )
 
 
@@ -523,6 +562,9 @@ def _extract_pptx(path: str, max_bytes: int, cov: dict) -> tuple[str, list]:
         _missing("python-pptx")
 
     presentation = Presentation(path)
+    slide_area = float(presentation.slide_width or 0) * float(
+        presentation.slide_height or 0
+    )
     doc_title: str | None = None
     sections: list = []
     for index, slide in enumerate(presentation.slides):
@@ -553,7 +595,7 @@ def _extract_pptx(path: str, max_bytes: int, cov: dict) -> tuple[str, list]:
             elif getattr(shape, "has_chart", False):
                 block = _pptx_chart_block(shape, cov, slide_no)
             elif shape.shape_type == MSO_SHAPE_TYPE.PICTURE:
-                block = _pptx_image_block(shape, max_bytes, cov, slide_no)
+                block = _pptx_image_block(shape, max_bytes, cov, slide_no, slide_area)
             elif getattr(shape, "has_text_frame", False):
                 block = _pptx_text_block(shape.text_frame)
             if block is not None:
@@ -1565,6 +1607,7 @@ def _extract_pdf(path: str, max_bytes: int, cov: dict) -> tuple[str, list]:
 
             heading = _pdf_heading(page)
             section = _pdf_page_section(text, page_no, heading_override=heading)
+            page_area = float(page.width) * float(page.height) or 1.0
 
             table_bboxes: list = []
             try:
@@ -1604,6 +1647,11 @@ def _extract_pdf(path: str, max_bytes: int, cov: dict) -> tuple[str, list]:
                     )
                 bbox = bboxes_by_order[raster_index] if bboxes_by_order else None
                 caption = _match_caption(bbox, text_lines) if bbox else None
+                frac = (
+                    (bbox[2] - bbox[0]) * (bbox[3] - bbox[1]) / page_area
+                    if bbox
+                    else None
+                )
                 block = _image_block(
                     entry["blob"],
                     _sniff_image_type(entry["blob"]),
@@ -1613,6 +1661,7 @@ def _extract_pdf(path: str, max_bytes: int, cov: dict) -> tuple[str, list]:
                     origin="embedded-raster",
                     page=page_no,
                     caption=caption,
+                    page_fraction=frac,
                 )
                 if block is not None:
                     visuals.append((bbox[1] if bbox else 1e9, block))
@@ -1629,6 +1678,7 @@ def _extract_pdf(path: str, max_bytes: int, cov: dict) -> tuple[str, list]:
                         cov["vector_regions_skipped"] += 1
                         continue
                     caption = _match_caption(bbox, text_lines)
+                    frac = (bbox[2] - bbox[0]) * (bbox[3] - bbox[1]) / page_area
                     block = _image_block(
                         png,
                         "image/png",
@@ -1638,6 +1688,7 @@ def _extract_pdf(path: str, max_bytes: int, cov: dict) -> tuple[str, list]:
                         origin="rasterized-region",
                         page=page_no,
                         caption=caption,
+                        page_fraction=frac,
                     )
                     if block is not None:
                         cov["vector_regions_rasterized"] += 1
