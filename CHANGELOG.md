@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+**presentify universal ingestion + prominence + output-aspect (v3.13.0, in progress).** Extends `/presentify` + `document-to-interactive-html` beyond the four document formats: it now ingests source code and config, Markdown / plain text, CSV / TSV, and standalone images, and can take a whole directory or repository (walked recursively) as input; it preserves each source visual's prominence; and it lets the caller choose the output aspect. Builds on the released v3.12.0 fidelity work without changing it. Catalog totals unchanged (no new skill or command).
+
+### Added
+
+- **Universal ingestion** (`catalog/skills/specialized-domains/document-to-interactive-html/scripts/extract_content.py`): new extractors for source code / config (extension -> language, truncation at `--max-text-bytes`), Markdown / plain text (an intentionally-minimal in-house parser), CSV / TSV (delimiter sniff + the Excel grid-to-block logic), and standalone images; a recursive directory / repository walk with ignore rules (VCS / dependency / build dirs, lockfiles), a best-effort `.gitignore` matcher, a binary sniff, and `--max-files` / `--max-text-bytes` caps; repository assembly emits a synthesized `overview` section, a `tree`, README-first ordering, and code grouped by top-level directory. New CLI flags `--max-text-bytes` and `--max-files`.
+- **Image prominence signals**: `image` blocks now carry native `width` / `height` and `page_fraction` (from PDF bbox and PPTX shape-vs-slide geometry), and a "Prominence preservation" authoring rule keeps a dominant source visual a hero at native resolution instead of flattening it into a uniform thumbnail grid.
+- **Output-aspect control**: a `--layout` flag (and a post-style menu) choosing full-width (16:9), standard webpage, portrait, or a custom canvas, with a content-aware non-interactive fallback; plus a spacing / vertical-density rule that avoids dead half-empty screens.
+- Content-model additive v3 fields (`schema_version` stays 2): code `path` / `truncated`, the `standalone-image` origin, the `code` / `markdown` / `text` / `csv` source formats, a top-level `tree`, `coverage.walk`, the `overview` section kind, and image `width` / `height` / `page_fraction`.
+
+### Changed
+
+- `catalog/commands/presentify.md` and the `document-to-interactive-html` SKILL.md frontmatter broadened to cover the new inputs, directory / repository ingestion, the `project` mode, and `--layout`; `data/skills.json` + `data/SKILL_INDEX.md` synced.
+- All changes stay local-only (standard-library-first parsing; existing lazy-imports degrade gracefully), zero external requests, and installer-neutral (skill bundle + one command). No new outbound call, dependency, or credential.
+
+---
+
 ## [3.12.1] - 2026-07-13
 
 **Cross-platform install adapters + per-release format verification.** Fixes that Nexus-Hub skills and commands were not discoverable in the new ChatGPT desktop app (Chat + Work + Codex) or the Antigravity IDE, and hardens the install against future platform format drift. The canonical catalog is unchanged; each platform integration is now an adapter that materializes the catalog into that platform's native shape and location, and every command surfaces both as a slash command and as a reusable skill (`$name`). Catalog: **266 skills** (+1: `platform-contract-verification`), **16 commands**, **25 hooks**.
