@@ -18,6 +18,7 @@ on:
       - 'docs/v3/v3.12/development/fixtures/verify_phase1.py'
       - 'docs/v3/v3.12/development/fixtures/enrich_models.py'
       - 'docs/v3/v3.12/development/fixtures/verify_design_seed.py'
+      - 'docs/v3/v3.13/development/fixtures/verify_universal_ingestion.py'
       - '.github/workflows/presentify-extractor.yml'
   pull_request:
     branches: [main, develop]
@@ -27,6 +28,7 @@ on:
       - 'docs/v3/v3.12/development/fixtures/verify_phase1.py'
       - 'docs/v3/v3.12/development/fixtures/enrich_models.py'
       - 'docs/v3/v3.12/development/fixtures/verify_design_seed.py'
+      - 'docs/v3/v3.13/development/fixtures/verify_universal_ingestion.py'
       - '.github/workflows/presentify-extractor.yml'
 
 concurrency:
@@ -64,3 +66,6 @@ jobs:
 
       - name: Run the design-entropy suite (10 checks)
         run: python docs/v3/v3.12/development/fixtures/verify_design_seed.py
+
+      - name: Run the v3.13 universal-ingestion suite (28 checks)
+        run: python docs/v3/v3.13/development/fixtures/verify_universal_ingestion.py
