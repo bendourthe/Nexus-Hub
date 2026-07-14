@@ -43,6 +43,30 @@ Respect the source's visual hierarchy. A visual the author made dominant stays d
 
 The failure mode to avoid is the "contact sheet": taking a slide that was dominated by two or three large photos and rendering it as a dense, uniform grid of small tiles. Preserve the source's emphasis and enhance it with the lightbox and motion; do not erase it.
 
+### Spacing and density
+
+Complement the horizontal width discipline with vertical discipline: no dead, half-empty screens.
+
+- **Size every section to its content.** Do not stretch a section to a fixed one-screen height that leaves half a viewport empty. Section height follows content, not a slide grid.
+- **Use a consistent vertical rhythm** from the committed spacing token, not large unmotivated gaps between blocks.
+- **Compact or pair sparse sections.** A section with a single chart or a short list either gets a deliberately compact band or is paired with an adjacent related element (its caption, a stat, the source figure, a related image) rather than floating alone in whitespace.
+- **Reserve generous whitespace for intentional emphasis** (a hero, a section transition), never as the page-wide default that produces the empty look.
+
+This is the vertical partner to "use the viewport width on purpose": decide density per section, and let content, not a fixed slide frame, set the height.
+
+### Output aspect (the canvas)
+
+The output aspect is resolved right after the style direction (a named `--layout` binds and skips the menu; otherwise the aspect menu is offered; see the command and SKILL.md). It governs the page's CSS canvas and composes WITH the per-element width discipline and the design tokens - it never overrides them. Record the resolved aspect (and whether it was auto-picked) in the design-record HTML comment.
+
+Four options, mirroring the style menu:
+
+- **Full-width** - the site fills a 16:9 screen edge to edge, so opening it fullscreen occupies most of a typical widescreen display. CSS: a wide page container (`max-width: 100%` or a very large cap) with generous side gutters, full-bleed bands, and multi-column content zones; hero and section backgrounds span the viewport. Best for deck-like sources.
+- **Standard** - a typical centered webpage column (`max-width` about 72-90rem, centered, comfortable side margins). Sections stack in a readable central measure with occasional wider break-outs for charts / tables. Best for reports and repositories.
+- **Portrait** - a tall, narrow, reading- / mobile-oriented canvas (`max-width` about 40-52rem). Single-column, strong vertical rhythm, large tap targets; charts and tables scroll within their own container rather than forcing the page wide. Best for long-form reading and phone-first delivery.
+- **Other** - a caller description (equivalent to `--layout <description>`); interpret it into concrete canvas decisions and record them.
+
+**Non-interactive fallback (content-aware):** when the menu cannot be answered, pick by source - a deck-like source (a `.pptx`, or a PDF whose source entry carries `deck_like: true`) defaults to Full-width; a report, a repository, or a text-dominant source defaults to Standard. Record the chosen aspect and that it was auto-picked.
+
 ### Site-wide interaction layer
 
 Charts are not the only carrier of dynamism - a source with zero chartable data must STILL produce a page that responds to the reader. This layer is the interactivity vocabulary for everything that is not a chart. All patterns are inlined vanilla JS/CSS (no library, no CDN), keyboard-accessible, and guarded by `prefers-reduced-motion`.
