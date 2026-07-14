@@ -270,5 +270,7 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | document-to-interactive-html | specialized-domains | "Turn documents, code, data, or a whole repository into a unique interactive self-contained website" | catalog/skills/specialized-domains/document-to-interactive-html/SKILL.md |
 | egress-redaction | security | "Detect sensitive data and apply a typed block/redact/hash/pass policy before egress" | catalog/skills/security/egress-redaction/SKILL.md |
 | prompt-injection-defense | security | "Recognize and resist prompt injection and poisoned tool output with instruction-origin discipline" | catalog/skills/security/prompt-injection-defense/SKILL.md |
+| false-confidence-test-audit | tests-generation | "Audit existing tests for false confidence: tests that pass regardless of correctness" | catalog/skills/tests-generation/false-confidence-test-audit/SKILL.md |
+| commit-sweep | workflow | "Sweep recent commits for cross-commit problems a per-diff review misses" | catalog/skills/workflow/commit-sweep/SKILL.md |
 
-**Total: 265 skills across 21 categories**
+**Total: 268 skills across 21 categories**

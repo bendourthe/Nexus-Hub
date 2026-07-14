@@ -5557,6 +5557,37 @@
       }
     },
     {
+      "name": "false-confidence-test-audit",
+      "title": "false-confidence-test-audit",
+      "description": "Audit an existing test suite for FALSE-CONFIDENCE tests - tests that pass regardless of whether the code under test is correct, so a green suite hides real defects. Make sure to use this skill whenever the user says \"audit my tests\", \"are these tests actually testing anything\", \"do these tests give false confidence\", \"tautological tests\", \"the tests pass but the code is broken\", \"check test quality\", \"these tests look fake\", or otherwise suspects the safety net is hollow, even if they never say \"false confidence\". SKIP, do NOT use for, generating new tests (use unit-tests / test-cases), running a compute-heavy mutation pass to prove weakness (use mutation-testing), or measuring line coverage (use code-coverage).",
+      "long_description": "Find the tests that pass no matter what the code does. A suite can be green with high line coverage and still catch nothing because the assertions are tautological, aimed at a mock, or absent; this skill audits an existing suite for that failure and repairs it.",
+      "summary_l0": "\"Audit existing tests for false confidence: tests that pass regardless of correctness\"",
+      "overview_l1": "\"This skill audits an existing test suite for false-confidence tests - tests that stay green whether or not the code under test is correct, so a passing run gives a false sense of safety. It teaches a fast, read-the-assertions audit distinct from the compute-heavy mutation pass: enumerate the suite, identify each test's real subject and the behavior its name claims, then classify every test REAL, WEAK, or FALSE-CONFIDENCE against a concrete anti-pattern catalog (tautological assertions, asserting on a mock instead of the subject, the subject fully mocked away, no assertion at all, catch-and-pass on any exception, rubber-stamped snapshots). For each false-confidence test it proposes the corrected assertion or a real subject invocation, and optionally verifies the fix by mutating the subject and confirming the test now fails. The output is a classified report plus concrete repairs. Trigger phrases: audit my tests, false confidence, tautological tests, tests pass but code is broken, fake tests, test quality audit.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "tests-generation",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/tests-generation/false-confidence-test-audit/",
+      "file": "catalog/skills/tests-generation/false-confidence-test-audit/SKILL.md",
+      "size": {
+        "lines": 92,
+        "characters": 9979,
+        "tokens_estimate": 1590
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
       "name": "performance-testing",
       "title": "performance-testing",
       "description": "Implement load testing, stress testing, benchmarking, and performance validation. Use when validating system performance, identifying bottlenecks, establishing performance baselines, or testing under high load for Python, JavaScript, Java, C#, Go, C, or C++ applications.",
@@ -6118,6 +6149,37 @@
         "lines": 524,
         "characters": 17575,
         "tokens_estimate": 2685
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "commit-sweep",
+      "title": "commit-sweep",
+      "description": "Sweep a window of recent commits at a higher altitude than per-diff review, surfacing problems that no single commit review would catch - partial or abandoned refactors spread across commits, convention drift, accumulated TODO/FIXME debt, undocumented dependency changes, and cross-cutting inconsistencies. Make sure to use this skill whenever the user says \"sweep the recent commits\", \"review the last N commits\", \"cross-commit review\", \"what did we miss across these commits\", \"look over the recent work at a high level\", \"periodic commit audit\", or wants a periodic higher-level pass over recent history, even if they do not say \"sweep\". SKIP, do NOT use for, reviewing a single diff or PR (use /review diff), finding which commit introduced a specific bug (use git-bisect-assistant), or explaining one known regression (use regression-root-cause-analyzer).",
+      "long_description": "Review a window of recent commits from above. Per-commit and per-PR review each judge one change in isolation, blind to problems that only exist in the aggregate: an abandoned refactor, drifted conventions, TODOs left open, a dependency bumped without a lockfile or doc update. This skill sweeps the last N commits for those cross-commit problems, read-only, and turns findings into follow-ups.",
+      "summary_l0": "\"Sweep recent commits for cross-commit problems a per-diff review misses\"",
+      "overview_l1": "\"This skill sweeps a window of recent commits (default the last 10, configurable) at a higher altitude than per-diff review, surfacing problems that emerge only across commits and that no single-commit review would flag: partial or abandoned refactors, convention drift, TODO/FIXME debt introduced and never resolved, security-relevant deltas, dependency changes without lockfile or doc updates, and cross-cutting inconsistencies. It is read-only over history: read the window via git log and a range diff, cluster the changes by subsystem, evaluate each cluster for what emerged across the commits, then emit a severity-tagged findings list with commit references and offer to open follow-ups. It complements per-diff review, bisect, and regression analysis rather than replacing them. Trigger phrases: sweep recent commits, review the last N commits, cross-commit review, what did we miss across these commits, periodic commit audit, high-level review of recent work.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "workflow",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/workflow/commit-sweep/",
+      "file": "catalog/skills/workflow/commit-sweep/SKILL.md",
+      "size": {
+        "lines": 85,
+        "characters": 8735,
+        "tokens_estimate": 1371
       },
       "downloads": 0,
       "status": "production",

@@ -174,13 +174,13 @@
       "id": "tests-generation",
       "name": "Test Generation",
       "description": "Unit, integration, E2E, property-based, mutation, fuzz, and BDD test generation",
-      "skill_count": 18
+      "skill_count": 19
     },
     {
       "id": "workflow",
       "name": "Workflow",
       "description": "Git workflows, TDD, debugging, session history and session query, context-pack distillation, skill evaluation, version management, project governance and product strategy, issue tracking, agent context modes, local continuous learning, skill quality audit and generation, local PR demo capture",
-      "skill_count": 43
+      "skill_count": 44
     },
     {
       "id": "research",
