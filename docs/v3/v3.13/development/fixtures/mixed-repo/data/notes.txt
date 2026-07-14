@@ -1,0 +1,5 @@
+Release notes for the fixture.
+
+First paragraph describes the change.
+
+Second paragraph describes the follow-up.
